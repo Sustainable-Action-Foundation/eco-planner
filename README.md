@@ -1,6 +1,13 @@
 # eco-planner
 A tool intended to help planning actions to achieve local environmental goals
 
+## Copyright
+Upstream repository is located [here](https://github.com/Leon-Loov/eco-planner) and is copyright of Leon Lööv and Axel Gustav Schnürer. It is licensed under the MIT license.
+
+**This fork, on the other hand, is copyright of Sustainable Action Foundation, all rights reserved.**
+
+For the sake of simplicity, we bumped the version number to 0.7.0. All versions <0.7.0 are copyright of Leon Lööv and Axel Gustav Schnürer while the additions in versions >=0.7.0 are copyright of Sustainable Action Foundation.
+
 ## Setup
 This tool requires the following environment variables to be set:
 - `IRON_SESSION_PASSWORD`: Should be a string at least 32 characters long. This is used to encrypt the session cookie from the Iron Session library.

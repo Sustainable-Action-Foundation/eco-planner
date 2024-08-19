@@ -335,5 +335,6 @@ export const allowedDomains = [
   //Other
   "stuns.se",
   "sustainable-action.foundation",
+  "sustainable-action.org",
   "lansstyrelsen.se",
 ]
