@@ -16,13 +16,13 @@ export default async function sendVerificationEmail(email: string) {
     return Promise.reject('User not found');
   }
 
-  mailClient.sendMail({
+  await mailClient.sendMail({
     from: process.env.MAIL_USER,
     to: email,
     subject: 'Välkommen till Eco Planner',
     text: `Välkommen till Eco Planner! Vänligen följ länken för att verifiera din e-post: ${baseUrl}/verify/verify?email=${email}&hash=${userHash}`,
   }).catch((e) => {
     console.log(e);
-    return Promise.reject('Error sending verification email');
+    throw new Error('Error sending verification email');
   });
 }

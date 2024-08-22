@@ -16,13 +16,13 @@ export default async function sendResetEmail(email: string) {
     return Promise.reject('User not found');
   }
 
-  mailClient.sendMail({
+  await mailClient.sendMail({
     from: process.env.MAIL_USER,
     to: email,
     subject: 'Återställ lösenord för Eco Planner',
     text: `Hej! För att återställa ditt lösenord kan du klicka på den här länken: ${baseUrl}/password/reset?email=${email}&hash=${userHash}`,
   }).catch((e) => {
     console.log(e);
-    return Promise.reject('Error sending password reset email');
+    throw new Error('Error sending password reset email');
   });
 }
