@@ -30,6 +30,7 @@ export async function POST(request: NextRequest) {
     user = await prisma.user.findUniqueOrThrow({
       where: {
         username: username,
+        isVerified: true,
       },
       select: {
         id: true,
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (e) {
     console.log(e);
-    return Response.json({ message: 'User not found' },
+    return Response.json({ message: 'User not found or has not verified their email' },
       { status: 400 }
     );
   }

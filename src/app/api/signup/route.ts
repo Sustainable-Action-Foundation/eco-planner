@@ -1,22 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSession, options } from "@/lib/session"
+import { NextRequest } from "next/server";
 import { allowedDomains } from "@/lib/allowedDomains";
 import prisma from "@/prismaClient"
 import bcrypt from "bcrypt";
-import { cookies } from "next/headers";
 import mailClient from "@/mailClient";
+import sendVerificationEmail from "@/functions/sendVerificationEmail";
 
 export async function POST(request: NextRequest) {
-  const { username, email, password, remember }: { username: string; email: string; password: string; remember?: string; } = await request.json();
-
-  // Create session, set maxAge if user toggled remember me
-  const session = await getSession(cookies(), remember ? {
-    ...options,
-    cookieOptions: {
-      ...options.cookieOptions,
-      maxAge: 365 * 24 * 60 * 60, // Standard year in seconds
-    }
-  } : options);
+  const { username, email, password }: { username: string; email: string; password: string; } = await request.json();
 
   // Validate request body
   if (!username || !email || !password) {
@@ -53,7 +43,6 @@ export async function POST(request: NextRequest) {
   }
 
   // Check if email belongs to an allowed domain
-  // TODO: Add actual email validation by sending a verification email
   if (!allowedDomains.includes(lowercaseEmail.split('@')[1])) {
     return Response.json({ message: 'Email domain "' + lowercaseEmail.split('@')[1] + '" is not allowed' },
       { status: 400 }
@@ -64,18 +53,12 @@ export async function POST(request: NextRequest) {
   const saltRounds: number = 11;
   const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+  // If mailClient does not verify, don't try to create the user since something on the server is misconfigured. If only the sendVerificationEmail function fails, the user can try requesting a new verification email later.
   try {
-    await mailClient.verify().catch(e => {console.log("failed verify"); throw e;});
-    await mailClient.sendMail({
-      from: process.env.MAIL_USER,
-      to: lowercaseEmail,
-      subject: 'Welcome to Eco Planner',
-      text: 'Welcome to Eco Planner! Your account has been successfully created.',
-    });
-    console.log('Verification email sent to ' + lowercaseEmail);
+    await mailClient.verify().catch(e => { console.log(e); throw e; });
   } catch (e) {
     console.log(e);
-    return Response.json({ message: 'Problem sending verification email' },
+    return Response.json({ message: 'Problem connecting to email service; User not created since server is misconfigured. Please try again later' },
       { status: 500 }
     );
   }
@@ -106,41 +89,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Set user session
-  let user: { id: string; username: string; isAdmin: boolean; userGroups: { name: string; }[]; };
-  try {
-    user = await prisma.user.findUniqueOrThrow({
-      where: {
-        username: username,
-      },
-      select: {
-        id: true,
-        username: true,
-        isAdmin: true,
-        userGroups: {
-          select: {
-            name: true,
-          }
-        },
-      }
-    });
-  } catch (e) {
-    console.log(e);
-    return new NextResponse(
-      JSON.stringify({ message: 'Error while retrieving user to set user session' }),
-      { status: 500 }
-    );
-  }
-
-  session.user = {
-    id: user.id,
-    username: user.username,
-    isLoggedIn: true,
-    isAdmin: user.isAdmin,
-    userGroups: user.userGroups.map(group => group.name),
-  };
-
-  await session.save();
+  // Send verification email. This is done after creating the user to avoid sending an email if the user creation fails.
+  // If the sendMail function fails, the user is still created and can try to verify their email later.
+  await sendVerificationEmail(lowercaseEmail).catch(e => { console.log(e); console.log('Error sending verification email to ' + lowercaseEmail) });
 
   return Response.json({ message: 'User created' },
     { status: 200 }

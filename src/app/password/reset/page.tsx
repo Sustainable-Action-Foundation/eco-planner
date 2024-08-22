@@ -1,0 +1,46 @@
+'use client';
+
+import Image from "next/image";
+import { useState } from "react";
+import styles from "@/components/forms/forms.module.css";
+import resetPassword from "@/functions/resetPassword";
+
+function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
+  event.preventDefault()
+
+  const form = event.target
+  const newPassword = form.password.value
+
+  const params = new URLSearchParams(window.location.search)
+  const email = params.get('email')
+  const hash = params.get('hash')
+  resetPassword(email ?? "", newPassword ?? "", hash ?? "").then(() => {
+    alert('Lösenordet har uppdaterats, du kommer nu omdirigeras till inloggningssidan för att logga in.')
+    window.location.href = '/login'
+  }).catch((e) => {
+    alert('Kunde inte byta lösenord. Har du kanske redan bytt lösenord med den här länken?')
+  })
+}
+
+export default function Page() {
+  const [showPassword, setShowPassword] = useState(false)
+
+  return (
+    <div>
+      <p>Fyll i ditt nya lösenord nedan och klicka på knappen för att uppdatera ditt lösenord.</p>
+      <form onSubmit={handleSubmit}>
+        <label className="block margin-y-100">
+          Lösenord
+          <div className="margin-y-50 padding-50 flex align-items-center gray-90 smooth focusable">
+            <Image src="/icons/password.svg" alt="" width={24} height={24} />
+            <input className="padding-0 margin-x-50 transparent" type={showPassword ? 'text' : 'password'} placeholder="lösenord" name="password" required id="password" autoComplete="current-password" />
+            <button type="button" className={`${styles.showPasswordButton} grid padding-0 transparent`} onClick={() => setShowPassword(prevState => !prevState)}>
+              <Image src={showPassword ? '/icons/eyeDisabled.svg' : '/icons/eye.svg'} alt="" width={24} height={24} />
+            </button>
+          </div>
+        </label>
+        <button type="submit">Byt lösenord</button>
+      </form>
+    </div>
+  )
+}

@@ -74,6 +74,12 @@ export default function Login() {
         <p className="padding-y-50" style={{ borderTop: '1px solid var(--gray-90)' }}>
           <small>Har du inget konto? <Link href='/signup'>Skapa konto</Link></small>
         </p>
+        <p className="padding-y-50" style={{ borderTop: '1px solid var(--gray-90)' }}>
+          <small>Glömt lösenordet? <Link href='/password'>Klicka här</Link></small>
+        </p>
+        <p className="padding-y-50" style={{ borderTop: '1px solid var(--gray-90)' }}>
+          <small>Behöver du verifiera ditt konto? <Link href='/verify'>Gå hit</Link> och följ instruktionerna.</small>
+        </p>
       </form>
     </>
   )

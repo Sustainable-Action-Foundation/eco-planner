@@ -361,6 +361,8 @@ model User {
   password String
   // Whether or not the user is an admin
   isAdmin  Boolean @default(false) @map("is_admin")
+  // Whether or not the user has verified their email
+  isVerified Boolean @default(false) @map("is_verified")
 
   // Actions the user created
   authoredActions      Action[]      @relation("action_author")

@@ -16,14 +16,14 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     remember: (form.remember as HTMLInputElement | null)?.checked
   })
 
-  // Try to signup, redirect to the home page if successful.
+  // Try to signup, redirect to page informing user to verify email if successful.
   fetch('/api/signup', {
     method: 'POST',
     body: formJSON,
     headers: { 'Content-Type': 'application/json' },
   }).then((res) => {
     if (res.ok) {
-      window.location.href = '/'
+      window.location.href = '/verify'
     } else {
       res.json().then((data) => {
         alert(`Signup failed.\nReason: ${data.message}`)
@@ -65,11 +65,6 @@ export default function Signup() {
               <Image src={showPassword ? '/icons/eyeDisabled.svg' : '/icons/eye.svg'} alt="" width={24} height={24} />
             </button>
           </div>
-        </label>
-
-        <label className="flex align-items-center gap-50">
-          <input type="checkbox" name="remember" id="remember" />
-          Kom ihåg inlogg
         </label>
 
         <button className="block margin-y-100 font-weight-bold seagreen color-purewhite" type="submit"> Skapa Konto </button>
