@@ -6,13 +6,13 @@ import { SetStateAction } from "react";
  * Submits the data from a form to the API and handles the response
  * @param target The URL to submit the form to
  * @param body A JSON string containing the data to be submitted
- * @param method The HTTP method to use, either "POST" or "PUT"
+ * @param method The HTTP method to use; "POST", "PUT", "DELETE", or "PATCH"
  * @param loadingStateSetter A function to set the isLoading state of the form
  */
 export default function formSubmitter(
   target: string,
   body: string | null,
-  method: "POST" | "PUT" | "DELETE",
+  method: "POST" | "PUT" | "DELETE" | "PATCH",
   loadingStateSetter?: (value: SetStateAction<boolean>) => void,
 ) {
   fetch(target, {

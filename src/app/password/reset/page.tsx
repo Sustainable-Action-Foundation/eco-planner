@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import styles from "@/components/forms/forms.module.css";
-import resetPassword from "@/functions/resetPassword";
+import formSubmitter from "@/functions/formSubmitter";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
   event.preventDefault()
@@ -14,12 +14,8 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
   const params = new URLSearchParams(window.location.search)
   const email = params.get('email')
   const hash = params.get('hash')
-  resetPassword(email ?? "", newPassword ?? "", hash ?? "").then(() => {
-    alert('Lösenordet har uppdaterats, du kommer nu omdirigeras till inloggningssidan för att logga in.')
-    window.location.href = '/login'
-  }).catch((e) => {
-    alert('Kunde inte byta lösenord. Har du kanske redan bytt lösenord med den här länken?')
-  })
+
+  formSubmitter('/api/resetPassword', JSON.stringify({ email, hash, newPassword }), 'PATCH')
 }
 
 export default function Page() {
