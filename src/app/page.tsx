@@ -1,47 +1,86 @@
-import getRoadmaps from "@/fetchers/getRoadmaps";
-import { getSession } from "@/lib/session";
-import { cookies } from "next/headers";
+'use client';
+
+import { LoginData } from "@/lib/session";
+// import { cookies } from "next/headers";
 import RoadmapTable from "@/components/tables/roadmapTable";
 import AttributedImage from "@/components/generic/images/attributedImage";
-import { RoadmapType } from "@prisma/client";
 import getMetaRoadmaps from "@/fetchers/getMetaRoadmaps";
 import Image from "next/image";
-import styles from "./page.module.css" with { type: "css" };
+import { useEffect, useState } from "react";
+import clientGetUserSession from "@/lib/clientGetSession";
+import { roadmapSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
 
-export default async function Page() {
-  const [session, metaRoadmaps] = await Promise.all([
-    getSession(cookies()),
-    getMetaRoadmaps()
-  ]);
+enum SortByEnum {
+  Default = "",
+  Alpha = "ALPHA",
+  AlphaReverse = "ALPHA REVERSE",
+  GoalsFalling = "HIGH FIRST",
+  GoalsRising = "LOW FIRST",
+}
 
+export default function Page() {
+  // It's fine even if the user modifies their data here, as it will be verified on the server, and they won't have access to anything extra
+  const [user, setUser] = useState<LoginData["user"] | null>(null);
+  const [metaRoadmaps, setMetaRoadmaps] = useState<Awaited<ReturnType<typeof getMetaRoadmaps>> | null>(null);
+  const [sortBy, setSortBy] = useState<SortByEnum>(SortByEnum.Default);
+
+  useEffect(() => {
+    Promise.all([
+      clientGetUserSession(),
+      getMetaRoadmaps(),
+    ]).then(([sessionData, metaRoadmapData]) => {
+      setUser(sessionData);
+      setMetaRoadmaps(metaRoadmapData);
+    })
+    // getMetaRoadmaps().then((data) => setMetaRoadmaps(data))
+  }, []);
+
+  if (!metaRoadmaps) {
+    return (<p>Laddar data</p>);
+  }
+
+  // Get the latest version of all roadmaps
+  const roadmaps: (typeof metaRoadmaps[number] & { metaRoadmap: typeof metaRoadmaps[number] })['roadmapVersions'] = [];
+  metaRoadmaps.forEach(metaRoadmap => {
+    if (metaRoadmap.roadmapVersions.length) {
+      let foundRoadmap = metaRoadmap.roadmapVersions.find(roadmap => roadmap.version === Math.max(...metaRoadmap.roadmapVersions.map(roadmap => roadmap.version)));
+      if (foundRoadmap) {
+        foundRoadmap.metaRoadmap = metaRoadmap;
+        console.log(foundRoadmap._count.goals);
+        roadmaps.push(foundRoadmap);
+      }
+    }
+  })
+
+  switch (sortBy) {
+    case SortByEnum.Alpha:
+      roadmaps.sort(roadmapSorterAZ);
+      break;
+    case SortByEnum.AlphaReverse:
+      roadmaps.sort(roadmapSorterAZ);
+      roadmaps.reverse();
+      break;
+    case SortByEnum.GoalsFalling:
+      roadmaps.sort(roadmapSorterGoalAmount)
+      break;
+    case SortByEnum.GoalsRising:
+      roadmaps.sort(roadmapSorterGoalAmount)
+      roadmaps.reverse()
+      break;
+    case SortByEnum.Default:
+    default:
+      roadmaps.sort(roadmapSorter)
+      break;
+  }
+
+  /*
   const nationalMetaRoadmaps = metaRoadmaps.filter(metaRoadmap => metaRoadmap.type === RoadmapType.NATIONAL)
   // TODO: Use all of these, and change `regionalMetaRoadmaps` to be those with `type === RoadmapType.REGIONAL`
   const regionalMetaRoadmaps = metaRoadmaps.filter(metaRoadmap => metaRoadmap.type !== RoadmapType.NATIONAL)
   const municipalMetaRoadmaps = metaRoadmaps.filter(metaRoadmap => metaRoadmap.type === RoadmapType.MUNICIPAL)
   const localMetaRoadmaps = metaRoadmaps.filter(metaRoadmap => metaRoadmap.type === RoadmapType.LOCAL)
   const otherMetaRoadmaps = metaRoadmaps.filter(metaRoadmap => metaRoadmap.type === RoadmapType.OTHER || !Object.values(RoadmapType).includes(metaRoadmap.type))
-
-  // Latest version of every national roadmap
-  const nationalRoadmaps: typeof metaRoadmaps[number]['roadmapVersions'] = [];
-  nationalMetaRoadmaps.forEach(metaRoadmap => {
-    if (metaRoadmap.roadmapVersions.length) {
-      const foundRoadmap = metaRoadmap.roadmapVersions.find(roadmap => roadmap.version === Math.max(...metaRoadmap.roadmapVersions.map(roadmap => roadmap.version)))
-      if (foundRoadmap) {
-        nationalRoadmaps.push(foundRoadmap)
-      }
-    }
-  })
-
-  // Latest version of every non-national roadmap
-  const regionalRoadmaps: typeof metaRoadmaps[number]['roadmapVersions'] = [];
-  regionalMetaRoadmaps.forEach(metaRoadmap => {
-    if (metaRoadmap.roadmapVersions.length) {
-      const foundRoadmap = metaRoadmap.roadmapVersions.find(roadmap => roadmap.version === Math.max(...metaRoadmap.roadmapVersions.map(roadmap => roadmap.version)))
-      if (foundRoadmap) {
-        regionalRoadmaps.push(foundRoadmap)
-      }
-    }
-  })
+  */
 
   return <>
     <div className="rounded width-100 margin-y-100 position-relative overflow-hidden" style={{ height: '350px' }}>
@@ -52,7 +91,7 @@ export default async function Page() {
             <p className="margin-0">Photo by <a className="color-purewhite" href="https://unsplash.com/@markusspiske?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Markus Spiske</a> on <a className="color-purewhite" href="https://unsplash.com/photos/white-and-blue-solar-panels-pwFr_1SUXRo?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Unsplash</a></p>
           </div>
           { // Link to create roadmap form if logged in
-            session.user &&
+            user &&
             <a href="/metaRoadmap/createMetaRoadmap" className="button purewhite round block" >Skapa ny färdplan</a>
           }
         </div>
@@ -70,11 +109,12 @@ export default async function Page() {
         <div className="flex gap-100 align-items-center justify-content-space-between">
           <label className="margin-y-100 font-weight-bold">
             Sortera på:
-            <select className="font-weight-bold margin-y-50 block">
-              <option>Namn (A-Ö)</option>
-              <option>Namn (Ö-A)</option>
-              <option>Antal målbanor (stigande)</option>
-              <option>Antal målbanor (fallande)</option>
+            <select className="font-weight-bold margin-y-50 block" onChange={(e) => { setSortBy(e.target.value as SortByEnum) }}>
+              <option value="">Standard</option>
+              <option value={SortByEnum.Alpha}>Namn (A-Ö)</option>
+              <option value={SortByEnum.AlphaReverse}>Namn (Ö-A)</option>
+              <option value={SortByEnum.GoalsFalling}>Antal målbanor (fallande)</option>
+              <option value={SortByEnum.GoalsRising}>Antal målbanor (stigande)</option>
             </select>
           </label>
           <label className='flex align-items-center gap-50 padding-50 font-weight-bold button smooth transparent'>
@@ -99,8 +139,7 @@ export default async function Page() {
       </section>
     </section>
     <section>
-      <RoadmapTable user={session.user} roadmaps={nationalRoadmaps} />
-      <RoadmapTable user={session.user} roadmaps={regionalRoadmaps} />
+      <RoadmapTable user={user ?? undefined} roadmaps={roadmaps} />
     </section>
   </>
 }

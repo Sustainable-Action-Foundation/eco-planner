@@ -27,7 +27,7 @@ export function metaRoadmapSorter(a: MetaRoadmap, b: MetaRoadmap) {
 /**
  * Sorts roadmaps by type (national first), then alphabetically by name
  */
-export function roadmapSorter(a: Roadmap & { metaRoadmap: MetaRoadmap }, b: Roadmap & { metaRoadmap: MetaRoadmap }) {
+export function roadmapSorter(a: {} & { metaRoadmap: MetaRoadmap }, b: {} & { metaRoadmap: MetaRoadmap }) {
   // Higher priority roadmaps are first in the values array, so we reverse it to
   // account for the fact that indexOf() returns -1 if the element is not found, which
   // should be considered lower priority than any other index
@@ -43,6 +43,26 @@ export function roadmapSorter(a: Roadmap & { metaRoadmap: MetaRoadmap }, b: Road
     return 1;
   } else {
     return collator.compare(a.metaRoadmap.name, b.metaRoadmap.name);
+  }
+}
+
+/**
+ * Sorts roadmaps alphabetically by name, A-Z
+ */
+export function roadmapSorterAZ(a: {} & { metaRoadmap: MetaRoadmap }, b: {} & { metaRoadmap: MetaRoadmap }) {
+  return collator.compare(a.metaRoadmap.name, b.metaRoadmap.name);
+}
+
+/**
+ * Sorts roadmaps by their number of goals (more goals first), with name as a tiebreaker
+ */
+export function roadmapSorterGoalAmount(a: { _count: { goals: number } } & { metaRoadmap: MetaRoadmap }, b: { _count: { goals: number } } & { metaRoadmap: MetaRoadmap }) {
+  if (a._count.goals > b._count.goals) {
+    return -1;
+  } else if (a._count.goals < b._count.goals) {
+    return 1;
+  } else {
+    return collator.compare(a.metaRoadmap.name, b.metaRoadmap.name)
   }
 }
 
