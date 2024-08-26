@@ -3,7 +3,8 @@ import { allowedDomains } from "@/lib/allowedDomains";
 import prisma from "@/prismaClient"
 import bcrypt from "bcrypt";
 import mailClient from "@/mailClient";
-import sendVerificationEmail from "@/functions/sendVerificationEmail";
+import getUserHash from "@/functions/getUserHash";
+import { baseUrl } from "@/lib/baseUrl";
 
 export async function POST(request: NextRequest) {
   const { username, email, password }: { username: string; email: string; password: string; } = await request.json();
@@ -91,9 +92,34 @@ export async function POST(request: NextRequest) {
 
   // Send verification email. This is done after creating the user to avoid sending an email if the user creation fails.
   // If the sendMail function fails, the user is still created and can try to verify their email later.
-  await sendVerificationEmail(lowercaseEmail).catch(e => { console.log(e); console.log('Error sending verification email to ' + lowercaseEmail) });
+  try {
+    const userHash = await getUserHash(lowercaseEmail);
+    if (!userHash) {
+      throw new Error('User not found');
+    }
+
+    await mailClient.sendMail({
+      from: `Eco Planner ${process.env.MAIL_USER}`,
+      to: lowercaseEmail,
+      subject: 'Välkommen till Eco Planner',
+      text: `Välkommen till Eco Planner! Vänligen följ länken och tryck på knappen för att verifiera din e-post: ${baseUrl}/verify/verify?email=${email}&hash=${userHash}`,
+    }).catch((e) => {
+      console.log(e);
+      throw new Error('Error sending verification email');
+    });
+  } catch (e) {
+    return Response.json({ message: 'User created, but failed to send verification email' },
+      {
+        status: 200,
+        headers: { 'Location': '/verify' }
+      }
+    );
+  }
 
   return Response.json({ message: 'User created' },
-    { status: 200 }
+    {
+      status: 200,
+      headers: { 'Location': '/verify' }
+    }
   )
 }

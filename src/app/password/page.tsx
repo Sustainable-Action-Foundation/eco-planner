@@ -1,6 +1,6 @@
 'use client';
 
-import sendResetEmail from "@/functions/sendResetEmail";
+import formSubmitter from "@/functions/formSubmitter";
 import Image from "next/image";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
@@ -10,11 +10,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
   const emailAdress = form.email.value
 
   // Send a new verification email
-  sendResetEmail(emailAdress).then(() => {
-    alert('Ett mail har skickats till din emailadress')
-  }).catch((e) => {
-    alert(`Misslyckades med att skicka email. Anledning: ${e}`)
-  })
+  formSubmitter('/api/sendReset', JSON.stringify({ email: emailAdress }), 'POST')
 }
 
 export default function Page() {

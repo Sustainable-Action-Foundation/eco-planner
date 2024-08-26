@@ -1,6 +1,6 @@
 'use client';
 
-import sendVerificationEmail from "@/functions/sendVerificationEmail";
+import formSubmitter from "@/functions/formSubmitter";
 import Image from "next/image";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
@@ -10,11 +10,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
   const emailAdress = form.email.value
 
   // Send a new verification email
-  sendVerificationEmail(emailAdress).then(() => {
-    alert('Ett nytt email har skickats till din emailadress')
-  }).catch((e) => {
-    alert(`Misslyckades med att skicka email. Anledning: ${e}`)
-  })
+  formSubmitter('/api/sendVerification', JSON.stringify({ email: emailAdress }), 'POST')
 }
 
 export default function Page() {
@@ -29,7 +25,7 @@ export default function Page() {
             <input className="padding-0 margin-x-50" type="email" placeholder="email" name="email" required id="email" autoComplete="email" />
           </div>
         </label>
-        <button type="submit" >Skicka nytt email</button>
+        <button type="submit">Skicka nytt email</button>
       </form>
     </div>
   )
