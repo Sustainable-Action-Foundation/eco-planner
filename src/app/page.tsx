@@ -11,7 +11,7 @@ import clientGetUserSession from "@/lib/clientGetSession";
 import { roadmapSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
 import { RoadmapType } from "@prisma/client";
 
-enum SortByEnum {
+enum RoadmapSortBy {
   Default = "",
   Alpha = "ALPHA",
   AlphaReverse = "ALPHA REVERSE",
@@ -23,7 +23,7 @@ export default function Page() {
   // It's fine even if the user modifies their data here, as it will be verified on the server, and they won't have access to anything extra
   const [user, setUser] = useState<LoginData["user"] | null>(null);
   const [metaRoadmaps, setMetaRoadmaps] = useState<Awaited<ReturnType<typeof getMetaRoadmaps>> | null>(null);
-  const [sortBy, setSortBy] = useState<SortByEnum>(SortByEnum.Default);
+  const [sortBy, setSortBy] = useState<RoadmapSortBy>(RoadmapSortBy.Default);
   const [typeFilter, setTypeFilter] = useState<RoadmapType[]>([])
 
   useEffect(() => {
@@ -67,21 +67,21 @@ export default function Page() {
   }
 
   switch (sortBy) {
-    case SortByEnum.Alpha:
+    case RoadmapSortBy.Alpha:
       roadmaps.sort(roadmapSorterAZ);
       break;
-    case SortByEnum.AlphaReverse:
+    case RoadmapSortBy.AlphaReverse:
       roadmaps.sort(roadmapSorterAZ);
       roadmaps.reverse();
       break;
-    case SortByEnum.GoalsFalling:
+    case RoadmapSortBy.GoalsFalling:
       roadmaps.sort(roadmapSorterGoalAmount)
       break;
-    case SortByEnum.GoalsRising:
+    case RoadmapSortBy.GoalsRising:
       roadmaps.sort(roadmapSorterGoalAmount)
       roadmaps.reverse()
       break;
-    case SortByEnum.Default:
+    case RoadmapSortBy.Default:
     default:
       roadmaps.sort(roadmapSorter)
       break;
@@ -123,12 +123,12 @@ export default function Page() {
         <div className="flex gap-100 align-items-center justify-content-space-between">
           <label className="margin-y-100 font-weight-bold">
             Sortera på:
-            <select className="font-weight-bold margin-y-50 block" onChange={(e) => { setSortBy(e.target.value as SortByEnum) }}>
+            <select className="font-weight-bold margin-y-50 block" onChange={(e) => { setSortBy(e.target.value as RoadmapSortBy) }}>
               <option value="">Standard</option>
-              <option value={SortByEnum.Alpha}>Namn (A-Ö)</option>
-              <option value={SortByEnum.AlphaReverse}>Namn (Ö-A)</option>
-              <option value={SortByEnum.GoalsFalling}>Antal målbanor (fallande)</option>
-              <option value={SortByEnum.GoalsRising}>Antal målbanor (stigande)</option>
+              <option value={RoadmapSortBy.Alpha}>Namn (A-Ö)</option>
+              <option value={RoadmapSortBy.AlphaReverse}>Namn (Ö-A)</option>
+              <option value={RoadmapSortBy.GoalsFalling}>Antal målbanor (fallande)</option>
+              <option value={RoadmapSortBy.GoalsRising}>Antal målbanor (stigande)</option>
             </select>
           </label>
           <label className='flex align-items-center gap-50 padding-50 font-weight-bold button smooth transparent'>

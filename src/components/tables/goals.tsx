@@ -18,6 +18,14 @@ export enum ViewMode {
   Tree = "TREE",
 };
 
+export enum GoalSortBy {
+  Default = "",
+  Alpha = "ALPHA",
+  AlphaReverse = "ALPHA REVERSE",
+  ActionsFalling = "HIGH FIRST",
+  ActionsRising = "LOW FIRST",
+}
+
 export default function Goals({
   title,
   roadmap,
