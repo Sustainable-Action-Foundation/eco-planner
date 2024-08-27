@@ -9,6 +9,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import clientGetUserSession from "@/lib/clientGetSession";
 import { roadmapSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
+import { RoadmapType } from "@prisma/client";
 
 enum SortByEnum {
   Default = "",
@@ -23,6 +24,7 @@ export default function Page() {
   const [user, setUser] = useState<LoginData["user"] | null>(null);
   const [metaRoadmaps, setMetaRoadmaps] = useState<Awaited<ReturnType<typeof getMetaRoadmaps>> | null>(null);
   const [sortBy, setSortBy] = useState<SortByEnum>(SortByEnum.Default);
+  const [typeFilter, setTypeFilter] = useState<RoadmapType[]>([])
 
   useEffect(() => {
     Promise.all([
@@ -32,7 +34,6 @@ export default function Page() {
       setUser(sessionData);
       setMetaRoadmaps(metaRoadmapData);
     })
-    // getMetaRoadmaps().then((data) => setMetaRoadmaps(data))
   }, []);
 
   if (!metaRoadmaps) {
@@ -40,17 +41,30 @@ export default function Page() {
   }
 
   // Get the latest version of all roadmaps
-  const roadmaps: (typeof metaRoadmaps[number] & { metaRoadmap: typeof metaRoadmaps[number] })['roadmapVersions'] = [];
+  let roadmaps: (typeof metaRoadmaps[number] & { metaRoadmap: typeof metaRoadmaps[number] })['roadmapVersions'] = [];
   metaRoadmaps.forEach(metaRoadmap => {
     if (metaRoadmap.roadmapVersions.length) {
       let foundRoadmap = metaRoadmap.roadmapVersions.find(roadmap => roadmap.version === Math.max(...metaRoadmap.roadmapVersions.map(roadmap => roadmap.version)));
       if (foundRoadmap) {
         foundRoadmap.metaRoadmap = metaRoadmap;
-        console.log(foundRoadmap._count.goals);
         roadmaps.push(foundRoadmap);
       }
     }
   })
+
+  // Filter by typeFilter
+  if (typeFilter.length) {
+    roadmaps = roadmaps.filter((roadmap) => {
+      if (typeFilter.includes(roadmap.metaRoadmap.type)) {
+        return true;
+        // If the user has selected RoadmapType.OTHER, include all roadmaps with bad values (not included in RoadmapType enum) for roadmap.metaRoadmap.type too
+      } else if (typeFilter.includes(RoadmapType.OTHER) && !Object.values(RoadmapType).includes(roadmap.metaRoadmap.type)) {
+        return true;
+      } else {
+        return false;
+      }
+    })
+  }
 
   switch (sortBy) {
     case SortByEnum.Alpha:
@@ -128,14 +142,24 @@ export default function Page() {
       </section>
       <section id="roadmapFilters" className="margin-y-200 padding-100 gray-90 rounded">
         <b>Visa</b>
-        <label className="flex align-items-center gap-25 margin-y-50">
-          <input type="checkbox" />
-          Nationella färdplaner
-        </label>
-        <label className="flex align-items-center gap-25 margin-y-50">
-          <input type="checkbox" />
-          Regionala färdplaner
-        </label>
+        {Object.values(RoadmapType).map((thisType, key) => (
+          <label className="flex align-items-center gap-25 margin-y-50" key={key}>
+            <input type="checkbox" value={thisType} onChange={(e) => {
+              if (e.target.checked) {
+                setTypeFilter([...typeFilter, (e.target.value as RoadmapType)])
+              } else {
+                setTypeFilter(typeFilter.filter((item) => item != e.target.value))
+              }
+            }} />
+            {`${thisType == RoadmapType.NATIONAL ? "Nationella" :
+              thisType == RoadmapType.REGIONAL ? "Regionala" :
+                thisType == RoadmapType.MUNICIPAL ? "Kommunala" :
+                  thisType == RoadmapType.LOCAL ? "Lokala" :
+                    thisType == RoadmapType.OTHER ? "Övriga" :
+                      thisType
+              } färdplaner`}
+          </label>
+        ))}
       </section>
     </section>
     <section>

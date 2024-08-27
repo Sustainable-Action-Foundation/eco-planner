@@ -70,11 +70,11 @@ export default function RoadmapTable({
                 accessLevel={accessLevel}
                 object={roadmap}
               />
-              <span>v.{roadmap.version}</span> {/* TODO: Turn into link */}
+              <a href={`/metaRoadmap/${roadmap.metaRoadmap.id}`}>v.{roadmap.version}</a>
             </div>
           )
         })}
       </>
-      : null} {/*<p>Inga färdplaner hittades. Detta kan bero på ett problem med databasen</p>*/}
+      : <p>Inga färdplaner hittades. Om du har några filter aktiva så hittades inga färdplaner som matchar dem.</p>}
   </>
 }
