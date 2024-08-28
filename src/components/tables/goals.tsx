@@ -24,6 +24,7 @@ export enum GoalSortBy {
   AlphaReverse = "ALPHA REVERSE",
   ActionsFalling = "HIGH FIRST",
   ActionsRising = "LOW FIRST",
+  Interesting = "INTEREST",
 }
 
 export default function Goals({
@@ -44,6 +45,7 @@ export default function Goals({
   accessLevel?: AccessLevel
 }) {
   const [viewMode, setViewMode] = useState<ViewMode | "">("")
+  const [sortBy, setSortBy] = useState<GoalSortBy>(GoalSortBy.Default)
 
   useEffect(() => {
     setViewMode(getStoredViewMode(roadmap.id))
@@ -53,6 +55,16 @@ export default function Goals({
     <>
       <label htmlFor="goalTable" className={`display-flex justify-content-space-between align-items-center flex-wrap-wrap ${styles.tableNav}`}>
         <h2>{title}</h2>
+        {viewMode == ViewMode.Table && (<label className="margin-y-100 font-weight-bold">
+          Sortera utifrån:
+          <select className="font-weight-bold margin-y-50 block" onChange={(e) => { setSortBy(e.target.value as GoalSortBy) }}>
+            <option value={GoalSortBy.Default}>Standard</option>
+            <option value={GoalSortBy.Alpha}>Namn (A-Ö)</option>
+            <option value={GoalSortBy.AlphaReverse}>Namn (Ö-A)</option>
+            <option value={GoalSortBy.ActionsFalling}>Antal målbanor (fallande)</option>
+            <option value={GoalSortBy.ActionsRising}>Antal målbanor (stigande)</option>
+          </select>
+        </label>)}
         <nav className='display-flex align-items-center gap-100'>
           <TableSelector id={roadmap.id} current={viewMode} setter={setViewMode} />
           { // Only show the button if the user has edit access to the roadmap
@@ -71,7 +83,7 @@ export default function Goals({
       </div>
 
       {viewMode == ViewMode.Table && (
-        <GoalTable roadmap={roadmap} />
+        <GoalTable roadmap={roadmap} sortBy={sortBy} />
       )}
       {viewMode == ViewMode.Tree && (
         <LinkTree roadmap={roadmap} />
