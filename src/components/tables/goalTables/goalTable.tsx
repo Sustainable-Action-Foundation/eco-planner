@@ -1,7 +1,11 @@
+import { goalSorter, goalSorterActionAmount, goalSorterActionAmountReverse, goalSorterReverse } from '@/lib/sorters';
+import { GoalSortBy } from '../goals';
 import styles from '../tables.module.css' with { type: "css" };
 import { DataSeries, Goal } from "@prisma/client";
 
-interface GoalTableCommonProps { }
+interface GoalTableCommonProps {
+  sortBy?: GoalSortBy,
+}
 
 interface GoalTableWithGoals extends GoalTableCommonProps {
   goals: (Goal & {
@@ -29,6 +33,7 @@ type GoalTableProps = GoalTableWithGoals | GoalTableWithRoadmap;
 export default function GoalTable({
   goals,
   roadmap,
+  sortBy,
 }: GoalTableProps) {
   // Failsafe in case wrong props are passed
   if ((!goals && !roadmap) || (goals && roadmap)) throw new Error('GoalTable: Either `goals` XOR `roadmap` must be provided');
@@ -43,6 +48,28 @@ export default function GoalTable({
   }
 
   if (!goals?.length) return (<p>Du har inte tillgång till några målbanor i denna färdplan, eller så är färdplanen tom.</p>);
+
+  switch (sortBy) {
+    case GoalSortBy.Alpha:
+      goals.sort(goalSorter);
+      break;
+    case GoalSortBy.AlphaReverse:
+      goals.sort(goalSorterReverse);
+      break;
+    case GoalSortBy.ActionsFalling:
+      goals.sort(goalSorterActionAmount);
+      break;
+    case GoalSortBy.ActionsRising:
+      goals.sort(goalSorterActionAmountReverse);
+      break;
+    /* case GoalSortBy.Interesting:
+      goals.sort(goalSorterInterest);
+      break; */
+    case GoalSortBy.Default:
+    default:
+      goals.sort(goalSorter);
+      break;
+  }
 
   return <>
     <div className="overflow-x-scroll smooth">

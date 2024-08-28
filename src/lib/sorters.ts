@@ -27,7 +27,7 @@ export function metaRoadmapSorter(a: MetaRoadmap, b: MetaRoadmap) {
 /**
  * Sorts roadmaps by type (national first), then alphabetically by name
  */
-export function roadmapSorter(a: Roadmap & { metaRoadmap: MetaRoadmap }, b: Roadmap & { metaRoadmap: MetaRoadmap }) {
+export function roadmapSorter(a: {} & { metaRoadmap: MetaRoadmap }, b: {} & { metaRoadmap: MetaRoadmap }) {
   // Higher priority roadmaps are first in the values array, so we reverse it to
   // account for the fact that indexOf() returns -1 if the element is not found, which
   // should be considered lower priority than any other index
@@ -47,11 +47,77 @@ export function roadmapSorter(a: Roadmap & { metaRoadmap: MetaRoadmap }, b: Road
 }
 
 /**
- * Sorts goals alphabetically by name.
+ * Sorts roadmaps alphabetically by name, A-Z
+ */
+export function roadmapSorterAZ(a: {} & { metaRoadmap: MetaRoadmap }, b: {} & { metaRoadmap: MetaRoadmap }) {
+  return collator.compare(a.metaRoadmap.name, b.metaRoadmap.name);
+}
+
+/**
+ * Sorts roadmaps by their number of goals (more goals first), with name as a tiebreaker
+ */
+export function roadmapSorterGoalAmount(a: { _count: { goals: number } } & { metaRoadmap: MetaRoadmap }, b: { _count: { goals: number } } & { metaRoadmap: MetaRoadmap }) {
+  if (a._count.goals > b._count.goals) {
+    return -1;
+  } else if (a._count.goals < b._count.goals) {
+    return 1;
+  } else {
+    return collator.compare(a.metaRoadmap.name, b.metaRoadmap.name)
+  }
+}
+
+/**
+ * Sorts goals alphabetically, with those with a set name placed before those with inferred names.
  * If no name is provided, the indicator parameter is used instead.
  */
 export function goalSorter(a: Goal, b: Goal) {
-  return collator.compare(a.name || a.indicatorParameter, b.name || b.indicatorParameter);
+  if (a.name && !b.name) {
+    return -1;
+  } else if (b.name && !a.name) {
+    return 1;
+  } else {
+    return collator.compare(a.name || a.indicatorParameter, b.name || b.indicatorParameter);
+  }
+}
+
+/**
+ * Sorts goals in reverse alphabetical order, with those with a set name placed before those with inferred names.
+ * If no name is provided, the indicator parameter is used instead.
+ */
+export function goalSorterReverse(a: Goal, b: Goal) {
+  if (a.name && !b.name) {
+    return -1;
+  } else if (b.name && !a.name) {
+    return 1;
+  } else {
+    return -collator.compare(a.name || a.indicatorParameter, b.name || b.indicatorParameter);
+  }
+}
+
+/**
+ * Sorts goals by their number of actions (most actions first).
+ */
+export function goalSorterActionAmount(a: Goal & {_count: { actions: number }}, b: Goal & {_count: { actions: number }}) {
+  if (a._count.actions > b._count.actions) {
+    return -1;
+  } else if (a._count.actions < b._count.actions) {
+    return 1;
+  } else {
+    return 0
+  }
+}
+
+/**
+ * Sorts goals by their number of actions (fewest actions first).
+ */
+export function goalSorterActionAmountReverse(a: Goal & {_count: { actions: number }}, b: Goal & {_count: { actions: number }}) {
+  if (a._count.actions < b._count.actions) {
+    return -1;
+  } else if (a._count.actions > b._count.actions) {
+    return 1;
+  } else {
+    return 0
+  }
 }
 
 /**

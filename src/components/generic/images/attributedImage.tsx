@@ -13,7 +13,7 @@ export default function AttributedImage({
 }) {
   return (
     <>
-      <Image src={src} alt={alt} fill={true} className={styles.attributedImage} />
+      <Image src={src} alt={alt} fill={true} className={styles.attributedImage} priority={true} />
       <div className={styles.attribution}>
         {children}
       </div>
