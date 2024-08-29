@@ -1,5 +1,5 @@
 import { getLocalStorage, getSessionStorage, setLocalStorage, setSessionStorage } from "@/functions/localStorage";
-import { ViewMode } from "../goals";
+import { GoalSortBy, ViewMode } from "../goals";
 
 /** Retrieves the view mode for a roadmap from storage. */
 export function getStoredViewMode(id?: string) {
@@ -27,4 +27,21 @@ export function setStoredViewMode(viewMode: string, id?: string) {
     setSessionStorage(id + "_viewMode", viewMode)
   };
   setLocalStorage("viewMode", viewMode);
+}
+
+export function getStoredGoalSortBy() {
+  let sortBy: GoalSortBy | undefined | null;
+  // Check if the user has any stored latest goal sort
+  sortBy = getLocalStorage("goalSortBy");
+  // Use default sorting if no saved sort is found
+  if (!Object.values(GoalSortBy).includes(sortBy as any) || !sortBy) {
+    !!sortBy && console.log("Invalid sorting method in storage, using default sorting method");
+    setLocalStorage("goalSortBy", GoalSortBy.Default);
+    sortBy = GoalSortBy.Default;
+  }
+  return sortBy;
+}
+
+export function setStoredGoalSortBy(sortBy: GoalSortBy) {
+  setLocalStorage("goalSortBy", sortBy);
 }

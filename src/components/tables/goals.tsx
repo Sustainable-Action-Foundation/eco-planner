@@ -6,7 +6,7 @@ import GoalTable from "./goalTables/goalTable"
 import TableSelector from './tableSelector/tableSelector'
 import LinkTree from './goalTables/linkTree'
 import { useEffect, useState } from "react"
-import { getStoredViewMode } from "./functions/tableFunctions"
+import { getStoredGoalSortBy, getStoredViewMode, setStoredGoalSortBy } from "./functions/tableFunctions"
 import Link from "next/link"
 import Image from "next/image"
 import styles from './tables.module.css'
@@ -44,11 +44,12 @@ export default function Goals({
   },
   accessLevel?: AccessLevel
 }) {
-  const [viewMode, setViewMode] = useState<ViewMode | "">("")
-  const [sortBy, setSortBy] = useState<GoalSortBy>(GoalSortBy.Default)
+  const [viewMode, setViewMode] = useState<ViewMode | "">("");
+  const [sortBy, setSortBy] = useState<GoalSortBy>(GoalSortBy.Default);
 
   useEffect(() => {
-    setViewMode(getStoredViewMode(roadmap.id))
+    setViewMode(getStoredViewMode(roadmap.id));
+    setSortBy(getStoredGoalSortBy());
   }, [roadmap.id]);
 
   return (
@@ -57,12 +58,13 @@ export default function Goals({
         <h2>{title}</h2>
         {viewMode == ViewMode.Table && (<label className="margin-y-100 font-weight-bold">
           Sortera utifrån:
-          <select className="font-weight-bold margin-y-50 block" onChange={(e) => { setSortBy(e.target.value as GoalSortBy) }}>
+          <select className="font-weight-bold margin-y-50 block" onChange={(e) => { setSortBy(e.target.value as GoalSortBy); setStoredGoalSortBy(e.target.value as GoalSortBy) }} defaultValue={sortBy}>
             <option value={GoalSortBy.Default}>Standard</option>
             <option value={GoalSortBy.Alpha}>Namn (A-Ö)</option>
             <option value={GoalSortBy.AlphaReverse}>Namn (Ö-A)</option>
             <option value={GoalSortBy.ActionsFalling}>Antal målbanor (fallande)</option>
             <option value={GoalSortBy.ActionsRising}>Antal målbanor (stigande)</option>
+            <option value={GoalSortBy.Interesting}>Intresse</option>
           </select>
         </label>)}
         <nav className='display-flex align-items-center gap-100'>

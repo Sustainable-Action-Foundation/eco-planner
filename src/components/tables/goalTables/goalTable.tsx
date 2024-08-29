@@ -1,4 +1,4 @@
-import { goalSorter, goalSorterActionAmount, goalSorterActionAmountReverse, goalSorterReverse } from '@/lib/sorters';
+import { goalSorter, goalSorterActionAmount, goalSorterActionAmountReverse, goalSorterInterest, goalSorterReverse } from '@/lib/sorters';
 import { GoalSortBy } from '../goals';
 import styles from '../tables.module.css' with { type: "css" };
 import { DataSeries, Goal } from "@prisma/client";
@@ -62,9 +62,9 @@ export default function GoalTable({
     case GoalSortBy.ActionsRising:
       goals.sort(goalSorterActionAmountReverse);
       break;
-    /* case GoalSortBy.Interesting:
+    case GoalSortBy.Interesting:
       goals.sort(goalSorterInterest);
-      break; */
+      break;
     case GoalSortBy.Default:
     default:
       goals.sort(goalSorter);

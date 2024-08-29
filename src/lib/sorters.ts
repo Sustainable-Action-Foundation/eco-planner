@@ -1,4 +1,5 @@
-import { Action, Comment, Goal, MetaRoadmap, Roadmap, RoadmapType } from "@prisma/client";
+import dataSeriesInterest from "@/functions/weightedAverageDelta";
+import { Action, Comment, DataSeries, Goal, MetaRoadmap, Roadmap, RoadmapType } from "@prisma/client";
 
 // Used for alphabetical sorting, we use Swedish locale and ignore case, but it can be changed here
 const collator = new Intl.Collator('sv', { numeric: true, sensitivity: 'accent', caseFirst: 'upper' });
@@ -97,7 +98,7 @@ export function goalSorterReverse(a: Goal, b: Goal) {
 /**
  * Sorts goals by their number of actions (most actions first).
  */
-export function goalSorterActionAmount(a: Goal & {_count: { actions: number }}, b: Goal & {_count: { actions: number }}) {
+export function goalSorterActionAmount(a: Goal & { _count: { actions: number } }, b: Goal & { _count: { actions: number } }) {
   if (a._count.actions > b._count.actions) {
     return -1;
   } else if (a._count.actions < b._count.actions) {
@@ -110,13 +111,29 @@ export function goalSorterActionAmount(a: Goal & {_count: { actions: number }}, 
 /**
  * Sorts goals by their number of actions (fewest actions first).
  */
-export function goalSorterActionAmountReverse(a: Goal & {_count: { actions: number }}, b: Goal & {_count: { actions: number }}) {
+export function goalSorterActionAmountReverse(a: Goal & { _count: { actions: number } }, b: Goal & { _count: { actions: number } }) {
   if (a._count.actions < b._count.actions) {
     return -1;
   } else if (a._count.actions > b._count.actions) {
     return 1;
   } else {
     return 0
+  }
+}
+
+/**
+ * Sorts goals by how "interesting" their data series are
+ */
+export function goalSorterInterest(a: Goal & { dataSeries: DataSeries | null }, b: Goal & { dataSeries: DataSeries | null }) {
+  if (a.dataSeries == null && b.dataSeries == null) {
+    return 0;
+  } else if (a.dataSeries != null && b.dataSeries == null) {
+    return -1;
+  } else if (a.dataSeries == null && b.dataSeries != null) {
+    return 1;
+  } else {
+    // Higher interest gets sorted first
+    return (dataSeriesInterest(b.dataSeries!) - dataSeriesInterest(a.dataSeries!))
   }
 }
 
