@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, useSearchParams } from "next/navigation";
 import getOneRoadmap from "@/fetchers/getOneRoadmap";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/session";
@@ -23,12 +23,14 @@ import filterTableContentKeys from "@/lib/pxWeb/filterTableContentKeys";
 import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import QueryBuilder from "@/components/forms/pxWeb/queryBuilder";
 import GraphCookie from "@/components/cookies/graphCookie";
+import SecondaryGoalSelector from "@/components/graphs/secondaryGraphSelector";
 
-export default async function Page({ params }: { params: { roadmapId: string, goalId: string } }) {
-  const [session, roadmap, goal] = await Promise.all([
+export default async function Page({ params, searchParams }: { params: { roadmapId: string, goalId: string }, searchParams: { [key: string]: string | string[] | undefined } }) {
+  const [session, roadmap, goal, secondaryGoal] = await Promise.all([
     getSession(cookies()),
     getOneRoadmap(params.roadmapId),
-    getOneGoal(params.goalId)
+    getOneGoal(params.goalId),
+    typeof searchParams["secondaryGoal"] == "string" ? getOneGoal(searchParams["secondaryGoal"]) : Promise.resolve(null)
   ]);
 
   let accessLevel: AccessLevel = AccessLevel.None;
@@ -136,10 +138,12 @@ export default async function Page({ params }: { params: { roadmapId: string, go
       */ }
 
       <GraphCookie />
+      {secondaryGoal && <p>Jämför med målbanan {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
       <section className={styles.graphLayout}>
-        <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} />
+        <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} />
         <CombinedGraph roadmap={roadmap} goal={goal} />
       </section>
+      <SecondaryGoalSelector />
 
       <section>
 

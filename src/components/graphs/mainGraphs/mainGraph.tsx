@@ -7,10 +7,12 @@ import { parsePeriod } from "@/lib/pxWeb/utility";
 
 export default function MainGraph({
   goal,
+  secondaryGoal,
   nationalGoal,
   historicalData,
 }: {
   goal: Goal & { dataSeries: DataSeries | null },
+  secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
   nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
   historicalData?: PxWebApiV2TableContent | null,
 }) {
@@ -60,6 +62,31 @@ export default function MainGraph({
       data: mainSeries,
       type: 'line',
     })
+  }
+
+  if (secondaryGoal?.dataSeries) {
+    const secondarySeries = []
+    for (const i of dataSeriesDataFieldNames) {
+      if (secondaryGoal.dataSeries[i as keyof DataSeriesDataFields]) {
+        secondarySeries.push({
+          x: new Date(i.replace('val', '')).getTime(),
+          y: secondaryGoal.dataSeries[i as keyof DataSeriesDataFields]
+        })
+      }
+    }
+    mainChart.push({
+      name: secondaryGoal.name || secondaryGoal.indicatorParameter,
+      data: secondarySeries,
+      type: 'line',
+    });
+    // Place secondary and main series on same scale if they share unit
+    if (secondaryGoal.dataSeries.unit != goal.dataSeries.unit) {
+      (mainChartOptions.yaxis as ApexYAxis[]).push({
+        title: { text: `Sekundär målbana (${secondaryGoal.dataSeries.unit})` },
+        labels: { formatter: floatSmoother },
+        opposite: true,
+      });
+    }
   }
 
   if (nationalGoal?.dataSeries) {
