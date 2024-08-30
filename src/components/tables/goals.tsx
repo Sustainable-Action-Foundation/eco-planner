@@ -62,8 +62,8 @@ export default function Goals({
             <option value={GoalSortBy.Default}>Standard</option>
             <option value={GoalSortBy.Alpha}>Namn (A-Ö)</option>
             <option value={GoalSortBy.AlphaReverse}>Namn (Ö-A)</option>
-            <option value={GoalSortBy.ActionsFalling}>Antal målbanor (fallande)</option>
-            <option value={GoalSortBy.ActionsRising}>Antal målbanor (stigande)</option>
+            <option value={GoalSortBy.ActionsFalling}>Antal åtgärder (fallande)</option>
+            <option value={GoalSortBy.ActionsRising}>Antal åtgärder (stigande)</option>
             <option value={GoalSortBy.Interesting}>Intresse</option>
           </select>
         </label>)}
