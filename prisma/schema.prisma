@@ -143,6 +143,11 @@ model Goal {
 
   // A series of datapoints for the goal
   dataSeries DataSeries? @relation("data_series")
+  // A number of other goals, whose DataSeries combine to create a derived data series
+  combinationParents CombinedGoal[] @relation("combined_goal_target")
+  // A list of goals which are a combination of this goal and some other
+  combinationChildren CombinedGoal[] @relation("combined_goal_parent")
+
   // Links related to this goal
   links      Link[]      @relation("goal_link")
   // Comments related to this goal
@@ -157,6 +162,20 @@ model Goal {
   roadmap    Roadmap     @relation("roadmap_goal", fields: [roadmapId], references: [id], onDelete: Cascade)
 
   @@map("goal")
+}
+
+model CombinedGoal {
+  // The goal which is the "target" for the calculation
+  resultingGoalId String @map("resulting_goal_id")
+  resultingGoal Goal @relation("combined_goal_target", fields: [resultingGoalId], references: [id])
+  // The goal used as a factor in multiplication
+  parentGoalId String @map("parent_goal_id")
+  parentGoal Goal @relation("combined_goal_parent", fields: [parentGoalId], references: [id])
+  // If isInverted == true, use the inverse (1/x rather than x) of all values in parentGoal
+  isInverted Boolean @default(false) @map("is_inverted")
+  @@unique([resultingGoalId, parentGoalId])
+
+  @@map("combined_goal")
 }
 
 model DataSeries {
