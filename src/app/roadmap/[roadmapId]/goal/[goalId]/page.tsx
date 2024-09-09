@@ -1,4 +1,4 @@
-import { notFound, useSearchParams } from "next/navigation";
+import { notFound } from "next/navigation";
 import getOneRoadmap from "@/fetchers/getOneRoadmap";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/session";
@@ -24,6 +24,7 @@ import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import QueryBuilder from "@/components/forms/pxWeb/queryBuilder";
 import GraphCookie from "@/components/cookies/graphCookie";
 import SecondaryGoalSelector from "@/components/graphs/secondaryGraphSelector";
+import UpdateGoalButton from "@/components/buttons/updateGoalButton";
 
 export default async function Page({ params, searchParams }: { params: { roadmapId: string, goalId: string }, searchParams: { [key: string]: string | string[] | undefined } }) {
   const [session, roadmap, goal, secondaryGoal] = await Promise.all([
@@ -76,6 +77,17 @@ export default async function Page({ params, searchParams }: { params: { roadmap
     }
   }
 
+  // If any goalParent has a data series with a later updatedAt date than the goal, the goal should be updated
+  let shouldUpdate = false;
+  if (goal.combinationParents) {
+    for (const parent of goal.combinationParents) {
+      if (parent.parentGoal.dataSeries?.updatedAt && parent.parentGoal.dataSeries.updatedAt > (goal.dataSeries?.updatedAt ?? new Date(0))) {
+        shouldUpdate = true;
+        break;
+      }
+    }
+  }
+
   return (
     <>
       {/* 
@@ -124,6 +136,9 @@ export default async function Page({ params, searchParams }: { params: { roadmap
               <Image src="/icons/edit.svg" width={24} height={24} alt={`Edit roadmap: ${goal.name}`} />
             </Link>
             <QueryBuilder goal={goal} user={session.user} />
+            {shouldUpdate &&
+              <UpdateGoalButton id={goal.id} />
+            }
           </div>
         }
         <p>{goal.description}</p>

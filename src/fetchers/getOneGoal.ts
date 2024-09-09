@@ -33,7 +33,7 @@ const getCachedGoal = unstable_cache(
     let goal: Goal & {
       _count: { actions: number }
       dataSeries: DataSeries | null,
-      combinationParents: (CombinedGoal & { parentGoal: { dataSeries: { updatedAt: Date } | null } })[],
+      combinationParents: (CombinedGoal & { parentGoal: { id: string, dataSeries: DataSeries | null, roadmapId: string } })[],
       actions: (Action & {
         author: { id: string, username: string },
       })[],
@@ -55,7 +55,9 @@ const getCachedGoal = unstable_cache(
               include: {
                 parentGoal: {
                   select: {
-                    dataSeries: { select: { updatedAt: true } },
+                    id: true,
+                    dataSeries: true,
+                    roadmapId: true,
                   },
                 },
               },
@@ -129,7 +131,9 @@ const getCachedGoal = unstable_cache(
               include: {
                 parentGoal: {
                   select: {
-                    dataSeries: { select: { updatedAt: true } },
+                    id: true,
+                    dataSeries: true,
+                    roadmapId: true,
                   },
                 },
               },
@@ -193,7 +197,9 @@ const getCachedGoal = unstable_cache(
             include: {
               parentGoal: {
                 select: {
-                  dataSeries: { select: { updatedAt: true } },
+                  id: true,
+                  dataSeries: true,
+                  roadmapId: true,
                 },
               },
             },

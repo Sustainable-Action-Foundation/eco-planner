@@ -24,6 +24,7 @@ export async function getTableContent(tableId: string, selection: Object[], exte
     if (response.ok) {
       data = await response.json();
     } else if (response.status == 429) {
+      console.log("Too many requests, waiting 10 seconds and trying again");
       // If hit with "429: Too many requests", wait 10 seconds and try again
       await new Promise(resolve => setTimeout(resolve, 10000));
       return await getTableContent(tableId, selection, externalDataset, language);

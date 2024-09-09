@@ -23,7 +23,7 @@ const getCachedQuery = unstable_cache(
       { variableCode: "Tid", valueCodes: ["TOP(1)"] }
     ];
 
-    const result = await getTableContent("TAB5444", selection, "SCB", "sv")
+    const result = await getTableContent("TAB5444", selection, "SCB", "sv");
 
     if (!result) return null;
 
@@ -37,4 +37,5 @@ const getCachedQuery = unstable_cache(
     };
   },
   ["scbPopulationQuery"],
+  { revalidate: 600 }
 );
