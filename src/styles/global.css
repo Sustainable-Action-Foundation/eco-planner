@@ -76,3 +76,13 @@ input[type="checkbox"] {
   width: 1rem;
   height: 1rem;
 }
+
+input:disabled:hover {
+  cursor: not-allowed;
+}
+
+kbd > kbd {
+  border-radius: 3px;
+  padding: 1px 2px 0;
+  border: 1px solid black;
+}

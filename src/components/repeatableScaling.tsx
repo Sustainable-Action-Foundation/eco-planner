@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { ScaleBy } from "./modals/dataSeriesScaler";
+import { ScaleBy } from "@/types";
 import areaCodes from "@/lib/areaCodes.json" with { type: "json" };
 import scbPopulationQuery from "@/lib/scbPopulationQuery";
 import scbAreaQuery from "@/lib/scbAreaQuery";
@@ -29,47 +29,47 @@ async function getValue(e: React.ChangeEvent<HTMLSelectElement> | { target: { va
 /**
  * A repeatable component for scaling data based on area or inhabitants.
  * Should be used in a form, and the combined output can be read from the hidden input(-s) named "scaleFactor".
+ * 
+ * With multiple `RepeatableScaling`s with default areas, some value fetches may fail with `TypeError: fetch failed`, but this probably only happens in development builds.
  */
 export default function RepeatableScaling({
   children,
   defaultScaleBy,
-  defaultArea1,
-  defaultArea2,
+  defaultParentArea,
+  defaultChildArea,
   defaultSpecificValue,
   useWeight = true,
 }: {
   children?: React.ReactNode
   defaultScaleBy?: ScaleBy,
-  defaultArea1?: string,
-  defaultArea2?: string,
+  defaultParentArea?: string,
+  defaultChildArea?: string,
   defaultSpecificValue?: number,
   useWeight?: boolean
 }) {
   const [scaleBy, setScaleBy] = useState<ScaleBy | "">(defaultScaleBy ?? "");
   const [numericInput, setNumericInput] = useState<number | null>(null);
-  const [value1, setValue1] = useState<number | null>(null);
-  const [value2, setValue2] = useState<number | null>(null);
+  const [parentValue, setParentValue] = useState<number | null>(null);
+  const [childValue, setChildValue] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Set value1 on mount and when scaleBy changes
+  // Set parentValue on mount and when scaleBy changes
   useEffect(() => {
-    const areaCode = areaCodes[defaultArea1 as keyof typeof areaCodes] || null;
-    if (areaCode) {
-      getValue({ target: { value: areaCode } }, scaleBy).then(value => setValue1(value));
+    if (defaultParentArea) {
+      getValue({ target: { value: defaultParentArea } }, scaleBy).then(value => setParentValue(value));
     } else {
-      setValue1(null);
+      setParentValue(null);
     }
-  }, [defaultArea1, scaleBy]);
+  }, [defaultParentArea, scaleBy]);
 
-  // Set value2 on mount and when scaleBy changes
+  // Set childValue on mount and when scaleBy changes
   useEffect(() => {
-    const areaCode = areaCodes[defaultArea2 as keyof typeof areaCodes] || null;
-    if (areaCode) {
-      getValue({ target: { value: areaCode } }, scaleBy).then(value => setValue2(value));
+    if (defaultChildArea) {
+      getValue({ target: { value: defaultChildArea } }, scaleBy).then(value => setChildValue(value));
     } else {
-      setValue2(null);
+      setChildValue(null);
     }
-  }, [defaultArea2, scaleBy]);
+  }, [defaultChildArea, scaleBy]);
 
   // Set numericInput on mount
   useEffect(() => {
@@ -80,7 +80,7 @@ export default function RepeatableScaling({
   switch (scaleBy) {
     case ScaleBy.Area:
     case ScaleBy.Inhabitants:
-      result = (value1 && value2) ? (value2 / value1) : null;
+      result = (parentValue && childValue) ? (childValue / parentValue) : null;
       break;
     case ScaleBy.Custom:
       result = numericInput;
@@ -104,7 +104,7 @@ export default function RepeatableScaling({
             <section className="margin-y-50">
               <label className="flex align-items-center justify-content-space-between">
                 Ursprungligt område:
-                <select required name="parentArea" id="parentArea" defaultValue={defaultArea1} onChange={(e) => { getValue(e, scaleBy).then((result) => setValue1(result)) }}>
+                <select required name="parentArea" id="parentArea" defaultValue={defaultParentArea} onChange={(e) => { getValue(e, scaleBy).then((result) => setParentValue(result)) }}>
                   <option value="">Välj område</option>
                   {
                     Object.entries(areaCodes).sort(areaSorter).map(([name, code]) => (
@@ -117,15 +117,15 @@ export default function RepeatableScaling({
               <label>
                 <small className="flex gap-25">
                   Antal invånare:
-                  <output name="parentAreaPopulation" id="parentAreaPopulation">{value1 ?? "Värde saknas"}</output>
+                  <output name="parentAreaPopulation" id="parentAreaPopulation">{parentValue ?? "Värde saknas"}</output>
                 </small>
               </label>
             </section>
 
             <section className="margin-y-50">
               <label className="flex align-items-center justify-content-space-between">
-                Nytt område: 
-                <select required name="childArea" id="childArea" defaultValue={defaultArea2 ?? ""} onChange={(e) => { getValue(e, scaleBy).then((result) => setValue2(result)) }}>
+                Nytt område:
+                <select required name="childArea" id="childArea" defaultValue={defaultChildArea ?? ""} onChange={(e) => { getValue(e, scaleBy).then((result) => setChildValue(result)) }}>
                   <option value="">Välj område</option>
                   {
                     Object.entries(areaCodes).sort(areaSorter).map(([name, code]) => (
@@ -138,7 +138,7 @@ export default function RepeatableScaling({
               <label>
                 <small className="flex gap-25">
                   Antal invånare:
-                  <output name="childAreaPopulation" id="childAreaPopulation">{value2 ?? "Värde saknas"}</output>
+                  <output name="childAreaPopulation" id="childAreaPopulation">{childValue ?? "Värde saknas"}</output>
                 </small>
               </label>
             </section>
@@ -150,7 +150,7 @@ export default function RepeatableScaling({
             <section className="margin-y-50">
               <label className="flex align-items-center justify-content-space-between">
                 Ursprungligt område:
-                <select required name="parentArea" id="parentArea" defaultValue={defaultArea1 ?? ""} onChange={(e) => { getValue(e, scaleBy).then((result) => setValue1(result)) }}>
+                <select required name="parentArea" id="parentArea" defaultValue={defaultParentArea ?? ""} onChange={(e) => { getValue(e, scaleBy).then((result) => setParentValue(result)) }}>
                   <option value="">Välj område</option>
                   {
                     Object.entries(areaCodes).sort(areaSorter).map(([name, code]) => (
@@ -163,15 +163,15 @@ export default function RepeatableScaling({
               <label>
                 <small className="flex gap-25">
                   Ytarea:
-                  <output name="parentAreaArea" id="parentAreaArea">{value1 ? `${value1} kvadratkilometer` : "Värde saknas"}</output>
+                  <output name="parentAreaArea" id="parentAreaArea">{parentValue ? `${parentValue} kvadratkilometer` : "Värde saknas"}</output>
                 </small>
               </label>
             </section>
-            
+
             <section className="margin-y-50">
               <label className="flex align-items-center justify-content-space-between">
                 Nytt område:
-                <select required name="childArea" id="childArea" defaultValue={defaultArea2 ?? ""} onChange={(e) => { getValue(e, scaleBy).then((result) => setValue2(result)) }}>
+                <select required name="childArea" id="childArea" defaultValue={defaultChildArea ?? ""} onChange={(e) => { getValue(e, scaleBy).then((result) => setChildValue(result)) }}>
                   <option value="">Välj område</option>
                   {
                     Object.entries(areaCodes).sort(areaSorter).map(([name, code]) => (
@@ -184,7 +184,7 @@ export default function RepeatableScaling({
               <label>
                 <small className="flex gap-25">
                   Ytarea:
-                  <output name="childAreaArea" id="childAreaArea">{value2 ? `${value2} kvadratkilometer` : "Värde saknas"}</output>
+                  <output name="childAreaArea" id="childAreaArea">{childValue ? `${childValue} kvadratkilometer` : "Värde saknas"}</output>
                 </small>
               </label>
             </section>
@@ -197,7 +197,7 @@ export default function RepeatableScaling({
 
   return (
     <>
-      <fieldset className="padding-50 smooth" style={{border: '1px solid var(--gray-90)', position: 'relative'}}>
+      <fieldset className="padding-50 smooth" style={{ border: '1px solid var(--gray-90)', position: 'relative' }}>
         <legend className="flex gap-50 align-items-center padding-x-50">
           Skala utifrån:
           <select className="block margin-y-25" required name="scaleBy" id="scaleBy" defaultValue={defaultScaleBy} onChange={(e) => setScaleBy(e.target.value as ScaleBy)}>

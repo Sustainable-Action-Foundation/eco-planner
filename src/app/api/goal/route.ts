@@ -1,13 +1,15 @@
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/session"
 import prisma from "@/prismaClient";
-import { AccessControlled, AccessLevel, ClientError, GoalInput } from "@/types";
-import { Prisma } from "@prisma/client";
+import { AccessControlled, AccessLevel, ClientError, DataSeriesDataFields, GoalInput } from "@/types";
+import { DataSeries } from "@prisma/client";
 import accessChecker from "@/lib/accessChecker";
 import { revalidateTag } from "next/cache";
 import dataSeriesPrep from "./dataSeriesPrep";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { cookies } from "next/headers";
+import getOneGoal from "@/fetchers/getOneGoal";
+import { recalculateGoal } from "@/functions/recalculateGoal";
 
 /**
  * Handles POST requests to the goal API
@@ -19,7 +21,7 @@ export async function POST(request: NextRequest) {
   ]);
 
   // Validate request body
-  if (!goal.indicatorParameter || !goal.dataUnit || !goal.dataSeries) {
+  if (!goal.indicatorParameter || !goal.dataUnit || (!goal.dataSeries && !goal.inheritFrom?.length)) {
     return Response.json({ message: 'Missing required input parameters' },
       { status: 400 }
     );
@@ -39,8 +41,8 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // Get user and roadmap
-    const [user, roadmap] = await Promise.all([
+    // Get user, roadmap, and related goals
+    const [user, roadmap, relatedGoals] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
         select: { id: true, username: true, isAdmin: true, userGroups: true }
@@ -56,6 +58,7 @@ export async function POST(request: NextRequest) {
           isPublic: true,
         }
       }),
+      Promise.all([...(goal?.inheritFrom ? goal.inheritFrom.map(({ id }) => getOneGoal(id)) : [])]),
     ]);
 
     // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
@@ -79,6 +82,13 @@ export async function POST(request: NextRequest) {
     if (accessLevel === AccessLevel.None || accessLevel === AccessLevel.View) {
       throw new Error(ClientError.IllegalParent, { cause: 'goal' });
     }
+
+    // If the user tries to inherit from a goal they don't have access to, return IllegalParent
+    for (const relatedGoal of relatedGoals) {
+      if (!relatedGoal) {
+        throw new Error(ClientError.IllegalParent, { cause: 'goal' });
+      }
+    }
   } catch (e) {
     if (e instanceof Error) {
       if (e.message == ClientError.BadSession) {
@@ -88,22 +98,40 @@ export async function POST(request: NextRequest) {
           { status: 400, headers: { 'Location': '/login' } }
         );
       }
-      return Response.json({ message: ClientError.IllegalParent },
-        { status: 403 }
-      );
-    } else {
-      // If non-error is thrown, log it and return a generic error message
-      console.log(e);
-      return Response.json({ message: "Unknown internal server error" },
-        { status: 500 }
-      );
+      if (e.message == ClientError.IllegalParent) {
+        return Response.json({ message: ClientError.IllegalParent },
+          { status: 403 }
+        );
+      }
     }
+    // If no matching error is thrown, log the error and return a generic error message
+    console.log(e);
+    return Response.json({ message: "Internal server error" },
+      { status: 500 }
+    );
   }
 
   // Prepare for creating data series
-  const dataValues: Prisma.DataSeriesCreateWithoutGoalInput | null = dataSeriesPrep(goal, session.user!.id);
+  let dataValues: Partial<DataSeriesDataFields> | undefined | null = null;
+  if (goal.inheritFrom?.length) {
+    // Combine the data series of the parent goals
+    const parentGoals = await Promise.all(goal.inheritFrom.map(({ id }) => getOneGoal(id)));
+    const combinationParents: {
+      isInverted: boolean,
+      parentGoal: {
+        dataSeries: DataSeries | null
+      }
+    }[] = goal.inheritFrom.map(({ id, isInverted }) => {
+      const parentGoal = parentGoals.find(goal => goal?.id === id);
+      return { isInverted: isInverted ?? false, parentGoal: { dataSeries: parentGoal?.dataSeries ?? null } };
+    });
+    dataValues = await recalculateGoal({ combinationScale: goal.combinationScale ?? null, combinationParents });
+  } else if (goal.dataSeries) {
+    // Get data series from the request
+    dataValues = dataSeriesPrep(goal);
+  }
   // If the data series is invalid, return an error
-  if (dataValues === null) {
+  if (dataValues == null) {
     return Response.json({
       message: 'Invalid data series'
     },
@@ -117,8 +145,12 @@ export async function POST(request: NextRequest) {
       data: {
         name: goal.name,
         description: goal.description,
-        isFeatured: goal.isFeatured,
         indicatorParameter: goal.indicatorParameter,
+        isFeatured: goal.isFeatured,
+        externalDataset: goal.externalDataset,
+        externalTableId: goal.externalTableId,
+        externalSelection: goal.externalSelection,
+        combinationScale: goal.combinationScale || undefined,
         author: {
           connect: { id: session.user.id },
         },
@@ -126,7 +158,15 @@ export async function POST(request: NextRequest) {
           connect: { id: goal.roadmapId },
         },
         dataSeries: {
-          create: dataValues,
+          create: {
+            ...dataValues,
+            unit: goal.dataUnit,
+            authorId: session.user.id,
+            scale: goal.dataScale || undefined,
+          },
+        },
+        combinationParents: {
+          create: [...(goal.inheritFrom ? goal.inheritFrom.map(({ id, isInverted }) => { return ({ parentGoalId: id, isInverted }) }) : [])],
         },
         links: {
           create: goal.links?.map(link => {
@@ -186,8 +226,8 @@ export async function PUT(request: NextRequest) {
   }
 
   try {
-    // Get user and current goal
-    const [user, currentGoal] = await Promise.all([
+    // Get user, current goal, and related goals
+    const [user, currentGoal, relatedGoals] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
         select: { id: true, username: true, isAdmin: true, userGroups: true }
@@ -208,6 +248,7 @@ export async function PUT(request: NextRequest) {
           },
         }
       }),
+      Promise.all([...(goal?.inheritFrom ? goal.inheritFrom.map(({ id }) => getOneGoal(id)) : [])]),
     ]);
 
     // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
@@ -232,6 +273,13 @@ export async function PUT(request: NextRequest) {
       throw new Error(ClientError.AccessDenied, { cause: 'goal' });
     }
 
+    // If the user tries to inherit from a goal they don't have access to, return IllegalParent
+    for (const relatedGoal of relatedGoals) {
+      if (!relatedGoal) {
+        throw new Error(ClientError.IllegalParent, { cause: 'goal' });
+      }
+    }
+
     // If the provided timestamp is not up-to-date, return StaleData
     if (!goal.timestamp || (currentGoal?.updatedAt?.getTime() || 0) > goal.timestamp) {
       throw new Error(ClientError.StaleData, { cause: 'goal' });
@@ -240,7 +288,7 @@ export async function PUT(request: NextRequest) {
     if (e instanceof Error) {
       if (e.message == ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
-        await session.destroy();
+        session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } }
         );
@@ -250,29 +298,50 @@ export async function PUT(request: NextRequest) {
           { status: 409 }
         );
       }
-      return Response.json({ message: ClientError.AccessDenied },
-        { status: 403 }
-      );
-    } else {
-      // If non-error is thrown, log it and return a generic error message
-      console.log(e);
-      return Response.json({ message: "Unknown internal server error" },
-        { status: 500 }
-      );
+      if (e.message == ClientError.IllegalParent) {
+        return Response.json({ message: ClientError.IllegalParent },
+          { status: 403 }
+        );
+      }
+      if (e.message == ClientError.AccessDenied) {
+        return Response.json({ message: ClientError.AccessDenied },
+          { status: 403 }
+        );
+      }
     }
+    // If no matching error is thrown, log the error and return a generic error message
+    console.log(e);
+    return Response.json({ message: "Internal server error" },
+      { status: 500 }
+    );
   }
 
   // Prepare for creating data series
-  let dataValues: Prisma.DataSeriesCreateWithoutGoalInput | null | undefined = undefined;
-  // Don't try to update if the received data series is undefined (but complain about null)
-  if (!goal.dataSeries === undefined) {
-    dataValues = dataSeriesPrep(goal, session.user!.id);
-    // If the data series is invalid, return an error
-    if (dataValues === null) {
-      return Response.json({ message: 'Invalid data series' },
-        { status: 400 }
-      );
-    }
+  let dataValues: Partial<DataSeriesDataFields> | undefined | null = null;
+  if (goal.inheritFrom?.length) {
+    console.log('Combining data series');
+    // Combine the data series of the parent goals
+    const parentGoals = await Promise.all(goal.inheritFrom.map(({ id }) => getOneGoal(id)));
+    const combinationParents: {
+      isInverted: boolean,
+      parentGoal: {
+        dataSeries: DataSeries | null
+      }
+    }[] = goal.inheritFrom.map(({ id, isInverted }) => {
+      const parentGoal = parentGoals.find(goal => goal?.id === id);
+      return { isInverted: isInverted ?? false, parentGoal: { dataSeries: parentGoal?.dataSeries ?? null } };
+    });
+    dataValues = await recalculateGoal({ combinationScale: goal.combinationScale ?? null, combinationParents });
+  } else if (goal.dataSeries) {
+    console.log('Updating data series');
+    // Don't try to update if the received data series is undefined (but complain about null)
+    // Get data series from the request
+    dataValues = dataSeriesPrep(goal);
+  }
+  if (dataValues === null) {
+    return Response.json({ message: 'Invalid data series' },
+      { status: 400 }
+    );
   }
 
   // Edit goal
@@ -282,8 +351,8 @@ export async function PUT(request: NextRequest) {
       data: {
         name: goal.name,
         description: goal.description,
-        isFeatured: goal.isFeatured,
         indicatorParameter: goal.indicatorParameter,
+        isFeatured: goal.isFeatured,
         externalDataset: goal.externalDataset,
         externalTableId: goal.externalTableId,
         externalSelection: goal.externalSelection,
@@ -291,11 +360,26 @@ export async function PUT(request: NextRequest) {
         ...(dataValues ? {
           dataSeries: {
             upsert: {
-              create: dataValues,
+              create: {
+                ...dataValues,
+                unit: goal.dataUnit,
+                authorId: session.user.id,
+                scale: goal.dataScale || undefined,
+              },
               update: dataValues,
             }
           }
         } : {}),
+        ...(goal.inheritFrom === undefined ? {}
+          : {
+            // Delete all previous connections and make new ones if goal.inheritFrom changes
+            combinationParents: {
+              deleteMany: {},
+              create: [...goal.inheritFrom.map(({ id, isInverted }) => { return ({ parentGoalId: id, isInverted }) })],
+            }
+          }
+        ),
+        combinationScale: goal.combinationScale,
         links: {
           set: [],
           create: goal.links?.map(link => {
@@ -386,20 +470,22 @@ export async function DELETE(request: NextRequest) {
     if (e instanceof Error) {
       if (e.message == ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
-        await session.destroy();
+        session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } }
         );
       }
-      return Response.json({ message: ClientError.AccessDenied },
-        { status: 403 }
-      );
-    } else {
-      console.log(e);
-      return Response.json({ message: "Unknown internal server error" },
-        { status: 500 }
-      );
+      if (e.message == ClientError.AccessDenied) {
+        return Response.json({ message: ClientError.AccessDenied },
+          { status: 403 }
+        );
+      }
     }
+    // If no matching error is thrown, log the error and return a generic error message
+    console.log(e);
+    return Response.json({ message: "Internal server error" },
+      { status: 500 }
+    );
   }
 
   // Delete the goal
