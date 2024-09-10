@@ -23,12 +23,15 @@ import filterTableContentKeys from "@/lib/pxWeb/filterTableContentKeys";
 import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import QueryBuilder from "@/components/forms/pxWeb/queryBuilder";
 import GraphCookie from "@/components/cookies/graphCookie";
+import SecondaryGoalSelector from "@/components/graphs/secondaryGraphSelector";
+import UpdateGoalButton from "@/components/buttons/updateGoalButton";
 
-export default async function Page({ params }: { params: { roadmapId: string, goalId: string } }) {
-  const [session, roadmap, goal] = await Promise.all([
+export default async function Page({ params, searchParams }: { params: { roadmapId: string, goalId: string }, searchParams: { [key: string]: string | string[] | undefined } }) {
+  const [session, roadmap, goal, secondaryGoal] = await Promise.all([
     getSession(cookies()),
     getOneRoadmap(params.roadmapId),
-    getOneGoal(params.goalId)
+    getOneGoal(params.goalId),
+    typeof searchParams["secondaryGoal"] == "string" ? getOneGoal(searchParams["secondaryGoal"]) : Promise.resolve(null)
   ]);
 
   let accessLevel: AccessLevel = AccessLevel.None;
@@ -71,6 +74,17 @@ export default async function Page({ params }: { params: { roadmapId: string, go
     } catch (error) {
       parentGoal = null;
       console.log(error);
+    }
+  }
+
+  // If any goalParent has a data series with a later updatedAt date than the goal, the goal should be updated
+  let shouldUpdate = false;
+  if (goal.combinationParents) {
+    for (const parent of goal.combinationParents) {
+      if (parent.parentGoal.dataSeries?.updatedAt && parent.parentGoal.dataSeries.updatedAt > (goal.dataSeries?.updatedAt ?? new Date(0))) {
+        shouldUpdate = true;
+        break;
+      }
     }
   }
 
@@ -122,6 +136,9 @@ export default async function Page({ params }: { params: { roadmapId: string, go
               <Image src="/icons/edit.svg" width={24} height={24} alt={`Edit roadmap: ${goal.name}`} />
             </Link>
             <QueryBuilder goal={goal} user={session.user} />
+            {shouldUpdate &&
+              <UpdateGoalButton id={goal.id} />
+            }
           </div>
         }
         <p>{goal.description}</p>
@@ -136,10 +153,12 @@ export default async function Page({ params }: { params: { roadmapId: string, go
       */ }
 
       <GraphCookie />
+      {secondaryGoal && <p>Jämför med målbanan {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
       <section className={styles.graphLayout}>
-        <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} />
+        <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} />
         <CombinedGraph roadmap={roadmap} goal={goal} />
       </section>
+      <SecondaryGoalSelector />
 
       <section>
 

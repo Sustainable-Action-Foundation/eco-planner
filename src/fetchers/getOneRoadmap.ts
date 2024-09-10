@@ -32,7 +32,7 @@ const getCachedRoadmap = unstable_cache(
     let roadmap: Roadmap & {
       metaRoadmap: MetaRoadmap,
       goals: (Goal & {
-        _count: { actions: number },
+        _count: { actions: number, combinationParents: number },
         dataSeries: DataSeries | null,
         author: { id: string, username: string },
       })[],
@@ -53,7 +53,7 @@ const getCachedRoadmap = unstable_cache(
             metaRoadmap: true,
             goals: {
               include: {
-                _count: { select: { actions: true } },
+                _count: { select: { actions: true, combinationParents: true } },
                 dataSeries: true,
                 author: { select: { id: true, username: true } },
               }
@@ -100,7 +100,7 @@ const getCachedRoadmap = unstable_cache(
             metaRoadmap: true,
             goals: {
               include: {
-                _count: { select: { actions: true } },
+                _count: { select: { actions: true, combinationParents: true } },
                 dataSeries: true,
                 author: { select: { id: true, username: true } },
               }
@@ -139,7 +139,7 @@ const getCachedRoadmap = unstable_cache(
           metaRoadmap: true,
           goals: {
             include: {
-              _count: { select: { actions: true } },
+              _count: { select: { actions: true, combinationParents: true } },
               dataSeries: true,
               author: { select: { id: true, username: true } },
             }

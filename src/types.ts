@@ -30,6 +30,20 @@ export enum ClientError {
   StaleData = "Stale data; please refresh and try again",
 };
 
+/** Enum for different ways to get scalars for repeatableScaling and similar */
+export enum ScaleBy {
+  Custom = "CUSTOM",
+  Inhabitants = "INHABITANTS",
+  Area = "AREA",
+}
+
+/** Different scaling methods used in scalingRecipie */
+export enum ScaleMethod {
+  Algebraic = "ALGEBRAIC",
+  Geometric = "GEOMETRIC",
+  Multiplicative = "MULTIPLICATIVE",
+}
+
 /**
  * A type used by the breadcrumbs component to display the names of objects rather than their UUIDs.
  */
@@ -56,6 +70,29 @@ export type GenericEntry = (
     metaRoadmap: { name: string },
   }
 );
+
+/** Recipie containing all information needed to calculate a scale for a goal. Saved stringified in Goal.combinationScale in the db */
+export type ScalingRecipie = {
+  method?: ScaleMethod,
+  values: (SimpleScalingValue | AdvancedScalingValue)[]
+}
+
+export type SimpleScalingValue = {
+  type?: ScaleBy.Custom,
+  value: number,
+  weight?: number,
+}
+
+export type AdvancedScalingValue = {
+  type: ScaleBy.Area | ScaleBy.Inhabitants,
+  parentArea: string,
+  childArea: string,
+  weight?: number,
+}
+
+export function isScalingRecipie(object: any): object is ScalingRecipie {
+  return (typeof object == "object" && object.values instanceof Array)
+}
 
 /** The format of the data needed to create new roadmap metadata. */
 export type MetaRoadmapInput = Omit<
@@ -95,14 +132,17 @@ export type RoadmapInput = Omit<
 /** The format of the data needed to create a new goal. */
 export type GoalInput = Omit<
   Prisma.GoalCreateInput,
-  'id' | 'createdAt' | 'updatedAt' | 'roadmap' | 'author' | 'dataSeries' | 'links' | 'comments' | 'actions'
+  'id' | 'createdAt' | 'updatedAt' | 'roadmap' | 'author' | 'dataSeries' | 'links' | 'comments' | 'actions' | 'combinationParents' | 'combinationChildren'
 > & {
   // This will be turned into an actual dataSeries object by the API
   // The expected input is a stringified array of floats
   dataSeries: string[];
   // The unit of measurement for the data series
   dataUnit: string;
+  // Scale of the data, for example "millions"
   dataScale?: string | undefined;
+  // Array of IDs of goals for combinationParents
+  inheritFrom?: { id: string, isInverted?: boolean }[];
   links?: { url: string, description?: string }[] | undefined;
 };
 

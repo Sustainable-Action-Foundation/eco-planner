@@ -5,22 +5,24 @@ import styles from '../graphs.module.css';
 
 export default function MainRelativeGraph({
   goal,
+  secondaryGoal,
   nationalGoal,
 }: {
   goal: Goal & { dataSeries: DataSeries | null },
+  secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
   nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
 }) {
   if (!goal.dataSeries || goal.dataSeries.unit.toLowerCase() == "procent" || goal.dataSeries.unit.toLowerCase() == "andel") {
     return null
   }
 
-  let chart: ApexAxisChartSeries = [];
+  const chart: ApexAxisChartSeries = [];
 
   // Local goal
-  let mainSeries = []
-  for (let i in dataSeriesDataFieldNames) {
-    let currentField = dataSeriesDataFieldNames[i]
-    let baseValue = goal.dataSeries[dataSeriesDataFieldNames[0]]
+  const mainSeries = []
+  for (const i in dataSeriesDataFieldNames) {
+    const currentField = dataSeriesDataFieldNames[i]
+    const baseValue = goal.dataSeries[dataSeriesDataFieldNames[0]]
     if (goal.dataSeries[currentField] && baseValue) {
       mainSeries.push({
         x: new Date(currentField.replace('val', '')).getTime(),
@@ -34,12 +36,32 @@ export default function MainRelativeGraph({
     type: 'line',
   })
 
+  // Secondary goal
+  if (secondaryGoal?.dataSeries) {
+    const secondarySeries = []
+    for (const i in dataSeriesDataFieldNames) {
+      const currentField = dataSeriesDataFieldNames[i]
+      const baseValue = secondaryGoal.dataSeries[dataSeriesDataFieldNames[0]]
+      if (secondaryGoal.dataSeries[currentField] && baseValue) {
+        secondarySeries.push({
+          x: new Date(currentField.replace('val', '')).getTime(),
+          y: (secondaryGoal.dataSeries[currentField]! / baseValue) * 100
+        })
+      }
+    }
+    chart.push({
+      name: secondaryGoal.name || secondaryGoal.indicatorParameter,
+      data: secondarySeries,
+      type: 'line',
+    })
+  }
+
   // National goal
   if (nationalGoal?.dataSeries) {
-    let nationalSeries = []
-    for (let i in dataSeriesDataFieldNames) {
-      let currentField = dataSeriesDataFieldNames[i]
-      let baseValue = nationalGoal.dataSeries[dataSeriesDataFieldNames[0]]
+    const nationalSeries = []
+    for (const i in dataSeriesDataFieldNames) {
+      const currentField = dataSeriesDataFieldNames[i]
+      const baseValue = nationalGoal.dataSeries[dataSeriesDataFieldNames[0]]
       if (nationalGoal.dataSeries[currentField] && baseValue) {
         nationalSeries.push({
           x: new Date(currentField.replace('val', '')).getTime(),
@@ -54,7 +76,7 @@ export default function MainRelativeGraph({
     })
   }
 
-  let chartOptions: ApexCharts.ApexOptions = {
+  const chartOptions: ApexCharts.ApexOptions = {
     chart: {
       type: 'line',
       animations: { enabled: false, dynamicAnimation: { enabled: false } }

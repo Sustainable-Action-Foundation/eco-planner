@@ -5,7 +5,6 @@ import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import accessChecker from "@/lib/accessChecker";
 import Goals from "@/components/tables/goals";
-import Image from "next/image";
 import Comments from "@/components/comments/comments";
 import { AccessLevel } from "@/types";
 import ThumbnailGraph from "@/components/graphs/mainGraphs/thumbnailGraph";
@@ -31,6 +30,7 @@ export default async function Page({ params }: { params: { roadmapId: string } }
     <p>{roadmap.description}</p>
 
     {/* Sorting stuff
+        Included in tables/goals.tsx for now as it needs to be client-side
     <section>
       <section className="margin-y-100 padding-y-50" style={{ borderBottom: '2px solid var(--gray-90)' }}>
         <label className="font-weight-bold margin-y-25 container-text">
@@ -73,26 +73,26 @@ export default async function Page({ params }: { params: { roadmapId: string } }
     </section>
     */}
 
-    <div 
-      className="grid gap-100 margin-y-100 padding-y-100 align-items-flex-end" 
-      style={{ 
+    <div
+      className="grid gap-100 margin-y-100 padding-y-100 align-items-flex-end"
+      style={{
         borderBottom: '2px solid var(--gray-90)',
         gridTemplateColumns: 'repeat(auto-fit, 300px)'
       }}
     >
-      {roadmap.goals.map((goal, key) => 
+      {roadmap.goals.map((goal, key) =>
         goal.isFeatured ?
           <div key={key}>
-            <h3 style={{textAlign: 'center'}}>{goal.name}</h3>
+            <h3 style={{ textAlign: 'center' }}>{goal.name}</h3>
             <a href={`/roadmap/${roadmap.id}/goal/${goal.id}`}>
-              <ThumbnailGraph goal={goal}/>
+              <ThumbnailGraph goal={goal} />
             </a>
           </div>
-        : null 
+          : null
       )}
-      
+
     </div>
-     
+
 
     <Goals title="Målbanor" roadmap={roadmap} accessLevel={accessLevel} />
     <Comments comments={roadmap.comments} objectId={roadmap.id} />

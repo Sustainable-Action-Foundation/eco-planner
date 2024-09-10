@@ -4,7 +4,7 @@ import { getSession } from "@/lib/session"
 import { actionSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
 import { AccessControlled } from "@/types";
-import { Action, Comment, DataSeries, Goal, Link } from "@prisma/client";
+import { Action, CombinedGoal, Comment, DataSeries, Goal, Link } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -37,6 +37,7 @@ const getCachedGoal = unstable_cache(
     let goal: Goal & {
       _count: { actions: number }
       dataSeries: DataSeries | null,
+      combinationParents: (CombinedGoal & { parentGoal: { dataSeries: { updatedAt: Date } | null } })[],
       actions: (Action & {
         author: { id: string, username: string },
       })[],
@@ -59,6 +60,15 @@ const getCachedGoal = unstable_cache(
           include: {
             _count: { select: { actions: true } },
             dataSeries: true,
+            combinationParents: {
+              include: {
+                parentGoal: {
+                  select: {
+                    dataSeries: { select: { updatedAt: true } },
+                  },
+                },
+              },
+            },
             actions: {
               include: {
                 author: { select: { id: true, username: true } },
@@ -126,6 +136,15 @@ const getCachedGoal = unstable_cache(
           include: {
             _count: { select: { actions: true } },
             dataSeries: true,
+            combinationParents: {
+              include: {
+                parentGoal: {
+                  select: {
+                    dataSeries: { select: { updatedAt: true } },
+                  },
+                },
+              },
+            },
             actions: {
               include: {
                 author: { select: { id: true, username: true } },
@@ -185,6 +204,15 @@ const getCachedGoal = unstable_cache(
         include: {
           _count: { select: { actions: true } },
           dataSeries: true,
+          combinationParents: {
+            include: {
+              parentGoal: {
+                select: {
+                  dataSeries: { select: { updatedAt: true } },
+                },
+              },
+            },
+          },
           actions: {
             include: {
               author: { select: { id: true, username: true } },

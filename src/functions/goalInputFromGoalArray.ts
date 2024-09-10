@@ -1,17 +1,18 @@
-import { GoalInput } from "@/types";
-import { DataSeries, Goal, Roadmap } from "@prisma/client";
+import { dataSeriesDataFieldNames, GoalInput } from "@/types";
+import { DataSeries, Goal } from "@prisma/client";
 
 
-export default function goalInputFromGoalArray(goals: (Goal & { dataSeries: DataSeries | null } | null)[]) {
-  let output: GoalInput[] = [];
+export default function goalInputFromGoalArray(goals: (Goal & { dataSeries: DataSeries | null } | null)[], combinationScale?: string | null) {
+  const output: GoalInput[] = [];
 
-  for (let goal of goals || []) {
+  for (const goal of goals || []) {
     if (!goal || !goal.dataSeries) {
       continue;
     }
-    let dataSeries: string[] = [];
-    for (let i = 2020; i <= 2050; i++) {
-      let value = goal.dataSeries[`val${i}` as keyof typeof goal.dataSeries] as number | undefined;
+    const dataSeries: string[] = [];
+    for (const i of dataSeriesDataFieldNames) {
+      // TODO: multiply by combinationScale
+      const value = goal.dataSeries[i];
       dataSeries.push(value?.toString() || "");
     }
 
@@ -22,6 +23,8 @@ export default function goalInputFromGoalArray(goals: (Goal & { dataSeries: Data
       dataSeries: dataSeries,
       dataUnit: goal.dataSeries.unit,
       dataScale: goal.dataSeries.scale ?? undefined,
+      inheritFrom: [{ id: goal.id }],
+      combinationScale: combinationScale,
     })
   }
 

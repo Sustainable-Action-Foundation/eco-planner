@@ -18,10 +18,12 @@ export enum GraphType {
 
 export default function GraphGraph({
   goal,
+  secondaryGoal,
   nationalGoal,
   historicalData,
 }: {
   goal: Goal & { dataSeries: DataSeries | null },
+  secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
   nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
   historicalData?: PxWebApiV2TableContent | null,
 }) {
@@ -39,21 +41,21 @@ export default function GraphGraph({
           <nav className="display-flex align-items-center gap-25 margin-y-100">
             <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
           </nav>
-          <MainGraph goal={goal} nationalGoal={nationalGoal} historicalData={historicalData} />
+          <MainGraph goal={goal} nationalGoal={nationalGoal} historicalData={historicalData} secondaryGoal={secondaryGoal} />
         </div>;
       case GraphType.Relative:
         return <div>
           <nav className="display-flex align-items-center gap-25 margin-y-100">
             <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
           </nav>
-          <MainRelativeGraph goal={goal} nationalGoal={nationalGoal} />
+          <MainRelativeGraph goal={goal} nationalGoal={nationalGoal} secondaryGoal={secondaryGoal} />
         </div>;
       case GraphType.Delta:
         return <div>
           <nav className="display-flex align-items-center gap-25 margin-y-100">
             <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
           </nav>
-          <MainDeltaGraph goal={goal} nationalGoal={nationalGoal} />
+          <MainDeltaGraph goal={goal} nationalGoal={nationalGoal} secondaryGoal={secondaryGoal} />
         </div>;
       default:
         return graphSwitch(GraphType.Main);

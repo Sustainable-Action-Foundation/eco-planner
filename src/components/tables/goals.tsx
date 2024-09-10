@@ -54,19 +54,36 @@ export default function Goals({
 
   return (
     <>
+      {viewMode == ViewMode.Table && (<section>
+        <section className="margin-y-100 padding-y-50" style={{ borderBottom: '2px solid var(--gray-90)' }}>
+          <div className="flex gap-100 align-items-center justify-content-space-between">
+            <label className="margin-y-100 font-weight-bold">
+              Sortera utifrån:
+              <select className="font-weight-bold margin-y-50 block" onChange={(e) => { setSortBy(e.target.value as GoalSortBy); setStoredGoalSortBy(e.target.value as GoalSortBy) }} defaultValue={sortBy}>
+                <option value={GoalSortBy.Default}>Standard</option>
+                <option value={GoalSortBy.Alpha}>Namn (A-Ö)</option>
+                <option value={GoalSortBy.AlphaReverse}>Namn (Ö-A)</option>
+                <option value={GoalSortBy.ActionsFalling}>Antal åtgärder (fallande)</option>
+                <option value={GoalSortBy.ActionsRising}>Antal åtgärder (stigande)</option>
+                <option value={GoalSortBy.Interesting}>Intresse</option>
+              </select>
+            </label>
+          </div>
+        </section>
+        {/* <section id="roadmapFilters" className="margin-y-200 padding-100 gray-90 rounded">
+          <b>Enhet</b>
+          <label className="flex align-items-center gap-25 margin-y-50">
+            <input type="checkbox" />
+            Enhet 1
+          </label>
+          <label className="flex align-items-center gap-25 margin-y-50">
+            <input type="checkbox" />
+            Enhet 2
+          </label>
+        </section> */}
+      </section>)}
       <label htmlFor="goalTable" className={`display-flex justify-content-space-between align-items-center flex-wrap-wrap ${styles.tableNav}`}>
         <h2>{title}</h2>
-        {viewMode == ViewMode.Table && (<label className="margin-y-100 font-weight-bold">
-          Sortera utifrån:
-          <select className="font-weight-bold margin-y-50 block" onChange={(e) => { setSortBy(e.target.value as GoalSortBy); setStoredGoalSortBy(e.target.value as GoalSortBy) }} defaultValue={sortBy}>
-            <option value={GoalSortBy.Default}>Standard</option>
-            <option value={GoalSortBy.Alpha}>Namn (A-Ö)</option>
-            <option value={GoalSortBy.AlphaReverse}>Namn (Ö-A)</option>
-            <option value={GoalSortBy.ActionsFalling}>Antal målbanor (fallande)</option>
-            <option value={GoalSortBy.ActionsRising}>Antal målbanor (stigande)</option>
-            <option value={GoalSortBy.Interesting}>Intresse</option>
-          </select>
-        </label>)}
         <nav className='display-flex align-items-center gap-100'>
           <TableSelector id={roadmap.id} current={viewMode} setter={setViewMode} />
           { // Only show the button if the user has edit access to the roadmap

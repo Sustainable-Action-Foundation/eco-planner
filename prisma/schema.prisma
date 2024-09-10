@@ -142,21 +142,42 @@ model Goal {
   externalSelection String? @map("external_selection") @db.Text
 
   // A series of datapoints for the goal
-  dataSeries DataSeries? @relation("data_series")
+  dataSeries          DataSeries?    @relation("data_series")
+  // A number of other goals, whose DataSeries combine to create a derived data series
+  combinationParents  CombinedGoal[] @relation("combined_goal_target")
+  // A list of goals which are a combination of this goal and some other
+  combinationChildren CombinedGoal[] @relation("combined_goal_parent")
+  // A JSON parseable string containing either a number or an object with a "recipie" (ScalingRecipie in @/types) to multiply the data series from combinationParents with
+  combinationScale    String?        @map("combination_scale") @db.Text
+
   // Links related to this goal
-  links      Link[]      @relation("goal_link")
+  links     Link[]    @relation("goal_link")
   // Comments related to this goal
-  comments   Comment[]   @relation("goal_comment")
+  comments  Comment[] @relation("goal_comment")
   // The person who created this goal
-  authorId   String      @map("author_id")
-  author     User        @relation("goal_author", fields: [authorId], references: [id])
+  authorId  String    @map("author_id")
+  author    User      @relation("goal_author", fields: [authorId], references: [id])
   // Child Actions
-  actions    Action[]    @relation("action_goal")
+  actions   Action[]  @relation("action_goal")
   // Parent Roadmap
-  roadmapId  String      @map("roadmap_id")
-  roadmap    Roadmap     @relation("roadmap_goal", fields: [roadmapId], references: [id], onDelete: Cascade)
+  roadmapId String    @map("roadmap_id")
+  roadmap   Roadmap   @relation("roadmap_goal", fields: [roadmapId], references: [id], onDelete: Cascade)
 
   @@map("goal")
+}
+
+model CombinedGoal {
+  // The goal which is the "target" for the calculation
+  resultingGoalId String  @map("resulting_goal_id")
+  resultingGoal   Goal    @relation("combined_goal_target", fields: [resultingGoalId], references: [id])
+  // The goal used as a factor in multiplication
+  parentGoalId    String  @map("parent_goal_id")
+  parentGoal      Goal    @relation("combined_goal_parent", fields: [parentGoalId], references: [id])
+  // If isInverted == true, use the inverse (1/x rather than x) of all values in parentGoal
+  isInverted      Boolean @default(false) @map("is_inverted")
+
+  @@unique([resultingGoalId, parentGoalId])
+  @@map("combined_goal")
 }
 
 model DataSeries {
@@ -353,14 +374,14 @@ model User {
   id String @id @default(uuid())
 
   // Username of the user
-  username String  @unique
+  username   String  @unique
   // Email of the user
-  email    String  @unique
+  email      String  @unique
   // User's password in hashed form
   // In this implementation, the password is hashed using bcrypt
-  password String
+  password   String
   // Whether or not the user is an admin
-  isAdmin  Boolean @default(false) @map("is_admin")
+  isAdmin    Boolean @default(false) @map("is_admin")
   // Whether or not the user has verified their email
   isVerified Boolean @default(false) @map("is_verified")
 
