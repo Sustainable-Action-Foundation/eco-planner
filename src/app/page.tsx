@@ -25,6 +25,7 @@ export default function Page() {
   const [metaRoadmaps, setMetaRoadmaps] = useState<Awaited<ReturnType<typeof getMetaRoadmaps>> | null>(null);
   const [sortBy, setSortBy] = useState<RoadmapSortBy>(RoadmapSortBy.Default);
   const [typeFilter, setTypeFilter] = useState<RoadmapType[]>([])
+  const [searchFilter, setSearchFilter] = useState<string>('')
 
   useEffect(() => {
     Promise.all([
@@ -44,7 +45,7 @@ export default function Page() {
   let roadmaps: (typeof metaRoadmaps[number] & { metaRoadmap: typeof metaRoadmaps[number] })['roadmapVersions'] = [];
   metaRoadmaps.forEach(metaRoadmap => {
     if (metaRoadmap.roadmapVersions.length) {
-      let foundRoadmap = metaRoadmap.roadmapVersions.find(roadmap => roadmap.version === Math.max(...metaRoadmap.roadmapVersions.map(roadmap => roadmap.version)));
+      const foundRoadmap = metaRoadmap.roadmapVersions.find(roadmap => roadmap.version === Math.max(...metaRoadmap.roadmapVersions.map(roadmap => roadmap.version)));
       if (foundRoadmap) {
         foundRoadmap.metaRoadmap = metaRoadmap;
         roadmaps.push(foundRoadmap);
@@ -66,6 +67,32 @@ export default function Page() {
     })
   }
 
+  // Filter by searchFilter
+  if (searchFilter) {
+    roadmaps = roadmaps.filter((roadmap) => {
+      if (Object.values(roadmap).some((value) => {
+        if (typeof value === 'string') {
+          return value.toLowerCase().includes(searchFilter.toLowerCase())
+        } else {
+          return false;
+        }
+      })) {
+        return true;
+      } else if (Object.values(roadmap.metaRoadmap).some((value) => {
+        if (typeof value === 'string') {
+          return value.toLowerCase().includes(searchFilter.toLowerCase())
+        } else {
+          return false;
+        }
+      })) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+  }
+
+  // Sort
   switch (sortBy) {
     case RoadmapSortBy.Alpha:
       roadmaps.sort(roadmapSorterAZ);
@@ -117,7 +144,7 @@ export default function Page() {
           Sök färdplan
           <div className="margin-y-50 flex align-items-center gray-90 padding-50 smooth focusable">
             <Image src='/icons/search.svg' alt="" width={24} height={24} />
-            <input type="search" className="padding-0 margin-x-50" />
+            <input type="search" className="padding-0 margin-x-50" onChange={(e) => setSearchFilter(e.target.value)} />
           </div>
         </label>
         <div className="flex gap-100 align-items-center justify-content-space-between">
