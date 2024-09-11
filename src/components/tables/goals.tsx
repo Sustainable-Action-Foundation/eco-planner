@@ -44,31 +44,55 @@ export default function Goals({
   },
   accessLevel?: AccessLevel
 }) {
-  const [viewMode, setViewMode] = useState<ViewMode | "">("");
+  const [viewMode, setViewMode] = useState<ViewMode | ''>('');
   const [sortBy, setSortBy] = useState<GoalSortBy>(GoalSortBy.Default);
+  const [searchFilter, setSearchFilter] = useState<string>('');
 
   useEffect(() => {
     setViewMode(getStoredViewMode(roadmap.id));
     setSortBy(getStoredGoalSortBy());
   }, [roadmap.id]);
 
+  let filteredRoadmap = roadmap;
+  if (searchFilter) {
+    filteredRoadmap = {
+      ...roadmap,
+      goals: roadmap.goals.filter(goal => {
+        if (Object.values(goal).some(value => typeof value === 'string' && value.toLowerCase().includes(searchFilter.toLowerCase()))) {
+          return true;
+        } else if (goal.dataSeries && Object.values(goal.dataSeries).some(value => typeof value === 'string' && value.toLowerCase().includes(searchFilter.toLowerCase()))) {
+          return true;
+        }
+      }),
+    }
+  }
+
   return (
     <>
-      {viewMode == ViewMode.Table && (<section>
+      <section>
         <section className="margin-y-100 padding-y-50" style={{ borderBottom: '2px solid var(--gray-90)' }}>
-          <div className="flex gap-100 align-items-center justify-content-space-between">
-            <label className="margin-y-100 font-weight-bold">
-              Sortera utifrån:
-              <select className="font-weight-bold margin-y-50 block" onChange={(e) => { setSortBy(e.target.value as GoalSortBy); setStoredGoalSortBy(e.target.value as GoalSortBy) }} defaultValue={sortBy}>
-                <option value={GoalSortBy.Default}>Standard</option>
-                <option value={GoalSortBy.Alpha}>Namn (A-Ö)</option>
-                <option value={GoalSortBy.AlphaReverse}>Namn (Ö-A)</option>
-                <option value={GoalSortBy.ActionsFalling}>Antal åtgärder (fallande)</option>
-                <option value={GoalSortBy.ActionsRising}>Antal åtgärder (stigande)</option>
-                <option value={GoalSortBy.Interesting}>Intresse</option>
-              </select>
-            </label>
-          </div>
+          <label className="font-weight-bold margin-y-25 container-text">
+            Sök Målbana
+            <div className="margin-y-50 flex align-items-center gray-90 padding-50 smooth focusable">
+              <Image src='/icons/search.svg' alt="" width={24} height={24} />
+              <input type="search" className="padding-0 margin-x-50" onChange={(e) => setSearchFilter(e.target.value)} />
+            </div>
+          </label>
+          {viewMode == ViewMode.Table && (
+            <div className="flex gap-100 align-items-center justify-content-space-between">
+              <label className="margin-y-100 font-weight-bold">
+                Sortera utifrån:
+                <select className="font-weight-bold margin-y-50 block" onChange={(e) => { setSortBy(e.target.value as GoalSortBy); setStoredGoalSortBy(e.target.value as GoalSortBy) }} defaultValue={sortBy}>
+                  <option value={GoalSortBy.Default}>Standard</option>
+                  <option value={GoalSortBy.Alpha}>Namn (A-Ö)</option>
+                  <option value={GoalSortBy.AlphaReverse}>Namn (Ö-A)</option>
+                  <option value={GoalSortBy.ActionsFalling}>Antal åtgärder (fallande)</option>
+                  <option value={GoalSortBy.ActionsRising}>Antal åtgärder (stigande)</option>
+                  <option value={GoalSortBy.Interesting}>Intresse</option>
+                </select>
+              </label>
+            </div>
+          )}
         </section>
         {/* <section id="roadmapFilters" className="margin-y-200 padding-100 gray-90 rounded">
           <b>Enhet</b>
@@ -81,7 +105,7 @@ export default function Goals({
             Enhet 2
           </label>
         </section> */}
-      </section>)}
+      </section>
       <label htmlFor="goalTable" className={`display-flex justify-content-space-between align-items-center flex-wrap-wrap ${styles.tableNav}`}>
         <h2>{title}</h2>
         <nav className='display-flex align-items-center gap-100'>
@@ -102,10 +126,10 @@ export default function Goals({
       </div>
 
       {viewMode == ViewMode.Table && (
-        <GoalTable roadmap={roadmap} sortBy={sortBy} />
+        <GoalTable roadmap={filteredRoadmap} sortBy={sortBy} />
       )}
       {viewMode == ViewMode.Tree && (
-        <LinkTree roadmap={roadmap} />
+        <LinkTree roadmap={filteredRoadmap} />
       )}
       {(viewMode != ViewMode.Table && viewMode != ViewMode.Tree) && (
         <p>
