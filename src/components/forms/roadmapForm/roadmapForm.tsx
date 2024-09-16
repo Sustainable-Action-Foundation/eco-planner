@@ -57,7 +57,6 @@ export default function RoadmapForm({
         inheritGoalIds.push((checkbox as HTMLInputElement).value)
       }
     })
-    console.log(inheritGoalIds)
 
     const formData: RoadmapInput & { roadmapId?: string, goals?: GoalInput[], timestamp: number } = {
       description: (form.namedItem("description") as HTMLTextAreaElement)?.value || undefined,
@@ -182,7 +181,7 @@ export default function RoadmapForm({
               {
                 inheritableGoals.map((goal, index) => {
                   return (
-                    <label key={goal.id}>
+                    <label key={goal.id} className="block margin-y-25">
                       <input type="checkbox" name={`inheritGoals`} id={`inheritGoals-${goal.id}`} value={goal.id} />
                       {`${goal.name || goal.indicatorParameter}`}
                     </label>

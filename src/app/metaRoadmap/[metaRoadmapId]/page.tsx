@@ -34,6 +34,10 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
         {`${metaRoadmap.name}`}
       </h1>
       <span>Metadata för en färdplan</span>
+      { // Only show link for creating a new version if the user has edit access to the roadmap
+          (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
+          <a href={`/roadmap/createRoadmap?metaRoadmapId=${metaRoadmap.id}`} className="button purewhite round block" >Skapa ny färdplan</a>
+        }
       {
         // Only show the delete button if the user is admin or author of the roadmap
         <>
