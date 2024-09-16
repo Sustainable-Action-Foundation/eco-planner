@@ -6,6 +6,7 @@ import { Fragment, useEffect, useState } from "react";
 import getOneRoadmap from "@/fetchers/getOneRoadmap";
 import getOneGoal from "@/fetchers/getOneGoal";
 import getRoadmaps from "@/fetchers/getRoadmaps";
+import mathjs from "@/math";
 
 export function ManualGoalForm({
   currentGoal,
@@ -26,6 +27,18 @@ export function ManualGoalForm({
   },
   dataSeriesString?: string,
 }) {
+  const [parsedUnit, setParsedUnit] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (currentGoal?.dataSeries?.unit) {
+      try {
+        setParsedUnit(mathjs.unit(currentGoal.dataSeries.unit).toString());
+      } catch {
+        setParsedUnit(null)
+      }
+    }
+  }, [currentGoal]);
+
   return (
     <>
       <label className="block margin-y-75">
@@ -35,7 +48,17 @@ export function ManualGoalForm({
 
       <label className="block margin-y-75">
         Enhet för dataserie:
-        <input className="margin-y-25" type="text" name="dataUnit" required id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} />
+        <input className="margin-y-25" type="text" name="dataUnit" required id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
+          try {
+            setParsedUnit(mathjs.unit(e.target.value).toString());
+          } catch {
+            setParsedUnit(null);
+          }
+        }} />
+        {parsedUnit ?
+          <p className="margin-y-25">Enheten tolkas som: <strong>{parsedUnit}</strong></p>
+          : <p className="margin-y-25">Enheten kunde inte tolkas. Du kan fortfarande spara målbanan, men viss funktionalitet kan saknas.</p>
+        }
       </label>
 
       <details className="margin-y-75">
@@ -89,6 +112,7 @@ export function InheritedGoalForm({
   const [roadmapData, setRoadmapData] = useState<Awaited<ReturnType<typeof getOneRoadmap>>>(null);
   const [selectedGoal, setSelectedGoal] = useState(currentGoal?.combinationParents[0]?.parentGoal.id);
   const [goalData, setGoalData] = useState<Awaited<ReturnType<typeof getOneGoal>>>(null);
+  const [parsedUnit, setParsedUnit] = useState<string | null>(null);
 
   useEffect(() => {
     getRoadmaps().then(setRoadmapList);
@@ -97,6 +121,13 @@ export function InheritedGoalForm({
     }
     if (currentGoal?.combinationParents[0]?.parentGoal.id) {
       setSelectedGoal(currentGoal.combinationParents[0].parentGoal.id);
+    }
+    if (currentGoal?.dataSeries?.unit) {
+      try {
+        setParsedUnit(mathjs.unit(currentGoal.dataSeries.unit).toString());
+      } catch {
+        setParsedUnit(null)
+      }
     }
   }, [currentGoal]);
 
@@ -148,7 +179,17 @@ export function InheritedGoalForm({
 
       <label className="block margin-y-75">
         Enhet för dataserie:
-        <input className="margin-y-25" type="text" name="dataUnit" required disabled id="dataUnit" value={goalData?.dataSeries?.unit || ""} />
+        <input className="margin-y-25" type="text" name="dataUnit" required disabled id="dataUnit" value={goalData?.dataSeries?.unit || ""} onChange={(e) => {
+          try {
+            setParsedUnit(mathjs.unit(e.target.value).toString());
+          } catch {
+            setParsedUnit(null);
+          }
+        }} />
+        {parsedUnit ?
+          <p className="margin-y-25">Enheten tolkas som: <strong>{parsedUnit}</strong></p>
+          : <p className="margin-y-25">Enheten kunde inte tolkas. Du kan fortfarande spara målbanan, men viss funktionalitet kan saknas.</p>
+        }
       </label>
     </>
   )
@@ -177,6 +218,7 @@ export function CombinedGoalForm({
 }) {
   const [currentRoadmap, setCurrentRoadmap] = useState<Awaited<ReturnType<typeof getOneRoadmap>>>(null);
   const [inheritFrom, setInheritFrom] = useState<string[]>([]);
+  const [parsedUnit, setParsedUnit] = useState<string | null>(null);
 
   useEffect(() => {
     getOneRoadmap(roadmapId).then(setCurrentRoadmap);
@@ -185,6 +227,13 @@ export function CombinedGoalForm({
   useEffect(() => {
     if (currentGoal?.combinationParents) {
       setInheritFrom(currentGoal.combinationParents.map((parent) => parent.parentGoal.id));
+    }
+    if (currentGoal?.dataSeries?.unit) {
+      try {
+        setParsedUnit(mathjs.unit(currentGoal.dataSeries.unit).toString());
+      } catch {
+        setParsedUnit(null)
+      }
     }
   }, [currentGoal]);
 
@@ -197,7 +246,17 @@ export function CombinedGoalForm({
 
       <label className="block margin-y-75">
         Enhet för dataserie:
-        <input className="margin-y-25" type="text" name="dataUnit" required id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} />
+        <input className="margin-y-25" type="text" name="dataUnit" required id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
+          try {
+            setParsedUnit(mathjs.unit(e.target.value).toString());
+          } catch {
+            setParsedUnit(null);
+          }
+        }} />
+        {parsedUnit ?
+          <p className="margin-y-25">Enheten tolkas som: <strong>{parsedUnit}</strong></p>
+          : <p className="margin-y-25">Enheten kunde inte tolkas. Du kan fortfarande spara målbanan, men viss funktionalitet kan saknas.</p>
+        }
       </label>
 
       <fieldset className="padding-50 smooth" style={{ border: '1px solid var(--gray-90)', position: 'relative' }}>
