@@ -10,6 +10,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CombinedGoalForm, InheritedGoalForm, ManualGoalForm } from "./goalFormSections";
 import RepeatableScaling from "@/components/repeatableScaling";
 import { getScalingResult } from "@/components/modals/copyAndScale";
+import mathjs from "@/math";
 
 enum DataSeriesType {
   Static = "STATIC",
@@ -89,7 +90,6 @@ export default function GoalForm({
     const dataSeries = dataSeriesInput?.replaceAll(',', '.').split(/[\t;]/).map((value) => {
       return value
     })
-    console.log(dataSeries);
 
     const { scalingRecipie: combinationScale } = getScalingResult(formData, scalingRecipie.method || ScaleMethod.Geometric)
 
@@ -105,11 +105,18 @@ export default function GoalForm({
       }
     })
 
+    let parsedUnit: string | null = null;
+    try {
+      parsedUnit = mathjs.unit((form.namedItem("dataUnit") as HTMLInputElement)?.value).toString();
+    } catch (error) {
+      console.log("Failed to parse unit. Using raw string instead, which may disable some features.")
+    }
+
     const formJSON = JSON.stringify({
       name: (form.namedItem("goalName") as HTMLInputElement)?.value || null,
       description: (form.namedItem("description") as HTMLInputElement)?.value || null,
       indicatorParameter: (form.namedItem("indicatorParameter") as HTMLInputElement)?.value || null,
-      dataUnit: (form.namedItem("dataUnit") as HTMLInputElement)?.value || null,
+      dataUnit: parsedUnit || (form.namedItem("dataUnit") as HTMLInputElement)?.value || null,
       dataSeries: dataSeries,
       combinationScale: JSON.stringify(combinationScale),
       inheritFrom: inheritFrom,

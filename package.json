@@ -13,6 +13,7 @@
     "apexcharts": "^3.45.2",
     "bcrypt": "^5.1.0",
     "iron-session": "^8.0.1",
+    "mathjs": "^13.1.1",
     "next": "^14.1.4",
     "nodemailer": "^6.9.14",
     "react": "^18.2.0",
@@ -24,7 +25,7 @@
     "typescript": "^5.4.4"
   },
   "name": "eco-planner",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "A tool intended to help planning actions to achieve local environmental goals",
   "repository": "https://github.com/Sustainable-Action-Foundation/eco-planner.git",
   "author": "Leon Lööv",
