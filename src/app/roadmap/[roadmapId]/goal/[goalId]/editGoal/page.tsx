@@ -31,7 +31,7 @@ export default async function Page({ params }: { params: { roadmapId: string, go
 
   return (
     <>
-      <div className="container-text">
+      <div className="container-text" style={{ marginInline: 'auto' }}>
         <h1>Redigera målbana: {currentGoal.name ? currentGoal.name : currentGoal.indicatorParameter}</h1>
         <GoalForm roadmapId={params.roadmapId} currentGoal={currentGoal} />
       </div>
