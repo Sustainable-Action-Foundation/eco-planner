@@ -28,10 +28,16 @@ export default function Page() {
       </p>
       { // Display as much build info as possible
         remoteURL
-          ? <p>Remote: <a href={remoteURL.href} target="_blank" >
-            {/* Gets the repository name from a github-like url with a trailing slash, with hostname as fallback */}
-            {remoteURL.pathname.split("/")[remoteURL.pathname.split("/").length - 2] || remoteURL.hostname}
-          </a></p>
+          ? <>
+            <p>Remote: <a href={remoteURL.href} target="_blank" >
+              {/* Gets the repository name from a github-like url with a trailing slash, with hostname as fallback */}
+              {remoteURL.pathname.split("/")[remoteURL.pathname.split("/").length - 2] || remoteURL.hostname}
+            </a></p>
+            <p>Wiki: <a href={`${remoteURL.href}wiki/`} target="_blank" >
+              {/* Gets the repository name from a github-like url with a trailing slash, with hostname as fallback */}
+              {remoteURL.pathname.split("/")[remoteURL.pathname.split("/").length - 2] || remoteURL.hostname}
+            </a></p>
+          </>
           : null
       }
       {
