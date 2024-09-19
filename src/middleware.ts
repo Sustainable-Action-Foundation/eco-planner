@@ -34,5 +34,17 @@ export async function middleware(req: NextRequest) {
     }
   }
 
+  /**
+   * Locks all pages except the login/signup process and the info and home pages to logged in users.
+   */
+  if (!session.user?.isLoggedIn) {
+    if (req.nextUrl.pathname.startsWith('/dashboard') || req.nextUrl.pathname.startsWith('/roadmap') || req.nextUrl.pathname.startsWith('/metaRoadmap') || req.nextUrl.pathname.startsWith('/user')) {
+      const loginUrl = new URL('/login', req.url)
+      // Save the current page as the "from" query parameter so we can redirect back after logging in
+      loginUrl.searchParams.set('from', req.nextUrl.pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+  }
+
   return NextResponse.next()
 }

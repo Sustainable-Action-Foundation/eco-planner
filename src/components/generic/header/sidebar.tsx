@@ -24,15 +24,16 @@ export default async function Sidebar() {
                 Skapa Konto
               </Link>
             }
-            { // Link to user if logged in
-              user?.isLoggedIn &&
-              <div>
-                <Link href={`/user/${user.username}`} className={styles.link}>
-                  <Image src='/icons/user.svg' alt='' width={24} height={24} />
-                  Mitt Konto
-                </Link>
-                {/*<Notifications amount={} /> */}
-              </div>
+            { // Link to user page if logged in
+              // Disabled until we have something to show there
+              // user?.isLoggedIn &&
+              // <div>
+              //   <Link href={`/user/${user.username}`} className={styles.link}>
+              //     <Image src='/icons/user.svg' alt='' width={24} height={24} />
+              //     Mitt Konto
+              //   </Link>
+              //   {/*<Notifications amount={} /> */}
+              // </div>
             }
           </div>
           <div className='flex-grow-100'>

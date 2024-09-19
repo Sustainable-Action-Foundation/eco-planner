@@ -265,29 +265,30 @@ export function CombinedGoalForm({
         </legend>
         <p>Tips: använd <kbd><kbd>CTRL</kbd> + <kbd>F</kbd></kbd> för att hitta målbanorna du söker efter</p>
         {currentRoadmap?.goals.map((goal) => (
-          <Fragment key={`combine-${goal.id}`}>
-            <label className="block margin-y-25">
-              <input type="checkbox" name="inheritFrom" className="margin-x-25" value={goal.id}
-                defaultChecked={currentGoal?.combinationParents.some((parent) => parent.parentGoal.id == goal.id)}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setInheritFrom([...inheritFrom, e.target.value]);
-                  } else {
-                    setInheritFrom(inheritFrom.filter((id) => id != e.target.value));
-                  }
-                }}
-              />
-              {`${goal.name ?? "Namnlöst mål"}: ${goal.indicatorParameter} (${goal.dataSeries?.unit ?? "Enhet saknas"})`}
-            </label>
-            {inheritFrom?.includes(goal.id) &&
-              <label className="block margin-y-25" style={{ marginLeft: 25 }}>
-                <input type="checkbox" name="invert-inherit" className="margin-x-25" value={goal.id}
-                  defaultChecked={currentGoal?.combinationParents.some((parent) => parent.parentGoal.id == goal.id && parent.isInverted)}
+          goal.id == currentGoal?.id ? null :
+            <Fragment key={`combine-${goal.id}`}>
+              <label className="block margin-y-25">
+                <input type="checkbox" name="inheritFrom" className="margin-x-25" value={goal.id}
+                  defaultChecked={currentGoal?.combinationParents.some((parent) => parent.parentGoal.id == goal.id)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setInheritFrom([...inheritFrom, e.target.value]);
+                    } else {
+                      setInheritFrom(inheritFrom.filter((id) => id != e.target.value));
+                    }
+                  }}
                 />
-                {"Invertera målet (dividera med denna målbana snarare än att multiplicera)"}
+                {`${goal.name ?? "Namnlöst mål"}: ${goal.indicatorParameter} (${goal.dataSeries?.unit ?? "Enhet saknas"})`}
               </label>
-            }
-          </Fragment>
+              {inheritFrom?.includes(goal.id) &&
+                <label className="block margin-y-25" style={{ marginLeft: 25 }}>
+                  <input type="checkbox" name="invert-inherit" className="margin-x-25" value={goal.id}
+                    defaultChecked={currentGoal?.combinationParents.some((parent) => parent.parentGoal.id == goal.id && parent.isInverted)}
+                  />
+                  {"Invertera målet (dividera med denna målbana snarare än att multiplicera)"}
+                </label>
+              }
+            </Fragment>
         ))}
       </fieldset>
     </>
