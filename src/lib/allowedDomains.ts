@@ -1,8 +1,10 @@
 /**
   * A list of email domains that are allowed to register accounts.
+  * For now, only allow a small subsection of these during testing phase.
   */
 export const allowedDomains = [
   //Municipalities
+  /*
   "ale.se",
   "alingsas.se",
   "almhult.se",
@@ -278,7 +280,9 @@ export const allowedDomains = [
   "vannas.se",
   "vansbro.se",
   "vara.se",
+  */
   "varberg.se",
+  /*
   "vargarda.se",
   "varmdo.se",
   "varnamo.se",
@@ -294,7 +298,9 @@ export const allowedDomains = [
   "vingaker.se",
   "ydre.se",
   "ystad.se",
+  */
   //Regions
+  /*
   "regionblekinge.se",
   "regiondalarna.se",
   "regiongavleborg.se",
@@ -316,7 +322,9 @@ export const allowedDomains = [
   "rvn.se",
   "regionvastmanland.se",
   "vgregion.se",
+  */
   //Energy Agencies
+  /*
   "energikontornorr.se",
   "regionjh.se",
   "rvn.se",
@@ -332,9 +340,9 @@ export const allowedDomains = [
   "regionhalland.se",
   "energikontorsyd.se",
   "gotland.se",
+  */
   //Other
-  "stuns.se",
-  "sustainable-action.foundation",
+  // "stuns.se",
   "sustainable-action.org",
-  "lansstyrelsen.se",
+  // "lansstyrelsen.se",
 ]

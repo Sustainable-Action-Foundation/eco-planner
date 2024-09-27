@@ -42,7 +42,10 @@ export default function RoadmapForm({
     let goals: GoalInput[] = [];
     if (currentFile) {
       try {
-        goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer })))
+        goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer })));
+        if (goals.some((goal) => goal.dataScale)) {
+          alert("Kolumnen 'Scale' stöds inte och kommer att ignoreras.")
+        }
       }
       catch (e: any) {
         setIsLoading(false)
@@ -124,6 +127,26 @@ export default function RoadmapForm({
         return;
       })
   }, [metaRoadmapTarget, targetVersion])
+
+  // Validate file when it changes
+  useEffect(() => {
+    if (!currentFile) return;
+    if (currentFile) {
+      setIsLoading(true)
+      try {
+        currentFile.arrayBuffer().then((buffer) => csvToGoalList(parseCsv(buffer))).then((goals) => {
+          if (goals.some((goal) => goal.dataScale)) {
+            alert("Kolumnen 'Scale' stöds inte och kommer att ignoreras. Om kolumnen innehåller några skalor, vänligen baka in dem i enheten istället. Exempel: enhet 'MW' snarare än enhet 'kW' och skala 'tusen'")
+          }
+        }).then(() => setIsLoading(false))
+      }
+      catch (e: any) {
+        alert(`Filen kunde inte läsas: ${e.message || "Okänt fel"}`)
+        setIsLoading(false)
+        return
+      }
+    }
+  }, [currentFile])
 
   return (
     <>

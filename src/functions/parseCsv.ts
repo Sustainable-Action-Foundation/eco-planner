@@ -33,12 +33,17 @@ export function csvToGoalList(csv: string[][]) {
     numericHeaders.push(year.replace("val", ""))
   }
 
-  const headerIndex: { [key: string]: number } = {}
+  const headerIndex: { [key: string]: number | undefined } = {}
   const output: GoalInput[] = [];
 
   // Check that all headers are present and get their indices
   for (const i of Object.keys(nonNumericHeaders)) {
     if (!headers.includes(nonNumericHeaders[i as keyof typeof nonNumericHeaders])) {
+      if (i === "dataScale") {
+        // dataScale is optional, and just used to notify the user that we will ignore all dataScale values
+        headerIndex[i] = undefined
+        continue
+      }
       throw new Error(`Missing header "${nonNumericHeaders[i as keyof typeof nonNumericHeaders]}"`)
     } else {
       headerIndex[i] = headers.indexOf(nonNumericHeaders[i as keyof typeof nonNumericHeaders])
@@ -56,19 +61,19 @@ export function csvToGoalList(csv: string[][]) {
   // Create GoalInput objects from the data
   for (let i = 1; i < csv.length; i++) {
     // Skip rows without an indicatorParameter
-    if (!csv[i][headerIndex.indicatorParameter]) {
+    if (!csv[i][headerIndex.indicatorParameter!]) {
       continue
     }
 
     const dataSeries: string[] = []
     for (const j of numericHeaders) {
-      dataSeries.push(csv[i][headerIndex[j]]?.replaceAll(",", "."))
+      dataSeries.push(csv[i][headerIndex[j]!]?.replaceAll(",", "."))
     }
 
     output.push({
-      indicatorParameter: csv[i][headerIndex.indicatorParameter],
-      dataUnit: csv[i][headerIndex.dataUnit],
-      dataScale: csv[i][headerIndex.dataScale] || undefined,
+      indicatorParameter: csv[i][headerIndex.indicatorParameter!],
+      dataUnit: csv[i][headerIndex.dataUnit!],
+      dataScale: headerIndex.dataScale ? csv[i][headerIndex.dataScale] || undefined : undefined,
       dataSeries,
     })
   }
