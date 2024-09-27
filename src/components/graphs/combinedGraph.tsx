@@ -22,10 +22,10 @@ export default function CombinedGraph({
 
   const [isStacked, setIsStacked] = useState(true);
 
-  for (let i in siblings) {
-    let mainSeries = []
+  for (const i in siblings) {
+    const mainSeries = []
     if (siblings[i].dataSeries) {
-      for (let j of dataSeriesDataFieldNames) {
+      for (const j of dataSeriesDataFieldNames) {
         mainSeries.push({
           x: new Date(j.replace('val', '')).getTime(),
           y: siblings[i].dataSeries![j as keyof DataSeriesDataFields] ?? null,
@@ -42,7 +42,7 @@ export default function CombinedGraph({
     }
   }
 
-  let chartOptions: ApexCharts.ApexOptions = {
+  const chartOptions: ApexCharts.ApexOptions = {
     chart: {
       id: 'combinedGraph',
       type: isStacked ? 'area' : 'line',
@@ -80,7 +80,7 @@ export default function CombinedGraph({
   return (siblings.length > 1 &&
     <div>
       <nav className="display-flex justify-content-flex-end margin-y-100">
-        <button className="call-to-action-primary display-flex align-items-center gap-50 transparent" style={{width: 'fit-content', fontWeight: 'bold', fontSize: '1rem'}} type="button" onClick={() => setIsStacked(!isStacked)}>
+        <button className="call-to-action-primary display-flex align-items-center gap-50 transparent" style={{ width: 'fit-content', fontWeight: 'bold', fontSize: '1rem' }} type="button" onClick={() => setIsStacked(!isStacked)}>
           Byt typ av graf
           <Image src='/icons/chartArea.svg' alt='Byt graf' width={24} height={24} />
 

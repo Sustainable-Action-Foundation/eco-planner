@@ -2,21 +2,13 @@ import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import RoadmapTable from "@/components/tables/roadmapTable";
 import AttributedImage from "@/components/generic/images/attributedImage";
-import getMetaRoadmaps from "@/fetchers/getMetaRoadmaps";
-// import { useEffect, useState } from "react";
+import getMetaRoadmaps from "@/fetchers/getMetaRoadmaps";;
 import { roadmapSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
 import { RoadmapType } from "@prisma/client";
 import RoadmapFilters from "@/components/forms/filters/roadmapFilters";
 import { RoadmapSortBy } from "@/types";
 
 export default async function Page({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
-  // It's fine even if the user modifies their data here, as it will be verified on the server, and they won't have access to anything extra
-  // const [user, setUser] = useState<LoginData["user"] | null>(null);
-  // const [metaRoadmaps, setMetaRoadmaps] = useState<Awaited<ReturnType<typeof getMetaRoadmaps>> | null>(null);
-  // const [sortBy, setSortBy] = useState<RoadmapSortBy>(RoadmapSortBy.Default);
-  // const [typeFilter, setTypeFilter] = useState<RoadmapType[]>([])
-  // const [searchFilter, setSearchFilter] = useState<string>('')
-
   const [session, metaRoadmaps] = await Promise.all([
     getSession(cookies()),
     getMetaRoadmaps(),
@@ -25,10 +17,6 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
   const typeFilter = searchParams['typeFilter'] ? (Array.isArray(searchParams['typeFilter']) ? searchParams['typeFilter'] : [searchParams['typeFilter']]) : [];
   const sortBy = searchParams['sortBy'] ? (Array.isArray(searchParams['sortBy']) ? (searchParams['sortBy'][0] as RoadmapSortBy) : (searchParams['sortBy'] as RoadmapSortBy)) : RoadmapSortBy.Default;
   const searchFilter = searchParams['searchFilter'] ? (Array.isArray(searchParams['searchFilter']) ? searchParams['searchFilter'][0] : searchParams['searchFilter']) : '';
-
-  // if (!metaRoadmaps) {
-  //   return (<p>Laddar data</p>);
-  // }
 
   // Get the latest version of all roadmaps
   let roadmaps: (typeof metaRoadmaps[number] & { metaRoadmap: typeof metaRoadmaps[number] })['roadmapVersions'] = [];

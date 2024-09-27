@@ -6,16 +6,16 @@ export default function findSiblings(
   },
   goal: Goal & { dataSeries: DataSeries | null },
 ) {
-  let siblings: (Goal & { dataSeries: DataSeries | null })[] = [];
+  const siblings: (Goal & { dataSeries: DataSeries | null })[] = [];
 
-  let goalParameters = goal.indicatorParameter.split("\\");
+  const goalParameters = goal.indicatorParameter.split("\\");
   // Remove the "Key" or "Demand" parameter if present
   if (goalParameters[0] == "Key" || goalParameters[0] == "Demand") {
     goalParameters.shift()
   }
 
-  for (let sibling of roadmap.goals) {
-    let siblingParameters = sibling.indicatorParameter.split("\\");
+  for (const sibling of roadmap.goals) {
+    const siblingParameters = sibling.indicatorParameter.split("\\");
     // Goals can be siblings despite one of them having a "Key" and the other a "Demand" parameter
     if (siblingParameters[0] == "Key" || siblingParameters[0] == "Demand") {
       siblingParameters.shift()

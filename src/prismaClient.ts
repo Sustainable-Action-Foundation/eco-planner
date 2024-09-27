@@ -2,6 +2,6 @@
 // There will still be multiple instances running in dev environment, but it's not really a problem.
 import { PrismaClient } from "@prisma/client";
 
-let prisma = new PrismaClient();
+const prisma = new PrismaClient();
 
 export default prisma;

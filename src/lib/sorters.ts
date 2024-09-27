@@ -11,7 +11,7 @@ export function metaRoadmapSorter(a: MetaRoadmap, b: MetaRoadmap) {
   // Higher priority roadmaps are first in the values array, so we reverse it to
   // account for the fact that indexOf() returns -1 if the element is not found, which
   // should be considered lower priority than any other index
-  let values = Object.values(RoadmapType);
+  const values = Object.values(RoadmapType);
   values.reverse();
   const aIndex = values.indexOf(a.type);
   const bIndex = values.indexOf(b.type);
@@ -32,7 +32,7 @@ export function roadmapSorter(a: {} & { metaRoadmap: MetaRoadmap }, b: {} & { me
   // Higher priority roadmaps are first in the values array, so we reverse it to
   // account for the fact that indexOf() returns -1 if the element is not found, which
   // should be considered lower priority than any other index
-  let values = Object.values(RoadmapType);
+  const values = Object.values(RoadmapType);
   values.reverse();
   const aIndex = values.indexOf(a.metaRoadmap.type);
   const bIndex = values.indexOf(b.metaRoadmap.type);

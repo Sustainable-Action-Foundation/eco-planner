@@ -8,10 +8,6 @@ import { useTransition } from "react";
 import { useDebouncedCallback } from "use-debounce";
 
 export default function RoadmapFilters() {
-  // const [sortBy, setSortBy] = useState<RoadmapSortBy>(RoadmapSortBy.Default);
-  // const [typeFilter, setTypeFilter] = useState<RoadmapType[]>([])
-  // const [searchFilter, setSearchFilter] = useState<string>('')
-
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
