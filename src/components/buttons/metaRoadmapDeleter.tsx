@@ -1,5 +1,6 @@
 'use client';
 
+// `getOneMetaRoadmap` is not called here, only used to type the argument, so we're not leaking any data.
 import getOneMetaRoadmap from "@/fetchers/getOneMetaRoadmap";
 import { useRef } from "react";
 import ConfirmDelete from "../modals/confirmDelete";

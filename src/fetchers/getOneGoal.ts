@@ -21,6 +21,77 @@ export default async function getOneGoal(id: string) {
 }
 
 /**
+ * A wrapper for `getOneGoal` that excludes sensitive data.
+ * 
+ * Returns null if goal is not found or user does not have access to it. Also returns null on error.
+ * @param id ID of the goal to get
+ * @returns Goal object with actions
+ */
+export async function clientSafeGetOneGoal(id: string) {
+  const goal = await getOneGoal(id);
+  if (!goal) return null;
+
+  return {
+    id: goal.id,
+    name: goal.name,
+    description: goal.description,
+    indicatorParameter: goal.indicatorParameter,
+    isFeatured: goal.isFeatured,
+    externalDataset: goal.externalDataset,
+    externalTableId: goal.externalTableId,
+    externalSelection: goal.externalSelection,
+    combinationScale: goal.combinationScale,
+    roadmapId: goal.roadmapId,
+    _count: goal._count,
+    dataSeries: (goal.dataSeries ? (({
+      createdAt,
+      updatedAt,
+      authorId,
+      ...data
+    }) => data)(goal.dataSeries) : null),
+    combinationParents: goal.combinationParents.map(combination => ({
+      resultingGoalId: combination.resultingGoalId,
+      parentGoalId: combination.parentGoalId,
+      isInverted: combination.isInverted,
+      parentGoal: {
+        id: combination.parentGoal.id,
+        dataSeries: (combination.parentGoal.dataSeries ? (({
+          createdAt,
+          updatedAt,
+          authorId,
+          ...data
+        }) => data)(combination.parentGoal.dataSeries) : null),
+        roadmapId: combination.parentGoal.roadmapId,
+      },
+    })),
+    actions: goal.actions.map(action => ({
+      id: action.id,
+      name: action.name,
+      description: action.description,
+    })),
+    roadmap: {
+      id: goal.roadmap.id,
+      version: goal.roadmap.version,
+      targetVersion: goal.roadmap.targetVersion,
+      metaRoadmap: {
+        id: goal.roadmap.metaRoadmap.id,
+        name: goal.roadmap.metaRoadmap.name,
+        parentRoadmapId: goal.roadmap.metaRoadmap.parentRoadmapId,
+      },
+    },
+    links: goal.links,
+    comments: goal.comments?.map(comment => ({
+      id: comment.id,
+      commentText: comment.commentText,
+      actionId: comment.actionId,
+      goalId: comment.goalId,
+      roadmapId: comment.roadmapId,
+      metaRoadmapId: comment.metaRoadmapId,
+    })),
+  };
+}
+
+/**
  * Caches the specified goal and all actions for that goal.
  * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'goal', 'action', 'dataSeries']`, which is done in relevant API routes.
  * @param id ID of the goal to cache

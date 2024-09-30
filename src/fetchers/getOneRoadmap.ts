@@ -6,6 +6,7 @@ import prisma from "@/prismaClient";
 import { Comment, DataSeries, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
+import { data } from "node_modules/cypress/types/jquery";
 
 /**
  * Gets specified roadmap and all goals for that roadmap.
@@ -17,6 +18,61 @@ import { cookies } from "next/headers";
 export default async function getOneRoadmap(id: string) {
   const session = await getSession(cookies());
   return getCachedRoadmap(id, session.user?.id ?? '')
+}
+
+/**
+ * A wrapper for `getOneRoadmap` that excludes sensitive data.
+ * 
+ * Returns null if roadmap is not found or user does not have access to it. Also returns null on error.
+ * @param id ID of the roadmap to get
+ * @returns Roadmap object with goals
+ */
+export async function clientSafeGetOneRoadmap(id: string) {
+  const roadmap = await getOneRoadmap(id);
+  if (!roadmap) return null;
+
+  return {
+    id: roadmap.id,
+    description: roadmap.description,
+    version: roadmap.version,
+    targetVersion: roadmap.targetVersion,
+    isPublic: roadmap.isPublic,
+    metaRoadmap: {
+      id: roadmap.metaRoadmap.id,
+      name: roadmap.metaRoadmap.name,
+      description: roadmap.metaRoadmap.description,
+      type: roadmap.metaRoadmap.type,
+      actor: roadmap.metaRoadmap.actor,
+      parentRoadmapId: roadmap.metaRoadmap.parentRoadmapId,
+      isPublic: roadmap.metaRoadmap.isPublic,
+    },
+    goals: roadmap.goals.map(goal => ({
+      id: goal.id,
+      name: goal.name,
+      description: goal.description,
+      indicatorParameter: goal.indicatorParameter,
+      isFeatured: goal.isFeatured,
+      externalDataset: goal.externalDataset,
+      externalTableId: goal.externalTableId,
+      externalSelection: goal.externalSelection,
+      combinationScale: goal.combinationScale,
+      _count: goal._count,
+      dataSeries: (goal.dataSeries ? (({
+        createdAt,
+        updatedAt,
+        authorId,
+        ...data
+      }) => data)(goal.dataSeries) : null),
+    })),
+    comments: roadmap.comments?.map(comment => ({
+      id: comment.id,
+      commentText: comment.commentText,
+      actionId: comment.actionId,
+      goalId: comment.goalId,
+      roadmapId: comment.roadmapId,
+      metaRoadmapId: comment.metaRoadmapId,
+    })),
+  }
 }
 
 /**

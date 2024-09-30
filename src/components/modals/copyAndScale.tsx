@@ -4,7 +4,7 @@ import { DataSeries, Goal } from "@prisma/client";
 import Image from "next/image";
 import { closeModal, openModal } from "./modalFunctions";
 import { useEffect, useRef, useState } from "react";
-import getRoadmaps from "@/fetchers/getRoadmaps";
+import { clientSafeGetEditableRoadmaps } from "@/fetchers/getRoadmaps";
 import { LoginData } from "@/lib/session";
 import RepeatableScaling from "../repeatableScaling";
 import { GoalInput, dataSeriesDataFieldNames, ScaleBy, ScaleMethod, ScalingRecipie } from "@/types";
@@ -211,17 +211,7 @@ export default function CopyAndScale({
 
   // Get list of roadmaps user can add a copy of the goal to
   useEffect(() => {
-    getRoadmaps().then(roadmaps => {
-      // Select only roadmaps user ha edit access to
-      return roadmaps.filter(roadmap => {
-        // There is an additional check in the API, so it's fine even if the user edits their client-side code
-        if (user?.isAdmin) return true;
-        if (roadmap.authorId === user?.id) return true;
-        if (roadmap.editors.some(editor => editor.id === user?.id)) return true;
-        if (roadmap.editGroups.some(editGroup => user?.userGroups.some(userGroup => userGroup === editGroup.name))) return true;
-        return false;
-      });
-    }).then(roadmaps => {
+    clientSafeGetEditableRoadmaps().then(roadmaps => {
       setRoadmapOptions(roadmaps.map(roadmap => ({ id: roadmap.id, name: roadmap.metaRoadmap.name, version: roadmap.version, actor: roadmap.metaRoadmap.actor })));
     }).catch(error => {
       console.error("Error getting roadmaps", error);
