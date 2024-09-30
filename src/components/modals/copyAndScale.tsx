@@ -3,9 +3,7 @@
 import { DataSeries, Goal } from "@prisma/client";
 import Image from "next/image";
 import { closeModal, openModal } from "./modalFunctions";
-import { useEffect, useRef, useState } from "react";
-import { clientSafeGetEditableRoadmaps } from "@/fetchers/getRoadmaps";
-import { LoginData } from "@/lib/session";
+import { useRef, useState } from "react";
 import RepeatableScaling from "../repeatableScaling";
 import { GoalInput, dataSeriesDataFieldNames, ScaleBy, ScaleMethod, ScalingRecipie } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
@@ -196,28 +194,17 @@ export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, set
 
 export default function CopyAndScale({
   goal,
-  user,
+  roadmapOptions,
 }: {
   goal: Goal & { dataSeries: DataSeries | null },
-  user: LoginData["user"],
+  roadmapOptions: { id: string, name: string, version: number, actor: string | null }[],
 }) {
   const [isLoading, setIsLoading] = useState(false);
-  const [roadmapOptions, setRoadmapOptions] = useState<{ id: string, name: string, version: number, actor: string | null }[]>([]);
   const [scalingComponents, setScalingComponents] = useState<string[]>([crypto?.randomUUID() || Math.random().toString()]);
   const [scalingMethod, setScalingMethod] = useState<ScaleMethod>(ScaleMethod.Geometric);
   const [scalingResult, setScalingResult] = useState<number>(1);
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
-
-  // Get list of roadmaps user can add a copy of the goal to
-  useEffect(() => {
-    clientSafeGetEditableRoadmaps().then(roadmaps => {
-      setRoadmapOptions(roadmaps.map(roadmap => ({ id: roadmap.id, name: roadmap.metaRoadmap.name, version: roadmap.version, actor: roadmap.metaRoadmap.actor })));
-    }).catch(error => {
-      console.error("Error getting roadmaps", error);
-      setRoadmapOptions([{ id: "error", name: "Error getting roadmaps", version: 0, actor: null }]);
-    });
-  }, [user]);
 
   async function recalculateScalingResult() {
     await new Promise(resolve => setTimeout(resolve, 0)); // Wait for the form to update; without this we get the value *before* the action that triggered the update

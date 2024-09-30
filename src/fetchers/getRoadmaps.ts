@@ -46,46 +46,6 @@ export async function clientSafeGetRoadmaps() {
 }
 
 /**
- * A wrapper for `getRoadmaps` that excludes sensitive data and only returns roadmaps the user can edit.
- * 
- * Returns an empty array if no roadmaps are found or user does not have write access to any. Also returns an empty array on error.
- * @returns Array of roadmaps
- */
-export async function clientSafeGetEditableRoadmaps() {
-  const [session, roadmaps] = await Promise.all([
-    getSession(cookies()),
-    getRoadmaps()
-  ]);
-
-  // Filter roadmaps the user can edit
-  const filteredRoadmaps = roadmaps.filter(roadmap => {
-    if (session.user?.isAdmin) return true;
-    if (roadmap.authorId === session.user?.id) return true;
-    if (roadmap.editors.some(editor => editor.id === session.user?.id)) return true;
-    if (roadmap.editGroups.some(editGroup => session.user?.userGroups.some(userGroup => userGroup === editGroup.name))) return true;
-    return false;
-  });
-
-  return filteredRoadmaps.map(roadmap => ({
-    id: roadmap.id,
-    description: roadmap.description,
-    version: roadmap.version,
-    targetVersion: roadmap.targetVersion,
-    isPublic: roadmap.isPublic,
-    _count: roadmap._count,
-    metaRoadmap: {
-      id: roadmap.metaRoadmap.id,
-      name: roadmap.metaRoadmap.name,
-      description: roadmap.metaRoadmap.description,
-      type: roadmap.metaRoadmap.type,
-      actor: roadmap.metaRoadmap.actor,
-      parentRoadmapId: roadmap.metaRoadmap.parentRoadmapId,
-      isPublic: roadmap.metaRoadmap.isPublic,
-    },
-  }));
-}
-
-/**
  * Caches all roadmaps the user has access to.
  * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap']`, which is done in relevant API routes.
  * @param userId ID of user. Isn't passed in, but is used to associate the cache with the user.
