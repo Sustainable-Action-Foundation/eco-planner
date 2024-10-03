@@ -25,13 +25,15 @@ import QueryBuilder from "@/components/forms/pxWeb/queryBuilder";
 import GraphCookie from "@/components/cookies/graphCookie";
 import SecondaryGoalSelector from "@/components/graphs/secondaryGraphSelector";
 import UpdateGoalButton from "@/components/buttons/updateGoalButton";
+import getRoadmaps from "@/fetchers/getRoadmaps";
 
 export default async function Page({ params, searchParams }: { params: { roadmapId: string, goalId: string }, searchParams: { [key: string]: string | string[] | undefined } }) {
-  const [session, roadmap, goal, secondaryGoal] = await Promise.all([
+  const [session, roadmap, goal, secondaryGoal, unfilteredRoadmapOptions] = await Promise.all([
     getSession(cookies()),
     getOneRoadmap(params.roadmapId),
     getOneGoal(params.goalId),
-    typeof searchParams["secondaryGoal"] == "string" ? getOneGoal(searchParams["secondaryGoal"]) : Promise.resolve(null)
+    typeof searchParams["secondaryGoal"] == "string" ? getOneGoal(searchParams["secondaryGoal"]) : Promise.resolve(null),
+    getRoadmaps(),
   ]);
 
   let accessLevel: AccessLevel = AccessLevel.None;
@@ -52,6 +54,16 @@ export default async function Page({ params, searchParams }: { params: { roadmap
     return notFound();
   }
 
+  // Create a list of roadmaps the user can copy and scale the goal to
+  const roadmapOptions = unfilteredRoadmapOptions.filter(roadmap => {
+    if (session.user?.isAdmin) return true;
+    if (roadmap.authorId === session.user?.id) return true;
+    if (roadmap.editors.some(editor => editor.id === session.user?.id)) return true;
+    if (roadmap.editGroups.some(editGroup => session.user?.userGroups.some(userGroup => userGroup === editGroup.name))) return true;
+    return false;
+  }).map(roadmap => ({ id: roadmap.id, name: roadmap.metaRoadmap.name, version: roadmap.version, actor: roadmap.metaRoadmap.actor }))
+
+  // Fetch external data
   let externalData: PxWebApiV2TableContent | null = null;
   if (goal.externalDataset && goal.externalTableId && goal.externalSelection) {
     externalData = await getTableContent(goal.externalTableId, JSON.parse(goal.externalSelection), goal.externalDataset).then(data => filterTableContentKeys(data));
@@ -126,7 +138,7 @@ export default async function Page({ params, searchParams }: { params: { roadmap
         <div className="flex flex-wrap-wrap align-items-center justify-content-space-between gap-100">
           <h2 style={{ fontSize: '2.5rem', margin: '0' }}>{goal.name}</h2>
           {(goal.dataSeries?.id && session.user) ?
-            <CopyAndScale goal={goal} user={session.user} />
+            <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
             : null}
         </div>
         {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&

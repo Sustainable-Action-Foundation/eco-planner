@@ -8,14 +8,14 @@ import RoadmapTable from "../tables/roadmapTable";
 import ActionTable from "../tables/actions";
 
 export default async function DashboardBase({ actor }: { actor: string }) {
-  let [session, roadmaps] = await Promise.all([
+  const [session, roadmaps] = await Promise.all([
     getSession(cookies()),
     getRoadmapSubset(actor)
   ]);
 
-  let goalIds: string[] = []
-  for (let roadmap of roadmaps) {
-    for (let goal of roadmap.goals) {
+  const goalIds: string[] = []
+  for (const roadmap of roadmaps) {
+    for (const goal of roadmap.goals) {
       goalIds.push(goal.id)
     }
   }
@@ -31,10 +31,10 @@ export default async function DashboardBase({ actor }: { actor: string }) {
   }
 
   // Get a list of actions
-  let actions: (Action & { goal: { id: string, roadmap: { id: string } } })[] = [];
-  for (let goal of goals) {
+  const actions: (Action & { goal: { id: string, roadmap: { id: string } } })[] = [];
+  for (const goal of goals) {
     if (!goal) continue;
-    for (let action of goal.actions) {
+    for (const action of goal.actions) {
       actions.push({ ...action, goal: { id: goal.id, roadmap: { id: goal.roadmap.id } } })
     }
   }

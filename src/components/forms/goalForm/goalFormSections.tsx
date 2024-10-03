@@ -3,9 +3,9 @@
 import { DataSeries, Goal } from "@prisma/client";
 import { dataSeriesPattern } from "./goalForm";
 import { Fragment, useEffect, useState } from "react";
-import getOneRoadmap from "@/fetchers/getOneRoadmap";
-import getOneGoal from "@/fetchers/getOneGoal";
-import getRoadmaps from "@/fetchers/getRoadmaps";
+import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
+import { clientSafeGetOneGoal } from "@/fetchers/getOneGoal";
+import { clientSafeGetRoadmaps } from "@/fetchers/getRoadmaps";
 import mathjs from "@/math";
 
 export function ManualGoalForm({
@@ -107,15 +107,15 @@ export function InheritedGoalForm({
     roadmap: { id: string },
   },
 }) {
-  const [roadmapList, setRoadmapList] = useState<Awaited<ReturnType<typeof getRoadmaps>>>([]);
+  const [roadmapList, setRoadmapList] = useState<Awaited<ReturnType<typeof clientSafeGetRoadmaps>>>([]);
   const [selectedRoadmap, setSelectedRoadmap] = useState(currentGoal?.combinationParents[0]?.parentGoal.roadmapId);
-  const [roadmapData, setRoadmapData] = useState<Awaited<ReturnType<typeof getOneRoadmap>>>(null);
+  const [roadmapData, setRoadmapData] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
   const [selectedGoal, setSelectedGoal] = useState(currentGoal?.combinationParents[0]?.parentGoal.id);
-  const [goalData, setGoalData] = useState<Awaited<ReturnType<typeof getOneGoal>>>(null);
+  const [goalData, setGoalData] = useState<Awaited<ReturnType<typeof clientSafeGetOneGoal>>>(null);
   const [parsedUnit, setParsedUnit] = useState<string | null>(null);
 
   useEffect(() => {
-    getRoadmaps().then(setRoadmapList);
+    clientSafeGetRoadmaps().then(setRoadmapList);
     if (currentGoal?.combinationParents[0]?.parentGoal.roadmapId) {
       setSelectedRoadmap(currentGoal.combinationParents[0].parentGoal.roadmapId);
     }
@@ -132,11 +132,11 @@ export function InheritedGoalForm({
   }, [currentGoal]);
 
   useEffect(() => {
-    getOneRoadmap(selectedRoadmap ?? "").then(setRoadmapData);
+    clientSafeGetOneRoadmap(selectedRoadmap ?? "").then(setRoadmapData);
   }, [selectedRoadmap]);
 
   useEffect(() => {
-    getOneGoal(selectedGoal ?? "").then(setGoalData)
+    clientSafeGetOneGoal(selectedGoal ?? "").then(setGoalData)
   }, [selectedGoal]);
   return (
     <>
@@ -216,12 +216,12 @@ export function CombinedGoalForm({
     roadmap: { id: string },
   },
 }) {
-  const [currentRoadmap, setCurrentRoadmap] = useState<Awaited<ReturnType<typeof getOneRoadmap>>>(null);
+  const [currentRoadmap, setCurrentRoadmap] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
   const [inheritFrom, setInheritFrom] = useState<string[]>([]);
   const [parsedUnit, setParsedUnit] = useState<string | null>(null);
 
   useEffect(() => {
-    getOneRoadmap(roadmapId).then(setCurrentRoadmap);
+    clientSafeGetOneRoadmap(roadmapId).then(setCurrentRoadmap);
   }, [roadmapId]);
 
   useEffect(() => {

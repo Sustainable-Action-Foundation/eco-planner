@@ -37,6 +37,15 @@ export enum ScaleBy {
   Area = "AREA",
 }
 
+/** Enum with the different types of sorting available for roadmaps */
+export enum RoadmapSortBy {
+  Default = "",
+  Alpha = "ALPHA",
+  AlphaReverse = "ALPHA REVERSE",
+  GoalsFalling = "HIGH FIRST",
+  GoalsRising = "LOW FIRST",
+}
+
 /** Different scaling methods used in scalingRecipie */
 export enum ScaleMethod {
   Algebraic = "ALGEBRAIC",

@@ -19,6 +19,33 @@ export default async function getRoadmaps() {
 }
 
 /**
+ * A wrapper for `getRoadmaps` that excludes sensitive data.
+ * 
+ * Returns an empty array if no roadmaps are found or user does not have access to any. Also returns an empty array on error.
+ * @returns Array of roadmaps
+ */
+export async function clientSafeGetRoadmaps() {
+  const roadmaps = await getRoadmaps();
+  return roadmaps.map(roadmap => ({
+    id: roadmap.id,
+    description: roadmap.description,
+    version: roadmap.version,
+    targetVersion: roadmap.targetVersion,
+    isPublic: roadmap.isPublic,
+    _count: roadmap._count,
+    metaRoadmap: {
+      id: roadmap.metaRoadmap.id,
+      name: roadmap.metaRoadmap.name,
+      description: roadmap.metaRoadmap.description,
+      type: roadmap.metaRoadmap.type,
+      actor: roadmap.metaRoadmap.actor,
+      parentRoadmapId: roadmap.metaRoadmap.parentRoadmapId,
+      isPublic: roadmap.metaRoadmap.isPublic,
+    },
+  }));
+}
+
+/**
  * Caches all roadmaps the user has access to.
  * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap']`, which is done in relevant API routes.
  * @param userId ID of user. Isn't passed in, but is used to associate the cache with the user.

@@ -12,10 +12,10 @@ export default function ThumbnailGraph({
     return null
   }
 
-  let mainChart: ApexAxisChartSeries = [];
+  const mainChart: ApexAxisChartSeries = [];
   if (goal.dataSeries) {
-    let mainSeries = []
-    for (let i of dataSeriesDataFieldNames) {
+    const mainSeries = []
+    for (const i of dataSeriesDataFieldNames) {
       if (goal.dataSeries[i as keyof DataSeriesDataFields]) {
         mainSeries.push({
           x: new Date(i.replace('val', '')).getTime(),
@@ -30,7 +30,7 @@ export default function ThumbnailGraph({
     })
   }
 
-  let mainChartOptions: ApexCharts.ApexOptions = {
+  const mainChartOptions: ApexCharts.ApexOptions = {
     chart: {
       type: 'line',
       animations: { enabled: false, dynamicAnimation: { enabled: false } },
@@ -41,7 +41,7 @@ export default function ThumbnailGraph({
         show: false,
       },
     },
-    tooltip : {  enabled : false },
+    tooltip: { enabled: false },
     stroke: { curve: 'straight' },
     xaxis: {
       type: 'datetime',

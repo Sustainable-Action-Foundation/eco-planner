@@ -1,45 +1,22 @@
-'use client';
-
-import { LoginData } from "@/lib/session";
-// import { cookies } from "next/headers";
+import { getSession } from "@/lib/session";
+import { cookies } from "next/headers";
 import RoadmapTable from "@/components/tables/roadmapTable";
 import AttributedImage from "@/components/generic/images/attributedImage";
-import getMetaRoadmaps from "@/fetchers/getMetaRoadmaps";
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import clientGetUserSession from "@/lib/clientGetSession";
+import getMetaRoadmaps from "@/fetchers/getMetaRoadmaps";;
 import { roadmapSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
 import { RoadmapType } from "@prisma/client";
+import RoadmapFilters from "@/components/forms/filters/roadmapFilters";
+import { RoadmapSortBy } from "@/types";
 
-enum RoadmapSortBy {
-  Default = "",
-  Alpha = "ALPHA",
-  AlphaReverse = "ALPHA REVERSE",
-  GoalsFalling = "HIGH FIRST",
-  GoalsRising = "LOW FIRST",
-}
+export default async function Page({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
+  const [session, metaRoadmaps] = await Promise.all([
+    getSession(cookies()),
+    getMetaRoadmaps(),
+  ]);
 
-export default function Page() {
-  // It's fine even if the user modifies their data here, as it will be verified on the server, and they won't have access to anything extra
-  const [user, setUser] = useState<LoginData["user"] | null>(null);
-  const [metaRoadmaps, setMetaRoadmaps] = useState<Awaited<ReturnType<typeof getMetaRoadmaps>> | null>(null);
-  const [sortBy, setSortBy] = useState<RoadmapSortBy>(RoadmapSortBy.Default);
-  const [typeFilter, setTypeFilter] = useState<RoadmapType[]>([])
-  const [searchFilter, setSearchFilter] = useState<string>('')
-
-  useEffect(() => {
-    Promise.all([
-      clientGetUserSession(),
-      getMetaRoadmaps(),
-    ]).then(([sessionData, metaRoadmapData]) => {
-      setUser(sessionData);
-      setMetaRoadmaps(metaRoadmapData);
-    })
-  }, []);
-
-  if (!metaRoadmaps) {
-    return (<p>Laddar data</p>);
-  }
+  const typeFilter = searchParams['typeFilter'] ? (Array.isArray(searchParams['typeFilter']) ? searchParams['typeFilter'] : [searchParams['typeFilter']]) : [];
+  const sortBy = searchParams['sortBy'] ? (Array.isArray(searchParams['sortBy']) ? (searchParams['sortBy'][0] as RoadmapSortBy) : (searchParams['sortBy'] as RoadmapSortBy)) : RoadmapSortBy.Default;
+  const searchFilter = searchParams['searchFilter'] ? (Array.isArray(searchParams['searchFilter']) ? searchParams['searchFilter'][0] : searchParams['searchFilter']) : '';
 
   // Get the latest version of all roadmaps
   let roadmaps: (typeof metaRoadmaps[number] & { metaRoadmap: typeof metaRoadmaps[number] })['roadmapVersions'] = [];
@@ -132,65 +109,15 @@ export default function Page() {
             <p className="margin-0">Photo by <a className="color-purewhite" href="https://unsplash.com/@markusspiske?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Markus Spiske</a> on <a className="color-purewhite" href="https://unsplash.com/photos/white-and-blue-solar-panels-pwFr_1SUXRo?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Unsplash</a></p>
           </div>
           { // Link to create roadmap form if logged in
-            user &&
+            session.user &&
             <a href="/metaRoadmap/createMetaRoadmap" className="button purewhite round block" >Skapa ny färdplan</a>
           }
         </div>
       </AttributedImage>
     </div>
+    <RoadmapFilters />
     <section>
-      <section className="margin-y-100 padding-y-50" style={{ borderBottom: '2px solid var(--gray-90)' }}>
-        <label className="font-weight-bold margin-y-25 container-text">
-          Sök färdplan
-          <div className="margin-y-50 flex align-items-center gray-90 padding-50 smooth focusable">
-            <Image src='/icons/search.svg' alt="" width={24} height={24} />
-            <input type="search" className="padding-0 margin-x-50" onChange={(e) => setSearchFilter(e.target.value)} />
-          </div>
-        </label>
-        <div className="flex gap-100 align-items-center justify-content-space-between">
-          <label className="margin-y-100 font-weight-bold">
-            Sortera på:
-            <select className="font-weight-bold margin-y-50 block" onChange={(e) => { setSortBy(e.target.value as RoadmapSortBy) }}>
-              <option value="">Standard</option>
-              <option value={RoadmapSortBy.Alpha}>Namn (A-Ö)</option>
-              <option value={RoadmapSortBy.AlphaReverse}>Namn (Ö-A)</option>
-              <option value={RoadmapSortBy.GoalsFalling}>Antal målbanor (fallande)</option>
-              <option value={RoadmapSortBy.GoalsRising}>Antal målbanor (stigande)</option>
-            </select>
-          </label>
-          <label className='flex align-items-center gap-50 padding-50 font-weight-bold button smooth transparent'>
-            <span style={{ lineHeight: '1', }}>Filtrera</span>
-            <div className='position-relative grid place-items-center'>
-              <input type="checkbox" className="position-absolute width-100 height-100 hidden" />
-              <Image src="/icons/filter.svg" alt="" width="24" height="24" />
-            </div>
-          </label>
-        </div>
-      </section>
-      <section id="roadmapFilters" className="margin-y-200 padding-100 gray-90 rounded">
-        <b>Visa</b>
-        {Object.values(RoadmapType).map((thisType, key) => (
-          <label className="flex align-items-center gap-25 margin-y-50" key={key}>
-            <input type="checkbox" value={thisType} onChange={(e) => {
-              if (e.target.checked) {
-                setTypeFilter([...typeFilter, (e.target.value as RoadmapType)])
-              } else {
-                setTypeFilter(typeFilter.filter((item) => item != e.target.value))
-              }
-            }} />
-            {`${thisType == RoadmapType.NATIONAL ? "Nationella" :
-              thisType == RoadmapType.REGIONAL ? "Regionala" :
-                thisType == RoadmapType.MUNICIPAL ? "Kommunala" :
-                  thisType == RoadmapType.LOCAL ? "Lokala" :
-                    thisType == RoadmapType.OTHER ? "Övriga" :
-                      thisType
-              } färdplaner`}
-          </label>
-        ))}
-      </section>
-    </section>
-    <section>
-      <RoadmapTable user={user ?? undefined} roadmaps={roadmaps} />
+      <RoadmapTable user={session.user ?? undefined} roadmaps={roadmaps} />
     </section>
   </>
 }

@@ -8,11 +8,11 @@ export default function ActionGraph({
 }: {
   actions: Action[],
 }) {
-  let series: ApexAxisChartSeries = [];
-  let actionData = []
+  const series: ApexAxisChartSeries = [];
+  const actionData = []
 
   // The string '2020' is interpreted as a year while the number 2020 is interpreted as a timestamp
-  for (let action of actions) {
+  for (const action of actions) {
     actionData.push({
       x: action.name,
       y: [
@@ -30,9 +30,9 @@ export default function ActionGraph({
     type: 'rangeBar',
   })
 
-  let height = `${100 + (series[0].data.length * 32)}px`
+  const height = `${100 + (series[0].data.length * 32)}px`
 
-  let chartOptions: ApexCharts.ApexOptions = {
+  const chartOptions: ApexCharts.ApexOptions = {
     chart: {
       type: 'rangeBar',
       zoom: {

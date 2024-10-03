@@ -3,7 +3,7 @@ import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" wit
 import DashboardBase from "@/components/dashboard/dashboardBase";
 
 export default async function Page({ params }: { params: { actor: string } }) {
-  let decodedActor = decodeURI(params.actor)
+  const decodedActor = decodeURI(params.actor)
   // TODO: Get valid actors from some other source, since they can now be more than just counties and municipalities
   // TODO: Allow URLs with a and o to match values with å, ä, and ö
   // Redirect to correct county
