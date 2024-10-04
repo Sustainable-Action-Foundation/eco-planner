@@ -18,6 +18,15 @@ enum RoadmapType {
   OTHER
 }
 
+enum ActionImpactType {
+  // Change in percent of the previous year's baseline + actions
+  PERCENT
+  // Absolute difference from baseline
+  ABSOLUTE
+  // Change from previous year, if year 1 and 2 both have a value of 10, the total value for year 2 will be 20
+  DELTA
+}
+
 // Meta roadmaps are used for the highest level of roadmaps and reference multiple versions of the same roadmap
 model MetaRoadmap {
   // UUID of the meta roadmap
@@ -141,8 +150,10 @@ model Goal {
   // JSON string containing the selection for the external dataset. Is sent in the body of the request to the external API
   externalSelection String? @map("external_selection") @db.Text
 
-  // A series of datapoints for the goal
+  // A series of datapoints representing the goals for each year
   dataSeries          DataSeries?    @relation("data_series")
+  // A series of datapoints serving as a "baseline" where no action is taken
+  baselineDataSeries  DataSeries?    @relation("baseline_data_series")
   // A number of other goals, whose DataSeries combine to create a derived data series
   combinationParents  CombinedGoal[] @relation("combined_goal_target")
   // A list of goals which are a combination of this goal and some other
@@ -189,6 +200,7 @@ model DataSeries {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Unit used for the yearly fields
+  // Ignored if used as goal baseline or action outcome, as those should get their unit from the goal
   unit    String
   // An optional scale for the data series, for example % or thousands
   scale   String?
@@ -226,9 +238,16 @@ model DataSeries {
   val2049 Float?  @map("val_2049")
   val2050 Float?  @map("val_2050")
 
-  // Parent goal
-  goalId   String @unique @map("goal_id")
-  goal     Goal   @relation("data_series", fields: [goalId], references: [id], onDelete: Cascade)
+  // Goal using this data series as goals
+  goalId         String  @unique @map("goal_id")
+  goal           Goal?   @relation("data_series", fields: [goalId], references: [id], onDelete: Cascade)
+  // Goal using this data series as baseline
+  baselineGoalId String? @unique @map("baseline_goal_id")
+  baseline       Goal?   @relation("baseline_data_series", fields: [baselineGoalId], references: [id], onDelete: Cascade)
+  // Action using this data series as expected outcome
+  actionId       String? @unique @map("action_id")
+  action         Action? @relation("action_data_series", fields: [actionId], references: [id], onDelete: Cascade)
+
   // Author of the data series
   authorId String @map("author_id")
   author   User   @relation("data_series_author", fields: [authorId], references: [id])
@@ -261,8 +280,12 @@ model Action {
   projectManager  String? @map("project_manager")
   // Currently a text field, but might change to a many-to-many relationship with an actor table instead
   // Might be an organisation, group, company, region, etc.
-  // relevantActors actor[]
   relevantActors  String? @map("relevant_actors") @db.Text
+
+  // Data series representing the impact of this action, year by year
+  dataSeries DataSeries?      @relation("action_data_series")
+  // The type of impact this action has, affects how the data series is interpreted
+  impactType ActionImpactType @default(ABSOLUTE) @map("impact_type")
 
   // Different types of actions
   // Sufficiency generally means reducing consumption
