@@ -5,7 +5,7 @@ import styles from "./page.module.css" with { type: "css" };;
 export default async function Page() {
   return (
     <>
-      <main className={`${styles.gridLayout} container margin-auto padding-y-500 grid gap-300 align-items-center`}>
+      <main className={`${styles.gridLayout} container margin-auto padding-block-500 grid gap-300 align-items-center`}>
         <Signup />
         <div className={`${styles.image} position-relative width-100 rounded overflow-hidden`}>
           <AttributedImage src="/images/hydroelectric.jpg" alt="">

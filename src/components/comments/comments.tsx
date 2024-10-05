@@ -64,12 +64,12 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
 
   return (
     <>
-      <section className="container-text margin-y-300">
+      <section className="container-text margin-block-300">
         <h2>{comments?.length} Kommentarer</h2>
         <form onSubmit={handleSubmit}>
           <span className={styles.textarea} role="textbox" id="comment-text" contentEditable aria-label="Skriv Kommentar" aria-placeholder="Skriv Kommentar" onInput={handleInput} onBlur={handleInput} ref={spanRef}></span>
           <input type="hidden" name="comment" id="comment" value={editedContent} />
-          <div className="display-flex justify-content-flex-end gap-50 padding-y-50">
+          <div className="display-flex justify-content-flex-end gap-50 padding-block-50">
             <button type="button" disabled={!editedContent} className={`${styles.button} ${styles.cancel}`} onClick={removeText}>Avbryt</button>
             <button type="submit" disabled={!editedContent} className={`${styles.button} ${styles.comment}`}>Skicka</button>
           </div>
@@ -84,7 +84,7 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
               {expandedComments.includes(comment.id) ? comment.commentText : comment.commentText.length > 300 ? `${comment.commentText.substring(0, 300)}...` : comment.commentText}
             </p>
             {comment.commentText.length > 300 ?
-              <button className={`margin-y-25 ${styles.readMoreButton}`} onClick={() => expandComment(comment.id)}>
+              <button className={`margin-block-25 ${styles.readMoreButton}`} onClick={() => expandComment(comment.id)}>
                 {expandedComments.includes(comment.id) ? 'Visa mindre' : 'Visa mer'}
               </button>
               : null}

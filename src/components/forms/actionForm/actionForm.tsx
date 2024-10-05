@@ -52,65 +52,65 @@ export default function ActionForm({
         {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
         <button type="submit" disabled={true} style={{ display: 'none' }} aria-hidden={true} />
         
-        <label className="block margin-y-75">
+        <label className="block margin-block-75">
           Namn på åtgärden:
-          <input className="margin-y-25" type="text" name="actionName" required id="actionName" defaultValue={currentAction?.name} />
+          <input className="margin-block-25" type="text" name="actionName" required id="actionName" defaultValue={currentAction?.name} />
         </label>
 
-        <label className="block margin-y-75">
+        <label className="block margin-block-75">
           Beskrivning av åtgärden: 
-          <textarea className="margin-y-25" name="actionDescription" id="actionDescription" defaultValue={currentAction?.description ?? undefined} ></textarea>
+          <textarea className="margin-block-25" name="actionDescription" id="actionDescription" defaultValue={currentAction?.description ?? undefined} ></textarea>
         </label>
 
-        <label className="block margin-y-75">
+        <label className="block margin-block-75">
           Kostnadseffektivitet: 
-          <input className="margin-y-25" type="text" name="costEfficiency" id="costEfficiency" defaultValue={currentAction?.costEfficiency ?? undefined} />
+          <input className="margin-block-25" type="text" name="costEfficiency" id="costEfficiency" defaultValue={currentAction?.costEfficiency ?? undefined} />
         </label>
 
-        <label className="block margin-y-75">
+        <label className="block margin-block-75">
           Beskriv förväntat resultat: 
-          <textarea className="margin-y-25" name="expectedOutcome" id="expectedOutcome" defaultValue={currentAction?.expectedOutcome ?? undefined} />
+          <textarea className="margin-block-25" name="expectedOutcome" id="expectedOutcome" defaultValue={currentAction?.expectedOutcome ?? undefined} />
         </label>
         
-        <label className="block margin-y-75">
+        <label className="block margin-block-75">
           Planerat startår: 
-          <input className="margin-y-25" type="number" name="startYear" id="startYear" defaultValue={currentAction?.startYear ?? undefined} min={2000} />
+          <input className="margin-block-25" type="number" name="startYear" id="startYear" defaultValue={currentAction?.startYear ?? undefined} min={2000} />
         </label>
 
-        <label className="block margin-y-75">
+        <label className="block margin-block-75">
           Planerat slutår:
-          <input className="margin-y-25" type="number" name="endYear" id="endYear" defaultValue={currentAction?.endYear ?? undefined} min={2000} />
+          <input className="margin-block-25" type="number" name="endYear" id="endYear" defaultValue={currentAction?.endYear ?? undefined} min={2000} />
         </label>
 
-        <label className="block margin-y-75">
+        <label className="block margin-block-75">
           Projektansvarig: 
-          <input className="margin-y-25" type="text" name="projectManager" id="projectManager" defaultValue={currentAction?.projectManager ?? undefined} />
+          <input className="margin-block-25" type="text" name="projectManager" id="projectManager" defaultValue={currentAction?.projectManager ?? undefined} />
         </label>
 
-        <label className="block margin-y-75">
+        <label className="block margin-block-75">
           Relevanta aktörer: 
-          <input className="margin-y-25" type="text" name="relevantActors" id="relevantActors" defaultValue={currentAction?.relevantActors ?? undefined} />
+          <input className="margin-block-25" type="text" name="relevantActors" id="relevantActors" defaultValue={currentAction?.relevantActors ?? undefined} />
         </label>
 
         <p>Vilka kategorier faller åtgärden under?</p>
-        <div className="display-flex gap-25 align-items-center margin-y-50">
+        <div className="display-flex gap-25 align-items-center margin-block-50">
           <input type="checkbox" name="isSufficiency" id="isSufficiency" defaultChecked={currentAction?.isSufficiency} />
           <label htmlFor="isSufficiency">Sufficiency</label>
         </div>
-        <div className="display-flex gap-25 align-items-center margin-y-50">
+        <div className="display-flex gap-25 align-items-center margin-block-50">
           <input type="checkbox" name="isEfficiency" id="isEfficiency" defaultChecked={currentAction?.isEfficiency} />
           <label htmlFor="isEfficiency">Efficiency</label>
         </div>
-        <div className="display-flex gap-25 align-items-center margin-y-50">
+        <div className="display-flex gap-25 align-items-center margin-block-50">
           <input type="checkbox" name="isRenewables" id="isRenewables" defaultChecked={currentAction?.isRenewables} />
           <label htmlFor="isRenewables">Renewables</label>
         </div>
 
-        <div className="margin-y-300">
+        <div className="margin-block-300">
           <LinkInput links={currentAction?.links} />
         </div>
 
-        <input type="submit" className="margin-y-75 seagreen color-purewhite" value={currentAction ? "Spara" : "Skapa åtgärd"} />
+        <input type="submit" className="margin-block-75 seagreen color-purewhite" value={currentAction ? "Spara" : "Skapa åtgärd"} />
 
       </form>
     </>

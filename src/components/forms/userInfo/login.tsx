@@ -44,21 +44,21 @@ export default function Login() {
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <h1 className="margin-y-100">Logga In</h1>
+        <h1 className="margin-block-100">Logga In</h1>
 
-        <label className="block margin-y-100">
+        <label className="block margin-block-100">
           Användarnamn
-          <div className="margin-y-50 padding-50 flex align-items-center gray-90 smooth focusable">
+          <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
             <Image src="/icons/user.svg" alt="" width={24} height={24} />
-            <input className="padding-0 margin-x-50" type="text" placeholder="användarnamn" name="username" required id="username" autoComplete="username" />
+            <input className="padding-0 margin-inline-50" type="text" placeholder="användarnamn" name="username" required id="username" autoComplete="username" />
           </div>
         </label>
 
-        <label className="block margin-y-100">
+        <label className="block margin-block-100">
           Lösenord
-          <div className="margin-y-50 padding-50 flex align-items-center gray-90 smooth focusable">
+          <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
             <Image src="/icons/password.svg" alt="" width={24} height={24} />
-            <input className="padding-0 margin-x-50 transparent" type={showPassword ? 'text' : 'password'} placeholder="lösenord" name="password" required id="password" autoComplete="current-password" />
+            <input className="padding-0 margin-inline-50 transparent" type={showPassword ? 'text' : 'password'} placeholder="lösenord" name="password" required id="password" autoComplete="current-password" />
             <button type="button" className={`${styles.showPasswordButton} grid padding-0 transparent`} onClick={() => setShowPassword(prevState => !prevState)}>
               <Image src={showPassword ? '/icons/eyeDisabled.svg' : '/icons/eye.svg'} alt="" width={24} height={24} />
             </button>
@@ -70,14 +70,14 @@ export default function Login() {
           Kom ihåg inlogg
         </label>
 
-        <button role="submit" className="block margin-y-100 font-weight-bold seagreen color-purewhite">Logga In</button>
-        <p className="padding-y-50" style={{ borderTop: '1px solid var(--gray-90)' }}>
+        <button role="submit" className="block margin-block-100 font-weight-bold seagreen color-purewhite">Logga In</button>
+        <p className="padding-block-50" style={{ borderTop: '1px solid var(--gray-90)' }}>
           <small>Har du inget konto? <Link href='/signup'>Skapa konto</Link></small>
         </p>
-        <p className="padding-y-50" style={{ borderTop: '1px solid var(--gray-90)' }}>
+        <p className="padding-block-50" style={{ borderTop: '1px solid var(--gray-90)' }}>
           <small>Glömt lösenordet? <Link href='/password'>Klicka här</Link></small>
         </p>
-        <p className="padding-y-50" style={{ borderTop: '1px solid var(--gray-90)' }}>
+        <p className="padding-block-50" style={{ borderTop: '1px solid var(--gray-90)' }}>
           <small>Behöver du verifiera ditt konto? <Link href='/verify'>Gå hit</Link> och följ instruktionerna.</small>
         </p>
       </form>

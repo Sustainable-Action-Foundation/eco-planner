@@ -32,13 +32,13 @@ export default function ConfirmDelete({
     <dialog ref={modalRef} className={styles.modal}>
       <form onSubmit={handleDelete}>
         <strong className="block" style={{ fontSize: 'larger' }}>Radera inlägg</strong>
-        <p className="padding-y-100" style={{ borderBlock: '2px solid var(--gray-90)' }}>
+        <p className="padding-block-100" style={{ borderBlock: '2px solid var(--gray-90)' }}>
           Är du säker på att du vill radera inlägget <strong>{targetName}</strong>? <br />
           Du kan ej ångra denna åtgärd senare.
         </p>
-        <label className="block margin-y-75">
+        <label className="block margin-block-75">
           Skriv <strong>{targetName}</strong> för att bekräfta
-          <input className="margin-y-25" type="text" placeholder={targetName} id={`delete-name-input-${targetId}`} required pattern={targetName} />
+          <input className="margin-block-25" type="text" placeholder={targetName} id={`delete-name-input-${targetId}`} required pattern={targetName} />
         </label>
         <div className="display-flex justify-content-flex-end margin-top-75 gap-50">
           <button type="button" style={{ fontWeight: 500 }} onClick={() => closeModal(modalRef)}>Avbryt</button>

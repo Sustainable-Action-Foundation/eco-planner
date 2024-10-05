@@ -70,19 +70,19 @@ export default function Goals({
   return (
     <>
       <section>
-        <section className="margin-y-100 padding-y-50" style={{ borderBottom: '2px solid var(--gray-90)' }}>
-          <label className="font-weight-bold margin-y-25 container-text">
+        <section className="margin-block-100 padding-block-50" style={{ borderBottom: '2px solid var(--gray-90)' }}>
+          <label className="font-weight-bold margin-block-25 container-text">
             Sök Målbana
-            <div className="margin-y-50 flex align-items-center gray-90 padding-50 smooth focusable">
+            <div className="margin-block-50 flex align-items-center gray-90 padding-50 smooth focusable">
               <Image src='/icons/search.svg' alt="" width={24} height={24} />
-              <input type="search" className="padding-0 margin-x-50" onChange={(e) => setSearchFilter(e.target.value)} />
+              <input type="search" className="padding-0 margin-inline-50" onChange={(e) => setSearchFilter(e.target.value)} />
             </div>
           </label>
           {viewMode == ViewMode.Table && (
             <div className="flex gap-100 align-items-center justify-content-space-between">
-              <label className="margin-y-100 font-weight-bold">
+              <label className="margin-block-100 font-weight-bold">
                 Sortera utifrån:
-                <select className="font-weight-bold margin-y-50 block" onChange={(e) => { setSortBy(e.target.value as GoalSortBy); setStoredGoalSortBy(e.target.value as GoalSortBy) }} defaultValue={sortBy}>
+                <select className="font-weight-bold margin-block-50 block" onChange={(e) => { setSortBy(e.target.value as GoalSortBy); setStoredGoalSortBy(e.target.value as GoalSortBy) }} defaultValue={sortBy}>
                   <option value={GoalSortBy.Default}>Standard</option>
                   <option value={GoalSortBy.Alpha}>Namn (A-Ö)</option>
                   <option value={GoalSortBy.AlphaReverse}>Namn (Ö-A)</option>
@@ -94,13 +94,13 @@ export default function Goals({
             </div>
           )}
         </section>
-        {/* <section id="roadmapFilters" className="margin-y-200 padding-100 gray-90 rounded">
+        {/* <section id="roadmapFilters" className="margin-block-200 padding-100 gray-90 rounded">
           <b>Enhet</b>
-          <label className="flex align-items-center gap-25 margin-y-50">
+          <label className="flex align-items-center gap-25 margin-block-50">
             <input type="checkbox" />
             Enhet 1
           </label>
-          <label className="flex align-items-center gap-25 margin-y-50">
+          <label className="flex align-items-center gap-25 margin-block-50">
             <input type="checkbox" />
             Enhet 2
           </label>

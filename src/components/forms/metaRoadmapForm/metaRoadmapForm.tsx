@@ -100,14 +100,14 @@ export default function MetaRoadmapForm({
               <h2 style={{ marginBottom: '0' }}>Beskriv din färdplan</h2>
               <p style={{ marginTop: '.25rem' }}>Ge din färdplan ett namn och en beskrivning.</p>
             </div>
-            <label className="block margin-y-100">
+            <label className="block margin-block-100">
               Namn för den nya färdplanen
-              <input id="metaRoadmapName" name="metaRoadmapName" className="margin-y-25" type="text" defaultValue={currentRoadmap?.name ?? undefined} required />
+              <input id="metaRoadmapName" name="metaRoadmapName" className="margin-block-25" type="text" defaultValue={currentRoadmap?.name ?? undefined} required />
             </label>
 
-            <label className="block margin-y-100">
+            <label className="block margin-block-100">
               Beskrivning av färdplanen
-              <textarea className="block smooth margin-y-25" name="description" id="description" defaultValue={currentRoadmap?.description ?? undefined} required></textarea>
+              <textarea className="block smooth margin-block-25" name="description" id="description" defaultValue={currentRoadmap?.description ?? undefined} required></textarea>
             </label>
           </fieldset>
 
@@ -116,9 +116,9 @@ export default function MetaRoadmapForm({
               <h2 style={{ marginBottom: '0' }}>Vem ansvarar för den här färdplanen?</h2>
               <p style={{ marginTop: '.25rem' }}>Beskriv vem som ansvarar för färdplanen genom att välja en typ och en aktör. </p>
             </div>
-            <label className="block margin-y-100">
+            <label className="block margin-block-100">
               Typ av färdplan
-              <select className="block margin-y-25" name="type" id="type" defaultValue={currentRoadmap?.type ?? ""} required>
+              <select className="block margin-block-25" name="type" id="type" defaultValue={currentRoadmap?.type ?? ""} required>
                 <option value="">Välj en typ</option>
                 {
                   Object.values(RoadmapType).map((value) => {
@@ -131,9 +131,9 @@ export default function MetaRoadmapForm({
               </select>
             </label>
 
-            <label className="block margin-y-100">
+            <label className="block margin-block-100">
               Aktör för färdplanen
-              <input className="margin-y-25" list="actors" id="actor" name="actor" type="text" defaultValue={currentRoadmap?.actor ?? undefined} />
+              <input className="margin-block-25" list="actors" id="actor" name="actor" type="text" defaultValue={currentRoadmap?.actor ?? undefined} />
             </label>
           </fieldset>
 
@@ -189,9 +189,9 @@ export default function MetaRoadmapForm({
                 Fyll om denna färdplan jobbar mot en annan färdplan.
               </p>
             </div>
-            <label className="block margin-y-100">
+            <label className="block margin-block-100">
               Förälder
-              <select name="parentRoadmap" id="parentRoadmap" className="block margin-y-25" defaultValue={currentRoadmap?.parentRoadmapId ?? ""}>
+              <select name="parentRoadmap" id="parentRoadmap" className="block margin-block-25" defaultValue={currentRoadmap?.parentRoadmapId ?? ""}>
                 <option value="">Ingen förälder vald</option>
                 {
                   !parentRoadmapOptions && currentRoadmap && currentRoadmap.parentRoadmapId && (

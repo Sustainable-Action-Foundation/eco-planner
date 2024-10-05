@@ -101,11 +101,11 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
   */
 
   return <>
-    <div className="rounded width-100 margin-y-100 position-relative overflow-hidden" style={{ height: '350px' }}>
+    <div className="rounded width-100 margin-block-100 position-relative overflow-hidden" style={{ height: '350px' }}>
       <AttributedImage src="/images/solarpanels.jpg" alt="" >
         <div className="flex gap-100 flex-wrap-wrap align-items-flex-end justify-content-space-between padding-100 width-100">
           <div>
-            <h1 className="margin-y-25">Färdplaner</h1>
+            <h1 className="margin-block-25">Färdplaner</h1>
             <p className="margin-0">Photo by <a className="color-purewhite" href="https://unsplash.com/@markusspiske?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Markus Spiske</a> on <a className="color-purewhite" href="https://unsplash.com/photos/white-and-blue-solar-panels-pwFr_1SUXRo?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Unsplash</a></p>
           </div>
           { // Link to create roadmap form if logged in

@@ -166,9 +166,9 @@ export default function GoalForm({
         {/* This hidden submit button prevents submitting by pressing enter, to avoid accidental submission */}
         <button type="submit" disabled={true} style={{ display: 'none' }} aria-hidden={true} />
 
-        <label className="block margin-y-75">
+        <label className="block margin-block-75">
           Vilken typ av dataserie vill du skapa?
-          <select name="dataSeriesType" id="dataSeriesType" className="margin-x-25"
+          <select name="dataSeriesType" id="dataSeriesType" className="margin-inline-25"
             defaultValue={!currentGoal?.combinationParents.length ? DataSeriesType.Static : currentGoal.combinationParents.length >= 2 ? DataSeriesType.Combined : DataSeriesType.Inherited}
             onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
           >
@@ -178,14 +178,14 @@ export default function GoalForm({
           </select>
         </label>
 
-        <label className="block margin-y-75">
+        <label className="block margin-block-75">
           Namn på målbanan:
-          <input className="margin-y-25" type="text" name="goalName" id="goalName" defaultValue={currentGoal?.name ?? undefined} />
+          <input className="margin-block-25" type="text" name="goalName" id="goalName" defaultValue={currentGoal?.name ?? undefined} />
         </label>
 
-        <label className="block margin-y-75">
+        <label className="block margin-block-75">
           Beskrivning av målbanan:
-          <input className="margin-y-25" type="text" name="description" id="description" defaultValue={currentGoal?.description ?? undefined} />
+          <input className="margin-block-25" type="text" name="description" id="description" defaultValue={currentGoal?.description ?? undefined} />
         </label>
 
         {(dataSeriesType === DataSeriesType.Static || !dataSeriesType) &&
@@ -203,7 +203,7 @@ export default function GoalForm({
         {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
           <fieldset className="padding-50 smooth" style={{ border: '1px solid var(--gray-90)', position: 'relative' }}>
             <legend>Skalning</legend>
-            <div className="margin-y-100">
+            <div className="margin-block-100">
               {scalingRecipie.values.map((value, index) => {
                 return (
                   <RepeatableScaling
@@ -232,32 +232,32 @@ export default function GoalForm({
                 )
               })}
             </div>
-            <button type="button" className="margin-y-100" onClick={() => setScalingRecipe({ method: scalingRecipie.method, values: [...scalingRecipie.values, { value: 1 }] })}>Lägg till skalning</button>
+            <button type="button" className="margin-block-100" onClick={() => setScalingRecipe({ method: scalingRecipie.method, values: [...scalingRecipie.values, { value: 1 }] })}>Lägg till skalning</button>
 
-            <label className="block margin-y-75">
+            <label className="block margin-block-75">
               Skalningsmetod:
-              <select name="scalingMethod" id="scalingMethod" className="margin-x-25" defaultValue={scalingRecipie.method || ScaleMethod.Geometric}>
+              <select name="scalingMethod" id="scalingMethod" className="margin-inline-25" defaultValue={scalingRecipie.method || ScaleMethod.Geometric}>
                 <option value={ScaleMethod.Geometric}>Geometriskt genomsnitt (rekommenderad)</option>
                 <option value={ScaleMethod.Algebraic}>Algebraiskt genomsnitt</option>
                 <option value={ScaleMethod.Multiplicative}>Multiplikativ</option>
               </select>
             </label>
 
-            <label className="block margin-y-75">
+            <label className="block margin-block-75">
               <strong className="block bold">Resulterande skalfaktor: </strong>
-              <output className="margin-y-100 block">{scalingResult}</output>
+              <output className="margin-block-100 block">{scalingResult}</output>
             </label>
           </fieldset>
         }
 
         <LinkInput links={currentGoal?.links} />
 
-        <label className="flex align-items-center gap-50 margin-y-100">
+        <label className="flex align-items-center gap-50 margin-block-100">
           <input type="checkbox" name="isFeatured" id="isFeatured" defaultChecked={currentGoal?.isFeatured} /> {/* TODO: Make toggle */}
           Featured?
         </label>
 
-        <input type="submit" className="margin-y-75 seagreen color-purewhite" value={currentGoal ? "Spara" : "Skapa målbana"} />
+        <input type="submit" className="margin-block-75 seagreen color-purewhite" value={currentGoal ? "Spara" : "Skapa målbana"} />
       </form>
 
       <datalist id="LEAPOptions">

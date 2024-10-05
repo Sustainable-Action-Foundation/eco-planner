@@ -41,14 +41,14 @@ export function ManualGoalForm({
 
   return (
     <>
-      <label className="block margin-y-75">
+      <label className="block margin-block-75">
         LEAP parameter:
-        <input className="margin-y-25" type="text" list="LEAPOptions" name="indicatorParameter" required id="indicatorParameter" defaultValue={currentGoal?.indicatorParameter || undefined} />
+        <input className="margin-block-25" type="text" list="LEAPOptions" name="indicatorParameter" required id="indicatorParameter" defaultValue={currentGoal?.indicatorParameter || undefined} />
       </label>
 
-      <label className="block margin-y-75">
+      <label className="block margin-block-75">
         Enhet för dataserie:
-        <input className="margin-y-25" type="text" name="dataUnit" required id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
+        <input className="margin-block-25" type="text" name="dataUnit" required id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
           try {
             setParsedUnit(mathjs.unit(e.target.value).toString());
           } catch {
@@ -56,12 +56,12 @@ export function ManualGoalForm({
           }
         }} />
         {parsedUnit ?
-          <p className="margin-y-25">Enheten tolkas som: <strong>{parsedUnit}</strong></p>
-          : <p className="margin-y-25">Enheten kunde inte tolkas. Du kan fortfarande spara målbanan, men viss funktionalitet kan saknas.</p>
+          <p className="margin-block-25">Enheten tolkas som: <strong>{parsedUnit}</strong></p>
+          : <p className="margin-block-25">Enheten kunde inte tolkas. Du kan fortfarande spara målbanan, men viss funktionalitet kan saknas.</p>
         }
       </label>
 
-      <details className="margin-y-75">
+      <details className="margin-block-75">
         <summary>
           Extra information om dataserie
         </summary>
@@ -74,13 +74,13 @@ export function ManualGoalForm({
         </p>
       </details>
 
-      <label className="block margin-y-75">
+      <label className="block margin-block-75">
         Dataserie:
         {/* TODO: Make this allow .csv files and possibly excel files */}
         <input type="text" name="dataSeries" required id="dataSeries"
           pattern={dataSeriesPattern}
           title="Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma."
-          className="margin-y-25"
+          className="margin-block-25"
           defaultValue={dataSeriesString}
         />
       </label>
@@ -140,9 +140,9 @@ export function InheritedGoalForm({
   }, [selectedGoal]);
   return (
     <>
-      <label className="block margin-y-75">
+      <label className="block margin-block-75">
         Välj en färdplan att ärva en målbana från:
-        <select name="selectedRoadmap" id="selectedRoadmap" className="margin-x-25" required
+        <select name="selectedRoadmap" id="selectedRoadmap" className="margin-inline-25" required
           value={selectedRoadmap}
           onChange={(e) => { setSelectedRoadmap(e.target.value); setSelectedGoal(undefined) }}
         >
@@ -156,9 +156,9 @@ export function InheritedGoalForm({
       </label>
 
       {roadmapData &&
-        <label className="block margin-y-75">
+        <label className="block margin-block-75">
           Välj en målbana att ärva från:
-          <select name="inheritFrom" id="inheritFrom" className="margin-x-25" required
+          <select name="inheritFrom" id="inheritFrom" className="margin-inline-25" required
             value={selectedGoal}
             onChange={(e) => setSelectedGoal(e.target.value)}
           >
@@ -172,14 +172,14 @@ export function InheritedGoalForm({
         </label>
       }
 
-      <label className="block margin-y-75">
+      <label className="block margin-block-75">
         LEAP parameter:
-        <input className="margin-y-25" type="text" list="LEAPOptions" name="indicatorParameter" required disabled id="indicatorParameter" value={goalData?.indicatorParameter || ""} />
+        <input className="margin-block-25" type="text" list="LEAPOptions" name="indicatorParameter" required disabled id="indicatorParameter" value={goalData?.indicatorParameter || ""} />
       </label>
 
-      <label className="block margin-y-75">
+      <label className="block margin-block-75">
         Enhet för dataserie:
-        <input className="margin-y-25" type="text" name="dataUnit" required disabled id="dataUnit" value={goalData?.dataSeries?.unit || ""} onChange={(e) => {
+        <input className="margin-block-25" type="text" name="dataUnit" required disabled id="dataUnit" value={goalData?.dataSeries?.unit || ""} onChange={(e) => {
           try {
             setParsedUnit(mathjs.unit(e.target.value).toString());
           } catch {
@@ -187,8 +187,8 @@ export function InheritedGoalForm({
           }
         }} />
         {parsedUnit ?
-          <p className="margin-y-25">Enheten tolkas som: <strong>{parsedUnit}</strong></p>
-          : <p className="margin-y-25">Enheten kunde inte tolkas. Du kan fortfarande spara målbanan, men viss funktionalitet kan saknas.</p>
+          <p className="margin-block-25">Enheten tolkas som: <strong>{parsedUnit}</strong></p>
+          : <p className="margin-block-25">Enheten kunde inte tolkas. Du kan fortfarande spara målbanan, men viss funktionalitet kan saknas.</p>
         }
       </label>
     </>
@@ -239,14 +239,14 @@ export function CombinedGoalForm({
 
   return (
     <>
-      <label className="block margin-y-75">
+      <label className="block margin-block-75">
         LEAP parameter:
-        <input className="margin-y-25" type="text" list="LEAPOptions" name="indicatorParameter" required id="indicatorParameter" defaultValue={currentGoal?.indicatorParameter || undefined} />
+        <input className="margin-block-25" type="text" list="LEAPOptions" name="indicatorParameter" required id="indicatorParameter" defaultValue={currentGoal?.indicatorParameter || undefined} />
       </label>
 
-      <label className="block margin-y-75">
+      <label className="block margin-block-75">
         Enhet för dataserie:
-        <input className="margin-y-25" type="text" name="dataUnit" required id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
+        <input className="margin-block-25" type="text" name="dataUnit" required id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
           try {
             setParsedUnit(mathjs.unit(e.target.value).toString());
           } catch {
@@ -254,8 +254,8 @@ export function CombinedGoalForm({
           }
         }} />
         {parsedUnit ?
-          <p className="margin-y-25">Enheten tolkas som: <strong>{parsedUnit}</strong></p>
-          : <p className="margin-y-25">Enheten kunde inte tolkas. Du kan fortfarande spara målbanan, men viss funktionalitet kan saknas.</p>
+          <p className="margin-block-25">Enheten tolkas som: <strong>{parsedUnit}</strong></p>
+          : <p className="margin-block-25">Enheten kunde inte tolkas. Du kan fortfarande spara målbanan, men viss funktionalitet kan saknas.</p>
         }
       </label>
 
@@ -267,8 +267,8 @@ export function CombinedGoalForm({
         {currentRoadmap?.goals.map((goal) => (
           goal.id == currentGoal?.id ? null :
             <Fragment key={`combine-${goal.id}`}>
-              <label className="block margin-y-25">
-                <input type="checkbox" name="inheritFrom" className="margin-x-25" value={goal.id}
+              <label className="block margin-block-25">
+                <input type="checkbox" name="inheritFrom" className="margin-inline-25" value={goal.id}
                   defaultChecked={currentGoal?.combinationParents.some((parent) => parent.parentGoal.id == goal.id)}
                   onChange={(e) => {
                     if (e.target.checked) {
@@ -281,8 +281,8 @@ export function CombinedGoalForm({
                 {`${goal.name ?? "Namnlöst mål"}: ${goal.indicatorParameter} (${goal.dataSeries?.unit ?? "Enhet saknas"})`}
               </label>
               {inheritFrom?.includes(goal.id) &&
-                <label className="block margin-y-25" style={{ marginLeft: 25 }}>
-                  <input type="checkbox" name="invert-inherit" className="margin-x-25" value={goal.id}
+                <label className="block margin-block-25" style={{ marginLeft: 25 }}>
+                  <input type="checkbox" name="invert-inherit" className="margin-inline-25" value={goal.id}
                     defaultChecked={currentGoal?.combinationParents.some((parent) => parent.parentGoal.id == goal.id && parent.isInverted)}
                   />
                   {"Invertera målet (dividera med denna målbana snarare än att multiplicera)"}

@@ -1,4 +1,150 @@
-/* TODO: Figure out specificity (User :where() psuedo element? See input[type="file"]) */
+/* custom (not yet added to semantic style sheets= */
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.flex-direction-row {
+  flex-direction: row;
+}
+
+.flex-direction-row-reverse {
+  flex-direction: row-reverse;
+}
+
+.flex-direction-column {
+  flex-direction: column;
+}
+
+.flex-direction-column-reverse {
+  flex-direction: column-reverse;
+}
+
+.smooth {
+  border-radius: .25rem;
+}
+
+.smooth-top {
+  border-radius: .25rem .25rem 0 0;
+}
+
+.smooth-right {
+  border-radius: 0 .25rem .25rem 0;
+}
+
+.smooth-bottom {
+  border-radius: 0 0 .25rem .25rem;
+}
+
+.smooth-left {
+  border-radius: .25rem 0 0 .25rem;
+}
+
+.rounded {
+  border-radius: .5rem;
+}
+
+.rounded-top {
+  border-radius: .5rem .5rem 0 0;
+}
+
+.rounded-right {
+  border-radius: 0 .5rem .5rem 0;
+}
+
+.rounded-bottom {
+  border-radius: 0 0 .5rem .5rem;
+}
+
+.rounded-left {
+  border-radius: .5rem 0 0 .5rem;
+}
+
+.round {
+  border-radius: 9999px;   
+}
+
+.round-top {
+  border-radius: 9999px 9999px 0 0;
+}
+
+.round-right {
+  border-radius: 0 9999px 9999px 0;
+}
+
+.round-bottom {
+  border-radius: 0 0 9999px 9999px;
+}
+
+.round-left {
+  border-radius: 9999px 0 0 9999px;
+}
+
+.circular {
+  border-radius: 100%;
+}
+
+.width-100 {
+  width: 100%;
+}
+
+.height-100 {
+  height: 100%;
+}
+
+.visible {
+  visibility: visible;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+:where(select) {
+  padding: .5rem 2rem .5rem .5rem;
+  border: none;
+  border-radius: 3px;
+
+  background: url('/icons/chevronDown.svg')
+              no-repeat
+              95% center          
+              #e0e6eb  
+  ;
+
+  -moz-appearance:none; /* Firefox */
+  -webkit-appearance:none; /* Safari and Chrome */
+  appearance:none;
+
+}
+
+:where(select):focus {
+  outline: 2px solid var(--seagreen);
+  box-shadow: 0 0 .5rem -3px var(--seagreen);
+  background-color: transparent;
+}
+
+:where(
+    textarea
+) {
+    background-color: #e0e6eb;
+    display: block;
+    width: 100%;
+    padding: .5rem;
+    border: none;
+    border-radius: 3px;
+    resize: vertical;
+    min-height: 150px;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+:where(textarea:focus) {
+    outline: 2px solid var(--seagreen);
+    box-shadow: 0 0 .5rem -3px var(--seagreen);
+    background-color: transparent;
+}
+
+
 /* CSS reset */
 * {
   box-sizing: border-box;
@@ -6,7 +152,7 @@
 }
 
 :where(button) {
-  background-color: #e0e6eb;
+  background-color: var(--gray-90);
   border: 0;
   border-radius: 3px;
   padding: 0.5rem;
@@ -17,13 +163,17 @@
   box-shadow: inset 0 0 999px rgba(0, 0, 0, 0.1);
 }
 
-:where(button:active) {
-  transform: scale(0.95);
+:where(button:not(:disabled):active) {
+    transform: scale(.95);
 }
 
 /* Text inputs (text, email, password, search, url) */
 /* Number inputs (number, tel) */
 /* Date inputs (datetimeLocal, date, month, week, time) */
+:where(input) {
+  font-size: 1rem;
+}
+
 :where(input[type=text],
 input[type=email],
 input[type=password],
@@ -36,7 +186,7 @@ input[type=datetime-local],
 input[type=month],
 input[type=time],
 input[type=week]) {
-  background-color: #e0e6eb;
+  background-color: var(--gray-90);
   display: block;
   width: 100%;
   padding: 0.5rem;
@@ -55,8 +205,8 @@ input[type=datetime-local],
 input[type=month],
 input[type=time],
 input[type=week]):focus {
-  outline: 2px solid #0075FF;
-  box-shadow: 0 0 0.5rem -3px #0075FF;
+  outline: 2px solid var(--seagreen);
+  box-shadow: 0 0 0.5rem -3px var(--seagreen);
   background-color: transparent;
 }
 
@@ -65,7 +215,7 @@ input[type=week]):focus {
 input[type=reset],
 input[type=submit],
 input[type=image]) {
-  background-color: #e0e6eb;
+  background-color: var(--gray-90);
   display: block;
   width: 100%;
   padding: 0.5rem;
@@ -77,8 +227,8 @@ input[type=image]) {
 input[type=reset],
 input[type=submit],
 input[type=image]):focus {
-  outline: 2px solid #0075FF;
-  box-shadow: 0 0 0.5rem -3px #0075FF;
+  outline: 2px solid var(--seagreen);
+  box-shadow: 0 0 0.5rem -3px var(--seagreen);
 }
 :where(input[type=button],
 input[type=reset],
@@ -93,12 +243,12 @@ input[type=image]):hover {
   width: 100%;
   padding: 1em;
   border-radius: 3px;
-  border: 2px dashed #e0e6eb;
+  border: 2px dashed var(--gray-90);
   outline: none;
 }
 
 input[type=file]::file-selector-button { /* TODO: :where() for pseudo elements not supported? */
-  background-color: #e0e6eb;
+  background-color: var(--gray-90);
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 3px;
@@ -107,11 +257,11 @@ input[type=file]::file-selector-button { /* TODO: :where() for pseudo elements n
 }
 
 :where(input[type=file]:focus) {
-  border: 2px dashed #0075FF;
+  border: 2px dashed var(--seagreen);
 }
 
 input[type=file]:focus::file-selector-button { /* TODO: :where() for pseudo elements not supported? */
-  background-color: #0075FF;
+  background-color: var(--seagreen);
   color: white;
 }
 
@@ -134,7 +284,7 @@ input[type=checkbox]) {
   block-size: 2rem;
   border-radius: 100%;
   border: 3px;
-  background-color: #e0e6eb;
+  background-color: var(--gray-90);
 }
 
 input[type=color]::-webkit-color-swatch { /* TODO: :where() for pseudo elements not supported? */
@@ -2174,6 +2324,46 @@ container-text {
 
 .cursor-unset {
   cursor: unset;
+}
+
+.position-static {
+  position: static;
+}
+
+.position-relative {
+  position: relative;
+}
+
+.position-absolute {
+  position: absolute;
+}
+
+.position-fixed {
+  position: fixed;
+}
+
+.position-sticky {
+  position: sticky;
+}
+
+.position-inherit {
+  position: inherit;
+}
+
+.position-initial {
+  position: initial;
+}
+
+.position-revert {
+  position: revert;
+}
+
+.position-revert-layer {
+  position: revert-layer;
+}
+
+.position-unset {
+  position: unset;
 }
 
 /*# sourceMappingURL=main.css.map */

@@ -288,9 +288,9 @@ export default function CopyAndScale({
 
         <form action={formSubmission} name="copyAndScale" onChange={recalculateScalingResult}>
 
-          <label className="block margin-y-100">
+          <label className="block margin-block-100">
             I vilken färdplan vill du placera den skalade målbanan?
-            <select className="block margin-y-25 width-100" required name="copyTo" id="copyTo">
+            <select className="block margin-block-25 width-100" required name="copyTo" id="copyTo">
               <option value="">Välj färdplan</option>
               {roadmapOptions.map(roadmap => (
                 <option key={roadmap.id} value={roadmap.id}>{`${roadmap.name} ${roadmap.version ? `(version ${roadmap.version.toString()})` : null}`}</option>
@@ -298,7 +298,7 @@ export default function CopyAndScale({
             </select>
           </label>
 
-          <div className="margin-y-100">
+          <div className="margin-block-100">
             {scalingComponents.map((id) => {
               return (
                 <RepeatableScaling key={id} useWeight={scalingMethod != ScaleMethod.Multiplicative}> {/* Multiplicative scaling doesn't use weights */}
@@ -320,21 +320,21 @@ export default function CopyAndScale({
               )
             })}
           </div>
-          <button type="button" className="margin-y-100" onClick={() => setScalingComponents([...scalingComponents, (crypto?.randomUUID() || Math.random().toString())])}>Lägg till skalning</button>
+          <button type="button" className="margin-block-100" onClick={() => setScalingComponents([...scalingComponents, (crypto?.randomUUID() || Math.random().toString())])}>Lägg till skalning</button>
 
-          <details className="padding-y-25 margin-y-75" style={{ borderBottom: '1px solid var(--gray-90)' }}>
+          <details className="padding-block-25 margin-block-75" style={{ borderBottom: '1px solid var(--gray-90)' }}>
             <summary>Avancerat</summary>
-            <fieldset className="margin-y-100">
+            <fieldset className="margin-block-100">
               <legend>Välj skalningsmetod</legend>
-              <label className="flex gap-25 align-items-center margin-y-50">
+              <label className="flex gap-25 align-items-center margin-block-50">
                 <input type="radio" name="scalingMethod" value={ScaleMethod.Geometric} checked={scalingMethod === ScaleMethod.Geometric} onChange={() => setScalingMethod(ScaleMethod.Geometric)} />
                 Geometriskt genomsnitt
               </label>
-              <label className="flex gap-25 align-items-center margin-y-50">
+              <label className="flex gap-25 align-items-center margin-block-50">
                 <input type="radio" name="scalingMethod" value={ScaleMethod.Algebraic} checked={scalingMethod === ScaleMethod.Algebraic} onChange={() => setScalingMethod(ScaleMethod.Algebraic)} />
                 Algebraiskt genomsnitt
               </label>
-              <label className="flex gap-25 align-items-center margin-y-50">
+              <label className="flex gap-25 align-items-center margin-block-50">
                 <input type="radio" name="scalingMethod" value={ScaleMethod.Multiplicative} checked={scalingMethod === ScaleMethod.Multiplicative} onChange={() => setScalingMethod(ScaleMethod.Multiplicative)} />
                 Multiplikativ skalning
               </label>
@@ -343,7 +343,7 @@ export default function CopyAndScale({
 
           <label style={{ marginInline: 'auto' }}>
             <strong className="block bold" style={{ textAlign: 'center' }}>Resulterande skalfaktor</strong>
-            <output className="margin-y-100 block" style={{ textAlign: 'center' }}>{scalingResult}</output>
+            <output className="margin-block-100 block" style={{ textAlign: 'center' }}>{scalingResult}</output>
           </label>
 
           <button className="block seagreen color-purewhite smooth width-100" style={{ marginInline: 'auto', fontWeight: '500' }}>

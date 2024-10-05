@@ -9,10 +9,10 @@ export default function AccessSelector({ groupOptions, currentAccess }: { groupO
   return (
     <>
       <p>För att lägga till en användare/grupp, skriv in namnet och tryck på enter.</p>
-      <div className="margin-y-75">
+      <div className="margin-block-75">
         <ViewUsers groupOptions={groupOptions} existingGroups={currentAccess?.viewGroups.map((group) => { return group.name })} isPublic={currentAccess?.isPublic} />
       </div>
-      <div className="margin-y-75">
+      <div className="margin-block-75">
         <EditUsers existingUsers={currentAccess?.editors.map((editor) => { return editor.username })} groupOptions={groupOptions} existingGroups={currentAccess?.editGroups.map((group) => { return group.name })} />
       </div>
     </>
@@ -118,7 +118,7 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
       <p><strong>Grupper med redigeringsbehörighet</strong></p>
       {groups.map((group) => (
         <Fragment key={'viewGroup' + group}>
-          <label className="display-flex align-items-center gap-50 margin-y-50">
+          <label className="display-flex align-items-center gap-50 margin-block-50">
             <input type="checkbox" name="viewGroups" id={'viewGroup' + group} value={group} defaultChecked={existingGroups?.includes(group)} />
             {group}
           </label>
@@ -128,7 +128,7 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
       {/* A text field whose contents get appended to editUsers upon pressing enter */}
 
       <p style={{ marginTop: '3rem' }}><strong>Användare med redigeringsbehörighet</strong></p>
-      <div className="flex align-items-flex-end margin-y-100 gap-100 flex-wrap-wrap">
+      <div className="flex align-items-flex-end margin-block-100 gap-100 flex-wrap-wrap">
         <label className="block flex-grow-100">
           Ny användare:
           <input style={{ marginTop: '.25rem' }} type="text" name="editUsers" ref={editorRef} id="newEditUser" onKeyDown={(event) => handleKeyDown(event, editUsers, setEditUsers)} />
@@ -175,7 +175,7 @@ export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPubli
   return (
     <div style={{ marginBottom: '3rem' }} >
 
-      <label className="display-flex align-items-center gap-50 margin-y-50">
+      <label className="display-flex align-items-center gap-50 margin-block-50">
         <input type="checkbox" name="isPublic" id="isPublic" defaultChecked={isPublic} />
         <strong>Visa inlägg publikt</strong>
       </label>
@@ -183,7 +183,7 @@ export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPubli
       <p style={{ marginTop: '3rem' }}><strong>Grupper med läsbehörighet</strong></p>
       {groups.map((group) => (
         <Fragment key={'viewGroup' + group}>
-          <label className="display-flex align-items-center gap-50 margin-y-50">
+          <label className="display-flex align-items-center gap-50 margin-block-50">
             <input type="checkbox" name="viewGroups" id={'viewGroup' + group} value={group} defaultChecked={existingGroups?.includes(group)} />
             {group}
           </label>
@@ -192,7 +192,7 @@ export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPubli
 
       {/* A text field whose contents get appended to viewUsers upon pressing enter */}
       <p style={{ marginTop: '3rem' }}><strong>Användare med läsbehörighet</strong></p>
-      <div className="flex align-items-flex-end gap-100 flex-wrap-wrap margin-y-100">
+      <div className="flex align-items-flex-end gap-100 flex-wrap-wrap margin-block-100">
         <label className="block flex-grow-100">
           Ny användare:
           <input style={{ marginTop: '.25rem' }} type="text" name="viewUsers" id="newViewUser" ref={viewRef} onKeyDown={(event) => handleKeyDown(event, viewUsers, setViewUsers)} />

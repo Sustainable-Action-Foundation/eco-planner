@@ -24,9 +24,9 @@ export default function LinkInput({ links }: { links?: { url: string, descriptio
       ))}
 
       {/* A text field whose contents get appended to linkList upon pressing enter */}
-      <label className="block margin-y-75">
+      <label className="block margin-block-75">
         Ny länk:
-        <input className="margin-y-25" type="url" name="linkUrl" id="newLink" onKeyDown={(event) => {
+        <input className="margin-block-25" type="url" name="linkUrl" id="newLink" onKeyDown={(event) => {
           if (event.key === 'Enter') {
             const url = event.currentTarget.value;
             // #newDescription os the input field for the description of the link
@@ -40,9 +40,9 @@ export default function LinkInput({ links }: { links?: { url: string, descriptio
         }} />
       </label>
 
-      <label className="block margin-y-75">
+      <label className="block margin-block-75">
         Beskrivning:
-        <input className="margin-y-25" type="text" name="linkDescription" id="newDescription" onKeyDown={(event) => {
+        <input className="margin-block-25" type="text" name="linkDescription" id="newDescription" onKeyDown={(event) => {
           if (event.key === 'Enter') {
             const url = (event.currentTarget.parentNode?.querySelector('#newLink') as HTMLInputElement)?.value ?? '';
             const description = event.currentTarget.value;
