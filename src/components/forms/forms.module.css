@@ -60,3 +60,10 @@
 .showPasswordButton:hover {
     box-shadow: initial;
 }
+
+.padding {
+    padding-inline: 3rem;
+    @media(max-width: 1250px) {
+        padding-inline: 0;
+    }
+}

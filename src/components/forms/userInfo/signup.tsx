@@ -40,8 +40,8 @@ export default function Signup() {
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
-        <h1 className="margin-block-100">Skapa Konto</h1>
+      <form onSubmit={handleSubmit} className={`${styles.padding}`}>
+        <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid var(--gray-90)' }}>Skapa konto</h1>
         <label className="block margin-block-100">
           Användarnamn
           <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
@@ -67,10 +67,11 @@ export default function Signup() {
           </div>
         </label>
 
-        <button className="block margin-block-100 font-weight-bold seagreen color-purewhite" type="submit"> Skapa Konto </button>
-        <p className="padding-block-50" style={{ borderTop: '1px solid var(--gray-90)' }}>
-          <small>Har du redan ett konto? <Link href='/login'>Logga in</Link></small>
+        <input value='Skapa konto' className="block margin-top-200 smooth font-weight-bold seagreen color-purewhite" type="submit" />
+        <p className="text-align-center padding-block-50 margin-bottom-100 margin-top-0">
+          Har du redan ett konto? <Link href='/login'>Logga in</Link>
         </p>
+
       </form>
     </>
   )

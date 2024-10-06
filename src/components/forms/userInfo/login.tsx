@@ -43,8 +43,8 @@ export default function Login() {
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
-        <h1 className="margin-block-100">Logga In</h1>
+      <form onSubmit={handleSubmit} className={`${styles.padding}`}>
+        <h1 className="padding-bottom-100" style={{borderBottom: '1px solid var(--gray-90)'}}>Logga in</h1>
 
         <label className="block margin-block-100">
           Användarnamn
@@ -65,21 +65,24 @@ export default function Login() {
           </div>
         </label>
 
-        <label className="flex align-items-center gap-50">
-          <input type="checkbox" name="remember" id="remember" />
-          Kom ihåg inlogg
-        </label>
+        <div className="flex gap-100 flex-wrap-wrap align-items-center justify-content-space-between">
+          <label className="flex align-items-center gap-50">
+            <input type="checkbox" name="remember" id="remember" />
+            Kom ihåg mig
+          </label>
 
-        <button role="submit" className="block margin-block-100 font-weight-bold seagreen color-purewhite">Logga In</button>
-        <p className="padding-block-50" style={{ borderTop: '1px solid var(--gray-90)' }}>
-          <small>Har du inget konto? <Link href='/signup'>Skapa konto</Link></small>
+          <small><Link href='/password'>Glömt lösenordet?</Link></small>
+
+        </div>
+
+        <input type="submit" value={'Logga in'} className="block font-weight-bold seagreen smooth color-purewhite margin-top-200" />
+
+        <p className="text-align-center padding-block-50 margin-bottom-100 margin-top-0">
+          Har du inget konto? <Link href='/signup'>Skapa konto</Link> <br />
+          <Link href='/verify'>Verifiera konto</Link> {/* TODO: Flytta denna till ens account page */}
         </p>
-        <p className="padding-block-50" style={{ borderTop: '1px solid var(--gray-90)' }}>
-          <small>Glömt lösenordet? <Link href='/password'>Klicka här</Link></small>
-        </p>
-        <p className="padding-block-50" style={{ borderTop: '1px solid var(--gray-90)' }}>
-          <small>Behöver du verifiera ditt konto? <Link href='/verify'>Gå hit</Link> och följ instruktionerna.</small>
-        </p>
+
+
       </form>
     </>
   )

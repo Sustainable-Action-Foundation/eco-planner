@@ -1,5 +1,17 @@
 /* custom (not yet added to semantic style sheets= */
 
+.text-align-center {
+  text-align: center;
+}
+
+.text-align-right {
+  text-align: right;
+}
+
+.text-align-left {
+  text-align: left;
+}
+
 .overflow-hidden {
   overflow: hidden;
 }
