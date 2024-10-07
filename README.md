@@ -12,6 +12,11 @@ For the sake of simplicity, we bumped the version number to 0.7.0. All versions 
 This tool requires the following environment variables to be set:
 - `IRON_SESSION_PASSWORD`: Should be a string at least 32 characters long. This is used to encrypt the session cookie from the Iron Session library.
 - `DATABASE_URL`: Should be a connection string to a database. This is used by Prisma to connect to the database. The default configuration expects a MySQL/MariaDB database but this can be changed in the `prisma/schema.prisma` file.
+- `MAIL_HOST`: The SMTP host to use for sending emails.
+- `MAIL_USER`: The username to use when connecting to the SMTP host.
+- `MAIL_PASSWORD`: The password to use when connecting to the SMTP host.
+  - These `MAIL_`-variables are used in `src/mailClient.ts` to send emails using Nodemailer. Depending on how your SMTP host is set up, you might need to change the port and security settings as well as the authMethod.
+  - Yau could also use other transports than SMTP, see [the Nodemailer site](https://www.nodemailer.com/transports/) for more information.
 
 If you want to target a different type of database, you might want to remove the existing `prisma/migrations` folder and start from scratch with `yarn prisma migrate dev --create-only` to generate new migration files after changing the `provider` field in the prisma schema file.
 
