@@ -2,6 +2,7 @@
 
 import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput"
 import formSubmitter from "@/functions/formSubmitter"
+import { ActionInput } from "@/types"
 import { Action } from "@prisma/client"
 
 export default function ActionForm({
@@ -39,7 +40,7 @@ export default function ActionForm({
       actionId: currentAction?.id || null,
       links,
       timestamp,
-    })
+    } as ActionInput)
 
     formSubmitter('/api/action', formJSON, currentAction ? 'PUT' : 'POST');
   }
@@ -51,29 +52,29 @@ export default function ActionForm({
       <form onSubmit={handleSubmit}>
         {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
         <button type="submit" disabled={true} style={{ display: 'none' }} aria-hidden={true} />
-        
+
         <label className="block margin-y-75">
           Namn på åtgärden:
           <input className="margin-y-25" type="text" name="actionName" required id="actionName" defaultValue={currentAction?.name} />
         </label>
 
         <label className="block margin-y-75">
-          Beskrivning av åtgärden: 
+          Beskrivning av åtgärden:
           <textarea className="margin-y-25" name="actionDescription" id="actionDescription" defaultValue={currentAction?.description ?? undefined} ></textarea>
         </label>
 
         <label className="block margin-y-75">
-          Kostnadseffektivitet: 
+          Kostnadseffektivitet:
           <input className="margin-y-25" type="text" name="costEfficiency" id="costEfficiency" defaultValue={currentAction?.costEfficiency ?? undefined} />
         </label>
 
         <label className="block margin-y-75">
-          Beskriv förväntat resultat: 
+          Beskriv förväntat resultat:
           <textarea className="margin-y-25" name="expectedOutcome" id="expectedOutcome" defaultValue={currentAction?.expectedOutcome ?? undefined} />
         </label>
-        
+
         <label className="block margin-y-75">
-          Planerat startår: 
+          Planerat startår:
           <input className="margin-y-25" type="number" name="startYear" id="startYear" defaultValue={currentAction?.startYear ?? undefined} min={2000} />
         </label>
 
@@ -83,12 +84,12 @@ export default function ActionForm({
         </label>
 
         <label className="block margin-y-75">
-          Projektansvarig: 
+          Projektansvarig:
           <input className="margin-y-25" type="text" name="projectManager" id="projectManager" defaultValue={currentAction?.projectManager ?? undefined} />
         </label>
 
         <label className="block margin-y-75">
-          Relevanta aktörer: 
+          Relevanta aktörer:
           <input className="margin-y-25" type="text" name="relevantActors" id="relevantActors" defaultValue={currentAction?.relevantActors ?? undefined} />
         </label>
 
