@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
     dataValues = await recalculateGoal({ combinationScale: goal.combinationScale ?? null, combinationParents });
   } else if (goal.dataSeries) {
     // Get data series from the request
-    dataValues = dataSeriesPrep(goal);
+    dataValues = dataSeriesPrep(goal.dataSeries);
   }
   // If the data series is invalid, return an error
   if (dataValues == null) {
@@ -317,7 +317,7 @@ export async function PUT(request: NextRequest) {
   }
 
   // Prepare for creating data series
-  let dataValues: Partial<DataSeriesDataFields> | undefined | null = null;
+  let dataValues: Partial<DataSeriesDataFields> | undefined | null = undefined;
   if (goal.inheritFrom?.length) {
     console.log('Combining data series');
     // Combine the data series of the parent goals
@@ -336,7 +336,7 @@ export async function PUT(request: NextRequest) {
     console.log('Updating data series');
     // Don't try to update if the received data series is undefined (but complain about null)
     // Get data series from the request
-    dataValues = dataSeriesPrep(goal);
+    dataValues = dataSeriesPrep(goal.dataSeries);
   }
   if (dataValues === null) {
     return Response.json({ message: 'Invalid data series' },
