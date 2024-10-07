@@ -239,7 +239,7 @@ model DataSeries {
   val2050 Float?  @map("val_2050")
 
   // Goal using this data series as goals
-  goalId         String  @unique @map("goal_id")
+  goalId         String? @unique @map("goal_id")
   goal           Goal?   @relation("data_series", fields: [goalId], references: [id], onDelete: Cascade)
   // Goal using this data series as baseline
   baselineGoalId String? @unique @map("baseline_goal_id")
