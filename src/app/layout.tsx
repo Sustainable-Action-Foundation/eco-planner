@@ -59,7 +59,7 @@ export default async function RootLayout({
       <body>
         <div className={`${styles.layout}`}>
           <Sidebar />
-          <div className='flex-grow-100 padding-100' style={{overflowX: 'auto'}}>
+          <div className='flex-grow-100 padding-100'>
             <Breadcrumbs relevantObjects={objects} />
             {children}
           </div>

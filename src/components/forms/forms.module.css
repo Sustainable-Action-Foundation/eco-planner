@@ -67,3 +67,48 @@
         padding-inline: 0;
     }
 }
+
+/* Roadmapform */
+
+.timeLineLegend {
+    position: relative;
+}
+
+.timeLineLegend::before {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translate(calc(-100% - 2rem), -50%);
+    content: attr(data-position);
+    color: white;
+    background-color: #191919;
+    width: 24px;
+    height: 24px;
+    padding: .25rem;
+    border-radius: 9999px;
+    line-height: 1;
+    display: grid;
+    place-items: center;
+    z-index: 999;
+}
+
+.timeLineFieldset:has(input:required, select:required, textarea:required):valid .timeLineLegend::before {
+    content: '✓';
+    background-color: var(--seagreen);
+    box-shadow: 0 0 .5rem -.25rem var(--seagreen);
+}
+
+/*
+.timeLineFieldset:has(input:required, select:required, textarea:required):valid + .timeLineFieldset:not(:has(input:required, select:required, textarea:required)) .timeLineLegend::before {
+    content: '✓';
+    background-color: var(--seagreen);
+    box-shadow: 0 0 .5rem -.25rem var(--seagreen);
+}
+*/
+
+/* 
+    TODO: Problably do something like:
+    Add borders to fieldsets, change those to green when valid
+    If last fieldset, add no border     
+    See if we can get timeLineFieldsets to show proper colors when previous fields have are valid when they have no own requirements
+*/

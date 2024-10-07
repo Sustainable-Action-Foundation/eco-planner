@@ -173,14 +173,14 @@ export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPubli
   const viewRef = useRef<HTMLInputElement | null>(null)
 
   return (
-    <div style={{ marginBottom: '3rem' }} >
+    <>
 
       <label className="display-flex align-items-center gap-50 margin-block-50">
         <input type="checkbox" name="isPublic" id="isPublic" defaultChecked={isPublic} />
-        <strong>Visa inlägg publikt</strong>
+        Visa inlägg publikt
       </label>
 
-      <p style={{ marginTop: '3rem' }}><strong>Grupper med läsbehörighet</strong></p>
+      <p className="font-weight-500">Grupper med läsbehörighet</p>
       {groups.map((group) => (
         <Fragment key={'viewGroup' + group}>
           <label className="display-flex align-items-center gap-50 margin-block-50">
@@ -191,7 +191,7 @@ export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPubli
       ))}
 
       {/* A text field whose contents get appended to viewUsers upon pressing enter */}
-      <p style={{ marginTop: '3rem' }}><strong>Användare med läsbehörighet</strong></p>
+      <p className="font-weight-500">Användare med läsbehörighet</p>
       <div className="flex align-items-flex-end gap-100 flex-wrap-wrap margin-block-100">
         <label className="block flex-grow-100">
           Ny användare:
@@ -220,6 +220,6 @@ export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPubli
         ))}
       </section>
 
-    </div>
+    </>
   )
 } 

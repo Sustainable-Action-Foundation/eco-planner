@@ -8,7 +8,6 @@ export default function LinkInput({ links }: { links?: { url: string, descriptio
 
   return (
     <fieldset>
-      <legend>Länkar till resurser</legend>
       {linkList.map((link, index) => (
         <Fragment key={'link' + index}>
           <label>
