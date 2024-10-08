@@ -90,7 +90,7 @@ export default function MetaRoadmapForm({
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="padding-left-300" style={{borderLeft: '2px solid #191919', transform: 'translate(-3rem, 0)'}} >
+      <form onSubmit={handleSubmit} className="padding-left-300" style={{transform: 'translate(-3rem, 0)'}} >
         {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
         <input type="submit" disabled={true} className="display-none" aria-hidden={true} />
 

@@ -92,23 +92,31 @@
     z-index: 999;
 }
 
+.timeLineLegend::before {
+    transition: background-color .2s ease, 
+                box-shadow .2s ease;
+    scale: 1; 
+}
+
 .timeLineFieldset:has(input:required, select:required, textarea:required):valid .timeLineLegend::before {
     content: '✓';
     background-color: var(--seagreen);
     box-shadow: 0 0 .5rem -.25rem var(--seagreen);
+    animation: pop 0.4s ease; /* Pop effect over 0.3s */
+
 }
 
-/*
-.timeLineFieldset:has(input:required, select:required, textarea:required):valid + .timeLineFieldset:not(:has(input:required, select:required, textarea:required)) .timeLineLegend::before {
-    content: '✓';
-    background-color: var(--seagreen);
-    box-shadow: 0 0 .5rem -.25rem var(--seagreen);
+@keyframes pop {
+    0% {
+        scale: 1; 
+    }
+    35% {
+        scale: .97;
+    }
+    95% {
+        scale: 1.01; 
+    }
+    100% {
+        scale: 1;
+    }
 }
-*/
-
-/* 
-    TODO: Problably do something like:
-    Add borders to fieldsets, change those to green when valid
-    If last fieldset, add no border     
-    See if we can get timeLineFieldsets to show proper colors when previous fields have are valid when they have no own requirements
-*/
