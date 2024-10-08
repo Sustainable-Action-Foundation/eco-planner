@@ -3,7 +3,7 @@
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
 import { AccessControlled } from "@/types";
-import { Action, Link, Note, Comment } from "@prisma/client";
+import type { Action, Link, Note, Comment, DataSeries } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -30,6 +30,7 @@ const getCachedAction = unstable_cache(
     const session = await getSession(cookies());
 
     let action: Action & {
+      dataSeries: DataSeries | null,
       notes: Note[],
       links: Link[],
       comments?: (Comment & { author: { id: string, username: string } })[],
@@ -43,6 +44,7 @@ const getCachedAction = unstable_cache(
         action = await prisma.action.findUnique({
           where: { id },
           include: {
+            dataSeries: true,
             notes: true,
             links: true,
             comments: { include: { author: { select: { id: true, username: true } } } },
@@ -96,6 +98,7 @@ const getCachedAction = unstable_cache(
             }
           },
           include: {
+            dataSeries: true,
             notes: true,
             links: true,
             comments: {
@@ -141,6 +144,7 @@ const getCachedAction = unstable_cache(
           goal: { roadmap: { isPublic: true } }
         },
         include: {
+          dataSeries: true,
           notes: true,
           links: true,
           comments: {

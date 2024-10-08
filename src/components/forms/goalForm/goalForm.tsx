@@ -7,7 +7,7 @@ import { DataSeries, Goal } from "@prisma/client";
 import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput";
 import formSubmitter from "@/functions/formSubmitter";
 import { useEffect, useMemo, useState } from "react";
-import { CombinedGoalForm, InheritedGoalForm, ManualGoalForm } from "./goalFormSections";
+import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
 import RepeatableScaling from "@/components/repeatableScaling";
 import { getScalingResult } from "@/components/modals/copyAndScale";
 import mathjs from "@/math";
@@ -16,6 +16,12 @@ enum DataSeriesType {
   Static = "STATIC",
   Inherited = "INHERIT",
   Combined = "COMBINE",
+}
+
+enum BaselineType {
+  Initial = "INITIAL",
+  Custom = "CUSTOM",
+  Inherited = "INHERIT",
 }
 
 // The amount of years in the data series
@@ -39,6 +45,7 @@ export default function GoalForm({
   roadmapId: string,
   currentGoal?: Goal & {
     dataSeries: DataSeries | null,
+    baselineDataSeries: DataSeries | null,
     combinationScale: string | null,
     combinationParents: {
       isInverted: boolean,
@@ -54,6 +61,7 @@ export default function GoalForm({
   },
 }) {
   const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(!currentGoal?.combinationParents.length ? DataSeriesType.Static : currentGoal.combinationParents.length >= 2 ? DataSeriesType.Combined : DataSeriesType.Inherited)
+  const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baselineDataSeries ? BaselineType.Custom : BaselineType.Initial)
   const [scalingRecipie, setScalingRecipe] = useState<ScalingRecipie>({ values: [] });
   const [scalingResult, setScalingResult] = useState<number | null>(null);
 
@@ -78,22 +86,25 @@ export default function GoalForm({
 
   // Submit the form to the API
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
-    event.preventDefault()
+    event.preventDefault();
 
-    const form = event.target.elements
-    const formData = new FormData(event.target)
+    const form = event.target.elements;
+    const formData = new FormData(event.target);
 
-    const links = getLinks(event.target)
+    const links = getLinks(event.target);
 
     // Convert the data series to an array of numbers, the actual parsing is done by the API
-    const dataSeriesInput = (form.namedItem("dataSeries") as HTMLInputElement | null)?.value
-    const dataSeries = dataSeriesInput?.replaceAll(',', '.').split(/[\t;]/).map((value) => {
-      return value
-    })
+    const dataSeriesInput = (form.namedItem("dataSeries") as HTMLInputElement | null)?.value;
+    const dataSeries = dataSeriesInput?.replaceAll(',', '.').split(/[\t;]/);
 
-    const { scalingRecipie: combinationScale } = getScalingResult(formData, scalingRecipie.method || ScaleMethod.Geometric)
+    // And likewise for the baseline data series, if any
+    const baselineDataSeriesInput = (form.namedItem("baselineDataSeries") as HTMLInputElement | null)?.value;
+    // The baseline may be omitted, in which case we don't want to send an empty array
+    const baselineDataSeries = baselineDataSeriesInput ? baselineDataSeriesInput?.replaceAll(',', '.').split(/[\t;]/) : undefined;
 
-    const inheritFrom: GoalInput["inheritFrom"] = []
+    const { scalingRecipie: combinationScale } = getScalingResult(formData, scalingRecipie.method || ScaleMethod.Geometric);
+
+    const inheritFrom: GoalInput["inheritFrom"] = [];
     formData.getAll("inheritFrom")?.forEach((id) => {
       if (id instanceof File) {
         return;
@@ -101,7 +112,7 @@ export default function GoalForm({
         inheritFrom.push({ id: id, isInverted: true });
         return;
       } else {
-        inheritFrom.push({ id: id })
+        inheritFrom.push({ id: id });
       }
     })
 
@@ -109,7 +120,7 @@ export default function GoalForm({
     try {
       parsedUnit = mathjs.unit((form.namedItem("dataUnit") as HTMLInputElement)?.value).toString();
     } catch (error) {
-      console.log("Failed to parse unit. Using raw string instead, which may disable some features.")
+      console.log("Failed to parse unit. Using raw string instead, which may disable some features.");
     }
 
     const formJSON = JSON.stringify({
@@ -118,6 +129,7 @@ export default function GoalForm({
       indicatorParameter: (form.namedItem("indicatorParameter") as HTMLInputElement)?.value || null,
       dataUnit: parsedUnit || (form.namedItem("dataUnit") as HTMLInputElement)?.value || null,
       dataSeries: dataSeries,
+      baselineDataSeries: baselineDataSeries,
       combinationScale: JSON.stringify(combinationScale),
       inheritFrom: inheritFrom,
       roadmapId: roadmapId,
@@ -125,7 +137,7 @@ export default function GoalForm({
       links,
       timestamp,
       isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked,
-    } as GoalInput)
+    } as GoalInput);
 
     formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST');
   }
@@ -159,6 +171,15 @@ export default function GoalForm({
     }
   }
   const dataSeriesString = dataArray.join(';')
+
+  // Likewise for any baseline data series
+  const baselineArray: (number | null)[] = []
+  if (currentGoal?.baselineDataSeries) {
+    for (const i of dataSeriesDataFieldNames) {
+      baselineArray.push(currentGoal.baselineDataSeries[i])
+    }
+  }
+  const baselineString = baselineArray.join(';')
 
   return (
     <>
@@ -248,6 +269,32 @@ export default function GoalForm({
               <output className="margin-y-100 block">{scalingResult}</output>
             </label>
           </fieldset>
+        }
+
+        <label className="block margin-y-75">
+          Vilken baslinje ska målbanans åtgärder utgå från?
+          <select name="baselineSelector" id="baselineSelector" value={baselineType} onChange={(e) => setBaselineType(e.target.value as BaselineType)}>
+            <option value={BaselineType.Initial}>Första årets värde</option>
+            <option value={BaselineType.Custom}>Anpassad baslinje</option>
+            <option value={BaselineType.Inherited}>Använd en annan målbana som baslinje</option>
+          </select>
+        </label>
+
+        {baselineType === BaselineType.Custom &&
+          <label className="block margin-y-75">
+            Anpassad baslinje:
+            {/* TODO: Make this allow .csv files and possibly excel files */}
+            <input type="text" name="baselineDataSeries" id="baselineDataSeries"
+              pattern={dataSeriesPattern}
+              title="Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma."
+              className="margin-y-25"
+              defaultValue={baselineString}
+            />
+          </label>
+        }
+
+        {baselineType === BaselineType.Inherited &&
+          <InheritingBaseline />
         }
 
         <LinkInput links={currentGoal?.links} />

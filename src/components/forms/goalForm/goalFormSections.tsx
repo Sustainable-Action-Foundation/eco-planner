@@ -7,6 +7,7 @@ import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
 import { clientSafeGetOneGoal } from "@/fetchers/getOneGoal";
 import { clientSafeGetRoadmaps } from "@/fetchers/getRoadmaps";
 import mathjs from "@/math";
+import { dataSeriesDataFieldNames } from "@/types";
 
 export function ManualGoalForm({
   currentGoal,
@@ -165,7 +166,7 @@ export function InheritedGoalForm({
             <option value="">Välj målbana</option>
             {roadmapData?.goals.map((goal) => (
               <option value={goal.id} key={`inherit-${goal.id}`}>
-                {`${goal.name ?? "Namnlöst mål"}: ${goal.indicatorParameter}`}
+                {`${goal.name ?? "Namnlöst mål"}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || "Enhet saknas"})`}
               </option>
             ))}
           </select>
@@ -278,7 +279,7 @@ export function CombinedGoalForm({
                     }
                   }}
                 />
-                {`${goal.name ?? "Namnlöst mål"}: ${goal.indicatorParameter} (${goal.dataSeries?.unit ?? "Enhet saknas"})`}
+                {`${goal.name ?? "Namnlöst mål"}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || "Enhet saknas"})`}
               </label>
               {inheritFrom?.includes(goal.id) &&
                 <label className="block margin-y-25" style={{ marginLeft: 25 }}>
@@ -291,6 +292,78 @@ export function CombinedGoalForm({
             </Fragment>
         ))}
       </fieldset>
+    </>
+  )
+}
+
+export function InheritingBaseline({ }: {}) {
+  const [roadmapList, setRoadmapList] = useState<Awaited<ReturnType<typeof clientSafeGetRoadmaps>>>([]);
+  const [selectedRoadmap, setSelectedRoadmap] = useState<string | undefined>(undefined);
+  const [roadmapData, setRoadmapData] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
+  const [selectedGoal, setSelectedGoal] = useState<string | undefined>(undefined);
+  const [goalData, setGoalData] = useState<Awaited<ReturnType<typeof clientSafeGetOneGoal>>>(null);
+
+  useEffect(() => {
+    clientSafeGetRoadmaps().then(setRoadmapList);
+  }, []);
+
+  useEffect(() => {
+    clientSafeGetOneRoadmap(selectedRoadmap ?? "").then(setRoadmapData);
+  }, [selectedRoadmap]);
+
+  useEffect(() => {
+    clientSafeGetOneGoal(selectedGoal ?? "").then(setGoalData)
+  }, [selectedGoal]);
+
+  // If there is a data series, convert it to an array of numbers and then a string to use for the form
+  const dataArray: (number | null)[] = []
+  if (goalData?.dataSeries) {
+    for (const i of dataSeriesDataFieldNames) {
+      dataArray.push(goalData.dataSeries[i])
+    }
+  }
+  const dataSeriesString = dataArray.join(';')
+
+  return (
+    <>
+      <label className="block margin-y-75">
+        Välj en färdplan att hämta målbanan från:
+        <select name="selectedRoadmap" id="selectedRoadmap" className="margin-x-25" required
+          value={selectedRoadmap}
+          onChange={(e) => { setSelectedRoadmap(e.target.value); setSelectedGoal(undefined) }}
+        >
+          <option value="">Välj färdplan</option>
+          {roadmapList.map((roadmap) => (
+            <option value={roadmap.id} key={`roadmap-inherit${roadmap.id}`}>
+              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.goals} mål`}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      {roadmapData &&
+        <label className="block margin-y-75">
+          Välj en målbana att använda som baslinje (värdena kopieras snarare än att länkas):
+          <select name="inheritFrom" id="inheritFrom" className="margin-x-25" required
+            value={selectedGoal}
+            onChange={(e) => setSelectedGoal(e.target.value)}
+          >
+            <option value="">Välj målbana</option>
+            {roadmapData?.goals.map((goal) => (
+              <option value={goal.id} key={`inherit-${goal.id}`} disabled={!goal.dataSeries}>
+                {`${(!goal.dataSeries) ? "DATA SAKNAS; " : ""}${goal.name ?? "Namnlöst mål"}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || "Enhet saknas"})`}
+              </option>
+            ))}
+          </select>
+        </label>
+      }
+
+      {goalData &&
+        <label className="block margin-y-75">
+          Baslinje, kopierad från vald målbana:
+          <input name="baselineDataSeries" id="baselineDataSeries" type="text" readOnly value={dataSeriesString} />
+        </label>
+      }
     </>
   )
 }

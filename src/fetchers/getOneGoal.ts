@@ -49,6 +49,12 @@ export async function clientSafeGetOneGoal(id: string) {
       authorId,
       ...data
     }) => data)(goal.dataSeries) : null),
+    baselineDataSeries: (goal.baselineDataSeries ? (({
+      createdAt,
+      updatedAt,
+      authorId,
+      ...data
+    }) => data)(goal.baselineDataSeries) : null),
     combinationParents: goal.combinationParents.map(combination => ({
       resultingGoalId: combination.resultingGoalId,
       parentGoalId: combination.parentGoalId,
@@ -104,8 +110,10 @@ const getCachedGoal = unstable_cache(
     let goal: Goal & {
       _count: { actions: number }
       dataSeries: DataSeries | null,
+      baselineDataSeries: DataSeries | null,
       combinationParents: (CombinedGoal & { parentGoal: { id: string, dataSeries: DataSeries | null, roadmapId: string } })[],
       actions: (Action & {
+        dataSeries: DataSeries | null,
         author: { id: string, username: string },
       })[],
       roadmap: AccessControlled & { id: string, version: number, targetVersion: number | null, metaRoadmap: { id: string, name: string, parentRoadmapId: string | null } },
@@ -122,6 +130,7 @@ const getCachedGoal = unstable_cache(
           include: {
             _count: { select: { actions: true } },
             dataSeries: true,
+            baselineDataSeries: true,
             combinationParents: {
               include: {
                 parentGoal: {
@@ -135,6 +144,7 @@ const getCachedGoal = unstable_cache(
             },
             actions: {
               include: {
+                dataSeries: true,
                 author: { select: { id: true, username: true } },
               },
             },
@@ -198,6 +208,7 @@ const getCachedGoal = unstable_cache(
           include: {
             _count: { select: { actions: true } },
             dataSeries: true,
+            baselineDataSeries: true,
             combinationParents: {
               include: {
                 parentGoal: {
@@ -216,6 +227,7 @@ const getCachedGoal = unstable_cache(
             },
             actions: {
               include: {
+                dataSeries: true,
                 author: { select: { id: true, username: true } },
               },
             },
@@ -264,6 +276,7 @@ const getCachedGoal = unstable_cache(
         include: {
           _count: { select: { actions: true } },
           dataSeries: true,
+          baselineDataSeries: true,
           combinationParents: {
             include: {
               parentGoal: {
@@ -282,6 +295,7 @@ const getCachedGoal = unstable_cache(
           },
           actions: {
             include: {
+              dataSeries: true,
               author: { select: { id: true, username: true } },
             },
           },

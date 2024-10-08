@@ -37,8 +37,10 @@ const getCachedGoal = unstable_cache(
     let goal: Goal & {
       _count: { actions: number }
       dataSeries: DataSeries | null,
+      baselineDataSeries: DataSeries | null,
       combinationParents: (CombinedGoal & { parentGoal: { dataSeries: { updatedAt: Date } | null } })[],
       actions: (Action & {
+        dataSeries: DataSeries | null,
         author: { id: string, username: string },
       })[],
       roadmap: AccessControlled & { id: string, version: number, targetVersion: number | null, metaRoadmap: { id: string, name: string, parentRoadmapId: string | null } },
@@ -60,6 +62,7 @@ const getCachedGoal = unstable_cache(
           include: {
             _count: { select: { actions: true } },
             dataSeries: true,
+            baselineDataSeries: true,
             combinationParents: {
               include: {
                 parentGoal: {
@@ -71,6 +74,7 @@ const getCachedGoal = unstable_cache(
             },
             actions: {
               include: {
+                dataSeries: true,
                 author: { select: { id: true, username: true } },
               },
             },
@@ -136,6 +140,7 @@ const getCachedGoal = unstable_cache(
           include: {
             _count: { select: { actions: true } },
             dataSeries: true,
+            baselineDataSeries: true,
             combinationParents: {
               include: {
                 parentGoal: {
@@ -147,6 +152,7 @@ const getCachedGoal = unstable_cache(
             },
             actions: {
               include: {
+                dataSeries: true,
                 author: { select: { id: true, username: true } },
               },
             },
@@ -204,6 +210,7 @@ const getCachedGoal = unstable_cache(
         include: {
           _count: { select: { actions: true } },
           dataSeries: true,
+          baselineDataSeries: true,
           combinationParents: {
             include: {
               parentGoal: {
@@ -215,6 +222,7 @@ const getCachedGoal = unstable_cache(
           },
           actions: {
             include: {
+              dataSeries: true,
               author: { select: { id: true, username: true } },
             },
           },
