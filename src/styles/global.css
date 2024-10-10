@@ -1,4 +1,4 @@
-@import url('utility.css');
+@import url('main.css');
 @import url('colors.css');
 
 * {
@@ -33,6 +33,16 @@ p {
 dialog {
   max-width: min(70ch, 100%);
 }
+
+/* Legends and labels */
+
+fieldset:not(:has(input:required, select:required, textarea:required)) legend::after {
+  content: ' - (valfri)';
+  font-style: italic;
+  color: gray;
+  font-weight: 500;
+}
+
 
 /* Temporary while rewriting */
 
@@ -86,3 +96,27 @@ kbd > kbd {
   padding: 1px 2px 0;
   border: 1px solid black;
 }
+
+.focusable:focus-within {
+  outline: 2px solid var(--seagreen);
+  box-shadow: 0 0 .5rem -3px var(--seagreen);
+  background-color: transparent;
+}
+
+.focusable input {
+  outline: none;
+  box-shadow: none;
+}
+
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:active{
+    -webkit-box-shadow: inset 0 0 0 9999px #e0e6eb !important;
+}
+
+input:-webkit-autofill:focus {
+    -webkit-box-shadow: inset 0 0 0 9999px white !important;
+}
+
+

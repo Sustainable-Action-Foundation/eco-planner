@@ -38,21 +38,21 @@ export default function GraphGraph({
     switch (graphType) {
       case GraphType.Main:
         return <div>
-          <nav className="display-flex align-items-center gap-25 margin-y-100">
+          <nav className="display-flex align-items-center gap-25 margin-block-100">
             <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
           </nav>
           <MainGraph goal={goal} nationalGoal={nationalGoal} historicalData={historicalData} secondaryGoal={secondaryGoal} />
         </div>;
       case GraphType.Relative:
         return <div>
-          <nav className="display-flex align-items-center gap-25 margin-y-100">
+          <nav className="display-flex align-items-center gap-25 margin-block-100">
             <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
           </nav>
           <MainRelativeGraph goal={goal} nationalGoal={nationalGoal} secondaryGoal={secondaryGoal} />
         </div>;
       case GraphType.Delta:
         return <div>
-          <nav className="display-flex align-items-center gap-25 margin-y-100">
+          <nav className="display-flex align-items-center gap-25 margin-block-100">
             <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
           </nav>
           <MainDeltaGraph goal={goal} nationalGoal={nationalGoal} secondaryGoal={secondaryGoal} />

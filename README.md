@@ -12,6 +12,11 @@ For the sake of simplicity, we bumped the version number to 0.7.0. All versions 
 This tool requires the following environment variables to be set:
 - `IRON_SESSION_PASSWORD`: Should be a string at least 32 characters long. This is used to encrypt the session cookie from the Iron Session library.
 - `DATABASE_URL`: Should be a connection string to a database. This is used by Prisma to connect to the database. The default configuration expects a MySQL/MariaDB database but this can be changed in the `prisma/schema.prisma` file.
+- `MAIL_HOST`: The SMTP host to use for sending emails.
+- `MAIL_USER`: The username to use when connecting to the SMTP host.
+- `MAIL_PASSWORD`: The password to use when connecting to the SMTP host.
+  - These `MAIL_`-variables are used in `src/mailClient.ts` to send emails using Nodemailer. Depending on how your SMTP host is set up, you might need to change the port and security settings as well as the authMethod.
+  - Yau could also use other transports than SMTP, see [the Nodemailer site](https://www.nodemailer.com/transports/) for more information.
 
 If you want to target a different type of database, you might want to remove the existing `prisma/migrations` folder and start from scratch with `yarn prisma migrate dev --create-only` to generate new migration files after changing the `provider` field in the prisma schema file.
 
@@ -225,67 +230,67 @@ This project uses a custom made version of [Semantic Style Sheets v.0.0.1](https
     margin: 5rem;
 }
 
-.margin-y-25 {
+.margin-block-25 {
     margin: .25rem 0;
 }
 
-.margin-y-50 {
+.margin-block-50 {
     margin: .5rem 0;
 }
 
-.margin-y-75 {
+.margin-block-75 {
     margin: .75rem 0;
 }
 
-.margin-y-100 {
+.margin-block-100 {
     margin: 1rem 0;
 }
 
-.margin-y-200 {
+.margin-block-200 {
     margin: 2rem 0;
 }
 
-.margin-y-300 {
+.margin-block-300 {
     margin: 3rem 0;
 }
 
-.margin-y-400 {
+.margin-block-400 {
     margin: 4rem 0;
 }
 
-.margin-y-500 {
+.margin-block-500 {
     margin: 5rem 0;
 }
 
-.margin-x-25 {
+.margin-inline-25 {
     margin: 0 .25rem;
 }
 
-.margin-x-50 {
+.margin-inline-50 {
     margin: 0 .5rem;
 }
 
-.margin-x-75 {
+.margin-inline-75 {
     margin: 0 .75rem;
 }
 
-.margin-x-100 {
+.margin-inline-100 {
     margin: 0 1rem;
 }
 
-.margin-x-200 {
+.margin-inline-200 {
     margin: 0 2rem;
 }
 
-.margin-x-300 {
+.margin-inline-300 {
     margin: 0 3rem;
 }
 
-.margin-x-400 {
+.margin-inline-400 {
     margin: 0 4rem;
 }
 
-.margin-x-500 {
+.margin-inline-500 {
     margin: 0 5rem;
 }
 
@@ -321,67 +326,67 @@ This project uses a custom made version of [Semantic Style Sheets v.0.0.1](https
     padding: 5rem;
 }
 
-.padding-y-25 {
+.padding-block-25 {
     padding: .25rem 0;
 }
 
-.padding-y-50 {
+.padding-block-50 {
     padding: .5rem 0;
 }
 
-.padding-y-75 {
+.padding-block-75 {
     padding: .75rem 0;
 }
 
-.padding-y-100 {
+.padding-block-100 {
     padding: 1rem 0;
 }
 
-.padding-y-200 {
+.padding-block-200 {
     padding: 2rem 0;
 }
 
-.padding-y-300 {
+.padding-block-300 {
     padding: 3rem 0;
 }
 
-.padding-y-400 {
+.padding-block-400 {
     padding: 4rem 0;
 }
 
-.padding-y-500 {
+.padding-block-500 {
     padding: 5rem 0;
 }
 
-.padding-x-25 {
+.padding-inline-25 {
     padding: 0 .25rem;
 }
 
-.padding-x-50 {
+.padding-inline-50 {
     padding: 0 .5rem;
 }
 
-.padding-x-75 {
+.padding-inline-75 {
     padding: 0 .75rem;
 }
 
-.padding-x-100 {
+.padding-inline-100 {
     padding: 0 1rem;
 }
 
-.padding-x-200 {
+.padding-inline-200 {
     padding: 0 2rem;
 }
 
-.padding-x-300 {
+.padding-inline-300 {
     padding: 0 3rem;
 }
 
-.padding-x-400 {
+.padding-inline-400 {
     padding: 0 4rem;
 }
 
-.padding-x-500 {
+.padding-inline-500 {
     padding: 0 5rem;
 }
 

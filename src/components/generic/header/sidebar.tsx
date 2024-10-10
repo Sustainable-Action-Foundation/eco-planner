@@ -19,7 +19,7 @@ export default async function Sidebar() {
           <div>
             { // Link to signup if not logged in
               !user?.isLoggedIn &&
-              <Link href="/signup" className='flex gap-50 align-items-center padding-50 margin-y-25 round seagreen color-purewhite button' style={{ whiteSpace: 'nowrap', fontWeight: '500', }}>
+              <Link href="/signup" className='flex gap-50 align-items-center padding-50 margin-block-25 round seagreen color-purewhite button' style={{ whiteSpace: 'nowrap', fontWeight: '500', }}>
                 <Image src='/icons/userAdd.svg' alt='' width={24} height={24} />
                 Skapa Konto
               </Link>
