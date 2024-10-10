@@ -162,7 +162,7 @@ export type ActionInput = Omit<
   Prisma.ActionCreateInput,
   'id' | 'createdAt' | 'updatedAt' | 'goal' | 'dataSeries' | 'author' | 'notes' | 'links' | 'comments'
 > & {
-  dataSeries?: string[] | undefined;
+  dataSeries?: string[] | null | undefined;
   links?: { url: string, description?: string }[] | undefined;
   // UUID for the goal this action belongs to
   goalId: string;

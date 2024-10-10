@@ -337,8 +337,10 @@ export async function PUT(request: NextRequest) {
                 authorId: session.user.id,
               },
               update: impactData
-            }
+            },
           }
+        } : (action.dataSeries === null || action.dataSeries?.length === 0) ? {
+          delete: true
         } : {}),
         impactType: action.impactType,
         links: {
