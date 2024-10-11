@@ -296,7 +296,7 @@ export function CombinedGoalForm({
   )
 }
 
-export function InheritingBaseline({ }: {}) {
+export function InheritingBaseline() {
   const [roadmapList, setRoadmapList] = useState<Awaited<ReturnType<typeof clientSafeGetRoadmaps>>>([]);
   const [selectedRoadmap, setSelectedRoadmap] = useState<string | undefined>(undefined);
   const [roadmapData, setRoadmapData] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);

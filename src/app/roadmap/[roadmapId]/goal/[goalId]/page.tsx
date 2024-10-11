@@ -167,7 +167,8 @@ export default async function Page({ params, searchParams }: { params: { roadmap
       <GraphCookie />
       {secondaryGoal && <p>Jämför med målbanan {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
       <section className={styles.graphLayout}>
-        <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} />
+        {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
+        <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} actions={goal.actions} />
         <CombinedGraph roadmap={roadmap} goal={goal} />
       </section>
       <SecondaryGoalSelector />

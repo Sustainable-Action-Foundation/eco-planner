@@ -5,9 +5,9 @@ import goalsToTree from '@/functions/goalsToTree';
 import { SyntheticEvent } from 'react';
 import { getSessionStorage, setSessionStorage } from '@/functions/localStorage';
 
-interface LinkTreeCommonProps { }
+// interface LinkTreeCommonProps {}
 
-interface LinkTreeWithGoals extends LinkTreeCommonProps {
+interface LinkTreeWithGoals /* extends LinkTreeCommonProps */ {
   goals: (Goal & {
     _count: { actions: number }
     dataSeries: DataSeries | null,
@@ -16,7 +16,7 @@ interface LinkTreeWithGoals extends LinkTreeCommonProps {
   roadmap?: never,
 }
 
-interface LinkTreeWithRoadmap extends LinkTreeCommonProps {
+interface LinkTreeWithRoadmap /* extends LinkTreeCommonProps */ {
   goals?: never,
   roadmap: {
     id: string,

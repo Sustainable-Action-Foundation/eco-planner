@@ -32,7 +32,7 @@ export default function Goals({
   roadmap,
   accessLevel,
 }: {
-  title: String,
+  title: string,
   roadmap: Roadmap & {
     goals: (Goal & {
       _count: { actions: number }
