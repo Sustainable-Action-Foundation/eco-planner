@@ -71,6 +71,10 @@ export default function Signup() {
         <p className="text-align-center padding-block-50 margin-bottom-100 margin-top-0">
           Har du redan ett konto? <Link href='/login'>Logga in</Link>
         </p>
+        <p className="text-align-center padding-block-50 margin-bottom-100 margin-top-0">
+          Din organisation måste ha tecknat ett användaravtal med oss för att du ska kunna skapa ett konto.
+          Vid frågor eller funderingar, vänligen kontakta <Link href='mailto:kontakt@sustainable-action.org'>kontakt@sustainable-action.org</Link>
+        </p>
 
       </form>
     </>
