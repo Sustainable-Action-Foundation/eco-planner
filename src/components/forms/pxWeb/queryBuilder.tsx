@@ -40,7 +40,7 @@ export default function QueryBuilder({
   }, [dataSource]);
 
   function buildQuery(formData: FormData) {
-    const queryObject: Object[] = []
+    const queryObject: object[] = []
     formData.forEach((value, key) => {
       // Skip empty values
       if (!value) return;
@@ -157,10 +157,10 @@ export default function QueryBuilder({
                       <span className="block margin-block-25">Sök efter tabell</span>
                       <input type="search" className="block" onKeyDown={searchOnEnter} />
                     </label>
-                    <button type="button" onClick={searchWithButton} style={{fontSize: '1rem'}}>Sök</button>
+                    <button type="button" onClick={searchWithButton} style={{ fontSize: '1rem' }}>Sök</button>
                   </div>
 
-                  <div style={{padding: '.25rem', border: '1px solid var(--gray-90)', borderRadius: '.25rem'}}>
+                  <div style={{ padding: '.25rem', border: '1px solid var(--gray-90)', borderRadius: '.25rem' }}>
                     <div className={styles.temporary}>
                       {tables && tables.map(({ id, label }) => (
                         <label key={id} className={`${styles.tableSelect} block padding-block-25`}>
@@ -171,10 +171,10 @@ export default function QueryBuilder({
                     </div>
                   </div>
                 </>
-              : null }
+                : null}
             </fieldset>
 
-            <fieldset className="margin-block-100" style={{border: '1px solid var(--gray-90)', borderRadius: '3px', padding: '.5rem'}}>
+            <fieldset className="margin-block-100" style={{ border: '1px solid var(--gray-90)', borderRadius: '3px', padding: '.5rem' }}>
               <legend className="padding-inline-50">
                 <strong>Välj värden för tabell</strong>
               </legend>
