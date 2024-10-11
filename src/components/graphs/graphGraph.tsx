@@ -3,12 +3,11 @@
 import MainDeltaGraph from "./mainGraphs/mainDeltaGraph";
 import MainGraph from "./mainGraphs/mainGraph";
 import MainRelativeGraph from "./mainGraphs/mainRelativeGraph";
-import { DataSeries, Goal } from "@prisma/client";
+import { Action, DataSeries, Goal } from "@prisma/client";
 import GraphSelector from "./graphselector/graphSelector";
 import { useEffect, useState } from "react";
 import { getStoredGraphType } from "./functions/graphFunctions";
 import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
-import GraphCookie from "../cookies/graphCookie";
 
 export enum GraphType {
   Main = "MAIN",
@@ -21,13 +20,14 @@ export default function GraphGraph({
   secondaryGoal,
   nationalGoal,
   historicalData,
+  actions,
 }: {
-  goal: Goal & { dataSeries: DataSeries | null },
+  goal: Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null },
   secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
   nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
   historicalData?: PxWebApiV2TableContent | null,
+  actions: (Action & { dataSeries: DataSeries | null })[],
 }) {
-
   const [graphType, setGraphType] = useState<GraphType | "">("");
 
   useEffect(() => {
@@ -41,7 +41,7 @@ export default function GraphGraph({
           <nav className="display-flex align-items-center gap-25 margin-block-100">
             <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
           </nav>
-          <MainGraph goal={goal} nationalGoal={nationalGoal} historicalData={historicalData} secondaryGoal={secondaryGoal} />
+          <MainGraph goal={goal} nationalGoal={nationalGoal} historicalData={historicalData} secondaryGoal={secondaryGoal} actions={actions} />
         </div>;
       case GraphType.Relative:
         return <div>
@@ -55,7 +55,7 @@ export default function GraphGraph({
           <nav className="display-flex align-items-center gap-25 margin-block-100">
             <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
           </nav>
-          <MainDeltaGraph goal={goal} nationalGoal={nationalGoal} secondaryGoal={secondaryGoal} />
+          <MainDeltaGraph goal={goal} nationalGoal={nationalGoal} secondaryGoal={secondaryGoal} actions={actions} />
         </div>;
       default:
         return graphSwitch(GraphType.Main);
