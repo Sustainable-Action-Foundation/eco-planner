@@ -1,12 +1,11 @@
 'use server';
 
-import { getSession } from "@/lib/session"
+import { getSession, LoginData } from "@/lib/session"
 import { goalSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
 import { Comment, DataSeries, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
-import { data } from "node_modules/cypress/types/jquery";
 
 /**
  * Gets specified roadmap and all goals for that roadmap.
@@ -17,7 +16,7 @@ import { data } from "node_modules/cypress/types/jquery";
  */
 export default async function getOneRoadmap(id: string) {
   const session = await getSession(cookies());
-  return getCachedRoadmap(id, session.user?.id ?? '')
+  return getCachedRoadmap(id, session.user)
 }
 
 /**
@@ -79,12 +78,10 @@ export async function clientSafeGetOneRoadmap(id: string) {
  * Caches the specified roadmap and all goals for that roadmap.
  * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'goal']`, which is done in relevant API routes.
  * @param id ID of the roadmap to cache
- * @param userId ID of user. Isn't passed in, but is used to associate the cache with the user.
+ * @param user Data from user's session cookie.
  */
 const getCachedRoadmap = unstable_cache(
-  async (id, userId) => {
-    const session = await getSession(cookies());
-
+  async (id: string, user: LoginData['user']) => {
     let roadmap: Roadmap & {
       metaRoadmap: MetaRoadmap,
       goals: (Goal & {
@@ -101,7 +98,7 @@ const getCachedRoadmap = unstable_cache(
     } | null = null;
 
     // If user is admin, always get the roadmap
-    if (session.user?.isAdmin) {
+    if (user?.isAdmin) {
       try {
         roadmap = await prisma.roadmap.findUnique({
           where: { id },
@@ -138,17 +135,17 @@ const getCachedRoadmap = unstable_cache(
     }
 
     // If user is logged in, get the roadmap if they have access to it
-    if (session.user?.isLoggedIn) {
+    if (user?.isLoggedIn) {
       try {
         roadmap = await prisma.roadmap.findUnique({
           where: {
             id,
             OR: [
-              { authorId: session.user.id },
-              { editors: { some: { id: session.user.id } } },
-              { viewers: { some: { id: session.user.id } } },
-              { editGroups: { some: { users: { some: { id: session.user.id } } } } },
-              { viewGroups: { some: { users: { some: { id: session.user.id } } } } },
+              { authorId: user.id },
+              { editors: { some: { id: user.id } } },
+              { viewers: { some: { id: user.id } } },
+              { editGroups: { some: { users: { some: { id: user.id } } } } },
+              { viewGroups: { some: { users: { some: { id: user.id } } } } },
               { isPublic: true }
             ]
           },

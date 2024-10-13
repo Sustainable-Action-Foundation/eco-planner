@@ -1,6 +1,6 @@
 'use server';
 
-import { getSession } from "@/lib/session";
+import { getSession, LoginData } from "@/lib/session";
 import prisma from "@/prismaClient";
 import { Prisma } from "@prisma/client";
 import { unstable_cache } from "next/cache";
@@ -14,18 +14,16 @@ import { cookies } from "next/headers";
  */
 export default async function getOneMetaRoadmap(id: string) {
   const session = await getSession(cookies());
-  return getCachedMetaRoadmap(id, session.user?.id ?? '');
+  return getCachedMetaRoadmap(id, session.user);
 }
 
 /**
  * Caches the specified meta roadmap.
  * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'metaRoadmap', 'roadmap']`, which is done in relevant API routes.
- * @param userId ID of user. Isn't passed in, but is used to associate the cache with the user.
+ * @param user Data from user's session cookie.
  */
 const getCachedMetaRoadmap = unstable_cache(
-  async (id: string, userId) => {
-    const session = await getSession(cookies());
-
+  async (id: string, user: LoginData['user']) => {
     let metaRoadmap: Prisma.MetaRoadmapGetPayload<{
       include: {
         roadmapVersions: {
@@ -57,7 +55,7 @@ const getCachedMetaRoadmap = unstable_cache(
     }> | null = null;
 
     // If user is admin, get all meta roadmaps
-    if (session.user?.isAdmin) {
+    if (user?.isAdmin) {
       try {
         metaRoadmap = await prisma.metaRoadmap.findUnique({
           where: { id },
@@ -99,17 +97,17 @@ const getCachedMetaRoadmap = unstable_cache(
     }
 
     // If user is logged in, get all meta roadmaps they have access to
-    if (session.user?.isLoggedIn) {
+    if (user?.isLoggedIn) {
       try {
         metaRoadmap = await prisma.metaRoadmap.findUnique({
           where: {
             id,
             OR: [
-              { authorId: userId },
-              { editors: { some: { id: userId } } },
-              { viewers: { some: { id: userId } } },
-              { editGroups: { some: { users: { some: { id: userId } } } } },
-              { viewGroups: { some: { users: { some: { id: userId } } } } },
+              { authorId: user.id },
+              { editors: { some: { id: user.id } } },
+              { viewers: { some: { id: user.id } } },
+              { editGroups: { some: { users: { some: { id: user.id } } } } },
+              { viewGroups: { some: { users: { some: { id: user.id } } } } },
               { isPublic: true }
             ]
           },
@@ -117,11 +115,11 @@ const getCachedMetaRoadmap = unstable_cache(
             roadmapVersions: {
               where: {
                 OR: [
-                  { authorId: userId },
-                  { editors: { some: { id: userId } } },
-                  { viewers: { some: { id: userId } } },
-                  { editGroups: { some: { users: { some: { id: userId } } } } },
-                  { viewGroups: { some: { users: { some: { id: userId } } } } },
+                  { authorId: user.id },
+                  { editors: { some: { id: user.id } } },
+                  { viewers: { some: { id: user.id } } },
+                  { editGroups: { some: { users: { some: { id: user.id } } } } },
+                  { viewGroups: { some: { users: { some: { id: user.id } } } } },
                   { isPublic: true }
                 ]
               },
