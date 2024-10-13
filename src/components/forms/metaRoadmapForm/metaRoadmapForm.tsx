@@ -90,7 +90,7 @@ export default function MetaRoadmapForm({
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="padding-left-300" style={{transform: 'translate(-3rem, 0)'}} >
+      <form onSubmit={handleSubmit} className="padding-left-300" style={{ transform: 'translate(-3rem, 0)' }} >
         {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
         <input type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
@@ -131,8 +131,8 @@ export default function MetaRoadmapForm({
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
-            <legend data-position='3' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Bifoga externa resurser</legend>
-            <LinkInput />
+          <legend data-position='3' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Bifoga externa resurser</legend>
+          <LinkInput />
         </fieldset>
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
@@ -184,7 +184,7 @@ export default function MetaRoadmapForm({
 
         {/* Add copy of RoadmapForm? Only if we decide to include it immediately rather than redirecting to it */}
 
-        <input type="submit" id="submit-button" value={currentRoadmap ? "Spara" : "Skapa färdplan"} disabled />
+        <input type="submit" id="submit-button" value={currentRoadmap ? "Spara" : "Skapa färdplan"} />
       </form>
 
       <datalist id="actors">
