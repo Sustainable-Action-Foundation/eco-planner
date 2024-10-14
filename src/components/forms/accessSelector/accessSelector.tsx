@@ -1,9 +1,9 @@
 'use client'
 
 import { AccessControlled } from "@/types";
-import { Fragment, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
-import styles from './accessSelector.module.css' with { type: "css" };
+import styles from './accessSelector.module.css' with { type: "css" }
 
 export default function AccessSelector({ groupOptions, currentAccess }: { groupOptions: string[], currentAccess?: AccessControlled | undefined }) {
   return (
@@ -115,47 +115,54 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
 
   return (
     <>
-      <p><strong>Grupper med redigeringsbehörighet</strong></p>
-      {groups.map((group) => (
-        <Fragment key={'viewGroup' + group}>
-          <label className="display-flex align-items-center gap-50 margin-block-50">
-            <input type="checkbox" name="viewGroups" id={'viewGroup' + group} value={group} defaultChecked={existingGroups?.includes(group)} />
-            {group}
-          </label>
-        </Fragment>
-      ))}
+
+      <fieldset className="margin-block-75">
+        <legend>Grupper med redigeringsbehörighet</legend>
+        <ul className="padding-left-100" style={{listStyle: 'none'}}>
+          {groups.map((group) => (
+            <li key={'viewGroup' + group}>
+              <label className="display-flex align-items-center gap-50 margin-block-50">
+                <input type="checkbox" name="viewGroups" id={'viewGroup' + group} value={group} defaultChecked={existingGroups?.includes(group)} />
+                {group}
+              </label>
+            </li>
+          ))}
+        </ul>
+      </fieldset>
 
       {/* A text field whose contents get appended to editUsers upon pressing enter */}
 
-      <p style={{ marginTop: '3rem' }}><strong>Användare med redigeringsbehörighet</strong></p>
-      <div className="flex align-items-flex-end margin-block-100 gap-100 flex-wrap-wrap">
-        <label className="block flex-grow-100">
-          Ny användare:
-          <input style={{ marginTop: '.25rem' }} type="text" name="editUsers" ref={editorRef} id="newEditUser" onKeyDown={(event) => handleKeyDown(event, editUsers, setEditUsers)} />
-        </label>
-
-        <button type="button" style={{ fontSize: '1rem' }} onClick={() => { addUser(editorRef.current?.value, editUsers, setEditUsers); if (editorRef.current) editorRef.current.value = '' }}>Lägg till användare</button>
-      </div>
-
-      <section style={{ maxHeight: '300px', overflowY: 'scroll', scrollbarWidth: 'thin' }}>
-        {editUsers.map((user, index) => (
-          <Fragment key={'editUser' + index}>
-            <label className="display-flex gap-100 align-items-center">
-              <input className={styles.user} type="text" name="editUsers" id={'editUser' + user} value={user} onChange={(event) => {
-                // Replace the user in the list of selected editUsers with the new value
-                setEditUsers(editUsers.map((editUser) => editUser === user ? event.currentTarget.value : editUser));
-              }} />
-              {/* Remove the user from the list of selected editUsers */}
+      <label className="block margin-block-75" htmlFor="newEditUser">
+        Användare med läsbehörighet
+        <div className={`${styles.multiAddContainer} flex align-items-flex-end flex-wrap-wrap margin-block-25 focusable smooth padding-25 gap-25`}>
+          {editUsers.map((user, index) => (
+            <span className="display-flex gap-50 align-items-center padding-block-25 padding-inline-50 smooth" style={{backgroundColor: 'var(--gray-90)', width: 'fit-content'}} key={'viewUser' + index}>
+              {/* TODO: Add focusable to span here */}
+              {user}
               <button
+                className="grid padding-0"
                 onClick={() => { setEditUsers(editUsers.filter((editUser) => editUser !== user)); }}
-                className={styles.removeUserButton}
                 type="button">
-                <Image src="/icons/delete.svg" alt="remove" width={24} height={24}></Image>
+                <Image src="/icons/close.svg" alt="Ta bort användare" width={12} height={12}></Image>
               </button>
-            </label>
-          </Fragment>
-        ))}
-      </section>
+            </span>
+          ))}
+          <input 
+            style={{backgroundColor: 'transparent', width: '0', minWidth: '100px', height: '100%'}} 
+            className="padding-25 flex-grow-100" 
+            type="text" 
+            name="editUsers"
+            id="newEditUser"
+            ref={editorRef} 
+            onKeyDown={(event) => handleKeyDown(event, editUsers, setEditUsers)} />
+        </div>
+      </label>
+      <button 
+        className="margin-bottom-75"
+        type="button" 
+        onClick={() => { addUser(editorRef.current?.value, editUsers, setEditUsers); if (editorRef.current) editorRef.current.value = '' }}>
+        Lägg till användare
+      </button>
 
     </>
   )
@@ -175,51 +182,57 @@ export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPubli
   return (
     <>
 
-      <label className="display-flex align-items-center gap-50 margin-block-50">
-        <input type="checkbox" name="isPublic" id="isPublic" defaultChecked={isPublic} />
-        Visa inlägg publikt
-      </label>
-
-      <p className="font-weight-500">Grupper med läsbehörighet</p>
-      {groups.map((group) => (
-        <Fragment key={'viewGroup' + group}>
-          <label className="display-flex align-items-center gap-50 margin-block-50">
-            <input type="checkbox" name="viewGroups" id={'viewGroup' + group} value={group} defaultChecked={existingGroups?.includes(group)} />
-            {group}
-          </label>
-        </Fragment>
-      ))}
+      <fieldset className="margin-block-75">
+        <legend>Grupper med läsbehörighet</legend>
+        <ul className="padding-left-100" style={{listStyle: 'none'}}>
+          <li>
+            <label className="display-flex align-items-center gap-50 margin-block-50">
+              <input type="checkbox" name="isPublic" id="isPublic" defaultChecked={isPublic} />
+              Visa inlägg publikt
+            </label>
+          </li>
+          {groups.map((group) => (
+            <li key={'viewGroup' + group}>
+              <label className="display-flex align-items-center gap-50 margin-block-50">
+                <input type="checkbox" name="viewGroups" id={'viewGroup' + group} value={group} defaultChecked={existingGroups?.includes(group)} />
+                {group}
+              </label>
+            </li>
+          ))}
+        </ul>
+      </fieldset>
 
       {/* A text field whose contents get appended to viewUsers upon pressing enter */}
-      <p className="font-weight-500">Användare med läsbehörighet</p>
-      <div className="flex align-items-flex-end gap-100 flex-wrap-wrap margin-block-100">
-        <label className="block flex-grow-100">
-          Ny användare:
-          <input style={{ marginTop: '.25rem' }} type="text" name="viewUsers" id="newViewUser" ref={viewRef} onKeyDown={(event) => handleKeyDown(event, viewUsers, setViewUsers)} />
-        </label>
-
-        <button type="button" style={{ fontSize: '1rem' }} onClick={() => { addUser(viewRef.current?.value, viewUsers, setViewUsers); if (viewRef.current) viewRef.current.value = '' }}>Lägg till användare</button>
-      </div>
-
-      <section style={{ maxHeight: '300px', overflowY: 'scroll', scrollbarWidth: 'thin' }}>
-        {viewUsers.map((user, index) => (
-          <Fragment key={'viewUser' + index}>
-            <label className="display-flex gap-100 align-items-center">
-              <input className={styles.user} type="text" name="viewUsers" id={'viewUser' + user} value={user} onChange={(event) => {
-                // Replace the user in the list of selected viewUsers with the new value
-                setViewUsers(viewUsers.map((viewUser) => viewUser === user ? event.currentTarget.value : viewUser));
-              }} />
+      <label className="block margin-block-75" htmlFor="newViewUser">
+        Användare med läsbehörighet
+        <div className={`${styles.multiAddContainer} flex align-items-flex-end flex-wrap-wrap margin-block-25 focusable smooth padding-25 gap-25`}>
+          {viewUsers.map((user, index) => (
+            <span className="display-flex gap-50 align-items-center padding-block-25 padding-inline-50 smooth" style={{backgroundColor: 'var(--gray-90)', width: 'fit-content'}} key={'viewUser' + index}>
+              {/* TODO: Add focusable to span here */}
+              {user}
               <button
+                className="grid padding-0"
                 onClick={() => { setViewUsers(viewUsers.filter((viewUser) => viewUser !== user)); }}
-                className={styles.removeUserButton}
                 type="button">
-                <Image src="/icons/delete.svg" alt="remove" width={24} height={24}></Image>
+                <Image src="/icons/close.svg" alt="Ta bort användare" width={12} height={12}></Image>
               </button>
-            </label>
-          </Fragment>
-        ))}
-      </section>
-
+            </span>
+          ))}
+          <input 
+            style={{backgroundColor: 'transparent', width: '0', minWidth: '100px', height: '100%'}} 
+            className="padding-25 flex-grow-100" 
+            type="text" 
+            name="viewUsers"
+            id="newViewUser"
+            ref={viewRef} onKeyDown={(event) => handleKeyDown(event, viewUsers, setViewUsers)} />
+        </div>
+      </label>
+      <button 
+        className="margin-bottom-75"
+        type="button" 
+        onClick={() => { addUser(viewRef.current?.value, viewUsers, setViewUsers); if (viewRef.current) viewRef.current.value = '' }}>
+          Lägg till användare
+      </button>
     </>
   )
 } 

@@ -1,28 +1,7 @@
-.removeUserButton {
-    border: none; 
-    border-radius: 3px;
-    padding: .5rem; 
-    display: flex;
-    cursor: pointer; 
-    background-color: transparent;
-    transition: background-color .5s;
+.multiAddContainer {
+    outline: 1px solid var(--gray-90);
 }
 
-.removeUserButton:hover {
-    box-shadow: none
-}
-
-.user {
-    padding-inline: 0;
-    padding-block: .25rem;
-    background-color: transparent;
-    border-bottom: 2px solid var(--gray-90);
-    transition: border-bottom .2s ease;
-    border-radius: 0;
-}
-
-.user:focus {
-    border-bottom: 2px solid black;
-    outline: 0;
-    box-shadow: none;
+.multiAddContainer:not(:has(span)) {
+    background-color: var(--gray-90);
 }

@@ -30,9 +30,6 @@ p {
   display: none;
 }
 
-dialog {
-  max-width: min(70ch, 100%);
-}
 
 /* Legends and labels */
 
@@ -43,6 +40,9 @@ fieldset:not(:has(input:required, select:required, textarea:required)) legend::a
   font-weight: 500;
 }
 
+fieldset:not(:has(input:required, select:required, textarea:required)):has(fieldset) fieldset legend::after {
+  content: '';
+}
 
 /* Temporary while rewriting */
 

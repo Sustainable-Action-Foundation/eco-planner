@@ -4,12 +4,11 @@ import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" wit
 import { LoginData } from "@/lib/session";
 import { AccessControlled, MetaRoadmapInput } from "@/types";
 import { MetaRoadmap, RoadmapType } from "@prisma/client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { EditUsers, ViewUsers, getAccessData } from "@/components/forms/accessSelector/accessSelector";
-import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput"
+import { getLinks } from "@/components/forms/linkInput/linkInput"
 import formSubmitter from "@/functions/formSubmitter";
 import styles from '../forms.module.css'
-import FormWrapper from "../formWrapper";
 
 export default function MetaRoadmapForm({
   user,
@@ -130,14 +129,17 @@ export default function MetaRoadmapForm({
           </label>
         </fieldset>
 
-        <fieldset className={`${styles.timeLineFieldset} width-100`}>
-            <legend data-position='3' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Bifoga externa resurser</legend>
-            <LinkInput />
-        </fieldset>
+        {/*
+          TODO: Re add this once it is needed 
+          <fieldset className={`${styles.timeLineFieldset} width-100`}>
+              <legend data-position='3' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Bifoga externa resurser</legend>
+              <LinkInput />
+          </fieldset>
+        */}
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
           <fieldset className={`${styles.timeLineFieldset} width-100`}>
-            <legend data-position='4' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Justera läsbehörighet</legend>
+            <legend data-position='3' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Justera läsbehörighet</legend>
             <ViewUsers
               groupOptions={userGroups}
               existingUsers={currentAccess?.viewers.map((user) => user.username)}
@@ -150,7 +152,7 @@ export default function MetaRoadmapForm({
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
           <fieldset className={`${styles.timeLineFieldset} width-100`}>
-            <legend data-position='5' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Justera redigeringsbehörighet</legend>
+            <legend data-position='4' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Justera redigeringsbehörighet</legend>
             <EditUsers
               groupOptions={userGroups}
               existingUsers={currentAccess?.editors.map((user) => user.username)}
@@ -160,8 +162,8 @@ export default function MetaRoadmapForm({
         }
 
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
-          <legend data-position='6' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Jobbar denna färdplan mot en annan färdplan?</legend>
-          <label className="block margin-block-100">
+          <legend data-position='5' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Jobbar denna färdplan mot en annan färdplan?</legend>
+          <label className="block margin-block-75">
             Förälder
             <select name="parentRoadmap" id="parentRoadmap" className="block margin-block-25" defaultValue={currentRoadmap?.parentRoadmapId ?? ""}>
               <option value="">Ingen förälder vald</option>
@@ -183,8 +185,7 @@ export default function MetaRoadmapForm({
 
 
         {/* Add copy of RoadmapForm? Only if we decide to include it immediately rather than redirecting to it */}
-
-        <input type="submit" id="submit-button" value={currentRoadmap ? "Spara" : "Skapa färdplan"} disabled />
+        <input className="seagreen color-purewhite margin-block-100" type="submit" id="submit-button" value={currentRoadmap ? "Spara" : "Skapa färdplan"} /> {/* TODO: Set disabled if form not filled out */}
       </form>
 
       <datalist id="actors">
