@@ -1,6 +1,6 @@
 'use server';
 
-import { getSession } from "@/lib/session";
+import { getSession, LoginData } from "@/lib/session";
 import prisma from "@/prismaClient";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
@@ -13,18 +13,16 @@ import { cookies } from "next/headers";
  */
 export default async function getNames() {
   const session = await getSession(cookies());
-  return getCachedNames(session.user?.id ?? '');
+  return getCachedNames(session.user);
 }
 
 /**
  * Caches names and ids of all roadmaps, goals, and actions.
  * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'goal', 'action']`, which is done in relevant API routes.
- * @param userId ID of user. Isn't passed in, but is used to associate the cache with the user.
+ * @param user Data from user's session cookie.
  */
 const getCachedNames = unstable_cache(
-  async (userId: string) => {
-    const session = await getSession(cookies());
-
+  async (user: LoginData['user']) => {
     let names: {
       name: string,
       id: string,
@@ -48,7 +46,7 @@ const getCachedNames = unstable_cache(
     }[] = [];
 
     // If user is admin, get all roadmaps
-    if (session.user?.isAdmin) {
+    if (user?.isAdmin) {
       try {
         names = await prisma.metaRoadmap.findMany({
           select: {
@@ -91,23 +89,23 @@ const getCachedNames = unstable_cache(
     }
 
     // If user is logged in, get all roadmaps they have access to
-    if (session.user?.isLoggedIn) {
+    if (user?.isLoggedIn) {
       try {
         // Get all roadmaps authored by the user
         names = await prisma.metaRoadmap.findMany({
           where: {
             OR: [
-              { authorId: session.user.id },
-              { editors: { some: { id: session.user.id } } },
-              { viewers: { some: { id: session.user.id } } },
-              { editGroups: { some: { users: { some: { id: session.user.id } } } } },
-              { viewGroups: { some: { users: { some: { id: session.user.id } } } } },
+              { authorId: user.id },
+              { editors: { some: { id: user.id } } },
+              { viewers: { some: { id: user.id } } },
+              { editGroups: { some: { users: { some: { id: user.id } } } } },
+              { viewGroups: { some: { users: { some: { id: user.id } } } } },
               { isPublic: true },
-              { roadmapVersions: { some: { authorId: session.user.id } } },
-              { roadmapVersions: { some: { editors: { some: { id: session.user.id } } } } },
-              { roadmapVersions: { some: { viewers: { some: { id: session.user.id } } } } },
-              { roadmapVersions: { some: { editGroups: { some: { users: { some: { id: session.user.id } } } } } } },
-              { roadmapVersions: { some: { viewGroups: { some: { users: { some: { id: session.user.id } } } } } } },
+              { roadmapVersions: { some: { authorId: user.id } } },
+              { roadmapVersions: { some: { editors: { some: { id: user.id } } } } },
+              { roadmapVersions: { some: { viewers: { some: { id: user.id } } } } },
+              { roadmapVersions: { some: { editGroups: { some: { users: { some: { id: user.id } } } } } } },
+              { roadmapVersions: { some: { viewGroups: { some: { users: { some: { id: user.id } } } } } } },
               { roadmapVersions: { some: { isPublic: true } } },
             ]
           },
@@ -117,11 +115,11 @@ const getCachedNames = unstable_cache(
             roadmapVersions: {
               where: {
                 OR: [
-                  { authorId: session.user.id },
-                  { editors: { some: { id: session.user.id } } },
-                  { viewers: { some: { id: session.user.id } } },
-                  { editGroups: { some: { users: { some: { id: session.user.id } } } } },
-                  { viewGroups: { some: { users: { some: { id: session.user.id } } } } },
+                  { authorId: user.id },
+                  { editors: { some: { id: user.id } } },
+                  { viewers: { some: { id: user.id } } },
+                  { editGroups: { some: { users: { some: { id: user.id } } } } },
+                  { viewGroups: { some: { users: { some: { id: user.id } } } } },
                   { isPublic: true }
                 ]
               },

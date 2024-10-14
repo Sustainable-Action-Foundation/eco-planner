@@ -1,6 +1,6 @@
 'use server';
 
-import { getSession } from "@/lib/session"
+import { getSession, LoginData } from "@/lib/session"
 import { goalSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
 import { Comment, DataSeries, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
@@ -17,7 +17,7 @@ import { cookies } from "next/headers";
  */
 export default async function getRoadmapByVersion(metaId: string, version: number) {
   const session = await getSession(cookies());
-  return getCachedRoadmap(metaId, version, session.user?.id ?? '')
+  return getCachedRoadmap(metaId, version, session.user)
 }
 
 /**
@@ -25,12 +25,10 @@ export default async function getRoadmapByVersion(metaId: string, version: numbe
  * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'goal']`, which is done in relevant API routes.
  * @param metaId ID of the meta roadmap to search for a specific version of
  * @param version Version number of the roadmap to cache
- * @param userId ID of user. Isn't passed in, but is used to associate the cache with the user.
+ * @param user Data from user's session cookie.
  */
 const getCachedRoadmap = unstable_cache(
-  async (metaId, version, userId) => {
-    const session = await getSession(cookies());
-
+  async (metaId: string, version: number, user: LoginData['user']) => {
     let roadmap: Roadmap & {
       metaRoadmap: MetaRoadmap,
       goals: (Goal & {
@@ -47,7 +45,7 @@ const getCachedRoadmap = unstable_cache(
     } | null = null;
 
     // If user is admin, always get the roadmap
-    if (session.user?.isAdmin) {
+    if (user?.isAdmin) {
       try {
         roadmap = await prisma.roadmap.findUnique({
           where: { meta_version: { metaRoadmapId: metaId, version } },
@@ -84,17 +82,17 @@ const getCachedRoadmap = unstable_cache(
     }
 
     // If user is logged in, get the roadmap if they have access to it
-    if (session.user?.isLoggedIn) {
+    if (user?.isLoggedIn) {
       try {
         roadmap = await prisma.roadmap.findUnique({
           where: {
             meta_version: { metaRoadmapId: metaId, version },
             OR: [
-              { authorId: session.user.id },
-              { editors: { some: { id: session.user.id } } },
-              { viewers: { some: { id: session.user.id } } },
-              { editGroups: { some: { users: { some: { id: session.user.id } } } } },
-              { viewGroups: { some: { users: { some: { id: session.user.id } } } } },
+              { authorId: user.id },
+              { editors: { some: { id: user.id } } },
+              { viewers: { some: { id: user.id } } },
+              { editGroups: { some: { users: { some: { id: user.id } } } } },
+              { viewGroups: { some: { users: { some: { id: user.id } } } } },
               { isPublic: true }
             ]
           },
