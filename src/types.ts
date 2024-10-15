@@ -99,8 +99,10 @@ export type AdvancedScalingValue = {
   weight?: number,
 }
 
-export function isScalingRecipie(object: any): object is ScalingRecipie {
-  return (typeof object == "object" && object.values instanceof Array)
+export type JSONValue = Partial<{ [key: string]: JSONValue }> | JSONValue[] | string | number | boolean | null;
+
+export function isScalingRecipie(object: unknown): object is ScalingRecipie {
+  return (typeof object == "object" && (object as ScalingRecipie)?.values instanceof Array)
 }
 
 /** The format of the data needed to create new roadmap metadata. */

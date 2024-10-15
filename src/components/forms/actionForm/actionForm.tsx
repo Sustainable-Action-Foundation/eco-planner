@@ -8,11 +8,9 @@ import { Action, ActionImpactType, DataSeries } from "@prisma/client"
 import { useState } from "react"
 
 export default function ActionForm({
-  roadmapId,
   goalId,
   currentAction
 }: {
-  roadmapId: string,
   goalId: string,
   currentAction?: Action & {
     dataSeries?: DataSeries | null,

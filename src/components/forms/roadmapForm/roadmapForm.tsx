@@ -47,9 +47,9 @@ export default function RoadmapForm({
           alert("Kolumnen 'Scale' stöds inte och kommer att ignoreras.")
         }
       }
-      catch (e: any) {
+      catch (error) {
         setIsLoading(false)
-        alert(`Färdplan kunde inte skapas.\nAnledning: ${e.message || "Okänt fel"}`)
+        alert(`Färdplan kunde inte skapas.\nAnledning: ${error instanceof Error ? error.message || "Okänt fel" : "Okänt fel"}`)
         return
       }
     }
@@ -121,7 +121,7 @@ export default function RoadmapForm({
         setIsLoading(false);
         return;
       })
-      .catch((err) => {
+      .catch(() => {
         setInheritableGoals([]);
         setIsLoading(false);
         return;
@@ -140,8 +140,8 @@ export default function RoadmapForm({
           }
         }).then(() => setIsLoading(false))
       }
-      catch (e: any) {
-        alert(`Filen kunde inte läsas: ${e.message || "Okänt fel"}`)
+      catch (error) {
+        alert(`Filen kunde inte läsas: ${error instanceof Error ? error.message || "Okänt fel" : "Okänt fel"}`)
         setIsLoading(false)
         return
       }
@@ -202,7 +202,7 @@ export default function RoadmapForm({
             <fieldset>
               <legend>Välj mål att ärva från färdplanen</legend>
               {
-                inheritableGoals.map((goal, index) => {
+                inheritableGoals.map((goal) => {
                   return (
                     <label key={goal.id} className="block margin-block-25">
                       <input type="checkbox" name={`inheritGoals`} id={`inheritGoals-${goal.id}`} value={goal.id} />

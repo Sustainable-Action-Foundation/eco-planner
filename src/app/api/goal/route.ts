@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { getSession } from "@/lib/session"
 import prisma from "@/prismaClient";
 import { AccessControlled, AccessLevel, ClientError, DataSeriesDataFields, GoalInput } from "@/types";
-import { DataSeries } from "@prisma/client";
+import { DataSeries, Prisma } from "@prisma/client";
 import accessChecker from "@/lib/accessChecker";
 import { revalidateTag } from "next/cache";
 import dataSeriesPrep from "./dataSeriesPrep";
@@ -89,23 +89,23 @@ export async function POST(request: NextRequest) {
         throw new Error(ClientError.IllegalParent, { cause: 'goal' });
       }
     }
-  } catch (e) {
-    if (e instanceof Error) {
-      if (e.message == ClientError.BadSession) {
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message == ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } }
         );
       }
-      if (e.message == ClientError.IllegalParent) {
+      if (error.message == ClientError.IllegalParent) {
         return Response.json({ message: ClientError.IllegalParent },
           { status: 403 }
         );
       }
     }
     // If no matching error is thrown, log the error and return a generic error message
-    console.log(e);
+    console.log(error);
     return Response.json({ message: "Internal server error" },
       { status: 500 }
     );
@@ -204,9 +204,9 @@ export async function POST(request: NextRequest) {
     return Response.json({ message: "Goal created", id: newGoal.id },
       { status: 201, headers: { 'Location': `/roadmap/${goal.roadmapId}/goal/${newGoal.id}` } }
     );
-  } catch (e: any) {
-    console.log(e);
-    if (e?.code == 'P2025') {
+  } catch (error) {
+    console.log(error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code == 'P2025') {
       return Response.json({ message: 'Failed to connect records. Given roadmap might not exist' },
         { status: 400 }
       );
@@ -304,33 +304,33 @@ export async function PUT(request: NextRequest) {
     if (!goal.timestamp || (currentGoal?.updatedAt?.getTime() || 0) > goal.timestamp) {
       throw new Error(ClientError.StaleData, { cause: 'goal' });
     }
-  } catch (e) {
-    if (e instanceof Error) {
-      if (e.message == ClientError.BadSession) {
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message == ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } }
         );
       }
-      if (e.message == ClientError.StaleData) {
+      if (error.message == ClientError.StaleData) {
         return Response.json({ message: ClientError.StaleData },
           { status: 409 }
         );
       }
-      if (e.message == ClientError.IllegalParent) {
+      if (error.message == ClientError.IllegalParent) {
         return Response.json({ message: ClientError.IllegalParent },
           { status: 403 }
         );
       }
-      if (e.message == ClientError.AccessDenied) {
+      if (error.message == ClientError.AccessDenied) {
         return Response.json({ message: ClientError.AccessDenied },
           { status: 403 }
         );
       }
     }
     // If no matching error is thrown, log the error and return a generic error message
-    console.log(e);
+    console.log(error);
     return Response.json({ message: "Internal server error" },
       { status: 500 }
     );
@@ -449,8 +449,8 @@ export async function PUT(request: NextRequest) {
     return Response.json({ message: "Goal updated", id: editedGoal.id },
       { status: 200, headers: { 'Location': `/roadmap/${editedGoal.roadmap.id}/goal/${editedGoal.id}` } }
     );
-  } catch (e: any) {
-    console.log(e);
+  } catch (error) {
+    console.log(error);
     return Response.json({ message: "Internal server error" },
       { status: 500 }
     );
@@ -510,23 +510,23 @@ export async function DELETE(request: NextRequest) {
     if (!currentGoal) {
       throw new Error(ClientError.AccessDenied, { cause: 'goal' });
     }
-  } catch (e) {
-    if (e instanceof Error) {
-      if (e.message == ClientError.BadSession) {
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message == ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } }
         );
       }
-      if (e.message == ClientError.AccessDenied) {
+      if (error.message == ClientError.AccessDenied) {
         return Response.json({ message: ClientError.AccessDenied },
           { status: 403 }
         );
       }
     }
     // If no matching error is thrown, log the error and return a generic error message
-    console.log(e);
+    console.log(error);
     return Response.json({ message: "Internal server error" },
       { status: 500 }
     );
@@ -555,8 +555,8 @@ export async function DELETE(request: NextRequest) {
       // Redirect to the parent roadmap
       { status: 200, headers: { 'Location': `/roadmap/${deletedGoal.roadmap.id}` } }
     );
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    console.log(error);
     return Response.json({ message: "Internal server error" },
       { status: 500 }
     );

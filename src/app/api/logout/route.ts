@@ -1,8 +1,7 @@
-import { NextRequest } from "next/server";
 import { getSession } from "@/lib/session"
 import { cookies } from "next/headers";
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   const session = await getSession(cookies());
 
   // Remove session to log out

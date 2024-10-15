@@ -32,7 +32,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     } else {
       alert('Login failed.')
     }
-  }).catch((err) => {
+  }).catch(() => {
     alert('Login failed.')
   })
 }
@@ -44,7 +44,7 @@ export default function Login() {
   return (
     <>
       <form onSubmit={handleSubmit} className={`${styles.padding}`}>
-        <h1 className="padding-bottom-100" style={{borderBottom: '1px solid var(--gray-90)'}}>Logga in</h1>
+        <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid var(--gray-90)' }}>Logga in</h1>
 
         <label className="block margin-block-100">
           Användarnamn

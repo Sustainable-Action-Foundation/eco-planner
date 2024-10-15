@@ -12,7 +12,7 @@ export default function RoadmapFilters() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [isPending, startTransition] = useTransition();
+  const [_isPending, startTransition] = useTransition();
 
   const debouncedUpdateStringParam = useDebouncedCallback(updateStringParam, 300);
 

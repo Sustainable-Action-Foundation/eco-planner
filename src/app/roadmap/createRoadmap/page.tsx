@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
 
 export default async function Page() {
-  let [session, metaRoadmapAlternatives] = await Promise.all([
+  const [session, metaRoadmapAlternatives] = await Promise.all([
     getSession(cookies()),
     getMetaRoadmaps(),
   ]);
@@ -15,7 +15,7 @@ export default async function Page() {
     return notFound();
   }
 
-  metaRoadmapAlternatives = metaRoadmapAlternatives.filter(metaRoadmap => {
+  const filteredAlternatives = metaRoadmapAlternatives.filter(metaRoadmap => {
     if (metaRoadmap.author.id === session.user?.id) {
       return true
     }
@@ -30,12 +30,12 @@ export default async function Page() {
 
   return (
     <>
-      <div className='container-text' style={{marginInline: 'auto'}}>
+      <div className='container-text' style={{ marginInline: 'auto' }}>
         <h1>Skapa en ny version av en färdplan</h1>
         <RoadmapForm
           user={session.user}
           userGroups={session.user?.userGroups}
-          metaRoadmapAlternatives={metaRoadmapAlternatives}
+          metaRoadmapAlternatives={filteredAlternatives}
         />
       </div>
     </>

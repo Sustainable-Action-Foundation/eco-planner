@@ -27,7 +27,7 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
           throw new Error(data.message)
         })
       }
-    }).then((data) => {
+    }).then(() => {
       window.location.reload()
     }).catch((err) => {
       alert(err.message)

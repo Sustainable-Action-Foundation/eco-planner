@@ -24,9 +24,15 @@ export default async function DashboardBase({ actor }: { actor: string }) {
 
   if (roadmaps) {
     // Get all goals and filter out any null values
-    goals = (await Promise.all(goalIds.map((goalId) => {
-      return getOneGoal(goalId).catch((e: any) => { return null })
-    }))).filter((goal): goal is Exclude<typeof goal, null> => goal != null)
+    goals = (await Promise.all(goalIds.map(
+      async (goalId) => {
+        try {
+          return await getOneGoal(goalId);
+        } catch {
+          return null;
+        }
+      }
+    ))).filter((goal): goal is Exclude<typeof goal, null> => goal != null)
 
   }
 

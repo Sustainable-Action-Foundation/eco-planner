@@ -1,12 +1,11 @@
 'use client';
 
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
-import { LoginData } from "@/lib/session";
 import { Goal } from "@prisma/client";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import styles from './queryBuilder.module.css'
-import { PxWebApiV2TableArray, PxWebApiV2TableContent, PxWebApiV2TableDetails } from "@/lib/pxWeb/pxWebApiV2Types";
+import { PxWebApiV2TableContent, PxWebApiV2TableDetails } from "@/lib/pxWeb/pxWebApiV2Types";
 import { externalDatasetBaseUrls } from "@/lib/pxWeb/utility";
 import { getTables } from "@/lib/pxWeb/getTables";
 import { getTableDetails } from "@/lib/pxWeb/getTableDetails";
@@ -17,10 +16,8 @@ import FormWrapper from "../formWrapper";
 
 export default function QueryBuilder({
   goal,
-  user
 }: {
   goal: Goal,
-  user: LoginData["user"],
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [dataSource, setDataSource] = useState<string>("" as keyof typeof externalDatasetBaseUrls);

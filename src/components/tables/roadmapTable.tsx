@@ -2,7 +2,7 @@ import { LoginData } from '@/lib/session';
 import styles from './tables.module.css' with { type: "css" };
 import { MetaRoadmap } from "@prisma/client";
 import { TableMenu } from './tableMenu/tableMenu';
-import { AccessControlled, AccessLevel } from '@/types';
+import { AccessControlled } from '@/types';
 import accessChecker from '@/lib/accessChecker';
 
 interface RoadmapTableCommonProps {
@@ -29,8 +29,6 @@ export default function RoadmapTable({
   // Failsafe in case wrong props are passed
   if ((!roadmaps && !metaRoadmap) || (roadmaps && metaRoadmap)) throw new Error('RoadmapTable: Either `roadmaps` XOR `metaRoadmap` must be provided');
 
-  let creationLink = '/metaRoadmap/createMetaRoadmap';
-
   if (!roadmaps) {
     // Between Typescript version 5.3.3 and 5.4.4 there was a change where the type of `metaRoadmap` stopped being inferred as `NonNullable<typeof metaRoadmap>`.
     // We can claim that `metaRoadmap` is `NonNullable<typeof metaRoadmap>` since the program will throw if both `roadmaps` and `metaRoadmap` are undefined.
@@ -50,9 +48,7 @@ export default function RoadmapTable({
         viewGroups: version.viewGroups,
         isPublic: version.isPublic,
       }
-    })
-    // Set the creation link to create a new roadmap version for the specified meta roadmap instead
-    creationLink = `/roadmap/createRoadmap?metaRoadmapId=${metaRoadmap.id}`
+    });
   }
 
   return <>
