@@ -119,7 +119,7 @@ export default function GoalForm({
     let parsedUnit: string | null = null;
     try {
       parsedUnit = mathjs.unit((form.namedItem("dataUnit") as HTMLInputElement)?.value).toString();
-    } catch (error) {
+    } catch {
       console.log("Failed to parse unit. Using raw string instead, which may disable some features.");
     }
 

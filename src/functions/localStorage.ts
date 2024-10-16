@@ -1,5 +1,7 @@
 'use client';
 
+import { JSONValue } from "@/types";
+
 // Silently fail if sessionStorage or localStorage is not available, but log an error to the user
 
 /** Makes sure the user has consented to usage of local/session storage before trying to use it */
@@ -24,7 +26,7 @@ export function allowStorage() {
 }
 
 /** Stringifies `value` and stores it in sessionStorage under `key`. */
-export function setSessionStorage(key: string, value: any) {
+export function setSessionStorage(key: string, value: JSONValue) {
   if (!storageConsent()) return;
 
   if (!sessionStorage) {
@@ -36,7 +38,7 @@ export function setSessionStorage(key: string, value: any) {
 }
 
 /** Stringifies `value` and stores it in localStorage under `key`. */
-export function setLocalStorage(key: string, value: any) {
+export function setLocalStorage(key: string, value: JSONValue) {
   if (!storageConsent()) return;
 
   if (!localStorage) {
@@ -48,8 +50,8 @@ export function setLocalStorage(key: string, value: any) {
 }
 
 /** Retrieves the value stored under `key` in sessionStorage, parsed as JSON. */
-export function getSessionStorage(key: string): any {
-  if (!storageConsent()) return;
+export function getSessionStorage(key: string): JSONValue | null {
+  if (!storageConsent()) return null;
 
   if (!sessionStorage) {
     console.error('No sessionStorage available');
@@ -58,14 +60,14 @@ export function getSessionStorage(key: string): any {
 
   const value = sessionStorage.getItem(key);
   if (value) {
-    return JSON.parse(value);
+    return JSON.parse(value) as JSONValue;
   }
   return null;
 }
 
 /** Retrieves the value stored under `key` in localStorage, parsed as JSON. */
-export function getLocalStorage(key: string): any {
-  if (!storageConsent()) return;
+export function getLocalStorage(key: string): JSONValue | null {
+  if (!storageConsent()) return null;
 
   if (!localStorage) {
     console.error('No localStorage available');
@@ -74,7 +76,7 @@ export function getLocalStorage(key: string): any {
 
   const value = localStorage.getItem(key);
   if (value) {
-    return JSON.parse(value);
+    return JSON.parse(value) as JSONValue;
   }
   return null;
 }

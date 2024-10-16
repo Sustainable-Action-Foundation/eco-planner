@@ -1,6 +1,6 @@
 import scbAreaQuery from "@/lib/scbAreaQuery";
 import scbPopulationQuery from "@/lib/scbPopulationQuery";
-import { AdvancedScalingValue, dataSeriesDataFieldNames, DataSeriesDataFields, isScalingRecipie, ScaleBy, ScaleMethod, ScalingRecipie, SimpleScalingValue } from "@/types";
+import { AdvancedScalingValue, dataSeriesDataFieldNames, DataSeriesDataFields, isScalingRecipie, ScaleBy, ScaleMethod, SimpleScalingValue } from "@/types";
 import { DataSeries } from "@prisma/client";
 
 /** Returns area of childArea / area of parentArea, or 1 if either is not found */

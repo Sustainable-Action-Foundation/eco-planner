@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
   }
 
   const comment: { commentText: string, objectId: string } = await request.json();
-  const objectType = await findTypeFromId(comment.objectId).catch((err) => { return "" });
+  const objectType = await findTypeFromId(comment.objectId).catch(() => { return "" });
 
   if (comment.commentText == "") {
     return Response.json({ message: 'Comment text cannot be empty' },
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ message: 'Comment created', id: newComment.id },
       { status: 200 }
     );
-  } catch (err) {
+  } catch {
     return Response.json({ message: 'Error creating comment' },
       { status: 500 }
     );

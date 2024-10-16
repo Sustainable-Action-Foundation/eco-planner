@@ -2,8 +2,6 @@
 
 import { storageConsent, allowStorage, clearStorage } from "@/functions/localStorage";
 import { useEffect, useState } from "react";
-import { getStoredGraphType } from "../graphs/functions/graphFunctions";
-import { GraphType } from "../graphs/graphGraph";
 
 export default function GraphCookie() {
 

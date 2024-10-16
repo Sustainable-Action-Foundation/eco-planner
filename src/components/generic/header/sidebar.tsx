@@ -4,7 +4,7 @@ import { getSession } from '@/lib/session'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import Image from 'next/image'
-import Notifications from '../notifications/notification'
+// import Notifications from '../notifications/notification'
 
 export default async function Sidebar() {
   const { user } = await getSession(cookies())

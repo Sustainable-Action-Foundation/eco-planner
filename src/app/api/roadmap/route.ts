@@ -9,6 +9,7 @@ import goalInputFromGoalArray from "@/functions/goalInputFromGoalArray";
 import getOneGoal from "@/fetchers/getOneGoal";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { cookies } from "next/headers";
+import { Prisma } from "@prisma/client";
 
 /**
  * Handles POST requests to the roadmap API
@@ -75,9 +76,9 @@ export async function POST(request: NextRequest) {
     if (accessLevel === AccessLevel.None || accessLevel === AccessLevel.View) {
       throw new Error(ClientError.IllegalParent, { cause: 'roadmap' });
     }
-  } catch (e) {
-    if (e instanceof Error) {
-      if (e.message == ClientError.BadSession) {
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message == ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
@@ -89,7 +90,7 @@ export async function POST(request: NextRequest) {
       );
     } else {
       // If non-error is thrown, log it and return a generic error message
-      console.log(e);
+      console.log(error);
       return Response.json({ message: "Unknown internal server error" },
         { status: 500 }
       );
@@ -104,8 +105,8 @@ export async function POST(request: NextRequest) {
       if (goalArray) {
         roadmap.goals = [...(roadmap.goals || []), ...goalInputFromGoalArray(goalArray)];
       }
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      console.log(error);
       return Response.json({ message: 'Failed to fetch roadmap to inherit from' },
         { status: 400 }
       );
@@ -172,21 +173,21 @@ export async function POST(request: NextRequest) {
     return Response.json({ message: "Roadmap created", id: newRoadmap.id },
       { status: 201, headers: { 'Location': `/roadmap/${newRoadmap.id}` } }
     );
-  } catch (e: any) {
+  } catch (error) {
     // Custom error if there are errors in the nested goal creation
-    if (e instanceof Error) {
-      if (e.cause == 'nestedGoalCreation') {
-        return Response.json({ message: e.message },
+    if (error instanceof Error) {
+      if (error.cause == 'nestedGoalCreation') {
+        return Response.json({ message: error.message },
           { status: 400 }
         );
       }
     }
-    if (e?.code == 'P2025') {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code == 'P2025') {
       return Response.json({ message: 'Failed to connect records. Probably invalid editor, viewer, editGroup, and/or viewGroup name(s)' },
         { status: 400 }
       );
     }
-    console.log(e);
+    console.log(error);
     return Response.json({ message: "Internal server error" },
       { status: 500 }
     );
@@ -252,16 +253,16 @@ export async function PUT(request: NextRequest) {
     if (!roadmap.timestamp || (currentRoadmap?.updatedAt?.getTime() || 0) > roadmap.timestamp) {
       throw new Error(ClientError.StaleData, { cause: 'roadmap' });
     }
-  } catch (e) {
-    if (e instanceof Error) {
-      if (e.message == ClientError.BadSession) {
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message == ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
-        await session.destroy();
+        session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } }
         );
       }
-      if (e.message == ClientError.StaleData) {
+      if (error.message == ClientError.StaleData) {
         return Response.json({ message: ClientError.StaleData },
           { status: 409 }
         );
@@ -271,7 +272,7 @@ export async function PUT(request: NextRequest) {
       );
     } else {
       // If non-error is thrown, log it and return a generic error message
-      console.log(e);
+      console.log(error);
       return Response.json({ message: "Unknown internal server error" },
         { status: 500 }
       );
@@ -326,18 +327,17 @@ export async function PUT(request: NextRequest) {
     return Response.json({ message: "Roadmap updated", id: updatedRoadmap.id },
       { status: 200, headers: { 'Location': `/roadmap/${updatedRoadmap.id}` } }
     );
-  } catch (e: any) {
-    console.log(e);
+  } catch (error) {
+    console.log(error);
     // Custom error if there are errors in the nested goal creation
-    if (e instanceof Error) {
-      e = e as Error
-      if (e.cause == 'nestedGoalCreation') {
-        return Response.json({ message: e.message },
+    if (error instanceof Error) {
+      if (error.cause == 'nestedGoalCreation') {
+        return Response.json({ message: error.message },
           { status: 400 }
         );
       }
     }
-    if (e?.code == 'P2025') {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code == 'P2025') {
       return Response.json({ message: 'Failed to connect records. Probably invalid editor, viewer, editGroup, and/or viewGroup name(s)' },
         { status: 400 }
       );
@@ -399,9 +399,9 @@ export async function DELETE(request: NextRequest) {
     if (!currentRoadmap) {
       throw new Error(ClientError.AccessDenied, { cause: 'roadmap' });
     }
-  } catch (e) {
-    if (e instanceof Error) {
-      if (e.message == ClientError.BadSession) {
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message == ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         await session.destroy();
         return Response.json({ message: ClientError.BadSession },
@@ -412,7 +412,7 @@ export async function DELETE(request: NextRequest) {
         { status: 403 }
       );
     } else {
-      console.log(e);
+      console.log(error);
       return Response.json({ message: "Unknown internal server error" },
         { status: 500 }
       );
@@ -438,8 +438,8 @@ export async function DELETE(request: NextRequest) {
       // Redirect to the parent meta roadmap
       { status: 200, headers: { 'Location': `/metaRoadmap/${deletedRoadmap.metaRoadmapId}` } }
     );
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    console.log(error);
     return Response.json({ message: "Internal server error" },
       { status: 500 }
     );

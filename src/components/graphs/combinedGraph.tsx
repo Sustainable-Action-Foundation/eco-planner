@@ -68,6 +68,8 @@ export default function CombinedGraph({
     dataLabels: { enabled: false },
   }
 
+  // TODO: Show this information to the user again. See commit c403159 for the original implementation. https://github.com/Sustainable-Action-Foundation/eco-planner/commit/c403159
+  /*
   let indicatorCategory: string;
   let additionalInfo: string = '';
   if (goal.indicatorParameter.split('\\')[0] == 'Key' || goal.indicatorParameter.split('\\')[0] == 'Demand') {
@@ -76,6 +78,7 @@ export default function CombinedGraph({
   } else {
     indicatorCategory = goal.indicatorParameter.split('\\').slice(0, -1).join('\\')
   }
+  */
 
   return (siblings.length > 1 &&
     <div>

@@ -3,11 +3,19 @@
     "next/core-web-vitals",
     "next/typescript"
   ],
-  // TODO: Follow these rules and set them to "warn" or remove them (falling back to the default "error")
   "rules": {
-    "@typescript-eslint/no-unused-vars": "off",
-    "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/no-unused-expressions": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        "args": "all",
+        "argsIgnorePattern": "^_",
+        "caughtErrors": "all",
+        "caughtErrorsIgnorePattern": "^_",
+        "destructuredArrayIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "ignoreRestSiblings": true
+      }
+    ],
     "prefer-const": "warn"
   }
 }

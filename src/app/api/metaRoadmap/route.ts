@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/session";
 import { AccessControlled, AccessLevel, ClientError, MetaRoadmapInput } from "@/types";
-import { RoadmapType } from "@prisma/client";
+import { Prisma, RoadmapType } from "@prisma/client";
 import prisma from "@/prismaClient";
 import { revalidateTag } from "next/cache";
 import accessChecker from "@/lib/accessChecker";
@@ -85,9 +85,9 @@ export async function POST(request: NextRequest) {
         throw new Error(ClientError.IllegalParent, { cause: 'meta roadmap' });
       }
     }
-  } catch (e) {
-    if (e instanceof Error) {
-      if (e.message == ClientError.BadSession) {
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message == ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
       );
     } else {
       // If non-error is thrown, log it and return a generic error message
-      console.log(e);
+      console.log(error);
       return Response.json({ message: "Unknown internal server error" },
         { status: 500 }
       );
@@ -167,9 +167,9 @@ export async function POST(request: NextRequest) {
     return Response.json({ message: "Roadmap metadata created. \n You will now be sent to another form to add goals and other details for the first version of this roadmap", id: newMetaRoadmap.id },
       { status: 201, headers: { 'Location': `/roadmap/createRoadmap?metaRoadmapId=${newMetaRoadmap.id}` } }
     );
-  } catch (e: any) {
-    console.log(e);
-    if (e?.code == 'P2025') {
+  } catch (error) {
+    console.log(error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code == 'P2025') {
       return Response.json({ message: 'Failed to connect records. Probably invalid editor, viewer, editGroup, and/or viewGroup name(s)' },
         { status: 400 }
       )
@@ -266,21 +266,21 @@ export async function PUT(request: NextRequest) {
     if (!metaRoadmap.timestamp || (currentRoadmap?.updatedAt?.getTime() || 0) > metaRoadmap.timestamp) {
       throw new Error(ClientError.StaleData, { cause: 'meta roadmap' });
     }
-  } catch (e) {
-    if (e instanceof Error) {
-      if (e.message == ClientError.BadSession) {
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message == ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
-        await session.destroy();
+        session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } }
         );
       }
-      if (e.message == ClientError.StaleData) {
+      if (error.message == ClientError.StaleData) {
         return Response.json({ message: ClientError.StaleData },
           { status: 409 }
         );
       }
-      if (e.message == ClientError.IllegalParent) {
+      if (error.message == ClientError.IllegalParent) {
         return Response.json({ message: ClientError.IllegalParent },
           { status: 403 }
         );
@@ -291,7 +291,7 @@ export async function PUT(request: NextRequest) {
     }
     // If non-error is thrown, log it and return a generic error message
     else {
-      console.log(e);
+      console.log(error);
       return Response.json({ message: "Unknown internal server error" },
         { status: 500 }
       );
@@ -363,9 +363,9 @@ export async function PUT(request: NextRequest) {
     return Response.json({ message: "Roadmap metadata updated", id: updatedMetaRoadmap.id },
       { status: 200, headers: { 'Location': `/metaRoadmap/${updatedMetaRoadmap.id}` } }
     );
-  } catch (e: any) {
-    console.log(e);
-    if (e?.code == 'P2025') {
+  } catch (error) {
+    console.log(error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code == 'P2025') {
       return Response.json({ message: 'Failed to connect records. Probably invalid editor, viewer, editGroup, and/or viewGroup name(s)' },
         { status: 400 }
       )
@@ -423,11 +423,11 @@ export async function DELETE(request: NextRequest) {
     if (!currentMetaRoadmap) {
       throw new Error(ClientError.AccessDenied, { cause: 'meta roadmap' });
     }
-  } catch (e) {
-    if (e instanceof Error) {
-      if (e.message == ClientError.BadSession) {
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message == ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
-        await session.destroy();
+        session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } }
         );
@@ -436,7 +436,7 @@ export async function DELETE(request: NextRequest) {
         { status: 403 }
       );
     } else {
-      console.log(e);
+      console.log(error);
       return Response.json({ message: "Unknown internal server error" },
         { status: 500 }
       );
@@ -462,8 +462,8 @@ export async function DELETE(request: NextRequest) {
       // Redirect to the parent goal
       { status: 200, headers: { 'Location': `/` } }
     );
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    console.log(error);
     return Response.json({ message: "Internal server error" },
       { status: 500 }
     );

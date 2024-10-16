@@ -1,6 +1,6 @@
 'use server';
 
-import { LoginData, getSession } from "@/lib/session";
+import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
 import { DataSeriesDataFields, dataSeriesDataFieldNames } from "@/types";
 import { revalidateTag } from "next/cache";
@@ -28,8 +28,8 @@ export default async function scaleDataSeries(
       });
       revalidateTag('dataSeries');
       return "";
-    } catch (error: any) {
-      return error.message || "Error scaling data series (Admin)";
+    } catch (error) {
+      return error instanceof Error ? error.message || "Error scaling data series (Admin)" : "Error scaling data series (Admin)";
     }
   } else {
     try {
@@ -50,8 +50,8 @@ export default async function scaleDataSeries(
       });
       revalidateTag('dataSeries');
       return "";
-    } catch (error: any) {
-      return error.message || "Error scaling data series";
+    } catch (error) {
+      return error instanceof Error ? error.message || "Error scaling data series" : "Error scaling data series";
     }
   }
 }

@@ -1,5 +1,5 @@
 import dataSeriesInterest from "@/functions/weightedAverageDelta";
-import { Action, Comment, DataSeries, Goal, MetaRoadmap, Roadmap, RoadmapType } from "@prisma/client";
+import { Action, Comment, DataSeries, Goal, MetaRoadmap, RoadmapType } from "@prisma/client";
 
 // Used for alphabetical sorting, we use Swedish locale and ignore case, but it can be changed here
 const collator = new Intl.Collator('sv', { numeric: true, sensitivity: 'accent', caseFirst: 'upper' });
@@ -28,7 +28,7 @@ export function metaRoadmapSorter(a: MetaRoadmap, b: MetaRoadmap) {
 /**
  * Sorts roadmaps by type (national first), then alphabetically by name
  */
-export function roadmapSorter(a: {} & { metaRoadmap: MetaRoadmap }, b: {} & { metaRoadmap: MetaRoadmap }) {
+export function roadmapSorter(a: { metaRoadmap: MetaRoadmap }, b: { metaRoadmap: MetaRoadmap }) {
   // Higher priority roadmaps are first in the values array, so we reverse it to
   // account for the fact that indexOf() returns -1 if the element is not found, which
   // should be considered lower priority than any other index

@@ -51,7 +51,6 @@ export default function RepeatableScaling({
   const [numericInput, setNumericInput] = useState<number | null>(null);
   const [parentValue, setParentValue] = useState<number | null>(null);
   const [childValue, setChildValue] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   // Set parentValue on mount and when scaleBy changes
   useEffect(() => {

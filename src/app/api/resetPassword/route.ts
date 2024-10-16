@@ -31,7 +31,7 @@ export async function PATCH(request: NextRequest) {
         isVerified: true
       }
     });
-  } catch (e) {
+  } catch {
     return Response.json({ message: 'Internal server error' }, { status: 500 });
   }
 

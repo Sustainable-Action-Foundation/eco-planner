@@ -28,7 +28,7 @@ export default async function pruneOrphans() {
       }),
     ]);
     success = true;
-  } catch (error) {
+  } catch {
     success = false;
   } finally {
     return success;

@@ -10,7 +10,7 @@ export default function filterTableContentKeys(responseJson: PxWebApiV2TableCont
     return null;
   }
   // Early return if any data entry does not have exactly one value
-  for (const { key, values } of responseJson.data) {
+  for (const { values } of responseJson.data) {
     if (values.length != 1) {
       return null;
     }
@@ -22,7 +22,7 @@ export default function filterTableContentKeys(responseJson: PxWebApiV2TableCont
   }
 
   // Extract all unique values for each key
-  const valueAlternatives: string[][] = responseJson.data.reduce((alternatives, { key, values }) => {
+  const valueAlternatives: string[][] = responseJson.data.reduce((alternatives, { key }) => {
     key.forEach((alternative, index) => {
       if (!alternatives[index]) {
         alternatives[index] = [];
@@ -34,15 +34,15 @@ export default function filterTableContentKeys(responseJson: PxWebApiV2TableCont
     return alternatives;
   }, [] as string[][]);
 
-  const identicalValues = valueAlternatives.map((alternatives, index) => alternatives.length == 1 ? alternatives[0] : null);
+  const identicalValues = valueAlternatives.map((alternatives) => alternatives.length == 1 ? alternatives[0] : null);
 
   // Filter out all keys that have the same value for all entries
-  responseJson.data.forEach((obj, index) => {
+  responseJson.data.forEach((obj) => {
     obj.key = obj.key.filter((value, index) => !identicalValues[index]?.includes(value));
   });
 
   // Return null if any key does not have exactly one value after filtering
-  for (const { key, values } of responseJson.data) {
+  for (const { key } of responseJson.data) {
     if (key.length != 1) {
       return null;
     }

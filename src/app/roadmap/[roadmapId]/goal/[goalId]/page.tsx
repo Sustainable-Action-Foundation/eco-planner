@@ -147,7 +147,7 @@ export default async function Page({ params, searchParams }: { params: { roadmap
               Redigera Målbana
               <Image src="/icons/edit.svg" width={24} height={24} alt={`Edit roadmap: ${goal.name}`} />
             </Link>
-            <QueryBuilder goal={goal} user={session.user} />
+            <QueryBuilder goal={goal} />
             {shouldUpdate &&
               <UpdateGoalButton id={goal.id} />
             }

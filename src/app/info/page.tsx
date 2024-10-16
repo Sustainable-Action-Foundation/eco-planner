@@ -8,7 +8,7 @@ export default function Page() {
     if (typeof version.remoteURL === "string") {
       remoteURL = new URL(version.remoteURL.endsWith("/") ? version.remoteURL : version.remoteURL + "/")
     }
-  } catch (e) { /* Silently fail */ }
+  } catch { /* Silently fail */ }
   if (typeof version.shortHash === "string") {
     parsedVersion = version.shortHash
     if (remoteURL) {

@@ -61,7 +61,7 @@ export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, set
         totalWeight = 0;
         scaleFactor = 0;
         for (let i = 0; i < scalars.length; i++) {
-          if (scalars[i] instanceof File || weights[i] instanceof File || parentAreas[i] instanceof File || childAreas[i] instanceof File || (scalingTypes[i] as any) instanceof File) {
+          if (scalars[i] instanceof File || weights[i] instanceof File || parentAreas[i] instanceof File || childAreas[i] instanceof File || scalingTypes[i] instanceof File) {
             if (setIsLoading) setIsLoading(false);
             throw new Error("Why is this a file?");
           }
@@ -145,7 +145,7 @@ export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, set
         scaleFactor = 1; // This initial value won't affect the result since it's the identity element for multiplication and is not given a weight
 
         for (let i = 0; i < scalars.length; i++) {
-          if (scalars[i] instanceof File || weights[i] instanceof File || parentAreas[i] instanceof File || childAreas[i] instanceof File || (scalingTypes[i] as any) instanceof File) {
+          if (scalars[i] instanceof File || weights[i] instanceof File || parentAreas[i] instanceof File || childAreas[i] instanceof File || scalingTypes[i] instanceof File) {
             if (setIsLoading) setIsLoading(false);
             throw new Error("Why is this a file?");
           }

@@ -29,7 +29,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
         alert(`Signup failed.\nReason: ${data.message}`)
       })
     }
-  }).catch((err) => {
+  }).catch(() => {
     alert('Signup failed.')
   })
 }

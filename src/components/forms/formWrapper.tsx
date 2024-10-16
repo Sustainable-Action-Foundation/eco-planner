@@ -56,16 +56,17 @@ export default function FormWrapper({
       }
 
       formSlide.forEach(element => {
-        if (element) {      
-            if (options?.reverse) {
-              element.style.transform = `translateX(-${(currentTransformIndex) * 100}%)`
-            } else {
-              element.style.transform = `translateX(-${(currentTransformIndex) * 100}%)`
-            }
+        if (element) {
+          if (options?.reverse) {
+            element.style.transform = `translateX(-${(currentTransformIndex) * 100}%)`
+          } else {
+            element.style.transform = `translateX(-${(currentTransformIndex) * 100}%)`
           }
         }
-      )}      
-    
+      }
+      )
+    }
+
 
     iterateIndicators(currentTransformIndex)
     enableSubmitButton(currentTransformIndex)
@@ -91,9 +92,9 @@ export default function FormWrapper({
 
         <div className={`margin-block-50 ${styles.indicatorWrapper}`}>
           <div id="indicators" className="display-flex justify-content-center gap-75 margin-block-50">
-            {sections.map((section, index) => (
+            {sections.map((_section, index) => (
               <div className={styles.indicator} key={index}></div>
-            ))} 
+            ))}
           </div>
           <div className={styles.currentIndicator} id="current-indicator"></div>
         </div>

@@ -7,6 +7,7 @@ import { revalidateTag } from "next/cache";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { cookies } from "next/headers";
 import dataSeriesPrep from "../goal/dataSeriesPrep";
+import { Prisma } from "@prisma/client";
 
 /**
  * Handles POST requests to the action API
@@ -178,9 +179,9 @@ export async function POST(request: NextRequest) {
     return Response.json({ message: 'Action created', id: newAction.id },
       { status: 201, headers: { 'Location': `/roadmap/${newAction.goal.roadmap.id}/goal/${newAction.goal.id}/action/${newAction.id}` } }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.log(error);
-    if (error?.code == 'P2025') {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
       return Response.json({ message: 'Failed to connect records. Given goal might not exist' },
         { status: 400 }
       );
@@ -375,7 +376,7 @@ export async function PUT(request: NextRequest) {
     return Response.json({ message: 'Action updated', id: updatedAction.id },
       { status: 200, headers: { 'Location': `/roadmap/${updatedAction.goal.roadmap.id}/goal/${updatedAction.goal.id}/action/${updatedAction.id}` } }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.log(error);
     return Response.json({ message: "Internal server error" },
       { status: 500 }
