@@ -1,10 +1,10 @@
 .actionButton {
     width: fit-content;
+    height: fit-content;
     background-color: transparent;
     border: none;
     border-radius: 9999px;
     transition: background-color .2s;
-    margin: auto;
     position: relative;
 }
 
