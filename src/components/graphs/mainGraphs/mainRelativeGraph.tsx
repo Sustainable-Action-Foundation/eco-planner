@@ -1,5 +1,5 @@
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
-import { dataSeriesDataFieldNames, DataSeriesDataFields } from "@/types";
+import { dataSeriesDataFieldNames } from "@/types";
 import { Goal, DataSeries } from "@prisma/client";
 import styles from '../graphs.module.css';
 
@@ -12,40 +12,46 @@ export default function MainRelativeGraph({
   secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
   nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
 }) {
-  if (!goal.dataSeries || goal.dataSeries.unit.toLowerCase() == "procent" || goal.dataSeries.unit.toLowerCase() == "andel") {
-    return null
+  if (!goal.dataSeries || ["procent", "percent", "andel", "ratio", "fraction"].includes(goal.dataSeries.unit.toLowerCase())) {
+    return null;
   }
 
   const chart: ApexAxisChartSeries = [];
 
   // Local goal
-  const mainSeries = []
-  for (const i in dataSeriesDataFieldNames) {
-    const currentField = dataSeriesDataFieldNames[i]
-    const baseValue = goal.dataSeries[dataSeriesDataFieldNames[0]]
-    if (goal.dataSeries[currentField] && baseValue) {
+  const mainSeries = [];
+  const mainFirstNonNull = dataSeriesDataFieldNames.find(i => goal.dataSeries![i] != null && goal.dataSeries![i] !== 0);
+  let mainBaseValue: number | null = null;
+  if (mainFirstNonNull) {
+    mainBaseValue = goal.dataSeries[mainFirstNonNull];
+  }
+  for (const i of dataSeriesDataFieldNames) {
+    if (goal.dataSeries[i] != null && mainBaseValue) {
       mainSeries.push({
-        x: new Date(currentField.replace('val', '')).getTime(),
-        y: (goal.dataSeries[currentField]! / baseValue) * 100
-      })
+        x: new Date(i.replace('val', '')).getTime(),
+        y: (goal.dataSeries[i]! / mainBaseValue) * 100
+      });
     }
   }
   chart.push({
     name: (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
     data: mainSeries,
     type: 'line',
-  })
+  });
 
   // Secondary goal
   if (secondaryGoal?.dataSeries) {
-    const secondarySeries = []
-    for (const i in dataSeriesDataFieldNames) {
-      const currentField = dataSeriesDataFieldNames[i]
-      const baseValue = secondaryGoal.dataSeries[dataSeriesDataFieldNames[0]]
-      if (secondaryGoal.dataSeries[currentField] && baseValue) {
+    const secondarySeries = [];
+    const firstNonNullOrZero = dataSeriesDataFieldNames.find(i => secondaryGoal.dataSeries![i] != null && secondaryGoal.dataSeries![i] !== 0);
+    let baseValue: number | null = null;
+    if (firstNonNullOrZero) {
+      baseValue = secondaryGoal.dataSeries[firstNonNullOrZero];
+    }
+    for (const i of dataSeriesDataFieldNames) {
+      if (secondaryGoal.dataSeries[i] != null && baseValue) {
         secondarySeries.push({
-          x: new Date(currentField.replace('val', '')).getTime(),
-          y: (secondaryGoal.dataSeries[currentField]! / baseValue) * 100
+          x: new Date(i.replace('val', '')).getTime(),
+          y: (secondaryGoal.dataSeries[i]! / baseValue) * 100
         })
       }
     }
@@ -58,22 +64,25 @@ export default function MainRelativeGraph({
 
   // National goal
   if (nationalGoal?.dataSeries) {
-    const nationalSeries = []
-    for (const i in dataSeriesDataFieldNames) {
-      const currentField = dataSeriesDataFieldNames[i]
-      const baseValue = nationalGoal.dataSeries[dataSeriesDataFieldNames[0]]
-      if (nationalGoal.dataSeries[currentField] && baseValue) {
+    const nationalSeries = [];
+    const firstNonNullOrZero = dataSeriesDataFieldNames.find(i => nationalGoal.dataSeries![i] != null && nationalGoal.dataSeries![i] !== 0);
+    let baseValue: number | null = null;
+    if (firstNonNullOrZero) {
+      baseValue = nationalGoal.dataSeries[firstNonNullOrZero];
+    }
+    for (const i of dataSeriesDataFieldNames) {
+      if (nationalGoal.dataSeries[i] != null && baseValue) {
         nationalSeries.push({
-          x: new Date(currentField.replace('val', '')).getTime(),
-          y: (nationalGoal.dataSeries[currentField]! / baseValue) * 100
-        })
+          x: new Date(i.replace('val', '')).getTime(),
+          y: (nationalGoal.dataSeries[i]! / baseValue) * 100
+        });
       }
     }
     chart.push({
       name: 'Nationell motsvarighet',
       data: nationalSeries,
       type: 'line',
-    })
+    });
   }
 
   const chartOptions: ApexCharts.ApexOptions = {

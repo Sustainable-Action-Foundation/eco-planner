@@ -56,9 +56,9 @@ export async function POST(request: NextRequest) {
 
   // If mailClient does not verify, don't try to create the user since something on the server is misconfigured. If only the sendVerificationEmail function fails, the user can try requesting a new verification email later.
   try {
-    await mailClient.verify().catch(e => { console.log(e); throw e; });
-  } catch (e) {
-    console.log(e);
+    await mailClient.verify().catch(error => { console.log(error); throw error; });
+  } catch (error) {
+    console.log(error);
     return Response.json({ message: 'Problem connecting to email service; User not created since server is misconfigured. Please try again later' },
       { status: 500 }
     );
@@ -83,8 +83,8 @@ export async function POST(request: NextRequest) {
         },
       },
     });
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    console.log(error);
     return Response.json({ message: 'Error creating user' },
       { status: 500 }
     );
@@ -103,11 +103,11 @@ export async function POST(request: NextRequest) {
       to: lowercaseEmail,
       subject: 'Välkommen till Eco Planner',
       text: `Välkommen till Eco Planner! Vänligen följ länken och tryck på knappen för att verifiera din e-post: ${baseUrl}/verify/verify?email=${email}&hash=${userHash}`,
-    }).catch((e) => {
-      console.log(e);
+    }).catch((error) => {
+      console.log(error);
       throw new Error('Error sending verification email');
     });
-  } catch (e) {
+  } catch {
     return Response.json({ message: 'User created, but failed to send verification email' },
       {
         status: 200,

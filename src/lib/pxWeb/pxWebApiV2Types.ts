@@ -110,7 +110,7 @@ export type PxWebApiV2TableContent = {
     text: string;
     type: "c" | "t" | "d";
   }[];
-  comments: any[];
+  comments: unknown[];
   data: {
     key: string[];
     values: string[];

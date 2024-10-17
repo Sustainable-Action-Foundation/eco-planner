@@ -1,4 +1,4 @@
-import React, { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, { ChangeEvent, Dispatch, SetStateAction } from 'react';
 import RadioImage from './radioImage';
 import { ViewMode } from '../goals';
 import { setStoredViewMode } from '../functions/tableFunctions';

@@ -4,7 +4,7 @@ import { getSession } from '@/lib/session'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import Image from 'next/image'
-import Notifications from '../notifications/notification'
+// import Notifications from '../notifications/notification'
 
 export default async function Sidebar() {
   const { user } = await getSession(cookies())
@@ -19,7 +19,7 @@ export default async function Sidebar() {
           <div>
             { // Link to signup if not logged in
               !user?.isLoggedIn &&
-              <Link href="/signup" className='flex gap-50 align-items-center padding-50 margin-y-25 round seagreen color-purewhite button' style={{ whiteSpace: 'nowrap', fontWeight: '500', }}>
+              <Link href="/signup" className='flex gap-50 align-items-center padding-50 margin-block-25 round seagreen color-purewhite button' style={{ whiteSpace: 'nowrap', fontWeight: '500', }}>
                 <Image src='/icons/userAdd.svg' alt='' width={24} height={24} />
                 Skapa Konto
               </Link>

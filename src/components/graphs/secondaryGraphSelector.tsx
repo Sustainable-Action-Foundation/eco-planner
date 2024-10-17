@@ -2,7 +2,7 @@
 
 export default function SecondaryGoalSelector() {
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
-    event.preventDefault;
+    event.preventDefault();
 
     const form = event.target;
     const secondaryGoalId = form.secondaryGoal.value;

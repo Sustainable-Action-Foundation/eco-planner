@@ -68,6 +68,8 @@ export default function CombinedGraph({
     dataLabels: { enabled: false },
   }
 
+  // TODO: Show this information to the user again. See commit c403159 for the original implementation. https://github.com/Sustainable-Action-Foundation/eco-planner/commit/c403159
+  /*
   let indicatorCategory: string;
   let additionalInfo: string = '';
   if (goal.indicatorParameter.split('\\')[0] == 'Key' || goal.indicatorParameter.split('\\')[0] == 'Demand') {
@@ -76,10 +78,11 @@ export default function CombinedGraph({
   } else {
     indicatorCategory = goal.indicatorParameter.split('\\').slice(0, -1).join('\\')
   }
+  */
 
   return (siblings.length > 1 &&
     <div>
-      <nav className="display-flex justify-content-flex-end margin-y-100">
+      <nav className="display-flex justify-content-flex-end margin-block-100">
         <button className="call-to-action-primary display-flex align-items-center gap-50 transparent" style={{ width: 'fit-content', fontWeight: 'bold', fontSize: '1rem' }} type="button" onClick={() => setIsStacked(!isStacked)}>
           Byt typ av graf
           <Image src='/icons/chartArea.svg' alt='Byt graf' width={24} height={24} />

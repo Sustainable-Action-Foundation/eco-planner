@@ -32,7 +32,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     } else {
       alert('Login failed.')
     }
-  }).catch((err) => {
+  }).catch(() => {
     alert('Login failed.')
   })
 }
@@ -43,43 +43,46 @@ export default function Login() {
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
-        <h1 className="margin-y-100">Logga In</h1>
+      <form onSubmit={handleSubmit} className={`${styles.padding}`}>
+        <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid var(--gray-90)' }}>Logga in</h1>
 
-        <label className="block margin-y-100">
+        <label className="block margin-block-100">
           Användarnamn
-          <div className="margin-y-50 padding-50 flex align-items-center gray-90 smooth focusable">
+          <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
             <Image src="/icons/user.svg" alt="" width={24} height={24} />
-            <input className="padding-0 margin-x-50" type="text" placeholder="användarnamn" name="username" required id="username" autoComplete="username" />
+            <input className="padding-0 margin-inline-50" type="text" placeholder="användarnamn" name="username" required id="username" autoComplete="username" />
           </div>
         </label>
 
-        <label className="block margin-y-100">
+        <label className="block margin-block-100">
           Lösenord
-          <div className="margin-y-50 padding-50 flex align-items-center gray-90 smooth focusable">
+          <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
             <Image src="/icons/password.svg" alt="" width={24} height={24} />
-            <input className="padding-0 margin-x-50 transparent" type={showPassword ? 'text' : 'password'} placeholder="lösenord" name="password" required id="password" autoComplete="current-password" />
+            <input className="padding-0 margin-inline-50 transparent" type={showPassword ? 'text' : 'password'} placeholder="lösenord" name="password" required id="password" autoComplete="current-password" />
             <button type="button" className={`${styles.showPasswordButton} grid padding-0 transparent`} onClick={() => setShowPassword(prevState => !prevState)}>
               <Image src={showPassword ? '/icons/eyeDisabled.svg' : '/icons/eye.svg'} alt="" width={24} height={24} />
             </button>
           </div>
         </label>
 
-        <label className="flex align-items-center gap-50">
-          <input type="checkbox" name="remember" id="remember" />
-          Kom ihåg inlogg
-        </label>
+        <div className="flex gap-100 flex-wrap-wrap align-items-center justify-content-space-between">
+          <label className="flex align-items-center gap-50">
+            <input type="checkbox" name="remember" id="remember" />
+            Kom ihåg mig
+          </label>
 
-        <button role="submit" className="block margin-y-100 font-weight-bold seagreen color-purewhite">Logga In</button>
-        <p className="padding-y-50" style={{ borderTop: '1px solid var(--gray-90)' }}>
-          <small>Har du inget konto? <Link href='/signup'>Skapa konto</Link></small>
+          <small><Link href='/password'>Glömt lösenordet?</Link></small>
+
+        </div>
+
+        <input type="submit" value={'Logga in'} className="block font-weight-bold seagreen smooth color-purewhite margin-top-200" />
+
+        <p className="text-align-center padding-block-50 margin-bottom-100 margin-top-0">
+          Har du inget konto? <Link href='/signup'>Skapa konto</Link> <br />
+          <Link href='/verify'>Verifiera konto</Link> {/* TODO: Flytta denna till ens account page */}
         </p>
-        <p className="padding-y-50" style={{ borderTop: '1px solid var(--gray-90)' }}>
-          <small>Glömt lösenordet? <Link href='/password'>Klicka här</Link></small>
-        </p>
-        <p className="padding-y-50" style={{ borderTop: '1px solid var(--gray-90)' }}>
-          <small>Behöver du verifiera ditt konto? <Link href='/verify'>Gå hit</Link> och följ instruktionerna.</small>
-        </p>
+
+
       </form>
     </>
   )

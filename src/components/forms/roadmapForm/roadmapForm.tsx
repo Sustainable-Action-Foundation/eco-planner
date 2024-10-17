@@ -47,9 +47,9 @@ export default function RoadmapForm({
           alert("Kolumnen 'Scale' stöds inte och kommer att ignoreras.")
         }
       }
-      catch (e: any) {
+      catch (error) {
         setIsLoading(false)
-        alert(`Färdplan kunde inte skapas.\nAnledning: ${e.message || "Okänt fel"}`)
+        alert(`Färdplan kunde inte skapas.\nAnledning: ${error instanceof Error ? error.message || "Okänt fel" : "Okänt fel"}`)
         return
       }
     }
@@ -121,7 +121,7 @@ export default function RoadmapForm({
         setIsLoading(false);
         return;
       })
-      .catch((err) => {
+      .catch(() => {
         setInheritableGoals([]);
         setIsLoading(false);
         return;
@@ -140,8 +140,8 @@ export default function RoadmapForm({
           }
         }).then(() => setIsLoading(false))
       }
-      catch (e: any) {
-        alert(`Filen kunde inte läsas: ${e.message || "Okänt fel"}`)
+      catch (error) {
+        alert(`Filen kunde inte läsas: ${error instanceof Error ? error.message || "Okänt fel" : "Okänt fel"}`)
         setIsLoading(false)
         return
       }
@@ -154,17 +154,17 @@ export default function RoadmapForm({
         {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
         <input type="submit" disabled={true} style={{ display: 'none' }} aria-hidden={true} />
 
-        <label className="block margin-y-75">
+        <label className="block margin-block-75">
           Extra beskrivning av den här versionen av färdplanen
-          <textarea className="margin-y-25" name="description" id="description" defaultValue={currentRoadmap?.description ?? undefined}></textarea>
+          <textarea className="margin-block-25" name="description" id="description" defaultValue={currentRoadmap?.description ?? undefined}></textarea>
         </label>
 
         {/* TODO: Change to meta roadmaps instead */}
         {!!metaRoadmapAlternatives &&
           <>
-            <label className="block margin-y-75">
+            <label className="block margin-block-75">
               Färdplansserie som detta är ett nytt inlägg i
-              <select className="block margin-y-25" name="parentRoadmap" id="parentRoadmap" defaultValue={defaultParentRoadmap} required onChange={(e) => setMetaId(e.target.value)}>
+              <select className="block margin-block-25" name="parentRoadmap" id="parentRoadmap" defaultValue={defaultParentRoadmap} required onChange={(e) => setMetaId(e.target.value)}>
                 <option value="">Inget alternativ valt</option>
                 {
                   metaRoadmapAlternatives.map((roadmap) => {
@@ -202,9 +202,9 @@ export default function RoadmapForm({
             <fieldset>
               <legend>Välj mål att ärva från färdplanen</legend>
               {
-                inheritableGoals.map((goal, index) => {
+                inheritableGoals.map((goal) => {
                   return (
-                    <label key={goal.id} className="block margin-y-25">
+                    <label key={goal.id} className="block margin-block-25">
                       <input type="checkbox" name={`inheritGoals`} id={`inheritGoals-${goal.id}`} value={goal.id} />
                       {`${goal.name || goal.indicatorParameter}`}
                     </label>
@@ -215,10 +215,10 @@ export default function RoadmapForm({
           </>
         )}
 
-        <label className="block margin-y-75">
+        <label className="block margin-block-75">
           Om du har en CSV-fil med målbanor kan du ladda upp den här. <br />
           Notera att det här skapar nya målbanor även om det redan finns några.
-          <input className="margin-y-25" type="file" name="csvUpload" id="csvUpload" accept=".csv" onChange={(e) => e.target.files ? setCurrentFile(e.target.files[0]) : setCurrentFile(null)} />
+          <input className="margin-block-25" type="file" name="csvUpload" id="csvUpload" accept=".csv" onChange={(e) => e.target.files ? setCurrentFile(e.target.files[0]) : setCurrentFile(null)} />
         </label>
 
         { // Only show the access selector if a new roadmap is being created, the user is an admin, or the user has edit access to the roadmap
@@ -231,7 +231,7 @@ export default function RoadmapForm({
         {/* TODO: Show spinner or loading indicator when isLoading is true */}
         <input
           type="submit"
-          className="margin-y-75 seagreen color-purewhite"
+          className="margin-block-75 seagreen color-purewhite"
           value={currentRoadmap ? 'Spara' : 'Skapa färdplan'}
           disabled={isLoading}
         />

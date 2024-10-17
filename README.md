@@ -12,6 +12,11 @@ For the sake of simplicity, we bumped the version number to 0.7.0. All versions 
 This tool requires the following environment variables to be set:
 - `IRON_SESSION_PASSWORD`: Should be a string at least 32 characters long. This is used to encrypt the session cookie from the Iron Session library.
 - `DATABASE_URL`: Should be a connection string to a database. This is used by Prisma to connect to the database. The default configuration expects a MySQL/MariaDB database but this can be changed in the `prisma/schema.prisma` file.
+- `MAIL_HOST`: The SMTP host to use for sending emails.
+- `MAIL_USER`: The username to use when connecting to the SMTP host.
+- `MAIL_PASSWORD`: The password to use when connecting to the SMTP host.
+  - These `MAIL_`-variables are used in `src/mailClient.ts` to send emails using Nodemailer. Depending on how your SMTP host is set up, you might need to change the port and security settings as well as the authMethod.
+  - Yau could also use other transports than SMTP, see [the Nodemailer site](https://www.nodemailer.com/transports/) for more information.
 
 If you want to target a different type of database, you might want to remove the existing `prisma/migrations` folder and start from scratch with `yarn prisma migrate dev --create-only` to generate new migration files after changing the `provider` field in the prisma schema file.
 
@@ -31,6 +36,24 @@ We use the function unstable_cache from Next.js, which currently returns cached 
 ## Database structure
 See image, or refer to [schema.prisma](/prisma/schema.prisma) for the full, up-to-date schema.
 ![Database Schema](/public/images/eco-planner.png "Database Schema")
+
+## E2E Testing 
+
+
+1. Create file cypress.env.json and add enviroment variables  
+
+```json
+{
+    "user_name": "",
+    "user_password": "",
+    "meta_roadmap_id": "",
+    "roadmap_id": "",
+    "goal_id": "",
+    "action_id": ""
+}
+```
+
+2. Setup and run tests using `npx cypress open`
 
 ## Components
 
@@ -70,324 +93,9 @@ There are 3 different ways of writing css for this project: [Semantic Style Shee
 <div id="semanticstylesheets"></div>
 
 ### Semantic Style Sheets 
-This project uses a custom made version of [Semantic Style Sheets v.0.0.1](https://github.com/Axelgustavschnurer/semantic-style-sheets) to add commonly used utility classes. The code for this can be located within [/src/styles/utility.css.](/src/styles/utility.css) 
+This project uses a custom made version of [Semantic Style Sheets v.0.4.0](https://github.com/Axelgustavschnurer/semantic-style-sheets) to add commonly used utility classes. The code for this can be located within [/src/styles/utility.css.](/src/styles/utility.css) 
 
 <TODO remove this and replace with site docs when those are added >
-<details>
-<summary>Utility Classes</summary><br/>
-
-```css
-.display-flex {
-    display: flex;
-}
-
-.display-grid {
-    display: grid;
-}
-
-.flex-direction-row {
-    flex-direction: row;
-}
-
-.flex-direction-column {
-    flex-direction: column;
-}
-
-.flex-wrap-wrap {
-    flex-wrap: wrap;
-}
-
-.align-items-flex-start {
-    align-items: flex-start;
-}
-
-.align-items-center {
-    align-items: center;
-}
-
-.align-items-flex-end {
-    align-items: flex-end;
-}
-
-.align-items-space-between {
-    align-items: space-between;
-}
-
-.align-items-space-evenly {
-    align-items: space-around;
-}
-
-.align-items-space-evenly {
-    align-items: space-evenly;
-}
-
-.justify-content-flex-start {
-    justify-content: flex-start;
-}
-
-.justify-content-center {
-    justify-content: center;
-}
-
-.justify-content-flex-end {
-    justify-content: flex-end;
-}
-
-.justify-content-space-between {
-    justify-content: space-between;
-}
-
-.justify-content-space-evenly {
-    justify-content: space-around;
-}
-
-.justify-content-space-evenly {
-    justify-content: space-evenly;
-}
-
-.flex-grow-25 {
-    flex-grow: .25;
-}
-
-.flex-grow-50 {
-    flex-grow: .5;
-}
-
-.flex-grow-75 {
-    flex-grow: .75;
-}
-
-.flex-grow-100 {
-    flex-grow: 1;
-}
-
-.gap-25 {
-    gap: .25rem;
-}
-
-.gap-50 {
-    gap: .5rem;
-}
-
-.gap-75 {
-    gap: .75rem;
-}
-
-.gap-100 {
-    gap: 1rem;
-}
-
-.gap-200 {
-    gap: 2rem;
-}
-
-.gap-300 {
-    gap: 3rem;
-}
-
-.gap-400 {
-    gap: 4rem;
-}
-
-.gap-500 {
-    gap: 5rem;
-}
-
-.margin-25 {
-    margin: .25rem;
-}
-
-.margin-50 {
-    margin: .5rem;
-}
-
-.margin-75 {
-    margin: .75rem;
-}
-
-.margin-100 {
-    margin: 1rem;
-}
-
-.margin-200 {
-    margin: 2rem;
-}
-
-.margin-300 {
-    margin: 3rem;
-}
-
-.margin-400 {
-    margin: 4rem;
-}
-
-.margin-500 {
-    margin: 5rem;
-}
-
-.margin-y-25 {
-    margin: .25rem 0;
-}
-
-.margin-y-50 {
-    margin: .5rem 0;
-}
-
-.margin-y-75 {
-    margin: .75rem 0;
-}
-
-.margin-y-100 {
-    margin: 1rem 0;
-}
-
-.margin-y-200 {
-    margin: 2rem 0;
-}
-
-.margin-y-300 {
-    margin: 3rem 0;
-}
-
-.margin-y-400 {
-    margin: 4rem 0;
-}
-
-.margin-y-500 {
-    margin: 5rem 0;
-}
-
-.margin-x-25 {
-    margin: 0 .25rem;
-}
-
-.margin-x-50 {
-    margin: 0 .5rem;
-}
-
-.margin-x-75 {
-    margin: 0 .75rem;
-}
-
-.margin-x-100 {
-    margin: 0 1rem;
-}
-
-.margin-x-200 {
-    margin: 0 2rem;
-}
-
-.margin-x-300 {
-    margin: 0 3rem;
-}
-
-.margin-x-400 {
-    margin: 0 4rem;
-}
-
-.margin-x-500 {
-    margin: 0 5rem;
-}
-
-.padding-25 {
-    padding: .25rem;
-}
-
-.padding-50 {
-    padding: .5rem;
-}
-
-.padding-75 {
-    padding: .75rem;
-}
-
-.padding-100 {
-    padding: 1rem;
-}
-
-.padding-200 {
-    padding: 2rem;
-}
-
-.padding-300 {
-    padding: 3rem;
-}
-
-.padding-400 {
-    padding: 4rem;
-}
-
-.padding-500 {
-    padding: 5rem;
-}
-
-.padding-y-25 {
-    padding: .25rem 0;
-}
-
-.padding-y-50 {
-    padding: .5rem 0;
-}
-
-.padding-y-75 {
-    padding: .75rem 0;
-}
-
-.padding-y-100 {
-    padding: 1rem 0;
-}
-
-.padding-y-200 {
-    padding: 2rem 0;
-}
-
-.padding-y-300 {
-    padding: 3rem 0;
-}
-
-.padding-y-400 {
-    padding: 4rem 0;
-}
-
-.padding-y-500 {
-    padding: 5rem 0;
-}
-
-.padding-x-25 {
-    padding: 0 .25rem;
-}
-
-.padding-x-50 {
-    padding: 0 .5rem;
-}
-
-.padding-x-75 {
-    padding: 0 .75rem;
-}
-
-.padding-x-100 {
-    padding: 0 1rem;
-}
-
-.padding-x-200 {
-    padding: 0 2rem;
-}
-
-.padding-x-300 {
-    padding: 0 3rem;
-}
-
-.padding-x-400 {
-    padding: 0 4rem;
-}
-
-.padding-x-500 {
-    padding: 0 5rem;
-}
-
-```
-
-</details>
 
 <div id="cssmodules"></div>
 

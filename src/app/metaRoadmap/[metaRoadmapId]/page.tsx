@@ -3,11 +3,9 @@ import accessChecker from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import { AccessLevel } from "@/types";
 import { cookies } from "next/headers";
-import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import RoadmapTable from "@/components/tables/roadmapTable";
-import MetaRoadmapDeleter from "@/components/buttons/metaRoadmapDeleter";
+import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
 
 export default async function Page({ params }: { params: { metaRoadmapId: string } }) {
   const [session, metaRoadmap] = await Promise.all([
@@ -24,28 +22,29 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
 
   return (
     <>
-      <h1 className="display-flex align-items-center gap-25 flex-wrap-wrap">
-        { // Only show the edit link if the user has edit access to the roadmap
-          (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-          <Link href={`/metaRoadmap/${metaRoadmap.id}/editMetaRoadmap`}>
-            <Image src="/icons/edit.svg" width={24} height={24} alt={`Edit roadmap: ${metaRoadmap.name}`} />
-          </Link>
-        }
-        {`${metaRoadmap.name}`}
-      </h1>
-      <span>Metadata för en färdplan</span>
-      { // Only show link for creating a new version if the user has edit access to the roadmap
-          (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-          <a href={`/roadmap/createRoadmap?metaRoadmapId=${metaRoadmap.id}`} className="button purewhite round block" >Skapa ny färdplan</a>
-        }
-      {
-        // Only show the delete button if the user is admin or author of the roadmap
-        <>
-          <br />
-          <MetaRoadmapDeleter metaRoadmap={metaRoadmap} />
-        </>
-      }
-      <RoadmapTable user={session.user} metaRoadmap={metaRoadmap} />
+      <section className="margin-block-100 padding-block-100" style={{ borderBottom: '2px solid var(--gray-90)' }}>
+        <div className="flex gap-100 flex-wrap-wrap justify-content-space-between margin-block-100" style={{ fontSize: '1rem' }}>
+          <div>
+            <h1 className="margin-0">{metaRoadmap.name}</h1>
+            <small>Metadata för en färdplan</small>
+          </div>
+          {/* Only show the edit link if the user has edit access to the roadmap */}
+          {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
+            <TableMenu
+              accessLevel={accessLevel}
+              object={metaRoadmap}
+            />
+            : null}
+        </div>
+        {/* Only show link for creating a new version if the user has edit access to the roadmap */}
+        {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
+          <div className="flex justify-content-flex-end "><a href={`/roadmap/createRoadmap?metaRoadmapId=${metaRoadmap.id}`} className="button pureblack color-purewhite round">Skapa ny färdplan</a></div>
+          : null}
+      </section>
+
+      <section>
+        <RoadmapTable user={session.user} metaRoadmap={metaRoadmap} />
+      </section>
     </>
   )
 }

@@ -1,12 +1,11 @@
 'use client';
 
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
-import { LoginData } from "@/lib/session";
 import { Goal } from "@prisma/client";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import styles from './queryBuilder.module.css'
-import { PxWebApiV2TableArray, PxWebApiV2TableContent, PxWebApiV2TableDetails } from "@/lib/pxWeb/pxWebApiV2Types";
+import { PxWebApiV2TableContent, PxWebApiV2TableDetails } from "@/lib/pxWeb/pxWebApiV2Types";
 import { externalDatasetBaseUrls } from "@/lib/pxWeb/utility";
 import { getTables } from "@/lib/pxWeb/getTables";
 import { getTableDetails } from "@/lib/pxWeb/getTableDetails";
@@ -17,10 +16,8 @@ import FormWrapper from "../formWrapper";
 
 export default function QueryBuilder({
   goal,
-  user
 }: {
   goal: Goal,
-  user: LoginData["user"],
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [dataSource, setDataSource] = useState<string>("" as keyof typeof externalDatasetBaseUrls);
@@ -40,7 +37,7 @@ export default function QueryBuilder({
   }, [dataSource]);
 
   function buildQuery(formData: FormData) {
-    const queryObject: Object[] = []
+    const queryObject: object[] = []
     formData.forEach((value, key) => {
       // Skip empty values
       if (!value) return;
@@ -139,9 +136,9 @@ export default function QueryBuilder({
 
           <FormWrapper>
             <fieldset>
-              <label className="margin-y-75">
+              <label className="margin-block-75">
                 Datakälla
-                <select className="block margin-y-25" required name="externalDataset" id="externalDataset" onChange={e => setDataSource(e.target.value)}>
+                <select className="block margin-block-25" required name="externalDataset" id="externalDataset" onChange={e => setDataSource(e.target.value)}>
                   <option value="">Välj en källa</option>
                   {Object.keys(externalDatasetBaseUrls).map((name) => (
                     <option key={name} value={name}>{name}</option>
@@ -152,18 +149,18 @@ export default function QueryBuilder({
               {/* TODO: Check that this works well with dynamic keyboards (smartphone/tablet) */}
               {dataSource ?
                 <>
-                  <div className="flex gap-25 align-items-flex-end margin-y-75">
+                  <div className="flex gap-25 align-items-flex-end margin-block-75">
                     <label className="flex-grow-100">
-                      <span className="block margin-y-25">Sök efter tabell</span>
+                      <span className="block margin-block-25">Sök efter tabell</span>
                       <input type="search" className="block" onKeyDown={searchOnEnter} />
                     </label>
-                    <button type="button" onClick={searchWithButton} style={{fontSize: '1rem'}}>Sök</button>
+                    <button type="button" onClick={searchWithButton} style={{ fontSize: '1rem' }}>Sök</button>
                   </div>
 
-                  <div style={{padding: '.25rem', border: '1px solid var(--gray-90)', borderRadius: '.25rem'}}>
+                  <div style={{ padding: '.25rem', border: '1px solid var(--gray-90)', borderRadius: '.25rem' }}>
                     <div className={styles.temporary}>
                       {tables && tables.map(({ id, label }) => (
-                        <label key={id} className={`${styles.tableSelect} block padding-y-25`}>
+                        <label key={id} className={`${styles.tableSelect} block padding-block-25`}>
                           {label}
                           <input type="radio" value={id} name="externalTableId" onChange={e => handleSelect(e.target.value)} />
                         </label>
@@ -171,20 +168,20 @@ export default function QueryBuilder({
                     </div>
                   </div>
                 </>
-              : null }
+                : null}
             </fieldset>
 
-            <fieldset className="margin-y-100" style={{border: '1px solid var(--gray-90)', borderRadius: '3px', padding: '.5rem'}}>
-              <legend className="padding-x-50">
+            <fieldset className="margin-block-100" style={{ border: '1px solid var(--gray-90)', borderRadius: '3px', padding: '.5rem' }}>
+              <legend className="padding-inline-50">
                 <strong>Välj värden för tabell</strong>
               </legend>
               {tableDetails && (
                 <>
                   {tableDetails.variables.map(variable => (
-                    <label key={variable.id} className="block margin-y-75">
+                    <label key={variable.id} className="block margin-block-75">
                       {/* Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }` */}
                       {variable.type == "TimeVariable" ? "Startperiod" : variable.label} {!variable.elimination && <span style={{ color: "red" }}>*</span>}
-                      <select className={`block margin-y-25 ${variable.type}`}
+                      <select className={`block margin-block-25 ${variable.type}`}
                         required={!variable.elimination}
                         name={variable.id}
                         id={variable.id}

@@ -1,11 +1,13 @@
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/session"
 import prisma from "@/prismaClient";
-import { AccessControlled, AccessLevel, ClientError, ActionInput } from "@/types";
+import { AccessControlled, AccessLevel, ClientError, ActionInput, DataSeriesDataFields } from "@/types";
 import accessChecker from "@/lib/accessChecker";
 import { revalidateTag } from "next/cache";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { cookies } from "next/headers";
+import dataSeriesPrep from "../goal/dataSeriesPrep";
+import { Prisma } from "@prisma/client";
 
 /**
  * Handles POST requests to the action API
@@ -103,6 +105,19 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  // Prepare action impact data
+  let impactData: Partial<DataSeriesDataFields> | undefined | null = undefined;
+  if (action.dataSeries?.length) {
+    // Parse the data series
+    impactData = dataSeriesPrep(action.dataSeries);
+  }
+  // If the data series is invalid, return an error
+  if (impactData === null) {
+    return Response.json({ message: 'Bad data series' },
+      { status: 400 }
+    );
+  }
+
   // Create the action
   try {
     const newAction = await prisma.action.create({
@@ -118,6 +133,14 @@ export async function POST(request: NextRequest) {
         isSufficiency: action.isSufficiency,
         isEfficiency: action.isEfficiency,
         isRenewables: action.isRenewables,
+        dataSeries: impactData ? {
+          create: {
+            ...impactData,
+            unit: '',
+            authorId: session.user.id,
+          }
+        } : undefined,
+        impactType: action.impactType,
         links: {
           create: action.links?.map(link => {
             return {
@@ -156,9 +179,9 @@ export async function POST(request: NextRequest) {
     return Response.json({ message: 'Action created', id: newAction.id },
       { status: 201, headers: { 'Location': `/roadmap/${newAction.goal.roadmap.id}/goal/${newAction.goal.id}/action/${newAction.id}` } }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.log(error);
-    if (error?.code == 'P2025') {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
       return Response.json({ message: 'Failed to connect records. Given goal might not exist' },
         { status: 400 }
       );
@@ -275,6 +298,19 @@ export async function PUT(request: NextRequest) {
     }
   }
 
+  // Prepare action impact data
+  let impactData: Partial<DataSeriesDataFields> | undefined | null = undefined;
+  if (action.dataSeries?.length) {
+    // Parse the data series
+    impactData = dataSeriesPrep(action.dataSeries);
+  }
+  // If the data series is invalid, return an error
+  if (impactData === null) {
+    return Response.json({ message: 'Bad data series' },
+      { status: 400 }
+    );
+  }
+
   // Update the action
   try {
     const updatedAction = await prisma.action.update({
@@ -293,6 +329,21 @@ export async function PUT(request: NextRequest) {
         isSufficiency: action.isSufficiency,
         isEfficiency: action.isEfficiency,
         isRenewables: action.isRenewables,
+        ...(impactData ? {
+          dataSeries: {
+            upsert: {
+              create: {
+                ...impactData,
+                unit: '',
+                authorId: session.user.id,
+              },
+              update: impactData
+            },
+          }
+        } : (action.dataSeries === null || action.dataSeries?.length === 0) ? {
+          delete: true
+        } : {}),
+        impactType: action.impactType,
         links: {
           set: [],
           create: action.links?.map(link => {
@@ -325,7 +376,7 @@ export async function PUT(request: NextRequest) {
     return Response.json({ message: 'Action updated', id: updatedAction.id },
       { status: 200, headers: { 'Location': `/roadmap/${updatedAction.goal.roadmap.id}/goal/${updatedAction.goal.id}/action/${updatedAction.id}` } }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.log(error);
     return Response.json({ message: "Internal server error" },
       { status: 500 }

@@ -1,7 +1,9 @@
 import { DataSeries, Goal } from "@prisma/client";
 
-export default function goalsToTree(goals: ((Goal & { dataSeries: DataSeries | null }) | null)[]) {
-  let tree: any = {}
+export type GoalTree = { [key: string]: GoalTree | (Goal & { dataSeries: DataSeries | null } & { roadmap: { id: string, metaRoadmap: { name: string, id: string } } }) }
+
+export default function goalsToTree(goals: ((Goal & { dataSeries: DataSeries | null } & { roadmap: { id: string, metaRoadmap: { name: string, id: string } } }) | null)[]) {
+  const tree: GoalTree = {}
 
   for (const goal of goals) {
     if (!goal) {
@@ -21,7 +23,10 @@ export default function goalsToTree(goals: ((Goal & { dataSeries: DataSeries | n
       if (!current[parameter]) {
         current[parameter] = {}
       }
-      current = current[parameter]
+      // This should be fine as long as there are no 2 parameters such that param2 = param1 + '\\' + param1
+      // And even then there should be no hard errors, the goal with param2 should just not show up in the frontend UI
+      // TODO: Check if this is a valid assumption
+      current = current[parameter] as GoalTree
     }
     // Add the goal object to the path
     current[`${goal.name || goal.indicatorParameter.split('\\').slice(-1)}${goal.dataSeries?.unit ? ` - ${goal.dataSeries.unit}` : ''}`] = goal

@@ -4,12 +4,11 @@ import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" wit
 import { LoginData } from "@/lib/session";
 import { AccessControlled, MetaRoadmapInput } from "@/types";
 import { MetaRoadmap, RoadmapType } from "@prisma/client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { EditUsers, ViewUsers, getAccessData } from "@/components/forms/accessSelector/accessSelector";
-import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput"
+import { getLinks } from "@/components/forms/linkInput/linkInput"
 import formSubmitter from "@/functions/formSubmitter";
 import styles from '../forms.module.css'
-import FormWrapper from "../formWrapper";
 
 export default function MetaRoadmapForm({
   user,
@@ -90,133 +89,103 @@ export default function MetaRoadmapForm({
 
   return (
     <>
-      <form onSubmit={handleSubmit} >
+      <form onSubmit={handleSubmit} className="padding-left-300" style={{ transform: 'translate(-3rem, 0)' }} >
         {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
-        <input type="submit" disabled={true} style={{ display: 'none' }} aria-hidden={true} />
+        <input type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
-        <FormWrapper>
-          <fieldset className="width-100">
-            <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-              <h2 style={{ marginBottom: '0' }}>Beskriv din färdplan</h2>
-              <p style={{ marginTop: '.25rem' }}>Ge din färdplan ett namn och en beskrivning.</p>
-            </div>
-            <label className="block margin-y-100">
-              Namn för den nya färdplanen
-              <input id="metaRoadmapName" name="metaRoadmapName" className="margin-y-25" type="text" defaultValue={currentRoadmap?.name ?? undefined} required />
-            </label>
+        <fieldset className={`${styles.timeLineFieldset} width-100`}>
+          <legend data-position='1' className={`${styles.timeLineLegend} font-weight-bold`}>Beskriv din färdplan</legend>
+          <label className="block margin-bottom-100 margin-top-200">
+            Namn för den nya färdplanen
+            <input id="metaRoadmapName" name="metaRoadmapName" className="margin-block-25" type="text" defaultValue={currentRoadmap?.name ?? undefined} required />
+          </label>
 
-            <label className="block margin-y-100">
-              Beskrivning av färdplanen
-              <textarea className="block smooth margin-y-25" name="description" id="description" defaultValue={currentRoadmap?.description ?? undefined} required></textarea>
-            </label>
-          </fieldset>
+          <label className="block margin-block-100">
+            Beskrivning av färdplanen
+            <textarea className="block smooth margin-block-25" name="description" id="description" defaultValue={currentRoadmap?.description ?? undefined} required></textarea>
+          </label>
+        </fieldset>
 
-          <fieldset className="width-100">
-            <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-              <h2 style={{ marginBottom: '0' }}>Vem ansvarar för den här färdplanen?</h2>
-              <p style={{ marginTop: '.25rem' }}>Beskriv vem som ansvarar för färdplanen genom att välja en typ och en aktör. </p>
-            </div>
-            <label className="block margin-y-100">
-              Typ av färdplan
-              <select className="block margin-y-25" name="type" id="type" defaultValue={currentRoadmap?.type ?? ""} required>
-                <option value="">Välj en typ</option>
-                {
-                  Object.values(RoadmapType).map((value) => {
-                    if (value == RoadmapType.NATIONAL && !user?.isAdmin) return null;
-                    return (
-                      <option key={value} value={value}>{value in customRoadmapTypes ? customRoadmapTypes[value] : value}</option>
-                    )
-                  })
-                }
-              </select>
-            </label>
-
-            <label className="block margin-y-100">
-              Aktör för färdplanen
-              <input className="margin-y-25" list="actors" id="actor" name="actor" type="text" defaultValue={currentRoadmap?.actor ?? undefined} />
-            </label>
-          </fieldset>
-
-          <fieldset className="width-100">
-            <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-              <h2 style={{ marginBottom: '0' }}>Är färdplanen beroende av några externa resurser?</h2>
-              <p style={{ marginTop: '.25rem' }}>
-                Om färdplanen är associerad med några utomstående resurser såsom externa textdokument eller
-                hemsidor är det möjligt länka till dessa här.
-              </p>
-            </div>
-            <LinkInput />
-          </fieldset>
-
-          {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
-            <fieldset className="width-100">
-              <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-                <h2 style={{ marginBottom: '0' }}>Vem ska kunna se denna färdplan?</h2>
-                <p style={{ marginTop: '.25rem' }}>
-                  Fyll i vilka grupper eller personer som ska kunna se denna färdplan.
-                </p>
-              </div>
-              <ViewUsers
-                groupOptions={userGroups}
-                existingUsers={currentAccess?.viewers.map((user) => user.username)}
-                existingGroups={currentAccess?.viewGroups.map((group) => { return group.name })}
-                isPublic={currentAccess?.isPublic ?? false}
-              />
-            </fieldset>
-          }
-
-
-          {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
-            <fieldset className="width-100">
-              <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-                <h2 style={{ marginBottom: '0' }}>Vem ska kunna redigera färdplanen?</h2>
-                <p style={{ marginTop: '.25rem' }}>
-                  Fyll i vilka grupper eller personer som ska kunna redigera denna färdplan.
-                </p>
-              </div>
-              <EditUsers
-                groupOptions={userGroups}
-                existingUsers={currentAccess?.editors.map((user) => user.username)}
-                existingGroups={currentAccess?.editGroups.map((group) => { return group.name })}
-              />
-            </fieldset>
-          }
-
-          <fieldset className="width-100">
-            <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-              <h2 style={{ marginBottom: '0' }}>Jobbar denna färdplan mot en annan färdplan?</h2>
-              <p style={{ marginTop: '.25rem' }}>
-                Fyll om denna färdplan jobbar mot en annan färdplan.
-              </p>
-            </div>
-            <label className="block margin-y-100">
-              Förälder
-              <select name="parentRoadmap" id="parentRoadmap" className="block margin-y-25" defaultValue={currentRoadmap?.parentRoadmapId ?? ""}>
-                <option value="">Ingen förälder vald</option>
-                {
-                  !parentRoadmapOptions && currentRoadmap && currentRoadmap.parentRoadmapId && (
-                    <option value={currentRoadmap.parentRoadmapId} disabled>{currentRoadmap.parentRoadmapId}</option>
+        <fieldset className={`${styles.timeLineFieldset} width-100`}>
+          <legend data-position='2' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Välj ansvarig aktör</legend>
+          <label className="block margin-block-100">
+            Typ av färdplan
+            <select className="block margin-block-25" name="type" id="type" defaultValue={currentRoadmap?.type ?? ""} required>
+              <option value="">Välj en typ</option>
+              {
+                Object.values(RoadmapType).map((value) => {
+                  if (value == RoadmapType.NATIONAL && !user?.isAdmin) return null;
+                  return (
+                    <option key={value} value={value}>{value in customRoadmapTypes ? customRoadmapTypes[value] : value}</option>
                   )
-                }
-                {
-                  parentRoadmapOptions && parentRoadmapOptions.map((roadmap) => {
-                    return (
-                      <option key={roadmap.id} value={roadmap.id}>{roadmap.name}</option>
-                    )
-                  })
-                }
-              </select>
-            </label>
+                })
+              }
+            </select>
+          </label>
+
+          <label className="block margin-block-100">
+            Välj en aktör
+            <input className="margin-block-25" list="actors" id="actor" name="actor" type="text" defaultValue={currentRoadmap?.actor ?? undefined} />
+          </label>
+        </fieldset>
+
+        {/*
+          TODO: Re add this once it is needed 
+          <fieldset className={`${styles.timeLineFieldset} width-100`}>
+              <legend data-position='3' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Bifoga externa resurser</legend>
+              <LinkInput />
           </fieldset>
-        </FormWrapper>
+        */}
+
+        {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
+          <fieldset className={`${styles.timeLineFieldset} width-100`}>
+            <legend data-position='3' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Justera läsbehörighet</legend>
+            <ViewUsers
+              groupOptions={userGroups}
+              existingUsers={currentAccess?.viewers.map((user) => user.username)}
+              existingGroups={currentAccess?.viewGroups.map((group) => { return group.name })}
+              isPublic={currentAccess?.isPublic ?? false}
+            />
+          </fieldset>
+        }
+
+
+        {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
+          <fieldset className={`${styles.timeLineFieldset} width-100`}>
+            <legend data-position='4' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Justera redigeringsbehörighet</legend>
+            <EditUsers
+              groupOptions={userGroups}
+              existingUsers={currentAccess?.editors.map((user) => user.username)}
+              existingGroups={currentAccess?.editGroups.map((group) => { return group.name })}
+            />
+          </fieldset>
+        }
+
+        <fieldset className={`${styles.timeLineFieldset} width-100`}>
+          <legend data-position='5' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Jobbar denna färdplan mot en annan färdplan?</legend>
+          <label className="block margin-block-75">
+            Förälder
+            <select name="parentRoadmap" id="parentRoadmap" className="block margin-block-25" defaultValue={currentRoadmap?.parentRoadmapId ?? ""}>
+              <option value="">Ingen förälder vald</option>
+              {
+                !parentRoadmapOptions && currentRoadmap && currentRoadmap.parentRoadmapId && (
+                  <option value={currentRoadmap.parentRoadmapId} disabled>{currentRoadmap.parentRoadmapId}</option>
+                )
+              }
+              {
+                parentRoadmapOptions && parentRoadmapOptions.map((roadmap) => {
+                  return (
+                    <option key={roadmap.id} value={roadmap.id}>{roadmap.name}</option>
+                  )
+                })
+              }
+            </select>
+          </label>
+        </fieldset>
 
 
         {/* Add copy of RoadmapForm? Only if we decide to include it immediately rather than redirecting to it */}
-
-        <button type="submit" id="submit-button" value={currentRoadmap ? "Spara" : "Skapa färdplan"} disabled
-          className={`${styles.submitButton} seagreen color-purewhite round block`} style={{ marginInline: 'auto', width: 'min(25ch, 100%)', fontSize: '1rem' }}>
-          {currentRoadmap ? "Spara" : "Skapa färdplan"}
-        </button>
+        <input className="seagreen color-purewhite margin-block-100" type="submit" id="submit-button" value={currentRoadmap ? "Spara" : "Skapa färdplan"} /> {/* TODO: Set disabled if form not filled out */}
       </form>
 
       <datalist id="actors">

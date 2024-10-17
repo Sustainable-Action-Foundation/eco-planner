@@ -60,3 +60,63 @@
 .showPasswordButton:hover {
     box-shadow: initial;
 }
+
+.padding {
+    padding-inline: 3rem;
+    @media(max-width: 1250px) {
+        padding-inline: 0;
+    }
+}
+
+/* Roadmapform */
+
+.timeLineLegend {
+    position: relative;
+}
+
+.timeLineLegend::before {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translate(calc(-100% - 2rem), -50%);
+    content: attr(data-position);
+    color: white;
+    background-color: #191919;
+    width: 24px;
+    height: 24px;
+    padding: .25rem;
+    border-radius: 9999px;
+    line-height: 1;
+    display: grid;
+    place-items: center;
+    z-index: 999;
+}
+
+.timeLineLegend::before {
+    transition: background-color .2s ease, 
+                box-shadow .2s ease;
+    scale: 1; 
+}
+
+.timeLineFieldset:has(input:required, select:required, textarea:required):valid .timeLineLegend::before {
+    content: '✓';
+    background-color: var(--seagreen);
+    box-shadow: 0 0 .5rem -.25rem var(--seagreen);
+    animation: pop 0.4s ease; /* Pop effect over 0.3s */
+
+}
+
+@keyframes pop {
+    0% {
+        scale: 1; 
+    }
+    35% {
+        scale: .97;
+    }
+    95% {
+        scale: 1.01; 
+    }
+    100% {
+        scale: 1;
+    }
+}

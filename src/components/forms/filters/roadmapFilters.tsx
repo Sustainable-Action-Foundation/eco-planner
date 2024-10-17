@@ -12,7 +12,7 @@ export default function RoadmapFilters() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [isPending, startTransition] = useTransition();
+  const [_isPending, startTransition] = useTransition();
 
   const debouncedUpdateStringParam = useDebouncedCallback(updateStringParam, 300);
 
@@ -46,20 +46,20 @@ export default function RoadmapFilters() {
 
   return <>
     <section>
-      <section className="margin-y-100 padding-y-50" style={{ borderBottom: '2px solid var(--gray-90)' }}>
-        <label className="font-weight-bold margin-y-25 container-text">
+      <section className="margin-block-100 padding-block-50" style={{ borderBottom: '2px solid var(--gray-90)' }}>
+        <label className="font-weight-bold margin-block-25 container-text">
           Sök färdplan
-          <div className="margin-y-50 flex align-items-center gray-90 padding-50 smooth focusable">
+          <div className="margin-block-50 flex align-items-center gray-90 padding-50 smooth focusable">
             <Image src='/icons/search.svg' alt="" width={24} height={24} />
-            <input type="search" className="padding-0 margin-x-50" defaultValue={searchParams.get('searchFilter') ?? undefined} onChange={(e) => {
+            <input type="search" className="padding-0 margin-inline-50" defaultValue={searchParams.get('searchFilter') ?? undefined} onChange={(e) => {
               debouncedUpdateStringParam('searchFilter', e.target.value)
             }} />
           </div>
         </label>
         <div className="flex gap-100 align-items-center justify-content-space-between">
-          <label className="margin-y-100 font-weight-bold">
+          <label className="margin-block-100 font-weight-bold">
             Sortera på:
-            <select className="font-weight-bold margin-y-50 block" defaultValue={searchParams.get('sortBy') ?? undefined} onChange={(e) => { updateStringParam('sortBy', e.target.value) }}>
+            <select className="font-weight-bold margin-block-50 block" defaultValue={searchParams.get('sortBy') ?? undefined} onChange={(e) => { updateStringParam('sortBy', e.target.value) }}>
               <option value="">Standard</option>
               <option value={RoadmapSortBy.Alpha}>Namn (A-Ö)</option>
               <option value={RoadmapSortBy.AlphaReverse}>Namn (Ö-A)</option>
@@ -76,10 +76,10 @@ export default function RoadmapFilters() {
           </label>
         </div>
       </section>
-      <section id="roadmapFilters" className="margin-y-200 padding-100 gray-90 rounded">
+      <section id="roadmapFilters" className="margin-block-200 padding-100 gray-90 rounded">
         <b>Visa</b>
         {Object.values(RoadmapType).map((thisType, key) => (
-          <label className="flex align-items-center gap-25 margin-y-50" key={key}>
+          <label className="flex align-items-center gap-25 margin-block-50" key={key}>
             <input type="checkbox" value={thisType} defaultChecked={searchParams.getAll('typeFilter').includes(thisType)} onChange={(e) => {
               if (e.target.checked) {
                 updateArrayParam('typeFilter', e.target.value)

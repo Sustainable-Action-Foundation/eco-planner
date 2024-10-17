@@ -1,13 +1,13 @@
 import styles from '../tables.module.css' with { type: "css" };
 import { DataSeries, Goal } from "@prisma/client";
 import Image from 'next/image';
-import goalsToTree from '@/functions/goalsToTree';
+import goalsToTree, { GoalTree } from '@/functions/goalsToTree';
 import { SyntheticEvent } from 'react';
 import { getSessionStorage, setSessionStorage } from '@/functions/localStorage';
 
-interface LinkTreeCommonProps { }
+// interface LinkTreeCommonProps {}
 
-interface LinkTreeWithGoals extends LinkTreeCommonProps {
+interface LinkTreeWithGoals /* extends LinkTreeCommonProps */ {
   goals: (Goal & {
     _count: { actions: number }
     dataSeries: DataSeries | null,
@@ -16,7 +16,7 @@ interface LinkTreeWithGoals extends LinkTreeCommonProps {
   roadmap?: never,
 }
 
-interface LinkTreeWithRoadmap extends LinkTreeCommonProps {
+interface LinkTreeWithRoadmap /* extends LinkTreeCommonProps */ {
   goals?: never,
   roadmap: {
     id: string,
@@ -48,35 +48,38 @@ export default function LinkTree({
 
   if (!goals?.length) return (<p>Du har inte tillgång till några målbanor i denna färdplan, eller så är färdplanen tom.</p>);
 
-  const openCategories = getSessionStorage(roadmap?.id || "") || [];
+  let openCategories: string[] = getSessionStorage(roadmap?.id || "") as string[] || [];
+  if (!(openCategories instanceof Array)) {
+    openCategories = [];
+  }
 
   // TODO: Make sure keys are unique to avoid things like luftfart/inrikes and sjöfart/inrikes sharing the same open state in localStorage
   const handleToggle = (e: SyntheticEvent<HTMLDetailsElement, Event>, key: string) => {
     if (!roadmap) return;
-    let currentStorage: string[] = getSessionStorage(roadmap.id);
+    let currentStorage: string[] = getSessionStorage(roadmap.id) as string[];
     if (!(currentStorage instanceof Array)) {
       setSessionStorage(roadmap.id, []);
       currentStorage = [];
     }
 
     if (e.currentTarget.open) {
-      // Don't add the same category twice
+      // Don't add the same branch twice
       if (currentStorage.includes(key))
         return;
       setSessionStorage(roadmap.id, [...currentStorage, key]);
     } else {
-      setSessionStorage(roadmap.id, currentStorage.filter(cat => cat != key));
+      setSessionStorage(roadmap.id, currentStorage.filter(branch => branch != key));
     }
   };
 
-  const NestedKeysRenderer = ({ data, previousKeys = "" }: { data: any, previousKeys?: string }) => {
+  const NestedKeysRenderer = ({ data, previousKeys = "" }: { data: GoalTree, previousKeys?: string }) => {
     return (
       <ul className={styles.list}>
         {Object.keys(data).map((key) => (
           <li key={key}>
             { // If the current object is a goal (has an id), render a link to the goal
               typeof data[key].id == 'string' ? (
-                <a href={`/roadmap/${data[key].roadmap.id}/goal/${data[key].id}`} className={`display-flex gap-50 align-items-center padding-y-50 ${styles.link}`}>
+                <a href={`/roadmap/${data[key].roadmap.id}/goal/${data[key].id}`} className={`display-flex gap-50 align-items-center padding-block-50 ${styles.link}`}>
                   <Image src="/icons/link.svg" alt={`Link to ${key}`} width={16} height={16} />
                   <span>
                     {(data[key].indicatorParameter as string).split('\\')[0].toLowerCase() == "key" && "Scenarioantagande: "}
@@ -88,7 +91,7 @@ export default function LinkTree({
                 <details className={styles.details} open={openCategories?.includes(previousKeys + "\\" + key)} onToggle={(e) => handleToggle(e, previousKeys + "\\" + key)}>
                   <summary>{key}</summary>
                   {Object.keys(data[key]).length > 0 && (
-                    <NestedKeysRenderer data={data[key]} previousKeys={previousKeys + "\\" + key} />
+                    <NestedKeysRenderer data={data[key] as GoalTree} previousKeys={previousKeys + "\\" + key} />
                   )}
                 </details>
               )}

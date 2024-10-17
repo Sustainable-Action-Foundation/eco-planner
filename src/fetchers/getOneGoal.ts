@@ -1,6 +1,6 @@
 'use server';
 
-import { getSession } from "@/lib/session"
+import { getSession, LoginData } from "@/lib/session"
 import { actionSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
 import { AccessControlled } from "@/types";
@@ -17,7 +17,7 @@ import { cookies } from "next/headers";
  */
 export default async function getOneGoal(id: string) {
   const session = await getSession(cookies());
-  return getCachedGoal(id, session.user?.id ?? '')
+  return getCachedGoal(id, session.user)
 }
 
 /**
@@ -49,6 +49,12 @@ export async function clientSafeGetOneGoal(id: string) {
       authorId,
       ...data
     }) => data)(goal.dataSeries) : null),
+    baselineDataSeries: (goal.baselineDataSeries ? (({
+      createdAt,
+      updatedAt,
+      authorId,
+      ...data
+    }) => data)(goal.baselineDataSeries) : null),
     combinationParents: goal.combinationParents.map(combination => ({
       resultingGoalId: combination.resultingGoalId,
       parentGoalId: combination.parentGoalId,
@@ -95,17 +101,17 @@ export async function clientSafeGetOneGoal(id: string) {
  * Caches the specified goal and all actions for that goal.
  * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'goal', 'action', 'dataSeries']`, which is done in relevant API routes.
  * @param id ID of the goal to cache
- * @param userId ID of user. Isn't passed in, but is used to associate the cache with the user.
+ * @param user Data from user's session cookie.
  */
 const getCachedGoal = unstable_cache(
-  async (id, userId) => {
-    const session = await getSession(cookies());
-
+  async (id: string, user: LoginData['user']) => {
     let goal: Goal & {
       _count: { actions: number }
       dataSeries: DataSeries | null,
+      baselineDataSeries: DataSeries | null,
       combinationParents: (CombinedGoal & { parentGoal: { id: string, dataSeries: DataSeries | null, roadmapId: string } })[],
       actions: (Action & {
+        dataSeries: DataSeries | null,
         author: { id: string, username: string },
       })[],
       roadmap: AccessControlled & { id: string, version: number, targetVersion: number | null, metaRoadmap: { id: string, name: string, parentRoadmapId: string | null } },
@@ -115,13 +121,14 @@ const getCachedGoal = unstable_cache(
     } | null = null;
 
     // If user is admin, always get the goal
-    if (session.user?.isAdmin) {
+    if (user?.isAdmin) {
       try {
         goal = await prisma.goal.findUnique({
           where: { id },
           include: {
             _count: { select: { actions: true } },
             dataSeries: true,
+            baselineDataSeries: true,
             combinationParents: {
               include: {
                 parentGoal: {
@@ -135,6 +142,7 @@ const getCachedGoal = unstable_cache(
             },
             actions: {
               include: {
+                dataSeries: true,
                 author: { select: { id: true, username: true } },
               },
             },
@@ -179,18 +187,18 @@ const getCachedGoal = unstable_cache(
     }
 
     // If user is logged in, get the goal if they have access to it
-    if (session.user?.isLoggedIn) {
+    if (user?.isLoggedIn) {
       try {
         goal = await prisma.goal.findUnique({
           where: {
             id,
             roadmap: {
               OR: [
-                { authorId: session.user.id },
-                { editors: { some: { id: userId } } },
-                { viewers: { some: { id: userId } } },
-                { editGroups: { some: { users: { some: { id: userId } } } } },
-                { viewGroups: { some: { users: { some: { id: userId } } } } },
+                { authorId: user.id },
+                { editors: { some: { id: user.id } } },
+                { viewers: { some: { id: user.id } } },
+                { editGroups: { some: { users: { some: { id: user.id } } } } },
+                { viewGroups: { some: { users: { some: { id: user.id } } } } },
                 { isPublic: true }
               ]
             }
@@ -198,6 +206,7 @@ const getCachedGoal = unstable_cache(
           include: {
             _count: { select: { actions: true } },
             dataSeries: true,
+            baselineDataSeries: true,
             combinationParents: {
               include: {
                 parentGoal: {
@@ -216,6 +225,7 @@ const getCachedGoal = unstable_cache(
             },
             actions: {
               include: {
+                dataSeries: true,
                 author: { select: { id: true, username: true } },
               },
             },
@@ -264,6 +274,7 @@ const getCachedGoal = unstable_cache(
         include: {
           _count: { select: { actions: true } },
           dataSeries: true,
+          baselineDataSeries: true,
           combinationParents: {
             include: {
               parentGoal: {
@@ -282,6 +293,7 @@ const getCachedGoal = unstable_cache(
           },
           actions: {
             include: {
+              dataSeries: true,
               author: { select: { id: true, username: true } },
             },
           },

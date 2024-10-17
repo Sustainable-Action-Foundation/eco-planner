@@ -51,7 +51,6 @@ export default function RepeatableScaling({
   const [numericInput, setNumericInput] = useState<number | null>(null);
   const [parentValue, setParentValue] = useState<number | null>(null);
   const [childValue, setChildValue] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   // Set parentValue on mount and when scaleBy changes
   useEffect(() => {
@@ -101,7 +100,7 @@ export default function RepeatableScaling({
       case ScaleBy.Inhabitants:
         return (
           <div key={ScaleBy.Inhabitants}>
-            <section className="margin-y-50">
+            <section className="margin-block-50">
               <label className="flex align-items-center justify-content-space-between">
                 Ursprungligt område:
                 <select required name="parentArea" id="parentArea" defaultValue={defaultParentArea} onChange={(e) => { getValue(e, scaleBy).then((result) => setParentValue(result)) }}>
@@ -122,7 +121,7 @@ export default function RepeatableScaling({
               </label>
             </section>
 
-            <section className="margin-y-50">
+            <section className="margin-block-50">
               <label className="flex align-items-center justify-content-space-between">
                 Nytt område:
                 <select required name="childArea" id="childArea" defaultValue={defaultChildArea ?? ""} onChange={(e) => { getValue(e, scaleBy).then((result) => setChildValue(result)) }}>
@@ -147,7 +146,7 @@ export default function RepeatableScaling({
       case ScaleBy.Area:
         return (
           <div key={ScaleBy.Area}>
-            <section className="margin-y-50">
+            <section className="margin-block-50">
               <label className="flex align-items-center justify-content-space-between">
                 Ursprungligt område:
                 <select required name="parentArea" id="parentArea" defaultValue={defaultParentArea ?? ""} onChange={(e) => { getValue(e, scaleBy).then((result) => setParentValue(result)) }}>
@@ -168,7 +167,7 @@ export default function RepeatableScaling({
               </label>
             </section>
 
-            <section className="margin-y-50">
+            <section className="margin-block-50">
               <label className="flex align-items-center justify-content-space-between">
                 Nytt område:
                 <select required name="childArea" id="childArea" defaultValue={defaultChildArea ?? ""} onChange={(e) => { getValue(e, scaleBy).then((result) => setChildValue(result)) }}>
@@ -198,9 +197,9 @@ export default function RepeatableScaling({
   return (
     <>
       <fieldset className="padding-50 smooth" style={{ border: '1px solid var(--gray-90)', position: 'relative' }}>
-        <legend className="flex gap-50 align-items-center padding-x-50">
+        <legend className="flex gap-50 align-items-center padding-inline-50">
           Skala utifrån:
-          <select className="block margin-y-25" required name="scaleBy" id="scaleBy" defaultValue={defaultScaleBy} onChange={(e) => setScaleBy(e.target.value as ScaleBy)}>
+          <select className="block margin-block-25" required name="scaleBy" id="scaleBy" defaultValue={defaultScaleBy} onChange={(e) => setScaleBy(e.target.value as ScaleBy)}>
             <option value="">Inget alternativ valt</option>
             <option value={ScaleBy.Custom}>Specifikt värde</option>
             <option value={ScaleBy.Inhabitants}>Relativt antal invånare</option>
@@ -210,20 +209,20 @@ export default function RepeatableScaling({
 
         {ScalarInputs()}
 
-        <label className="block margin-y-75">
+        <label className="block margin-block-75">
           {"Skalfaktor för den här beräkningen: "} <br />
           <output name="result" id="result">{Number.isFinite(result ?? NaN) ? result : "Värde saknas"}</output>
         </label>
 
         {/* Hidden input, used because outputs are not submitted with formData */}
-        <input className="margin-y-25" type="hidden" name="scaleFactor" value={(Number.isFinite(result ?? 1) && result?.toString()) ? result.toString() : "1"} />
+        <input className="margin-block-25" type="hidden" name="scaleFactor" value={(Number.isFinite(result ?? 1) && result?.toString()) ? result.toString() : "1"} />
 
         {// Only show weight input if useWeight is true
           useWeight &&
           <>
-            <label className="block margin-y-75">
+            <label className="block margin-block-75">
               Vikt för denna faktor (används för att skapa ett viktat genomsnitt mellan faktorerna)
-              <input className="margin-y-25" type="number" step={"any"} min={0} id="weight" name="weight" defaultValue={1} />
+              <input className="margin-block-25" type="number" step={"any"} min={0} id="weight" name="weight" defaultValue={1} />
             </label>
           </>
         }

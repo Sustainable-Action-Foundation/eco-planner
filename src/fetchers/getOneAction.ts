@@ -1,9 +1,9 @@
 'use server';
 
-import { getSession } from "@/lib/session";
+import { getSession, LoginData } from "@/lib/session";
 import prisma from "@/prismaClient";
 import { AccessControlled } from "@/types";
-import { Action, Link, Note, Comment } from "@prisma/client";
+import type { Action, Link, Note, Comment, DataSeries } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -16,20 +16,19 @@ import { cookies } from "next/headers";
  */
 export default async function getOneAction(id: string) {
   const session = await getSession(cookies());
-  return getCachedAction(id, session.user?.id ?? '')
+  return getCachedAction(id, session.user);
 }
 
 /**
  * Caches the specified action.
  * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'action']`, which is done in relevant API routes.
  * @param id ID of the action to cache
- * @param userId ID of user. Isn't passed in, but is used to associate the cache with the user.
+ * @param user Data from user's session cookie.
  */
 const getCachedAction = unstable_cache(
-  async (id, userId) => {
-    const session = await getSession(cookies());
-
+  async (id: string, user: LoginData['user']) => {
     let action: Action & {
+      dataSeries: DataSeries | null,
       notes: Note[],
       links: Link[],
       comments?: (Comment & { author: { id: string, username: string } })[],
@@ -38,11 +37,12 @@ const getCachedAction = unstable_cache(
     } | null = null;
 
     // If user is admin, always get the action
-    if (session.user?.isAdmin) {
+    if (user?.isAdmin) {
       try {
         action = await prisma.action.findUnique({
           where: { id },
           include: {
+            dataSeries: true,
             notes: true,
             links: true,
             comments: { include: { author: { select: { id: true, username: true } } } },
@@ -77,7 +77,7 @@ const getCachedAction = unstable_cache(
     }
 
     // If user is logged in, get the action if they have access to it
-    if (session.user?.isLoggedIn) {
+    if (user?.isLoggedIn) {
       try {
         action = await prisma.action.findUnique({
           where: {
@@ -85,17 +85,18 @@ const getCachedAction = unstable_cache(
             goal: {
               roadmap: {
                 OR: [
-                  { authorId: session.user.id },
-                  { editors: { some: { id: userId } } },
-                  { viewers: { some: { id: userId } } },
-                  { editGroups: { some: { users: { some: { id: userId } } } } },
-                  { viewGroups: { some: { users: { some: { id: userId } } } } },
+                  { authorId: user.id },
+                  { editors: { some: { id: user.id } } },
+                  { viewers: { some: { id: user.id } } },
+                  { editGroups: { some: { users: { some: { id: user.id } } } } },
+                  { viewGroups: { some: { users: { some: { id: user.id } } } } },
                   { isPublic: true }
                 ]
               }
             }
           },
           include: {
+            dataSeries: true,
             notes: true,
             links: true,
             comments: {
@@ -141,6 +142,7 @@ const getCachedAction = unstable_cache(
           goal: { roadmap: { isPublic: true } }
         },
         include: {
+          dataSeries: true,
           notes: true,
           links: true,
           comments: {

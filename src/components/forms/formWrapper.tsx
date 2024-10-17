@@ -56,16 +56,17 @@ export default function FormWrapper({
       }
 
       formSlide.forEach(element => {
-        if (element) {      
-            if (options?.reverse) {
-              element.style.transform = `translateX(-${(currentTransformIndex) * 100}%)`
-            } else {
-              element.style.transform = `translateX(-${(currentTransformIndex) * 100}%)`
-            }
+        if (element) {
+          if (options?.reverse) {
+            element.style.transform = `translateX(-${(currentTransformIndex) * 100}%)`
+          } else {
+            element.style.transform = `translateX(-${(currentTransformIndex) * 100}%)`
           }
         }
-      )}      
-    
+      }
+      )
+    }
+
 
     iterateIndicators(currentTransformIndex)
     enableSubmitButton(currentTransformIndex)
@@ -83,17 +84,17 @@ export default function FormWrapper({
         ))}
       </div>
 
-      <div className={`margin-y-100 padding-x-100 gap-50 grid ${styles.indicatorLayout}`}>
+      <div className={`margin-block-100 padding-inline-100 gap-50 grid ${styles.indicatorLayout}`}>
         <button type="button" className={`flex align-items-center transparent round gap-25 ${styles.indicatorButton}`} onClick={() => iterateSections({ reverse: true })}>
           <Image src="/icons/arrowLeft.svg" alt="" width={24} height={24} />
           Tillbaka
         </button>
 
-        <div className={`margin-y-50 ${styles.indicatorWrapper}`}>
-          <div id="indicators" className="display-flex justify-content-center gap-75 margin-y-50">
-            {sections.map((section, index) => (
+        <div className={`margin-block-50 ${styles.indicatorWrapper}`}>
+          <div id="indicators" className="display-flex justify-content-center gap-75 margin-block-50">
+            {sections.map((_section, index) => (
               <div className={styles.indicator} key={index}></div>
-            ))} 
+            ))}
           </div>
           <div className={styles.currentIndicator} id="current-indicator"></div>
         </div>

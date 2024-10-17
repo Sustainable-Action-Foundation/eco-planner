@@ -17,15 +17,15 @@ export default async function Page() {
 
   return (
     <>
-      <div className='container-text' style={{ marginInline: 'auto' }}>
-        <div className='margin-y-300' style={{ fontSize: 'larger', width: 'min(45ch, 100%)', marginInline: 'auto' }}>
-          <h1 style={{ textAlign: 'center' }}>Skapa en ny färdplan</h1>
-        </div>
-        <MetaRoadmapForm
-          user={session.user}
-          userGroups={session.user?.userGroups}
-          parentRoadmapOptions={parentRoadmapOptions}
-        />
+      <div className='container margin-inline-auto flex gap-100 justify-content-space-around'>
+        <section className='container-text'>
+          <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>Skapa en ny färdplan</h1>
+          <MetaRoadmapForm
+            user={session.user}
+            userGroups={session.user?.userGroups}
+            parentRoadmapOptions={parentRoadmapOptions}
+          />
+        </section>
       </div>
     </>
   )

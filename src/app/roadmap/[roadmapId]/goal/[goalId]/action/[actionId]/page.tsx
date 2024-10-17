@@ -35,12 +35,12 @@ export default async function Page({ params }: { params: { roadmapId: string, go
 
   return ( // TODO: Make sure optional stuff from form renders conditionally
     <>
-      <section className="margin-y-100" style={{ width: 'min(90ch, 100%)' }}>
+      <section className="margin-block-100" style={{ width: 'min(90ch, 100%)' }}>
         <span style={{ color: 'gray' }}>Åtgärd</span>
         <h1 style={{ margin: '0' }}>{action.name}</h1>
         <p style={{ fontSize: '1.25rem', margin: '0' }}>{action.startYear} - {action.endYear}</p>
         {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
-          <div className="margin-y-100">
+          <div className="margin-block-100">
             <Link href={`/roadmap/${params.roadmapId}/goal/${params.goalId}/action/${params.actionId}/editAction`} className="flex align-items-center gap-50 padding-50 smooth button transparent" style={{ width: 'fit-content', fontWeight: '500' }}>
               Redigera åtgärd
               <Image src="/icons/edit.svg" width={24} height={24} alt={`Redigera åtgärd: ${action.name}`} />
