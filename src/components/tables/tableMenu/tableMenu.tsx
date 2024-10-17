@@ -71,7 +71,7 @@ export function TableMenu(
   // MetaRoadmaps
   if (object.roadmapVersions != undefined) {
     selfLink = `/metaRoadmap/${object.id}`;
-    creationLink = `roadmap/createRoadmap?metaRoadmapId=${object.id}`;
+    creationLink = `/roadmap/createRoadmap?metaRoadmapId=${object.id}`;
     creationDescription = 'Ny färdplan';
     editLink = `/metaRoadmap/${object.id}/editMetaRoadmap`;
     deleteLink = "/api/metaRoadmap"
