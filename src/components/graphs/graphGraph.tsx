@@ -38,24 +38,27 @@ export default function GraphGraph({
     switch (graphType) {
       case GraphType.Main:
         return <div>
-          <nav className="display-flex align-items-center gap-25 margin-block-100">
-            <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
-          </nav>
           <MainGraph goal={goal} nationalGoal={nationalGoal} historicalData={historicalData} secondaryGoal={secondaryGoal} actions={actions} />
+          <fieldset className="display-flex align-items-center margin-top-100 padding-50 gap-50">
+            <div className="font-weight-500">Visa:</div>
+            <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
+          </fieldset>
         </div>;
       case GraphType.Relative:
         return <div>
-          <nav className="display-flex align-items-center gap-25 margin-block-100">
-            <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
-          </nav>
           <MainRelativeGraph goal={goal} nationalGoal={nationalGoal} secondaryGoal={secondaryGoal} />
+          <fieldset className="display-flex align-items-center margin-top-100 padding-50 gap-50">
+            <div className="font-weight-500">Visa:</div>
+            <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
+          </fieldset>
         </div>;
       case GraphType.Delta:
         return <div>
-          <nav className="display-flex align-items-center gap-25 margin-block-100">
-            <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
-          </nav>
           <MainDeltaGraph goal={goal} nationalGoal={nationalGoal} secondaryGoal={secondaryGoal} actions={actions} />
+          <fieldset className="display-flex align-items-center margin-top-100 padding-50 gap-50">
+            <div className="font-weight-500">Visa:</div>
+            <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
+          </fieldset>
         </div>;
       default:
         return graphSwitch(GraphType.Main);
