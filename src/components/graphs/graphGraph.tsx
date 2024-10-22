@@ -37,38 +37,23 @@ export default function GraphGraph({
   function graphSwitch(graphType: string) {
     switch (graphType) {
       case GraphType.Main:
-        return <div>
-          <MainGraph goal={goal} nationalGoal={nationalGoal} historicalData={historicalData} secondaryGoal={secondaryGoal} actions={actions} />
-          <fieldset className="display-flex align-items-center margin-top-100 padding-50 gap-50">
-            <div className="font-weight-500">Visa:</div>
-            <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
-          </fieldset>
-        </div>;
+        return <MainGraph goal={goal} nationalGoal={nationalGoal} historicalData={historicalData} secondaryGoal={secondaryGoal} actions={actions} />
       case GraphType.Relative:
-        return <div>
-          <MainRelativeGraph goal={goal} nationalGoal={nationalGoal} secondaryGoal={secondaryGoal} />
-          <fieldset className="display-flex align-items-center margin-top-100 padding-50 gap-50">
-            <div className="font-weight-500">Visa:</div>
-            <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
-          </fieldset>
-        </div>;
+        return <MainRelativeGraph goal={goal} nationalGoal={nationalGoal} secondaryGoal={secondaryGoal} />
       case GraphType.Delta:
-        return <div>
-          <MainDeltaGraph goal={goal} nationalGoal={nationalGoal} secondaryGoal={secondaryGoal} actions={actions} />
-          <fieldset className="display-flex align-items-center margin-top-100 padding-50 gap-50">
-            <div className="font-weight-500">Visa:</div>
-            <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
-          </fieldset>
-        </div>;
+        return <MainDeltaGraph goal={goal} nationalGoal={nationalGoal} secondaryGoal={secondaryGoal} actions={actions} />
       default:
         return graphSwitch(GraphType.Main);
     }
   };
 
   return (
-    <>
-
+    <div>
       {graphSwitch(graphType)}
-    </>
+      <fieldset className="display-flex align-items-center margin-top-100 padding-50 gap-50">
+        <div className="font-weight-500">Visa:</div>
+        <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
+      </fieldset>
+    </div>
   );
 }
