@@ -5,6 +5,7 @@
   - You are about to drop the column `impact_type` on the `action` table. All the data in the column will be lost.
   - You are about to drop the column `action_id` on the `data_series` table. All the data in the column will be lost.
   - A unique constraint covering the columns `[effect_action_id,effect_goal_id]` on the table `data_series` will be added. If there are existing duplicate values, this will fail.
+  - Added the required column `roadmap_id` to the `action` table without a default value. This is not possible if the table is not empty.
 
 */
 -- DropForeignKey
@@ -14,8 +15,19 @@ ALTER TABLE `action` DROP FOREIGN KEY `action_goal_id_fkey`;
 ALTER TABLE `data_series` DROP FOREIGN KEY `data_series_action_id_fkey`;
 
 -- AlterTable
+-- EDIT: Get roadmap id from the action's goal before dropping the column `goal_id` and making `roadmap_id` NOT NULL
+ALTER TABLE `action` DROP COLUMN `impact_type`,
+    ADD COLUMN `roadmap_id` VARCHAR(191) NULL;
+
+UPDATE `action`
+    SET `roadmap_id` = (
+        SELECT `goal`.`roadmap_id`
+        FROM `goal`
+        WHERE `goal`.`id` = `action`.`goal_id`
+    );
+
 ALTER TABLE `action` DROP COLUMN `goal_id`,
-    DROP COLUMN `impact_type`;
+    MODIFY COLUMN `roadmap_id` VARCHAR(191) NOT NULL;
 
 -- AlterTable
 ALTER TABLE `data_series` DROP COLUMN `action_id`,
@@ -38,6 +50,9 @@ CREATE UNIQUE INDEX `effect_id` ON `data_series`(`effect_action_id`, `effect_goa
 
 -- AddForeignKey
 ALTER TABLE `data_series` ADD CONSTRAINT `data_series_effect_action_id_effect_goal_id_fkey` FOREIGN KEY (`effect_action_id`, `effect_goal_id`) REFERENCES `effect`(`action_id`, `goal_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `action` ADD CONSTRAINT `action_roadmap_id_fkey` FOREIGN KEY (`roadmap_id`) REFERENCES `roadmap`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `effect` ADD CONSTRAINT `effect_action_id_fkey` FOREIGN KEY (`action_id`) REFERENCES `action`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

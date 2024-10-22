@@ -101,6 +101,8 @@ model Roadmap {
   comments Comment[] @relation("roadmap_comment")
   // Goals related to this roadmap
   goals    Goal[]    @relation("roadmap_goal")
+  // Actions related to this roadmap
+  actions  Action[]  @relation("action_roadmap")
 
   // Anyone listed here can edit/view all goals and actions in this roadmap
   // Author of this roadmap version
@@ -294,7 +296,14 @@ model Action {
   isRenewables  Boolean @default(false) @map("is_renewables")
 
   // Effects of this action
-  effects Effect[] @relation("action_effect")
+  effects        Effect[] @relation("action_effect")
+  // ID of the roadmap this action belongs to
+  roadmapId      String   @map("roadmap_id")
+  roadmap        Roadmap  @relation("action_roadmap", fields: [roadmapId], references: [id], onDelete: Cascade)
+  // Relations for keeping track of inheritance between actions
+  parentActionId String?  @map("parent_action_id")
+  parentAction   Action?  @relation("action_inheritance", fields: [parentActionId], references: [id], onDelete: SetNull)
+  childActions   Action[] @relation("action_inheritance")
 
   // Notes related to this action
   notes    Note[]    @relation("action_notes")
