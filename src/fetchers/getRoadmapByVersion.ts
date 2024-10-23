@@ -1,9 +1,10 @@
 'use server';
 
+import { roadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getSession, LoginData } from "@/lib/session"
 import { goalSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
-import { Comment, DataSeries, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -29,46 +30,16 @@ export default async function getRoadmapByVersion(metaId: string, version: numbe
  */
 const getCachedRoadmap = unstable_cache(
   async (metaId: string, version: number, user: LoginData['user']) => {
-    let roadmap: Roadmap & {
-      metaRoadmap: MetaRoadmap,
-      goals: (Goal & {
-        _count: { actions: number },
-        dataSeries: DataSeries | null,
-        author: { id: string, username: string },
-      })[],
-      comments?: (Comment & { author: { id: string, username: string } })[],
-      author: { id: string, username: string },
-      editors: { id: string, username: string }[],
-      viewers: { id: string, username: string }[],
-      editGroups: { id: string, name: string, users: { id: string, username: string }[] }[],
-      viewGroups: { id: string, name: string, users: { id: string, username: string }[] }[],
-    } | null = null;
+    let roadmap: Prisma.RoadmapGetPayload<{
+      include: typeof roadmapInclusionSelection
+    }> | null = null;
 
     // If user is admin, always get the roadmap
     if (user?.isAdmin) {
       try {
         roadmap = await prisma.roadmap.findUnique({
           where: { meta_version: { metaRoadmapId: metaId, version } },
-          include: {
-            metaRoadmap: true,
-            goals: {
-              include: {
-                _count: { select: { actions: true } },
-                dataSeries: true,
-                author: { select: { id: true, username: true } },
-              }
-            },
-            comments: {
-              include: {
-                author: { select: { id: true, username: true } },
-              },
-            },
-            author: { select: { id: true, username: true } },
-            editors: { select: { id: true, username: true } },
-            viewers: { select: { id: true, username: true } },
-            editGroups: { include: { users: { select: { id: true, username: true } } } },
-            viewGroups: { include: { users: { select: { id: true, username: true } } } },
-          }
+          include: roadmapInclusionSelection
         });
       } catch (error) {
         console.log(error);
@@ -96,21 +67,7 @@ const getCachedRoadmap = unstable_cache(
               { isPublic: true }
             ]
           },
-          include: {
-            metaRoadmap: true,
-            goals: {
-              include: {
-                _count: { select: { actions: true } },
-                dataSeries: true,
-                author: { select: { id: true, username: true } },
-              }
-            },
-            author: { select: { id: true, username: true } },
-            editors: { select: { id: true, username: true } },
-            viewers: { select: { id: true, username: true } },
-            editGroups: { include: { users: { select: { id: true, username: true } } } },
-            viewGroups: { include: { users: { select: { id: true, username: true } } } },
-          }
+          include: roadmapInclusionSelection
         });
       } catch (error) {
         console.log(error);
@@ -130,21 +87,7 @@ const getCachedRoadmap = unstable_cache(
           meta_version: { metaRoadmapId: metaId, version },
           isPublic: true,
         },
-        include: {
-          metaRoadmap: true,
-          goals: {
-            include: {
-              _count: { select: { actions: true } },
-              dataSeries: true,
-              author: { select: { id: true, username: true } },
-            }
-          },
-          author: { select: { id: true, username: true } },
-          editors: { select: { id: true, username: true } },
-          viewers: { select: { id: true, username: true } },
-          editGroups: { include: { users: { select: { id: true, username: true } } } },
-          viewGroups: { include: { users: { select: { id: true, username: true } } } },
-        }
+        include: roadmapInclusionSelection
       });
     } catch (error) {
       console.log(error);

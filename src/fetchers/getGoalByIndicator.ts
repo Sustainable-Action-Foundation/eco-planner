@@ -1,10 +1,10 @@
 'use server';
 
+import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getSession } from "@/lib/session"
-import { actionSorter } from "@/lib/sorters";
+import { effectSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
-import { AccessControlled } from "@/types";
-import { Action, CombinedGoal, Comment, DataSeries, Goal, Link } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -32,20 +32,9 @@ export default async function getGoalByIndicator(roadmapId: string, indicatorPar
  */
 const getCachedGoal = unstable_cache(
   async (roadmapId: string, indicatorParameter: string, unit: string | undefined, user) => {
-    let goal: Goal & {
-      _count: { actions: number }
-      dataSeries: DataSeries | null,
-      baselineDataSeries: DataSeries | null,
-      combinationParents: (CombinedGoal & { parentGoal: { dataSeries: { updatedAt: Date } | null } })[],
-      actions: (Action & {
-        dataSeries: DataSeries | null,
-        author: { id: string, username: string },
-      })[],
-      roadmap: AccessControlled & { id: string, version: number, targetVersion: number | null, metaRoadmap: { id: string, name: string, parentRoadmapId: string | null } },
-      links: Link[],
-      comments?: (Comment & { author: { id: string, username: string } })[],
-      author: { id: string, username: string },
-    } | null = null;
+    let goal: Prisma.GoalGetPayload<{
+      include: typeof goalInclusionSelection
+    }> | null = null;
 
     // If user is admin, always get the goal
     if (user?.isAdmin) {
@@ -57,53 +46,7 @@ const getCachedGoal = unstable_cache(
             ...(unit ? { dataSeries: { unit: unit } } : {}),
             roadmap: { id: roadmapId },
           },
-          include: {
-            _count: { select: { actions: true } },
-            dataSeries: true,
-            baselineDataSeries: true,
-            combinationParents: {
-              include: {
-                parentGoal: {
-                  select: {
-                    dataSeries: { select: { updatedAt: true } },
-                  },
-                },
-              },
-            },
-            actions: {
-              include: {
-                dataSeries: true,
-                author: { select: { id: true, username: true } },
-              },
-            },
-            roadmap: {
-              select: {
-                id: true,
-                version: true,
-                targetVersion: true,
-                metaRoadmap: {
-                  select: {
-                    id: true,
-                    name: true,
-                    parentRoadmapId: true,
-                  },
-                },
-                author: { select: { id: true, username: true } },
-                editors: { select: { id: true, username: true } },
-                viewers: { select: { id: true, username: true } },
-                editGroups: { select: { id: true, name: true, users: { select: { id: true, username: true } } } },
-                viewGroups: { select: { id: true, name: true, users: { select: { id: true, username: true } } } },
-                isPublic: true,
-              },
-            },
-            links: true,
-            comments: {
-              include: {
-                author: { select: { id: true, username: true } },
-              },
-            },
-            author: { select: { id: true, username: true } },
-          }
+          include: goalInclusionSelection
         });
       } catch (error) {
         console.log(error);
@@ -111,7 +54,7 @@ const getCachedGoal = unstable_cache(
         return null
       }
 
-      goal?.actions.sort(actionSorter)
+      goal?.effects.sort(effectSorter);
 
       return goal;
     }
@@ -135,53 +78,7 @@ const getCachedGoal = unstable_cache(
               ]
             }
           },
-          include: {
-            _count: { select: { actions: true } },
-            dataSeries: true,
-            baselineDataSeries: true,
-            combinationParents: {
-              include: {
-                parentGoal: {
-                  select: {
-                    dataSeries: { select: { updatedAt: true } },
-                  },
-                },
-              },
-            },
-            actions: {
-              include: {
-                dataSeries: true,
-                author: { select: { id: true, username: true } },
-              },
-            },
-            roadmap: {
-              select: {
-                id: true,
-                version: true,
-                targetVersion: true,
-                metaRoadmap: {
-                  select: {
-                    id: true,
-                    name: true,
-                    parentRoadmapId: true,
-                  },
-                },
-                author: { select: { id: true, username: true } },
-                editors: { select: { id: true, username: true } },
-                viewers: { select: { id: true, username: true } },
-                editGroups: { select: { id: true, name: true, users: { select: { id: true, username: true } } } },
-                viewGroups: { select: { id: true, name: true, users: { select: { id: true, username: true } } } },
-                isPublic: true,
-              },
-            },
-            links: true,
-            comments: {
-              include: {
-                author: { select: { id: true, username: true } },
-              },
-            },
-            author: { select: { id: true, username: true } },
-          }
+          include: goalInclusionSelection
         });
       } catch (error) {
         console.log(error);
@@ -189,7 +86,7 @@ const getCachedGoal = unstable_cache(
         return null
       }
 
-      goal?.actions.sort(actionSorter)
+      goal?.effects.sort(effectSorter);
 
       return goal;
     }
@@ -205,53 +102,7 @@ const getCachedGoal = unstable_cache(
             isPublic: true,
           }
         },
-        include: {
-          _count: { select: { actions: true } },
-          dataSeries: true,
-          baselineDataSeries: true,
-          combinationParents: {
-            include: {
-              parentGoal: {
-                select: {
-                  dataSeries: { select: { updatedAt: true } },
-                },
-              },
-            },
-          },
-          actions: {
-            include: {
-              dataSeries: true,
-              author: { select: { id: true, username: true } },
-            },
-          },
-          roadmap: {
-            select: {
-              id: true,
-              version: true,
-              targetVersion: true,
-              metaRoadmap: {
-                select: {
-                  id: true,
-                  name: true,
-                  parentRoadmapId: true,
-                },
-              },
-              author: { select: { id: true, username: true } },
-              editors: { select: { id: true, username: true } },
-              viewers: { select: { id: true, username: true } },
-              editGroups: { select: { id: true, name: true, users: { select: { id: true, username: true } } } },
-              viewGroups: { select: { id: true, name: true, users: { select: { id: true, username: true } } } },
-              isPublic: true,
-            },
-          },
-          links: true,
-          comments: {
-            include: {
-              author: { select: { id: true, username: true } },
-            },
-          },
-          author: { select: { id: true, username: true } },
-        }
+        include: goalInclusionSelection
       });
     } catch (error) {
       console.log(error);
@@ -259,7 +110,7 @@ const getCachedGoal = unstable_cache(
       return null
     }
 
-    goal?.actions.sort(actionSorter)
+    goal?.effects.sort(effectSorter);
 
     return goal;
   },

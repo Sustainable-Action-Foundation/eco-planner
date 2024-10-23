@@ -145,10 +145,17 @@ export function actionSorter(a: Action, b: Action) {
 }
 
 /**
+ * Sorts effects alphabetically based on the name of the action
+ */
+export function effectSorter(a: { action: { name: string } }, b: { action: { name: string } }) {
+  return collator.compare(a.action.name, b.action.name);
+}
+
+/**
  * Sorts actions by start year, then by end year, then by name
  */
 export function actionGraphSorter(a: { x: string, y: number[] }, b: { x: string, y: number[] }) {
-  // Strt year
+  // Start year
   if ((a.y[0] || 0) < (b.y[0] || 0)) {
     return -1;
   } else if ((a.y[0] || 0) > (b.y[0] || 0)) {
@@ -162,6 +169,28 @@ export function actionGraphSorter(a: { x: string, y: number[] }, b: { x: string,
     } else {
       // Name
       return collator.compare(a.x, b.x);
+    }
+  }
+}
+
+/**
+ * Sorts effects by action start year, then by action end year, then by action name
+ */
+export function effectGraphSorter(a: { action: { name: string, startYear: number, endYear: number } }, b: { action: { name: string, startYear: number, endYear: number } }) {
+  // Start year
+  if (a.action.startYear < b.action.startYear) {
+    return -1;
+  } else if (a.action.startYear > b.action.startYear) {
+    return 1;
+  } else {
+    // End year
+    if (a.action.endYear < b.action.endYear) {
+      return -1;
+    } else if (a.action.endYear > b.action.endYear) {
+      return 1;
+    } else {
+      // Name
+      return collator.compare(a.action.name, b.action.name);
     }
   }
 }
