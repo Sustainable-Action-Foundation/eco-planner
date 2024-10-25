@@ -168,7 +168,7 @@ export default async function Page({ params, searchParams }: { params: { roadmap
       {secondaryGoal && <p>Jämför med målbanan {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
       <section className={styles.graphLayout}>
         {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
-        <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} actions={goal.actions} />
+        <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects} />
         <CombinedGraph roadmap={roadmap} goal={goal} />
       </section>
       <SecondaryGoalSelector />
@@ -180,7 +180,7 @@ export default async function Page({ params, searchParams }: { params: { roadmap
           <Link href={`/roadmap/${roadmap.id}/goal/${goal.id}/action/createAction`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
         </div>
         <div className="margin-block-100">
-          <ActionGraph actions={goal.actions} />
+          <ActionGraph actions={goal.effects.map(effect => effect.action)} />
         </div>
         {/*
         <section>
