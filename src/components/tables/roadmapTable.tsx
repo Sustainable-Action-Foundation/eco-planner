@@ -1,6 +1,6 @@
 import { LoginData } from '@/lib/session';
 import styles from './tables.module.css' with { type: "css" };
-import { MetaRoadmap } from "@prisma/client";
+import { MetaRoadmap, Roadmap } from "@prisma/client";
 import { TableMenu } from './tableMenu/tableMenu';
 import { AccessControlled } from '@/types';
 import accessChecker from '@/lib/accessChecker';
@@ -11,11 +11,11 @@ interface RoadmapTableCommonProps {
 
 interface RoadmapTableWithMetaRoadmap extends RoadmapTableCommonProps {
   roadmaps?: never,
-  metaRoadmap: MetaRoadmap & AccessControlled & { roadmapVersions: (AccessControlled & { id: string, version: number, _count: { goals: number } })[] }
+  metaRoadmap: MetaRoadmap & AccessControlled & { roadmapVersions: (Roadmap & AccessControlled & { id: string, version: number, _count: { goals: number } })[] }
 }
 
 interface RoadmapTableWithRoadmaps extends RoadmapTableCommonProps {
-  roadmaps: (AccessControlled & { id: string, version: number, _count: { goals: number }, metaRoadmap: MetaRoadmap })[],
+  roadmaps: (Roadmap & AccessControlled & { id: string, version: number, _count: { goals: number }, metaRoadmap: MetaRoadmap })[],
   metaRoadmap?: never,
 }
 
@@ -36,17 +36,18 @@ export default function RoadmapTable({
     roadmaps = metaRoadmap.roadmapVersions.map((version) => {
       metaRoadmap = metaRoadmap as NonNullable<typeof metaRoadmap>;
       return {
-        id: version.id,
-        version: version.version,
-        _count: { goals: version._count.goals },
+        ...version,
+        // id: version.id,
+        // version: version.version,
+        // _count: { goals: version._count.goals },
         // Sets the metaRoadmap to the parent metaRoadmap, excluding the versions array
         metaRoadmap: (({ roadmapVersions, ...data }) => data)(metaRoadmap),
-        author: [version.author as { id: string, username: string }, metaRoadmap.author as { id: string, username: string }],
-        editors: version.editors,
-        viewers: version.viewers,
-        editGroups: version.editGroups,
-        viewGroups: version.viewGroups,
-        isPublic: version.isPublic,
+        // author: [version.author as { id: string, username: string }, metaRoadmap.author as { id: string, username: string }],
+        // editors: version.editors,
+        // viewers: version.viewers,
+        // editGroups: version.editGroups,
+        // viewGroups: version.viewGroups,
+        // isPublic: version.isPublic,
       }
     });
   }
