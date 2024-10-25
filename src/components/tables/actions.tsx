@@ -13,7 +13,9 @@ interface ActionTableCommonProps {
 
 interface ActionTableWithGoal extends ActionTableCommonProps {
   goal: Goal & {
-    actions: (Action)[]
+    effects: {
+      action: Action
+    }[]
   },
   actions?: never,
 }
@@ -21,7 +23,9 @@ interface ActionTableWithGoal extends ActionTableCommonProps {
 interface ActionTableWithActions extends ActionTableCommonProps {
   goal?: never,
   actions: (Action & {
-    goal: { id: string, roadmap: { id: string } }
+    effects: {
+      goal: { id: string, roadmap: { id: string } }
+    }[]
   })[],
 }
 
@@ -32,7 +36,6 @@ type ActionTableProps = ActionTableWithGoal | ActionTableWithActions;
  * @param goal The goal containing the actions to display
  * @param actions A list of actions to display
  * @param accessLevel The access level of the user
- * @returns 
  */
 export default function ActionTable({
   goal,
@@ -44,9 +47,9 @@ export default function ActionTable({
 
   // If a goal is provided, extract the actions from it
   if (!actions) {
-    actions = goal?.actions.map((action) => {
+    actions = goal?.effects.map((effect) => {
       const fakeGoal = { id: goal.id, roadmap: { id: goal.roadmapId } };
-      return { ...action, goal: fakeGoal };
+      return { ...effect.action, effects: [{ goal: fakeGoal }] };
     });
   }
 
@@ -57,7 +60,7 @@ export default function ActionTable({
         { // Only show the button if the user has edit access to the goal and a goal is provided
           (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) && goal &&
           <span> Vill du skapa en?&nbsp;
-            <Link href={`/roadmap/${goal.roadmapId}/goal/${goal.id}/action/createAction`}>
+            <Link href={`/action/createAction?roadmapId=${goal.roadmapId}&goalId=${goal.id}`}>
               Skapa ny åtgärd
             </Link>
           </span>
@@ -74,7 +77,7 @@ export default function ActionTable({
     */}
     {actions.map(action => (
       <div className='flex gap-100 justify-content-space-between align-items-center' key={action.id}>
-        <a href={`/roadmap/${action.goal.roadmap.id}/goal/${action.goal.id}/action/${action.id}`} className={`${styles.roadmapLink} flex-grow-100`}>
+        <a href={`/action/${action.id}`} className={`${styles.roadmapLink} flex-grow-100`}>
           <span className={styles.linkTitle}>{action.name}</span>
           <p className={styles.actionLinkInfo}>{action.description}</p>
         </a>

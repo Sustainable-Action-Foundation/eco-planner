@@ -106,7 +106,7 @@ export default async function Page({ params, searchParams }: { params: { roadmap
         <h1 className="display-flex align-items-center gap-25 flex-wrap-wrap">
           { // Only show the edit link if the user has edit access to the roadmap
             (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-            <Link href={`/roadmap/${roadmap.id}/goal/${goal.id}/editGoal`}>
+            <Link href={`/goal/${goal.id}/editGoal`}>
               <Image src="/icons/edit.svg" width={24} height={24} alt={`Edit roadmap: ${goal.name}`} />
             </Link>
           }
@@ -143,7 +143,7 @@ export default async function Page({ params, searchParams }: { params: { roadmap
         </div>
         {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
           <div className="flex flex-wrap-wrap align-items-center gap-100 margin-block-100">
-            <Link href={`/roadmap/${roadmap.id}/goal/${goal.id}/editGoal`} className="display-flex align-items-center gap-50 padding-50 color-pureblack button smooth transparent" style={{ textDecoration: 'none', fontWeight: '500' }} >
+            <Link href={`/goal/${goal.id}/editGoal`} className="display-flex align-items-center gap-50 padding-50 color-pureblack button smooth transparent" style={{ textDecoration: 'none', fontWeight: '500' }} >
               Redigera Målbana
               <Image src="/icons/edit.svg" width={24} height={24} alt={`Edit roadmap: ${goal.name}`} />
             </Link>
@@ -177,7 +177,7 @@ export default async function Page({ params, searchParams }: { params: { roadmap
 
         <div className="flex align-items-center justify-content-space-between">
           <h2>Åtgärder</h2>
-          <Link href={`/roadmap/${roadmap.id}/goal/${goal.id}/action/createAction`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
+          <Link href={`/action/createAction?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
         </div>
         <div className="margin-block-100">
           <ActionGraph actions={goal.effects.map(effect => effect.action)} />

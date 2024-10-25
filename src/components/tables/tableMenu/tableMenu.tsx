@@ -21,10 +21,12 @@ export function TableMenu(
     object: (
       // Action
       (Action & {
-        goal: { id: string, roadmap: { id: string } },
+        effects: {
+          goal: { id: string, roadmap: { id: string } },
+        }[],
         roadmapVersions?: never,
         metaRoadmap?: never,
-        roadmap?: never,
+        indicatorParameter?: never,
       })
       // Goal
       | (Goal & {
@@ -79,26 +81,26 @@ export function TableMenu(
   // Roadmaps
   else if (object.metaRoadmap != undefined) {
     selfLink = `/roadmap/${object.id}`
-    creationLink = `/roadmap/${object.id}/goal/createGoal`;
+    creationLink = `/goal/createGoal?roadmapId=${object.id}`;
     creationDescription = 'Ny målbana';
     editLink = `/roadmap/${object.id}/editRoadmap`;
     deleteLink = "/api/roadmap"
   }
   // Goals
-  else if (object.roadmap != undefined) {
-    selfLink = `/roadmap/${object.roadmap.id}/goal/${object.id}`;
-    creationLink = `/roadmap/${object.roadmap.id}/goal/${object.id}/action/createAction`;
+  else if (object.indicatorParameter != undefined) {
+    selfLink = `/goal/${object.id}`;
+    creationLink = `/action/createAction?roadmapId=${object.roadmapId}&goalId=${object.id}`;
     creationDescription = 'Ny åtgärd';
-    editLink = `/roadmap/${object.roadmap.id}/goal/${object.id}/editGoal`;
+    editLink = `/goal/${object.id}/editGoal`;
     deleteLink = "/api/goal"
     if (!object.name) {
       object.name = object.indicatorParameter;
     }
   }
   // Actions
-  else if (object.goal != undefined) {
-    selfLink = `/roadmap/${object.goal.roadmap.id}/goal/${object.goal.id}/action/${object.id}`;
-    editLink = `/roadmap/${object.goal.roadmap.id}/goal/${object.goal.id}/action/${object.id}/editAction`;
+  else if (object.isSufficiency != undefined) {
+    selfLink = `/action/${object.id}`;
+    editLink = `/action/${object.id}/editAction`;
     deleteLink = "/api/action"
   }
   // Catch all
