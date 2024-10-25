@@ -25,8 +25,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // TODO: Make sure user has access to the parent goal (declared in goal's parent roadmap)
-  if (!action.goalId) {
+  if (!action.roadmapId) {
     return Response.json({ message: 'Missing parent. Please report this problem unless you are sending custom requests.' },
       { status: 400 }
     );
@@ -41,12 +40,23 @@ export async function POST(request: NextRequest) {
 
   try {
     // Get user and goal
-    const [user, goal] = await Promise.all([
+    const [user, roadmap, goal] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
         select: { id: true, username: true, isAdmin: true, userGroups: true }
       }),
-      prisma.goal.findUnique({
+      prisma.roadmap.findUnique({
+        where: { id: action.roadmapId },
+        select: {
+          author: { select: { id: true, username: true } },
+          editors: { select: { id: true, username: true } },
+          viewers: { select: { id: true, username: true } },
+          editGroups: { include: { users: { select: { id: true, username: true } } } },
+          viewGroups: { include: { users: { select: { id: true, username: true } } } },
+          isPublic: true,
+        }
+      }),
+      action.goalId ? prisma.goal.findUnique({
         where: { id: action.goalId },
         include: {
           roadmap: {
@@ -60,7 +70,7 @@ export async function POST(request: NextRequest) {
             }
           }
         }
-      })
+      }) : null,
     ]);
 
     // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
@@ -68,25 +78,34 @@ export async function POST(request: NextRequest) {
       throw new Error(ClientError.BadSession, { cause: 'action' });
     }
 
-    // If no goal is found or the user has no access to the goal, return IllegalParent
-    if (!goal) {
+    // If no roadmap is found or the user has no access to the roadmap, return IllegalParent
+    // Also return IllegalParent if a goalId is provided and no valid goal is found
+    if (!roadmap || (!goal && action.goalId)) {
       throw new Error(ClientError.IllegalParent, { cause: 'action' });
     }
-    const accessFields: AccessControlled = {
-      author: goal.roadmap.author,
-      editors: goal.roadmap.editors,
-      viewers: goal.roadmap.viewers,
-      editGroups: goal.roadmap.editGroups,
-      viewGroups: goal.roadmap.viewGroups,
-      isPublic: goal.roadmap.isPublic,
-    }
-    const accessLevel = accessChecker(accessFields, session.user)
-    if (accessLevel === AccessLevel.None || accessLevel === AccessLevel.View) {
+
+    const roadmapAccess = accessChecker(roadmap, session.user);
+    if (roadmapAccess === AccessLevel.None || roadmapAccess === AccessLevel.View) {
       throw new Error(ClientError.IllegalParent, { cause: 'action' });
     }
-  } catch (e) {
-    if (e instanceof Error) {
-      if (e.message == ClientError.BadSession) {
+
+    if (goal) {
+      const accessFields: AccessControlled = {
+        author: goal.roadmap.author,
+        editors: goal.roadmap.editors,
+        viewers: goal.roadmap.viewers,
+        editGroups: goal.roadmap.editGroups,
+        viewGroups: goal.roadmap.viewGroups,
+        isPublic: goal.roadmap.isPublic,
+      }
+      const accessLevel = accessChecker(accessFields, session.user)
+      if (accessLevel === AccessLevel.None || accessLevel === AccessLevel.View) {
+        throw new Error(ClientError.IllegalParent, { cause: 'action' });
+      }
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message == ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
@@ -98,7 +117,7 @@ export async function POST(request: NextRequest) {
       );
     } else {
       // If non-error is thrown, log it and return a generic error message
-      console.log(e);
+      console.log(error);
       return Response.json({ message: "Unknown internal server error" },
         { status: 500 }
       );
@@ -133,14 +152,24 @@ export async function POST(request: NextRequest) {
         isSufficiency: action.isSufficiency,
         isEfficiency: action.isEfficiency,
         isRenewables: action.isRenewables,
-        dataSeries: impactData ? {
+        effects: (impactData && action.goalId) ? {
           create: {
-            ...impactData,
-            unit: '',
-            authorId: session.user.id,
+            impactType: action.impactType,
+            dataSeries: {
+              create: {
+                ...impactData,
+                unit: '',
+                authorId: session.user.id,
+              }
+            },
+            goal: {
+              connect: { id: action.goalId }
+            }
           }
         } : undefined,
-        impactType: action.impactType,
+        roadmap: {
+          connect: { id: action.roadmapId }
+        },
         links: {
           create: action.links?.map(link => {
             return {
@@ -150,9 +179,6 @@ export async function POST(request: NextRequest) {
           })
         },
         // TODO: Add `Note`s
-        goal: {
-          connect: { id: action.goalId }
-        },
         author: {
           connect: {
             id: session.user.id
@@ -161,23 +187,13 @@ export async function POST(request: NextRequest) {
       },
       select: {
         id: true,
-        goal: {
-          select: {
-            id: true,
-            roadmap: {
-              select: {
-                id: true,
-              }
-            }
-          }
-        }
       }
     });
     // Invalidate old cache
     revalidateTag('action');
     // Return the new action's ID if successful
     return Response.json({ message: 'Action created', id: newAction.id },
-      { status: 201, headers: { 'Location': `/roadmap/${newAction.goal.roadmap.id}/goal/${newAction.goal.id}/action/${newAction.id}` } }
+      { status: 201, headers: { 'Location': `/action/${newAction.id}` } }
     );
   } catch (error) {
     console.log(error);
@@ -230,18 +246,14 @@ export async function PUT(request: NextRequest) {
         where: { id: action.actionId },
         select: {
           updatedAt: true,
-          goal: {
+          roadmap: {
             select: {
-              roadmap: {
-                select: {
-                  author: { select: { id: true, username: true } },
-                  editors: { select: { id: true, username: true } },
-                  viewers: { select: { id: true, username: true } },
-                  editGroups: { include: { users: { select: { id: true, username: true } } } },
-                  viewGroups: { include: { users: { select: { id: true, username: true } } } },
-                  isPublic: true,
-                }
-              }
+              author: { select: { id: true, username: true } },
+              editors: { select: { id: true, username: true } },
+              viewers: { select: { id: true, username: true } },
+              editGroups: { include: { users: { select: { id: true, username: true } } } },
+              viewGroups: { include: { users: { select: { id: true, username: true } } } },
+              isPublic: true,
             }
           },
         }
@@ -257,12 +269,12 @@ export async function PUT(request: NextRequest) {
       throw new Error(ClientError.AccessDenied, { cause: 'action' });
     }
     const accessFields: AccessControlled = {
-      author: currentAction.goal.roadmap.author,
-      editors: currentAction.goal.roadmap.editors,
-      viewers: currentAction.goal.roadmap.viewers,
-      editGroups: currentAction.goal.roadmap.editGroups,
-      viewGroups: currentAction.goal.roadmap.viewGroups,
-      isPublic: currentAction.goal.roadmap.isPublic,
+      author: currentAction.roadmap.author,
+      editors: currentAction.roadmap.editors,
+      viewers: currentAction.roadmap.viewers,
+      editGroups: currentAction.roadmap.editGroups,
+      viewGroups: currentAction.roadmap.viewGroups,
+      isPublic: currentAction.roadmap.isPublic,
     }
     const accessLevel = accessChecker(accessFields, session.user)
     if (accessLevel === AccessLevel.None || accessLevel === AccessLevel.View) {
@@ -273,16 +285,16 @@ export async function PUT(request: NextRequest) {
     if ((currentAction?.updatedAt?.getTime() || 0) > action.timestamp) {
       throw new Error(ClientError.StaleData, { cause: 'action' });
     }
-  } catch (e) {
-    if (e instanceof Error) {
-      if (e.message == ClientError.BadSession) {
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message == ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
-        await session.destroy();
+        session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } }
         );
       }
-      if (e.message == ClientError.StaleData) {
+      if (error.message == ClientError.StaleData) {
         return Response.json({ message: ClientError.StaleData },
           { status: 409 }
         );
@@ -291,24 +303,11 @@ export async function PUT(request: NextRequest) {
         { status: 403 }
       );
     } else {
-      console.log(e);
+      console.log(error);
       return Response.json({ message: "Unknown internal server error" },
         { status: 500 }
       );
     }
-  }
-
-  // Prepare action impact data
-  let impactData: Partial<DataSeriesDataFields> | undefined | null = undefined;
-  if (action.dataSeries?.length) {
-    // Parse the data series
-    impactData = dataSeriesPrep(action.dataSeries);
-  }
-  // If the data series is invalid, return an error
-  if (impactData === null) {
-    return Response.json({ message: 'Bad data series' },
-      { status: 400 }
-    );
   }
 
   // Update the action
@@ -329,21 +328,6 @@ export async function PUT(request: NextRequest) {
         isSufficiency: action.isSufficiency,
         isEfficiency: action.isEfficiency,
         isRenewables: action.isRenewables,
-        ...(impactData ? {
-          dataSeries: {
-            upsert: {
-              create: {
-                ...impactData,
-                unit: '',
-                authorId: session.user.id,
-              },
-              update: impactData
-            },
-          }
-        } : (action.dataSeries === null || action.dataSeries?.length === 0) ? {
-          delete: true
-        } : {}),
-        impactType: action.impactType,
         links: {
           set: [],
           create: action.links?.map(link => {
@@ -356,16 +340,6 @@ export async function PUT(request: NextRequest) {
       },
       select: {
         id: true,
-        goal: {
-          select: {
-            id: true,
-            roadmap: {
-              select: {
-                id: true,
-              }
-            }
-          }
-        }
       }
     });
     // Prune any orphaned links and comments
@@ -374,7 +348,7 @@ export async function PUT(request: NextRequest) {
     revalidateTag('action');
     // Return the new action's ID if successful
     return Response.json({ message: 'Action updated', id: updatedAction.id },
-      { status: 200, headers: { 'Location': `/roadmap/${updatedAction.goal.roadmap.id}/goal/${updatedAction.goal.id}/action/${updatedAction.id}` } }
+      { status: 200, headers: { 'Location': `/action/${updatedAction.id}` } }
     );
   } catch (error) {
     console.log(error);
@@ -420,9 +394,8 @@ export async function DELETE(request: NextRequest) {
           ...(session.user.isAdmin ? {} : {
             OR: [
               { authorId: session.user.id },
-              { goal: { authorId: session.user.id } },
-              { goal: { roadmap: { authorId: session.user.id } } },
-              { goal: { roadmap: { metaRoadmap: { authorId: session.user.id } } } },
+              { roadmap: { authorId: session.user.id } },
+              { roadmap: { metaRoadmap: { authorId: session.user.id } } },
             ]
           })
         },
@@ -438,11 +411,11 @@ export async function DELETE(request: NextRequest) {
     if (!currentAction) {
       throw new Error(ClientError.AccessDenied, { cause: 'action' });
     }
-  } catch (e) {
-    if (e instanceof Error) {
-      if (e.message == ClientError.BadSession) {
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message == ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
-        await session.destroy();
+        session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } }
         );
@@ -451,7 +424,7 @@ export async function DELETE(request: NextRequest) {
         { status: 403 }
       );
     } else {
-      console.log(e);
+      console.log(error);
       return Response.json({ message: "Unknown internal server error" },
         { status: 500 }
       );
@@ -466,14 +439,9 @@ export async function DELETE(request: NextRequest) {
       },
       select: {
         id: true,
-        goal: {
+        roadmap: {
           select: {
             id: true,
-            roadmap: {
-              select: {
-                id: true,
-              }
-            }
           }
         }
       }
@@ -484,10 +452,10 @@ export async function DELETE(request: NextRequest) {
     revalidateTag('action');
     return Response.json({ message: 'Action deleted', id: deletedAction.id },
       // Redirect to the parent goal
-      { status: 200, headers: { 'Location': `/roadmap/${deletedAction.goal.roadmap.id}/goal/${deletedAction.goal.id}` } }
+      { status: 200, headers: { 'Location': `/roadmap/${deletedAction.roadmap.id}` } }
     );
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    console.log(error);
     return Response.json({ message: "Internal server error" },
       { status: 500 }
     );

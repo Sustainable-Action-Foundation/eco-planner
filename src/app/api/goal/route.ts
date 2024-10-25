@@ -196,13 +196,16 @@ export async function POST(request: NextRequest) {
             }
           })
         },
+      },
+      select: {
+        id: true,
       }
     });
     // Invalidate old cache
     revalidateTag('goal');
     // Return the new goal's ID if successful
     return Response.json({ message: "Goal created", id: newGoal.id },
-      { status: 201, headers: { 'Location': `/roadmap/${goal.roadmapId}/goal/${newGoal.id}` } }
+      { status: 201, headers: { 'Location': `/goal/${newGoal.id}` } }
     );
   } catch (error) {
     console.log(error);
@@ -436,9 +439,6 @@ export async function PUT(request: NextRequest) {
       },
       select: {
         id: true,
-        roadmap: {
-          select: { id: true }
-        }
       }
     });
     // Prune any orphaned links and comments
@@ -447,7 +447,7 @@ export async function PUT(request: NextRequest) {
     revalidateTag('goal');
     // Return the edited goal's ID if successful
     return Response.json({ message: "Goal updated", id: editedGoal.id },
-      { status: 200, headers: { 'Location': `/roadmap/${editedGoal.roadmap.id}/goal/${editedGoal.id}` } }
+      { status: 200, headers: { 'Location': `/goal/${editedGoal.id}` } }
     );
   } catch (error) {
     console.log(error);
