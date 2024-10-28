@@ -1,5 +1,5 @@
 import '@/styles/global.css'
-import Sidebar  from '@/components/generic/header/sidebar'
+import Sidebar from '@/components/generic/header/sidebar'
 import Breadcrumbs from '@/components/breadcrumbs/breadcrumbs';
 import getNames from '@/fetchers/getNames';
 import { GenericEntry } from '@/types';
@@ -15,7 +15,7 @@ export default async function RootLayout({
   const metaRoadmaps = await getNames()
   const roadmaps = metaRoadmaps.flatMap(metaRoadmap => metaRoadmap.roadmapVersions)
   const goals = roadmaps.flatMap(roadmap => roadmap.goals)
-  const actions = goals.flatMap(goal => goal.actions)
+  const actions = roadmaps.flatMap(roadmap => roadmap.actions)
 
   // Filter out nulls
   const objects = [...metaRoadmaps, ...roadmaps, ...goals, ...actions].filter(object => object != null) as GenericEntry[]

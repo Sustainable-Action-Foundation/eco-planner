@@ -30,7 +30,7 @@ export function TableMenu(
       })
       // Goal
       | (Goal & {
-        _count: { actions: number }
+        _count: { effects: number }
         dataSeries: DataSeries | null,
         roadmap: { id: string, metaRoadmap: { name: string, id: string } },
         roadmapVersions?: never,

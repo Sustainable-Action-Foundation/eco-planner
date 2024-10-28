@@ -35,7 +35,7 @@ export default function Goals({
   title: string,
   roadmap: Roadmap & {
     goals: (Goal & {
-      _count: { actions: number }
+      _count: { effects: number }
       dataSeries: DataSeries | null,
       author: { id: string, username: string },
     })[],

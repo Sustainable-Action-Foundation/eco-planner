@@ -9,7 +9,7 @@ import { getSessionStorage, setSessionStorage } from '@/functions/localStorage';
 
 interface LinkTreeWithGoals /* extends LinkTreeCommonProps */ {
   goals: (Goal & {
-    _count: { actions: number }
+    _count: { effects: number }
     dataSeries: DataSeries | null,
     roadmap: { id: string, metaRoadmap: { name: string, id: string } },
   })[],
@@ -22,7 +22,7 @@ interface LinkTreeWithRoadmap /* extends LinkTreeCommonProps */ {
     id: string,
     metaRoadmap: { name: string, id: string },
     goals: (Goal & {
-      _count: { actions: number },
+      _count: { effects: number },
       dataSeries: DataSeries | null,
     })[]
   },

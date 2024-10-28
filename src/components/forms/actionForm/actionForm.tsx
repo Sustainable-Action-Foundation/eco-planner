@@ -3,21 +3,26 @@
 import { dataSeriesPattern } from "@/components/forms/goalForm/goalForm"
 import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput"
 import formSubmitter from "@/functions/formSubmitter"
-import { ActionInput, dataSeriesDataFieldNames } from "@/types"
-import { Action, ActionImpactType, DataSeries } from "@prisma/client"
-import { useState } from "react"
+import { ActionInput } from "@/types"
+import { Action, ActionImpactType, DataSeries, Effect } from "@prisma/client"
 
 export default function ActionForm({
+  roadmapId,
   goalId,
   currentAction
 }: {
-  goalId: string,
+  roadmapId: string,
+  goalId?: string,
   currentAction?: Action & {
-    dataSeries?: DataSeries | null,
+    effects: (Effect & {
+      dataSeries?: DataSeries | null,
+    })[],
     links: { url: string, description: string | null }[],
   },
 }) {
-  const [actionImpactType, setActionImpactType] = useState<ActionImpactType>(currentAction?.impactType || ActionImpactType.ABSOLUTE)
+  // TODO: Solve how to add actions and effects (separately or together?)
+  // For now, don't allow editing effects in the action form, only allowing the creation of an effect when initially creating an action, if a goal is selected
+  // const [actionImpactType, setActionImpactType] = useState<ActionImpactType>(currentAction?.impactType || ActionImpactType.ABSOLUTE)
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -44,6 +49,7 @@ export default function ActionForm({
       isSufficiency: (form.namedItem("isSufficiency") as HTMLInputElement)?.checked,
       isEfficiency: (form.namedItem("isEfficiency") as HTMLInputElement)?.checked,
       isRenewables: (form.namedItem("isRenewables") as HTMLInputElement)?.checked,
+      roadmapId: roadmapId,
       goalId: goalId,
       actionId: currentAction?.id || undefined,
       links,
@@ -56,13 +62,13 @@ export default function ActionForm({
   }
 
   // If there is a data series, convert it to an array of numbers to use as a default value in the form
-  const dataArray: (number | null)[] = []
-  if (currentAction?.dataSeries) {
-    for (const i of dataSeriesDataFieldNames) {
-      dataArray.push(currentAction.dataSeries[i])
-    }
-  }
-  const dataSeriesString = dataArray.join(';')
+  // const dataArray: (number | null)[] = []
+  // if (currentAction?.dataSeries) {
+  //   for (const i of dataSeriesDataFieldNames) {
+  //     dataArray.push(currentAction.dataSeries[i])
+  //   }
+  // }
+  // const dataSeriesString = dataArray.join(';')
 
   const timestamp = Date.now();
 
@@ -92,38 +98,43 @@ export default function ActionForm({
           <textarea className="margin-block-25" name="expectedOutcome" id="expectedOutcome" defaultValue={currentAction?.expectedOutcome ?? undefined} />
         </label>
 
-        <label className="block margin-block-75">
-          Vilken typ av påverkan har åtgärden?
-          <select name="impactType" id="impactType" defaultValue={actionImpactType} onChange={e => setActionImpactType(e.target.value as ActionImpactType)}>
-            <option value={ActionImpactType.ABSOLUTE}>Absolut skillnad gentemot baslinje</option>
-            <option value={ActionImpactType.DELTA}>Förändring år för år (delta)</option>
-            <option value={ActionImpactType.PERCENT}>Skillnad gentemot baslinjen i procent av föregående års totalvärde (baslinje + åtgärder)</option>
-          </select>
-        </label>
+        {(goalId && !currentAction) ?
+          <>
+            <label className="block margin-block-75">
+              Vilken typ av påverkan har åtgärden?
+              <select name="impactType" id="impactType" /* defaultValue={actionImpactType} onChange={e => setActionImpactType(e.target.value as ActionImpactType)} */ >
+                <option value={ActionImpactType.ABSOLUTE}>Absolut skillnad gentemot baslinje</option>
+                <option value={ActionImpactType.DELTA}>Förändring år för år (delta)</option>
+                <option value={ActionImpactType.PERCENT}>Skillnad gentemot baslinjen i procent av föregående års totalvärde (baslinje + åtgärder)</option>
+              </select>
+            </label>
 
-        <details className="margin-block-75">
-          <summary>
-            Extra information om dataserie
-          </summary>
-          <p>
-            Fältet &quot;Dataserie&quot; tar emot en serie värden separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie värden från Excel eller liknande.<br />
-            <strong>OBS: Värden får inte vara separerade med komma (&quot;,&quot;).</strong><br />
-            Decimaltal kan använda antingen decimalpunkt eller decimalkomma.<br />
-            Det första värdet representerar år 2020 och serien kan fortsätta maximalt till år 2050 (totalt 31 värden).<br />
-            Om värden saknas för ett år kan du lämna det tomt, exempelvis kan &quot;;1;;;;5&quot; användas för att ange värdena 1 och 5 för år 2021 och 2025.
-          </p>
-        </details>
+            <details className="margin-block-75">
+              <summary>
+                Extra information om dataserie
+              </summary>
+              <p>
+                Fältet &quot;Dataserie&quot; tar emot en serie värden separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie värden från Excel eller liknande.<br />
+                <strong>OBS: Värden får inte vara separerade med komma (&quot;,&quot;).</strong><br />
+                Decimaltal kan använda antingen decimalpunkt eller decimalkomma.<br />
+                Det första värdet representerar år 2020 och serien kan fortsätta maximalt till år 2050 (totalt 31 värden).<br />
+                Om värden saknas för ett år kan du lämna det tomt, exempelvis kan &quot;;1;;;;5&quot; användas för att ange värdena 1 och 5 för år 2021 och 2025.
+              </p>
+            </details>
 
-        <label className="block margin-block-75">
-          Dataserie:
-          {/* TODO: Make this allow .csv files and possibly excel files */}
-          <input type="text" name="dataSeries" required id="dataSeries"
-            pattern={dataSeriesPattern}
-            title="Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma."
-            className="margin-block-25"
-            defaultValue={dataSeriesString}
-          />
-        </label>
+            <label className="block margin-block-75">
+              Dataserie:
+              {/* TODO: Make this allow .csv files and possibly excel files */}
+              <input type="text" name="dataSeries" required id="dataSeries"
+                pattern={dataSeriesPattern}
+                title="Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma."
+                className="margin-block-25"
+              // defaultValue={dataSeriesString}
+              />
+            </label>
+          </>
+          : null
+        }
 
         <label className="block margin-block-75">
           Planerat startår:

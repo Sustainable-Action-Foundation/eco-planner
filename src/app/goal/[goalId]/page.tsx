@@ -27,11 +27,10 @@ import SecondaryGoalSelector from "@/components/graphs/secondaryGraphSelector";
 import UpdateGoalButton from "@/components/buttons/updateGoalButton";
 import getRoadmaps from "@/fetchers/getRoadmaps";
 
-export default async function Page({ params, searchParams }: { params: { roadmapId: string, goalId: string }, searchParams: { [key: string]: string | string[] | undefined } }) {
-  const [session, roadmap, goal, secondaryGoal, unfilteredRoadmapOptions] = await Promise.all([
+export default async function Page({ params, searchParams }: { params: { goalId: string }, searchParams: { [key: string]: string | string[] | undefined } }) {
+  const [session, { goal, roadmap }, secondaryGoal, unfilteredRoadmapOptions] = await Promise.all([
     getSession(cookies()),
-    getOneRoadmap(params.roadmapId),
-    getOneGoal(params.goalId),
+    getOneGoal(params.goalId).then(async goal => { return { goal, roadmap: (goal ? await getOneRoadmap(goal.roadmapId) : null) } }),
     typeof searchParams["secondaryGoal"] == "string" ? getOneGoal(searchParams["secondaryGoal"]) : Promise.resolve(null),
     getRoadmaps(),
   ]);

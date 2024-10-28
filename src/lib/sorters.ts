@@ -98,10 +98,10 @@ export function goalSorterReverse(a: Goal, b: Goal) {
 /**
  * Sorts goals by their number of actions (most actions first).
  */
-export function goalSorterActionAmount(a: Goal & { _count: { actions: number } }, b: Goal & { _count: { actions: number } }) {
-  if (a._count.actions > b._count.actions) {
+export function goalSorterActionAmount(a: Goal & { _count: { effects: number } }, b: Goal & { _count: { effects: number } }) {
+  if (a._count.effects > b._count.effects) {
     return -1;
-  } else if (a._count.actions < b._count.actions) {
+  } else if (a._count.effects < b._count.effects) {
     return 1;
   } else {
     return 0
@@ -111,10 +111,10 @@ export function goalSorterActionAmount(a: Goal & { _count: { actions: number } }
 /**
  * Sorts goals by their number of actions (fewest actions first).
  */
-export function goalSorterActionAmountReverse(a: Goal & { _count: { actions: number } }, b: Goal & { _count: { actions: number } }) {
-  if (a._count.actions < b._count.actions) {
+export function goalSorterActionAmountReverse(a: Goal & { _count: { effects: number } }, b: Goal & { _count: { effects: number } }) {
+  if (a._count.effects < b._count.effects) {
     return -1;
-  } else if (a._count.actions > b._count.actions) {
+  } else if (a._count.effects > b._count.effects) {
     return 1;
   } else {
     return 0

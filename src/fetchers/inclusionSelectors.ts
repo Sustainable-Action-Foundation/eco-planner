@@ -77,7 +77,7 @@ export const goalInclusionSelection /* Prisma.GoalInclude */ = {
     }
   },
   roadmap: {
-    select: {
+    include: {
       id: true,
       version: true,
       targetVersion: true,
