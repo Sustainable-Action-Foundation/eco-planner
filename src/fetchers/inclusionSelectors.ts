@@ -30,7 +30,7 @@ export const nameSelector /* Prisma.MetaRoadmapSelect */ = {
   },
 };
 
-export const roadmapInclusionSelection /* Prisma.RoadmapInclude*/ = {
+export const roadmapInclusionSelection /* Prisma.RoadmapInclude */ = {
   metaRoadmap: true,
   goals: {
     include: {
@@ -127,6 +127,12 @@ export const actionInclusionSelection /* Prisma.ActionInclude */ = {
       editGroups: { include: { users: { select: { id: true, username: true } } } },
       viewGroups: { include: { users: { select: { id: true, username: true } } } },
       isPublic: true,
+      metaRoadmap: {
+        select: {
+          id: true,
+          name: true,
+        }
+      }
     }
   },
   notes: true,

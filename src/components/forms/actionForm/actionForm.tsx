@@ -11,7 +11,7 @@ export default function ActionForm({
   goalId,
   currentAction
 }: {
-  roadmapId: string,
+  roadmapId?: string,
   goalId?: string,
   currentAction?: Action & {
     effects: (Effect & {
@@ -49,7 +49,7 @@ export default function ActionForm({
       isSufficiency: (form.namedItem("isSufficiency") as HTMLInputElement)?.checked,
       isEfficiency: (form.namedItem("isEfficiency") as HTMLInputElement)?.checked,
       isRenewables: (form.namedItem("isRenewables") as HTMLInputElement)?.checked,
-      roadmapId: roadmapId,
+      roadmapId: (form.namedItem("relevantActors") as HTMLInputElement)?.value || roadmapId!,
       goalId: goalId,
       actionId: currentAction?.id || undefined,
       links,
@@ -77,6 +77,15 @@ export default function ActionForm({
       <form onSubmit={handleSubmit}>
         {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
         <button type="submit" disabled={true} style={{ display: 'none' }} aria-hidden={true} />
+
+        {!roadmapId ?
+          <label className="block margin-block-75">
+            Välj målbana att skapa åtgärden under:
+            {/* TODO: Byt till en select */}
+            <input className="margin-block-25" type="text" name="roadmapId" id="roadmapId" required />
+          </label>
+          : null
+        }
 
         <label className="block margin-block-75">
           Namn på åtgärden:

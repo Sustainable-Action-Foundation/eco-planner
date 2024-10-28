@@ -6,10 +6,18 @@ import accessChecker from "@/lib/accessChecker";
 import getOneGoal from "@/fetchers/getOneGoal";
 import { AccessControlled, AccessLevel } from "@/types";
 
-export default async function Page({ params }: { params: { roadmapId: string, goalId: string } }) {
+export default async function Page({
+  searchParams
+}: {
+  searchParams: {
+    roadmapId?: string | string[] | undefined,
+    goalId?: string | string[] | undefined,
+    [key: string]: string | string[] | undefined
+  }
+}) {
   const [session, goal] = await Promise.all([
     getSession(cookies()),
-    getOneGoal(params.goalId)
+    getOneGoal(typeof searchParams.goalId == 'string' ? searchParams.goalId : '')
   ]);
 
   let goalAccessData: AccessControlled | null = null;
@@ -23,16 +31,30 @@ export default async function Page({ params }: { params: { roadmapId: string, go
       isPublic: goal.roadmap.isPublic
     }
   }
-  // User must be signed in and have edit access to the goal, and the goal must exist
-  if (!goal || !session.user || !accessChecker(goalAccessData, session.user) || accessChecker(goalAccessData, session.user) === AccessLevel.View) {
+  // User must be signed in, and have edit access to the goal if it exists
+  if (
+    !session.user ||
+    (!goal && typeof searchParams.goalId == 'string') ||
+    (goal && (
+      !accessChecker(goalAccessData, session.user) ||
+      accessChecker(goalAccessData, session.user) === AccessLevel.View
+    ))
+  ) {
     return notFound();
   }
 
   return (
     <>
       <div className="container-text" style={{ marginInline: 'auto' }}>
-        <h1>Skapa ny åtgärd under målbana: {`${goal?.name || goal.indicatorParameter}`}</h1>
-        <ActionForm goalId={params.goalId} />
+        {goal ?
+          <h1>Skapa ny åtgärd under målbana: {`${goal?.name || goal?.indicatorParameter}`}</h1>
+          :
+          <h1>Skapa ny åtgärd</h1>
+        }
+        <ActionForm
+          goalId={typeof searchParams.goalId == 'string' ? searchParams.goalId : undefined}
+          roadmapId={typeof searchParams.roadmapId == 'string' ? searchParams.roadmapId : undefined}
+        />
       </div>
     </>
   )
