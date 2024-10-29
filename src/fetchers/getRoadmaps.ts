@@ -3,9 +3,10 @@
 import { getSession, LoginData } from "@/lib/session"
 import prisma from "@/prismaClient";
 import { roadmapSorter } from "@/lib/sorters";
-import { MetaRoadmap, Roadmap } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
+import { multiRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 
 /**
  * Gets all roadmaps the user has access to, as well as the count of goals for each roadmap.
@@ -52,33 +53,15 @@ export async function clientSafeGetRoadmaps() {
  */
 const getCachedRoadmaps = unstable_cache(
   async (user: LoginData['user']) => {
-    let roadmaps: (
-      Roadmap & {
-        _count: { goals: number },
-        metaRoadmap: MetaRoadmap,
-        author: { id: string, username: string },
-        editors: { id: string, username: string }[],
-        viewers: { id: string, username: string }[],
-        editGroups: { id: string, name: string, users: { id: string, username: string }[] }[],
-        viewGroups: { id: string, name: string, users: { id: string, username: string }[] }[],
-      }
-    )[] = [];
+    let roadmaps: Prisma.RoadmapGetPayload<{
+      include: typeof multiRoadmapInclusionSelection;
+    }>[] = [];
 
     // If user is admin, get all roadmaps
     if (user?.isAdmin) {
       try {
         roadmaps = await prisma.roadmap.findMany({
-          include: {
-            _count: {
-              select: { goals: true }
-            },
-            metaRoadmap: true,
-            author: { select: { id: true, username: true } },
-            editors: { select: { id: true, username: true } },
-            viewers: { select: { id: true, username: true } },
-            editGroups: { include: { users: { select: { id: true, username: true } } } },
-            viewGroups: { include: { users: { select: { id: true, username: true } } } },
-          }
+          include: multiRoadmapInclusionSelection
         });
       } catch (error) {
         console.log(error);
@@ -107,17 +90,7 @@ const getCachedRoadmaps = unstable_cache(
               { isPublic: true }
             ]
           },
-          include: {
-            _count: {
-              select: { goals: true }
-            },
-            metaRoadmap: true,
-            author: { select: { id: true, username: true } },
-            editors: { select: { id: true, username: true } },
-            viewers: { select: { id: true, username: true } },
-            editGroups: { include: { users: { select: { id: true, username: true } } } },
-            viewGroups: { include: { users: { select: { id: true, username: true } } } },
-          }
+          include: multiRoadmapInclusionSelection
         });
       } catch (error) {
         console.log(error);
@@ -137,17 +110,7 @@ const getCachedRoadmaps = unstable_cache(
         where: {
           isPublic: true
         },
-        include: {
-          _count: {
-            select: { goals: true }
-          },
-          metaRoadmap: true,
-          author: { select: { id: true, username: true } },
-          editors: { select: { id: true, username: true } },
-          viewers: { select: { id: true, username: true } },
-          editGroups: { include: { users: { select: { id: true, username: true } } } },
-          viewGroups: { include: { users: { select: { id: true, username: true } } } },
-        }
+        include: multiRoadmapInclusionSelection
       });
     } catch (error) {
       console.log(error);

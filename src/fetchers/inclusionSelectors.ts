@@ -51,6 +51,21 @@ export const roadmapInclusionSelection /* Prisma.RoadmapInclude */ = {
   viewGroups: { include: { users: { select: { id: true, username: true } } } },
 };
 
+export const multiRoadmapInclusionSelection /* Prisma.RoadmapInclude */ = {
+  _count: {
+    select: {
+      goals: true,
+      actions: true,
+    }
+  },
+  metaRoadmap: true,
+  author: { select: { id: true, username: true } },
+  editors: { select: { id: true, username: true } },
+  viewers: { select: { id: true, username: true } },
+  editGroups: { include: { users: { select: { id: true, username: true } } } },
+  viewGroups: { include: { users: { select: { id: true, username: true } } } },
+}
+
 export const goalInclusionSelection /* Prisma.GoalInclude */ = {
   _count: { select: { effects: true } },
   dataSeries: true,
@@ -114,6 +129,7 @@ export const actionInclusionSelection /* Prisma.ActionInclude */ = {
           id: true,
           name: true,
           indicatorParameter: true,
+          roadmap: { select: { id: true } }
         }
       },
     }
