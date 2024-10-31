@@ -428,7 +428,7 @@ export async function PUT(request: NextRequest) {
         } : {}),
         combinationScale: goal.combinationScale,
         links: {
-          set: [],
+          deleteMany: {},
           create: goal.links?.map(link => {
             return {
               url: link.url,

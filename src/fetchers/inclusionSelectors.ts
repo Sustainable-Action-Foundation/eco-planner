@@ -93,9 +93,6 @@ export const goalInclusionSelection /* Prisma.GoalInclude */ = {
   },
   roadmap: {
     include: {
-      id: true,
-      version: true,
-      targetVersion: true,
       metaRoadmap: {
         select: {
           id: true,
@@ -108,7 +105,6 @@ export const goalInclusionSelection /* Prisma.GoalInclude */ = {
       viewers: { select: { id: true, username: true } },
       editGroups: { select: { id: true, name: true, users: { select: { id: true, username: true } } } },
       viewGroups: { select: { id: true, name: true, users: { select: { id: true, username: true } } } },
-      isPublic: true,
     },
   },
   links: true,
