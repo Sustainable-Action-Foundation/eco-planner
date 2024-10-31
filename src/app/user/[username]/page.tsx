@@ -1,7 +1,7 @@
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 
-export default async function Page(/*{ params }: { params: { roadmapId: string } }*/) {
+export default async function Page() {
   const session = await getSession(cookies())
 
   return <>

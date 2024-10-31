@@ -8,10 +8,8 @@ import { AccessControlled, AccessLevel } from "@/types";
 
 export default async function Page({
   params,
-  searchParams
 }: {
   params: { actionId: string },
-  searchParams: { roadmapId?: string | string[] | undefined, [key: string]: string | string[] | undefined }
 }) {
   const [session, action] = await Promise.all([
     getSession(cookies()),
@@ -39,7 +37,7 @@ export default async function Page({
     <>
       <div className="container-text">
         <h1>Redigera åtgärd: {`${action.name} under färdplan: ${action.roadmap.metaRoadmap.name || "ERROR"}`}</h1>
-        <ActionForm roadmapId={typeof searchParams.roadmapId == 'string' ? searchParams.roadmapId : undefined} currentAction={action} />
+        <ActionForm roadmapId={action.roadmapId} currentAction={action} />
       </div>
     </>
   )

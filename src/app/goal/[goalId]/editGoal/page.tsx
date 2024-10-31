@@ -7,7 +7,7 @@ import getOneGoal from "@/fetchers/getOneGoal";
 import { AccessControlled, AccessLevel } from "@/types";
 
 
-export default async function Page({ params }: { params: { roadmapId: string, goalId: string } }) {
+export default async function Page({ params }: { params: { goalId: string } }) {
   const [session, currentGoal] = await Promise.all([
     getSession(cookies()),
     getOneGoal(params.goalId),
@@ -33,7 +33,7 @@ export default async function Page({ params }: { params: { roadmapId: string, go
     <>
       <div className="container-text" style={{ marginInline: 'auto' }}>
         <h1>Redigera målbana: {currentGoal.name ? currentGoal.name : currentGoal.indicatorParameter}</h1>
-        <GoalForm roadmapId={params.roadmapId} currentGoal={currentGoal} />
+        <GoalForm roadmapId={currentGoal.roadmapId} currentGoal={currentGoal} />
       </div>
     </>
   )

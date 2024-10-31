@@ -1,10 +1,11 @@
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import ActionForm from "@/components/forms/actionForm/actionForm";
-import { notFound } from "next/navigation";
+import Image from "next/image";
 import accessChecker from "@/lib/accessChecker";
 import getOneGoal from "@/fetchers/getOneGoal";
 import { AccessControlled, AccessLevel } from "@/types";
+import getOneRoadmap from "@/fetchers/getOneRoadmap";
 
 export default async function Page({
   searchParams
@@ -15,9 +16,10 @@ export default async function Page({
     [key: string]: string | string[] | undefined
   }
 }) {
-  const [session, goal] = await Promise.all([
+  const [session, goal, roadmap] = await Promise.all([
     getSession(cookies()),
-    getOneGoal(typeof searchParams.goalId == 'string' ? searchParams.goalId : '')
+    getOneGoal(typeof searchParams.goalId == 'string' ? searchParams.goalId : ''),
+    getOneRoadmap(typeof searchParams.roadmapId == 'string' ? searchParams.roadmapId : ''),
   ]);
 
   let goalAccessData: AccessControlled | null = null;
@@ -31,17 +33,16 @@ export default async function Page({
       isPublic: goal.roadmap.isPublic
     }
   }
-  // User must be signed in, and have edit access to the goal if it exists
-  if (
-    !session.user ||
+
+  // Ignore the goal or roadmap (and inform user) if they are not found or the user does not have edit access
+  const badGoal = (
     (!goal && typeof searchParams.goalId == 'string') ||
-    (goal && (
-      !accessChecker(goalAccessData, session.user) ||
-      accessChecker(goalAccessData, session.user) === AccessLevel.View
-    ))
-  ) {
-    return notFound();
-  }
+    (goal && !([AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin].includes(accessChecker(goalAccessData, session.user))))
+  );
+  const badRoadmap = (
+    (!roadmap && typeof searchParams.roadmapId == 'string') ||
+    (roadmap && !([AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin].includes(accessChecker(roadmap, session.user))))
+  );
 
   return (
     <>
@@ -51,9 +52,23 @@ export default async function Page({
           :
           <h1>Skapa ny åtgärd</h1>
         }
+        {badGoal &&
+          <p>
+            <Image src="/icons/info.svg" width={24} height={24} alt='' />
+            Kunde inte hitta eller har inte tillgång till målbanan i länken.
+            {/* Använd dropdown-menyn för att välja en målbana om du vill lägga till en effekt gentemot en målbana. */}
+          </p>
+        }
+        {badRoadmap &&
+          <p>
+            <Image src="/icons/info.svg" width={24} height={24} alt='' />
+            Kunde inte hitta eller har inte tillgång till färdplanen i länken.
+            {/* Använd dropdown-menyn för att välja en färdplan. */}
+          </p>
+        }
         <ActionForm
-          goalId={typeof searchParams.goalId == 'string' ? searchParams.goalId : undefined}
-          roadmapId={typeof searchParams.roadmapId == 'string' ? searchParams.roadmapId : undefined}
+          goalId={badGoal ? undefined : searchParams.goalId as string | undefined}
+          roadmapId={badRoadmap ? undefined : searchParams.roadmapId as string | undefined}
         />
       </div>
     </>
