@@ -208,7 +208,7 @@ export default function MainDeltaGraph({
     for (let i = 1; i < dataSeriesDataFieldNames.length; i++) {
       const currentField = dataSeriesDataFieldNames[i];
       const previousField = dataSeriesDataFieldNames[i - 1];
-      if (secondaryGoal.dataSeries[currentField] && secondaryGoal.dataSeries[previousField]) {
+      if (secondaryGoal.dataSeries[currentField] != null && secondaryGoal.dataSeries[previousField] != null) {
         nationalSeries.push({
           x: new Date(currentField.replace('val', '')).getTime(),
           y: secondaryGoal.dataSeries[currentField]! - secondaryGoal.dataSeries[previousField]!
@@ -236,7 +236,7 @@ export default function MainDeltaGraph({
     for (let i = 1; i < dataSeriesDataFieldNames.length; i++) {
       const currentField = dataSeriesDataFieldNames[i];
       const previousField = dataSeriesDataFieldNames[i - 1];
-      if (nationalGoal.dataSeries[currentField] && nationalGoal.dataSeries[previousField]) {
+      if (nationalGoal.dataSeries[currentField] != null && nationalGoal.dataSeries[previousField] != null) {
         nationalSeries.push({
           x: new Date(currentField.replace('val', '')).getTime(),
           y: nationalGoal.dataSeries[currentField]! - nationalGoal.dataSeries[previousField]!
