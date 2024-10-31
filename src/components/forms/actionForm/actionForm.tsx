@@ -33,7 +33,7 @@ export default function ActionForm({
 
     // Convert the data series to an array of numbers, the actual parsing is done by the API
     const dataSeriesInput = (form.namedItem("dataSeries") as HTMLInputElement | null)?.value;
-    const dataSeries = dataSeriesInput ? dataSeriesInput?.replaceAll(',', '.').split(/[\t;]/) : null;
+    const dataSeries = dataSeriesInput ? dataSeriesInput?.replaceAll(',', '.').split(/[\t;]/) : undefined;
 
     const formContent: ActionInput & { actionId: string | undefined, timestamp: number } = {
       name: (form.namedItem("actionName") as HTMLInputElement)?.value,
@@ -49,7 +49,7 @@ export default function ActionForm({
       isSufficiency: (form.namedItem("isSufficiency") as HTMLInputElement)?.checked,
       isEfficiency: (form.namedItem("isEfficiency") as HTMLInputElement)?.checked,
       isRenewables: (form.namedItem("isRenewables") as HTMLInputElement)?.checked,
-      roadmapId: (form.namedItem("relevantActors") as HTMLInputElement)?.value || roadmapId!,
+      roadmapId: (form.namedItem("roadmapId") as HTMLInputElement)?.value || roadmapId!,
       goalId: goalId,
       actionId: currentAction?.id || undefined,
       links,
@@ -80,7 +80,7 @@ export default function ActionForm({
 
         {!roadmapId ?
           <label className="block margin-block-75">
-            Välj målbana att skapa åtgärden under:
+            Välj färdplan att skapa åtgärden under:
             {/* TODO: Byt till en select */}
             <input className="margin-block-25" type="text" name="roadmapId" id="roadmapId" required />
           </label>
@@ -107,6 +107,7 @@ export default function ActionForm({
           <textarea className="margin-block-25" name="expectedOutcome" id="expectedOutcome" defaultValue={currentAction?.expectedOutcome ?? undefined} />
         </label>
 
+        {/* TODO: Add input to select a goal to create an initial effect under (in case none is passed in query) */}
         {(goalId && !currentAction) ?
           <>
             <label className="block margin-block-75">

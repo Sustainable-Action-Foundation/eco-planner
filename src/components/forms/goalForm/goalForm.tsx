@@ -187,6 +187,8 @@ export default function GoalForm({
         {/* This hidden submit button prevents submitting by pressing enter, to avoid accidental submission */}
         <button type="submit" disabled={true} style={{ display: 'none' }} aria-hidden={true} />
 
+        {/* TODO: Add input to select roadmap to create the goal under (if not included as query param) */}
+
         <label className="block margin-block-75">
           Vilken typ av dataserie vill du skapa?
           <select name="dataSeriesType" id="dataSeriesType" className="margin-inline-25"
