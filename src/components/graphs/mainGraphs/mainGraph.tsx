@@ -219,7 +219,7 @@ export default function MainGraph({
   if (secondaryGoal?.dataSeries) {
     const secondarySeries = [];
     for (const i of dataSeriesDataFieldNames) {
-      if (secondaryGoal.dataSeries[i]) {
+      if (secondaryGoal.dataSeries[i] != null) {
         secondarySeries.push({
           x: new Date(i.replace('val', '')).getTime(),
           y: secondaryGoal.dataSeries[i]
@@ -244,7 +244,7 @@ export default function MainGraph({
   if (nationalGoal?.dataSeries) {
     const nationalSeries = [];
     for (const i of dataSeriesDataFieldNames) {
-      if (nationalGoal.dataSeries[i]) {
+      if (nationalGoal.dataSeries[i] != null) {
         nationalSeries.push({
           x: new Date(i.replace('val', '')).getTime(),
           y: nationalGoal.dataSeries[i]
