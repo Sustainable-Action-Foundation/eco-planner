@@ -125,10 +125,10 @@ export default function MainGraph({
     if (Object.keys(totalEffect).length > 0) {
       const actionOutcome = [];
       for (const i of dataSeriesDataFieldNames) {
-        if (totalEffect[i] != null && goal.baselineDataSeries[i] != null) {
+        if (goal.baselineDataSeries[i] != null) {
           actionOutcome.push({
             x: new Date(i.replace('val', '')).getTime(),
-            y: totalEffect[i] + goal.baselineDataSeries[i]
+            y: (totalEffect[i] || 0) + goal.baselineDataSeries[i]
           })
         }
       }
@@ -200,10 +200,10 @@ export default function MainGraph({
         // Line based on totalEffect + goal.dataSeries[firstNonNullIndex]
         const actionOutcome = [];
         for (const i of dataSeriesDataFieldNames) {
-          if (totalEffect[i] != null && goal.dataSeries![i] != null) {
+          if (goal.dataSeries[firstNonNull] != null) {
             actionOutcome.push({
               x: new Date(i.replace('val', '')).getTime(),
-              y: totalEffect[i] + goal.dataSeries[firstNonNull]!
+              y: (totalEffect[i] || 0) + goal.dataSeries[firstNonNull]!
             })
           }
         }
