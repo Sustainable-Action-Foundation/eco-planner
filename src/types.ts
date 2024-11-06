@@ -99,6 +99,7 @@ export type AdvancedScalingValue = {
   weight?: number,
 }
 
+/** The return type of JSON.parse */
 export type JSONValue = Partial<{ [key: string]: JSONValue }> | JSONValue[] | string | number | boolean | null;
 
 export function isScalingRecipie(object: unknown): object is ScalingRecipie {
@@ -173,6 +174,16 @@ export type ActionInput = Omit<
   // The type of impact the effect has, if an effect is included
   impactType?: ActionImpactType | undefined;
   links?: { url: string, description?: string }[] | undefined;
+};
+
+export type EffectInput = Omit<
+  Prisma.EffectCreateInput,
+  'action' | 'goal' | 'dataSeries' | 'createdAt' | 'updatedAt'
+> & {
+  actionId: string;
+  goalId: string;
+  // dataSeries may be undefined when editing, to avoid changing it, but it's required when creating
+  dataSeries: string[] | undefined;
 };
 
 /** A type with only the data fields of the data series object. Not dynamic, so might need to be updated if the data series object changes. */
