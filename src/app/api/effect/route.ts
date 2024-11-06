@@ -180,7 +180,7 @@ export async function PUT(request: NextRequest) {
   ]);
 
   // Typeguard and check if the request body is valid
-  function isEffect(effect: JSONValue): effect is EffectInput {
+  function isEffect(effect: JSONValue): effect is EffectInput & { timestamp: number } {
     return (
       // effect should be an object
       typeof effect === 'object' &&
@@ -198,7 +198,9 @@ export async function PUT(request: NextRequest) {
         )
       ) &&
       // impactType may be included, and should in that case be one of the values in ActionImpactType
-      (effect.impactType === undefined || !Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType))
+      (effect.impactType === undefined || !Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType)) &&
+      // timestamp should be a number
+      typeof effect.timestamp === 'number'
     )
   }
 
@@ -224,6 +226,7 @@ export async function PUT(request: NextRequest) {
       prisma.effect.findUnique({
         where: { id: { actionId: effect.actionId, goalId: effect.goalId } },
         select: {
+          updatedAt: true,
           goal: {
             select: {
               roadmap: {
@@ -274,6 +277,11 @@ export async function PUT(request: NextRequest) {
     if (!allowedAccessLevels.includes(actionAccess) || !allowedAccessLevels.includes(goalAccess)) {
       throw new Error(ClientError.AccessDenied, { cause: 'effect' });
     }
+
+    // Check if the data is stale
+    if (currentEffect.updatedAt.getTime() > effect.timestamp) {
+      throw new Error(ClientError.StaleData, { cause: 'effect' });
+    }
   } catch (error) {
     if (error instanceof Error) {
       switch (error.message) {
@@ -285,6 +293,10 @@ export async function PUT(request: NextRequest) {
         case ClientError.AccessDenied:
           return Response.json({ message: ClientError.AccessDenied },
             { status: 403 }
+          );
+        case ClientError.StaleData:
+          return Response.json({ message: ClientError.StaleData },
+            { status: 409 }
           );
         default:
           return Response.json({ message: 'Unknown error' },
