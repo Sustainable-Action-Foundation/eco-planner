@@ -28,9 +28,7 @@ const getCachedMetaRoadmaps = unstable_cache(
     let metaRoadmaps: Prisma.MetaRoadmapGetPayload<{
       include: {
         roadmapVersions: {
-          select: {
-            version: true,
-            id: true,
+          include: {
             metaRoadmap: true,
             _count: { select: { goals: true } },
             author: { select: { id: true, username: true } },
@@ -38,8 +36,7 @@ const getCachedMetaRoadmaps = unstable_cache(
             viewers: { select: { id: true, username: true } },
             editGroups: { include: { users: { select: { id: true, username: true } } } },
             viewGroups: { include: { users: { select: { id: true, username: true } } } },
-            isPublic: boolean,
-          }
+          },
         },
         comments: true,
         links: true,
@@ -57,9 +54,7 @@ const getCachedMetaRoadmaps = unstable_cache(
         metaRoadmaps = await prisma.metaRoadmap.findMany({
           include: {
             roadmapVersions: {
-              select: {
-                version: true,
-                id: true,
+              include: {
                 metaRoadmap: true,
                 _count: { select: { goals: true } },
                 author: { select: { id: true, username: true } },
@@ -67,8 +62,7 @@ const getCachedMetaRoadmaps = unstable_cache(
                 viewers: { select: { id: true, username: true } },
                 editGroups: { include: { users: { select: { id: true, username: true } } } },
                 viewGroups: { include: { users: { select: { id: true, username: true } } } },
-                isPublic: true,
-              }
+              },
             },
             comments: true,
             links: true,
@@ -117,9 +111,7 @@ const getCachedMetaRoadmaps = unstable_cache(
                   { isPublic: true },
                 ]
               },
-              select: {
-                version: true,
-                id: true,
+              include: {
                 metaRoadmap: true,
                 _count: { select: { goals: true } },
                 author: { select: { id: true, username: true } },
@@ -127,7 +119,6 @@ const getCachedMetaRoadmaps = unstable_cache(
                 viewers: { select: { id: true, username: true } },
                 editGroups: { include: { users: { select: { id: true, username: true } } } },
                 viewGroups: { include: { users: { select: { id: true, username: true } } } },
-                isPublic: true,
               },
             },
             comments: true,
@@ -162,9 +153,7 @@ const getCachedMetaRoadmaps = unstable_cache(
             where: {
               isPublic: true
             },
-            select: {
-              version: true,
-              id: true,
+            include: {
               metaRoadmap: true,
               _count: { select: { goals: true } },
               author: { select: { id: true, username: true } },
@@ -172,7 +161,6 @@ const getCachedMetaRoadmaps = unstable_cache(
               viewers: { select: { id: true, username: true } },
               editGroups: { include: { users: { select: { id: true, username: true } } } },
               viewGroups: { include: { users: { select: { id: true, username: true } } } },
-              isPublic: true,
             },
           },
           comments: true,

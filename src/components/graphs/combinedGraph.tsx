@@ -82,13 +82,6 @@ export default function CombinedGraph({
 
   return (siblings.length > 1 &&
     <div>
-      <nav className="display-flex justify-content-flex-end margin-block-100">
-        <button className="call-to-action-primary display-flex align-items-center gap-50 transparent" style={{ width: 'fit-content', fontWeight: 'bold', fontSize: '1rem' }} type="button" onClick={() => setIsStacked(!isStacked)}>
-          Byt typ av graf
-          <Image src='/icons/chartArea.svg' alt='Byt graf' width={24} height={24} />
-
-        </button>
-      </nav>
       <div className={styles.graphWrapper}>
         <WrappedChart
           key={"combinedGraph"}
@@ -99,6 +92,12 @@ export default function CombinedGraph({
           height="100%"
         />
       </div>
+      <nav className="display-flex justify-content-flex-end margin-block-100">
+        <button className="call-to-action-primary display-flex align-items-center gap-50 transparent" style={{ width: 'fit-content', fontWeight: 'bold', fontSize: '1rem' }} type="button" onClick={() => setIsStacked(!isStacked)}>
+          Byt typ av graf
+          <Image src='/icons/chartArea.svg' alt='Byt graf' width={24} height={24} />
+        </button>
+      </nav>
     </div>
   )
 }

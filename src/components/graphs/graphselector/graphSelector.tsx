@@ -29,11 +29,11 @@ export default function GraphSelector({
   // Set the selectedOption as the context value
   return (
     <>
-      <RadioImage text='Målbana' value={GraphType.Main} src="/icons/line.svg" name="graph" checked={current == GraphType.Main} onChange={handleRadioChange} />
-      <RadioImage text='Årlig förändring' value={GraphType.Delta} src="/icons/calendarStats.svg" name="graph" checked={current == GraphType.Delta} onChange={handleRadioChange} />
+      <RadioImage text='Målbana' value={GraphType.Main} name="graph" checked={current == GraphType.Main} onChange={handleRadioChange} />
+      <RadioImage text='Årlig förändring' value={GraphType.Delta} name="graph" checked={current == GraphType.Delta} onChange={handleRadioChange} />
       { // Don't allow relative graph if the main graph is already percent or fraction
         !percentAndFraction.includes(goal.dataSeries?.unit?.toLowerCase() ?? "") &&
-        <RadioImage text='Procentuell förändring' value={GraphType.Relative} src="/icons/chartChange.svg" name="graph" checked={current == GraphType.Relative} onChange={handleRadioChange} />
+        <RadioImage text='Procentuell förändring' value={GraphType.Relative} name="graph" checked={current == GraphType.Relative} onChange={handleRadioChange} />
       }
     </>
   );

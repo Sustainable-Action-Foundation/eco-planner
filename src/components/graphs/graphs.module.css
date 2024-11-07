@@ -11,6 +11,15 @@
  
 .radioImageWrapper {
     position: relative;
+    transition: background-color .2s ease;
+}
+
+.radioImageWrapper:active {
+    scale: .95;
+}
+
+.radioImageWrapper:hover {
+    background-color: var(--gray-80);
 }
 
 .radioImageWrapper > input[type="radio"] {
