@@ -34,6 +34,9 @@ export default function EffectForm({
       impactType in ActionImpactType
     )) {
       event.target.reportValidity();
+      if (!selectedAction || !selectedGoal) {
+        alert("Missing action or goal ID");
+      }
       return;
     }
 
@@ -67,8 +70,9 @@ export default function EffectForm({
   return (
     <>
       <form onSubmit={handleSubmit}>
-        {/* Select action and goal if they're missing */}
-        {/* Data series input */}
+        <button type="submit" disabled={true} style={{ display: 'none' }} aria-hidden={true} />
+        {/* TODO: Select action and goal if they're missing */}
+
         <label className="block margin-block-75">
           Dataserie:
           {/* TODO: Make this allow .csv files and possibly excel files */}
@@ -79,7 +83,20 @@ export default function EffectForm({
             defaultValue={dataSeriesString}
           />
         </label>
-        {/* Impact type select */}
+
+        {/* TODO: Show preview of how it would affect the goal */}
+        <label className="block margin-block-75">
+          Vilken typ av påverkan har åtgärden?
+          <select name="impactType" id="impactType" required
+            defaultValue={currentEffect?.impactType || ActionImpactType.ABSOLUTE}
+          >
+            <option value={ActionImpactType.ABSOLUTE}>Absolut skillnad gentemot baslinje</option>
+            <option value={ActionImpactType.DELTA}>Förändring år för år (delta)</option>
+            <option value={ActionImpactType.PERCENT}>Skillnad gentemot baslinjen i procent av föregående års totalvärde (baslinje + åtgärder)</option>
+          </select>
+        </label>
+
+        <input type="submit" className="margin-block-75 seagreen color-purewhite" value={currentEffect ? "Spara" : "Skapa åtgärd"} />
       </form>
     </>
   )
