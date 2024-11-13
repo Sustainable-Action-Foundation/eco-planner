@@ -39,6 +39,16 @@ export default async function Page({
     <>
       <div className="container-text" style={{ marginInline: 'auto' }}>
         <h1>Skapa ny effekt</h1>
+        {badAction &&
+          <p style={{ color: 'red' }}>
+            {`Åtgärden du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan.`}
+          </p>
+        }
+        {badGoal &&
+          <p style={{ color: 'red' }}>
+            {`Målbanan du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan.`}
+          </p>
+        }
         <EffectForm action={badAction ? null : action} goal={badGoal ? null : goal} roadmapAlternatives={roadmapList} />
       </div>
     </>

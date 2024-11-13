@@ -167,5 +167,5 @@ const getCachedRoadmap = unstable_cache(
     return roadmap;
   },
   ['getOneRoadmap'],
-  { revalidate: 600, tags: ['database', 'roadmap', 'goal'] },
+  { revalidate: 600, tags: ['database', 'roadmap', 'goal', 'action'] },
 );

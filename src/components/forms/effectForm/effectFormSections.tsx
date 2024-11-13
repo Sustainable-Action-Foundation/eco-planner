@@ -29,7 +29,7 @@ export function ActionSelector({
   return (
     <>
       <label className="block margin-block-75">
-        Välj färdplanen målbanan ligger under:
+        Välj färdplanen åtgärden ligger under:
         <select name="selectedActionRoadmap" className="margin-inline-25" required disabled={!!action}
           value={selectedRoadmap}
           onChange={event => { setSelectedRoadmap(event.target.value); setSelectedAction(""); }}
