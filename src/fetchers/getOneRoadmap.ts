@@ -64,6 +64,20 @@ export async function clientSafeGetOneRoadmap(id: string) {
         ...data
       }) => data)(goal.dataSeries) : null),
     })),
+    actions: roadmap.actions.map(action => ({
+      id: action.id,
+      name: action.name,
+      description: action.description,
+      startYear: action.startYear,
+      endYear: action.endYear,
+      costEfficiency: action.costEfficiency,
+      expectedOutcome: action.expectedOutcome,
+      _count: action._count,
+      isSufficiency: action.isSufficiency,
+      isEfficiency: action.isEfficiency,
+      isRenewables: action.isRenewables,
+      roadmapId: action.roadmapId,
+    })),
     comments: roadmap.comments?.map(comment => ({
       id: comment.id,
       commentText: comment.commentText,

@@ -1,114 +1,116 @@
 'use client';
 
-import { clientSafeGetOneGoal } from "@/fetchers/getOneGoal";
 import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
-import { clientSafeGetRoadmaps } from "@/fetchers/getRoadmaps";
 import { useEffect, useState } from "react";
-
-// TODO: Allow passing proper actions/goals in addition to/instead of IDs?
-// Would be nice if we fetched serverside before rendering the form, could do better access control as well
+import type getOneAction from "@/fetchers/getOneAction.ts";
+import type getOneGoal from "@/fetchers/getOneGoal";
+import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
 
 export function ActionSelector({
-  actionId,
+  action,
+  roadmapAlternatives,
 }: {
-  actionId?: string,
-}) {/*
-  const [roadmapList, setRoadmapList] = useState<Awaited<ReturnType<typeof clientSafeGetRoadmaps>>>([]);
-
-  const [currentActionId, setCurrentActionId] = useState<string | undefined>(undefined);
-  const [roadmapId, setRoadmapId] = useState<string | undefined>(undefined);
-  // Types based on clientSafeGetOneAction and clientSafeGetOneRoadmap
-  const [roadmap, setRoadmap] = useState<unknown | undefined>(undefined);
-
-  useEffect(() => {
-    clientSafeGetRoadmaps().then(setRoadmapList);
-  }, []);
-
-  // Initial fetch if actionId is provided
-  useEffect(() => {
-    if (actionId) {
-      clientSafeGetOneAction(actionId).then(action => {
-        if (action) {
-          setCurrentActionId(action.id);
-          setRoadmapId(action.roadmapId);
-          // Avoid running another effect if action.id == currentActionId
-          setAction(action);
-        } else {
-          console.log("Action not found");
-        }
-      });
-    }
-  }, [actionId]);
-*/
-  return (
-    <></>
-  );
-}
-
-export function GoalSelector({
-  goalId,
-}: {
-  goalId?: string,
+  action: Awaited<ReturnType<typeof getOneAction>> | null,
+  roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
 }) {
-  const [roadmapList, setRoadmapList] = useState<Awaited<ReturnType<typeof clientSafeGetRoadmaps>>>([]);
-
-  const [selectedGoal, setSelectedGoal] = useState<string>("");
-  const [selectedRoadmap, setSelectedRoadmap] = useState<string>("");
+  const [selectedAction, setSelectedAction] = useState<string>(action?.id || "");
+  const [selectedRoadmap, setSelectedRoadmap] = useState<string>(action?.roadmapId || "");
 
   const [roadmapData, setRoadmapData] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>> | null>(null);
 
-  // Get list of available roadmaps
   useEffect(() => {
-    clientSafeGetRoadmaps().then(setRoadmapList);
-  }, []);
-
-  // Initial fetch if goalId is provided
-  useEffect(() => {
-    if (goalId) {
-      clientSafeGetOneGoal(goalId).then(goal => {
-        if (goal) {
-          setSelectedGoal(goal.id);
-          setSelectedRoadmap(goal.roadmapId);
-        } else {
-          alert("Angivet mål hittades inte");
-        }
-      }).catch(() => {
-        alert("Ett fel uppstod när målet skulle hämtas");
-      });
+    if (selectedRoadmap) {
+      clientSafeGetOneRoadmap(selectedRoadmap).then(setRoadmapData);
+    } else {
+      setRoadmapData(null);
     }
-  }, [goalId]);
-
-  useEffect(() => {
-    clientSafeGetOneRoadmap(selectedRoadmap).then(setRoadmapData);
   }, [selectedRoadmap]);
 
   return (
     <>
       <label className="block margin-block-75">
         Välj färdplanen målbanan ligger under:
-        <select name="selectedRoadmap" id="selectedRoadmap" className="margin-inline-25" required disabled={!!goalId}
+        <select name="selectedActionRoadmap" className="margin-inline-25" required disabled={!!action}
           value={selectedRoadmap}
-          onChange={event => { setSelectedRoadmap(event.target.value); setSelectedGoal(""); }}
+          onChange={event => { setSelectedRoadmap(event.target.value); setSelectedAction(""); }}
         >
           <option value="" disabled>Välj färdplan</option>
-          {roadmapList.map(roadmap => (
+          {roadmapAlternatives.map(roadmap => (
             // Disable selecting a different roadmap if a goal is preselected (for example when goalId is specified in the URL query)
-            <option key={`goal-selector${roadmap.id}`} value={roadmap.id}>
-              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.goals} mål`}
+            <option key={`action-selector${roadmap.id}`} value={roadmap.id}>
+              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} åtgärder`}
             </option>
           ))}
         </select>
       </label>
 
-      {roadmapData &&
+      {selectedRoadmap &&
+        <label className="block margin-block-75">
+          Välj åtgärd att lägga effekten under:
+          <select name="actionId" id="actionId" className="margin-inline-25" required disabled={!!action}
+            value={action?.id || selectedAction}
+            onChange={event => setSelectedAction(event.target.value)}
+          >
+            <option value="" disabled>Välj åtgärd</option>
+            {roadmapData?.actions.map(action => (
+              <option key={`action-selector${action.id}`} value={action.id}>
+                {`${action.name}; ${action._count.effects} existerande effekter`}
+              </option>
+            ))}
+          </select>
+        </label>
+      }
+    </>
+  );
+}
+
+export function GoalSelector({
+  goal,
+  roadmapAlternatives,
+}: {
+  goal: Awaited<ReturnType<typeof getOneGoal>> | null,
+  roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
+}) {
+  const [selectedGoal, setSelectedGoal] = useState<string>(goal?.id || "");
+  const [selectedRoadmap, setSelectedRoadmap] = useState<string>(goal?.roadmapId || "");
+
+  const [roadmapData, setRoadmapData] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>> | null>(null);
+
+  useEffect(() => {
+    if (selectedRoadmap) {
+      clientSafeGetOneRoadmap(selectedRoadmap).then(setRoadmapData);
+    } else {
+      setRoadmapData(null);
+    }
+  }, [selectedRoadmap]);
+
+  return (
+    <>
+      <label className="block margin-block-75">
+        Välj färdplanen målbanan ligger under:
+        <select name="selectedGoalRoadmap" className="margin-inline-25" required disabled={!!goal}
+          value={selectedRoadmap}
+          onChange={event => { setSelectedRoadmap(event.target.value); setSelectedGoal(""); }}
+        >
+          <option value="" disabled>Välj färdplan</option>
+          {roadmapAlternatives.map(roadmap => (
+            // Disable selecting a different roadmap if a goal is preselected (for example when goalId is specified in the URL query)
+            <option key={`goal-selector${roadmap.id}`} value={roadmap.id}>
+              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.goals} målbanor`}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      {selectedRoadmap &&
         <label className="block margin-block-75">
           Välj målbana att påverka:
-          <select name="goalId" id="goalId" className="margin-inline-25" required disabled={!!goalId}
-            value={goalId || selectedGoal}
+          <select name="goalId" id="goalId" className="margin-inline-25" required disabled={!!goal}
+            value={goal?.id || selectedGoal}
             onChange={event => setSelectedGoal(event.target.value)}
           >
             <option value="" disabled>Välj målbana</option>
-            {roadmapData.goals.map(goal => (
+            {roadmapData?.goals.map(goal => (
               <option key={`goal-selector${goal.id}`} value={goal.id}>
                 {`${goal.name ?? "Namnlöst mål"}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || "Enhet saknas"})`}
               </option>

@@ -39,6 +39,12 @@ export const roadmapInclusionSelection /* Prisma.RoadmapInclude */ = {
       author: { select: { id: true, username: true } },
     }
   },
+  actions: {
+    include: {
+      _count: { select: { effects: true } },
+      author: { select: { id: true, username: true } },
+    }
+  },
   comments: {
     include: {
       author: { select: { id: true, username: true } },

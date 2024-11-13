@@ -5,14 +5,19 @@ import { dataSeriesPattern } from "@/components/forms/goalForm/goalForm";
 import formSubmitter from "@/functions/formSubmitter";
 import { dataSeriesDataFieldNames, EffectInput } from "@/types";
 import { ActionImpactType, DataSeries, Effect } from "@prisma/client";
+import type getOneAction from "@/fetchers/getOneAction.ts";
+import type getOneGoal from "@/fetchers/getOneGoal.ts";
+import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
 
 export default function EffectForm({
-  actionId,
-  goalId,
+  action,
+  goal,
+  roadmapAlternatives,
   currentEffect,
 }: {
-  actionId?: string,
-  goalId?: string,
+  action: Awaited<ReturnType<typeof getOneAction>> | null,
+  goal: Awaited<ReturnType<typeof getOneGoal>> | null,
+  roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
   currentEffect?: Effect & {
     dataSeries: DataSeries | null,
   },
@@ -22,8 +27,8 @@ export default function EffectForm({
 
     const formData = new FormData(event.target);
 
-    const selectedAction = currentEffect?.actionId || actionId || formData.get("actionId");
-    const selectedGoal = currentEffect?.goalId || goalId || formData.get("goalId");
+    const selectedAction = currentEffect?.actionId || action?.id || formData.get("actionId");
+    const selectedGoal = currentEffect?.goalId || goal?.id || formData.get("goalId");
     const dataSeriesInput = formData.get("dataSeries");
     const impactType = formData.get("impactType");
 
@@ -35,9 +40,6 @@ export default function EffectForm({
       impactType in ActionImpactType
     )) {
       event.target.reportValidity();
-      if (!selectedAction || !selectedGoal) {
-        alert("Missing action or goal ID");
-      }
       return;
     }
 
@@ -73,9 +75,9 @@ export default function EffectForm({
       <form onSubmit={handleSubmit}>
         <button type="submit" disabled={true} style={{ display: 'none' }} aria-hidden={true} />
         {/* TODO: Select action and goal if they're missing */}
-        <ActionSelector actionId={currentEffect?.actionId || actionId} />
+        <ActionSelector action={action} roadmapAlternatives={roadmapAlternatives} />
 
-        <GoalSelector goalId={currentEffect?.goalId || goalId} />
+        <GoalSelector goal={goal} roadmapAlternatives={roadmapAlternatives} />
 
         <label className="block margin-block-75">
           Dataserie:
