@@ -6,7 +6,6 @@ import accessChecker from "@/lib/accessChecker";
 import { AccessControlled, AccessLevel } from "@/types";
 import CombinedGraph from "@/components/graphs/combinedGraph";
 import ActionGraph from "@/components/graphs/actionGraph";
-import Actions from "@/components/tables/actions";
 import Link from "next/link";
 import Image from "next/image";
 import GraphGraph from "@/components/graphs/graphGraph";
@@ -26,6 +25,7 @@ import GraphCookie from "@/components/cookies/graphCookie";
 import SecondaryGoalSelector from "@/components/graphs/secondaryGraphSelector";
 import UpdateGoalButton from "@/components/buttons/updateGoalButton";
 import getRoadmaps from "@/fetchers/getRoadmaps";
+import EffectTable from "@/components/tables/effects.tsx";
 
 export default async function Page({
   params,
@@ -168,7 +168,7 @@ export default async function Page({
         <div className="margin-block-100">
           <ActionGraph actions={goal.effects.map(effect => effect.action)} />
         </div>
-        <Actions goal={goal} accessLevel={accessLevel} />
+        <EffectTable object={goal} accessLevel={accessLevel} />
       </section>
       <Comments comments={goal.comments} objectId={goal.id} />
     </>
