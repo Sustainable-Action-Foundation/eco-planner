@@ -4,7 +4,7 @@ import Image from "next/image";
 import styles from './tableMenu.module.css' with { type: "css" }
 import Link from "next/link";
 import { useRef } from "react";
-import { Action, DataSeries, Goal, MetaRoadmap } from "@prisma/client";
+import { Action, DataSeries, Effect, Goal, MetaRoadmap } from "@prisma/client";
 import { AccessLevel } from "@/types";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
@@ -19,8 +19,20 @@ export function TableMenu(
   }: {
     accessLevel?: AccessLevel,
     object: (
+      // Effect
+      (Effect & {
+        action?: Action,
+        goal?: Goal,
+        roadmapVersions?: never,
+        metaRoadmap?: never,
+        indicatorParameter?: never,
+        isSufficiency?: never,
+        // Set name and id further down
+        name?: string,
+        id?: { actionId: string, goalId: string },
+      })
       // Action
-      (Action & {
+      | (Action & {
         effects: {
           goal: { id: string, roadmap: { id: string } },
         }[],
@@ -100,8 +112,22 @@ export function TableMenu(
   // Actions
   else if (object.isSufficiency != undefined) {
     selfLink = `/action/${object.id}`;
+    creationLink = `/effect/createEffect?actionId=${object.id}`;
+    creationDescription = 'Ny effekt';
     editLink = `/action/${object.id}/editAction`;
     deleteLink = "/api/action"
+  }
+  // Effects
+  else if (object.actionId != undefined) {
+    selfLink = `/action/${object.actionId}`;
+    editLink = `/effect/editEffect?actionId=${object.actionId}&goalId=${object.goalId}`;
+    deleteLink = '/api/effect';
+    if (!object.name) {
+      object.name = object.action?.name ? `Effekt från ${object.action.name}` : object.goal ? (object.goal.name || object.goal.indicatorParameter) : "Namn saknas";
+    }
+    if (!object.id) {
+      object.id = { actionId: object.actionId, goalId: object.goalId };
+    }
   }
   // Catch all
   else {
@@ -161,7 +187,7 @@ export function TableMenu(
                 Radera inlägg
                 <Image src='/icons/delete.svg' alt="" width={24} height={24} className={styles.actionImage} />
               </button>
-              <ConfirmDelete modalRef={deletionRef} targetUrl={deleteLink} targetName={object.name || object.metaRoadmap?.name || "Namn saknas"} targetId={object.id} />
+              <ConfirmDelete modalRef={deletionRef} targetUrl={deleteLink} targetName={object.name || object.metaRoadmap?.name || "Namn saknas"} targetId={object.id!} />
             </>
           }
         </dialog>
