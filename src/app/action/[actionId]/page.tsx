@@ -8,6 +8,7 @@ import { AccessControlled, AccessLevel } from "@/types";
 import accessChecker from "@/lib/accessChecker";
 import { Fragment } from "react";
 import Comments from "@/components/comments/comments";
+import EffectTable from "@/components/tables/effects.tsx";
 
 export default async function Page({ params }: { params: { actionId: string } }) {
   const [session, action] = await Promise.all([
@@ -91,7 +92,17 @@ export default async function Page({ params }: { params: { actionId: string } })
           {action.isSufficiency && 'Sufficiency'} {(action.isSufficiency && action.isRenewables)}
           {action.isRenewables && 'Renewables'}
         </p>
-        : null}
+        : null
+      }
+
+      <section>
+        <div className="flex align-items-center justify-content-space-between">
+          <h2>Effekter</h2>
+          <Link href={`/effect/createEffect?actionId=${action.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny effekt</Link>
+        </div>
+        <EffectTable object={action} accessLevel={accessLevel} />
+      </section>
+
       <Comments comments={action.comments} objectId={action.id} />
     </>
   )

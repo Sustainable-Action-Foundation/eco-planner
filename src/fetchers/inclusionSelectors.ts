@@ -92,6 +92,7 @@ export const goalInclusionSelection /* Prisma.GoalInclude */ = {
       dataSeries: true,
       action: {
         include: {
+          roadmap: { select: { id: true } },
           author: { select: { id: true, username: true } },
         },
       },
@@ -127,11 +128,9 @@ export const actionInclusionSelection /* Prisma.ActionInclude */ = {
     include: {
       dataSeries: true,
       goal: {
-        select: {
-          id: true,
-          name: true,
-          indicatorParameter: true,
-          roadmap: { select: { id: true } }
+        include: {
+          roadmap: { select: { id: true } },
+          author: { select: { id: true, username: true } },
         }
       },
     }
