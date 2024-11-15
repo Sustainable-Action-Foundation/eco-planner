@@ -20,6 +20,8 @@ export default function EffectForm({
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
   currentEffect?: Effect & {
     dataSeries: DataSeries | null,
+    action: Awaited<ReturnType<typeof getOneAction>> | null,
+    goal: Awaited<ReturnType<typeof getOneGoal>> | null,
   },
 }) {
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
@@ -74,7 +76,7 @@ export default function EffectForm({
     <>
       <form onSubmit={handleSubmit}>
         <button type="submit" disabled={true} style={{ display: 'none' }} aria-hidden={true} />
-        {/* TODO: Select action and goal if they're missing */}
+
         <ActionSelector action={action} roadmapAlternatives={roadmapAlternatives} />
 
         <GoalSelector goal={goal} roadmapAlternatives={roadmapAlternatives} />

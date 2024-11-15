@@ -158,3 +158,13 @@ export const actionInclusionSelection /* Prisma.ActionInclude */ = {
   comments: { include: { author: { select: { id: true, username: true } } } },
   author: { select: { id: true, username: true } },
 };
+
+export const effectInclusionSelection /* Prisma.EffectInclude */ = {
+  dataSeries: true,
+  action: {
+    include: actionInclusionSelection,
+  },
+  goal: {
+    include: goalInclusionSelection,
+  },
+}
