@@ -72,6 +72,7 @@ const getCachedRoadmapSubset = unstable_cache(
               { viewers: { some: { id: user.id } } },
               { editGroups: { some: { users: { some: { id: user.id } } } } },
               { viewGroups: { some: { users: { some: { id: user.id } } } } },
+              { isPublic: true },
             ]
           },
           include: roadmapSubsetSelect
