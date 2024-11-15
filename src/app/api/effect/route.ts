@@ -469,6 +469,4 @@ export async function DELETE(request: NextRequest) {
       { status: 500 }
     );
   }
-
-  return Response.json({ message: 'Not implemented' }, { status: 501 });
 }
