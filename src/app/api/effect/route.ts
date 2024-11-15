@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
       effect.dataSeries instanceof Array &&
       effect.dataSeries.every((value) => typeof value === 'string') &&
       // impactType may be included, and should in that case be one of the values in ActionImpactType
-      (effect.impactType === undefined || !Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType))
+      (effect.impactType === undefined || Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType))
     )
   }
 
@@ -198,7 +198,7 @@ export async function PUT(request: NextRequest) {
         )
       ) &&
       // impactType may be included, and should in that case be one of the values in ActionImpactType
-      (effect.impactType === undefined || !Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType)) &&
+      (effect.impactType === undefined || Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType)) &&
       // timestamp should be a number
       typeof effect.timestamp === 'number'
     )
