@@ -162,7 +162,10 @@ export default async function Page({
 
         <div className="flex align-items-center justify-content-space-between">
           <h2>Åtgärder</h2>
-          <Link href={`/action/createAction?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
+          <div>
+            <Link href={`/effect/createEffect?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Koppla till en existerande åtgärd</Link>
+            <Link href={`/action/createAction?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
+          </div>
         </div>
 
         <div className="margin-block-100">
