@@ -3,7 +3,7 @@ import accessChecker from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
 import { AccessLevel, ClientError, DataSeriesDataFields, EffectInput, JSONValue } from "@/types";
-import { ActionImpactType } from "@prisma/client";
+import { ActionImpactType, Prisma } from "@prisma/client";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
@@ -163,6 +163,12 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
+    // Unique constraint error
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      return Response.json({ message: 'Effect already exists, try edit page if you want to change values' },
+        { status: 409 }
+      );
+    }
     console.log(error);
     return Response.json({ message: 'Internal server error' },
       { status: 500 }
