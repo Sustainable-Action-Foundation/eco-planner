@@ -20,10 +20,6 @@ export default function ActionForm({
     links: { url: string, description: string | null }[],
   },
 }) {
-  // TODO: Solve how to add actions and effects (separately or together?)
-  // For now, don't allow editing effects in the action form, only allowing the creation of an effect when initially creating an action, if a goal is selected
-  // const [actionImpactType, setActionImpactType] = useState<ActionImpactType>(currentAction?.impactType || ActionImpactType.ABSOLUTE)
-
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
 
@@ -60,15 +56,6 @@ export default function ActionForm({
 
     formSubmitter('/api/action', formJSON, currentAction ? 'PUT' : 'POST');
   }
-
-  // If there is a data series, convert it to an array of numbers to use as a default value in the form
-  // const dataArray: (number | null)[] = []
-  // if (currentAction?.dataSeries) {
-  //   for (const i of dataSeriesDataFieldNames) {
-  //     dataArray.push(currentAction.dataSeries[i])
-  //   }
-  // }
-  // const dataSeriesString = dataArray.join(';')
 
   const timestamp = Date.now();
 
