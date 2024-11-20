@@ -103,7 +103,6 @@ export default function ActionForm({
           <textarea className="margin-block-25" name="expectedOutcome" id="expectedOutcome" defaultValue={currentAction?.expectedOutcome ?? undefined} />
         </label>
 
-        {/* TODO: Add input to select a goal to create an initial effect under (in case none is passed in query) */}
         {(goalId && !currentAction) ?
           <>
             <label className="block margin-block-75">
