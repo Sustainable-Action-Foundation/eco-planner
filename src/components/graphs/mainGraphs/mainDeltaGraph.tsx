@@ -34,6 +34,13 @@ export default function MainDeltaGraph({
     yaxis: [{
       title: { text: `Årlig förändring i ${goal.dataSeries.unit.toLowerCase() == 'procent' ? 'procentenheter' : goal.dataSeries.unit}` },
       labels: { formatter: floatSmoother },
+      seriesName: [
+        (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
+        'Basscenario',
+        'Förväntat utfall',
+        (secondaryGoal?.dataSeries?.unit == goal.dataSeries.unit) ? (secondaryGoal?.name || secondaryGoal?.indicatorParameter) : '',
+        'Nationell motsvarighet',
+      ],
     }],
     tooltip: {
       x: { format: 'yyyy' },
@@ -225,6 +232,7 @@ export default function MainDeltaGraph({
       (chartOptions.yaxis as ApexYAxis[]).push({
         title: { text: `Årlig förändring i ${secondaryGoal.dataSeries.unit.toLowerCase() == 'procent' ? 'procentenheter' : secondaryGoal.dataSeries.unit}` },
         labels: { formatter: floatSmoother },
+        seriesName: secondaryGoal.name || secondaryGoal.indicatorParameter,
         opposite: true,
       });
     }

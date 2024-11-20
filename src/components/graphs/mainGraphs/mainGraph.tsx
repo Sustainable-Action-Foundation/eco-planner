@@ -40,6 +40,12 @@ export default function MainGraph({
       {
         title: { text: goal.dataSeries?.unit },
         labels: { formatter: floatSmoother },
+        seriesName: [
+          (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
+          'Basscenario',
+          'Förväntat utfall',
+          (secondaryGoal?.dataSeries?.unit == goal.dataSeries.unit) ? (secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0] : "",
+        ]
       }
     ],
     tooltip: {
@@ -236,6 +242,7 @@ export default function MainGraph({
       (mainChartOptions.yaxis as ApexYAxis[]).push({
         title: { text: `Sekundär målbana (${secondaryGoal.dataSeries.unit})` },
         labels: { formatter: floatSmoother },
+        seriesName: [(secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0]],
         opposite: true,
       });
     }
@@ -259,6 +266,7 @@ export default function MainGraph({
     (mainChartOptions.yaxis as ApexYAxis[]).push({
       title: { text: "Nationell målbana" },
       labels: { formatter: floatSmoother },
+      seriesName: ['Nationell motsvarighet'],
       opposite: true,
     });
   }
@@ -279,6 +287,7 @@ export default function MainGraph({
     (mainChartOptions.yaxis as ApexYAxis[]).push({
       title: { text: "Historik" },
       labels: { formatter: floatSmoother },
+      seriesName: [`${historicalData.metadata[0]?.label}`],
       opposite: true,
     });
   }
