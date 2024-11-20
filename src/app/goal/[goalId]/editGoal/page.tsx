@@ -5,12 +5,14 @@ import accessChecker from "@/lib/accessChecker";
 import { notFound } from "next/navigation";
 import getOneGoal from "@/fetchers/getOneGoal";
 import { AccessControlled, AccessLevel } from "@/types";
+import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 
 
 export default async function Page({ params }: { params: { goalId: string } }) {
-  const [session, currentGoal] = await Promise.all([
+  const [session, currentGoal, roadmaps] = await Promise.all([
     getSession(cookies()),
     getOneGoal(params.goalId),
+    getRoadmaps(),
   ]);
 
   let goalAccessData: AccessControlled | null = null;
@@ -29,11 +31,13 @@ export default async function Page({ params }: { params: { goalId: string } }) {
     return notFound();
   }
 
+  const roadmapList = roadmaps.filter((roadmap) => [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin].includes(accessChecker(roadmap, session.user)));
+
   return (
     <>
       <div className="container-text" style={{ marginInline: 'auto' }}>
         <h1>Redigera målbana: {currentGoal.name ? currentGoal.name : currentGoal.indicatorParameter}</h1>
-        <GoalForm roadmapId={currentGoal.roadmapId} currentGoal={currentGoal} />
+        <GoalForm roadmapId={currentGoal.roadmapId} currentGoal={currentGoal} roadmapAlternatives={roadmapList} />
       </div>
     </>
   )

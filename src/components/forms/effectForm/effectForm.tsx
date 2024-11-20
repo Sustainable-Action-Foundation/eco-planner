@@ -104,7 +104,7 @@ export default function EffectForm({
           </select>
         </label>
 
-        <input type="submit" className="margin-block-75 seagreen color-purewhite" value={currentEffect ? "Spara" : "Skapa åtgärd"} />
+        <input type="submit" className="margin-block-75 seagreen color-purewhite" value={currentEffect ? "Spara" : "Skapa effekt"} />
       </form>
     </>
   )

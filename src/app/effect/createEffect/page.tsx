@@ -3,6 +3,7 @@ import getOneAction from "@/fetchers/getOneAction.ts";
 import getOneGoal from "@/fetchers/getOneGoal.ts";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import accessChecker from "@/lib/accessChecker.ts";
+import Image from "next/image";
 import { getSession } from "@/lib/session.ts";
 import { AccessLevel } from "@/types.ts";
 import { cookies } from "next/headers";
@@ -41,12 +42,14 @@ export default async function Page({
         <h1>Skapa ny effekt</h1>
         {badAction &&
           <p style={{ color: 'red' }}>
-            {`Åtgärden du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan.`}
+            <Image src="/icons/info.svg" width={24} height={24} alt='' />
+            Åtgärden du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan.
           </p>
         }
         {badGoal &&
           <p style={{ color: 'red' }}>
-            {`Målbanan du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan.`}
+            <Image src="/icons/info.svg" width={24} height={24} alt='' />
+            Målbanan du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan.
           </p>
         }
         <EffectForm action={badAction ? null : action} goal={badGoal ? null : goal} roadmapAlternatives={roadmapList} />

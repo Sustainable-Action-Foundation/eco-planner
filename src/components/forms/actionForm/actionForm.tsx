@@ -71,8 +71,6 @@ export default function ActionForm({
         {!(roadmapId || currentAction?.roadmapId) ?
           <label className="block margin-block-75">
             Välj färdplan att skapa åtgärden under:
-            {/* TODO: Byt till en select
-            <input className="margin-block-25" type="text" name="roadmapId" id="roadmapId" required /> */}
             <select name="roadmapId" id="roadmapId" required className="margin-inline-25">
               <option value="" disabled>Välj färdplan</option>
               {roadmapAlternatives.map(roadmap => (

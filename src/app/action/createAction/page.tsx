@@ -58,14 +58,14 @@ export default async function Page({
           <h1>Skapa ny åtgärd</h1>
         }
         {badGoal &&
-          <p>
+          <p style={{ color: 'red' }}>
             <Image src="/icons/info.svg" width={24} height={24} alt='' />
             Kunde inte hitta eller har inte tillgång till målbanan i länken.
             {/* Använd dropdown-menyn för att välja en målbana om du vill lägga till en effekt gentemot en målbana. */}
           </p>
         }
         {badRoadmap &&
-          <p>
+          <p style={{ color: 'red' }}>
             <Image src="/icons/info.svg" width={24} height={24} alt='' />
             Kunde inte hitta eller har inte tillgång till färdplanen i länken. <br />
             Använd dropdown-menyn för att välja en färdplan.
