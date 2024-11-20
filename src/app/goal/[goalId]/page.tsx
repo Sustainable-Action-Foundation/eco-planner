@@ -22,7 +22,6 @@ import filterTableContentKeys from "@/lib/pxWeb/filterTableContentKeys";
 import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import QueryBuilder from "@/components/forms/pxWeb/queryBuilder";
 import GraphCookie from "@/components/cookies/graphCookie";
-import SecondaryGoalSelector from "@/components/graphs/secondaryGraphSelector";
 import UpdateGoalButton from "@/components/buttons/updateGoalButton";
 import getRoadmaps from "@/fetchers/getRoadmaps";
 import EffectTable from "@/components/tables/effects.tsx";

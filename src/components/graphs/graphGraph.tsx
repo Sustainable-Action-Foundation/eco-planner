@@ -9,7 +9,6 @@ import { useEffect, useState } from "react";
 import { getStoredGraphType } from "./functions/graphFunctions";
 import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import SecondaryGoalSelector from "./secondaryGraphSelector";
-import CopyAndScale from "../modals/copyAndScale";
 
 export enum GraphType {
   Main = "MAIN",
