@@ -6,6 +6,7 @@ import accessChecker from "@/lib/accessChecker";
 import getOneGoal from "@/fetchers/getOneGoal";
 import { AccessControlled, AccessLevel } from "@/types";
 import getOneRoadmap from "@/fetchers/getOneRoadmap";
+import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 
 export default async function Page({
   searchParams
@@ -16,10 +17,11 @@ export default async function Page({
     [key: string]: string | string[] | undefined
   }
 }) {
-  const [session, goal, roadmap] = await Promise.all([
+  const [session, goal, roadmap, roadmapList] = await Promise.all([
     getSession(cookies()),
     getOneGoal(typeof searchParams.goalId == 'string' ? searchParams.goalId : ''),
     getOneRoadmap(typeof searchParams.roadmapId == 'string' ? searchParams.roadmapId : ''),
+    getRoadmaps(),
   ]);
 
   let goalAccessData: AccessControlled | null = null;
@@ -44,6 +46,9 @@ export default async function Page({
     (roadmap && !([AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin].includes(accessChecker(roadmap, session.user))))
   );
 
+  // The roadmaps the user can choose to add the action to (the ones they have edit access to)
+  const availableRoadmaps = roadmapList.filter((roadmap) => [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin].includes(accessChecker(roadmap, session.user)));
+
   return (
     <>
       <div className="container-text" style={{ marginInline: 'auto' }}>
@@ -62,13 +67,14 @@ export default async function Page({
         {badRoadmap &&
           <p>
             <Image src="/icons/info.svg" width={24} height={24} alt='' />
-            Kunde inte hitta eller har inte tillgång till färdplanen i länken.
-            {/* Använd dropdown-menyn för att välja en färdplan. */}
+            Kunde inte hitta eller har inte tillgång till färdplanen i länken. <br />
+            Använd dropdown-menyn för att välja en färdplan.
           </p>
         }
         <ActionForm
           goalId={badGoal ? undefined : searchParams.goalId as string | undefined}
           roadmapId={badRoadmap ? undefined : searchParams.roadmapId as string | undefined}
+          roadmapAlternatives={availableRoadmaps}
         />
       </div>
     </>

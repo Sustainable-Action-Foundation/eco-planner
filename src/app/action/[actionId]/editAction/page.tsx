@@ -37,7 +37,7 @@ export default async function Page({
     <>
       <div className="container-text">
         <h1>Redigera åtgärd: {`${action.name} under färdplan: ${action.roadmap.metaRoadmap.name || "ERROR"}`}</h1>
-        <ActionForm roadmapId={action.roadmapId} currentAction={action} />
+        <ActionForm roadmapId={action.roadmapId} currentAction={action} roadmapAlternatives={[]} />
       </div>
     </>
   )

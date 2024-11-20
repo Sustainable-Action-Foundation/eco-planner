@@ -5,13 +5,16 @@ import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput"
 import formSubmitter from "@/functions/formSubmitter"
 import { ActionInput } from "@/types"
 import { Action, ActionImpactType, DataSeries, Effect } from "@prisma/client"
+import type getRoadmaps from "@/fetchers/getRoadmaps"
 
 export default function ActionForm({
   roadmapId,
+  roadmapAlternatives,
   goalId,
-  currentAction
+  currentAction,
 }: {
   roadmapId?: string,
+  roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
   goalId?: string,
   currentAction?: Action & {
     effects: (Effect & {
@@ -65,11 +68,19 @@ export default function ActionForm({
         {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
         <button type="submit" disabled={true} style={{ display: 'none' }} aria-hidden={true} />
 
-        {!roadmapId ?
+        {!(roadmapId || currentAction?.roadmapId) ?
           <label className="block margin-block-75">
             Välj färdplan att skapa åtgärden under:
-            {/* TODO: Byt till en select */}
-            <input className="margin-block-25" type="text" name="roadmapId" id="roadmapId" required />
+            {/* TODO: Byt till en select
+            <input className="margin-block-25" type="text" name="roadmapId" id="roadmapId" required /> */}
+            <select name="roadmapId" id="roadmapId" required className="margin-inline-25">
+              <option value="" disabled>Välj färdplan</option>
+              {roadmapAlternatives.map(roadmap => (
+                <option key={roadmap.id} value={roadmap.id}>
+                  {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} åtgärder`}
+                </option>
+              ))}
+            </select>
           </label>
           : null
         }
