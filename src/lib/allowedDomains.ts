@@ -259,7 +259,9 @@ export const allowedDomains = [
   "toreboda.se",
   "torsas.se",
   "torsby.se",
+  */
   "tranas.se",
+  /*
   "tranemo.se",
   "trelleborg.se",
   "trollhattan.se",

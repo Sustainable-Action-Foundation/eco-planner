@@ -8,6 +8,8 @@ import GraphSelector from "./graphselector/graphSelector";
 import { useEffect, useState } from "react";
 import { getStoredGraphType } from "./functions/graphFunctions";
 import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
+import SecondaryGoalSelector from "./secondaryGraphSelector";
+import CopyAndScale from "../modals/copyAndScale";
 
 export enum GraphType {
   Main = "MAIN",
@@ -50,10 +52,15 @@ export default function GraphGraph({
   return (
     <div>
       {graphSwitch(graphType)}
-      <fieldset className="display-flex align-items-center margin-top-100 padding-50 gap-50">
-        <div className="font-weight-500">Visa:</div>
-        <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
-      </fieldset>
+      <section className="flex gap-50 margin-top-100 padding-block-50 ">
+        <nav>
+          <p className="font-weight-500 margin-0">Visa:</p>
+          <div className="flex gap-25 margin-top-25 padding-top-25">
+            <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
+          </div>
+        </nav>
+        <SecondaryGoalSelector />
+      </section>
     </div>
   );
 }

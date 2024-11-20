@@ -123,7 +123,6 @@ export default async function Page({
         <CombinedGraph roadmap={roadmap} goal={goal} />
       </section>
       <section className="flex align-items-flex-end justify-content-space-between gap-50 flex-wrap-wrap container-text">
-        <SecondaryGoalSelector />
         {(goal.dataSeries?.id && session.user) ?
           <div className="margin-bottom-25">
             <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
