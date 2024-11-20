@@ -11,6 +11,7 @@ import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm
 import RepeatableScaling from "@/components/repeatableScaling";
 import { getScalingResult } from "@/components/modals/copyAndScale";
 import mathjs from "@/math";
+import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
 
 enum DataSeriesType {
   Static = "STATIC",
@@ -40,9 +41,11 @@ export const dataSeriesPattern = `(([0-9]+([.,][0-9]+)?)?[\t;]){0,${dataSeriesLe
 
 export default function GoalForm({
   roadmapId,
+  roadmapAlternatives,
   currentGoal,
 }: {
-  roadmapId: string,
+  roadmapId?: string,
+  roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
   currentGoal?: Goal & {
     dataSeries: DataSeries | null,
     baselineDataSeries: DataSeries | null,
@@ -64,6 +67,7 @@ export default function GoalForm({
   const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baselineDataSeries ? BaselineType.Custom : BaselineType.Initial)
   const [scalingRecipie, setScalingRecipe] = useState<ScalingRecipie>({ values: [] });
   const [scalingResult, setScalingResult] = useState<number | null>(null);
+  const [selectedRoadmap, setSelectedRoadmap] = useState<string>(currentGoal?.roadmapId || roadmapId || "");
 
   useEffect(() => {
     try {
@@ -132,7 +136,7 @@ export default function GoalForm({
       baselineDataSeries: baselineDataSeries,
       combinationScale: JSON.stringify(combinationScale),
       inheritFrom: inheritFrom,
-      roadmapId: roadmapId,
+      roadmapId: currentGoal?.roadmapId || roadmapId || (typeof formData.get("roadmapId") == "string" ? formData.get("roadmapId") : null),
       goalId: currentGoal?.id || null,
       links,
       timestamp,
@@ -187,6 +191,24 @@ export default function GoalForm({
         {/* This hidden submit button prevents submitting by pressing enter, to avoid accidental submission */}
         <button type="submit" disabled={true} style={{ display: 'none' }} aria-hidden={true} />
 
+        {/* Allow user to select parent roadmap if not already selected */}
+        {!(roadmapId || currentGoal?.roadmapId) ?
+          <label className="block margin-block-75">
+            Välj färdplan att skapa åtgärden under:
+            <select name="roadmapId" id="roadmapId" required className="margin-inline-25"
+              onChange={(e) => setSelectedRoadmap(e.target.value)}
+            >
+              <option value="" disabled>Välj färdplan</option>
+              {roadmapAlternatives.map(roadmap => (
+                <option key={roadmap.id} value={roadmap.id}>
+                  {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} åtgärder`}
+                </option>
+              ))}
+            </select>
+          </label>
+          : null
+        }
+
         <label className="block margin-block-75">
           Vilken typ av dataserie vill du skapa?
           <select name="dataSeriesType" id="dataSeriesType" className="margin-inline-25"
@@ -214,11 +236,11 @@ export default function GoalForm({
         }
 
         {dataSeriesType === DataSeriesType.Inherited &&
-          <InheritedGoalForm currentGoal={currentGoal} />
+          <InheritedGoalForm currentGoal={currentGoal} roadmapAlternatives={roadmapAlternatives} />
         }
 
         {dataSeriesType === DataSeriesType.Combined &&
-          <CombinedGoalForm currentGoal={currentGoal} roadmapId={roadmapId} />
+          <CombinedGoalForm currentGoal={currentGoal} roadmapId={currentGoal?.roadmapId || roadmapId || selectedRoadmap} />
         }
 
         {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&

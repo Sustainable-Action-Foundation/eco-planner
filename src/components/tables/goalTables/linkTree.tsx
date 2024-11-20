@@ -9,7 +9,7 @@ import { getSessionStorage, setSessionStorage } from '@/functions/localStorage';
 
 interface LinkTreeWithGoals /* extends LinkTreeCommonProps */ {
   goals: (Goal & {
-    _count: { actions: number }
+    _count: { effects: number }
     dataSeries: DataSeries | null,
     roadmap: { id: string, metaRoadmap: { name: string, id: string } },
   })[],
@@ -22,7 +22,7 @@ interface LinkTreeWithRoadmap /* extends LinkTreeCommonProps */ {
     id: string,
     metaRoadmap: { name: string, id: string },
     goals: (Goal & {
-      _count: { actions: number },
+      _count: { effects: number },
       dataSeries: DataSeries | null,
     })[]
   },
@@ -79,7 +79,7 @@ export default function LinkTree({
           <li key={key}>
             { // If the current object is a goal (has an id), render a link to the goal
               typeof data[key].id == 'string' ? (
-                <a href={`/roadmap/${data[key].roadmap.id}/goal/${data[key].id}`} className={`display-flex gap-50 align-items-center padding-block-50 ${styles.link}`}>
+                <a href={`/goal/${data[key].id}`} className={`display-flex gap-50 align-items-center padding-block-50 ${styles.link}`}>
                   <Image src="/icons/link.svg" alt={`Link to ${key}`} width={16} height={16} />
                   <span>
                     {(data[key].indicatorParameter as string).split('\\')[0].toLowerCase() == "key" && "Scenarioantagande: "}

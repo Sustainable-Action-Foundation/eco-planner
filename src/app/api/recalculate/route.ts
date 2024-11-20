@@ -112,23 +112,23 @@ export async function POST(request: NextRequest) {
     revalidateTag('dataSeries');
     // Return the edited goal's ID if successful
     return Response.json({ message: "Data series updated", id: updatedGoal.id },
-      { status: 200, headers: { 'Location': `/roadmap/${updatedGoal.roadmap.id}/goal/${updatedGoal.id}` } }
+      { status: 200, headers: { 'Location': `/goal/${updatedGoal.id}` } }
     );
-  } catch (e) {
-    if (e instanceof Error) {
-      if (e.message == ClientError.BadSession) {
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message == ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } }
         );
-      } else if (e.message == ClientError.AccessDenied) {
+      } else if (error.message == ClientError.AccessDenied) {
         return Response.json({ message: ClientError.AccessDenied },
           { status: 403 }
         );
       }
     }
-    console.log(e);
+    console.log(error);
     return Response.json({ message: "Internal server error" },
       { status: 500 }
     );

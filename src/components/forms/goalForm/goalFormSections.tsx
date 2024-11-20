@@ -6,6 +6,7 @@ import { Fragment, useEffect, useState } from "react";
 import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
 import { clientSafeGetOneGoal } from "@/fetchers/getOneGoal";
 import { clientSafeGetRoadmaps } from "@/fetchers/getRoadmaps";
+import type getRoadmaps from "@/fetchers/getRoadmaps";
 import mathjs from "@/math";
 import { dataSeriesDataFieldNames } from "@/types";
 
@@ -91,6 +92,7 @@ export function ManualGoalForm({
 
 export function InheritedGoalForm({
   currentGoal,
+  roadmapAlternatives,
 }: {
   currentGoal?: Goal & {
     dataSeries: DataSeries | null,
@@ -107,8 +109,8 @@ export function InheritedGoalForm({
     links?: { url: string, description: string | null }[],
     roadmap: { id: string },
   },
+  roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
 }) {
-  const [roadmapList, setRoadmapList] = useState<Awaited<ReturnType<typeof clientSafeGetRoadmaps>>>([]);
   const [selectedRoadmap, setSelectedRoadmap] = useState(currentGoal?.combinationParents[0]?.parentGoal.roadmapId);
   const [roadmapData, setRoadmapData] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
   const [selectedGoal, setSelectedGoal] = useState(currentGoal?.combinationParents[0]?.parentGoal.id);
@@ -116,7 +118,6 @@ export function InheritedGoalForm({
   const [parsedUnit, setParsedUnit] = useState<string | null>(null);
 
   useEffect(() => {
-    clientSafeGetRoadmaps().then(setRoadmapList);
     if (currentGoal?.combinationParents[0]?.parentGoal.roadmapId) {
       setSelectedRoadmap(currentGoal.combinationParents[0].parentGoal.roadmapId);
     }
@@ -148,7 +149,7 @@ export function InheritedGoalForm({
           onChange={(e) => { setSelectedRoadmap(e.target.value); setSelectedGoal(undefined) }}
         >
           <option value="">Välj färdplan</option>
-          {roadmapList.map((roadmap) => (
+          {roadmapAlternatives.map((roadmap) => (
             <option value={roadmap.id} key={`roadmap-inherit${roadmap.id}`}>
               {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.goals} mål`}
             </option>
@@ -200,7 +201,7 @@ export function CombinedGoalForm({
   roadmapId,
   currentGoal,
 }: {
-  roadmapId: string,
+  roadmapId?: string,
   currentGoal?: Goal & {
     dataSeries: DataSeries | null,
     combinationScale: string | null,
@@ -222,7 +223,7 @@ export function CombinedGoalForm({
   const [parsedUnit, setParsedUnit] = useState<string | null>(null);
 
   useEffect(() => {
-    clientSafeGetOneRoadmap(roadmapId).then(setCurrentRoadmap);
+    clientSafeGetOneRoadmap(roadmapId || '').then(setCurrentRoadmap);
   }, [roadmapId]);
 
   useEffect(() => {

@@ -1,7 +1,9 @@
 'use server';
 
+import { nameSelector } from "@/fetchers/inclusionSelectors";
 import { getSession, LoginData } from "@/lib/session";
 import prisma from "@/prismaClient";
+import { Prisma } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -23,61 +25,15 @@ export default async function getNames() {
  */
 const getCachedNames = unstable_cache(
   async (user: LoginData['user']) => {
-    let names: {
-      name: string,
-      id: string,
-      roadmapVersions: {
-        version: number,
-        id: string,
-        metaRoadmap: {
-          name: string,
-          id: string,
-        },
-        goals: {
-          name: string | null,
-          indicatorParameter: string,
-          id: string,
-          actions: {
-            name: string,
-            id: string,
-          }[],
-        }[],
-      }[],
-    }[] = [];
+    let names: Prisma.MetaRoadmapGetPayload<{
+      select: typeof nameSelector
+    }>[] = [];
 
     // If user is admin, get all roadmaps
     if (user?.isAdmin) {
       try {
         names = await prisma.metaRoadmap.findMany({
-          select: {
-            name: true,
-            id: true,
-            roadmapVersions: {
-              select: {
-                version: true,
-                id: true,
-                metaRoadmap: {
-                  select: {
-                    name: true,
-                    id: true,
-                  },
-                },
-                goals: {
-                  select: {
-                    name: true,
-                    indicatorParameter: true,
-                    id: true,
-                    actions: {
-                      select: {
-                        name: true,
-                        id: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
+          select: nameSelector,
         });
       } catch (error) {
         console.log(error);
@@ -109,45 +65,7 @@ const getCachedNames = unstable_cache(
               { roadmapVersions: { some: { isPublic: true } } },
             ]
           },
-          select: {
-            name: true,
-            id: true,
-            roadmapVersions: {
-              where: {
-                OR: [
-                  { authorId: user.id },
-                  { editors: { some: { id: user.id } } },
-                  { viewers: { some: { id: user.id } } },
-                  { editGroups: { some: { users: { some: { id: user.id } } } } },
-                  { viewGroups: { some: { users: { some: { id: user.id } } } } },
-                  { isPublic: true }
-                ]
-              },
-              select: {
-                version: true,
-                id: true,
-                metaRoadmap: {
-                  select: {
-                    name: true,
-                    id: true,
-                  },
-                },
-                goals: {
-                  select: {
-                    name: true,
-                    indicatorParameter: true,
-                    id: true,
-                    actions: {
-                      select: {
-                        name: true,
-                        id: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
+          select: nameSelector,
         });
       } catch (error) {
         console.log(error);
@@ -167,38 +85,7 @@ const getCachedNames = unstable_cache(
             { roadmapVersions: { some: { isPublic: true } } },
           ]
         },
-        select: {
-          name: true,
-          id: true,
-          roadmapVersions: {
-            where: {
-              isPublic: true,
-            },
-            select: {
-              version: true,
-              id: true,
-              metaRoadmap: {
-                select: {
-                  name: true,
-                  id: true,
-                },
-              },
-              goals: {
-                select: {
-                  name: true,
-                  indicatorParameter: true,
-                  id: true,
-                  actions: {
-                    select: {
-                      name: true,
-                      id: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
+        select: nameSelector,
       });
     } catch (error) {
       console.log(error);

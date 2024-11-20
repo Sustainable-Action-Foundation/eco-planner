@@ -20,10 +20,10 @@ export async function middleware(req: NextRequest) {
   }
 
   /**
-   * Mathces the creation and editing pages for MetaRoadmaps, Roadmaps, Goals, and Actions, with or without trailing slashes.
+   * Matches the creation and editing pages for MetaRoadmaps, Roadmaps, Goals, Actions, and Effects, with or without trailing slashes.
    * For example, "/createMetaRoadmap" or "/editAction/"
    */
-  const createOrEditRegEx = /\/(create|edit)(MetaRoadmap|Roadmap|Goal|Action)\/?$/
+  const createOrEditRegEx = /\/(create|edit)(MetaRoadmap|Roadmap|Goal|Action|Effect)\/?$/
   // Redirect away from creation and editing pages if not logged in
   if (req.nextUrl.pathname.match(createOrEditRegEx)) {
     if (!session.user?.isLoggedIn) {
@@ -38,7 +38,15 @@ export async function middleware(req: NextRequest) {
    * Locks all pages except the login/signup process and the info and home pages to logged in users.
    */
   if (!session.user?.isLoggedIn) {
-    if (req.nextUrl.pathname.startsWith('/dashboard') || req.nextUrl.pathname.startsWith('/roadmap') || req.nextUrl.pathname.startsWith('/metaRoadmap') || req.nextUrl.pathname.startsWith('/user')) {
+    if (
+      req.nextUrl.pathname.startsWith('/dashboard')
+      || req.nextUrl.pathname.startsWith('/metaRoadmap')
+      || req.nextUrl.pathname.startsWith('/roadmap')
+      || req.nextUrl.pathname.startsWith('/goal')
+      || req.nextUrl.pathname.startsWith('/action')
+      || req.nextUrl.pathname.startsWith('/effect')
+      || req.nextUrl.pathname.startsWith('/user')
+    ) {
       const loginUrl = new URL('/login', req.url)
       // Save the current page as the "from" query parameter so we can redirect back after logging in
       loginUrl.searchParams.set('from', req.nextUrl.pathname)

@@ -1,18 +1,18 @@
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames, DataSeriesDataFields } from "@/types";
-import { Goal, DataSeries, Action, ActionImpactType } from "@prisma/client";
+import { Goal, DataSeries, ActionImpactType, Effect } from "@prisma/client";
 import styles from '../graphs.module.css';
 
 export default function MainDeltaGraph({
   goal,
   secondaryGoal,
   nationalGoal,
-  actions,
+  effects,
 }: {
   goal: Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null },
   secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
   nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
-  actions: (Action & { dataSeries: DataSeries | null })[],
+  effects: (Effect & { dataSeries: DataSeries | null })[],
 }) {
   if (!goal.dataSeries) {
     return null
@@ -62,7 +62,7 @@ export default function MainDeltaGraph({
   });
 
   if (goal.baselineDataSeries) {
-    // Baseline / predicted outcome without actions
+    // Baseline / predicted outcome without actions/effects
     const baselineSeries = [];
     for (let i = 1; i < dataSeriesDataFieldNames.length; i++) {
       const currentField = dataSeriesDataFieldNames[i];
@@ -81,23 +81,23 @@ export default function MainDeltaGraph({
     });
 
     // Calculate total impact of actions
-    const actionSum: Partial<DataSeriesDataFields> = {};
+    const totalEffect: Partial<DataSeriesDataFields> = {};
     for (const i of dataSeriesDataFieldNames) {
-      for (const action of actions) {
-        if (action.dataSeries && action.dataSeries[i] != null) {
-          if (!actionSum[i]) {
-            actionSum[i] = 0;
+      for (const effect of effects) {
+        if (effect.dataSeries && effect.dataSeries[i] != null) {
+          if (!totalEffect[i]) {
+            totalEffect[i] = 0;
           }
-          switch (action.impactType) {
+          switch (effect.impactType) {
             case ActionImpactType.DELTA:
               // Add sum of all deltas up to this point for the current action
               let totalDelta = 0;
               for (const j of dataSeriesDataFieldNames.slice(0, dataSeriesDataFieldNames.indexOf(i) + 1)) {
-                if (action.dataSeries[j] != null) {
-                  totalDelta += action.dataSeries[j];
+                if (effect.dataSeries[j] != null) {
+                  totalDelta += effect.dataSeries[j];
                 }
               }
-              actionSum[i] += totalDelta;
+              totalEffect[i] += totalDelta;
               break;
             case ActionImpactType.PERCENT:
               // Add previous year's (baseline + actionSum) multiplied by current action as percent
@@ -106,12 +106,12 @@ export default function MainDeltaGraph({
                 break;
               }
               // Substitute with 0 if any value is missing
-              actionSum[i] += ((actionSum[previous] ?? 0) + (goal.baselineDataSeries[previous] ?? 0)) * (action.dataSeries[i] / 100);
+              totalEffect[i] += ((totalEffect[previous] ?? 0) + (goal.baselineDataSeries[previous] ?? 0)) * (effect.dataSeries[i] / 100);
               break;
             case ActionImpactType.ABSOLUTE:
             default:
               // Add current value
-              actionSum[i] += action.dataSeries[i];
+              totalEffect[i] += effect.dataSeries[i];
               break;
           }
         }
@@ -119,15 +119,15 @@ export default function MainDeltaGraph({
     }
 
     // Predicted outcome with actions
-    if (Object.keys(actionSum).length > 0) {
+    if (Object.keys(totalEffect).length > 0) {
       const actionOutcome = [];
       for (let i = 1; i < dataSeriesDataFieldNames.length; i++) {
         const currentField = dataSeriesDataFieldNames[i];
         const previousField = dataSeriesDataFieldNames[i - 1];
-        if (actionSum[currentField] != null && actionSum[previousField] != null && goal.baselineDataSeries[currentField] != null && goal.baselineDataSeries[previousField] != null) {
+        if (totalEffect[currentField] != null && totalEffect[previousField] != null && goal.baselineDataSeries[currentField] != null && goal.baselineDataSeries[previousField] != null) {
           actionOutcome.push({
             x: new Date(currentField.replace('val', '')).getTime(),
-            y: (actionSum[currentField]! + goal.baselineDataSeries[currentField]!) - (actionSum[previousField]! + goal.baselineDataSeries[previousField]!)
+            y: (totalEffect[currentField]! + goal.baselineDataSeries[currentField]!) - (totalEffect[previousField]! + goal.baselineDataSeries[previousField]!)
           });
         }
       }
@@ -143,23 +143,23 @@ export default function MainDeltaGraph({
 
     if (firstNonNull) {
       // Calculate total impact of actions
-      const actionSum: Partial<DataSeriesDataFields> = {};
+      const totalEffect: Partial<DataSeriesDataFields> = {};
       for (const i of dataSeriesDataFieldNames) {
-        for (const action of actions) {
-          if (action.dataSeries && action.dataSeries[i] != null) {
-            if (!actionSum[i]) {
-              actionSum[i] = 0;
+        for (const effect of effects) {
+          if (effect.dataSeries && effect.dataSeries[i] != null) {
+            if (!totalEffect[i]) {
+              totalEffect[i] = 0;
             }
-            switch (action.impactType) {
+            switch (effect.impactType) {
               case ActionImpactType.DELTA:
                 // Add sum of all deltas up to this point for the current action
                 let totalDelta = 0;
                 for (const j of dataSeriesDataFieldNames.slice(0, dataSeriesDataFieldNames.indexOf(i) + 1)) {
-                  if (action.dataSeries[j] != null) {
-                    totalDelta += action.dataSeries[j];
+                  if (effect.dataSeries[j] != null) {
+                    totalDelta += effect.dataSeries[j];
                   }
                 }
-                actionSum[i] += totalDelta;
+                totalEffect[i] += totalDelta;
                 break;
               case ActionImpactType.PERCENT:
                 // Add previous year's (baseline + actionSum) multiplied by current action as percent
@@ -168,12 +168,12 @@ export default function MainDeltaGraph({
                   break;
                 }
                 // Substitute with 0 if any value is missing
-                actionSum[i] += ((actionSum[previous] ?? 0) + (goal.dataSeries[firstNonNull] ?? 0)) * (action.dataSeries[i] / 100);
+                totalEffect[i] += ((totalEffect[previous] ?? 0) + (goal.dataSeries[firstNonNull] ?? 0)) * (effect.dataSeries[i] / 100);
                 break;
               case ActionImpactType.ABSOLUTE:
               default:
                 // Add current value
-                actionSum[i] += action.dataSeries[i];
+                totalEffect[i] += effect.dataSeries[i];
                 break;
             }
           }
@@ -181,15 +181,15 @@ export default function MainDeltaGraph({
       }
 
       // Predicted outcome with actions
-      if (Object.keys(actionSum).length > 0) {
+      if (Object.keys(totalEffect).length > 0) {
         const actionOutcome = [];
         for (let i = 1; i < dataSeriesDataFieldNames.length; i++) {
           const currentField = dataSeriesDataFieldNames[i];
           const previousField = dataSeriesDataFieldNames[i - 1];
-          if (actionSum[currentField] != null && actionSum[previousField] != null) {
+          if (totalEffect[currentField] != null && totalEffect[previousField] != null) {
             actionOutcome.push({
               x: new Date(currentField.replace('val', '')).getTime(),
-              y: actionSum[currentField]! - actionSum[previousField]!
+              y: totalEffect[currentField]! - totalEffect[previousField]!
             });
           }
         }
@@ -208,7 +208,7 @@ export default function MainDeltaGraph({
     for (let i = 1; i < dataSeriesDataFieldNames.length; i++) {
       const currentField = dataSeriesDataFieldNames[i];
       const previousField = dataSeriesDataFieldNames[i - 1];
-      if (secondaryGoal.dataSeries[currentField] && secondaryGoal.dataSeries[previousField]) {
+      if (secondaryGoal.dataSeries[currentField] != null && secondaryGoal.dataSeries[previousField] != null) {
         nationalSeries.push({
           x: new Date(currentField.replace('val', '')).getTime(),
           y: secondaryGoal.dataSeries[currentField]! - secondaryGoal.dataSeries[previousField]!
@@ -236,7 +236,7 @@ export default function MainDeltaGraph({
     for (let i = 1; i < dataSeriesDataFieldNames.length; i++) {
       const currentField = dataSeriesDataFieldNames[i];
       const previousField = dataSeriesDataFieldNames[i - 1];
-      if (nationalGoal.dataSeries[currentField] && nationalGoal.dataSeries[previousField]) {
+      if (nationalGoal.dataSeries[currentField] != null && nationalGoal.dataSeries[previousField] != null) {
         nationalSeries.push({
           x: new Date(currentField.replace('val', '')).getTime(),
           y: nationalGoal.dataSeries[currentField]! - nationalGoal.dataSeries[previousField]!

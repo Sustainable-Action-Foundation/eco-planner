@@ -9,7 +9,7 @@ interface GoalTableCommonProps {
 
 interface GoalTableWithGoals extends GoalTableCommonProps {
   goals: (Goal & {
-    _count: { actions: number }
+    _count: { effects: number }
     dataSeries: DataSeries | null,
     roadmap: { id: string, metaRoadmap: { name: string, id: string } },
   })[],
@@ -22,7 +22,7 @@ interface GoalTableWithRoadmap extends GoalTableCommonProps {
     id: string,
     metaRoadmap: { name: string, id: string },
     goals: (Goal & {
-      _count: { actions: number },
+      _count: { effects: number },
       dataSeries: DataSeries | null,
     })[]
   },
@@ -86,10 +86,10 @@ export default function GoalTable({
         <tbody>
           {goals.map(goal => (goal &&
             <tr key={goal.id}>
-              <td><a href={`/roadmap/${goal.roadmap.id}/goal/${goal.id}`}>{goal.name || goal.indicatorParameter}</a></td>
+              <td><a href={`/goal/${goal.id}`}>{goal.name || goal.indicatorParameter}</a></td>
               <td>{goal.indicatorParameter}</td>
               <td>{goal.dataSeries?.unit}</td>
-              <td>{goal._count.actions}</td>
+              <td>{goal._count.effects}</td>
             </tr>
           ))}
         </tbody>

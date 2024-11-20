@@ -35,7 +35,7 @@ export default function Goals({
   title: string,
   roadmap: Roadmap & {
     goals: (Goal & {
-      _count: { actions: number }
+      _count: { effects: number }
       dataSeries: DataSeries | null,
       author: { id: string, username: string },
     })[],
@@ -112,7 +112,7 @@ export default function Goals({
           <TableSelector id={roadmap.id} current={viewMode} setter={setViewMode} />
           { // Only show the button if the user has edit access to the roadmap
             (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-            <Link className="button round color-purewhite pureblack" style={{ fontWeight: '500' }} href={`/roadmap/${roadmap.id}/goal/createGoal`}>Skapa ny målbana</Link>
+            <Link className="button round color-purewhite pureblack" style={{ fontWeight: '500' }} href={`/goal/createGoal?roadmapId=${roadmap.id}`}>Skapa ny målbana</Link>
           }
           <div className={styles.settings}>
             <input type="checkbox" />
