@@ -2,9 +2,6 @@ import { defineConfig } from "cypress";
 import PocketBase from 'pocketbase';
 import { readdirSync } from 'fs';
 import { readFileSync } from 'fs';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 const pb = new PocketBase(process.env.POCKETBASE_INSTANCE);
 
@@ -18,6 +15,7 @@ export default defineConfig({
 
         const username = process.env.POCKETBASE_USER
         const password = process.env.POCKETBASE_PASSWORD
+
         if (username && password) {
           await pb.admins.authWithPassword(username, password); 
         } else {
