@@ -24,7 +24,7 @@ describe('Screenshot tests', () => {
 
     // Then visit Login
     cy.visit('/login').screenshot('login', {capture: "fullPage", overwrite: true})
-    cy.get('input[type="text"]').type(Cypress.env('user_name')) // TODO: Probably do this in some nicer way :)
+    cy.get('input[type="text"]').type(Cypress.env('user_name'))
     cy.get('input[type="password"]').type(Cypress.env('user_password'))
     cy.get('input[type="submit"]').click().wait(500) // TODO: Should probably check that login api returns status 200 
   })

@@ -53,7 +53,15 @@ See image, or refer to [schema.prisma](/prisma/schema.prisma) for the full, up-t
 }
 ```
 
-2. Setup and run tests using `npx cypress open`
+2. Add Aditional enviroment variables in the .env file to support uploading test results to PocketBase
+
+```
+POCKETBASE_INSTANCE=''
+POCKETBASE_USER=''
+POCKETBASE_PASSWORD=''
+```
+
+3. Setup and run tests using `npx cypress open`
 
 ## Components
 
