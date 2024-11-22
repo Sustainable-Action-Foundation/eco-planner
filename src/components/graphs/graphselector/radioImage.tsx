@@ -17,7 +17,7 @@ export default function RadioImage({
 
   return (
     <>
-      <label className={`padding-inline-50 padding-block-25 transparent smooth ${styles.radioImageWrapper}`}>
+      <label className={`padding-50 transparent smooth ${styles.radioImageWrapper}`}>
         {text}
         <input type='radio' name={name} value={value} checked={checked} onChange={onChange}/>
       </label>
