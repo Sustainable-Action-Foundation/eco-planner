@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import getOneGoal from "@/fetchers/getOneGoal";
 import { AccessControlled, AccessLevel } from "@/types";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
+import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 
 
 export default async function Page({ params }: { params: { goalId: string } }) {
@@ -35,6 +36,8 @@ export default async function Page({ params }: { params: { goalId: string } }) {
 
   return (
     <>
+      <Breadcrumb object={currentGoal} customSections={['Redigera målbana']} />
+
       <div className="container-text" style={{ marginInline: 'auto' }}>
         <h1>Redigera målbana: {currentGoal.name ? currentGoal.name : currentGoal.indicatorParameter}</h1>
         <GoalForm roadmapId={currentGoal.roadmapId} currentGoal={currentGoal} roadmapAlternatives={roadmapList} />

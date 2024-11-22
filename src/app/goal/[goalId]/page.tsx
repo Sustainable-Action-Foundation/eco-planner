@@ -25,6 +25,7 @@ import GraphCookie from "@/components/cookies/graphCookie";
 import UpdateGoalButton from "@/components/buttons/updateGoalButton";
 import getRoadmaps from "@/fetchers/getRoadmaps";
 import EffectTable from "@/components/tables/effects.tsx";
+import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 
 export default async function Page({
   params,
@@ -109,6 +110,7 @@ export default async function Page({
 
   return (
     <>
+      <Breadcrumb object={goal} />
 
       { /* Only allow scaling the values if the user has edit access to the goal
         (accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Edit) && goal.dataSeries?.id &&
@@ -121,7 +123,7 @@ export default async function Page({
         <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects}>
           {(goal.dataSeries?.id && session.user) ?
             <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
-          : null}
+            : null}
         </GraphGraph>
         <CombinedGraph roadmap={roadmap} goal={goal} />
       </section>

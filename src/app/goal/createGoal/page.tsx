@@ -6,6 +6,7 @@ import accessChecker from "@/lib/accessChecker";
 import Image from "next/image";
 import { AccessLevel } from "@/types";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
+import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 
 
 export default async function Page({
@@ -32,6 +33,8 @@ export default async function Page({
 
   return (
     <>
+      <Breadcrumb object={roadmap || undefined} customSections={['Skapa ny målbana']} />
+
       <div className="container-text" style={{ marginInline: 'auto' }}>
         <h1>Skapa ny målbana</h1>
         {badRoadmap &&

@@ -6,6 +6,7 @@ import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
 import getOneMetaRoadmap from '@/fetchers/getOneMetaRoadmap';
 import accessChecker from '@/lib/accessChecker';
 import { AccessLevel } from '@/types';
+import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
 
 export default async function Page({ params }: { params: { metaRoadmapId: string } }) {
   const [session, currentRoadmap, parentRoadmapOptions] = await Promise.all([
@@ -23,7 +24,9 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
 
   return (
     <>
-      <div className='container-text' style={{marginInline: 'auto'}}>
+      <Breadcrumb object={currentRoadmap} customSections={['Redigera metadata']} />
+
+      <div className='container-text' style={{ marginInline: 'auto' }}>
         <h1>Redigera metadatan för färdplan: {`${currentRoadmap.name}`}</h1>
         <MetaRoadmapForm
           user={session.user}

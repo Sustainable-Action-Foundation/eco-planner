@@ -3,6 +3,7 @@ import MetaRoadmapForm from '@/components/forms/metaRoadmapForm/metaRoadmapForm'
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
+import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
 
 export default async function Page() {
   const [session, parentRoadmapOptions] = await Promise.all([
@@ -17,9 +18,13 @@ export default async function Page() {
 
   return (
     <>
+      <Breadcrumb customSections={['Skapa ny färdplan']} />
+
       <div className='container margin-inline-auto flex gap-100 justify-content-space-around'>
         <section className='container-text'>
-          <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>Skapa en ny färdplan</h1>
+          <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
+            Skapa en ny färdplan
+          </h1>
           <MetaRoadmapForm
             user={session.user}
             userGroups={session.user?.userGroups}

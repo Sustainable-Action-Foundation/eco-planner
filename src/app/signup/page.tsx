@@ -1,10 +1,13 @@
 import Signup from "@/components/forms/userInfo/signup";
 import AttributedImage from "@/components/generic/images/attributedImage";
-import styles from "./page.module.css" with { type: "css" };;
+import styles from "./page.module.css" with { type: "css" }; import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+;
 
 export default async function Page() {
   return (
     <>
+      <Breadcrumb customSections={['Skapa konto']} />
+
       <main className={`${styles.gridLayout} container margin-auto padding-block-500 grid gap-300 align-items-center`}>
         <Signup />
         <div className={`${styles.image} position-relative width-100 rounded overflow-hidden`}>

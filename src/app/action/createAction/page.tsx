@@ -7,6 +7,7 @@ import getOneGoal from "@/fetchers/getOneGoal";
 import { AccessControlled, AccessLevel } from "@/types";
 import getOneRoadmap from "@/fetchers/getOneRoadmap";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
+import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 
 export default async function Page({
   searchParams
@@ -51,6 +52,8 @@ export default async function Page({
 
   return (
     <>
+      <Breadcrumb object={goal || roadmap || undefined} customSections={['Skapa ny åtgärd']} />
+
       <div className="container-text" style={{ marginInline: 'auto' }}>
         {goal ?
           <h1>Skapa ny åtgärd under målbana: {`${goal?.name || goal?.indicatorParameter}`}</h1>
