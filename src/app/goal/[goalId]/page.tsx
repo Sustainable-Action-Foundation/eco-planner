@@ -162,10 +162,12 @@ export default async function Page({
 
         <div className="flex align-items-center justify-content-space-between">
           <h2>Åtgärder</h2>
-          <div className="flex gap-50">
-            <Link href={`/effect/createEffect?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Koppla till en existerande åtgärd</Link>
-            <Link href={`/action/createAction?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
-          </div>
+          {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
+            <div className="flex gap-50">
+              <Link href={`/effect/createEffect?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Koppla till en existerande åtgärd</Link>
+              <Link href={`/action/createAction?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
+            </div>
+          }
         </div>
 
         <div className="margin-block-100">
