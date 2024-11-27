@@ -5,6 +5,7 @@ import { AccessLevel } from '@/types'
 import GoalTable from "./goalTables/goalTable"
 import TableSelector from './tableSelector/tableSelector'
 import LinkTree from './goalTables/linkTree'
+import ActionTable from "./actions"
 import { useEffect, useState } from "react"
 import { getStoredGoalSortBy, getStoredViewMode, setStoredGoalSortBy } from "./functions/tableFunctions"
 import Link from "next/link"
@@ -40,6 +41,7 @@ export default function Goals({
       dataSeries: DataSeries | null,
       author: { id: string, username: string },
     })[],
+    actions: any,
     metaRoadmap: { name: string, id: string },
     author: { id: string, username: string },
   },
@@ -121,10 +123,8 @@ export default function Goals({
       {viewMode == ViewMode.Table && (
         <GoalTable roadmap={filteredRoadmap} sortBy={sortBy} />
       )}
-
-      {/* TODO: Add actions component here */}
       {viewMode == ViewMode.Actions && (
-        <GoalTable roadmap={filteredRoadmap} /> 
+        <ActionTable actions={filteredRoadmap.actions} />
       )}
       {(viewMode != ViewMode.Table && viewMode != ViewMode.Tree) && (
         <p>
