@@ -16,6 +16,7 @@ import GraphCookie from "../cookies/graphCookie"
 export enum ViewMode {
   Table = "TABLE",
   Tree = "TREE",
+  Actions = "ACTIONS"
 };
 
 export enum GoalSortBy {
@@ -94,17 +95,6 @@ export default function Goals({
             </div>
           )}
         </section>
-        {/* <section id="roadmapFilters" className="margin-block-200 padding-100 gray-90 rounded">
-          <b>Enhet</b>
-          <label className="flex align-items-center gap-25 margin-block-50">
-            <input type="checkbox" />
-            Enhet 1
-          </label>
-          <label className="flex align-items-center gap-25 margin-block-50">
-            <input type="checkbox" />
-            Enhet 2
-          </label>
-        </section> */}
       </section>
       <label htmlFor="goalTable" className={`display-flex justify-content-space-between align-items-center flex-wrap-wrap ${styles.tableNav}`}>
         <h2>{title}</h2>
@@ -125,11 +115,16 @@ export default function Goals({
         <GraphCookie />
       </div>
 
+      {viewMode == ViewMode.Tree && (
+        <LinkTree roadmap={filteredRoadmap} />
+      )}
       {viewMode == ViewMode.Table && (
         <GoalTable roadmap={filteredRoadmap} sortBy={sortBy} />
       )}
-      {viewMode == ViewMode.Tree && (
-        <LinkTree roadmap={filteredRoadmap} />
+
+      {/* TODO: Add actions component here */}
+      {viewMode == ViewMode.Actions && (
+        <GoalTable roadmap={filteredRoadmap} /> 
       )}
       {(viewMode != ViewMode.Table && viewMode != ViewMode.Tree) && (
         <p>
