@@ -29,6 +29,7 @@ export enum GoalSortBy {
   Interesting = "INTEREST",
 }
 
+{/* TODO: Fix this any type */}
 export default function Goals({
   title,
   roadmap,
@@ -41,7 +42,7 @@ export default function Goals({
       dataSeries: DataSeries | null,
       author: { id: string, username: string },
     })[],
-    actions: any,
+    actions: any, 
     metaRoadmap: { name: string, id: string },
     author: { id: string, username: string },
   },
@@ -100,7 +101,7 @@ export default function Goals({
       </section>
       <label htmlFor="goalTable" className={`display-flex justify-content-space-between align-items-center flex-wrap-wrap ${styles.tableNav}`}>
         <h2>{title}</h2>
-        <nav className='display-flex align-items-center gap-100'>
+        <menu className='display-flex align-items-center gap-100'>
           <TableSelector id={roadmap.id} current={viewMode} setter={setViewMode} />
           { // Only show the button if the user has edit access to the roadmap
             (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
@@ -110,7 +111,7 @@ export default function Goals({
             <input type="checkbox" />
             <Image src="/icons/settings.svg" alt="Inställningar" width="24" height="24" />
           </div>
-        </nav>
+        </menu>
       </label>
 
       <div className={styles.settingsContainer}>
@@ -126,7 +127,7 @@ export default function Goals({
       {viewMode == ViewMode.Actions && (
         <ActionTable actions={filteredRoadmap.actions} />
       )}
-      {(viewMode != ViewMode.Table && viewMode != ViewMode.Tree) && (
+      {(viewMode != ViewMode.Table && viewMode != ViewMode.Tree && viewMode != ViewMode.Actions) && (
         <p>
           Laddar vyn... Om vyn inte laddar efter någon sekund, testa att byta vy med knapparna uppe till höger.
         </p>
