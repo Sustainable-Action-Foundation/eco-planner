@@ -12,6 +12,7 @@ import RepeatableScaling from "@/components/repeatableScaling";
 import { getScalingResult } from "@/components/modals/copyAndScale";
 import mathjs from "@/math";
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
+import styles from '../forms.module.css'
 
 enum DataSeriesType {
   Static = "STATIC",
@@ -187,7 +188,7 @@ export default function GoalForm({
 
   return (
     <>
-      <form onSubmit={handleSubmit} onChange={() => { recalculateScalingResult() }} name="goalForm">
+      <form onSubmit={handleSubmit} onChange={() => { recalculateScalingResult() }} name="goalForm" className="padding-left-300" style={{ transform: 'translate(-3rem, 0)' }}>
         {/* This hidden submit button prevents submitting by pressing enter, to avoid accidental submission */}
         <button type="submit" disabled={true} style={{ display: 'none' }} aria-hidden={true} />
 
@@ -209,27 +210,35 @@ export default function GoalForm({
           : null
         }
 
-        <label className="block margin-block-75">
-          Vilken typ av dataserie vill du skapa?
-          <select name="dataSeriesType" id="dataSeriesType" className="margin-inline-25"
-            defaultValue={!currentGoal?.combinationParents.length ? DataSeriesType.Static : currentGoal.combinationParents.length >= 2 ? DataSeriesType.Combined : DataSeriesType.Inherited}
-            onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
-          >
-            <option value={DataSeriesType.Static}>Statisk</option>
-            <option value={DataSeriesType.Inherited}>Ärvd</option>
-            <option value={DataSeriesType.Combined}>Kombinerad</option>
-          </select>
-        </label>
+        <fieldset className={`${styles.timeLineFieldset} width-100`}>
+          <legend data-position='1' className={`${styles.timeLineLegend} font-weight-bold`}>Beskriv din målbana</legend>
+          <label className="block margin-bottom-100 margin-top-200">
+            Vilken typ av dataserie vill du skapa?
+            <select name="dataSeriesType" id="dataSeriesType" className="block margin-block-25"
+              defaultValue={!currentGoal?.combinationParents.length ? DataSeriesType.Static : currentGoal.combinationParents.length >= 2 ? DataSeriesType.Combined : DataSeriesType.Inherited}
+              onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
+            >
+              <option value={DataSeriesType.Static}>Statisk</option>
+              <option value={DataSeriesType.Inherited}>Ärvd</option>
+              <option value={DataSeriesType.Combined}>Kombinerad</option>
+            </select>
+          </label>
+        </fieldset>
 
-        <label className="block margin-block-75">
-          Namn på målbanan:
-          <input className="margin-block-25" type="text" name="goalName" id="goalName" defaultValue={currentGoal?.name ?? undefined} />
-        </label>
 
-        <label className="block margin-block-75">
-          Beskrivning av målbanan:
-          <input className="margin-block-25" type="text" name="description" id="description" defaultValue={currentGoal?.description ?? undefined} />
-        </label>
+        <fieldset className={`${styles.timeLineFieldset} width-100`}>
+          <legend data-position='2' className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Beskriv din målbana</legend>
+          <label className="block margin-block-100">
+            Namn på målbanan:
+            <input className="margin-block-25" type="text" name="goalName" id="goalName" defaultValue={currentGoal?.name ?? undefined} />
+          </label>
+
+          <label className="block margin-block-100">
+            Beskrivning av målbanan:
+            <textarea className="margin-block-25" name="description" id="description" defaultValue={currentGoal?.description ?? undefined}></textarea>
+          </label>
+        </fieldset>
+
 
         {(dataSeriesType === DataSeriesType.Static || !dataSeriesType) &&
           <ManualGoalForm currentGoal={currentGoal} dataSeriesString={dataSeriesString} />
@@ -258,17 +267,7 @@ export default function GoalForm({
                     defaultScaleBy={value.type || ScaleBy.Custom}
                   > {/* Multiplicative scaling doesn't use weights */}
                     <button type="button"
-                      style={{
-                        position: 'absolute',
-                        top: '0',
-                        right: '0',
-                        transform: 'translate(50%, calc(-20px - 50%))',
-                        backgroundColor: 'white',
-                        padding: '.25rem',
-                        borderRadius: '100%',
-                        display: 'grid',
-                        cursor: 'pointer'
-                      }} onClick={() => setScalingRecipe({ method: scalingRecipie.method, values: scalingRecipie.values.filter((_, i) => i !== index) })}>
+                      onClick={() => setScalingRecipe({ method: scalingRecipie.method, values: scalingRecipie.values.filter((_, i) => i !== index) })}>
                       <Image src='/icons/circleMinus.svg' alt="Ta bort skalning" width={24} height={24} />
                     </button>
                   </RepeatableScaling>
@@ -319,7 +318,13 @@ export default function GoalForm({
           <InheritingBaseline />
         }
 
-        <LinkInput links={currentGoal?.links} />
+        {/*
+          TODO: Re add this once it is needed 
+          <fieldset className={`${styles.timeLineFieldset} width-100`}>
+              <legend data-position='3' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Bifoga externa resurser</legend>
+              <LinkInput links={currentGoal?.links} />
+          </fieldset>
+        */}
 
         <label className="flex align-items-center gap-50 margin-block-100">
           <input type="checkbox" name="isFeatured" id="isFeatured" defaultChecked={currentGoal?.isFeatured} /> {/* TODO: Make toggle */}

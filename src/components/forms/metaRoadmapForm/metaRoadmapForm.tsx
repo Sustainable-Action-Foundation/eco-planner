@@ -102,7 +102,7 @@ export default function MetaRoadmapForm({
 
           <label className="block margin-block-100">
             Beskrivning av färdplanen
-            <textarea className="block smooth margin-block-25" name="description" id="description" defaultValue={currentRoadmap?.description ?? undefined} required></textarea>
+            <textarea className="block margin-block-25" name="description" id="description" defaultValue={currentRoadmap?.description ?? undefined} required></textarea>
           </label>
         </fieldset>
 

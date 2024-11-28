@@ -5,7 +5,8 @@
     "prebuild": "node --loader ts-node/esm ./src/scripts/generateLeapList.ts && node --loader ts-node/esm ./src/scripts/getDataSeriesValueFieldNames.ts && node --loader ts-node/esm ./src/scripts/getBuildInfo.ts",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "e2e:chrome": "cypress run --browser chrome"
   },
   "dependencies": {
     "@prisma/client": "^5.3.1",
