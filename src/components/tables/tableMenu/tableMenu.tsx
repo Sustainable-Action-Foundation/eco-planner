@@ -33,7 +33,7 @@ export function TableMenu(
       })
       // Action
       | (Action & {
-        effects: {
+        effects?: {
           goal: { id: string, roadmap: { id: string } },
         }[],
         roadmapVersions?: never,
