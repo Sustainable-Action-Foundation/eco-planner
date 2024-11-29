@@ -4,7 +4,7 @@ import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 import Image from "next/image";
 import { GoalInput, ScaleBy, ScaleMethod, ScalingRecipie, dataSeriesDataFieldNames, isScalingRecipie } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
-import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput";
+import /* LinkInput, */ { getLinks } from "@/components/forms/linkInput/linkInput";
 import formSubmitter from "@/functions/formSubmitter";
 import { useEffect, useMemo, useState } from "react";
 import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
