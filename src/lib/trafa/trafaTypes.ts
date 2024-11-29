@@ -1,3 +1,6 @@
+/** The URL to the Trafa API, with the path to the relevant endpoint and without any query parameters */
+export const trafaUrl = 'https://api.trafa.se/api/data';
+
 export type TrafaDataResponse = {
   Header: {
     Column: {
