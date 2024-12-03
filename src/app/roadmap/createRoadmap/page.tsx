@@ -33,8 +33,10 @@ export default async function Page() {
     <>
       <Breadcrumb customSections={['Skapa ny färdplansversion']} />
 
-      <div className='container-text' style={{ marginInline: 'auto' }}>
-        <h1>Skapa en ny version av en färdplan</h1>
+      <div className='container-text margin-inline-auto'>
+        <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
+          Skapa en ny version av en färdplan
+        </h1>
         <RoadmapForm
           user={session.user}
           userGroups={session.user?.userGroups}
