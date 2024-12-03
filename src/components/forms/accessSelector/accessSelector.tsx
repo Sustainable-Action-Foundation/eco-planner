@@ -1,23 +1,8 @@
 'use client'
 
-import { AccessControlled } from "@/types";
 import { useRef, useState } from "react";
 import Image from "next/image";
 import styles from './accessSelector.module.css' with { type: "css" }
-
-export default function AccessSelector({ groupOptions, currentAccess }: { groupOptions: string[], currentAccess?: AccessControlled | undefined }) {
-  return (
-    <>
-      <p>För att lägga till en användare/grupp, skriv in namnet och tryck på enter.</p>
-      <div className="margin-block-75">
-        <ViewUsers groupOptions={groupOptions} existingGroups={currentAccess?.viewGroups.map((group) => { return group.name })} isPublic={currentAccess?.isPublic} />
-      </div>
-      <div className="margin-block-75">
-        <EditUsers existingUsers={currentAccess?.editors.map((editor) => { return editor.username })} groupOptions={groupOptions} existingGroups={currentAccess?.editGroups.map((group) => { return group.name })} />
-      </div>
-    </>
-  )
-}
 
 /**
  * Converts the form data to a JSON object that can be sent to the API.

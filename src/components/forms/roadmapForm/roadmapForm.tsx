@@ -1,13 +1,12 @@
 'use client'
 
-import AccessSelector, { EditUsers, getAccessData, ViewUsers } from "@/components/forms/accessSelector/accessSelector"
+import { EditUsers, getAccessData, ViewUsers } from "@/components/forms/accessSelector/accessSelector"
 import getOneRoadmap from "@/fetchers/getOneRoadmap"
 import formSubmitter from "@/functions/formSubmitter"
 import parseCsv, { csvToGoalList } from "@/functions/parseCsv"
 import { LoginData } from "@/lib/session"
 import { AccessControlled, GoalInput, RoadmapInput } from "@/types"
 import { Goal, MetaRoadmap, Roadmap } from "@prisma/client"
-import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import styles from '../forms.module.css'
@@ -224,7 +223,7 @@ export default function RoadmapForm({
         )}
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position='3' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Ladda upp målbanor</legend>
+          <legend data-position='2' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Ladda upp målbanor</legend>
           <label className="block margin-bottom-100">
             {/*TODO: Add to infobubble
             Om du har en CSV-fil med målbanor kan du ladda upp den här. <br />
@@ -236,7 +235,7 @@ export default function RoadmapForm({
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-            <legend data-position='4' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Justera läsbehörighet</legend>
+            <legend data-position='3' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Justera läsbehörighet</legend>
             <ViewUsers
               groupOptions={userGroups}
               existingUsers={currentAccess?.viewers.map((user) => user.username)}
@@ -248,7 +247,7 @@ export default function RoadmapForm({
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-            <legend data-position='5' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Justera redigeringsbehörighet</legend>
+            <legend data-position='4' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Justera redigeringsbehörighet</legend>
             <EditUsers
               groupOptions={userGroups}
               existingUsers={currentAccess?.editors.map((user) => user.username)}
