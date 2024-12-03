@@ -95,7 +95,7 @@ export default function MetaRoadmapForm({
 
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
           <legend data-position='1' className={`${styles.timeLineLegend} font-weight-bold`}>Beskriv din färdplan</legend>
-          <label className="block margin-bottom-100 margin-top-200">
+          <label className="block margin-block-100">
             Namn för den nya färdplanen
             <input id="metaRoadmapName" name="metaRoadmapName" className="margin-block-25" type="text" defaultValue={currentRoadmap?.name ?? undefined} required />
           </label>
@@ -106,9 +106,9 @@ export default function MetaRoadmapForm({
           </label>
         </fieldset>
 
-        <fieldset className={`${styles.timeLineFieldset} width-100`}>
+        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position='2' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Välj ansvarig aktör</legend>
-          <label className="block margin-block-100">
+          <label className="block margin-bottom-100">
             Typ av färdplan
             <select className="block margin-block-25" name="type" id="type" defaultValue={currentRoadmap?.type ?? ""} required>
               <option value="">Välj en typ</option>
@@ -138,7 +138,7 @@ export default function MetaRoadmapForm({
         */}
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
-          <fieldset className={`${styles.timeLineFieldset} width-100`}>
+          <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
             <legend data-position='3' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Justera läsbehörighet</legend>
             <ViewUsers
               groupOptions={userGroups}
@@ -151,7 +151,7 @@ export default function MetaRoadmapForm({
 
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
-          <fieldset className={`${styles.timeLineFieldset} width-100`}>
+          <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
             <legend data-position='4' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Justera redigeringsbehörighet</legend>
             <EditUsers
               groupOptions={userGroups}
@@ -161,7 +161,7 @@ export default function MetaRoadmapForm({
           </fieldset>
         }
 
-        <fieldset className={`${styles.timeLineFieldset} width-100`}>
+        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position='5' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Jobbar denna färdplan mot en annan färdplan?</legend>
           <label className="block margin-block-75">
             Förälder
