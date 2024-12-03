@@ -2,34 +2,10 @@
 
 // TODO: Move to actions.tsx
 import styles from './tables.module.css' with { type: "css" };
-import { Action, Goal } from "@prisma/client"
-import { AccessLevel } from '@/types'
+import { Action } from '@prisma/client';
+import { AccessLevel } from '@/types';
 import Link from 'next/link';
 import { TableMenu } from './tableMenu/tableMenu';
-
-interface ActionTableCommonProps {
-  accessLevel?: AccessLevel,
-}
-
-interface ActionTableWithGoal extends ActionTableCommonProps {
-  goal: Goal & {
-    effects: {
-      action: Action
-    }[]
-  },
-  actions?: never,
-}
-
-interface ActionTableWithActions extends ActionTableCommonProps {
-  goal?: never,
-  actions: (Action & {
-    effects: {
-      goal: { id: string, roadmap: { id: string } }
-    }[]
-  })[],
-}
-
-type ActionTableProps = ActionTableWithGoal | ActionTableWithActions;
 
 /**
  * Displays a table of actions. Requires either a goal XOR a list of actions.
@@ -38,29 +14,33 @@ type ActionTableProps = ActionTableWithGoal | ActionTableWithActions;
  * @param accessLevel The access level of the user
  */
 export default function ActionTable({
-  goal,
   actions,
   accessLevel,
-}: ActionTableProps) {
-  // Failsafe in case wrong props are passed
-  if ((!actions && !goal) || (actions && goal)) throw new Error('ActionTable: Either `goal` XOR `actions` must be provided');
-
-  // If a goal is provided, extract the actions from it
-  if (!actions) {
-    actions = goal?.effects.map((effect) => {
-      const fakeGoal = { id: goal.id, roadmap: { id: goal.roadmapId } };
-      return { ...effect.action, effects: [{ goal: fakeGoal }] };
-    });
-  }
-
+  roadmapId,
+}: {
+  actions: (Action & {
+    author?: {
+      id: string;
+      username: string;
+    },
+    _count?: {
+      effects: number;
+    },
+    effects?: {
+      goal: { id: string, roadmap: { id: string } }
+    }[],
+  })[]
+  accessLevel?: AccessLevel,
+  roadmapId?: string,
+}) {
   // If no actions are found, return a message
   if (!actions?.length) return (
     <>
-      <p>Målbanan har inga åtgärder.
-        { // Only show the button if the user has edit access to the goal and a goal is provided
-          (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) && goal &&
+      <p>Det finns inga åtgärder att visa.
+        { // Only show the button if the user has edit access and a roadmapId is provided
+          (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) && roadmapId &&
           <span> Vill du skapa en?&nbsp;
-            <Link href={`/action/createAction?roadmapId=${goal.roadmapId}&goalId=${goal.id}`}>
+            <Link href={`/action/createAction?roadmapId=${roadmapId}`}>
               Skapa ny åtgärd
             </Link>
           </span>
@@ -70,11 +50,6 @@ export default function ActionTable({
   );
 
   return <>
-    {/* 
-      Only show project manager if the user has edit access to the goal
-      (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-      <th>Projektansvarig</th>
-    */}
     {actions.map(action => (
       <div className='flex gap-100 justify-content-space-between align-items-center' key={action.id}>
         <a href={`/action/${action.id}`} className={`${styles.roadmapLink} flex-grow-100`}>

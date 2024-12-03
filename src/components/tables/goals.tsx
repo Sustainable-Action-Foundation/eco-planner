@@ -1,6 +1,5 @@
 "use client"
 
-import { DataSeries, Goal, Roadmap } from "@prisma/client"
 import { AccessLevel } from '@/types'
 import GoalTable from "./goalTables/goalTable"
 import TableSelector from './tableSelector/tableSelector'
@@ -12,6 +11,7 @@ import Link from "next/link"
 import Image from "next/image"
 import styles from './tables.module.css'
 import GraphCookie from "../cookies/graphCookie"
+import type getOneRoadmap from "@/fetchers/getOneRoadmap.ts"
 
 /** Enum for the different view modes for the goal table. */
 export enum ViewMode {
@@ -29,23 +29,13 @@ export enum GoalSortBy {
   Interesting = "INTEREST",
 }
 
-{/* TODO: Fix this any type */}
 export default function Goals({
   title,
   roadmap,
   accessLevel,
 }: {
   title: string,
-  roadmap: Roadmap & {
-    goals: (Goal & {
-      _count: { effects: number }
-      dataSeries: DataSeries | null,
-      author: { id: string, username: string },
-    })[],
-    actions: any, 
-    metaRoadmap: { name: string, id: string },
-    author: { id: string, username: string },
-  },
+  roadmap: NonNullable<Awaited<ReturnType<typeof getOneRoadmap>>>,
   accessLevel?: AccessLevel
 }) {
   const [viewMode, setViewMode] = useState<ViewMode | ''>('');
@@ -125,7 +115,7 @@ export default function Goals({
         <GoalTable roadmap={filteredRoadmap} sortBy={sortBy} />
       )}
       {viewMode == ViewMode.Actions && (
-        <ActionTable actions={filteredRoadmap.actions} />
+        <ActionTable actions={filteredRoadmap.actions} accessLevel={accessLevel} roadmapId={roadmap.id} />
       )}
       {(viewMode != ViewMode.Table && viewMode != ViewMode.Tree && viewMode != ViewMode.Actions) && (
         <p>
