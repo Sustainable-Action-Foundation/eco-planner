@@ -1,23 +1,8 @@
 'use client'
 
-import { AccessControlled } from "@/types";
 import { useRef, useState } from "react";
 import Image from "next/image";
 import styles from './accessSelector.module.css' with { type: "css" }
-
-export default function AccessSelector({ groupOptions, currentAccess }: { groupOptions: string[], currentAccess?: AccessControlled | undefined }) {
-  return (
-    <>
-      <p>För att lägga till en användare/grupp, skriv in namnet och tryck på enter.</p>
-      <div className="margin-block-75">
-        <ViewUsers groupOptions={groupOptions} existingGroups={currentAccess?.viewGroups.map((group) => { return group.name })} isPublic={currentAccess?.isPublic} />
-      </div>
-      <div className="margin-block-75">
-        <EditUsers existingUsers={currentAccess?.editors.map((editor) => { return editor.username })} groupOptions={groupOptions} existingGroups={currentAccess?.editGroups.map((group) => { return group.name })} />
-      </div>
-    </>
-  )
-}
 
 /**
  * Converts the form data to a JSON object that can be sent to the API.
@@ -116,9 +101,9 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
   return (
     <>
 
-      <fieldset className="margin-block-75">
+      <fieldset className="margin-bottom-100">
         <legend>Grupper med redigeringsbehörighet</legend>
-        <ul className="padding-left-100" style={{listStyle: 'none'}}>
+        <ul className="padding-left-100" style={{ listStyle: 'none' }}>
           {groups.map((group) => (
             <li key={'viewGroup' + group}>
               <label className="display-flex align-items-center gap-50 margin-block-50">
@@ -132,11 +117,11 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
 
       {/* A text field whose contents get appended to editUsers upon pressing enter */}
 
-      <label className="block margin-block-75" htmlFor="newEditUser">
-        Användare med läsbehörighet
+      <label className="block margin-block-100" htmlFor="newEditUser">
+        Användare med redigeringsbehörighet
         <div className={`${styles.multiAddContainer} flex align-items-flex-end flex-wrap-wrap margin-block-25 focusable smooth padding-25 gap-25`}>
           {editUsers.map((user, index) => (
-            <span className="display-flex gap-50 align-items-center padding-block-25 padding-inline-50 smooth" style={{backgroundColor: 'var(--gray-90)', width: 'fit-content'}} key={'viewUser' + index}>
+            <span className="display-flex gap-50 align-items-center padding-block-25 padding-inline-50 smooth" style={{ backgroundColor: 'var(--gray-90)', width: 'fit-content' }} key={'viewUser' + index}>
               {/* TODO: Add focusable to span here */}
               {user}
               <button
@@ -147,19 +132,18 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
               </button>
             </span>
           ))}
-          <input 
-            style={{backgroundColor: 'transparent', width: '0', minWidth: '100px', height: '100%'}} 
-            className="padding-25 flex-grow-100" 
-            type="text" 
+          <input
+            style={{ backgroundColor: 'transparent', width: '0', minWidth: '100px', height: '100%' }}
+            className="padding-25 flex-grow-100"
+            type="text"
             name="editUsers"
             id="newEditUser"
-            ref={editorRef} 
+            ref={editorRef}
             onKeyDown={(event) => handleKeyDown(event, editUsers, setEditUsers)} />
         </div>
       </label>
-      <button 
-        className="margin-bottom-75"
-        type="button" 
+      <button
+        type="button"
         onClick={() => { addUser(editorRef.current?.value, editUsers, setEditUsers); if (editorRef.current) editorRef.current.value = '' }}>
         Lägg till användare
       </button>
@@ -182,9 +166,9 @@ export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPubli
   return (
     <>
 
-      <fieldset className="margin-block-75">
+      <fieldset className="margin-bottom-100">
         <legend>Grupper med läsbehörighet</legend>
-        <ul className="padding-left-100" style={{listStyle: 'none'}}>
+        <ul className="padding-left-100" style={{ listStyle: 'none' }}>
           <li>
             <label className="display-flex align-items-center gap-50 margin-block-50">
               <input type="checkbox" name="isPublic" id="isPublic" defaultChecked={isPublic} />
@@ -203,11 +187,11 @@ export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPubli
       </fieldset>
 
       {/* A text field whose contents get appended to viewUsers upon pressing enter */}
-      <label className="block margin-block-75" htmlFor="newViewUser">
+      <label className="block margin-block-100" htmlFor="newViewUser">
         Användare med läsbehörighet
         <div className={`${styles.multiAddContainer} flex align-items-flex-end flex-wrap-wrap margin-block-25 focusable smooth padding-25 gap-25`}>
           {viewUsers.map((user, index) => (
-            <span className="display-flex gap-50 align-items-center padding-block-25 padding-inline-50 smooth" style={{backgroundColor: 'var(--gray-90)', width: 'fit-content'}} key={'viewUser' + index}>
+            <span className="display-flex gap-50 align-items-center padding-block-25 padding-inline-50 smooth" style={{ backgroundColor: 'var(--gray-90)', width: 'fit-content' }} key={'viewUser' + index}>
               {/* TODO: Add focusable to span here */}
               {user}
               <button
@@ -218,20 +202,19 @@ export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPubli
               </button>
             </span>
           ))}
-          <input 
-            style={{backgroundColor: 'transparent', width: '0', minWidth: '100px', height: '100%'}} 
-            className="padding-25 flex-grow-100" 
-            type="text" 
+          <input
+            style={{ backgroundColor: 'transparent', width: '0', minWidth: '100px', height: '100%' }}
+            className="padding-25 flex-grow-100"
+            type="text"
             name="viewUsers"
             id="newViewUser"
             ref={viewRef} onKeyDown={(event) => handleKeyDown(event, viewUsers, setViewUsers)} />
         </div>
       </label>
-      <button 
-        className="margin-bottom-75"
-        type="button" 
+      <button
+        type="button"
         onClick={() => { addUser(viewRef.current?.value, viewUsers, setViewUsers); if (viewRef.current) viewRef.current.value = '' }}>
-          Lägg till användare
+        Lägg till användare
       </button>
     </>
   )

@@ -14,7 +14,7 @@ export default function ConfirmDelete({
   modalRef: React.MutableRefObject<HTMLDialogElement | null>;
   targetUrl: string;
   targetName: string;
-  targetId: string;
+  targetId: string | { actionId: string, goalId: string };
 }) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -24,7 +24,11 @@ export default function ConfirmDelete({
       return;
     }
     setIsLoading(true);
-    formSubmitter(targetUrl, JSON.stringify({ id: targetId }), "DELETE", setIsLoading)
+    if (typeof targetId === "string") {
+      formSubmitter(targetUrl, JSON.stringify({ id: targetId }), "DELETE", setIsLoading)
+    } else if (typeof targetId === "object") {
+      formSubmitter(targetUrl, JSON.stringify(targetId), "DELETE", setIsLoading)
+    }
     closeModal(modalRef);
   };
 

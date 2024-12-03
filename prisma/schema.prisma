@@ -101,6 +101,8 @@ model Roadmap {
   comments Comment[] @relation("roadmap_comment")
   // Goals related to this roadmap
   goals    Goal[]    @relation("roadmap_goal")
+  // Actions related to this roadmap
+  actions  Action[]  @relation("action_roadmap")
 
   // Anyone listed here can edit/view all goals and actions in this roadmap
   // Author of this roadmap version
@@ -168,8 +170,8 @@ model Goal {
   // The person who created this goal
   authorId  String    @map("author_id")
   author    User      @relation("goal_author", fields: [authorId], references: [id])
-  // Child Actions
-  actions   Action[]  @relation("action_goal")
+  // Effects affecting this goal
+  effects   Effect[]  @relation("goal_effect")
   // Parent Roadmap
   roadmapId String    @map("roadmap_id")
   roadmap   Roadmap   @relation("roadmap_goal", fields: [roadmapId], references: [id], onDelete: Cascade)
@@ -244,14 +246,17 @@ model DataSeries {
   // Goal using this data series as baseline
   baselineGoalId String? @unique @map("baseline_goal_id")
   baseline       Goal?   @relation("baseline_data_series", fields: [baselineGoalId], references: [id], onDelete: Cascade)
-  // Action using this data series as expected outcome
-  actionId       String? @unique @map("action_id")
-  action         Action? @relation("action_data_series", fields: [actionId], references: [id], onDelete: Cascade)
+  // Effect using this data series to show the effect of an action on a goal
+  // effectActionId and effectGoalId are combined to create a unique constraint, referencing the composite primary key of the effect table
+  effectActionId String? @map("effect_action_id")
+  effectGoalId   String? @map("effect_goal_id")
+  effect         Effect? @relation("effect_data_series", fields: [effectActionId, effectGoalId], references: [actionId, goalId])
 
   // Author of the data series
   authorId String @map("author_id")
   author   User   @relation("data_series_author", fields: [authorId], references: [id])
 
+  @@unique(name: "effectId", [effectActionId, effectGoalId], map: "effect_id")
   @@map("data_series")
 }
 
@@ -271,7 +276,7 @@ model Action {
   startYear       Int?    @map("start_year")
   // The year the action is planned to end
   endYear         Int?    @map("end_year")
-  // Cost efficiency, dunno what more to say, it's a text field
+  // Cost efficiency. Not sure how it should be measured?
   costEfficiency  String? @map("cost_efficiency") @db.Text
   // Expected outcome, describe what you expect to happen
   expectedOutcome String? @map("expected_outcome") @db.Text
@@ -282,11 +287,6 @@ model Action {
   // Might be an organisation, group, company, region, etc.
   relevantActors  String? @map("relevant_actors") @db.Text
 
-  // Data series representing the impact of this action, year by year
-  dataSeries DataSeries?      @relation("action_data_series")
-  // The type of impact this action has, affects how the data series is interpreted
-  impactType ActionImpactType @default(ABSOLUTE) @map("impact_type")
-
   // Different types of actions
   // Sufficiency generally means reducing consumption
   isSufficiency Boolean @default(false) @map("is_sufficiency")
@@ -295,20 +295,50 @@ model Action {
   // Renewables generally means increasing the use of renewables
   isRenewables  Boolean @default(false) @map("is_renewables")
 
+  // Effects of this action
+  effects        Effect[] @relation("action_effect")
+  // ID of the roadmap this action belongs to
+  roadmapId      String   @map("roadmap_id")
+  roadmap        Roadmap  @relation("action_roadmap", fields: [roadmapId], references: [id], onDelete: Cascade)
+  // Relations for keeping track of inheritance between actions
+  parentActionId String?  @map("parent_action_id")
+  parentAction   Action?  @relation("action_inheritance", fields: [parentActionId], references: [id], onDelete: SetNull)
+  childActions   Action[] @relation("action_inheritance")
+
   // Notes related to this action
   notes    Note[]    @relation("action_notes")
   // Links related to this action
   links    Link[]    @relation("action_link")
   // Comments related to this action
   comments Comment[] @relation("action_comment")
-  // Parent Goal
-  goalId   String    @map("goal_id")
-  goal     Goal      @relation("action_goal", fields: [goalId], references: [id], onDelete: Cascade)
   // The person who created this action
   authorId String    @map("author_id")
   author   User      @relation("action_author", fields: [authorId], references: [id])
 
   @@map("action")
+}
+
+// Effects are the connection between an action and a goal, showing how the action affects the goal
+model Effect {
+  // Timestamp of when effect was created
+  createdAt DateTime @default(now()) @map("created_at")
+  // Timestamp of when effect was last updated
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Data series representing the impact of the related action on the goal, year by year
+  dataSeries DataSeries?      @relation("effect_data_series")
+  // The type of impact this action has, affects how the data series is interpreted
+  impactType ActionImpactType @default(ABSOLUTE) @map("impact_type")
+
+  // The action this effect is related to
+  actionId String @map("action_id")
+  action   Action @relation("action_effect", fields: [actionId], references: [id], onDelete: Cascade)
+  // The goal this effect is related to
+  goalId   String @map("goal_id")
+  goal     Goal   @relation("goal_effect", fields: [goalId], references: [id], onDelete: Cascade)
+
+  @@id(name: "id", [actionId, goalId])
+  @@map("effect")
 }
 
 model Note {

@@ -1,9 +1,9 @@
 'use server';
 
+import { actionInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getSession, LoginData } from "@/lib/session";
 import prisma from "@/prismaClient";
-import { AccessControlled } from "@/types";
-import type { Action, Link, Note, Comment, DataSeries } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -27,45 +27,16 @@ export default async function getOneAction(id: string) {
  */
 const getCachedAction = unstable_cache(
   async (id: string, user: LoginData['user']) => {
-    let action: Action & {
-      dataSeries: DataSeries | null,
-      notes: Note[],
-      links: Link[],
-      comments?: (Comment & { author: { id: string, username: string } })[],
-      goal: { id: string, name: string | null, indicatorParameter: string, roadmap: AccessControlled & { id: string } },
-      author: { id: string, username: string },
-    } | null = null;
+    let action: Prisma.ActionGetPayload<{
+      include: typeof actionInclusionSelection;
+    }> | null = null;
 
     // If user is admin, always get the action
     if (user?.isAdmin) {
       try {
         action = await prisma.action.findUnique({
           where: { id },
-          include: {
-            dataSeries: true,
-            notes: true,
-            links: true,
-            comments: { include: { author: { select: { id: true, username: true } } } },
-            goal: {
-              select: {
-                id: true,
-                name: true,
-                indicatorParameter: true,
-                roadmap: {
-                  select: {
-                    id: true,
-                    author: { select: { id: true, username: true } },
-                    editors: { select: { id: true, username: true } },
-                    viewers: { select: { id: true, username: true } },
-                    editGroups: { include: { users: { select: { id: true, username: true } } } },
-                    viewGroups: { include: { users: { select: { id: true, username: true } } } },
-                    isPublic: true,
-                  }
-                }
-              }
-            },
-            author: { select: { id: true, username: true } },
-          },
+          include: actionInclusionSelection,
         });
       } catch (error) {
         console.log(error);
@@ -82,48 +53,18 @@ const getCachedAction = unstable_cache(
         action = await prisma.action.findUnique({
           where: {
             id,
-            goal: {
-              roadmap: {
-                OR: [
-                  { authorId: user.id },
-                  { editors: { some: { id: user.id } } },
-                  { viewers: { some: { id: user.id } } },
-                  { editGroups: { some: { users: { some: { id: user.id } } } } },
-                  { viewGroups: { some: { users: { some: { id: user.id } } } } },
-                  { isPublic: true }
-                ]
-              }
+            roadmap: {
+              OR: [
+                { authorId: user.id },
+                { editors: { some: { id: user.id } } },
+                { viewers: { some: { id: user.id } } },
+                { editGroups: { some: { users: { some: { id: user.id } } } } },
+                { viewGroups: { some: { users: { some: { id: user.id } } } } },
+                { isPublic: true }
+              ]
             }
           },
-          include: {
-            dataSeries: true,
-            notes: true,
-            links: true,
-            comments: {
-              include: {
-                author: { select: { id: true, username: true } },
-              },
-            },
-            goal: {
-              select: {
-                id: true,
-                name: true,
-                indicatorParameter: true,
-                roadmap: {
-                  select: {
-                    id: true,
-                    author: { select: { id: true, username: true } },
-                    editors: { select: { id: true, username: true } },
-                    viewers: { select: { id: true, username: true } },
-                    editGroups: { include: { users: { select: { id: true, username: true } } } },
-                    viewGroups: { include: { users: { select: { id: true, username: true } } } },
-                    isPublic: true,
-                  }
-                }
-              }
-            },
-            author: { select: { id: true, username: true } },
-          },
+          include: actionInclusionSelection,
         });
       } catch (error) {
         console.log(error);
@@ -139,37 +80,9 @@ const getCachedAction = unstable_cache(
       action = await prisma.action.findUnique({
         where: {
           id,
-          goal: { roadmap: { isPublic: true } }
+          roadmap: { isPublic: true }
         },
-        include: {
-          dataSeries: true,
-          notes: true,
-          links: true,
-          comments: {
-            include: {
-              author: { select: { id: true, username: true } },
-            },
-          },
-          goal: {
-            select: {
-              id: true,
-              name: true,
-              indicatorParameter: true,
-              roadmap: {
-                select: {
-                  id: true,
-                  author: { select: { id: true, username: true } },
-                  editors: { select: { id: true, username: true } },
-                  viewers: { select: { id: true, username: true } },
-                  editGroups: { include: { users: { select: { id: true, username: true } } } },
-                  viewGroups: { include: { users: { select: { id: true, username: true } } } },
-                  isPublic: true,
-                }
-              }
-            }
-          },
-          author: { select: { id: true, username: true } },
-        }
+        include: actionInclusionSelection,
       });
     } catch (error) {
       console.log(error);

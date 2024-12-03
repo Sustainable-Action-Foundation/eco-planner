@@ -4,13 +4,15 @@ import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 import Image from "next/image";
 import { GoalInput, ScaleBy, ScaleMethod, ScalingRecipie, dataSeriesDataFieldNames, isScalingRecipie } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
-import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput";
+import /* LinkInput, */ { getLinks } from "@/components/forms/linkInput/linkInput";
 import formSubmitter from "@/functions/formSubmitter";
 import { useEffect, useMemo, useState } from "react";
 import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
 import RepeatableScaling from "@/components/repeatableScaling";
 import { getScalingResult } from "@/components/modals/copyAndScale";
 import mathjs from "@/math";
+import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
+import styles from '../forms.module.css'
 
 enum DataSeriesType {
   Static = "STATIC",
@@ -40,9 +42,11 @@ export const dataSeriesPattern = `(([0-9]+([.,][0-9]+)?)?[\t;]){0,${dataSeriesLe
 
 export default function GoalForm({
   roadmapId,
+  roadmapAlternatives,
   currentGoal,
 }: {
-  roadmapId: string,
+  roadmapId?: string,
+  roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
   currentGoal?: Goal & {
     dataSeries: DataSeries | null,
     baselineDataSeries: DataSeries | null,
@@ -64,6 +68,7 @@ export default function GoalForm({
   const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baselineDataSeries ? BaselineType.Custom : BaselineType.Initial)
   const [scalingRecipie, setScalingRecipe] = useState<ScalingRecipie>({ values: [] });
   const [scalingResult, setScalingResult] = useState<number | null>(null);
+  const [selectedRoadmap, setSelectedRoadmap] = useState<string>(currentGoal?.roadmapId || roadmapId || "");
 
   useEffect(() => {
     try {
@@ -132,7 +137,7 @@ export default function GoalForm({
       baselineDataSeries: baselineDataSeries,
       combinationScale: JSON.stringify(combinationScale),
       inheritFrom: inheritFrom,
-      roadmapId: roadmapId,
+      roadmapId: currentGoal?.roadmapId || roadmapId || (typeof formData.get("roadmapId") == "string" ? formData.get("roadmapId") : null),
       goalId: currentGoal?.id || null,
       links,
       timestamp,
@@ -183,128 +188,155 @@ export default function GoalForm({
 
   return (
     <>
-      <form onSubmit={handleSubmit} onChange={() => { recalculateScalingResult() }} name="goalForm">
+      <form onSubmit={handleSubmit} onChange={() => { recalculateScalingResult() }} name="goalForm" className="padding-left-300" style={{ transform: 'translate(-3rem, 0)' }}>
         {/* This hidden submit button prevents submitting by pressing enter, to avoid accidental submission */}
         <button type="submit" disabled={true} style={{ display: 'none' }} aria-hidden={true} />
 
-        <label className="block margin-block-75">
-          Vilken typ av dataserie vill du skapa?
-          <select name="dataSeriesType" id="dataSeriesType" className="margin-inline-25"
-            defaultValue={!currentGoal?.combinationParents.length ? DataSeriesType.Static : currentGoal.combinationParents.length >= 2 ? DataSeriesType.Combined : DataSeriesType.Inherited}
-            onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
-          >
-            <option value={DataSeriesType.Static}>Statisk</option>
-            <option value={DataSeriesType.Inherited}>Ärvd</option>
-            <option value={DataSeriesType.Combined}>Kombinerad</option>
-          </select>
-        </label>
-
-        <label className="block margin-block-75">
-          Namn på målbanan:
-          <input className="margin-block-25" type="text" name="goalName" id="goalName" defaultValue={currentGoal?.name ?? undefined} />
-        </label>
-
-        <label className="block margin-block-75">
-          Beskrivning av målbanan:
-          <input className="margin-block-25" type="text" name="description" id="description" defaultValue={currentGoal?.description ?? undefined} />
-        </label>
-
-        {(dataSeriesType === DataSeriesType.Static || !dataSeriesType) &&
-          <ManualGoalForm currentGoal={currentGoal} dataSeriesString={dataSeriesString} />
-        }
-
-        {dataSeriesType === DataSeriesType.Inherited &&
-          <InheritedGoalForm currentGoal={currentGoal} />
-        }
-
-        {dataSeriesType === DataSeriesType.Combined &&
-          <CombinedGoalForm currentGoal={currentGoal} roadmapId={roadmapId} />
-        }
-
-        {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
-          <fieldset className="padding-50 smooth" style={{ border: '1px solid var(--gray-90)', position: 'relative' }}>
-            <legend>Skalning</legend>
-            <div className="margin-block-100">
-              {scalingRecipie.values.map((value, index) => {
-                return (
-                  <RepeatableScaling
-                    key={`scalar-${index}`}
-                    useWeight={scalingRecipie.method != ScaleMethod.Multiplicative}
-                    defaultSpecificValue={value.type == ScaleBy.Custom || !value.type ? value.value : undefined}
-                    defaultParentArea={value.type == ScaleBy.Area || value.type == ScaleBy.Inhabitants ? value.parentArea : undefined}
-                    defaultChildArea={value.type == ScaleBy.Area || value.type == ScaleBy.Inhabitants ? value.childArea : undefined}
-                    defaultScaleBy={value.type || ScaleBy.Custom}
-                  > {/* Multiplicative scaling doesn't use weights */}
-                    <button type="button"
-                      style={{
-                        position: 'absolute',
-                        top: '0',
-                        right: '0',
-                        transform: 'translate(50%, calc(-20px - 50%))',
-                        backgroundColor: 'white',
-                        padding: '.25rem',
-                        borderRadius: '100%',
-                        display: 'grid',
-                        cursor: 'pointer'
-                      }} onClick={() => setScalingRecipe({ method: scalingRecipie.method, values: scalingRecipie.values.filter((_, i) => i !== index) })}>
-                      <Image src='/icons/circleMinus.svg' alt="Ta bort skalning" width={24} height={24} />
-                    </button>
-                  </RepeatableScaling>
-                )
-              })}
-            </div>
-            <button type="button" className="margin-block-100" onClick={() => setScalingRecipe({ method: scalingRecipie.method, values: [...scalingRecipie.values, { value: 1 }] })}>Lägg till skalning</button>
-
-            <label className="block margin-block-75">
-              Skalningsmetod:
-              <select name="scalingMethod" id="scalingMethod" className="margin-inline-25" defaultValue={scalingRecipie.method || ScaleMethod.Geometric}>
-                <option value={ScaleMethod.Geometric}>Geometriskt genomsnitt (rekommenderad)</option>
-                <option value={ScaleMethod.Algebraic}>Algebraiskt genomsnitt</option>
-                <option value={ScaleMethod.Multiplicative}>Multiplikativ</option>
-              </select>
-            </label>
-
-            <label className="block margin-block-75">
-              <strong className="block bold">Resulterande skalfaktor: </strong>
-              <output className="margin-block-100 block">{scalingResult}</output>
-            </label>
-          </fieldset>
-        }
-
-        <label className="block margin-block-75">
-          Vilken baslinje ska målbanans åtgärder utgå från?
-          <select name="baselineSelector" id="baselineSelector" value={baselineType} onChange={(e) => setBaselineType(e.target.value as BaselineType)}>
-            <option value={BaselineType.Initial}>Första årets värde</option>
-            <option value={BaselineType.Custom}>Anpassad baslinje</option>
-            <option value={BaselineType.Inherited}>Använd en annan målbana som baslinje</option>
-          </select>
-        </label>
-
-        {baselineType === BaselineType.Custom &&
-          <label className="block margin-block-75">
-            Anpassad baslinje:
-            {/* TODO: Make this allow .csv files and possibly excel files */}
-            <input type="text" name="baselineDataSeries" id="baselineDataSeries"
-              pattern={dataSeriesPattern}
-              title="Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma."
-              className="margin-block-25"
-              defaultValue={baselineString}
-            />
+        {/* Allow user to select parent roadmap if not already selected */}
+        {!(roadmapId || currentGoal?.roadmapId) ?
+          <label className="block margin-block-300">
+            Välj färdplan att skapa åtgärden under:
+            <select name="roadmapId" id="roadmapId" required className="block margin-block-25"
+              onChange={(e) => setSelectedRoadmap(e.target.value)}
+            >
+              <option value="" disabled>Välj färdplan</option>
+              {roadmapAlternatives.map(roadmap => (
+                <option key={roadmap.id} value={roadmap.id}>
+                  {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} åtgärder`}
+                </option>
+              ))}
+            </select>
           </label>
+          : null
         }
 
-        {baselineType === BaselineType.Inherited &&
-          <InheritingBaseline />
-        }
+        <fieldset className={`${styles.timeLineFieldset} width-100`}>
+          <legend data-position='1' className={`${styles.timeLineLegend}  font-weight-bold`}>Välj typ av dataserie för din målbana</legend>
+          <label className="block margin-block-100">
+            Dataserie
+            <select name="dataSeriesType" id="dataSeriesType" className="block margin-block-25" required
+              defaultValue={!currentGoal?.combinationParents.length ? DataSeriesType.Static : currentGoal.combinationParents.length >= 2 ? DataSeriesType.Combined : DataSeriesType.Inherited}
+              onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
+            >
+              <option value={DataSeriesType.Static}>Statisk</option>
+              <option value={DataSeriesType.Inherited}>Ärvd</option>
+              <option value={DataSeriesType.Combined}>Kombinerad</option>
+            </select>
+          </label>
+        </fieldset>
 
-        <LinkInput links={currentGoal?.links} />
 
-        <label className="flex align-items-center gap-50 margin-block-100">
-          <input type="checkbox" name="isFeatured" id="isFeatured" defaultChecked={currentGoal?.isFeatured} /> {/* TODO: Make toggle */}
-          Featured?
-        </label>
+        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+          <legend data-position='2' className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Beskriv din målbana</legend>
+          <label className="block margin-bottom-100">
+            Namn på målbanan
+            <input className="margin-block-25" type="text" name="goalName" id="goalName" defaultValue={currentGoal?.name ?? undefined} />
+          </label>
 
-        <input type="submit" className="margin-block-75 seagreen color-purewhite" value={currentGoal ? "Spara" : "Skapa målbana"} />
+          <label className="block margin-block-100">
+            Beskrivning av målbanan
+            <textarea className="margin-block-25" name="description" id="description" defaultValue={currentGoal?.description ?? undefined}></textarea>
+          </label>
+        </fieldset>
+
+        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+          <legend data-position='3' className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Beskriv hur din målbanas data är utformad</legend>
+          {(dataSeriesType === DataSeriesType.Static || !dataSeriesType) &&
+            <ManualGoalForm currentGoal={currentGoal} dataSeriesString={dataSeriesString} />
+          }
+
+          {dataSeriesType === DataSeriesType.Inherited &&
+            <InheritedGoalForm currentGoal={currentGoal} roadmapAlternatives={roadmapAlternatives} />
+          }
+
+          {dataSeriesType === DataSeriesType.Combined &&
+            <CombinedGoalForm currentGoal={currentGoal} roadmapId={currentGoal?.roadmapId || roadmapId || selectedRoadmap} />
+          }
+
+          {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
+            <fieldset className="padding-50 smooth" style={{ border: '1px solid var(--gray-90)', position: 'relative' }}>
+              <legend>Skalning</legend>
+              <div className="margin-block-100">
+                {scalingRecipie.values.map((value, index) => {
+                  return (
+                    <RepeatableScaling
+                      key={`scalar-${index}`}
+                      useWeight={scalingRecipie.method != ScaleMethod.Multiplicative}
+                      defaultSpecificValue={value.type == ScaleBy.Custom || !value.type ? value.value : undefined}
+                      defaultParentArea={value.type == ScaleBy.Area || value.type == ScaleBy.Inhabitants ? value.parentArea : undefined}
+                      defaultChildArea={value.type == ScaleBy.Area || value.type == ScaleBy.Inhabitants ? value.childArea : undefined}
+                      defaultScaleBy={value.type || ScaleBy.Custom}
+                    > {/* Multiplicative scaling doesn't use weights */}
+                      <button type="button"
+                        onClick={() => setScalingRecipe({ method: scalingRecipie.method, values: scalingRecipie.values.filter((_, i) => i !== index) })}>
+                        <Image src='/icons/circleMinus.svg' alt="Ta bort skalning" width={24} height={24} />
+                      </button>
+                    </RepeatableScaling>
+                  )
+                })}
+              </div>
+              <button type="button" className="margin-block-100" onClick={() => setScalingRecipe({ method: scalingRecipie.method, values: [...scalingRecipie.values, { value: 1 }] })}>Lägg till skalning</button>
+
+              <label className="block margin-block-100">
+                Skalningsmetod:
+                <select name="scalingMethod" id="scalingMethod" className="margin-inline-25" defaultValue={scalingRecipie.method || ScaleMethod.Geometric}>
+                  <option value={ScaleMethod.Geometric}>Geometriskt genomsnitt (rekommenderad)</option>
+                  <option value={ScaleMethod.Algebraic}>Algebraiskt genomsnitt</option>
+                  <option value={ScaleMethod.Multiplicative}>Multiplikativ</option>
+                </select>
+              </label>
+
+              <label className="block margin-block-100">
+                <strong className="block bold">Resulterande skalfaktor: </strong>
+                <output className="margin-block-100 block">{scalingResult}</output>
+              </label>
+            </fieldset>
+          }
+
+          <label className="block margin-block-100">
+            Vilken baslinje ska målbanans åtgärder utgå från?
+            <select className="block margin-block-25" name="baselineSelector" id="baselineSelector" value={baselineType} onChange={(e) => setBaselineType(e.target.value as BaselineType)}>
+              <option value={BaselineType.Initial}>Första årets värde</option>
+              <option value={BaselineType.Custom}>Anpassad baslinje</option>
+              <option value={BaselineType.Inherited}>Använd en annan målbana som baslinje</option>
+            </select>
+          </label>
+
+          {baselineType === BaselineType.Custom &&
+            <label className="block margin-block-100">
+              Anpassad baslinje:
+              {/* TODO: Make this allow .csv files and possibly excel files */}
+              <input type="text" name="baselineDataSeries" id="baselineDataSeries"
+                pattern={dataSeriesPattern}
+                title="Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma."
+                className="margin-block-25"
+                defaultValue={baselineString}
+              />
+            </label>
+          }
+
+          {baselineType === BaselineType.Inherited &&
+            <InheritingBaseline />
+          }
+        </fieldset>
+
+        {/*
+          TODO: Re add this once it is needed 
+          <fieldset className={`${styles.timeLineFieldset} width-100`}>
+              <legend data-position='3' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Bifoga externa resurser</legend>
+              <LinkInput links={currentGoal?.links} />
+          </fieldset>
+        */}
+
+        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+          <legend data-position='4' className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Vill du lyfta fram den här målbana under din färdplan?</legend>
+          <label className="flex align-items-center gap-50 margin-block-50">
+            <input type="checkbox" name="isFeatured" id="isFeatured" defaultChecked={currentGoal?.isFeatured} /> {/* TODO: Make toggle */}
+            Lyft fram min målbana
+          </label>
+        </fieldset>
+
+        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentGoal ? "Spara" : "Skapa målbana"} />
       </form>
 
       <datalist id="LEAPOptions">

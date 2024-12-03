@@ -26,55 +26,12 @@ export default async function Page({ params }: { params: { roadmapId: string } }
   }
 
   return <>
-
-    <p>{roadmap.description}</p>
-
-    {/* Sorting stuff
-        Included in tables/goals.tsx for now as it needs to be client-side
-    <section>
-      <section className="margin-block-100 padding-block-50" style={{ borderBottom: '2px solid var(--gray-90)' }}>
-        <label className="font-weight-bold margin-block-25 container-text">
-          Sök Målbana
-          <div className="margin-block-50 flex align-items-center gray-90 padding-50 smooth focusable">
-            <Image src='/icons/search.svg' alt="" width={24} height={24} />
-            <input type="search" className="padding-0 margin-inline-50" />
-          </div>
-        </label>
-        <div className="flex gap-100 align-items-center justify-content-space-between">
-          <label className="margin-block-100 font-weight-bold">
-            Sortera på:
-            <select className="font-weight-bold margin-block-50 block">
-              <option>Namn (A-Ö)</option>
-              <option>Namn (Ö-A)</option>
-              <option>Antal åtgärder (stigande)</option>
-              <option>Antal åtgärder (fallande)</option>
-            </select>
-          </label>
-          <label className='flex align-items-center gap-50 padding-50 font-weight-bold button smooth transparent'>
-            <span style={{ lineHeight: '1' }}>Filtrera</span>
-            <div className='position-relative grid place-items-center'>
-              <input type="checkbox" className="position-absolute width-100 height-100 hidden" />
-              <Image src="/icons/filter.svg" alt="" width="24" height="24" />
-            </div>
-          </label>
-        </div>
-      </section>
-      <section id="roadmapFilters" className="margin-block-200 padding-100 gray-90 rounded">
-        <b>Enhet</b>
-        <label className="flex align-items-center gap-25 margin-block-50">
-          <input type="checkbox" />
-          Enhet 1
-        </label>
-        <label className="flex align-items-center gap-25 margin-block-50">
-          <input type="checkbox" />
-          Enhet 2
-        </label>
-      </section>
-    </section>
-    */}
-
+    {roadmap.description ? (
+      <p>{roadmap.description}</p>
+    ): null}
+    
     <div
-      className="grid gap-100 margin-block-100 padding-block-100 align-items-flex-end"
+      className="grid gap-100 margin-bottom-100 padding-block-100 align-items-flex-end"
       style={{
         borderBottom: '2px solid var(--gray-90)',
         gridTemplateColumns: 'repeat(auto-fit, 300px)'
@@ -83,8 +40,10 @@ export default async function Page({ params }: { params: { roadmapId: string } }
       {roadmap.goals.map((goal, key) =>
         goal.isFeatured ?
           <div key={key}>
-            <h3 style={{ textAlign: 'center' }}>{goal.name}</h3>
-            <a href={`/roadmap/${roadmap.id}/goal/${goal.id}`}>
+            {goal.name ? (
+              <h3 style={{ textAlign: 'center' }}>{goal.name}</h3>
+            ): null }
+            <a href={`/goal/${goal.id}`}>
               <ThumbnailGraph goal={goal} />
             </a>
           </div>

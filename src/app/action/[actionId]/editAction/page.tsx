@@ -5,8 +5,13 @@ import { notFound } from "next/navigation";
 import accessChecker from "@/lib/accessChecker";
 import getOneAction from "@/fetchers/getOneAction";
 import { AccessControlled, AccessLevel } from "@/types";
+import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 
-export default async function Page({ params }: { params: { roadmapId: string, goalId: string, actionId: string } }) {
+export default async function Page({
+  params,
+}: {
+  params: { actionId: string },
+}) {
   const [session, action] = await Promise.all([
     getSession(cookies()),
     getOneAction(params.actionId)
@@ -16,11 +21,11 @@ export default async function Page({ params }: { params: { roadmapId: string, go
   if (action) {
     actionAccessData = {
       author: action.author,
-      editors: action.goal.roadmap.editors,
-      viewers: action.goal.roadmap.viewers,
-      editGroups: action.goal.roadmap.editGroups,
-      viewGroups: action.goal.roadmap.viewGroups,
-      isPublic: action.goal.roadmap.isPublic
+      editors: action.roadmap.editors,
+      viewers: action.roadmap.viewers,
+      editGroups: action.roadmap.editGroups,
+      viewGroups: action.roadmap.viewGroups,
+      isPublic: action.roadmap.isPublic
     }
   }
 
@@ -31,9 +36,13 @@ export default async function Page({ params }: { params: { roadmapId: string, go
 
   return (
     <>
-      <div className="container-text">
-        <h1>Redigera åtgärd: {`${action.name} under målbana: ${action.goal.name || action.goal.indicatorParameter || "ERROR"}`}</h1>
-        <ActionForm goalId={params.goalId} currentAction={action} />
+      <Breadcrumb object={action} customSections={['Redigera åtgärd']} />
+
+      <div className="container-text margin-inline-auto">
+        <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
+          Redigera åtgärd: {`${action.name} under färdplan: ${action.roadmap.metaRoadmap.name || "ERROR"}`}
+        </h1>
+        <ActionForm roadmapId={action.roadmapId} currentAction={action} roadmapAlternatives={[]} />
       </div>
     </>
   )

@@ -5,12 +5,15 @@ import accessChecker from "@/lib/accessChecker";
 import { notFound } from "next/navigation";
 import getOneGoal from "@/fetchers/getOneGoal";
 import { AccessControlled, AccessLevel } from "@/types";
+import getRoadmaps from "@/fetchers/getRoadmaps.ts";
+import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 
 
-export default async function Page({ params }: { params: { roadmapId: string, goalId: string } }) {
-  const [session, currentGoal] = await Promise.all([
+export default async function Page({ params }: { params: { goalId: string } }) {
+  const [session, currentGoal, roadmaps] = await Promise.all([
     getSession(cookies()),
     getOneGoal(params.goalId),
+    getRoadmaps(),
   ]);
 
   let goalAccessData: AccessControlled | null = null;
@@ -29,11 +32,18 @@ export default async function Page({ params }: { params: { roadmapId: string, go
     return notFound();
   }
 
+  const roadmapList = roadmaps.filter((roadmap) => [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin].includes(accessChecker(roadmap, session.user)));
+
   return (
     <>
-      <div className="container-text" style={{ marginInline: 'auto' }}>
-        <h1>Redigera målbana: {currentGoal.name ? currentGoal.name : currentGoal.indicatorParameter}</h1>
-        <GoalForm roadmapId={params.roadmapId} currentGoal={currentGoal} />
+      <Breadcrumb object={currentGoal} customSections={['Redigera målbana']} />
+
+      <div className="container-text margin-inline-auto">
+        <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
+          Redigera målbana: 
+          {currentGoal.name ? currentGoal.name : currentGoal.indicatorParameter}
+        </h1>
+        <GoalForm roadmapId={currentGoal.roadmapId} currentGoal={currentGoal} roadmapAlternatives={roadmapList} />
       </div>
     </>
   )

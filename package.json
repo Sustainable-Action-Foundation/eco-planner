@@ -5,17 +5,20 @@
     "prebuild": "node --loader ts-node/esm ./src/scripts/generateLeapList.ts && node --loader ts-node/esm ./src/scripts/getDataSeriesValueFieldNames.ts && node --loader ts-node/esm ./src/scripts/getBuildInfo.ts",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "e2e:chrome": "cypress run --browser chrome"
   },
   "dependencies": {
     "@prisma/client": "^5.3.1",
     "@types/node": "^20.3.2",
     "apexcharts": "^3.45.2",
     "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.5",
     "iron-session": "^8.0.1",
     "mathjs": "^13.1.1",
     "next": "^14.2.15",
     "nodemailer": "^6.9.14",
+    "pocketbase": "^0.21.5",
     "react": "^18.2.0",
     "react-apexcharts": "^1.4.1",
     "react-dom": "^18.2.0",
@@ -26,7 +29,7 @@
     "use-debounce": "^10.0.3"
   },
   "name": "eco-planner",
-  "version": "0.9.1",
+  "version": "0.10.0",
   "description": "A tool intended to help planning actions to achieve local environmental goals",
   "repository": "https://github.com/Sustainable-Action-Foundation/eco-planner.git",
   "author": "Leon Lööv",

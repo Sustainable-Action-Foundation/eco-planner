@@ -1,10 +1,13 @@
 import Login from "@/components/forms/userInfo/login";
 import styles from "./page.module.css" with { type: "css" };
 import AttributedImage from "@/components/generic/images/attributedImage";
+import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 
 export default async function Page() {
   return (
     <>
+      <Breadcrumb customSections={['Logga in']} />
+
       <main className={`${styles.gridLayout} container margin-auto padding-block-500 grid gap-300 align-items-center`}>
         <Login />
         <div className={`${styles.image} position-relative width-100 rounded overflow-hidden`}>

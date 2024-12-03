@@ -8,8 +8,10 @@ import { AccessControlled, AccessLevel } from "@/types";
 import accessChecker from "@/lib/accessChecker";
 import { Fragment } from "react";
 import Comments from "@/components/comments/comments";
+import EffectTable from "@/components/tables/effects.tsx";
+import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 
-export default async function Page({ params }: { params: { roadmapId: string, goalId: string, actionId: string } }) {
+export default async function Page({ params }: { params: { actionId: string } }) {
   const [session, action] = await Promise.all([
     getSession(cookies()),
     getOneAction(params.actionId)
@@ -19,11 +21,11 @@ export default async function Page({ params }: { params: { roadmapId: string, go
   if (action) {
     const actionAccessData: AccessControlled = {
       author: action.author,
-      editors: action.goal.roadmap.editors,
-      viewers: action.goal.roadmap.viewers,
-      editGroups: action.goal.roadmap.editGroups,
-      viewGroups: action.goal.roadmap.viewGroups,
-      isPublic: action.goal.roadmap.isPublic
+      editors: action.roadmap.editors,
+      viewers: action.roadmap.viewers,
+      editGroups: action.roadmap.editGroups,
+      viewGroups: action.roadmap.viewGroups,
+      isPublic: action.roadmap.isPublic
     }
     accessLevel = accessChecker(actionAccessData, session.user);
   }
@@ -35,13 +37,15 @@ export default async function Page({ params }: { params: { roadmapId: string, go
 
   return ( // TODO: Make sure optional stuff from form renders conditionally
     <>
+      <Breadcrumb object={action} />
+
       <section className="margin-block-100" style={{ width: 'min(90ch, 100%)' }}>
         <span style={{ color: 'gray' }}>Åtgärd</span>
         <h1 style={{ margin: '0' }}>{action.name}</h1>
         <p style={{ fontSize: '1.25rem', margin: '0' }}>{action.startYear} - {action.endYear}</p>
         {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
           <div className="margin-block-100">
-            <Link href={`/roadmap/${params.roadmapId}/goal/${params.goalId}/action/${params.actionId}/editAction`} className="flex align-items-center gap-50 padding-50 smooth button transparent" style={{ width: 'fit-content', fontWeight: '500' }}>
+            <Link href={`/action/${params.actionId}/editAction`} className="flex align-items-center gap-50 padding-50 smooth button transparent" style={{ width: 'fit-content', fontWeight: '500' }}>
               Redigera åtgärd
               <Image src="/icons/edit.svg" width={24} height={24} alt={`Redigera åtgärd: ${action.name}`} />
             </Link>
@@ -91,7 +95,17 @@ export default async function Page({ params }: { params: { roadmapId: string, go
           {action.isSufficiency && 'Sufficiency'} {(action.isSufficiency && action.isRenewables)}
           {action.isRenewables && 'Renewables'}
         </p>
-        : null}
+        : null
+      }
+
+      <section>
+        <div className="flex align-items-center justify-content-space-between">
+          <h2>Effekter</h2>
+          <Link href={`/effect/createEffect?actionId=${action.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny effekt</Link>
+        </div>
+        <EffectTable object={action} accessLevel={accessLevel} />
+      </section>
+
       <Comments comments={action.comments} objectId={action.id} />
     </>
   )

@@ -1,8 +1,5 @@
 import '@/styles/global.css'
-import Sidebar  from '@/components/generic/header/sidebar'
-import Breadcrumbs from '@/components/breadcrumbs/breadcrumbs';
-import getNames from '@/fetchers/getNames';
-import { GenericEntry } from '@/types';
+import Sidebar from '@/components/generic/header/sidebar'
 import styles from './page.module.css' with { type: "css" }
 
 export default async function RootLayout({
@@ -10,16 +7,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode,
 }) {
-  // Get names and ids of all roadmaps, goals and actions
-
-  const metaRoadmaps = await getNames()
-  const roadmaps = metaRoadmaps.flatMap(metaRoadmap => metaRoadmap.roadmapVersions)
-  const goals = roadmaps.flatMap(roadmap => roadmap.goals)
-  const actions = goals.flatMap(goal => goal.actions)
-
-  // Filter out nulls
-  const objects = [...metaRoadmaps, ...roadmaps, ...goals, ...actions].filter(object => object != null) as GenericEntry[]
-
   return (
     <html lang="sv">
       <head>
@@ -60,7 +47,6 @@ export default async function RootLayout({
         <div className={`${styles.layout}`}>
           <Sidebar />
           <div className='flex-grow-100 padding-100'>
-            <Breadcrumbs relevantObjects={objects} />
             {children}
           </div>
         </div>

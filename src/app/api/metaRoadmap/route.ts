@@ -459,7 +459,6 @@ export async function DELETE(request: NextRequest) {
     revalidateTag('roadmap');
     revalidateTag('metaRoadmap');
     return Response.json({ message: 'Meta roadmap deleted', id: deletedMetaRoadmap.id },
-      // Redirect to the parent goal
       { status: 200, headers: { 'Location': `/` } }
     );
   } catch (error) {

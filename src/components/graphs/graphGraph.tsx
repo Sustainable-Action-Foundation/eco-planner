@@ -3,11 +3,12 @@
 import MainDeltaGraph from "./mainGraphs/mainDeltaGraph";
 import MainGraph from "./mainGraphs/mainGraph";
 import MainRelativeGraph from "./mainGraphs/mainRelativeGraph";
-import { Action, DataSeries, Goal } from "@prisma/client";
+import { DataSeries, Effect, Goal } from "@prisma/client";
 import GraphSelector from "./graphselector/graphSelector";
 import { useEffect, useState } from "react";
 import { getStoredGraphType } from "./functions/graphFunctions";
 import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
+import SecondaryGoalSelector from "./secondaryGraphSelector";
 
 export enum GraphType {
   Main = "MAIN",
@@ -20,13 +21,15 @@ export default function GraphGraph({
   secondaryGoal,
   nationalGoal,
   historicalData,
-  actions,
+  effects,
+  children,
 }: {
   goal: Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null },
   secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
   nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
   historicalData?: PxWebApiV2TableContent | null,
-  actions: (Action & { dataSeries: DataSeries | null })[],
+  effects: (Effect & { dataSeries: DataSeries | null })[],
+  children: React.ReactNode
 }) {
   const [graphType, setGraphType] = useState<GraphType | "">("");
 
@@ -37,11 +40,11 @@ export default function GraphGraph({
   function graphSwitch(graphType: string) {
     switch (graphType) {
       case GraphType.Main:
-        return <MainGraph goal={goal} nationalGoal={nationalGoal} historicalData={historicalData} secondaryGoal={secondaryGoal} actions={actions} />
+        return <MainGraph goal={goal} nationalGoal={nationalGoal} historicalData={historicalData} secondaryGoal={secondaryGoal} effects={effects} />
       case GraphType.Relative:
         return <MainRelativeGraph goal={goal} nationalGoal={nationalGoal} secondaryGoal={secondaryGoal} />
       case GraphType.Delta:
-        return <MainDeltaGraph goal={goal} nationalGoal={nationalGoal} secondaryGoal={secondaryGoal} actions={actions} />
+        return <MainDeltaGraph goal={goal} nationalGoal={nationalGoal} secondaryGoal={secondaryGoal} effects={effects} />
       default:
         return graphSwitch(GraphType.Main);
     }
@@ -50,10 +53,16 @@ export default function GraphGraph({
   return (
     <div>
       {graphSwitch(graphType)}
-      <fieldset className="display-flex align-items-center margin-top-100 padding-50 gap-50">
-        <div className="font-weight-500">Visa:</div>
-        <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
-      </fieldset>
+      <section className="flex align-items-flex-end gap-50 margin-top-100 padding-block-50 ">
+        <form>
+          <p className="font-weight-500 margin-0">Visa:</p>
+          <div className="flex gap-25 margin-top-25 padding-top-25">
+            <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
+          </div>
+        </form>
+        <SecondaryGoalSelector />
+        {children}
+      </section>
     </div>
   );
 }

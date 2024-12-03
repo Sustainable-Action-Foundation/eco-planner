@@ -1,6 +1,6 @@
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
 import { DataSeriesDataFields, dataSeriesDataFieldNames } from "@/types";
-import { Action, ActionImpactType, DataSeries, Goal } from "@prisma/client";
+import { ActionImpactType, DataSeries, Effect, Goal } from "@prisma/client";
 import styles from '../graphs.module.css'
 import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import { parsePeriod } from "@/lib/pxWeb/utility";
@@ -10,13 +10,13 @@ export default function MainGraph({
   secondaryGoal,
   nationalGoal,
   historicalData,
-  actions,
+  effects,
 }: {
   goal: Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null },
   secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
   nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
   historicalData?: PxWebApiV2TableContent | null,
-  actions: (Action & { dataSeries: DataSeries | null })[],
+  effects: (Effect & { dataSeries: DataSeries | null })[],
 }) {
   if (!goal.dataSeries) {
     return null
@@ -40,6 +40,12 @@ export default function MainGraph({
       {
         title: { text: goal.dataSeries?.unit },
         labels: { formatter: floatSmoother },
+        seriesName: [
+          (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
+          'Basscenario',
+          'Förväntat utfall',
+          (secondaryGoal?.dataSeries?.unit == goal.dataSeries.unit) ? (secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0] : "",
+        ]
       }
     ],
     tooltip: {
@@ -67,7 +73,7 @@ export default function MainGraph({
   }
 
   if (goal.baselineDataSeries) {
-    // Predicted outcome without actions
+    // Predicted outcome without actions/effects
     const baseline = [];
     for (const i of dataSeriesDataFieldNames) {
       if (goal.baselineDataSeries[i]) {
@@ -84,51 +90,51 @@ export default function MainGraph({
     })
 
     // Calculate total impact of actions
-    const actionSum: Partial<DataSeriesDataFields> = {};
+    const totalEffect: Partial<DataSeriesDataFields> = {};
     for (const i of dataSeriesDataFieldNames) {
-      for (const action of actions) {
-        if (action.dataSeries && action.dataSeries[i] != null) {
-          if (!actionSum[i]) {
-            actionSum[i] = 0;
+      for (const effect of effects) {
+        if (effect.dataSeries && effect.dataSeries[i] != null) {
+          if (!totalEffect[i]) {
+            totalEffect[i] = 0;
           }
-          switch (action.impactType) {
+          switch (effect.impactType) {
             case ActionImpactType.DELTA:
-              // Add sum of all deltas up to this point for the current action
+              // Add sum of all deltas up to this point for the current effect
               let totalDelta = 0;
               for (const j of dataSeriesDataFieldNames.slice(0, dataSeriesDataFieldNames.indexOf(i) + 1)) {
-                if (action.dataSeries[j] != null) {
-                  totalDelta += action.dataSeries[j];
+                if (effect.dataSeries[j] != null) {
+                  totalDelta += effect.dataSeries[j];
                 }
               }
-              actionSum[i] += totalDelta;
+              totalEffect[i] += totalDelta;
               break;
             case ActionImpactType.PERCENT:
-              // Add previous year's (baseline + actionSum) multiplied by current action as percent
+              // Add previous year's (baseline + totalEffect) multiplied by current effect as percent
               const previous = dataSeriesDataFieldNames[dataSeriesDataFieldNames.indexOf(i) - 1];
               if (previous == undefined) {
                 break;
               }
               // Substitute with 0 if any value is missing
-              actionSum[i] += ((actionSum[previous] ?? 0) + (goal.baselineDataSeries[previous] ?? 0)) * (action.dataSeries[i] / 100);
+              totalEffect[i] += ((totalEffect[previous] ?? 0) + (goal.baselineDataSeries[previous] ?? 0)) * (effect.dataSeries[i] / 100);
               break;
             case ActionImpactType.ABSOLUTE:
             default:
               // Add current value
-              actionSum[i] += action.dataSeries[i];
+              totalEffect[i] += effect.dataSeries[i];
               break;
           }
         }
       }
     }
 
-    // Line based on actionSum + baseline
-    if (Object.keys(actionSum).length > 0) {
+    // Line based on totalEffect + baseline
+    if (Object.keys(totalEffect).length > 0) {
       const actionOutcome = [];
       for (const i of dataSeriesDataFieldNames) {
-        if (actionSum[i] != null && goal.baselineDataSeries[i] != null) {
+        if (goal.baselineDataSeries[i] != null) {
           actionOutcome.push({
             x: new Date(i.replace('val', '')).getTime(),
-            y: actionSum[i] + goal.baselineDataSeries[i]
+            y: (totalEffect[i] || 0) + goal.baselineDataSeries[i]
           })
         }
       }
@@ -143,46 +149,46 @@ export default function MainGraph({
     const firstNonNull = dataSeriesDataFieldNames.find(i => (goal.dataSeries!)[i] != null);
 
     if (firstNonNull) {
-      // Calculate total impact of actions
-      const actionSum: Partial<DataSeriesDataFields> = {};
+      // Calculate total impact of actions/effects
+      const totalEffect: Partial<DataSeriesDataFields> = {};
       for (const i of dataSeriesDataFieldNames) {
-        for (const action of actions) {
-          if (action.dataSeries && action.dataSeries[i] != null) {
-            if (!actionSum[i]) {
-              actionSum[i] = 0;
+        for (const effect of effects) {
+          if (effect.dataSeries && effect.dataSeries[i] != null) {
+            if (!totalEffect[i]) {
+              totalEffect[i] = 0;
             }
-            switch (action.impactType) {
+            switch (effect.impactType) {
               case ActionImpactType.DELTA:
                 // Add sum of all deltas up to this point for the current action
                 let totalDelta = 0;
                 for (const j of dataSeriesDataFieldNames.slice(0, dataSeriesDataFieldNames.indexOf(i) + 1)) {
-                  if (action.dataSeries[j] != null) {
-                    totalDelta += action.dataSeries[j];
+                  if (effect.dataSeries[j] != null) {
+                    totalDelta += effect.dataSeries[j];
                   }
                 }
-                actionSum[i] += totalDelta;
+                totalEffect[i] += totalDelta;
                 break;
               case ActionImpactType.PERCENT:
-                // Add previous year's (baseline + actionSum) multiplied by current action as percent
+                // Add previous year's (baseline + totalEffect) multiplied by current action as percent
                 const previous = dataSeriesDataFieldNames[dataSeriesDataFieldNames.indexOf(i) - 1];
                 if (previous == undefined) {
                   break;
                 }
                 // Substitute with 0 if any value is missing
-                actionSum[i] += ((actionSum[previous] ?? 0) + (goal.dataSeries[firstNonNull] ?? 0)) * (action.dataSeries[i] / 100);
+                totalEffect[i] += ((totalEffect[previous] ?? 0) + (goal.dataSeries[firstNonNull] ?? 0)) * (effect.dataSeries[i] / 100);
                 break;
               case ActionImpactType.ABSOLUTE:
               default:
                 // Add current value
-                actionSum[i] += action.dataSeries[i];
+                totalEffect[i] += effect.dataSeries[i];
                 break;
             }
           }
         }
       }
 
-      // Only draw if actionSum has values
-      if (Object.keys(actionSum).length > 0) {
+      // Only draw if totalEffect has values
+      if (Object.keys(totalEffect).length > 0) {
         // Flat line based on goal.dataSeries[firstNonNull]
         const baseline = [];
         for (const i of dataSeriesDataFieldNames) {
@@ -197,13 +203,13 @@ export default function MainGraph({
           type: 'line',
         });
 
-        // Line based on actionSum + goal.dataSeries[firstNonNullIndex]
+        // Line based on totalEffect + goal.dataSeries[firstNonNullIndex]
         const actionOutcome = [];
         for (const i of dataSeriesDataFieldNames) {
-          if (actionSum[i] != null && goal.dataSeries![i] != null) {
+          if (goal.dataSeries[firstNonNull] != null) {
             actionOutcome.push({
               x: new Date(i.replace('val', '')).getTime(),
-              y: actionSum[i] + goal.dataSeries[firstNonNull]!
+              y: (totalEffect[i] || 0) + goal.dataSeries[firstNonNull]!
             })
           }
         }
@@ -219,7 +225,7 @@ export default function MainGraph({
   if (secondaryGoal?.dataSeries) {
     const secondarySeries = [];
     for (const i of dataSeriesDataFieldNames) {
-      if (secondaryGoal.dataSeries[i]) {
+      if (secondaryGoal.dataSeries[i] != null) {
         secondarySeries.push({
           x: new Date(i.replace('val', '')).getTime(),
           y: secondaryGoal.dataSeries[i]
@@ -236,6 +242,7 @@ export default function MainGraph({
       (mainChartOptions.yaxis as ApexYAxis[]).push({
         title: { text: `Sekundär målbana (${secondaryGoal.dataSeries.unit})` },
         labels: { formatter: floatSmoother },
+        seriesName: [(secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0]],
         opposite: true,
       });
     }
@@ -244,7 +251,7 @@ export default function MainGraph({
   if (nationalGoal?.dataSeries) {
     const nationalSeries = [];
     for (const i of dataSeriesDataFieldNames) {
-      if (nationalGoal.dataSeries[i]) {
+      if (nationalGoal.dataSeries[i] != null) {
         nationalSeries.push({
           x: new Date(i.replace('val', '')).getTime(),
           y: nationalGoal.dataSeries[i]
@@ -259,6 +266,7 @@ export default function MainGraph({
     (mainChartOptions.yaxis as ApexYAxis[]).push({
       title: { text: "Nationell målbana" },
       labels: { formatter: floatSmoother },
+      seriesName: ['Nationell motsvarighet'],
       opposite: true,
     });
   }
@@ -279,6 +287,7 @@ export default function MainGraph({
     (mainChartOptions.yaxis as ApexYAxis[]).push({
       title: { text: "Historik" },
       labels: { formatter: floatSmoother },
+      seriesName: [`${historicalData.metadata[0]?.label}`],
       opposite: true,
     });
   }

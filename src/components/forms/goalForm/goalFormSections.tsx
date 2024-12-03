@@ -6,6 +6,7 @@ import { Fragment, useEffect, useState } from "react";
 import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
 import { clientSafeGetOneGoal } from "@/fetchers/getOneGoal";
 import { clientSafeGetRoadmaps } from "@/fetchers/getRoadmaps";
+import type getRoadmaps from "@/fetchers/getRoadmaps";
 import mathjs from "@/math";
 import { dataSeriesDataFieldNames } from "@/types";
 
@@ -42,13 +43,13 @@ export function ManualGoalForm({
 
   return (
     <>
-      <label className="block margin-block-75">
-        LEAP parameter:
+      <label className="block margin-bottom-100">
+        LEAP parameter
         <input className="margin-block-25" type="text" list="LEAPOptions" name="indicatorParameter" required id="indicatorParameter" defaultValue={currentGoal?.indicatorParameter || undefined} />
       </label>
 
-      <label className="block margin-block-75">
-        Enhet för dataserie:
+      <label className="block margin-block-100">
+        Enhet för dataserie
         <input className="margin-block-25" type="text" name="dataUnit" required id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
           try {
             setParsedUnit(mathjs.unit(e.target.value).toString());
@@ -76,7 +77,7 @@ export function ManualGoalForm({
       </details>
 
       <label className="block margin-block-75">
-        Dataserie:
+        Dataserie
         {/* TODO: Make this allow .csv files and possibly excel files */}
         <input type="text" name="dataSeries" required id="dataSeries"
           pattern={dataSeriesPattern}
@@ -91,6 +92,7 @@ export function ManualGoalForm({
 
 export function InheritedGoalForm({
   currentGoal,
+  roadmapAlternatives,
 }: {
   currentGoal?: Goal & {
     dataSeries: DataSeries | null,
@@ -107,8 +109,8 @@ export function InheritedGoalForm({
     links?: { url: string, description: string | null }[],
     roadmap: { id: string },
   },
+  roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
 }) {
-  const [roadmapList, setRoadmapList] = useState<Awaited<ReturnType<typeof clientSafeGetRoadmaps>>>([]);
   const [selectedRoadmap, setSelectedRoadmap] = useState(currentGoal?.combinationParents[0]?.parentGoal.roadmapId);
   const [roadmapData, setRoadmapData] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
   const [selectedGoal, setSelectedGoal] = useState(currentGoal?.combinationParents[0]?.parentGoal.id);
@@ -116,7 +118,6 @@ export function InheritedGoalForm({
   const [parsedUnit, setParsedUnit] = useState<string | null>(null);
 
   useEffect(() => {
-    clientSafeGetRoadmaps().then(setRoadmapList);
     if (currentGoal?.combinationParents[0]?.parentGoal.roadmapId) {
       setSelectedRoadmap(currentGoal.combinationParents[0].parentGoal.roadmapId);
     }
@@ -142,13 +143,13 @@ export function InheritedGoalForm({
   return (
     <>
       <label className="block margin-block-75">
-        Välj en färdplan att ärva en målbana från:
+        Välj en färdplan att ärva en målbana från
         <select name="selectedRoadmap" id="selectedRoadmap" className="margin-inline-25" required
           value={selectedRoadmap}
           onChange={(e) => { setSelectedRoadmap(e.target.value); setSelectedGoal(undefined) }}
         >
           <option value="">Välj färdplan</option>
-          {roadmapList.map((roadmap) => (
+          {roadmapAlternatives.map((roadmap) => (
             <option value={roadmap.id} key={`roadmap-inherit${roadmap.id}`}>
               {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.goals} mål`}
             </option>
@@ -158,7 +159,7 @@ export function InheritedGoalForm({
 
       {roadmapData &&
         <label className="block margin-block-75">
-          Välj en målbana att ärva från:
+          Välj en målbana att ärva från
           <select name="inheritFrom" id="inheritFrom" className="margin-inline-25" required
             value={selectedGoal}
             onChange={(e) => setSelectedGoal(e.target.value)}
@@ -174,12 +175,12 @@ export function InheritedGoalForm({
       }
 
       <label className="block margin-block-75">
-        LEAP parameter:
+        LEAP parameter
         <input className="margin-block-25" type="text" list="LEAPOptions" name="indicatorParameter" required disabled id="indicatorParameter" value={goalData?.indicatorParameter || ""} />
       </label>
 
       <label className="block margin-block-75">
-        Enhet för dataserie:
+        Enhet för dataserie
         <input className="margin-block-25" type="text" name="dataUnit" required disabled id="dataUnit" value={goalData?.dataSeries?.unit || ""} onChange={(e) => {
           try {
             setParsedUnit(mathjs.unit(e.target.value).toString());
@@ -200,7 +201,7 @@ export function CombinedGoalForm({
   roadmapId,
   currentGoal,
 }: {
-  roadmapId: string,
+  roadmapId?: string,
   currentGoal?: Goal & {
     dataSeries: DataSeries | null,
     combinationScale: string | null,
@@ -222,7 +223,7 @@ export function CombinedGoalForm({
   const [parsedUnit, setParsedUnit] = useState<string | null>(null);
 
   useEffect(() => {
-    clientSafeGetOneRoadmap(roadmapId).then(setCurrentRoadmap);
+    clientSafeGetOneRoadmap(roadmapId || '').then(setCurrentRoadmap);
   }, [roadmapId]);
 
   useEffect(() => {
@@ -241,12 +242,12 @@ export function CombinedGoalForm({
   return (
     <>
       <label className="block margin-block-75">
-        LEAP parameter:
+        LEAP parameter
         <input className="margin-block-25" type="text" list="LEAPOptions" name="indicatorParameter" required id="indicatorParameter" defaultValue={currentGoal?.indicatorParameter || undefined} />
       </label>
 
       <label className="block margin-block-75">
-        Enhet för dataserie:
+        Enhet för dataserie
         <input className="margin-block-25" type="text" name="dataUnit" required id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
           try {
             setParsedUnit(mathjs.unit(e.target.value).toString());
@@ -262,7 +263,7 @@ export function CombinedGoalForm({
 
       <fieldset className="padding-50 smooth" style={{ border: '1px solid var(--gray-90)', position: 'relative' }}>
         <legend className="padding-25">
-          Välj målbanor i den aktuella färdplanen att kombinera:
+          Välj målbanor i den aktuella färdplanen att kombinera
         </legend>
         <p>Tips: använd <kbd><kbd>CTRL</kbd> + <kbd>F</kbd></kbd> för att hitta målbanorna du söker efter</p>
         {currentRoadmap?.goals.map((goal) => (
@@ -327,7 +328,7 @@ export function InheritingBaseline() {
   return (
     <>
       <label className="block margin-block-75">
-        Välj en färdplan att hämta målbanan från:
+        Välj en färdplan att hämta målbanan från
         <select name="selectedRoadmap" id="selectedRoadmap" className="margin-inline-25" required
           value={selectedRoadmap}
           onChange={(e) => { setSelectedRoadmap(e.target.value); setSelectedGoal(undefined) }}
@@ -343,7 +344,7 @@ export function InheritingBaseline() {
 
       {roadmapData &&
         <label className="block margin-block-75">
-          Välj en målbana att använda som baslinje (värdena kopieras snarare än att länkas):
+          Välj en målbana att använda som baslinje (värdena kopieras snarare än att länkas)
           <select name="inheritFrom" id="inheritFrom" className="margin-inline-25" required
             value={selectedGoal}
             onChange={(e) => setSelectedGoal(e.target.value)}
@@ -360,7 +361,7 @@ export function InheritingBaseline() {
 
       {goalData &&
         <label className="block margin-block-75">
-          Baslinje, kopierad från vald målbana:
+          Baslinje, kopierad från vald målbana
           <input name="baselineDataSeries" id="baselineDataSeries" type="text" readOnly value={dataSeriesString} />
         </label>
       }
