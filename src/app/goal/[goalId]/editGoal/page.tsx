@@ -38,7 +38,7 @@ export default async function Page({ params }: { params: { goalId: string } }) {
     <>
       <Breadcrumb object={currentGoal} customSections={['Redigera målbana']} />
 
-      <div className="container-text" style={{ marginInline: 'auto' }}>
+      <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
           Redigera målbana: 
           {currentGoal.name ? currentGoal.name : currentGoal.indicatorParameter}
