@@ -9,10 +9,10 @@ dotenv.config();
 const pb = new PocketBase(process.env.POCKETBASE_INSTANCE);
 
 export default defineConfig({
+  viewportWidth: 1280, // Set theese to 720p screen cause HD does not work for whatever reason
+  viewportHeight: 720,
   e2e: {
     baseUrl: 'http://localhost:3000',
-    viewportWidth: 1920,
-    viewportHeight: 1080,
     setupNodeEvents(on) {
       on('after:run', async () => {
 
