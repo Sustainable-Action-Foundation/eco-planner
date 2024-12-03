@@ -1,3 +1,4 @@
+import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import version from "@/lib/version.json" with { type: "json" };
 
 export default function Page() {
@@ -18,6 +19,8 @@ export default function Page() {
 
   return (
     <>
+      <Breadcrumb customSections={["Information"]} />
+
       <h1>Information</h1>
       <p>
         Detta verktyg syftar till att bidra till Sveriges klimatomställning.

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import accessChecker from "@/lib/accessChecker";
 import getOneAction from "@/fetchers/getOneAction";
 import { AccessControlled, AccessLevel } from "@/types";
+import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 
 export default async function Page({
   params,
@@ -35,6 +36,8 @@ export default async function Page({
 
   return (
     <>
+      <Breadcrumb object={action} customSections={['Redigera åtgärd']} />
+
       <div className="container-text">
         <h1>Redigera åtgärd: {`${action.name} under färdplan: ${action.roadmap.metaRoadmap.name || "ERROR"}`}</h1>
         <ActionForm roadmapId={action.roadmapId} currentAction={action} roadmapAlternatives={[]} />

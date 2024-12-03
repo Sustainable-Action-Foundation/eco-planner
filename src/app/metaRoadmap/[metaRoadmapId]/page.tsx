@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import RoadmapTable from "@/components/tables/roadmapTable";
 import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
+import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 
 export default async function Page({ params }: { params: { metaRoadmapId: string } }) {
   const [session, metaRoadmap] = await Promise.all([
@@ -22,6 +23,8 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
 
   return (
     <>
+      <Breadcrumb object={metaRoadmap} customSections={['Färdplan']} />
+
       <section className="margin-block-100 padding-block-100" style={{ borderBottom: '2px solid var(--gray-90)' }}>
         <div className="flex gap-100 flex-wrap-wrap justify-content-space-between margin-block-100" style={{ fontSize: '1rem' }}>
           <div>

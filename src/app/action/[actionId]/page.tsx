@@ -9,6 +9,7 @@ import accessChecker from "@/lib/accessChecker";
 import { Fragment } from "react";
 import Comments from "@/components/comments/comments";
 import EffectTable from "@/components/tables/effects.tsx";
+import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 
 export default async function Page({ params }: { params: { actionId: string } }) {
   const [session, action] = await Promise.all([
@@ -36,6 +37,8 @@ export default async function Page({ params }: { params: { actionId: string } })
 
   return ( // TODO: Make sure optional stuff from form renders conditionally
     <>
+      <Breadcrumb object={action} />
+
       <section className="margin-block-100" style={{ width: 'min(90ch, 100%)' }}>
         <span style={{ color: 'gray' }}>Åtgärd</span>
         <h1 style={{ margin: '0' }}>{action.name}</h1>

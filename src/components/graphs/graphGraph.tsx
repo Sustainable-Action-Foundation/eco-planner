@@ -22,12 +22,14 @@ export default function GraphGraph({
   nationalGoal,
   historicalData,
   effects,
+  children,
 }: {
   goal: Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null },
   secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
   nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
   historicalData?: PxWebApiV2TableContent | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
+  children: React.ReactNode
 }) {
   const [graphType, setGraphType] = useState<GraphType | "">("");
 
@@ -51,14 +53,15 @@ export default function GraphGraph({
   return (
     <div>
       {graphSwitch(graphType)}
-      <section className="flex gap-50 margin-top-100 padding-block-50 ">
-        <nav>
+      <section className="flex align-items-flex-end gap-50 margin-top-100 padding-block-50 ">
+        <form>
           <p className="font-weight-500 margin-0">Visa:</p>
           <div className="flex gap-25 margin-top-25 padding-top-25">
             <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
           </div>
-        </nav>
+        </form>
         <SecondaryGoalSelector />
+        {children}
       </section>
     </div>
   );

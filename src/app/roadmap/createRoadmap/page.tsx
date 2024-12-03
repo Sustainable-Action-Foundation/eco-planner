@@ -3,6 +3,7 @@ import RoadmapForm from '@/components/forms/roadmapForm/roadmapForm';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
+import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
 
 export default async function Page() {
   const [session, metaRoadmapAlternatives] = await Promise.all([
@@ -30,6 +31,8 @@ export default async function Page() {
 
   return (
     <>
+      <Breadcrumb customSections={['Skapa ny färdplansversion']} />
+
       <div className='container-text' style={{ marginInline: 'auto' }}>
         <h1>Skapa en ny version av en färdplan</h1>
         <RoadmapForm

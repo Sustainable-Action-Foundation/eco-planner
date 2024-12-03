@@ -7,6 +7,7 @@ import Image from "next/image";
 import { getSession } from "@/lib/session.ts";
 import { AccessLevel } from "@/types.ts";
 import { cookies } from "next/headers";
+import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 
 export default async function Page({
   searchParams,
@@ -38,6 +39,8 @@ export default async function Page({
 
   return (
     <>
+      <Breadcrumb object={action || goal || undefined} customSections={['Skapa ny effekt']} />
+
       <div className="container-text" style={{ marginInline: 'auto' }}>
         <h1>Skapa ny effekt</h1>
         {badAction &&

@@ -25,6 +25,7 @@ import GraphCookie from "@/components/cookies/graphCookie";
 import UpdateGoalButton from "@/components/buttons/updateGoalButton";
 import getRoadmaps from "@/fetchers/getRoadmaps";
 import EffectTable from "@/components/tables/effects.tsx";
+import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 
 export default async function Page({
   params,
@@ -109,6 +110,7 @@ export default async function Page({
 
   return (
     <>
+      <Breadcrumb object={goal} />
 
       { /* Only allow scaling the values if the user has edit access to the goal
         (accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Edit) && goal.dataSeries?.id &&
@@ -118,15 +120,15 @@ export default async function Page({
       {secondaryGoal && <p>Jämför med målbanan {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
       <section className={`margin-top-100 ${styles.graphLayout}`}>
         {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
-        <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects} />
+        <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects}>
+          {(goal.dataSeries?.id && session.user) ?
+            <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
+            : null}
+        </GraphGraph>
         <CombinedGraph roadmap={roadmap} goal={goal} />
       </section>
       <section className="flex align-items-flex-end justify-content-space-between gap-50 flex-wrap-wrap container-text">
-        {(goal.dataSeries?.id && session.user) ?
-          <div className="margin-bottom-25">
-            <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
-          </div>
-          : null}
+
       </section>
 
       <div className="margin-block-100">
@@ -160,10 +162,12 @@ export default async function Page({
 
         <div className="flex align-items-center justify-content-space-between">
           <h2>Åtgärder</h2>
-          <div>
-            <Link href={`/effect/createEffect?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Koppla till en existerande åtgärd</Link>
-            <Link href={`/action/createAction?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
-          </div>
+          {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
+            <div className="flex gap-50">
+              <Link href={`/effect/createEffect?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Koppla till en existerande åtgärd</Link>
+              <Link href={`/action/createAction?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
+            </div>
+          }
         </div>
 
         <div className="margin-block-100">

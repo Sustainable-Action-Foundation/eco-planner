@@ -6,6 +6,7 @@ import Image from "next/image";
 import { getSession } from "@/lib/session.ts";
 import { AccessLevel } from "@/types.ts";
 import { cookies } from "next/headers";
+import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 
 const editAccess = [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin];
 
@@ -40,6 +41,8 @@ export default async function Page({
 
   return (
     <>
+      <Breadcrumb object={effect?.action} customSections={['Redigera effekt']} />
+
       <div className="container-text" style={{ marginInline: 'auto' }}>
         <h1>Redigera effekt</h1>
         <EffectForm action={effect!.action} goal={effect!.goal} roadmapAlternatives={roadmapList} currentEffect={effect!} />

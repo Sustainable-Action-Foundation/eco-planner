@@ -138,6 +138,7 @@ export const actionInclusionSelection /* Prisma.ActionInclude */ = {
   roadmap: {
     select: {
       id: true,
+      version: true,
       author: { select: { id: true, username: true } },
       editors: { select: { id: true, username: true } },
       viewers: { select: { id: true, username: true } },

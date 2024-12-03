@@ -116,7 +116,7 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
   return (
     <>
 
-      <fieldset className="margin-block-75">
+      <fieldset className="margin-bottom-100">
         <legend>Grupper med redigeringsbehörighet</legend>
         <ul className="padding-left-100" style={{ listStyle: 'none' }}>
           {groups.map((group) => (
@@ -132,7 +132,7 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
 
       {/* A text field whose contents get appended to editUsers upon pressing enter */}
 
-      <label className="block margin-block-75" htmlFor="newEditUser">
+      <label className="block margin-block-100" htmlFor="newEditUser">
         Användare med redigeringsbehörighet
         <div className={`${styles.multiAddContainer} flex align-items-flex-end flex-wrap-wrap margin-block-25 focusable smooth padding-25 gap-25`}>
           {editUsers.map((user, index) => (
@@ -158,7 +158,6 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
         </div>
       </label>
       <button
-        className="margin-bottom-75"
         type="button"
         onClick={() => { addUser(editorRef.current?.value, editUsers, setEditUsers); if (editorRef.current) editorRef.current.value = '' }}>
         Lägg till användare
@@ -182,7 +181,7 @@ export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPubli
   return (
     <>
 
-      <fieldset className="margin-block-75">
+      <fieldset className="margin-bottom-100">
         <legend>Grupper med läsbehörighet</legend>
         <ul className="padding-left-100" style={{ listStyle: 'none' }}>
           <li>
@@ -203,7 +202,7 @@ export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPubli
       </fieldset>
 
       {/* A text field whose contents get appended to viewUsers upon pressing enter */}
-      <label className="block margin-block-75" htmlFor="newViewUser">
+      <label className="block margin-block-100" htmlFor="newViewUser">
         Användare med läsbehörighet
         <div className={`${styles.multiAddContainer} flex align-items-flex-end flex-wrap-wrap margin-block-25 focusable smooth padding-25 gap-25`}>
           {viewUsers.map((user, index) => (
@@ -228,7 +227,6 @@ export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPubli
         </div>
       </label>
       <button
-        className="margin-bottom-75"
         type="button"
         onClick={() => { addUser(viewRef.current?.value, viewUsers, setViewUsers); if (viewRef.current) viewRef.current.value = '' }}>
         Lägg till användare
