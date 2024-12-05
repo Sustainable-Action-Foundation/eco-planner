@@ -1,8 +1,6 @@
 {
   "scripts": {
-    "predev": "tsx ./src/scripts/getBuildInfo.ts",
     "dev": "next dev",
-    "prebuild": "tsx ./src/scripts/generateLeapList.ts && tsx ./src/scripts/getDataSeriesValueFieldNames.ts && tsx ./src/scripts/getBuildInfo.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -46,6 +44,6 @@
     "tsx": "^4.19.2"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx seed.ts"
   }
 }

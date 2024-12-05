@@ -11,8 +11,9 @@ services:
     ports:
       - 127.0.0.1:8082:8081
     env_file:
+      - docker/.env
       - docker/.env.test
-    command: sh -c 'sleep 15; HOSTNAME="0.0.0.0" node server.js' # Add test commands
+    command: sh -c 'sleep 15; yarn prisma migrate reset -f; HOSTNAME="0.0.0.0" node server.js' # Add test commands
 
   testdb:
     build:
