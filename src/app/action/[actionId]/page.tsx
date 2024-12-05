@@ -41,8 +41,8 @@ export default async function Page({ params }: { params: { actionId: string } })
 
       <section className="margin-block-100" style={{ width: 'min(90ch, 100%)' }}>
         <span style={{ color: 'gray' }}>Åtgärd</span>
-        <h1 style={{ margin: '0' }}>{action.name}</h1>
-        <p style={{ fontSize: '1.25rem', margin: '0' }}>{action.startYear} - {action.endYear}</p>
+        <h1 className="margin-0">{action.name}</h1>
+        <p className="margin-0">{action.startYear} - {action.endYear}</p>
         {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
           <div className="margin-block-100">
             <Link href={`/action/${params.actionId}/editAction`} className="flex align-items-center gap-50 padding-50 smooth button transparent" style={{ width: 'fit-content', fontWeight: '500' }}>

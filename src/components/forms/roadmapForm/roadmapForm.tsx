@@ -37,8 +37,6 @@ export default function RoadmapForm({
       form.namedItem("viewGroups")
     )
 
-    const metaRoadmapId = currentRoadmap ? currentRoadmap.metaRoadmapId : (form.namedItem('parentRoadmap') as HTMLSelectElement)?.value
-
     let goals: GoalInput[] = [];
     if (currentFile) {
       try {
@@ -70,7 +68,7 @@ export default function RoadmapForm({
       isPublic: (form.namedItem("isPublic") as HTMLInputElement)?.checked || false,
       roadmapId: currentRoadmap?.id || undefined,
       goals: goals,
-      metaRoadmapId,
+      metaRoadmapId:  metaRoadmapId ? metaRoadmapId : (form.namedItem('parentRoadmap') as HTMLSelectElement)?.value,
       inheritFromIds: inheritGoalIds,
       targetVersion: parseInt((form.namedItem('targetVersion') as HTMLSelectElement)?.value) || null,
       timestamp,
