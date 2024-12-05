@@ -3,26 +3,35 @@ name: eco-planner
 services:
   test:
     image: ecoplanner:test
-    build: .
+    build:
+      context: .
+      dockerfile: docker/test.Dockerfile
     pull_policy: build
     networks:
       - default
       - testDatabase
     ports:
       - 127.0.0.1:8082:8081
+    environment:
+      # Database connection string
+      - DATABASE_URL=mysql://root:admin@testdb:3306/eco-planner
+      # Session 'secret', just a simple string as it's only for testing
+      - IRON_SESSION_PASSWORD=abcdefghijklmnopqrstuvwxyz1234567890
     env_file:
+      # Add `MAIL_HOST`, `MAIL_USER`, and `MAIL_PASSWORD` to this file if you need to test email functionality
+      # No such tests are set up yet.
       - docker/.env
-      - docker/.env.test
     command: sh -c 'sleep 15; yarn prisma migrate reset -f; HOSTNAME="0.0.0.0" node server.js' # Add test commands
 
   testdb:
     build:
       context: .
       dockerfile: docker/testdb.Dockerfile
-    ports:
-      - 127.0.0.1:3366:3306
     networks:
       - testDatabase
+    # Uncomment if you need to connect to testdb from your host. Internal port 3306 is exposed to localhost:3366
+    # ports:
+    #   - 127.0.0.1:3366:3306
 
 networks:
   testDatabase:
