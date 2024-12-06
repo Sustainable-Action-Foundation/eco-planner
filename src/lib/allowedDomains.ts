@@ -102,7 +102,9 @@ export const allowedDomains = [
   "huddinge.se",
   "hudiksvall.se",
   "hultsfred.se",
+  */
   "hylte.se",
+  /*
   "jarfalla.se",
   "jokkmokk.se",
   "jonkoping.se",
@@ -201,7 +203,9 @@ export const allowedDomains = [
   "pajala.se",
   "partille.se",
   "perstorp.se",
+  */
   "pitea.se",
+  /*
   "ragunda.se",
   "rattvik.se",
   "gotland.se",
@@ -241,7 +245,9 @@ export const allowedDomains = [
   "stromstad.se",
   "stromsund.se",
   "sundbyberg.se",
+  */
   "sundsvall.se",
+  /*
   "sunne.se",
   "surahammar.se",
   "svalov.se",
@@ -265,7 +271,9 @@ export const allowedDomains = [
   "tranemo.se",
   "trelleborg.se",
   "trollhattan.se",
+  */
   "trosa.se",
+  /*
   "tyreso.se",
   "uddevalla.se",
   "ulricehamn.se",
