@@ -107,7 +107,7 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
           {groups.map((group) => (
             <li key={'viewGroup' + group}>
               <label className="display-flex align-items-center gap-50 margin-block-50">
-                <input type="checkbox" name="viewGroups" id={'viewGroup' + group} value={group} defaultChecked={existingGroups?.includes(group)} />
+                <input type="checkbox" name="editGroups" id={'viewGroup' + group} value={group} defaultChecked={existingGroups?.includes(group)} />
                 {group}
               </label>
             </li>
