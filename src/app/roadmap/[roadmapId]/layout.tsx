@@ -32,10 +32,11 @@ export default async function Layout({
 
   return (
     <>
+      {/* TODO: This entire layout should be moved to the page */}
       <Breadcrumb object={roadmap} />
 
-      <div className="display-flex justify-content-space-between flex-wrap-wrap" style={{ borderBottom: '2px dashed var(--gray-90)', marginTop: '2rem' }}>
-        <div className="flex-grow-100 margin-block-100" style={{ minWidth: 'max-content' }}>
+      <div className="display-flex justify-content-space-between flex-wrap-wrap margin-top-200" style={{ borderBottom: '2px dashed var(--gray-90)'}}>
+        <div className="flex-grow-100 margin-block-100">
           <span style={{ color: 'gray' }}>Färdplan</span>
           <h1 className="margin-0">{roadmap.metaRoadmap.name}</h1>
           <p className="margin-0">
@@ -48,7 +49,7 @@ export default async function Layout({
         </div>
         { // Only show the edit link if the user has edit access to the roadmap
           (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-          <aside className="display-flex justify-content-flex-end margin-block-100">
+          <aside className="display-flex justify-content-flex-end margin-bottom-100">
             <a href={`/roadmap/${roadmap.id}/editRoadmap`} className="display-flex align-items-center gap-50" style={{ textDecoration: 'none', color: 'black', fontWeight: '500', height: 'fit-content' }}>
               Redigera färdplan
               <Image src="/icons/edit.svg" alt="" width="24" height="24" />
