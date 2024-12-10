@@ -130,6 +130,7 @@ dist
 .pnp.*
 
 # Cypress tests
+/cypress/downloads
 /cypress/screenshots
 /cypress.env.json
 

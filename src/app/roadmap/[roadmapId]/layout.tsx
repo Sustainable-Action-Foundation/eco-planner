@@ -44,6 +44,7 @@ export default async function Layout({
             }
             {roadmap.goals.length} målbanor
           </p>
+          <p className="margin-bottom-0">{roadmap.metaRoadmap.description}</p>
         </div>
         { // Only show the edit link if the user has edit access to the roadmap
           (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&

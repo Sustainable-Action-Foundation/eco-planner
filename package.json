@@ -6,7 +6,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "e2e:chrome": "cypress run --browser chrome"
+    "e2e:chrome": "cypress run --browser chrome --headless"
   },
   "dependencies": {
     "@prisma/client": "^5.3.1",

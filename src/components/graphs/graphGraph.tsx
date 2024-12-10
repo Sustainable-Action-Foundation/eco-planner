@@ -51,18 +51,18 @@ export default function GraphGraph({
   };
 
   return (
-    <div>
-      {graphSwitch(graphType)}
-      <section className="flex align-items-flex-end gap-50 margin-top-100 padding-block-50 ">
-        <form>
-          <p className="font-weight-500 margin-0">Visa:</p>
-          <div className="flex gap-25 margin-top-25 padding-top-25">
+    <div className="rounded" style={{border: '2px solid var(--gray-90)'}}>
+        <div className="padding-50" style={{height: '450px'}}>
+          {graphSwitch(graphType)}
+        </div>
+        <menu className="flex align-items-center gap-50 margin-0 padding-25 flex-wrap-wrap" style={{borderTop: '2px solid var(--gray-90)'}}> 
+          {/* TODO: Some of theese are missing a label now, not good for accessability, fix this */}
+          <div className="flex gap-25">
             <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
           </div>
-        </form>
-        <SecondaryGoalSelector />
-        {children}
-      </section>
+          <SecondaryGoalSelector />
+          {children}
+        </menu>
     </div>
   );
 }

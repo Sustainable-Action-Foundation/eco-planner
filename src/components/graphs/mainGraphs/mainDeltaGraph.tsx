@@ -260,15 +260,13 @@ export default function MainDeltaGraph({
 
   return (
     <>
-      <div className={styles.graphWrapper}>
-        <WrappedChart
-          options={chartOptions}
-          series={chart}
-          type="line"
-          width="100%"
-          height="100%"
-        />
-      </div>
+      <WrappedChart
+        options={chartOptions}
+        series={chart}
+        type="line"
+        width="100%"
+        height="100%"
+      />
     </>
   );
 }

@@ -46,8 +46,10 @@ export default async function RootLayout({
       <body>
         <div className={`${styles.layout}`}>
           <Sidebar />
-          <div className='flex-grow-100 padding-100'>
-            {children}
+          <div className='padding-100 flex-grow-100'>
+            <div className='container margin-inline-auto'>
+              {children}
+            </div>
           </div>
         </div>
       </body>

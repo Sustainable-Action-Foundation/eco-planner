@@ -9,7 +9,7 @@ dotenv.config();
 const pb = new PocketBase(process.env.POCKETBASE_INSTANCE);
 
 export default defineConfig({
-  viewportWidth: 1280, // Set theese to 720p screen cause HD does not work for whatever reason
+  viewportWidth: 1280, // Set theese to 720p, larger screens do not work due to limitations with XVFB
   viewportHeight: 720,
   e2e: {
     baseUrl: 'http://localhost:3000',
