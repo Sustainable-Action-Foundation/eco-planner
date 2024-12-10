@@ -1,21 +1,21 @@
 'use client'
 
-import { EditUsers, getAccessData, ViewUsers } from "@/components/forms/accessSelector/accessSelector"
-import getOneRoadmap from "@/fetchers/getOneRoadmap"
-import formSubmitter from "@/functions/formSubmitter"
-import parseCsv, { csvToGoalList } from "@/functions/parseCsv"
-import { LoginData } from "@/lib/session"
-import { AccessControlled, GoalInput, RoadmapInput } from "@/types"
-import { Goal, MetaRoadmap, Roadmap } from "@prisma/client"
-import { useSearchParams } from "next/navigation"
-import { useEffect, useMemo, useState } from "react"
-import styles from '../forms.module.css'
+import { EditUsers, getAccessData, ViewUsers } from "@/components/forms/accessSelector/accessSelector";
+import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
+import formSubmitter from "@/functions/formSubmitter";
+import parseCsv, { csvToGoalList } from "@/functions/parseCsv";
+import { LoginData } from "@/lib/session";
+import { AccessControlled, GoalInput, RoadmapInput } from "@/types";
+import { MetaRoadmap, Roadmap } from "@prisma/client";
+import { useEffect, useMemo, useState } from "react";
+import styles from '../forms.module.css';
 
 export default function RoadmapForm({
   user,
   userGroups,
   metaRoadmapAlternatives,
   currentRoadmap,
+  defaultMetaRoadmap,
 }: {
   user: LoginData['user'],
   userGroups: string[],
@@ -23,9 +23,12 @@ export default function RoadmapForm({
     roadmapVersions: { id: string, version: number }[],
   })[],
   currentRoadmap?: Roadmap & AccessControlled & { metaRoadmap: MetaRoadmap },
+  defaultMetaRoadmap?: string,
 }) {
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (!metaRoadmapId) { return; }
+
     setIsLoading(true)
 
     const form = event.target.elements
@@ -68,7 +71,7 @@ export default function RoadmapForm({
       isPublic: (form.namedItem("isPublic") as HTMLInputElement)?.checked || false,
       roadmapId: currentRoadmap?.id || undefined,
       goals: goals,
-      metaRoadmapId:  metaRoadmapId ? metaRoadmapId : (form.namedItem('parentRoadmap') as HTMLSelectElement)?.value,
+      metaRoadmapId,
       inheritFromIds: inheritGoalIds,
       targetVersion: parseInt((form.namedItem('targetVersion') as HTMLSelectElement)?.value) || null,
       timestamp,
@@ -82,24 +85,9 @@ export default function RoadmapForm({
   const [currentFile, setCurrentFile] = useState<File | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const timestamp = Date.now()
-
-
-  let currentAccess: AccessControlled | undefined = undefined;
-  if (currentRoadmap) {
-    currentAccess = {
-      author: currentRoadmap.author,
-      editors: currentRoadmap.editors,
-      viewers: currentRoadmap.viewers,
-      editGroups: currentRoadmap.editGroups,
-      viewGroups: currentRoadmap.viewGroups,
-      isPublic: currentRoadmap.isPublic,
-    }
-  }
-
-  const defaultParentRoadmap: string | undefined = useSearchParams().get('metaRoadmapId') || undefined
-  const [metaRoadmapId, setMetaId] = useState<string | undefined>(defaultParentRoadmap)
+  const [metaRoadmapId, setMetaRoadmapId] = useState<string>(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap || "")
   const [targetVersion, setTargetVersion] = useState<number | null>(0)
-  const [inheritableGoals, setInheritableGoals] = useState<Goal[]>([])
+  const [inheritableGoals, setInheritableGoals] = useState<{ id: string, name: string | null, indicatorParameter: string }[]>([])
   const metaRoadmapTarget = useMemo(() => {
     // The meta roadmap that the parent meta roadmap works towards, if any
     return metaRoadmapAlternatives?.find((parentRoadmap) => parentRoadmap.id === metaRoadmapAlternatives?.find((roadmap) => roadmap.id === metaRoadmapId)?.parentRoadmapId)
@@ -108,7 +96,7 @@ export default function RoadmapForm({
   // Fetch inheritable goals when the target version changes
   useEffect(() => {
     setIsLoading(true)
-    getOneRoadmap(metaRoadmapTarget?.roadmapVersions.find((version) => version.version === targetVersion)?.id || "")
+    clientSafeGetOneRoadmap(metaRoadmapTarget?.roadmapVersions.find((version) => version.version === targetVersion)?.id || "")
       .then((roadmap) => {
         if (!roadmap) {
           setInheritableGoals([]);
@@ -146,6 +134,18 @@ export default function RoadmapForm({
     }
   }, [currentFile])
 
+  let currentAccess: AccessControlled | undefined = undefined;
+  if (currentRoadmap) {
+    currentAccess = {
+      author: currentRoadmap.author,
+      editors: currentRoadmap.editors,
+      viewers: currentRoadmap.viewers,
+      editGroups: currentRoadmap.editGroups,
+      viewGroups: currentRoadmap.viewGroups,
+      isPublic: currentRoadmap.isPublic,
+    }
+  }
+
   return (
     <>
       <form onSubmit={handleSubmit} className="action-form">
@@ -155,18 +155,19 @@ export default function RoadmapForm({
         {/* TODO: Change to meta roadmaps instead */}
         {/* TODO: Why is metaRoadmapAlternatives here? */}
         {/* Allow user to select parent metaRoadmap if not already selected */}
-        {!(metaRoadmapId || currentRoadmap?.metaRoadmapId) && !!metaRoadmapAlternatives ?
+        {!(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap) ?
           <>
             <label className="block margin-block-300">
               Färdplansserie som detta är ett nytt inlägg i
-              <select className="block margin-block-25" name="parentRoadmap" id="parentRoadmap" defaultValue={defaultParentRoadmap} required onChange={(e) => setMetaId(e.target.value)}>
+              <select className="block margin-block-25" name="parentRoadmap" id="parentRoadmap" value={metaRoadmapId} required onChange={(e) => setMetaRoadmapId(e.target.value)}>
                 <option value="">Inget alternativ valt</option>
-                {
+                {metaRoadmapAlternatives?.length ?
                   metaRoadmapAlternatives.map((roadmap) => {
                     return (
                       <option key={roadmap.id} value={roadmap.id}>{`${roadmap.name}`}</option>
                     )
                   })
+                  : <option value="disabled" disabled>Du verkar inte ha tillgång till några färdplansserier</option>
                 }
               </select>
             </label>
@@ -174,7 +175,7 @@ export default function RoadmapForm({
             {/* TODO: Add to infobubble
             <p>Saknas färdplansserien du söker efter? Kolla att du har tillgång till den eller <Link href={`/metaRoadmap/createMetaRoadmap`}>skapa en ny färdplansserie</Link></p>
             */}
-            {metaRoadmapTarget && metaRoadmapTarget.roadmapVersions.length && (
+            {metaRoadmapTarget?.roadmapVersions.length && (
               <>
                 <label htmlFor="targetVersion">Version av färdplansserien {`"${metaRoadmapTarget.name}"`} den här färdplanen arbetar mot</label>
                 <select name="targetVersion" id="targetVersion" required defaultValue={currentRoadmap?.targetVersion || ""} onChange={(e) => setTargetVersion(parseInt(e.target.value) || null)}>
@@ -189,7 +190,8 @@ export default function RoadmapForm({
               </>
             )}
           </>
-        : null }
+          : null
+        }
 
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
           <legend data-position='1' className={`${styles.timeLineLegend} font-weight-bold`}>Beskriv färdplanens version</legend>
@@ -200,8 +202,8 @@ export default function RoadmapForm({
         </fieldset>
 
         {/* TODO: Add option to inherit some/all goals from previous versions of same roadmap */}
-        {/* TODO: Add checkboxes for inheriting some/all goals from another roadmap with `inheritFromID` */}
-        {/* TODO: Allow choosing which which goal to inherit from, might be different from target  */}
+        {/* TODO: Add checkboxes for inheriting some/all goals from another roadmap (not the target) with `inheritFromID` */}
+        {/* TODO: Allow choosing which roadmap to inherit from, might be different from target */}
         {inheritableGoals.length > 0 && (
           <>
             <fieldset>
@@ -237,7 +239,7 @@ export default function RoadmapForm({
             <ViewUsers
               groupOptions={userGroups}
               existingUsers={currentAccess?.viewers.map((user) => user.username)}
-              existingGroups={currentAccess?.viewGroups.map((group) => { return group.name })}
+              existingGroups={currentAccess?.viewGroups.map((group) => group.name)}
               isPublic={currentAccess?.isPublic ?? false}
             />
           </fieldset>
@@ -249,7 +251,7 @@ export default function RoadmapForm({
             <EditUsers
               groupOptions={userGroups}
               existingUsers={currentAccess?.editors.map((user) => user.username)}
-              existingGroups={currentAccess?.editGroups.map((group) => { return group.name })}
+              existingGroups={currentAccess?.editGroups.map((group) => group.name)}
             />
           </fieldset>
         }
