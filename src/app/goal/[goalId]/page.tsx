@@ -137,7 +137,11 @@ export default async function Page({
         <div className="flex flex-wrap-wrap justify-content-space-between gap-100">
           <div>
             <span style={{ color: 'gray' }}>Målbana</span>
-            <h2 className="margin-0" style={{fontSize: '2.5rem'}}>{goal.name}</h2>
+            {goal.name ? (
+              <h2 className="margin-0" style={{fontSize: '2rem'}}>{goal.name}</h2>
+            ) : (
+              <h2 className="margin-0">{goal.indicatorParameter}</h2> 
+            )}
           </div>
           {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
             <div className="flex flex-wrap-wrap align-items-center gap-100">
