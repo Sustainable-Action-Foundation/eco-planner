@@ -1,5 +1,9 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import version from "@/lib/version.json" with { type: "json" };
+// import version from "@/lib/version.json" with { type: "json" };
+
+// TODO: Get version some other way
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const version = {} as any;
 
 export default function Page() {
   let remoteURL: URL | null = null
