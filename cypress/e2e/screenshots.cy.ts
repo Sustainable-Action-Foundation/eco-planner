@@ -32,8 +32,22 @@ describe('Screenshot tests', () => {
   it('screenshots page', () => {
     pages.forEach(page => {
       cy.visit(`/${page}`)
-        .wait(300)
-        .screenshot(page.replaceAll('/', '_'), {capture: "fullPage", overwrite: true})
+    
+      // If the page is scrollable we style our sidebar
+      // We do this to prevent our sticky sidebar from duplicating in our screenshots 
+      cy.window().then((win) => {
+        const isScrollable = win.document.documentElement.scrollHeight > win.innerHeight;
+
+        if (isScrollable) {
+          cy.get('aside')
+            .first()
+            .invoke('css', 'position', 'relative')
+            .invoke('css', 'height', 'auto');
+        }
+      });
+
+      cy.wait(300)
+      cy.screenshot(page.replaceAll('/', '_'), {capture: "fullPage", overwrite: true})
     })
   })
 })

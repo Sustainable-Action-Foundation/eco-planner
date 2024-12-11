@@ -44,7 +44,9 @@ export default async function Page({
       <Breadcrumb object={effect?.action} customSections={['Redigera effekt']} />
 
       <div className="container-text" style={{ marginInline: 'auto' }}>
-        <h1>Redigera effekt</h1>
+        <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
+          Redigera effekt
+        </h1>
         <EffectForm action={effect!.action} goal={effect!.goal} roadmapAlternatives={roadmapList} currentEffect={effect!} />
       </div>
     </>

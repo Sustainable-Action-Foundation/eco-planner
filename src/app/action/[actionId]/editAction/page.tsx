@@ -38,8 +38,10 @@ export default async function Page({
     <>
       <Breadcrumb object={action} customSections={['Redigera åtgärd']} />
 
-      <div className="container-text">
-        <h1>Redigera åtgärd: {`${action.name} under färdplan: ${action.roadmap.metaRoadmap.name || "ERROR"}`}</h1>
+      <div className="container-text margin-inline-auto">
+        <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
+          Redigera åtgärd: {`${action.name} under färdplan: ${action.roadmap.metaRoadmap.name || "ERROR"}`}
+        </h1>
         <ActionForm roadmapId={action.roadmapId} currentAction={action} roadmapAlternatives={[]} />
       </div>
     </>

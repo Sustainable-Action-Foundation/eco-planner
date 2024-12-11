@@ -28,9 +28,9 @@ export function ActionSelector({
 
   return (
     <>
-      <label className="block margin-block-75">
-        Välj färdplanen åtgärden ligger under:
-        <select name="selectedActionRoadmap" className="margin-inline-25" required disabled={!!action}
+      <label className="block margin-block-100">
+        Välj färdplanen åtgärden ligger under
+        <select name="selectedActionRoadmap" className="block margin-block-25" required disabled={!!action}
           value={selectedRoadmap}
           onChange={event => { setSelectedRoadmap(event.target.value); setSelectedAction(""); }}
         >
@@ -45,9 +45,9 @@ export function ActionSelector({
       </label>
 
       {selectedRoadmap &&
-        <label className="block margin-block-75">
-          Välj åtgärd att lägga effekten under:
-          <select name="actionId" id="actionId" className="margin-inline-25" required disabled={!!action}
+        <label className="block margin-block-100">
+          Välj åtgärd att lägga effekten under
+          <select name="actionId" id="actionId" className="block margin-block-25" required disabled={!!action}
             value={action?.id || selectedAction}
             onChange={event => setSelectedAction(event.target.value)}
           >
@@ -86,9 +86,9 @@ export function GoalSelector({
 
   return (
     <>
-      <label className="block margin-block-75">
-        Välj färdplanen målbanan ligger under:
-        <select name="selectedGoalRoadmap" className="margin-inline-25" required disabled={!!goal}
+      <label className="block margin-block-100">
+        Välj färdplanen målbanan ligger under
+        <select name="selectedGoalRoadmap" className="block margin-block-25" required disabled={!!goal}
           value={selectedRoadmap}
           onChange={event => { setSelectedRoadmap(event.target.value); setSelectedGoal(""); }}
         >
@@ -104,8 +104,8 @@ export function GoalSelector({
 
       {selectedRoadmap &&
         <label className="block margin-block-75">
-          Välj målbana att påverka:
-          <select name="goalId" id="goalId" className="margin-inline-25" required disabled={!!goal}
+          Välj målbana att påverka
+          <select name="goalId" id="goalId" className="block margin-block-25" required disabled={!!goal}
             value={goal?.id || selectedGoal}
             onChange={event => setSelectedGoal(event.target.value)}
           >
