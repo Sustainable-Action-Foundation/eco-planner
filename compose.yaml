@@ -3,7 +3,10 @@ name: eco-planner
 services:
   app:
     image: ecoplanner:latest
-    build: .
+    build:
+      context: .
+      args:
+        GIT_LONG_HASH: ${GIT_LONG_HASH}
     pull_policy: build
     ports:
       - 127.0.0.1:8081:8081

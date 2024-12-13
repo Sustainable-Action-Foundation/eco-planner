@@ -59,10 +59,18 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
+# Network config
 EXPOSE 8081
 
 ENV PORT=8081
 ENV HOSTNAME=0.0.0.0
+
+# Git commit info
+ARG GIT_LONG_HASH
+ENV GIT_LONG_HASH=$GIT_LONG_HASH
+
+ARG GIT_SHORT_HASH
+ENV GIT_SHORT_HASH=$GIT_SHORT_HASH
 
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/next-config-js/output

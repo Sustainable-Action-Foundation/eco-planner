@@ -1,24 +1,51 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-// import version from "@/lib/version.json" with { type: "json" };
+import { JSONValue } from "@/types.ts";
+import fs from "fs";
+import metadata from "package.json" with { type: "json" };
 
-// TODO: Get version some other way
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const version = {} as any;
+export default async function Page() {
+  const gitHash = { shortHash: process.env.GIT_SHORT_HASH, longHash: process.env.GIT_LONG_HASH };
 
-export default function Page() {
-  let remoteURL: URL | null = null
-  let parsedVersion: string | null = null
-  let commitURL: URL | null = null
+  // If hash is not set in env, try to get it from file
+  if (!gitHash.shortHash && !gitHash.longHash) {
+    try {
+      if (fs.existsSync("src/lib/commitHash.json")) {
+        const parsedVersion: JSONValue = JSON.parse(fs.readFileSync("src/lib/commitHash.json", "utf-8"));
+
+        // Set hashes if they are properly formatted
+        if (parsedVersion instanceof Object && !(parsedVersion instanceof Array)) {
+          if (typeof parsedVersion.shortHash === "string") {
+            gitHash.shortHash = parsedVersion?.shortHash;
+          }
+          if (typeof parsedVersion.longHash === "string") {
+            gitHash.longHash = parsedVersion?.longHash;
+          }
+        }
+      }
+    } catch { /* Silently fail */ }
+  }
+
+  let remoteURL: URL | null = null;
+  let commitURL: URL | null = null;
+  let version: string | null = null;
   try {
-    if (typeof version.remoteURL === "string") {
-      remoteURL = new URL(version.remoteURL.endsWith("/") ? version.remoteURL : version.remoteURL + "/")
+    // Try to get repository url from package.json
+    if (metadata.repository) {
+      let repo = metadata.repository.replace(".git", "");
+      if (!repo.endsWith("/")) {
+        repo += "/";
+      }
+      remoteURL = new URL(repo);
+    }
+
+    // Try to get version from package.json
+    if (metadata.version) {
+      version = metadata.version;
     }
   } catch { /* Silently fail */ }
-  if (typeof version.shortHash === "string") {
-    parsedVersion = version.shortHash
-    if (remoteURL) {
-      commitURL = new URL(`commit/${version.shortHash}`, remoteURL)
-    }
+
+  if ((gitHash.shortHash || gitHash.longHash) && remoteURL) {
+    commitURL = new URL(`commit/${gitHash.longHash || gitHash.shortHash}`, remoteURL)
   }
 
   return (
@@ -33,28 +60,32 @@ export default function Page() {
         Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige.
         På lokal nivå kan också olika aktörer samarbeta kring åtgärder.
       </p>
-      { // Display as much build info as possible
-        remoteURL
-          ? <>
-            <p>Remote: <a href={remoteURL.href} target="_blank" >
-              {/* Gets the repository name from a github-like url with a trailing slash, with hostname as fallback */}
-              {remoteURL.pathname.split("/")[remoteURL.pathname.split("/").length - 2] || remoteURL.hostname}
-            </a></p>
-            <p>Wiki: <a href={`${remoteURL.href}wiki/`} target="_blank" >
-              {/* Gets the repository name from a github-like url with a trailing slash, with hostname as fallback */}
-              {remoteURL.pathname.split("/")[remoteURL.pathname.split("/").length - 2] || remoteURL.hostname}
-            </a></p>
-          </>
+
+      {/* TODO: Add wiki once created */}
+
+      {
+        version
+          ? <p>Version: {version}</p>
           : null
       }
+
       {
-        parsedVersion
+        remoteURL
+          ? <p>Remote: <a href={remoteURL.href} target="_blank" >
+            {/* Gets the repository name from a github-like url with a trailing slash, with hostname as fallback */}
+            {remoteURL.pathname.split("/")[remoteURL.pathname.split("/").length - 2] || remoteURL.hostname}
+          </a></p>
+          : null
+      }
+
+      {
+        gitHash.shortHash || gitHash.longHash
           ? commitURL
-            ? <p>Build: <a href={commitURL.href} target="_blank" >
-              {parsedVersion}
+            ? <p>Commit: <a href={commitURL.href} target="_blank" >
+              {gitHash.shortHash || gitHash.longHash}
             </a></p>
             :
-            <p>Build: {parsedVersion}</p>
+            <p>Commit: {gitHash.shortHash || gitHash.longHash}</p>
           : null
       }
     </>
