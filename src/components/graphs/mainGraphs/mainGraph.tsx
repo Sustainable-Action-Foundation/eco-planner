@@ -1,7 +1,6 @@
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
 import { DataSeriesDataFields, dataSeriesDataFieldNames } from "@/types";
 import { ActionImpactType, DataSeries, Effect, Goal } from "@prisma/client";
-import styles from '../graphs.module.css'
 import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import { parsePeriod } from "@/lib/pxWeb/utility";
 

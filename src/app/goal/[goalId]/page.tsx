@@ -7,7 +7,6 @@ import { AccessControlled, AccessLevel } from "@/types";
 import CombinedGraph from "@/components/graphs/combinedGraph";
 import ActionGraph from "@/components/graphs/actionGraph";
 import Link from "next/link";
-import Image from "next/image";
 import GraphGraph from "@/components/graphs/graphGraph";
 import getOneGoal from "@/fetchers/getOneGoal";
 import { Goal, DataSeries } from "@prisma/client";
@@ -133,14 +132,14 @@ export default async function Page({
         </div>
       */}
 
-      <section className="margin-block-100 padding-top-100" style={{borderTop: '2px solid var(--gray-90)'}}>
+      <section className="margin-block-100 padding-top-100" style={{ borderTop: '2px solid var(--gray-90)' }}>
         <div className="flex flex-wrap-wrap justify-content-space-between gap-100">
           <div>
             <span style={{ color: 'gray' }}>Målbana</span>
             {goal.name ? (
-              <h2 className="margin-0" style={{fontSize: '2rem'}}>{goal.name}</h2>
+              <h2 className="margin-0" style={{ fontSize: '2rem' }}>{goal.name}</h2>
             ) : (
-              <h2 className="margin-0">{goal.indicatorParameter}</h2> 
+              <h2 className="margin-0">{goal.indicatorParameter}</h2>
             )}
           </div>
           {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
@@ -161,7 +160,7 @@ export default async function Page({
           <h3>Alla värden i målbanan använder följande skala: {`"${goal.dataSeries?.scale}"`}</h3>
         }
       </section>
-      
+
       <section className="margin-block-300">
         <h2>Kombinerad graf</h2>
         <CombinedGraph roadmap={roadmap} goal={goal} />
