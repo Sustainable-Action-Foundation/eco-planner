@@ -1,4 +1,5 @@
 const pages: Array<string> = [
+  '',
   'dashboard',
   'info',
   'metaRoadmap/createMetaRoadmap',
@@ -46,7 +47,7 @@ describe('Screenshot tests', () => {
         }
       });
 
-      cy.wait(300)
+      cy.wait(500)
       cy.screenshot(page.replaceAll('/', '_'), {capture: "fullPage", overwrite: true})
     })
   })

@@ -294,15 +294,13 @@ export default function MainGraph({
 
   return (
     <>
-      <div className={styles.graphWrapper}>
-        <WrappedChart
-          options={mainChartOptions}
-          series={mainChart}
-          type="line"
-          width="100%"
-          height="100%"
-        />
-      </div>
+      <WrappedChart
+        options={mainChartOptions}
+        series={mainChart}
+        type="line"
+        width="100%"
+        height="100%"
+      />
     </>
   )
 }

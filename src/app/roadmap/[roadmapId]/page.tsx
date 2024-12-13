@@ -40,12 +40,12 @@ export default async function Page({ params }: { params: { roadmapId: string } }
       {roadmap.goals.map((goal, key) =>
         goal.isFeatured ?
           <div key={key}>
-            {goal.name ? (
-              <h3 style={{ textAlign: 'center' }}>{goal.name}</h3>
-            ): null }
             <a href={`/goal/${goal.id}`}>
               <ThumbnailGraph goal={goal} />
             </a>
+            {goal.name ? (
+              <h3 style={{ textAlign: 'center' }}>{goal.name}</h3>
+            ): null }
           </div>
           : null
       )}

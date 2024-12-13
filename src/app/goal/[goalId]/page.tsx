@@ -12,7 +12,6 @@ import GraphGraph from "@/components/graphs/graphGraph";
 import getOneGoal from "@/fetchers/getOneGoal";
 import { Goal, DataSeries } from "@prisma/client";
 import Comments from "@/components/comments/comments";
-import styles from './page.module.css'
 import getGoalByIndicator from "@/fetchers/getGoalByIndicator";
 import getRoadmapByVersion from "@/fetchers/getRoadmapByVersion";
 import prisma from "@/prismaClient";
@@ -26,6 +25,7 @@ import UpdateGoalButton from "@/components/buttons/updateGoalButton";
 import getRoadmaps from "@/fetchers/getRoadmaps";
 import EffectTable from "@/components/tables/effects.tsx";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
 
 export default async function Page({
   params,
@@ -117,49 +117,57 @@ export default async function Page({
         <DataSeriesScaler dataSeriesId={goal.dataSeries.id} />
       */ }
 
-      {secondaryGoal && <p>Jämför med målbanan {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
-      <section className={`margin-top-100 ${styles.graphLayout}`}>
+      {secondaryGoal && <p className="margin-block-300">Jämför med målbanan {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
+      <section className={`margin-top-300`}>
         {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
         <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects}>
           {(goal.dataSeries?.id && session.user) ?
             <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
             : null}
         </GraphGraph>
-        <CombinedGraph roadmap={roadmap} goal={goal} />
-      </section>
-      <section className="flex align-items-flex-end justify-content-space-between gap-50 flex-wrap-wrap container-text">
-
       </section>
 
-      <div className="margin-block-100">
-        <GraphCookie />
-      </div>
-
-      <section className="margin-block-100" style={{ width: 'min(90ch, 100%)' }}>
-        <span style={{ color: 'gray' }}>Målbana</span>
-        <div className="flex flex-wrap-wrap align-items-center justify-content-space-between gap-100">
-          <h2 style={{ fontSize: '2.5rem', margin: '0' }}>{goal.name}</h2>
+      {/* TODO: Re add ASAP
+        <div className="margin-block-100">
+          <GraphCookie />
         </div>
-        {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-          <div className="flex flex-wrap-wrap align-items-center gap-100 margin-block-100">
-            <Link href={`/goal/${goal.id}/editGoal`} className="display-flex align-items-center gap-50 padding-50 color-pureblack button smooth transparent" style={{ textDecoration: 'none', fontWeight: '500' }} >
-              Redigera Målbana
-              <Image src="/icons/edit.svg" width={24} height={24} alt={`Edit roadmap: ${goal.name}`} />
-            </Link>
-            <QueryBuilder goal={goal} />
-            {shouldUpdate &&
-              <UpdateGoalButton id={goal.id} />
-            }
+      */}
+
+      <section className="margin-block-100 padding-top-100" style={{borderTop: '2px solid var(--gray-90)'}}>
+        <div className="flex flex-wrap-wrap justify-content-space-between gap-100">
+          <div>
+            <span style={{ color: 'gray' }}>Målbana</span>
+            {goal.name ? (
+              <h2 className="margin-0" style={{fontSize: '2rem'}}>{goal.name}</h2>
+            ) : (
+              <h2 className="margin-0">{goal.indicatorParameter}</h2> 
+            )}
           </div>
-        }
-        <p>{goal.description}</p>
+          {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
+            <div className="flex flex-wrap-wrap align-items-center gap-100">
+              <QueryBuilder goal={goal} />
+              {shouldUpdate &&
+                <UpdateGoalButton id={goal.id} />
+              }
+              <TableMenu
+                accessLevel={accessLevel}
+                object={goal}
+              />
+            </div>
+          }
+        </div>
+        <p className="container-text">{goal.description}</p>
         {goal.dataSeries?.scale &&
           <h3>Alla värden i målbanan använder följande skala: {`"${goal.dataSeries?.scale}"`}</h3>
         }
       </section>
+      
+      <section className="margin-block-300">
+        <h2>Kombinerad graf</h2>
+        <CombinedGraph roadmap={roadmap} goal={goal} />
+      </section>
 
       <section>
-
         <div className="flex align-items-center justify-content-space-between">
           <h2>Åtgärder</h2>
           {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
