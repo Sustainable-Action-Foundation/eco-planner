@@ -422,7 +422,10 @@ export async function PUT(request: NextRequest) {
                 unit: goal.dataUnit,
                 authorId: session.user.id,
               },
-              update: baselineValues,
+              update: {
+                ...baselineValues,
+                unit: goal.dataUnit,
+              }
             }
           }
         } : {}),
