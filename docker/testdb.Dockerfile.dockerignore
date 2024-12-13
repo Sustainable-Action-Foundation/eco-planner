@@ -9,3 +9,4 @@ LICENSE
 .next
 .git
 .github
+!docker/testInit.sql
