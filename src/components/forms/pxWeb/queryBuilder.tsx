@@ -28,10 +28,12 @@ export default function QueryBuilder({
   const modalRef = useRef<HTMLDialogElement | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
 
+  const tableSearchInputName = "tableSearch";
+
   useEffect(() => {
     if (!dataSource) return;
 
-    const query = (formRef.current?.elements.namedItem('tableSearch') as HTMLInputElement | null)?.value;
+    const query = (formRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
 
     getTables(dataSource, query).then(result => setTables(result));
   }, [dataSource]);
@@ -41,9 +43,10 @@ export default function QueryBuilder({
     formData.forEach((value, key) => {
       // Skip empty values
       if (!value) return;
-      // Skip externalDataset and externalTableId, as they are not part of the query
+      // Skip externalDataset, externalTableId, and `tableSearchInputName`, as they are not part of the query
       if (key == "externalDataset") return;
       if (key == "externalTableId") return;
+      if (key == tableSearchInputName) return;
       // The time variable is special, as we want to fetch every period after (and including) the selected one
       if (key == formRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
         queryObject.push({ variableCode: key, valueCodes: [`FROM(${value as string})`] });
@@ -98,7 +101,7 @@ export default function QueryBuilder({
   }
 
   function searchWithButton() {
-    const query = (formRef.current?.elements.namedItem('tableSearch') as HTMLInputElement | null)?.value;
+    const query = (formRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
     handleSearch(query ?? undefined);
   }
 
@@ -152,7 +155,7 @@ export default function QueryBuilder({
                   <div className="flex gap-25 align-items-flex-end margin-block-75">
                     <label className="flex-grow-100">
                       <span className="block margin-block-25">Sök efter tabell</span>
-                      <input type="search" className="block" onKeyDown={searchOnEnter} />
+                      <input name={tableSearchInputName} type="search" className="block" onKeyDown={searchOnEnter} />
                     </label>
                     <button type="button" onClick={searchWithButton} style={{ fontSize: '1rem' }}>Sök</button>
                   </div>
