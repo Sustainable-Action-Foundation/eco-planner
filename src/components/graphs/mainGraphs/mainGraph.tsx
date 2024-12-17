@@ -18,15 +18,17 @@ export default function MainGraph({
   effects: (Effect & { dataSeries: DataSeries | null })[],
 }) {
   if (!goal.dataSeries) {
-    return null
+    return null;
   }
 
   const mainChartOptions: ApexCharts.ApexOptions = {
     chart: {
       type: 'line',
-      animations: { enabled: false, dynamicAnimation: { enabled: false } }
+      animations: { enabled: false, dynamicAnimation: { enabled: false } },
+      zoom: { allowMouseWheelZoom: false },
     },
     stroke: { curve: 'straight' },
+    markers: { size: 5 },
     xaxis: {
       type: 'datetime',
       labels: { format: 'yyyy' },
@@ -48,39 +50,39 @@ export default function MainGraph({
       }
     ],
     tooltip: {
-      x: { format: 'yyyy-MM-dd' },
+      x: { format: 'yyyy' },
       shared: true,
     },
   }
 
   const mainChart: ApexAxisChartSeries = [];
-  if (goal.dataSeries) {
-    const mainSeries = [];
-    for (const i of dataSeriesDataFieldNames) {
-      if (goal.dataSeries[i] != null) {
-        mainSeries.push({
-          x: new Date(i.replace('val', '')).getTime(),
-          y: goal.dataSeries[i]
-        })
-      }
-    }
-    mainChart.push({
-      name: (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
-      data: mainSeries,
-      type: 'line',
-    })
+
+  // Main data series for the goal
+  const mainSeries = [];
+  for (const i of dataSeriesDataFieldNames) {
+    const value = goal.dataSeries[i];
+
+    mainSeries.push({
+      x: new Date(i.replace('val', '')).getTime(),
+      y: Number.isFinite(value) ? value : null,
+    });
   }
+  mainChart.push({
+    name: (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
+    data: mainSeries,
+    type: 'line',
+  })
 
   if (goal.baselineDataSeries) {
     // Predicted outcome without actions/effects
     const baseline = [];
     for (const i of dataSeriesDataFieldNames) {
-      if (goal.baselineDataSeries[i]) {
-        baseline.push({
-          x: new Date(i.replace('val', '')).getTime(),
-          y: goal.baselineDataSeries[i]
-        })
-      }
+      const value = goal.baselineDataSeries[i];
+
+      baseline.push({
+        x: new Date(i.replace('val', '')).getTime(),
+        y: Number.isFinite(value) ? value : null,
+      });
     }
     mainChart.push({
       name: 'Basscenario',
@@ -92,7 +94,7 @@ export default function MainGraph({
     const totalEffect: Partial<DataSeriesDataFields> = {};
     for (const i of dataSeriesDataFieldNames) {
       for (const effect of effects) {
-        if (effect.dataSeries && effect.dataSeries[i] != null) {
+        if (effect.dataSeries && effect.dataSeries[i] != null && Number.isFinite(effect.dataSeries[i])) {
           if (!totalEffect[i]) {
             totalEffect[i] = 0;
           }
@@ -101,7 +103,7 @@ export default function MainGraph({
               // Add sum of all deltas up to this point for the current effect
               let totalDelta = 0;
               for (const j of dataSeriesDataFieldNames.slice(0, dataSeriesDataFieldNames.indexOf(i) + 1)) {
-                if (effect.dataSeries[j] != null) {
+                if (effect.dataSeries[j] != null && Number.isFinite(effect.dataSeries[j])) {
                   totalDelta += effect.dataSeries[j];
                 }
               }
@@ -113,8 +115,8 @@ export default function MainGraph({
               if (previous == undefined) {
                 break;
               }
-              // Substitute with 0 if any value is missing
-              totalEffect[i] += ((totalEffect[previous] ?? 0) + (goal.baselineDataSeries[previous] ?? 0)) * (effect.dataSeries[i] / 100);
+              // Substitute with 0 if any value is missing or NaN
+              totalEffect[i] += ((totalEffect[previous] || 0) + (goal.baselineDataSeries[previous] || 0)) * (effect.dataSeries[i] / 100);
               break;
             case ActionImpactType.ABSOLUTE:
             default:
@@ -130,12 +132,15 @@ export default function MainGraph({
     if (Object.keys(totalEffect).length > 0) {
       const actionOutcome = [];
       for (const i of dataSeriesDataFieldNames) {
-        if (goal.baselineDataSeries[i] != null) {
-          actionOutcome.push({
-            x: new Date(i.replace('val', '')).getTime(),
-            y: (totalEffect[i] || 0) + goal.baselineDataSeries[i]
-          })
-        }
+        const baselineValue = goal.baselineDataSeries[i] ?? NaN;
+        const effectValue = totalEffect[i] || 0;
+
+        const value = baselineValue + effectValue;
+
+        actionOutcome.push({
+          x: new Date(i.replace('val', '')).getTime(),
+          y: Number.isFinite(value) ? value : null,
+        });
       }
       mainChart.push({
         name: 'Förväntat utfall',
@@ -145,14 +150,14 @@ export default function MainGraph({
     }
   } else {
     // If no baseline is set, use the first non-null value as baseline
-    const firstNonNull = dataSeriesDataFieldNames.find(i => (goal.dataSeries!)[i] != null);
+    const firstNonNull = dataSeriesDataFieldNames.find(i => goal.dataSeries && Number.isFinite((goal.dataSeries)[i]));
 
     if (firstNonNull) {
       // Calculate total impact of actions/effects
       const totalEffect: Partial<DataSeriesDataFields> = {};
       for (const i of dataSeriesDataFieldNames) {
         for (const effect of effects) {
-          if (effect.dataSeries && effect.dataSeries[i] != null) {
+          if (effect.dataSeries && effect.dataSeries[i] != null && Number.isFinite(effect.dataSeries[i])) {
             if (!totalEffect[i]) {
               totalEffect[i] = 0;
             }
@@ -161,7 +166,7 @@ export default function MainGraph({
                 // Add sum of all deltas up to this point for the current action
                 let totalDelta = 0;
                 for (const j of dataSeriesDataFieldNames.slice(0, dataSeriesDataFieldNames.indexOf(i) + 1)) {
-                  if (effect.dataSeries[j] != null) {
+                  if (effect.dataSeries[j] != null && Number.isFinite(effect.dataSeries[j])) {
                     totalDelta += effect.dataSeries[j];
                   }
                 }
@@ -174,7 +179,7 @@ export default function MainGraph({
                   break;
                 }
                 // Substitute with 0 if any value is missing
-                totalEffect[i] += ((totalEffect[previous] ?? 0) + (goal.dataSeries[firstNonNull] ?? 0)) * (effect.dataSeries[i] / 100);
+                totalEffect[i] += ((totalEffect[previous] || 0) + (goal.dataSeries[firstNonNull] || 0)) * (effect.dataSeries[i] / 100);
                 break;
               case ActionImpactType.ABSOLUTE:
               default:
@@ -194,7 +199,7 @@ export default function MainGraph({
           baseline.push({
             x: new Date(i.replace('val', '')).getTime(),
             y: goal.dataSeries[firstNonNull]
-          })
+          });
         }
         mainChart.push({
           name: 'Basscenario',
@@ -205,12 +210,15 @@ export default function MainGraph({
         // Line based on totalEffect + goal.dataSeries[firstNonNullIndex]
         const actionOutcome = [];
         for (const i of dataSeriesDataFieldNames) {
-          if (goal.dataSeries[firstNonNull] != null) {
-            actionOutcome.push({
-              x: new Date(i.replace('val', '')).getTime(),
-              y: (totalEffect[i] || 0) + goal.dataSeries[firstNonNull]!
-            })
-          }
+          const baselineValue = goal.dataSeries[firstNonNull] ?? NaN;
+          const effectValue = totalEffect[i] || 0;
+
+          const value = baselineValue + effectValue;
+
+          actionOutcome.push({
+            x: new Date(i.replace('val', '')).getTime(),
+            y: Number.isFinite(value) ? value : null,
+          });
         }
         mainChart.push({
           name: 'Förväntat utfall',
@@ -224,19 +232,20 @@ export default function MainGraph({
   if (secondaryGoal?.dataSeries) {
     const secondarySeries = [];
     for (const i of dataSeriesDataFieldNames) {
-      if (secondaryGoal.dataSeries[i] != null) {
-        secondarySeries.push({
-          x: new Date(i.replace('val', '')).getTime(),
-          y: secondaryGoal.dataSeries[i]
-        })
-      }
+      const value = secondaryGoal.dataSeries[i];
+
+      secondarySeries.push({
+        x: new Date(i.replace('val', '')).getTime(),
+        y: Number.isFinite(value) ? value : null,
+      });
     }
     mainChart.push({
       name: secondaryGoal.name || secondaryGoal.indicatorParameter,
       data: secondarySeries,
       type: 'line',
     });
-    // Place secondary and main series on same scale if they share unit
+    // Place secondary and main series on different scales if they don't share the same unit
+    // TODO: Use mathjs to see if the units are the same, rather than just comparing strings
     if (secondaryGoal.dataSeries.unit != goal.dataSeries.unit) {
       (mainChartOptions.yaxis as ApexYAxis[]).push({
         title: { text: `Sekundär målbana (${secondaryGoal.dataSeries.unit})` },
@@ -250,12 +259,12 @@ export default function MainGraph({
   if (nationalGoal?.dataSeries) {
     const nationalSeries = [];
     for (const i of dataSeriesDataFieldNames) {
-      if (nationalGoal.dataSeries[i] != null) {
-        nationalSeries.push({
-          x: new Date(i.replace('val', '')).getTime(),
-          y: nationalGoal.dataSeries[i]
-        })
-      }
+      const value = nationalGoal.dataSeries[i];
+
+      nationalSeries.push({
+        x: new Date(i.replace('val', '')).getTime(),
+        y: Number.isFinite(value) ? value : null,
+      });
     }
     mainChart.push({
       name: 'Nationell motsvarighet',
@@ -273,10 +282,12 @@ export default function MainGraph({
   if (historicalData) {
     const historicalSeries = [];
     for (const i of historicalData.data) {
+      const value = parseFloat(i.values[0]);
+
       historicalSeries.push({
         x: parsePeriod(i.key[0]).getTime(),
-        y: parseFloat(i.values[0])
-      })
+        y: Number.isFinite(value) ? value : null,
+      });
     }
     mainChart.push({
       name: `${historicalData.metadata[0]?.label}`,

@@ -19,18 +19,17 @@ export default function MainRelativeGraph({
 
   // Local goal
   const mainSeries = [];
-  const mainFirstNonNull = dataSeriesDataFieldNames.find(i => goal.dataSeries![i] != null && goal.dataSeries![i] !== 0);
-  let mainBaseValue: number | null = null;
-  if (mainFirstNonNull) {
-    mainBaseValue = goal.dataSeries[mainFirstNonNull];
+  const mainFirstNonNullOrZero = dataSeriesDataFieldNames.find(i => goal.dataSeries && Number.isFinite(goal.dataSeries[i]) && goal.dataSeries[i] !== 0);
+  let mainBaseValue: number = NaN;
+  if (mainFirstNonNullOrZero) {
+    mainBaseValue = goal.dataSeries[mainFirstNonNullOrZero] as number;
   }
   for (const i of dataSeriesDataFieldNames) {
-    if (goal.dataSeries[i] != null && mainBaseValue) {
-      mainSeries.push({
-        x: new Date(i.replace('val', '')).getTime(),
-        y: (goal.dataSeries[i]! / mainBaseValue) * 100
-      });
-    }
+    const value = ((goal.dataSeries[i] ?? NaN) / mainBaseValue) * 100;
+    mainSeries.push({
+      x: new Date(i.replace('val', '')).getTime(),
+      y: Number.isFinite(value) ? value : null,
+    });
   }
   chart.push({
     name: (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
@@ -41,18 +40,17 @@ export default function MainRelativeGraph({
   // Secondary goal
   if (secondaryGoal?.dataSeries) {
     const secondarySeries = [];
-    const firstNonNullOrZero = dataSeriesDataFieldNames.find(i => secondaryGoal.dataSeries![i] != null && secondaryGoal.dataSeries![i] !== 0);
-    let baseValue: number | null = null;
+    const firstNonNullOrZero = dataSeriesDataFieldNames.find(i => secondaryGoal.dataSeries && Number.isFinite(secondaryGoal.dataSeries[i]) && secondaryGoal.dataSeries[i] !== 0);
+    let baseValue: number = NaN;
     if (firstNonNullOrZero) {
-      baseValue = secondaryGoal.dataSeries[firstNonNullOrZero];
+      baseValue = secondaryGoal.dataSeries[firstNonNullOrZero] as number;
     }
     for (const i of dataSeriesDataFieldNames) {
-      if (secondaryGoal.dataSeries[i] != null && baseValue) {
-        secondarySeries.push({
-          x: new Date(i.replace('val', '')).getTime(),
-          y: (secondaryGoal.dataSeries[i]! / baseValue) * 100
-        })
-      }
+      const value = ((secondaryGoal.dataSeries[i] ?? NaN) / baseValue) * 100;
+      secondarySeries.push({
+        x: new Date(i.replace('val', '')).getTime(),
+        y: Number.isFinite(value) ? value : null,
+      })
     }
     chart.push({
       name: secondaryGoal.name || secondaryGoal.indicatorParameter,
@@ -64,18 +62,17 @@ export default function MainRelativeGraph({
   // National goal
   if (nationalGoal?.dataSeries) {
     const nationalSeries = [];
-    const firstNonNullOrZero = dataSeriesDataFieldNames.find(i => nationalGoal.dataSeries![i] != null && nationalGoal.dataSeries![i] !== 0);
-    let baseValue: number | null = null;
+    const firstNonNullOrZero = dataSeriesDataFieldNames.find(i => nationalGoal.dataSeries && Number.isFinite(nationalGoal.dataSeries[i]) && nationalGoal.dataSeries[i] !== 0);
+    let baseValue: number = NaN;
     if (firstNonNullOrZero) {
-      baseValue = nationalGoal.dataSeries[firstNonNullOrZero];
+      baseValue = nationalGoal.dataSeries[firstNonNullOrZero] as number;
     }
     for (const i of dataSeriesDataFieldNames) {
-      if (nationalGoal.dataSeries[i] != null && baseValue) {
-        nationalSeries.push({
-          x: new Date(i.replace('val', '')).getTime(),
-          y: (nationalGoal.dataSeries[i]! / baseValue) * 100
-        });
-      }
+      const value = ((nationalGoal.dataSeries[i] ?? NaN) / baseValue) * 100;
+      nationalSeries.push({
+        x: new Date(i.replace('val', '')).getTime(),
+        y: Number.isFinite(value) ? value : null,
+      });
     }
     chart.push({
       name: 'Nationell motsvarighet',
@@ -87,9 +84,11 @@ export default function MainRelativeGraph({
   const chartOptions: ApexCharts.ApexOptions = {
     chart: {
       type: 'line',
-      animations: { enabled: false, dynamicAnimation: { enabled: false } }
+      animations: { enabled: false, dynamicAnimation: { enabled: false } },
+      zoom: { allowMouseWheelZoom: false },
     },
     stroke: { curve: 'straight' },
+    markers: { size: 5 },
     xaxis: {
       type: 'datetime',
       labels: { format: 'yyyy' },
