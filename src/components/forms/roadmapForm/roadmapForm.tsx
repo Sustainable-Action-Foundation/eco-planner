@@ -10,6 +10,12 @@ import { MetaRoadmap, Roadmap } from "@prisma/client";
 import { useEffect, useMemo, useState } from "react";
 import styles from '../forms.module.css';
 
+function checkForBadDecoding(csv: string[][]) {
+  if (csv.some((row) => row.some((cell) => cell.includes("�")))) {
+    alert("Filen verkar använda en okänd encoding då den tolkade texten innehåller tecknet '�' som indikerar att något tecken inte kunde tolkas korrekt (antagligen Å, Ä eller Ö).\nDu kan fortfarande använda den här filen, men om du inte är helt säker på att den *ska* innehålla tecknet '�' så rekommenderas att du konverterar filen till UTF-8 encoding och försöker igen.");
+  }
+}
+
 export default function RoadmapForm({
   user,
   userGroups,
@@ -120,16 +126,23 @@ export default function RoadmapForm({
     if (currentFile) {
       setIsLoading(true)
       try {
-        currentFile.arrayBuffer().then((buffer) => csvToGoalList(parseCsv(buffer))).then((goals) => {
-          if (goals.some((goal) => goal.dataScale)) {
-            alert("Kolumnen 'Scale' stöds inte och kommer att ignoreras. Om kolumnen innehåller några skalor, vänligen baka in dem i enheten istället. Exempel: enhet 'MW' snarare än enhet 'kW' och skala 'tusen'")
-          }
-        }).then(() => setIsLoading(false))
+        currentFile.arrayBuffer()
+          .then((buffer) => parseCsv(buffer))
+          .then((csv) => {
+            checkForBadDecoding(csv);
+            return csvToGoalList(csv);
+          })
+          .then((goals) => {
+            if (goals.some((goal) => goal.dataScale)) {
+              alert("Kolumnen 'Scale' stöds inte och kommer att ignoreras. Om kolumnen innehåller några skalor, vänligen baka in dem i enheten istället. Exempel: enhet 'MW' snarare än enhet 'kW' och skala 'tusen'");
+            }
+          })
+          .then(() => setIsLoading(false));
       }
       catch (error) {
-        alert(`Filen kunde inte läsas: ${error instanceof Error ? error.message || "Okänt fel" : "Okänt fel"}`)
-        setIsLoading(false)
-        return
+        alert(`Filen kunde inte läsas: ${error instanceof Error ? error.message || "Okänt fel" : "Okänt fel"}`);
+        setIsLoading(false);
+        return;
       }
     }
   }, [currentFile])
@@ -228,7 +241,7 @@ export default function RoadmapForm({
             {/*TODO: Add to infobubble
             Om du har en CSV-fil med målbanor kan du ladda upp den här. <br />
             Notera att det här skapar nya målbanor även om det redan finns några. */}
-            Målbanor <small> - accepterade filtyper: .csv</small>
+            Målbanor <small> - accepterade filtyper: .csv, accepterad encoding: UTF-8</small>
             <input className="margin-block-25" type="file" name="csvUpload" id="csvUpload" accept=".csv" onChange={(e) => e.target.files ? setCurrentFile(e.target.files[0]) : setCurrentFile(null)} />
           </label>
         </fieldset>
