@@ -53,7 +53,6 @@ export default function LinkTree({
     openCategories = [];
   }
 
-  // TODO: Make sure keys are unique to avoid things like luftfart/inrikes and sjöfart/inrikes sharing the same open state in localStorage
   const handleToggle = (e: SyntheticEvent<HTMLDetailsElement, Event>, key: string) => {
     if (!roadmap) return;
     let currentStorage: string[] = getSessionStorage(roadmap.id) as string[];

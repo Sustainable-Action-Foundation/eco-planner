@@ -9,7 +9,7 @@ import { AccessLevel } from "@/types";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
 
-// TODO: This acts as a general purpose button for roadmaps, goals and actions. 
+// General purpose button for roadmaps, goals and actions. 
 // Update the name of the component to reflect this
 
 export function TableMenu(

@@ -130,9 +130,10 @@ dist
 .pnp.*
 
 # Cypress tests
+/cypress/downloads
 /cypress/screenshots
 /cypress/downloads/
 /cypress.env.json
 
 # JSON file containing git commit hash
-/src/lib/version.json
+/src/lib/commitHash.json

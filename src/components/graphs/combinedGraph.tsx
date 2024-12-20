@@ -2,7 +2,7 @@
 
 import findSiblings from "@/functions/findSiblings";
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
-import { DataSeriesDataFields, dataSeriesDataFieldNames } from "@/types";
+import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Goal, Roadmap } from "@prisma/client";
 import { useState } from "react";
 import styles from './graphs.module.css'
@@ -23,13 +23,18 @@ export default function CombinedGraph({
   const [isStacked, setIsStacked] = useState(true);
 
   for (const i in siblings) {
-    const mainSeries = []
+    const mainSeries = [];
     if (siblings[i].dataSeries) {
       for (const j of dataSeriesDataFieldNames) {
+        const value = siblings[i].dataSeries[j];
+
         mainSeries.push({
           x: new Date(j.replace('val', '')).getTime(),
-          y: siblings[i].dataSeries![j as keyof DataSeriesDataFields] ?? null,
-        })
+          // Specifically in the combined graph, when stacked, default to 0 rather than null if the value is not a number
+          // This is because stacked area charts in ApexCharts do not handle null values well (other entries are shifted up outside the graph)
+          // TODO: Submit a bug report to ApexCharts, and then link it here
+          y: Number.isFinite(value) ? value : (isStacked ? 0 : null),
+        });
       }
     }
     // Only add the series to the graph if it isn't all null/0
@@ -48,8 +53,10 @@ export default function CombinedGraph({
       type: isStacked ? 'area' : 'line',
       stacked: isStacked,
       stackOnlyBar: false,
-      animations: { enabled: false, dynamicAnimation: { enabled: false } }
+      animations: { enabled: false, dynamicAnimation: { enabled: false } },
+      zoom: { allowMouseWheelZoom: false },
     },
+    markers: { size: isStacked ? 0 : 5 },
     xaxis: {
       type: 'datetime',
       labels: { format: 'yyyy' },
@@ -92,12 +99,12 @@ export default function CombinedGraph({
           height="100%"
         />
       </div>
-      <nav className="display-flex justify-content-flex-end margin-block-100">
+      <menu className="margin-block-100 margin-0 padding-0">
         <button className="call-to-action-primary display-flex align-items-center gap-50 transparent" style={{ width: 'fit-content', fontWeight: 'bold', fontSize: '1rem' }} type="button" onClick={() => setIsStacked(!isStacked)}>
           Byt typ av graf
           <Image src='/icons/chartArea.svg' alt='Byt graf' width={24} height={24} />
         </button>
-      </nav>
+      </menu>
     </div>
   )
 }

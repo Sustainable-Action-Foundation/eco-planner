@@ -32,12 +32,16 @@ export const allowedDomains = [
   "berg.se",
   "bjurholm.se",
   "bjuv.se",
+  */
   "boden.se",
+  /*
   "bollebygd.se",
   "bollnas.se",
   "boras.se",
   "borgholm.se",
+  */
   "borlange.se",
+  /*
   "botkyrka.se",
   "boxholm.se",
   "bracke.se",
@@ -66,7 +70,9 @@ export const allowedDomains = [
   "forshaga.se",
   "gagnef.se",
   "gallivare.se",
+  */
   "gavle.se",
+  /*
   "gislaved.se",
   "gnesta.se",
   "gnosjo.se",
@@ -109,7 +115,9 @@ export const allowedDomains = [
   "jokkmokk.se",
   "jonkoping.se",
   "kalix.se",
+  */
   "kalmar.se",
+  /*
   "karlsborg.se",
   "karlshamn.se",
   "karlskoga.se",
@@ -148,7 +156,9 @@ export const allowedDomains = [
   "ljusnarsberg.se",
   "lomma.se",
   "ludvika.se",
+  */
   "lulea.se",
+  /*
   "lund.se",
   "lycksele.se",
   "lysekil.se",

@@ -10,12 +10,12 @@ import { DataSeriesDataFields } from '@/types.ts';
  */
 async function getDataSeriesValueFieldNames() {
   // Get a data series. From it we can extract the names of the numeric data fields.
-  const exampleSeries = await prisma.dataSeries.findFirst().catch(() => null)
+  const exampleSeries = await prisma.dataSeries.findFirst().catch(() => null);
 
   // If there are no data series, for example because the database is empty, don't do anything.
   if (!exampleSeries) {
     console.log("No data series found; data series value field names not touched.")
-    return
+    return;
   }
 
   // If there are data series, extract the names of the numeric data fields.
@@ -26,10 +26,12 @@ async function getDataSeriesValueFieldNames() {
   ) as (keyof DataSeriesDataFields)[];
 
   // Write to file
-  fs.writeFile('src/lib/dataSeriesDataFieldNames.json', JSON.stringify(dataFields), (err) => {
-    if (err) throw err;
-    console.log('The file has been saved!');
-  });
+  try {
+    fs.writeFileSync('src/lib/dataSeriesDataFieldNames.json', JSON.stringify(dataFields));
+    console.log('Data series value field names updated');
+  } catch {
+    console.log('Failed to update data series value field names');
+  }
 }
 
 getDataSeriesValueFieldNames();
