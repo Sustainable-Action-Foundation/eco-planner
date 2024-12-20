@@ -81,8 +81,8 @@ export default function EffectForm({
 
         <GoalSelector goal={goal} roadmapAlternatives={roadmapAlternatives} />
 
-        <label className="block margin-block-75">
-          Dataserie:
+        <label className="block margin-block-100">
+          Dataserie
           {/* TODO: Make this allow .csv files and possibly excel files */}
           <input type="text" name="dataSeries" required id="dataSeries"
             pattern={dataSeriesPattern}
@@ -93,9 +93,9 @@ export default function EffectForm({
         </label>
 
         {/* TODO: Show preview of how it would affect the goal */}
-        <label className="block margin-block-75">
+        <label className="block margin-block-100">
           Vilken typ av påverkan har åtgärden?
-          <select name="impactType" id="impactType" required
+          <select className="block margin-block-25" name="impactType" id="impactType" required
             defaultValue={currentEffect?.impactType || ActionImpactType.ABSOLUTE}
           >
             <option value={ActionImpactType.ABSOLUTE}>Absolut skillnad gentemot baslinje</option>
@@ -104,7 +104,7 @@ export default function EffectForm({
           </select>
         </label>
 
-        <input type="submit" className="margin-block-75 seagreen color-purewhite" value={currentEffect ? "Spara" : "Skapa effekt"} />
+        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentEffect ? "Spara" : "Skapa effekt"} />
       </form>
     </>
   )

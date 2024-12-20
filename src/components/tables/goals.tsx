@@ -1,21 +1,23 @@
 "use client"
 
-import { DataSeries, Goal, Roadmap } from "@prisma/client"
 import { AccessLevel } from '@/types'
 import GoalTable from "./goalTables/goalTable"
 import TableSelector from './tableSelector/tableSelector'
 import LinkTree from './goalTables/linkTree'
+import ActionTable from "./actions"
 import { useEffect, useState } from "react"
 import { getStoredGoalSortBy, getStoredViewMode, setStoredGoalSortBy } from "./functions/tableFunctions"
 import Link from "next/link"
 import Image from "next/image"
 import styles from './tables.module.css'
 import GraphCookie from "../cookies/graphCookie"
+import type getOneRoadmap from "@/fetchers/getOneRoadmap.ts"
 
 /** Enum for the different view modes for the goal table. */
 export enum ViewMode {
   Table = "TABLE",
   Tree = "TREE",
+  Actions = "ACTIONS"
 };
 
 export enum GoalSortBy {
@@ -33,15 +35,7 @@ export default function Goals({
   accessLevel,
 }: {
   title: string,
-  roadmap: Roadmap & {
-    goals: (Goal & {
-      _count: { effects: number }
-      dataSeries: DataSeries | null,
-      author: { id: string, username: string },
-    })[],
-    metaRoadmap: { name: string, id: string },
-    author: { id: string, username: string },
-  },
+  roadmap: NonNullable<Awaited<ReturnType<typeof getOneRoadmap>>>,
   accessLevel?: AccessLevel
 }) {
   const [viewMode, setViewMode] = useState<ViewMode | ''>('');
@@ -94,21 +88,10 @@ export default function Goals({
             </div>
           )}
         </section>
-        {/* <section id="roadmapFilters" className="margin-block-200 padding-100 gray-90 rounded">
-          <b>Enhet</b>
-          <label className="flex align-items-center gap-25 margin-block-50">
-            <input type="checkbox" />
-            Enhet 1
-          </label>
-          <label className="flex align-items-center gap-25 margin-block-50">
-            <input type="checkbox" />
-            Enhet 2
-          </label>
-        </section> */}
       </section>
       <label htmlFor="goalTable" className={`display-flex justify-content-space-between align-items-center flex-wrap-wrap ${styles.tableNav}`}>
         <h2>{title}</h2>
-        <nav className='display-flex align-items-center gap-100'>
+        <menu className='display-flex align-items-center gap-100'>
           <TableSelector id={roadmap.id} current={viewMode} setter={setViewMode} />
           { // Only show the button if the user has edit access to the roadmap
             (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
@@ -118,20 +101,23 @@ export default function Goals({
             <input type="checkbox" />
             <Image src="/icons/settings.svg" alt="Inställningar" width="24" height="24" />
           </div>
-        </nav>
+        </menu>
       </label>
 
       <div className={styles.settingsContainer}>
         <GraphCookie />
       </div>
 
-      {viewMode == ViewMode.Table && (
-        <GoalTable roadmap={filteredRoadmap} sortBy={sortBy} />
-      )}
       {viewMode == ViewMode.Tree && (
         <LinkTree roadmap={filteredRoadmap} />
       )}
-      {(viewMode != ViewMode.Table && viewMode != ViewMode.Tree) && (
+      {viewMode == ViewMode.Table && (
+        <GoalTable roadmap={filteredRoadmap} sortBy={sortBy} />
+      )}
+      {viewMode == ViewMode.Actions && (
+        <ActionTable actions={filteredRoadmap.actions} accessLevel={accessLevel} roadmapId={roadmap.id} />
+      )}
+      {(viewMode != ViewMode.Table && viewMode != ViewMode.Tree && viewMode != ViewMode.Actions) && (
         <p>
           Laddar vyn... Om vyn inte laddar efter någon sekund, testa att byta vy med knapparna uppe till höger.
         </p>

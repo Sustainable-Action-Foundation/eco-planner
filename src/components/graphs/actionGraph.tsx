@@ -13,6 +13,8 @@ export default function ActionGraph({
 
   // The string '2020' is interpreted as a year while the number 2020 is interpreted as a timestamp
   for (const action of actions) {
+    if (!action) continue;
+
     actionData.push({
       x: action.name,
       y: [

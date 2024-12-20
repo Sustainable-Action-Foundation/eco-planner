@@ -61,7 +61,9 @@ POCKETBASE_USER=''
 POCKETBASE_PASSWORD=''
 ```
 
-3. Setup and run tests using `npx cypress open`
+3. Setup and run tests using `yarn cypress open`
+
+4. Run tests headless in a cli using: `yarn run e2e:chrome`
 
 ## Components
 

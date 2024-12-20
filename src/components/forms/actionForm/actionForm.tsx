@@ -1,11 +1,13 @@
 'use client'
 
 import { dataSeriesPattern } from "@/components/forms/goalForm/goalForm"
-import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput"
+import { getLinks } from "@/components/forms/linkInput/linkInput"
 import formSubmitter from "@/functions/formSubmitter"
 import { ActionInput } from "@/types"
 import { Action, ActionImpactType, DataSeries, Effect } from "@prisma/client"
 import type getRoadmaps from "@/fetchers/getRoadmaps"
+import styles from '../forms.module.css'
+
 
 export default function ActionForm({
   roadmapId,
@@ -69,9 +71,9 @@ export default function ActionForm({
         <button type="submit" disabled={true} style={{ display: 'none' }} aria-hidden={true} />
 
         {!(roadmapId || currentAction?.roadmapId) ?
-          <label className="block margin-block-75">
+          <label className="block margin-block-300">
             Välj färdplan att skapa åtgärden under:
-            <select name="roadmapId" id="roadmapId" required className="margin-inline-25">
+            <select name="roadmapId" id="roadmapId" required className="block margin-block-25">
               <option value="" disabled>Välj färdplan</option>
               {roadmapAlternatives.map(roadmap => (
                 <option key={roadmap.id} value={roadmap.id}>
@@ -82,27 +84,31 @@ export default function ActionForm({
           </label>
           : null
         }
+        
+        <fieldset className={`${styles.timeLineFieldset} width-100`}>
+          <legend data-position='1' className={`${styles.timeLineLegend}  font-weight-bold`}>Beskriv din åtgärd</legend>
+          <label className="block margin-block-100">
+            Namn på åtgärden
+            <input className="margin-block-25" type="text" name="actionName" required id="actionName" defaultValue={currentAction?.name} />
+          </label>
 
-        <label className="block margin-block-75">
-          Namn på åtgärden:
-          <input className="margin-block-25" type="text" name="actionName" required id="actionName" defaultValue={currentAction?.name} />
-        </label>
+          <label className="block margin-block-100">
+            Beskrivning av åtgärden
+            <textarea className="margin-block-25" name="actionDescription" id="actionDescription" defaultValue={currentAction?.description ?? undefined} ></textarea>
+          </label>
 
-        <label className="block margin-block-75">
-          Beskrivning av åtgärden:
-          <textarea className="margin-block-25" name="actionDescription" id="actionDescription" defaultValue={currentAction?.description ?? undefined} ></textarea>
-        </label>
+          <label className="block margin-block-100">
+            Kostnadseffektivitet
+            <input className="margin-block-25" type="text" name="costEfficiency" id="costEfficiency" defaultValue={currentAction?.costEfficiency ?? undefined} />
+          </label>
 
-        <label className="block margin-block-75">
-          Kostnadseffektivitet:
-          <input className="margin-block-25" type="text" name="costEfficiency" id="costEfficiency" defaultValue={currentAction?.costEfficiency ?? undefined} />
-        </label>
-
-        <label className="block margin-block-75">
-          Beskriv förväntat resultat:
-          <textarea className="margin-block-25" name="expectedOutcome" id="expectedOutcome" defaultValue={currentAction?.expectedOutcome ?? undefined} />
-        </label>
-
+          <label className="block margin-block-100">
+            Förväntat resultat
+            <textarea className="margin-block-25" name="expectedOutcome" id="expectedOutcome" defaultValue={currentAction?.expectedOutcome ?? undefined} />
+          </label>
+        </fieldset>
+              
+        {/* TODO: Work out fieldset interaction for this */}
         {(goalId && !currentAction) ?
           <>
             <label className="block margin-block-75">
@@ -141,45 +147,58 @@ export default function ActionForm({
           : null
         }
 
-        <label className="block margin-block-75">
-          Planerat startår:
-          <input className="margin-block-25" type="number" name="startYear" id="startYear" defaultValue={currentAction?.startYear ?? undefined} min={2000} />
-        </label>
+        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+          <legend data-position='2' className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Välj pågående år för din åtgärd</legend>
+          <label className="block margin-bottom-100">
+            Startår
+            <input className="margin-block-25" type="number" name="startYear" id="startYear" defaultValue={currentAction?.startYear ?? undefined} min={2000} />
+          </label>
 
-        <label className="block margin-block-75">
-          Planerat slutår:
-          <input className="margin-block-25" type="number" name="endYear" id="endYear" defaultValue={currentAction?.endYear ?? undefined} min={2000} />
-        </label>
+          <label className="block margin-block-100">
+            Slutår
+            <input className="margin-block-25" type="number" name="endYear" id="endYear" defaultValue={currentAction?.endYear ?? undefined} min={2000} />
+          </label>
+        </fieldset>
 
-        <label className="block margin-block-75">
-          Projektansvarig:
-          <input className="margin-block-25" type="text" name="projectManager" id="projectManager" defaultValue={currentAction?.projectManager ?? undefined} />
-        </label>
+        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+          <legend data-position='3' className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Beskriv aktörer för din åtgärd</legend>
+          <label className="block margin-bottom-100">
+            Projektansvarig
+            <input className="margin-block-25" type="text" name="projectManager" id="projectManager" defaultValue={currentAction?.projectManager ?? undefined} />
+          </label>
 
-        <label className="block margin-block-75">
-          Relevanta aktörer:
-          <input className="margin-block-25" type="text" name="relevantActors" id="relevantActors" defaultValue={currentAction?.relevantActors ?? undefined} />
-        </label>
+          <label className="block margin-block-100">
+            Relevanta aktörer
+            <input className="margin-block-25" type="text" name="relevantActors" id="relevantActors" defaultValue={currentAction?.relevantActors ?? undefined} />
+          </label>
+        </fieldset>
 
-        <p>Vilka kategorier faller åtgärden under?</p>
-        <div className="display-flex gap-25 align-items-center margin-block-50">
-          <input type="checkbox" name="isSufficiency" id="isSufficiency" defaultChecked={currentAction?.isSufficiency} />
-          <label htmlFor="isSufficiency">Sufficiency</label>
-        </div>
-        <div className="display-flex gap-25 align-items-center margin-block-50">
-          <input type="checkbox" name="isEfficiency" id="isEfficiency" defaultChecked={currentAction?.isEfficiency} />
-          <label htmlFor="isEfficiency">Efficiency</label>
-        </div>
-        <div className="display-flex gap-25 align-items-center margin-block-50">
-          <input type="checkbox" name="isRenewables" id="isRenewables" defaultChecked={currentAction?.isRenewables} />
-          <label htmlFor="isRenewables">Renewables</label>
-        </div>
+        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+          <legend data-position='4' className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Vilka kategorier faller åtgärden under?</legend>
+          <label className="flex gap-25 align-items-center margin-bottom-50" htmlFor="isSufficiency">
+            <input type="checkbox" name="isSufficiency" id="isSufficiency" defaultChecked={currentAction?.isSufficiency} />
+            Sufficiency
+          </label>
 
-        <div className="margin-block-300">
-          <LinkInput links={currentAction?.links} />
-        </div>
+          <label className="flex gap-25 align-items-center margin-block-50" htmlFor="isEfficiency">
+            <input type="checkbox" name="isEfficiency" id="isEfficiency" defaultChecked={currentAction?.isEfficiency} />
+            Efficiency
+          </label>
+          
+          <label className="flex gap-25 align-items-center margin-block-50" htmlFor="isRenewables">
+            <input type="checkbox" name="isRenewables" id="isRenewables" defaultChecked={currentAction?.isRenewables} />
+            Renewables
+          </label>
+        </fieldset>
 
-        <input type="submit" className="margin-block-75 seagreen color-purewhite" value={currentAction ? "Spara" : "Skapa åtgärd"} />
+        {/*
+          TODO: Add this again when relevant
+          <div className="margin-block-300">
+            <LinkInput links={currentAction?.links} />
+          </div>
+        */}
+
+        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentAction ? "Spara" : "Skapa åtgärd"} />
 
       </form>
     </>

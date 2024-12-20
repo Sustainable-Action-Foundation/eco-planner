@@ -1,5 +1,5 @@
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
-import { DataSeriesDataFields, dataSeriesDataFieldNames } from "@/types";
+import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 import styles from '../graphs.module.css'
 
@@ -9,26 +9,24 @@ export default function ThumbnailGraph({
   goal: Goal & { dataSeries: DataSeries | null },
 }) {
   if (!goal.dataSeries) {
-    return null
+    return null;
   }
 
   const mainChart: ApexAxisChartSeries = [];
-  if (goal.dataSeries) {
-    const mainSeries = []
-    for (const i of dataSeriesDataFieldNames) {
-      if (goal.dataSeries[i as keyof DataSeriesDataFields]) {
-        mainSeries.push({
-          x: new Date(i.replace('val', '')).getTime(),
-          y: goal.dataSeries[i as keyof DataSeriesDataFields]
-        })
-      }
-    }
-    mainChart.push({
-      name: (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
-      data: mainSeries,
-      type: 'line',
-    })
+  const mainSeries = [];
+  for (const i of dataSeriesDataFieldNames) {
+    const value = goal.dataSeries[i];
+
+    mainSeries.push({
+      x: new Date(i.replace('val', '')).getTime(),
+      y: Number.isFinite(value) ? value : null,
+    });
   }
+  mainChart.push({
+    name: (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
+    data: mainSeries,
+    type: 'line',
+  });
 
   const mainChartOptions: ApexCharts.ApexOptions = {
     chart: {

@@ -76,11 +76,10 @@ export default function GoalTable({
       <table id="goalTable" className={styles.table}>
         <thead>
           <tr>
-            <th id="goalName">Målbanenamn</th>
-            {/* TODO: Add indicators to headers with tooltips */}
-            <th id="leapParameter">LEAP parameter</th>
-            <th id="dataUnit">Enhet för dataserie</th>
-            <th id="goalActions">Antal åtgärder</th>
+            <th>Målbanenamn</th>
+            <th>LEAP parameter</th>
+            <th>Enhet för dataserie</th>
+            <th>Antal åtgärder</th>
           </tr>
         </thead>
         <tbody>

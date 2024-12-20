@@ -32,12 +32,16 @@ export const allowedDomains = [
   "berg.se",
   "bjurholm.se",
   "bjuv.se",
+  */
   "boden.se",
+  /*
   "bollebygd.se",
   "bollnas.se",
   "boras.se",
   "borgholm.se",
+  */
   "borlange.se",
+  /*
   "botkyrka.se",
   "boxholm.se",
   "bracke.se",
@@ -66,7 +70,9 @@ export const allowedDomains = [
   "forshaga.se",
   "gagnef.se",
   "gallivare.se",
+  */
   "gavle.se",
+  /*
   "gislaved.se",
   "gnesta.se",
   "gnosjo.se",
@@ -102,12 +108,16 @@ export const allowedDomains = [
   "huddinge.se",
   "hudiksvall.se",
   "hultsfred.se",
+  */
   "hylte.se",
+  /*
   "jarfalla.se",
   "jokkmokk.se",
   "jonkoping.se",
   "kalix.se",
+  */
   "kalmar.se",
+  /*
   "karlsborg.se",
   "karlshamn.se",
   "karlskoga.se",
@@ -146,7 +156,9 @@ export const allowedDomains = [
   "ljusnarsberg.se",
   "lomma.se",
   "ludvika.se",
+  */
   "lulea.se",
+  /*
   "lund.se",
   "lycksele.se",
   "lysekil.se",
@@ -201,7 +213,9 @@ export const allowedDomains = [
   "pajala.se",
   "partille.se",
   "perstorp.se",
+  */
   "pitea.se",
+  /*
   "ragunda.se",
   "rattvik.se",
   "gotland.se",
@@ -241,7 +255,9 @@ export const allowedDomains = [
   "stromstad.se",
   "stromsund.se",
   "sundbyberg.se",
+  */
   "sundsvall.se",
+  /*
   "sunne.se",
   "surahammar.se",
   "svalov.se",
@@ -265,7 +281,9 @@ export const allowedDomains = [
   "tranemo.se",
   "trelleborg.se",
   "trollhattan.se",
+  */
   "trosa.se",
+  /*
   "tyreso.se",
   "uddevalla.se",
   "ulricehamn.se",
@@ -344,6 +362,7 @@ export const allowedDomains = [
   "gotland.se",
   */
   //Other
+  "differ.se",
   // "stuns.se",
   "sustainable-action.org",
   // "lansstyrelsen.se",

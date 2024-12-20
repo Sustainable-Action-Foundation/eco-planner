@@ -2,8 +2,9 @@ import { GoalInput } from "@/types"
 import dataSeriesDataFieldNames from "@/lib/dataSeriesDataFieldNames.json" with { type: "json" }
 
 export default function parseCsv(csv: ArrayBuffer): string[][] {
-  // Windows-1252 (sometimes called ANSI) is the default encoding for CSV files exported from Excel. It's a superset of ISO-8859-1 (Latin-1).
-  const decoder = new TextDecoder('windows-1252')
+  // Despite Windows-1252 being more common than UTF-8 in a Windows/Microsoft environment (such as when exporting CSV files from Excel),
+  // we'll use UTF-8 because of its greater support for different characters and non-Latin scripts
+  const decoder = new TextDecoder('utf-8')
   const decodedCsv = decoder.decode(csv)
   const rows = decodedCsv.split('\n')
   return rows.map(row => row.split(';'))

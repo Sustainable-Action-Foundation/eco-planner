@@ -56,9 +56,11 @@ export default async function Page({
 
       <div className="container-text" style={{ marginInline: 'auto' }}>
         {goal ?
-          <h1>Skapa ny åtgärd under målbana: {`${goal?.name || goal?.indicatorParameter}`}</h1>
-          :
-          <h1>Skapa ny åtgärd</h1>
+          <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
+            Skapa en ny åtgärd under målbana: {`${goal?.name || goal?.indicatorParameter}`}
+          </h1> : <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
+            Skapa en ny åtgärd
+          </h1>
         }
         {badGoal &&
           <p style={{ color: 'red' }}>

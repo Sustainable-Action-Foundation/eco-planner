@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
 
   // Only allow admins to create national roadmaps
   if (metaRoadmap.type == RoadmapType.NATIONAL && !session.user.isAdmin) {
-    return Response.json({ message: 'Forbidden; only admins may create national roadmaps' },
+    return Response.json({ message: 'Forbidden; only admins may create national roadmaps. Feel free to send an email to kontakt@sustainable-action.org if you think we should add another.' },
       { status: 403 }
     );
   }

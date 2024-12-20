@@ -1,7 +1,6 @@
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames, DataSeriesDataFields } from "@/types";
 import { Goal, DataSeries, ActionImpactType, Effect } from "@prisma/client";
-import styles from '../graphs.module.css';
 
 export default function MainDeltaGraph({
   goal,
@@ -21,9 +20,11 @@ export default function MainDeltaGraph({
   const chartOptions: ApexCharts.ApexOptions = {
     chart: {
       type: 'line',
-      animations: { enabled: false, dynamicAnimation: { enabled: false } }
+      animations: { enabled: false, dynamicAnimation: { enabled: false } },
+      zoom: { allowMouseWheelZoom: false },
     },
     stroke: { curve: 'straight' },
+    markers: { size: 5 },
     xaxis: {
       type: 'datetime',
       labels: { format: 'yyyy' },
@@ -55,12 +56,16 @@ export default function MainDeltaGraph({
   for (let i = 1; i < dataSeriesDataFieldNames.length; i++) {
     const currentField = dataSeriesDataFieldNames[i];
     const previousField = dataSeriesDataFieldNames[i - 1];
-    if (goal.dataSeries[currentField] != null && goal.dataSeries[previousField] != null) {
-      mainSeries.push({
-        x: new Date(currentField.replace('val', '')).getTime(),
-        y: goal.dataSeries[currentField]! - goal.dataSeries[previousField]!
-      });
-    }
+
+    const currentValue = goal.dataSeries[currentField] ?? NaN;
+    const previousValue = goal.dataSeries[previousField] ?? NaN;
+
+    const value = currentValue - previousValue;
+
+    mainSeries.push({
+      x: new Date(currentField.replace('val', '')).getTime(),
+      y: Number.isFinite(value) ? value : null,
+    });
   }
   chart.push({
     name: (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
@@ -74,12 +79,16 @@ export default function MainDeltaGraph({
     for (let i = 1; i < dataSeriesDataFieldNames.length; i++) {
       const currentField = dataSeriesDataFieldNames[i];
       const previousField = dataSeriesDataFieldNames[i - 1];
-      if (goal.baselineDataSeries[currentField] != null && goal.baselineDataSeries[previousField] != null) {
-        baselineSeries.push({
-          x: new Date(currentField.replace('val', '')).getTime(),
-          y: goal.baselineDataSeries[currentField]! - goal.baselineDataSeries[previousField]!
-        });
-      }
+
+      const currentValue = goal.baselineDataSeries[currentField] ?? NaN;
+      const previousValue = goal.baselineDataSeries[previousField] ?? NaN;
+
+      const value = currentValue - previousValue;
+
+      baselineSeries.push({
+        x: new Date(currentField.replace('val', '')).getTime(),
+        y: Number.isFinite(value) ? value : null,
+      });
     }
     chart.push({
       name: 'Basscenario',
@@ -91,7 +100,7 @@ export default function MainDeltaGraph({
     const totalEffect: Partial<DataSeriesDataFields> = {};
     for (const i of dataSeriesDataFieldNames) {
       for (const effect of effects) {
-        if (effect.dataSeries && effect.dataSeries[i] != null) {
+        if (effect.dataSeries && effect.dataSeries[i] != null && Number.isFinite(effect.dataSeries[i])) {
           if (!totalEffect[i]) {
             totalEffect[i] = 0;
           }
@@ -100,7 +109,7 @@ export default function MainDeltaGraph({
               // Add sum of all deltas up to this point for the current action
               let totalDelta = 0;
               for (const j of dataSeriesDataFieldNames.slice(0, dataSeriesDataFieldNames.indexOf(i) + 1)) {
-                if (effect.dataSeries[j] != null) {
+                if (effect.dataSeries[j] != null && Number.isFinite(effect.dataSeries[j])) {
                   totalDelta += effect.dataSeries[j];
                 }
               }
@@ -113,7 +122,7 @@ export default function MainDeltaGraph({
                 break;
               }
               // Substitute with 0 if any value is missing
-              totalEffect[i] += ((totalEffect[previous] ?? 0) + (goal.baselineDataSeries[previous] ?? 0)) * (effect.dataSeries[i] / 100);
+              totalEffect[i] += ((totalEffect[previous] || 0) + (goal.baselineDataSeries[previous] || 0)) * (effect.dataSeries[i] / 100);
               break;
             case ActionImpactType.ABSOLUTE:
             default:
@@ -131,12 +140,18 @@ export default function MainDeltaGraph({
       for (let i = 1; i < dataSeriesDataFieldNames.length; i++) {
         const currentField = dataSeriesDataFieldNames[i];
         const previousField = dataSeriesDataFieldNames[i - 1];
-        if (totalEffect[currentField] != null && totalEffect[previousField] != null && goal.baselineDataSeries[currentField] != null && goal.baselineDataSeries[previousField] != null) {
-          actionOutcome.push({
-            x: new Date(currentField.replace('val', '')).getTime(),
-            y: (totalEffect[currentField]! + goal.baselineDataSeries[currentField]!) - (totalEffect[previousField]! + goal.baselineDataSeries[previousField]!)
-          });
-        }
+
+        const currentValue = totalEffect[currentField] ?? NaN;
+        const previousValue = totalEffect[previousField] ?? NaN;
+        const currentBaseline = goal.baselineDataSeries[currentField] ?? NaN;
+        const previousBaseline = goal.baselineDataSeries[previousField] ?? NaN;
+
+        const value = (currentValue + currentBaseline) - (previousValue + previousBaseline);
+
+        actionOutcome.push({
+          x: new Date(currentField.replace('val', '')).getTime(),
+          y: Number.isFinite(value) ? value : null,
+        });
       }
       chart.push({
         name: 'Förväntat utfall',
@@ -146,14 +161,14 @@ export default function MainDeltaGraph({
     }
   } else {
     // If no baseline is set, use the first non-null value as baseline
-    const firstNonNull = dataSeriesDataFieldNames.find(i => goal.dataSeries![i] != null);
+    const firstNonNull = dataSeriesDataFieldNames.find(i => goal.dataSeries && Number.isFinite(goal.dataSeries[i]));
 
     if (firstNonNull) {
       // Calculate total impact of actions
       const totalEffect: Partial<DataSeriesDataFields> = {};
       for (const i of dataSeriesDataFieldNames) {
         for (const effect of effects) {
-          if (effect.dataSeries && effect.dataSeries[i] != null) {
+          if (effect.dataSeries && effect.dataSeries[i] != null && Number.isFinite(effect.dataSeries[i])) {
             if (!totalEffect[i]) {
               totalEffect[i] = 0;
             }
@@ -162,7 +177,7 @@ export default function MainDeltaGraph({
                 // Add sum of all deltas up to this point for the current action
                 let totalDelta = 0;
                 for (const j of dataSeriesDataFieldNames.slice(0, dataSeriesDataFieldNames.indexOf(i) + 1)) {
-                  if (effect.dataSeries[j] != null) {
+                  if (effect.dataSeries[j] != null && Number.isFinite(effect.dataSeries[j])) {
                     totalDelta += effect.dataSeries[j];
                   }
                 }
@@ -175,7 +190,7 @@ export default function MainDeltaGraph({
                   break;
                 }
                 // Substitute with 0 if any value is missing
-                totalEffect[i] += ((totalEffect[previous] ?? 0) + (goal.dataSeries[firstNonNull] ?? 0)) * (effect.dataSeries[i] / 100);
+                totalEffect[i] += ((totalEffect[previous] || 0) + (goal.dataSeries[firstNonNull] || 0)) * (effect.dataSeries[i] / 100);
                 break;
               case ActionImpactType.ABSOLUTE:
               default:
@@ -193,12 +208,16 @@ export default function MainDeltaGraph({
         for (let i = 1; i < dataSeriesDataFieldNames.length; i++) {
           const currentField = dataSeriesDataFieldNames[i];
           const previousField = dataSeriesDataFieldNames[i - 1];
-          if (totalEffect[currentField] != null && totalEffect[previousField] != null) {
-            actionOutcome.push({
-              x: new Date(currentField.replace('val', '')).getTime(),
-              y: totalEffect[currentField]! - totalEffect[previousField]!
-            });
-          }
+
+          const currentValue = totalEffect[currentField] ?? NaN;
+          const previousValue = totalEffect[previousField] ?? NaN;
+
+          const value = currentValue - previousValue;
+
+          actionOutcome.push({
+            x: new Date(currentField.replace('val', '')).getTime(),
+            y: Number.isFinite(value) ? value : null,
+          });
         }
         chart.push({
           name: 'Förväntat utfall',
@@ -215,12 +234,16 @@ export default function MainDeltaGraph({
     for (let i = 1; i < dataSeriesDataFieldNames.length; i++) {
       const currentField = dataSeriesDataFieldNames[i];
       const previousField = dataSeriesDataFieldNames[i - 1];
-      if (secondaryGoal.dataSeries[currentField] != null && secondaryGoal.dataSeries[previousField] != null) {
-        nationalSeries.push({
-          x: new Date(currentField.replace('val', '')).getTime(),
-          y: secondaryGoal.dataSeries[currentField]! - secondaryGoal.dataSeries[previousField]!
-        });
-      }
+
+      const currentValue = secondaryGoal.dataSeries[currentField] ?? NaN;
+      const previousValue = secondaryGoal.dataSeries[previousField] ?? NaN;
+
+      const value = currentValue - previousValue;
+
+      nationalSeries.push({
+        x: new Date(currentField.replace('val', '')).getTime(),
+        y: Number.isFinite(value) ? value : null,
+      });
     }
     chart.push({
       name: secondaryGoal.name || secondaryGoal.indicatorParameter,
@@ -244,12 +267,15 @@ export default function MainDeltaGraph({
     for (let i = 1; i < dataSeriesDataFieldNames.length; i++) {
       const currentField = dataSeriesDataFieldNames[i];
       const previousField = dataSeriesDataFieldNames[i - 1];
-      if (nationalGoal.dataSeries[currentField] != null && nationalGoal.dataSeries[previousField] != null) {
-        nationalSeries.push({
-          x: new Date(currentField.replace('val', '')).getTime(),
-          y: nationalGoal.dataSeries[currentField]! - nationalGoal.dataSeries[previousField]!
-        });
-      }
+
+      const currentValue = nationalGoal.dataSeries[currentField] ?? NaN;
+      const previousValue = nationalGoal.dataSeries[previousField] ?? NaN;
+
+      const value = currentValue - previousValue;
+      nationalSeries.push({
+        x: new Date(currentField.replace('val', '')).getTime(),
+        y: Number.isFinite(value) ? value : null,
+      });
     }
     chart.push({
       name: 'Nationell motsvarighet',
@@ -260,15 +286,13 @@ export default function MainDeltaGraph({
 
   return (
     <>
-      <div className={styles.graphWrapper}>
-        <WrappedChart
-          options={chartOptions}
-          series={chart}
-          type="line"
-          width="100%"
-          height="100%"
-        />
-      </div>
+      <WrappedChart
+        options={chartOptions}
+        series={chart}
+        type="line"
+        width="100%"
+        height="100%"
+      />
     </>
   );
 }

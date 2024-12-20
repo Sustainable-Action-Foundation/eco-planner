@@ -1,8 +1,9 @@
 .graphWrapper {
     width: 100%;
     height: 450px;
-    border-radius: .5rem;
-    border: 2px solid var(--gray);
+    border-radius: .25rem;
+    background-color: white;
+    border: 1px solid var(--gray);
     padding: .5rem;
     @media (max-width: 625px) {
         height: 300px;

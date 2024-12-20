@@ -43,13 +43,13 @@ export function ManualGoalForm({
 
   return (
     <>
-      <label className="block margin-block-75">
-        LEAP parameter:
+      <label className="block margin-bottom-100">
+        LEAP parameter
         <input className="margin-block-25" type="text" list="LEAPOptions" name="indicatorParameter" required id="indicatorParameter" defaultValue={currentGoal?.indicatorParameter || undefined} />
       </label>
 
-      <label className="block margin-block-75">
-        Enhet för dataserie:
+      <label className="block margin-block-100">
+        Enhet för dataserie
         <input className="margin-block-25" type="text" name="dataUnit" required id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
           try {
             setParsedUnit(mathjs.unit(e.target.value).toString());
@@ -77,7 +77,7 @@ export function ManualGoalForm({
       </details>
 
       <label className="block margin-block-75">
-        Dataserie:
+        Dataserie
         {/* TODO: Make this allow .csv files and possibly excel files */}
         <input type="text" name="dataSeries" required id="dataSeries"
           pattern={dataSeriesPattern}
@@ -143,7 +143,7 @@ export function InheritedGoalForm({
   return (
     <>
       <label className="block margin-block-75">
-        Välj en färdplan att ärva en målbana från:
+        Välj en färdplan att ärva en målbana från
         <select name="selectedRoadmap" id="selectedRoadmap" className="margin-inline-25" required
           value={selectedRoadmap}
           onChange={(e) => { setSelectedRoadmap(e.target.value); setSelectedGoal(undefined) }}
@@ -159,7 +159,7 @@ export function InheritedGoalForm({
 
       {roadmapData &&
         <label className="block margin-block-75">
-          Välj en målbana att ärva från:
+          Välj en målbana att ärva från
           <select name="inheritFrom" id="inheritFrom" className="margin-inline-25" required
             value={selectedGoal}
             onChange={(e) => setSelectedGoal(e.target.value)}
@@ -175,12 +175,12 @@ export function InheritedGoalForm({
       }
 
       <label className="block margin-block-75">
-        LEAP parameter:
+        LEAP parameter
         <input className="margin-block-25" type="text" list="LEAPOptions" name="indicatorParameter" required disabled id="indicatorParameter" value={goalData?.indicatorParameter || ""} />
       </label>
 
       <label className="block margin-block-75">
-        Enhet för dataserie:
+        Enhet för dataserie
         <input className="margin-block-25" type="text" name="dataUnit" required disabled id="dataUnit" value={goalData?.dataSeries?.unit || ""} onChange={(e) => {
           try {
             setParsedUnit(mathjs.unit(e.target.value).toString());
@@ -242,12 +242,12 @@ export function CombinedGoalForm({
   return (
     <>
       <label className="block margin-block-75">
-        LEAP parameter:
+        LEAP parameter
         <input className="margin-block-25" type="text" list="LEAPOptions" name="indicatorParameter" required id="indicatorParameter" defaultValue={currentGoal?.indicatorParameter || undefined} />
       </label>
 
       <label className="block margin-block-75">
-        Enhet för dataserie:
+        Enhet för dataserie
         <input className="margin-block-25" type="text" name="dataUnit" required id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
           try {
             setParsedUnit(mathjs.unit(e.target.value).toString());
@@ -263,7 +263,7 @@ export function CombinedGoalForm({
 
       <fieldset className="padding-50 smooth" style={{ border: '1px solid var(--gray-90)', position: 'relative' }}>
         <legend className="padding-25">
-          Välj målbanor i den aktuella färdplanen att kombinera:
+          Välj målbanor i den aktuella färdplanen att kombinera
         </legend>
         <p>Tips: använd <kbd><kbd>CTRL</kbd> + <kbd>F</kbd></kbd> för att hitta målbanorna du söker efter</p>
         {currentRoadmap?.goals.map((goal) => (
@@ -328,7 +328,7 @@ export function InheritingBaseline() {
   return (
     <>
       <label className="block margin-block-75">
-        Välj en färdplan att hämta målbanan från:
+        Välj en färdplan att hämta målbanan från
         <select name="selectedRoadmap" id="selectedRoadmap" className="margin-inline-25" required
           value={selectedRoadmap}
           onChange={(e) => { setSelectedRoadmap(e.target.value); setSelectedGoal(undefined) }}
@@ -344,7 +344,7 @@ export function InheritingBaseline() {
 
       {roadmapData &&
         <label className="block margin-block-75">
-          Välj en målbana att använda som baslinje (värdena kopieras snarare än att länkas):
+          Välj en målbana att använda som baslinje (värdena kopieras snarare än att länkas)
           <select name="inheritFrom" id="inheritFrom" className="margin-inline-25" required
             value={selectedGoal}
             onChange={(e) => setSelectedGoal(e.target.value)}
@@ -361,7 +361,7 @@ export function InheritingBaseline() {
 
       {goalData &&
         <label className="block margin-block-75">
-          Baslinje, kopierad från vald målbana:
+          Baslinje, kopierad från vald målbana
           <input name="baselineDataSeries" id="baselineDataSeries" type="text" readOnly value={dataSeriesString} />
         </label>
       }

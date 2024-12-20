@@ -259,7 +259,7 @@ input[type=image]):hover {
   outline: none;
 }
 
-input[type=file]::file-selector-button { /* TODO: :where() for pseudo elements not supported? */
+input[type=file]::file-selector-button {
   background-color: var(--gray-90);
   border: none;
   padding: 0.5rem 1rem;
@@ -272,7 +272,7 @@ input[type=file]::file-selector-button { /* TODO: :where() for pseudo elements n
   border: 2px dashed var(--seagreen);
 }
 
-input[type=file]:focus::file-selector-button { /* TODO: :where() for pseudo elements not supported? */
+input[type=file]:focus::file-selector-button {
   background-color: var(--seagreen);
   color: white;
 }
@@ -299,12 +299,12 @@ input[type=checkbox]) {
   background-color: var(--gray-90);
 }
 
-input[type=color]::-webkit-color-swatch { /* TODO: :where() for pseudo elements not supported? */
+input[type=color]::-webkit-color-swatch {
   border-radius: 100%;
   border: none;
 }
 
-input[type=color]::-moz-color-swatch { /* TODO: :where() for pseudo elements not supported? */
+input[type=color]::-moz-color-swatch {
   border-radius: 100%;
   border: none;
 }

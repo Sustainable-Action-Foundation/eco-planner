@@ -42,7 +42,9 @@ export default async function Page({
       <Breadcrumb object={action || goal || undefined} customSections={['Skapa ny effekt']} />
 
       <div className="container-text" style={{ marginInline: 'auto' }}>
-        <h1>Skapa ny effekt</h1>
+        <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
+          Skapa ny effekt
+        </h1>
         {badAction &&
           <p style={{ color: 'red' }}>
             <Image src="/icons/info.svg" width={24} height={24} alt='' />
