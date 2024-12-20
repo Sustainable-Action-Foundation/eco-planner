@@ -111,26 +111,16 @@ export default async function Page({
     <>
       <Breadcrumb object={goal} />
 
-      { /* Only allow scaling the values if the user has edit access to the goal
-        (accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Edit) && goal.dataSeries?.id &&
-        <DataSeriesScaler dataSeriesId={goal.dataSeries.id} />
-      */ }
-
       {secondaryGoal && <p className="margin-block-300">Jämför med målbanan {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
       <section className={`margin-top-300`}>
         {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
         <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects}>
           {(goal.dataSeries?.id && session.user) ?
             <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
-            : null}
+          : null }
+          <GraphCookie />
         </GraphGraph>
       </section>
-
-      {/* TODO: Re add ASAP
-        <div className="margin-block-100">
-          <GraphCookie />
-        </div>
-      */}
 
       <section className="margin-block-100 padding-top-100" style={{ borderTop: '2px solid var(--gray-90)' }}>
         <div className="flex flex-wrap-wrap justify-content-space-between gap-100">

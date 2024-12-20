@@ -21,7 +21,7 @@ p {
   width: min(90ch, 100%);
 } 
 
-.overflow-x-scroll { /* TODO: Remove class */
+.overflow-x-scroll {
   overflow-x: scroll;
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */

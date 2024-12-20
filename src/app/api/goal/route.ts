@@ -400,7 +400,10 @@ export async function PUT(request: NextRequest) {
                 authorId: session.user.id,
                 scale: goal.dataScale || undefined,
               },
-              update: dataValues,
+              update: {
+                ...dataValues,
+                unit: goal.dataUnit,
+              }
             }
           }
         } : {}),
