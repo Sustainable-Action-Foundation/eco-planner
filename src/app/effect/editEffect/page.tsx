@@ -27,7 +27,7 @@ export default async function Page({
 
   if (!editAccess.includes(accessChecker(effect?.action.roadmap, session.user)) || !editAccess.includes(accessChecker(effect?.goal.roadmap, session.user))) {
     return (
-      <div className="container-text" style={{ marginInline: 'auto' }}>
+      <div className="container-text margin-inline-auto">
         <h1>Skapa ny effekt</h1>
         <p style={{ color: 'red' }}>
           <Image src="/icons/info.svg" width={24} height={24} alt='' />
@@ -43,8 +43,8 @@ export default async function Page({
     <>
       <Breadcrumb object={effect?.action} customSections={['Redigera effekt']} />
 
-      <div className="container-text" style={{ marginInline: 'auto' }}>
-        <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
+      <div className="container-text margin-inline-auto">
+        <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
           Redigera effekt
         </h1>
         <EffectForm action={effect!.action} goal={effect!.goal} roadmapAlternatives={roadmapList} currentEffect={effect!} />

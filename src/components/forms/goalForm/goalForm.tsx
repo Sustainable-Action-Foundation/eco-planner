@@ -188,7 +188,7 @@ export default function GoalForm({
 
   return (
     <>
-      <form onSubmit={handleSubmit} onChange={() => { recalculateScalingResult() }} name="goalForm" className="padding-left-300" style={{ transform: 'translate(-3rem, 0)' }}>
+      <form onSubmit={handleSubmit} onChange={() => { recalculateScalingResult() }} name="goalForm">
         {/* This hidden submit button prevents submitting by pressing enter, to avoid accidental submission */}
         <button type="submit" disabled={true} style={{ display: 'none' }} aria-hidden={true} />
 
