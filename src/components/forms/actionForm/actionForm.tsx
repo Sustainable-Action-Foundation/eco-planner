@@ -68,7 +68,7 @@ export default function ActionForm({
     <>
       <form onSubmit={handleSubmit}>
         {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
-        <button type="submit" disabled={true} style={{ display: 'none' }} aria-hidden={true} />
+        <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
         {!(roadmapId || currentAction?.roadmapId) ?
           <label className="block margin-block-300">

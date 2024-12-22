@@ -76,9 +76,9 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
         </form>
         {comments?.map((comment) => (
           <div key={comment.id}>
-            <p className="flex align-items-center gap-50" style={{ marginBottom: '0' }}>
+            <p className="flex align-items-center gap-50 margin-bottom-300">
               <a className={styles.commentAuthor} href={`/user/${comment.author.username}`}>{comment.author.username}</a>
-              <span style={{ color: 'gray', fontWeight: '300', fontSize: '.75rem' }}>{`${timeSince(new Date(comment.createdAt))} sedan`}</span>
+              <span className="font-weight-300" style={{ color: 'gray', fontSize: '.75rem' }}>{`${timeSince(new Date(comment.createdAt))} sedan`}</span>
             </p>
             <p className="margin-0" style={{ wordBreak: 'break-word', }}>
               {expandedComments.includes(comment.id) ? comment.commentText : comment.commentText.length > 300 ? `${comment.commentText.substring(0, 300)}...` : comment.commentText}

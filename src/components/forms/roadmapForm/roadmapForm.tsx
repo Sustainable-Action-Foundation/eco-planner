@@ -163,7 +163,7 @@ export default function RoadmapForm({
     <>
       <form onSubmit={handleSubmit}>
         {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
-        <input type="submit" disabled={true} style={{ display: 'none' }} aria-hidden={true} />
+        <input type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
         {/* TODO: Change to meta roadmaps instead */}
         {/* TODO: Why is metaRoadmapAlternatives here? */}

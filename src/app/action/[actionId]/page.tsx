@@ -39,13 +39,13 @@ export default async function Page({ params }: { params: { actionId: string } })
     <>
       <Breadcrumb object={action} />
 
-      <section className="margin-block-100" style={{ width: 'min(90ch, 100%)' }}>
+      <section className="margin-block-100 container-text">
         <span style={{ color: 'gray' }}>Åtgärd</span>
         <h1 className="margin-0">{action.name}</h1>
         <p className="margin-0">{action.startYear} - {action.endYear}</p>
         {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
           <div className="margin-block-100">
-            <Link href={`/action/${params.actionId}/editAction`} className="flex align-items-center gap-50 padding-50 smooth button transparent" style={{ width: 'fit-content', fontWeight: '500' }}>
+            <Link href={`/action/${params.actionId}/editAction`} className="flex align-items-center gap-50 padding-50 smooth button transparent font-weight-500" style={{ width: 'fit-content'}}>
               Redigera åtgärd
               <Image src="/icons/edit.svg" width={24} height={24} alt={`Redigera åtgärd: ${action.name}`} />
             </Link>

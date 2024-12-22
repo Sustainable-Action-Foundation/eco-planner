@@ -50,7 +50,7 @@ export default async function Layout({
         { // Only show the edit link if the user has edit access to the roadmap
           (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
           <aside className="display-flex justify-content-flex-end margin-bottom-100">
-            <a href={`/roadmap/${roadmap.id}/editRoadmap`} className="display-flex align-items-center gap-50" style={{ textDecoration: 'none', color: 'black', fontWeight: '500', height: 'fit-content' }}>
+            <a href={`/roadmap/${roadmap.id}/editRoadmap`} className="display-flex align-items-center gap-50 font-weight-500" style={{ textDecoration: 'none', color: 'black', height: 'fit-content' }}>
               Redigera färdplan
               <Image src="/icons/edit.svg" alt="" width="24" height="24" />
             </a>

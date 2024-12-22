@@ -277,7 +277,7 @@ export default function CopyAndScale({
       <button type="button" className="seagreen color-purewhite smooth padding-block-50 padding-inline-100" onClick={() => openModal(modalRef)}>
         Kopiera och skala
       </button>
-      <dialog ref={modalRef} aria-modal style={{ border: '0', borderRadius: '.5rem', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25' }}>
+      <dialog ref={modalRef} aria-modal className="rounded" style={{ border: '0', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25' }}>
         <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>
           <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label="Close" >
             <Image src='/icons/close.svg' alt="" width={18} height={18} />
@@ -340,12 +340,12 @@ export default function CopyAndScale({
             </fieldset>
           </details>
 
-          <label style={{ marginInline: 'auto' }}>
-            <strong className="block bold" style={{ textAlign: 'center' }}>Resulterande skalfaktor</strong>
-            <output className="margin-block-100 block" style={{ textAlign: 'center' }}>{scalingResult}</output>
+          <label className="margin-inline-auto">
+            <strong className="block bold text-align-center">Resulterande skalfaktor</strong>
+            <output className="margin-block-100 block text-align-center">{scalingResult}</output>
           </label>
 
-          <button className="block seagreen color-purewhite smooth width-100" style={{ marginInline: 'auto', fontWeight: '500' }}>
+          <button className="block seagreen color-purewhite smooth width-100 margin-inline-auto font-weight-500">
             Skapa skalad kopia
           </button>
         </form>

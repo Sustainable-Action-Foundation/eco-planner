@@ -120,11 +120,11 @@ export default function QueryBuilder({
 
   return (
     <>
-      <button type="button" className="transparent flex gap-50 padding-50" style={{ fontSize: '1rem', fontWeight: '500', lineHeight: '1.5' }} onClick={() => openModal(modalRef)}>
+      <button type="button" className="transparent flex gap-50 padding-50 font-weight-500" style={{ fontSize: '1rem', lineHeight: '1.5' }} onClick={() => openModal(modalRef)}>
         Lägg till historisk data
         <Image src='/icons/chartAdd.svg' alt="" width={24} height={24} />
       </button>
-      <dialog className={styles.dialog} ref={modalRef} aria-modal style={{ border: '0', borderRadius: '.25rem', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25' }}>
+      <dialog className={`smooth${styles.dialog}`} ref={modalRef} aria-modal style={{ border: '0', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25' }}>
         <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>
           <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label="Close" >
             <Image src='/icons/close.svg' alt="" width={18} height={18} />
@@ -135,7 +135,7 @@ export default function QueryBuilder({
 
         <form ref={formRef} onChange={tryGetResult} onSubmit={handleSubmit}>
           {/* Hidden disabled submit button to prevent accidental submisson */}
-          <button type="submit" style={{ display: 'none' }} disabled></button>
+          <button type="submit" className="display-none" disabled></button>
 
           <FormWrapper>
             <fieldset>
@@ -160,7 +160,7 @@ export default function QueryBuilder({
                     <button type="button" onClick={searchWithButton} style={{ fontSize: '1rem' }}>Sök</button>
                   </div>
 
-                  <div style={{ padding: '.25rem', border: '1px solid var(--gray-90)', borderRadius: '.25rem' }}>
+                  <div className="padding-25 smooth" style={{ border: '1px solid var(--gray-90)' }}>
                     <div className={styles.temporary}>
                       {tables && tables.map(({ id, label }) => (
                         <label key={id} className={`${styles.tableSelect} block padding-block-25`}>
@@ -174,7 +174,7 @@ export default function QueryBuilder({
                 : null}
             </fieldset>
 
-            <fieldset className="margin-block-100" style={{ border: '1px solid var(--gray-90)', borderRadius: '3px', padding: '.5rem' }}>
+            <fieldset className="margin-block-100 smooth padding-50" style={{ border: '1px solid var(--gray-90)' }}>
               <legend className="padding-inline-50">
                 <strong>Välj värden för tabell</strong>
               </legend>

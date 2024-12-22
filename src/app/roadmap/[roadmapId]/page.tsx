@@ -43,7 +43,7 @@ export default async function Page({ params }: { params: { roadmapId: string } }
               <ThumbnailGraph goal={goal} />
             </a>
             {goal.name ? (
-              <h3 style={{ textAlign: 'center' }}>{goal.name}</h3>
+              <h3 className="text-align-center">{goal.name}</h3>
             ): null }
           </div>
           : null
