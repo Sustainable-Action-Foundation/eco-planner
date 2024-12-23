@@ -161,8 +161,8 @@ export default async function Page({
           <h2>Åtgärder</h2>
           {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
             <div className="flex gap-50">
-              <Link href={`/effect/createEffect?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Koppla till en existerande åtgärd</Link>
-              <Link href={`/action/createAction?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
+              <Link href={`/effect/create?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Koppla till en existerande åtgärd</Link>
+              <Link href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
             </div>
           }
         </div>

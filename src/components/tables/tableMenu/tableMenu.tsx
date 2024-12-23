@@ -85,25 +85,25 @@ export function TableMenu(
   // MetaRoadmaps
   if (object.roadmapVersions != undefined) {
     selfLink = `/metaRoadmap/${object.id}`;
-    creationLink = `/roadmap/createRoadmap?metaRoadmapId=${object.id}`;
+    creationLink = `/roadmap/create?metaRoadmapId=${object.id}`;
     creationDescription = 'Ny färdplan';
-    editLink = `/metaRoadmap/${object.id}/editMetaRoadmap`;
+    editLink = `/metaRoadmap/${object.id}/edit`;
     deleteLink = "/api/metaRoadmap"
   }
   // Roadmaps
   else if (object.metaRoadmap != undefined) {
     selfLink = `/roadmap/${object.id}`
-    creationLink = `/goal/createGoal?roadmapId=${object.id}`;
+    creationLink = `/goal/create?roadmapId=${object.id}`;
     creationDescription = 'Ny målbana';
-    editLink = `/roadmap/${object.id}/editRoadmap`;
+    editLink = `/roadmap/${object.id}/edit`;
     deleteLink = "/api/roadmap"
   }
   // Goals
   else if (object.indicatorParameter != undefined) {
     selfLink = `/goal/${object.id}`;
-    creationLink = `/action/createAction?roadmapId=${object.roadmapId}&goalId=${object.id}`;
+    creationLink = `/action/create?roadmapId=${object.roadmapId}&goalId=${object.id}`;
     creationDescription = 'Ny åtgärd';
-    editLink = `/goal/${object.id}/editGoal`;
+    editLink = `/goal/${object.id}/edit`;
     deleteLink = "/api/goal"
     if (!object.name) {
       object.name = object.indicatorParameter;
@@ -112,15 +112,15 @@ export function TableMenu(
   // Actions
   else if (object.isSufficiency != undefined) {
     selfLink = `/action/${object.id}`;
-    creationLink = `/effect/createEffect?actionId=${object.id}`;
+    creationLink = `/effect/create?actionId=${object.id}`;
     creationDescription = 'Ny effekt';
-    editLink = `/action/${object.id}/editAction`;
+    editLink = `/action/${object.id}/edit`;
     deleteLink = "/api/action"
   }
   // Effects
   else if (object.actionId != undefined) {
     selfLink = `/action/${object.actionId}`;
-    editLink = `/effect/editEffect?actionId=${object.actionId}&goalId=${object.goalId}`;
+    editLink = `/effect/edit?actionId=${object.actionId}&goalId=${object.goalId}`;
     deleteLink = '/api/effect';
     if (!object.name) {
       object.name = object.action?.name ? `Effekt från ${object.action.name}` : object.goal ? (object.goal.name || object.goal.indicatorParameter) : "Namn saknas";

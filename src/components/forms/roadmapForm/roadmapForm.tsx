@@ -186,7 +186,7 @@ export default function RoadmapForm({
             </label>
 
             {/* TODO: Add to infobubble
-            <p>Saknas färdplansserien du söker efter? Kolla att du har tillgång till den eller <Link href={`/metaRoadmap/createMetaRoadmap`}>skapa en ny färdplansserie</Link></p>
+            <p>Saknas färdplansserien du söker efter? Kolla att du har tillgång till den eller <Link href={`/metaRoadmap/create`}>skapa en ny färdplansserie</Link></p>
             */}
             {metaRoadmapTarget?.roadmapVersions.length && (
               <>

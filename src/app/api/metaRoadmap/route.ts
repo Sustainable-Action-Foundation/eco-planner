@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
     revalidateTag('metaRoadmap');
     // Return the new meta roadmap's ID if successful
     return Response.json({ message: "Roadmap metadata created. \n You will now be sent to another form to add goals and other details for the first version of this roadmap", id: newMetaRoadmap.id },
-      { status: 201, headers: { 'Location': `/roadmap/createRoadmap?metaRoadmapId=${newMetaRoadmap.id}` } }
+      { status: 201, headers: { 'Location': `/roadmap/create?metaRoadmapId=${newMetaRoadmap.id}` } }
     );
   } catch (error) {
     console.log(error);

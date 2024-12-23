@@ -22,6 +22,7 @@ export async function middleware(req: NextRequest) {
   /**
    * Matches the creation and editing pages for MetaRoadmaps, Roadmaps, Goals, Actions, and Effects, with or without trailing slashes.
    * For example, "/createMetaRoadmap" or "/editAction/"
+   * TODO: This no longer works as /createMetaRoadmap now looks like metaRoadmap/create
    */
   const createOrEditRegEx = /\/(create|edit)(MetaRoadmap|Roadmap|Goal|Action|Effect)\/?$/
   // Redirect away from creation and editing pages if not logged in
@@ -36,6 +37,7 @@ export async function middleware(req: NextRequest) {
 
   /**
    * Locks all pages except the login/signup process and the info and home pages to logged in users.
+   * TODO: Probably invert this? ex. if(!req.nextUrl.pathname.startsWith(/login))?
    */
   if (!session.user?.isLoggedIn) {
     if (
