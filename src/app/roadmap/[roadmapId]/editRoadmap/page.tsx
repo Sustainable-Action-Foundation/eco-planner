@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import accessChecker from "@/lib/accessChecker";
 import { AccessLevel } from "@/types";
 import Link from "next/link";
+import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 
 export default async function Page({ params }: { params: { roadmapId: string } }) {
   const [session, roadmap] = await Promise.all([
@@ -22,6 +23,8 @@ export default async function Page({ params }: { params: { roadmapId: string } }
 
   return (
     <>
+      <Breadcrumb object={roadmap} customSections={['Redigera färdplansversion']} />
+      
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
           Redigera färdplan
