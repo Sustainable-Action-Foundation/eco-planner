@@ -165,8 +165,6 @@ export default function RoadmapForm({
         {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
         <input type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
-        {/* TODO: Change to meta roadmaps instead */}
-        {/* TODO: Why is metaRoadmapAlternatives here? */}
         {/* Allow user to select parent metaRoadmap if not already selected */}
         {!(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap) ?
           <>
@@ -175,9 +173,9 @@ export default function RoadmapForm({
               <select className="block margin-block-25" name="parentRoadmap" id="parentRoadmap" value={metaRoadmapId} required onChange={(e) => setMetaRoadmapId(e.target.value)}>
                 <option value="">Inget alternativ valt</option>
                 {metaRoadmapAlternatives?.length ?
-                  metaRoadmapAlternatives.map((roadmap) => {
+                  metaRoadmapAlternatives.map((metaRoadmap) => {
                     return (
-                      <option key={roadmap.id} value={roadmap.id}>{`${roadmap.name}`}</option>
+                      <option key={metaRoadmap.id} value={metaRoadmap.id}>{`${metaRoadmap.name}`}</option>
                     )
                   })
                   : <option value="disabled" disabled>Du verkar inte ha tillgång till några färdplansserier</option>
