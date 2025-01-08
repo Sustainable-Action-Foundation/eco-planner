@@ -99,7 +99,7 @@ export default function FormWrapper({
           <div className={styles.currentIndicator} id="current-indicator"></div>
         </div>
 
-        <button type="button" className={`flex align-items-center transparent round gap-25 ${styles.indicatorButton}`} style={{ marginLeft: 'auto' }} onClick={() => iterateSections()}>
+        <button type="button" className={`flex align-items-center transparent round gap-25 margin-left-auto ${styles.indicatorButton}`} onClick={() => iterateSections()}>
           Nästa
           <Image src="/icons/arrowRight.svg" alt="" width={24} height={24} />
         </button>

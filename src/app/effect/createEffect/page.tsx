@@ -41,8 +41,8 @@ export default async function Page({
     <>
       <Breadcrumb object={action || goal || undefined} customSections={['Skapa ny effekt']} />
 
-      <div className="container-text" style={{ marginInline: 'auto' }}>
-        <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
+      <div className="container-text margin-inline-auto">
+        <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
           Skapa ny effekt
         </h1>
         {badAction &&

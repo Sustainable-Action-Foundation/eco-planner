@@ -44,7 +44,7 @@ export default async function Page({
       <Breadcrumb object={parent || undefined} customSections={['Skapa ny färdplansversion']} />
 
       <div className='container-text margin-inline-auto'>
-        <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
+        <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
           Skapa en ny version av en färdplan
         </h1>
         {badMetaRoadmap &&

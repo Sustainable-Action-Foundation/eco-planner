@@ -183,7 +183,7 @@ export function TableMenu(
           { // Admins and authors can delete items
             (accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) &&
             <>
-              <button type="button" className="width-100 transparent display-flex align-items-center justify-content-space-between" style={{ padding: '.5rem', fontSize: '1rem' }} onClick={() => openModal(deletionRef)}>
+              <button type="button" className="width-100 transparent display-flex align-items-center justify-content-space-between padding-50" style={{ fontSize: '1rem' }} onClick={() => openModal(deletionRef)}>
                 Radera inlägg
                 <Image src='/icons/delete.svg' alt="" width={24} height={24} className={styles.actionImage} />
               </button>
