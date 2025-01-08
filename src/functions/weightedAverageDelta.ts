@@ -41,6 +41,8 @@ export default function dataSeriesInterest(dataSeries: DataSeries) {
     } else {
       // Create array with all years from (exclusive) previousYearWithValue to the year of the current value (inclusive)
       // This is done in order to handle years with undefined values, by assuming there's a linear change across the missing years. Works just as well with all values defined.
+      // We know previousYearWithValue is not null since we checked it earlier
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const relevantYears = Array.from({ length: parseInt(key.replace('val', '')) - previousYearWithValue }, (_, iter) => (previousYearWithValue! + 1) + iter);
       // Total change since last noted value
       const delta = dataSeries[key] - previousValue;
@@ -56,6 +58,8 @@ export default function dataSeriesInterest(dataSeries: DataSeries) {
 
       // Get values for each year (assuming linear change if any years are missing values)
       // We use absolute values to allow summing positive and negative values together
+      // We know dataSeries[key] is not null since we checked it earlier
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const yearlyValues = relevantYears.map((_, i) => Math.abs(dataSeries[key]! - deltaPerYear * i));
       // increase toatlValue by sum of yearlyValues
       totalValue += yearlyValues.reduce((partialValue, a) => partialValue + a, 0);
