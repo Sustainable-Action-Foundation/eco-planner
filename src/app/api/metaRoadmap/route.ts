@@ -24,8 +24,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // If given roadmap type is invalid, set it to OTHER
-  if (!Object.values(RoadmapType).includes(metaRoadmap.type!)) {
+  // If given roadmap type is invalid or undefined, set it to OTHER
+  metaRoadmap.type ??= RoadmapType.OTHER;
+  if (!Object.values(RoadmapType).includes(metaRoadmap.type)) {
     metaRoadmap.type = RoadmapType.OTHER;
   }
 
@@ -198,7 +199,7 @@ export async function PUT(request: NextRequest) {
   }
 
   // If given roadmap type is invalid, set it to OTHER. If type is undefined leave it be; it wont update the existing value in the database
-  if (!Object.values(RoadmapType).includes(metaRoadmap.type!) && metaRoadmap.type !== undefined) {
+  if (metaRoadmap.type !== undefined && !Object.values(RoadmapType).includes(metaRoadmap.type)) {
     metaRoadmap.type = RoadmapType.OTHER;
   }
 

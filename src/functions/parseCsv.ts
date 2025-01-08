@@ -62,18 +62,18 @@ export function csvToGoalList(csv: string[][]) {
   // Create GoalInput objects from the data
   for (let i = 1; i < csv.length; i++) {
     // Skip rows without an indicatorParameter
-    if (!csv[i][headerIndex.indicatorParameter!]) {
+    if (!csv[i][Number(headerIndex.indicatorParameter)]) {
       continue
     }
 
     const dataSeries: string[] = []
     for (const j of numericHeaders) {
-      dataSeries.push(csv[i][headerIndex[j]!]?.replaceAll(",", "."))
+      dataSeries.push(csv[i][Number(headerIndex[j])]?.replaceAll(",", "."))
     }
 
     output.push({
-      indicatorParameter: csv[i][headerIndex.indicatorParameter!],
-      dataUnit: csv[i][headerIndex.dataUnit!],
+      indicatorParameter: csv[i][Number(headerIndex.indicatorParameter)],
+      dataUnit: csv[i][Number(headerIndex.dataUnit)],
       dataScale: headerIndex.dataScale ? csv[i][headerIndex.dataScale] || undefined : undefined,
       dataSeries,
     })

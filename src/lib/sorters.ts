@@ -132,8 +132,12 @@ export function goalSorterInterest(a: Goal & { dataSeries: DataSeries | null }, 
   } else if (a.dataSeries == null && b.dataSeries != null) {
     return 1;
   } else {
+    // Should never be null here, but included for type safety
+    if (a.dataSeries == null || b.dataSeries == null) {
+      return 0;
+    }
     // Higher interest gets sorted first
-    return (dataSeriesInterest(b.dataSeries!) - dataSeriesInterest(a.dataSeries!))
+    return (dataSeriesInterest(b.dataSeries) - dataSeriesInterest(a.dataSeries))
   }
 }
 

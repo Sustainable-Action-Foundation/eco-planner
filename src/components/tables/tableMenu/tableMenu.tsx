@@ -187,7 +187,7 @@ export function TableMenu(
                 Radera inlägg
                 <Image src='/icons/delete.svg' alt="" width={24} height={24} className={styles.actionImage} />
               </button>
-              <ConfirmDelete modalRef={deletionRef} targetUrl={deleteLink} targetName={object.name || object.metaRoadmap?.name || "Namn saknas"} targetId={object.id!} />
+              <ConfirmDelete modalRef={deletionRef} targetUrl={deleteLink} targetName={object.name || object.metaRoadmap?.name || "Namn saknas"} targetId={object.id} />
             </>
           }
         </dialog>

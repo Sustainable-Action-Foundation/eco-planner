@@ -167,7 +167,7 @@ export type ActionInput = Omit<
   'author' | 'notes' | 'links' | 'comments' | 'effects'
 > & {
   // UUID of the roadmap this action belongs to
-  roadmapId: string;
+  roadmapId?: string;
   dataSeries?: string[] | null | undefined;
   // UUID for the goal the dataSeries (effect) affects, if any
   goalId?: string | undefined;

@@ -35,7 +35,7 @@ export default function dataSeriesInterest(dataSeries: DataSeries) {
     if (dataSeries[key] == null) {
       continue;
     } else if (previousValue == undefined || previousYearWithValue == undefined) {
-      previousValue = dataSeries[key]!;
+      previousValue = dataSeries[key];
       previousYearWithValue = parseInt(key.replace('val', ''));
       continue;
     } else {
@@ -43,7 +43,7 @@ export default function dataSeriesInterest(dataSeries: DataSeries) {
       // This is done in order to handle years with undefined values, by assuming there's a linear change across the missing years. Works just as well with all values defined.
       const relevantYears = Array.from({ length: parseInt(key.replace('val', '')) - previousYearWithValue }, (_, iter) => (previousYearWithValue! + 1) + iter);
       // Total change since last noted value
-      const delta = dataSeries[key]! - previousValue;
+      const delta = dataSeries[key] - previousValue;
       // Average change per year
       const deltaPerYear = delta / relevantYears.length;
       // Calculate weight for each year involved

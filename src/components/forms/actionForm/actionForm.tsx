@@ -50,7 +50,7 @@ export default function ActionForm({
       isSufficiency: (form.namedItem("isSufficiency") as HTMLInputElement)?.checked,
       isEfficiency: (form.namedItem("isEfficiency") as HTMLInputElement)?.checked,
       isRenewables: (form.namedItem("isRenewables") as HTMLInputElement)?.checked,
-      roadmapId: (form.namedItem("roadmapId") as HTMLInputElement)?.value || roadmapId!,
+      roadmapId: (form.namedItem("roadmapId") as HTMLInputElement)?.value || roadmapId,
       goalId: goalId,
       actionId: currentAction?.id || undefined,
       links,
@@ -84,7 +84,7 @@ export default function ActionForm({
           </label>
           : null
         }
-        
+
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
           <legend data-position='1' className={`${styles.timeLineLegend}  font-weight-bold`}>Beskriv din åtgärd</legend>
           <label className="block margin-block-100">
@@ -107,7 +107,7 @@ export default function ActionForm({
             <textarea className="margin-block-25" name="expectedOutcome" id="expectedOutcome" defaultValue={currentAction?.expectedOutcome ?? undefined} />
           </label>
         </fieldset>
-              
+
         {/* TODO: Work out fieldset interaction for this */}
         {(goalId && !currentAction) ?
           <>
@@ -184,7 +184,7 @@ export default function ActionForm({
             <input type="checkbox" name="isEfficiency" id="isEfficiency" defaultChecked={currentAction?.isEfficiency} />
             Efficiency
           </label>
-          
+
           <label className="flex gap-25 align-items-center margin-block-50" htmlFor="isRenewables">
             <input type="checkbox" name="isRenewables" id="isRenewables" defaultChecked={currentAction?.isRenewables} />
             Renewables
