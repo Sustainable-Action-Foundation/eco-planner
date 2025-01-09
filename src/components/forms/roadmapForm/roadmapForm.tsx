@@ -186,23 +186,24 @@ export default function RoadmapForm({
             {/* TODO: Add to infobubble
             <p>Saknas färdplansserien du söker efter? Kolla att du har tillgång till den eller <Link href={`/metaRoadmap/createMetaRoadmap`}>skapa en ny färdplansserie</Link></p>
             */}
-            {metaRoadmapTarget?.roadmapVersions.length && (
-              <>
-                <label htmlFor="targetVersion">Version av färdplansserien {`"${metaRoadmapTarget.name}"`} den här färdplanen arbetar mot</label>
-                <select name="targetVersion" id="targetVersion" required defaultValue={currentRoadmap?.targetVersion || ""} onChange={(e) => setTargetVersion(parseInt(e.target.value) || null)}>
-                  <option value="">Inget alternativ valt</option>
-                  <option value={0}>Alltid senaste versionen</option>
-                  {metaRoadmapTarget.roadmapVersions.map((version) => {
-                    return (
-                      <option key={version.version} value={version.version}>{`Version ${version.version}`}</option>
-                    )
-                  })}
-                </select>
-              </>
-            )}
           </>
           : null
         }
+
+        {metaRoadmapTarget?.roadmapVersions.length && (
+          <>
+            <label htmlFor="targetVersion">Version av färdplansserien {`"${metaRoadmapTarget.name}"`} den här färdplanen arbetar mot</label>
+            <select name="targetVersion" id="targetVersion" required defaultValue={currentRoadmap?.targetVersion || ""} onChange={(e) => setTargetVersion(parseInt(e.target.value) || null)}>
+              <option value="">Inget alternativ valt</option>
+              <option value={0}>Alltid senaste versionen</option>
+              {metaRoadmapTarget.roadmapVersions.map((version) => {
+                return (
+                  <option key={version.version} value={version.version}>{`Version ${version.version}`}</option>
+                )
+              })}
+            </select>
+          </>
+        )}
 
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
           <legend data-position='1' className={`${styles.timeLineLegend} font-weight-bold`}>Beskriv färdplanens version</legend>
