@@ -14,7 +14,7 @@ export default function ConfirmDelete({
   modalRef: React.MutableRefObject<HTMLDialogElement | null>;
   targetUrl: string;
   targetName: string;
-  targetId: string | { actionId: string, goalId: string };
+  targetId?: string | { actionId: string, goalId: string };
 }) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -24,7 +24,10 @@ export default function ConfirmDelete({
       return;
     }
     setIsLoading(true);
-    if (typeof targetId === "string") {
+    if (!targetId) {
+      alert("Deletion failed: No target ID provided. This shouldn't happen, so please report this to the developers.");
+      console.error(`No target ID provided in 'ConfirmDelete' for deletion of ${targetName} (sending to ${targetUrl})`);
+    } else if (typeof targetId === "string") {
       formSubmitter(targetUrl, JSON.stringify({ id: targetId }), "DELETE", setIsLoading)
     } else if (typeof targetId === "object") {
       formSubmitter(targetUrl, JSON.stringify(targetId), "DELETE", setIsLoading)
@@ -45,8 +48,8 @@ export default function ConfirmDelete({
           <input className="margin-block-25" type="text" placeholder={targetName} id={`delete-name-input-${targetId}`} required pattern={targetName} />
         </label>
         <div className="display-flex justify-content-flex-end margin-top-75 gap-50">
-          <button type="button" style={{ fontWeight: 500 }} onClick={() => closeModal(modalRef)}>Avbryt</button>
-          <button type="submit" className="red color-purewhite" style={{ fontWeight: 500 }} disabled={isLoading} onClick={handleDelete}>Radera</button>
+          <button type="button" className="font-weight-500" onClick={() => closeModal(modalRef)}>Avbryt</button>
+          <button type="submit" className="red color-purewhite font-weight-500" disabled={isLoading} onClick={handleDelete}>Radera</button>
         </div>
       </form>
     </dialog>

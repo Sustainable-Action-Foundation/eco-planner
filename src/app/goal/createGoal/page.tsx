@@ -35,7 +35,7 @@ export default async function Page({
     <>
       <Breadcrumb object={roadmap || undefined} customSections={['Skapa ny målbana']} />
       <div className='container-text margin-inline-auto'>
-        <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
+        <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
           Skapa en ny målbana
         </h1>
         {badRoadmap &&

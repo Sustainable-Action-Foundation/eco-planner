@@ -161,12 +161,10 @@ export default function RoadmapForm({
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="action-form">
+      <form onSubmit={handleSubmit}>
         {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
-        <input type="submit" disabled={true} style={{ display: 'none' }} aria-hidden={true} />
+        <input type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
-        {/* TODO: Change to meta roadmaps instead */}
-        {/* TODO: Why is metaRoadmapAlternatives here? */}
         {/* Allow user to select parent metaRoadmap if not already selected */}
         {!(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap) ?
           <>
@@ -175,9 +173,9 @@ export default function RoadmapForm({
               <select className="block margin-block-25" name="parentRoadmap" id="parentRoadmap" value={metaRoadmapId} required onChange={(e) => setMetaRoadmapId(e.target.value)}>
                 <option value="">Inget alternativ valt</option>
                 {metaRoadmapAlternatives?.length ?
-                  metaRoadmapAlternatives.map((roadmap) => {
+                  metaRoadmapAlternatives.map((metaRoadmap) => {
                     return (
-                      <option key={roadmap.id} value={roadmap.id}>{`${roadmap.name}`}</option>
+                      <option key={metaRoadmap.id} value={metaRoadmap.id}>{`${metaRoadmap.name}`}</option>
                     )
                   })
                   : <option value="disabled" disabled>Du verkar inte ha tillgång till några färdplansserier</option>
@@ -188,23 +186,24 @@ export default function RoadmapForm({
             {/* TODO: Add to infobubble
             <p>Saknas färdplansserien du söker efter? Kolla att du har tillgång till den eller <Link href={`/metaRoadmap/createMetaRoadmap`}>skapa en ny färdplansserie</Link></p>
             */}
-            {metaRoadmapTarget?.roadmapVersions.length && (
-              <>
-                <label htmlFor="targetVersion">Version av färdplansserien {`"${metaRoadmapTarget.name}"`} den här färdplanen arbetar mot</label>
-                <select name="targetVersion" id="targetVersion" required defaultValue={currentRoadmap?.targetVersion || ""} onChange={(e) => setTargetVersion(parseInt(e.target.value) || null)}>
-                  <option value="">Inget alternativ valt</option>
-                  <option value={0}>Alltid senaste versionen</option>
-                  {metaRoadmapTarget.roadmapVersions.map((version) => {
-                    return (
-                      <option key={version.version} value={version.version}>{`Version ${version.version}`}</option>
-                    )
-                  })}
-                </select>
-              </>
-            )}
           </>
           : null
         }
+
+        {metaRoadmapTarget?.roadmapVersions.length && (
+          <>
+            <label htmlFor="targetVersion">Version av färdplansserien {`"${metaRoadmapTarget.name}"`} den här färdplanen arbetar mot</label>
+            <select name="targetVersion" id="targetVersion" required defaultValue={currentRoadmap?.targetVersion || ""} onChange={(e) => setTargetVersion(parseInt(e.target.value) || null)}>
+              <option value="">Inget alternativ valt</option>
+              <option value={0}>Alltid senaste versionen</option>
+              {metaRoadmapTarget.roadmapVersions.map((version) => {
+                return (
+                  <option key={version.version} value={version.version}>{`Version ${version.version}`}</option>
+                )
+              })}
+            </select>
+          </>
+        )}
 
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
           <legend data-position='1' className={`${styles.timeLineLegend} font-weight-bold`}>Beskriv färdplanens version</legend>

@@ -261,7 +261,7 @@ export function CombinedGoalForm({
         }
       </label>
 
-      <fieldset className="padding-50 smooth" style={{ border: '1px solid var(--gray-90)', position: 'relative' }}>
+      <fieldset className="padding-50 smooth position-relative" style={{ border: '1px solid var(--gray-90)' }}>
         <legend className="padding-25">
           Välj målbanor i den aktuella färdplanen att kombinera
         </legend>
@@ -282,8 +282,9 @@ export function CombinedGoalForm({
                 />
                 {`${goal.name ?? "Namnlöst mål"}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || "Enhet saknas"})`}
               </label>
+              {/* TODO: marginLeft: 25? What? */}
               {inheritFrom?.includes(goal.id) &&
-                <label className="block margin-block-25" style={{ marginLeft: 25 }}>
+                <label className="block margin-block-25" style={{ marginLeft: 25 }}> 
                   <input type="checkbox" name="invert-inherit" className="margin-inline-25" value={goal.id}
                     defaultChecked={currentGoal?.combinationParents.some((parent) => parent.parentGoal.id == goal.id && parent.isInverted)}
                   />

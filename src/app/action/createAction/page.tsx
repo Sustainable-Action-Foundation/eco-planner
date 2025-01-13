@@ -54,11 +54,11 @@ export default async function Page({
     <>
       <Breadcrumb object={goal || roadmap || undefined} customSections={['Skapa ny åtgärd']} />
 
-      <div className="container-text" style={{ marginInline: 'auto' }}>
+      <div className="container-text margin-inline-auto">
         {goal ?
-          <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
+          <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
             Skapa en ny åtgärd under målbana: {`${goal?.name || goal?.indicatorParameter}`}
-          </h1> : <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
+          </h1> : <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
             Skapa en ny åtgärd
           </h1>
         }

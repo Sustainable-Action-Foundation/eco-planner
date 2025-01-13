@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
 
   // Prepare effect data series
   let dataSeries: Partial<DataSeriesDataFields> | null = null;
-  dataSeries = dataSeriesPrep(effect.dataSeries!);
+  dataSeries = dataSeriesPrep(effect.dataSeries ?? []);
   if (dataSeries == null) {
     return Response.json({ message: 'Bad data series' },
       { status: 400 }

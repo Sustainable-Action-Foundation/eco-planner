@@ -75,7 +75,7 @@ export default function EffectForm({
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <button type="submit" disabled={true} style={{ display: 'none' }} aria-hidden={true} />
+        <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
         <ActionSelector action={action} roadmapAlternatives={roadmapAlternatives} />
 

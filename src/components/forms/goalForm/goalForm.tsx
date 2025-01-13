@@ -188,9 +188,9 @@ export default function GoalForm({
 
   return (
     <>
-      <form onSubmit={handleSubmit} onChange={() => { recalculateScalingResult() }} name="goalForm" className="padding-left-300" style={{ transform: 'translate(-3rem, 0)' }}>
+      <form onSubmit={handleSubmit} onChange={() => { recalculateScalingResult() }} name="goalForm">
         {/* This hidden submit button prevents submitting by pressing enter, to avoid accidental submission */}
-        <button type="submit" disabled={true} style={{ display: 'none' }} aria-hidden={true} />
+        <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
         {/* Allow user to select parent roadmap if not already selected */}
         {!(roadmapId || currentGoal?.roadmapId) ?
@@ -254,7 +254,7 @@ export default function GoalForm({
           }
 
           {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
-            <fieldset className="padding-50 smooth" style={{ border: '1px solid var(--gray-90)', position: 'relative' }}>
+            <fieldset className="padding-50 smooth position-relative" style={{ border: '1px solid var(--gray-90)' }}>
               <legend>Skalning</legend>
               <div className="margin-block-100">
                 {scalingRecipie.values.map((value, index) => {
