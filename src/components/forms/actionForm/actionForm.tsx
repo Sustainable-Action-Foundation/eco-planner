@@ -1,7 +1,7 @@
 'use client'
 
 import { dataSeriesPattern } from "@/components/forms/goalForm/goalForm"
-import { getLinks } from "@/components/forms/linkInput/linkInput"
+import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput"
 import formSubmitter from "@/functions/formSubmitter"
 import { ActionInput } from "@/types"
 import { Action, ActionImpactType, DataSeries, Effect } from "@prisma/client"
@@ -191,12 +191,10 @@ export default function ActionForm({
           </label>
         </fieldset>
 
-        {/*
-          TODO: Add this again when relevant
-          <div className="margin-block-300">
+        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+          <legend data-position='4' className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Bifoga externa resurser</legend>
             <LinkInput links={currentAction?.links} />
-          </div>
-        */}
+          </fieldset>
 
         <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentAction ? "Spara" : "Skapa åtgärd"} />
 

@@ -41,6 +41,19 @@ export default async function Page({ params }: { params: { roadmapId: string } }
           {roadmap.goals.length} målbanor
         </p>
         <p className="margin-bottom-0">{roadmap.metaRoadmap.description}</p>
+        {roadmap.description ? (
+          <p className="margin-bottom-0">{roadmap.description}</p>
+        ) : null }
+        {/* TODO: Add external resources here and to the form
+          <h2 className="margin-bottom-0 margin-top-200" style={{fontSize: '1.25rem'}}>Externa resurser</h2>
+          <ul>
+            {roadmap.metaRoadmap.links.map((link: { url: string, description: string | null }, index: number) => 
+              <li className="margin-block-25" key={index}>
+                <a href={link.url} target="_blank">{link.description}</a>
+              </li>
+            )}
+          </ul>
+        */}
       </div>
       { // Only show the edit link if the user has edit access to the roadmap
         (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
@@ -51,12 +64,8 @@ export default async function Page({ params }: { params: { roadmapId: string } }
           </a>
         </aside>
       }
-    </div>
-
-    {roadmap.description ? (
-      <p>{roadmap.description}</p>
-    ) : null}
-
+    </div> 
+    
     <div
       className="grid gap-100 margin-bottom-100 padding-block-100 align-items-flex-end"
       style={{

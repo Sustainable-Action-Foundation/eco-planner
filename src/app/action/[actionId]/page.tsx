@@ -39,10 +39,12 @@ export default async function Page({ params }: { params: { actionId: string } })
     <>
       <Breadcrumb object={action} />
 
-      <section className="margin-block-100 container-text">
-        <span style={{ color: 'gray' }}>Åtgärd</span>
-        <h1 className="margin-0">{action.name}</h1>
-        <p className="margin-0">{action.startYear} - {action.endYear}</p>
+      <section className="margin-block-100 padding-block-100 container flex justify-content-space-between">
+        <div>
+          <span style={{ color: 'gray' }}>Åtgärd</span>
+          <h1 className="margin-0">{action.name}</h1>
+          <p className="margin-0">{action.startYear} - {action.endYear}</p>
+        </div>
         {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
           <div className="margin-block-100">
             <Link href={`/action/${params.actionId}/edit`} className="flex align-items-center gap-50 padding-50 smooth button transparent font-weight-500" style={{ width: 'fit-content'}}>
@@ -55,16 +57,18 @@ export default async function Page({ params }: { params: { actionId: string } })
 
       {action.description ?
         <p>{action.description}</p>
-        : null}
+      : null}
 
       {action.links.length > 0 ?
         <>
-          <h2>Länkar</h2>
-          {action.links.map((link) => (
-            <Fragment key={link.id}>
-              <a href={link.url} target="_blank">{link.description || link.url}</a>
-            </Fragment>
-          ))}
+          <h2 className="margin-bottom-0 margin-top-200" style={{fontSize: '1.25rem'}}>Externa resurser</h2>
+          <ul>
+            {action.links.map((link: { url: string, description: string | null }, index: number) => 
+              <li className="margin-block-25" key={index}>
+                <a href={link.url} target="_blank">{link.description}</a>
+              </li>
+            )}
+          </ul>
         </>
         : null}
 
