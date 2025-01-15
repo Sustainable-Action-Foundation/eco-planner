@@ -6,7 +6,7 @@ import { AccessControlled, MetaRoadmapInput } from "@/types";
 import { MetaRoadmap, RoadmapType } from "@prisma/client";
 import { useState } from "react";
 import { EditUsers, ViewUsers, getAccessData } from "@/components/forms/accessSelector/accessSelector";
-import { getLinks } from "@/components/forms/linkInput/linkInput"
+import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput"
 import formSubmitter from "@/functions/formSubmitter";
 import styles from '../forms.module.css'
 
@@ -129,13 +129,10 @@ export default function MetaRoadmapForm({
           </label>
         </fieldset>
 
-        {/*
-          TODO: Re add this once it is needed 
-          <fieldset className={`${styles.timeLineFieldset} width-100`}>
-              <legend data-position='3' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Bifoga externa resurser</legend>
-              <LinkInput />
-          </fieldset>
-        */}
+        <fieldset className={`${styles.timeLineFieldset} width-100`}>
+            <legend data-position='3' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Bifoga externa resurser</legend>
+            <LinkInput />
+        </fieldset>
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
