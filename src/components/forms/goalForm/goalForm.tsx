@@ -4,7 +4,7 @@ import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 import Image from "next/image";
 import { GoalInput, ScaleBy, ScaleMethod, ScalingRecipie, dataSeriesDataFieldNames, isScalingRecipie } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
-import /* LinkInput, */ { getLinks } from "@/components/forms/linkInput/linkInput";
+import /* LinkInput, */ LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput";
 import formSubmitter from "@/functions/formSubmitter";
 import { useEffect, useMemo, useState } from "react";
 import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
@@ -320,16 +320,13 @@ export default function GoalForm({
           }
         </fieldset>
 
-        {/*
-          TODO: Re add this once it is needed 
-          <fieldset className={`${styles.timeLineFieldset} width-100`}>
-              <legend data-position='3' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Bifoga externa resurser</legend>
-              <LinkInput links={currentGoal?.links} />
-          </fieldset>
-        */}
+        <fieldset className={`${styles.timeLineFieldset} width-100`}>
+            <legend data-position='4' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Bifoga externa resurser</legend>
+            <LinkInput links={currentGoal?.links} />
+        </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position='4' className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Vill du lyfta fram den här målbana under din färdplansversion?</legend>
+          <legend data-position='5' className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Vill du lyfta fram den här målbana under din färdplansversion?</legend>
           <label className="flex align-items-center gap-50 margin-block-50">
             <input type="checkbox" name="isFeatured" id="isFeatured" defaultChecked={currentGoal?.isFeatured} /> {/* TODO: Make toggle */}
             Lyft fram min målbana

@@ -25,7 +25,7 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
     <>
       <Breadcrumb object={metaRoadmap} customSections={['Färdplansserie']} />
 
-      <div className="margin-block-100 padding-block-100" style={{ borderBottom: '2px solid var(--gray-90)' }}>
+      <section className="margin-block-100 padding-block-100" style={{ borderBottom: '2px solid var(--gray-90)' }}>
         <div className="flex gap-100 flex-wrap-wrap justify-content-space-between margin-block-100" style={{ fontSize: '1rem' }}>
           <div>
             <h1 className="margin-0">{metaRoadmap.name}</h1>
@@ -34,7 +34,9 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
             <h2 className="margin-bottom-0 margin-top-200" style={{fontSize: '1.25rem'}}>Externa resurser</h2>
             <ul>
               {metaRoadmap.links.map((link: { url: string, description: string | null }, index: number) => 
-                <li key={index}><a href={link.url} target="_blank">{link.description}</a></li>
+                <li className="margin-block-25" key={index}>
+                  <a href={link.url} target="_blank">{link.description}</a>
+                </li>
               )}
             </ul>
           </div>
@@ -51,7 +53,7 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
         {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
           <div className="flex justify-content-flex-end "><a href={`/roadmap/create?metaRoadmapId=${metaRoadmap.id}`} className="button pureblack color-purewhite round">Skapa ny färdplansversion</a></div>
           : null}
-      </div>
+      </section>
 
       <section>
         <RoadmapTable user={session.user} metaRoadmap={metaRoadmap} />

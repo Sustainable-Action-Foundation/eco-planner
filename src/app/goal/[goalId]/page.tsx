@@ -147,8 +147,16 @@ export default async function Page({
         </div>
         <p className="container-text">{goal.description}</p>
         {goal.dataSeries?.scale &&
-          <h3>Alla värden i målbanan använder följande skala: {`"${goal.dataSeries?.scale}"`}</h3>
+          <p>Alla värden i målbanan använder följande skala: {`"${goal.dataSeries?.scale}"`}</p>
         }
+        <h2 className="margin-bottom-0 margin-top-200" style={{fontSize: '1.25rem'}}>Externa resurser</h2>
+        <ul>
+          {goal.links.map((link: { url: string, description: string | null }, index: number) => 
+            <li className="margin-block-25" key={index}>
+              <a href={link.url} target="_blank">{link.description}</a>
+            </li>
+          )}
+        </ul>
       </section>
 
       <section className="margin-block-300">
