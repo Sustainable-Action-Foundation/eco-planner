@@ -23,13 +23,13 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
 
   return (
     <>
-      <Breadcrumb object={metaRoadmap} customSections={['Färdplan']} />
+      <Breadcrumb object={metaRoadmap} customSections={['Färdplansserie']} />
 
       <section className="margin-block-100 padding-block-100" style={{ borderBottom: '2px solid var(--gray-90)' }}>
         <div className="flex gap-100 flex-wrap-wrap justify-content-space-between margin-block-100" style={{ fontSize: '1rem' }}>
           <div>
             <h1 className="margin-0">{metaRoadmap.name}</h1>
-            <small>Metadata för en färdplan</small>
+            <small>Metadata för en serie av färdplansversioner</small>
           </div>
           {/* Only show the edit link if the user has edit access to the roadmap */}
           {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
@@ -41,7 +41,7 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
         </div>
         {/* Only show link for creating a new version if the user has edit access to the roadmap */}
         {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
-          <div className="flex justify-content-flex-end "><a href={`/roadmap/createRoadmap?metaRoadmapId=${metaRoadmap.id}`} className="button pureblack color-purewhite round">Skapa ny färdplan</a></div>
+          <div className="flex justify-content-flex-end "><a href={`/roadmap/createRoadmap?metaRoadmapId=${metaRoadmap.id}`} className="button pureblack color-purewhite round">Skapa ny färdplansversion</a></div>
           : null}
       </section>
 

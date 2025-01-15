@@ -30,7 +30,7 @@ export default async function Page({ params }: { params: { roadmapId: string } }
 
     <Breadcrumb object={roadmap} />
 
-    <div className="display-flex justify-content-space-between flex-wrap-wrap margin-top-200" style={{ borderBottom: '2px dashed var(--gray-90)'}}>
+    <div className="display-flex justify-content-space-between flex-wrap-wrap margin-top-200" style={{ borderBottom: '2px dashed var(--gray-90)' }}>
       <div className="flex-grow-100 margin-block-100">
         <span style={{ color: 'gray' }}>Färdplan</span>
         <h1 className="margin-0">{roadmap.metaRoadmap.name}</h1>
@@ -46,7 +46,7 @@ export default async function Page({ params }: { params: { roadmapId: string } }
         (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
         <aside className="display-flex justify-content-flex-end margin-bottom-100">
           <a href={`/roadmap/${roadmap.id}/editRoadmap`} className="display-flex align-items-center gap-50 font-weight-500" style={{ textDecoration: 'none', color: 'black', height: 'fit-content' }}>
-            Redigera färdplan
+            Redigera färdplansversionen
             <Image src="/icons/edit.svg" alt="" width="24" height="24" />
           </a>
         </aside>
@@ -56,8 +56,8 @@ export default async function Page({ params }: { params: { roadmapId: string } }
 
     {roadmap.description ? (
       <p>{roadmap.description}</p>
-    ): null}
-    
+    ) : null}
+
     <div
       className="grid gap-100 margin-bottom-100 padding-block-100 align-items-flex-end"
       style={{
@@ -73,7 +73,7 @@ export default async function Page({ params }: { params: { roadmapId: string } }
             </a>
             {goal.name ? (
               <h3 className="text-align-center">{goal.name}</h3>
-            ): null }
+            ) : null}
           </div>
           : null
       )}

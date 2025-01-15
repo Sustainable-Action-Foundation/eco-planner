@@ -288,9 +288,9 @@ export default function CopyAndScale({
         <form action={formSubmission} name="copyAndScale" onChange={recalculateScalingResult}>
 
           <label className="block margin-block-100">
-            I vilken färdplan vill du placera den skalade målbanan?
+            I vilken färdplansversion vill du placera den skalade målbanan?
             <select className="block margin-block-25 width-100" required name="copyTo" id="copyTo">
-              <option value="">Välj färdplan</option>
+              <option value="">Välj färdplansversion</option>
               {roadmapOptions.map(roadmap => (
                 <option key={roadmap.id} value={roadmap.id}>{`${roadmap.name} ${roadmap.version ? `(version ${roadmap.version.toString()})` : null}`}</option>
               ))}

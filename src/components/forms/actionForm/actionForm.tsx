@@ -72,9 +72,9 @@ export default function ActionForm({
 
         {!(roadmapId || currentAction?.roadmapId) ?
           <label className="block margin-block-300">
-            Välj färdplan att skapa åtgärden under:
-            <select name="roadmapId" id="roadmapId" required className="block margin-block-25">
-              <option value="" disabled>Välj färdplan</option>
+            Välj färdplanversion att skapa åtgärden under:
+            <select name="roadmapId" id="roadmapId" required className="block margin-block-25" defaultValue={""}>
+              <option value="" disabled>Välj färdplansversion</option>
               {roadmapAlternatives.map(roadmap => (
                 <option key={roadmap.id} value={roadmap.id}>
                   {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} åtgärder`}

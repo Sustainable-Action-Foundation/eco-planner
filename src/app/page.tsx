@@ -113,7 +113,11 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
           </div>
           { // Link to create roadmap form if logged in
             session.user &&
-            <a href="/metaRoadmap/createMetaRoadmap" className="button purewhite round block" >Skapa ny färdplan</a>
+            <>
+              <a href="/metaRoadmap/createMetaRoadmap" className="button purewhite round block">Skapa ny färdplansserie</a>
+              {/* TODO: Incorporate this in a reasonable way */}
+              {/* <a href="/roadmap/createRoadmap" className="button purewhite round block">Skapa ny version i en existerande serie</a> */}
+            </>
           }
         </div>
       </AttributedImage>

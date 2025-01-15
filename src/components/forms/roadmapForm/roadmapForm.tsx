@@ -56,7 +56,7 @@ export default function RoadmapForm({
       }
       catch (error) {
         setIsLoading(false)
-        alert(`Färdplan kunde inte skapas.\nAnledning: ${error instanceof Error ? error.message || "Okänt fel" : "Okänt fel"}`)
+        alert(`Färdplansversion kunde inte skapas.\nAnledning: ${error instanceof Error ? error.message || "Okänt fel" : "Okänt fel"}`)
         return
       }
     }
@@ -171,7 +171,7 @@ export default function RoadmapForm({
             <label className="block margin-block-300">
               Färdplansserie som detta är ett nytt inlägg i
               <select className="block margin-block-25" name="parentRoadmap" id="parentRoadmap" value={metaRoadmapId} required onChange={(e) => setMetaRoadmapId(e.target.value)}>
-                <option value="">Inget alternativ valt</option>
+                <option value="">Ingen färdplansserie vald</option>
                 {metaRoadmapAlternatives?.length ?
                   metaRoadmapAlternatives.map((metaRoadmap) => {
                     return (
@@ -192,7 +192,7 @@ export default function RoadmapForm({
 
         {metaRoadmapTarget?.roadmapVersions.length && (
           <>
-            <label htmlFor="targetVersion">Version av färdplansserien {`"${metaRoadmapTarget.name}"`} den här färdplanen arbetar mot</label>
+            <label htmlFor="targetVersion">Version av färdplansserien {`"${metaRoadmapTarget.name}"`} den här färdplansversionen arbetar mot</label>
             <select name="targetVersion" id="targetVersion" required defaultValue={currentRoadmap?.targetVersion || ""} onChange={(e) => setTargetVersion(parseInt(e.target.value) || null)}>
               <option value="">Inget alternativ valt</option>
               <option value={0}>Alltid senaste versionen</option>
@@ -206,9 +206,9 @@ export default function RoadmapForm({
         )}
 
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
-          <legend data-position='1' className={`${styles.timeLineLegend} font-weight-bold`}>Beskriv färdplanens version</legend>
+          <legend data-position='1' className={`${styles.timeLineLegend} font-weight-bold`}>Beskriv färdplansversionen</legend>
           <label className="block margin-block-100">
-            Extra beskrivning av den här versionen av färdplanen
+            Extra beskrivning av den här färdplansversionen
             <textarea className="margin-block-25" name="description" id="description" defaultValue={currentRoadmap?.description ?? undefined}></textarea>
           </label>
         </fieldset>
@@ -219,7 +219,7 @@ export default function RoadmapForm({
         {inheritableGoals.length > 0 && (
           <>
             <fieldset>
-              <legend>Välj mål att ärva från färdplanen</legend>
+              <legend>Välj mål att ärva från färdplansversionen den här färdplansversionen arbetar mot</legend>
               {
                 inheritableGoals.map((goal) => {
                   return (
@@ -272,7 +272,7 @@ export default function RoadmapForm({
         <input
           type="submit"
           className="margin-block-200 seagreen color-purewhite"
-          value={currentRoadmap ? 'Spara' : 'Skapa färdplan'}
+          value={currentRoadmap ? 'Spara' : 'Skapa färdplansversion'}
           disabled={isLoading}
         />
       </form>

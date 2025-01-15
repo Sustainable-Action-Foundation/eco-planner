@@ -72,6 +72,6 @@ export default function RoadmapTable({
           )
         })}
       </>
-      : <p>Inga färdplaner hittades. Om du har några filter aktiva så hittades inga färdplaner som matchar dem.</p>}
+      : <p>Inga färdplansversioner hittades. Om du har några filter aktiva så hittades inga färdplansversioner som matchar dem.</p>}
   </>
 }

@@ -94,14 +94,14 @@ export default function MetaRoadmapForm({
         <input type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
-          <legend data-position='1' className={`${styles.timeLineLegend} font-weight-bold`}>Beskriv din färdplan</legend>
+          <legend data-position='1' className={`${styles.timeLineLegend} font-weight-bold`}>Beskriv din färdplansserie</legend>
           <label className="block margin-block-100">
-            Namn för den nya färdplanen
+            Namn för den nya färdplansserien
             <input id="metaRoadmapName" name="metaRoadmapName" className="margin-block-25" type="text" defaultValue={currentRoadmap?.name ?? undefined} required />
           </label>
 
           <label className="block margin-block-100">
-            Beskrivning av färdplanen
+            Beskrivning av färdplansserien
             <textarea className="block margin-block-25" name="description" id="description" defaultValue={currentRoadmap?.description ?? undefined} required></textarea>
           </label>
         </fieldset>
@@ -109,7 +109,7 @@ export default function MetaRoadmapForm({
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position='2' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Välj ansvarig aktör</legend>
           <label className="block margin-bottom-100">
-            Typ av färdplan
+            Typ av färdplansserie
             <select className="block margin-block-25" name="type" id="type" defaultValue={currentRoadmap?.type ?? ""} required>
               <option value="">Välj en typ</option>
               {
@@ -162,20 +162,20 @@ export default function MetaRoadmapForm({
         }
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position='5' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Jobbar denna färdplan mot en annan färdplan?</legend>
+          <legend data-position='5' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Jobbar denna färdplansserie mot en annan färdplansserie?</legend>
           <label className="block margin-block-75">
             Förälder
             <select name="parentRoadmap" id="parentRoadmap" className="block margin-block-25" defaultValue={currentRoadmap?.parentRoadmapId ?? ""}>
-              <option value="">Ingen förälder vald</option>
+              <option value="">Ingen förälder</option>
               {
                 !parentRoadmapOptions && currentRoadmap && currentRoadmap.parentRoadmapId && (
                   <option value={currentRoadmap.parentRoadmapId} disabled>{currentRoadmap.parentRoadmapId}</option>
                 )
               }
               {
-                parentRoadmapOptions && parentRoadmapOptions.map((roadmap) => {
+                parentRoadmapOptions && parentRoadmapOptions.map((metaRoadmap) => {
                   return (
-                    <option key={roadmap.id} value={roadmap.id}>{roadmap.name}</option>
+                    <option key={metaRoadmap.id} value={metaRoadmap.id}>{metaRoadmap.name}</option>
                   )
                 })
               }
@@ -185,7 +185,7 @@ export default function MetaRoadmapForm({
 
 
         {/* Add copy of RoadmapForm? Only if we decide to include it immediately rather than redirecting to it */}
-        <input className="seagreen color-purewhite margin-block-200" type="submit" id="submit-button" value={currentRoadmap ? "Spara" : "Skapa färdplan"} /> {/* TODO: Set disabled if form not filled out */}
+        <input className="seagreen color-purewhite margin-block-200" type="submit" id="submit-button" value={currentRoadmap ? "Spara" : "Skapa färdplansserie"} /> {/* TODO: Set disabled if form not filled out */}
       </form>
 
       <datalist id="actors">

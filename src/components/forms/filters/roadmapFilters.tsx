@@ -59,7 +59,7 @@ export default function RoadmapFilters() {
         <div className="flex gap-100 align-items-center justify-content-space-between">
           <label className="margin-block-100 font-weight-bold">
             Sortera på:
-            <select className="font-weight-bold margin-block-50 block" defaultValue={searchParams.get('sortBy') ?? undefined} onChange={(e) => { updateStringParam('sortBy', e.target.value) }}>
+            <select className="font-weight-bold margin-block-50 block" defaultValue={searchParams.get('sortBy') ?? ""} onChange={(e) => { updateStringParam('sortBy', e.target.value) }}>
               <option value="">Standard</option>
               <option value={RoadmapSortBy.Alpha}>Namn (A-Ö)</option>
               <option value={RoadmapSortBy.AlphaReverse}>Namn (Ö-A)</option>

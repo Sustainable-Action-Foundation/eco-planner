@@ -195,11 +195,11 @@ export default function GoalForm({
         {/* Allow user to select parent roadmap if not already selected */}
         {!(roadmapId || currentGoal?.roadmapId) ?
           <label className="block margin-block-300">
-            Välj färdplan att skapa åtgärden under:
-            <select name="roadmapId" id="roadmapId" required className="block margin-block-25"
+            Välj färdplansversion att skapa målbanan under:
+            <select name="roadmapId" id="roadmapId" required className="block margin-block-25" defaultValue={""}
               onChange={(e) => setSelectedRoadmap(e.target.value)}
             >
-              <option value="" disabled>Välj färdplan</option>
+              <option value="" disabled>Välj färdplansversion</option>
               {roadmapAlternatives.map(roadmap => (
                 <option key={roadmap.id} value={roadmap.id}>
                   {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} åtgärder`}
@@ -329,7 +329,7 @@ export default function GoalForm({
         */}
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position='4' className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Vill du lyfta fram den här målbana under din färdplan?</legend>
+          <legend data-position='4' className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Vill du lyfta fram den här målbana under din färdplansversion?</legend>
           <label className="flex align-items-center gap-50 margin-block-50">
             <input type="checkbox" name="isFeatured" id="isFeatured" defaultChecked={currentGoal?.isFeatured} /> {/* TODO: Make toggle */}
             Lyft fram min målbana
