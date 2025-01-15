@@ -95,7 +95,7 @@ export default function Goals({
           <TableSelector id={roadmap.id} current={viewMode} setter={setViewMode} />
           { // Only show the button if the user has edit access to the roadmap
             (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-            <Link className="button round color-purewhite pureblack font-weight-500" href={`/goal/createGoal?roadmapId=${roadmap.id}`}>Skapa ny målbana</Link>
+            <Link className="button round color-purewhite pureblack font-weight-500" href={`/goal/create?roadmapId=${roadmap.id}`}>Skapa ny målbana</Link>
           }
           <div className={styles.settings}>
             <input type="checkbox" />

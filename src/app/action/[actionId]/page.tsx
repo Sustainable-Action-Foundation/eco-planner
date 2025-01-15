@@ -45,7 +45,7 @@ export default async function Page({ params }: { params: { actionId: string } })
         <p className="margin-0">{action.startYear} - {action.endYear}</p>
         {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
           <div className="margin-block-100">
-            <Link href={`/action/${params.actionId}/editAction`} className="flex align-items-center gap-50 padding-50 smooth button transparent font-weight-500" style={{ width: 'fit-content'}}>
+            <Link href={`/action/${params.actionId}/edit`} className="flex align-items-center gap-50 padding-50 smooth button transparent font-weight-500" style={{ width: 'fit-content'}}>
               Redigera åtgärd
               <Image src="/icons/edit.svg" width={24} height={24} alt={`Redigera åtgärd: ${action.name}`} />
             </Link>
@@ -101,7 +101,7 @@ export default async function Page({ params }: { params: { actionId: string } })
       <section>
         <div className="flex align-items-center justify-content-space-between">
           <h2>Effekter</h2>
-          <Link href={`/effect/createEffect?actionId=${action.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny effekt</Link>
+          <Link href={`/effect/create?actionId=${action.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny effekt</Link>
         </div>
         <EffectTable object={action} accessLevel={accessLevel} />
       </section>
