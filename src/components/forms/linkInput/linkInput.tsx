@@ -44,7 +44,7 @@ export default function LinkInput({ links }: { links?: { url: string, descriptio
       </div>
       <ul className="padding-top-100 margin-top-s" style={{ borderTop: '1px solid var(--gray-90)' }}>
         {linkList.map((link, index) => (
-          <li key={'link' + index + link.url + link.description}>
+          <li key={`${index}link${link.url}${link.description}`}>
             <div className="flex align-items-flex-end">
               {/* TODO: Missing labels for inputs */}
               <input className="font-weight-bold transparent" type="text" name="linkDescription" defaultValue={link.description || ""} />
