@@ -192,7 +192,7 @@ export default function ActionForm({
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position='4' className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Bifoga externa resurser</legend>
+          <legend data-position='5' className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Bifoga externa resurser</legend>
             <LinkInput links={currentAction?.links} />
           </fieldset>
 
