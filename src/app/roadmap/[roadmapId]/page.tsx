@@ -53,7 +53,6 @@ export default async function Page({ params }: { params: { roadmapId: string } }
       }
     </div>
 
-
     {roadmap.description ? (
       <p>{roadmap.description}</p>
     ) : null}
