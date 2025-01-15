@@ -25,7 +25,7 @@ export default function LinkInput({ links }: { links?: { url: string, descriptio
             }
           }} />
         </label>
-        
+
         <label className="block margin-block-75 flex-grow-100">
           Länk
           <input className="margin-block-25" type="url" name="linkUrl" id="newLink" placeholder="https://example.com" onKeyDown={(event) => {
@@ -41,18 +41,19 @@ export default function LinkInput({ links }: { links?: { url: string, descriptio
             }
           }} />
         </label>
-      </div> 
-      <ul className="padding-top-100 margin-top-s" style={{borderTop: '1px solid var(--gray-90)'}}>
+      </div>
+      <ul className="padding-top-100 margin-top-s" style={{ borderTop: '1px solid var(--gray-90)' }}>
         {linkList.map((link, index) => (
-          <li key={'link' + index}>
+          <li key={'link' + index + link.url + link.description}>
             <div className="flex align-items-flex-end">
               {/* TODO: Missing labels for inputs */}
               <input className="font-weight-bold transparent" type="text" name="linkDescription" defaultValue={link.description || ""} />
               <input className="transparent" type="url" name="linkUrl" defaultValue={link.url} />
-              <button 
-                className="grid transparent round margin-left-100" 
+              <button
+                type="button"
+                className="grid transparent round margin-left-100"
                 onClick={() => setLinkList(linkList.filter((_, i) => i !== index))}>
-                <Image src="/icons/delete.svg" width={24} height={24} alt="" /> 
+                <Image src="/icons/delete.svg" width={24} height={24} alt="" />
               </button>
             </div>
           </li>
