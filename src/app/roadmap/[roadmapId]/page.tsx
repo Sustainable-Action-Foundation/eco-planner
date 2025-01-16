@@ -69,7 +69,6 @@ export default async function Page({ params }: { params: { roadmapId: string } }
     <div
       className="grid gap-100 margin-bottom-100 padding-block-100 align-items-flex-end"
       style={{
-        borderBottom: '2px solid var(--gray-90)',
         gridTemplateColumns: 'repeat(auto-fit, 300px)'
       }}
     >
@@ -85,10 +84,8 @@ export default async function Page({ params }: { params: { roadmapId: string } }
           </div>
           : null
       )}
-
     </div>
-
-
+    
     <Goals title="Målbanor" roadmap={roadmap} accessLevel={accessLevel} />
     <Comments comments={roadmap.comments} objectId={roadmap.id} />
   </>
