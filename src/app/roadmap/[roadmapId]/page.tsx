@@ -30,18 +30,18 @@ export default async function Page({ params }: { params: { roadmapId: string } }
 
     <Breadcrumb object={roadmap} />
 
-    <div className="display-flex justify-content-space-between flex-wrap-wrap margin-top-200" style={{ borderBottom: '2px dashed var(--gray-90)' }}>
+    <div className="display-flex justify-content-space-between flex-wrap-wrap margin-top-200" >
       <div className="flex-grow-100 margin-block-100">
         <span style={{ color: 'gray' }}>Färdplan</span>
         <h1 className="margin-0">{roadmap.metaRoadmap.name}</h1>
         <p className="margin-0">
-          <>Version {roadmap.version} • </>
+          Version {roadmap.version} • 
           {(roadmap.metaRoadmap.actor) &&
-            <>{roadmap.metaRoadmap.actor} • </>
+            <> {roadmap.metaRoadmap.actor} • </>
           }
-          <>{roadmap.goals.length} målbanor • </>
+          {roadmap.goals.length} målbanor • 
           {/* TODO: style link to better match surroundings */}
-          <a href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>Besök färdplansserien</a>
+          <a href={`/metaRoadmap/${roadmap.metaRoadmapId}`}> Besök färdplansserien</a>
         </p>
         <p className="margin-bottom-0">{roadmap.metaRoadmap.description}</p>
         {roadmap.description ? (
@@ -58,6 +58,7 @@ export default async function Page({ params }: { params: { roadmapId: string } }
           </ul>
         */}
       </div>
+
       { // Only show the edit link if the user has edit access to the roadmap
         (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
         <aside className="display-flex justify-content-flex-end margin-bottom-100">
@@ -69,27 +70,21 @@ export default async function Page({ params }: { params: { roadmapId: string } }
       }
     </div>
 
+    <h2 className="margin-top-300">Utvalda målbanor</h2>
     <div
-      className="grid gap-100 margin-bottom-100 padding-block-100 align-items-flex-end"
-      style={{
-        gridTemplateColumns: 'repeat(auto-fit, 300px)'
-      }}
+      className="grid gap-100"
+      style={{gridTemplateColumns: 'repeat(auto-fit, 300px)'}}
     >
       {roadmap.goals.map((goal, key) =>
         goal.isFeatured ?
-          <div key={key}>
-            <a href={`/goal/${goal.id}`}>
-              <ThumbnailGraph goal={goal} />
-            </a>
-            {goal.name ? (
-              <h3 className="text-align-center">{goal.name}</h3>
-            ) : null}
-          </div>
+          <a key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none">
+            <ThumbnailGraph goal={goal} />
+          </a>
           : null
       )}
     </div>
 
-    <Goals title="Målbanor" roadmap={roadmap} accessLevel={accessLevel} />
+    <Goals title="Alla målbanor" roadmap={roadmap} accessLevel={accessLevel} />
     <Comments comments={roadmap.comments} objectId={roadmap.id} />
   </>
 }
