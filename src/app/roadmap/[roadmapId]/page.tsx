@@ -30,8 +30,8 @@ export default async function Page({ params }: { params: { roadmapId: string } }
 
     <Breadcrumb object={roadmap} />
 
-    <div className="display-flex justify-content-space-between flex-wrap-wrap margin-top-200" >
-      <div className="flex-grow-100 margin-block-100">
+    <div className="flex justify-content-space-between flex-wrap-wrap gap-100 margin-top-300" >
+      <div className="flex-grow-100">
         <span style={{ color: 'gray' }}>Färdplan</span>
         <h1 className="margin-0">{roadmap.metaRoadmap.name}</h1>
         <p className="margin-0">
@@ -59,14 +59,16 @@ export default async function Page({ params }: { params: { roadmapId: string } }
         */}
       </div>
 
-      { // Only show the edit link if the user has edit access to the roadmap
-        (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-        <aside className="display-flex justify-content-flex-end margin-bottom-100">
-          <a href={`/roadmap/${roadmap.id}/edit`} className="display-flex align-items-center gap-50 font-weight-500" style={{ textDecoration: 'none', color: 'black', height: 'fit-content' }}>
-            Redigera färdplansversionen
-            <Image src="/icons/edit.svg" alt="" width="24" height="24" />
-          </a>
-        </aside>
+      {/* Only show the edit link if the user has edit access to the roadmap */}
+      {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&  
+        <a 
+          href={`/roadmap/${roadmap.id}/edit`} 
+          className="flex align-items-center gap-50 font-weight-500 button transparent round color-pureblack text-decoration-none" 
+          style={{height: 'fit-content'}}
+        >
+          Redigera färdplansversionen
+          <Image src="/icons/edit.svg" alt="" width="24" height="24" />
+        </a> 
       }
     </div>
 
@@ -84,7 +86,9 @@ export default async function Page({ params }: { params: { roadmapId: string } }
       )}
     </div>
 
+    <h2 className='margin-top-300 margin-bottom-100 padding-bottom-50' style={{borderBottom: '1px solid var(--gray)'}}>Alla målbanor</h2>
     <Goals title="Alla målbanor" roadmap={roadmap} accessLevel={accessLevel} />
+    
     <Comments comments={roadmap.comments} objectId={roadmap.id} />
   </>
 }

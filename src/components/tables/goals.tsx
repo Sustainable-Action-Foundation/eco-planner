@@ -63,11 +63,7 @@ export default function Goals({
 
   return (
     <>
-      <h2 className='margin-top-300'>{title}</h2>
-      <menu 
-        className={`margin-block-100 padding-top-100 flex justify-content-space-between align-items-flex-end flex-wrap-wrap gap-100 padding-0 margin-0 ${styles.tableNav}`}
-        style={{borderTop: '1px solid var(--gray)'}}
-      >
+      <menu className={`margin-bottom-100 flex justify-content-space-between align-items-flex-end flex-wrap-wrap gap-100 padding-0 margin-0 ${styles.tableNav}`}>
         <label className="font-weight-bold flex-grow-100">
           Sök bland målbanor
           <div className="flex align-items-center margin-top-25 gray-90 padding-50 smooth focusable">

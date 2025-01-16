@@ -104,7 +104,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
   return <>
     <Breadcrumb />
 
-    <div className="rounded width-100 margin-block-100 position-relative overflow-hidden" style={{ height: '350px' }}>
+    <div className="rounded width-100 margin-bottom-100 margin-top-300 position-relative overflow-hidden" style={{ height: '350px' }}>
       <AttributedImage src="/images/solarpanels.jpg" alt="" >
         <div className="flex gap-100 flex-wrap-wrap align-items-flex-end justify-content-space-between padding-100 width-100">
           <div>
@@ -122,7 +122,11 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
         </div>
       </AttributedImage>
     </div>
-    <RoadmapFilters />
+    
+    <section>
+      <RoadmapFilters />
+    </section>
+    
     <section>
       <RoadmapTable user={session.user ?? undefined} roadmaps={roadmaps} />
     </section>

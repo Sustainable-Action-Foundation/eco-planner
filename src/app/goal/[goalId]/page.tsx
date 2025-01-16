@@ -122,7 +122,7 @@ export default async function Page({
         </GraphGraph>
       </section>
 
-      <section className="margin-block-100 padding-top-100" style={{ borderTop: '2px solid var(--gray-90)' }}>
+      <section className="margin-block-100">
         <div className="flex flex-wrap-wrap justify-content-space-between gap-100">
           <div>
             <span style={{ color: 'gray' }}>Målbana</span>
@@ -149,6 +149,7 @@ export default async function Page({
         {goal.dataSeries?.scale &&
           <p>Alla värden i målbanan använder följande skala: {`"${goal.dataSeries?.scale}"`}</p>
         }
+
         <h2 className="margin-bottom-0 margin-top-200" style={{fontSize: '1.25rem'}}>Externa resurser</h2>
         <ul>
           {goal.links.map((link: { url: string, description: string | null }, index: number) => 
