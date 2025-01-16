@@ -35,15 +35,18 @@ export default async function Page({ params }: { params: { roadmapId: string } }
         <span style={{ color: 'gray' }}>Färdplan</span>
         <h1 className="margin-0">{roadmap.metaRoadmap.name}</h1>
         <p className="margin-0">
+          <>Version {roadmap.version} • </>
           {(roadmap.metaRoadmap.actor) &&
-            <> {roadmap.metaRoadmap.actor} • </>
+            <>{roadmap.metaRoadmap.actor} • </>
           }
-          {roadmap.goals.length} målbanor
+          <>{roadmap.goals.length} målbanor • </>
+          {/* TODO: style link to better match surroundings */}
+          <a href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>Besök färdplansserien</a>
         </p>
         <p className="margin-bottom-0">{roadmap.metaRoadmap.description}</p>
         {roadmap.description ? (
           <p className="margin-bottom-0">{roadmap.description}</p>
-        ) : null }
+        ) : null}
         {/* TODO: Add external resources here and to the form
           <h2 className="margin-bottom-0 margin-top-200" style={{fontSize: '1.25rem'}}>Externa resurser</h2>
           <ul>
@@ -64,8 +67,8 @@ export default async function Page({ params }: { params: { roadmapId: string } }
           </a>
         </aside>
       }
-    </div> 
-    
+    </div>
+
     <div
       className="grid gap-100 margin-bottom-100 padding-block-100 align-items-flex-end"
       style={{
@@ -85,7 +88,7 @@ export default async function Page({ params }: { params: { roadmapId: string } }
           : null
       )}
     </div>
-    
+
     <Goals title="Målbanor" roadmap={roadmap} accessLevel={accessLevel} />
     <Comments comments={roadmap.comments} objectId={roadmap.id} />
   </>

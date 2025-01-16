@@ -23,7 +23,7 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
 
   return (
     <>
-      <Breadcrumb object={metaRoadmap} customSections={['Färdplansserie']} />
+      <Breadcrumb object={metaRoadmap} />
 
       <section className="margin-block-100 padding-block-100" style={{ borderBottom: '2px solid var(--gray-90)' }}>
         <div className="flex gap-100 flex-wrap-wrap justify-content-space-between margin-block-100" style={{ fontSize: '1rem' }}>
@@ -33,30 +33,33 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
             <p>{metaRoadmap.description}</p>
             {metaRoadmap.links.length > 0 ?
               <>
-                <h2 className="margin-bottom-0 margin-top-200" style={{fontSize: '1.25rem'}}>Externa resurser</h2>
+                <h2 className="margin-bottom-0 margin-top-200" style={{ fontSize: '1.25rem' }}>Externa resurser</h2>
                 <ul>
-                  {metaRoadmap.links.map((link: { url: string, description: string | null }, index: number) => 
+                  {metaRoadmap.links.map((link: { url: string, description: string | null }, index: number) =>
                     <li className="margin-block-25" key={index}>
                       <a href={link.url} target="_blank">{link.description}</a>
                     </li>
                   )}
                 </ul>
               </>
-            : null }
+              : null
+            }
           </div>
-          
+
           {/* Only show the edit link if the user has edit access to the roadmap */}
           {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
             <TableMenu
               accessLevel={accessLevel}
               object={metaRoadmap}
             />
-            : null}
+            : null
+          }
         </div>
         {/* Only show link for creating a new version if the user has edit access to the roadmap */}
         {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
           <div className="flex justify-content-flex-end "><a href={`/roadmap/create?metaRoadmapId=${metaRoadmap.id}`} className="button pureblack color-purewhite round">Skapa ny färdplansversion</a></div>
-          : null}
+          : null
+        }
       </section>
 
       <section>
