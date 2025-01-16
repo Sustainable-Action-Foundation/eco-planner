@@ -37,17 +37,8 @@ export default function RoadmapTable({
       metaRoadmap = metaRoadmap as NonNullable<typeof metaRoadmap>;
       return {
         ...version,
-        // id: version.id,
-        // version: version.version,
-        // _count: { goals: version._count.goals },
         // Sets the metaRoadmap to the parent metaRoadmap, excluding the versions array
         metaRoadmap: (({ roadmapVersions, ...data }) => data)(metaRoadmap),
-        // author: [version.author as { id: string, username: string }, metaRoadmap.author as { id: string, username: string }],
-        // editors: version.editors,
-        // viewers: version.viewers,
-        // editGroups: version.editGroups,
-        // viewGroups: version.viewGroups,
-        // isPublic: version.isPublic,
       }
     });
   }
@@ -60,14 +51,13 @@ export default function RoadmapTable({
           return (
             <div className='flex gap-100 justify-content-space-between align-items-center' key={roadmap.id}>
               <a href={`/roadmap/${roadmap.id}`} className={`${styles.roadmapLink} flex-grow-100`}>
-                <span className={styles.linkTitle}>{roadmap.metaRoadmap.name}</span>
+                <span className={styles.linkTitle}>{`${roadmap.metaRoadmap.name} (v${roadmap.version})`}</span>
                 <span className={styles.linkInfo}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} Målbanor</span>
               </a>
               <TableMenu
                 accessLevel={accessLevel}
                 object={roadmap}
               />
-              <a href={`/metaRoadmap/${roadmap.metaRoadmap.id}`}>v.{roadmap.version}</a>
             </div>
           )
         })}
