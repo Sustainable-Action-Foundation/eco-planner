@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+// import { Prisma } from "@prisma/client";
 
 export const nameSelector /* Prisma.MetaRoadmapSelect */ = {
   name: true,
@@ -30,7 +30,7 @@ export const nameSelector /* Prisma.MetaRoadmapSelect */ = {
   },
 };
 
-export const metaRoadmapInclusionSelection: Prisma.MetaRoadmapInclude = {
+export const metaRoadmapInclusionSelection /* Prisma.MetaRoadmapInclude */ = {
   roadmapVersions: {
     include: {
       metaRoadmap: true,
