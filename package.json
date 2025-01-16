@@ -12,7 +12,7 @@
   "dependencies": {
     "@prisma/client": "^5.3.1",
     "@types/node": "^20.3.2",
-    "apexcharts": "^3.45.2",
+    "apexcharts": "^4.3.0",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.5",
     "iron-session": "^8.0.1",
