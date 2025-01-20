@@ -1,5 +1,9 @@
 /* custom (not yet added to semantic style sheets= */
 
+.text-decoration-none {
+  text-decoration: none;
+}
+
 .text-align-center {
   text-align: center;
 }

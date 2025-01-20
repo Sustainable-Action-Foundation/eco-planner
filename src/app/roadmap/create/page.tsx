@@ -45,7 +45,7 @@ export default async function Page({
 
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          Skapa en ny version av en färdplan
+          Skapa en ny version i en färdplansserie
         </h1>
         {badMetaRoadmap &&
           <p style={{ color: 'red' }}>

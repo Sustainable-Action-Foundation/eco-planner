@@ -46,7 +46,7 @@ export default function LinkTree({
     })
   }
 
-  if (!goals?.length) return (<p>Du har inte tillgång till några målbanor i denna färdplan, eller så är färdplanen tom.</p>);
+  if (!goals?.length) return (<p>Du har inte tillgång till några målbanor i denna färdplansversion, eller så är färdplansversionen tom.</p>);
 
   let openCategories: string[] = getSessionStorage(roadmap?.id || "") as string[] || [];
   if (!(openCategories instanceof Array)) {

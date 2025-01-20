@@ -1,7 +1,7 @@
 'use client'
 
 import { dataSeriesPattern } from "@/components/forms/goalForm/goalForm"
-import { getLinks } from "@/components/forms/linkInput/linkInput"
+import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput"
 import formSubmitter from "@/functions/formSubmitter"
 import { ActionInput } from "@/types"
 import { Action, ActionImpactType, DataSeries, Effect } from "@prisma/client"
@@ -64,6 +64,9 @@ export default function ActionForm({
 
   const timestamp = Date.now();
 
+  // Indexes for the data-position attribute in the legend elements
+  let positionIndex = 1;
+
   return (
     <>
       <form onSubmit={handleSubmit}>
@@ -71,22 +74,25 @@ export default function ActionForm({
         <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
         {!(roadmapId || currentAction?.roadmapId) ?
-          <label className="block margin-block-300">
-            Välj färdplan att skapa åtgärden under:
-            <select name="roadmapId" id="roadmapId" required className="block margin-block-25">
-              <option value="" disabled>Välj färdplan</option>
-              {roadmapAlternatives.map(roadmap => (
-                <option key={roadmap.id} value={roadmap.id}>
-                  {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} åtgärder`}
-                </option>
-              ))}
-            </select>
-          </label>
+          <fieldset className={`${styles.timeLineFieldset} width-100`}>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>Ange relationen till andra inlägg</legend>
+            <label className="block margin-block-100">
+              Välj färdplanversion att skapa åtgärden under:
+              <select name="roadmapId" id="roadmapId" required className="block margin-block-25" defaultValue={""}>
+                <option value="" disabled>Välj färdplansversion</option>
+                {roadmapAlternatives.map(roadmap => (
+                  <option key={roadmap.id} value={roadmap.id}>
+                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} åtgärder`}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </fieldset>
           : null
         }
 
-        <fieldset className={`${styles.timeLineFieldset} width-100`}>
-          <legend data-position='1' className={`${styles.timeLineLegend}  font-weight-bold`}>Beskriv din åtgärd</legend>
+        <fieldset className={`${styles.timeLineFieldset} width-100 ${positionIndex > 1 ? "margin-top-200" : ""}`}>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend}  font-weight-bold`}>Beskriv din åtgärd</legend>
           <label className="block margin-block-100">
             Namn på åtgärden
             <input className="margin-block-25" type="text" name="actionName" required id="actionName" defaultValue={currentAction?.name} />
@@ -108,9 +114,9 @@ export default function ActionForm({
           </label>
         </fieldset>
 
-        {/* TODO: Work out fieldset interaction for this */}
         {(goalId && !currentAction) ?
-          <>
+          <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Ange förväntad effekt av åtgärden</legend>
             <label className="block margin-block-75">
               Vilken typ av påverkan har åtgärden?
               <select name="impactType" id="impactType" /* defaultValue={actionImpactType} onChange={e => setActionImpactType(e.target.value as ActionImpactType)} */ >
@@ -143,12 +149,12 @@ export default function ActionForm({
               // defaultValue={dataSeriesString}
               />
             </label>
-          </>
+          </fieldset>
           : null
         }
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position='2' className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Välj pågående år för din åtgärd</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Välj pågående år för din åtgärd</legend>
           <label className="block margin-bottom-100">
             Startår
             <input className="margin-block-25" type="number" name="startYear" id="startYear" defaultValue={currentAction?.startYear ?? undefined} min={2000} />
@@ -161,7 +167,7 @@ export default function ActionForm({
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position='3' className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Beskriv aktörer för din åtgärd</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Beskriv aktörer för din åtgärd</legend>
           <label className="block margin-bottom-100">
             Projektansvarig
             <input className="margin-block-25" type="text" name="projectManager" id="projectManager" defaultValue={currentAction?.projectManager ?? undefined} />
@@ -174,7 +180,7 @@ export default function ActionForm({
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position='4' className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Vilka kategorier faller åtgärden under?</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Vilka kategorier faller åtgärden under?</legend>
           <label className="flex gap-25 align-items-center margin-bottom-50" htmlFor="isSufficiency">
             <input type="checkbox" name="isSufficiency" id="isSufficiency" defaultChecked={currentAction?.isSufficiency} />
             Sufficiency
@@ -191,12 +197,10 @@ export default function ActionForm({
           </label>
         </fieldset>
 
-        {/*
-          TODO: Add this again when relevant
-          <div className="margin-block-300">
-            <LinkInput links={currentAction?.links} />
-          </div>
-        */}
+        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Bifoga externa resurser</legend>
+          <LinkInput links={currentAction?.links} />
+        </fieldset>
 
         <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentAction ? "Spara" : "Skapa åtgärd"} />
 

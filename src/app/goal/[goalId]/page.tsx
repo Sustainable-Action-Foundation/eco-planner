@@ -122,7 +122,7 @@ export default async function Page({
         </GraphGraph>
       </section>
 
-      <section className="margin-block-100 padding-top-100" style={{ borderTop: '2px solid var(--gray-90)' }}>
+      <section className="margin-block-100">
         <div className="flex flex-wrap-wrap justify-content-space-between gap-100">
           <div>
             <span style={{ color: 'gray' }}>Målbana</span>
@@ -147,8 +147,17 @@ export default async function Page({
         </div>
         <p className="container-text">{goal.description}</p>
         {goal.dataSeries?.scale &&
-          <h3>Alla värden i målbanan använder följande skala: {`"${goal.dataSeries?.scale}"`}</h3>
+          <p>Alla värden i målbanan använder följande skala: {`"${goal.dataSeries?.scale}"`}</p>
         }
+
+        <h2 className="margin-bottom-0 margin-top-200" style={{fontSize: '1.25rem'}}>Externa resurser</h2>
+        <ul>
+          {goal.links.map((link: { url: string, description: string | null }, index: number) => 
+            <li className="margin-block-25" key={index}>
+              <a href={link.url} target="_blank">{link.description}</a>
+            </li>
+          )}
+        </ul>
       </section>
 
       <section className="margin-block-300">
@@ -161,8 +170,8 @@ export default async function Page({
           <h2>Åtgärder</h2>
           {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
             <div className="flex gap-50">
-              <Link href={`/effect/createEffect?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Koppla till en existerande åtgärd</Link>
-              <Link href={`/action/createAction?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
+              <Link href={`/effect/create?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Koppla till en existerande åtgärd</Link>
+              <Link href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
             </div>
           }
         </div>

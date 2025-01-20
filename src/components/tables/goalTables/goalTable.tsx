@@ -47,7 +47,7 @@ export default function GoalTable({
     })
   }
 
-  if (!goals?.length) return (<p>Du har inte tillgång till några målbanor i denna färdplan, eller så är färdplanen tom.</p>);
+  if (!goals?.length) return (<p>Du har inte tillgång till några målbanor i denna färdplansversion, eller så är färdplansversionen tom.</p>);
 
   switch (sortBy) {
     case GoalSortBy.Alpha:

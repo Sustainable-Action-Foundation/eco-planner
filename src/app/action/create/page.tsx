@@ -72,8 +72,8 @@ export default async function Page({
         {badRoadmap &&
           <p style={{ color: 'red' }}>
             <Image src="/icons/info.svg" width={24} height={24} alt='' />
-            Kunde inte hitta eller har inte tillgång till färdplanen i länken. <br />
-            Använd dropdown-menyn för att välja en färdplan.
+            Kunde inte hitta eller har inte tillgång till färdplansversionen i länken. <br />
+            Använd dropdown-menyn för att välja en färdplansversion.
           </p>
         }
         <ActionForm

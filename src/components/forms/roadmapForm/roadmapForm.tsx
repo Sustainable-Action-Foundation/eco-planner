@@ -56,7 +56,7 @@ export default function RoadmapForm({
       }
       catch (error) {
         setIsLoading(false)
-        alert(`Färdplan kunde inte skapas.\nAnledning: ${error instanceof Error ? error.message || "Okänt fel" : "Okänt fel"}`)
+        alert(`Färdplansversion kunde inte skapas.\nAnledning: ${error instanceof Error ? error.message || "Okänt fel" : "Okänt fel"}`)
         return
       }
     }
@@ -159,83 +159,72 @@ export default function RoadmapForm({
     }
   }
 
+  // Indexes for the data-position attribute in the legend elements
+  let positionIndex = 1;
+
   return (
     <>
       <form onSubmit={handleSubmit}>
         {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
         <input type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
-        {/* Allow user to select parent metaRoadmap if not already selected */}
-        {!(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap) ?
-          <>
-            <label className="block margin-block-300">
-              Färdplansserie som detta är ett nytt inlägg i
-              <select className="block margin-block-25" name="parentRoadmap" id="parentRoadmap" value={metaRoadmapId} required onChange={(e) => setMetaRoadmapId(e.target.value)}>
-                <option value="">Inget alternativ valt</option>
-                {metaRoadmapAlternatives?.length ?
-                  metaRoadmapAlternatives.map((metaRoadmap) => {
-                    return (
-                      <option key={metaRoadmap.id} value={metaRoadmap.id}>{`${metaRoadmap.name}`}</option>
-                    )
-                  })
-                  : <option value="disabled" disabled>Du verkar inte ha tillgång till några färdplansserier</option>
-                }
-              </select>
-            </label>
+        {(!(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap) || metaRoadmapTarget?.roadmapVersions.length) ?
 
-            {/* TODO: Add to infobubble
-            <p>Saknas färdplansserien du söker efter? Kolla att du har tillgång till den eller <Link href={`/metaRoadmap/createMetaRoadmap`}>skapa en ny färdplansserie</Link></p>
+          <fieldset className={`${styles.timeLineFieldset} width-100`}>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>Ange relationen till andra inlägg</legend>
+            {/* Allow user to select parent metaRoadmap if not already selected */}
+            {!(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap) ?
+              <>
+                <label className="block margin-block-100">
+                  Färdplansserie som detta är ett nytt inlägg i
+                  <select className="block margin-block-25" name="parentRoadmap" id="parentRoadmap" value={metaRoadmapId} required onChange={(e) => setMetaRoadmapId(e.target.value)}>
+                    <option disabled value="">Ingen färdplansserie vald</option>
+                    {metaRoadmapAlternatives?.length ?
+                      metaRoadmapAlternatives.map((metaRoadmap) => {
+                        return (
+                          <option key={metaRoadmap.id} value={metaRoadmap.id}>{`${metaRoadmap.name}`}</option>
+                        )
+                      })
+                      : <option value="disabled" disabled>Du verkar inte ha tillgång till några färdplansserier</option>
+                    }
+                  </select>
+                </label>
+
+                {/* TODO: Add to infobubble
+            <p>Saknas färdplansserien du söker efter? Kolla att du har tillgång till den eller <Link href={`/metaRoadmap/create`}>skapa en ny färdplansserie</Link></p>
             */}
-          </>
+              </>
+              : null
+            }
+
+            {metaRoadmapTarget?.roadmapVersions.length && (
+              <label className="block margin-block-100">
+                Version av färdplansserien {`"${metaRoadmapTarget.name}"`} den här färdplansversionen arbetar mot
+                <select className="block margin-block-25" name="targetVersion" id="targetVersion" required defaultValue={currentRoadmap?.targetVersion || ""} onChange={(e) => setTargetVersion(parseInt(e.target.value) || null)}>
+                  <option value="">Inget alternativ valt</option>
+                  <option value={0}>Alltid senaste versionen</option>
+                  {metaRoadmapTarget.roadmapVersions.map((version) => {
+                    return (
+                      <option key={version.version} value={version.version}>{`Version ${version.version}`}</option>
+                    )
+                  })}
+                </select>
+              </label>
+            )}
+          </fieldset>
           : null
         }
 
-        {metaRoadmapTarget?.roadmapVersions.length && (
-          <>
-            <label htmlFor="targetVersion">Version av färdplansserien {`"${metaRoadmapTarget.name}"`} den här färdplanen arbetar mot</label>
-            <select name="targetVersion" id="targetVersion" required defaultValue={currentRoadmap?.targetVersion || ""} onChange={(e) => setTargetVersion(parseInt(e.target.value) || null)}>
-              <option value="">Inget alternativ valt</option>
-              <option value={0}>Alltid senaste versionen</option>
-              {metaRoadmapTarget.roadmapVersions.map((version) => {
-                return (
-                  <option key={version.version} value={version.version}>{`Version ${version.version}`}</option>
-                )
-              })}
-            </select>
-          </>
-        )}
-
-        <fieldset className={`${styles.timeLineFieldset} width-100`}>
-          <legend data-position='1' className={`${styles.timeLineLegend} font-weight-bold`}>Beskriv färdplanens version</legend>
+        <fieldset className={`${styles.timeLineFieldset} width-100 ${positionIndex > 1 ? "margin-top-200" : ""}`}>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>Beskriv färdplansversionen</legend>
           <label className="block margin-block-100">
-            Extra beskrivning av den här versionen av färdplanen
+            Extra beskrivning av den här färdplansversionen
             <textarea className="margin-block-25" name="description" id="description" defaultValue={currentRoadmap?.description ?? undefined}></textarea>
           </label>
         </fieldset>
 
-        {/* TODO: Add option to inherit some/all goals from previous versions of same roadmap */}
-        {/* TODO: Add checkboxes for inheriting some/all goals from another roadmap (not the target) with `inheritFromID` */}
-        {/* TODO: Allow choosing which roadmap to inherit from, might be different from target */}
-        {inheritableGoals.length > 0 && (
-          <>
-            <fieldset>
-              <legend>Välj mål att ärva från färdplanen</legend>
-              {
-                inheritableGoals.map((goal) => {
-                  return (
-                    <label key={goal.id} className="block margin-block-25">
-                      <input type="checkbox" name={`inheritGoals`} id={`inheritGoals-${goal.id}`} value={goal.id} />
-                      {`${goal.name || goal.indicatorParameter}`}
-                    </label>
-                  )
-                })
-              }
-            </fieldset>
-          </>
-        )}
-
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position='2' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Ladda upp målbanor</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Ladda upp målbanor</legend>
           <label className="block margin-bottom-100">
             {/*TODO: Add to infobubble
             Om du har en CSV-fil med målbanor kan du ladda upp den här. <br />
@@ -245,9 +234,28 @@ export default function RoadmapForm({
           </label>
         </fieldset>
 
+        {/* TODO: Add option to inherit some/all goals from previous versions of same roadmap */}
+        {/* TODO: Add checkboxes for inheriting some/all goals from another roadmap (not the target) with `inheritFromID` */}
+        {/* TODO: Allow choosing which roadmap to inherit from, might be different from target */}
+        {inheritableGoals.length > 0 && (
+          <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Välj mål att ärva</legend>
+            {
+              inheritableGoals.map((goal) => {
+                return (
+                  <label key={goal.id} className="block margin-block-25">
+                    <input type="checkbox" name={`inheritGoals`} id={`inheritGoals-${goal.id}`} value={goal.id} />
+                    {`${goal.name || goal.indicatorParameter}`}
+                  </label>
+                )
+              })
+            }
+          </fieldset>
+        )}
+
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-            <legend data-position='3' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Justera läsbehörighet</legend>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Justera läsbehörighet</legend>
             <ViewUsers
               groupOptions={userGroups}
               existingUsers={currentAccess?.viewers.map((user) => user.username)}
@@ -259,7 +267,7 @@ export default function RoadmapForm({
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-            <legend data-position='4' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Justera redigeringsbehörighet</legend>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Justera redigeringsbehörighet</legend>
             <EditUsers
               groupOptions={userGroups}
               existingUsers={currentAccess?.editors.map((user) => user.username)}
@@ -272,7 +280,7 @@ export default function RoadmapForm({
         <input
           type="submit"
           className="margin-block-200 seagreen color-purewhite"
-          value={currentRoadmap ? 'Spara' : 'Skapa färdplan'}
+          value={currentRoadmap ? 'Spara' : 'Skapa färdplansversion'}
           disabled={isLoading}
         />
       </form>

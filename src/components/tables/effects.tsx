@@ -34,7 +34,7 @@ export default function EffectTable({
         { // Only show the button if the user has edit access to the object
           [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin].includes(accessLevel ?? AccessLevel.None) &&
           <span> Vill du skapa en?&nbsp;
-            <Link href={(object as Goal).indicatorParameter != undefined ? `/effect/createEffect?goalId=${object.id}` : (object as Action).isSufficiency != undefined ? `/effect/createEffect?actionId=${object.id}` : '/effect/createEffect'}>
+            <Link href={(object as Goal).indicatorParameter != undefined ? `/effect/create?goalId=${object.id}` : (object as Action).isSufficiency != undefined ? `/effect/create?actionId=${object.id}` : '/effect/create'}>
               Skapa ny effekt
             </Link>
           </span>

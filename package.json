@@ -12,7 +12,7 @@
   "dependencies": {
     "@prisma/client": "^5.3.1",
     "@types/node": "^20.3.2",
-    "apexcharts": "^3.45.2",
+    "apexcharts": "^4.3.0",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.5",
     "iron-session": "^8.0.1",
@@ -28,7 +28,7 @@
     "use-debounce": "^10.0.3"
   },
   "name": "eco-planner",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "description": "A tool intended to help planning actions to achieve local environmental goals",
   "repository": "https://github.com/Sustainable-Action-Foundation/eco-planner.git",
   "author": "Leon Lööv",

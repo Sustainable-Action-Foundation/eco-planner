@@ -18,11 +18,11 @@ export default async function Page() {
 
   return (
     <>
-      <Breadcrumb customSections={['Skapa ny färdplan']} />
+      <Breadcrumb customSections={['Skapa ny färdplansserie']} />
 
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          Skapa en ny färdplan
+          Skapa en ny färdplansserie
         </h1>
         <MetaRoadmapForm
           user={session.user}

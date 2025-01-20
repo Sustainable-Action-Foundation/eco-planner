@@ -4,7 +4,7 @@ import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 import Image from "next/image";
 import { GoalInput, ScaleBy, ScaleMethod, ScalingRecipie, dataSeriesDataFieldNames, isScalingRecipie } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
-import /* LinkInput, */ { getLinks } from "@/components/forms/linkInput/linkInput";
+import /* LinkInput, */ LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput";
 import formSubmitter from "@/functions/formSubmitter";
 import { useEffect, useMemo, useState } from "react";
 import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
@@ -186,6 +186,9 @@ export default function GoalForm({
   }
   const baselineString = baselineArray.join(';')
 
+  // Indexes for the data-position attribute in the legend elements
+  let positionIndex = 1;
+
   return (
     <>
       <form onSubmit={handleSubmit} onChange={() => { recalculateScalingResult() }} name="goalForm">
@@ -194,24 +197,27 @@ export default function GoalForm({
 
         {/* Allow user to select parent roadmap if not already selected */}
         {!(roadmapId || currentGoal?.roadmapId) ?
-          <label className="block margin-block-300">
-            Välj färdplan att skapa åtgärden under:
-            <select name="roadmapId" id="roadmapId" required className="block margin-block-25"
-              onChange={(e) => setSelectedRoadmap(e.target.value)}
-            >
-              <option value="" disabled>Välj färdplan</option>
-              {roadmapAlternatives.map(roadmap => (
-                <option key={roadmap.id} value={roadmap.id}>
-                  {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} åtgärder`}
-                </option>
-              ))}
-            </select>
-          </label>
+          <fieldset className={`${styles.timeLineFieldset} width-100`}>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>Ange relationen till andra inlägg</legend>
+            <label className="block margin-block-100">
+              Välj färdplansversion att skapa målbanan under:
+              <select name="roadmapId" id="roadmapId" required className="block margin-block-25" defaultValue={""}
+                onChange={(e) => setSelectedRoadmap(e.target.value)}
+              >
+                <option value="" disabled>Välj färdplansversion</option>
+                {roadmapAlternatives.map(roadmap => (
+                  <option key={roadmap.id} value={roadmap.id}>
+                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} åtgärder`}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </fieldset>
           : null
         }
 
-        <fieldset className={`${styles.timeLineFieldset} width-100`}>
-          <legend data-position='1' className={`${styles.timeLineLegend}  font-weight-bold`}>Välj typ av dataserie för din målbana</legend>
+        <fieldset className={`${styles.timeLineFieldset} width-100 ${positionIndex > 1 ? "margin-top-200" : ""}`}>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend}  font-weight-bold`}>Välj typ av dataserie för din målbana</legend>
           <label className="block margin-block-100">
             Dataserie
             <select name="dataSeriesType" id="dataSeriesType" className="block margin-block-25" required
@@ -227,7 +233,7 @@ export default function GoalForm({
 
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position='2' className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Beskriv din målbana</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Beskriv din målbana</legend>
           <label className="block margin-bottom-100">
             Namn på målbanan
             <input className="margin-block-25" type="text" name="goalName" id="goalName" defaultValue={currentGoal?.name ?? undefined} />
@@ -240,7 +246,7 @@ export default function GoalForm({
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position='3' className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Beskriv hur din målbanas data är utformad</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Beskriv hur din målbanas data är utformad</legend>
           {(dataSeriesType === DataSeriesType.Static || !dataSeriesType) &&
             <ManualGoalForm currentGoal={currentGoal} dataSeriesString={dataSeriesString} />
           }
@@ -292,9 +298,12 @@ export default function GoalForm({
               </label>
             </fieldset>
           }
+        </fieldset>
 
-          <label className="block margin-block-100">
-            Vilken baslinje ska målbanans åtgärder utgå från?
+        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Välj baslinje för åtgärder</legend>
+          <label className="block margin-bottom-100">
+            Vilken baslinje ska man utgå från när man beräknar åtgärders effekt på målbanan?
             <select className="block margin-block-25" name="baselineSelector" id="baselineSelector" value={baselineType} onChange={(e) => setBaselineType(e.target.value as BaselineType)}>
               <option value={BaselineType.Initial}>Första årets värde</option>
               <option value={BaselineType.Custom}>Anpassad baslinje</option>
@@ -320,16 +329,13 @@ export default function GoalForm({
           }
         </fieldset>
 
-        {/*
-          TODO: Re add this once it is needed 
-          <fieldset className={`${styles.timeLineFieldset} width-100`}>
-              <legend data-position='3' className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Bifoga externa resurser</legend>
-              <LinkInput links={currentGoal?.links} />
-          </fieldset>
-        */}
+        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Bifoga externa resurser</legend>
+          <LinkInput links={currentGoal?.links} />
+        </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position='4' className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Vill du lyfta fram den här målbana under din färdplan?</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Vill du lyfta fram den här målbana under din färdplansversion?</legend>
           <label className="flex align-items-center gap-50 margin-block-50">
             <input type="checkbox" name="isFeatured" id="isFeatured" defaultChecked={currentGoal?.isFeatured} /> {/* TODO: Make toggle */}
             Lyft fram min målbana
