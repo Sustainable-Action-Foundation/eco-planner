@@ -15,13 +15,16 @@ export default function RoadmapTree({
   user,
 }: RoadmapTreeProps) {
   if (!roadmaps.length) {
-    return (<p>Inga färdplaner hittades. Om du har några filter aktiva så hittade inga färdplaner som matchar dem.</p>);
+    return <p>Inga färdplaner hittades. Om du har några filter aktiva så hittade inga färdplaner som matchar dem.</p>;
   }
 
-  const childRoadmaps = roadmaps.filter(roadmap => roadmap.metaRoadmap.parentRoadmapId == null);
+  const accessibleMetaRoadmaps = roadmaps.map(roadmap => roadmap.metaRoadmapId);
+
+  // All roadmaps without a parent or with a parent the user does not have access to are placed at the top level
+  const topLevelRoadmaps = roadmaps.filter(roadmap => (roadmap.metaRoadmap.parentRoadmapId == null) || (!accessibleMetaRoadmaps.includes(roadmap.metaRoadmap.parentRoadmapId)));
 
   return <ul className={styles.list}>
-    <NestedRoadmapRenderer allRoadmaps={roadmaps} childRoadmaps={childRoadmaps} user={user} />
+    <NestedRoadmapRenderer allRoadmaps={roadmaps} childRoadmaps={topLevelRoadmaps} user={user} />
   </ul>
 }
 
@@ -37,7 +40,7 @@ function NestedRoadmapRenderer({
   return <>
     {childRoadmaps.map(roadmap => {
       const accessLevel = accessChecker(roadmap, user);
-      const childRoadmaps = allRoadmaps.filter(current => (current.metaRoadmap.parentRoadmapId === roadmap.metaRoadmapId) && (current.id !== roadmap.id) && (current.metaRoadmap.parentRoadmapId != null));
+      const newChildRoadmaps = allRoadmaps.filter(potentialChild => (potentialChild.metaRoadmap.parentRoadmapId === roadmap.metaRoadmapId) && (potentialChild.id !== roadmap.id) && (potentialChild.metaRoadmap.parentRoadmapId != null));
 
       return <li key={`roadmap-tree-${roadmap.id}`}>
         <div className='flex gap-100 justify-content-space-between align-items-center' key={roadmap.id}>
@@ -50,9 +53,9 @@ function NestedRoadmapRenderer({
             object={roadmap}
           />
         </div>
-        {childRoadmaps.length > 0 ?
+        {newChildRoadmaps.length > 0 ?
           <ul className={styles.list}>
-            <NestedRoadmapRenderer allRoadmaps={allRoadmaps} childRoadmaps={childRoadmaps} user={user} />
+            <NestedRoadmapRenderer allRoadmaps={allRoadmaps} childRoadmaps={newChildRoadmaps} user={user} />
           </ul>
           : null
         }
