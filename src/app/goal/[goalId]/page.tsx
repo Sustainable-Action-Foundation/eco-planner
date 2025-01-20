@@ -118,8 +118,10 @@ export default async function Page({
           {(goal.dataSeries?.id && session.user) ?
             <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
           : null }
-          <GraphCookie />
         </GraphGraph>
+        <div className="margin-top-100">
+          <GraphCookie />
+        </div>
       </section>
 
       <section className="margin-block-100">

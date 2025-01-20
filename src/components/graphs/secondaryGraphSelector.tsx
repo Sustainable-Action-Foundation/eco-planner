@@ -16,8 +16,8 @@ export default function SecondaryGoalSelector() {
     <>
       <form onSubmit={handleSubmit} className="flex-grow-100">
         <div className="focusable flex smooth" style={{border: '1px solid var(--gray-90)'}}>
-          <input type="text" id="secondaryGoal" name="secondaryGoal" className="transparent" />
-          <button type="submit" className="font-weight-500 smooth-right" style={{ fontSize: '1rem' }}>Jämför</button>
+          <input type="text" id="secondaryGoal" name="secondaryGoal" className="transparent" style={{fontSize: '.75rem'}} />
+          <button type="submit" className="font-weight-500 smooth-right" style={{fontSize: '.75rem'}} >Jämför</button>
         </div>
       </form>
     </>
