@@ -30,11 +30,9 @@ export enum GoalSortBy {
 }
 
 export default function Goals({
-  title,
   roadmap,
   accessLevel,
 }: {
-  title: string,
   roadmap: NonNullable<Awaited<ReturnType<typeof getOneRoadmap>>>,
   accessLevel?: AccessLevel
 }) {
@@ -63,13 +61,9 @@ export default function Goals({
 
   return (
     <>
-      <h2>{title}</h2>
-      <menu 
-        className={`margin-block-100 padding-top-100 flex justify-content-space-between align-items-flex-end flex-wrap-wrap gap-100 padding-0 margin-0 ${styles.tableNav}`}
-        style={{borderTop: '1px solid var(--gray)'}}
-      >
+      <menu className={`margin-bottom-100 flex justify-content-space-between align-items-flex-end flex-wrap-wrap gap-100 padding-0 margin-0 ${styles.tableNav}`}>
         <label className="font-weight-bold flex-grow-100">
-          Sök Målbana
+          Sök bland målbanor
           <div className="flex align-items-center margin-top-25 gray-90 padding-50 smooth focusable">
             <Image src='/icons/search.svg' alt="" width={24} height={24} />
             <input type="search" className="padding-0 margin-inline-50" onChange={(e) => setSearchFilter(e.target.value)} />
@@ -78,9 +72,9 @@ export default function Goals({
         {viewMode == ViewMode.Table && (
           <label className="font-weight-bold">
             Sortera utifrån
-            <select 
-              className="font-weight-500 margin-top-25 block" 
-              style={{fontSize: '1rem', minHeight: 'calc(24px + 1rem)'}}
+            <select
+              className="font-weight-500 margin-top-25 block"
+              style={{ fontSize: '1rem', minHeight: 'calc(24px + 1rem)' }}
               onChange={(e) => { setSortBy(e.target.value as GoalSortBy); setStoredGoalSortBy(e.target.value as GoalSortBy) }} defaultValue={sortBy}
             >
               <option value={GoalSortBy.Default}>Standard</option>
@@ -115,13 +109,13 @@ export default function Goals({
         <GoalTable roadmap={filteredRoadmap} sortBy={sortBy} />
       ) : viewMode == ViewMode.Actions ? (
         <ActionTable actions={filteredRoadmap.actions} accessLevel={accessLevel} roadmapId={roadmap.id} />
-      ): 
-        <Image 
-          src='/animations/3-dots-scale.svg' 
-          width={64} 
-          height={64} 
-          alt='Laddar ' 
-          className='block margin-inline-auto' 
+      ) :
+        <Image
+          src='/animations/3-dots-scale.svg'
+          width={64}
+          height={64}
+          alt='Laddar '
+          className='block margin-inline-auto'
         />
       }
 

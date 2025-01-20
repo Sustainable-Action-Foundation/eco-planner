@@ -55,11 +55,15 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
             : null
           }
         </div>
-        {/* Only show link for creating a new version if the user has edit access to the roadmap */}
-        {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
-          <div className="flex justify-content-flex-end "><a href={`/roadmap/create?metaRoadmapId=${metaRoadmap.id}`} className="button pureblack color-purewhite round">Skapa ny färdplansversion</a></div>
-          : null
-        }
+
+        <div className="flex justify-content-space-between align-items-center ">
+          <h2 className="margin-0">Färdplaner</h2>
+          {/* Only show link for creating a new version if the user has edit access to the roadmap */}
+          {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
+            <a href={`/roadmap/create?metaRoadmapId=${metaRoadmap.id}`} className="button pureblack color-purewhite round">Skapa ny färdplansversion</a>
+          : null }
+        </div>
+
       </section>
 
       <section>
