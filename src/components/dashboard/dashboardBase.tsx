@@ -3,7 +3,7 @@ import getRoadmapSubset from "@/fetchers/getRoadmapSubset";
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import GoalTable from "../tables/goalTables/goalTable";
-import RoadmapTable from "../tables/roadmapTable";
+import RoadmapTable from "../tables/roadmapTables/roadmapTable";
 import ActionTable from "../tables/actions";
 import getOneAction from "@/fetchers/getOneAction";
 

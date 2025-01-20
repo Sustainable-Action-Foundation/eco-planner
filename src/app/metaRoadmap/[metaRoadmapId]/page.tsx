@@ -4,7 +4,7 @@ import { getSession } from "@/lib/session";
 import { AccessLevel } from "@/types";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import RoadmapTable from "@/components/tables/roadmapTable";
+import RoadmapTable from "@/components/tables/roadmapTables/roadmapTable";
 import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 
