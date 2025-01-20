@@ -1,4 +1,4 @@
-import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
+import WrappedChart from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 import styles from '../graphs.module.css'
@@ -58,9 +58,9 @@ export default function ThumbnailGraph({
     <>
       <div className={styles.graphWrapperThumbnail}>
         <h3 className="font-weight-500 margin-0 padding-top-75 text-align-center">
-          {goal.name}  
+          {goal.name}
         </h3> {/* TODO: Make conditional */}
-        <div style={{height: '200px'}}>
+        <div style={{ height: '200px' }}>
           <WrappedChart
             options={mainChartOptions}
             series={mainChart}

@@ -30,11 +30,9 @@ export enum GoalSortBy {
 }
 
 export default function Goals({
-  title,
   roadmap,
   accessLevel,
 }: {
-  title: string,
   roadmap: NonNullable<Awaited<ReturnType<typeof getOneRoadmap>>>,
   accessLevel?: AccessLevel
 }) {
@@ -74,9 +72,9 @@ export default function Goals({
         {viewMode == ViewMode.Table && (
           <label className="font-weight-bold">
             Sortera utifrån
-            <select 
-              className="font-weight-500 margin-top-25 block" 
-              style={{fontSize: '1rem', minHeight: 'calc(24px + 1rem)'}}
+            <select
+              className="font-weight-500 margin-top-25 block"
+              style={{ fontSize: '1rem', minHeight: 'calc(24px + 1rem)' }}
               onChange={(e) => { setSortBy(e.target.value as GoalSortBy); setStoredGoalSortBy(e.target.value as GoalSortBy) }} defaultValue={sortBy}
             >
               <option value={GoalSortBy.Default}>Standard</option>
@@ -111,13 +109,13 @@ export default function Goals({
         <GoalTable roadmap={filteredRoadmap} sortBy={sortBy} />
       ) : viewMode == ViewMode.Actions ? (
         <ActionTable actions={filteredRoadmap.actions} accessLevel={accessLevel} roadmapId={roadmap.id} />
-      ): 
-        <Image 
-          src='/animations/3-dots-scale.svg' 
-          width={64} 
-          height={64} 
-          alt='Laddar ' 
-          className='block margin-inline-auto' 
+      ) :
+        <Image
+          src='/animations/3-dots-scale.svg'
+          width={64}
+          height={64}
+          alt='Laddar '
+          className='block margin-inline-auto'
         />
       }
 
