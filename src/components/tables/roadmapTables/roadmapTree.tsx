@@ -10,6 +10,12 @@ type RoadmapTreeProps = {
   roadmaps: (Roadmap & AccessControlled & { _count: { goals: number }, metaRoadmap: MetaRoadmap & { childRoadmaps: { id: string }[] } })[],
 }
 
+/**
+ * Renders given roadmaps in a tree structure. Roadmaps belonging to a MetaRoadmap without a(n accessible) parent are placed at the top level.
+ * Other roadmaps are recursively nested under the current roadmap based on their MetaRoadmap's parentRoadmapId.
+ * 
+ * Ignores which roadmap versions work towards which other versions; only MetaRoadmap relationships are considered.
+ */
 export default function RoadmapTree({
   roadmaps,
   user,
@@ -28,6 +34,9 @@ export default function RoadmapTree({
   </ul>
 }
 
+/**
+ * Does the nesting of roadmaps for the `RoadmapTree` component.
+ */
 function NestedRoadmapRenderer({
   allRoadmaps,
   childRoadmaps,
