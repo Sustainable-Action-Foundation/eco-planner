@@ -35,78 +35,89 @@ export default async function Page({ params }: { params: { actionId: string } })
     return notFound();
   }
 
-  return ( // TODO: Make sure optional stuff from form renders conditionally
+  return ( 
     <>
       <Breadcrumb object={action} />
 
-      <section className="margin-block-100 padding-block-100 container flex justify-content-space-between">
-        <div>
-          <span style={{ color: 'gray' }}>Åtgärd</span>
-          <h1 className="margin-0">{action.name}</h1>
-          <p className="margin-0">{action.startYear} - {action.endYear}</p>
-        </div>
-        {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
-          <div className="margin-block-100">
-            <Link href={`/action/${params.actionId}/edit`} className="flex align-items-center gap-50 padding-50 smooth button transparent font-weight-500" style={{ width: 'fit-content'}}>
+      <div className="margin-block-300 container">
+        <div className="flex flex-wrap-wrap">
+          <div className="flex-grow-100">
+            <span style={{ color: 'gray' }}>Åtgärd</span>
+            <h1 className="margin-0">{action.name}</h1>
+            <p className="margin-0">{action.startYear} - {action.endYear}</p>
+            {action.description ?
+              <p>{action.description}</p>
+            : null}
+            {action.links.length > 0 ?
+              <>
+                <h2 className="margin-bottom-0 margin-top-200" style={{fontSize: '1.25rem'}}>Externa resurser</h2>
+                <ul>
+                  {action.links.map((link: { url: string, description: string | null }, index: number) => 
+                    <li className="margin-block-25" key={index}>
+                      <a href={link.url} target="_blank">{link.description}</a>
+                    </li>
+                  )}
+                </ul>
+              </>
+            : null}
+          </div>
+          {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
+            <Link 
+              href={`/action/${params.actionId}/edit`} 
+              className="flex align-items-center gap-50 padding-block-50 padding-inline-100 round button transparent font-weight-500" 
+              style={{ width: 'fit-content', height: 'fit-content'}}
+            >
               Redigera åtgärd
               <Image src="/icons/edit.svg" width={24} height={24} alt={`Redigera åtgärd: ${action.name}`} />
             </Link>
-          </div>
           : null}
-      </section>
+        </div>
+      </div>
 
-      {action.description ?
-        <p>{action.description}</p>
-      : null}
-
-      {action.links.length > 0 ?
-        <>
-          <h2 className="margin-bottom-0 margin-top-200" style={{fontSize: '1.25rem'}}>Externa resurser</h2>
-          <ul>
-            {action.links.map((link: { url: string, description: string | null }, index: number) => 
-              <li className="margin-block-25" key={index}>
-                <a href={link.url} target="_blank">{link.description}</a>
-              </li>
-            )}
-          </ul>
-        </>
-        : null}
-
-      <h2>Förväntad effekt</h2>
+      <h2 className="margin-top-300">Förväntad effekt</h2>
       {action.expectedOutcome ?
         <p>{action.expectedOutcome}</p>
-        : null}
+      :
+        <p>Ingen angiven effekt</p>   
+      }
 
-      <h2>Kostnadseffektivitet</h2>
+      <h2 className="margin-top-300">Kostnadseffektivitet</h2>
       {action.costEfficiency ?
         <p>{action.costEfficiency}</p>
-        : null}
+      : 
+        <p>Ingen angiven Kostnadseffektivitet</p>   
+      }
 
-      <h2>Projektledare</h2>
+      <h2 className="margin-top-300">Projektledare</h2>
       {(action.projectManager && (accessLevel == AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel == AccessLevel.Admin)) ?
         <p>{action.projectManager}</p>
-        : null}
+      : 
+        <p>Ingen angiven projektledare</p>     
+      }
 
-      <h2>Relevanta Aktörer</h2>
+      <h2 className="margin-top-300">Relevanta Aktörer</h2>
       {action.relevantActors ?
         <p>{action.relevantActors}</p>
-        : null}
+      : 
+        <p>Inga angivna aktörer</p>     
+      }
 
-      <h2>Kategorier</h2>
+      <h2 className="margin-top-300">Kategorier</h2>
       {(action.isEfficiency || action.isSufficiency || action.isRenewables) ?
-        <p>
-          {action.isEfficiency && 'Efficiency'} {(action.isEfficiency && (action.isSufficiency || action.isRenewables))}
-          {action.isSufficiency && 'Sufficiency'} {(action.isSufficiency && action.isRenewables)}
-          {action.isRenewables && 'Renewables'}
-        </p>
-        : null
+        <ul>
+          <li className="margin-block-50">{action.isEfficiency && 'Efficiency'} {(action.isEfficiency && (action.isSufficiency || action.isRenewables))}</li> 
+          <li className="margin-block-50">{action.isSufficiency && 'Sufficiency'} {(action.isSufficiency && action.isRenewables)}</li>
+          <li className="margin-block-50">{action.isRenewables && 'Renewables'}</li>
+        </ul>
+      :         
+        <p>Ingen angiven kategori</p>     
       }
 
       <section>
-        <div className="flex align-items-center justify-content-space-between">
-          <h2>Effekter</h2>
+        <h2 className="margin-top-300 margin-bottom-100 padding-bottom-50" style={{borderBottom: '1px solid var(--gray)'}}>Effekter</h2>
+        <menu className="margin-0 padding-0 margin-bottom-100 flex justify-content-flex-end">
           <Link href={`/effect/create?actionId=${action.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny effekt</Link>
-        </div>
+        </menu>
         <EffectTable object={action} accessLevel={accessLevel} />
       </section>
 
