@@ -26,7 +26,7 @@ export default function GraphSelector({
   // Set the selectedOption as the context value
   return (
     <>
-      <select onChange={handleSelectChange}>
+      <select onChange={handleSelectChange} style={{padding: '.3rem .5rem', borderRadius: '2px'}}>
         <option value={GraphType.Main}>Målbana</option>
         <option value={GraphType.Delta}>Årlig förändring</option>
         { // Don't allow relative graph if the main graph is already percent or fraction
