@@ -4,6 +4,24 @@ export async function register() {
     try {
       let errorCount = 0;
 
+      // Self-test IronSession configuration
+      const { options } = await import('@/lib/session').then(module => module);
+      if (options.password instanceof Array) {
+        if (options.password.length === 0) {
+          console.error("IronSession password is not set.");
+          errorCount++;
+        } else {
+          if (options.password.some(pass => !(typeof pass !== 'string') || pass.length < 32)) {
+            console.error("At least one IronSession password is misconfigured.");
+            errorCount++;
+          }
+        }
+      } else if (typeof options.password !== 'string' || options.password.length < 32) {
+        console.error("IronSession password is misconfigured.");
+        console.warn("Check that the `IRON_SESSION_PASSWORD` environment variable is at least 32 characters long.");
+        errorCount++;
+      }
+
       // Self-test email functionality
       const mailClient = await import('@/mailClient').then(module => module.default);
 
