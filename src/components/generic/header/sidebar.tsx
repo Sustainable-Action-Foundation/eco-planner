@@ -16,26 +16,17 @@ export default async function Sidebar() {
       </label>
       <aside className={`${styles.aside} flex-grow-100`}>
         <nav className={styles.nav}>
-          <div>
-            { // Link to signup if not logged in
-              !user?.isLoggedIn &&
-              <Link href="/signup" className='flex gap-50 align-items-center padding-50 margin-block-25 round seagreen color-purewhite button font-weight-500' style={{ whiteSpace: 'nowrap' }}>
-                <Image src='/icons/userAdd.svg' alt='' width={24} height={24} />
-                Skapa Konto
-              </Link>
-            }
-            { // Link to user page if logged in
-              // Disabled until we have something to show there
-              // user?.isLoggedIn &&
-              // <div>
-              //   <Link href={`/user/${user.username}`} className={styles.link}>
-              //     <Image src='/icons/user.svg' alt='' width={24} height={24} />
-              //     Mitt Konto
-              //   </Link>
-              //   {/*<Notifications amount={} /> */}
-              // </div>
-            }
-          </div>
+          {user?.isLoggedIn ?
+            <Link href={`/@${user.username}`} className={styles.link}>
+              <Image src='/icons/user.svg' alt='' width={24} height={24} />
+              Mitt Konto
+            </Link>
+          :
+            <Link href="/signup" className='flex gap-50 align-items-center padding-50 margin-block-25 round seagreen color-purewhite button font-weight-500' style={{ whiteSpace: 'nowrap' }}>
+              <Image src='/icons/userAdd.svg' alt='' width={24} height={24} />
+              Skapa Konto
+            </Link>
+          }
           <div className='flex-grow-100'>
             <Link href="/" className={styles.link}>
               <Image src='/icons/home.svg' alt='' width={24} height={24} />
@@ -46,25 +37,14 @@ export default async function Sidebar() {
               Om verktyget
             </Link>
           </div>
-          <div>
-            { // Link to login
-              !user?.isLoggedIn &&
-              <>
-                <Link href="/login" className={styles.link}>
-                  <Image src='/icons/login.svg' alt='' width={24} height={24} />
-                  Logga In
-                </Link>
-              </>
-            }
-            { // Link to admin page and a logout button if logged in
-              user?.isLoggedIn &&
-              <>
-                {/* Admin pages don't currently exist */}
-                {/* <Link href="/admin">To Admin Page</Link> */}
-                <LogoutButton />
-              </>
-            }
-          </div>
+          {user?.isLoggedIn ?
+            <LogoutButton />
+          :
+            <Link href="/login" className={styles.link}>
+              <Image src='/icons/login.svg' alt='' width={24} height={24} />
+              Logga In
+            </Link>
+          }
         </nav>
       </aside>
     </aside>
