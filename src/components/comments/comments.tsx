@@ -64,7 +64,7 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
 
   return (
     <>
-      <section className="container-text margin-block-300">
+      <div className="container-text">
         <h2>{comments?.length} Kommentarer</h2>
         <form onSubmit={handleSubmit}>
           <span className={styles.textarea} role="textbox" id="comment-text" contentEditable aria-label="Skriv Kommentar" aria-placeholder="Skriv Kommentar" onInput={handleInput} onBlur={handleInput} ref={spanRef}></span>
@@ -87,10 +87,10 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
               <button className={`margin-block-25 ${styles.readMoreButton}`} onClick={() => expandComment(comment.id)}>
                 {expandedComments.includes(comment.id) ? 'Visa mindre' : 'Visa mer'}
               </button>
-              : null}
+            : null}
           </div>
         ))}
-      </section>
+      </div>
     </>
   )
 }

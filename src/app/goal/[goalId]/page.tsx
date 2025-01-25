@@ -112,7 +112,7 @@ export default async function Page({
       <Breadcrumb object={goal} />
 
       {secondaryGoal && <p className="margin-block-300">Jämför med målbanan {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
-      <section className={`margin-top-300`}>
+      <section className='margin-top-300'>
         {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
         <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects}>
           {(goal.dataSeries?.id && session.user) ?
@@ -170,7 +170,7 @@ export default async function Page({
         <CombinedGraph roadmap={roadmap} goal={goal} />
       </section>
 
-      <section>
+      <section className="margin-block-300">
         <div className="flex align-items-center justify-content-space-between">
           <h2>Åtgärder</h2>
           {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
@@ -186,7 +186,11 @@ export default async function Page({
         </div>
         <EffectTable object={goal} accessLevel={accessLevel} />
       </section>
-      <Comments comments={goal.comments} objectId={goal.id} />
+
+      <section className="margin-block-500">
+        <Comments comments={goal.comments} objectId={goal.id} />
+      </section>
+
     </>
   )
 }

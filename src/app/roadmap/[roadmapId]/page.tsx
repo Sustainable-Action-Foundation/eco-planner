@@ -30,7 +30,7 @@ export default async function Page({ params }: { params: { roadmapId: string } }
 
     <Breadcrumb object={roadmap} />
 
-    <div className="flex justify-content-space-between flex-wrap-wrap gap-100 margin-top-300" >
+    <section className="flex justify-content-space-between flex-wrap-wrap gap-100 margin-block-300" >
       <div className="flex-grow-100">
         <span style={{ color: 'gray' }}>Färdplan</span>
         <h1 className="margin-0">{roadmap.metaRoadmap.name}</h1>
@@ -71,25 +71,28 @@ export default async function Page({ params }: { params: { roadmapId: string } }
           <Image src="/icons/edit.svg" alt="" width="24" height="24" />
         </a>
       }
-    </div>
+    </section>
 
-    <h2 className="margin-top-300">Utvalda målbanor</h2>
-    <div
-      className="grid gap-100"
-      style={{ gridTemplateColumns: 'repeat(auto-fit, 300px)' }}
-    >
-      {roadmap.goals.map((goal, key) =>
-        goal.isFeatured ?
-          <a key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none">
-            <ThumbnailGraph goal={goal} />
-          </a>
-          : null
-      )}
-    </div>
+    <section className="margin-block-300">
+      <h2>Utvalda målbanor</h2>
+      <div className="grid gap-100" style={{ gridTemplateColumns: 'repeat(auto-fit, 300px)' }}>
+        {roadmap.goals.map((goal, key) =>
+          goal.isFeatured ?
+            <a key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none">
+              <ThumbnailGraph goal={goal} />
+            </a>
+            : null
+        )}
+      </div>
+    </section>
+      
+    <section className="margin-block-300">
+      <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>Alla målbanor</h2>
+      <Goals roadmap={roadmap} accessLevel={accessLevel} />
+    </section>
 
-    <h2 className='margin-top-300 margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>Alla målbanor</h2>
-    <Goals roadmap={roadmap} accessLevel={accessLevel} />
-
-    <Comments comments={roadmap.comments} objectId={roadmap.id} />
+    <section className="margin-block-500">
+      <Comments comments={roadmap.comments} objectId={roadmap.id} />
+    </section>
   </>
 }
