@@ -151,7 +151,12 @@ export default async function Page({
           </div>
           <p className="container-text">{goal.description}</p>
           {goal.dataSeries?.scale &&
-            <p>Alla värden i målbanan använder följande skala: {`"${goal.dataSeries?.scale}"`}</p>
+            <>
+              <p>Alla värden i målbanan använder följande skala: {`"${goal.dataSeries?.scale}"`}</p>
+              {[AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel) &&
+                <strong>Vänligen baka in skalan i värdet eller enheten; skalor kommer att tas bort i framtiden</strong>
+              }
+            </>
           }
           {goal.links.length > 0 ?
             <>
