@@ -35,10 +35,10 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  /**
-   * Locks all pages except the login/signup process and the info and home pages to logged in users.
-   * TODO: Probably invert this? ex. if(!req.nextUrl.pathname.startsWith(/login))?
-   */
+
+  // Locks all pages except the login/signup process and the info and home pages to logged in users.
+  // TODO: Probably invert this? ex. if(!req.nextUrl.pathname.startsWith(/login))?
+  // See https://nextjs.org/docs/14/app/building-your-application/routing/middleware#matcher for an example allowing next's internal pages
   if (!session.user?.isLoggedIn) {
     if (
       req.nextUrl.pathname.startsWith('/dashboard')
@@ -55,6 +55,18 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(loginUrl)
     }
   }
+
+  /**
+   * Matches strings starting with /@ or /%40 (URL-encoded @)
+   */
+  const userIndicatorRegEx = /^\/(@|%40)/;
+  // Silently redirect from "/@username" to "/user/@username"
+  if (req.nextUrl.pathname.match(userIndicatorRegEx)) {
+    const newUrl = new URL(`/user${req.nextUrl.pathname}`, req.url)
+    newUrl.search = req.nextUrl.search
+    return NextResponse.rewrite(newUrl)
+  }
+  // If we add for example # or $ to go to organisation pages or something, we can do it in a similar way to the above user rewrite
 
   return NextResponse.next()
 }
