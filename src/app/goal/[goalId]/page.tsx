@@ -25,6 +25,7 @@ import getRoadmaps from "@/fetchers/getRoadmaps";
 import EffectTable from "@/components/tables/effects.tsx";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
+import findSiblings from "@/functions/findSiblings.ts";
 
 export default async function Page({
   params,
@@ -118,7 +119,7 @@ export default async function Page({
           <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects}>
             {(goal.dataSeries?.id && session.user) ?
               <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
-            : null }
+              : null}
           </GraphGraph>
           <div className="margin-top-100">
             <GraphCookie />
@@ -154,22 +155,25 @@ export default async function Page({
           }
           {goal.links.length > 0 ?
             <>
-              <h2 className="margin-bottom-0 margin-top-200" style={{fontSize: '1.25rem'}}>Externa resurser</h2>
+              <h2 className="margin-bottom-0 margin-top-200" style={{ fontSize: '1.25rem' }}>Externa resurser</h2>
               <ul>
-                {goal.links.map((link: { url: string, description: string | null }, index: number) => 
+                {goal.links.map((link: { url: string, description: string | null }, index: number) =>
                   <li className="margin-block-25" key={index}>
                     <a href={link.url} target="_blank">{link.description}</a>
                   </li>
                 )}
               </ul>
             </>
-          : null }
+            : null}
         </section>
 
-        <section className="margin-block-300">
-          <h2>Kombinerad graf</h2>
-          <CombinedGraph roadmap={roadmap} goal={goal} />
-        </section>
+        {findSiblings(roadmap, goal).length > 1 ?
+          <section className="margin-block-300">
+            <h2>Kombinerad graf</h2>
+            <CombinedGraph roadmap={roadmap} goal={goal} />
+          </section>
+          : null
+        }
 
         <section className="margin-block-300">
           <div className="flex align-items-center justify-content-space-between">
