@@ -25,50 +25,48 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
     <>
       <Breadcrumb object={metaRoadmap} />
 
-      <section className="margin-block-100 padding-block-100" style={{ borderBottom: '2px solid var(--gray-90)' }}>
-        <div className="flex gap-100 flex-wrap-wrap justify-content-space-between margin-block-100" style={{ fontSize: '1rem' }}>
-          <div>
-            <h1 className="margin-0">{metaRoadmap.name}</h1>
-            <small>Metadata för en serie av färdplansversioner</small>
-            <p>{metaRoadmap.description}</p>
-            {metaRoadmap.links.length > 0 ?
-              <>
-                <h2 className="margin-bottom-0 margin-top-200" style={{ fontSize: '1.25rem' }}>Externa resurser</h2>
-                <ul>
-                  {metaRoadmap.links.map((link: { url: string, description: string | null }, index: number) =>
-                    <li className="margin-block-25" key={index}>
-                      <a href={link.url} target="_blank">{link.description}</a>
-                    </li>
-                  )}
-                </ul>
-              </>
-              : null
-            }
+      <main>
+        <section className="margin-block-300">
+          <div className="flex gap-100 flex-wrap-wrap justify-content-space-between" style={{ fontSize: '1rem' }}>
+            <div>
+              <span style={{ color: 'gray' }}>Färdplansserie</span>
+              <h1 className="margin-0">{metaRoadmap.name}</h1>
+              <small>Metadata för en serie av färdplansversioner</small>
+              <p>{metaRoadmap.description}</p>
+              {metaRoadmap.links.length > 0 ?
+                <>
+                  <h2 className="margin-bottom-0 margin-top-200">Externa resurser</h2>
+                  <ul>
+                    {metaRoadmap.links.map((link: { url: string, description: string | null }, index: number) =>
+                      <li className="margin-block-25" key={index}>
+                        <a href={link.url} target="_blank">{link.description}</a>
+                      </li>
+                    )}
+                  </ul>
+                </>
+                : null
+              }
+            </div>
+        
+            {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
+              <TableMenu
+                accessLevel={accessLevel}
+                object={metaRoadmap}
+              />
+            : null }
           </div>
+        </section>
 
-          {/* Only show the edit link if the user has edit access to the roadmap */}
-          {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
-            <TableMenu
-              accessLevel={accessLevel}
-              object={metaRoadmap}
-            />
-            : null
-          }
-        </div>
-
-        <div className="flex justify-content-space-between align-items-center ">
-          <h2 className="margin-0">Färdplaner</h2>
-          {/* Only show link for creating a new version if the user has edit access to the roadmap */}
-          {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
-            <a href={`/roadmap/create?metaRoadmapId=${metaRoadmap.id}`} className="button pureblack color-purewhite round">Skapa ny färdplansversion</a>
-          : null }
-        </div>
-
-      </section>
-
-      <section>
-        <RoadmapTable user={session.user} metaRoadmap={metaRoadmap} />
-      </section>
+        <section className="margin-block-300">
+          <h2 className="margin-block-100 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray)' }}>Färdplaner</h2>
+          <menu className="margin-0 padding-0 margin-bottom-100 flex justify-content-flex-end">
+            {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
+              <a href={`/roadmap/create?metaRoadmapId=${metaRoadmap.id}`} className="button pureblack color-purewhite round">Skapa ny färdplansversion</a>
+            : null }
+          </menu>
+          <RoadmapTable user={session.user} metaRoadmap={metaRoadmap} />
+        </section>
+      </main>
     </>
   )
 }
