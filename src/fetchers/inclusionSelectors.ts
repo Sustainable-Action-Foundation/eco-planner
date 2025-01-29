@@ -193,3 +193,15 @@ export const effectInclusionSelection /* Prisma.EffectInclude */ = {
     include: goalInclusionSelection,
   },
 }
+
+export const userInfoSelector /* Prisma.UserSelect */ = {
+  id: true,
+  username: true,
+  authoredMetaRoadmaps: {
+    // TODO: Select/include less data to lighten load on database
+    include: metaRoadmapInclusionSelection,
+  },
+  authoredRoadmaps: {
+    include: multiRoadmapInclusionSelection,
+  },
+}

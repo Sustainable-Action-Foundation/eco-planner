@@ -56,9 +56,7 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  /**
-   * Matches strings starting with /@ or /%40 (URL-encoded @)
-   */
+  /** Matches strings starting with /@ or /%40 (URL-encoded @) */
   const userIndicatorRegEx = /^\/(@|%40)/;
   // Silently redirect from "/@username" to "/user/@username"
   if (req.nextUrl.pathname.match(userIndicatorRegEx)) {
