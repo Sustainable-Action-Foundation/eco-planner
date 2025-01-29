@@ -5,9 +5,11 @@ import { setStoredGraphType } from '../functions/graphFunctions';
 
 export default function GraphSelector({
   goal,
+  currentSelection,
   setter,
 }: {
   goal: Goal & { dataSeries: DataSeries | null },
+  currentSelection: GraphType | "",
   setter: Dispatch<SetStateAction<GraphType | "">>
 }) {
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -26,11 +28,11 @@ export default function GraphSelector({
   // Set the selectedOption as the context value
   return (
     <>
-      <select onChange={handleSelectChange} style={{padding: '.3rem .5rem', borderRadius: '2px'}}>
+      <select onChange={handleSelectChange} value={currentSelection} style={{ padding: '.3rem .5rem', borderRadius: '2px' }}>
         <option value={GraphType.Main}>Målbana</option>
         <option value={GraphType.Delta}>Årlig förändring</option>
         { // Don't allow relative graph if the main graph is already percent or fraction
-        !percentAndFraction.includes(goal.dataSeries?.unit?.toLowerCase() ?? "") &&
+          !percentAndFraction.includes(goal.dataSeries?.unit?.toLowerCase() ?? "") &&
           <option value={GraphType.Relative}>Procentuell förändring</option>
         }
       </select>
