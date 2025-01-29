@@ -1,8 +1,9 @@
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
-import { DataSeriesDataFields, dataSeriesDataFieldNames } from "@/types";
-import { ActionImpactType, DataSeries, Effect, Goal } from "@prisma/client";
+import { dataSeriesDataFieldNames } from "@/types";
+import { DataSeries, Effect, Goal } from "@prisma/client";
 import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import { parsePeriod } from "@/lib/pxWeb/utility";
+import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
 
 export default function MainGraph({
   goal,
@@ -90,61 +91,13 @@ export default function MainGraph({
       type: 'line',
     })
 
-    // Calculate total impact of actions
-    const totalEffect: Partial<DataSeriesDataFields> = {};
-    for (const i of dataSeriesDataFieldNames) {
-      for (const effect of effects) {
-        if (effect.dataSeries && effect.dataSeries[i] != null && Number.isFinite(effect.dataSeries[i])) {
-          if (!totalEffect[i]) {
-            totalEffect[i] = 0;
-          }
-          switch (effect.impactType) {
-            case ActionImpactType.DELTA:
-              // Add sum of all deltas up to this point for the current effect
-              let totalDelta = 0;
-              for (const j of dataSeriesDataFieldNames.slice(0, dataSeriesDataFieldNames.indexOf(i) + 1)) {
-                if (effect.dataSeries[j] != null && Number.isFinite(effect.dataSeries[j])) {
-                  totalDelta += effect.dataSeries[j];
-                }
-              }
-              totalEffect[i] += totalDelta;
-              break;
-            case ActionImpactType.PERCENT:
-              // Add previous year's (baseline + totalEffect) multiplied by current effect as percent
-              const previous = dataSeriesDataFieldNames[dataSeriesDataFieldNames.indexOf(i) - 1];
-              if (previous == undefined) {
-                break;
-              }
-              // Substitute with 0 if any value is missing or NaN
-              totalEffect[i] += ((totalEffect[previous] || 0) + (goal.baselineDataSeries[previous] || 0)) * (effect.dataSeries[i] / 100);
-              break;
-            case ActionImpactType.ABSOLUTE:
-            default:
-              // Add current value
-              totalEffect[i] += effect.dataSeries[i];
-              break;
-          }
-        }
-      }
-    }
+    const totalEffect = calculatePredictedOutcome(effects, goal.baselineDataSeries)
 
     // Line based on totalEffect + baseline
-    if (Object.keys(totalEffect).length > 0) {
-      const actionOutcome = [];
-      for (const i of dataSeriesDataFieldNames) {
-        const baselineValue = goal.baselineDataSeries[i] ?? NaN;
-        const effectValue = totalEffect[i] || 0;
-
-        const value = baselineValue + effectValue;
-
-        actionOutcome.push({
-          x: new Date(i.replace('val', '')).getTime(),
-          y: Number.isFinite(value) ? value : null,
-        });
-      }
+    if (totalEffect.length > 0) {
       mainChart.push({
         name: 'Förväntat utfall',
-        data: actionOutcome,
+        data: totalEffect,
         type: 'line',
       });
     }
@@ -153,46 +106,10 @@ export default function MainGraph({
     const firstNonNull = dataSeriesDataFieldNames.find(i => goal.dataSeries && Number.isFinite((goal.dataSeries)[i]));
 
     if (firstNonNull) {
-      // Calculate total impact of actions/effects
-      const totalEffect: Partial<DataSeriesDataFields> = {};
-      for (const i of dataSeriesDataFieldNames) {
-        for (const effect of effects) {
-          if (effect.dataSeries && effect.dataSeries[i] != null && Number.isFinite(effect.dataSeries[i])) {
-            if (!totalEffect[i]) {
-              totalEffect[i] = 0;
-            }
-            switch (effect.impactType) {
-              case ActionImpactType.DELTA:
-                // Add sum of all deltas up to this point for the current action
-                let totalDelta = 0;
-                for (const j of dataSeriesDataFieldNames.slice(0, dataSeriesDataFieldNames.indexOf(i) + 1)) {
-                  if (effect.dataSeries[j] != null && Number.isFinite(effect.dataSeries[j])) {
-                    totalDelta += effect.dataSeries[j];
-                  }
-                }
-                totalEffect[i] += totalDelta;
-                break;
-              case ActionImpactType.PERCENT:
-                // Add previous year's (baseline + totalEffect) multiplied by current action as percent
-                const previous = dataSeriesDataFieldNames[dataSeriesDataFieldNames.indexOf(i) - 1];
-                if (previous == undefined) {
-                  break;
-                }
-                // Substitute with 0 if any value is missing
-                totalEffect[i] += ((totalEffect[previous] || 0) + (goal.dataSeries[firstNonNull] || 0)) * (effect.dataSeries[i] / 100);
-                break;
-              case ActionImpactType.ABSOLUTE:
-              default:
-                // Add current value
-                totalEffect[i] += effect.dataSeries[i];
-                break;
-            }
-          }
-        }
-      }
+      const totalEffect = calculatePredictedOutcome(effects, goal.dataSeries[firstNonNull] as number)
 
       // Only draw if totalEffect has values
-      if (Object.keys(totalEffect).length > 0) {
+      if (totalEffect.length > 0) {
         // Flat line based on goal.dataSeries[firstNonNull]
         const baseline = [];
         for (const i of dataSeriesDataFieldNames) {
@@ -207,22 +124,10 @@ export default function MainGraph({
           type: 'line',
         });
 
-        // Line based on totalEffect + goal.dataSeries[firstNonNullIndex]
-        const actionOutcome = [];
-        for (const i of dataSeriesDataFieldNames) {
-          const baselineValue = goal.dataSeries[firstNonNull] ?? NaN;
-          const effectValue = totalEffect[i] || 0;
-
-          const value = baselineValue + effectValue;
-
-          actionOutcome.push({
-            x: new Date(i.replace('val', '')).getTime(),
-            y: Number.isFinite(value) ? value : null,
-          });
-        }
+        // Line based on totalEffect
         mainChart.push({
           name: 'Förväntat utfall',
-          data: actionOutcome,
+          data: totalEffect,
           type: 'line',
         });
       }
