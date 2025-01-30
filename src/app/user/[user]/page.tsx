@@ -57,7 +57,6 @@ export default async function Page({ params }: { params: { user: string } }) {
           <section className='margin-block-300'>
             <h2>Hantera min data</h2>
             <GraphCookie />
-            <Link href='/verify' className='margin-top-100 inline-block'>Verifiera mitt konto</Link>
           </section>
 
           <section className='margin-block-300'>
