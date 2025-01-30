@@ -2,6 +2,8 @@ const pages: Array<string> = [
   '',
   'dashboard',
   'info',
+  'verify',
+  'verify/verify',
   'metaRoadmap/create',
   `metaRoadmap/${Cypress.env('meta_roadmap_id')}`,
   `metaRoadmap/${Cypress.env('meta_roadmap_id')}/edit`,
