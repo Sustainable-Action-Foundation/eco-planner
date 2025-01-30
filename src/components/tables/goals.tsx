@@ -10,7 +10,6 @@ import { getStoredGoalSortBy, getStoredViewMode, setStoredGoalSortBy } from "./f
 import Link from "next/link"
 import Image from "next/image"
 import styles from './tables.module.css'
-import GraphCookie from "../cookies/graphCookie"
 import type getOneRoadmap from "@/fetchers/getOneRoadmap.ts"
 
 /** Enum for the different view modes for the goal table. */
@@ -96,10 +95,6 @@ export default function Goals({
           <Image src="/icons/settings.svg" alt="Inställningar" width="24" height="24" />
         </div>
       </menu>
-
-      <div className={styles.settingsContainer}>
-        <GraphCookie />
-      </div>
 
       {/* TODO: Probably not correct to handle loading as a default state? */}
       {/* TODO: Probably use a skeleton for the loading state */}

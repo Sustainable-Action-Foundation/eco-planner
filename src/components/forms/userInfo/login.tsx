@@ -79,7 +79,6 @@ export default function Login() {
 
         <p className="text-align-center padding-block-50 margin-bottom-100 margin-top-0">
           Har du inget konto? <Link href='/signup'>Skapa konto</Link> <br />
-          <Link href='/verify'>Verifiera konto</Link> {/* TODO: Flytta denna till ens account page */}
         </p>
 
 
