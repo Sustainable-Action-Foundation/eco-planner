@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
   // Also indirectly checks if user exists, but we don't want to expose that information (since this searches by email rather than ID, it could be used to check if an email is registered)
   const userHash = await getUserHash(email.toLowerCase()).catch(() => null);
   if (!userHash) {
-    return Response.json({ message: 'If the user exists, an email will be sent to reset the password' }, { status: 200, headers: { 'Location': '/verify' } });
+    return Response.json({ message: 'If the user exists, an email will be sent to reset the password' }, { status: 200, headers: { 'Location': '/password' } });
   }
 
   try {
@@ -30,5 +30,5 @@ export async function POST(request: NextRequest) {
     return Response.json({ message: 'Internal server error' }, { status: 500 });
   }
 
-  return Response.json({ message: 'If the user exists, an email will be sent to reset the password' }, { status: 200, headers: { 'Location': '/verify' } });
+  return Response.json({ message: 'If the user exists, an email will be sent to reset the password' }, { status: 200, headers: { 'Location': '/password' } });
 }
