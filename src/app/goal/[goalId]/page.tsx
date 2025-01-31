@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { getSession } from "@/lib/session";
 import accessChecker from "@/lib/accessChecker";
 import { AccessControlled, AccessLevel } from "@/types";
-import CombinedGraph from "@/components/graphs/combinedGraph";
+import SiblingGraph from "@/components/graphs/siblingGraph";
 import ActionGraph from "@/components/graphs/actionGraph";
 import Link from "next/link";
 import GraphGraph from "@/components/graphs/graphGraph";
@@ -175,7 +175,7 @@ export default async function Page({
         {findSiblings(roadmap, goal).length > 1 ?
           <section className="margin-block-300">
             <h2>Kombinerad graf</h2>
-            <CombinedGraph roadmap={roadmap} goal={goal} />
+            <SiblingGraph roadmap={roadmap} goal={goal} />
           </section>
           : null
         }
