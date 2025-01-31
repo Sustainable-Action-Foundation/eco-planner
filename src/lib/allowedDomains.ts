@@ -150,7 +150,9 @@ export const allowedDomains = [
   "lidkoping.se",
   "lillaedet.se",
   "lindesberg.se",
+  */
   "linkoping.se",
+  /*
   "ljungby.se",
   "ljusdal.se",
   "ljusnarsberg.se",
