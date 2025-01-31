@@ -33,13 +33,28 @@ export const nameSelector /* Prisma.MetaRoadmapSelect */ = {
 export const metaRoadmapInclusionSelection /* Prisma.MetaRoadmapInclude */ = {
   roadmapVersions: {
     include: {
-      metaRoadmap: true,
+      metaRoadmap: {
+        include: {
+          childRoadmaps: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
       _count: { select: { goals: true } },
       author: { select: { id: true, username: true } },
       editors: { select: { id: true, username: true } },
       viewers: { select: { id: true, username: true } },
       editGroups: { include: { users: { select: { id: true, username: true } } } },
       viewGroups: { include: { users: { select: { id: true, username: true } } } },
+    },
+  },
+  childRoadmaps: {
+    select: {
+      id: true,
+      name: true,
     },
   },
   comments: {

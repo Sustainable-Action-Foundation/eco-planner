@@ -74,7 +74,6 @@ export function csvToGoalList(csv: string[][]) {
     output.push({
       indicatorParameter: csv[i][Number(headerIndex.indicatorParameter)],
       dataUnit: csv[i][Number(headerIndex.dataUnit)],
-      dataScale: headerIndex.dataScale ? csv[i][headerIndex.dataScale] || undefined : undefined,
       dataSeries,
     })
   }

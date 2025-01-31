@@ -1,6 +1,5 @@
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
-import RoadmapTable from "@/components/tables/roadmapTable";
 import AttributedImage from "@/components/generic/images/attributedImage";
 import getMetaRoadmaps from "@/fetchers/getMetaRoadmaps";;
 import { roadmapSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
@@ -8,6 +7,7 @@ import { RoadmapType } from "@prisma/client";
 import RoadmapFilters from "@/components/forms/filters/roadmapFilters";
 import { RoadmapSortBy } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree.tsx";
 
 export default async function Page({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
   const [session, metaRoadmaps] = await Promise.all([
@@ -122,13 +122,13 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
         </div>
       </AttributedImage>
     </div>
-    
+
     <section>
       <RoadmapFilters />
     </section>
-    
+
     <section>
-      <RoadmapTable user={session.user ?? undefined} roadmaps={roadmaps} />
+      <RoadmapTree user={session.user ?? undefined} roadmaps={roadmaps} />
     </section>
   </>
 }

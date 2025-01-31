@@ -134,7 +134,7 @@ export default function RoadmapForm({
           })
           .then((goals) => {
             if (goals.some((goal) => goal.dataScale)) {
-              alert("Kolumnen 'Scale' stöds inte och kommer att ignoreras. Om kolumnen innehåller några skalor, vänligen baka in dem i enheten istället. Exempel: enhet 'MW' snarare än enhet 'kW' och skala 'tusen'");
+              alert("Kolumnen 'Scale' stöds inte och kommer att ignoreras. Om kolumnen innehåller några skalor, vänligen baka in dem i enheten eller värdet istället. Exempel: enhet 'MW' snarare än enhet 'kW' med skala 'tusen'");
             }
           })
           .then(() => setIsLoading(false));

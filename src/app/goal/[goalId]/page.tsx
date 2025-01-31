@@ -24,6 +24,7 @@ import getRoadmaps from "@/fetchers/getRoadmaps";
 import EffectTable from "@/components/tables/effects.tsx";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
+import findSiblings from "@/functions/findSiblings.ts";
 
 export default async function Page({
   params,
@@ -110,79 +111,93 @@ export default async function Page({
     <>
       <Breadcrumb object={goal} />
 
-      {secondaryGoal && <p className="margin-block-300">Jämför med målbanan {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
-      <section className={`margin-top-300`}>
-        {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
-        <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects}>
-          {(goal.dataSeries?.id && session.user) ?
-            <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
-          : null }
-        </GraphGraph>
-      </section>
+      <main>
+        {secondaryGoal && <p className="margin-block-300">Jämför med målbanan {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
+        <section className='margin-top-300'>
+          {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
+          <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects}>
+            {(goal.dataSeries?.id && session.user) ?
+              <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
+              : null}
+          </GraphGraph>
+        </section>
 
-      <section className="margin-block-100">
-        <div className="flex flex-wrap-wrap justify-content-space-between gap-100">
-          <div>
-            <span style={{ color: 'gray' }}>Målbana</span>
-            {goal.name ? (
-              <h2 className="margin-0" style={{ fontSize: '2rem' }}>{goal.name}</h2>
-            ) : (
-              <h2 className="margin-0">{goal.indicatorParameter}</h2>
-            )}
-          </div>
-          {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-            <div className="flex flex-wrap-wrap align-items-center gap-100">
-              <QueryBuilder goal={goal} />
-              {shouldUpdate &&
-                <UpdateGoalButton id={goal.id} />
-              }
-              <TableMenu
-                accessLevel={accessLevel}
-                object={goal}
-              />
-            </div>
-          }
-        </div>
-        <p className="container-text">{goal.description}</p>
-        {goal.dataSeries?.scale &&
-          <p>Alla värden i målbanan använder följande skala: {`"${goal.dataSeries?.scale}"`}</p>
-        }
-        {goal.links.length > 0 ?
-          <>
-            <h2 className="margin-bottom-0 margin-top-200" style={{fontSize: '1.25rem'}}>Externa resurser</h2>
-            <ul>
-              {goal.links.map((link: { url: string, description: string | null }, index: number) => 
-                <li className="margin-block-25" key={index}>
-                  <a href={link.url} target="_blank">{link.description}</a>
-                </li>
+        <section className="margin-block-100">
+          <div className="flex flex-wrap-wrap justify-content-space-between gap-100">
+            <div>
+              <span style={{ color: 'gray' }}>Målbana</span>
+              {goal.name ? (
+                <h2 className="margin-0" style={{ fontSize: '2rem' }}>{goal.name}</h2>
+              ) : (
+                <h2 className="margin-0">{goal.indicatorParameter}</h2>
               )}
-            </ul>
-          </>
-        : null }
-      </section>
-
-      <section className="margin-block-300">
-        <h2>Kombinerad graf</h2>
-        <CombinedGraph roadmap={roadmap} goal={goal} />
-      </section>
-
-      <section>
-        <div className="flex align-items-center justify-content-space-between">
-          <h2>Åtgärder</h2>
-          {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
-            <div className="flex gap-50">
-              <Link href={`/effect/create?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Koppla till en existerande åtgärd</Link>
-              <Link href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
             </div>
+            {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
+              <div className="flex flex-wrap-wrap align-items-center gap-100">
+                <QueryBuilder goal={goal} />
+                {shouldUpdate &&
+                  <UpdateGoalButton id={goal.id} />
+                }
+                <TableMenu
+                  accessLevel={accessLevel}
+                  object={goal}
+                />
+              </div>
+            }
+          </div>
+          <p className="container-text">{goal.description}</p>
+          {goal.dataSeries?.scale &&
+            <>
+              <p>Alla värden i målbanan använder följande skala: {`"${goal.dataSeries?.scale}"`}</p>
+              {[AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel) &&
+                <strong>Vänligen baka in skalan i värdet eller enheten; skalor kommer att tas bort i framtiden</strong>
+              }
+            </>
           }
-        </div>
+          {goal.links.length > 0 ?
+            <>
+              <h2 className="margin-bottom-0 margin-top-200" style={{ fontSize: '1.25rem' }}>Externa resurser</h2>
+              <ul>
+                {goal.links.map((link: { url: string, description: string | null }, index: number) =>
+                  <li className="margin-block-25" key={index}>
+                    <a href={link.url} target="_blank">{link.description}</a>
+                  </li>
+                )}
+              </ul>
+            </>
+            : null}
+        </section>
 
-        <div className="margin-block-100">
-          <ActionGraph actions={goal.effects.map(effect => effect.action)} />
-        </div>
-        <EffectTable object={goal} accessLevel={accessLevel} />
+        {findSiblings(roadmap, goal).length > 1 ?
+          <section className="margin-block-300">
+            <h2>Kombinerad graf</h2>
+            <CombinedGraph roadmap={roadmap} goal={goal} />
+          </section>
+          : null
+        }
+
+        <section className="margin-block-300">
+          <div className="flex align-items-center justify-content-space-between">
+            <h2>Åtgärder</h2>
+            {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
+              <div className="flex gap-50">
+                <Link href={`/effect/create?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Koppla till en existerande åtgärd</Link>
+                <Link href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
+              </div>
+            }
+          </div>
+
+          <div className="margin-block-100">
+            <ActionGraph actions={goal.effects.map(effect => effect.action)} />
+          </div>
+          <EffectTable object={goal} accessLevel={accessLevel} />
+        </section>
+      </main>
+
+      <section className="margin-block-500">
+        <Comments comments={goal.comments} objectId={goal.id} />
       </section>
-      <Comments comments={goal.comments} objectId={goal.id} />
+
     </>
   )
 }
