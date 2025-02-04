@@ -2,6 +2,7 @@ import { getLocalStorage, getSessionStorage, setLocalStorage, setSessionStorage 
 import { GraphType } from "../graphGraph";
 import { ActionImpactType, type DataSeries, type Effect } from "@prisma/client";
 import { dataSeriesDataFieldNames, DataSeriesDataFields } from "@/types";
+import { ChildGraphType } from "../childGraphs/childGraphContainer";
 
 /** Retrieves the graph type for a goal from storage. */
 export function getStoredGraphType(goalId?: string) {
@@ -26,12 +27,43 @@ export function getStoredGraphType(goalId?: string) {
   return graphType;
 }
 
+/** Retrieves the graph type for gcild graphs for a goal from storage. */
+export function getStoredChildGraphType(goalId?: string) {
+  let graphType: ChildGraphType | undefined | null;
+  // Check if this goal has a stored graph type
+  if (goalId) {
+    graphType = getSessionStorage(goalId + '_childGraphType') as ChildGraphType | undefined | null;
+  }
+  // Check if the user has a stored latest graph type if no goalId is provided or the returned graphType is invalid
+  if (!graphType || !Object.values(ChildGraphType).includes(graphType as ChildGraphType)) {
+    graphType = getLocalStorage("childGraphType") as ChildGraphType | undefined | null;
+  }
+  // Default to target graph if no valid graph type is found
+  if (!graphType || !Object.values(ChildGraphType).includes(graphType as ChildGraphType)) {
+    if (graphType != null) {
+      console.log("Invalid graph type in storage, defaulting to target graph.");
+    }
+
+    setLocalStorage("childGraphType", ChildGraphType.Target);
+    graphType = ChildGraphType.Target;
+  }
+  return graphType;
+}
+
 /** Stores the graph type for a goal in storage. */
 export function setStoredGraphType(graphType: string, goalId?: string) {
   if (goalId) {
     setSessionStorage(goalId + "_graphType", graphType)
   };
   setLocalStorage("graphType", graphType);
+}
+
+/** Stores the graph type for child graphs for a goal in storage. */
+export function setStoredChildGraphType(graphType: ChildGraphType, goalId?: string) {
+  if (goalId) {
+    setSessionStorage(goalId + "_childGraphType", graphType)
+  };
+  setLocalStorage("childGraphType", graphType);
 }
 
 /**

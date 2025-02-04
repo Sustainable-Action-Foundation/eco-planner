@@ -3,6 +3,8 @@ import { DataSeries, Goal } from "@prisma/client";
 import { GraphType } from "../graphGraph";
 import { setStoredGraphType } from '../functions/graphFunctions';
 
+export const percentAndFraction = ['procent', 'percent', '%', 'andel', 'fraction'];
+
 export default function GraphSelector({
   goal,
   currentSelection,
@@ -22,8 +24,6 @@ export default function GraphSelector({
       setter("");
     }
   };
-
-  const percentAndFraction = ['procent', 'percent', '%', 'andel', 'fraction'];
 
   // Set the selectedOption as the context value
   return (

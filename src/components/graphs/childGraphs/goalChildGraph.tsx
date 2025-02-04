@@ -1,4 +1,4 @@
-import { floatSmoother } from "@/lib/chartWrapper.tsx";
+import WrappedChart, { floatSmoother } from "@/lib/chartWrapper.tsx";
 import { dataSeriesDataFieldNames } from "@/types.ts";
 import { DataSeries, Goal } from "@prisma/client";
 
@@ -7,18 +7,18 @@ import { DataSeries, Goal } from "@prisma/client";
  */
 export default function GoalChildGraph({
   goal,
-  children,
+  childGoals,
   isStacked,
 }: {
   goal: Goal & { dataSeries: DataSeries | null },
-  children: (Goal & { dataSeries: DataSeries | null, roadmapName?: string })[],
+  childGoals: (Goal & { dataSeries: DataSeries | null, roadmapName?: string })[],
   isStacked: boolean,
 }) {
   // Early returns if there is no relevant data to compare
   if (!goal.dataSeries) {
     return null;
   }
-  if (children.filter(child => child.dataSeries != null).length < 1) {
+  if (childGoals.filter(child => child.dataSeries != null).length < 1) {
     return null;
   }
 
@@ -42,7 +42,7 @@ export default function GoalChildGraph({
     zIndex: 999,
   });
 
-  for (const child of children) {
+  for (const child of childGoals) {
     const childSeries = [];
     if (child.dataSeries) {
       for (const i of dataSeriesDataFieldNames) {
@@ -108,4 +108,14 @@ export default function GoalChildGraph({
     dataLabels: { enabled: false },
     stroke: { dashArray },
   };
+
+  return (
+    <WrappedChart
+      options={chartOptions}
+      series={dataPoints}
+      type={isStacked ? 'area' : 'line'}
+      width="100%"
+      height="100%"
+    />
+  )
 }
