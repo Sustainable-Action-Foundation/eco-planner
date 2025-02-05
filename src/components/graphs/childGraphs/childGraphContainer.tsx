@@ -20,7 +20,7 @@ export default function ChildGraphContainer({
 }: {
   goal: Goal & { dataSeries: DataSeries | null },
   childGoals: (Goal & { dataSeries: DataSeries | null, roadmapName?: string })[],
-  children: React.ReactNode,
+  children?: React.ReactNode,
 }) {
   const [childGraphType, setChildGraphType] = useState<ChildGraphType>(ChildGraphType.Target);
   // Default to stacked unless the unit is percent or fraction
@@ -36,7 +36,7 @@ export default function ChildGraphContainer({
   function childGraphSwitch(childGraphType: string) {
     switch (childGraphType) {
       case ChildGraphType.Target:
-        return <GoalChildGraph goal={goal} childGoals={childGoals} isStacked={false} />
+        return <GoalChildGraph goal={goal} childGoals={childGoals} isStacked={isStacked} />
       // case ChildGraphType.Prediction:
       //   return <PredictionChildGraph goal={goal} childGoals={childGoals} />
       default:

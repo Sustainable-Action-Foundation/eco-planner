@@ -35,11 +35,12 @@ export default function GoalChildGraph({
     });
   }
   dataPoints.push({
-    name: (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
+    name: (goal.name || goal.indicatorParameter.split('\\').slice(-1)[0]),
     data: mainSeries,
     // Main series is always a line
     type: 'line',
     zIndex: 999,
+    color: 'black',
   });
 
   for (const child of childGoals) {
@@ -59,7 +60,7 @@ export default function GoalChildGraph({
     // Only add the series to the graph if it isn't all null/0
     if (childSeries.filter((entry) => entry.y).length > 0) {
       dataPoints.push({
-        name: (child.roadmapName || child.name || child.indicatorParameter).split('\\').slice(-1)[0],
+        name: `${child.name || child.indicatorParameter.split('\\').slice(-1)[0]} (${child.roadmapName || 'Okänd målbana'})`,
         data: childSeries,
         type: isStacked ? 'area' : 'line',
       });
@@ -78,6 +79,9 @@ export default function GoalChildGraph({
     // Main series should always be solid
     dashArray[0] = 0;
   }
+  const curve = new Array<("smooth" | "straight")>(dataPoints.length).fill(isStacked ? 'smooth' : 'straight');
+  // Main series should always be straight
+  curve[0] = 'straight';
 
   // ApexCharts options
   const chartOptions: ApexCharts.ApexOptions = {
@@ -106,7 +110,7 @@ export default function GoalChildGraph({
       inverseOrder: isStacked,
     },
     dataLabels: { enabled: false },
-    stroke: { dashArray },
+    stroke: { dashArray, curve },
   };
 
   return (
