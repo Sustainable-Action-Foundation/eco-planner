@@ -66,6 +66,18 @@ export function setStoredChildGraphType(graphType: ChildGraphType, goalId?: stri
   setLocalStorage("childGraphType", graphType);
 }
 
+/** Returns the first non-null, non-zero value from a data series. If all values are null or zero, returns null. */
+export function firstNonNullValue(dataSeries: DataSeries): number | null {
+  if (!dataSeries) { return null; }
+  for (const i of dataSeriesDataFieldNames) {
+    const value = dataSeries[i];
+    if (Number.isFinite(value) && value !== 0) {
+      return value;
+    }
+  }
+  return null;
+}
+
 /**
  * Calculates predicted outcome based on effects and a baseline (either a data series or a single baseline value).
  * Returns an empty array upon invalid input.
@@ -74,8 +86,8 @@ export function setStoredChildGraphType(graphType: ChildGraphType, goalId?: stri
  * To get delta y-values, subtract the previous y-value from all y-values, preferably back to front to avoid needing a copy of the array.
  */
 export function calculatePredictedOutcome(effects: (Effect & { dataSeries: DataSeries | null })[], baseline: DataSeries | number) {
-  // Early return if no effects
-  if (effects.length === 0) {
+  // Early return if no effects and no custom baseline
+  if (effects.length < 1 && typeof baseline === 'number') {
     return [];
   }
 

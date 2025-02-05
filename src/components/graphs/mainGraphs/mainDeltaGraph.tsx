@@ -117,12 +117,12 @@ export default function MainDeltaGraph({
         type: 'line',
       });
     }
-  } else {
+  } else if (effects.length > 0) {
     // If no baseline is set, use the first non-null value as baseline
     const firstNonNull = dataSeriesDataFieldNames.find(i => goal.dataSeries && Number.isFinite(goal.dataSeries[i]));
 
     if (firstNonNull) {
-      // Since the baseline is a single value, it won't have any delta yeat-to-year, so only draw effects
+      // Since the baseline is a single value, it won't have any delta year-to-year, so only draw effects
 
       const totalEffect = calculatePredictedOutcome(effects, goal.dataSeries[firstNonNull] as number);
 

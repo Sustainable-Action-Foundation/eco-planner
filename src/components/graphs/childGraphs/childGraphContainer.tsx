@@ -1,7 +1,8 @@
 "use client"
 
-import { DataSeries, Goal } from "@prisma/client";
+import { DataSeries, Effect, Goal } from "@prisma/client";
 import GoalChildGraph from "./goalChildGraph";
+import PredictionChildGraph from "./predictionChildGraph.tsx";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getStoredChildGraphType } from "../functions/graphFunctions";
@@ -19,7 +20,7 @@ export default function ChildGraphContainer({
   children,
 }: {
   goal: Goal & { dataSeries: DataSeries | null },
-  childGoals: (Goal & { dataSeries: DataSeries | null, roadmapName?: string })[],
+  childGoals: (Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null, effects: (Effect & { dataSeries: DataSeries | null })[], roadmapName?: string })[],
   children?: React.ReactNode,
 }) {
   const [childGraphType, setChildGraphType] = useState<ChildGraphType>(ChildGraphType.Target);
@@ -37,8 +38,8 @@ export default function ChildGraphContainer({
     switch (childGraphType) {
       case ChildGraphType.Target:
         return <GoalChildGraph goal={goal} childGoals={childGoals} isStacked={isStacked} />
-      // case ChildGraphType.Prediction:
-      //   return <PredictionChildGraph goal={goal} childGoals={childGoals} />
+      case ChildGraphType.Prediction:
+        return <PredictionChildGraph goal={goal} childGoals={childGoals} isStacked={isStacked} />
       default:
         return childGraphSwitch(ChildGraphType.Target);
     }

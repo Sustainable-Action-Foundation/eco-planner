@@ -91,17 +91,19 @@ export default function MainGraph({
       type: 'line',
     })
 
-    const totalEffect = calculatePredictedOutcome(effects, goal.baselineDataSeries)
+    if (effects.length > 0) {
+      const totalEffect = calculatePredictedOutcome(effects, goal.baselineDataSeries)
 
-    // Line based on totalEffect + baseline
-    if (totalEffect.length > 0) {
-      mainChart.push({
-        name: 'Förväntat utfall',
-        data: totalEffect,
-        type: 'line',
-      });
+      // Line based on totalEffect + baseline
+      if (totalEffect.length > 0) {
+        mainChart.push({
+          name: 'Förväntat utfall',
+          data: totalEffect,
+          type: 'line',
+        });
+      }
     }
-  } else {
+  } else if (effects.length > 0) {
     // If no baseline is set, use the first non-null value as baseline
     const firstNonNull = dataSeriesDataFieldNames.find(i => goal.dataSeries && Number.isFinite((goal.dataSeries)[i]));
 
