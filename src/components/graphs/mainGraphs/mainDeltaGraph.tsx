@@ -1,6 +1,7 @@
+import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
-import { dataSeriesDataFieldNames, DataSeriesDataFields } from "@/types";
-import { Goal, DataSeries, ActionImpactType, Effect } from "@prisma/client";
+import { dataSeriesDataFieldNames } from "@/types";
+import { Goal, DataSeries, Effect } from "@prisma/client";
 
 export default function MainDeltaGraph({
   goal,
@@ -96,132 +97,50 @@ export default function MainDeltaGraph({
       type: 'line',
     });
 
-    // Calculate total impact of actions
-    const totalEffect: Partial<DataSeriesDataFields> = {};
-    for (const i of dataSeriesDataFieldNames) {
-      for (const effect of effects) {
-        if (effect.dataSeries && effect.dataSeries[i] != null && Number.isFinite(effect.dataSeries[i])) {
-          if (!totalEffect[i]) {
-            totalEffect[i] = 0;
-          }
-          switch (effect.impactType) {
-            case ActionImpactType.DELTA:
-              // Add sum of all deltas up to this point for the current action
-              let totalDelta = 0;
-              for (const j of dataSeriesDataFieldNames.slice(0, dataSeriesDataFieldNames.indexOf(i) + 1)) {
-                if (effect.dataSeries[j] != null && Number.isFinite(effect.dataSeries[j])) {
-                  totalDelta += effect.dataSeries[j];
-                }
-              }
-              totalEffect[i] += totalDelta;
-              break;
-            case ActionImpactType.PERCENT:
-              // Add previous year's (baseline + actionSum) multiplied by current action as percent
-              const previous = dataSeriesDataFieldNames[dataSeriesDataFieldNames.indexOf(i) - 1];
-              if (previous == undefined) {
-                break;
-              }
-              // Substitute with 0 if any value is missing
-              totalEffect[i] += ((totalEffect[previous] || 0) + (goal.baselineDataSeries[previous] || 0)) * (effect.dataSeries[i] / 100);
-              break;
-            case ActionImpactType.ABSOLUTE:
-            default:
-              // Add current value
-              totalEffect[i] += effect.dataSeries[i];
-              break;
-          }
-        }
-      }
-    }
+    const totalEffect = calculatePredictedOutcome(effects, goal.baselineDataSeries);
 
     // Predicted outcome with actions
-    if (Object.keys(totalEffect).length > 0) {
-      const actionOutcome = [];
-      for (let i = 1; i < dataSeriesDataFieldNames.length; i++) {
-        const currentField = dataSeriesDataFieldNames[i];
-        const previousField = dataSeriesDataFieldNames[i - 1];
-
-        const currentValue = totalEffect[currentField] ?? NaN;
-        const previousValue = totalEffect[previousField] ?? NaN;
-        const currentBaseline = goal.baselineDataSeries[currentField] ?? NaN;
-        const previousBaseline = goal.baselineDataSeries[previousField] ?? NaN;
-
-        const value = (currentValue + currentBaseline) - (previousValue + previousBaseline);
-
-        actionOutcome.push({
-          x: new Date(currentField.replace('val', '')).getTime(),
-          y: Number.isFinite(value) ? value : null,
-        });
+    if (totalEffect.length > 0) {
+      // Calculate deltas (currentYear = currentYear - previousYear, working back-to-front in the array)
+      for (let i = totalEffect.length - 1; i > 0; i--) {
+        totalEffect[i].y = (totalEffect[i].y ?? NaN) - (totalEffect[i - 1].y ?? NaN);
+        if (!Number.isFinite(totalEffect[i].y)) {
+          totalEffect[i].y = null;
+        }
       }
+      // Remove value for first year since it's not a delta
+      totalEffect.shift();
+
       chart.push({
         name: 'Förväntat utfall',
-        data: actionOutcome,
+        data: totalEffect,
         type: 'line',
       });
     }
-  } else {
+  } else if (effects.length > 0) {
     // If no baseline is set, use the first non-null value as baseline
     const firstNonNull = dataSeriesDataFieldNames.find(i => goal.dataSeries && Number.isFinite(goal.dataSeries[i]));
 
     if (firstNonNull) {
-      // Calculate total impact of actions
-      const totalEffect: Partial<DataSeriesDataFields> = {};
-      for (const i of dataSeriesDataFieldNames) {
-        for (const effect of effects) {
-          if (effect.dataSeries && effect.dataSeries[i] != null && Number.isFinite(effect.dataSeries[i])) {
-            if (!totalEffect[i]) {
-              totalEffect[i] = 0;
-            }
-            switch (effect.impactType) {
-              case ActionImpactType.DELTA:
-                // Add sum of all deltas up to this point for the current action
-                let totalDelta = 0;
-                for (const j of dataSeriesDataFieldNames.slice(0, dataSeriesDataFieldNames.indexOf(i) + 1)) {
-                  if (effect.dataSeries[j] != null && Number.isFinite(effect.dataSeries[j])) {
-                    totalDelta += effect.dataSeries[j];
-                  }
-                }
-                totalEffect[i] += totalDelta;
-                break;
-              case ActionImpactType.PERCENT:
-                // Add previous year's (baseline + actionSum) multiplied by current action as percent
-                const previous = dataSeriesDataFieldNames[dataSeriesDataFieldNames.indexOf(i) - 1];
-                if (previous == undefined) {
-                  break;
-                }
-                // Substitute with 0 if any value is missing
-                totalEffect[i] += ((totalEffect[previous] || 0) + (goal.dataSeries[firstNonNull] || 0)) * (effect.dataSeries[i] / 100);
-                break;
-              case ActionImpactType.ABSOLUTE:
-              default:
-                // Add current value
-                totalEffect[i] += effect.dataSeries[i];
-                break;
-            }
-          }
-        }
-      }
+      // Since the baseline is a single value, it won't have any delta year-to-year, so only draw effects
+
+      const totalEffect = calculatePredictedOutcome(effects, goal.dataSeries[firstNonNull] as number);
 
       // Predicted outcome with actions
-      if (Object.keys(totalEffect).length > 0) {
-        const actionOutcome = [];
-        for (let i = 1; i < dataSeriesDataFieldNames.length; i++) {
-          const currentField = dataSeriesDataFieldNames[i];
-          const previousField = dataSeriesDataFieldNames[i - 1];
-
-          const currentValue = totalEffect[currentField] ?? NaN;
-          const previousValue = totalEffect[previousField] ?? NaN;
-
-          const value = currentValue - previousValue;
-
-          actionOutcome.push({
-            x: new Date(currentField.replace('val', '')).getTime(),
-            y: Number.isFinite(value) ? value : null,
-          });
+      if (totalEffect.length > 0) {
+        // Calculate deltas (currentYear = currentYear - previousYear, working back-to-front in the array)
+        for (let i = totalEffect.length - 1; i > 0; i--) {
+          totalEffect[i].y = (totalEffect[i].y ?? NaN) - (totalEffect[i - 1].y ?? NaN);
+          if (!Number.isFinite(totalEffect[i].y)) {
+            totalEffect[i].y = null;
+          }
         }
+        // Remove value for first year since it's not a delta
+        totalEffect.shift();
+
         chart.push({
           name: 'Förväntat utfall',
-          data: actionOutcome,
+          data: totalEffect,
           type: 'line',
         });
       }

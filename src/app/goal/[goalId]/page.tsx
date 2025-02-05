@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { getSession } from "@/lib/session";
 import accessChecker from "@/lib/accessChecker";
 import { AccessControlled, AccessLevel } from "@/types";
-import CombinedGraph from "@/components/graphs/combinedGraph";
+import SiblingGraph from "@/components/graphs/siblingGraph";
 import ActionGraph from "@/components/graphs/actionGraph";
 import Link from "next/link";
 import GraphGraph from "@/components/graphs/graphGraph";
@@ -26,6 +26,7 @@ import EffectTable from "@/components/tables/effects.tsx";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
 import findSiblings from "@/functions/findSiblings.ts";
+import ChildGraphContainer from "@/components/graphs/childGraphs/childGraphContainer.tsx";
 
 export default async function Page({
   params,
@@ -97,6 +98,20 @@ export default async function Page({
     }
   }
 
+  // Get goals with same indicator parameter in roadmaps working towards the one containing current goal
+  // TODO: If multiple roadmaps in a series work towards the same target, maybe only count the one with the highest version?
+  const childRoadmaps = unfilteredRoadmapOptions.filter(child => child.metaRoadmap.parentRoadmapId === roadmap.metaRoadmap.id).filter(child => child.targetVersion === roadmap.version || !child.targetVersion);
+  let childGoals: (NonNullable<Awaited<ReturnType<typeof getGoalByIndicator>>> & { roadmapName?: string })[] = [];
+  if (childRoadmaps.length > 0) {
+    const goals = await Promise.all(childRoadmaps.map(async roadmap => {
+      return getGoalByIndicator(roadmap.id, goal.indicatorParameter, goal.dataSeries?.unit || undefined);
+    }));
+    childGoals = goals.filter(child => child !== null);
+    for (const child of childGoals) {
+      child.roadmapName = childRoadmaps.find(roadmap => roadmap.id === child.roadmapId)?.metaRoadmap.name;
+    }
+  }
+
   // If any goalParent has a data series with a later updatedAt date than the goal, the goal should be updated
   let shouldUpdate = false;
   if (goal.combinationParents) {
@@ -131,7 +146,10 @@ export default async function Page({
             <div>
               <span style={{ color: 'gray' }}>Målbana</span>
               {goal.name ? (
-                <h2 className="margin-0" style={{ fontSize: '2rem' }}>{goal.name}</h2>
+                <>
+                  <h2 className="margin-0" style={{ fontSize: '2rem' }}>{goal.name}</h2>
+                  <h3 className="margin-0">({goal.indicatorParameter})</h3> {/* TODO: Check styling */}
+                </>
               ) : (
                 <h2 className="margin-0">{goal.indicatorParameter}</h2>
               )}
@@ -172,10 +190,18 @@ export default async function Page({
             : null}
         </section>
 
+        {childGoals.length > 0 ?
+          <section className="margin-block-300">
+            <h2>Mål som jobbar mot detta</h2>
+            <ChildGraphContainer goal={goal} childGoals={childGoals} />
+          </section>
+          : null
+        }
+
         {findSiblings(roadmap, goal).length > 1 ?
           <section className="margin-block-300">
-            <h2>Kombinerad graf</h2>
-            <CombinedGraph roadmap={roadmap} goal={goal} />
+            <h2>Likande målbanor i denna färdplansversion</h2>
+            <SiblingGraph roadmap={roadmap} goal={goal} />
           </section>
           : null
         }
