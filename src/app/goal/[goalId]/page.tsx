@@ -200,7 +200,7 @@ export default async function Page({
 
         {findSiblings(roadmap, goal).length > 1 ?
           <section className="margin-block-300">
-            <h2>Likande målbanor i denna färdplansversion</h2>
+            <h2>Liknande målbanor i denna färdplansversion</h2>
             <SiblingGraph roadmap={roadmap} goal={goal} />
           </section>
           : null
