@@ -365,6 +365,7 @@ export const allowedDomains = [
   */
   //Other
   "differ.se",
+  "internetstiftelsen.se",
   // "lansstyrelsen.se",
   "ltu.se",
   // "stuns.se",
