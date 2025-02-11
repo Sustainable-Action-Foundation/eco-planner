@@ -175,7 +175,6 @@ export async function POST(request: NextRequest) {
             ...dataValues,
             unit: goal.dataUnit,
             authorId: session.user.id,
-            scale: goal.dataScale || undefined,
           },
         },
         baselineDataSeries: baselineValues ? {
@@ -398,7 +397,6 @@ export async function PUT(request: NextRequest) {
                 ...dataValues,
                 unit: goal.dataUnit,
                 authorId: session.user.id,
-                scale: goal.dataScale || undefined,
               },
               update: {
                 ...dataValues,

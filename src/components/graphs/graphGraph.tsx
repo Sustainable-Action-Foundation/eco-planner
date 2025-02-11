@@ -51,20 +51,18 @@ export default function GraphGraph({
   };
 
   return (
-    <div className="smooth padding-inline-50 purewhite" style={{border: '1px solid var(--gray-90)'}}>
+    <div className="smooth purewhite" style={{ border: '1px solid var(--gray-90)', paddingInline: '.3rem' }}>
       {/* Turn this into like a msWord typa toolbar */}
-      <menu 
-        className="flex align-items-center gap-50 margin-0 margin-bottom-50 padding-0 padding-block-50 flex-wrap-wrap" 
-        style={{borderBottom: '1px solid var(--gray-90)'}}
-      > 
-        {/* TODO: Some of theese are missing a label now, not good for accessability, fix this */}
-        <div className="flex gap-25">
-          <GraphSelector goal={goal} current={graphType} setter={setGraphType} />
-        </div>
+      <menu
+        className="flex align-items-center gap-25 margin-0 margin-bottom-25 padding-0 flex-wrap-wrap"
+        style={{ borderBottom: '1px solid var(--gray-90)', paddingBlock: '.3rem' }}
+      >
+        {/* TODO: Missing label */}
+        <GraphSelector goal={goal} currentSelection={graphType} setter={setGraphType} />
         <SecondaryGoalSelector />
         {children}
       </menu>
-      <div style={{height: '450px'}}>
+      <div className="margin-bottom-25" style={{ height: '500px' }}>
         {graphSwitch(graphType)}
       </div>
     </div>

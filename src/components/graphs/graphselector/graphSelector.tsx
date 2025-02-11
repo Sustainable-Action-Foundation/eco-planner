@@ -1,19 +1,20 @@
 import React, { ChangeEvent, Dispatch, SetStateAction } from 'react';
-import RadioImage from './radioImage';
 import { DataSeries, Goal } from "@prisma/client";
 import { GraphType } from "../graphGraph";
 import { setStoredGraphType } from '../functions/graphFunctions';
 
+export const percentAndFraction = ['procent', 'percent', '%', 'andel', 'fraction'];
+
 export default function GraphSelector({
   goal,
-  current,
+  currentSelection,
   setter,
 }: {
   goal: Goal & { dataSeries: DataSeries | null },
-  current: GraphType | "",
+  currentSelection: GraphType | "",
   setter: Dispatch<SetStateAction<GraphType | "">>
 }) {
-  const handleRadioChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setStoredGraphType(event.target.value, goal.id);
     if (Object.values(GraphType).includes(event.target.value as GraphType)) {
       setter(event.target.value as GraphType);
@@ -24,17 +25,17 @@ export default function GraphSelector({
     }
   };
 
-  const percentAndFraction = ['procent', 'percent', '%', 'andel', 'fraction'];
-
   // Set the selectedOption as the context value
   return (
     <>
-      <RadioImage text='Målbana' value={GraphType.Main} name="graph" checked={current == GraphType.Main} onChange={handleRadioChange} />
-      <RadioImage text='Årlig förändring' value={GraphType.Delta} name="graph" checked={current == GraphType.Delta} onChange={handleRadioChange} />
-      { // Don't allow relative graph if the main graph is already percent or fraction
-        !percentAndFraction.includes(goal.dataSeries?.unit?.toLowerCase() ?? "") &&
-        <RadioImage text='Procentuell förändring' value={GraphType.Relative} name="graph" checked={current == GraphType.Relative} onChange={handleRadioChange} />
-      }
+      <select onChange={handleSelectChange} value={currentSelection} style={{ padding: '.3rem .5rem', borderRadius: '2px' }}>
+        <option value={GraphType.Main}>Målbana</option>
+        <option value={GraphType.Delta}>Årlig förändring</option>
+        { // Don't allow relative graph if the main graph is already percent or fraction
+          !percentAndFraction.includes(goal.dataSeries?.unit?.toLowerCase() ?? "") &&
+          <option value={GraphType.Relative}>Procentuell förändring</option>
+        }
+      </select>
     </>
   );
 }

@@ -274,7 +274,12 @@ export default function CopyAndScale({
 
   return (
     <>
-      <button type="button" className="seagreen color-purewhite smooth padding-block-50 padding-inline-100" onClick={() => openModal(modalRef)}>
+      <button 
+        type="button" 
+        className="seagreen color-purewhite smooth padding-block-50 padding-inline-100" 
+        onClick={() => openModal(modalRef)}
+        style={{padding: '.3rem .6rem', borderRadius: '2px'}}
+      >
         Kopiera och skala
       </button>
       <dialog ref={modalRef} aria-modal className="rounded" style={{ border: '0', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25' }}>

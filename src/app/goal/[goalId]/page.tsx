@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { getSession } from "@/lib/session";
 import accessChecker from "@/lib/accessChecker";
 import { AccessControlled, AccessLevel } from "@/types";
-import CombinedGraph from "@/components/graphs/combinedGraph";
+import SiblingGraph from "@/components/graphs/siblingGraph";
 import ActionGraph from "@/components/graphs/actionGraph";
 import Link from "next/link";
 import GraphGraph from "@/components/graphs/graphGraph";
@@ -25,6 +25,8 @@ import getRoadmaps from "@/fetchers/getRoadmaps";
 import EffectTable from "@/components/tables/effects.tsx";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
+import findSiblings from "@/functions/findSiblings.ts";
+import ChildGraphContainer from "@/components/graphs/childGraphs/childGraphContainer.tsx";
 
 export default async function Page({
   params,
@@ -96,6 +98,20 @@ export default async function Page({
     }
   }
 
+  // Get goals with same indicator parameter in roadmaps working towards the one containing current goal
+  // TODO: If multiple roadmaps in a series work towards the same target, maybe only count the one with the highest version?
+  const childRoadmaps = unfilteredRoadmapOptions.filter(child => child.metaRoadmap.parentRoadmapId === roadmap.metaRoadmap.id).filter(child => child.targetVersion === roadmap.version || !child.targetVersion);
+  let childGoals: (NonNullable<Awaited<ReturnType<typeof getGoalByIndicator>>> & { roadmapName?: string })[] = [];
+  if (childRoadmaps.length > 0) {
+    const goals = await Promise.all(childRoadmaps.map(async roadmap => {
+      return getGoalByIndicator(roadmap.id, goal.indicatorParameter, goal.dataSeries?.unit || undefined);
+    }));
+    childGoals = goals.filter(child => child !== null);
+    for (const child of childGoals) {
+      child.roadmapName = childRoadmaps.find(roadmap => roadmap.id === child.roadmapId)?.metaRoadmap.name;
+    }
+  }
+
   // If any goalParent has a data series with a later updatedAt date than the goal, the goal should be updated
   let shouldUpdate = false;
   if (goal.combinationParents) {
@@ -111,77 +127,107 @@ export default async function Page({
     <>
       <Breadcrumb object={goal} />
 
-      {secondaryGoal && <p className="margin-block-300">Jämför med målbanan {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
-      <section className={`margin-top-300`}>
-        {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
-        <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects}>
-          {(goal.dataSeries?.id && session.user) ?
-            <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
-          : null }
-          <GraphCookie />
-        </GraphGraph>
-      </section>
-
-      <section className="margin-block-100">
-        <div className="flex flex-wrap-wrap justify-content-space-between gap-100">
-          <div>
-            <span style={{ color: 'gray' }}>Målbana</span>
-            {goal.name ? (
-              <h2 className="margin-0" style={{ fontSize: '2rem' }}>{goal.name}</h2>
-            ) : (
-              <h2 className="margin-0">{goal.indicatorParameter}</h2>
-            )}
+      <main>
+        {secondaryGoal && <p className="margin-block-300">Jämför med målbanan {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
+        <section className='margin-top-300'>
+          {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
+          <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects}>
+            {(goal.dataSeries?.id && session.user) ?
+              <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
+              : null}
+          </GraphGraph>
+          <div className="margin-top-100">
+            <GraphCookie />
           </div>
-          {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-            <div className="flex flex-wrap-wrap align-items-center gap-100">
-              <QueryBuilder goal={goal} />
-              {shouldUpdate &&
-                <UpdateGoalButton id={goal.id} />
-              }
-              <TableMenu
-                accessLevel={accessLevel}
-                object={goal}
-              />
+        </section>
+
+        <section className="margin-block-100">
+          <div className="flex flex-wrap-wrap justify-content-space-between gap-100">
+            <div>
+              <span style={{ color: 'gray' }}>Målbana</span>
+              {goal.name ? (
+                <>
+                  <h2 className="margin-0" style={{ fontSize: '2rem' }}>{goal.name}</h2>
+                  <h3 className="margin-0">({goal.indicatorParameter})</h3> {/* TODO: Check styling */}
+                </>
+              ) : (
+                <h2 className="margin-0">{goal.indicatorParameter}</h2>
+              )}
             </div>
+            {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
+              <div className="flex flex-wrap-wrap align-items-center gap-100">
+                <QueryBuilder goal={goal} />
+                {shouldUpdate &&
+                  <UpdateGoalButton id={goal.id} />
+                }
+                <TableMenu
+                  accessLevel={accessLevel}
+                  object={goal}
+                />
+              </div>
+            }
+          </div>
+          <p className="container-text">{goal.description}</p>
+          {goal.dataSeries?.scale &&
+            <>
+              <p>Alla värden i målbanan använder följande skala: {`"${goal.dataSeries?.scale}"`}</p>
+              {[AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel) &&
+                <strong>Vänligen baka in skalan i värdet eller enheten; skalor kommer att tas bort i framtiden</strong>
+              }
+            </>
           }
-        </div>
-        <p className="container-text">{goal.description}</p>
-        {goal.dataSeries?.scale &&
-          <p>Alla värden i målbanan använder följande skala: {`"${goal.dataSeries?.scale}"`}</p>
+          {goal.links.length > 0 ?
+            <>
+              <h2 className="margin-bottom-0 margin-top-200" style={{ fontSize: '1.25rem' }}>Externa resurser</h2>
+              <ul>
+                {goal.links.map((link: { url: string, description: string | null }, index: number) =>
+                  <li className="margin-block-25" key={index}>
+                    <a href={link.url} target="_blank">{link.description}</a>
+                  </li>
+                )}
+              </ul>
+            </>
+            : null}
+        </section>
+
+        {childGoals.length > 0 ?
+          <section className="margin-block-300">
+            <h2>Mål som jobbar mot detta</h2>
+            <ChildGraphContainer goal={goal} childGoals={childGoals} />
+          </section>
+          : null
         }
 
-        <h2 className="margin-bottom-0 margin-top-200" style={{fontSize: '1.25rem'}}>Externa resurser</h2>
-        <ul>
-          {goal.links.map((link: { url: string, description: string | null }, index: number) => 
-            <li className="margin-block-25" key={index}>
-              <a href={link.url} target="_blank">{link.description}</a>
-            </li>
-          )}
-        </ul>
+        {findSiblings(roadmap, goal).length > 1 ?
+          <section className="margin-block-300">
+            <h2>Liknande målbanor i denna färdplansversion</h2>
+            <SiblingGraph roadmap={roadmap} goal={goal} />
+          </section>
+          : null
+        }
+
+        <section className="margin-block-300">
+          <div className="flex align-items-center justify-content-space-between">
+            <h2>Åtgärder</h2>
+            {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
+              <div className="flex gap-50">
+                <Link href={`/effect/create?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Koppla till en existerande åtgärd</Link>
+                <Link href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
+              </div>
+            }
+          </div>
+
+          <div className="margin-block-100">
+            <ActionGraph actions={goal.effects.map(effect => effect.action)} />
+          </div>
+          <EffectTable object={goal} accessLevel={accessLevel} />
+        </section>
+      </main>
+
+      <section className="margin-block-500">
+        <Comments comments={goal.comments} objectId={goal.id} />
       </section>
 
-      <section className="margin-block-300">
-        <h2>Kombinerad graf</h2>
-        <CombinedGraph roadmap={roadmap} goal={goal} />
-      </section>
-
-      <section>
-        <div className="flex align-items-center justify-content-space-between">
-          <h2>Åtgärder</h2>
-          {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
-            <div className="flex gap-50">
-              <Link href={`/effect/create?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Koppla till en existerande åtgärd</Link>
-              <Link href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
-            </div>
-          }
-        </div>
-
-        <div className="margin-block-100">
-          <ActionGraph actions={goal.effects.map(effect => effect.action)} />
-        </div>
-        <EffectTable object={goal} accessLevel={accessLevel} />
-      </section>
-      <Comments comments={goal.comments} objectId={goal.id} />
     </>
   )
 }
