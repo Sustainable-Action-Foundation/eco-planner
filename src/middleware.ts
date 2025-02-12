@@ -4,12 +4,6 @@ import Negotiator from "negotiator";
 import { cookies, headers } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 
-// const headers = { "accept-language": "en-US,en;q=0.5" };
-// const languages = new Negotiator({ headers }).languages();
-// const locales = ["en-US", "sv-SE"];
-// const defaultLocale = "en-US";
-
-// const foundLocale = match(languages, locales, defaultLocale);
 const locales = ["en", "sv"];
 
 function getLocale(request: NextRequest) {

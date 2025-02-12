@@ -9,11 +9,13 @@ import { AccessLevel } from "@/types";
 import ThumbnailGraph from "@/components/graphs/mainGraphs/thumbnailGraph";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import Image from "next/image";
+import { getDictionary, type dictionaries } from "@/app/[lang]/dictionaries";
 
-export default async function Page({ params }: { params: { roadmapId: string } }) {
-  const [session, roadmap] = await Promise.all([
+export default async function Page({ params }: { params: { roadmapId: string, lang: string } }) {
+  const [session, roadmap, dict] = await Promise.all([
     getSession(cookies()),
-    getOneRoadmap(params.roadmapId)
+    getOneRoadmap(params.roadmapId),
+    getDictionary(params.lang as keyof typeof dictionaries)
   ]);
 
   let accessLevel: AccessLevel = AccessLevel.None;
@@ -33,7 +35,7 @@ export default async function Page({ params }: { params: { roadmapId: string } }
     <main>
       <section className="flex justify-content-space-between flex-wrap-wrap gap-100 margin-block-300" >
         <div className="flex-grow-100">
-          <span style={{ color: 'gray' }}>Färdplan</span>
+          <span style={{ color: 'gray' }}>{dict.roadmap}</span>
           <h1 className="margin-0">{roadmap.metaRoadmap.name}</h1>
           <p className="margin-0">
             {`Version ${roadmap.version} • `}
