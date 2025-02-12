@@ -1,5 +1,5 @@
 import { ActionImpactType, DataSeries, Prisma } from "@prisma/client";
-import dataFieldArray from "./lib/dataSeriesDataFieldNames.json";
+import dataFieldArray from "./lib/dataSeriesDataFieldNames.json" with { type: "json" };
 
 /** An object that implements the AccessControlled interface can be checked with the accessChecker function. */
 export interface AccessControlled {
