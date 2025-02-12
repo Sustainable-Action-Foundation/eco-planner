@@ -1,6 +1,5 @@
 import { getDictionary } from "@/app/dictionaries";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import LanguageSwitcher from "@/components/cookies/languageSwitcher";
 import RoadmapFilters from "@/components/forms/filters/roadmapFilters";
 import AttributedImage from "@/components/generic/images/attributedImage";
 import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree.tsx";
@@ -133,7 +132,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
     </div>
 
     <section>
-      <LanguageSwitcher locale={locale} />
+      {/* <LanguageSwitcher locale={locale} /> */}
       <RoadmapFilters />
     </section>
 
