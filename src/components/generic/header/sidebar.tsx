@@ -1,13 +1,17 @@
-import styles from './header.module.css' with { type: "css" }
 import LogoutButton from '@/components/buttons/logoutButton'
+import LanguageSwitcher from "@/components/cookies/languageSwitcher"
+import { DEFAULT_LOCALE } from '@/constants'
 import { getSession } from '@/lib/session'
-import { cookies } from 'next/headers'
-import Link from 'next/link'
+import { cookies, headers } from 'next/headers'
 import Image from 'next/image'
+import Link from 'next/link'
+import styles from './header.module.css' with { type: "css" }
 // import Notifications from '../notifications/notification'
 
 export default async function Sidebar() {
   const { user } = await getSession(cookies())
+
+  const locale = headers().get("locale") || DEFAULT_LOCALE;
   return <>
     <aside className={styles.container}>
       <label className={styles.menuToggleContainer}>
@@ -45,6 +49,9 @@ export default async function Sidebar() {
               <Image src='/icons/info.svg' alt='' width={24} height={24} />
               Om verktyget
             </Link>
+          </div>
+          <div>
+            <LanguageSwitcher locale={locale} />
           </div>
           <div>
             { // Link to login
