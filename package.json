@@ -10,13 +10,17 @@
     "test": "docker compose -f compose.test.yaml up -d"
   },
   "dependencies": {
+    "@formatjs/intl-localematcher": "^0.6.0",
     "@prisma/client": "^5.3.1",
+    "@types/negotiator": "^0.6.3",
     "@types/node": "^20.3.2",
     "apexcharts": "^4.3.0",
     "bcrypt": "^5.1.1",
+    "cookies-next": "^5.1.0",
     "dotenv": "^16.4.5",
     "iron-session": "^8.0.1",
     "mathjs": "^13.1.1",
+    "negotiator": "^1.0.0",
     "next": "^14.2.15",
     "nodemailer": "^6.9.14",
     "pocketbase": "^0.21.5",
