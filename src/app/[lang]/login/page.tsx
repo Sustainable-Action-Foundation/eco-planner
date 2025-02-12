@@ -2,6 +2,7 @@ import Login from "@/components/forms/userInfo/login";
 import styles from "./page.module.css" with { type: "css" };
 import AttributedImage from "@/components/generic/images/attributedImage";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import { getDictionary, type dictionaries } from "@/app/[lang]/dictionaries";
 
 export default async function Page() {
   return (

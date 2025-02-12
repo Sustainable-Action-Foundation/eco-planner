@@ -1,11 +1,15 @@
 'use client'
 
 import Image from "next/image"
+import { usePathname } from "next/navigation"
 
 export default function LogoutButton() {
+  const path = usePathname()
+  const lang = path.split('/')[1]
+
   return (
-    <button className="flex align-items-center rounded transparent padding-50 gap-50 width-100 font-weight-500" style={{fontSize: '1rem', whiteSpace: 'nowrap'}} onClick={async () => {
-      fetch('/api/logout', {
+    <button className="flex align-items-center rounded transparent padding-50 gap-50 width-100 font-weight-500" style={{ fontSize: '1rem', whiteSpace: 'nowrap' }} onClick={async () => {
+      fetch(`/${lang}/api/logout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       }).then((res) => {

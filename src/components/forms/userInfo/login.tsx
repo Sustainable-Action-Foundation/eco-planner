@@ -1,11 +1,12 @@
 'use client'
 
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
-import styles from '../forms.module.css'
+import styles from '../forms.module.css';
 
-function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
+function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, lang: string) {
   event.preventDefault()
 
   const form = event.target
@@ -16,7 +17,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
   })
 
   // Try to login, redirect away if successful.
-  fetch('/api/login', {
+  fetch(`/${lang}/api/login`, {
     method: 'POST',
     body: formJSON,
     headers: { 'Content-Type': 'application/json' },
@@ -40,10 +41,12 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
 export default function Login() {
 
   const [showPassword, setShowPassword] = useState(false)
+  const path = usePathname()
+  const lang = path.split('/')[1]
 
   return (
     <>
-      <form onSubmit={handleSubmit} className={`${styles.padding}`}>
+      <form onSubmit={(e) => handleSubmit(e as React.ChangeEvent<HTMLFormElement>, lang)} className={`${styles.padding}`}>
         <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid var(--gray-90)' }}>Logga in</h1>
 
         <label className="block margin-block-100">
