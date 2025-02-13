@@ -1,18 +1,18 @@
 'use client';
 
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
-import { Goal } from "@prisma/client";
-import { FormEvent, useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import styles from './queryBuilder.module.css'
+import formSubmitter from "@/functions/formSubmitter";
+import filterTableContentKeys from "@/lib/pxWeb/filterTableContentKeys";
+import { getTableContent } from "@/lib/pxWeb/getTableContent";
+import { getTableDetails } from "@/lib/pxWeb/getTableDetails";
+import { getTables } from "@/lib/pxWeb/getTables";
 import { PxWebApiV2TableContent, PxWebApiV2TableDetails } from "@/lib/pxWeb/pxWebApiV2Types";
 import { externalDatasetBaseUrls } from "@/lib/pxWeb/utility";
-import { getTables } from "@/lib/pxWeb/getTables";
-import { getTableDetails } from "@/lib/pxWeb/getTableDetails";
-import { getTableContent } from "@/lib/pxWeb/getTableContent";
-import filterTableContentKeys from "@/lib/pxWeb/filterTableContentKeys";
-import formSubmitter from "@/functions/formSubmitter";
+import { Goal } from "@prisma/client";
+import Image from "next/image";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import FormWrapper from "../formWrapper";
+import styles from './queryBuilder.module.css';
 
 export default function QueryBuilder({
   goal,
