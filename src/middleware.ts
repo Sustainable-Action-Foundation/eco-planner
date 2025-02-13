@@ -5,20 +5,16 @@ import Negotiator from "negotiator";
 import { cookies } from 'next/headers';
 import { NextResponse, type NextRequest } from 'next/server';
 
-// const LOCALES = ["en", "sv"];
-// const DEFAULT_LOCALE = "en";
-
 export async function middleware(req: NextRequest) {
   const session = await getSession(cookies())
 
-  // JESPER EXPERIMANTERAR NEDANFÖR DETTA
-
   let locale;
 
+  // Check if the user has set a language cookie...
   const language = cookies().get("language")?.value;
 
   if (language) {
-    locale = language;
+    locale = language; // ...and use that language if it exists
   } else {
     // If no cookie, detect language from browser settings
     const headers = {
@@ -37,8 +33,6 @@ export async function middleware(req: NextRequest) {
   // Set the detected locale in request headers for downstream use
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set("locale", locale);
-
-  // JESPER EXPERIMENTERAR OVANFÖR DETTA
 
   // Redirect away from login page if already logged in
   if (req.nextUrl.pathname.startsWith('/login')) {
@@ -97,7 +91,3 @@ export async function middleware(req: NextRequest) {
     },
   })
 }
-
-// export const config = {
-//   matcher: "/:path*",
-// }

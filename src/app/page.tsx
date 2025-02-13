@@ -11,16 +11,15 @@ import { Locale, RoadmapSortBy } from "@/types";
 import { RoadmapType } from "@prisma/client";
 import { cookies, headers } from "next/headers";
 
-// const DEFAULT_LOCALE = "en";
-
 export default async function Page({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
 
+  // Get the locale cookie or use the default locale
   const locale = headers().get("locale") || DEFAULT_LOCALE;
 
   const [session, metaRoadmaps, dict] = await Promise.all([
     getSession(cookies()),
     getMetaRoadmaps(),
-    getDictionary(locale as Locale),
+    getDictionary(locale as Locale), // Get the dictionary for the current locale
   ]);
 
   const typeFilter = searchParams['typeFilter'] ? (Array.isArray(searchParams['typeFilter']) ? searchParams['typeFilter'] : [searchParams['typeFilter']]) : [];
@@ -132,7 +131,6 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
     </div>
 
     <section>
-      {/* <LanguageSwitcher locale={locale} /> */}
       <RoadmapFilters />
     </section>
 
