@@ -22,6 +22,7 @@ If you want to target a different type of database, you might want to remove the
 
 1. Install dependencies with `yarn install`
 2. If you're setting up the database for the first time (for example, a clean development database), run `yarn prisma migrate deploy` to apply the existing migrations to the database, or `yarn prisma migrate dev` if you do not have any migration files.
+    - The recommended development database is using the [MySQL Installer](https://dev.mysql.com/downloads/installer/) to set up MySQL Workbench and MySQL Server for development.
 
 Now you should be able to run the app with `yarn dev` and access it at http://localhost:3000 or build it with `yarn build` and run it with `yarn start`.
 

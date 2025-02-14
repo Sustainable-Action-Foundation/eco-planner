@@ -40,7 +40,7 @@ export default async function Page({
 
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          Redigera åtgärd: {`${action.name} under färdplan: ${action.roadmap.metaRoadmap.name || "ERROR"}`}
+          Redigera åtgärd: {`${action.name} under färdplansversion: ${`${action.roadmap.metaRoadmap.name} (v${action.roadmap.version})` || "ERROR"}`}
         </h1>
         <ActionForm roadmapId={action.roadmapId} currentAction={action} roadmapAlternatives={[]} />
       </div>

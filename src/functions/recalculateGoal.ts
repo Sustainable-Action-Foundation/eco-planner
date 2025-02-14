@@ -39,11 +39,11 @@ async function parseEntry(entry: SimpleScalingValue | AdvancedScalingValue) {
   let value: number;
   switch (entry.type) {
     case ScaleBy.Area:
-      weight = Number.isFinite(entry.weight) ? entry.weight! : 1;
+      weight = Number.isFinite(entry.weight) && entry.weight !== undefined ? entry.weight : 1;
       value = await getAreaRatio(entry.parentArea, entry.childArea);
       break;
     case ScaleBy.Inhabitants:
-      weight = Number.isFinite(entry.weight) ? entry.weight! : 1;
+      weight = Number.isFinite(entry.weight) && entry.weight !== undefined ? entry.weight : 1;
       value = await getPopulationRatio(entry.parentArea, entry.childArea);
       break;
     case ScaleBy.Custom:
@@ -52,7 +52,7 @@ async function parseEntry(entry: SimpleScalingValue | AdvancedScalingValue) {
         return undefined;
       }
       value = entry.value;
-      weight = Number.isFinite(entry.weight) ? entry.weight! : 1;
+      weight = Number.isFinite(entry.weight) && entry.weight !== undefined ? entry.weight : 1;
       break;
   }
   return { value, weight }
@@ -164,14 +164,14 @@ export async function recalculateGoal(goal: {
       }
 
       if (value == null) {
-        value = parent.isInverted ? (1 / parent.parentGoal.dataSeries[i]!) : parent.parentGoal.dataSeries[i]!;
+        value = parent.isInverted ? (1 / parent.parentGoal.dataSeries[i]) : parent.parentGoal.dataSeries[i];
       } else {
-        value *= parent.isInverted ? (1 / parent.parentGoal.dataSeries[i]!) : parent.parentGoal.dataSeries[i]!;
+        value *= parent.isInverted ? (1 / parent.parentGoal.dataSeries[i]) : parent.parentGoal.dataSeries[i];
       }
     }
     // If value is good, multiply by the scale factor, otherwise set it to null
-    if (Number.isFinite(value)) {
-      value! *= scaleFactor;
+    if (Number.isFinite(value) && value !== null) {
+      value *= scaleFactor;
     } else {
       value = null
     }

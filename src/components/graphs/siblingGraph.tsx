@@ -8,7 +8,10 @@ import { useState } from "react";
 import styles from './graphs.module.css'
 import Image from "next/image";
 
-export default function CombinedGraph({
+/**
+ * A graph that shows how a goal stacks up against its siblings (other goals in the same roadmap version with similar indicator parameters and same unit).
+ */
+export default function SiblingGraph({
   roadmap,
   goal,
 }: {

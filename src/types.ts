@@ -1,5 +1,5 @@
 import { ActionImpactType, DataSeries, Prisma } from "@prisma/client";
-import dataFieldArray from "./lib/dataSeriesDataFieldNames.json";
+import dataFieldArray from "./lib/dataSeriesDataFieldNames.json" with { type: "json" };
 
 /** An object that implements the AccessControlled interface can be checked with the accessChecker function. */
 export interface AccessControlled {
@@ -154,6 +154,9 @@ export type GoalInput = Omit<
   // The unit of measurement for the data series
   dataUnit: string;
   // Scale of the data, for example "millions"
+  // Deprecated, please bake the scale into the data series values or unit
+  // For example {value: 10, scale: "thousands"} => {value: 10000}
+  // or {scale: "millions", unit: "kW"} => {unit: "GW"}
   dataScale?: string | undefined;
   // Array of IDs of goals for combinationParents
   inheritFrom?: { id: string, isInverted?: boolean }[];
@@ -167,7 +170,7 @@ export type ActionInput = Omit<
   'author' | 'notes' | 'links' | 'comments' | 'effects'
 > & {
   // UUID of the roadmap this action belongs to
-  roadmapId: string;
+  roadmapId?: string;
   dataSeries?: string[] | null | undefined;
   // UUID for the goal the dataSeries (effect) affects, if any
   goalId?: string | undefined;

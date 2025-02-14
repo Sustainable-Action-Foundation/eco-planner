@@ -1,6 +1,8 @@
 'use server';
 
+import { metaRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getSession, LoginData } from "@/lib/session";
+import { roadmapSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
 import { Prisma } from "@prisma/client";
 import { unstable_cache } from "next/cache";
@@ -25,30 +27,7 @@ export default async function getOneMetaRoadmap(id: string) {
 const getCachedMetaRoadmap = unstable_cache(
   async (id: string, user: LoginData['user']) => {
     let metaRoadmap: Prisma.MetaRoadmapGetPayload<{
-      include: {
-        roadmapVersions: {
-          include: {
-            metaRoadmap: true,
-            _count: { select: { goals: true } },
-            author: { select: { id: true, username: true } },
-            editors: { select: { id: true, username: true } },
-            viewers: { select: { id: true, username: true } },
-            editGroups: { include: { users: { select: { id: true, username: true } } } },
-            viewGroups: { include: { users: { select: { id: true, username: true } } } },
-          },
-        },
-        comments: {
-          include: {
-            author: { select: { id: true, username: true } },
-          },
-        },
-        links: true,
-        author: { select: { id: true, username: true } },
-        editors: { select: { id: true, username: true } },
-        viewers: { select: { id: true, username: true } },
-        editGroups: { include: { users: { select: { id: true, username: true } } } },
-        viewGroups: { include: { users: { select: { id: true, username: true } } } },
-      }
+      include: typeof metaRoadmapInclusionSelection
     }> | null = null;
 
     // If user is admin, get all meta roadmaps
@@ -56,36 +35,16 @@ const getCachedMetaRoadmap = unstable_cache(
       try {
         metaRoadmap = await prisma.metaRoadmap.findUnique({
           where: { id },
-          include: {
-            roadmapVersions: {
-              include: {
-                metaRoadmap: true,
-                _count: { select: { goals: true } },
-                author: { select: { id: true, username: true } },
-                editors: { select: { id: true, username: true } },
-                viewers: { select: { id: true, username: true } },
-                editGroups: { include: { users: { select: { id: true, username: true } } } },
-                viewGroups: { include: { users: { select: { id: true, username: true } } } },
-              },
-            },
-            comments: {
-              include: {
-                author: { select: { id: true, username: true } },
-              },
-            },
-            links: true,
-            author: { select: { id: true, username: true } },
-            editors: { select: { id: true, username: true } },
-            viewers: { select: { id: true, username: true } },
-            editGroups: { include: { users: { select: { id: true, username: true } } } },
-            viewGroups: { include: { users: { select: { id: true, username: true } } } },
-          },
+          include: metaRoadmapInclusionSelection,
         });
       } catch (error) {
         console.log(error);
         console.log('Error fetching admin meta roadmaps');
         return null;
       }
+
+      // Sort roadmap versions
+      metaRoadmap?.roadmapVersions.sort(roadmapSorter);
 
       return metaRoadmap;
     }
@@ -106,6 +65,7 @@ const getCachedMetaRoadmap = unstable_cache(
             ]
           },
           include: {
+            ...metaRoadmapInclusionSelection,
             roadmapVersions: {
               where: {
                 OR: [
@@ -117,27 +77,8 @@ const getCachedMetaRoadmap = unstable_cache(
                   { isPublic: true }
                 ]
               },
-              include: {
-                metaRoadmap: true,
-                _count: { select: { goals: true } },
-                author: { select: { id: true, username: true } },
-                editors: { select: { id: true, username: true } },
-                viewers: { select: { id: true, username: true } },
-                editGroups: { include: { users: { select: { id: true, username: true } } } },
-                viewGroups: { include: { users: { select: { id: true, username: true } } } },
-              },
+              include: metaRoadmapInclusionSelection.roadmapVersions.include,
             },
-            comments: {
-              include: {
-                author: { select: { id: true, username: true } },
-              },
-            },
-            links: true,
-            author: { select: { id: true, username: true } },
-            editors: { select: { id: true, username: true } },
-            viewers: { select: { id: true, username: true } },
-            editGroups: { include: { users: { select: { id: true, username: true } } } },
-            viewGroups: { include: { users: { select: { id: true, username: true } } } },
           },
         });
       } catch (error) {
@@ -145,6 +86,9 @@ const getCachedMetaRoadmap = unstable_cache(
         console.log('Error fetching meta roadmaps');
         return null;
       }
+
+      // Sort roadmap versions
+      metaRoadmap?.roadmapVersions.sort(roadmapSorter);
 
       return metaRoadmap;
     }
@@ -157,31 +101,13 @@ const getCachedMetaRoadmap = unstable_cache(
           isPublic: true
         },
         include: {
+          ...metaRoadmapInclusionSelection,
           roadmapVersions: {
             where: {
               isPublic: true
             },
-            include: {
-              metaRoadmap: true,
-              _count: { select: { goals: true } },
-              author: { select: { id: true, username: true } },
-              editors: { select: { id: true, username: true } },
-              viewers: { select: { id: true, username: true } },
-              editGroups: { include: { users: { select: { id: true, username: true } } } },
-              viewGroups: { include: { users: { select: { id: true, username: true } } } },
-            },
+            include: metaRoadmapInclusionSelection.roadmapVersions.include,
           },
-          comments: {
-            include: {
-              author: { select: { id: true, username: true } },
-            },
-          },
-          links: true,
-          author: { select: { id: true, username: true } },
-          editors: { select: { id: true, username: true } },
-          viewers: { select: { id: true, username: true } },
-          editGroups: { include: { users: { select: { id: true, username: true } } } },
-          viewGroups: { include: { users: { select: { id: true, username: true } } } },
         },
       });
     } catch (error) {
@@ -189,6 +115,9 @@ const getCachedMetaRoadmap = unstable_cache(
       console.log('Error fetching public meta roadmaps');
       return null;
     }
+
+    // Sort roadmap versions
+    metaRoadmap?.roadmapVersions.sort(roadmapSorter);
 
     return metaRoadmap;
   },

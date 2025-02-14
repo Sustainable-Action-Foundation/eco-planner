@@ -14,7 +14,9 @@ export interface LoginData {
 
 // Config stuff for Iron-Session
 export const options: SessionOptions = {
-  password: process.env.IRON_SESSION_PASSWORD!,
+  // Compilation works fine without the password environment variable, but it will crash at runtime if it's not set.
+  // This is intentional to allow building the project without the password, and then setting it when deploying/running.
+  password: process.env.IRON_SESSION_PASSWORD ?? "",
   cookieName: "eco_planner",
   cookieOptions: {
     // Undefined maxAge results in so called "session cookies", which are deleted when the browsing session ends.

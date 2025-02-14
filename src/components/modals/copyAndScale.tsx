@@ -274,7 +274,12 @@ export default function CopyAndScale({
 
   return (
     <>
-      <button type="button" className="seagreen color-purewhite smooth padding-block-50 padding-inline-100" onClick={() => openModal(modalRef)}>
+      <button 
+        type="button" 
+        className="seagreen color-purewhite smooth padding-block-50 padding-inline-100" 
+        onClick={() => openModal(modalRef)}
+        style={{padding: '.3rem .6rem', borderRadius: '2px'}}
+      >
         Kopiera och skala
       </button>
       <dialog ref={modalRef} aria-modal className="rounded" style={{ border: '0', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25' }}>
@@ -288,9 +293,9 @@ export default function CopyAndScale({
         <form action={formSubmission} name="copyAndScale" onChange={recalculateScalingResult}>
 
           <label className="block margin-block-100">
-            I vilken färdplan vill du placera den skalade målbanan?
+            I vilken färdplansversion vill du placera den skalade målbanan?
             <select className="block margin-block-25 width-100" required name="copyTo" id="copyTo">
-              <option value="">Välj färdplan</option>
+              <option value="">Välj färdplansversion</option>
               {roadmapOptions.map(roadmap => (
                 <option key={roadmap.id} value={roadmap.id}>{`${roadmap.name} ${roadmap.version ? `(version ${roadmap.version.toString()})` : null}`}</option>
               ))}

@@ -314,7 +314,7 @@ export async function PUT(request: NextRequest) {
         viewGroups: { set: viewGroups },
         isPublic: roadmap.isPublic,
         goals: {
-          create: roadmapGoalCreator(roadmap, session.user!.id),
+          create: roadmapGoalCreator(roadmap, session.user.id),
         }
       },
       select: { id: true },

@@ -54,7 +54,7 @@ export function MetaRoadmapSection({
 }) {
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
-      Färdplan:
+      Färdplansserie:
       <Link href={`/metaRoadmap/${metaRoadmap.id}`} className={styles.breadCrumb}>
         {metaRoadmap.name}
       </Link>

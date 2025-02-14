@@ -1,4 +1,4 @@
-import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
+import WrappedChart from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 import styles from '../graphs.module.css'
@@ -49,24 +49,26 @@ export default function ThumbnailGraph({
       max: new Date(dataSeriesDataFieldNames[dataSeriesDataFieldNames.length - 1].replace('val', '')).getTime()
       // categories: dataSeriesDataFieldNames.map(name => name.replace('val', ''))
     },
-    yaxis: [
-      {
-        title: { text: goal.dataSeries?.unit },
-        labels: { formatter: floatSmoother },
-      }
-    ],
+    yaxis: {
+      show: false
+    }
   }
 
   return (
     <>
       <div className={styles.graphWrapperThumbnail}>
-        <WrappedChart
-          options={mainChartOptions}
-          series={mainChart}
-          type="line"
-          width="100%"
-          height="100%"
-        />
+        <h3 className="font-weight-500 margin-0 padding-top-75 text-align-center">
+          {goal.name}
+        </h3> {/* TODO: Make conditional */}
+        <div style={{ height: '200px' }}>
+          <WrappedChart
+            options={mainChartOptions}
+            series={mainChart}
+            type="line"
+            width="100%"
+            height="200px"
+          />
+        </div>
       </div>
     </>
   )

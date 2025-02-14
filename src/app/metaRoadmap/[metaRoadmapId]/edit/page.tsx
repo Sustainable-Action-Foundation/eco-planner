@@ -27,7 +27,7 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
       <Breadcrumb object={currentRoadmap} customSections={['Redigera metadata']} />
 
       <div className='container-text margin-inline-auto'>
-        <h1>Redigera metadatan för färdplan: {`${currentRoadmap.name}`}</h1>
+        <h1>Redigera metadatan för färdplansserie: {`${currentRoadmap.name}`}</h1>
         <MetaRoadmapForm
           user={session.user}
           userGroups={session.user?.userGroups}

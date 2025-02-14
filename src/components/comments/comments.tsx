@@ -64,7 +64,7 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
 
   return (
     <>
-      <section className="container-text margin-block-300">
+      <div className="container-text">
         <h2>{comments?.length} Kommentarer</h2>
         <form onSubmit={handleSubmit}>
           <span className={styles.textarea} role="textbox" id="comment-text" contentEditable aria-label="Skriv Kommentar" aria-placeholder="Skriv Kommentar" onInput={handleInput} onBlur={handleInput} ref={spanRef}></span>
@@ -76,10 +76,10 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
         </form>
         {comments?.map((comment) => (
           <div key={comment.id}>
-            <p className="flex align-items-center gap-50 margin-bottom-300">
+            <div className="flex align-items-center gap-50 margin-top-200">
               <a className={styles.commentAuthor} href={`/user/${comment.author.username}`}>{comment.author.username}</a>
               <span className="font-weight-300" style={{ color: 'gray', fontSize: '.75rem' }}>{`${timeSince(new Date(comment.createdAt))} sedan`}</span>
-            </p>
+            </div>
             <p className="margin-0" style={{ wordBreak: 'break-word', }}>
               {expandedComments.includes(comment.id) ? comment.commentText : comment.commentText.length > 300 ? `${comment.commentText.substring(0, 300)}...` : comment.commentText}
             </p>
@@ -87,10 +87,10 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
               <button className={`margin-block-25 ${styles.readMoreButton}`} onClick={() => expandComment(comment.id)}>
                 {expandedComments.includes(comment.id) ? 'Visa mindre' : 'Visa mer'}
               </button>
-              : null}
+            : null}
           </div>
         ))}
-      </section>
+      </div>
     </>
   )
 }

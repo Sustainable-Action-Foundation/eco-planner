@@ -29,12 +29,12 @@ export function ActionSelector({
   return (
     <>
       <label className="block margin-block-100">
-        Välj färdplanen åtgärden ligger under
+        Välj färdplansversion som åtgärden ligger under
         <select name="selectedActionRoadmap" className="block margin-block-25" required disabled={!!action}
           value={selectedRoadmap}
           onChange={event => { setSelectedRoadmap(event.target.value); setSelectedAction(""); }}
         >
-          <option value="" disabled>Välj färdplan</option>
+          <option value="" disabled>Välj färdplansversion</option>
           {roadmapAlternatives.map(roadmap => (
             // Disable selecting a different roadmap if a goal is preselected (for example when goalId is specified in the URL query)
             <option key={`action-selector${roadmap.id}`} value={roadmap.id}>
@@ -87,12 +87,12 @@ export function GoalSelector({
   return (
     <>
       <label className="block margin-block-100">
-        Välj färdplanen målbanan ligger under
+        Välj färdplansversionen som målbanan ligger under
         <select name="selectedGoalRoadmap" className="block margin-block-25" required disabled={!!goal}
           value={selectedRoadmap}
           onChange={event => { setSelectedRoadmap(event.target.value); setSelectedGoal(""); }}
         >
-          <option value="" disabled>Välj färdplan</option>
+          <option value="" disabled>Välj färdplansversion</option>
           {roadmapAlternatives.map(roadmap => (
             // Disable selecting a different roadmap if a goal is preselected (for example when goalId is specified in the URL query)
             <option key={`goal-selector${roadmap.id}`} value={roadmap.id}>

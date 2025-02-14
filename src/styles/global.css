@@ -51,7 +51,7 @@ fieldset:not(:has(input:required, select:required, textarea:required)):has(field
   display: none;
 }
 
-section:has(input[type="checkbox"]:checked) + #roadmapFilters {
+menu:has(input[type="checkbox"]:checked) + #roadmapFilters {
   display: block;
 }
 

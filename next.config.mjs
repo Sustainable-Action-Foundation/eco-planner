@@ -4,10 +4,13 @@
 const nextConfig = {
   compiler: {
     removeConsole: {
-      exclude: ['error', 'warn']
+      exclude: ['info', 'error', 'warn']
     }
   },
   output: 'standalone',
+  experimental: {
+    instrumentationHook: true,
+  },
 }
 
 export default nextConfig

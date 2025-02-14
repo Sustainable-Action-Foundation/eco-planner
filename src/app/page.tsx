@@ -1,6 +1,5 @@
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
-import RoadmapTable from "@/components/tables/roadmapTable";
 import AttributedImage from "@/components/generic/images/attributedImage";
 import getMetaRoadmaps from "@/fetchers/getMetaRoadmaps";;
 import { roadmapSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
@@ -8,6 +7,7 @@ import { RoadmapType } from "@prisma/client";
 import RoadmapFilters from "@/components/forms/filters/roadmapFilters";
 import { RoadmapSortBy } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree.tsx";
 
 export default async function Page({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
   const [session, metaRoadmaps] = await Promise.all([
@@ -104,7 +104,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
   return <>
     <Breadcrumb />
 
-    <div className="rounded width-100 margin-block-100 position-relative overflow-hidden" style={{ height: '350px' }}>
+    <div className="rounded width-100 margin-bottom-100 margin-top-300 position-relative overflow-hidden" style={{ height: '350px' }}>
       <AttributedImage src="/images/solarpanels.jpg" alt="" >
         <div className="flex gap-100 flex-wrap-wrap align-items-flex-end justify-content-space-between padding-100 width-100">
           <div>
@@ -113,14 +113,22 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
           </div>
           { // Link to create roadmap form if logged in
             session.user &&
-            <a href="/metaRoadmap/createMetaRoadmap" className="button purewhite round block" >Skapa ny färdplan</a>
+            <>
+              <a href="/metaRoadmap/create" className="button purewhite round block">Skapa ny färdplansserie</a>
+              {/* TODO: Incorporate this in a reasonable way */}
+              {/* <a href="/roadmap/createRoadmap" className="button purewhite round block">Skapa ny version i en existerande serie</a> */}
+            </>
           }
         </div>
       </AttributedImage>
     </div>
-    <RoadmapFilters />
+
     <section>
-      <RoadmapTable user={session.user ?? undefined} roadmaps={roadmaps} />
+      <RoadmapFilters />
+    </section>
+
+    <section>
+      <RoadmapTree user={session.user ?? undefined} roadmaps={roadmaps} />
     </section>
   </>
 }

@@ -40,7 +40,7 @@ export default function ActionTable({
         { // Only show the button if the user has edit access and a roadmapId is provided
           (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) && roadmapId &&
           <span> Vill du skapa en?&nbsp;
-            <Link href={`/action/createAction?roadmapId=${roadmapId}`}>
+            <Link href={`/action/create?roadmapId=${roadmapId}`}>
               Skapa ny åtgärd
             </Link>
           </span>

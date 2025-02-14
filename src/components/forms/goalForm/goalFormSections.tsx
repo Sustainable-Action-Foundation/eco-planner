@@ -143,12 +143,12 @@ export function InheritedGoalForm({
   return (
     <>
       <label className="block margin-block-75">
-        Välj en färdplan att ärva en målbana från
+        Välj en färdplansversion att ärva en målbana från
         <select name="selectedRoadmap" id="selectedRoadmap" className="margin-inline-25" required
           value={selectedRoadmap}
           onChange={(e) => { setSelectedRoadmap(e.target.value); setSelectedGoal(undefined) }}
         >
-          <option value="">Välj färdplan</option>
+          <option value="">Välj färdplansversion</option>
           {roadmapAlternatives.map((roadmap) => (
             <option value={roadmap.id} key={`roadmap-inherit${roadmap.id}`}>
               {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.goals} mål`}
@@ -263,7 +263,7 @@ export function CombinedGoalForm({
 
       <fieldset className="padding-50 smooth position-relative" style={{ border: '1px solid var(--gray-90)' }}>
         <legend className="padding-25">
-          Välj målbanor i den aktuella färdplanen att kombinera
+          Välj målbanor i den aktuella färdplansversionen att kombinera
         </legend>
         <p>Tips: använd <kbd><kbd>CTRL</kbd> + <kbd>F</kbd></kbd> för att hitta målbanorna du söker efter</p>
         {currentRoadmap?.goals.map((goal) => (
@@ -284,7 +284,7 @@ export function CombinedGoalForm({
               </label>
               {/* TODO: marginLeft: 25? What? */}
               {inheritFrom?.includes(goal.id) &&
-                <label className="block margin-block-25" style={{ marginLeft: 25 }}> 
+                <label className="block margin-block-25" style={{ marginLeft: 25 }}>
                   <input type="checkbox" name="invert-inherit" className="margin-inline-25" value={goal.id}
                     defaultChecked={currentGoal?.combinationParents.some((parent) => parent.parentGoal.id == goal.id && parent.isInverted)}
                   />
@@ -329,12 +329,12 @@ export function InheritingBaseline() {
   return (
     <>
       <label className="block margin-block-75">
-        Välj en färdplan att hämta målbanan från
+        Välj en färdplansversion att hämta målbanan från
         <select name="selectedRoadmap" id="selectedRoadmap" className="margin-inline-25" required
           value={selectedRoadmap}
           onChange={(e) => { setSelectedRoadmap(e.target.value); setSelectedGoal(undefined) }}
         >
-          <option value="">Välj färdplan</option>
+          <option value="">Välj färdplansversion</option>
           {roadmapList.map((roadmap) => (
             <option value={roadmap.id} key={`roadmap-inherit${roadmap.id}`}>
               {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.goals} mål`}

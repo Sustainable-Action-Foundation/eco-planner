@@ -30,7 +30,6 @@ export default function roadmapGoalCreator(
           ...dataValues,
           unit: goal.dataUnit,
           authorId: author,
-          scale: goal.dataScale || undefined,
         },
       },
       author: { connect: { id: author } },

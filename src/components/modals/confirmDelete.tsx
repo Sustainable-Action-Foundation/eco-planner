@@ -14,7 +14,7 @@ export default function ConfirmDelete({
   modalRef: React.MutableRefObject<HTMLDialogElement | null>;
   targetUrl: string;
   targetName: string;
-  targetId: string | { actionId: string, goalId: string };
+  targetId?: string | { actionId: string, goalId: string };
 }) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -24,7 +24,10 @@ export default function ConfirmDelete({
       return;
     }
     setIsLoading(true);
-    if (typeof targetId === "string") {
+    if (!targetId) {
+      alert("Deletion failed: No target ID provided. This shouldn't happen, so please report this to the developers.");
+      console.error(`No target ID provided in 'ConfirmDelete' for deletion of ${targetName} (sending to ${targetUrl})`);
+    } else if (typeof targetId === "string") {
       formSubmitter(targetUrl, JSON.stringify({ id: targetId }), "DELETE", setIsLoading)
     } else if (typeof targetId === "object") {
       formSubmitter(targetUrl, JSON.stringify(targetId), "DELETE", setIsLoading)
