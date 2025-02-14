@@ -7,12 +7,14 @@ import { DEFAULT_LOCALE } from "@/constants";
 import getMetaRoadmaps from "@/fetchers/getMetaRoadmaps";
 import { getSession } from "@/lib/session";
 import { roadmapSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
+import getTrafaTables from "@/lib/trafa/getTrafaTables";
 import { Locale, RoadmapSortBy } from "@/types";
 import { RoadmapType } from "@prisma/client";
 import { cookies, headers } from "next/headers";
 
 export default async function Page({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
 
+  getTrafaTables();
   // Get the locale cookie or use the default locale
   const locale = headers().get("locale") || DEFAULT_LOCALE;
 
