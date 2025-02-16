@@ -1,13 +1,21 @@
-import '@/styles/global.css'
 import Sidebar from '@/components/generic/header/sidebar'
-import styles from './page.module.css' with { type: "css" }
+import { DEFAULT_LOCALE } from '@/constants'
 import { baseUrl } from '@/lib/baseUrl.ts'
+import '@/styles/global.css'
+import { Locale } from '@/types'
+import { headers } from 'next/headers'
+import { BgetDictionary } from './dictionaries'
+import styles from './page.module.css' with { type: "css" }
 
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode,
 }) {
+  const locale = headers().get("locale") as Locale || DEFAULT_LOCALE as Locale;
+
+  const dict = await BgetDictionary("@/app/layout");
+
   return (
     <html lang="sv">
       <head>
@@ -15,22 +23,16 @@ export default async function RootLayout({
         <link rel="icon" type="image/x-icon" href="/icons/leaf.svg" />
 
 
-        <meta name="description" content="Ett verktyg som syftar till att bidra till Sveriges klimatomställning. 
-        I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas. 
-        Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen. 
-        Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder. "/>
+        <meta name="description" content={'head' in dict && dict.head.description[locale] || undefined} />
 
         {/* Open Graph Meta Tags */}
         <meta name="og:site_name" content="Eco - Planner" />
         <meta property="og:url" content={baseUrl} />
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Eco - Planner" />
-        <meta property="og:description" content="Ett verktyg som syftar till att bidra till Sveriges klimatomställning. 
-        I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas. 
-        Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen. 
-        Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder." />
+        <meta property="og:description" content={'head' in dict && dict.head.og.description[locale] || undefined} />
         <meta property="og:image" content={`${baseUrl}/images/roadmap.jpg`} />
-        <meta property="og:locale" content="sv_SE" />
+        <meta property="og:locale" content={'head' in dict && dict.head.og.locale[locale] || undefined} />
 
       </head>
       <body>

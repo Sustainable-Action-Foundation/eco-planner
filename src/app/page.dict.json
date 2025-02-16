@@ -1,0 +1,20 @@
+{
+  "image": {
+    "roadmaps": {
+      "en": "Roadmaps",
+      "sv": "Färdplaner"
+    },
+    "photoBy": {
+      "en": "Photo by",
+      "sv": "Fotat av"
+    },
+    "on": {
+      "en": "on",
+      "sv": "på"
+    },
+    "createRoadmap": {
+      "en": "Create new roadmap",
+      "sv": "Skapa ny färdplansserie"
+    }
+  }
+}

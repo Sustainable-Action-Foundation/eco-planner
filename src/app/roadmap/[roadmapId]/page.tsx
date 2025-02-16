@@ -1,4 +1,4 @@
-import { getDictionary } from "@/app/dictionaries";
+import { BgetDictionary } from "@/app/dictionaries";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import Comments from "@/components/comments/comments";
 import ThumbnailGraph from "@/components/graphs/mainGraphs/thumbnailGraph";
@@ -13,12 +13,13 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 
 export default async function Page({ params }: { params: { roadmapId: string } }) {
-  const locale = headers().get("locale") || DEFAULT_LOCALE;
+  const locale = headers().get("locale") as Locale || DEFAULT_LOCALE as Locale;
 
   const [session, roadmap, dict] = await Promise.all([
     getSession(cookies()),
     getOneRoadmap(params.roadmapId),
-    getDictionary(locale as Locale),
+    // getDictionary(locale as Locale),
+    BgetDictionary("@/app/roadmap/[roadmapId]/page")
   ]);
 
   let accessLevel: AccessLevel = AccessLevel.None;
@@ -38,7 +39,7 @@ export default async function Page({ params }: { params: { roadmapId: string } }
     <main>
       <section className="flex justify-content-space-between flex-wrap-wrap gap-100 margin-block-300" >
         <div className="flex-grow-100">
-          <span style={{ color: 'gray' }}>{dict.roadmap}</span>
+          <span style={{ color: 'gray' }}>{'main' in dict && dict.main.section[0].roadmap[locale]}</span>
           <h1 className="margin-0">{roadmap.metaRoadmap.name}</h1>
           <p className="margin-0">
             {`Version ${roadmap.version} • `}
@@ -46,9 +47,9 @@ export default async function Page({ params }: { params: { roadmapId: string } }
               <>{`${roadmap.metaRoadmap.actor} • `}</>
               : null
             }
-            {`${roadmap.goals.length ?? 0} målbanor • `}
+            {`${roadmap.goals.length ?? 0} ${'main' in dict && dict.main.section[0].goals[locale]} • `}
             {/* TODO: style link to better match surroundings */}
-            <a href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>Besök färdplansserien</a>
+            <a href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>{'main' in dict && dict.main.section[0].visitRoadmap[locale]}</a>
           </p>
           <p className="margin-bottom-0">{roadmap.metaRoadmap.description}</p>
           {roadmap.description ? (
@@ -73,14 +74,14 @@ export default async function Page({ params }: { params: { roadmapId: string } }
             className="flex align-items-center gap-50 font-weight-500 button transparent round color-pureblack text-decoration-none"
             style={{ height: 'fit-content' }}
           >
-            Redigera färdplansversionen
+            {'main' in dict && dict.main.section[0].editRoadmapVersion[locale]}
             <Image src="/icons/edit.svg" alt="" width="24" height="24" />
           </a>
         }
       </section>
 
       <section className="margin-block-300">
-        <h2>Utvalda målbanor</h2>
+        <h2>{'main' in dict && dict.main.section[1].selectGoals[locale]}</h2>
         <div className="grid gap-100" style={{ gridTemplateColumns: 'repeat(auto-fit, 300px)' }}>
           {roadmap.goals.map((goal, key) =>
             goal.isFeatured ?
@@ -93,7 +94,7 @@ export default async function Page({ params }: { params: { roadmapId: string } }
       </section>
 
       <section className="margin-block-300">
-        <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>Alla målbanor</h2>
+        <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>{'main' in dict && dict.main.section[2].allGoals[locale]}</h2>
         <Goals roadmap={roadmap} accessLevel={accessLevel} />
       </section>
     </main>
