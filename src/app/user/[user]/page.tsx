@@ -65,7 +65,10 @@ export default async function Page({ params }: { params: { user: string } }) {
             {editableMetaRoadmaps.map((editableMetaRoadmap, index) => 
               <li key={index} className='margin-block-25'>
                 <div className='flex justify-content-space-between align-items-center'>
-                  <span>{editableMetaRoadmap.name}</span>
+                  <div>
+                    <a href={`/metaRoadmap/${editableMetaRoadmap.id}`}>{editableMetaRoadmap.name}</a> <br/>
+                    <small>Antal versioner i denna serie: {editableMetaRoadmap.roadmapVersions.length}</small>
+                  </div>
                   <TableMenu object={editableMetaRoadmap} />
                 </div>
               </li>
@@ -79,7 +82,10 @@ export default async function Page({ params }: { params: { user: string } }) {
             {editableRoadmaps.map((editableRoadmap, index) => 
               <li key={index} className='margin-block-25'>
                 <div className='flex justify-content-space-between align-items-center'>
-                  <span>{editableRoadmap.metaRoadmap.name}</span>
+                  <div>
+                    <a href={`/roadmap/${editableRoadmap.id}`}>{editableRoadmap.metaRoadmap.name}</a> <br/> {/* TODO: Check if naming of roadmap is always inherited */}
+                    <span>Antal målbanor: {editableRoadmap._count.goals}</span>
+                  </div>
                   <TableMenu object={editableRoadmap} />
                 </div>
               </li>
@@ -95,7 +101,10 @@ export default async function Page({ params }: { params: { user: string } }) {
           {userdata.authoredMetaRoadmaps.map((authoredMetaRoadmap, index) => 
             <li key={index} className='margin-block-25'>
               <div className='flex justify-content-space-between align-items-center'>
-                <span>{authoredMetaRoadmap.name}</span>
+                <div>
+                  <a href={`/metaRoadmap/${authoredMetaRoadmap.id}`}>{authoredMetaRoadmap.name}</a> <br/>
+                  <span>Antal versioner i denna serie: {authoredMetaRoadmap.roadmapVersions.length}</span>
+                </div>
                 <TableMenu object={authoredMetaRoadmap} />
               </div>
             </li>
@@ -109,7 +118,10 @@ export default async function Page({ params }: { params: { user: string } }) {
           {userdata.authoredRoadmaps.map((authoredRoadmaps, index) => 
             <li key={index} className='margin-block-25'>
               <div className='flex justify-content-space-between align-items-center'>
-                <span>{authoredRoadmaps.metaRoadmap.name}</span>
+                <div>
+                  <a href={`/roadmap/${authoredRoadmaps.id}`}>{authoredRoadmaps.metaRoadmap.name}</a> <br/> {/* TODO: Check if naming of roadmap is always inherited */}
+                  <span>Antal målbanor: {authoredRoadmaps._count.goals}</span>
+                </div>
                 <TableMenu object={authoredRoadmaps} />
               </div>
             </li>
