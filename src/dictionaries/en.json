@@ -45,6 +45,185 @@
           "sv": "Skapa ny färdplansserie"
         }
       }
+    },
+    "action": {
+      "[actionId]": {
+        "page": {
+          "main": {
+            "section": {
+              "0": {
+                "action": {
+                  "en": "Action",
+                  "sv": "Åtgärd"
+                },
+                "externalResources": {
+                  "en": "External resources",
+                  "sv": "Externa resurser"
+                },
+                "editAction": {
+                  "en": "Edit action",
+                  "sv": "Redigera åtgärd"
+                }
+              },
+              "1": {
+                "effect": {
+                  "expectedEffect": {
+                    "en": "Expected effect",
+                    "sv": "Förväntad effekt"
+                  },
+                  "noSpecifiedEffect": {
+                    "en": "No specified effect",
+                    "sv": "Ingen angiven effekt"
+                  }
+                },
+                "costEfficiency": {
+                  "costEfficiency": {
+                    "en": "Cost efficiency",
+                    "sv": "Kostnadseffektivitet"
+                  },
+                  "noSpecifiedCostEfficiency": {
+                    "en": "No specified cost efficiency",
+                    "sv": "Ingen angiven kostnadseffektivitet"
+                  }
+                },
+                "projectLeader": {
+                  "projectLeader": {
+                    "en": "Project leader",
+                    "sv": "Projektledare"
+                  },
+                  "noSpecifiedProjectLeader": {
+                    "en": "No specified project leader",
+                    "sv": "Ingen angiven projektledare"
+                  }
+                },
+                "relevantActors": {
+                  "relevantActors": {
+                    "en": "Relevant actors",
+                    "sv": "Relevanta aktörer"
+                  },
+                  "noSpecifiedRelevantActors": {
+                    "en": "No specified actors",
+                    "sv": "Inga angivna aktörer"
+                  }
+                },
+                "categories": {
+                  "categories": {
+                    "en": "Categories",
+                    "sv": "Kategorier"
+                  },
+                  "categoriesList": {
+                    "efficiency": {
+                      "en": "Efficiency",
+                      "sv": "Effektivitet"
+                    },
+                    "sufficency": {
+                      "en": "Sufficiency",
+                      "sv": "Tillräcklighet"
+                    },
+                    "renewables": {
+                      "en": "Renewables",
+                      "sv": "Förnybara"
+                    }
+                  },
+                  "noSpecifiedCategories": {
+                    "en": "No specified categories",
+                    "sv": "Inga angivna kategorier"
+                  }
+                }
+              },
+              "2": {
+                "effects": {
+                  "effects": {
+                    "en": "Effects",
+                    "sv": "Effekter"
+                  },
+                  "createEffect": {
+                    "en": "Create new effect",
+                    "sv": "Skapa ny effekt"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "edit": {
+          "page": {
+            "editAction": {
+              "en": "Edit action",
+              "sv": "Redigera åtgärd"
+            },
+            "ofRoadmapVersion": {
+              "en": "of roadmap version",
+              "sv": "under färdplansversion"
+            }
+          }
+        }
+      },
+      "create": {
+        "page": {
+          "createAction": {
+            "en": "Create new action",
+            "sv": "Skapa ny åtgärd"
+          },
+          "goal": {
+            "createActionUnderGoal": {
+              "en": "Create new action under goal",
+              "sv": "Skapa ny åtgärd under målbana"
+            },
+            "createAction": {
+              "en": "Create new action",
+              "sv": "Skapa ny åtgärd"
+            }
+          },
+          "badGoal": {
+            "notFound": {
+              "en": "Could not find or do not have access to the goal in the link.",
+              "sv": "Kunde inte hitta eller har inte tillgång till målbanan i länken."
+            }
+          },
+          "badRoadmap": {
+            "notFound": {
+              "en": "Could not find or do not have access to the roadmap in the link.",
+              "sv": "Kunde inte hitta eller har inte tillgång till färdplansserien i länken."
+            }
+          }
+        }
+      }
+    },
+    "api": {},
+    "context": {},
+    "dashboard": {},
+    "effect": {},
+    "goal": {},
+    "info": {},
+    "login": {},
+    "metaRoadmap": {},
+    "password": {},
+    "signup": {},
+    "user": {},
+    "verify": {
+      "page": {
+        "emailHasBeenSent": {
+          "en": "An email has been sent to you with a link to verify your email address.",
+          "sv": "Ett e-postmeddelande har skickats till dig med en länk för att verifiera din e-postadress."
+        },
+        "ifYouHaveNotReceived": {
+          "en": "If you have not received the email within a few minutes, please check your spam folder or write your email adress below and click the button to send a new email.",
+          "sv": "Om du inte har fått e-postmeddelandet inom några minuter, vänligen kontrollera din skräppostmapp eller skriv din e-postadress nedan och klicka på knappen för att skicka ett nytt e-postmeddelande."
+        },
+        "sendNewEmail": {
+          "en": "Send new email",
+          "sv": "Skicka ny e-post"
+        }
+      },
+      "verify": {
+        "page": {
+          "verifyUser": {
+            "en": "Verify user",
+            "sv": "Verifiera användare"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -57,6 +236,42 @@
         "logout": {
           "en": "Logout",
           "sv": "Logga ut"
+        }
+      }
+    },
+    "comments": {
+      "comments": {
+        "comments": {
+          "en": "Comments",
+          "sv": "Kommentarer"
+        },
+        "submitComment": {
+          "writeComment": {
+            "en": "Write comment",
+            "sv": "Skriv kommentar"
+          },
+          "cancel": {
+            "en": "Cancel",
+            "sv": "Avbryt"
+          },
+          "submit": {
+            "en": "Submit",
+            "sv": "Skicka"
+          }
+        },
+        "commentInfo": {
+          "ago": {
+            "en": "ago",
+            "sv": "sedan"
+          },
+          "showMore": {
+            "en": "Show more",
+            "sv": "Visa mer"
+          },
+          "showLess": {
+            "en": "Show less",
+            "sv": "Visa mindre"
+          }
         }
       }
     },
@@ -81,6 +296,154 @@
       }
     },
     "forms": {
+      "actionForm": {
+        "actionForm": {
+          "fieldset": {
+            "0": {
+              "enterRelation": {
+                "en": "Enter relation to other posts",
+                "sv": "Ange relationen till andra inlägg"
+              },
+              "selectRoadmapVersion": {
+                "en": "Select roadmap version to create action under",
+                "sv": "Välj färdplansversion att skapa åtgärd under",
+                "options": {
+                  "selectRoadmapVersion": {
+                    "en": "Select roadmap version",
+                    "sv": "Välj färdplansversion"
+                  },
+                  "actions": {
+                    "en": "actions",
+                    "sv": "åtgärder"
+                  }
+                }
+              }
+            },
+            "1": {
+              "describeAction": {
+                "en": "Describe your action",
+                "sv": "Beskriv din åtgärd"
+              },
+              "descriptionElements": {
+                "nameOfAction": {
+                  "en": "Name of action",
+                  "sv": "Namn på åtgärden"
+                },
+                "descriptionOfAction": {
+                  "en": "Description of action",
+                  "sv": "Beskrivning av åtgärden"
+                },
+                "costEfficiency": {
+                  "en": "Cost efficiency",
+                  "sv": "Kostnadseffektivitet"
+                },
+                "expectedResult": {
+                  "en": "Expected result",
+                  "sv": "Förväntat resultat"
+                }
+              }
+            },
+            "2": {
+              "enterExpectedEffect": {
+                "en": "Enter expected effect of the action",
+                "sv": "Ange förväntad effekt av åtgärden"
+              },
+              "typeOfEffect": {
+                "en": "What type of impact does the action have?",
+                "sv": "Vilken typ av påverkan har åtgärden?",
+                "options": {
+                  "absolute": {
+                    "en": "Absolute difference compared to baseline",
+                    "sv": "Absolut skillnad gentemot baslinje"
+                  },
+                  "delta": {
+                    "en": "Change year by year (delta)",
+                    "sv": "Förändring år för år (delta)"
+                  },
+                  "percent": {
+                    "en": "Difference compared to baseline in percentage of previous year's total value (baseline + actions)",
+                    "sv": "Skillnad gentemot baslinjen i procent av föregående års totalvärde (baslinje + åtgärder)"
+                  }
+                }
+              },
+              "extraInfo": {
+                "en": "Extra information about the data series",
+                "sv": "Extra information om dataserie",
+                "info": {
+                  "en": "The field &quot;Data series&quot; accepts a series of values separated with semicolon or tab, which means you can paste a series of values from Excel or similar.<br />\n<strong>NOTE: Values must not be separated with comma (&quot;,&quot;)</strong><br />\nDecimal numbers can use either decimal point or decimal comma.<br />\nThe first value represents year 2020 and the series can continue up to year 2050 (total of 31 values).<br />\nIf values are missing for a year, you can leave it empty, for example, &quot;;1;;;;5&quot; can be used to specify the values 1 and 5 for years 2021 and 2025.",
+                  "sv": "Fältet &quot;Dataserie&quot; tar emot en serie värden separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie värden från Excel eller liknande.<br />\n<strong>OBS: Värden får inte vara separerade med komma (&quot;,&quot;).</strong><br />\nDecimaltal kan använda antingen decimalpunkt eller decimalkomma.<br />\nDet första värdet representerar år 2020 och serien kan fortsätta maximalt till år 2050 (totalt 31 värden).<br />\nOm värden saknas för ett år kan du lämna det tomt, exempelvis kan &quot;;1;;;;5&quot; användas för att ange värdena 1 och 5 för år 2021 och 2025."
+                }
+              },
+              "dataSeries": {
+                "en": "Data series",
+                "sv": "Dataserie",
+                "input": {
+                  "title": {
+                    "en": "Use numeric values separated with semicolon or tab. Decimal numbers can use either dot or comma.",
+                    "sv": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma."
+                  }
+                }
+              }
+            },
+            "3": {
+              "chooseYears": {
+                "en": "Choose years for the action",
+                "sv": "Välj pågående år för din årgärd"
+              },
+              "startingYear": {
+                "en": "Starting year",
+                "sv": "Startår"
+              },
+              "endingYear": {
+                "en": "Ending year",
+                "sv": "Slutår"
+              }
+            },
+            "4": {
+              "describeActors": {
+                "en": "Describe the actors involved in the action",
+                "sv": "Beskriv aktörer för din åtgärd"
+              },
+              "projectManager": {
+                "en": "Project manager",
+                "sv": "Projektansvarig"
+              },
+              "relevantActors": {
+                "en": "Relevant actors",
+                "sv": "Relevanta aktörer"
+              }
+            },
+            "5": {
+              "chooseCategories": {
+                "en": "What categories does the action fall under?",
+                "sv": "Vilka kategorier faller åtgärden under?"
+              },
+              "categories": {
+                "options": {
+                  "sufficiency": {
+                    "en": "Sufficiency",
+                    "sv": "Tillräcklighet"
+                  },
+                  "efficiency": {
+                    "en": "Efficiency",
+                    "sv": "Effektivitet"
+                  },
+                  "renewables": {
+                    "en": "Renewables",
+                    "sv": "Förnybara"
+                  }
+                }
+              }
+            },
+            "6": {
+              "externalResources": {
+                "en": "Attach external resources",
+                "sv": "Bifoga externa resurser"
+              }
+            }
+          }
+        }
+      },
       "filters": {
         "roadmapFilters": {
           "menu": {
@@ -188,6 +551,42 @@
         }
       }
     },
+    "modals": {
+      "confirmDelete": {
+        "deletionFailed": {
+          "en": "Deletion failed: No target ID provided. This shouldn't happen so please report this to the developers.",
+          "sv": "Radering misslyckades: Inget mål-ID angivet. Detta borde inte hända så vänligen rapportera detta till utvecklarna."
+        },
+        "deletePost": {
+          "en": "Delete post",
+          "sv": "Radera inlägg"
+        },
+        "areYouSure": {
+          "en": "Are you sure you want to delete the post",
+          "sv": "Är du säker på att du vill radera inlägget"
+        },
+        "youCannotUndo": {
+          "en": "You cannot undo this action later.",
+          "sv": "Du kan inte ångra denna åtgärd senare."
+        },
+        "type": {
+          "en": "Type",
+          "sv": "Skriv"
+        },
+        "toConfirm": {
+          "en": "to confirm",
+          "sv": "för att bekräfta"
+        },
+        "cancel": {
+          "en": "Cancel",
+          "sv": "Avbryt"
+        },
+        "delete": {
+          "en": "Delete",
+          "sv": "Radera"
+        }
+      }
+    },
     "tables": {
       "roadmapTables": {
         "roadmapTree": {
@@ -198,6 +597,118 @@
           "goals": {
             "en": "Goals",
             "sv": "Målbanor"
+          }
+        }
+      },
+      "tableMenu": {
+        "tableMenu": {
+          "metaRoadmaps": {
+            "creationDescription": {
+              "en": "New roadmap version",
+              "sv": "Ny färdplansversion"
+            }
+          },
+          "roadmaps": {
+            "parentDescription": {
+              "en": "Go to roadmap",
+              "sv": "Gå till färdplansserien"
+            },
+            "creationDescription": {
+              "en": "New goal",
+              "sv": "Ny målbana"
+            },
+            "creationDescription2": {
+              "en": "New action",
+              "sv": "Ny åtgärd"
+            }
+          },
+          "goals": {
+            "parentDescription": {
+              "en": "Go to roadmap",
+              "sv": "Gå till färdplansserien"
+            },
+            "creationDescription": {
+              "en": "New action",
+              "sv": "Ny åtgärd"
+            },
+            "creationDescription2": {
+              "en": "Add effect from existing action",
+              "sv": "Lägg till effekt från befintlig åtgärd"
+            }
+          },
+          "actions": {
+            "parentDescription": {
+              "en": "Go to roadmap",
+              "sv": "Gå till färdplansserien"
+            },
+            "creationDescription": {
+              "en": "New effect",
+              "sv": "Ny effekt"
+            }
+          },
+          "effects": {
+            "parentDescription": {
+              "en": "Go to goal",
+              "sv": "Gå till målbana"
+            },
+            "effectFrom": {
+              "en": "Effect from",
+              "sv": "Effekt från"
+            },
+            "nameMissing": {
+              "en": "Name missing",
+              "sv": "Namn saknas"
+            }
+          },
+          "return": {
+            "nameMissing": {
+              "en": "Name missing",
+              "sv": "Namn saknas"
+            },
+            "menuFor": {
+              "en": "menu for",
+              "sv": "meny för"
+            },
+            "menu": {
+              "en": "menu",
+              "sv": "meny"
+            },
+            "close": {
+              "en": "close",
+              "sv": "stäng"
+            },
+            "edit": {
+              "en": "Edit",
+              "sv": "Redigera"
+            },
+            "deletePost": {
+              "en": "Delete post",
+              "sv": "Radera inlägg"
+            }
+          }
+        }
+      },
+      "effects": {
+        "return": {
+          "0": {
+            "noEffects": {
+              "en": "There are no effects to show.",
+              "sv": "Det finns inga effekter att visa."
+            },
+            "doYouWantTo": {
+              "en": "Do you want to create one?",
+              "sv": "Vill du skapa en?"
+            },
+            "createEffect": {
+              "en": "Create new effect",
+              "sv": "Skapa ny effekt"
+            }
+          },
+          "1": {
+            "namelessEffect": {
+              "en": "Nameless effect",
+              "sv": "Namnlös effekt"
+            }
           }
         }
       },

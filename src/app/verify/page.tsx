@@ -7,10 +7,10 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
   event.preventDefault()
 
   const form = event.target
-  const emailAdress = form.email.value
+  const emailAddress = form.email.value
 
   // Send a new verification email
-  formSubmitter('/api/sendVerification', JSON.stringify({ email: emailAdress }), 'POST')
+  formSubmitter('/api/sendVerification', JSON.stringify({ email: emailAddress }), 'POST')
 }
 
 export default function Page() {

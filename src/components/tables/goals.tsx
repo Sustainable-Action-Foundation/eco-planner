@@ -1,17 +1,17 @@
 "use client"
 
-import { AccessLevel } from '@/types'
-import GoalTable from "./goalTables/goalTable"
-import TableSelector from './tableSelector/tableSelector'
-import LinkTree from './goalTables/linkTree'
-import ActionTable from "./actions"
-import { useEffect, useState } from "react"
-import { getStoredGoalSortBy, getStoredViewMode, setStoredGoalSortBy } from "./functions/tableFunctions"
-import Link from "next/link"
-import Image from "next/image"
-import styles from './tables.module.css'
-import GraphCookie from "../cookies/graphCookie"
 import type getOneRoadmap from "@/fetchers/getOneRoadmap.ts"
+import { AccessLevel } from '@/types'
+import Image from "next/image"
+import Link from "next/link"
+import { useEffect, useState } from "react"
+import GraphCookie from "../cookies/graphCookie"
+import ActionTable from "./actions"
+import { getStoredGoalSortBy, getStoredViewMode, setStoredGoalSortBy } from "./functions/tableFunctions"
+import GoalTable from "./goalTables/goalTable"
+import LinkTree from './goalTables/linkTree'
+import styles from './tables.module.css'
+import TableSelector from './tableSelector/tableSelector'
 
 /** Enum for the different view modes for the goal table. */
 export enum ViewMode {

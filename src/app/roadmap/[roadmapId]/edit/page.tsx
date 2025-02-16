@@ -1,17 +1,23 @@
-import RoadmapForm from "@/components/forms/roadmapForm/roadmapForm";
-import getOneRoadmap from "@/fetchers/getOneRoadmap";
-import { getSession } from '@/lib/session';
-import { cookies } from 'next/headers';
-import { notFound } from 'next/navigation';
-import accessChecker from "@/lib/accessChecker";
-import { AccessLevel } from "@/types";
-import Link from "next/link";
+import { BgetDictionary } from '@/app/dictionaries';
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import RoadmapForm from "@/components/forms/roadmapForm/roadmapForm";
+import { DEFAULT_LOCALE } from '@/constants';
+import getOneRoadmap from "@/fetchers/getOneRoadmap";
+import accessChecker from "@/lib/accessChecker";
+import { getSession } from '@/lib/session';
+import { AccessLevel, Locale } from '@/types';
+import { cookies, headers } from 'next/headers';
+import Link from "next/link";
+import { notFound } from 'next/navigation';
+
 
 export default async function Page({ params }: { params: { roadmapId: string } }) {
-  const [session, roadmap] = await Promise.all([
+  const locale = headers().get("locale") as Locale || DEFAULT_LOCALE as Locale;
+
+  const [session, roadmap, dict] = await Promise.all([
     getSession(cookies()),
     getOneRoadmap(params.roadmapId),
+    BgetDictionary("@/app/roadmap/[roadmapId]/page"),
   ]);
 
   const access = accessChecker(roadmap, session.user)
@@ -23,13 +29,13 @@ export default async function Page({ params }: { params: { roadmapId: string } }
 
   return (
     <>
-      <Breadcrumb object={roadmap} customSections={['Redigera färdplansversion']} />
-      
+      <Breadcrumb object={roadmap} customSections={[`${'edit' in dict && dict.edit.editRoadmapVersion[locale]}`]} />
+
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          Redigera färdplansversion
+          {'edit' in dict && dict.edit.editRoadmapVersion[locale]}
         </h1>
-        <p className="margin-block-300">Menade du att redigera den gemensamma metadatan för hela färdplansserien? I så fall kan du <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}/edit`}>gå hit</Link> för att redigera metadatan.</p>
+        <p className="margin-block-300">{'edit' in dict && dict.edit.didYouMeanTo[locale]}<Link href={`/metaRoadmap/${roadmap.metaRoadmapId}/edit`}>{'edit' in dict && dict.edit.goHere[locale]}</Link>{'edit' in dict && dict.edit.toEdit[locale]}</p>
         <RoadmapForm
           user={session.user}
           userGroups={session.user?.userGroups}
