@@ -1,4 +1,5 @@
 import GraphCookie from '@/components/cookies/graphCookie';
+import UserFilters from '@/components/forms/filters/userFilters';
 import { TableMenu } from '@/components/tables/tableMenu/tableMenu';
 import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
 import getRoadmaps from '@/fetchers/getRoadmaps';
@@ -10,6 +11,7 @@ import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 
 export default async function Page({ params }: { params: { user: string } }) {
+  
   let username = params.user;
 
   /** Matches strings starting with @ or %40 (URL-encoded @) */
@@ -67,34 +69,8 @@ export default async function Page({ params }: { params: { user: string } }) {
           :
             `@${userdata.username}'s objekt`
           }
-        </h2>
-        <menu className='margin-0 padding-0 flex gap-200 flex-wrap-wrap margin-bottom-100'>
-          <fieldset className='flex gap-50'>
-            <legend className='font-weight-500 padding-bottom-75'>Objekt</legend>
-            <label className='flex gap-25 align-items-center'>
-              <input type='checkbox' />
-              Färdplan
-            </label>
-            <label className='flex gap-25 align-items-center'>
-              <input type='checkbox' />
-              Färdplansserie
-            </label>
-          </fieldset>
-
-          {session.user?.username === username ?
-            <fieldset className='flex gap-50'>
-              <legend className='font-weight-500 padding-bottom-75'>Behörighet</legend>
-              <label className='flex gap-25 align-items-center'>
-                <input type='checkbox' />
-                Ägandeskap
-              </label>
-              <label className='flex gap-25 align-items-center'>
-                <input type='checkbox' />
-                Redigeringsbehörighet
-              </label>
-            </fieldset>
-          : null }
-        </menu> 
+        </h2> 
+        <UserFilters />
 
         <ul>
           {/* If on users own page, show roadmapsseries and roadmaps with edit access*/}
