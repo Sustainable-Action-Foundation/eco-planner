@@ -1,2 +1,4 @@
-export const LOCALES = ["en", "sv"];
-export const DEFAULT_LOCALE = "en";
+import { Locale } from "./types";
+
+export const LOCALES: Locale[] = ["en", "sv"];
+export const DEFAULT_LOCALE: Locale = "en";

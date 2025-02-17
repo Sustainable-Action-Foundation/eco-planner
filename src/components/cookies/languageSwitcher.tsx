@@ -2,18 +2,19 @@
 import { setCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import type { Locale } from "@/types";
 
 interface LanguageSwitcherI {
   locale: string;
 }
 
-const languages = [
+const languages: { label: string, value: Locale }[] = [
   {
     label: "English",
     value: "en",
   },
   {
-    label: "Swedish",
+    label: "Svenska",
     value: "sv",
   },
 ];

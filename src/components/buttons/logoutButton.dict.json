@@ -1,0 +1,10 @@
+{
+  "logoutFailed": {
+    "en": "Logout failed",
+    "sv": "Utloggning misslyckades"
+  },
+  "logout": {
+    "en": "Logout",
+    "sv": "Logga ut"
+  }
+}
