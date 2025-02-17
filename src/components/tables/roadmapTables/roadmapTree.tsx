@@ -29,7 +29,7 @@ export default function RoadmapTree({
   // All roadmaps without a parent or with a parent the user does not have access to are placed at the top level
   const topLevelRoadmaps = roadmaps.filter(roadmap => (roadmap.metaRoadmap.parentRoadmapId == null) || (!accessibleMetaRoadmaps.includes(roadmap.metaRoadmap.parentRoadmapId)));
 
-  return <ul className={styles.list}>
+  return <ul className="padding-0 margin-0" style={{listStyle: 'none'}}>
     <NestedRoadmapRenderer allRoadmaps={roadmaps} childRoadmaps={topLevelRoadmaps} user={user} />
   </ul>
 }
@@ -63,7 +63,7 @@ function NestedRoadmapRenderer({
           />
         </div>
         {newChildRoadmaps.length > 0 ?
-          <ul className={styles.list}>
+          <ul style={{listStyle: 'none'}}>
             <NestedRoadmapRenderer allRoadmaps={allRoadmaps} childRoadmaps={newChildRoadmaps} user={user} />
           </ul>
           : null
