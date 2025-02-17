@@ -1,0 +1,24 @@
+{
+  "goal": {
+    "createActionUnderGoal": {
+      "en": "Create new action under goal:",
+      "sv": "Skapa ny åtgärd under målbana:"
+    },
+    "createAction": {
+      "en": "Create new action",
+      "sv": "Skapa ny åtgärd"
+    }
+  },
+  "badGoal": {
+    "notFound": {
+      "en": "Could not find or do not have access to the goal in the link.",
+      "sv": "Kunde inte hitta eller har inte tillgång till målbanan i länken."
+    }
+  },
+  "badRoadmap": {
+    "notFound": {
+      "en": "Could not find or do not have access to the roadmap in the link.\u000aUse the dropdown menu to select a roadmap.",
+      "sv": "Kunde inte hitta eller har inte tillgång till färdplansversionen i länken.\u000aAnvänd dropdown-menyn för att välja en färdplansversion."
+    }
+  }
+}

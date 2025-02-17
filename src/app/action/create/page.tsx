@@ -8,6 +8,8 @@ import { AccessControlled, AccessLevel } from "@/types";
 import getOneRoadmap from "@/fetchers/getOneRoadmap";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import { getServerLocale, validateDict } from "@/functions/serverLocale";
+import dict from "./page.dict.json" assert { type: "json" };
 
 export default async function Page({
   searchParams
@@ -18,6 +20,9 @@ export default async function Page({
     [key: string]: string | string[] | undefined
   }
 }) {
+  validateDict(dict);
+  const locale = getServerLocale();
+
   const [session, goal, roadmap, roadmapList] = await Promise.all([
     getSession(cookies()),
     getOneGoal(typeof searchParams.goalId == 'string' ? searchParams.goalId : ''),
@@ -57,23 +62,22 @@ export default async function Page({
       <div className="container-text margin-inline-auto">
         {goal ?
           <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-            Skapa en ny åtgärd under målbana: {`${goal?.name || goal?.indicatorParameter}`}
+            {dict.goal.createActionUnderGoal[locale]} {`${goal?.name || goal?.indicatorParameter}`}
           </h1> : <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-            Skapa en ny åtgärd
+            {dict.goal.createAction[locale]}
           </h1>
         }
         {badGoal &&
           <p style={{ color: 'red' }}>
             <Image src="/icons/info.svg" width={24} height={24} alt='' />
-            Kunde inte hitta eller har inte tillgång till målbanan i länken.
+            {dict.badGoal.notFound[locale]}
             {/* Använd dropdown-menyn för att välja en målbana om du vill lägga till en effekt gentemot en målbana. */}
           </p>
         }
         {badRoadmap &&
           <p style={{ color: 'red' }}>
             <Image src="/icons/info.svg" width={24} height={24} alt='' />
-            Kunde inte hitta eller har inte tillgång till färdplansversionen i länken. <br />
-            Använd dropdown-menyn för att välja en färdplansversion.
+            {dict.badRoadmap.notFound[locale]}
           </p>
         }
         <ActionForm
