@@ -4,6 +4,8 @@ import accessChecker from "@/lib/accessChecker.ts";
 import { LoginData } from "@/lib/session.ts";
 import { AccessControlled } from "@/types.ts";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
+import dict from "./roadmapTree.dict.json" assert { type: "json" };
+import { getServerLocale, validateDict } from "@/functions/serverLocale";
 
 type RoadmapTreeProps = {
   user: LoginData['user'],
@@ -20,8 +22,11 @@ export default function RoadmapTree({
   roadmaps,
   user,
 }: RoadmapTreeProps) {
+  validateDict(dict);
+
   if (!roadmaps.length) {
-    return <p>Inga färdplaner hittades. Om du har några filter aktiva så hittade inga färdplaner som matchar dem.</p>;
+    const locale = getServerLocale();
+    return <p>{dict.noRoadmaps[locale]}</p>;
   }
 
   const accessibleMetaRoadmaps = roadmaps.map(roadmap => roadmap.metaRoadmapId);
@@ -46,6 +51,7 @@ function NestedRoadmapRenderer({
   childRoadmaps: RoadmapTreeProps['roadmaps'],
   user: RoadmapTreeProps['user'],
 }) {
+  const locale = getServerLocale();
   return <>
     {childRoadmaps.map(roadmap => {
       const accessLevel = accessChecker(roadmap, user);
@@ -55,7 +61,7 @@ function NestedRoadmapRenderer({
         <div className='flex gap-100 justify-content-space-between align-items-center' key={roadmap.id}>
           <a href={`/roadmap/${roadmap.id}`} className={`${styles.roadmapLink} flex-grow-100`}>
             <span className={styles.linkTitle}>{`${roadmap.metaRoadmap.name} (v${roadmap.version})`}</span>
-            <span className={styles.linkInfo}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} Målbanor</span>
+            <span className={styles.linkInfo}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} {dict.nestedRoadmapRenderer.goals[locale]}</span>
           </a>
           <TableMenu
             accessLevel={accessLevel}

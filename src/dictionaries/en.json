@@ -1,12 +1,4 @@
 {
-  "roadmaps": {
-    "en": "Roadmaps",
-    "sv": "Färdplaner"
-  },
-  "roadmap": {
-    "en": "Roadmap",
-    "sv": "Färdplan"
-  },
   "app": {
     "#layout": {
       "head": {

@@ -12,6 +12,8 @@ import GoalTable from "./goalTables/goalTable"
 import LinkTree from './goalTables/linkTree'
 import styles from './tables.module.css'
 import TableSelector from './tableSelector/tableSelector'
+import dict from "./goals.dict.json" assert { type: "json" };
+import { getClientLocale, validateDict } from "@/functions/clientLocale";
 
 /** Enum for the different view modes for the goal table. */
 export enum ViewMode {
@@ -36,6 +38,9 @@ export default function Goals({
   roadmap: NonNullable<Awaited<ReturnType<typeof getOneRoadmap>>>,
   accessLevel?: AccessLevel
 }) {
+  validateDict(dict);
+  const locale = getClientLocale();
+
   const [viewMode, setViewMode] = useState<ViewMode | ''>('');
   const [sortBy, setSortBy] = useState<GoalSortBy>(GoalSortBy.Default);
   const [searchFilter, setSearchFilter] = useState<string>('');
@@ -63,7 +68,7 @@ export default function Goals({
     <>
       <menu className={`margin-bottom-100 flex justify-content-space-between align-items-flex-end flex-wrap-wrap gap-100 padding-0 margin-0 ${styles.tableNav}`}>
         <label className="font-weight-bold flex-grow-100">
-          Sök bland målbanor
+          {dict.menu.searchGoals[locale]}
           <div className="flex align-items-center margin-top-25 gray-90 padding-50 smooth focusable">
             <Image src='/icons/search.svg' alt="" width={24} height={24} />
             <input type="search" className="padding-0 margin-inline-50" onChange={(e) => setSearchFilter(e.target.value)} />
@@ -71,25 +76,25 @@ export default function Goals({
         </label>
         {viewMode == ViewMode.Table && (
           <label className="font-weight-bold">
-            Sortera utifrån
+            {dict.menu.sortBy[locale]}
             <select
               className="font-weight-500 margin-top-25 block"
               style={{ fontSize: '1rem', minHeight: 'calc(24px + 1rem)' }}
               onChange={(e) => { setSortBy(e.target.value as GoalSortBy); setStoredGoalSortBy(e.target.value as GoalSortBy) }} defaultValue={sortBy}
             >
-              <option value={GoalSortBy.Default}>Standard</option>
-              <option value={GoalSortBy.Alpha}>Namn (A-Ö)</option>
-              <option value={GoalSortBy.AlphaReverse}>Namn (Ö-A)</option>
-              <option value={GoalSortBy.ActionsFalling}>Antal åtgärder (fallande)</option>
-              <option value={GoalSortBy.ActionsRising}>Antal åtgärder (stigande)</option>
-              <option value={GoalSortBy.Interesting}>Intresse</option>
+              <option value={GoalSortBy.Default}>{dict.menu.sortingOptions.default[locale]}</option>
+              <option value={GoalSortBy.Alpha}>{dict.menu.sortingOptions.alpha[locale]}</option>
+              <option value={GoalSortBy.AlphaReverse}>{dict.menu.sortingOptions.alphaReverse[locale]}</option>
+              <option value={GoalSortBy.ActionsFalling}>{dict.menu.sortingOptions.actionsFalling[locale]})</option>
+              <option value={GoalSortBy.ActionsRising}>{dict.menu.sortingOptions.actionsRising[locale]})</option>
+              <option value={GoalSortBy.Interesting}>{dict.menu.sortingOptions.interesting[locale]}</option>
             </select>
           </label>
         )}
         <TableSelector id={roadmap.id} current={viewMode} setter={setViewMode} />
         { // Only show the button if the user has edit access to the roadmap
           (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-          <Link className="button round color-purewhite pureblack font-weight-500" href={`/goal/create?roadmapId=${roadmap.id}`}>Skapa ny målbana</Link>
+          <Link className="button round color-purewhite pureblack font-weight-500" href={`/goal/create?roadmapId=${roadmap.id}`}>{dict.menu.createGoal[locale]}</Link>
         }
         <div className={styles.settings}>
           <input type="checkbox" />
@@ -114,7 +119,7 @@ export default function Goals({
           src='/animations/3-dots-scale.svg'
           width={64}
           height={64}
-          alt='Laddar '
+          alt={dict.loading[locale]}
           className='block margin-inline-auto'
         />
       }

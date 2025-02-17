@@ -7,7 +7,8 @@ import formSubmitter from "@/functions/formSubmitter"
 import { ActionInput } from "@/types"
 import { Action, ActionImpactType, DataSeries, Effect } from "@prisma/client"
 import styles from '../forms.module.css'
-
+import dict from "./actionForm.dict.json" assert { type: "json" };
+import { getClientLocale, validateDict } from "@/functions/clientLocale"
 
 export default function ActionForm({
   roadmapId,
@@ -25,6 +26,9 @@ export default function ActionForm({
     links: { url: string, description: string | null }[],
   },
 }) {
+  validateDict(dict);
+  const locale = getClientLocale();
+
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
 
@@ -75,14 +79,14 @@ export default function ActionForm({
 
         {!(roadmapId || currentAction?.roadmapId) ?
           <fieldset className={`${styles.timeLineFieldset} width-100`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>Ange relationen till andra inlägg</legend>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>{dict.fieldset[0].enterRelation[locale]}</legend>
             <label className="block margin-block-100">
-              Välj färdplanversion att skapa åtgärden under:
+              {dict.fieldset[0].selectRoadmapVersion[locale]}:
               <select name="roadmapId" id="roadmapId" required className="block margin-block-25" defaultValue={""}>
-                <option value="" disabled>Välj färdplansversion</option>
+                <option value="" disabled>{dict.fieldset[0].selectRoadmapVersion.options.selectRoadmapVersion[locale]}</option>
                 {roadmapAlternatives.map(roadmap => (
                   <option key={roadmap.id} value={roadmap.id}>
-                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} åtgärder`}
+                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} ${dict.fieldset[0].selectRoadmapVersion.options.actions[locale]}`}
                   </option>
                 ))}
               </select>
@@ -92,59 +96,55 @@ export default function ActionForm({
         }
 
         <fieldset className={`${styles.timeLineFieldset} width-100 ${positionIndex > 1 ? "margin-top-200" : ""}`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend}  font-weight-bold`}>Beskriv din åtgärd</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend}  font-weight-bold`}>{dict.fieldset[1].describeAction[locale]}</legend>
           <label className="block margin-block-100">
-            Namn på åtgärden
+            {dict.fieldset[1].descriptionElements.nameOfAction[locale]}
             <input className="margin-block-25" type="text" name="actionName" required id="actionName" defaultValue={currentAction?.name} />
           </label>
 
           <label className="block margin-block-100">
-            Beskrivning av åtgärden
+            {dict.fieldset[1].descriptionElements.descriptionOfAction[locale]}
             <textarea className="margin-block-25" name="actionDescription" id="actionDescription" defaultValue={currentAction?.description ?? undefined} ></textarea>
           </label>
 
           <label className="block margin-block-100">
-            Kostnadseffektivitet
+            {dict.fieldset[1].descriptionElements.costEfficiency[locale]}
             <input className="margin-block-25" type="text" name="costEfficiency" id="costEfficiency" defaultValue={currentAction?.costEfficiency ?? undefined} />
           </label>
 
           <label className="block margin-block-100">
-            Förväntat resultat
+            {dict.fieldset[1].descriptionElements.expectedResult[locale]}
             <textarea className="margin-block-25" name="expectedOutcome" id="expectedOutcome" defaultValue={currentAction?.expectedOutcome ?? undefined} />
           </label>
         </fieldset>
 
         {(goalId && !currentAction) ?
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Ange förväntad effekt av åtgärden</legend>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.fieldset[2].enterExpectedEffect[locale]}</legend>
             <label className="block margin-block-75">
-              Vilken typ av påverkan har åtgärden?
+              {dict.fieldset[2].typeOfEffect[locale]}
               <select name="impactType" id="impactType" /* defaultValue={actionImpactType} onChange={e => setActionImpactType(e.target.value as ActionImpactType)} */ >
-                <option value={ActionImpactType.ABSOLUTE}>Absolut skillnad gentemot baslinje</option>
-                <option value={ActionImpactType.DELTA}>Förändring år för år (delta)</option>
-                <option value={ActionImpactType.PERCENT}>Skillnad gentemot baslinjen i procent av föregående års totalvärde (baslinje + åtgärder)</option>
+                <option value={ActionImpactType.ABSOLUTE}>{dict.fieldset[2].typeOfEffect.options.absolute[locale]}</option>
+                <option value={ActionImpactType.DELTA}>{dict.fieldset[2].typeOfEffect.options.delta[locale]}</option>
+                <option value={ActionImpactType.PERCENT}>{dict.fieldset[2].typeOfEffect.options.percent[locale]}</option>
               </select>
             </label>
 
             <details className="margin-block-75">
               <summary>
-                Extra information om dataserie
+                {dict.fieldset[2].extraInfo[locale]}
               </summary>
               <p>
-                Fältet &quot;Dataserie&quot; tar emot en serie värden separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie värden från Excel eller liknande.<br />
-                <strong>OBS: Värden får inte vara separerade med komma (&quot;,&quot;).</strong><br />
-                Decimaltal kan använda antingen decimalpunkt eller decimalkomma.<br />
-                Det första värdet representerar år 2020 och serien kan fortsätta maximalt till år 2050 (totalt 31 värden).<br />
-                Om värden saknas för ett år kan du lämna det tomt, exempelvis kan &quot;;1;;;;5&quot; användas för att ange värdena 1 och 5 för år 2021 och 2025.
+                {dict.fieldset[2].extraInfo.info[locale]}
               </p>
             </details>
 
             <label className="block margin-block-75">
-              Dataserie:
+              {dict.fieldset[2].dataSeries[locale]}:
               {/* TODO: Make this allow .csv files and possibly excel files */}
               <input type="text" name="dataSeries" required id="dataSeries"
                 pattern={dataSeriesPattern}
-                title="Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma."
+                title={dict.fieldset[2].dataSeries.input.title[locale]}
                 className="margin-block-25"
               // defaultValue={dataSeriesString}
               />
@@ -154,55 +154,55 @@ export default function ActionForm({
         }
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Välj pågående år för din åtgärd</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.fieldset[3].chooseYears[locale]}</legend>
           <label className="block margin-bottom-100">
-            Startår
+            {dict.fieldset[3].startingYear[locale]}
             <input className="margin-block-25" type="number" name="startYear" id="startYear" defaultValue={currentAction?.startYear ?? undefined} min={2000} />
           </label>
 
           <label className="block margin-block-100">
-            Slutår
+            {dict.fieldset[3].endingYear[locale]}
             <input className="margin-block-25" type="number" name="endYear" id="endYear" defaultValue={currentAction?.endYear ?? undefined} min={2000} />
           </label>
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Beskriv aktörer för din åtgärd</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.fieldset[4].describeActors[locale]}</legend>
           <label className="block margin-bottom-100">
-            Projektansvarig
+            {dict.fieldset[4].projectManager[locale]}
             <input className="margin-block-25" type="text" name="projectManager" id="projectManager" defaultValue={currentAction?.projectManager ?? undefined} />
           </label>
 
           <label className="block margin-block-100">
-            Relevanta aktörer
+            {dict.fieldset[4].relevantActors[locale]}
             <input className="margin-block-25" type="text" name="relevantActors" id="relevantActors" defaultValue={currentAction?.relevantActors ?? undefined} />
           </label>
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Vilka kategorier faller åtgärden under?</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.fieldset[5].chooseCategories[locale]}</legend>
           <label className="flex gap-25 align-items-center margin-bottom-50" htmlFor="isSufficiency">
             <input type="checkbox" name="isSufficiency" id="isSufficiency" defaultChecked={currentAction?.isSufficiency} />
-            Sufficiency
+            {dict.fieldset[5].categories.options.sufficiency[locale]}
           </label>
 
           <label className="flex gap-25 align-items-center margin-block-50" htmlFor="isEfficiency">
             <input type="checkbox" name="isEfficiency" id="isEfficiency" defaultChecked={currentAction?.isEfficiency} />
-            Efficiency
+            {dict.fieldset[5].categories.options.efficiency[locale]}
           </label>
 
           <label className="flex gap-25 align-items-center margin-block-50" htmlFor="isRenewables">
             <input type="checkbox" name="isRenewables" id="isRenewables" defaultChecked={currentAction?.isRenewables} />
-            Renewables
+            {dict.fieldset[5].categories.options.renewables[locale]}
           </label>
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Bifoga externa resurser</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.fieldset[6].externalResources[locale]}</legend>
           <LinkInput links={currentAction?.links} />
         </fieldset>
 
-        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentAction ? "Spara" : "Skapa åtgärd"} />
+        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentAction ? `${dict.submit.save[locale]}` : `${dict.submit.create[locale]}`} />
 
       </form>
     </>

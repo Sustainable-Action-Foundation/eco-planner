@@ -6,17 +6,21 @@ import { cookies, headers } from 'next/headers'
 import Image from 'next/image'
 import Link from 'next/link'
 import styles from './header.module.css' with { type: "css" }
+import dict from "./sidebar.dict.json" assert {type: "json"};
+import { getServerLocale, validateDict } from '@/functions/serverLocale'
 // import Notifications from '../notifications/notification'
 
 export default async function Sidebar() {
+
   const { user } = await getSession(cookies())
 
-  const locale = headers().get("locale") || DEFAULT_LOCALE;
+  validateDict(dict);
+  const locale = getServerLocale();
   return <>
     <aside className={styles.container}>
       <label className={styles.menuToggleContainer}>
         <input type="checkbox" className={styles.menuToggle} />
-        <Image src='/icons/menu.svg' alt='Toggle menu' width='24' height='24' />
+        <Image src='/icons/menu.svg' alt={dict.aside.toggleMenu[locale]} width='24' height='24' />
       </label>
       <aside className={`${styles.aside} flex-grow-100`}>
         <nav className={styles.nav}>
@@ -25,7 +29,7 @@ export default async function Sidebar() {
               !user?.isLoggedIn &&
               <Link href="/signup" className='flex gap-50 align-items-center padding-50 margin-block-25 round seagreen color-purewhite button font-weight-500' style={{ whiteSpace: 'nowrap' }}>
                 <Image src='/icons/userAdd.svg' alt='' width={24} height={24} />
-                Skapa Konto
+                {dict.aside.aside.nav.createAccount[locale]}
               </Link>
             }
             { // Link to user page if logged in
@@ -43,11 +47,11 @@ export default async function Sidebar() {
           <div className='flex-grow-100'>
             <Link href="/" className={styles.link}>
               <Image src='/icons/home.svg' alt='' width={24} height={24} />
-              Hem
+              {dict.aside.aside.nav.home[locale]}
             </Link>
             <Link href="/info" className={styles.link}>
               <Image src='/icons/info.svg' alt='' width={24} height={24} />
-              Om verktyget
+              {dict.aside.aside.nav.aboutTheTool[locale]}
             </Link>
           </div>
           <div>
@@ -59,7 +63,7 @@ export default async function Sidebar() {
               <>
                 <Link href="/login" className={styles.link}>
                   <Image src='/icons/login.svg' alt='' width={24} height={24} />
-                  Logga In
+                  {dict.aside.aside.nav.login[locale]}
                 </Link>
               </>
             }

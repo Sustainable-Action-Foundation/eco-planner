@@ -2,8 +2,12 @@
 
 import { storageConsent, allowStorage, clearStorage } from "@/functions/localStorage";
 import { useEffect, useState } from "react";
+import dict from "./graphCookie.dict.json" assert { type: "json" };
+import { getClientLocale, validateDict } from "@/functions/clientLocale"
 
 export default function GraphCookie() {
+  validateDict(dict);
+  const locale = getClientLocale();
 
   const [storageAllowed, setStorageAllowed] = useState(false)
 
@@ -22,7 +26,7 @@ export default function GraphCookie() {
           clearStorage();
         }
       }} />
-      Spara framtida vyändringar mellan sessioner och sidnavigeringar
+      {dict.allowStorage[locale]}
     </label>
   )
 }

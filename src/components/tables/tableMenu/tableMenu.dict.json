@@ -1,0 +1,86 @@
+{
+  "metaRoadmaps": {
+    "creationDescription": {
+      "en": "New roadmap version",
+      "sv": "Ny färdplansversion"
+    }
+  },
+  "roadmaps": {
+    "parentDescription": {
+      "en": "Go to roadmap",
+      "sv": "Gå till färdplansserien"
+    },
+    "creationDescription": {
+      "en": "New goal",
+      "sv": "Ny målbana"
+    },
+    "creationDescription2": {
+      "en": "New action",
+      "sv": "Ny åtgärd"
+    }
+  },
+  "goals": {
+    "parentDescription": {
+      "en": "Go to roadmap version",
+      "sv": "Gå till färdplansversionen"
+    },
+    "creationDescription": {
+      "en": "New action",
+      "sv": "Ny åtgärd"
+    },
+    "creationDescription2": {
+      "en": "Add effect from existing action",
+      "sv": "Lägg till effekt från befintlig åtgärd"
+    }
+  },
+  "actions": {
+    "parentDescription": {
+      "en": "Go to roadmap version",
+      "sv": "Gå till färdplansversionen"
+    },
+    "creationDescription": {
+      "en": "New effect",
+      "sv": "Ny effekt"
+    }
+  },
+  "effects": {
+    "parentDescription": {
+      "en": "Go to goal",
+      "sv": "Gå till målbanan"
+    },
+    "effectFrom": {
+      "en": "Effect from",
+      "sv": "Effekt från"
+    },
+    "nameMissing": {
+      "en": "Name missing",
+      "sv": "Namn saknas"
+    }
+  },
+  "return": {
+    "nameMissing": {
+      "en": "Name missing",
+      "sv": "Namn saknas"
+    },
+    "menuFor": {
+      "en": "menu for",
+      "sv": "meny för"
+    },
+    "menu": {
+      "en": "menu",
+      "sv": "meny"
+    },
+    "close": {
+      "en": "close",
+      "sv": "stäng"
+    },
+    "edit": {
+      "en": "Edit",
+      "sv": "Redigera"
+    },
+    "deletePost": {
+      "en": "Delete post",
+      "sv": "Radera inlägg"
+    }
+  }
+}

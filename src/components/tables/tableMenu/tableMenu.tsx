@@ -8,6 +8,8 @@ import { Action, DataSeries, Effect, Goal, MetaRoadmap } from "@prisma/client";
 import { AccessLevel } from "@/types";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
+import dict from "./tableMenu.dict.json" assert { type: "json" };
+import { getClientLocale, validateDict } from "@/functions/clientLocale";
 
 // General purpose button for roadmaps, goals and actions. 
 // Update the name of the component to reflect this
@@ -69,6 +71,9 @@ export function TableMenu(
       })
     )
   }) {
+  validateDict(dict);
+  const locale = getClientLocale();
+
   const menu = useRef<HTMLDialogElement | null>(null);
   const deletionRef = useRef<HTMLDialogElement | null>(null);
 
@@ -85,7 +90,7 @@ export function TableMenu(
   if (object.roadmapVersions != undefined) {
     selfLink = `/metaRoadmap/${object.id}`;
     creationLink = `/roadmap/create?metaRoadmapId=${object.id}`;
-    creationDescription = 'Ny färdplansversion';
+    creationDescription = `${dict.metaRoadmaps.creationDescription[locale]}`;
     editLink = `/metaRoadmap/${object.id}/edit`;
     deleteLink = "/api/metaRoadmap"
   }
@@ -93,11 +98,11 @@ export function TableMenu(
   else if (object.metaRoadmap != undefined) {
     selfLink = `/roadmap/${object.id}`
     parentLink = `/metaRoadmap/${object.metaRoadmap.id}`;
-    parentDescription = 'Gå till färdplansserien';
+    parentDescription = `${dict.roadmaps.parentDescription[locale]}`;
     creationLink = `/goal/create?roadmapId=${object.id}`;
-    creationDescription = 'Ny målbana';
+    creationDescription = `${dict.roadmaps.creationDescription[locale]}`;
     creationLink2 = `/action/create?roadmapId=${object.id}`;
-    creationDescription2 = 'Ny åtgärd';
+    creationDescription2 = `${dict.roadmaps.creationDescription2[locale]}`;
     editLink = `/roadmap/${object.id}/edit`;
     deleteLink = "/api/roadmap"
   }
@@ -105,11 +110,11 @@ export function TableMenu(
   else if (object.indicatorParameter != undefined) {
     selfLink = `/goal/${object.id}`;
     parentLink = `/roadmap/${object.roadmap.id}`;
-    parentDescription = 'Gå till färdplansversionen';
+    parentDescription = `${dict.goals.parentDescription[locale]}`;
     creationLink = `/action/create?roadmapId=${object.roadmapId}&goalId=${object.id}`;
-    creationDescription = 'Ny åtgärd';
+    creationDescription = `${dict.goals.creationDescription[locale]}`;
     creationLink2 = `/effect/create?goalId=${object.id}`;
-    creationDescription2 = 'Lägg till effekt från existerande åtgärd';
+    creationDescription2 = `${dict.goals.creationDescription2[locale]}`;
     editLink = `/goal/${object.id}/edit`;
     deleteLink = "/api/goal"
     if (!object.name) {
@@ -120,9 +125,9 @@ export function TableMenu(
   else if (object.isSufficiency != undefined) {
     selfLink = `/action/${object.id}`;
     parentLink = `/roadmap/${object.roadmapId}`;
-    parentDescription = 'Gå till färdplansversionen';
+    parentDescription = `${dict.actions.parentDescription[locale]}`;
     creationLink = `/effect/create?actionId=${object.id}`;
-    creationDescription = 'Ny effekt';
+    creationDescription = `${dict.actions.creationDescription[locale]}`;
     editLink = `/action/${object.id}/edit`;
     deleteLink = "/api/action"
   }
@@ -130,11 +135,11 @@ export function TableMenu(
   else if (object.actionId != undefined) {
     selfLink = `/action/${object.actionId}`;
     parentLink = `/goal/${object.goalId}`;
-    parentDescription = 'Gå till målbanan';
+    parentDescription = `${dict.effects.parentDescription[locale]}`;
     editLink = `/effect/edit?actionId=${object.actionId}&goalId=${object.goalId}`;
     deleteLink = '/api/effect';
     if (!object.name) {
-      object.name = object.action?.name ? `Effekt från ${object.action.name}` : object.goal ? (object.goal.name || object.goal.indicatorParameter) : "Namn saknas";
+      object.name = object.action?.name ? `${dict.effects.effectFrom} ${object.action.name}` : object.goal ? (object.goal.name || object.goal.indicatorParameter) : `${dict.effects.nameMissing[locale]}`;
     }
     if (!object.id) {
       object.id = { actionId: object.actionId, goalId: object.goalId };
@@ -170,14 +175,14 @@ export function TableMenu(
   return (
     <>
       <div className={`${styles.actionButton} display-flex`}>
-        <button type="button" onClick={openMenu} className={styles.button} aria-label={`meny för ${object.name || object.metaRoadmap?.name || "Namn saknas"}`}>
-          <Image src='/icons/dotsVertical.svg' width={24} height={24} alt="meny"></Image>
+        <button type="button" onClick={openMenu} className={styles.button} aria-label={`${dict.return.menuFor} ${object.name || object.metaRoadmap?.name || dict.return.nameMissing[locale]}`}>
+          <Image src='/icons/dotsVertical.svg' width={24} height={24} alt={dict.return.menu[locale]}></Image>
         </button>
         <dialog className={styles.menu} id={`${object.id}-menu`} onBlur={closeMenu} ref={menu} onKeyUp={closeMenu}>
           <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between ${styles.menuHeading}`}>
             {/* Button to close menu */}
             <button type="button" onClick={closeMenu} className={styles.button} autoFocus >
-              <Image src='/icons/close.svg' alt="stäng" width={18} height={18} />
+              <Image src='/icons/close.svg' alt={dict.return.close[locale]} width={18} height={18} />
             </button>
             {/* Link to the object */}
             <Link href={selfLink} className={styles.menuHeadingTitle}>{object.name || object.metaRoadmap?.name}</Link>
@@ -203,17 +208,17 @@ export function TableMenu(
                 </Link>
               }
               <Link href={editLink} className={styles.menuAction}>
-                <span>Redigera</span>
+                <span>{dict.return.edit[locale]}</span>
                 <Image src='/icons/edit.svg' alt="" width={24} height={24} className={styles.actionImage} />
               </Link>
               { // Admins and authors can delete items
                 (accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) &&
                 <>
                   <button type="button" className="width-100 transparent display-flex align-items-center justify-content-space-between padding-50" style={{ fontSize: '1rem' }} onClick={() => openModal(deletionRef)}>
-                    Radera inlägg
+                    {dict.return.deletePost[locale]}
                     <Image src='/icons/delete.svg' alt="" width={24} height={24} className={styles.actionImage} />
                   </button>
-                  <ConfirmDelete modalRef={deletionRef} targetUrl={deleteLink} targetName={object.name || object.metaRoadmap?.name || "Namn saknas"} targetId={object.id} />
+                  <ConfirmDelete modalRef={deletionRef} targetUrl={deleteLink} targetName={object.name || object.metaRoadmap?.name || dict.return.nameMissing[locale]} targetId={object.id} />
                 </>
               }
             </>

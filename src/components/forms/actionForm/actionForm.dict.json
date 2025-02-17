@@ -1,0 +1,156 @@
+{
+  "fieldset": {
+    "0": {
+      "enterRelation": {
+        "en": "Enter relation to other posts",
+        "sv": "Ange relationen till andra inlägg"
+      },
+      "selectRoadmapVersion": {
+        "en": "Select roadmap version to create action under",
+        "sv": "Välj färdplansversion att skapa åtgärd under",
+        "options": {
+          "selectRoadmapVersion": {
+            "en": "Select roadmap version",
+            "sv": "Välj färdplansversion"
+          },
+          "actions": {
+            "en": "actions",
+            "sv": "åtgärder"
+          }
+        }
+      }
+    },
+    "1": {
+      "describeAction": {
+        "en": "Describe your action",
+        "sv": "Beskriv din åtgärd"
+      },
+      "descriptionElements": {
+        "nameOfAction": {
+          "en": "Name of action",
+          "sv": "Namn på åtgärden"
+        },
+        "descriptionOfAction": {
+          "en": "Description of action",
+          "sv": "Beskrivning av åtgärden"
+        },
+        "costEfficiency": {
+          "en": "Cost efficiency",
+          "sv": "Kostnadseffektivitet"
+        },
+        "expectedResult": {
+          "en": "Expected result",
+          "sv": "Förväntat resultat"
+        }
+      }
+    },
+    "2": {
+      "enterExpectedEffect": {
+        "en": "Enter expected effect of the action",
+        "sv": "Ange förväntad effekt av åtgärden"
+      },
+      "typeOfEffect": {
+        "en": "What type of impact does the action have?",
+        "sv": "Vilken typ av påverkan har åtgärden?",
+        "options": {
+          "absolute": {
+            "en": "Absolute difference compared to baseline",
+            "sv": "Absolut skillnad gentemot baslinje"
+          },
+          "delta": {
+            "en": "Change year by year (delta)",
+            "sv": "Förändring år för år (delta)"
+          },
+          "percent": {
+            "en": "Difference compared to baseline in percentage of previous year's total value (baseline + actions)",
+            "sv": "Skillnad gentemot baslinjen i procent av föregående års totalvärde (baslinje + åtgärder)"
+          }
+        }
+      },
+      "extraInfo": {
+        "en": "Extra information about the data series",
+        "sv": "Extra information om dataserie",
+        "info": {
+          "en": "The field &quot;Data series&quot; accepts a series of values separated with semicolon or tab, which means you can paste a series of values from Excel or similar.<br />\n<strong>NOTE: Values must not be separated with comma (&quot;,&quot;)</strong><br />\nDecimal numbers can use either decimal point or decimal comma.<br />\nThe first value represents year 2020 and the series can continue up to year 2050 (total of 31 values).<br />\nIf values are missing for a year, you can leave it empty, for example, &quot;;1;;;;5&quot; can be used to specify the values 1 and 5 for years 2021 and 2025.",
+          "sv": "Fältet &quot;Dataserie&quot; tar emot en serie värden separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie värden från Excel eller liknande.<br />\n<strong>OBS: Värden får inte vara separerade med komma (&quot;,&quot;).</strong><br />\nDecimaltal kan använda antingen decimalpunkt eller decimalkomma.<br />\nDet första värdet representerar år 2020 och serien kan fortsätta maximalt till år 2050 (totalt 31 värden).<br />\nOm värden saknas för ett år kan du lämna det tomt, exempelvis kan &quot;;1;;;;5&quot; användas för att ange värdena 1 och 5 för år 2021 och 2025."
+        }
+      },
+      "dataSeries": {
+        "en": "Data series",
+        "sv": "Dataserie",
+        "input": {
+          "title": {
+            "en": "Use numeric values separated with semicolon or tab. Decimal numbers can use either dot or comma.",
+            "sv": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma."
+          }
+        }
+      }
+    },
+    "3": {
+      "chooseYears": {
+        "en": "Choose years for the action",
+        "sv": "Välj pågående år för din årgärd"
+      },
+      "startingYear": {
+        "en": "Starting year",
+        "sv": "Startår"
+      },
+      "endingYear": {
+        "en": "Ending year",
+        "sv": "Slutår"
+      }
+    },
+    "4": {
+      "describeActors": {
+        "en": "Describe the actors involved in the action",
+        "sv": "Beskriv aktörer för din åtgärd"
+      },
+      "projectManager": {
+        "en": "Project manager",
+        "sv": "Projektansvarig"
+      },
+      "relevantActors": {
+        "en": "Relevant actors",
+        "sv": "Relevanta aktörer"
+      }
+    },
+    "5": {
+      "chooseCategories": {
+        "en": "What categories does the action fall under?",
+        "sv": "Vilka kategorier faller åtgärden under?"
+      },
+      "categories": {
+        "options": {
+          "sufficiency": {
+            "en": "Sufficiency",
+            "sv": "Tillräcklighet"
+          },
+          "efficiency": {
+            "en": "Efficiency",
+            "sv": "Effektivitet"
+          },
+          "renewables": {
+            "en": "Renewables",
+            "sv": "Förnybara"
+          }
+        }
+      }
+    },
+    "6": {
+      "externalResources": {
+        "en": "Attach external resources",
+        "sv": "Bifoga externa resurser"
+      }
+    }
+  },
+  "submit": {
+    "save": {
+      "en": "Save action",
+      "sv": "Spara åtgärd"
+    },
+    "create": {
+      "en": "Create action",
+      "sv": "Skapa åtgärd"
+    }
+  } 
+}
