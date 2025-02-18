@@ -48,3 +48,34 @@ export type TrafaDataResponse = {
   ActiveFrom: string, // ISO 8601 date string
   ValidatedRequestType: string | null,
 }
+
+export type StructureItem = {
+  Id: number,
+  DataType: "String" | "Time",
+  Label: string,
+  FullLabel: null, // Is it always null?
+  Name: string,
+  ParentName: string | null,
+  FullName: null, // Is it always null?
+  /**
+   * P: Tables; has an empty array for `StructureItems`.
+   * M: Measure; has an empty array for `StructureItems`.
+   * H: Contains multiple dimensions (`Type: "D"`) in `StructureItems`.
+   * D: Dimension; has a filled array for `StructureItems`.
+   * F: Probably dynamic item in a dimension, so far only seen under parents with `DataType: "Time"`. Has an empty array for `StructureItems`.
+   * DV: A specific value in a dimension, used as a filter. Has an empty array for `StructureItems`.
+   */
+  Type: "P" | "D" | "M" | "F" | "H" | "DV",
+  Selected: boolean,
+  Option: boolean,
+  Description: string,
+  UniqueId: string,
+  ActiveFrom: string, // ISO 8601 date string
+  StructureItems: StructureItem[],
+}
+
+export type TrafaStructureResponse = {
+  DataCount: number,
+  StructureItems: StructureItem[],
+  ValidatedRequestType: string,
+}
