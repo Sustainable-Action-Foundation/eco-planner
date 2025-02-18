@@ -4,8 +4,8 @@ import accessChecker from "@/lib/accessChecker.ts";
 import { LoginData } from "@/lib/session.ts";
 import { AccessControlled } from "@/types.ts";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
-import dict from "./roadmapTree.dict.json" assert { type: "json" };
 import { getServerLocale, validateDict } from "@/functions/serverLocale";
+import dict from "./roadmapTree.dict.json" assert { type: "json" };
 
 type RoadmapTreeProps = {
   user: LoginData['user'],

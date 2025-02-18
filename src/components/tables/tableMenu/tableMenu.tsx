@@ -8,8 +8,8 @@ import { Action, DataSeries, Effect, Goal, MetaRoadmap } from "@prisma/client";
 import { AccessLevel } from "@/types";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
-import dict from "./tableMenu.dict.json" assert { type: "json" };
 import { getClientLocale, validateDict } from "@/functions/clientLocale";
+import dict from "./tableMenu.dict.json" assert { type: "json" };
 
 // General purpose button for roadmaps, goals and actions. 
 // Update the name of the component to reflect this

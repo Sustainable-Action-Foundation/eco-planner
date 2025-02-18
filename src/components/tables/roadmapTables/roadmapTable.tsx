@@ -4,6 +4,8 @@ import { MetaRoadmap, Roadmap } from "@prisma/client";
 import { TableMenu } from '@/components/tables/tableMenu/tableMenu';
 import { AccessControlled } from '@/types';
 import accessChecker from '@/lib/accessChecker';
+import { getServerLocale, validateDict } from '@/functions/serverLocale';
+import dict from './roadmapTable.dict.json' assert { type: "json" };
 
 interface RoadmapTableCommonProps {
   user: LoginData['user'],
@@ -26,6 +28,9 @@ export default function RoadmapTable({
   roadmaps,
   metaRoadmap,
 }: RoadmapTableProps) {
+  validateDict(dict);
+  const locale = getServerLocale();
+
   // Failsafe in case wrong props are passed
   if ((!roadmaps && !metaRoadmap) || (roadmaps && metaRoadmap)) throw new Error('RoadmapTable: Either `roadmaps` XOR `metaRoadmap` must be provided');
 
@@ -52,7 +57,7 @@ export default function RoadmapTable({
             <div className='flex gap-100 justify-content-space-between align-items-center' key={roadmap.id}>
               <a href={`/roadmap/${roadmap.id}`} className={`${styles.roadmapLink} flex-grow-100`}>
                 <span className={styles.linkTitle}>{`${roadmap.metaRoadmap.name} (v${roadmap.version})`}</span>
-                <span className={styles.linkInfo}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} Målbanor</span>
+                <span className={styles.linkInfo}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} {dict.goals[locale]}</span>
               </a>
               <TableMenu
                 accessLevel={accessLevel}
@@ -62,6 +67,6 @@ export default function RoadmapTable({
           )
         })}
       </>
-      : <p>Inga färdplansversioner hittades. Om du har några filter aktiva så hittades inga färdplansversioner som matchar dem.</p>}
+      : <p>{dict.noRoadmapVersions[locale]}</p>}
   </>
 }

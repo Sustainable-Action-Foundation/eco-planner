@@ -1,14 +1,13 @@
 'use client';
 
-
 // TODO: Check if styles are used properly, I just yoinked these from ActionTable
 import styles from './tables.module.css' with { type: "css" };
 import { AccessLevel } from "@/types.ts";
 import { Action, Effect, Goal } from "@prisma/client";
 import Link from "next/link";
 import { TableMenu } from "./tableMenu/tableMenu.tsx";
-import dict from "./effects.dict.json" assert { type: "json" };
 import { getClientLocale, validateDict } from "@/functions/clientLocale";
+import dict from "./effects.dict.json" assert { type: "json" };
 
 interface EffectTableComonProps {
   accessLevel?: AccessLevel,

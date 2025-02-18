@@ -6,6 +6,8 @@ import { Action } from '@prisma/client';
 import { AccessLevel } from '@/types';
 import Link from 'next/link';
 import { TableMenu } from './tableMenu/tableMenu';
+import { getClientLocale, validateDict } from "@/functions/clientLocale";
+import dict from "./actions.dict.json" assert { type: "json" };
 
 /**
  * Displays a table of actions. Requires either a goal XOR a list of actions.
@@ -33,15 +35,18 @@ export default function ActionTable({
   accessLevel?: AccessLevel,
   roadmapId?: string,
 }) {
+  validateDict(dict);
+  const locale = getClientLocale();
+
   // If no actions are found, return a message
   if (!actions?.length) return (
     <>
-      <p>Det finns inga åtgärder att visa.
+      <p>{dict.noActions[locale]}
         { // Only show the button if the user has edit access and a roadmapId is provided
           (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) && roadmapId &&
-          <span> Vill du skapa en?&nbsp;
+          <span> {dict.createActionQuestion[locale]}&nbsp;
             <Link href={`/action/create?roadmapId=${roadmapId}`}>
-              Skapa ny åtgärd
+              {dict.createNewAction[locale]}
             </Link>
           </span>
         }

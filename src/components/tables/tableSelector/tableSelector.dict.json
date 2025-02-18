@@ -1,0 +1,14 @@
+{
+  "treeDisplay": {
+    "en": "Tree",
+    "sv": "Träd"
+  },
+  "tableDisplay": {
+    "en": "Table",
+    "sv": "Tabell"
+  },
+  "actionsDisplay":{
+    "en": "Actions",
+    "sv": "Åtgärder"
+  }
+}

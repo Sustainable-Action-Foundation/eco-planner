@@ -4,6 +4,8 @@ import Image from 'next/image';
 import goalsToTree, { GoalTree } from '@/functions/goalsToTree';
 import { SyntheticEvent } from 'react';
 import { getSessionStorage, setSessionStorage } from '@/functions/localStorage';
+import { getClientLocale, validateDict } from '@/functions/clientLocale';
+import dict from './linkTree.dict.json' assert { type: "json" };
 
 // interface LinkTreeCommonProps {}
 
@@ -34,6 +36,9 @@ export default function LinkTree({
   goals,
   roadmap,
 }: LinkTreeProps) {
+  validateDict(dict);
+  const locale = getClientLocale();
+
   // Failsafe in case wrong props are passed
   if ((!goals && !roadmap) || (goals && roadmap)) throw new Error('LinkTree: Either `goals` XOR `roadmap` must be provided');
 
@@ -46,7 +51,7 @@ export default function LinkTree({
     })
   }
 
-  if (!goals?.length) return (<p>Du har inte tillgång till några målbanor i denna färdplansversion, eller så är färdplansversionen tom.</p>);
+  if (!goals?.length) return (<p>{dict.noGoal[locale]}</p>);
 
   let openCategories: string[] = getSessionStorage(roadmap?.id || "") as string[] || [];
   if (!(openCategories instanceof Array)) {
@@ -70,7 +75,7 @@ export default function LinkTree({
       setSessionStorage(roadmap.id, currentStorage.filter(branch => branch != key));
     }
   };
-
+  
   const NestedKeysRenderer = ({ data, previousKeys = "" }: { data: GoalTree, previousKeys?: string }) => {
     return (
       <ul className={styles.list}>
@@ -81,7 +86,7 @@ export default function LinkTree({
                 <a href={`/goal/${data[key].id}`} className={`display-flex gap-50 align-items-center padding-block-50 ${styles.link}`}>
                   <Image src="/icons/link.svg" alt={`Link to ${key}`} width={16} height={16} />
                   <span>
-                    {(data[key].indicatorParameter as string).split('\\')[0].toLowerCase() == "key" && "Scenarioantagande: "}
+                    {((data[key].indicatorParameter as string).split('\\')[0].toLowerCase() == "key") && "Scenarioantagande: "}
                     {(data[key].indicatorParameter as string).split('\\')[0].toLowerCase() == "demand" && "Scenarieresultat: "}
                     {key}
                   </span>

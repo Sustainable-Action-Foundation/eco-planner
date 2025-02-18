@@ -1,0 +1,24 @@
+{
+  "noGoals": {
+    "en": "You do not have access to any goals in this roadmap version, or the roadmap version is empty.",
+    "sv": "Du har inte tillgång till några målbanor i denna färdplansversion, eller så är färdplansversionen tom."
+  },
+  "tableHeader": {
+    "goalName": {
+      "en": "Goal name",
+      "sv": "Målbanenamn"
+    },
+    "LEAPParameter": {
+      "en": "LEAP parameter",
+      "sv": "LEAP-parameter"
+    },
+    "seriesUnit": {
+      "en": "Unit",
+      "sv": "Enhet"
+    },
+    "actionCount": {
+      "en": "Action count",
+      "sv": "Antal åtgärder"
+    }
+  }
+}

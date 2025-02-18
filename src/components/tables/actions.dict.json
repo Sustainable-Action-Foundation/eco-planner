@@ -1,0 +1,14 @@
+{
+  "noActions": {
+    "en": "There are no actions to show.",
+    "sv": "Det finns inga åtgärder att visa."
+  },
+  "createActionQuestion": {
+    "en": "Do you want to create one?",
+    "sv": "Vill du skapa en?"
+  },
+  "createNewAction": {
+    "en": "Create new action",
+    "sv": "Skapa ny åtgärd"
+  }
+}

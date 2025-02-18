@@ -12,8 +12,8 @@ import GoalTable from "./goalTables/goalTable"
 import LinkTree from './goalTables/linkTree'
 import styles from './tables.module.css'
 import TableSelector from './tableSelector/tableSelector'
-import dict from "./goals.dict.json" assert { type: "json" };
 import { getClientLocale, validateDict } from "@/functions/clientLocale";
+import dict from "./goals.dict.json" assert { type: "json" };
 
 /** Enum for the different view modes for the goal table. */
 export enum ViewMode {
@@ -68,7 +68,7 @@ export default function Goals({
     <>
       <menu className={`margin-bottom-100 flex justify-content-space-between align-items-flex-end flex-wrap-wrap gap-100 padding-0 margin-0 ${styles.tableNav}`}>
         <label className="font-weight-bold flex-grow-100">
-          {dict.menu.searchGoals[locale]}
+          {dict.searchGoals[locale]}
           <div className="flex align-items-center margin-top-25 gray-90 padding-50 smooth focusable">
             <Image src='/icons/search.svg' alt="" width={24} height={24} />
             <input type="search" className="padding-0 margin-inline-50" onChange={(e) => setSearchFilter(e.target.value)} />
@@ -76,29 +76,29 @@ export default function Goals({
         </label>
         {viewMode == ViewMode.Table && (
           <label className="font-weight-bold">
-            {dict.menu.sortBy[locale]}
+            {dict.sortBy[locale]}
             <select
               className="font-weight-500 margin-top-25 block"
               style={{ fontSize: '1rem', minHeight: 'calc(24px + 1rem)' }}
               onChange={(e) => { setSortBy(e.target.value as GoalSortBy); setStoredGoalSortBy(e.target.value as GoalSortBy) }} defaultValue={sortBy}
             >
-              <option value={GoalSortBy.Default}>{dict.menu.sortingOptions.default[locale]}</option>
-              <option value={GoalSortBy.Alpha}>{dict.menu.sortingOptions.alpha[locale]}</option>
-              <option value={GoalSortBy.AlphaReverse}>{dict.menu.sortingOptions.alphaReverse[locale]}</option>
-              <option value={GoalSortBy.ActionsFalling}>{dict.menu.sortingOptions.actionsFalling[locale]})</option>
-              <option value={GoalSortBy.ActionsRising}>{dict.menu.sortingOptions.actionsRising[locale]})</option>
-              <option value={GoalSortBy.Interesting}>{dict.menu.sortingOptions.interesting[locale]}</option>
+              <option value={GoalSortBy.Default}>{dict.sortingOptions.default[locale]}</option>
+              <option value={GoalSortBy.Alpha}>{dict.sortingOptions.alpha[locale]}</option>
+              <option value={GoalSortBy.AlphaReverse}>{dict.sortingOptions.alphaReverse[locale]}</option>
+              <option value={GoalSortBy.ActionsFalling}>{dict.sortingOptions.actionsFalling[locale]})</option>
+              <option value={GoalSortBy.ActionsRising}>{dict.sortingOptions.actionsRising[locale]})</option>
+              <option value={GoalSortBy.Interesting}>{dict.sortingOptions.interesting[locale]}</option>
             </select>
           </label>
         )}
         <TableSelector id={roadmap.id} current={viewMode} setter={setViewMode} />
         { // Only show the button if the user has edit access to the roadmap
           (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-          <Link className="button round color-purewhite pureblack font-weight-500" href={`/goal/create?roadmapId=${roadmap.id}`}>{dict.menu.createGoal[locale]}</Link>
+          <Link className="button round color-purewhite pureblack font-weight-500" href={`/goal/create?roadmapId=${roadmap.id}`}>{dict.createGoal[locale]}</Link>
         }
         <div className={styles.settings}>
           <input type="checkbox" />
-          <Image src="/icons/settings.svg" alt="Inställningar" width="24" height="24" />
+          <Image src="/icons/settings.svg" alt={dict.settingsAltText[locale]} width="24" height="24" />
         </div>
       </menu>
 
@@ -123,8 +123,6 @@ export default function Goals({
           className='block margin-inline-auto'
         />
       }
-
-
     </>
   )
 }

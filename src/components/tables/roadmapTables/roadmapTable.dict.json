@@ -1,0 +1,10 @@
+{
+  "goals": {
+    "en": "Goals",
+    "sv": "Målbanor"
+  },
+  "noRoadmapVersions": {
+    "en": "No roadmap versions found. If you have any filters active, no roadmap versions matching them were found.",
+    "sv": "Inga färdplansversioner hittades. Om du har några filter aktiva så hittades inga färdplansversioner som matchar dem."
+  }
+}
