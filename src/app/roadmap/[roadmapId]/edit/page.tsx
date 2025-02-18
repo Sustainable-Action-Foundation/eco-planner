@@ -32,14 +32,14 @@ export default async function Page({ params }: { params: { roadmapId: string } }
 
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          {dict.edit.editRoadmapVersion[locale]}
+          {dict.editRoadmapVersion[locale]}
         </h1>
         <p className='margin-block-300'>
-          {dict.edit.didYouMeanTo[locale]}
+          {dict.didYouMeanTo[locale]}
           <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}/edit`}>
-            {dict.edit.goHere[locale]}
+            {dict.goHere[locale]}
           </Link>
-          {dict.edit.toEdit[locale]}
+          {dict.toEdit[locale]}
         </p>
         <RoadmapForm
           user={session.user}

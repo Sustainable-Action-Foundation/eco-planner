@@ -8,8 +8,8 @@ import { getSession } from "@/lib/session.ts";
 import { AccessLevel } from "@/types.ts";
 import { cookies } from "next/headers";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import dict from "./page.dict.json" assert { type: "json" };
 import { getServerLocale, validateDict } from "@/functions/serverLocale";
+import dict from "./page.dict.json" assert { type: "json" };
 
 export default async function Page({
   searchParams,
@@ -48,18 +48,18 @@ export default async function Page({
 
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          Skapa ny effekt
+          {dict.createNewEffect[locale]}
         </h1>
         {badAction &&
           <p style={{ color: 'red' }}>
             <Image src="/icons/info.svg" width={24} height={24} alt='' />
-            Åtgärden du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan.
+            {dict.badAction[locale]}
           </p>
         }
         {badGoal &&
           <p style={{ color: 'red' }}>
             <Image src="/icons/info.svg" width={24} height={24} alt='' />
-            Målbanan du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan.
+            {dict.badGoal[locale]}
           </p>
         }
         <EffectForm action={badAction ? null : action} goal={badGoal ? null : goal} roadmapAlternatives={roadmapList} />

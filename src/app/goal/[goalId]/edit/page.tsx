@@ -7,9 +7,8 @@ import getOneGoal from "@/fetchers/getOneGoal";
 import { AccessControlled, AccessLevel } from "@/types";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import dict from "./page.dict.json" assert { type: "json" };
 import { getServerLocale, validateDict } from "@/functions/serverLocale";
-
+import dict from "./page.dict.json" assert { type: "json" };
 
 export default async function Page({ params }: { params: { goalId: string } }) {
   validateDict(dict);
@@ -45,7 +44,7 @@ export default async function Page({ params }: { params: { goalId: string } }) {
 
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          Redigera målbana: 
+          {dict.editGoal[locale]}
           {currentGoal.name ? currentGoal.name : currentGoal.indicatorParameter}
         </h1>
         <GoalForm roadmapId={currentGoal.roadmapId} currentGoal={currentGoal} roadmapAlternatives={roadmapList} />

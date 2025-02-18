@@ -2,5 +2,13 @@
   "breadcrumbResetPassword": {
     "en": "Reset password",
     "sv": "Återställ lösenord"
+  },
+  "forgotPassword": {
+    "en": "Forgot password? Enter your email here and we will send you an email with instructions to reset your password.",
+    "sv": "Har du glömt ditt lösenord? Fyll i din email här så skickar vi ett mail med instruktioner för att återställa lösenordet."
+  },
+  "sendEmail": {
+    "en": "Send email",
+    "sv": "Skicka mail"
   }
 }

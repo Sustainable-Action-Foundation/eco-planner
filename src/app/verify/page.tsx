@@ -2,6 +2,8 @@
 
 import formSubmitter from "@/functions/formSubmitter";
 import Image from "next/image";
+import { getClientLocale, validateDict } from "@/functions/clientLocale";
+import dict from "./page.dict.json" assert { type: "json" };
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
   event.preventDefault()
@@ -14,10 +16,13 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
 }
 
 export default function Page() {
+  validateDict(dict);
+  const locale = getClientLocale();
+
   return (
     <div>
-      <p>Ett email ska ha skickats till din emailadress. Vänligen klicka på länken i mailet för att verifiera din emailadress.</p>
-      <p>Om du inte har fått något email, vänligen kolla i din skräppost eller fyll i din emailadress nedan och klicka på knappen för att skicka ett nytt email.</p>
+      <p>{dict.emailVerification[locale]}</p>
+      <p>{dict.retryInfo[locale]}</p>
       <form onSubmit={handleSubmit}>
         <label>
           <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
@@ -25,7 +30,7 @@ export default function Page() {
             <input className="padding-0 margin-inline-50" type="email" placeholder="email" name="email" required id="email" autoComplete="email" />
           </div>
         </label>
-        <button type="submit">Skicka nytt email</button>
+        <button type="submit">{dict.sendNewEmail[locale]}</button>
       </form>
     </div>
   )

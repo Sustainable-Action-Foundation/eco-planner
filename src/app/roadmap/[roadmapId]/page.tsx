@@ -38,7 +38,7 @@ export default async function Page({ params }: { params: { roadmapId: string } }
     <main>
       <section className="flex justify-content-space-between flex-wrap-wrap gap-100 margin-block-300" >
         <div className="flex-grow-100">
-          <span style={{ color: 'gray' }}>{dict.main.section[0].roadmap[locale]}</span>
+          <span style={{ color: 'gray' }}>{dict.roadmap[locale]}</span>
           <h1 className="margin-0">{roadmap.metaRoadmap.name}</h1>
           <p className="margin-0">
             {`Version ${roadmap.version} • `}
@@ -46,9 +46,9 @@ export default async function Page({ params }: { params: { roadmapId: string } }
               <>{`${roadmap.metaRoadmap.actor} • `}</>
               : null
             }
-            {`${roadmap.goals.length ?? 0} ${dict.main.section[0].goals[locale]} • `}
+            {`${roadmap.goals.length ?? 0} ${dict.goals[locale]} • `}
             {/* TODO: style link to better match surroundings */}
-            <a href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>{dict.main.section[0].visitRoadmap[locale]}</a>
+            <a href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>{dict.visitRoadmap[locale]}</a>
           </p>
           <p className="margin-bottom-0">{roadmap.metaRoadmap.description}</p>
           {roadmap.description ? (
@@ -73,14 +73,14 @@ export default async function Page({ params }: { params: { roadmapId: string } }
             className="flex align-items-center gap-50 font-weight-500 button transparent round color-pureblack text-decoration-none"
             style={{ height: 'fit-content' }}
           >
-            {dict.main.section[0].editRoadmapVersion[locale]}
+            {dict.editRoadmapVersion[locale]}
             <Image src="/icons/edit.svg" alt="" width="24" height="24" />
           </a>
         }
       </section>
 
       <section className="margin-block-300">
-        <h2>{dict.main.section[1].selectGoals[locale]}</h2>
+        <h2>{dict.selectGoals[locale]}</h2>
         <div className="grid gap-100" style={{ gridTemplateColumns: 'repeat(auto-fit, 300px)' }}>
           {roadmap.goals.map((goal, key) =>
             goal.isFeatured ?
@@ -93,7 +93,7 @@ export default async function Page({ params }: { params: { roadmapId: string } }
       </section>
 
       <section className="margin-block-300">
-        <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>{dict.main.section[2].allGoals[locale]}</h2>
+        <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>{dict.allGoals[locale]}</h2>
         <Goals roadmap={roadmap} accessLevel={accessLevel} />
       </section>
     </main>

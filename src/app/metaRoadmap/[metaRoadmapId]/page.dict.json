@@ -1,0 +1,22 @@
+{
+  "roadmap": {
+    "en": "Roadmap",
+    "sv": "Färdplansserie"
+  },
+  "metadataLabel": {
+    "en": "Metadata for a series of roadmap versions",
+    "sv": "Metadata för en serie av färdplansversioner"
+  },
+  "externalResources": {
+    "en": "External resources",
+    "sv": "Externa resurser"
+  },
+  "roadmaps": {
+    "en": "Roadmaps",
+    "sv": "Färdplaner"
+  },
+  "newRoadmapVersion": {
+    "en": "Create new roadmap version",
+    "sv": "Skapa ny färdplansversion"
+  }
+}

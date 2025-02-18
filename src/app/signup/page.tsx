@@ -1,9 +1,9 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import Signup from "@/components/forms/userInfo/signup";
 import AttributedImage from "@/components/generic/images/attributedImage";
+import styles from "./page.module.css" with { type: "css" };
 import { getServerLocale, validateDict } from "@/functions/serverLocale";
 import dict from "./page.dict.json" assert { type: "json" };
-import styles from "./page.module.css" with { type: "css" };
 
 export default async function Page() {
   validateDict(dict);
@@ -18,7 +18,7 @@ export default async function Page() {
         <div className={`${styles.image} position-relative width-100 rounded overflow-hidden`}>
           <AttributedImage src="/images/hydroelectric.jpg" alt="">
             <div className="width-100 padding-100">
-              Photo by <a className="color-purewhite" href="https://unsplash.com/@dmey503?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Dan Meyers</a> on <a className="color-purewhite" href="https://unsplash.com/photos/aerial-photography-of-body-of-water-w6X7XaolqA0?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Unsplash</a>
+              {dict.photoBy[locale]} <a className="color-purewhite" href="https://unsplash.com/@dmey503?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Dan Meyers</a> {dict.on[locale]} <a className="color-purewhite" href="https://unsplash.com/photos/aerial-photography-of-body-of-water-w6X7XaolqA0?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Unsplash</a>
             </div>
           </AttributedImage>
         </div>

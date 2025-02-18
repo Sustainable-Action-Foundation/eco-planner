@@ -8,8 +8,8 @@ import Image from "next/image";
 import { AccessLevel } from '@/types';
 import accessChecker from '@/lib/accessChecker';
 import getOneMetaRoadmap from '@/fetchers/getOneMetaRoadmap';
-import dict from './page.dict.json' assert { type: "json" };
-import { getServerLocale, validateDict } from '@/functions/serverLocale';
+import { getServerLocale, validateDict } from "@/functions/serverLocale";
+import dict from "./page.dict.json" assert { type: "json" };
 
 export default async function Page({
   searchParams
@@ -50,13 +50,12 @@ export default async function Page({
 
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          Skapa en ny version i en färdplansserie
+          {dict.newRoadmapVersion[locale]}
         </h1>
         {badMetaRoadmap &&
           <p style={{ color: 'red' }}>
             <Image src="/icons/info.svg" width={24} height={24} alt='' />
-            Kunde inte hitta eller har inte tillgång till färdplansserien i länken. <br />
-            Använd dropdown-menyn för att välja en färdplansserie.
+            {dict.badMetaRoadmap[locale]}
           </p>
         }
         <RoadmapForm

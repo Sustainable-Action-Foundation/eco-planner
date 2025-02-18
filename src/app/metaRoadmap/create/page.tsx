@@ -4,8 +4,8 @@ import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
-import dict from './page.dict.json' assert { type: 'json' };
-import { getServerLocale, validateDict } from '@/functions/serverLocale';
+import { getServerLocale, validateDict } from "@/functions/serverLocale";
+import dict from "./page.dict.json" assert { type: "json" };
 
 export default async function Page() {
   validateDict(dict);
@@ -27,7 +27,7 @@ export default async function Page() {
 
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          Skapa en ny färdplansserie
+          {dict.newRoadmap[locale]}
         </h1>
         <MetaRoadmapForm
           user={session.user}

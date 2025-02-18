@@ -2,5 +2,13 @@
   "breadcrumbCreateRoadmapVersion": {
     "en": "Create new roadmap version",
     "sv": "Skapa ny färdplansversion"
+  },
+  "newRoadmapVersion": {
+    "en": "Create a new version in a roadmap series",
+    "sv": "Skapa en ny version i en färdplansserie"
+  },
+  "badMetaRoadmap": {
+    "en": "Could not find or do not have access to the roadmap in the link.\u000aUse the dropdown menu to select a roadmap series.",
+    "sv": "Kunde inte hitta eller har inte tillgång till färdplansserien i länken.\u000aAnvänd dropdown-menyn för att välja en färdplansserie."
   }
 }

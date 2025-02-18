@@ -1,40 +1,30 @@
 {
-  "main": {
-    "section": {
-      "0": {
-        "roadmap": {
-          "en": "Roadmap",
-          "sv": "Färdplan"
-        },
-        "version": {
-          "en": "Version",
-          "sv": "Version"
-        },
-        "goals": {
-          "en": "goals",
-          "sv": "målbanor"
-        },
-        "visitRoadmap": {
-          "en": "Visit roadmap",
-          "sv": "Besök färdplansserien"
-        },
-        "editRoadmapVersion": {
-          "en": "Edit roadmap version",
-          "sv": "Redigera färdplansversionen"
-        }
-      },
-      "1": {
-        "selectGoals": {
-          "en": "Select goals",
-          "sv": "Utvalda målbanor"
-        }
-      },
-      "2": {
-        "allGoals": {
-          "en": "All goals",
-          "sv": "Alla målbanor"
-        }
-      }
-    }
+  "roadmap": {
+    "en": "Roadmap",
+    "sv": "Färdplan"
+  },
+  "version": {
+    "en": "Version",
+    "sv": "Version"
+  },
+  "goals": {
+    "en": "goals",
+    "sv": "målbanor"
+  },
+  "visitRoadmap": {
+    "en": "Visit roadmap",
+    "sv": "Besök färdplansserien"
+  },
+  "editRoadmapVersion": {
+    "en": "Edit roadmap version",
+    "sv": "Redigera färdplansversionen"
+  },
+  "selectGoals": {
+    "en": "Select goals",
+    "sv": "Utvalda målbanor"
+  },
+  "allGoals": {
+    "en": "All goals",
+    "sv": "Alla målbanor"
   }
 }

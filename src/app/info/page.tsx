@@ -2,8 +2,8 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { JSONValue } from "@/types.ts";
 import fs from "fs";
 import metadata from "package.json" with { type: "json" };
-import dict from "./page.dict.json" assert { type: "json" };
 import { getServerLocale, validateDict } from "@/functions/serverLocale";
+import dict from "./page.dict.json" assert { type: "json" };
 
 export default async function Page() {
   validateDict(dict);
@@ -57,13 +57,9 @@ export default async function Page() {
     <>
       <Breadcrumb customSections={[`${dict.breadcrumbInfo[locale]}`]} />
 
-      <h1>Information</h1>
+      <h1>{dict.information[locale]}</h1>
       <p>
-        Detta verktyg syftar till att bidra till Sveriges klimatomställning.
-        I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas.
-        Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen.
-        Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige.
-        På lokal nivå kan också olika aktörer samarbeta kring åtgärder.
+        {dict.infoBody[locale]}
       </p>
 
       {/* TODO: Add wiki once created */}

@@ -2,5 +2,9 @@
   "breadcrumbCreateRoadmap": {
     "en": "Create roadmap",
     "sv": "Skapa färdplansserie"
+  },
+  "newRoadmap": {
+    "en": "Create a new roadmap",
+    "sv": "Skapa en ny färdplansserie"
   }
 }

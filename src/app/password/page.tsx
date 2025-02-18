@@ -3,8 +3,8 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import formSubmitter from "@/functions/formSubmitter";
 import Image from "next/image";
-import dict from "./page.dict.json" assert { type: "json" };
 import { getClientLocale, validateDict } from "@/functions/clientLocale";
+import dict from "./page.dict.json" assert { type: "json" };
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
   event.preventDefault()
@@ -25,7 +25,7 @@ export default function Page() {
       <Breadcrumb customSections={[`${dict.breadcrumbResetPassword[locale]}`]} />
 
       <div>
-        <p>Har du glömt ditt lösenord? Fyll i din email här så skickar vi ett mail med instruktioner för att återställa lösenordet.</p>
+        <p>{dict.forgotPassword[locale]}</p>
         <form onSubmit={handleSubmit}>
           <label>
             <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
@@ -33,7 +33,7 @@ export default function Page() {
               <input className="padding-0 margin-inline-50" type="email" placeholder="email" name="email" required id="email" autoComplete="email" />
             </div>
           </label>
-          <button type="submit">Skicka mail</button>
+          <button type="submit">{dict.sendEmail[locale]}</button>
         </form>
       </div>
     </>

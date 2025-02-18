@@ -20,5 +20,21 @@
       "en": " to edit the metadata.",
       "sv": " för att redigera metadatan."
     }
+  },
+  "editRoadmapVersion": {
+    "en": "Edit roadmap version",
+    "sv": "Redigera färdplansversionen"
+  },
+  "didYouMeanTo": {
+    "en": "Did you mean to edit the common metadata for the entire roadmap? If so, you can ",
+    "sv": "Ville du redigera den gemensamma metadatan för hela färdplansserien? Isåfall kan du "
+  },
+  "goHere": {
+    "en": "go here",
+    "sv": "gå hit"
+  },
+  "toEdit": {
+    "en": " to edit the metadata.",
+    "sv": " för att redigera metadatan."
   }
 }

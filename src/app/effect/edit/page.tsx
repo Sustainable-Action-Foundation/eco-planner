@@ -7,8 +7,8 @@ import { getSession } from "@/lib/session.ts";
 import { AccessLevel } from "@/types.ts";
 import { cookies } from "next/headers";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import dict from "./page.dict.json" assert { type: "json" };
 import { getServerLocale, validateDict } from "@/functions/serverLocale";
+import dict from "./page.dict.json" assert { type: "json" };
 
 const editAccess = [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin];
 
@@ -34,11 +34,11 @@ export default async function Page({
     return (
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          Redigera effekt
+          {dict.editEffect[locale]}
         </h1>
         <p style={{ color: 'red' }}>
           <Image src="/icons/info.svg" width={24} height={24} alt='' />
-          Effekten du försöker redigera finns inte eller så har du inte redigeringsbehörighet till den.
+          {dict.badEffect[locale]}
         </p>
       </div>
     )
@@ -52,7 +52,7 @@ export default async function Page({
 
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          Redigera effekt
+          {dict.editEffect[locale]}
         </h1>
         <EffectForm action={effect.action} goal={effect.goal} roadmapAlternatives={roadmapList} currentEffect={effect} />
       </div>
