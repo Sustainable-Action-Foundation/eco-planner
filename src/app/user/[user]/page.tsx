@@ -9,6 +9,7 @@ import { getSession } from '@/lib/session';
 import { AccessLevel } from '@/types';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
+import styles  from './page.module.css' with { type: "css" }
 
 export default async function Page({ 
   params, 
@@ -133,17 +134,18 @@ export default async function Page({
         </h2> 
         <UserFilters />
 
-        <ul style={{padding: '20px'}}>
-          {/* If on users own page, show roadmapsseries and roadmaps with edit access*/}
+        <ul className={styles.itemsList}>
+          {/* TODO: Keys are not unique for elements in this list */}
+          {/* TODO: Rename objects to items? (foremål?) */}
+          {/* If on users own page, show roadmapseries and roadmaps with edit access*/}
           {session.user?.username === username ?
             <>
               {displayedEditableMetaRoadmaps.map((editableMetaRoadmap, index) => 
                 <li key={index} className='margin-block-25'>
                   <div className='flex justify-content-space-between align-items-center'>
-                    <div>
-                      <a href={`/metaRoadmap/${editableMetaRoadmap.id}`}>{editableMetaRoadmap.name}</a> • <span>Färdplansserie</span> <br/>
+                    <a href={`/metaRoadmap/${editableMetaRoadmap.id}`} className='block'>{editableMetaRoadmap.name} • <span>Färdplansserie</span> <br/>
                       <small>Antal versioner i denna serie: {editableMetaRoadmap.roadmapVersions.length}</small>
-                    </div>
+                    </a>
                     <TableMenu object={editableMetaRoadmap} />
                   </div>
                 </li>

@@ -1,0 +1,7 @@
+.itemsList {
+    padding: 20px;
+}
+
+.itemsList li:has(a:hover), .itemsList li:has(a:focus)  {
+    list-style: url('/icons/link-small.svg')  ;
+}

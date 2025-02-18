@@ -24,7 +24,6 @@ export default function UserFilters() {
     })
   }
 
-  //TODO: Fix bug where unchecking one fieldset element unchecks the other
   return (
     <menu className='margin-0 padding-0 flex gap-300 flex-wrap-wrap margin-bottom-100'>
       <fieldset className='flex gap-100'>
