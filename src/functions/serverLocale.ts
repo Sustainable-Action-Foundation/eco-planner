@@ -3,7 +3,7 @@ import { DEFAULT_LOCALE } from "@/constants";
 import { headers } from "next/headers";
 
 /**
- * Read locale eg. "en" | "sv" from the http `locale` header.
+ * Read locale i.e. "en" | "sv" from the http `locale` header.
  *  */
 export function getServerLocale() {
   // Get the locale cookie or use the default locale
