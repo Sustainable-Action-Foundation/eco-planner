@@ -3,7 +3,7 @@ import { DEFAULT_LOCALE } from "@/constants";
 import { headers } from "next/headers";
 
 /**
- * @description Read locale eg. "en" | "sv" from the http `locale` header.
+ * Read locale eg. "en" | "sv" from the http `locale` header.
  *  */
 export function getServerLocale() {
   // Get the locale cookie or use the default locale
@@ -11,7 +11,7 @@ export function getServerLocale() {
 }
 
 /** 
- * @description Throw error if JSON object is empty.
+ * Throw error if JSON object is empty.
  * @param dict JSON object.
 */
 // This code has a duplicate in ./serverLocale.ts

@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { getCookie } from "cookies-next";
 
 /**
- * @description Read locale eg. "en" | "sv" from the clients cookies via the `language` cookie.
+ * Read locale eg. "en" | "sv" from the clients cookies via the `language` cookie.
  */
 export function getClientLocale() {
   // TODO - Reconsider the use of `useState` and `useEffect` in this function.
@@ -24,7 +24,7 @@ export function getClientLocale() {
 }
 
 /** 
- * @description Throw error if JSON object is empty.
+ * Throw error if JSON object is empty.
  * @param dict JSON object.
  * @
 */
