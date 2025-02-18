@@ -10,8 +10,14 @@ import { AccessLevel } from '@/types';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 
-export default async function Page({ params }: { params: { user: string } }) {
-  
+export default async function Page({ 
+  params, 
+  searchParams 
+  }: { 
+    params: { user: string },
+    searchParams: { [key: string]: string | string[] | undefined }
+  }) {
+    
   let username = params.user;
 
   /** Matches strings starting with @ or %40 (URL-encoded @) */
@@ -38,8 +44,63 @@ export default async function Page({ params }: { params: { user: string } }) {
 
   const editAccess = [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin];
 
-  const editableRoadmaps = roadmaps.filter(roadmap => editAccess.includes(accessChecker(roadmap, session.user)));
   const editableMetaRoadmaps = metaRoadmaps.filter(metaRoadmap => editAccess.includes(accessChecker(metaRoadmap, session.user)));
+  let displayedEditableMetaRoadmaps = editableMetaRoadmaps // TODO: fix default values for this
+  let displayedAuthoredMetaRoadmaps = userdata.authoredMetaRoadmaps
+
+  const editableRoadmaps = roadmaps.filter(roadmap => editAccess.includes(accessChecker(roadmap, session.user)));
+  let displayedEditableRoadmaps = editableRoadmaps // TODO: Fix default values for this
+  let displayedAuthoredRoadmaps = userdata.authoredRoadmaps
+
+  const objectsFilter = searchParams['objects'] ? (Array.isArray(searchParams['objects']) ? searchParams['objects'] : [searchParams['objects']]) : [];
+  const accessFilter = searchParams['access'] ? (Array.isArray(searchParams['access']) ? searchParams['access'] : [searchParams['access']]) : [];
+
+  // Update values based on query params
+  function toggleRoadmaps() {
+    // TODO: temporary fix to do empty lists until i figure out how i wanna handle default values
+    displayedAuthoredMetaRoadmaps = []
+    displayedAuthoredRoadmaps = []
+
+    if (objectsFilter.includes('roadmapseries')) {
+      // Only display roadmapseries with edit access if on own user page
+      if (accessFilter.includes('edit') && session.user?.username === username) {
+        displayedEditableMetaRoadmaps = editableMetaRoadmaps;
+      } else {
+        displayedEditableMetaRoadmaps = [];
+      }
+
+      // Allow everyone to see roadmapseries if the visited user has userdata
+      if (accessFilter.includes('owner') && userdata) {
+        displayedAuthoredMetaRoadmaps = userdata.authoredMetaRoadmaps;
+      } else {
+        displayedAuthoredMetaRoadmaps = [];
+      }
+    } else {
+      displayedEditableMetaRoadmaps = [];
+    }
+
+    if (objectsFilter.includes('roadmap')) {
+      // Only display roadmaps with edit access if on own user page
+      if (accessFilter.includes('edit') && session.user?.username === username) {
+        displayedEditableRoadmaps = editableRoadmaps;
+      } else {
+        displayedEditableRoadmaps = [];
+      }
+
+      // Allow everyone to see roadmaps if the visited user has userdata
+      if (accessFilter.includes('owner') && userdata) {
+        displayedAuthoredRoadmaps = userdata.authoredRoadmaps;
+      } else {
+        displayedAuthoredRoadmaps = [];
+      }
+    } else {
+      displayedEditableRoadmaps = [];
+    }
+
+
+  }
+  
+  toggleRoadmaps()
 
   return <>
     <main>
@@ -72,11 +133,11 @@ export default async function Page({ params }: { params: { user: string } }) {
         </h2> 
         <UserFilters />
 
-        <ul>
+        <ul style={{padding: '20px'}}>
           {/* If on users own page, show roadmapsseries and roadmaps with edit access*/}
           {session.user?.username === username ?
             <>
-              {editableMetaRoadmaps.map((editableMetaRoadmap, index) => 
+              {displayedEditableMetaRoadmaps.map((editableMetaRoadmap, index) => 
                 <li key={index} className='margin-block-25'>
                   <div className='flex justify-content-space-between align-items-center'>
                     <div>
@@ -87,7 +148,8 @@ export default async function Page({ params }: { params: { user: string } }) {
                   </div>
                 </li>
               )}
-              {editableRoadmaps.map((editableRoadmap, index) => 
+
+              {displayedEditableRoadmaps.map((editableRoadmap, index) => 
                 <li key={index} className='margin-block-25'>
                   <div className='flex justify-content-space-between align-items-center'>
                     <div>
@@ -102,7 +164,7 @@ export default async function Page({ params }: { params: { user: string } }) {
           : null}
 
           {/* Otherwise default to show roadmapsseries and roadmaps with ownership */}
-          {userdata.authoredMetaRoadmaps.map((authoredMetaRoadmap, index) => 
+          {displayedAuthoredMetaRoadmaps.map((authoredMetaRoadmap, index) => 
             <li key={index} className='margin-block-25'>
               <div className='flex justify-content-space-between align-items-center'>
                 <div>
@@ -113,7 +175,7 @@ export default async function Page({ params }: { params: { user: string } }) {
               </div>
             </li>
           )}
-          {userdata.authoredRoadmaps.map((authoredRoadmaps, index) => 
+          {displayedAuthoredRoadmaps.map((authoredRoadmaps, index) => 
             <li key={index} className='margin-block-25'>
               <div className='flex justify-content-space-between align-items-center'>
                 <div>
