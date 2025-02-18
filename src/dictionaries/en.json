@@ -198,7 +198,7 @@
       "page": {
         "emailHasBeenSent": {
           "en": "An email has been sent to you with a link to verify your email address.",
-          "sv": "Ett e-postmeddelande har skickats till dig med en länk för att verifiera din e-postadress."
+          "sv": "En verifieringslänk har skickats till din e-postadress."
         },
         "ifYouHaveNotReceived": {
           "en": "If you have not received the email within a few minutes, please check your spam folder or write your email adress below and click the button to send a new email.",
