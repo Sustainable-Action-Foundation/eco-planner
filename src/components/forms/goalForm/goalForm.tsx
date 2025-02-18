@@ -1,18 +1,20 @@
 'use client';
 
+import /* LinkInput, */ LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput";
+import { getScalingResult } from "@/components/modals/copyAndScale";
+import RepeatableScaling from "@/components/repeatableScaling";
+import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
+import { getClientLocale, validateDict } from "@/functions/clientLocale";
+import formSubmitter from "@/functions/formSubmitter";
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
-import Image from "next/image";
+import mathjs from "@/math";
 import { GoalInput, ScaleBy, ScaleMethod, ScalingRecipie, dataSeriesDataFieldNames, isScalingRecipie } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
-import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput";
-import formSubmitter from "@/functions/formSubmitter";
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
+import styles from '../forms.module.css';
+import dict from "./goalForm.dict.json" assert { type: "json" };
 import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
-import RepeatableScaling from "@/components/repeatableScaling";
-import { getScalingResult } from "@/components/modals/copyAndScale";
-import mathjs from "@/math";
-import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
-import styles from '../forms.module.css'
 
 enum DataSeriesType {
   Static = "STATIC",
@@ -64,6 +66,9 @@ export default function GoalForm({
     roadmap: { id: string },
   },
 }) {
+  validateDict(dict);
+  const locale = getClientLocale();
+
   const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(!currentGoal?.combinationParents.length ? DataSeriesType.Static : currentGoal.combinationParents.length >= 2 ? DataSeriesType.Combined : DataSeriesType.Inherited)
   const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baselineDataSeries ? BaselineType.Custom : BaselineType.Initial)
   const [scalingRecipie, setScalingRecipe] = useState<ScalingRecipie>({ values: [] });
@@ -199,16 +204,16 @@ export default function GoalForm({
         {/* Allow user to select parent roadmap if not already selected */}
         {!(roadmapId || currentGoal?.roadmapId) ?
           <fieldset className={`${styles.timeLineFieldset} width-100`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>Ange relationen till andra inlägg</legend>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>{dict.selectRoadmapVersion.relationToOtherPosts[locale]}</legend>
             <label className="block margin-block-100">
-              Välj färdplansversion att skapa målbanan under:
+              {dict.selectRoadmapVersion.title[locale]}
               <select name="roadmapId" id="roadmapId" required className="block margin-block-25" defaultValue={""}
                 onChange={(e) => setSelectedRoadmap(e.target.value)}
               >
-                <option value="" disabled>Välj färdplansversion</option>
+                <option value="" disabled>{dict.selectRoadmapVersion.selectRoadmapVersion[locale]}</option>
                 {roadmapAlternatives.map(roadmap => (
                   <option key={roadmap.id} value={roadmap.id}>
-                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} åtgärder`}
+                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} ${dict.selectRoadmapVersion.actions[locale]}`}
                   </option>
                 ))}
               </select>
@@ -218,36 +223,36 @@ export default function GoalForm({
         }
 
         <fieldset className={`${styles.timeLineFieldset} width-100 ${positionIndex > 1 ? "margin-top-200" : ""}`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend}  font-weight-bold`}>Välj typ av dataserie för din målbana</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend}  font-weight-bold`}>{dict.dataSeries.selectType[locale]}</legend>
           <label className="block margin-block-100">
-            Dataserie
+            {dict.dataSeries.dataSeries[locale]}
             <select name="dataSeriesType" id="dataSeriesType" className="block margin-block-25" required
               defaultValue={!currentGoal?.combinationParents.length ? DataSeriesType.Static : currentGoal.combinationParents.length >= 2 ? DataSeriesType.Combined : DataSeriesType.Inherited}
               onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
             >
-              <option value={DataSeriesType.Static}>Statisk</option>
-              <option value={DataSeriesType.Inherited}>Ärvd</option>
-              <option value={DataSeriesType.Combined}>Kombinerad</option>
+              <option value={DataSeriesType.Static}>{dict.dataSeries.options.static[locale]}</option>
+              <option value={DataSeriesType.Inherited}>{dict.dataSeries.options.inherited[locale]}</option>
+              <option value={DataSeriesType.Combined}>{dict.dataSeries.options.combined[locale]}</option>
             </select>
           </label>
         </fieldset>
 
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Beskriv din målbana</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.description.describe[locale]}</legend>
           <label className="block margin-bottom-100">
-            Namn på målbanan
+            {dict.description.name[locale]}
             <input className="margin-block-25" type="text" name="goalName" id="goalName" defaultValue={currentGoal?.name ?? undefined} />
           </label>
 
           <label className="block margin-block-100">
-            Beskrivning av målbanan
-            <textarea className="margin-block-25" name="description" id="description" defaultValue={currentGoal?.description ?? undefined}></textarea>
+            {dict.description.description[locale]}
+            <textarea className="margin-block-25" name="description" id="description" defaultValue={currentGoal?.description ?? undefined} />
           </label>
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Beskriv hur din målbanas data är utformad</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.data.describe[locale]}</legend>
           {(dataSeriesType === DataSeriesType.Static || !dataSeriesType) &&
             <ManualGoalForm currentGoal={currentGoal} dataSeriesString={dataSeriesString} />
           }
@@ -262,7 +267,7 @@ export default function GoalForm({
 
           {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
             <fieldset className="padding-50 smooth position-relative" style={{ border: '1px solid var(--gray-90)' }}>
-              <legend>Skalning</legend>
+              <legend>{dict.data.scaling.title[locale]}</legend>
               <div className="margin-block-100">
                 {scalingRecipie.values.map((value, index) => {
                   return (
@@ -276,25 +281,25 @@ export default function GoalForm({
                     > {/* Multiplicative scaling doesn't use weights */}
                       <button type="button"
                         onClick={() => setScalingRecipe({ method: scalingRecipie.method, values: scalingRecipie.values.filter((_, i) => i !== index) })}>
-                        <Image src='/icons/circleMinus.svg' alt="Ta bort skalning" width={24} height={24} />
+                        <Image src='/icons/circleMinus.svg' alt={dict.data.scaling.removeScaling[locale]} width={24} height={24} />
                       </button>
                     </RepeatableScaling>
                   )
                 })}
               </div>
-              <button type="button" className="margin-block-100" onClick={() => setScalingRecipe({ method: scalingRecipie.method, values: [...scalingRecipie.values, { value: 1 }] })}>Lägg till skalning</button>
+              <button type="button" className="margin-block-100" onClick={() => setScalingRecipe({ method: scalingRecipie.method, values: [...scalingRecipie.values, { value: 1 }] })}>{dict.data.scaling.addScaling[locale]}</button>
 
               <label className="block margin-block-100">
-                Skalningsmetod:
+                {dict.data.scaling.scalingMethod[locale]}
                 <select name="scalingMethod" id="scalingMethod" className="margin-inline-25" defaultValue={scalingRecipie.method || ScaleMethod.Geometric}>
-                  <option value={ScaleMethod.Geometric}>Geometriskt genomsnitt (rekommenderad)</option>
-                  <option value={ScaleMethod.Algebraic}>Algebraiskt genomsnitt</option>
-                  <option value={ScaleMethod.Multiplicative}>Multiplikativ</option>
+                  <option value={ScaleMethod.Geometric}>{dict.data.scaling.scalingMethod.options.geometric[locale]}</option>
+                  <option value={ScaleMethod.Algebraic}>{dict.data.scaling.scalingMethod.options.algebraic[locale]}</option>
+                  <option value={ScaleMethod.Multiplicative}>{dict.data.scaling.scalingMethod.options.multiplicative[locale]}</option>
                 </select>
               </label>
 
               <label className="block margin-block-100">
-                <strong className="block bold">Resulterande skalfaktor: </strong>
+                <strong className="block bold">{dict.data.scaling.resultingScalingFactor[locale]} </strong>
                 <output className="margin-block-100 block">{scalingResult}</output>
               </label>
             </fieldset>
@@ -302,23 +307,23 @@ export default function GoalForm({
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Välj baslinje för åtgärder</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.baseline.selectBaseline[locale]}</legend>
           <label className="block margin-bottom-100">
-            Vilken baslinje ska man utgå från när man beräknar åtgärders effekt på målbanan?
+            {dict.baseline.whichBaseline[locale]}
             <select className="block margin-block-25" name="baselineSelector" id="baselineSelector" value={baselineType} onChange={(e) => setBaselineType(e.target.value as BaselineType)}>
-              <option value={BaselineType.Initial}>Första årets värde</option>
-              <option value={BaselineType.Custom}>Anpassad baslinje</option>
-              <option value={BaselineType.Inherited}>Använd en annan målbana som baslinje</option>
+              <option value={BaselineType.Initial}>{dict.baseline.options.initial[locale]}</option>
+              <option value={BaselineType.Custom}>{dict.baseline.options.custom[locale]}</option>
+              <option value={BaselineType.Inherited}>{dict.baseline.options.inherited[locale]}</option>
             </select>
           </label>
 
           {baselineType === BaselineType.Custom &&
             <label className="block margin-block-100">
-              Anpassad baslinje:
+              {dict.baseline.customBaseline[locale]}
               {/* TODO: Make this allow .csv files and possibly excel files */}
               <input type="text" name="baselineDataSeries" id="baselineDataSeries"
                 pattern={dataSeriesPattern}
-                title="Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma."
+                title={dict.baseline.input.title[locale]}
                 className="margin-block-25"
                 defaultValue={baselineString}
               />
@@ -331,15 +336,15 @@ export default function GoalForm({
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Bifoga externa resurser</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.externalResources.attach[locale]}</legend>
           <LinkInput links={currentGoal?.links} />
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Vill du lyfta fram den här målbana under din färdplansversion?</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.featureGoal.question[locale]}</legend>
           <label className="flex align-items-center gap-50 margin-block-50">
             <input type="checkbox" name="isFeatured" id="isFeatured" defaultChecked={currentGoal?.isFeatured} /> {/* TODO: Make toggle */}
-            Lyft fram min målbana
+            {dict.featureGoal.checkboxLabel[locale]}
           </label>
         </fieldset>
 
@@ -347,17 +352,17 @@ export default function GoalForm({
           currentGoal?.dataSeries?.scale ?
             <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
               <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>
-                Målbanan innehåller en skala. Vänligen baka in skalan i värdet eller enheten och checka sedan i den här boxen; alla skalor kommer att tas bort i framtiden
+                {dict.scaleExists.alert[locale]}
               </legend>
               <label className="flex align-items-center gap-50 margin-block-50">
                 <input type="checkbox" name="scale" id="scale" />
-                Ta bort skalan {`"${currentGoal?.dataSeries?.scale}"`}
+                {dict.scaleExists.checkboxLabel[locale]} {`"${currentGoal?.dataSeries?.scale}"`}
               </label>
             </fieldset>
             : null
         }
 
-        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentGoal ? "Spara" : "Skapa målbana"} />
+        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentGoal ? dict.submit.save[locale] : dict.submit.create[locale]} />
       </form>
 
       <datalist id="LEAPOptions">
