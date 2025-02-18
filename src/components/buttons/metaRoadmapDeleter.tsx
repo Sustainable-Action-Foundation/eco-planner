@@ -4,12 +4,17 @@ import type getOneMetaRoadmap from "@/fetchers/getOneMetaRoadmap";
 import { useRef } from "react";
 import ConfirmDelete from "../modals/confirmDelete";
 import { openModal } from "../modals/modalFunctions";
+import dict from "./metaRoadmapDeleter.dict.json" assert { type: "json" };
+import { getClientLocale, validateDict } from "@/functions/clientLocale";
 
 export default function MetaRoadmapDeleter({ metaRoadmap }: { metaRoadmap: NonNullable<Awaited<ReturnType<typeof getOneMetaRoadmap>>> }) {
+  validateDict(dict);
+  const locale = getClientLocale();
+
   const deletionRef = useRef<HTMLDialogElement | null>(null);
   return (
     <>
-      <button type="button" className="red color-purewhite" onClick={() => openModal(deletionRef)}>Ta bort metadata</button>
+      <button type="button" className="red color-purewhite" onClick={() => openModal(deletionRef)}>{dict.removeMetadata[locale]}</button>
       <ConfirmDelete modalRef={deletionRef} targetUrl={`/api/metaRoadmap`} targetName={metaRoadmap.name} targetId={metaRoadmap.id} />
     </>
   )
