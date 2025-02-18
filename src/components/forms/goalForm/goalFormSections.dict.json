@@ -1,0 +1,182 @@
+{
+  "manualGoalForm": {
+    "leapParameter": {
+      "en": "LEAP parameter",
+      "sv": "LEAP-parameter"
+    },
+    "unit": {
+      "unit": {
+        "en": "Unit for data series",
+        "sv": "Enhet för dataserie"
+      },
+      "parseAs": {
+        "en": "Unit is parsed as:",
+        "sv": "Enheten tolkas som:"
+      },
+      "parseError": {
+        "en": "The unit could not be parsed. You can still save the goal, but some functionality may be missing.",
+        "sv": "Enheten kunde inte tolkas. Du kan fortfarande spara målbanan, men viss funktionalitet kan saknas."
+      }
+    },
+    "extraInfo": {
+      "extraInfo": {
+        "en": "Extra information about data series",
+        "sv": "Extra information om dataserie"
+      },
+      "infoDescription": {
+        "en": "The field \"Data series\" accepts a series of values separated by semicolon or tab, which means you can paste a series of values from Excel or similar.<br />\n<strong>NOTE: Values must not be separated by comma (\",\").</strong><br />\nDecimal numbers can use either decimal point or decimal comma.<br />\nThe first value represents year 2020 and the series can continue up to year 2050 (total of 31 values).<br />\nIf values are missing for a year, you can leave it empty, for example, \";1;;;;5\" can be used to specify values 1 and 5 for years 2021 and 2025.",
+        "sv": "Fältet &quot;Dataserie&quot; tar emot en serie värden separerade med semikolon eller tabb, vilket innebär att du kan klistra in en serie värden från Excel eller liknande.<br />\n<strong>OBS: Värden får inte vara separerade med komma (&quot;,&quot;).</strong><br />\nDecimaltal kan använda antingen decimalpunkt eller decimalkomma.<br />\nDet första värdet representerar år 2020 och serien kan fortsätta maximalt till år 2050 (totalt 31 värden).<br />\nOm värden saknas för ett år kan du lämna det tomt, exempelvis kan &quot;;1;;;;5&quot; användas för att ange värdena 1 och 5 för år 2021 och 2025."
+      }
+    },
+    "dataSeries": {
+      "dataSeries": {
+        "en": "Data series",
+        "sv": "Dataserie"
+      },
+      "input": {
+        "title": {
+          "en": "Use numerical values separated by semicolon or tab. Decimal numbers can use either dot or comma.",
+          "sv": "Använd numeriska värden separerade med semikolon eller tabb. Decimaltal kan använda antingen punkt eller komma."
+        }
+      }
+    }
+  },
+  "inheritedGoalForm": {
+    "roadmapVersion": {
+      "chooseToInheritFrom": {
+        "en": "Select a roadmap version to inherit a goal from",
+        "sv": "Välj en färdplansversion att ärva en målbana från"
+      },
+      "choose": {
+        "en": "Choose roadmap version",
+        "sv": "Välj färdplansversion"
+      },
+      "goal": {
+        "en": "goal",
+        "sv": "mål"
+      }
+    },
+    "roadmapData": {
+      "chooseToInheritFrom": {
+        "en": "Select a goal to inherit data from",
+        "sv": "Välj en målbana att ärva data från"
+      },
+      "choose": {
+        "en": "Choose goal",
+        "sv": "Välj målbana"
+      },
+      "namelessGoal": {
+        "en": "Nameless goal",
+        "sv": "Namnlöst mål"
+      },
+      "unitMissing": {
+        "en": "Unit missing",
+        "sv": "Enhet saknas"
+      }
+    },
+    "leapParameter": {
+      "en": "LEAP parameter",
+      "sv": "LEAP-parameter"
+    },
+    "unit": {
+      "unit": {
+        "en": "Unit for data series",
+        "sv": "Enhet för dataserie"
+      },
+      "parseAs": {
+        "en": "Unit is parsed as:",
+        "sv": "Enheten tolkas som:"
+      },
+      "parseError": {
+        "en": "The unit could not be parsed. You can still save the goal, but some functionality may be missing.",
+        "sv": "Enheten kunde inte tolkas. Du kan fortfarande spara målbanan, men viss funktionalitet kan saknas."
+      }
+    }
+  },
+  "combinedGoalForm": {
+    "leapParameter": {
+      "en": "LEAP parameter",
+      "sv": "LEAP-parameter"
+    },
+    "unit": {
+      "unit": {
+        "en": "Unit for data series",
+        "sv": "Enhet för dataserie"
+      },
+      "parseAs": {
+        "en": "Unit is parsed as:",
+        "sv": "Enheten tolkas som:"
+      },
+      "parseError": {
+        "en": "The unit could not be parsed. You can still save the goal, but some functionality may be missing.",
+        "sv": "Enheten kunde inte tolkas. Du kan fortfarande spara målbanan, men viss funktionalitet kan saknas."
+      }
+    },
+    "goals": {
+      "chooseGoals": {
+        "en": "Select goals in the current roadmap version to combine",
+        "sv": "Välj målbanor i den aktuella färdplansversionen som ska kombineras"
+      },
+      "tip": {
+        "en": "Tip: use <kbd><kbd>CTRL</kbd> + <kbd>F</kbd></kbd> to find the goals you are looking for",
+        "sv": "Tips: använd <kbd><kbd>CTRL</kbd> + <kbd>F</kbd></kbd> för att hitta målbanorna du söker efter"
+      },
+      "namelessGoal": {
+        "en": "Nameless goal",
+        "sv": "Namnlöst mål"
+      },
+      "unitMissing": {
+        "en": "Unit missing",
+        "sv": "Enhet saknas"
+      },
+      "invertGoal": {
+        "en": "Invert goal (divide by this goal's target instead of multiplying)",
+        "sv": "Invertera målet (dividera med denna målban istället för att multiplicera)"
+      }
+    }
+  },
+  "inheritingBaseline": {
+    "roadmapVersion":{
+      "chooseToInheritFrom": {
+        "en": "Select a roadmap version to inherit the goal from",
+        "sv": "Välj en färdplansversion att ärva målbanan från"
+      },
+      "choose": {
+        "en": "Choose roadmap version",
+        "sv": "Välj färdplansversion"
+      },
+      "goal": {
+        "en": "goal",
+        "sv": "mål"
+      }
+    },
+    "roadmapData": {
+      "chooseToUseAsBaseline": {
+        "en": "Select a goal to use as baseline (values will be copied instead of linked)",
+        "sv": "Välj en målbana att använda som baslinje (värdena kopieras istället för att länkas)"
+      },
+      "choose": {
+        "en": "Choose goal",
+        "sv": "Välj målbana"
+      },
+      "dataMissing": {
+        "en": "DATA MISSING; ",
+        "sv": "DATA SAKNAS; "
+      },
+      "namelessGoal": {
+        "en": "Nameless goal",
+        "sv": "Namnlöst mål"
+      },
+      "unitMissing": {
+        "en": "Unit missing",
+        "sv": "Enhet saknas"
+      }
+    },
+    "goalData": {
+      "basline": {
+        "en": "Baseline, copied from selected goal",
+        "sv": "Baslinje, kopierad från vald målbana"
+      }
+    }
+  }
+}

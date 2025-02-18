@@ -254,15 +254,15 @@ export default function GoalForm({
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.data.describe[locale]}</legend>
           {(dataSeriesType === DataSeriesType.Static || !dataSeriesType) &&
-            <ManualGoalForm currentGoal={currentGoal} dataSeriesString={dataSeriesString} />
+            <ManualGoalForm currentGoal={currentGoal} dataSeriesString={dataSeriesString} locale={locale} />
           }
 
           {dataSeriesType === DataSeriesType.Inherited &&
-            <InheritedGoalForm currentGoal={currentGoal} roadmapAlternatives={roadmapAlternatives} />
+            <InheritedGoalForm currentGoal={currentGoal} roadmapAlternatives={roadmapAlternatives} locale={locale} />
           }
 
           {dataSeriesType === DataSeriesType.Combined &&
-            <CombinedGoalForm currentGoal={currentGoal} roadmapId={currentGoal?.roadmapId || roadmapId || selectedRoadmap} />
+            <CombinedGoalForm currentGoal={currentGoal} roadmapId={currentGoal?.roadmapId || roadmapId || selectedRoadmap} locale={locale} />
           }
 
           {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
@@ -331,7 +331,7 @@ export default function GoalForm({
           }
 
           {baselineType === BaselineType.Inherited &&
-            <InheritingBaseline />
+            <InheritingBaseline locale={locale} />
           }
         </fieldset>
 
