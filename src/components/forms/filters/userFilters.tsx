@@ -26,7 +26,7 @@ export default function UserFilters() {
 
   return (
     <menu className='margin-0 padding-0 flex gap-300 flex-wrap-wrap margin-bottom-100'>
-      <fieldset className='flex gap-100'>
+      <fieldset className='flex gap-100 fieldset-unset-pseudo-class'>
         <legend className='font-weight-500 padding-bottom-75'>Objekt</legend>
         <label className='flex gap-25 align-items-center'>
           <input type='checkbox' value='roadmap' defaultChecked={searchParams.getAll('objects').includes('roadmap')} onChange={(e) => {
@@ -53,7 +53,7 @@ export default function UserFilters() {
       </fieldset>
 
       {/* TODO: Should only be displayed on own user page */}
-      <fieldset className='flex gap-100'>
+      <fieldset className='flex gap-100 fieldset-unset-pseudo-class'>
         <legend className='font-weight-500 padding-bottom-75'>Behörighet</legend>
         <label className='flex gap-25 align-items-center'>
           <input type='checkbox' value='owner' defaultChecked={searchParams.getAll('access').includes('owner')} onChange={(e) => {
