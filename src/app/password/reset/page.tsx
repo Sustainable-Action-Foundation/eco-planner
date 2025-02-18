@@ -5,6 +5,8 @@ import { useState } from "react";
 import styles from "@/components/forms/forms.module.css";
 import formSubmitter from "@/functions/formSubmitter";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import dict from "./page.dict.json" assert { type: "json" };
+import { getServerLocale, validateDict } from "@/functions/serverLocale";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
   event.preventDefault()
@@ -20,11 +22,14 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
 }
 
 export default function Page() {
+  validateDict(dict);
+  const locale = getServerLocale();
+
   const [showPassword, setShowPassword] = useState(false)
 
   return (
     <>
-      <Breadcrumb customSections={['Uppdatera lösenord']} />
+      <Breadcrumb customSections={[`${dict.breadcrumbUpdatePassword[locale]}`]} />
 
       <div>
         <p>Fyll i ditt nya lösenord nedan och klicka på knappen för att uppdatera ditt lösenord.</p>

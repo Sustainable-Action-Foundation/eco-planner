@@ -8,6 +8,8 @@ import { getSession } from "@/lib/session.ts";
 import { AccessLevel } from "@/types.ts";
 import { cookies } from "next/headers";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import dict from "./page.dict.json" assert { type: "json" };
+import { getServerLocale, validateDict } from "@/functions/serverLocale";
 
 export default async function Page({
   searchParams,
@@ -18,6 +20,9 @@ export default async function Page({
     [key: string]: string | string[] | undefined
   },
 }) {
+  validateDict(dict);
+  const locale = getServerLocale();
+
   const [session, action, goal, roadmaps] = await Promise.all([
     getSession(cookies()),
     getOneAction(typeof searchParams.actionId == 'string' ? searchParams.actionId : ''),
@@ -39,7 +44,7 @@ export default async function Page({
 
   return (
     <>
-      <Breadcrumb object={action || goal || undefined} customSections={['Skapa ny effekt']} />
+      <Breadcrumb object={action || goal || undefined} customSections={[`${dict.breadcrumbCreateEffect[locale]}`]} />
 
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>

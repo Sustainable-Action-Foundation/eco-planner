@@ -37,7 +37,7 @@ export default async function Page({ params, }: { params: { actionId: string }, 
 
   return (
     <>
-      <Breadcrumb object={action} customSections={['Redigera åtgärd']} />
+      <Breadcrumb object={action} customSections={[`${dict.breadcrumbEditAction[locale]}`]} />
 
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>

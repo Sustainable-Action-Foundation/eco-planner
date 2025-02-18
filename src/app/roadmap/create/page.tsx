@@ -8,6 +8,8 @@ import Image from "next/image";
 import { AccessLevel } from '@/types';
 import accessChecker from '@/lib/accessChecker';
 import getOneMetaRoadmap from '@/fetchers/getOneMetaRoadmap';
+import dict from './page.dict.json' assert { type: "json" };
+import { getServerLocale, validateDict } from '@/functions/serverLocale';
 
 export default async function Page({
   searchParams
@@ -17,6 +19,9 @@ export default async function Page({
     [key: string]: string | string[] | undefined
   }
 }) {
+  validateDict(dict);
+  const locale = getServerLocale();
+
   const [session, parent, metaRoadmapAlternatives] = await Promise.all([
     getSession(cookies()),
     getOneMetaRoadmap(typeof searchParams.metaRoadmapId == 'string' ? searchParams.metaRoadmapId : ''),
@@ -41,7 +46,7 @@ export default async function Page({
 
   return (
     <>
-      <Breadcrumb object={parent || undefined} customSections={['Skapa ny färdplansversion']} />
+      <Breadcrumb object={parent || undefined} customSections={[`${dict.breadcrumbCreateRoadmapVersion[locale]}`]} />
 
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>

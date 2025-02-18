@@ -57,7 +57,7 @@ export default async function Page({
 
   return (
     <>
-      <Breadcrumb object={goal || roadmap || undefined} customSections={['Skapa ny åtgärd']} />
+      <Breadcrumb object={goal || roadmap || undefined} customSections={[`${dict.breadcrumbCreateAction[locale]}`]} />
 
       <div className="container-text margin-inline-auto">
         {goal ?

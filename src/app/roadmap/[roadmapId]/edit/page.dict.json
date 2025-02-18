@@ -1,4 +1,8 @@
 {
+  "breadcrumbEditRoadmapVersion": {
+    "en": "Edit roadmap version",
+    "sv": "Redigera färdplansversion"
+  },
   "edit": {
     "editRoadmapVersion": {
       "en": "Edit roadmap version",

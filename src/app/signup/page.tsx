@@ -1,12 +1,17 @@
+import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import Signup from "@/components/forms/userInfo/signup";
 import AttributedImage from "@/components/generic/images/attributedImage";
-import styles from "./page.module.css" with { type: "css" }; import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-;
+import { getServerLocale, validateDict } from "@/functions/serverLocale";
+import dict from "./page.dict.json" assert { type: "json" };
+import styles from "./page.module.css" with { type: "css" };
 
 export default async function Page() {
+  validateDict(dict);
+  const locale = getServerLocale();
+
   return (
     <>
-      <Breadcrumb customSections={['Skapa konto']} />
+      <Breadcrumb customSections={[`${dict.breadcrumbCreateAccount[locale]}`]} />
 
       <main className={`${styles.gridLayout} container margin-auto padding-block-500 grid gap-300 align-items-center`}>
         <Signup />

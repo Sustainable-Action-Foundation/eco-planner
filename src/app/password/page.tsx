@@ -3,6 +3,8 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import formSubmitter from "@/functions/formSubmitter";
 import Image from "next/image";
+import dict from "./page.dict.json" assert { type: "json" };
+import { getClientLocale, validateDict } from "@/functions/clientLocale";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
   event.preventDefault()
@@ -15,9 +17,12 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
 }
 
 export default function Page() {
+  validateDict(dict);
+  const locale = getClientLocale();
+
   return (
     <>
-      <Breadcrumb customSections={['Återställ lösenord']} />
+      <Breadcrumb customSections={[`${dict.breadcrumbResetPassword[locale]}`]} />
 
       <div>
         <p>Har du glömt ditt lösenord? Fyll i din email här så skickar vi ett mail med instruktioner för att återställa lösenordet.</p>

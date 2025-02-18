@@ -1,6 +1,10 @@
 import styles from './breadcrumbs.module.css' with { type: "css" };
 import Link from 'next/link';
 import Image from "next/image";
+import dict from "./breadcrumbSections.dict.json" assert { type: "json" };
+import { getServerLocale, validateDict } from '@/functions/serverLocale';
+
+// TODO - where does "validateDict" have to be called?
 
 export function BreadcrumbChevron() {
   return (
@@ -9,10 +13,12 @@ export function BreadcrumbChevron() {
 }
 
 export function BaseSection() {
+  validateDict(dict);
+  const locale = getServerLocale();
   return (
     <span className='display-flex align-items-center gap-25'>
       <Link href='/' className={styles.breadCrumb}>
-        Hem
+        {dict.baseSection.home[locale]}
       </Link>
     </span>
   )
@@ -52,9 +58,11 @@ export function MetaRoadmapSection({
     name: string,
   }
 }) {
+  validateDict(dict);
+  const locale = getServerLocale();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
-      Färdplansserie:
+      {dict.metaRoadmapSection.roadmap[locale]}
       <Link href={`/metaRoadmap/${metaRoadmap.id}`} className={styles.breadCrumb}>
         {metaRoadmap.name}
       </Link>
@@ -70,11 +78,13 @@ export function RoadmapSection({
     version: number,
   }
 }) {
+  validateDict(dict);
+  const locale = getServerLocale();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
-      Version:
+      {dict.roadmapSection.version[locale]}
       <Link href={`/roadmap/${roadmap.id}`} className={styles.breadCrumb}>
-        Version {roadmap.version}
+        {dict.roadmapSection.versionLink[locale]} {roadmap.version}
       </Link>
     </span>
   )
@@ -89,9 +99,11 @@ export function GoalSection({
     indicatorParameter: string,
   }
 }) {
+  validateDict(dict);
+  const locale = getServerLocale();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
-      Målbana:
+      {dict.goalSection.goal[locale]}
       <Link href={`/goal/${goal.id}`} className={styles.breadCrumb}>
         {goal.name || goal.indicatorParameter}
       </Link>
@@ -107,9 +119,11 @@ export function ActionSection({
     name: string,
   }
 }) {
+  validateDict(dict);
+  const locale = getServerLocale();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
-      Åtgärd:
+      {dict.actionSection.action[locale]}
       <Link href={`/action/${action.id}`} className={styles.breadCrumb}>
         {action.name}
       </Link>

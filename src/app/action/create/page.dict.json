@@ -1,4 +1,8 @@
 {
+  "breadcrumbCreateAction": {
+    "en": "Create new action",
+    "sv": "Skapa ny åtgärd"
+  },
   "goal": {
     "createActionUnderGoal": {
       "en": "Create new action under goal:",

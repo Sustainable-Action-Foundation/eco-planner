@@ -2,8 +2,13 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { JSONValue } from "@/types.ts";
 import fs from "fs";
 import metadata from "package.json" with { type: "json" };
+import dict from "./page.dict.json" assert { type: "json" };
+import { getServerLocale, validateDict } from "@/functions/serverLocale";
 
 export default async function Page() {
+  validateDict(dict);
+  const locale = getServerLocale();
+  
   const gitHash = { shortHash: process.env.GIT_SHORT_HASH, longHash: process.env.GIT_LONG_HASH };
 
   // If hash is not set in env, try to get it from file
@@ -50,7 +55,7 @@ export default async function Page() {
 
   return (
     <>
-      <Breadcrumb customSections={["Information"]} />
+      <Breadcrumb customSections={[`${dict.breadcrumbInfo[locale]}`]} />
 
       <h1>Information</h1>
       <p>

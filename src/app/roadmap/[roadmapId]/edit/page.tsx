@@ -28,7 +28,7 @@ export default async function Page({ params }: { params: { roadmapId: string } }
 
   return (
     <>
-      <Breadcrumb object={roadmap} customSections={[`${dict.edit.editRoadmapVersion[locale]}`]} />
+      <Breadcrumb object={roadmap} customSections={[`${dict.breadcrumbEditRoadmapVersion[locale]}`]} />
 
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>

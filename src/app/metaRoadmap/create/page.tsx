@@ -4,8 +4,13 @@ import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
+import dict from './page.dict.json' assert { type: 'json' };
+import { getServerLocale, validateDict } from '@/functions/serverLocale';
 
 export default async function Page() {
+  validateDict(dict);
+  const locale = getServerLocale();
+
   const [session, parentRoadmapOptions] = await Promise.all([
     getSession(cookies()),
     getMetaRoadmaps(),
@@ -18,7 +23,7 @@ export default async function Page() {
 
   return (
     <>
-      <Breadcrumb customSections={['Skapa ny färdplansserie']} />
+      <Breadcrumb customSections={[`${dict.breadcrumbCreateRoadmap[locale]}`]} />
 
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
