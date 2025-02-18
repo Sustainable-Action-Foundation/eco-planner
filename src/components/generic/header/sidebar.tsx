@@ -1,8 +1,7 @@
 import LogoutButton from '@/components/buttons/logoutButton'
 import LanguageSwitcher from "@/components/cookies/languageSwitcher"
-import { DEFAULT_LOCALE } from '@/constants'
 import { getSession } from '@/lib/session'
-import { cookies, headers } from 'next/headers'
+import { cookies } from 'next/headers'
 import Image from 'next/image'
 import Link from 'next/link'
 import styles from './header.module.css' with { type: "css" }
