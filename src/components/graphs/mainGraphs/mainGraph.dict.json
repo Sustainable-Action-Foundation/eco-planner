@@ -1,0 +1,10 @@
+{
+  "baseScenario": {
+    "en": "Base scenario",
+    "sv": "Basscenario"
+  },
+  "expectedOutcome": {
+    "en": "Expected outcome",
+    "sv": "Förväntat utfall"
+  }
+}

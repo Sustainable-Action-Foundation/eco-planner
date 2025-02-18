@@ -1,14 +1,17 @@
 "use client"
 
+import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
+import { DataSeries, Effect, Goal } from "@prisma/client";
+import { useEffect, useState } from "react";
+import { getStoredGraphType } from "./functions/graphFunctions";
+import dict from "./graphGraph.dict.json" assert { type: "json" };
+import GraphSelector from "./graphSelector/graphSelector";
 import MainDeltaGraph from "./mainGraphs/mainDeltaGraph";
 import MainGraph from "./mainGraphs/mainGraph";
 import MainRelativeGraph from "./mainGraphs/mainRelativeGraph";
-import { DataSeries, Effect, Goal } from "@prisma/client";
-import GraphSelector from "./graphselector/graphSelector";
-import { useEffect, useState } from "react";
-import { getStoredGraphType } from "./functions/graphFunctions";
-import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import SecondaryGoalSelector from "./secondaryGraphSelector";
+//TODO - global replace '.dict.json" assert { type: "json" }' with '.dict.json" with { type: "json" }'
+import { getClientLocale, validateDict } from "@/functions/clientLocale";
 
 export enum GraphType {
   Main = "MAIN",
@@ -31,6 +34,9 @@ export default function GraphGraph({
   effects: (Effect & { dataSeries: DataSeries | null })[],
   children: React.ReactNode
 }) {
+  validateDict(dict);
+  const locale = getClientLocale();
+
   const [graphType, setGraphType] = useState<GraphType | "">("");
 
   useEffect(() => {
@@ -40,7 +46,7 @@ export default function GraphGraph({
   function graphSwitch(graphType: string) {
     switch (graphType) {
       case GraphType.Main:
-        return <MainGraph goal={goal} nationalGoal={nationalGoal} historicalData={historicalData} secondaryGoal={secondaryGoal} effects={effects} />
+        return <MainGraph goal={goal} nationalGoal={nationalGoal} historicalData={historicalData} secondaryGoal={secondaryGoal} effects={effects} locale={locale} />
       case GraphType.Relative:
         return <MainRelativeGraph goal={goal} nationalGoal={nationalGoal} secondaryGoal={secondaryGoal} />
       case GraphType.Delta:

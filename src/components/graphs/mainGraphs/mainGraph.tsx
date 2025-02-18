@@ -1,9 +1,11 @@
+import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
+import { validateDict } from "@/functions/clientLocale";
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
-import { dataSeriesDataFieldNames } from "@/types";
-import { DataSeries, Effect, Goal } from "@prisma/client";
 import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import { parsePeriod } from "@/lib/pxWeb/utility";
-import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
+import { dataSeriesDataFieldNames, Locale } from "@/types";
+import { DataSeries, Effect, Goal } from "@prisma/client";
+import dict from "./mainGraph.dict.json" assert { type: "json" };
 
 export default function MainGraph({
   goal,
@@ -11,13 +13,17 @@ export default function MainGraph({
   nationalGoal,
   historicalData,
   effects,
+  locale,
 }: {
   goal: Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null },
   secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
   nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
   historicalData?: PxWebApiV2TableContent | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
+  locale: Locale,
 }) {
+  validateDict(dict);
+
   if (!goal.dataSeries) {
     return null;
   }
@@ -44,7 +50,7 @@ export default function MainGraph({
         labels: { formatter: floatSmoother },
         seriesName: [
           (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
-          'Basscenario',
+          dict.baseScenario[locale],
           'Förväntat utfall',
           (secondaryGoal?.dataSeries?.unit == goal.dataSeries.unit) ? (secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0] : "",
         ]
@@ -86,7 +92,7 @@ export default function MainGraph({
       });
     }
     mainChart.push({
-      name: 'Basscenario',
+      name: dict.baseScenario[locale],
       data: baseline,
       type: 'line',
     })
@@ -121,7 +127,7 @@ export default function MainGraph({
           });
         }
         mainChart.push({
-          name: 'Basscenario',
+          name: dict.baseScenario[locale],
           data: baseline,
           type: 'line',
         });
