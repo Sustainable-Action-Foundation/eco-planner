@@ -1,27 +1,35 @@
 "use client";
 
-import type { Locale } from "@/types";
 import { DEFAULT_LOCALE, LOCALES } from "@/constants";
+import type { Locale } from "@/types";
+// TODO - ESLint does not like these import.
+import { getCookie } from "cookies-next";
 import { useEffect, useState } from "react";
-import { getCookie } from "cookies-next/client";
 
 /**
- * Reads locale string i.e. "en" | "sv" from the client cookies and the browser preferences as a fallback.
+ * Read locale i.e. "en" | "sv" from the clients cookies via the `language` cookie.
  * @returns Locale string.
  */
 export function getClientLocale() {
+  // TODO - Reconsider the use of `useState` and `useEffect` in this function.
   const [locale, setLocale] = useState<Locale>(DEFAULT_LOCALE);
-  const cookie = getCookie("language") as Locale;
-
-  console.warn(cookie);
+  const cookie = getCookie("language") as Locale
 
   useEffect(() => {
     if (cookie && LOCALES.includes(cookie)) {
       setLocale(cookie);
+    } else if (navigator.languages && navigator.languages.some((language) => LOCALES.includes(language as Locale))) {
+      console.info("No language cookie found. Using browser language.");
 
+      const languages = navigator.languages;
+      for (const language of languages) {
+        if (LOCALES.includes(language as Locale)) {
+          setLocale(language as Locale);
+          break;
+        }
+      }
     } else {
-      console.warn("No language cookie or valid browser preference found. Using default locale.");
-      setLocale(DEFAULT_LOCALE);
+      console.warn("No language cookie or preference found. Using default locale.");
     }
   }, [cookie]);
 
