@@ -161,7 +161,7 @@ export default async function Page({
             </div>
             {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
               <div className="flex flex-wrap-wrap align-items-center gap-100">
-                <QueryBuilder goal={goal} />
+                <QueryBuilder goal={goal} locale={locale}/>
                 {shouldUpdate &&
                   <UpdateGoalButton id={goal.id} />
                 }
