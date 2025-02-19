@@ -24,7 +24,7 @@ export default function LanguageSwitcher({ locale }: LanguageSwitcherI) {
   const [language, setLanguage] = useState<Locale>(locale as Locale);
   const router = useRouter();
 
-  setCookie("language", language);
+  setCookie("language", language, { expires: new Date(Date.now() + 31536000000) }); // 1 year expiry
 
   const changeLanguage = async (lang: Locale) => {
     setLanguage(lang);
