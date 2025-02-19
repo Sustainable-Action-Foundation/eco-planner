@@ -24,6 +24,8 @@ export default function LanguageSwitcher({ locale }: LanguageSwitcherI) {
   const [language, setLanguage] = useState<Locale>(locale as Locale);
   const router = useRouter();
 
+  setCookie("language", language);
+
   const changeLanguage = async (lang: Locale) => {
     setLanguage(lang);
     await setCookie("language", lang);
