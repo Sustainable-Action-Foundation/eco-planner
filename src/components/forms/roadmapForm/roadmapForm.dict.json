@@ -1,0 +1,128 @@
+{
+  "badDecoding": {
+    "alert": {
+      "en": "The file seems to use an unknown encoding as the interpreted text contains the character '�' which indicates that some character could not be interpreted correctly (probably Å, Ä or Ö).\nYou can still use this file, but if you are not completely sure that it *should* contain the character '�' it is recommended that you convert the file to UTF-8 encoding and try again.",
+      "sv": "Filen verkar använda en okänd encoding då den tolkade texten innehåller tecknet '�' som indikerar att något tecken inte kunde tolkas korrekt (antagligen Å, Ä eller Ö).\nDu kan fortfarande använda den här filen, men om du inte är helt säker på att den *ska* innehålla tecknet '�' så rekommenderas att du konverterar filen till UTF-8 encoding och försöker igen."
+    }
+  },
+  "roadmapForm": {
+    "handleSubmit": {
+      "columnNotSupported": {
+        "en": "Column 'Scale' is not supported and will be ignored.",
+        "sv": "Kolumnen 'Scale' stöds inte och kommer att ignoreras."
+      },
+      "versionCouldNotBeCreated": {
+        "en": "Roadmap version could not be created.\nReason:",
+        "sv": "Färdplansversion kunde inte skapas.\nAnledning:"
+      },
+      "unknownError": {
+        "en": "Unknown error",
+        "sv": "Okänt fel"
+      }
+    },
+    "useEffect": {
+      "columnNotSupported": {
+        "en": "Column 'Scale' is not supported and will be ignored. If the column contains any scales, please bake them into the unit or value instead. Example: unit 'MW' rather than unit 'kW' with scale 'thousand'.",
+        "sv": "Kolumnen 'Scale' stöds inte och kommer att ignoreras. Om kolumnen innehåller några skalor, vänligen baka in dem i enheten eller värdet istället. Exempel: enhet 'MW' snarare än enhet 'kW' med skala 'tusen'"
+      },
+      "fileCouldNotBeRead": {
+        "en": "File could not be read:",
+        "sv": "Filen kunde inte läsas:"
+      },
+      "unknownError": {
+        "en": "Unknown error",
+        "sv": "Okänt fel"
+      }
+    },
+    "form": {
+      "metaRoadmap": {
+        "relationToOtherPosts": {
+          "en": "Enter the relation to other posts",
+          "sv": "Ange relationen till andra inlägg"
+        },
+        "metaRoadmapThatThisIsPostIn": {
+          "en": "Meta roadmap that this is a new post in",
+          "sv": "Färdplansserie som detta är ett nytt inlägg i"
+        },
+        "noMetaRoadmapSelected": {
+          "en": "No meta roadmap selected",
+          "sv": "Ingen färdplansserie vald"
+        },
+        "noAccessibleMetaRoadmaps": {
+          "en": "You seem to not have access to any meta roadmaps",
+          "sv": "Du verkar inte ha tillgång till några färdplansserier"
+        },
+        "roadmapVersion": {
+          "versionOfMetaRoadmap": {
+            "en": "Version of the roadmap series `\"${metaRoadmapTarget.name}\"` this roadmap version is working towards",
+            "sv": "Version av färdplansserien `\"${metaRoadmapTarget.name}\"` den här färdplansversionen arbetar mot"
+          },
+          "noAlternativeSelected": {
+            "en": "No alternative selected",
+            "sv": "Inget alternativ valt"
+          },
+          "alwaysMostRecent": {
+            "en": "Always most recent version",
+            "sv": "Alltid senaste versionen"
+          },
+          "version": {
+            "en": "Version",
+            "sv": "Version"
+          }
+        }
+      },
+      "description": {
+        "describe": {
+          "en": "Describe the roadmap version",
+          "sv": "Beskriv färdplansversionen"
+        },
+        "extraDescription": {
+          "en": "Extra description of this roadmap version",
+          "sv": "Extra beskrivning av denhär färdplansversionen"
+        }
+      },
+      "goals": {
+        "upload": {
+          "en": "Upload goals",
+          "sv": "Ladda upp målbanor"
+        },
+        "goals":{
+          "en": "Goals",
+          "sv": "Målbanor"
+        },
+        "acceptedFileTypes": {
+          "en": "accepted file types: .csv, accepted encoding: UTF-8",
+          "sv": "accepterade filtyper: .csv, accepterad encoding: UTF-8"
+        }
+      },
+      "inheritableGoals": {
+        "chooseGoal": {
+          "en": "Choose a goal to inherit",
+          "sv": "Välj ett mål att ärva"
+        }
+      },
+      "viewingPrivileges": {
+        "adjust": {
+          "en": "Adjust viewing privileges",
+          "sv": "Justera läsbehörighet"
+        }
+      },
+      "editingPrivileges": {
+        "adjust": {
+          "en": "Adjust editing privileges",
+          "sv": "Justera redigeringsbehörighet"
+        }
+      },
+      "submit": {
+        "save": {
+          "en": "Save roadmap version",
+          "sv": "Spara färdplansversion"
+        },
+        "create": {
+          "en": "Create roadmap version",
+          "sv": "Skapa färdplansversion"
+        }
+      }
+    }
+  }
+}
