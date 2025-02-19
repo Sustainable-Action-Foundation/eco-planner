@@ -1,4 +1,5 @@
 "use client";
+
 import { setCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -22,6 +23,8 @@ const languages: { label: string, value: Locale }[] = [
 export default function LanguageSwitcher({ locale }: LanguageSwitcherI) {
   const [language, setLanguage] = useState(locale);
   const router = useRouter();
+
+  setCookie("language", language);
 
   const changeLanguage = async (lang: string) => {
     setLanguage(lang);

@@ -9,7 +9,7 @@ import dict from "./effectFormSections.dict.json" assert { type: "json" };
 import { getClientLocale, validateDict } from "@/functions/clientLocale";
 
 
-// TODO - put both sections into parent function to avoid duplicate of "validateDict" and "getClientLocale"
+// TODO - put both sections into parent function to avoid duplicate of "validateDict" and "useClientLocale"
 export function ActionSelector({
   action,
   roadmapAlternatives,

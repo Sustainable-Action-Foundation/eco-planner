@@ -1,5 +1,4 @@
 import type { Locale } from "@/types";
-import { DEFAULT_LOCALE } from "@/constants";
 import { headers } from "next/headers";
 
 /**
@@ -7,7 +6,7 @@ import { headers } from "next/headers";
  *  */
 export function getServerLocale() {
   // Get the locale cookie or use the default locale
-  return headers().get("locale") as Locale || DEFAULT_LOCALE as Locale;
+  return headers().get("locale") as Locale;
 }
 
 /** 
