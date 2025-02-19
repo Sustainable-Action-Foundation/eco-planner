@@ -13,8 +13,6 @@ export function getClientLocale() {
   const [locale, setLocale] = useState<Locale>(DEFAULT_LOCALE);
   const cookie = getCookie("language") as Locale;
 
-  console.warn(cookie);
-
   useEffect(() => {
     if (cookie && LOCALES.includes(cookie)) {
       setLocale(cookie);

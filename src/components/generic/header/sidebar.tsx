@@ -10,11 +10,11 @@ import { getServerLocale, validateDict } from '@/functions/serverLocale'
 // import Notifications from '../notifications/notification'
 
 export default async function Sidebar() {
-
-  const { user } = await getSession(cookies())
-
   validateDict(dict);
   const locale = getServerLocale();
+  
+  const { user } = await getSession(cookies())
+  
   return <>
     <aside className={styles.container}>
       <label className={styles.menuToggleContainer}>

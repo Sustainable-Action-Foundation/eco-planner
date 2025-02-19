@@ -6,7 +6,7 @@ import { useState } from "react";
 import type { Locale } from "@/types";
 
 interface LanguageSwitcherI {
-  locale: string;
+  locale: Locale;
 }
 
 const languages: { label: string, value: Locale }[] = [
@@ -21,12 +21,10 @@ const languages: { label: string, value: Locale }[] = [
 ];
 
 export default function LanguageSwitcher({ locale }: LanguageSwitcherI) {
-  const [language, setLanguage] = useState(locale);
+  const [language, setLanguage] = useState<Locale>(locale as Locale);
   const router = useRouter();
 
-  setCookie("language", language);
-
-  const changeLanguage = async (lang: string) => {
+  const changeLanguage = async (lang: Locale) => {
     setLanguage(lang);
     await setCookie("language", lang);
     router.refresh();
@@ -36,7 +34,7 @@ export default function LanguageSwitcher({ locale }: LanguageSwitcherI) {
     <select
       className="font-weight-500 margin-top-25 block"
       style={{ fontSize: '1rem', minHeight: 'calc(24px + 1rem)' }}
-      onChange={(e) => { changeLanguage(e.target.value) }}>
+      onChange={(e) => { changeLanguage(e.target.value as Locale) }}>
       {/* Make sure the selected language is displayed on top */}
       <option key={languages.filter((item) => item.label === languages.filter((item) => item.value === language)[0].label)[0].value} value={language}>
         {languages.filter((item) => item.value === language)[0].label}
