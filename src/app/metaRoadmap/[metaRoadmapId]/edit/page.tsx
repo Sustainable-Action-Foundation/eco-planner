@@ -38,6 +38,7 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
           userGroups={session.user?.userGroups}
           parentRoadmapOptions={parentRoadmapOptions}
           currentRoadmap={currentRoadmap}
+          locale={locale}
         />
       </div>
     </>

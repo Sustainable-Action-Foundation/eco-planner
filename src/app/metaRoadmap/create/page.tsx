@@ -33,6 +33,7 @@ export default async function Page() {
           user={session.user}
           userGroups={session.user?.userGroups}
           parentRoadmapOptions={parentRoadmapOptions}
+          locale={locale}
         />
       </div>
     </>

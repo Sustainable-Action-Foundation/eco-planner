@@ -1,0 +1,76 @@
+{
+  "describeMetaRoadmap": {
+    "title": {
+      "en": "Describe your meta roadmap",
+      "sv": "Beskriv din färdplansserie"
+    },
+    "name": {
+      "en": "Name for the new meta roadmap",
+      "sv": "Namn för den nya färdplansserien"
+    },
+    "description": {
+      "en": "Description of the new meta roadmap",
+      "sv": "Beskrivning av den nya färdplansserien"
+    }
+  },
+  "actor": {
+    "chooseResponsibleActor": {
+      "en": "Choose responsible actor",
+      "sv": "Välj ansvarig aktör"
+    },
+    "typeOfMetaRoadmap": {
+      "en": "Type of meta roadmap",
+      "sv": "Typ av färdplansserie"
+    },
+    "chooseType": {
+      "en": "Choose a type",
+      "sv": "Välj en typ"
+    },
+    "chooseActor": {
+      "en": "Choose an actor",
+      "sv": "Välj en aktör"
+    }
+  },
+  "externalResources": {
+    "attach": {
+      "en": "Attach external resources",
+      "sv": "Bifoga externa resurser"
+    }
+  },
+  "viewingPriveleges": {
+    "adjust": {
+      "en": "Adjust viewing priveleges",
+      "sv": "Justera läsbehörighet"
+    }
+  },
+  "editingPriveleges": {
+    "adjust": {
+      "en": "Adjust editing priveleges",
+      "sv": "Justera skrivbehörighet"
+    }
+  },
+  "parentMetaRoadmap": {
+    "title": {
+      "en": "Does this meta roadmap work towards another meta roadmap?",
+      "sv": "Jobbar denna färdplansserie mot en annan färdplansserie?"
+    },
+    "parent": {
+      "en": "Parent",
+      "sv": "Förälder"
+    },
+    "noParent": {
+      "en": "No parent",
+      "sv": "Ingen förälder"
+    }
+  },
+  "submit": {
+    "save": {
+      "en": "Save meta roadmap",
+      "sv": "Spara färdplansserie"
+    },
+    "create": {
+      "en": "Create meta roadmap",
+      "sv": "Skapa färdplansserie"
+    }
+  }
+}
