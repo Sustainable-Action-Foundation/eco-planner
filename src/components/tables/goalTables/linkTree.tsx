@@ -4,7 +4,7 @@ import Image from 'next/image';
 import goalsToTree, { GoalTree } from '@/functions/goalsToTree';
 import { SyntheticEvent } from 'react';
 import { getSessionStorage, setSessionStorage } from '@/functions/localStorage';
-import { getClientLocale, validateDict } from '@/functions/clientLocale';
+import { useClientLocale, validateDict } from '@/functions/clientLocale';
 import dict from './linkTree.dict.json' assert { type: "json" };
 
 // interface LinkTreeCommonProps {}
@@ -37,7 +37,7 @@ export default function LinkTree({
   roadmap,
 }: LinkTreeProps) {
   validateDict(dict);
-  const locale = getClientLocale();
+  const locale = useClientLocale();
 
   // Failsafe in case wrong props are passed
   if ((!goals && !roadmap) || (goals && roadmap)) throw new Error('LinkTree: Either `goals` XOR `roadmap` must be provided');

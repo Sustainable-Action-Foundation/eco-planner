@@ -6,7 +6,7 @@ import { AccessLevel } from "@/types.ts";
 import { Action, Effect, Goal } from "@prisma/client";
 import Link from "next/link";
 import { TableMenu } from "./tableMenu/tableMenu.tsx";
-import { getClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale, validateDict } from "@/functions/clientLocale";
 import dict from "./effects.dict.json" assert { type: "json" };
 
 interface EffectTableComonProps {
@@ -29,7 +29,7 @@ export default function EffectTable({
   accessLevel,
 }: EffectTableComonProps) {
   validateDict(dict);
-  const locale = getClientLocale();
+  const locale = useClientLocale();
 
   // If no effects are found, show a message
   if (!object.effects.length) {

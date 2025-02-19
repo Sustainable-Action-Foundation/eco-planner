@@ -2,7 +2,7 @@ import { goalSorter, goalSorterActionAmount, goalSorterActionAmountReverse, goal
 import { GoalSortBy } from '../goals';
 import styles from '../tables.module.css' with { type: "css" };
 import { DataSeries, Goal } from "@prisma/client";
-import { getClientLocale, validateDict } from '@/functions/clientLocale';
+import { useClientLocale, validateDict } from '@/functions/clientLocale';
 import dict from './goalTable.dict.json' assert { type: "json" };
 
 interface GoalTableCommonProps {
@@ -38,7 +38,7 @@ export default function GoalTable({
   sortBy,
 }: GoalTableProps) {
   validateDict(dict);
-  const locale = getClientLocale();
+  const locale = useClientLocale();
 
   // Failsafe in case wrong props are passed
   if ((!goals && !roadmap) || (goals && roadmap)) throw new Error('GoalTable: Either `goals` XOR `roadmap` must be provided');

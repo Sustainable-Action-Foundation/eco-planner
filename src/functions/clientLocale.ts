@@ -9,7 +9,7 @@ import { getCookie } from "cookies-next/client";
  * Reads locale string i.e. "en" | "sv" from the client cookies and the browser preferences as a fallback.
  * @returns Locale string.
  */
-export function getClientLocale() {
+export function useClientLocale() {
   const [locale, setLocale] = useState<Locale>(DEFAULT_LOCALE);
   const cookie = getCookie("language") as Locale;
 

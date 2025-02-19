@@ -6,7 +6,7 @@ import { Action } from '@prisma/client';
 import { AccessLevel } from '@/types';
 import Link from 'next/link';
 import { TableMenu } from './tableMenu/tableMenu';
-import { getClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale, validateDict } from "@/functions/clientLocale";
 import dict from "./actions.dict.json" assert { type: "json" };
 
 /**
@@ -36,7 +36,7 @@ export default function ActionTable({
   roadmapId?: string,
 }) {
   validateDict(dict);
-  const locale = getClientLocale();
+  const locale = useClientLocale();
 
   // If no actions are found, return a message
   if (!actions?.length) return (

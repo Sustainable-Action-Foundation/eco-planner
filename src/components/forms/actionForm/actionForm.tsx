@@ -8,7 +8,7 @@ import { ActionInput } from "@/types"
 import { Action, ActionImpactType, DataSeries, Effect } from "@prisma/client"
 import styles from '../forms.module.css'
 import dict from "./actionForm.dict.json" assert { type: "json" };
-import { getClientLocale, validateDict } from "@/functions/clientLocale"
+import { useClientLocale, validateDict } from "@/functions/clientLocale"
 
 export default function ActionForm({
   roadmapId,
@@ -27,7 +27,7 @@ export default function ActionForm({
   },
 }) {
   validateDict(dict);
-  const locale = getClientLocale();
+  const locale = useClientLocale();
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()

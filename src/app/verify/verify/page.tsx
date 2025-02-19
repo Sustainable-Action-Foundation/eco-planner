@@ -1,12 +1,12 @@
 'use client';
 
 import formSubmitter from "@/functions/formSubmitter";
-import { getClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale, validateDict } from "@/functions/clientLocale";
 import dict from "./page.dict.json" assert { type: "json" };
 
 export default function Page() {
   validateDict(dict);
-  const locale = getClientLocale();
+  const locale = useClientLocale();
 
   function verify() {
     const params = new URLSearchParams(window.location.search)

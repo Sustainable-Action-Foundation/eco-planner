@@ -5,7 +5,7 @@ import { useState } from "react";
 import styles from "@/components/forms/forms.module.css";
 import formSubmitter from "@/functions/formSubmitter";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { getClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale, validateDict } from "@/functions/clientLocale";
 import dict from "./page.dict.json" assert { type: "json" };
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
@@ -23,7 +23,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
 
 export default function Page() {
   validateDict(dict);
-  const locale = getClientLocale();
+  const locale = useClientLocale();
 
   const [showPassword, setShowPassword] = useState(false)
 

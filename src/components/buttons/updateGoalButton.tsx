@@ -2,11 +2,11 @@
 
 import formSubmitter from "@/functions/formSubmitter";
 import dict from "./updateGoalButton.dict.json" assert { type: "json" };
-import { getClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale, validateDict } from "@/functions/clientLocale";
 
 export default function UpdateGoalButton({ id }: { id: string }) {
   validateDict(dict);
-  const locale = getClientLocale();
+  const locale = useClientLocale();
 
   return (
     <button type="button" className="transparent flex gap-50 padding-50 font-weight-500"

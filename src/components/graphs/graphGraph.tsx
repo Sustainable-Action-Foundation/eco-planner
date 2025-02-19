@@ -11,7 +11,7 @@ import MainGraph from "./mainGraphs/mainGraph";
 import MainRelativeGraph from "./mainGraphs/mainRelativeGraph";
 import SecondaryGoalSelector from "./secondaryGraphSelector";
 //TODO - global replace '.dict.json" assert { type: "json" }' with '.dict.json" with { type: "json" }'
-import { getClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale, validateDict } from "@/functions/clientLocale";
 
 export enum GraphType {
   Main = "MAIN",
@@ -35,7 +35,7 @@ export default function GraphGraph({
   children: React.ReactNode
 }) {
   validateDict(dict);
-  const locale = getClientLocale();
+  const locale = useClientLocale();
 
   const [graphType, setGraphType] = useState<GraphType | "">("");
 

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { closeModal } from "@/components/modals/modalFunctions";
 import styles from './modals.module.css'
 import dict from "./confirmDelete.dict.json" assert { type: "json" };
-import { getClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale, validateDict } from "@/functions/clientLocale";
 
 export default function ConfirmDelete({
   modalRef,
@@ -19,7 +19,7 @@ export default function ConfirmDelete({
   targetId?: string | { actionId: string, goalId: string };
 }) {
   validateDict(dict);
-  const locale = getClientLocale();
+  const locale = useClientLocale();
   const [isLoading, setIsLoading] = useState(false);
 
   function handleDelete() {

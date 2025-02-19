@@ -2,11 +2,11 @@
 
 import Image from "next/image";
 import dict from "./logoutButton.dict.json" assert { type: "json" };
-import { getClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale, validateDict } from "@/functions/clientLocale";
 
 export default function LogoutButton() {
   validateDict(dict); // Throws error if data is missing
-  const locale = getClientLocale();
+  const locale = useClientLocale();
 
   return (
     <button className="flex align-items-center rounded transparent padding-50 gap-50 width-100 font-weight-500" style={{ fontSize: '1rem', whiteSpace: 'nowrap' }} onClick={async () => {
