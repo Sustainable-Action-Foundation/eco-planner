@@ -11,12 +11,12 @@ export function getServerLocale() {
 }
 
 /** 
- * Throw error if JSON object is empty.
+ * Throw error if JSON object is empty, indicating missing locale data.
  * @param dict JSON object.
 */
-// This code has a duplicate in ./serverLocale.ts
+// This code has a duplicate in ./clientLocale.ts
 export function validateDict(dict: object) {
   if (Object.keys(dict).length === 0) {
-    throw new Error("dict is missing data.");
+    throw new Error("Locale dict is missing data.");
   }
 }
