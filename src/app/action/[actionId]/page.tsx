@@ -14,8 +14,8 @@ import { getServerLocale, validateDict } from "@/functions/serverLocale";
 import dict from "./page.dict.json" assert {type: "json"};
 
 export default async function Page({ params }: { params: { actionId: string } }) {
-  validateDict(dict);
-  const locale = getServerLocale();
+  await validateDict(dict);
+  const locale = await getServerLocale();
 
   const [session, action] = await Promise.all([
     getSession(cookies()),

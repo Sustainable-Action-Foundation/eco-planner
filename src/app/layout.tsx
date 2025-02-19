@@ -10,8 +10,8 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode,
 }) {
-  validateDict(dict);
-  const locale = getServerLocale();
+  await validateDict(dict);
+  const locale = await getServerLocale();
 
   return (
     <html lang={locale}>

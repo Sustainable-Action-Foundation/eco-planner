@@ -40,8 +40,8 @@ export default async function Page({
     [key: string]: string | string[] | undefined
   },
 }) {
-  validateDict(dict);
-  const locale = getServerLocale();
+  await validateDict(dict);
+  const locale = await getServerLocale();
 
   const [session, { goal, roadmap }, secondaryGoal, unfilteredRoadmapOptions] = await Promise.all([
     getSession(cookies()),
@@ -161,7 +161,7 @@ export default async function Page({
             </div>
             {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
               <div className="flex flex-wrap-wrap align-items-center gap-100">
-                <QueryBuilder goal={goal} />
+                <QueryBuilder goal={goal} locale={locale} />
                 {shouldUpdate &&
                   <UpdateGoalButton id={goal.id} />
                 }

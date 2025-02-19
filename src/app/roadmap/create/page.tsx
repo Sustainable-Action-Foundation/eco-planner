@@ -19,8 +19,8 @@ export default async function Page({
     [key: string]: string | string[] | undefined
   }
 }) {
-  validateDict(dict);
-  const locale = getServerLocale();
+  await validateDict(dict);
+  const locale = await getServerLocale();
 
   const [session, parent, metaRoadmapAlternatives] = await Promise.all([
     getSession(cookies()),

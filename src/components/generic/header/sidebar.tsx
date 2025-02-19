@@ -10,8 +10,8 @@ import { getServerLocale, validateDict } from '@/functions/serverLocale'
 // import Notifications from '../notifications/notification'
 
 export default async function Sidebar() {
-  validateDict(dict);
-  const locale = getServerLocale();
+  await validateDict(dict);
+  const locale = await getServerLocale();
   
   const { user } = await getSession(cookies())
   

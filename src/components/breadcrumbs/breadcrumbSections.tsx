@@ -12,9 +12,9 @@ export function BreadcrumbChevron() {
   )
 }
 
-export function BaseSection() {
-  validateDict(dict);
-  const locale = getServerLocale();
+export async function BaseSection() {
+  await validateDict(dict);
+  const locale = await getServerLocale();
   return (
     <span className='display-flex align-items-center gap-25'>
       <Link href='/' className={styles.breadCrumb}>
@@ -50,7 +50,7 @@ export function CustomSection({
   )
 }
 
-export function MetaRoadmapSection({
+export async function MetaRoadmapSection({
   metaRoadmap,
 }: {
   metaRoadmap: {
@@ -58,8 +58,8 @@ export function MetaRoadmapSection({
     name: string,
   }
 }) {
-  validateDict(dict);
-  const locale = getServerLocale();
+  await validateDict(dict);
+  const locale = await getServerLocale();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
       {dict.metaRoadmapSection.roadmap[locale]}
@@ -70,7 +70,7 @@ export function MetaRoadmapSection({
   )
 }
 
-export function RoadmapSection({
+export async function RoadmapSection({
   roadmap,
 }: {
   roadmap: {
@@ -78,8 +78,8 @@ export function RoadmapSection({
     version: number,
   }
 }) {
-  validateDict(dict);
-  const locale = getServerLocale();
+  await validateDict(dict);
+  const locale = await getServerLocale();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
       {dict.roadmapSection.version[locale]}
@@ -90,7 +90,7 @@ export function RoadmapSection({
   )
 }
 
-export function GoalSection({
+export async function GoalSection({
   goal,
 }: {
   goal: {
@@ -99,8 +99,8 @@ export function GoalSection({
     indicatorParameter: string,
   }
 }) {
-  validateDict(dict);
-  const locale = getServerLocale();
+  await validateDict(dict);
+  const locale = await getServerLocale();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
       {dict.goalSection.goal[locale]}
@@ -111,7 +111,7 @@ export function GoalSection({
   )
 }
 
-export function ActionSection({
+export async function ActionSection({
   action,
 }: {
   action: {
@@ -119,8 +119,8 @@ export function ActionSection({
     name: string,
   }
 }) {
-  validateDict(dict);
-  const locale = getServerLocale();
+  await validateDict(dict);
+  const locale = await getServerLocale();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
       {dict.actionSection.action[locale]}

@@ -30,7 +30,7 @@ export default function RoadmapTree({
   validateDict(dict);
 
   if (!roadmaps.length) {
-    // const locale = getServerLocale();
+    // const locale = await getServerLocale();
     return <p>{dict.noRoadmaps[locale]}</p>;
   }
 
@@ -58,7 +58,7 @@ function NestedRoadmapRenderer({
   user: RoadmapTreeProps['user'],
   locale: Locale,
 }) {
-  // const locale = getServerLocale();
+  // const locale = await getServerLocale();
   return <>
     {childRoadmaps.map(roadmap => {
       const accessLevel = accessChecker(roadmap, user);

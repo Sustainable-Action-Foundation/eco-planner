@@ -1,10 +1,12 @@
+'use server';
+
 import type { Locale } from "@/types";
 import { headers } from "next/headers";
 
 /**
  * Read locale i.e. "en" | "sv" from the http `locale` header.
  *  */
-export function getServerLocale() {
+export async function getServerLocale() {
   // Get the locale cookie or use the default locale
   return headers().get("locale") as Locale;
 }
@@ -14,7 +16,7 @@ export function getServerLocale() {
  * @param dict JSON object.
 */
 // This code has a duplicate in ./clientLocale.ts
-export function validateDict(dict: object) {
+export async function validateDict(dict: object) {
   if (Object.keys(dict).length === 0) {
     throw new Error("Locale dict is missing data.");
   }

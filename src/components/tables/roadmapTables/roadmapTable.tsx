@@ -1,3 +1,5 @@
+'use server';
+
 import { LoginData } from '@/lib/session';
 import styles from '@/components/tables/tables.module.css' with { type: "css" };
 import { MetaRoadmap, Roadmap } from "@prisma/client";
@@ -23,13 +25,13 @@ interface RoadmapTableWithRoadmaps extends RoadmapTableCommonProps {
 
 type RoadmapTableProps = RoadmapTableWithMetaRoadmap | RoadmapTableWithRoadmaps;
 
-export default function RoadmapTable({
+export default async function RoadmapTable({
   user,
   roadmaps,
   metaRoadmap,
 }: RoadmapTableProps) {
-  validateDict(dict);
-  const locale = getServerLocale();
+  await validateDict(dict);
+  const locale = await getServerLocale();
 
   // Failsafe in case wrong props are passed
   if ((!roadmaps && !metaRoadmap) || (roadmaps && metaRoadmap)) throw new Error('RoadmapTable: Either `roadmaps` XOR `metaRoadmap` must be provided');
