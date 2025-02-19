@@ -8,7 +8,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 export async function middleware(req: NextRequest) {
   const session = await getSession(cookies())
 
-  let locale;
+  let locale: string;
 
   // Check if the user has set a language cookie...
   const language = cookies().get("language")?.value;
@@ -30,8 +30,8 @@ export async function middleware(req: NextRequest) {
     locale = match(languages, locales, defaultLocale);
 
     // Set the language cookie
-    const response = NextResponse.next();
-    response.cookies.set("language", locale, { path: '/' });
+    // const response = NextResponse.next();
+    // response.cookies.set("language", locale, { path: '/' });
   }
 
   // Set the detected locale in request headers for downstream use
