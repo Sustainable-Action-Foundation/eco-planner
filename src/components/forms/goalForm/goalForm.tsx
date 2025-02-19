@@ -337,7 +337,7 @@ export default function GoalForm({
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.externalResources.attach[locale]}</legend>
-          <LinkInput links={currentGoal?.links} />
+          <LinkInput links={currentGoal?.links} locale={locale} />
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>

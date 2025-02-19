@@ -1,14 +1,14 @@
 'use client'
 
-import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" with { type: "json" }
+import { EditUsers, ViewUsers, getAccessData } from "@/components/forms/accessSelector/accessSelector";
+import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput";
+import formSubmitter from "@/functions/formSubmitter";
+import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" with { type: "json" };
 import { LoginData } from "@/lib/session";
 import { AccessControlled, MetaRoadmapInput } from "@/types";
 import { MetaRoadmap, RoadmapType } from "@prisma/client";
 import { useState } from "react";
-import { EditUsers, ViewUsers, getAccessData } from "@/components/forms/accessSelector/accessSelector";
-import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput"
-import formSubmitter from "@/functions/formSubmitter";
-import styles from '../forms.module.css'
+import styles from '../forms.module.css';
 
 export default function MetaRoadmapForm({
   user,
@@ -133,7 +133,7 @@ export default function MetaRoadmapForm({
 
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Bifoga externa resurser</legend>
-          <LinkInput />
+          <LinkInput locale={locale} />
         </fieldset>
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&

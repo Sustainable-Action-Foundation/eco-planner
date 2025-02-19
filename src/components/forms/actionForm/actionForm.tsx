@@ -199,7 +199,7 @@ export default function ActionForm({
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.fieldset[6].externalResources[locale]}</legend>
-          <LinkInput links={currentAction?.links} />
+          <LinkInput links={currentAction?.links} locale={locale} />
         </fieldset>
 
         <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentAction ? `${dict.submit.save[locale]}` : `${dict.submit.create[locale]}`} />
