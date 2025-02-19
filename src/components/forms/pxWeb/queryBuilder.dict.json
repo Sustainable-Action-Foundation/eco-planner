@@ -1,0 +1,66 @@
+{
+  "addHistoricalData": {
+    "en": "Add historical data",
+    "sv": "Lägg till historisk data"
+  },
+  "addDataSource": {
+    "en": "Add data source",
+    "sv": "Lägg till datakälla"
+  },
+  "addHistoricalMetadata": {
+    "en": "Add historical metadata to",
+    "sv": "Lägg till historisk dataserie till"
+  },
+  "dataSource": {
+    "dataSource": {
+      "en": "Data source",
+      "sv": "Datakälla"
+    },
+    "chooseSource": {
+      "en": "Choose a source",
+      "sv": "Välj en källa"
+    },
+    "searchForTable": {
+      "en": "Search for table",
+      "sv": "Sök efter tabell"
+    },
+    "search": {
+      "en": "Search",
+      "sv": "Sök"
+    }
+  },
+  "tableDetails": {
+    "chooseValues": {
+      "en": "Choose values for table",
+      "sv": "Välj värden för tabell"
+    },
+    "chooseValue": {
+      "en": "Choose a value",
+      "sv": "Välj ett värde"
+    }
+  },
+  "tableContentCheck": {
+    "doesThisLookCorrect": {
+      "en": "Does this look reasonable? (showing max 5 values)",
+      "sv": "Ser detta rimligt ut? (visar max 5 värden)"
+    },
+    "timePeriod": {
+      "en": "Time period",
+      "sv": "Period"
+    },
+    "value": {
+      "en": "Value",
+      "sv": "Värde"
+    }
+  },
+  "noReadableResult": {
+    "en": "No readable result found. Please update your selections.",
+    "sv": "Inget läsbart resultat hittades. Vänligen uppdatera dina val."
+  },
+  "submit": {
+    "addDataSource": {
+      "en": "Add data source",
+      "sv": "Lägg till datakälla"
+    }
+  }
+}
