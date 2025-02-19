@@ -1,0 +1,62 @@
+{
+  "handleSubmit": {
+    "loginFailed": {
+      "en": "Login failed.",
+      "sv": "Inloggning misslyckades."
+    }
+  },
+  "login": {
+    "title": {
+      "en": "Login",
+      "sv": "Logga in"
+    },
+    "username": {
+      "label": {
+        "en": "Username",
+        "sv": "Användarnamn"
+      },
+      "placeholder": {
+        "en": "username",
+        "sv": "användarnamn"
+      }
+    },
+    "password": {
+      "label": {
+        "en": "Password",
+        "sv": "Lösenord"
+      },
+      "placeholder": {
+        "en": "password",
+        "sv": "lösenord"
+      }
+    },
+    "rememberMe": {
+      "en": "Remember me",
+      "sv": "Kom ihåg mig"
+    },
+    "forgotPassword": {
+      "en": "Forgot password?",
+      "sv": "Glömt lösenordet?"
+    },
+    "submit": {
+      "login": {
+        "en": "Login",
+        "sv": "Logga in"
+      }
+    },
+    "noAccount": {
+      "label": {
+        "en": "Don't have an account?",
+        "sv": "Har du inget konto?"
+      },
+      "createAccount": {
+        "en": "Create account",
+        "sv": "Skapa konto"
+      },
+      "verifyAccount": {
+        "en": "Verify account",
+        "sv": "Verifiera konto"
+      }
+    }
+  }
+}

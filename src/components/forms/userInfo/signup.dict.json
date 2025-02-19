@@ -1,0 +1,68 @@
+{
+  "handleSubmit": {
+    "signupFailedForReason": {
+      "en": "Signup failed.\nReason: ",
+      "sv": "Registrering misslyckades.\nAnledning: "
+    },
+    "signupFailed": {
+      "en": "Signup failed.",
+      "sv": "Registrering misslyckades."
+    }
+  },
+  "signup": {
+    "title": {
+      "en": "Create account",
+      "sv": "Skapa konto"
+    },
+    "username": {
+      "label": {
+        "en": "Username",
+        "sv": "Användarnamn"
+      },
+      "placeholder": {
+        "en": "username",
+        "sv": "användarnamn"
+      }
+    },
+    "email": {
+      "label": {
+        "en": "Email",
+        "sv": "E-postadress"
+      },
+      "placeholder": {
+        "en": "email",
+        "sv": "e-postadress"
+      }
+    },
+    "password": {
+      "label": {
+        "en": "Password",
+        "sv": "Lösenord"
+      },
+      "placeholder": {
+        "en": "password",
+        "sv": "lösenord"
+      }
+    },
+    "submit": {
+      "createAccount": {
+        "en": "Create account",
+        "sv": "Skapa konto"
+      }
+    },
+    "haveAnAccount": {
+      "label": {
+        "en": "Do you already have an account?",
+        "sv": "Har du redan ett konto?"
+      },
+      "login": {
+        "en": "Login",
+        "sv": "Logga in"
+      }
+    },
+    "information": {
+      "en": "Your organization must have signed a user agreement with us for you to be able to create an account.\nFor questions or concerns, please contact",
+      "sv": "Din organisation måste ha tecknat ett användaravtal med oss för att du ska kunna skapa ett konto.\nVid frågor eller funderingar, vänligen kontakta"
+    }
+  }
+}
