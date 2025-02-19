@@ -46,59 +46,54 @@ export default async function Page({
   const editAccess = [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin];
 
   const editableMetaRoadmaps = metaRoadmaps.filter(metaRoadmap => editAccess.includes(accessChecker(metaRoadmap, session.user)));
-  let displayedEditableMetaRoadmaps = editableMetaRoadmaps // TODO: fix default values for this
-  let displayedAuthoredMetaRoadmaps = userdata.authoredMetaRoadmaps
-
   const editableRoadmaps = roadmaps.filter(roadmap => editAccess.includes(accessChecker(roadmap, session.user)));
-  let displayedEditableRoadmaps = editableRoadmaps // TODO: Fix default values for this
-  let displayedAuthoredRoadmaps = userdata.authoredRoadmaps
 
+  // Get query params for filtering
   const objectsFilter = searchParams['objects'] ? (Array.isArray(searchParams['objects']) ? searchParams['objects'] : [searchParams['objects']]) : [];
   const accessFilter = searchParams['access'] ? (Array.isArray(searchParams['access']) ? searchParams['access'] : [searchParams['access']]) : [];
 
   // Update values based on query params
+  // TODO: Fix typing
+  let displayedMetaRoadmaps: any[] = []
+  let displayedRoadmaps: any[] = []
   function toggleRoadmaps() {
-    // TODO: temporary fix to do empty lists until i figure out how i wanna handle default values
-    displayedAuthoredMetaRoadmaps = []
-    displayedAuthoredRoadmaps = []
+    // TODO: Check if this should throw error or 404 or something?
+    if (!userdata) {
+      return
+    }
 
-    if (objectsFilter.includes('roadmapseries')) {
-      // Only display roadmapseries with edit access if on own user page
+    if (objectsFilter.length < 1) {
       if (accessFilter.includes('edit') && session.user?.username === username) {
-        displayedEditableMetaRoadmaps = editableMetaRoadmaps;
+        displayedMetaRoadmaps = editableMetaRoadmaps
+        displayedRoadmaps = editableRoadmaps
       } else {
-        displayedEditableMetaRoadmaps = [];
-      }
-
-      // Allow everyone to see roadmapseries if the visited user has userdata
-      if (accessFilter.includes('owner') && userdata) {
-        displayedAuthoredMetaRoadmaps = userdata.authoredMetaRoadmaps;
-      } else {
-        displayedAuthoredMetaRoadmaps = [];
+        // Default to only show authored meta roadmaps if user has not selected the edit option
+        // And default to only show authored roadmaps if user has not selected the edit option
+        displayedMetaRoadmaps = userdata.authoredMetaRoadmaps
+        displayedRoadmaps = userdata.authoredRoadmaps
       }
     } else {
-      displayedEditableMetaRoadmaps = [];
+      displayedMetaRoadmaps = []
+      displayedRoadmaps = []
+    }
+
+    if (objectsFilter.includes('roadmapseries')) {
+      if (accessFilter.includes('edit') && session.user?.username === username) {
+        displayedMetaRoadmaps = editableMetaRoadmaps 
+      } else {
+        // Default to only show authored meta roadmaps if user has not selected the edit option
+        displayedMetaRoadmaps = userdata.authoredMetaRoadmaps 
+      }
     }
 
     if (objectsFilter.includes('roadmap')) {
-      // Only display roadmaps with edit access if on own user page
       if (accessFilter.includes('edit') && session.user?.username === username) {
-        displayedEditableRoadmaps = editableRoadmaps;
+        displayedRoadmaps = editableRoadmaps
       } else {
-        displayedEditableRoadmaps = [];
+        // Default to only show authored roadmaps if user has not selected the edit option
+        displayedRoadmaps = userdata.authoredRoadmaps
       }
-
-      // Allow everyone to see roadmaps if the visited user has userdata
-      if (accessFilter.includes('owner') && userdata) {
-        displayedAuthoredRoadmaps = userdata.authoredRoadmaps;
-      } else {
-        displayedAuthoredRoadmaps = [];
-      }
-    } else {
-      displayedEditableRoadmaps = [];
     }
-
-
   }
   
   toggleRoadmaps()
@@ -127,67 +122,41 @@ export default async function Page({
       <section className='margin-block-300'>
         <h2 className='margin-bottom-100 padding-bottom-50' style={{borderBottom: '1px solid var(--gray)'}}>
           {session.user?.username === username ?
-            'Mina objekt'
+            'Mina inlägg'
           :
-            `@${userdata.username}'s objekt`
+            `@${userdata.username}'s inlägg`
           }
         </h2> 
         <UserFilters />
 
         <ul className={styles.itemsList}>
           {/* TODO: Keys are not unique for elements in this list */}
-          {/* TODO: Rename objects to items? (foremål?) */}
           {/* If on users own page, show roadmapseries and roadmaps with edit access*/}
-          {session.user?.username === username ?
-            <>
-              {displayedEditableMetaRoadmaps.map((editableMetaRoadmap, index) => 
-                <li key={index} className='margin-block-25'>
-                  <div className='flex justify-content-space-between align-items-center'>
-                    <a href={`/metaRoadmap/${editableMetaRoadmap.id}`} className='block'>{editableMetaRoadmap.name} • <span>Färdplansserie</span> <br/>
-                      <small>Antal versioner i denna serie: {editableMetaRoadmap.roadmapVersions.length}</small>
-                    </a>
-                    <TableMenu object={editableMetaRoadmap} />
-                  </div>
-                </li>
-              )}
-
-              {displayedEditableRoadmaps.map((editableRoadmap, index) => 
-                <li key={index} className='margin-block-25'>
-                  <div className='flex justify-content-space-between align-items-center'>
-                    <div>
-                      <a href={`/roadmap/${editableRoadmap.id}`}>{editableRoadmap.metaRoadmap.name}</a> • <span>Färdplan</span> <br/> {/* TODO: Check if naming of roadmap is always inherited */}
-                      <span>Antal målbanor: {editableRoadmap._count.goals}</span>
-                    </div>
-                    <TableMenu object={editableRoadmap} />
-                  </div>
-                </li>
-              )}
-            </>
-          : null}
 
           {/* Otherwise default to show roadmapsseries and roadmaps with ownership */}
-          {displayedAuthoredMetaRoadmaps.map((authoredMetaRoadmap, index) => 
+          {displayedMetaRoadmaps.map((metaRoadmap, index) => 
             <li key={index} className='margin-block-25'>
               <div className='flex justify-content-space-between align-items-center'>
                 <div>
-                  <a href={`/metaRoadmap/${authoredMetaRoadmap.id}`}>{authoredMetaRoadmap.name}</a> • <span>Färdplansserie</span> <br/>
-                  <span>Antal versioner i denna serie: {authoredMetaRoadmap.roadmapVersions.length}</span>
+                  <a href={`/metaRoadmap/${metaRoadmap.id}`}>{metaRoadmap.name}</a> • <span>Färdplansserie</span> 
                 </div>
-                <TableMenu object={authoredMetaRoadmap} />
+                <TableMenu object={metaRoadmap} />
               </div>
             </li>
           )}
-          {displayedAuthoredRoadmaps.map((authoredRoadmaps, index) => 
+
+          {displayedRoadmaps.map((roadmap, index) => 
             <li key={index} className='margin-block-25'>
               <div className='flex justify-content-space-between align-items-center'>
                 <div>
-                  <a href={`/roadmap/${authoredRoadmaps.id}`}>{authoredRoadmaps.metaRoadmap.name}</a> • <span>Färdplan</span> <br/> {/* TODO: Check if naming of roadmap is always inherited */}
-                  <span>Antal målbanor: {authoredRoadmaps._count.goals}</span>
+                  <a href={`/roadmap/${roadmap.id}`}>{roadmap.metaRoadmap.name}</a> • <span>Färdplan</span> <br/> {/* TODO: Check if naming of roadmap is always inherited */}
+                  <span>Antal målbanor: {roadmap._count.goals}</span>
                 </div>
-                <TableMenu object={authoredRoadmaps} />
+                <TableMenu object={roadmap} />
               </div>
             </li>
           )}
+          
         </ul>
       </section>
 

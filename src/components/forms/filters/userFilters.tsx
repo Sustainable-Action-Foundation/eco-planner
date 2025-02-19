@@ -27,7 +27,7 @@ export default function UserFilters() {
   return (
     <menu className='margin-0 padding-0 flex gap-300 flex-wrap-wrap margin-bottom-100'>
       <fieldset className='flex gap-100 fieldset-unset-pseudo-class'>
-        <legend className='font-weight-500 padding-bottom-75'>Objekt</legend>
+        <legend className='font-weight-500 padding-bottom-75'>Inlägg</legend>
         <label className='flex gap-25 align-items-center'>
           <input type='checkbox' value='roadmap' defaultChecked={searchParams.getAll('objects').includes('roadmap')} onChange={(e) => {
               if (e.target.checked) {
@@ -56,17 +56,6 @@ export default function UserFilters() {
       <fieldset className='flex gap-100 fieldset-unset-pseudo-class'>
         <legend className='font-weight-500 padding-bottom-75'>Behörighet</legend>
         <label className='flex gap-25 align-items-center'>
-          <input type='checkbox' value='owner' defaultChecked={searchParams.getAll('access').includes('owner')} onChange={(e) => {
-              if (e.target.checked) {
-                updateArrayParam('access', e.target.value)
-              } else {
-                updateArrayParam('access', e.target.value, true)
-              }
-            }} 
-          />
-          Ägare
-        </label>
-        <label className='flex gap-25 align-items-center'>
           <input type='checkbox' value='edit' defaultChecked={searchParams.getAll('access').includes('edit')} onChange={(e) => {
               if (e.target.checked) {
                 updateArrayParam('access', e.target.value)
@@ -75,7 +64,7 @@ export default function UserFilters() {
               }
             }} 
           />
-          Redigeringsbehörig
+          Visa inlägg jag kan redigera
         </label>
       </fieldset>
     </menu>
