@@ -2,17 +2,19 @@
 
 import { EditUsers, getAccessData, ViewUsers } from "@/components/forms/accessSelector/accessSelector";
 import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
+import { getClientLocale, validateDict } from "@/functions/clientLocale";
 import formSubmitter from "@/functions/formSubmitter";
 import parseCsv, { csvToGoalList } from "@/functions/parseCsv";
 import { LoginData } from "@/lib/session";
-import { AccessControlled, GoalInput, RoadmapInput } from "@/types";
+import { AccessControlled, GoalInput, Locale, RoadmapInput } from "@/types";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
 import { useEffect, useMemo, useState } from "react";
 import styles from '../forms.module.css';
+import dict from "./roadmapForm.dict.json" assert { type: "json" };
 
-function checkForBadDecoding(csv: string[][]) {
+function checkForBadDecoding(csv: string[][], locale: Locale) {
   if (csv.some((row) => row.some((cell) => cell.includes("�")))) {
-    alert("Filen verkar använda en okänd encoding då den tolkade texten innehåller tecknet '�' som indikerar att något tecken inte kunde tolkas korrekt (antagligen Å, Ä eller Ö).\nDu kan fortfarande använda den här filen, men om du inte är helt säker på att den *ska* innehålla tecknet '�' så rekommenderas att du konverterar filen till UTF-8 encoding och försöker igen.");
+    alert(dict.badDecoding.alert[locale]);
   }
 }
 
@@ -31,6 +33,9 @@ export default function RoadmapForm({
   currentRoadmap?: Roadmap & AccessControlled & { metaRoadmap: MetaRoadmap },
   defaultMetaRoadmap?: string,
 }) {
+  validateDict(dict);
+  const locale = getClientLocale();
+
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!metaRoadmapId) { return; }
@@ -51,12 +56,12 @@ export default function RoadmapForm({
       try {
         goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer })));
         if (goals.some((goal) => goal.dataScale)) {
-          alert("Kolumnen 'Scale' stöds inte och kommer att ignoreras.")
+          alert(dict.roadmapForm.handleSubmit.columnNotSupported[locale]);
         }
       }
       catch (error) {
         setIsLoading(false)
-        alert(`Färdplansversion kunde inte skapas.\nAnledning: ${error instanceof Error ? error.message || "Okänt fel" : "Okänt fel"}`)
+        alert(`${dict.roadmapForm.handleSubmit.versionCouldNotBeCreated[locale]} ${error instanceof Error ? error.message || dict.roadmapForm.handleSubmit.unknownError[locale] : dict.roadmapForm.handleSubmit.unknownError[locale]}`)
         return
       }
     }
@@ -129,23 +134,23 @@ export default function RoadmapForm({
         currentFile.arrayBuffer()
           .then((buffer) => parseCsv(buffer))
           .then((csv) => {
-            checkForBadDecoding(csv);
+            checkForBadDecoding(csv, locale);
             return csvToGoalList(csv);
           })
           .then((goals) => {
             if (goals.some((goal) => goal.dataScale)) {
-              alert("Kolumnen 'Scale' stöds inte och kommer att ignoreras. Om kolumnen innehåller några skalor, vänligen baka in dem i enheten eller värdet istället. Exempel: enhet 'MW' snarare än enhet 'kW' med skala 'tusen'");
+              alert(dict.roadmapForm.useEffect.columnNotSupported[locale]);
             }
           })
           .then(() => setIsLoading(false));
       }
       catch (error) {
-        alert(`Filen kunde inte läsas: ${error instanceof Error ? error.message || "Okänt fel" : "Okänt fel"}`);
+        alert(`${dict.roadmapForm.useEffect.fileCouldNotBeRead[locale]} ${error instanceof Error ? error.message || dict.roadmapForm.useEffect.unknownError[locale] : dict.roadmapForm.useEffect.unknownError[locale]}`);
         setIsLoading(false);
         return;
       }
     }
-  }, [currentFile])
+  }, [currentFile, locale])
 
   let currentAccess: AccessControlled | undefined = undefined;
   if (currentRoadmap) {
@@ -171,21 +176,21 @@ export default function RoadmapForm({
         {(!(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap) || metaRoadmapTarget?.roadmapVersions.length) ?
 
           <fieldset className={`${styles.timeLineFieldset} width-100`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>Ange relationen till andra inlägg</legend>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>{dict.roadmapForm.form.metaRoadmap.relationToOtherPosts[locale]}</legend>
             {/* Allow user to select parent metaRoadmap if not already selected */}
             {!(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap) ?
               <>
                 <label className="block margin-block-100">
-                  Färdplansserie som detta är ett nytt inlägg i
+                  {dict.roadmapForm.form.metaRoadmap.metaRoadmapThatThisIsPostIn[locale]}
                   <select className="block margin-block-25" name="parentRoadmap" id="parentRoadmap" value={metaRoadmapId} required onChange={(e) => setMetaRoadmapId(e.target.value)}>
-                    <option disabled value="">Ingen färdplansserie vald</option>
+                    <option disabled value="">{dict.roadmapForm.form.metaRoadmap.noMetaRoadmapSelected[locale]}</option>
                     {metaRoadmapAlternatives?.length ?
                       metaRoadmapAlternatives.map((metaRoadmap) => {
                         return (
                           <option key={metaRoadmap.id} value={metaRoadmap.id}>{`${metaRoadmap.name}`}</option>
                         )
                       })
-                      : <option value="disabled" disabled>Du verkar inte ha tillgång till några färdplansserier</option>
+                      : <option value="disabled" disabled>{dict.roadmapForm.form.metaRoadmap.noAccessibleMetaRoadmaps[locale]}</option>
                     }
                   </select>
                 </label>
@@ -199,13 +204,13 @@ export default function RoadmapForm({
 
             {metaRoadmapTarget?.roadmapVersions.length && (
               <label className="block margin-block-100">
-                Version av färdplansserien {`"${metaRoadmapTarget.name}"`} den här färdplansversionen arbetar mot
+                {dict.roadmapForm.form.metaRoadmap.roadmapVersion.versionOfMetaRoadmap[locale]}
                 <select className="block margin-block-25" name="targetVersion" id="targetVersion" required defaultValue={currentRoadmap?.targetVersion || ""} onChange={(e) => setTargetVersion(parseInt(e.target.value) || null)}>
-                  <option value="">Inget alternativ valt</option>
-                  <option value={0}>Alltid senaste versionen</option>
+                  <option value="">{dict.roadmapForm.form.metaRoadmap.roadmapVersion.noAlternativeSelected[locale]}</option>
+                  <option value={0}>{dict.roadmapForm.form.metaRoadmap.roadmapVersion.alwaysMostRecent[locale]}</option>
                   {metaRoadmapTarget.roadmapVersions.map((version) => {
                     return (
-                      <option key={version.version} value={version.version}>{`Version ${version.version}`}</option>
+                      <option key={version.version} value={version.version}>{`${dict.roadmapForm.form.metaRoadmap.roadmapVersion.version[locale]} ${version.version}`}</option>
                     )
                   })}
                 </select>
@@ -216,20 +221,20 @@ export default function RoadmapForm({
         }
 
         <fieldset className={`${styles.timeLineFieldset} width-100 ${positionIndex > 1 ? "margin-top-200" : ""}`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>Beskriv färdplansversionen</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>{dict.roadmapForm.form.description.describe[locale]}</legend>
           <label className="block margin-block-100">
-            Extra beskrivning av den här färdplansversionen
+            {dict.roadmapForm.form.description.extraDescription[locale]}
             <textarea className="margin-block-25" name="description" id="description" defaultValue={currentRoadmap?.description ?? undefined}></textarea>
           </label>
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Ladda upp målbanor</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.roadmapForm.form.goals.upload[locale]}</legend>
           <label className="block margin-bottom-100">
             {/*TODO: Add to infobubble
             Om du har en CSV-fil med målbanor kan du ladda upp den här. <br />
             Notera att det här skapar nya målbanor även om det redan finns några. */}
-            Målbanor <small> - accepterade filtyper: .csv, accepterad encoding: UTF-8</small>
+            {dict.roadmapForm.form.goals.goals[locale]} <small> - {dict.roadmapForm.form.goals.acceptedFileTypes[locale]}</small>
             <input className="margin-block-25" type="file" name="csvUpload" id="csvUpload" accept=".csv" onChange={(e) => e.target.files ? setCurrentFile(e.target.files[0]) : setCurrentFile(null)} />
           </label>
         </fieldset>
@@ -239,7 +244,7 @@ export default function RoadmapForm({
         {/* TODO: Allow choosing which roadmap to inherit from, might be different from target */}
         {inheritableGoals.length > 0 && (
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Välj mål att ärva</legend>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.roadmapForm.form.inheritableGoals.chooseGoal[locale]}</legend>
             {
               inheritableGoals.map((goal) => {
                 return (
@@ -255,7 +260,7 @@ export default function RoadmapForm({
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Justera läsbehörighet</legend>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.roadmapForm.form.viewingPrivileges.adjust[locale]}</legend>
             <ViewUsers
               groupOptions={userGroups}
               existingUsers={currentAccess?.viewers.map((user) => user.username)}
@@ -267,7 +272,7 @@ export default function RoadmapForm({
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Justera redigeringsbehörighet</legend>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.roadmapForm.form.editingPrivileges.adjust[locale]}</legend>
             <EditUsers
               groupOptions={userGroups}
               existingUsers={currentAccess?.editors.map((user) => user.username)}
@@ -280,7 +285,7 @@ export default function RoadmapForm({
         <input
           type="submit"
           className="margin-block-200 seagreen color-purewhite"
-          value={currentRoadmap ? 'Spara' : 'Skapa färdplansversion'}
+          value={currentRoadmap ? dict.roadmapForm.form.submit.save[locale] : dict.roadmapForm.form.submit.create[locale]}
           disabled={isLoading}
         />
       </form>
