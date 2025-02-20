@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { getCookie } from "cookies-next/client";
 
 /**
- * Reads locale string i.e. "en" | "sv" from the client cookies and the browser preferences as a fallback.
+ * Reads locale string i.e. "en" | "sv" from the client cookies.
  * @returns Locale string.
  */
 export function useClientLocale() {
