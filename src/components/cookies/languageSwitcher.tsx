@@ -2,8 +2,9 @@
 
 import { setCookie } from "cookies-next";
 import type { Locale } from "@/types";
-import { useTransition } from "react";
+import { useContext, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { LocaleContext, LocaleSetterContext } from "@/app/context/localeContext.tsx";
 
 const languageOptions: { label: string, value: Locale }[] = [
   {
@@ -16,12 +17,17 @@ const languageOptions: { label: string, value: Locale }[] = [
   },
 ];
 
-export default function LanguageSwitcher({ locale }: { locale: Locale }) {
+export default function LanguageSwitcher() {
   const [_isPending, startTransition] = useTransition();
   const router = useRouter();
-  
+  const locale = useContext(LocaleContext);
+  const setLocaleContext = useContext(LocaleSetterContext);
+
   async function setLanguage(lang: Locale) {
     await setCookie("language", lang);
+    if (setLocaleContext != null) {
+      setLocaleContext(lang);
+    }
     startTransition(() => {
       router.refresh();
     });

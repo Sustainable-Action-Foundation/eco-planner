@@ -7,14 +7,14 @@ import Link from 'next/link'
 import styles from './header.module.css' with { type: "css" }
 import dict from "./sidebar.dict.json" assert {type: "json"};
 import { getServerLocale, validateDict } from '@/functions/serverLocale'
-// import Notifications from '../notifications/notification'
 
 export default async function Sidebar() {
-  await validateDict(dict);
-  const locale = await getServerLocale();
-  
-  const { user } = await getSession(cookies())
-  
+  const [{ user }, locale, _] = await Promise.all([
+    getSession(cookies()),
+    getServerLocale(),
+    validateDict(dict),
+  ])
+
   return <>
     <aside className={styles.container}>
       <label className={styles.menuToggleContainer}>
@@ -54,7 +54,7 @@ export default async function Sidebar() {
             </Link>
           </div>
           <div className='flex justify-content-center margin-bottom-200'>
-            <LanguageSwitcher locale={locale} />
+            <LanguageSwitcher />
           </div>
           <div>
             { // Link to login
