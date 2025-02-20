@@ -2,6 +2,8 @@
 
 import { setCookie } from "cookies-next";
 import type { Locale } from "@/types";
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 
 const languageOptions: { label: string, value: Locale }[] = [
   {
@@ -15,11 +17,14 @@ const languageOptions: { label: string, value: Locale }[] = [
 ];
 
 export default function LanguageSwitcher({ locale }: { locale: Locale }) {
-  setCookie("language", locale);
-
+  const [_isPending, startTransition] = useTransition();
+  const router = useRouter();
+  
   async function setLanguage(lang: Locale) {
     await setCookie("language", lang);
-    window?.location.reload();
+    startTransition(() => {
+      router.refresh();
+    });
   }
 
   return (
