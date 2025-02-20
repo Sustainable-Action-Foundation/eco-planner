@@ -9,16 +9,16 @@ import { getSession } from '@/lib/session';
 import { AccessLevel } from '@/types';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
-import styles  from './page.module.css' with { type: "css" }
+import styles from './page.module.css' with { type: "css" }
 
-export default async function Page({ 
-  params, 
-  searchParams 
-  }: { 
-    params: { user: string },
-    searchParams: { [key: string]: string | string[] | undefined }
-  }) {
-    
+export default async function Page({
+  params,
+  searchParams
+}: {
+  params: { user: string },
+  searchParams: { [key: string]: string | string[] | undefined }
+}) {
+
   let username = params.user;
 
   /** Matches strings starting with @ or %40 (URL-encoded @) */
@@ -54,55 +54,55 @@ export default async function Page({
 
   // Update values based on query params
   // TODO: Fix typing
-  let displayedMetaRoadmaps: any[] = []
-  let displayedRoadmaps: any[] = []
+  let displayedMetaRoadmaps: typeof metaRoadmaps = [];
+  let displayedRoadmaps: typeof roadmaps = [];
   function toggleRoadmaps() {
     // TODO: Check if this should throw error or 404 or something?
     if (!userdata) {
-      return
+      return;
     }
 
     if (objectsFilter.length < 1) {
       if (accessFilter.includes('edit') && session.user?.username === username) {
-        displayedMetaRoadmaps = editableMetaRoadmaps
-        displayedRoadmaps = editableRoadmaps
+        displayedMetaRoadmaps = editableMetaRoadmaps;
+        displayedRoadmaps = editableRoadmaps;
       } else {
         // Default to only show authored meta roadmaps if user has not selected the edit option
         // And default to only show authored roadmaps if user has not selected the edit option
-        displayedMetaRoadmaps = userdata.authoredMetaRoadmaps
-        displayedRoadmaps = userdata.authoredRoadmaps
+        displayedMetaRoadmaps = userdata.authoredMetaRoadmaps;
+        displayedRoadmaps = userdata.authoredRoadmaps;
       }
     } else {
-      displayedMetaRoadmaps = []
-      displayedRoadmaps = []
+      displayedMetaRoadmaps = [];
+      displayedRoadmaps = [];
     }
 
     if (objectsFilter.includes('roadmapseries')) {
       if (accessFilter.includes('edit') && session.user?.username === username) {
-        displayedMetaRoadmaps = editableMetaRoadmaps 
+        displayedMetaRoadmaps = editableMetaRoadmaps;
       } else {
         // Default to only show authored meta roadmaps if user has not selected the edit option
-        displayedMetaRoadmaps = userdata.authoredMetaRoadmaps 
+        displayedMetaRoadmaps = userdata.authoredMetaRoadmaps;
       }
     }
 
     if (objectsFilter.includes('roadmap')) {
       if (accessFilter.includes('edit') && session.user?.username === username) {
-        displayedRoadmaps = editableRoadmaps
+        displayedRoadmaps = editableRoadmaps;
       } else {
         // Default to only show authored roadmaps if user has not selected the edit option
-        displayedRoadmaps = userdata.authoredRoadmaps
+        displayedRoadmaps = userdata.authoredRoadmaps;
       }
     }
   }
-  
+
   toggleRoadmaps()
 
   return <>
     <main>
       <section className='margin-block-300'>
         <h1 className='margin-bottom-0'>{userdata.username}</h1>
-        <small style={{color: 'var(--gray-50)'}}>@{userdata.username}</small>
+        <small style={{ color: 'var(--gray-50)' }}>@{userdata.username}</small>
         <ul className='margin-top-100'>
           {session.user?.userGroups.map((usergroup, index) =>
             <li key={index}>{usergroup}</li>
@@ -117,16 +117,16 @@ export default async function Page({
             <GraphCookie />
           </section>
         </>
-      : null}
+        : null}
 
       <section className='margin-block-300'>
-        <h2 className='margin-bottom-100 padding-bottom-50' style={{borderBottom: '1px solid var(--gray)'}}>
+        <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>
           {session.user?.username === username ?
             'Mina inlägg'
-          :
+            :
             `@${userdata.username}'s inlägg`
           }
-        </h2> 
+        </h2>
         <UserFilters />
 
         <ul className={styles.itemsList}>
@@ -134,29 +134,29 @@ export default async function Page({
           {/* If on users own page, show roadmapseries and roadmaps with edit access*/}
 
           {/* Otherwise default to show roadmapsseries and roadmaps with ownership */}
-          {displayedMetaRoadmaps.map((metaRoadmap, index) => 
+          {displayedMetaRoadmaps.map((metaRoadmap, index) =>
             <li key={index} className='margin-block-25'>
               <div className='flex justify-content-space-between align-items-center'>
                 <div>
-                  <a href={`/metaRoadmap/${metaRoadmap.id}`}>{metaRoadmap.name}</a> • <span>Färdplansserie</span> 
+                  <a href={`/metaRoadmap/${metaRoadmap.id}`}>{metaRoadmap.name}</a> • <span>Färdplansserie</span>
                 </div>
                 <TableMenu object={metaRoadmap} />
               </div>
             </li>
           )}
 
-          {displayedRoadmaps.map((roadmap, index) => 
+          {displayedRoadmaps.map((roadmap, index) =>
             <li key={index} className='margin-block-25'>
               <div className='flex justify-content-space-between align-items-center'>
                 <div>
-                  <a href={`/roadmap/${roadmap.id}`}>{roadmap.metaRoadmap.name}</a> • <span>Färdplan</span> <br/> {/* TODO: Check if naming of roadmap is always inherited */}
+                  <a href={`/roadmap/${roadmap.id}`}>{roadmap.metaRoadmap.name}</a> • <span>Färdplan</span> <br /> {/* TODO: Check if naming of roadmap is always inherited */}
                   <span>Antal målbanor: {roadmap._count.goals}</span>
                 </div>
                 <TableMenu object={roadmap} />
               </div>
             </li>
           )}
-          
+
         </ul>
       </section>
 
