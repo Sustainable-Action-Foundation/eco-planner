@@ -18,7 +18,9 @@ const languages: { label: string, value: Locale }[] = [
   },
 ];
 
-export default function LanguageSwitcher({ locale }: LanguageSwitcherI) {
+export default function LanguageSwitcher({ locale }: { locale: Locale }) {
+  setCookie("language", locale);
+
   async function setLanguage(lang: Locale) {
     await setCookie("language", lang);
     window?.location.reload();
