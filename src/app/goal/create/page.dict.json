@@ -8,7 +8,7 @@
     "sv": "Skapa en ny målbana"
   },
   "badRoadmap": {
-    "en": "Could not find or do not have access to the roadmap version in the link.\u000aUse the dropdown menu to select a roadmap version to create the goal path under.",
-    "sv": "Kunde inte hitta eller har inte tillgång till färdplansversionen i länken.\u000aAnvänd dropdown-menyn för att välja en färdplansversion att skapa målbanan under."
+    "en": "Could not find or do not have access to the roadmap version in the link.\nUse the dropdown menu to select a roadmap version to create the goal path under.",
+    "sv": "Kunde inte hitta eller har inte tillgång till färdplansversionen i länken.\nAnvänd dropdown-menyn för att välja en färdplansversion att skapa målbanan under."
   }
 }

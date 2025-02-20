@@ -8,7 +8,7 @@
     "sv": "Skapa en ny version i en färdplansserie"
   },
   "badMetaRoadmap": {
-    "en": "Could not find or do not have access to the roadmap in the link.\u000aUse the dropdown menu to select a roadmap series.",
-    "sv": "Kunde inte hitta eller har inte tillgång till färdplansserien i länken.\u000aAnvänd dropdown-menyn för att välja en färdplansserie."
+    "en": "Could not find or do not have access to the roadmap in the link.\nUse the dropdown menu to select a roadmap series.",
+    "sv": "Kunde inte hitta eller har inte tillgång till färdplansserien i länken.\nAnvänd dropdown-menyn för att välja en färdplansserie."
   }
 }
