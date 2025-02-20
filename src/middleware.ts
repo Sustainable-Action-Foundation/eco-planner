@@ -28,10 +28,6 @@ export async function middleware(req: NextRequest) {
 
     // Match the best language based on available locales
     locale = match(languages, locales, defaultLocale);
-
-    // Set the language cookie
-    // const response = NextResponse.next();
-    // response.cookies.set("language", locale, { path: '/' });
   }
 
   // Set the detected locale in request headers for downstream use
