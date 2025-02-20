@@ -129,11 +129,11 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
     </div>
 
     <section>
-      <RoadmapFilters locale={locale} />
+      <RoadmapFilters />
     </section>
 
     <section>
-      <RoadmapTree user={session.user ?? undefined} roadmaps={roadmaps} locale={locale} />
+      <RoadmapTree user={session.user ?? undefined} roadmaps={roadmaps} />
     </section>
   </>
 }

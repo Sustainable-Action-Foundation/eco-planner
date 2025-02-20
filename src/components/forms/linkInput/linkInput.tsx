@@ -1,13 +1,14 @@
 'use client'
 
-import { validateDict } from "@/functions/clientLocale";
-import { Locale } from "@/types";
+import { useClientLocale, validateDict } from "@/functions/clientLocale";
 import Image from "next/image";
 import { useState } from "react";
 import dict from "./linkInput.dict.json" assert { type: "json" };
 
-export default function LinkInput({ links, locale }: { links?: { url: string, description: string | null }[], locale: Locale }) {
+export default function LinkInput({ links }: { links?: { url: string, description: string | null }[] }) {
   validateDict(dict);
+  const locale = useClientLocale();
+
   // The list of links
   const [linkList, setLinkList] = useState<{ url: string, description: string | null }[]>(links ?? [])
 

@@ -1,7 +1,7 @@
 'use client';
 
-import { validateDict } from "@/functions/clientLocale";
-import { Locale, RoadmapSortBy } from "@/types";
+import { useClientLocale, validateDict } from "@/functions/clientLocale";
+import { RoadmapSortBy } from "@/types";
 import { RoadmapType } from "@prisma/client";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -9,9 +9,9 @@ import { useTransition } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import dict from "./roadmapFilters.dict.json";
 
-export default function RoadmapFilters({ locale }: { locale: Locale }) {
+export default function RoadmapFilters() {
   validateDict(dict);
-  // const locale = getClientLocale();
+  const locale = useClientLocale();
 
   const router = useRouter();
   const pathname = usePathname();

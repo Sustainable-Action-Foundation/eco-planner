@@ -2,11 +2,11 @@
 
 import { EditUsers, ViewUsers, getAccessData } from "@/components/forms/accessSelector/accessSelector";
 import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput";
-import { validateDict } from "@/functions/clientLocale";
+import { useClientLocale, validateDict } from "@/functions/clientLocale";
 import formSubmitter from "@/functions/formSubmitter";
 import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" with { type: "json" };
 import { LoginData } from "@/lib/session";
-import { AccessControlled, Locale, MetaRoadmapInput } from "@/types";
+import { AccessControlled, MetaRoadmapInput } from "@/types";
 import { MetaRoadmap, RoadmapType } from "@prisma/client";
 import { useState } from "react";
 import styles from '../forms.module.css';
@@ -17,15 +17,14 @@ export default function MetaRoadmapForm({
   userGroups,
   parentRoadmapOptions,
   currentRoadmap,
-  locale,
 }: {
   user: LoginData['user'],
   userGroups: string[],
   parentRoadmapOptions?: MetaRoadmap[],
   currentRoadmap?: MetaRoadmap & AccessControlled,
-  locale: Locale,
 }) {
   validateDict(dict);
+  const locale = useClientLocale();
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     // Mostly the usual submit handler stuff.
@@ -140,7 +139,7 @@ export default function MetaRoadmapForm({
 
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.externalResources.attach[locale]}</legend>
-          <LinkInput locale={locale} />
+          <LinkInput />
         </fieldset>
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&

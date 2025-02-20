@@ -1,9 +1,9 @@
 import { TableMenu } from "@/components/tables/tableMenu/tableMenu.tsx";
 import styles from "@/components/tables/tables.module.css" with { type: "css" };
-import { validateDict } from "@/functions/serverLocale";
+import { getServerLocale, validateDict } from "@/functions/serverLocale";
 import accessChecker from "@/lib/accessChecker.ts";
 import { LoginData } from "@/lib/session.ts";
-import { AccessControlled, Locale } from "@/types.ts";
+import { AccessControlled } from "@/types.ts";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
 import dict from "./roadmapTree.dict.json" assert { type: "json" };
 
@@ -18,19 +18,17 @@ type RoadmapTreeProps = {
  * 
  * Ignores which roadmap versions work towards which other versions; only MetaRoadmap relationships are considered.
  */
-export default function RoadmapTree({
+export default async function RoadmapTree({
   roadmaps,
   user,
-  locale,
 }: {
   roadmaps: RoadmapTreeProps['roadmaps'],
   user: RoadmapTreeProps['user'],
-  locale: Locale,
 }) {
-  validateDict(dict);
+  await validateDict(dict);
+  const locale = await getServerLocale();
 
   if (!roadmaps.length) {
-    // const locale = await getServerLocale();
     return <p>{dict.noRoadmaps[locale]}</p>;
   }
 
@@ -40,25 +38,24 @@ export default function RoadmapTree({
   const topLevelRoadmaps = roadmaps.filter(roadmap => (roadmap.metaRoadmap.parentRoadmapId == null) || (!accessibleMetaRoadmaps.includes(roadmap.metaRoadmap.parentRoadmapId)));
 
   return <ul className={styles.list}>
-    <NestedRoadmapRenderer allRoadmaps={roadmaps} childRoadmaps={topLevelRoadmaps} user={user} locale={locale} />
+    <NestedRoadmapRenderer allRoadmaps={roadmaps} childRoadmaps={topLevelRoadmaps} user={user} />
   </ul>
 }
 
 /**
  * Does the nesting of roadmaps for the `RoadmapTree` component.
  */
-function NestedRoadmapRenderer({
+async function NestedRoadmapRenderer({
   allRoadmaps,
   childRoadmaps,
   user,
-  locale,
 }: {
   allRoadmaps: RoadmapTreeProps['roadmaps'],
   childRoadmaps: RoadmapTreeProps['roadmaps'],
   user: RoadmapTreeProps['user'],
-  locale: Locale,
 }) {
-  // const locale = await getServerLocale();
+  const locale = await getServerLocale();
+
   return <>
     {childRoadmaps.map(roadmap => {
       const accessLevel = accessChecker(roadmap, user);
@@ -77,7 +74,7 @@ function NestedRoadmapRenderer({
         </div>
         {newChildRoadmaps.length > 0 ?
           <ul className={styles.list}>
-            <NestedRoadmapRenderer allRoadmaps={allRoadmaps} childRoadmaps={newChildRoadmaps} user={user} locale={locale} />
+            <NestedRoadmapRenderer allRoadmaps={allRoadmaps} childRoadmaps={newChildRoadmaps} user={user} />
           </ul>
           : null
         }

@@ -1,7 +1,7 @@
 'use client';
 
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
-import { validateDict } from "@/functions/clientLocale";
+import { useClientLocale, validateDict } from "@/functions/clientLocale";
 import formSubmitter from "@/functions/formSubmitter";
 import filterTableContentKeys from "@/lib/pxWeb/filterTableContentKeys";
 import { getTableContent } from "@/lib/pxWeb/getTableContent";
@@ -9,7 +9,6 @@ import { getTableDetails } from "@/lib/pxWeb/getTableDetails";
 import { getTables } from "@/lib/pxWeb/getTables";
 import { PxWebApiV2TableContent, PxWebApiV2TableDetails } from "@/lib/pxWeb/pxWebApiV2Types";
 import { externalDatasetBaseUrls } from "@/lib/pxWeb/utility";
-import { Locale } from "@/types";
 import { Goal } from "@prisma/client";
 import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
@@ -19,12 +18,11 @@ import styles from './queryBuilder.module.css';
 
 export default function QueryBuilder({
   goal,
-  locale,
 }: {
   goal: Goal,
-  locale: Locale
 }) {
   validateDict(dict);
+  const locale = useClientLocale();
 
   const [isLoading, setIsLoading] = useState(false);
   const [dataSource, setDataSource] = useState<string>("" as keyof typeof externalDatasetBaseUrls);

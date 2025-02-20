@@ -1,9 +1,9 @@
 import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
-import { validateDict } from "@/functions/clientLocale";
+import { useClientLocale, validateDict } from "@/functions/clientLocale";
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
 import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import { parsePeriod } from "@/lib/pxWeb/utility";
-import { dataSeriesDataFieldNames, Locale } from "@/types";
+import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Effect, Goal } from "@prisma/client";
 import dict from "./mainGraph.dict.json" assert { type: "json" };
 
@@ -13,16 +13,15 @@ export default function MainGraph({
   nationalGoal,
   historicalData,
   effects,
-  locale,
 }: {
   goal: Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null },
   secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
   nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
   historicalData?: PxWebApiV2TableContent | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
-  locale: Locale,
 }) {
   validateDict(dict);
+  const locale = useClientLocale();
 
   if (!goal.dataSeries) {
     return null;

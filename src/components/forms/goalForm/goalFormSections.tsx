@@ -4,9 +4,9 @@ import { clientSafeGetOneGoal } from "@/fetchers/getOneGoal";
 import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
 import type getRoadmaps from "@/fetchers/getRoadmaps";
 import { clientSafeGetRoadmaps } from "@/fetchers/getRoadmaps";
-import { validateDict } from "@/functions/clientLocale";
+import { useClientLocale, validateDict } from "@/functions/clientLocale";
 import mathjs from "@/math";
-import { dataSeriesDataFieldNames, Locale } from "@/types";
+import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 import { Fragment, useEffect, useState } from "react";
 import { dataSeriesPattern } from "./goalForm";
@@ -15,7 +15,6 @@ import dict from "./goalFormSections.dict.json" assert { type: "json" };
 export function ManualGoalForm({
   currentGoal,
   dataSeriesString,
-  locale,
 }: {
   currentGoal?: Goal & {
     dataSeries: DataSeries | null,
@@ -31,9 +30,9 @@ export function ManualGoalForm({
     roadmap: { id: string },
   },
   dataSeriesString?: string,
-  locale: Locale,
 }) {
   validateDict(dict);
+  const locale = useClientLocale();
 
   const [parsedUnit, setParsedUnit] = useState<string | null>(null);
 
@@ -95,7 +94,6 @@ export function ManualGoalForm({
 export function InheritedGoalForm({
   currentGoal,
   roadmapAlternatives,
-  locale,
 }: {
   currentGoal?: Goal & {
     dataSeries: DataSeries | null,
@@ -113,9 +111,9 @@ export function InheritedGoalForm({
     roadmap: { id: string },
   },
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
-  locale: Locale,
 }) {
   validateDict(dict);
+  const locale = useClientLocale();
 
   const [selectedRoadmap, setSelectedRoadmap] = useState(currentGoal?.combinationParents[0]?.parentGoal.roadmapId);
   const [roadmapData, setRoadmapData] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
@@ -206,7 +204,6 @@ export function InheritedGoalForm({
 export function CombinedGoalForm({
   roadmapId,
   currentGoal,
-  locale,
 }: {
   roadmapId?: string,
   currentGoal?: Goal & {
@@ -224,9 +221,9 @@ export function CombinedGoalForm({
     links?: { url: string, description: string | null }[],
     roadmap: { id: string },
   },
-  locale: Locale,
 }) {
   validateDict(dict);
+  const locale = useClientLocale();
 
   const [currentRoadmap, setCurrentRoadmap] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
   const [inheritFrom, setInheritFrom] = useState<string[]>([]);
@@ -308,8 +305,9 @@ export function CombinedGoalForm({
   )
 }
 
-export function InheritingBaseline({ locale }: { locale: Locale }) {
+export function InheritingBaseline() {
   validateDict(dict);
+  const locale = useClientLocale();
 
   const [roadmapList, setRoadmapList] = useState<Awaited<ReturnType<typeof clientSafeGetRoadmaps>>>([]);
   const [selectedRoadmap, setSelectedRoadmap] = useState<string | undefined>(undefined);
