@@ -105,21 +105,28 @@ export function calculatePredictedOutcome(effects: (Effect & { dataSeries: DataS
   const totalEffect: Partial<DataSeriesDataFields> = {};
   for (const i of dataSeriesDataFieldNames) {
     for (const effect of effects) {
-      if (effect.dataSeries && effect.dataSeries[i] != null && Number.isFinite(effect.dataSeries[i])) {
+      if (effect.dataSeries && (effect.impactType === ActionImpactType.DELTA)) {
         if (!totalEffect[i]) {
           totalEffect[i] = 0;
         }
 
+        // Add sum of all deltas up to this point for the current action
+        let totalDelta = 0;
+
+        for (const j of dataSeriesDataFieldNames.slice(0, dataSeriesDataFieldNames.indexOf(i) + 1)) {
+          if (effect.dataSeries[j] != null && Number.isFinite(effect.dataSeries[j])) {
+            totalDelta += effect.dataSeries[j];
+          }
+        }
+
+        totalEffect[i] += totalDelta;
+      } else if (effect.dataSeries && effect.dataSeries[i] != null && Number.isFinite(effect.dataSeries[i])) {
+        if (!totalEffect[i]) {
+          totalEffect[i] = 0;
+        }
         switch (effect.impactType) {
           case ActionImpactType.DELTA:
-            // Add sum of all deltas up to this point for the current action
-            let totalDelta = 0;
-            for (const j of dataSeriesDataFieldNames.slice(0, dataSeriesDataFieldNames.indexOf(i) + 1)) {
-              if (effect.dataSeries[j] != null && Number.isFinite(effect.dataSeries[j])) {
-                totalDelta += effect.dataSeries[j];
-              }
-            }
-            totalEffect[i] += totalDelta;
+            // Delta is handled separately above to account for cases where the current delta is null but some previous deltas are not
             break;
           case ActionImpactType.PERCENT:
             // Add previous year's (baseline + totalEffect) multiplied by current action as percent
