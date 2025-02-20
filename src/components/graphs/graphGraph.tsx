@@ -4,7 +4,7 @@ import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import { DataSeries, Effect, Goal } from "@prisma/client";
 import { useEffect, useState } from "react";
 import { getStoredGraphType } from "./functions/graphFunctions";
-import GraphSelector from "./graphselector/graphSelector";
+import GraphSelector from "./graphSelector/graphSelector";
 import MainDeltaGraph from "./mainGraphs/mainDeltaGraph";
 import MainGraph from "./mainGraphs/mainGraph";
 import MainRelativeGraph from "./mainGraphs/mainRelativeGraph";
