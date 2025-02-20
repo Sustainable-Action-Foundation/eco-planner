@@ -78,7 +78,7 @@
         "sv": "Skalningsmetod:",
         "options": {
           "geometric": {
-            "en": "Geometrical average (recommended)",
+            "en": "Geometric mean (recommended)",
             "sv": "Geometriskt genomsnitt (rekommenderas)"
           },
           "algebraic": {
