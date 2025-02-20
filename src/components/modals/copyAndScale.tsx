@@ -27,7 +27,7 @@ export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, set
       if (setIsLoading) setIsLoading(false);
       throw new Error("Why is this a file?");
     }
-    const tempScale = parseFloat(scalars[0].replace(",", "."));
+    const tempScale = parseFloat(scalars[0].replace(",", ".")); 
     const scalingType = scalingTypes[0] as (ScaleBy | "");
     const weight = parseFloat((weights[0] as string ?? "1").replace(",", "."));
     // If the value is a number, use it as the scale factor
