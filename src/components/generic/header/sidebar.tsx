@@ -53,7 +53,7 @@ export default async function Sidebar() {
               {dict.aside.aside.nav.aboutTheTool[locale]}
             </Link>
           </div>
-          <div>
+          <div className='flex justify-content-center margin-bottom-200'>
             <LanguageSwitcher locale={locale} />
           </div>
           <div>
