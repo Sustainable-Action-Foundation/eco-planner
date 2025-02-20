@@ -1,0 +1,62 @@
+{
+  "scaleFactor": {
+    "en": "By how much do you want to scale?",
+    "sv": "Med vilket värde vill du skala?"
+  },
+  "originalLocation": {
+    "en": "Original location:",
+    "sv": "Ursprungligt område:"
+  },
+  "chooseLocation": {
+    "en": "Choose location",
+    "sv": "Välj område"
+  },
+  "numberOfResidents": {
+    "en": "Number of residents:",
+    "sv": "Antal invånare:"
+  },
+  "missingData": {
+    "en": "data missing",
+    "sv": "värde saknas"
+  },
+  "newLocation": {
+    "en": "New location:",
+    "sv": "Nytt område:"
+  },
+  "surfaceArea": {
+    "en": "Surface area:",
+    "sv": "Ytarea:"
+  },
+  "squareKilometers": {
+    "en": "square kilometers",
+    "sv": "kvadratkilometer"
+  },
+  "scaleBy": {
+    "en": "Scale by:",
+    "sv": "Skala utifrån:"
+  },
+  "noSelectionMade": {
+    "en": "No selection made",
+    "sv": "Inget alternativ valt"
+  },
+  "specificValue": {
+    "en": "By scalar",
+    "sv": "Specifikt värde"
+  },
+  "inRelationToPopulation": {
+    "en": "By population",
+    "sv": "Relativt antal invånare"
+  },
+  "inRelationToSurfaceArea": {
+    "en": "By surface area",
+    "sv": "Relativ yta"
+  },
+  "scaleFactorCalculation": {
+    "en": "Scaling factor for this calculation:",
+    "sv": "Skalfaktor för den här beräkningen:"
+  },
+  "weightFactor": {
+    "en": "Weight for this factor (used to create a weighted average between the factors)",
+    "sv": "Vikt för denna faktor (används för att skapa ett viktat genomsnitt mellan faktorerna)"
+  }
+}
