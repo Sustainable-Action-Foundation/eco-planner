@@ -1,0 +1,70 @@
+{
+  "chartOptions": {
+    "title": {
+      "yearlyChangeIn": {
+        "en": "Yearly change in",
+        "sv": "Årlig förändring i"
+      },
+      "percent": {
+        "en": "percent",
+        "sv": "procent"
+      },
+      "percentagePoints": {
+        "en": "percentage points",
+        "sv": "procentenheter"
+      }
+    },
+    "seriesName": {
+      "baseScenario": {
+        "en": "Base scenario",
+        "sv": "Basfall"
+      },
+      "expectedOutcome": {
+        "en": "Expected outcome",
+        "sv": "Förväntat utfall"
+      },
+      "nationalEquivalent": {
+        "en": "National equivalent",
+        "sv": "Nationell motsvarighet"
+      }
+    }
+  },
+  "ifBaselineDataSeries": {
+    "baseScenario": {
+      "en": "Base scenario",
+      "sv": "Basfall"
+    },
+    "expectedOutcome": {
+      "en": "Expected outcome",
+      "sv": "Förväntat utfall"
+    }
+  },
+  "ifNoBaselineIsSet": {
+    "expectedOutcome": {
+      "en": "Expected outcome",
+      "sv": "Förväntat utfall"
+    }
+  },
+  "secondaryGoal": {
+    "title": {
+      "yearlyChangeIn": {
+        "en": "Yearly change in",
+        "sv": "Årlig förändring i"
+      },
+      "percent": {
+        "en": "percent",
+        "sv": "procent"
+      },
+      "percentagePoints": {
+        "en": "percentage points",
+        "sv": "procentenheter"
+      }
+    }
+  },
+  "nationalGoal": {
+    "name": {
+      "en": "National equivalent",
+      "sv": "Nationell motsvarighet"
+    }
+  }
+}

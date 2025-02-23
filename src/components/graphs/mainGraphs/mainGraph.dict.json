@@ -1,10 +1,56 @@
 {
-  "baseScenario": {
-    "en": "Base scenario",
-    "sv": "Basscenario"
+  "mainChartOptions": {
+    "baseScenario": {
+      "en": "Base scenario",
+      "sv": "Basfall"
+    },
+    "expectedOutcome": {
+      "en": "Expected outcome",
+      "sv": "Förväntat utfall"
+    }
   },
-  "expectedOutcome": {
-    "en": "Expected outcome",
-    "sv": "Förväntat utfall"
+  "ifBaselineDataSeries": {
+    "baseScenario": {
+      "en": "Base scenario",
+      "sv": "Basfall"
+    },
+    "expectedOutcome": {
+      "en": "Expected outcome",
+      "sv": "Förväntat utfall"
+    }
+  },
+  "ifNoBaselineIsSet": {
+    "baseScenario": {
+      "en": "Base scenario",
+      "sv": "Basfall"
+    },
+    "expectedOutcome": {
+      "en": "Expected outcome",
+      "sv": "Förväntat utfall"
+    }
+  },
+  "secondaryGoal": {
+    "en": "Secondary goal",
+    "sv": "Sekundär målbana"
+  },
+  "nationalGoal": {
+    "nationalEquivalent": {
+      "en": "National equivalent",
+      "sv": "Nationell motsvarighet"
+    },
+    "title": {
+      "en": "National goal",
+      "sv": "Nationell målbana"
+    },
+    "seriesName": {
+      "en": "National equivalent",
+      "sv": "Nationell motsvarighet"
+    }
+  },
+  "historicalData": {
+    "title": {
+      "en": "Historical",
+      "sv": "Historisk"
+    }
   }
 }

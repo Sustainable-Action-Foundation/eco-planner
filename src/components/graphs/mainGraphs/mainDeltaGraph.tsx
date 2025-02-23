@@ -2,6 +2,8 @@ import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFu
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
 import { Goal, DataSeries, Effect } from "@prisma/client";
+import dict from "./mainDeltaGraph.dict.json" assert { type: "json" };
+import { useClientLocale, validateDict } from "@/functions/clientLocale";
 
 export default function MainDeltaGraph({
   goal,
@@ -14,6 +16,9 @@ export default function MainDeltaGraph({
   nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
 }) {
+  validateDict(dict);
+  const locale = useClientLocale();
+  
   if (!goal.dataSeries) {
     return null
   }
@@ -34,14 +39,14 @@ export default function MainDeltaGraph({
       max: new Date(dataSeriesDataFieldNames[dataSeriesDataFieldNames.length - 1].replace('val', '')).getTime()
     },
     yaxis: [{
-      title: { text: `Årlig förändring i ${goal.dataSeries.unit.toLowerCase() == 'procent' ? 'procentenheter' : goal.dataSeries.unit}` },
+      title: { text: `${dict.chartOptions.title.yearlyChangeIn[locale]} ${goal.dataSeries.unit.toLowerCase() == dict.chartOptions.title.percent[locale] ? dict.chartOptions.title.percentagePoints[locale] : goal.dataSeries.unit}` },
       labels: { formatter: floatSmoother },
       seriesName: [
         (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
-        'Basscenario',
-        'Förväntat utfall',
+        dict.chartOptions.seriesName.baseScenario[locale],
+        dict.chartOptions.seriesName.expectedOutcome[locale],
         (secondaryGoal?.dataSeries?.unit == goal.dataSeries.unit) ? (secondaryGoal?.name || secondaryGoal?.indicatorParameter) : '',
-        'Nationell motsvarighet',
+        dict.chartOptions.seriesName.nationalEquivalent[locale],
       ],
     }],
     tooltip: {
@@ -92,7 +97,7 @@ export default function MainDeltaGraph({
       });
     }
     chart.push({
-      name: 'Basscenario',
+      name: dict.ifBaselineDataSeries.baseScenario[locale],
       data: baselineSeries,
       type: 'line',
     });
@@ -112,7 +117,7 @@ export default function MainDeltaGraph({
       totalEffect.shift();
 
       chart.push({
-        name: 'Förväntat utfall',
+        name: dict.ifBaselineDataSeries.expectedOutcome[locale],
         data: totalEffect,
         type: 'line',
       });
@@ -139,7 +144,7 @@ export default function MainDeltaGraph({
         totalEffect.shift();
 
         chart.push({
-          name: 'Förväntat utfall',
+          name: dict.ifNoBaselineIsSet.expectedOutcome[locale],
           data: totalEffect,
           type: 'line',
         });
@@ -172,7 +177,7 @@ export default function MainDeltaGraph({
     // Place secondary series on separate scale if it doesn't share unit with main
     if (secondaryGoal.dataSeries.unit != goal.dataSeries.unit) {
       (chartOptions.yaxis as ApexYAxis[]).push({
-        title: { text: `Årlig förändring i ${secondaryGoal.dataSeries.unit.toLowerCase() == 'procent' ? 'procentenheter' : secondaryGoal.dataSeries.unit}` },
+        title: { text: `${dict.secondaryGoal.title.yearlyChangeIn[locale]} ${secondaryGoal.dataSeries.unit.toLowerCase() == dict.secondaryGoal.title.percent[locale] ? dict.secondaryGoal.title.percentagePoints[locale] : secondaryGoal.dataSeries.unit}` },
         labels: { formatter: floatSmoother },
         seriesName: secondaryGoal.name || secondaryGoal.indicatorParameter,
         opposite: true,
@@ -197,7 +202,7 @@ export default function MainDeltaGraph({
       });
     }
     chart.push({
-      name: 'Nationell motsvarighet',
+      name: dict.nationalGoal.name[locale],
       data: nationalSeries,
       type: 'line',
     });

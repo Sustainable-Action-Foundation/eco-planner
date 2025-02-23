@@ -1,0 +1,16 @@
+{
+  "nationalGoal": {
+    "name": {
+      "en": "National equivalent",
+      "sv": "Nationell motsvarighet"
+    }
+  },
+  "chartOptions": {
+    "yAxis": {
+      "title": {
+        "en": "Percentage relative base year",
+        "sv": "procent relativt basår"
+      }
+    }
+  }
+}

@@ -49,8 +49,8 @@ export default function MainGraph({
         labels: { formatter: floatSmoother },
         seriesName: [
           (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
-          dict.baseScenario[locale],
-          'Förväntat utfall',
+          dict.mainChartOptions.baseScenario[locale],
+          dict.mainChartOptions.expectedOutcome[locale],
           (secondaryGoal?.dataSeries?.unit == goal.dataSeries.unit) ? (secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0] : "",
         ]
       }
@@ -91,7 +91,7 @@ export default function MainGraph({
       });
     }
     mainChart.push({
-      name: dict.baseScenario[locale],
+      name: dict.ifBaselineDataSeries.baseScenario[locale],
       data: baseline,
       type: 'line',
     })
@@ -102,7 +102,7 @@ export default function MainGraph({
       // Line based on totalEffect + baseline
       if (totalEffect.length > 0) {
         mainChart.push({
-          name: 'Förväntat utfall',
+          name: dict.ifBaselineDataSeries.expectedOutcome[locale],
           data: totalEffect,
           type: 'line',
         });
@@ -126,14 +126,14 @@ export default function MainGraph({
           });
         }
         mainChart.push({
-          name: dict.baseScenario[locale],
+          name: dict.ifNoBaselineIsSet.baseScenario[locale],
           data: baseline,
           type: 'line',
         });
 
         // Line based on totalEffect
         mainChart.push({
-          name: 'Förväntat utfall',
+          name: dict.ifNoBaselineIsSet.expectedOutcome[locale],
           data: totalEffect,
           type: 'line',
         });
@@ -160,7 +160,7 @@ export default function MainGraph({
     // TODO: Use mathjs to see if the units are the same, rather than just comparing strings
     if (secondaryGoal.dataSeries.unit != goal.dataSeries.unit) {
       (mainChartOptions.yaxis as ApexYAxis[]).push({
-        title: { text: `Sekundär målbana (${secondaryGoal.dataSeries.unit})` },
+        title: { text: `${dict.secondaryGoal[locale]} (${secondaryGoal.dataSeries.unit})` },
         labels: { formatter: floatSmoother },
         seriesName: [(secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0]],
         opposite: true,
@@ -179,14 +179,14 @@ export default function MainGraph({
       });
     }
     mainChart.push({
-      name: 'Nationell motsvarighet',
+      name: dict.nationalGoal.nationalEquivalent[locale],
       data: nationalSeries,
       type: 'line',
     });
     (mainChartOptions.yaxis as ApexYAxis[]).push({
-      title: { text: "Nationell målbana" },
+      title: { text: dict.nationalGoal.title[locale] },
       labels: { formatter: floatSmoother },
-      seriesName: ['Nationell motsvarighet'],
+      seriesName: [dict.nationalGoal.seriesName[locale]],
       opposite: true,
     });
   }
@@ -207,7 +207,7 @@ export default function MainGraph({
       type: 'line',
     });
     (mainChartOptions.yaxis as ApexYAxis[]).push({
-      title: { text: "Historik" },
+      title: { text: dict.historicalData.title[locale] },
       labels: { formatter: floatSmoother },
       seriesName: [`${historicalData.metadata[0]?.label}`],
       opposite: true,
