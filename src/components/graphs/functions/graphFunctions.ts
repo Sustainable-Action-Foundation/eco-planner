@@ -1,11 +1,15 @@
 import { getLocalStorage, getSessionStorage, setLocalStorage, setSessionStorage } from "@/functions/localStorage";
 import { GraphType } from "../graphGraph";
 import { ActionImpactType, type DataSeries, type Effect } from "@prisma/client";
-import { dataSeriesDataFieldNames, DataSeriesDataFields } from "@/types";
+import { dataSeriesDataFieldNames, DataSeriesDataFields, Locale } from "@/types";
 import { ChildGraphType } from "../childGraphs/childGraphContainer";
+import dict from "./graphFunctions.dict.json" assert { type: "json" };
+import { validateDict } from "@/functions/clientLocale";
 
 /** Retrieves the graph type for a goal from storage. */
-export function getStoredGraphType(goalId?: string) {
+export function getStoredGraphType(locale: Locale, goalId?: string) {
+  validateDict(dict);
+
   let graphType: GraphType | undefined | null;
   // Check if this goal has a stored graph type
   if (goalId) {
@@ -18,7 +22,7 @@ export function getStoredGraphType(goalId?: string) {
   // Default to main graph if no valid graph type is found
   if (!Object.values(GraphType).includes(graphType as GraphType) || !graphType) {
     if (graphType != null) {
-      console.log("Invalid graph type in storage, defaulting to main graph.");
+      console.log(dict.getStoredGraphType.noValidGraphType[locale]);
     }
 
     setLocalStorage("graphType", GraphType.Main);
@@ -28,7 +32,9 @@ export function getStoredGraphType(goalId?: string) {
 }
 
 /** Retrieves the graph type for gcild graphs for a goal from storage. */
-export function getStoredChildGraphType(goalId?: string) {
+export function getStoredChildGraphType(locale: Locale, goalId?: string) {
+  validateDict(dict);
+
   let graphType: ChildGraphType | undefined | null;
   // Check if this goal has a stored graph type
   if (goalId) {
@@ -41,7 +47,7 @@ export function getStoredChildGraphType(goalId?: string) {
   // Default to target graph if no valid graph type is found
   if (!graphType || !Object.values(ChildGraphType).includes(graphType as ChildGraphType)) {
     if (graphType != null) {
-      console.log("Invalid graph type in storage, defaulting to target graph.");
+      console.log(dict.getStoredChildGraphType.noValidGraphType[locale]);
     }
 
     setLocalStorage("childGraphType", ChildGraphType.Target);

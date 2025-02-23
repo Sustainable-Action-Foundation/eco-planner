@@ -33,11 +33,11 @@ export default function ChildGraphContainer({
   const [isStacked, setIsStacked] = useState(!percentAndFraction.includes(goal.dataSeries?.unit?.toLowerCase() ?? ""));
 
   useEffect(() => {
-    const storedGraphType = getStoredChildGraphType(goal.id);
+    const storedGraphType = getStoredChildGraphType(locale, goal.id);
     if (Object.values(ChildGraphType).includes(storedGraphType)) {
       setChildGraphType(storedGraphType);
     }
-  }, [goal.id]);
+  }, [locale, goal.id]);
 
   function childGraphSwitch(childGraphType: string) {
     switch (childGraphType) {

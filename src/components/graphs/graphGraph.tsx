@@ -10,6 +10,7 @@ import MainGraph from "./mainGraphs/mainGraph";
 import MainRelativeGraph from "./mainGraphs/mainRelativeGraph";
 import SecondaryGoalSelector from "./secondaryGraphSelector";
 //TODO - global replace '.dict.json" assert { type: "json" }' with '.dict.json" with { type: "json" }'
+import { useClientLocale } from '@/functions/clientLocale';
 
 export enum GraphType {
   Main = "MAIN",
@@ -32,11 +33,13 @@ export default function GraphGraph({
   effects: (Effect & { dataSeries: DataSeries | null })[],
   children: React.ReactNode
 }) {
+  const locale = useClientLocale();
+
   const [graphType, setGraphType] = useState<GraphType | "">("");
 
   useEffect(() => {
-    setGraphType(getStoredGraphType(goal.id));
-  }, [goal.id]);
+    setGraphType(getStoredGraphType(locale, goal.id));
+  }, [locale, goal.id]);
 
   function graphSwitch(graphType: string) {
     switch (graphType) {

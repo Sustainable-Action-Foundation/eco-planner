@@ -1,0 +1,14 @@
+{
+  "getStoredGraphType": {
+    "noValidGraphType": {
+      "en": "Invalid graph type in storage, defaulting to main graph.",
+      "sv": "Ogiltig graftyp i lagring, använder till huvudgraf."
+    }
+  },
+  "getStoredChildGraphType": {
+    "noValidGraphType": {
+      "en": "Invalid graph type in storage, defaulting to main graph.",
+      "sv": "Ogiltig graftyp i lagring, använder till huvudgraf."
+    }
+  }
+}
