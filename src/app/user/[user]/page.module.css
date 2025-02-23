@@ -7,12 +7,12 @@
     list-style: url('/icons/link-small.svg');
 }
 
-.itemsList li a {
+.itemsList li a:first-child {
     padding: .25rem;
     border-radius: 2px;
     margin-right: .5rem;
 }
 
-.itemsList li a:hover, .itemsList > li a:focus {
+.itemsList li a:first-child:hover, .itemsList > li a:first-child:focus {
     background-color: var(--gray-90);
 }

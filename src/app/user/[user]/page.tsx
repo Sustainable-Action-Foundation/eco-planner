@@ -160,7 +160,7 @@ export default async function Page({
                     <div className='inline-block width-100' style={{verticalAlign: 'middle'}}>
                       <div className='flex justify-content-space-between align-items-center'>
                         <a href={`/roadmap/${roadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
-                          <h4 className='font-weight-500 margin-0'>{roadmap.metaRoadmap.name}</h4> {/* TODO: Check if naming of roadmap is always inherited */}
+                          <h4 className='font-weight-500 margin-0'>{roadmap.metaRoadmap.name}</h4>
                           <p className='margin-0'>Antal målbanor: {roadmap._count.goals}</p>
                         </a> 
                         <TableMenu object={roadmap} />
