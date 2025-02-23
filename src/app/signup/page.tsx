@@ -1,7 +1,7 @@
 import Signup from "@/components/forms/userInfo/signup";
 import AttributedImage from "@/components/generic/images/attributedImage";
-import styles from "./page.module.css" with { type: "css" }; import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-;
+import styles from "./page.module.css" with { type: "css" }; 
+import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 
 export default async function Page() {
   return (

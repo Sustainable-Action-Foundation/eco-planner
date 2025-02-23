@@ -19,7 +19,6 @@ import { getTableContent } from "@/lib/pxWeb/getTableContent";
 import filterTableContentKeys from "@/lib/pxWeb/filterTableContentKeys";
 import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import QueryBuilder from "@/components/forms/pxWeb/queryBuilder";
-import GraphCookie from "@/components/cookies/graphCookie";
 import UpdateGoalButton from "@/components/buttons/updateGoalButton";
 import getRoadmaps from "@/fetchers/getRoadmaps";
 import EffectTable from "@/components/tables/effects.tsx";
@@ -136,9 +135,6 @@ export default async function Page({
               <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
               : null}
           </GraphGraph>
-          <div className="margin-top-100">
-            <GraphCookie />
-          </div>
         </section>
 
         <section className="margin-block-100">

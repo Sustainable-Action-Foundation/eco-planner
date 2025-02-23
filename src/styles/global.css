@@ -45,6 +45,10 @@ fieldset:not(:has(input:required, select:required, textarea:required)):has(field
   content: '';
 }
 
+.fieldset-unset-pseudo-class legend::after {
+  content: none !important;
+}
+
 /* Temporary while rewriting */
 
 #roadmapFilters {

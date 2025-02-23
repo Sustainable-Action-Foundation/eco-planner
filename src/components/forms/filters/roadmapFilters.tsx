@@ -34,7 +34,7 @@ export default function RoadmapFilters() {
     const newParams = new URLSearchParams(searchParams);
 
     if (remove) {
-      newParams.delete(key);
+      newParams.delete(key, value);
     } else {
       newParams.append(key, value);
     }
