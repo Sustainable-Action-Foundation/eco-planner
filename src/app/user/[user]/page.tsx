@@ -102,11 +102,6 @@ export default async function Page({
       <section className='margin-block-300'>
         <h1 className='margin-bottom-0'>{userdata.username}</h1>
         <small style={{ color: 'var(--gray-50)' }}>@{userdata.username}</small>
-        <ul className='margin-top-100'>
-          {session.user?.userGroups.map((usergroup, index) =>
-            <li key={index}>{usergroup}</li>
-          )}
-        </ul>
       </section>
 
       {session.user?.username === username ?
