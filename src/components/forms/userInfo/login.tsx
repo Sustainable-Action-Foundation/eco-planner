@@ -6,7 +6,7 @@ import { useState } from "react";
 import styles from '../forms.module.css'
 import dict from "./login.dict.json" assert { type: "json" };
 import { Locale } from "@/types";
-import { getClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale, validateDict } from "@/functions/clientLocale";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, locale: Locale) {
   event.preventDefault()
@@ -42,7 +42,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, locale: Locale)
 
 export default function Login() {
   validateDict(dict)
-  const locale = getClientLocale()
+  const locale = useClientLocale()
 
   const [showPassword, setShowPassword] = useState(false)
 

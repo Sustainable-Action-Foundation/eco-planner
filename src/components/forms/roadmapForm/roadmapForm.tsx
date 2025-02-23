@@ -2,7 +2,7 @@
 
 import { EditUsers, getAccessData, ViewUsers } from "@/components/forms/accessSelector/accessSelector";
 import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
-import { getClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale, validateDict } from "@/functions/clientLocale";
 import formSubmitter from "@/functions/formSubmitter";
 import parseCsv, { csvToGoalList } from "@/functions/parseCsv";
 import { LoginData } from "@/lib/session";
@@ -34,7 +34,7 @@ export default function RoadmapForm({
   defaultMetaRoadmap?: string,
 }) {
   validateDict(dict);
-  const locale = getClientLocale();
+  const locale = useClientLocale();
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()

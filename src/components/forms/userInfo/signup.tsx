@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useState } from "react";
 import styles from '../forms.module.css'
 import dict from "./signup.dict.json" assert { type: "json" };
-import { getClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale, validateDict } from "@/functions/clientLocale";
 import { Locale } from "@/types";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, locale: Locale) {
@@ -39,7 +39,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, locale: Locale)
 
 export default function Signup() {
   validateDict(dict);
-  const locale = getClientLocale();
+  const locale = useClientLocale();
 
   const [showPassword, setShowPassword] = useState(false)
 
