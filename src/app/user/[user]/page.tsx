@@ -56,7 +56,7 @@ export default async function Page({
   let displayedMetaRoadmaps: typeof metaRoadmaps = [];
   let displayedRoadmaps: typeof roadmaps = [];
   function toggleRoadmaps() {
-    // TODO: Check if this should throw error or 404 or something?
+
     if (!userdata) {
       return;
     }
@@ -127,46 +127,51 @@ export default async function Page({
           }
         </h2>
         <UserFilters />
-
-        <ul className={`margin-block-300 ${styles.itemsList}`}>
+        
+        <nav>
           {displayedMetaRoadmaps.length > 0 ?
-            <>
+            <section className='margin-block-300'>
               <h3 className='margin-top-0'>Färdplansserier</h3>
-              {displayedMetaRoadmaps.map((metaRoadmap, index) =>
-                <li key={index}>
-                  <div className='inline-block width-100' style={{verticalAlign: 'middle'}}>
-                    <div className='flex justify-content-space-between align-items-center'>
-                        <a href={`/metaRoadmap/${metaRoadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
-                          <h4 className='font-weight-500 margin-0'>{metaRoadmap.name} </h4>
-                          <p className='margin-0'>Antal färdplaner: {metaRoadmap.childRoadmaps.length}</p>
-                        </a> 
-                      <TableMenu object={metaRoadmap} />
-                    </div>
-                  </div>
-                </li>
-              )}
-            </> 
+                <ul className={`${styles.itemsList}`}>
+                    {displayedMetaRoadmaps.map((metaRoadmap, index) =>
+                      <li key={index}>
+                        <div className='inline-block width-100' style={{verticalAlign: 'middle'}}>
+                          <div className='flex justify-content-space-between align-items-center'>
+                              <a href={`/metaRoadmap/${metaRoadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
+                                <h4 className='font-weight-500 margin-0'>{metaRoadmap.name} </h4>
+                                <p className='margin-0'>Antal färdplaner: {metaRoadmap.childRoadmaps.length}</p>
+                              </a> 
+                            <TableMenu object={metaRoadmap} />
+                          </div>
+                        </div>
+                      </li>
+                    )}
+                </ul>
+            </section>
           : null}
 
           {displayedRoadmaps.length > 0 ?
-            <>
-              <h3 className='margin-top-300'>Färdplaner</h3>
-              {displayedRoadmaps.map((roadmap, index) =>
-                <li key={index}>
-                  <div className='inline-block width-100' style={{verticalAlign: 'middle'}}>
-                    <div className='flex justify-content-space-between align-items-center'>
-                      <a href={`/roadmap/${roadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
-                        <h4 className='font-weight-500 margin-0'>{roadmap.metaRoadmap.name}</h4> {/* TODO: Check if naming of roadmap is always inherited */}
-                        <p className='margin-0'>Antal målbanor: {roadmap._count.goals}</p>
-                      </a> 
-                      <TableMenu object={roadmap} />
+            <section className='margin-block-300'>
+              <h3 className='margin-top-0'>Färdplaner</h3>
+              <ul className={`${styles.itemsList}`}>
+                {displayedRoadmaps.map((roadmap, index) =>
+                  <li key={index}>
+                    <div className='inline-block width-100' style={{verticalAlign: 'middle'}}>
+                      <div className='flex justify-content-space-between align-items-center'>
+                        <a href={`/roadmap/${roadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
+                          <h4 className='font-weight-500 margin-0'>{roadmap.metaRoadmap.name}</h4> {/* TODO: Check if naming of roadmap is always inherited */}
+                          <p className='margin-0'>Antal målbanor: {roadmap._count.goals}</p>
+                        </a> 
+                        <TableMenu object={roadmap} />
+                      </div>
                     </div>
-                  </div>
-                </li>
-              )}
-            </>
-          : null }
-        </ul>
+                  </li>
+                )}
+            </ul>
+          </section>
+        : null }
+
+        </nav>
       </section>
 
     </main>
