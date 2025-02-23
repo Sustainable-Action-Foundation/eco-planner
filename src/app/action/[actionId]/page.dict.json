@@ -1,5 +1,5 @@
 {
-  "summery": {
+  "summary": {
     "action": {
       "en": "Action",
       "sv": "Åtgärd"
@@ -11,6 +11,10 @@
     "editAction": {
       "en": "Edit action",
       "sv": "Redigera åtgärd"
+    },
+    "editActionAlt": {
+      "en": "Edit action: ",
+      "sv": "Redigera åtgärd: "
     }
   },
   "expectedEffects": {

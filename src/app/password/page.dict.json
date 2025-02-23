@@ -5,10 +5,14 @@
   },
   "forgotPassword": {
     "en": "Forgot password? Enter your email here and we will send you an email with instructions to reset your password.",
-    "sv": "Har du glömt ditt lösenord? Fyll i din email här så skickar vi ett mail med instruktioner för att återställa lösenordet."
+    "sv": "Har du glömt ditt lösenord? Fyll i din e-postadress här så skickar vi ett e-post med instruktioner för att återställa lösenordet."
+  },
+  "emailPlaceholder": {
+    "en": "email",
+    "sv": "e-post"
   },
   "sendEmail": {
     "en": "Send email",
-    "sv": "Skicka mail"
+    "sv": "Skicka e-post"
   }
 }

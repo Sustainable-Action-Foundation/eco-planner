@@ -1,12 +1,17 @@
 import styles from './notification.module.css'
 import Link from "next/link"
 import Image from "next/image"
+import dict from "./notification.dict.json" assert { type: "json" };
+import { useClientLocale, validateDict } from '@/functions/clientLocale';
 
 export default function Notifications({ amount }: { amount: number }) {
+  validateDict(dict);
+  const locale = useClientLocale();
+
   return (
     <Link href="/" className={`flex align-items-center ${styles.link}`}>
       <div style={{position: 'relative', display: 'grid'}}>
-        <Image src="/icons/bell.svg" alt="notifikationer" width={24} height={24} />
+        <Image src="/icons/bell.svg" alt={dict.notifications.notificationsAlt[locale]} width={24} height={24} />
         <div style={{
           padding: '1px',
           borderRadius: '9999px', 

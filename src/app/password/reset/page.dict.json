@@ -11,6 +11,10 @@
     "en": "Password",
     "sv": "Lösenord"
   },
+  "passwordPlaceholder": {
+    "en": "password",
+    "sv": "lösenord"
+  },
   "changePassword": {
     "en": "Change Password",
     "sv": "Byt lösenord"

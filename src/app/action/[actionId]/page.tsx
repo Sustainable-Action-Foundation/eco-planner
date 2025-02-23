@@ -48,7 +48,7 @@ export default async function Page({ params }: { params: { actionId: string } })
         <section className="margin-block-300 container">
           <div className="flex flex-wrap-wrap">
             <div className="flex-grow-100">
-              <span style={{ color: 'gray' }}>{dict.summery.action[locale]}</span>
+              <span style={{ color: 'gray' }}>{dict.summary.action[locale]}</span>
               <h1 className="margin-0">{action.name}</h1>
               <p className="margin-0">{action.startYear} - {action.endYear}</p>
               {action.description ?
@@ -56,7 +56,7 @@ export default async function Page({ params }: { params: { actionId: string } })
                 : null}
               {action.links.length > 0 ?
                 <>
-                  <h2 className="margin-bottom-0 margin-top-200" style={{ fontSize: '1.25rem' }}>{dict.summery.externalResources[locale]}</h2>
+                  <h2 className="margin-bottom-0 margin-top-200" style={{ fontSize: '1.25rem' }}>{dict.summary.externalResources[locale]}</h2>
                   <ul>
                     {action.links.map((link: { url: string, description: string | null }, index: number) =>
                       <li className="margin-block-25" key={index}>
@@ -73,8 +73,8 @@ export default async function Page({ params }: { params: { actionId: string } })
                 className="flex align-items-center gap-50 padding-block-50 padding-inline-100 round button transparent font-weight-500"
                 style={{ width: 'fit-content', height: 'fit-content' }}
               >
-                {dict.summery.editAction[locale]}
-                <Image src="/icons/edit.svg" width={24} height={24} alt={`Redigera åtgärd: ${action.name}`} />
+                {dict.summary.editAction[locale]}
+                <Image src="/icons/edit.svg" width={24} height={24} alt={`${dict.summary.editActionAlt[locale]}${action.name}`} />
               </Link>
               : null}
           </div>
