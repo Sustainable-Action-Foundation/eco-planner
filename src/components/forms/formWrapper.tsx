@@ -4,12 +4,17 @@ import { useState } from 'react'
 import styles from './forms.module.css'
 import Image from 'next/image'
 import React from 'react'
+import dict from './formWrapper.dict.json' assert { type: "json" }
+import { useClientLocale, validateDict } from '@/functions/clientLocale'
+
 
 export default function FormWrapper({
   children,
 }: {
   children: React.ReactNode,
 }) {
+  validateDict(dict)
+  const locale = useClientLocale()
 
   function iterateIndicators(currentTransformIndex: number) {
     const currentIndicator = document?.getElementById('current-indicator')
@@ -87,7 +92,7 @@ export default function FormWrapper({
       <div className={`margin-block-100 padding-inline-100 gap-50 grid ${styles.indicatorLayout}`}>
         <button type="button" className={`flex align-items-center transparent round gap-25 ${styles.indicatorButton}`} onClick={() => iterateSections({ reverse: true })}>
           <Image src="/icons/arrowLeft.svg" alt="" width={24} height={24} />
-          Tillbaka
+          {dict.back[locale]}
         </button>
 
         <div className={`margin-block-50 ${styles.indicatorWrapper}`}>
@@ -100,7 +105,7 @@ export default function FormWrapper({
         </div>
 
         <button type="button" className={`flex align-items-center transparent round gap-25 margin-left-auto ${styles.indicatorButton}`} onClick={() => iterateSections()}>
-          Nästa
+          {dict.next[locale]}
           <Image src="/icons/arrowRight.svg" alt="" width={24} height={24} />
         </button>
       </div>
