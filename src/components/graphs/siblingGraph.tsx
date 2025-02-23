@@ -7,6 +7,8 @@ import { DataSeries, Goal, Roadmap } from "@prisma/client";
 import { useState } from "react";
 import styles from './graphs.module.css'
 import Image from "next/image";
+import dict from "./siblingGraph.dict.json" assert { type: "json" };
+import { useClientLocale, validateDict } from "@/functions/clientLocale";
 
 /**
  * A graph that shows how a goal stacks up against its siblings (other goals in the same roadmap version with similar indicator parameters and same unit).
@@ -20,6 +22,9 @@ export default function SiblingGraph({
   },
   goal: Goal & { dataSeries: DataSeries | null },
 }) {
+  validateDict(dict);
+  const locale = useClientLocale();
+
   const siblings = findSiblings(roadmap, goal);
   const dataPoints: ApexAxisChartSeries = [];
 
@@ -104,8 +109,8 @@ export default function SiblingGraph({
       </div>
       <menu className="margin-block-100 margin-0 padding-0">
         <button className="call-to-action-primary display-flex align-items-center gap-50 transparent" style={{ width: 'fit-content', fontWeight: 'bold', fontSize: '1rem' }} type="button" onClick={() => setIsStacked(!isStacked)}>
-          Byt typ av graf
-          <Image src='/icons/chartArea.svg' alt='Byt graf' width={24} height={24} />
+          {dict.menu.changeGraphType[locale]}
+          <Image src='/icons/chartArea.svg' alt={dict.menu.changeGraphAlt[locale]} width={24} height={24} />
         </button>
       </menu>
     </div>
