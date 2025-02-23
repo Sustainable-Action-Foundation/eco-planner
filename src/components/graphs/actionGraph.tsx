@@ -2,12 +2,17 @@ import WrappedChart from "@/lib/chartWrapper";
 import { actionGraphSorter } from "@/lib/sorters";
 import { Action } from "@prisma/client";
 import styles from './graphs.module.css'
+import dict from "./actionGraph.dict.json" assert { type: "json" };
+import { useClientLocale, validateDict } from "@/functions/clientLocale";
 
 export default function ActionGraph({
   actions,
 }: {
   actions: Action[],
 }) {
+  validateDict(dict);
+  const locale = useClientLocale();
+
   const series: ApexAxisChartSeries = [];
   const actionData = []
 
@@ -27,7 +32,7 @@ export default function ActionGraph({
   actionData.sort(actionGraphSorter)
 
   series.push({
-    name: 'Åtgärder',
+    name: dict.actionGraph.actions[locale],
     data: actionData,
     type: 'rangeBar',
   })
