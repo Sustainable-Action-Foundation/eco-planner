@@ -9,12 +9,15 @@ import { AccessLevel } from "@/types";
 import ThumbnailGraph from "@/components/graphs/mainGraphs/thumbnailGraph";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import Image from "next/image";
+import { DataSeries, Goal } from "@prisma/client";
 
 export default async function Page({ params }: { params: { roadmapId: string } }) {
   const [session, roadmap] = await Promise.all([
     getSession(cookies()),
     getOneRoadmap(params.roadmapId)
   ]);
+
+  const featuredGoals: Array<Goal & { dataSeries: DataSeries | null }> = roadmap?.goals.filter((goal) => goal.isFeatured) || [];
 
   let accessLevel: AccessLevel = AccessLevel.None;
   if (roadmap) {
@@ -74,18 +77,20 @@ export default async function Page({ params }: { params: { roadmapId: string } }
         }
       </section>
 
-      <section className="margin-block-300">
-        <h2>Utvalda målbanor</h2>
-        <div className="grid gap-100" style={{ gridTemplateColumns: 'repeat(auto-fit, 300px)' }}>
-          {roadmap.goals.map((goal, key) =>
-            goal.isFeatured ?
+      {featuredGoals.length > 0 ? 
+        <section className="margin-block-300">
+          <h2>Utvalda målbanor</h2>
+          <div className="grid gap-100" style={{ gridTemplateColumns: 'repeat(auto-fit, 300px)' }}>
+            {featuredGoals.map((goal, key) =>
+              goal && (
               <a key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none">
                 <ThumbnailGraph goal={goal} />
               </a>
-              : null
-          )}
-        </div>
-      </section>
+              )
+            )}
+          </div>
+        </section>
+      : null }
         
       <section className="margin-block-300">
         <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>Alla målbanor</h2>
