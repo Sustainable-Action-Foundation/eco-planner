@@ -1,0 +1,20 @@
+{
+  "handleSelectChange": {
+    "invalidGraphType": {
+      "en": "Invalid graph type",
+      "sv": "Ogiltig graftyp"
+    }
+  },
+  "return": {
+    "options": {
+      "goals": {
+        "en": "Goals",
+        "sv": "Målbanor"
+      },
+      "expectedEffects": {
+        "en": "Expected effects",
+        "sv": "Förväntade utfall"
+      }
+    }
+  }
+}

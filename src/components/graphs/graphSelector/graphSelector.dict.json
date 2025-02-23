@@ -1,0 +1,24 @@
+{
+  "handleSelectChange": {
+    "invalidGraphType": {
+      "en": "Invalid graph type",
+      "sv": "Ogiltig graftyp"
+    }
+  },
+  "return": {
+    "options": {
+      "main": {
+        "en": "Goal",
+        "sv": "Målbana"
+      },
+      "delta": {
+        "en": "Yearly change",
+        "sv": "Årlig förändring"
+      },
+      "relative": {
+        "en": "Percentage change",
+        "sv": "Procentuell förändring"
+      }
+    }
+  }
+}
