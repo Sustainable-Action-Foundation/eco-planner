@@ -64,7 +64,7 @@ export default function UserFilters() {
               }
             }} 
           />
-          Visa inlägg jag kan redigera
+          Redigeringsbehörighet 
         </label>
       </fieldset>
     </menu>

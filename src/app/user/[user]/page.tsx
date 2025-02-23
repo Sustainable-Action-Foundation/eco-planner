@@ -53,7 +53,6 @@ export default async function Page({
   const accessFilter = searchParams['access'] ? (Array.isArray(searchParams['access']) ? searchParams['access'] : [searchParams['access']]) : [];
 
   // Update values based on query params
-  // TODO: Fix typing
   let displayedMetaRoadmaps: typeof metaRoadmaps = [];
   let displayedRoadmaps: typeof roadmaps = [];
   function toggleRoadmaps() {
@@ -124,39 +123,49 @@ export default async function Page({
           {session.user?.username === username ?
             'Mina inlägg'
             :
-            `@${userdata.username}'s inlägg`
+            `${userdata.username}'s inlägg`
           }
         </h2>
         <UserFilters />
 
-        <ul className={styles.itemsList}>
-          {/* TODO: Keys are not unique for elements in this list */}
-          {/* If on users own page, show roadmapseries and roadmaps with edit access*/}
+        <ul className={`margin-block-300 ${styles.itemsList}`}>
+          {displayedMetaRoadmaps.length > 0 ?
+            <>
+              <h3 className='margin-top-0'>Färdplansserier</h3>
+              {displayedMetaRoadmaps.map((metaRoadmap, index) =>
+                <li key={index}>
+                  <div className='inline-block width-100' style={{verticalAlign: 'middle'}}>
+                    <div className='flex justify-content-space-between align-items-center'>
+                        <a href={`/metaRoadmap/${metaRoadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
+                          <h4 className='font-weight-500 margin-0'>{metaRoadmap.name} </h4>
+                          <p className='margin-0'>Antal färdplaner: {metaRoadmap.childRoadmaps.length}</p>
+                        </a> 
+                      <TableMenu object={metaRoadmap} />
+                    </div>
+                  </div>
+                </li>
+              )}
+            </> 
+          : null}
 
-          {/* Otherwise default to show roadmapsseries and roadmaps with ownership */}
-          {displayedMetaRoadmaps.map((metaRoadmap, index) =>
-            <li key={index} className='margin-block-25'>
-              <div className='flex justify-content-space-between align-items-center'>
-                <div>
-                  <a href={`/metaRoadmap/${metaRoadmap.id}`}>{metaRoadmap.name}</a> • <span>Färdplansserie</span>
-                </div>
-                <TableMenu object={metaRoadmap} />
-              </div>
-            </li>
-          )}
-
-          {displayedRoadmaps.map((roadmap, index) =>
-            <li key={index} className='margin-block-25'>
-              <div className='flex justify-content-space-between align-items-center'>
-                <div>
-                  <a href={`/roadmap/${roadmap.id}`}>{roadmap.metaRoadmap.name}</a> • <span>Färdplan</span> <br /> {/* TODO: Check if naming of roadmap is always inherited */}
-                  <span>Antal målbanor: {roadmap._count.goals}</span>
-                </div>
-                <TableMenu object={roadmap} />
-              </div>
-            </li>
-          )}
-
+          {displayedRoadmaps.length > 0 ?
+            <>
+              <h3 className='margin-top-300'>Färdplaner</h3>
+              {displayedRoadmaps.map((roadmap, index) =>
+                <li key={index}>
+                  <div className='inline-block width-100' style={{verticalAlign: 'middle'}}>
+                    <div className='flex justify-content-space-between align-items-center'>
+                      <a href={`/roadmap/${roadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
+                        <h4 className='font-weight-500 margin-0'>{roadmap.metaRoadmap.name}</h4> {/* TODO: Check if naming of roadmap is always inherited */}
+                        <p className='margin-0'>Antal målbanor: {roadmap._count.goals}</p>
+                      </a> 
+                      <TableMenu object={roadmap} />
+                    </div>
+                  </div>
+                </li>
+              )}
+            </>
+          : null }
         </ul>
       </section>
 
