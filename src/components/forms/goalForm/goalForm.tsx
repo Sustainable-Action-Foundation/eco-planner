@@ -112,7 +112,7 @@ export default function GoalForm({
     // The baseline may be omitted, in which case we don't want to send an empty array
     const baselineDataSeries = baselineDataSeriesInput ? baselineDataSeriesInput?.replaceAll(',', '.').split(/[\t;]/) : undefined;
 
-    const { scalingRecipie: combinationScale } = getScalingResult(formData, scalingRecipie.method || ScaleMethod.Geometric);
+    const { scalingRecipie: combinationScale } = getScalingResult(locale, formData, scalingRecipie.method || ScaleMethod.Geometric);
 
     const inheritFrom: GoalInput["inheritFrom"] = [];
     formData.getAll("inheritFrom")?.forEach((id) => {
@@ -160,7 +160,7 @@ export default function GoalForm({
       if (formElement instanceof HTMLFormElement) {
         const formData = new FormData(formElement);
         const scalingMethod = formData.get("scalingMethod")?.valueOf() as ScaleMethod;
-        const { scaleFactor, scalingRecipie: tempRecipie } = getScalingResult(formData, scalingMethod || ScaleMethod.Geometric);
+        const { scaleFactor, scalingRecipie: tempRecipie } = getScalingResult(locale, formData, scalingMethod || ScaleMethod.Geometric);
         // Avoid setting state if the value hasn't changed.
         if (tempRecipie !== scalingRecipie) {
           setScalingRecipe(tempRecipie);
