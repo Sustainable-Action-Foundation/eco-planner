@@ -1,0 +1,14 @@
+{
+  "childOfChildGoals": {
+    "unknownGoal": {
+      "en": "Unknown goal",
+      "sv": "Okänd målbana"
+    }
+  },
+  "noDataToCompare": {
+    "noUnderlyingGoals": {
+      "en": "No underlying goals with effects or custom baselines found",
+      "sv": "Inga underliggande målbanor med effekter eller anpassade baslinjer hittades"
+    }
+  }
+}

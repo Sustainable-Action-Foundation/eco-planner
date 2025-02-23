@@ -8,6 +8,8 @@ import ChildGraphSelector from "../graphSelector/childGraphSelector.tsx";
 import { percentAndFraction } from "../graphSelector/graphSelector.tsx";
 import GoalChildGraph from "./goalChildGraph";
 import PredictionChildGraph from "./predictionChildGraph.tsx";
+import dict from "./childGraphContainer.dict.json" assert { type: "json" };
+import { useClientLocale, validateDict } from "@/functions/clientLocale.ts";
 
 export enum ChildGraphType {
   Target = "TARGET",
@@ -23,6 +25,9 @@ export default function ChildGraphContainer({
   childGoals: (Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null, effects: (Effect & { dataSeries: DataSeries | null })[], roadmapName?: string })[],
   children?: React.ReactNode,
 }) {
+  validateDict(dict);
+  const locale = useClientLocale();
+
   const [childGraphType, setChildGraphType] = useState<ChildGraphType>(ChildGraphType.Target);
   // Default to stacked unless the unit is percent or fraction
   const [isStacked, setIsStacked] = useState(!percentAndFraction.includes(goal.dataSeries?.unit?.toLowerCase() ?? ""));
@@ -53,8 +58,8 @@ export default function ChildGraphContainer({
       >
         <ChildGraphSelector goal={goal} currentSelection={childGraphType} setter={setChildGraphType} />
         <button className="call-to-action-primary display-flex align-items-center gap-50 transparent" style={{ width: 'fit-content', fontWeight: 'bold', fontSize: '1rem' }} type="button" onClick={() => setIsStacked(!isStacked)}>
-          Byt typ av graf
-          <Image src='/icons/chartArea.svg' alt='Byt graf' width={24} height={24} />
+          {dict.menu.changeGraphType[locale]}
+          <Image src='/icons/chartArea.svg' alt={dict.menu.changeGraphAlt[locale]} width={24} height={24} />
         </button>
         {children}
       </menu>
