@@ -3,7 +3,11 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
 
-export default function UserFilters() {
+export default function UserFilters({
+    userPage
+  }: {
+    userPage: boolean
+  }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -52,21 +56,22 @@ export default function UserFilters() {
         </label>
       </fieldset>
 
-      {/* TODO: Should only be displayed on own user page */}
-      <fieldset className='flex gap-100 fieldset-unset-pseudo-class'>
-        <legend className='font-weight-500 padding-bottom-75'>Behörighet</legend>
-        <label className='flex gap-25 align-items-center'>
-          <input type='checkbox' value='edit' defaultChecked={searchParams.getAll('access').includes('edit')} onChange={(e) => {
-              if (e.target.checked) {
-                updateArrayParam('access', e.target.value)
-              } else {
-                updateArrayParam('access', e.target.value, true)
-              }
-            }} 
-          />
-          Redigeringsbehörighet 
-        </label>
-      </fieldset>
+      {userPage === true ? 
+        <fieldset className='flex gap-100 fieldset-unset-pseudo-class'>
+          <legend className='font-weight-500 padding-bottom-75'>Behörighet</legend>
+          <label className='flex gap-25 align-items-center'>
+            <input type='checkbox' value='edit' defaultChecked={searchParams.getAll('access').includes('edit')} onChange={(e) => {
+                if (e.target.checked) {
+                  updateArrayParam('access', e.target.value)
+                } else {
+                  updateArrayParam('access', e.target.value, true)
+                }
+              }} 
+            />
+            Redigeringsbehörighet 
+          </label>
+        </fieldset>
+      : null}
     </menu>
   )
 

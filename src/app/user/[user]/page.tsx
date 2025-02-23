@@ -116,7 +116,7 @@ export default async function Page({
             <GraphCookie />
           </section>
         </>
-        : null}
+      : null}
 
       <section className='margin-block-300'>
         <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>
@@ -126,7 +126,8 @@ export default async function Page({
             `${userdata.username}'s inlägg`
           }
         </h2>
-        <UserFilters />
+
+        <UserFilters userPage={session.user?.username === username} />
         
         <nav>
           {displayedMetaRoadmaps.length > 0 ?
