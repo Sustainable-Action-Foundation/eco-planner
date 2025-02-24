@@ -42,12 +42,12 @@ export function validateDict(dict: object | string) {
   if (Object.values(dict).some(value => typeof value === "string")) {
 
     // If leaf has too many or too few locales
-    if (Object.keys(dict).length !== LOCALES.length) {
+    if (Object.keys(dict).length !== Object.keys(Locale).filter(key => key !== "default").length) {
       throw new Error("Locale leaf has the wrong amount of `Locale`s defined.");
     }
 
     // If leaf has an invalid locale
-    if (Object.keys(dict).some(key => !LOCALES.includes(key as Locale))) {
+    if (Object.keys(dict).some(key => !Object.values(Locale).includes(key as Locale))) {
       throw new Error("Locale leaf has an invalid Locale.");
     }
   }
