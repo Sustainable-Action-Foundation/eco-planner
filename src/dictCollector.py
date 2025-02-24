@@ -3,6 +3,7 @@ import os
 import json
 
 cwd = os.getcwd()
+collectedDictionaryPath = os.path.join(cwd, 'src', 'collectedDictionary.json')
 
 def getDictionaryFromJson(jsonFilePath):
     with open(jsonFilePath, 'r', encoding='utf-8') as file:
@@ -27,7 +28,11 @@ class CaseHandler:
     
     def snakeOrMacroToCamel(string):
         words = string.split('_')
-        return ''.join([c.title() if words.index(c) != 0 else c.lower() for c in words])
+        words[0] = words[0].lower()
+        for i in range(1, len(words)):
+            words[i] = words[i].capitalize()
+        return ''.join(words)
+        return ''.join([c.capitalize() if words.index(c) != 0 else c.lower() for c in words])
 
 def generateCollectedDictionary():
     def createKey(dict, key):
@@ -44,12 +49,10 @@ def generateCollectedDictionary():
 
     filePaths = glob.glob(os.path.join(cwd, 'src','**','*.dict.json'), recursive=True)
 
-    print(outDict)
-
     for filePath in filePaths:
-        filePath = filePath.replace('\\', '/')
-        relativePath = filePath.split('src/')[1]
-        pathParts = relativePath.split('/')
+        # filePath = filePath.replace('\\', '/')
+        relativePath = filePath.split('src\\')[1]
+        pathParts = relativePath.split('\\')
 
         for i in range(len(pathParts)):
             if i == len(pathParts) - 1:
@@ -69,10 +72,69 @@ def generateCollectedDictionary():
                 subDict = findSubDict(outDict, pathParts, i)
                 createKey(subDict, pathPart)
 
-    print("\n",outDict)
-    print("\n",json.dumps(outDict, indent=2, ensure_ascii=False))
-    print("\n", outDict.keys())
-
     saveDictAsJson(outDict, os.path.join(cwd, 'src', 'collectedDictionary.json'))
 
+def unpackCollectedDictionary():
+    collectedDictionary = getDictionaryFromJson(collectedDictionaryPath)
+
+    def findSubDict(inDict, keys, i):
+        outDict = inDict
+        for j in range(i):
+            outDict = outDict[keys[j]]
+        return outDict
+
+    def findSubDictPaths(inDict):
+        def findSubDictPathsRecursively(inDict):
+            paths = []
+            for key in inDict:
+                if type(inDict[key]) is dict and not key[0].islower():
+                    subPaths = findSubDictPathsRecursively(inDict[key])
+                    for subPath in subPaths:
+                        paths.append(os.path.join(key, subPath))
+                else:
+                    if not key in paths:
+                      paths.append(key)
+
+            return paths
+        
+        returnSubDictPaths = findSubDictPathsRecursively(inDict)
+        for i in range(len(returnSubDictPaths)):
+            splitPath = returnSubDictPaths[i].split('\\')
+            returnSubDictPaths[i] = '\\'.join(splitPath[:len(splitPath)-1])
+
+        returnSubDictPaths = sorted(set(returnSubDictPaths))
+          
+        return returnSubDictPaths
+    
+    subDictPaths = findSubDictPaths(collectedDictionary)
+
+    for filePath in subDictPaths:
+        pathParts = filePath.split('\\')
+        filePath = os.path.join(cwd, 'src')
+
+        for pathPart in pathParts:
+            filePath = os.path.join(filePath, pathPart)
+
+        relativePath = filePath.split('src\\')[1]
+        pathParts = relativePath.split('\\')
+        
+        for i in range(len(pathParts)):
+            
+            if i == len(pathParts) - 1:
+                
+                subdict = findSubDict(collectedDictionary, pathParts, i+1)
+
+                for j in range(len(pathParts)):
+                    pathParts[j] = CaseHandler.snakeOrMacroToCamel(pathParts[j])
+
+                joinedPathParts = '\\'.join(pathParts)
+                filePath = os.path.join(cwd, 'src', joinedPathParts+".dict.json")
+
+                print(filePath)
+                # saveDictAsJson(subdict, filePath)
+
+    # findSubDictPaths(collectedDictionary)
+    # print(findSubDictPaths(collectedDictionary))  
+
 generateCollectedDictionary()
+unpackCollectedDictionary()
