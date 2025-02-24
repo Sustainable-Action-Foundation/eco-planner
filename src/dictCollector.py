@@ -131,10 +131,7 @@ def unpackCollectedDictionary():
                 filePath = os.path.join(cwd, 'src', joinedPathParts+".dict.json")
 
                 print(filePath)
-                # saveDictAsJson(subdict, filePath)
-
-    # findSubDictPaths(collectedDictionary)
-    # print(findSubDictPaths(collectedDictionary))  
+                saveDictAsJson(subdict, filePath)
 
 generateCollectedDictionary()
 unpackCollectedDictionary()
