@@ -34,10 +34,14 @@ class CaseHandler:
     def snakeOrMacroToCamel(string):
         words = string.split('_')
         return ''.join([c.title() if words.index(c) != 0 else c.lower() for c in words])
+    
+def saveDictAsJson(pyDict, jsonFilePath):
+    with open(jsonFilePath, 'w', encoding='utf-8') as file:
+        json.dump(pyDict, file, indent=2, ensure_ascii=False)
 
 outDict = {}
 
-filePaths = glob.glob(os.path.join(cwd, 'src/**/*.dict.json'), recursive=True)
+filePaths = glob.glob(os.path.join(cwd, 'src','**','*.dict.json'), recursive=True)
 
 print(outDict)
 
@@ -65,5 +69,7 @@ for filePath in filePaths:
             createKey(subDict, pathPart)
 
 print("\n",outDict)
-print("\n",json.dumps(outDict, indent=2))
+print("\n",json.dumps(outDict, indent=2, ensure_ascii=False))
 print("\n", outDict.keys())
+
+saveDictAsJson(outDict, os.path.join(cwd, 'src', 'collectedDictionary.json'))
