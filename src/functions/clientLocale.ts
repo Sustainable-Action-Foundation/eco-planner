@@ -1,7 +1,6 @@
 "use client";
 
-import type { Locale } from "@/types";
-import { DEFAULT_LOCALE, LOCALES } from "@/constants";
+import { Locale } from "@/types";
 import { useEffect, useState } from "react";
 import { getCookie } from "cookies-next/client";
 
@@ -10,16 +9,16 @@ import { getCookie } from "cookies-next/client";
  * @returns Locale string.
  */
 export function useClientLocale() {
-  const [locale, setLocale] = useState<Locale>(DEFAULT_LOCALE);
+  const [locale, setLocale] = useState<Locale>(Locale.default);
   const cookie = getCookie("language") as Locale;
 
   useEffect(() => {
-    if (cookie && LOCALES.includes(cookie)) {
+    if (cookie && Object.values(Locale).includes(cookie)) {
       setLocale(cookie);
 
     } else {
       console.warn("No language cookie or valid browser preference found. Using default locale.");
-      setLocale(DEFAULT_LOCALE);
+      setLocale(Locale.default);
     }
   }, [cookie]);
 

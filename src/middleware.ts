@@ -1,4 +1,3 @@
-import { DEFAULT_LOCALE, LOCALES } from "@/constants";
 import { getSession } from '@/lib/session';
 import { match } from "@formatjs/intl-localematcher";
 import Negotiator from "negotiator";
@@ -14,18 +13,18 @@ export async function middleware(req: NextRequest) {
   // Check if the user has set a language cookie...
   const language = cookies().get("language")?.value;
 
-  if (language && LOCALES.includes(language as Locale)) {
+  if (language && Object.values(Locale).includes(language as Locale)) {
     locale = language as Locale; // ...and use that language if it exists
   } else {
     // If no cookie, detect language from browser settings
     const headers = {
       "accept-language": req.headers.get("accept-language") || "",
-    };  
+    };
     // Use Negotiator to parse browser language preferences
     const languages = new Negotiator({ headers }).languages();
 
     // Match the best language based on available locales
-    locale = match(languages, LOCALES, DEFAULT_LOCALE) as Locale;
+    locale = match(languages, Object.values(Locale), Locale.default) as Locale;
   }
 
   // Set the detected locale in request headers for downstream use
@@ -35,14 +34,14 @@ export async function middleware(req: NextRequest) {
   // Redirect away from login page if already logged in
   if (req.nextUrl.pathname.startsWith('/login')) {
     if (session.user?.isLoggedIn === true) {
-      return NextResponse.redirect(new URL('/', req.url), {headers: requestHeaders})
+      return NextResponse.redirect(new URL('/', req.url), { headers: requestHeaders })
     }
   }
 
   // Redirect away from signup page if already logged in
   if (req.nextUrl.pathname.startsWith('/signup')) {
     if (session.user?.isLoggedIn === true) {
-      return NextResponse.redirect(new URL('/', req.url), {headers: requestHeaders})
+      return NextResponse.redirect(new URL('/', req.url), { headers: requestHeaders })
     }
   }
 
@@ -58,7 +57,7 @@ export async function middleware(req: NextRequest) {
       const loginUrl = new URL('/login', req.url)
       // Save the current page as the "from" query parameter so we can redirect back after logging in
       loginUrl.searchParams.set('from', req.nextUrl.pathname)
-      return NextResponse.redirect(loginUrl, {headers: requestHeaders})
+      return NextResponse.redirect(loginUrl, { headers: requestHeaders })
     }
   }
 
@@ -79,7 +78,7 @@ export async function middleware(req: NextRequest) {
       const loginUrl = new URL('/login', req.url)
       // Save the current page as the "from" query parameter so we can redirect back after logging in
       loginUrl.searchParams.set('from', req.nextUrl.pathname)
-      return NextResponse.redirect(loginUrl, {headers: requestHeaders})
+      return NextResponse.redirect(loginUrl, { headers: requestHeaders })
     }
   }
 

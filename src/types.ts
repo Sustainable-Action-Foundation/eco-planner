@@ -1,7 +1,13 @@
 import { ActionImpactType, DataSeries, Prisma } from "@prisma/client";
 import dataFieldArray from "./lib/dataSeriesDataFieldNames.json" with { type: "json" };
 
-export type Locale = "en" | "sv";
+export enum Locale {
+  en = "en",
+  sv = "sv",
+  // Default locale is intentionally a duplicate of one of the defined locales
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
+  default = "en",
+}
 
 /** An object that implements the AccessControlled interface can be checked with the accessChecker function. */
 export interface AccessControlled {

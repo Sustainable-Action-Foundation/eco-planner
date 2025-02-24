@@ -1,7 +1,7 @@
 "use client";
 
 import { setCookie } from "cookies-next";
-import type { Locale } from "@/types";
+import { Locale } from "@/types";
 import { useContext, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { LocaleContext, LocaleSetterContext } from "@/app/context/localeContext.tsx";
@@ -9,11 +9,11 @@ import { LocaleContext, LocaleSetterContext } from "@/app/context/localeContext.
 const languageOptions: { label: string, value: Locale }[] = [
   {
     label: "English",
-    value: "en",
+    value: Locale.en,
   },
   {
     label: "Svenska",
-    value: "sv",
+    value: Locale.sv,
   },
 ];
 
