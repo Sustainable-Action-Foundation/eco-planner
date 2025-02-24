@@ -4,19 +4,13 @@ import json
 
 cwd = os.getcwd()
 
-def createKey(dict, key):
-    if key not in dict:
-        dict[key] = {}
-
-def findSubDict(inDict, keys, i):
-    outDict = inDict
-    for j in range(i):
-        outDict = outDict[keys[j]]
-    return outDict
-
 def getDictionaryFromJson(jsonFilePath):
     with open(jsonFilePath, 'r', encoding='utf-8') as file:
         return json.load(file)
+
+def saveDictAsJson(pyDict, jsonFilePath):
+    with open(jsonFilePath, 'w', encoding='utf-8') as file:
+        json.dump(pyDict, file, indent=2, ensure_ascii=False)
   
 class CaseHandler:
     def camelToPascalSnake(string):
@@ -34,42 +28,51 @@ class CaseHandler:
     def snakeOrMacroToCamel(string):
         words = string.split('_')
         return ''.join([c.title() if words.index(c) != 0 else c.lower() for c in words])
-    
-def saveDictAsJson(pyDict, jsonFilePath):
-    with open(jsonFilePath, 'w', encoding='utf-8') as file:
-        json.dump(pyDict, file, indent=2, ensure_ascii=False)
 
-outDict = {}
+def generateCollectedDictionary():
+    def createKey(dict, key):
+        if key not in dict:
+            dict[key] = {}
 
-filePaths = glob.glob(os.path.join(cwd, 'src','**','*.dict.json'), recursive=True)
+    def findSubDict(inDict, keys, i):
+        outDict = inDict
+        for j in range(i):
+            outDict = outDict[keys[j]]
+        return outDict
 
-print(outDict)
+    outDict = {}
 
-for filePath in filePaths:
-    filePath = filePath.replace('\\', '/')
-    relativePath = filePath.split('src/')[1]
-    pathParts = relativePath.split('/')
+    filePaths = glob.glob(os.path.join(cwd, 'src','**','*.dict.json'), recursive=True)
 
-    for i in range(len(pathParts)):
-        if i == len(pathParts) - 1:
-            # convert casing of file names
-            pathParts[i] = CaseHandler.camelToMacro(pathParts[i].split('.dict.json')[0])
-            pathPart = pathParts[i]
+    print(outDict)
 
-            subDict = findSubDict(outDict, pathParts, i)
-            createKey(subDict, pathPart)
-            subDict[pathPart] = getDictionaryFromJson(filePath)
-        
-        else:
-            # convert casing of folder names
-            pathParts[i] = CaseHandler.camelToPascalSnake(pathParts[i])
-            pathPart = pathParts[i]
+    for filePath in filePaths:
+        filePath = filePath.replace('\\', '/')
+        relativePath = filePath.split('src/')[1]
+        pathParts = relativePath.split('/')
 
-            subDict = findSubDict(outDict, pathParts, i)
-            createKey(subDict, pathPart)
+        for i in range(len(pathParts)):
+            if i == len(pathParts) - 1:
+                # convert casing of file names
+                pathParts[i] = CaseHandler.camelToMacro(pathParts[i].split('.dict.json')[0])
+                pathPart = pathParts[i]
 
-print("\n",outDict)
-print("\n",json.dumps(outDict, indent=2, ensure_ascii=False))
-print("\n", outDict.keys())
+                subDict = findSubDict(outDict, pathParts, i)
+                createKey(subDict, pathPart)
+                subDict[pathPart] = getDictionaryFromJson(filePath)
+            
+            else:
+                # convert casing of folder names
+                pathParts[i] = CaseHandler.camelToPascalSnake(pathParts[i])
+                pathPart = pathParts[i]
 
-saveDictAsJson(outDict, os.path.join(cwd, 'src', 'collectedDictionary.json'))
+                subDict = findSubDict(outDict, pathParts, i)
+                createKey(subDict, pathPart)
+
+    print("\n",outDict)
+    print("\n",json.dumps(outDict, indent=2, ensure_ascii=False))
+    print("\n", outDict.keys())
+
+    saveDictAsJson(outDict, os.path.join(cwd, 'src', 'collectedDictionary.json'))
+
+generateCollectedDictionary()
