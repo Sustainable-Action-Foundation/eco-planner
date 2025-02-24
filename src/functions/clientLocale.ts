@@ -31,8 +31,27 @@ export function useClientLocale() {
  * @param dict JSON object.
 */
 // This code has a duplicate in ./serverLocale.ts
-export function validateDict(dict: object) {
+export function validateDict(dict: object | string) {
+  if (typeof dict === "string") return; // We don't care about the actual translation
+
   if (Object.keys(dict).length === 0) {
     throw new Error("Locale dict is missing data.");
   }
+
+  // If Leaf
+  // If any key is a string, the object should be a leaf
+  if (Object.values(dict).some(value => typeof value === "string")) {
+
+    // If leaf has too many or too few locales
+    if (Object.keys(dict).length !== LOCALES.length) {
+      throw new Error("Locale leaf has the wrong amount of `Locale`s defined.");
+    }
+
+    // If leaf has an invalid locale
+    if (Object.keys(dict).some(key => !LOCALES.includes(key as Locale))) {
+      throw new Error("Locale leaf has an invalid Locale.");
+    }
+  }
+
+
 }
