@@ -1,15 +1,11 @@
 import { glob } from "glob";
 import path from "path";
 import CaseHandler from "./CaseHandler";
-
-import { getObjectFromJson, saveDictAsJson } from "./jsonObjectHandler";
+import { getObjectFromJson, saveDictAsJson, collectedDictionaryPath, dictFileEnding } from "./dictHandler";
 
 // TODO - implement locale dict type?
 function generateCollectedDictionary() {
   console.log("Generating collected dictionary...");
-
-  const collectedDictionaryPath = path.join('src', 'collectedDictionary.json');
-  const dictFileEnding = '.dict.json';
 
   function createKey(dict: { [key: string]: string | object }, key: string): void {
     if (!(key in dict)) {
@@ -55,24 +51,8 @@ function generateCollectedDictionary() {
       }
     }
   }
-  // console.log(JSON.stringify(outDict));
 
   saveDictAsJson(outDict, collectedDictionaryPath);
 }
 
 generateCollectedDictionary();
-
-// console.log('\n');
-// console.log(CaseHandler.camelToSnake('helloWorldHeyWorld')); // hello_world
-// console.log(CaseHandler.camelToMacro('helloWorldHeyWorld')); // hello_world
-// console.log(CaseHandler.camelToPascalSnake('helloWorldHeyWorld')); // hello_world
-// console.log(CaseHandler.camelToPascal('helloWorldHeyWorld')); // hello_world
-
-// console.log('\n');
-// console.log(CaseHandler.snakeToCamel('hello_world_hey_world')); // helloWorld
-// console.log(CaseHandler.snakeToMacro('hello_world_hey_world')); // HELLO_WORLD
-
-// console.log('\n');
-// console.log(CaseHandler.macroToCamel('HELLO_WORLD_HEY_WORLD'));
-
-// console.log('\n');
