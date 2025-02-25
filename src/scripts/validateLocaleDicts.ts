@@ -41,7 +41,7 @@ if (fileFlag) {
     console.info(`✔️  No problems found \x1b[90m${fileFlag}\x1b[0m`);
   } else {
     console.error(`❗ Problems found in \x1b[90m${fileFlag}\x1b[0m`);
-    problems.forEach(problem => console.error(" ❌", problem));
+    problems.forEach(problem => console.error(" ❌", `\x1b[31m${problem}\x1b[0m\n`));
   }
   console.info(""); // Padding
 
@@ -180,7 +180,8 @@ export function validateDictObject(dict: object | string): string[] {
   const problems: string[] = [];
 
   if (typeof dict === "string") {
-    if (dict === "") problems.push("Empty string found.");
+    if (dict === "") problems.push(`Empty string found. { ${dict} }`);
+    if (dict.trim() === "") problems.push(`Whitespace only string found. { ${dict} }`);
     return problems;
   };
   // Else, it's an object
@@ -189,7 +190,8 @@ export function validateDictObject(dict: object | string): string[] {
   const values = Object.values(dict);
 
   if (keys.length === 0) {
-    problems.push("Locale dict has no entries.");
+    const found = `{ ${Object.entries(dict).map(([key, value]) => `"${key}":${typeof value === "string" ? `"${value}"` : value}`).join(", ")} }`;
+    problems.push(`Found no entries in object. ${found}`);
     return problems;
   }
 
@@ -201,31 +203,32 @@ export function validateDictObject(dict: object | string): string[] {
   }
 
   // Mixed types, check
-  // Only allowed types are objects and strings and strings may only have string siblings and objects may only have object siblings (not arrays or classes either)
-  // const allStrings = values.every(value => typeof value === "string");
   const someStrings = values.some(value => typeof value === "string");
   const someObjects = values.some(value => typeof value === "object");
   const someArrays = values.some(value => Array.isArray(value));
   if (someStrings && (someObjects || someArrays)) {
-    const found = `{ ${Object.entries(dict).map(([key, value]) => `"${key}":${typeof value === "string" ? `"${value}"` : value}`).join(", ")} }`;
-    problems.push(`Mixed types. Branch nodes may only contain other objects. Leaf nodes may only contain strings.\n Found:\n  ${found}`);
+    const found = `{ ${Object.entries(dict).map(([key, value]) => `\n  "${key}":${typeof value === "string" ? `"${value}"` : value}`).join(", ")} \n}`;
+    problems.push(`Mixed types. Branch nodes may only contain other objects. Leaf nodes may only contain strings.\n  Found:\n${found}`);
     return problems;
   }
 
   // Leaf checks
   // Value type, check
   if (values.some(value => typeof value !== "string")) {
-    problems.push(`Leaf nodes can only contain strings. e.g. \`{ Locale: string }\`.\n Found:\n  ${Object.entries(dict).map(([key, value]) => `${key}: ${typeof value}`).join(", ")}`);
+    const found = `{ ${Object.entries(dict).map(([key, value]) => `${key}: ${typeof value}`).join(", ")} }`;
+    problems.push(`Leaf nodes can only contain \`Locale\` strings.\n   Found:\n    ${found}`);
   }
   // Number of locales, check
   if (keys.length !== strictLocale.length) {
-    problems.push(`Leaf node has the wrong amount of locales.\n Expected:\n  ${strictLocale.length}\n Found:\n  ${keys.length}`);
+    const expected = `{ ${strictLocale.map(locale => `"${locale}": string`).join(", ")} }`;
+    const found = `{ ${Object.entries(dict).map(([key, value]) => `"${key}":${typeof value === "string" ? `"${value}"` : value}`).join(", ")} }`;
+    problems.push(`Leaf node has the wrong amount of locales.\n   Expected:\n    ${expected}\n   Found:\n    ${found}`);
   }
   // Key locale, check
   if (keys.some(key => !strictLocale.includes(key as Locale))) {
-    const expected = `[${strictLocale.join(", ")}]`;
-    const found = `[${keys.join(", ")}]`;
-    problems.push(`Leaf node has an invalid locale.\n Expected:\n  ${expected}\n Found:\n  ${found}`);
+    const expected = `[${strictLocale.map((key) => `"${key}"`).join(", ")}]`;
+    const found = `[${keys.map((key) => `"${key}"`).join(", ")}]`;
+    problems.push(`Leaf node has an invalid locale.\n   Expected:\n    ${expected}\n   Found:\n    ${found}`);
   }
 
   return problems;
