@@ -2,10 +2,10 @@ import styles from '../tables.module.css' with { type: "css" };
 import { DataSeries, Goal } from "@prisma/client";
 import Image from 'next/image';
 import goalsToTree, { GoalTree } from '@/functions/goalsToTree';
-import { SyntheticEvent } from 'react';
+import { SyntheticEvent, useContext } from 'react';
 import { getSessionStorage, setSessionStorage } from '@/functions/localStorage';
-import { useClientLocale } from '@/functions/clientLocale';
-import dict from './linkTree.dict.json' assert { type: "json" };
+import dict from './linkTree.dict.json' with { type: "json" };
+import { LocaleContext } from '@/app/context/localeContext.tsx';
 
 // interface LinkTreeCommonProps {}
 
@@ -36,7 +36,7 @@ export default function LinkTree({
   goals,
   roadmap,
 }: LinkTreeProps) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   // Failsafe in case wrong props are passed
   if ((!goals && !roadmap) || (goals && roadmap)) throw new Error('LinkTree: Either `goals` XOR `roadmap` must be provided');
@@ -74,7 +74,7 @@ export default function LinkTree({
       setSessionStorage(roadmap.id, currentStorage.filter(branch => branch != key));
     }
   };
-  
+
   const NestedKeysRenderer = ({ data, previousKeys = "" }: { data: GoalTree, previousKeys?: string }) => {
     return (
       <ul className={styles.list}>

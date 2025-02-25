@@ -8,7 +8,7 @@ import RoadmapTable from "@/components/tables/roadmapTables/roadmapTable";
 import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { getServerLocale } from "@/functions/serverLocale";
-import dict from "./page.dict.json" assert { type: "json" };
+import dict from "./page.dict.json" with { type: "json" };
 
 export default async function Page({ params }: { params: { metaRoadmapId: string } }) {
   const locale = await getServerLocale();

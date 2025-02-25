@@ -1,14 +1,14 @@
 'use client';
 
 import type getOneMetaRoadmap from "@/fetchers/getOneMetaRoadmap";
-import { useRef } from "react";
+import { useContext, useRef } from "react";
 import ConfirmDelete from "../modals/confirmDelete";
 import { openModal } from "../modals/modalFunctions";
-import dict from "./metaRoadmapDeleter.dict.json" assert { type: "json" };
-import { useClientLocale } from "@/functions/clientLocale";
+import dict from "./metaRoadmapDeleter.dict.json" with { type: "json" };
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 export default function MetaRoadmapDeleter({ metaRoadmap }: { metaRoadmap: NonNullable<Awaited<ReturnType<typeof getOneMetaRoadmap>>> }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   const deletionRef = useRef<HTMLDialogElement | null>(null);
   return (

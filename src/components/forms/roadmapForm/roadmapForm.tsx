@@ -2,15 +2,15 @@
 
 import { EditUsers, getAccessData, ViewUsers } from "@/components/forms/accessSelector/accessSelector";
 import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
-import { useClientLocale } from "@/functions/clientLocale";
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 import formSubmitter from "@/functions/formSubmitter";
 import parseCsv, { csvToGoalList } from "@/functions/parseCsv";
 import { LoginData } from "@/lib/session";
 import { AccessControlled, GoalInput, Locale, RoadmapInput } from "@/types";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import styles from '../forms.module.css';
-import dict from "./roadmapForm.dict.json" assert { type: "json" };
+import dict from "./roadmapForm.dict.json" with { type: "json" };
 
 function checkForBadDecoding(csv: string[][], locale: Locale) {
   if (csv.some((row) => row.some((cell) => cell.includes("�")))) {
@@ -33,7 +33,7 @@ export default function RoadmapForm({
   currentRoadmap?: Roadmap & AccessControlled & { metaRoadmap: MetaRoadmap },
   defaultMetaRoadmap?: string,
 }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()

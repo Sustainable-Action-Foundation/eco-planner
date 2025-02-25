@@ -3,13 +3,13 @@
 import Image from "next/image";
 import styles from './tableMenu.module.css' with { type: "css" }
 import Link from "next/link";
-import { useRef } from "react";
+import { useContext, useRef } from "react";
 import { Action, DataSeries, Effect, Goal, MetaRoadmap } from "@prisma/client";
 import { AccessLevel } from "@/types";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
-import { useClientLocale } from "@/functions/clientLocale";
-import dict from "./tableMenu.dict.json" assert { type: "json" };
+import { LocaleContext } from "@/app/context/localeContext.tsx";
+import dict from "./tableMenu.dict.json" with { type: "json" };
 
 // General purpose button for roadmaps, goals and actions. 
 // Update the name of the component to reflect this
@@ -71,7 +71,7 @@ export function TableMenu(
       })
     )
   }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   const menu = useRef<HTMLDialogElement | null>(null);
   const deletionRef = useRef<HTMLDialogElement | null>(null);

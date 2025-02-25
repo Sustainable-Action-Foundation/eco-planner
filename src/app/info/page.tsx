@@ -3,7 +3,7 @@ import { JSONValue } from "@/types.ts";
 import fs from "fs";
 import metadata from "package.json" with { type: "json" };
 import { getServerLocale } from "@/functions/serverLocale";
-import dict from "./page.dict.json" assert { type: "json" };
+import dict from "./page.dict.json" with { type: "json" };
 
 export default async function Page() {
   const locale = await getServerLocale();

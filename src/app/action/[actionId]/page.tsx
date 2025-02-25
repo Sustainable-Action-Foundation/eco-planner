@@ -6,12 +6,11 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { AccessControlled, AccessLevel } from "@/types";
 import accessChecker from "@/lib/accessChecker";
-import { Fragment } from "react";
 import Comments from "@/components/comments/comments";
 import EffectTable from "@/components/tables/effects.tsx";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { getServerLocale } from "@/functions/serverLocale";
-import dict from "./page.dict.json" assert {type: "json"};
+import dict from "./page.dict.json" with { type: "json" };
 
 export default async function Page({ params }: { params: { actionId: string } }) {
   const locale = await getServerLocale();

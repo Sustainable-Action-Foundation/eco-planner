@@ -4,16 +4,16 @@ import /* LinkInput, */ LinkInput, { getLinks } from "@/components/forms/linkInp
 import { getScalingResult } from "@/components/modals/copyAndScale";
 import RepeatableScaling from "@/components/repeatableScaling";
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
-import { useClientLocale } from "@/functions/clientLocale";
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 import formSubmitter from "@/functions/formSubmitter";
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 import mathjs from "@/math";
 import { GoalInput, ScaleBy, ScaleMethod, ScalingRecipie, dataSeriesDataFieldNames, isScalingRecipie } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import styles from '../forms.module.css';
-import dict from "./goalForm.dict.json" assert { type: "json" };
+import dict from "./goalForm.dict.json" with { type: "json" };
 import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
 
 enum DataSeriesType {
@@ -66,7 +66,7 @@ export default function GoalForm({
     roadmap: { id: string },
   },
 }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(!currentGoal?.combinationParents.length ? DataSeriesType.Static : currentGoal.combinationParents.length >= 2 ? DataSeriesType.Combined : DataSeriesType.Inherited)
   const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baselineDataSeries ? BaselineType.Custom : BaselineType.Initial)

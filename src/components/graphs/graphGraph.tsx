@@ -2,15 +2,14 @@
 
 import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import { DataSeries, Effect, Goal } from "@prisma/client";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { getStoredGraphType } from "./functions/graphFunctions";
 import GraphSelector from "./graphSelector/graphSelector";
 import MainDeltaGraph from "./mainGraphs/mainDeltaGraph";
 import MainGraph from "./mainGraphs/mainGraph";
 import MainRelativeGraph from "./mainGraphs/mainRelativeGraph";
 import SecondaryGoalSelector from "./secondaryGraphSelector";
-//TODO - global replace '.dict.json" assert { type: "json" }' with '.dict.json" with { type: "json" }'
-import { useClientLocale } from '@/functions/clientLocale';
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 export enum GraphType {
   Main = "MAIN",
@@ -33,7 +32,7 @@ export default function GraphGraph({
   effects: (Effect & { dataSeries: DataSeries | null })[],
   children: React.ReactNode
 }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   const [graphType, setGraphType] = useState<GraphType | "">("");
 

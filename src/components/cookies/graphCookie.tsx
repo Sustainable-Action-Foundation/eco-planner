@@ -1,12 +1,12 @@
 "use client"
 
 import { storageConsent, allowStorage, clearStorage } from "@/functions/localStorage";
-import { useEffect, useState } from "react";
-import dict from "./graphCookie.dict.json" assert { type: "json" };
-import { useClientLocale } from "@/functions/clientLocale"
+import { useContext, useEffect, useState } from "react";
+import dict from "./graphCookie.dict.json" with { type: "json" };
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 export default function GraphCookie() {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   const [storageAllowed, setStorageAllowed] = useState(false)
 

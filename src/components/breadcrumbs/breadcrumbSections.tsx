@@ -1,7 +1,7 @@
 import styles from './breadcrumbs.module.css' with { type: "css" };
 import Link from 'next/link';
 import Image from "next/image";
-import dict from "./breadcrumbSections.dict.json" assert { type: "json" };
+import dict from "./breadcrumbSections.dict.json" with { type: "json" };
 import { getServerLocale } from '@/functions/serverLocale';
 
 export function BreadcrumbChevron() {

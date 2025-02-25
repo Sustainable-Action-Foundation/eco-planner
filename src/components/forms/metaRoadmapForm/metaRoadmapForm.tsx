@@ -2,15 +2,15 @@
 
 import { EditUsers, ViewUsers, getAccessData } from "@/components/forms/accessSelector/accessSelector";
 import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput";
-import { useClientLocale } from "@/functions/clientLocale";
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 import formSubmitter from "@/functions/formSubmitter";
 import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" with { type: "json" };
 import { LoginData } from "@/lib/session";
 import { AccessControlled, MetaRoadmapInput } from "@/types";
 import { MetaRoadmap, RoadmapType } from "@prisma/client";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import styles from '../forms.module.css';
-import dict from "./metaRoadmapForm.dict.json" assert { type: "json" };
+import dict from "./metaRoadmapForm.dict.json" with { type: "json" };
 
 export default function MetaRoadmapForm({
   user,
@@ -23,7 +23,7 @@ export default function MetaRoadmapForm({
   parentRoadmapOptions?: MetaRoadmap[],
   currentRoadmap?: MetaRoadmap & AccessControlled,
 }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     // Mostly the usual submit handler stuff.

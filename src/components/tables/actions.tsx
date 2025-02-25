@@ -6,8 +6,9 @@ import { Action } from '@prisma/client';
 import { AccessLevel } from '@/types';
 import Link from 'next/link';
 import { TableMenu } from './tableMenu/tableMenu';
-import { useClientLocale } from "@/functions/clientLocale";
-import dict from "./actions.dict.json" assert { type: "json" };
+import { LocaleContext } from "@/app/context/localeContext.tsx";
+import dict from "./actions.dict.json" with { type: "json" };
+import { useContext } from 'react';
 
 /**
  * Displays a table of actions. Requires either a goal XOR a list of actions.
@@ -35,7 +36,7 @@ export default function ActionTable({
   accessLevel?: AccessLevel,
   roadmapId?: string,
 }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   // If no actions are found, return a message
   if (!actions?.length) return (

@@ -9,7 +9,7 @@ import { AccessLevel } from '@/types';
 import accessChecker from '@/lib/accessChecker';
 import getOneMetaRoadmap from '@/fetchers/getOneMetaRoadmap';
 import { getServerLocale } from "@/functions/serverLocale";
-import dict from "./page.dict.json" assert { type: "json" };
+import dict from "./page.dict.json" with { type: "json" };
 
 export default async function Page({
   searchParams

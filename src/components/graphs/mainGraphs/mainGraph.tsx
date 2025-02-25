@@ -1,11 +1,12 @@
 import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
-import { useClientLocale } from "@/functions/clientLocale";
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
 import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import { parsePeriod } from "@/lib/pxWeb/utility";
 import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Effect, Goal } from "@prisma/client";
-import dict from "./mainGraph.dict.json" assert { type: "json" };
+import dict from "./mainGraph.dict.json" with { type: "json" };
+import { useContext } from "react";
 
 export default function MainGraph({
   goal,
@@ -20,7 +21,7 @@ export default function MainGraph({
   historicalData?: PxWebApiV2TableContent | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
 }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   if (!goal.dataSeries) {
     return null;

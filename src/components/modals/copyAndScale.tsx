@@ -3,12 +3,12 @@
 import { DataSeries, Goal } from "@prisma/client";
 import Image from "next/image";
 import { closeModal, openModal } from "./modalFunctions";
-import { useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import RepeatableScaling from "../repeatableScaling";
 import { GoalInput, dataSeriesDataFieldNames, ScaleBy, ScaleMethod, ScalingRecipie, Locale } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
-import dict from "./copyAndScale.dict.json" assert { type: "json" };
-import { useClientLocale } from "@/functions/clientLocale";
+import dict from "./copyAndScale.dict.json" with { type: "json" };
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 /** Get the resulting scaling factor from form data */
 export function getScalingResult(locale: Locale, form: FormData, scalingMethod: ScaleMethod, setIsLoading?: React.Dispatch<React.SetStateAction<boolean>>) {
@@ -201,7 +201,7 @@ export default function CopyAndScale({
   goal: Goal & { dataSeries: DataSeries | null },
   roadmapOptions: { id: string, name: string, version: number, actor: string | null }[],
 }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   const [isLoading, setIsLoading] = useState(false);
   const [scalingComponents, setScalingComponents] = useState<string[]>([crypto?.randomUUID() || Math.random().toString()]);

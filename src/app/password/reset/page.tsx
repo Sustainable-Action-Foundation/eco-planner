@@ -1,12 +1,12 @@
 'use client';
 
 import Image from "next/image";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import styles from "@/components/forms/forms.module.css";
 import formSubmitter from "@/functions/formSubmitter";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { useClientLocale } from "@/functions/clientLocale";
-import dict from "./page.dict.json" assert { type: "json" };
+import dict from "./page.dict.json" with { type: "json" };
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
   event.preventDefault()
@@ -22,7 +22,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
 }
 
 export default function Page() {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   const [showPassword, setShowPassword] = useState(false)
 

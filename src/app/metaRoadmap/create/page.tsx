@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
 import { getServerLocale } from "@/functions/serverLocale";
-import dict from "./page.dict.json" assert { type: "json" };
+import dict from "./page.dict.json" with { type: "json" };
 
 export default async function Page() {
   const locale = await getServerLocale();

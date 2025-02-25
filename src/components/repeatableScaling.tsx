@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ScaleBy } from "@/types";
 import areaCodes from "@/lib/areaCodes.json" with { type: "json" };
 import scbPopulationQuery from "@/lib/scbPopulationQuery";
 import scbAreaQuery from "@/lib/scbAreaQuery";
 import { areaSorter } from "@/lib/sorters";
-import {  useClientLocale } from "@/functions/clientLocale";
-import dict from "./repeatableScaling.dict.json" assert { type: "json" };
+import dict from "./repeatableScaling.dict.json" with { type: "json" };
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 /** Get values from SCB */
 async function getValue(e: React.ChangeEvent<HTMLSelectElement> | { target: { value: string } }, scaleBy: ScaleBy | "") {
@@ -49,7 +49,7 @@ export default function RepeatableScaling({
   defaultSpecificValue?: number,
   useWeight?: boolean
 }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   const [scaleBy, setScaleBy] = useState<ScaleBy | "">(defaultScaleBy ?? "");
   const [numericInput, setNumericInput] = useState<number | null>(null);
@@ -220,7 +220,7 @@ export default function RepeatableScaling({
 
         {/* Hidden input, used because outputs are not submitted with formData */}
         <input className="margin-block-25" type="hidden" name="scaleFactor" value={(Number.isFinite(result ?? 1) && result?.toString()) ? result.toString() : "1"} />
-  
+
         {// Only show weight input if useWeight is true
           useWeight &&
           <>

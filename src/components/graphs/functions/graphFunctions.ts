@@ -3,7 +3,7 @@ import { GraphType } from "../graphGraph";
 import { ActionImpactType, type DataSeries, type Effect } from "@prisma/client";
 import { dataSeriesDataFieldNames, DataSeriesDataFields, Locale } from "@/types";
 import { ChildGraphType } from "../childGraphs/childGraphContainer";
-import dict from "./graphFunctions.dict.json" assert { type: "json" };
+import dict from "./graphFunctions.dict.json" with { type: "json" };
 
 /** Retrieves the graph type for a goal from storage. */
 export function getStoredGraphType(locale: Locale, goalId?: string) {

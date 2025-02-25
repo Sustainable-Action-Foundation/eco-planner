@@ -1,7 +1,7 @@
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import { getServerLocale } from "@/functions/serverLocale";
-import dict from "./page.dict.json" assert { type: "json" };
+import dict from "./page.dict.json" with { type: "json" };
 
 export default async function Page() {
   const locale = await getServerLocale();

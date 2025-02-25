@@ -1,12 +1,13 @@
 'use client';
 
 import Image from "next/image";
-import dict from "./logoutButton.dict.json" assert { type: "json" };
-import { useClientLocale } from "@/functions/clientLocale";
+import dict from "./logoutButton.dict.json" with { type: "json" };
+import { useContext } from "react";
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 export default function LogoutButton() {
   // Throws error if data is missing
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   return (
     <button className="flex align-items-center rounded transparent padding-50 gap-50 width-100 font-weight-500" style={{ fontSize: '1rem', whiteSpace: 'nowrap' }} onClick={async () => {

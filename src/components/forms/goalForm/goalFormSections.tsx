@@ -4,13 +4,13 @@ import { clientSafeGetOneGoal } from "@/fetchers/getOneGoal";
 import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
 import type getRoadmaps from "@/fetchers/getRoadmaps";
 import { clientSafeGetRoadmaps } from "@/fetchers/getRoadmaps";
-import { useClientLocale } from "@/functions/clientLocale";
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 import mathjs from "@/math";
 import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import { dataSeriesPattern } from "./goalForm";
-import dict from "./goalFormSections.dict.json" assert { type: "json" };
+import dict from "./goalFormSections.dict.json" with { type: "json" };
 
 export function ManualGoalForm({
   currentGoal,
@@ -31,7 +31,7 @@ export function ManualGoalForm({
   },
   dataSeriesString?: string,
 }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   const [parsedUnit, setParsedUnit] = useState<string | null>(null);
 
@@ -111,7 +111,7 @@ export function InheritedGoalForm({
   },
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
 }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   const [selectedRoadmap, setSelectedRoadmap] = useState(currentGoal?.combinationParents[0]?.parentGoal.roadmapId);
   const [roadmapData, setRoadmapData] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
@@ -220,7 +220,7 @@ export function CombinedGoalForm({
     roadmap: { id: string },
   },
 }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   const [currentRoadmap, setCurrentRoadmap] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
   const [inheritFrom, setInheritFrom] = useState<string[]>([]);
@@ -303,7 +303,7 @@ export function CombinedGoalForm({
 }
 
 export function InheritingBaseline() {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   const [roadmapList, setRoadmapList] = useState<Awaited<ReturnType<typeof clientSafeGetRoadmaps>>>([]);
   const [selectedRoadmap, setSelectedRoadmap] = useState<string | undefined>(undefined);

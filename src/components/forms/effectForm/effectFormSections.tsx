@@ -1,12 +1,12 @@
 'use client';
 
 import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import type getOneAction from "@/fetchers/getOneAction.ts";
 import type getOneGoal from "@/fetchers/getOneGoal";
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
-import dict from "./effectFormSections.dict.json" assert { type: "json" };
-import { useClientLocale } from "@/functions/clientLocale";
+import dict from "./effectFormSections.dict.json" with { type: "json" };
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 
 export function ActionSelector({
@@ -16,7 +16,7 @@ export function ActionSelector({
   action: Awaited<ReturnType<typeof getOneAction>> | null,
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
 }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   const [selectedAction, setSelectedAction] = useState<string>(action?.id || "");
   const [selectedRoadmap, setSelectedRoadmap] = useState<string>(action?.roadmapId || "");
@@ -76,7 +76,7 @@ export function GoalSelector({
   goal: Awaited<ReturnType<typeof getOneGoal>> | null,
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
 }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   const [selectedGoal, setSelectedGoal] = useState<string>(goal?.id || "");
   const [selectedRoadmap, setSelectedRoadmap] = useState<string>(goal?.roadmapId || "");

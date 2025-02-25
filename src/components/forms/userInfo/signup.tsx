@@ -2,16 +2,16 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import styles from '../forms.module.css'
-import dict from "./signup.dict.json" assert { type: "json" };
-import { useClientLocale } from "@/functions/clientLocale";
+import dict from "./signup.dict.json" with { type: "json" };
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 import { Locale } from "@/types";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, locale: Locale) {
-  event.preventDefault()
+  event.preventDefault();
 
-  const form = event.target
+  const form = event.target;
   const formJSON = JSON.stringify({
     username: form.username.value,
     email: form.email?.value,
@@ -29,18 +29,18 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, locale: Locale)
       window.location.href = '/verify'
     } else {
       res.json().then((data) => {
-        alert(`${dict.handleSubmit.signupFailedForReason[locale]}${data.message}`)
+        alert(`${dict.handleSubmit.signupFailedForReason[locale]}${data.message}`);
       })
     }
   }).catch(() => {
-    alert(dict.handleSubmit.signupFailed[locale])
+    alert(dict.handleSubmit.signupFailed[locale]);
   })
 }
 
 export default function Signup() {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <>

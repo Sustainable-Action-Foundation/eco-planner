@@ -2,8 +2,9 @@
 
 import formSubmitter from "@/functions/formSubmitter";
 import Image from "next/image";
-import { useClientLocale } from "@/functions/clientLocale";
-import dict from "./page.dict.json" assert { type: "json" };
+import dict from "./page.dict.json" with { type: "json" };
+import { useContext } from "react";
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
   event.preventDefault()
@@ -16,7 +17,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
 }
 
 export default function Page() {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   return (
     <div>

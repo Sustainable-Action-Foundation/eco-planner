@@ -2,15 +2,16 @@ import WrappedChart from "@/lib/chartWrapper";
 import { actionGraphSorter } from "@/lib/sorters";
 import { Action } from "@prisma/client";
 import styles from './graphs.module.css'
-import dict from "./actionGraph.dict.json" assert { type: "json" };
-import { useClientLocale } from "@/functions/clientLocale";
+import dict from "./actionGraph.dict.json" with { type: "json" };
+import { LocaleContext } from "@/app/context/localeContext.tsx";
+import { useContext } from "react";
 
 export default function ActionGraph({
   actions,
 }: {
   actions: Action[],
 }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   const series: ApexAxisChartSeries = [];
   const actionData = []

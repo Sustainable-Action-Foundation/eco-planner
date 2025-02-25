@@ -4,7 +4,7 @@ import type getOneRoadmap from "@/fetchers/getOneRoadmap.ts"
 import { AccessLevel } from '@/types'
 import Image from "next/image"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import GraphCookie from "../cookies/graphCookie"
 import ActionTable from "./actions"
 import { getStoredGoalSortBy, getStoredViewMode, setStoredGoalSortBy } from "./functions/tableFunctions"
@@ -12,8 +12,8 @@ import GoalTable from "./goalTables/goalTable"
 import LinkTree from './goalTables/linkTree'
 import styles from './tables.module.css'
 import TableSelector from './tableSelector/tableSelector'
-import { useClientLocale } from "@/functions/clientLocale";
-import dict from "./goals.dict.json" assert { type: "json" };
+import { LocaleContext } from "@/app/context/localeContext.tsx";
+import dict from "./goals.dict.json" with { type: "json" };
 
 /** Enum for the different view modes for the goal table. */
 export enum ViewMode {
@@ -38,7 +38,7 @@ export default function Goals({
   roadmap: NonNullable<Awaited<ReturnType<typeof getOneRoadmap>>>,
   accessLevel?: AccessLevel
 }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   const [viewMode, setViewMode] = useState<ViewMode | ''>('');
   const [sortBy, setSortBy] = useState<GoalSortBy>(GoalSortBy.Default);

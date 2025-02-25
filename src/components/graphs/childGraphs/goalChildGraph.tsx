@@ -1,8 +1,9 @@
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper.tsx";
 import { dataSeriesDataFieldNames } from "@/types.ts";
 import { DataSeries, Goal } from "@prisma/client";
-import dict from "./goalChildGraph.dict.json" assert { type: "json" };
-import { useClientLocale } from "@/functions/clientLocale";
+import dict from "./goalChildGraph.dict.json" with { type: "json" };
+import { LocaleContext } from "@/app/context/localeContext.tsx";
+import { useContext } from "react";
 
 /**
  * A graph showing how all goals with the same unit and indicator parameter in roadmaps working towards the active goal's roadmap version stack up against it.
@@ -16,7 +17,7 @@ export default function GoalChildGraph({
   childGoals: (Goal & { dataSeries: DataSeries | null, roadmapName?: string })[],
   isStacked: boolean,
 }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   // Early returns if there is no relevant data to compare
   if (!goal.dataSeries) {

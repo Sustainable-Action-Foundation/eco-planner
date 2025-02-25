@@ -2,16 +2,16 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import styles from '../forms.module.css'
-import dict from "./login.dict.json" assert { type: "json" };
+import dict from "./login.dict.json" with { type: "json" };
 import { Locale } from "@/types";
-import { useClientLocale } from "@/functions/clientLocale";
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, locale: Locale) {
-  event.preventDefault()
+  event.preventDefault();
 
-  const form = event.target
+  const form = event.target;
   const formJSON = JSON.stringify({
     username: form.username?.value,
     password: form.password?.value,
@@ -26,24 +26,24 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, locale: Locale)
   }).then((res) => {
     if (res.ok) {
       // Redirect to the page the user came from, or to the home page.
-      const from = new URLSearchParams(window.location.search).get('from')
+      const from = new URLSearchParams(window.location.search).get('from');
       if (from) {
-        window.location.href = from
+        window.location.href = from;
       } else {
-        window.location.href = '/'
+        window.location.href = '/';
       }
     } else {
-      alert(dict.handleSubmit.loginFailed[locale])
+      alert(dict.handleSubmit.loginFailed[locale]);
     }
   }).catch(() => {
-    alert(dict.handleSubmit.loginFailed[locale])
+    alert(dict.handleSubmit.loginFailed[locale]);
   })
 }
 
 export default function Login() {
-  const locale = useClientLocale()
+  const locale = useContext(LocaleContext);
 
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <>

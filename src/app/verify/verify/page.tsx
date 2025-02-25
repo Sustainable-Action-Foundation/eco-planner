@@ -1,11 +1,12 @@
 'use client';
 
 import formSubmitter from "@/functions/formSubmitter";
-import { useClientLocale } from "@/functions/clientLocale";
-import dict from "./page.dict.json" assert { type: "json" };
+import dict from "./page.dict.json" with { type: "json" };
+import { useContext } from "react";
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 export default function Page() {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   function verify() {
     const params = new URLSearchParams(window.location.search)

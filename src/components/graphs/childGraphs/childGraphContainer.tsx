@@ -2,14 +2,14 @@
 
 import { DataSeries, Effect, Goal } from "@prisma/client";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { getStoredChildGraphType } from "../functions/graphFunctions";
 import ChildGraphSelector from "../graphSelector/childGraphSelector.tsx";
 import { percentAndFraction } from "../graphSelector/graphSelector.tsx";
 import GoalChildGraph from "./goalChildGraph";
 import PredictionChildGraph from "./predictionChildGraph.tsx";
-import dict from "./childGraphContainer.dict.json" assert { type: "json" };
-import { useClientLocale } from "@/functions/clientLocale.ts";
+import dict from "./childGraphContainer.dict.json" with { type: "json" };
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 export enum ChildGraphType {
   Target = "TARGET",
@@ -25,7 +25,7 @@ export default function ChildGraphContainer({
   childGoals: (Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null, effects: (Effect & { dataSeries: DataSeries | null })[], roadmapName?: string })[],
   children?: React.ReactNode,
 }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   const [childGraphType, setChildGraphType] = useState<ChildGraphType>(ChildGraphType.Target);
   // Default to stacked unless the unit is percent or fraction

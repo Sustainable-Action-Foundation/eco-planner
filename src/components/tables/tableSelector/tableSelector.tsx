@@ -1,12 +1,12 @@
-import React, { ChangeEvent, Dispatch, SetStateAction } from 'react';
+import React, { ChangeEvent, Dispatch, SetStateAction, useContext } from 'react';
 import RadioImage from './radioImage';
 import { ViewMode } from '../goals';
 import { setStoredViewMode } from '../functions/tableFunctions';
-import { useClientLocale } from '@/functions/clientLocale';
-import dict from './tableSelector.dict.json' assert { type: "json" };
+import dict from './tableSelector.dict.json' with { type: "json" };
+import { LocaleContext } from '@/app/context/localeContext.tsx';
 
 export default function TableSelector({ id, current, setter }: { id: string, current: ViewMode | "", setter: Dispatch<SetStateAction<ViewMode | "">> }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   const handleRadioChange = (event: ChangeEvent<HTMLInputElement>) => {
     setStoredViewMode(event.target.value, id);

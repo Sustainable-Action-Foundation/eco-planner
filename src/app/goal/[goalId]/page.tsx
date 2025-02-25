@@ -28,7 +28,7 @@ import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
 import findSiblings from "@/functions/findSiblings.ts";
 import ChildGraphContainer from "@/components/graphs/childGraphs/childGraphContainer.tsx";
 import { getServerLocale } from "@/functions/serverLocale";
-import dict from "./page.dict.json" assert { type: "json" };
+import dict from "./page.dict.json" with { type: "json" };
 
 export default async function Page({
   params,

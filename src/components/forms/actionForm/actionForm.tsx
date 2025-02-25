@@ -7,8 +7,9 @@ import formSubmitter from "@/functions/formSubmitter"
 import { ActionInput } from "@/types"
 import { Action, ActionImpactType, DataSeries, Effect } from "@prisma/client"
 import styles from '../forms.module.css'
-import dict from "./actionForm.dict.json" assert { type: "json" };
-import { useClientLocale } from "@/functions/clientLocale"
+import dict from "./actionForm.dict.json" with { type: "json" };
+import { LocaleContext } from "@/app/context/localeContext.tsx"
+import { useContext } from "react"
 
 export default function ActionForm({
   roadmapId,
@@ -26,7 +27,7 @@ export default function ActionForm({
     links: { url: string, description: string | null }[],
   },
 }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()

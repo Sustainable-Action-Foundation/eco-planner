@@ -1,8 +1,9 @@
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
 import { Goal, DataSeries } from "@prisma/client";
-import dict from "./mainRelativeGraph.dict.json" assert { type: "json" };
-import { useClientLocale } from "@/functions/clientLocale";
+import dict from "./mainRelativeGraph.dict.json" with { type: "json" };
+import { LocaleContext } from "@/app/context/localeContext.tsx";
+import { useContext } from "react";
 
 export default function MainRelativeGraph({
   goal,
@@ -13,7 +14,7 @@ export default function MainRelativeGraph({
   secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
   nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
 }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   if (!goal.dataSeries || ["procent", "percent", "andel", "ratio", "fraction"].includes(goal.dataSeries.unit.toLowerCase())) {
     return null;

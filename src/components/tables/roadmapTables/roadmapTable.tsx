@@ -7,7 +7,7 @@ import { TableMenu } from '@/components/tables/tableMenu/tableMenu';
 import { AccessControlled } from '@/types';
 import accessChecker from '@/lib/accessChecker';
 import { getServerLocale } from '@/functions/serverLocale';
-import dict from './roadmapTable.dict.json' assert { type: "json" };
+import dict from './roadmapTable.dict.json' with { type: "json" };
 
 interface RoadmapTableCommonProps {
   user: LoginData['user'],

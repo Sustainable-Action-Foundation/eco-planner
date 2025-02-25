@@ -4,12 +4,12 @@ import { commentSorter } from "@/lib/sorters";
 import timeSince from "@/functions/timeSince";
 import { Comment } from "@prisma/client";
 import styles from './comments.module.css'
-import { ChangeEvent, useRef, useState } from "react";
-import { useClientLocale } from "@/functions/clientLocale";
-import dict from "./comments.dict.json" assert { type: "json" };
+import { ChangeEvent, useContext, useRef, useState } from "react";
+import dict from "./comments.dict.json" with { type: "json" };
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 export default function Comments({ comments, objectId }: { comments?: (Comment & { author: { id: string, username: string } })[], objectId: string }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()

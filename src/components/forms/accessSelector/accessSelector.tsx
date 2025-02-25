@@ -1,10 +1,10 @@
 'use client'
 
-import { useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import Image from "next/image";
 import styles from './accessSelector.module.css' with { type: "css" }
-import dict from "./accessSelector.dict.json" assert { type: "json" };
-import { useClientLocale } from "@/functions/clientLocale";
+import dict from "./accessSelector.dict.json" with { type: "json" };
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 /**
  * Converts the form data to a JSON object that can be sent to the API.
@@ -90,7 +90,7 @@ function addUser(name: string | undefined, selectedOptions: string[], selectedSe
 }
 
 export function EditUsers({ existingUsers, groupOptions, existingGroups }: { existingUsers?: string[], groupOptions: string[], existingGroups?: string[] }) {
-  const locale = useClientLocale();
+  const locale = useContext(LocaleContext);
 
   // The users that have editing access to the item
   const [editUsers, setEditUsers] = useState<string[]>(existingUsers ?? []);
@@ -157,8 +157,8 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
 }
 
 export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPublic }: { existingUsers?: string[], groupOptions: string[], existingGroups?: string[], isPublic?: boolean }) {
-  const locale = useClientLocale();
-  
+  const locale = useContext(LocaleContext);
+
   // The users that have viewing access to the item
   const [viewUsers, setViewUsers] = useState<string[]>(existingUsers ?? []);
 

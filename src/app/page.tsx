@@ -9,7 +9,7 @@ import { RoadmapSortBy } from "@/types";
 import { RoadmapType } from "@prisma/client";
 import { cookies } from "next/headers";
 import { getServerLocale } from "@/functions/serverLocale";
-import dict from "./page.dict.json" assert {type: "json"};
+import dict from "./page.dict.json" with { type: "json" };
 
 export default async function Page({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
   const locale = await getServerLocale();
