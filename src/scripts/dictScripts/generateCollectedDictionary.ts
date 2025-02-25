@@ -1,7 +1,7 @@
 import { glob } from "glob";
 import path from "path";
 import CaseHandler from "./CaseHandler";
-import { getObjectFromJson, saveDictAsJson, collectedDictionaryPath, dictFileEnding } from "./dictHandler";
+import { getObjectFromJson, saveDictAsJson, findSubDict, collectedDictionaryPath, dictFileEnding } from "./dictHandler";
 
 // TODO - implement locale dict type?
 function generateCollectedDictionary() {
@@ -11,16 +11,6 @@ function generateCollectedDictionary() {
     if (!(key in dict)) {
       dict[key] = {};
     }
-  }
-
-  function findSubDict(inDict: { [key: string]: string | object }, keys: string[], i: number): object {
-    let outDict = inDict;
-    for (let j = 0; j < i; j++) {
-      if (typeof outDict[keys[j]] === 'object') {
-        outDict = outDict[keys[j]] as { [key: string]: string | object };
-      }
-    }
-    return outDict
   }
 
   const outDict: { [key: string]: string | object } = {};
