@@ -1,26 +1,26 @@
 import fs from "node:fs";
 import path from "node:path";
 import { Locale } from "@/types.ts";
-const strictLocale = Object.keys(Locale).filter(key => key !== "default");
 /** Matches paths ending in `.dict.json` */
 const dictFileRegex = /\.dict\.json$/;
-console.log(dictFileRegex);
+const strictLocale = [...new Set(Object.values(Locale))]; // Strips duplicates i.e. the default locale
 
-// Help command
-if (process.argv.includes("--help")) {
-  console.info("Validates the structure of locale dictionaries i.e. `.dict.json` files.");
-  console.info("Flags: -f, -d, -v, --verbose, --help");
-  console.info(" -f <file>:      Validate single file.");
-  console.info(" -d <directory>: Validate all files in the directory recursively.");
-  console.info(" -v --verbose:   Verbose");
-  console.info(" --help:         Display this help message.");
+/* Help command. Shows when no flags are given */
+if (process.argv.includes("--help") || process.argv.length === 2) {
+  console.info("Help:");
+  console.info(`Validates the structure of locale dictionaries. Locale files are matched by the regex \x1b[32m${dictFileRegex}\x1b[0m.\n`);
+  console.info("Flags:");
+  console.info(" -f --file <file>:      Validate single file.");
+  console.info(" -d --dir <directory>:  Validate all files in the directory recursively.");
+  console.info(" -v --verbose:          Will list all files even if they have no problems.");
+  console.info(" --help:                Display this help message.");
 
   process.exit(0);
 }
 
 // Other commands
-const fileFlag = process.argv.includes("-f") ? process.argv[process.argv.indexOf("-f") + 1] : null;
-const dirFlag = process.argv.includes("-d") ? process.argv[process.argv.indexOf("-d") + 1] : null;
+const fileFlag = readFlag("-f", process.argv) || readFlag("--file", process.argv);
+const dirFlag = readFlag("-d", process.argv) || readFlag("--dir", process.argv);
 const verbose = process.argv.includes("-v") || process.argv.includes("--verbose");
 
 if (!fileFlag && !dirFlag) {
@@ -44,6 +44,10 @@ if (fileFlag) {
     problems.forEach(problem => console.error(" ❌", problem));
   }
   console.info(""); // Padding
+
+  // Exit appropriately
+  if (problems.length > 0) process.exit(1);
+  process.exit(0);
 }
 
 if (dirFlag) {
@@ -61,12 +65,14 @@ if (dirFlag) {
     }
   });
   console.info(""); // Padding
+
+  // Exit appropriately
+  if (Object.values(fileProblems).length > 0) process.exit(1);
+  process.exit(0);
 };
 
-
-
-
 function validateFile(filePath: string | null): string[] {
+  // Falsy file path
   if (!filePath) {
     console.error("No file specified.");
     process.exit(1);
@@ -81,6 +87,7 @@ function validateFile(filePath: string | null): string[] {
     }
   }
 
+  // File exists
   if (!fs.existsSync(filePath)) {
     console.error("File does not exist.");
     process.exit(1);
@@ -90,6 +97,7 @@ function validateFile(filePath: string | null): string[] {
 
   const fileContent = fs.readFileSync(filePath, "utf8");
 
+  // JSON parse test
   try { JSON.parse(fileContent); } catch (e) {
     problems.push(`File is not a valid JSON, see error:\n\n ${e}`);
     return problems;
@@ -103,6 +111,7 @@ function validateFile(filePath: string | null): string[] {
 }
 
 function validateDirectory(dirPath: string | null): { [file: string]: string[] } {
+  // Falsy dir path
   if (!dirPath) {
     console.error("No directory specified.");
     process.exit(1);
@@ -117,11 +126,13 @@ function validateDirectory(dirPath: string | null): { [file: string]: string[] }
     }
   }
 
+  // Directory exists
   if (!fs.existsSync(dirPath)) {
     console.error("Directory does not exist.");
     process.exit(1);
   }
 
+  // Per file problem tracker
   const fileProblems: { [file: string]: string[] } = {};
 
   // Get all dict files in dir and sub dirs with absolute paths
@@ -139,11 +150,13 @@ function validateDirectory(dirPath: string | null): { [file: string]: string[] }
   }
   walk(dirPath);
 
+  // No dict files found
   if (dictFiles.length === 0) {
-    console.error("No `.dict.json` files found.");
+    console.error(`No \x1b[32m${dictFileRegex}\x1b[0m files found.`);
     process.exit(1);
   }
 
+  // Validate
   dictFiles.forEach(file => {
     const absoluteFilePath = file.path;
     const relativeFilePath = path.relative(process.cwd(), absoluteFilePath);
@@ -163,10 +176,6 @@ function validateDirectory(dirPath: string | null): { [file: string]: string[] }
   return fileProblems;
 }
 
-/** 
- * Validate structure of a locale dictionary `.dict.json` recursively.
- * @param dict JSON object.
-*/
 export function validateDictObject(dict: object | string): string[] {
   const problems: string[] = [];
 
@@ -213,11 +222,17 @@ export function validateDictObject(dict: object | string): string[] {
     problems.push(`Leaf node has the wrong amount of locales.\n Expected:\n  ${strictLocale.length}\n Found:\n  ${keys.length}`);
   }
   // Key locale, check
-  if (keys.some(key => !strictLocale.includes(key))) {
+  if (keys.some(key => !strictLocale.includes(key as Locale))) {
     const expected = `[${strictLocale.join(", ")}]`;
     const found = `[${keys.join(", ")}]`;
     problems.push(`Leaf node has an invalid locale.\n Expected:\n  ${expected}\n Found:\n  ${found}`);
   }
 
   return problems;
-} 
+}
+
+function readFlag(flag: string, argArray: string[]): string | null {
+  const index = argArray.indexOf(flag);
+  if (index === -1) return null;
+  return argArray[index + 1];
+}
