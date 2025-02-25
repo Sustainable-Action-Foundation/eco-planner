@@ -9,7 +9,7 @@ import { percentAndFraction } from "../graphSelector/graphSelector.tsx";
 import GoalChildGraph from "./goalChildGraph";
 import PredictionChildGraph from "./predictionChildGraph.tsx";
 import dict from "./childGraphContainer.dict.json" assert { type: "json" };
-import { useClientLocale, validateDict } from "@/functions/clientLocale.ts";
+import { useClientLocale } from "@/functions/clientLocale.ts";
 
 export enum ChildGraphType {
   Target = "TARGET",
@@ -25,7 +25,6 @@ export default function ChildGraphContainer({
   childGoals: (Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null, effects: (Effect & { dataSeries: DataSeries | null })[], roadmapName?: string })[],
   children?: React.ReactNode,
 }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   const [childGraphType, setChildGraphType] = useState<ChildGraphType>(ChildGraphType.Target);

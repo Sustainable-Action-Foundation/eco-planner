@@ -3,7 +3,7 @@ import { ChildGraphType } from "../childGraphs/childGraphContainer";
 import { ChangeEvent, Dispatch, SetStateAction } from "react";
 import { setStoredChildGraphType } from "../functions/graphFunctions";
 import dict from "./childGraphSelector.dict.json" assert { type: "json" };
-import { useClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale } from "@/functions/clientLocale";
 
 export default function ChildGraphSelector({
   goal,
@@ -14,7 +14,6 @@ export default function ChildGraphSelector({
   currentSelection: ChildGraphType,
   setter: Dispatch<SetStateAction<ChildGraphType>>
 }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {

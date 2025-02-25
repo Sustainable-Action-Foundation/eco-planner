@@ -1,7 +1,7 @@
 'use client';
 
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
-import { useClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale } from "@/functions/clientLocale";
 import formSubmitter from "@/functions/formSubmitter";
 import filterTableContentKeys from "@/lib/pxWeb/filterTableContentKeys";
 import { getTableContent } from "@/lib/pxWeb/getTableContent";
@@ -21,7 +21,6 @@ export default function QueryBuilder({
 }: {
   goal: Goal,
 }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   const [isLoading, setIsLoading] = useState(false);

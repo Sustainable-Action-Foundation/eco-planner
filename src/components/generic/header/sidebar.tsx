@@ -6,13 +6,12 @@ import Image from 'next/image'
 import Link from 'next/link'
 import styles from './header.module.css' with { type: "css" }
 import dict from "./sidebar.dict.json" assert {type: "json"};
-import { getServerLocale, validateDict } from '@/functions/serverLocale'
+import { getServerLocale } from '@/functions/serverLocale'
 
 export default async function Sidebar() {
   const [{ user }, locale, _] = await Promise.all([
     getSession(cookies()),
     getServerLocale(),
-    validateDict(dict),
   ])
 
   return <>

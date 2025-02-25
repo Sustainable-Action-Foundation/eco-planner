@@ -4,12 +4,9 @@ import { ActionImpactType, type DataSeries, type Effect } from "@prisma/client";
 import { dataSeriesDataFieldNames, DataSeriesDataFields, Locale } from "@/types";
 import { ChildGraphType } from "../childGraphs/childGraphContainer";
 import dict from "./graphFunctions.dict.json" assert { type: "json" };
-import { validateDict } from "@/functions/clientLocale";
 
 /** Retrieves the graph type for a goal from storage. */
 export function getStoredGraphType(locale: Locale, goalId?: string) {
-  validateDict(dict);
-
   let graphType: GraphType | undefined | null;
   // Check if this goal has a stored graph type
   if (goalId) {
@@ -33,8 +30,6 @@ export function getStoredGraphType(locale: Locale, goalId?: string) {
 
 /** Retrieves the graph type for gcild graphs for a goal from storage. */
 export function getStoredChildGraphType(locale: Locale, goalId?: string) {
-  validateDict(dict);
-
   let graphType: ChildGraphType | undefined | null;
   // Check if this goal has a stored graph type
   if (goalId) {

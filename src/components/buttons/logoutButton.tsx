@@ -2,10 +2,10 @@
 
 import Image from "next/image";
 import dict from "./logoutButton.dict.json" assert { type: "json" };
-import { useClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale } from "@/functions/clientLocale";
 
 export default function LogoutButton() {
-  validateDict(dict); // Throws error if data is missing
+  // Throws error if data is missing
   const locale = useClientLocale();
 
   return (

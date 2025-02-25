@@ -1,6 +1,6 @@
 import { TableMenu } from "@/components/tables/tableMenu/tableMenu.tsx";
 import styles from "@/components/tables/tables.module.css" with { type: "css" };
-import { getServerLocale, validateDict } from "@/functions/serverLocale";
+import { getServerLocale } from "@/functions/serverLocale";
 import accessChecker from "@/lib/accessChecker.ts";
 import { LoginData } from "@/lib/session.ts";
 import { AccessControlled } from "@/types.ts";
@@ -25,7 +25,6 @@ export default async function RoadmapTree({
   roadmaps: RoadmapTreeProps['roadmaps'],
   user: RoadmapTreeProps['user'],
 }) {
-  await validateDict(dict);
   const locale = await getServerLocale();
 
   if (!roadmaps.length) {

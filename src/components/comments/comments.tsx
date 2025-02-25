@@ -5,11 +5,10 @@ import timeSince from "@/functions/timeSince";
 import { Comment } from "@prisma/client";
 import styles from './comments.module.css'
 import { ChangeEvent, useRef, useState } from "react";
-import { useClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale } from "@/functions/clientLocale";
 import dict from "./comments.dict.json" assert { type: "json" };
 
 export default function Comments({ comments, objectId }: { comments?: (Comment & { author: { id: string, username: string } })[], objectId: string }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {

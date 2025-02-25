@@ -7,11 +7,10 @@ import { notFound } from "next/navigation";
 import RoadmapTable from "@/components/tables/roadmapTables/roadmapTable";
 import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { getServerLocale, validateDict } from "@/functions/serverLocale";
+import { getServerLocale } from "@/functions/serverLocale";
 import dict from "./page.dict.json" assert { type: "json" };
 
 export default async function Page({ params }: { params: { metaRoadmapId: string } }) {
-  await validateDict(dict);
   const locale = await getServerLocale();
 
   const [session, metaRoadmap] = await Promise.all([

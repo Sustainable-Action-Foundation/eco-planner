@@ -2,7 +2,7 @@ import WrappedChart, { floatSmoother } from "@/lib/chartWrapper.tsx";
 import { dataSeriesDataFieldNames } from "@/types.ts";
 import { DataSeries, Goal } from "@prisma/client";
 import dict from "./goalChildGraph.dict.json" assert { type: "json" };
-import { useClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale } from "@/functions/clientLocale";
 
 /**
  * A graph showing how all goals with the same unit and indicator parameter in roadmaps working towards the active goal's roadmap version stack up against it.
@@ -16,7 +16,6 @@ export default function GoalChildGraph({
   childGoals: (Goal & { dataSeries: DataSeries | null, roadmapName?: string })[],
   isStacked: boolean,
 }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   // Early returns if there is no relevant data to compare

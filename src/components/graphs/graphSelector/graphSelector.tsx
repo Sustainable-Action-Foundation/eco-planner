@@ -3,7 +3,7 @@ import { DataSeries, Goal } from "@prisma/client";
 import { GraphType } from "../graphGraph";
 import { setStoredGraphType } from '../functions/graphFunctions';
 import dict from "./graphSelector.dict.json" assert { type: "json" };
-import { useClientLocale, validateDict } from '@/functions/clientLocale';
+import { useClientLocale } from '@/functions/clientLocale';
 
 export const percentAndFraction = ['procent', 'percent', '%', 'andel', 'fraction'];
 
@@ -16,7 +16,6 @@ export default function GraphSelector({
   currentSelection: GraphType | "",
   setter: Dispatch<SetStateAction<GraphType | "">>
 }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {

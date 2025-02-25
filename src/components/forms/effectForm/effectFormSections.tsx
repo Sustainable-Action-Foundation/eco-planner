@@ -6,10 +6,9 @@ import type getOneAction from "@/fetchers/getOneAction.ts";
 import type getOneGoal from "@/fetchers/getOneGoal";
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import dict from "./effectFormSections.dict.json" assert { type: "json" };
-import { useClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale } from "@/functions/clientLocale";
 
 
-// TODO - put both sections into parent function to avoid duplicate of "validateDict" and "useClientLocale"
 export function ActionSelector({
   action,
   roadmapAlternatives,
@@ -17,7 +16,6 @@ export function ActionSelector({
   action: Awaited<ReturnType<typeof getOneAction>> | null,
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
 }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   const [selectedAction, setSelectedAction] = useState<string>(action?.id || "");
@@ -78,7 +76,6 @@ export function GoalSelector({
   goal: Awaited<ReturnType<typeof getOneGoal>> | null,
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
 }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   const [selectedGoal, setSelectedGoal] = useState<string>(goal?.id || "");

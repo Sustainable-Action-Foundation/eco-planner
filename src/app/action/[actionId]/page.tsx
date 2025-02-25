@@ -10,11 +10,10 @@ import { Fragment } from "react";
 import Comments from "@/components/comments/comments";
 import EffectTable from "@/components/tables/effects.tsx";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { getServerLocale, validateDict } from "@/functions/serverLocale";
+import { getServerLocale } from "@/functions/serverLocale";
 import dict from "./page.dict.json" assert {type: "json"};
 
 export default async function Page({ params }: { params: { actionId: string } }) {
-  await validateDict(dict);
   const locale = await getServerLocale();
 
   const [session, action] = await Promise.all([

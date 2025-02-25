@@ -8,7 +8,7 @@ import { Action, DataSeries, Effect, Goal, MetaRoadmap } from "@prisma/client";
 import { AccessLevel } from "@/types";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
-import { useClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale } from "@/functions/clientLocale";
 import dict from "./tableMenu.dict.json" assert { type: "json" };
 
 // General purpose button for roadmaps, goals and actions. 
@@ -71,7 +71,6 @@ export function TableMenu(
       })
     )
   }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   const menu = useRef<HTMLDialogElement | null>(null);

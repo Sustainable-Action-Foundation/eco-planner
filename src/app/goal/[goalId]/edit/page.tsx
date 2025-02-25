@@ -7,11 +7,10 @@ import getOneGoal from "@/fetchers/getOneGoal";
 import { AccessControlled, AccessLevel } from "@/types";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { getServerLocale, validateDict } from "@/functions/serverLocale";
+import { getServerLocale } from "@/functions/serverLocale";
 import dict from "./page.dict.json" assert { type: "json" };
 
 export default async function Page({ params }: { params: { goalId: string } }) {
-  await validateDict(dict);
   const locale = await getServerLocale();
 
   const [session, currentGoal, roadmaps] = await Promise.all([

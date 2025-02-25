@@ -5,10 +5,9 @@ import { useRef } from "react";
 import ConfirmDelete from "../modals/confirmDelete";
 import { openModal } from "../modals/modalFunctions";
 import dict from "./metaRoadmapDeleter.dict.json" assert { type: "json" };
-import { useClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale } from "@/functions/clientLocale";
 
 export default function MetaRoadmapDeleter({ metaRoadmap }: { metaRoadmap: NonNullable<Awaited<ReturnType<typeof getOneMetaRoadmap>>> }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   const deletionRef = useRef<HTMLDialogElement | null>(null);

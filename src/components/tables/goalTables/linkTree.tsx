@@ -4,7 +4,7 @@ import Image from 'next/image';
 import goalsToTree, { GoalTree } from '@/functions/goalsToTree';
 import { SyntheticEvent } from 'react';
 import { getSessionStorage, setSessionStorage } from '@/functions/localStorage';
-import { useClientLocale, validateDict } from '@/functions/clientLocale';
+import { useClientLocale } from '@/functions/clientLocale';
 import dict from './linkTree.dict.json' assert { type: "json" };
 
 // interface LinkTreeCommonProps {}
@@ -36,7 +36,6 @@ export default function LinkTree({
   goals,
   roadmap,
 }: LinkTreeProps) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   // Failsafe in case wrong props are passed

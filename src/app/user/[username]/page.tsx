@@ -1,10 +1,9 @@
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
-import { getServerLocale, validateDict } from "@/functions/serverLocale";
+import { getServerLocale } from "@/functions/serverLocale";
 import dict from "./page.dict.json" assert { type: "json" };
 
 export default async function Page() {
-  await validateDict(dict);
   const locale = await getServerLocale();
 
   const session = await getSession(cookies())

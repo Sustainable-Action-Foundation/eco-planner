@@ -12,14 +12,3 @@ export async function getServerLocale() {
   // Get the locale cookie or use the default locale
   return headers().get("locale") as Locale;
 }
-
-/** 
- * Throw error if JSON object is empty, indicating missing locale data.
- * @param dict JSON object.
-*/
-// This code has a duplicate in ./clientLocale.ts
-export async function validateDict(dict: object) {
-  if (Object.keys(dict).length === 0) {
-    throw new Error("Locale dict is missing data.");
-  }
-}

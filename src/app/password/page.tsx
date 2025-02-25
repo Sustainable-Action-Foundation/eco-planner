@@ -3,7 +3,7 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import formSubmitter from "@/functions/formSubmitter";
 import Image from "next/image";
-import { useClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale } from "@/functions/clientLocale";
 import dict from "./page.dict.json" assert { type: "json" };
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
@@ -17,7 +17,6 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
 }
 
 export default function Page() {
-  validateDict(dict);
   const locale = useClientLocale();
 
   return (

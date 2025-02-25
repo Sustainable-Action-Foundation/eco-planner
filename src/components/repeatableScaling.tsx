@@ -6,7 +6,7 @@ import areaCodes from "@/lib/areaCodes.json" with { type: "json" };
 import scbPopulationQuery from "@/lib/scbPopulationQuery";
 import scbAreaQuery from "@/lib/scbAreaQuery";
 import { areaSorter } from "@/lib/sorters";
-import { validateDict, useClientLocale } from "@/functions/clientLocale";
+import {  useClientLocale } from "@/functions/clientLocale";
 import dict from "./repeatableScaling.dict.json" assert { type: "json" };
 
 /** Get values from SCB */
@@ -49,7 +49,6 @@ export default function RepeatableScaling({
   defaultSpecificValue?: number,
   useWeight?: boolean
 }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   const [scaleBy, setScaleBy] = useState<ScaleBy | "">(defaultScaleBy ?? "");

@@ -8,11 +8,10 @@ import { roadmapSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/s
 import { RoadmapSortBy } from "@/types";
 import { RoadmapType } from "@prisma/client";
 import { cookies } from "next/headers";
-import { getServerLocale, validateDict } from "@/functions/serverLocale";
+import { getServerLocale } from "@/functions/serverLocale";
 import dict from "./page.dict.json" assert {type: "json"};
 
 export default async function Page({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
-  await validateDict(dict);
   const locale = await getServerLocale();
 
   const [session, metaRoadmaps] = await Promise.all([

@@ -9,11 +9,10 @@ import { AccessLevel } from "@/types";
 import { cookies } from "next/headers";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getServerLocale, validateDict } from "@/functions/serverLocale";
+import { getServerLocale } from "@/functions/serverLocale";
 import dict from "./page.dict.json";
 
 export default async function Page({ params }: { params: { roadmapId: string } }) {
-  await validateDict(dict);
   const locale = await getServerLocale();
 
   const [session, roadmap] = await Promise.all([

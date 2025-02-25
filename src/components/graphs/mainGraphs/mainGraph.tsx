@@ -1,5 +1,5 @@
 import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
-import { useClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale } from "@/functions/clientLocale";
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
 import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import { parsePeriod } from "@/lib/pxWeb/utility";
@@ -20,7 +20,6 @@ export default function MainGraph({
   historicalData?: PxWebApiV2TableContent | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
 }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   if (!goal.dataSeries) {

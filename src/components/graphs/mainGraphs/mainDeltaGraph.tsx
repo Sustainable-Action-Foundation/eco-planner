@@ -3,7 +3,7 @@ import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
 import { Goal, DataSeries, Effect } from "@prisma/client";
 import dict from "./mainDeltaGraph.dict.json" assert { type: "json" };
-import { useClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale } from "@/functions/clientLocale";
 
 export default function MainDeltaGraph({
   goal,
@@ -16,7 +16,6 @@ export default function MainDeltaGraph({
   nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
 }) {
-  validateDict(dict);
   const locale = useClientLocale();
   
   if (!goal.dataSeries) {

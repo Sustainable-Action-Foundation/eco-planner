@@ -3,14 +3,13 @@ import { actionGraphSorter } from "@/lib/sorters";
 import { Action } from "@prisma/client";
 import styles from './graphs.module.css'
 import dict from "./actionGraph.dict.json" assert { type: "json" };
-import { useClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale } from "@/functions/clientLocale";
 
 export default function ActionGraph({
   actions,
 }: {
   actions: Action[],
 }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   const series: ApexAxisChartSeries = [];

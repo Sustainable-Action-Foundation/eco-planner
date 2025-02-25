@@ -6,7 +6,7 @@ import { MetaRoadmap, Roadmap } from "@prisma/client";
 import { TableMenu } from '@/components/tables/tableMenu/tableMenu';
 import { AccessControlled } from '@/types';
 import accessChecker from '@/lib/accessChecker';
-import { getServerLocale, validateDict } from '@/functions/serverLocale';
+import { getServerLocale } from '@/functions/serverLocale';
 import dict from './roadmapTable.dict.json' assert { type: "json" };
 
 interface RoadmapTableCommonProps {
@@ -30,7 +30,6 @@ export default async function RoadmapTable({
   roadmaps,
   metaRoadmap,
 }: RoadmapTableProps) {
-  await validateDict(dict);
   const locale = await getServerLocale();
 
   // Failsafe in case wrong props are passed

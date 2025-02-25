@@ -8,7 +8,7 @@ import RepeatableScaling from "../repeatableScaling";
 import { GoalInput, dataSeriesDataFieldNames, ScaleBy, ScaleMethod, ScalingRecipie, Locale } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import dict from "./copyAndScale.dict.json" assert { type: "json" };
-import { useClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale } from "@/functions/clientLocale";
 
 /** Get the resulting scaling factor from form data */
 export function getScalingResult(locale: Locale, form: FormData, scalingMethod: ScaleMethod, setIsLoading?: React.Dispatch<React.SetStateAction<boolean>>) {
@@ -201,7 +201,6 @@ export default function CopyAndScale({
   goal: Goal & { dataSeries: DataSeries | null },
   roadmapOptions: { id: string, name: string, version: number, actor: string | null }[],
 }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   const [isLoading, setIsLoading] = useState(false);

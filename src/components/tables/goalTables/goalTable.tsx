@@ -2,7 +2,7 @@ import { goalSorter, goalSorterActionAmount, goalSorterActionAmountReverse, goal
 import { GoalSortBy } from '../goals';
 import styles from '../tables.module.css' with { type: "css" };
 import { DataSeries, Goal } from "@prisma/client";
-import { useClientLocale, validateDict } from '@/functions/clientLocale';
+import { useClientLocale } from '@/functions/clientLocale';
 import dict from './goalTable.dict.json' assert { type: "json" };
 
 interface GoalTableCommonProps {
@@ -37,7 +37,6 @@ export default function GoalTable({
   roadmap,
   sortBy,
 }: GoalTableProps) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   // Failsafe in case wrong props are passed

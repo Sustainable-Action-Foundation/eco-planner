@@ -5,7 +5,7 @@ import styles from './forms.module.css'
 import Image from 'next/image'
 import React from 'react'
 import dict from './formWrapper.dict.json' assert { type: "json" }
-import { useClientLocale, validateDict } from '@/functions/clientLocale'
+import { useClientLocale } from '@/functions/clientLocale'
 
 
 export default function FormWrapper({
@@ -13,7 +13,6 @@ export default function FormWrapper({
 }: {
   children: React.ReactNode,
 }) {
-  validateDict(dict)
   const locale = useClientLocale()
 
   function iterateIndicators(currentTransformIndex: number) {

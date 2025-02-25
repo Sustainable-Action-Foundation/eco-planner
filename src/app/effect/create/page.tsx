@@ -8,7 +8,7 @@ import { getSession } from "@/lib/session.ts";
 import { AccessLevel } from "@/types.ts";
 import { cookies } from "next/headers";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { getServerLocale, validateDict } from "@/functions/serverLocale";
+import { getServerLocale } from "@/functions/serverLocale";
 import dict from "./page.dict.json" assert { type: "json" };
 
 export default async function Page({
@@ -20,7 +20,6 @@ export default async function Page({
     [key: string]: string | string[] | undefined
   },
 }) {
-  await validateDict(dict);
   const locale = await getServerLocale();
 
   const [session, action, goal, roadmaps] = await Promise.all([

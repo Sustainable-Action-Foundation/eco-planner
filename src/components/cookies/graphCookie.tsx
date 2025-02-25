@@ -3,10 +3,9 @@
 import { storageConsent, allowStorage, clearStorage } from "@/functions/localStorage";
 import { useEffect, useState } from "react";
 import dict from "./graphCookie.dict.json" assert { type: "json" };
-import { useClientLocale, validateDict } from "@/functions/clientLocale"
+import { useClientLocale } from "@/functions/clientLocale"
 
 export default function GraphCookie() {
-  validateDict(dict);
   const locale = useClientLocale();
 
   const [storageAllowed, setStorageAllowed] = useState(false)

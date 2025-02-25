@@ -9,7 +9,7 @@ import type getOneAction from "@/fetchers/getOneAction.ts";
 import type getOneGoal from "@/fetchers/getOneGoal.ts";
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import dict from "./effectForm.dict.json" assert { type: "json" };
-import { useClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale } from "@/functions/clientLocale";
 
 export default function EffectForm({
   action,
@@ -26,7 +26,6 @@ export default function EffectForm({
     goal: Awaited<ReturnType<typeof getOneGoal>> | null,
   },
 }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {

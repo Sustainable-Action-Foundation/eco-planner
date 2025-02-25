@@ -8,7 +8,7 @@ import Image from "next/image";
 import { AccessLevel } from '@/types';
 import accessChecker from '@/lib/accessChecker';
 import getOneMetaRoadmap from '@/fetchers/getOneMetaRoadmap';
-import { getServerLocale, validateDict } from "@/functions/serverLocale";
+import { getServerLocale } from "@/functions/serverLocale";
 import dict from "./page.dict.json" assert { type: "json" };
 
 export default async function Page({
@@ -19,7 +19,6 @@ export default async function Page({
     [key: string]: string | string[] | undefined
   }
 }) {
-  await validateDict(dict);
   const locale = await getServerLocale();
 
   const [session, parent, metaRoadmapAlternatives] = await Promise.all([

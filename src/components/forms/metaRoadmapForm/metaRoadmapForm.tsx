@@ -2,7 +2,7 @@
 
 import { EditUsers, ViewUsers, getAccessData } from "@/components/forms/accessSelector/accessSelector";
 import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput";
-import { useClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale } from "@/functions/clientLocale";
 import formSubmitter from "@/functions/formSubmitter";
 import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" with { type: "json" };
 import { LoginData } from "@/lib/session";
@@ -23,7 +23,6 @@ export default function MetaRoadmapForm({
   parentRoadmapOptions?: MetaRoadmap[],
   currentRoadmap?: MetaRoadmap & AccessControlled,
 }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {

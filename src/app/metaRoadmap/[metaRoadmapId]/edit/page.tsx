@@ -7,11 +7,10 @@ import getOneMetaRoadmap from '@/fetchers/getOneMetaRoadmap';
 import accessChecker from '@/lib/accessChecker';
 import { AccessLevel } from '@/types';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
-import { getServerLocale, validateDict } from "@/functions/serverLocale";
+import { getServerLocale } from "@/functions/serverLocale";
 import dict from "./page.dict.json" assert { type: "json" };
 
 export default async function Page({ params }: { params: { metaRoadmapId: string } }) {
-  await validateDict(dict);
   const locale = await getServerLocale();
   
   const [session, currentRoadmap, parentRoadmapOptions] = await Promise.all([

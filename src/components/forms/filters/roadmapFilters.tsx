@@ -1,6 +1,5 @@
 'use client';
 
-import { validateDict } from "@/functions/clientLocale";
 import { RoadmapSortBy } from "@/types";
 import { RoadmapType } from "@prisma/client";
 import Image from "next/image";
@@ -11,7 +10,6 @@ import dict from "./roadmapFilters.dict.json";
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 export default function RoadmapFilters() {
-  validateDict(dict);
   const locale = useContext(LocaleContext);
 
   const router = useRouter();

@@ -2,9 +2,7 @@ import styles from './breadcrumbs.module.css' with { type: "css" };
 import Link from 'next/link';
 import Image from "next/image";
 import dict from "./breadcrumbSections.dict.json" assert { type: "json" };
-import { getServerLocale, validateDict } from '@/functions/serverLocale';
-
-// TODO - where does "validateDict" have to be called?
+import { getServerLocale } from '@/functions/serverLocale';
 
 export function BreadcrumbChevron() {
   return (
@@ -13,7 +11,6 @@ export function BreadcrumbChevron() {
 }
 
 export async function BaseSection() {
-  await validateDict(dict);
   const locale = await getServerLocale();
   return (
     <span className='display-flex align-items-center gap-25'>
@@ -58,7 +55,6 @@ export async function MetaRoadmapSection({
     name: string,
   }
 }) {
-  await validateDict(dict);
   const locale = await getServerLocale();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
@@ -78,7 +74,6 @@ export async function RoadmapSection({
     version: number,
   }
 }) {
-  await validateDict(dict);
   const locale = await getServerLocale();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
@@ -99,7 +94,6 @@ export async function GoalSection({
     indicatorParameter: string,
   }
 }) {
-  await validateDict(dict);
   const locale = await getServerLocale();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
@@ -119,7 +113,6 @@ export async function ActionSection({
     name: string,
   }
 }) {
-  await validateDict(dict);
   const locale = await getServerLocale();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>

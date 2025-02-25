@@ -3,7 +3,7 @@ import { dataSeriesDataFieldNames } from "@/types.ts";
 import { DataSeries, Effect, Goal } from "@prisma/client";
 import { calculatePredictedOutcome, firstNonNullValue } from "../functions/graphFunctions.ts";
 import dict from "./predictionChildGraph.dict.json" assert { type: "json" };
-import { useClientLocale, validateDict } from "@/functions/clientLocale.ts";
+import { useClientLocale } from "@/functions/clientLocale.ts";
 
 export default function PredictionChildGraph({
   goal,
@@ -14,7 +14,6 @@ export default function PredictionChildGraph({
   childGoals: (Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null, effects: (Effect & { dataSeries: DataSeries | null })[], roadmapName?: string })[],
   isStacked: boolean,
 }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   // Early returns if there is no relevant data to compare

@@ -2,7 +2,7 @@ import Sidebar from '@/components/generic/header/sidebar'
 import { baseUrl } from '@/lib/baseUrl.ts'
 import '@/styles/global.css'
 import styles from './page.module.css' with { type: "css" }
-import { getServerLocale, validateDict } from '@/functions/serverLocale'
+import { getServerLocale } from '@/functions/serverLocale'
 import dict from './layout.dict.json';
 import LocaleProvider from './context/localeContext.tsx'
 
@@ -11,7 +11,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode,
 }) {
-  await validateDict(dict);
   const locale = await getServerLocale();
 
   return (

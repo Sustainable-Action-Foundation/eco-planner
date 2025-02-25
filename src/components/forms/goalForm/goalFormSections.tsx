@@ -4,7 +4,7 @@ import { clientSafeGetOneGoal } from "@/fetchers/getOneGoal";
 import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
 import type getRoadmaps from "@/fetchers/getRoadmaps";
 import { clientSafeGetRoadmaps } from "@/fetchers/getRoadmaps";
-import { useClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale } from "@/functions/clientLocale";
 import mathjs from "@/math";
 import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
@@ -31,7 +31,6 @@ export function ManualGoalForm({
   },
   dataSeriesString?: string,
 }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   const [parsedUnit, setParsedUnit] = useState<string | null>(null);
@@ -112,7 +111,6 @@ export function InheritedGoalForm({
   },
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
 }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   const [selectedRoadmap, setSelectedRoadmap] = useState(currentGoal?.combinationParents[0]?.parentGoal.roadmapId);
@@ -222,7 +220,6 @@ export function CombinedGoalForm({
     roadmap: { id: string },
   },
 }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   const [currentRoadmap, setCurrentRoadmap] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
@@ -306,7 +303,6 @@ export function CombinedGoalForm({
 }
 
 export function InheritingBaseline() {
-  validateDict(dict);
   const locale = useClientLocale();
 
   const [roadmapList, setRoadmapList] = useState<Awaited<ReturnType<typeof clientSafeGetRoadmaps>>>([]);

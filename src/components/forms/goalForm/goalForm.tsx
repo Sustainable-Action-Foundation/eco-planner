@@ -4,7 +4,7 @@ import /* LinkInput, */ LinkInput, { getLinks } from "@/components/forms/linkInp
 import { getScalingResult } from "@/components/modals/copyAndScale";
 import RepeatableScaling from "@/components/repeatableScaling";
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
-import { useClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale } from "@/functions/clientLocale";
 import formSubmitter from "@/functions/formSubmitter";
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 import mathjs from "@/math";
@@ -66,7 +66,6 @@ export default function GoalForm({
     roadmap: { id: string },
   },
 }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(!currentGoal?.combinationParents.length ? DataSeriesType.Static : currentGoal.combinationParents.length >= 2 ? DataSeriesType.Combined : DataSeriesType.Inherited)

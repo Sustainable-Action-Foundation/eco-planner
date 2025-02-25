@@ -12,7 +12,7 @@ import GoalTable from "./goalTables/goalTable"
 import LinkTree from './goalTables/linkTree'
 import styles from './tables.module.css'
 import TableSelector from './tableSelector/tableSelector'
-import { useClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale } from "@/functions/clientLocale";
 import dict from "./goals.dict.json" assert { type: "json" };
 
 /** Enum for the different view modes for the goal table. */
@@ -38,7 +38,6 @@ export default function Goals({
   roadmap: NonNullable<Awaited<ReturnType<typeof getOneRoadmap>>>,
   accessLevel?: AccessLevel
 }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   const [viewMode, setViewMode] = useState<ViewMode | ''>('');

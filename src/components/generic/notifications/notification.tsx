@@ -2,10 +2,9 @@ import styles from './notification.module.css'
 import Link from "next/link"
 import Image from "next/image"
 import dict from "./notification.dict.json" assert { type: "json" };
-import { useClientLocale, validateDict } from '@/functions/clientLocale';
+import { useClientLocale } from '@/functions/clientLocale';
 
 export default function Notifications({ amount }: { amount: number }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   return (

@@ -2,11 +2,10 @@ import Login from "@/components/forms/userInfo/login";
 import styles from "./page.module.css" with { type: "css" };
 import AttributedImage from "@/components/generic/images/attributedImage";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { getServerLocale, validateDict } from "@/functions/serverLocale";
+import { getServerLocale } from "@/functions/serverLocale";
 import dict from "./page.dict.json" assert { type: "json" };
 
 export default async function Page() {
-  await validateDict(dict);
   const locale = await getServerLocale();
 
   return (

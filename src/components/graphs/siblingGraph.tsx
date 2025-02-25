@@ -8,7 +8,7 @@ import { useState } from "react";
 import styles from './graphs.module.css'
 import Image from "next/image";
 import dict from "./siblingGraph.dict.json" assert { type: "json" };
-import { useClientLocale, validateDict } from "@/functions/clientLocale";
+import { useClientLocale } from "@/functions/clientLocale";
 
 /**
  * A graph that shows how a goal stacks up against its siblings (other goals in the same roadmap version with similar indicator parameters and same unit).
@@ -22,7 +22,6 @@ export default function SiblingGraph({
   },
   goal: Goal & { dataSeries: DataSeries | null },
 }) {
-  validateDict(dict);
   const locale = useClientLocale();
 
   const siblings = findSiblings(roadmap, goal);
