@@ -1,6 +1,6 @@
 import { glob } from "glob";
 import path from "path";
-import CaseHandler from "./CaseHandler";
+import CaseHandler from "./caseHandler";
 import { getObjectFromJson, saveDictAsJson, findSubDict, collectedDictionaryPath, dictFileEnding } from "./dictHandler";
 
 // TODO - implement locale dict type?
