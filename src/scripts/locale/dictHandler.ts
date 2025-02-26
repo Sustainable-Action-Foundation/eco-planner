@@ -39,7 +39,8 @@ export function getObjectFromJson(filePath: string): { [key: string]: string | o
 }
 
 export function saveDictAsJson(dict: object, filePath: string): void {
-  fs.writeFileSync(filePath, JSON.stringify(dict, null, 2), { encoding: "utf8" });
+  // Stringify and replace all line breaking characters with \n
+  fs.writeFileSync(filePath, JSON.stringify(dict, null, 2).replace(/\n/g, "\u000d\u000a"), { encoding: "utf8" });
 }
 
 export function findSubDict(inDict: { [key: string]: string | object }, keys: string[], depth: number): { [key: string]: string | object } {
