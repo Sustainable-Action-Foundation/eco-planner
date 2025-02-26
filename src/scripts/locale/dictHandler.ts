@@ -39,7 +39,7 @@ export function getObjectFromJson(filePath: string): { [key: string]: string | o
 }
 
 export function saveDictAsJson(dict: object, filePath: string): void {
-  // Stringify and replace all line breaking characters with \n
+  // Stringify and replace all line breaking characters with \n to make sure the files are using CRLF
   fs.writeFileSync(filePath, JSON.stringify(dict, null, 2).replace(/\n/g, "\u000d\u000a"), { encoding: "utf8" });
 }
 
