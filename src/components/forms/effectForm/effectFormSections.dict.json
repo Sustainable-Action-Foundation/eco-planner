@@ -3,7 +3,7 @@
     "selectRoadmapVersion": {
       "title": {
         "en": "Select roadmap version that the action belongs to",
-        "sv":  "Välj färdplansversion som åtgärden hör till"
+        "sv": "Välj färdplansversion som åtgärden hör till"
       },
       "selectRoadmapVersion": {
         "en": "Select roadmap version",
