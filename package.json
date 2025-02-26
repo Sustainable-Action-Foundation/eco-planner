@@ -9,7 +9,8 @@
     "e2e:chrome": "cypress run --browser chrome --headless",
     "test": "docker compose -f compose.test.yaml up -d",
     "generateCollectedDictionary": "tsx ./src/scripts/dictScripts/generateCollectedDictionary.ts",
-    "unpackCollectedDictionary": "tsx ./src/scripts/dictScripts/unpackCollectedDictionary.ts"
+    "unpackCollectedDictionary": "tsx ./src/scripts/dictScripts/unpackCollectedDictionary.ts",
+    "formatDicts": "tsx ./src/scripts/dictScripts/formatDicts.ts"
   },
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.6.0",

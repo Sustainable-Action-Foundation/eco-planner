@@ -2,7 +2,7 @@ import path from 'path';
 import CaseHandler from '../caseHandler';
 import { collectedDictionaryPath, dictFileEnding, findSubDict, getObjectFromJson, saveDictAsJson } from './dictHandler';
 
-function unpackCollectedDictionary(): void {
+export function unpackCollectedDictionary(): void {
   console.log("Unpacking collected dictionary...");
 
   const collectedDictionary: { [key: string]: string | object } = getObjectFromJson(collectedDictionaryPath);

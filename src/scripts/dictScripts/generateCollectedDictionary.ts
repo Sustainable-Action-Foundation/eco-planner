@@ -4,7 +4,7 @@ import CaseHandler from "../caseHandler";
 import { collectedDictionaryPath, dictFileEnding, findSubDict, getObjectFromJson, saveDictAsJson } from "./dictHandler";
 
 // TODO - implement locale dict type?
-function generateCollectedDictionary(): void {
+export function generateCollectedDictionary(): void {
   console.log("Generating collected dictionary...");
 
   function createKey(dict: { [key: string]: string | object }, key: string): void {

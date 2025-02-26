@@ -20,5 +20,9 @@ export function findSubDict(inDict: { [key: string]: string | object }, keys: st
   return outDict
 }
 
+export function deleteCollectedDictionary(): void {
+  fs.unlinkSync(collectedDictionaryPath);
+}
+
 export const collectedDictionaryPath: string = path.join('src', 'collectedDictionary.json');
 export const dictFileEnding: string = '.dict.json';
