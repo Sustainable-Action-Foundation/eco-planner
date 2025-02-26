@@ -4,7 +4,7 @@ import CaseHandler from "./caseHandler";
 import { getObjectFromJson, saveDictAsJson, findSubDict, collectedDictionaryPath, dictFileEnding } from "./dictHandler";
 
 // TODO - implement locale dict type?
-function generateCollectedDictionary() {
+function generateCollectedDictionary(): void {
   console.log("Generating collected dictionary...");
 
   function createKey(dict: { [key: string]: string | object }, key: string): void {
@@ -15,20 +15,18 @@ function generateCollectedDictionary() {
 
   const outDict: { [key: string]: string | object } = {};
 
-  const filePaths = glob.sync("src/**/*"+dictFileEnding);
-
+  const filePaths: string[] = glob.sync("src/**/*"+dictFileEnding);
 
   for (const filePath of filePaths) {
-    const relativePath = path.relative('src', filePath);
-    const pathParts = relativePath.split(path.sep);
+    const relativePath: string = path.relative('src', filePath);
+    const pathParts: string[] = relativePath.split(path.sep);
 
     for (let i = 0; i < pathParts.length; i++) {
-
       if (pathParts[i].endsWith(dictFileEnding)) {
         // This line decides what the key for the dict file will look like
         pathParts[i] = CaseHandler.camelToMacro(pathParts[i].split(dictFileEnding)[0]);
 
-        const subDict = findSubDict(outDict, pathParts, i) as { [key: string]: string | object };
+        const subDict: { [key: string]: string | object } = findSubDict(outDict, pathParts, i);
         createKey(subDict, pathParts[i]);
         subDict[pathParts[i]] = getObjectFromJson(filePath);
       }
@@ -36,7 +34,7 @@ function generateCollectedDictionary() {
         // This line decides what the key for the folder will look like
         pathParts[i] = CaseHandler.camelToPascalSnake(pathParts[i]);
 
-        const subDict = findSubDict(outDict, pathParts, i) as { [key: string]: string | object };
+        const subDict: { [key: string]: string | object } = findSubDict(outDict, pathParts, i);
         createKey(subDict, pathParts[i]);
       }
     }

@@ -8,9 +8,9 @@ export default class CaseHandler {
   }
 
   public static camelToPascalSnake(string: string): string {
-    const snakeCaseString = this.camelToSnake(string);
-    const words = snakeCaseString.split('_');
-    const wordsCapitalized = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
+    const snakeCaseString: string = this.camelToSnake(string);
+    const words: string[] = snakeCaseString.split('_');
+    const wordsCapitalized: string[] = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
     return wordsCapitalized.join('_');
   }
 
