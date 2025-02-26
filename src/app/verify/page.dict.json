@@ -1,11 +1,20 @@
 {
+  "verifyEmail":{
+    "en": "Verify your email address",
+    "sv": "Verifiera din e-postadress"
+  },
   "emailVerification": {
     "en": "An email has been sent to your email address. Please click the link in the email to verify your email address.",
     "sv": "En verifieringslänk har skickats till din e-postadress."
   },
+  "noEmailReceived":{
+    "en": "Did you not receive an email?",
+    "sv": "Har du inte fått något e-postmeddelande?"
+  },
+
   "retryInfo": {
-    "en": "If you have not received an email, please check your spam folder or enter your email address below and click the button to send a new email.",
-    "sv": "Om du inte har fått e-postmeddelandet inom några minuter, vänligen kontrollera din skräppostmapp eller skriv din e-postadress nedan och klicka på knappen för att skicka ett nytt e-postmeddelande."
+    "en": "Please check your spam folder or enter your email address below and click the button to send a new email.",
+    "sv": "Vänligen kontrollera din skräppostmapp eller skriv din e-postadress nedan och klicka på knappen för att skicka ett nytt e-postmeddelande."
   },
   "emailPlaceholder": {
     "en": "email",

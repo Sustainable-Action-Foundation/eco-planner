@@ -6,6 +6,10 @@
     },
     "aside": {
       "nav": {
+        "myAccount": {
+          "en": "My account",
+          "sv": "Mitt konto"
+        },
         "createAccount": {
           "en": "Create account",
           "sv": "Skapa konto"

@@ -81,10 +81,10 @@ export default function Login() {
 
         <input type="submit" value={dict.login.submit.login[locale]} className="block font-weight-bold seagreen smooth color-purewhite margin-top-200" />
 
-        <p className="text-align-center padding-block-50 margin-bottom-100 margin-top-0">
-          {dict.login.noAccount.label[locale]} <Link href='/signup'>{dict.login.noAccount.createAccount[locale]}</Link> <br />
-          <Link href='/verify'>{dict.login.noAccount.verifyAccount[locale]}</Link> {/* TODO: Flytta denna till ens account page */}
-        </p>
+        <div className="flex gap-100 align-items-center justify-content-space-between alignt-items-center flex-wrap-wrap margin-block-100">
+          <span>{dict.login.noAccount.label[locale]} <Link href='/signup'>{dict.login.noAccount.createAccount[locale]}</Link></span>
+          <Link href='/verify'>{dict.login.noAccount.verifyAccount[locale]}</Link>  
+        </div>
 
 
       </form>

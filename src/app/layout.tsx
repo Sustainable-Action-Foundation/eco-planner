@@ -16,12 +16,20 @@ export default async function RootLayout({
   return (
     <html lang={locale}>
       <head>
+        {/* TODO: Lots of this should be dynamic probably */}
         <title>Eco - Planner</title>
         <link rel="icon" type="image/x-icon" href="/icons/leaf.svg" />
 
         <meta name="description" content={dict.head.description[locale]} />
 
         {/* Open Graph Meta Tags */}
+        {/* Required tags */}
+        <meta property="og:title" content="Eco - Planner" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={baseUrl} />
+        <meta property="og:image" content={`${baseUrl}/images/solarpanels.jpg`} />
+
+        {/* Optional tags */}
         <meta name="og:site_name" content="Eco - Planner" />
         <meta property="og:url" content={baseUrl} />
         <meta property="og:type" content="website" />

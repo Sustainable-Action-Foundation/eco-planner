@@ -1,17 +1,16 @@
 "use client"
 
-import type getOneRoadmap from "@/fetchers/getOneRoadmap.ts"
 import { AccessLevel } from '@/types'
-import Image from "next/image"
-import Link from "next/link"
-import { useContext, useEffect, useState } from "react"
-import GraphCookie from "../cookies/graphCookie"
-import ActionTable from "./actions"
-import { getStoredGoalSortBy, getStoredViewMode, setStoredGoalSortBy } from "./functions/tableFunctions"
 import GoalTable from "./goalTables/goalTable"
-import LinkTree from './goalTables/linkTree'
-import styles from './tables.module.css'
 import TableSelector from './tableSelector/tableSelector'
+import LinkTree from './goalTables/linkTree'
+import ActionTable from "./actions"
+import { useEffect, useState, useContext } from "react"
+import { getStoredGoalSortBy, getStoredViewMode, setStoredGoalSortBy } from "./functions/tableFunctions"
+import Link from "next/link"
+import Image from "next/image"
+import styles from './tables.module.css'
+import type getOneRoadmap from "@/fetchers/getOneRoadmap.ts"
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 import dict from "./goals.dict.json" with { type: "json" };
 
@@ -84,8 +83,8 @@ export default function Goals({
               <option value={GoalSortBy.Default}>{dict.sortingOptions.default[locale]}</option>
               <option value={GoalSortBy.Alpha}>{dict.sortingOptions.alpha[locale]}</option>
               <option value={GoalSortBy.AlphaReverse}>{dict.sortingOptions.alphaReverse[locale]}</option>
-              <option value={GoalSortBy.ActionsFalling}>{dict.sortingOptions.actionsFalling[locale]})</option>
-              <option value={GoalSortBy.ActionsRising}>{dict.sortingOptions.actionsRising[locale]})</option>
+              <option value={GoalSortBy.ActionsFalling}>{dict.sortingOptions.actionsFalling[locale]}</option>
+              <option value={GoalSortBy.ActionsRising}>{dict.sortingOptions.actionsRising[locale]}</option>
               <option value={GoalSortBy.Interesting}>{dict.sortingOptions.interesting[locale]}</option>
             </select>
           </label>
@@ -100,10 +99,6 @@ export default function Goals({
           <Image src="/icons/settings.svg" alt={dict.settingsAltText[locale]} width="24" height="24" />
         </div>
       </menu>
-
-      <div className={styles.settingsContainer}>
-        <GraphCookie />
-      </div>
 
       {/* TODO: Probably not correct to handle loading as a default state? */}
       {/* TODO: Probably use a skeleton for the loading state */}

@@ -11,6 +11,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getServerLocale } from "@/functions/serverLocale";
 import dict from "./page.dict.json";
+import { DataSeries, Goal } from "@prisma/client";
 
 export default async function Page({ params }: { params: { roadmapId: string } }) {
   const locale = await getServerLocale();
@@ -19,6 +20,8 @@ export default async function Page({ params }: { params: { roadmapId: string } }
     getSession(cookies()),
     getOneRoadmap(params.roadmapId),
   ]);
+
+  const featuredGoals: Array<Goal & { dataSeries: DataSeries | null }> = roadmap?.goals.filter((goal) => goal.isFeatured) || [];
 
   let accessLevel: AccessLevel = AccessLevel.None;
   if (roadmap) {
@@ -78,19 +81,21 @@ export default async function Page({ params }: { params: { roadmapId: string } }
         }
       </section>
 
-      <section className="margin-block-300">
-        <h2>{dict.selectGoals[locale]}</h2>
-        <div className="grid gap-100" style={{ gridTemplateColumns: 'repeat(auto-fit, 300px)' }}>
-          {roadmap.goals.map((goal, key) =>
-            goal.isFeatured ?
+      {featuredGoals.length > 0 ? 
+        <section className="margin-block-300">
+          <h2>{dict.selectGoals[locale]}</h2>
+          <div className="grid gap-100" style={{ gridTemplateColumns: 'repeat(auto-fit, 300px)' }}>
+            {featuredGoals.map((goal, key) =>
+              goal && (
               <a key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none">
                 <ThumbnailGraph goal={goal} />
               </a>
-              : null
-          )}
-        </div>
-      </section>
-
+              )
+            )}
+          </div>
+        </section>
+      : null }
+        
       <section className="margin-block-300">
         <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>{dict.allGoals[locale]}</h2>
         <Goals roadmap={roadmap} accessLevel={accessLevel} />

@@ -9,7 +9,7 @@ export async function getTableContent(tableId: string, selection: object[], exte
   const baseUrl = externalDatasetBaseUrls[externalDataset as keyof typeof externalDatasetBaseUrls] ?? externalDatasetBaseUrls.SCB;
   const url = new URL(`${baseUrl}/tables/${tableId}/data`);
   url.searchParams.append('lang', language);
-  url.searchParams.append('outputformat', 'json');
+  url.searchParams.append('outputformat', 'json-px');
 
   const body = JSON.stringify({ selection: selection, });
 

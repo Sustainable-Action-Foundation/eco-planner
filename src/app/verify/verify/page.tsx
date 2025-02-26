@@ -16,5 +16,15 @@ export default function Page() {
     formSubmitter('/api/verify', JSON.stringify({ email, hash }), 'PATCH')
   }
 
-  return <button type="button" onClick={verify}>{dict.verifyUser[locale]}</button>
+  return (
+    <>
+      <main> 
+        <div className="margin-block-300 padding-inline-100 padding-bottom-100 container-text margin-inline-auto purewhite smooth" style={{border: '1px solid var(--gray)'}}>
+          <h1 className="padding-bottom-100" style={{borderBottom: '1px solid var(--gray)'}}>{dict.verifyYourEmail[locale]}</h1>
+          <p>{dict.verifyEmailByClicking[locale]}</p>
+          <button type="button" className="seagreen color-purewhite font-weight-bold width-100" style={{fontSize: '1rem'}}  onClick={verify}>{dict.verifyMyEmail[locale]}</button>
+        </div>
+      </main>
+    </>
+  )
 }

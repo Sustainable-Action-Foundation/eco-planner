@@ -1,6 +1,14 @@
 {
-  "verifyUser": {
-    "en": "Verify user",
-    "sv": "Verifiera användare"
+  "verifyYourEmail": {
+    "en": "Verify your email address",
+    "sv": "Verifiera din e-postadress"
+  },
+  "verifyEmailByClicking": {
+    "en": "Verify your email address by clicking the button below.",
+    "sv": "Verifiera din e-postadress genom att klicka på knappen nedan."
+  },
+  "verifyMyEmail": {
+    "en": "Verify my email address",
+    "sv": "Verifiera min e-postadress"
   }
 }
