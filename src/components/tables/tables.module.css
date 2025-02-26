@@ -189,32 +189,6 @@
     -webkit-box-orient: vertical;
 }
 
-/* Table Settings */
-
-.settings {
-    position: relative;
-    display: grid;
-    transition: background-color .2s ease;
-    padding: .25rem;
-    border-radius: 9999px;
-}
-
-.settings:hover {
-    background-color: var(--gray-90);
-}
-
-.settings:has(input[type="checkbox"]:active) {
-    transform: scale(.95);
-}
-
-.settings > input[type="checkbox"] {
-    position: absolute;
-    top: 0;
-    left: 0;
-    opacity: 0;
-    width: 100%;
-    height: 100%;
-}
 
 /* TODO: Clean this (temp while rewriting some code) */
 
