@@ -8,10 +8,10 @@
     "lint": "next lint",
     "e2e:chrome": "cypress run --browser chrome --headless",
     "test": "docker compose -f compose.test.yaml up -d",
-    "generateCollectedDict": "tsx ./src/scripts/dictScripts/yarn/generateCollDict.ts",
-    "unpackCollectedDict": "tsx ./src/scripts/dictScripts/yarn/unpackCollDict.ts",
-    "deleteCollectedDict": "tsx ./src/scripts/dictScripts/yarn/deleteCollDict.ts",
-    "formatDicts": "tsx ./src/scripts/dictScripts/yarn/formatDicts.ts"
+    "locale:package": "tsx src/scripts/locale/packageDicts.ts",
+    "locale:unpack": "tsx src/scripts/locale/unpackDicts.ts",
+    "locale:format": "tsx src/scripts/locale/formatDicts.ts",
+    "locale:delete": "tsx src/scripts/locale/deletePackagedDict.ts"
   },
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.6.0",

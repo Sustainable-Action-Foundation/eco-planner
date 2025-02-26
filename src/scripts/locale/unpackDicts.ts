@@ -52,3 +52,5 @@ export default function unpackCollectedDictionary(): void {
     saveDictAsJson(subDict, filePath);
   }
 }
+
+unpackCollectedDictionary()

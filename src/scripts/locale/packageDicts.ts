@@ -41,3 +41,5 @@ export default function generateCollectedDictionary(): void {
 
   saveDictAsJson(outDict, collectedDictionaryPath);
 }
+
+generateCollectedDictionary()
