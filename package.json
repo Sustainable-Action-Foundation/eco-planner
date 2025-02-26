@@ -2,7 +2,7 @@
   "scripts": {
     "predev": "tsx ./src/scripts/getBuildInfo.ts",
     "dev": "next dev",
-    "prebuild": "tsx ./src/scripts/generateLeapList.ts && tsx ./src/scripts/getDataSeriesValueFieldNames.ts && tsx ./src/scripts/getBuildInfo.ts",
+    "prebuild": "tsx ./src/scripts/generateLeapList.ts && tsx ./src/scripts/getDataSeriesValueFieldNames.ts && tsx ./src/scripts/getBuildInfo.ts && tsx ./src/scripts/validateLocaleDicts.ts -d src",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
