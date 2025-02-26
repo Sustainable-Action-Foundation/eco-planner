@@ -49,6 +49,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
+          # Use a separate Dockerfile on non-main branches (contains prisma files in addition to the contents of the main Dockerfile)
+          file: ${{ ( github.ref_type == 'branch' && github.ref != 'refs/heads/main' && './docker/test.Dockerfile' ) || './Dockerfile'}}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.metadata.outputs.tags }}
           build-args: GIT_LONG_HASH=${{ github.sha }}
