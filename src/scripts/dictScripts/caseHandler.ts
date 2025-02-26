@@ -15,7 +15,7 @@ export default class CaseHandler {
   }
 
   public static camelToPascal(string: string): string {
-    return this.camelToPascalSnake(string).split('_').join('');
+    return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
   public static snakeToCamel(string: string): string {
