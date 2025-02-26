@@ -3,6 +3,8 @@ import path from "node:path";
 import { Locale } from "@/types.ts";
 /** Matches paths ending in `.dict.json` */
 const dictFileRegex = /\.dict\.json$/;
+/** Matches keys to discriminate pure number keys. */
+const disallowedKeysRegex = /^[0-9]+$/;
 const strictLocale = [...new Set(Object.values(Locale))]; // Strips duplicates i.e. the default locale
 
 /* Help command. Shows when no flags are given */
@@ -14,6 +16,7 @@ if (process.argv.includes("--help") || process.argv.length === 2) {
   console.info(" -d --dir <directory>:  Validate all files in the directory recursively.");
   console.info(" -v --verbose:          Will list all files even if they have no problems.");
   console.info(" --help:                Display this help message.");
+  console.info(""); // Padding
 
   process.exit(0);
 }
@@ -189,9 +192,29 @@ export function validateDictObject(dict: object | string): string[] {
   const keys = Object.keys(dict);
   const values = Object.values(dict);
 
+  // Empty object, check
   if (keys.length === 0) {
-    const found = `{ ${Object.entries(dict).map(([key, value]) => `"${key}":${typeof value === "string" ? `"${value}"` : value}`).join(", ")} }`;
+    // const found = `{ ${Object.entries(dict).map(([key, value]) => `"${key}":${typeof value === "string" ? `"${value}"` : value}`).join(", ")} }`;
+    const found = dictToStringShallow(dict);
     problems.push(`Found no entries in object. ${found}`);
+    return problems;
+  }
+
+  // Disallowed keys, check
+  if (keys.some(key => disallowedKeysRegex.test(key))) {
+    // const found = `{ ${Object.entries(dict).map(([key, value]) => `"${key}":${typeof value === "string" ? `"${value}"` : value}`).join(", ")} }`;
+    const found = dictToStringShallow(dict, true);
+    problems.push(`Disallowed keys found. Keys may not be numbers. ${found}`);
+  }
+
+  // Mixed types, check
+  const someStrings = values.some(value => typeof value === "string");
+  const someObjects = values.some(value => typeof value === "object");
+  const someArrays = values.some(value => Array.isArray(value));
+  if (someStrings && (someObjects || someArrays)) {
+    // const found = `{ ${Object.entries(dict).map(([key, value]) => `\n  "${key}":${typeof value === "string" ? `"${value}"` : value}`).join(", ")} \n}`;
+    const found = dictToStringShallow(dict, true);
+    problems.push(`Mixed types. Branch nodes may only contain other objects. Leaf nodes may only contain strings.\n  Found:\n${found}`);
     return problems;
   }
 
@@ -201,27 +224,20 @@ export function validateDictObject(dict: object | string): string[] {
     values.forEach(value => problems.push(...validateDictObject(value)));
     return problems;
   }
-
-  // Mixed types, check
-  const someStrings = values.some(value => typeof value === "string");
-  const someObjects = values.some(value => typeof value === "object");
-  const someArrays = values.some(value => Array.isArray(value));
-  if (someStrings && (someObjects || someArrays)) {
-    const found = `{ ${Object.entries(dict).map(([key, value]) => `\n  "${key}":${typeof value === "string" ? `"${value}"` : value}`).join(", ")} \n}`;
-    problems.push(`Mixed types. Branch nodes may only contain other objects. Leaf nodes may only contain strings.\n  Found:\n${found}`);
-    return problems;
-  }
+  // Else, it's a leaf node
 
   // Leaf checks
   // Value type, check
   if (values.some(value => typeof value !== "string")) {
-    const found = `{ ${Object.entries(dict).map(([key, value]) => `${key}: ${typeof value}`).join(", ")} }`;
+    // const found = `{ ${Object.entries(dict).map(([key, value]) => `${key}: ${typeof value}`).join(", ")} }`;
+    const found = dictToStringShallow(dict);
     problems.push(`Leaf nodes can only contain \`Locale\` strings.\n   Found:\n    ${found}`);
   }
   // Number of locales, check
   if (keys.length !== strictLocale.length) {
     const expected = `{ ${strictLocale.map(locale => `"${locale}": string`).join(", ")} }`;
-    const found = `{ ${Object.entries(dict).map(([key, value]) => `"${key}":${typeof value === "string" ? `"${value}"` : value}`).join(", ")} }`;
+    // const found = `{ ${Object.entries(dict).map(([key, value]) => `"${key}":${typeof value === "string" ? `"${value}"` : value}`).join(", ")} }`;
+    const found = dictToStringShallow(dict);
     problems.push(`Leaf node has the wrong amount of locales.\n   Expected:\n    ${expected}\n   Found:\n    ${found}`);
   }
   // Key locale, check
@@ -238,4 +254,16 @@ function readFlag(flag: string, argArray: string[]): string | null {
   const index = argArray.indexOf(flag);
   if (index === -1) return null;
   return argArray[index + 1];
+}
+
+function dictToStringShallow(obj: object, linebreak: boolean = false): string {
+
+  const keyValues = Object.entries(obj).map(([key, value]) => {
+    if (typeof value === "string") return `"${key}": "${value}"`;
+    return `"${key}": ${value}`;
+  });
+
+  if (linebreak) return `{\n  ${keyValues.join(", \n  ")}\n}`;
+
+  return `{ ${keyValues.join(", ")} }`;
 }
