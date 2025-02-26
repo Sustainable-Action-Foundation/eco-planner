@@ -6,7 +6,7 @@ function unpackCollectedDictionary(): void {
 
   const collectedDictionary: { [key: string]: string | object } = getObjectFromJson(collectedDictionaryPath);
 
-  // TODO - can this be improved/refactored?
+  // TODO - can this be improved/refactored so that paths dont have to be processed after this function is called? (referring to the removal of the last key of the path aswell as removal of duplicates)
   function findSubDictPaths(inDict: { [key: string]: string | object }): string[] {
     const paths: string[] = [];
     for (const key of Object.keys(inDict)) {
