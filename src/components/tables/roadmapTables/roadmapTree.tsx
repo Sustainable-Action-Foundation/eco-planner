@@ -30,7 +30,7 @@ export default function RoadmapTree({
   const topLevelRoadmaps = roadmaps.filter(roadmap => (roadmap.metaRoadmap.parentRoadmapId == null) || (!accessibleMetaRoadmaps.includes(roadmap.metaRoadmap.parentRoadmapId)));
 
   return ( 
-    <ul className="padding-0 margin-0" style={{listStyle: 'none'}}>
+    <ul className={`${styles.ul}`} style={{paddingInlineStart: '0'}}>
       <NestedRoadmapRenderer allRoadmaps={roadmaps} childRoadmaps={topLevelRoadmaps} user={user} />
     </ul>
   )
@@ -53,24 +53,55 @@ function NestedRoadmapRenderer({
       const accessLevel = accessChecker(roadmap, user);
       const newChildRoadmaps = allRoadmaps.filter(potentialChild => (potentialChild.metaRoadmap.parentRoadmapId === roadmap.metaRoadmapId) && (potentialChild.id !== roadmap.id) && (potentialChild.metaRoadmap.parentRoadmapId != null));
 
-      return <li key={`roadmap-tree-${roadmap.id}`}>
-        <div className='flex gap-100 justify-content-space-between align-items-center' key={roadmap.id}>
-          <a href={`/roadmap/${roadmap.id}`} className={`${styles.roadmapLink} flex-grow-100`}>
-            <span className={styles.linkTitle}>{`${roadmap.metaRoadmap.name} (v${roadmap.version})`}</span>
-            <span className={styles.linkInfo}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} Målbanor</span>
-          </a>
-          <TableMenu
-            accessLevel={accessLevel}
-            object={roadmap}
-          />
-        </div>
-        {newChildRoadmaps.length > 0 ?
-          <ul style={{listStyle: 'none'}}>
-            <NestedRoadmapRenderer allRoadmaps={allRoadmaps} childRoadmaps={newChildRoadmaps} user={user} />
-          </ul>
-          : null
-        }
-      </li>
+      return ( 
+        <>
+          {newChildRoadmaps.length > 0 ?
+            <li key={`roadmap-tree-${roadmap.id}`}>
+              <details>
+                <summary className="flex justify-content-space-between">
+                  <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
+                    <img src="/icons/caret-right.svg" width="24" height="24" className="round padding-25 margin-inline-25"/>
+                    <a href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth'>
+                      <div style={{lineHeight: '1'}}>
+                          {`${roadmap.metaRoadmap.name} (v${roadmap.version})`} <br /> 
+                          <span>{roadmap.metaRoadmap.type} • {roadmap._count.goals} målbanor</span>
+                      </div>
+                    </a> 
+                  </div>
+                  <span className="flex align-items-center padding-inline-25">
+                    <TableMenu
+                      accessLevel={accessLevel}
+                      object={roadmap}
+                    />
+                  </span>
+                </summary>
+
+                <ul className={styles.ul}>
+                  <NestedRoadmapRenderer allRoadmaps={allRoadmaps} childRoadmaps={newChildRoadmaps} user={user} />
+                </ul>
+              </details>
+            </li>
+            : 
+              <li className="inline-flex align-items-center flex-grow-100 width-100">
+                <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
+                  <img src="/icons/caret-right-gray.svg" width="24" height="24" className="round padding-25 margin-inline-25"/>
+                  <a href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth'>
+                    <div style={{lineHeight: '1'}}>
+                        {`${roadmap.metaRoadmap.name} (v${roadmap.version})`} <br /> 
+                        <span>{roadmap.metaRoadmap.type} • {roadmap._count.goals} målbanor</span>
+                    </div>
+                  </a> 
+                </div>
+                <span className="flex align-items-center padding-inline-25">
+                  <TableMenu
+                    accessLevel={accessLevel}
+                    object={roadmap}
+                  />
+                </span>
+              </li>
+            }
+          </>
+        )
     })}
   </>
 }
