@@ -2,7 +2,7 @@ name: transition-planner-staging
 
 services:
   staging:
-    image: ghcr.io/sustainable-action-foundation/eco-planner:staging
+    image: ghcr.io/sustainable-action-foundation/eco-planner:dev
     pull_policy: always
     restart: always
     networks:
