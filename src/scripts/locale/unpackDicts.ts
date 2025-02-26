@@ -1,7 +1,7 @@
 import path from 'path';
 import { collectedDictionaryPath, findSubDict, getObjectFromJson, KeyNameHandler, saveDictAsJson } from './dictHandler';
 
-export default function unpackCollectedDictionary(): void {
+function unpackCollectedDictionary(): void {
   console.log("Unpacking packaged dictionary...");
 
   const collectedDictionary: { [key: string]: string | object } = getObjectFromJson(collectedDictionaryPath);

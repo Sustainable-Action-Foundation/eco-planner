@@ -2,8 +2,7 @@ import { glob } from "glob";
 import path from "path";
 import { collectedDictionaryPath, dictFileEnding, findSubDict, getObjectFromJson, KeyNameHandler, saveDictAsJson } from "./dictHandler";
 
-// TODO - implement locale dict type?
-export default function generateCollectedDictionary(): void {
+function generateCollectedDictionary(): void {
   console.log("Packaging dictionaries...");
 
   function createKey(dict: { [key: string]: string | object }, key: string): void {

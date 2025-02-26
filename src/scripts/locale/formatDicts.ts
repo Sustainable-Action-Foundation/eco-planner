@@ -1,7 +1,7 @@
 import { glob } from "glob";
 import { dictFileEnding, getObjectFromJson, saveDictAsJson } from "./dictHandler";
 
-export default function formatDicts(): void {
+function formatDicts(): void {
   console.log("Formatting dict files...");
 
   const filePaths: string[] = glob.sync("src/**/*" + dictFileEnding);
