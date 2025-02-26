@@ -77,16 +77,21 @@ export default function ActionForm({
         {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
         <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
+        {/* Relationship to other roadmaps */}
         {!(roadmapId || currentAction?.roadmapId) ?
           <fieldset className={`${styles.timeLineFieldset} width-100`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>{dict.fieldset[0].enterRelation[locale]}</legend>
+            {/* Title */}
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>{dict.selectRoadmapSection.title[locale]}</legend>
+
+            {/* Dropdown */}
             <label className="block margin-block-100">
-              {dict.fieldset[0].selectRoadmapVersion[locale]}:
+              {dict.selectRoadmapSection.enterRelation[locale]}:
               <select name="roadmapId" id="roadmapId" required className="block margin-block-25" defaultValue={""}>
-                <option value="" disabled>{dict.fieldset[0].selectRoadmapVersion.options.selectRoadmapVersion[locale]}</option>
+                <option value="" disabled>{dict.selectRoadmapSection.selectRoadmapVersionDropdown.placeholder[locale]}</option>
                 {roadmapAlternatives.map(roadmap => (
                   <option key={roadmap.id} value={roadmap.id}>
-                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} ${dict.fieldset[0].selectRoadmapVersion.options.actions[locale]}`}
+                    {/* Roadmap (vNNN): NN actions */}
+                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} ${dict.selectRoadmapSection.selectRoadmapVersionDropdown.actions[locale]}`}
                   </option>
                 ))}
               </select>
@@ -95,56 +100,69 @@ export default function ActionForm({
           : null
         }
 
+        {/* Describe action */}
         <fieldset className={`${styles.timeLineFieldset} width-100 ${positionIndex > 1 ? "margin-top-200" : ""}`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend}  font-weight-bold`}>{dict.fieldset[1].describeAction[locale]}</legend>
+          {/* Title */}
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend}  font-weight-bold`}>{dict.descriptionSection.title[locale]}</legend>
+
+          {/* Name of action */}
           <label className="block margin-block-100">
-            {dict.fieldset[1].descriptionElements.nameOfAction[locale]}
+            {dict.descriptionSection.nameOfAction[locale]}
             <input className="margin-block-25" type="text" name="actionName" required id="actionName" defaultValue={currentAction?.name} />
           </label>
 
+          {/* Description of action */}
           <label className="block margin-block-100">
-            {dict.fieldset[1].descriptionElements.descriptionOfAction[locale]}
+            {dict.descriptionSection.descriptionOfAction[locale]}
             <textarea className="margin-block-25" name="actionDescription" id="actionDescription" defaultValue={currentAction?.description ?? undefined} ></textarea>
           </label>
 
+          {/* Cost efficiency */}
           <label className="block margin-block-100">
-            {dict.fieldset[1].descriptionElements.costEfficiency[locale]}
+            {dict.descriptionSection.costEfficiency[locale]}
             <input className="margin-block-25" type="text" name="costEfficiency" id="costEfficiency" defaultValue={currentAction?.costEfficiency ?? undefined} />
           </label>
 
+          {/* Expected result */}
           <label className="block margin-block-100">
-            {dict.fieldset[1].descriptionElements.expectedResult[locale]}
+            {dict.descriptionSection.expectedResult[locale]}
             <textarea className="margin-block-25" name="expectedOutcome" id="expectedOutcome" defaultValue={currentAction?.expectedOutcome ?? undefined} />
           </label>
         </fieldset>
 
+        {/* Expected impact of action */}
         {(goalId && !currentAction) ?
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.fieldset[2].enterExpectedEffect[locale]}</legend>
+            {/* Title */}
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.expectedImpactSection.title[locale]}</legend>
+
+            {/* Impact type */}
             <label className="block margin-block-75">
-              {dict.fieldset[2].typeOfEffect[locale]}
+              {dict.expectedImpactSection.title[locale]}
               <select name="impactType" id="impactType" /* defaultValue={actionImpactType} onChange={e => setActionImpactType(e.target.value as ActionImpactType)} */ >
-                <option value={ActionImpactType.ABSOLUTE}>{dict.fieldset[2].typeOfEffect.options.absolute[locale]}</option>
-                <option value={ActionImpactType.DELTA}>{dict.fieldset[2].typeOfEffect.options.delta[locale]}</option>
-                <option value={ActionImpactType.PERCENT}>{dict.fieldset[2].typeOfEffect.options.percent[locale]}</option>
+                <option value={ActionImpactType.ABSOLUTE}>{dict.expectedImpactSection.type.absolute[locale]}</option>
+                <option value={ActionImpactType.DELTA}>{dict.expectedImpactSection.type.delta[locale]}</option>
+                <option value={ActionImpactType.PERCENT}>{dict.expectedImpactSection.type.percent[locale]}</option>
               </select>
             </label>
 
+            {/* Data series dropdown */}
             <details className="margin-block-75">
               <summary>
-                {dict.fieldset[2].extraInfo[locale]}
+                {dict.expectedImpactSection.dataSeries.dropdown.title[locale]}
               </summary>
               <p>
-                {dict.fieldset[2].extraInfo.info[locale]}
+                {dict.expectedImpactSection.dataSeries.dropdown.info[locale]}
               </p>
             </details>
 
+            {/* Data series */}
             <label className="block margin-block-75">
-              {dict.fieldset[2].dataSeries[locale]}:
+              {dict.expectedImpactSection.dataSeries.title[locale]}:
               {/* TODO: Make this allow .csv files and possibly excel files */}
               <input type="text" name="dataSeries" required id="dataSeries"
                 pattern={dataSeriesPattern}
-                title={dict.fieldset[2].dataSeries.input.title[locale]}
+                title={dict.expectedImpactSection.dataSeries.hoverText[locale]}
                 className="margin-block-25"
               // defaultValue={dataSeriesString}
               />
@@ -153,56 +171,77 @@ export default function ActionForm({
           : null
         }
 
+        {/* Starting year */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.fieldset[3].chooseYears[locale]}</legend>
+          {/* Title */}
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.startingYearSection.title[locale]}</legend>
+
+          {/* Starting year */}
           <label className="block margin-bottom-100">
-            {dict.fieldset[3].startingYear[locale]}
+            {dict.startingYearSection.startingYear[locale]}
             <input className="margin-block-25" type="number" name="startYear" id="startYear" defaultValue={currentAction?.startYear ?? undefined} min={2000} />
           </label>
 
+          {/* Ending year */}
           <label className="block margin-block-100">
-            {dict.fieldset[3].endingYear[locale]}
+            {dict.startingYearSection.endingYear[locale]}
             <input className="margin-block-25" type="number" name="endYear" id="endYear" defaultValue={currentAction?.endYear ?? undefined} min={2000} />
           </label>
         </fieldset>
 
+        {/* Describe actors */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.fieldset[4].describeActors[locale]}</legend>
+          {/* Title */}
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.actorsSection.title[locale]}</legend>
+
+          {/* Project manager */}
           <label className="block margin-bottom-100">
-            {dict.fieldset[4].projectManager[locale]}
+            {dict.actorsSection.projectManager[locale]}
             <input className="margin-block-25" type="text" name="projectManager" id="projectManager" defaultValue={currentAction?.projectManager ?? undefined} />
           </label>
 
+          {/* Relevant actors */}
           <label className="block margin-block-100">
-            {dict.fieldset[4].relevantActors[locale]}
+            {dict.actorsSection.relevantActors[locale]}
             <input className="margin-block-25" type="text" name="relevantActors" id="relevantActors" defaultValue={currentAction?.relevantActors ?? undefined} />
           </label>
         </fieldset>
 
+        {/* Categories */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.fieldset[5].chooseCategories[locale]}</legend>
+          {/* Title */}
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.categoriesSection.title[locale]}</legend>
+
+          {/* Sufficiency */}
           <label className="flex gap-25 align-items-center margin-bottom-50" htmlFor="isSufficiency">
             <input type="checkbox" name="isSufficiency" id="isSufficiency" defaultChecked={currentAction?.isSufficiency} />
-            {dict.fieldset[5].categories.options.sufficiency[locale]}
+            {dict.categoriesSection.sufficiency[locale]}
           </label>
 
+          {/* Efficiency */}
           <label className="flex gap-25 align-items-center margin-block-50" htmlFor="isEfficiency">
             <input type="checkbox" name="isEfficiency" id="isEfficiency" defaultChecked={currentAction?.isEfficiency} />
-            {dict.fieldset[5].categories.options.efficiency[locale]}
+            {dict.categoriesSection.efficiency[locale]}
           </label>
 
+          {/* Renewables */}
           <label className="flex gap-25 align-items-center margin-block-50" htmlFor="isRenewables">
             <input type="checkbox" name="isRenewables" id="isRenewables" defaultChecked={currentAction?.isRenewables} />
-            {dict.fieldset[5].categories.options.renewables[locale]}
+            {dict.categoriesSection.renewables[locale]}
           </label>
         </fieldset>
 
+        {/* Attach external resources */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.fieldset[6].externalResources[locale]}</legend>
+          {/* Title */}
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.externalResourcesSection.title[locale]}</legend>
+
+          {/* Links */}
           <LinkInput links={currentAction?.links} />
         </fieldset>
 
-        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentAction ? `${dict.submit.save[locale]}` : `${dict.submit.create[locale]}`} />
+        {/* Submit */}
+        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentAction ? `${dict.submitSection.save[locale]}` : `${dict.submitSection.create[locale]}`} />
 
       </form>
     </>
