@@ -27,7 +27,7 @@ export function getScalingResult(locale: Locale, form: FormData, scalingMethod: 
     // If any of the inputs are files, throw. This will only happen if the user has tampered with the form, so no need to give a nice error message
     if (scalars[0] instanceof File) {
       if (setIsLoading) setIsLoading(false);
-      throw new Error(dict.getScalingResult.whyIsThisAFile[locale]);
+      throw new Error(dict.getScalingResult.whyIsThisAFile[locale]); // This locale gets passed since this is not a react component
     }
     const tempScale = parseFloat(scalars[0].replace(",", "."));
     const scalingType = scalingTypes[0] as (ScaleBy | "");
