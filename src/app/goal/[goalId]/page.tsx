@@ -131,6 +131,7 @@ export default async function Page({
         <section className='margin-top-300'>
           {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
           <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects}>
+            <QueryBuilder goal={goal} />
             {(goal.dataSeries?.id && session.user) ?
               <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
               : null}

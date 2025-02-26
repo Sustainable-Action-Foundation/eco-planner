@@ -52,7 +52,10 @@ export default function GraphGraph({
 
   return (
     <div className="smooth purewhite" style={{ border: '1px solid var(--gray-90)', paddingInline: '.3rem' }}>
-      {/* Turn this into like a msWord typa toolbar */}
+      <div className="margin-block-100 text-align-center" style={{lineHeight: '1'}}>
+        <h1 className="margin-0" style={{fontSize: '3rem'}}>{goal.name}</h1>
+        <small style={{color: 'gray'}}>{goal.indicatorParameter}</small>
+      </div>
       <menu
         className="flex align-items-center gap-25 margin-0 margin-bottom-25 padding-0 flex-wrap-wrap"
         style={{ borderBottom: '1px solid var(--gray-90)', paddingBlock: '.3rem' }}
