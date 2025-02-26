@@ -1,0 +1,14 @@
+{
+  "[username]-(folder)": {
+    "page-(file)": {
+      "TODO": {
+        "en": "translate [user]",
+        "sv": "översätt [user]"
+      },
+      "belongsTo": {
+        "en": "Belongs to:",
+        "sv": "Tillhör:"
+      }
+    }
+  }
+}

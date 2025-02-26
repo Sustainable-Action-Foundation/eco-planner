@@ -1,0 +1,92 @@
+{
+  "[roadmapId]-(folder)": {
+    "page-(file)": {
+      "roadmap": {
+        "en": "Roadmap",
+        "sv": "Färdplan"
+      },
+      "version": {
+        "en": "Version",
+        "sv": "Version"
+      },
+      "goals": {
+        "en": "goals",
+        "sv": "målbanor"
+      },
+      "visitRoadmap": {
+        "en": "Visit roadmap",
+        "sv": "Besök färdplansserien"
+      },
+      "editRoadmapVersion": {
+        "en": "Edit roadmap version",
+        "sv": "Redigera färdplansversionen"
+      },
+      "selectGoals": {
+        "en": "Select goals",
+        "sv": "Utvalda målbanor"
+      },
+      "allGoals": {
+        "en": "All goals",
+        "sv": "Alla målbanor"
+      }
+    },
+    "edit-(folder)": {
+      "page-(file)": {
+        "breadcrumbEditRoadmapVersion": {
+          "en": "Edit roadmap version",
+          "sv": "Redigera färdplansversion"
+        },
+        "edit": {
+          "editRoadmapVersion": {
+            "en": "Edit roadmap version",
+            "sv": "Redigera färdplansversionen"
+          },
+          "didYouMeanTo": {
+            "en": "Did you mean to edit the common metadata for the entire roadmap? If so, you can ",
+            "sv": "Ville du redigera den gemensamma metadatan för hela färdplansserien? Isåfall kan du "
+          },
+          "goHere": {
+            "en": "go here",
+            "sv": "gå hit"
+          },
+          "toEdit": {
+            "en": " to edit the metadata.",
+            "sv": " för att redigera metadatan."
+          }
+        },
+        "editRoadmapVersion": {
+          "en": "Edit roadmap version",
+          "sv": "Redigera färdplansversionen"
+        },
+        "didYouMeanTo": {
+          "en": "Did you mean to edit the common metadata for the entire roadmap? If so, you can ",
+          "sv": "Ville du redigera den gemensamma metadatan för hela färdplansserien? Isåfall kan du "
+        },
+        "goHere": {
+          "en": "go here",
+          "sv": "gå hit"
+        },
+        "toEdit": {
+          "en": " to edit the metadata.",
+          "sv": " för att redigera metadatan."
+        }
+      }
+    }
+  },
+  "create-(folder)": {
+    "page-(file)": {
+      "breadcrumbCreateRoadmapVersion": {
+        "en": "Create new roadmap version",
+        "sv": "Skapa ny färdplansversion"
+      },
+      "newRoadmapVersion": {
+        "en": "Create a new version in a roadmap series",
+        "sv": "Skapa en ny version i en färdplansserie"
+      },
+      "badMetaRoadmap": {
+        "en": "Could not find or do not have access to the roadmap in the link.\nUse the dropdown menu to select a roadmap series.",
+        "sv": "Kunde inte hitta eller har inte tillgång till färdplansserien i länken.\nAnvänd dropdown-menyn för att välja en färdplansserie."
+      }
+    }
+  }
+}

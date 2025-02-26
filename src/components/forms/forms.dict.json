@@ -1,0 +1,1178 @@
+{
+  "formWrapper-(file)": {
+    "back": {
+      "en": "Back",
+      "sv": "Tillbaka"
+    },
+    "next": {
+      "en": "Next",
+      "sv": "Nästa"
+    }
+  },
+  "userInfo-(folder)": {
+    "signup-(file)": {
+      "handleSubmit": {
+        "signupFailedForReason": {
+          "en": "Signup failed.\nReason: ",
+          "sv": "Registrering misslyckades.\nAnledning: "
+        },
+        "signupFailed": {
+          "en": "Signup failed.",
+          "sv": "Registrering misslyckades."
+        }
+      },
+      "signup": {
+        "title": {
+          "en": "Create account",
+          "sv": "Skapa konto"
+        },
+        "username": {
+          "label": {
+            "en": "Username",
+            "sv": "Användarnamn"
+          },
+          "placeholder": {
+            "en": "username",
+            "sv": "användarnamn"
+          }
+        },
+        "email": {
+          "label": {
+            "en": "Email",
+            "sv": "E-postadress"
+          },
+          "placeholder": {
+            "en": "email",
+            "sv": "e-postadress"
+          }
+        },
+        "password": {
+          "label": {
+            "en": "Password",
+            "sv": "Lösenord"
+          },
+          "placeholder": {
+            "en": "password",
+            "sv": "lösenord"
+          }
+        },
+        "submit": {
+          "createAccount": {
+            "en": "Create account",
+            "sv": "Skapa konto"
+          }
+        },
+        "haveAnAccount": {
+          "label": {
+            "en": "Do you already have an account?",
+            "sv": "Har du redan ett konto?"
+          },
+          "login": {
+            "en": "Login",
+            "sv": "Logga in"
+          }
+        },
+        "information": {
+          "en": "Your organization must have signed a user agreement with us for you to be able to create an account.\nFor questions or concerns, please contact",
+          "sv": "Din organisation måste ha tecknat ett användaravtal med oss för att du ska kunna skapa ett konto.\nVid frågor eller funderingar, vänligen kontakta"
+        }
+      }
+    },
+    "login-(file)": {
+      "handleSubmit": {
+        "loginFailed": {
+          "en": "Login failed.",
+          "sv": "Inloggning misslyckades."
+        }
+      },
+      "login": {
+        "title": {
+          "en": "Login",
+          "sv": "Logga in"
+        },
+        "username": {
+          "label": {
+            "en": "Username",
+            "sv": "Användarnamn"
+          },
+          "placeholder": {
+            "en": "username",
+            "sv": "användarnamn"
+          }
+        },
+        "password": {
+          "label": {
+            "en": "Password",
+            "sv": "Lösenord"
+          },
+          "placeholder": {
+            "en": "password",
+            "sv": "lösenord"
+          }
+        },
+        "rememberMe": {
+          "en": "Remember me",
+          "sv": "Kom ihåg mig"
+        },
+        "forgotPassword": {
+          "en": "Forgot password?",
+          "sv": "Glömt lösenordet?"
+        },
+        "submit": {
+          "login": {
+            "en": "Login",
+            "sv": "Logga in"
+          }
+        },
+        "noAccount": {
+          "label": {
+            "en": "Don't have an account?",
+            "sv": "Har du inget konto?"
+          },
+          "createAccount": {
+            "en": "Create account",
+            "sv": "Skapa konto"
+          },
+          "verifyAccount": {
+            "en": "Verify account",
+            "sv": "Verifiera konto"
+          }
+        }
+      }
+    }
+  },
+  "roadmapForm-(folder)": {
+    "roadmapForm-(file)": {
+      "badDecoding": {
+        "alert": {
+          "en": "The file seems to use an unknown encoding as the interpreted text contains the character '�' which indicates that some character could not be interpreted correctly (probably Å, Ä or Ö).\nYou can still use this file, but if you are not completely sure that it *should* contain the character '�' it is recommended that you convert the file to UTF-8 encoding and try again.",
+          "sv": "Filen verkar använda en okänd encoding då den tolkade texten innehåller tecknet '�' som indikerar att något tecken inte kunde tolkas korrekt (antagligen Å, Ä eller Ö).\nDu kan fortfarande använda den här filen, men om du inte är helt säker på att den *ska* innehålla tecknet '�' så rekommenderas att du konverterar filen till UTF-8 encoding och försöker igen."
+        }
+      },
+      "roadmapForm": {
+        "handleSubmit": {
+          "columnNotSupported": {
+            "en": "Column 'Scale' is not supported and will be ignored.",
+            "sv": "Kolumnen 'Scale' stöds inte och kommer att ignoreras."
+          },
+          "versionCouldNotBeCreated": {
+            "en": "Roadmap version could not be created.\nReason:",
+            "sv": "Färdplansversion kunde inte skapas.\nAnledning:"
+          },
+          "unknownError": {
+            "en": "Unknown error",
+            "sv": "Okänt fel"
+          }
+        },
+        "useEffect": {
+          "columnNotSupported": {
+            "en": "Column 'Scale' is not supported and will be ignored. If the column contains any scales, please bake them into the unit or value instead. Example: unit 'MW' rather than unit 'kW' with scale 'thousand'.",
+            "sv": "Kolumnen 'Scale' stöds inte och kommer att ignoreras. Om kolumnen innehåller några skalor, vänligen baka in dem i enheten eller värdet istället. Exempel: enhet 'MW' snarare än enhet 'kW' med skala 'tusen'"
+          },
+          "fileCouldNotBeRead": {
+            "en": "File could not be read:",
+            "sv": "Filen kunde inte läsas:"
+          },
+          "unknownError": {
+            "en": "Unknown error",
+            "sv": "Okänt fel"
+          }
+        },
+        "form": {
+          "metaRoadmap": {
+            "relationToOtherPosts": {
+              "en": "Enter the relation to other posts",
+              "sv": "Ange relationen till andra inlägg"
+            },
+            "metaRoadmapThatThisIsPostIn": {
+              "en": "Meta roadmap that this is a new post in",
+              "sv": "Färdplansserie som detta är ett nytt inlägg i"
+            },
+            "noMetaRoadmapSelected": {
+              "en": "No meta roadmap selected",
+              "sv": "Ingen färdplansserie vald"
+            },
+            "noAccessibleMetaRoadmaps": {
+              "en": "You seem to not have access to any meta roadmaps",
+              "sv": "Du verkar inte ha tillgång till några färdplansserier"
+            },
+            "roadmapVersion": {
+              "versionOfMetaRoadmap": {
+                "en": "Version of the roadmap series `\"${metaRoadmapTarget.name}\"` this roadmap version is working towards",
+                "sv": "Version av färdplansserien `\"${metaRoadmapTarget.name}\"` den här färdplansversionen arbetar mot"
+              },
+              "noAlternativeSelected": {
+                "en": "No alternative selected",
+                "sv": "Inget alternativ valt"
+              },
+              "alwaysMostRecent": {
+                "en": "Always most recent version",
+                "sv": "Alltid senaste versionen"
+              },
+              "version": {
+                "en": "Version",
+                "sv": "Version"
+              }
+            }
+          },
+          "description": {
+            "describe": {
+              "en": "Describe the roadmap version",
+              "sv": "Beskriv färdplansversionen"
+            },
+            "extraDescription": {
+              "en": "Extra description of this roadmap version",
+              "sv": "Extra beskrivning av denhär färdplansversionen"
+            }
+          },
+          "goals": {
+            "upload": {
+              "en": "Upload goals",
+              "sv": "Ladda upp målbanor"
+            },
+            "goals": {
+              "en": "Goals",
+              "sv": "Målbanor"
+            },
+            "acceptedFileTypes": {
+              "en": "accepted file types: .csv, accepted encoding: UTF-8",
+              "sv": "accepterade filtyper: .csv, accepterad encoding: UTF-8"
+            }
+          },
+          "inheritableGoals": {
+            "chooseGoal": {
+              "en": "Choose a goal to inherit",
+              "sv": "Välj ett mål att ärva"
+            }
+          },
+          "viewingPrivileges": {
+            "adjust": {
+              "en": "Adjust viewing privileges",
+              "sv": "Justera läsbehörighet"
+            }
+          },
+          "editingPrivileges": {
+            "adjust": {
+              "en": "Adjust editing privileges",
+              "sv": "Justera redigeringsbehörighet"
+            }
+          },
+          "submit": {
+            "save": {
+              "en": "Save roadmap version",
+              "sv": "Spara färdplansversion"
+            },
+            "create": {
+              "en": "Create roadmap version",
+              "sv": "Skapa färdplansversion"
+            }
+          }
+        }
+      }
+    }
+  },
+  "pxWeb-(folder)": {
+    "queryBuilder-(file)": {
+      "addHistoricalData": {
+        "en": "Add historical data",
+        "sv": "Lägg till historisk data"
+      },
+      "addDataSource": {
+        "en": "Add data source",
+        "sv": "Lägg till datakälla"
+      },
+      "addHistoricalMetadata": {
+        "en": "Add historical metadata to",
+        "sv": "Lägg till historisk dataserie till"
+      },
+      "dataSource": {
+        "dataSource": {
+          "en": "Data source",
+          "sv": "Datakälla"
+        },
+        "chooseSource": {
+          "en": "Choose a source",
+          "sv": "Välj en källa"
+        },
+        "searchForTable": {
+          "en": "Search for table",
+          "sv": "Sök efter tabell"
+        },
+        "search": {
+          "en": "Search",
+          "sv": "Sök"
+        }
+      },
+      "tableDetails": {
+        "chooseValues": {
+          "en": "Choose values for table",
+          "sv": "Välj värden för tabell"
+        },
+        "chooseValue": {
+          "en": "Choose a value",
+          "sv": "Välj ett värde"
+        }
+      },
+      "tableContentCheck": {
+        "doesThisLookCorrect": {
+          "en": "Does this look reasonable? (showing max 5 values)",
+          "sv": "Ser detta rimligt ut? (visar max 5 värden)"
+        },
+        "timePeriod": {
+          "en": "Time period",
+          "sv": "Period"
+        },
+        "value": {
+          "en": "Value",
+          "sv": "Värde"
+        }
+      },
+      "noReadableResult": {
+        "en": "No readable result found. Please update your selections.",
+        "sv": "Inget läsbart resultat hittades. Vänligen uppdatera dina val."
+      },
+      "submit": {
+        "addDataSource": {
+          "en": "Add data source",
+          "sv": "Lägg till datakälla"
+        }
+      }
+    }
+  },
+  "metaRoadmapForm-(folder)": {
+    "metaRoadmapForm-(file)": {
+      "describeMetaRoadmap": {
+        "title": {
+          "en": "Describe your meta roadmap",
+          "sv": "Beskriv din färdplansserie"
+        },
+        "name": {
+          "en": "Name for the new meta roadmap",
+          "sv": "Namn för den nya färdplansserien"
+        },
+        "description": {
+          "en": "Description of the new meta roadmap",
+          "sv": "Beskrivning av den nya färdplansserien"
+        }
+      },
+      "actor": {
+        "chooseResponsibleActor": {
+          "en": "Choose responsible actor",
+          "sv": "Välj ansvarig aktör"
+        },
+        "typeOfMetaRoadmap": {
+          "en": "Type of meta roadmap",
+          "sv": "Typ av färdplansserie"
+        },
+        "chooseType": {
+          "en": "Choose a type",
+          "sv": "Välj en typ"
+        },
+        "chooseActor": {
+          "en": "Choose an actor",
+          "sv": "Välj en aktör"
+        }
+      },
+      "externalResources": {
+        "attach": {
+          "en": "Attach external resources",
+          "sv": "Bifoga externa resurser"
+        }
+      },
+      "viewingPriveleges": {
+        "adjust": {
+          "en": "Adjust viewing priveleges",
+          "sv": "Justera läsbehörighet"
+        }
+      },
+      "editingPriveleges": {
+        "adjust": {
+          "en": "Adjust editing priveleges",
+          "sv": "Justera skrivbehörighet"
+        }
+      },
+      "parentMetaRoadmap": {
+        "title": {
+          "en": "Does this meta roadmap work towards another meta roadmap?",
+          "sv": "Jobbar denna färdplansserie mot en annan färdplansserie?"
+        },
+        "parent": {
+          "en": "Parent",
+          "sv": "Förälder"
+        },
+        "noParent": {
+          "en": "No parent",
+          "sv": "Ingen förälder"
+        }
+      },
+      "submit": {
+        "save": {
+          "en": "Save meta roadmap",
+          "sv": "Spara färdplansserie"
+        },
+        "create": {
+          "en": "Create meta roadmap",
+          "sv": "Skapa färdplansserie"
+        }
+      }
+    }
+  },
+  "linkInput-(folder)": {
+    "linkInput-(file)": {
+      "linkInput": {
+        "name": {
+          "en": "Name",
+          "sv": "Namn"
+        },
+        "link": {
+          "en": "Link",
+          "sv": "Länk"
+        }
+      }
+    }
+  },
+  "goalForm-(folder)": {
+    "goalFormSections-(file)": {
+      "manualGoalForm": {
+        "leapParameter": {
+          "en": "LEAP parameter",
+          "sv": "LEAP-parameter"
+        },
+        "unit": {
+          "unit": {
+            "en": "Unit for data series",
+            "sv": "Enhet för dataserie"
+          },
+          "parseAs": {
+            "en": "Unit is parsed as:",
+            "sv": "Enheten tolkas som:"
+          },
+          "parseError": {
+            "en": "The unit could not be parsed. You can still save the goal, but some functionality may be missing.",
+            "sv": "Enheten kunde inte tolkas. Du kan fortfarande spara målbanan, men viss funktionalitet kan saknas."
+          }
+        },
+        "extraInfo": {
+          "extraInfo": {
+            "en": "Extra information about data series",
+            "sv": "Extra information om dataserie"
+          },
+          "infoDescription": {
+            "en": "The field \"Data series\" accepts a series of values separated by semicolon or tab, which means you can paste a series of values from Excel or similar.\n\n\nNOTE: Values must not be separated by comma (\",\").\n\nDecimal numbers can use either decimal point or decimal comma.\n\nThe first value represents year 2020 and the series can continue up to year 2050 (total of 31 values).\n\nIf values are missing for a year, you can leave it empty, for example, \";1;;;;5\" can be used to specify values 1 and 5 for years 2021 and 2025.",
+            "sv": "Fältet \"Dataserie\" tar emot en serie värden separerade med semikolon eller tabb, vilket innebär att du kan klistra in en serie värden från Excel eller liknande.\n\nOBS: Värden får inte vara separerade med komma (\",\").\n\nDecimaltal kan använda antingen decimalpunkt eller decimalkomma.\n\nDet första värdet representerar år 2020 och serien kan fortsätta maximalt till år 2050 (totalt 31 värden).\n\nOm värden saknas för ett år kan du lämna det tomt, exempelvis kan \";1;;;;5\" användas för att ange värdena 1 och 5 för år 2021 och 2025."
+          }
+        },
+        "dataSeries": {
+          "dataSeries": {
+            "en": "Data series",
+            "sv": "Dataserie"
+          },
+          "input": {
+            "title": {
+              "en": "Use numerical values separated by semicolon or tab. Decimal numbers can use either dot or comma.",
+              "sv": "Använd numeriska värden separerade med semikolon eller tabb. Decimaltal kan använda antingen punkt eller komma."
+            }
+          }
+        }
+      },
+      "inheritedGoalForm": {
+        "roadmapVersion": {
+          "chooseToInheritFrom": {
+            "en": "Select a roadmap version to inherit a goal from",
+            "sv": "Välj en färdplansversion att ärva en målbana från"
+          },
+          "choose": {
+            "en": "Choose roadmap version",
+            "sv": "Välj färdplansversion"
+          },
+          "goal": {
+            "en": "goal",
+            "sv": "mål"
+          }
+        },
+        "roadmapData": {
+          "chooseToInheritFrom": {
+            "en": "Select a goal to inherit data from",
+            "sv": "Välj en målbana att ärva data från"
+          },
+          "choose": {
+            "en": "Choose goal",
+            "sv": "Välj målbana"
+          },
+          "namelessGoal": {
+            "en": "Nameless goal",
+            "sv": "Namnlöst mål"
+          },
+          "unitMissing": {
+            "en": "Unit missing",
+            "sv": "Enhet saknas"
+          }
+        },
+        "leapParameter": {
+          "en": "LEAP parameter",
+          "sv": "LEAP-parameter"
+        },
+        "unit": {
+          "unit": {
+            "en": "Unit for data series",
+            "sv": "Enhet för dataserie"
+          },
+          "parseAs": {
+            "en": "Unit is parsed as:",
+            "sv": "Enheten tolkas som:"
+          },
+          "parseError": {
+            "en": "The unit could not be parsed. You can still save the goal, but some functionality may be missing.",
+            "sv": "Enheten kunde inte tolkas. Du kan fortfarande spara målbanan, men viss funktionalitet kan saknas."
+          }
+        }
+      },
+      "combinedGoalForm": {
+        "leapParameter": {
+          "en": "LEAP parameter",
+          "sv": "LEAP-parameter"
+        },
+        "unit": {
+          "unit": {
+            "en": "Unit for data series",
+            "sv": "Enhet för dataserie"
+          },
+          "parseAs": {
+            "en": "Unit is parsed as:",
+            "sv": "Enheten tolkas som:"
+          },
+          "parseError": {
+            "en": "The unit could not be parsed. You can still save the goal, but some functionality may be missing.",
+            "sv": "Enheten kunde inte tolkas. Du kan fortfarande spara målbanan, men viss funktionalitet kan saknas."
+          }
+        },
+        "goals": {
+          "chooseGoals": {
+            "en": "Select goals in the current roadmap version to combine",
+            "sv": "Välj målbanor i den aktuella färdplansversionen som ska kombineras"
+          },
+          "tip": {
+            "en": "Tip: use <kbd><kbd>CTRL</kbd> + <kbd>F</kbd></kbd> to find the goals you are looking for",
+            "sv": "Tips: använd <kbd><kbd>CTRL</kbd> + <kbd>F</kbd></kbd> för att hitta målbanorna du söker efter"
+          },
+          "namelessGoal": {
+            "en": "Nameless goal",
+            "sv": "Namnlöst mål"
+          },
+          "unitMissing": {
+            "en": "Unit missing",
+            "sv": "Enhet saknas"
+          },
+          "invertGoal": {
+            "en": "Invert goal (divide by this goal's target instead of multiplying)",
+            "sv": "Invertera målet (dividera med denna målban istället för att multiplicera)"
+          }
+        }
+      },
+      "inheritingBaseline": {
+        "roadmapVersion": {
+          "chooseToInheritFrom": {
+            "en": "Select a roadmap version to inherit the goal from",
+            "sv": "Välj en färdplansversion att ärva målbanan från"
+          },
+          "choose": {
+            "en": "Choose roadmap version",
+            "sv": "Välj färdplansversion"
+          },
+          "goal": {
+            "en": "goal",
+            "sv": "mål"
+          }
+        },
+        "roadmapData": {
+          "chooseToUseAsBaseline": {
+            "en": "Select a goal to use as baseline (values will be copied instead of linked)",
+            "sv": "Välj en målbana att använda som baslinje (värdena kopieras istället för att länkas)"
+          },
+          "choose": {
+            "en": "Choose goal",
+            "sv": "Välj målbana"
+          },
+          "dataMissing": {
+            "en": "DATA MISSING; ",
+            "sv": "DATA SAKNAS; "
+          },
+          "namelessGoal": {
+            "en": "Nameless goal",
+            "sv": "Namnlöst mål"
+          },
+          "unitMissing": {
+            "en": "Unit missing",
+            "sv": "Enhet saknas"
+          }
+        },
+        "goalData": {
+          "basline": {
+            "en": "Baseline, copied from selected goal",
+            "sv": "Baslinje, kopierad från vald målbana"
+          }
+        }
+      }
+    },
+    "goalForm-(file)": {
+      "selectRoadmap": {
+        "title": {
+          "en": "Select roadmap version to create goal under:",
+          "sv": "Välj färdplansversion att skapa målbanan under:"
+        },
+        "dropdown": {
+          "title": {
+            "en": "Select roadmap version",
+            "sv": "Välj färdplansversion"
+          },
+          "placeholder": {
+            "en": "Select roadmap version",
+            "sv": "Välj färdplansversion"
+          },
+          "actions": {
+            "en": "actions",
+            "sv": "åtgärder"
+          }
+        }
+      },
+      "dataSeries": {
+        "title": {
+          "en": "Select type of data series for your goal",
+          "sv": "Välj typ av dataserie för din målbana"
+        },
+        "dropdown": {
+          "title": {
+            "en": "Data series",
+            "sv": "Dataserie"
+          },
+          "static": {
+            "en": "Static",
+            "sv": "Statisk"
+          },
+          "inherited": {
+            "en": "Inherited",
+            "sv": "Ärvd"
+          },
+          "combined": {
+            "en": "Combined",
+            "sv": "Kombinerad"
+          }
+        }
+      },
+      "describeGoal": {
+        "title": {
+          "en": "Describe your goal",
+          "sv": "Beskriv din målbana"
+        },
+        "name": {
+          "en": "Name of goal",
+          "sv": "Namn på målbanan"
+        },
+        "description": {
+          "en": "Description of goal",
+          "sv": "Beskrivning av målbanan"
+        }
+      },
+      "goalStructure": {
+        "title": {
+          "en": "Describe how your goal's data is structured",
+          "sv": "Beskriv hur din målbanas data är utformad"
+        },
+        "dataSeries": {
+          "title": {
+            "en": "Data series",
+            "sv": "Dataserie"
+          },
+          "scaling": {
+            "remove": {
+              "en": "Remove scaling",
+              "sv": "Ta bort skalning"
+            },
+            "add": {
+              "en": "Add scaling",
+              "sv": "Lägg till skalning"
+            },
+            "methods": {
+              "title": {
+                "en": "Scaling method:",
+                "sv": "Skalningsmetod:"
+              },
+              "geometric": {
+                "en": "Geometric",
+                "sv": "Geometrisk"
+              },
+              "algebraic": {
+                "en": "Algebraic",
+                "sv": "Algebraisk"
+              },
+              "multiplicative": {
+                "en": "Multiplicative",
+                "sv": "Multiplikativ"
+              }
+            },
+            "result": {
+              "en": "Resulting data series",
+              "sv": "Resulterande dataserie"
+            }
+          }
+        }
+      },
+      "baseline": {
+        "title": {
+          "en": "Select a goal to use as baseline",
+          "sv": "Välj en målbana att använda som baslinje"
+        },
+        "dropdown": {
+          "title": {
+            "en": "Baseline",
+            "sv": "Baslinje"
+          },
+          "initial": {
+            "en": "Initial",
+            "sv": "Initial"
+          },
+          "custom": {
+            "en": "Custom",
+            "sv": "Anpassad"
+          },
+          "inherited": {
+            "en": "Inherited",
+            "sv": "Ärvd"
+          }
+        },
+        "customBaseline": {
+          "title": {
+            "en": "Custom baseline",
+            "sv": "Anpassad baslinje"
+          },
+          "hoverText": {
+            "en": "Use numerical values separated by semicolon or tab. Decimal numbers can use either dot or comma.",
+            "sv": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma."
+          }
+        }
+      },
+      "externalResources": {
+        "title": {
+          "en": "Attach external resources",
+          "sv": "Bifoga externa resurser"
+        }
+      },
+      "featureGoal": {
+        "title": {
+          "en": "Feature this goal",
+          "sv": "Lyft fram denna målbanan"
+        },
+        "checkboxLabel": {
+          "en": "Feature this goal",
+          "sv": "Lyft fram denna målbanan"
+        }
+      },
+      "scaleWarning": {
+        "title": {
+          "en": "The goal contains a scale. Please bake the scale into the value or unit and then check this box; all scales will be removed in the future",
+          "sv": "Målbanan innehåller en skala. Vänligen baka in skalan i värdet eller enheten och checka sedan i den här rutan; alla skalor kommer att tas bort i framtiden"
+        },
+        "checkboxLabel": {
+          "en": "Remove scale",
+          "sv": "Ta bort skalan"
+        }
+      },
+      "submit": {
+        "save": {
+          "en": "Save goal",
+          "sv": "Spara målbana"
+        },
+        "create": {
+          "en": "Create goal",
+          "sv": "Skapa målbana"
+        }
+      }
+    }
+  },
+  "filters-(folder)": {
+    "roadmapFilters-(file)": {
+      "menu": {
+        "searchRoadmaps": {
+          "en": "Search roadmaps",
+          "sv": "Sök bland färdplaner"
+        },
+        "sortBy": {
+          "en": "Sort by:",
+          "sv": "Sortera efter:"
+        },
+        "sotringOptions": {
+          "default": {
+            "en": "Default",
+            "sv": "Standard"
+          },
+          "alpha": {
+            "en": "Name (A-Z)",
+            "sv": "Namn (A-Ö)"
+          },
+          "alphaReverse": {
+            "en": "Name (Z-A)",
+            "sv": "Namn (Ö-A)"
+          },
+          "goalsFalling": {
+            "en": "Amount of goals (falling)",
+            "sv": "Antal målbanor (fallande)"
+          },
+          "goalsRising": {
+            "en": "Amount of goals (rising)",
+            "sv": "Antal målbanor (stigande)"
+          }
+        },
+        "filter": {
+          "en": "Filter",
+          "sv": "Filtrera"
+        }
+      },
+      "roadmapFiltersMenu": {
+        "show": {
+          "en": "Show",
+          "sv": "Visa"
+        },
+        "filterOptions": {
+          "roadmapTypes": {
+            "national": {
+              "en": "national",
+              "sv": "nationella"
+            },
+            "regional": {
+              "en": "regional",
+              "sv": "regionala"
+            },
+            "municipal": {
+              "en": "municipal",
+              "sv": "kommunala"
+            },
+            "local": {
+              "en": "local",
+              "sv": "lokala"
+            },
+            "other": {
+              "en": "other",
+              "sv": "övriga"
+            }
+          },
+          "roadmaps": {
+            "en": "roadmaps",
+            "sv": "färdplaner"
+          }
+        }
+      }
+    }
+  },
+  "effectForm-(folder)": {
+    "effectFormSections-(file)": {
+      "actionSelector": {
+        "selectRoadmapVersion": {
+          "title": {
+            "en": "Select roadmap version that the action belongs to",
+            "sv": "Välj färdplansversion som åtgärden hör till"
+          },
+          "selectRoadmapVersion": {
+            "en": "Select roadmap version",
+            "sv": "Välj färdplansversion"
+          },
+          "actions": {
+            "en": "actions",
+            "sv": "åtgärder"
+          }
+        },
+        "selectAction": {
+          "title": {
+            "en": "Select action to add the effect under",
+            "sv": "Välj åtgärd att lägga effekten under"
+          },
+          "selectAction": {
+            "en": "Select action",
+            "sv": "Välj åtgärd"
+          },
+          "existingEffects": {
+            "en": "existing effects",
+            "sv": "befintliga effekter"
+          }
+        }
+      },
+      "goalSelector": {
+        "selectRoadmapVersion": {
+          "title": {
+            "en": "Select roadmap version that the goal belongs to",
+            "sv": "Välj färdplansversion som målbanan hör till"
+          },
+          "selectRoadmapVersion": {
+            "en": "Select roadmap version",
+            "sv": "Välj färdplansversion"
+          },
+          "goals": {
+            "en": "goals",
+            "sv": "målbanor"
+          }
+        },
+        "selectRoadmap": {
+          "title": {
+            "en": "Select roadmap to affect",
+            "sv": "Välj målbana att påverka"
+          },
+          "selectRoadmap": {
+            "en": "Select roadmap",
+            "sv": "Välj målbana"
+          },
+          "namelessGoal": {
+            "en": "Nameless goal",
+            "sv": "Namnlöst mål"
+          },
+          "unitMissing": {
+            "en": "Unit missing",
+            "sv": "Enhet saknas"
+          }
+        }
+      }
+    },
+    "effectForm-(file)": {
+      "dataSeries": {
+        "title": {
+          "en": "Data series",
+          "sv": "Data serie"
+        },
+        "hoverText": {
+          "en": "Use numeric values separated by semicolon or tab. Decimal numbers can use either dot or comma.",
+          "sv": "Använd numeriska värden separerade med semikolon eller tabb. Decimaltal kan använda antingen punkt eller komma."
+        }
+      },
+      "impactType": {
+        "title": {
+          "en": "What type of impact does the action have?",
+          "sv": "Vilken typ av påverkan har åtgärden?"
+        },
+        "absolute": {
+          "en": "Absolute difference from baseline",
+          "sv": "Absolut skillnad gentemot baslinjen"
+        },
+        "delta": {
+          "en": "Change year by year (delta)",
+          "sv": "Förändring år för år (delta)"
+        },
+        "percent": {
+          "en": "Difference from baseline in percent of previous year's total value (baseline + actions)",
+          "sv": "Skillnad gentemot baslinjen i procent av föregående års totalvärde (baslinje + åtgärder)"
+        }
+      },
+      "createButton": {
+        "save": {
+          "en": "Save effect",
+          "sv": "Spara effekt"
+        },
+        "create": {
+          "en": "Create effect",
+          "sv": "Skapa effekt"
+        }
+      }
+    }
+  },
+  "actionForm-(folder)": {
+    "actionForm-(file)": {
+      "selectRoadmapSection": {
+        "title": {
+          "en": "Relation to other posts",
+          "sv": "Relation till andra inlägg"
+        },
+        "enterRelation": {
+          "en": "Enter relation to other posts",
+          "sv": "Ange relationen till andra inlägg"
+        },
+        "selectRoadmapVersionDropdown": {
+          "title": {
+            "en": "Select roadmap version to create action under",
+            "sv": "Välj färdplansversion att skapa åtgärd under"
+          },
+          "placeholder": {
+            "en": "Select roadmap version",
+            "sv": "Välj färdplansversion"
+          },
+          "actions": {
+            "en": "actions",
+            "sv": "åtgärder"
+          }
+        }
+      },
+      "descriptionSection": {
+        "title": {
+          "en": "Describe your action",
+          "sv": "Beskriv din åtgärd"
+        },
+        "nameOfAction": {
+          "en": "Name of action",
+          "sv": "Namn på åtgärden"
+        },
+        "descriptionOfAction": {
+          "en": "Description of action",
+          "sv": "Beskrivning av åtgärden"
+        },
+        "costEfficiency": {
+          "en": "Cost efficiency",
+          "sv": "Kostnadseffektivitet"
+        },
+        "expectedResult": {
+          "en": "Expected result",
+          "sv": "Förväntat resultat"
+        }
+      },
+      "expectedImpactSection": {
+        "title": {
+          "en": "Enter expected effect of the action",
+          "sv": "Ange förväntad effekt av åtgärden"
+        },
+        "type": {
+          "absolute": {
+            "en": "Absolute difference compared to baseline",
+            "sv": "Absolut skillnad gentemot baslinje"
+          },
+          "delta": {
+            "en": "Change year by year (delta)",
+            "sv": "Förändring år för år (delta)"
+          },
+          "percent": {
+            "en": "Difference compared to baseline in percentage of previous year's total value (baseline + actions)",
+            "sv": "Skillnad gentemot baslinjen i procent av föregående års totalvärde (baslinje + åtgärder)"
+          }
+        },
+        "dataSeries": {
+          "title": {
+            "en": "Data series",
+            "sv": "Dataserie"
+          },
+          "hoverText": {
+            "en": "Use numeric values separated with semicolon or tab. Decimal numbers can use either dot or comma.",
+            "sv": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma."
+          },
+          "dropdown": {
+            "title": {
+              "en": "Additional information about the data series",
+              "sv": "Extra information om dataserie"
+            },
+            "info": {
+              "en": "The field \"Data series\" accepts a series of values separated with semicolon or tab, which means you can paste a series of values from Excel or similar.\n\nNOTE: Values must not be separated with comma (\",\")\n\nDecimal numbers can use either decimal point or decimal comma.\n\nThe first value represents year 2020 and the series can continue up to year 2050 (total of 31 values).\n\nIf values are missing for a year, you can leave it empty, for example, \";1;;;;5\" can be used to specify the values 1 and 5 for years 2021 and 2025.",
+              "sv": "Fältet \"Dataserie\" tar emot en serie värden separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie värden från Excel eller liknande.\n\nOBS: Värden får inte vara separerade med komma (\",\").\n\nDecimaltal kan använda antingen decimalpunkt eller decimalkomma.\n\nDet första värdet representerar år 2020 och serien kan fortsätta maximalt till år 2050 (totalt 31 värden).\n\nOm värden saknas för ett år kan du lämna det tomt, exempelvis kan \";1;;;;5\" användas för att ange värdena 1 och 5 för år 2021 och 2025."
+            }
+          }
+        }
+      },
+      "startingYearSection": {
+        "title": {
+          "en": "Choose years for the action",
+          "sv": "Välj pågående år för din årgärd"
+        },
+        "startingYear": {
+          "en": "Starting year",
+          "sv": "Startår"
+        },
+        "endingYear": {
+          "en": "Ending year",
+          "sv": "Slutår"
+        }
+      },
+      "actorsSection": {
+        "title": {
+          "en": "Describe the actors involved in the action",
+          "sv": "Beskriv aktörer för din åtgärd"
+        },
+        "projectManager": {
+          "en": "Project manager",
+          "sv": "Projektansvarig"
+        },
+        "relevantActors": {
+          "en": "Relevant actors",
+          "sv": "Relevanta aktörer"
+        }
+      },
+      "categoriesSection": {
+        "title": {
+          "en": "What categories does the action fall under?",
+          "sv": "Vilka kategorier faller åtgärden under?"
+        },
+        "sufficiency": {
+          "en": "Sufficiency",
+          "sv": "Tillräcklighet"
+        },
+        "efficiency": {
+          "en": "Efficiency",
+          "sv": "Effektivitet"
+        },
+        "renewables": {
+          "en": "Renewables",
+          "sv": "Förnybara"
+        }
+      },
+      "externalResourcesSection": {
+        "title": {
+          "en": "Attach external resources",
+          "sv": "Bifoga externa resurser"
+        }
+      },
+      "submitSection": {
+        "save": {
+          "en": "Save action",
+          "sv": "Spara åtgärd"
+        },
+        "create": {
+          "en": "Create action",
+          "sv": "Skapa åtgärd"
+        }
+      }
+    }
+  },
+  "accessSelector-(folder)": {
+    "accessSelector-(file)": {
+      "editUsers": {
+        "groups": {
+          "editingPrivileges": {
+            "en": "Groups with editing privileges",
+            "sv": "Grupper med redigeringsbehörigheter"
+          }
+        },
+        "users": {
+          "editingPrivileges": {
+            "en": "Users with editing privileges",
+            "sv": "Användare med redigeringsbehörigheter"
+          },
+          "removeUser": {
+            "en": "Remove user",
+            "sv": "Ta bort användare"
+          },
+          "addUser": {
+            "en": "Add user",
+            "sv": "Lägg till användare"
+          }
+        }
+      },
+      "viewUsers": {
+        "groups": {
+          "readingPrivileges": {
+            "en": "Groups with reading privileges",
+            "sv": "Grupper med läsbehörigheter"
+          },
+          "viewPostPublicly": {
+            "en": "View post publicly",
+            "sv": "Visa inlägg offentligt"
+          }
+        },
+        "users": {
+          "readingPrivileges": {
+            "en": "Users with reading privileges",
+            "sv": "Användare med läsbehörigheter"
+          },
+          "removeUser": {
+            "en": "Remove user",
+            "sv": "Ta bort användare"
+          },
+          "addUser": {
+            "en": "Add user",
+            "sv": "Lägg till användare"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "[actionId]-(folder)": {
+    "page-(file)": {
+      "summary": {
+        "action": {
+          "en": "Action",
+          "sv": "Åtgärd"
+        },
+        "externalResources": {
+          "en": "External resources",
+          "sv": "Externa resurser"
+        },
+        "editAction": {
+          "en": "Edit action",
+          "sv": "Redigera åtgärd"
+        },
+        "editActionAlt": {
+          "en": "Edit action: ",
+          "sv": "Redigera åtgärd: "
+        }
+      },
+      "expectedEffects": {
+        "expectedEffect": {
+          "en": "Expected effect",
+          "sv": "Förväntad effekt"
+        },
+        "noSpecifiedEffect": {
+          "en": "No specified effect",
+          "sv": "Ingen angiven effekt"
+        }
+      },
+      "costEfficiency": {
+        "costEfficiency": {
+          "en": "Cost efficiency",
+          "sv": "Kostnadseffektivitet"
+        },
+        "noSpecifiedCostEfficiency": {
+          "en": "No specified cost efficiency",
+          "sv": "Ingen angiven kostnadseffektivitet"
+        }
+      },
+      "projectLeader": {
+        "projectLeader": {
+          "en": "Project leader",
+          "sv": "Projektledare"
+        },
+        "noSpecifiedProjectLeader": {
+          "en": "No specified project leader",
+          "sv": "Ingen angiven projektledare"
+        }
+      },
+      "relevantActors": {
+        "relevantActors": {
+          "en": "Relevant actors",
+          "sv": "Relevanta aktörer"
+        },
+        "noSpecifiedRelevantActors": {
+          "en": "No specified actors",
+          "sv": "Inga angivna aktörer"
+        }
+      },
+      "categories": {
+        "categories": {
+          "en": "Categories",
+          "sv": "Kategorier"
+        },
+        "categoryTypes": {
+          "efficiency": {
+            "en": "Efficiency",
+            "sv": "Effektivitet"
+          },
+          "sufficiency": {
+            "en": "Sufficiency",
+            "sv": "Tillräcklighet"
+          },
+          "renewables": {
+            "en": "Renewables",
+            "sv": "Förnybarhet"
+          }
+        },
+        "noSpecifiedCategories": {
+          "en": "No specified categories",
+          "sv": "Inga angivna kategorier"
+        }
+      },
+      "effects": {
+        "effects": {
+          "en": "Effects",
+          "sv": "Effekter"
+        },
+        "createEffect": {
+          "en": "Create new effect",
+          "sv": "Skapa ny effekt"
+        }
+      }
+    },
+    "edit-(folder)": {
+      "page-(file)": {
+        "breadcrumbEditAction": {
+          "en": "Edit action",
+          "sv": "Redigera åtgärd"
+        },
+        "editAction": {
+          "en": "Edit action:",
+          "sv": "Redigera åtgärd:"
+        },
+        "ofRoadmap": {
+          "en": "of roadmap",
+          "sv": "under färdplanen"
+        },
+        "ofRoadmapVersion": {
+          "en": "version",
+          "sv": "version"
+        }
+      }
+    }
+  },
+  "create-(folder)": {
+    "page-(file)": {
+      "breadcrumbCreateAction": {
+        "en": "Create new action",
+        "sv": "Skapa ny åtgärd"
+      },
+      "goal": {
+        "createActionUnderGoal": {
+          "en": "Create new action under goal:",
+          "sv": "Skapa ny åtgärd under målbana:"
+        },
+        "createAction": {
+          "en": "Create new action",
+          "sv": "Skapa ny åtgärd"
+        }
+      },
+      "badGoal": {
+        "notFound": {
+          "en": "Could not find or do not have access to the goal in the link.",
+          "sv": "Kunde inte hitta eller har inte tillgång till målbanan i länken."
+        }
+      },
+      "badRoadmap": {
+        "notFound": {
+          "en": "Could not find or do not have access to the roadmap in the link.\nUse the dropdown menu to select a roadmap.",
+          "sv": "Kunde inte hitta eller har inte tillgång till färdplansversionen i länken.\nAnvänd dropdown-menyn för att välja en färdplansversion."
+        }
+      }
+    }
+  }
+}

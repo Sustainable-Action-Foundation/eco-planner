@@ -1,0 +1,20 @@
+{
+  "languageSwitcher-(file)": {
+    "languages": {
+      "swedish": {
+        "en": "Swedish",
+        "sv": "Svenska"
+      },
+      "english": {
+        "en": "English",
+        "sv": "Engelska"
+      }
+    }
+  },
+  "graphCookie-(file)": {
+    "allowStorage": {
+      "en": "Allow storage of future view changes between sessions and page navigations.",
+      "sv": "Spara framtida vyändringar mellan sessioner och sidonavigeringar."
+    }
+  }
+}

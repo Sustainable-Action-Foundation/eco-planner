@@ -1,0 +1,118 @@
+{
+  "copyAndScale-(file)": {
+    "getScalingResult": {
+      "whyIsThisAFile": {
+        "en": "Why is this a file?",
+        "sv": "Varför är detta en fil?"
+      }
+    },
+    "formSubmission": {
+      "whyIsThisAFile": {
+        "en": "Why is this a file?",
+        "sv": "Varför är detta en fil?"
+      },
+      "invalidInput": {
+        "en": "Invalid input. Scaling factor could not be calculated. This is often due to a non-numeric value in an input field or the product of all scaling factors being negative.",
+        "sv": "Felaktig inmatning. Skalningsfaktorn kunde inte beräknas. Ofta beror detta på ett ickenumeriskt värde i ett inmatningsfält eller att produkten av alla skalningsfaktorer är negativ."
+      }
+    },
+    "return": {
+      "title": {
+        "en": "Copy and scale",
+        "sv": "Kopiera och skala"
+      },
+      "copyAndScaleGoal": {
+        "en": "Copy and scale the goal",
+        "sv": "Kopiera och skala målbanan"
+      },
+      "whichRoadmapVersion": {
+        "en": "Which roadmap version do you want to place the scaled goal in?",
+        "sv": "I vilken färdplansversion vill du placera den skalade målbanan?"
+      },
+      "selectRoadmapVersion": {
+        "en": "Select roadmap version",
+        "sv": "Välj färdplansversion"
+      },
+      "version": {
+        "en": "version",
+        "sv": "version"
+      },
+      "scalingComponents": {
+        "removeScaling": {
+          "en": "Remove scaling",
+          "sv": "Ta bort skalning"
+        }
+      },
+      "addScaling": {
+        "title": {
+          "en": "Add scaling",
+          "sv": "Lägg till skalning"
+        },
+        "advanced": {
+          "title": {
+            "en": "Advanced",
+            "sv": "Avancerat"
+          },
+          "selectScalingMethod": {
+            "en": "Select scaling method",
+            "sv": "Välj skalningsmetod"
+          },
+          "geometric": {
+            "en": "Geometric average",
+            "sv": "Geometriskt genomsnitt"
+          },
+          "algebraic": {
+            "en": "Algebraic average",
+            "sv": "Algebraiskt genomsnitt"
+          },
+          "multiplicative": {
+            "en": "Multiplicative scaling",
+            "sv": "Multiplikativ skalning"
+          }
+        }
+      },
+      "resultingScalingFactor": {
+        "en": "Resulting scaling factor",
+        "sv": "Resulterande skalningsfaktor"
+      },
+      "createScaledCopy": {
+        "en": "Create scaled copy",
+        "sv": "Skapa skalad kopia"
+      }
+    }
+  },
+  "confirmDelete-(file)": {
+    "deletionFailed": {
+      "en": "Deletion failed: No target ID provided. This shouldn't happen so please report this to the developers.",
+      "sv": "Radering misslyckades: Inget mål-ID angivet. Detta borde inte hända så vänligen rapportera detta till utvecklarna."
+    },
+    "deletePost": {
+      "en": "Delete post",
+      "sv": "Radera inlägg"
+    },
+    "areYouSure": {
+      "en": "Are you sure you want to delete the post",
+      "sv": "Är du säker på att du vill radera inlägget"
+    },
+    "youCannotUndo": {
+      "en": "You cannot undo this action later.",
+      "sv": "Du kan inte ångra denna åtgärd senare."
+    },
+    "type": {
+      "en": "Type",
+      "sv": "Skriv"
+    },
+    "toConfirm": {
+      "en": "to confirm",
+      "sv": "för att bekräfta"
+    },
+    "cancel": {
+      "en": "Cancel",
+      "sv": "Avbryt"
+    },
+    "delete": {
+      "en": "Delete",
+      "sv": "Radera"
+    }
+  }
+}

@@ -1,0 +1,264 @@
+{
+  "siblingGraph-(file)": {
+    "menu": {
+      "changeGraphType": {
+        "en": "Change graph type",
+        "sv": "Byt graftyp"
+      },
+      "changeGraphAlt": {
+        "en": "Change graph",
+        "sv": "Byt graf"
+      }
+    }
+  },
+  "actionGraph-(file)": {
+    "actionGraph": {
+      "actions": {
+        "en": "Actions",
+        "sv": "Åtgärder"
+      }
+    }
+  },
+  "mainGraphs-(folder)": {
+    "mainRelativeGraph-(file)": {
+      "nationalGoal": {
+        "name": {
+          "en": "National equivalent",
+          "sv": "Nationell motsvarighet"
+        }
+      },
+      "chartOptions": {
+        "yAxis": {
+          "title": {
+            "en": "Percentage relative base year",
+            "sv": "procent relativt basår"
+          }
+        }
+      }
+    },
+    "mainGraph-(file)": {
+      "mainChartOptions": {
+        "baseScenario": {
+          "en": "Base scenario",
+          "sv": "Basfall"
+        },
+        "expectedOutcome": {
+          "en": "Expected outcome",
+          "sv": "Förväntat utfall"
+        }
+      },
+      "ifBaselineDataSeries": {
+        "baseScenario": {
+          "en": "Base scenario",
+          "sv": "Basfall"
+        },
+        "expectedOutcome": {
+          "en": "Expected outcome",
+          "sv": "Förväntat utfall"
+        }
+      },
+      "ifNoBaselineIsSet": {
+        "baseScenario": {
+          "en": "Base scenario",
+          "sv": "Basfall"
+        },
+        "expectedOutcome": {
+          "en": "Expected outcome",
+          "sv": "Förväntat utfall"
+        }
+      },
+      "secondaryGoal": {
+        "en": "Secondary goal",
+        "sv": "Sekundär målbana"
+      },
+      "nationalGoal": {
+        "nationalEquivalent": {
+          "en": "National equivalent",
+          "sv": "Nationell motsvarighet"
+        },
+        "title": {
+          "en": "National goal",
+          "sv": "Nationell målbana"
+        },
+        "seriesName": {
+          "en": "National equivalent",
+          "sv": "Nationell motsvarighet"
+        }
+      },
+      "historicalData": {
+        "title": {
+          "en": "Historical",
+          "sv": "Historisk"
+        }
+      }
+    },
+    "mainDeltaGraph-(file)": {
+      "chartOptions": {
+        "title": {
+          "yearlyChangeIn": {
+            "en": "Yearly change in",
+            "sv": "Årlig förändring i"
+          },
+          "percent": {
+            "en": "percent",
+            "sv": "procent"
+          },
+          "percentagePoints": {
+            "en": "percentage points",
+            "sv": "procentenheter"
+          }
+        },
+        "seriesName": {
+          "baseScenario": {
+            "en": "Base scenario",
+            "sv": "Basfall"
+          },
+          "expectedOutcome": {
+            "en": "Expected outcome",
+            "sv": "Förväntat utfall"
+          },
+          "nationalEquivalent": {
+            "en": "National equivalent",
+            "sv": "Nationell motsvarighet"
+          }
+        }
+      },
+      "ifBaselineDataSeries": {
+        "baseScenario": {
+          "en": "Base scenario",
+          "sv": "Basfall"
+        },
+        "expectedOutcome": {
+          "en": "Expected outcome",
+          "sv": "Förväntat utfall"
+        }
+      },
+      "ifNoBaselineIsSet": {
+        "expectedOutcome": {
+          "en": "Expected outcome",
+          "sv": "Förväntat utfall"
+        }
+      },
+      "secondaryGoal": {
+        "title": {
+          "yearlyChangeIn": {
+            "en": "Yearly change in",
+            "sv": "Årlig förändring i"
+          },
+          "percent": {
+            "en": "percent",
+            "sv": "procent"
+          },
+          "percentagePoints": {
+            "en": "percentage points",
+            "sv": "procentenheter"
+          }
+        }
+      },
+      "nationalGoal": {
+        "name": {
+          "en": "National equivalent",
+          "sv": "Nationell motsvarighet"
+        }
+      }
+    }
+  },
+  "graphSelector-(folder)": {
+    "graphSelector-(file)": {
+      "handleSelectChange": {
+        "invalidGraphType": {
+          "en": "Invalid graph type",
+          "sv": "Ogiltig graftyp"
+        }
+      },
+      "return": {
+        "options": {
+          "main": {
+            "en": "Goal",
+            "sv": "Målbana"
+          },
+          "delta": {
+            "en": "Yearly change",
+            "sv": "Årlig förändring"
+          },
+          "relative": {
+            "en": "Percentage change",
+            "sv": "Procentuell förändring"
+          }
+        }
+      }
+    },
+    "childGraphSelector-(file)": {
+      "handleSelectChange": {
+        "invalidGraphType": {
+          "en": "Invalid graph type",
+          "sv": "Ogiltig graftyp"
+        }
+      },
+      "return": {
+        "options": {
+          "goals": {
+            "en": "Goals",
+            "sv": "Målbanor"
+          },
+          "expectedEffects": {
+            "en": "Expected effects",
+            "sv": "Förväntade utfall"
+          }
+        }
+      }
+    }
+  },
+  "functions-(folder)": {
+    "graphFunctions-(file)": {
+      "getStoredGraphType": {
+        "noValidGraphType": {
+          "en": "Invalid graph type in storage, defaulting to main graph.",
+          "sv": "Ogiltig graftyp i lagring, använder till huvudgraf."
+        }
+      },
+      "getStoredChildGraphType": {
+        "noValidGraphType": {
+          "en": "Invalid graph type in storage, defaulting to main graph.",
+          "sv": "Ogiltig graftyp i lagring, använder till huvudgraf."
+        }
+      }
+    }
+  },
+  "childGraphs-(folder)": {
+    "predictionChildGraph-(file)": {
+      "childOfChildGoals": {
+        "unknownGoal": {
+          "en": "Unknown goal",
+          "sv": "Okänd målbana"
+        }
+      },
+      "noDataToCompare": {
+        "noUnderlyingGoals": {
+          "en": "No underlying goals with effects or custom baselines found",
+          "sv": "Inga underliggande målbanor med effekter eller anpassade baslinjer hittades"
+        }
+      }
+    },
+    "goalChildGraph-(file)": {
+      "childOfChildGoals": {
+        "unknownGoal": {
+          "en": "Unknown goal",
+          "sv": "Okänd målbana"
+        }
+      }
+    },
+    "childGraphContainer-(file)": {
+      "menu": {
+        "changeGraphType": {
+          "en": "Change graph type",
+          "sv": "Byt graftyp"
+        },
+        "changeGraphAlt": {
+          "en": "Change graph",
+          "sv": "Byt graf"
+        }
+      }
+    }
+  }
+}

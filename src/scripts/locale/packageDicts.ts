@@ -13,10 +13,11 @@ function generateCollectedDictionary(): void {
 
   const outDict: { [key: string]: string | object } = {};
 
-  const filePaths: string[] = glob.sync("src/**/*" + dictFileEnding);
+  const rootFolderPath: string = "src"
+  const filePaths: string[] = glob.sync(rootFolderPath + "/**/*" + dictFileEnding);
 
   for (const filePath of filePaths) {
-    const relativePath: string = path.relative('src', filePath);
+    const relativePath: string = path.relative(rootFolderPath, filePath);
     const pathParts: string[] = relativePath.split(path.sep);
 
     for (let i = 0; i < pathParts.length; i++) {
