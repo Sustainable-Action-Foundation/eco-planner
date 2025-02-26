@@ -200,19 +200,26 @@ export default function GoalForm({
         {/* This hidden submit button prevents submitting by pressing enter, to avoid accidental submission */}
         <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
+        {/* Select roadmap */}
         {/* Allow user to select parent roadmap if not already selected */}
         {!(roadmapId || currentGoal?.roadmapId) ?
           <fieldset className={`${styles.timeLineFieldset} width-100`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>{dict.selectRoadmapVersion.relationToOtherPosts[locale]}</legend>
+            {/* Title */}
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>{dict.selectRoadmap.title[locale]}</legend>
+
+            {/* Dropdown */}
             <label className="block margin-block-100">
-              {dict.selectRoadmapVersion.title[locale]}
+              {/* Title */}
+              {dict.selectRoadmap.dropdown.title[locale]}
+
+              {/* Dropdown */}
               <select name="roadmapId" id="roadmapId" required className="block margin-block-25" defaultValue={""}
                 onChange={(e) => setSelectedRoadmap(e.target.value)}
               >
-                <option value="" disabled>{dict.selectRoadmapVersion.selectRoadmapVersion[locale]}</option>
+                <option value="" disabled>{dict.selectRoadmap.dropdown.placeholder[locale]}</option>
                 {roadmapAlternatives.map(roadmap => (
                   <option key={roadmap.id} value={roadmap.id}>
-                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} ${dict.selectRoadmapVersion.actions[locale]}`}
+                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} ${dict.selectRoadmap.dropdown.actions[locale]}`}
                   </option>
                 ))}
               </select>
@@ -221,52 +228,69 @@ export default function GoalForm({
           : null
         }
 
+        {/* Data series */}
         <fieldset className={`${styles.timeLineFieldset} width-100 ${positionIndex > 1 ? "margin-top-200" : ""}`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend}  font-weight-bold`}>{dict.dataSeries.selectType[locale]}</legend>
+          {/* Title */}
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend}  font-weight-bold`}>{dict.dataSeries.title[locale]}</legend>
+
+          {/* Dropdown */}
           <label className="block margin-block-100">
-            {dict.dataSeries.dataSeries[locale]}
+            {/* Title */}
+            {dict.dataSeries.dropdown.title[locale]}
+
+            {/* Dropdown */}
             <select name="dataSeriesType" id="dataSeriesType" className="block margin-block-25" required
               defaultValue={!currentGoal?.combinationParents.length ? DataSeriesType.Static : currentGoal.combinationParents.length >= 2 ? DataSeriesType.Combined : DataSeriesType.Inherited}
               onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
             >
-              <option value={DataSeriesType.Static}>{dict.dataSeries.options.static[locale]}</option>
-              <option value={DataSeriesType.Inherited}>{dict.dataSeries.options.inherited[locale]}</option>
-              <option value={DataSeriesType.Combined}>{dict.dataSeries.options.combined[locale]}</option>
+              <option value={DataSeriesType.Static}>{dict.dataSeries.dropdown.static[locale]}</option>
+              <option value={DataSeriesType.Inherited}>{dict.dataSeries.dropdown.inherited[locale]}</option>
+              <option value={DataSeriesType.Combined}>{dict.dataSeries.dropdown.combined[locale]}</option>
             </select>
           </label>
         </fieldset>
 
-
+        {/* Describe goal */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.description.describe[locale]}</legend>
+          {/* Title */}
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.describeGoal.title[locale]}</legend>
+
+          {/* Name */}
           <label className="block margin-bottom-100">
-            {dict.description.name[locale]}
+            {dict.describeGoal.name[locale]}
             <input className="margin-block-25" type="text" name="goalName" id="goalName" defaultValue={currentGoal?.name ?? undefined} />
           </label>
 
+          {/* describeGoal. */}
           <label className="block margin-block-100">
-            {dict.description.description[locale]}
+            {dict.describeGoal.description[locale]}
             <textarea className="margin-block-25" name="description" id="description" defaultValue={currentGoal?.description ?? undefined} />
           </label>
         </fieldset>
 
+        {/* Goal structure */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.data.describe[locale]}</legend>
+          {/* Title */}
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.goalStructure.title[locale]}</legend>
+
+          {/* Variable form sections */}
           {(dataSeriesType === DataSeriesType.Static || !dataSeriesType) &&
             <ManualGoalForm currentGoal={currentGoal} dataSeriesString={dataSeriesString} />
           }
-
           {dataSeriesType === DataSeriesType.Inherited &&
             <InheritedGoalForm currentGoal={currentGoal} roadmapAlternatives={roadmapAlternatives} />
           }
-
           {dataSeriesType === DataSeriesType.Combined &&
             <CombinedGoalForm currentGoal={currentGoal} roadmapId={currentGoal?.roadmapId || roadmapId || selectedRoadmap} />
           }
 
+          {/* Data series */}
           {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
             <fieldset className="padding-50 smooth position-relative" style={{ border: '1px solid var(--gray-90)' }}>
-              <legend>{dict.data.scaling.title[locale]}</legend>
+              {/* Title */}
+              <legend>{dict.goalStructure.dataSeries.title[locale]}</legend>
+
+              {/* Scale container */}
               <div className="margin-block-100">
                 {scalingRecipie.values.map((value, index) => {
                   return (
@@ -280,87 +304,116 @@ export default function GoalForm({
                     > {/* Multiplicative scaling doesn't use weights */}
                       <button type="button"
                         onClick={() => setScalingRecipe({ method: scalingRecipie.method, values: scalingRecipie.values.filter((_, i) => i !== index) })}>
-                        <Image src='/icons/circleMinus.svg' alt={dict.data.scaling.removeScaling[locale]} width={24} height={24} />
+                        <Image src='/icons/circleMinus.svg' alt={dict.goalStructure.dataSeries.scaling.remove[locale]} width={24} height={24} />
                       </button>
                     </RepeatableScaling>
                   )
                 })}
               </div>
-              <button type="button" className="margin-block-100" onClick={() => setScalingRecipe({ method: scalingRecipie.method, values: [...scalingRecipie.values, { value: 1 }] })}>{dict.data.scaling.addScaling[locale]}</button>
 
+              {/* Add scaling */}
+              <button type="button" className="margin-block-100" onClick={() => setScalingRecipe({ method: scalingRecipie.method, values: [...scalingRecipie.values, { value: 1 }] })}>{dict.goalStructure.dataSeries.scaling.add[locale]}</button>
+
+              {/* Scaling method */}
               <label className="block margin-block-100">
-                {dict.data.scaling.scalingMethod[locale]}
+                {/* Title */}
+                {dict.goalStructure.dataSeries.scaling.methods.title[locale]}
+
+                {/* Methods */}
                 <select name="scalingMethod" id="scalingMethod" className="margin-inline-25" defaultValue={scalingRecipie.method || ScaleMethod.Geometric}>
-                  <option value={ScaleMethod.Geometric}>{dict.data.scaling.scalingMethod.options.geometric[locale]}</option>
-                  <option value={ScaleMethod.Algebraic}>{dict.data.scaling.scalingMethod.options.algebraic[locale]}</option>
-                  <option value={ScaleMethod.Multiplicative}>{dict.data.scaling.scalingMethod.options.multiplicative[locale]}</option>
+                  <option value={ScaleMethod.Geometric}>{dict.goalStructure.dataSeries.scaling.methods.geometric[locale]}</option>
+                  <option value={ScaleMethod.Algebraic}>{dict.goalStructure.dataSeries.scaling.methods.algebraic[locale]}</option>
+                  <option value={ScaleMethod.Multiplicative}>{dict.goalStructure.dataSeries.scaling.methods.multiplicative[locale]}</option>
                 </select>
               </label>
 
+              {/* Scaling result */}
               <label className="block margin-block-100">
-                <strong className="block bold">{dict.data.scaling.resultingScalingFactor[locale]} </strong>
+                <strong className="block bold">{dict.goalStructure.dataSeries.scaling.result[locale]} </strong>
                 <output className="margin-block-100 block">{scalingResult}</output>
               </label>
             </fieldset>
           }
         </fieldset>
 
+        {/* Baseline */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.baseline.selectBaseline[locale]}</legend>
+          {/* Title */}
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.baseline.title[locale]}</legend>
+
+          {/* Dropdown */}
           <label className="block margin-bottom-100">
-            {dict.baseline.whichBaseline[locale]}
+            {/* Title */}
+            {dict.baseline.dropdown.title[locale]}
+
+            {/* Types */}
             <select className="block margin-block-25" name="baselineSelector" id="baselineSelector" value={baselineType} onChange={(e) => setBaselineType(e.target.value as BaselineType)}>
-              <option value={BaselineType.Initial}>{dict.baseline.options.initial[locale]}</option>
-              <option value={BaselineType.Custom}>{dict.baseline.options.custom[locale]}</option>
-              <option value={BaselineType.Inherited}>{dict.baseline.options.inherited[locale]}</option>
+              <option value={BaselineType.Initial}>{dict.baseline.dropdown.initial[locale]}</option>
+              <option value={BaselineType.Custom}>{dict.baseline.dropdown.custom[locale]}</option>
+              <option value={BaselineType.Inherited}>{dict.baseline.dropdown.inherited[locale]}</option>
             </select>
           </label>
 
+          {/* Custom baseline */}
           {baselineType === BaselineType.Custom &&
             <label className="block margin-block-100">
-              {dict.baseline.customBaseline[locale]}
+              {/* Title */}
+              {dict.baseline.customBaseline.title[locale]}
+
               {/* TODO: Make this allow .csv files and possibly excel files */}
               <input type="text" name="baselineDataSeries" id="baselineDataSeries"
                 pattern={dataSeriesPattern}
-                title={dict.baseline.input.title[locale]}
+                title={dict.baseline.customBaseline.hoverText[locale]}
                 className="margin-block-25"
                 defaultValue={baselineString}
               />
             </label>
           }
 
+          {/* Inherit other baseline */}
           {baselineType === BaselineType.Inherited &&
             <InheritingBaseline />
           }
         </fieldset>
 
+        {/* External resources */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.externalResources.attach[locale]}</legend>
+          {/* Title */}
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.externalResources.title[locale]}</legend>
           <LinkInput links={currentGoal?.links} />
         </fieldset>
 
+        {/* Feature goal */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.featureGoal.question[locale]}</legend>
+          {/* Title */}
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.featureGoal.title[locale]}</legend>
+
+          {/* Checkbox */}
           <label className="flex align-items-center gap-50 margin-block-50">
             <input type="checkbox" name="isFeatured" id="isFeatured" defaultChecked={currentGoal?.isFeatured} /> {/* TODO: Make toggle */}
             {dict.featureGoal.checkboxLabel[locale]}
           </label>
         </fieldset>
 
+        {/* Scale warning */}
         {
           currentGoal?.dataSeries?.scale ?
             <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+              {/* Title */}
               <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>
-                {dict.scaleExists.alert[locale]}
+                {dict.scaleWarning.title[locale]}
               </legend>
+
+              {/* Checkbox */}
               <label className="flex align-items-center gap-50 margin-block-50">
                 <input type="checkbox" name="scale" id="scale" />
-                {dict.scaleExists.checkboxLabel[locale]} {`"${currentGoal?.dataSeries?.scale}"`}
+                {dict.scaleWarning.checkboxLabel[locale]} {`"${currentGoal?.dataSeries?.scale}"`}
               </label>
             </fieldset>
             : null
         }
 
+        {/* Submit */}
         <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentGoal ? dict.submit.save[locale] : dict.submit.create[locale]} />
       </form>
 

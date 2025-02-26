@@ -1,32 +1,34 @@
 {
-  "selectRoadmapVersion": {
-    "relationToOtherPosts": {
-      "en": "Select the relation to other posts",
-      "sv": "Ange relationen till andra inlägg"
-    },
+  "selectRoadmap": {
     "title": {
       "en": "Select roadmap version to create goal under:",
       "sv": "Välj färdplansversion att skapa målbanan under:"
     },
-    "selectRoadmapVersion": {
-      "en": "Select roadmap version",
-      "sv": "Välj färdplansversion"
-    },
-    "actions": {
-      "en": "actions",
-      "sv": "åtgärder"
+    "dropdown": {
+      "title": {
+        "en": "Select roadmap version",
+        "sv": "Välj färdplansversion"
+      },
+      "placeholder": {
+        "en": "Select roadmap version",
+        "sv": "Välj färdplansversion"
+      },
+      "actions": {
+        "en": "actions",
+        "sv": "åtgärder"
+      }
     }
   },
   "dataSeries": {
-    "selectType": {
+    "title": {
       "en": "Select type of data series for your goal",
       "sv": "Välj typ av dataserie för din målbana"
     },
-    "dataSeries": {
-      "en": "Data series",
-      "sv": "Dataserie"
-    },
-    "options": {
+    "dropdown": {
+      "title": {
+        "en": "Data series",
+        "sv": "Dataserie"
+      },
       "static": {
         "en": "Static",
         "sv": "Statisk"
@@ -41,8 +43,8 @@
       }
     }
   },
-  "description": {
-    "describe": {
+  "describeGoal": {
+    "title": {
       "en": "Describe your goal",
       "sv": "Beskriv din målbana"
     },
@@ -55,100 +57,102 @@
       "sv": "Beskrivning av målbanan"
     }
   },
-  "data": {
-    "describe": {
+  "goalStructure": {
+    "title": {
       "en": "Describe how your goal's data is structured",
       "sv": "Beskriv hur din målbanas data är utformad"
     },
-    "scaling": {
+    "dataSeries": {
       "title": {
-        "en": "Scaling",
-        "sv": "Skalning"
+        "en": "Data series",
+        "sv": "Dataserie"
       },
-      "removeScaling": {
-        "en": "Remove scaling",
-        "sv": "Ta bort skalning"
-      },
-      "addScaling": {
-        "en": "Add scaling",
-        "sv": "Lägg till skalning"
-      },
-      "scalingMethod": {
-        "en": "Scaling method:",
-        "sv": "Skalningsmetod:",
-        "options": {
+      "scaling": {
+        "remove": {
+          "en": "Remove scaling",
+          "sv": "Ta bort skalning"
+        },
+        "add": {
+          "en": "Add scaling",
+          "sv": "Lägg till skalning"
+        },
+        "methods": {
+          "title": {
+            "en": "Scaling method:",
+            "sv": "Skalningsmetod:"
+          },
           "geometric": {
-            "en": "Geometric mean (recommended)",
-            "sv": "Geometriskt genomsnitt (rekommenderas)"
+            "en": "Geometric",
+            "sv": "Geometrisk"
           },
           "algebraic": {
-            "en": "Algebraic average",
-            "sv": "Algebraiskt genomsnitt"
+            "en": "Algebraic",
+            "sv": "Algebraisk"
           },
           "multiplicative": {
             "en": "Multiplicative",
-            "sv": "Multiplikativt"
+            "sv": "Multiplikativ"
           }
+        },
+        "result": {
+          "en": "Resulting data series",
+          "sv": "Resulterande dataserie"
         }
-      },
-      "resultingScalingFactor": {
-        "en": "Resulting scaling factor:",
-        "sv": "Resulterande skalfaktor:"
       }
     }
   },
   "baseline": {
-    "selectBaseline": {
-      "en": "Select baseline for actions",
-      "sv": "Välj baslinje för åtgärder"
+    "title": {
+      "en": "Select a goal to use as baseline",
+      "sv": "Välj en målbana att använda som baslinje"
     },
-    "whichBaseline": {
-      "en": "Which baseline should be used when calculating the effect of actions on the goal?",
-      "sv": "Vilken baslinje ska man utgå ifrån när man beräknar åtgärders effekt på målbanan?"
-    },
-    "options": {
+    "dropdown": {
+      "title": {
+        "en": "Baseline",
+        "sv": "Baslinje"
+      },
       "initial": {
-        "en": "Initial year's value",
-        "sv": "Första årets värde"
+        "en": "Initial",
+        "sv": "Initial"
       },
       "custom": {
-        "en": "Custom baseline",
-        "sv": "Anpassad baslinje"
+        "en": "Custom",
+        "sv": "Anpassad"
       },
       "inherited": {
-        "en": "Use another goal as baseline",
-        "sv": "Använd en annan målbana som baslinje"
+        "en": "Inherited",
+        "sv": "Ärvd"
       }
     },
     "customBaseline": {
-      "en": "Custom baseline:",
-      "sv": "Anpassad baslinje:"
-    },
-    "input":{
       "title": {
+        "en": "Custom baseline",
+        "sv": "Anpassad baslinje"
+      },
+      "hoverText": {
         "en": "Use numerical values separated by semicolon or tab. Decimal numbers can use either dot or comma.",
         "sv": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma."
       }
     }
   },
-  "externalResources":{
-    "attach": {
+  "externalResources": {
+    "title": {
       "en": "Attach external resources",
       "sv": "Bifoga externa resurser"
     }
   },
   "featureGoal": {
-    "question": {
-      "en": "Do you want to feature this goal under your roadmap version?",
-      "sv": "Vill du lyfta fram denna målbanan under din färdplansversion?"
+    "title": {
+      "en": "Feature this goal",
+      "sv": "Lyft fram denna målbanan"
     },
     "checkboxLabel": {
       "en": "Feature this goal",
       "sv": "Lyft fram denna målbanan"
     }
   },
-  "scaleExists": {
-    "alert": {
+  "scaleWarning": {
+    "title": {
       "en": "The goal contains a scale. Please bake the scale into the value or unit and then check this box; all scales will be removed in the future",
       "sv": "Målbanan innehåller en skala. Vänligen baka in skalan i värdet eller enheten och checka sedan i den här rutan; alla skalor kommer att tas bort i framtiden"
     },
