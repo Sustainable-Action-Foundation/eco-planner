@@ -12,13 +12,13 @@ services:
       - "8081:8081"
     environment:
       # Database connection string
-      - DATABASE_URL: ${DATABASE_URL}
+      - DATABASE_URL=${DATABASE_URL}
       # Iron session cookie encryption password
-      - IRON_SESSION_PASSWORD: ${IRON_SESSION_PASSWORD}
+      - IRON_SESSION_PASSWORD=${IRON_SESSION_PASSWORD}
       # Used to connect mailClient to SMTP server
-      - MAIL_HOST: ${MAIL_HOST}
-      - MAIL_USER: ${MAIL_USER}
-      - MAIL_PASSWORD: ${MAIL_PASSWORD}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_USER=${MAIL_USER}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
     # Wait for database to start, then reset and seed the database and start the server
     command: sh -c 'sleep 15; yarn prisma migrate reset -f; HOSTNAME="0.0.0.0" node server.js'
 
@@ -26,8 +26,8 @@ services:
     image: mariadb
     restart: always
     environment:
-      - MARIADB_DATABASE: ${MARIADB_DATABASE}
-      - MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      - MARIADB_DATABASE=${MARIADB_DATABASE}
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
     networks:
       - stagingDatabase
     volumes:
