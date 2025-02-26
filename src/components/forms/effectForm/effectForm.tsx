@@ -86,30 +86,39 @@ export default function EffectForm({
 
         <GoalSelector goal={goal} roadmapAlternatives={roadmapAlternatives} />
 
+        {/* Data series */}
         <label className="block margin-block-100">
-          {dict.dataseries[locale]}
+          {/* Title */}
+          {dict.dataSeries.title[locale]}
+
+          {/* Input */}
           {/* TODO: Make this allow .csv files and possibly excel files */}
           <input type="text" name="dataSeries" required id="dataSeries"
             pattern={dataSeriesPattern}
-            title={dict.dataseries.input.title[locale]}
+            title={dict.dataSeries.hoverText[locale]} // HoverText
             className="margin-block-25"
             defaultValue={dataSeriesString}
           />
         </label>
 
+        {/* Type of impact */}
         {/* TODO: Show preview of how it would affect the goal */}
         <label className="block margin-block-100">
-          {dict.typeOfImpact[locale]}
+          {/* Title */}
+          {dict.impactType.title[locale]}
+
+          {/* Dropdown */}
           <select className="block margin-block-25" name="impactType" id="impactType" required
             defaultValue={currentEffect?.impactType || ActionImpactType.ABSOLUTE}
           >
-            <option value={ActionImpactType.ABSOLUTE}>{dict.typeOfImpact.options.absolute[locale]}</option>
-            <option value={ActionImpactType.DELTA}>{dict.typeOfImpact.options.delta[locale]}</option>
-            <option value={ActionImpactType.PERCENT}>{dict.typeOfImpact.options.percent[locale]}</option>
+            <option value={ActionImpactType.ABSOLUTE}>{dict.impactType.absolute[locale]}</option>
+            <option value={ActionImpactType.DELTA}>{dict.impactType.delta[locale]}</option>
+            <option value={ActionImpactType.PERCENT}>{dict.impactType.percent[locale]}</option>
           </select>
         </label>
 
-        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentEffect ? dict.typeOfImpact.save[locale] : dict.typeOfImpact.create[locale]} />
+        {/* Create button */}
+        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentEffect ? dict.createButton.save[locale] : dict.createButton.create[locale]} />
       </form>
     </>
   )

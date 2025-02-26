@@ -1,31 +1,33 @@
 {
-  "dataseries": {
-    "en": "Data series",
-    "sv": "Data serie",
-    "input": {
-      "title": {
-        "en": "Use numeric values separated by semicolon or tab. Decimal numbers can use either dot or comma.",
-        "sv": "Använd numeriska värden separerade med semikolon eller tabb. Decimaltal kan använda antingen punkt eller komma."
-      }
+  "dataSeries": {
+    "title": {
+      "en": "Data series",
+      "sv": "Data serie"
+    },
+    "hoverText": {
+      "en": "Use numeric values separated by semicolon or tab. Decimal numbers can use either dot or comma.",
+      "sv": "Använd numeriska värden separerade med semikolon eller tabb. Decimaltal kan använda antingen punkt eller komma."
     }
   },
-  "typeOfImpact":{
-    "en": "What type of impact does the action have?",
-    "sv": "Vilken typ av påverkan har åtgärden?",
-    "options": {
-      "absolute": {
-        "en": "Absolute difference from baseline",
-        "sv": "Absolut skillnad gentemot baslinjen"
-      },
-      "delta": {
-        "en": "Change year by year (delta)",
-        "sv": "Förändring år för år (delta)"
-      },
-      "percent": {
-        "en": "Difference from baseline in percent of previous year's total value (baseline + actions)",
-        "sv": "Skillnad gentemot baslinjen i procent av föregående års totalvärde (baslinje + åtgärder)"
-      }
+  "impactType": {
+    "title": {
+      "en": "What type of impact does the action have?",
+      "sv": "Vilken typ av påverkan har åtgärden?"
     },
+    "absolute": {
+      "en": "Absolute difference from baseline",
+      "sv": "Absolut skillnad gentemot baslinjen"
+    },
+    "delta": {
+      "en": "Change year by year (delta)",
+      "sv": "Förändring år för år (delta)"
+    },
+    "percent": {
+      "en": "Difference from baseline in percent of previous year's total value (baseline + actions)",
+      "sv": "Skillnad gentemot baslinjen i procent av föregående års totalvärde (baslinje + åtgärder)"
+    }
+  },
+  "createButton": {
     "save": {
       "en": "Save effect",
       "sv": "Spara effekt"
