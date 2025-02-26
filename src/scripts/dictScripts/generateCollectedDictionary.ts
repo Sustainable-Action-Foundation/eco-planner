@@ -1,7 +1,7 @@
 import { glob } from "glob";
 import path from "path";
-import CaseHandler from "./caseHandler";
-import { getObjectFromJson, saveDictAsJson, findSubDict, collectedDictionaryPath, dictFileEnding } from "./dictHandler";
+import CaseHandler from "../caseHandler";
+import { collectedDictionaryPath, dictFileEnding, findSubDict, getObjectFromJson, saveDictAsJson } from "./dictHandler";
 
 // TODO - implement locale dict type?
 function generateCollectedDictionary(): void {
@@ -15,7 +15,7 @@ function generateCollectedDictionary(): void {
 
   const outDict: { [key: string]: string | object } = {};
 
-  const filePaths: string[] = glob.sync("src/**/*"+dictFileEnding);
+  const filePaths: string[] = glob.sync("src/**/*" + dictFileEnding);
 
   for (const filePath of filePaths) {
     const relativePath: string = path.relative('src', filePath);

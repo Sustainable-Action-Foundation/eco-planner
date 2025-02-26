@@ -1,5 +1,5 @@
 import path from 'path';
-import CaseHandler from './caseHandler';
+import CaseHandler from '../caseHandler';
 import { collectedDictionaryPath, dictFileEnding, findSubDict, getObjectFromJson, saveDictAsJson } from './dictHandler';
 
 function unpackCollectedDictionary(): void {
