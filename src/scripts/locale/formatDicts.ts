@@ -7,9 +7,10 @@ export default function formatDicts(): void {
   const filePaths: string[] = glob.sync("src/**/*" + dictFileEnding);
 
   for (const filePath of filePaths) {
-    console.log("Formatting: " + filePath + "...");
     saveDictAsJson(getObjectFromJson(filePath), filePath);
   }
+
+  console.log("Done formatting dict files.");
 }
 
 formatDicts()

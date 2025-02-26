@@ -4,7 +4,7 @@ import { collectedDictionaryPath, dictFileEnding, findSubDict, getObjectFromJson
 
 // TODO - implement locale dict type?
 export default function generateCollectedDictionary(): void {
-  console.log("Generating collected dictionary...");
+  console.log("Packaging dictionaries...");
 
   function createKey(dict: { [key: string]: string | object }, key: string): void {
     if (!(key in dict)) {
@@ -40,6 +40,7 @@ export default function generateCollectedDictionary(): void {
   }
 
   saveDictAsJson(outDict, collectedDictionaryPath);
+  console.log("Done packaging dictionaries.")
 }
 
 generateCollectedDictionary()
