@@ -11,7 +11,7 @@ export default function unpackCollectedDictionary(): void {
     const paths: string[] = [];
     for (const key of Object.keys(inDict)) {
       // If the value is an object and the key is formatted as a file or folder name
-      if (typeof inDict[key] === 'object' && (KeyNameHandler.keyIsFileOrFolder(key))) {
+      if (typeof inDict[key] === 'object' && (KeyNameHandler.keyIsFileOrFolderName(key))) {
         const subDictPaths: string[] = findSubDictPaths(inDict[key] as { [key: string]: string | object });
         for (const subDictPath of subDictPaths) {
           paths.push(path.join(key, subDictPath));

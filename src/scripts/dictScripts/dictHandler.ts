@@ -20,16 +20,16 @@ export class KeyNameHandler {
     return key.replace("FOLDER--", "");
   }
 
-  public static keyIsFile(key: string): boolean {
+  public static keyIsFileName(key: string): boolean {
     return key.startsWith("FILE--");
   }
 
-  public static keyIsFolder(key: string): boolean {
+  public static keyIsFolderName(key: string): boolean {
     return key.startsWith("FOLDER--");
   }
 
-  public static keyIsFileOrFolder(key: string): boolean {
-    return this.keyIsFile(key) || this.keyIsFolder(key);
+  public static keyIsFileOrFolderName(key: string): boolean {
+    return this.keyIsFileName(key) || this.keyIsFolderName(key);
   }
 }
 
