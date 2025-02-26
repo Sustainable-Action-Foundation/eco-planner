@@ -82,21 +82,7 @@
 }
 
 /* Table styling*/
-
-.tableHeader {
-    background-color: var(--blue-20);
-    color: white;
-    border-radius: 3px 3px 0 0;
-    padding: 1rem;
-    z-index: 1;
-    position: relative;
-}
-
-.tableHeader>h2 {
-    margin: 0;
-    font-size: 1.25rem;
-}
-
+ 
 .table {
     table-layout: auto;
     width: 100%;
@@ -126,30 +112,9 @@
     border-bottom: 1px solid var(--gray);
 }
 
-
 .table tbody {
     background-color: #fefefe;
-}
-
-.newRoadmap {
-    color: white;
-    font-weight: bold;
-    text-decoration: none;
-}
-
-.newRoadmap:hover {
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-}
-
-/* Wrapper */
-
-.tableWrapper {
-    overflow-y: scroll;
-    min-height: 300px;
-    max-height: 500px;
-    scrollbar-width: none;
-}
+}  
 
 /* New styles as of: 2024-02-20 */
 
@@ -189,52 +154,61 @@
     -webkit-box-orient: vertical;
 }
 
-
 /* TODO: Clean this (temp while rewriting some code) */
 
-.ul {
+.roadmap-nav-ul {
     list-style: none;
     padding-inline-start: calc(24px + (.25rem * 2));
     margin: 0;
 }
 
-.ul summary > div > img {
-    transition: background-color .1s ease, transform .1s ease-out;
+.roadmap-nav-ul summary > div > img {
+    transition: background-color .1s ease, 
+                transform .1s ease-out;
 }
 
-.ul summary:focus {
+.roadmap-nav-ul summary:focus {
     outline: none;
 }
 
-.ul summary:focus-visible > div > img {
+.roadmap-nav-ul summary:focus-visible > div > img {
     outline: 2px solid;
 }
 
-.ul summary:hover:not(:has(a:hover, span:hover)) > div > img {
+.roadmap-nav-ul summary:hover:not(:has(a:hover, span:hover)) > div > img {
     background-color: rgba(225, 225, 235);
 }
 
-.ul details[open] > summary > div > img {
+.roadmap-nav-ul details[open] > summary > div > img {
     transform: rotate(90deg);
 }
 
-.ul li > div a, .ul li > details a {
+
+.roadmap-nav-ul li {
+    /* TODO: better solution, this creates space between links which is kinda annoying*/
+    margin-block: .25rem;
+}
+
+.roadmap-nav-ul li > div a, 
+.roadmap-nav-ul li > details a {
     transition: background-color .2s ease-out;
     color: black;
 }
 
-.ul li > div a:active, 
-.ul li > details a:active, 
-.ul li > div a:active span,
-.ul li > details a:active span {
+.roadmap-nav-ul li > div a:active, 
+.roadmap-nav-ul li > details a:active, 
+.roadmap-nav-ul li > div a:active .roadmap-information,
+.roadmap-nav-ul li > details a:active .roadmap-information {
     color: red;
 }
 
-.ul li > div a:hover, .ul li > details a:hover {
+.roadmap-nav-ul li > div a:hover, 
+.roadmap-nav-ul li > details a:hover {
     background-color: var(--gray-90);
 }
 
-.ul li > div a span, .ul li > details a span{
+.roadmap-nav-ul li > div a .roadmap-information, 
+.roadmap-nav-ul li > details a .roadmap-information {
     color: gray; 
     font-size: 12px;
     text-transform: lowercase;

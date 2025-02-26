@@ -4,6 +4,7 @@ import accessChecker from "@/lib/accessChecker.ts";
 import { LoginData } from "@/lib/session.ts";
 import { AccessControlled } from "@/types.ts";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
+import Link from "next/link";
 
 type RoadmapTreeProps = {
   user: LoginData['user'],
@@ -30,9 +31,11 @@ export default function RoadmapTree({
   const topLevelRoadmaps = roadmaps.filter(roadmap => (roadmap.metaRoadmap.parentRoadmapId == null) || (!accessibleMetaRoadmaps.includes(roadmap.metaRoadmap.parentRoadmapId)));
 
   return ( 
-    <ul className={`${styles.ul}`} style={{paddingInlineStart: '0'}}>
-      <NestedRoadmapRenderer allRoadmaps={roadmaps} childRoadmaps={topLevelRoadmaps} user={user} />
-    </ul>
+    <nav>
+      <ul className={`${styles['roadmap-nav-ul']}`} style={{paddingInlineStart: '0'}}>
+        <NestedRoadmapRenderer allRoadmaps={roadmaps} childRoadmaps={topLevelRoadmaps} user={user} />
+      </ul>
+    </nav>
   )
 }
 
@@ -60,13 +63,11 @@ function NestedRoadmapRenderer({
               <details>
                 <summary className="flex justify-content-space-between">
                   <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
-                    <img src="/icons/caret-right.svg" width="24" height="24" className="round padding-25 margin-inline-25"/>
-                    <a href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth'>
-                      <div style={{lineHeight: '1'}}>
-                          {`${roadmap.metaRoadmap.name} (v${roadmap.version})`} <br /> 
-                          <span>{roadmap.metaRoadmap.type} • {roadmap._count.goals} målbanor</span>
-                      </div>
-                    </a> 
+                    <img src="/icons/caret-right.svg" alt="Visa underliggande färdplaner" width={24} height={24} className="round padding-25 margin-inline-25" />
+                    <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth' style={{lineHeight: '1'}}>
+                        <div>{`${roadmap.metaRoadmap.name} (v${roadmap.version})`}</div>
+                        <div className={styles["roadmap-information"]}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} målbanor</div>
+                    </Link> 
                   </div>
                   <span className="flex align-items-center padding-inline-25">
                     <TableMenu
@@ -75,8 +76,8 @@ function NestedRoadmapRenderer({
                     />
                   </span>
                 </summary>
-
-                <ul className={styles.ul}>
+                
+                <ul className={styles['roadmap-nav-ul']}>
                   <NestedRoadmapRenderer allRoadmaps={allRoadmaps} childRoadmaps={newChildRoadmaps} user={user} />
                 </ul>
               </details>
@@ -84,13 +85,11 @@ function NestedRoadmapRenderer({
             : 
               <li className="inline-flex align-items-center flex-grow-100 width-100">
                 <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
-                  <img src="/icons/caret-right-gray.svg" width="24" height="24" className="round padding-25 margin-inline-25"/>
-                  <a href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth'>
-                    <div style={{lineHeight: '1'}}>
-                        {`${roadmap.metaRoadmap.name} (v${roadmap.version})`} <br /> 
-                        <span>{roadmap.metaRoadmap.type} • {roadmap._count.goals} målbanor</span>
-                    </div>
-                  </a> 
+                  <img src="/icons/caret-right-gray.svg" alt="" width="24" height="24" className="round padding-25 margin-inline-25"/>
+                  <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth' style={{lineHeight: '1'}}>
+                    <div>{`${roadmap.metaRoadmap.name} (v${roadmap.version})`}</div>
+                    <div className={styles["roadmap-information"]}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} målbanor</div>
+                  </Link> 
                 </div>
                 <span className="flex align-items-center padding-inline-25">
                   <TableMenu
