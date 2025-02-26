@@ -1,5 +1,4 @@
 import path from 'path';
-import CaseHandler from '../caseHandler';
 import { collectedDictionaryPath, dictFileEnding, findSubDict, getObjectFromJson, saveDictAsJson } from './dictHandler';
 
 export default function unpackCollectedDictionary(): void {
@@ -12,7 +11,7 @@ export default function unpackCollectedDictionary(): void {
     const paths: string[] = [];
     for (const key of Object.keys(inDict)) {
       // If the value is an object and the key is formatted as a file or folder name
-      if (typeof inDict[key] === 'object' && (key[0] == key[0].toUpperCase())) {
+      if (typeof inDict[key] === 'object' && (key.startsWith('FILE--') || key.startsWith('FOLDER--'))) {
         const subDictPaths: string[] = findSubDictPaths(inDict[key] as { [key: string]: string | object });
         for (const subDictPath of subDictPaths) {
           paths.push(path.join(key, subDictPath));
@@ -44,7 +43,7 @@ export default function unpackCollectedDictionary(): void {
 
     // Convert pathParts from keys to folder/file names
     for (let i: number = 0; i < pathParts.length; i++) {
-      pathParts[i] = CaseHandler.snakeToCamel(pathParts[i].toLowerCase());
+      pathParts[i] = pathParts[i].replace('FILE--', '').replace('FOLDER--', '');
     }
 
     const joinedPathParts: string = pathParts.join(path.sep);

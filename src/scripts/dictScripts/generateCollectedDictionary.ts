@@ -1,6 +1,5 @@
 import { glob } from "glob";
 import path from "path";
-import CaseHandler from "../caseHandler";
 import { collectedDictionaryPath, dictFileEnding, findSubDict, getObjectFromJson, saveDictAsJson } from "./dictHandler";
 
 // TODO - implement locale dict type?
@@ -24,7 +23,7 @@ export default function generateCollectedDictionary(): void {
     for (let i = 0; i < pathParts.length; i++) {
       if (pathParts[i].endsWith(dictFileEnding)) {
         // This line decides what the key for the dict file will look like
-        pathParts[i] = CaseHandler.camelToMacro(pathParts[i].split(dictFileEnding)[0]);
+        pathParts[i] = "FILE--" + pathParts[i].split(dictFileEnding)[0];
 
         const subDict: { [key: string]: string | object } = findSubDict(outDict, pathParts, i);
         createKey(subDict, pathParts[i]);
@@ -32,7 +31,7 @@ export default function generateCollectedDictionary(): void {
       }
       else {
         // This line decides what the key for the folder will look like
-        pathParts[i] = CaseHandler.camelToPascalSnake(pathParts[i]);
+        pathParts[i] = "FOLDER--" + pathParts[i];
 
         const subDict: { [key: string]: string | object } = findSubDict(outDict, pathParts, i);
         createKey(subDict, pathParts[i]);
