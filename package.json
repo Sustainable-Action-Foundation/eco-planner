@@ -2,12 +2,13 @@
   "scripts": {
     "predev": "tsx ./src/scripts/getBuildInfo.ts",
     "dev": "next dev",
-    "prebuild": "tsx ./src/scripts/generateLeapList.ts && tsx ./src/scripts/getDataSeriesValueFieldNames.ts && tsx ./src/scripts/getBuildInfo.ts && tsx ./src/scripts/validateLocaleDicts.ts -d src",
+    "prebuild": "tsx ./src/scripts/generateLeapList.ts && tsx ./src/scripts/getDataSeriesValueFieldNames.ts && tsx ./src/scripts/getBuildInfo.ts && yarn locale:validate",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "e2e:chrome": "cypress run --browser chrome --headless",
     "test": "docker compose -f compose.test.yaml up -d",
+    "locale:validate": "tsx src/scripts/locale/validate.ts -d src",
     "locale:package": "tsx src/scripts/locale/packageDicts.ts",
     "locale:unpack": "tsx src/scripts/locale/unpackDicts.ts",
     "locale:format": "tsx src/scripts/locale/formatDicts.ts"

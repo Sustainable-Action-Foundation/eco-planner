@@ -67,10 +67,11 @@ if (dirFlag) {
       console.info(""); // Padding
     }
   });
-  console.info(""); // Padding
-
+  
   // Exit appropriately
-  if (Object.values(fileProblems).length > 0) process.exit(1);
+  const problematicFileCount = Object.values(fileProblems).filter(problemList => problemList.length !== 0).length;
+  if (problematicFileCount > 0) process.exit(1);
+  console.info("✔️  No problems found in any files.\n");
   process.exit(0);
 };
 
