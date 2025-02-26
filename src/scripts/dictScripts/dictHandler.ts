@@ -1,6 +1,38 @@
 import fs from "fs";
 import path from 'path';
 
+export const collectedDictionaryPath: string = path.join('src', 'collectedDictionary.json');
+export const dictFileEnding: string = '.dict.json';
+
+export class KeyNameHandler {
+  public static fileNameToKey(fileName: string): string {
+    return "FILE--" + fileName.replace(dictFileEnding, '');
+  }
+
+  public static folderNameToKey(folderName: string): string {
+    return "FOLDER--" + folderName;
+  }
+
+  public static keyToFileOrFolderName(key: string): string {
+    if (key.startsWith("FILE--")) {
+      return key.replace("FILE--", "") + dictFileEnding;
+    }
+    return key.replace("FOLDER--", "");
+  }
+
+  public static keyIsFile(key: string): boolean {
+    return key.startsWith("FILE--");
+  }
+
+  public static keyIsFolder(key: string): boolean {
+    return key.startsWith("FOLDER--");
+  }
+
+  public static keyIsFileOrFolder(key: string): boolean {
+    return this.keyIsFile(key) || this.keyIsFolder(key);
+  }
+}
+
 export function getObjectFromJson(filePath: string): { [key: string]: string | object } {
   const jsonData: string = fs.readFileSync(filePath, { encoding: 'utf8' });
   return JSON.parse(jsonData) as { [key: string]: string | object };
@@ -23,6 +55,3 @@ export function findSubDict(inDict: { [key: string]: string | object }, keys: st
 export function deleteCollectedDictionary(): void {
   fs.unlinkSync(collectedDictionaryPath);
 }
-
-export const collectedDictionaryPath: string = path.join('src', 'collectedDictionary.json');
-export const dictFileEnding: string = '.dict.json';

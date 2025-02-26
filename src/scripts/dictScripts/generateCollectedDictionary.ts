@@ -1,6 +1,6 @@
 import { glob } from "glob";
 import path from "path";
-import { collectedDictionaryPath, dictFileEnding, findSubDict, getObjectFromJson, saveDictAsJson } from "./dictHandler";
+import { collectedDictionaryPath, dictFileEnding, findSubDict, getObjectFromJson, KeyNameHandler, saveDictAsJson } from "./dictHandler";
 
 // TODO - implement locale dict type?
 export default function generateCollectedDictionary(): void {
@@ -23,7 +23,7 @@ export default function generateCollectedDictionary(): void {
     for (let i = 0; i < pathParts.length; i++) {
       if (pathParts[i].endsWith(dictFileEnding)) {
         // This line decides what the key for the dict file will look like
-        pathParts[i] = "FILE--" + pathParts[i].split(dictFileEnding)[0];
+        pathParts[i] = KeyNameHandler.fileNameToKey(pathParts[i]);
 
         const subDict: { [key: string]: string | object } = findSubDict(outDict, pathParts, i);
         createKey(subDict, pathParts[i]);
@@ -31,7 +31,7 @@ export default function generateCollectedDictionary(): void {
       }
       else {
         // This line decides what the key for the folder will look like
-        pathParts[i] = "FOLDER--" + pathParts[i];
+        pathParts[i] = KeyNameHandler.folderNameToKey(pathParts[i]);
 
         const subDict: { [key: string]: string | object } = findSubDict(outDict, pathParts, i);
         createKey(subDict, pathParts[i]);
