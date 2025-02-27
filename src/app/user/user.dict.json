@@ -30,13 +30,5 @@
         "sv": "Antal målbanor:"
       }
     }
-  },
-  "[username]": {
-    "page": {
-      "belongsTo": {
-        "en": "Belongs to:",
-        "sv": "Tillhör:"
-      }
-    }
   }
 }
