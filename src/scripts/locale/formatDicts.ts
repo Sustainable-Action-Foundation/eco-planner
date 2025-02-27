@@ -1,6 +1,5 @@
-import fs from "node:fs";
 import { glob } from "glob";
-import { dictFileEnding, getObjectFromJson, saveDictAsJson } from "./dictHandler.ts";
+import { dictFileEnding, getDictObjectFromJsonFile, saveDictObjectAsJsonFile } from "./dictUtils";
 
 formatDicts();
 
@@ -13,8 +12,8 @@ function formatDicts(): void {
   for (const filePath of filePaths) {
     // JSON parsing may fail in case of invalid JSON files
     try {
-      const fileContent = getObjectFromJson(filePath);
-      saveDictAsJson(fileContent, filePath);
+      const dict: { [key: string]: string | object } = getDictObjectFromJsonFile(filePath);
+      saveDictObjectAsJsonFile(dict, filePath);
 
     } catch (error) {
       console.error(""); // Padding

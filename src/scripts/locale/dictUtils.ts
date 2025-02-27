@@ -1,17 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 
-export const collectedDictionaryPath: string = path.join("src", "collectedDictionary.json");
+export const packagedDictionaryPath: string = path.join("packagedDictionary.json");
 export const dictFileEnding: string = ".dict.json";
 
 /**
- * The prefixes and suffixes are used decide how files
- * and folders are represented in the packaged dictionary.
- * They need to be able to be identified in as files and
- * folders in the dictionary so that they can be unpacked
- * properly.
- * 
- * When packaging all dictionary files, the folder structure 
+ * When packaging all dictionary files, the folderstructure 
  * is maintained by using these prefixes and suffixes to 
  * differentiate folders and files from translation keys.
  */
@@ -54,12 +48,24 @@ export class KeyNameHandler {
   }
 }
 
-export function getObjectFromJson(filePath: string): { [key: string]: string | object } {
+/**
+ * Reads a JSON file with UTF-8 encoding and returns the parsed JSON object.
+ * fs.readFileSync is used to read the file.
+ * @param filePath 
+ * @returns
+ */
+export function getDictObjectFromJsonFile(filePath: string): { [key: string]: string | object } {
   const jsonData: string = fs.readFileSync(filePath, { encoding: "utf8" });
   return JSON.parse(jsonData) as { [key: string]: string | object };
 }
 
-export function saveDictAsJson(dict: object, filePath: string): void {
+/**
+ * Saves a dictionary object as a JSON file with 2 space indentation, UTF-8 encoding and CRLF End of Line Sequence.
+ * fs.writeFileSync is used to write the file.
+ * @param dict 
+ * @param filePath 
+ */
+export function saveDictObjectAsJsonFile(dict: object, filePath: string): void {
   // Stringify and replace all line breaking characters with \n to make sure the files are using CRLF
   fs.writeFileSync(filePath, JSON.stringify(dict, null, 2).replace(/\n/g, "\u000d\u000a"), { encoding: "utf8" });
 }

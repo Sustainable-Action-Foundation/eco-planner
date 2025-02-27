@@ -1,6 +1,7 @@
+import { Locale } from "@/types.ts";
 import fs from "node:fs";
 import path from "node:path";
-import { Locale } from "@/types.ts";
+import { } from "./dictUtils.ts";
 const strictLocale = [...new Set(Object.values(Locale))]; // Strips duplicates i.e. the default locale
 
 /** Matches paths ending in `.dict.json` */

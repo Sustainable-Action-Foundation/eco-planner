@@ -1,8 +1,8 @@
 import { glob } from "glob";
 import path from "path";
-import { collectedDictionaryPath, dictFileEnding, findSubDict, getObjectFromJson, KeyNameHandler, saveDictAsJson } from "./dictHandler";
+import { dictFileEnding, findSubDict, getDictObjectFromJsonFile, KeyNameHandler, packagedDictionaryPath, saveDictObjectAsJsonFile } from "./dictUtils";
 
-function generateCollectedDictionary(): void {
+function packageDicts(): void {
   console.info(""); // Padding
   console.info(" \x1b[34mℹ️\x1b[0m Packaging dictionaries...");
 
@@ -28,7 +28,7 @@ function generateCollectedDictionary(): void {
 
         const subDict: { [key: string]: string | object } = findSubDict(outDict, pathParts, i);
         createKey(subDict, pathParts[i]);
-        subDict[pathParts[i]] = getObjectFromJson(filePath);
+        subDict[pathParts[i]] = getDictObjectFromJsonFile(filePath);
       }
       else {
         // This line decides what the key for the folder will look like
@@ -40,9 +40,9 @@ function generateCollectedDictionary(): void {
     }
   }
 
-  saveDictAsJson(outDict, collectedDictionaryPath);
+  saveDictObjectAsJsonFile(outDict, packagedDictionaryPath);
   console.info("✔️  Done packaging dictionaries.")
   console.info(""); // Padding
 }
 
-generateCollectedDictionary()
+packageDicts()
