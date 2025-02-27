@@ -14,9 +14,13 @@ import { openModal } from "@/components/modals/modalFunctions";
 
 export function TableMenu(
   {
+    width = 24,
+    height = 24,
     accessLevel,
     object,
   }: {
+    width?: number,
+    height?: number,
     accessLevel?: AccessLevel,
     object: (
       // Effect
@@ -171,7 +175,7 @@ export function TableMenu(
     <>
       <div className={`${styles.actionButton} display-flex`}>
         <button type="button" onClick={openMenu} className={styles.button} aria-label={`meny för ${object.name || object.metaRoadmap?.name || "Namn saknas"}`}>
-          <Image src='/icons/dotsVertical.svg' width={24} height={24} alt="meny"></Image>
+          <Image src='/icons/dotsVertical.svg' width={width} height={height} alt="meny"></Image>
         </button>
         <dialog className={styles.menu} id={`${object.id}-menu`} onBlur={closeMenu} ref={menu} onKeyUp={closeMenu}>
           <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between ${styles.menuHeading}`}>

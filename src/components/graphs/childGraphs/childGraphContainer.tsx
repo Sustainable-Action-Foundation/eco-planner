@@ -46,7 +46,7 @@ export default function ChildGraphContainer({
   };
 
   return (
-    <div className="smooth purewhite" style={{ border: '1px solid var(--gray-90)', paddingInline: '.3rem' }}>
+    <div className="smooth purewhite" style={{ border: '1px solid var(--gray)', paddingInline: '.3rem' }}>
       <menu
         className="flex align-items-center gap-25 margin-0 margin-bottom-25 padding-0 flex-wrap-wrap"
         style={{ borderBottom: '1px solid var(--gray-90)', paddingBlock: '.3rem' }}

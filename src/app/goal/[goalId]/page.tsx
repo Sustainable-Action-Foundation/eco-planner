@@ -134,36 +134,19 @@ export default async function Page({
             <QueryBuilder goal={goal} />
             {(goal.dataSeries?.id && session.user) ?
               <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
-              : null}
+            : null}
+            {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
+              <TableMenu
+                width={16}
+                height={16}
+                accessLevel={accessLevel}
+                object={goal}
+              />
+            }
           </GraphGraph>
         </section>
 
         <section className="margin-block-100">
-          <div className="flex flex-wrap-wrap justify-content-space-between gap-100">
-            <div>
-              <span style={{ color: 'gray' }}>Målbana</span>
-              {goal.name ? (
-                <>
-                  <h2 className="margin-0" style={{ fontSize: '2rem' }}>{goal.name}</h2>
-                  <h3 className="margin-0">({goal.indicatorParameter})</h3> {/* TODO: Check styling */}
-                </>
-              ) : (
-                <h2 className="margin-0">{goal.indicatorParameter}</h2>
-              )}
-            </div>
-            {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-              <div className="flex flex-wrap-wrap align-items-center gap-100">
-                <QueryBuilder goal={goal} />
-                {shouldUpdate &&
-                  <UpdateGoalButton id={goal.id} />
-                }
-                <TableMenu
-                  accessLevel={accessLevel}
-                  object={goal}
-                />
-              </div>
-            }
-          </div>
           <p className="container-text">{goal.description}</p>
           {goal.dataSeries?.scale &&
             <>
