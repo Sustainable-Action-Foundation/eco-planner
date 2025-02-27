@@ -379,15 +379,15 @@
           "sv": "Bifoga externa resurser"
         }
       },
-      "viewingPriveleges": {
+      "viewingPrivileges": {
         "adjust": {
-          "en": "Adjust viewing priveleges",
+          "en": "Adjust viewing privileges",
           "sv": "Justera läsbehörighet"
         }
       },
-      "editingPriveleges": {
+      "editingPrivileges": {
         "adjust": {
-          "en": "Adjust editing priveleges",
+          "en": "Adjust editing privileges",
           "sv": "Justera skrivbehörighet"
         }
       },
