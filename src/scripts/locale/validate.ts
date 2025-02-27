@@ -1,11 +1,17 @@
 import fs from "node:fs";
 import path from "node:path";
 import { Locale } from "@/types.ts";
+const strictLocale = [...new Set(Object.values(Locale))]; // Strips duplicates i.e. the default locale
+
+
 /** Matches paths ending in `.dict.json` */
 const dictFileRegex = /\.dict\.json$/;
 /** Matches keys to discriminate pure number keys. */
 const disallowedKeysRegex = /^[0-9]+$/;
-const strictLocale = [...new Set(Object.values(Locale))]; // Strips duplicates i.e. the default locale
+const disallowedSubstrings: string[] = [];
+const disallowedSuffixes: string[] = [];
+const disallowedPrefixes: string[] = [];
+
 
 /* Help command. Shows when no flags are given */
 if (process.argv.includes("--help") || process.argv.length === 2) {
@@ -67,7 +73,7 @@ if (dirFlag) {
       console.info(""); // Padding
     }
   });
-  
+
   // Exit appropriately
   const problematicFileCount = Object.values(fileProblems).filter(problemList => problemList.length !== 0).length;
   if (problematicFileCount > 0) process.exit(1);
@@ -195,17 +201,30 @@ export function validateDictObject(dict: object | string): string[] {
 
   // Empty object, check
   if (keys.length === 0) {
-    // const found = `{ ${Object.entries(dict).map(([key, value]) => `"${key}":${typeof value === "string" ? `"${value}"` : value}`).join(", ")} }`;
     const found = dictToStringShallow(dict);
     problems.push(`Found no entries in object. ${found}`);
     return problems;
   }
 
-  // Disallowed keys, check
+  // Disallowed keys regex, check
   if (keys.some(key => disallowedKeysRegex.test(key))) {
-    // const found = `{ ${Object.entries(dict).map(([key, value]) => `"${key}":${typeof value === "string" ? `"${value}"` : value}`).join(", ")} }`;
     const found = dictToStringShallow(dict, true);
-    problems.push(`Disallowed keys found. Keys may not be numbers. ${found}`);
+    problems.push(`Disallowed keys found. Keys may not be numbers. They have to match ${disallowedKeysRegex}. ${found}`);
+  }
+  // Disallowed substrings, check
+  if (keys.some(key => disallowedSubstrings.some(substring => key.includes(substring)))) {
+    const found = dictToStringShallow(dict, true);
+    problems.push(`Disallowed substring, prefix or suffix found. Keys may not contain ${disallowedSubstrings}. ${found}`);
+  }
+  // Disallowed suffixes, check
+  if (keys.some(key => disallowedSuffixes.some(suffix => key.endsWith(suffix)))) {
+    const found = dictToStringShallow(dict, true);
+    problems.push(`Disallowed suffix found. Keys may not end with ${disallowedSuffixes}. ${found}`);
+  }
+  // Disallowed prefixes, check
+  if (keys.some(key => disallowedPrefixes.some(prefix => key.startsWith(prefix)))) {
+    const found = dictToStringShallow(dict, true);
+    problems.push(`Disallowed prefix found. Keys may not start with ${disallowedPrefixes}. ${found}`);
   }
 
   // Mixed types, check
@@ -213,7 +232,6 @@ export function validateDictObject(dict: object | string): string[] {
   const someObjects = values.some(value => typeof value === "object");
   const someArrays = values.some(value => Array.isArray(value));
   if (someStrings && (someObjects || someArrays)) {
-    // const found = `{ ${Object.entries(dict).map(([key, value]) => `\n  "${key}":${typeof value === "string" ? `"${value}"` : value}`).join(", ")} \n}`;
     const found = dictToStringShallow(dict, true);
     problems.push(`Mixed types. Branch nodes may only contain other objects. Leaf nodes may only contain strings.\n  Found:\n${found}`);
     return problems;
