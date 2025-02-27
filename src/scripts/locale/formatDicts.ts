@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import { glob } from "glob";
-import { dictFileEnding } from "./dictHandler.ts";
+import { dictFileEnding, getObjectFromJson, saveDictAsJson } from "./dictHandler.ts";
 
 formatDicts();
 
@@ -13,15 +13,8 @@ function formatDicts(): void {
   for (const filePath of filePaths) {
     // JSON parsing may fail in case of invalid JSON files
     try {
-      const fileContent = fs.readFileSync(filePath, { encoding: "utf8" });
-
-      let data = JSON.parse(fileContent);
-      data = JSON.stringify(data, null, 2);
-
-      /** Make sure all line breaks are CRLF */
-      data = data.replace(/\n/g, "\u000d\u000a");
-
-      fs.writeFileSync(filePath, data, { encoding: "utf8" });
+      const fileContent = getObjectFromJson(filePath);
+      saveDictAsJson(fileContent, filePath);
 
     } catch (error) {
       console.error(""); // Padding
