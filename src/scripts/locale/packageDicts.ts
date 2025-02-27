@@ -4,7 +4,7 @@ import { collectedDictionaryPath, dictFileEnding, findSubDict, getObjectFromJson
 
 function generateCollectedDictionary(): void {
   console.info(""); // Padding
-  console.info("\x1b[34mℹ️\x1b[0m Packaging dictionaries...");
+  console.info(" \x1b[34mℹ️\x1b[0m Packaging dictionaries...");
 
   function createKey(dict: { [key: string]: string | object }, key: string): void {
     if (!(key in dict)) {
@@ -41,7 +41,7 @@ function generateCollectedDictionary(): void {
   }
 
   saveDictAsJson(outDict, collectedDictionaryPath);
-  console.info("✔️ Done packaging dictionaries.")
+  console.info("✔️  Done packaging dictionaries.")
   console.info(""); // Padding
 }
 

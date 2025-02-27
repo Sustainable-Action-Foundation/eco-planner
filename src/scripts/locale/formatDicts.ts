@@ -6,7 +6,7 @@ formatDicts();
 
 function formatDicts(): void {
   console.info(""); // Padding
-  console.info("\x1b[34mℹ️\x1b[0m Formatting locale files...");
+  console.info(" \x1b[34mℹ️\x1b[0m Formatting locale files...");
 
   const filePaths: string[] = glob.sync("src/**/*" + dictFileEnding);
 
@@ -30,6 +30,6 @@ function formatDicts(): void {
     }
   }
 
-  console.info("✔️ Done formatting locale files.");
+  console.info("✔️  Done formatting locale files.");
   console.info(""); // Padding
 }

@@ -18,7 +18,7 @@ const disallowedKeySuffixes: string[] = [];
 
 /* Help command. Shows when no flags are given */
 if (process.argv.includes("--help") || process.argv.length === 2) {
-  console.info("\x1b[34mℹ️\x1b[0m Help:");
+  console.info(" \x1b[34mℹ️\x1b[0m Help:");
   console.info(`Validates the structure of locale dictionaries. Locale files are matched by the regex \x1b[32m${dictFileRegex}\x1b[0m.\n`);
   console.info("Flags:");
   console.info(" -f --file <file>:      Validate single file.");
@@ -46,7 +46,7 @@ if (fileFlag && dirFlag) {
 
 if (fileFlag) {
   console.info(""); // Padding
-  console.info(`\x1b[34mℹ️\x1b[0m Validating file \x1b[90m${fileFlag}\x1b[0m`);
+  console.info(` \x1b[34mℹ️\x1b[0m Validating file \x1b[90m${fileFlag}\x1b[0m`);
 
   const problems = validateFile(fileFlag);
 
@@ -65,7 +65,7 @@ if (fileFlag) {
 
 if (dirFlag) {
   console.info(""); // Padding
-  console.info(`\x1b[34mℹ️\x1b[0m Validating directory and its children \x1b[90m${dirFlag}\x1b[0m\n`);
+  console.info(` \x1b[34mℹ️\x1b[0m Validating directory and its children \x1b[90m${dirFlag}\x1b[0m`);
 
   const fileProblems: { [file: string]: string[] } = validateDirectory(dirFlag);
 
@@ -73,16 +73,18 @@ if (dirFlag) {
     if (problems.length === 0) {
       if (verbose) console.info(`✔️  No problems found in \x1b[90m${file}\x1b[0m`);
     } else {
+      console.error(""); // Padding
       console.error(`❗ Problems found in \x1b[90m${file}\x1b[0m`);
       problems.forEach(problem => console.error(" ❌", `\x1b[31m${problem}\x1b[0m\n`));
-      console.info(""); // Padding
+      console.error(""); // Padding
     }
   });
 
   // Exit appropriately
   const problematicFileCount = Object.values(fileProblems).filter(problemList => problemList.length !== 0).length;
   if (problematicFileCount > 0) process.exit(1);
-  console.info("✔️  No problems found in any files.\n");
+  console.info("✔️  No problems found in any files.");
+  console.info(""); // Padding
   process.exit(0);
 };
 
