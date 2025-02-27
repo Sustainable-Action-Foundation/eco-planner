@@ -2,15 +2,19 @@ import fs from "node:fs";
 import path from "node:path";
 import { Locale } from "@/types.ts";
 const strictLocale = [...new Set(Object.values(Locale))]; // Strips duplicates i.e. the default locale
-
+import { } from "./dictHandler.ts";
 
 /** Matches paths ending in `.dict.json` */
 const dictFileRegex = /\.dict\.json$/;
+
 /** Matches keys to discriminate pure number keys. */
 const disallowedKeysRegex = /^[0-9]+$/;
+/** Raise concern on keys with any of these substrings. */
 const disallowedKeySubstrings: string[] = [];
-const disallowedKeySuffixes: string[] = [];
+/** Raise concern on keys with any of these prefixes. */
 const disallowedKeyPrefixes: string[] = [];
+/** Raise concern on keys with any of these suffixes. */
+const disallowedKeySuffixes: string[] = [];
 
 
 /* Help command. Shows when no flags are given */
