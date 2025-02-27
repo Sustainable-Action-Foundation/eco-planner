@@ -1,5 +1,5 @@
-import path from 'path';
-import { collectedDictionaryPath, findSubDict, getObjectFromJson, KeyNameHandler, saveDictAsJson } from './dictHandler';
+import path from "path";
+import { collectedDictionaryPath, findSubDict, getObjectFromJson, KeyNameHandler, saveDictAsJson } from "./dictHandler";
 
 function unpackCollectedDictionary(): void {
   console.log("Unpacking packaged dictionary...");
@@ -11,7 +11,7 @@ function unpackCollectedDictionary(): void {
     const paths: string[] = [];
     for (const key of Object.keys(inDict)) {
       // If the value is an object and the key is formatted as a file or folder name
-      if (typeof inDict[key] === 'object' && (KeyNameHandler.keyIsFileOrFolderName(key))) {
+      if (typeof inDict[key] === "object" && (KeyNameHandler.keyIsFileOrFolderName(key))) {
         const subDictPaths: string[] = findSubDictPaths(inDict[key] as { [key: string]: string | object });
         for (const subDictPath of subDictPaths) {
           paths.push(path.join(key, subDictPath));
@@ -47,7 +47,7 @@ function unpackCollectedDictionary(): void {
     }
 
     const joinedPathParts: string = pathParts.join(path.sep);
-    filePath = path.join('src', joinedPathParts);
+    filePath = path.join("src", joinedPathParts);
 
     saveDictAsJson(subDict, filePath);
   }
