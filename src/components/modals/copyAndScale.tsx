@@ -1,14 +1,14 @@
 'use client';
 
+import { LocaleContext } from "@/app/context/localeContext.tsx";
+import formSubmitter from "@/functions/formSubmitter";
+import { dataSeriesDataFieldNames, GoalInput, Locale, ScaleBy, ScaleMethod, ScalingRecipie } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 import Image from "next/image";
-import { closeModal, openModal } from "./modalFunctions";
 import { useContext, useRef, useState } from "react";
 import RepeatableScaling from "../repeatableScaling";
-import { GoalInput, dataSeriesDataFieldNames, ScaleBy, ScaleMethod, ScalingRecipie, Locale } from "@/types";
-import formSubmitter from "@/functions/formSubmitter";
+import { closeModal, openModal } from "./modalFunctions";
 import parentDict from "./modals.dict.json" with { type: "json" };
-import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 /** Get the resulting scaling factor from form data */
 export function getScalingResult(locale: Locale, form: FormData, scalingMethod: ScaleMethod, setIsLoading?: React.Dispatch<React.SetStateAction<boolean>>) {
@@ -284,7 +284,7 @@ export default function CopyAndScale({
         type="button"
         className="seagreen color-purewhite smooth padding-block-50 padding-inline-100"
         onClick={() => openModal(modalRef)}
-        style={{ padding: '.3rem .6rem', borderRadius: '2px' }}
+        style={{ padding: '.3rem .6rem', borderRadius: '2px', fontSize: '.75rem' }}
       >
         {dict.return.title[locale]}
       </button>

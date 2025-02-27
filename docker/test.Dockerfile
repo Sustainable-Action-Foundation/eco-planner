@@ -1,4 +1,4 @@
-FROM node:21-alpine AS base
+FROM node:20-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -58,17 +58,25 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 # Copy files necessary to run `yarn prisma migrate reset` to reset and seed the database
-# ONLY IN DEVELOPMENT/TESTING
+# FOR DEVELOPMENT/TESTING/STAGING
 COPY --from=deps /app/node_modules ./node_modules
 COPY /prisma ./prisma
 COPY package.json ./
 
 USER nextjs
 
+# Network config
 EXPOSE 8081
 
 ENV PORT=8081
 ENV HOSTNAME=0.0.0.0
+
+# Git commit info
+ARG GIT_LONG_HASH
+ENV GIT_LONG_HASH=$GIT_LONG_HASH
+
+ARG GIT_SHORT_HASH
+ENV GIT_SHORT_HASH=$GIT_SHORT_HASH
 
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/next-config-js/output

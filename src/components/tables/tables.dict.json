@@ -194,6 +194,10 @@
         "sv": "Inga färdplaner hittades. Om du har några filter aktiva så hittades inga färdplaner som matchar dem."
       },
       "nestedRoadmapRenderer": {
+        "showUnderlyingRoadmaps": {
+          "en": "Show underlying roadmaps",
+          "sv": "Visa underliggande färdplaner"
+        },
         "goals": {
           "en": "Goals",
           "sv": "Målbanor"
