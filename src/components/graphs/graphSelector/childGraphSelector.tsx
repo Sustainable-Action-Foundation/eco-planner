@@ -2,7 +2,7 @@ import { DataSeries, Goal } from "@prisma/client";
 import { ChildGraphType } from "../childGraphs/childGraphContainer";
 import { ChangeEvent, Dispatch, SetStateAction, useContext } from "react";
 import { setStoredChildGraphType } from "../functions/graphFunctions";
-import dict from "./childGraphSelector.dict.json" with { type: "json" };
+import parentDict from "../graphs.dict.json" with { type: "json" };
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 export default function ChildGraphSelector({
@@ -14,6 +14,7 @@ export default function ChildGraphSelector({
   currentSelection: ChildGraphType,
   setter: Dispatch<SetStateAction<ChildGraphType>>
 }) {
+  const dict = parentDict.graphSelector.childGraphSelector;
   const locale = useContext(LocaleContext);
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {

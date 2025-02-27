@@ -1,5 +1,5 @@
 {
-  "siblingGraph-(file)": {
+  "siblingGraph": {
     "menu": {
       "changeGraphType": {
         "en": "Change graph type",
@@ -11,7 +11,7 @@
       }
     }
   },
-  "actionGraph-(file)": {
+  "actionGraph": {
     "actionGraph": {
       "actions": {
         "en": "Actions",
@@ -19,8 +19,8 @@
       }
     }
   },
-  "mainGraphs-(folder)": {
-    "mainRelativeGraph-(file)": {
+  "mainGraphs": {
+    "mainRelativeGraph": {
       "nationalGoal": {
         "name": {
           "en": "National equivalent",
@@ -36,7 +36,7 @@
         }
       }
     },
-    "mainGraph-(file)": {
+    "mainGraph": {
       "mainChartOptions": {
         "baseScenario": {
           "en": "Base scenario",
@@ -92,7 +92,7 @@
         }
       }
     },
-    "mainDeltaGraph-(file)": {
+    "mainDeltaGraph": {
       "chartOptions": {
         "title": {
           "yearlyChangeIn": {
@@ -163,8 +163,8 @@
       }
     }
   },
-  "graphSelector-(folder)": {
-    "graphSelector-(file)": {
+  "graphSelector": {
+    "graphSelector": {
       "handleSelectChange": {
         "invalidGraphType": {
           "en": "Invalid graph type",
@@ -188,7 +188,7 @@
         }
       }
     },
-    "childGraphSelector-(file)": {
+    "childGraphSelector": {
       "handleSelectChange": {
         "invalidGraphType": {
           "en": "Invalid graph type",
@@ -209,8 +209,8 @@
       }
     }
   },
-  "functions-(folder)": {
-    "graphFunctions-(file)": {
+  "functions": {
+    "graphFunctions": {
       "getStoredGraphType": {
         "noValidGraphType": {
           "en": "Invalid graph type in storage, defaulting to main graph.",
@@ -225,8 +225,8 @@
       }
     }
   },
-  "childGraphs-(folder)": {
-    "predictionChildGraph-(file)": {
+  "childGraphs": {
+    "predictionChildGraph": {
       "childOfChildGoals": {
         "unknownGoal": {
           "en": "Unknown goal",
@@ -240,7 +240,7 @@
         }
       }
     },
-    "goalChildGraph-(file)": {
+    "goalChildGraph": {
       "childOfChildGoals": {
         "unknownGoal": {
           "en": "Unknown goal",
@@ -248,7 +248,7 @@
         }
       }
     },
-    "childGraphContainer-(file)": {
+    "childGraphContainer": {
       "menu": {
         "changeGraphType": {
           "en": "Change graph type",

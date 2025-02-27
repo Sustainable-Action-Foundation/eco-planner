@@ -1,5 +1,5 @@
 {
-  "page-(file)": {
+  "page": {
     "verifyEmail": {
       "en": "Verify your email address",
       "sv": "Verifiera din e-postadress"
@@ -25,8 +25,8 @@
       "sv": "Skicka nytt e-postmeddelande"
     }
   },
-  "verify-(folder)": {
-    "page-(file)": {
+  "verify": {
+    "page": {
       "verifyYourEmail": {
         "en": "Verify your email address",
         "sv": "Verifiera din e-postadress"

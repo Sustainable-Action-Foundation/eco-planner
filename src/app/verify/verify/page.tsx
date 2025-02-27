@@ -1,11 +1,12 @@
 'use client';
 
 import formSubmitter from "@/functions/formSubmitter";
-import dict from "./page.dict.json" with { type: "json" };
+import parentDict from "../verify.dict.json" with { type: "json" };
 import { useContext } from "react";
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 export default function Page() {
+  const dict = parentDict.verify.page;
   const locale = useContext(LocaleContext);
 
   function verify() {

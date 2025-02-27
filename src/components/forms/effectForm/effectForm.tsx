@@ -8,7 +8,7 @@ import { ActionImpactType, DataSeries, Effect } from "@prisma/client";
 import type getOneAction from "@/fetchers/getOneAction.ts";
 import type getOneGoal from "@/fetchers/getOneGoal.ts";
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
-import dict from "./effectForm.dict.json" with { type: "json" };
+import parentDict from "../forms.dict.json" with { type: "json" };
 import { useContext } from "react";
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 
@@ -27,6 +27,7 @@ export default function EffectForm({
     goal: Awaited<ReturnType<typeof getOneGoal>> | null,
   },
 }) {
+  const dict = parentDict.effectForm.effectForm;
   const locale = useContext(LocaleContext);
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {

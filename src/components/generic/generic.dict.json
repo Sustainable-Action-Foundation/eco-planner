@@ -1,6 +1,6 @@
 {
-  "notifications-(folder)": {
-    "notification-(file)": {
+  "notifications": {
+    "notification": {
       "notifications": {
         "notificationsAlt": {
           "en": "notifications",
@@ -9,8 +9,8 @@
       }
     }
   },
-  "header-(folder)": {
-    "sidebar-(file)": {
+  "header": {
+    "sidebar": {
       "aside": {
         "toggleMenu": {
           "en": "Toggle menu",

@@ -7,7 +7,7 @@ import { AccessLevel } from '@/types';
 import Link from 'next/link';
 import { TableMenu } from './tableMenu/tableMenu';
 import { LocaleContext } from "@/app/context/localeContext.tsx";
-import dict from "./actions.dict.json" with { type: "json" };
+import parentDict from "./tables.dict.json" with { type: "json" };
 import { useContext } from 'react';
 
 /**
@@ -36,6 +36,7 @@ export default function ActionTable({
   accessLevel?: AccessLevel,
   roadmapId?: string,
 }) {
+  const dict = parentDict.actions;
   const locale = useContext(LocaleContext);
 
   // If no actions are found, return a message

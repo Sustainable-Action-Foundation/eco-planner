@@ -3,7 +3,7 @@
 import { useContext, useRef, useState } from "react";
 import Image from "next/image";
 import styles from './accessSelector.module.css' with { type: "css" }
-import dict from "./accessSelector.dict.json" with { type: "json" };
+import parentDict from "../forms.dict.json" with { type: "json" };
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 /**
@@ -90,6 +90,7 @@ function addUser(name: string | undefined, selectedOptions: string[], selectedSe
 }
 
 export function EditUsers({ existingUsers, groupOptions, existingGroups }: { existingUsers?: string[], groupOptions: string[], existingGroups?: string[] }) {
+  const dict = parentDict.accessSelector.accessSelector;
   const locale = useContext(LocaleContext);
 
   // The users that have editing access to the item
@@ -157,6 +158,7 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
 }
 
 export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPublic }: { existingUsers?: string[], groupOptions: string[], existingGroups?: string[], isPublic?: boolean }) {
+  const dict = parentDict.accessSelector.accessSelector;
   const locale = useContext(LocaleContext);
 
   // The users that have viewing access to the item

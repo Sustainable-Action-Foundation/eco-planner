@@ -7,7 +7,7 @@ import { Action, Effect, Goal } from "@prisma/client";
 import Link from "next/link";
 import { TableMenu } from "./tableMenu/tableMenu.tsx";
 import { LocaleContext } from "@/app/context/localeContext.tsx";
-import dict from "./effects.dict.json" with { type: "json" };
+import parentDict from "./tables.dict.json" with { type: "json" };
 import { useContext } from 'react';
 
 interface EffectTableComonProps {
@@ -29,6 +29,7 @@ export default function EffectTable({
   object,
   accessLevel,
 }: EffectTableComonProps) {
+  const dict = parentDict.effects;
   const locale = useContext(LocaleContext);
 
   // If no effects are found, show a message

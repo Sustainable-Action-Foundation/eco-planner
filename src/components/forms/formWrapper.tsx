@@ -1,10 +1,10 @@
-'use client'
+"use client"
 
 import { useContext, useState } from 'react'
 import styles from './forms.module.css'
 import Image from 'next/image'
 import React from 'react'
-import dict from './formWrapper.dict.json' with { type: "json" }
+import parentDict from './forms.dict.json' with { type: "json" }
 import { LocaleContext } from '@/app/context/localeContext.tsx'
 
 
@@ -13,6 +13,7 @@ export default function FormWrapper({
 }: {
   children: React.ReactNode,
 }) {
+  const dict = parentDict.formWrapper;
   const locale = useContext(LocaleContext)
 
   function iterateIndicators(currentTransformIndex: number) {

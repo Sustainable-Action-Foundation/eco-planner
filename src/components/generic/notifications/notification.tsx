@@ -1,11 +1,12 @@
 import styles from './notification.module.css'
 import Link from "next/link"
 import Image from "next/image"
-import dict from "./notification.dict.json" with { type: "json" };
+import parentDict from "../generic.dict.json" with { type: "json" };
 import { useContext } from 'react';
 import { LocaleContext } from '@/app/context/localeContext.tsx';
 
 export default function Notifications({ amount }: { amount: number }) {
+  const dict = parentDict.notifications.notification;
   const locale = useContext(LocaleContext);
 
   return (

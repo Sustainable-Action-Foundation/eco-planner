@@ -1,6 +1,6 @@
 {
-  "[roadmapId]-(folder)": {
-    "page-(file)": {
+  "[roadmapId]": {
+    "page": {
       "roadmap": {
         "en": "Roadmap",
         "sv": "Färdplan"
@@ -30,8 +30,8 @@
         "sv": "Alla målbanor"
       }
     },
-    "edit-(folder)": {
-      "page-(file)": {
+    "edit": {
+      "page": {
         "breadcrumbEditRoadmapVersion": {
           "en": "Edit roadmap version",
           "sv": "Redigera färdplansversion"
@@ -73,8 +73,8 @@
       }
     }
   },
-  "create-(folder)": {
-    "page-(file)": {
+  "create": {
+    "page": {
       "breadcrumbCreateRoadmapVersion": {
         "en": "Create new roadmap version",
         "sv": "Skapa ny färdplansversion"

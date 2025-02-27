@@ -5,7 +5,7 @@ import accessChecker from "@/lib/accessChecker.ts";
 import { LoginData } from "@/lib/session.ts";
 import { AccessControlled } from "@/types.ts";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
-import dict from "./roadmapTree.dict.json" with { type: "json" };
+import parentDict from "../tables.dict.json" with { type: "json" };
 
 type RoadmapTreeProps = {
   user: LoginData['user'],
@@ -25,6 +25,7 @@ export default async function RoadmapTree({
   roadmaps: RoadmapTreeProps['roadmaps'],
   user: RoadmapTreeProps['user'],
 }) {
+  const dict = parentDict.roadmapTables.roadmapTree;
   const locale = await getServerLocale();
 
   if (!roadmaps.length) {
@@ -55,6 +56,7 @@ async function NestedRoadmapRenderer({
   childRoadmaps: RoadmapTreeProps['roadmaps'],
   user: RoadmapTreeProps['user'],
 }) {
+  const dict = parentDict.roadmapTables.roadmapTree;
   const locale = await getServerLocale();
 
   return <>

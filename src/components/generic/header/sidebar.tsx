@@ -5,10 +5,11 @@ import { cookies } from 'next/headers'
 import Image from 'next/image'
 import Link from 'next/link'
 import styles from './header.module.css' with { type: "css" }
-import dict from "./sidebar.dict.json" with { type: "json" }
+import parentDict from "../generic.dict.json" with { type: "json" }
 import { getServerLocale } from '@/functions/serverLocale'
 
 export default async function Sidebar() {
+  const dict = parentDict.header.sidebar;
   const [{ user }, locale] = await Promise.all([
     getSession(cookies()),
     getServerLocale(),

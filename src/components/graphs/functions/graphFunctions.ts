@@ -3,10 +3,11 @@ import { GraphType } from "../graphGraph";
 import { ActionImpactType, type DataSeries, type Effect } from "@prisma/client";
 import { dataSeriesDataFieldNames, DataSeriesDataFields, Locale } from "@/types";
 import { ChildGraphType } from "../childGraphs/childGraphContainer";
-import dict from "./graphFunctions.dict.json" with { type: "json" };
+import parentDict from "../graphs.dict.json" with { type: "json" };
 
 /** Retrieves the graph type for a goal from storage. */
 export function getStoredGraphType(locale: Locale, goalId?: string) {
+  const dict = parentDict.functions.graphFunctions;
   let graphType: GraphType | undefined | null;
   // Check if this goal has a stored graph type
   if (goalId) {
@@ -30,6 +31,7 @@ export function getStoredGraphType(locale: Locale, goalId?: string) {
 
 /** Retrieves the graph type for gcild graphs for a goal from storage. */
 export function getStoredChildGraphType(locale: Locale, goalId?: string) {
+  const dict = parentDict.functions.graphFunctions;
   let graphType: ChildGraphType | undefined | null;
   // Check if this goal has a stored graph type
   if (goalId) {

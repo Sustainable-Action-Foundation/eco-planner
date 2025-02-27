@@ -10,10 +10,11 @@ import { cookies } from "next/headers";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getServerLocale } from "@/functions/serverLocale";
-import dict from "./page.dict.json";
+import parentDict from "../roadmap.dict.json" with { type: "json" };
 import { DataSeries, Goal } from "@prisma/client";
 
 export default async function Page({ params }: { params: { roadmapId: string } }) {
+  const dict = parentDict["[roadmapId]"].page;
   const locale = await getServerLocale();
 
   const [session, roadmap] = await Promise.all([

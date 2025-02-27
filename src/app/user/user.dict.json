@@ -1,6 +1,6 @@
 {
-  "[username]-(folder)": {
-    "page-(file)": {
+  "[username]": {
+    "page": {
       "TODO": {
         "en": "translate [user]",
         "sv": "översätt [user]"

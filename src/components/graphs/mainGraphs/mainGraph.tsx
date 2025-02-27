@@ -5,7 +5,7 @@ import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import { parsePeriod } from "@/lib/pxWeb/utility";
 import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Effect, Goal } from "@prisma/client";
-import dict from "./mainGraph.dict.json" with { type: "json" };
+import parentDict from "../graphs.dict.json" with { type: "json" };
 import { useContext } from "react";
 
 export default function MainGraph({
@@ -21,6 +21,7 @@ export default function MainGraph({
   historicalData?: PxWebApiV2TableContent | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
 }) {
+  const dict = parentDict.mainGraphs.mainGraph;
   const locale = useContext(LocaleContext);
 
   if (!goal.dataSeries) {

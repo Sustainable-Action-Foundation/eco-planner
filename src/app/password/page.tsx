@@ -3,7 +3,7 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import formSubmitter from "@/functions/formSubmitter";
 import Image from "next/image";
-import dict from "./page.dict.json" with { type: "json" };
+import parentDict from "./password.dict.json" with { type: "json" };
 import { useContext } from "react";
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 
@@ -18,6 +18,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
 }
 
 export default function Page() {
+  const dict = parentDict.page;
   const locale = useContext(LocaleContext);
 
   return (

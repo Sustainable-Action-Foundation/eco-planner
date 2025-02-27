@@ -1,5 +1,5 @@
 {
-  "copyAndScale-(file)": {
+  "copyAndScale": {
     "getScalingResult": {
       "whyIsThisAFile": {
         "en": "Why is this a file?",
@@ -81,7 +81,7 @@
       }
     }
   },
-  "confirmDelete-(file)": {
+  "confirmDelete": {
     "deletionFailed": {
       "en": "Deletion failed: No target ID provided. This shouldn't happen so please report this to the developers.",
       "sv": "Radering misslyckades: Inget mål-ID angivet. Detta borde inte hända så vänligen rapportera detta till utvecklarna."

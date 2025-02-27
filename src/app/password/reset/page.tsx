@@ -5,7 +5,7 @@ import { useContext, useState } from "react";
 import styles from "@/components/forms/forms.module.css";
 import formSubmitter from "@/functions/formSubmitter";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import dict from "./page.dict.json" with { type: "json" };
+import parentDict from "../password.dict.json" with { type: "json" };
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
@@ -22,6 +22,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
 }
 
 export default function Page() {
+  const dict = parentDict.reset.page;
   const locale = useContext(LocaleContext);
 
   const [showPassword, setShowPassword] = useState(false)

@@ -8,9 +8,10 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getServerLocale } from "@/functions/serverLocale";
-import dict from "./page.dict.json";
+import parentDict from "../../roadmap.dict.json" with { type: "json" };
 
 export default async function Page({ params }: { params: { roadmapId: string } }) {
+  const dict = parentDict["[roadmapId]"].edit.page;
   const locale = await getServerLocale();
 
   const [session, roadmap] = await Promise.all([

@@ -3,7 +3,7 @@ import { baseUrl } from '@/lib/baseUrl.ts'
 import '@/styles/global.css'
 import styles from './page.module.css' with { type: "css" }
 import { getServerLocale } from '@/functions/serverLocale'
-import dict from './layout.dict.json';
+import parentDict from './home.dict.json' with { type: "json" };
 import LocaleProvider from './context/localeContext.tsx'
 
 export default async function RootLayout({
@@ -11,6 +11,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode,
 }) {
+  const dict = parentDict.layout;
   const locale = await getServerLocale();
 
   return (

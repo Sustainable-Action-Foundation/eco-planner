@@ -7,7 +7,7 @@ import { DataSeries, Goal, Roadmap } from "@prisma/client";
 import { useContext, useState } from "react";
 import styles from './graphs.module.css'
 import Image from "next/image";
-import dict from "./siblingGraph.dict.json" with { type: "json" };
+import parentDict from "./graphs.dict.json" with { type: "json" };
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 /**
@@ -22,6 +22,7 @@ export default function SiblingGraph({
   },
   goal: Goal & { dataSeries: DataSeries | null },
 }) {
+  const dict = parentDict.siblingGraph;
   const locale = useContext(LocaleContext);
 
   const siblings = findSiblings(roadmap, goal);

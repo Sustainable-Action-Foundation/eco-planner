@@ -8,7 +8,7 @@ import ChildGraphSelector from "../graphSelector/childGraphSelector.tsx";
 import { percentAndFraction } from "../graphSelector/graphSelector.tsx";
 import GoalChildGraph from "./goalChildGraph";
 import PredictionChildGraph from "./predictionChildGraph.tsx";
-import dict from "./childGraphContainer.dict.json" with { type: "json" };
+import parentDict from "../graphs.dict.json" with { type: "json" };
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 export enum ChildGraphType {
@@ -25,6 +25,7 @@ export default function ChildGraphContainer({
   childGoals: (Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null, effects: (Effect & { dataSeries: DataSeries | null })[], roadmapName?: string })[],
   children?: React.ReactNode,
 }) {
+  const dict = parentDict.childGraphs.childGraphContainer;
   const locale = useContext(LocaleContext);
 
   const [childGraphType, setChildGraphType] = useState<ChildGraphType>(ChildGraphType.Target);

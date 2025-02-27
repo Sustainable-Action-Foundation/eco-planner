@@ -7,11 +7,12 @@ import { useContext, useRef, useState } from "react";
 import RepeatableScaling from "../repeatableScaling";
 import { GoalInput, dataSeriesDataFieldNames, ScaleBy, ScaleMethod, ScalingRecipie, Locale } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
-import dict from "./copyAndScale.dict.json" with { type: "json" };
+import parentDict from "./modals.dict.json" with { type: "json" };
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 /** Get the resulting scaling factor from form data */
 export function getScalingResult(locale: Locale, form: FormData, scalingMethod: ScaleMethod, setIsLoading?: React.Dispatch<React.SetStateAction<boolean>>) {
+  const dict = parentDict.copyAndScale;
   const scalars = form.getAll("scaleFactor");
   const scalingTypes = form.getAll("scaleBy");
   const weights = form.getAll("weight");
@@ -201,6 +202,7 @@ export default function CopyAndScale({
   goal: Goal & { dataSeries: DataSeries | null },
   roadmapOptions: { id: string, name: string, version: number, actor: string | null }[],
 }) {
+  const dict = parentDict.copyAndScale;
   const locale = useContext(LocaleContext);
 
   const [isLoading, setIsLoading] = useState(false);

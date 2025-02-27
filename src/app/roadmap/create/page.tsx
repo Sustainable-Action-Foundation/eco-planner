@@ -9,7 +9,7 @@ import { AccessLevel } from '@/types';
 import accessChecker from '@/lib/accessChecker';
 import getOneMetaRoadmap from '@/fetchers/getOneMetaRoadmap';
 import { getServerLocale } from "@/functions/serverLocale";
-import dict from "./page.dict.json" with { type: "json" };
+import parentDict from "../roadmap.dict.json" with { type: "json" };
 
 export default async function Page({
   searchParams
@@ -19,6 +19,7 @@ export default async function Page({
     [key: string]: string | string[] | undefined
   }
 }) {
+  const dict = parentDict.create.page;
   const locale = await getServerLocale();
 
   const [session, parent, metaRoadmapAlternatives] = await Promise.all([

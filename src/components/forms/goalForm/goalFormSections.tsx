@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { clientSafeGetOneGoal } from "@/fetchers/getOneGoal";
 import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
@@ -10,7 +10,7 @@ import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 import { Fragment, useContext, useEffect, useState } from "react";
 import { dataSeriesPattern } from "./goalForm";
-import dict from "./goalFormSections.dict.json" with { type: "json" };
+import parentDict from "../forms.dict.json" with { type: "json" };
 
 export function ManualGoalForm({
   currentGoal,
@@ -31,6 +31,7 @@ export function ManualGoalForm({
   },
   dataSeriesString?: string,
 }) {
+  const dict = parentDict.goalForm.goalFormSections;
   const locale = useContext(LocaleContext);
 
   const [parsedUnit, setParsedUnit] = useState<string | null>(null);
@@ -111,6 +112,7 @@ export function InheritedGoalForm({
   },
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
 }) {
+  const dict = parentDict.goalForm.goalFormSections;
   const locale = useContext(LocaleContext);
 
   const [selectedRoadmap, setSelectedRoadmap] = useState(currentGoal?.combinationParents[0]?.parentGoal.roadmapId);
@@ -220,6 +222,7 @@ export function CombinedGoalForm({
     roadmap: { id: string },
   },
 }) {
+  const dict = parentDict.goalForm.goalFormSections;
   const locale = useContext(LocaleContext);
 
   const [currentRoadmap, setCurrentRoadmap] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
@@ -303,6 +306,7 @@ export function CombinedGoalForm({
 }
 
 export function InheritingBaseline() {
+  const dict = parentDict.goalForm.goalFormSections;
   const locale = useContext(LocaleContext);
 
   const [roadmapList, setRoadmapList] = useState<Awaited<ReturnType<typeof clientSafeGetRoadmaps>>>([]);

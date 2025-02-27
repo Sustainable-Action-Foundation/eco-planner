@@ -6,10 +6,11 @@ import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useContext, useTransition } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import dict from "./roadmapFilters.dict.json";
+import parentDict from "../forms.dict.json" with { type: "json" };
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 export default function RoadmapFilters() {
+  const dict = parentDict.filters.roadmapFilters;
   const locale = useContext(LocaleContext);
 
   const router = useRouter();

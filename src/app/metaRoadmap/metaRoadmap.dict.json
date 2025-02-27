@@ -1,6 +1,6 @@
 {
-  "[metaRoadmapId]-(folder)": {
-    "page-(file)": {
+  "[metaRoadmapId]": {
+    "page": {
       "roadmap": {
         "en": "Roadmap",
         "sv": "Färdplansserie"
@@ -22,8 +22,8 @@
         "sv": "Skapa ny färdplansversion"
       }
     },
-    "edit-(folder)": {
-      "page-(file)": {
+    "edit": {
+      "page": {
         "breadcrumbEditMetadata": {
           "en": "Edit metadata",
           "sv": "Redigera metadata"
@@ -35,8 +35,8 @@
       }
     }
   },
-  "create-(folder)": {
-    "page-(file)": {
+  "create": {
+    "page": {
       "breadcrumbCreateRoadmap": {
         "en": "Create roadmap",
         "sv": "Skapa färdplansserie"

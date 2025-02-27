@@ -13,7 +13,7 @@ import { Goal } from "@prisma/client";
 import Image from "next/image";
 import { FormEvent, useContext, useEffect, useRef, useState } from "react";
 import FormWrapper from "../formWrapper";
-import dict from "./queryBuilder.dict.json" with { type: "json" };
+import parentDict from "../forms.dict.json" with { type: "json" };
 import styles from './queryBuilder.module.css';
 
 export default function QueryBuilder({
@@ -21,6 +21,7 @@ export default function QueryBuilder({
 }: {
   goal: Goal,
 }) {
+  const dict = parentDict.pxWeb.queryBuilder;
   const locale = useContext(LocaleContext);
 
   const [isLoading, setIsLoading] = useState(false);

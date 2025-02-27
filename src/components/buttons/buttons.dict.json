@@ -1,17 +1,17 @@
 {
-  "updateGoalButton-(file)": {
+  "updateGoalButton": {
     "updateGoal": {
       "en": "Update goal",
       "sv": "Uppdatera målbana"
     }
   },
-  "metaRoadmapDeleter-(file)": {
+  "metaRoadmapDeleter": {
     "removeMetadata": {
       "en": "Remove metadata",
       "sv": "Ta bort metadata"
     }
   },
-  "logoutButton-(file)": {
+  "logoutButton": {
     "logoutFailed": {
       "en": "Logout failed",
       "sv": "Utloggning misslyckades"

@@ -2,7 +2,7 @@ import WrappedChart, { floatSmoother } from "@/lib/chartWrapper.tsx";
 import { dataSeriesDataFieldNames } from "@/types.ts";
 import { DataSeries, Effect, Goal } from "@prisma/client";
 import { calculatePredictedOutcome, firstNonNullValue } from "../functions/graphFunctions.ts";
-import dict from "./predictionChildGraph.dict.json" with { type: "json" };
+import parentDict from "../graphs.dict.json" with { type: "json" };
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 import { useContext } from "react";
 
@@ -15,6 +15,7 @@ export default function PredictionChildGraph({
   childGoals: (Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null, effects: (Effect & { dataSeries: DataSeries | null })[], roadmapName?: string })[],
   isStacked: boolean,
 }) {
+  const dict = parentDict.childGraphs.predictionChildGraph;
   const locale = useContext(LocaleContext);
 
   // Early returns if there is no relevant data to compare

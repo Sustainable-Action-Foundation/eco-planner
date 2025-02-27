@@ -1,7 +1,7 @@
 import styles from './breadcrumbs.module.css' with { type: "css" };
 import Link from 'next/link';
 import Image from "next/image";
-import dict from "./breadcrumbSections.dict.json" with { type: "json" };
+import parentDict from "./breadcrumbs.dict.json" with { type: "json" };
 import { getServerLocale } from '@/functions/serverLocale';
 
 export function BreadcrumbChevron() {
@@ -11,6 +11,7 @@ export function BreadcrumbChevron() {
 }
 
 export async function BaseSection() {
+  const dict = parentDict.breadcrumbSections;
   const locale = await getServerLocale();
   return (
     <span className='display-flex align-items-center gap-25'>
@@ -55,6 +56,7 @@ export async function MetaRoadmapSection({
     name: string,
   }
 }) {
+  const dict = parentDict.breadcrumbSections;
   const locale = await getServerLocale();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
@@ -74,6 +76,7 @@ export async function RoadmapSection({
     version: number,
   }
 }) {
+  const dict = parentDict.breadcrumbSections;
   const locale = await getServerLocale();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
@@ -94,6 +97,7 @@ export async function GoalSection({
     indicatorParameter: string,
   }
 }) {
+  const dict = parentDict.breadcrumbSections;
   const locale = await getServerLocale();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
@@ -113,6 +117,7 @@ export async function ActionSection({
     name: string,
   }
 }) {
+  const dict = parentDict.breadcrumbSections;
   const locale = await getServerLocale();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>

@@ -1,9 +1,10 @@
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import { getServerLocale } from "@/functions/serverLocale";
-import dict from "./page.dict.json" with { type: "json" };
+import parentDict from "../user.dict.json" with { type: "json" };
 
 export default async function Page() {
+  const dict = parentDict["[username]"].page
   const locale = await getServerLocale();
 
   const session = await getSession(cookies())

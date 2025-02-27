@@ -12,7 +12,7 @@ import Image from "next/image"
 import styles from './tables.module.css'
 import type getOneRoadmap from "@/fetchers/getOneRoadmap.ts"
 import { LocaleContext } from "@/app/context/localeContext.tsx";
-import dict from "./goals.dict.json" with { type: "json" };
+import parentDict from "./tables.dict.json" with { type: "json" };
 
 /** Enum for the different view modes for the goal table. */
 export enum ViewMode {
@@ -37,6 +37,7 @@ export default function Goals({
   roadmap: NonNullable<Awaited<ReturnType<typeof getOneRoadmap>>>,
   accessLevel?: AccessLevel
 }) {
+  const dict = parentDict.goals;
   const locale = useContext(LocaleContext);
 
   const [viewMode, setViewMode] = useState<ViewMode | ''>('');

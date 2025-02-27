@@ -10,9 +10,10 @@ import Comments from "@/components/comments/comments";
 import EffectTable from "@/components/tables/effects.tsx";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { getServerLocale } from "@/functions/serverLocale";
-import dict from "./page.dict.json" with { type: "json" };
+import parentDict from "../action.dict.json" with { type: "json" };
 
 export default async function Page({ params }: { params: { actionId: string } }) {
+  const dict = parentDict["[actionId]"].page;
   const locale = await getServerLocale();
 
   const [session, action] = await Promise.all([

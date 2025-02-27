@@ -5,10 +5,11 @@ import timeSince from "@/functions/timeSince";
 import { Comment } from "@prisma/client";
 import styles from './comments.module.css'
 import { ChangeEvent, useContext, useRef, useState } from "react";
-import dict from "./comments.dict.json" with { type: "json" };
+import parentDict from "./comments.dict.json" with { type: "json" };
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 export default function Comments({ comments, objectId }: { comments?: (Comment & { author: { id: string, username: string } })[], objectId: string }) {
+  const dict = parentDict.comments;
   const locale = useContext(LocaleContext);
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {

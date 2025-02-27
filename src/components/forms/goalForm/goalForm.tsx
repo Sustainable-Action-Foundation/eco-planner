@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import /* LinkInput, */ LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput";
 import { getScalingResult } from "@/components/modals/copyAndScale";
@@ -13,7 +13,7 @@ import { DataSeries, Goal } from "@prisma/client";
 import Image from "next/image";
 import { useContext, useEffect, useMemo, useState } from "react";
 import styles from '../forms.module.css';
-import dict from "./goalForm.dict.json" with { type: "json" };
+import parentDict from "../forms.dict.json" with { type: "json" };
 import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
 
 enum DataSeriesType {
@@ -66,6 +66,7 @@ export default function GoalForm({
     roadmap: { id: string },
   },
 }) {
+  const dict = parentDict.goalForm.goalForm;
   const locale = useContext(LocaleContext);
 
   const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(!currentGoal?.combinationParents.length ? DataSeriesType.Static : currentGoal.combinationParents.length >= 2 ? DataSeriesType.Combined : DataSeriesType.Inherited)

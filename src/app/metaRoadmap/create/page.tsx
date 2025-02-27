@@ -5,9 +5,10 @@ import { notFound } from 'next/navigation';
 import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
 import { getServerLocale } from "@/functions/serverLocale";
-import dict from "./page.dict.json" with { type: "json" };
+import parentDict from "../metaRoadmap.dict.json" with { type: "json" };
 
 export default async function Page() {
+  const dict = parentDict.create.page;
   const locale = await getServerLocale();
 
   const [session, parentRoadmapOptions] = await Promise.all([

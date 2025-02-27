@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import { EditUsers, getAccessData, ViewUsers } from "@/components/forms/accessSelector/accessSelector";
 import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
@@ -10,9 +10,10 @@ import { AccessControlled, GoalInput, Locale, RoadmapInput } from "@/types";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
 import { useContext, useEffect, useMemo, useState } from "react";
 import styles from '../forms.module.css';
-import dict from "./roadmapForm.dict.json" with { type: "json" };
+import parentDict from "../forms.dict.json" with { type: "json" };
 
 function checkForBadDecoding(csv: string[][], locale: Locale) {
+  const dict = parentDict.roadmapForm.roadmapForm;
   if (csv.some((row) => row.some((cell) => cell.includes("�")))) {
     alert(dict.badDecoding.alert[locale]);
   }
@@ -33,6 +34,7 @@ export default function RoadmapForm({
   currentRoadmap?: Roadmap & AccessControlled & { metaRoadmap: MetaRoadmap },
   defaultMetaRoadmap?: string,
 }) {
+  const dict = parentDict.roadmapForm.roadmapForm;
   const locale = useContext(LocaleContext);
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {

@@ -8,9 +8,10 @@ import accessChecker from '@/lib/accessChecker';
 import { AccessLevel } from '@/types';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
 import { getServerLocale } from "@/functions/serverLocale";
-import dict from "./page.dict.json" with { type: "json" };
+import parentDict from "../../metaRoadmap.dict.json" with { type: "json" };
 
 export default async function Page({ params }: { params: { metaRoadmapId: string } }) {
+  const dict = parentDict["[metaRoadmapId]"].edit.page;
   const locale = await getServerLocale();
   
   const [session, currentRoadmap, parentRoadmapOptions] = await Promise.all([

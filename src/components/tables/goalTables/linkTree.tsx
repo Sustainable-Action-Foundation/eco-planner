@@ -4,7 +4,7 @@ import Image from 'next/image';
 import goalsToTree, { GoalTree } from '@/functions/goalsToTree';
 import { SyntheticEvent, useContext } from 'react';
 import { getSessionStorage, setSessionStorage } from '@/functions/localStorage';
-import dict from './linkTree.dict.json' with { type: "json" };
+import parentDict from '../tables.dict.json' with { type: "json" };
 import { LocaleContext } from '@/app/context/localeContext.tsx';
 
 // interface LinkTreeCommonProps {}
@@ -36,6 +36,7 @@ export default function LinkTree({
   goals,
   roadmap,
 }: LinkTreeProps) {
+  const dict = parentDict.goalTables.linkTree;
   const locale = useContext(LocaleContext);
 
   // Failsafe in case wrong props are passed

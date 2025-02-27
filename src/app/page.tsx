@@ -9,9 +9,10 @@ import { RoadmapSortBy } from "@/types";
 import { RoadmapType } from "@prisma/client";
 import { cookies } from "next/headers";
 import { getServerLocale } from "@/functions/serverLocale";
-import dict from "./page.dict.json" with { type: "json" };
+import parentDict from "./home.dict.json" with { type: "json" };
 
 export default async function Page({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
+  const dict = parentDict.page;
   const locale = await getServerLocale();
 
   const [session, metaRoadmaps] = await Promise.all([

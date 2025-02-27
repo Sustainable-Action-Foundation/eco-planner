@@ -27,7 +27,7 @@ import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
 import findSiblings from "@/functions/findSiblings.ts";
 import ChildGraphContainer from "@/components/graphs/childGraphs/childGraphContainer.tsx";
 import { getServerLocale } from "@/functions/serverLocale";
-import dict from "./page.dict.json" with { type: "json" };
+import parentDict from "../goal.dict.json" with { type: "json" };
 
 export default async function Page({
   params,
@@ -39,6 +39,7 @@ export default async function Page({
     [key: string]: string | string[] | undefined
   },
 }) {
+  const dict = parentDict["[goalId]"].page;
   const locale = await getServerLocale();
 
   const [session, { goal, roadmap }, secondaryGoal, unfilteredRoadmapOptions] = await Promise.all([

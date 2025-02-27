@@ -7,7 +7,7 @@ import { TableMenu } from '@/components/tables/tableMenu/tableMenu';
 import { AccessControlled } from '@/types';
 import accessChecker from '@/lib/accessChecker';
 import { getServerLocale } from '@/functions/serverLocale';
-import dict from './roadmapTable.dict.json' with { type: "json" };
+import parentDict from '../tables.dict.json' with { type: "json" };
 
 interface RoadmapTableCommonProps {
   user: LoginData['user'],
@@ -30,6 +30,7 @@ export default async function RoadmapTable({
   roadmaps,
   metaRoadmap,
 }: RoadmapTableProps) {
+  const dict = parentDict.roadmapTables.roadmapTable;
   const locale = await getServerLocale();
 
   // Failsafe in case wrong props are passed

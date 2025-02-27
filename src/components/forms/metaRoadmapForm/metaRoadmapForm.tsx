@@ -10,7 +10,7 @@ import { AccessControlled, MetaRoadmapInput } from "@/types";
 import { MetaRoadmap, RoadmapType } from "@prisma/client";
 import { useContext, useState } from "react";
 import styles from '../forms.module.css';
-import dict from "./metaRoadmapForm.dict.json" with { type: "json" };
+import parentDict from "../forms.dict.json" with { type: "json" };
 
 export default function MetaRoadmapForm({
   user,
@@ -23,6 +23,7 @@ export default function MetaRoadmapForm({
   parentRoadmapOptions?: MetaRoadmap[],
   currentRoadmap?: MetaRoadmap & AccessControlled,
 }) {
+  const dict = parentDict.metaRoadmapForm.metaRoadmapForm;
   const locale = useContext(LocaleContext);
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {

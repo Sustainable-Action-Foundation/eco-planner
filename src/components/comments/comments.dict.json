@@ -1,34 +1,36 @@
 {
   "comments": {
-    "en": "Comments",
-    "sv": "Kommentarer"
-  },
-  "submitComment": {
-    "writeComment": {
-      "en": "Write comment",
-      "sv": "Skriv kommentar"
+    "comments": {
+      "en": "Comments",
+      "sv": "Kommentarer"
     },
-    "cancel": {
-      "en": "Cancel",
-      "sv": "Avbryt"
+    "submitComment": {
+      "writeComment": {
+        "en": "Write comment",
+        "sv": "Skriv kommentar"
+      },
+      "cancel": {
+        "en": "Cancel",
+        "sv": "Avbryt"
+      },
+      "submit": {
+        "en": "Submit",
+        "sv": "Skicka"
+      }
     },
-    "submit": {
-      "en": "Submit",
-      "sv": "Skicka"
-    }
-  },
-  "commentInfo": {
-    "ago": {
-      "en": "ago",
-      "sv": "sedan"
-    },
-    "showLess": {
-      "en": "Show less",
-      "sv": "Visa mindre"
-    },
-    "showMore": {
-      "en": "Show more",
-      "sv": "Visa mer"
+    "commentInfo": {
+      "ago": {
+        "en": "ago",
+        "sv": "sedan"
+      },
+      "showLess": {
+        "en": "Show less",
+        "sv": "Visa mindre"
+      },
+      "showMore": {
+        "en": "Show more",
+        "sv": "Visa mer"
+      }
     }
   }
 }

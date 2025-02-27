@@ -8,7 +8,7 @@ import { AccessLevel } from "@/types.ts";
 import { cookies } from "next/headers";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { getServerLocale } from "@/functions/serverLocale";
-import dict from "./page.dict.json" with { type: "json" };
+import parentDict from "../effect.dict.json" with { type: "json" };
 
 const editAccess = [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin];
 
@@ -21,6 +21,7 @@ export default async function Page({
     [key: string]: string | string[] | undefined
   },
 }) {
+  const dict = parentDict.edit.page;
   const locale = await getServerLocale();
 
   const [session, effect, roadmaps] = await Promise.all([

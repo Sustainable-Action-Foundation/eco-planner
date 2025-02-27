@@ -3,9 +3,10 @@
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 import Image from "next/image";
 import { useContext, useState } from "react";
-import dict from "./linkInput.dict.json" with { type: "json" };
+import parentDict from "../forms.dict.json" with { type: "json" };
 
 export default function LinkInput({ links }: { links?: { url: string, description: string | null }[] }) {
+  const dict = parentDict.linkInput.linkInput;
   const locale = useContext(LocaleContext);
 
   // The list of links

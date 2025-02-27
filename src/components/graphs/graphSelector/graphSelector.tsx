@@ -2,7 +2,7 @@ import React, { ChangeEvent, Dispatch, SetStateAction, useContext } from 'react'
 import { DataSeries, Goal } from "@prisma/client";
 import { GraphType } from "../graphGraph";
 import { setStoredGraphType } from '../functions/graphFunctions';
-import dict from "./graphSelector.dict.json" with { type: "json" };
+import parentDict from "../graphs.dict.json" with { type: "json" };
 import { LocaleContext } from '@/app/context/localeContext.tsx';
 
 export const percentAndFraction = ['procent', 'percent', '%', 'andel', 'fraction'];
@@ -16,6 +16,7 @@ export default function GraphSelector({
   currentSelection: GraphType | "",
   setter: Dispatch<SetStateAction<GraphType | "">>
 }) {
+  const dict = parentDict.graphSelector.graphSelector;
   const locale = useContext(LocaleContext);
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {

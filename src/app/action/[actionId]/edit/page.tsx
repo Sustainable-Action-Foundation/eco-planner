@@ -7,9 +7,10 @@ import getOneAction from "@/fetchers/getOneAction";
 import { AccessControlled, AccessLevel } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { getServerLocale } from "@/functions/serverLocale";
-import dict from "./page.dict.json" with { type: "json" };
+import parentDict from "../../action.dict.json" with { type: "json" };
 
 export default async function Page({ params, }: { params: { actionId: string }, }) {
+  const dict = parentDict["[actionId]"].edit.page;
   const locale = await getServerLocale();
 
   const [session, action] = await Promise.all([

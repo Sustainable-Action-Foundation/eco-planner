@@ -1,11 +1,12 @@
 'use client';
 
 import Image from "next/image";
-import dict from "./logoutButton.dict.json" with { type: "json" };
+import parentDict from "./buttons.dict.json" with { type: "json" };
 import { useContext } from "react";
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 export default function LogoutButton() {
+  const dict = parentDict.logoutButton;
   // Throws error if data is missing
   const locale = useContext(LocaleContext);
 

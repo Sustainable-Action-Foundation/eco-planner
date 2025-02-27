@@ -2,10 +2,11 @@
 
 import { storageConsent, allowStorage, clearStorage } from "@/functions/localStorage";
 import { useContext, useEffect, useState } from "react";
-import dict from "./graphCookie.dict.json" with { type: "json" };
+import parentDict from "./cookies.dict.json" with { type: "json" };
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 export default function GraphCookie() {
+  const dict = parentDict.graphCookie;
   const locale = useContext(LocaleContext);
 
   const [storageAllowed, setStorageAllowed] = useState(false)

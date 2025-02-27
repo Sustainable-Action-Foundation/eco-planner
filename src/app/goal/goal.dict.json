@@ -1,6 +1,6 @@
 {
-  "[goalId]-(folder)": {
-    "page-(file)": {
+  "[goalId]": {
+    "page": {
       "compareGoal": {
         "en": "Compare with goal",
         "sv": "Jämför med målbanan"
@@ -42,8 +42,8 @@
         "sv": "Skapa ny åtgärd"
       }
     },
-    "edit-(folder)": {
-      "page-(file)": {
+    "edit": {
+      "page": {
         "breadcrumbEditGoal": {
           "en": "Edit goal",
           "sv": "Redigera målbana"
@@ -55,8 +55,8 @@
       }
     }
   },
-  "create-(folder)": {
-    "page-(file)": {
+  "create": {
+    "page": {
       "breadcrumbCreateGoal": {
         "en": "Create new goal",
         "sv": "Skapa ny målbana"

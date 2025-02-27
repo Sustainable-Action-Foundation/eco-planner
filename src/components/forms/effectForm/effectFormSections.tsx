@@ -5,7 +5,7 @@ import { useContext, useEffect, useState } from "react";
 import type getOneAction from "@/fetchers/getOneAction.ts";
 import type getOneGoal from "@/fetchers/getOneGoal";
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
-import dict from "./effectFormSections.dict.json" with { type: "json" };
+import parentDict from "../forms.dict.json" with { type: "json" };
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 
@@ -16,6 +16,7 @@ export function ActionSelector({
   action: Awaited<ReturnType<typeof getOneAction>> | null,
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
 }) {
+  const dict = parentDict.effectForm.effectFormSections;
   const locale = useContext(LocaleContext);
 
   const [selectedAction, setSelectedAction] = useState<string>(action?.id || "");
@@ -76,6 +77,7 @@ export function GoalSelector({
   goal: Awaited<ReturnType<typeof getOneGoal>> | null,
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
 }) {
+  const dict = parentDict.effectForm.effectFormSections;
   const locale = useContext(LocaleContext);
 
   const [selectedGoal, setSelectedGoal] = useState<string>(goal?.id || "");

@@ -8,9 +8,10 @@ import RoadmapTable from "@/components/tables/roadmapTables/roadmapTable";
 import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { getServerLocale } from "@/functions/serverLocale";
-import dict from "./page.dict.json" with { type: "json" };
+import parentDict from "../metaRoadmap.dict.json" with { type: "json" };
 
 export default async function Page({ params }: { params: { metaRoadmapId: string } }) {
+  const dict = parentDict["[metaRoadmapId]"].page;
   const locale = await getServerLocale();
 
   const [session, metaRoadmap] = await Promise.all([

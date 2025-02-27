@@ -8,7 +8,7 @@ import { AccessLevel } from "@/types";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { getServerLocale } from "@/functions/serverLocale";
-import dict from "./page.dict.json" with { type: "json" };
+import parentDict from "../goal.dict.json" with { type: "json" };
 
 export default async function Page({
   searchParams
@@ -18,6 +18,7 @@ export default async function Page({
     [key: string]: string | string[] | undefined
   }
 }) {
+  const dict = parentDict.create.page;
   const locale = await getServerLocale();
 
   const [session, roadmap, roadmapList] = await Promise.all([

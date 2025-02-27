@@ -7,7 +7,7 @@ import formSubmitter from "@/functions/formSubmitter"
 import { ActionInput } from "@/types"
 import { Action, ActionImpactType, DataSeries, Effect } from "@prisma/client"
 import styles from '../forms.module.css'
-import dict from "./actionForm.dict.json" with { type: "json" };
+import parentDict from "../forms.dict.json" with { type: "json" };
 import { LocaleContext } from "@/app/context/localeContext.tsx"
 import { useContext } from "react"
 
@@ -27,6 +27,7 @@ export default function ActionForm({
     links: { url: string, description: string | null }[],
   },
 }) {
+  const dict = parentDict.actionForm.actionForm;
   const locale = useContext(LocaleContext);
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {

@@ -1,6 +1,6 @@
 {
-  "[actionId]-(folder)": {
-    "page-(file)": {
+  "[actionId]": {
+    "page": {
       "summary": {
         "action": {
           "en": "Action",
@@ -94,8 +94,8 @@
         }
       }
     },
-    "edit-(folder)": {
-      "page-(file)": {
+    "edit": {
+      "page": {
         "breadcrumbEditAction": {
           "en": "Edit action",
           "sv": "Redigera åtgärd"
@@ -115,8 +115,8 @@
       }
     }
   },
-  "create-(folder)": {
-    "page-(file)": {
+  "create": {
+    "page": {
       "breadcrumbCreateAction": {
         "en": "Create new action",
         "sv": "Skapa ny åtgärd"

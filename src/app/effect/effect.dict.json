@@ -1,6 +1,6 @@
 {
-  "edit-(folder)": {
-    "page-(file)": {
+  "edit": {
+    "page": {
       "breadcrumbEditEffect": {
         "en": "Edit effect",
         "sv": "Redigera effekt"
@@ -15,8 +15,8 @@
       }
     }
   },
-  "create-(folder)": {
-    "page-(file)": {
+  "create": {
+    "page": {
       "breadcrumbCreateEffect": {
         "en": "Create new effect",
         "sv": "Skapa ny effekt"

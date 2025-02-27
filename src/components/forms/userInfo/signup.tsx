@@ -1,14 +1,15 @@
-'use client'
+"use client"
 
 import Link from "next/link";
 import Image from "next/image";
 import { useContext, useState } from "react";
 import styles from '../forms.module.css'
-import dict from "./signup.dict.json" with { type: "json" };
+import parentDict from "../forms.dict.json" with { type: "json" };
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 import { Locale } from "@/types";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, locale: Locale) {
+  const dict = parentDict.userInfo.signup;
   event.preventDefault();
 
   const form = event.target;
@@ -38,6 +39,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, locale: Locale)
 }
 
 export default function Signup() {
+  const dict = parentDict.userInfo.signup;
   const locale = useContext(LocaleContext);
 
   const [showPassword, setShowPassword] = useState(false);

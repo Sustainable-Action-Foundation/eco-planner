@@ -5,7 +5,7 @@ import { useContext, useState } from "react";
 import { closeModal } from "@/components/modals/modalFunctions";
 import styles from './modals.module.css'
 import { LocaleContext } from "@/app/context/localeContext.tsx";
-import dict from "./confirmDelete.dict.json" with { type: "json" };
+import parentDict from "./modals.dict.json" with { type: "json" };
 
 export default function ConfirmDelete({
   modalRef,
@@ -18,6 +18,7 @@ export default function ConfirmDelete({
   targetName: string;
   targetId?: string | { actionId: string, goalId: string };
 }) {
+  const dict = parentDict.confirmDelete;
   const locale = useContext(LocaleContext);
 
   const [isLoading, setIsLoading] = useState(false);

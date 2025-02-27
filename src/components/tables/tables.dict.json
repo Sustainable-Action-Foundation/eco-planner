@@ -1,5 +1,5 @@
 {
-  "goals-(file)": {
+  "goals": {
     "searchGoals": {
       "en": "Search goals",
       "sv": "Sök bland målbanor"
@@ -47,7 +47,7 @@
       "sv": "Laddar"
     }
   },
-  "effects-(file)": {
+  "effects": {
     "noEffectsReturn": {
       "noEffects": {
         "en": "There are no effects to show.",
@@ -69,7 +69,7 @@
       }
     }
   },
-  "actions-(file)": {
+  "actions": {
     "noActions": {
       "en": "There are no actions to show.",
       "sv": "Det finns inga åtgärder att visa."
@@ -83,8 +83,8 @@
       "sv": "Skapa ny åtgärd"
     }
   },
-  "tableSelector-(folder)": {
-    "tableSelector-(file)": {
+  "tableSelector": {
+    "tableSelector": {
       "treeDisplay": {
         "en": "Tree",
         "sv": "Träd"
@@ -99,8 +99,8 @@
       }
     }
   },
-  "tableMenu-(folder)": {
-    "tableMenu-(file)": {
+  "tableMenu": {
+    "tableMenu": {
       "metaRoadmaps": {
         "creationDescription": {
           "en": "New roadmap version",
@@ -187,8 +187,8 @@
       }
     }
   },
-  "roadmapTables-(folder)": {
-    "roadmapTree-(file)": {
+  "roadmapTables": {
+    "roadmapTree": {
       "noRoadmaps": {
         "en": "No roadmaps found. If you have any filters active, no roadmaps matching them were found.",
         "sv": "Inga färdplaner hittades. Om du har några filter aktiva så hittades inga färdplaner som matchar dem."
@@ -200,7 +200,7 @@
         }
       }
     },
-    "roadmapTable-(file)": {
+    "roadmapTable": {
       "goals": {
         "en": "Goals",
         "sv": "Målbanor"
@@ -211,14 +211,14 @@
       }
     }
   },
-  "goalTables-(folder)": {
-    "linkTree-(file)": {
+  "goalTables": {
+    "linkTree": {
       "noGoal": {
         "en": "You do not have access to any goals in this roadmap version, or the roadmap version is empty.",
         "sv": "Du har inte tillgång till några målbanor i denna färdplansversion, eller så är färdplansversionen tom."
       }
     },
-    "goalTable-(file)": {
+    "goalTable": {
       "noGoals": {
         "en": "You do not have access to any goals in this roadmap version, or the roadmap version is empty.",
         "sv": "Du har inte tillgång till några målbanor i denna färdplansversion, eller så är färdplansversionen tom."

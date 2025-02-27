@@ -1,5 +1,5 @@
 {
-  "formWrapper-(file)": {
+  "formWrapper": {
     "back": {
       "en": "Back",
       "sv": "Tillbaka"
@@ -9,8 +9,8 @@
       "sv": "Nästa"
     }
   },
-  "userInfo-(folder)": {
-    "signup-(file)": {
+  "userInfo": {
+    "signup": {
       "handleSubmit": {
         "signupFailedForReason": {
           "en": "Signup failed.\nReason: ",
@@ -78,7 +78,7 @@
         }
       }
     },
-    "login-(file)": {
+    "login": {
       "handleSubmit": {
         "loginFailed": {
           "en": "Login failed.",
@@ -141,8 +141,8 @@
       }
     }
   },
-  "roadmapForm-(folder)": {
-    "roadmapForm-(file)": {
+  "roadmapForm": {
+    "roadmapForm": {
       "badDecoding": {
         "alert": {
           "en": "The file seems to use an unknown encoding as the interpreted text contains the character '�' which indicates that some character could not be interpreted correctly (probably Å, Ä or Ö).\nYou can still use this file, but if you are not completely sure that it *should* contain the character '�' it is recommended that you convert the file to UTF-8 encoding and try again.",
@@ -271,8 +271,8 @@
       }
     }
   },
-  "pxWeb-(folder)": {
-    "queryBuilder-(file)": {
+  "pxWeb": {
+    "queryBuilder": {
       "addHistoricalData": {
         "en": "Add historical data",
         "sv": "Lägg till historisk data"
@@ -339,8 +339,8 @@
       }
     }
   },
-  "metaRoadmapForm-(folder)": {
-    "metaRoadmapForm-(file)": {
+  "metaRoadmapForm": {
+    "metaRoadmapForm": {
       "describeMetaRoadmap": {
         "title": {
           "en": "Describe your meta roadmap",
@@ -417,8 +417,8 @@
       }
     }
   },
-  "linkInput-(folder)": {
-    "linkInput-(file)": {
+  "linkInput": {
+    "linkInput": {
       "linkInput": {
         "name": {
           "en": "Name",
@@ -431,8 +431,8 @@
       }
     }
   },
-  "goalForm-(folder)": {
-    "goalFormSections-(file)": {
+  "goalForm": {
+    "goalFormSections": {
       "manualGoalForm": {
         "leapParameter": {
           "en": "LEAP parameter",
@@ -614,7 +614,7 @@
         }
       }
     },
-    "goalForm-(file)": {
+    "goalForm": {
       "selectRoadmap": {
         "title": {
           "en": "Select roadmap version to create goal under:",
@@ -789,8 +789,8 @@
       }
     }
   },
-  "filters-(folder)": {
-    "roadmapFilters-(file)": {
+  "filters": {
+    "roadmapFilters": {
       "menu": {
         "searchRoadmaps": {
           "en": "Search roadmaps",
@@ -863,8 +863,8 @@
       }
     }
   },
-  "effectForm-(folder)": {
-    "effectFormSections-(file)": {
+  "effectForm": {
+    "effectFormSections": {
       "actionSelector": {
         "selectRoadmapVersion": {
           "title": {
@@ -930,7 +930,7 @@
         }
       }
     },
-    "effectForm-(file)": {
+    "effectForm": {
       "dataSeries": {
         "title": {
           "en": "Data series",
@@ -971,8 +971,8 @@
       }
     }
   },
-  "actionForm-(folder)": {
-    "actionForm-(file)": {
+  "actionForm": {
+    "actionForm": {
       "selectRoadmapSection": {
         "title": {
           "en": "Relation to other posts",
@@ -1123,8 +1123,8 @@
       }
     }
   },
-  "accessSelector-(folder)": {
-    "accessSelector-(file)": {
+  "accessSelector": {
+    "accessSelector": {
       "editUsers": {
         "groups": {
           "editingPrivileges": {

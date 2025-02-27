@@ -1,11 +1,12 @@
 'use client';
 
 import formSubmitter from "@/functions/formSubmitter";
-import dict from "./updateGoalButton.dict.json" with { type: "json" };
+import parentDict from "./buttons.dict.json" with { type: "json" };
 import { useContext } from "react";
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 export default function UpdateGoalButton({ id }: { id: string }) {
+  const dict = parentDict.updateGoalButton;
   const locale = useContext(LocaleContext);
 
   return (

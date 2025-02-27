@@ -2,7 +2,7 @@ import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFu
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
 import { Goal, DataSeries, Effect } from "@prisma/client";
-import dict from "./mainDeltaGraph.dict.json" with { type: "json" };
+import parentDict from "../graphs.dict.json" with { type: "json" };
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 import { useContext } from "react";
 
@@ -17,6 +17,7 @@ export default function MainDeltaGraph({
   nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
 }) {
+  const dict = parentDict.mainGraphs.mainDeltaGraph;
   const locale = useContext(LocaleContext);
 
   if (!goal.dataSeries) {

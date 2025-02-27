@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
-
+// TODO - translate this page
 export default function UserFilters({
     userPage
   }: {
