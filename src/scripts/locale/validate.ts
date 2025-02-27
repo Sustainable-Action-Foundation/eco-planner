@@ -69,9 +69,9 @@ if (dirFlag) {
   console.info(""); // Padding
   console.info(` \x1b[34mℹ️\x1b[0m Validating directory and its children \x1b[90m${dirFlag}\x1b[0m`);
 
-  const fileProblems: { [file: string]: string[] } = validateDirectory(dirFlag);
+  const perFileProblems = validateDirectory(dirFlag);
 
-  Object.entries(fileProblems).forEach(([file, problems]) => {
+  Object.entries(perFileProblems).forEach(([file, problems]) => {
     if (problems.length === 0) {
       if (verbose) console.info(`✔️  No problems found in \x1b[90m${file}\x1b[0m`);
     } else {
@@ -83,7 +83,7 @@ if (dirFlag) {
   });
 
   // Exit appropriately
-  const problematicFileCount = Object.values(fileProblems).filter(problemList => problemList.length !== 0).length;
+  const problematicFileCount = Object.values(perFileProblems).filter(fileProblems => fileProblems.length !== 0).length;
   if (problematicFileCount > 0) process.exit(1);
   console.info("✔️  No problems found in any files.");
   console.info(""); // Padding
@@ -152,7 +152,7 @@ function validateDirectory(dirPath: string | null): { [file: string]: string[] }
   }
 
   // Per file problem tracker
-  const fileProblems: { [file: string]: string[] } = {};
+  const perFileProblems: { [file: string]: string[] } = {};
 
   // Get all dict files in dir and sub dirs with absolute paths TODO: Refactor to use glob if that is beneficial
   const dictFiles: { name: string, path: string }[] = [];
@@ -182,17 +182,18 @@ function validateDirectory(dirPath: string | null): { [file: string]: string[] }
 
     const fileContent = fs.readFileSync(absoluteFilePath, "utf8");
 
+    // Invalid JSON, check
     try { JSON.parse(fileContent); } catch (e) {
-      fileProblems[relativeFilePath] = [`File is not a valid JSON, see error:\n\n ${e}`];
-      return fileProblems;
+      perFileProblems[relativeFilePath] = [`File is not a valid JSON, see error:\n\n${e}`];
+      return perFileProblems;
     }
 
     const data = JSON.parse(fileContent);
 
-    fileProblems[relativeFilePath] = validateDictObject(data);
+    perFileProblems[relativeFilePath] = validateDictObject(data);
   });
 
-  return fileProblems;
+  return perFileProblems;
 }
 
 export function validateDictObject(dict: object | string): string[] {
@@ -257,14 +258,12 @@ export function validateDictObject(dict: object | string): string[] {
   // Leaf checks
   // Value type, check
   if (values.some(value => typeof value !== "string")) {
-    // const found = `{ ${Object.entries(dict).map(([key, value]) => `${key}: ${typeof value}`).join(", ")} }`;
     const found = dictToStringShallow(dict);
     problems.push(`Leaf nodes can only contain \`Locale\` strings.\n   Found:\n    ${found}`);
   }
   // Number of locales, check
   if (keys.length !== strictLocale.length) {
     const expected = `{ ${strictLocale.map(locale => `"${locale}": string`).join(", ")} }`;
-    // const found = `{ ${Object.entries(dict).map(([key, value]) => `"${key}":${typeof value === "string" ? `"${value}"` : value}`).join(", ")} }`;
     const found = dictToStringShallow(dict);
     problems.push(`Leaf node has the wrong amount of locales.\n   Expected:\n    ${expected}\n   Found:\n    ${found}`);
   }
