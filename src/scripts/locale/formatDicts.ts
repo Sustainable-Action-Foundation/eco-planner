@@ -28,6 +28,6 @@ function formatDicts(): void {
     }
   }
 
-  console.info("\x1b[34mℹ️\x1b[0m Done formatting locale files.");
+  console.info("✔️ Done formatting locale files.");
   console.info(""); // Padding
 }

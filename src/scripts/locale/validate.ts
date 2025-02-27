@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { glob } from "glob";
 import { Locale } from "@/types.ts";
 const strictLocale = [...new Set(Object.values(Locale))]; // Strips duplicates i.e. the default locale
 import { } from "./dictHandler.ts";
@@ -19,7 +20,7 @@ const disallowedKeySuffixes: string[] = [];
 
 /* Help command. Shows when no flags are given */
 if (process.argv.includes("--help") || process.argv.length === 2) {
-  console.info("Help:");
+  console.info("\x1b[34mℹ️\x1b[0m Help:");
   console.info(`Validates the structure of locale dictionaries. Locale files are matched by the regex \x1b[32m${dictFileRegex}\x1b[0m.\n`);
   console.info("Flags:");
   console.info(" -f --file <file>:      Validate single file.");
@@ -46,7 +47,8 @@ if (fileFlag && dirFlag) {
 }
 
 if (fileFlag) {
-  console.info(`\nValidating file \x1b[90m${fileFlag}\x1b[0m`);
+  console.info(""); // Padding
+  console.info(`\x1b[34mℹ️\x1b[0m Validating file \x1b[90m${fileFlag}\x1b[0m`);
 
   const problems = validateFile(fileFlag);
 
@@ -64,7 +66,8 @@ if (fileFlag) {
 }
 
 if (dirFlag) {
-  console.info(`\nValidating directory and its children \x1b[90m${dirFlag}\x1b[0m\n`);
+  console.info(""); // Padding
+  console.info(`\x1b[34mℹ️\x1b[0m Validating directory and its children \x1b[90m${dirFlag}\x1b[0m\n`);
 
   const fileProblems: { [file: string]: string[] } = validateDirectory(dirFlag);
 
@@ -88,7 +91,7 @@ if (dirFlag) {
 function validateFile(filePath: string | null): string[] {
   // Falsy file path
   if (!filePath) {
-    console.error("No file specified.");
+    console.error("❗ No file specified.");
     process.exit(1);
   }
 
@@ -96,14 +99,14 @@ function validateFile(filePath: string | null): string[] {
   if (!path.isAbsolute(filePath)) {
     filePath = path.resolve(filePath);
     if (!filePath) {
-      console.error("Could not resolve path.");
+      console.error("❗ Could not resolve path.");
       process.exit(1);
     }
   }
 
   // File exists
   if (!fs.existsSync(filePath)) {
-    console.error("File does not exist.");
+    console.error("❗ File does not exist.");
     process.exit(1);
   }
 
@@ -127,7 +130,7 @@ function validateFile(filePath: string | null): string[] {
 function validateDirectory(dirPath: string | null): { [file: string]: string[] } {
   // Falsy dir path
   if (!dirPath) {
-    console.error("No directory specified.");
+    console.error("❗ No directory specified.");
     process.exit(1);
   }
 
@@ -135,14 +138,14 @@ function validateDirectory(dirPath: string | null): { [file: string]: string[] }
   if (!path.isAbsolute(dirPath)) {
     dirPath = path.resolve(dirPath);
     if (!dirPath) {
-      console.error("Could not resolve path.");
+      console.error("❗ Could not resolve path.");
       process.exit(1);
     }
   }
 
   // Directory exists
   if (!fs.existsSync(dirPath)) {
-    console.error("Directory does not exist.");
+    console.error("❗ Directory does not exist.");
     process.exit(1);
   }
 
@@ -166,7 +169,7 @@ function validateDirectory(dirPath: string | null): { [file: string]: string[] }
 
   // No dict files found
   if (dictFiles.length === 0) {
-    console.error(`No \x1b[32m${dictFileRegex}\x1b[0m files found.`);
+    console.error(`❗ No \x1b[32m${dictFileRegex}\x1b[0m files found.`);
     process.exit(1);
   }
 

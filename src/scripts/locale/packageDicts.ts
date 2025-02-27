@@ -3,7 +3,8 @@ import path from "path";
 import { collectedDictionaryPath, dictFileEnding, findSubDict, getObjectFromJson, KeyNameHandler, saveDictAsJson } from "./dictHandler";
 
 function generateCollectedDictionary(): void {
-  console.log("Packaging dictionaries...");
+  console.info(""); // Padding
+  console.info("\x1b[34mℹ️\x1b[0m Packaging dictionaries...");
 
   function createKey(dict: { [key: string]: string | object }, key: string): void {
     if (!(key in dict)) {
@@ -40,7 +41,8 @@ function generateCollectedDictionary(): void {
   }
 
   saveDictAsJson(outDict, collectedDictionaryPath);
-  console.log("Done packaging dictionaries.")
+  console.info("✔️ Done packaging dictionaries.")
+  console.info(""); // Padding
 }
 
 generateCollectedDictionary()
