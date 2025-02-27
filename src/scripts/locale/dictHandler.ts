@@ -11,7 +11,7 @@ export const dictFileEnding: string = ".dict.json";
  * folders in the dictionary so that they can be unpacked
  * properly.
  * 
- * When packaging all dictionary files, the folderstructure 
+ * When packaging all dictionary files, the folder structure 
  * is maintained by using these prefixes and suffixes to 
  * differentiate folders and files from translation keys.
  */
