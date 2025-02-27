@@ -1,9 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
-import { glob } from "glob";
 import { Locale } from "@/types.ts";
 const strictLocale = [...new Set(Object.values(Locale))]; // Strips duplicates i.e. the default locale
-import { } from "./dictHandler.ts";
 
 /** Matches paths ending in `.dict.json` */
 const dictFileRegex = /\.dict\.json$/;
@@ -38,11 +36,11 @@ const dirFlag = readFlag("-d", process.argv) || readFlag("--dir", process.argv);
 const verbose = process.argv.includes("-v") || process.argv.includes("--verbose");
 
 if (!fileFlag && !dirFlag) {
-  console.error("No file or directory specified.");
+  console.error("❗ No file or directory specified.");
   process.exit(1);
 }
 if (fileFlag && dirFlag) {
-  console.error("Cannot specify both file and directory.");
+  console.error("❗ Cannot specify both file and directory.");
   process.exit(1);
 }
 
