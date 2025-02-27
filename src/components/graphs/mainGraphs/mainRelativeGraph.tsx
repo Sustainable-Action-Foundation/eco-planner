@@ -1,6 +1,9 @@
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
 import { Goal, DataSeries } from "@prisma/client";
+import parentDict from "../graphs.dict.json" with { type: "json" };
+import { LocaleContext } from "@/app/context/localeContext.tsx";
+import { useContext } from "react";
 
 export default function MainRelativeGraph({
   goal,
@@ -11,6 +14,9 @@ export default function MainRelativeGraph({
   secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
   nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
 }) {
+  const dict = parentDict.mainGraphs.mainRelativeGraph;
+  const locale = useContext(LocaleContext);
+
   if (!goal.dataSeries || ["procent", "percent", "andel", "ratio", "fraction"].includes(goal.dataSeries.unit.toLowerCase())) {
     return null;
   }
@@ -75,7 +81,7 @@ export default function MainRelativeGraph({
       });
     }
     chart.push({
-      name: 'Nationell motsvarighet',
+      name: dict.nationalGoal.name[locale],
       data: nationalSeries,
       type: 'line',
     });
@@ -97,7 +103,7 @@ export default function MainRelativeGraph({
       max: new Date(dataSeriesDataFieldNames[dataSeriesDataFieldNames.length - 1].replace('val', '')).getTime()
     },
     yaxis: {
-      title: { text: "procent relativt basår" },
+      title: { text: dict.chartOptions.yAxis.title[locale] },
       labels: { formatter: floatSmoother },
     },
     tooltip: {

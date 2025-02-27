@@ -2,6 +2,9 @@ import { goalSorter, goalSorterActionAmount, goalSorterActionAmountReverse, goal
 import { GoalSortBy } from '../goals';
 import styles from '../tables.module.css' with { type: "css" };
 import { DataSeries, Goal } from "@prisma/client";
+import parentDict from '../tables.dict.json' with { type: "json" };
+import { LocaleContext } from '@/app/context/localeContext.tsx';
+import { useContext } from 'react';
 
 interface GoalTableCommonProps {
   sortBy?: GoalSortBy,
@@ -35,6 +38,9 @@ export default function GoalTable({
   roadmap,
   sortBy,
 }: GoalTableProps) {
+  const dict = parentDict.goalTables.goalTable;
+  const locale = useContext(LocaleContext);
+
   // Failsafe in case wrong props are passed
   if ((!goals && !roadmap) || (goals && roadmap)) throw new Error('GoalTable: Either `goals` XOR `roadmap` must be provided');
 
@@ -47,7 +53,7 @@ export default function GoalTable({
     })
   }
 
-  if (!goals?.length) return (<p>Du har inte tillgång till några målbanor i denna färdplansversion, eller så är färdplansversionen tom.</p>);
+  if (!goals?.length) return (<p>{dict.noGoals[locale]}</p>);
 
   switch (sortBy) {
     case GoalSortBy.Alpha:
@@ -76,10 +82,10 @@ export default function GoalTable({
       <table id="goalTable" className={styles.table}>
         <thead>
           <tr>
-            <th>Målbanenamn</th>
-            <th>LEAP parameter</th>
-            <th>Enhet för dataserie</th>
-            <th>Antal åtgärder</th>
+            <th>{dict.tableHeader.goalName[locale]}</th>
+            <th>{dict.tableHeader.LEAPParameter[locale]}</th>
+            <th>{dict.tableHeader.seriesUnit[locale]}</th>
+            <th>{dict.tableHeader.actionCount[locale]}</th>
           </tr>
         </thead>
         <tbody>

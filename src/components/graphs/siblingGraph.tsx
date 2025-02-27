@@ -4,9 +4,11 @@ import findSiblings from "@/functions/findSiblings";
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Goal, Roadmap } from "@prisma/client";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import styles from './graphs.module.css'
 import Image from "next/image";
+import parentDict from "./graphs.dict.json" with { type: "json" };
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 /**
  * A graph that shows how a goal stacks up against its siblings (other goals in the same roadmap version with similar indicator parameters and same unit).
@@ -20,6 +22,9 @@ export default function SiblingGraph({
   },
   goal: Goal & { dataSeries: DataSeries | null },
 }) {
+  const dict = parentDict.siblingGraph;
+  const locale = useContext(LocaleContext);
+
   const siblings = findSiblings(roadmap, goal);
   const dataPoints: ApexAxisChartSeries = [];
 
@@ -104,8 +109,8 @@ export default function SiblingGraph({
       </div>
       <menu className="margin-block-100 margin-0 padding-0">
         <button className="call-to-action-primary display-flex align-items-center gap-50 transparent" style={{ width: 'fit-content', fontWeight: 'bold', fontSize: '1rem' }} type="button" onClick={() => setIsStacked(!isStacked)}>
-          Byt typ av graf
-          <Image src='/icons/chartArea.svg' alt='Byt graf' width={24} height={24} />
+          {dict.menu.changeGraphType[locale]}
+          <Image src='/icons/chartArea.svg' alt={dict.menu.changeGraphAlt[locale]} width={24} height={24} />
         </button>
       </menu>
     </div>

@@ -1,9 +1,13 @@
-import styles from "@/components/tables/tables.module.css" with { type: "css" };
 import { TableMenu } from "@/components/tables/tableMenu/tableMenu.tsx";
+import styles from "@/components/tables/tables.module.css" with { type: "css" };
+import { getServerLocale } from "@/functions/serverLocale";
 import accessChecker from "@/lib/accessChecker.ts";
 import { LoginData } from "@/lib/session.ts";
 import { AccessControlled } from "@/types.ts";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
+import parentDict from "../tables.dict.json" with { type: "json" };
+import Link from "next/link";
+import Image from "next/image";
 
 type RoadmapTreeProps = {
   user: LoginData['user'],
@@ -16,12 +20,18 @@ type RoadmapTreeProps = {
  * 
  * Ignores which roadmap versions work towards which other versions; only MetaRoadmap relationships are considered.
  */
-export default function RoadmapTree({
+export default async function RoadmapTree({
   roadmaps,
   user,
-}: RoadmapTreeProps) {
+}: {
+  roadmaps: RoadmapTreeProps['roadmaps'],
+  user: RoadmapTreeProps['user'],
+}) {
+  const dict = parentDict.roadmapTables.roadmapTree;
+  const locale = await getServerLocale();
+
   if (!roadmaps.length) {
-    return <p>Inga färdplaner hittades. Om du har några filter aktiva så hittade inga färdplaner som matchar dem.</p>;
+    return <p>{dict.noRoadmaps[locale]}</p>;
   }
 
   const accessibleMetaRoadmaps = roadmaps.map(roadmap => roadmap.metaRoadmapId);
@@ -29,15 +39,19 @@ export default function RoadmapTree({
   // All roadmaps without a parent or with a parent the user does not have access to are placed at the top level
   const topLevelRoadmaps = roadmaps.filter(roadmap => (roadmap.metaRoadmap.parentRoadmapId == null) || (!accessibleMetaRoadmaps.includes(roadmap.metaRoadmap.parentRoadmapId)));
 
-  return <ul className={styles.list}>
-    <NestedRoadmapRenderer allRoadmaps={roadmaps} childRoadmaps={topLevelRoadmaps} user={user} />
-  </ul>
+  return ( 
+    <nav>
+      <ul className={`${styles['roadmap-nav-ul']}`} style={{paddingInlineStart: '0'}}>
+        <NestedRoadmapRenderer allRoadmaps={roadmaps} childRoadmaps={topLevelRoadmaps} user={user} />
+      </ul>
+    </nav>
+  )
 }
 
 /**
  * Does the nesting of roadmaps for the `RoadmapTree` component.
  */
-function NestedRoadmapRenderer({
+async function NestedRoadmapRenderer({
   allRoadmaps,
   childRoadmaps,
   user,
@@ -46,29 +60,59 @@ function NestedRoadmapRenderer({
   childRoadmaps: RoadmapTreeProps['roadmaps'],
   user: RoadmapTreeProps['user'],
 }) {
+  const dict = parentDict.roadmapTables.roadmapTree;
+  const locale = await getServerLocale();
+
   return <>
     {childRoadmaps.map(roadmap => {
       const accessLevel = accessChecker(roadmap, user);
       const newChildRoadmaps = allRoadmaps.filter(potentialChild => (potentialChild.metaRoadmap.parentRoadmapId === roadmap.metaRoadmapId) && (potentialChild.id !== roadmap.id) && (potentialChild.metaRoadmap.parentRoadmapId != null));
 
-      return <li key={`roadmap-tree-${roadmap.id}`}>
-        <div className='flex gap-100 justify-content-space-between align-items-center' key={roadmap.id}>
-          <a href={`/roadmap/${roadmap.id}`} className={`${styles.roadmapLink} flex-grow-100`}>
-            <span className={styles.linkTitle}>{`${roadmap.metaRoadmap.name} (v${roadmap.version})`}</span>
-            <span className={styles.linkInfo}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} Målbanor</span>
-          </a>
-          <TableMenu
-            accessLevel={accessLevel}
-            object={roadmap}
-          />
-        </div>
-        {newChildRoadmaps.length > 0 ?
-          <ul className={styles.list}>
-            <NestedRoadmapRenderer allRoadmaps={allRoadmaps} childRoadmaps={newChildRoadmaps} user={user} />
-          </ul>
-          : null
-        }
-      </li>
+      return ( 
+        <>
+          {newChildRoadmaps.length > 0 ?
+            <li key={`roadmap-tree-${roadmap.id}`}>
+              <details>
+                <summary className="flex justify-content-space-between">
+                  <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
+                    <Image src="/icons/caret-right.svg" alt={dict.nestedRoadmapRenderer.showUnderlyingRoadmaps[locale]} width={24} height={24} className="round padding-25 margin-inline-25" />
+                    <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth' style={{lineHeight: '1'}}>
+                        <div>{`${roadmap.metaRoadmap.name} (v${roadmap.version})`}</div>
+                        <div className={styles["roadmap-information"]}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} {dict.nestedRoadmapRenderer.goals[locale]}</div>
+                    </Link> 
+                  </div>
+                  <span className="flex align-items-center padding-inline-25">
+                    <TableMenu
+                      accessLevel={accessLevel}
+                      object={roadmap}
+                    />
+                  </span>
+                </summary>
+                
+                <ul className={styles['roadmap-nav-ul']}>
+                  <NestedRoadmapRenderer allRoadmaps={allRoadmaps} childRoadmaps={newChildRoadmaps} user={user} />
+                </ul>
+              </details>
+            </li>
+            : 
+              <li className="inline-flex align-items-center flex-grow-100 width-100">
+                <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
+                  <Image src="/icons/caret-right-gray.svg" alt="" width="24" height="24" className="round padding-25 margin-inline-25"/>
+                  <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth' style={{lineHeight: '1'}}>
+                    <div>{`${roadmap.metaRoadmap.name} (v${roadmap.version})`}</div>
+                    <div className={styles["roadmap-information"]}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} {dict.nestedRoadmapRenderer.goals[locale]}</div>
+                  </Link> 
+                </div>
+                <span className="flex align-items-center padding-inline-25">
+                  <TableMenu
+                    accessLevel={accessLevel}
+                    object={roadmap}
+                  />
+                </span>
+              </li>
+            }
+          </>
+        )
     })}
   </>
 }

@@ -2,8 +2,10 @@ import styles from '../tables.module.css' with { type: "css" };
 import { DataSeries, Goal } from "@prisma/client";
 import Image from 'next/image';
 import goalsToTree, { GoalTree } from '@/functions/goalsToTree';
-import { SyntheticEvent } from 'react';
+import { SyntheticEvent, useContext } from 'react';
 import { getSessionStorage, setSessionStorage } from '@/functions/localStorage';
+import parentDict from '../tables.dict.json' with { type: "json" };
+import { LocaleContext } from '@/app/context/localeContext.tsx';
 
 // interface LinkTreeCommonProps {}
 
@@ -34,6 +36,9 @@ export default function LinkTree({
   goals,
   roadmap,
 }: LinkTreeProps) {
+  const dict = parentDict.goalTables.linkTree;
+  const locale = useContext(LocaleContext);
+
   // Failsafe in case wrong props are passed
   if ((!goals && !roadmap) || (goals && roadmap)) throw new Error('LinkTree: Either `goals` XOR `roadmap` must be provided');
 
@@ -46,7 +51,7 @@ export default function LinkTree({
     })
   }
 
-  if (!goals?.length) return (<p>Du har inte tillgång till några målbanor i denna färdplansversion, eller så är färdplansversionen tom.</p>);
+  if (!goals?.length) return (<p>{dict.noGoal[locale]}</p>);
 
   let openCategories: string[] = getSessionStorage(roadmap?.id || "") as string[] || [];
   if (!(openCategories instanceof Array)) {
@@ -81,7 +86,7 @@ export default function LinkTree({
                 <a href={`/goal/${data[key].id}`} className={`display-flex gap-50 align-items-center padding-block-50 ${styles.link}`}>
                   <Image src="/icons/link.svg" alt={`Link to ${key}`} width={16} height={16} />
                   <span>
-                    {(data[key].indicatorParameter as string).split('\\')[0].toLowerCase() == "key" && "Scenarioantagande: "}
+                    {((data[key].indicatorParameter as string).split('\\')[0].toLowerCase() == "key") && "Scenarioantagande: "}
                     {(data[key].indicatorParameter as string).split('\\')[0].toLowerCase() == "demand" && "Scenarieresultat: "}
                     {key}
                   </span>

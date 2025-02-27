@@ -1,0 +1,34 @@
+{
+  "[user]": {
+    "page": {
+      "manageMyData": {
+        "en": "Manage my data",
+        "sv": "Hantera mina data"
+      },
+      "myPosts": {
+        "en": "My posts",
+        "sv": "Mina inlägg"
+      },
+      "usersPosts": {
+        "en": "'s posts",
+        "sv": "s inlägg"
+      },
+      "roadmapSeries": {
+        "en": "Roadmap series",
+        "sv": "Färdplansserier"
+      },
+      "amountOfRoadmaps": {
+        "en": "Amount of roadmaps:",
+        "sv": "Antal färdplaner:"
+      },
+      "roadmaps": {
+        "en": "Roadmaps",
+        "sv": "Färdplaner"
+      },
+      "amountOfGoals": {
+        "en": "Amount of goals:",
+        "sv": "Antal målbanor:"
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "page": {
+    "breadcrumbLogin": {
+      "en": "Login",
+      "sv": "Logga in"
+    },
+    "photoBy": {
+      "en": "Photo by",
+      "sv": "Foto av"
+    },
+    "on": {
+      "en": "on",
+      "sv": "på"
+    }
+  }
+}

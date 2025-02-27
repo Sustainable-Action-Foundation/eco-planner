@@ -1,6 +1,8 @@
 import styles from './breadcrumbs.module.css' with { type: "css" };
 import Link from 'next/link';
 import Image from "next/image";
+import parentDict from "./breadcrumbs.dict.json" with { type: "json" };
+import { getServerLocale } from '@/functions/serverLocale';
 
 export function BreadcrumbChevron() {
   return (
@@ -8,11 +10,13 @@ export function BreadcrumbChevron() {
   )
 }
 
-export function BaseSection() {
+export async function BaseSection() {
+  const dict = parentDict.breadcrumbSections;
+  const locale = await getServerLocale();
   return (
     <span className='display-flex align-items-center gap-25'>
       <Link href='/' className={styles.breadCrumb}>
-        Hem
+        {dict.baseSection.home[locale]}
       </Link>
     </span>
   )
@@ -44,7 +48,7 @@ export function CustomSection({
   )
 }
 
-export function MetaRoadmapSection({
+export async function MetaRoadmapSection({
   metaRoadmap,
 }: {
   metaRoadmap: {
@@ -52,9 +56,11 @@ export function MetaRoadmapSection({
     name: string,
   }
 }) {
+  const dict = parentDict.breadcrumbSections;
+  const locale = await getServerLocale();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
-      Färdplansserie:
+      {dict.metaRoadmapSection.roadmap[locale]}
       <Link href={`/metaRoadmap/${metaRoadmap.id}`} className={styles.breadCrumb}>
         {metaRoadmap.name}
       </Link>
@@ -62,7 +68,7 @@ export function MetaRoadmapSection({
   )
 }
 
-export function RoadmapSection({
+export async function RoadmapSection({
   roadmap,
 }: {
   roadmap: {
@@ -70,17 +76,19 @@ export function RoadmapSection({
     version: number,
   }
 }) {
+  const dict = parentDict.breadcrumbSections;
+  const locale = await getServerLocale();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
-      Version:
+      {dict.roadmapSection.version[locale]}
       <Link href={`/roadmap/${roadmap.id}`} className={styles.breadCrumb}>
-        Version {roadmap.version}
+        {dict.roadmapSection.versionLink[locale]} {roadmap.version}
       </Link>
     </span>
   )
 }
 
-export function GoalSection({
+export async function GoalSection({
   goal,
 }: {
   goal: {
@@ -89,9 +97,11 @@ export function GoalSection({
     indicatorParameter: string,
   }
 }) {
+  const dict = parentDict.breadcrumbSections;
+  const locale = await getServerLocale();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
-      Målbana:
+      {dict.goalSection.goal[locale]}
       <Link href={`/goal/${goal.id}`} className={styles.breadCrumb}>
         {goal.name || goal.indicatorParameter}
       </Link>
@@ -99,7 +109,7 @@ export function GoalSection({
   )
 }
 
-export function ActionSection({
+export async function ActionSection({
   action,
 }: {
   action: {
@@ -107,9 +117,11 @@ export function ActionSection({
     name: string,
   }
 }) {
+  const dict = parentDict.breadcrumbSections;
+  const locale = await getServerLocale();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
-      Åtgärd:
+      {dict.actionSection.action[locale]}
       <Link href={`/action/${action.id}`} className={styles.breadCrumb}>
         {action.name}
       </Link>

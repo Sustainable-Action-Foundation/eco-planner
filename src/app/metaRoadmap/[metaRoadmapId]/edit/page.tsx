@@ -7,8 +7,13 @@ import getOneMetaRoadmap from '@/fetchers/getOneMetaRoadmap';
 import accessChecker from '@/lib/accessChecker';
 import { AccessLevel } from '@/types';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
+import { getServerLocale } from "@/functions/serverLocale";
+import parentDict from "../../metaRoadmap.dict.json" with { type: "json" };
 
 export default async function Page({ params }: { params: { metaRoadmapId: string } }) {
+  const dict = parentDict["[metaRoadmapId]"].edit.page;
+  const locale = await getServerLocale();
+  
   const [session, currentRoadmap, parentRoadmapOptions] = await Promise.all([
     getSession(cookies()),
     getOneMetaRoadmap(params.metaRoadmapId),
@@ -24,10 +29,10 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
 
   return (
     <>
-      <Breadcrumb object={currentRoadmap} customSections={['Redigera metadata']} />
+      <Breadcrumb object={currentRoadmap} customSections={[`${dict.breadcrumbEditMetadata[locale]}`]} />
 
       <div className='container-text margin-inline-auto'>
-        <h1>Redigera metadatan för färdplansserie: {`${currentRoadmap.name}`}</h1>
+        <h1>{dict.editMetadata[locale]} {`${currentRoadmap.name}`}</h1>
         <MetaRoadmapForm
           user={session.user}
           userGroups={session.user?.userGroups}

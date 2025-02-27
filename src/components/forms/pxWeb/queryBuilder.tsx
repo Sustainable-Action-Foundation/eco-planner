@@ -1,6 +1,7 @@
 'use client';
 
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 import formSubmitter from "@/functions/formSubmitter";
 import filterTableContentKeys from "@/lib/pxWeb/filterTableContentKeys";
 import { getTableContent } from "@/lib/pxWeb/getTableContent";
@@ -10,8 +11,9 @@ import { PxWebApiV2TableContent, PxWebApiV2TableDetails } from "@/lib/pxWeb/pxWe
 import { externalDatasetBaseUrls } from "@/lib/pxWeb/utility";
 import { Goal } from "@prisma/client";
 import Image from "next/image";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useContext, useEffect, useRef, useState } from "react";
 import FormWrapper from "../formWrapper";
+import parentDict from "../forms.dict.json" with { type: "json" };
 import styles from './queryBuilder.module.css';
 
 export default function QueryBuilder({
@@ -19,6 +21,9 @@ export default function QueryBuilder({
 }: {
   goal: Goal,
 }) {
+  const dict = parentDict.pxWeb.queryBuilder;
+  const locale = useContext(LocaleContext);
+
   const [isLoading, setIsLoading] = useState(false);
   const [dataSource, setDataSource] = useState<string>("" as keyof typeof externalDatasetBaseUrls);
   const [tables, setTables] = useState<{ id: string, label: string }[] | null>(null);
@@ -120,18 +125,18 @@ export default function QueryBuilder({
 
   return (
     <>
-      <button type="button" className="transparent flex gap-50 round padding-50 font-weight-500" style={{ fontSize: '1rem', lineHeight: '1.5' }} onClick={() => openModal(modalRef)}>
-        Lägg till historisk data
-        <Image src='/icons/chartAdd.svg' alt="" width={24} height={24} />
+      <button type="button" className="transparent flex align-items-center gap-25 font-weight-500" style={{ fontSize: '.75rem', padding: '.3rem .6rem' }} onClick={() => openModal(modalRef)}>
+        {dict.addHistoricalData[locale]}
+        <Image src='/icons/chartAdd.svg' alt="" width={16} height={16} />
       </button>
       <dialog className={`smooth${styles.dialog}`} ref={modalRef} aria-modal style={{ border: '0', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25' }}>
         <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>
           <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label="Close" >
             <Image src='/icons/close.svg' alt="" width={18} height={18} />
           </button>
-          <h2 className="margin-0">Lägg till datakälla</h2>
+          <h2 className="margin-0">{dict.addDataSource[locale]}</h2>
         </div>
-        <p>Lägg till en historisk dataserie till {goal.name ?? goal.indicatorParameter}</p>
+        <p>{dict.addHistoricalMetadata[locale]} {goal.name ?? goal.indicatorParameter}</p>
 
         <form ref={formRef} onChange={tryGetResult} onSubmit={handleSubmit}>
           {/* Hidden disabled submit button to prevent accidental submisson */}
@@ -140,9 +145,9 @@ export default function QueryBuilder({
           <FormWrapper>
             <fieldset>
               <label className="margin-block-75">
-                Datakälla
+                {dict.dataSource.dataSource[locale]}
                 <select className="block margin-block-25" required name="externalDataset" id="externalDataset" onChange={e => setDataSource(e.target.value)}>
-                  <option value="">Välj en källa</option>
+                  <option value="">{dict.dataSource.chooseSource[locale]}</option>
                   {Object.keys(externalDatasetBaseUrls).map((name) => (
                     <option key={name} value={name}>{name}</option>
                   ))}
@@ -154,10 +159,10 @@ export default function QueryBuilder({
                 <>
                   <div className="flex gap-25 align-items-flex-end margin-block-75">
                     <label className="flex-grow-100">
-                      <span className="block margin-block-25">Sök efter tabell</span>
+                      <span className="block margin-block-25">{dict.dataSource.searchForTable[locale]}</span>
                       <input name={tableSearchInputName} type="search" className="block" onKeyDown={searchOnEnter} />
                     </label>
-                    <button type="button" onClick={searchWithButton} style={{ fontSize: '1rem' }}>Sök</button>
+                    <button type="button" onClick={searchWithButton} style={{ fontSize: '1rem' }}>{dict.dataSource.search[locale]}</button>
                   </div>
 
                   <div className="padding-25 smooth" style={{ border: '1px solid var(--gray-90)' }}>
@@ -176,7 +181,7 @@ export default function QueryBuilder({
 
             <fieldset className="margin-block-100 smooth padding-50" style={{ border: '1px solid var(--gray-90)' }}>
               <legend className="padding-inline-50">
-                <strong>Välj värden för tabell</strong>
+                <strong>{dict.tableDetails.chooseValues[locale]}</strong>
               </legend>
               {tableDetails && (
                 <>
@@ -192,7 +197,7 @@ export default function QueryBuilder({
                         defaultValue={variable.values.length == 1 ? variable.values[0].code : undefined}>
                         { // If only one value is available, don't show a placeholder option
                           variable.values.length != 1 &&
-                          <option value="">Välj ett värde</option>
+                          <option value="">{dict.tableDetails.chooseValue[locale]}</option>
                         }
                         {variable.values.map(value => (
                           <option key={value.code} value={value.code} lang={tableDetails.language}>{value.label}</option>
@@ -207,12 +212,12 @@ export default function QueryBuilder({
 
           {tableContent ? (
             <div>
-              <p>Ser detta rimligt ut? (visar max 5 värden)</p>
+              <p>{dict.tableContentCheck.doesThisLookCorrect[locale]}</p>
               <table>
                 <thead>
                   <tr>
-                    <th scope="col">Period</th>
-                    <th scope="col">Värde</th>
+                    <th scope="col">{dict.tableContentCheck.timePeriod[locale]}</th>
+                    <th scope="col">{dict.tableContentCheck.value[locale]}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -228,11 +233,11 @@ export default function QueryBuilder({
             </div>
           ) : (
             <div>
-              <p>Inget läsbart resultat hittades. Vänligen uppdatera dina val.</p>
+              <p>{dict.noReadableResult[locale]}</p>
             </div>
           )}
 
-          <button type="submit" className="seagreen color-purewhite">Lägg till datakälla</button>
+          <button type="submit" className="seagreen color-purewhite">{dict.submit.addDataSource[locale]}</button>
         </form>
       </dialog>
     </>

@@ -1,14 +1,18 @@
-'use client'
+"use client"
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import styles from '../forms.module.css'
+import parentDict from "../forms.dict.json" with { type: "json" };
+import { Locale } from "@/types";
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 
-function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
-  event.preventDefault()
+function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, locale: Locale) {
+  const dict = parentDict.userInfo.login;
+  event.preventDefault();
 
-  const form = event.target
+  const form = event.target;
   const formJSON = JSON.stringify({
     username: form.username?.value,
     password: form.password?.value,
@@ -23,42 +27,44 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
   }).then((res) => {
     if (res.ok) {
       // Redirect to the page the user came from, or to the home page.
-      const from = new URLSearchParams(window.location.search).get('from')
+      const from = new URLSearchParams(window.location.search).get('from');
       if (from) {
-        window.location.href = from
+        window.location.href = from;
       } else {
-        window.location.href = '/'
+        window.location.href = '/';
       }
     } else {
-      alert('Login failed.')
+      alert(dict.handleSubmit.loginFailed[locale]);
     }
   }).catch(() => {
-    alert('Login failed.')
+    alert(dict.handleSubmit.loginFailed[locale]);
   })
 }
 
 export default function Login() {
+  const dict = parentDict.userInfo.login;
+  const locale = useContext(LocaleContext);
 
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <>
-      <form onSubmit={handleSubmit} className={`${styles.padding}`}>
-        <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid var(--gray-90)' }}>Logga in</h1>
+      <form onSubmit={(event: React.ChangeEvent<HTMLFormElement>) => handleSubmit(event, locale)} className={`${styles.padding}`}>
+        <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid var(--gray-90)' }}>{dict.login.title[locale]}</h1>
 
         <label className="block margin-block-100">
-          Användarnamn
+          {dict.login.username.label[locale]}
           <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
             <Image src="/icons/user.svg" alt="" width={24} height={24} />
-            <input className="padding-0 margin-inline-50" type="text" placeholder="användarnamn" name="username" required id="username" autoComplete="username" />
+            <input className="padding-0 margin-inline-50" type="text" placeholder={dict.login.username.placeholder[locale]} name="username" required id="username" autoComplete="username" />
           </div>
         </label>
 
         <label className="block margin-block-100">
-          Lösenord
+          {dict.login.password.label[locale]}
           <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
             <Image src="/icons/password.svg" alt="" width={24} height={24} />
-            <input className="padding-0 margin-inline-50 transparent" type={showPassword ? 'text' : 'password'} placeholder="lösenord" name="password" required id="password" autoComplete="current-password" />
+            <input className="padding-0 margin-inline-50 transparent" type={showPassword ? 'text' : 'password'} placeholder={dict.login.password.placeholder[locale]} name="password" required id="password" autoComplete="current-password" />
             <button type="button" className={`${styles.showPasswordButton} grid padding-0 transparent`} onClick={() => setShowPassword(prevState => !prevState)}>
               <Image src={showPassword ? '/icons/eyeDisabled.svg' : '/icons/eye.svg'} alt="" width={24} height={24} />
             </button>
@@ -68,19 +74,19 @@ export default function Login() {
         <div className="flex gap-100 flex-wrap-wrap align-items-center justify-content-space-between">
           <label className="flex align-items-center gap-50">
             <input type="checkbox" name="remember" id="remember" />
-            Kom ihåg mig
+            {dict.login.rememberMe[locale]}
           </label>
 
-          <small><Link href='/password'>Glömt lösenordet?</Link></small>
+          <small><Link href='/password'>{dict.login.forgotPassword[locale]}</Link></small>
 
         </div>
 
-        <input type="submit" value={'Logga in'} className="block font-weight-bold seagreen smooth color-purewhite margin-top-200" />
+        <input type="submit" value={dict.login.submit.login[locale]} className="block font-weight-bold seagreen smooth color-purewhite margin-top-200" />
 
-        <p className="text-align-center padding-block-50 margin-bottom-100 margin-top-0">
-          Har du inget konto? <Link href='/signup'>Skapa konto</Link> <br />
-          <Link href='/verify'>Verifiera konto</Link> {/* TODO: Flytta denna till ens account page */}
-        </p>
+        <div className="flex gap-100 align-items-center justify-content-space-between alignt-items-center flex-wrap-wrap margin-block-100">
+          <span>{dict.login.noAccount.label[locale]} <Link href='/signup'>{dict.login.noAccount.createAccount[locale]}</Link></span>
+          <Link href='/verify'>{dict.login.noAccount.verifyAccount[locale]}</Link>  
+        </div>
 
 
       </form>

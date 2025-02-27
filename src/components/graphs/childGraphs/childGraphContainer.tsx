@@ -1,13 +1,15 @@
 "use client"
 
 import { DataSeries, Effect, Goal } from "@prisma/client";
+import Image from "next/image";
+import { useContext, useEffect, useState } from "react";
+import { getStoredChildGraphType } from "../functions/graphFunctions";
+import ChildGraphSelector from "../graphSelector/childGraphSelector.tsx";
+import { percentAndFraction } from "../graphSelector/graphSelector.tsx";
 import GoalChildGraph from "./goalChildGraph";
 import PredictionChildGraph from "./predictionChildGraph.tsx";
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import { getStoredChildGraphType } from "../functions/graphFunctions";
-import { percentAndFraction } from "../graphselector/graphSelector";
-import ChildGraphSelector from "../graphselector/childGraphSelector";
+import parentDict from "../graphs.dict.json" with { type: "json" };
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 export enum ChildGraphType {
   Target = "TARGET",
@@ -23,16 +25,19 @@ export default function ChildGraphContainer({
   childGoals: (Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null, effects: (Effect & { dataSeries: DataSeries | null })[], roadmapName?: string })[],
   children?: React.ReactNode,
 }) {
+  const dict = parentDict.childGraphs.childGraphContainer;
+  const locale = useContext(LocaleContext);
+
   const [childGraphType, setChildGraphType] = useState<ChildGraphType>(ChildGraphType.Target);
   // Default to stacked unless the unit is percent or fraction
   const [isStacked, setIsStacked] = useState(!percentAndFraction.includes(goal.dataSeries?.unit?.toLowerCase() ?? ""));
 
   useEffect(() => {
-    const storedGraphType = getStoredChildGraphType(goal.id);
+    const storedGraphType = getStoredChildGraphType(locale, goal.id);
     if (Object.values(ChildGraphType).includes(storedGraphType)) {
       setChildGraphType(storedGraphType);
     }
-  }, [goal.id]);
+  }, [locale, goal.id]);
 
   function childGraphSwitch(childGraphType: string) {
     switch (childGraphType) {
@@ -53,8 +58,8 @@ export default function ChildGraphContainer({
       >
         <ChildGraphSelector goal={goal} currentSelection={childGraphType} setter={setChildGraphType} />
         <button className="call-to-action-primary display-flex align-items-center gap-50 transparent" style={{ width: 'fit-content', fontWeight: 'bold', fontSize: '1rem' }} type="button" onClick={() => setIsStacked(!isStacked)}>
-          Byt typ av graf
-          <Image src='/icons/chartArea.svg' alt='Byt graf' width={24} height={24} />
+          {dict.menu.changeGraphType[locale]}
+          <Image src='/icons/chartArea.svg' alt={dict.menu.changeGraphAlt[locale]} width={24} height={24} />
         </button>
         {children}
       </menu>

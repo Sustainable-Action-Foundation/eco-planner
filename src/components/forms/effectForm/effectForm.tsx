@@ -8,6 +8,9 @@ import { ActionImpactType, DataSeries, Effect } from "@prisma/client";
 import type getOneAction from "@/fetchers/getOneAction.ts";
 import type getOneGoal from "@/fetchers/getOneGoal.ts";
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
+import parentDict from "../forms.dict.json" with { type: "json" };
+import { useContext } from "react";
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 export default function EffectForm({
   action,
@@ -24,6 +27,9 @@ export default function EffectForm({
     goal: Awaited<ReturnType<typeof getOneGoal>> | null,
   },
 }) {
+  const dict = parentDict.effectForm.effectForm;
+  const locale = useContext(LocaleContext);
+
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -81,30 +87,39 @@ export default function EffectForm({
 
         <GoalSelector goal={goal} roadmapAlternatives={roadmapAlternatives} />
 
+        {/* Data series */}
         <label className="block margin-block-100">
-          Dataserie
+          {/* Title */}
+          {dict.dataSeries.title[locale]}
+
+          {/* Input */}
           {/* TODO: Make this allow .csv files and possibly excel files */}
           <input type="text" name="dataSeries" required id="dataSeries"
             pattern={dataSeriesPattern}
-            title="Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma."
+            title={dict.dataSeries.hoverText[locale]} // HoverText
             className="margin-block-25"
             defaultValue={dataSeriesString}
           />
         </label>
 
+        {/* Type of impact */}
         {/* TODO: Show preview of how it would affect the goal */}
         <label className="block margin-block-100">
-          Vilken typ av påverkan har åtgärden?
+          {/* Title */}
+          {dict.impactType.title[locale]}
+
+          {/* Dropdown */}
           <select className="block margin-block-25" name="impactType" id="impactType" required
             defaultValue={currentEffect?.impactType || ActionImpactType.ABSOLUTE}
           >
-            <option value={ActionImpactType.ABSOLUTE}>Absolut skillnad gentemot baslinje</option>
-            <option value={ActionImpactType.DELTA}>Förändring år för år (delta)</option>
-            <option value={ActionImpactType.PERCENT}>Skillnad gentemot baslinjen i procent av föregående års totalvärde (baslinje + åtgärder)</option>
+            <option value={ActionImpactType.ABSOLUTE}>{dict.impactType.absolute[locale]}</option>
+            <option value={ActionImpactType.DELTA}>{dict.impactType.delta[locale]}</option>
+            <option value={ActionImpactType.PERCENT}>{dict.impactType.percent[locale]}</option>
           </select>
         </label>
 
-        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentEffect ? "Spara" : "Skapa effekt"} />
+        {/* Create button */}
+        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentEffect ? dict.createButton.save[locale] : dict.createButton.create[locale]} />
       </form>
     </>
   )

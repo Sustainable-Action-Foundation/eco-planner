@@ -1,27 +1,25 @@
-import { getDictionary } from "@/app/dictionaries";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import RoadmapFilters from "@/components/forms/filters/roadmapFilters";
 import AttributedImage from "@/components/generic/images/attributedImage";
 import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree.tsx";
-import { DEFAULT_LOCALE } from "@/constants";
 import getMetaRoadmaps from "@/fetchers/getMetaRoadmaps";
 import { getSession } from "@/lib/session";
 import { roadmapSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
 import getTrafaTables from "@/lib/trafa/getTrafaTables";
-import { Locale, RoadmapSortBy } from "@/types";
+import { RoadmapSortBy } from "@/types";
 import { RoadmapType } from "@prisma/client";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
+import { getServerLocale } from "@/functions/serverLocale";
+import parentDict from "./home.dict.json" with { type: "json" };
 
 export default async function Page({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
+  const dict = parentDict.page;
+  const locale = await getServerLocale();
 
   getTrafaTables();
-  // Get the locale cookie or use the default locale
-  const locale = headers().get("locale") || DEFAULT_LOCALE;
-
-  const [session, metaRoadmaps, dict] = await Promise.all([
+  const [session, metaRoadmaps] = await Promise.all([
     getSession(cookies()),
     getMetaRoadmaps(),
-    getDictionary(locale as Locale), // Get the dictionary for the current locale
   ]);
 
   const typeFilter = searchParams['typeFilter'] ? (Array.isArray(searchParams['typeFilter']) ? searchParams['typeFilter'] : [searchParams['typeFilter']]) : [];
@@ -117,13 +115,13 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
       <AttributedImage src="/images/solarpanels.jpg" alt="" >
         <div className="flex gap-100 flex-wrap-wrap align-items-flex-end justify-content-space-between padding-100 width-100">
           <div>
-            <h1 className="margin-block-25">{dict.roadmaps}</h1>
-            <p className="margin-0">Photo by <a className="color-purewhite" href="https://unsplash.com/@markusspiske?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Markus Spiske</a> on <a className="color-purewhite" href="https://unsplash.com/photos/white-and-blue-solar-panels-pwFr_1SUXRo?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Unsplash</a></p>
+            <h1 className="margin-block-25">{dict.roadmaps[locale]}</h1>
+            <p className="margin-0">{dict.photoBy[locale]} <a className="color-purewhite" href="https://unsplash.com/@markusspiske?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Markus Spiske</a> {dict.on[locale]} <a className="color-purewhite" href="https://unsplash.com/photos/white-and-blue-solar-panels-pwFr_1SUXRo?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Unsplash</a></p>
           </div>
           { // Link to create roadmap form if logged in
             session.user &&
             <>
-              <a href="/metaRoadmap/create" className="button purewhite round block">Skapa ny färdplansserie</a>
+              <a href="/metaRoadmap/create" className="button purewhite round block">{dict.createRoadmap[locale]}</a>
               {/* TODO: Incorporate this in a reasonable way */}
               {/* <a href="/roadmap/createRoadmap" className="button purewhite round block">Skapa ny version i en existerande serie</a> */}
             </>

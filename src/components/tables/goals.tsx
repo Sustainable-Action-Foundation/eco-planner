@@ -5,13 +5,14 @@ import GoalTable from "./goalTables/goalTable"
 import TableSelector from './tableSelector/tableSelector'
 import LinkTree from './goalTables/linkTree'
 import ActionTable from "./actions"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useContext } from "react"
 import { getStoredGoalSortBy, getStoredViewMode, setStoredGoalSortBy } from "./functions/tableFunctions"
 import Link from "next/link"
 import Image from "next/image"
 import styles from './tables.module.css'
-import GraphCookie from "../cookies/graphCookie"
 import type getOneRoadmap from "@/fetchers/getOneRoadmap.ts"
+import { LocaleContext } from "@/app/context/localeContext.tsx";
+import parentDict from "./tables.dict.json" with { type: "json" };
 
 /** Enum for the different view modes for the goal table. */
 export enum ViewMode {
@@ -36,6 +37,9 @@ export default function Goals({
   roadmap: NonNullable<Awaited<ReturnType<typeof getOneRoadmap>>>,
   accessLevel?: AccessLevel
 }) {
+  const dict = parentDict.goals;
+  const locale = useContext(LocaleContext);
+
   const [viewMode, setViewMode] = useState<ViewMode | ''>('');
   const [sortBy, setSortBy] = useState<GoalSortBy>(GoalSortBy.Default);
   const [searchFilter, setSearchFilter] = useState<string>('');
@@ -63,7 +67,7 @@ export default function Goals({
     <>
       <menu className={`margin-bottom-100 flex justify-content-space-between align-items-flex-end flex-wrap-wrap gap-100 padding-0 margin-0 ${styles.tableNav}`}>
         <label className="font-weight-bold flex-grow-100">
-          Sök bland målbanor
+          {dict.searchGoals[locale]}
           <div className="flex align-items-center margin-top-25 gray-90 padding-50 smooth focusable">
             <Image src='/icons/search.svg' alt="" width={24} height={24} />
             <input type="search" className="padding-0 margin-inline-50" onChange={(e) => setSearchFilter(e.target.value)} />
@@ -71,35 +75,31 @@ export default function Goals({
         </label>
         {viewMode == ViewMode.Table && (
           <label className="font-weight-bold">
-            Sortera utifrån
+            {dict.sortBy[locale]}
             <select
               className="font-weight-500 margin-top-25 block"
               style={{ fontSize: '1rem', minHeight: 'calc(24px + 1rem)' }}
               onChange={(e) => { setSortBy(e.target.value as GoalSortBy); setStoredGoalSortBy(e.target.value as GoalSortBy) }} defaultValue={sortBy}
             >
-              <option value={GoalSortBy.Default}>Standard</option>
-              <option value={GoalSortBy.Alpha}>Namn (A-Ö)</option>
-              <option value={GoalSortBy.AlphaReverse}>Namn (Ö-A)</option>
-              <option value={GoalSortBy.ActionsFalling}>Antal åtgärder (fallande)</option>
-              <option value={GoalSortBy.ActionsRising}>Antal åtgärder (stigande)</option>
-              <option value={GoalSortBy.Interesting}>Intresse</option>
+              <option value={GoalSortBy.Default}>{dict.sortingOptions.default[locale]}</option>
+              <option value={GoalSortBy.Alpha}>{dict.sortingOptions.alpha[locale]}</option>
+              <option value={GoalSortBy.AlphaReverse}>{dict.sortingOptions.alphaReverse[locale]}</option>
+              <option value={GoalSortBy.ActionsFalling}>{dict.sortingOptions.actionsFalling[locale]}</option>
+              <option value={GoalSortBy.ActionsRising}>{dict.sortingOptions.actionsRising[locale]}</option>
+              <option value={GoalSortBy.Interesting}>{dict.sortingOptions.interesting[locale]}</option>
             </select>
           </label>
         )}
         <TableSelector id={roadmap.id} current={viewMode} setter={setViewMode} />
         { // Only show the button if the user has edit access to the roadmap
           (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-          <Link className="button round color-purewhite pureblack font-weight-500" href={`/goal/create?roadmapId=${roadmap.id}`}>Skapa ny målbana</Link>
+          <Link className="button round color-purewhite pureblack font-weight-500" href={`/goal/create?roadmapId=${roadmap.id}`}>{dict.createGoal[locale]}</Link>
         }
         <div className={styles.settings}>
           <input type="checkbox" />
-          <Image src="/icons/settings.svg" alt="Inställningar" width="24" height="24" />
+          <Image src="/icons/settings.svg" alt={dict.settingsAltText[locale]} width="24" height="24" />
         </div>
       </menu>
-
-      <div className={styles.settingsContainer}>
-        <GraphCookie />
-      </div>
 
       {/* TODO: Probably not correct to handle loading as a default state? */}
       {/* TODO: Probably use a skeleton for the loading state */}
@@ -114,12 +114,10 @@ export default function Goals({
           src='/animations/3-dots-scale.svg'
           width={64}
           height={64}
-          alt='Laddar '
+          alt={dict.loading[locale]}
           className='block margin-inline-auto'
         />
       }
-
-
     </>
   )
 }

@@ -1,0 +1,16 @@
+{
+  "page": {
+    "breadcrumbInfo": {
+      "en": "Information",
+      "sv": "Information"
+    },
+    "information": {
+      "en": "Information",
+      "sv": "Information"
+    },
+    "infoBody": {
+      "en": "This tool aims to contribute to the climate transition in Sweden. In the tool, national scenarios, also called quantitative roadmaps, can be broken down to regional and local levels and an action plan can be created. The action plan is built up of actions related to a specific goal and the goals together make up the entire roadmap. Users can be inspired by each other's actions, thus creating a common action database for Sweden. At the local level, different actors can also collaborate on actions.",
+      "sv": "Detta verktyg syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas. Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen. Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder."
+    }
+  }
+}

@@ -1,0 +1,250 @@
+{
+  "goals": {
+    "searchGoals": {
+      "en": "Search goals",
+      "sv": "Sök bland målbanor"
+    },
+    "sortBy": {
+      "en": "Sort by",
+      "sv": "Sortera efter"
+    },
+    "sortingOptions": {
+      "default": {
+        "en": "Default",
+        "sv": "Standard"
+      },
+      "alpha": {
+        "en": "Name (A-Z)",
+        "sv": "Namn (A-Ö)"
+      },
+      "alphaReverse": {
+        "en": "Name (Z-A)",
+        "sv": "Namn (Ö-A)"
+      },
+      "actionsFalling": {
+        "en": "Amount of actions (falling)",
+        "sv": "Antal åtgärder (fallande)"
+      },
+      "actionsRising": {
+        "en": "Amount of actions (rising)",
+        "sv": "Antal åtgärder (stigande)"
+      },
+      "interesting": {
+        "en": "Interesting",
+        "sv": "Intresse"
+      }
+    },
+    "createGoal": {
+      "en": "Create new goal",
+      "sv": "Skapa ny målbana"
+    },
+    "settingsAltText": {
+      "en": "Settings",
+      "sv": "Inställningar"
+    },
+    "loading": {
+      "en": "Loading",
+      "sv": "Laddar"
+    }
+  },
+  "effects": {
+    "noEffectsReturn": {
+      "noEffects": {
+        "en": "There are no effects to show.",
+        "sv": "Det finns inga effekter att visa."
+      },
+      "doYouWantTo": {
+        "en": "Do you want to create one?",
+        "sv": "Vill du skapa en?"
+      },
+      "createEffect": {
+        "en": "Create new effect",
+        "sv": "Skapa ny effekt"
+      }
+    },
+    "hasEffectsReturn": {
+      "namelessEffect": {
+        "en": "Nameless effect",
+        "sv": "Namnlös effekt"
+      }
+    }
+  },
+  "actions": {
+    "noActions": {
+      "en": "There are no actions to show.",
+      "sv": "Det finns inga åtgärder att visa."
+    },
+    "createActionQuestion": {
+      "en": "Do you want to create one?",
+      "sv": "Vill du skapa en?"
+    },
+    "createNewAction": {
+      "en": "Create new action",
+      "sv": "Skapa ny åtgärd"
+    }
+  },
+  "tableSelector": {
+    "tableSelector": {
+      "treeDisplay": {
+        "en": "Tree",
+        "sv": "Träd"
+      },
+      "tableDisplay": {
+        "en": "Table",
+        "sv": "Tabell"
+      },
+      "actionsDisplay": {
+        "en": "Actions",
+        "sv": "Åtgärder"
+      }
+    }
+  },
+  "tableMenu": {
+    "tableMenu": {
+      "metaRoadmaps": {
+        "creationDescription": {
+          "en": "New roadmap version",
+          "sv": "Ny färdplansversion"
+        }
+      },
+      "roadmaps": {
+        "parentDescription": {
+          "en": "Go to roadmap",
+          "sv": "Gå till färdplansserien"
+        },
+        "creationDescription": {
+          "en": "New goal",
+          "sv": "Ny målbana"
+        },
+        "creationDescription2": {
+          "en": "New action",
+          "sv": "Ny åtgärd"
+        }
+      },
+      "goals": {
+        "parentDescription": {
+          "en": "Go to roadmap version",
+          "sv": "Gå till färdplansversionen"
+        },
+        "creationDescription": {
+          "en": "New action",
+          "sv": "Ny åtgärd"
+        },
+        "creationDescription2": {
+          "en": "Add effect from existing action",
+          "sv": "Lägg till effekt från befintlig åtgärd"
+        }
+      },
+      "actions": {
+        "parentDescription": {
+          "en": "Go to roadmap version",
+          "sv": "Gå till färdplansversionen"
+        },
+        "creationDescription": {
+          "en": "New effect",
+          "sv": "Ny effekt"
+        }
+      },
+      "effects": {
+        "parentDescription": {
+          "en": "Go to goal",
+          "sv": "Gå till målbanan"
+        },
+        "effectFrom": {
+          "en": "Effect from",
+          "sv": "Effekt från"
+        },
+        "nameMissing": {
+          "en": "Name missing",
+          "sv": "Namn saknas"
+        }
+      },
+      "return": {
+        "nameMissing": {
+          "en": "Name missing",
+          "sv": "Namn saknas"
+        },
+        "menuFor": {
+          "en": "menu for",
+          "sv": "meny för"
+        },
+        "menu": {
+          "en": "menu",
+          "sv": "meny"
+        },
+        "close": {
+          "en": "close",
+          "sv": "stäng"
+        },
+        "edit": {
+          "en": "Edit",
+          "sv": "Redigera"
+        },
+        "deletePost": {
+          "en": "Delete post",
+          "sv": "Radera inlägg"
+        }
+      }
+    }
+  },
+  "roadmapTables": {
+    "roadmapTree": {
+      "noRoadmaps": {
+        "en": "No roadmaps found. If you have any filters active, no roadmaps matching them were found.",
+        "sv": "Inga färdplaner hittades. Om du har några filter aktiva så hittades inga färdplaner som matchar dem."
+      },
+      "nestedRoadmapRenderer": {
+        "showUnderlyingRoadmaps": {
+          "en": "Show underlying roadmaps",
+          "sv": "Visa underliggande färdplaner"
+        },
+        "goals": {
+          "en": "Goals",
+          "sv": "Målbanor"
+        }
+      }
+    },
+    "roadmapTable": {
+      "goals": {
+        "en": "Goals",
+        "sv": "Målbanor"
+      },
+      "noRoadmapVersions": {
+        "en": "No roadmap versions found. If you have any filters active, no roadmap versions matching them were found.",
+        "sv": "Inga färdplansversioner hittades. Om du har några filter aktiva så hittades inga färdplansversioner som matchar dem."
+      }
+    }
+  },
+  "goalTables": {
+    "linkTree": {
+      "noGoal": {
+        "en": "You do not have access to any goals in this roadmap version, or the roadmap version is empty.",
+        "sv": "Du har inte tillgång till några målbanor i denna färdplansversion, eller så är färdplansversionen tom."
+      }
+    },
+    "goalTable": {
+      "noGoals": {
+        "en": "You do not have access to any goals in this roadmap version, or the roadmap version is empty.",
+        "sv": "Du har inte tillgång till några målbanor i denna färdplansversion, eller så är färdplansversionen tom."
+      },
+      "tableHeader": {
+        "goalName": {
+          "en": "Goal name",
+          "sv": "Målbanenamn"
+        },
+        "LEAPParameter": {
+          "en": "LEAP parameter",
+          "sv": "LEAP-parameter"
+        },
+        "seriesUnit": {
+          "en": "Unit",
+          "sv": "Enhet"
+        },
+        "actionCount": {
+          "en": "Action count",
+          "sv": "Antal åtgärder"
+        }
+      }
+    }
+  }
+}

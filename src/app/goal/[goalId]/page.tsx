@@ -19,7 +19,6 @@ import { getTableContent } from "@/lib/pxWeb/getTableContent";
 import filterTableContentKeys from "@/lib/pxWeb/filterTableContentKeys";
 import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import QueryBuilder from "@/components/forms/pxWeb/queryBuilder";
-import GraphCookie from "@/components/cookies/graphCookie";
 import UpdateGoalButton from "@/components/buttons/updateGoalButton";
 import getRoadmaps from "@/fetchers/getRoadmaps";
 import EffectTable from "@/components/tables/effects.tsx";
@@ -27,6 +26,8 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
 import findSiblings from "@/functions/findSiblings.ts";
 import ChildGraphContainer from "@/components/graphs/childGraphs/childGraphContainer.tsx";
+import { getServerLocale } from "@/functions/serverLocale";
+import parentDict from "../goal.dict.json" with { type: "json" };
 
 export default async function Page({
   params,
@@ -38,6 +39,9 @@ export default async function Page({
     [key: string]: string | string[] | undefined
   },
 }) {
+  const dict = parentDict["[goalId]"].page;
+  const locale = await getServerLocale();
+
   const [session, { goal, roadmap }, secondaryGoal, unfilteredRoadmapOptions] = await Promise.all([
     getSession(cookies()),
     getOneGoal(params.goalId).then(async goal => { return { goal, roadmap: (goal ? await getOneRoadmap(goal.roadmapId) : null) } }),
@@ -128,23 +132,21 @@ export default async function Page({
       <Breadcrumb object={goal} />
 
       <main>
-        {secondaryGoal && <p className="margin-block-300">Jämför med målbanan {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
+        {secondaryGoal && <p className="margin-block-300">{dict.compareGoal[locale]} {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
         <section className='margin-top-300'>
           {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
           <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects}>
+            <QueryBuilder goal={goal} />
             {(goal.dataSeries?.id && session.user) ?
               <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
               : null}
           </GraphGraph>
-          <div className="margin-top-100">
-            <GraphCookie />
-          </div>
         </section>
 
         <section className="margin-block-100">
           <div className="flex flex-wrap-wrap justify-content-space-between gap-100">
             <div>
-              <span style={{ color: 'gray' }}>Målbana</span>
+              <span style={{ color: 'gray' }}>{dict.goal[locale]}</span>
               {goal.name ? (
                 <>
                   <h2 className="margin-0" style={{ fontSize: '2rem' }}>{goal.name}</h2>
@@ -170,15 +172,15 @@ export default async function Page({
           <p className="container-text">{goal.description}</p>
           {goal.dataSeries?.scale &&
             <>
-              <p>Alla värden i målbanan använder följande skala: {`"${goal.dataSeries?.scale}"`}</p>
+              <p>{dict.goalScale[locale]} {`"${goal.dataSeries?.scale}"`}</p>
               {[AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel) &&
-                <strong>Vänligen baka in skalan i värdet eller enheten; skalor kommer att tas bort i framtiden</strong>
+                <strong>{dict.infoPrompt[locale]}</strong>
               }
             </>
           }
           {goal.links.length > 0 ?
             <>
-              <h2 className="margin-bottom-0 margin-top-200" style={{ fontSize: '1.25rem' }}>Externa resurser</h2>
+              <h2 className="margin-bottom-0 margin-top-200" style={{ fontSize: '1.25rem' }}>{dict.externalResources[locale]}</h2>
               <ul>
                 {goal.links.map((link: { url: string, description: string | null }, index: number) =>
                   <li className="margin-block-25" key={index}>
@@ -192,7 +194,7 @@ export default async function Page({
 
         {childGoals.length > 0 ?
           <section className="margin-block-300">
-            <h2>Mål som jobbar mot detta</h2>
+            <h2>{dict.alignedGoals[locale]}</h2>
             <ChildGraphContainer goal={goal} childGoals={childGoals} />
           </section>
           : null
@@ -200,7 +202,7 @@ export default async function Page({
 
         {findSiblings(roadmap, goal).length > 1 ?
           <section className="margin-block-300">
-            <h2>Liknande målbanor i denna färdplansversion</h2>
+            <h2>{dict.similarGoals[locale]}</h2>
             <SiblingGraph roadmap={roadmap} goal={goal} />
           </section>
           : null
@@ -208,11 +210,11 @@ export default async function Page({
 
         <section className="margin-block-300">
           <div className="flex align-items-center justify-content-space-between">
-            <h2>Åtgärder</h2>
+            <h2>{dict.actions[locale]}</h2>
             {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
               <div className="flex gap-50">
-                <Link href={`/effect/create?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Koppla till en existerande åtgärd</Link>
-                <Link href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
+                <Link href={`/effect/create?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">{dict.connectToAction[locale]}</Link>
+                <Link href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">{dict.createNewAction[locale]}</Link>
               </div>
             }
           </div>

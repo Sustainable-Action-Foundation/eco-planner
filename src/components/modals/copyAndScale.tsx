@@ -1,15 +1,18 @@
 'use client';
 
+import { LocaleContext } from "@/app/context/localeContext.tsx";
+import formSubmitter from "@/functions/formSubmitter";
+import { dataSeriesDataFieldNames, GoalInput, Locale, ScaleBy, ScaleMethod, ScalingRecipie } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 import Image from "next/image";
-import { closeModal, openModal } from "./modalFunctions";
-import { useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import RepeatableScaling from "../repeatableScaling";
-import { GoalInput, dataSeriesDataFieldNames, ScaleBy, ScaleMethod, ScalingRecipie } from "@/types";
-import formSubmitter from "@/functions/formSubmitter";
+import { closeModal, openModal } from "./modalFunctions";
+import parentDict from "./modals.dict.json" with { type: "json" };
 
 /** Get the resulting scaling factor from form data */
-export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, setIsLoading?: React.Dispatch<React.SetStateAction<boolean>>) {
+export function getScalingResult(locale: Locale, form: FormData, scalingMethod: ScaleMethod, setIsLoading?: React.Dispatch<React.SetStateAction<boolean>>) {
+  const dict = parentDict.copyAndScale;
   const scalars = form.getAll("scaleFactor");
   const scalingTypes = form.getAll("scaleBy");
   const weights = form.getAll("weight");
@@ -25,7 +28,7 @@ export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, set
     // If any of the inputs are files, throw. This will only happen if the user has tampered with the form, so no need to give a nice error message
     if (scalars[0] instanceof File) {
       if (setIsLoading) setIsLoading(false);
-      throw new Error("Why is this a file?");
+      throw new Error(dict.getScalingResult.whyIsThisAFile[locale]); // This locale gets passed since this is not a react component
     }
     const tempScale = parseFloat(scalars[0].replace(",", "."));
     const scalingType = scalingTypes[0] as (ScaleBy | "");
@@ -63,7 +66,7 @@ export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, set
         for (let i = 0; i < scalars.length; i++) {
           if (scalars[i] instanceof File || weights[i] instanceof File || parentAreas[i] instanceof File || childAreas[i] instanceof File || scalingTypes[i] instanceof File) {
             if (setIsLoading) setIsLoading(false);
-            throw new Error("Why is this a file?");
+            throw new Error(dict.getScalingResult.whyIsThisAFile[locale]);
           }
 
           const scalar: number = parseFloat((scalars[i] as string).replace(",", "."));
@@ -110,7 +113,7 @@ export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, set
         for (let i = 0; i < scalars.length; i++) {
           if (scalars[i] instanceof File) {
             if (setIsLoading) setIsLoading(false);
-            throw new Error("Why is this a file?");
+            throw new Error(dict.getScalingResult.whyIsThisAFile[locale]);
           }
 
           const scalar: number = parseFloat((scalars[i] as string).replace(",", "."));
@@ -147,7 +150,7 @@ export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, set
         for (let i = 0; i < scalars.length; i++) {
           if (scalars[i] instanceof File || weights[i] instanceof File || parentAreas[i] instanceof File || childAreas[i] instanceof File || scalingTypes[i] instanceof File) {
             if (setIsLoading) setIsLoading(false);
-            throw new Error("Why is this a file?");
+            throw new Error(dict.getScalingResult.whyIsThisAFile[locale]);
           }
 
           const scalar: number = parseFloat((scalars[i] as string).replace(",", "."));
@@ -199,6 +202,9 @@ export default function CopyAndScale({
   goal: Goal & { dataSeries: DataSeries | null },
   roadmapOptions: { id: string, name: string, version: number, actor: string | null }[],
 }) {
+  const dict = parentDict.copyAndScale;
+  const locale = useContext(LocaleContext);
+
   const [isLoading, setIsLoading] = useState(false);
   const [scalingComponents, setScalingComponents] = useState<string[]>([crypto?.randomUUID() || Math.random().toString()]);
   const [scalingMethod, setScalingMethod] = useState<ScaleMethod>(ScaleMethod.Geometric);
@@ -212,7 +218,7 @@ export default function CopyAndScale({
       const formElement = document.forms.namedItem("copyAndScale");
       if (formElement instanceof HTMLFormElement) {
         const formData = new FormData(formElement);
-        const { scaleFactor } = getScalingResult(formData, scalingMethod);
+        const { scaleFactor } = getScalingResult(locale, formData, scalingMethod);
         // Avoid setting the state if the value hasn't changed, to prevent infinite rerenders
         // Also don't set the state if the value is NaN, infinite, or non-numeric
         if (Number.isFinite(scaleFactor) && scaleFactor !== scalingResult) {
@@ -232,15 +238,15 @@ export default function CopyAndScale({
     const copyToId = form.get("copyTo");
     if (copyToId instanceof File) {
       setIsLoading(false);
-      throw new Error("Why is this a file?");
+      throw new Error(dict.formSubmission.whyIsThisAFile[locale]);
     }
 
-    const { scaleFactor, scalingRecipie } = getScalingResult(form, scalingMethod, setIsLoading);
+    const { scaleFactor, scalingRecipie } = getScalingResult(locale, form, scalingMethod, setIsLoading);
     console.log(scalingRecipie)
     // Don't proceed if the resultant scale factor is NaN, infinite, or non-numeric for some reason
     if (!Number.isFinite(scaleFactor)) {
       setIsLoading(false);
-      alert("Felaktig inmatning. Skalningsfaktorn kunde inte beräknas. Ofta beror detta på ett ickenumeriskt värde i ett inmatningsfält eller att produkten av alla skalningsfaktorer är negativ.");
+      alert(dict.formSubmission.invalidInput[locale]);
       return;
     }
 
@@ -274,30 +280,30 @@ export default function CopyAndScale({
 
   return (
     <>
-      <button 
-        type="button" 
-        className="seagreen color-purewhite smooth padding-block-50 padding-inline-100" 
+      <button
+        type="button"
+        className="seagreen color-purewhite smooth padding-block-50 padding-inline-100"
         onClick={() => openModal(modalRef)}
-        style={{padding: '.3rem .6rem', borderRadius: '2px'}}
+        style={{ padding: '.3rem .6rem', borderRadius: '2px', fontSize: '.75rem' }}
       >
-        Kopiera och skala
+        {dict.return.title[locale]}
       </button>
       <dialog ref={modalRef} aria-modal className="rounded" style={{ border: '0', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25' }}>
         <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>
           <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label="Close" >
             <Image src='/icons/close.svg' alt="" width={18} height={18} />
           </button>
-          <h2 className="margin-0">Kopiera och skala målbanan {goal.name}</h2>
+          <h2 className="margin-0">{dict.return.copyAndScaleGoal[locale]} {goal.name}</h2>
         </div>
 
         <form action={formSubmission} name="copyAndScale" onChange={recalculateScalingResult}>
 
           <label className="block margin-block-100">
-            I vilken färdplansversion vill du placera den skalade målbanan?
+            {dict.return.whichRoadmapVersion[locale]}
             <select className="block margin-block-25 width-100" required name="copyTo" id="copyTo">
-              <option value="">Välj färdplansversion</option>
+              <option value="">{dict.return.selectRoadmapVersion[locale]}</option>
               {roadmapOptions.map(roadmap => (
-                <option key={roadmap.id} value={roadmap.id}>{`${roadmap.name} ${roadmap.version ? `(version ${roadmap.version.toString()})` : null}`}</option>
+                <option key={roadmap.id} value={roadmap.id}>{`${roadmap.name} ${roadmap.version ? `(${dict.return.version[locale]} ${roadmap.version.toString()})` : null}`}</option>
               ))}
             </select>
           </label>
@@ -318,40 +324,40 @@ export default function CopyAndScale({
                       display: 'grid',
                       cursor: 'pointer'
                     }} onClick={() => setScalingComponents(scalingComponents.filter((i) => i !== id))}>
-                    <Image src='/icons/circleMinus.svg' alt="Ta bort skalning" width={24} height={24} />
+                    <Image src='/icons/circleMinus.svg' alt={dict.return.scalingComponents.removeScaling[locale]} width={24} height={24} />
                   </button>
                 </RepeatableScaling>
               )
             })}
           </div>
-          <button type="button" className="margin-block-100" onClick={() => setScalingComponents([...scalingComponents, (crypto?.randomUUID() || Math.random().toString())])}>Lägg till skalning</button>
+          <button type="button" className="margin-block-100" onClick={() => setScalingComponents([...scalingComponents, (crypto?.randomUUID() || Math.random().toString())])}>{dict.return.addScaling.title[locale]}</button>
 
           <details className="padding-block-25 margin-block-75" style={{ borderBottom: '1px solid var(--gray-90)' }}>
-            <summary>Avancerat</summary>
+            <summary>{dict.return.addScaling.advanced.title[locale]}</summary>
             <fieldset className="margin-block-100">
-              <legend>Välj skalningsmetod</legend>
+              <legend>{dict.return.addScaling.advanced.selectScalingMethod[locale]}</legend>
               <label className="flex gap-25 align-items-center margin-block-50">
                 <input type="radio" name="scalingMethod" value={ScaleMethod.Geometric} checked={scalingMethod === ScaleMethod.Geometric} onChange={() => setScalingMethod(ScaleMethod.Geometric)} />
-                Geometriskt genomsnitt
+                {dict.return.addScaling.advanced.geometric[locale]}
               </label>
               <label className="flex gap-25 align-items-center margin-block-50">
                 <input type="radio" name="scalingMethod" value={ScaleMethod.Algebraic} checked={scalingMethod === ScaleMethod.Algebraic} onChange={() => setScalingMethod(ScaleMethod.Algebraic)} />
-                Algebraiskt genomsnitt
+                {dict.return.addScaling.advanced.algebraic[locale]}
               </label>
               <label className="flex gap-25 align-items-center margin-block-50">
                 <input type="radio" name="scalingMethod" value={ScaleMethod.Multiplicative} checked={scalingMethod === ScaleMethod.Multiplicative} onChange={() => setScalingMethod(ScaleMethod.Multiplicative)} />
-                Multiplikativ skalning
+                {dict.return.addScaling.advanced.multiplicative[locale]}
               </label>
             </fieldset>
           </details>
 
           <label className="margin-inline-auto">
-            <strong className="block bold text-align-center">Resulterande skalfaktor</strong>
+            <strong className="block bold text-align-center">{dict.return.resultingScalingFactor[locale]}</strong>
             <output className="margin-block-100 block text-align-center">{scalingResult}</output>
           </label>
 
           <button className="block seagreen color-purewhite smooth width-100 margin-inline-auto font-weight-500">
-            Skapa skalad kopia
+            {dict.return.createScaledCopy[locale]}
           </button>
         </form>
       </dialog>

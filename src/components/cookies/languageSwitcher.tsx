@@ -1,49 +1,55 @@
 "use client";
+
 import { setCookie } from "cookies-next";
+import { Locale } from "@/types";
+import { useContext, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { LocaleContext, LocaleSetterContext } from "@/app/context/localeContext.tsx";
 
-interface LanguageSwitcherI {
-  locale: string;
-}
-
-const languages = [
+const languageOptions: { label: string, value: Locale }[] = [
   {
     label: "English",
-    value: "en",
+    value: Locale.en,
   },
   {
-    label: "Swedish",
-    value: "sv",
+    label: "Svenska",
+    value: Locale.sv,
   },
 ];
 
-export default function LanguageSwitcher({ locale }: LanguageSwitcherI) {
-  const [language, setLanguage] = useState(locale);
+export default function LanguageSwitcher() {
+  const [_isPending, startTransition] = useTransition();
   const router = useRouter();
+  const locale = useContext(LocaleContext);
+  const setLocaleContext = useContext(LocaleSetterContext);
 
-  const changeLanguage = async (lang: string) => {
-    setLanguage(lang);
+  async function setLanguage(lang: Locale) {
     await setCookie("language", lang);
-    router.refresh();
-  };
+    if (setLocaleContext != null) {
+      setLocaleContext(lang);
+    }
+    startTransition(() => {
+      router.refresh();
+    });
+  }
 
   return (
     <select
-      className="font-weight-500 margin-top-25 block"
+      className="font-weight-500 block padding-left-100"
       style={{ fontSize: '1rem', minHeight: 'calc(24px + 1rem)' }}
-      onChange={(e) => { changeLanguage(e.target.value) }}>
+      onChange={(e) => { setLanguage(e.target.value as Locale) }}
+      autoComplete="off"
+    >
       {/* Make sure the selected language is displayed on top */}
-      <option key={languages.filter((item) => item.label === languages.filter((item) => item.value === language)[0].label)[0].value} value={language}>
-        {languages.filter((item) => item.value === language)[0].label}
+      <option key={languageOptions.filter((item) => item.label === languageOptions.filter((item) => item.value === locale)[0].label)[0].value} value={locale}>
+        {languageOptions.filter((item) => item.value === locale)[0].label}
       </option>
       {/* Create options for the rest of the languages */}
-      {languages.filter((item) => item.value !== language).map((item) => (
+      {languageOptions.filter((item) => item.value !== locale).map((item) => (
         <option key={item.value} value={item.value}>
           {item.label}
         </option>
       ))}
-
     </select>
   );
 }

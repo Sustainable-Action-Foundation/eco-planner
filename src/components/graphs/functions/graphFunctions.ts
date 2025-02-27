@@ -1,11 +1,13 @@
 import { getLocalStorage, getSessionStorage, setLocalStorage, setSessionStorage } from "@/functions/localStorage";
 import { GraphType } from "../graphGraph";
 import { ActionImpactType, type DataSeries, type Effect } from "@prisma/client";
-import { dataSeriesDataFieldNames, DataSeriesDataFields } from "@/types";
+import { dataSeriesDataFieldNames, DataSeriesDataFields, Locale } from "@/types";
 import { ChildGraphType } from "../childGraphs/childGraphContainer";
+import parentDict from "../graphs.dict.json" with { type: "json" };
 
 /** Retrieves the graph type for a goal from storage. */
-export function getStoredGraphType(goalId?: string) {
+export function getStoredGraphType(locale: Locale, goalId?: string) {
+  const dict = parentDict.functions.graphFunctions;
   let graphType: GraphType | undefined | null;
   // Check if this goal has a stored graph type
   if (goalId) {
@@ -18,7 +20,7 @@ export function getStoredGraphType(goalId?: string) {
   // Default to main graph if no valid graph type is found
   if (!Object.values(GraphType).includes(graphType as GraphType) || !graphType) {
     if (graphType != null) {
-      console.log("Invalid graph type in storage, defaulting to main graph.");
+      console.log(dict.getStoredGraphType.noValidGraphType[locale]);
     }
 
     setLocalStorage("graphType", GraphType.Main);
@@ -28,7 +30,8 @@ export function getStoredGraphType(goalId?: string) {
 }
 
 /** Retrieves the graph type for gcild graphs for a goal from storage. */
-export function getStoredChildGraphType(goalId?: string) {
+export function getStoredChildGraphType(locale: Locale, goalId?: string) {
+  const dict = parentDict.functions.graphFunctions;
   let graphType: ChildGraphType | undefined | null;
   // Check if this goal has a stored graph type
   if (goalId) {
@@ -41,7 +44,7 @@ export function getStoredChildGraphType(goalId?: string) {
   // Default to target graph if no valid graph type is found
   if (!graphType || !Object.values(ChildGraphType).includes(graphType as ChildGraphType)) {
     if (graphType != null) {
-      console.log("Invalid graph type in storage, defaulting to target graph.");
+      console.log(dict.getStoredChildGraphType.noValidGraphType[locale]);
     }
 
     setLocalStorage("childGraphType", ChildGraphType.Target);
@@ -105,21 +108,28 @@ export function calculatePredictedOutcome(effects: (Effect & { dataSeries: DataS
   const totalEffect: Partial<DataSeriesDataFields> = {};
   for (const i of dataSeriesDataFieldNames) {
     for (const effect of effects) {
-      if (effect.dataSeries && effect.dataSeries[i] != null && Number.isFinite(effect.dataSeries[i])) {
+      if (effect.dataSeries && (effect.impactType === ActionImpactType.DELTA)) {
         if (!totalEffect[i]) {
           totalEffect[i] = 0;
         }
 
+        // Add sum of all deltas up to this point for the current action
+        let totalDelta = 0;
+
+        for (const j of dataSeriesDataFieldNames.slice(0, dataSeriesDataFieldNames.indexOf(i) + 1)) {
+          if (effect.dataSeries[j] != null && Number.isFinite(effect.dataSeries[j])) {
+            totalDelta += effect.dataSeries[j];
+          }
+        }
+
+        totalEffect[i] += totalDelta;
+      } else if (effect.dataSeries && effect.dataSeries[i] != null && Number.isFinite(effect.dataSeries[i])) {
+        if (!totalEffect[i]) {
+          totalEffect[i] = 0;
+        }
         switch (effect.impactType) {
           case ActionImpactType.DELTA:
-            // Add sum of all deltas up to this point for the current action
-            let totalDelta = 0;
-            for (const j of dataSeriesDataFieldNames.slice(0, dataSeriesDataFieldNames.indexOf(i) + 1)) {
-              if (effect.dataSeries[j] != null && Number.isFinite(effect.dataSeries[j])) {
-                totalDelta += effect.dataSeries[j];
-              }
-            }
-            totalEffect[i] += totalDelta;
+            // Delta is handled separately above to account for cases where the current delta is null but some previous deltas are not
             break;
           case ActionImpactType.PERCENT:
             // Add previous year's (baseline + totalEffect) multiplied by current action as percent

@@ -1,0 +1,74 @@
+{
+  "[goalId]": {
+    "page": {
+      "compareGoal": {
+        "en": "Compare with goal",
+        "sv": "Jämför med målbanan"
+      },
+      "goal": {
+        "en": "Goal",
+        "sv": "Målbana"
+      },
+      "goalScale": {
+        "en": "All values in the goal use the following scale:",
+        "sv": "Alla värden i målbanan använder följande skala:"
+      },
+      "infoPrompt": {
+        "en": "Please bake the scale into the value or unit; scales will be removed in the future.",
+        "sv": "Vänligen baka in skalan i värdet eller enheten; skalor kommer att tas bort i framtiden."
+      },
+      "externalResources": {
+        "en": "External resources",
+        "sv": "Externa resurser"
+      },
+      "alignedGoals": {
+        "en": "Goals that work towards this",
+        "sv": "Mål som jobbar mot detta"
+      },
+      "similarGoals": {
+        "en": "Similar goals in this roadmap version",
+        "sv": "Liknande målbanor i denna färdplansversion"
+      },
+      "actions": {
+        "en": "Actions",
+        "sv": "Åtgärder"
+      },
+      "connectToAction": {
+        "en": "Connect to an existing action",
+        "sv": "Koppla till en existerande åtgärd"
+      },
+      "createNewAction": {
+        "en": "Create a new action",
+        "sv": "Skapa ny åtgärd"
+      }
+    },
+    "edit": {
+      "page": {
+        "breadcrumbEditGoal": {
+          "en": "Edit goal",
+          "sv": "Redigera målbana"
+        },
+        "editGoal": {
+          "en": "Edit Goal:",
+          "sv": "Redigera målbana:"
+        }
+      }
+    }
+  },
+  "create": {
+    "page": {
+      "breadcrumbCreateGoal": {
+        "en": "Create new goal",
+        "sv": "Skapa ny målbana"
+      },
+      "createNewGoal": {
+        "en": "Create a new goal",
+        "sv": "Skapa en ny målbana"
+      },
+      "badRoadmap": {
+        "en": "Could not find or do not have access to the roadmap version in the link.\nUse the dropdown menu to select a roadmap version to create the goal path under.",
+        "sv": "Kunde inte hitta eller har inte tillgång till färdplansversionen i länken.\nAnvänd dropdown-menyn för att välja en färdplansversion att skapa målbanan under."
+      }
+    }
+  }
+}

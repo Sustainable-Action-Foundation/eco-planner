@@ -1,9 +1,13 @@
+'use server';
+
 import { LoginData } from '@/lib/session';
 import styles from '@/components/tables/tables.module.css' with { type: "css" };
 import { MetaRoadmap, Roadmap } from "@prisma/client";
 import { TableMenu } from '@/components/tables/tableMenu/tableMenu';
 import { AccessControlled } from '@/types';
 import accessChecker from '@/lib/accessChecker';
+import { getServerLocale } from '@/functions/serverLocale';
+import parentDict from '../tables.dict.json' with { type: "json" };
 
 interface RoadmapTableCommonProps {
   user: LoginData['user'],
@@ -21,11 +25,14 @@ interface RoadmapTableWithRoadmaps extends RoadmapTableCommonProps {
 
 type RoadmapTableProps = RoadmapTableWithMetaRoadmap | RoadmapTableWithRoadmaps;
 
-export default function RoadmapTable({
+export default async function RoadmapTable({
   user,
   roadmaps,
   metaRoadmap,
 }: RoadmapTableProps) {
+  const dict = parentDict.roadmapTables.roadmapTable;
+  const locale = await getServerLocale();
+
   // Failsafe in case wrong props are passed
   if ((!roadmaps && !metaRoadmap) || (roadmaps && metaRoadmap)) throw new Error('RoadmapTable: Either `roadmaps` XOR `metaRoadmap` must be provided');
 
@@ -52,7 +59,7 @@ export default function RoadmapTable({
             <div className='flex gap-100 justify-content-space-between align-items-center' key={roadmap.id}>
               <a href={`/roadmap/${roadmap.id}`} className={`${styles.roadmapLink} flex-grow-100`}>
                 <span className={styles.linkTitle}>{`${roadmap.metaRoadmap.name} (v${roadmap.version})`}</span>
-                <span className={styles.linkInfo}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} Målbanor</span>
+                <span className={styles.linkInfo}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} {dict.goals[locale]}</span>
               </a>
               <TableMenu
                 accessLevel={accessLevel}
@@ -62,6 +69,6 @@ export default function RoadmapTable({
           )
         })}
       </>
-      : <p>Inga färdplansversioner hittades. Om du har några filter aktiva så hittades inga färdplansversioner som matchar dem.</p>}
+      : <p>{dict.noRoadmapVersions[locale]}</p>}
   </>
 }

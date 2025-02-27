@@ -1,9 +1,13 @@
 "use client"
 
 import { storageConsent, allowStorage, clearStorage } from "@/functions/localStorage";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import parentDict from "./cookies.dict.json" with { type: "json" };
+import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 export default function GraphCookie() {
+  const dict = parentDict.graphCookie;
+  const locale = useContext(LocaleContext);
 
   const [storageAllowed, setStorageAllowed] = useState(false)
 
@@ -22,7 +26,7 @@ export default function GraphCookie() {
           clearStorage();
         }
       }} />
-      Spara framtida vyändringar mellan sessioner och sidnavigeringar
+      {dict.allowStorage[locale]}
     </label>
   )
 }
