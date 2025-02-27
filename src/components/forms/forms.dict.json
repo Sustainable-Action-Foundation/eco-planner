@@ -861,6 +861,28 @@
           }
         }
       }
+    },
+    "userFilters": {
+      "posts": {
+        "en": "Posts",
+        "sv": "Inlägg"
+      },
+      "roadmap": {
+        "en": "Roadmap",
+        "sv": "Färdplan"
+      },
+      "roadmapSeries": {
+        "en": "Roadmap series",
+        "sv": "Färdplansserie"
+      },
+      "clearance": {
+        "en": "Clearance",
+        "sv": "Behörighet"
+      },
+      "editingPrivileges": {
+        "en": "Editing privileges",
+        "sv": "Redigeringsbehörighet"
+      }
     }
   },
   "effectForm": {
