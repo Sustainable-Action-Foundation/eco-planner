@@ -144,10 +144,7 @@ export default async function Page({
               />
             }
           </GraphGraph>
-        </section>
 
-        <section className="margin-block-100">
-          <p className="container-text">{goal.description}</p>
           {goal.dataSeries?.scale &&
             <>
               <p>Alla värden i målbanan använder följande skala: {`"${goal.dataSeries?.scale}"`}</p>
@@ -156,9 +153,20 @@ export default async function Page({
               }
             </>
           }
+
+        </section>
+
+        <section className="margin-block-300">
+          {goal.description ? 
+            <>
+              <h2>Beskrivning</h2>
+              <p className="container-text">{goal.description}</p>
+            </>
+          : null }
+
           {goal.links.length > 0 ?
             <>
-              <h2 className="margin-bottom-0 margin-top-200" style={{ fontSize: '1.25rem' }}>Externa resurser</h2>
+              <h3 className="margin-bottom-0 margin-top-200" style={{ fontSize: '1.25rem' }}>Externa resurser</h3>
               <ul>
                 {goal.links.map((link: { url: string, description: string | null }, index: number) =>
                   <li className="margin-block-25" key={index}>
@@ -170,9 +178,30 @@ export default async function Page({
             : null}
         </section>
 
+        <section className="margin-block-300">
+          <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>
+            Åtgärder för {goal.name ? `${goal.name}` : `${goal.indicatorParameter}`}
+          </h2>
+          {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
+            <menu className="flex flex-wrap-wrap justify-content-space-between gap-100 margin-bottom-100 padding-0 margin-0">
+              <input type="search" style={{width: 'min(90ch, 100%)'}} />
+              <div className="flex gap-50">
+                <Link href={`/effect/create?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Koppla till en existerande åtgärd</Link>
+                <Link href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
+              </div>
+            </menu>
+          }
+
+          <EffectTable object={goal} accessLevel={accessLevel} />
+
+          <h3 className="margin-top-300">Tidslinje över åtgärder</h3>
+          <ActionGraph actions={goal.effects.map(effect => effect.action)} />
+
+        </section>
+
         {childGoals.length > 0 ?
           <section className="margin-block-300">
-            <h2>Mål som jobbar mot detta</h2>
+            <h2>Andra målbanor som jobbar mot {goal.name ? `${goal.name}` : `${goal.indicatorParameter}`}</h2>
             <ChildGraphContainer goal={goal} childGoals={childGoals} />
           </section>
           : null
@@ -180,28 +209,12 @@ export default async function Page({
 
         {findSiblings(roadmap, goal).length > 1 ?
           <section className="margin-block-300">
-            <h2>Liknande målbanor i denna färdplansversion</h2>
+            <h2>Angränsande målbanor inom färdplansversionen</h2>
             <SiblingGraph roadmap={roadmap} goal={goal} />
           </section>
           : null
         }
 
-        <section className="margin-block-300">
-          <div className="flex align-items-center justify-content-space-between">
-            <h2>Åtgärder</h2>
-            {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
-              <div className="flex gap-50">
-                <Link href={`/effect/create?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Koppla till en existerande åtgärd</Link>
-                <Link href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
-              </div>
-            }
-          </div>
-
-          <div className="margin-block-100">
-            <ActionGraph actions={goal.effects.map(effect => effect.action)} />
-          </div>
-          <EffectTable object={goal} accessLevel={accessLevel} />
-        </section>
       </main>
 
       <section className="margin-block-500">

@@ -1,12 +1,12 @@
 'use client';
 
-
-// TODO: Check if styles are used properly, I just yoinked these from ActionTable
-import styles from './tables.module.css' with { type: "css" };
 import { AccessLevel } from "@/types.ts";
 import { Action, Effect, Goal } from "@prisma/client";
 import Link from "next/link";
 import { TableMenu } from "./tableMenu/tableMenu.tsx";
+
+/* Probably should have a cleaner way of importing this */
+import styles from '../../app/user/[user]/page.module.css' with { type: "css" }
 
 interface EffectTableComonProps {
   accessLevel?: AccessLevel,
@@ -43,18 +43,26 @@ export default function EffectTable({
     );
   }
 
-  return (<>
-    {object.effects.map(effect => (
-      <div className='flex gap-100 justify-content-space-between align-items-center' key={`${effect.actionId}_${effect.goalId}`}>
-        <a href={(object as Action).isSufficiency != undefined ? `/goal/${effect.goalId}` : `/action/${effect.actionId}`} className={`${styles.roadmapLink} flex-grow-100`}>
-          <span className={styles.linkTitle}>{effect.action?.name || effect.goal?.name || effect.goal?.indicatorParameter || "Namnlös effekt"}</span>
-          <p className={styles.actionLinkInfo}>{effect.action?.description || effect.goal?.description}</p>
-        </a>
-        <TableMenu
-          accessLevel={accessLevel}
-          object={effect}
-        />
-      </div>
-    ))}
-  </>);
+  return (
+    <ul className={`${styles.itemsList}`}>
+      {object.effects.map(effect => (
+        <li key={`${effect.actionId}_${effect.goalId}`}>
+          <div className="width-100" style={{verticalAlign: 'middle'}}>
+            <div className='flex justify-content-space-between'>
+              <a 
+                style={{fontSize: '1.25rem'}}
+                href={(object as Action).isSufficiency != undefined ? `/goal/${effect.goalId}` : `/action/${effect.actionId}`}  
+                className="font-weight-500 color-pureblack text-decoration-none flex-grow-100">
+                {effect.action?.name || effect.goal?.name || effect.goal?.indicatorParameter || "Namnlös effekt"}
+              </a>
+              <TableMenu
+                accessLevel={accessLevel}
+                object={effect}
+              />
+            </div>
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
 }

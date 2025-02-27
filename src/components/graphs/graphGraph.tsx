@@ -65,6 +65,7 @@ export default function GraphGraph({
         {goal.name ? (
           <>
             <h1 className="margin-0 text-align-center" style={{fontSize: '3rem', lineHeight: '1'}}>{goal.name}</h1>
+            <small className="text-align-center block" style={{color: 'gray'}}>Målbana</small>
             <small className="text-align-center block" style={{color: 'gray'}}>{goal.indicatorParameter}</small>
           </>
         ) :
