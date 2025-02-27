@@ -1,8 +1,9 @@
-import { Locale } from "@/types.ts";
 import fs from "node:fs";
 import path from "node:path";
-import { } from "./dictUtils.ts";
-const strictLocale = [...new Set(Object.values(Locale))]; // Strips duplicates i.e. the default locale
+import { fileNamePrefix, folderNamePrefix, fileNameSuffix, folderNameSuffix } from "./dictUtils.ts";
+import { Locale } from "@/types.ts";
+/** Only the unique values of the Locale Enum so remove dupes */
+const strictLocale = [...new Set(Object.values(Locale))];
 
 /** Matches paths ending in `.dict.json` */
 const dictFileRegex = /\.dict\.json$/;
@@ -12,9 +13,9 @@ const disallowedKeysRegex = /^[0-9]+$/;
 /** Raise concern on keys with any of these substrings. */
 const disallowedKeySubstrings: string[] = [];
 /** Raise concern on keys with any of these prefixes. */
-const disallowedKeyPrefixes: string[] = [];
+const disallowedKeyPrefixes: string[] = [fileNamePrefix, folderNamePrefix].filter(Boolean);
 /** Raise concern on keys with any of these suffixes. */
-const disallowedKeySuffixes: string[] = [];
+const disallowedKeySuffixes: string[] = [fileNameSuffix, folderNameSuffix].filter(Boolean);
 
 
 /* Help command. Shows when no flags are given */
