@@ -150,7 +150,7 @@ function validateDirectory(dirPath: string | null): { [file: string]: string[] }
   // Per file problem tracker
   const fileProblems: { [file: string]: string[] } = {};
 
-  // Get all dict files in dir and sub dirs with absolute paths
+  // Get all dict files in dir and sub dirs with absolute paths TODO: Refactor to use glob if that is beneficial
   const dictFiles: { name: string, path: string }[] = [];
   const walk = (dir: string) => {
     const files = fs.readdirSync(dir);
