@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-export const packagedDictionaryPath: string = path.join("packagedDictionary.json");
+export const packagedDictionaryPath: string = path.join("packaged_dictionary.json");
 export const dictFileEnding: string = ".dict.json";
 
 /**

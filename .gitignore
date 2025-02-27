@@ -139,4 +139,4 @@ dist
 /src/lib/commitHash.json
 
 # JSON file containing the text from all dict files
-packagedDictionary.json
+packaged_dictionary.json
