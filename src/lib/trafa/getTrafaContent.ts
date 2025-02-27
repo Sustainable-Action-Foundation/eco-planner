@@ -1,6 +1,6 @@
 'use server';
 
-import { TrafaDataResponse, trafaUrl } from "./trafaTypes";
+import { TrafaDataResponse, trafaUrl } from "./trafaTypes.ts";
 
 // Trafa is a Swedish transport data provider. As such, their data is only relevant for usage in Sweden.
 // This means that everything here in the `trafa` folder is somewhat useless for international implementations,
