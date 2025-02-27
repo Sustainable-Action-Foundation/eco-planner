@@ -6,26 +6,26 @@ export const dictFileEnding: string = ".dict.json";
 
 export class KeyNameHandler {
   public static fileNameToKey(fileName: string): string {
-    return fileName.replace(dictFileEnding, "-(file)");
+    return fileName.replace(dictFileEnding, "-file");
   }
 
   public static folderNameToKey(folderName: string): string {
-    return folderName + "-(folder)";
+    return folderName + "-folder";
   }
 
   public static keyToFileOrFolderName(key: string): string {
-    if (key.endsWith("-(file)")) {
-      return key.replace("-(file)", dictFileEnding);
+    if (key.endsWith("-file")) {
+      return key.replace("-file", dictFileEnding);
     }
-    return key.replace("-(folder)", "");
+    return key.replace("-folder", "");
   }
 
   public static keyIsFileName(key: string): boolean {
-    return key.endsWith("-(file)");
+    return key.endsWith("-file");
   }
 
   public static keyIsFolderName(key: string): boolean {
-    return key.endsWith("-(folder)");
+    return key.endsWith("-folder");
   }
 
   public static keyIsFileOrFolderName(key: string): boolean {
