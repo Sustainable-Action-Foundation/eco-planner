@@ -5,7 +5,7 @@ export const packagedDictionaryPath: string = path.join("packagedDictionary.json
 export const dictFileEnding: string = ".dict.json";
 
 /**
- * When packaging all dictionary files, the folderstructure 
+ * When packaging all dictionary files, the folder structure 
  * is maintained by using these prefixes and suffixes to 
  * differentiate folders and files from translation keys.
  */
