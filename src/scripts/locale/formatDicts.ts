@@ -24,7 +24,9 @@ function formatDicts(): void {
       fs.writeFileSync(filePath, data, { encoding: "utf8" });
 
     } catch (error) {
-      console.error(`\n ❌ Error formatting file \x1b[30m${filePath}\x1b[0m. See error:\n\x1b[31m${error}\x1b[0m\n`);
+      console.error(""); // Padding
+      console.error(` ❌ Error formatting file \x1b[30m${filePath}\x1b[0m. See error:\n\x1b[31m${error}\x1b[0m`);
+      console.error(""); // Padding
     }
   }
 
