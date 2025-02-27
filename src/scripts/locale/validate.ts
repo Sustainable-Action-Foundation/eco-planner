@@ -8,9 +8,9 @@ const strictLocale = [...new Set(Object.values(Locale))]; // Strips duplicates i
 const dictFileRegex = /\.dict\.json$/;
 /** Matches keys to discriminate pure number keys. */
 const disallowedKeysRegex = /^[0-9]+$/;
-const disallowedSubstrings: string[] = [];
-const disallowedSuffixes: string[] = [];
-const disallowedPrefixes: string[] = [];
+const disallowedKeySubstrings: string[] = [];
+const disallowedKeySuffixes: string[] = [];
+const disallowedKeyPrefixes: string[] = [];
 
 
 /* Help command. Shows when no flags are given */
@@ -212,19 +212,19 @@ export function validateDictObject(dict: object | string): string[] {
     problems.push(`Disallowed keys found. Keys may not be numbers. They have to match ${disallowedKeysRegex}. ${found}`);
   }
   // Disallowed substrings, check
-  if (keys.some(key => disallowedSubstrings.some(substring => key.includes(substring)))) {
+  if (keys.some(key => disallowedKeySubstrings.some(substring => key.includes(substring)))) {
     const found = dictToStringShallow(dict, true);
-    problems.push(`Disallowed substring, prefix or suffix found. Keys may not contain ${disallowedSubstrings}. ${found}`);
+    problems.push(`Disallowed substring, prefix or suffix found. Keys may not contain ${disallowedKeySubstrings}. ${found}`);
   }
   // Disallowed suffixes, check
-  if (keys.some(key => disallowedSuffixes.some(suffix => key.endsWith(suffix)))) {
+  if (keys.some(key => disallowedKeySuffixes.some(suffix => key.endsWith(suffix)))) {
     const found = dictToStringShallow(dict, true);
-    problems.push(`Disallowed suffix found. Keys may not end with ${disallowedSuffixes}. ${found}`);
+    problems.push(`Disallowed suffix found. Keys may not end with ${disallowedKeySuffixes}. ${found}`);
   }
   // Disallowed prefixes, check
-  if (keys.some(key => disallowedPrefixes.some(prefix => key.startsWith(prefix)))) {
+  if (keys.some(key => disallowedKeyPrefixes.some(prefix => key.startsWith(prefix)))) {
     const found = dictToStringShallow(dict, true);
-    problems.push(`Disallowed prefix found. Keys may not start with ${disallowedPrefixes}. ${found}`);
+    problems.push(`Disallowed prefix found. Keys may not start with ${disallowedKeyPrefixes}. ${found}`);
   }
 
   // Mixed types, check
