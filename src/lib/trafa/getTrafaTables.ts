@@ -1,6 +1,7 @@
 'use server';
 
-import { StructureItem, TrafaDataResponse, trafaStructureUrl } from "./trafaTypes";
+import { get } from "node_modules/cypress/types/lodash";
+import { StructureItem, TrafaDataResponse, trafaStructureUrl, trafaUrl } from "./trafaTypes";
 // import math from "math";
 
 export default async function getTrafaTables(language?: 'sv' | 'en') {
@@ -12,11 +13,14 @@ export default async function getTrafaTables(language?: 'sv' | 'en') {
 
   // console.log(structureUrl);
 
-
+  type Table = {
+    id: number;
+    label: string;
+  }
 
   let data: TrafaDataResponse | null = null;
   // let data: unknown;
-  const tables: StructureItem[] = [];
+  const tables: Table[] = [];
 
   try {
     const response = await fetch(structureUrl, {
@@ -42,21 +46,9 @@ export default async function getTrafaTables(language?: 'sv' | 'en') {
     return null;
   }
   data.StructureItems.forEach((item: StructureItem) => {
-    const pushItem: StructureItem = {
-      Id: item.Id,
-      DataType: item.DataType,
-      Label: item.Label,
-      FullLabel: item.FullLabel,
-      Name: item.Name,
-      ParentName: item.ParentName,
-      FullName: item.FullName,
-      Type: item.Type,
-      Selected: item.Selected,
-      Option: item.Option,
-      Description: item.Description,
-      UniqueId: item.UniqueId,
-      ActiveFrom: item.ActiveFrom,
-      StructureItems: item.StructureItems,
+    const pushItem: Table = {
+      id: item.Id,
+      label: item.Label,
     }
 
     tables.push(pushItem);
@@ -86,7 +78,7 @@ export default async function getTrafaTables(language?: 'sv' | 'en') {
   // LogStructureItems(tables);
   // console.log(tables);
   // console.log(data);
-  return data;
+  return tables;
 
 };
 
@@ -105,10 +97,29 @@ export async function getTrafaTableInfo(tableName: string) {
 
   const url = new URL(trafaStructureUrl);
   url.searchParams.append('query', `${tableName}`);
-
+  const structureUrl = new URL(trafaStructureUrl);
+  structureUrl.searchParams.append('query', ``);
   // console.log(url);
 
-  const tablesData = await getTrafaTables();
+  let tablesData: TrafaDataResponse | null = null;
+  try {
+    const response = await fetch(structureUrl, {
+      method: 'GET',
+      headers: {
+        // The data is available as either 'application/json' or 'application/xml', JSON is easier to parse
+        'Accept': 'application/json',
+      }
+    });
+    if (response.ok) {
+      tablesData = await response.json();
+    } else {
+      console.log("bad response", response)
+      return null;
+    }
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
 
   let data: StructureItem;
   try {
@@ -121,6 +132,7 @@ export async function getTrafaTableInfo(tableName: string) {
     });
     if (response.ok) {
       data = await response.json();
+      console.log(data);
     } else {
       console.log("bad response", response)
       return null;
@@ -216,7 +228,7 @@ export async function getTrafaTableInfo(tableName: string) {
       console.log("");
 
       let logString: string = "";
-      let logStringParts: string[] = [];
+      const logStringParts: string[] = [];
 
       logStringParts.push("Id: " + item.Id);
       logStringParts.push("Label: " + item.Label);
@@ -242,14 +254,58 @@ export async function getTrafaTableInfo(tableName: string) {
     })
   }
 
-  await logFilteredDataStructureItems(filteredDataStructureItems);
+  // await logFilteredDataStructureItems(filteredDataStructureItems);
 
   /* -- On "lägg till historisk data" page -- 
   get all tables
   select table
   get structure items and list them as options
-  if item type is H draw as dropdown with D items as options
-  if a D item is selected, list DV, F and M items as options
+  if item type is H draw as dropdown with D items as options, (could multiple be selected?)
+  if a D item is selected, list DV and F items as options
   get names of selected items and add as search queries when fetching data
+  must have at least one M item selected to be able to get any data?
+  All DV items should be selectable
+  F seems to overwrite the DV filters and only one F filter seems to be selectable at a time
   */
+
+  /* H seems to be a header and is not something that can be used as a search parameter
+  Examples: t1203|region and t10011|agare 
+  */
+
+  // getTrafaTableData("T1203|fordonskm|pastig|personkm|planavg|planutbud|platskm|sittkm|utbudskm|ar|finans|lan|traslag")
+  return filteredDataStructureItems;
+}
+
+export async function getTrafaTableData(searchQuery: string) {
+  // const url = new URL(trafaUrl);
+  // let searchParamsString = searchParams.join("\|");
+  const url = trafaUrl + "?query=" + searchQuery;
+  // searchParams.forEach((param: string) => {
+  //   url.searchParams.append('query', param);
+  // })
+  // url.searchParams.append('query', "t1203|ar|region|lan|03");
+  // url.searchParams.append('query');
+  console.log(url);
+  let data: StructureItem;
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        // The data is available as either 'application/json' or 'application/xml', JSON is easier to parse
+        'Accept': 'application/json',
+      }
+    });
+    if (response.ok) {
+      data = await response.json();
+      console.log(data);
+    } else {
+      console.log("bad response", response)
+      return null;
+    }
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+  // console.log(data);
+  return data
 }
