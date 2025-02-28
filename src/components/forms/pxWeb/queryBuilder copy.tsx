@@ -15,7 +15,6 @@ import { FormEvent, useContext, useEffect, useRef, useState } from "react";
 import FormWrapper from "../formWrapper";
 import parentDict from "../forms.dict.json" with { type: "json" };
 import styles from './queryBuilder.module.css';
-import getTrafaTables from "@/lib/trafa/getTrafaTables";
 
 export default function QueryBuilder({
   goal,
@@ -28,8 +27,8 @@ export default function QueryBuilder({
   const [isLoading, setIsLoading] = useState(false);
   const [dataSource, setDataSource] = useState<string>("" as keyof typeof externalDatasetBaseUrls);
   const [tables, setTables] = useState<{ id: string, label: string }[] | null>(null);
-  // const [tableDetails, setTableDetails] = useState<PxWebApiV2TableDetails | null>(null);
-  // const [tableContent, setTableContent] = useState<PxWebApiV2TableContent | null>(null);
+  const [tableDetails, setTableDetails] = useState<PxWebApiV2TableDetails | null>(null);
+  const [tableContent, setTableContent] = useState<PxWebApiV2TableContent | null>(null);
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -43,9 +42,6 @@ export default function QueryBuilder({
 
     if (dataSource == "SCB") {
       getPxWebTables(dataSource, query).then(result => setTables(result));
-    }
-    if (dataSource == "Trafa") {
-      getTrafaTables().then(result => setTables(result));
     }
   }, [dataSource]);
 
@@ -72,10 +68,9 @@ export default function QueryBuilder({
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     // Return if insufficient selection has been made
-    if (!tables) return;
-    // if (!tables || !tableDetails) return;
+    if (!tables || !tableDetails) return;
     // Return if properly formatted response was not found
-    // if (!tableContent) return;
+    if (!tableContent) return;
     if (!(event.target instanceof HTMLFormElement)) return;
 
     if (!(event.target.checkValidity())) return;
@@ -95,13 +90,13 @@ export default function QueryBuilder({
   function tryGetResult() {
     if (!(formRef.current instanceof HTMLFormElement)) return;
     if (!tables) return;
-    // if (!tableDetails) return;
+    if (!tableDetails) return;
 
-    // if (formRef.current.checkValidity()) {
-      // const formData = new FormData(formRef.current);
-      // const query = buildQuery(formData);
-      // getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource).then(result => setTableContent(filterTableContentKeys(result)));
-    // }
+    if (formRef.current.checkValidity()) {
+      const formData = new FormData(formRef.current);
+      const query = buildQuery(formData);
+      getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource).then(result => setTableContent(filterTableContentKeys(result)));
+    }
   }
 
   function searchOnEnter(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -126,10 +121,10 @@ export default function QueryBuilder({
   }
 
   function handleSelect(tableId: string) {
-    // if (!externalDatasetBaseUrls[dataSource as keyof typeof externalDatasetBaseUrls]) return;
-    // if (!tableId) return;
+    if (!externalDatasetBaseUrls[dataSource as keyof typeof externalDatasetBaseUrls]) return;
+    if (!tableId) return;
 
-    // getPxWebTableDetails(tableId, dataSource).then(result => setTableDetails(result));
+    getPxWebTableDetails(tableId, dataSource).then(result => setTableDetails(result));
   }
 
   return (
@@ -192,11 +187,11 @@ export default function QueryBuilder({
               <legend className="padding-inline-50">
                 <strong>{dict.tableDetails.chooseValues[locale]}</strong>
               </legend>
-              {/* {tableDetails && (
+              {tableDetails && (
                 <>
                   {tableDetails.variables.map(variable => (
                     <label key={variable.id} className="block margin-block-75">
-                      {// Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
+                      {/* Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }` */}
                       {variable.type == "TimeVariable" ? "Startperiod" : variable.label} {!variable.elimination && <span style={{ color: "red" }}>*</span>}
                       <select className={`block margin-block-25 ${variable.type}`}
                         required={!variable.elimination}
@@ -215,11 +210,11 @@ export default function QueryBuilder({
                     </label>
                   ))}
                 </>
-              )} */}
+              )}
             </fieldset>
           </FormWrapper>
 
-          {/* {tableContent ? (
+          {tableContent ? (
             <div>
               <p>{dict.tableContentCheck.doesThisLookCorrect[locale]}</p>
               <table>
@@ -244,7 +239,7 @@ export default function QueryBuilder({
             <div>
               <p>{dict.noReadableResult[locale]}</p>
             </div>
-          )} */}
+          )}
 
           <button type="submit" className="seagreen color-purewhite">{dict.submit.addDataSource[locale]}</button>
         </form>

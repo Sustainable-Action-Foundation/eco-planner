@@ -1,6 +1,5 @@
 'use server';
 
-import { get } from "node_modules/cypress/types/lodash";
 import { StructureItem, TrafaDataResponse, trafaStructureUrl, trafaUrl } from "./trafaTypes";
 // import math from "math";
 
@@ -20,7 +19,7 @@ export default async function getTrafaTables(language?: 'sv' | 'en') {
 
   let data: TrafaDataResponse | null = null;
   // let data: unknown;
-  const tables: Table[] = [];
+  const tables: { id: string, label: string }[] = [];
 
   try {
     const response = await fetch(structureUrl, {
@@ -46,8 +45,8 @@ export default async function getTrafaTables(language?: 'sv' | 'en') {
     return null;
   }
   data.StructureItems.forEach((item: StructureItem) => {
-    const pushItem: Table = {
-      id: item.Id,
+    const pushItem: { id: string, label: string} = {
+      id: item.Id.toString(),
       label: item.Label,
     }
 
@@ -248,7 +247,7 @@ export async function getTrafaTableInfo(tableName: string) {
       console.log(logString);
 
       if (item.StructureItems.length > 0) {
-      // if (item.Type == "H" || item.Type == "D") {
+        // if (item.Type == "H" || item.Type == "D") {
         logFilteredDataStructureItems(item.StructureItems, indentation + 1);
       }
     })
