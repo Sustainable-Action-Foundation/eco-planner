@@ -151,7 +151,7 @@ export default function RoadmapForm({
         return;
       }
     }
-  }, [currentFile, locale])
+  }, [currentFile, dict.roadmapForm.useEffect.columnNotSupported, dict.roadmapForm.useEffect.fileCouldNotBeRead, dict.roadmapForm.useEffect.unknownError, locale])
 
   let currentAccess: AccessControlled | undefined = undefined;
   if (currentRoadmap) {
