@@ -95,10 +95,6 @@ export default function Goals({
           (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
           <Link className="button round color-purewhite pureblack font-weight-500" href={`/goal/create?roadmapId=${roadmap.id}`}>{dict.createGoal[locale]}</Link>
         }
-        <div className={styles.settings}>
-          <input type="checkbox" />
-          <Image src="/icons/settings.svg" alt={dict.settingsAltText[locale]} width="24" height="24" />
-        </div>
       </menu>
 
       {/* TODO: Probably not correct to handle loading as a default state? */}
