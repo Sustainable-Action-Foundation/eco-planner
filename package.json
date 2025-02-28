@@ -11,7 +11,8 @@
     "locale:validate": "tsx src/scripts/locale/validate.ts -d src",
     "locale:package": "tsx src/scripts/locale/packageDicts.ts",
     "locale:unpack": "tsx src/scripts/locale/unpackDicts.ts",
-    "locale:format": "tsx src/scripts/locale/formatDicts.ts"
+    "locale:format": "tsx src/scripts/locale/formatDicts.ts",
+    "locale:tson": "tsx src/scripts/locale/tson.ts"
   },
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.6.0",

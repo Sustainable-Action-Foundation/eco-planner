@@ -116,7 +116,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "src/scripts/locale/.dict.ts"  ],
   "exclude": [
     "node_modules"
   ]
