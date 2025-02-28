@@ -48,6 +48,7 @@ export type TrafaDataResponse = {
   NextPublishDate: string, // ISO 8601 date string
   ActiveFrom: string, // ISO 8601 date string
   ValidatedRequestType: string | null,
+  StructureItems: StructureItem[],
 }
 
 export type StructureItem = {
