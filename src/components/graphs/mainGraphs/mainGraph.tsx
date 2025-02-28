@@ -2,7 +2,7 @@ import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFu
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
 import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
-import { parsePeriod } from "@/lib/pxWeb/utility";
+import { parsePeriod } from "@/lib/api/utility";
 import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Effect, Goal } from "@prisma/client";
 import parentDict from "../graphs.dict.json" with { type: "json" };

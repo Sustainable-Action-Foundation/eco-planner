@@ -1,5 +1,5 @@
 import { PxWebApiV2TableArray } from "@/lib/pxWeb/pxWebApiV2Types";
-import { externalDatasetBaseUrls } from "./utility";
+import { externalDatasetBaseUrls } from "../api/utility";
 
 /**
  * Returns a list of tables from SCB's API. Returns null on error.
@@ -7,9 +7,13 @@ import { externalDatasetBaseUrls } from "./utility";
  * @param language Two-letter language code. Default is 'sv'.
  * @param pageSize Initial page size. If the number of tables is larger than this, the function will call itself with the correct page size.
  */
-export async function getTables(externalDataset: string, searchQuery?: string, language: string = 'sv', pageSize: number = 9999) {
+export async function getPxWebTables(externalDataset: string, searchQuery?: string, language: string = 'sv', pageSize: number = 9999) {
   const baseUrl = externalDatasetBaseUrls[externalDataset as keyof typeof externalDatasetBaseUrls] ?? externalDatasetBaseUrls.SCB;
+  console.log(baseUrl);
   const url = new URL(`${baseUrl}/tables`);
+  console.log(url);
+  console.log(externalDataset);
+  console.log(searchQuery);
   if (searchQuery) url.searchParams.append('query', searchQuery);
   if (language) url.searchParams.append('lang', language);
   if (pageSize) url.searchParams.append('pageSize', pageSize.toString());
@@ -22,12 +26,12 @@ export async function getTables(externalDataset: string, searchQuery?: string, l
       data = await response.json();
       // If we didn't get all tables, try again with the correct page size
       if (data?.page?.totalElements > data?.page?.pageSize) {
-        return await getTables(externalDataset, searchQuery, language, data.page.totalElements);
+        return await getPxWebTables(externalDataset, searchQuery, language, data.page.totalElements);
       }
     } else if (response.status == 429) {
       // Wait 10 seconds and try again
       await new Promise(resolve => setTimeout(resolve, 10000));
-      return await getTables(externalDataset, searchQuery, language, pageSize);
+      return await getPxWebTables(externalDataset, searchQuery, language, pageSize);
     } else {
       return null;
     }

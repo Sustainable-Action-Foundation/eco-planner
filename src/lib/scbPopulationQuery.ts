@@ -1,7 +1,7 @@
 'use server';
 
 import { unstable_cache } from "next/cache";
-import { getTableContent } from "./pxWeb/getTableContent";
+import { getPxWebTableContent } from "./pxWeb/getPxWebTableContent";
 
 /**
  * Queries SCB for population data.
@@ -23,7 +23,7 @@ const getCachedQuery = unstable_cache(
       { variableCode: "Tid", valueCodes: ["TOP(1)"] }
     ];
 
-    const result = await getTableContent("TAB5444", selection, "SCB", "sv");
+    const result = await getPxWebTableContent("TAB5444", selection, "SCB", "sv");
 
     if (!result) return null;
 

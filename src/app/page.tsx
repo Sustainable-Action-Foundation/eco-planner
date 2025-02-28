@@ -5,7 +5,6 @@ import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree.tsx";
 import getMetaRoadmaps from "@/fetchers/getMetaRoadmaps";
 import { getSession } from "@/lib/session";
 import { roadmapSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
-import getTrafaTables, { getTrafaTableInfo } from "@/lib/trafa/getTrafaTables";
 import { RoadmapSortBy } from "@/types";
 import { RoadmapType } from "@prisma/client";
 import { cookies } from "next/headers";
@@ -16,10 +15,6 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
   const dict = parentDict.page;
   const locale = await getServerLocale();
 
-  // getTrafaTables();
-  await getTrafaTableInfo("t10015");
-  await getTrafaTableInfo("t1203");
-  // console.log(getTrafaTables());
   const [session, metaRoadmaps] = await Promise.all([
     getSession(cookies()),
     getMetaRoadmaps(),

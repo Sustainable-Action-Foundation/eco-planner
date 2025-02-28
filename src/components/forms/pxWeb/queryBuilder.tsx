@@ -1,14 +1,14 @@
 'use client';
 
-import { closeModal, openModal } from "@/components/modals/modalFunctions";
 import { LocaleContext } from "@/app/context/localeContext.tsx";
+import { closeModal, openModal } from "@/components/modals/modalFunctions";
 import formSubmitter from "@/functions/formSubmitter";
-import filterTableContentKeys from "@/lib/pxWeb/filterTableContentKeys";
-import { getTableContent } from "@/lib/pxWeb/getTableContent";
-import { getTableDetails } from "@/lib/pxWeb/getTableDetails";
-import { getTables } from "@/lib/pxWeb/getTables";
+import filterTableContentKeys from "@/lib/pxWeb/filterPxWebTableContentKeys";
+import { getPxWebTableContent } from "@/lib/pxWeb/getPxWebTableContent";
+import { getPxWebTableDetails } from "@/lib/pxWeb/getPxWebTableDetails";
+import { getPxWebTables } from "@/lib/pxWeb/getPxWebTables";
+import { externalDatasetBaseUrls } from "@/lib/api/utility";
 import { PxWebApiV2TableContent, PxWebApiV2TableDetails } from "@/lib/pxWeb/pxWebApiV2Types";
-import { externalDatasetBaseUrls } from "@/lib/pxWeb/utility";
 import { Goal } from "@prisma/client";
 import Image from "next/image";
 import { FormEvent, useContext, useEffect, useRef, useState } from "react";
@@ -40,7 +40,9 @@ export default function QueryBuilder({
 
     const query = (formRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
 
-    getTables(dataSource, query).then(result => setTables(result));
+    if (dataSource == "SCB") {
+      getPxWebTables(dataSource, query).then(result => setTables(result));
+    }
   }, [dataSource]);
 
   function buildQuery(formData: FormData) {
@@ -93,7 +95,7 @@ export default function QueryBuilder({
     if (formRef.current.checkValidity()) {
       const formData = new FormData(formRef.current);
       const query = buildQuery(formData);
-      getTableContent(formData.get("externalTableId") as string ?? "", query, dataSource).then(result => setTableContent(filterTableContentKeys(result)));
+      getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource).then(result => setTableContent(filterTableContentKeys(result)));
     }
   }
 
@@ -113,14 +115,16 @@ export default function QueryBuilder({
   function handleSearch(query?: string) {
     if (!externalDatasetBaseUrls[dataSource as keyof typeof externalDatasetBaseUrls]) return;
 
-    getTables(dataSource, query).then(result => setTables(result));
+    if (dataSource == "SCB") {
+      getPxWebTables(dataSource, query).then(result => setTables(result));
+    }
   }
 
   function handleSelect(tableId: string) {
     if (!externalDatasetBaseUrls[dataSource as keyof typeof externalDatasetBaseUrls]) return;
     if (!tableId) return;
 
-    getTableDetails(tableId, dataSource).then(result => setTableDetails(result));
+    getPxWebTableDetails(tableId, dataSource).then(result => setTableDetails(result));
   }
 
   return (
@@ -146,7 +150,7 @@ export default function QueryBuilder({
             <fieldset>
               <label className="margin-block-75">
                 {dict.dataSource.dataSource[locale]}
-                <select className="block margin-block-25" required name="externalDataset" id="externalDataset" onChange={e => setDataSource(e.target.value)}>
+                <select className="block margin-block-25" required name="externalDataset" id="externalDataset" onChange={e => {setDataSource(e.target.value)}}>
                   <option value="">{dict.dataSource.chooseSource[locale]}</option>
                   {Object.keys(externalDatasetBaseUrls).map((name) => (
                     <option key={name} value={name}>{name}</option>

@@ -1,10 +1,10 @@
 // Use server in order to circumvent CORS issues
 'use server';
 
+import { externalDatasetBaseUrls } from "../api/utility.ts";
 import { PxWebApiV2TableContent } from "./pxWebApiV2Types.ts";
-import { externalDatasetBaseUrls } from "./utility.ts";
 
-export async function getTableContent(tableId: string, selection: object[], externalDataset: string, language: string = 'sv',) {
+export async function getPxWebTableContent(tableId: string, selection: object[], externalDataset: string, language: string = 'sv',) {
   // Get the base URL for the external dataset, defaulting to SCB
   const baseUrl = externalDatasetBaseUrls[externalDataset as keyof typeof externalDatasetBaseUrls] ?? externalDatasetBaseUrls.SCB;
   const url = new URL(`${baseUrl}/tables/${tableId}/data`);
@@ -27,7 +27,7 @@ export async function getTableContent(tableId: string, selection: object[], exte
       console.log("Too many requests, waiting 10 seconds and trying again");
       // If hit with "429: Too many requests", wait 10 seconds and try again
       await new Promise(resolve => setTimeout(resolve, 10000));
-      return await getTableContent(tableId, selection, externalDataset, language);
+      return await getPxWebTableContent(tableId, selection, externalDataset, language);
     } else {
       console.log("bad response", response)
       return null;

@@ -15,8 +15,8 @@ import getGoalByIndicator from "@/fetchers/getGoalByIndicator";
 import getRoadmapByVersion from "@/fetchers/getRoadmapByVersion";
 import prisma from "@/prismaClient";
 import CopyAndScale from "@/components/modals/copyAndScale";
-import { getTableContent } from "@/lib/pxWeb/getTableContent";
-import filterTableContentKeys from "@/lib/pxWeb/filterTableContentKeys";
+import { getPxWebTableContent } from "@/lib/pxWeb/getPxWebTableContent";
+import filterPxWebTableContentKeys from "@/lib/pxWeb/filterPxWebTableContentKeys";
 import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import QueryBuilder from "@/components/forms/pxWeb/queryBuilder";
 import UpdateGoalButton from "@/components/buttons/updateGoalButton";
@@ -79,7 +79,7 @@ export default async function Page({
   // Fetch external data
   let externalData: PxWebApiV2TableContent | null = null;
   if (goal.externalDataset && goal.externalTableId && goal.externalSelection) {
-    externalData = await getTableContent(goal.externalTableId, JSON.parse(goal.externalSelection), goal.externalDataset).then(data => filterTableContentKeys(data));
+    externalData = await getPxWebTableContent(goal.externalTableId, JSON.parse(goal.externalSelection), goal.externalDataset).then(data => filterPxWebTableContentKeys(data));
   }
 
   // Fetch parent goal
