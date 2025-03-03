@@ -17,6 +17,8 @@ import parentDict from "../forms.dict.json" with { type: "json" };
 import styles from './queryBuilder.module.css';
 import getTrafaTables from "@/lib/trafa/getTrafaTables";
 import { data } from "node_modules/cypress/types/jquery";
+import getTrafaTableDetails from "@/lib/trafa/getTrafaTableDetails";
+import { ApiTableDetails } from "@/lib/api/apiTypes";
 
 export default function QueryBuilder({
   goal,
@@ -28,8 +30,8 @@ export default function QueryBuilder({
 
   const [isLoading, setIsLoading] = useState(false);
   const [dataSource, setDataSource] = useState<string>("" as keyof typeof externalDatasetBaseUrls);
-  const [tables, setTables] = useState<{ id: string, label: string }[] | null>(null);
-  // const [tableDetails, setTableDetails] = useState<PxWebApiV2TableDetails | null>(null);
+  const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
+  const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
   // const [tableContent, setTableContent] = useState<PxWebApiV2TableContent | null>(null);
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
@@ -135,11 +137,20 @@ export default function QueryBuilder({
   }
 
   function handleSelect(tableId: string) {
-    // if (!externalDatasetBaseUrls[dataSource as keyof typeof externalDatasetBaseUrls]) return;
-    // if (!tableId) return;
+    if (!externalDatasetBaseUrls[dataSource as keyof typeof externalDatasetBaseUrls]) return;
+    if (!tableId) return;
 
+    if (dataSource == "SCB") {
+      // getPxWebTableDetails(tableId, dataSource).then(result => console.log(result));
+      getPxWebTableDetails(tableId, dataSource).then(result => setTableDetails(result))
+    } else if (dataSource == "Trafa") {
+      // getTrafaTableDetails(tableId).then(result => console.log(result));
+      getTrafaTableDetails(tableId).then(result => setTableDetails(result));
+    }
     // getPxWebTableDetails(tableId, dataSource).then(result => setTableDetails(result));
   }
+
+  // getTrafaTableInfo("t1203");
 
   return (
     <>
@@ -185,7 +196,7 @@ export default function QueryBuilder({
 
                   <div className="padding-25 smooth" style={{ border: '1px solid var(--gray-90)' }}>
                     <div className={styles.temporary}>
-                      {tables && tables.map(({ id, label }) => (
+                      {tables && tables.map(({ tableId: id, label }) => (
                         <label key={id} className={`${styles.tableSelect} block padding-block-25`}>
                           {label}
                           <input type="radio" value={id} name="externalTableId" onChange={e => handleSelect(e.target.value)} />
@@ -204,27 +215,43 @@ export default function QueryBuilder({
               {/* {tableDetails && (
                 <>
                   {tableDetails.variables.map(variable => (
-                    <label key={variable.id} className="block margin-block-75">
-                      {// Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
-                      {variable.type == "TimeVariable" ? "Startperiod" : variable.label} {!variable.elimination && <span style={{ color: "red" }}>*</span>}
-                      <select className={`block margin-block-25 ${variable.type}`}
-                        required={!variable.elimination}
-                        name={variable.id}
-                        id={variable.id}
-                        // If only one value is available, pre-select it
-                        defaultValue={variable.values.length == 1 ? variable.values[0].code : undefined}>
-                        { // If only one value is available, don't show a placeholder option
-                          variable.values.length != 1 &&
-                          <option value="">{dict.tableDetails.chooseValue[locale]}</option>
-                        }
-                        {variable.values.map(value => (
-                          <option key={value.code} value={value.code} lang={tableDetails.language}>{value.label}</option>
+                    <label key={variable.name} className="block margin-block-75">
+                      <select className="block margin-block-25" name={variable.name} id={variable.name} defaultValue={variable.values && variable.values.length == 1 ? variable.values[0].label : undefined}>
+                        {variable.values && variable.values.length != 1 &&
+                        <option value="">{dict.tableDetails.chooseValue[locale]}</option>}
+                        {variable.values && variable.values.map(value => (
+                          <option key={value.label} value={value.label} lang={tableDetails.language}>{value.label}</option>
                         ))}
                       </select>
                     </label>
                   ))}
                 </>
               )} */}
+              {tableDetails && (
+                <>
+                  {tableDetails.variables.map(variable => (
+
+                    <label key={variable.name} className="block margin-block-75">
+                      {// Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
+                      /* variable.type == "TimeVariable" ? "Startperiod" : variable.label} {!variable.elimination && <span style={{ color: "red" }}>*</span> */}
+                      <select className={`block margin-block-25 ${variable.label}`}
+                        // required={!variable.elimination}
+                        name={variable.name}
+                        id={variable.name}
+                        // If only one value is available, pre-select it
+                        defaultValue={variable.values && variable.values.length == 1 ? variable.values[0].label : undefined}>
+                        { // If only one value is available, don't show a placeholder option
+                          variable.values && variable.values.length != 1 &&
+                          <option value="">{dict.tableDetails.chooseValue[locale]}</option>
+                        }
+                        {variable.values && variable.values.map(value => (
+                          <option key={value.label} value={value.label} lang={tableDetails.language}>{value.label}</option>
+                        ))}
+                      </select>
+                    </label>
+                  ))}
+                </>
+              )}
             </fieldset>
           </FormWrapper>
 

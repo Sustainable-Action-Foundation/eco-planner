@@ -40,9 +40,9 @@ export async function getPxWebTables(externalDataset: string, searchQuery?: stri
     return null;
   }
 
-  const result: { id: string, label: string }[] = [];
+  const result: { tableId: string, label: string }[] = [];
   for (const table of data.tables) {
-    result.push({ id: table.id, label: `${table.label} (${table.id})` });
+    result.push({ tableId: table.id, label: `${table.label} (${table.id})` });
   }
 
   return result;

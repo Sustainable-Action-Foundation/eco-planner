@@ -19,7 +19,7 @@ export default async function getTrafaTables(language?: 'sv' | 'en') {
 
   let data: TrafaDataResponse | null = null;
   // let data: unknown;
-  const tables: { id: string, label: string }[] = [];
+  const tables: { tableId: string, label: string }[] = [];
 
   try {
     const response = await fetch(structureUrl, {
@@ -45,8 +45,9 @@ export default async function getTrafaTables(language?: 'sv' | 'en') {
     return null;
   }
   data.StructureItems.forEach((item: StructureItem) => {
-    const pushItem: { id: string, label: string} = {
-      id: item.Id.toString(),
+    const pushItem: { tableId: string, label: string } = {
+      tableId: item.Name,
+      // id: item.Id.toString(),
       label: `${item.Label} (${item.Name})`,
     }
 
@@ -65,14 +66,14 @@ export default async function getTrafaTables(language?: 'sv' | 'en') {
   //   });
   //   // }
   // }
-  data.StructureItems.map((item: StructureItem) => {
-    console.log("");
-    console.log(item.Label);
-    console.log(item.Id, item.Name);
-    if (item.StructureItems && item.StructureItems.length > 0) {
+  // data.StructureItems.map((item: StructureItem) => {
+  //   console.log("");
+  //   console.log(item.Label);
+  //   console.log(item.Id, item.Name);
+  //   if (item.StructureItems && item.StructureItems.length > 0) {
 
-    }
-  })
+  //   }
+  // })
   // console.log(tables);
   // LogStructureItems(data.StructureItems);
   // console.log(tables);
@@ -80,6 +81,60 @@ export default async function getTrafaTables(language?: 'sv' | 'en') {
   return tables;
 
 };
+
+/* DataTypes
+String
+Time
+Region */
+
+/* Tables with H items
+t10011
+t10014
+t10015
+t10018
+t0401
+t10092
+t10093
+t10094
+t08091
+t08092
+t04021
+t04023
+t10021
+t10036
+t1101
+t0603
+t10030
+t0602
+t0604_rt_ar
+*/
+
+/* Tables with multiple H items
+(8) t0802
+(6) t1004
+(6) t10061
+(5) t0901
+(4) t10062
+(4) t0808
+(4) t1102
+(4) t10016
+(4) t0501
+(4) t06013
+(3) t08021
+(3) t10039
+(3) t06011
+(2) t10012
+(2) t0604
+(2) t04022
+(2) t1201
+(2) t10023
+(2) t10026
+(2) t10029
+(2) t1203
+(2) t10013
+(2) t0301
+(2) atft
+*/
 
 export async function getTrafaTableInfo(tableName: string) {
 
@@ -253,7 +308,7 @@ export async function getTrafaTableInfo(tableName: string) {
     })
   }
 
-  // await logFilteredDataStructureItems(filteredDataStructureItems);
+  await logFilteredDataStructureItems(filteredDataStructureItems);
 
   /* -- On "lägg till historisk data" page -- 
   get all tables
