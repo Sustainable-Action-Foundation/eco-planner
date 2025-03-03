@@ -5,8 +5,8 @@ import { Locale } from "@/types.ts";
 /** Only the unique values of the Locale Enum so remove dupes */
 const strictLocale = [...new Set(Object.values(Locale))];
 
-/** Matches paths ending in `.dict.json` */
-const dictFileRegex = /\.dict\.json$/;
+/** Matches paths ending in `.dict.ts` */
+const dictFileRegex = /\.dict\.ts$/;
 
 /** Matches keys to discriminate pure number keys. */
 const disallowedKeysRegex = /^[0-9]+$/;

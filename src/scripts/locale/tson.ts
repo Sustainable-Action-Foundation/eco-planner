@@ -52,6 +52,7 @@ dictPaths.forEach(filePath => {
 
     fs.renameSync(filePath, newFilePath);
     fs.writeFileSync(newFilePath, newContent);
+
   } catch (error) {
     console.error(colors.red(`❌ Failed to convert file: ${colors.gray(filePath)}\n  ${colors.red(error as string)}\n`));
     problems = true;
@@ -62,4 +63,7 @@ if (!problems) {
   console.info("");
   console.info("✔️  All files converted successfully!");
   console.info("");
+} else {
+  console.error(colors.yellow("❗️ Some files failed to convert. Please see the errors above."));
+  process.exit(1);
 }
