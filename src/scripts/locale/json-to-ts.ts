@@ -44,7 +44,7 @@ export const createDict = (locale: Locale) => (${formatContent(content)});
 let problems = false;
 
 /* Go through all files */
-dictPaths.forEach(filePath => {
+for (const filePath of dictPaths) {
   try {
     const content = fs.readFileSync(filePath, "utf-8");
     const newContent = templateTSON(content);
@@ -57,7 +57,7 @@ dictPaths.forEach(filePath => {
     console.error(colors.red(`❌ Failed to convert file: ${colors.gray(filePath)}\n  ${colors.red(error as string)}\n`));
     problems = true;
   }
-});
+}
 
 if (problems) {
   console.warn(""); // Padding

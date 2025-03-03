@@ -36,8 +36,6 @@ for (const filePath of filePaths) {
     const content = fs.readFileSync(filePath, "utf-8");
     const matches = content.matchAll(importRegex);
 
-    console.debug(`${colors.blue(" ℹ️ ")}${colors.gray(`"${filePath}"`)}`);
-
     matches.forEach(match => {
       const [fullMatch, assignedName, dictPath, _end] = match;
 
@@ -60,6 +58,6 @@ if (problems) {
 }
 else {
   console.info(""); // Padding
-  console.info(colors.cyan("✔️  All files converted successfully!"));
+  console.info("✔️  All files converted successfully!");
   console.info(""); // Padding
 }
