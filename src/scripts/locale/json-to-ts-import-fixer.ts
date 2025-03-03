@@ -5,12 +5,21 @@ import { colors } from "../lib/colors";
 /*
  * This script converts imports of the old `.dict.json` files to the new `.dict.ts` files.
  * 
- * To fic the order of the dict and locale declarations the find and replace tool in vscode is used.
+ * To fix the order of the dict and locale declarations the find and replace tool in vscode is used.
  *  1. Include only the files that you wan't to replace e.g. the `src` folder.
  * 
  *  2. Enter this regex (with the regex option disabled): `(.*const\sdict.*)(?=\n.*const\slocale)(?:\n(.*$))`
  * 
  *  3. Replace with: `$2\n$1`
+ * 
+ *  4. Replace all
+ * 
+ * To fix the trailing [locale] from the old dict files use the following regex:
+ *  1. Make sure you include and exclude fields are set appropriately. before proceeding.
+ * 
+ *  2. Enter: dict[.[].*(\[locale\])
+ * 
+ *  3. Replace with: $1
  * 
  *  4. Replace all
  */
