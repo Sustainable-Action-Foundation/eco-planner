@@ -4,6 +4,15 @@ import { colors } from "../lib/colors";
 
 /*
  * This script converts imports of the old `.dict.json` files to the new `.dict.ts` files.
+ * 
+ * To fic the order of the dict and locale declarations the find and replace tool in vscode is used.
+ *  1. Include only the files that you wan't to replace e.g. the `src` folder.
+ * 
+ *  2. Enter this regex (with the regex option disabled): `(.*const\sdict.*)(?=\n.*const\slocale)(?:\n(.*$))`
+ * 
+ *  3. Replace with: `$2\n$1`
+ * 
+ *  4. Replace all
  */
 
 const pageFileEnding = ".tsx";
