@@ -1,4 +1,3 @@
-import path from "node:path";
 import fs from "node:fs";
 import { glob } from "glob";
 
@@ -12,11 +11,11 @@ const colors = {
 }
 
 const pageFileEnding = ".tsx";
-
 const dictFileEnding = {
   old: ".dict.json",
   new: ".dict.ts",
 }
+
 
 /** 
  * Finds the import statement that asserts type json to find the dict files
@@ -58,13 +57,20 @@ for (const filePath of filePaths) {
 }
 
 if (matchCount === 0) {
+  console.warn(""); // Padding
   console.warn(colors.yellow("❗️ No import statements found to convert. This is likely not desired."));
+  console.warn(""); // Padding
   process.exit(1);
 }
+
 if (problems) {
+  console.warn(""); // Padding
   console.warn(colors.yellow("❗️ There were problems converting the files. See the errors above."));
+  console.warn(""); // Padding
   process.exit(1);
 }
 else {
+  console.info(""); // Padding
   console.info("✔️  All locale importing files converted successfully!");
+  console.info(""); // Padding
 }

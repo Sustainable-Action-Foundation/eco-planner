@@ -7,6 +7,7 @@ const strictLocale = [...new Set(Object.values(Locale))];
 
 /** Matches paths ending in `.dict.ts` */
 const dictFileRegex = /\.dict\.ts$/;
+const dictFIleEndingForGlob = ".dict.ts";
 
 /** Matches keys to discriminate pure number keys. */
 const disallowedKeysRegex = /^[0-9]+$/;
@@ -17,26 +18,39 @@ const disallowedKeyPrefixes: string[] = [fileNamePrefix, folderNamePrefix].filte
 /** Raise concern on keys with any of these suffixes. */
 const disallowedKeySuffixes: string[] = [fileNameSuffix, folderNameSuffix].filter(Boolean);
 
+/** Used for logging */
+const colors = {
+  dim: (text: string) => `\x1b[2m${text}\x1b[0m`,
+  red: (text: string) => `\x1b[31m${text}\x1b[0m`,
+  green: (text: string) => `\x1b[32m${text}\x1b[0m`,
+  yellow: (text: string) => `\x1b[33m${text}\x1b[0m`,
+  blue: (text: string) => `\x1b[34m${text}\x1b[0m`,
+  magenta: (text: string) => `\x1b[35m${text}\x1b[0m`,
+  cyan: (text: string) => `\x1b[36m${text}\x1b[0m`,
+  gray: (text: string) => `\x1b[90m${text}\x1b[0m`,
+}
 
-/* Help command. Shows when no flags are given */
-if (process.argv.includes("--help") || process.argv.length === 2) {
-  console.info(" \x1b[34mℹ️\x1b[0m Help:");
-  console.info(`Validates the structure of locale dictionaries. Locale files are matched by the regex \x1b[32m${dictFileRegex}\x1b[0m.\n`);
+
+/* Help command */
+if (process.argv.includes("--help") || process.argv.includes("-h") || process.argv.length === 2) {
+  console.info(colors.blue("ℹ️"), "Help:");
+  console.info(`Validates the structure of locale dictionaries. Locale files are matched by the regex ${colors.green(dictFileRegex.toString())}.\n`);
   console.info("Flags:");
-  console.info(" -f --file <file>:      Validate single file.");
-  console.info(" -d --dir <directory>:  Validate all files in the directory recursively.");
-  console.info(" -v --verbose:          Will list all files even if they have no problems.");
-  console.info(" --help:                Display this help message.");
+  console.info(` -f --file <file>:      Validate single file.`);
+  console.info(` -d --dir <directory>:  Validate all files in the directory recursively.`);
+  console.info(` -v --verbose:          Will list all files even if they have no problems.`);
+  console.info(` -h --help:             Display this help message.`);
   console.info(""); // Padding
 
   process.exit(0);
 }
 
-// Other commands
+/* Save flags */
 const fileFlag = readFlag("-f", process.argv) || readFlag("--file", process.argv);
 const dirFlag = readFlag("-d", process.argv) || readFlag("--dir", process.argv);
 const verbose = process.argv.includes("-v") || process.argv.includes("--verbose");
 
+/* Filter flags */
 if (!fileFlag && !dirFlag) {
   console.error("❗ No file or directory specified.");
   process.exit(1);
@@ -46,31 +60,36 @@ if (fileFlag && dirFlag) {
   process.exit(1);
 }
 
+/* Handle file operation */
 if (fileFlag) {
   console.info(""); // Padding
   console.info(` \x1b[34mℹ️\x1b[0m Validating file \x1b[90m${fileFlag}\x1b[0m`);
 
   const problems = validateFile(fileFlag);
 
+  /* Log problems */
   if (problems.length === 0) {
     console.info(`✔️  No problems found \x1b[90m${fileFlag}\x1b[0m`);
+
   } else {
     console.error(`❗ Problems found in \x1b[90m${fileFlag}\x1b[0m`);
     problems.forEach(problem => console.error(" ❌", `\x1b[31m${problem}\x1b[0m\n`));
   }
   console.info(""); // Padding
 
-  // Exit appropriately
+  /* Exit appropriately */
   if (problems.length > 0) process.exit(1);
   process.exit(0);
 }
 
+/* Handle directory operation */
 if (dirFlag) {
   console.info(""); // Padding
   console.info(` \x1b[34mℹ️\x1b[0m Validating directory and its children \x1b[90m${dirFlag}\x1b[0m`);
 
   const perFileProblems = validateDirectory(dirFlag);
 
+  /* Log problems */
   Object.entries(perFileProblems).forEach(([file, problems]) => {
     if (problems.length === 0) {
       if (verbose) console.info(`✔️  No problems found in \x1b[90m${file}\x1b[0m`);
@@ -82,7 +101,7 @@ if (dirFlag) {
     }
   });
 
-  // Exit appropriately
+  /* Exit appropriately */
   const problematicFileCount = Object.values(perFileProblems).filter(fileProblems => fileProblems.length !== 0).length;
   if (problematicFileCount > 0) process.exit(1);
   console.info("✔️  No problems found in any files.");
@@ -129,7 +148,7 @@ function validateFile(filePath: string | null): string[] {
   return problems;
 }
 
-function validateDirectory(dirPath: string | null): { [file: string]: string[] } {
+function validateDirectory(dirPath: string | null): { [file: string]: string[] } {  
   // Falsy dir path
   if (!dirPath) {
     console.error("❗ No directory specified.");
@@ -155,6 +174,7 @@ function validateDirectory(dirPath: string | null): { [file: string]: string[] }
   const perFileProblems: { [file: string]: string[] } = {};
 
   // Get all dict files in dir and sub dirs with absolute paths TODO: Refactor to use glob if that is beneficial
+  // const dictFiles: { name: string, path: string }[] = glob.sync(`${dirPath}/**/*${dictFileRegex}`).map(file => ({ name: path.basename(file), path: path.resolve(file) })); 
   const dictFiles: { name: string, path: string }[] = [];
   const walk = (dir: string) => {
     const files = fs.readdirSync(dir);

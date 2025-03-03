@@ -64,8 +64,12 @@ for (const filePath of dictPaths) {
 }
 
 if (problems) {
+  console.warn(""); // Padding
   console.warn(colors.yellow("❗️ Some files failed to convert. Please see the errors above."));
+  console.warn(""); // Padding
   process.exit(1);
 } else {
+  console.info(""); // Padding  
   console.info("✔️  All dict files converted successfully!");
+  console.info(""); // Padding
 }
