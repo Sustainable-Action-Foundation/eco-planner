@@ -16,6 +16,7 @@ import FormWrapper from "../formWrapper";
 import parentDict from "../forms.dict.json" with { type: "json" };
 import styles from './queryBuilder.module.css';
 import getTrafaTables from "@/lib/trafa/getTrafaTables";
+import { data } from "node_modules/cypress/types/jquery";
 
 export default function QueryBuilder({
   goal,
@@ -98,9 +99,9 @@ export default function QueryBuilder({
     // if (!tableDetails) return;
 
     // if (formRef.current.checkValidity()) {
-      // const formData = new FormData(formRef.current);
-      // const query = buildQuery(formData);
-      // getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource).then(result => setTableContent(filterTableContentKeys(result)));
+    // const formData = new FormData(formRef.current);
+    // const query = buildQuery(formData);
+    // getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource).then(result => setTableContent(filterTableContentKeys(result)));
     // }
   }
 
@@ -121,7 +122,15 @@ export default function QueryBuilder({
     if (!externalDatasetBaseUrls[dataSource as keyof typeof externalDatasetBaseUrls]) return;
 
     if (dataSource == "SCB") {
+      // TODO - when searching for id, also return partial matches
       getPxWebTables(dataSource, query).then(result => setTables(result));
+    } else if (dataSource == "Trafa") {
+      // TODO - maybe the tables can be filtered in the function?
+      getTrafaTables().then((result) => {
+        const regex = new RegExp(query as string, "i")
+        result = result?.filter(value => regex.test(value.label)) ?? null;
+        setTables(result);
+      })
     }
   }
 
@@ -155,7 +164,7 @@ export default function QueryBuilder({
             <fieldset>
               <label className="margin-block-75">
                 {dict.dataSource.dataSource[locale]}
-                <select className="block margin-block-25" required name="externalDataset" id="externalDataset" onChange={e => {setDataSource(e.target.value)}}>
+                <select className="block margin-block-25" required name="externalDataset" id="externalDataset" onChange={e => { setDataSource(e.target.value) }}>
                   <option value="">{dict.dataSource.chooseSource[locale]}</option>
                   {Object.keys(externalDatasetBaseUrls).map((name) => (
                     <option key={name} value={name}>{name}</option>

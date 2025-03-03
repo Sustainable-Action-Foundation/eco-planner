@@ -47,7 +47,7 @@ export default async function getTrafaTables(language?: 'sv' | 'en') {
   data.StructureItems.forEach((item: StructureItem) => {
     const pushItem: { id: string, label: string} = {
       id: item.Id.toString(),
-      label: item.Label,
+      label: `${item.Label} (${item.Name})`,
     }
 
     tables.push(pushItem);
@@ -65,16 +65,16 @@ export default async function getTrafaTables(language?: 'sv' | 'en') {
   //   });
   //   // }
   // }
-  // data.StructureItems.map((item: StructureItem) => {
-  //   console.log("");
-  //   console.log(item.Label);
-  //   console.log(item.Id, item.Name);
-  //   if (item.StructureItems && item.StructureItems.length > 0) {
+  data.StructureItems.map((item: StructureItem) => {
+    console.log("");
+    console.log(item.Label);
+    console.log(item.Id, item.Name);
+    if (item.StructureItems && item.StructureItems.length > 0) {
 
-  //   }
-  // })
+    }
+  })
   // console.log(tables);
-  // LogStructureItems(tables);
+  // LogStructureItems(data.StructureItems);
   // console.log(tables);
   // console.log(data);
   return tables;
