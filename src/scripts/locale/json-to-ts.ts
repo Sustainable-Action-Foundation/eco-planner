@@ -3,7 +3,7 @@ import fs from "node:fs";
 import { glob } from "glob";
 import { colors } from "../lib/colors";
 
-/**
+/*
  * This script is used to convert the old `.dict.json` files to the new `.dict.ts` files.
  * It adds a bit of code to the top of the file to export the body which is made of the old json data.
  */

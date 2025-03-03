@@ -2,12 +2,15 @@ import fs from "node:fs";
 import { glob } from "glob";
 import { colors } from "../lib/colors";
 
+/*
+ * This script converts imports of the old `.dict.json` files to the new `.dict.ts` files.
+ */
+
 const pageFileEnding = ".tsx";
 const dictFileEnding = {
   old: ".dict.json",
   new: ".dict.ts",
-}
-
+};
 
 /** 
  * Finds the import statement that asserts type json to find the dict files
