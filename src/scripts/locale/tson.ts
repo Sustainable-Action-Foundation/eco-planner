@@ -1,13 +1,11 @@
 import path from "node:path";
 import fs from "node:fs";
 import { glob } from "glob";
-import { Locale } from "@/types";
-// import { createDict } from "./.dict.ts";
 
-// const dict = createDict(Locale.en);
-// console.log(dict.scaleFactor);
-
-// process.exit(0);
+/**
+ * This script is used to convert the old `.dict.json` files to the new `.dict.ts` files.
+ * It adds a bit of code to the top of the file to export the body which is made of the old json data.
+ */
 
 const fileEndings = {
   old: ".dict.json",
@@ -15,8 +13,10 @@ const fileEndings = {
 }
 const dictPaths = glob.sync(`src/**/*${fileEndings.old}`).map(file => path.resolve(file));
 
-const localeStrings = [...new Set(Object.values(Locale))];
-
+/** 
+ * Finds the leaf objects in the json data to append the `[locale]` suffix to.
+ */
+const leafObjectFinderRegex = /(?:"(?:.*)":)\s*(?:"[^"]*")[^:}]*}/g;
 
 const formatContent = (content: string): string => {
   return content
@@ -26,13 +26,7 @@ const formatContent = (content: string): string => {
       return line.padStart(line.length + 0);
     })
     .join("\n")
-    /** 
-     * Regex finds an instance of any of the locale strings, followed by a new line that has a closing bracket on it.
-     * This is done to find leaf objects that will need the [locale] suffix. The suffix is added to the closing bracket.
-    */
-    .replace(new RegExp(`"(${localeStrings.join("|")})":\\s*"[^"]*"\\s*\\n\\s*}`, "g"), (match) => {
-      return match.replace(/\n*}/, `}[locale]`);
-    })
+    .replaceAll(leafObjectFinderRegex, match => match + "[locale]")
     .replace(/\n/g, "\n") // Make whitespace consistent
 }
 
@@ -41,5 +35,12 @@ import { Locale } from "@/types.ts";
 export const createDict = (locale: Locale) => (${formatContent(content)});
 `.trim();
 
-const newTSON = fs.readFileSync(dictPaths[0], "utf-8");
-fs.writeFileSync(path.join("src/scripts/locale", fileEndings.new), templateTSON(newTSON));
+
+/* Go through all files */
+dictPaths.forEach(filePath => {
+  const content = fs.readFileSync(filePath, "utf-8");
+  const newContent = templateTSON(content);
+  const newFilePath = filePath.replace(fileEndings.old, fileEndings.new);
+  fs.writeFileSync(newFilePath, newContent);
+  fs.unlink(filePath, () => { }); // Not sync version
+});
