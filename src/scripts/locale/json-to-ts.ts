@@ -19,7 +19,7 @@ if (!dictPaths.length) {
 }
 
 /** 
- * Finds the leaf objects in the json data to append the `[locale]` suffix to.
+ * Finds the leaf objects in the json data to append the `` suffix to.
  */
 const leafObjectFinderRegex = /(?:"(?:.*)":)\s*(?:"[^"]*")[^:}]*}/g;
 
@@ -31,7 +31,7 @@ const formatContent = (content: string): string => {
       return line.padStart(line.length + 0);
     })
     .join("\n")
-    .replaceAll(leafObjectFinderRegex, match => match + "[locale]")
+    .replaceAll(leafObjectFinderRegex, match => match + "")
     .replace(/\n/g, "\n") // Make whitespace consistent
 }
 

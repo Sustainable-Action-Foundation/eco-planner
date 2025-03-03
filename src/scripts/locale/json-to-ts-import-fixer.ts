@@ -14,14 +14,16 @@ import { colors } from "../lib/colors";
  * 
  *  4. Replace all
  * 
- * To fix the trailing [locale] from the old dict files use the following regex:
+ * To fix the trailing  from the old dict files use the following regex:
  *  1. Make sure you include and exclude fields are set appropriately. before proceeding.
  * 
- *  2. Enter: dict[.[].*(\[locale\])
+ *  2. Enter: `dict[.[].*(\[locale\])`
  * 
  *  3. Replace with: $1
  * 
  *  4. Replace all
+ * 
+ *  5. If that didn't do it, try `[locale]` without regex mode but be careful with this one. Exclude dict files.
  */
 
 const pageFileEnding = ".tsx";
