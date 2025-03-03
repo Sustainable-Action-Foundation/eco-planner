@@ -59,11 +59,13 @@ dictPaths.forEach(filePath => {
   }
 });
 
-if (!problems) {
+if (problems) {
+  console.warn(""); // Padding
+  console.warn(colors.yellow("❗️ Some files failed to convert. Please see the errors above."));
+  console.warn(""); // Padding
+  process.exit(1);
+} else {
   console.info("");
   console.info("✔️  All files converted successfully!");
   console.info("");
-} else {
-  console.error(colors.yellow("❗️ Some files failed to convert. Please see the errors above."));
-  process.exit(1);
 }
