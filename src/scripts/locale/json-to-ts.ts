@@ -11,7 +11,7 @@ import { colors } from "../lib/colors";
 const fileEndings = {
   old: ".dict.json",
   new: ".dict.ts",
-}
+};
 const dictPaths = glob.sync(`src/**/*${fileEndings.old}`).map(file => path.resolve(file));
 if (!dictPaths.length) {
   console.warn("\x1b[33m❗️ No files found to convert. This is likely not desired.\x1b[0m");

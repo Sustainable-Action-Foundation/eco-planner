@@ -14,12 +14,20 @@ const dictFileEnding = {
 
 /** 
  * Finds the import statement that asserts type json to find the dict files
- * Group 0: the full match
- * Group 1: assigned name of import, usually `dict` or `parentDict`
- * Group 2: the path to the dict file including the file ending
- * Group 3: the rest of the import statement, usually `with` or `assert` followed by `{type: "json"}`
+ * 
+ * Group 0: the entire import statement
+ * 
+ * Group 1: the path to the dict file including the file ending
  */
-const importRegex = /import\s([^\s]*)[^"']*["']([^"']*\.dict\.json)["'](.*[with|assert].*$)/gm;
+const importRegex = /import\s[^\s]*[^"']*["']([^"']*\.dict\.json)["'].*[with|assert].*$/gm;
+/** 
+ * Finds the declaration of the `dict` object
+ * 
+ * Group 0: the entire declaration
+ * 
+ * Group 1: the eventual property accesses e.g. `dict["key"]` or `dict.key` minus the `dict` part
+ */
+const declarationRegex = /(?:const|let)\sdict\s=\s[^.[;]*(.*);$/gm;
 
 const filePaths = glob.sync(`src/**/*${pageFileEnding}`);
 if (!filePaths.length) {
@@ -33,14 +41,27 @@ let matchCount = 0;
 for (const filePath of filePaths) {
   try {
     const content = fs.readFileSync(filePath, "utf-8");
-    const matches = content.matchAll(importRegex);
 
-    matches.forEach(match => {
+    /* Import replacer */
+    const importMatches = content.matchAll(importRegex);
+    importMatches.forEach(match => {
       matchCount++;
 
-      const [fullMatch, assignedName, dictPath, _end] = match;
+      const [fullMatch, dictPath] = match;
 
-      const newFullMatch = `import { ${assignedName} } from "${dictPath.replace(dictFileEnding.old, dictFileEnding.new)}";`;
+      const newFullMatch = `import { createDict } from "${dictPath.replace(dictFileEnding.old, dictFileEnding.new)}";`;
+
+      fs.writeFileSync(filePath, content.replace(fullMatch, newFullMatch));
+    });
+
+    /* Declaration replacer */
+    const declarationMatches = content.matchAll(declarationRegex);
+    declarationMatches.forEach(match => {
+      matchCount++;
+
+      const [fullMatch, propertyAccesses] = match;
+
+      const newFullMatch = fullMatch.replace("dict", `createDict(locale)${propertyAccesses};`);
 
       fs.writeFileSync(filePath, content.replace(fullMatch, newFullMatch));
     });
