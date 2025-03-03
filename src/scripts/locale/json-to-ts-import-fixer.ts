@@ -40,7 +40,7 @@ let matchCount = 0;
 
 for (const filePath of filePaths) {
   try {
-    const content = fs.readFileSync(filePath, "utf-8");
+    let content = fs.readFileSync(filePath, "utf-8");
 
     /* Import replacer */
     const importMatches = content.matchAll(importRegex);
@@ -51,7 +51,7 @@ for (const filePath of filePaths) {
 
       const newFullMatch = `import { createDict } from "${dictPath.replace(dictFileEnding.old, dictFileEnding.new)}";`;
 
-      fs.writeFileSync(filePath, content.replace(fullMatch, newFullMatch));
+      content = content.replace(fullMatch, newFullMatch);
     });
 
     /* Declaration replacer */
@@ -61,10 +61,12 @@ for (const filePath of filePaths) {
 
       const [fullMatch, propertyAccesses] = match;
 
-      const newFullMatch = fullMatch.replace("dict", `createDict(locale)${propertyAccesses};`);
+      const newFullMatch = `const dict = createDict(locale)${propertyAccesses};`;
 
-      fs.writeFileSync(filePath, content.replace(fullMatch, newFullMatch));
+      content = content.replace(fullMatch, newFullMatch);
     });
+
+    fs.writeFileSync(filePath, content);
   }
   catch (error) {
     console.error(colors.red(`❌ Failed to convert file: ${colors.gray(filePath)}\n  ${colors.red(error as string)}\n`));
