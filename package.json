@@ -12,7 +12,8 @@
     "locale:package": "tsx src/scripts/locale/packageDicts.ts",
     "locale:unpack": "tsx src/scripts/locale/unpackDicts.ts",
     "locale:format": "tsx src/scripts/locale/formatDicts.ts",
-    "locale:tson": "tsx src/scripts/locale/tson.ts"
+    "locale:tson": "tsx src/scripts/locale/json-to-ts.ts",
+    "locale:tson-repair": "tsx src/scripts/locale/json-to-ts-import-fixer.ts"
   },
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.6.0",
