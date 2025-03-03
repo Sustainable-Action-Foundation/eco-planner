@@ -66,6 +66,6 @@ if (problems) {
   process.exit(1);
 } else {
   console.info("");
-  console.info("✔️  All files converted successfully!");
+  console.info("✔️  All dict files converted successfully!");
   console.info("");
 }

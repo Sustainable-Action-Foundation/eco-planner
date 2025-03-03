@@ -39,7 +39,7 @@ for (const filePath of filePaths) {
     matches.forEach(match => {
       const [fullMatch, assignedName, dictPath, _end] = match;
 
-      const newFullMatch = `import ${assignedName} from "${dictPath.replace(dictFileEnding.old, dictFileEnding.new)}";`;
+      const newFullMatch = `import { ${assignedName} } from "${dictPath.replace(dictFileEnding.old, dictFileEnding.new)}";`;
 
       fs.writeFileSync(filePath, content.replace(fullMatch, newFullMatch));
     });
@@ -58,6 +58,6 @@ if (problems) {
 }
 else {
   console.info(""); // Padding
-  console.info("✔️  All files converted successfully!");
+  console.info("✔️  All locale importing files converted successfully!");
   console.info(""); // Padding
 }
