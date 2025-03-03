@@ -1,6 +1,7 @@
 import path from "node:path";
 import fs from "node:fs";
 import { glob } from "glob";
+import { colors } from "../lib/colors";
 
 /**
  * This script is used to convert the old `.dict.json` files to the new `.dict.ts` files.
@@ -21,12 +22,6 @@ if (!dictPaths.length) {
  * Finds the leaf objects in the json data to append the `[locale]` suffix to.
  */
 const leafObjectFinderRegex = /(?:"(?:.*)":)\s*(?:"[^"]*")[^:}]*}/g;
-
-const colors = {
-  red: (text: string) => `\x1b[31m${text}\x1b[0m`,
-  yellow: (text: string) => `\x1b[33m${text}\x1b[0m`,
-  gray: (text: string) => `\x1b[90m${text}\x1b[0m`,
-}
 
 const formatContent = (content: string): string => {
   return content

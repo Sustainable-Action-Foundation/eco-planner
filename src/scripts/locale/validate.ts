@@ -1,13 +1,13 @@
+import { colors } from "../lib/colors.ts";
 import fs from "node:fs";
 import path from "node:path";
 import { fileNamePrefix, folderNamePrefix, fileNameSuffix, folderNameSuffix } from "./dictUtils.ts";
-import { Locale } from "@/types.ts";
+import { Locale } from "src/types.ts";
 /** Only the unique values of the Locale Enum so remove dupes */
 const strictLocale = [...new Set(Object.values(Locale))];
 
 /** Matches paths ending in `.dict.ts` */
 const dictFileRegex = /\.dict\.ts$/;
-const dictFIleEndingForGlob = ".dict.ts";
 
 /** Matches keys to discriminate pure number keys. */
 const disallowedKeysRegex = /^[0-9]+$/;
@@ -18,30 +18,21 @@ const disallowedKeyPrefixes: string[] = [fileNamePrefix, folderNamePrefix].filte
 /** Raise concern on keys with any of these suffixes. */
 const disallowedKeySuffixes: string[] = [fileNameSuffix, folderNameSuffix].filter(Boolean);
 
-/** Used for logging */
-const colors = {
-  dim: (text: string) => `\x1b[2m${text}\x1b[0m`,
-  red: (text: string) => `\x1b[31m${text}\x1b[0m`,
-  green: (text: string) => `\x1b[32m${text}\x1b[0m`,
-  yellow: (text: string) => `\x1b[33m${text}\x1b[0m`,
-  blue: (text: string) => `\x1b[34m${text}\x1b[0m`,
-  magenta: (text: string) => `\x1b[35m${text}\x1b[0m`,
-  cyan: (text: string) => `\x1b[36m${text}\x1b[0m`,
-  gray: (text: string) => `\x1b[90m${text}\x1b[0m`,
-}
 
-
-/* Help command */
-if (process.argv.includes("--help") || process.argv.includes("-h") || process.argv.length === 2) {
+const showHelp = () => {
   console.info(colors.blue("ℹ️"), "Help:");
   console.info(`Validates the structure of locale dictionaries. Locale files are matched by the regex ${colors.green(dictFileRegex.toString())}.\n`);
   console.info("Flags:");
   console.info(` -f --file <file>:      Validate single file.`);
   console.info(` -d --dir <directory>:  Validate all files in the directory recursively.`);
   console.info(` -v --verbose:          Will list all files even if they have no problems.`);
-  console.info(` -h --help:             Display this help message.`);
+  console.info(` -? -h --help:          Display this help message.`);
   console.info(""); // Padding
+}
 
+/* Help command */
+if (process.argv.includes("--help") || process.argv.includes("-h") || process.argv.includes("-?") || process.argv.length === 2 /* When run with tsx this script always receives 2 args */) {
+  showHelp();
   process.exit(0);
 }
 
@@ -53,6 +44,7 @@ const verbose = process.argv.includes("-v") || process.argv.includes("--verbose"
 /* Filter flags */
 if (!fileFlag && !dirFlag) {
   console.error("❗ No file or directory specified.");
+  showHelp();
   process.exit(1);
 }
 if (fileFlag && dirFlag) {
@@ -148,7 +140,7 @@ function validateFile(filePath: string | null): string[] {
   return problems;
 }
 
-function validateDirectory(dirPath: string | null): { [file: string]: string[] } {  
+function validateDirectory(dirPath: string | null): { [file: string]: string[] } {
   // Falsy dir path
   if (!dirPath) {
     console.error("❗ No directory specified.");
@@ -174,7 +166,6 @@ function validateDirectory(dirPath: string | null): { [file: string]: string[] }
   const perFileProblems: { [file: string]: string[] } = {};
 
   // Get all dict files in dir and sub dirs with absolute paths TODO: Refactor to use glob if that is beneficial
-  // const dictFiles: { name: string, path: string }[] = glob.sync(`${dirPath}/**/*${dictFileRegex}`).map(file => ({ name: path.basename(file), path: path.resolve(file) })); 
   const dictFiles: { name: string, path: string }[] = [];
   const walk = (dir: string) => {
     const files = fs.readdirSync(dir);
