@@ -28,8 +28,13 @@ const dictFileEnding = {
 const importRegex = /import\s([^\s]*)[^"']*["']([^"']*\.dict\.json)["'](.*[with|assert].*$)/gm;
 
 const filePaths = glob.sync(`src/**/*${pageFileEnding}`);
+if (!filePaths.length) {
+  console.warn(colors.yellow("❗️ No files found to convert. This is likely not desired."));
+  process.exit(1);
+}
 
 let problems = false;
+let matchCount = 0;
 
 for (const filePath of filePaths) {
   try {
@@ -37,6 +42,8 @@ for (const filePath of filePaths) {
     const matches = content.matchAll(importRegex);
 
     matches.forEach(match => {
+      matchCount++;
+
       const [fullMatch, assignedName, dictPath, _end] = match;
 
       const newFullMatch = `import { ${assignedName} } from "${dictPath.replace(dictFileEnding.old, dictFileEnding.new)}";`;
@@ -50,14 +57,14 @@ for (const filePath of filePaths) {
   }
 }
 
+if (matchCount === 0) {
+  console.warn(colors.yellow("❗️ No import statements found to convert. This is likely not desired."));
+  process.exit(1);
+}
 if (problems) {
-  console.warn(""); // Padding
-  console.warn(colors.yellow("❗️ There were problems converting the files."));
-  console.warn(""); // Padding
+  console.warn(colors.yellow("❗️ There were problems converting the files. See the errors above."));
   process.exit(1);
 }
 else {
-  console.info(""); // Padding
   console.info("✔️  All locale importing files converted successfully!");
-  console.info(""); // Padding
 }

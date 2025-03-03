@@ -12,6 +12,10 @@ const fileEndings = {
   new: ".dict.ts",
 }
 const dictPaths = glob.sync(`src/**/*${fileEndings.old}`).map(file => path.resolve(file));
+if (!dictPaths.length) {
+  console.warn("\x1b[33m❗️ No files found to convert. This is likely not desired.\x1b[0m");
+  process.exit(1);
+}
 
 /** 
  * Finds the leaf objects in the json data to append the `[locale]` suffix to.
@@ -60,12 +64,8 @@ for (const filePath of dictPaths) {
 }
 
 if (problems) {
-  console.warn(""); // Padding
   console.warn(colors.yellow("❗️ Some files failed to convert. Please see the errors above."));
-  console.warn(""); // Padding
   process.exit(1);
 } else {
-  console.info("");
   console.info("✔️  All dict files converted successfully!");
-  console.info("");
 }
