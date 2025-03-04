@@ -10,7 +10,7 @@
     "test": "docker compose -f compose.test.yaml up -d"
   },
   "dependencies": {
-    "@prisma/client": "^5.3.1",
+    "@prisma/client": "^6.4.1",
     "@types/node": "^20.3.2",
     "apexcharts": "^4.3.0",
     "bcrypt": "^5.1.1",
@@ -41,7 +41,7 @@
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.15",
     "lorem-ipsum": "^2.0.8",
-    "prisma": "^5.3.1",
+    "prisma": "^6.4.1",
     "tsx": "^4.19.2"
   },
   "prisma": {
