@@ -1,3 +1,7 @@
+export type ApiTableContent = {
+  id: string,
+}
+
 export type ApiTableDetails = {
   id: string
   metrics: (TrafaMetric | ScbMetric)[]

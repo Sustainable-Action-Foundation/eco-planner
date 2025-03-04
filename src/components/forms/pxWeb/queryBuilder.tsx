@@ -14,7 +14,10 @@ import parentDict from "../forms.dict.json" with { type: "json" };
 import styles from './queryBuilder.module.css';
 import getTrafaTables from "@/lib/trafa/getTrafaTables";
 import getTrafaTableDetails from "@/lib/trafa/getTrafaTableDetails";
-import { ApiTableDetails } from "@/lib/api/apiTypes";
+import { ApiTableContent, ApiTableDetails } from "@/lib/api/apiTypes";
+import { getPxWebTableContent } from "@/lib/pxWeb/getPxWebTableContent";
+import filterPxWebTableContentKeys from "@/lib/pxWeb/filterPxWebTableContentKeys";
+import getTrafaTableContent from "@/lib/trafa/getTrafaTableContent";
 
 export default function QueryBuilder({
   goal,
@@ -28,7 +31,7 @@ export default function QueryBuilder({
   const [dataSource, setDataSource] = useState<string>("" as keyof typeof externalDatasetBaseUrls);
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
   const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
-  // const [tableContent, setTableContent] = useState<PxWebApiV2TableContent | null>(null);
+  const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -65,7 +68,7 @@ export default function QueryBuilder({
       queryObject.push({ variableCode: key, valueCodes: [value as string] });
     });
 
-    return queryObject;
+    return queryObject as { variableCode: string, valueCodes: string[] }[];
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -96,11 +99,19 @@ export default function QueryBuilder({
     if (!tables) return;
     // if (!tableDetails) return;
 
-    // if (formRef.current.checkValidity()) {
-    // const formData = new FormData(formRef.current);
-    // const query = buildQuery(formData);
-    // getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource).then(result => setTableContent(filterTableContentKeys(result)));
-    // }
+    if (formRef.current.checkValidity()) {
+      const formData = new FormData(formRef.current);
+      const query = buildQuery(formData);
+      console.log(formData.get("externalTableId") as string ?? "")
+      const tableId = formData.get("externalTableId") as string ?? ""
+      console.log(query)
+      if (dataSource == "SCB") {
+        // getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource).then(result => setTableContent(filterPxWebTableContentKeys(result)));
+        getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource).then(result => console.log(result));
+      } else if (dataSource == "Trafa") {
+        getTrafaTableContent(tableId, query).then(result => console.log(result))
+      }
+    }
   }
 
   function searchOnEnter(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -244,7 +255,7 @@ export default function QueryBuilder({
                           <option value="">{dict.tableDetails.chooseValue[locale]}</option>
                         }
                         {variable.values && variable.values.map(value => (
-                          <option key={value.label} value={value.label} lang={tableDetails.language}>{value.label}</option>
+                          <option key={value.label} value={value.name} lang={tableDetails.language}>{value.label}</option>
                         ))}
                       </select>
                     </label>
@@ -257,19 +268,19 @@ export default function QueryBuilder({
                       {hierarchy.children && hierarchy.children.map(variable => (
                         <label key={variable.name} className="block margin-block-75">
                           {variable.label}
-                        <select className={`block margin-block-25 ${variable.label}`}
-                          // key={variable.label}
-                          name={variable.name}
-                          id={variable.name}
-                          defaultValue={variable.values && variable.values.length == 1 ? variable.values[0].label : undefined}>
-                          {
-                            variable.values && variable.values.length > 1 &&
-                            <option value="">choose value</option>
-                          }
-                          {variable.values && variable.values.map(value => (
-                          <option key={value.label} value={value.label} lang={tableDetails.language}>{value.label}</option>
-                          ))}
-                        </select>
+                          <select className={`block margin-block-25 ${variable.label}`}
+                            // key={variable.label}
+                            name={variable.name}
+                            id={variable.name}
+                            defaultValue={variable.values && variable.values.length == 1 ? variable.values[0].label : undefined}>
+                            {
+                              variable.values && variable.values.length > 1 &&
+                              <option value="">choose value</option>
+                            }
+                            {variable.values && variable.values.map(value => (
+                              <option key={value.label} value={value.name} lang={tableDetails.language}>{value.label}</option>
+                            ))}
+                          </select>
                         </label>
                       ))}
                     </label>
@@ -279,19 +290,19 @@ export default function QueryBuilder({
                   <legend className="padding-inline-50">
                     <strong>Choose metrics for table</strong>
                   </legend>
-                  <label key="metrics" className="block margin-block-75">
+                  <label key="metric" className="block margin-block-75">
                     {// {metric.label[0].toUpperCase() + metric.label.slice(1)} 
                     }
                     <select className={`block margin-block-25 metric`}
-                      name="metrics"
-                      id="metrics"
+                      name="metric"
+                      id="metric"
                       defaultValue={tableDetails.metrics && tableDetails.metrics.length == 1 ? tableDetails.metrics[0].label : undefined}>
                       {
                         tableDetails.metrics && tableDetails.metrics.length != 1 &&
                         <option value="">Choose metric</option>
                       }
                       {tableDetails.metrics && tableDetails.metrics.map(metric => (
-                        <option key={metric.label} value={metric.label} lang={tableDetails.language}>{metric.label}</option>
+                        <option key={metric.label} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
                       ))}
                     </select>
 

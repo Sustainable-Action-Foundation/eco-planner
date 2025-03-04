@@ -124,9 +124,9 @@ export default async function getTrafaTableDetails(tableId: string, language: "s
   // console.log(data);
   // console.log(data.StructureItems.length+", "+ (tableDetails.metrics.length + tableDetails.hierarchies.length + tableDetails.variables.length))
 
-  console.log(tableDetails.metrics);
-  console.log(tableDetails.hierarchies);
-  console.log(tableDetails.variables);
+  // console.log(tableDetails.metrics);
+  // console.log(tableDetails.hierarchies);
+  // console.log(tableDetails.variables);
 
   return tableDetails;
 }

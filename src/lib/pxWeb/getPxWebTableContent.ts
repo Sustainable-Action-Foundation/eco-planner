@@ -4,14 +4,24 @@
 import { externalDatasetBaseUrls } from "../api/utility.ts";
 import { PxWebApiV2TableContent } from "./pxWebApiV2Types.ts";
 
-export async function getPxWebTableContent(tableId: string, selection: object[], externalDataset: string, language: string = 'sv',) {
+export async function getPxWebTableContent(tableId: string, selection: { variableCode: string, valueCodes: string[] }[], externalDataset: string, language: string = 'sv',) {
   // Get the base URL for the external dataset, defaulting to SCB
+  console.log(selection)
+  for (const item of selection) {
+    if (item.variableCode == "metric") item.variableCode = "ContentsCode"
+  }
+
+  console.log(selection)
+
+  selection.push({ variableCode: "Tid", valueCodes: ["2010", "2011", "2012"] })
+
   const baseUrl = externalDatasetBaseUrls[externalDataset as keyof typeof externalDatasetBaseUrls] ?? externalDatasetBaseUrls.SCB;
   const url = new URL(`${baseUrl}/tables/${tableId}/data`);
   url.searchParams.append('lang', language);
   url.searchParams.append('outputformat', 'json-px');
 
   const body = JSON.stringify({ selection: selection, });
+  console.log(body);
 
   let data: PxWebApiV2TableContent | null = null;
 
@@ -23,6 +33,7 @@ export async function getPxWebTableContent(tableId: string, selection: object[],
     });
     if (response.ok) {
       data = await response.json();
+      console.log("response ok. data:", data)
     } else if (response.status == 429) {
       console.log("Too many requests, waiting 10 seconds and trying again");
       // If hit with "429: Too many requests", wait 10 seconds and try again
