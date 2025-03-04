@@ -1,7 +1,11 @@
 import { colors } from "../lib/colors.ts";
 import "../lib/console.ts";
+import { createRequire } from "node:module";
+/** To make it easier to read the dict files */
+const require = createRequire(import.meta.url);
 import fs from "node:fs";
 import path from "node:path";
+import { execSync } from "node:child_process";
 import { glob } from "glob";
 import { Locale } from "src/types.ts";
 /** Only the unique values of the Locale Enum */
@@ -24,13 +28,15 @@ const disallowedKeySuffixes: string[] = [].filter(Boolean);
 
 
 const showHelp = () => {
-  console.info(" ℹ️ Help:");
+  console.info("ℹ️ Help:");
   console.info(`Validates the structure of locale dictionaries. Locale files found by their file ending:`, `${colors.green(dictFileEnding)}\n`);
   console.info("Flags:");
-  console.info(` -f --file <file>:      Validate single file.`);
-  console.info(` -d --dir <directory>:  Validate all files in the directory recursively.`);
-  console.info(` -? -h --help:          Display this help message.`);
+  console.info(`${colors.green(" -f --file <file>:     ")}`, `Validate single file.`);
+  console.info(`${colors.green(" -d --dir <directory>: ")}`, `Validate all files in the directory recursively.`);
+  console.info(`${colors.green(" -? -h --help:         ")}`, `Display this help message.`);
+  console.info(""); // Padding
 }
+
 
 /* Help command */
 if (process.argv.includes("--help") || process.argv.includes("-h") || process.argv.includes("-?") || process.argv.length === 2 /* When run, it always receives 2 base args */) {
@@ -59,21 +65,20 @@ if (fileFlag && dirFlag) {
 
 /* Handle file operation */
 if (fileFlag) {
-  console.info(` ℹ️ Validating file`, `${colors.gray(fileFlag)}`);
+  console.info(` ℹ️ Validating file`, colors.gray(`(${fileFlag})`));
 
-  // @ts-expect-error - the current global module does not allow for top level await but this script runs in tsx
-  const problems = await validateFile(fileFlag);
+  const problems = validateFile(fileFlag);
 
-  /* Log problems */
+  // Log problems
   if (problems.length === 0) {
-    console.info(`✔️ No problems found`, `${colors.gray(fileFlag)}`);
+    console.info(`✔️ No problems found`, colors.gray(`(${fileFlag})`));
 
   } else {
-    console.error(`❗ Problems found in`, `${colors.gray(fileFlag)}`);
+    console.error(`❗ Problems found in`, colors.gray(`(${fileFlag})`));
     problems.forEach(problem => console.error(` ❌ ${problem}\n`));
   }
 
-  /* Exit appropriately */
+  // Exit appropriately
   if (problems.length > 0) process.exit(1);
   process.exit(0);
 }
@@ -83,31 +88,30 @@ if (fileFlag) {
 if (dirFlag) {
   console.info(` ℹ️ Validating directory and its children`, colors.gray(`(./${dirFlag}/**/*${dictFileEnding})`));
 
-  // @ts-expect-error - the current global module does not allow for top level await but this script
-  const perFileProblems = await validateDirectory(dirFlag);
+  const perFileProblems = validateDirectory(dirFlag);
 
-  /* Log problems */
+  // Log problems
   Object.entries(perFileProblems).forEach(([file, problems]: [string, string[]]) => {
     if (problems.length) {
-      console.error(`❗ Problems found in`, `(${colors.gray(file)})`);
+      console.error(`❗ Problems found in`, colors.gray(`(${file})`));
       problems.forEach(problem => console.error(` ❌ ${problem}\n`));
     }
   });
 
-  /* Exit appropriately */
+  // Exit appropriately
   const problematicFileCount = Object.values(perFileProblems).filter(fileProblems => fileProblems.length !== 0).length;
   if (problematicFileCount) {
     process.exit(1)
   }
   else {
-    console.info("✔️  No problems found in any file of", colors.gray(`(./${dirFlag}/**/*45${dictFileEnding})`));
+    console.info("✔️  No problems found in any file of", colors.gray(`(./${dirFlag}/**/*${dictFileEnding})`));
     process.exit(0);
   }
 };
 
 
 /** Returns all problems found in a single file */
-async function validateFile(filePath: string | null): Promise<string[]> {
+function validateFile(filePath: string | null): string[] {
   // Falsy file path
   if (!filePath) {
     console.error("❗ No file specified.");
@@ -131,8 +135,10 @@ async function validateFile(filePath: string | null): Promise<string[]> {
 
   const problems: string[] = [];
 
+  // Try to import the file, errors if it's not a valid module
   try {
-    const dict = await import(filePath).then((file) => file.createDict());
+    // TODO
+    const dict = import(filePath).then((file) => file.createDict());
     problems.push(...validateDictObject(dict));
   } catch (e) {
     problems.push(`File is not a valid module. See error:\n\n${e}`);
@@ -142,7 +148,7 @@ async function validateFile(filePath: string | null): Promise<string[]> {
 }
 
 /** Returns all problems found in a directory and its children as an object to differentiate files */
-async function validateDirectory(dirPath: string | null): Promise<{ [file: string]: string[] }> {
+function validateDirectory(dirPath: string | null): { [file: string]: string[] } {
   // Falsy dir path
   if (!dirPath) {
     console.error("❗ No directory specified.");
@@ -175,15 +181,20 @@ async function validateDirectory(dirPath: string | null): Promise<{ [file: strin
     console.error(`❗ No`, colors.green(`"${dictFileEnding}"`), `files found`);
     process.exit(1);
   }
+  // Validate per file
+  dictFiles.forEach((filePath) => {
 
-  // Validate
-  dictFiles.forEach(async (filePath) => {
-    try {
-      const dict = await import(filePath).then((file) => file.createDict());
-      perFileProblems[filePath] = validateDictObject(dict);
-    } catch (e) {
-      perFileProblems[filePath] = [`File is not a valid module. See error:\n\n${e}`];
-    }
+    const startOfFile = /import \{ Locale \} from "@\/types\.ts";\r?\nexport const createDict = \(locale: Locale\) => \(/gm;
+    const endOfFile = /\);/gm;
+
+    const fileContent = fs.readFileSync(filePath, "utf-8");
+    const dict = fileContent
+      .replace(startOfFile, "")
+      .replace(endOfFile, "")
+      .replaceAll(/(?<="\w*":\s.*\r?\n\s+\})(\[locale\])/gm, "") // Strip `[locale]` from the file
+      .replaceAll(/\,(?!\s*?[\{\[\"\'\w])/gm, ""); // Remove trailing commas
+
+    perFileProblems[filePath] = validateDictObject(JSON.parse(dict));
   });
 
   return perFileProblems;
@@ -258,14 +269,14 @@ export function validateDictObject(dict: object | string): string[] {
   // Number of locales, check
   if (keys.length !== allowedLeafKeys.length) {
     const expected = `{ ${allowedLeafKeys.map(key => `"${key}": string`).join(", ")} }`;
-    const found = dictToStringShallow(dict);
+    const found = `{ ${keys.map(key => `"${key}": string`).join(", ")} }`;
     problems.push(`Leaf node has the wrong amount of locales.\n   Expected:\n    ${expected}\n   Found:\n    ${found}`);
   }
   // Key locale, check
   if (keys.some(key => !allowedLeafKeys.includes(key as Locale))) {
     const expected = `[${allowedLeafKeys.map((key) => `"${key}"`).join(", ")}]`;
     const found = `[${keys.map((key) => `"${key}"`).join(", ")}]`;
-    problems.push(`Leaf node has an invalid locale.\n   Expected:\n    ${expected}\n   Found:\n    ${found}`);
+    problems.push(`Leaf node has an invalid locale. If it is, add it to the \`allowedLeafKeys\` in the \`validate.ts\` scripts}\n   Expected:\n    ${expected}\n   Found:\n    ${found}`);
   }
 
   return problems;

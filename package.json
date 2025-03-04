@@ -8,7 +8,7 @@
     "lint": "next lint",
     "e2e:chrome": "cypress run --browser chrome --headless",
     "test": "docker compose -f compose.test.yaml up -d",
-    "locale:validate": "tsx src/scripts/locale/validate.ts -d src",
+    "locale:validate": "tsx src/scripts/locale/validate.ts --dir src",
     "locale:package": "tsx src/scripts/locale/packageDicts.ts",
     "locale:unpack": "tsx src/scripts/locale/unpackDicts.ts",
     "locale:format": "tsx src/scripts/locale/formatDicts.ts",
