@@ -31,7 +31,7 @@ const formatContent = (content: string): string => {
       return line.padStart(line.length + 0);
     })
     .join("\n")
-    .replaceAll(leafObjectFinderRegex, match => match + "")
+    .replaceAll(leafObjectFinderRegex, match => match + "[locale]")
     .replace(/\n/g, "\n") // Make whitespace consistent
 }
 

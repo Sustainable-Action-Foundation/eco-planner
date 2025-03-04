@@ -4,26 +4,8 @@ import { colors } from "../lib/colors";
 
 /*
  * This script converts imports of the old `.dict.json` files to the new `.dict.ts` files.
- * 
- * To fix the order of the dict and locale declarations the find and replace tool in vscode is used.
- *  1. Include only the files that you wan't to replace e.g. the `src` folder.
- * 
- *  2. Enter this regex (with the regex option disabled): `(.*const\sdict.*)(?=\n.*const\slocale)(?:\n(.*$))`
- * 
- *  3. Replace with: `$2\n$1`
- * 
- *  4. Replace all
- * 
- * To fix the trailing  from the old dict files use the following regex:
- *  1. Make sure you include and exclude fields are set appropriately. before proceeding.
- * 
- *  2. Enter: `dict[.[].*(\[locale\])`
- * 
- *  3. Replace with: $1
- * 
- *  4. Replace all
- * 
- *  5. If that didn't do it, try `[locale]` without regex mode but be careful with this one. Exclude dict files.
+ * It also fixes the declaration of the `dict` object to use the new `createDict` function.
+ * As well as swapping the order of the `dict` and `locale` declarations. And also removes the `[locale]` access.
  */
 
 const pageFileEnding = ".tsx";
@@ -48,8 +30,24 @@ const importRegex = /import\s[^\s]*[^"']*["']([^"']*\.dict\.json)["'].*[with|ass
  * Group 1: the eventual property accesses e.g. `dict["key"]` or `dict.key` minus the `dict` part
  */
 const declarationRegex = /(?:const|let)\sdict\s=\s[^.[;]*(.*);$/gm;
+/** 
+ * Finds the declaration of the `locale` object after the `dict` object to swap their order.
+ * 
+ * Group 0: the entire declaration
+ * 
+ * Group 1: the dict declaration
+ * 
+ * Group 2: the locale declaration
+ */
+const declarationOrderRegex = /(.*const\sdict.*)(?=\r?\n.*const\slocale)(?:\r?\n(.*))/gm;
+/** 
+ * Finds the `[locale]` that was used to access the dict object.
+ */
+const localeAccessRegex = /\[locale\]/gm;
 
-const filePaths = glob.sync(`src/**/*${pageFileEnding}`);
+
+/* Gather files */
+const filePaths = glob.sync([`src/**/*${pageFileEnding}`, `!src/scripts/locale/**/*` /* Don't modify this file or other locale related scripts */]);
 if (!filePaths.length) {
   console.warn(colors.yellow("❗️ No files found to convert. This is likely not desired."));
   process.exit(1);
@@ -85,6 +83,20 @@ for (const filePath of filePaths) {
 
       content = content.replace(fullMatch, newFullMatch);
     });
+
+    /* Declaration order fix */
+    const declarationOrderMatches = content.matchAll(declarationOrderRegex);
+    declarationOrderMatches.forEach(match => {
+      matchCount++;
+
+      const [fullMatch, dictDeclaration, localeDeclaration] = match;
+
+      const newFullMatch = `${localeDeclaration}\n${dictDeclaration}`;
+      content = content.replace(fullMatch, newFullMatch);
+    });
+
+    /* Locale access fix */
+    content = content.replaceAll(localeAccessRegex, "");
 
     fs.writeFileSync(filePath, content);
   }
