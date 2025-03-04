@@ -12,5 +12,5 @@ const consoleColors = {
 
 for (const [key, colorFunc] of Object.entries(consoleColors)) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (console as any)[key] = (args: any | any[]) => (__console as any)[key](...args.map(colorFunc));
+  (console as any)[key] = (args: any | any[]) => (__console as any)[key](Array.isArray(args) ? args.map(colorFunc) : colorFunc(args));
 }

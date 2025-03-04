@@ -22,7 +22,7 @@ if (!dictPaths.length) {
 /** 
  * Finds the leaf objects in the json data to append the `` suffix to.
  */
-const leafObjectFinderRegex = /(?:"(?:.*)":)\s*(?:"[^"]*")[^:}]*}/g;
+const leafObjectFinderRegex = /"\w{2}":\s.*\r?\n\s+\}/gm;
 
 const formatContent = (content: string): string => {
   return content
