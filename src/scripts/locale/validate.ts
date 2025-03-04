@@ -1,13 +1,10 @@
 import { colors } from "../lib/colors.ts";
 import "../lib/console.ts";
-import { createRequire } from "node:module";
-/** To make it easier to read the dict files */
-const require = createRequire(import.meta.url);
 import fs from "node:fs";
 import path from "node:path";
-import { execSync } from "node:child_process";
 import { glob } from "glob";
 import { Locale } from "src/types.ts";
+import { tsDictStripper } from "./ts-dict-stripper.ts";
 /** Only the unique values of the Locale Enum */
 const strictLocale = [...new Set(Object.values(Locale))];
 
@@ -71,7 +68,7 @@ if (fileFlag) {
 
   // Log problems
   if (problems.length === 0) {
-    console.info(`✔️ No problems found`, colors.gray(`(${fileFlag})`));
+    console.info(`✔️  No problems found`, colors.gray(`(${fileFlag})`));
 
   } else {
     console.error(`❗ Problems found in`, colors.gray(`(${fileFlag})`));
@@ -135,14 +132,9 @@ function validateFile(filePath: string | null): string[] {
 
   const problems: string[] = [];
 
-  // Try to import the file, errors if it's not a valid module
-  try {
-    // TODO
-    const dict = import(filePath).then((file) => file.createDict());
-    problems.push(...validateDictObject(dict));
-  } catch (e) {
-    problems.push(`File is not a valid module. See error:\n\n${e}`);
-  }
+  const fileContent = fs.readFileSync(filePath, "utf-8");
+
+  problems.push(...validateDictObject(tsDictStripper(fileContent)));
 
   return problems;
 }
@@ -184,17 +176,9 @@ function validateDirectory(dirPath: string | null): { [file: string]: string[] }
   // Validate per file
   dictFiles.forEach((filePath) => {
 
-    const startOfFile = /import \{ Locale \} from "@\/types\.ts";\r?\nexport const createDict = \(locale: Locale\) => \(/gm;
-    const endOfFile = /\);/gm;
-
     const fileContent = fs.readFileSync(filePath, "utf-8");
-    const dict = fileContent
-      .replace(startOfFile, "")
-      .replace(endOfFile, "")
-      .replaceAll(/(?<="\w*":\s.*\r?\n\s+\})(\[locale\])/gm, "") // Strip `[locale]` from the file
-      .replaceAll(/\,(?!\s*?[\{\[\"\'\w])/gm, ""); // Remove trailing commas
 
-    perFileProblems[filePath] = validateDictObject(JSON.parse(dict));
+    perFileProblems[filePath] = validateDictObject(tsDictStripper(fileContent));
   });
 
   return perFileProblems;
