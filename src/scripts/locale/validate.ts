@@ -8,10 +8,11 @@ import { Locale } from "src/types.ts";
 const strictLocale = [...new Set(Object.values(Locale))];
 
 
-const dictFileEnding = ".dict.ts";
-
-
 /* Filters */
+/** How it finds the files to validate */
+const dictFileEnding = ".dict.ts";
+/** Only these keys are allowed in leaf nodes, mainly this is the Locale keys */
+const allowedLeafKeys = [...strictLocale, /** "description" */];
 /** Matches keys to discriminate pure number keys. */
 const disallowedKeysRegex = /^[0-9]+$/;
 /** Raise concern on keys with any of these substrings. */
@@ -80,7 +81,7 @@ if (fileFlag) {
 
 /* Handle directory operation */
 if (dirFlag) {
-  console.info(` ℹ️ Validating directory and its children`, colors.gray(`(./${dirFlag})`));
+  console.info(` ℹ️ Validating directory and its children`, colors.gray(`(./${dirFlag}/**/*${dictFileEnding})`));
 
   // @ts-expect-error - the current global module does not allow for top level await but this script
   const perFileProblems = await validateDirectory(dirFlag);
@@ -99,7 +100,7 @@ if (dirFlag) {
     process.exit(1)
   }
   else {
-    console.info("✔️  No problems found in any files.");
+    console.info("✔️  No problems found in any file of", colors.gray(`(./${dirFlag}/**/*45${dictFileEnding})`));
     process.exit(0);
   }
 };
@@ -252,17 +253,17 @@ export function validateDictObject(dict: object | string): string[] {
   // Value type, check
   if (values.some(value => typeof value !== "string")) {
     const found = dictToStringShallow(dict);
-    problems.push(`Leaf nodes can only contain \`Locale\` strings.\n   Found:\n    ${found}`);
+    problems.push(`Leaf nodes can only contain \`allowedLeafKeys\`.\n   Found:\n    ${found}`);
   }
   // Number of locales, check
-  if (keys.length !== strictLocale.length) {
-    const expected = `{ ${strictLocale.map(locale => `"${locale}": string`).join(", ")} }`;
+  if (keys.length !== allowedLeafKeys.length) {
+    const expected = `{ ${allowedLeafKeys.map(key => `"${key}": string`).join(", ")} }`;
     const found = dictToStringShallow(dict);
     problems.push(`Leaf node has the wrong amount of locales.\n   Expected:\n    ${expected}\n   Found:\n    ${found}`);
   }
   // Key locale, check
-  if (keys.some(key => !strictLocale.includes(key as Locale))) {
-    const expected = `[${strictLocale.map((key) => `"${key}"`).join(", ")}]`;
+  if (keys.some(key => !allowedLeafKeys.includes(key as Locale))) {
+    const expected = `[${allowedLeafKeys.map((key) => `"${key}"`).join(", ")}]`;
     const found = `[${keys.map((key) => `"${key}"`).join(", ")}]`;
     problems.push(`Leaf node has an invalid locale.\n   Expected:\n    ${expected}\n   Found:\n    ${found}`);
   }
