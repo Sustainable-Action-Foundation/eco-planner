@@ -13,7 +13,7 @@ import { DataSeries, Goal } from "@prisma/client";
 import Image from "next/image";
 import { useContext, useEffect, useMemo, useState } from "react";
 import styles from '../forms.module.css';
-import parentDict from "../forms.dict.json" with { type: "json" };
+import { createDict } from "../forms.dict.ts";
 import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
 
 enum DataSeriesType {
@@ -66,8 +66,8 @@ export default function GoalForm({
     roadmap: { id: string },
   },
 }) {
-  const dict = parentDict.goalForm.goalForm;
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale).goalForm.goalForm;
 
   const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(!currentGoal?.combinationParents.length ? DataSeriesType.Static : currentGoal.combinationParents.length >= 2 ? DataSeriesType.Combined : DataSeriesType.Inherited)
   const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baselineDataSeries ? BaselineType.Custom : BaselineType.Initial)
@@ -206,21 +206,21 @@ export default function GoalForm({
         {!(roadmapId || currentGoal?.roadmapId) ?
           <fieldset className={`${styles.timeLineFieldset} width-100`}>
             {/* Title */}
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>{dict.selectRoadmap.title[locale]}</legend>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>{dict.selectRoadmap.title}</legend>
 
             {/* Dropdown */}
             <label className="block margin-block-100">
               {/* Title */}
-              {dict.selectRoadmap.dropdown.title[locale]}
+              {dict.selectRoadmap.dropdown.title}
 
               {/* Dropdown */}
               <select name="roadmapId" id="roadmapId" required className="block margin-block-25" defaultValue={""}
                 onChange={(e) => setSelectedRoadmap(e.target.value)}
               >
-                <option value="" disabled>{dict.selectRoadmap.dropdown.placeholder[locale]}</option>
+                <option value="" disabled>{dict.selectRoadmap.dropdown.placeholder}</option>
                 {roadmapAlternatives.map(roadmap => (
                   <option key={roadmap.id} value={roadmap.id}>
-                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} ${dict.selectRoadmap.dropdown.actions[locale]}`}
+                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} ${dict.selectRoadmap.dropdown.actions}`}
                   </option>
                 ))}
               </select>
@@ -232,21 +232,21 @@ export default function GoalForm({
         {/* Data series */}
         <fieldset className={`${styles.timeLineFieldset} width-100 ${positionIndex > 1 ? "margin-top-200" : ""}`}>
           {/* Title */}
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend}  font-weight-bold`}>{dict.dataSeries.title[locale]}</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend}  font-weight-bold`}>{dict.dataSeries.title}</legend>
 
           {/* Dropdown */}
           <label className="block margin-block-100">
             {/* Title */}
-            {dict.dataSeries.dropdown.title[locale]}
+            {dict.dataSeries.dropdown.title}
 
             {/* Dropdown */}
             <select name="dataSeriesType" id="dataSeriesType" className="block margin-block-25" required
               defaultValue={!currentGoal?.combinationParents.length ? DataSeriesType.Static : currentGoal.combinationParents.length >= 2 ? DataSeriesType.Combined : DataSeriesType.Inherited}
               onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
             >
-              <option value={DataSeriesType.Static}>{dict.dataSeries.dropdown.static[locale]}</option>
-              <option value={DataSeriesType.Inherited}>{dict.dataSeries.dropdown.inherited[locale]}</option>
-              <option value={DataSeriesType.Combined}>{dict.dataSeries.dropdown.combined[locale]}</option>
+              <option value={DataSeriesType.Static}>{dict.dataSeries.dropdown.static}</option>
+              <option value={DataSeriesType.Inherited}>{dict.dataSeries.dropdown.inherited}</option>
+              <option value={DataSeriesType.Combined}>{dict.dataSeries.dropdown.combined}</option>
             </select>
           </label>
         </fieldset>
@@ -254,17 +254,17 @@ export default function GoalForm({
         {/* Describe goal */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           {/* Title */}
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.describeGoal.title[locale]}</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.describeGoal.title}</legend>
 
           {/* Name */}
           <label className="block margin-bottom-100">
-            {dict.describeGoal.name[locale]}
+            {dict.describeGoal.name}
             <input className="margin-block-25" type="text" name="goalName" id="goalName" defaultValue={currentGoal?.name ?? undefined} />
           </label>
 
           {/* describeGoal. */}
           <label className="block margin-block-100">
-            {dict.describeGoal.description[locale]}
+            {dict.describeGoal.description}
             <textarea className="margin-block-25" name="description" id="description" defaultValue={currentGoal?.description ?? undefined} />
           </label>
         </fieldset>
@@ -272,7 +272,7 @@ export default function GoalForm({
         {/* Goal structure */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           {/* Title */}
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.goalStructure.title[locale]}</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.goalStructure.title}</legend>
 
           {/* Variable form sections */}
           {(dataSeriesType === DataSeriesType.Static || !dataSeriesType) &&
@@ -289,7 +289,7 @@ export default function GoalForm({
           {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
             <fieldset className="padding-50 smooth position-relative" style={{ border: '1px solid var(--gray-90)' }}>
               {/* Title */}
-              <legend>{dict.goalStructure.dataSeries.title[locale]}</legend>
+              <legend>{dict.goalStructure.dataSeries.title}</legend>
 
               {/* Scale container */}
               <div className="margin-block-100">
@@ -305,7 +305,7 @@ export default function GoalForm({
                     > {/* Multiplicative scaling doesn't use weights */}
                       <button type="button"
                         onClick={() => setScalingRecipe({ method: scalingRecipie.method, values: scalingRecipie.values.filter((_, i) => i !== index) })}>
-                        <Image src='/icons/circleMinus.svg' alt={dict.goalStructure.dataSeries.scaling.remove[locale]} width={24} height={24} />
+                        <Image src='/icons/circleMinus.svg' alt={dict.goalStructure.dataSeries.scaling.remove} width={24} height={24} />
                       </button>
                     </RepeatableScaling>
                   )
@@ -313,24 +313,24 @@ export default function GoalForm({
               </div>
 
               {/* Add scaling */}
-              <button type="button" className="margin-block-100" onClick={() => setScalingRecipe({ method: scalingRecipie.method, values: [...scalingRecipie.values, { value: 1 }] })}>{dict.goalStructure.dataSeries.scaling.add[locale]}</button>
+              <button type="button" className="margin-block-100" onClick={() => setScalingRecipe({ method: scalingRecipie.method, values: [...scalingRecipie.values, { value: 1 }] })}>{dict.goalStructure.dataSeries.scaling.add}</button>
 
               {/* Scaling method */}
               <label className="block margin-block-100">
                 {/* Title */}
-                {dict.goalStructure.dataSeries.scaling.methods.title[locale]}
+                {dict.goalStructure.dataSeries.scaling.methods.title}
 
                 {/* Methods */}
                 <select name="scalingMethod" id="scalingMethod" className="margin-inline-25" defaultValue={scalingRecipie.method || ScaleMethod.Geometric}>
-                  <option value={ScaleMethod.Geometric}>{dict.goalStructure.dataSeries.scaling.methods.geometric[locale]}</option>
-                  <option value={ScaleMethod.Algebraic}>{dict.goalStructure.dataSeries.scaling.methods.algebraic[locale]}</option>
-                  <option value={ScaleMethod.Multiplicative}>{dict.goalStructure.dataSeries.scaling.methods.multiplicative[locale]}</option>
+                  <option value={ScaleMethod.Geometric}>{dict.goalStructure.dataSeries.scaling.methods.geometric}</option>
+                  <option value={ScaleMethod.Algebraic}>{dict.goalStructure.dataSeries.scaling.methods.algebraic}</option>
+                  <option value={ScaleMethod.Multiplicative}>{dict.goalStructure.dataSeries.scaling.methods.multiplicative}</option>
                 </select>
               </label>
 
               {/* Scaling result */}
               <label className="block margin-block-100">
-                <strong className="block bold">{dict.goalStructure.dataSeries.scaling.result[locale]} </strong>
+                <strong className="block bold">{dict.goalStructure.dataSeries.scaling.result} </strong>
                 <output className="margin-block-100 block">{scalingResult}</output>
               </label>
             </fieldset>
@@ -340,18 +340,18 @@ export default function GoalForm({
         {/* Baseline */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           {/* Title */}
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.baseline.title[locale]}</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.baseline.title}</legend>
 
           {/* Dropdown */}
           <label className="block margin-bottom-100">
             {/* Title */}
-            {dict.baseline.dropdown.title[locale]}
+            {dict.baseline.dropdown.title}
 
             {/* Types */}
             <select className="block margin-block-25" name="baselineSelector" id="baselineSelector" value={baselineType} onChange={(e) => setBaselineType(e.target.value as BaselineType)}>
-              <option value={BaselineType.Initial}>{dict.baseline.dropdown.initial[locale]}</option>
-              <option value={BaselineType.Custom}>{dict.baseline.dropdown.custom[locale]}</option>
-              <option value={BaselineType.Inherited}>{dict.baseline.dropdown.inherited[locale]}</option>
+              <option value={BaselineType.Initial}>{dict.baseline.dropdown.initial}</option>
+              <option value={BaselineType.Custom}>{dict.baseline.dropdown.custom}</option>
+              <option value={BaselineType.Inherited}>{dict.baseline.dropdown.inherited}</option>
             </select>
           </label>
 
@@ -359,12 +359,12 @@ export default function GoalForm({
           {baselineType === BaselineType.Custom &&
             <label className="block margin-block-100">
               {/* Title */}
-              {dict.baseline.customBaseline.title[locale]}
+              {dict.baseline.customBaseline.title}
 
               {/* TODO: Make this allow .csv files and possibly excel files */}
               <input type="text" name="baselineDataSeries" id="baselineDataSeries"
                 pattern={dataSeriesPattern}
-                title={dict.baseline.customBaseline.hoverText[locale]}
+                title={dict.baseline.customBaseline.hoverText}
                 className="margin-block-25"
                 defaultValue={baselineString}
               />
@@ -380,19 +380,19 @@ export default function GoalForm({
         {/* External resources */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           {/* Title */}
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.externalResources.title[locale]}</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.externalResources.title}</legend>
           <LinkInput links={currentGoal?.links} />
         </fieldset>
 
         {/* Feature goal */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           {/* Title */}
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.featureGoal.title[locale]}</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.featureGoal.title}</legend>
 
           {/* Checkbox */}
           <label className="flex align-items-center gap-50 margin-block-50">
             <input type="checkbox" name="isFeatured" id="isFeatured" defaultChecked={currentGoal?.isFeatured} /> {/* TODO: Make toggle */}
-            {dict.featureGoal.checkboxLabel[locale]}
+            {dict.featureGoal.checkboxLabel}
           </label>
         </fieldset>
 
@@ -402,20 +402,20 @@ export default function GoalForm({
             <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
               {/* Title */}
               <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>
-                {dict.scaleWarning.title[locale]}
+                {dict.scaleWarning.title}
               </legend>
 
               {/* Checkbox */}
               <label className="flex align-items-center gap-50 margin-block-50">
                 <input type="checkbox" name="scale" id="scale" />
-                {dict.scaleWarning.checkboxLabel[locale]} {`"${currentGoal?.dataSeries?.scale}"`}
+                {dict.scaleWarning.checkboxLabel} {`"${currentGoal?.dataSeries?.scale}"`}
               </label>
             </fieldset>
             : null
         }
 
         {/* Submit */}
-        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentGoal ? dict.submit.save[locale] : dict.submit.create[locale]} />
+        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentGoal ? dict.submit.save : dict.submit.create} />
       </form>
 
       <datalist id="LEAPOptions">

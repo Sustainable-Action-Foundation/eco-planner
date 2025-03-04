@@ -7,11 +7,11 @@ import getOneAction from "@/fetchers/getOneAction";
 import { AccessControlled, AccessLevel } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { getServerLocale } from "@/functions/serverLocale";
-import parentDict from "../../action.dict.json" with { type: "json" };
+import { createDict } from "../../action.dict.ts";
 
 export default async function Page({ params, }: { params: { actionId: string }, }) {
-  const dict = parentDict["[actionId]"].edit.page;
   const locale = await getServerLocale();
+  const dict = createDict(locale)["[actionId]"].edit.page;
 
   const [session, action] = await Promise.all([
     getSession(cookies()),
@@ -37,14 +37,14 @@ export default async function Page({ params, }: { params: { actionId: string }, 
 
   return (
     <>
-      <Breadcrumb object={action} customSections={[`${dict.breadcrumbEditAction[locale]}`]} />
+      <Breadcrumb object={action} customSections={[`${dict.breadcrumbEditAction}`]} />
 
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
           {`
-          ${dict.editAction[locale]} ${action.name} 
-          ${dict.ofRoadmap[locale]} ${action.roadmap.metaRoadmap.name}
-          ${dict.ofRoadmapVersion[locale]} ${`v${action.roadmap.version}` || "ERROR"}
+          ${dict.editAction} ${action.name} 
+          ${dict.ofRoadmap} ${action.roadmap.metaRoadmap.name}
+          ${dict.ofRoadmapVersion} ${`v${action.roadmap.version}` || "ERROR"}
           `.trim()}
         </h1>
         <ActionForm roadmapId={action.roadmapId} currentAction={action} roadmapAlternatives={[]} />

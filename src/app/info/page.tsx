@@ -3,11 +3,11 @@ import { JSONValue } from "@/types.ts";
 import fs from "fs";
 import metadata from "package.json" with { type: "json" };
 import { getServerLocale } from "@/functions/serverLocale";
-import parentDict from "./info.dict.json" with { type: "json" };
+import { createDict } from "./info.dict.ts";
 
 export default async function Page() {
-  const dict = parentDict.page;
   const locale = await getServerLocale();
+  const dict = createDict(locale).page;
   
   const gitHash = { shortHash: process.env.GIT_SHORT_HASH, longHash: process.env.GIT_LONG_HASH };
 
@@ -55,11 +55,11 @@ export default async function Page() {
 
   return (
     <>
-      <Breadcrumb customSections={[`${dict.breadcrumbInfo[locale]}`]} />
+      <Breadcrumb customSections={[`${dict.breadcrumbInfo}`]} />
 
-      <h1>{dict.information[locale]}</h1>
+      <h1>{dict.information}</h1>
       <p>
-        {dict.infoBody[locale]}
+        {dict.infoBody}
       </p>
 
       {/* TODO: Add wiki once created */}

@@ -8,7 +8,7 @@ import { AccessLevel } from "@/types.ts";
 import { cookies } from "next/headers";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { getServerLocale } from "@/functions/serverLocale";
-import parentDict from "../effect.dict.json" with { type: "json" };
+import { createDict } from "../effect.dict.ts";
 
 const editAccess = [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin];
 
@@ -21,8 +21,8 @@ export default async function Page({
     [key: string]: string | string[] | undefined
   },
 }) {
-  const dict = parentDict.edit.page;
   const locale = await getServerLocale();
+  const dict = createDict(locale).edit.page;
 
   const [session, effect, roadmaps] = await Promise.all([
     getSession(cookies()),
@@ -34,11 +34,11 @@ export default async function Page({
     return (
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          {dict.editEffect[locale]}
+          {dict.editEffect}
         </h1>
         <p style={{ color: 'red' }}>
           <Image src="/icons/info.svg" width={24} height={24} alt='' />
-          {dict.badEffect[locale]}
+          {dict.badEffect}
         </p>
       </div>
     )
@@ -48,11 +48,11 @@ export default async function Page({
 
   return (
     <>
-      <Breadcrumb object={effect?.action} customSections={[`${dict.breadcrumbEditEffect[locale]}`]} />
+      <Breadcrumb object={effect?.action} customSections={[`${dict.breadcrumbEditEffect}`]} />
 
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          {dict.editEffect[locale]}
+          {dict.editEffect}
         </h1>
         <EffectForm action={effect.action} goal={effect.goal} roadmapAlternatives={roadmapList} currentEffect={effect} />
       </div>

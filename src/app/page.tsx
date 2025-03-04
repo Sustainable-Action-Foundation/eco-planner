@@ -9,11 +9,11 @@ import { RoadmapSortBy } from "@/types";
 import { RoadmapType } from "@prisma/client";
 import { cookies } from "next/headers";
 import { getServerLocale } from "@/functions/serverLocale";
-import parentDict from "./home.dict.json" with { type: "json" };
+import { createDict } from "./home.dict.ts";
 
 export default async function Page({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
-  const dict = parentDict.page;
   const locale = await getServerLocale();
+  const dict = createDict(locale).page;
 
   const [session, metaRoadmaps] = await Promise.all([
     getSession(cookies()),
@@ -113,13 +113,13 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
       <AttributedImage src="/images/solarpanels.jpg" alt="" >
         <div className="flex gap-100 flex-wrap-wrap align-items-flex-end justify-content-space-between padding-100 width-100">
           <div>
-            <h1 className="margin-block-25">{dict.roadmaps[locale]}</h1>
-            <p className="margin-0">{dict.photoBy[locale]} <a className="color-purewhite" href="https://unsplash.com/@markusspiske?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Markus Spiske</a> {dict.on[locale]} <a className="color-purewhite" href="https://unsplash.com/photos/white-and-blue-solar-panels-pwFr_1SUXRo?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Unsplash</a></p>
+            <h1 className="margin-block-25">{dict.roadmaps}</h1>
+            <p className="margin-0">{dict.photoBy} <a className="color-purewhite" href="https://unsplash.com/@markusspiske?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Markus Spiske</a> {dict.on} <a className="color-purewhite" href="https://unsplash.com/photos/white-and-blue-solar-panels-pwFr_1SUXRo?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Unsplash</a></p>
           </div>
           { // Link to create roadmap form if logged in
             session.user &&
             <>
-              <a href="/metaRoadmap/create" className="button purewhite round block">{dict.createRoadmap[locale]}</a>
+              <a href="/metaRoadmap/create" className="button purewhite round block">{dict.createRoadmap}</a>
               {/* TODO: Incorporate this in a reasonable way */}
               {/* <a href="/roadmap/createRoadmap" className="button purewhite round block">Skapa ny version i en existerande serie</a> */}
             </>

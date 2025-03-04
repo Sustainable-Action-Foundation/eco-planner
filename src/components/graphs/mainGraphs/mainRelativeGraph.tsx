@@ -1,7 +1,7 @@
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
 import { Goal, DataSeries } from "@prisma/client";
-import parentDict from "../graphs.dict.json" with { type: "json" };
+import { createDict } from "../graphs.dict.ts";
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 import { useContext } from "react";
 
@@ -14,8 +14,8 @@ export default function MainRelativeGraph({
   secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
   nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
 }) {
-  const dict = parentDict.mainGraphs.mainRelativeGraph;
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale).mainGraphs.mainRelativeGraph;
 
   if (!goal.dataSeries || ["procent", "percent", "andel", "ratio", "fraction"].includes(goal.dataSeries.unit.toLowerCase())) {
     return null;
@@ -81,7 +81,7 @@ export default function MainRelativeGraph({
       });
     }
     chart.push({
-      name: dict.nationalGoal.name[locale],
+      name: dict.nationalGoal.name,
       data: nationalSeries,
       type: 'line',
     });
@@ -103,7 +103,7 @@ export default function MainRelativeGraph({
       max: new Date(dataSeriesDataFieldNames[dataSeriesDataFieldNames.length - 1].replace('val', '')).getTime()
     },
     yaxis: {
-      title: { text: dict.chartOptions.yAxis.title[locale] },
+      title: { text: dict.chartOptions.yAxis.title },
       labels: { formatter: floatSmoother },
     },
     tooltip: {

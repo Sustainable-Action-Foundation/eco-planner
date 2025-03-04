@@ -5,7 +5,7 @@ import accessChecker from "@/lib/accessChecker.ts";
 import { LoginData } from "@/lib/session.ts";
 import { AccessControlled } from "@/types.ts";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
-import parentDict from "../tables.dict.json" with { type: "json" };
+import { createDict } from "../tables.dict.ts";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -27,11 +27,11 @@ export default async function RoadmapTree({
   roadmaps: RoadmapTreeProps['roadmaps'],
   user: RoadmapTreeProps['user'],
 }) {
-  const dict = parentDict.roadmapTables.roadmapTree;
   const locale = await getServerLocale();
+  const dict = createDict(locale).roadmapTables.roadmapTree;
 
   if (!roadmaps.length) {
-    return <p>{dict.noRoadmaps[locale]}</p>;
+    return <p>{dict.noRoadmaps}</p>;
   }
 
   const accessibleMetaRoadmaps = roadmaps.map(roadmap => roadmap.metaRoadmapId);
@@ -60,8 +60,8 @@ async function NestedRoadmapRenderer({
   childRoadmaps: RoadmapTreeProps['roadmaps'],
   user: RoadmapTreeProps['user'],
 }) {
-  const dict = parentDict.roadmapTables.roadmapTree;
   const locale = await getServerLocale();
+  const dict = createDict(locale).roadmapTables.roadmapTree;
 
   return <>
     {childRoadmaps.map(roadmap => {
@@ -75,10 +75,10 @@ async function NestedRoadmapRenderer({
               <details>
                 <summary className="flex justify-content-space-between">
                   <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
-                    <Image src="/icons/caret-right.svg" alt={dict.nestedRoadmapRenderer.showUnderlyingRoadmaps[locale]} width={24} height={24} className="round padding-25 margin-inline-25" />
+                    <Image src="/icons/caret-right.svg" alt={dict.nestedRoadmapRenderer.showUnderlyingRoadmaps} width={24} height={24} className="round padding-25 margin-inline-25" />
                     <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth' style={{lineHeight: '1'}}>
                         <div>{`${roadmap.metaRoadmap.name} (v${roadmap.version})`}</div>
-                        <div className={styles["roadmap-information"]}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} {dict.nestedRoadmapRenderer.goals[locale]}</div>
+                        <div className={styles["roadmap-information"]}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} {dict.nestedRoadmapRenderer.goals}</div>
                     </Link> 
                   </div>
                   <span className="flex align-items-center padding-inline-25">
@@ -100,7 +100,7 @@ async function NestedRoadmapRenderer({
                   <Image src="/icons/caret-right-gray.svg" alt="" width="24" height="24" className="round padding-25 margin-inline-25"/>
                   <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth' style={{lineHeight: '1'}}>
                     <div>{`${roadmap.metaRoadmap.name} (v${roadmap.version})`}</div>
-                    <div className={styles["roadmap-information"]}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} {dict.nestedRoadmapRenderer.goals[locale]}</div>
+                    <div className={styles["roadmap-information"]}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} {dict.nestedRoadmapRenderer.goals}</div>
                   </Link> 
                 </div>
                 <span className="flex align-items-center padding-inline-25">

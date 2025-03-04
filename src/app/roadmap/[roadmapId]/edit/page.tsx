@@ -8,11 +8,11 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getServerLocale } from "@/functions/serverLocale";
-import parentDict from "../../roadmap.dict.json" with { type: "json" };
+import { createDict } from "../../roadmap.dict.ts";
 
 export default async function Page({ params }: { params: { roadmapId: string } }) {
-  const dict = parentDict["[roadmapId]"].edit.page;
   const locale = await getServerLocale();
+  const dict = createDict(locale)["[roadmapId]"].edit.page;
 
   const [session, roadmap] = await Promise.all([
     getSession(cookies()),
@@ -28,18 +28,18 @@ export default async function Page({ params }: { params: { roadmapId: string } }
 
   return (
     <>
-      <Breadcrumb object={roadmap} customSections={[`${dict.breadcrumbEditRoadmapVersion[locale]}`]} />
+      <Breadcrumb object={roadmap} customSections={[`${dict.breadcrumbEditRoadmapVersion}`]} />
 
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          {dict.editRoadmapVersion[locale]}
+          {dict.editRoadmapVersion}
         </h1>
         <p className='margin-block-300'>
-          {dict.didYouMeanTo[locale]}
+          {dict.didYouMeanTo}
           <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}/edit`}>
-            {dict.goHere[locale]}
+            {dict.goHere}
           </Link>
-          {dict.toEdit[locale]}
+          {dict.toEdit}
         </p>
         <RoadmapForm
           user={session.user}

@@ -4,7 +4,7 @@ import WrappedChart from "@/lib/chartWrapper";
 import { actionGraphSorter } from "@/lib/sorters";
 import { Action } from "@prisma/client";
 import styles from './graphs.module.css'
-import parentDict from "./graphs.dict.json" with { type: "json" };
+import { createDict } from "./graphs.dict.ts";
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 import { useContext } from "react";
 
@@ -13,8 +13,8 @@ export default function ActionGraph({
 }: {
   actions: Action[],
 }) {
-  const dict = parentDict.actionGraph;
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale).actionGraph;
 
   const series: ApexAxisChartSeries = [];
   const actionData = []
@@ -35,7 +35,7 @@ export default function ActionGraph({
   actionData.sort(actionGraphSorter)
 
   series.push({
-    name: dict.actionGraph.actions[locale],
+    name: dict.actionGraph.actions,
     data: actionData,
     type: 'rangeBar',
   })

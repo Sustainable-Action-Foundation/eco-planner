@@ -7,7 +7,7 @@ import { Action, Effect, Goal } from "@prisma/client";
 import Link from "next/link";
 import { TableMenu } from "./tableMenu/tableMenu.tsx";
 import { LocaleContext } from "@/app/context/localeContext.tsx";
-import parentDict from "./tables.dict.json" with { type: "json" };
+import { createDict } from "./tables.dict.ts";
 import { useContext } from 'react';
 
 interface EffectTableComonProps {
@@ -29,18 +29,18 @@ export default function EffectTable({
   object,
   accessLevel,
 }: EffectTableComonProps) {
-  const dict = parentDict.effects;
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale).effects;
 
   // If no effects are found, show a message
   if (!object.effects.length) {
     return (
-      <p>{dict.noEffectsReturn.noEffects[locale]}
+      <p>{dict.noEffectsReturn.noEffects}
         { // Only show the button if the user has edit access to the object
           [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin].includes(accessLevel ?? AccessLevel.None) &&
-          <span> {dict.noEffectsReturn.doYouWantTo[locale]}&nbsp;
+          <span> {dict.noEffectsReturn.doYouWantTo}&nbsp;
             <Link href={(object as Goal).indicatorParameter != undefined ? `/effect/create?goalId=${object.id}` : (object as Action).isSufficiency != undefined ? `/effect/create?actionId=${object.id}` : '/effect/create'}>
-              {dict.noEffectsReturn.createEffect[locale]}
+              {dict.noEffectsReturn.createEffect}
             </Link>
           </span>
         }
@@ -52,7 +52,7 @@ export default function EffectTable({
     {object.effects.map(effect => (
       <div className='flex gap-100 justify-content-space-between align-items-center' key={`${effect.actionId}_${effect.goalId}`}>
         <a href={(object as Action).isSufficiency != undefined ? `/goal/${effect.goalId}` : `/action/${effect.actionId}`} className={`${styles.roadmapLink} flex-grow-100`}>
-          <span className={styles.linkTitle}>{effect.action?.name || effect.goal?.name || effect.goal?.indicatorParameter || dict.hasEffectsReturn.namelessEffect[locale]}</span>
+          <span className={styles.linkTitle}>{effect.action?.name || effect.goal?.name || effect.goal?.indicatorParameter || dict.hasEffectsReturn.namelessEffect}</span>
           <p className={styles.actionLinkInfo}>{effect.action?.description || effect.goal?.description}</p>
         </a>
         <TableMenu

@@ -10,7 +10,7 @@ import { AccessLevel } from '@/types';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import styles from './page.module.css' with { type: "css" }
-import parentDict from "../user.dict.json" with { type: "json" };
+import { createDict } from "../user.dict.ts";
 import { getServerLocale } from '@/functions/serverLocale';
 
 export default async function Page({
@@ -20,8 +20,8 @@ export default async function Page({
   params: { user: string },
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
-  const dict = parentDict["[user]"].page;
   const locale = await getServerLocale();
+  const dict = createDict(locale)["[user]"].page;
 
   let username = params.user;
 
@@ -111,7 +111,7 @@ export default async function Page({
       {session.user?.username === username ?
         <>
           <section className='margin-block-300'>
-            <h2>{dict.manageMyData[locale]}</h2>
+            <h2>{dict.manageMyData}</h2>
             <GraphCookie />
           </section>
         </>
@@ -120,9 +120,9 @@ export default async function Page({
       <section className='margin-block-300'>
         <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>
           {session.user?.username === username ?
-            dict.myPosts[locale]
+            dict.myPosts
             :
-            `${userdata.username}${dict.usersPosts[locale]}`
+            `${userdata.username}${dict.usersPosts}`
           }
         </h2>
 
@@ -131,7 +131,7 @@ export default async function Page({
         <nav>
           {displayedMetaRoadmaps.length > 0 ?
             <section className='margin-block-300'>
-              <h3 className='margin-top-0'>{dict.roadmapSeries[locale]}</h3>
+              <h3 className='margin-top-0'>{dict.roadmapSeries}</h3>
                 <ul className={`${styles.itemsList}`}>
                     {displayedMetaRoadmaps.map((metaRoadmap, index) =>
                       <li key={index}>
@@ -139,7 +139,7 @@ export default async function Page({
                           <div className='flex justify-content-space-between align-items-center'>
                               <a href={`/metaRoadmap/${metaRoadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
                                 <h4 className='font-weight-500 margin-0'>{metaRoadmap.name} </h4>
-                                <p className='margin-0'>{dict.amountOfRoadmaps[locale]} {metaRoadmap.childRoadmaps.length}</p>
+                                <p className='margin-0'>{dict.amountOfRoadmaps} {metaRoadmap.childRoadmaps.length}</p>
                               </a> 
                             <TableMenu object={metaRoadmap} />
                           </div>
@@ -152,7 +152,7 @@ export default async function Page({
 
           {displayedRoadmaps.length > 0 ?
             <section className='margin-block-300'>
-              <h3 className='margin-top-0'>{dict.roadmaps[locale]}</h3>
+              <h3 className='margin-top-0'>{dict.roadmaps}</h3>
               <ul className={`${styles.itemsList}`}>
                 {displayedRoadmaps.map((roadmap, index) =>
                   <li key={index}>
@@ -160,7 +160,7 @@ export default async function Page({
                       <div className='flex justify-content-space-between align-items-center'>
                         <a href={`/roadmap/${roadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
                           <h4 className='font-weight-500 margin-0'>{roadmap.metaRoadmap.name}</h4>
-                          <p className='margin-0'>{dict.amountOfGoals[locale]} {roadmap._count.goals}</p>
+                          <p className='margin-0'>{dict.amountOfGoals} {roadmap._count.goals}</p>
                         </a> 
                         <TableMenu object={roadmap} />
                       </div>

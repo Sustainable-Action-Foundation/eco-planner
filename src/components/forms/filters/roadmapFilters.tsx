@@ -6,12 +6,12 @@ import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useContext, useTransition } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import parentDict from "../forms.dict.json" with { type: "json" };
+import { createDict } from "../forms.dict.ts";
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 export default function RoadmapFilters() {
-  const dict = parentDict.filters.roadmapFilters;
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale).filters.roadmapFilters;
 
   const router = useRouter();
   const pathname = usePathname();
@@ -52,7 +52,7 @@ export default function RoadmapFilters() {
   return <>
     <menu className="flex gap-100 align-items-flex-end padding-0 margin-0 margin-top-300 margin-bottom-100 ">
       <label className="font-weight-bold container-text">
-        {dict.menu.searchRoadmaps[locale]}
+        {dict.menu.searchRoadmaps}
         <div className="margin-top-25 flex align-items-center gray-90 padding-50 smooth focusable">
           <Image src='/icons/search.svg' alt="" width={24} height={24} />
           <input type="search" className="padding-0 margin-inline-50" defaultValue={searchParams.get('searchFilter') ?? undefined} onChange={(e) => {
@@ -61,21 +61,21 @@ export default function RoadmapFilters() {
         </div>
       </label>
       <label className="font-weight-bold">
-        {dict.menu.sortBy[locale]}
+        {dict.menu.sortBy}
         <select
           className="font-weight-500 margin-top-25"
           style={{ fontSize: '1rem', minHeight: 'calc(24px + 1rem)' }}
           defaultValue={searchParams.get('sortBy') ?? ""} onChange={(e) => { updateStringParam('sortBy', e.target.value) }}
         >
-          <option value="">{dict.menu.sotringOptions.default[locale]}</option>
-          <option value={RoadmapSortBy.Alpha}>{dict.menu.sotringOptions.alpha[locale]}</option>
-          <option value={RoadmapSortBy.AlphaReverse}>{dict.menu.sotringOptions.alphaReverse[locale]}</option>
-          <option value={RoadmapSortBy.GoalsFalling}>{dict.menu.sotringOptions.goalsFalling[locale]}</option>
-          <option value={RoadmapSortBy.GoalsRising}>{dict.menu.sotringOptions.goalsRising[locale]}</option>
+          <option value="">{dict.menu.sotringOptions.default}</option>
+          <option value={RoadmapSortBy.Alpha}>{dict.menu.sotringOptions.alpha}</option>
+          <option value={RoadmapSortBy.AlphaReverse}>{dict.menu.sotringOptions.alphaReverse}</option>
+          <option value={RoadmapSortBy.GoalsFalling}>{dict.menu.sotringOptions.goalsFalling}</option>
+          <option value={RoadmapSortBy.GoalsRising}>{dict.menu.sotringOptions.goalsRising}</option>
         </select>
       </label>
       <label className='flex align-items-center gap-50 padding-50 font-weight-bold button smooth transparent'>
-        <span style={{ lineHeight: '1', }}>{dict.menu.filter[locale]}</span>
+        <span style={{ lineHeight: '1', }}>{dict.menu.filter}</span>
         <div className='position-relative grid place-items-center'>
           <input type="checkbox" className="position-absolute width-100 height-100 hidden" />
           <Image src="/icons/filter.svg" alt="" width="24" height="24" />
@@ -84,7 +84,7 @@ export default function RoadmapFilters() {
     </menu>
 
     <menu id="roadmapFilters" className="margin-block-100 margin-inline-0 padding-100 gray-90 smooth">
-      <b>{dict.roadmapFiltersMenu.show[locale]}</b>
+      <b>{dict.roadmapFiltersMenu.show}</b>
       {Object.values(RoadmapType).map((thisType, key) => (
         <label className="flex align-items-center gap-25 margin-block-50" key={key}>
           <input type="checkbox" value={thisType} defaultChecked={searchParams.getAll('typeFilter').includes(thisType)} onChange={(e) => {
@@ -96,13 +96,13 @@ export default function RoadmapFilters() {
               // setTypeFilter(typeFilter.filter((item) => item != e.target.value))
             }
           }} />
-          {`${thisType == RoadmapType.NATIONAL ? `${dict.roadmapFiltersMenu.filterOptions.roadmapTypes.national[locale]}` :
-            thisType == RoadmapType.REGIONAL ? `${dict.roadmapFiltersMenu.filterOptions.roadmapTypes.regional[locale]}` :
-              thisType == RoadmapType.MUNICIPAL ? `${dict.roadmapFiltersMenu.filterOptions.roadmapTypes.municipal[locale]}` :
-                thisType == RoadmapType.LOCAL ? `${dict.roadmapFiltersMenu.filterOptions.roadmapTypes.local[locale]}` :
-                  thisType == RoadmapType.OTHER ? `${dict.roadmapFiltersMenu.filterOptions.roadmapTypes.other[locale]}` :
+          {`${thisType == RoadmapType.NATIONAL ? `${dict.roadmapFiltersMenu.filterOptions.roadmapTypes.national}` :
+            thisType == RoadmapType.REGIONAL ? `${dict.roadmapFiltersMenu.filterOptions.roadmapTypes.regional}` :
+              thisType == RoadmapType.MUNICIPAL ? `${dict.roadmapFiltersMenu.filterOptions.roadmapTypes.municipal}` :
+                thisType == RoadmapType.LOCAL ? `${dict.roadmapFiltersMenu.filterOptions.roadmapTypes.local}` :
+                  thisType == RoadmapType.OTHER ? `${dict.roadmapFiltersMenu.filterOptions.roadmapTypes.other}` :
                     thisType
-            } ${dict.roadmapFiltersMenu.filterOptions.roadmaps[locale]}`}
+            } ${dict.roadmapFiltersMenu.filterOptions.roadmaps}`}
         </label>
       ))}
     </menu>

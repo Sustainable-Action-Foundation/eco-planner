@@ -8,11 +8,11 @@ import Image from "next/image";
 import { useContext, useRef, useState } from "react";
 import RepeatableScaling from "../repeatableScaling";
 import { closeModal, openModal } from "./modalFunctions";
-import parentDict from "./modals.dict.json" with { type: "json" };
+import { createDict } from "./modals.dict.ts";
 
 /** Get the resulting scaling factor from form data */
 export function getScalingResult(locale: Locale, form: FormData, scalingMethod: ScaleMethod, setIsLoading?: React.Dispatch<React.SetStateAction<boolean>>) {
-  const dict = parentDict.copyAndScale;
+  const dict = createDict(locale).copyAndScale;
   const scalars = form.getAll("scaleFactor");
   const scalingTypes = form.getAll("scaleBy");
   const weights = form.getAll("weight");
@@ -28,7 +28,7 @@ export function getScalingResult(locale: Locale, form: FormData, scalingMethod: 
     // If any of the inputs are files, throw. This will only happen if the user has tampered with the form, so no need to give a nice error message
     if (scalars[0] instanceof File) {
       if (setIsLoading) setIsLoading(false);
-      throw new Error(dict.getScalingResult.whyIsThisAFile[locale]); // This locale gets passed since this is not a react component
+      throw new Error(dict.getScalingResult.whyIsThisAFile); // This locale gets passed since this is not a react component
     }
     const tempScale = parseFloat(scalars[0].replace(",", "."));
     const scalingType = scalingTypes[0] as (ScaleBy | "");
@@ -66,7 +66,7 @@ export function getScalingResult(locale: Locale, form: FormData, scalingMethod: 
         for (let i = 0; i < scalars.length; i++) {
           if (scalars[i] instanceof File || weights[i] instanceof File || parentAreas[i] instanceof File || childAreas[i] instanceof File || scalingTypes[i] instanceof File) {
             if (setIsLoading) setIsLoading(false);
-            throw new Error(dict.getScalingResult.whyIsThisAFile[locale]);
+            throw new Error(dict.getScalingResult.whyIsThisAFile);
           }
 
           const scalar: number = parseFloat((scalars[i] as string).replace(",", "."));
@@ -113,7 +113,7 @@ export function getScalingResult(locale: Locale, form: FormData, scalingMethod: 
         for (let i = 0; i < scalars.length; i++) {
           if (scalars[i] instanceof File) {
             if (setIsLoading) setIsLoading(false);
-            throw new Error(dict.getScalingResult.whyIsThisAFile[locale]);
+            throw new Error(dict.getScalingResult.whyIsThisAFile);
           }
 
           const scalar: number = parseFloat((scalars[i] as string).replace(",", "."));
@@ -150,7 +150,7 @@ export function getScalingResult(locale: Locale, form: FormData, scalingMethod: 
         for (let i = 0; i < scalars.length; i++) {
           if (scalars[i] instanceof File || weights[i] instanceof File || parentAreas[i] instanceof File || childAreas[i] instanceof File || scalingTypes[i] instanceof File) {
             if (setIsLoading) setIsLoading(false);
-            throw new Error(dict.getScalingResult.whyIsThisAFile[locale]);
+            throw new Error(dict.getScalingResult.whyIsThisAFile);
           }
 
           const scalar: number = parseFloat((scalars[i] as string).replace(",", "."));
@@ -202,8 +202,8 @@ export default function CopyAndScale({
   goal: Goal & { dataSeries: DataSeries | null },
   roadmapOptions: { id: string, name: string, version: number, actor: string | null }[],
 }) {
-  const dict = parentDict.copyAndScale;
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale).copyAndScale;
 
   const [isLoading, setIsLoading] = useState(false);
   const [scalingComponents, setScalingComponents] = useState<string[]>([crypto?.randomUUID() || Math.random().toString()]);
@@ -238,7 +238,7 @@ export default function CopyAndScale({
     const copyToId = form.get("copyTo");
     if (copyToId instanceof File) {
       setIsLoading(false);
-      throw new Error(dict.formSubmission.whyIsThisAFile[locale]);
+      throw new Error(dict.formSubmission.whyIsThisAFile);
     }
 
     const { scaleFactor, scalingRecipie } = getScalingResult(locale, form, scalingMethod, setIsLoading);
@@ -246,7 +246,7 @@ export default function CopyAndScale({
     // Don't proceed if the resultant scale factor is NaN, infinite, or non-numeric for some reason
     if (!Number.isFinite(scaleFactor)) {
       setIsLoading(false);
-      alert(dict.formSubmission.invalidInput[locale]);
+      alert(dict.formSubmission.invalidInput);
       return;
     }
 
@@ -286,24 +286,24 @@ export default function CopyAndScale({
         onClick={() => openModal(modalRef)}
         style={{ padding: '.3rem .6rem', borderRadius: '2px', fontSize: '.75rem' }}
       >
-        {dict.return.title[locale]}
+        {dict.return.title}
       </button>
       <dialog ref={modalRef} aria-modal className="rounded" style={{ border: '0', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25' }}>
         <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>
           <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label="Close" >
             <Image src='/icons/close.svg' alt="" width={18} height={18} />
           </button>
-          <h2 className="margin-0">{dict.return.copyAndScaleGoal[locale]} {goal.name}</h2>
+          <h2 className="margin-0">{dict.return.copyAndScaleGoal} {goal.name}</h2>
         </div>
 
         <form action={formSubmission} name="copyAndScale" onChange={recalculateScalingResult}>
 
           <label className="block margin-block-100">
-            {dict.return.whichRoadmapVersion[locale]}
+            {dict.return.whichRoadmapVersion}
             <select className="block margin-block-25 width-100" required name="copyTo" id="copyTo">
-              <option value="">{dict.return.selectRoadmapVersion[locale]}</option>
+              <option value="">{dict.return.selectRoadmapVersion}</option>
               {roadmapOptions.map(roadmap => (
-                <option key={roadmap.id} value={roadmap.id}>{`${roadmap.name} ${roadmap.version ? `(${dict.return.version[locale]} ${roadmap.version.toString()})` : null}`}</option>
+                <option key={roadmap.id} value={roadmap.id}>{`${roadmap.name} ${roadmap.version ? `(${dict.return.version} ${roadmap.version.toString()})` : null}`}</option>
               ))}
             </select>
           </label>
@@ -324,40 +324,40 @@ export default function CopyAndScale({
                       display: 'grid',
                       cursor: 'pointer'
                     }} onClick={() => setScalingComponents(scalingComponents.filter((i) => i !== id))}>
-                    <Image src='/icons/circleMinus.svg' alt={dict.return.scalingComponents.removeScaling[locale]} width={24} height={24} />
+                    <Image src='/icons/circleMinus.svg' alt={dict.return.scalingComponents.removeScaling} width={24} height={24} />
                   </button>
                 </RepeatableScaling>
               )
             })}
           </div>
-          <button type="button" className="margin-block-100" onClick={() => setScalingComponents([...scalingComponents, (crypto?.randomUUID() || Math.random().toString())])}>{dict.return.addScaling.title[locale]}</button>
+          <button type="button" className="margin-block-100" onClick={() => setScalingComponents([...scalingComponents, (crypto?.randomUUID() || Math.random().toString())])}>{dict.return.addScaling.title}</button>
 
           <details className="padding-block-25 margin-block-75" style={{ borderBottom: '1px solid var(--gray-90)' }}>
-            <summary>{dict.return.addScaling.advanced.title[locale]}</summary>
+            <summary>{dict.return.addScaling.advanced.title}</summary>
             <fieldset className="margin-block-100">
-              <legend>{dict.return.addScaling.advanced.selectScalingMethod[locale]}</legend>
+              <legend>{dict.return.addScaling.advanced.selectScalingMethod}</legend>
               <label className="flex gap-25 align-items-center margin-block-50">
                 <input type="radio" name="scalingMethod" value={ScaleMethod.Geometric} checked={scalingMethod === ScaleMethod.Geometric} onChange={() => setScalingMethod(ScaleMethod.Geometric)} />
-                {dict.return.addScaling.advanced.geometric[locale]}
+                {dict.return.addScaling.advanced.geometric}
               </label>
               <label className="flex gap-25 align-items-center margin-block-50">
                 <input type="radio" name="scalingMethod" value={ScaleMethod.Algebraic} checked={scalingMethod === ScaleMethod.Algebraic} onChange={() => setScalingMethod(ScaleMethod.Algebraic)} />
-                {dict.return.addScaling.advanced.algebraic[locale]}
+                {dict.return.addScaling.advanced.algebraic}
               </label>
               <label className="flex gap-25 align-items-center margin-block-50">
                 <input type="radio" name="scalingMethod" value={ScaleMethod.Multiplicative} checked={scalingMethod === ScaleMethod.Multiplicative} onChange={() => setScalingMethod(ScaleMethod.Multiplicative)} />
-                {dict.return.addScaling.advanced.multiplicative[locale]}
+                {dict.return.addScaling.advanced.multiplicative}
               </label>
             </fieldset>
           </details>
 
           <label className="margin-inline-auto">
-            <strong className="block bold text-align-center">{dict.return.resultingScalingFactor[locale]}</strong>
+            <strong className="block bold text-align-center">{dict.return.resultingScalingFactor}</strong>
             <output className="margin-block-100 block text-align-center">{scalingResult}</output>
           </label>
 
           <button className="block seagreen color-purewhite smooth width-100 margin-inline-auto font-weight-500">
-            {dict.return.createScaledCopy[locale]}
+            {dict.return.createScaledCopy}
           </button>
         </form>
       </dialog>

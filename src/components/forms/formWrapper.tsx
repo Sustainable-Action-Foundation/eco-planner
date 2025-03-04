@@ -4,7 +4,7 @@ import { useContext, useState } from 'react'
 import styles from './forms.module.css'
 import Image from 'next/image'
 import React from 'react'
-import parentDict from './forms.dict.json' with { type: "json" }
+import { createDict } from "./forms.dict.ts";
 import { LocaleContext } from '@/app/context/localeContext.tsx'
 
 
@@ -13,8 +13,8 @@ export default function FormWrapper({
 }: {
   children: React.ReactNode,
 }) {
-  const dict = parentDict.formWrapper;
   const locale = useContext(LocaleContext)
+  const dict = createDict(locale).formWrapper;
 
   function iterateIndicators(currentTransformIndex: number) {
     const currentIndicator = document?.getElementById('current-indicator')
@@ -92,7 +92,7 @@ export default function FormWrapper({
       <div className={`margin-block-100 padding-inline-100 gap-50 grid ${styles.indicatorLayout}`}>
         <button type="button" className={`flex align-items-center transparent round gap-25 ${styles.indicatorButton}`} onClick={() => iterateSections({ reverse: true })}>
           <Image src="/icons/arrowLeft.svg" alt="" width={24} height={24} />
-          {dict.back[locale]}
+          {dict.back}
         </button>
 
         <div className={`margin-block-50 ${styles.indicatorWrapper}`}>
@@ -105,7 +105,7 @@ export default function FormWrapper({
         </div>
 
         <button type="button" className={`flex align-items-center transparent round gap-25 margin-left-auto ${styles.indicatorButton}`} onClick={() => iterateSections()}>
-          {dict.next[locale]}
+          {dict.next}
           <Image src="/icons/arrowRight.svg" alt="" width={24} height={24} />
         </button>
       </div>

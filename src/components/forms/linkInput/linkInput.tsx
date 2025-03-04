@@ -3,11 +3,11 @@
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 import Image from "next/image";
 import { useContext, useState } from "react";
-import parentDict from "../forms.dict.json" with { type: "json" };
+import { createDict } from "../forms.dict.ts";
 
 export default function LinkInput({ links }: { links?: { url: string, description: string | null }[] }) {
-  const dict = parentDict.linkInput.linkInput;
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale).linkInput.linkInput;
 
   // The list of links
   const [linkList, setLinkList] = useState<{ url: string, description: string | null }[]>(links ?? [])
@@ -17,7 +17,7 @@ export default function LinkInput({ links }: { links?: { url: string, descriptio
       {/* A text field whose contents get appended to linkList upon pressing enter */}
       <div className="flex gap-25">
         <label className="block margin-block-75">
-          {dict.linkInput.name[locale]}
+          {dict.linkInput.name}
           <input className="margin-block-25" type="text" name="linkDescription" id="newDescription" onKeyDown={(event) => {
             if (event.key === 'Enter') {
               const url = (document.querySelector('#newLink') as HTMLInputElement)?.value ?? '';
@@ -32,7 +32,7 @@ export default function LinkInput({ links }: { links?: { url: string, descriptio
         </label>
 
         <label className="block margin-block-75 flex-grow-100">
-          {dict.linkInput.link[locale]}
+          {dict.linkInput.link}
           <input className="margin-block-25" type="url" name="linkUrl" id="newLink" placeholder="https://example.com" onKeyDown={(event) => {
             if (event.key === 'Enter') {
               const url = event.currentTarget.value;

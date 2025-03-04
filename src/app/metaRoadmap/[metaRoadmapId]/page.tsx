@@ -8,11 +8,11 @@ import RoadmapTable from "@/components/tables/roadmapTables/roadmapTable";
 import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { getServerLocale } from "@/functions/serverLocale";
-import parentDict from "../metaRoadmap.dict.json" with { type: "json" };
+import { createDict } from "../metaRoadmap.dict.ts";
 
 export default async function Page({ params }: { params: { metaRoadmapId: string } }) {
-  const dict = parentDict["[metaRoadmapId]"].page;
   const locale = await getServerLocale();
+  const dict = createDict(locale)["[metaRoadmapId]"].page;
 
   const [session, metaRoadmap] = await Promise.all([
     getSession(cookies()),
@@ -34,13 +34,13 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
         <section className="margin-block-300">
           <div className="flex gap-100 flex-wrap-wrap justify-content-space-between" style={{ fontSize: '1rem' }}>
             <div>
-              <span style={{ color: 'gray' }}>{dict.roadmap[locale]}</span>
+              <span style={{ color: 'gray' }}>{dict.roadmap}</span>
               <h1 className="margin-0">{metaRoadmap.name}</h1>
-              <small>{dict.metadataLabel[locale]}</small>
+              <small>{dict.metadataLabel}</small>
               <p>{metaRoadmap.description}</p>
               {metaRoadmap.links.length > 0 ?
                 <>
-                  <h2 className="margin-bottom-0 margin-top-200">{dict.externalResources[locale]}</h2>
+                  <h2 className="margin-bottom-0 margin-top-200">{dict.externalResources}</h2>
                   <ul>
                     {metaRoadmap.links.map((link: { url: string, description: string | null }, index: number) =>
                       <li className="margin-block-25" key={index}>
@@ -63,10 +63,10 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
         </section>
 
         <section className="margin-block-300">
-          <h2 className="margin-block-100 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray)' }}>{dict.roadmaps[locale]}</h2>
+          <h2 className="margin-block-100 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray)' }}>{dict.roadmaps}</h2>
           <menu className="margin-0 padding-0 margin-bottom-100 flex justify-content-flex-end">
             {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
-              <a href={`/roadmap/create?metaRoadmapId=${metaRoadmap.id}`} className="button pureblack color-purewhite round">{dict.newRoadmapVersion[locale]}</a>
+              <a href={`/roadmap/create?metaRoadmapId=${metaRoadmap.id}`} className="button pureblack color-purewhite round">{dict.newRoadmapVersion}</a>
             : null }
           </menu>
           <RoadmapTable user={session.user} metaRoadmap={metaRoadmap} />

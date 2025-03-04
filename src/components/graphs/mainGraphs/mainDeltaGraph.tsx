@@ -2,7 +2,7 @@ import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFu
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
 import { Goal, DataSeries, Effect } from "@prisma/client";
-import parentDict from "../graphs.dict.json" with { type: "json" };
+import { createDict } from "../graphs.dict.ts";
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 import { useContext } from "react";
 
@@ -17,8 +17,8 @@ export default function MainDeltaGraph({
   nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
 }) {
-  const dict = parentDict.mainGraphs.mainDeltaGraph;
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale).mainGraphs.mainDeltaGraph;
 
   if (!goal.dataSeries) {
     return null;
@@ -40,14 +40,14 @@ export default function MainDeltaGraph({
       max: new Date(dataSeriesDataFieldNames[dataSeriesDataFieldNames.length - 1].replace('val', '')).getTime()
     },
     yaxis: [{
-      title: { text: `${dict.chartOptions.title.yearlyChangeIn[locale]} ${goal.dataSeries.unit.toLowerCase() == dict.chartOptions.title.percent[locale] ? dict.chartOptions.title.percentagePoints[locale] : goal.dataSeries.unit}` },
+      title: { text: `${dict.chartOptions.title.yearlyChangeIn} ${goal.dataSeries.unit.toLowerCase() == dict.chartOptions.title.percent ? dict.chartOptions.title.percentagePoints : goal.dataSeries.unit}` },
       labels: { formatter: floatSmoother },
       seriesName: [
         (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
-        dict.chartOptions.seriesName.baseScenario[locale],
-        dict.chartOptions.seriesName.expectedOutcome[locale],
+        dict.chartOptions.seriesName.baseScenario,
+        dict.chartOptions.seriesName.expectedOutcome,
         (secondaryGoal?.dataSeries?.unit == goal.dataSeries.unit) ? (secondaryGoal?.name || secondaryGoal?.indicatorParameter) : '',
-        dict.chartOptions.seriesName.nationalEquivalent[locale],
+        dict.chartOptions.seriesName.nationalEquivalent,
       ],
     }],
     tooltip: {
@@ -98,7 +98,7 @@ export default function MainDeltaGraph({
       });
     }
     chart.push({
-      name: dict.ifBaselineDataSeries.baseScenario[locale],
+      name: dict.ifBaselineDataSeries.baseScenario,
       data: baselineSeries,
       type: 'line',
     });
@@ -118,7 +118,7 @@ export default function MainDeltaGraph({
       totalEffect.shift();
 
       chart.push({
-        name: dict.ifBaselineDataSeries.expectedOutcome[locale],
+        name: dict.ifBaselineDataSeries.expectedOutcome,
         data: totalEffect,
         type: 'line',
       });
@@ -145,7 +145,7 @@ export default function MainDeltaGraph({
         totalEffect.shift();
 
         chart.push({
-          name: dict.ifNoBaselineIsSet.expectedOutcome[locale],
+          name: dict.ifNoBaselineIsSet.expectedOutcome,
           data: totalEffect,
           type: 'line',
         });
@@ -178,7 +178,7 @@ export default function MainDeltaGraph({
     // Place secondary series on separate scale if it doesn't share unit with main
     if (secondaryGoal.dataSeries.unit != goal.dataSeries.unit) {
       (chartOptions.yaxis as ApexYAxis[]).push({
-        title: { text: `${dict.secondaryGoal.title.yearlyChangeIn[locale]} ${secondaryGoal.dataSeries.unit.toLowerCase() == dict.secondaryGoal.title.percent[locale] ? dict.secondaryGoal.title.percentagePoints[locale] : secondaryGoal.dataSeries.unit}` },
+        title: { text: `${dict.secondaryGoal.title.yearlyChangeIn} ${secondaryGoal.dataSeries.unit.toLowerCase() == dict.secondaryGoal.title.percent ? dict.secondaryGoal.title.percentagePoints : secondaryGoal.dataSeries.unit}` },
         labels: { formatter: floatSmoother },
         seriesName: secondaryGoal.name || secondaryGoal.indicatorParameter,
         opposite: true,
@@ -203,7 +203,7 @@ export default function MainDeltaGraph({
       });
     }
     chart.push({
-      name: dict.nationalGoal.name[locale],
+      name: dict.nationalGoal.name,
       data: nationalSeries,
       type: 'line',
     });

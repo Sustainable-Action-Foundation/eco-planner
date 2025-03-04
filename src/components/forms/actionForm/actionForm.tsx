@@ -7,7 +7,7 @@ import formSubmitter from "@/functions/formSubmitter"
 import { ActionInput } from "@/types"
 import { Action, ActionImpactType, DataSeries, Effect } from "@prisma/client"
 import styles from '../forms.module.css'
-import parentDict from "../forms.dict.json" with { type: "json" };
+import { createDict } from "../forms.dict.ts";
 import { LocaleContext } from "@/app/context/localeContext.tsx"
 import { useContext } from "react"
 
@@ -27,8 +27,8 @@ export default function ActionForm({
     links: { url: string, description: string | null }[],
   },
 }) {
-  const dict = parentDict.actionForm.actionForm;
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale).actionForm.actionForm;
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -82,17 +82,17 @@ export default function ActionForm({
         {!(roadmapId || currentAction?.roadmapId) ?
           <fieldset className={`${styles.timeLineFieldset} width-100`}>
             {/* Title */}
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>{dict.selectRoadmapSection.title[locale]}</legend>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>{dict.selectRoadmapSection.title}</legend>
 
             {/* Dropdown */}
             <label className="block margin-block-100">
-              {dict.selectRoadmapSection.enterRelation[locale]}:
+              {dict.selectRoadmapSection.enterRelation}:
               <select name="roadmapId" id="roadmapId" required className="block margin-block-25" defaultValue={""}>
-                <option value="" disabled>{dict.selectRoadmapSection.selectRoadmapVersionDropdown.placeholder[locale]}</option>
+                <option value="" disabled>{dict.selectRoadmapSection.selectRoadmapVersionDropdown.placeholder}</option>
                 {roadmapAlternatives.map(roadmap => (
                   <option key={roadmap.id} value={roadmap.id}>
                     {/* Roadmap (vNNN): NN actions */}
-                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} ${dict.selectRoadmapSection.selectRoadmapVersionDropdown.actions[locale]}`}
+                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} ${dict.selectRoadmapSection.selectRoadmapVersionDropdown.actions}`}
                   </option>
                 ))}
               </select>
@@ -104,29 +104,29 @@ export default function ActionForm({
         {/* Describe action */}
         <fieldset className={`${styles.timeLineFieldset} width-100 ${positionIndex > 1 ? "margin-top-200" : ""}`}>
           {/* Title */}
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend}  font-weight-bold`}>{dict.descriptionSection.title[locale]}</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend}  font-weight-bold`}>{dict.descriptionSection.title}</legend>
 
           {/* Name of action */}
           <label className="block margin-block-100">
-            {dict.descriptionSection.nameOfAction[locale]}
+            {dict.descriptionSection.nameOfAction}
             <input className="margin-block-25" type="text" name="actionName" required id="actionName" defaultValue={currentAction?.name} />
           </label>
 
           {/* Description of action */}
           <label className="block margin-block-100">
-            {dict.descriptionSection.descriptionOfAction[locale]}
+            {dict.descriptionSection.descriptionOfAction}
             <textarea className="margin-block-25" name="actionDescription" id="actionDescription" defaultValue={currentAction?.description ?? undefined} ></textarea>
           </label>
 
           {/* Cost efficiency */}
           <label className="block margin-block-100">
-            {dict.descriptionSection.costEfficiency[locale]}
+            {dict.descriptionSection.costEfficiency}
             <input className="margin-block-25" type="text" name="costEfficiency" id="costEfficiency" defaultValue={currentAction?.costEfficiency ?? undefined} />
           </label>
 
           {/* Expected result */}
           <label className="block margin-block-100">
-            {dict.descriptionSection.expectedResult[locale]}
+            {dict.descriptionSection.expectedResult}
             <textarea className="margin-block-25" name="expectedOutcome" id="expectedOutcome" defaultValue={currentAction?.expectedOutcome ?? undefined} />
           </label>
         </fieldset>
@@ -135,35 +135,35 @@ export default function ActionForm({
         {(goalId && !currentAction) ?
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
             {/* Title */}
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.expectedImpactSection.title[locale]}</legend>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.expectedImpactSection.title}</legend>
 
             {/* Impact type */}
             <label className="block margin-block-75">
-              {dict.expectedImpactSection.title[locale]}
+              {dict.expectedImpactSection.title}
               <select name="impactType" id="impactType" /* defaultValue={actionImpactType} onChange={e => setActionImpactType(e.target.value as ActionImpactType)} */ >
-                <option value={ActionImpactType.ABSOLUTE}>{dict.expectedImpactSection.type.absolute[locale]}</option>
-                <option value={ActionImpactType.DELTA}>{dict.expectedImpactSection.type.delta[locale]}</option>
-                <option value={ActionImpactType.PERCENT}>{dict.expectedImpactSection.type.percent[locale]}</option>
+                <option value={ActionImpactType.ABSOLUTE}>{dict.expectedImpactSection.type.absolute}</option>
+                <option value={ActionImpactType.DELTA}>{dict.expectedImpactSection.type.delta}</option>
+                <option value={ActionImpactType.PERCENT}>{dict.expectedImpactSection.type.percent}</option>
               </select>
             </label>
 
             {/* Data series dropdown */}
             <details className="margin-block-75">
               <summary>
-                {dict.expectedImpactSection.dataSeries.dropdown.title[locale]}
+                {dict.expectedImpactSection.dataSeries.dropdown.title}
               </summary>
               <p>
-                {dict.expectedImpactSection.dataSeries.dropdown.info[locale]}
+                {dict.expectedImpactSection.dataSeries.dropdown.info}
               </p>
             </details>
 
             {/* Data series */}
             <label className="block margin-block-75">
-              {dict.expectedImpactSection.dataSeries.title[locale]}:
+              {dict.expectedImpactSection.dataSeries.title}:
               {/* TODO: Make this allow .csv files and possibly excel files */}
               <input type="text" name="dataSeries" required id="dataSeries"
                 pattern={dataSeriesPattern}
-                title={dict.expectedImpactSection.dataSeries.hoverText[locale]}
+                title={dict.expectedImpactSection.dataSeries.hoverText}
                 className="margin-block-25"
               // defaultValue={dataSeriesString}
               />
@@ -175,17 +175,17 @@ export default function ActionForm({
         {/* Starting year */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           {/* Title */}
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.startingYearSection.title[locale]}</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.startingYearSection.title}</legend>
 
           {/* Starting year */}
           <label className="block margin-bottom-100">
-            {dict.startingYearSection.startingYear[locale]}
+            {dict.startingYearSection.startingYear}
             <input className="margin-block-25" type="number" name="startYear" id="startYear" defaultValue={currentAction?.startYear ?? undefined} min={2000} />
           </label>
 
           {/* Ending year */}
           <label className="block margin-block-100">
-            {dict.startingYearSection.endingYear[locale]}
+            {dict.startingYearSection.endingYear}
             <input className="margin-block-25" type="number" name="endYear" id="endYear" defaultValue={currentAction?.endYear ?? undefined} min={2000} />
           </label>
         </fieldset>
@@ -193,17 +193,17 @@ export default function ActionForm({
         {/* Describe actors */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           {/* Title */}
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.actorsSection.title[locale]}</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.actorsSection.title}</legend>
 
           {/* Project manager */}
           <label className="block margin-bottom-100">
-            {dict.actorsSection.projectManager[locale]}
+            {dict.actorsSection.projectManager}
             <input className="margin-block-25" type="text" name="projectManager" id="projectManager" defaultValue={currentAction?.projectManager ?? undefined} />
           </label>
 
           {/* Relevant actors */}
           <label className="block margin-block-100">
-            {dict.actorsSection.relevantActors[locale]}
+            {dict.actorsSection.relevantActors}
             <input className="margin-block-25" type="text" name="relevantActors" id="relevantActors" defaultValue={currentAction?.relevantActors ?? undefined} />
           </label>
         </fieldset>
@@ -211,38 +211,38 @@ export default function ActionForm({
         {/* Categories */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           {/* Title */}
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.categoriesSection.title[locale]}</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.categoriesSection.title}</legend>
 
           {/* Sufficiency */}
           <label className="flex gap-25 align-items-center margin-bottom-50" htmlFor="isSufficiency">
             <input type="checkbox" name="isSufficiency" id="isSufficiency" defaultChecked={currentAction?.isSufficiency} />
-            {dict.categoriesSection.sufficiency[locale]}
+            {dict.categoriesSection.sufficiency}
           </label>
 
           {/* Efficiency */}
           <label className="flex gap-25 align-items-center margin-block-50" htmlFor="isEfficiency">
             <input type="checkbox" name="isEfficiency" id="isEfficiency" defaultChecked={currentAction?.isEfficiency} />
-            {dict.categoriesSection.efficiency[locale]}
+            {dict.categoriesSection.efficiency}
           </label>
 
           {/* Renewables */}
           <label className="flex gap-25 align-items-center margin-block-50" htmlFor="isRenewables">
             <input type="checkbox" name="isRenewables" id="isRenewables" defaultChecked={currentAction?.isRenewables} />
-            {dict.categoriesSection.renewables[locale]}
+            {dict.categoriesSection.renewables}
           </label>
         </fieldset>
 
         {/* Attach external resources */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           {/* Title */}
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.externalResourcesSection.title[locale]}</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{dict.externalResourcesSection.title}</legend>
 
           {/* Links */}
           <LinkInput links={currentAction?.links} />
         </fieldset>
 
         {/* Submit */}
-        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentAction ? `${dict.submitSection.save[locale]}` : `${dict.submitSection.create[locale]}`} />
+        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentAction ? `${dict.submitSection.save}` : `${dict.submitSection.create}`} />
 
       </form>
     </>

@@ -10,12 +10,12 @@ import { cookies } from "next/headers";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getServerLocale } from "@/functions/serverLocale";
-import parentDict from "../roadmap.dict.json" with { type: "json" };
+import { createDict } from "../roadmap.dict.ts";
 import { DataSeries, Goal } from "@prisma/client";
 
 export default async function Page({ params }: { params: { roadmapId: string } }) {
-  const dict = parentDict["[roadmapId]"].page;
   const locale = await getServerLocale();
+  const dict = createDict(locale)["[roadmapId]"].page;
 
   const [session, roadmap] = await Promise.all([
     getSession(cookies()),
@@ -41,7 +41,7 @@ export default async function Page({ params }: { params: { roadmapId: string } }
     <main>
       <section className="flex justify-content-space-between flex-wrap-wrap gap-100 margin-block-300" >
         <div className="flex-grow-100">
-          <span style={{ color: 'gray' }}>{dict.roadmap[locale]}</span>
+          <span style={{ color: 'gray' }}>{dict.roadmap}</span>
           <h1 className="margin-0">{roadmap.metaRoadmap.name}</h1>
           <p className="margin-0">
             {`Version ${roadmap.version} • `}
@@ -49,9 +49,9 @@ export default async function Page({ params }: { params: { roadmapId: string } }
               <>{`${roadmap.metaRoadmap.actor} • `}</>
               : null
             }
-            {`${roadmap.goals.length ?? 0} ${dict.goals[locale]} • `}
+            {`${roadmap.goals.length ?? 0} ${dict.goals} • `}
             {/* TODO: style link to better match surroundings */}
-            <a href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>{dict.visitRoadmap[locale]}</a>
+            <a href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>{dict.visitRoadmap}</a>
           </p>
           <p className="margin-bottom-0">{roadmap.metaRoadmap.description}</p>
           {roadmap.description ? (
@@ -76,7 +76,7 @@ export default async function Page({ params }: { params: { roadmapId: string } }
             className="flex align-items-center gap-50 font-weight-500 button transparent round color-pureblack text-decoration-none"
             style={{ height: 'fit-content' }}
           >
-            {dict.editRoadmapVersion[locale]}
+            {dict.editRoadmapVersion}
             <Image src="/icons/edit.svg" alt="" width="24" height="24" />
           </a>
         }
@@ -84,7 +84,7 @@ export default async function Page({ params }: { params: { roadmapId: string } }
 
       {featuredGoals.length > 0 ? 
         <section className="margin-block-300">
-          <h2>{dict.selectGoals[locale]}</h2>
+          <h2>{dict.selectGoals}</h2>
           <div className="grid gap-100" style={{ gridTemplateColumns: 'repeat(auto-fit, 300px)' }}>
             {featuredGoals.map((goal, key) =>
               goal && (
@@ -98,7 +98,7 @@ export default async function Page({ params }: { params: { roadmapId: string } }
       : null }
         
       <section className="margin-block-300">
-        <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>{dict.allGoals[locale]}</h2>
+        <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>{dict.allGoals}</h2>
         <Goals roadmap={roadmap} accessLevel={accessLevel} />
       </section>
     </main>

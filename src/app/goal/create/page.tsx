@@ -8,7 +8,7 @@ import { AccessLevel } from "@/types";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { getServerLocale } from "@/functions/serverLocale";
-import parentDict from "../goal.dict.json" with { type: "json" };
+import { createDict } from "../goal.dict.ts";
 
 export default async function Page({
   searchParams
@@ -18,8 +18,8 @@ export default async function Page({
     [key: string]: string | string[] | undefined
   }
 }) {
-  const dict = parentDict.create.page;
   const locale = await getServerLocale();
+  const dict = createDict(locale).create.page;
 
   const [session, roadmap, roadmapList] = await Promise.all([
     getSession(cookies()),
@@ -37,15 +37,15 @@ export default async function Page({
 
   return (
     <>
-      <Breadcrumb object={roadmap || undefined} customSections={[`${dict.breadcrumbCreateGoal[locale]}`]} />
+      <Breadcrumb object={roadmap || undefined} customSections={[`${dict.breadcrumbCreateGoal}`]} />
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          {dict.createNewGoal[locale]}
+          {dict.createNewGoal}
         </h1>
         {badRoadmap &&
           <p style={{ color: 'red' }}>
             <Image src="/icons/info.svg" width={24} height={24} alt='' />
-            {dict.badRoadmap[locale]}
+            {dict.badRoadmap}
           </p>
         }
         <GoalForm roadmapId={badRoadmap ? undefined : searchParams.roadmapId as string} roadmapAlternatives={filteredRoadmaps} />

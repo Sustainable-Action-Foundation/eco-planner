@@ -27,7 +27,7 @@ import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
 import findSiblings from "@/functions/findSiblings.ts";
 import ChildGraphContainer from "@/components/graphs/childGraphs/childGraphContainer.tsx";
 import { getServerLocale } from "@/functions/serverLocale";
-import parentDict from "../goal.dict.json" with { type: "json" };
+import { createDict } from "../goal.dict.ts";
 
 export default async function Page({
   params,
@@ -39,8 +39,8 @@ export default async function Page({
     [key: string]: string | string[] | undefined
   },
 }) {
-  const dict = parentDict["[goalId]"].page;
   const locale = await getServerLocale();
+  const dict = createDict(locale)["[goalId]"].page;
 
   const [session, { goal, roadmap }, secondaryGoal, unfilteredRoadmapOptions] = await Promise.all([
     getSession(cookies()),
@@ -132,7 +132,7 @@ export default async function Page({
       <Breadcrumb object={goal} />
 
       <main>
-        {secondaryGoal && <p className="margin-block-300">{dict.compareGoal[locale]} {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
+        {secondaryGoal && <p className="margin-block-300">{dict.compareGoal} {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
         <section className='margin-top-300'>
           {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
           <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects}>
@@ -146,7 +146,7 @@ export default async function Page({
         <section className="margin-block-100">
           <div className="flex flex-wrap-wrap justify-content-space-between gap-100">
             <div>
-              <span style={{ color: 'gray' }}>{dict.goal[locale]}</span>
+              <span style={{ color: 'gray' }}>{dict.goal}</span>
               {goal.name ? (
                 <>
                   <h2 className="margin-0" style={{ fontSize: '2rem' }}>{goal.name}</h2>
@@ -172,15 +172,15 @@ export default async function Page({
           <p className="container-text">{goal.description}</p>
           {goal.dataSeries?.scale &&
             <>
-              <p>{dict.goalScale[locale]} {`"${goal.dataSeries?.scale}"`}</p>
+              <p>{dict.goalScale} {`"${goal.dataSeries?.scale}"`}</p>
               {[AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel) &&
-                <strong>{dict.infoPrompt[locale]}</strong>
+                <strong>{dict.infoPrompt}</strong>
               }
             </>
           }
           {goal.links.length > 0 ?
             <>
-              <h2 className="margin-bottom-0 margin-top-200" style={{ fontSize: '1.25rem' }}>{dict.externalResources[locale]}</h2>
+              <h2 className="margin-bottom-0 margin-top-200" style={{ fontSize: '1.25rem' }}>{dict.externalResources}</h2>
               <ul>
                 {goal.links.map((link: { url: string, description: string | null }, index: number) =>
                   <li className="margin-block-25" key={index}>
@@ -194,7 +194,7 @@ export default async function Page({
 
         {childGoals.length > 0 ?
           <section className="margin-block-300">
-            <h2>{dict.alignedGoals[locale]}</h2>
+            <h2>{dict.alignedGoals}</h2>
             <ChildGraphContainer goal={goal} childGoals={childGoals} />
           </section>
           : null
@@ -202,7 +202,7 @@ export default async function Page({
 
         {findSiblings(roadmap, goal).length > 1 ?
           <section className="margin-block-300">
-            <h2>{dict.similarGoals[locale]}</h2>
+            <h2>{dict.similarGoals}</h2>
             <SiblingGraph roadmap={roadmap} goal={goal} />
           </section>
           : null
@@ -210,11 +210,11 @@ export default async function Page({
 
         <section className="margin-block-300">
           <div className="flex align-items-center justify-content-space-between">
-            <h2>{dict.actions[locale]}</h2>
+            <h2>{dict.actions}</h2>
             {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
               <div className="flex gap-50">
-                <Link href={`/effect/create?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">{dict.connectToAction[locale]}</Link>
-                <Link href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">{dict.createNewAction[locale]}</Link>
+                <Link href={`/effect/create?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">{dict.connectToAction}</Link>
+                <Link href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">{dict.createNewAction}</Link>
               </div>
             }
           </div>

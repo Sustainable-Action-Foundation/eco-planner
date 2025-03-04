@@ -4,12 +4,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { useContext, useState } from "react";
 import styles from '../forms.module.css'
-import parentDict from "../forms.dict.json" with { type: "json" };
+import { createDict } from "../forms.dict.ts";
 import { Locale } from "@/types";
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, locale: Locale) {
-  const dict = parentDict.userInfo.login;
+  const dict = createDict(locale).userInfo.login;
   event.preventDefault();
 
   const form = event.target;
@@ -34,37 +34,37 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, locale: Locale)
         window.location.href = '/';
       }
     } else {
-      alert(dict.handleSubmit.loginFailed[locale]);
+      alert(dict.handleSubmit.loginFailed);
     }
   }).catch(() => {
-    alert(dict.handleSubmit.loginFailed[locale]);
+    alert(dict.handleSubmit.loginFailed);
   })
 }
 
 export default function Login() {
-  const dict = parentDict.userInfo.login;
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale).userInfo.login;
 
   const [showPassword, setShowPassword] = useState(false);
 
   return (
     <>
       <form onSubmit={(event: React.ChangeEvent<HTMLFormElement>) => handleSubmit(event, locale)} className={`${styles.padding}`}>
-        <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid var(--gray-90)' }}>{dict.login.title[locale]}</h1>
+        <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid var(--gray-90)' }}>{dict.login.title}</h1>
 
         <label className="block margin-block-100">
-          {dict.login.username.label[locale]}
+          {dict.login.username.label}
           <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
             <Image src="/icons/user.svg" alt="" width={24} height={24} />
-            <input className="padding-0 margin-inline-50" type="text" placeholder={dict.login.username.placeholder[locale]} name="username" required id="username" autoComplete="username" />
+            <input className="padding-0 margin-inline-50" type="text" placeholder={dict.login.username.placeholder} name="username" required id="username" autoComplete="username" />
           </div>
         </label>
 
         <label className="block margin-block-100">
-          {dict.login.password.label[locale]}
+          {dict.login.password.label}
           <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
             <Image src="/icons/password.svg" alt="" width={24} height={24} />
-            <input className="padding-0 margin-inline-50 transparent" type={showPassword ? 'text' : 'password'} placeholder={dict.login.password.placeholder[locale]} name="password" required id="password" autoComplete="current-password" />
+            <input className="padding-0 margin-inline-50 transparent" type={showPassword ? 'text' : 'password'} placeholder={dict.login.password.placeholder} name="password" required id="password" autoComplete="current-password" />
             <button type="button" className={`${styles.showPasswordButton} grid padding-0 transparent`} onClick={() => setShowPassword(prevState => !prevState)}>
               <Image src={showPassword ? '/icons/eyeDisabled.svg' : '/icons/eye.svg'} alt="" width={24} height={24} />
             </button>
@@ -74,18 +74,18 @@ export default function Login() {
         <div className="flex gap-100 flex-wrap-wrap align-items-center justify-content-space-between">
           <label className="flex align-items-center gap-50">
             <input type="checkbox" name="remember" id="remember" />
-            {dict.login.rememberMe[locale]}
+            {dict.login.rememberMe}
           </label>
 
-          <small><Link href='/password'>{dict.login.forgotPassword[locale]}</Link></small>
+          <small><Link href='/password'>{dict.login.forgotPassword}</Link></small>
 
         </div>
 
-        <input type="submit" value={dict.login.submit.login[locale]} className="block font-weight-bold seagreen smooth color-purewhite margin-top-200" />
+        <input type="submit" value={dict.login.submit.login} className="block font-weight-bold seagreen smooth color-purewhite margin-top-200" />
 
         <div className="flex gap-100 align-items-center justify-content-space-between alignt-items-center flex-wrap-wrap margin-block-100">
-          <span>{dict.login.noAccount.label[locale]} <Link href='/signup'>{dict.login.noAccount.createAccount[locale]}</Link></span>
-          <Link href='/verify'>{dict.login.noAccount.verifyAccount[locale]}</Link>  
+          <span>{dict.login.noAccount.label} <Link href='/signup'>{dict.login.noAccount.createAccount}</Link></span>
+          <Link href='/verify'>{dict.login.noAccount.verifyAccount}</Link>  
         </div>
 
 

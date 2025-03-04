@@ -7,7 +7,7 @@ import { AccessLevel } from '@/types';
 import Link from 'next/link';
 import { TableMenu } from './tableMenu/tableMenu';
 import { LocaleContext } from "@/app/context/localeContext.tsx";
-import parentDict from "./tables.dict.json" with { type: "json" };
+import { createDict } from "./tables.dict.ts";
 import { useContext } from 'react';
 
 /**
@@ -36,18 +36,18 @@ export default function ActionTable({
   accessLevel?: AccessLevel,
   roadmapId?: string,
 }) {
-  const dict = parentDict.actions;
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale).actions;
 
   // If no actions are found, return a message
   if (!actions?.length) return (
     <>
-      <p>{dict.noActions[locale]}
+      <p>{dict.noActions}
         { // Only show the button if the user has edit access and a roadmapId is provided
           (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) && roadmapId &&
-          <span> {dict.createActionQuestion[locale]}&nbsp;
+          <span> {dict.createActionQuestion}&nbsp;
             <Link href={`/action/create?roadmapId=${roadmapId}`}>
-              {dict.createNewAction[locale]}
+              {dict.createNewAction}
             </Link>
           </span>
         }

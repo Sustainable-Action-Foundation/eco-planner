@@ -10,7 +10,7 @@ import { AccessControlled, MetaRoadmapInput } from "@/types";
 import { MetaRoadmap, RoadmapType } from "@prisma/client";
 import { useContext, useState } from "react";
 import styles from '../forms.module.css';
-import parentDict from "../forms.dict.json" with { type: "json" };
+import { createDict } from "../forms.dict.ts";
 
 export default function MetaRoadmapForm({
   user,
@@ -23,8 +23,8 @@ export default function MetaRoadmapForm({
   parentRoadmapOptions?: MetaRoadmap[],
   currentRoadmap?: MetaRoadmap & AccessControlled,
 }) {
-  const dict = parentDict.metaRoadmapForm.metaRoadmapForm;
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale).metaRoadmapForm.metaRoadmapForm;
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     // Mostly the usual submit handler stuff.
@@ -101,25 +101,25 @@ export default function MetaRoadmapForm({
         <input type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>{dict.describeMetaRoadmap.title[locale]}</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>{dict.describeMetaRoadmap.title}</legend>
           <label className="block margin-block-100">
-            {dict.describeMetaRoadmap.name[locale]}
+            {dict.describeMetaRoadmap.name}
             <input id="metaRoadmapName" name="metaRoadmapName" className="margin-block-25" type="text" defaultValue={currentRoadmap?.name ?? undefined} required />
           </label>
 
           <label className="block margin-block-100">
-            {dict.describeMetaRoadmap.description[locale]}
+            {dict.describeMetaRoadmap.description}
             <textarea className="block margin-block-25" name="description" id="description" defaultValue={currentRoadmap?.description ?? undefined} required></textarea>
           </label>
         </fieldset>
 
         {/* TODO - is this right? */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.actor.chooseResponsibleActor[locale]}</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.actor.chooseResponsibleActor}</legend>
           <label className="block margin-bottom-100">
-            {dict.actor.typeOfMetaRoadmap[locale]}
+            {dict.actor.typeOfMetaRoadmap}
             <select className="block margin-block-25" name="type" id="type" defaultValue={currentRoadmap?.type ?? ""} required>
-              <option value="">{dict.actor.chooseType[locale]}</option>
+              <option value="">{dict.actor.chooseType}</option>
               {
                 Object.values(RoadmapType).map((value) => {
                   if (value == RoadmapType.NATIONAL && !user?.isAdmin) return null;
@@ -132,19 +132,19 @@ export default function MetaRoadmapForm({
           </label>
 
           <label className="block margin-block-100">
-            {dict.actor.chooseActor[locale]}
+            {dict.actor.chooseActor}
             <input className="margin-block-25" list="actors" id="actor" name="actor" type="text" defaultValue={currentRoadmap?.actor ?? undefined} />
           </label>
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.externalResources.attach[locale]}</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.externalResources.attach}</legend>
           <LinkInput />
         </fieldset>
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.viewingPrivileges.adjust[locale]}</legend>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.viewingPrivileges.adjust}</legend>
             <ViewUsers
               groupOptions={userGroups}
               existingUsers={currentAccess?.viewers.map((user) => user.username)}
@@ -157,7 +157,7 @@ export default function MetaRoadmapForm({
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.editingPrivileges.adjust[locale]}</legend>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.editingPrivileges.adjust}</legend>
             <EditUsers
               groupOptions={userGroups}
               existingUsers={currentAccess?.editors.map((user) => user.username)}
@@ -167,11 +167,11 @@ export default function MetaRoadmapForm({
         }
         {/* TODO - hitta bättre översättning för "förälder" */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.parentMetaRoadmap.title[locale]}</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{dict.parentMetaRoadmap.title}</legend>
           <label className="block margin-block-75">
-            {dict.parentMetaRoadmap.parent[locale]}
+            {dict.parentMetaRoadmap.parent}
             <select name="parentRoadmap" id="parentRoadmap" className="block margin-block-25" defaultValue={currentRoadmap?.parentRoadmapId ?? ""}>
-              <option value="">{dict.parentMetaRoadmap.noParent[locale]}</option>
+              <option value="">{dict.parentMetaRoadmap.noParent}</option>
               {
                 !parentRoadmapOptions && currentRoadmap && currentRoadmap.parentRoadmapId && (
                   <option value={currentRoadmap.parentRoadmapId} disabled>{currentRoadmap.parentRoadmapId}</option>
@@ -190,7 +190,7 @@ export default function MetaRoadmapForm({
 
 
         {/* Add copy of RoadmapForm? Only if we decide to include it immediately rather than redirecting to it */}
-        <input className="seagreen color-purewhite margin-block-200" type="submit" id="submit-button" value={currentRoadmap ? dict.submit.save[locale] : dict.submit.create[locale]} /> {/* TODO: Set disabled if form not filled out */}
+        <input className="seagreen color-purewhite margin-block-200" type="submit" id="submit-button" value={currentRoadmap ? dict.submit.save : dict.submit.create} /> {/* TODO: Set disabled if form not filled out */}
       </form>
 
       <datalist id="actors">

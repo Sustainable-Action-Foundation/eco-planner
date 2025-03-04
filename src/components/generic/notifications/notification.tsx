@@ -1,18 +1,18 @@
 import styles from './notification.module.css'
 import Link from "next/link"
 import Image from "next/image"
-import parentDict from "../generic.dict.json" with { type: "json" };
+import { createDict } from "../generic.dict.ts";
 import { useContext } from 'react';
 import { LocaleContext } from '@/app/context/localeContext.tsx';
 
 export default function Notifications({ amount }: { amount: number }) {
-  const dict = parentDict.notifications.notification;
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale).notifications.notification;
 
   return (
     <Link href="/" className={`flex align-items-center ${styles.link}`}>
       <div style={{ position: 'relative', display: 'grid' }}>
-        <Image src="/icons/bell.svg" alt={dict.notifications.notificationsAlt[locale]} width={24} height={24} />
+        <Image src="/icons/bell.svg" alt={dict.notifications.notificationsAlt} width={24} height={24} />
         <div style={{
           padding: '1px',
           borderRadius: '9999px',

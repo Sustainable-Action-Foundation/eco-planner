@@ -9,7 +9,7 @@ import { AccessLevel } from '@/types';
 import accessChecker from '@/lib/accessChecker';
 import getOneMetaRoadmap from '@/fetchers/getOneMetaRoadmap';
 import { getServerLocale } from "@/functions/serverLocale";
-import parentDict from "../roadmap.dict.json" with { type: "json" };
+import { createDict } from "../roadmap.dict.ts";
 
 export default async function Page({
   searchParams
@@ -19,8 +19,8 @@ export default async function Page({
     [key: string]: string | string[] | undefined
   }
 }) {
-  const dict = parentDict.create.page;
   const locale = await getServerLocale();
+  const dict = createDict(locale).create.page;
 
   const [session, parent, metaRoadmapAlternatives] = await Promise.all([
     getSession(cookies()),
@@ -46,16 +46,16 @@ export default async function Page({
 
   return (
     <>
-      <Breadcrumb object={parent || undefined} customSections={[`${dict.breadcrumbCreateRoadmapVersion[locale]}`]} />
+      <Breadcrumb object={parent || undefined} customSections={[`${dict.breadcrumbCreateRoadmapVersion}`]} />
 
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          {dict.newRoadmapVersion[locale]}
+          {dict.newRoadmapVersion}
         </h1>
         {badMetaRoadmap &&
           <p style={{ color: 'red' }}>
             <Image src="/icons/info.svg" width={24} height={24} alt='' />
-            {dict.badMetaRoadmap[locale]}
+            {dict.badMetaRoadmap}
           </p>
         }
         <RoadmapForm

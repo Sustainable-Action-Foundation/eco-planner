@@ -5,7 +5,7 @@ import { useContext, useState } from "react";
 import styles from "@/components/forms/forms.module.css";
 import formSubmitter from "@/functions/formSubmitter";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import parentDict from "../password.dict.json" with { type: "json" };
+import { createDict } from "../password.dict.ts";
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
@@ -22,29 +22,29 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
 }
 
 export default function Page() {
-  const dict = parentDict.reset.page;
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale).reset.page;
 
   const [showPassword, setShowPassword] = useState(false)
 
   return (
     <>
-      <Breadcrumb customSections={[`${dict.breadcrumbUpdatePassword[locale]}`]} />
+      <Breadcrumb customSections={[`${dict.breadcrumbUpdatePassword}`]} />
 
       <div>
-        <p>{dict.enterPassword[locale]}</p>
+        <p>{dict.enterPassword}</p>
         <form onSubmit={handleSubmit}>
           <label className="block margin-block-100">
-            {dict.password[locale]}
+            {dict.password}
             <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
               <Image src="/icons/password.svg" alt="" width={24} height={24} />
-              <input className="padding-0 margin-inline-50 transparent" type={showPassword ? 'text' : 'password'} placeholder={dict.passwordPlaceholder[locale]} name="password" required id="password" autoComplete="current-password" />
+              <input className="padding-0 margin-inline-50 transparent" type={showPassword ? 'text' : 'password'} placeholder={dict.passwordPlaceholder} name="password" required id="password" autoComplete="current-password" />
               <button type="button" className={`${styles.showPasswordButton} grid padding-0 transparent`} onClick={() => setShowPassword(prevState => !prevState)}>
                 <Image src={showPassword ? '/icons/eyeDisabled.svg' : '/icons/eye.svg'} alt="" width={24} height={24} />
               </button>
             </div>
           </label>
-          <button type="submit">{dict.changePassword[locale]}</button>
+          <button type="submit">{dict.changePassword}</button>
         </form>
       </div>
     </>

@@ -8,11 +8,11 @@ import { AccessControlled, AccessLevel } from "@/types";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { getServerLocale } from "@/functions/serverLocale";
-import parentDict from "../../goal.dict.json" with { type: "json" };
+import { createDict } from "../../goal.dict.ts";
 
 export default async function Page({ params }: { params: { goalId: string } }) {
-  const dict = parentDict["[goalId]"].edit.page;
   const locale = await getServerLocale();
+  const dict = createDict(locale)["[goalId]"].edit.page;
 
   const [session, currentGoal, roadmaps] = await Promise.all([
     getSession(cookies()),
@@ -40,11 +40,11 @@ export default async function Page({ params }: { params: { goalId: string } }) {
 
   return (
     <>
-      <Breadcrumb object={currentGoal} customSections={[`${dict.breadcrumbEditGoal[locale]}`]} />
+      <Breadcrumb object={currentGoal} customSections={[`${dict.breadcrumbEditGoal}`]} />
 
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          {dict.editGoal[locale]}
+          {dict.editGoal}
           {currentGoal.name ? currentGoal.name : currentGoal.indicatorParameter}
         </h1>
         <GoalForm roadmapId={currentGoal.roadmapId} currentGoal={currentGoal} roadmapAlternatives={roadmapList} />

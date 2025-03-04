@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useContext, useTransition } from "react";
-import parentDict from "../forms.dict.json" with { type: "json" };
+import { createDict } from "../forms.dict.ts";
 import { LocaleContext } from "@/app/context/localeContext";
 
 // TODO - translate this page
@@ -11,8 +11,8 @@ export default function UserFilters({
   }: {
     userPage: boolean
   }) {
-    const dict = parentDict.filters.userFilters;
     const locale = useContext(LocaleContext);
+    const dict = createDict(locale).filters.userFilters;
 
   const router = useRouter();
   const pathname = usePathname();
@@ -37,7 +37,7 @@ export default function UserFilters({
   return (
     <menu className='margin-0 padding-0 flex gap-300 flex-wrap-wrap margin-bottom-100'>
       <fieldset className='flex gap-100 fieldset-unset-pseudo-class'>
-        <legend className='font-weight-500 padding-bottom-75'>{dict.posts[locale]}</legend>
+        <legend className='font-weight-500 padding-bottom-75'>{dict.posts}</legend>
         <label className='flex gap-25 align-items-center'>
           <input type='checkbox' value='roadmap' defaultChecked={searchParams.getAll('objects').includes('roadmap')} onChange={(e) => {
               if (e.target.checked) {
@@ -47,7 +47,7 @@ export default function UserFilters({
               }
             }} 
           />
-          {dict.roadmap[locale]}
+          {dict.roadmap}
         </label>
         <label className='flex gap-25 align-items-center'>
           <input type='checkbox' value='roadmapseries' defaultChecked={searchParams.getAll('objects').includes('roadmapseries')} onChange={(e) => {
@@ -58,13 +58,13 @@ export default function UserFilters({
               }
             }} 
           />
-          {dict.roadmapSeries[locale]}
+          {dict.roadmapSeries}
         </label>
       </fieldset>
 
       {userPage === true ? 
         <fieldset className='flex gap-100 fieldset-unset-pseudo-class'>
-          <legend className='font-weight-500 padding-bottom-75'>{dict.clearance[locale]}</legend>
+          <legend className='font-weight-500 padding-bottom-75'>{dict.clearance}</legend>
           <label className='flex gap-25 align-items-center'>
             <input type='checkbox' value='edit' defaultChecked={searchParams.getAll('access').includes('edit')} onChange={(e) => {
                 if (e.target.checked) {
@@ -74,7 +74,7 @@ export default function UserFilters({
                 }
               }} 
             />
-            {dict.editingPrivileges[locale]} 
+            {dict.editingPrivileges} 
           </label>
         </fieldset>
       : null}

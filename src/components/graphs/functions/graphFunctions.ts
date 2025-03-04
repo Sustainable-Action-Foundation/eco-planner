@@ -3,11 +3,12 @@ import { GraphType } from "../graphGraph";
 import { ActionImpactType, type DataSeries, type Effect } from "@prisma/client";
 import { dataSeriesDataFieldNames, DataSeriesDataFields, Locale } from "@/types";
 import { ChildGraphType } from "../childGraphs/childGraphContainer";
-import parentDict from "../graphs.dict.json" with { type: "json" };
+import { createDict } from "../graphs.dict.ts";
 
 /** Retrieves the graph type for a goal from storage. */
 export function getStoredGraphType(locale: Locale, goalId?: string) {
-  const dict = parentDict.functions.graphFunctions;
+  const dict = createDict(locale).functions.graphFunctions;
+
   let graphType: GraphType | undefined | null;
   // Check if this goal has a stored graph type
   if (goalId) {
@@ -20,7 +21,7 @@ export function getStoredGraphType(locale: Locale, goalId?: string) {
   // Default to main graph if no valid graph type is found
   if (!Object.values(GraphType).includes(graphType as GraphType) || !graphType) {
     if (graphType != null) {
-      console.log(dict.getStoredGraphType.noValidGraphType[locale]);
+      console.log(dict.getStoredGraphType.noValidGraphType);
     }
 
     setLocalStorage("graphType", GraphType.Main);
@@ -31,7 +32,7 @@ export function getStoredGraphType(locale: Locale, goalId?: string) {
 
 /** Retrieves the graph type for gcild graphs for a goal from storage. */
 export function getStoredChildGraphType(locale: Locale, goalId?: string) {
-  const dict = parentDict.functions.graphFunctions;
+  const dict = createDict(locale).functions.graphFunctions;
   let graphType: ChildGraphType | undefined | null;
   // Check if this goal has a stored graph type
   if (goalId) {
@@ -44,7 +45,7 @@ export function getStoredChildGraphType(locale: Locale, goalId?: string) {
   // Default to target graph if no valid graph type is found
   if (!graphType || !Object.values(ChildGraphType).includes(graphType as ChildGraphType)) {
     if (graphType != null) {
-      console.log(dict.getStoredChildGraphType.noValidGraphType[locale]);
+      console.log(dict.getStoredChildGraphType.noValidGraphType);
     }
 
     setLocalStorage("childGraphType", ChildGraphType.Target);

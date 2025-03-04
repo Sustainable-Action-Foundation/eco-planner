@@ -13,7 +13,7 @@ import { Goal } from "@prisma/client";
 import Image from "next/image";
 import { FormEvent, useContext, useEffect, useRef, useState } from "react";
 import FormWrapper from "../formWrapper";
-import parentDict from "../forms.dict.json" with { type: "json" };
+import { createDict } from "../forms.dict.ts";
 import styles from './queryBuilder.module.css';
 
 export default function QueryBuilder({
@@ -21,8 +21,8 @@ export default function QueryBuilder({
 }: {
   goal: Goal,
 }) {
-  const dict = parentDict.pxWeb.queryBuilder;
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale).pxWeb.queryBuilder;
 
   const [isLoading, setIsLoading] = useState(false);
   const [dataSource, setDataSource] = useState<string>("" as keyof typeof externalDatasetBaseUrls);
@@ -126,7 +126,7 @@ export default function QueryBuilder({
   return (
     <>
       <button type="button" className="transparent flex align-items-center gap-25 font-weight-500" style={{ fontSize: '.75rem', padding: '.3rem .6rem' }} onClick={() => openModal(modalRef)}>
-        {dict.addHistoricalData[locale]}
+        {dict.addHistoricalData}
         <Image src='/icons/chartAdd.svg' alt="" width={16} height={16} />
       </button>
       <dialog className={`smooth${styles.dialog}`} ref={modalRef} aria-modal style={{ border: '0', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25' }}>
@@ -134,9 +134,9 @@ export default function QueryBuilder({
           <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label="Close" >
             <Image src='/icons/close.svg' alt="" width={18} height={18} />
           </button>
-          <h2 className="margin-0">{dict.addDataSource[locale]}</h2>
+          <h2 className="margin-0">{dict.addDataSource}</h2>
         </div>
-        <p>{dict.addHistoricalMetadata[locale]} {goal.name ?? goal.indicatorParameter}</p>
+        <p>{dict.addHistoricalMetadata} {goal.name ?? goal.indicatorParameter}</p>
 
         <form ref={formRef} onChange={tryGetResult} onSubmit={handleSubmit}>
           {/* Hidden disabled submit button to prevent accidental submisson */}
@@ -145,9 +145,9 @@ export default function QueryBuilder({
           <FormWrapper>
             <fieldset>
               <label className="margin-block-75">
-                {dict.dataSource.dataSource[locale]}
+                {dict.dataSource.dataSource}
                 <select className="block margin-block-25" required name="externalDataset" id="externalDataset" onChange={e => setDataSource(e.target.value)}>
-                  <option value="">{dict.dataSource.chooseSource[locale]}</option>
+                  <option value="">{dict.dataSource.chooseSource}</option>
                   {Object.keys(externalDatasetBaseUrls).map((name) => (
                     <option key={name} value={name}>{name}</option>
                   ))}
@@ -159,10 +159,10 @@ export default function QueryBuilder({
                 <>
                   <div className="flex gap-25 align-items-flex-end margin-block-75">
                     <label className="flex-grow-100">
-                      <span className="block margin-block-25">{dict.dataSource.searchForTable[locale]}</span>
+                      <span className="block margin-block-25">{dict.dataSource.searchForTable}</span>
                       <input name={tableSearchInputName} type="search" className="block" onKeyDown={searchOnEnter} />
                     </label>
-                    <button type="button" onClick={searchWithButton} style={{ fontSize: '1rem' }}>{dict.dataSource.search[locale]}</button>
+                    <button type="button" onClick={searchWithButton} style={{ fontSize: '1rem' }}>{dict.dataSource.search}</button>
                   </div>
 
                   <div className="padding-25 smooth" style={{ border: '1px solid var(--gray-90)' }}>
@@ -181,7 +181,7 @@ export default function QueryBuilder({
 
             <fieldset className="margin-block-100 smooth padding-50" style={{ border: '1px solid var(--gray-90)' }}>
               <legend className="padding-inline-50">
-                <strong>{dict.tableDetails.chooseValues[locale]}</strong>
+                <strong>{dict.tableDetails.chooseValues}</strong>
               </legend>
               {tableDetails && (
                 <>
@@ -197,7 +197,7 @@ export default function QueryBuilder({
                         defaultValue={variable.values.length == 1 ? variable.values[0].code : undefined}>
                         { // If only one value is available, don't show a placeholder option
                           variable.values.length != 1 &&
-                          <option value="">{dict.tableDetails.chooseValue[locale]}</option>
+                          <option value="">{dict.tableDetails.chooseValue}</option>
                         }
                         {variable.values.map(value => (
                           <option key={value.code} value={value.code} lang={tableDetails.language}>{value.label}</option>
@@ -212,12 +212,12 @@ export default function QueryBuilder({
 
           {tableContent ? (
             <div>
-              <p>{dict.tableContentCheck.doesThisLookCorrect[locale]}</p>
+              <p>{dict.tableContentCheck.doesThisLookCorrect}</p>
               <table>
                 <thead>
                   <tr>
-                    <th scope="col">{dict.tableContentCheck.timePeriod[locale]}</th>
-                    <th scope="col">{dict.tableContentCheck.value[locale]}</th>
+                    <th scope="col">{dict.tableContentCheck.timePeriod}</th>
+                    <th scope="col">{dict.tableContentCheck.value}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -233,11 +233,11 @@ export default function QueryBuilder({
             </div>
           ) : (
             <div>
-              <p>{dict.noReadableResult[locale]}</p>
+              <p>{dict.noReadableResult}</p>
             </div>
           )}
 
-          <button type="submit" className="seagreen color-purewhite">{dict.submit.addDataSource[locale]}</button>
+          <button type="submit" className="seagreen color-purewhite">{dict.submit.addDataSource}</button>
         </form>
       </dialog>
     </>

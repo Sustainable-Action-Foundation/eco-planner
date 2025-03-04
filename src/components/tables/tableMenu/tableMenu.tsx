@@ -8,7 +8,7 @@ import { Action, DataSeries, Effect, Goal, MetaRoadmap } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import { useContext, useRef } from "react";
-import parentDict from "../tables.dict.json" with { type: "json" };
+import { createDict } from "../tables.dict.ts";
 import styles from './tableMenu.module.css' with { type: "css" };
 
 // General purpose button for roadmaps, goals and actions. 
@@ -71,8 +71,8 @@ export function TableMenu(
       })
     )
   }) {
-  const dict = parentDict.tableMenu.tableMenu;
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale).tableMenu.tableMenu;
 
   const menu = useRef<HTMLDialogElement | null>(null);
   const deletionRef = useRef<HTMLDialogElement | null>(null);
@@ -90,7 +90,7 @@ export function TableMenu(
   if (object.roadmapVersions != undefined) {
     selfLink = `/metaRoadmap/${object.id}`;
     creationLink = `/roadmap/create?metaRoadmapId=${object.id}`;
-    creationDescription = `${dict.metaRoadmaps.creationDescription[locale]}`;
+    creationDescription = `${dict.metaRoadmaps.creationDescription}`;
     editLink = `/metaRoadmap/${object.id}/edit`;
     deleteLink = "/api/metaRoadmap"
   }
@@ -98,11 +98,11 @@ export function TableMenu(
   else if (object.metaRoadmap != undefined) {
     selfLink = `/roadmap/${object.id}`
     parentLink = `/metaRoadmap/${object.metaRoadmap.id}`;
-    parentDescription = `${dict.roadmaps.parentDescription[locale]}`;
+    parentDescription = `${dict.roadmaps.parentDescription}`;
     creationLink = `/goal/create?roadmapId=${object.id}`;
-    creationDescription = `${dict.roadmaps.creationDescription[locale]}`;
+    creationDescription = `${dict.roadmaps.creationDescription}`;
     creationLink2 = `/action/create?roadmapId=${object.id}`;
-    creationDescription2 = `${dict.roadmaps.creationDescription2[locale]}`;
+    creationDescription2 = `${dict.roadmaps.creationDescription2}`;
     editLink = `/roadmap/${object.id}/edit`;
     deleteLink = "/api/roadmap"
   }
@@ -110,11 +110,11 @@ export function TableMenu(
   else if (object.indicatorParameter != undefined) {
     selfLink = `/goal/${object.id}`;
     parentLink = `/roadmap/${object.roadmap.id}`;
-    parentDescription = `${dict.goals.parentDescription[locale]}`;
+    parentDescription = `${dict.goals.parentDescription}`;
     creationLink = `/action/create?roadmapId=${object.roadmapId}&goalId=${object.id}`;
-    creationDescription = `${dict.goals.creationDescription[locale]}`;
+    creationDescription = `${dict.goals.creationDescription}`;
     creationLink2 = `/effect/create?goalId=${object.id}`;
-    creationDescription2 = `${dict.goals.creationDescription2[locale]}`;
+    creationDescription2 = `${dict.goals.creationDescription2}`;
     editLink = `/goal/${object.id}/edit`;
     deleteLink = "/api/goal"
     if (!object.name) {
@@ -125,9 +125,9 @@ export function TableMenu(
   else if (object.isSufficiency != undefined) {
     selfLink = `/action/${object.id}`;
     parentLink = `/roadmap/${object.roadmapId}`;
-    parentDescription = `${dict.actions.parentDescription[locale]}`;
+    parentDescription = `${dict.actions.parentDescription}`;
     creationLink = `/effect/create?actionId=${object.id}`;
-    creationDescription = `${dict.actions.creationDescription[locale]}`;
+    creationDescription = `${dict.actions.creationDescription}`;
     editLink = `/action/${object.id}/edit`;
     deleteLink = "/api/action"
   }
@@ -135,11 +135,11 @@ export function TableMenu(
   else if (object.actionId != undefined) {
     selfLink = `/action/${object.actionId}`;
     parentLink = `/goal/${object.goalId}`;
-    parentDescription = `${dict.effects.parentDescription[locale]}`;
+    parentDescription = `${dict.effects.parentDescription}`;
     editLink = `/effect/edit?actionId=${object.actionId}&goalId=${object.goalId}`;
     deleteLink = '/api/effect';
     if (!object.name) {
-      object.name = object.action?.name ? `${dict.effects.effectFrom} ${object.action.name}` : object.goal ? (object.goal.name || object.goal.indicatorParameter) : `${dict.effects.nameMissing[locale]}`;
+      object.name = object.action?.name ? `${dict.effects.effectFrom} ${object.action.name}` : object.goal ? (object.goal.name || object.goal.indicatorParameter) : `${dict.effects.nameMissing}`;
     }
     if (!object.id) {
       object.id = { actionId: object.actionId, goalId: object.goalId };
@@ -175,14 +175,14 @@ export function TableMenu(
   return (
     <>
       <div className={`${styles.actionButton} display-flex`}>
-        <button type="button" onClick={openMenu} className={styles.button} aria-label={`${dict.return.menuFor} ${object.name || object.metaRoadmap?.name || dict.return.nameMissing[locale]}`}>
-          <Image src='/icons/dotsVertical.svg' width={24} height={24} alt={dict.return.menu[locale]}></Image>
+        <button type="button" onClick={openMenu} className={styles.button} aria-label={`${dict.return.menuFor} ${object.name || object.metaRoadmap?.name || dict.return.nameMissing}`}>
+          <Image src='/icons/dotsVertical.svg' width={24} height={24} alt={dict.return.menu}></Image>
         </button>
         <dialog className={styles.menu} id={`${object.id}-menu`} onBlur={closeMenu} ref={menu} onKeyUp={closeMenu}>
           <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between ${styles.menuHeading}`}>
             {/* Button to close menu */}
             <button type="button" onClick={closeMenu} className={styles.button} autoFocus >
-              <Image src='/icons/close.svg' alt={dict.return.close[locale]} width={18} height={18} />
+              <Image src='/icons/close.svg' alt={dict.return.close} width={18} height={18} />
             </button>
             {/* Link to the object */}
             <Link href={selfLink} className={styles.menuHeadingTitle}>{object.name || object.metaRoadmap?.name}</Link>
@@ -208,17 +208,17 @@ export function TableMenu(
                 </Link>
               }
               <Link href={editLink} className={styles.menuAction}>
-                <span>{dict.return.edit[locale]}</span>
+                <span>{dict.return.edit}</span>
                 <Image src='/icons/edit.svg' alt="" width={24} height={24} className={styles.actionImage} />
               </Link>
               { // Admins and authors can delete items
                 (accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) &&
                 <>
                   <button type="button" className="width-100 transparent display-flex align-items-center justify-content-space-between padding-50" style={{ fontSize: '1rem' }} onClick={() => openModal(deletionRef)}>
-                    {dict.return.deletePost[locale]}
+                    {dict.return.deletePost}
                     <Image src='/icons/delete.svg' alt="" width={24} height={24} className={styles.actionImage} />
                   </button>
-                  <ConfirmDelete modalRef={deletionRef} targetUrl={deleteLink} targetName={object.name || object.metaRoadmap?.name || dict.return.nameMissing[locale]} targetId={object.id} />
+                  <ConfirmDelete modalRef={deletionRef} targetUrl={deleteLink} targetName={object.name || object.metaRoadmap?.name || dict.return.nameMissing} targetId={object.id} />
                 </>
               }
             </>

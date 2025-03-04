@@ -4,7 +4,7 @@ import Image from 'next/image';
 import goalsToTree, { GoalTree } from '@/functions/goalsToTree';
 import { SyntheticEvent, useContext } from 'react';
 import { getSessionStorage, setSessionStorage } from '@/functions/localStorage';
-import parentDict from '../tables.dict.json' with { type: "json" };
+import { createDict } from "../tables.dict.ts";
 import { LocaleContext } from '@/app/context/localeContext.tsx';
 
 // interface LinkTreeCommonProps {}
@@ -36,8 +36,8 @@ export default function LinkTree({
   goals,
   roadmap,
 }: LinkTreeProps) {
-  const dict = parentDict.goalTables.linkTree;
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale).goalTables.linkTree;
 
   // Failsafe in case wrong props are passed
   if ((!goals && !roadmap) || (goals && roadmap)) throw new Error('LinkTree: Either `goals` XOR `roadmap` must be provided');
@@ -51,7 +51,7 @@ export default function LinkTree({
     })
   }
 
-  if (!goals?.length) return (<p>{dict.noGoal[locale]}</p>);
+  if (!goals?.length) return (<p>{dict.noGoal}</p>);
 
   let openCategories: string[] = getSessionStorage(roadmap?.id || "") as string[] || [];
   if (!(openCategories instanceof Array)) {

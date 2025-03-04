@@ -5,11 +5,11 @@ import { notFound } from 'next/navigation';
 import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
 import { getServerLocale } from "@/functions/serverLocale";
-import parentDict from "../metaRoadmap.dict.json" with { type: "json" };
+import { createDict } from "../metaRoadmap.dict.ts";
 
 export default async function Page() {
-  const dict = parentDict.create.page;
   const locale = await getServerLocale();
+  const dict = createDict(locale).create.page;
 
   const [session, parentRoadmapOptions] = await Promise.all([
     getSession(cookies()),
@@ -23,11 +23,11 @@ export default async function Page() {
 
   return (
     <>
-      <Breadcrumb customSections={[`${dict.breadcrumbCreateRoadmap[locale]}`]} />
+      <Breadcrumb customSections={[`${dict.breadcrumbCreateRoadmap}`]} />
 
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          {dict.newRoadmap[locale]}
+          {dict.newRoadmap}
         </h1>
         <MetaRoadmapForm
           user={session.user}

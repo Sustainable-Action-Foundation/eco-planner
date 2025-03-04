@@ -7,7 +7,7 @@ import { TableMenu } from '@/components/tables/tableMenu/tableMenu';
 import { AccessControlled } from '@/types';
 import accessChecker from '@/lib/accessChecker';
 import { getServerLocale } from '@/functions/serverLocale';
-import parentDict from '../tables.dict.json' with { type: "json" };
+import { createDict } from "../tables.dict.ts";
 
 interface RoadmapTableCommonProps {
   user: LoginData['user'],
@@ -30,8 +30,8 @@ export default async function RoadmapTable({
   roadmaps,
   metaRoadmap,
 }: RoadmapTableProps) {
-  const dict = parentDict.roadmapTables.roadmapTable;
   const locale = await getServerLocale();
+  const dict = createDict(locale).roadmapTables.roadmapTable;
 
   // Failsafe in case wrong props are passed
   if ((!roadmaps && !metaRoadmap) || (roadmaps && metaRoadmap)) throw new Error('RoadmapTable: Either `roadmaps` XOR `metaRoadmap` must be provided');
@@ -59,7 +59,7 @@ export default async function RoadmapTable({
             <div className='flex gap-100 justify-content-space-between align-items-center' key={roadmap.id}>
               <a href={`/roadmap/${roadmap.id}`} className={`${styles.roadmapLink} flex-grow-100`}>
                 <span className={styles.linkTitle}>{`${roadmap.metaRoadmap.name} (v${roadmap.version})`}</span>
-                <span className={styles.linkInfo}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} {dict.goals[locale]}</span>
+                <span className={styles.linkInfo}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} {dict.goals}</span>
               </a>
               <TableMenu
                 accessLevel={accessLevel}
@@ -69,6 +69,6 @@ export default async function RoadmapTable({
           )
         })}
       </>
-      : <p>{dict.noRoadmapVersions[locale]}</p>}
+      : <p>{dict.noRoadmapVersions}</p>}
   </>
 }

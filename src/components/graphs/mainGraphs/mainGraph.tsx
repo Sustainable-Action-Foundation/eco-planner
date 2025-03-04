@@ -5,7 +5,7 @@ import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import { parsePeriod } from "@/lib/pxWeb/utility";
 import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Effect, Goal } from "@prisma/client";
-import parentDict from "../graphs.dict.json" with { type: "json" };
+import { createDict } from "../graphs.dict.ts";
 import { useContext } from "react";
 
 export default function MainGraph({
@@ -21,8 +21,8 @@ export default function MainGraph({
   historicalData?: PxWebApiV2TableContent | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
 }) {
-  const dict = parentDict.mainGraphs.mainGraph;
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale).mainGraphs.mainGraph;
 
   if (!goal.dataSeries) {
     return null;
@@ -50,8 +50,8 @@ export default function MainGraph({
         labels: { formatter: floatSmoother },
         seriesName: [
           (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
-          dict.mainChartOptions.baseScenario[locale],
-          dict.mainChartOptions.expectedOutcome[locale],
+          dict.mainChartOptions.baseScenario,
+          dict.mainChartOptions.expectedOutcome,
           (secondaryGoal?.dataSeries?.unit == goal.dataSeries.unit) ? (secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0] : "",
         ]
       }
@@ -92,7 +92,7 @@ export default function MainGraph({
       });
     }
     mainChart.push({
-      name: dict.ifBaselineDataSeries.baseScenario[locale],
+      name: dict.ifBaselineDataSeries.baseScenario,
       data: baseline,
       type: 'line',
     })
@@ -103,7 +103,7 @@ export default function MainGraph({
       // Line based on totalEffect + baseline
       if (totalEffect.length > 0) {
         mainChart.push({
-          name: dict.ifBaselineDataSeries.expectedOutcome[locale],
+          name: dict.ifBaselineDataSeries.expectedOutcome,
           data: totalEffect,
           type: 'line',
         });
@@ -127,14 +127,14 @@ export default function MainGraph({
           });
         }
         mainChart.push({
-          name: dict.ifNoBaselineIsSet.baseScenario[locale],
+          name: dict.ifNoBaselineIsSet.baseScenario,
           data: baseline,
           type: 'line',
         });
 
         // Line based on totalEffect
         mainChart.push({
-          name: dict.ifNoBaselineIsSet.expectedOutcome[locale],
+          name: dict.ifNoBaselineIsSet.expectedOutcome,
           data: totalEffect,
           type: 'line',
         });
@@ -161,7 +161,7 @@ export default function MainGraph({
     // TODO: Use mathjs to see if the units are the same, rather than just comparing strings
     if (secondaryGoal.dataSeries.unit != goal.dataSeries.unit) {
       (mainChartOptions.yaxis as ApexYAxis[]).push({
-        title: { text: `${dict.secondaryGoal[locale]} (${secondaryGoal.dataSeries.unit})` },
+        title: { text: `${dict.secondaryGoal} (${secondaryGoal.dataSeries.unit})` },
         labels: { formatter: floatSmoother },
         seriesName: [(secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0]],
         opposite: true,
@@ -180,14 +180,14 @@ export default function MainGraph({
       });
     }
     mainChart.push({
-      name: dict.nationalGoal.nationalEquivalent[locale],
+      name: dict.nationalGoal.nationalEquivalent,
       data: nationalSeries,
       type: 'line',
     });
     (mainChartOptions.yaxis as ApexYAxis[]).push({
-      title: { text: dict.nationalGoal.title[locale] },
+      title: { text: dict.nationalGoal.title },
       labels: { formatter: floatSmoother },
-      seriesName: [dict.nationalGoal.seriesName[locale]],
+      seriesName: [dict.nationalGoal.seriesName],
       opposite: true,
     });
   }
@@ -208,7 +208,7 @@ export default function MainGraph({
       type: 'line',
     });
     (mainChartOptions.yaxis as ApexYAxis[]).push({
-      title: { text: dict.historicalData.title[locale] },
+      title: { text: dict.historicalData.title },
       labels: { formatter: floatSmoother },
       seriesName: [`${historicalData.metadata[0]?.label}`],
       opposite: true,

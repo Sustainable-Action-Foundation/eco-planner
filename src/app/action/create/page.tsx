@@ -9,7 +9,7 @@ import getOneRoadmap from "@/fetchers/getOneRoadmap";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { getServerLocale } from "@/functions/serverLocale";
-import parentDict from "../action.dict.json" with { type: "json" };
+import { createDict } from "../action.dict.ts";
 
 export default async function Page({
   searchParams
@@ -20,8 +20,8 @@ export default async function Page({
     [key: string]: string | string[] | undefined
   }
 }) {
-  const dict = parentDict.create.page;
   const locale = await getServerLocale();
+  const dict = createDict(locale).create.page;
 
   const [session, goal, roadmap, roadmapList] = await Promise.all([
     getSession(cookies()),
@@ -57,27 +57,27 @@ export default async function Page({
 
   return (
     <>
-      <Breadcrumb object={goal || roadmap || undefined} customSections={[`${dict.breadcrumbCreateAction[locale]}`]} />
+      <Breadcrumb object={goal || roadmap || undefined} customSections={[`${dict.breadcrumbCreateAction}`]} />
 
       <div className="container-text margin-inline-auto">
         {goal ?
           <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-            {dict.goal.createActionUnderGoal[locale]} {`${goal?.name || goal?.indicatorParameter}`}
+            {dict.goal.createActionUnderGoal} {`${goal?.name || goal?.indicatorParameter}`}
           </h1> : <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-            {dict.goal.createAction[locale]}
+            {dict.goal.createAction}
           </h1>
         }
         {badGoal &&
           <p style={{ color: 'red' }}>
             <Image src="/icons/info.svg" width={24} height={24} alt='' />
-            {dict.badGoal.notFound[locale]}
+            {dict.badGoal.notFound}
             {/* Använd dropdown-menyn för att välja en målbana om du vill lägga till en effekt gentemot en målbana. */}
           </p>
         }
         {badRoadmap &&
           <p style={{ color: 'red' }}>
             <Image src="/icons/info.svg" width={24} height={24} alt='' />
-            {dict.badRoadmap.notFound[locale]}
+            {dict.badRoadmap.notFound}
           </p>
         }
         <ActionForm

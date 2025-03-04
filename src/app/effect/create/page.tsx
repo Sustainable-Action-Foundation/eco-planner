@@ -9,7 +9,7 @@ import { AccessLevel } from "@/types.ts";
 import { cookies } from "next/headers";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { getServerLocale } from "@/functions/serverLocale";
-import parentDict from "../effect.dict.json" with { type: "json" };
+import { createDict } from "../effect.dict.ts";
 
 export default async function Page({
   searchParams,
@@ -20,8 +20,8 @@ export default async function Page({
     [key: string]: string | string[] | undefined
   },
 }) {
-  const dict = parentDict.create.page;
   const locale = await getServerLocale();
+  const dict = createDict(locale).create.page;
 
   const [session, action, goal, roadmaps] = await Promise.all([
     getSession(cookies()),
@@ -44,22 +44,22 @@ export default async function Page({
 
   return (
     <>
-      <Breadcrumb object={action || goal || undefined} customSections={[`${dict.breadcrumbCreateEffect[locale]}`]} />
+      <Breadcrumb object={action || goal || undefined} customSections={[`${dict.breadcrumbCreateEffect}`]} />
 
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          {dict.createNewEffect[locale]}
+          {dict.createNewEffect}
         </h1>
         {badAction &&
           <p style={{ color: 'red' }}>
             <Image src="/icons/info.svg" width={24} height={24} alt='' />
-            {dict.badAction[locale]}
+            {dict.badAction}
           </p>
         }
         {badGoal &&
           <p style={{ color: 'red' }}>
             <Image src="/icons/info.svg" width={24} height={24} alt='' />
-            {dict.badGoal[locale]}
+            {dict.badGoal}
           </p>
         }
         <EffectForm action={badAction ? null : action} goal={badGoal ? null : goal} roadmapAlternatives={roadmapList} />

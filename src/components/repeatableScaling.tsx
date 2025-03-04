@@ -6,7 +6,7 @@ import areaCodes from "@/lib/areaCodes.json" with { type: "json" };
 import scbPopulationQuery from "@/lib/scbPopulationQuery";
 import scbAreaQuery from "@/lib/scbAreaQuery";
 import { areaSorter } from "@/lib/sorters";
-import dict from "./repeatableScaling.dict.json" with { type: "json" };
+import { createDict } from "./repeatableScaling.dict.ts";
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 
 /** Get values from SCB */
@@ -50,6 +50,7 @@ export default function RepeatableScaling({
   useWeight?: boolean
 }) {
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale);
 
   const [scaleBy, setScaleBy] = useState<ScaleBy | "">(defaultScaleBy ?? "");
   const [numericInput, setNumericInput] = useState<number | null>(null);
@@ -97,7 +98,7 @@ export default function RepeatableScaling({
       case ScaleBy.Custom:
         return (
           <div key={ScaleBy.Custom}>
-            <label htmlFor="specificValue">{dict.scaleFactor[locale]}</label>
+            <label htmlFor="specificValue">{dict.scaleFactor}</label>
             <input required type="number" step="any" name="specificValue" id="specificValue" defaultValue={defaultSpecificValue} onChange={(e) => setNumericInput(parseFloat(e.target.value))} />
           </div>
         );
@@ -106,9 +107,9 @@ export default function RepeatableScaling({
           <div key={ScaleBy.Inhabitants}>
             <section className="margin-block-50">
               <label className="flex align-items-center justify-content-space-between">
-                {dict.originalLocation[locale]}
+                {dict.originalLocation}
                 <select required name="parentArea" id="parentArea" defaultValue={defaultParentArea} onChange={(e) => { getValue(e, scaleBy).then((result) => setParentValue(result)) }}>
-                  <option value="">{dict.chooseLocation[locale]}</option>
+                  <option value="">{dict.chooseLocation}</option>
                   {
                     Object.entries(areaCodes).sort(areaSorter).map(([name, code]) => (
                       <option key={code} value={code}>{name}</option>
@@ -119,17 +120,17 @@ export default function RepeatableScaling({
 
               <label>
                 <small className="flex gap-25">
-                  {dict.numberOfResidents[locale]}
-                  <output name="parentAreaPopulation" id="parentAreaPopulation">{parentValue ?? dict.missingData[locale]}</output>
+                  {dict.numberOfResidents}
+                  <output name="parentAreaPopulation" id="parentAreaPopulation">{parentValue ?? dict.missingData}</output>
                 </small>
               </label>
             </section>
 
             <section className="margin-block-50">
               <label className="flex align-items-center justify-content-space-between">
-                {dict.newLocation[locale]}
+                {dict.newLocation}
                 <select required name="childArea" id="childArea" defaultValue={defaultChildArea ?? ""} onChange={(e) => { getValue(e, scaleBy).then((result) => setChildValue(result)) }}>
-                  <option value="">{dict.chooseLocation[locale]}</option>
+                  <option value="">{dict.chooseLocation}</option>
                   {
                     Object.entries(areaCodes).sort(areaSorter).map(([name, code]) => (
                       <option key={code} value={code}>{name}</option>
@@ -140,8 +141,8 @@ export default function RepeatableScaling({
 
               <label>
                 <small className="flex gap-25">
-                  {dict.numberOfResidents[locale]}
-                  <output name="childAreaPopulation" id="childAreaPopulation">{childValue ?? dict.missingData[locale]}</output>
+                  {dict.numberOfResidents}
+                  <output name="childAreaPopulation" id="childAreaPopulation">{childValue ?? dict.missingData}</output>
                 </small>
               </label>
             </section>
@@ -152,9 +153,9 @@ export default function RepeatableScaling({
           <div key={ScaleBy.Area}>
             <section className="margin-block-50">
               <label className="flex align-items-center justify-content-space-between">
-                {dict.originalLocation[locale]}
+                {dict.originalLocation}
                 <select required name="parentArea" id="parentArea" defaultValue={defaultParentArea ?? ""} onChange={(e) => { getValue(e, scaleBy).then((result) => setParentValue(result)) }}>
-                  <option value="">{dict.chooseLocation[locale]}</option>
+                  <option value="">{dict.chooseLocation}</option>
                   {
                     Object.entries(areaCodes).sort(areaSorter).map(([name, code]) => (
                       <option key={code} value={code}>{name}</option>
@@ -165,17 +166,17 @@ export default function RepeatableScaling({
 
               <label>
                 <small className="flex gap-25">
-                  {dict.surfaceArea[locale]}
-                  <output name="parentAreaArea" id="parentAreaArea">{parentValue ? `${parentValue} ${dict.squareKilometers[locale]}` : dict.missingData[locale]}</output>
+                  {dict.surfaceArea}
+                  <output name="parentAreaArea" id="parentAreaArea">{parentValue ? `${parentValue} ${dict.squareKilometers}` : dict.missingData}</output>
                 </small>
               </label>
             </section>
 
             <section className="margin-block-50">
               <label className="flex align-items-center justify-content-space-between">
-                {dict.newLocation[locale]}
+                {dict.newLocation}
                 <select required name="childArea" id="childArea" defaultValue={defaultChildArea ?? ""} onChange={(e) => { getValue(e, scaleBy).then((result) => setChildValue(result)) }}>
-                  <option value="">{dict.chooseLocation[locale]}</option>
+                  <option value="">{dict.chooseLocation}</option>
                   {
                     Object.entries(areaCodes).sort(areaSorter).map(([name, code]) => (
                       <option key={code} value={code}>{name}</option>
@@ -186,8 +187,8 @@ export default function RepeatableScaling({
 
               <label>
                 <small className="flex gap-25">
-                  {dict.surfaceArea[locale]}
-                  <output name="childAreaArea" id="childAreaArea">{childValue ? `${childValue} ${dict.squareKilometers[locale]}` : dict.missingData[locale]}</output>
+                  {dict.surfaceArea}
+                  <output name="childAreaArea" id="childAreaArea">{childValue ? `${childValue} ${dict.squareKilometers}` : dict.missingData}</output>
                 </small>
               </label>
             </section>
@@ -202,20 +203,20 @@ export default function RepeatableScaling({
     <>
       <fieldset className="padding-50 smooth position-relative" style={{ border: '1px solid var(--gray-90)' }}>
         <legend className="flex gap-50 align-items-center padding-inline-50">
-          {dict.scaleBy[locale]}
+          {dict.scaleBy}
           <select className="block margin-block-25" required name="scaleBy" id="scaleBy" defaultValue={defaultScaleBy} onChange={(e) => setScaleBy(e.target.value as ScaleBy)}>
-            <option value="">{dict.noSelectionMade[locale]}</option>
-            <option value={ScaleBy.Custom}>{dict.specificValue[locale]}</option>
-            <option value={ScaleBy.Inhabitants}>{dict.inRelationToPopulation[locale]}</option>
-            <option value={ScaleBy.Area}>{dict.inRelationToSurfaceArea[locale]}</option>
+            <option value="">{dict.noSelectionMade}</option>
+            <option value={ScaleBy.Custom}>{dict.specificValue}</option>
+            <option value={ScaleBy.Inhabitants}>{dict.inRelationToPopulation}</option>
+            <option value={ScaleBy.Area}>{dict.inRelationToSurfaceArea}</option>
           </select>
         </legend>
 
         {ScalarInputs()}
 
         <label className="block margin-block-75">
-          {`${dict.scaleFactorCalculation[locale]} `} <br />
-          <output name="result" id="result">{Number.isFinite(result ?? NaN) ? result : dict.missingData[locale]}</output>
+          {`${dict.scaleFactorCalculation} `} <br />
+          <output name="result" id="result">{Number.isFinite(result ?? NaN) ? result : dict.missingData}</output>
         </label>
 
         {/* Hidden input, used because outputs are not submitted with formData */}
@@ -225,7 +226,7 @@ export default function RepeatableScaling({
           useWeight &&
           <>
             <label className="block margin-block-75">
-              {dict.weightFactor[locale]}
+              {dict.weightFactor}
               <input className="margin-block-25" type="number" step={"any"} min={0} id="weight" name="weight" defaultValue={1} />
             </label>
           </>

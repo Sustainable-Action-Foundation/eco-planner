@@ -8,11 +8,11 @@ import accessChecker from '@/lib/accessChecker';
 import { AccessLevel } from '@/types';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
 import { getServerLocale } from "@/functions/serverLocale";
-import parentDict from "../../metaRoadmap.dict.json" with { type: "json" };
+import { createDict } from "../../metaRoadmap.dict.ts";
 
 export default async function Page({ params }: { params: { metaRoadmapId: string } }) {
-  const dict = parentDict["[metaRoadmapId]"].edit.page;
   const locale = await getServerLocale();
+  const dict = createDict(locale)["[metaRoadmapId]"].edit.page;
   
   const [session, currentRoadmap, parentRoadmapOptions] = await Promise.all([
     getSession(cookies()),
@@ -29,10 +29,10 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
 
   return (
     <>
-      <Breadcrumb object={currentRoadmap} customSections={[`${dict.breadcrumbEditMetadata[locale]}`]} />
+      <Breadcrumb object={currentRoadmap} customSections={[`${dict.breadcrumbEditMetadata}`]} />
 
       <div className='container-text margin-inline-auto'>
-        <h1>{dict.editMetadata[locale]} {`${currentRoadmap.name}`}</h1>
+        <h1>{dict.editMetadata} {`${currentRoadmap.name}`}</h1>
         <MetaRoadmapForm
           user={session.user}
           userGroups={session.user?.userGroups}

@@ -10,7 +10,7 @@ import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 import { Fragment, useContext, useEffect, useState } from "react";
 import { dataSeriesPattern } from "./goalForm";
-import parentDict from "../forms.dict.json" with { type: "json" };
+import { createDict } from "../forms.dict.ts";
 
 export function ManualGoalForm({
   currentGoal,
@@ -31,8 +31,8 @@ export function ManualGoalForm({
   },
   dataSeriesString?: string,
 }) {
-  const dict = parentDict.goalForm.goalFormSections;
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale).goalForm.goalFormSections;
 
   const [parsedUnit, setParsedUnit] = useState<string | null>(null);
 
@@ -49,12 +49,12 @@ export function ManualGoalForm({
   return (
     <>
       <label className="block margin-bottom-100">
-        {dict.manualGoalForm.leapParameter[locale]}
+        {dict.manualGoalForm.leapParameter}
         <input className="margin-block-25" type="text" list="LEAPOptions" name="indicatorParameter" required id="indicatorParameter" defaultValue={currentGoal?.indicatorParameter || undefined} />
       </label>
 
       <label className="block margin-block-100">
-        {dict.manualGoalForm.unit.unit[locale]}
+        {dict.manualGoalForm.unit.unit}
         <input className="margin-block-25" type="text" name="dataUnit" required id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
           try {
             setParsedUnit(mathjs.unit(e.target.value).toString());
@@ -63,26 +63,26 @@ export function ManualGoalForm({
           }
         }} />
         {parsedUnit ?
-          <p className="margin-block-25">{dict.manualGoalForm.unit.parseAs[locale]} <strong>{parsedUnit}</strong></p>
-          : <p className="margin-block-25">{dict.manualGoalForm.unit.parseError[locale]}</p>
+          <p className="margin-block-25">{dict.manualGoalForm.unit.parseAs} <strong>{parsedUnit}</strong></p>
+          : <p className="margin-block-25">{dict.manualGoalForm.unit.parseError}</p>
         }
       </label>
 
       <details className="margin-block-75">
         <summary>
-          {dict.manualGoalForm.extraInfo.extraInfo[locale]}
+          {dict.manualGoalForm.extraInfo.extraInfo}
         </summary>
         <p>
-          {dict.manualGoalForm.extraInfo.infoDescription[locale]}
+          {dict.manualGoalForm.extraInfo.infoDescription}
         </p>
       </details>
 
       <label className="block margin-block-75">
-        {dict.manualGoalForm.dataSeries.dataSeries[locale]}
+        {dict.manualGoalForm.dataSeries.dataSeries}
         {/* TODO: Make this allow .csv files and possibly excel files */}
         <input type="text" name="dataSeries" required id="dataSeries"
           pattern={dataSeriesPattern}
-          title={dict.manualGoalForm.dataSeries.input.title[locale]}
+          title={dict.manualGoalForm.dataSeries.input.title}
           className="margin-block-25"
           defaultValue={dataSeriesString}
         />
@@ -112,8 +112,8 @@ export function InheritedGoalForm({
   },
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
 }) {
-  const dict = parentDict.goalForm.goalFormSections;
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale).goalForm.goalFormSections;
 
   const [selectedRoadmap, setSelectedRoadmap] = useState(currentGoal?.combinationParents[0]?.parentGoal.roadmapId);
   const [roadmapData, setRoadmapData] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
@@ -147,15 +147,15 @@ export function InheritedGoalForm({
   return (
     <>
       <label className="block margin-block-75">
-        {dict.inheritedGoalForm.roadmapVersion.chooseToInheritFrom[locale]}
+        {dict.inheritedGoalForm.roadmapVersion.chooseToInheritFrom}
         <select name="selectedRoadmap" id="selectedRoadmap" className="margin-inline-25" required
           value={selectedRoadmap}
           onChange={(e) => { setSelectedRoadmap(e.target.value); setSelectedGoal(undefined) }}
         >
-          <option value="">{dict.inheritedGoalForm.roadmapVersion.choose[locale]}</option>
+          <option value="">{dict.inheritedGoalForm.roadmapVersion.choose}</option>
           {roadmapAlternatives.map((roadmap) => (
             <option value={roadmap.id} key={`roadmap-inherit${roadmap.id}`}>
-              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.goals} ${dict.inheritedGoalForm.roadmapVersion.goal[locale]}`}
+              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.goals} ${dict.inheritedGoalForm.roadmapVersion.goal}`}
             </option>
           ))}
         </select>
@@ -163,15 +163,15 @@ export function InheritedGoalForm({
 
       {roadmapData &&
         <label className="block margin-block-75">
-          {dict.inheritedGoalForm.roadmapData.chooseToInheritFrom[locale]}
+          {dict.inheritedGoalForm.roadmapData.chooseToInheritFrom}
           <select name="inheritFrom" id="inheritFrom" className="margin-inline-25" required
             value={selectedGoal}
             onChange={(e) => setSelectedGoal(e.target.value)}
           >
-            <option value="">{dict.inheritedGoalForm.roadmapData.choose[locale]}</option>
+            <option value="">{dict.inheritedGoalForm.roadmapData.choose}</option>
             {roadmapData?.goals.map((goal) => (
               <option value={goal.id} key={`inherit-${goal.id}`}>
-                {`${goal.name ?? dict.inheritedGoalForm.roadmapData.namelessGoal[locale]}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || dict.inheritedGoalForm.roadmapData.unitMissing[locale]})`}
+                {`${goal.name ?? dict.inheritedGoalForm.roadmapData.namelessGoal}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || dict.inheritedGoalForm.roadmapData.unitMissing})`}
               </option>
             ))}
           </select>
@@ -179,12 +179,12 @@ export function InheritedGoalForm({
       }
 
       <label className="block margin-block-75">
-        {dict.inheritedGoalForm.leapParameter[locale]}
+        {dict.inheritedGoalForm.leapParameter}
         <input className="margin-block-25" type="text" list="LEAPOptions" name="indicatorParameter" required disabled id="indicatorParameter" value={goalData?.indicatorParameter || ""} />
       </label>
 
       <label className="block margin-block-75">
-        {dict.inheritedGoalForm.unit.unit[locale]}
+        {dict.inheritedGoalForm.unit.unit}
         <input className="margin-block-25" type="text" name="dataUnit" required disabled id="dataUnit" value={goalData?.dataSeries?.unit || ""} onChange={(e) => {
           try {
             setParsedUnit(mathjs.unit(e.target.value).toString());
@@ -193,8 +193,8 @@ export function InheritedGoalForm({
           }
         }} />
         {parsedUnit ?
-          <p className="margin-block-25">{dict.inheritedGoalForm.unit.parseAs[locale]} <strong>{parsedUnit}</strong></p>
-          : <p className="margin-block-25">{dict.inheritedGoalForm.unit.parseError[locale]}</p>
+          <p className="margin-block-25">{dict.inheritedGoalForm.unit.parseAs} <strong>{parsedUnit}</strong></p>
+          : <p className="margin-block-25">{dict.inheritedGoalForm.unit.parseError}</p>
         }
       </label>
     </>
@@ -222,8 +222,8 @@ export function CombinedGoalForm({
     roadmap: { id: string },
   },
 }) {
-  const dict = parentDict.goalForm.goalFormSections;
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale).goalForm.goalFormSections;
 
   const [currentRoadmap, setCurrentRoadmap] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
   const [inheritFrom, setInheritFrom] = useState<string[]>([]);
@@ -249,12 +249,12 @@ export function CombinedGoalForm({
   return (
     <>
       <label className="block margin-block-75">
-        {dict.combinedGoalForm.leapParameter[locale]}
+        {dict.combinedGoalForm.leapParameter}
         <input className="margin-block-25" type="text" list="LEAPOptions" name="indicatorParameter" required id="indicatorParameter" defaultValue={currentGoal?.indicatorParameter || undefined} />
       </label>
 
       <label className="block margin-block-75">
-        {dict.combinedGoalForm.unit.unit[locale]}
+        {dict.combinedGoalForm.unit.unit}
         <input className="margin-block-25" type="text" name="dataUnit" required id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
           try {
             setParsedUnit(mathjs.unit(e.target.value).toString());
@@ -263,16 +263,16 @@ export function CombinedGoalForm({
           }
         }} />
         {parsedUnit ?
-          <p className="margin-block-25">{dict.combinedGoalForm.unit.parseAs[locale]} <strong>{parsedUnit}</strong></p>
-          : <p className="margin-block-25">{dict.combinedGoalForm.unit.parseError[locale]}</p>
+          <p className="margin-block-25">{dict.combinedGoalForm.unit.parseAs} <strong>{parsedUnit}</strong></p>
+          : <p className="margin-block-25">{dict.combinedGoalForm.unit.parseError}</p>
         }
       </label>
 
       <fieldset className="padding-50 smooth position-relative" style={{ border: '1px solid var(--gray-90)' }}>
         <legend className="padding-25">
-          {dict.combinedGoalForm.goals.chooseGoals[locale]}
+          {dict.combinedGoalForm.goals.chooseGoals}
         </legend>
-        <p>{dict.combinedGoalForm.goals.tip[locale]}</p>
+        <p>{dict.combinedGoalForm.goals.tip}</p>
         {currentRoadmap?.goals.map((goal) => (
           goal.id == currentGoal?.id ? null :
             <Fragment key={`combine-${goal.id}`}>
@@ -287,7 +287,7 @@ export function CombinedGoalForm({
                     }
                   }}
                 />
-                {`${goal.name ?? dict.combinedGoalForm.goals.namelessGoal[locale]}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || dict.combinedGoalForm.goals.unitMissing[locale]})`}
+                {`${goal.name ?? dict.combinedGoalForm.goals.namelessGoal}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || dict.combinedGoalForm.goals.unitMissing})`}
               </label>
               {/* TODO: marginLeft: 25? What? */}
               {inheritFrom?.includes(goal.id) &&
@@ -295,7 +295,7 @@ export function CombinedGoalForm({
                   <input type="checkbox" name="invert-inherit" className="margin-inline-25" value={goal.id}
                     defaultChecked={currentGoal?.combinationParents.some((parent) => parent.parentGoal.id == goal.id && parent.isInverted)}
                   />
-                  {dict.combinedGoalForm.goals.invertGoal[locale]}
+                  {dict.combinedGoalForm.goals.invertGoal}
                 </label>
               }
             </Fragment>
@@ -306,8 +306,8 @@ export function CombinedGoalForm({
 }
 
 export function InheritingBaseline() {
-  const dict = parentDict.goalForm.goalFormSections;
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale).goalForm.goalFormSections;
 
   const [roadmapList, setRoadmapList] = useState<Awaited<ReturnType<typeof clientSafeGetRoadmaps>>>([]);
   const [selectedRoadmap, setSelectedRoadmap] = useState<string | undefined>(undefined);
@@ -339,15 +339,15 @@ export function InheritingBaseline() {
   return (
     <>
       <label className="block margin-block-75">
-        {dict.inheritingBaseline.roadmapVersion.chooseToInheritFrom[locale]}
+        {dict.inheritingBaseline.roadmapVersion.chooseToInheritFrom}
         <select name="selectedRoadmap" id="selectedRoadmap" className="margin-inline-25" required
           value={selectedRoadmap}
           onChange={(e) => { setSelectedRoadmap(e.target.value); setSelectedGoal(undefined) }}
         >
-          <option value="">{dict.inheritingBaseline.roadmapVersion.choose[locale]}</option>
+          <option value="">{dict.inheritingBaseline.roadmapVersion.choose}</option>
           {roadmapList.map((roadmap) => (
             <option value={roadmap.id} key={`roadmap-inherit${roadmap.id}`}>
-              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.goals} ${dict.inheritingBaseline.roadmapVersion.goal[locale]}`}
+              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.goals} ${dict.inheritingBaseline.roadmapVersion.goal}`}
             </option>
           ))}
         </select>
@@ -355,15 +355,15 @@ export function InheritingBaseline() {
 
       {roadmapData &&
         <label className="block margin-block-75">
-          {dict.inheritingBaseline.roadmapData.chooseToUseAsBaseline[locale]}
+          {dict.inheritingBaseline.roadmapData.chooseToUseAsBaseline}
           <select name="inheritFrom" id="inheritFrom" className="margin-inline-25" required
             value={selectedGoal}
             onChange={(e) => setSelectedGoal(e.target.value)}
           >
-            <option value="">{dict.inheritingBaseline.roadmapData.choose[locale]}</option>
+            <option value="">{dict.inheritingBaseline.roadmapData.choose}</option>
             {roadmapData?.goals.map((goal) => (
               <option value={goal.id} key={`inherit-${goal.id}`} disabled={!goal.dataSeries}>
-                {`${(!goal.dataSeries) ? dict.inheritingBaseline.roadmapData.dataMissing[locale] : ""}${goal.name ?? dict.inheritingBaseline.roadmapData.namelessGoal[locale]}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || dict.inheritingBaseline.roadmapData.unitMissing[locale]})`}
+                {`${(!goal.dataSeries) ? dict.inheritingBaseline.roadmapData.dataMissing : ""}${goal.name ?? dict.inheritingBaseline.roadmapData.namelessGoal}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || dict.inheritingBaseline.roadmapData.unitMissing})`}
               </option>
             ))}
           </select>
@@ -372,7 +372,7 @@ export function InheritingBaseline() {
 
       {goalData &&
         <label className="block margin-block-75">
-          {dict.inheritingBaseline.goalData.basline[locale]}
+          {dict.inheritingBaseline.goalData.basline}
           <input name="baselineDataSeries" id="baselineDataSeries" type="text" readOnly value={dataSeriesString} />
         </label>
       }

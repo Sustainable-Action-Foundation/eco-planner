@@ -12,7 +12,7 @@ import Image from "next/image"
 import styles from './tables.module.css'
 import type getOneRoadmap from "@/fetchers/getOneRoadmap.ts"
 import { LocaleContext } from "@/app/context/localeContext.tsx";
-import parentDict from "./tables.dict.json" with { type: "json" };
+import { createDict } from "./tables.dict.ts";
 
 /** Enum for the different view modes for the goal table. */
 export enum ViewMode {
@@ -37,8 +37,8 @@ export default function Goals({
   roadmap: NonNullable<Awaited<ReturnType<typeof getOneRoadmap>>>,
   accessLevel?: AccessLevel
 }) {
-  const dict = parentDict.goals;
   const locale = useContext(LocaleContext);
+  const dict = createDict(locale).goals;
 
   const [viewMode, setViewMode] = useState<ViewMode | ''>('');
   const [sortBy, setSortBy] = useState<GoalSortBy>(GoalSortBy.Default);
@@ -67,7 +67,7 @@ export default function Goals({
     <>
       <menu className={`margin-bottom-100 flex justify-content-space-between align-items-flex-end flex-wrap-wrap gap-100 padding-0 margin-0 ${styles.tableNav}`}>
         <label className="font-weight-bold flex-grow-100">
-          {dict.searchGoals[locale]}
+          {dict.searchGoals}
           <div className="flex align-items-center margin-top-25 gray-90 padding-50 smooth focusable">
             <Image src='/icons/search.svg' alt="" width={24} height={24} />
             <input type="search" className="padding-0 margin-inline-50" onChange={(e) => setSearchFilter(e.target.value)} />
@@ -75,25 +75,25 @@ export default function Goals({
         </label>
         {viewMode == ViewMode.Table && (
           <label className="font-weight-bold">
-            {dict.sortBy[locale]}
+            {dict.sortBy}
             <select
               className="font-weight-500 margin-top-25 block"
               style={{ fontSize: '1rem', minHeight: 'calc(24px + 1rem)' }}
               onChange={(e) => { setSortBy(e.target.value as GoalSortBy); setStoredGoalSortBy(e.target.value as GoalSortBy) }} defaultValue={sortBy}
             >
-              <option value={GoalSortBy.Default}>{dict.sortingOptions.default[locale]}</option>
-              <option value={GoalSortBy.Alpha}>{dict.sortingOptions.alpha[locale]}</option>
-              <option value={GoalSortBy.AlphaReverse}>{dict.sortingOptions.alphaReverse[locale]}</option>
-              <option value={GoalSortBy.ActionsFalling}>{dict.sortingOptions.actionsFalling[locale]}</option>
-              <option value={GoalSortBy.ActionsRising}>{dict.sortingOptions.actionsRising[locale]}</option>
-              <option value={GoalSortBy.Interesting}>{dict.sortingOptions.interesting[locale]}</option>
+              <option value={GoalSortBy.Default}>{dict.sortingOptions.default}</option>
+              <option value={GoalSortBy.Alpha}>{dict.sortingOptions.alpha}</option>
+              <option value={GoalSortBy.AlphaReverse}>{dict.sortingOptions.alphaReverse}</option>
+              <option value={GoalSortBy.ActionsFalling}>{dict.sortingOptions.actionsFalling}</option>
+              <option value={GoalSortBy.ActionsRising}>{dict.sortingOptions.actionsRising}</option>
+              <option value={GoalSortBy.Interesting}>{dict.sortingOptions.interesting}</option>
             </select>
           </label>
         )}
         <TableSelector id={roadmap.id} current={viewMode} setter={setViewMode} />
         { // Only show the button if the user has edit access to the roadmap
           (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-          <Link className="button round color-purewhite pureblack font-weight-500" href={`/goal/create?roadmapId=${roadmap.id}`}>{dict.createGoal[locale]}</Link>
+          <Link className="button round color-purewhite pureblack font-weight-500" href={`/goal/create?roadmapId=${roadmap.id}`}>{dict.createGoal}</Link>
         }
       </menu>
 
@@ -110,7 +110,7 @@ export default function Goals({
           src='/animations/3-dots-scale.svg'
           width={64}
           height={64}
-          alt={dict.loading[locale]}
+          alt={dict.loading}
           className='block margin-inline-auto'
         />
       }
