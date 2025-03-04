@@ -1,6 +1,7 @@
+import { colors } from "../lib/colors.ts";
+import "../lib/console.ts";
 import fs from "node:fs";
 import { glob } from "glob";
-import { colors } from "../lib/colors";
 
 /*
  * This script converts imports of the old `.dict.json` files to the new `.dict.ts` files.
@@ -49,7 +50,7 @@ const localeAccessRegex = /\[locale\]/gm;
 /* Gather files */
 const filePaths = glob.sync([`src/**/*${pageFileEnding}`, `!src/scripts/locale/**/*` /* Don't modify this file or other locale related scripts */]);
 if (!filePaths.length) {
-  console.warn(colors.yellow("❗️ No files found to convert. This is likely not desired."));
+  console.warn("❗️ No files found to convert. This is likely not desired.");
   process.exit(1);
 }
 
@@ -101,21 +102,21 @@ for (const filePath of filePaths) {
     fs.writeFileSync(filePath, content);
   }
   catch (error) {
-    console.error(colors.red(`❌ Failed to convert file: ${colors.gray(filePath)}\n  ${colors.red(error as string)}\n`));
+    console.error(`❌ Failed to convert file:`, `(${colors.gray(filePath)})\n`, `  ${error}\n`);
     problems = true;
   }
 }
 
 if (matchCount === 0) {
   console.warn(""); // Padding
-  console.warn(colors.yellow("❗️ No import statements found to convert. This is likely not desired."));
+  console.warn("❗️ No import statements found to convert. This is likely not desired.");
   console.warn(""); // Padding
   process.exit(1);
 }
 
 if (problems) {
   console.warn(""); // Padding
-  console.warn(colors.yellow("❗️ There were problems converting the files. See the errors above."));
+  console.warn("❗️ There were problems converting the files. See the errors above.");
   console.warn(""); // Padding
   process.exit(1);
 }

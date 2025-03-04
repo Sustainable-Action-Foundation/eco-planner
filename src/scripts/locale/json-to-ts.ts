@@ -1,7 +1,8 @@
+import { colors } from "../lib/colors.ts";
+import "../lib/console.ts";
 import path from "node:path";
 import fs from "node:fs";
 import { glob } from "glob";
-import { colors } from "../lib/colors";
 
 /*
  * This script is used to convert the old `.dict.json` files to the new `.dict.ts` files.
@@ -14,7 +15,7 @@ const fileEndings = {
 };
 const dictPaths = glob.sync(`src/**/*${fileEndings.old}`).map(file => path.resolve(file));
 if (!dictPaths.length) {
-  console.warn("\x1b[33m❗️ No files found to convert. This is likely not desired.\x1b[0m");
+  console.warn("❗️ No files found to convert. This is likely not desired.");
   process.exit(1);
 }
 
@@ -53,14 +54,14 @@ for (const filePath of dictPaths) {
     fs.writeFileSync(newFilePath, newContent);
 
   } catch (error) {
-    console.error(colors.red(`❌ Failed to convert file: ${colors.gray(filePath)}\n  ${colors.red(error as string)}\n`));
+    console.error(`❌ Failed to convert file:`, `(${colors.gray(filePath)})\n`, `  ${error}\n`);
     problems = true;
   }
 }
 
 if (problems) {
   console.warn(""); // Padding
-  console.warn(colors.yellow("❗️ Some files failed to convert. Please see the errors above."));
+  console.warn("❗️ Some files failed to convert. Please see the errors above.");
   console.warn(""); // Padding
   process.exit(1);
 } else {

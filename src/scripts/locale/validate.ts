@@ -1,9 +1,5 @@
 import { colors } from "../lib/colors.ts";
-const __console = { ...console };
-const consoleColors = { log: colors.gray, info: colors.blue, error: (text: string) => colors.red(colors.bold(text)), warn: colors.yellow, debug: (text: string) => colors.cyanBright(colors.italic(text)) }
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-Object.keys(consoleColors).forEach(key => (console as any)[key] = (...args: any[]) => (__console as any)[key](...args.map((consoleColors as any)[key])));
-
+import "../lib/console.ts";
 import fs from "node:fs";
 import path from "node:path";
 import { fileNamePrefix, folderNamePrefix, fileNameSuffix, folderNameSuffix } from "./dictUtils.ts";
@@ -27,7 +23,7 @@ const disallowedKeySuffixes: string[] = [fileNameSuffix, folderNameSuffix].filte
 
 const showHelp = () => {
   console.info(" ℹ️ Help:");
-  console.info(`Validates the structure of locale dictionaries. Locale files are matched by the regex ${colors.green(dictFileRegex.toString())}.\n`);
+  console.info(`Validates the structure of locale dictionaries. Locale files are matched by the regex`, `${colors.green(dictFileRegex.toString())}.\n`);
   console.info("Flags:");
   console.info(` -f --file <file>:      Validate single file.`);
   console.info(` -d --dir <directory>:  Validate all files in the directory recursively.`);
@@ -61,16 +57,16 @@ if (fileFlag && dirFlag) {
 /* Handle file operation */
 if (fileFlag) {
   console.info(""); // Padding
-  console.info(` ℹ️ Validating file ${colors.gray(fileFlag)}`);
+  console.info(` ℹ️ Validating file`, `${colors.gray(fileFlag)}`);
 
   const problems = validateFile(fileFlag);
 
   /* Log problems */
   if (problems.length === 0) {
-    console.info(`✔️  No problems found ${colors.gray(fileFlag)}`);
+    console.info(`✔️  No problems found`, `${colors.gray(fileFlag)}`);
 
   } else {
-    console.error(`❗ Problems found in ${colors.gray(fileFlag)}`);
+    console.error(`❗ Problems found in`, `${colors.gray(fileFlag)}`);
     problems.forEach(problem => console.error(` ❌ ${problem}\n`));
   }
   console.info(""); // Padding
@@ -83,17 +79,17 @@ if (fileFlag) {
 /* Handle directory operation */
 if (dirFlag) {
   console.info(""); // Padding
-  console.info(` ℹ️ Validating directory and its children ${colors.gray(dirFlag)}`);
+  console.info(` ℹ️ Validating directory and its children`, `(./${colors.gray(dirFlag)})`);
 
   const perFileProblems = validateDirectory(dirFlag);
 
   /* Log problems */
   Object.entries(perFileProblems).forEach(([file, problems]) => {
     if (problems.length === 0) {
-      if (verbose) console.info(`✔️  No problems found ${colors.gray(file)}`);
+      if (verbose) console.info(`✔️  No problems found`, `(${colors.gray(file)})`);
     } else {
       console.error(""); // Padding
-      console.error(`❗ Problems found in ${colors.gray(file)}`);
+      console.error(`❗ Problems found in`, `(${colors.gray(file)})`);
       problems.forEach(problem => console.error(` ❌ ${problem}\n`));
       console.error(""); // Padding
     }
@@ -188,7 +184,7 @@ function validateDirectory(dirPath: string | null): { [file: string]: string[] }
 
   // No dict files found
   if (dictFiles.length === 0) {
-    console.error(`❗ No ${colors.green(dictFileRegex.toString())} ${consoleColors.error("files found.")}`);
+    console.error(`❗ No`, colors.green(dictFileRegex.toString()), `files found`);
     process.exit(1);
   }
 
