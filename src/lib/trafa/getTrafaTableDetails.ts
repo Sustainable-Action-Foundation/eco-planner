@@ -1,9 +1,6 @@
-import { all } from "mathjs";
-import getTrafaTables, { getTrafaTableInfo } from "./getTrafaTables";
+import getTrafaTables from "./getTrafaTables";
 import { StructureItem, trafaStructureUrl } from "./trafaTypes";
 import { ApiTableDetails, TrafaFilter, TrafaHierarchy, TrafaMetric, TrafaVariable, TrafaVariableValue } from "../api/apiTypes";
-import { Type } from "typescript";
-import { table } from "console";
 
 
 export default async function getTrafaTableDetails(tableId: string, language: "sv" | "en" = 'sv') {
@@ -59,23 +56,24 @@ export default async function getTrafaTableDetails(tableId: string, language: "s
   function structureItemToTrafaTableDetailItem(structureItem: StructureItem, tableDetailType: string): TrafaMetric | TrafaHierarchy | TrafaVariable | TrafaVariableValue | TrafaFilter {
 
 
-    let returnItem: any;
+    const returnItem: TrafaMetric | TrafaHierarchy | TrafaVariable | TrafaVariableValue | TrafaFilter = {} as TrafaMetric | TrafaHierarchy | TrafaVariable | TrafaVariableValue | TrafaFilter;
 
     if (tableDetailType == "M") {
-      returnItem = {} as TrafaMetric
+      returnItem.type = "metric";
     } else if (tableDetailType == "H") {
-      returnItem = {} as TrafaHierarchy
-      returnItem.children = []
+      (returnItem as TrafaHierarchy).children = [];
+      returnItem.type = "hierarchy";
     } else if (tableDetailType == "D") {
-      returnItem = {} as TrafaVariable
-      returnItem.values = []
+      (returnItem as TrafaVariable).values = [];
+      returnItem.type = "variable";
     } else if (tableDetailType == "DV") {
-      returnItem = {} as TrafaVariableValue
+      returnItem.type = "variableValue";
     } else if (tableDetailType == "F") {
-      returnItem = {} as TrafaFilter
+      returnItem.type = "filter";
     }
 
     returnItem.trafaId = structureItem.Id;
+    returnItem.id = structureItem.Name;
     returnItem.dataType = structureItem.DataType
     returnItem.label = structureItem.Label
     returnItem.name = structureItem.Name
@@ -88,8 +86,17 @@ export default async function getTrafaTableDetails(tableId: string, language: "s
     if ('children' in returnItem && returnItem.children) {
       structureItem.StructureItems.forEach((item) => {
         // console.log('children' in returnItem, typeof returnItem)
-        returnItem.children.push(structureItemToTrafaTableDetailItem(item, item.Type));
+        if (returnItem.children) {
+          returnItem.children.push(structureItemToTrafaTableDetailItem(item, item.Type));
+        }
       });
+    }
+    if ('values' in returnItem && returnItem.values) {
+      structureItem.StructureItems.forEach((item) => {
+        if (returnItem.values) {
+          returnItem.values.push(structureItemToTrafaTableDetailItem(item, item.Type));
+        }
+      })
     }
 
     return returnItem;
@@ -101,13 +108,13 @@ export default async function getTrafaTableDetails(tableId: string, language: "s
     // console.log(pushItem);
 
     if (item.Type == "M") {
-      tableDetails.metrics.push(pushItem);
+      tableDetails.metrics.push((pushItem as TrafaMetric));
     }
     if (item.Type == "H") {
-      tableDetails.hierarchies.push(pushItem);
+      tableDetails.hierarchies.push((pushItem as TrafaHierarchy));
     }
     if (item.Type == "D") {
-      tableDetails.variables.push(pushItem);
+      tableDetails.variables.push((pushItem as TrafaVariable));
     }
   })
 

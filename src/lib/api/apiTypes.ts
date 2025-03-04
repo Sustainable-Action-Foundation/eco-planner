@@ -1,23 +1,27 @@
-import { string } from "mathjs"
-
 export type ApiTableDetails = {
   id: string
   metrics: (TrafaMetric | ScbMetric)[]
-  hierarchies: (TrafaHierarchy | string)[]
+  hierarchies: (TrafaHierarchy)[]
   variables: (TrafaVariable | ScbVariable)[]
   language: string
 }
 
 // TODO - which types actually use description?
+// TODO - add type properties?
+// TODO - make sure all types have label, id and name?
 
 export type ScbMetric = {
-  id: string
-  index: number
-  label: string
-  unit: { base: string, decimals: number }
+  type: string,
+  id: string,
+  name: string,
+  index: number,
+  label: string,
+  unit: { base: string, decimals: number },
 }
 
 export type ScbVariable = {
+  type: string,
+  id: string,
   name: string,
   label: string,
   elimination: boolean, // What is this?
@@ -27,14 +31,18 @@ export type ScbVariable = {
 }
 
 export type ScbVariableValue = {
+  type: string,
   id: string,
+  name: string,
   index: number,
   label: string,
-  note?: string[]
+  note?: string[],
 }
 
 export type TrafaMetric = { // Marked as "M"
+  type: string,
   trafaId: number,
+  id: string,
   dataType: "String" | "Time" | "Region", // Is this ever "Time" or "Region"?
   label: string,
   name: string,
@@ -45,7 +53,9 @@ export type TrafaMetric = { // Marked as "M"
 }
 
 export type TrafaHierarchy = { // Marked as "H"
+  type: string,
   trafaId: number,
+  id: string,
   dataType: "String" | "Time" | "Region", // Is this ever "Time"?
   label: string,
   name: string,
@@ -57,7 +67,9 @@ export type TrafaHierarchy = { // Marked as "H"
 }
 
 export type TrafaVariable = { // Marked as "D"
+  type: string,
   trafaId: number,
+  id: string,
   dataType: "String" | "Time" | "Region", // Is this ever "Region"?
   label: string,
   name: string,
@@ -69,7 +81,9 @@ export type TrafaVariable = { // Marked as "D"
 }
 
 export type TrafaVariableValue = { // Marked as "DV"
+  type: string,
   trafaId: number,
+  id: string,
   dataType: "String" | "Time" | "Region", // Is this ever "Time" or "Region"?
   label: string,
   name: string,
@@ -80,7 +94,9 @@ export type TrafaVariableValue = { // Marked as "DV"
 }
 
 export type TrafaFilter = { // Very similar to variable value, UniqueIds imply that they are basically the same. In reality, one filter seems to overwrite all other filters and variable values.
+  type: string,
   trafaId: number
+  id: string,
   dataType: "String" | "Time" | "Region", // Is this ever "Time" or "Region"?
   label: string,
   name: string,

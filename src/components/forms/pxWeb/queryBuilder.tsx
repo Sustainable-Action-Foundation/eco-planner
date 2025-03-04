@@ -3,12 +3,9 @@
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
 import formSubmitter from "@/functions/formSubmitter";
-import filterTableContentKeys from "@/lib/pxWeb/filterPxWebTableContentKeys";
-import { getPxWebTableContent } from "@/lib/pxWeb/getPxWebTableContent";
 import { getPxWebTableDetails } from "@/lib/pxWeb/getPxWebTableDetails";
 import { getPxWebTables } from "@/lib/pxWeb/getPxWebTables";
 import { externalDatasetBaseUrls } from "@/lib/api/utility";
-import { PxWebApiV2TableContent, PxWebApiV2TableDetails } from "@/lib/pxWeb/pxWebApiV2Types";
 import { Goal } from "@prisma/client";
 import Image from "next/image";
 import { FormEvent, useContext, useEffect, useRef, useState } from "react";
@@ -16,7 +13,6 @@ import FormWrapper from "../formWrapper";
 import parentDict from "../forms.dict.json" with { type: "json" };
 import styles from './queryBuilder.module.css';
 import getTrafaTables from "@/lib/trafa/getTrafaTables";
-import { data } from "node_modules/cypress/types/jquery";
 import getTrafaTableDetails from "@/lib/trafa/getTrafaTableDetails";
 import { ApiTableDetails } from "@/lib/api/apiTypes";
 
@@ -208,11 +204,8 @@ export default function QueryBuilder({
                 : null}
             </fieldset>
 
-            <fieldset className="margin-block-100 smooth padding-50" style={{ border: '1px solid var(--gray-90)' }}>
-              <legend className="padding-inline-50">
-                <strong>{dict.tableDetails.chooseValues[locale]}</strong>
-              </legend>
-              {/* {tableDetails && (
+
+            {/* {tableDetails && (
                 <>
                   {tableDetails.variables.map(variable => (
                     <label key={variable.name} className="block margin-block-75">
@@ -227,11 +220,17 @@ export default function QueryBuilder({
                   ))}
                 </>
               )} */}
-              {tableDetails && (
-                <>
+            {tableDetails && (
+              // TODO - which inputs should be optional?
+              <>
+                <fieldset className="margin-block-100 smooth padding-50" style={{ border: '1px solid var(--gray-90)' }}>
+                  <legend className="padding-inline-50">
+                    <strong>{dict.tableDetails.chooseValues[locale]}</strong>
+                  </legend>
                   {tableDetails.variables.map(variable => (
-
+                    // variable.values && variable.values.length > 0 &&
                     <label key={variable.name} className="block margin-block-75">
+                      {variable.label[0].toUpperCase() + variable.label.slice(1)}
                       {// Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
                       /* variable.type == "TimeVariable" ? "Startperiod" : variable.label} {!variable.elimination && <span style={{ color: "red" }}>*</span> */}
                       <select className={`block margin-block-25 ${variable.label}`}
@@ -241,7 +240,7 @@ export default function QueryBuilder({
                         // If only one value is available, pre-select it
                         defaultValue={variable.values && variable.values.length == 1 ? variable.values[0].label : undefined}>
                         { // If only one value is available, don't show a placeholder option
-                          variable.values && variable.values.length != 1 &&
+                          variable.values && variable.values.length > 1 &&
                           <option value="">{dict.tableDetails.chooseValue[locale]}</option>
                         }
                         {variable.values && variable.values.map(value => (
@@ -250,9 +249,57 @@ export default function QueryBuilder({
                       </select>
                     </label>
                   ))}
-                </>
-              )}
-            </fieldset>
+                  {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => (
+                    <label key={hierarchy.name} className="block margin-block-75">
+                      {hierarchy.label}
+                      {// TODO - indent all children
+                      }
+                      {hierarchy.children && hierarchy.children.map(variable => (
+                        <label key={variable.name} className="block margin-block-75">
+                          {variable.label}
+                        <select className={`block margin-block-25 ${variable.label}`}
+                          // key={variable.label}
+                          name={variable.name}
+                          id={variable.name}
+                          defaultValue={variable.values && variable.values.length == 1 ? variable.values[0].label : undefined}>
+                          {
+                            variable.values && variable.values.length > 1 &&
+                            <option value="">choose value</option>
+                          }
+                          {variable.values && variable.values.map(value => (
+                          <option key={value.label} value={value.label} lang={tableDetails.language}>{value.label}</option>
+                          ))}
+                        </select>
+                        </label>
+                      ))}
+                    </label>
+                  ))}
+                </fieldset>
+                <fieldset className="margin-block-100 smooth padding-50" style={{ border: '1px solid var(--gray-90)' }}>
+                  <legend className="padding-inline-50">
+                    <strong>Choose metrics for table</strong>
+                  </legend>
+                  <label key="metrics" className="block margin-block-75">
+                    {// {metric.label[0].toUpperCase() + metric.label.slice(1)} 
+                    }
+                    <select className={`block margin-block-25 metric`}
+                      name="metrics"
+                      id="metrics"
+                      defaultValue={tableDetails.metrics && tableDetails.metrics.length == 1 ? tableDetails.metrics[0].label : undefined}>
+                      {
+                        tableDetails.metrics && tableDetails.metrics.length != 1 &&
+                        <option value="">Choose metric</option>
+                      }
+                      {tableDetails.metrics && tableDetails.metrics.map(metric => (
+                        <option key={metric.label} value={metric.label} lang={tableDetails.language}>{metric.label}</option>
+                      ))}
+                    </select>
+
+
+                  </label>
+                </fieldset>
+              </>
+            )}
           </FormWrapper>
 
           {/* {tableContent ? (

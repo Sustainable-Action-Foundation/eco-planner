@@ -1,4 +1,3 @@
-import { PxWebApiV2TableDetails } from "./pxWebApiV2Types";
 import { externalDatasetBaseUrls } from "../api/utility";
 import { ApiTableDetails, ScbMetric, ScbVariable, ScbVariableValue } from "../api/apiTypes";
 
@@ -9,7 +8,7 @@ export async function getPxWebTableDetails(tableId: string, externalDataset: str
   url.searchParams.append('lang', language);
 
   let data;
-  let tableDetails: ApiTableDetails = {
+  const tableDetails: ApiTableDetails = {
     id: tableId,
     metrics: [],
     hierarchies: [],
@@ -39,17 +38,19 @@ export async function getPxWebTableDetails(tableId: string, externalDataset: str
   // console.log(data.role);
   // console.log(data.extension.px.heading);
   // console.log(data.extension.px.stub);
-  for (let key in data.dimension) {
+  for (const key in data.dimension) {
     console.log(key, data.dimension[key]);
   }
 
-  let metrics: ScbMetric[] = []
+  const metrics: ScbMetric[] = []
 
   const metricsCategory = data.dimension.ContentsCode.category
-  for (let key in metricsCategory.index) {
+  for (const key in metricsCategory.index) {
     // console.log(key)
-    let scbMetric: ScbMetric = {
+    const scbMetric: ScbMetric = {
+      type: "metric",
       id: key,
+      name: key,
       index: metricsCategory.index[key],
       label: metricsCategory.label[key],
       unit: metricsCategory.unit[key]
@@ -72,11 +73,13 @@ export async function getPxWebTableDetails(tableId: string, externalDataset: str
 
   // console.log(variables);
 
-  let variables: ScbVariable[] = [];
+  const variables: ScbVariable[] = [];
 
-  for (let variableName of data.extension.px.stub) {
+  for (const variableName of data.extension.px.stub) {
     const scbItem = data.dimension[variableName]
-    let scbVariable: ScbVariable = {
+    const scbVariable: ScbVariable = {
+      type: "variable",
+      id: variableName,
       name: variableName,
       label: scbItem.label,
       elimination: scbItem.extension.elimination,
@@ -85,10 +88,12 @@ export async function getPxWebTableDetails(tableId: string, externalDataset: str
       values: []
     }
 
-    for (let key in scbItem.category.index) {
+    for (const key in scbItem.category.index) {
       // console.log(scbItem.category.note[key])
-      let scbVariableValue: ScbVariableValue = {
+      const scbVariableValue: ScbVariableValue = {
+        type: "variableValue",
         id: key,
+        name: key,
         index: scbItem.category.index[key],
         label: scbItem.category.label[key],
       }
@@ -97,7 +102,7 @@ export async function getPxWebTableDetails(tableId: string, externalDataset: str
 
           scbVariableValue.note = scbItem.category.note[key]
         }
-      } catch (error) {
+      } catch {
         // console.info(error)
       }
       // console.log(scbVariableValue)
@@ -108,7 +113,7 @@ export async function getPxWebTableDetails(tableId: string, externalDataset: str
   }
 
   tableDetails.variables = variables
-  
+  console.log(tableDetails);
   return tableDetails;
   // console.log(JSON.stringify(data.link.data[0].href.replace("px", "json-px").replace("\"", "")));
 
