@@ -1,15 +1,14 @@
+import { goalSorterTree } from "@/lib/sorters.ts";
 import { DataSeries, Goal } from "@prisma/client";
 
 export type GoalTree = { [key: string]: GoalTree | (Goal & { dataSeries: DataSeries | null } & { roadmap: { id: string, metaRoadmap: { name: string, id: string } } }) };
 
 export default function goalsToTree(goals: ((Goal & { dataSeries: DataSeries | null } & { roadmap: { id: string, metaRoadmap: { name: string, id: string } } }) | null)[]) {
+  const filteredGoals = goals.filter(goal => goal != null);
+  const sortedGoals = filteredGoals.sort(goalSorterTree);
   const tree: GoalTree = {};
 
-  for (const goal of goals) {
-    if (!goal) {
-      continue;
-    }
-
+  for (const goal of sortedGoals) {
     const parameters = goal.indicatorParameter.split('\\');
 
     // "key" and "demand" are currently the first subsection in the parameters of our data exported from LEAP, but they are mainly metadata and not relevant for the tree structure
