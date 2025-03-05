@@ -74,35 +74,35 @@ function styleArray(arr: string[], options?: Options): string {
   let open: string, comma: string, close: string;
 
   const breakLine = options?.breakLine || false;
+  const index = options?.index || 0;
+  const argCount = options?.argCount || 0;
+  const hasNeighbors = argCount !== 1;
+  const isFirst = index === 0;
+  const isLast = index === argCount - 1;
 
   if (breakLine) {
-    open = "[\n";
-    comma = ",\n";
-    close = "\n]";
+    open = `[\n${indent(1)}`;
+    comma = `,\n${indent(1)}`;
+    close = `\n]`;
   } else {
-    open = "[ ";
-    comma = ", ";
-    close = " ]";
+    open = `[ `;
+    comma = `, `;
+    close = ` ]`;
   }
 
-  const argCount = options?.argCount || 0;
-  const index = options?.index || 0;
-
-  const hasNeighbors = argCount !== 1;
-
   // If it has leading neighbors, add a newline
-  const hasLeadingNeighbors = hasNeighbors && index !== 0;
-  if (breakLine && hasLeadingNeighbors) open = `\n${open}`;
-
+  if (breakLine && hasNeighbors && !isFirst && options?.parentType !== "record") open = `\n${open}`;
   // If it has trailing neighbors, add a newline
-  const hasTrailingNeighbors = hasNeighbors && index !== argCount - 1;
-  if (breakLine && hasTrailingNeighbors) close = `${close}\n`;
+  if (breakLine && hasNeighbors && !isLast && options?.parentType !== "record") close = `${close}\n`;
 
   const entries = arr.map((value) => {
     return styleByType(value, { argCount: arr.length, breakLine: false, parentType: "array" });
   });
 
-  return `${open}${entries.join(comma)}${close}`;
+  const output = `${open}${entries.join(comma)}${close}`
+    .replaceAll("\n", "\n" + (options?.parentType ? indent(1) : ""));
+
+  return output;
 }
 
 function styleRecord(obj: Record<string, unknown>, options?: Options): string {
@@ -139,7 +139,8 @@ function styleRecord(obj: Record<string, unknown>, options?: Options): string {
   });
 
   // Indent everything
-  const output = `${open}${entries.join(comma)}${close}`.replaceAll("\n", "\n" + (options?.parentType ? indent(1) : ""));
+  const output = `${open}${entries.join(comma)}${close}`
+    .replaceAll("\n", "\n" + (options?.parentType ? indent(1) : ""));
 
   return output;
 }
