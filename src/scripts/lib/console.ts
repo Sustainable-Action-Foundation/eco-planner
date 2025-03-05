@@ -30,17 +30,18 @@ function styleByType(value: any, options?: Options): string {
   // Array
   if (Array.isArray(value)) type = "array";
   // Error
-  if (value instanceof Error) type = "error";
+  else if (value instanceof Error) type = "error";
   // Record
-  if (type === "object" && Object.entries(value).length) type = "record";
+  else if (type === "object" && Object.entries(value).length) type = "record";
   // Error
-  if (type === "object" && isNativeError(value)) type = "error";
+  else if (type === "object" && isNativeError(value)) type = "error";
 
 
   if (type === "string") return styleString(value, options);
   else if (type === "error") return styleError(value, options);
   else if (type === "array") return styleArray(value, options);
   else if (type === "record") return styleRecord(value, options);
+  else if (type === "object") return styleObject(value, options);
   else return value;
 }
 
@@ -130,6 +131,10 @@ function styleRecord(obj: Record<string, unknown>, options?: Options): string {
   });
 
   return `${open}${entries.join(comma)}${close}`;
+}
+
+function styleObject(obj: object, options?: Options) {
+  return JSON.stringify(obj, null, 2);
 }
 
 type Options = {
