@@ -1,5 +1,14 @@
 export type ApiTableContent = {
   id: string,
+  columns: {
+    id: string,
+    label: string,
+    type: "d" | "m" | "t",
+  }[],
+  data: {
+    key: {columnId: string, value: string}[],
+    values: (string | number)[]
+  }[]
 }
 
 export type ApiTableDetails = {
@@ -7,6 +16,7 @@ export type ApiTableDetails = {
   metrics: (TrafaMetric | ScbMetric)[]
   hierarchies: (TrafaHierarchy)[]
   variables: (TrafaVariable | ScbVariable)[]
+  times: (ScbTimeVariable)[]
   language: string
 }
 
@@ -41,6 +51,16 @@ export type ScbVariableValue = {
   index: number,
   label: string,
   note?: string[],
+}
+
+export type ScbTimeVariable = {
+  type: string,
+  id: string,
+  name: string,
+  label: string,
+  elimination: boolean, // What is this?
+  show: "value", // What is this and what are the other possible values?
+  // values: ScbVariableValue[],
 }
 
 export type TrafaMetric = { // Marked as "M"

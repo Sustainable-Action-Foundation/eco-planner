@@ -3,7 +3,7 @@
 
 import { externalDatasetBaseUrls } from "../api/utility.ts";
 import { PxWebApiV2TableContent } from "./pxWebApiV2Types.ts";
-import { ScbTimeVariable } from "../api/apiTypes.ts";
+import { ApiTableContent, ScbTimeVariable } from "../api/apiTypes.ts";
 
 export async function getPxWebTableContent(tableId: string, selection: { variableCode: string, valueCodes: string[] }[], times: ScbTimeVariable[] | undefined, externalDataset: string, language: string = 'sv',) {
   // console.log(selection)
@@ -22,9 +22,6 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
 
   // Get the base URL for the external dataset, defaulting to SCB
   const baseUrl = externalDatasetBaseUrls[externalDataset as keyof typeof externalDatasetBaseUrls] ?? externalDatasetBaseUrls.SCB;
-  // baseUrl = "https://api.scb.se/ov0104/v2beta/api/v2"
-  // baseUrl = "https://api.scb.se/OV0104/v1/doris/sv/ssd"
-  // const url = new URL(`${baseUrl}/tables/tab4714/metadata`);
 
   const url = new URL(`${baseUrl}/tables/${tableId}/data`);
   // const metadataUrl = new URL(`${baseUrl}/tables/TAB4714/metadata`);
@@ -108,7 +105,8 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
   // const body = JSON.stringify(payload);
   // console.log(body);
 
-  let data: PxWebApiV2TableContent | null = null;
+  // let data: PxWebApiV2TableContent | null = null;
+  let data = null
 
   // TODO - make this parse in the same format as if it were json
   function parsePxToJson(pxText: string) {
@@ -194,24 +192,26 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
     }
     console.log("----DATA----")
     console.log("response:", response)
-    const contentType = response.headers.get("Content-Type");
-    if (contentType?.includes("application/octet-stream")) {
-      const buffer = await response.arrayBuffer();
-      // console.log("Received binary data:", buffer);
-      const decoder = new TextDecoder("iso-8859-1"); // Om det är i ISO-8859-1 som i din logg
-      const decodedText = decoder.decode(buffer);
-      // console.log("Decoded text:", decodedText);
-      const parsedPx = parsePxToJson(decodedText);
-      console.log("parsedPx:", parsedPx)
-    }
-    else if (contentType?.includes("text/csv")) {
-      const csvText = await response.text();
-      console.log("csvText:", csvText)
-      console.log("parsedCsv:", parseCsv(csvText))
-    } else if (contentType?.includes("application/json")) {
-      const responseText = await response.json();
-      console.log("json:", responseText)
-      data = responseText;
+    if (response.ok) {
+      const contentType = response.headers.get("Content-Type");
+      if (contentType?.includes("application/octet-stream")) {
+        const buffer = await response.arrayBuffer();
+        // console.log("Received binary data:", buffer);
+        const decoder = new TextDecoder("iso-8859-1"); // Om det är i ISO-8859-1 som i din logg
+        const decodedText = decoder.decode(buffer);
+        // console.log("Decoded text:", decodedText);
+        const parsedPx = parsePxToJson(decodedText);
+        console.log("parsedPx:", parsedPx)
+      }
+      else if (contentType?.includes("text/csv")) {
+        const csvText = await response.text();
+        console.log("csvText:", csvText)
+        console.log("parsedCsv:", parseCsv(csvText))
+      } else if (contentType?.includes("application/json")) {
+        const responseText = await response.json();
+        console.log("json:", responseText)
+        data = responseText;
+      }
     }
   } catch (error) {
     console.log(error);
@@ -219,5 +219,35 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
   }
 
   console.log("returnData:", data);
-  return data;
+
+  function pxWebTableContentToApiTableContent(pxWebTableContent: PxWebApiV2TableContent): ApiTableContent {
+    let returnTable: ApiTableContent = {
+      id: tableId,
+      columns: [],
+      data: [],
+    };
+    for (let column of pxWebTableContent.columns) {
+      let pushColumn = {
+        id: column.code,
+        label: column.text,
+        type: column.type === "c" ? "m" : column.type as "t" | "d" | "m",
+      }
+      returnTable.columns.push(pushColumn);
+    }
+
+    for (let data of pxWebTableContent.data) {
+      let pushData = {
+        key: [] as { columnId: string, value: string }[],
+        values: data.values,
+      }
+      for (let i = 0; i < data.key.length; i++) {
+        pushData.key.push({ columnId: returnTable.columns[i].id, value: data.key[i] });
+      }
+      returnTable.data.push(pushData);
+    }
+
+    return returnTable;
+  }
+
+  if (data) return pxWebTableContentToApiTableContent(data);
 }
