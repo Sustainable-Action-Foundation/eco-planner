@@ -1,4 +1,3 @@
-import { TrafaDataResponse } from "../trafa/trafaTypes";
 import { PxWebApiV2TableContent } from "./pxWebApiV2Types";
 
 /**

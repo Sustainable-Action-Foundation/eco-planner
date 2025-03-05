@@ -16,7 +16,6 @@ import getTrafaTables from "@/lib/trafa/getTrafaTables";
 import getTrafaTableDetails from "@/lib/trafa/getTrafaTableDetails";
 import { ApiTableContent, ApiTableDetails } from "@/lib/api/apiTypes";
 import { getPxWebTableContent } from "@/lib/pxWeb/getPxWebTableContent";
-import filterPxWebTableContentKeys from "@/lib/pxWeb/filterPxWebTableContentKeys";
 import getTrafaTableContent from "@/lib/trafa/getTrafaTableContent";
 
 export default function QueryBuilder({
@@ -109,9 +108,11 @@ export default function QueryBuilder({
       console.log(tableDetails)
       if (dataSource == "SCB") {
         // getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource).then(result => setTableContent(filterPxWebTableContentKeys(result)));
-        getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, tableDetails?.times, dataSource).then(result => console.log(result));
+        // getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, tableDetails?.times, dataSource).then(result => console.log(result));
+        getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, tableDetails?.times, dataSource).then(result => { console.log(result); setTableContent(result); });
       } else if (dataSource == "Trafa") {
-        getTrafaTableContent(tableId, query).then(result => console.log(result))
+        // getTrafaTableContent(tableId, query).then(result => console.log(result));
+        getTrafaTableContent(tableId, query).then(result => { setTableContent(result); console.log(result) });
       }
     }
   }
@@ -322,7 +323,7 @@ export default function QueryBuilder({
             )}
           </FormWrapper>
 
-          {/* {tableContent ? (
+          {tableContent ? (
             <div>
               <p>{dict.tableContentCheck.doesThisLookCorrect[locale]}</p>
               <table>
@@ -333,13 +334,22 @@ export default function QueryBuilder({
                   </tr>
                 </thead>
                 <tbody>
-                  {tableContent.data.map((row, index) => (
-                    index < 5 &&
-                    <tr key={row.key[0]}>
-                      <td>{row.key[0]}</td>
-                      <td>{row.values[0]}</td>
-                    </tr>
-                  ))}
+                  {
+
+                    tableContent.data.map((row, index) => {
+                      let timeColumnIndex = 0;
+                      tableContent.columns.map((column, index) => {
+                        if (column.type == "t") timeColumnIndex = index
+                      })
+                      console.log(row)
+                      return (
+                        index < 5 &&
+                        <tr key={row.key[timeColumnIndex].value}>
+                          <td>{row.key[timeColumnIndex].value}</td>
+                          <td>{row.values[0]}</td>
+                        </tr>
+                      )
+                    })}
                 </tbody>
               </table>
             </div>
@@ -347,7 +357,7 @@ export default function QueryBuilder({
             <div>
               <p>{dict.noReadableResult[locale]}</p>
             </div>
-          )} */}
+          )}
 
           <button type="submit" className="seagreen color-purewhite">{dict.submit.addDataSource[locale]}</button>
         </form>

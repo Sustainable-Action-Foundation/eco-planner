@@ -42,10 +42,20 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
     }
   }
 
-  console.log("payload", payload)
+  const timeSelectionItem = {
+    variableCode: "Tid",
+    valueCodes: [] as string[],
+  }
+  for (const time of times) {
 
+    timeSelectionItem.valueCodes.push(time.id)
+  }
+  console.log(timeSelectionItem)
+
+  payload.selection.push(timeSelectionItem)
+  
   selection.forEach(item => {
-
+    
     if (item.variableCode == "metrics" || item.variableCode == "metric") {
       const selectionItem = {
         variableCode: "ContentsCode",
@@ -61,46 +71,21 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
       payload.selection.push(selectionItem)
     }
   })
-
-  const timeSelectionItem = {
-    variableCode: "Tid",
-    valueCodes: [] as string[],
-  }
-  for (const time of times) {
-
-    timeSelectionItem.valueCodes.push(time.id)
-  }
-  console.log(timeSelectionItem)
-
-  payload.selection.push(timeSelectionItem)
-  // const payload = {
-  //   selection: [
-  //     {
-  //       variableCode: "Sektor",
-  //       valueCodes: ["010", "030", "040"] // Hela Sverige
-  //     },
-  //     {
-  //       variableCode: "ContentsCode",
-  //       valueCodes: ["00000718"]
-  //     },
-  //     {
-  //       variableCode: "SNI2007Naring",
-  //       valueCodes: ["A-S", "B", "R"]
-  //     },
-  //     {
-  //       variableCode: "Tid",
-  //       valueCodes: ["2024M11", "2024M12"]
-  //     }
-  //   ],
-  //   response: {
-  //     format: "xlsx"
-  //   }
-  // }
+  
+    console.log("payload", payload)
 
   console.log("----PAYLOAD----")
   console.log(JSON.stringify(payload));
   console.log("----URL----")
   console.log(url);
+
+  // payload.selection.forEach(item => {
+  //   if (item.variableCode == "Tid") {
+  //     payload.selection.splice(payload.selection.indexOf(item), 1)
+  //     console.log(payload.selection)
+  //     payload.selection.unshift(item)
+  //   }
+  // })
 
   // const body = JSON.stringify(payload);
   // console.log(body);
@@ -221,13 +206,13 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
   console.log("returnData:", data);
 
   function pxWebTableContentToApiTableContent(pxWebTableContent: PxWebApiV2TableContent): ApiTableContent {
-    let returnTable: ApiTableContent = {
+    const returnTable: ApiTableContent = {
       id: tableId,
       columns: [],
       data: [],
     };
-    for (let column of pxWebTableContent.columns) {
-      let pushColumn = {
+    for (const column of pxWebTableContent.columns) {
+      const pushColumn = {
         id: column.code,
         label: column.text,
         type: column.type === "c" ? "m" : column.type as "t" | "d" | "m",
@@ -235,19 +220,27 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
       returnTable.columns.push(pushColumn);
     }
 
-    for (let data of pxWebTableContent.data) {
-      let pushData = {
+    for (const data of pxWebTableContent.data) {
+      const pushData = {
         key: [] as { columnId: string, value: string }[],
         values: data.values,
       }
       for (let i = 0; i < data.key.length; i++) {
-        pushData.key.push({ columnId: returnTable.columns[i].id, value: data.key[i] });
+        // if (returnTable.columns[i].type == "t"){
+        //   pushData.key.unshift({ columnId: returnTable.columns[i].id, value: data.key[i]})
+        // }
+        // else pushData.key.push({ columnId: returnTable.columns[i].id, value: data.key[i] });
+        pushData.key.push({ columnId: returnTable.columns[i].id, value: data.key[i]})
       }
       returnTable.data.push(pushData);
     }
 
+    console.log("columns:\n", returnTable.columns);
+    console.log("data:");
+    returnTable.data.forEach(item => {console.log(item)}) 
     return returnTable;
   }
+
 
   if (data) return pxWebTableContentToApiTableContent(data);
 

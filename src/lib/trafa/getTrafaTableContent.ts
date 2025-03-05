@@ -63,14 +63,14 @@ export default async function getTrafaTableContent(tableId: string, selection: {
   }
 
   function trafaTableContentToApiTableContent(trafaTableContent: TrafaDataResponse): ApiTableContent {
-    let returnTable: ApiTableContent = {
+    const returnTable: ApiTableContent = {
       id: tableId,
       columns: [],
       data: [],
     };
 
-    for (let column of trafaTableContent.Header.Column) {
-      let pushColumn = {
+    for (const column of trafaTableContent.Header.Column) {
+      const pushColumn = {
         id: column.Name,
         label: column.Value,
         type: column.DataType === "Time" ? "t" : column.Type.toLowerCase() as "t" | "d" | "m",
@@ -78,8 +78,8 @@ export default async function getTrafaTableContent(tableId: string, selection: {
       returnTable.columns.push(pushColumn);
     }
 
-    for (let data of trafaTableContent.Rows) {
-      let pushData = {
+    for (const data of trafaTableContent.Rows) {
+      const pushData = {
         key: [] as { columnId: string, value: string }[],
         values: [] as string[],
       }

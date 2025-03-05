@@ -12,10 +12,10 @@ export default async function getTrafaTables(language?: 'sv' | 'en') {
 
   // console.log(structureUrl);
 
-  type Table = {
-    id: number;
-    label: string;
-  }
+  // type Table = {
+  //   id: number;
+  //   label: string;
+  // }
 
   let data: TrafaDataResponse | null = null;
   // let data: unknown;
