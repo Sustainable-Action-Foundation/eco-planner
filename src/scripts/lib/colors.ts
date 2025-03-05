@@ -4,7 +4,7 @@ export const colors = {
   reset: () => `\x1b[0m`,
   bold: (text: string) => `\x1b[1m${text}\x1b[22m`,
   dim: (text: string) => `\x1b[2m${text}\x1b[22m`,
-  italic: (text: string) => `\x1b[3m${text}\x1b23m`,
+  italic: (text: string) => `\x1b[3m${text}\x1b[23m`,
   underline: (text: string) => `\x1b[4m${text}\x1b[24m`,
   overline: (text: string) => `\x1b[53m${text}\x1b[55m`,
   /* Text colors */
