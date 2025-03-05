@@ -1,35 +1,34 @@
 // Use server in order to circumvent CORS issues
 'use server';
 
-import { indexOf } from "node_modules/cypress/types/lodash/index";
 import { externalDatasetBaseUrls } from "../api/utility.ts";
 import { PxWebApiV2TableContent } from "./pxWebApiV2Types.ts";
 import { ScbTimeVariable } from "../api/apiTypes.ts";
 
 export async function getPxWebTableContent(tableId: string, selection: { variableCode: string, valueCodes: string[] }[], times: ScbTimeVariable[] | undefined, externalDataset: string, language: string = 'sv',) {
-  // Get the base URL for the external dataset, defaulting to SCB
   // console.log(selection)
   // for (const item of selection) {
   //   if (item.variableCode == "metric") item.variableCode = "ContentsCode"
   // }
 
-  if (!times){
+  if (!times) {
     return
   }
 
   // console.log(selection)
 
   // selection.push({ variableCode: "Tid", valueCodes: ["2010", "2011", "2012"] })
-  tableId = "TAB4714"
+  // tableId = "TAB4714"
 
-  let baseUrl = externalDatasetBaseUrls[externalDataset as keyof typeof externalDatasetBaseUrls] ?? externalDatasetBaseUrls.SCB;
-  baseUrl = "https://api.scb.se/ov0104/v2beta/api/v2"
+  // Get the base URL for the external dataset, defaulting to SCB
+  const baseUrl = externalDatasetBaseUrls[externalDataset as keyof typeof externalDatasetBaseUrls] ?? externalDatasetBaseUrls.SCB;
+  // baseUrl = "https://api.scb.se/ov0104/v2beta/api/v2"
   // baseUrl = "https://api.scb.se/OV0104/v1/doris/sv/ssd"
   // const url = new URL(`${baseUrl}/tables/tab4714/metadata`);
 
-  const url = new URL(`${baseUrl}/tables/TAB4714/data`);
-  const metadataUrl = new URL(`${baseUrl}/tables/TAB4714/metadata`);
-  const tableUrl = new URL(`${baseUrl}/tables/TAB4714`);
+  const url = new URL(`${baseUrl}/tables/${tableId}/data`);
+  // const metadataUrl = new URL(`${baseUrl}/tables/TAB4714/metadata`);
+  // const tableUrl = new URL(`${baseUrl}/tables/TAB4714`);
   // const url = new URL(`${baseUrl}/data/tab4714`);
   // const url = new URL(`${baseUrl}/TAB4714`);
   url.searchParams.append('lang', language);
@@ -37,19 +36,7 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
   // url.searchParams.append('outputformat', 'csv');
   // url.searchParams.append('outputformat', 'px');
   // url.searchParams.append('outputformat', 'json');
-  //  url.searchParams.append('outputformat', 'xlsx');
-
-  // console.log(selection)
-  // function fixSelection(input: { variableCode: string, valueCodes: string[] }[]) {
-  //   for (let item of input) {
-  //     if (item.variableCode == "metric") {
-  //       input[input.indexOf(item)].variableCode = "ContentsCode"
-  //     }
-  //   }
-  //   return input;
-  // }
-  // selection = await fixSelection(selection);
-  // console.log(selection)
+  // url.searchParams.append('outputformat', 'xlsx');
 
   const payload = {
     selection: [] as { variableCode: string, valueCodes: string[] }[],
@@ -61,7 +48,7 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
   console.log("payload", payload)
 
   selection.forEach(item => {
-       
+
     if (item.variableCode == "metrics" || item.variableCode == "metric") {
       const selectionItem = {
         variableCode: "ContentsCode",
@@ -87,9 +74,7 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
     timeSelectionItem.valueCodes.push(time.id)
   }
   console.log(timeSelectionItem)
-  // times.forEach(time => {
 
-  // })
   payload.selection.push(timeSelectionItem)
   // const payload = {
   //   selection: [
@@ -120,42 +105,10 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
   console.log("----URL----")
   console.log(url);
 
-  const body = JSON.stringify(payload);
+  // const body = JSON.stringify(payload);
   // console.log(body);
 
   let data: PxWebApiV2TableContent | null = null;
-
-  // try {
-  //   const response = await fetch(tableUrl, {
-  //     method: "GET"
-  //   })
-  //   console.log("----TABLE----")
-  //   if (!response.ok) {
-  //     console.log("bad table response")
-  //   }
-
-  //   console.log(response)
-  //   // console.log(response.text())
-  // } catch (error) {
-  //   console.log(error)
-  // }
-
-  // try {
-  //   const response = await fetch(metadataUrl, {
-  //     method: 'GET'
-  //   })
-  //   if (!response.ok) {
-  //     // data = await response.json();
-  //     console.log("bad metadata response")
-  //     // If we didn't get all tables, try again with the correct page size
-  //   }
-  //   console.log("----METADATA----")
-  //   console.log(response)
-  //   // console.log(response.text())
-  // } catch (error) {
-  //   console.log(error);
-  //   // return null;
-  // }
 
   // TODO - make this parse in the same format as if it were json
   function parsePxToJson(pxText: string) {
@@ -168,7 +121,7 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
       lines[lines.indexOf(line)] = line.split(" \r").join("").split("\r").join("").split("\n").join("");
     }
     lines = lines.filter((entry) => { return entry.trim() != ''; });
-    const data = lines.join(".").split("DATA=")[1].split(" ")
+    // const data = lines.join(".").split("DATA=")[1].split(" ")
     // console.log(data)
 
     for (const line of lines) {
@@ -260,46 +213,11 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
       console.log("json:", responseText)
       data = responseText;
     }
-    // console.log(response)
-    // console.log(response.headers)
-    // console.log(response.status)
-    // console.log(await response.text())
-    // console.log(await response.json())
   } catch (error) {
     console.log(error);
     return null;
   }
 
-  // try {
-  //   const response = await fetch(url, {
-  //     method: 'POST',
-  //     body: body,
-  //     headers: { 'Content-Type': 'application/json' }
-  //   });
-  //   if (response.ok) {
-  //     data = await response.json();
-  //     console.log("response ok. data:", data)
-  //   } else if (response.status == 429) {
-  //     console.log("Too many requests, waiting 10 seconds and trying again");
-  //     // If hit with "429: Too many requests", wait 10 seconds and try again
-  //     await new Promise(resolve => setTimeout(resolve, 10000));
-  //     return await getPxWebTableContent(tableId, selection, externalDataset, language);
-  //   } else {
-  //     console.log("bad response", response)
-  //     return null;
-  //   }
-  // } catch (error) {
-  //   console.log(error);
-  //   return null;
-  // }
-
   console.log("returnData:", data);
   return data;
 }
-
-// getTableContent("TAB2946", [
-//   { variableCode: "Region", valueCodes: ["00"] },
-//   { variableCode: "ArealTyp", valueCodes: ["01"] },
-//   { variableCode: "ContentsCode", valueCodes: ["000001O3"] },
-//   { variableCode: "Tid", valueCodes: ["BOTTOM(1)"] }
-// ], "SCB", "sv").then(data => console.log(data?.data));
