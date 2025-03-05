@@ -1,3 +1,4 @@
+/** ANSI code based string coloring functions */
 export const colors = {
   /* Text modifiers */
   reset: (text: string) => `\x1b[0m${text}\x1b[0m`,

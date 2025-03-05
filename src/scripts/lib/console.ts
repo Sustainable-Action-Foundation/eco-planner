@@ -1,9 +1,11 @@
 /* eslint @typescript-eslint/no-explicit-any: 0 */
 
 import { colors } from "./colors";
+import { isNativeError } from "node:util/types";
 
-/* Modify console functions to color them */
+/** Unmodified console */
 export const __console = { ...console };
+
 const consoleColors = {
   log: (text: string) => colors.gray(text),
   info: (text: string) => colors.blue(text),
@@ -12,6 +14,7 @@ const consoleColors = {
   debug: (text: string) => colors.cyanBright(colors.italic(text))
 };
 
+/** Apply modification */
 for (const [key, colorFunc] of Object.entries(consoleColors)) {
   (console as any)[key] = (...args: any) => {
     if (args.length === 1) {
@@ -24,12 +27,25 @@ for (const [key, colorFunc] of Object.entries(consoleColors)) {
 }
 
 function styleByType(value: any, options?: Options): string {
-  const type = Array.isArray(value) ? "array" : typeof value;
+  let type: any = typeof value;
+  // Array
+  if (Array.isArray(value)) type = "array";
+  // Error
+  if (value instanceof Error) type = "error";
+  // Record
+  if (type === "object" && Object.entries(value).length) type = "record";
+  // Error
+  if (type === "object" && isNativeError(value)) type = "error";
 
-  if (type === "string") return value;
-  else if (type === "object") return styleObject(value, options);
+
+  if (type === "error") return styleError(value, options);
   else if (type === "array") return styleArray(value, options);
+  else if (type === "record") return styleRecord(value, options);
   else return value;
+}
+
+function styleError(error: Error, options?: Options): string {
+  return colors.red(`${options?.breakLine ? "\n" : ""}${error.stack ?? error.message}`);
 }
 
 function styleArray(arr: string[], option?: Options): string {
@@ -47,7 +63,7 @@ function styleArray(arr: string[], option?: Options): string {
   return `${open}${arr.join(comma)}${close}`;
 }
 
-function styleObject(obj: Record<string, unknown>, options?: Options): string {
+function styleRecord(obj: Record<string, unknown>, options?: Options): string {
   let open: string, colon: string, comma: string, close: string;
 
   if (options?.breakLine) {
