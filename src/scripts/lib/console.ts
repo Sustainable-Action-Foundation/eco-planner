@@ -1,5 +1,4 @@
 /* eslint @typescript-eslint/no-explicit-any: 0 */
-
 import { colors } from "./colors";
 import { isNativeError } from "node:util/types";
 
@@ -47,7 +46,12 @@ function styleByType(value: any, options?: Options): string {
 }
 
 function styleError(error: Error, options?: Options): string {
-  return colors.red(`${options?.breakLine ? "\n" : ""}${error.stack ?? error.message}`);
+  const message = `${colors.custom(4)}${error.message}${colors.custom(24)}`;
+  let stack = error.stack?.replace(error.message, message) || message;
+
+  if(options?.breakLine) stack = `\n${stack}\n`;
+
+  return colors.red(stack);
 }
 
 function styleArray(arr: string[], options?: Options): string {

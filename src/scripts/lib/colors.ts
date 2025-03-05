@@ -49,8 +49,12 @@ export const colors = {
   cyanBrightBG: (text: string) => `\x1b[106m${text}\x1b[0m`,
   whiteBrightBG: (text: string) => `\x1b[107m${text}\x1b[0m`,
   /* Custom code */
-  /** @param code ANSI escape code. https://en.wikipedia.org/wiki/ANSI_escape_code */
-  custom: (code: number, text: string) => `\x1b[${code}m${text}\x1b[0m`,
+  /**
+   * Insert any ANSI escape code. Note: does not emit a trailing reset code.
+   * @param code ANSI escape code. https://en.wikipedia.org/wiki/ANSI_escape_code 
+   * @param text optional text to color.
+  */
+  custom: (code: number, text?: string) => `\x1b[${code}m${text || ""}`,
   rgb: (r: number, g: number, b: number, text: string) => `\x1b[38;2;${r};${g};${b}m${text}\x1b[0m`,
   rgbBG: (r: number, g: number, b: number, text: string) => `\x1b[48;2;${r};${g};${b}m${text}\x1b[0m`,
 }
