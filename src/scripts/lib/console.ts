@@ -2,6 +2,12 @@
 import { colors } from "./colors";
 import { isNativeError } from "node:util/types";
 
+const indentation = `${colors.dim("|")} `;
+const indent = (depth: number): string => Array(depth).fill(indentation).join("");
+// const randomColors = [colors.redBG, colors.blueBG, colors.greenBG, colors.yellowBG, colors.magentaBG, colors.cyanBG, colors.whiteBG, colors.redBrightBG, colors.blueBrightBG, colors.greenBrightBG, colors.yellowBrightBG, colors.magentaBrightBG, colors.cyanBrightBG, colors.whiteBrightBG];
+// let count = 0;
+// const indent = (depth: number): string => { count++; return Array(depth).fill(randomColors[count % randomColors.length](indentation)).join(""); }
+
 /** Unmodified console */
 export const __console = { ...console };
 
@@ -38,11 +44,11 @@ function styleByType(value: any, options?: Options): string {
 
 
   if (type === "string") return styleString(value, options);
-  else if (type === "error") return styleError(value, options);
-  else if (type === "array") return styleArray(value, options);
-  else if (type === "record") return styleRecord(value, options);
-  else if (type === "object") return styleObject(value, options);
-  else return value;
+  if (type === "error") return styleError(value, options);
+  if (type === "array") return styleArray(value, options);
+  if (type === "record") return styleRecord(value, options);
+  if (type === "object") return styleObject(value, options);
+  return value;
 }
 
 
@@ -67,9 +73,11 @@ function styleError(error: Error, options?: Options): string {
 function styleArray(arr: string[], options?: Options): string {
   let open: string, comma: string, close: string;
 
-  if (options?.breakLine) {
-    open = "[\n  ";
-    comma = ",\n  ";
+  const breakLine = options?.breakLine || false;
+
+  if (breakLine) {
+    open = "[\n";
+    comma = ",\n";
     close = "\n]";
   } else {
     open = "[ ";
@@ -84,11 +92,11 @@ function styleArray(arr: string[], options?: Options): string {
 
   // If it has leading neighbors, add a newline
   const hasLeadingNeighbors = hasNeighbors && index !== 0;
-  if (hasLeadingNeighbors) open = `\n${open}`;
+  if (breakLine && hasLeadingNeighbors) open = `\n${open}`;
 
   // If it has trailing neighbors, add a newline
   const hasTrailingNeighbors = hasNeighbors && index !== argCount - 1;
-  if (hasTrailingNeighbors) close = `${close}\n`;
+  if (breakLine && hasTrailingNeighbors) close = `${close}\n`;
 
   const entries = arr.map((value) => {
     return styleByType(value, { argCount: arr.length, breakLine: false, parentType: "array" });
@@ -100,11 +108,20 @@ function styleArray(arr: string[], options?: Options): string {
 function styleRecord(obj: Record<string, unknown>, options?: Options): string {
   let open: string, colon: string, comma: string, close: string;
 
-  if (options?.breakLine) {
-    open = "{\n  ";
+  let breakLine = options?.breakLine || false;
+  if (options?.parentType === "record" || options?.parentType === "array") breakLine = true;
+
+  const index = options?.index || 0;
+  const argCount = options?.argCount || 0;
+  const hasNeighbors = argCount !== 1;
+  const isFirst = index === 0;
+  const isLast = index === argCount - 1;
+
+  if (breakLine) {
+    open = `{\n${indent(1)}`;
     colon = ": ";
-    comma = ",\n  ";
-    close = "\n}";
+    comma = `,\n${indent(1)}`;
+    close = `\n}`;
   } else {
     open = "{ ";
     colon = ": ";
@@ -112,24 +129,19 @@ function styleRecord(obj: Record<string, unknown>, options?: Options): string {
     close = " }";
   }
 
-  const argCount = options?.argCount || 0;
-  const index = options?.index || 0;
-
-  const hasNeighbors = argCount !== 1;
-
   // If it has leading neighbors, add a newline
-  const hasLeadingNeighbors = hasNeighbors && index !== 0;
-  if (hasLeadingNeighbors) open = `\n${open}`;
-
+  if (breakLine && hasNeighbors && !isFirst && options?.parentType !== "record") open = `\n${open}`;
   // If it has trailing neighbors, add a newline
-  const hasTrailingNeighbors = hasNeighbors && index !== argCount - 1;
-  if (hasTrailingNeighbors) close = `${close}\n`;
+  if (breakLine && hasNeighbors && !isLast && options?.parentType !== "record") close = `${close}\n`;
 
   const entries = Object.entries(obj).map(([key, value]) => {
     return `'${key}'${colon}${styleByType(value, { argCount: Object.keys(obj).length, breakLine: false, parentType: "record" })}`;
   });
 
-  return `${open}${entries.join(comma)}${close}`;
+  // Indent everything
+  const output = `${open}${entries.join(comma)}${close}`.replaceAll("\n", "\n" + (options?.parentType ? indent(1) : ""));
+
+  return output;
 }
 
 function styleObject(obj: object, options?: Options) {
@@ -140,5 +152,5 @@ type Options = {
   index?: number;
   argCount?: number;
   breakLine?: boolean;
-  parentType?: string;
+  parentType?: "string" | "array" | "record" | "object" | "error" | "boolean" | "number" | "symbol" | "bigint" | "function" | "undefined";
 }
