@@ -9,8 +9,8 @@
     "e2e:chrome": "cypress run --browser chrome --headless",
     "test": "docker compose -f compose.test.yaml up -d",
     "locale:validate": "tsx src/scripts/locale/validate.ts --dir src",
-    "locale:package": "yarn locale:validate && tsx src/scripts/locale/dict-packer.ts --package",
-    "locale:unpack": "tsx src/scripts/locale/dict-packer.ts --unpack"
+    "locale:package": "yarn locale:validate && tsx src/scripts/locale/dict-packer.ts package",
+    "locale:unpackage": "tsx src/scripts/locale/dict-packer.ts unpackage"
   },
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.6.0",
