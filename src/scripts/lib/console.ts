@@ -18,15 +18,17 @@ const consoleColors = {
 for (const [key, colorFunc] of Object.entries(consoleColors)) {
   (console as any)[key] = (...args: any) => {
     if (args.length === 1) {
-      (__console as any)[key](colorFunc(styleByType(args[0], { breakLine: true })));
+      (__console as any)[key](colorFunc(styleByType(args[0], { index: 0, breakLine: true })));
 
     } else {
-      (__console as any)[key](...args.map((arg: any) => colorFunc(styleByType(arg, { breakLine: true }))));
+      (__console as any)[key](...args.map((arg: any, index: number) => colorFunc(styleByType(arg, { index, breakLine: true }))));
     }
   }
 }
 
 function styleByType(value: any, options?: Options): string {
+  if (options?.index) options.index += 1;
+
   let type: any = typeof value;
   // Array
   if (Array.isArray(value)) type = "array";
@@ -48,17 +50,20 @@ function styleError(error: Error, options?: Options): string {
   return colors.red(`${options?.breakLine ? "\n" : ""}${error.stack ?? error.message}`);
 }
 
-function styleArray(arr: string[], option?: Options): string {
+function styleArray(arr: string[], options?: Options): string {
   let open: string, comma: string, close: string;
-  if (option?.breakLine) {
+
+  if (options?.breakLine) {
     open = "[\n  ";
     comma = ",\n  ";
-    close = "\n]";
+    close = "\n]\n";
   } else {
     open = "[ ";
     comma = ", ";
     close = " ]";
   }
+
+  if (options?.index !== 0) open = `\n${open}`;
 
   return `${open}${arr.join(comma)}${close}`;
 }
@@ -70,13 +75,15 @@ function styleRecord(obj: Record<string, unknown>, options?: Options): string {
     open = "{\n  ";
     colon = ": ";
     comma = ",\n  ";
-    close = "\n}";
+    close = "\n}\n";
   } else {
     open = "{ ";
     colon = ": ";
     comma = ", ";
     close = " }";
   }
+
+  if (options?.index !== 0) open = `\n${open}`;
 
   const entries = Object.entries(obj).map(([key, value]) => {
     return `'${key}'${colon}${styleByType(value, { breakLine: false })}`;
@@ -86,5 +93,6 @@ function styleRecord(obj: Record<string, unknown>, options?: Options): string {
 }
 
 type Options = {
+  index?: number;
   breakLine?: boolean;
 }
