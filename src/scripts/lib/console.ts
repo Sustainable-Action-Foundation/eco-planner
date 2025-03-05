@@ -13,21 +13,19 @@ const consoleColors = {
   debug: (text: string) => colors.cyanBright(colors.italic(text))
 };
 
-/** Apply modification */
+/* Apply modification */
 for (const [key, colorFunc] of Object.entries(consoleColors)) {
   (console as any)[key] = (...args: any) => {
     if (args.length === 1) {
-      (__console as any)[key](colorFunc(styleByType(args[0], { index: 0, breakLine: true })));
+      (__console as any)[key](colorFunc(styleByType(args[0], { index: 0, argCount: 1, breakLine: true })));
 
     } else {
-      (__console as any)[key](...args.map((arg: any, index: number) => colorFunc(styleByType(arg, { index, breakLine: true }))));
+      (__console as any)[key](...args.map((arg: any, index: number) => colorFunc(styleByType(arg, { index: index, argCount: args.length, breakLine: true }))));
     }
   }
 }
 
 function styleByType(value: any, options?: Options): string {
-  if (options?.index) options.index += 1;
-
   let type: any = typeof value;
   // Array
   if (Array.isArray(value)) type = "array";
@@ -39,17 +37,29 @@ function styleByType(value: any, options?: Options): string {
   if (type === "object" && isNativeError(value)) type = "error";
 
 
-  if (type === "error") return styleError(value, options);
+  if (type === "string") return styleString(value, options);
+  else if (type === "error") return styleError(value, options);
   else if (type === "array") return styleArray(value, options);
   else if (type === "record") return styleRecord(value, options);
   else return value;
 }
 
+
+function styleString(str: string, options?: Options): string {
+  if (options?.parentType === "record" || options?.parentType === "array") {
+    return `'${str}'`;
+  }
+  else {
+    return str;
+  }
+}
+
 function styleError(error: Error, options?: Options): string {
+  // Underline the message
   const message = `${colors.custom(4)}${error.message}${colors.custom(24)}`;
   let stack = error.stack?.replace(error.message, message) || message;
 
-  if(options?.breakLine) stack = `\n${stack}\n`;
+  if (options?.breakLine) stack = `\n${stack}\n`;
 
   return colors.red(stack);
 }
@@ -60,16 +70,31 @@ function styleArray(arr: string[], options?: Options): string {
   if (options?.breakLine) {
     open = "[\n  ";
     comma = ",\n  ";
-    close = "\n]\n";
+    close = "\n]";
   } else {
     open = "[ ";
     comma = ", ";
     close = " ]";
   }
 
-  if (options?.index !== 0) open = `\n${open}`;
+  const argCount = options?.argCount || 0;
+  const index = options?.index || 0;
 
-  return `${open}${arr.join(comma)}${close}`;
+  const hasNeighbors = argCount !== 1;
+
+  // If it has leading neighbors, add a newline
+  const hasLeadingNeighbors = hasNeighbors && index !== 0;
+  if (hasLeadingNeighbors) open = `\n${open}`;
+
+  // If it has trailing neighbors, add a newline
+  const hasTrailingNeighbors = hasNeighbors && index !== argCount - 1;
+  if (hasTrailingNeighbors) close = `${close}\n`;
+
+  const entries = arr.map((value) => {
+    return styleByType(value, { argCount: arr.length, breakLine: false, parentType: "array" });
+  });
+
+  return `${open}${entries.join(comma)}${close}`;
 }
 
 function styleRecord(obj: Record<string, unknown>, options?: Options): string {
@@ -79,7 +104,7 @@ function styleRecord(obj: Record<string, unknown>, options?: Options): string {
     open = "{\n  ";
     colon = ": ";
     comma = ",\n  ";
-    close = "\n}\n";
+    close = "\n}";
   } else {
     open = "{ ";
     colon = ": ";
@@ -87,10 +112,21 @@ function styleRecord(obj: Record<string, unknown>, options?: Options): string {
     close = " }";
   }
 
-  if (options?.index !== 0) open = `\n${open}`;
+  const argCount = options?.argCount || 0;
+  const index = options?.index || 0;
+
+  const hasNeighbors = argCount !== 1;
+
+  // If it has leading neighbors, add a newline
+  const hasLeadingNeighbors = hasNeighbors && index !== 0;
+  if (hasLeadingNeighbors) open = `\n${open}`;
+
+  // If it has trailing neighbors, add a newline
+  const hasTrailingNeighbors = hasNeighbors && index !== argCount - 1;
+  if (hasTrailingNeighbors) close = `${close}\n`;
 
   const entries = Object.entries(obj).map(([key, value]) => {
-    return `'${key}'${colon}${styleByType(value, { breakLine: false })}`;
+    return `'${key}'${colon}${styleByType(value, { argCount: Object.keys(obj).length, breakLine: false, parentType: "record" })}`;
   });
 
   return `${open}${entries.join(comma)}${close}`;
@@ -98,5 +134,7 @@ function styleRecord(obj: Record<string, unknown>, options?: Options): string {
 
 type Options = {
   index?: number;
+  argCount?: number;
   breakLine?: boolean;
+  parentType?: string;
 }
