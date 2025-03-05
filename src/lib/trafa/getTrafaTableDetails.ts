@@ -50,6 +50,7 @@ export default async function getTrafaTableDetails(tableId: string, language: "s
     metrics: [],
     hierarchies: [],
     variables: [],
+    times: [],
     language: language,
   }
 

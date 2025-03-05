@@ -66,6 +66,7 @@ export default function QueryBuilder({
         return;
       }
       queryObject.push({ variableCode: key, valueCodes: [value as string] });
+      // else queryObject.push({ variableCode: "ContentsCode", valueCodes: [value as string] });
     });
 
     return queryObject as { variableCode: string, valueCodes: string[] }[];
@@ -105,9 +106,10 @@ export default function QueryBuilder({
       console.log(formData.get("externalTableId") as string ?? "")
       const tableId = formData.get("externalTableId") as string ?? ""
       console.log(query)
+      console.log(tableDetails)
       if (dataSource == "SCB") {
         // getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource).then(result => setTableContent(filterPxWebTableContentKeys(result)));
-        getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource).then(result => console.log(result));
+        getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, tableDetails?.times, dataSource).then(result => console.log(result));
       } else if (dataSource == "Trafa") {
         getTrafaTableContent(tableId, query).then(result => console.log(result))
       }
@@ -147,12 +149,19 @@ export default function QueryBuilder({
     if (!externalDatasetBaseUrls[dataSource as keyof typeof externalDatasetBaseUrls]) return;
     if (!tableId) return;
 
+    console.log("handling select")
     if (dataSource == "SCB") {
       // getPxWebTableDetails(tableId, dataSource).then(result => console.log(result));
-      getPxWebTableDetails(tableId, dataSource).then(result => setTableDetails(result))
+      getPxWebTableDetails(tableId, dataSource).then(result => {
+        // console.log(result);
+        setTableDetails(result);
+      })
     } else if (dataSource == "Trafa") {
       // getTrafaTableDetails(tableId).then(result => console.log(result));
-      getTrafaTableDetails(tableId).then(result => setTableDetails(result));
+      getTrafaTableDetails(tableId).then(result => {
+        // console.log(result);
+        setTableDetails(result);
+      });
     }
     // getPxWebTableDetails(tableId, dataSource).then(result => setTableDetails(result));
   }
@@ -302,7 +311,7 @@ export default function QueryBuilder({
                         <option value="">Choose metric</option>
                       }
                       {tableDetails.metrics && tableDetails.metrics.map(metric => (
-                        <option key={metric.label} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
+                        <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
                       ))}
                     </select>
 
