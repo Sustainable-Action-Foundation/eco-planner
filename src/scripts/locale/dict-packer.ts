@@ -6,23 +6,25 @@ import { glob } from "glob";
 import { tsDictStripper } from "./ts-dict-stripper.ts";
 
 
-/** Package and Unpackage common config */
+/* Package and Unpackage common config */
 const dictFileEnding = ".dict.ts";
 const dictSourceFolder = "src";
-export const nameModifiers = {
+/** Where the packaged file will end up and where it is read from */
+const packageDestination = "locale_package.json";
+export const packageNameModifiers = {
   file: {
     prefix: "",
-    suffix: "",
+    suffix: "--file",
   },
   dir: {
     prefix: "",
-    suffix: "",
+    suffix: "--directory",
   }
 };
 const dictPaths = glob.sync(`${dictSourceFolder}/**/*${dictFileEnding}`);
 
 
-/** Flag validation */
+/* Flag validation */
 const packageFlag = process.argv.includes("package");
 const unpackageFlag = process.argv.includes("unpackage");
 if (!packageFlag && !unpackageFlag) {
@@ -34,7 +36,7 @@ else if (packageFlag && unpackageFlag) {
   process.exit(1);
 }
 
-/** Package */
+/* Package */
 if (packageFlag) {
   console.info(`📦 Packaging dictionaries...`);
 
@@ -50,7 +52,7 @@ if (packageFlag) {
   process.exit(0);
 }
 
-/** Unpackage */
+/* Unpackage */
 if (unpackageFlag) {
   console.info(`📦 Unpacking dictionaries...`);
 
@@ -68,25 +70,32 @@ if (unpackageFlag) {
 
 
 function Package() {
+  if (!dictPaths.length) {
+    console.warn("❗ No dict files found. This is likely not desired.");
+    process.exit(1);
+  }
 
+  // Ensure destination exists
+  if (!fs.existsSync(packageDestination)) fs.writeFileSync(packageDestination, "{}", "utf-8");
+
+  for (const filePath of dictPaths) {
+    const fileContent = fs.readFileSync(filePath, "utf-8");
+    const dict = tsDictStripper(fileContent);
+
+    /**  */
+    const pathComponents = filePath.split(/[/\\]/gm);
+    console.debug(pathComponents);
+
+    /** File name including the `prefix` and `suffix` */
+    const fileName = `${packageNameModifiers.file.prefix}${path.basename(filePath).replace(dictFileEnding, "")}${packageNameModifiers.file.suffix}`;
+
+    // Create a new entry in the package with this files entire path
+    const packageContent = JSON.parse(fs.readFileSync(packageDestination, "utf-8"));
+
+  }
 }
 
 
 function Unpackage() {
 
 }
-
-
-// if (!dictPaths.length) {
-//   console.error("❗ No dict files found. This is likely not desired.");
-//   process.exit(1);
-// }
-
-// for (const filePath of dictPaths) {
-//   const fileContent = fs.readFileSync(filePath, "utf-8");
-//   const dict = tsDictStripper(fileContent);
-
-//   const pathParts = filePath.split(/[/\\]/gm);
-//   const fileName = pathParts.pop();
-
-// }

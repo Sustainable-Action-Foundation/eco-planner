@@ -5,6 +5,7 @@ import path from "node:path";
 import { glob } from "glob";
 import { Locale } from "src/types.ts";
 import { tsDictStripper } from "./ts-dict-stripper.ts";
+import { packageNameModifiers } from "./dict-packer.ts";
 /** Only the unique values of the Locale Enum */
 const strictLocale = [...new Set(Object.values(Locale))];
 
@@ -19,9 +20,9 @@ const disallowedKeysRegex = /^[0-9]+$/;
 /** Raise concern on keys with any of these substrings. */
 const disallowedKeySubstrings: string[] = [].filter(Boolean);
 /** Raise concern on keys with any of these prefixes. */
-const disallowedKeyPrefixes: string[] = [].filter(Boolean);
+const disallowedKeyPrefixes: string[] = [packageNameModifiers.file.prefix, packageNameModifiers.dir.prefix].filter(Boolean);
 /** Raise concern on keys with any of these suffixes. */
-const disallowedKeySuffixes: string[] = [].filter(Boolean);
+const disallowedKeySuffixes: string[] = [packageNameModifiers.file.suffix, packageNameModifiers.dir.suffix].filter(Boolean);
 
 
 const showHelp = () => {

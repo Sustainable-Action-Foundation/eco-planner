@@ -140,3 +140,4 @@ dist
 
 # JSON file containing the text from all dict files
 packaged_dictionary.json
+locale_package.json
