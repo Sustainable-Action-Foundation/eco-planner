@@ -1,5 +1,6 @@
 'use server';
 
+import { ApiTableContent } from "../api/apiTypes.ts";
 import { TrafaDataResponse, trafaUrl } from "./trafaTypes.ts";
 
 // Trafa is a Swedish transport data provider. As such, their data is only relevant for usage in Sweden.
@@ -60,6 +61,48 @@ export default async function getTrafaTableContent(tableId: string, selection: {
     console.log(error);
     return null;
   }
+
+  function trafaTableContentToApiTableContent(trafaTableContent: TrafaDataResponse): ApiTableContent {
+    let returnTable: ApiTableContent = {
+      id: tableId,
+      columns: [],
+      data: [],
+    };
+
+    for (let column of trafaTableContent.Header.Column) {
+      let pushColumn = {
+        id: column.Name,
+        label: column.Value,
+        type: column.DataType === "Time" ? "t" : column.Type.toLowerCase() as "t" | "d" | "m",
+      };
+      returnTable.columns.push(pushColumn);
+    }
+
+    for (let data of trafaTableContent.Rows) {
+      let pushData = {
+        key: [] as { columnId: string, value: string }[],
+        values: [] as string[],
+      }
+      // let keys: {Name: string, }[]
+      // if (data.Cell)
+      for (let i = 0; i < data.Cell.length; i++) {
+        if (!data.Cell[i].IsMeasure) {
+          pushData.key.push({ columnId: data.Cell[i].Column, value: data.Cell[i].Name });
+        }
+        else {
+          pushData.values.push(data.Cell[i].Value)
+        }
+      }
+      // for (let i = 0; i < data.key.length; i++) {
+      //   pushData.key.push({ columnId: returnTable.columns[i].id, value: data.key[i] });
+      // }
+      returnTable.data.push(pushData);
+    }
+
+    return returnTable;
+  }
+
+  if (data) return trafaTableContentToApiTableContent(data);
 
   return data;
 }

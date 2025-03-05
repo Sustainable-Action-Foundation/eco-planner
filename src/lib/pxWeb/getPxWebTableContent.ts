@@ -250,4 +250,6 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
   }
 
   if (data) return pxWebTableContentToApiTableContent(data);
+
+  return data;
 }
