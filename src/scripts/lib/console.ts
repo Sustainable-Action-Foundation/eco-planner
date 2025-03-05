@@ -26,15 +26,15 @@ for (const [key, colorFunc] of Object.entries(consoleColors)) {
 }
 
 function styleByType(value: any, options?: Options): string {
-  let type: any = typeof value;
+  let type: string = typeof value;
   // Array
-  if (Array.isArray(value)) type = "array";
+  if (value instanceof Array || Array.isArray(value)) type = "array";
   // Error
   else if (value instanceof Error) type = "error";
-  // Record
-  else if (type === "object" && Object.entries(value).length) type = "record";
   // Error
   else if (type === "object" && isNativeError(value)) type = "error";
+  // Record
+  else if (type === "object" && Object.entries(value).length) type = "record";
 
 
   if (type === "string") return styleString(value, options);
@@ -56,8 +56,7 @@ function styleString(str: string, options?: Options): string {
 }
 
 function styleError(error: Error, options?: Options): string {
-  // Underline the message
-  const message = `${colors.custom(4)}${error.message}${colors.custom(24)}`;
+  const message = colors.underline(error.message);
   let stack = error.stack?.replace(error.message, message) || message;
 
   if (options?.breakLine) stack = `\n${stack}\n`;
