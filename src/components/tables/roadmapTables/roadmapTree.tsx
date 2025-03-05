@@ -6,6 +6,7 @@ import { AccessControlled } from "@/types.ts";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
 import Link from "next/link";
 import Image from "next/image";
+import { Fragment } from "react";
 
 type RoadmapTreeProps = {
   user: LoginData['user'],
@@ -58,9 +59,9 @@ function NestedRoadmapRenderer({
       const newChildRoadmaps = allRoadmaps.filter(potentialChild => (potentialChild.metaRoadmap.parentRoadmapId === roadmap.metaRoadmapId) && (potentialChild.id !== roadmap.id) && (potentialChild.metaRoadmap.parentRoadmapId != null));
 
       return (
-        <>
+        <Fragment key={`roadmap-tree-${roadmap.id}`}>
           {newChildRoadmaps.length > 0 ?
-            <li key={`roadmap-tree-${roadmap.id}`}>
+            <li>
               <details>
                 <summary className="flex justify-content-space-between">
                   <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
@@ -100,7 +101,7 @@ function NestedRoadmapRenderer({
               </span>
             </li>
           }
-        </>
+        </Fragment>
       )
     })}
   </>
