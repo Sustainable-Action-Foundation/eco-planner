@@ -311,6 +311,14 @@
         "chooseValue": {
           "en": "Choose a value",
           "sv": "Välj ett värde"
+        },
+        "chooseMetricForTable": {
+          "en": "Choose metric for this table",
+          "sv": "Välj mätvärde för tabellen"
+        },
+        "chooseMetric": {
+          "en": "Choose metric",
+          "sv": "Välj ett mätvärde"
         }
       },
       "tableContentCheck": {

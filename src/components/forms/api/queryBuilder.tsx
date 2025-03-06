@@ -286,7 +286,7 @@ export default function QueryBuilder({
                             defaultValue={variable.values && variable.values.length == 1 ? variable.values[0].label : undefined}>
                             {
                               variable.values && variable.values.length > 1 &&
-                              <option value="">choose value</option>
+                              <option value="">{dict.tableDetails.chooseValue[locale]}</option>
                             }
                             {variable.values && variable.values.map(value => (
                               <option key={value.label} value={value.name} lang={tableDetails.language}>{value.label}</option>
@@ -299,7 +299,7 @@ export default function QueryBuilder({
                 </fieldset>
                 <fieldset className="margin-block-100 smooth padding-50" style={{ border: '1px solid var(--gray-90)' }}>
                   <legend className="padding-inline-50">
-                    <strong>Choose metrics for table</strong>
+                    <strong>{dict.tableDetails.chooseMetricForTable[locale]}</strong>
                   </legend>
                   <label key="metric" className="block margin-block-75">
                     {// {metric.label[0].toUpperCase() + metric.label.slice(1)} 
@@ -310,7 +310,7 @@ export default function QueryBuilder({
                       defaultValue={tableDetails.metrics && tableDetails.metrics.length == 1 ? tableDetails.metrics[0].label : undefined}>
                       {
                         tableDetails.metrics && tableDetails.metrics.length != 1 &&
-                        <option value="">Choose metric</option>
+                        <option value="">{dict.tableDetails.chooseMetric[locale]}</option>
                       }
                       {tableDetails.metrics && tableDetails.metrics.map(metric => (
                         <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
