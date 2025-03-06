@@ -19,8 +19,8 @@ if (!dictPaths.length) {
   process.exit(1);
 }
 
-/** 
- * Finds the leaf objects in the json data to append the `` suffix to.
+/**
+ * Finds the leaf objects in the json data to append the `[locale]` suffix to.
  */
 const leafObjectFinderRegex = /"\w{2}":\s.*\r?\n\s+\}/gm;
 

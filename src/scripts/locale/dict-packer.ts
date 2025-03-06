@@ -3,7 +3,7 @@ import "../lib/console.ts";
 import fs from "node:fs";
 import path from "node:path";
 import { glob } from "glob";
-import { tsDictStripper } from "./ts-dict-stripper.ts";
+import { tsDictMaker, tsDictStripper } from "./ts-dict-stripper.ts";
 
 
 /* Package and Unpackage common config */
@@ -21,12 +21,15 @@ export const packageNameModifiers = {
     suffix: "--directory",
   }
 };
+const addFileModifiers = (str: string) => `${packageNameModifiers.file.prefix}${str}${packageNameModifiers.file.suffix}`;
+const addDirModifiers = (str: string) => `${packageNameModifiers.dir.prefix}${str}${packageNameModifiers.dir.suffix}`;
+const stripModifiers = (str: string) => str.replace(packageNameModifiers.file.prefix, "").replace(packageNameModifiers.file.suffix, "").replace(packageNameModifiers.dir.prefix, "").replace(packageNameModifiers.dir.suffix, "");
 const dictPaths = glob.sync(`${dictSourceFolder}/**/*${dictFileEnding}`);
 
 
 /* Flag validation */
-const packageFlag = process.argv.includes("package");
-const unpackageFlag = process.argv.includes("unpackage");
+const packageFlag = process.argv.includes("package") || process.argv.includes("pack");
+const unpackageFlag = process.argv.includes("unpackage") || process.argv.includes("unpack");
 if (!packageFlag && !unpackageFlag) {
   console.warn(`⚠️  Missing command. Please provide the command \`package\` or \`unpackage\``);
   process.exit(1);
@@ -36,7 +39,8 @@ else if (packageFlag && unpackageFlag) {
   process.exit(1);
 }
 
-/* Package */
+
+/* Packaging handling */
 if (packageFlag) {
   console.info(`📦 Packaging dictionaries...`);
 
@@ -52,7 +56,7 @@ if (packageFlag) {
   process.exit(0);
 }
 
-/* Unpackage */
+/* Unpacking handling */
 if (unpackageFlag) {
   console.info(`📦 Unpacking dictionaries...`);
 
@@ -69,9 +73,10 @@ if (unpackageFlag) {
 }
 
 
+/* Packaging logic */
 function Package() {
   if (!dictPaths.length) {
-    console.warn("❗ No dict files found. This is likely not desired.");
+    console.warn("⚠️  No dict files found. This is likely not desired.");
     process.exit(1);
   }
 
@@ -79,23 +84,96 @@ function Package() {
   if (!fs.existsSync(packageDestination)) fs.writeFileSync(packageDestination, "{}", "utf-8");
 
   for (const filePath of dictPaths) {
-    const fileContent = fs.readFileSync(filePath, "utf-8");
-    const dict = tsDictStripper(fileContent);
 
-    /**  */
-    const pathComponents = filePath.split(/[/\\]/gm);
-    console.debug(pathComponents);
+    /** Encode all the parts of the file path to this dict. */
+    const pathComponents = filePath.split(/[/\\]/gm)
+      .map((component, index) => {
+        // Ignore source folder since it is implied as doc root in the package
+        if (index === 0 && component === dictSourceFolder) return "";
 
-    /** File name including the `prefix` and `suffix` */
-    const fileName = `${packageNameModifiers.file.prefix}${path.basename(filePath).replace(dictFileEnding, "")}${packageNameModifiers.file.suffix}`;
+        // If it has file ending, add prefix and suffix
+        if (component.endsWith(dictFileEnding)) {
+          return `${packageNameModifiers.file.prefix}${component.replace(dictFileEnding, "")}${packageNameModifiers.file.suffix}`;
+        }
 
-    // Create a new entry in the package with this files entire path
+        // Else it's a directory, add prefix and suffix
+        return `${packageNameModifiers.dir.prefix}${component}${packageNameModifiers.dir.suffix}`;
+      })
+      .filter(Boolean);
+
+    const dict = tsDictStripper(fs.readFileSync(filePath, "utf-8"));
     const packageContent = JSON.parse(fs.readFileSync(packageDestination, "utf-8"));
 
+    let currentPackage = packageContent;
+    for (const component of pathComponents) {
+      if (!currentPackage[component]) currentPackage[component] = {};
+      currentPackage = currentPackage[component];
+    }
+
+    // Populate
+    for (const [key, value] of Object.entries(dict)) {
+      currentPackage[key] = value;
+    }
+
+    fs.writeFileSync(packageDestination, JSON.stringify(packageContent, null, 2), "utf-8");
   }
 }
 
-
+/* Unpacking logic */
 function Unpackage() {
+  // Check if package exists
+  if (!fs.existsSync(packageDestination)) {
+    console.warn(`⚠️  Package not found at ${packageDestination}`);
+    process.exit(1);
+  }
 
+  // Try parse
+  try {
+    JSON.parse(fs.readFileSync(packageDestination, "utf-8"))
+  }
+  catch (error) {
+    console.warn(`⚠️  Package is not valid JSON.`, error);
+    process.exit(1);
+  }
+
+  const packageContent = JSON.parse(fs.readFileSync(packageDestination, "utf-8"));
+
+  // Walk the package
+  walkPackage(packageContent, dictSourceFolder);
+}
+
+/* Unpacking helpers */
+function walkPackage(packageContent: any, currentPath: string) {
+  Object.entries(packageContent).forEach(([key, value]) => {
+    const keyType = isFileOrDir(key);
+
+    if (keyType === "file") {
+      const filePath = path.join(currentPath, stripModifiers(key) + dictFileEnding);
+
+      // Check if file exists
+      if (!fs.existsSync(filePath)) {
+        console.warn(`⚠️  File ${filePath} does not exist. This is not expected. Exiting...`);
+        process.exit(1);
+      }
+
+      fs.writeFileSync(filePath, tsDictMaker(value as object), "utf-8");
+    }
+    else if (keyType === "dir") {
+      const dirPath = path.join(currentPath, stripModifiers(key));
+
+      // Check if dir exists
+      if (!fs.existsSync(dirPath)) {
+        console.warn(`⚠️  Directory ${dirPath} does not exist. This is not expected. Exiting...`);
+        process.exit(1);
+      }
+
+      walkPackage(value, dirPath);
+    }
+  });
+};
+
+function isFileOrDir(key: string): "file" | "dir" | "none" {
+  if (key.startsWith(packageNameModifiers.file.prefix) && key.endsWith(packageNameModifiers.file.suffix)) return "file";
+  if (key.startsWith(packageNameModifiers.dir.prefix) && key.endsWith(packageNameModifiers.dir.suffix)) return "dir";
+  return "none";
 }
