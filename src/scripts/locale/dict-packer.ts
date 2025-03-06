@@ -146,7 +146,7 @@ function Unpackage() {
 
 /* Unpacking helpers */
 function walkPackage(packageContent: any, currentPath: string) {
-Object.entries(packageContent).forEach(([key, value]) => {
+  Object.entries(packageContent).forEach(([key, value]) => {
     const keyType = isFileOrDir(key);
 
     if (keyType === "file") {
