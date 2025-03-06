@@ -20,7 +20,7 @@ export type ApiTableDetails = {
   metrics: (TrafaMetric | ScbMetric)[]
   hierarchies: (TrafaHierarchy)[]
   variables: (TrafaVariable | ScbVariable)[]
-  times: (ScbTimeVariable)[]
+  times: (TrafaVariable | ScbTimeVariable)[]
   language: string
 }
 

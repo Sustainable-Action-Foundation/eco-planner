@@ -64,9 +64,11 @@ export default async function getTrafaTableDetails(tableId: string, language: "s
     } else if (tableDetailType == "H") {
       (returnItem as TrafaHierarchy).children = [];
       returnItem.type = "hierarchy";
-    } else if (tableDetailType == "D") {
+    } else if (tableDetailType == "D" && structureItem.DataType != "Time") {
       (returnItem as TrafaVariable).values = [];
       returnItem.type = "variable";
+    } else if (tableDetailType == "D" && structureItem.DataType == "Time") {
+      returnItem.type = "time";
     } else if (tableDetailType == "DV") {
       returnItem.type = "variableValue";
     } else if (tableDetailType == "F") {
@@ -114,8 +116,11 @@ export default async function getTrafaTableDetails(tableId: string, language: "s
     if (item.Type == "H") {
       tableDetails.hierarchies.push((pushItem as TrafaHierarchy));
     }
-    if (item.Type == "D") {
+    if (item.Type == "D" && item.DataType != "Time") {
       tableDetails.variables.push((pushItem as TrafaVariable));
+    }
+    if (item.Type == "D" && item.DataType == "Time") {
+      tableDetails.times.push((pushItem as TrafaVariable))
     }
   })
 
