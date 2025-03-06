@@ -43,10 +43,10 @@ export default function QueryBuilder({
     const query = (formRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
 
     if (dataSource == "SCB") {
-      getPxWebTables(dataSource, query).then(result => setTables(result));
+      getPxWebTables(dataSource, query, locale).then(result => setTables(result));
     }
     if (dataSource == "Trafa") {
-      getTrafaTables().then(result => setTables(result));
+      getTrafaTables(locale).then(result => setTables(result));
     }
   }, [dataSource]);
 
@@ -77,7 +77,7 @@ export default function QueryBuilder({
     // Return if properly formatted response was not found
     if (!tableContent) return;
     if (!(event.target instanceof HTMLFormElement)) return;
-    
+
     if (!(event.target.checkValidity())) return;
     const formData = new FormData(event.target);
     const query = buildQuery(formData);
@@ -105,9 +105,9 @@ export default function QueryBuilder({
       console.log("Query:", query);
       console.log("Table Details:", tableDetails);
       if (dataSource == "SCB") {
-        getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource).then(result => { console.log(result); setTableContent(result); });
+        getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource, locale).then(result => { console.log(result); setTableContent(result); });
       } else if (dataSource == "Trafa") {
-        getTrafaTableContent(tableId, query).then(result => { console.log(result); setTableContent(result); });
+        getTrafaTableContent(tableId, query, locale).then(result => { console.log(result); setTableContent(result); });
       }
     }
   }
@@ -130,10 +130,10 @@ export default function QueryBuilder({
 
     if (dataSource == "SCB") {
       // TODO - when searching for id, also return partial matches
-      getPxWebTables(dataSource, query).then(result => setTables(result));
+      getPxWebTables(dataSource, query, locale).then(result => setTables(result));
     } else if (dataSource == "Trafa") {
       // TODO - maybe the tables can be filtered in the function?
-      getTrafaTables().then((result) => {
+      getTrafaTables(locale).then((result) => {
         const regex = new RegExp(query as string, "i");
         result = result?.filter(value => regex.test(value.label)) ?? null;
         setTables(result);
@@ -146,9 +146,9 @@ export default function QueryBuilder({
     if (!tableId) return;
 
     if (dataSource == "SCB") {
-      getPxWebTableDetails(tableId, dataSource).then(result => setTableDetails(result));
+      getPxWebTableDetails(tableId, dataSource, locale).then(result => setTableDetails(result));
     } else if (dataSource == "Trafa") {
-      getTrafaTableDetails(tableId).then(result => setTableDetails(result));
+      getTrafaTableDetails(tableId, locale).then(result => setTableDetails(result));
     }
   }
 

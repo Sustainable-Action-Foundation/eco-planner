@@ -5,6 +5,7 @@ import { ApiTableDetails, TrafaFilter, TrafaHierarchy, TrafaMetric, TrafaVariabl
 export default async function getTrafaTableDetails(tableId: string, language: "sv" | "en" = 'sv') {
   const url = new URL(trafaStructureUrl);
   url.searchParams.append('query', `${tableId}`);
+  if (language) url.searchParams.append("lang", language);
 
   let data: StructureItem;
   try {
@@ -27,7 +28,7 @@ export default async function getTrafaTableDetails(tableId: string, language: "s
   }
 
   // Filter away all trafa tables from the list of structure items that is fetched from Trafa
-  const allTrafaTableNames = await getTrafaTables().then(result => result?.map(item => item.tableId) ?? null);
+  const allTrafaTableNames = await getTrafaTables(language).then(result => result?.map(item => item.tableId) ?? null);
   data.StructureItems = data.StructureItems.filter(structureItem => !allTrafaTableNames?.includes(structureItem.Name));
 
   // Declare the variable that will be returned by this function
