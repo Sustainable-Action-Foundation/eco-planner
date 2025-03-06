@@ -84,7 +84,7 @@ if (fileFlag) {
 
 /* Handle directory operation */
 if (dirFlag) {
-  console.info(` ℹ️ Validating directory and its children`, colors.gray(`(./${dirFlag}/**/*${dictFileEnding})`));
+  console.info(` ℹ️ Validating directory`, colors.gray(`./${dirFlag}/**/*${dictFileEnding}`));
 
   const perFileProblems = validateDirectory(dirFlag);
 
@@ -102,7 +102,7 @@ if (dirFlag) {
     process.exit(1)
   }
   else {
-    console.info("✔️  No problems found in any file of", colors.gray(`(./${dirFlag}/**/*${dictFileEnding})`));
+    console.info("✔️  No problems found in directory", colors.gray(`./${dirFlag}/**/*${dictFileEnding}`));
     process.exit(0);
   }
 };

@@ -1,6 +1,17 @@
+import fs from "node:fs";
+import { colors } from "../lib/colors";
 
 /** Extracts a json object out of a `.dict.ts` file, disregarding the TypeScript code */
-export function tsDictStripper(fileContent: string): object {
+export function tsDictStripper(fileContent: string, filePath?: string): object {
+
+  /** URI decode every key and value */
+  const decode = (obj: object) => {
+    const newObj: Record<string, string | object> = {};
+    for (const [key, value] of Object.entries(obj)) {
+      newObj[decodeURIComponent(key)] = typeof value === "object" ? decode(value) : decodeURIComponent(value);
+    }
+    return newObj;
+  };
 
   const dict = fileContent
     /* Remove import/export statement and the closing `);` */
@@ -10,11 +21,27 @@ export function tsDictStripper(fileContent: string): object {
     /* Remove trailing commas */
     .replaceAll(/(?:(?<="\w*":\s"[^"]*")|(?<=\})),(?=\r?\n\s*\})/gmu, "");
 
-  return JSON.parse(dict);
+  try {
+    return decode(JSON.parse(dict));
+  } catch (error) {
+    console.error(`❌ Error parsing dict:`, colors.gray(filePath || ""), error);
+    fs.writeFileSync("error.dict.json", dict, "utf-8");
+    console.error("Saved error.dict.json for debugging.");
+    process.exit(1);
+  }
 }
 
 /** Creates a `.dict.ts` file from a json object */
 export function tsDictMaker(dict: object): string {
+
+  /** URI encode every key and value */
+  const encode = (obj: object) => {
+    const newObj: Record<string, string | object> = {};
+    for (const [key, value] of Object.entries(obj)) {
+      newObj[encodeURIComponent(key)] = typeof value === "object" ? encode(value) : encodeURIComponent(value);
+    }
+    return newObj;
+  };
 
   const formatContent = (content: string): string => {
     const indent = "  ";
@@ -27,7 +54,7 @@ export function tsDictMaker(dict: object): string {
       /* Re-add line breaks */
       .replaceAll(/(?<=[}"],|:\s?\{)(?=\W)(?!\s*[\wåäö])/gmu, "\n") /** Regex: finds empty strings that are preceded by (`}` or `"`) and `,` it also cannot be succeeded by a letter or `å` or `ä` or `ö`. That last part is not optimal since it is language dependant. TODO: find a better regex. */
       /* Add `[locale]` to each leaf */
-      .replaceAll(/(?<="\w{2}": "[^"]*",\r?\n\})/gmu, "[locale]")
+      .replaceAll(/(?<="\w*": "[^"]*",\r?\n\})/gmu, "[locale]")
       /* Indent */
       .split("\n").map(line => {
         if (line.includes("}")) indentDepth--;
@@ -35,12 +62,12 @@ export function tsDictMaker(dict: object): string {
         if (line.includes("{")) indentDepth++;
         return newLine;
       }).join("\n");
-  }
+  };
 
   const templateTSON = (content: string) => `
 import { Locale } from "@/types.ts";
 export const createDict = (locale: Locale) => (${formatContent(content)});
   `.trim();
 
-  return templateTSON(JSON.stringify(dict));
+  return templateTSON(JSON.stringify(encode(dict)));
 }

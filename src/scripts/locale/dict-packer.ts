@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { glob } from "glob";
 import { tsDictMaker, tsDictStripper } from "./ts-dict-stripper.ts";
+import { colors } from "../lib/colors.ts";
 
 
 /* Package and Unpackage common config */
@@ -101,7 +102,14 @@ function Package() {
       })
       .filter(Boolean);
 
-    const dict = tsDictStripper(fs.readFileSync(filePath, "utf-8"));
+    const rawDict = fs.readFileSync(filePath, "utf-8");
+    try {
+      tsDictStripper(rawDict, filePath);
+    } catch (error) {
+      console.warn(`⚠️  Error stripping dict at`, colors.gray(filePath), error);
+      process.exit(1);
+    }
+    const dict = tsDictStripper(rawDict, filePath);
     const packageContent = JSON.parse(fs.readFileSync(packageDestination, "utf-8"));
 
     // Walk the tree
