@@ -80,8 +80,8 @@ function Package() {
     process.exit(1);
   }
 
-  // Ensure destination exists
-  if (!fs.existsSync(packageDestination)) fs.writeFileSync(packageDestination, "{}", "utf-8");
+  // Reset package
+  fs.writeFileSync(packageDestination, "{}", "utf-8");
 
   for (const filePath of dictPaths) {
 

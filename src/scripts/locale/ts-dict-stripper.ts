@@ -1,34 +1,42 @@
+
 /** Extracts a json object out of a `.dict.ts` file, disregarding the TypeScript code */
 export function tsDictStripper(fileContent: string): object {
-  const startOfFile = /import.*\r?\n.*\({$/gm;
-  const endOfFile = /\);\s?$/gm;
 
   const dict = fileContent
-    .replace(startOfFile, "{")
-    .replace(endOfFile, "")
-    .replaceAll(/(?<="\w*":\s.*\r?\n\s+\})(\[locale\])/gm, "") // Strip `[locale]` from the file
-    .replaceAll(/\,(?!\s*?[\{\[\"\'\w])/gm, ""); // Remove trailing commas
+    /* Remove import/export statement and the closing `);` */
+    .replaceAll(/^import.*\r?\n.*\((?=\{$)|(?<=\})\);/gm, "")
+    /* Strip out `[locale]` */
+    .replaceAll(/(?<!.*".*)(?<=\})\[locale\](?!.*".*)/gm, "")
+    /* Remove trailing commas */
+    .replaceAll(/(?:(?<="\w*":\s"[^"]*")|(?<=\})),(?=\r?\n\s*\})/gm, "");
 
   return JSON.parse(dict);
 }
 
+/** Creates a `.dict.ts` file from a json object */
 export function tsDictMaker(dict: object): string {
 
-  /**
-   * Finds the leaf objects in the json data to append the `[locale]` suffix to.
-   */
-  const leafObjectFinderRegex = /"\w{2}":\s.*\r?\n\s+\}/gm;
-
   const formatContent = (content: string): string => {
+    const indent = "  ";
+    let indentDepth = 0;
     return content
+      /* Add trailing commas */
+      .replaceAll(/(?=\})/gm, ",")
+      /* Add space between `:` and values */
+      .replaceAll(/(?<="\w*":)/gm, " ")
+      /* Re-add line breaks */
+      .replaceAll(/(?<=[}"],|\{)/gm, "\n")
+      /* Add `[locale]` to each leaf */
+      .replaceAll(/(?<="\w{2}": "[^"]*",\r?\n\})/gm, "[locale]")
+      /* Indent */
       .split("\n")
-      .map((line, i) => { // Pad start
-        if (i === 0) return line;
-        return line.padStart(line.length + 0);
+      .map(line => {
+        if (line.includes("}")) indentDepth--;
+        const newLine = indent.repeat(indentDepth) + line;
+        if (line.includes("{")) indentDepth++;
+        return newLine;
       })
-      .join("\n")
-      .replaceAll(leafObjectFinderRegex, match => match + "[locale]")
-      .replace(/\n/g, "\n") // Make whitespace consistent
+      .join("\n");
   }
 
   const templateTSON = (content: string) => `
@@ -36,5 +44,5 @@ import { Locale } from "@/types.ts";
 export const createDict = (locale: Locale) => (${formatContent(content)});
   `.trim();
 
-  return templateTSON(dict.toString());
+  return templateTSON(JSON.stringify(dict));
 }
