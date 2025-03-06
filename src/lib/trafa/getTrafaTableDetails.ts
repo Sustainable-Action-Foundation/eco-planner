@@ -2,7 +2,6 @@ import getTrafaTables from "./getTrafaTables";
 import { StructureItem, trafaStructureUrl } from "./trafaTypes";
 import { ApiTableDetails, TrafaFilter, TrafaHierarchy, TrafaMetric, TrafaVariable, TrafaVariableValue } from "../api/apiTypes";
 
-
 export default async function getTrafaTableDetails(tableId: string, language: "sv" | "en" = 'sv') {
   const tableName = tableId;
   // console.log("-----------------------------------");
@@ -66,6 +65,7 @@ export default async function getTrafaTableDetails(tableId: string, language: "s
       returnItem.type = "hierarchy";
     } else if (tableDetailType == "D" && structureItem.DataType != "Time") {
       (returnItem as TrafaVariable).values = [];
+      (returnItem as TrafaVariable).optional = true;
       returnItem.type = "variable";
     } else if (tableDetailType == "D" && structureItem.DataType == "Time") {
       returnItem.type = "time";
@@ -90,7 +90,7 @@ export default async function getTrafaTableDetails(tableId: string, language: "s
       structureItem.StructureItems.forEach((item) => {
         // console.log('children' in returnItem, typeof returnItem)
         if (returnItem.children) {
-          returnItem.children.push(structureItemToTrafaTableDetailItem(item, item.Type));
+          returnItem.children.push(structureItemToTrafaTableDetailItem(item, item.Type) as TrafaVariable);
         }
       });
     }

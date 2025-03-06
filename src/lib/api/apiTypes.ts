@@ -42,7 +42,8 @@ export type ScbVariable = {
   id: string,
   name: string,
   label: string,
-  elimination: boolean, // What is this?
+  optional: boolean,
+  elimination: boolean, // What is this? (this is whether its optional or not, but reversed)
   show: "value", // What is this and what are the other possible values?
   categoryNoteMandatory?: {[variableValueId: string]: { [arrayIndex: string]: boolean}}, // What is this for?
   values: ScbVariableValue[],
@@ -62,7 +63,7 @@ export type ScbTimeVariable = {
   id: string,
   name: string,
   label: string,
-  elimination: boolean, // What is this?
+  elimination: boolean, // What is this? (this is whether its optional or not, but reversed)
   show: "value", // What is this and what are the other possible values?
   // values: ScbVariableValue[],
 }
@@ -102,6 +103,7 @@ export type TrafaVariable = { // Marked as "D"
   label: string,
   name: string,
   parentName: string | null,
+  optional: boolean,
   selected: boolean, // What is this for?
   option: boolean, // What is this for?
   description: string,

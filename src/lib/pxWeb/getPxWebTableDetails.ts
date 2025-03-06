@@ -59,7 +59,7 @@ export async function getPxWebTableDetails(tableId: string, externalDataset: str
   tableDetails.metrics = metrics;
 
   // console.log(metrics)
-  metrics.map(item => { console.log(item) });
+  // metrics.map(item => { console.log(item) });
 
   // let variables: string[] = []
 
@@ -124,6 +124,7 @@ export async function getPxWebTableDetails(tableId: string, externalDataset: str
       id: variableName,
       name: variableName,
       label: scbItem.label,
+      optional: scbItem.extension.elimination,
       elimination: scbItem.extension.elimination,
       show: scbItem.extension.show,
       categoryNoteMandatory: scbItem.extension.categoryNoteMandatory ?? null,

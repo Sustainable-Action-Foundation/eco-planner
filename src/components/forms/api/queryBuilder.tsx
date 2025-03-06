@@ -256,7 +256,7 @@ export default function QueryBuilder({
                       {// Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
                       /* variable.type == "TimeVariable" ? "Startperiod" : variable.label} {!variable.elimination && <span style={{ color: "red" }}>*</span> */}
                       <select className={`block margin-block-25 ${variable.label}`}
-                        // required={!variable.elimination}
+                        required={!variable.optional}
                         name={variable.name}
                         id={variable.name}
                         // If only one value is available, pre-select it
@@ -305,6 +305,7 @@ export default function QueryBuilder({
                     {// {metric.label[0].toUpperCase() + metric.label.slice(1)} 
                     }
                     <select className={`block margin-block-25 metric`}
+                      required={true}
                       name="metric"
                       id="metric"
                       defaultValue={tableDetails.metrics && tableDetails.metrics.length == 1 ? tableDetails.metrics[0].label : undefined}>

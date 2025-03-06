@@ -7,7 +7,7 @@ import { ApiTableContent } from "../api/apiTypes.ts";
 import { getPxWebTableDetails } from "./getPxWebTableDetails.ts";
 
 export async function getPxWebTableContent(tableId: string, selection: { variableCode: string, valueCodes: string[] }[], externalDataset: string, language: string = 'sv',) {
-// export async function getPxWebTableContent(tableId: string, selection: { variableCode: string, valueCodes: string[] }[], times: ScbTimeVariable[] | undefined, externalDataset: string, language: string = 'sv',) {
+  // export async function getPxWebTableContent(tableId: string, selection: { variableCode: string, valueCodes: string[] }[], times: ScbTimeVariable[] | undefined, externalDataset: string, language: string = 'sv',) {
   // console.log(selection)
   // for (const item of selection) {
   //   if (item.variableCode == "metric") item.variableCode = "ContentsCode"
@@ -53,12 +53,12 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
 
     timeSelectionItem.valueCodes.push(time.id)
   }
-  console.log(timeSelectionItem)
+  // console.log(timeSelectionItem)
 
   payload.selection.push(timeSelectionItem)
-  
+
   selection.forEach(item => {
-    
+
     if (item.variableCode == "metrics" || item.variableCode == "metric") {
       const selectionItem = {
         variableCode: "ContentsCode",
@@ -74,11 +74,11 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
       payload.selection.push(selectionItem)
     }
   })
-  
-    console.log("payload", payload)
+
+  // console.log("payload", payload)
 
   console.log("----PAYLOAD----")
-  console.log(JSON.stringify(payload));
+  // console.log(JSON.stringify(payload));
   console.log("----URL----")
   console.log(url);
 
@@ -190,14 +190,13 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
         // console.log("Decoded text:", decodedText);
         const parsedPx = parsePxToJson(decodedText);
         console.log("parsedPx:", parsedPx)
-      }
-      else if (contentType?.includes("text/csv")) {
+      } else if (contentType?.includes("text/csv")) {
         const csvText = await response.text();
         console.log("csvText:", csvText)
         console.log("parsedCsv:", parseCsv(csvText))
       } else if (contentType?.includes("application/json")) {
         const responseText = await response.json();
-        console.log("json:", responseText)
+        // console.log("json:", responseText)
         data = responseText;
       }
     }
@@ -206,7 +205,7 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
     return null;
   }
 
-  console.log("returnData:", data);
+  // console.log("returnData:", data);
 
   function pxWebTableContentToApiTableContent(pxWebTableContent: PxWebApiV2TableContent): ApiTableContent {
     const returnTable: ApiTableContent = {
@@ -237,14 +236,14 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
         //   pushData.key.unshift({ columnId: returnTable.columns[i].id, value: data.key[i]})
         // }
         // else pushData.key.push({ columnId: returnTable.columns[i].id, value: data.key[i] });
-        pushData.key.push({ columnId: returnTable.columns[i].id, value: data.key[i]})
+        pushData.key.push({ columnId: returnTable.columns[i].id, value: data.key[i] })
       }
       returnTable.data.push(pushData);
     }
 
-    console.log("columns:\n", returnTable.columns);
-    console.log("data:");
-    returnTable.data.forEach(item => {console.log(item)}) 
+    // console.log("columns:\n", returnTable.columns);
+    // console.log("data:");
+    // returnTable.data.forEach(item => {console.log(item)}) 
     return returnTable;
   }
 
