@@ -3,17 +3,8 @@ import { StructureItem, trafaStructureUrl } from "./trafaTypes";
 import { ApiTableDetails, TrafaFilter, TrafaHierarchy, TrafaMetric, TrafaVariable, TrafaVariableValue } from "../api/apiTypes";
 
 export default async function getTrafaTableDetails(tableId: string, language: "sv" | "en" = 'sv') {
-  const tableName = tableId;
-  // console.log("-----------------------------------");
-  // console.log("------ Get trafa table info -------");
-  // console.log("-".repeat(Math.floor((21 - tableName.length) / 2)),
-  //   "Table Name:",
-  //   tableName,
-  //   "-".repeat(Math.ceil((21 - tableName.length) / 2)));
-  // console.log("-----------------------------------");
-
   const url = new URL(trafaStructureUrl);
-  url.searchParams.append('query', `${tableName}`);
+  url.searchParams.append('query', `${tableId}`);
 
   let data: StructureItem;
   try {
@@ -22,13 +13,12 @@ export default async function getTrafaTableDetails(tableId: string, language: "s
       headers: {
         // The data is available as either 'application/json' or 'application/xml', JSON is easier to parse
         'Accept': 'application/json',
-      }
+      },
     });
     if (response.ok) {
       data = await response.json();
-      // console.log(data);
     } else {
-      console.log("bad response", response)
+      console.log("bad response", response);
       return null;
     }
   } catch (error) {
@@ -36,14 +26,11 @@ export default async function getTrafaTableDetails(tableId: string, language: "s
     return null;
   }
 
-  const allTrafaTableNames = await getTrafaTables().then(result => result?.map(item => item.tableId) ?? null)
-  // console.log(allTrafaTableNames);
+  // Filter away all trafa tables from the list of structure items that is fetched from Trafa
+  const allTrafaTableNames = await getTrafaTables().then(result => result?.map(item => item.tableId) ?? null);
+  data.StructureItems = data.StructureItems.filter(structureItem => !allTrafaTableNames?.includes(structureItem.Name));
 
-  data.StructureItems = data.StructureItems.filter(structureItem => !allTrafaTableNames?.includes(structureItem.Name))
-
-  // await getTrafaTableInfo(tableId)
-
-  // console.log(data);
+  // Declare the variable that will be returned by this function
   const tableDetails: ApiTableDetails = {
     id: tableId,
     metrics: [],
@@ -53,11 +40,11 @@ export default async function getTrafaTableDetails(tableId: string, language: "s
     language: language,
   }
 
+  // Helper function for converting structure items from trafa to items that can be used with a more universal structure
   function structureItemToTrafaTableDetailItem(structureItem: StructureItem, tableDetailType: string): TrafaMetric | TrafaHierarchy | TrafaVariable | TrafaVariableValue | TrafaFilter {
-
-
     const returnItem: TrafaMetric | TrafaHierarchy | TrafaVariable | TrafaVariableValue | TrafaFilter = {} as TrafaMetric | TrafaHierarchy | TrafaVariable | TrafaVariableValue | TrafaFilter;
 
+    // Assign values depending on item type
     if (tableDetailType == "M") {
       returnItem.type = "metric";
     } else if (tableDetailType == "H") {
@@ -75,20 +62,20 @@ export default async function getTrafaTableDetails(tableId: string, language: "s
       returnItem.type = "filter";
     }
 
+    // Assign common values
     returnItem.trafaId = structureItem.Id;
     returnItem.id = structureItem.Name;
-    returnItem.dataType = structureItem.DataType
-    returnItem.label = structureItem.Label
-    returnItem.name = structureItem.Name
-    returnItem.parentName = structureItem.ParentName
-    returnItem.selected = structureItem.Selected
-    returnItem.option = structureItem.Option
-    returnItem.description = structureItem.Description
+    returnItem.dataType = structureItem.DataType;
+    returnItem.label = structureItem.Label;
+    returnItem.name = structureItem.Name;
+    returnItem.parentName = structureItem.ParentName;
+    returnItem.selected = structureItem.Selected;
+    returnItem.option = structureItem.Option;
+    returnItem.description = structureItem.Description;
 
-    // console.log(returnItem)
+    // Push children to item depending on item type
     if ('children' in returnItem && returnItem.children) {
       structureItem.StructureItems.forEach((item) => {
-        // console.log('children' in returnItem, typeof returnItem)
         if (returnItem.children) {
           returnItem.children.push(structureItemToTrafaTableDetailItem(item, item.Type) as TrafaVariable);
         }
@@ -99,16 +86,14 @@ export default async function getTrafaTableDetails(tableId: string, language: "s
         if (returnItem.values) {
           returnItem.values.push(structureItemToTrafaTableDetailItem(item, item.Type));
         }
-      })
+      });
     }
 
     return returnItem;
   }
 
   data.StructureItems.map(item => {
-    const pushItem = structureItemToTrafaTableDetailItem(item, item.Type)
-
-    // console.log(pushItem);
+    const pushItem = structureItemToTrafaTableDetailItem(item, item.Type);
 
     if (item.Type == "M") {
       tableDetails.metrics.push((pushItem as TrafaMetric));
@@ -120,19 +105,9 @@ export default async function getTrafaTableDetails(tableId: string, language: "s
       tableDetails.variables.push((pushItem as TrafaVariable));
     }
     if (item.Type == "D" && item.DataType == "Time") {
-      tableDetails.times.push((pushItem as TrafaVariable))
+      tableDetails.times.push((pushItem as TrafaVariable));
     }
   })
-
-  // console.log(tableDetails);
-  // console.log(data.StructureItems.filter(item => item.Type == "H"));
-
-  // console.log(data);
-  // console.log(data.StructureItems.length+", "+ (tableDetails.metrics.length + tableDetails.hierarchies.length + tableDetails.variables.length))
-
-  // console.log(tableDetails.metrics);
-  // console.log(tableDetails.hierarchies);
-  // console.log(tableDetails.variables);
 
   return tableDetails;
 }

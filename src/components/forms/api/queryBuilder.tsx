@@ -51,7 +51,7 @@ export default function QueryBuilder({
   }, [dataSource]);
 
   function buildQuery(formData: FormData) {
-    const queryObject: object[] = []
+    const queryObject: object[] = [];
     formData.forEach((value, key) => {
       // Skip empty values
       if (!value) return;
@@ -65,7 +65,6 @@ export default function QueryBuilder({
         return;
       }
       queryObject.push({ variableCode: key, valueCodes: [value] });
-      // else queryObject.push({ variableCode: "ContentsCode", valueCodes: [value] });
     });
 
     return queryObject as { variableCode: string, valueCodes: string[] }[];
@@ -75,11 +74,10 @@ export default function QueryBuilder({
     event.preventDefault();
     // Return if insufficient selection has been made
     if (!tables) return;
-    // if (!tables || !tableDetails) return;
     // Return if properly formatted response was not found
-    // if (!tableContent) return;
+    if (!tableContent) return;
     if (!(event.target instanceof HTMLFormElement)) return;
-
+    
     if (!(event.target.checkValidity())) return;
     const formData = new FormData(event.target);
     const query = buildQuery(formData);
@@ -97,23 +95,19 @@ export default function QueryBuilder({
   function tryGetResult() {
     if (!(formRef.current instanceof HTMLFormElement)) return;
     if (!tables) return;
-    // if (!tableDetails) return;
+    if (!tableDetails) return;
 
     if (formRef.current.checkValidity()) {
       const formData = new FormData(formRef.current);
       const query = buildQuery(formData);
-      // console.log(formData.get("externalTableId") ?? "")
-      const tableId = formData.get("externalTableId") as string ?? ""
-      console.log(tableId)
-      console.log(query)
-      console.log(tableDetails)
+      const tableId = formData.get("externalTableId") as string ?? "";
+      console.log("Table ID:", tableId);
+      console.log("Query:", query);
+      console.log("Table Details:", tableDetails);
       if (dataSource == "SCB") {
-        // getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource).then(result => setTableContent(filterPxWebTableContentKeys(result)));
-        // getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, tableDetails?.times, dataSource).then(result => console.log(result));
         getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource).then(result => { console.log(result); setTableContent(result); });
       } else if (dataSource == "Trafa") {
-        // getTrafaTableContent(tableId, query).then(result => console.log(result));
-        getTrafaTableContent(tableId, query).then(result => { setTableContent(result); console.log(result) });
+        getTrafaTableContent(tableId, query).then(result => { console.log(result); setTableContent(result); });
       }
     }
   }
@@ -140,10 +134,10 @@ export default function QueryBuilder({
     } else if (dataSource == "Trafa") {
       // TODO - maybe the tables can be filtered in the function?
       getTrafaTables().then((result) => {
-        const regex = new RegExp(query as string, "i")
+        const regex = new RegExp(query as string, "i");
         result = result?.filter(value => regex.test(value.label)) ?? null;
         setTables(result);
-      })
+      });
     }
   }
 
@@ -151,24 +145,12 @@ export default function QueryBuilder({
     if (!externalDatasetBaseUrls[dataSource as keyof typeof externalDatasetBaseUrls]) return;
     if (!tableId) return;
 
-    console.log("handling select")
     if (dataSource == "SCB") {
-      // getPxWebTableDetails(tableId, dataSource).then(result => console.log(result));
-      getPxWebTableDetails(tableId, dataSource).then(result => {
-        // console.log(result);
-        setTableDetails(result);
-      })
+      getPxWebTableDetails(tableId, dataSource).then(result => setTableDetails(result));
     } else if (dataSource == "Trafa") {
-      // getTrafaTableDetails(tableId).then(result => console.log(result));
-      getTrafaTableDetails(tableId).then(result => {
-        // console.log(result);
-        setTableDetails(result);
-      });
+      getTrafaTableDetails(tableId).then(result => setTableDetails(result));
     }
-    // getPxWebTableDetails(tableId, dataSource).then(result => setTableDetails(result));
   }
-
-  // getTrafaTableInfo("t1203");
 
   return (
     <>
@@ -226,22 +208,6 @@ export default function QueryBuilder({
                 : null}
             </fieldset>
 
-
-            {/* {tableDetails && (
-                <>
-                  {tableDetails.variables.map(variable => (
-                    <label key={variable.name} className="block margin-block-75">
-                      <select className="block margin-block-25" name={variable.name} id={variable.name} defaultValue={variable.values && variable.values.length == 1 ? variable.values[0].label : undefined}>
-                        {variable.values && variable.values.length != 1 &&
-                        <option value="">{dict.tableDetails.chooseValue[locale]}</option>}
-                        {variable.values && variable.values.map(value => (
-                          <option key={value.label} value={value.label} lang={tableDetails.language}>{value.label}</option>
-                        ))}
-                      </select>
-                    </label>
-                  ))}
-                </>
-              )} */}
             {tableDetails && (
               // TODO - which inputs should be optional?
               <>
@@ -250,11 +216,10 @@ export default function QueryBuilder({
                     <strong>{dict.tableDetails.chooseValues[locale]}</strong>
                   </legend>
                   {tableDetails.variables.map(variable => (
-                    // variable.values && variable.values.length > 0 &&
                     <label key={variable.name} className="block margin-block-75">
                       {variable.label[0].toUpperCase() + variable.label.slice(1)}
                       {// Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
-                      /* variable.type == "TimeVariable" ? "Startperiod" : variable.label} {!variable.elimination && <span style={{ color: "red" }}>*</span> */}
+                      }
                       <select className={`block margin-block-25 ${variable.label}`}
                         required={!variable.optional}
                         name={variable.name}
@@ -280,7 +245,6 @@ export default function QueryBuilder({
                         <label key={variable.name} className="block margin-block-75">
                           {variable.label}
                           <select className={`block margin-block-25 ${variable.label}`}
-                            // key={variable.label}
                             name={variable.name}
                             id={variable.name}
                             defaultValue={variable.values && variable.values.length == 1 ? variable.values[0].label : undefined}>
@@ -302,8 +266,6 @@ export default function QueryBuilder({
                     <strong>{dict.tableDetails.chooseMetricForTable[locale]}</strong>
                   </legend>
                   <label key="metric" className="block margin-block-75">
-                    {// {metric.label[0].toUpperCase() + metric.label.slice(1)} 
-                    }
                     <select className={`block margin-block-25 metric`}
                       required={true}
                       name="metric"
@@ -339,11 +301,11 @@ export default function QueryBuilder({
                   {
 
                     tableContent.data.map((row, index) => {
+                      // Find the column of the time value
                       let timeColumnIndex = 0;
                       tableContent.columns.map((column, index) => {
                         if (column.type == "t") timeColumnIndex = index
                       })
-                      // console.log(row)
                       return (
                         index < 5 &&
                         <tr key={row.key[timeColumnIndex].value}>

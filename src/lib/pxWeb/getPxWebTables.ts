@@ -9,11 +9,8 @@ import { externalDatasetBaseUrls } from "../api/utility";
  */
 export async function getPxWebTables(externalDataset: string, searchQuery?: string, language: string = 'sv', pageSize: number = 9999) {
   const baseUrl = externalDatasetBaseUrls[externalDataset as keyof typeof externalDatasetBaseUrls] ?? externalDatasetBaseUrls.SCB;
-  console.log(baseUrl);
   const url = new URL(`${baseUrl}/tables`);
-  console.log(url);
-  console.log(externalDataset);
-  console.log(searchQuery);
+  
   if (searchQuery) url.searchParams.append('query', searchQuery);
   if (language) url.searchParams.append('lang', language);
   if (pageSize) url.searchParams.append('pageSize', pageSize.toString());
