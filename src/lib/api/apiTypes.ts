@@ -7,7 +7,7 @@ export type ApiTableContent = {
   }[],
   data: {
     key: {columnId: string, value: string}[],
-    values: (string | number)[],
+    values: (string)[],
   }[],
   metadata: {
     label: string,

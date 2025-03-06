@@ -195,7 +195,7 @@ export default function MainGraph({
   if (historicalData) {
     const historicalSeries = [];
     for (const entry of historicalData.data) {
-      const value = parseFloat(entry.values[0] as string);
+      const value = parseFloat(entry.values[0]);
       let timeColumnIndex = 0;
       historicalData.columns.map((column, index) => {
         if (column.type == "t") timeColumnIndex = index

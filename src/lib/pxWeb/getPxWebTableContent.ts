@@ -134,7 +134,7 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
     // console.log(json.DATA)
     // console.log(typeof json.DATA as string[])
     if (json.UNITS == "number" || json.UNITS == "antal") {
-      json.DATA = (json.DATA as string[]).map(Number);
+      json.DATA = (json.DATA).map(Number);
     }
     // console.log(typeof json.DATA)
     // console.log(json.DATA)

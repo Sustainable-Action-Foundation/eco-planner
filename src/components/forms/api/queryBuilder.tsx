@@ -61,11 +61,11 @@ export default function QueryBuilder({
       if (key == tableSearchInputName) return;
       // The time variable is special, as we want to fetch every period after (and including) the selected one
       if (key == formRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
-        queryObject.push({ variableCode: key, valueCodes: [`FROM(${value as string})`] });
+        queryObject.push({ variableCode: key, valueCodes: [`FROM(${value})`] });
         return;
       }
-      queryObject.push({ variableCode: key, valueCodes: [value as string] });
-      // else queryObject.push({ variableCode: "ContentsCode", valueCodes: [value as string] });
+      queryObject.push({ variableCode: key, valueCodes: [value] });
+      // else queryObject.push({ variableCode: "ContentsCode", valueCodes: [value] });
     });
 
     return queryObject as { variableCode: string, valueCodes: string[] }[];
@@ -88,7 +88,7 @@ export default function QueryBuilder({
     formSubmitter("/api/goal", JSON.stringify({
       goalId: goal.id,
       externalDataset: dataSource,
-      externalTableId: formData.get("externalTableId") as string,
+      externalTableId: formData.get("externalTableId"),
       externalSelection: query,
       timestamp: Date.now(),
     }), "PUT", setIsLoading);
@@ -102,8 +102,9 @@ export default function QueryBuilder({
     if (formRef.current.checkValidity()) {
       const formData = new FormData(formRef.current);
       const query = buildQuery(formData);
-      console.log(formData.get("externalTableId") as string ?? "")
+      // console.log(formData.get("externalTableId") ?? "")
       const tableId = formData.get("externalTableId") as string ?? ""
+      console.log(tableId)
       console.log(query)
       console.log(tableDetails)
       if (dataSource == "SCB") {
