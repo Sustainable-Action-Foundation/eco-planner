@@ -109,7 +109,7 @@ export default function QueryBuilder({
       if (dataSource == "SCB") {
         // getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource).then(result => setTableContent(filterPxWebTableContentKeys(result)));
         // getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, tableDetails?.times, dataSource).then(result => console.log(result));
-        getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, tableDetails?.times, dataSource).then(result => { console.log(result); setTableContent(result); });
+        getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource).then(result => { console.log(result); setTableContent(result); });
       } else if (dataSource == "Trafa") {
         // getTrafaTableContent(tableId, query).then(result => console.log(result));
         getTrafaTableContent(tableId, query).then(result => { setTableContent(result); console.log(result) });
@@ -341,7 +341,7 @@ export default function QueryBuilder({
                       tableContent.columns.map((column, index) => {
                         if (column.type == "t") timeColumnIndex = index
                       })
-                      console.log(row)
+                      // console.log(row)
                       return (
                         index < 5 &&
                         <tr key={row.key[timeColumnIndex].value}>

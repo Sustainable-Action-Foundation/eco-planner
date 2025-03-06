@@ -67,8 +67,10 @@ export default async function getTrafaTableContent(tableId: string, selection: {
       id: tableId,
       columns: [],
       data: [],
+      metadata: [],
     };
 
+    // Columns
     for (const column of trafaTableContent.Header.Column) {
       const pushColumn = {
         id: column.Name,
@@ -78,6 +80,7 @@ export default async function getTrafaTableContent(tableId: string, selection: {
       returnTable.columns.push(pushColumn);
     }
 
+    // Data
     for (const data of trafaTableContent.Rows) {
       const pushData = {
         key: [] as { columnId: string, value: string }[],
@@ -98,6 +101,18 @@ export default async function getTrafaTableContent(tableId: string, selection: {
       // }
       returnTable.data.push(pushData);
     }
+
+    // Metadata
+    const metadataEntry = { label: "", source: "Trafa" }
+    const metric = returnTable.columns.filter(column => column.type == "m").map(column => column.label)[0]
+
+    // Define different variable strings depending on how many variables are used
+    const variables = returnTable.columns.filter(column => column.type == "d").map(column => column.label.toLowerCase())
+    const variablesString = variables.length == 0 ? undefined : variables.length == 1 ? variables[0] : `${variables.slice(0, -1).join(", ")} och ${variables.pop()}`
+    
+    // Create different metadata label depending on variable string and table name
+    metadataEntry.label = `${(trafaTableContent.Name ?? "")} - ${metric}${variablesString ? ` efter ${variablesString}` : ""}`;
+    returnTable.metadata.push(metadataEntry);
 
     return returnTable;
   }

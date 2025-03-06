@@ -3,13 +3,16 @@
 
 import { externalDatasetBaseUrls } from "../api/utility.ts";
 import { PxWebApiV2TableContent } from "./pxWebApiV2Types.ts";
-import { ApiTableContent, ScbTimeVariable } from "../api/apiTypes.ts";
+import { ApiTableContent } from "../api/apiTypes.ts";
+import { getPxWebTableDetails } from "./getPxWebTableDetails.ts";
 
-export async function getPxWebTableContent(tableId: string, selection: { variableCode: string, valueCodes: string[] }[], times: ScbTimeVariable[] | undefined, externalDataset: string, language: string = 'sv',) {
+export async function getPxWebTableContent(tableId: string, selection: { variableCode: string, valueCodes: string[] }[], externalDataset: string, language: string = 'sv',) {
+// export async function getPxWebTableContent(tableId: string, selection: { variableCode: string, valueCodes: string[] }[], times: ScbTimeVariable[] | undefined, externalDataset: string, language: string = 'sv',) {
   // console.log(selection)
   // for (const item of selection) {
   //   if (item.variableCode == "metric") item.variableCode = "ContentsCode"
   // }
+  const times = await getPxWebTableDetails(tableId, externalDataset).then(result => result ? result.times : undefined)
 
   if (!times) {
     return
@@ -210,6 +213,10 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
       id: tableId,
       columns: [],
       data: [],
+      metadata: [{
+        label: pxWebTableContent.metadata[0].label,
+        source: pxWebTableContent.metadata[0].source,
+      }],
     };
     for (const column of pxWebTableContent.columns) {
       const pushColumn = {

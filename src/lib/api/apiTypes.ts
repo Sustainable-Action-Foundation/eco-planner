@@ -7,8 +7,12 @@ export type ApiTableContent = {
   }[],
   data: {
     key: {columnId: string, value: string}[],
-    values: (string | number)[]
-  }[]
+    values: (string | number)[],
+  }[],
+  metadata: {
+    label: string,
+    source: string,
+  }[],
 }
 
 export type ApiTableDetails = {
