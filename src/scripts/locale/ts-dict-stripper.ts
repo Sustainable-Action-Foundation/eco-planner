@@ -4,7 +4,7 @@ export function tsDictStripper(fileContent: string): object {
 
   const dict = fileContent
     /* Remove import/export statement and the closing `);` */
-    .replaceAll(/^import.*\r?\n.*\((?=\{$)|(?<=\})\);/gmu, "")
+    .replaceAll(/^import.*\r?\n.*\((?=\{)|(?<=\})\);/gmu, "")
     /* Strip out `[locale]` */
     .replaceAll(/(?<!.*".*)(?<=\})\[locale\](?!.*".*)/gmu, "")
     /* Remove trailing commas */
