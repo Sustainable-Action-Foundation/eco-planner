@@ -21,7 +21,7 @@
 // }: {
 //   goal: Goal,
 // }) {
-//   const dict = parentDict.pxWeb.queryBuilder;
+//   const dict = parentDict.api.queryBuilder;
 //   const locale = useContext(LocaleContext);
 
 //   const [isLoading, setIsLoading] = useState(false);

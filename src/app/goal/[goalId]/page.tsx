@@ -16,7 +16,7 @@ import getRoadmapByVersion from "@/fetchers/getRoadmapByVersion";
 import prisma from "@/prismaClient";
 import CopyAndScale from "@/components/modals/copyAndScale";
 import { getPxWebTableContent } from "@/lib/pxWeb/getPxWebTableContent";
-import QueryBuilder from "@/components/forms/pxWeb/queryBuilder";
+import QueryBuilder from "@/components/forms/api/queryBuilder";
 import UpdateGoalButton from "@/components/buttons/updateGoalButton";
 import getRoadmaps from "@/fetchers/getRoadmaps";
 import EffectTable from "@/components/tables/effects.tsx";

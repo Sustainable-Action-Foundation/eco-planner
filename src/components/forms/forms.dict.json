@@ -271,7 +271,7 @@
       }
     }
   },
-  "pxWeb": {
+  "api": {
     "queryBuilder": {
       "addHistoricalData": {
         "en": "Add historical data",
