@@ -2,9 +2,11 @@ import getTrafaTables from "./getTrafaTables";
 import { StructureItem, trafaStructureUrl } from "./trafaTypes";
 import { ApiTableDetails, TrafaFilter, TrafaHierarchy, TrafaMetric, TrafaVariable, TrafaVariableValue } from "../api/apiTypes";
 
-export default async function getTrafaTableDetails(tableId: string, language: "sv" | "en" = 'sv') {
+export default async function getTrafaTableDetails(tableId: string, language: "sv" | "en" = "sv") {
   const url = new URL(trafaStructureUrl);
   url.searchParams.append('query', `${tableId}`);
+  const locale = language;
+  language = "sv"
   if (language) url.searchParams.append("lang", language);
 
   let data: StructureItem;
@@ -67,7 +69,7 @@ export default async function getTrafaTableDetails(tableId: string, language: "s
     returnItem.trafaId = structureItem.Id;
     returnItem.id = structureItem.Name;
     returnItem.dataType = structureItem.DataType;
-    returnItem.label = structureItem.Label;
+    returnItem.label = structureItem.Label; // TODO - This label needs to be manually translated
     returnItem.name = structureItem.Name;
     returnItem.parentName = structureItem.ParentName;
     returnItem.selected = structureItem.Selected;

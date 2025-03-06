@@ -7,7 +7,7 @@ import { TrafaDataResponse, trafaUrl } from "./trafaTypes.ts";
 // This means that everything here in the `trafa` folder is somewhat useless for international implementations,
 // but can be useful to show how to implement a new data provider which doesn't follow the pxWebV2 standard.
 
-export default async function getTrafaTableContent(tableId: string, selection: { variableCode: string, valueCodes: string[] }[], language?: 'sv' | 'en') {
+export default async function getTrafaTableContent(tableId: string, selection: { variableCode: string, valueCodes: string[] }[], language?: "sv" | "en") {
   // Helper function for generating a string that will be appended to searchParams of the url
   function getSearchQueryString(){
     const variableQueries: string[] = [];
@@ -34,9 +34,9 @@ export default async function getTrafaTableContent(tableId: string, selection: {
   
   const url = new URL(trafaUrl);
   url.searchParams.append('query', tableId + "|ar" + searchQuery);
-  if (language) {
-    url.searchParams.append('lang', language);
-  }
+  const locale = language;
+  language = "sv"
+  if (language) url.searchParams.append('lang', language);
 
   console.log(url);
 
@@ -74,7 +74,7 @@ export default async function getTrafaTableContent(tableId: string, selection: {
     for (const column of trafaTableContent.Header.Column) {
       const pushColumn = {
         id: column.Name,
-        label: column.Value,
+        label: column.Value, // TODO - label needs to be manually translated here
         type: column.DataType === "Time" ? "t" : column.Type.toLowerCase() as "t" | "d" | "m",
       };
       returnTable.columns.push(pushColumn);
@@ -108,7 +108,7 @@ export default async function getTrafaTableContent(tableId: string, selection: {
     const variablesString = variables.length == 0 ? undefined : variables.length == 1 ? variables[0] : `${variables.slice(0, -1).join(", ")} och ${variables.pop()}`;
     
     // Create different metadata label depending on variable string and table name
-    metadataEntry.label = `${(trafaTableContent.Name ?? "")} - ${metric}${variablesString ? ` efter ${variablesString}` : ""}`;
+    metadataEntry.label = `${(trafaTableContent.Name ?? "")} - ${metric}${variablesString ? ` efter ${variablesString}` : ""}`; // TODO - translate this
     returnTable.metadata.push(metadataEntry);
 
     return returnTable;
