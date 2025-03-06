@@ -16,8 +16,6 @@ import getRoadmapByVersion from "@/fetchers/getRoadmapByVersion";
 import prisma from "@/prismaClient";
 import CopyAndScale from "@/components/modals/copyAndScale";
 import { getPxWebTableContent } from "@/lib/pxWeb/getPxWebTableContent";
-import filterPxWebTableContentKeys from "@/lib/pxWeb/filterPxWebTableContentKeys";
-import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import QueryBuilder from "@/components/forms/pxWeb/queryBuilder";
 import UpdateGoalButton from "@/components/buttons/updateGoalButton";
 import getRoadmaps from "@/fetchers/getRoadmaps";
@@ -28,6 +26,8 @@ import findSiblings from "@/functions/findSiblings.ts";
 import ChildGraphContainer from "@/components/graphs/childGraphs/childGraphContainer.tsx";
 import { getServerLocale } from "@/functions/serverLocale";
 import parentDict from "../goal.dict.json" with { type: "json" };
+import getTrafaTableContent from "@/lib/trafa/getTrafaTableContent";
+import { ApiTableContent } from "@/lib/api/apiTypes";
 
 export default async function Page({
   params,
@@ -77,9 +77,17 @@ export default async function Page({
   }).map(roadmap => ({ id: roadmap.id, name: roadmap.metaRoadmap.name, version: roadmap.version, actor: roadmap.metaRoadmap.actor }))
 
   // Fetch external data
-  let externalData: PxWebApiV2TableContent | null = null;
+  let externalData: ApiTableContent | null = null;
   if (goal.externalDataset && goal.externalTableId && goal.externalSelection) {
-    externalData = await getPxWebTableContent(goal.externalTableId, JSON.parse(goal.externalSelection), goal.externalDataset).then(data => filterPxWebTableContentKeys(data));
+    console.log("external data set:", goal.externalDataset)
+    console.log("external selection:", goal.externalSelection)
+    if (goal.externalDataset == "SCB") {
+      externalData = await getPxWebTableContent(goal.externalTableId, JSON.parse(goal.externalSelection), goal.externalDataset);
+      // externalData = await getPxWebTableContent(goal.externalTableId, JSON.parse(goal.externalSelection), goal.externalDataset).then(data => filterPxWebTableContentKeys(data));
+    }
+    else if (goal.externalDataset == "Trafa") {
+      externalData = await getTrafaTableContent(goal.externalTableId, JSON.parse(goal.externalSelection))
+    }
   }
 
   // Fetch parent goal

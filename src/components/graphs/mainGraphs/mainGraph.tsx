@@ -1,12 +1,12 @@
 import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
-import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import { parsePeriod } from "@/lib/api/utility";
 import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Effect, Goal } from "@prisma/client";
 import parentDict from "../graphs.dict.json" with { type: "json" };
 import { useContext } from "react";
+import { ApiTableContent } from "@/lib/api/apiTypes";
 
 export default function MainGraph({
   goal,
@@ -18,7 +18,7 @@ export default function MainGraph({
   goal: Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null },
   secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
   nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
-  historicalData?: PxWebApiV2TableContent | null,
+  historicalData?: ApiTableContent | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
 }) {
   const dict = parentDict.mainGraphs.mainGraph;
@@ -194,11 +194,15 @@ export default function MainGraph({
 
   if (historicalData) {
     const historicalSeries = [];
-    for (const i of historicalData.data) {
-      const value = parseFloat(i.values[0]);
+    for (const entry of historicalData.data) {
+      const value = parseFloat(entry.values[0] as string);
+      let timeColumnIndex = 0;
+      historicalData.columns.map((column, index) => {
+        if (column.type == "t") timeColumnIndex = index
+      })
 
       historicalSeries.push({
-        x: parsePeriod(i.key[0]).getTime(),
+        x: parsePeriod(entry.key[timeColumnIndex].value).getTime(),
         y: Number.isFinite(value) ? value : null,
       });
     }
