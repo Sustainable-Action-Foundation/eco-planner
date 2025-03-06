@@ -21,7 +21,7 @@ export function tsDictMaker(dict: object): string {
     let indentDepth = 0;
     return content
       /* Add trailing commas */
-      .replaceAll(/(?=\})/gm, ",")
+      .replaceAll(/(?<=[^\w\\])(?=\}[^\w\\])/gm, ",")
       /* Add space between `:` and values */
       .replaceAll(/(?<="\w*":)/gm, " ")
       /* Re-add line breaks */

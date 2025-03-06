@@ -1,4 +1,3 @@
-import { colors } from "../lib/colors.ts";
 import "../lib/console.ts";
 import fs from "node:fs";
 import path from "node:path";
@@ -21,20 +20,20 @@ export const packageNameModifiers = {
     suffix: "--directory",
   }
 };
-const addFileModifiers = (str: string) => `${packageNameModifiers.file.prefix}${str}${packageNameModifiers.file.suffix}`;
-const addDirModifiers = (str: string) => `${packageNameModifiers.dir.prefix}${str}${packageNameModifiers.dir.suffix}`;
 const stripModifiers = (str: string) => str.replace(packageNameModifiers.file.prefix, "").replace(packageNameModifiers.file.suffix, "").replace(packageNameModifiers.dir.prefix, "").replace(packageNameModifiers.dir.suffix, "");
 const dictPaths = glob.sync(`${dictSourceFolder}/**/*${dictFileEnding}`);
 
 
 /* Flag validation */
+const calledFromThisFile = import.meta.url === `file://${process.argv[1]}`; /* This is done since other files import values from this file everything here gets evaluated. */
 const packageFlag = process.argv.includes("package") || process.argv.includes("pack");
 const unpackageFlag = process.argv.includes("unpackage") || process.argv.includes("unpack");
-if (!packageFlag && !unpackageFlag) {
+
+if (calledFromThisFile && !packageFlag && !unpackageFlag) {
   console.warn(`⚠️  Missing command. Please provide the command \`package\` or \`unpackage\``);
   process.exit(1);
 }
-else if (packageFlag && unpackageFlag) {
+else if (calledFromThisFile && packageFlag && unpackageFlag) {
   console.warn(`⚠️  Conflicting commands. Please provide only one of the following: \`package\` or \`unpackage\``);
   process.exit(1);
 }
@@ -81,6 +80,7 @@ function Package() {
   }
 
   // Reset package
+  if (!fs.existsSync(packageDestination)) fs.rmSync(packageDestination, { force: true });
   fs.writeFileSync(packageDestination, "{}", "utf-8");
 
   for (const filePath of dictPaths) {
@@ -104,17 +104,19 @@ function Package() {
     const dict = tsDictStripper(fs.readFileSync(filePath, "utf-8"));
     const packageContent = JSON.parse(fs.readFileSync(packageDestination, "utf-8"));
 
+    // Walk the tree
     let currentPackage = packageContent;
     for (const component of pathComponents) {
       if (!currentPackage[component]) currentPackage[component] = {};
       currentPackage = currentPackage[component];
     }
 
-    // Populate
+    // Populate tree
     for (const [key, value] of Object.entries(dict)) {
       currentPackage[key] = value;
     }
 
+    // Write to package
     fs.writeFileSync(packageDestination, JSON.stringify(packageContent, null, 2), "utf-8");
   }
 }
@@ -144,7 +146,7 @@ function Unpackage() {
 
 /* Unpacking helpers */
 function walkPackage(packageContent: any, currentPath: string) {
-  Object.entries(packageContent).forEach(([key, value]) => {
+Object.entries(packageContent).forEach(([key, value]) => {
     const keyType = isFileOrDir(key);
 
     if (keyType === "file") {
