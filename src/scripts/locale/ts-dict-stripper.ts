@@ -1,7 +1,9 @@
 import fs from "node:fs";
 import { colors } from "../lib/colors";
 
-/** Extracts a json object out of a `.dict.ts` file, disregarding the TypeScript code */
+/** 
+ * Takes a `.dict.ts` file and converts it to a JSON object by stripping out the TypeScript syntax
+ */
 export function tsDictStripper(fileContent: string, filePath?: string): object {
 
   const dict = fileContent
@@ -13,7 +15,7 @@ export function tsDictStripper(fileContent: string, filePath?: string): object {
     .replaceAll(/(?:(?<="\w*":\s"[^"]*")|(?<=\})),(?=\r?\n\s*\})/gmu, "");
 
   try {
-    return uriEncodeObject(JSON.parse(dict));
+    return JSON.parse(dict);
   } catch (error) {
     console.error(`❌ Error parsing dict:`, colors.gray(filePath || ""), error);
     fs.writeFileSync("error.dict.json", dict, "utf-8");
@@ -22,36 +24,42 @@ export function tsDictStripper(fileContent: string, filePath?: string): object {
   }
 }
 
-/** Creates a `.dict.ts` file from a json object */
+/** 
+ * Takes a JSON object and converts it to a `.dict.ts` file with the correct format
+ */
 export function tsDictMaker(dict: object): string {
 
-  const formatContent = (content: string): string => {
+  return templateTSON(JSON.stringify(uriEncodeObject(dict)));
+
+  function formatContent(content: string): string {
     const indent = "  ";
     let indentDepth = 0;
     return content
       /* Add trailing commas */
-      .replaceAll(/(?<=[^\w\\])(?=\}[^\w\\])/gmu, ",") /** Regex: finds empty string that is succeeded by `}`. Does not allow leading or trailing non-word or `\`. TODO: find a more robust discrimination method. */
+      .replaceAll(/(?=\})/gmu, ",")
       /* Add space between `:` and values */
-      .replaceAll(/(?<=[,{]"\w*":)(?=["{])/gmu, " ") /** Regex: finds empty strings that are preceded by (`,` or `{`) and `"anyWord"` and `:` it also needs to be succeeded by a `{` or `"` to discriminate as well as possible. TODO: find a more robust discrimination method. */
+      .replaceAll(/(?<=":)(?=["\{])/gmu, " ")
       /* Re-add line breaks */
-      .replaceAll(/(?<=[}"],|:\s?\{)(?=\W)(?!\s*[\wåäö])/gmu, "\n") /** Regex: finds empty strings that are preceded by (`}` or `"`) and `,` it also cannot be succeeded by a letter or `å` or `ä` or `ö`. That last part is not optimal since it is language dependant. TODO: find a better regex. */
+      .replaceAll(/(?<=\{)|(?<=\},)|(?<=",)/gmu, "\n")
       /* Add `[locale]` to each leaf */
-      .replaceAll(/(?<="\w*": "[^"]*",\r?\n\})/gmu, "[locale]")
+      .replaceAll(/(?<="\w*":\s"[^"]*",\r?\n\})(?=,)/gmu, "[locale]")
       /* Indent */
       .split("\n").map(line => {
         if (line.includes("}")) indentDepth--;
         const newLine = indent.repeat(indentDepth) + line;
         if (line.includes("{")) indentDepth++;
         return newLine;
-      }).join("\n");
+      }).join("\n")
+      /* URI decode every key and value */
+      .replaceAll(/(?<=^\s*").*(?=":)|(?<=^\s*".*":\s").*(?=")/gmu, match => decodeURIComponent(match));
   };
 
-  const templateTSON = (content: string) => `
+  function templateTSON(content: string) {
+    return `
 import { Locale } from "@/types.ts";
 export const createDict = (locale: Locale) => (${formatContent(content)});
-  `.trim();
-
-  return templateTSON(JSON.stringify(uriDecodeObject(dict)));
+  `.trim()
+  };
 }
 
 /** URI decode every key and value */

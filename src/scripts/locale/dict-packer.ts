@@ -9,7 +9,6 @@ import { colors } from "../lib/colors.ts";
 /* Package and Unpackage common config */
 const dictFileEnding = ".dict.ts";
 const dictSourceFolder = "src";
-// const dictSourceFolder = "src/scripts/locale/test";
 /** Where the packaged file will end up and where it is read from */
 const packageDestination = "locale_package.json";
 export const packageNameModifiers = {
@@ -148,7 +147,7 @@ function Unpackage() {
   const packageContent = JSON.parse(fs.readFileSync(packageDestination, "utf-8"));
 
   // Walk the package
-  walkPackage(packageContent, "./");
+  walkPackage(packageContent, "./"); // Walks from root since package structure assumes the same
 }
 
 /* Unpacking helpers */
@@ -179,7 +178,6 @@ function walkPackage(packageContent: any, currentPath: string) {
     }
   });
 };
-
 function isFileOrDir(key: string): "file" | "dir" | "none" {
   if (key.startsWith(packageNameModifiers.file.prefix) && key.endsWith(packageNameModifiers.file.suffix)) return "file";
   if (key.startsWith(packageNameModifiers.dir.prefix) && key.endsWith(packageNameModifiers.dir.suffix)) return "dir";
