@@ -58,7 +58,17 @@ export default function EffectForm({
 
     const formJSON = JSON.stringify(formContent);
 
-    formSubmitter('/api/effect', formJSON, currentEffect ? 'PUT' : 'POST');
+    /** Where to redirect after submitting the form, unless API returns a location header */
+    let defaultLocation: string | undefined = undefined;
+    if (action) {
+      defaultLocation = `/action/${action.id}`;
+    } else if (goal) {
+      defaultLocation = `/goal/${goal.id}`;
+    } else {
+      defaultLocation = `/action/${selectedAction}`;
+    }
+
+    formSubmitter('/api/effect', formJSON, currentEffect ? 'PUT' : 'POST', undefined, defaultLocation);
   }
 
   const timestamp = Date.now();

@@ -17,10 +17,19 @@ export default function ConfirmDelete({
   targetId?: string | { actionId: string, goalId: string };
 }) {
   const [isLoading, setIsLoading] = useState(false);
+  let elementId: string;
+  if (typeof targetId === "object") {
+    elementId = `${targetId.actionId}-${targetId.goalId}`;
+  } else if (typeof targetId === "string") {
+    elementId = targetId;
+  } else {
+    elementId = "";
+    console.error(`No target ID provided in 'ConfirmDelete' for deletion of ${targetName} (sending to ${targetUrl})`);
+  }
 
   function handleDelete() {
     // Check if the input matches the target name
-    if ((document.getElementById(`delete-name-input-${targetId}`) as HTMLInputElement)?.value !== targetName || !(document.getElementById(`delete-name-input-${targetId}`) as HTMLInputElement)?.value) {
+    if ((document.getElementById(`delete-name-input-${elementId}`) as HTMLInputElement)?.value !== targetName || !(document.getElementById(`delete-name-input-${elementId}`) as HTMLInputElement)?.value) {
       return;
     }
     setIsLoading(true);
@@ -30,7 +39,7 @@ export default function ConfirmDelete({
     } else if (typeof targetId === "string") {
       formSubmitter(targetUrl, JSON.stringify({ id: targetId }), "DELETE", setIsLoading)
     } else if (typeof targetId === "object") {
-      formSubmitter(targetUrl, JSON.stringify(targetId), "DELETE", setIsLoading)
+      formSubmitter(targetUrl, JSON.stringify(targetId), "DELETE", setIsLoading, window?.location?.href)
     }
     closeModal(modalRef);
   };
@@ -45,7 +54,7 @@ export default function ConfirmDelete({
         </p>
         <label className="block margin-block-75">
           Skriv <strong>{targetName}</strong> för att bekräfta
-          <input className="margin-block-25" type="text" placeholder={targetName} id={`delete-name-input-${targetId}`} required pattern={targetName} />
+          <input className="margin-block-25" type="text" placeholder={targetName} id={`delete-name-input-${elementId}`} required pattern={targetName} />
         </label>
         <div className="display-flex justify-content-flex-end margin-top-75 gap-50">
           <button type="button" className="font-weight-500" onClick={() => closeModal(modalRef)}>Avbryt</button>
