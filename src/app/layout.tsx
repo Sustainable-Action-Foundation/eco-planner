@@ -15,7 +15,7 @@ export default async function RootLayout({
   const dict = createDict(locale).layout;
 
   return (
-    <html lang={locale} data-css-locale-optional-legend={dict.cssData.optionalLegend}>
+    <html lang={locale}>
       <head>
         {/* TODO: Lots of this should be dynamic probably */}
         <title>Eco - Planner</title>
@@ -39,6 +39,13 @@ export default async function RootLayout({
         <meta property="og:image" content={`${baseUrl}/images/roadmap.jpg`} />
         <meta property="og:locale" content={dict.head.og.locale} />
 
+        {/* CSS locale */}
+        <style dangerouslySetInnerHTML={{
+          /* Add all the locale variables that will be needed in the css here */
+          __html: `:root {
+            --locale-optional-legend: "${dict.cssData.optionalLegend}"
+          }
+        `}}></style>
       </head>
       <body>
         <div className={`${styles.layout}`}>
