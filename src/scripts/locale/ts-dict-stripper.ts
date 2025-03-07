@@ -1,5 +1,9 @@
 import { colors } from "../lib/colors";
 
+const safeCommentKey = "//comment";
+let commentIndex = 0;
+const getSafeCommentKey = () => { commentIndex++; return safeCommentKey + commentIndex.toString(); };
+
 /** 
  * Takes a `.dict.ts` file and converts it to a JSON object by stripping out the TypeScript syntax.
  * @param fileContent The string content of the `.dict.ts` file
@@ -10,12 +14,14 @@ export function tsDictStripper(fileContent: string, filePath?: string): object {
   const dict = fileContent
     /* URI encode every key and value */
     .replaceAll(/(?<=^\s*").*(?=":)|(?<=^\s*".*":\s").*(?=")/gmu, match => encodeURIComponent(match))
+    /* Save comments in a safe format */
+    .replaceAll(/\/\/\s.*|\/\*\*?\s.*\s\*\//gmu, match => `"${getSafeCommentKey()}": "${encodeURIComponent(match)}",`)
     /* Remove import/export statement and the closing `);` */
     .replaceAll(/^import.*\r?\n.*\((?=\{)|(?<=\})\);/gmu, "")
     /* Strip out `[locale]` */
     .replaceAll(/(?<!.*".*)(?<=\})\[locale\](?!.*".*)/gmu, "")
     /* Remove trailing commas */
-    .replaceAll(/(?:(?<="\w*":\s"[^"]*")|(?<=\})),(?=\r?\n\s*\})/gmu, "");
+    .replaceAll(/(?:(?<="[^"]*":\s"[^"]*")|(?<=\})),(?=\r?\n\s*\})/gmu, "");
 
   try {
     JSON.parse(dict);
@@ -44,6 +50,10 @@ export function tsDictMaker(dict: object): string {
       .replaceAll(/(?<=":)(?=["\{])/gmu, " ")
       /* Re-add line breaks */
       .replaceAll(/(?<=\{)|(?<=\},)|(?<=",)/gmu, "\n")
+      /* Resolve comments */
+      .replaceAll(new RegExp(`^\\s*"${encodeURIComponent(safeCommentKey)}\\d+":\\s"([^"]*)"`, "gmu"), (_fullMatch, commentBody) => decodeURIComponent(commentBody))
+      /* Remove commas on comments */
+      .replaceAll(/(?<=\/\*\*?.*\*\/|\/\/.*),/gmu, "")
       /* Add `[locale]` to each leaf */
       .replaceAll(/(?<="\w*":\s"[^"]*",\r?\n\})(?=,)/gmu, "[locale]")
       /* Indent */
