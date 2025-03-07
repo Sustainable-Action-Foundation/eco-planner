@@ -9,6 +9,7 @@ import { colors } from "../lib/colors.ts";
 /* Package and Unpackage common config */
 const dictFileEnding = ".dict.ts";
 const dictSourceFolder = "src";
+// const dictSourceFolder = "src/scripts/locale/test";
 /** Where the packaged file will end up and where it is read from */
 const packageDestination = "locale_package.json";
 export const packageNameModifiers = {
@@ -88,9 +89,7 @@ function Package() {
 
     /** Encode all the parts of the file path to this dict. */
     const pathComponents = filePath.split(/[/\\]/gm)
-      .map((component, index) => {
-        // Ignore source folder since it is implied as doc root in the package
-        if (index === 0 && component === dictSourceFolder) return "";
+      .map(component => {
 
         // If it has file ending, add prefix and suffix
         if (component.endsWith(dictFileEnding)) {
@@ -133,7 +132,7 @@ function Package() {
 function Unpackage() {
   // Check if package exists
   if (!fs.existsSync(packageDestination)) {
-    console.warn(`⚠️  Package not found at ${packageDestination}`);
+    console.warn(`⚠️  Package not found at`, colors.gray(packageDestination));
     process.exit(1);
   }
 
@@ -149,7 +148,7 @@ function Unpackage() {
   const packageContent = JSON.parse(fs.readFileSync(packageDestination, "utf-8"));
 
   // Walk the package
-  walkPackage(packageContent, dictSourceFolder);
+  walkPackage(packageContent, "./");
 }
 
 /* Unpacking helpers */
@@ -162,8 +161,7 @@ function walkPackage(packageContent: any, currentPath: string) {
 
       // Check if file exists
       if (!fs.existsSync(filePath)) {
-        console.warn(`⚠️  File ${filePath} does not exist. This is not expected. Exiting...`);
-        process.exit(1);
+        console.warn(`⚠️  File`, colors.gray(filePath), `does not exist. Creating file...`);
       }
 
       fs.writeFileSync(filePath, tsDictMaker(value as object), "utf-8");
@@ -173,8 +171,8 @@ function walkPackage(packageContent: any, currentPath: string) {
 
       // Check if dir exists
       if (!fs.existsSync(dirPath)) {
-        console.warn(`⚠️  Directory ${dirPath} does not exist. This is not expected. Exiting...`);
-        process.exit(1);
+        console.warn(`⚠️  Directory`, colors.gray(dirPath), `does not exist. Creating directory...`);
+        fs.mkdirSync(dirPath, { recursive: true });
       }
 
       walkPackage(value, dirPath);

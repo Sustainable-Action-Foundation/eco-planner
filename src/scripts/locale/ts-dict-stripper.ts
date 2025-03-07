@@ -4,15 +4,6 @@ import { colors } from "../lib/colors";
 /** Extracts a json object out of a `.dict.ts` file, disregarding the TypeScript code */
 export function tsDictStripper(fileContent: string, filePath?: string): object {
 
-  /** URI decode every key and value */
-  const decode = (obj: object) => {
-    const newObj: Record<string, string | object> = {};
-    for (const [key, value] of Object.entries(obj)) {
-      newObj[decodeURIComponent(key)] = typeof value === "object" ? decode(value) : decodeURIComponent(value);
-    }
-    return newObj;
-  };
-
   const dict = fileContent
     /* Remove import/export statement and the closing `);` */
     .replaceAll(/^import.*\r?\n.*\((?=\{)|(?<=\})\);/gmu, "")
@@ -22,7 +13,7 @@ export function tsDictStripper(fileContent: string, filePath?: string): object {
     .replaceAll(/(?:(?<="\w*":\s"[^"]*")|(?<=\})),(?=\r?\n\s*\})/gmu, "");
 
   try {
-    return decode(JSON.parse(dict));
+    return uriEncodeObject(JSON.parse(dict));
   } catch (error) {
     console.error(`❌ Error parsing dict:`, colors.gray(filePath || ""), error);
     fs.writeFileSync("error.dict.json", dict, "utf-8");
@@ -33,15 +24,6 @@ export function tsDictStripper(fileContent: string, filePath?: string): object {
 
 /** Creates a `.dict.ts` file from a json object */
 export function tsDictMaker(dict: object): string {
-
-  /** URI encode every key and value */
-  const encode = (obj: object) => {
-    const newObj: Record<string, string | object> = {};
-    for (const [key, value] of Object.entries(obj)) {
-      newObj[encodeURIComponent(key)] = typeof value === "object" ? encode(value) : encodeURIComponent(value);
-    }
-    return newObj;
-  };
 
   const formatContent = (content: string): string => {
     const indent = "  ";
@@ -69,5 +51,23 @@ import { Locale } from "@/types.ts";
 export const createDict = (locale: Locale) => (${formatContent(content)});
   `.trim();
 
-  return templateTSON(JSON.stringify(encode(dict)));
+  return templateTSON(JSON.stringify(uriDecodeObject(dict)));
 }
+
+/** URI decode every key and value */
+function uriEncodeObject(obj: object) {
+  const newObj: Record<string, string | object> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    newObj[encodeURIComponent(key)] = typeof value === "object" ? uriEncodeObject(value) : encodeURIComponent(value);
+  }
+  return newObj;
+};
+
+/** URI encode every key and value */
+function uriDecodeObject(obj: object) {
+  const newObj: Record<string, string | object> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    newObj[decodeURIComponent(key)] = typeof value === "object" ? uriDecodeObject(value) : decodeURIComponent(value);
+  }
+  return newObj;
+};
