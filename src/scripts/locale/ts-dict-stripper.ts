@@ -2,11 +2,15 @@ import fs from "node:fs";
 import { colors } from "../lib/colors";
 
 /** 
- * Takes a `.dict.ts` file and converts it to a JSON object by stripping out the TypeScript syntax
+ * Takes a `.dict.ts` file and converts it to a JSON object by stripping out the TypeScript syntax.
+ * @param fileContent The string content of the `.dict.ts` file
+ * @param filePath Optional path to the file for richer error messages
  */
 export function tsDictStripper(fileContent: string, filePath?: string): object {
 
   const dict = fileContent
+    /* URI encode every key and value */
+    .replaceAll(/(?<=^\s*").*(?=":)|(?<=^\s*".*":\s").*(?=")/gmu, match => encodeURIComponent(match))
     /* Remove import/export statement and the closing `);` */
     .replaceAll(/^import.*\r?\n.*\((?=\{)|(?<=\})\);/gmu, "")
     /* Strip out `[locale]` */
@@ -15,13 +19,13 @@ export function tsDictStripper(fileContent: string, filePath?: string): object {
     .replaceAll(/(?:(?<="\w*":\s"[^"]*")|(?<=\})),(?=\r?\n\s*\})/gmu, "");
 
   try {
-    return JSON.parse(dict);
+    JSON.parse(dict);
   } catch (error) {
     console.error(`❌ Error parsing dict:`, colors.gray(filePath || ""), error);
-    fs.writeFileSync("error.dict.json", dict, "utf-8");
-    console.error("Saved error.dict.json for debugging.");
     process.exit(1);
   }
+
+  return uriDecodeObject(JSON.parse(dict));
 }
 
 /** 
