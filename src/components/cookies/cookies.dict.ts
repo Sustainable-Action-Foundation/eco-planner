@@ -4,18 +4,18 @@ export const createDict = (locale: Locale) => ({
     "languages": {
       "swedish": {
         "en": "Swedish",
-        "sv": "Svenska"
+        "sv": "Svenska",
       }[locale],
       "english": {
         "en": "English",
-        "sv": "Engelska"
-      }[locale]
-    }
+        "sv": "Engelska",
+      }[locale],
+    },
   },
   "graphCookie": {
     "allowStorage": {
       "en": "Allow storage of future view changes between sessions and page navigations.",
-      "sv": "Spara framtida vyändringar mellan sessioner och sidonavigeringar."
-    }[locale]
-  }
+      "sv": "Spara framtida vyändringar mellan sessioner och sidonavigeringar.",
+    }[locale],
+  },
 });

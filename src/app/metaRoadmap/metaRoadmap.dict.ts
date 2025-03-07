@@ -4,48 +4,48 @@ export const createDict = (locale: Locale) => ({
     "page": {
       "roadmap": {
         "en": "Roadmap",
-        "sv": "Färdplansserie"
+        "sv": "Färdplansserie",
       }[locale],
       "metadataLabel": {
         "en": "Metadata for a series of roadmap versions",
-        "sv": "Metadata för en serie av färdplansversioner"
+        "sv": "Metadata för en serie av färdplansversioner",
       }[locale],
       "externalResources": {
         "en": "External resources",
-        "sv": "Externa resurser"
+        "sv": "Externa resurser",
       }[locale],
       "roadmaps": {
         "en": "Roadmaps",
-        "sv": "Färdplaner"
+        "sv": "Färdplaner",
       }[locale],
       "newRoadmapVersion": {
         "en": "Create new roadmap version",
-        "sv": "Skapa ny färdplansversion"
-      }[locale]
+        "sv": "Skapa ny färdplansversion",
+      }[locale],
     },
     "edit": {
       "page": {
         "breadcrumbEditMetadata": {
           "en": "Edit metadata",
-          "sv": "Redigera metadata"
+          "sv": "Redigera metadata",
         }[locale],
         "editMetadata": {
           "en": "Edit metadata for roadmap:",
-          "sv": "Redigera metadatan för färdplansserie:"
-        }[locale]
-      }
-    }
+          "sv": "Redigera metadatan för färdplansserie:",
+        }[locale],
+      },
+    },
   },
   "create": {
     "page": {
       "breadcrumbCreateRoadmap": {
         "en": "Create roadmap",
-        "sv": "Skapa färdplansserie"
+        "sv": "Skapa färdplansserie",
       }[locale],
       "newRoadmap": {
         "en": "Create a new roadmap",
-        "sv": "Skapa en ny färdplansserie"
-      }[locale]
-    }
-  }
+        "sv": "Skapa en ny färdplansserie",
+      }[locale],
+    },
+  },
 });

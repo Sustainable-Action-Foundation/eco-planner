@@ -4,36 +4,36 @@ export const createDict = (locale: Locale) => ({
     "baseSection": {
       "home": {
         "en": "Home",
-        "sv": "Hem"
-      }[locale]
+        "sv": "Hem",
+      }[locale],
     },
     "metaRoadmapSection": {
       "roadmap": {
         "en": "Roadmap:",
-        "sv": "Färdplansserie:"
-      }[locale]
+        "sv": "Färdplansserie:",
+      }[locale],
     },
     "roadmapSection": {
       "version": {
         "en": "Version:",
-        "sv": "Version:"
+        "sv": "Version:",
       }[locale],
       "versionLink": {
         "en": "Version",
-        "sv": "Version"
-      }[locale]
+        "sv": "Version",
+      }[locale],
     },
     "goalSection": {
       "goal": {
         "en": "Goal:",
-        "sv": "Målbana:"
-      }[locale]
+        "sv": "Målbana:",
+      }[locale],
     },
     "actionSection": {
       "action": {
         "en": "Action:",
-        "sv": "Åtgärd:"
-      }[locale]
-    }
-  }
+        "sv": "Åtgärd:",
+      }[locale],
+    },
+  },
 });

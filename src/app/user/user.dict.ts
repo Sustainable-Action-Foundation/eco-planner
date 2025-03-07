@@ -4,32 +4,32 @@ export const createDict = (locale: Locale) => ({
     "page": {
       "manageMyData": {
         "en": "Manage my data",
-        "sv": "Hantera mina data"
+        "sv": "Hantera mina data",
       }[locale],
       "myPosts": {
         "en": "My posts",
-        "sv": "Mina inlägg"
+        "sv": "Mina inlägg",
       }[locale],
       "usersPosts": {
         "en": "'s posts",
-        "sv": "s inlägg"
+        "sv": "s inlägg",
       }[locale],
       "roadmapSeries": {
         "en": "Roadmap series",
-        "sv": "Färdplansserier"
+        "sv": "Färdplansserier",
       }[locale],
       "amountOfRoadmaps": {
         "en": "Amount of roadmaps:",
-        "sv": "Antal färdplaner:"
+        "sv": "Antal färdplaner:",
       }[locale],
       "roadmaps": {
         "en": "Roadmaps",
-        "sv": "Färdplaner"
+        "sv": "Färdplaner",
       }[locale],
       "amountOfGoals": {
         "en": "Amount of goals:",
-        "sv": "Antal målbanor:"
-      }[locale]
-    }
-  }
+        "sv": "Antal målbanor:",
+      }[locale],
+    },
+  },
 });
