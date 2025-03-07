@@ -247,9 +247,17 @@ export function validateDictObject(dict: object | string): string[] {
 
   // Leaf checks
   // Value type, check
-  if (values.some(value => typeof value !== "string")) {
+  if (!someStrings) {
     const found = dictToStringShallow(dict);
-    problems.push(`Leaf nodes can only contain \`allowedLeafKeys\`.\n   Found:\n    ${found}`);
+    problems.push(`Leaf nodes can only contain allowedLeafKeys [${allowedLeafKeys}].\n   Found:\n    ${found}`);
+  }
+  // Function value, check
+  /* If one of the leaf values are a function, i.e. contains any `${}` placeholders (no arrow declaration, that is stripped by this point) */
+  const allFunctions = values.every(value => (value as string).match(/(?<=\$\{)[^{}]*(?=\})/gmu));
+  const someFunctions = values.some(value => (value as string).match(/(?<=\$\{)[^{}]*(?=\})/gmu));
+  if (!allFunctions && someFunctions && someStrings) {
+    const found = dictToStringShallow(dict);
+    problems.push(`Leaf nodes can only contain strings or functions, not a mix.\n    Found:\n    ${found}`);
   }
   // Number of locales, check
   if (keys.length !== allowedLeafKeys.length) {
