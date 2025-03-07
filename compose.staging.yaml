@@ -19,6 +19,8 @@ services:
       - MAIL_HOST=${MAIL_HOST}
       - MAIL_USER=${MAIL_USER}
       - MAIL_PASSWORD=${MAIL_PASSWORD}
+      # Used for links in emails and as canonical url in meta tags
+      - BASE_URL=${BASE_URL}
     # Wait for database to start, then reset and seed the database and start the server
     command: sh -c 'sleep 15; yarn prisma migrate reset -f; HOSTNAME="0.0.0.0" node server.js'
 
