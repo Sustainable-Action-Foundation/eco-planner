@@ -15,7 +15,7 @@ export default async function RootLayout({
   const dict = createDict(locale).layout;
 
   return (
-    <html lang={locale}>
+    <html lang={locale} data-css-locale-optional-legend={dict.cssData.optionalLegend}>
       <head>
         {/* TODO: Lots of this should be dynamic probably */}
         <title>Eco - Planner</title>

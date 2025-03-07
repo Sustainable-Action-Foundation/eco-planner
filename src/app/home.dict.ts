@@ -19,6 +19,12 @@ export const createDict = (locale: Locale) => ({
     }[locale],
   },
   "layout": {
+    "cssData": {
+      "optionalLegend": {
+        "en": " - (optional)",
+        "sv": " - (valfri)",
+      }[locale],
+    },
     "head": {
       "description": {
         "en": "A tool intended to contribute to the climate transition of Sweden.\nIn the tool, national scenarios, also known as quantitative roadmaps, can be broken down to a regional and municipal level and an action plan can be created.\nThe action plan is built on actions related to a specific goal and together the goals together constitute the roadmap.\nUsers can be inspired by each others' actions. In that way, a common action database is created for Sweden. On a municipal level, different actors can also work together around actions.",
