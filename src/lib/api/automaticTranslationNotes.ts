@@ -27,3 +27,30 @@
 // Link 6 is more about npm translate package specific to libre engine
 
 // Link 7 is a tutorial that uses google-translate-api module
+
+
+// ----- This approach takes WAY too long and runs out of translations quickly -----
+// export async function translateText(text: string, fromLang: string, toLang: string) {
+//   const apiUrl = `https://api.mymemory.translated.net/get?q=${text}&langpair=${fromLang}|${toLang}`;
+//   let translatedText = "";
+//   try {
+//     await fetch(apiUrl)
+//       .then((response) => response.json())
+//       .then((data) => {
+//         // console.log("data:",data);
+//         // console.log("data.responseData.translatedText:",data.responseData.translatedText);
+//         translatedText = data.responseData.translatedText;
+//         data.matches.forEach((data: { id: number; translation: string; }) => {
+//           if (data.id === 0) {
+//             // console.log("translation:",data.translation)
+//             translatedText = data.translation;
+//           }
+//         })
+//         return translatedText;
+//       })
+//   } catch (error) {
+//     console.log(error);
+//   }
+
+//   return translatedText;
+// }
