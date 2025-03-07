@@ -199,8 +199,8 @@ export const createDict = (locale: Locale) => ({
             }[locale],
             "roadmapVersion": {
               "versionOfMetaRoadmap": {
-                "en": "Version of the roadmap series `\"${metaRoadmapTarget.name}\"` this roadmap version is working towards",
-                "sv": "Version av färdplansserien `\"${metaRoadmapTarget.name}\"` den här färdplansversionen arbetar mot"
+                "en": (targetName: string) => `Version of the roadmap series ${targetName} this roadmap version is working towards`,
+                "sv": (targetName: string) => `Version av färdplansserien ${targetName} den här färdplansversionen arbetar mot`
               }[locale],
               "noAlternativeSelected": {
                 "en": "No alternative selected",

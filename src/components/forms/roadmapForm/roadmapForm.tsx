@@ -205,7 +205,7 @@ export default function RoadmapForm({
 
             {metaRoadmapTarget?.roadmapVersions.length && (
               <label className="block margin-block-100">
-                {dict.roadmapForm.form.metaRoadmap.roadmapVersion.versionOfMetaRoadmap}
+                {dict.roadmapForm.form.metaRoadmap.roadmapVersion.versionOfMetaRoadmap(metaRoadmapTarget.name)}
                 <select className="block margin-block-25" name="targetVersion" id="targetVersion" required defaultValue={currentRoadmap?.targetVersion || ""} onChange={(e) => setTargetVersion(parseInt(e.target.value) || null)}>
                   <option value="">{dict.roadmapForm.form.metaRoadmap.roadmapVersion.noAlternativeSelected}</option>
                   <option value={0}>{dict.roadmapForm.form.metaRoadmap.roadmapVersion.alwaysMostRecent}</option>
