@@ -135,7 +135,7 @@ function validateFile(filePath: string | null): string[] {
 
   const fileContent = fs.readFileSync(filePath, "utf-8");
 
-  problems.push(...validateDictObject(tsDictStripper(fileContent)));
+  problems.push(...validateDictObject(tsDictStripper(fileContent, filePath)));
 
   return problems;
 }
@@ -179,7 +179,7 @@ function validateDirectory(dirPath: string | null): { [file: string]: string[] }
 
     const fileContent = fs.readFileSync(filePath, "utf-8");
 
-    perFileProblems[filePath] = validateDictObject(tsDictStripper(fileContent));
+    perFileProblems[filePath] = validateDictObject(tsDictStripper(fileContent, filePath));
   });
 
   return perFileProblems;

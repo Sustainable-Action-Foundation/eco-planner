@@ -1,14 +1,14 @@
 import { colors } from "../lib/colors";
 
+let safeCommentIndex = 0;
 const safeCommentKey = "//comment";
-let commentIndex = 0;
-const getSafeCommentKey = () => { commentIndex++; return safeCommentKey + commentIndex.toString(); };
+const getSafeCommentKey = () => { safeCommentIndex++; return safeCommentKey + safeCommentIndex.toString(); };
 
 /** 
  * Takes a `.dict.ts` file and converts it to a JSON object by stripping out the TypeScript syntax.
  * @param fileContent The string content of the `.dict.ts` file
  * @param filePath Optional path to the file for richer error messages
- */
+*/
 export function tsDictStripper(fileContent: string, filePath?: string): object {
 
   try {
@@ -21,6 +21,8 @@ export function tsDictStripper(fileContent: string, filePath?: string): object {
   /** Strips away typescript syntax and formats to json */
   function format(content: string): string {
     return content
+      /* Save functions in a safe format */
+      .replaceAll(/\(.*\)\s?=>\s?`(.*)`(?=,?$)/gmu, (_fullMatch, functionBody) => `"${functionBody}"`)
       /* URI encode every key and value */
       .replaceAll(/(?<=^\s*").*(?=":)|(?<=^\s*".*":\s").*(?=")/gmu, match => encodeURIComponent(match))
       /* Save comments in a safe format */
@@ -71,7 +73,13 @@ export function tsDictMaker(dict: object): string {
         return newLine;
       }).join("\n")
       /* URI decode every key and value */
-      .replaceAll(/(?<=^\s*").*(?=":)|(?<=^\s*".*":\s").*(?=")/gmu, match => decodeURIComponent(match));
+      .replaceAll(/(?<=^\s*").*(?=":)|(?<=^\s*".*":\s").*(?=")/gmu, match => decodeURIComponent(match))
+      /* Resolve functions */
+      .replaceAll(/(?<="\w*":\s?)"(.*\$.*\{.*\}.*)"(?=,?)/gmu, (_fullMatch, functionBody) => {
+        const placeholders = functionBody.matchAll(/(?<=\$\{)[^{}]*(?=\})/gmu);
+        const args = [...placeholders].map(placeholder => `${placeholder}: string`).join(", ");
+        return `(${args}) => \`${decodeURIComponent(functionBody)}\``;
+      });
   };
 }
 
