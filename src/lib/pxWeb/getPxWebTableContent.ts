@@ -12,7 +12,7 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
   const url = new URL(`${baseUrl}/tables/${tableId}/data`);
 
   url.searchParams.append('lang', language);
-  url.searchParams.append('outputformat', 'json-px'); // Decide preferred format of the response. Available formats are "csv", "px", "json" and "xlsx"
+  url.searchParams.append('outputformat', 'json-px'); // Decide preferred format of the response. Available formats are "csv", "px", "json-px", "json-stat2", "html", "parquet" and "xlsx"
 
   const payload = {
     selection: [] as { variableCode: string, valueCodes: string[] }[],
@@ -21,12 +21,7 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
     },
   };
 
-  // Get all time periods that are available for this table and add them to payload
-  const times = await getPxWebTableDetails(tableId, externalDataset).then(result => result ? result.times : undefined);
-  if (!times) return;
-  const timeSelectionItem = { variableCode: "Tid", valueCodes: [] as string[], };
-  for (const time of times) timeSelectionItem.valueCodes.push(time.id);
-  payload.selection.push(timeSelectionItem);
+
 
   // Add all selection items to payload
   selection.forEach(item => {
@@ -37,14 +32,33 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
       };
       payload.selection.push(selectionItem);
     }
-    else {
+    else if (item.variableCode != "Tid" && item.variableCode != "Time") {
+      console.log("Var code not Time", item.variableCode);
       const selectionItem = {
         variableCode: item.variableCode,
         valueCodes: item.valueCodes,
       };
       payload.selection.push(selectionItem);
     }
+    else {
+      const timeSelectionItem = {
+        variableCode: item.variableCode,
+        valueCodes: item.valueCodes,
+      }
+      payload.selection.push(timeSelectionItem);
+    }
   });
+  const timeSelectionItemInPayload = payload.selection.filter(item => item.variableCode == "Tid" || item.variableCode == "Time")[0];
+  if (!timeSelectionItemInPayload) {
+    // Get all time periods that are available for this table and add them to payload | TODO - allow user to select starting time period
+    const timeSelectionItem = { variableCode: "Tid", valueCodes: [] as string[], };
+    const times = await getPxWebTableDetails(tableId, externalDataset).then(result => result ? result.times : undefined);
+    if (!times) return null;
+    timeSelectionItem.valueCodes.push(`from(${times[0].id})`);
+    payload.selection.push(timeSelectionItem);
+  }
+
+  console.log(JSON.stringify(payload, null, 2));
 
   // TODO - make this parse in the same format as if it were json
   function parsePxToJson(pxText: string) {
@@ -117,8 +131,9 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
       const errorText = await response.text();
       console.log(errorText);
     }
-    
+
     if (response.ok) {
+      console.log("----GOOD RESPONSE----");
       const contentType = response.headers.get("Content-Type");
 
       // Parse response differently depending on its content type
@@ -128,12 +143,12 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
         const decodedText = decoder.decode(buffer);
         const parsedPx = parsePxToJson(decodedText);
         data = parsedPx;
-      } 
+      }
       else if (contentType?.includes("text/csv")) {
         const csvText = await response.text();
         const parsedCsv = parseCsv(csvText);
         data = parsedCsv;
-      } 
+      }
       else if (contentType?.includes("application/json")) {
         const responseJson = await response.json();
         data = responseJson;

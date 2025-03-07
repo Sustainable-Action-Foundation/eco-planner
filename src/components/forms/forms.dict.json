@@ -312,6 +312,14 @@
           "en": "Choose a value",
           "sv": "Välj ett värde"
         },
+        "chooseStartingPeriod": {
+          "en": "Choose starting period",
+          "sv": "Välj startperiod"
+        },
+        "chooseTimePeriod": {
+          "en": "Choose time period",
+          "sv": "Välj tidsperiod"
+        },
         "chooseMetricForTable": {
           "en": "Choose metric for this table",
           "sv": "Välj mätvärde för tabellen"

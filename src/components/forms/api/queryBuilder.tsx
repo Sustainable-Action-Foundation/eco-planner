@@ -48,7 +48,7 @@ export default function QueryBuilder({
     if (dataSource == "Trafa") {
       getTrafaTables(locale).then(result => setTables(result));
     }
-  }, [dataSource]);
+  }, [dataSource, locale]);
 
   function buildQuery(formData: FormData) {
     const queryObject: object[] = [];
@@ -215,6 +215,21 @@ export default function QueryBuilder({
                   <legend className="padding-inline-50">
                     <strong>{dict.tableDetails.chooseValues[locale]}</strong>
                   </legend>
+                  {tableDetails.times.length > 1 &&
+                    <label key="Tid" className="block margin-block-75">
+                      {dict.tableDetails.chooseStartingPeriod[locale]}
+                      <select className={`block margin-block-25 TimeVariable`}
+                        required={false}
+                        name="Tid"
+                        id="Tid"
+                        defaultValue={tableDetails.times && tableDetails.times.length == 1 ? tableDetails.times[0].label : undefined}>
+                        <option value="">{dict.tableDetails.chooseTimePeriod[locale]}</option>
+                        {tableDetails.times.map(time => (
+                          <option key={time.name} value={time.name} lang={tableDetails.language}>{time.id}</option>
+                        ))}
+                      </select>
+                    </label>
+                  }
                   {tableDetails.variables.map(variable => (
                     <label key={variable.name} className="block margin-block-75">
                       {variable.label[0].toUpperCase() + variable.label.slice(1)}
