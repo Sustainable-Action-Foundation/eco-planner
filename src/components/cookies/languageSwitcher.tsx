@@ -35,7 +35,7 @@ export default function LanguageSwitcher() {
 
   return (
     <select
-      className="font-weight-500 block padding-left-100"
+      className="font-weight-500 block padding-left-100 cursor-pointer"
       style={{ fontSize: '1rem', minHeight: 'calc(24px + 1rem)' }}
       onChange={(e) => { setLanguage(e.target.value as Locale) }}
       autoComplete="off"
