@@ -11,26 +11,27 @@ const getSafeCommentKey = () => { commentIndex++; return safeCommentKey + commen
  */
 export function tsDictStripper(fileContent: string, filePath?: string): object {
 
-  const dict = fileContent
-    /* URI encode every key and value */
-    .replaceAll(/(?<=^\s*").*(?=":)|(?<=^\s*".*":\s").*(?=")/gmu, match => encodeURIComponent(match))
-    /* Save comments in a safe format */
-    .replaceAll(/\/\/\s.*|\/\*\*?\s.*\s\*\//gmu, match => `"${getSafeCommentKey()}": "${encodeURIComponent(match)}",`)
-    /* Remove import/export statement and the closing `);` */
-    .replaceAll(/^import.*\r?\n.*\((?=\{)|(?<=\})\);/gmu, "")
-    /* Strip out `[locale]` */
-    .replaceAll(/(?<!.*".*)(?<=\})\[locale\](?!.*".*)/gmu, "")
-    /* Remove trailing commas */
-    .replaceAll(/(?:(?<="[^"]*":\s"[^"]*")|(?<=\})),(?=\r?\n\s*\})/gmu, "");
-
   try {
-    JSON.parse(dict);
+    return uriDecodeObject(JSON.parse(format(fileContent)));
   } catch (error) {
-    console.error(`❌ Error parsing dict:`, colors.gray(filePath || ""), error);
+    console.error(`❌ Error stripping dict:`, colors.gray(filePath || ""), error);
     process.exit(1);
   }
 
-  return uriDecodeObject(JSON.parse(dict));
+  /** Strips away typescript syntax and formats to json */
+  function format(content: string): string {
+    return content
+      /* URI encode every key and value */
+      .replaceAll(/(?<=^\s*").*(?=":)|(?<=^\s*".*":\s").*(?=")/gmu, match => encodeURIComponent(match))
+      /* Save comments in a safe format */
+      .replaceAll(/\/\/\s.*|\/\*\*?\s.*\s\*\//gmu, match => `"${getSafeCommentKey()}": "${encodeURIComponent(match)}",`)
+      /* Remove import/export statement and the closing `);` */
+      .replaceAll(/^import.*\r?\n.*\((?=\{)|(?<=\})\);/gmu, "")
+      /* Strip out `[locale]` */
+      .replaceAll(/(?<!.*".*)(?<=\})\[locale\](?!.*".*)/gmu, "")
+      /* Remove trailing commas */
+      .replaceAll(/(?:(?<="[^"]*":\s"[^"]*")|(?<=\})),(?=\r?\n\s*\})/gmu, "");
+  }
 }
 
 /** 
@@ -38,12 +39,18 @@ export function tsDictStripper(fileContent: string, filePath?: string): object {
  */
 export function tsDictMaker(dict: object): string {
 
-  return templateTSON(JSON.stringify(uriEncodeObject(dict)));
+  return typescriptWrapper(format(dict));
 
-  function formatContent(content: string): string {
+  /** Boilerplate bare minimum import and export code wrapping an object */
+  function typescriptWrapper(content: string) {
+    return `import { Locale } from "@/types.ts";\nexport const createDict = (locale: Locale) => (${content});`
+  };
+
+  /** Handles converting a json object to a string formatted as typescript */
+  function format(content: object): string {
     const indent = "  ";
     let indentDepth = 0;
-    return content
+    return JSON.stringify(uriEncodeObject(content))
       /* Add trailing commas */
       .replaceAll(/(?=\})/gmu, ",")
       /* Add space between `:` and values */
@@ -65,13 +72,6 @@ export function tsDictMaker(dict: object): string {
       }).join("\n")
       /* URI decode every key and value */
       .replaceAll(/(?<=^\s*").*(?=":)|(?<=^\s*".*":\s").*(?=")/gmu, match => decodeURIComponent(match));
-  };
-
-  function templateTSON(content: string) {
-    return `
-import { Locale } from "@/types.ts";
-export const createDict = (locale: Locale) => (${formatContent(content)});
-  `.trim()
   };
 }
 
