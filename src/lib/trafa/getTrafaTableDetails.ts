@@ -5,7 +5,7 @@ import { ApiTableDetails, TrafaFilter, TrafaHierarchy, TrafaMetric, TrafaVariabl
 export default async function getTrafaTableDetails(tableId: string, language: "sv" | "en" = "sv") {
   const url = new URL(trafaStructureUrl);
   url.searchParams.append('query', `${tableId}`);
-  const locale = language;
+  // const locale = language;
   language = "sv"
   if (language) url.searchParams.append("lang", language);
 

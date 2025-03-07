@@ -5,7 +5,7 @@ import { StructureItem, TrafaDataResponse, trafaStructureUrl } from "./trafaType
 export default async function getTrafaTables(language?: "sv" | "en") {
   const url = new URL(trafaStructureUrl);
   url.searchParams.append('query', ``);
-  const locale = language; // THis will be used later to manually translate table labels
+  // const locale = language; // This will be used later to manually translate table labels
   language = "sv"
   if (language) url.searchParams.append('lang', language);
 
