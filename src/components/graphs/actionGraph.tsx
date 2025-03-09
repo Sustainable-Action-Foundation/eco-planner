@@ -90,7 +90,7 @@ export default function ActionGraph({
   }
 
   return (actions.length > 0 &&
-    <div className={styles.graphWrapper} style={{ height: `${height}` }}>
+    <div className={styles.graphWrapper} style={{ height: `${height}`, backgroundColor: 'transparent', border: 'none', borderRadius: 0 }}>
       <WrappedChart
         options={chartOptions}
         series={series}

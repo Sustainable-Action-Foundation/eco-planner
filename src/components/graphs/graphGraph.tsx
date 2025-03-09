@@ -51,30 +51,21 @@ export default function GraphGraph({
   };
 
   return (
-    <div className="smooth purewhite" style={{ border: '1px solid var(--gray)',}}>
-      <menu
-        className="flex align-items-center gap-25 margin-0 margin-bottom-25 padding-0 flex-wrap-wrap"
-        style={{ borderBottom: '1px solid var(--gray)', backgroundColor: '#f9f9f9', borderRadius: '.25rem .25rem 0 0', padding: '2px' }}
-      >
+    <>
+      <menu className="flex align-items-center gap-25 margin-0 margin-bottom-25 padding-0 flex-wrap-wrap">
         {/* TODO: Missing label */}
         <GraphSelector goal={goal} currentSelection={graphType} setter={setGraphType} />
         <SecondaryGoalSelector />
         {children}
       </menu>
-      <div className="margin-top-200 margin-bottom-50">
-        {goal.name ? (
-          <>
-            <h1 className="margin-0 text-align-center" style={{fontSize: '3rem', lineHeight: '1'}}>{goal.name}</h1>
-            <small className="text-align-center block" style={{color: 'gray'}}>Målbana</small>
-            <small className="text-align-center block" style={{color: 'gray'}}>{goal.indicatorParameter}</small>
-          </>
-        ) :
-          <h1 className="margin-0 text-align-center" style={{lineHeight: '1'}}>{goal.indicatorParameter}</h1>
-        } 
-        </div>
+      {goal.name ? 
+        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{fontSize: '1rem'}}>{goal.name}</h2>
+      : 
+        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{fontSize: '1rem'}}>{goal.indicatorParameter}</h2>
+      }
       <div className="margin-bottom-25" style={{ height: '500px',  paddingInline: '.3rem' }}>
         {graphSwitch(graphType)}
       </div>
-    </div>
+    </>
   );
 }

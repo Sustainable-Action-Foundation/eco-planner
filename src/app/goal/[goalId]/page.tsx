@@ -127,6 +127,40 @@ export default async function Page({
       <Breadcrumb object={goal} />
 
       <main>
+        <section className="margin-block-300">
+          <div className="margin-top-200 margin-bottom-50">
+            {goal.name ? (
+              <>
+                <small style={{color: 'gray'}}>Målbana</small>
+                <h1 className="margin-0" style={{fontSize: '3rem', lineHeight: '1'}}>{goal.name}</h1>
+                <small style={{color: 'gray'}}>{goal.indicatorParameter}</small>
+              </>
+            ) :
+              <h1 className="margin-0 text-align-center" style={{lineHeight: '1'}}>{goal.indicatorParameter}</h1>
+            } 
+          </div>
+
+          {goal.description ? 
+            <>
+              <h2 className="margin-top-200 margin-bottom-0">Beskrivning</h2>
+              <p className="container-text">{goal.description}</p>
+            </>
+          : null }
+
+          {goal.links.length > 0 ?
+            <>
+              <h3 className="margin-bottom-0 margin-top-200" style={{ fontSize: '1.25rem' }}>Externa resurser</h3>
+              <ul>
+                {goal.links.map((link: { url: string, description: string | null }, index: number) =>
+                  <li className="margin-block-25" key={index}>
+                    <a href={link.url} target="_blank">{link.description}</a>
+                  </li>
+                )}
+              </ul>
+            </>
+            : null}
+        </section>
+
         {secondaryGoal && <p className="margin-block-300">Jämför med målbanan {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
         <section className='margin-top-300'>
           {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
@@ -154,48 +188,25 @@ export default async function Page({
             </>
           }
 
-        </section>
+          <section className="margin-block-300">
+            <div className="flex gap-100 flex-wrap-wrap align-items-center justify-content-space-between" style={{ borderBottom: '1px solid var(--gray)' }}>
+              <h2 className='margin-bottom-100 padding-bottom-50'>
+                Åtgärder för {goal.name ? `${goal.name}` : `${goal.indicatorParameter}`}
+              </h2>
+              {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
+                <div className="flex gap-50">
+                  <Link href={`/effect/create?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Koppla till en existerande åtgärd</Link>
+                  <Link href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
+                </div>
+              }
+            </div>
 
-        <section className="margin-block-300">
-          {goal.description ? 
-            <>
-              <h2>Beskrivning</h2>
-              <p className="container-text">{goal.description}</p>
-            </>
-          : null }
+            <EffectTable object={goal} accessLevel={accessLevel} />
 
-          {goal.links.length > 0 ?
-            <>
-              <h3 className="margin-bottom-0 margin-top-200" style={{ fontSize: '1.25rem' }}>Externa resurser</h3>
-              <ul>
-                {goal.links.map((link: { url: string, description: string | null }, index: number) =>
-                  <li className="margin-block-25" key={index}>
-                    <a href={link.url} target="_blank">{link.description}</a>
-                  </li>
-                )}
-              </ul>
-            </>
-            : null}
-        </section>
+            <h3 className="margin-top-300">Tidslinje över åtgärder</h3>
+            <ActionGraph actions={goal.effects.map(effect => effect.action)} />
 
-        <section className="margin-block-300">
-          <div className="flex gap-100 flex-wrap-wrap align-items-center justify-content-space-between" style={{ borderBottom: '1px solid var(--gray)' }}>
-            <h2 className='margin-bottom-100 padding-bottom-50'>
-              Åtgärder för {goal.name ? `${goal.name}` : `${goal.indicatorParameter}`}
-            </h2>
-            {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
-              <div className="flex gap-50">
-                <Link href={`/effect/create?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Koppla till en existerande åtgärd</Link>
-                <Link href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
-              </div>
-            }
-          </div>
-
-          <EffectTable object={goal} accessLevel={accessLevel} />
-
-          <h3 className="margin-top-300">Tidslinje över åtgärder</h3>
-          <ActionGraph actions={goal.effects.map(effect => effect.action)} />
-
+          </section>
         </section>
 
         {childGoals.length > 0 ?
