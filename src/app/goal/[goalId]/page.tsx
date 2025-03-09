@@ -26,6 +26,7 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
 import findSiblings from "@/functions/findSiblings.ts";
 import ChildGraphContainer from "@/components/graphs/childGraphs/childGraphContainer.tsx";
+import Image from "next/image";
 
 export default async function Page({
   params,
@@ -127,18 +128,28 @@ export default async function Page({
       <Breadcrumb object={goal} />
 
       <main>
-        <section className="margin-block-300">
-          <div className="margin-top-200 margin-bottom-50">
-            {goal.name ? (
-              <>
-                <small style={{color: 'gray'}}>Målbana</small>
-                <h1 className="margin-0" style={{fontSize: '3rem', lineHeight: '1'}}>{goal.name}</h1>
-                <small style={{color: 'gray'}}>{goal.indicatorParameter}</small>
-              </>
-            ) :
-              <h1 className="margin-0 text-align-center" style={{lineHeight: '1'}}>{goal.indicatorParameter}</h1>
-            } 
+
+        <section 
+          className="flex justify-content-space-between align-items-center margin-block-300 padding-25 rounded"
+          style={{border: '1px solid gold', backgroundColor: 'rgba(255, 255, 0, .35)'}}
+        >
+          <div className="flex align-items-center gap-100 margin-left-100">
+            <Image src="/icons/alert.svg" alt="" width={24} height={24} />
+            <strong className="font-weight-500">Uppdatera din målbana för att få senaste informationen.</strong>
           </div>
+          <UpdateGoalButton id={goal.id} />
+        </section>
+
+        <section className="margin-block-300">
+          {goal.name ? (
+            <>
+              <small style={{color: 'gray'}}>Målbana</small>
+              <h1 className="margin-0" style={{fontSize: '3rem', lineHeight: '1'}}>{goal.name}</h1>
+              <small style={{color: 'gray'}}>{goal.indicatorParameter}</small>
+            </>
+          ) :
+            <h1 className="margin-0 text-align-center" style={{lineHeight: '1'}}>{goal.indicatorParameter}</h1>
+          } 
 
           {goal.description ? 
             <>
