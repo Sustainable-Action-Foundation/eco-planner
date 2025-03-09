@@ -54,8 +54,10 @@ export default function ChildGraphContainer({
         <ChildGraphSelector goal={goal} currentSelection={childGraphType} setter={setChildGraphType} />
         <button 
           className="display-flex align-items-center gap-50 transparent" 
-          style={{ width: 'fit-content', fontWeight: 'bold', fontSize: '.75rem', padding: '.3rem .6rem' }} type="button" onClick={() => setIsStacked(!isStacked)}>
-          Byt typ av graf
+          style={{ width: 'fit-content', fontWeight: 'bold', fontSize: '.75rem', padding: '.3rem .6rem' }} 
+          type="button" onClick={() => setIsStacked(!isStacked)}
+        >
+          Byt graftyp
           <Image src='/icons/chartArea.svg' alt='Byt graf' width={16} height={16} />
         </button>
         {children}

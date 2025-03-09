@@ -63,7 +63,7 @@ export default function GraphGraph({
       : 
         <h2 className="text-align-center block font-weight-500 margin-block-200" style={{fontSize: '1rem'}}>{goal.indicatorParameter}</h2>
       }
-      <div className="margin-bottom-25" style={{ height: '500px',  paddingInline: '.3rem' }}>
+      <div style={{ height: '500px',  paddingInline: '.3rem' }}>
         {graphSwitch(graphType)}
       </div>
     </>

@@ -50,9 +50,8 @@ export default function EffectTable({
           <div className="width-100" style={{verticalAlign: 'middle'}}>
             <div className='flex justify-content-space-between'>
               <a 
-                style={{fontSize: '1.25rem'}}
                 href={(object as Action).isSufficiency != undefined ? `/goal/${effect.goalId}` : `/action/${effect.actionId}`}  
-                className="font-weight-500 color-pureblack text-decoration-none flex-grow-100">
+                className="font-weight-500 color-pureblack text-decoration-none flex-grow-100 inline-block">
                 {effect.action?.name || effect.goal?.name || effect.goal?.indicatorParameter || "Namnlös effekt"}
               </a>
               <TableMenu

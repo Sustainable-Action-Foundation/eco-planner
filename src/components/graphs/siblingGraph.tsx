@@ -91,8 +91,21 @@ export default function SiblingGraph({
   */
 
   return (siblings.length > 1 &&
-    <div>
-      <div className={styles.graphWrapper}>
+    <div className="smooth purewhite" style={{ border: '1px solid var(--gray)' }}>
+      <menu
+        className="flex align-items-center gap-25 margin-0 padding-0 flex-wrap-wrap"
+        style={{ borderBottom: '1px solid var(--gray-90)', padding: '2px' }}
+      >
+        <button           
+          className="display-flex align-items-center gap-50 transparent" 
+          style={{ width: 'fit-content', fontWeight: 'bold', fontSize: '.75rem', padding: '.3rem .6rem' }}  
+          type="button" onClick={() => setIsStacked(!isStacked)}
+        >
+          Byt graftyp
+          <Image src='/icons/chartArea.svg' alt='Byt graf' width={16} height={16} />
+        </button>
+      </menu>
+      <div className="margin-bottom-25" style={{ height: '500px',  paddingInline: '.3rem' }}>
         <WrappedChart
           key={"combinedGraph"}
           options={chartOptions}
@@ -102,12 +115,6 @@ export default function SiblingGraph({
           height="100%"
         />
       </div>
-      <menu className="margin-block-100 margin-0 padding-0">
-        <button className="call-to-action-primary display-flex align-items-center gap-50 transparent" style={{ width: 'fit-content', fontWeight: 'bold', fontSize: '1rem' }} type="button" onClick={() => setIsStacked(!isStacked)}>
-          Byt typ av graf
-          <Image src='/icons/chartArea.svg' alt='Byt graf' width={24} height={24} />
-        </button>
-      </menu>
     </div>
   )
 }
