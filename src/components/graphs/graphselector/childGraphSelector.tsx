@@ -26,7 +26,7 @@ export default function ChildGraphSelector({
   // Set the selectedOption as the context value
   return (
     <>
-      <select onChange={handleSelectChange} value={currentSelection} style={{ padding: '.3rem .5rem', borderRadius: '2px' }}>
+      <select onChange={handleSelectChange} value={currentSelection} style={{ padding: '.3rem .5rem', borderRadius: '2px', fontSize: '.75rem' }}>
         <option value={ChildGraphType.Target}>Målbanor</option>
         <option value={ChildGraphType.Prediction}>Förväntade utfall</option>
       </select>

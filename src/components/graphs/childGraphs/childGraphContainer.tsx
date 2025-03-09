@@ -46,15 +46,17 @@ export default function ChildGraphContainer({
   };
 
   return (
-    <div className="smooth purewhite" style={{ border: '1px solid var(--gray)', paddingInline: '.3rem' }}>
+    <div className="smooth purewhite" style={{ border: '1px solid var(--gray)' }}>
       <menu
-        className="flex align-items-center gap-25 margin-0 margin-bottom-25 padding-0 flex-wrap-wrap"
-        style={{ borderBottom: '1px solid var(--gray-90)', paddingBlock: '.3rem' }}
+        className="flex align-items-center gap-25 margin-0 padding-0 flex-wrap-wrap"
+        style={{ borderBottom: '1px solid var(--gray-90)', padding: '2px' }}
       >
         <ChildGraphSelector goal={goal} currentSelection={childGraphType} setter={setChildGraphType} />
-        <button className="call-to-action-primary display-flex align-items-center gap-50 transparent" style={{ width: 'fit-content', fontWeight: 'bold', fontSize: '1rem' }} type="button" onClick={() => setIsStacked(!isStacked)}>
+        <button 
+          className="display-flex align-items-center gap-50 transparent" 
+          style={{ width: 'fit-content', fontWeight: 'bold', fontSize: '.75rem', padding: '.3rem .6rem' }} type="button" onClick={() => setIsStacked(!isStacked)}>
           Byt typ av graf
-          <Image src='/icons/chartArea.svg' alt='Byt graf' width={24} height={24} />
+          <Image src='/icons/chartArea.svg' alt='Byt graf' width={16} height={16} />
         </button>
         {children}
       </menu>

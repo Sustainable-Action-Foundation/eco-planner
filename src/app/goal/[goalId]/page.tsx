@@ -179,18 +179,17 @@ export default async function Page({
         </section>
 
         <section className="margin-block-300">
-          <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>
-            Åtgärder för {goal.name ? `${goal.name}` : `${goal.indicatorParameter}`}
-          </h2>
-          {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
-            <menu className="flex flex-wrap-wrap justify-content-space-between gap-100 margin-bottom-100 padding-0 margin-0">
-              <input type="search" style={{width: 'min(90ch, 100%)'}} />
+          <div className="flex gap-100 flex-wrap-wrap align-items-center justify-content-space-between" style={{ borderBottom: '1px solid var(--gray)' }}>
+            <h2 className='margin-bottom-100 padding-bottom-50'>
+              Åtgärder för {goal.name ? `${goal.name}` : `${goal.indicatorParameter}`}
+            </h2>
+            {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
               <div className="flex gap-50">
                 <Link href={`/effect/create?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Koppla till en existerande åtgärd</Link>
                 <Link href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
               </div>
-            </menu>
-          }
+            }
+          </div>
 
           <EffectTable object={goal} accessLevel={accessLevel} />
 
@@ -201,7 +200,7 @@ export default async function Page({
 
         {childGoals.length > 0 ?
           <section className="margin-block-300">
-            <h2>Andra målbanor som jobbar mot {goal.name ? `${goal.name}` : `${goal.indicatorParameter}`}</h2>
+            <h2>Målbanor som jobbar mot {goal.name ? `${goal.name}` : `${goal.indicatorParameter}`}</h2>
             <ChildGraphContainer goal={goal} childGoals={childGoals} />
           </section>
           : null
@@ -209,7 +208,7 @@ export default async function Page({
 
         {findSiblings(roadmap, goal).length > 1 ?
           <section className="margin-block-300">
-            <h2>Angränsande målbanor inom färdplansversionen</h2>
+            <h2>Angränsande målbanor</h2>
             <SiblingGraph roadmap={roadmap} goal={goal} />
           </section>
           : null
