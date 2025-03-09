@@ -129,17 +129,19 @@ export default async function Page({
 
       <main>
 
-        <section 
-          className="flex justify-content-space-between align-items-center margin-block-300 padding-25 rounded"
-          style={{border: '1px solid gold', backgroundColor: 'rgba(255, 255, 0, .35)'}}
-        >
-          <div className="flex align-items-center gap-100 margin-left-100">
-            <Image src="/icons/alert.svg" alt="" width={24} height={24} />
-            <strong className="font-weight-500">Uppdatera din målbana för att få senaste informationen.</strong>
-          </div>
-          <UpdateGoalButton id={goal.id} />
-        </section>
-
+        {shouldUpdate &&
+          <section 
+            className="flex justify-content-space-between align-items-center margin-block-300 padding-25 rounded"
+            style={{border: '1px solid gold', backgroundColor: 'rgba(255, 255, 0, .35)'}}
+          >
+            <div className="flex align-items-center gap-100 margin-left-100">
+              <Image src="/icons/alert.svg" alt="" width={24} height={24} />
+              <strong className="font-weight-500">Uppdatera din målbana för att få senaste informationen.</strong>
+            </div>
+            <UpdateGoalButton id={goal.id} />
+          </section>
+        }
+          
         <section className="margin-block-300">
           {goal.name ? (
             <>
