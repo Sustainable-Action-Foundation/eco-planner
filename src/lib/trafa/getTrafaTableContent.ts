@@ -34,7 +34,6 @@ export default async function getTrafaTableContent(tableId: string, selection: {
   
   const url = new URL(trafaUrl);
   url.searchParams.append('query', tableId + "|ar" + searchQuery);
-  // const locale = language;
   language = "sv"
   if (language) url.searchParams.append('lang', language);
 
