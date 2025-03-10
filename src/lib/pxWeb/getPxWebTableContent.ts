@@ -48,6 +48,7 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
       payload.selection.push(timeSelectionItem);
     }
   });
+  
   const timeSelectionItemInPayload = payload.selection.filter(item => item.variableCode == "Tid" || item.variableCode == "Time")[0];
   if (!timeSelectionItemInPayload) {
     // Get all time periods that are available for this table and add them to payload | TODO - allow user to select starting time period
