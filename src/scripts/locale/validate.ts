@@ -26,7 +26,7 @@ const disallowedKeySuffixes: string[] = [packageNameModifiers.file.suffix, packa
 
 
 const showHelp = () => {
-  console.info("ℹ️ Help:");
+  console.info("ｉ Help:");
   console.info(`Validates the structure of locale dictionaries. Locale files found by their file ending:`, `${colors.green(dictFileEnding)}\n`);
   console.info("Flags:");
   console.info(`${colors.green(" -f --file <file>:     ")}`, `Validate single file.`);
@@ -63,13 +63,13 @@ if (fileFlag && dirFlag) {
 
 /* Handle file operation */
 if (fileFlag) {
-  console.info(` ℹ️ Validating file`, colors.gray(`(${fileFlag})`));
+  console.info(`ｉ Validating file`, colors.gray(`(${fileFlag})`));
 
   const problems = validateFile(fileFlag);
 
   // Log problems
   if (problems.length === 0) {
-    console.info(`✔️  No problems found`, colors.gray(`(${fileFlag})`));
+    console.info(`✔  No problems found`, colors.gray(`(${fileFlag})`));
 
   } else {
     console.error(`❗ Problems found in`, colors.gray(`(${fileFlag})`));
@@ -84,7 +84,7 @@ if (fileFlag) {
 
 /* Handle directory operation */
 if (dirFlag) {
-  console.info(` ℹ️ Validating directory`, colors.gray(`./${dirFlag}/**/*${dictFileEnding}`));
+  console.info(`ｉ Validating directory`, colors.gray(`./${dirFlag}/**/*${dictFileEnding}`));
 
   const perFileProblems = validateDirectory(dirFlag);
 
@@ -102,7 +102,7 @@ if (dirFlag) {
     process.exit(1)
   }
   else {
-    console.info("✔️  No problems found in directory", colors.gray(`./${dirFlag}/**/*${dictFileEnding}`));
+    console.info("✔  No problems found in directory", colors.gray(`./${dirFlag}/**/*${dictFileEnding}`));
     process.exit(0);
   }
 };
