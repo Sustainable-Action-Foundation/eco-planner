@@ -45,7 +45,7 @@ if (packageFlag) {
   console.info(`📦 Packaging dictionaries...`);
 
   try {
-    Package();
+    packaging();
   }
   catch (error) {
     console.error(`❌ Packaging dictionaries failed.`, error);
@@ -61,7 +61,7 @@ if (unpackageFlag) {
   console.info(`📦 Unpacking dictionaries...`);
 
   try {
-    Unpackage();
+    unpacking();
   }
   catch (error) {
     console.error(`❌ Unpacking dictionaries failed.`, error);
@@ -74,7 +74,7 @@ if (unpackageFlag) {
 
 
 /* Packaging logic */
-function Package() {
+function packaging() {
   if (!dictPaths.length) {
     console.warn("⚠️  No dict files found. This is likely not desired.");
     process.exit(1);
@@ -128,7 +128,7 @@ function Package() {
 }
 
 /* Unpacking logic */
-function Unpackage() {
+function unpacking() {
   // Check if package exists
   if (!fs.existsSync(packageDestination)) {
     console.warn(`⚠️  Package not found at`, colors.gray(packageDestination));
@@ -178,6 +178,7 @@ function walkPackage(packageContent: object, currentPath: string) {
     }
   });
 };
+
 function isFileOrDir(key: string): "file" | "dir" | "none" {
   if (key.startsWith(packageNameModifiers.file.prefix) && key.endsWith(packageNameModifiers.file.suffix)) return "file";
   if (key.startsWith(packageNameModifiers.dir.prefix) && key.endsWith(packageNameModifiers.dir.suffix)) return "dir";
