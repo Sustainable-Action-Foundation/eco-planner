@@ -21,7 +21,7 @@ export function tsDictStripper(fileContent: string, filePath?: string): object {
   /** Strips away typescript syntax and formats to json */
   function format(content: string): string {
     return content
-      /* Save functions in a safe format */
+      /* Save functions in a safe format. (...args) => `Text ${arg1} more text ${arg2}` --> "Text ${arg1} more text ${arg2}" */
       .replaceAll(/\(.*\)\s?=>\s?`(.*)`(?=,?$)/gmu, (_fullMatch, functionBody) => `"${functionBody}"`)
       /* URI encode every key and value */
       .replaceAll(/(?<=^\s*").*(?=":)|(?<=^\s*".*":\s").*(?=")/gmu, match => encodeURIComponent(match))
@@ -59,12 +59,12 @@ export function tsDictMaker(dict: object): string {
       .replaceAll(/(?<=":)(?=["\{])/gmu, " ")
       /* Re-add line breaks */
       .replaceAll(/(?<=\{)|(?<=\},)|(?<=",)/gmu, "\n")
+      /* Add `[locale]` to each leaf */
+      .replaceAll(/(?<="[^"]*":\s"[^"]*",\r?\n\})(?=,)/gmu, "[locale]")
       /* Resolve comments */
       .replaceAll(new RegExp(`^\\s*"${encodeURIComponent(safeCommentKey)}\\d+":\\s"([^"]*)"`, "gmu"), (_fullMatch, commentBody) => decodeURIComponent(commentBody))
       /* Remove commas on comments */
       .replaceAll(/(?<=\/\*\*?.*\*\/|\/\/.*),/gmu, "")
-      /* Add `[locale]` to each leaf */
-      .replaceAll(/(?<="\w*":\s"[^"]*",\r?\n\})(?=,)/gmu, "[locale]")
       /* Indent */
       .split("\n").map(line => {
         if (line.includes("}")) indentDepth--;
@@ -75,10 +75,14 @@ export function tsDictMaker(dict: object): string {
       /* URI decode every key and value */
       .replaceAll(/(?<=^\s*").*(?=":)|(?<=^\s*".*":\s").*(?=")/gmu, match => decodeURIComponent(match))
       /* Resolve functions */
-      .replaceAll(/(?<="\w*":\s?)"(.*\$.*\{.*\}.*)"(?=,?)/gmu, (_fullMatch, functionBody) => {
-        const placeholders = functionBody.matchAll(/(?<=\$\{)[^{}]*(?=\})/gmu);
-        const args = [...placeholders].map(placeholder => `${placeholder}: string`).join(", ");
-        return `(${args}) => \`${decodeURIComponent(functionBody)}\``;
+      .replaceAll(/(?<="[^"]*":\s?)"(.*\$.*\{.*\}.*)"(?=,?)/gmu, (_fullMatch, functionBody) => {
+        // The arguments used in the function body as a list of strings
+        const placeholders: string[] = [...functionBody.matchAll(/(?<=\$\{)[^{}]*(?=\})/gmu)].map(match => match[0]);
+        const uniquePlaceholders = [...new Set(placeholders)];
+        const args = uniquePlaceholders.map((placeholder: string) => `${placeholder}: string`);
+        // Sort alphabetically for consistency so all languages have the same order
+        const sortedArgs = args.sort();
+        return `(${sortedArgs.join(", ")}) => \`${decodeURIComponent(functionBody)}\``;
       });
   };
 }
