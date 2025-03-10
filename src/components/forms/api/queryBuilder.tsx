@@ -3,20 +3,20 @@
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
 import formSubmitter from "@/functions/formSubmitter";
+import { ApiTableContent, ApiTableDetails } from "@/lib/api/apiTypes";
+import { externalDatasetBaseUrls } from "@/lib/api/utility";
+import { getPxWebTableContent } from "@/lib/pxWeb/getPxWebTableContent";
 import { getPxWebTableDetails } from "@/lib/pxWeb/getPxWebTableDetails";
 import { getPxWebTables } from "@/lib/pxWeb/getPxWebTables";
-import { externalDatasetBaseUrls } from "@/lib/api/utility";
+import getTrafaTableContent from "@/lib/trafa/getTrafaTableContent";
+import getTrafaTableDetails from "@/lib/trafa/getTrafaTableDetails";
+import getTrafaTables from "@/lib/trafa/getTrafaTables";
 import { Goal } from "@prisma/client";
 import Image from "next/image";
 import { FormEvent, useContext, useEffect, useRef, useState } from "react";
 import FormWrapper from "../formWrapper";
 import parentDict from "../forms.dict.json" with { type: "json" };
 import styles from './queryBuilder.module.css';
-import getTrafaTables from "@/lib/trafa/getTrafaTables";
-import getTrafaTableDetails from "@/lib/trafa/getTrafaTableDetails";
-import { ApiTableContent, ApiTableDetails } from "@/lib/api/apiTypes";
-import { getPxWebTableContent } from "@/lib/pxWeb/getPxWebTableContent";
-import getTrafaTableContent from "@/lib/trafa/getTrafaTableContent";
 
 export default function QueryBuilder({
   goal,
@@ -213,6 +213,28 @@ export default function QueryBuilder({
               <>
                 <fieldset className="margin-block-100 smooth padding-50" style={{ border: '1px solid var(--gray-90)' }}>
                   <legend className="padding-inline-50">
+                    <strong>{dict.tableDetails.chooseMetricForTable[locale]}</strong>
+                  </legend>
+                  <label key="metric" className="block margin-block-75">
+                    <select className={`block margin-block-25 metric`}
+                      required={true}
+                      name="metric"
+                      id="metric"
+                      defaultValue={tableDetails.metrics && tableDetails.metrics.length == 1 ? tableDetails.metrics[0].label : undefined}>
+                      {
+                        tableDetails.metrics && tableDetails.metrics.length != 1 &&
+                        <option value="">{dict.tableDetails.chooseMetric[locale]}</option>
+                      }
+                      {tableDetails.metrics && tableDetails.metrics.map(metric => (
+                        <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
+                      ))}
+                    </select>
+
+
+                  </label>
+                </fieldset>
+                <fieldset className="margin-block-100 smooth padding-50" style={{ border: '1px solid var(--gray-90)' }}>
+                  <legend className="padding-inline-50">
                     <strong>{dict.tableDetails.chooseValues[locale]}</strong>
                   </legend>
                   {tableDetails.times.length > 1 &&
@@ -275,28 +297,6 @@ export default function QueryBuilder({
                       ))}
                     </label>
                   ))}
-                </fieldset>
-                <fieldset className="margin-block-100 smooth padding-50" style={{ border: '1px solid var(--gray-90)' }}>
-                  <legend className="padding-inline-50">
-                    <strong>{dict.tableDetails.chooseMetricForTable[locale]}</strong>
-                  </legend>
-                  <label key="metric" className="block margin-block-75">
-                    <select className={`block margin-block-25 metric`}
-                      required={true}
-                      name="metric"
-                      id="metric"
-                      defaultValue={tableDetails.metrics && tableDetails.metrics.length == 1 ? tableDetails.metrics[0].label : undefined}>
-                      {
-                        tableDetails.metrics && tableDetails.metrics.length != 1 &&
-                        <option value="">{dict.tableDetails.chooseMetric[locale]}</option>
-                      }
-                      {tableDetails.metrics && tableDetails.metrics.map(metric => (
-                        <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
-                      ))}
-                    </select>
-
-
-                  </label>
                 </fieldset>
               </>
             )}
