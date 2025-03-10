@@ -62,7 +62,7 @@ export function tsDictMaker(dict: object): string {
       /* Add `[locale]` to each leaf */
       .replaceAll(/(?<="[^"]*":\s"[^"]*",\r?\n\})(?=,)/gmu, "[locale]")
       /* Resolve comments */
-      .replaceAll(new RegExp(`^\\s*"${encodeURIComponent(safeCommentKey)}\\d+":\\s"([^"]*)"`, "gmu"), (_fullMatch, commentBody) => decodeURIComponent(commentBody))
+      .replaceAll(new RegExp(`^\\s*"${encodeURIComponent(safeCommentKey)}\\d*":\\s"([^"]*)"`, "gmu"), (_fullMatch, commentBody) => decodeURIComponent(commentBody))
       /* Remove commas on comments */
       .replaceAll(/(?<=\/\*\*?.*\*\/|\/\/.*),/gmu, "")
       /* Indent */

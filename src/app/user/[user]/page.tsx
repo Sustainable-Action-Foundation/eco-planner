@@ -122,7 +122,7 @@ export default async function Page({
           {session.user?.username === username ?
             dict.myPosts
             :
-            `${userdata.username}${dict.usersPosts}`
+            dict.usersPosts(username)
           }
         </h2>
 
@@ -138,8 +138,8 @@ export default async function Page({
                         <div className='inline-block width-100' style={{verticalAlign: 'middle'}}>
                           <div className='flex justify-content-space-between align-items-center'>
                               <a href={`/metaRoadmap/${metaRoadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
-                                <h4 className='font-weight-500 margin-0'>{metaRoadmap.name} </h4>
-                                <p className='margin-0'>{dict.amountOfRoadmaps} {metaRoadmap.childRoadmaps.length}</p>
+                                <h4 className='font-weight-500 margin-0'>{metaRoadmap.name}</h4>
+                                <p className='margin-0'>{dict.roadmapCount(metaRoadmap.roadmapVersions.length.toString())}</p>
                               </a> 
                             <TableMenu object={metaRoadmap} />
                           </div>
@@ -152,7 +152,7 @@ export default async function Page({
 
           {displayedRoadmaps.length > 0 ?
             <section className='margin-block-300'>
-              <h3 className='margin-top-0'>{dict.roadmaps}</h3>
+              <h3 className='margin-top-0'>{dict.versions}</h3>
               <ul className={`${styles.itemsList}`}>
                 {displayedRoadmaps.map((roadmap, index) =>
                   <li key={index}>
@@ -160,7 +160,7 @@ export default async function Page({
                       <div className='flex justify-content-space-between align-items-center'>
                         <a href={`/roadmap/${roadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
                           <h4 className='font-weight-500 margin-0'>{roadmap.metaRoadmap.name}</h4>
-                          <p className='margin-0'>{dict.amountOfGoals} {roadmap._count.goals}</p>
+                          <p className='margin-0'>{dict.goalCount(roadmap._count.goals.toString())}</p>
                         </a> 
                         <TableMenu object={roadmap} />
                       </div>

@@ -98,8 +98,8 @@ export const createDict = (locale: Locale) => ({
           "sv": "Redigera åtgärd",
         }[locale],
         "editAction": {
-          "en": (actionName: string, roadmapName: string, roadmapVersion: string) => `Edit action: ${actionName}, of roadmap ${roadmapName} v${roadmapVersion}`,
-          "sv": (actionName: string, roadmapName: string, roadmapVersion: string) => `Redigera åtgärd: ${actionName}, av färdplan ${roadmapName} v${roadmapVersion}`,
+          "en": (actionName: string, roadmapName: string, roadmapVersion: string) => `Edit action: ${actionName} of roadmap ${roadmapName} v${roadmapVersion}`,
+          "sv": (actionName: string, roadmapName: string, roadmapVersion: string) => `Redigera åtgärd: ${actionName} av färdplan ${roadmapName} v${roadmapVersion}`,
         }[locale],
       },
     },

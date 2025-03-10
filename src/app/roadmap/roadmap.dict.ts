@@ -44,7 +44,7 @@ export const createDict = (locale: Locale) => ({
           }[locale],
           "didYouMeanTo": {
             "en": "Did you mean to edit the common metadata for the entire roadmap? If so, you can ",
-            "sv": "Ville du redigera den gemensamma metadatan för hela färdplansserien? I så fall kan du ",
+            "sv": "Ville du redigera den gemensamma metadatan för hela färdplansserien? Isåfall kan du ",
           }[locale],
           "goHere": {
             "en": "go here",
@@ -61,7 +61,7 @@ export const createDict = (locale: Locale) => ({
         }[locale],
         "didYouMeanTo": {
           "en": "Did you mean to edit the common metadata for the entire roadmap? If so, you can ",
-          "sv": "Ville du redigera den gemensamma metadatan för hela färdplansserien? I så fall kan du ",
+          "sv": "Ville du redigera den gemensamma metadatan för hela färdplansserien? Isåfall kan du ",
         }[locale],
         "goHere": {
           "en": "go here",

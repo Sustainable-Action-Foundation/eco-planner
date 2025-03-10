@@ -11,24 +11,24 @@ export const createDict = (locale: Locale) => ({
         "sv": "Mina inlägg",
       }[locale],
       "usersPosts": {
-        "en": "'s posts",
-        "sv": "s inlägg",
+        "en": (username: string) => `${username}'s posts`,
+        "sv": (username: string) => `${username}s inlägg`,
       }[locale],
       "roadmapSeries": {
         "en": "Roadmap series",
         "sv": "Färdplansserier",
       }[locale],
-      "amountOfRoadmaps": {
-        "en": "Amount of roadmaps:",
-        "sv": "Antal färdplaner:",
+      "roadmapCount": {
+        "en": (roadmapCount: string) => `Contains ${roadmapCount} versions`,
+        "sv": (roadmapCount: string) => `Innehåller ${roadmapCount} versioner`,
       }[locale],
-      "roadmaps": {
-        "en": "Roadmaps",
-        "sv": "Färdplaner",
+      "versions": {
+        "en": "Versions",
+        "sv": "Versioner",
       }[locale],
-      "amountOfGoals": {
-        "en": "Amount of goals:",
-        "sv": "Antal målbanor:",
+      "goalCount": {
+        "en": (goalCount: string) => `Contains ${goalCount} goals`,
+        "sv": (goalCount: string) => `Innehåller ${goalCount} målbanor`,
       }[locale],
     },
   },
