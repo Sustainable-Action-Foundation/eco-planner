@@ -15,10 +15,6 @@ export const createDict = (locale: Locale) => ({
           "en": "Edit action",
           "sv": "Redigera åtgärd",
         }[locale],
-        "editActionAlt": {
-          "en": "Edit action: ",
-          "sv": "Redigera åtgärd: ",
-        }[locale],
       },
       "expectedEffects": {
         "expectedEffect": {
@@ -102,16 +98,8 @@ export const createDict = (locale: Locale) => ({
           "sv": "Redigera åtgärd",
         }[locale],
         "editAction": {
-          "en": "Edit action:",
-          "sv": "Redigera åtgärd:",
-        }[locale],
-        "ofRoadmap": {
-          "en": "of roadmap",
-          "sv": "under färdplanen",
-        }[locale],
-        "ofRoadmapVersion": {
-          "en": "version",
-          "sv": "version",
+          "en": (actionName: string, roadmapName: string, roadmapVersion: string) => `Edit action: ${actionName}, of roadmap ${roadmapName} v${roadmapVersion}`,
+          "sv": (actionName: string, roadmapName: string, roadmapVersion: string) => `Redigera åtgärd: ${actionName}, av färdplan ${roadmapName} v${roadmapVersion}`,
         }[locale],
       },
     },

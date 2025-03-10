@@ -372,7 +372,7 @@ export function InheritingBaseline() {
 
       {goalData &&
         <label className="block margin-block-75">
-          {dict.inheritingBaseline.goalData.basline}
+          {dict.inheritingBaseline.goalData.baseline}
           <input name="baselineDataSeries" id="baselineDataSeries" type="text" readOnly value={dataSeriesString} />
         </label>
       }

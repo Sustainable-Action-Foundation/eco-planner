@@ -223,7 +223,7 @@ export const createDict = (locale: Locale) => ({
             }[locale],
             "extraDescription": {
               "en": "Extra description of this roadmap version",
-              "sv": "Extra beskrivning av denhär färdplansversionen",
+              "sv": "Extra beskrivning av den här färdplansversionen",
             }[locale],
           },
           "goals": {
@@ -608,7 +608,7 @@ export const createDict = (locale: Locale) => ({
           }[locale],
         },
         "goalData": {
-          "basline": {
+          "baseline": {
             "en": "Baseline, copied from selected goal",
             "sv": "Baslinje, kopierad från vald målbana",
           }[locale],
@@ -801,7 +801,7 @@ export const createDict = (locale: Locale) => ({
           "en": "Sort by:",
           "sv": "Sortera efter:",
         }[locale],
-        "sotringOptions": {
+        "sortingOptions": {
           "default": {
             "en": "Default",
             "sv": "Standard",
@@ -1085,7 +1085,7 @@ export const createDict = (locale: Locale) => ({
       "startingYearSection": {
         "title": {
           "en": "Choose years for the action",
-          "sv": "Välj pågående år för din årgärd",
+          "sv": "Välj pågående år för din åtgärd",
         }[locale],
         "startingYear": {
           "en": "Starting year",

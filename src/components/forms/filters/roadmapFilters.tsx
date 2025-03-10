@@ -67,11 +67,11 @@ export default function RoadmapFilters() {
           style={{ fontSize: '1rem', minHeight: 'calc(24px + 1rem)' }}
           defaultValue={searchParams.get('sortBy') ?? ""} onChange={(e) => { updateStringParam('sortBy', e.target.value) }}
         >
-          <option value="">{dict.menu.sotringOptions.default}</option>
-          <option value={RoadmapSortBy.Alpha}>{dict.menu.sotringOptions.alpha}</option>
-          <option value={RoadmapSortBy.AlphaReverse}>{dict.menu.sotringOptions.alphaReverse}</option>
-          <option value={RoadmapSortBy.GoalsFalling}>{dict.menu.sotringOptions.goalsFalling}</option>
-          <option value={RoadmapSortBy.GoalsRising}>{dict.menu.sotringOptions.goalsRising}</option>
+          <option value="">{dict.menu.sortingOptions.default}</option>
+          <option value={RoadmapSortBy.Alpha}>{dict.menu.sortingOptions.alpha}</option>
+          <option value={RoadmapSortBy.AlphaReverse}>{dict.menu.sortingOptions.alphaReverse}</option>
+          <option value={RoadmapSortBy.GoalsFalling}>{dict.menu.sortingOptions.goalsFalling}</option>
+          <option value={RoadmapSortBy.GoalsRising}>{dict.menu.sortingOptions.goalsRising}</option>
         </select>
       </label>
       <label className='flex align-items-center gap-50 padding-50 font-weight-bold button smooth transparent'>

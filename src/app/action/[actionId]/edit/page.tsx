@@ -41,11 +41,7 @@ export default async function Page({ params, }: { params: { actionId: string }, 
 
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          {`
-          ${dict.editAction} ${action.name} 
-          ${dict.ofRoadmap} ${action.roadmap.metaRoadmap.name}
-          ${dict.ofRoadmapVersion} ${`v${action.roadmap.version}` || "ERROR"}
-          `.trim()}
+          {dict.editAction(action.name, action.roadmap.metaRoadmap.name, `${action.roadmap.version}`)}
         </h1>
         <ActionForm roadmapId={action.roadmapId} currentAction={action} roadmapAlternatives={[]} />
       </div>
