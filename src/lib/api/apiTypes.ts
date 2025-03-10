@@ -43,6 +43,7 @@ export type ScbVariable = {
   name: string,
   label: string,
   optional: boolean,
+  option: boolean,
   elimination: boolean, // What is this? (this is whether its optional or not, but reversed)
   show: "value", // What is this and what are the other possible values?
   categoryNoteMandatory?: {[variableValueId: string]: { [arrayIndex: string]: boolean}}, // What is this for?

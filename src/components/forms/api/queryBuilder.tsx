@@ -101,13 +101,11 @@ export default function QueryBuilder({
       const formData = new FormData(formRef.current);
       const query = buildQuery(formData);
       const tableId = formData.get("externalTableId") as string ?? "";
-      console.log("Table ID:", tableId);
-      console.log("Query:", query);
-      console.log("Table Details:", tableDetails);
       if (dataSource == "SCB") {
-        getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource, locale).then(result => { console.log(result); setTableContent(result); });
+        getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource, locale).then(result => { setTableContent(result); });
       } else if (dataSource == "Trafa") {
-        getTrafaTableContent(tableId, query, locale).then(result => { console.log(result); setTableContent(result); });
+        getTrafaTableContent(tableId, query, locale).then(result => { setTableContent(result); });
+        getTrafaTableDetails(tableId, query, locale).then(result => { setTableDetails(result); });
       }
     }
   }
@@ -141,19 +139,28 @@ export default function QueryBuilder({
     }
   }
 
+  function clearTableDetails() {
+    setTableDetails(null);
+    // TODO - clear the selection in the variable/metric form as well
+  }
+
   function handleDataSourceSelect(dataSource: string) {
     setDataSource(dataSource);
-    setTableDetails(null);
+    clearTableDetails();
   }
 
   function handleTableSelect(tableId: string) {
     if (!externalDatasetBaseUrls[dataSource as keyof typeof externalDatasetBaseUrls]) return;
     if (!tableId) return;
+    clearTableDetails();
+
+    const query = buildQuery(new FormData(formRef.current as HTMLFormElement));
+    console.log(query);
 
     if (dataSource == "SCB") {
       getPxWebTableDetails(tableId, dataSource, locale).then(result => setTableDetails(result));
     } else if (dataSource == "Trafa") {
-      getTrafaTableDetails(tableId, locale).then(result => setTableDetails(result));
+      getTrafaTableDetails(tableId, query, locale).then(result => setTableDetails(result));
     }
   }
 
@@ -257,7 +264,8 @@ export default function QueryBuilder({
                       </select>
                     </label>
                   }
-                  {tableDetails.variables.map(variable => (
+                  {tableDetails.variables.map(variable => { 
+                    if (variable.option) return (
                     <label key={variable.name} className="block margin-block-75">
                       {variable.label[0].toUpperCase() + variable.label.slice(1)}
                       {// Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
@@ -277,13 +285,15 @@ export default function QueryBuilder({
                         ))}
                       </select>
                     </label>
-                  ))}
-                  {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => (
+                  )})}
+                  {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
+                    if (hierarchy.children?.some(variable => variable.option)) return (
                     <label key={hierarchy.name} className="block margin-block-75">
                       {hierarchy.label}
                       {// TODO - indent all children
                       }
-                      {hierarchy.children && hierarchy.children.map(variable => (
+                      {hierarchy.children && hierarchy.children.map(variable => {
+                        if (variable.option) return (
                         <label key={variable.name} className="block margin-block-75">
                           {variable.label}
                           <select className={`block margin-block-25 ${variable.label}`}
@@ -299,9 +309,9 @@ export default function QueryBuilder({
                             ))}
                           </select>
                         </label>
-                      ))}
+                      )})}
                     </label>
-                  ))}
+                  )})}
                 </fieldset>
               </>
             )}

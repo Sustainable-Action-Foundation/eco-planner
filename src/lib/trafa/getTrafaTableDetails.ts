@@ -2,9 +2,33 @@ import getTrafaTables from "./getTrafaTables";
 import { StructureItem, trafaStructureUrl } from "./trafaTypes";
 import { ApiTableDetails, TrafaFilter, TrafaHierarchy, TrafaMetric, TrafaVariable, TrafaVariableValue } from "../api/apiTypes";
 
-export default async function getTrafaTableDetails(tableId: string, language: "sv" | "en" = "sv") {
+export default async function getTrafaTableDetails(tableId: string, selection: { variableCode: string, valueCodes: string[] }[], language: "sv" | "en" = "sv") {
+  // Helper function for generating a string that will be appended to searchParams of the url
+  function getSearchQueryString(){
+    const variableQueries: string[] = [];
+    let metric: string = "";
+    for (const object of selection) {
+      console.log(object);
+      if (object.variableCode == "metric") {
+        metric = object.valueCodes.join("|");
+      } else {
+        variableQueries.push([object.variableCode, object.valueCodes.join(",")].join(":"));
+      }
+    }
+    let searchQuery = "";
+    if (metric.length > 0) {
+      searchQuery += "|" + metric;
+    }
+    if (variableQueries.length > 0) {
+      searchQuery += "|" + variableQueries.join("|");
+    }
+    return searchQuery;
+  }
+
+  const searchQuery = getSearchQueryString();
+
   const url = new URL(trafaStructureUrl);
-  url.searchParams.append('query', `${tableId}`);
+  url.searchParams.append('query', `${tableId}|ar${searchQuery}`);
   // const locale = language;
   language = "sv"
   if (language) url.searchParams.append("lang", language);
