@@ -141,7 +141,12 @@ export default function QueryBuilder({
     }
   }
 
-  function handleSelect(tableId: string) {
+  function handleDataSourceSelect(dataSource: string) {
+    setDataSource(dataSource);
+    setTableDetails(null);
+  }
+
+  function handleTableSelect(tableId: string) {
     if (!externalDatasetBaseUrls[dataSource as keyof typeof externalDatasetBaseUrls]) return;
     if (!tableId) return;
 
@@ -175,7 +180,7 @@ export default function QueryBuilder({
             <fieldset>
               <label className="margin-block-75">
                 {dict.dataSource.dataSource[locale]}
-                <select className="block margin-block-25" required name="externalDataset" id="externalDataset" onChange={e => { setDataSource(e.target.value) }}>
+                <select className="block margin-block-25" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
                   <option value="">{dict.dataSource.chooseSource[locale]}</option>
                   {Object.keys(externalDatasetBaseUrls).map((name) => (
                     <option key={name} value={name}>{name}</option>
@@ -199,7 +204,7 @@ export default function QueryBuilder({
                       {tables && tables.map(({ tableId: id, label }) => (
                         <label key={id} className={`${styles.tableSelect} block padding-block-25`}>
                           {label}
-                          <input type="radio" value={id} name="externalTableId" onChange={e => handleSelect(e.target.value)} />
+                          <input type="radio" value={id} name="externalTableId" onChange={e => handleTableSelect(e.target.value)} />
                         </label>
                       ))}
                     </div>
