@@ -103,6 +103,7 @@ export default function QueryBuilder({
       const tableId = formData.get("externalTableId") as string ?? "";
       if (dataSource == "SCB") {
         getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource, locale).then(result => { setTableContent(result); });
+        getPxWebTableDetails(tableId, dataSource, locale).then(result => { setTableDetails(result); });
       } else if (dataSource == "Trafa") {
         getTrafaTableContent(tableId, query, locale).then(result => { setTableContent(result); });
         getTrafaTableDetails(tableId, query, locale).then(result => { setTableDetails(result); });
@@ -155,7 +156,6 @@ export default function QueryBuilder({
     clearTableDetails();
 
     const query = buildQuery(new FormData(formRef.current as HTMLFormElement));
-    console.log(query);
 
     if (dataSource == "SCB") {
       getPxWebTableDetails(tableId, dataSource, locale).then(result => setTableDetails(result));
