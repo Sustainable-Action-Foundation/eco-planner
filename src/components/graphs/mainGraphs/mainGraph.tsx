@@ -186,6 +186,7 @@ export default function MainGraph({
     });
   }
 
+  console.log("historicalData:",historicalData);
   if (historicalData) {
     const historicalSeries = [];
     for (const i of historicalData.data) {

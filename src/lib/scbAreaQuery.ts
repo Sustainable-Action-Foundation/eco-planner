@@ -1,7 +1,8 @@
 'use server';
 
 import { unstable_cache } from "next/cache";
-import { getTableContent } from "./pxWeb/getTableContent";
+import { ApiTableContent } from "./api/apiTypes";
+import { getPxWebTableContent } from "./pxWeb/getPxWebTableContent";
 
 /**
  * Queries SCB for area data.
@@ -24,13 +25,13 @@ const getCachedQuery = unstable_cache(
       { variableCode: "Tid", valueCodes: ["TOP(1)"] }
     ];
 
-    const result = await getTableContent("TAB2946", selection, "SCB", "sv");
+    const result: ApiTableContent = await getPxWebTableContent("TAB2946", selection, "SCB", "sv");
 
     if (!result) return null;
 
     const areaData = result.data;
-    const area = areaData.find((data) => data.key[0] == areaCode)?.values[0];
-    const parentArea = parentAreaCode && areaData.find((data) => data.key[0] == parentAreaCode)?.values[0];
+    const area = areaData.find((data) => data.key[0].value == areaCode)?.values[0];
+    const parentArea = parentAreaCode && areaData.find((data) => data.key[0].value == parentAreaCode)?.values[0];
 
     return {
       area,

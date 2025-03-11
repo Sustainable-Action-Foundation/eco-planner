@@ -1,18 +1,17 @@
 'use client';
 
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
-import { Goal } from "@prisma/client";
-import { FormEvent, useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import styles from './queryBuilder.module.css'
-import { PxWebApiV2TableContent, PxWebApiV2TableDetails } from "@/lib/pxWeb/pxWebApiV2Types";
-import { externalDatasetBaseUrls } from "@/lib/pxWeb/utility";
-import { getTables } from "@/lib/pxWeb/getTables";
-import { getTableDetails } from "@/lib/pxWeb/getTableDetails";
-import { getTableContent } from "@/lib/pxWeb/getTableContent";
-import filterTableContentKeys from "@/lib/pxWeb/filterTableContentKeys";
 import formSubmitter from "@/functions/formSubmitter";
+import { ApiTableContent, ApiTableDetails } from "@/lib/api/apiTypes";
+import { getPxWebTableContent } from "@/lib/pxWeb/getPxWebTableContent";
+import { getPxWebTableDetails } from "@/lib/pxWeb/getPxWebTableDetails";
+import { getPxWebTables } from "@/lib/pxWeb/getPxWebTables";
+import { externalDatasetBaseUrls } from "@/lib/pxWeb/utility";
+import { Goal } from "@prisma/client";
+import Image from "next/image";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import FormWrapper from "../formWrapper";
+import styles from './queryBuilder.module.css';
 
 export default function QueryBuilder({
   goal,
@@ -21,9 +20,9 @@ export default function QueryBuilder({
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [dataSource, setDataSource] = useState<string>("" as keyof typeof externalDatasetBaseUrls);
-  const [tables, setTables] = useState<{ id: string, label: string }[] | null>(null);
-  const [tableDetails, setTableDetails] = useState<PxWebApiV2TableDetails | null>(null);
-  const [tableContent, setTableContent] = useState<PxWebApiV2TableContent | null>(null);
+  const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
+  const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
+  const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -35,7 +34,7 @@ export default function QueryBuilder({
 
     const query = (formRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
 
-    getTables(dataSource, query).then(result => setTables(result));
+    getPxWebTables(dataSource, query).then(result => setTables(result));
   }, [dataSource]);
 
   function buildQuery(formData: FormData) {
@@ -49,13 +48,13 @@ export default function QueryBuilder({
       if (key == tableSearchInputName) return;
       // The time variable is special, as we want to fetch every period after (and including) the selected one
       if (key == formRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
-        queryObject.push({ variableCode: key, valueCodes: [`FROM(${value as string})`] });
+        queryObject.push({ variableCode: key, valueCodes: [`FROM(${value})`] });
         return;
       }
-      queryObject.push({ variableCode: key, valueCodes: [value as string] });
+      queryObject.push({ variableCode: key, valueCodes: [value] });
     });
 
-    return queryObject;
+    return queryObject as { variableCode: string, valueCodes: string[] }[];
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -88,7 +87,7 @@ export default function QueryBuilder({
     if (formRef.current.checkValidity()) {
       const formData = new FormData(formRef.current);
       const query = buildQuery(formData);
-      getTableContent(formData.get("externalTableId") as string ?? "", query, dataSource).then(result => setTableContent(filterTableContentKeys(result)));
+      getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource).then(result => setTableContent(result));
     }
   }
 
@@ -108,14 +107,14 @@ export default function QueryBuilder({
   function handleSearch(query?: string) {
     if (!externalDatasetBaseUrls[dataSource as keyof typeof externalDatasetBaseUrls]) return;
 
-    getTables(dataSource, query).then(result => setTables(result));
+    getPxWebTables(dataSource, query).then(result => setTables(result));
   }
 
   function handleSelect(tableId: string) {
     if (!externalDatasetBaseUrls[dataSource as keyof typeof externalDatasetBaseUrls]) return;
     if (!tableId) return;
 
-    getTableDetails(tableId, dataSource).then(result => setTableDetails(result));
+    getPxWebTableDetails(tableId, dataSource).then(result => setTableDetails(result));
   }
 
   return (
@@ -134,7 +133,8 @@ export default function QueryBuilder({
         <p>Lägg till en historisk dataserie till {goal.name ?? goal.indicatorParameter}</p>
 
         <form ref={formRef} onChange={tryGetResult} onSubmit={handleSubmit}>
-          {/* Hidden disabled submit button to prevent accidental submisson */}
+          {// Hidden disabled submit button to prevent accidental submisson
+          }
           <button type="submit" className="display-none" disabled></button>
 
           <FormWrapper>
@@ -149,7 +149,8 @@ export default function QueryBuilder({
                 </select>
               </label>
 
-              {/* TODO: Check that this works well with dynamic keyboards (smartphone/tablet) */}
+              {// TODO: Check that this works well with dynamic keyboards (smartphone/tablet)
+              }
               {dataSource ?
                 <>
                   <div className="flex gap-25 align-items-flex-end margin-block-75">
@@ -162,7 +163,7 @@ export default function QueryBuilder({
 
                   <div className="padding-25 smooth" style={{ border: '1px solid var(--gray-90)' }}>
                     <div className={styles.temporary}>
-                      {tables && tables.map(({ id, label }) => (
+                      {tables && tables.map(({ tableId: id, label }) => (
                         <label key={id} className={`${styles.tableSelect} block padding-block-25`}>
                           {label}
                           <input type="radio" value={id} name="externalTableId" onChange={e => handleSelect(e.target.value)} />
@@ -174,35 +175,75 @@ export default function QueryBuilder({
                 : null}
             </fieldset>
 
-            <fieldset className="margin-block-100 smooth padding-50" style={{ border: '1px solid var(--gray-90)' }}>
-              <legend className="padding-inline-50">
-                <strong>Välj värden för tabell</strong>
-              </legend>
-              {tableDetails && (
-                <>
-                  {tableDetails.variables.map(variable => (
-                    <label key={variable.id} className="block margin-block-75">
-                      {/* Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }` */}
-                      {variable.type == "TimeVariable" ? "Startperiod" : variable.label} {!variable.elimination && <span style={{ color: "red" }}>*</span>}
-                      <select className={`block margin-block-25 ${variable.type}`}
-                        required={!variable.elimination}
-                        name={variable.id}
-                        id={variable.id}
-                        // If only one value is available, pre-select it
-                        defaultValue={variable.values.length == 1 ? variable.values[0].code : undefined}>
-                        { // If only one value is available, don't show a placeholder option
-                          variable.values.length != 1 &&
-                          <option value="">Välj ett värde</option>
-                        }
-                        {variable.values.map(value => (
-                          <option key={value.code} value={value.code} lang={tableDetails.language}>{value.label}</option>
+            {tableDetails && (
+              <>
+                <fieldset className="margin-block-100 smooth padding-50" style={{ border: '1px solid var(--gray-90)' }}>
+                  <legend className="padding-inline-50">
+                    <strong>Välj mätvärde för tabell</strong>
+                  </legend>
+                  <label key="metric" className="block margin-block-75">
+                    <select className={`block margin-block-25 metric`}
+                      required={true}
+                      name="metric"
+                      id="metric"
+                      defaultValue={tableDetails.metrics && tableDetails.metrics.length == 1 ? tableDetails.metrics[0].label : undefined}>
+                      {
+                        tableDetails.metrics && tableDetails.metrics.length != 1 &&
+                        <option value="">Välj mätvärde</option>
+                      }
+                      {tableDetails.metrics && tableDetails.metrics.map(metric => (
+                        <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
+                      ))}
+                    </select>
+
+
+                  </label>
+                </fieldset>
+                <fieldset className="margin-block-100 smooth padding-50" style={{ border: '1px solid var(--gray-90)' }}>
+                  <legend className="padding-inline-50">
+                    <strong>Välj värden för tabell</strong>
+                  </legend>
+                  {tableDetails.times.length > 1 &&
+                    <label key="Tid" className="block margin-block-75">
+                      Välj starttid
+                      <select className={`block margin-block-25 TimeVariable`}
+                        required={false}
+                        name="Tid"
+                        id="Tid"
+                        defaultValue={tableDetails.times && tableDetails.times.length == 1 ? tableDetails.times[0].label : undefined}>
+                        <option value="">Välj tidsperiod</option>
+                        {tableDetails.times.map(time => (
+                          <option key={time.name} value={time.name} lang={tableDetails.language}>{time.id}</option>
                         ))}
                       </select>
                     </label>
-                  ))}
-                </>
-              )}
-            </fieldset>
+                  }
+                  {tableDetails.variables.map(variable => {
+                    if (variable.option) return (
+                      <label key={variable.name} className="block margin-block-75">
+                        {variable.label[0].toUpperCase() + variable.label.slice(1)}
+                        {// Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
+                        }
+                        <select className={`block margin-block-25 ${variable.label}`}
+                          required={!variable.optional}
+                          name={variable.name}
+                          id={variable.name}
+                          // If only one value is available, pre-select it
+                          defaultValue={variable.values && variable.values.length == 1 ? variable.values[0].label : undefined}>
+                          { // If only one value is available, don't show a placeholder option
+                            variable.values && variable.values.length > 1 &&
+                            <option value="">Välj värde</option>
+                          }
+                          {variable.values && variable.values.map(value => (
+                            <option key={value.label} value={value.name} lang={tableDetails.language}>{value.label}</option>
+                          ))}
+                        </select>
+                      </label>
+                    )
+                  })}
+                </fieldset>
+              </>
+            )}
           </FormWrapper>
 
           {tableContent ? (
@@ -216,13 +257,23 @@ export default function QueryBuilder({
                   </tr>
                 </thead>
                 <tbody>
-                  {tableContent.data.map((row, index) => (
-                    index < 5 &&
-                    <tr key={row.key[0]}>
-                      <td>{row.key[0]}</td>
-                      <td>{row.values[0]}</td>
-                    </tr>
-                  ))}
+                  {
+
+                    tableContent.data.map((row, index) => {
+                      // Find the column of the time value
+                      let timeColumnIndex = 0;
+                      tableContent.columns.map((column, index) => {
+                        if (column.type == "t") timeColumnIndex = index
+                      })
+                      return (
+                        index < 5 &&
+                        <tr key={row.key[timeColumnIndex].value}>
+                          <td>{row.key[timeColumnIndex].value}</td>
+                          <td>{row.values[0]}</td>
+                        </tr>
+                      )
+                    })
+                  }
                 </tbody>
               </table>
             </div>
