@@ -1,7 +1,8 @@
 'use server';
 
 import { unstable_cache } from "next/cache";
-import { getTableContent } from "./pxWeb/getTableContent";
+import { ApiTableContent } from "./api/apiTypes";
+import { getPxWebTableContent } from "./pxWeb/getPxWebTableContent";
 
 /**
  * Queries SCB for population data.
@@ -23,13 +24,13 @@ const getCachedQuery = unstable_cache(
       { variableCode: "Tid", valueCodes: ["TOP(1)"] }
     ];
 
-    const result = await getTableContent("TAB5444", selection, "SCB", "sv");
+    const result: ApiTableContent = await getPxWebTableContent("TAB5444", selection, "SCB", "sv");
 
     if (!result) return null;
 
     const populationData = result.data;
-    const population = populationData.find((data) => data.key[0] == areaCode)?.values[0];
-    const parentPopulation = parentAreaCode && populationData.find((data) => data.key[0] == parentAreaCode)?.values[0];
+    const population = populationData.find((data) => data.key[0].value == areaCode)?.values[0];
+    const parentPopulation = parentAreaCode && populationData.find((data) => data.key[0].value == parentAreaCode)?.values[0];
 
     return {
       population,

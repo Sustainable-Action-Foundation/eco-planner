@@ -1,32 +1,31 @@
-import { notFound } from "next/navigation";
-import getOneRoadmap from "@/fetchers/getOneRoadmap";
-import { cookies } from "next/headers";
-import { getSession } from "@/lib/session";
-import accessChecker from "@/lib/accessChecker";
-import { AccessControlled, AccessLevel } from "@/types";
-import SiblingGraph from "@/components/graphs/siblingGraph";
-import ActionGraph from "@/components/graphs/actionGraph";
-import Link from "next/link";
-import GraphGraph from "@/components/graphs/graphGraph";
-import getOneGoal from "@/fetchers/getOneGoal";
-import { Goal, DataSeries } from "@prisma/client";
-import Comments from "@/components/comments/comments";
-import getGoalByIndicator from "@/fetchers/getGoalByIndicator";
-import getRoadmapByVersion from "@/fetchers/getRoadmapByVersion";
-import prisma from "@/prismaClient";
-import CopyAndScale from "@/components/modals/copyAndScale";
-import { getTableContent } from "@/lib/pxWeb/getTableContent";
-import filterTableContentKeys from "@/lib/pxWeb/filterTableContentKeys";
-import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
-import QueryBuilder from "@/components/forms/pxWeb/queryBuilder";
-import GraphCookie from "@/components/cookies/graphCookie";
-import UpdateGoalButton from "@/components/buttons/updateGoalButton";
-import getRoadmaps from "@/fetchers/getRoadmaps";
-import EffectTable from "@/components/tables/effects.tsx";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
-import findSiblings from "@/functions/findSiblings.ts";
+import UpdateGoalButton from "@/components/buttons/updateGoalButton";
+import Comments from "@/components/comments/comments";
+import GraphCookie from "@/components/cookies/graphCookie";
+import QueryBuilder from "@/components/forms/pxWeb/queryBuilder";
+import ActionGraph from "@/components/graphs/actionGraph";
 import ChildGraphContainer from "@/components/graphs/childGraphs/childGraphContainer.tsx";
+import GraphGraph from "@/components/graphs/graphGraph";
+import SiblingGraph from "@/components/graphs/siblingGraph";
+import CopyAndScale from "@/components/modals/copyAndScale";
+import EffectTable from "@/components/tables/effects.tsx";
+import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
+import getGoalByIndicator from "@/fetchers/getGoalByIndicator";
+import getOneGoal from "@/fetchers/getOneGoal";
+import getOneRoadmap from "@/fetchers/getOneRoadmap";
+import getRoadmapByVersion from "@/fetchers/getRoadmapByVersion";
+import getRoadmaps from "@/fetchers/getRoadmaps";
+import findSiblings from "@/functions/findSiblings.ts";
+import accessChecker from "@/lib/accessChecker";
+import { ApiTableContent } from "@/lib/api/apiTypes";
+import { getPxWebTableContent } from "@/lib/pxWeb/getPxWebTableContent";
+import { getSession } from "@/lib/session";
+import prisma from "@/prismaClient";
+import { AccessControlled, AccessLevel } from "@/types";
+import { DataSeries, Goal } from "@prisma/client";
+import { cookies } from "next/headers";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 
 export default async function Page({
   params,
@@ -73,9 +72,9 @@ export default async function Page({
   }).map(roadmap => ({ id: roadmap.id, name: roadmap.metaRoadmap.name, version: roadmap.version, actor: roadmap.metaRoadmap.actor }))
 
   // Fetch external data
-  let externalData: PxWebApiV2TableContent | null = null;
+  let externalData: ApiTableContent | null = null;
   if (goal.externalDataset && goal.externalTableId && goal.externalSelection) {
-    externalData = await getTableContent(goal.externalTableId, JSON.parse(goal.externalSelection), goal.externalDataset).then(data => filterTableContentKeys(data));
+    externalData = await getPxWebTableContent(goal.externalTableId, JSON.parse(goal.externalSelection), goal.externalDataset);
   }
 
   // Fetch parent goal
