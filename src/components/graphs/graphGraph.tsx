@@ -7,8 +7,8 @@ import { DataSeries, Effect, Goal } from "@prisma/client";
 import GraphSelector from "./graphselector/graphSelector";
 import { useEffect, useState } from "react";
 import { getStoredGraphType } from "./functions/graphFunctions";
-import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import SecondaryGoalSelector from "./secondaryGraphSelector";
+import { ApiTableContent } from "@/lib/api/apiTypes";
 
 export enum GraphType {
   Main = "MAIN",
@@ -27,7 +27,7 @@ export default function GraphGraph({
   goal: Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null },
   secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
   nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
-  historicalData?: PxWebApiV2TableContent | null,
+  historicalData?: ApiTableContent | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
   children: React.ReactNode
 }) {
