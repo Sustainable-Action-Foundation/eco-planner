@@ -1,17 +1,18 @@
 "use client"
 
-import { useContext, useState } from 'react'
-import styles from './forms.module.css'
-import Image from 'next/image'
-import React from 'react'
-import parentDict from './forms.dict.json' with { type: "json" }
 import { LocaleContext } from '@/app/context/localeContext.tsx'
+import Image from 'next/image'
+import React, { useContext, useState } from 'react'
+import parentDict from './forms.dict.json' with { type: "json" }
+import styles from './forms.module.css'
 
 
 export default function FormWrapper({
   children,
+  formRef,
 }: {
   children: React.ReactNode,
+  formRef?: React.RefObject<HTMLFormElement | null>,
 }) {
   const dict = parentDict.formWrapper;
   const locale = useContext(LocaleContext);
@@ -34,19 +35,6 @@ export default function FormWrapper({
     // Move the thin green line under the indicators to indicate which section is visible
     if (currentIndicator) {
       currentIndicator.style.transform = `translate(${(250 * currentTransformIndex) + 50}%, 0)`;
-    }
-  }
-
-  // TODO - is this being used? there is no "#submit-button" in query builder (where form wrapper is used)
-  function enableSubmitButton(currentTransformIndex: number) {
-    const submitButton = document?.getElementById('submit-button');
-
-    if (submitButton) {
-      if (currentTransformIndex == sections.length - 1) {
-        submitButton.removeAttribute('disabled');
-      } else {
-        submitButton.setAttribute('disabled', 'true');
-      }
     }
   }
 
@@ -79,7 +67,6 @@ export default function FormWrapper({
 
 
     iterateIndicators(currentTransformIndex);
-    enableSubmitButton(currentTransformIndex);
     setTransformIndex(currentTransformIndex);
 
   }
@@ -89,7 +76,7 @@ export default function FormWrapper({
   if (transformIndex == sections.length - 1) {
     nextButtonHiddenClass = "hidden";
   }
- 
+
   // Hide the "back" button when at the first slide
   let backButtonHiddenClass = "";
   if (transformIndex == 0) {

@@ -92,6 +92,22 @@ export default function QueryBuilder({
     }), "PUT", setIsLoading);
   }
 
+  function enableSubmitButton() {
+    const submitButton = document.getElementById("submit-button");
+    if (submitButton) {
+      submitButton.removeAttribute('disabled');
+      if (submitButton.classList.contains("hidden")) submitButton.classList.remove("hidden");
+    }
+  }
+
+  function disableSubmitButton() {
+    const submitButton = document.getElementById("submit-button");
+    if (submitButton) {
+      submitButton.setAttribute('disabled', 'true');
+      if (!submitButton.classList.contains("hidden")) submitButton.classList.add("hidden");
+    }
+  }
+
   function tryGetResult() {
     if (!(formRef.current instanceof HTMLFormElement)) return;
     if (!tables) return;
@@ -108,7 +124,8 @@ export default function QueryBuilder({
         getTrafaTableContent(tableId, query, locale).then(result => { setTableContent(result); });
         getTrafaTableDetails(tableId, query, locale).then(result => { setTableDetails(result); });
       }
-    }
+      enableSubmitButton();
+    } else disableSubmitButton();
   }
 
   function searchOnEnter(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -206,7 +223,7 @@ export default function QueryBuilder({
           {/* Hidden disabled submit button to prevent accidental submisson */}
           <button type="submit" className="display-none" disabled></button>
 
-          <FormWrapper>
+          <FormWrapper formRef={formRef}>
             <fieldset>
               <label className="margin-block-75">
                 {dict.dataSource.dataSource[locale]}
@@ -344,7 +361,7 @@ export default function QueryBuilder({
             </div>
           )}
 
-          <button type="submit" className="seagreen color-purewhite">{dict.submit.addDataSource[locale]}</button>
+          <button id="submit-button" disabled={true} type="submit" className="hidden seagreen color-purewhite">{dict.submit.addDataSource[locale]}</button>
         </form>
       </dialog>
     </>
