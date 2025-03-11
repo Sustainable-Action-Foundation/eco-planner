@@ -3,7 +3,7 @@
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
 import formSubmitter from "@/functions/formSubmitter";
-import { ApiTableContent, ApiTableDetails } from "@/lib/api/apiTypes";
+import { ApiTableContent, ApiTableDetails, ScbVariable, TrafaVariable } from "@/lib/api/apiTypes";
 import { externalDatasetBaseUrls } from "@/lib/api/utility";
 import { getPxWebTableContent } from "@/lib/pxWeb/getPxWebTableContent";
 import { getPxWebTableDetails } from "@/lib/pxWeb/getPxWebTableDetails";
@@ -163,6 +163,30 @@ export default function QueryBuilder({
     }
   }
 
+  function variableSelectionHelper(variable: TrafaVariable | ScbVariable, tableDetails: ApiTableDetails) {
+    if (variable.option) return (
+      <label key={variable.name} className="block margin-block-75">
+        {variable.label[0].toUpperCase() + variable.label.slice(1)}
+        {// Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
+        }
+        <select className={`block margin-block-25 ${variable.label}`}
+          required={!variable.optional}
+          name={variable.name}
+          id={variable.name}
+          // If only one value is available, pre-select it
+          defaultValue={variable.values && variable.values.length == 1 ? variable.values[0].label : undefined}>
+          { // If only one value is available, don't show a placeholder option
+            variable.values && variable.values.length > 1 &&
+            <option value="">{dict.tableDetails.chooseValue[locale]}</option>
+          }
+          {variable.values && variable.values.map(value => (
+            <option key={`${variable.name}-${value.name}`} value={value.name} lang={tableDetails.language}>{value.label}</option>
+          ))}
+        </select>
+      </label>
+    )
+  }
+
   return (
     <>
       <button type="button" className="transparent flex align-items-center gap-25 font-weight-500" style={{ fontSize: '.75rem', padding: '.3rem .6rem' }} onClick={() => openModal(modalRef)}>
@@ -265,27 +289,7 @@ export default function QueryBuilder({
                     </label>
                   }
                   {tableDetails.variables.map(variable => {
-                    if (variable.option) return (
-                      <label key={variable.name} className="block margin-block-75">
-                        {variable.label[0].toUpperCase() + variable.label.slice(1)}
-                        {// Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
-                        }
-                        <select className={`block margin-block-25 ${variable.label}`}
-                          required={!variable.optional}
-                          name={variable.name}
-                          id={variable.name}
-                          // If only one value is available, pre-select it
-                          defaultValue={variable.values && variable.values.length == 1 ? variable.values[0].label : undefined}>
-                          { // If only one value is available, don't show a placeholder option
-                            variable.values && variable.values.length > 1 &&
-                            <option value="">{dict.tableDetails.chooseValue[locale]}</option>
-                          }
-                          {variable.values && variable.values.map(value => (
-                            <option key={value.label} value={value.name} lang={tableDetails.language}>{value.label}</option>
-                          ))}
-                        </select>
-                      </label>
-                    )
+                    return variableSelectionHelper(variable, tableDetails);
                   })}
                   {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
                     if (hierarchy.children?.some(variable => variable.option)) return (
@@ -294,23 +298,7 @@ export default function QueryBuilder({
                         {// TODO - indent all children
                         }
                         {hierarchy.children && hierarchy.children.map(variable => {
-                          if (variable.option) return (
-                            <label key={variable.name} className="block margin-block-75">
-                              {variable.label}
-                              <select className={`block margin-block-25 ${variable.label}`}
-                                name={variable.name}
-                                id={variable.name}
-                                defaultValue={variable.values && variable.values.length == 1 ? variable.values[0].label : undefined}>
-                                {
-                                  variable.values && variable.values.length > 1 &&
-                                  <option value="">{dict.tableDetails.chooseValue[locale]}</option>
-                                }
-                                {variable.values && variable.values.map(value => (
-                                  <option key={value.label} value={value.name} lang={tableDetails.language}>{value.label}</option>
-                                ))}
-                              </select>
-                            </label>
-                          )
+                          return variableSelectionHelper(variable, tableDetails);
                         })}
                       </label>
                     )
