@@ -74,7 +74,7 @@ export default async function Page({
   // Fetch external data
   let externalData: ApiTableContent | null = null;
   if (goal.externalDataset && goal.externalTableId && goal.externalSelection) {
-    externalData = await getPxWebTableContent(goal.externalTableId, JSON.parse(goal.externalSelection), goal.externalDataset).then(data => (data));
+    externalData = await getPxWebTableContent(goal.externalTableId, JSON.parse(goal.externalSelection), goal.externalDataset);
   }
 
   // Fetch parent goal

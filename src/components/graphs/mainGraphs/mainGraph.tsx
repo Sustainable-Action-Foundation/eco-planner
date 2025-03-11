@@ -188,30 +188,29 @@ export default function MainGraph({
 
   if (historicalData) {
     const historicalSeries = [];
-    for (const row of historicalData.data) {
-      const value = parseFloat(row.values[0]);
+    const timeColumnIndex = historicalData.columns.findIndex(column => column.type == "t");
 
-      let timeColumnIndex = 0;
-      historicalData.columns.map((column, index) => {
-        if (column.type == "t") timeColumnIndex = index;
+    if (timeColumnIndex >= 0) {
+      for (const row of historicalData.data) {
+        const value = parseFloat(row.values[0]);
+
+        historicalSeries.push({
+          x: parsePeriod(row.key[timeColumnIndex].value).getTime(),
+          y: Number.isFinite(value) ? value : null,
+        });
+      }
+      mainChart.push({
+        name: `${historicalData.metadata[0]?.label}`,
+        data: historicalSeries,
+        type: 'line',
       });
-
-      historicalSeries.push({
-        x: parsePeriod(row.key[timeColumnIndex].value).getTime(),
-        y: Number.isFinite(value) ? value : null,
+      (mainChartOptions.yaxis as ApexYAxis[]).push({
+        title: { text: "Historik" },
+        labels: { formatter: floatSmoother },
+        seriesName: [`${historicalData.metadata[0]?.label}`],
+        opposite: true,
       });
     }
-    mainChart.push({
-      name: `${historicalData.metadata[0]?.label}`,
-      data: historicalSeries,
-      type: 'line',
-    });
-    (mainChartOptions.yaxis as ApexYAxis[]).push({
-      title: { text: "Historik" },
-      labels: { formatter: floatSmoother },
-      seriesName: [`${historicalData.metadata[0]?.label}`],
-      opposite: true,
-    });
   }
 
   return (
