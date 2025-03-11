@@ -2,7 +2,7 @@ import getTrafaTables from "./getTrafaTables";
 import { StructureItem, trafaStructureUrl } from "./trafaTypes";
 import { ApiTableDetails, TrafaFilter, TrafaHierarchy, TrafaMetric, TrafaVariable, TrafaVariableValue } from "../api/apiTypes";
 
-export default async function getTrafaTableDetails(tableId: string, selection: { variableCode: string, valueCodes: string[] }[], language: "sv" | "en" = "sv") {
+export default async function getTrafaTableDetails(tableId: string, selection: { variableCode: string, valueCodes: string[] }[] = [], language: "sv" | "en" = "sv") {
   // Helper function for generating a string that will be appended to searchParams of the url
   function getSearchQueryString(){
     const variableQueries: string[] = [];

@@ -33,7 +33,6 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
       payload.selection.push(selectionItem);
     }
     else if (item.variableCode != "Tid" && item.variableCode != "Time") {
-      console.log("Var code not Time", item.variableCode);
       const selectionItem = {
         variableCode: item.variableCode,
         valueCodes: item.valueCodes,
@@ -58,8 +57,6 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
     timeSelectionItem.valueCodes.push(`from(${times[0].id})`);
     payload.selection.push(timeSelectionItem);
   }
-
-  console.log(JSON.stringify(payload, null, 2));
 
   // TODO - make this parse in the same format as if it were json
   function parsePxToJson(pxText: string) {

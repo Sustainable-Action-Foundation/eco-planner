@@ -142,12 +142,13 @@ export default function QueryBuilder({
 
   function clearTableDetails() {
     setTableDetails(null);
-    // TODO - clear the selection in the variable/metric form as well
   }
 
   function handleDataSourceSelect(dataSource: string) {
     setDataSource(dataSource);
-    clearTableDetails();
+    setTimeout(() => {
+      clearTableDetails();
+    }, 0);
   }
 
   function handleTableSelect(tableId: string) {
@@ -155,12 +156,10 @@ export default function QueryBuilder({
     if (!tableId) return;
     clearTableDetails();
 
-    const query = buildQuery(new FormData(formRef.current as HTMLFormElement));
-
     if (dataSource == "SCB") {
       getPxWebTableDetails(tableId, dataSource, locale).then(result => setTableDetails(result));
     } else if (dataSource == "Trafa") {
-      getTrafaTableDetails(tableId, query, locale).then(result => setTableDetails(result));
+      getTrafaTableDetails(tableId, undefined, locale).then(result => setTableDetails(result));
     }
   }
 
@@ -195,7 +194,8 @@ export default function QueryBuilder({
                 </select>
               </label>
 
-              {/* TODO: Check that this works well with dynamic keyboards (smartphone/tablet) */}
+              {// TODO: Check that this works well with dynamic keyboards (smartphone/tablet)
+              }
               {dataSource ?
                 <>
                   <div className="flex gap-25 align-items-flex-end margin-block-75">
@@ -227,7 +227,7 @@ export default function QueryBuilder({
                   <legend className="padding-inline-50">
                     <strong>{dict.tableDetails.chooseMetricForTable[locale]}</strong>
                   </legend>
-                  <label key="metric" className="block margin-block-75">
+                  <label key={`metric-${tableDetails.id}`} className="block margin-block-75">
                     <select className={`block margin-block-25 metric`}
                       required={true}
                       name="metric"
@@ -264,54 +264,57 @@ export default function QueryBuilder({
                       </select>
                     </label>
                   }
-                  {tableDetails.variables.map(variable => { 
+                  {tableDetails.variables.map(variable => {
                     if (variable.option) return (
-                    <label key={variable.name} className="block margin-block-75">
-                      {variable.label[0].toUpperCase() + variable.label.slice(1)}
-                      {// Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
-                      }
-                      <select className={`block margin-block-25 ${variable.label}`}
-                        required={!variable.optional}
-                        name={variable.name}
-                        id={variable.name}
-                        // If only one value is available, pre-select it
-                        defaultValue={variable.values && variable.values.length == 1 ? variable.values[0].label : undefined}>
-                        { // If only one value is available, don't show a placeholder option
-                          variable.values && variable.values.length > 1 &&
-                          <option value="">{dict.tableDetails.chooseValue[locale]}</option>
+                      <label key={variable.name} className="block margin-block-75">
+                        {variable.label[0].toUpperCase() + variable.label.slice(1)}
+                        {// Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
                         }
-                        {variable.values && variable.values.map(value => (
-                          <option key={value.label} value={value.name} lang={tableDetails.language}>{value.label}</option>
-                        ))}
-                      </select>
-                    </label>
-                  )})}
+                        <select className={`block margin-block-25 ${variable.label}`}
+                          required={!variable.optional}
+                          name={variable.name}
+                          id={variable.name}
+                          // If only one value is available, pre-select it
+                          defaultValue={variable.values && variable.values.length == 1 ? variable.values[0].label : undefined}>
+                          { // If only one value is available, don't show a placeholder option
+                            variable.values && variable.values.length > 1 &&
+                            <option value="">{dict.tableDetails.chooseValue[locale]}</option>
+                          }
+                          {variable.values && variable.values.map(value => (
+                            <option key={value.label} value={value.name} lang={tableDetails.language}>{value.label}</option>
+                          ))}
+                        </select>
+                      </label>
+                    )
+                  })}
                   {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
                     if (hierarchy.children?.some(variable => variable.option)) return (
-                    <label key={hierarchy.name} className="block margin-block-75">
-                      {hierarchy.label}
-                      {// TODO - indent all children
-                      }
-                      {hierarchy.children && hierarchy.children.map(variable => {
-                        if (variable.option) return (
-                        <label key={variable.name} className="block margin-block-75">
-                          {variable.label}
-                          <select className={`block margin-block-25 ${variable.label}`}
-                            name={variable.name}
-                            id={variable.name}
-                            defaultValue={variable.values && variable.values.length == 1 ? variable.values[0].label : undefined}>
-                            {
-                              variable.values && variable.values.length > 1 &&
-                              <option value="">{dict.tableDetails.chooseValue[locale]}</option>
-                            }
-                            {variable.values && variable.values.map(value => (
-                              <option key={value.label} value={value.name} lang={tableDetails.language}>{value.label}</option>
-                            ))}
-                          </select>
-                        </label>
-                      )})}
-                    </label>
-                  )})}
+                      <label key={hierarchy.name} className="block margin-block-75">
+                        {hierarchy.label}
+                        {// TODO - indent all children
+                        }
+                        {hierarchy.children && hierarchy.children.map(variable => {
+                          if (variable.option) return (
+                            <label key={variable.name} className="block margin-block-75">
+                              {variable.label}
+                              <select className={`block margin-block-25 ${variable.label}`}
+                                name={variable.name}
+                                id={variable.name}
+                                defaultValue={variable.values && variable.values.length == 1 ? variable.values[0].label : undefined}>
+                                {
+                                  variable.values && variable.values.length > 1 &&
+                                  <option value="">{dict.tableDetails.chooseValue[locale]}</option>
+                                }
+                                {variable.values && variable.values.map(value => (
+                                  <option key={value.label} value={value.name} lang={tableDetails.language}>{value.label}</option>
+                                ))}
+                              </select>
+                            </label>
+                          )
+                        })}
+                      </label>
+                    )
+                  })}
                 </fieldset>
               </>
             )}

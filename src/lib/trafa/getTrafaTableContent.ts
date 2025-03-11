@@ -13,7 +13,6 @@ export default async function getTrafaTableContent(tableId: string, selection: {
     const variableQueries: string[] = [];
     let metric: string = "";
     for (const object of selection) {
-      console.log(object);
       if (object.variableCode == "metric") {
         metric = object.valueCodes.join("|");
       } else {
@@ -36,8 +35,6 @@ export default async function getTrafaTableContent(tableId: string, selection: {
   url.searchParams.append('query', tableId + "|ar" + searchQuery);
   language = "sv"
   if (language) url.searchParams.append('lang', language);
-
-  console.log(url);
 
   let data: TrafaDataResponse | null = null;
 

@@ -79,8 +79,6 @@ export default async function Page({
   // Fetch external data
   let externalData: ApiTableContent | null = null;
   if (goal.externalDataset && goal.externalTableId && goal.externalSelection) {
-    console.log("external data set:", goal.externalDataset)
-    console.log("external selection:", goal.externalSelection)
     if (goal.externalDataset == "SCB") {
       externalData = await getPxWebTableContent(goal.externalTableId, JSON.parse(goal.externalSelection), goal.externalDataset);
       // externalData = await getPxWebTableContent(goal.externalTableId, JSON.parse(goal.externalSelection), goal.externalDataset).then(data => filterPxWebTableContentKeys(data));
