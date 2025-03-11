@@ -1,9 +1,9 @@
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Effect, Goal } from "@prisma/client";
-import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import { parsePeriod } from "@/lib/pxWeb/utility";
 import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
+import { ApiTableContent } from "@/lib/api/apiTypes";
 
 export default function MainGraph({
   goal,
@@ -15,7 +15,7 @@ export default function MainGraph({
   goal: Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null },
   secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
   nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
-  historicalData?: PxWebApiV2TableContent | null,
+  historicalData?: ApiTableContent | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
 }) {
   if (!goal.dataSeries) {
@@ -186,14 +186,18 @@ export default function MainGraph({
     });
   }
 
-  console.log("historicalData:",historicalData);
   if (historicalData) {
     const historicalSeries = [];
-    for (const i of historicalData.data) {
-      const value = parseFloat(i.values[0]);
+    for (const row of historicalData.data) {
+      const value = parseFloat(row.values[0]);
+
+      let timeColumnIndex = 0;
+      historicalData.columns.map((column, index) => {
+        if (column.type == "t") timeColumnIndex = index;
+      });
 
       historicalSeries.push({
-        x: parsePeriod(i.key[0]).getTime(),
+        x: parsePeriod(row.key[timeColumnIndex].value).getTime(),
         y: Number.isFinite(value) ? value : null,
       });
     }

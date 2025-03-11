@@ -17,9 +17,8 @@ import getRoadmapByVersion from "@/fetchers/getRoadmapByVersion";
 import getRoadmaps from "@/fetchers/getRoadmaps";
 import findSiblings from "@/functions/findSiblings.ts";
 import accessChecker from "@/lib/accessChecker";
-import filterTableContentKeys from "@/lib/pxWeb/filterTableContentKeys";
+import { ApiTableContent } from "@/lib/api/apiTypes";
 import { getPxWebTableContent } from "@/lib/pxWeb/getPxWebTableContent";
-import { PxWebApiV2TableContent } from "@/lib/pxWeb/pxWebApiV2Types";
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
 import { AccessControlled, AccessLevel } from "@/types";
@@ -73,9 +72,9 @@ export default async function Page({
   }).map(roadmap => ({ id: roadmap.id, name: roadmap.metaRoadmap.name, version: roadmap.version, actor: roadmap.metaRoadmap.actor }))
 
   // Fetch external data
-  let externalData: PxWebApiV2TableContent | null = null;
+  let externalData: ApiTableContent | null = null;
   if (goal.externalDataset && goal.externalTableId && goal.externalSelection) {
-    externalData = await getPxWebTableContent(goal.externalTableId, JSON.parse(goal.externalSelection), goal.externalDataset).then(data => filterTableContentKeys(data));
+    externalData = await getPxWebTableContent(goal.externalTableId, JSON.parse(goal.externalSelection), goal.externalDataset).then(data => (data));
   }
 
   // Fetch parent goal
