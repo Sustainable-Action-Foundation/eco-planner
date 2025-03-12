@@ -2,20 +2,15 @@ import '@/styles/global.css'
 import Sidebar from '@/components/generic/header/sidebar'
 import styles from './page.module.css' with { type: "css" }
 import { baseUrl } from '@/lib/baseUrl.ts'
-import I18nProvider from "@/lib/i18n";
-import { Locales } from "@/types";
+import I18nProvider from "@/lib/i18nClient";
+import serverI18n from "@/lib/i18nServer";
 
 export default function RootLayout(
-  {
-    children,
-    params,
-  }: {
-    children: React.ReactNode,
-    params: { lang: string },
-  }
+  { children, }: { children: React.ReactNode, }
 ) {
+  const locale = serverI18n.language;
   return (
-    <html lang={params.lang}>
+    <html lang={locale}>
       <head>
         {/* TODO: Lots of this should be dynamic probably */}
         <title>Eco - Planner</title>
@@ -43,7 +38,6 @@ export default function RootLayout(
       </head>
       <body>
         <I18nProvider>
-          <h1>{params.lang}</h1>
           <div className={`${styles.layout}`}>
             <Sidebar />
             <div className='padding-100 flex-grow-100' style={{ backgroundColor: '#fdfdfd' }}>
@@ -56,9 +50,4 @@ export default function RootLayout(
       </body>
     </html>
   )
-}
-
-export function generateStaticParams() {
-  return ["en", "sv"].map((lang) => ({ lang }));
-  // return [...new Set(Object.values(Locales))].map((lang) => ({ lang }));
 }

@@ -2,43 +2,25 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { getSession } from '@/lib/session'
 import { cookies } from 'next/headers'
 import acceptLanguage from 'accept-language';
-import { match } from '@formatjs/intl-localematcher';
-import { Locales } from "@/types";
+import { Locales, uniqueLocales } from "@/types";
 
-// Define supported languages
-const supportedLanguages: string[] = Object.values(Locales); // Modify as needed
-const defaultLang = Locales.default;
-// Configure language detection
-acceptLanguage.languages(supportedLanguages);
-
-function getLanguage(request: NextRequest) {
-  // Check for language in cookie
-  const lang = request.cookies.get('locale')?.value;
-  if (lang && supportedLanguages.includes(lang)) return lang;
-
-  // Use accept-language header
-  try {
-    const acceptLangHeader = request.headers.get('accept-language') || defaultLang;
-    return match(acceptLangHeader.split(','), supportedLanguages, defaultLang);
-
-  } catch (_error) {
-    return defaultLang;
-  }
-}
+// Set the allowed locales
+acceptLanguage.languages(uniqueLocales);
 
 export async function middleware(req: NextRequest) {
   const session = await getSession(cookies())
+  const response = NextResponse.next()
 
-  // Set language cookie
-  const lang = getLanguage(req);
-  const response = NextResponse.next();
-  if (req.cookies.get('locale')?.value !== lang) {
-    response.cookies.set('locale', lang);
+  // Is there a locale cookie in the request?
+  const existingLocaleCookie = req.cookies.get("locale")?.value;
+  if (existingLocaleCookie) {
+    // Sanitize the locale cookie
+    response.cookies.set("locale", acceptLanguage.get(existingLocaleCookie) ?? Locales.default);
   }
-
-  // Allow locale requests
-  if (req.nextUrl.pathname === '/api/locales') {
-    return NextResponse.next()
+  else {
+    // No locale cookie found, define it with accept-language header (or default)
+    const headersLanguage = acceptLanguage.get(req.headers.get("accept-language") ?? "");
+    response.cookies.set("locale", headersLanguage ?? Locales.default);
   }
 
   // Redirect away from login page if already logged in
@@ -102,5 +84,5 @@ export async function middleware(req: NextRequest) {
   }
   // If we add for example # or $ to go to organisation pages or something, we can do it in a similar way to the above user rewrite
 
-  return NextResponse.next()
+  return response;
 }

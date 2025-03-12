@@ -1,4 +1,8 @@
 {
-  "meta_roadmap": "Färdplansserie",
-  "roadmap": "Färplansversion"
+  "meta_roadmap_one": "Färdplan",
+  "meta_roadmap_other": "Färdplaner",
+  "roadmap_one": "Färdplansversion",
+  "roadmap_other": "Färdplansversioner",
+  "roadmap_version_one": "Version",
+  "roadmap_version_other": "Versioner"
 }

@@ -6,6 +6,7 @@ export enum Locales {
   sv = "sv",
   default = en,
 };
+export const uniqueLocales = [...new Set(Object.values(Locales))];
 
 /** An object that implements the AccessControlled interface can be checked with the accessChecker function. */
 export interface AccessControlled {

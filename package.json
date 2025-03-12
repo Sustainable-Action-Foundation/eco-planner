@@ -10,15 +10,15 @@
     "test": "docker compose -f compose.test.yaml up -d"
   },
   "dependencies": {
-    "@formatjs/intl-localematcher": "^0.6.0",
     "@prisma/client": "^6.4.1",
     "@types/node": "^20.3.2",
     "accept-language": "^3.0.20",
     "apexcharts": "^4.3.0",
     "bcrypt": "^5.1.1",
+    "cookies-next": "^5.1.0",
     "dotenv": "^16.4.5",
     "i18next": "^24.2.2",
-    "i18next-browser-languagedetector": "^8.0.4",
+    "i18next-fs-backend": "^2.6.0",
     "i18next-http-backend": "^3.0.2",
     "iron-session": "^8.0.1",
     "mathjs": "^13.1.1",
