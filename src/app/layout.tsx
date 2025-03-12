@@ -3,7 +3,7 @@ import Sidebar from '@/components/generic/header/sidebar'
 import styles from './page.module.css' with { type: "css" }
 import { baseUrl } from '@/lib/baseUrl.ts'
 import I18nProvider from "@/lib/i18nClient";
-import serverI18n from "@/lib/i18nServer";
+import serverI18n, { t } from "@/lib/i18nServer";
 
 export default function RootLayout(
   { children, }: { children: React.ReactNode, }
@@ -13,27 +13,20 @@ export default function RootLayout(
     <html lang={locale}>
       <head>
         {/* TODO: Lots of this should be dynamic probably */}
-        <title>Eco - Planner</title>
-        <link rel="icon" type="image/x-icon" href="/icons/leaf.svg" />
-        <meta name="description" content="Ett verktyg som syftar till att bidra till Sveriges klimatomställning. 
-        I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas. 
-        Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen. 
-        Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder. "/>
+        <title>{t("common:app_name")}</title>
+        <link rel="icon" type="image/svg+xml" href="/icons/leaf.svg" />
+        <meta name="description" content={t("common:meta_description")} />
 
         {/* Open Graph Meta Tags */}
         {/* Required tags */}
-        <meta property="og:title" content="Eco - Planner" />
+        <meta property="og:title" content={t("common:app_name")} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={baseUrl} />
         <meta property="og:image" content={`${baseUrl}/images/solarpanels.jpg`} />
 
         {/* Optional tags */}
-        <meta name="og:site_name" content="Eco - Planner" />
-        <meta property="og:description" content="Ett verktyg som syftar till att bidra till Sveriges klimatomställning. 
-        I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas. 
-        Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen. 
-        Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder." />
-        <meta property="og:locale" content="sv_SE" />
+        <meta name="og:site_name" content={t("common:app_name")} />
+        <meta property="og:locale" content={t("og_locale")} />
 
       </head>
       <body>

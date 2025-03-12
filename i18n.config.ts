@@ -1,3 +1,10 @@
+export enum Locales {
+  en = "en",
+  sv = "sv",
+  default = en,
+};
+export const uniqueLocales = [...new Set(Object.values(Locales))];
+
 export const ns = ["common", "forms", "components",];
 export const defaultNS = "common";
 

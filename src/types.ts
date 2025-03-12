@@ -1,13 +1,6 @@
 import { ActionImpactType, DataSeries, Prisma } from "@prisma/client";
 import dataFieldArray from "./lib/dataSeriesDataFieldNames.json" with { type: "json" };
 
-export enum Locales {
-  en = "en",
-  sv = "sv",
-  default = en,
-};
-export const uniqueLocales = [...new Set(Object.values(Locales))];
-
 /** An object that implements the AccessControlled interface can be checked with the accessChecker function. */
 export interface AccessControlled {
   // Author is usually a single object, but allow for an array in case we need to check if the user is

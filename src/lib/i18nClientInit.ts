@@ -1,8 +1,7 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import Backend from "i18next-http-backend";
-import { Locales, uniqueLocales } from "@/types";
-import { defaultNS, ns, titleCase } from "i18n.config";
+import { defaultNS, Locales, ns, titleCase, uniqueLocales } from "i18n.config";
 
 i18n
   .use(Backend)

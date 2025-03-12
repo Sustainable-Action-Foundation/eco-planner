@@ -1,9 +1,8 @@
 import i18next from "i18next";
 import Backend from "i18next-fs-backend";
 import path from "node:path";
-import { Locales, uniqueLocales } from "@/types";
 import { cookies } from "next/headers";
-import { defaultNS, ns, titleCase } from "i18n.config";
+import { defaultNS, Locales, ns, titleCase, uniqueLocales } from "i18n.config";
 
 // Create a separate i18next instance for server-side use
 const serverI18n = i18next.createInstance({
@@ -33,7 +32,7 @@ serverI18n
     },
   });
 
-export async function t(key: string, options: object = {}) {
+export function t(key: string, options: object = {}) {
   return serverI18n.t(key, { ...options });
 }
 

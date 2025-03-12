@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { getSession } from '@/lib/session'
 import { cookies } from 'next/headers'
 import acceptLanguage from 'accept-language';
-import { Locales, uniqueLocales } from "@/types";
+import { Locales, uniqueLocales } from "i18n.config";
 
 // Set the allowed locales
 acceptLanguage.languages(uniqueLocales);
