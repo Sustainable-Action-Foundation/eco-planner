@@ -4,6 +4,7 @@ import { getSession } from '@/lib/session'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import Image from 'next/image'
+import { LanguageSwitcher } from "@/components/languageSwitcher"
 // import Notifications from '../notifications/notification'
 
 export default async function Sidebar() {
@@ -36,6 +37,10 @@ export default async function Sidebar() {
               <Image src='/icons/info.svg' alt='' width={24} height={24} />
               Om verktyget
             </Link>
+            <div className={styles.link}>
+              <Image src="/icons/globe.svg" alt="Lang" width={24} height={24} />
+              <LanguageSwitcher />
+            </div>
           </div>
           {user?.isLoggedIn ?
             <LogoutButton />
