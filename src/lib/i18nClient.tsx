@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { I18nextProvider } from "react-i18next";
 import i18n from "@/lib/i18nClientInit";
 import { getCookie } from "cookies-next";
+import { Locales, uniqueLocales } from "i18n.config";
+import { match } from "@formatjs/intl-localematcher";
 
 export default function I18nProvider(
   { children }: { children: React.ReactNode }
@@ -16,7 +18,7 @@ export default function I18nProvider(
 
       // Try to read cookie lang (locale)
       if (cookieLang && i18n.language !== cookieLang) {
-        await i18n.changeLanguage(cookieLang);
+        await i18n.changeLanguage(match(uniqueLocales, [cookieLang], Locales.default));
         return setIsI18nInitialized(true);
       }
 

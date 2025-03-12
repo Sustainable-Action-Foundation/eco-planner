@@ -10,6 +10,7 @@
     "test": "docker compose -f compose.test.yaml up -d"
   },
   "dependencies": {
+    "@formatjs/intl-localematcher": "^0.6.0",
     "@prisma/client": "^6.4.1",
     "@types/node": "^20.3.2",
     "accept-language": "^3.0.20",
