@@ -18,14 +18,11 @@ i18n
     defaultNS: defaultNS,
     ns: ns,
     interpolation: {
-      escapeValue: false, // Not needed for react as it escapes by default
-    },
-    react: {
-      useSuspense: false, // Better for server side rendering
+      escapeValue: false, // React already escapes
     },
     backend: {
       // Custom API endpoint for loading translations
-      loadPath: '/api/locales?lng={{lng}}&ns={{ns}}',
+      loadPath: "/api/locales?lng={{lng}}&ns={{ns}}",
     },
   });
 

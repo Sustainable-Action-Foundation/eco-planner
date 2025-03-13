@@ -11,7 +11,7 @@ export async function GET(request: Request) {
 
   // Sanitize params
   const language = match([paramLNG], uniqueLocales, Locales.default);
-  const namespace = ns.find((n) => n === paramNS) || defaultNS;
+  const namespace = ns.find((namespace) => namespace === paramNS) || defaultNS;
 
   const filePath = path.join(process.cwd(), `public/locales/${language}/${namespace}.json`);
 
@@ -23,7 +23,8 @@ export async function GET(request: Request) {
   try {
     const data = fs.readFileSync(filePath, "utf-8");
     return NextResponse.json(JSON.parse(data));
-  } catch (_e) {
+  } catch (e) {
+    console.error(e);
     return NextResponse.json({ error: "Failed to parse JSON file" }, { status: 500 });
   }
 }
