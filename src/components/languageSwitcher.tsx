@@ -17,24 +17,22 @@ export function LanguageSwitcher() {
     // Sanitize locale
     const newLocale = match(uniqueLocales, [lang], Locales.default);
 
-    // Update locale in cookie and make sure it's visible to both client and server
-    setCookie("locale", newLocale);
-    // Change language through i18n instance from useTranslation
+    // Update i18n instance
     await i18n.changeLanguage(newLocale);
-    // Update local state
+
+    // Update the locale cookie (to sync with server-side)
+    setCookie("locale", newLocale);
+
+    // Update local state for rendering of this component
     setCurrentLocale(newLocale);
-    
-    // Force a stronger refresh of server components
+
+    // Rerender the page with the new locale
     startTransition(() => {
-      // This combination forces both client and server to re-evaluate
       router.refresh();
-      
-      // Trigger React context updates in client components
-      window.dispatchEvent(new CustomEvent('i18n-language-changed'));
-      
-      // Update the HTML lang attribute
-      document.documentElement.lang = newLocale;
     });
+
+    // Trigger React context updates in client components
+    window.dispatchEvent(new CustomEvent("i18n-language-changed"));
   }
 
   return (
@@ -46,6 +44,7 @@ export function LanguageSwitcher() {
     >
       {
         uniqueLocales
+          // Puts the current locale at the top of the list
           .sort((a, b) => (a === currentLocale ? -1 : b === currentLocale ? 1 : 0))
           .map((locale) => (
             <option key={locale} value={locale}>

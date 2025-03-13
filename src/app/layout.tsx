@@ -4,12 +4,19 @@ import Sidebar from '@/components/generic/header/sidebar'
 import styles from './page.module.css' with { type: "css" }
 import { baseUrl } from '@/lib/baseUrl.ts'
 import I18nProvider from "@/lib/i18nClient";
-import serverI18n, { t } from "@/lib/i18nServer";
+import { t } from "@/lib/i18nServer";
+import { cookies } from "next/headers";
+import { match } from "@formatjs/intl-localematcher";
+import { Locales, uniqueLocales } from "i18n.config";
 
 export default function RootLayout(
   { children, }: { children: React.ReactNode, }
 ) {
-  const locale = serverI18n.language;
+  const cookieLocale = cookies().get("locale")?.value;
+  const locale = cookieLocale
+    ? match(uniqueLocales, [cookieLocale], Locales.default)
+    : Locales.default;
+
   return (
     <html lang={locale}>
       <head>
@@ -28,7 +35,6 @@ export default function RootLayout(
         {/* Optional tags */}
         <meta name="og:site_name" content={t("common:app_name")} />
         <meta property="og:locale" content={t("og_locale")} />
-
       </head>
       <body>
         <I18nProvider>

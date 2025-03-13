@@ -1,59 +1,29 @@
-import { NextRequest, NextResponse } from "next/server";
+import { match } from "@formatjs/intl-localematcher";
+import { defaultNS, Locales, ns, uniqueLocales } from "i18n.config";
+import { NextResponse } from "next/server";
 import fs from "node:fs";
 import path from "node:path";
 
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const paramLNG = searchParams.get("lng") || Locales.default;
+  const paramNS = searchParams.get("ns") || defaultNS;
+
+  // Sanitize params
+  const language = match(uniqueLocales, [paramLNG], Locales.default);
+  const namespace = ns.find((n) => n === paramNS) || defaultNS;
+
+  const filePath = path.join(process.cwd(), `public/locales/${language}/${namespace}.json`);
+
+  if (!fs.existsSync(filePath)) {
+    return NextResponse.json({}, { status: 404 });
+  }
+
+  // Try json parse
   try {
-    const searchParams = request.nextUrl.searchParams;
-    const lng = searchParams.get("lng");
-    const ns = searchParams.get("ns");
-
-    // Validate parameters
-    if (!lng || !ns) {
-      return NextResponse.json(
-        { error: "Missing required parameters: lng and ns" },
-        { status: 400 }
-      );
-    }
-
-    // Sanitize parameters to prevent directory traversal
-    const sanitizedLng = lng.replace(/[^a-zA-Z0-9-]/g, "");
-    const sanitizedNs = ns.replace(/[^a-zA-Z0-9-_]/g, "");
-
-    // Define the path to the locale file
-    const filePath = path.join(
-      process.cwd(),
-      "public",
-      "locales",
-      sanitizedLng,
-      `${sanitizedNs}.json`
-    );
-
-    // Read the file
-    const fileContent = fs.readFileSync(filePath, "utf8");
-    const localeData = JSON.parse(fileContent);
-
-    // Return the locale data with caching headers
-    return NextResponse.json(localeData, {
-      headers: {
-        "Cache-Control": "public, max-age=3600", // Cache for 1 hour
-        "Content-Type": "application/json",
-      },
-    });
-  } catch (error) {
-    console.error("Error loading locale file:", error);
-
-    // Check if file not found
-    if (error instanceof Error && "code" in error && error.code === "ENOENT") {
-      return NextResponse.json(
-        { error: "Locale file not found" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json(
-      { error: "Failed to load locale file" },
-      { status: 500 }
-    );
+    const data = fs.readFileSync(filePath, "utf-8");
+    return NextResponse.json(JSON.parse(data));
+  } catch (_e) {
+    return NextResponse.json({ error: "Failed to parse JSON file" }, { status: 500 });
   }
 }
