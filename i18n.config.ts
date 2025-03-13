@@ -1,3 +1,8 @@
+
+/* 
+ * This file contains shared resources for the client and server instances of i18next.
+ */
+
 export enum Locales {
   en = "en",
   sv = "sv",

@@ -1,4 +1,5 @@
 import '@/styles/global.css'
+import "@/lib/i18nServer";
 import Sidebar from '@/components/generic/header/sidebar'
 import styles from './page.module.css' with { type: "css" }
 import { baseUrl } from '@/lib/baseUrl.ts'

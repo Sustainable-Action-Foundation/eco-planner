@@ -11,6 +11,8 @@ export default function I18nProvider(
   { children }: { children: React.ReactNode }
 ) {
   const [isI18nInitialized, setIsI18nInitialized] = useState(false);
+  // Add a force update state to ensure deep re-renders
+  const [forceUpdate, setForceUpdate] = useState(0);
 
   useEffect(() => {
     const initI18n = async () => {
@@ -26,11 +28,22 @@ export default function I18nProvider(
     };
 
     initI18n();
+
+    // Listen for language changes and force a context refresh
+    const handleLanguageChange = () => {
+      setForceUpdate(prev => prev + 1);
+    };
+
+    window.addEventListener('i18n-language-changed', handleLanguageChange);
+    return () => {
+      window.removeEventListener('i18n-language-changed', handleLanguageChange);
+    };
   }, []);
 
   if (!isI18nInitialized) {
     return null;
   }
 
-  return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>;
+  // The key prop forces the I18nextProvider to re-mount when language changes
+  return <I18nextProvider i18n={i18n} key={`i18n-provider-${forceUpdate}`}>{children}</I18nextProvider>;
 }

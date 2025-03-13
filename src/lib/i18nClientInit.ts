@@ -13,6 +13,7 @@ i18n
   .use(initReactI18next)
   .init({
     fallbackLng: Locales.default,
+    preload: uniqueLocales,
     supportedLngs: uniqueLocales,
     defaultNS: defaultNS,
     ns: ns,
