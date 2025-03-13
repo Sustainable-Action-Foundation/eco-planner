@@ -15,7 +15,7 @@ export function LanguageSwitcher() {
 
   async function setLocale(lang: string) {
     // Sanitize locale
-    const newLocale = match(uniqueLocales, [lang], Locales.default);
+    const newLocale = match([lang], uniqueLocales, Locales.default);
 
     // Update i18n instance
     await i18n.changeLanguage(newLocale);
@@ -37,7 +37,7 @@ export function LanguageSwitcher() {
 
   return (
     <select
-      className={`height-100 width-100`}
+      className={`height-100 width-100 cursor-pointer`}
       onChange={async (e) => await setLocale(e.target.value)}
       value={currentLocale}
       disabled={isPending}
@@ -47,7 +47,7 @@ export function LanguageSwitcher() {
           // Puts the current locale at the top of the list
           .sort((a, b) => (a === currentLocale ? -1 : b === currentLocale ? 1 : 0))
           .map((locale) => (
-            <option key={locale} value={locale}>
+            <option key={locale} value={locale} className="cursor-pointer">
               {locale}
             </option>
           ))

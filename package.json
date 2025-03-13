@@ -13,6 +13,7 @@
     "@formatjs/intl-localematcher": "^0.6.0",
     "@prisma/client": "^6.4.1",
     "@types/node": "^20.3.2",
+    "accept-language": "^3.0.20",
     "apexcharts": "^4.3.0",
     "bcrypt": "^5.1.1",
     "cookies-next": "^5.1.0",

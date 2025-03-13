@@ -20,7 +20,7 @@ export default function I18nProvider(
 
       // Try to read cookie lang (locale)
       if (cookieLang && i18n.language !== cookieLang) {
-        await i18n.changeLanguage(match(uniqueLocales, [cookieLang], Locales.default));
+        await i18n.changeLanguage(match([cookieLang], uniqueLocales, Locales.default));
         return setIsI18nInitialized(true);
       }
 

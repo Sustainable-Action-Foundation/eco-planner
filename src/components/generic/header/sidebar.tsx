@@ -22,7 +22,7 @@ export default async function Sidebar() {
               <Image src='/icons/user.svg' alt='' width={24} height={24} />
               Mitt Konto
             </Link>
-          :
+            :
             <Link href="/signup" className='flex gap-50 align-items-center padding-50 margin-block-25 round seagreen color-purewhite button font-weight-500' style={{ whiteSpace: 'nowrap' }}>
               <Image src='/icons/userAdd.svg' alt='' width={24} height={24} />
               Skapa Konto
@@ -37,14 +37,14 @@ export default async function Sidebar() {
               <Image src='/icons/info.svg' alt='' width={24} height={24} />
               Om verktyget
             </Link>
-            <div className={styles.link}>
+            <div className={`${styles.link} cursor-pointer`}>
               <Image src="/icons/globe.svg" alt="Lang" width={24} height={24} />
               <LanguageSwitcher />
             </div>
           </div>
           {user?.isLoggedIn ?
             <LogoutButton />
-          :
+            :
             <Link href="/login" className={styles.link}>
               <Image src='/icons/login.svg' alt='' width={24} height={24} />
               Logga In

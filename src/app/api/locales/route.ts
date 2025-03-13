@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   const paramNS = searchParams.get("ns") || defaultNS;
 
   // Sanitize params
-  const language = match(uniqueLocales, [paramLNG], Locales.default);
+  const language = match([paramLNG], uniqueLocales, Locales.default);
   const namespace = ns.find((n) => n === paramNS) || defaultNS;
 
   const filePath = path.join(process.cwd(), `public/locales/${language}/${namespace}.json`);

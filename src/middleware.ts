@@ -2,7 +2,10 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { getSession } from '@/lib/session'
 import { cookies } from 'next/headers'
 import { Locales, uniqueLocales } from "i18n.config";
-import { match } from "@formatjs/intl-localematcher";
+import acceptLanguage from "accept-language";
+
+// Set accepted languages
+acceptLanguage.languages(uniqueLocales);
 
 export async function middleware(req: NextRequest) {
   const session = await getSession(cookies())
@@ -12,12 +15,12 @@ export async function middleware(req: NextRequest) {
   const existingLocaleCookie = req.cookies.get("locale")?.value;
   if (existingLocaleCookie) {
     // Sanitize the locale cookie
-    const cookieLocale = match(uniqueLocales, [existingLocaleCookie], Locales.default);
+    const cookieLocale = acceptLanguage.get(existingLocaleCookie) ?? Locales.default;
     response.cookies.set("locale", cookieLocale);
   }
   else {
     // No locale cookie found, define it with accept-language header (or default)
-    const headerLocale = match(uniqueLocales, [req.headers.get("accept-language") ?? ""], Locales.default);
+    const headerLocale = acceptLanguage.get(req.headers.get("accept-language")) ?? Locales.default;
     response.cookies.set("locale", headerLocale ?? Locales.default);
   }
 

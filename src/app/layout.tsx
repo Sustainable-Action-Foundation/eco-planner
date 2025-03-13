@@ -14,7 +14,7 @@ export default function RootLayout(
 ) {
   const cookieLocale = cookies().get("locale")?.value;
   const locale = cookieLocale
-    ? match(uniqueLocales, [cookieLocale], Locales.default)
+    ? match([cookieLocale], uniqueLocales, Locales.default)
     : Locales.default;
 
   return (

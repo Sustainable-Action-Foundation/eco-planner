@@ -9,15 +9,15 @@ import { match } from "@formatjs/intl-localematcher";
 const createI18nInstance = () => {
   // Read the current locale from cookies
   const cookieLocale = cookies().get("locale")?.value;
-  
+
   // Sanitize locale
-  const locale = cookieLocale 
-    ? match(uniqueLocales, [cookieLocale], Locales.default)
+  const locale = cookieLocale
+    ? match([cookieLocale], uniqueLocales, Locales.default)
     : Locales.default;
-    
+
   // Create a fresh instance
   const i18nInstance = createInstance();
-  
+
   i18nInstance
     .use(Backend)
     .use({
@@ -40,7 +40,7 @@ const createI18nInstance = () => {
         escapeValue: false, // React already escapes
       },
     });
-  
+
   return i18nInstance;
 };
 
