@@ -1,34 +1,31 @@
 "use client"
 
-import { LocaleContext } from '@/app/context/localeContext.tsx'
-import Image from 'next/image'
-import React, { useContext, useState } from 'react'
-import parentDict from './forms.dict.json' with { type: "json" }
-import styles from './forms.module.css'
-
+import { LocaleContext } from "@/app/context/localeContext.tsx"
+import Image from "next/image"
+import React, { useContext, useState } from "react"
+import parentDict from "./forms.dict.json" with { type: "json" }
+import styles from "./forms.module.css"
 
 export default function FormWrapper({
   children,
-  formRef,
 }: {
   children: React.ReactNode,
-  formRef?: React.RefObject<HTMLFormElement | null>,
 }) {
   const dict = parentDict.formWrapper;
   const locale = useContext(LocaleContext);
 
   function iterateIndicators(currentTransformIndex: number) {
-    const currentIndicator = document?.getElementById('current-indicator');
-    const indicatorsParent = document?.getElementById('indicators');
+    const currentIndicator = document?.getElementById("current-indicator");
+    const indicatorsParent = document?.getElementById("indicators");
     const indicators = Array.from(indicatorsParent?.children || []);
 
     // TODO - maybe more than index should be used to check if the sections are complete? A section can be complete even if it is still in view
     // Turn indicators green if they are complete
     for (let i = 0; i < indicators.length; i++) {
       if (i < currentTransformIndex) {
-        (indicators[i] as HTMLElement).style.backgroundColor = 'seagreen';
+        (indicators[i] as HTMLElement).style.backgroundColor = "seagreen";
       } else {
-        (indicators[i] as HTMLElement).style.backgroundColor = 'var(--gray-90)';
+        (indicators[i] as HTMLElement).style.backgroundColor = "var(--gray-90)";
       }
     }
 
@@ -42,7 +39,7 @@ export default function FormWrapper({
   const sections = React.Children.toArray(children);
 
   function iterateSections(options?: { reverse?: boolean }) {
-    const formSlide = Array.prototype.slice.call(document?.getElementsByClassName('fieldsetWrapper'));
+    const formSlide = Array.prototype.slice.call(document?.getElementsByClassName("fieldsetWrapper"));
 
     const currentTransformIndex = transformIndex + (options?.reverse ? -1 : 1);
 
@@ -61,14 +58,11 @@ export default function FormWrapper({
             element.style.transform = `translateX(-${(currentTransformIndex) * 100}%)`;
           }
         }
-      }
-      )
+      });
     }
-
 
     iterateIndicators(currentTransformIndex);
     setTransformIndex(currentTransformIndex);
-
   }
 
   // Hide the "next" button when at the final slide

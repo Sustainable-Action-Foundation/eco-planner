@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { LocaleContext } from "@/app/context/localeContext.tsx";
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
@@ -16,7 +16,7 @@ import Image from "next/image";
 import { FormEvent, useContext, useEffect, useRef, useState } from "react";
 import FormWrapper from "../formWrapper";
 import parentDict from "../forms.dict.json" with { type: "json" };
-import styles from './queryBuilder.module.css';
+import styles from "./queryBuilder.module.css";
 
 export default function QueryBuilder({
   goal,
@@ -95,7 +95,7 @@ export default function QueryBuilder({
   function enableSubmitButton() {
     const submitButton = document.getElementById("submit-button");
     if (submitButton) {
-      submitButton.removeAttribute('disabled');
+      submitButton.removeAttribute("disabled");
       if (submitButton.classList.contains("hidden")) submitButton.classList.remove("hidden");
     }
   }
@@ -103,7 +103,7 @@ export default function QueryBuilder({
   function disableSubmitButton() {
     const submitButton = document.getElementById("submit-button");
     if (submitButton) {
-      submitButton.setAttribute('disabled', 'true');
+      submitButton.setAttribute("disabled", "true");
       if (!submitButton.classList.contains("hidden")) submitButton.classList.add("hidden");
     }
   }
@@ -129,7 +129,7 @@ export default function QueryBuilder({
   }
 
   function searchOnEnter(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       event.preventDefault();
       event.stopPropagation();
       handleSearch((event.target as HTMLInputElement).value);
@@ -206,14 +206,14 @@ export default function QueryBuilder({
 
   return (
     <>
-      <button type="button" className="transparent flex align-items-center gap-25 font-weight-500" style={{ fontSize: '.75rem', padding: '.3rem .6rem' }} onClick={() => openModal(modalRef)}>
+      <button type="button" className="transparent flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
         {dict.addHistoricalData[locale]}
-        <Image src='/icons/chartAdd.svg' alt="" width={16} height={16} />
+        <Image src="/icons/chartAdd.svg" alt="" width={16} height={16} />
       </button>
-      <dialog className={`smooth${styles.dialog}`} ref={modalRef} aria-modal style={{ border: '0', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25' }}>
+      <dialog className={`smooth${styles.dialog}`} ref={modalRef} aria-modal style={{ border: "0", boxShadow: "0 0 .5rem -.25rem rgba(0,0,0,.25" }}>
         <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>
           <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label="Close" >
-            <Image src='/icons/close.svg' alt="" width={18} height={18} />
+            <Image src="/icons/close.svg" alt="" width={18} height={18} />
           </button>
           <h2 className="margin-0">{dict.addDataSource[locale]}</h2>
         </div>
@@ -223,7 +223,7 @@ export default function QueryBuilder({
           {/* Hidden disabled submit button to prevent accidental submisson */}
           <button type="submit" className="display-none" disabled></button>
 
-          <FormWrapper formRef={formRef}>
+          <FormWrapper>
             <fieldset>
               <label className="margin-block-75">
                 {dict.dataSource.dataSource[locale]}
@@ -244,10 +244,10 @@ export default function QueryBuilder({
                       <span className="block margin-block-25">{dict.dataSource.searchForTable[locale]}</span>
                       <input name={tableSearchInputName} type="search" className="block" onKeyDown={searchOnEnter} />
                     </label>
-                    <button type="button" onClick={searchWithButton} style={{ fontSize: '1rem' }}>{dict.dataSource.search[locale]}</button>
+                    <button type="button" onClick={searchWithButton} style={{ fontSize: "1rem" }}>{dict.dataSource.search[locale]}</button>
                   </div>
 
-                  <div className="padding-25 smooth" style={{ border: '1px solid var(--gray-90)' }}>
+                  <div className="padding-25 smooth" style={{ border: "1px solid var(--gray-90)" }}>
                     <div className={styles.temporary}>
                       {tables && tables.map(({ tableId: id, label }) => (
                         <label key={id} className={`${styles.tableSelect} block padding-block-25`}>
@@ -264,7 +264,7 @@ export default function QueryBuilder({
             {tableDetails && (
               // TODO - which inputs should be optional?
               <>
-                <fieldset className="margin-block-100 smooth padding-50" style={{ border: '1px solid var(--gray-90)' }}>
+                <fieldset className="margin-block-100 smooth padding-50" style={{ border: "1px solid var(--gray-90)" }}>
                   <legend className="padding-inline-50">
                     <strong>{dict.tableDetails.chooseMetricForTable[locale]}</strong>
                   </legend>
@@ -286,7 +286,7 @@ export default function QueryBuilder({
 
                   </label>
                 </fieldset>
-                <fieldset className="margin-block-100 smooth padding-50" style={{ border: '1px solid var(--gray-90)' }}>
+                <fieldset className="margin-block-100 smooth padding-50" style={{ border: "1px solid var(--gray-90)" }}>
                   <legend className="padding-inline-50">
                     <strong>{dict.tableDetails.chooseValues[locale]}</strong>
                   </legend>
