@@ -108,10 +108,24 @@ export default function QueryBuilder({
     }
   }
 
-  function tryGetResult() {
+  function tryGetResult(event: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
+    console.log("event:", event);
+    console.log("event target:",event.target);
+    console.log("target type:", typeof event.target);
+    console.log("target instanceof HTMLElement:", event.target instanceof HTMLElement);
+    console.log("target instanceof HTMLSelectElement:", event.target instanceof HTMLSelectElement);
+    if (event.target instanceof HTMLSelectElement) {
+      console.log("target as select name",(event.target as HTMLSelectElement).name);
+      console.log("target as select id",(event.target as HTMLSelectElement).id);
+    }
+    console.log("target instanceof HTMLInputElement:", event.target instanceof HTMLInputElement);
+    // if (!event.target instanceof )
+    if (event.target instanceof HTMLSelectElement && (event.target as HTMLSelectElement).name == "externalDataset") return;
     if (!(formRef.current instanceof HTMLFormElement)) return;
     if (!tables) return;
     if (!tableDetails) return;
+    // if )
+
 
     if (formRef.current.checkValidity()) {
       console.log("Form is valid");
@@ -227,7 +241,7 @@ export default function QueryBuilder({
           required={!variable.optional}
           name={variable.name}
           id={variable.name}
-          onChange={tryGetResult}
+          /* onChange={tryGetResult} */
           // If only one value is available, pre-select it
           defaultValue={variable.values && variable.values.length == 1 ? variable.values[0].label : undefined}>
           { // If only one value is available, don't show a placeholder option
@@ -257,7 +271,7 @@ export default function QueryBuilder({
         </div>
         <p>{dict.addHistoricalMetadata[locale]} {goal.name ?? goal.indicatorParameter}</p>
 
-        <form ref={formRef} /* onChange={tryGetResult} */ onSubmit={handleSubmit}>
+        <form ref={formRef} onChange={tryGetResult} onSubmit={handleSubmit}>
           {/* Hidden disabled submit button to prevent accidental submisson */}
           <button type="submit" className="display-none" disabled></button>
 
@@ -320,7 +334,7 @@ export default function QueryBuilder({
                       required={true}
                       name="metric"
                       id="metric"
-                      onChange={tryGetResult}
+                      /* onChange={tryGetResult} */
                       defaultValue={tableDetails.metrics && tableDetails.metrics.length == 1 ? tableDetails.metrics[0].label : undefined}>
                       {
                         tableDetails.metrics && tableDetails.metrics.length != 1 &&
@@ -345,7 +359,7 @@ export default function QueryBuilder({
                         required={false}
                         name="Tid"
                         id="Tid"
-                        onChange={tryGetResult}
+                        /* onChange={tryGetResult} */
                         defaultValue={tableDetails.times && tableDetails.times.length == 1 ? tableDetails.times[0].label : undefined}>
                         <option value="">{dict.tableDetails.chooseTimePeriod[locale]}</option>
                         {tableDetails.times.map(time => (
