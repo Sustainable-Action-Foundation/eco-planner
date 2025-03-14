@@ -114,6 +114,7 @@ export default function QueryBuilder({
     if (!tableDetails) return;
 
     if (formRef.current.checkValidity()) {
+      console.log("Form is valid");
       const formData = new FormData(formRef.current);
       const query = buildQuery(formData);
       const tableId = formData.get("externalTableId") as string ?? "";
@@ -166,12 +167,43 @@ export default function QueryBuilder({
   }
 
   function handleDataSourceSelect(dataSource: string) {
+    // tableDetails is only cleared if tableContent is null. How do I fix this?
+    // setTimeout(() => {
+    // clearTableContent();
+    // setTableContent(null);
+    // }, 0);
+    // clearTableDetails();
     setDataSource(dataSource);
-    setTimeout(() => {
-      clearTableDetails();
-      clearTableContent();
-    }, 0);
+    // console.log("Form is valid", formRef.current?.checkValidity());
+    disableSubmitButton();
   }
+
+  useEffect(() => {
+    console.log("useEffect datasource");
+    // if (dataSource) {
+    clearTableContent();
+    clearTableDetails();
+    // console.log("tableContent:", tableContent);
+    // }
+  }, [dataSource]);
+
+  useEffect(() => {
+    console.log("useEffect tableContent");
+    if (tableContent) {
+      console.log("useEffect tableContent:", tableContent);
+    } else {
+      console.log("useEffect tableContent:", tableContent);
+    }
+  }, [tableContent]);
+
+  useEffect(() => {
+    console.log("useEffect tableDetails");
+    if (tableDetails) {
+      console.log("useEffect tableDetails:", tableDetails)
+    } else {
+      console.log("useEffect tableDetails:", tableDetails)
+    }
+  }, [tableDetails]);
 
   function handleTableSelect(tableId: string) {
     if (!externalDatasetBaseUrls[dataSource as keyof typeof externalDatasetBaseUrls]) return;
@@ -195,6 +227,7 @@ export default function QueryBuilder({
           required={!variable.optional}
           name={variable.name}
           id={variable.name}
+          onChange={tryGetResult}
           // If only one value is available, pre-select it
           defaultValue={variable.values && variable.values.length == 1 ? variable.values[0].label : undefined}>
           { // If only one value is available, don't show a placeholder option
@@ -224,7 +257,7 @@ export default function QueryBuilder({
         </div>
         <p>{dict.addHistoricalMetadata[locale]} {goal.name ?? goal.indicatorParameter}</p>
 
-        <form ref={formRef} onChange={tryGetResult} onSubmit={handleSubmit}>
+        <form ref={formRef} /* onChange={tryGetResult} */ onSubmit={handleSubmit}>
           {/* Hidden disabled submit button to prevent accidental submisson */}
           <button type="submit" className="display-none" disabled></button>
 
@@ -287,6 +320,7 @@ export default function QueryBuilder({
                       required={true}
                       name="metric"
                       id="metric"
+                      onChange={tryGetResult}
                       defaultValue={tableDetails.metrics && tableDetails.metrics.length == 1 ? tableDetails.metrics[0].label : undefined}>
                       {
                         tableDetails.metrics && tableDetails.metrics.length != 1 &&
@@ -311,6 +345,7 @@ export default function QueryBuilder({
                         required={false}
                         name="Tid"
                         id="Tid"
+                        onChange={tryGetResult}
                         defaultValue={tableDetails.times && tableDetails.times.length == 1 ? tableDetails.times[0].label : undefined}>
                         <option value="">{dict.tableDetails.chooseTimePeriod[locale]}</option>
                         {tableDetails.times.map(time => (
