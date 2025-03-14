@@ -294,6 +294,10 @@
           "en": "Choose a source",
           "sv": "Välj en källa"
         },
+        "doesNotSupportLanguage": {
+          "en": " does not support your current language. A supported language will be used instead.",
+          "sv": " stödjer inte ditt valda språk. Ett tillgängligt språk kommer att användas istället."
+        },
         "searchForTable": {
           "en": "Search for table",
           "sv": "Sök efter tabell"

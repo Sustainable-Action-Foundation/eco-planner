@@ -13,6 +13,11 @@ export const externalDatasetBaseUrls = {
   // ...
 }
 
+export const externalDatasetSupportedLanguages = {
+  "SCB": ["sv", "en"],
+  "Trafa": ["sv"]
+}
+
 export function parsePeriod(period: string) {
   period = period.trim().toUpperCase();
   // If period is a quarter (kvartal)

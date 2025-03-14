@@ -4,7 +4,7 @@ import { LocaleContext } from "@/app/context/localeContext.tsx";
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
 import formSubmitter from "@/functions/formSubmitter";
 import { ApiTableContent, ApiTableDetails, ScbVariable, TrafaVariable } from "@/lib/api/apiTypes";
-import { externalDatasetBaseUrls } from "@/lib/api/utility";
+import { externalDatasetBaseUrls, externalDatasetSupportedLanguages } from "@/lib/api/utility";
 import { getPxWebTableContent } from "@/lib/pxWeb/getPxWebTableContent";
 import { getPxWebTableDetails } from "@/lib/pxWeb/getPxWebTableDetails";
 import { getPxWebTables } from "@/lib/pxWeb/getPxWebTables";
@@ -240,6 +240,8 @@ export default function QueryBuilder({
                     <option key={name} value={name}>{name}</option>
                   ))}
                 </select>
+                {/* <p style={{color: "red"}}>{(externalDatasetSupportedLanguages[dataSource as keyof typeof externalDatasetSupportedLanguages].includes(locale)) && `${dataSource}${dict.dataSource.doesNotSupportLanguage[locale]}`}</p> */}
+                <p style={{color: "red"}}>{((dataSource == "Trafa" && locale != "sv") || (dataSource == "SCB" && locale != "en" && locale != "sv")) && `${dataSource}${dict.dataSource.doesNotSupportLanguage[locale]}`}</p>
               </label>
 
               {// TODO: Check that this works well with dynamic keyboards (smartphone/tablet)
