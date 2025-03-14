@@ -14,6 +14,11 @@ export default function dataSeriesPrep(
   const dataValues: Partial<DataSeriesDataFields> = {};
   // Data value fields
   if (dataSeries?.length && dataSeries.length <= dataSeriesDataFieldNames.length) {
+    if (dataSeries.length < dataSeriesDataFieldNames.length) {
+      const oldLength = dataSeries.length;
+      dataSeries.length = dataSeriesDataFieldNames.length;
+      dataSeries.fill("", oldLength);
+    }
     // The keys for the data values are `val2020`, `val2021`, etc. up to `val2050`
     const keys = dataSeries.map((_, index) => dataSeriesDataFieldNames[index]);
     keys.forEach((key, index) => {
