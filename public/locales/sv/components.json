@@ -5,6 +5,7 @@
   },
   "roadmap_filters": {
     "search_roadmaps": "Sök bland $t(common:meta_roadmap_other)",
+    "_search_roadmaps": "Sök på befintliga färdplaner i en lista",
     "sort_by": "Sortera på:",
     "default": "Standard",
     "name_descending": "Namn (A-Ö)",

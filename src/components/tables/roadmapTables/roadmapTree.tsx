@@ -7,6 +7,7 @@ import { MetaRoadmap, Roadmap } from "@prisma/client";
 import Link from "next/link";
 import Image from "next/image";
 import { Fragment } from "react";
+import { t } from "@/lib/i18nServer";
 
 type RoadmapTreeProps = {
   user: LoginData['user'],
@@ -24,7 +25,7 @@ export default function RoadmapTree({
   user,
 }: RoadmapTreeProps) {
   if (!roadmaps.length) {
-    return <p>Inga färdplaner hittades. Om du har några filter aktiva så hittade inga färdplaner som matchar dem.</p>;
+    return <p>{t("components:roadmap_tree.no_meta_roadmaps")}</p>;
   }
 
   const accessibleMetaRoadmaps = roadmaps.map(roadmap => roadmap.metaRoadmapId);

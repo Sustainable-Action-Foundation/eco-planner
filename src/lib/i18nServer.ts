@@ -5,6 +5,7 @@ import { initTemplate, Locales, titleCaseProcess, uniqueLocales } from "i18n.con
 import { match } from "@formatjs/intl-localematcher";
 import Backend from "i18next-fs-backend";
 import path from "node:path";
+import { getCookie } from "cookies-next";
 
 const i18nServer = createInstance();
 i18nServer
@@ -20,9 +21,10 @@ i18nServer
   });
 
 // Create a new i18n instance for each request to ensure we get the latest cookie
-const createI18nInstance = () => {
+const createI18nInstance = async () => {
   // Read the current locale from cookies
-  const cookieLocale = cookies().get("locale")?.value;
+  // const cookieLocale = cookies().get("locale")?.value;
+  const cookieLocale = await getCookie("locale");
 
   // Sanitize locale
   const locale = cookieLocale
@@ -35,11 +37,11 @@ const createI18nInstance = () => {
   return i18nServer;
 };
 
-const serverI18n = createI18nInstance();
+const serverI18n = await createI18nInstance();
 
-export function t(key: string | string[], options?: (TOptionsBase & $Dictionary) | undefined) {
+export async function t(key: string | string[], options?: (TOptionsBase & $Dictionary) | undefined) {
   // Get a fresh instance with the current cookie value
-  const i18nServer = createI18nInstance();
+  const i18nServer = await createI18nInstance();
   return i18nServer.t(key, options || {});
 }
 
