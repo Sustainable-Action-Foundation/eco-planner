@@ -10,6 +10,15 @@
     "name_descending": "Name (A-Z)",
     "name_ascending": "Name (Z-A)",
     "goal_count_descending": "{{$t(common:goal_one), titleCase}} count (high to low)",
-    "goal_count_ascending": "{{$t(common:goal_one), titleCase}} count (low to high)"
+    "goal_count_ascending": "{{$t(common:goal_one), titleCase}} count (low to high)",
+    "filter": "Filter",
+    "show": "Show",
+    "type": {
+      "national": "National $t(common:meta_roadmap_other)",
+      "regional": "Regional $t(common:meta_roadmap_other)",
+      "municipal": "Municipal $t(common:meta_roadmap_other)",
+      "local": "Local $t(common:meta_roadmap_other)",
+      "other": "Other $t(common:meta_roadmap_other)"
+    }
   }
 }

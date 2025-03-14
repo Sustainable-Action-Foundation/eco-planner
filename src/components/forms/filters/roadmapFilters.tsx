@@ -72,7 +72,7 @@ export default function RoadmapFilters() {
         </select>
       </label>
       <label className='flex align-items-center gap-50 padding-50 font-weight-bold button smooth transparent'>
-        <span style={{ lineHeight: '1', }}>Filtrera</span>
+        <span style={{ lineHeight: '1', }}>{t("components:roadmap_filters.filter")}</span>
         <div className='position-relative grid place-items-center'>
           <input type="checkbox" className="position-absolute width-100 height-100 hidden" />
           <Image src="/icons/filter.svg" alt="" width="24" height="24" />
@@ -81,7 +81,7 @@ export default function RoadmapFilters() {
     </menu>
 
     <menu id="roadmapFilters" className="margin-block-100 margin-inline-0 padding-100 gray-90 smooth">
-      <b>Visa</b>
+      <b>{t("components:roadmap_filters.show")}</b>
       {Object.values(RoadmapType).map((thisType, key) => (
         <label className="flex align-items-center gap-25 margin-block-50" key={key}>
           <input type="checkbox" value={thisType} defaultChecked={searchParams.getAll('typeFilter').includes(thisType)} onChange={(e) => {
@@ -93,13 +93,13 @@ export default function RoadmapFilters() {
               // setTypeFilter(typeFilter.filter((item) => item != e.target.value))
             }
           }} />
-          {`${thisType == RoadmapType.NATIONAL ? "Nationella" :
-            thisType == RoadmapType.REGIONAL ? "Regionala" :
-              thisType == RoadmapType.MUNICIPAL ? "Kommunala" :
-                thisType == RoadmapType.LOCAL ? "Lokala" :
-                  thisType == RoadmapType.OTHER ? "Övriga" :
-                    thisType
-            } färdplaner`}
+          {`${thisType == RoadmapType.NATIONAL ? t("components:roadmap_filters.type.national") :
+              thisType == RoadmapType.REGIONAL ? t("components:roadmap_filters.type.regional") :
+                thisType == RoadmapType.MUNICIPAL ? t("components:roadmap_filters.type.municipal") :
+                  thisType == RoadmapType.LOCAL ? t("components:roadmap_filters.type.local") :
+                    thisType == RoadmapType.OTHER ? t("components:roadmap_filters.type.other") :
+                      thisType
+            }`}
         </label>
       ))}
     </menu>
