@@ -9,7 +9,7 @@
     "default": "Default",
     "name_descending": "Name (A-Z)",
     "name_ascending": "Name (Z-A)",
-    "goal_count_descending": "$t(common:goal_one) count (high to low)",
-    "goal_count_ascending": "$t(common:goal_one) count (low to high)"
+    "goal_count_descending": "{{$t(common:goal_one), titleCase}} count (high to low)",
+    "goal_count_ascending": "{{$t(common:goal_one), titleCase}} count (low to high)"
   }
 }

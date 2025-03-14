@@ -3,6 +3,8 @@
  * This file contains shared resources for the client and server instances of i18next.
  */
 
+import { InitOptions, TFunction } from "i18next";
+
 export enum Locales {
   en = "en",
   sv = "sv",
@@ -10,9 +12,36 @@ export enum Locales {
 };
 export const uniqueLocales = [...new Set(Object.values(Locales))];
 
-export const ns = ["common", "forms", "components",];
 export const defaultNS = "common";
+export const ns = ["common", "forms", "components",];
 
-export function titleCase(value: string, key: string, options: object) {
+export function titleCase(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+export const titleCaseProcess = {
+  type: "postProcessor",
+  name: "titleCase",
+  process: titleCase,
+};
+
+export function initTemplate(t: TFunction): InitOptions {
+  return {
+    fallbackLng: Locales.default,
+    supportedLngs: uniqueLocales,
+    defaultNS,
+    ns,
+    interpolation: {
+      escapeValue: false, // React already escapes
+      format: (value, format, lng, options): string => {
+        if (!options) return value || "";
+
+        if (format === "titleCase") {
+          return titleCase(t(options.interpolationkey));
+        }
+
+        return value || "";
+      },
+    },
+  };
 }

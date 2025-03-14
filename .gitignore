@@ -137,3 +137,4 @@ dist
 
 # JSON file containing git commit hash
 /src/lib/commitHash.json
+certificates
