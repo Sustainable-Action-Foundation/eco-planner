@@ -240,8 +240,15 @@ export default function QueryBuilder({
                     <option key={name} value={name}>{name}</option>
                   ))}
                 </select>
-                {/* <p style={{color: "red"}}>{(externalDatasetSupportedLanguages[dataSource as keyof typeof externalDatasetSupportedLanguages].includes(locale)) && `${dataSource}${dict.dataSource.doesNotSupportLanguage[locale]}`}</p> */}
-                <p style={{color: "red"}}>{((dataSource == "Trafa" && locale != "sv") || (dataSource == "SCB" && locale != "en" && locale != "sv")) && `${dataSource}${dict.dataSource.doesNotSupportLanguage[locale]}`}</p>
+                {// Display warning message if the selected language is not supported by the api
+                  (
+                    (externalDatasetSupportedLanguages[dataSource as keyof typeof externalDatasetSupportedLanguages])
+                    &&
+                    !(externalDatasetSupportedLanguages[dataSource as keyof typeof externalDatasetSupportedLanguages].includes(locale))
+                  )
+                  &&
+                  <p style={{ color: "red" }}>{dataSource}{dict.dataSource.doesNotSupportLanguage[locale]}</p>
+                }
               </label>
 
               {// TODO: Check that this works well with dynamic keyboards (smartphone/tablet)
