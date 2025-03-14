@@ -169,10 +169,8 @@ export default function QueryBuilder({
     setDataSource(dataSource);
     setTimeout(() => {
       clearTableDetails();
-    }, 500);
-    setTimeout(() => {
       clearTableContent();
-    }, 500);
+    }, 0);
   }
 
   function handleTableSelect(tableId: string) {
