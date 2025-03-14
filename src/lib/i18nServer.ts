@@ -30,10 +30,9 @@ const createI18nInstance = () => {
     : Locales.default;
 
   // Create a fresh instance
-  const i18n = i18nServer.cloneInstance();
-  i18n.changeLanguage(locale);
+  i18nServer.changeLanguage(locale);
 
-  return i18n;
+  return i18nServer;
 };
 
 const serverI18n = createI18nInstance();
