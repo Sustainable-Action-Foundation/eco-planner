@@ -12,7 +12,7 @@ import { Locales, uniqueLocales } from "i18n.config";
 export default async function RootLayout(
   { children, }: { children: React.ReactNode, }
 ) {
-  const cookieLocale = cookies().get("locale")?.value;
+  const cookieLocale = await cookies().get("locale")?.value;
   const locale = cookieLocale
     ? match([cookieLocale], uniqueLocales, Locales.default)
     : Locales.default;
@@ -21,7 +21,7 @@ export default async function RootLayout(
     <html lang={locale}>
       <head>
         {/* TODO: Lots of this should be dynamic probably */}
-        <title>{t("common:app_name")}</title>
+        <title>{(await t("common:app_name"))}</title>
         <link rel="icon" type="image/svg+xml" href="/icons/leaf.svg" />
         <meta name="description" content={await t("common:meta_description")} />
 

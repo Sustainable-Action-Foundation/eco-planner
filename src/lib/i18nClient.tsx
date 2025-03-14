@@ -7,9 +7,9 @@ import { initReactI18next } from "react-i18next";
 import { match } from "@formatjs/intl-localematcher";
 import { useEffect, useState } from "react";
 import Backend from "i18next-http-backend";
-import i18n, { Module, t } from "i18next";
+import i18nClient, { Module, t } from "i18next";
 
-i18n
+i18nClient
   .use(Backend)
   .use(titleCaseProcess as Module)
   .use(initReactI18next)
@@ -34,8 +34,8 @@ export default function I18nProvider(
       const cookieLang = await getCookie("locale");
 
       // If cookie exists, respect that language
-      if (cookieLang && i18n.language !== cookieLang) {
-        await i18n.changeLanguage(match([cookieLang], uniqueLocales, Locales.default));
+      if (cookieLang && i18nClient.language !== cookieLang) {
+        await i18nClient.changeLanguage(match([cookieLang], uniqueLocales, Locales.default));
         return setIsI18nInitialized(true);
       }
 
@@ -57,5 +57,5 @@ export default function I18nProvider(
   }
 
   // The key prop forces the I18nextProvider to re-mount when language changes
-  return <I18nextProvider i18n={i18n} key={`i18n-provider-${forceUpdate}`}>{children}</I18nextProvider>;
+  return <I18nextProvider i18n={i18nClient} key={`i18n-provider-${forceUpdate}`}>{children}</I18nextProvider>;
 }

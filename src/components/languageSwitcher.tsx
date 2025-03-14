@@ -8,7 +8,7 @@ import { useState, useTransition } from "react";
 import { useTranslation } from "react-i18next";
 
 export function LanguageSwitcher() {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const [currentLocale, setCurrentLocale] = useState(i18n.language);

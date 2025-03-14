@@ -27,6 +27,7 @@ export const titleCaseProcess = {
 
 export function initTemplate(t: TFunction): InitOptions {
   return {
+    debug: false, // Set to true to get logs from i18next
     fallbackLng: Locales.default,
     supportedLngs: uniqueLocales,
     defaultNS,
