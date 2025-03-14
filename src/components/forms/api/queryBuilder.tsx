@@ -109,26 +109,16 @@ export default function QueryBuilder({
   }
 
   function tryGetResult(event: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
-    console.log("event:", event);
-    console.log("event target:",event.target);
-    console.log("target type:", typeof event.target);
-    console.log("target instanceof HTMLElement:", event.target instanceof HTMLElement);
-    console.log("target instanceof HTMLSelectElement:", event.target instanceof HTMLSelectElement);
-    if (event.target instanceof HTMLSelectElement) {
-      console.log("target as select name",(event.target as HTMLSelectElement).name);
-      console.log("target as select id",(event.target as HTMLSelectElement).id);
-    }
-    console.log("target instanceof HTMLInputElement:", event.target instanceof HTMLInputElement);
-    // if (!event.target instanceof )
+    // Don't try to get a result if the changed element is externalDataset
     if (event.target instanceof HTMLSelectElement && (event.target as HTMLSelectElement).name == "externalDataset") return;
+    // Don't try to get a result if the form is not a HTMLFormElement
     if (!(formRef.current instanceof HTMLFormElement)) return;
+    // Don't try to get a result if there are no tables or table details
     if (!tables) return;
     if (!tableDetails) return;
-    // if )
 
-
+    // Get a result if the form is valid
     if (formRef.current.checkValidity()) {
-      console.log("Form is valid");
       const formData = new FormData(formRef.current);
       const query = buildQuery(formData);
       const tableId = formData.get("externalTableId") as string ?? "";
@@ -140,7 +130,9 @@ export default function QueryBuilder({
         getTrafaTableDetails(tableId, query, locale).then(result => { setTableDetails(result); });
       }
       enableSubmitButton();
-    } else disableSubmitButton();
+    }
+    // If not, make sure the submit button is disabled
+    else disableSubmitButton();
   }
 
   function searchOnEnter(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -181,43 +173,13 @@ export default function QueryBuilder({
   }
 
   function handleDataSourceSelect(dataSource: string) {
-    // tableDetails is only cleared if tableContent is null. How do I fix this?
-    // setTimeout(() => {
-    // clearTableContent();
-    // setTableContent(null);
-    // }, 0);
-    // clearTableDetails();
     setDataSource(dataSource);
-    // console.log("Form is valid", formRef.current?.checkValidity());
-    disableSubmitButton();
-  }
-
-  useEffect(() => {
-    console.log("useEffect datasource");
-    // if (dataSource) {
+    // Clear table details and content whenever the data source changes
     clearTableContent();
     clearTableDetails();
-    // console.log("tableContent:", tableContent);
-    // }
-  }, [dataSource]);
-
-  useEffect(() => {
-    console.log("useEffect tableContent");
-    if (tableContent) {
-      console.log("useEffect tableContent:", tableContent);
-    } else {
-      console.log("useEffect tableContent:", tableContent);
-    }
-  }, [tableContent]);
-
-  useEffect(() => {
-    console.log("useEffect tableDetails");
-    if (tableDetails) {
-      console.log("useEffect tableDetails:", tableDetails)
-    } else {
-      console.log("useEffect tableDetails:", tableDetails)
-    }
-  }, [tableDetails]);
+    // Make sure submit button is disabled when the data source is changed
+    disableSubmitButton();
+  }
 
   function handleTableSelect(tableId: string) {
     if (!externalDatasetBaseUrls[dataSource as keyof typeof externalDatasetBaseUrls]) return;
@@ -241,7 +203,6 @@ export default function QueryBuilder({
           required={!variable.optional}
           name={variable.name}
           id={variable.name}
-          /* onChange={tryGetResult} */
           // If only one value is available, pre-select it
           defaultValue={variable.values && variable.values.length == 1 ? variable.values[0].label : undefined}>
           { // If only one value is available, don't show a placeholder option
@@ -334,7 +295,6 @@ export default function QueryBuilder({
                       required={true}
                       name="metric"
                       id="metric"
-                      /* onChange={tryGetResult} */
                       defaultValue={tableDetails.metrics && tableDetails.metrics.length == 1 ? tableDetails.metrics[0].label : undefined}>
                       {
                         tableDetails.metrics && tableDetails.metrics.length != 1 &&
@@ -359,7 +319,6 @@ export default function QueryBuilder({
                         required={false}
                         name="Tid"
                         id="Tid"
-                        /* onChange={tryGetResult} */
                         defaultValue={tableDetails.times && tableDetails.times.length == 1 ? tableDetails.times[0].label : undefined}>
                         <option value="">{dict.tableDetails.chooseTimePeriod[locale]}</option>
                         {tableDetails.times.map(time => (
