@@ -22,6 +22,7 @@
     }
   },
   "roadmap_tree": {
-    "no_meta_roadmaps": "No $t(common:meta_roadmap) found. If you have any filters active, no $t(common:meta_roadmap) were found that match them."
+    "no_meta_roadmaps": "No $t(common:meta_roadmap) found. If you have any filters active, no $t(common:meta_roadmap) were found that match them.",
+    "show_source_alt": "Show underlying roadmaps"
   }
 }

@@ -7,7 +7,7 @@ import { initReactI18next } from "react-i18next";
 import { match } from "@formatjs/intl-localematcher";
 import { useEffect, useState } from "react";
 import Backend from "i18next-http-backend";
-import i18nClient, { TFunction } from "i18next";
+import i18nClient, { t, TFunction } from "i18next";
 
 i18nClient
   .use(Backend)
@@ -19,10 +19,6 @@ i18nClient
       loadPath: "/api/locales?lng={{lng}}&ns={{ns}}",
     },
   });
-
-export function t(key: string | string[], options?: Record<string, unknown>) {
-  return i18nClient.t(key, options || { count: 1 });
-}
 
 
 /** React component that wraps all translatable content */

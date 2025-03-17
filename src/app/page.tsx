@@ -121,7 +121,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
             <>
               <a href="/metaRoadmap/create" className="button purewhite round block">{t("pages:create_meta_roadmap")}</a>
               {/* TODO: Incorporate this in a reasonable way */}
-              {/* <a href="/roadmap/createRoadmap" className="button purewhite round block">Skapa ny version i en existerande serie</a> */}
+              {/* <a href="/roadmap/createRoadmap" className="button purewhite round block">{t("pages:create_version_in_meta_roadmap")}</a> */}
             </>
           }
         </div>

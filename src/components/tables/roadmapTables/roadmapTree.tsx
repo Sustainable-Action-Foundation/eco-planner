@@ -66,10 +66,10 @@ function NestedRoadmapRenderer({
               <details>
                 <summary className="flex justify-content-space-between">
                   <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
-                    <Image src="/icons/caret-right.svg" alt="Visa underliggande färdplaner" width={24} height={24} className="round padding-25 margin-inline-25" />
+                    <Image src="/icons/caret-right.svg" alt={t("components:roadmap_tree.show_source_alt")} width={24} height={24} className="round padding-25 margin-inline-25" />
                     <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth' style={{ lineHeight: '1' }}>
                       <div>{`${roadmap.metaRoadmap.name} (v${roadmap.version})`}</div>
-                      <div className={styles["roadmap-information"]}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} målbanor</div>
+                      <div className={styles["roadmap-information"]}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} {t("common:goal", { count: roadmap._count.goals })}</div>
                     </Link>
                   </div>
                   <span className="flex align-items-center padding-inline-25">
@@ -88,10 +88,10 @@ function NestedRoadmapRenderer({
             :
             <li className="inline-flex align-items-center flex-grow-100 width-100">
               <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
-                <Image src="/icons/caret-right-gray.svg" alt="" width="24" height="24" className="round padding-25 margin-inline-25" />
+                <Image src="/icons/caret-right-gray.svg" alt={t("components:roadmap_tree.show_source_alt")} width="24" height="24" className="round padding-25 margin-inline-25" />
                 <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth' style={{ lineHeight: '1' }}>
                   <div>{`${roadmap.metaRoadmap.name} (v${roadmap.version})`}</div>
-                  <div className={styles["roadmap-information"]}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} målbanor</div>
+                  <div className={styles["roadmap-information"]}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} {t("common:goal", { count: roadmap._count.goals })}</div>
                 </Link>
               </div>
               <span className="flex align-items-center padding-inline-25">

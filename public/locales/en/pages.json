@@ -1,4 +1,14 @@
 {
   "home_title": "{{$t(common:roadmap_short_other), titleCase}}",
-  "create_meta_roadmap": "Create new $t(common:meta_roadmap)"
+  "create_meta_roadmap": "Create new $t(common:meta_roadmap)",
+  "create_version_in_meta_roadmap": "Create new $t(common:roadmap_one) in an existing $t(common:meta_roadmap)",
+  "toggle_menu_alt": "Toggle menu",
+  "sidebar": {
+    "my_profile": "My account",
+    "create_account": "Create account",
+    "home": "Home",
+    "about": "About the tool",
+    "language_alt": "Change language",
+    "login": "Log in"
+  }
 }

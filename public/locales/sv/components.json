@@ -22,6 +22,7 @@
     }
   },
   "roadmap_tree": {
-    "no_meta_roadmaps": "Inga $t(common:meta_roadmap_other) hittades. Om du har några aktiva filter hittades inga $t(common:meta_roadmap_other) som matchar dem."
+    "no_meta_roadmaps": "Inga $t(common:meta_roadmap_other) hittades. Om du har några aktiva filter hittades inga $t(common:meta_roadmap_other) som matchar dem.",
+    "show_source_alt": "Visa underliggande färdplaner"
   }
 }

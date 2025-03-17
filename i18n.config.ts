@@ -24,6 +24,7 @@ export function initTemplate(t: TFunction): InitOptions {
     debug: false, // Set to true to get logs from i18next
     fallbackLng: Locales.default,
     supportedLngs: uniqueLocales,
+    preload: uniqueLocales,
     defaultNS,
     ns,
     interpolation: {

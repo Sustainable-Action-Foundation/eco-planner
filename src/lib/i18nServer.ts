@@ -11,7 +11,7 @@ i18nServer
   .use(Backend)
   .init({
     ...initTemplate(t as TFunction),
-    initImmediate: false, // Synchronous loading
+    initImmediate: false, // Synchronous loading, prevents showing unloaded keys
     backend: {
       // Get locale data by reading files with fs
       loadPath: path.join(process.cwd(), "public/locales/{{lng}}/{{ns}}.json"),
@@ -30,7 +30,7 @@ export function t(key: string | string[], options?: (TOptionsBase & $Dictionary)
     return
   });
 
-  return i18nServer.t(key, options || { count: 1 });
+  return i18nServer.t(key, options);
 }
 
 
