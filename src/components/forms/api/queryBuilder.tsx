@@ -1,6 +1,5 @@
 "use client";
 
-// import { LocaleContext } from "@/app/context/localeContext.tsx";
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
 import formSubmitter from "@/functions/formSubmitter";
 import { ApiTableContent, ApiTableDetails, ScbVariable, TrafaVariable } from "@/lib/api/apiTypes";
@@ -13,9 +12,8 @@ import getTrafaTableDetails from "@/lib/trafa/getTrafaTableDetails";
 import getTrafaTables from "@/lib/trafa/getTrafaTables";
 import { Goal } from "@prisma/client";
 import Image from "next/image";
-import { FormEvent, /* useContext, */ useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import FormWrapper from "../formWrapper";
-// import parentDict from "../forms.dict.json" with { type: "json" };
 import styles from "./queryBuilder.module.css";
 
 export default function QueryBuilder({
@@ -23,9 +21,7 @@ export default function QueryBuilder({
 }: {
   goal: Goal,
 }) {
-  // const dict = parentDict.api.queryBuilder;
   const locale = "sv";
-  // const locale = useContext(LocaleContext);
 
   const [isLoading, setIsLoading] = useState(false);
   const [dataSource, setDataSource] = useState<string>("" as keyof typeof externalDatasetBaseUrls);
@@ -44,14 +40,11 @@ export default function QueryBuilder({
     const query = (formRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
 
     if (dataSource == "SCB") {
-      // getPxWebTables(dataSource, query, "sv").then(result => setTables(result));
       getPxWebTables(dataSource, query, locale).then(result => setTables(result));
     }
     if (dataSource == "Trafa") {
-      // getTrafaTables("sv").then(result => setTables(result));
       getTrafaTables(locale).then(result => setTables(result));
     }
-    // }, [dataSource]);
   }, [dataSource, locale]);
 
   function buildQuery(formData: FormData) {
@@ -97,7 +90,6 @@ export default function QueryBuilder({
   }
 
   function enableSubmitButton() {
-    console.log("enabling submit button");
     const submitButton = document.getElementById("submit-button");
     if (submitButton) {
       submitButton.removeAttribute("disabled");
@@ -106,7 +98,6 @@ export default function QueryBuilder({
   }
 
   function disableSubmitButton() {
-    console.log("disabling submit button");
     const submitButton = document.getElementById("submit-button");
     if (submitButton) {
       submitButton.setAttribute("disabled", "true");
@@ -116,16 +107,16 @@ export default function QueryBuilder({
 
   function tryGetResult(event: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
     // Don't try to get a result if the changed element is externalDataset
-    if (event && event.target instanceof HTMLSelectElement && (event.target as HTMLSelectElement).name == "externalDataset") {/* console.log("fail0"); */ return; }
+    if (event && event.target instanceof HTMLSelectElement && (event.target as HTMLSelectElement).name == "externalDataset") return;
     // Don't try to get a result if the changed element is search bar
-    if (event && event.target instanceof HTMLInputElement && (event.target as HTMLInputElement).name == "tableSearch") {/* console.log("fail1"); */ return; }
+    if (event && event.target instanceof HTMLInputElement && (event.target as HTMLInputElement).name == "tableSearch") return;
     // Don't try to get a result if the changed element is a table
-    if (event && event.target instanceof HTMLInputElement && (event.target as HTMLInputElement).name == "externalTableId") {/* console.log("fail2"); */ return; }
+    if (event && event.target instanceof HTMLInputElement && (event.target as HTMLInputElement).name == "externalTableId") return;
     // Don't try to get a result if the form is not a HTMLFormElement
-    if (!(formRef.current instanceof HTMLFormElement)) {/* console.log("fail3"); */ return; }
+    if (!(formRef.current instanceof HTMLFormElement)) return;
     // Don't try to get a result if there are no tables or table details
-    if (!tables) {/* console.log("fail4"); */ return; }
-    if (!tableDetails) {/* console.log("fail5"); */ return; }
+    if (!tables) return;
+    if (!tableDetails) return;
 
     // Get a result if the form is valid
     if (formRef.current.checkValidity()) {
@@ -133,8 +124,6 @@ export default function QueryBuilder({
       const query = buildQuery(formData); // This line is called before the form is cleared
       const tableId = formData.get("externalTableId") as string ?? "";
       if (dataSource == "SCB") {
-        // getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource, "sv").then(result => { setTableContent(result); });
-        // getPxWebTableDetails(tableId, dataSource, locale).then(result => { setTableDetails(result); });
         getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource, locale).then(result => { setTableContent(result); });
         getPxWebTableDetails(tableId, dataSource, locale).then(result => { setTableDetails(result); });
       } else if (dataSource == "Trafa") {
@@ -194,6 +183,7 @@ export default function QueryBuilder({
   }
 
   function handleTableSelect(tableId: string) {
+    console.time("tableSelect");
     if (!externalDatasetBaseUrls[dataSource as keyof typeof externalDatasetBaseUrls]) return;
     if (!tableId) return;
     clearTableContent();
@@ -201,9 +191,9 @@ export default function QueryBuilder({
     disableSubmitButton();
 
     if (dataSource == "SCB") {
-      getPxWebTableDetails(tableId, dataSource, locale).then(result => { setTableDetails(result); /* tryGetResult() */ });
+      getPxWebTableDetails(tableId, dataSource, locale).then(result => { setTableDetails(result); console.timeEnd("tableSelect"); });
     } else if (dataSource == "Trafa") {
-      getTrafaTableDetails(tableId, undefined, locale).then(result => { setTableDetails(result); /* tryGetResult() */ });
+      getTrafaTableDetails(tableId, undefined, locale).then(result => { setTableDetails(result); console.timeEnd("tableSelect"); });
     }
   }
 
@@ -310,11 +300,6 @@ export default function QueryBuilder({
                       name="metric"
                       id="metric"
                       defaultValue={undefined}>
-                      {/* defaultValue={tableDetails.metrics && tableDetails.metrics.length == 1 ? tableDetails.metrics[0].label : undefined}> */}
-                      {/* {
-                        tableDetails.metrics && tableDetails.metrics.length != 1 &&
-                        <option value="">Välj ett mätvärde</option>
-                      } */}
                       <option value="">Välj ett mätvärde</option>
                       {tableDetails.metrics && tableDetails.metrics.map(metric => (
                         <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>

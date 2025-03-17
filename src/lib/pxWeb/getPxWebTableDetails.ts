@@ -5,6 +5,8 @@ export async function getPxWebTableDetails(tableId: string, externalDataset: str
   const baseUrl = externalDatasetBaseUrls[externalDataset as keyof typeof externalDatasetBaseUrls] ?? externalDatasetBaseUrls.SCB;
   const url = new URL(`${baseUrl}/tables/${tableId}/metadata`);
 
+  console.time("pxWebTableDetails");
+
   url.searchParams.append('lang', language);
 
   // Data is used to store the response when fetching
@@ -101,5 +103,6 @@ export async function getPxWebTableDetails(tableId: string, externalDataset: str
     tableDetails.variables.push(scbVariable);
   }
 
+  console.timeEnd("pxWebTableDetails");
   return tableDetails;
 }
