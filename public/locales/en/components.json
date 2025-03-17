@@ -4,8 +4,7 @@
     "on": "on"
   },
   "roadmap_filters": {
-    "search_roadmaps": "Search $t(common:meta_roadmap_other)",
-    "_search_roadmaps": "Search among existing roadmaps in a list",
+    "search_roadmaps": "Search $t(common:meta_roadmap)",
     "sort_by": "Sort by:",
     "default": "Default",
     "name_descending": "Name (A-Z)",
@@ -15,15 +14,14 @@
     "filter": "Filter",
     "show": "Show",
     "type": {
-      "national": "National $t(common:meta_roadmap_other)",
-      "regional": "Regional $t(common:meta_roadmap_other)",
-      "municipal": "Municipal $t(common:meta_roadmap_other)",
-      "local": "Local $t(common:meta_roadmap_other)",
-      "other": "Other $t(common:meta_roadmap_other)"
+      "national": "National $t(common:meta_roadmap)",
+      "regional": "Regional $t(common:meta_roadmap)",
+      "municipal": "Municipal $t(common:meta_roadmap)",
+      "local": "Local $t(common:meta_roadmap)",
+      "other": "Other $t(common:meta_roadmap)"
     }
   },
   "roadmap_tree": {
-    "no_meta_roadmaps": "No $t(common:meta_roadmap_other) found. If you have any filters active, no $t(common:meta_roadmap_other) were found that match them.",
-    "_no_meta_roadmaps": "Inga färdplaner hittades. Om du har några filter aktiva så hittade inga färdplaner som matchar dem."
+    "no_meta_roadmaps": "No $t(common:meta_roadmap) found. If you have any filters active, no $t(common:meta_roadmap) were found that match them."
   }
 }

@@ -11,23 +11,39 @@ i18nServer
   .use(Backend)
   .init({
     ...initTemplate(t as TFunction),
-    initImmediate: false, // Synchronous loading
+    // initImmediate: false, // Synchronous loading
     backend: {
       // Get locale data by reading files with fs
       loadPath: path.join(process.cwd(), "public/locales/{{lng}}/{{ns}}.json"),
     },
   });
 
-export async function t(key: string | string[], options?: (TOptionsBase & $Dictionary) | undefined) {
+export function t(key: string | string[], options?: (TOptionsBase & $Dictionary) | undefined) {
   // Get locale from cookies
-  const cookieLocale = await cookies().get("locale")?.value;
+  const cookieLocale = cookies().get("locale")?.value;
   // Sanitize locale
   const locale = cookieLocale
     ? match([cookieLocale], uniqueLocales, Locales.default)
     : Locales.default;
 
-  // Change the language
-  await i18nServer.changeLanguage(locale);
+  i18nServer.changeLanguage(locale, () => {
+    return
+  });
 
-  return i18nServer.t(key, options || {});
+  return i18nServer.t(key, options || { count: 1 });
 }
+
+
+// export async function t(key: string | string[], options?: (TOptionsBase & $Dictionary) | undefined) {
+//   // Get locale from cookies
+//   const cookieLocale = await cookies().get("locale")?.value;
+//   // Sanitize locale
+//   const locale = cookieLocale
+//     ? match([cookieLocale], uniqueLocales, Locales.default)
+//     : Locales.default;
+
+//   // Change the language
+//   await i18nServer.changeLanguage(locale);
+
+//   return i18nServer.t(key, options || {});
+// }

@@ -1,7 +1,8 @@
 {
-  "app_name": "Eco - Planner",
-  "meta_roadmap_one": "färdplan",
-  "meta_roadmap_other": "färdplaner",
+  "roadmap_short_one": "färdplan",
+  "roadmap_short_other": "färdplaner",
+  "meta_roadmap_one": "färdplansserie",
+  "meta_roadmap_other": "färdplansserier",
   "roadmap_one": "färdplansversion",
   "roadmap_other": "färdplansversioner",
   "roadmap_version_one": "version",
@@ -10,7 +11,7 @@
   "action_other": "åtgärder",
   "goal_one": "målbana",
   "goal_other": "målbaner",
+  "app_name": "Eco - Planner",
   "meta_description": "Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella användare kan inspireras av varandras $t(action_other), på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring $t(action_other).",
-  "og_locale": "sv_SE",
-  "create_meta_roadmap": "Skapa ny $t(meta_roadmap_one)"
+  "og_locale": "sv_SE"
 }

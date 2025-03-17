@@ -109,7 +109,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
       <AttributedImage src="/images/solarpanels.jpg" alt="" >
         <div className="flex gap-100 flex-wrap-wrap align-items-flex-end justify-content-space-between padding-100 width-100">
           <div>
-            <h1 className="margin-block-25">{t("common:meta_roadmap_other", { postProcess: "titleCase" })}</h1>
+            <h1 className="margin-block-25">{t("pages:home_title")}</h1>
             <AttributeText
               author={"Markus Spiske"}
               authorLink="https://unsplash.com/@markusspiske?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash"
@@ -119,7 +119,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
           { // Link to create roadmap form if logged in
             session.user &&
             <>
-              <a href="/metaRoadmap/create" className="button purewhite round block">{t("common:create_meta_roadmap")}</a>
+              <a href="/metaRoadmap/create" className="button purewhite round block">{t("pages:create_meta_roadmap")}</a>
               {/* TODO: Incorporate this in a reasonable way */}
               {/* <a href="/roadmap/createRoadmap" className="button purewhite round block">Skapa ny version i en existerande serie</a> */}
             </>

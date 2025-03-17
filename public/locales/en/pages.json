@@ -1,3 +1,4 @@
 {
-  
+  "home_title": "{{$t(common:roadmap_short_other), titleCase}}",
+  "create_meta_roadmap": "Create new $t(common:meta_roadmap)"
 }

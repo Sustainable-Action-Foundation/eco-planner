@@ -13,7 +13,7 @@ export enum Locales {
 export const uniqueLocales = [...new Set(Object.values(Locales))];
 
 export const defaultNS = "common";
-export const ns = ["common", "forms", "components",];
+export const ns = ["common", "forms", "components", "pages",];
 
 export function titleCase(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
@@ -29,9 +29,8 @@ export function initTemplate(t: TFunction): InitOptions {
     interpolation: {
       escapeValue: false, // React already escapes
       format: (value, format, lng, options): string => {
-        if (!options) return value || "";
 
-        if (format === "titleCase") {
+        if (options && format === "titleCase") {
           return titleCase(t(options.interpolationkey));
         }
 

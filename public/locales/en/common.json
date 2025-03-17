@@ -1,7 +1,7 @@
 {
-  "app_name": "Eco - Planner",
-  "meta_roadmap_one": "roadmap",
-  "meta_roadmap_other": "roadmaps",
+  "roadmap_short_one": "roadmap",
+  "roadmap_short_other": "roadmaps",
+  "meta_roadmap": "roadmap series",
   "roadmap_one": "roadmap version",
   "roadmap_other": "roadmap versions",
   "roadmap_version_one": "version",
@@ -10,7 +10,7 @@
   "action_other": "actions",
   "goal_one": "goal",
   "goal_other": "goals",
+  "app_name": "Eco - Planner",
   "meta_description": "A tool that aims to contribute to Sweden's climate transition. In the tool, national users can be inspired by each other's actions, creating a common action database for Sweden. At the local level, different actors can also collaborate on actions.",
-  "og_locale": "en",
-  "create_meta_roadmap": "Create new $t(meta_roadmap_one)"
+  "og_locale": "en"
 }
