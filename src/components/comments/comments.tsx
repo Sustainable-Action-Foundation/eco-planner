@@ -5,8 +5,11 @@ import timeSince from "@/functions/timeSince";
 import { Comment } from "@prisma/client";
 import styles from './comments.module.css'
 import { ChangeEvent, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function Comments({ comments, objectId }: { comments?: (Comment & { author: { id: string, username: string } })[], objectId: string }) {
+  const { t } = useTranslation();
+
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
     const form = event.target.elements
@@ -65,20 +68,22 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
   return (
     <>
       <div className="container-text">
-        <h2>{comments?.length} Kommentarer</h2>
+        <h2>{t("components:comments.comment_count", { count: comments?.length || 0 })}</h2>
         <form onSubmit={handleSubmit}>
-          <span className={styles.textarea} role="textbox" id="comment-text" contentEditable aria-label="Skriv Kommentar" aria-placeholder="Skriv Kommentar" onInput={handleInput} onBlur={handleInput} ref={spanRef}></span>
+          <span className={styles.textarea} role="textbox" id="comment-text" contentEditable aria-label={t("components:comments.add_comment")} aria-placeholder={t("components:comments.add_comment")} onInput={handleInput} onBlur={handleInput} ref={spanRef}></span>
           <input type="hidden" name="comment" id="comment" value={editedContent} />
           <div className="display-flex justify-content-flex-end gap-50 padding-block-50">
-            <button type="button" disabled={!editedContent} className={`${styles.button} ${styles.cancel}`} onClick={removeText}>Avbryt</button>
-            <button type="submit" disabled={!editedContent} className={`${styles.button} ${styles.comment}`}>Skicka</button>
+            <button type="button" disabled={!editedContent} className={`${styles.button} ${styles.cancel}`} onClick={removeText}>{t("components:comments.cancel")}</button>
+            <button type="submit" disabled={!editedContent} className={`${styles.button} ${styles.comment}`}>{t("components:comments.send")}</button>
           </div>
         </form>
         {comments?.map((comment) => (
           <div key={comment.id}>
             <div className="flex align-items-center gap-50 margin-top-200">
               <a className={styles.commentAuthor} href={`/@${comment.author.username}`}>{comment.author.username}</a>
-              <span className="font-weight-300" style={{ color: 'gray', fontSize: '.75rem' }}>{`${timeSince(new Date(comment.createdAt))} sedan`}</span>
+              <span className="font-weight-300" style={{ color: 'gray', fontSize: '.75rem' }}>
+                {`${timeSince(new Date(comment.createdAt))} sedan`}
+              </span>
             </div>
             <p className="margin-0" style={{ wordBreak: 'break-word', }}>
               {expandedComments.includes(comment.id) ? comment.commentText : comment.commentText.length > 300 ? `${comment.commentText.substring(0, 300)}...` : comment.commentText}
@@ -87,7 +92,7 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
               <button className={`margin-block-25 ${styles.readMoreButton}`} onClick={() => expandComment(comment.id)}>
                 {expandedComments.includes(comment.id) ? 'Visa mindre' : 'Visa mer'}
               </button>
-            : null}
+              : null}
           </div>
         ))}
       </div>

@@ -62,5 +62,19 @@
     "sort_interest": "Intresse",
     "new_goal": "Skapa ny $t(common:goal_one)",
     "loading_alt": "Laddar"
+  },
+  "comments": {
+    "comment": "Kommentar",
+    "comments": "Kommentarer",
+    "no_comments": "Inga kommentarer",
+    "add_comment": "Lägg till kommentar",
+    "edit_comment": "Redigera kommentar",
+    "delete_comment": "Radera kommentar",
+    "comment_count": "{{count}} kommentar",
+    "comment_count_other": "{{count}} kommentarer",
+    "comment_count_zero": "Inga kommentarer",
+    "comment_count_one": "En kommentar",
+    "cancel": "Avbryt",
+    "send": "Skicka"
   }
 }
