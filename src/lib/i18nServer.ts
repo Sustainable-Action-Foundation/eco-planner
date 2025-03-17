@@ -11,7 +11,7 @@ i18nServer
   .use(Backend)
   .init({
     ...initTemplate(t as TFunction),
-    // initImmediate: false, // Synchronous loading
+    initImmediate: false, // Synchronous loading
     backend: {
       // Get locale data by reading files with fs
       loadPath: path.join(process.cwd(), "public/locales/{{lng}}/{{ns}}.json"),
