@@ -50,5 +50,17 @@
     "close_button_alt": "close",
     "edit": "Edit",
     "delete": "Delete post"
+  },
+  "goals": {
+    "search": "Search $t(common:goal_other)",
+    "sort_by": "Sort by",
+    "sort_default": "Default",
+    "sort_name_descending": "Name (A-Z)",
+    "sort_name_ascending": "Name (Z-A)",
+    "sort_action_count_descending": "{{$t(common:action_one), titleCase}} count (high to low)",
+    "sort_action_count_ascending": "{{$t(common:action_one), titleCase}} count (low to high)",
+    "sort_interest": "Interest",
+    "new_goal": "New $t(common:goal_one)",
+    "loading_alt": "Loading"
   }
 }

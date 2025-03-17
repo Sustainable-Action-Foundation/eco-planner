@@ -50,5 +50,17 @@
     "close_button_alt": "stäng",
     "edit": "Redigera",
     "delete": "Radera inlägg"
+  },
+  "goals": {
+    "search": "Sök bland $t(common:goal_other)",
+    "sort_by": "Sortera utifrån",
+    "sort_default": "Standard",
+    "sort_name_descending": "Namn (A-Ö)",
+    "sort_name_ascending": "Namn (Ö-A)",
+    "sort_action_count_descending": "Antal $t(common:action_other) (fallande)",
+    "sort_action_count_ascending": "Antal $t(common:action_other) (stigande)",
+    "sort_interest": "Intresse",
+    "new_goal": "Skapa ny $t(common:goal_one)",
+    "loading_alt": "Laddar"
   }
 }
