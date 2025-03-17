@@ -1,10 +1,10 @@
 // Use server in order to circumvent CORS issues
 "use server"
 
+import { externalDatasetBaseUrls } from "../api/utility.ts";
+import { PxWebApiV2TableContent } from "./pxWebApiV2Types.ts";
 import { ApiTableContent } from "../api/apiTypes.ts";
 import { getPxWebTableDetails } from "./getPxWebTableDetails.ts";
-import { PxWebApiV2TableContent } from "./pxWebApiV2Types.ts";
-import { externalDatasetBaseUrls } from "./utility.ts";
 
 export async function getPxWebTableContent(tableId: string, selection: { variableCode: string, valueCodes: string[] }[], externalDataset: string, language: string = 'sv',) {
   // Get the base URL for the external dataset, defaulting to SCB
@@ -33,7 +33,6 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
       payload.selection.push(selectionItem);
     }
     else if (item.variableCode != "Tid" && item.variableCode != "Time") {
-      console.log("Var code not Time", item.variableCode);
       const selectionItem = {
         variableCode: item.variableCode,
         valueCodes: item.valueCodes,
@@ -48,7 +47,7 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
       payload.selection.push(timeSelectionItem);
     }
   });
-
+  
   const timeSelectionItemInPayload = payload.selection.filter(item => item.variableCode == "Tid" || item.variableCode == "Time")[0];
   if (!timeSelectionItemInPayload) {
     // Get all time periods that are available for this table and add them to payload | TODO - allow user to select starting time period
@@ -58,8 +57,6 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
     timeSelectionItem.valueCodes.push(`from(${times[0].id})`);
     payload.selection.push(timeSelectionItem);
   }
-
-  console.log(JSON.stringify(payload, null, 2));
 
   // TODO - make this parse in the same format as if it were json
   function parsePxToJson(pxText: string) {

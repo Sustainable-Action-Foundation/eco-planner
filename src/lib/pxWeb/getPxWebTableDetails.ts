@@ -1,5 +1,5 @@
-import { externalDatasetBaseUrls } from "./utility";
 import { ApiTableDetails, ScbMetric, ScbTimeVariable, ScbVariable, ScbVariableValue } from "../api/apiTypes";
+import { externalDatasetBaseUrls } from "../api/utility";
 
 export async function getPxWebTableDetails(tableId: string, externalDataset: string, language: string = 'sv') {
   const baseUrl = externalDatasetBaseUrls[externalDataset as keyof typeof externalDatasetBaseUrls] ?? externalDatasetBaseUrls.SCB;
@@ -29,6 +29,7 @@ export async function getPxWebTableDetails(tableId: string, externalDataset: str
   const tableDetails: ApiTableDetails = {
     id: tableId,
     metrics: [],
+    hierarchies: [],
     variables: [],
     times: [],
     language: language,

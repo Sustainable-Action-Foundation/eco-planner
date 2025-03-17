@@ -1,5 +1,5 @@
 import { PxWebApiV2TableArray } from "@/lib/pxWeb/pxWebApiV2Types";
-import { externalDatasetBaseUrls } from "./utility";
+import { externalDatasetBaseUrls } from "../api/utility";
 
 /**
  * Returns a list of tables from SCB's API. Returns null on error.

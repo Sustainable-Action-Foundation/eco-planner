@@ -1,7 +1,7 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import UpdateGoalButton from "@/components/buttons/updateGoalButton";
 import Comments from "@/components/comments/comments";
-import QueryBuilder from "@/components/forms/pxWeb/queryBuilder";
+import QueryBuilder from "@/components/forms/api/queryBuilder";
 import ActionGraph from "@/components/graphs/actionGraph";
 import ChildGraphContainer from "@/components/graphs/childGraphs/childGraphContainer.tsx";
 import GraphGraph from "@/components/graphs/graphGraph";
