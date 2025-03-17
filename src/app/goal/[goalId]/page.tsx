@@ -18,6 +18,7 @@ import findSiblings from "@/functions/findSiblings.ts";
 import accessChecker from "@/lib/accessChecker";
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import { getPxWebTableContent } from "@/lib/pxWeb/getPxWebTableContent";
+import getTrafaTableContent from "@/lib/trafa/getTrafaTableContent";
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
 import { AccessControlled, AccessLevel } from "@/types";
@@ -37,6 +38,8 @@ export default async function Page({
     [key: string]: string | string[] | undefined
   },
 }) {
+  const locale = "sv";
+
   const [session, { goal, roadmap }, secondaryGoal, unfilteredRoadmapOptions] = await Promise.all([
     getSession(cookies()),
     getOneGoal(params.goalId).then(async goal => { return { goal, roadmap: (goal ? await getOneRoadmap(goal.roadmapId) : null) } }),
@@ -74,7 +77,12 @@ export default async function Page({
   // Fetch external data
   let externalData: ApiTableContent | null = null;
   if (goal.externalDataset && goal.externalTableId && goal.externalSelection) {
-    externalData = await getPxWebTableContent(goal.externalTableId, JSON.parse(goal.externalSelection), goal.externalDataset);
+    if (goal.externalDataset == "SCB") {
+      externalData = await getPxWebTableContent(goal.externalTableId, JSON.parse(goal.externalSelection), goal.externalDataset, locale);
+    }
+    else if (goal.externalDataset == "Trafa") {
+      externalData = await getTrafaTableContent(goal.externalTableId, JSON.parse(goal.externalSelection), locale)
+    }
   }
 
   // Fetch parent goal
