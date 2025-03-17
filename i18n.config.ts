@@ -30,9 +30,32 @@ export function initTemplate(t: TFunction): InitOptions {
     interpolation: {
       escapeValue: false, // React already escapes
       format: (value, format, lng, options): string => {
+        if (!options) return value;
 
-        if (options && format === "titleCase") {
-          return titleCase(t(options.interpolationkey));
+        value = value || t(options.interpolationkey);
+        const formats = (format || "").split(",").map((f) => f.trim());
+
+        /* Title case */
+        if (options && formats.includes("titleCase")) {
+          value = titleCase(value);
+        }
+
+        /* Possessive */
+        if (options && formats.includes("possessive")) {
+          if (lng === Locales.en) {
+            if (["s", "x", "y"].includes(value.slice(-1))) {
+              value = value + "'";
+            } else {
+              value = value + "'s";
+            }
+          }
+          if (lng === Locales.sv) {
+            if (["s", "x", "z"].includes(value.slice(-1))) {
+              value = value + "'";
+            } else {
+              value = value + "s";
+            }
+          }
         }
 
         return value || "";
