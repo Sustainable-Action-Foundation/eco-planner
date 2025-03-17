@@ -9,6 +9,8 @@ import { useEffect, useState } from "react";
 import { getStoredGraphType } from "./functions/graphFunctions";
 import SecondaryGoalSelector from "./secondaryGraphSelector";
 import { ApiTableContent } from "@/lib/api/apiTypes";
+import { externalDatasetUserFacingUrls } from "@/lib/api/utility";
+import Link from "next/link";
 
 export enum GraphType {
   Main = "MAIN",
@@ -58,14 +60,19 @@ export default function GraphGraph({
         <SecondaryGoalSelector />
         {children}
       </menu>
-      {goal.name ? 
-        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{fontSize: '1rem'}}>{goal.name}</h2>
-      : 
-        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{fontSize: '1rem'}}>{goal.indicatorParameter}</h2>
+      {goal.name ?
+        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{ fontSize: '1rem' }}>{goal.name}</h2>
+        :
+        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{ fontSize: '1rem' }}>{goal.indicatorParameter}</h2>
       }
-      <div style={{ height: '500px',  paddingInline: '.3rem' }}>
+      <div style={{ height: '500px', paddingInline: '.3rem' }}>
         {graphSwitch(graphType)}
       </div>
+      {historicalData && (
+        <div>
+          Den historiska datan i grafen är hämtad från <Link href={externalDatasetUserFacingUrls[historicalData.metadata[0].source as keyof typeof externalDatasetUserFacingUrls]} target="_blank">{historicalData.metadata[0].source}</Link>
+        </div>
+      )}
     </>
   );
 }

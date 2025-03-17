@@ -6,16 +6,21 @@
  */
 export const externalDatasetBaseUrls = {
   "SCB": "https://api.scb.se/ov0104/v2beta/api/v2",
-  "Trafa": "https://api.trafa.se/api"
+  "Trafa": "https://api.trafa.se/api",
   // Add more datasets as they implement the PxWeb API v2
   // "SSB": "some url",
   // "stat.fi": "some url",
   // ...
 }
 
+export const externalDatasetUserFacingUrls = {
+  "SCB": "https://www.statistikdatabasen.scb.se/pxweb/sv/ssd/",
+  "Trafa": "https://www.trafa.se/sidor/oppen-data-api/",
+}
+
 export const externalDatasetSupportedLanguages = {
   "SCB": ["sv", "en"],
-  "Trafa": ["sv"]
+  "Trafa": ["sv"],
 }
 
 export function parsePeriod(period: string) {
