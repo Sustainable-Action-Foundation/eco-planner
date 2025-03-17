@@ -1,7 +1,7 @@
 {
   "home_title": "{{$t(common:roadmap_short_other), titleCase}}",
   "create_meta_roadmap": "Skapa ny $t(common:meta_roadmap_one)",
-  "create_version_in_meta_roadmap": "Skapa ny $t(common:roadmap_one) i en befintlig $t(common:meta_roadmap_one)",
+  "create_version_in_meta_roadmap": "Skapa ny $t(common:roadmap_version_one) i en befintlig $t(common:meta_roadmap_one)",
   "toggle_menu_alt": "Växla meny",
   "sidebar": {
     "my_profile": "Mitt konto",
@@ -16,8 +16,18 @@
     "my_posts": "Mina inlägg",
     "user_posts": "{{name, possessive, titleCase}} inlägg",
     "meta_roadmaps": "{{$t(common:meta_roadmap_other), titleCase}}",
-    "version_count": "{{count}} $t(common:roadmap_version, {\"count\":{{count}}})",
-    "roadmap_versions": "{{$t(common:roadmap_other), titleCase}}",
+    "version_count_one": "{{count}} version",
+    "version_count_other": "{{count}} versioner",
+    "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
     "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
+  },
+  "roadmap": {
+    "title": "{{$t(common:roadmap_version_one), titleCase}}",
+    "version": "{{$t(common:roadmap_version_one), titleCase}}",
+    "goal_count": "$t(common:goal, {\"count\":{{count}}})",
+    "show_series": "Besök $t(common:meta_roadmap_one)",
+    "edit_roadmap_version": "Redigera $t(common:roadmap_version_one)",
+    "featured_goals": "Utvalda $t(common:goal_other)",
+    "all_goals": "Alla $t(common:goal_other)"
   }
 }

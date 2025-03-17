@@ -27,16 +27,16 @@
   },
   "user_filters": {
     "posts": "Posts",
-    "roadmap_versions": "{{$t(common:roadmap_other), titleCase}}",
+    "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
     "roadmap_series": "{{$t(common:meta_roadmap), titleCase}}",
     "access_level": "Access level",
     "editing_access": "Editing access"
   },
   "logout": "Log out",
   "table_menu": {
-    "new_roadmap_version": "New $t(common:roadmap_one)",
+    "new_roadmap_version": "New $t(common:roadmap_version_one)",
     "go_to_series": "Go to $t(common:meta_roadmap)",
-    "go_to_version": "Go to $t(common:roadmap_one)",
+    "go_to_version": "Go to $t(common:roadmap_version_one)",
     "go_to_goal": "Go to $t(common:goal_one)",
     "new_goal": "New $t(common:goal_one)",
     "new_action": "New $t(common:action_one)",

@@ -27,16 +27,16 @@
   },
   "user_filters": {
     "posts": "Inlägg",
-    "roadmap_versions": "{{$t(common:roadmap_other), titleCase}}",
+    "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
     "roadmap_series": "{{$t(common:meta_roadmap_other), titleCase}}",
     "access_level": "Behörighet",
     "editing_access": "Redigeringsbehörighet"
   },
   "logout": "Logga ut",
   "table_menu": {
-    "new_roadmap_version": "Ny $t(common:roadmap_one)",
+    "new_roadmap_version": "Ny $t(common:roadmap_version_one)",
     "go_to_series": "Gå till $t(common:meta_roadmap_one)",
-    "go_to_version": "Gå till $t(common:roadmap_one)",
+    "go_to_version": "Gå till $t(common:roadmap_version_one)",
     "go_to_goal": "Gå till $t(common:goal_one)",
     "new_goal": "Ny $t(common:goal_one)",
     "new_action": "Ny $t(common:action_one)",

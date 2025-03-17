@@ -10,6 +10,7 @@ import ThumbnailGraph from "@/components/graphs/mainGraphs/thumbnailGraph";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import Image from "next/image";
 import { DataSeries, Goal } from "@prisma/client";
+import { t } from "@/lib/i18nServer";
 
 export default async function Page({ params }: { params: { roadmapId: string } }) {
   const [session, roadmap] = await Promise.all([
@@ -36,17 +37,17 @@ export default async function Page({ params }: { params: { roadmapId: string } }
     <main>
       <section className="flex justify-content-space-between flex-wrap-wrap gap-100 margin-block-300" >
         <div className="flex-grow-100">
-          <span style={{ color: 'gray' }}>Färdplan</span>
+          <span style={{ color: 'gray' }}>{t("pages:roadmap.title")}</span>
           <h1 className="margin-0">{roadmap.metaRoadmap.name}</h1>
           <p className="margin-0">
-            {`Version ${roadmap.version} • `}
+            {`${t("pages:roadmap.version")} ${roadmap.version} • `}
             {(roadmap.metaRoadmap.actor) ?
               <>{`${roadmap.metaRoadmap.actor} • `}</>
               : null
             }
-            {`${roadmap.goals.length ?? 0} målbanor • `}
+            {`${roadmap.goals.length ?? 0} ${t("pages:roadmap.goal_count", {count: roadmap.goals.length})} • `}
             {/* TODO: style link to better match surroundings */}
-            <a href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>Besök färdplansserien</a>
+            <a href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>{t("pages:roadmap.show_series")}</a>
           </p>
           <p className="margin-bottom-0">{roadmap.metaRoadmap.description}</p>
           {roadmap.description ? (
@@ -71,7 +72,7 @@ export default async function Page({ params }: { params: { roadmapId: string } }
             className="flex align-items-center gap-50 font-weight-500 button transparent round color-pureblack text-decoration-none"
             style={{ height: 'fit-content' }}
           >
-            Redigera färdplansversionen
+            {t("pages:roadmap.edit_roadmap_version")}
             <Image src="/icons/edit.svg" alt="" width="24" height="24" />
           </a>
         }
@@ -79,7 +80,7 @@ export default async function Page({ params }: { params: { roadmapId: string } }
 
       {featuredGoals.length > 0 ? 
         <section className="margin-block-300">
-          <h2>Utvalda målbanor</h2>
+          <h2>{t("pages:roadmap.featured_goals")}</h2>
           <div className="grid gap-100" style={{ gridTemplateColumns: 'repeat(auto-fit, 300px)' }}>
             {featuredGoals.map((goal, key) =>
               goal && (
@@ -93,7 +94,7 @@ export default async function Page({ params }: { params: { roadmapId: string } }
       : null }
         
       <section className="margin-block-300">
-        <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>Alla målbanor</h2>
+        <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:roadmap.all_goals")}</h2>
         <Goals roadmap={roadmap} accessLevel={accessLevel} />
       </section>
     </main>
