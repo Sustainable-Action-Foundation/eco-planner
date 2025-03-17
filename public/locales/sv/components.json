@@ -32,5 +32,23 @@
     "access_level": "Behörighet",
     "editing_access": "Redigeringsbehörighet"
   },
-  "logout": "Logga ut"
+  "logout": "Logga ut",
+  "table_menu": {
+    "new_roadmap_version": "Ny $t(common:roadmap_one)",
+    "go_to_series": "Gå till $t(common:meta_roadmap_one)",
+    "go_to_version": "Gå till $t(common:roadmap_one)",
+    "go_to_goal": "Gå till $t(common:goal_one)",
+    "new_goal": "Ny $t(common:goal_one)",
+    "new_action": "Ny $t(common:action_one)",
+    "new_effect": "Ny $t(common:effect_one)",
+    "add_effect_from_existing_action": "Lägg till effekt från befintlig $t(common:action_one)",
+    "effect_missing_name": "Namn saknas",
+    "effect_from_action": "Effekt från {{source}}",
+    "button_aria": "Meny för {{component}}",
+    "button_aria_alt": "namn saknas",
+    "button_image_alt": "meny",
+    "close_button_alt": "stäng",
+    "edit": "Redigera",
+    "delete": "Radera inlägg"
+  }
 }

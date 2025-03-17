@@ -32,5 +32,23 @@
     "access_level": "Access level",
     "editing_access": "Editing access"
   },
-  "logout": "Log out"
+  "logout": "Log out",
+  "table_menu": {
+    "new_roadmap_version": "New $t(common:roadmap_one)",
+    "go_to_series": "Go to $t(common:meta_roadmap)",
+    "go_to_version": "Go to $t(common:roadmap_one)",
+    "go_to_goal": "Go to $t(common:goal_one)",
+    "new_goal": "New $t(common:goal_one)",
+    "new_action": "New $t(common:action_one)",
+    "new_effect": "New $t(common:effect_one)",
+    "add_effect_from_existing_action": "Add effect from existing $t(common:action_one)",
+    "effect_missing_name": "Name missing",
+    "effect_from_action": "Effect from {{source}}",
+    "button_aria": "Menu for {{component}}",
+    "button_aria_alt": "Name missing",
+    "button_image_alt": "menu",
+    "close_button_alt": "close",
+    "edit": "Edit",
+    "delete": "Delete post"
+  }
 }

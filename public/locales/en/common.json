@@ -8,6 +8,8 @@
   "roadmap_version_other": "versions",
   "action_one": "action",
   "action_other": "actions",
+  "effect_one": "effect",
+  "effect_other": "effects",
   "goal_one": "goal",
   "goal_other": "goals",
   "app_name": "Eco - Planner",
