@@ -31,5 +31,6 @@
     "roadmap_series": "{{$t(common:meta_roadmap), titleCase}}",
     "access_level": "Access level",
     "editing_access": "Editing access"
-  }
+  },
+  "logout": "Log out"
 }
