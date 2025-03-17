@@ -7,9 +7,10 @@ import { externalDatasetBaseUrls } from "./utility";
  * @param language Two-letter language code. Default is 'sv'.
  * @param pageSize Initial page size. If the number of tables is larger than this, the function will call itself with the correct page size.
  */
-export async function getTables(externalDataset: string, searchQuery?: string, language: string = 'sv', pageSize: number = 9999) {
+export async function getPxWebTables(externalDataset: string, searchQuery?: string, language: string = 'sv', pageSize: number = 9999) {
   const baseUrl = externalDatasetBaseUrls[externalDataset as keyof typeof externalDatasetBaseUrls] ?? externalDatasetBaseUrls.SCB;
   const url = new URL(`${baseUrl}/tables`);
+  
   if (searchQuery) url.searchParams.append('query', searchQuery);
   if (language) url.searchParams.append('lang', language);
   if (pageSize) url.searchParams.append('pageSize', pageSize.toString());
@@ -22,13 +23,14 @@ export async function getTables(externalDataset: string, searchQuery?: string, l
       data = await response.json();
       // If we didn't get all tables, try again with the correct page size
       if (data?.page?.totalElements > data?.page?.pageSize) {
-        return await getTables(externalDataset, searchQuery, language, data.page.totalElements);
+        return await getPxWebTables(externalDataset, searchQuery, language, data.page.totalElements);
       }
     } else if (response.status == 429) {
       // Wait 10 seconds and try again
       await new Promise(resolve => setTimeout(resolve, 10000));
-      return await getTables(externalDataset, searchQuery, language, pageSize);
+      return await getPxWebTables(externalDataset, searchQuery, language, pageSize);
     } else {
+      console.log("bad response", response)
       return null;
     }
   } catch (error) {
@@ -36,9 +38,9 @@ export async function getTables(externalDataset: string, searchQuery?: string, l
     return null;
   }
 
-  const result: { id: string, label: string }[] = [];
+  const result: { tableId: string, label: string }[] = [];
   for (const table of data.tables) {
-    result.push({ id: table.id, label: table.label });
+    result.push({ tableId: table.id, label: `${table.label} (${table.id})` });
   }
 
   return result;
