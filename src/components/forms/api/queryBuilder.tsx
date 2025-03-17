@@ -334,7 +334,7 @@ export default function QueryBuilder({
                   {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
                     if (hierarchy.children?.some(variable => variable.option)) return (
                       <label key={hierarchy.name} className="block margin-block-75">
-                        {hierarchy.label}
+                        <strong>{hierarchy.label}</strong>
                         {// TODO - indent all children
                         }
                         {hierarchy.children && hierarchy.children.map(variable => {
