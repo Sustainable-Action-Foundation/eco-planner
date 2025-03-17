@@ -24,5 +24,12 @@
   "roadmap_tree": {
     "no_meta_roadmaps": "Inga $t(common:meta_roadmap_other) hittades. Om du har några aktiva filter hittades inga $t(common:meta_roadmap_other) som matchar dem.",
     "show_source_alt": "Visa underliggande färdplaner"
+  },
+  "user_filters": {
+    "posts": "Inlägg",
+    "roadmap_versions": "{{$t(common:roadmap_other), titleCase}}",
+    "roadmap_series": "{{$t(common:meta_roadmap_other), titleCase}}",
+    "access_level": "Behörighet",
+    "editing_access": "Redigeringsbehörighet"
   }
 }

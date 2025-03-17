@@ -24,5 +24,12 @@
   "roadmap_tree": {
     "no_meta_roadmaps": "No $t(common:meta_roadmap) found. If you have any filters active, no $t(common:meta_roadmap) were found that match them.",
     "show_source_alt": "Show underlying roadmaps"
+  },
+  "user_filters": {
+    "posts": "Posts",
+    "roadmap_versions": "{{$t(common:roadmap_other), titleCase}}",
+    "roadmap_series": "{{$t(common:meta_roadmap), titleCase}}",
+    "access_level": "Access level",
+    "editing_access": "Editing access"
   }
 }
