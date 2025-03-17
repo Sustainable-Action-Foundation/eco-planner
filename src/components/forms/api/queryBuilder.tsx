@@ -97,6 +97,7 @@ export default function QueryBuilder({
   }
 
   function enableSubmitButton() {
+    console.log("enabling submit button");
     const submitButton = document.getElementById("submit-button");
     if (submitButton) {
       submitButton.removeAttribute("disabled");
@@ -105,6 +106,7 @@ export default function QueryBuilder({
   }
 
   function disableSubmitButton() {
+    console.log("disabling submit button");
     const submitButton = document.getElementById("submit-button");
     if (submitButton) {
       submitButton.setAttribute("disabled", "true");
@@ -114,17 +116,21 @@ export default function QueryBuilder({
 
   function tryGetResult(event: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
     // Don't try to get a result if the changed element is externalDataset
-    if (event.target instanceof HTMLSelectElement && (event.target as HTMLSelectElement).name == "externalDataset") return;
+    if (event && event.target instanceof HTMLSelectElement && (event.target as HTMLSelectElement).name == "externalDataset") {/* console.log("fail0"); */ return; }
+    // Don't try to get a result if the changed element is search bar
+    if (event && event.target instanceof HTMLInputElement && (event.target as HTMLInputElement).name == "tableSearch") {/* console.log("fail1"); */ return; }
+    // Don't try to get a result if the changed element is a table
+    if (event && event.target instanceof HTMLInputElement && (event.target as HTMLInputElement).name == "externalTableId") {/* console.log("fail2"); */ return; }
     // Don't try to get a result if the form is not a HTMLFormElement
-    if (!(formRef.current instanceof HTMLFormElement)) return;
+    if (!(formRef.current instanceof HTMLFormElement)) {/* console.log("fail3"); */ return; }
     // Don't try to get a result if there are no tables or table details
-    if (!tables) return;
-    if (!tableDetails) return;
+    if (!tables) {/* console.log("fail4"); */ return; }
+    if (!tableDetails) {/* console.log("fail5"); */ return; }
 
     // Get a result if the form is valid
     if (formRef.current.checkValidity()) {
       const formData = new FormData(formRef.current);
-      const query = buildQuery(formData);
+      const query = buildQuery(formData); // This line is called before the form is cleared
       const tableId = formData.get("externalTableId") as string ?? "";
       if (dataSource == "SCB") {
         // getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource, "sv").then(result => { setTableContent(result); });
@@ -190,12 +196,14 @@ export default function QueryBuilder({
   function handleTableSelect(tableId: string) {
     if (!externalDatasetBaseUrls[dataSource as keyof typeof externalDatasetBaseUrls]) return;
     if (!tableId) return;
+    clearTableContent();
     clearTableDetails();
+    disableSubmitButton();
 
     if (dataSource == "SCB") {
-      getPxWebTableDetails(tableId, dataSource, locale).then(result => setTableDetails(result));
+      getPxWebTableDetails(tableId, dataSource, locale).then(result => { setTableDetails(result); /* tryGetResult() */ });
     } else if (dataSource == "Trafa") {
-      getTrafaTableDetails(tableId, undefined, locale).then(result => setTableDetails(result));
+      getTrafaTableDetails(tableId, undefined, locale).then(result => { setTableDetails(result); /* tryGetResult() */ });
     }
   }
 
@@ -245,7 +253,7 @@ export default function QueryBuilder({
           <FormWrapper>
             <fieldset>
               <label className="margin-block-75">
-              Datakälla
+                Datakälla
                 <select className="block margin-block-25" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
                   <option value="">Välj en källa</option>
                   {Object.keys(externalDatasetBaseUrls).map((name) => (
@@ -301,11 +309,13 @@ export default function QueryBuilder({
                       required={true}
                       name="metric"
                       id="metric"
-                      defaultValue={tableDetails.metrics && tableDetails.metrics.length == 1 ? tableDetails.metrics[0].label : undefined}>
-                      {
+                      defaultValue={undefined}>
+                      {/* defaultValue={tableDetails.metrics && tableDetails.metrics.length == 1 ? tableDetails.metrics[0].label : undefined}> */}
+                      {/* {
                         tableDetails.metrics && tableDetails.metrics.length != 1 &&
                         <option value="">Välj ett mätvärde</option>
-                      }
+                      } */}
+                      <option value="">Välj ett mätvärde</option>
                       {tableDetails.metrics && tableDetails.metrics.map(metric => (
                         <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
                       ))}

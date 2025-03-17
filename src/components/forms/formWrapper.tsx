@@ -61,6 +61,7 @@ export default function FormWrapper({
     setTransformIndex(currentTransformIndex);
   }
 
+  // TODO - try removing these code blocks
   // Hide the "next" button when at the final slide
   let nextButtonHiddenClass = "";
   if (transformIndex == sections.length - 1) {
