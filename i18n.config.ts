@@ -19,12 +19,6 @@ export function titleCase(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-export const titleCaseProcess = {
-  type: "postProcessor",
-  name: "titleCase",
-  process: titleCase,
-};
-
 export function initTemplate(t: TFunction): InitOptions {
   return {
     debug: false, // Set to true to get logs from i18next

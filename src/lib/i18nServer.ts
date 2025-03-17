@@ -1,7 +1,7 @@
 import { $Dictionary } from "node_modules/i18next/typescript/helpers";
 import { cookies } from "next/headers";
-import { createInstance, Module, TFunction, TOptionsBase } from "i18next";
-import { initTemplate, Locales, titleCaseProcess, uniqueLocales } from "i18n.config";
+import { createInstance, TFunction, TOptionsBase } from "i18next";
+import { initTemplate, Locales, uniqueLocales } from "i18n.config";
 import { match } from "@formatjs/intl-localematcher";
 import Backend from "i18next-fs-backend";
 import path from "node:path";
@@ -9,7 +9,6 @@ import path from "node:path";
 export const i18nServer = createInstance();
 i18nServer
   .use(Backend)
-  .use(titleCaseProcess as Module)
   .init({
     ...initTemplate(t as TFunction),
     initImmediate: false, // Synchronous loading

@@ -1,17 +1,16 @@
 "use client";
 
-import { initTemplate, Locales, titleCaseProcess, uniqueLocales } from "i18n.config";
+import { initTemplate, Locales, uniqueLocales } from "i18n.config";
 import { getCookie } from "cookies-next";
 import { I18nextProvider } from "react-i18next";
 import { initReactI18next } from "react-i18next";
 import { match } from "@formatjs/intl-localematcher";
 import { useEffect, useState } from "react";
 import Backend from "i18next-http-backend";
-import i18nClient, { Module, t } from "i18next";
+import i18nClient, { t } from "i18next";
 
 i18nClient
   .use(Backend)
-  .use(titleCaseProcess as Module)
   .use(initReactI18next)
   .init({
     ...initTemplate(t),
