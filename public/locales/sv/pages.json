@@ -10,5 +10,14 @@
     "about": "Om verktyget",
     "language_alt": "Byt språk",
     "login": "Logga in"
+  },
+  "profile": {
+    "handle_data": "Hantera min data",
+    "my_posts": "Mina inlägg",
+    "user_posts": "{{name, possessive, titleCase}} inlägg",
+    "meta_roadmaps": "{{$t(common:meta_roadmap_other), titleCase}}",
+    "version_count": "{{count}} $t(common:roadmap_version, {\"count\":{{count}}})",
+    "roadmap_versions": "{{$t(common:roadmap_other), titleCase}}",
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
   }
 }

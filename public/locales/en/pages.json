@@ -9,6 +9,15 @@
     "home": "Home",
     "about": "About the tool",
     "language_alt": "Change language",
-    "login": "Log in"
+    "login": "Login"
+  },
+  "profile": {
+    "handle_data": "Data management",
+    "my_posts": "My posts",
+    "user_posts": "{{name, possessive, titleCase}} posts",
+    "meta_roadmaps": "{{$t(common:meta_roadmap), titleCase}}",
+    "version_count": "{{count}} $t(common:roadmap_version, {\"count\":{{count}}})",
+    "roadmap_versions": "{{$t(common:roadmap_other), titleCase}}",
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
   }
 }
