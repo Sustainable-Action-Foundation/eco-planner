@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import { getStoredGraphType } from "./functions/graphFunctions";
 import SecondaryGoalSelector from "./secondaryGraphSelector";
 import { ApiTableContent } from "@/lib/api/apiTypes";
-import { externalDatasetUserFacingUrls } from "@/lib/api/utility";
+import { externalDatasets } from "@/lib/api/utility";
 import Link from "next/link";
 
 export enum GraphType {
@@ -70,7 +70,7 @@ export default function GraphGraph({
       </div>
       {historicalData && (
         <div>
-          Den historiska datan i grafen är hämtad från <Link href={externalDatasetUserFacingUrls[historicalData.metadata[0].source as keyof typeof externalDatasetUserFacingUrls]} target="_blank">{historicalData.metadata[0].source}</Link>
+          Den historiska datan i grafen är hämtad från <Link href={externalDatasets[historicalData.metadata[0].source as keyof typeof externalDatasets].userFacingUrl} target="_blank">{historicalData.metadata[0].source}</Link>
         </div>
       )}
     </>

@@ -45,7 +45,7 @@ export const externalDatasets: { [key: string]: { baseUrl: string, userFacingUrl
   },
   "Trafa": {
     baseUrl: "https://api.trafa.se/api",
-    userFacingUrl: "https://www.statistikdatabasen.scb.se/pxweb/sv/ssd/",
+    userFacingUrl: "https://www.trafa.se/sidor/oppen-data-api/",
     supportedLanguages: ["sv"],
     api: "Trafa",
     fullName: "Trafikanalys",
