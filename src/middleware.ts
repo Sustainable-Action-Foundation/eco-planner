@@ -11,10 +11,12 @@ export async function middleware(req: NextRequest) {
   const session = await getSession(cookies())
   const response = NextResponse.next()
 
-  // Disable caching
-  response.headers.set("Cache-Control", "no-store, must-revalidate, max-age=0");
-  response.headers.set("Pragma", "no-cache");
-  response.headers.set("Expires", "0");
+  // Disable caching TODO: REMOVE!!!
+  if (process.env.NODE_ENV !== "production") {
+    response.headers.set("Cache-Control", "no-store, must-revalidate, max-age=0");
+    response.headers.set("Pragma", "no-cache");
+    response.headers.set("Expires", "0");
+  }
 
   // Is there a locale cookie in the request?
   const existingLocaleCookie = req.cookies.get("locale")?.value;
