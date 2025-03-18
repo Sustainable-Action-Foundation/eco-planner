@@ -79,5 +79,10 @@
     "relative_time": "{{val, relativeTime}}",
     "show_less": "Visa mindre",
     "show_more": "Visa mer"
+  },
+  "table_selector": {
+    "tree": "Träd",
+    "table": "Tabell",
+    "actions": "{{$t(common:action_other), titleCase}}"
   }
 }

@@ -79,5 +79,10 @@
     "relative_time": "{{val, relativeTime}}",
     "show_less": "Show less",
     "show_more": "Show more"
+  },
+  "table_selector": {
+    "tree": "Tree",
+    "table": "Table",
+    "actions": "{{$t(common:action_other), titleCase}}"
   }
 }
