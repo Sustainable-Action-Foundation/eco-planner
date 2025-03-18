@@ -51,5 +51,11 @@
   },
   "signup": {
     "breadcrumb": "Create account"
+  },
+  "password": {
+    "breadcrumb": "Reset password",
+    "description": "Forgot your password? Enter your email here and we will send an email with instructions to reset your password.",
+    "email_placeholder": "name.surname@example.com",
+    "submit": "Submit"
   }
 }

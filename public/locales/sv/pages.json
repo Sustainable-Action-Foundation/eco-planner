@@ -51,5 +51,11 @@
   },
   "signup": {
     "breadcrumb": "Skapa konto"
+  },
+  "password": {
+    "breadcrumb": "Återställ lösenord",
+    "description": "Har du glömt ditt lösenord? Fyll i din e‑post här så skickar vi ett e‑postmeddelande med instruktioner för att återställa lösenordet.",
+    "email_placeholder": "fornamn.efternamn@exempel.se",
+    "submit": "Skicka"
   }
 }
