@@ -49,6 +49,11 @@
     "email_placeholder": "name.surname@example.com",
     "submit_resend": "Resend email"
   },
+  "verify_verify": {
+    "title": "Verify your email",
+    "description": "Verify your email by clicking the button below.",
+    "submit": "Verify my email"
+  },
   "signup": {
     "breadcrumb": "Create account"
   },

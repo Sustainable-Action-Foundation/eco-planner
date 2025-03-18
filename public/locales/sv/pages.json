@@ -49,6 +49,11 @@
     "email_placeholder": "fornamn.efternamn@exempel.se",
     "submit_resend": "Skicka igen"
   },
+  "verify_verify": {
+    "title": "Verifiera din e‑post",
+    "description": "Verifiera din e‑post genom att klicka på knappen nedan.",
+    "submit": "Verifiera min e‑post"
+  },
   "signup": {
     "breadcrumb": "Skapa konto"
   },
