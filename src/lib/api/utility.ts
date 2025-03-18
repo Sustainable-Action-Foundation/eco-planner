@@ -30,6 +30,30 @@ export const externalDatasetSupportedLanguages = {
   "Trafa": ["sv"],
 }
 
+export const externalDatasetApis = {
+  "SCB": "PxWeb",
+  "Trafa": "Trafa",
+}
+
+export const externalDatasets: { [key: string]: { baseUrl: string, userFacingUrl: string, supportedLanguages: string[], api: string, fullName?: string } } = {
+  "SCB": {
+    baseUrl: "https://api.scb.se/ov0104/v2beta/api/v2",
+    userFacingUrl: "https://www.statistikdatabasen.scb.se/pxweb/sv/ssd/",
+    supportedLanguages: ["sv", "en"],
+    api: "PxWeb",
+    fullName: "Statistiska Centralbyrån",
+  },
+  "Trafa": {
+    baseUrl: "https://api.trafa.se/api",
+    userFacingUrl: "https://www.statistikdatabasen.scb.se/pxweb/sv/ssd/",
+    supportedLanguages: ["sv"],
+    api: "Trafa",
+    fullName: "Trafikanalys",
+  },
+}
+
+export function getDatasetKeysOfApi(apiName: string): string[] { return Object.keys(externalDatasets).filter(key => externalDatasets[key].api === apiName); }
+
 export function parsePeriod(period: string) {
   period = period.trim().toUpperCase();
   // If period is a quarter (kvartal)

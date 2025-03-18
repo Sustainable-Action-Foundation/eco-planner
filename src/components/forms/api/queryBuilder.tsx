@@ -39,7 +39,7 @@ export default function QueryBuilder({
 
     const query = (formRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
 
-    if (dataSource == "SCB") {
+    if (getDatasetKeysOfApi("PxWeb").includes(dataSource)) {
       getPxWebTables(dataSource, query, locale).then(result => setTables(result));
     }
     if (dataSource == "Trafa") {
@@ -123,7 +123,7 @@ export default function QueryBuilder({
       const formData = new FormData(formRef.current);
       const query = buildQuery(formData); // This line is called before the form is cleared
       const tableId = formData.get("externalTableId") as string ?? "";
-      if (dataSource == "SCB") {
+      if (getDatasetKeysOfApi("PxWeb").includes(dataSource)) {
         getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource, locale).then(result => { setTableContent(result); });
         getPxWebTableDetails(tableId, dataSource, locale).then(result => { setTableDetails(result); });
       } else if (dataSource == "Trafa") {
@@ -152,7 +152,7 @@ export default function QueryBuilder({
   function handleSearch(query?: string) {
     if (!externalDatasetBaseUrls[dataSource as keyof typeof externalDatasetBaseUrls]) return;
 
-    if (dataSource == "SCB") {
+    if (getDatasetKeysOfApi("PxWeb").includes(dataSource)) {
       // TODO - when searching for id, also return partial matches
       getPxWebTables(dataSource, query, locale).then(result => setTables(result));
     } else if (dataSource == "Trafa") {
@@ -190,10 +190,13 @@ export default function QueryBuilder({
     clearTableDetails();
     disableSubmitButton();
 
-    if (dataSource == "SCB") {
+    if (getDatasetKeysOfApi("PxWeb").includes(dataSource)) {
       getPxWebTableDetails(tableId, dataSource, locale).then(result => { setTableDetails(result); console.timeEnd("tableSelect"); });
     } else if (dataSource == "Trafa") {
       getTrafaTableDetails(tableId, undefined, locale).then(result => { setTableDetails(result); console.timeEnd("tableSelect"); });
+    } else {
+      console.timeLog("tableSelect", "no valid data source");
+      console.timeEnd("tableSelect");
     }
   }
 
