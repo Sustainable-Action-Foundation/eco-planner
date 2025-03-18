@@ -1,40 +1,13 @@
 /**
- * Key-value pairs of external dataset base URLs
- * The base URL points to the base of the API, without a trailing slash, e.g. "https://api.scb.se/ov0104/v2beta/api/v2".
- * The key is the name of the dataset, e.g. "SCB".
+ * Key-value pairs of of external datasets.
+ * @param key The key is the name of the dataset, e.g. "SCB" or "Trafa".
+ * @param baseUrl The base URL points to the base of the API, without a trailing slash, e.g. "https://api.scb.se/ov0104/v2beta/api/v2".
  * To fetch any data, an additional path must be appended to the end, for example "/navigation", "/tables" or "/tables/{tableId}/data".
+ * @param userFacingUrl User facing URL is the link to the website where the user will be directed when clicking the link declaring where historical data is fetched from.
+ * @param supportedLanguages Supported languages is a list of languages that each dataset supports.
+ * @param api Api is which api the dataset is using.
+ * @param fullName Full name is the full name of the dataset as the key will usually be a shorthand for the full name.
  */
-export const externalDatasetBaseUrls = {
-  "SCB": "https://api.scb.se/ov0104/v2beta/api/v2",
-  "Trafa": "https://api.trafa.se/api",
-  // Add more datasets as they implement the PxWeb API v2
-  // "SSB": "some url",
-  // "stat.fi": "some url",
-  // ...
-}
-
-/**
- * Key value pairs of urls to the databases
- * These urls go to where the user will be directed when clicking the link declaring where historical data is fetched from
- */
-export const externalDatasetUserFacingUrls = {
-  "SCB": "https://www.statistikdatabasen.scb.se/pxweb/sv/ssd/",
-  "Trafa": "https://www.trafa.se/sidor/oppen-data-api/",
-}
-
-/**
- * Lists of supported languages for each API
- */
-export const externalDatasetSupportedLanguages = {
-  "SCB": ["sv", "en"],
-  "Trafa": ["sv"],
-}
-
-export const externalDatasetApis = {
-  "SCB": "PxWeb",
-  "Trafa": "Trafa",
-}
-
 export const externalDatasets: { [key: string]: { baseUrl: string, userFacingUrl: string, supportedLanguages: string[], api: string, fullName?: string } } = {
   "SCB": {
     baseUrl: "https://api.scb.se/ov0104/v2beta/api/v2",
@@ -50,6 +23,10 @@ export const externalDatasets: { [key: string]: { baseUrl: string, userFacingUrl
     api: "Trafa",
     fullName: "Trafikanalys",
   },
+  // Add more datasets as they implement the PxWeb API v2
+  // "SSB": "some url",
+  // "stat.fi": "some url",
+  // ...
 }
 
 export function getDatasetKeysOfApi(apiName: string): string[] { return Object.keys(externalDatasets).filter(key => externalDatasets[key].api === apiName); }
