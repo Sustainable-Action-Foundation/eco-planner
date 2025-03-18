@@ -29,5 +29,13 @@
     "edit_roadmap_version": "Redigera $t(common:roadmap_version_one)",
     "featured_goals": "Utvalda $t(common:goal_other)",
     "all_goals": "Alla $t(common:goal_other)"
+  },
+  "info": {
+    "breadcrumb": "Information",
+    "title": "Information",
+    "info_body": "Detta verktyg syftar till att bidra till Sveriges klimatomställning.\n\nI verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas.\n\nHandlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen.\n\nAnvändare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige.\n\nPå lokal nivå kan också olika aktörer samarbeta kring åtgärder.",
+    "version": "Version:",
+    "remote": "Remote:",
+    "commit": "Commit"
   }
 }

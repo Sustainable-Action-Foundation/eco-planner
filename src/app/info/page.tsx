@@ -1,4 +1,5 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import { t } from "@/lib/i18nServer";
 import { JSONValue } from "@/types.ts";
 import fs from "fs";
 import metadata from "package.json" with { type: "json" };
@@ -50,28 +51,24 @@ export default async function Page() {
 
   return (
     <>
-      <Breadcrumb customSections={["Information"]} />
+      <Breadcrumb customSections={[t("pages:info.breadcrumb")]} />
 
-      <h1>Information</h1>
+      <h1>{t("pages:info.title")}</h1>
       <p>
-        Detta verktyg syftar till att bidra till Sveriges klimatomställning.
-        I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas.
-        Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen.
-        Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige.
-        På lokal nivå kan också olika aktörer samarbeta kring åtgärder.
+        {t("pages:info.info_body")}
       </p>
 
       {/* TODO: Add wiki once created */}
 
       {
         version
-          ? <p>Version: {version}</p>
+          ? <p>{t("pages:info.version")} {version}</p>
           : null
       }
 
       {
         remoteURL
-          ? <p>Remote: <a href={remoteURL.href} target="_blank" >
+          ? <p>{t("pages:info.remote")} <a href={remoteURL.href} target="_blank" >
             {/* Gets the repository name from a github-like url with a trailing slash, with hostname as fallback */}
             {remoteURL.pathname.split("/")[remoteURL.pathname.split("/").length - 2] || remoteURL.hostname}
           </a></p>
@@ -81,11 +78,11 @@ export default async function Page() {
       {
         gitHash.shortHash || gitHash.longHash
           ? commitURL
-            ? <p>Commit: <a href={commitURL.href} target="_blank" >
+            ? <p>{t("pages:info.commit")} <a href={commitURL.href} target="_blank" >
               {gitHash.shortHash || gitHash.longHash}
             </a></p>
             :
-            <p>Commit: {gitHash.shortHash || gitHash.longHash}</p>
+            <p>{t("pages:info.commit")} {gitHash.shortHash || gitHash.longHash}</p>
           : null
       }
     </>
