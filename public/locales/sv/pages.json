@@ -57,5 +57,12 @@
     "description": "Har du glömt ditt lösenord? Fyll i din e‑post här så skickar vi ett e‑postmeddelande med instruktioner för att återställa lösenordet.",
     "email_placeholder": "fornamn.efternamn@exempel.se",
     "submit": "Skicka"
+  },
+  "password_reset": {
+    "breadcrumb": "Uppdatera lösenord",
+    "description": "Fyll i ditt nya lösenord nedan och klicka på knappen för att uppdatera ditt lösenord.",
+    "password": "Nytt lösenord",
+    "password_placeholder": "nytt lösenord",
+    "submit": "Byt lösenord"
   }
 }
