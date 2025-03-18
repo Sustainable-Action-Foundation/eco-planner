@@ -12,6 +12,7 @@ export enum Locales {
 };
 export const uniqueLocales = [...new Set(Object.values(Locales))];
 
+export const defaultNS = "common";
 export const ns = ["common", "forms", "components", "pages",];
 
 export function initTemplate(t: TFunction): InitOptions {
@@ -20,6 +21,7 @@ export function initTemplate(t: TFunction): InitOptions {
     fallbackLng: Locales.default,
     supportedLngs: uniqueLocales,
     preload: uniqueLocales,
+    defaultNS,
     ns,
     interpolation: {
       escapeValue: false, // React already escapes
@@ -74,8 +76,6 @@ export function relativeTime(time: Date, lng: string) {
   const hourDelta = Math.round((time.getTime() - Date.now()) / (3_600_000));
   const minuteDelta = Math.round((time.getTime() - Date.now()) / (60_000));
   const secondDelta = Math.round((time.getTime() - Date.now()) / (1_000));
-
-  console.log("day:", dayDelta, "hour:", hourDelta, "minute:", minuteDelta, "second:", secondDelta);
 
   if (Math.abs(dayDelta) > 0) return relativeTime.format(dayDelta, "days");
   if (Math.abs(hourDelta) > 0) return relativeTime.format(hourDelta, "hours");

@@ -84,5 +84,12 @@
     "tree": "Tree",
     "table": "Table",
     "actions": "{{$t(common:action_other), titleCase}}"
+  },
+  "breadcrumbs": {
+    "home": "Home",
+    "roadmap_series": "{{$t(common:meta_roadmap), titleCase}}:",
+    "version": "Version:",
+    "goal": "{{$t(common:goal_one), titleCase}}:",
+    "action": "{{$t(common:action_one), titleCase}}:"
   }
 }

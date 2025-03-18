@@ -1,18 +1,22 @@
+"use client";
+
 import styles from './breadcrumbs.module.css' with { type: "css" };
 import Link from 'next/link';
 import Image from "next/image";
+import { useTranslation } from "react-i18next";
 
 export function BreadcrumbChevron() {
   return (
-    <Image src='/icons/chevronRight.svg' alt='' height={16} width={16} />
+    <Image src='/icons/chevronRight.svg' alt=' > ' height={16} width={16} />
   )
 }
 
 export function BaseSection() {
+  const { t } = useTranslation();
   return (
     <span className='display-flex align-items-center gap-25'>
       <Link href='/' className={styles.breadCrumb}>
-        Hem
+        {t("components:breadcrumbs.home")}
       </Link>
     </span>
   )
@@ -52,9 +56,10 @@ export function MetaRoadmapSection({
     name: string,
   }
 }) {
+  const { t } = useTranslation();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
-      Färdplansserie:
+      {t("components:breadcrumbs.roadmap_series")}
       <Link href={`/metaRoadmap/${metaRoadmap.id}`} className={styles.breadCrumb}>
         {metaRoadmap.name}
       </Link>
@@ -70,11 +75,12 @@ export function RoadmapSection({
     version: number,
   }
 }) {
+  const { t } = useTranslation();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
-      Version:
+      {t("components:breadcrumbs.version")}
       <Link href={`/roadmap/${roadmap.id}`} className={styles.breadCrumb}>
-        Version {roadmap.version}
+        v{roadmap.version}
       </Link>
     </span>
   )
@@ -89,9 +95,10 @@ export function GoalSection({
     indicatorParameter: string,
   }
 }) {
+  const { t } = useTranslation();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
-      Målbana:
+      {t("components:breadcrumbs.goal")}
       <Link href={`/goal/${goal.id}`} className={styles.breadCrumb}>
         {goal.name || goal.indicatorParameter}
       </Link>
@@ -107,9 +114,10 @@ export function ActionSection({
     name: string,
   }
 }) {
+  const { t } = useTranslation();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
-      Åtgärd:
+      {t("components:breadcrumbs.action")}
       <Link href={`/action/${action.id}`} className={styles.breadCrumb}>
         {action.name}
       </Link>

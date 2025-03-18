@@ -84,5 +84,12 @@
     "tree": "Träd",
     "table": "Tabell",
     "actions": "{{$t(common:action_other), titleCase}}"
+  },
+  "breadcrumbs": {
+    "home": "Hem",
+    "roadmap_series": "{{$t(common:meta_roadmap_one), titleCase}}:",
+    "version": "Version:",
+    "goal": "{{$t(common:goal_one), titleCase}}:",
+    "action": "{{$t(common:action_one), titleCase}}:"
   }
 }
