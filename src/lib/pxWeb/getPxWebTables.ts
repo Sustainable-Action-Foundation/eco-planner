@@ -1,5 +1,5 @@
 import { PxWebApiV2TableArray } from "@/lib/pxWeb/pxWebApiV2Types";
-import { externalDatasetBaseUrls } from "../api/utility";
+import { externalDatasets } from "../api/utility";
 
 /**
  * Returns a list of tables from SCB's API. Returns null on error.
@@ -8,7 +8,7 @@ import { externalDatasetBaseUrls } from "../api/utility";
  * @param pageSize Initial page size. If the number of tables is larger than this, the function will call itself with the correct page size.
  */
 export async function getPxWebTables(externalDataset: string, searchQuery?: string, language: string = 'sv', pageSize: number = 9999) {
-  const baseUrl = externalDatasetBaseUrls[externalDataset as keyof typeof externalDatasetBaseUrls] ?? externalDatasetBaseUrls.SCB;
+  const baseUrl = externalDatasets[externalDataset as keyof typeof externalDatasets].baseUrl ?? externalDatasets.SCB.baseUrl;
   const url = new URL(`${baseUrl}/tables`);
   
   if (searchQuery) url.searchParams.append('query', searchQuery);

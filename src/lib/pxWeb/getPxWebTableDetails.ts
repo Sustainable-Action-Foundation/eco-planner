@@ -1,8 +1,8 @@
 import { ApiTableDetails, ScbMetric, ScbTimeVariable, ScbVariable, ScbVariableValue } from "../api/apiTypes";
-import { externalDatasetBaseUrls } from "../api/utility";
+import { externalDatasets } from "../api/utility";
 
 export async function getPxWebTableDetails(tableId: string, externalDataset: string, language: string = 'sv') {
-  const baseUrl = externalDatasetBaseUrls[externalDataset as keyof typeof externalDatasetBaseUrls] ?? externalDatasetBaseUrls.SCB;
+  const baseUrl = externalDatasets[externalDataset as keyof typeof externalDatasets].baseUrl ?? externalDatasets.SCB.baseUrl;
   const url = new URL(`${baseUrl}/tables/${tableId}/metadata`);
 
   console.time("pxWebTableDetails");

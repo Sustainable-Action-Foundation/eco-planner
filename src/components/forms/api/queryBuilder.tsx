@@ -3,7 +3,7 @@
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
 import formSubmitter from "@/functions/formSubmitter";
 import { ApiTableContent, ApiTableDetails, ScbVariable, TrafaVariable } from "@/lib/api/apiTypes";
-import { externalDatasetBaseUrls, externalDatasetSupportedLanguages } from "@/lib/api/utility";
+import { externalDatasetSupportedLanguages, externalDatasets, getDatasetKeysOfApi } from "@/lib/api/utility";
 import { getPxWebTableContent } from "@/lib/pxWeb/getPxWebTableContent";
 import { getPxWebTableDetails } from "@/lib/pxWeb/getPxWebTableDetails";
 import { getPxWebTables } from "@/lib/pxWeb/getPxWebTables";
@@ -24,7 +24,7 @@ export default function QueryBuilder({
   const locale = "sv";
 
   const [isLoading, setIsLoading] = useState(false);
-  const [dataSource, setDataSource] = useState<string>("" as keyof typeof externalDatasetBaseUrls);
+  const [dataSource, setDataSource] = useState<string>("" as keyof keyof typeof externalDatasets);
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
   const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
@@ -150,7 +150,7 @@ export default function QueryBuilder({
   }
 
   function handleSearch(query?: string) {
-    if (!externalDatasetBaseUrls[dataSource as keyof typeof externalDatasetBaseUrls]) return;
+    if (!externalDatasets[dataSource as keyof typeof externalDatasets].baseUrl) return;
 
     if (getDatasetKeysOfApi("PxWeb").includes(dataSource)) {
       // TODO - when searching for id, also return partial matches
@@ -184,7 +184,7 @@ export default function QueryBuilder({
 
   function handleTableSelect(tableId: string) {
     console.time("tableSelect");
-    if (!externalDatasetBaseUrls[dataSource as keyof typeof externalDatasetBaseUrls]) return;
+    if (!externalDatasets[dataSource as keyof typeof externalDatasets].baseUrl) return;
     if (!tableId) return;
     clearTableContent();
     clearTableDetails();
@@ -249,7 +249,7 @@ export default function QueryBuilder({
                 Datakälla
                 <select className="block margin-block-25" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
                   <option value="">Välj en källa</option>
-                  {Object.keys(externalDatasetBaseUrls).map((name) => (
+                  {Object.keys(externalDatasets).map((name) => (
                     <option key={name} value={name}>{name}</option>
                   ))}
                 </select>
