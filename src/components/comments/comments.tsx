@@ -81,16 +81,15 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
             <div className="flex align-items-center gap-50 margin-top-200">
               <a className={styles.commentAuthor} href={`/@${comment.author.username}`}>{comment.author.username}</a>
               <span className="font-weight-300" style={{ color: 'gray', fontSize: '.75rem' }}>
-                {/* {`${timeSince(new Date(comment.createdAt))} sedan`} */}
                 {t("components:comments.relative_time", { val: new Date(comment.createdAt) })}
               </span>
             </div>
             <p className="margin-0" style={{ wordBreak: 'break-word', }}>
-              {expandedComments.includes(comment.id) ? comment.commentText : comment.commentText.length > 300 ? `${comment.commentText.substring(0, 300)}...` : comment.commentText}
+              {expandedComments.includes(comment.id) ? comment.commentText : comment.commentText.length > 300 ? `${comment.commentText.substring(0, 300)}${t("common:ellipsis")}` : comment.commentText}
             </p>
             {comment.commentText.length > 300 ?
               <button className={`margin-block-25 ${styles.readMoreButton}`} onClick={() => expandComment(comment.id)}>
-                {expandedComments.includes(comment.id) ? 'Visa mindre' : 'Visa mer'}
+                {expandedComments.includes(comment.id) ? t("components:comments.show_less") : t("components:comments.show_more")}
               </button>
               : null}
           </div>

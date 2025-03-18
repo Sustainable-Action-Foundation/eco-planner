@@ -76,6 +76,8 @@
     "comment_count_one": "One comment",
     "cancel": "Cancel",
     "send": "Submit",
-    "relative_time": "{{val, relativeTime}}"
+    "relative_time": "{{val, relativeTime}}",
+    "show_less": "Show less",
+    "show_more": "Show more"
   }
 }

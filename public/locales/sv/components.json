@@ -76,6 +76,8 @@
     "comment_count_one": "En kommentar",
     "cancel": "Avbryt",
     "send": "Skicka",
-    "relative_time": "{{val, relativeTime}}"
+    "relative_time": "{{val, relativeTime}}",
+    "show_less": "Visa mindre",
+    "show_more": "Visa mer"
   }
 }
