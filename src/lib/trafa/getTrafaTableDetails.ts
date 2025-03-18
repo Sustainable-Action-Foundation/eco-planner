@@ -1,6 +1,7 @@
 import getTrafaTables from "./getTrafaTables";
-import { StructureItem, trafaStructureUrl } from "./trafaTypes";
+import { StructureItem } from "./trafaTypes";
 import { ApiTableDetails, TrafaFilter, TrafaHierarchy, TrafaMetric, TrafaVariable, TrafaVariableValue } from "../api/apiTypes";
+import { externalDatasets } from "../api/utility"
 
 export default async function getTrafaTableDetails(tableId: string, selection: { variableCode: string, valueCodes: string[] }[] = [], language: "sv" | "en" = "sv") {
   // Helper function for generating a string that will be appended to searchParams of the url
@@ -27,7 +28,7 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
 
   const searchQuery = getSearchQueryString();
 
-  const url = new URL(trafaStructureUrl);
+  const url = new URL(`${externalDatasets.Trafa.baseUrl}/structure`);
   url.searchParams.append('query', `${tableId}|ar${searchQuery}`);
   language = "sv"
   if (language) url.searchParams.append("lang", language);

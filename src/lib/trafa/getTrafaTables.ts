@@ -1,9 +1,10 @@
 "use server"
 
-import { StructureItem, TrafaDataResponse, trafaStructureUrl } from "./trafaTypes";
+import { StructureItem, TrafaDataResponse } from "./trafaTypes";
+import { externalDatasets } from "../api/utility"
 
 export default async function getTrafaTables(language?: "sv" | "en") {
-  const url = new URL(trafaStructureUrl);
+  const url = new URL(`${externalDatasets.Trafa.baseUrl}/structure`);
   url.searchParams.append('query', ``);
   language = "sv"
   if (language) url.searchParams.append('lang', language);

@@ -1,7 +1,8 @@
-'use server';
+"use server";
 
 import { ApiTableContent } from "../api/apiTypes.ts";
-import { TrafaDataResponse, trafaUrl } from "./trafaTypes.ts";
+import { TrafaDataResponse } from "./trafaTypes.ts";
+import { externalDatasets } from "../api/utility.ts";
 
 // Trafa is a Swedish transport data provider. As such, their data is only relevant for usage in Sweden.
 // This means that everything here in the `trafa` folder is somewhat useless for international implementations,
@@ -31,7 +32,7 @@ export default async function getTrafaTableContent(tableId: string, selection: {
 
   const searchQuery = getSearchQueryString();
   
-  const url = new URL(trafaUrl);
+  const url = new URL(`${externalDatasets.Trafa.baseUrl}/data`);
   url.searchParams.append('query', tableId + "|ar" + searchQuery);
   language = "sv"
   if (language) url.searchParams.append('lang', language);
