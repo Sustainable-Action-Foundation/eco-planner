@@ -48,5 +48,8 @@
     "troubleshooting_description": "Check your spam folder or fill in your email address below and click the button to receive a new email.",
     "email_placeholder": "name.surname@example.com",
     "submit_resend": "Resend email"
+  },
+  "signup": {
+    "breadcrumb": "Create account"
   }
 }

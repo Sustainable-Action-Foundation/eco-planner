@@ -96,11 +96,27 @@
     "login_failed": "Inloggningen misslyckades. Kontrollera dina uppgifter och försök igen.",
     "login": "Logga in",
     "username": "Användarnamn",
+    "username_placeholder": "användarnamn",
     "password": "Lösenord",
+    "password_placeholder": "lösenord",
     "remember_me": "Kom ihåg mig",
     "forgot_password": "Glömt lösenordet?",
     "no_account": "Har du inget konto?",
     "create_account": "Skapa konto",
     "verify_account": "Verifiera mitt konto"
+  },
+  "signup": {
+    "signup_failed_motivated": "Registreringen misslyckades. Skäl: {{reason}}",
+    "signup_failed": "Registreringen misslyckades. Försök igen.",
+    "create_account": "Skapa konto",
+    "username": "Användarnamn",
+    "username_placeholder": "Förnamn Efternamn",
+    "email": "E-post",
+    "email_placeholder": "fornamn.efternamn@exempel.se",
+    "password": "Lösenord",
+    "password_placeholder": "lösenord",
+    "already_have_account": "Har du redan ett konto?",
+    "login": "Logga in",
+    "disclaimer": "Din organisation måste ha tecknat ett användaravtal med oss för att du ska kunna skapa ett konto.\n\nVid frågor eller funderingar, vänligen kontakta"
   }
 }

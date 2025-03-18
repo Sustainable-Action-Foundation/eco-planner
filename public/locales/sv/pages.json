@@ -48,5 +48,8 @@
     "troubleshooting_description": "Kolla i din skräppost eller fyll i din e‑postadress nedan och klicka på knappen för att få ett nytt e‑postmeddelandet.",
     "email_placeholder": "fornamn.efternamn@exempel.se",
     "submit_resend": "Skicka igen"
+  },
+  "signup": {
+    "breadcrumb": "Skapa konto"
   }
 }

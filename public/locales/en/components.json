@@ -96,11 +96,27 @@
     "login_failed": "Login failed. Please try again.",
     "login": "Login",
     "username": "Username",
+    "username_placeholder": "username",
     "password": "Password",
+    "password_placeholder": "password",
     "remember_me": "Remember me",
     "forgot_password": "Forgot password?",
     "no_account": "Don't have an account?",
     "create_account": "Create account",
     "verify_account": "Verify my account"
+  },
+  "signup": {
+    "signup_failed_motivated": "Registration failed. Reason: {{reason}}",
+    "signup_failed": "Registration failed. Please try again.",
+    "create_account": "Create account",
+    "username": "Username",
+    "username_placeholder": "Name Surname",
+    "email": "Email",
+    "email_placeholder": "name.surname@example.com",
+    "password": "Password",
+    "password_placeholder": "password",
+    "already_have_account": "Already have an account?",
+    "login": "Login",
+    "disclaimer": "Your organization must have signed a user agreement with us for you to be able to create an account.\n\nIf you have any questions or concerns, please contact"
   }
 }

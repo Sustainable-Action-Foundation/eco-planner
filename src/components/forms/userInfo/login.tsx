@@ -53,7 +53,7 @@ export default function Login() {
           {t("components:login.username")}
           <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
             <Image src="/icons/user.svg" alt="" width={24} height={24} />
-            <input className="padding-0 margin-inline-50" type="text" placeholder={t("components:login.username")} name="username" required id="username" autoComplete="username" />
+            <input className="padding-0 margin-inline-50" type="text" placeholder={t("components:login.username_placeholder")} name="username" required id="username" autoComplete="username" />
           </div>
         </label>
 
@@ -61,7 +61,7 @@ export default function Login() {
           {t("components:login.password")}
           <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
             <Image src="/icons/password.svg" alt="" width={24} height={24} />
-            <input className="padding-0 margin-inline-50 transparent" type={showPassword ? 'text' : 'password'} placeholder={t("components:login.password")} name="password" required id="password" autoComplete="current-password" />
+            <input className="padding-0 margin-inline-50 transparent" type={showPassword ? 'text' : 'password'} placeholder={t("components:login.password_placeholder")} name="password" required id="password" autoComplete="current-password" />
             <button type="button" className={`${styles.showPasswordButton} grid padding-0 transparent`} onClick={() => setShowPassword(prevState => !prevState)}>
               <Image src={showPassword ? '/icons/eyeDisabled.svg' : '/icons/eye.svg'} alt="" width={24} height={24} />
             </button>
