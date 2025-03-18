@@ -12,12 +12,7 @@ export enum Locales {
 };
 export const uniqueLocales = [...new Set(Object.values(Locales))];
 
-export const defaultNS = "common";
 export const ns = ["common", "forms", "components", "pages",];
-
-export function titleCase(value: string) {
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
 
 export function initTemplate(t: TFunction): InitOptions {
   return {
@@ -25,7 +20,6 @@ export function initTemplate(t: TFunction): InitOptions {
     fallbackLng: Locales.default,
     supportedLngs: uniqueLocales,
     preload: uniqueLocales,
-    defaultNS,
     ns,
     interpolation: {
       escapeValue: false, // React already escapes
@@ -58,8 +52,34 @@ export function initTemplate(t: TFunction): InitOptions {
           }
         }
 
+        /* Relative time */
+        if (options && formats.includes("relativeTime")) {
+          value = relativeTime(new Date(value), lng || Locales.default);
+        }
+
         return value || "";
       },
     },
   };
+}
+
+export function titleCase(value: string) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+export function relativeTime(time: Date, lng: string) {
+  const relativeTime = new Intl.RelativeTimeFormat(lng);
+
+  const dayDelta = Math.round((time.getTime() - Date.now()) / (86_400_000));
+  const hourDelta = Math.round((time.getTime() - Date.now()) / (3_600_000));
+  const minuteDelta = Math.round((time.getTime() - Date.now()) / (60_000));
+  const secondDelta = Math.round((time.getTime() - Date.now()) / (1_000));
+
+  console.log("day:", dayDelta, "hour:", hourDelta, "minute:", minuteDelta, "second:", secondDelta);
+
+  if (Math.abs(dayDelta) > 0) return relativeTime.format(dayDelta, "days");
+  if (Math.abs(hourDelta) > 0) return relativeTime.format(hourDelta, "hours");
+  if (Math.abs(minuteDelta) > 0) return relativeTime.format(minuteDelta, "minutes");
+  if (Math.abs(secondDelta) > 0) return relativeTime.format(secondDelta, "seconds");
+  return relativeTime.format(secondDelta, "seconds");
 }

@@ -62,5 +62,20 @@
     "sort_interest": "Interest",
     "new_goal": "New $t(common:goal_one)",
     "loading_alt": "Loading"
+  },
+  "comments": {
+    "comment": "Comment",
+    "comments": "Comments",
+    "no_comments": "No comments",
+    "add_comment": "Make a comment",
+    "edit_comment": "Edit comment",
+    "delete_comment": "Delete comment",
+    "comment_count": "{{count}} comment",
+    "comment_count_other": "{{count}} comments",
+    "comment_count_zero": "No comments",
+    "comment_count_one": "One comment",
+    "cancel": "Cancel",
+    "send": "Submit",
+    "relative_time": "{{val, relativeTime}}"
   }
 }

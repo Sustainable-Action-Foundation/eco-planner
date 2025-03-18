@@ -1,7 +1,6 @@
 'use client';
 
 import { commentSorter } from "@/lib/sorters";
-import timeSince from "@/functions/timeSince";
 import { Comment } from "@prisma/client";
 import styles from './comments.module.css'
 import { ChangeEvent, useRef, useState } from "react";
@@ -82,7 +81,8 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
             <div className="flex align-items-center gap-50 margin-top-200">
               <a className={styles.commentAuthor} href={`/@${comment.author.username}`}>{comment.author.username}</a>
               <span className="font-weight-300" style={{ color: 'gray', fontSize: '.75rem' }}>
-                {`${timeSince(new Date(comment.createdAt))} sedan`}
+                {/* {`${timeSince(new Date(comment.createdAt))} sedan`} */}
+                {t("components:comments.relative_time", { val: new Date(comment.createdAt) })}
               </span>
             </div>
             <p className="margin-0" style={{ wordBreak: 'break-word', }}>

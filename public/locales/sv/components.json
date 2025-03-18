@@ -75,6 +75,7 @@
     "comment_count_zero": "Inga kommentarer",
     "comment_count_one": "En kommentar",
     "cancel": "Avbryt",
-    "send": "Skicka"
+    "send": "Skicka",
+    "relative_time": "{{val, relativeTime}}"
   }
 }
