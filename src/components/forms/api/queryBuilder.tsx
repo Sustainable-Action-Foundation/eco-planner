@@ -3,7 +3,7 @@
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
 import formSubmitter from "@/functions/formSubmitter";
 import { ApiTableContent, ApiTableDetails, ScbVariable, TrafaVariable } from "@/lib/api/apiTypes";
-import { externalDatasetSupportedLanguages, externalDatasets, getDatasetKeysOfApi } from "@/lib/api/utility";
+import { externalDatasets, getDatasetKeysOfApi } from "@/lib/api/utility";
 import { getPxWebTableContent } from "@/lib/pxWeb/getPxWebTableContent";
 import { getPxWebTableDetails } from "@/lib/pxWeb/getPxWebTableDetails";
 import { getPxWebTables } from "@/lib/pxWeb/getPxWebTables";
@@ -255,9 +255,9 @@ export default function QueryBuilder({
                 </select>
                 {// Display warning message if the selected language is not supported by the api
                   (
-                    (externalDatasetSupportedLanguages[dataSource as keyof typeof externalDatasetSupportedLanguages])
+                    (externalDatasets[dataSource as keyof typeof externalDatasets])
                     &&
-                    !(externalDatasetSupportedLanguages[dataSource as keyof typeof externalDatasetSupportedLanguages].includes(locale))
+                    !(externalDatasets[dataSource as keyof typeof externalDatasets].supportedLanguages.includes(locale))
                   )
                   &&
                   <p style={{ color: "red" }}>{dataSource} stödjer inte ditt valda språk. Ett tillgängligt språk kommer att användas istället.</p>
