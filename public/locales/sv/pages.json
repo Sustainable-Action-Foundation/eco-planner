@@ -40,5 +40,13 @@
   },
   "login": {
     "breadcrumb": "Logga in"
+  },
+  "verify": {
+    "title": "Verifiera din e‑post",
+    "description": "Ett meddelande har skickats till din e‑postadress. Verifiera din e‑post genom att följa instruktionerna i e‑postmeddelandet.",
+    "troubleshooting_title": "Har du inte fått något meddelande?",
+    "troubleshooting_description": "Kolla i din skräppost eller fyll i din e‑postadress nedan och klicka på knappen för att få ett nytt e‑postmeddelandet.",
+    "email_placeholder": "fornamn.efternamn@exempel.se",
+    "submit_resend": "Skicka igen"
   }
 }

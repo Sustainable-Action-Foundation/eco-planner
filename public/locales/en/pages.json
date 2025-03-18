@@ -40,5 +40,13 @@
   },
   "login": {
     "breadcrumb": "Login"
+  },
+  "verify": {
+    "title": "Verify your email",
+    "description": "An email has been sent to your email address. Verify your email by following the instructions in the email.",
+    "troubleshooting_title": "Haven't received an email?",
+    "troubleshooting_description": "Check your spam folder or fill in your email address below and click the button to receive a new email.",
+    "email_placeholder": "name.surname@example.com",
+    "submit_resend": "Resend email"
   }
 }
