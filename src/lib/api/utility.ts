@@ -13,11 +13,18 @@ export const externalDatasetBaseUrls = {
   // ...
 }
 
+/**
+ * Key value pairs of urls to the databases
+ * These urls go to where the user will be directed when clicking the link declaring where historical data is fetched from
+ */
 export const externalDatasetUserFacingUrls = {
   "SCB": "https://www.statistikdatabasen.scb.se/pxweb/sv/ssd/",
   "Trafa": "https://www.trafa.se/sidor/oppen-data-api/",
 }
 
+/**
+ * Lists of supported languages for each API
+ */
 export const externalDatasetSupportedLanguages = {
   "SCB": ["sv", "en"],
   "Trafa": ["sv"],
