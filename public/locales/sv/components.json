@@ -91,5 +91,16 @@
     "version": "Version:",
     "goal": "{{$t(common:goal_one), titleCase}}:",
     "action": "{{$t(common:action_one), titleCase}}:"
+  },
+  "login": {
+    "login_failed": "Inloggningen misslyckades. Kontrollera dina uppgifter och försök igen.",
+    "login": "Logga in",
+    "username": "Användarnamn",
+    "password": "Lösenord",
+    "remember_me": "Kom ihåg mig",
+    "forgot_password": "Glömt lösenordet?",
+    "no_account": "Har du inget konto?",
+    "create_account": "Skapa konto",
+    "verify_account": "Verifiera mitt konto"
   }
 }

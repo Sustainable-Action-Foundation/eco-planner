@@ -91,5 +91,16 @@
     "version": "Version:",
     "goal": "{{$t(common:goal_one), titleCase}}:",
     "action": "{{$t(common:action_one), titleCase}}:"
+  },
+  "login": {
+    "login_failed": "Login failed. Please try again.",
+    "login": "Login",
+    "username": "Username",
+    "password": "Password",
+    "remember_me": "Remember me",
+    "forgot_password": "Forgot password?",
+    "no_account": "Don't have an account?",
+    "create_account": "Create account",
+    "verify_account": "Verify my account"
   }
 }
