@@ -112,12 +112,10 @@ export default function QueryBuilder({
     // Get a result if the form is valid
     if (formRef.current.checkValidity()) {
       const formData = new FormData(formRef.current);
-      const query = buildQuery(formData); // This line is called before the form is cleared
+      const query = buildQuery(formData); // This line is called before the form is cleared TODO - is this comment still relevant?
       const tableId = formData.get("externalTableId") as string ?? "";
       if (getDatasetKeysOfApi("PxWeb").includes(dataSource)) {
         getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource, locale).then(result => { setTableContent(result); });
-        // TODO - revise if this function is needed here
-        getPxWebTableDetails(tableId, dataSource, locale).then(result => { setTableDetails(result); });
       } else if (dataSource == "Trafa") {
         getTrafaTableContent(tableId, query, locale).then(result => { setTableContent(result); });
         getTrafaTableDetails(tableId, query, locale).then(result => { setTableDetails(result); });
