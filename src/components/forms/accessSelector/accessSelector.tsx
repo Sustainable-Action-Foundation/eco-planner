@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import styles from './accessSelector.module.css' with { type: "css" }
+import { useTranslation } from "react-i18next";
 
 /**
  * Converts the form data to a JSON object that can be sent to the API.
@@ -88,6 +89,8 @@ function addUser(name: string | undefined, selectedOptions: string[], selectedSe
 }
 
 export function EditUsers({ existingUsers, groupOptions, existingGroups }: { existingUsers?: string[], groupOptions: string[], existingGroups?: string[] }) {
+  const { t } = useTranslation();
+
   // The users that have editing access to the item
   const [editUsers, setEditUsers] = useState<string[]>(existingUsers ?? []);
 
@@ -102,7 +105,7 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
     <>
 
       <fieldset className="margin-bottom-100">
-        <legend>Grupper med redigeringsbehörighet</legend>
+        <legend>{t("forms:access_selector.groups_with_edit_access")}</legend>
         <ul className="padding-left-100" style={{ listStyle: 'none' }}>
           {groups.map((group) => (
             <li key={'viewGroup' + group}>
@@ -118,7 +121,7 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
       {/* A text field whose contents get appended to editUsers upon pressing enter */}
 
       <label className="block margin-block-100" htmlFor="newEditUser">
-        Användare med redigeringsbehörighet
+        {t("forms:access_selector.users_with_edit_access")}
         <div className={`${styles.multiAddContainer} flex align-items-flex-end flex-wrap-wrap margin-block-25 focusable smooth padding-25 gap-25`}>
           {editUsers.map((user, index) => (
             <span className="display-flex gap-50 align-items-center padding-block-25 padding-inline-50 smooth" style={{ backgroundColor: 'var(--gray-90)', width: 'fit-content' }} key={'viewUser' + index}>
@@ -128,7 +131,7 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
                 className="grid padding-0"
                 onClick={() => { setEditUsers(editUsers.filter((editUser) => editUser !== user)); }}
                 type="button">
-                <Image src="/icons/close.svg" alt="Ta bort användare" width={12} height={12}></Image>
+                <Image src="/icons/close.svg" alt={t("forms:access_selector.remove_user")} width={12} height={12}></Image>
               </button>
             </span>
           ))}
@@ -145,7 +148,7 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
       <button
         type="button"
         onClick={() => { addUser(editorRef.current?.value, editUsers, setEditUsers); if (editorRef.current) editorRef.current.value = '' }}>
-        Lägg till användare
+        {t("forms:access_selector.add_user")}
       </button>
 
     </>
@@ -153,6 +156,8 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
 }
 
 export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPublic }: { existingUsers?: string[], groupOptions: string[], existingGroups?: string[], isPublic?: boolean }) {
+  const { t } = useTranslation();
+
   // The users that have viewing access to the item
   const [viewUsers, setViewUsers] = useState<string[]>(existingUsers ?? []);
 
@@ -167,12 +172,12 @@ export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPubli
     <>
 
       <fieldset className="margin-bottom-100">
-        <legend>Grupper med läsbehörighet</legend>
+        <legend>{t("forms:access_selector.groups_with_read_access")}</legend>
         <ul className="padding-left-100" style={{ listStyle: 'none' }}>
           <li>
             <label className="display-flex align-items-center gap-50 margin-block-50">
               <input type="checkbox" name="isPublic" id="isPublic" defaultChecked={isPublic} />
-              Visa inlägg publikt
+              {t("forms:access_selector.make_posts_public")}
             </label>
           </li>
           {groups.map((group) => (
@@ -188,7 +193,7 @@ export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPubli
 
       {/* A text field whose contents get appended to viewUsers upon pressing enter */}
       <label className="block margin-block-100" htmlFor="newViewUser">
-        Användare med läsbehörighet
+        {t("forms:access_selector.users_with_read_access")}
         <div className={`${styles.multiAddContainer} flex align-items-flex-end flex-wrap-wrap margin-block-25 focusable smooth padding-25 gap-25`}>
           {viewUsers.map((user, index) => (
             <span className="display-flex gap-50 align-items-center padding-block-25 padding-inline-50 smooth" style={{ backgroundColor: 'var(--gray-90)', width: 'fit-content' }} key={'viewUser' + index}>
@@ -198,7 +203,7 @@ export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPubli
                 className="grid padding-0"
                 onClick={() => { setViewUsers(viewUsers.filter((viewUser) => viewUser !== user)); }}
                 type="button">
-                <Image src="/icons/close.svg" alt="Ta bort användare" width={12} height={12}></Image>
+                <Image src="/icons/close.svg" alt={t("forms:access_selector.remove_user")} width={12} height={12}></Image>
               </button>
             </span>
           ))}
@@ -214,7 +219,7 @@ export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPubli
       <button
         type="button"
         onClick={() => { addUser(viewRef.current?.value, viewUsers, setViewUsers); if (viewRef.current) viewRef.current.value = '' }}>
-        Lägg till användare
+        {t("forms:access_selector.add_user")}
       </button>
     </>
   )

@@ -69,5 +69,9 @@
     "password": "New password",
     "password_placeholder": "new password",
     "submit": "Change password"
+  },
+  "meta_roadmap_create": {
+    "breadcrumb": "Create new $t(common:meta_roadmap)",
+    "title": "Create new $t(common:meta_roadmap)"
   }
 }

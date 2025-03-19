@@ -12,14 +12,7 @@
     "goal_count_descending": "{{$t(common:goal_one), titleCase}} count (high to low)",
     "goal_count_ascending": "{{$t(common:goal_one), titleCase}} count (low to high)",
     "filter": "Filter",
-    "show": "Show",
-    "type": {
-      "national": "National $t(common:meta_roadmap)",
-      "regional": "Regional $t(common:meta_roadmap)",
-      "municipal": "Municipal $t(common:meta_roadmap)",
-      "local": "Local $t(common:meta_roadmap)",
-      "other": "Other $t(common:meta_roadmap)"
-    }
+    "show": "Show"
   },
   "roadmap_tree": {
     "no_meta_roadmaps": "No $t(common:meta_roadmap) found. If you have any filters active, no $t(common:meta_roadmap) were found that match them.",

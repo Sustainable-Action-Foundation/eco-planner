@@ -69,5 +69,9 @@
     "password": "Nytt lösenord",
     "password_placeholder": "nytt lösenord",
     "submit": "Byt lösenord"
+  },
+  "meta_roadmap_create": {
+    "breadcrumb": "Skapa ny $t(common:meta_roadmap_one)",
+    "title": "Skapa ny $t(common:meta_roadmap_one)"
   }
 }

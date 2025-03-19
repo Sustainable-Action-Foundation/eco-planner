@@ -1,3 +1,34 @@
 {
-  "goal": "Goal"
+  "meta_roadmap": {
+    "description_legend": "Describe your $t(common:meta_roadmap)",
+    "roadmap_series_name": "Name $t(common:meta_roadmap_definite)",
+    "roadmap_serier_description": "Description of $t(common:meta_roadmap_definite)",
+    "actor_legend": "Choose responsible actor",
+    "roadmap_scope_label": "Type of $t(common:meta_roadmap)",
+    "no_chosen_roadmap_scope": "Choose a type",
+    "choose_actor": "Specify an actor",
+    "attach_external": "Attach external resources",
+    "change_read_access": "Adjust read access",
+    "change_edit_access": "Adjust editing access",
+    "relationship_legend": "Is this $t(common:meta_roadmap) working towards another $t(common:meta_roadmap)?",
+    "relationship_label": "Parent",
+    "relationship_no_chosen": "No parent",
+    "submit_save": "Save",
+    "submit_create": "Create $t(common:meta_roadmap)"
+  },
+  "link_input": {
+    "name_label": "Name",
+    "name_placeholder": "e.g. SCB",
+    "url_label": "URL",
+    "url_placeholder": "https://example.com"
+  },
+  "access_selector": {
+    "groups_with_edit_access": "Groups with editing access",
+    "users_with_edit_access": "Users with editing access",
+    "remove_user": "Remove user",
+    "add_user": "Add user",
+    "groups_with_read_access": "Groups with read access",
+    "make_posts_public": "Show posts publicly",
+    "users_with_read_access": "Users with read access"
+  }
 }

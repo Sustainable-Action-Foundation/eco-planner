@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
+import { t } from "@/lib/i18nServer";
 
 export default async function Page() {
   const [session, parentRoadmapOptions] = await Promise.all([
@@ -18,11 +19,11 @@ export default async function Page() {
 
   return (
     <>
-      <Breadcrumb customSections={['Skapa ny färdplansserie']} />
+      <Breadcrumb customSections={[t("pages:meta_roadmap_create.breadcrumb")]} />
 
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          Skapa en ny färdplansserie
+          {t("pages:meta_roadmap_create.title")}
         </h1>
         <MetaRoadmapForm
           user={session.user}

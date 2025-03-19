@@ -12,14 +12,7 @@
     "goal_count_descending": "Antal $t(common:goal_other) (fallande)",
     "goal_count_ascending": "Antal $t(common:goal_other) (stigande)",
     "filter": "Filtrera",
-    "show": "Visa",
-    "type": {
-      "national": "Nationella $t(common:meta_roadmap_other)",
-      "regional": "Regionala $t(common:meta_roadmap_other)",
-      "municipal": "Kommunala $t(common:meta_roadmap_other)",
-      "local": "Lokala $t(common:meta_roadmap_other)",
-      "other": "Övriga $t(common:meta_roadmap_other)"
-    }
+    "show": "Visa"
   },
   "roadmap_tree": {
     "no_meta_roadmaps": "Inga $t(common:meta_roadmap_other) hittades. Om du har några aktiva filter hittades inga $t(common:meta_roadmap_other) som matchar dem.",

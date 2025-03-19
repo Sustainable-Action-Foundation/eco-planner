@@ -1,3 +1,34 @@
 {
-  "goal": "Mål"
+  "meta_roadmap": {
+    "description_legend": "Beskriv din $t(common:meta_roadmap_one)",
+    "roadmap_series_name": "Namn för $t(common:meta_roadmap_definite)",
+    "roadmap_serier_description": "Beskrivning av $t(common:meta_roadmap_definite)",
+    "actor_legend": "Välj ansvarig aktör",
+    "roadmap_scope_label": "Typ av $t(common:meta_roadmap_one)",
+    "no_chosen_roadmap_scope": "Välj en typ",
+    "choose_actor": "Ange en aktör",
+    "attach_external": "Bifoga externa resurser",
+    "change_read_access": "Justera läsbehörighet",
+    "change_edit_access": "Justera redigeringsbehörighet",
+    "relationship_legend": "Jobbar denna $t(common:meta_roadmap_one) mot en annan $t(common:meta_roadmap_one)?",
+    "relationship_label": "Förälder",
+    "relationship_no_chosen": "Ingen förälder",
+    "submit_save": "Spara",
+    "submit_create": "Skapa $t(common:meta_roadmap_one)"
+  },
+  "link_input": {
+    "name_label": "Namn",
+    "name_placeholder": "ex. SCB",
+    "url_label": "Länk",
+    "url_placeholder": "https://exampel.se"
+  },
+  "access_selector": {
+    "groups_with_edit_access": "Grupper med redigeringsbehörighet",
+    "users_with_edit_access": "Användare med redigeringsbehörighet",
+    "remove_user": "Ta bort användare",
+    "add_user": "Lägg till användare",
+    "groups_with_read_access": "Grupper med läsbehörighet",
+    "make_posts_public": "Visa inlägg publikt",
+    "users_with_read_access": "Användare med läsbehörighet"
+  }
 }

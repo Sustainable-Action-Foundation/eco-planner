@@ -9,6 +9,7 @@ import { EditUsers, ViewUsers, getAccessData } from "@/components/forms/accessSe
 import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput"
 import formSubmitter from "@/functions/formSubmitter";
 import styles from '../forms.module.css'
+import { useTranslation } from "react-i18next";
 
 export default function MetaRoadmapForm({
   user,
@@ -21,6 +22,8 @@ export default function MetaRoadmapForm({
   parentRoadmapOptions?: MetaRoadmap[],
   currentRoadmap?: MetaRoadmap & AccessControlled,
 }) {
+  const { t } = useTranslation();
+
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     // Mostly the usual submit handler stuff.
     // We might want to redirect the user to the roadmap form immediately after successfully submitting the metaRoadmap form
@@ -67,11 +70,11 @@ export default function MetaRoadmapForm({
   const timestamp = Date.now()
 
   const customRoadmapTypes = {
-    [RoadmapType.NATIONAL]: 'Nationell färdplan',
-    [RoadmapType.REGIONAL]: 'Regional färdplan',
-    [RoadmapType.MUNICIPAL]: 'Kommunal färdplan',
-    [RoadmapType.LOCAL]: 'Lokal färdplan',
-    [RoadmapType.OTHER]: 'Övrig färdplan, exempelvis för en organisation'
+    [RoadmapType.NATIONAL]: t("common:scope.national"),
+    [RoadmapType.REGIONAL]: t("common:scope.regional"),
+    [RoadmapType.MUNICIPAL]: t("common:scope.municipal"),
+    [RoadmapType.LOCAL]: t("common:scope.local"),
+    [RoadmapType.OTHER]: t("common:scope.other"),
   }
 
   let currentAccess: AccessControlled | undefined = undefined;
@@ -96,24 +99,24 @@ export default function MetaRoadmapForm({
         <input type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>Beskriv din färdplansserie</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>{t("forms:meta_roadmap.description_legend")}</legend>
           <label className="block margin-block-100">
-            Namn för den nya färdplansserien
+            {t("forms:meta_roadmap.roadmap_series_name")}
             <input id="metaRoadmapName" name="metaRoadmapName" className="margin-block-25" type="text" defaultValue={currentRoadmap?.name ?? undefined} required />
           </label>
 
           <label className="block margin-block-100">
-            Beskrivning av färdplansserien
+            {t("forms:meta_roadmap.description")}
             <textarea className="block margin-block-25" name="description" id="description" defaultValue={currentRoadmap?.description ?? undefined} required></textarea>
           </label>
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Välj ansvarig aktör</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:meta_roadmap.actor_legend")}</legend>
           <label className="block margin-bottom-100">
-            Typ av färdplansserie
+            {t("forms:meta_roadmap.roadmap_scope_label")}
             <select className="block margin-block-25" name="type" id="type" defaultValue={currentRoadmap?.type ?? ""} required>
-              <option value="">Välj en typ</option>
+              <option value="">{t("forms:meta_roadmap.no_chosen_roadmap_scope")}</option>
               {
                 Object.values(RoadmapType).map((value) => {
                   if (value == RoadmapType.NATIONAL && !user?.isAdmin) return null;
@@ -126,19 +129,19 @@ export default function MetaRoadmapForm({
           </label>
 
           <label className="block margin-block-100">
-            Välj en aktör
+            {t("forms:meta_roadmap.choose_actor")}
             <input className="margin-block-25" list="actors" id="actor" name="actor" type="text" defaultValue={currentRoadmap?.actor ?? undefined} />
           </label>
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Bifoga externa resurser</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:meta_roadmap.attach_external")}</legend>
           <LinkInput />
         </fieldset>
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Justera läsbehörighet</legend>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:meta_roadmap.change_read_access")}</legend>
             <ViewUsers
               groupOptions={userGroups}
               existingUsers={currentAccess?.viewers.map((user) => user.username)}
@@ -151,7 +154,7 @@ export default function MetaRoadmapForm({
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Justera redigeringsbehörighet</legend>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:meta_roadmap.change_edit_access")}</legend>
             <EditUsers
               groupOptions={userGroups}
               existingUsers={currentAccess?.editors.map((user) => user.username)}
@@ -161,11 +164,11 @@ export default function MetaRoadmapForm({
         }
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>Jobbar denna färdplansserie mot en annan färdplansserie?</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:meta_roadmap.relationship_legend")}</legend>
           <label className="block margin-block-75">
-            Förälder
+            {t("forms:meta_roadmap.relationship_label")}
             <select name="parentRoadmap" id="parentRoadmap" className="block margin-block-25" defaultValue={currentRoadmap?.parentRoadmapId ?? ""}>
-              <option value="">Ingen förälder</option>
+              <option value="">{t("forms:meta_roadmap.relationship_no_chosen")}</option>
               {
                 !parentRoadmapOptions && currentRoadmap && currentRoadmap.parentRoadmapId && (
                   <option value={currentRoadmap.parentRoadmapId} disabled>{currentRoadmap.parentRoadmapId}</option>
@@ -184,7 +187,7 @@ export default function MetaRoadmapForm({
 
 
         {/* Add copy of RoadmapForm? Only if we decide to include it immediately rather than redirecting to it */}
-        <input className="seagreen color-purewhite margin-block-200" type="submit" id="submit-button" value={currentRoadmap ? "Spara" : "Skapa färdplansserie"} /> {/* TODO: Set disabled if form not filled out */}
+        <input className="seagreen color-purewhite margin-block-200" type="submit" id="submit-button" value={currentRoadmap ? t("forms:meta_roadmap.submit_save") : t("forms:meta_roadmap.submit_create")} /> {/* TODO: Set disabled if form not filled out */}
       </form>
 
       <datalist id="actors">
