@@ -16,12 +16,12 @@ export type ApiTableContent = {
 }
 
 export type ApiTableDetails = {
-  id: string
-  metrics: (TrafaMetric | ScbMetric)[]
-  hierarchies: (TrafaHierarchy)[]
-  variables: (TrafaVariable | ScbVariable)[]
-  times: (TrafaVariable | ScbTimeVariable)[]
-  language: string
+  id: string,
+  metrics: (TrafaMetric | ScbMetric)[],
+  hierarchies: (TrafaHierarchy)[],
+  variables: (TrafaVariable | ScbVariable)[],
+  times: (TrafaVariable | ScbTimeVariable)[],
+  language: string,
 }
 
 export type ApiStructureTypeBase = {
