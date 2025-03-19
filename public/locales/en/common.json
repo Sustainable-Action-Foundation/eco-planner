@@ -33,5 +33,8 @@
     "geo_mean": "Geometric mean (recommended)",
     "arith_mean": "Arithmetic mean",
     "multiplicative": "Multiplicative"
+  },
+  "css": {
+    "optional": " - (optional)"
   }
 }

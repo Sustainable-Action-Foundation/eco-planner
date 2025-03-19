@@ -35,6 +35,13 @@ export default async function RootLayout(
         {/* Optional tags */}
         <meta name="og:site_name" content={t("common:app_name")} />
         <meta property="og:locale" content={t("og_locale")} />
+
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            :root {
+              --locale-optional: "${t("common:css.optional")}";
+            }
+        `}}></style>
       </head>
       <body>
         <I18nProvider>

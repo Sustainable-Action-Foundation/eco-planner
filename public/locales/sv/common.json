@@ -34,5 +34,8 @@
     "geo_mean": "Geometriskt genomsnitt (rekommenderad)",
     "arith_mean": "Algebraiskt genomsnitt",
     "multiplicative": "Multiplikativ"
+  },
+  "css": {
+    "optional": " - (valfri)"
   }
 }
