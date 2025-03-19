@@ -105,18 +105,9 @@ export default function QueryBuilder({
     }
   }
 
-  function tryGetResult(event: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
-    // Don't try to get a result if the changed element is externalDataset
-    if (event && event.target instanceof HTMLSelectElement && (event.target as HTMLSelectElement).name == "externalDataset") return;
-    // Don't try to get a result if the changed element is search bar
-    if (event && event.target instanceof HTMLInputElement && (event.target as HTMLInputElement).name == "tableSearch") return;
-    // Don't try to get a result if the changed element is a table
-    if (event && event.target instanceof HTMLInputElement && (event.target as HTMLInputElement).name == "externalTableId") return;
-    // Don't try to get a result if the form is not a HTMLFormElement
+  function tryGetResult() {
+    // null check
     if (!(formRef.current instanceof HTMLFormElement)) return;
-    // Don't try to get a result if there are no tables or table details
-    if (!tables) return;
-    if (!tableDetails) return;
 
     // Get a result if the form is valid
     if (formRef.current.checkValidity()) {
@@ -134,7 +125,16 @@ export default function QueryBuilder({
       enableSubmitButton();
     }
     // If not, make sure the submit button is disabled
-    else disableSubmitButton();
+    else disableSubmitButton(); clearTableContent();
+  }
+  function formChange(event: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
+    const changedElementIsExternalDataset = event.target instanceof HTMLSelectElement && (event.target as HTMLSelectElement).name == "externalDataset";
+    const changedElementIsTableSearch = event.target instanceof HTMLInputElement && (event.target as HTMLInputElement).name == "tableSearch";
+    const changedElementIsTable = event.target instanceof HTMLInputElement && (event.target as HTMLInputElement).name == "externalTableId";
+
+    if (!changedElementIsExternalDataset && !changedElementIsTableSearch && !changedElementIsTable && tables && tableDetails) {
+      tryGetResult();
+    }
   }
 
   function searchOnEnter(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -261,7 +261,7 @@ export default function QueryBuilder({
         </div>
         <p>Lägg till historisk dataserie till {goal.name ?? goal.indicatorParameter}</p>
 
-        <form ref={formRef} onChange={tryGetResult} onSubmit={handleSubmit}>
+        <form ref={formRef} onChange={formChange} onSubmit={handleSubmit}>
           {/* Hidden disabled submit button to prevent accidental submisson */}
           <button type="submit" className="display-none" disabled></button>
 
