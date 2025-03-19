@@ -137,5 +137,10 @@
     "LEAP_parameter": "LEAP-parameter",
     "unit": "Enhet",
     "action_count": "Antal $t(common:action_other)"
+  },
+  "action_table": {
+    "no_actions": "Det finns inga $t(common:action_other) att visa.",
+    "wanna_create_action": "Vill du skapa en?",
+    "create_action": "Skapa ny $t(common:action_one)"
   }
 }

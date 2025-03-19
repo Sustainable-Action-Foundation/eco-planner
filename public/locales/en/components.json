@@ -137,5 +137,10 @@
     "LEAP_parameter": "LEAP parameter",
     "unit": "Unit",
     "action_count": "{{$t(common:action_other), titleCase}}"
+  },
+  "action_table": {
+    "no_actions": "There are no $t(common:action_other) to display.",
+    "wanna_create_action": "Do you want to create one?",
+    "create_action": "Create new $t(common:action_one)"
   }
 }
