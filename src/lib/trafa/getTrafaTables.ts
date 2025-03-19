@@ -3,7 +3,7 @@
 import { StructureItem, TrafaDataResponse } from "./trafaTypes";
 import { externalDatasets } from "../api/utility"
 
-export default async function getTrafaTables(language?: "sv" | "en") {
+export default async function getTrafaTables(query?: string | null, language?: "sv" | "en") {
   const url = new URL(`${externalDatasets.Trafa.baseUrl}/structure`);
   url.searchParams.append('query', ``);
   language = "sv"
@@ -43,6 +43,11 @@ export default async function getTrafaTables(language?: "sv" | "en") {
 
     tables.push(pushItem);
   });
+
+  if (query) {
+    const regex = new RegExp(query as string, "i");
+    return tables?.filter(table => regex.test(table.label)) ?? null;
+  }
 
   return tables;
 

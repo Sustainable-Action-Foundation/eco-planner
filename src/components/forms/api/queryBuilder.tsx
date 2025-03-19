@@ -43,7 +43,7 @@ export default function QueryBuilder({
       getPxWebTables(dataSource, query, locale).then(result => setTables(result));
     }
     if (dataSource == "Trafa") {
-      getTrafaTables(locale).then(result => setTables(result));
+      getTrafaTables(null, locale).then(result => setTables(result));
     }
   }, [dataSource, locale]);
 
@@ -155,12 +155,7 @@ export default function QueryBuilder({
       // TODO - when searching for id, also return partial matches
       getPxWebTables(dataSource, query, locale).then(result => setTables(result));
     } else if (dataSource == "Trafa") {
-      // TODO - maybe the tables can be filtered in the function?
-      getTrafaTables(locale).then((result) => {
-        const regex = new RegExp(query as string, "i");
-        result = result?.filter(value => regex.test(value.label)) ?? null;
-        setTables(result);
-      });
+      getTrafaTables(query, locale).then((result) => setTables(result));
     }
   }
 

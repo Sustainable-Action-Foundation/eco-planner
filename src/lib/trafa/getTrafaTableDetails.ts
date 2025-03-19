@@ -54,7 +54,7 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
   }
 
   // Filter away all trafa tables from the list of structure items that is fetched from Trafa
-  const allTrafaTableNames = await getTrafaTables(language).then(result => result?.map(item => item.tableId) ?? null);
+  const allTrafaTableNames = await getTrafaTables(null, language).then(result => result?.map(item => item.tableId) ?? null);
   data.StructureItems = data.StructureItems.filter(structureItem => !allTrafaTableNames?.includes(structureItem.Name));
 
   // Declare the variable that will be returned by this function
