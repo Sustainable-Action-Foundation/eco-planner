@@ -142,5 +142,8 @@
     "no_actions": "There are no $t(common:action_other) to display.",
     "wanna_create_action": "Do you want to create one?",
     "create_action": "Create new $t(common:action_one)"
+  },
+  "link_tree": {
+    "no_roadmaps": "You do not have access to any $t(common:goal_other) in this $t(common:roadmap_version_one), or $t(common:roadmap_version_definite) is empty."
   }
 }

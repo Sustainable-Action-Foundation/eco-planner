@@ -142,5 +142,8 @@
     "no_actions": "Det finns inga $t(common:action_other) att visa.",
     "wanna_create_action": "Vill du skapa en?",
     "create_action": "Skapa ny $t(common:action_one)"
+  },
+  "link_tree": {
+    "no_roadmaps": "Du har inte tillgång till några $t(common:goal_other) i denna $t(common:roadmap_version_one), eller så är $t(common:roadmap_version_definite) tom."
   }
 }
