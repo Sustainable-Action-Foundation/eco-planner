@@ -89,5 +89,10 @@
   "meta_roadmap_edit": {
     "breadcrumb": "Redigera metadata",
     "title": "Redigera metadata för $t(common:meta_roadmap_definite): {{name}}"
+  },
+  "goal_create": {
+    "breadcrumb": "Skapa ny $t(common:goal_one)",
+    "title": "Skapa ny $t(common:goal_one)",
+    "bad_roadmap": "Kunde inte hitta eller har inte tillgång till färdplansversionen i länken.\n\nAnvänd dropdown-menyn för att välja en färdplansversion att skapa målbanan under."
   }
 }

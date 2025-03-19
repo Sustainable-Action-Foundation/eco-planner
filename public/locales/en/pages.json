@@ -89,5 +89,10 @@
   "meta_roadmap_edit": {
     "breadcrumb": "Edit metadata",
     "title": "Edit metadata for $t(common:meta_roadmap_definite): {{name}}"
+  },
+  "goal_create": {
+    "breadcrumb": "Create new $t(common:goal_one)",
+    "title": "Create new $t(common:goal_one)",
+    "bad_roadmap": "Could not find or do not have access to the roadmap version in the link.\n\nUse the dropdown menu to select a roadmap version to create goals under."
   }
 }
