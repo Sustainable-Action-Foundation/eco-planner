@@ -49,7 +49,8 @@
     "button_image_alt": "menu",
     "close_button_alt": "close",
     "edit": "Edit",
-    "delete": "Delete post"
+    "delete": "Delete post",
+    "delete_missing_name": "Name missing"
   },
   "goals": {
     "search": "Search $t(common:goal_other)",
@@ -118,5 +119,12 @@
     "already_have_account": "Already have an account?",
     "login": "Login",
     "disclaimer": "Your organization must have signed a user agreement with us for you to be able to create an account.\n\nIf you have any questions or concerns, please contact"
+  },
+  "confirm_delete": {
+    "delete_post": "Delete post",
+    "confirmation": "Are you sure you want to delete post <strong>{{targetName}}</strong>?<br />This action cannot be undone.",
+    "type_to_confirm": "Type <strong>{{targetName}}</strong> to confirm.",
+    "cancel": "Cancel",
+    "delete": "Delete"
   }
 }

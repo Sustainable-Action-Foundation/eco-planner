@@ -49,7 +49,8 @@
     "button_image_alt": "meny",
     "close_button_alt": "stäng",
     "edit": "Redigera",
-    "delete": "Radera inlägg"
+    "delete": "Radera inlägg",
+    "delete_missing_name": "Namn saknas"
   },
   "goals": {
     "search": "Sök bland $t(common:goal_other)",
@@ -118,5 +119,12 @@
     "already_have_account": "Har du redan ett konto?",
     "login": "Logga in",
     "disclaimer": "Din organisation måste ha tecknat ett användaravtal med oss för att du ska kunna skapa ett konto.\n\nVid frågor eller funderingar, vänligen kontakta"
+  },
+  "confirm_delete": {
+    "delete_post": "Radera inlägg",
+    "confirmation": "Är du säker på att du vill radera inlägget <strong>{{targetName}}</strong>?<br />Detta går inte att ångra.",
+    "type_to_confirm": "Skriv <strong>{{targetName}}</strong> för att bekräfta.",
+    "cancel": "Avbryt",
+    "delete": "Radera"
   }
 }

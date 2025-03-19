@@ -4,6 +4,7 @@ import formSubmitter from "@/functions/formSubmitter";
 import { useState } from "react";
 import { closeModal } from "@/components/modals/modalFunctions";
 import styles from './modals.module.css'
+import { Trans, useTranslation } from "react-i18next";
 
 export default function ConfirmDelete({
   modalRef,
@@ -16,6 +17,8 @@ export default function ConfirmDelete({
   targetName: string;
   targetId?: string | { actionId: string, goalId: string };
 }) {
+  const { t } = useTranslation();
+
   const [isLoading, setIsLoading] = useState(false);
   let elementId: string;
   if (typeof targetId === "object") {
@@ -47,18 +50,25 @@ export default function ConfirmDelete({
   return (
     <dialog ref={modalRef} className={styles.modal}>
       <form onSubmit={handleDelete}>
-        <strong className="block" style={{ fontSize: 'larger' }}>Radera inlägg</strong>
+        <strong className="block" style={{ fontSize: 'larger' }}>{t("components:confirm_delete.delete_post")}</strong>
         <p className="padding-block-100" style={{ borderBlock: '2px solid var(--gray-90)' }}>
-          Är du säker på att du vill radera inlägget <strong>{targetName}</strong>? <br />
-          Du kan ej ångra denna åtgärd senare.
+          <Trans
+            i18nKey={"components:confirm_delete.confirmation"}
+            values={{ targetName: targetName }}
+            components={{ strong: <strong />, br: <br /> }}
+          />
         </p>
         <label className="block margin-block-75">
-          Skriv <strong>{targetName}</strong> för att bekräfta
+          <Trans
+            i18nKey={"components:confirm_delete.type_to_confirm"}
+            values={{ targetName: targetName }}
+            components={{ strong: <strong /> }}
+          />
           <input className="margin-block-25" type="text" placeholder={targetName} id={`delete-name-input-${elementId}`} required pattern={targetName} />
         </label>
         <div className="display-flex justify-content-flex-end margin-top-75 gap-50">
-          <button type="button" className="font-weight-500" onClick={() => closeModal(modalRef)}>Avbryt</button>
-          <button type="submit" className="red color-purewhite font-weight-500" disabled={isLoading} onClick={handleDelete}>Radera</button>
+          <button type="button" className="font-weight-500" onClick={() => closeModal(modalRef)}>{t("components:confirm_delete.cancel")}</button>
+          <button type="submit" className="red color-purewhite font-weight-500" disabled={isLoading} onClick={handleDelete}>{t("components:confirm_delete.delete")}</button>
         </div>
       </form>
     </dialog>

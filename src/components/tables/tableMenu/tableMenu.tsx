@@ -112,7 +112,7 @@ export function TableMenu(
   else if (object.indicatorParameter != undefined) {
     selfLink = `/goal/${object.id}`;
     parentLink = `/roadmap/${object.roadmap.id}`;
-    parentDescription = 'Gå till färdplansversionen';
+    parentDescription = t("components:table_menu.go_to_version");
     creationLink = `/action/create?roadmapId=${object.roadmapId}&goalId=${object.id}`;
     creationDescription = t("components:table_menu.new_action");
     creationLink2 = `/effect/create?goalId=${object.id}`;
@@ -221,7 +221,7 @@ export function TableMenu(
                     {t("components:table_menu.delete")}
                     <Image src='/icons/delete.svg' alt="" width={24} height={24} className={styles.actionImage} />
                   </button>
-                  <ConfirmDelete modalRef={deletionRef} targetUrl={deleteLink} targetName={object.name || object.metaRoadmap?.name || "Namn saknas"} targetId={object.id} />
+                  <ConfirmDelete modalRef={deletionRef} targetUrl={deleteLink} targetName={object.name || object.metaRoadmap?.name || t("components:table_menu.delete_missing_name")} targetId={object.id} />
                 </>
               }
             </>
