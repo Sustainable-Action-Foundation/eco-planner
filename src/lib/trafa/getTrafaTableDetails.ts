@@ -5,7 +5,7 @@ import { externalDatasets } from "../api/utility"
 
 export default async function getTrafaTableDetails(tableId: string, selection: { variableCode: string, valueCodes: string[] }[] = [], language: "sv" | "en" = "sv") {
   // Helper function for generating a string that will be appended to searchParams of the url
-  function getSearchQueryString(){
+  function getSearchQueryString() {
     const variableQueries: string[] = [];
     let metric: string = "";
     for (const object of selection) {
@@ -67,6 +67,10 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
     language: language,
   }
 
+  function logNotSupportedDataType(itemType: string, structureItem: StructureItem) {
+    console.warn(`This is a ${itemType} with a data type that is not supported ${structureItem.DataType}.\n${itemType}: ${structureItem.DataType} (${tableId} - ${structureItem.Label})`);
+  }
+
   // Helper function for converting structure items from trafa to items that can be used with a more universal structure
   function structureItemToTrafaTableDetailItem(structureItem: StructureItem, tableDetailType: string): TrafaMetric | TrafaHierarchy | TrafaVariable | TrafaVariableValue | TrafaFilter {
     const returnItem: TrafaMetric | TrafaHierarchy | TrafaVariable | TrafaVariableValue | TrafaFilter = {} as TrafaMetric | TrafaHierarchy | TrafaVariable | TrafaVariableValue | TrafaFilter;
@@ -74,19 +78,40 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
     // Assign values depending on item type
     if (tableDetailType == "M") {
       returnItem.type = "metric";
+      if (structureItem.DataType == "Time" || structureItem.DataType == "Region") {
+        // console.log("This is a metric with a data type that is not supported", structureItem.DataType);
+        logNotSupportedDataType(returnItem.type, structureItem);
+      }
+      else if (structureItem.DataType == "String") { }
     } else if (tableDetailType == "H") {
       (returnItem as TrafaHierarchy).children = [];
       returnItem.type = "hierarchy";
+      if (structureItem.DataType == "Time") {
+        // console.log("This is a hierarchy with a data type that is not supported", structureItem.DataType);
+        logNotSupportedDataType(returnItem.type, structureItem);
+      }
     } else if (tableDetailType == "D" && structureItem.DataType != "Time") {
       (returnItem as TrafaVariable).values = [];
       (returnItem as TrafaVariable).optional = true;
       returnItem.type = "variable";
+      // if (structureItem.DataType == "Region") {
+        // console.log("This is a variable with a data type that is not supported", structureItem.DataType);
+        // logNotSupportedDataType(returnItem.type, structureItem);
+      // }
     } else if (tableDetailType == "D" && structureItem.DataType == "Time") {
       returnItem.type = "time";
     } else if (tableDetailType == "DV") {
       returnItem.type = "variableValue";
+      if (structureItem.DataType == "Time" || structureItem.DataType == "Region") {
+        // console.log("This is a variable value with a data type that is not supported", structureItem.DataType);
+        logNotSupportedDataType(returnItem.type, structureItem);
+      }
     } else if (tableDetailType == "F") {
       returnItem.type = "filter";
+      if (structureItem.DataType == "Time" || structureItem.DataType == "Region") {
+        // console.log("This is a filter with a data type that is not supported", structureItem.DataType);
+        logNotSupportedDataType(returnItem.type, structureItem);
+      }
     }
 
     // Assign common values
@@ -104,14 +129,14 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
     if ('children' in returnItem && returnItem.children) {
       structureItem.StructureItems.forEach((item) => {
         if (returnItem.children) {
-          returnItem.children.push(structureItemToTrafaTableDetailItem(item, item.Type) as TrafaVariable);
+          returnItem.children.push(structureItemToTrafaTableDetailItem(item, item.Type) as TrafaVariable); // TODO - make try/catch clauses for these types of situations?
         }
       });
     }
     if ('values' in returnItem && returnItem.values) {
       structureItem.StructureItems.forEach((item) => {
         if (returnItem.values) {
-          returnItem.values.push(structureItemToTrafaTableDetailItem(item, item.Type));
+          returnItem.values.push((structureItemToTrafaTableDetailItem(item, item.Type) as TrafaVariable | TrafaVariableValue | TrafaFilter));
         }
       });
     }
@@ -138,3 +163,35 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
 
   return tableDetails;
 }
+
+/**
+ * Tables with deviating data types
+ * variable: Region (t10012 - Län)
+ * variable: Region (t10091 - Registreringslän)
+ * variable: Region (t10092 - Registreringslän)
+ * variable: Region (t10093 - Registreringslän)
+ * variable: Region (t10094 - Registreringslän)
+ * variable: Region (t08092 - Land)
+ * variable: Region (t0604 - Län)
+ * variable: Region (t1201 - Län)
+ * variable: Region (t1201 - Kommun)
+ * variable: Region (t1004 - Län)
+ * variable: Region (t1004 - Kommun)
+ * variable: Region (t0802 - Nordiska länder)
+ * variable: Region (t0802 - Avgängsregion)
+ * variable: Region (t0802 - Avgångsland)
+ * variable: Region (t0802 - Ankomstregion)
+ * variable: Region (t0802 - Ankomstland)
+ * variable: Region (t06011 - Län)
+ * 
+ * variable: Region (t10061 - Pålastningsländer)
+ * variable: Region (t10061 - Pålastningsland)
+ * variable: Region (t10061 - Pålastningsregion NUTS 2)
+ * variable: Region (t10061 - Pålastningslän)
+ * variable: Region (t10061 - Pålastning storstadsområde)
+ * variable: Region (t10061 - Avlastningsländer)
+ * variable: Region (t10061 - Avlastningsland)
+ * variable: Region (t10061 - Avlastningsregion NUTS 2)
+ * variable: Region (t10061 - Avlastningslän)
+ * variable: Region (t10061 - Avlastning storstadsområde)
+ */

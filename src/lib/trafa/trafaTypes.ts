@@ -49,7 +49,7 @@ export type TrafaDataResponse = {
 
 export type StructureItem = {
   Id: number,
-  DataType: "String" | "Time",
+  DataType: "String" | "Time" | "Region",
   Label: string,
   FullLabel: null, // Is it always null?
   Name: string,
