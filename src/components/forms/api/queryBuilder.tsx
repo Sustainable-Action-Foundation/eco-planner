@@ -15,6 +15,7 @@ import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
+import getTables from "@/lib/api/getTables";
 
 export default function QueryBuilder({
   goal,
@@ -39,12 +40,7 @@ export default function QueryBuilder({
 
     const query = (formRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
 
-    if (getDatasetKeysOfApi("PxWeb").includes(dataSource)) {
-      getPxWebTables(dataSource, query, locale).then(result => setTables(result));
-    }
-    if (dataSource == "Trafa") {
-      getTrafaTables(null, locale).then(result => setTables(result));
-    }
+    getTables(dataSource, query, locale).then(result => setTables(result));
   }, [dataSource, locale]);
 
   function buildQuery(formData: FormData) {
@@ -151,12 +147,7 @@ export default function QueryBuilder({
   function handleSearch(query?: string) {
     if (!externalDatasets[dataSource as keyof typeof externalDatasets].baseUrl) return;
 
-    if (getDatasetKeysOfApi("PxWeb").includes(dataSource)) {
-      // TODO - when searching for id, also return partial matches
-      getPxWebTables(dataSource, query, locale).then(result => setTables(result));
-    } else if (dataSource == "Trafa") {
-      getTrafaTables(query, locale).then((result) => setTables(result));
-    }
+    getTables(dataSource, query, locale).then(result => setTables(result));
   }
 
   function clearTableDetails() {
