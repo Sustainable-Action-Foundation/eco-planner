@@ -6,7 +6,7 @@ export type ApiTableContent = {
     type: "d" | "m" | "t",
   }[],
   data: {
-    key: {columnId: string, value: string}[],
+    key: { columnId: string, value: string }[],
     values: (string)[],
   }[],
   metadata: {
@@ -24,115 +24,70 @@ export type ApiTableDetails = {
   language: string
 }
 
-// TODO - which types actually use description?
-// TODO - add type properties?
-// TODO - make sure all types have label, id and name?
-
-export type ScbMetric = {
+export type ApiStructureTypeBase = {
   type: string,
   id: string,
   name: string,
-  index: number,
   label: string,
+}
+
+// TODO - check if scb variables and things should be named PxWeb instead
+export type ScbStructureTypeBase = ApiStructureTypeBase & {
+  // Add additional properties for scb (maybe it should be called pxweb) here if necessary
+}
+
+export type ScbMetric = ScbStructureTypeBase & {
+  index: number,
   unit: { base: string, decimals: number },
 }
 
-export type ScbVariable = {
-  type: string,
-  id: string,
-  name: string,
-  label: string,
+export type ScbVariable = ScbStructureTypeBase & {
   optional: boolean,
   option: boolean,
-  elimination: boolean, // What is this? (this is whether its optional or not, but reversed)
+  elimination: boolean, // This is whether the variable is required or not
   show: "value", // What is this and what are the other possible values?
-  categoryNoteMandatory?: {[variableValueId: string]: { [arrayIndex: string]: boolean}}, // What is this for?
+  categoryNoteMandatory?: { [variableValueId: string]: { [arrayIndex: string]: boolean } }, // What is this for?
   values: ScbVariableValue[],
 }
 
-export type ScbVariableValue = {
-  type: string,
-  id: string,
-  name: string,
+export type ScbVariableValue = ScbStructureTypeBase & {
   index: number,
-  label: string,
   note?: string[],
 }
 
-export type ScbTimeVariable = {
-  type: string,
-  id: string,
-  name: string,
-  label: string,
-  elimination: boolean, // What is this? (this is whether its optional or not, but reversed)
+export type ScbTimeVariable = ScbStructureTypeBase & {
+  elimination: boolean, // This is whether the variable is required or not
   show: "value", // What is this and what are the other possible values?
-  // values: ScbVariableValue[],
 }
 
-export type TrafaMetric = { // Marked as "M"
-  type: string,
+// TODO - which types actually use description?
+export type TrafaStructureTypeBase = ApiStructureTypeBase & {
   trafaId: number,
-  id: string,
-  dataType: "String" | "Time" | "Region", // Is this ever "Time" or "Region"?
-  label: string,
-  name: string,
   parentName: string | null,
   selected: boolean, // What is this for?
-  option: boolean, // What is this for?
+  option: boolean, // This indicates whether the item should be displayed or not
   description: string,
 }
 
-export type TrafaHierarchy = { // Marked as "H"
-  type: string,
-  trafaId: number,
-  id: string,
-  dataType: "String" | "Time" | "Region", // Is this ever "Time"?
-  label: string,
-  name: string,
-  parentName: string | null,
-  selected: boolean, // What is this for?
-  option: boolean, // What is this for?
-  description: string,
+export type TrafaMetric = TrafaStructureTypeBase & { // Marked as "M"
+  dataType: "String" | "Time" | "Region", // TODO - Is this ever "Time" or "Region"?
+}
+
+export type TrafaHierarchy = TrafaStructureTypeBase & { // Marked as "H"
+  dataType: "String" | "Time" | "Region", // TODO - Is this ever "Time"?
   children?: TrafaVariable[],
 }
 
-export type TrafaVariable = { // Marked as "D"
-  type: string,
-  trafaId: number,
-  id: string,
-  dataType: "String" | "Time" | "Region", // Is this ever "Region"?
-  label: string,
-  name: string,
-  parentName: string | null,
+export type TrafaVariable = TrafaStructureTypeBase & { // Marked as "D"
+  dataType: "String" | "Time" | "Region", // TODO - Is this ever "Region"?
   optional: boolean,
-  selected: boolean, // What is this for?
-  option: boolean, // What is this for?
-  description: string,
-  values?: (TrafaVariable | TrafaVariableValue | TrafaFilter)[] // "Variable" children are not found in structure items array, they are found by marking another "Variable" as parent. This is not always the case when there are multiple variables under a hierarchy, but sometimes. Does not seem connected to how many variables are under a hierarchy.
+  values?: (TrafaVariable | TrafaVariableValue | TrafaFilter)[], // "Variable" children are not found in structure items array, they are found by marking another "Variable" as parent. This is not always the case when there are multiple variables under a hierarchy, but sometimes. Does not seem connected to how many variables are under a hierarchy.
 }
 
-export type TrafaVariableValue = { // Marked as "DV"
-  type: string,
-  trafaId: number,
-  id: string,
-  dataType: "String" | "Time" | "Region", // Is this ever "Time" or "Region"?
-  label: string,
-  name: string,
-  parentName: string | null,
-  selected: boolean, // What is this for?
-  option: boolean, // What is this for?
-  description: string,
+export type TrafaVariableValue = TrafaStructureTypeBase & { // Marked as "DV"
+  dataType: "String" | "Time" | "Region", // TODO - Is this ever "Time" or "Region"?
 }
 
-export type TrafaFilter = { // Very similar to variable value, UniqueIds imply that they are basically the same. In reality, one filter seems to overwrite all other filters and variable values.
-  type: string,
-  trafaId: number
-  id: string,
-  dataType: "String" | "Time" | "Region", // Is this ever "Time" or "Region"?
-  label: string,
-  name: string,
-  parentName: string | null,
-  selected: boolean, // What is this for?
-  option: boolean, // What is this for?
-  description: string,
+export type TrafaFilter = TrafaStructureTypeBase & { // Marked as "F"
+  dataType: "String" | "Time" | "Region", // TODO - Is this ever "Time" or "Region"?
 }
