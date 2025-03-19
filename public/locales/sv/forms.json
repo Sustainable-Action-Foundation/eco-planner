@@ -30,5 +30,29 @@
     "groups_with_read_access": "Grupper med läsbehörighet",
     "make_posts_public": "Visa inlägg publikt",
     "users_with_read_access": "Användare med läsbehörighet"
+  },
+  "roadmap": {
+    "bad_decoding": "Filen verkar använda en okänd encoding då den tolkade texten innehåller tecknet '�' som indikerar att något tecken inte kunde tolkas korrekt (antagligen Å, Ä eller Ö).\nDu kan fortfarande använda den här filen, men om du inte är helt säker på att den *ska* innehålla tecknet '�' så rekommenderas att du konverterar filen till UTF-8 encoding och försöker igen.",
+    "scale_deprecated": "Kolumnen 'Scale' stöds inte och kommer att ignoreras.",
+    "scale_deprecated_extended": "$t(forms:roadmap.scale_deprecated) Om kolumnen innehåller några skalor, vänligen baka in dem i enheten eller värdet istället. Exempel: enhet 'MW' snarare än enhet 'kW' med skala 'tusen'.",
+    "roadmap_version_creation_error": "{{$t(common:roadmap_version_definite), titleCase}} kunde inte skapas.\n\nSkälet:\n {{error}}",
+    "file_read_error": "Filen kunde inte läsas: {{error}}",
+    "unknown_error": "Okänt fel",
+    "relationship_legend": "Ange relationen till andra inlägg",
+    "relationship_label": "{{$t(common:meta_roadmap_one), titleCase}} som detta är ett nytt inlägg i",
+    "relationship_no_chosen": "Ingen $t(common:meta_roadmap_one) vald",
+    "relationship_no_found": "Du verkar inte ha tillgång till några $t(common:meta_roadmap_other)",
+    "roadmap_target_label": "Version av $t(common:meta_roadmap_definite) {{targetName}} den här $t(common:meta_roadmap_definite) arbetar mot",
+    "roadmap_target_no_chosen": "Inget alternativ valt",
+    "roadmap_target_always_latest": "Alltid senaste versionen",
+    "roadmap_version_legend": "Beskriv $t(common:roadmap_version_definite)",
+    "roadmap_description": "Extra beskrivning av den här $t(common:roadmap_version_definite)",
+    "upload_goals": "Ladda upp $t(common:goal_other)",
+    "goal_accepted_formats": "{{$t(common:goal_other), titleCase}} <small> - accepterade filtyper: {{fileTypes, list}} - accepterade filkodningar: {{encodings, list}}</small>",
+    "inherit_goal_legend": "Välj $t(common:goal_one) att ärva",
+    "change_read_access":"Justera läsbehörighet",
+    "change_edit_access":"Justera redigeringsbehörighet",
+    "submit_save": "Spara",
+    "submit_create": "Skapa $t(common:roadmap_version_one)"
   }
 }

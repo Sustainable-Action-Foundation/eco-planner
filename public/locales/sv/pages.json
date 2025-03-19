@@ -73,5 +73,10 @@
   "meta_roadmap_create": {
     "breadcrumb": "Skapa ny $t(common:meta_roadmap_one)",
     "title": "Skapa ny $t(common:meta_roadmap_one)"
+  },
+  "roadmap_edit": {
+    "breadcrumb": "Redigera $t(common:roadmap_version_one)",
+    "title": "Redigera $t(common:roadmap_version_one)",
+    "are_you_in_the_right_place": "Menade du att redigera den gemensamma metadatan för hela $t(common:meta_roadmap_definite)? I så fall kan du <Link>gå hit</Link> för att redigera metadatan."
   }
 }

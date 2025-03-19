@@ -73,5 +73,10 @@
   "meta_roadmap_create": {
     "breadcrumb": "Create new $t(common:meta_roadmap)",
     "title": "Create new $t(common:meta_roadmap)"
+  },
+  "roadmap_edit": {
+    "breadcrumb": "Edit $t(common:roadmap_version_one)",
+    "title": "Edit $t(common:roadmap_version_one)",
+    "are_you_in_the_right_place": "Did you mean to edit the entire $t(common:meta_roadmap_definite)? In that case, <Link>go here</Link> to edit the metadata."
   }
 }
