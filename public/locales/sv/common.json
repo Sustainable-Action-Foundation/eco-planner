@@ -13,6 +13,7 @@
   "effect_other": "effekter",
   "goal_one": "målbana",
   "goal_other": "målbanor",
+  "goal_definite": "målbanan",
   "app_name": "Eco - Planner",
   "meta_description": "Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella användare kan inspireras av varandras $t(action_other), på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring $t(action_other).",
   "og_locale": "sv_SE",
@@ -28,5 +29,10 @@
     "municipal_roadmap": "Kommunal $t(meta_roadmap_one)",
     "local_roadmap": "Lokal $t(meta_roadmap_one)",
     "other_roadmap": "Övrig $t(meta_roadmap_one), exempelvis en organisation"
+  },
+  "scaling_methods": {
+    "geo_mean": "Geometriskt genomsnitt (rekommenderad)",
+    "arith_mean": "Algebraiskt genomsnitt",
+    "multiplicative": "Multiplikativ"
   }
 }

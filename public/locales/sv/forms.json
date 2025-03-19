@@ -54,5 +54,43 @@
     "change_edit_access":"Justera redigeringsbehörighet",
     "submit_save": "Spara",
     "submit_create": "Skapa $t(common:roadmap_version_one)"
+  },
+  "goal": {
+    "choose_relationship": "Ange relationen till andra inlägg",
+    "relationship_label": "Välj $t(common:meta_roadmap_one) att skapa $t(common:goal_one) under:",
+    "relationship_no_chosen": "Välj $t(common:meta_roadmap_one)",
+    "action_count": "{{count}} $t(common:action, {\"count\":{{count}}})",
+    "data_series_type_legend": "Välj typ av dataserie för din $t(common:goal_one)",
+    "data_series_type_label": "Dataserie",
+    "data_series_types": {
+      "static": "Statisk",
+      "inherited": "Ärvd",
+      "combined": "Kombinerad"
+    },
+    "goal_description_legend": "Beskriv din $t(common:goal_one)",
+    "goal_name": "Namn på $t(common:goal_one)",
+    "goal_description": "Beskrivning av $t(common:goal_one)",
+    "choose_goal_data_series": "Beskriv hur din {{$t(common:goal_one), possessive}} data är utformad",
+    "scaling_legend": "Skalning",
+    "remove_scaling": "Ta bort skalning",
+    "add_scaling": "Lägg till skalning",
+    "scaling_method_legend": "Skalningsmetod:",
+    "resulting_factor": "Resulterande skalfaktor:",
+    "choose_baseline_for_actions": "Välj baslinje för $t(common:action_other)",
+    "baseline_label": "Vilken baslinje ska man utgå ifrån när man beräknar {{$t(common:action_other), possessive}} $t(common:effect_other) på $t(common:goal_definite)?",
+    "baseline_types": {
+      "initial": "Första årets värde",
+      "custom": "Anpassad baslinje",
+      "inherited": "Använd en annan $t(common:goal_one) som baslinje"
+    },
+    "custom_baseline_label": "Anpassad baslinje:",
+    "custom_baseline_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma.",
+    "attach_external_resources": "Bifoga externa resurser",
+    "feature_this_goal": "Vill du lyfta fram den här $t(common:goal_definite) under din $t(common:roadmap_version_one)?",
+    "feature_goal": "Lyft fram $t(common:goal_definite)",
+    "scale_deprecated": "{{$t(common:goal_definite), titleCase}} innehåller en skala. Vänligen baka in skalan i värdet eller enheten och checka sedan i den här rutan. Alla skalor kommer att tas bort i framtiden",
+    "remove_scale": "Ta bort skalan, {{scale}}",
+    "submit_save": "Spara",
+    "submit_create": "Skapa $t(common:goal_one)"
   }
 }

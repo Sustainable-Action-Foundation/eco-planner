@@ -38,9 +38,9 @@
     "roadmap_version_creation_error": "$t(common:roadmap_version_definite) could not be created.\n\nReason:\n {{error}}",
     "file_read_error": "The file could not be read: {{error}}",
     "relationship_legend": "Specify the relationship to other posts",
-    "relationship_label": "{{$t(common:meta_roadmap_one), titleCase}} that this is a new post in",
-    "relationship_no_chosen": "No $t(common:meta_roadmap_one) chosen",
-    "relationship_no_found": "You seem to not have access to any $t(common:meta_roadmap_other)",
+    "relationship_label": "{{$t(common:meta_roadmap), titleCase}} that this is a new post in",
+    "relationship_no_chosen": "No $t(common:meta_roadmap) chosen",
+    "relationship_no_found": "You seem to not have access to any $t(common:meta_roadmap)",
     "roadmap_target_label": "Version of $t(common:meta_roadmap_definite) {{targetName}} this $t(common:meta_roadmap_definite) is working towards",
     "roadmap_target_no_chosen": "No option chosen",
     "roadmap_target_always_latest": "Always latest version",
@@ -53,5 +53,43 @@
     "change_edit_access":"Adjust editing access",
     "submit_save": "Save",
     "submit_create": "Create $t(common:roadmap_version_one)"
+  },
+  "goal": {
+    "choose_relationship": "Specify the relationship to other posts",
+    "relationship_label": "Choose $t(common:meta_roadmap) to create $t(common:goal_one) under:",
+    "relationship_no_chosen": "Choose $t(common:meta_roadmap)",
+    "action_count": "{{count}} $t(common:action, {\"count\":{{count}}})",
+    "data_series_type_legend": "Choose type of data series for your $t(common:goal_one)",
+    "data_series_type_label": "Data series",
+    "data_series_types": {
+      "static": "Static",
+      "inherited": "Inherited",
+      "combined": "Combined"
+    },
+    "goal_description_legend": "Describe your $t(common:goal_one)",
+    "goal_name": "Name of $t(common:goal_one)",
+    "goal_description": "Description of $t(common:goal_one)",
+    "choose_goal_data_series": "Describe how your {{$t(common:goal_one), possessive}} data is structured",
+    "scaling_legend": "Scaling",
+    "remove_scaling": "Remove scaling",
+    "add_scaling": "Add scaling",
+    "scaling_method_legend": "Scaling method:",
+    "resulting_factor": "Resulting scaling factor:",
+    "choose_baseline_for_actions": "Choose baseline for $t(common:action_other)",
+    "baseline_label": "Which baseline should be used when calculating {{$t(common:action_other), possessive}} $t(common:effect_other) on this $t(common:goal_one)?",
+    "baseline_types": {
+      "initial": "First year value",
+      "custom": "Custom baseline",
+      "inherited": "Use another $t(common:goal_one) as baseline"
+    },
+    "custom_baseline_label": "Custom baseline:",
+    "custom_baseline_title": "Use numeric values, separated by semicolons or tabs. Decimal numbers may use dots or commas as decimal separators.",
+    "attach_external_resources": "Attach external resources",
+    "feature_this_goal": "Do you want to feature this $t(common:goal_one) in your $t(common:roadmap_version_one)?",
+    "feature_goal": "Feature this $t(common:goal_one)",
+    "scale_deprecated": "This $t(common:goal_one) contains a scale. Please bake the scale into the value or unit and then check this box. All scales will be removed in the future",
+    "remove_scale": "Remove scale, {{scale}}",
+    "submit_save": "Save",
+    "submit_create": "Create $t(common:goal_one)"
   }
 }
