@@ -126,5 +126,9 @@
     "type_to_confirm": "Skriv <strong>{{targetName}}</strong> för att bekräfta.",
     "cancel": "Avbryt",
     "delete": "Radera"
+  },
+  "roadmap_table": {
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
+    "no_roadmap_versions_found": "Inga $t(common:roadmap_version_other) hittades. Om du har några aktiva filter hittades inga $t(common:roadmap_version_other) som matchar dem."
   }
 }

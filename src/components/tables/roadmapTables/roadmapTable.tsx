@@ -4,6 +4,7 @@ import { MetaRoadmap, Roadmap } from "@prisma/client";
 import { TableMenu } from '@/components/tables/tableMenu/tableMenu';
 import { AccessControlled } from '@/types';
 import accessChecker from '@/lib/accessChecker';
+import { t } from "@/lib/i18nServer";
 
 interface RoadmapTableCommonProps {
   user: LoginData['user'],
@@ -52,7 +53,7 @@ export default function RoadmapTable({
             <div className='flex gap-100 justify-content-space-between align-items-center' key={roadmap.id}>
               <a href={`/roadmap/${roadmap.id}`} className={`${styles.roadmapLink} flex-grow-100`}>
                 <span className={styles.linkTitle}>{`${roadmap.metaRoadmap.name} (v${roadmap.version})`}</span>
-                <span className={styles.linkInfo}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} Målbanor</span>
+                <span className={styles.linkInfo}>{roadmap.metaRoadmap.type} • {t("components:roadmap_table.goal_count", { count: roadmap._count.goals })}</span>
               </a>
               <TableMenu
                 accessLevel={accessLevel}
@@ -62,6 +63,6 @@ export default function RoadmapTable({
           )
         })}
       </>
-      : <p>Inga färdplansversioner hittades. Om du har några filter aktiva så hittades inga färdplansversioner som matchar dem.</p>}
+      : <p>{t("components:roadmap_table.no_roadmap_versions_found")}</p>}
   </>
 }

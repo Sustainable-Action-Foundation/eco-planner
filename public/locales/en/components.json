@@ -126,5 +126,9 @@
     "type_to_confirm": "Type <strong>{{targetName}}</strong> to confirm.",
     "cancel": "Cancel",
     "delete": "Delete"
+  },
+  "roadmap_table": {
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
+    "no_roadmap_versions_found": "No $t(common:roadmap_version_other) found. If you have any filters active, no $t(common:roadmap_version_other) were found that match them."
   }
 }
