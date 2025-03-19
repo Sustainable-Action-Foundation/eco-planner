@@ -2,7 +2,7 @@
   "meta_roadmap": {
     "description_legend": "Describe your $t(common:meta_roadmap)",
     "roadmap_series_name": "Name $t(common:meta_roadmap_definite)",
-    "roadmap_serier_description": "Description of $t(common:meta_roadmap_definite)",
+    "roadmap_series_description": "Description of $t(common:meta_roadmap_definite)",
     "actor_legend": "Choose responsible actor",
     "roadmap_scope_label": "Type of $t(common:meta_roadmap)",
     "no_chosen_roadmap_scope": "Choose a type",

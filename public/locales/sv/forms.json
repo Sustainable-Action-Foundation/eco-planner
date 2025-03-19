@@ -2,7 +2,7 @@
   "meta_roadmap": {
     "description_legend": "Beskriv din $t(common:meta_roadmap_one)",
     "roadmap_series_name": "Namn för $t(common:meta_roadmap_definite)",
-    "roadmap_serier_description": "Beskrivning av $t(common:meta_roadmap_definite)",
+    "roadmap_series_description": "Beskrivning av $t(common:meta_roadmap_definite)",
     "actor_legend": "Välj ansvarig aktör",
     "roadmap_scope_label": "Typ av $t(common:meta_roadmap_one)",
     "no_chosen_roadmap_scope": "Välj en typ",

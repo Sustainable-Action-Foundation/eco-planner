@@ -85,5 +85,9 @@
     "external_resources": "Externa resurser",
     "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
     "create_roadmap_version": "Skapa ny $t(common:roadmap_version_one)"
+  },
+  "meta_roadmap_edit": {
+    "breadcrumb": "Redigera metadata",
+    "title": "Redigera metadata för $t(common:meta_roadmap_definite): {{name}}"
   }
 }

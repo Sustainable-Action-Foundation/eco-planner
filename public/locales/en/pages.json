@@ -85,5 +85,9 @@
     "external_resources": "External resources",
     "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
     "create_roadmap_version": "Create new $t(common:roadmap_version_one)"
+  },
+  "meta_roadmap_edit": {
+    "breadcrumb": "Edit metadata",
+    "title": "Edit metadata for $t(common:meta_roadmap_definite): {{name}}"
   }
 }

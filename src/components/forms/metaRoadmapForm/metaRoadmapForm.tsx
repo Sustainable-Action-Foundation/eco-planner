@@ -106,7 +106,7 @@ export default function MetaRoadmapForm({
           </label>
 
           <label className="block margin-block-100">
-            {t("forms:meta_roadmap.description")}
+            {t("forms:meta_roadmap.roadmap_series_description")}
             <textarea className="block margin-block-25" name="description" id="description" defaultValue={currentRoadmap?.description ?? undefined} required></textarea>
           </label>
         </fieldset>
