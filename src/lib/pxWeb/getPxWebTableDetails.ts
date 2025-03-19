@@ -1,7 +1,7 @@
 import { ApiTableDetails, PxWebMetric, PxWebTimeVariable, PxWebVariable, PxWebVariableValue } from "../api/apiTypes";
 import { externalDatasets } from "../api/utility";
 
-export async function getPxWebTableDetails(tableId: string, externalDataset: string, language: string = 'sv') {
+export default async function getPxWebTableDetails(tableId: string, externalDataset: string, language: string = 'sv') {
   // Get the base URL for the external dataset, defaulting to SCB
   const baseUrl = externalDatasets[externalDataset as keyof typeof externalDatasets].baseUrl ?? externalDatasets.SCB.baseUrl;
   const url = new URL(`${baseUrl}/tables/${tableId}/metadata`);

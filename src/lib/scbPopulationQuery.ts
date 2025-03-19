@@ -2,7 +2,7 @@
 
 import { unstable_cache } from "next/cache";
 import { ApiTableContent } from "./api/apiTypes";
-import { getPxWebTableContent } from "./pxWeb/getPxWebTableContent";
+import getPxWebTableContent from "./pxWeb/getPxWebTableContent";
 
 /**
  * Queries SCB for population data.

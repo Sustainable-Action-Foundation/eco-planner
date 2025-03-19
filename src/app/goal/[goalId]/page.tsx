@@ -17,7 +17,7 @@ import getRoadmaps from "@/fetchers/getRoadmaps";
 import findSiblings from "@/functions/findSiblings.ts";
 import accessChecker from "@/lib/accessChecker";
 import { ApiTableContent } from "@/lib/api/apiTypes";
-import { getPxWebTableContent } from "@/lib/pxWeb/getPxWebTableContent";
+import getPxWebTableContent from "@/lib/pxWeb/getPxWebTableContent";
 import getTrafaTableContent from "@/lib/trafa/getTrafaTableContent";
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";

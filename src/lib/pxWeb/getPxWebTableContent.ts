@@ -4,9 +4,9 @@
 import { externalDatasets } from "../api/utility.ts";
 import { PxWebApiV2TableContent } from "./pxWebApiV2Types.ts";
 import { ApiTableContent } from "../api/apiTypes.ts";
-import { getPxWebTableDetails } from "./getPxWebTableDetails.ts";
+import getPxWebTableDetails from "./getPxWebTableDetails.ts";
 
-export async function getPxWebTableContent(tableId: string, selection: { variableCode: string, valueCodes: string[] }[], externalDataset: string, language: string = 'sv',) {
+export default async function getPxWebTableContent(tableId: string, selection: { variableCode: string, valueCodes: string[] }[], externalDataset: string, language: string = 'sv',) {
   // Get the base URL for the external dataset, defaulting to SCB
   const baseUrl = externalDatasets[externalDataset as keyof typeof externalDatasets].baseUrl ?? externalDatasets.SCB.baseUrl;
   const url = new URL(`${baseUrl}/tables/${tableId}/data`);

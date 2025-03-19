@@ -7,7 +7,7 @@ import { externalDatasets } from "../api/utility";
  * @param language Two-letter language code. Default is 'sv'.
  * @param pageSize Initial page size. If the number of tables is larger than this, the function will call itself with the correct page size.
  */
-export async function getPxWebTables(externalDataset: string, searchQuery?: string, language: string = 'sv', pageSize: number = 9999) {
+export default async function getPxWebTables(externalDataset: string, searchQuery?: string, language: string = 'sv', pageSize: number = 9999) {
   // Get the base URL for the external dataset, defaulting to SCB
   const baseUrl = externalDatasets[externalDataset as keyof typeof externalDatasets].baseUrl ?? externalDatasets.SCB.baseUrl;
   const url = new URL(`${baseUrl}/tables`);
