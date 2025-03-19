@@ -78,5 +78,12 @@
     "breadcrumb": "Edit $t(common:roadmap_version_one)",
     "title": "Edit $t(common:roadmap_version_one)",
     "are_you_in_the_right_place": "Did you mean to edit the entire $t(common:meta_roadmap_definite)? In that case, <Link>go here</Link> to edit the metadata."
+  },
+  "meta_roadmap": {
+    "title_legend": "{{$t(common:meta_roadmap), titleCase}}",
+    "description_legend": "Metadata for a series of $t(common:roadmap_version_other)",
+    "external_resources": "External resources",
+    "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
+    "create_roadmap_version": "Create new $t(common:roadmap_version_one)"
   }
 }

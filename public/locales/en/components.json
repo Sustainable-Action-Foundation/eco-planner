@@ -138,5 +138,8 @@
   },
   "link_tree": {
     "no_roadmaps": "You do not have access to any $t(common:goal_other) in this $t(common:roadmap_version_one), or $t(common:roadmap_version_definite) is empty."
+  },
+  "meta_roadmap_deleter": {
+    "remove_metadata": "Remove metadata"
   }
 }

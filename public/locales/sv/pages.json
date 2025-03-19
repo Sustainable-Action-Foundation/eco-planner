@@ -78,5 +78,12 @@
     "breadcrumb": "Redigera $t(common:roadmap_version_one)",
     "title": "Redigera $t(common:roadmap_version_one)",
     "are_you_in_the_right_place": "Menade du att redigera den gemensamma metadatan för hela $t(common:meta_roadmap_definite)? I så fall kan du <Link>gå hit</Link> för att redigera metadatan."
+  },
+  "meta_roadmap": {
+    "title_legend": "{{$t(common:meta_roadmap_one), titleCase}}",
+    "description_legend": "Metadata för en serie av $t(common:roadmap_version_other)",
+    "external_resources": "Externa resurser",
+    "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
+    "create_roadmap_version": "Skapa ny $t(common:roadmap_version_one)"
   }
 }

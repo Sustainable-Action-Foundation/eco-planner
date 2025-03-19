@@ -138,5 +138,8 @@
   },
   "link_tree": {
     "no_roadmaps": "Du har inte tillgång till några $t(common:goal_other) i denna $t(common:roadmap_version_one), eller så är $t(common:roadmap_version_definite) tom."
+  },
+  "meta_roadmap_deleter": {
+    "remove_metadata": "Ta bort metadata"
   }
 }
