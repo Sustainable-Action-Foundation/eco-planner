@@ -129,14 +129,22 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
     if ('children' in returnItem && returnItem.children) {
       structureItem.StructureItems.forEach((item) => {
         if (returnItem.children) {
-          returnItem.children.push(structureItemToTrafaTableDetailItem(item, item.Type) as TrafaVariable); // TODO - make try/catch clauses for these types of situations?
+          try {
+            returnItem.children.push(structureItemToTrafaTableDetailItem(item, item.Type) as TrafaVariable);
+          } catch (error) {
+            console.log(error);
+          }
         }
       });
     }
     if ('values' in returnItem && returnItem.values) {
       structureItem.StructureItems.forEach((item) => {
         if (returnItem.values) {
-          returnItem.values.push((structureItemToTrafaTableDetailItem(item, item.Type) as TrafaVariable | TrafaVariableValue | TrafaFilter));
+          try {
+            returnItem.values.push((structureItemToTrafaTableDetailItem(item, item.Type) as TrafaVariable | TrafaVariableValue | TrafaFilter));
+          } catch (error) {
+            console.log(error);
+          }
         }
       });
     }
@@ -147,19 +155,23 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
   data.StructureItems.map(item => {
     const pushItem = structureItemToTrafaTableDetailItem(item, item.Type);
 
-    if (item.Type == "M") {
-      tableDetails.metrics.push((pushItem as TrafaMetric));
+    try {
+      if (item.Type == "M") {
+        tableDetails.metrics.push((pushItem as TrafaMetric));
+      }
+      if (item.Type == "H") {
+        tableDetails.hierarchies.push((pushItem as TrafaHierarchy));
+      }
+      if (item.Type == "D" && item.DataType != "Time") {
+        tableDetails.variables.push((pushItem as TrafaVariable));
+      }
+      if (item.Type == "D" && item.DataType == "Time") {
+        tableDetails.times.push((pushItem as TrafaVariable));
+      }
+    } catch (error) {
+      console.log(error);
     }
-    if (item.Type == "H") {
-      tableDetails.hierarchies.push((pushItem as TrafaHierarchy));
-    }
-    if (item.Type == "D" && item.DataType != "Time") {
-      tableDetails.variables.push((pushItem as TrafaVariable));
-    }
-    if (item.Type == "D" && item.DataType == "Time") {
-      tableDetails.times.push((pushItem as TrafaVariable));
-    }
-  })
+  });
 
   return tableDetails;
 }
