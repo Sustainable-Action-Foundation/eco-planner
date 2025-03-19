@@ -71,7 +71,7 @@ export default async function getTrafaTableContent(tableId: string, selection: {
     for (const column of trafaTableContent.Header.Column) {
       const pushColumn = {
         id: column.Name,
-        label: column.Value, // TODO - label needs to be manually translated here
+        label: column.Value, // TODO - label needs to be manually translated here when internationalization is implemented
         type: column.DataType === "Time" ? "t" : column.Type.toLowerCase() as "t" | "d" | "m",
       };
       returnTable.columns.push(pushColumn);
@@ -105,7 +105,7 @@ export default async function getTrafaTableContent(tableId: string, selection: {
     const variablesString = variables.length == 0 ? undefined : variables.length == 1 ? variables[0] : `${variables.slice(0, -1).join(", ")} och ${variables.pop()}`;
     
     // Create different metadata label depending on variable string and table name
-    metadataEntry.label = `${(trafaTableContent.Name ?? "")} - ${metric}${variablesString ? ` efter ${variablesString}` : ""}`; // TODO - translate this
+    metadataEntry.label = `${(trafaTableContent.Name ?? "")} - ${metric}${variablesString ? ` efter ${variablesString}` : ""}`; // TODO - translate this manually when internationalization is implemented
     returnTable.metadata.push(metadataEntry);
 
     return returnTable;

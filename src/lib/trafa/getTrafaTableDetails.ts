@@ -118,7 +118,7 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
     returnItem.trafaId = structureItem.Id;
     returnItem.id = structureItem.Name;
     returnItem.dataType = structureItem.DataType;
-    returnItem.label = structureItem.Label; // TODO - This label needs to be manually translated
+    returnItem.label = structureItem.Label; // TODO - This label needs to be manually translated when internationalization is implemented
     returnItem.name = structureItem.Name;
     returnItem.parentName = structureItem.ParentName;
     returnItem.selected = structureItem.Selected;

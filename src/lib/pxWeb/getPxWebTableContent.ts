@@ -50,7 +50,7 @@ export async function getPxWebTableContent(tableId: string, selection: { variabl
   
   const timeSelectionItemInPayload = payload.selection.filter(item => item.variableCode == "Tid" || item.variableCode == "Time")[0];
   if (!timeSelectionItemInPayload) {
-    // Get all time periods that are available for this table and add them to payload | TODO - allow user to select starting time period
+    // Get all time periods that are available for this table and add them to payload
     const timeSelectionItem = { variableCode: "Tid", valueCodes: [] as string[], };
     const times = await getPxWebTableDetails(tableId, externalDataset).then(result => result ? result.times : undefined);
     if (!times) return null;

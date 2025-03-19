@@ -35,7 +35,7 @@ export default async function getTrafaTables(language?: "sv" | "en") {
     return null;
   }
   data.StructureItems.forEach((item: StructureItem) => {
-    // TODO - item.Label needs to be manually translated here
+    // TODO - item.Label needs to be manually translated here when internationalization is implemented
     const pushItem: { tableId: string, label: string } = {
       tableId: item.Name,
       label: `${item.Label} (${item.Name})`,
