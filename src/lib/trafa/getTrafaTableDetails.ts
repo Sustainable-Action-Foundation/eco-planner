@@ -79,7 +79,6 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
     if (tableDetailType == "M") {
       returnItem.type = "metric";
       if (structureItem.DataType == "Time" || structureItem.DataType == "Region") {
-        // console.log("This is a metric with a data type that is not supported", structureItem.DataType);
         logNotSupportedDataType(returnItem.type, structureItem);
       }
       else if (structureItem.DataType == "String") { }
@@ -87,29 +86,22 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
       (returnItem as TrafaHierarchy).children = [];
       returnItem.type = "hierarchy";
       if (structureItem.DataType == "Time") {
-        // console.log("This is a hierarchy with a data type that is not supported", structureItem.DataType);
         logNotSupportedDataType(returnItem.type, structureItem);
       }
     } else if (tableDetailType == "D" && structureItem.DataType != "Time") {
       (returnItem as TrafaVariable).values = [];
       (returnItem as TrafaVariable).optional = true;
       returnItem.type = "variable";
-      // if (structureItem.DataType == "Region") {
-        // console.log("This is a variable with a data type that is not supported", structureItem.DataType);
-        // logNotSupportedDataType(returnItem.type, structureItem);
-      // }
     } else if (tableDetailType == "D" && structureItem.DataType == "Time") {
       returnItem.type = "time";
     } else if (tableDetailType == "DV") {
       returnItem.type = "variableValue";
       if (structureItem.DataType == "Time" || structureItem.DataType == "Region") {
-        // console.log("This is a variable value with a data type that is not supported", structureItem.DataType);
         logNotSupportedDataType(returnItem.type, structureItem);
       }
     } else if (tableDetailType == "F") {
       returnItem.type = "filter";
       if (structureItem.DataType == "Time" || structureItem.DataType == "Region") {
-        // console.log("This is a filter with a data type that is not supported", structureItem.DataType);
         logNotSupportedDataType(returnItem.type, structureItem);
       }
     }
@@ -175,35 +167,3 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
 
   return tableDetails;
 }
-
-/**
- * Tables with deviating data types
- * variable: Region (t10012 - Län)
- * variable: Region (t10091 - Registreringslän)
- * variable: Region (t10092 - Registreringslän)
- * variable: Region (t10093 - Registreringslän)
- * variable: Region (t10094 - Registreringslän)
- * variable: Region (t08092 - Land)
- * variable: Region (t0604 - Län)
- * variable: Region (t1201 - Län)
- * variable: Region (t1201 - Kommun)
- * variable: Region (t1004 - Län)
- * variable: Region (t1004 - Kommun)
- * variable: Region (t0802 - Nordiska länder)
- * variable: Region (t0802 - Avgängsregion)
- * variable: Region (t0802 - Avgångsland)
- * variable: Region (t0802 - Ankomstregion)
- * variable: Region (t0802 - Ankomstland)
- * variable: Region (t06011 - Län)
- * 
- * variable: Region (t10061 - Pålastningsländer)
- * variable: Region (t10061 - Pålastningsland)
- * variable: Region (t10061 - Pålastningsregion NUTS 2)
- * variable: Region (t10061 - Pålastningslän)
- * variable: Region (t10061 - Pålastning storstadsområde)
- * variable: Region (t10061 - Avlastningsländer)
- * variable: Region (t10061 - Avlastningsland)
- * variable: Region (t10061 - Avlastningsregion NUTS 2)
- * variable: Region (t10061 - Avlastningslän)
- * variable: Region (t10061 - Avlastning storstadsområde)
- */

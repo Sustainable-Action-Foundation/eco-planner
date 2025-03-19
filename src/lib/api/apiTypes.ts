@@ -31,7 +31,6 @@ export type ApiDetailItemBase = {
   label: string,
 }
 
-// TODO - check if scb variables and things should be named PxWeb instead
 export type PxWebDetailItemBase = ApiDetailItemBase & {
   // Add additional properties for scb (maybe it should be called pxweb) here if necessary
 }
