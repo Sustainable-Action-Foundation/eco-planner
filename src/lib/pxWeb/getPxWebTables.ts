@@ -2,12 +2,13 @@ import { PxWebApiV2TableArray } from "@/lib/pxWeb/pxWebApiV2Types";
 import { externalDatasets } from "../api/utility";
 
 /**
- * Returns a list of tables from SCB's API. Returns null on error.
+ * Returns a list of tables from PxWeb's API. Returns null on error.
  * @param searchQuery String to search for. Unclear which fields the query is matched against. The search seems to use OR logic, so searching for 'population income' will return tables matching either 'population', 'income', or both. Default is undefined, which will return all tables.
  * @param language Two-letter language code. Default is 'sv'.
  * @param pageSize Initial page size. If the number of tables is larger than this, the function will call itself with the correct page size.
  */
 export async function getPxWebTables(externalDataset: string, searchQuery?: string, language: string = 'sv', pageSize: number = 9999) {
+  // Get the base URL for the external dataset, defaulting to SCB
   const baseUrl = externalDatasets[externalDataset as keyof typeof externalDatasets].baseUrl ?? externalDatasets.SCB.baseUrl;
   const url = new URL(`${baseUrl}/tables`);
   

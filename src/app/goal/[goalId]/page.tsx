@@ -27,6 +27,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import { getDatasetKeysOfApi } from "@/lib/api/utility";
 
 export default async function Page({
   params,
@@ -77,7 +78,7 @@ export default async function Page({
   // Fetch external data
   let externalData: ApiTableContent | null = null;
   if (goal.externalDataset && goal.externalTableId && goal.externalSelection) {
-    if (goal.externalDataset == "SCB") {
+    if (getDatasetKeysOfApi("PxWeb").includes(goal.externalDataset)) {
       externalData = await getPxWebTableContent(goal.externalTableId, JSON.parse(goal.externalSelection), goal.externalDataset, locale);
     }
     else if (goal.externalDataset == "Trafa") {

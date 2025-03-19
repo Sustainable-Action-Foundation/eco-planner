@@ -2,7 +2,7 @@
 
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
 import formSubmitter from "@/functions/formSubmitter";
-import { ApiTableContent, ApiTableDetails, ScbVariable, TrafaVariable } from "@/lib/api/apiTypes";
+import { ApiTableContent, ApiTableDetails, PxWebVariable, TrafaVariable } from "@/lib/api/apiTypes";
 import { externalDatasets, getDatasetKeysOfApi } from "@/lib/api/utility";
 import { getPxWebTableContent } from "@/lib/pxWeb/getPxWebTableContent";
 import { getPxWebTableDetails } from "@/lib/pxWeb/getPxWebTableDetails";
@@ -200,7 +200,7 @@ export default function QueryBuilder({
     }
   }
 
-  function variableSelectionHelper(variable: TrafaVariable | ScbVariable, tableDetails: ApiTableDetails) {
+  function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) {
     if (variable.option) return (
       <label key={variable.name} className="block margin-block-75">
         {variable.label[0].toUpperCase() + variable.label.slice(1)}

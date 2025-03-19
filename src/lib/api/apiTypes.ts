@@ -17,10 +17,10 @@ export type ApiTableContent = {
 
 export type ApiTableDetails = {
   id: string,
-  metrics: (TrafaMetric | ScbMetric)[],
+  metrics: (TrafaMetric | PxWebMetric)[],
   hierarchies: (TrafaHierarchy)[],
-  variables: (TrafaVariable | ScbVariable)[],
-  times: (TrafaVariable | ScbTimeVariable)[],
+  variables: (TrafaVariable | PxWebVariable)[],
+  times: (TrafaVariable | PxWebTimeVariable)[],
   language: string,
 }
 
@@ -32,30 +32,30 @@ export type ApiDetailItemBase = {
 }
 
 // TODO - check if scb variables and things should be named PxWeb instead
-export type ScbDetailItemBase = ApiDetailItemBase & {
+export type PxWebDetailItemBase = ApiDetailItemBase & {
   // Add additional properties for scb (maybe it should be called pxweb) here if necessary
 }
 
-export type ScbMetric = ScbDetailItemBase & {
+export type PxWebMetric = PxWebDetailItemBase & {
   index: number,
   unit: { base: string, decimals: number },
 }
 
-export type ScbVariable = ScbDetailItemBase & {
+export type PxWebVariable = PxWebDetailItemBase & {
   optional: boolean,
   option: boolean,
   elimination: boolean, // This is whether the variable is required or not
   show: "value", // TODO - What is this and what are the other possible values?
   categoryNoteMandatory?: { [variableValueId: string]: { [arrayIndex: string]: boolean } }, // TODO - What is this for?
-  values: ScbVariableValue[],
+  values: PxWebVariableValue[],
 }
 
-export type ScbVariableValue = ScbDetailItemBase & {
+export type PxWebVariableValue = PxWebDetailItemBase & {
   index: number,
   note?: string[],
 }
 
-export type ScbTimeVariable = ScbDetailItemBase & {
+export type PxWebTimeVariable = PxWebDetailItemBase & {
   elimination: boolean, // This is whether the variable is required or not
   show: "value", // TODO - What is this and what are the other possible values?
 }
