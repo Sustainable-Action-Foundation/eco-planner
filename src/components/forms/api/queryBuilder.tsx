@@ -125,6 +125,7 @@ export default function QueryBuilder({
       const tableId = formData.get("externalTableId") as string ?? "";
       if (getDatasetKeysOfApi("PxWeb").includes(dataSource)) {
         getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource, locale).then(result => { setTableContent(result); });
+        // TODO - revise if this function is needed here
         getPxWebTableDetails(tableId, dataSource, locale).then(result => { setTableDetails(result); });
       } else if (dataSource == "Trafa") {
         getTrafaTableContent(tableId, query, locale).then(result => { setTableContent(result); });
@@ -197,6 +198,27 @@ export default function QueryBuilder({
     } else {
       console.timeLog("tableSelect", "no valid data source");
       console.timeEnd("tableSelect");
+    }
+  }
+
+  function handleMetricSelect(event: React.ChangeEvent<HTMLSelectElement>) {
+    const isDefaultValue = event.target.value.length == 0;
+    const variableFieldset = document.getElementById("variable-fieldset");
+    if (variableFieldset) {
+      if (!isDefaultValue && variableFieldset.hasAttribute("disabled")) {
+        variableFieldset.removeAttribute("disabled");
+      }
+      else if (isDefaultValue) {
+        // Reset the selection of all select elements in the variable fieldset before disabling
+        variableFieldset.querySelectorAll("select").forEach(select => {
+          select.value = "";
+        });
+        variableFieldset.setAttribute("disabled", "true");
+        // Reset all the table details when disabling the form so all options are displayed when re-enabling
+        if (dataSource == "Trafa") {
+          getTrafaTableDetails(tableDetails?.id ?? "", undefined, locale).then(result => { setTableDetails(result); });
+        }
+      }
     }
   }
 
@@ -302,7 +324,8 @@ export default function QueryBuilder({
                       required={true}
                       name="metric"
                       id="metric"
-                      defaultValue={undefined}>
+                      defaultValue={undefined}
+                      onChange={handleMetricSelect}>
                       <option value="">Välj ett mätvärde</option>
                       {tableDetails.metrics && tableDetails.metrics.map(metric => (
                         <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
@@ -312,7 +335,7 @@ export default function QueryBuilder({
 
                   </label>
                 </fieldset>
-                <fieldset className="margin-block-100 smooth padding-50" style={{ border: "1px solid var(--gray-90)" }}>
+                <fieldset id="variable-fieldset" disabled={true} className="margin-block-100 smooth padding-50" style={{ border: "1px solid var(--gray-90)" }}>
                   <legend className="padding-inline-50">
                     <strong>Välj värden för tabell</strong>
                   </legend>
