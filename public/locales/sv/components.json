@@ -130,5 +130,12 @@
   "roadmap_table": {
     "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "no_roadmap_versions_found": "Inga $t(common:roadmap_version_other) hittades. Om du har några aktiva filter hittades inga $t(common:roadmap_version_other) som matchar dem."
+  },
+  "goal_table": {
+    "no_goals": "Du har inte tillgång till några $t(common:goal_other) i denna $t(common:roadmap_version_one), eller så är $t(common:roadmap_version_definite) tom.",
+    "goal_name": "Målbannamn",
+    "LEAP_parameter": "LEAP-parameter",
+    "unit": "Enhet",
+    "action_count": "Antal $t(common:action_other)"
   }
 }
