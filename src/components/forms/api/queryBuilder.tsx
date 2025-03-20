@@ -3,9 +3,7 @@
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
 import formSubmitter from "@/functions/formSubmitter";
 import { ApiTableContent, ApiTableDetails, PxWebVariable, TrafaVariable } from "@/lib/api/apiTypes";
-import { externalDatasets, getDatasetKeysOfApi } from "@/lib/api/utility";
-import getPxWebTableContent from "@/lib/pxWeb/getPxWebTableContent";
-import getTrafaTableContent from "@/lib/trafa/getTrafaTableContent";
+import { externalDatasets } from "@/lib/api/utility";
 import getTrafaTableDetails from "@/lib/trafa/getTrafaTableDetails";
 import { Goal } from "@prisma/client";
 import Image from "next/image";
@@ -14,6 +12,7 @@ import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
 import getTables from "@/lib/api/getTables";
 import getTableDetails from "@/lib/api/getTableDetails";
+import getTableContent from "@/lib/api/getTableContent";
 
 export default function QueryBuilder({
   goal,
@@ -108,10 +107,8 @@ export default function QueryBuilder({
       const formData = new FormData(formRef.current);
       const query = buildQuery(formData); // This line is called before the form is cleared TODO - is this comment still relevant?
       const tableId = formData.get("externalTableId") as string ?? "";
-      if (getDatasetKeysOfApi("PxWeb").includes(dataSource)) {
-        getPxWebTableContent(formData.get("externalTableId") as string ?? "", query, dataSource, locale).then(result => { setTableContent(result); });
-      } else if (dataSource == "Trafa") {
-        getTrafaTableContent(tableId, query, locale).then(result => { setTableContent(result); });
+      getTableContent(tableId, dataSource, query, locale).then(result => { setTableContent(result); });
+      if (dataSource == "Trafa") {
         getTrafaTableDetails(tableId, query, locale).then(result => { setTableDetails(result); });
       }
       enableSubmitButton();

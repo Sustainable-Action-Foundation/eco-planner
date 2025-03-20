@@ -17,8 +17,6 @@ import getRoadmaps from "@/fetchers/getRoadmaps";
 import findSiblings from "@/functions/findSiblings.ts";
 import accessChecker from "@/lib/accessChecker";
 import { ApiTableContent } from "@/lib/api/apiTypes";
-import getPxWebTableContent from "@/lib/pxWeb/getPxWebTableContent";
-import getTrafaTableContent from "@/lib/trafa/getTrafaTableContent";
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
 import { AccessControlled, AccessLevel } from "@/types";
@@ -27,7 +25,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { getDatasetKeysOfApi } from "@/lib/api/utility";
+import getTableContent from "@/lib/api/getTableContent";
 
 export default async function Page({
   params,
@@ -78,12 +76,7 @@ export default async function Page({
   // Fetch external data
   let externalData: ApiTableContent | null = null;
   if (goal.externalDataset && goal.externalTableId && goal.externalSelection) {
-    if (getDatasetKeysOfApi("PxWeb").includes(goal.externalDataset)) {
-      externalData = await getPxWebTableContent(goal.externalTableId, JSON.parse(goal.externalSelection), goal.externalDataset, locale);
-    }
-    else if (goal.externalDataset == "Trafa") {
-      externalData = await getTrafaTableContent(goal.externalTableId, JSON.parse(goal.externalSelection), locale)
-    }
+    externalData = await getTableContent(goal.externalTableId, goal.externalDataset, JSON.parse(goal.externalSelection), locale);
   }
 
   // Fetch parent goal
