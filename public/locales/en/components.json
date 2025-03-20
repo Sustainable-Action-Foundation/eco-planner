@@ -185,6 +185,9 @@
   "goal_edit": {
     "title": "Edit $t(common:goal_one)"
   },
+  "goal_child_graph": {
+    "unknown_roadmap": "Unknown roadmap"
+  },
   "graph_selector": {
     "goal_path": "{{$t(common:goal_one), titleCase}}",
     "annual_change": "Annual change",

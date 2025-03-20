@@ -1,6 +1,7 @@
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper.tsx";
 import { dataSeriesDataFieldNames } from "@/types.ts";
 import { DataSeries, Goal } from "@prisma/client";
+import { useTranslation } from "react-i18next";
 
 /**
  * A graph showing how all goals with the same unit and indicator parameter in roadmaps working towards the active goal's roadmap version stack up against it.
@@ -14,6 +15,8 @@ export default function GoalChildGraph({
   childGoals: (Goal & { dataSeries: DataSeries | null, roadmapName?: string })[],
   isStacked: boolean,
 }) {
+  const { t } = useTranslation();
+  
   // Early returns if there is no relevant data to compare
   if (!goal.dataSeries) {
     return null;
@@ -60,7 +63,7 @@ export default function GoalChildGraph({
     // Only add the series to the graph if it isn't all null/0
     if (childSeries.filter((entry) => entry.y).length > 0) {
       dataPoints.push({
-        name: `${child.name || child.indicatorParameter.split('\\').slice(-1)[0]} (${child.roadmapName || 'Okänd målbana'})`,
+        name: `${child.name || child.indicatorParameter.split('\\').slice(-1)[0]} (${child.roadmapName || t("components:goal_child_graph.unknown_roadmap")})`,
         data: childSeries,
         type: isStacked ? 'area' : 'line',
       });
