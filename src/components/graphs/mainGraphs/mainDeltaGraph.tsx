@@ -2,6 +2,7 @@ import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFu
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
 import { Goal, DataSeries, Effect } from "@prisma/client";
+import { useTranslation } from "react-i18next";
 
 export default function MainDeltaGraph({
   goal,
@@ -14,6 +15,8 @@ export default function MainDeltaGraph({
   nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
 }) {
+  const { t } = useTranslation();
+
   if (!goal.dataSeries) {
     return null
   }
@@ -34,14 +37,16 @@ export default function MainDeltaGraph({
       max: new Date(dataSeriesDataFieldNames[dataSeriesDataFieldNames.length - 1].replace('val', '')).getTime()
     },
     yaxis: [{
-      title: { text: `Årlig förändring i ${goal.dataSeries.unit.toLowerCase() == 'procent' ? 'procentenheter' : goal.dataSeries.unit}` },
+      title: {
+        text: t("components:main_delta_graph.annual_change", { unit: goal.dataSeries.unit.toLowerCase() == 'procent' ? t("components:main_delta_graph.percentage_points") : goal.dataSeries.unit })
+      },
       labels: { formatter: floatSmoother },
       seriesName: [
         (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
-        'Basscenario',
-        'Förväntat utfall',
+        t("components:main_delta_graph.baseline_scenario"),
+        t("components:main_delta_graph.expected_outcome"),
         (secondaryGoal?.dataSeries?.unit == goal.dataSeries.unit) ? (secondaryGoal?.name || secondaryGoal?.indicatorParameter) : '',
-        'Nationell motsvarighet',
+        t("components:main_delta_graph.national_counterpart"),
       ],
     }],
     tooltip: {
@@ -92,7 +97,7 @@ export default function MainDeltaGraph({
       });
     }
     chart.push({
-      name: 'Basscenario',
+      name: t("components:main_delta_graph.baseline_scenario"),
       data: baselineSeries,
       type: 'line',
     });
@@ -112,7 +117,7 @@ export default function MainDeltaGraph({
       totalEffect.shift();
 
       chart.push({
-        name: 'Förväntat utfall',
+        name: t("components:main_delta_graph.expected_outcome"),
         data: totalEffect,
         type: 'line',
       });
@@ -139,7 +144,7 @@ export default function MainDeltaGraph({
         totalEffect.shift();
 
         chart.push({
-          name: 'Förväntat utfall',
+          name: t("components:main_delta_graph.expected_outcome"),
           data: totalEffect,
           type: 'line',
         });
@@ -172,7 +177,9 @@ export default function MainDeltaGraph({
     // Place secondary series on separate scale if it doesn't share unit with main
     if (secondaryGoal.dataSeries.unit != goal.dataSeries.unit) {
       (chartOptions.yaxis as ApexYAxis[]).push({
-        title: { text: `Årlig förändring i ${secondaryGoal.dataSeries.unit.toLowerCase() == 'procent' ? 'procentenheter' : secondaryGoal.dataSeries.unit}` },
+        title: {
+          text: t("components:main_delta_graph.annual_change", { unit: secondaryGoal.dataSeries.unit.toLowerCase() == 'procent' ? t("components:main_delta_graph.percentage_points") : secondaryGoal.dataSeries.unit })
+        },
         labels: { formatter: floatSmoother },
         seriesName: secondaryGoal.name || secondaryGoal.indicatorParameter,
         opposite: true,
@@ -197,7 +204,7 @@ export default function MainDeltaGraph({
       });
     }
     chart.push({
-      name: 'Nationell motsvarighet',
+      name: t("components:main_delta_graph.national_counterpart"),
       data: nationalSeries,
       type: 'line',
     });

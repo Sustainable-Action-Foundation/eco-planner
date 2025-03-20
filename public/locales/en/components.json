@@ -217,5 +217,19 @@
     "no_effects": "There are no effects to display.",
     "wanna_create_effect": "Do you want to create one?",
     "create_new_effect": "Create new $t(common:effect_one)"
+  },
+  "graph_cookie": {
+    "save_preferences": "Save future view changes between sessions and page navigations"
+  },
+  "main_delta_graph": {
+    "annual_change": "Annual change in {{unit}}",
+    "percentage_points": "percentage points",
+    "baseline_scenario": "Baseline scenario",
+    "expected_outcome": "Expected outcome",
+    "national_counterpart": "{{$t(common:scope.national), titleCase}} counterpart"
+  },
+  "main_relative_graph": {
+    "percent_relative_to_base_year": "percent relative to base year",
+    "national_counterpart": "{{$t(common:scope.national), titleCase}} counterpart"
   }
 }

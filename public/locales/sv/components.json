@@ -217,5 +217,19 @@
     "no_effects": "Det finns inga effekter att visa.",
     "wanna_create_effect": "Vill du skapa en?",
     "create_new_effect": "Skapa ny $t(common:effect_one)"
+  },
+  "graph_cookie": {
+    "save_preferences": "Spara framtida vyändringar mellan sessioner och sidnavigeringar"
+  },
+  "main_delta_graph": {
+    "annual_change": "Årlig förändring i {{unit}}",
+    "percentage_points": "procentenheter",
+    "baseline_scenario": "Basscenario",
+    "expected_outcome": "Förväntat utfall",
+    "national_counterpart": "{{$t(common:scope.national), titleCase}} motsvarighet"
+  },
+  "main_relative_graph": {
+    "percent_relative_to_base_year": "procent relativt basår",
+    "national_counterpart": "{{$t(common:scope.national), titleCase}} motsvarighet"
   }
 }

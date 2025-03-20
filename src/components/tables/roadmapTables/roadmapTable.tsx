@@ -4,7 +4,7 @@ import { MetaRoadmap, Roadmap } from "@prisma/client";
 import { TableMenu } from '@/components/tables/tableMenu/tableMenu';
 import { AccessControlled } from '@/types';
 import accessChecker from '@/lib/accessChecker';
-import { t } from "@/lib/i18nServer";
+import { useTranslation } from "react-i18next";
 
 interface RoadmapTableCommonProps {
   user: LoginData['user'],
@@ -27,6 +27,8 @@ export default function RoadmapTable({
   roadmaps,
   metaRoadmap,
 }: RoadmapTableProps) {
+  const { t } = useTranslation();
+
   // Failsafe in case wrong props are passed
   if ((!roadmaps && !metaRoadmap) || (roadmaps && metaRoadmap)) throw new Error('RoadmapTable: Either `roadmaps` XOR `metaRoadmap` must be provided');
 

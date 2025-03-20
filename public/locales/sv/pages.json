@@ -30,6 +30,12 @@
     "featured_goals": "Utvalda $t(common:goal_other)",
     "all_goals": "Alla $t(common:goal_other)"
   },
+  "roadmap_create": {
+    "breadcrumb": "Skapa ny $t(common:roadmap_version_one)",
+    "title": "Skapa en ny version i en $t(common:meta_roadmap_one)",
+    "bad_meta_roadmap": "Kunde inte hitta eller har inte tillgång till $t(common:meta_roadmap_definite) i länken.",
+    "use_dropdown": "Använd dropdown-menyn för att välja en $t(common:meta_roadmap_one)."
+  },
   "action": {
     "action_label": "{{$t(common:action_one), titleCase}}",
     "effects_label": "{{$t(common:effect_other), titleCase}}",
