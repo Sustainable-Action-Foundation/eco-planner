@@ -208,5 +208,8 @@
   },
   "prediction_child_graph": {
     "no_child_roadmaps": "No underlying $t(common:goal_others) with $t(common:effect_other) or custom baselines found"
+  },
+  "action_graph": {
+    "actions": "{{common:action_other}, titleCase}}"    
   }
 }

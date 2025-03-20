@@ -208,5 +208,8 @@
   },
   "prediction_child_graph": {
     "no_child_roadmaps": "Inga underliggande $t(common:goal_other) med $(common:effect_other) eller anpassade baslinjer hittades"
+  },
+  "action_graph": {
+    "actions": "{{common:action_other}, titleCase}}"
   }
 }
