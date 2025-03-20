@@ -30,6 +30,24 @@
     "featured_goals": "Utvalda $t(common:goal_other)",
     "all_goals": "Alla $t(common:goal_other)"
   },
+  "action": {
+    "action_label": "{{$t(common:action_one), titleCase}}",
+    "effects_label": "{{$t(common:effect_other), titleCase}}",
+    "external_resources": "Externa resurser",
+    "edit_action": "Redigera $t(common:action_one)",
+    "edit_action_alt": "Redigera $t(common:action_one): {{actionName}}",
+    "expected_effect": "Förväntad effekt",
+    "no_effect": "Ingen angiven effekt",
+    "cost_efficiency": "Kostnadseffektivitet",
+    "no_cost_efficiency": "Ingen angiven kostnadseffektivitet",
+    "project_manager": "Projektledare",
+    "no_project_manager": "Ingen angiven projektledare",
+    "relevant_actors": "Relevanta aktörer",
+    "no_actors": "Inga angivna aktörer",
+    "categories": "Kategorier",
+    "no_category": "Ingen angiven kategori",
+    "create_new_effect": "Skapa ny $t(common:effect_one)"
+  },
   "info": {
     "breadcrumb": "Information",
     "title": "Information",

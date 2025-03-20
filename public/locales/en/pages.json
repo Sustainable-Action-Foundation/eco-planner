@@ -30,6 +30,24 @@
     "featured_goals": "Featured $t(common:goal_other)",
     "all_goals": "All $t(common:goal_other)"
   },
+  "action": {
+    "action_label": "{{$t(common:action_one), titleCase}}",
+    "effects_label": "{{$t(common:effect_other), titleCase}}",
+    "external_resources": "External resources",
+    "edit_action": "Edit $t(common:action_one)",
+    "edit_action_alt": "Edit $t(common:action_one): {{actionName}}",
+    "expected_effect": "Expected effect",
+    "no_effect": "No specified effect",
+    "cost_efficiency": "Cost efficiency",
+    "no_cost_efficiency": "No specified cost efficiency",
+    "project_manager": "Project manager",
+    "no_project_manager": "No specified project manager",
+    "relevant_actors": "Relevant actors",
+    "no_actors": "No specified actors",
+    "categories": "Categories",
+    "no_category": "No specified category",
+    "create_new_effect": "Create new $t(common:effect_one)"
+  },
   "info": {
     "breadcrumb": "Information",
     "title": "Information",
