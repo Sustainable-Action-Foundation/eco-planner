@@ -12,12 +12,14 @@ import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import FormWrapper from "../formWrapper";
 import styles from './queryBuilder.module.css';
+import { useTranslation } from "react-i18next";
 
 export default function QueryBuilder({
   goal,
 }: {
   goal: Goal,
 }) {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [dataSource, setDataSource] = useState<string>("" as keyof typeof externalDatasetBaseUrls);
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
@@ -120,17 +122,17 @@ export default function QueryBuilder({
   return (
     <>
       <button type="button" className="transparent flex align-items-center gap-25 font-weight-500" style={{ fontSize: '.75rem', padding: '.3rem .6rem' }} onClick={() => openModal(modalRef)}>
-        Lägg till historisk data
+        {t("components:query_builder.add_historical_data")}
         <Image src='/icons/chartAdd.svg' alt="" width={16} height={16} />
       </button>
       <dialog className={`smooth${styles.dialog}`} ref={modalRef} aria-modal style={{ border: '0', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25' }}>
         <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>
-          <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label="Close" >
+          <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("components:table_menu.close_button_alt")} >
             <Image src='/icons/close.svg' alt="" width={18} height={18} />
           </button>
-          <h2 className="margin-0">Lägg till datakälla</h2>
+          <h2 className="margin-0">{t("components:query_builder.add_data_source")}</h2>
         </div>
-        <p>Lägg till en historisk dataserie till {goal.name ?? goal.indicatorParameter}</p>
+        <p>{t("components:query_builder.add_data_to_goal", { goalName: goal.name ?? goal.indicatorParameter })}</p>
 
         <form ref={formRef} onChange={tryGetResult} onSubmit={handleSubmit}>
           {// Hidden disabled submit button to prevent accidental submisson
@@ -140,9 +142,9 @@ export default function QueryBuilder({
           <FormWrapper>
             <fieldset>
               <label className="margin-block-75">
-                Datakälla
+                {t("components:query_builder.data_source")}
                 <select className="block margin-block-25" required name="externalDataset" id="externalDataset" onChange={e => setDataSource(e.target.value)}>
-                  <option value="">Välj en källa</option>
+                  <option value="">{t("components:query_builder.select_source")}</option>
                   {Object.keys(externalDatasetBaseUrls).map((name) => (
                     <option key={name} value={name}>{name}</option>
                   ))}
@@ -155,10 +157,10 @@ export default function QueryBuilder({
                 <>
                   <div className="flex gap-25 align-items-flex-end margin-block-75">
                     <label className="flex-grow-100">
-                      <span className="block margin-block-25">Sök efter tabell</span>
+                      <span className="block margin-block-25">{t("components:query_builder.search_for_table")}</span>
                       <input name={tableSearchInputName} type="search" className="block" onKeyDown={searchOnEnter} />
                     </label>
-                    <button type="button" onClick={searchWithButton} style={{ fontSize: '1rem' }}>Sök</button>
+                    <button type="button" onClick={searchWithButton} style={{ fontSize: '1rem' }}>{t("components:query_builder.search")}</button>
                   </div>
 
                   <div className="padding-25 smooth" style={{ border: '1px solid var(--gray-90)' }}>
@@ -179,7 +181,7 @@ export default function QueryBuilder({
               <>
                 <fieldset className="margin-block-100 smooth padding-50" style={{ border: '1px solid var(--gray-90)' }}>
                   <legend className="padding-inline-50">
-                    <strong>Välj mätvärde för tabell</strong>
+                    <strong>{t("components:query_builder.select_metric_for_table")}</strong>
                   </legend>
                   <label key="metric" className="block margin-block-75">
                     <select className={`block margin-block-25 metric`}
@@ -189,7 +191,7 @@ export default function QueryBuilder({
                       defaultValue={tableDetails.metrics && tableDetails.metrics.length == 1 ? tableDetails.metrics[0].label : undefined}>
                       {
                         tableDetails.metrics && tableDetails.metrics.length != 1 &&
-                        <option value="">Välj mätvärde</option>
+                        <option value="">{t("components:query_builder.select_metric")}</option>
                       }
                       {tableDetails.metrics && tableDetails.metrics.map(metric => (
                         <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
@@ -201,17 +203,17 @@ export default function QueryBuilder({
                 </fieldset>
                 <fieldset className="margin-block-100 smooth padding-50" style={{ border: '1px solid var(--gray-90)' }}>
                   <legend className="padding-inline-50">
-                    <strong>Välj värden för tabell</strong>
+                    <strong>{t("components:query_builder.select_values_for_table")}</strong>
                   </legend>
                   {tableDetails.times.length > 1 &&
                     <label key="Tid" className="block margin-block-75">
-                      Välj starttid
+                      {t("components:query_builder.select_start_time")}
                       <select className={`block margin-block-25 TimeVariable`}
                         required={false}
                         name="Tid"
                         id="Tid"
                         defaultValue={tableDetails.times && tableDetails.times.length == 1 ? tableDetails.times[0].label : undefined}>
-                        <option value="">Välj tidsperiod</option>
+                        <option value="">{t("components:query_builder.select_time_period")}</option>
                         {tableDetails.times.map(time => (
                           <option key={time.name} value={time.name} lang={tableDetails.language}>{time.id}</option>
                         ))}
@@ -232,7 +234,7 @@ export default function QueryBuilder({
                           defaultValue={variable.values && variable.values.length == 1 ? variable.values[0].label : undefined}>
                           { // If only one value is available, don't show a placeholder option
                             variable.values && variable.values.length > 1 &&
-                            <option value="">Välj värde</option>
+                            <option value="">{t("components:query_builder.select_value")}</option>
                           }
                           {variable.values && variable.values.map(value => (
                             <option key={value.label} value={value.name} lang={tableDetails.language}>{value.label}</option>
@@ -248,12 +250,12 @@ export default function QueryBuilder({
 
           {tableContent ? (
             <div>
-              <p>Ser detta rimligt ut? (visar max 5 värden)</p>
+              <p>{t("components:query_builder.does_this_look_correct")}</p>
               <table>
                 <thead>
                   <tr>
-                    <th scope="col">Period</th>
-                    <th scope="col">Värde</th>
+                    <th scope="col">{t("components:query_builder.period")}</th>
+                    <th scope="col">{t("components:query_builder.value")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -279,11 +281,11 @@ export default function QueryBuilder({
             </div>
           ) : (
             <div>
-              <p>Inget läsbart resultat hittades. Vänligen uppdatera dina val.</p>
+              <p>{t("components:query_builder.no_result_found")}</p>
             </div>
           )}
 
-          <button type="submit" className="seagreen color-purewhite">Lägg till datakälla</button>
+          <button type="submit" className="seagreen color-purewhite">{t("components:query_builder.add_data_source_button")}</button>
         </form>
       </dialog>
     </>

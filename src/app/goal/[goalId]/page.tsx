@@ -145,7 +145,7 @@ export default async function Page({
         <section className="margin-block-300">
           {goal.name ? (
             <>
-              <small style={{color: 'gray'}}>{t("common:goal_one")}</small>
+              <small style={{color: 'gray'}}>{t("pages:goal.title_label")}</small>
               <h1 className="margin-0" style={{fontSize: '3rem', lineHeight: '1'}}>{goal.name}</h1>
               <small style={{color: 'gray'}}>{goal.indicatorParameter}</small>
             </>

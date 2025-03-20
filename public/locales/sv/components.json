@@ -16,7 +16,8 @@
   },
   "roadmap_tree": {
     "no_meta_roadmaps": "Inga $t(common:meta_roadmap_other) hittades. Om du har några aktiva filter hittades inga $t(common:meta_roadmap_other) som matchar dem.",
-    "show_source_alt": "Visa underliggande färdplaner"
+    "show_source_alt": "Visa underliggande färdplaner",
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
   },
   "user_filters": {
     "posts": "Inlägg",
@@ -141,5 +142,47 @@
   },
   "meta_roadmap_deleter": {
     "remove_metadata": "Ta bort metadata"
+  },
+  "update_goal_button": {
+    "update": "Uppdatera $t(common:goal_one)"
+  },
+  "secondary_graph_selector": {
+    "goal_id_placeholder": "{{$t(common:goal_definite_one), titleCase, possessive}} ID",
+    "compare": "Jämför"
+  },
+  "query_builder": {
+    "add_historical_data": "Lägg till historisk data",
+    "add_data_source": "Lägg till datakälla",
+    "add_data_to_goal": "Lägg till en historisk dataserie till {{goalName}}",
+    "data_source": "Datakälla",
+    "select_source": "Välj en källa",
+    "search_for_table": "Sök efter tabell",
+    "search": "Sök",
+    "select_metric_for_table": "Välj mätvärde för tabell",
+    "select_metric": "Välj mätvärde",
+    "select_values_for_table": "Välj värden för tabell",
+    "select_start_time": "Välj starttid",
+    "select_time_period": "Välj tidsperiod",
+    "select_value": "Välj värde",
+    "does_this_look_correct": "Ser detta rimligt ut? (visar max 5 värden)",
+    "period": "Period",
+    "value": "Värde",
+    "no_result_found": "Inget läsbart resultat hittades. Vänligen uppdatera dina val.",
+    "add_data_source_button": "Lägg till datakälla"
+  },
+  "copy_and_scale": {
+    "copy_and_scale": "Kopiera och skala",
+    "title": "Kopiera och skala $(common:goal_definite_one) {{goalName}}",
+    "select_roadmap_version": "I vilken $t(common_roadmap_version_one) vill du placera den skalade $(common:goal_definite_one)?",
+    "select_roadmap_version_option": "Välj $t(common_roadmap_version_one)",
+    "version": "version",
+    "advanced": "Avancerat",
+    "scaling_method": "Välj skalningsmetod",
+    "resulting_scale_factor": "Resulterande skalfaktor",
+    "create_scaled_copy": "Skapa skalad kopia",
+    "invalid_input": "Felaktig inmatning. Skalningsfaktorn kunde inte beräknas. Ofta beror detta på ett ickenumeriskt värde i ett inmatningsfält eller att produkten av alla skalningsfaktorer är negativ."
+  },
+  "goal_edit": {
+    "title": "Redigera $t(common:goal_one)"
   }
 }

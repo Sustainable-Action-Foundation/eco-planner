@@ -108,6 +108,7 @@
   },
   "goal": {
     "update_needed": "Uppdatera din $t(common:goal_one) för att få senaste informationen.",
+    "title_label": "{{$t(common:goal_one), titleCase}}",
     "description": "Beskrivning",
     "compare_with_goal": "Jämför med $t(common:goal_definite_one) {{goalName}}",
     "scale_notice": "Alla värden i $t(common:goal_definite_one) använder följande skala: \"{{scale}}\"",
@@ -118,5 +119,9 @@
     "action_timeline": "Tidslinje över $t(common:action_other)",
     "goals_working_towards": "$t(common:goal_other) som jobbar mot {{goalName}}",
     "related_goals": "Angränsande $t(common:goal_other)"
+  },
+  "goal_edit": {
+    "breadcrumb": "Redigera $t(common:goal_one)",
+    "title": "Redigera $t(common:goal_one): {{goalName}}"
   }
 }

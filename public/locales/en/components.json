@@ -16,7 +16,8 @@
   },
   "roadmap_tree": {
     "no_meta_roadmaps": "No $t(common:meta_roadmap) found. If you have any filters active, no $t(common:meta_roadmap) were found that match them.",
-    "show_source_alt": "Show underlying roadmaps"
+    "show_source_alt": "Show underlying roadmaps",
+    "goal_count":"{{count}} $t(common:goal, {\"count\":{{count}}})"
   },
   "user_filters": {
     "posts": "Posts",
@@ -141,5 +142,47 @@
   },
   "meta_roadmap_deleter": {
     "remove_metadata": "Remove metadata"
+  },
+  "update_goal_button": {
+    "update": "Update $t(common:goal_one)"
+  },
+  "secondary_graph_selector": {
+    "goal_id_placeholder": "{{$t(common:goal_one), titleCase}} ID",
+    "compare": "Compare"
+  },
+  "query_builder": {
+    "add_historical_data": "Add historical data",
+    "add_data_source": "Add data source",
+    "add_data_to_goal": "Add a historical data series to {{goalName}}",
+    "data_source": "Data source",
+    "select_source": "Select a source",
+    "search_for_table": "Search for table",
+    "search": "Search",
+    "select_metric_for_table": "Select metric for table",
+    "select_metric": "Select metric",
+    "select_values_for_table": "Select values for table",
+    "select_start_time": "Select start time",
+    "select_time_period": "Select time period",
+    "select_value": "Select value",
+    "does_this_look_correct": "Does this look correct? (showing max 5 values)",
+    "period": "Period",
+    "value": "Value",
+    "no_result_found": "No readable result found. Please update your selections.",
+    "add_data_source_button": "Add data source"
+  },
+  "copy_and_scale": {
+    "copy_and_scale": "Copy and scale",
+    "title": "Copy and scale $t(common:goal_one) {{goalName}}",
+    "select_roadmap_version": "In which $t(common:roadmap_version_one) do you want to place the scaled $t(common:goal_one)?",
+    "select_roadmap_version_option": "Select $t(common:roadmap_version_one)",
+    "version": "version",
+    "advanced": "Advanced",
+    "scaling_method": "Select scaling method",
+    "resulting_scale_factor": "Resulting scale factor",
+    "create_scaled_copy": "Create scaled copy",
+    "invalid_input": "Invalid input. The scaling factor could not be calculated. This is often due to a non-numeric value in an input field or that the product of all scaling factors is negative."
+  },
+  "goal_edit": {
+    "title": "Edit $t(common:goal_one)"
   }
 }

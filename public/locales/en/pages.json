@@ -108,6 +108,7 @@
   },
   "goal": {
     "update_needed": "Update your $t(common:goal_one) to get the latest information.",
+    "title_label": "{{$t(common:goal_one), titleCase}}",
     "description": "Description",
     "compare_with_goal": "Compare with $t(common:goal_definite_one) {{goalName}}",
     "scale_notice": "All values in the $t(common:goal_definite_one) use the following scale: \"{{scale}}\"",
@@ -118,5 +119,9 @@
     "action_timeline": "$t(common:action_one) timeline",
     "goals_working_towards": "$t(common:goal_other) working towards {{goalName}}",
     "related_goals": "Related $t(common:goal_other)"
+  },
+  "goal_edit": {
+    "breadcrumb": "Edit $t(common:goal_one)",
+    "title": "Edit $t(common:goal_one): {{goalName}}"
   }
 }

@@ -85,7 +85,7 @@ export default function ActionForm({
                 <option value="" disabled>{t("forms:action.relationship_no_chosen")}</option>
                 {roadmapAlternatives.map(roadmap => (
                   <option key={roadmap.id} value={roadmap.id}>
-                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} ${t("common:action_other")}`}
+                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("forms:action.action_count", { count: roadmap._count.actions })}`}
                   </option>
                 ))}
               </select>
