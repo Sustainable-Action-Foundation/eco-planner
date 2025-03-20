@@ -159,5 +159,17 @@
     "category_renewables": "Renewables",
     "submit_save": "Spara",
     "submit_create": "Skapa $t(common:action_one)"
+  },
+  "effect": {
+    "select_roadmap_version_for_action": "Välj $t(common:roadmap_version_one) som $t(common:action_definite_one) ligger under",
+    "select_roadmap_version": "Välj $t(common:roadmap_version_one)",
+    "select_action_for_effect": "Välj $t(common:action_one) att lägga $t(common:effect_definite_one) under",
+    "select_action": "Välj $t(common:action_one)",
+    "existing_effects": "{{count}} existerande $t(common:effect, {\"count\":{{count}}})",
+    "select_roadmap_version_for_goal": "Välj $t(common:roadmap_version_one) som $t(common:goal_definite_one) ligger under",
+    "select_goal_to_affect": "Välj $t(common:goal_one) att påverka",
+    "select_goal": "Välj $t(common:goal_one)",
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
+    "action_count": "{{count}} $t(common:action, {\"count\":{{count}}})"
   }
 }

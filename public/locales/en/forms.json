@@ -158,5 +158,17 @@
     "category_renewables": "Renewables",
     "submit_save": "Save",
     "submit_create": "Create $t(common:action_one)"
+  },
+  "effect": {
+    "select_roadmap_version_for_action": "Select $t(common:roadmap_version_one) that the $t(common:action_one) is under",
+    "select_roadmap_version": "Select $t(common:roadmap_version_one)",
+    "select_action_for_effect": "Select $t(common:action_one) to add the $t(common:effect_one) to",
+    "select_action": "Select $t(common:action_one)",
+    "existing_effects": "{{count}} existing $t(common:effect, {\"count\":{{count}}})",
+    "select_roadmap_version_for_goal": "Select $t(common:roadmap_version_one) that the $t(common:goal_one) is under",
+    "select_goal_to_affect": "Select $t(common:goal_one) to affect",
+    "select_goal": "Select $t(common:goal_one)",
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
+    "action_count": "{{count}} $t(common:action, {\"count\":{{count}}})"
   }
 }

@@ -123,5 +123,11 @@
   "goal_edit": {
     "breadcrumb": "Redigera $t(common:goal_one)",
     "title": "Redigera $t(common:goal_one): {{goalName}}"
+  },
+  "effect_create": {
+    "breadcrumb": "Skapa ny $t(common:effect_one)",
+    "title": "Skapa ny $t(common:effect_one)",
+    "bad_action": "$t(common:action_definite_one) du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan.",
+    "bad_goal": "$t(common:goal_definite_one) du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan."
   }
 }
