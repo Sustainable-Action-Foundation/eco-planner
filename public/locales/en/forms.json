@@ -49,8 +49,8 @@
     "upload_goals": "Upload $t(common:goal_other)",
     "goal_accepted_formats": "{{$t(common:goal_other), titleCase}} <small> - accepted file types: {{fileTypes, list}} - accepted file encodings: {{encodings, list}}</small>",
     "inherit_goal_legend": "Choose $t(common:goal_one) to inherit",
-    "change_read_access":"Adjust read access",
-    "change_edit_access":"Adjust editing access",
+    "change_read_access": "Adjust read access",
+    "change_edit_access": "Adjust editing access",
     "submit_save": "Save",
     "submit_create": "Create $t(common:roadmap_version_one)"
   },
@@ -90,6 +90,25 @@
     "scale_deprecated": "This $t(common:goal_one) contains a scale. Please bake the scale into the value or unit and then check this box. All scales will be removed in the future",
     "remove_scale": "Remove scale, {{scale}}",
     "submit_save": "Save",
-    "submit_create": "Create $t(common:goal_one)"
+    "submit_create": "Create $t(common:goal_one)",
+    "leap_parameter": "LEAP parameter",
+    "data_unit": "Data series unit",
+    "unit_interpreted_as": "Unit interpreted as:",
+    "unit_not_interpreted": "The unit could not be interpreted. You can still save the $t(common:goal_one), but some functionality may be missing.",
+    "extra_info_data_series": "Extra information about data series",
+    "data_series_info": "The \"Data series\" field accepts a series of values separated by semicolons or tabs, which means you can paste a series of values from Excel or similar.<br /><strong>NOTE: Values must not be separated by commas (\",\").</strong><br />Decimal numbers can use either decimal points or decimal commas.<br />The first value represents the year 2020 and the series can continue up to the year 2050 (a total of 31 values).<br />If values are missing for a year, you can leave it blank, for example \";1;;;;5\" can be used to specify the values 1 and 5 for the years 2021 and 2025.",
+    "data_series": "Data series",
+    "data_series_title": "Use numeric values separated by semicolons or tabs. Decimal numbers can use either dots or commas.",
+    "select_roadmap_version": "Select a $t(common:roadmap_version) to inherit a $t(common:goal_one) from",
+    "select_goal_to_inherit": "Select a $t(common:goal_one) to inherit from",
+    "select_goal": "Select $t(common:goal_one)",
+    "unnamed_goal": "Unnamed $t(common:goal_one)",
+    "unit_missing": "Unit missing",
+    "select_goals_to_combine": "Select $t(common:goal_other) in the current $t(common:roadmap_version) to combine",
+    "search_tip": "Tip: use <kbd><kbd>CTRL</kbd> + <kbd>F</kbd></kbd> to find the $t(common:goal_other) you are looking for",
+    "invert_goal": "Invert the $t(common:goal_one) (divide by this $t(common:goal_one) rather than multiply)",
+    "select_goal_as_baseline": "Select a $t(common:goal_one) to use as a baseline (values are copied rather than linked)",
+    "data_missing": "DATA MISSING; ",
+    "baseline_copied": "Baseline, copied from selected $t(common:goal_one)"
   }
 }
