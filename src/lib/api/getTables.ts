@@ -1,9 +1,9 @@
-import getTrafaTables from "../trafa/getTrafaTables";
 import getPxWebTables from "../pxWeb/getPxWebTables";
-import { getDatasetKeysOfApi } from "./utility";
+import getTrafaTables from "../trafa/getTrafaTables";
+import { getDatasetKeysOfApis } from "./utility";
 
 export default async function getTables(dataSource: string, query: string | null | undefined, locale: "sv" | "en") {
-  if (getDatasetKeysOfApi("PxWeb").includes(dataSource)) {
+  if (getDatasetKeysOfApis("PxWeb").includes(dataSource)) {
     // TODO - when searching for table id, also return partial matches
     return getPxWebTables(dataSource, query ?? undefined, locale);
   }

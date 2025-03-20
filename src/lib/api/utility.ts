@@ -29,7 +29,11 @@ export const externalDatasets: { [key: string]: { baseUrl: string, userFacingUrl
   // ...
 }
 
-export function getDatasetKeysOfApi(apiName: string): string[] { return Object.keys(externalDatasets).filter(key => externalDatasets[key].api === apiName); }
+/**
+ * @param apiNames a string or an array of strings that represent the api(s) to filter by
+ * @returns list of datasets that use specified api(s)
+ */
+export function getDatasetKeysOfApis(apiNames: string | string[]): string[] { return typeof apiNames == "string" ? Object.keys(externalDatasets).filter(key => externalDatasets[key].api === apiNames) : Object.keys(externalDatasets).filter(key => apiNames.includes(externalDatasets[key].api)); }
 
 export function parsePeriod(period: string) {
   period = period.trim().toUpperCase();

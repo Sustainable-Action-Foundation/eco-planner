@@ -3,15 +3,15 @@
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
 import formSubmitter from "@/functions/formSubmitter";
 import { ApiTableContent, ApiTableDetails, PxWebVariable, TrafaVariable } from "@/lib/api/apiTypes";
-import { externalDatasets } from "@/lib/api/utility";
+import getTableContent from "@/lib/api/getTableContent";
+import getTableDetails from "@/lib/api/getTableDetails";
+import getTables from "@/lib/api/getTables";
+import { externalDatasets, getDatasetKeysOfApis } from "@/lib/api/utility";
 import { Goal } from "@prisma/client";
 import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
-import getTables from "@/lib/api/getTables";
-import getTableDetails from "@/lib/api/getTableDetails";
-import getTableContent from "@/lib/api/getTableContent";
 
 export default function QueryBuilder({
   goal,
@@ -203,10 +203,18 @@ export default function QueryBuilder({
           required={!variable.optional}
           name={variable.name}
           id={variable.name}
-          // If only one value is available, pre-select it
-          defaultValue={variable.values && variable.values.length == 1 ? variable.values[0].label : undefined}>
+          defaultValue={getDatasetKeysOfApis("PxWeb").includes(dataSource) ? (
+            // If only one value is available, pre-select it
+            variable.values && variable.values.length == 1 ? variable.values[0].label : undefined
+          ) :
+            undefined
+          }>
           { // If only one value is available, don't show a placeholder option
-            variable.values && variable.values.length > 1 &&
+            getDatasetKeysOfApis("PxWeb").includes(dataSource) && variable.values && variable.values.length > 1 &&
+            <option value="">Välj ett värde</option>
+          }
+          {
+            !getDatasetKeysOfApis("PxWeb").includes(dataSource) &&
             <option value="">Välj ett värde</option>
           }
           {variable.values && variable.values.map(value => (
