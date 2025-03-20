@@ -19,6 +19,7 @@ import accessChecker from "@/lib/accessChecker";
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import { getPxWebTableContent } from "@/lib/pxWeb/getPxWebTableContent";
 import { getSession } from "@/lib/session";
+import { t } from "@/lib/i18nServer";
 import prisma from "@/prismaClient";
 import { AccessControlled, AccessLevel } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
@@ -135,7 +136,7 @@ export default async function Page({
           >
             <div className="flex align-items-center gap-100 margin-left-100">
               <Image src="/icons/alert.svg" alt="" width={24} height={24} />
-              <strong className="font-weight-500">Uppdatera din målbana för att få senaste informationen.</strong>
+              <strong className="font-weight-500">{t("pages:goal.update_needed")}</strong>
             </div>
             <UpdateGoalButton id={goal.id} />
           </section>
@@ -144,7 +145,7 @@ export default async function Page({
         <section className="margin-block-300">
           {goal.name ? (
             <>
-              <small style={{color: 'gray'}}>Målbana</small>
+              <small style={{color: 'gray'}}>{t("common:goal_one")}</small>
               <h1 className="margin-0" style={{fontSize: '3rem', lineHeight: '1'}}>{goal.name}</h1>
               <small style={{color: 'gray'}}>{goal.indicatorParameter}</small>
             </>
@@ -154,14 +155,14 @@ export default async function Page({
 
           {goal.description ? 
             <>
-              <h2 className="margin-top-200 margin-bottom-0">Beskrivning</h2>
+              <h2 className="margin-top-200 margin-bottom-0">{t("pages:goal.description")}</h2>
               <p className="container-text">{goal.description}</p>
             </>
           : null }
 
           {goal.links.length > 0 ?
             <>
-              <h3 className="margin-bottom-0 margin-top-200" style={{ fontSize: '1.25rem' }}>Externa resurser</h3>
+              <h3 className="margin-bottom-0 margin-top-200" style={{ fontSize: '1.25rem' }}>{t("pages:meta_roadmap.external_resources")}</h3>
               <ul>
                 {goal.links.map((link: { url: string, description: string | null }, index: number) =>
                   <li className="margin-block-25" key={index}>
@@ -173,7 +174,7 @@ export default async function Page({
             : null}
         </section>
 
-        {secondaryGoal && <p className="margin-block-300">Jämför med målbanan {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
+        {secondaryGoal && <p className="margin-block-300">{t("pages:goal.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicatorParameter })}</p>}
         <section className='margin-top-300'>
           {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
           <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects}>
@@ -193,9 +194,9 @@ export default async function Page({
 
           {goal.dataSeries?.scale &&
             <>
-              <p>Alla värden i målbanan använder följande skala: {`"${goal.dataSeries?.scale}"`}</p>
+              <p>{t("pages:goal.scale_notice", { scale: goal.dataSeries?.scale })}</p>
               {[AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel) &&
-                <strong>Vänligen baka in skalan i värdet eller enheten; skalor kommer att tas bort i framtiden</strong>
+                <strong>{t("pages:goal.scale_deprecation_warning")}</strong>
               }
             </>
           }
@@ -203,19 +204,19 @@ export default async function Page({
           <section className="margin-block-300">
             <div className="flex gap-100 flex-wrap-wrap align-items-center justify-content-space-between" style={{ borderBottom: '1px solid var(--gray)' }}>
               <h2 className='margin-bottom-100 padding-bottom-50'>
-                Åtgärder för {goal.name ? `${goal.name}` : `${goal.indicatorParameter}`}
+                {t("pages:goal.actions_for_goal", { goalName: goal.name ? goal.name : goal.indicatorParameter })}
               </h2>
               {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
                 <div className="flex gap-50">
-                  <Link href={`/effect/create?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Koppla till en existerande åtgärd</Link>
-                  <Link href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
+                  <Link href={`/effect/create?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">{t("pages:goal.link_existing_action")}</Link>
+                  <Link href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">{t("pages:goal.create_new_action")}</Link>
                 </div>
               }
             </div>
 
             <EffectTable object={goal} accessLevel={accessLevel} />
 
-            <h3 className="margin-top-300">Tidslinje över åtgärder</h3>
+            <h3 className="margin-top-300">{t("pages:goal.action_timeline")}</h3>
             <ActionGraph actions={goal.effects.map(effect => effect.action)} />
 
           </section>
@@ -223,7 +224,7 @@ export default async function Page({
 
         {childGoals.length > 0 ?
           <section className="margin-block-300">
-            <h2>Målbanor som jobbar mot {goal.name ? `${goal.name}` : `${goal.indicatorParameter}`}</h2>
+            <h2>{t("pages:goal.goals_working_towards", { goalName: goal.name ? goal.name : goal.indicatorParameter })}</h2>
             <ChildGraphContainer goal={goal} childGoals={childGoals} />
           </section>
           : null
@@ -231,7 +232,7 @@ export default async function Page({
 
         {findSiblings(roadmap, goal).length > 1 ?
           <section className="margin-block-300">
-            <h2>Angränsande målbanor</h2>
+            <h2>{t("pages:goal.related_goals")}</h2>
             <SiblingGraph roadmap={roadmap} goal={goal} />
           </section>
           : null

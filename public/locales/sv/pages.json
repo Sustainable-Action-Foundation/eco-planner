@@ -101,5 +101,22 @@
     "title_with_goal": "Skapa en ny $t(common:action_one) under $t(common:goal_one): {{goalName}}",
     "bad_goal": "Kunde inte hitta eller har inte tillgång till $t(common:goal_definite_one) i länken.",
     "bad_roadmap": "Kunde inte hitta eller har inte tillgång till $t(common:roadmap_version_definite_one) i länken.\nAnvänd dropdown-menyn för att välja en $t(common:roadmap_version_one)."
+  },
+  "action_edit": {
+    "breadcrumb": "Redigera $t(common:action_one)",
+    "title": "Redigera $t(common:action_one): {{actionName}} under $t(common:roadmap_version_one): {{roadmapName}} (v{{version}})"
+  },
+  "goal": {
+    "update_needed": "Uppdatera din $t(common:goal_one) för att få senaste informationen.",
+    "description": "Beskrivning",
+    "compare_with_goal": "Jämför med $t(common:goal_definite_one) {{goalName}}",
+    "scale_notice": "Alla värden i $t(common:goal_definite_one) använder följande skala: \"{{scale}}\"",
+    "scale_deprecation_warning": "Vänligen baka in skalan i värdet eller enheten; skalor kommer att tas bort i framtiden",
+    "actions_for_goal": "$t(common:action_other) för {{goalName}}",
+    "link_existing_action": "Koppla till en existerande $t(common:action_one)",
+    "create_new_action": "Skapa ny $t(common:action_one)",
+    "action_timeline": "Tidslinje över $t(common:action_other)",
+    "goals_working_towards": "$t(common:goal_other) som jobbar mot {{goalName}}",
+    "related_goals": "Angränsande $t(common:goal_other)"
   }
 }

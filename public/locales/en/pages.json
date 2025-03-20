@@ -101,5 +101,22 @@
     "title_with_goal": "Create a new $t(common:action_one) under $t(common:goal_one): {{goalName}}",
     "bad_goal": "Could not find or do not have access to the $t(common:goal_one) in the link.",
     "bad_roadmap": "Could not find or do not have access to the $t(common:roadmap_version_one) in the link.\nUse the dropdown menu to select a $t(common:roadmap_version_one)."
+  },
+  "action_edit": {
+    "breadcrumb": "Edit $t(common:action_one)",
+    "title": "Edit $t(common:action_one): {{actionName}} under $t(common:roadmap_version_one): {{roadmapName}} (v{{version}})"
+  },
+  "goal": {
+    "update_needed": "Update your $t(common:goal_one) to get the latest information.",
+    "description": "Description",
+    "compare_with_goal": "Compare with $t(common:goal_definite_one) {{goalName}}",
+    "scale_notice": "All values in the $t(common:goal_definite_one) use the following scale: \"{{scale}}\"",
+    "scale_deprecation_warning": "Please bake the scale into the value or unit; scales will be removed in the future",
+    "actions_for_goal": "$t(common:action_other) for {{goalName}}",
+    "link_existing_action": "Link to an existing $t(common:action_one)",
+    "create_new_action": "Create new $t(common:action_one)",
+    "action_timeline": "$t(common:action_one) timeline",
+    "goals_working_towards": "$t(common:goal_other) working towards {{goalName}}",
+    "related_goals": "Related $t(common:goal_other)"
   }
 }
