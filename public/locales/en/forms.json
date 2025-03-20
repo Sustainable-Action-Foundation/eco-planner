@@ -110,5 +110,22 @@
     "select_goal_as_baseline": "Select a $t(common:goal_one) to use as a baseline (values are copied rather than linked)",
     "data_missing": "DATA MISSING; ",
     "baseline_copied": "Baseline, copied from selected $t(common:goal_one)"
+  },
+  "repeatable_scaling": {
+    "specific_value_label": "With what value do you want to scale?",
+    "original_area": "Original area:",
+    "select_area": "Select area",
+    "population_count": "Population count:",
+    "value_missing": "Value missing",
+    "new_area": "New area:",
+    "area": "Area:",
+    "square_kilometers": "square kilometers",
+    "scale_based_on": "Scale based on:",
+    "no_option_selected": "No option selected",
+    "specific_value": "Specific value",
+    "relative_population": "Relative population",
+    "relative_area": "Relative area",
+    "scale_factor": "Scale factor for this calculation:",
+    "weight_for_factor": "Weight for this factor (used to create a weighted average between factors)"
   }
 }

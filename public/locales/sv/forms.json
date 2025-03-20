@@ -111,5 +111,22 @@
     "select_goal_as_baseline": "Välj en $t(common:goal_one) att använda som baslinje (värdena kopieras snarare än att länkas)",
     "data_missing": "DATA SAKNAS; ",
     "baseline_copied": "Baslinje, kopierad från vald $t(common:goal_one)"
+  },
+  "repeatable_scaling": {
+    "specific_value_label": "Med vilket värde vill du skala?",
+    "original_area": "Ursprungligt område:",
+    "select_area": "Välj område",
+    "population_count": "Antal invånare:",
+    "value_missing": "Värde saknas",
+    "new_area": "Nytt område:",
+    "area": "Ytarea:",
+    "square_kilometers": "kvadratkilometer",
+    "scale_based_on": "Skala utifrån:",
+    "no_option_selected": "Inget alternativ valt",
+    "specific_value": "Specifikt värde",
+    "relative_population": "Relativt antal invånare",
+    "relative_area": "Relativ yta",
+    "scale_factor": "Skalfaktor för den här beräkningen:",
+    "weight_for_factor": "Vikt för denna faktor (används för att skapa ett viktat genomsnitt mellan faktorerna)"
   }
 }
