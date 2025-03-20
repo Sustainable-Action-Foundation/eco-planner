@@ -32,18 +32,3 @@ export function t(key: string | string[], options?: (TOptionsBase & $Dictionary)
 
   return i18nServer.t(key, options);
 }
-
-
-// export async function t(key: string | string[], options?: (TOptionsBase & $Dictionary) | undefined) {
-//   // Get locale from cookies
-//   const cookieLocale = await cookies().get("locale")?.value;
-//   // Sanitize locale
-//   const locale = cookieLocale
-//     ? match([cookieLocale], uniqueLocales, Locales.default)
-//     : Locales.default;
-
-//   // Change the language
-//   await i18nServer.changeLanguage(locale);
-
-//   return i18nServer.t(key, options || {});
-// }

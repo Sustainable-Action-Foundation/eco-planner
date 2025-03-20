@@ -1,3 +1,5 @@
+"use client"
+
 import { goalSorter, goalSorterActionAmount, goalSorterActionAmountReverse, goalSorterInterest, goalSorterReverse } from '@/lib/sorters';
 import { GoalSortBy } from '../goals';
 import styles from '../tables.module.css' with { type: "css" };
