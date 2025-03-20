@@ -5,17 +5,15 @@ import formSubmitter from "@/functions/formSubmitter";
 import { ApiTableContent, ApiTableDetails, PxWebVariable, TrafaVariable } from "@/lib/api/apiTypes";
 import { externalDatasets, getDatasetKeysOfApi } from "@/lib/api/utility";
 import getPxWebTableContent from "@/lib/pxWeb/getPxWebTableContent";
-import getPxWebTableDetails from "@/lib/pxWeb/getPxWebTableDetails";
-import getPxWebTables from "@/lib/pxWeb/getPxWebTables";
 import getTrafaTableContent from "@/lib/trafa/getTrafaTableContent";
 import getTrafaTableDetails from "@/lib/trafa/getTrafaTableDetails";
-import getTrafaTables from "@/lib/trafa/getTrafaTables";
 import { Goal } from "@prisma/client";
 import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
 import getTables from "@/lib/api/getTables";
+import getTableDetails from "@/lib/api/getTableDetails";
 
 export default function QueryBuilder({
   goal,
@@ -175,14 +173,7 @@ export default function QueryBuilder({
     clearTableDetails();
     disableSubmitButton();
 
-    if (getDatasetKeysOfApi("PxWeb").includes(dataSource)) {
-      getPxWebTableDetails(tableId, dataSource, locale).then(result => { setTableDetails(result); console.timeEnd("tableSelect"); });
-    } else if (dataSource == "Trafa") {
-      getTrafaTableDetails(tableId, undefined, locale).then(result => { setTableDetails(result); console.timeEnd("tableSelect"); });
-    } else {
-      console.timeLog("tableSelect", "no valid data source");
-      console.timeEnd("tableSelect");
-    }
+    getTableDetails(tableId, dataSource, undefined, locale).then(result => { setTableDetails(result); console.timeEnd("tableSelect"); });
   }
 
   function handleMetricSelect(event: React.ChangeEvent<HTMLSelectElement>) {
