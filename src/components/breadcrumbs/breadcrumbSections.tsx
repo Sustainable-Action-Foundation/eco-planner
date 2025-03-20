@@ -78,9 +78,9 @@ export function RoadmapSection({
   const { t } = useTranslation();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
-      {t("components:breadcrumbs.version")}
+      {t("components:breadcrumbs.version_label")}
       <Link href={`/roadmap/${roadmap.id}`} className={styles.breadCrumb}>
-        v{roadmap.version}
+        {t("components:breadcrumbs.version", { version: roadmap.version })}
       </Link>
     </span>
   )

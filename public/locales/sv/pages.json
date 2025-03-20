@@ -24,7 +24,7 @@
   "roadmap": {
     "title": "{{$t(common:roadmap_version_one), titleCase}}",
     "version": "{{$t(common:roadmap_version_one), titleCase}}",
-    "goal_count": "$t(common:goal, {\"count\":{{count}}})",
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "show_series": "Besök $t(common:meta_roadmap_one)",
     "edit_roadmap_version": "Redigera $t(common:roadmap_version_one)",
     "featured_goals": "Utvalda $t(common:goal_other)",
@@ -131,11 +131,11 @@
     "compare_with_goal": "Jämför med $t(common:goal_definite_one) {{goalName}}",
     "scale_notice": "Alla värden i $t(common:goal_definite_one) använder följande skala: \"{{scale}}\"",
     "scale_deprecation_warning": "Vänligen baka in skalan i värdet eller enheten; skalor kommer att tas bort i framtiden",
-    "actions_for_goal": "$t(common:action_other) för {{goalName}}",
+    "actions_for_goal": "{{$t(common:action_other), titleCase}} för {{goalName}}",
     "link_existing_action": "Koppla till en existerande $t(common:action_one)",
     "create_new_action": "Skapa ny $t(common:action_one)",
     "action_timeline": "Tidslinje över $t(common:action_other)",
-    "goals_working_towards": "$t(common:goal_other) som jobbar mot {{goalName}}",
+    "goals_working_towards": "{{$t(common:goal_other), titleCase}} som jobbar mot {{goalName}}",
     "related_goals": "Angränsande $t(common:goal_other)"
   },
   "goal_edit": {
@@ -145,7 +145,7 @@
   "effect_create": {
     "breadcrumb": "Skapa ny $t(common:effect_one)",
     "title": "Skapa ny $t(common:effect_one)",
-    "bad_action": "$t(common:action_definite_one) du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan.",
-    "bad_goal": "$t(common:goal_definite_one) du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan."
+    "bad_action": "{{$t(common:action_definite_one), titleCase}} du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan.",
+    "bad_goal": "{{$t(common:goal_definite_one), titleCase}} du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan."
   }
 }

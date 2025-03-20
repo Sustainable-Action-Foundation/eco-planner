@@ -45,7 +45,7 @@ export default async function Page({ params }: { params: { roadmapId: string } }
               <>{`${roadmap.metaRoadmap.actor} • `}</>
               : null
             }
-            {`${roadmap.goals.length ?? 0} ${t("pages:roadmap.goal_count", {count: roadmap.goals.length})} • `}
+            {`${t("pages:roadmap.goal_count", {count: roadmap.goals.length})} • `}
             {/* TODO: style link to better match surroundings */}
             <a href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>{t("pages:roadmap.show_series")}</a>
           </p>

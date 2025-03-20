@@ -35,7 +35,7 @@
     "bad_decoding": "The file seems to use an unknown encoding as the interpreted text contains the character '�' which indicates that a character could not be interpreted correctly (probably Å, Ä or Ö).\nYou can still use this file, but if you are not completely sure that it *should* contain the character '�' it is recommended that you convert the file to UTF-8 encoding and try again.",
     "scale_deprecated": "The 'Scale' column is not supported and will be ignored.",
     "scale_deprecated_extended": "$t(forms:roadmap.scale_deprecated) If the column contains any scales, please bake them into the unit or value instead. Example: unit 'MW' rather than unit 'kW' with scale 'thousand'.",
-    "roadmap_version_creation_error": "$t(common:roadmap_version_definite_one) could not be created.\n\nReason:\n {{error}}",
+    "roadmap_version_creation_error": "{{$t(common:roadmap_version_definite_one), titleCase}} could not be created.\n\nReason:\n {{error}}",
     "file_read_error": "The file could not be read: {{error}}",
     "relationship_legend": "Specify the relationship to other posts",
     "relationship_label": "{{$t(common:meta_roadmap), titleCase}} that this is a new post in",

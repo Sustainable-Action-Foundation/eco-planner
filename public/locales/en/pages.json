@@ -24,7 +24,7 @@
   "roadmap": {
     "title": "{{$t(common:roadmap_version_one), titleCase}}",
     "version": "{{$t(common:roadmap_version_one), titleCase}}",
-    "goal_count": "$t(common:goal, {\"count\":{{count}}})",
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "show_series": "Visit $t(common:meta_roadmap)",
     "edit_roadmap_version": "Edit $t(common:roadmap_version_one)",
     "featured_goals": "Featured $t(common:goal_other)",
@@ -131,11 +131,11 @@
     "compare_with_goal": "Compare with $t(common:goal_definite_one) {{goalName}}",
     "scale_notice": "All values in the $t(common:goal_definite_one) use the following scale: \"{{scale}}\"",
     "scale_deprecation_warning": "Please bake the scale into the value or unit; scales will be removed in the future",
-    "actions_for_goal": "$t(common:action_other) for {{goalName}}",
+    "actions_for_goal": "{{$t(common:action_other), titleCase}} for {{goalName}}",
     "link_existing_action": "Link to an existing $t(common:action_one)",
     "create_new_action": "Create new $t(common:action_one)",
-    "action_timeline": "$t(common:action_one) timeline",
-    "goals_working_towards": "$t(common:goal_other) working towards {{goalName}}",
+    "action_timeline": "{{$t(common:action_one), titleCase}} timeline",
+    "goals_working_towards": "{{$t(common:goal_other), titleCase}} working towards {{goalName}}",
     "related_goals": "Related $t(common:goal_other)"
   },
   "goal_edit": {

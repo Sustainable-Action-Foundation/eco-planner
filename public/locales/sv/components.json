@@ -83,7 +83,8 @@
   "breadcrumbs": {
     "home": "Hem",
     "roadmap_series": "{{$t(common:meta_roadmap_one), titleCase}}:",
-    "version": "Version:",
+    "version_label": "Version:",
+    "version": "Version {{version}}",
     "goal": "{{$t(common:goal_one), titleCase}}:",
     "action": "{{$t(common:action_one), titleCase}}:"
   },
