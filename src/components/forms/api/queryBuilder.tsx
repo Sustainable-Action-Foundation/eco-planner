@@ -178,6 +178,7 @@ export default function QueryBuilder({
     if (variableFieldset) {
       if (!isDefaultValue && variableFieldset.hasAttribute("disabled")) {
         variableFieldset.removeAttribute("disabled");
+        // TODO - should trafa table details be fetched here?
       }
       else if (isDefaultValue) {
         // Reset the selection of all select elements in the variable fieldset before disabling
@@ -196,7 +197,7 @@ export default function QueryBuilder({
   function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) {
     if (variable.option) return (
       <label key={variable.name} className="block margin-block-75">
-        {variable.label[0].toUpperCase() + variable.label.slice(1)}
+        {variable.label[0].toUpperCase() + variable.label.slice(1)} {variable.optional && <i style={{ opacity: "50%" }}>- (valfri)</i>}
         {// Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
         }
         <select className={`block margin-block-25 ${variable.label}`}
@@ -314,41 +315,43 @@ export default function QueryBuilder({
 
                   </label>
                 </fieldset>
-                <fieldset id="variable-fieldset" disabled={true} className="margin-block-100 smooth padding-50" style={{ border: "1px solid var(--gray-90)" }}>
-                  <legend className="padding-inline-50">
-                    <strong>Välj värden för tabell</strong>
-                  </legend>
-                  {tableDetails.times.length > 1 &&
-                    <label key="Tid" className="block margin-block-75">
-                      Välj startperiod
-                      <select className={`block margin-block-25 TimeVariable`}
-                        required={false}
-                        name="Tid"
-                        id="Tid"
-                        defaultValue={tableDetails.times && tableDetails.times.length == 1 ? tableDetails.times[0].label : undefined}>
-                        <option value="">Välj tidsperiod</option>
-                        {tableDetails.times.map(time => (
-                          <option key={time.name} value={time.name} lang={tableDetails.language}>{time.id}</option>
-                        ))}
-                      </select>
-                    </label>
-                  }
-                  {tableDetails.variables.map(variable => {
-                    return variableSelectionHelper(variable, tableDetails);
-                  })}
-                  {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
-                    if (hierarchy.children?.some(variable => variable.option)) return (
-                      <label key={hierarchy.name} className="block margin-block-75">
-                        <strong>{hierarchy.label}</strong>
-                        {// TODO - indent all children
-                        }
-                        {hierarchy.children && hierarchy.children.map(variable => {
-                          return variableSelectionHelper(variable, tableDetails);
-                        })}
+                {(tableDetails.hierarchies.length > 0 || (!getDatasetKeysOfApis("PxWeb").includes(dataSource) && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1) ?
+                  (<fieldset id="variable-fieldset" disabled={true} className="margin-block-100 smooth padding-50" style={{ border: "1px solid var(--gray-90)" }}>
+                    <legend className="padding-inline-50">
+                      <strong>Välj värden för tabell</strong>
+                    </legend>
+                    {tableDetails.times.length > 1 &&
+                      <label key="Tid" className="block margin-block-75">
+                        Välj startperiod
+                        <select className={`block margin-block-25 TimeVariable`}
+                          required={false}
+                          name="Tid"
+                          id="Tid"
+                          defaultValue={tableDetails.times && tableDetails.times.length == 1 ? tableDetails.times[0].label : undefined}>
+                          <option value="">Välj tidsperiod</option>
+                          {tableDetails.times.map(time => (
+                            <option key={time.name} value={time.name} lang={tableDetails.language}>{time.id}</option>
+                          ))}
+                        </select>
                       </label>
-                    )
-                  })}
-                </fieldset>
+                    }
+                    {tableDetails.variables.map(variable => {
+                      return variableSelectionHelper(variable, tableDetails);
+                    })}
+                    {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
+                      if (hierarchy.children?.some(variable => variable.option)) return (
+                        <label key={hierarchy.name} className="block margin-block-75">
+                          <strong>{hierarchy.label}</strong>
+                          {// TODO - indent all children
+                          }
+                          {hierarchy.children && hierarchy.children.map(variable => {
+                            return variableSelectionHelper(variable, tableDetails);
+                          })}
+                        </label>
+                      )
+                    })}
+                  </fieldset>) : (<p>Det finns inga variabler</p>)
+                }
               </>
             )}
           </FormWrapper>
