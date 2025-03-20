@@ -2,6 +2,7 @@ import { DataSeries, Goal } from "@prisma/client";
 import { ChildGraphType } from "../childGraphs/childGraphContainer";
 import { ChangeEvent, Dispatch, SetStateAction } from "react";
 import { setStoredChildGraphType } from "../functions/graphFunctions";
+import { useTranslation } from "react-i18next";
 
 export default function ChildGraphSelector({
   goal,
@@ -12,6 +13,8 @@ export default function ChildGraphSelector({
   currentSelection: ChildGraphType,
   setter: Dispatch<SetStateAction<ChildGraphType>>
 }) {
+  const { t } = useTranslation();
+  
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     if (Object.values(ChildGraphType).includes(event.target.value as ChildGraphType)) {
       setStoredChildGraphType(event.target.value as ChildGraphType, goal.id);
@@ -27,8 +30,8 @@ export default function ChildGraphSelector({
   return (
     <>
       <select onChange={handleSelectChange} value={currentSelection} style={{ padding: '.3rem .5rem', borderRadius: '2px', fontSize: '.75rem' }}>
-        <option value={ChildGraphType.Target}>Målbanor</option>
-        <option value={ChildGraphType.Prediction}>Förväntade utfall</option>
+        <option value={ChildGraphType.Target}>{t("components:child_graph_selector.target_paths")}</option>
+        <option value={ChildGraphType.Prediction}>{t("components:child_graph_selector.expected_outcomes")}</option>
       </select>
     </>
   );

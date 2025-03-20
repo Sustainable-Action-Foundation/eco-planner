@@ -4,6 +4,7 @@ import { DataSeries, Effect, Goal } from "@prisma/client";
 import { parsePeriod } from "@/lib/pxWeb/utility";
 import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
 import { ApiTableContent } from "@/lib/api/apiTypes";
+import { useTranslation } from "react-i18next";
 
 export default function MainGraph({
   goal,
@@ -18,6 +19,8 @@ export default function MainGraph({
   historicalData?: ApiTableContent | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
 }) {
+  const { t } = useTranslation();
+
   if (!goal.dataSeries) {
     return null;
   }
@@ -44,8 +47,8 @@ export default function MainGraph({
         labels: { formatter: floatSmoother },
         seriesName: [
           (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
-          'Basscenario',
-          'Förväntat utfall',
+          t("components:main_graph.baseline_scenario"),
+          t("components:main_graph.expected_outcome"),
           (secondaryGoal?.dataSeries?.unit == goal.dataSeries.unit) ? (secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0] : "",
         ]
       }
@@ -86,7 +89,7 @@ export default function MainGraph({
       });
     }
     mainChart.push({
-      name: 'Basscenario',
+      name: t("components:main_graph.baseline_scenario"),
       data: baseline,
       type: 'line',
     })
@@ -97,7 +100,7 @@ export default function MainGraph({
       // Line based on totalEffect + baseline
       if (totalEffect.length > 0) {
         mainChart.push({
-          name: 'Förväntat utfall',
+          name: t("components:main_graph.expected_outcome"),
           data: totalEffect,
           type: 'line',
         });
@@ -121,14 +124,14 @@ export default function MainGraph({
           });
         }
         mainChart.push({
-          name: 'Basscenario',
+          name: t("components:main_graph.baseline_scenario"),
           data: baseline,
           type: 'line',
         });
 
         // Line based on totalEffect
         mainChart.push({
-          name: 'Förväntat utfall',
+          name: t("components:main_graph.expected_outcome"),
           data: totalEffect,
           type: 'line',
         });
@@ -155,7 +158,7 @@ export default function MainGraph({
     // TODO: Use mathjs to see if the units are the same, rather than just comparing strings
     if (secondaryGoal.dataSeries.unit != goal.dataSeries.unit) {
       (mainChartOptions.yaxis as ApexYAxis[]).push({
-        title: { text: `Sekundär målbana (${secondaryGoal.dataSeries.unit})` },
+        title: { text: `${t("components:main_graph.secondary_goal", { unit: secondaryGoal.dataSeries.unit })}` },
         labels: { formatter: floatSmoother },
         seriesName: [(secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0]],
         opposite: true,
@@ -174,14 +177,14 @@ export default function MainGraph({
       });
     }
     mainChart.push({
-      name: 'Nationell motsvarighet',
+      name: t("components:main_graph.national_counterpart"),
       data: nationalSeries,
       type: 'line',
     });
     (mainChartOptions.yaxis as ApexYAxis[]).push({
-      title: { text: "Nationell målbana" },
+      title: { text: t("components:main_graph.national_goal") },
       labels: { formatter: floatSmoother },
-      seriesName: ['Nationell motsvarighet'],
+      seriesName: [t("components:main_graph.national_counterpart")],
       opposite: true,
     });
   }
@@ -205,7 +208,7 @@ export default function MainGraph({
         type: 'line',
       });
       (mainChartOptions.yaxis as ApexYAxis[]).push({
-        title: { text: "Historik" },
+        title: { text: t("components:main_graph.history") },
         labels: { formatter: floatSmoother },
         seriesName: [`${historicalData.metadata[0]?.label}`],
         opposite: true,

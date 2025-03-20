@@ -17,7 +17,7 @@
   "roadmap_tree": {
     "no_meta_roadmaps": "No $t(common:meta_roadmap) found. If you have any filters active, no $t(common:meta_roadmap) were found that match them.",
     "show_source_alt": "Show underlying roadmaps",
-    "goal_count":"{{count}} $t(common:goal, {\"count\":{{count}}})"
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
   },
   "user_filters": {
     "posts": "Posts",
@@ -186,11 +186,26 @@
     "title": "Edit $t(common:goal_one)"
   },
   "goal_child_graph": {
-    "unknown_roadmap": "Unknown roadmap"
+    "unknown_roadmap": "Unknown $t(common:roadmap_version_one)"
   },
   "graph_selector": {
     "goal_path": "{{$t(common:goal_one), titleCase}}",
     "annual_change": "Annual change",
     "percentage_change": "Percentage change"
+  },
+  "child_graph_selector": {
+    "target_paths": "{{$t(common:goal_other), titleCase}}",
+    "expected_outcomes": "Expected outcomes"
+  },
+  "main_graph": {
+    "baseline_scenario": "Baseline scenario",
+    "expected_outcome": "Expected outcome",
+    "national_counterpart": "{{$t(common:scope.national), titleCase}} counterpart",
+    "national_goal": "{{$t(common:scope.national), titleCase}} $t(common:goal_one)",
+    "history": "History",
+    "secondary_goal": "Secondary $t(common:goal_one) ({{unit}})"
+  },
+  "prediction_child_graph": {
+    "no_child_roadmaps": "No underlying $t(common:goal_others) with $t(common:effect_other) or custom baselines found"
   }
 }

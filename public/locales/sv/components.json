@@ -186,11 +186,26 @@
     "title": "Redigera $t(common:goal_one)"
   },
   "goal_child_graph": {
-    "unknown_roadmap": "Okänd målbana"
+    "unknown_roadmap": "Okänd $t(common:roadmap_version_one)"
   },
   "graph_selector": {
     "goal_path": "{{$t(common:goal_one), titleCase}}",
     "annual_change": "Årlig förändring",
     "percentage_change": "Procentuell förändring"
+  },
+  "child_graph_selector": {
+    "target_paths": "{{$t(common:goal_other), titleCase}}",
+    "expected_outcomes": "Förväntade utfall"
+  },
+  "main_graph": {
+    "baseline_scenario": "Basscenario",
+    "expected_outcome": "Förväntat utfall",
+    "national_counterpart": "{{$t(common:scope.national), titleCase}} motsvarighet",
+    "national_goal": "{{$t(common:scope.national), titleCase}} $t(common:goal_one)",
+    "history": "Historik",
+    "secondary_goal": "Sekundär $t(common:goal_one) ({{unit}})"
+  },
+  "prediction_child_graph": {
+    "no_child_roadmaps": "Inga underliggande $t(common:goal_other) med $(common:effect_other) eller anpassade baslinjer hittades"
   }
 }

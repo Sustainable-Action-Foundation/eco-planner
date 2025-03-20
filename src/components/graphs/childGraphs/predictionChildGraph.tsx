@@ -2,6 +2,7 @@ import WrappedChart, { floatSmoother } from "@/lib/chartWrapper.tsx";
 import { dataSeriesDataFieldNames } from "@/types.ts";
 import { DataSeries, Effect, Goal } from "@prisma/client";
 import { calculatePredictedOutcome, firstNonNullValue } from "../functions/graphFunctions.ts";
+import { useTranslation } from "react-i18next";
 
 export default function PredictionChildGraph({
   goal,
@@ -12,6 +13,8 @@ export default function PredictionChildGraph({
   childGoals: (Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null, effects: (Effect & { dataSeries: DataSeries | null })[], roadmapName?: string })[],
   isStacked: boolean,
 }) {
+  const { t } = useTranslation();
+  
   // Early returns if there is no relevant data to compare
   if (!goal.dataSeries) {
     return null;
@@ -60,7 +63,7 @@ export default function PredictionChildGraph({
       }
       if (totalEffect.length > 0) {
         dataPoints.push({
-          name: `${child.name || child.indicatorParameter.split('\\').slice(-1)[0]} (${child.roadmapName || 'Okänd målbana'})`,
+          name: `${child.name || child.indicatorParameter.split('\\').slice(-1)[0]} (${child.roadmapName || t("components:goal_child_graph.unknown_roadmap")})`,
           data: totalEffect,
           type: isStacked ? 'area' : 'line',
         });
@@ -71,7 +74,7 @@ export default function PredictionChildGraph({
   // Early return if there is no data to compare
   if (dataPoints.length < 2) {
     // TODO: Style this
-    return <p>Inga underliggande målbanor med effekter eller anpassade baslinjer hittades</p>;
+    return <p>{t("components:prediction_child_graph.no_child_roadmaps")}</p>;
   }
 
   // If childSeries are lines, make them dashed
