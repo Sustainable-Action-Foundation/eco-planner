@@ -151,6 +151,6 @@
   "effect_edit": {
     "breadcrumb": "Redigera $t(common:effect_one)",
     "title": "Redigera $t(common:effect_one)",
-    "no_access": "Effekten du försöker redigera finns inte eller så har du inte redigeringsbehörighet till den."
+    "no_access": "{{$t(common:effect_definite_one), titleCase}} du försöker redigera finns inte eller så har du inte redigeringsbehörighet till den."
   }
 }

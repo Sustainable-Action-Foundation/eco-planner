@@ -95,11 +95,11 @@ export default function EffectForm({
         <GoalSelector goal={goal} roadmapAlternatives={roadmapAlternatives} />
 
         <label className="block margin-block-100">
-          {t("forms:effect_form.data_series")}
+          {t("forms:effect.data_series")}
           {/* TODO: Make this allow .csv files and possibly excel files */}
           <input type="text" name="dataSeries" required id="dataSeries"
             pattern={dataSeriesPattern}
-            title={t("forms:effect_form.data_series_title")}
+            title={t("forms:effect.data_series_title")}
             className="margin-block-25"
             defaultValue={dataSeriesString}
           />
@@ -107,17 +107,17 @@ export default function EffectForm({
 
         {/* TODO: Show preview of how it would affect the goal */}
         <label className="block margin-block-100">
-          {t("forms:effect_form.impact_type_label")}
+          {t("forms:effect.impact_type_label")}
           <select className="block margin-block-25" name="impactType" id="impactType" required
             defaultValue={currentEffect?.impactType || ActionImpactType.ABSOLUTE}
           >
-            <option value={ActionImpactType.ABSOLUTE}>{t("forms:effect_form.impact_types.absolute")}</option>
-            <option value={ActionImpactType.DELTA}>{t("forms:effect_form.impact_types.delta")}</option>
-            <option value={ActionImpactType.PERCENT}>{t("forms:effect_form.impact_types.percent")}</option>
+            <option value={ActionImpactType.ABSOLUTE}>{t("forms:effect.impact_types.absolute")}</option>
+            <option value={ActionImpactType.DELTA}>{t("forms:effect.impact_types.delta")}</option>
+            <option value={ActionImpactType.PERCENT}>{t("forms:effect.impact_types.percent")}</option>
           </select>
         </label>
 
-        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentEffect ? t("forms:effect_form.submit_save") : t("forms:effect_form.submit_create")} />
+        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentEffect ? t("forms:effect.submit_save") : t("forms:effect.submit_create")} />
       </form>
     </>
   )

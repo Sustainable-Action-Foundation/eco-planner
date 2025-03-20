@@ -132,7 +132,7 @@
     "choose_relationship": "Specify the relationship to other posts",
     "relationship_label": "Choose $t(common:roadmap_version_definite_one) to create $t(common:action_definite_one) under:",
     "relationship_no_chosen": "Choose $t(common:roadmap_version_definite_one)",
-    "action_count":"{{count}} $t(common:action, {\"count\":{{count}}})",
+    "action_count": "{{count}} $t(common:action, {\"count\":{{count}}})",
     "action_description_legend": "Describe your $t(common:action_one)",
     "action_name": "Name of $t(common:action_definite_one)",
     "action_description": "Description of $t(common:action_definite_one)",
@@ -169,9 +169,7 @@
     "select_goal_to_affect": "Select $t(common:goal_one) to affect",
     "select_goal": "Select $t(common:goal_one)",
     "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
-    "action_count": "{{count}} $t(common:action, {\"count\":{{count}}})"
-  },
-  "effect_form": {
+    "action_count": "{{count}} $t(common:action, {\"count\":{{count}}})",
     "data_series": "Data series",
     "data_series_title": "Use numeric values separated by semicolons or tabs. Decimal numbers can use either dots or commas.",
     "impact_type_label": "What type of impact does $t(common:action_definite_one) have?",
