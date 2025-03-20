@@ -1,7 +1,7 @@
 import getTrafaTables from "./getTrafaTables";
 import { StructureItem } from "./trafaTypes";
 import { ApiTableDetails, TrafaFilter, TrafaHierarchy, TrafaMetric, TrafaVariable, TrafaVariableValue } from "../api/apiTypes";
-import { externalDatasets } from "../api/utility"
+import { externalDatasets } from "../api/utility";
 
 export default async function getTrafaTableDetails(tableId: string, selection: { variableCode: string, valueCodes: string[] }[] = [], language: "sv" | "en" = "sv") {
   // Helper function for generating a string that will be appended to searchParams of the url
@@ -139,6 +139,10 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
           }
         }
       });
+
+      if (returnItem.values.length <= 1) {
+        console.warn("This variable only has one value, which is not expected.\nVariable: " + returnItem.label);
+      }
     }
 
     return returnItem;
@@ -165,5 +169,21 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
     }
   });
 
+  if (tableDetails.metrics.length <= 1) {
+    console.warn("This table only has one metric, which is not expected.\nTable: " + tableId);
+  }
+
   return tableDetails;
 }
+
+/**
+ * Variables that only have one value
+ * t10036 - Fordonsslag underkategori
+ * t10036 - Klimatbonusbil
+ */
+
+/**
+ * Tables with only one metric
+ * t0401
+ * t0701
+ */
