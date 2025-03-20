@@ -147,5 +147,10 @@
     "title": "Create new $t(common:effect_one)",
     "bad_action": "Could not find or do not have access to the $t(common:action_one) in the link. Please select a new one in the form below.",
     "bad_goal": "Could not find or do not have access to the $t(common:goal_one) in the link. Please select a new one in the form below."
+  },
+  "effect_edit": {
+    "breadcrumb": "Edit $t(common:effect_one)",
+    "title": "Edit $t(common:effect_one)",
+    "no_access": "The effect you are trying to edit does not exist or you do not have permission to edit it."
   }
 }

@@ -8,6 +8,7 @@ import { ActionImpactType, DataSeries, Effect } from "@prisma/client";
 import type getOneAction from "@/fetchers/getOneAction.ts";
 import type getOneGoal from "@/fetchers/getOneGoal.ts";
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
+import { useTranslation } from "react-i18next";
 
 export default function EffectForm({
   action,
@@ -24,6 +25,8 @@ export default function EffectForm({
     goal: Awaited<ReturnType<typeof getOneGoal>> | null,
   },
 }) {
+  const { t } = useTranslation();
+
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -92,11 +95,11 @@ export default function EffectForm({
         <GoalSelector goal={goal} roadmapAlternatives={roadmapAlternatives} />
 
         <label className="block margin-block-100">
-          Dataserie
+          {t("forms:effect_form.data_series")}
           {/* TODO: Make this allow .csv files and possibly excel files */}
           <input type="text" name="dataSeries" required id="dataSeries"
             pattern={dataSeriesPattern}
-            title="Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma."
+            title={t("forms:effect_form.data_series_title")}
             className="margin-block-25"
             defaultValue={dataSeriesString}
           />
@@ -104,17 +107,17 @@ export default function EffectForm({
 
         {/* TODO: Show preview of how it would affect the goal */}
         <label className="block margin-block-100">
-          Vilken typ av påverkan har åtgärden?
+          {t("forms:effect_form.impact_type_label")}
           <select className="block margin-block-25" name="impactType" id="impactType" required
             defaultValue={currentEffect?.impactType || ActionImpactType.ABSOLUTE}
           >
-            <option value={ActionImpactType.ABSOLUTE}>Absolut skillnad gentemot baslinje</option>
-            <option value={ActionImpactType.DELTA}>Förändring år för år (delta)</option>
-            <option value={ActionImpactType.PERCENT}>Skillnad gentemot baslinjen i procent av föregående års totalvärde (baslinje + åtgärder)</option>
+            <option value={ActionImpactType.ABSOLUTE}>{t("forms:effect_form.impact_types.absolute")}</option>
+            <option value={ActionImpactType.DELTA}>{t("forms:effect_form.impact_types.delta")}</option>
+            <option value={ActionImpactType.PERCENT}>{t("forms:effect_form.impact_types.percent")}</option>
           </select>
         </label>
 
-        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentEffect ? "Spara" : "Skapa effekt"} />
+        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentEffect ? t("forms:effect_form.submit_save") : t("forms:effect_form.submit_create")} />
       </form>
     </>
   )

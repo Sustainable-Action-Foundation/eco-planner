@@ -147,5 +147,10 @@
     "title": "Skapa ny $t(common:effect_one)",
     "bad_action": "{{$t(common:action_definite_one), titleCase}} du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan.",
     "bad_goal": "{{$t(common:goal_definite_one), titleCase}} du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan."
+  },
+  "effect_edit": {
+    "breadcrumb": "Redigera $t(common:effect_one)",
+    "title": "Redigera $t(common:effect_one)",
+    "no_access": "Effekten du försöker redigera finns inte eller så har du inte redigeringsbehörighet till den."
   }
 }

@@ -69,7 +69,7 @@ function NestedRoadmapRenderer({
                     <Image src="/icons/caret-right.svg" alt={t("components:roadmap_tree.show_source_alt")} width={24} height={24} className="round padding-25 margin-inline-25" />
                     <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth' style={{ lineHeight: '1' }}>
                       <div>{`${roadmap.metaRoadmap.name} (v${roadmap.version})`}</div>
-                      <div className={styles["roadmap-information"]}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} {t("common:goal", { count: roadmap._count.goals })}</div>
+                      <div className={styles["roadmap-information"]}>{roadmap.metaRoadmap.type} • {t("components:roadmap_tree.goal_count", { count: roadmap._count.goals })}</div>
                     </Link>
                   </div>
                   <span className="flex align-items-center padding-inline-25">

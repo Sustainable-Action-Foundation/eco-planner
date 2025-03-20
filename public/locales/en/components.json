@@ -212,5 +212,10 @@
   },
   "action_graph": {
     "actions": "{{$t(common:action_other), titleCase}}"
+  },
+  "effects_table": {
+    "no_effects": "There are no effects to display.",
+    "wanna_create_effect": "Do you want to create one?",
+    "create_new_effect": "Create new $t(common:effect_one)"
   }
 }

@@ -2,7 +2,7 @@ import { goalSorter, goalSorterActionAmount, goalSorterActionAmountReverse, goal
 import { GoalSortBy } from '../goals';
 import styles from '../tables.module.css' with { type: "css" };
 import { DataSeries, Goal } from "@prisma/client";
-import { useTranslation } from "react-i18next";
+import { t } from "@/lib/i18nServer";
 
 interface GoalTableCommonProps {
   sortBy?: GoalSortBy,
@@ -36,7 +36,6 @@ export default function GoalTable({
   roadmap,
   sortBy,
 }: GoalTableProps) {
-  const { t } = useTranslation();
   
   // Failsafe in case wrong props are passed
   if ((!goals && !roadmap) || (goals && roadmap)) throw new Error('GoalTable: Either `goals` XOR `roadmap` must be provided');

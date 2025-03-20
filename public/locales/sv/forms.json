@@ -171,5 +171,17 @@
     "select_goal": "Välj $t(common:goal_one)",
     "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "action_count": "{{count}} $t(common:action, {\"count\":{{count}}})"
+  },
+  "effect_form": {
+    "data_series": "Dataserie",
+    "data_series_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma.",
+    "impact_type_label": "Vilken typ av påverkan har $t(common:action_definite_one)?",
+    "impact_types": {
+      "absolute": "Absolut skillnad gentemot baslinje",
+      "delta": "Förändring år för år (delta)",
+      "percent": "Skillnad gentemot baslinjen i procent av föregående års totalvärde (baslinje + $t(common:action_other))"
+    },
+    "submit_save": "Spara",
+    "submit_create": "Skapa $t(common:effect_one)"
   }
 }
