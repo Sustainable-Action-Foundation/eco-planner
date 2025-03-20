@@ -20,6 +20,7 @@ export default function QueryBuilder({
   goal: Goal,
 }) {
   const { t } = useTranslation();
+
   const [isLoading, setIsLoading] = useState(false);
   const [dataSource, setDataSource] = useState<string>("" as keyof typeof externalDatasetBaseUrls);
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
@@ -250,7 +251,7 @@ export default function QueryBuilder({
 
           {tableContent ? (
             <div>
-              <p>{t("components:query_builder.does_this_look_correct")}</p>
+              <p>{t("components:query_builder.does_this_look_correct", { count: 5 })}</p>
               <table>
                 <thead>
                   <tr>

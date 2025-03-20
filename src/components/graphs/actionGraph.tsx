@@ -2,15 +2,14 @@ import WrappedChart from "@/lib/chartWrapper";
 import { actionGraphSorter } from "@/lib/sorters";
 import { Action } from "@prisma/client";
 import styles from './graphs.module.css'
-import { useTranslation } from "react-i18next";
+import { t } from "@/lib/i18nServer";
 
 export default function ActionGraph({
   actions,
 }: {
   actions: Action[],
 }) {
-  const { t } = useTranslation();
-  
+
   const series: ApexAxisChartSeries = [];
   const actionData = []
 

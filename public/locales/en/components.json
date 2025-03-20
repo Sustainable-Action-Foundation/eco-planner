@@ -165,7 +165,8 @@
     "select_start_time": "Select start time",
     "select_time_period": "Select time period",
     "select_value": "Select value",
-    "does_this_look_correct": "Does this look correct? (showing max 5 values)",
+    "does_this_look_correct_one": "Does this look correct? (showing max {{count}} value)",
+    "does_this_look_correct_other": "Does this look correct? (showing max {{count}} values))",
     "period": "Period",
     "value": "Value",
     "no_result_found": "No readable result found. Please update your selections.",
@@ -210,6 +211,6 @@
     "no_child_roadmaps": "No underlying $t(common:goal_others) with $t(common:effect_other) or custom baselines found"
   },
   "action_graph": {
-    "actions": "{{common:action_other}, titleCase}}"    
+    "actions": "{{$t(common:action_other), titleCase}}"
   }
 }

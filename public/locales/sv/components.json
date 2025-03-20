@@ -165,7 +165,8 @@
     "select_start_time": "Välj starttid",
     "select_time_period": "Välj tidsperiod",
     "select_value": "Välj värde",
-    "does_this_look_correct": "Ser detta rimligt ut? (visar max 5 värden)",
+    "does_this_look_correct_one": "Ser detta rimligt ut? (visar max {{count}} värde)",
+    "does_this_look_correct_other": "Ser detta rimligt ut? (visar max {{count}} värden)",
     "period": "Period",
     "value": "Värde",
     "no_result_found": "Inget läsbart resultat hittades. Vänligen uppdatera dina val.",
@@ -210,6 +211,6 @@
     "no_child_roadmaps": "Inga underliggande $t(common:goal_other) med $(common:effect_other) eller anpassade baslinjer hittades"
   },
   "action_graph": {
-    "actions": "{{common:action_other}, titleCase}}"
+    "actions": "{{$t(common:action_other), titleCase}}"
   }
 }
