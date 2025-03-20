@@ -4,7 +4,6 @@ import { closeModal, openModal } from "@/components/modals/modalFunctions";
 import formSubmitter from "@/functions/formSubmitter";
 import { ApiTableContent, ApiTableDetails, PxWebVariable, TrafaVariable } from "@/lib/api/apiTypes";
 import { externalDatasets } from "@/lib/api/utility";
-import getTrafaTableDetails from "@/lib/trafa/getTrafaTableDetails";
 import { Goal } from "@prisma/client";
 import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
@@ -109,7 +108,7 @@ export default function QueryBuilder({
       const tableId = formData.get("externalTableId") as string ?? "";
       getTableContent(tableId, dataSource, query, locale).then(result => { setTableContent(result); });
       if (dataSource == "Trafa") {
-        getTrafaTableDetails(tableId, query, locale).then(result => { setTableDetails(result); });
+        getTableDetails(tableId, dataSource, query, locale).then(result => { setTableDetails(result); });
       }
       enableSubmitButton();
     }
@@ -188,7 +187,7 @@ export default function QueryBuilder({
         variableFieldset.setAttribute("disabled", "true");
         // Reset all the table details when disabling the form so all options are displayed when re-enabling
         if (dataSource == "Trafa") {
-          getTrafaTableDetails(tableDetails?.id ?? "", undefined, locale).then(result => { setTableDetails(result); });
+          getTableDetails(tableDetails?.id ?? "", dataSource, undefined, locale).then(result => { setTableDetails(result); });
         }
       }
     }
