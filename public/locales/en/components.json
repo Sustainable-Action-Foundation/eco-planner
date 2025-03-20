@@ -125,7 +125,7 @@
     "no_roadmap_versions_found": "No $t(common:roadmap_version_other) found. If you have any filters active, no $t(common:roadmap_version_other) were found that match them."
   },
   "goal_table": {
-    "no_goals": "You do not have access to any $t(common:goal_other) in this $t(common:roadmap_version_one), or $t(common:roadmap_version_definite) lacks $t(common:goal_other).",
+    "no_goals": "You do not have access to any $t(common:goal_other) in this $t(common:roadmap_version_one), or $t(common:roadmap_version_definite_one) lacks $t(common:goal_other).",
     "goal_name": "{{$t(common:goal_one), titleCase}} name",
     "LEAP_parameter": "LEAP parameter",
     "unit": "Unit",
@@ -137,7 +137,7 @@
     "create_action": "Create new $t(common:action_one)"
   },
   "link_tree": {
-    "no_roadmaps": "You do not have access to any $t(common:goal_other) in this $t(common:roadmap_version_one), or $t(common:roadmap_version_definite) is empty."
+    "no_roadmaps": "You do not have access to any $t(common:goal_other) in this $t(common:roadmap_version_one), or $t(common:roadmap_version_definite_one) is empty."
   },
   "meta_roadmap_deleter": {
     "remove_metadata": "Remove metadata"

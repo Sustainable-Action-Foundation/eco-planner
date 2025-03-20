@@ -94,5 +94,12 @@
     "breadcrumb": "Skapa ny $t(common:goal_one)",
     "title": "Skapa ny $t(common:goal_one)",
     "bad_roadmap": "Kunde inte hitta eller har inte tillgång till färdplansversionen i länken.\n\nAnvänd dropdown-menyn för att välja en färdplansversion att skapa målbanan under."
+  },
+  "action_create": {
+    "breadcrumb": "Skapa ny $t(common:action_one)",
+    "title": "Skapa en ny $t(common:action_one)",
+    "title_with_goal": "Skapa en ny $t(common:action_one) under $t(common:goal_one): {{goalName}}",
+    "bad_goal": "Kunde inte hitta eller har inte tillgång till $t(common:goal_definite_one) i länken.",
+    "bad_roadmap": "Kunde inte hitta eller har inte tillgång till $t(common:roadmap_version_definite_one) i länken.\nAnvänd dropdown-menyn för att välja en $t(common:roadmap_version_one)."
   }
 }
