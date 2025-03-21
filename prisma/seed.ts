@@ -1,7 +1,7 @@
 // DO NOT SEED PRODUCTION DATABASE
 
 import { PrismaClient, RoadmapType } from '@prisma/client';
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { LoremIpsum } from "lorem-ipsum";
 
 const prisma = new PrismaClient();

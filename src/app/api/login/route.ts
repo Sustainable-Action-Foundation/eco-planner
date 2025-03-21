@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { getSession, options } from "@/lib/session"
 import prisma from "@/prismaClient";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 
 export async function POST(request: NextRequest) {
