@@ -228,13 +228,7 @@ export default function QueryBuilder({
   }
 
   function shouldVariableFieldsetBeVisible(tableDetails: ApiTableDetails, dataSource: string) {
-    const returnBool = (tableDetails.hierarchies.length > 0 || (!getDatasetKeysOfApis("PxWeb").includes(dataSource) && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1)
-    console.log(returnBool);
-    if (returnBool) {
-      console.log("hierarchies:", tableDetails.hierarchies.length > 0);
-      console.log("not pxweb & variable of option exists", (!getDatasetKeysOfApis("PxWeb").includes(dataSource) && tableDetails.variables.some(variable => variable.option)));
-      console.log("times:", tableDetails.times.length > 1);
-    }
+    const returnBool = (tableDetails.hierarchies.length > 0 || (!getDatasetKeysOfApis("PxWeb").includes(dataSource) && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1);
     return returnBool;
   }
 

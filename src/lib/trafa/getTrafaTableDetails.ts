@@ -1,7 +1,7 @@
-import getTrafaTables from "./getTrafaTables";
-import { StructureItem } from "./trafaTypes";
 import { ApiTableDetails, TrafaFilter, TrafaHierarchy, TrafaMetric, TrafaVariable, TrafaVariableValue } from "../api/apiTypes";
 import { externalDatasets } from "../api/utility";
+import getTrafaTables from "./getTrafaTables";
+import { StructureItem } from "./trafaTypes";
 
 export default async function getTrafaTableDetails(tableId: string, selection: { variableCode: string, valueCodes: string[] }[] = [], language: "sv" | "en" = "sv") {
   // Helper function for generating a string that will be appended to searchParams of the url
