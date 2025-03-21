@@ -1,6 +1,6 @@
 { 
   "title": "Test page for translations",
-  "description": "Here you can see all translation keys in the project to easily see if something is missing or wrong. All keys will receive the arguments {{args}} to make debugging easier.",
+  "description": "Here you can see all translation keys in the project to easily see if something is missing or wrong. All keys will receive the arguments {{args}} to make debugging easier. In addition to that, if a key resolves to an empty string, it will be displayed as $t(test:empty_string) in red and if the key cannot be resolved, it will be displayed as $t(test:not_found) in red.",
   "server_side": "Server side",
   "client_side": "Client side",
   "keys": "Keys (en)",

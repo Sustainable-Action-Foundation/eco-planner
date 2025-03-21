@@ -11,13 +11,15 @@ export async function ServerLocales({ allKeys, className = "" }: { allKeys: stri
       let textColor = "inherit";
       let fontWeight = "inherit";
 
+      // Empty resolve, usually formatting error
       if (translation === "") {
         translation = t("test:empty_string");
         textColor = "red";
         fontWeight = "bold";
       }
-      if (translation === key) {
-        translation = `${t("test:not_found")} (${key})`;
+      // Resolves to key, usually missing translation
+      if (translation === key.replace(/.*:/, "") /* The namespace doesn't get included */) {
+        translation = `${t("test:not_found")}`;
         textColor = "red";
         fontWeight = "bold";
       }

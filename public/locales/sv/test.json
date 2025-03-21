@@ -1,6 +1,6 @@
 {
   "title": "Testsida för översättningar",
-  "description": "Här ser man alla översättningsnycklar som finns i projektet för att lätt se om något saknas eller är fel. Alla nycklar kommer att få argumenten {{args}} för att underlätta felsökning.",
+  "description": "Här ser man alla översättningsnycklar som finns i projektet för att lätt se om något saknas eller är fel. Alla nycklar kommer att få argumenten {{args}} för att underlätta felsökning. Dessutom, om en nyckel löses till en tom sträng, kommer den att visas som $t(test:empty_string) i rött och om nyckeln inte kan lösas, kommer den att visas som $t(test:not_found) i rött.",
   "server_side": "Server-side",
   "client_side": "Client-side",
   "keys": "Nycklar (en)",

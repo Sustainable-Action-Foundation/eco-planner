@@ -1,6 +1,6 @@
 "use client";
 
-import { initTemplate, Locales, uniqueLocales } from "i18n.config";
+import { initTemplate, Locales, ns, uniqueLocales } from "i18n.config";
 import { getCookie } from "cookies-next";
 import { I18nextProvider } from "react-i18next";
 import { initReactI18next } from "react-i18next";
@@ -19,9 +19,10 @@ i18nClient
       loadPath: "/api/locales?lng={{lng}}&ns={{ns}}",
     },
   });
+i18nClient.changeLanguage(match([...navigator.languages], uniqueLocales, Locales.default));
+console.log("Client side i18n initialized with:", i18nClient.language);
 
-
-/** React component that wraps all translatable content */
+/** React component that wraps all translatable client side content */
 export default function I18nProvider(
   { children }: { children: React.ReactNode }
 ) {

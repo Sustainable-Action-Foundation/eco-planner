@@ -41,7 +41,7 @@ export default async function LocaleTestPage() {
     return noDefaultKeys;
   })).then((keys) => keys.flat());
 
-  const rowCount = allKeys.length;
+  const rowCount = allKeys.length + 1;
 
   return (
     <div>
@@ -94,6 +94,7 @@ export default async function LocaleTestPage() {
           display: grid;
           grid-template-columns: 1fr 1px 1fr 1px 1fr;
           grid-template-rows: ${rowCount + 1}fr;
+          margin-bottom: 10rem;
 
           &>p,
           &>h3 {

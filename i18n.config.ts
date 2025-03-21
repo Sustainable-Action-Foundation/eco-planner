@@ -3,6 +3,7 @@
  * This file contains shared resources for the client and server instances of i18next.
  */
 
+import { match } from "@formatjs/intl-localematcher";
 import { InitOptions, TFunction } from "i18next";
 
 export enum Locales {
@@ -19,8 +20,8 @@ export function initTemplate(t: TFunction): InitOptions {
     debug: false, // Set to true to get logs from i18next
     // fallbackLng: Locales.default,
     supportedLngs: uniqueLocales,
-    defaultNS: false,
-    ns,
+    defaultNS: "common",
+    ns: ns,
     interpolation: {
       escapeValue: false, // React already escapes
       format: (value, format, lng, options): string => {
