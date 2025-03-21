@@ -1,0 +1,9 @@
+{
+  "title": "Test page for translations",
+  "description": "Here you can see all translation keys in the project to easily see if something is missing or wrong.",
+  "server_side": "Server side",
+  "client_side": "Client side",
+  "keys": "Keys (en)",
+  "keys_found_one": "{{count}} key found",
+  "keys_found_other": "{{count}} keys found"
+}

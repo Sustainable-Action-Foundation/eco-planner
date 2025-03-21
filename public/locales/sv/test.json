@@ -1,0 +1,9 @@
+{
+  "title": "Testsida för översättningar",
+  "description": "Här ser man alla översättningsnycklar som finns i projektet för att lätt se om något saknas eller är fel.",
+  "server_side": "Server-side",
+  "client_side": "Client-side",
+  "keys": "Nycklar (en)",
+  "keys_found_one": "{{count}} nyckel hittad",
+  "keys_found_other": "{{count}} nycklar hittade"
+}

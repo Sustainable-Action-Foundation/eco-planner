@@ -12,16 +12,14 @@ export enum Locales {
 };
 export const uniqueLocales = [...new Set(Object.values(Locales))];
 
-export const defaultNS = "common";
-export const ns = ["common", "forms", "components", "pages",];
+export const ns = ["common", "forms", "components", "pages", "test",];
 
 export function initTemplate(t: TFunction): InitOptions {
   return {
     debug: false, // Set to true to get logs from i18next
-    fallbackLng: Locales.default,
+    // fallbackLng: Locales.default,
     supportedLngs: uniqueLocales,
-    preload: uniqueLocales,
-    defaultNS,
+    defaultNS: false,
     ns,
     interpolation: {
       escapeValue: false, // React already escapes
