@@ -15,7 +15,7 @@
     "show": "Visa"
   },
   "roadmap_tree": {
-    "no_meta_roadmaps": "Inga $t(common:meta_roadmap_other) hittades. Om du har några aktiva filter hittades inga $t(common:meta_roadmap_other) som matchar dem.",
+    "no_meta_roadmap_ones": "Inga $t(common:meta_roadmap_other) hittades. Om du har några aktiva filter hittades inga $t(common:meta_roadmap_other) som matchar dem.",
     "show_source_alt": "Visa underliggande färdplaner",
     "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
   },
@@ -141,7 +141,7 @@
   "link_tree": {
     "no_roadmaps": "Du har inte tillgång till några $t(common:goal_other) i denna $t(common:roadmap_version_one), eller så är $t(common:roadmap_version_definite_one) tom."
   },
-  "meta_roadmap_deleter": {
+  "meta_roadmap_one_deleter": {
     "remove_metadata": "Ta bort metadata"
   },
   "update_goal_button": {

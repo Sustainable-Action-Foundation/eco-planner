@@ -119,9 +119,9 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
           { // Link to create roadmap form if logged in
             session.user &&
             <>
-              <a href="/metaRoadmap/create" className="button purewhite round block">{t("pages:create_meta_roadmap")}</a>
+              <a href="/metaRoadmap/create" className="button purewhite round block">{t("pages:create_meta_roadmap_one")}</a>
               {/* TODO: Incorporate this in a reasonable way */}
-              {/* <a href="/roadmap/createRoadmap" className="button purewhite round block">{t("pages:create_version_in_meta_roadmap")}</a> */}
+              {/* <a href="/roadmap/createRoadmap" className="button purewhite round block">{t("pages:create_version_in_meta_roadmap_one")}</a> */}
             </>
           }
         </div>

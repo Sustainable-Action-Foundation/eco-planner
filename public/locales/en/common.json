@@ -1,8 +1,10 @@
 {
   "roadmap_short_one": "roadmap",
   "roadmap_short_other": "roadmaps",
-  "meta_roadmap": "roadmap series",
-  "meta_roadmap_definite": "the roadmap series",
+  "meta_roadmap_one": "roadmap series",
+  "meta_roadmap_other": "roadmap series",
+  "meta_roadmap_definite_one": "the roadmap series",
+  "meta_roadmap_definite_other": "the roadmap series",
   "roadmap_version_one": "roadmap version",
   "roadmap_version_other": "roadmap versions",
   "roadmap_version_definite_one": "the roadmap version",
@@ -29,11 +31,11 @@
     "municipal": "Municipal",
     "local": "Local",
     "other": "Other",
-    "national_roadmap": "National $t(meta_roadmap)",
-    "regional_roadmap": "Regional $t(meta_roadmap)",
-    "municipal_roadmap": "Municipal $t(meta_roadmap)",
-    "local_roadmap": "Local $t(meta_roadmap)",
-    "other_roadmap": "Other $t(meta_roadmap), e.g. an organization"
+    "national_roadmap": "National $t(meta_roadmap_one)",
+    "regional_roadmap": "Regional $t(meta_roadmap_one)",
+    "municipal_roadmap": "Municipal $t(meta_roadmap_one)",
+    "local_roadmap": "Local $t(meta_roadmap_one)",
+    "other_roadmap": "Other $t(meta_roadmap_one), e.g. an organization"
   },
   "scaling_methods": {
     "geo_mean": "Geometric mean (recommended)",

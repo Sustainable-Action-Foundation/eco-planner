@@ -4,7 +4,7 @@
     "on": "on"
   },
   "roadmap_filters": {
-    "search_roadmaps": "Search $t(common:meta_roadmap)",
+    "search_roadmaps": "Search $t(common:meta_roadmap_one)",
     "sort_by": "Sort by:",
     "default": "Default",
     "name_descending": "Name (A-Z)",
@@ -15,21 +15,21 @@
     "show": "Show"
   },
   "roadmap_tree": {
-    "no_meta_roadmaps": "No $t(common:meta_roadmap) found. If you have any filters active, no $t(common:meta_roadmap) were found that match them.",
+    "no_meta_roadmap_ones": "No $t(common:meta_roadmap_one) found. If you have any filters active, no $t(common:meta_roadmap_one) were found that match them.",
     "show_source_alt": "Show underlying roadmaps",
     "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
   },
   "user_filters": {
     "posts": "Posts",
     "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
-    "roadmap_series": "{{$t(common:meta_roadmap), titleCase}}",
+    "roadmap_series": "{{$t(common:meta_roadmap_one), titleCase}}",
     "access_level": "Access level",
     "editing_access": "Editing access"
   },
   "logout": "Log out",
   "table_menu": {
     "new_roadmap_version": "New $t(common:roadmap_version_one)",
-    "go_to_series": "Go to $t(common:meta_roadmap)",
+    "go_to_series": "Go to $t(common:meta_roadmap_one)",
     "go_to_version": "Go to $t(common:roadmap_version_one)",
     "go_to_goal": "Go to $t(common:goal_one)",
     "new_goal": "New $t(common:goal_one)",
@@ -82,7 +82,7 @@
   },
   "breadcrumbs": {
     "home": "Home",
-    "roadmap_series": "{{$t(common:meta_roadmap), titleCase}}:",
+    "roadmap_series": "{{$t(common:meta_roadmap_one), titleCase}}:",
     "version_label": "Version:",
     "version": "Version {{version}}",
     "goal": "{{$t(common:goal_one), titleCase}}:",
@@ -141,7 +141,7 @@
   "link_tree": {
     "no_roadmaps": "You do not have access to any $t(common:goal_other) in this $t(common:roadmap_version_one), or $t(common:roadmap_version_definite_one) is empty."
   },
-  "meta_roadmap_deleter": {
+  "meta_roadmap_one_deleter": {
     "remove_metadata": "Remove metadata"
   },
   "update_goal_button": {

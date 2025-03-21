@@ -1,20 +1,20 @@
 {
-  "meta_roadmap": {
-    "description_legend": "Describe your $t(common:meta_roadmap)",
-    "roadmap_series_name": "Name $t(common:meta_roadmap_definite)",
-    "roadmap_series_description": "Description of $t(common:meta_roadmap_definite)",
+  "meta_roadmap_one": {
+    "description_legend": "Describe your $t(common:meta_roadmap_one)",
+    "roadmap_series_name": "Name $t(common:meta_roadmap_definite_one)",
+    "roadmap_series_description": "Description of $t(common:meta_roadmap_definite_one)",
     "actor_legend": "Choose responsible actor",
-    "roadmap_scope_label": "Type of $t(common:meta_roadmap)",
+    "roadmap_scope_label": "Type of $t(common:meta_roadmap_one)",
     "no_chosen_roadmap_scope": "Choose a type",
     "choose_actor": "Specify an actor",
     "attach_external": "Attach external resources",
     "change_read_access": "Adjust read access",
     "change_edit_access": "Adjust editing access",
-    "relationship_legend": "Is this $t(common:meta_roadmap) working towards another $t(common:meta_roadmap)?",
+    "relationship_legend": "Is this $t(common:meta_roadmap_one) working towards another $t(common:meta_roadmap_one)?",
     "relationship_label": "Parent",
     "relationship_no_chosen": "No parent",
     "submit_save": "Save",
-    "submit_create": "Create $t(common:meta_roadmap)"
+    "submit_create": "Create $t(common:meta_roadmap_one)"
   },
   "link_input": {
     "name_label": "Name",
@@ -38,10 +38,10 @@
     "roadmap_version_creation_error": "{{$t(common:roadmap_version_definite_one), titleCase}} could not be created.\n\nReason:\n {{error}}",
     "file_read_error": "The file could not be read: {{error}}",
     "relationship_legend": "Specify the relationship to other posts",
-    "relationship_label": "{{$t(common:meta_roadmap), titleCase}} that this is a new post in",
-    "relationship_no_chosen": "No $t(common:meta_roadmap) chosen",
-    "relationship_no_found": "You seem to not have access to any $t(common:meta_roadmap)",
-    "roadmap_target_label": "Version of $t(common:meta_roadmap_definite) {{targetName}} this $t(common:meta_roadmap_definite) is working towards",
+    "relationship_label": "{{$t(common:meta_roadmap_one), titleCase}} that this is a new post in",
+    "relationship_no_chosen": "No $t(common:meta_roadmap_one) chosen",
+    "relationship_no_found": "You seem to not have access to any $t(common:meta_roadmap_one)",
+    "roadmap_target_label": "Version of $t(common:meta_roadmap_definite_one) {{targetName}} this $t(common:meta_roadmap_definite_one) is working towards",
     "roadmap_target_no_chosen": "No option chosen",
     "roadmap_target_always_latest": "Always latest version",
     "roadmap_version_legend": "Describe $t(common:roadmap_version_definite_one)",
@@ -56,8 +56,8 @@
   },
   "goal": {
     "choose_relationship": "Specify the relationship to other posts",
-    "relationship_label": "Choose $t(common:meta_roadmap) to create $t(common:goal_one) under:",
-    "relationship_no_chosen": "Choose $t(common:meta_roadmap)",
+    "relationship_label": "Choose $t(common:meta_roadmap_one) to create $t(common:goal_one) under:",
+    "relationship_no_chosen": "Choose $t(common:meta_roadmap_one)",
     "action_count": "{{count}} $t(common:action, {\"count\":{{count}}})",
     "data_series_type_legend": "Choose type of data series for your $t(common:goal_one)",
     "data_series_type_label": "Data series",

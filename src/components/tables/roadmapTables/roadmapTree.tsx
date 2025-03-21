@@ -25,7 +25,7 @@ export default function RoadmapTree({
   user,
 }: RoadmapTreeProps) {
   if (!roadmaps.length) {
-    return <p>{t("components:roadmap_tree.no_meta_roadmaps")}</p>;
+    return <p>{t("components:roadmap_tree.no_meta_roadmap_ones")}</p>;
   }
 
   const accessibleMetaRoadmaps = roadmaps.map(roadmap => roadmap.metaRoadmapId);

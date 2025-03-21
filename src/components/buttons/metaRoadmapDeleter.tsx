@@ -11,7 +11,7 @@ export default function MetaRoadmapDeleter({ metaRoadmap }: { metaRoadmap: NonNu
   const deletionRef = useRef<HTMLDialogElement | null>(null);
   return (
     <>
-      <button type="button" className="red color-purewhite" onClick={() => openModal(deletionRef)}>{t("components:meta_roadmap_deleter.remove_metadata")}</button>
+      <button type="button" className="red color-purewhite" onClick={() => openModal(deletionRef)}>{t("components:meta_roadmap_one_deleter.remove_metadata")}</button>
       <ConfirmDelete modalRef={deletionRef} targetUrl={`/api/metaRoadmap`} targetName={metaRoadmap.name} targetId={metaRoadmap.id} />
     </>
   )

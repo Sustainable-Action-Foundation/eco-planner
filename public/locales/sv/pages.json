@@ -1,7 +1,7 @@
 {
   "home_title": "{{$t(common:roadmap_short_other), titleCase}}",
-  "create_meta_roadmap": "Skapa ny $t(common:meta_roadmap_one)",
-  "create_version_in_meta_roadmap": "Skapa ny $t(common:roadmap_version_one) i en befintlig $t(common:meta_roadmap_one)",
+  "create_meta_roadmap_one": "Skapa ny $t(common:meta_roadmap_one)",
+  "create_version_in_meta_roadmap_one": "Skapa ny $t(common:roadmap_version_one) i en befintlig $t(common:meta_roadmap_one)",
   "toggle_menu_alt": "Växla meny",
   "sidebar": {
     "my_profile": "Mitt konto",
@@ -15,7 +15,7 @@
     "handle_data": "Hantera min data",
     "my_posts": "Mina inlägg",
     "user_posts": "{{name, possessive, titleCase}} inlägg",
-    "meta_roadmaps": "{{$t(common:meta_roadmap_other), titleCase}}",
+    "meta_roadmap_ones": "{{$t(common:meta_roadmap_other), titleCase}}",
     "version_count_one": "{{count}} version",
     "version_count_other": "{{count}} versioner",
     "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
@@ -33,7 +33,7 @@
   "roadmap_create": {
     "breadcrumb": "Skapa ny $t(common:roadmap_version_one)",
     "title": "Skapa en ny version i en $t(common:meta_roadmap_one)",
-    "bad_meta_roadmap": "Kunde inte hitta eller har inte tillgång till $t(common:meta_roadmap_definite) i länken.",
+    "bad_meta_roadmap_one": "Kunde inte hitta eller har inte tillgång till $t(common:meta_roadmap_definite_one) i länken.",
     "use_dropdown": "Använd dropdown-menyn för att välja en $t(common:meta_roadmap_one)."
   },
   "action": {
@@ -94,25 +94,25 @@
     "password_placeholder": "nytt lösenord",
     "submit": "Byt lösenord"
   },
-  "meta_roadmap_create": {
+  "meta_roadmap_one_create": {
     "breadcrumb": "Skapa ny $t(common:meta_roadmap_one)",
     "title": "Skapa ny $t(common:meta_roadmap_one)"
   },
   "roadmap_edit": {
     "breadcrumb": "Redigera $t(common:roadmap_version_one)",
     "title": "Redigera $t(common:roadmap_version_one)",
-    "are_you_in_the_right_place": "Menade du att redigera den gemensamma metadatan för hela $t(common:meta_roadmap_definite)? I så fall kan du <Link>gå hit</Link> för att redigera metadatan."
+    "are_you_in_the_right_place": "Menade du att redigera den gemensamma metadatan för hela $t(common:meta_roadmap_definite_one)? I så fall kan du <Link>gå hit</Link> för att redigera metadatan."
   },
-  "meta_roadmap": {
+  "meta_roadmap_one": {
     "title_legend": "{{$t(common:meta_roadmap_one), titleCase}}",
     "description_legend": "Metadata för en serie av $t(common:roadmap_version_other)",
     "external_resources": "Externa resurser",
     "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
     "create_roadmap_version": "Skapa ny $t(common:roadmap_version_one)"
   },
-  "meta_roadmap_edit": {
+  "meta_roadmap_one_edit": {
     "breadcrumb": "Redigera metadata",
-    "title": "Redigera metadata för $t(common:meta_roadmap_definite): {{name}}"
+    "title": "Redigera metadata för $t(common:meta_roadmap_definite_one): {{name}}"
   },
   "goal_create": {
     "breadcrumb": "Skapa ny $t(common:goal_one)",

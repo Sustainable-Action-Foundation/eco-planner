@@ -162,7 +162,7 @@ export default async function Page({
 
           {goal.links.length > 0 ?
             <>
-              <h3 className="margin-bottom-0 margin-top-200" style={{ fontSize: '1.25rem' }}>{t("pages:meta_roadmap.external_resources")}</h3>
+              <h3 className="margin-bottom-0 margin-top-200" style={{ fontSize: '1.25rem' }}>{t("pages:meta_roadmap_one.external_resources")}</h3>
               <ul>
                 {goal.links.map((link: { url: string, description: string | null }, index: number) =>
                   <li className="margin-block-25" key={index}>

@@ -1,8 +1,8 @@
 {
-  "meta_roadmap": {
+  "meta_roadmap_one": {
     "description_legend": "Beskriv din $t(common:meta_roadmap_one)",
-    "roadmap_series_name": "Namn för $t(common:meta_roadmap_definite)",
-    "roadmap_series_description": "Beskrivning av $t(common:meta_roadmap_definite)",
+    "roadmap_series_name": "Namn för $t(common:meta_roadmap_definite_one)",
+    "roadmap_series_description": "Beskrivning av $t(common:meta_roadmap_definite_one)",
     "actor_legend": "Välj ansvarig aktör",
     "roadmap_scope_label": "Typ av $t(common:meta_roadmap_one)",
     "no_chosen_roadmap_scope": "Välj en typ",
@@ -42,7 +42,7 @@
     "relationship_label": "{{$t(common:meta_roadmap_one), titleCase}} som detta är ett nytt inlägg i",
     "relationship_no_chosen": "Ingen $t(common:meta_roadmap_one) vald",
     "relationship_no_found": "Du verkar inte ha tillgång till några $t(common:meta_roadmap_other)",
-    "roadmap_target_label": "Version av $t(common:meta_roadmap_definite) {{targetName}} den här $t(common:meta_roadmap_definite) arbetar mot",
+    "roadmap_target_label": "Version av $t(common:meta_roadmap_definite_one) {{targetName}} den här $t(common:meta_roadmap_definite_one) arbetar mot",
     "roadmap_target_no_chosen": "Inget alternativ valt",
     "roadmap_target_always_latest": "Alltid senaste versionen",
     "roadmap_version_legend": "Beskriv $t(common:roadmap_version_definite_one)",

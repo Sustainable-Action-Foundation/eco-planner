@@ -128,7 +128,7 @@ export default async function Page({
         <nav>
           {displayedMetaRoadmaps.length > 0 ?
             <section className='margin-block-300'>
-              <h3 className='margin-top-0'>{t("pages:profile.meta_roadmaps")}</h3>
+              <h3 className='margin-top-0'>{t("pages:profile.meta_roadmap_ones")}</h3>
                 <ul className={`${styles.itemsList}`}>
                     {displayedMetaRoadmaps.map((metaRoadmap, index) =>
                       <li key={index}>

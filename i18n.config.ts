@@ -67,17 +67,32 @@ export function titleCase(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-export function relativeTime(time: Date, lng: string) {
+export function relativeTime(date: Date, lng: string) {
+  if (!date) {
+    console.error("No date provided for relative time calculation");
+    return "";
+  }
+  if (date.constructor.name !== "Date") {
+    console.error("Invalid date provided for relative time calculation");
+    return "";
+  }
+
   const relativeTime = new Intl.RelativeTimeFormat(lng);
 
-  const dayDelta = Math.round((time.getTime() - Date.now()) / (86_400_000));
-  const hourDelta = Math.round((time.getTime() - Date.now()) / (3_600_000));
-  const minuteDelta = Math.round((time.getTime() - Date.now()) / (60_000));
-  const secondDelta = Math.round((time.getTime() - Date.now()) / (1_000));
+  const dayDelta = Math.round((date.getTime() - Date.now()) / (86_400_000));
+  const hourDelta = Math.round((date.getTime() - Date.now()) / (3_600_000));
+  const minuteDelta = Math.round((date.getTime() - Date.now()) / (60_000));
+  const secondDelta = Math.round((date.getTime() - Date.now()) / (1_000));
+
+  if (isNaN(dayDelta) || isNaN(hourDelta) || isNaN(minuteDelta) || isNaN(secondDelta)) {
+    console.error("Invalid date provided for relative time calculation. NaN");
+    return "";
+  }
 
   if (Math.abs(dayDelta) > 0) return relativeTime.format(dayDelta, "days");
   if (Math.abs(hourDelta) > 0) return relativeTime.format(hourDelta, "hours");
   if (Math.abs(minuteDelta) > 0) return relativeTime.format(minuteDelta, "minutes");
   if (Math.abs(secondDelta) > 0) return relativeTime.format(secondDelta, "seconds");
+
   return relativeTime.format(secondDelta, "seconds");
 }

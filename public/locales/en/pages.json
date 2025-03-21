@@ -1,7 +1,7 @@
 {
   "home_title": "{{$t(common:roadmap_short_other), titleCase}}",
-  "create_meta_roadmap": "Create new $t(common:meta_roadmap)",
-  "create_version_in_meta_roadmap": "Create new $t(common:roadmap_version_one) in an existing $t(common:meta_roadmap)",
+  "create_meta_roadmap_one": "Create new $t(common:meta_roadmap_one)",
+  "create_version_in_meta_roadmap_one": "Create new $t(common:roadmap_version_one) in an existing $t(common:meta_roadmap_one)",
   "toggle_menu_alt": "Toggle menu",
   "sidebar": {
     "my_profile": "My account",
@@ -15,7 +15,7 @@
     "handle_data": "Data management",
     "my_posts": "My posts",
     "user_posts": "{{name, possessive, titleCase}} posts",
-    "meta_roadmaps": "{{$t(common:meta_roadmap), titleCase}}",
+    "meta_roadmap_ones": "{{$t(common:meta_roadmap_one), titleCase}}",
     "version_count_one": "{{count}} version",
     "version_count_other": "{{count}} versions",
     "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
@@ -25,7 +25,7 @@
     "title": "{{$t(common:roadmap_version_one), titleCase}}",
     "version": "{{$t(common:roadmap_version_one), titleCase}}",
     "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
-    "show_series": "Visit $t(common:meta_roadmap)",
+    "show_series": "Visit $t(common:meta_roadmap_one)",
     "edit_roadmap_version": "Edit $t(common:roadmap_version_one)",
     "featured_goals": "Featured $t(common:goal_other)",
     "all_goals": "All $t(common:goal_other)"
@@ -88,25 +88,25 @@
     "password_placeholder": "new password",
     "submit": "Change password"
   },
-  "meta_roadmap_create": {
-    "breadcrumb": "Create new $t(common:meta_roadmap)",
-    "title": "Create new $t(common:meta_roadmap)"
+  "meta_roadmap_one_create": {
+    "breadcrumb": "Create new $t(common:meta_roadmap_one)",
+    "title": "Create new $t(common:meta_roadmap_one)"
   },
   "roadmap_edit": {
     "breadcrumb": "Edit $t(common:roadmap_version_one)",
     "title": "Edit $t(common:roadmap_version_one)",
-    "are_you_in_the_right_place": "Did you mean to edit the entire $t(common:meta_roadmap_definite)? In that case, <Link>go here</Link> to edit the metadata."
+    "are_you_in_the_right_place": "Did you mean to edit the entire $t(common:meta_roadmap_definite_one)? In that case, <Link>go here</Link> to edit the metadata."
   },
-  "meta_roadmap": {
-    "title_legend": "{{$t(common:meta_roadmap), titleCase}}",
+  "meta_roadmap_one": {
+    "title_legend": "{{$t(common:meta_roadmap_one), titleCase}}",
     "description_legend": "Metadata for a series of $t(common:roadmap_version_other)",
     "external_resources": "External resources",
     "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
     "create_roadmap_version": "Create new $t(common:roadmap_version_one)"
   },
-  "meta_roadmap_edit": {
+  "meta_roadmap_one_edit": {
     "breadcrumb": "Edit metadata",
-    "title": "Edit metadata for $t(common:meta_roadmap_definite): {{name}}"
+    "title": "Edit metadata for $t(common:meta_roadmap_definite_one): {{name}}"
   },
   "goal_create": {
     "breadcrumb": "Create new $t(common:goal_one)",
@@ -155,8 +155,8 @@
   },
   "roadmap_create": {
     "breadcrumb": "Create new $t(common:roadmap_version_one)",
-    "title": "Create a new version in a $t(common:meta_roadmap)",
-    "bad_meta_roadmap": "Could not find or do not have access to $t(common:meta_roadmap_definite) in the link.",
-    "use_dropdown": "Use the dropdown menu to select a $t(common:meta_roadmap)."
+    "title": "Create a new version in a $t(common:meta_roadmap_one)",
+    "bad_meta_roadmap_one": "Could not find or do not have access to $t(common:meta_roadmap_definite_one) in the link.",
+    "use_dropdown": "Use the dropdown menu to select a $t(common:meta_roadmap_one)."
   }
 }
