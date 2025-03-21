@@ -11,9 +11,10 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import Image from "next/image";
 import { DataSeries, Goal } from "@prisma/client";
 
-export default async function Page({ params }: { params: { roadmapId: string } }) {
+export default async function Page(props: { params: Promise<{ roadmapId: string }> }) {
+  const params = await props.params;
   const [session, roadmap] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     getOneRoadmap(params.roadmapId)
   ]);
 

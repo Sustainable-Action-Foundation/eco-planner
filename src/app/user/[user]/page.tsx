@@ -11,13 +11,14 @@ import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import styles from './page.module.css' with { type: "css" }
 
-export default async function Page({
-  params,
-  searchParams
-}: {
-  params: { user: string },
-  searchParams: { [key: string]: string | string[] | undefined }
-}) {
+export default async function Page(
+  props: {
+    params: Promise<{ user: string }>,
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
 
   let username = params.user;
 
@@ -28,7 +29,7 @@ export default async function Page({
   }
 
   const [session, userdata] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     getUserInfo(username),
   ]);
 

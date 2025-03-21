@@ -16,7 +16,7 @@ import { cookies } from "next/headers";
  * @returns Array of roadmaps
  */
 export default async function getRoadmapSubset(actor?: string) {
-  const session = await getSession(cookies());
+  const session = await getSession(await cookies());
   return getCachedRoadmapSubset(session.user, actor);
 }
 

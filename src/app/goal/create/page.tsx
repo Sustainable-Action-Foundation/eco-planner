@@ -9,16 +9,17 @@ import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 
 
-export default async function Page({
-  searchParams
-}: {
-  searchParams: {
-    roadmapId?: string | string[] | undefined,
-    [key: string]: string | string[] | undefined
+export default async function Page(
+  props: {
+    searchParams: Promise<{
+      roadmapId?: string | string[] | undefined,
+      [key: string]: string | string[] | undefined
+    }>
   }
-}) {
+) {
+  const searchParams = await props.searchParams;
   const [session, roadmap, roadmapList] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     getOneRoadmap(typeof searchParams.roadmapId == 'string' ? searchParams.roadmapId : ''),
     getRoadmaps(),
   ]);

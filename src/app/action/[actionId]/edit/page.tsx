@@ -7,13 +7,14 @@ import getOneAction from "@/fetchers/getOneAction";
 import { AccessControlled, AccessLevel } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 
-export default async function Page({
-  params,
-}: {
-  params: { actionId: string },
-}) {
+export default async function Page(
+  props: {
+    params: Promise<{ actionId: string }>,
+  }
+) {
+  const params = await props.params;
   const [session, action] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     getOneAction(params.actionId)
   ]);
 

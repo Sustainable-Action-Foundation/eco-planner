@@ -9,7 +9,7 @@ import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
   const [session, requestJson] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     (request.json() as Promise<{ id: string }>).catch(() => null)
   ]);
 

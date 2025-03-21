@@ -8,10 +8,14 @@ import RoadmapFilters from "@/components/forms/filters/roadmapFilters";
 import { RoadmapSortBy } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree.tsx";
+import Link from "next/link";
 
-export default async function Page({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
+export default async function Page(
+  props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }
+) {
+  const searchParams = await props.searchParams;
   const [session, metaRoadmaps] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     getMetaRoadmaps(),
   ]);
 
@@ -114,7 +118,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
           { // Link to create roadmap form if logged in
             session.user &&
             <>
-              <a href="/metaRoadmap/create" className="button purewhite round block">Skapa ny färdplansserie</a>
+              <Link href="/metaRoadmap/create" className="button purewhite round block">Skapa ny färdplansserie</Link>
               {/* TODO: Incorporate this in a reasonable way */}
               {/* <a href="/roadmap/createRoadmap" className="button purewhite round block">Skapa ny version i en existerande serie</a> */}
             </>

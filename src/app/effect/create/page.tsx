@@ -9,17 +9,18 @@ import { AccessLevel } from "@/types.ts";
 import { cookies } from "next/headers";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: {
-    actionId?: string | string[] | undefined,
-    goalId?: string | string[] | undefined,
-    [key: string]: string | string[] | undefined
-  },
-}) {
+export default async function Page(
+  props: {
+    searchParams: Promise<{
+      actionId?: string | string[] | undefined,
+      goalId?: string | string[] | undefined,
+      [key: string]: string | string[] | undefined
+    }>,
+  }
+) {
+  const searchParams = await props.searchParams;
   const [session, action, goal, roadmaps] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     getOneAction(typeof searchParams.actionId == 'string' ? searchParams.actionId : ''),
     getOneGoal(typeof searchParams.goalId == 'string' ? searchParams.goalId : ''),
     getRoadmaps(),

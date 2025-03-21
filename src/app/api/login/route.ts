@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
   const { username, password, remember }: { username: string, password: string, remember?: boolean } = await request.json();
 
   // Create session, set maxAge if user toggled remember me
-  const session = await getSession(cookies(), remember ? {
+  const session = await getSession(await cookies(), remember ? {
     ...options,
     cookieOptions: {
       ...options.cookieOptions,

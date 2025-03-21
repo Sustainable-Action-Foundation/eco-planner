@@ -10,17 +10,18 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 
 const editAccess = [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin];
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: {
-    actionId?: string | string[] | undefined,
-    goalId?: string | string[] | undefined,
-    [key: string]: string | string[] | undefined
-  },
-}) {
+export default async function Page(
+  props: {
+    searchParams: Promise<{
+      actionId?: string | string[] | undefined,
+      goalId?: string | string[] | undefined,
+      [key: string]: string | string[] | undefined
+    }>,
+  }
+) {
+  const searchParams = await props.searchParams;
   const [session, effect, roadmaps] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     getOneEffect(typeof searchParams.actionId == 'string' ? searchParams.actionId : '', typeof searchParams.goalId == 'string' ? searchParams.goalId : ''),
     getRoadmaps(),
   ]);

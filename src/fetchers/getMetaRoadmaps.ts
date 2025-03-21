@@ -15,7 +15,7 @@ import { cookies } from "next/headers";
  * @returns Array of meta roadmaps
  */
 export default async function getMetaRoadmaps() {
-  const session = await getSession(cookies());
+  const session = await getSession(await cookies());
   return getCachedMetaRoadmaps(session.user);
 }
 

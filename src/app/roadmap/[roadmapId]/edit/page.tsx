@@ -8,9 +8,10 @@ import { AccessLevel } from "@/types";
 import Link from "next/link";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 
-export default async function Page({ params }: { params: { roadmapId: string } }) {
+export default async function Page(props: { params: Promise<{ roadmapId: string }> }) {
+  const params = await props.params;
   const [session, roadmap] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     getOneRoadmap(params.roadmapId),
   ]);
 

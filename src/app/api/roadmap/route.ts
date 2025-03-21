@@ -16,7 +16,7 @@ import { Prisma } from "@prisma/client";
  */
 export async function POST(request: NextRequest) {
   const [session, roadmap] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     request.json() as Promise<RoadmapInput & { goals?: GoalInput[] }>,
   ]);
 
@@ -199,7 +199,7 @@ export async function POST(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   const [session, roadmap] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     // The version number is not allowed to be changed
     request.json() as Promise<Omit<RoadmapInput, 'version'> & { goals?: GoalInput[], roadmapId: string, timestamp?: number }>,
   ]);
@@ -353,7 +353,7 @@ export async function PUT(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   const [session, roadmap] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     request.json() as Promise<{ id: string }>
   ]);
 
