@@ -52,6 +52,12 @@ export default function GraphGraph({
     }
   };
 
+  // TODO - link to specific table when possible
+  function getHistoricalDataLink(historicalData: ApiTableContent) {
+    const dataLink = externalDatasets[historicalData.metadata[0].source as keyof typeof externalDatasets].userFacingUrl;
+    return dataLink;
+  }
+
   return (
     <>
       <menu className="flex align-items-center gap-25 margin-0 margin-bottom-25 padding-0 flex-wrap-wrap">
@@ -70,7 +76,7 @@ export default function GraphGraph({
       </div>
       {historicalData && (
         <div>
-          Den historiska datan i grafen är hämtad från <Link href={externalDatasets[historicalData.metadata[0].source as keyof typeof externalDatasets].userFacingUrl} target="_blank">
+          Den historiska datan i grafen är hämtad från <Link href={getHistoricalDataLink(historicalData)} target="_blank">
             {// If the data source has a full name, display the full name. Otherwise display the 
               externalDatasets[historicalData.metadata[0].source as keyof typeof externalDatasets].fullName ? externalDatasets[historicalData.metadata[0].source as keyof typeof externalDatasets].fullName : historicalData.metadata[0].source}</Link>
         </div>
