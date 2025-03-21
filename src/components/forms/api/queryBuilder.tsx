@@ -2,7 +2,7 @@
 
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
 import formSubmitter from "@/functions/formSubmitter";
-import { ApiTableContent, ApiTableDetails, PxWebVariable, TrafaVariable } from "@/lib/api/apiTypes";
+import { ApiTableContent, ApiTableDetails, PxWebTimeVariable, PxWebVariable, TrafaVariable } from "@/lib/api/apiTypes";
 import getTableContent from "@/lib/api/getTableContent";
 import getTableDetails from "@/lib/api/getTableDetails";
 import getTables from "@/lib/api/getTables";
@@ -48,8 +48,8 @@ export default function QueryBuilder({
       if (key == "externalDataset") return;
       if (key == "externalTableId") return;
       if (key == tableSearchInputName) return;
-      // The time variable is special, as we want to fetch every period after (and including) the selected one
-      if (key == formRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
+      // The PxWeb time variable is special, as we want to fetch every period after (and including) the selected one
+      if (getDatasetKeysOfApis("PxWeb").includes(dataSource) && key == formRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
         queryObject.push({ variableCode: key, valueCodes: [`FROM(${value})`] });
         return;
       }
@@ -227,6 +227,36 @@ export default function QueryBuilder({
     )
   }
 
+  function timeVariableSelectionHelper(times: (TrafaVariable | PxWebTimeVariable)[], language: string) {
+    if ((dataSource == "Trafa" && !(times.length == 1 && times[0].name == "ar")) || (getDatasetKeysOfApis("PxWeb").includes(dataSource) && times.length > 1)) {
+      let heading = "";
+      let defaultValue = "";
+      let displayValueKey: keyof typeof times[0]/* "label" | "id" | "name" | "type" */ = "id"
+      if (dataSource == "Trafa") {
+        heading = "Välj tidsserie";
+        defaultValue = "Välj tidsserie";
+        displayValueKey = "label";
+      } else if (getDatasetKeysOfApis("PxWeb").includes(dataSource)) {
+        heading = "Välj startperiod";
+        defaultValue = "Välj tidsperiod";
+        displayValueKey = "id";
+      }
+      return (<label key="Tid" className="block margin-block-75">
+      {heading}
+      <select className={`block margin-block-25 TimeVariable`}
+        required={false}
+        name="Tid"
+        id="Tid"
+        defaultValue={times && times.length == 1 ? times[0].label : undefined}>
+        <option value="" className={`${styles.defaultOption}`}>{defaultValue}</option>
+        {times.map(time => (
+          <option key={time.name} value={time.name} lang={language}>{time[displayValueKey]}</option>
+        ))}
+      </select>
+    </label>)
+    }
+  }
+
   function shouldVariableFieldsetBeVisible(tableDetails: ApiTableDetails, dataSource: string) {
     const returnBool = (tableDetails.hierarchies.length > 0 || (!getDatasetKeysOfApis("PxWeb").includes(dataSource) && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1);
     return returnBool;
@@ -327,20 +357,8 @@ export default function QueryBuilder({
                       <legend className="padding-inline-50">
                         <strong>Välj värden för tabell</strong>
                       </legend>
-                      {tableDetails.times.length > 1 &&
-                        <label key="Tid" className="block margin-block-75">
-                          Välj startperiod
-                          <select className={`block margin-block-25 TimeVariable`}
-                            required={false}
-                            name="Tid"
-                            id="Tid"
-                            defaultValue={tableDetails.times && tableDetails.times.length == 1 ? tableDetails.times[0].label : undefined}>
-                            <option value="" className={`${styles.defaultOption}`}>Välj tidsperiod</option>
-                            {tableDetails.times.map(time => (
-                              <option key={time.name} value={time.name} lang={tableDetails.language}>{time.id}</option>
-                            ))}
-                          </select>
-                        </label>
+                      {tableDetails.times &&
+                        timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
                       }
                       {tableDetails.variables.map(variable => {
                         return variableSelectionHelper(variable, tableDetails);

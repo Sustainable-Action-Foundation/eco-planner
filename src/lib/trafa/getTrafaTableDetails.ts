@@ -2,34 +2,13 @@ import { ApiTableDetails, TrafaFilter, TrafaHierarchy, TrafaMetric, TrafaVariabl
 import { externalDatasets } from "../api/utility";
 import getTrafaTables from "./getTrafaTables";
 import { StructureItem } from "./trafaTypes";
+import { getTrafaSearchQueryString } from "./trafaUtility";
 
 export default async function getTrafaTableDetails(tableId: string, selection: { variableCode: string, valueCodes: string[] }[] = [], language: "sv" | "en" = "sv") {
-  // Helper function for generating a string that will be appended to searchParams of the url
-  function getSearchQueryString() {
-    const variableQueries: string[] = [];
-    let metric: string = "";
-    for (const object of selection) {
-      console.log(object);
-      if (object.variableCode == "metric") {
-        metric = object.valueCodes.join("|");
-      } else {
-        variableQueries.push([object.variableCode, object.valueCodes.join(",")].join(":"));
-      }
-    }
-    let searchQuery = "";
-    if (metric.length > 0) {
-      searchQuery += "|" + metric;
-    }
-    if (variableQueries.length > 0) {
-      searchQuery += "|" + variableQueries.join("|");
-    }
-    return searchQuery;
-  }
-
-  const searchQuery = getSearchQueryString();
+  const searchQuery = getTrafaSearchQueryString(selection);
 
   const url = new URL(`${externalDatasets.Trafa.baseUrl}/structure`);
-  url.searchParams.append('query', `${tableId}|ar${searchQuery}`);
+  url.searchParams.append('query', `${tableId}${searchQuery}`);
   language = "sv"
   if (language) url.searchParams.append("lang", language);
 
