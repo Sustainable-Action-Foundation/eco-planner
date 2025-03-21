@@ -52,16 +52,16 @@ export default function GraphGraph({
 
   return (
     <>
-      <menu className="flex align-items-center gap-25 margin-0 margin-bottom-25 padding-0 flex-wrap-wrap">
-        {/* TODO: Missing label */}
+      <h2 className="padding-bottom-50 margin-bottom-100" style={{borderBottom: '1px solid var(--gray)'}}>Målbana</h2>
+      <menu className="flex align-items-flex-end gap-25 margin-0 margin-bottom-25 padding-0 flex-wrap-wrap" >
         <GraphSelector goal={goal} currentSelection={graphType} setter={setGraphType} />
         <SecondaryGoalSelector />
         {children}
       </menu>
       {goal.name ? 
-        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{fontSize: '1rem'}}>{goal.name}</h2>
+        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{fontSize: '1.5rem'}}>{goal.name}</h2>
       : 
-        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{fontSize: '1rem'}}>{goal.indicatorParameter}</h2>
+        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{fontSize: '1.5rem'}}>{goal.indicatorParameter}</h2>
       }
       <div style={{ height: '500px',  paddingInline: '.3rem' }}>
         {graphSwitch(graphType)}

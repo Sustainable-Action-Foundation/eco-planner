@@ -143,7 +143,20 @@ export default async function Page({
           {goal.name ? (
             <>
               <small style={{color: 'gray'}}>Målbana</small>
-              <h1 className="margin-0" style={{fontSize: '3rem', lineHeight: '1'}}>{goal.name}</h1>
+              <div className="flex align-items-center justify-content-space-between">
+                <h1 className="margin-0" style={{fontSize: '3rem', lineHeight: '1'}}>{goal.name}</h1>
+                <label className="flex gap-50 align-items-center">
+                  <span className="font-weight-500">Meny</span>
+                  {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
+                    <TableMenu
+                      width={24}
+                      height={24}
+                      accessLevel={accessLevel}
+                      object={goal}
+                    />
+                  }
+                </label>
+              </div>
               <small style={{color: 'gray'}}>{goal.indicatorParameter}</small>
             </>
           ) :
@@ -173,31 +186,25 @@ export default async function Page({
 
         {secondaryGoal && <p className="margin-block-300">Jämför med målbanan {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
         <section className='margin-top-300'>
-          {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
-          <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects}>
-            <QueryBuilder goal={goal} />
-            {(goal.dataSeries?.id && session.user) ?
-              <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
-            : null}
-            {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-              <TableMenu
-                width={16}
-                height={16}
-                accessLevel={accessLevel}
-                object={goal}
-              />
+          <section style={{}}>
+            {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
+            <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects}>
+              <QueryBuilder goal={goal} />
+              {(goal.dataSeries?.id && session.user) ?
+                <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
+              : null}
+            </GraphGraph>
+
+            {goal.dataSeries?.scale &&
+              <>
+                <p>Alla värden i målbanan använder följande skala: {`"${goal.dataSeries?.scale}"`}</p>
+                {[AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel) &&
+                  <strong>Vänligen baka in skalan i värdet eller enheten; skalor kommer att tas bort i framtiden</strong>
+                }
+              </>
             }
-          </GraphGraph>
-
-          {goal.dataSeries?.scale &&
-            <>
-              <p>Alla värden i målbanan använder följande skala: {`"${goal.dataSeries?.scale}"`}</p>
-              {[AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel) &&
-                <strong>Vänligen baka in skalan i värdet eller enheten; skalor kommer att tas bort i framtiden</strong>
-              }
-            </>
-          }
-
+          </section>
+          
           <section className="margin-block-300">
             <div className="flex gap-100 flex-wrap-wrap align-items-center justify-content-space-between" style={{ borderBottom: '1px solid var(--gray)' }}>
               <h2 className='margin-bottom-100 padding-bottom-50'>
