@@ -120,6 +120,7 @@ export default function QueryBuilder({
     const changedElementIsTableSearch = event.target instanceof HTMLInputElement && (event.target as HTMLInputElement).name == "tableSearch";
     const changedElementIsTable = event.target instanceof HTMLInputElement && (event.target as HTMLInputElement).name == "externalTableId";
 
+    console.log(tableDetails);
     if (!changedElementIsExternalDataset && !changedElementIsTableSearch && !changedElementIsTable && tables && tableDetails) {
       tryGetResult();
     }
@@ -191,7 +192,7 @@ export default function QueryBuilder({
           getTableDetails(tableDetails?.id ?? "", dataSource, undefined, locale).then(result => { setTableDetails(result); });
         }
       }
-    }
+    } else console.log("no variable fieldset found");
   }
 
   function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) {
@@ -224,6 +225,17 @@ export default function QueryBuilder({
         </select>
       </label>
     )
+  }
+
+  function shouldVariableFieldsetBeVisible(tableDetails: ApiTableDetails, dataSource: string) {
+    const returnBool = (tableDetails.hierarchies.length > 0 || (!getDatasetKeysOfApis("PxWeb").includes(dataSource) && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1)
+    console.log(returnBool);
+    if (returnBool) {
+      console.log("hierarchies:", tableDetails.hierarchies.length > 0);
+      console.log("not pxweb & variable of option exists", (!getDatasetKeysOfApis("PxWeb").includes(dataSource) && tableDetails.variables.some(variable => variable.option)));
+      console.log("times:", tableDetails.times.length > 1);
+    }
+    return returnBool;
   }
 
   return (
@@ -315,43 +327,44 @@ export default function QueryBuilder({
 
                   </label>
                 </fieldset>
-                {(tableDetails.hierarchies.length > 0 || (!getDatasetKeysOfApis("PxWeb").includes(dataSource) && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1) ?
-                  (<fieldset id="variable-fieldset" disabled={true} className="margin-block-100 smooth padding-50" style={{ border: "1px solid var(--gray-90)" }}>
-                    <legend className="padding-inline-50">
-                      <strong>Välj värden för tabell</strong>
-                    </legend>
-                    {tableDetails.times.length > 1 &&
-                      <label key="Tid" className="block margin-block-75">
-                        Välj startperiod
-                        <select className={`block margin-block-25 TimeVariable`}
-                          required={false}
-                          name="Tid"
-                          id="Tid"
-                          defaultValue={tableDetails.times && tableDetails.times.length == 1 ? tableDetails.times[0].label : undefined}>
-                          <option value="" className={`${styles.defaultOption}`}>Välj tidsperiod</option>
-                          {tableDetails.times.map(time => (
-                            <option key={time.name} value={time.name} lang={tableDetails.language}>{time.id}</option>
-                          ))}
-                        </select>
-                      </label>
-                    }
-                    {tableDetails.variables.map(variable => {
-                      return variableSelectionHelper(variable, tableDetails);
-                    })}
-                    {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
-                      if (hierarchy.children?.some(variable => variable.option)) return (
-                        <label key={hierarchy.name} className="block margin-block-75">
-                          <strong>{hierarchy.label}</strong>
-                          {// TODO - indent all children
-                          }
-                          {hierarchy.children && hierarchy.children.map(variable => {
-                            return variableSelectionHelper(variable, tableDetails);
-                          })}
+                <fieldset id="variable-fieldset" disabled={true} className={`margin-block-100 smooth padding-50`} style={{ border: `${shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? "1px solid var(--gray-90)" : ""}` }}>
+                  {shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
+                    <>
+                      <legend className="padding-inline-50">
+                        <strong>Välj värden för tabell</strong>
+                      </legend>
+                      {tableDetails.times.length > 1 &&
+                        <label key="Tid" className="block margin-block-75">
+                          Välj startperiod
+                          <select className={`block margin-block-25 TimeVariable`}
+                            required={false}
+                            name="Tid"
+                            id="Tid"
+                            defaultValue={tableDetails.times && tableDetails.times.length == 1 ? tableDetails.times[0].label : undefined}>
+                            <option value="" className={`${styles.defaultOption}`}>Välj tidsperiod</option>
+                            {tableDetails.times.map(time => (
+                              <option key={time.name} value={time.name} lang={tableDetails.language}>{time.id}</option>
+                            ))}
+                          </select>
                         </label>
-                      )
-                    })}
-                  </fieldset>) : (<p>Det finns inga variabler</p>)
-                }
+                      }
+                      {tableDetails.variables.map(variable => {
+                        return variableSelectionHelper(variable, tableDetails);
+                      })}
+                      {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
+                        if (hierarchy.children?.some(variable => variable.option)) return (
+                          <label key={hierarchy.name} className="block margin-block-75">
+                            <strong>{hierarchy.label}</strong>
+                            {// TODO - indent all children
+                            }
+                            {hierarchy.children && hierarchy.children.map(variable => {
+                              return variableSelectionHelper(variable, tableDetails);
+                            })}
+                          </label>
+                        )
+                      })}
+                    </>) : (<p className={`${styles.defaultOption}`}>Det finns inga variabler</p>)}
+                </fieldset>
               </>
             )}
           </FormWrapper>
