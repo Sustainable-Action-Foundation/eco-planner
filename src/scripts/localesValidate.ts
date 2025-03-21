@@ -8,4 +8,8 @@
  *  - All keys used in the app exist in all locales.
  *  - Keys used in the app not directly referencing common namespace.
  *  - Values in common don't exist in other namespaces. Should reference common.
+ * 
+ * 
+ * Other todos:
+ *  - Handle failed loading of json better. Especially when changing locales.
  */
