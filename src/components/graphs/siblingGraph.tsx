@@ -104,6 +104,7 @@ export default function SiblingGraph({
           <Image src='/icons/chartArea.svg' alt='Byt graf' width={16} height={16} />
         </button>
       </menu>
+      <h2 className="text-align-center block font-weight-500 margin-block-200">Angränsande målbanor</h2>
       <div className="margin-bottom-25" style={{ height: '500px', paddingInline: '.3rem' }}>
         <WrappedChart
           key={"combinedGraph"}

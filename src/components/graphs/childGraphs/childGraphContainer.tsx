@@ -62,6 +62,7 @@ export default function ChildGraphContainer({
         </button>
         {children}
       </menu>
+      <h2 className="text-align-center block font-weight-500 margin-block-200">Målbanor som jobbar mot {goal.name ? `${goal.name}` : `${goal.indicatorParameter}`}</h2>
       <div className="margin-bottom-25" style={{ height: '500px' }}>
         {childGraphSwitch(childGraphType)}
       </div>

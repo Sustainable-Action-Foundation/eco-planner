@@ -125,9 +125,7 @@ export default async function Page({
   return (
     <>
       <Breadcrumb object={goal} />
-
       <main>
-
         {shouldUpdate &&
           <section 
             className="flex justify-content-space-between align-items-center margin-block-300 padding-25 rounded"
@@ -161,7 +159,7 @@ export default async function Page({
 
           {goal.links.length > 0 ?
             <>
-              <h3 className="margin-bottom-0 margin-top-200" style={{ fontSize: '1.25rem' }}>Externa resurser</h3>
+              <h3 className="margin-bottom-0 margin-top-200" >Externa resurser</h3>
               <ul>
                 {goal.links.map((link: { url: string, description: string | null }, index: number) =>
                   <li className="margin-block-25" key={index}>
@@ -223,7 +221,6 @@ export default async function Page({
 
         {childGoals.length > 0 ?
           <section className="margin-block-300">
-            <h2>Målbanor som jobbar mot {goal.name ? `${goal.name}` : `${goal.indicatorParameter}`}</h2>
             <ChildGraphContainer goal={goal} childGoals={childGoals} />
           </section>
           : null
@@ -231,7 +228,6 @@ export default async function Page({
 
         {findSiblings(roadmap, goal).length > 1 ?
           <section className="margin-block-300">
-            <h2>Angränsande målbanor</h2>
             <SiblingGraph roadmap={roadmap} goal={goal} />
           </section>
           : null
