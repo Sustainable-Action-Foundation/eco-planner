@@ -59,11 +59,11 @@ export default function GraphGraph({
         {children}
       </menu>
       {goal.name ? 
-        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{fontSize: '1.5rem'}}>{goal.name}</h2>
+        <h2 className="text-align-center block font-weight-500 margin-top-200" style={{fontSize: '1.5rem'}}>{goal.name}</h2>
       : 
-        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{fontSize: '1.5rem'}}>{goal.indicatorParameter}</h2>
+        <h2 className="text-align-center block font-weight-500 margin-top-200" style={{fontSize: '1.5rem'}}>{goal.indicatorParameter}</h2>
       }
-      <div style={{ height: '500px',  paddingInline: '.3rem' }}>
+      <div style={{ height: '500px'}}>
         {graphSwitch(graphType)}
       </div>
     </>

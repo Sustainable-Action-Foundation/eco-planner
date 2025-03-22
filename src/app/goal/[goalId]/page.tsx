@@ -218,9 +218,10 @@ export default async function Page({
               }
             </div>
 
+            <h3>Lista</h3>
             <EffectTable object={goal} accessLevel={accessLevel} />
 
-            <h3 className="margin-top-300">Tidslinje över åtgärder</h3>
+            <h3 className="margin-top-300 margin-bottom-0">Tidslinje</h3>
             <ActionGraph actions={goal.effects.map(effect => effect.action)} />
 
           </section>
