@@ -207,24 +207,36 @@ export default async function Page({
           </section>
           
           <section className="margin-block-300">
-            <div className="flex gap-100 flex-wrap-wrap align-items-center justify-content-space-between" style={{ borderBottom: '1px solid var(--gray)' }}>
-              <h3 className='margin-bottom-100 padding-bottom-50'>
-                Åtgärder för {goal.name ? `${goal.name}` : `${goal.indicatorParameter}`}
-              </h3>
-              {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
-                <div className="flex gap-50">
-                  <Link href={`/effect/create?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Koppla till en existerande åtgärd</Link>
-                  <Link href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Skapa ny åtgärd</Link>
-                </div>
-              }
-            </div>
+            <h3 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)'}}>
+              Åtgärder inom denna målbana
+            </h3>
+            {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
+              <menu className="margin-inline-0 margin-bottom-25 padding-0 flex justify-content-flex-end gap-25">
+                <Link 
+                  href={`/effect/create?goalId=${goal.id}`} 
+                  className="button smooth font-weight-500"
+                  style={{fontSize: '.75rem', padding: '.3rem .6rem'}}>
+                  Koppla till existerande åtgärd
+                </Link>
+                <Link 
+                  href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`}
+                  className="button smooth seagreen color-purewhite" 
+                  style={{fontSize: '.75rem', padding: '.3rem .6rem'}}>
+                  Skapa ny åtgärd
+                </Link>
+              </menu>
+            }
 
-            <h4>Lista</h4>
+            <h4>Alla åtgärder</h4>
+            {/* TODO: rename effectslist? */}
             <EffectTable object={goal} accessLevel={accessLevel} />
-
-            <h4 className="margin-top-300 margin-bottom-0">Tidslinje</h4>
-            <ActionGraph actions={goal.effects.map(effect => effect.action)} />
-
+            
+            <article className="smooth purewhite padding-inline-50 padding-bottom-25" style={{border: '1px solid var(--gray-90)'}}>
+              <h4 className="margin-top-200 margin-bottom-50 text-align-center font-weight-500">
+                Tidslinje över åtgärder inom {goal.name || goal.indicatorParameter}
+              </h4>
+              <ActionGraph actions={goal.effects.map(effect => effect.action)} />
+            </article>
           </section>
         </section>
 

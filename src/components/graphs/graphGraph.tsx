@@ -57,11 +57,11 @@ export default function GraphGraph({
         <SecondaryGoalSelector />
         {children}
       </menu>
-      <article className="smooth" style={{border: '1px solid var(--gray)', backgroundColor: 'white'}}>
+      <article className="smooth padding-inline-25 padding-bottom-50 purewhite" style={{border: '1px solid var(--gray)'}}>
         {goal.name ? 
-          <h3 className="text-align-center block font-weight-500 margin-top-200 margin-bottom-0">{goal.name}</h3>
+          <h3 className="text-align-center block font-weight-500 margin-top-200 margin-bottom-50">{goal.name}</h3>
         : 
-          <h3 className="text-align-center block font-weight-500 margin-top-200 margin-bottom-0">{goal.indicatorParameter}</h3>
+          <h3 className="text-align-center block font-weight-500 margin-top-200 margin-bottom-50">{goal.indicatorParameter}</h3>
         }
         {secondaryGoal && <p className="margin-block-0 margin-inline-auto text-align-center">Jämför med målbanan {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
         <div style={{ height: '500px'}}>

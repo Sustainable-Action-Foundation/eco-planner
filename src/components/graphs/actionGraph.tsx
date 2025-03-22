@@ -47,7 +47,7 @@ export default function ActionGraph({
         }
       },
       toolbar: {
-        show: false,
+        show: true,
       },
     },
     plotOptions: {
