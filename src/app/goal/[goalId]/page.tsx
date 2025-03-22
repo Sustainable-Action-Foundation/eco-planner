@@ -186,7 +186,8 @@ export default async function Page({
 
         {secondaryGoal && <p className="margin-block-300">Jämför med målbanan {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
         <section className='margin-top-300'>
-          <section style={{}}>
+          <h2 className="padding-bottom-50 margin-bottom-100" style={{borderBottom: '1px solid var(--gray)'}}>Målbana</h2>
+          <section>
             {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
             <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects}>
               <QueryBuilder goal={goal} />
@@ -207,9 +208,9 @@ export default async function Page({
           
           <section className="margin-block-300">
             <div className="flex gap-100 flex-wrap-wrap align-items-center justify-content-space-between" style={{ borderBottom: '1px solid var(--gray)' }}>
-              <h2 className='margin-bottom-100 padding-bottom-50'>
+              <h3 className='margin-bottom-100 padding-bottom-50'>
                 Åtgärder för {goal.name ? `${goal.name}` : `${goal.indicatorParameter}`}
-              </h2>
+              </h3>
               {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
                 <div className="flex gap-50">
                   <Link href={`/effect/create?goalId=${goal.id}`} className="button color-purewhite pureblack round font-weight-bold">Koppla till en existerande åtgärd</Link>
@@ -218,10 +219,10 @@ export default async function Page({
               }
             </div>
 
-            <h3>Lista</h3>
+            <h4>Lista</h4>
             <EffectTable object={goal} accessLevel={accessLevel} />
 
-            <h3 className="margin-top-300 margin-bottom-0">Tidslinje</h3>
+            <h4 className="margin-top-300 margin-bottom-0">Tidslinje</h4>
             <ActionGraph actions={goal.effects.map(effect => effect.action)} />
 
           </section>
