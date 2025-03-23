@@ -222,26 +222,30 @@ export default async function Page({
           </section>
           
           <section className="margin-block-300">
-            <h3 className='margin-bottom-100 padding-bottom-50 font-weight-600' style={{ borderBottom: '1px solid var(--gray)', fontSize: '1.1rem'}}>
-              Åtgärder inom denna målbana
-            </h3>
-            
-            {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
-              <menu className="margin-inline-0 margin-bottom-100 padding-0 flex justify-content-flex-end gap-25">
-                <Link 
-                  href={`/effect/create?goalId=${goal.id}`} 
-                  className="button smooth font-weight-500"
-                  style={{fontSize: '.75rem', padding: '.3rem .6rem'}}>
-                  Koppla till existerande åtgärd
-                </Link>
-                <Link 
-                  href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`}
-                  className="button smooth seagreen color-purewhite" 
-                  style={{fontSize: '.75rem', padding: '.3rem .6rem'}}>
-                  Skapa ny åtgärd
-                </Link>
-              </menu>
-            }
+            <div 
+              className='margin-bottom-100 padding-bottom-50 flex justify-content-space-between align-items-center gap-100 flex-wrap-wrap' 
+              style={{ borderBottom: '1px solid var(--gray)'}}>
+              <h3 className='margin-0 font-weight-600' style={{ fontSize: '1.1rem'}}>
+                Åtgärder inom denna målbana
+              </h3>
+              
+              {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
+                <menu className="margin-0 padding-0 flex justify-content-flex-end gap-25">
+                  <Link 
+                    href={`/effect/create?goalId=${goal.id}`} 
+                    className="button smooth font-weight-500"
+                    style={{fontSize: '.75rem', padding: '.3rem .6rem'}}>
+                    Koppla till existerande åtgärd
+                  </Link>
+                  <Link 
+                    href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`}
+                    className="button smooth seagreen color-purewhite" 
+                    style={{fontSize: '.75rem', padding: '.3rem .6rem'}}>
+                    Skapa ny åtgärd
+                  </Link>
+                </menu>
+              }
+            </div>
 
             {/* TODO: rename to effectslist? */}
             <EffectTable object={goal} accessLevel={accessLevel} />
