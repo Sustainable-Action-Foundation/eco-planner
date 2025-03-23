@@ -4,6 +4,8 @@ import { AccessLevel } from "@/types.ts";
 import { Action, Effect, Goal } from "@prisma/client";
 import Link from "next/link";
 import { TableMenu } from "./tableMenu/tableMenu.tsx";
+import Image from "next/image";
+import styles from "@/components/tables/tables.module.css" with { type: "css" };
 
 interface EffectTableComonProps {
   accessLevel?: AccessLevel,
@@ -41,17 +43,19 @@ export default function EffectTable({
   }
 
   return (
-    <ul className="margin-0 padding-0" style={{listStyle: 'none'}}>
+    <ul className={`${styles['roadmap-nav-ul']}`} style={{paddingInlineStart: '0'}}>
       {object.effects.map(effect => (
-        <li key={`${effect.actionId}_${effect.goalId}`}>
+        <li key={`${effect.actionId}_${effect.goalId}`} className="margin-block-75">
           <div className='flex justify-content-space-between align-items-center width-100'>
-            <img src="/icons/caret-right-gray.svg" alt="" width={24} height={24} className="margin-inline-25 padding-25" />
+            <Image src="/icons/caret-right-gray.svg" alt="" width={24} height={24} className="margin-inline-25 padding-25" />
             <a 
               href={(object as Action).isSufficiency != undefined ? `/goal/${effect.goalId}` : `/action/${effect.actionId}`}  
-              className="font-weight-500 color-pureblack text-decoration-none flex-grow-100 inline-block">
+              className="font-weight-500 color-pureblack text-decoration-none flex-grow-100 inline-block padding-25 smooth">
               <span>{effect.action?.name || effect.goal?.name || effect.goal?.indicatorParameter || "Namnlös effekt"}</span>
               <br />
-              <small className="color-gray">{effect.action?.startYear} - {effect.action?.endYear}</small>
+              {effect.action?.startYear && effect.action?.endYear ? (
+                <small className="color-gray">{effect.action?.startYear} - {effect.action?.endYear}</small>
+              ): null }
             </a>
             <TableMenu
               accessLevel={accessLevel}

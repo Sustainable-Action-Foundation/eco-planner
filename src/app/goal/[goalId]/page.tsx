@@ -160,7 +160,23 @@ export default async function Page({
               <small style={{color: 'gray'}}>{goal.indicatorParameter}</small>
             </>
           ) :
-            <h1 className="margin-0 text-align-center" style={{lineHeight: '1'}}>{goal.indicatorParameter}</h1>
+            <>
+              <small style={{color: 'gray'}}>Målbana</small>
+              <div className="flex align-items-center justify-content-space-between">
+                <h1 className="margin-0" style={{lineHeight: '1'}}>{goal.indicatorParameter}</h1>
+                <label className="flex gap-50 align-items-center">
+                  <span className="font-weight-500">Meny</span>
+                  {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
+                    <TableMenu
+                      width={24}
+                      height={24}
+                      accessLevel={accessLevel}
+                      object={goal}
+                    />
+                  }
+                </label>
+              </div>
+            </>
           } 
 
           {goal.description ? 
@@ -206,36 +222,40 @@ export default async function Page({
           </section>
           
           <section className="margin-block-300">
-            <h3 className='margin-bottom-100 padding-bottom-50 font-weight-600' style={{ borderBottom: '1px solid var(--gray)', fontSize: '1rem'}}>
+            <h3 className='margin-bottom-100 padding-bottom-50 font-weight-600' style={{ borderBottom: '1px solid var(--gray)', fontSize: '1.1rem'}}>
               Åtgärder inom denna målbana
             </h3>
             
             {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
-            <menu className="margin-inline-0 margin-bottom-100 padding-0 flex justify-content-flex-end gap-25">
-              <Link 
-                href={`/effect/create?goalId=${goal.id}`} 
-                className="button smooth font-weight-500"
-                style={{fontSize: '.75rem', padding: '.3rem .6rem'}}>
-                Koppla till existerande åtgärd
-              </Link>
-              <Link 
-                href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`}
-                className="button smooth seagreen color-purewhite" 
-                style={{fontSize: '.75rem', padding: '.3rem .6rem'}}>
-                Skapa ny åtgärd
-              </Link>
-            </menu>
+              <menu className="margin-inline-0 margin-bottom-100 padding-0 flex justify-content-flex-end gap-25">
+                <Link 
+                  href={`/effect/create?goalId=${goal.id}`} 
+                  className="button smooth font-weight-500"
+                  style={{fontSize: '.75rem', padding: '.3rem .6rem'}}>
+                  Koppla till existerande åtgärd
+                </Link>
+                <Link 
+                  href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`}
+                  className="button smooth seagreen color-purewhite" 
+                  style={{fontSize: '.75rem', padding: '.3rem .6rem'}}>
+                  Skapa ny åtgärd
+                </Link>
+              </menu>
             }
+
             {/* TODO: rename to effectslist? */}
             <EffectTable object={goal} accessLevel={accessLevel} />
-
-            {/* TODO: Re add
-              <h4 className="margin-top-300 margin-bottom-50 text-align-center font-weight-500">
-                Tidslinje över åtgärder inom {goal.name || goal.indicatorParameter}
-              </h4>
-              <ActionGraph actions={goal.effects.map(effect => effect.action)} />
-            */}
-
+            
+            {goal.effects.some(effect => effect.action.startYear || effect.action.endYear) &&
+              <>
+                <h4 className="margin-top-500 font-weight-500">
+                  Tidslinje
+                </h4>
+                <article className="smooth purewhite margin-bottom-500" style={{border: '1px solid var(--gray-90)'}}>
+                  <ActionGraph actions={goal.effects.map(effect => effect.action)} />
+                </article>
+              </>
+            }
           </section>
         </section>
 
