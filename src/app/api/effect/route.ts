@@ -158,7 +158,6 @@ export async function POST(request: NextRequest) {
     revalidateTag('action');
     revalidateTag('goal');
     // Return success
-    // TODO: Add location header to the response here and in the other methods
     return Response.json({ message: 'Effect created', actionId: newEffect.actionId, goalId: newEffect.goalId },
       { status: 201 }
     );

@@ -28,14 +28,18 @@ export default function GraphSelector({
   // Set the selectedOption as the context value
   return (
     <>
-      <select onChange={handleSelectChange} value={currentSelection} style={{ padding: '.3rem .5rem', borderRadius: '2px' }}>
-        <option value={GraphType.Main}>Målbana</option>
-        <option value={GraphType.Delta}>Årlig förändring</option>
-        { // Don't allow relative graph if the main graph is already percent or fraction
-          !percentAndFraction.includes(goal.dataSeries?.unit?.toLowerCase() ?? "") &&
-          <option value={GraphType.Relative}>Procentuell förändring</option>
-        }
-      </select>
+      <label className='font-weight-500'>
+        Visa
+        <select className='block margin-top-25' onChange={handleSelectChange} value={currentSelection} 
+          style={{ padding: '.3rem calc(.5rem * 2 + 20px) .3rem .5rem', borderRadius: '2px', backgroundSize: '20px', fontSize: '.75rem' }}>
+          <option value={GraphType.Main}>Målbana</option>
+          <option value={GraphType.Delta}>Årlig förändring</option>
+          { // Don't allow relative graph if the main graph is already percent or fraction
+            !percentAndFraction.includes(goal.dataSeries?.unit?.toLowerCase() ?? "") &&
+            <option value={GraphType.Relative}>Procentuell förändring</option>
+          }
+        </select>
+      </label>
     </>
   );
 }

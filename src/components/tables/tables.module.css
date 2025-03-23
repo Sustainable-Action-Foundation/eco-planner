@@ -82,21 +82,7 @@
 }
 
 /* Table styling*/
-
-.tableHeader {
-    background-color: var(--blue-20);
-    color: white;
-    border-radius: 3px 3px 0 0;
-    padding: 1rem;
-    z-index: 1;
-    position: relative;
-}
-
-.tableHeader>h2 {
-    margin: 0;
-    font-size: 1.25rem;
-}
-
+ 
 .table {
     table-layout: auto;
     width: 100%;
@@ -126,30 +112,9 @@
     border-bottom: 1px solid var(--gray);
 }
 
-
 .table tbody {
     background-color: #fefefe;
-}
-
-.newRoadmap {
-    color: white;
-    font-weight: bold;
-    text-decoration: none;
-}
-
-.newRoadmap:hover {
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-}
-
-/* Wrapper */
-
-.tableWrapper {
-    overflow-y: scroll;
-    min-height: 300px;
-    max-height: 500px;
-    scrollbar-width: none;
-}
+}  
 
 /* New styles as of: 2024-02-20 */
 
@@ -189,41 +154,63 @@
     -webkit-box-orient: vertical;
 }
 
-/* Table Settings */
+/* TODO: Clean this (temp while rewriting some code) */
 
-.settings {
-    position: relative;
-    display: grid;
-    transition: background-color .2s ease;
-    padding: .25rem;
-    border-radius: 9999px;
+.roadmap-nav-ul {
+    list-style: none;
+    padding-inline-start: calc(24px + (.25rem * 2));
+    margin: 0;
 }
 
-.settings:hover {
+.roadmap-nav-ul summary > div > img {
+    transition: background-color .1s ease, 
+                transform .1s ease-out;
+}
+
+.roadmap-nav-ul summary:focus {
+    outline: none;
+}
+
+.roadmap-nav-ul summary:focus-visible > div > img {
+    outline: 2px solid;
+}
+
+.roadmap-nav-ul summary:hover:not(:has(a:hover, span:hover)) > div > img {
+    background-color: rgba(225, 225, 235);
+}
+
+.roadmap-nav-ul details[open] > summary > div > img {
+    transform: rotate(90deg);
+}
+
+
+.roadmap-nav-ul li {
+    /* TODO: better solution, this creates space between links which is kinda annoying*/
+    margin-block: .25rem;
+}
+
+.roadmap-nav-ul li > div a, 
+.roadmap-nav-ul li > details a {
+    transition: background-color .2s ease-out;
+    color: black;
+}
+
+.roadmap-nav-ul li > div a:active, 
+.roadmap-nav-ul li > details a:active, 
+.roadmap-nav-ul li > div a:active .roadmap-information,
+.roadmap-nav-ul li > details a:active .roadmap-information,
+.roadmap-nav-ul li a:active small {
+    color: red;
+}
+
+.roadmap-nav-ul li > div a:hover, 
+.roadmap-nav-ul li > details a:hover {
     background-color: var(--gray-90);
 }
 
-.settings:has(input[type="checkbox"]:active) {
-    transform: scale(.95);
-}
-
-.settings > input[type="checkbox"] {
-    position: absolute;
-    top: 0;
-    left: 0;
-    opacity: 0;
-    width: 100%;
-    height: 100%;
-}
-
-.settingsContainer {
-    display: none;
-    padding: 1rem;
-    background-color: var(--gray-90);
-    border-radius: .5rem;
-    margin-bottom: 1rem;
-}
-
-.tableNav:has(input[type="checkbox"]:checked) ~ .settingsContainer {
-    display: block;
+.roadmap-nav-ul li > div a .roadmap-information, 
+.roadmap-nav-ul li > details a .roadmap-information {
+    color: gray; 
+    font-size: 12px;
+    text-transform: lowercase;
 }

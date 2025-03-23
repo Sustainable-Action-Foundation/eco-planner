@@ -101,6 +101,26 @@ export function goalSorterReverse(a: Goal, b: Goal) {
 }
 
 /**
+ * Sorts goals by their indicator parameter, mainly alphabetically but with some special cases
+ * If the parameters start the same way, the shorter one is placed first in order to place links (leaves) before branches in a tree (see: goalsToTree.ts and linkTree.tsx)
+ * @example "Example\\Parameter\\B" is placed before "Example\\Parameter\\A\\Test" because of length, even though "B" comes after "A" alphabetically
+ * @example "Example\\Test\\A" and "Example\\Parameter\\A\\Test" are sorted alphabetically because they don't have enough common parameters at the start
+ */
+export function goalSorterTree<T extends { indicatorParameter: string }>(a: T, b: T) {
+  const aLength = a.indicatorParameter.split('\\').length;
+  const bLength = b.indicatorParameter.split('\\').length;
+  const minLength = Math.min(aLength, bLength);
+  // Truncate the strings to be one section shorter than the shortest string
+  const aTrunc = a.indicatorParameter.split('\\').slice(0, (minLength - 1 || 1)).join('\\');
+  const bTrunc = b.indicatorParameter.split('\\').slice(0, (minLength - 1 || 1)).join('\\');
+  // Compare the truncated strings and sort by length if they are the same
+  if (aTrunc === bTrunc) {
+    return aLength - bLength || collator.compare(a.indicatorParameter, b.indicatorParameter);
+  }
+  return collator.compare(a.indicatorParameter, b.indicatorParameter);
+}
+
+/**
  * Sorts goals by their number of actions (most actions first).
  */
 export function goalSorterActionAmount<T extends { _count: { effects: number } }>(a: T, b: T) {

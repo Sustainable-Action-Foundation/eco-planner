@@ -77,10 +77,10 @@ export default function Login() {
 
         <input type="submit" value={'Logga in'} className="block font-weight-bold seagreen smooth color-purewhite margin-top-200" />
 
-        <p className="text-align-center padding-block-50 margin-bottom-100 margin-top-0">
-          Har du inget konto? <Link href='/signup'>Skapa konto</Link> <br />
-          <Link href='/verify'>Verifiera konto</Link> {/* TODO: Flytta denna till ens account page */}
-        </p>
+        <div className="flex gap-100 align-items-center justify-content-space-between alignt-items-center flex-wrap-wrap margin-block-100">
+          <span>Har du inget konto? <Link href='/signup'>Skapa konto</Link></span>
+          <Link href='/verify'>Verifiera mitt konto</Link>  
+        </div>
 
 
       </form>

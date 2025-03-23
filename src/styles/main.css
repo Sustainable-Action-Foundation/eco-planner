@@ -1,5 +1,33 @@
 /* custom (not yet added to semantic style sheets= */
 
+.font-style-normal {
+  font-style: normal;
+}
+
+.font-style-italic {
+  font-style: italic;
+}
+
+.font-style-oblique {
+  font-style: oblique;
+}
+
+.font-style-inherit {
+  font-style: inherit;
+}
+
+.font-style-initial {
+  font-style: initial;
+}
+
+.font-style-revert {
+  font-style: revert;
+}
+
+.font-style-unset {
+  font-style: unset;
+}
+
 .text-decoration-none {
   text-decoration: none;
 }

@@ -5,7 +5,6 @@ import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Goal, Roadmap } from "@prisma/client";
 import { useState } from "react";
-import styles from './graphs.module.css'
 import Image from "next/image";
 
 /**
@@ -91,23 +90,30 @@ export default function SiblingGraph({
   */
 
   return (siblings.length > 1 &&
-    <div>
-      <div className={styles.graphWrapper}>
-        <WrappedChart
-          key={"combinedGraph"}
-          options={chartOptions}
-          series={dataPoints}
-          type={isStacked ? 'area' : 'line'}
-          width="100%"
-          height="100%"
-        />
-      </div>
-      <menu className="margin-block-100 margin-0 padding-0">
-        <button className="call-to-action-primary display-flex align-items-center gap-50 transparent" style={{ width: 'fit-content', fontWeight: 'bold', fontSize: '1rem' }} type="button" onClick={() => setIsStacked(!isStacked)}>
-          Byt typ av graf
-          <Image src='/icons/chartArea.svg' alt='Byt graf' width={24} height={24} />
+    <>
+      <menu className="flex align-items-flex-end gap-25 margin-0 margin-block-25 padding-0 flex-wrap-wrap">
+        <button
+          className="flex align-items-center gap-50 transparent font-weight-500 gray-90"
+          style={{ width: 'fit-content', fontSize: '.75rem', padding: '.3rem .6rem' }}
+          type="button" onClick={() => setIsStacked(!isStacked)}
+        >
+          Byt graftyp
+          <Image src='/icons/chartArea.svg' alt='Byt graf' width={16} height={16} />
         </button>
       </menu>
-    </div>
+      <article className="smooth padding-inline-25 padding-bottom-50 purewhite" style={{border: '1px solid var(--gray)'}}> 
+        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{fontSize: '1rem'}}>Angränsande målbanor</h2>
+        <div style={{ height: '500px'}}>
+          <WrappedChart
+            key={"combinedGraph"}
+            options={chartOptions}
+            series={dataPoints}
+            type={isStacked ? 'area' : 'line'}
+            width="100%"
+            height="100%"
+          />
+        </div>
+      </article>
+    </>
   )
 }

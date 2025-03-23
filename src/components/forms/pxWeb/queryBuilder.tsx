@@ -119,9 +119,9 @@ export default function QueryBuilder({
 
   return (
     <>
-      <button type="button" className="transparent flex gap-50 round padding-50 font-weight-500" style={{ fontSize: '1rem', lineHeight: '1.5' }} onClick={() => openModal(modalRef)}>
+      <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: '.75rem', padding: '.3rem .6rem' }} onClick={() => openModal(modalRef)}>
         Lägg till historisk data
-        <Image src='/icons/chartAdd.svg' alt="" width={24} height={24} />
+        <Image src='/icons/chartAdd.svg' alt="" width={16} height={16} />
       </button>
       <dialog className={`smooth${styles.dialog}`} ref={modalRef} aria-modal style={{ border: '0', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25' }}>
         <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>

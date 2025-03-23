@@ -1,2 +1,2 @@
 /** The base URL. Includes the protocol (https/http) and the domain, without a trailing slash. */
-export const baseUrl = process.env.NODE_ENV === "production" ? "https://verktyg.koordineradklimatomställning.se" : "http://localhost:3000";
+export const baseUrl = process.env.BASE_URL || (process.env.NODE_ENV === "production" ? "https://verktyg.koordineradklimatomställning.se" : "http://localhost:3000");

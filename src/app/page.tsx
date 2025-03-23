@@ -127,7 +127,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
       <RoadmapFilters />
     </section>
 
-    <section>
+    <section className="margin-bottom-500">
       <RoadmapTree user={session.user ?? undefined} roadmaps={roadmaps} />
     </section>
   </>

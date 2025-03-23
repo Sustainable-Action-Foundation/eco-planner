@@ -261,12 +261,12 @@ async function main() {
     })
   )));
 
-  const users = await prisma.$transaction(Array(5).fill(null).map((_) => (
+  const users = await prisma.$transaction(Array(5).fill(null).map((_, index) => (
     prisma.user.create({
       data: {
-        username: lorem.generateWords(1),
+        username: `${lorem.generateWords(1)}-${index}`,
         password: hashedPassword,
-        email: `${lorem.generateWords(2).replace(" ", ".")}@example.com`,
+        email: `${lorem.generateWords(2).replace(" ", ".")}+${index}@example.com`,
         isAdmin: false,
         isVerified: true,
       }

@@ -10,7 +10,6 @@ import { getStoredGoalSortBy, getStoredViewMode, setStoredGoalSortBy } from "./f
 import Link from "next/link"
 import Image from "next/image"
 import styles from './tables.module.css'
-import GraphCookie from "../cookies/graphCookie"
 import type getOneRoadmap from "@/fetchers/getOneRoadmap.ts"
 
 /** Enum for the different view modes for the goal table. */
@@ -91,15 +90,7 @@ export default function Goals({
           (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
           <Link className="button round color-purewhite pureblack font-weight-500" href={`/goal/create?roadmapId=${roadmap.id}`}>Skapa ny målbana</Link>
         }
-        <div className={styles.settings}>
-          <input type="checkbox" />
-          <Image src="/icons/settings.svg" alt="Inställningar" width="24" height="24" />
-        </div>
       </menu>
-
-      <div className={styles.settingsContainer}>
-        <GraphCookie />
-      </div>
 
       {/* TODO: Probably not correct to handle loading as a default state? */}
       {/* TODO: Probably use a skeleton for the loading state */}
