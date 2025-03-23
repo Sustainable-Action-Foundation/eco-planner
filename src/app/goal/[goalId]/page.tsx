@@ -184,7 +184,6 @@ export default async function Page({
             : null}
         </section>
 
-        {secondaryGoal && <p className="margin-block-300">Jämför med målbanan {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
         <section className='margin-top-300'>
           <h2 className="padding-bottom-50 margin-bottom-100" style={{borderBottom: '1px solid var(--gray)'}}>Målbana</h2>
           <section>
@@ -207,41 +206,44 @@ export default async function Page({
           </section>
           
           <section className="margin-block-300">
-            <h3 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)'}}>
+            <h3 className='margin-bottom-100 padding-bottom-50 font-weight-600' style={{ borderBottom: '1px solid var(--gray)', fontSize: '1rem'}}>
               Åtgärder inom denna målbana
             </h3>
-            {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
-              <menu className="margin-inline-0 margin-bottom-25 padding-0 flex justify-content-flex-end gap-25">
-                <Link 
-                  href={`/effect/create?goalId=${goal.id}`} 
-                  className="button smooth font-weight-500"
-                  style={{fontSize: '.75rem', padding: '.3rem .6rem'}}>
-                  Koppla till existerande åtgärd
-                </Link>
-                <Link 
-                  href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`}
-                  className="button smooth seagreen color-purewhite" 
-                  style={{fontSize: '.75rem', padding: '.3rem .6rem'}}>
-                  Skapa ny åtgärd
-                </Link>
-              </menu>
-            }
-
-            <h4>Alla åtgärder</h4>
-            {/* TODO: rename effectslist? */}
-            <EffectTable object={goal} accessLevel={accessLevel} />
             
-            <article className="smooth purewhite padding-inline-50 padding-bottom-25" style={{border: '1px solid var(--gray-90)'}}>
-              <h4 className="margin-top-200 margin-bottom-50 text-align-center font-weight-500">
+            {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
+            <menu className="margin-inline-0 margin-bottom-100 padding-0 flex justify-content-flex-end gap-25">
+              <Link 
+                href={`/effect/create?goalId=${goal.id}`} 
+                className="button smooth font-weight-500"
+                style={{fontSize: '.75rem', padding: '.3rem .6rem'}}>
+                Koppla till existerande åtgärd
+              </Link>
+              <Link 
+                href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`}
+                className="button smooth seagreen color-purewhite" 
+                style={{fontSize: '.75rem', padding: '.3rem .6rem'}}>
+                Skapa ny åtgärd
+              </Link>
+            </menu>
+            }
+            {/* TODO: rename to effectslist? */}
+            <EffectTable object={goal} accessLevel={accessLevel} />
+
+            {/* TODO: Re add
+              <h4 className="margin-top-300 margin-bottom-50 text-align-center font-weight-500">
                 Tidslinje över åtgärder inom {goal.name || goal.indicatorParameter}
               </h4>
               <ActionGraph actions={goal.effects.map(effect => effect.action)} />
-            </article>
+            */}
+
           </section>
         </section>
 
         {childGoals.length > 0 ?
           <section className="margin-block-300">
+            <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)'}}>
+              Målbanor som jobbar mot {goal.name || goal.indicatorParameter}
+            </h2>
             <ChildGraphContainer goal={goal} childGoals={childGoals} />
           </section>
           : null
@@ -249,6 +251,9 @@ export default async function Page({
 
         {findSiblings(roadmap, goal).length > 1 ?
           <section className="margin-block-300">
+            <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)'}}>
+              Angränsande målbanor
+            </h2>
             <SiblingGraph roadmap={roadmap} goal={goal} />
           </section>
           : null

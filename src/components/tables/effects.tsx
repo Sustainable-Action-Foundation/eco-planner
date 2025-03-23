@@ -5,9 +5,6 @@ import { Action, Effect, Goal } from "@prisma/client";
 import Link from "next/link";
 import { TableMenu } from "./tableMenu/tableMenu.tsx";
 
-/* Probably should have a cleaner way of importing this */
-import styles from '../../app/user/[user]/page.module.css' with { type: "css" }
-
 interface EffectTableComonProps {
   accessLevel?: AccessLevel,
   object: (Action | Goal) & {
@@ -44,21 +41,22 @@ export default function EffectTable({
   }
 
   return (
-    <ul className={`${styles.itemsList}`}>
+    <ul className="margin-0 padding-0" style={{listStyle: 'none'}}>
       {object.effects.map(effect => (
         <li key={`${effect.actionId}_${effect.goalId}`}>
-          <div className="width-100" style={{verticalAlign: 'middle'}}>
-            <div className='flex justify-content-space-between'>
-              <a 
-                href={(object as Action).isSufficiency != undefined ? `/goal/${effect.goalId}` : `/action/${effect.actionId}`}  
-                className="font-weight-500 color-pureblack text-decoration-none flex-grow-100 inline-block">
-                {effect.action?.name || effect.goal?.name || effect.goal?.indicatorParameter || "Namnlös effekt"}
-              </a>
-              <TableMenu
-                accessLevel={accessLevel}
-                object={effect}
-              />
-            </div>
+          <div className='flex justify-content-space-between align-items-center width-100'>
+            <img src="/icons/caret-right-gray.svg" alt="" width={24} height={24} className="margin-inline-25 padding-25" />
+            <a 
+              href={(object as Action).isSufficiency != undefined ? `/goal/${effect.goalId}` : `/action/${effect.actionId}`}  
+              className="font-weight-500 color-pureblack text-decoration-none flex-grow-100 inline-block">
+              <span>{effect.action?.name || effect.goal?.name || effect.goal?.indicatorParameter || "Namnlös effekt"}</span>
+              <br />
+              <small className="color-gray">{effect.action?.startYear} - {effect.action?.endYear}</small>
+            </a>
+            <TableMenu
+              accessLevel={accessLevel}
+              object={effect}
+            />
           </div>
         </li>
       ))}

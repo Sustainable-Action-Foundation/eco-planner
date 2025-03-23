@@ -90,31 +90,30 @@ export default function SiblingGraph({
   */
 
   return (siblings.length > 1 &&
-    <div className="smooth purewhite" style={{ border: '1px solid var(--gray)' }}>
-      <menu
-        className="flex align-items-center gap-25 margin-0 padding-0 flex-wrap-wrap"
-        style={{ borderBottom: '1px solid var(--gray-90)', padding: '2px' }}
-      >
+    <>
+      <menu className="flex align-items-flex-end gap-25 margin-0 margin-block-25 padding-0 flex-wrap-wrap">
         <button
-          className="display-flex align-items-center gap-50 transparent"
-          style={{ width: 'fit-content', fontWeight: 'bold', fontSize: '.75rem', padding: '.3rem .6rem' }}
+          className="flex align-items-center gap-50 transparent font-weight-500 gray-90"
+          style={{ width: 'fit-content', fontSize: '.75rem', padding: '.3rem .6rem' }}
           type="button" onClick={() => setIsStacked(!isStacked)}
         >
           Byt graftyp
           <Image src='/icons/chartArea.svg' alt='Byt graf' width={16} height={16} />
         </button>
       </menu>
-      <h2 className="text-align-center block font-weight-500 margin-block-200">Angränsande målbanor</h2>
-      <div className="margin-bottom-25" style={{ height: '500px', paddingInline: '.3rem' }}>
-        <WrappedChart
-          key={"combinedGraph"}
-          options={chartOptions}
-          series={dataPoints}
-          type={isStacked ? 'area' : 'line'}
-          width="100%"
-          height="100%"
-        />
-      </div>
-    </div>
+      <article className="smooth padding-inline-25 padding-bottom-50 purewhite" style={{border: '1px solid var(--gray)'}}> 
+        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{fontSize: '1rem'}}>Angränsande målbanor</h2>
+        <div style={{ height: '500px'}}>
+          <WrappedChart
+            key={"combinedGraph"}
+            options={chartOptions}
+            series={dataPoints}
+            type={isStacked ? 'area' : 'line'}
+            width="100%"
+            height="100%"
+          />
+        </div>
+      </article>
+    </>
   )
 }

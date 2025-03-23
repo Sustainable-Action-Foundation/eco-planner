@@ -52,7 +52,7 @@ export default function GraphGraph({
 
   return (
     <>
-      <menu className="flex align-items-flex-end gap-25 margin-0 margin-block-25 padding-0 flex-wrap-wrap" >
+      <menu className="flex align-items-flex-end gap-25 margin-0 margin-block-25 padding-0 flex-wrap-wrap">
         <GraphSelector goal={goal} currentSelection={graphType} setter={setGraphType} />
         <SecondaryGoalSelector />
         {children}
