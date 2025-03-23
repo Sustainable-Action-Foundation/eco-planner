@@ -143,7 +143,7 @@ export default async function Page({
           {goal.name ? (
             <>
               <small style={{color: 'gray'}}>Målbana</small>
-              <div className="flex align-items-center justify-content-space-between">
+              <div className="flex align-items-center justify-content-space-between gap-100">
                 <h1 className="margin-0" style={{fontSize: '3rem', lineHeight: '1'}}>{goal.name}</h1>
                 <label className="flex gap-50 align-items-center">
                   <span className="font-weight-500">Meny</span>
