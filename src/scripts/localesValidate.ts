@@ -21,30 +21,56 @@ import fs from "node:fs";
 import path from "node:path";
 import { colors } from "./lib/colors.ts";
 
+/** Where to find the locale files */
 const localesDir = "public/locales";
+/** Which folder to search for files with locale accesses */
+const localeUsersDir = "src"
+/** Expected namespaces */
 const expectedNS = ns;
 const expectedLocales = uniqueLocales;
+
+
+/** 
+ * Tests:
+ *  - English as a fallback
+ *    - En has all expected NS. If more than expected, inform.
+ *    - En has all or equal keys to the sum of all other locales. Inform which locale if it has more.
+ *  - All locales have all expected NS.
+ *  - All locales have less or equal keys to English. Else, inform.
+ *  - All keys are snake_case.
+ *  - All keys are used in the app.
+ *  - Kist all common keys in pages or components.
+ */
 
 /** Does every supported locale have a corresponding folder in the locales directory? */
 async function TestLocalesDir() {
   const localeDirs = glob.sync(`${localesDir}/*/`);
   const localeNames = localeDirs.map((dir) => dir.split(/\/|\\/g).at(-1));
   const exactMatch = localeNames.every((name) => expectedLocales.includes(name as Locales));
+  const unused = expectedLocales.filter((lng) => !localeNames.includes(lng));
+
+  assertWarn(unused.length === 0,
+    `There are unused locales. Remove or include: [ ${unused.join(", ")}]`,
+    "",
+  );
+
   assert(exactMatch,
     `There is not a locales directory for every supported locale. Missing: [ ${expectedLocales.filter((lng) => !localeNames.includes(lng)).join(", ")}]`,
-    "All supported locales have a directory in the locales folder"
+    "All supported locales have a directory in the locales folder",
   );
 }
 
 /** Does every namespace exist in every locale? */
-async function TestNameSpaceFiles() {
-  const nsFiles = glob.sync(`${localesDir}/*/*.json`);
-  const nsNames = nsFiles.map((file) => path.basename(file, ".json"));
-  const exactMatch = nsNames.every((name) => expectedNS.includes(name));
-  assert(exactMatch,
-    `There is not a namespace file for every supported namespace in every locale. Missing: [ ${expectedNS.filter((ns) => !nsNames.includes(ns)).join(", ")}]`,
-    "All supported namespaces exist in every locale"
-  );
+async function TestNamespaceFiles() {
+  expectedLocales.forEach((locale) => {
+    expectedNS.forEach((namespace) => {
+      const file = `${localesDir}/${locale}/${namespace}.json`;
+      assert(fs.existsSync(file),
+        `Missing namespace file: ${file}`,
+        ""
+      );
+    });
+  });
 }
 
 /** Does english have all keys to function as a fallback? */
@@ -119,8 +145,10 @@ async function TestSnakeCase() {
   );
 }
 
+
+/** Run all tests */
 TestLocalesDir();
-TestNameSpaceFiles();
+TestNamespaceFiles();
 TestLocaleKeyCompleteness();
 TestSnakeCase();
 
@@ -160,12 +188,12 @@ function getResolvedKeys(locale: Locales, namespace: string) {
 }
 
 /** Assert with error and exit */
-function assert(condition: boolean, badMessage: string, goodMessage: string) {
+function assert(condition: boolean, badMessage: string, goodMessage?: string) {
   if (!condition) {
     console.error("❌ ", badMessage);
     process.exit(1);
   }
-  else {
+  else if (goodMessage) {
     console.info(
       { _color: colors.green },
       "✔ ", goodMessage
@@ -173,11 +201,11 @@ function assert(condition: boolean, badMessage: string, goodMessage: string) {
   }
 }
 /** Warn instead of erroring out */
-function assertWarn(condition: boolean, badMessage: string, goodMessage: string) {
+function assertWarn(condition: boolean, badMessage: string, goodMessage?: string) {
   if (!condition) {
     console.warn("❕", badMessage);
   }
-  else {
+  else if (goodMessage) {
     console.info("ｉ", goodMessage);
   }
 }
