@@ -82,7 +82,7 @@ export default function GoalTable({
         <thead>
           <tr>
             <th>{t("components:goal_table.goal_name")}</th>
-            <th>{t("components:goal_table.LEAP_parameter")}</th>
+            <th>{t("components:goal_table.leap_parameter")}</th>
             <th>{t("components:goal_table.unit")}</th>
             <th>{t("components:goal_table.action_count")}</th>
           </tr>

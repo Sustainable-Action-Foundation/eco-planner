@@ -129,7 +129,7 @@
   "goal_table": {
     "no_goals": "Du har inte tillgång till några $t(common:goal_other) i denna $t(common:roadmap_version_one), eller så är $t(common:roadmap_version_definite_one) tom.",
     "goal_name": "Målbannamn",
-    "LEAP_parameter": "LEAP-parameter",
+    "leap_parameter": "LEAP-parameter",
     "unit": "Enhet",
     "action_count": "Antal $t(common:action_other)"
   },

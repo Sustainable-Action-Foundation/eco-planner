@@ -3,6 +3,7 @@ import { ClientLocales } from "./clientSideLocales";
 import { ServerLocales } from "./serverSideLocales";
 import { KeysColumn } from "./keysColumn";
 import { ns } from "i18n.config";
+import { CounterScript } from "./missingKeysCounter";
 
 type LocaleJSON = NestedLocaleJSON | string;
 interface NestedLocaleJSON {
@@ -48,7 +49,14 @@ export default async function LocaleTestPage() {
       <h1>{t("test:title")}</h1>
       <p>{t("test:description", { args: "{ count: 17, date: new Date(Date.now() - 10000) }" })}</p>
 
-      <p><small>{t("test:keys_found", { count: allKeys.length })}</small></p>
+      <div className="flex flex-inline">
+        {/* Key count */}
+        <p data-testid="key-counter"><small>{t("test:keys_found", { count: allKeys.length })}</small></p>
+        {/* Server NOT FOUND and EMPTY STRING */}
+        <p data-testid="server-counter"><small></small></p>
+        {/* Client NOT FOUND and EMPTY STRING */}
+        <p data-testid="client-counter"><small></small></p>
+      </div>
 
       <div id="locales-table">
         <h3 className="col-1 row-1">{t("test:keys")}</h3>
@@ -106,11 +114,16 @@ export default async function LocaleTestPage() {
             opacity: 0.5;
           }
 
-          &>p:nth-child(even) {
+          &>p[data-odd="true"] {
             background-color: #f1f1f1;
           }
         }
       `}</style>
+
+      <CounterScript
+        notFoundText={t("test:not_found")}
+        emptyStringText={t("test:empty_string")}
+      />
     </div>
   );
 }

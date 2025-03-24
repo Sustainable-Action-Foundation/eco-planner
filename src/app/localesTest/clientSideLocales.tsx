@@ -26,6 +26,8 @@ export function ClientLocales({ allKeys, className = "" }: { allKeys: string[], 
 
       return (
         <p
+          data-odd={index % 2 === 0}
+          data-testid="client-locale"
           key={key}
           className={className}
           style={{ gridRow: index + 2, color: textColor, fontWeight }}

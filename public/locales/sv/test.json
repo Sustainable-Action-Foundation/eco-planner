@@ -4,8 +4,10 @@
   "server_side": "Server-side",
   "client_side": "Client-side",
   "keys": "Nycklar (en)",
-  "keys_found_one": "{{count}} nyckel hittades",
-  "keys_found_other": "{{count}} nycklar hittades",
+  "keys_found_one": "Totalt: {{count}} nyckel hittades",
+  "keys_found_other": "Totalt: {{count}} nycklar hittades",
   "empty_string": "[TOM STRÄNG]",
-  "not_found": "[HITTAS EJ]"
+  "not_found": "[HITTAS EJ]",
+  "server": "Server:",
+  "client": "Klient:"
 }

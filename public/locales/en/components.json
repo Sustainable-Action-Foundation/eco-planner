@@ -129,7 +129,7 @@
   "goal_table": {
     "no_goals": "You do not have access to any $t(common:goal_other) in this $t(common:roadmap_version_one), or $t(common:roadmap_version_definite_one) lacks $t(common:goal_other).",
     "goal_name": "{{$t(common:goal_one), titleCase}} name",
-    "LEAP_parameter": "LEAP parameter",
+    "leap_parameter": "LEAP parameter",
     "unit": "Unit",
     "action_count": "{{$t(common:action_other), titleCase}}"
   },

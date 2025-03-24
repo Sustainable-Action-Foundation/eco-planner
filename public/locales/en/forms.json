@@ -37,6 +37,7 @@
     "scale_deprecated_extended": "$t(forms:roadmap.scale_deprecated) If the column contains any scales, please bake them into the unit or value instead. Example: unit 'MW' rather than unit 'kW' with scale 'thousand'.",
     "roadmap_version_creation_error": "{{$t(common:roadmap_version_definite_one), titleCase}} could not be created.\n\nReason:\n {{error}}",
     "file_read_error": "The file could not be read: {{error}}",
+    "unknown_error": "Unknown error",
     "relationship_legend": "Specify the relationship to other posts",
     "relationship_label": "{{$t(common:meta_roadmap_one), titleCase}} that this is a new post in",
     "relationship_no_chosen": "No $t(common:meta_roadmap_one) chosen",

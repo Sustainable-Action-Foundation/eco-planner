@@ -4,8 +4,10 @@
   "server_side": "Server side",
   "client_side": "Client side",
   "keys": "Keys (en)",
-  "keys_found_one": "{{count}} key found",
-  "keys_found_other": "{{count}} keys found",
+  "keys_found_one": "Total: {{count}} key found",
+  "keys_found_other": "Total: {{count}} keys found",
   "empty_string": "[EMPTY STRING]",
-  "not_found": "[NOT FOUND]"
+  "not_found": "[NOT FOUND]",
+  "server": "Server:",
+  "client": "Client:"
 }

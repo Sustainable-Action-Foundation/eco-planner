@@ -26,6 +26,8 @@ export async function ServerLocales({ allKeys, className = "" }: { allKeys: stri
 
       return (
         <p
+          data-odd={index % 2 === 0}
+          data-testid="server-locale"
           key={key}
           className={className}
           style={{ gridRow: index + 2, color: textColor, fontWeight }}
