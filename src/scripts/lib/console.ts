@@ -9,20 +9,30 @@ const consoleColors: { [key: string]: (text: string) => string; } = {
   info: (text: string) => colors.blue(text),
   error: (text: string) => colors.red(colors.bold(text)),
   warn: (text: string) => colors.yellow(colors.bold(text)),
-  debug: (text: string) => colors.cyanBright(colors.italic(text))
+  debug: (text: string) => colors.cyanBright(colors.italic(text)),
 };
 
 /* Apply modification */
 for (const [key, colorFunc] of Object.entries(consoleColors)) {
   // @ts-expect-error - This is a valid method access
   console[key] = (...args: unknown[]) => {
+    let color = colorFunc;
+
+    /* Override color if first arg provides a color function */
+    // @ts-expect-error - It's fine
+    if (args?.[0]?._color) {
+      // @ts-expect-error - It's fine
+      color = args[0]._color;
+      args = args.slice(1);
+    }
+
     if (args.length === 1) {
       // @ts-expect-error - This is a valid method access
-      __console[key](colorFunc(styleByType(args[0], { index: 0, argCount: 1, breakLine: true })));
+      __console[key](color(styleByType(args[0], { index: 0, argCount: 1, breakLine: true })));
 
     } else {
       // @ts-expect-error - This is a valid method access
-      __console[key](...args.map((arg, index) => colorFunc(styleByType(arg, { index: index, argCount: args.length, breakLine: true }))));
+      __console[key](...args.map((arg, index) => color(styleByType(arg, { index: index, argCount: args.length, breakLine: true }))));
     }
   }
 }
