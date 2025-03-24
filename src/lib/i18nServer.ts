@@ -18,7 +18,6 @@ i18nServer
     },
   });
 i18nServer.changeLanguage(match([cookies().get("locale")?.value || ""], uniqueLocales, Locales.default));
-console.log("Server side i18n initialized with:", i18nServer.language);
 
 export function t(key: string | string[], options?: (TOptionsBase & $Dictionary) | undefined) {
   // Get locale from cookies

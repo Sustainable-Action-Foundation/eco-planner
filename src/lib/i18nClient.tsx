@@ -20,7 +20,6 @@ i18nClient
     },
   });
 i18nClient.changeLanguage(match([...navigator.languages], uniqueLocales, Locales.default));
-console.log("Client side i18n initialized with:", i18nClient.language);
 
 /** React component that wraps all translatable client side content */
 export default function I18nProvider(
