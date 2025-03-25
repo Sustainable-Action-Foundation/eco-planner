@@ -226,10 +226,11 @@ export default function QueryBuilder({
           required={!variable.optional}
           name={variable.name}
           id={variable.name}
-          defaultValue={getDatasetKeysOfApis("PxWeb").includes(dataSource) ? (
-            // If only one value is available, pre-select it
-            variable.values && variable.values.length == 1 ? variable.values[0].label : undefined
-          ) :
+          defaultValue={getDatasetKeysOfApis("PxWeb").includes(dataSource) ?
+            (// If only one value is available, pre-select it
+              variable.values && variable.values.length == 1 ? variable.values[0].label : undefined
+            )
+            :
             undefined
           }>
           { // If only one value is available, don't show a placeholder option
@@ -339,7 +340,7 @@ export default function QueryBuilder({
                   <div className="padding-25 smooth" style={{ border: "1px solid var(--gray-90)" }}>
                     <div className={styles.temporary}>
                       {tables && tables.map(({ tableId: id, label }) => (
-                        <label key={id} className={`${styles.tableSelect} block padding-block-25`}>
+                        <label id={`table${id}`} key={id} className={`${styles.tableSelect} block padding-block-25`}>
                           {label}
                           <input type="radio" value={id} name="externalTableId" onChange={e => handleTableSelect(e.target.value)} />
                         </label>
@@ -353,6 +354,9 @@ export default function QueryBuilder({
             {tableDetails && (
               // TODO - which inputs should be optional?
               <>
+                <label className="block margin-block-75">
+                  <strong>Vald tabell:</strong> {document.getElementById(`table${tableDetails.id}`)?.innerText}
+                </label>
                 <fieldset className="margin-block-100 smooth padding-50" style={{ border: "1px solid var(--gray-90)" }}>
                   <legend className="padding-inline-50">
                     <strong>Välj mätvärde för tabellen</strong>
