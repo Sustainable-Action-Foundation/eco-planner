@@ -3,7 +3,6 @@
  * This file contains shared resources for the client and server instances of i18next.
  */
 
-import { match } from "@formatjs/intl-localematcher";
 import { InitOptions, TFunction } from "i18next";
 
 export enum Locales {
@@ -18,7 +17,7 @@ export const ns = ["common", "forms", "components", "pages", "test",];
 export function initTemplate(t: TFunction): InitOptions {
   return {
     debug: false, // Set to true to get logs from i18next
-    // fallbackLng: Locales.default,
+    fallbackLng: Locales.default,
     supportedLngs: uniqueLocales,
     defaultNS: "common",
     ns: ns,
