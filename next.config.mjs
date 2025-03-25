@@ -2,11 +2,13 @@
  * @type {import('next').NextConfig}
  */
 const nextConfig = {
-  compiler: {
-    removeConsole: {
-      exclude: ['info', 'error', 'warn']
+  ...(process.env.NODE_ENV == "production" ? {
+    compiler: {
+      removeConsole: {
+        exclude: ['info', 'error', 'warn']
+      },
     }
-  },
+  } : {}),
   output: 'standalone',
   experimental: {
     instrumentationHook: true,
