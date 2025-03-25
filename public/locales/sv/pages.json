@@ -42,8 +42,8 @@
     "external_resources": "Externa resurser",
     "edit_action": "Redigera $t(common:action_one)",
     "edit_action_alt": "Redigera $t(common:action_one): {{actionName}}",
-    "expected_effect": "Förväntad effekt",
-    "no_effect": "Ingen angiven effekt",
+    "expected_effect": "Förväntad $t(common:effect_one)",
+    "no_effect": "Ingen angiven $t(common:effect_one)",
     "cost_efficiency": "Kostnadseffektivitet",
     "no_cost_efficiency": "Ingen angiven kostnadseffektivitet",
     "project_manager": "Projektledare",
@@ -117,7 +117,7 @@
   "goal_create": {
     "breadcrumb": "Skapa ny $t(common:goal_one)",
     "title": "Skapa ny $t(common:goal_one)",
-    "bad_roadmap": "Kunde inte hitta eller har inte tillgång till färdplansversionen i länken.\n\nAnvänd dropdown-menyn för att välja en färdplansversion att skapa målbanan under."
+    "bad_roadmap": "Kunde inte hitta eller har inte tillgång till $t(common:roadmap_version_definite_one) i länken.\n\nAnvänd dropdown-menyn för att välja en $t(common:roadmap_version_one) att skapa $t(common:goal_definite_one) under."
   },
   "action_create": {
     "breadcrumb": "Skapa ny $t(common:action_one)",

@@ -16,7 +16,7 @@
   },
   "roadmap_tree": {
     "no_meta_roadmap_ones": "Inga $t(common:meta_roadmap_other) hittades. Om du har några aktiva filter hittades inga $t(common:meta_roadmap_other) som matchar dem.",
-    "show_source_alt": "Visa underliggande färdplaner",
+    "show_source_alt": "Visa underliggande $t(common:roadmap_version_other)",
     "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
   },
   "user_filters": {
@@ -35,9 +35,9 @@
     "new_goal": "Ny $t(common:goal_one)",
     "new_action": "Ny $t(common:action_one)",
     "new_effect": "Ny $t(common:effect_one)",
-    "add_effect_from_existing_action": "Lägg till effekt från befintlig $t(common:action_one)",
+    "add_effect_from_existing_action": "Lägg till $t(common_effect_one) från befintlig $t(common:action_one)",
     "effect_missing_name": "Namn saknas",
-    "effect_from_action": "Effekt från {{source}}",
+    "effect_from_action": "{{$t(common:effect_one), titleCase}} från {{source}}",
     "button_aria": "Meny för {{component}}",
     "button_aria_alt": "namn saknas",
     "button_image_alt": "meny",
@@ -214,7 +214,7 @@
     "actions": "{{$t(common:action_other), titleCase}}"
   },
   "effects_table": {
-    "no_effects": "Det finns inga effekter att visa.",
+    "no_effects": "Det finns inga $t(common:effect_other) att visa.",
     "wanna_create_effect": "Vill du skapa en?",
     "create_new_effect": "Skapa ny $t(common:effect_one)"
   },

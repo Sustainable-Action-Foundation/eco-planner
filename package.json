@@ -49,6 +49,7 @@
     "eslint-config-next": "^14.2.15",
     "lorem-ipsum": "^2.0.8",
     "prisma": "^6.4.1",
+    "regexp.escape": "^2.0.1",
     "tsx": "^4.19.2"
   },
   "prisma": {

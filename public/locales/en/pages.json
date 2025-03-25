@@ -36,8 +36,8 @@
     "external_resources": "External resources",
     "edit_action": "Edit $t(common:action_one)",
     "edit_action_alt": "Edit $t(common:action_one): {{actionName}}",
-    "expected_effect": "Expected effect",
-    "no_effect": "No specified effect",
+    "expected_effect": "Expected $t(common:effect_other)",
+    "no_effect": "No specified $t(common:effect_other)",
     "cost_efficiency": "Cost efficiency",
     "no_cost_efficiency": "No specified cost efficiency",
     "project_manager": "Project manager",
@@ -111,7 +111,7 @@
   "goal_create": {
     "breadcrumb": "Create new $t(common:goal_one)",
     "title": "Create new $t(common:goal_one)",
-    "bad_roadmap": "Could not find or do not have access to the roadmap version in the link.\n\nUse the dropdown menu to select a roadmap version to create goals under."
+    "bad_roadmap": "Could not find or do not have access to the $t(common:roadmap_version_one) version in the link.\n\nUse the dropdown menu to select a $t(common:roadmap_version_one) to create $t(common:goal_other) under."
   },
   "action_create": {
     "breadcrumb": "Create new $t(common:action_one)",

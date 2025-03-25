@@ -1,18 +1,3 @@
-/*
- * Fun to see:
- *  - If all keys exist in all locales.
- *  - Collect all keys and make a page of them to visually inspect.
- * 
- * Things to test and validate:
- *  - All english base keys exist in all locales. (maybe default count key?)
- *  - All keys used in the app exist in all locales.
- *  - Keys used in the app not directly referencing common namespace.
- *  - Values in common don't exist in other namespaces. Should reference common.
- * 
- * 
- * Other todos:
- *  - Handle failed loading of json better. Especially when changing locales.
- */
 
 import "./lib/console.ts";
 import { Locales, ns, uniqueLocales } from "i18n.config.ts";
@@ -20,11 +5,13 @@ import { glob } from "glob";
 import fs from "node:fs";
 import path from "node:path";
 import { colors } from "./lib/colors.ts";
+// @ts-expect-error - It's cjs
+import escape from "regexp.escape"; // Polyfill for RegExp.escape. Not in node yet.
 
 /** Where to find the locale files */
 const localesDir = "public/locales";
 /** Which folder to search for files with locale accesses */
-const localeUsersDir = "src"
+const appDir = "src"
 /** Expected namespaces */
 const expectedNS = ns;
 const expectedLocales = uniqueLocales;
@@ -44,44 +31,63 @@ const expectedLocales = uniqueLocales;
 
 /** Does every supported locale have a corresponding folder in the locales directory? */
 async function TestLocalesDir() {
-  const localeDirs = glob.sync(`${localesDir}/*/`);
-  const localeNames = localeDirs.map((dir) => dir.split(/\/|\\/g).at(-1));
-  const exactMatch = localeNames.every((name) => expectedLocales.includes(name as Locales));
-  const unused = expectedLocales.filter((lng) => !localeNames.includes(lng));
+  const localeDirs = glob.sync(`${localesDir}/*/`)
+    .map(dir => path.basename(dir));
 
-  assertWarn(unused.length === 0,
-    `There are unused locales. Remove or include: [ ${unused.join(", ")}]`,
-    "",
+  const missingLocales = expectedLocales.filter(lng => !localeDirs.includes(lng));
+  const extraLocales = localeDirs.filter(lng => !expectedLocales.includes(lng as Locales));
+
+  assertWarn(extraLocales.length === 0,
+    `There are extra locale folders. Remove or implement them: [ ${extraLocales.join(", ")} ]`,
+    "Locales in locales folder are valid"
   );
 
-  assert(exactMatch,
-    `There is not a locales directory for every supported locale. Missing: [ ${expectedLocales.filter((lng) => !localeNames.includes(lng)).join(", ")}]`,
-    "All supported locales have a directory in the locales folder",
+  assertWarn(missingLocales.length === 0,
+    `There are missing locale folders. Add them: [ ${missingLocales.join(", ")} ]`,
+    "Found every expected locale folder"
   );
 }
 
 /** Does every namespace exist in every locale? */
-async function TestNamespaceFiles() {
+async function TestNamespaces() {
+  // Track missing and extra namespaces per locale
+  const perLocale: { [key: string]: { missing: string[], extra: string[] } }
+    = Object.fromEntries(expectedLocales.map(locale => [locale, { missing: [], extra: [] }]));
+
+  // Loop through all locales to find missing and extra namespaces
   expectedLocales.forEach((locale) => {
-    expectedNS.forEach((namespace) => {
-      const file = `${localesDir}/${locale}/${namespace}.json`;
-      assert(fs.existsSync(file),
-        `Missing namespace file: ${file}`,
-        ""
-      );
-    });
+    const files = glob.sync(`${localesDir}/${locale}/*.json`);
+    const namespaces = files.map(file => path.basename(file, ".json"));
+
+    const missingNS = expectedNS.filter(ns => !namespaces.includes(ns));
+    const extraNS = namespaces.filter(ns => !expectedNS.includes(ns));
+
+    perLocale[locale] = { missing: missingNS, extra: extraNS };
   });
+
+  const missingNS = Object.entries(perLocale).filter(([_, { missing }]) => missing.length > 0);
+  const extraNS = Object.entries(perLocale).filter(([_, { extra }]) => extra.length > 0);
+
+  assertWarn(missingNS.length === 0,
+    `Missing namespace files in locales: ${missingNS.map(([locale, { missing }]) => `\n  ${locale}: [ ${missing.join(", ")} ]`).join("")}`,
+    "No missing namespaces in any locale"
+  );
+
+  assertWarn(extraNS.length === 0,
+    `Extra namespace files in locales. Add or remove them: ${extraNS.map(([locale, { extra }]) => `\n  ${locale}: [ ${extra.join(", ")} ]`).join("")}`,
+    "No extra namespaces in any locale"
+  );
 }
 
 /** Does english have all keys to function as a fallback? */
-async function TestLocaleKeyCompleteness() {
+async function TestKeyCompleteness() {
   const enKeys = expectedNS.flatMap((namespace) => getResolvedKeys(Locales.en, namespace));
 
   // Track both types of missing keys
   const missingFromOtherLocales: Record<string, string[]> = {};
   const missingFromEnglish: Record<string, string[]> = {};
 
-  // Single loop through all locales
+  // Loop through all locales
   expectedLocales.forEach(locale => {
     const localeKeys = expectedNS.flatMap((namespace) => getResolvedKeys(locale, namespace));
 
@@ -115,7 +121,8 @@ async function TestLocaleKeyCompleteness() {
 
 /** Do all the keys follow snake case? */
 async function TestSnakeCase() {
-  const badKeysByLocale: Record<string, string[]> = {};
+  const perLocale: { [key: string]: string[] }
+    = Object.fromEntries(expectedLocales.map(locale => [locale, []]));
 
   expectedLocales.forEach((locale) => {
     expectedNS.forEach((namespace) => {
@@ -127,17 +134,16 @@ async function TestSnakeCase() {
         if (!parts) return;
 
         if (parts.some(part => !/^[a-z0-9_]+$/.test(part))) {
-          if (!badKeysByLocale[locale]) badKeysByLocale[locale] = [];
-          badKeysByLocale[locale].push(key);
+          perLocale[locale].push(key);
         }
       });
     });
   });
 
-  const totalBadKeys = Object.values(badKeysByLocale).flat().length;
+  const totalBadKeys = Object.values(perLocale).flat().length;
 
   assertWarn(totalBadKeys === 0,
-    `There are keys that are not snake_case: ${Object.entries(badKeysByLocale)
+    `There are keys that are not snake_case: ${Object.entries(perLocale)
       .filter(([_, keys]) => keys.length > 0)
       .map(([locale, keys]) => `\n  ${locale}: [ ${keys.join(", ")} ]`)
       .join("")}`,
@@ -145,12 +151,62 @@ async function TestSnakeCase() {
   );
 }
 
+/** Do namespaces use the values of common keys instead of referencing? */
+async function TestMissedUseOfCommon() {
+
+  const perLocale: { [key: string]: { [key: string]: string[] } }
+    = Object.fromEntries(expectedLocales.map(locale => [locale, {}]));
+
+  expectedLocales.forEach((locale) => {
+    const commonFile = fs.readFileSync(`${localesDir}/${locale}/common.json`, "utf-8");
+
+    try { JSON.parse(commonFile); }
+    catch (e) {
+      assert(false,
+        `Failed to parse ${localesDir}/${locale}/common.json with error ${e}`,
+        ""
+      );
+    }
+
+    const commonValues = getFlattenedValues(locale, "common");
+
+    expectedNS.forEach((namespace) => {
+      // Skip common namespace since that's what we're checking against
+      if (namespace === "common") return;
+
+      const values = getFlattenedValues(locale, namespace);
+
+      values.forEach(value => {
+        commonValues.forEach(commonValue => {
+
+          const escapedCommonValue = escape(commonValue);
+          const patterns = [
+            (text: string) => `\\s${text}\\s`, // Surrounding whitespace
+            (text: string) => `^${text}$`, // Only thing in string
+            (text: string) => `^${text}\\s`, // At start of string with whitespace after
+            (text: string) => `\\s${text}$`, // At end of string with whitespace before
+          ];
+          const regex = new RegExp(patterns.map(pattern => pattern(escapedCommonValue)).join("|"), "g");
+
+          if (value.match(regex)) {
+            if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
+            perLocale[locale][namespace].push(`[${commonValue}] > '${value}'`);
+          }
+        });
+      });
+    });
+  });
+
+  console.debug(perLocale);
+}
+
 
 /** Run all tests */
 TestLocalesDir();
-TestNamespaceFiles();
-TestLocaleKeyCompleteness();
+TestNamespaces();
+TestKeyCompleteness();
 TestSnakeCase();
+TestMissedUseOfCommon();
 
 
 /** Get all keys from a locale and namespace from the filesystem */
@@ -186,6 +242,38 @@ function getResolvedKeys(locale: Locales, namespace: string) {
 
   return noDefaultKeys;
 }
+/** Get all values from a locale and namespace from the filesystem */
+function getFlattenedValues(locale: Locales, namespace: string) {
+  const file = `${localesDir}/${locale}/${namespace}.json`;
+
+  try { JSON.parse(fs.readFileSync(file, "utf-8")); }
+  catch (e) {
+    assert(false,
+      `Failed to parse ${file} with error ${e}`,
+      ""
+    );
+  }
+
+  const nestedData = JSON.parse(fs.readFileSync(file, "utf-8"));
+
+  // Resolve all nested keys to [parent1].[..parentN].[key]
+  const extractNestedValues = (obj: LocaleJSON | null): string[] => {
+    // If leaf node, return key
+    if (typeof obj !== "object" || obj === null) {
+      return [obj || ""];
+    }
+
+    // Else, recurse into children
+    return Object.values(obj).flatMap(value => {
+      return extractNestedValues(value);
+    });
+  };
+
+  // Extract all keys with their full paths
+  const values = extractNestedValues(nestedData);
+
+  return values;
+}
 
 /** Assert with error and exit */
 function assert(condition: boolean, badMessage: string, goodMessage?: string) {
@@ -206,7 +294,10 @@ function assertWarn(condition: boolean, badMessage: string, goodMessage?: string
     console.warn("❕", badMessage);
   }
   else if (goodMessage) {
-    console.info("ｉ", goodMessage);
+    console.info(
+      { _color: colors.gray },
+      "ｉ", goodMessage
+    );
   }
 }
 

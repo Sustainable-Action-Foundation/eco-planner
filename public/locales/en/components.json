@@ -16,7 +16,7 @@
   },
   "roadmap_tree": {
     "no_meta_roadmap_ones": "No $t(common:meta_roadmap_one) found. If you have any filters active, no $t(common:meta_roadmap_one) were found that match them.",
-    "show_source_alt": "Show underlying roadmaps",
+    "show_source_alt": "Show underlying $t(common:roadmap_version_other)",
     "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
   },
   "user_filters": {
@@ -35,9 +35,9 @@
     "new_goal": "New $t(common:goal_one)",
     "new_action": "New $t(common:action_one)",
     "new_effect": "New $t(common:effect_one)",
-    "add_effect_from_existing_action": "Add effect from existing $t(common:action_one)",
+    "add_effect_from_existing_action": "Add $t(common:effect_one) from existing $t(common:action_one)",
     "effect_missing_name": "Name missing",
-    "effect_from_action": "Effect from {{source}}",
+    "effect_from_action": "{{$t(common:effect_one), titleCase}} from {{source}}",
     "button_aria": "Menu for {{component}}",
     "button_aria_alt": "Name missing",
     "button_image_alt": "menu",
@@ -214,7 +214,7 @@
     "actions": "{{$t(common:action_other), titleCase}}"
   },
   "effects_table": {
-    "no_effects": "There are no effects to display.",
+    "no_effects": "There are no $t(common:effect_other) to display.",
     "wanna_create_effect": "Do you want to create one?",
     "create_new_effect": "Create new $t(common:effect_one)"
   },
