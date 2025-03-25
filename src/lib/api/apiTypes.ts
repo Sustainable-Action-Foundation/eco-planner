@@ -18,7 +18,7 @@ export type ApiTableContent = {
 export type ApiTableDetails = {
   id: string,
   metrics: (TrafaMetric | PxWebMetric)[],
-  hierarchies: (TrafaHierarchy)[],
+  hierarchies?: (TrafaHierarchy)[],
   variables: (TrafaVariable | PxWebVariable)[],
   times: (TrafaVariable | PxWebTimeVariable)[],
   language: string,

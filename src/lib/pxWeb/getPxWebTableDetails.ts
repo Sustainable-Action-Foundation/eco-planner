@@ -32,7 +32,6 @@ export default async function getPxWebTableDetails(tableId: string, externalData
   const tableDetails: ApiTableDetails = {
     id: tableId,
     metrics: [],
-    hierarchies: [],
     variables: [],
     times: [],
     language: language,

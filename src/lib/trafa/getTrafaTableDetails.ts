@@ -135,7 +135,7 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
         tableDetails.metrics.push((pushItem as TrafaMetric));
       }
       if (item.Type == "H") {
-        tableDetails.hierarchies.push((pushItem as TrafaHierarchy));
+        tableDetails.hierarchies?.push((pushItem as TrafaHierarchy));
       }
       if (item.Type == "D" && item.DataType != "Time") {
         tableDetails.variables.push((pushItem as TrafaVariable));
