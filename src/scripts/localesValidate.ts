@@ -197,7 +197,12 @@ async function TestMissedUseOfCommon() {
     });
   });
 
-  console.debug(perLocale);
+  const totalBadKeys = Object.values(perLocale).flat().length;
+
+  assertWarn(totalBadKeys === 0,
+    `These locale files might be using duplicate values defined in common: ${JSON.stringify(perLocale, null, 1)}\nUse ctrl+shift+f to find the perpetrators.`,
+    ""
+  );
 }
 
 
