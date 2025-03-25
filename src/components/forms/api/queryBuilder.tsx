@@ -250,8 +250,8 @@ export default function QueryBuilder({
       let displayValueKey: keyof typeof times[0]/* "label" | "id" | "name" | "type" */ = "id";
       const variableIsOptional = times[0].optional;
       if (dataSource == "Trafa") {
-        heading = "Välj tidsserie";
-        defaultValue = "Välj tidsserie";
+        heading = "Välj tidsintervall";
+        defaultValue = "Välj tidsintervall";
         displayValueKey = "label";
       } else if (getDatasetKeysOfApis("PxWeb").includes(dataSource)) {
         heading = "Välj startperiod";
