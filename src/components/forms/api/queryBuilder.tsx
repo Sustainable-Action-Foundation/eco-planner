@@ -125,7 +125,10 @@ export default function QueryBuilder({
       }
     }
     // If not, make sure the submit button is disabled
-    else disableSubmitButton(); clearTableContent();
+    else {
+      disableSubmitButton();
+      clearTableContent();
+    }
   }
   function formChange(event: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
     const changedElementIsExternalDataset = event.target instanceof HTMLSelectElement && (event.target as HTMLSelectElement).name == "externalDataset";
