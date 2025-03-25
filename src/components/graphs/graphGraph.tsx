@@ -52,20 +52,22 @@ export default function GraphGraph({
 
   return (
     <>
-      <menu className="flex align-items-center gap-25 margin-0 margin-bottom-25 padding-0 flex-wrap-wrap">
-        {/* TODO: Missing label */}
+      <menu className="flex align-items-flex-end gap-25 margin-0 margin-block-25 padding-0 flex-wrap-wrap">
         <GraphSelector goal={goal} currentSelection={graphType} setter={setGraphType} />
         <SecondaryGoalSelector />
         {children}
       </menu>
-      {goal.name ? 
-        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{fontSize: '1rem'}}>{goal.name}</h2>
-      : 
-        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{fontSize: '1rem'}}>{goal.indicatorParameter}</h2>
-      }
-      <div style={{ height: '500px',  paddingInline: '.3rem' }}>
-        {graphSwitch(graphType)}
-      </div>
+      <article className="smooth padding-inline-25 padding-bottom-50 purewhite" style={{border: '1px solid var(--gray)'}}>
+        {goal.name ? 
+          <h3 className="text-align-center block font-weight-500 margin-top-200 margin-bottom-50">{goal.name}</h3>
+        : 
+          <h3 className="text-align-center block font-weight-500 margin-top-200 margin-bottom-50">{goal.indicatorParameter}</h3>
+        }
+        {secondaryGoal && <p className="margin-block-0 margin-inline-auto text-align-center">Jämför med målbanan {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
+        <div style={{ height: '500px'}}>
+          {graphSwitch(graphType)}
+        </div>
+      </article>
     </>
   );
 }

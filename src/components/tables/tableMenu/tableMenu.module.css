@@ -17,7 +17,6 @@
     border-radius: 9999px;
     border: none;
     padding: .25rem;
-    cursor: pointer;
     display: flex;
     align-items: center;
     transition: background-color .2s ease;
@@ -40,6 +39,7 @@
     z-index: 9999;
     border: 0;
     padding: .25rem;
+    margin-block: 1rem;
  }
 
 .menuHeading {

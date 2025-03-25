@@ -46,15 +46,12 @@ export default function ChildGraphContainer({
   };
 
   return (
-    <div className="smooth purewhite" style={{ border: '1px solid var(--gray)' }}>
-      <menu
-        className="flex align-items-center gap-25 margin-0 padding-0 flex-wrap-wrap"
-        style={{ borderBottom: '1px solid var(--gray-90)', padding: '2px' }}
-      >
+    <>
+      <menu className="flex align-items-flex-end gap-25 margin-0 margin-block-25 padding-0 flex-wrap-wrap" >
         <ChildGraphSelector goal={goal} currentSelection={childGraphType} setter={setChildGraphType} />
         <button 
-          className="display-flex align-items-center gap-50 transparent" 
-          style={{ width: 'fit-content', fontWeight: 'bold', fontSize: '.75rem', padding: '.3rem .6rem' }} 
+          className="display-flex align-items-center gap-50 gray-90 font-weight-500" 
+          style={{ width: 'fit-content', fontSize: '.75rem', padding: '.3rem .6rem' }} 
           type="button" onClick={() => setIsStacked(!isStacked)}
         >
           Byt graftyp
@@ -62,9 +59,14 @@ export default function ChildGraphContainer({
         </button>
         {children}
       </menu>
-      <div className="margin-bottom-25" style={{ height: '500px' }}>
-        {childGraphSwitch(childGraphType)}
-      </div>
-    </div>
+      <article className="smooth padding-inline-25 padding-bottom-50 purewhite" style={{border: '1px solid var(--gray)'}}>
+        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{fontSize: '1rem'}}>
+          Målbanor som jobbar mot {goal.name ? `${goal.name}` : `${goal.indicatorParameter}`}
+        </h2>
+        <div style={{ height: '500px' }}>
+          {childGraphSwitch(childGraphType)}
+        </div>
+      </article>
+    </>
   );
 }

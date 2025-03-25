@@ -276,9 +276,9 @@ export default function CopyAndScale({
     <>
       <button 
         type="button" 
-        className="seagreen color-purewhite smooth padding-block-50 padding-inline-100" 
+        className="seagreen color-purewhite smooth padding-block-50 padding-inline-100 smooth" 
         onClick={() => openModal(modalRef)}
-        style={{padding: '.3rem .6rem', borderRadius: '2px', fontSize: '.75rem'}}
+        style={{padding: '.3rem .6rem', fontSize: '.75rem'}}
       >
         Kopiera och skala
       </button>
