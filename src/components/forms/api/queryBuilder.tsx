@@ -86,6 +86,8 @@ export default function QueryBuilder({
     if (submitButton) {
       submitButton.removeAttribute("disabled");
       if (submitButton.classList.contains("hidden")) submitButton.classList.remove("hidden");
+      if (submitButton.classList.contains("height-0")) submitButton.classList.remove("height-0");
+      if (submitButton.classList.contains("padding-0")) submitButton.classList.remove("padding-0");
     }
   }
 
@@ -94,6 +96,8 @@ export default function QueryBuilder({
     if (submitButton) {
       submitButton.setAttribute("disabled", "true");
       if (!submitButton.classList.contains("hidden")) submitButton.classList.add("hidden");
+      if (!submitButton.classList.contains("height-0")) submitButton.classList.add("height-0");
+      if (!submitButton.classList.contains("padding-0")) submitButton.classList.add("padding-0");
     }
   }
 
@@ -202,7 +206,7 @@ export default function QueryBuilder({
   }
 
   function optionalTag(dataSource: string, variableIsOptional: boolean) {
-    if (getDatasetKeysOfApis("PxWeb").includes(dataSource) && variableIsOptional) return <i style={{ opacity: "50%" }}> - (valfri)</i>;
+    if (getDatasetKeysOfApis("PxWeb").includes(dataSource) && variableIsOptional) return <a className={`font-style-italic color-gray`}> - (valfri)</a>;
   }
 
   function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) {
@@ -355,7 +359,7 @@ export default function QueryBuilder({
                       id="metric"
                       defaultValue={undefined}
                       onChange={handleMetricSelect}>
-                      <option value="" className={`${styles.defaultOption}`}>Välj ett mätvärde</option>
+                      <option value="" className={`font-style-italic color-gray`}>Välj ett mätvärde</option>
                       {tableDetails.metrics && tableDetails.metrics.map(metric => (
                         <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
                       ))}
