@@ -12,7 +12,7 @@ import { getTrafaSearchQueryString } from "./trafaUtility.ts";
 export default async function getTrafaTableContent(tableId: string, selection: { variableCode: string, valueCodes: string[] }[], language?: "sv" | "en") {
   const searchQuery = getTrafaSearchQueryString(selection);
 
-  const url = new URL(`${externalDatasets.Trafa.baseUrl}/data`);
+  const url = new URL(`${externalDatasets.Trafa?.baseUrl}/data`);
   url.searchParams.append('query', tableId + searchQuery);
   language = "sv"
   if (language) url.searchParams.append('lang', language);

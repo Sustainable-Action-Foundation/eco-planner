@@ -23,7 +23,7 @@ export default function QueryBuilder({
   const locale = "sv";
 
   const [isLoading, setIsLoading] = useState(false);
-  const [dataSource, setDataSource] = useState<string>("" as keyof keyof typeof externalDatasets);
+  const [dataSource, setDataSource] = useState<string>("");
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
   const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
@@ -152,7 +152,7 @@ export default function QueryBuilder({
   }
 
   function handleSearch(query?: string) {
-    if (!externalDatasets[dataSource as keyof typeof externalDatasets].baseUrl) return;
+    if (!externalDatasets[dataSource]?.baseUrl) return;
 
     getTables(dataSource, query, locale).then(result => setTables(result));
   }
@@ -176,7 +176,7 @@ export default function QueryBuilder({
 
   function handleTableSelect(tableId: string) {
     console.time("tableSelect");
-    if (!externalDatasets[dataSource as keyof typeof externalDatasets].baseUrl) return;
+    if (!externalDatasets[dataSource]?.baseUrl) return;
     if (!tableId) return;
     clearTableContent();
     clearTableDetails();
@@ -312,9 +312,9 @@ export default function QueryBuilder({
                 </select>
                 {// Display warning message if the selected language is not supported by the api
                   (
-                    (externalDatasets[dataSource as keyof typeof externalDatasets])
+                    (externalDatasets[dataSource])
                     &&
-                    !(externalDatasets[dataSource as keyof typeof externalDatasets].supportedLanguages.includes(locale))
+                    !(externalDatasets[dataSource]?.supportedLanguages.includes(locale))
                   )
                   &&
                   <p style={{ color: "red" }}>{dataSource} stödjer inte ditt valda språk. Ett tillgängligt språk kommer att användas istället.</p>

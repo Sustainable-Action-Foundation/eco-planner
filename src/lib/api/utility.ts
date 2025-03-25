@@ -8,7 +8,7 @@
  * @param api Api is which api the dataset is using.
  * @param fullName Full name is the full name of the dataset as the key will usually be a shorthand for the full name.
  */
-export const externalDatasets: { [key: string]: { baseUrl: string, userFacingUrl: string, supportedLanguages: string[], api: string, fullName?: string } } = {
+export const externalDatasets: { [key: string]: { baseUrl: string, userFacingUrl: string, supportedLanguages: string[], api: string, fullName?: string } | undefined} = {
   "SCB": {
     baseUrl: "https://api.scb.se/ov0104/v2beta/api/v2",
     userFacingUrl: "https://www.statistikdatabasen.scb.se/pxweb/sv/ssd/",
@@ -33,7 +33,7 @@ export const externalDatasets: { [key: string]: { baseUrl: string, userFacingUrl
  * @param apiNames a string or an array of strings that represent the api(s) to filter by
  * @returns list of datasets that use specified api(s)
  */
-export function getDatasetKeysOfApis(apiNames: string | string[]): string[] { return typeof apiNames == "string" ? Object.keys(externalDatasets).filter(key => externalDatasets[key].api === apiNames) : Object.keys(externalDatasets).filter(key => apiNames.includes(externalDatasets[key].api)); }
+export function getDatasetKeysOfApis(apiNames: string | string[]): string[] { return typeof apiNames == "string" ? Object.keys(externalDatasets).filter(key => externalDatasets[key]?.api === apiNames) : Object.keys(externalDatasets).filter(key => apiNames.includes(externalDatasets[key]?.api as string)); }
 
 export function parsePeriod(period: string) {
   period = period.trim().toUpperCase();
