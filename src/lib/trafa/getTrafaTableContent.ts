@@ -73,12 +73,13 @@ export default async function getTrafaTableContent(tableId: string, selection: {
         key: [] as { columnId: string, value: string }[],
         values: [] as string[],
       };
+      const timeColumnIds = columns.filter(column => column.type == "t").map(column => column.id);
       const timeColumns = [];
       for (let i = 0; i < data.Cell.length; i++) {
-        if (!data.Cell[i].IsMeasure) {
+        if (timeColumnIds.includes(data.Cell[i].Column)/* !data.Cell[i].IsMeasure */) {
           timeColumns.push({ columnId: data.Cell[i].Column, value: data.Cell[i].Name });
         }
-        else {
+        else if (data.Cell[i].IsMeasure) {
           pushData.values.push(data.Cell[i].Value);
         }
       }
