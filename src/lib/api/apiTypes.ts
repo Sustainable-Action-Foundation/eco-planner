@@ -43,7 +43,7 @@ export type PxWebMetric = PxWebDetailItemBase & {
 export type PxWebVariable = PxWebDetailItemBase & {
   optional: boolean,
   option: boolean,
-  elimination: boolean, // This is whether the variable is required or not
+  elimination: boolean, // This is whether the variable is optional or not
   show: "value", // TODO - What is this and what are the other possible values?
   categoryNoteMandatory?: { [variableValueId: string]: { [arrayIndex: string]: boolean } }, // TODO - What is this for?
   values: PxWebVariableValue[],
@@ -55,7 +55,8 @@ export type PxWebVariableValue = PxWebDetailItemBase & {
 }
 
 export type PxWebTimeVariable = PxWebDetailItemBase & {
-  elimination: boolean, // This is whether the variable is required or not
+  optional: boolean,
+  elimination: boolean, // This is whether the variable is optional or not
   show: "value", // TODO - What is this and what are the other possible values?
 }
 

@@ -106,11 +106,17 @@ export default function QueryBuilder({
       const formData = new FormData(formRef.current);
       const query = buildQuery(formData); // This line is called before the form is cleared TODO - is this comment still relevant?
       const tableId = formData.get("externalTableId") as string ?? "";
-      getTableContent(tableId, dataSource, query, locale).then(result => { setTableContent(result); });
+      getTableContent(tableId, dataSource, query, locale).then(result => {
+        setTableContent(result);
+        if (result.data.length > 0) {
+          enableSubmitButton();
+        } else {
+          disableSubmitButton();
+        }
+      });
       if (dataSource == "Trafa") {
         getTableDetails(tableId, dataSource, query, locale).then(result => { setTableDetails(result); });
       }
-      enableSubmitButton();
     }
     // If not, make sure the submit button is disabled
     else disableSubmitButton(); clearTableContent();
@@ -195,10 +201,16 @@ export default function QueryBuilder({
     } else console.log("no variable fieldset found");
   }
 
+  function optionalTag(dataSource: string, variableIsOptional: boolean) {
+    if (getDatasetKeysOfApis("PxWeb").includes(dataSource) && variableIsOptional) return <i style={{ opacity: "50%" }}> - (valfri)</i>;
+  }
+
   function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) {
     if (variable.option) return (
       <label key={variable.name} className="block margin-block-75">
-        {variable.label[0].toUpperCase() + variable.label.slice(1)} {variable.optional && <i style={{ opacity: "50%" }}>- (valfri)</i>}
+        {// Only display "optional" tags if the data source provides this information
+        }
+        {variable.label[0].toUpperCase() + variable.label.slice(1)}{optionalTag(dataSource, variable.optional)}
         {// Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
         }
         <select className={`block margin-block-25 ${variable.label}`}
@@ -231,7 +243,8 @@ export default function QueryBuilder({
     if ((dataSource == "Trafa" && !(times.length == 1 && times[0].name == "ar")) || (getDatasetKeysOfApis("PxWeb").includes(dataSource) && times.length > 1)) {
       let heading = "";
       let defaultValue = "";
-      let displayValueKey: keyof typeof times[0]/* "label" | "id" | "name" | "type" */ = "id"
+      let displayValueKey: keyof typeof times[0]/* "label" | "id" | "name" | "type" */ = "id";
+      const variableIsOptional = times[0].optional;
       if (dataSource == "Trafa") {
         heading = "Välj tidsserie";
         defaultValue = "Välj tidsserie";
@@ -242,18 +255,18 @@ export default function QueryBuilder({
         displayValueKey = "id";
       }
       return (<label key="Tid" className="block margin-block-75">
-      {heading}
-      <select className={`block margin-block-25 TimeVariable`}
-        required={false}
-        name="Tid"
-        id="Tid"
-        defaultValue={times && times.length == 1 ? times[0].label : undefined}>
-        <option value="" className={`${styles.defaultOption}`}>{defaultValue}</option>
-        {times.map(time => (
-          <option key={time.name} value={time.name} lang={language}>{time[displayValueKey]}</option>
-        ))}
-      </select>
-    </label>)
+        {heading}{optionalTag(dataSource, variableIsOptional)}
+        <select className={`block margin-block-25 TimeVariable`}
+          required={false}
+          name="Tid"
+          id="Tid"
+          defaultValue={times && times.length == 1 ? times[0].label : undefined}>
+          <option value="" className={`${styles.defaultOption}`}>{defaultValue}</option>
+          {times.map(time => (
+            <option key={time.name} value={time.name} lang={language}>{time[displayValueKey]}</option>
+          ))}
+        </select>
+      </label>)
     }
   }
 
@@ -381,7 +394,7 @@ export default function QueryBuilder({
             )}
           </FormWrapper>
 
-          {tableContent ? (
+          {tableContent && tableContent.data.length > 0 ? (
             <div>
               <p>Ser detta rimligt ut? (visar max 5 värden)</p>
               <table>

@@ -61,6 +61,7 @@ export default async function getPxWebTableDetails(tableId: string, externalData
       id: timeVariableName,
       name: timeVariableName,
       label: pxWebItem.label,
+      optional: true,
       elimination: pxWebItem.extension.elimination,
       show: pxWebItem.extension.show,
     };
