@@ -200,7 +200,87 @@ async function TestMissedUseOfCommon() {
   const totalBadKeys = Object.values(perLocale).flat().length;
 
   assertWarn(totalBadKeys === 0,
-    `These locale files might be using duplicate values defined in common: ${JSON.stringify(perLocale, null, 1)}\nUse ctrl+shift+f to find the perpetrators.`,
+    `These locale files might be using duplicate values defined in common: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f to find the perpetrators.`,
+    ""
+  );
+}
+
+/** Are all the nested keys used in locale files defined? */
+function TestNestedKeysDefined() {
+
+  const nestedTFunctionRegex = /\$t\(([^\)]+)\)/gmu;
+
+  const perLocale: { [key: string]: { [key: string]: string[] } }
+    = Object.fromEntries(expectedLocales.map(locale => [locale, {}]));
+
+
+  expectedLocales.forEach((locale) => {
+    const allNamespaceKeys = expectedNS.flatMap((namespace) => getResolvedKeys(locale, namespace));
+
+    expectedNS.forEach((namespace) => {
+      // Skip checking common namespace
+      if (namespace === "common") return
+
+      const values = getFlattenedValues(locale, namespace).join("\n");
+
+      const tCalls = values.matchAll(nestedTFunctionRegex) || [];
+
+      tCalls.forEach(call => {
+        const [match, key] = call;
+
+        if (allNamespaceKeys.includes(key)) return;
+
+        if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
+        perLocale[locale][namespace].push(`[${key}] > '${match}'`);
+      });
+    });
+  });
+
+  const totalBadKeys = Object.values(perLocale).flat().length;
+
+  assertWarn(totalBadKeys === 0,
+    `These locale files have nested keys that are not defined: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f to find the perpetrators.`,
+    ""
+  );
+}
+
+/**  */
+function TestNestedKeysSyntax() {
+  const nestedTFunctionRegex = /\$t\(([^\)]+)\)/gmu;
+  const escapedRegexes = expectedNS.map(ns => escape(ns)).join("|");
+  const nsRegex = new RegExp(`^(${escapedRegexes}):`, "gm");
+
+  const perLocale: { [key: string]: { [key: string]: string[] } }
+    = Object.fromEntries(expectedLocales.map(locale => [locale, {}]));
+
+  expectedLocales.forEach((locale) => {
+    expectedNS.forEach((namespace) => {
+      // Skip checking common namespace
+      if (namespace === "common") return
+
+      const values = getFlattenedValues(locale, namespace).join("\n");
+
+      const tCalls = values.matchAll(nestedTFunctionRegex) || [];
+
+      tCalls.forEach(call => {
+        const [, key] = call;
+
+        if (!key.includes(":")) {
+          if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
+          perLocale[locale][namespace].push(`${key} - Missing namespace. Might be missing ':'`);
+        }
+        else if (!key.match(nsRegex)) {
+          if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
+          perLocale[locale][namespace].push(`${key} - Missing namespace`);
+        }
+      });
+    });
+  });
+
+  const totalBadKeys = Object.values(perLocale).flat().length;
+
+  assertWarn(totalBadKeys === 0,
+    `These locale files have nested keys that are not namespaced: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f to find the perpetrators.`,
     ""
   );
 }
@@ -212,6 +292,8 @@ TestNamespaces();
 TestKeyCompleteness();
 TestSnakeCase();
 TestMissedUseOfCommon();
+TestNestedKeysDefined();
+TestNestedKeysSyntax();
 
 
 /** Get all keys from a locale and namespace from the filesystem */
@@ -296,7 +378,7 @@ function assert(condition: boolean, badMessage: string, goodMessage?: string) {
 /** Warn instead of erroring out */
 function assertWarn(condition: boolean, badMessage: string, goodMessage?: string) {
   if (!condition) {
-    console.warn("❕", badMessage);
+    console.warn(colors.redBG("❕"), badMessage);
   }
   else if (goodMessage) {
     console.info(
