@@ -198,7 +198,8 @@
 .roadmap-nav-ul li > div a:active, 
 .roadmap-nav-ul li > details a:active, 
 .roadmap-nav-ul li > div a:active .roadmap-information,
-.roadmap-nav-ul li > details a:active .roadmap-information {
+.roadmap-nav-ul li > details a:active .roadmap-information,
+.roadmap-nav-ul li a:active small {
     color: red;
 }
 

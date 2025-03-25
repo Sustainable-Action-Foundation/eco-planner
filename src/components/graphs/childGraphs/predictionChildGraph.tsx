@@ -70,8 +70,9 @@ export default function PredictionChildGraph({
 
   // Early return if there is no data to compare
   if (dataPoints.length < 2) {
-    // TODO: Style this
-    return <p>Inga underliggande målbanor med effekter eller anpassade baslinjer hittades</p>;
+     return <b className="flex justify-content-center align-items-center font-weight-500 padding-inline-100" style={{width: '100%', height: '100%'}}>
+      Inga underliggande målbanor med effekter eller anpassade baslinjer hittades  
+    </b>
   }
 
   // If childSeries are lines, make them dashed
