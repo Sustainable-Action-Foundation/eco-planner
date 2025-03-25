@@ -11,7 +11,7 @@ export default async function getPxWebTables(externalDataset: string, searchQuer
   // Get the base URL for the external dataset, defaulting to SCB
   const baseUrl = externalDatasets[externalDataset as keyof typeof externalDatasets].baseUrl ?? externalDatasets.SCB.baseUrl;
   const url = new URL(`${baseUrl}/tables`);
-  
+
   if (searchQuery) url.searchParams.append('query', searchQuery);
   if (language) url.searchParams.append('lang', language);
   if (pageSize) url.searchParams.append('pageSize', pageSize.toString());

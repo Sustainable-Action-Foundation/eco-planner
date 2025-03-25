@@ -58,7 +58,7 @@ export default async function getTrafaTableContent(tableId: string, selection: {
       columns.push(pushColumn);
     }
     const timeColumns = columns.filter(column => column.type == "t").map(column => column.label);
-    returnTable.columns.push({id: "Tid", label: timeColumns[timeColumns.length - 1], type: "t"});
+    returnTable.columns.push({ id: "Tid", label: timeColumns[timeColumns.length - 1], type: "t" });
 
     columns.map(column => {
       if (column.type != "t") {
@@ -93,7 +93,7 @@ export default async function getTrafaTableContent(tableId: string, selection: {
           returnTable.data.push(pushData);
         }
       } else if (timeColumns.length == 1) {
-        pushData.key = [{columnId: "Tid", value: timeColumns[0].value}];
+        pushData.key = [{ columnId: "Tid", value: timeColumns[0].value }];
         returnTable.data.push(pushData);
       }
     }

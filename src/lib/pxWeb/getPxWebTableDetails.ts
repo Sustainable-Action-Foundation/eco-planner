@@ -1,5 +1,6 @@
-import { ApiTableDetails, PxWebMetric, PxWebTimeVariable, PxWebVariable, PxWebVariableValue } from "../api/apiTypes";
+import { ApiTableDetails } from "../api/apiTypes";
 import { externalDatasets } from "../api/utility";
+import { PxWebMetric, PxWebTimeVariable, PxWebVariable, PxWebVariableValue } from "./pxWebApiV2Types";
 
 export default async function getPxWebTableDetails(tableId: string, externalDataset: string, language: string = 'sv') {
   // Get the base URL for the external dataset, defaulting to SCB

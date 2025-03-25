@@ -2,11 +2,13 @@
 
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
 import formSubmitter from "@/functions/formSubmitter";
-import { ApiTableContent, ApiTableDetails, PxWebTimeVariable, PxWebVariable, TrafaVariable } from "@/lib/api/apiTypes";
+import { ApiTableContent, ApiTableDetails } from "@/lib/api/apiTypes";
 import getTableContent from "@/lib/api/getTableContent";
 import getTableDetails from "@/lib/api/getTableDetails";
 import getTables from "@/lib/api/getTables";
 import { externalDatasets, getDatasetKeysOfApis } from "@/lib/api/utility";
+import { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
+import { TrafaVariable } from "@/lib/trafa/trafaTypes";
 import { Goal } from "@prisma/client";
 import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";

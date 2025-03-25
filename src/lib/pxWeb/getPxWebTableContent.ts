@@ -1,10 +1,10 @@
 // Use server in order to circumvent CORS issues
 "use server"
 
-import { externalDatasets } from "../api/utility.ts";
-import { PxWebApiV2TableContent } from "./pxWebApiV2Types.ts";
 import { ApiTableContent } from "../api/apiTypes.ts";
+import { externalDatasets } from "../api/utility.ts";
 import getPxWebTableDetails from "./getPxWebTableDetails.ts";
+import { PxWebApiV2TableContent } from "./pxWebApiV2Types.ts";
 
 export default async function getPxWebTableContent(tableId: string, externalDataset: string, selection: { variableCode: string, valueCodes: string[] }[], language: string = 'sv',) {
   // Get the base URL for the external dataset, defaulting to SCB
@@ -47,7 +47,7 @@ export default async function getPxWebTableContent(tableId: string, externalData
       payload.selection.push(timeSelectionItem);
     }
   });
-  
+
   const timeSelectionItemInPayload = payload.selection.filter(item => item.variableCode == "Tid" || item.variableCode == "Time")[0];
   if (!timeSelectionItemInPayload) {
     // Get all time periods that are available for this table and add them to payload

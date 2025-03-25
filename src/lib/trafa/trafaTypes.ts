@@ -1,3 +1,5 @@
+import { ApiDetailItemBase } from "../api/apiTypes"
+
 export type TrafaDataResponse = {
   Header: {
     Column: {
@@ -72,8 +74,34 @@ export type StructureItem = {
   StructureItems: StructureItem[],
 }
 
-export type TrafaStructureResponse = {
-  DataCount: number,
-  StructureItems: StructureItem[],
-  ValidatedRequestType: string,
+// TODO - which types actually use description?
+export type TrafaDetailItemBase = ApiDetailItemBase & {
+  trafaId: number,
+  parentName: string | null,
+  selected: boolean, // TODO - What is this for?
+  option: boolean, // This indicates whether the item should be displayed or not
+  description: string,
+}
+
+export type TrafaMetric = TrafaDetailItemBase & { // Marked as "M"
+  dataType: "String",
+}
+
+export type TrafaHierarchy = TrafaDetailItemBase & { // Marked as "H"
+  dataType: "String" | "Region",
+  children?: TrafaVariable[],
+}
+
+export type TrafaVariable = TrafaDetailItemBase & { // Marked as "D"
+  dataType: "String" | "Time" | "Region",
+  optional: boolean,
+  values?: (TrafaVariable | TrafaVariableValue | TrafaFilter)[], // "Variable" children are not found in structure items array, they are found by marking another "Variable" as parent. This is not always the case when there are multiple variables under a hierarchy, but sometimes. Does not seem connected to how many variables are under a hierarchy.
+}
+
+export type TrafaVariableValue = TrafaDetailItemBase & { // Marked as "DV"
+  dataType: "String",
+}
+
+export type TrafaFilter = TrafaDetailItemBase & { // Marked as "F"
+  dataType: "String",
 }
