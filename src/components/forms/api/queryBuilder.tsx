@@ -35,11 +35,15 @@ export default function QueryBuilder({
 
   useEffect(() => {
     if (!dataSource) return;
-
+    setIsLoading(true);
     const query = (formRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
 
-    getTables(dataSource, query, locale).then(result => setTables(result));
+    getTables(dataSource, query, locale).then(result => { setTables(result); setIsLoading(false); });
   }, [dataSource, locale]);
+
+  // useEffect(() => {
+  //   if (!isLoading)
+  // }, [isLoading])
 
   function buildQuery(formData: FormData) {
     const queryObject: object[] = [];
@@ -181,20 +185,23 @@ export default function QueryBuilder({
     console.time("tableSelect");
     if (!externalDatasets[dataSource]?.baseUrl) return;
     if (!tableId) return;
+    setIsLoading(true);
     clearTableContent();
     clearTableDetails();
     disableSubmitButton();
 
-    getTableDetails(tableId, dataSource, undefined, locale).then(result => { setTableDetails(result); console.timeEnd("tableSelect"); });
+    getTableDetails(tableId, dataSource, undefined, locale).then(result => { setTableDetails(result); console.timeEnd("tableSelect"); setIsLoading(false); });
   }
 
   function handleMetricSelect(event: React.ChangeEvent<HTMLSelectElement>) {
+    setIsLoading(true);
     const isDefaultValue = event.target.value.length == 0;
     const variableFieldset = document.getElementById("variable-fieldset");
     if (variableFieldset) {
       if (!isDefaultValue && variableFieldset.hasAttribute("disabled")) {
         variableFieldset.removeAttribute("disabled");
         // TODO - should trafa table details be fetched here?
+        setIsLoading(false);
       }
       else if (isDefaultValue) {
         // Reset the selection of all select elements in the variable fieldset before disabling
@@ -204,10 +211,14 @@ export default function QueryBuilder({
         variableFieldset.setAttribute("disabled", "true");
         // Reset all the table details when disabling the form so all options are displayed when re-enabling
         if (dataSource == "Trafa") {
-          getTableDetails(tableDetails?.id ?? "", dataSource, undefined, locale).then(result => { setTableDetails(result); });
+          getTableDetails(tableDetails?.id ?? "", dataSource, undefined, locale).then(result => { setTableDetails(result); setIsLoading(false); });
+        } else {
+          setIsLoading(false);
         }
       }
-    } else console.log("no variable fieldset found");
+    } else {
+      console.log("no variable fieldset found");
+    }
   }
 
   function optionalTag(dataSource: string, variableIsOptional: boolean) {
@@ -303,6 +314,11 @@ export default function QueryBuilder({
         <form ref={formRef} onChange={formChange} onSubmit={handleSubmit}>
           {/* Hidden disabled submit button to prevent accidental submisson */}
           <button type="submit" className="display-none" disabled></button>
+          {isLoading &&
+            <div className={`gray-80`} style={{ position: "absolute", display: "inline-block", left: "0", right: "0", top: "0", bottom: "0", margin: "auto", zIndex: 100, width: "fit-content", height: "fit-content", borderRadius: "1rem", padding: "1rem", opacity: "0.75" }}>
+              <strong style={{}}>Laddar...</strong>
+            </div>
+          }
 
           <FormWrapper>
             <fieldset>
