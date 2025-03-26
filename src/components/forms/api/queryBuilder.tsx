@@ -226,38 +226,42 @@ export default function QueryBuilder({
   }
 
   function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) {
-    if (variable.option) return (
-      <label key={variable.name} className="block margin-block-75">
-        {// Only display "optional" tags if the data source provides this information
-        }
-        {variable.label[0].toUpperCase() + variable.label.slice(1)}{optionalTag(dataSource, variable.optional)}
-        {// Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
-        }
-        <select className={`block margin-block-25 ${variable.label}`}
-          required={!variable.optional}
-          name={variable.name}
-          id={variable.name}
-          defaultValue={getDatasetKeysOfApis("PxWeb").includes(dataSource) ?
-            (// If only one value is available, pre-select it
-              variable.values && variable.values.length == 1 ? variable.values[0].label : undefined
-            )
-            :
-            undefined
-          }>
-          { // If only one value is available, don't show a placeholder option
-            getDatasetKeysOfApis("PxWeb").includes(dataSource) && variable.values && variable.values.length > 1 &&
-            <option value="" className={`${styles.defaultOption}`}>Välj ett värde</option>
+    if (variable.option) {
+      return (
+        <label key={variable.name} className="block margin-block-75">
+          {// Only display "optional" tags if the data source provides this information
           }
-          {
-            !getDatasetKeysOfApis("PxWeb").includes(dataSource) &&
-            <option value="" className={`${styles.defaultOption}`}>Välj ett värde</option>
+          {variable.label[0].toUpperCase() + variable.label.slice(1)}{optionalTag(dataSource, variable.optional)}
+          {// Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
           }
-          {variable.values && variable.values.map(value => (
-            <option key={`${variable.name}-${value.name}`} value={value.name} lang={tableDetails.language}>{value.label}</option>
-          ))}
-        </select>
-      </label>
-    )
+          <select className={`block margin-block-25 ${variable.label}`}
+            required={!variable.optional}
+            name={variable.name}
+            id={variable.name}
+            defaultValue={getDatasetKeysOfApis("PxWeb").includes(dataSource) ?
+              (// If only one value is available, pre-select it
+                variable.values && variable.values.length == 1 ? variable.values[0].label : undefined
+              )
+              :
+              undefined
+            }>
+            { // If only one value is available, don't show a placeholder option
+              getDatasetKeysOfApis("PxWeb").includes(dataSource) && variable.values && variable.values.length > 1 &&
+              <option value="" className={`${styles.defaultOption}`}>Välj ett värde</option>
+            }
+            {
+              !getDatasetKeysOfApis("PxWeb").includes(dataSource) &&
+              <option value="" className={`${styles.defaultOption}`}>Välj ett värde</option>
+            }
+            {variable.values && variable.values.map(value => (
+              <option key={`${variable.name}-${value.name}`} value={value.name} lang={tableDetails.language}>{value.label}</option>
+            ))}
+          </select>
+        </label>
+      )
+    } else if (dataSource == "Trafa" && !variable.option && (variable as TrafaVariable).selected) {
+      console.warn("The variable is selected while it is not an option. This should not happen.");
+    }
   }
 
   function timeVariableSelectionHelper(times: (TrafaVariable | PxWebTimeVariable)[], language: string) {
