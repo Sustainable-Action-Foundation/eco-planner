@@ -2,7 +2,7 @@
 
 import { DataSeries, Goal } from "@prisma/client";
 import { dataSeriesPattern } from "./goalForm";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
 import { clientSafeGetOneGoal } from "@/fetchers/getOneGoal";
 import { clientSafeGetRoadmaps } from "@/fetchers/getRoadmaps";
@@ -40,6 +40,96 @@ export function ManualGoalForm({
       }
     }
   }, [currentGoal]);
+
+  const inputFormRef = useRef<HTMLFormElement | null>(null);
+  const inputGridElement = document.getElementById("inputForm");
+  console.log(inputFormRef.current);
+
+  console.log(document.getElementById("inputForm")?.style);
+  console.log(document.getElementById("inputForm")?.style.gridTemplateColumns);
+  console.log(document.getElementById("inputForm")?.style.gridTemplateRows);
+
+  /**
+   * Add columns to a grid element
+   * @param gridId The id of the grid element to add columns to
+   * @param columns Amount of columns to add
+   */
+  function addColumns(gridId: string, columns: number) {
+    const gridElement = document.getElementById(gridId);
+    if (!gridElement) {
+      return;
+    }
+    const match = gridElement.style.gridTemplateColumns.match(/repeat\((\d+),\s*1fr\)/);
+    if (match) {
+      console.log(match[1]);
+      gridElement.style.gridTemplateColumns = `repeat(${parseInt(match[1]) + columns}, 1fr)`;
+    }
+  }
+  // addColumns("inputForm", 4);
+  console.log(document.getElementById("inputForm")?.style.gridTemplateColumns);
+
+  function drawGridColumn(column: number) {
+    return (
+      <div style={{ opacity: "50%", backgroundColor: "pink" }} key={`column-${column}`}>
+        <label>item-{column}</label>
+        <input type="text" name={`item-${column}`} />
+      </div>
+    )
+  }
+
+  let columnCount = 4;
+  let columns: JSX.Element[] = [];
+  for (let i = 0; i < columnCount; i++) {
+    const column = drawGridColumn(i + 1);
+    columns.push(column);
+  }
+
+  function handlePaste(e: ClipboardEvent) {
+    console.log("pasting");
+    console.log("\n\n\n")
+    if (!e.clipboardData) return;
+    const clip = e.clipboardData.getData("text");
+    console.log(clip);
+    const values = clip.split(/[\t;]/);
+    console.log(values);
+    console.log(values.length);
+    columnCount = values.length;
+    setTimeout(() => {
+      console.log(values);
+      console.log(columnCount);
+      console.log(columns);
+      const gridInput = document.getElementById("inputForm");
+      if (gridInput) {
+        gridInput.style.gridTemplateColumns = `repeat(${columnCount}, 1fr)`;
+        columns = [];
+        for (let i = 0; i < columnCount; i++) {
+          const column = drawGridColumn(i + 1);
+          columns.push(column);
+        }
+        [...gridInput.children].forEach((child) => {
+          [...child.children].filter((child) => child.tagName == "INPUT").forEach((child) => { child.innerHTML = ""})
+        })
+        // gridInput.innerHTML = columns.map(column => JSON.stringify(column)).join("");
+        console.log(columns);
+        console.log(gridInput);
+      }
+    }, 0);
+  }
+  if (inputGridElement) {
+    [...inputGridElement.children].forEach((child) => {
+      [...child.children].filter((child) => child.tagName == "INPUT").forEach((child) => { child.addEventListener("paste", (e) => handlePaste(e as ClipboardEvent)) })
+    })
+  }
+
+  function addInputGridColumns(columns: number) {
+    columnCount += columns;
+  }
+
+  function removeInputGridColumns(columns: number) {
+    columnCount -= columns;
+  }
+
+  console.log(columns);
 
   return (
     <>
@@ -85,6 +175,9 @@ export function ManualGoalForm({
           className="margin-block-25"
           defaultValue={dataSeriesString}
         />
+        <div id="inputForm" style={{ display: "grid", gridTemplateColumns: `repeat(${columnCount}, 1fr)`, gap: "1rem", gridTemplateRows: "auto" }} key="adwad">
+          {columns.map((column) => column)}
+        </div>
       </label>
     </>
   )
