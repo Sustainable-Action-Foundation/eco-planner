@@ -8,6 +8,8 @@
   "keys_found_other": "Totalt: {{count}} nycklar hittades",
   "empty_string": "[TOM STRÄNG]",
   "not_found": "[HITTAS EJ]",
+  "unresolved_one": "Olöst nyckel",
+  "unresolved_other": "Olösta nycklar",
   "server": "Server:",
   "client": "Klient:"
 }

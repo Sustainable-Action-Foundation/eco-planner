@@ -174,8 +174,8 @@
   },
   "copy_and_scale": {
     "copy_and_scale": "Kopiera och skala",
-    "title": "Kopiera och skala $(common:goal_definite_one) {{goalName}}",
-    "select_roadmap_version": "I vilken $t(common:roadmap_version_one) vill du placera den skalade $(common:goal_definite_one)?",
+    "title": "Kopiera och skala $t(common:goal_definite_one) {{goalName}}",
+    "select_roadmap_version": "I vilken $t(common:roadmap_version_one) vill du placera den skalade $t(common:goal_definite_one)?",
     "select_roadmap_version_option": "Välj $t(common:roadmap_version_one)",
     "version": "version",
     "advanced": "Avancerat",
@@ -214,7 +214,7 @@
   },
   "prediction_child_graph": {
     "unknown_roadmap": "Okänd $t(common:roadmap_version_one)",
-    "no_child_roadmaps": "Inga underliggande $t(common:goal_other) med $(common:effect_other) eller anpassade baslinjer hittades"
+    "no_child_roadmaps": "Inga underliggande $t(common:goal_other) med $t(common:effect_other) eller anpassade baslinjer hittades"
   },
   "action_graph": {
     "actions": "{{$t(common:action_other), titleCase}}"

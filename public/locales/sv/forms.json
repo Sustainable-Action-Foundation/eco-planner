@@ -107,7 +107,7 @@
     "unit_missing": "Enhet saknas",
     "select_goals_to_combine": "Välj $t(common:goal_other) i den aktuella $t(common:roadmap_version_definite_one) att kombinera",
     "search_tip": "Tips: använd <kbd><kbd>CTRL</kbd> + <kbd>F</kbd></kbd> för att hitta $t(common:goal_definite_other) du söker efter",
-    "invert_goal": "Invertera $(common:goal_definite_one) (dividera med denna $t(common:goal_one) snarare än att multiplicera)",
+    "invert_goal": "Invertera $t(common:goal_definite_one) (dividera med denna $t(common:goal_one) snarare än att multiplicera)",
     "select_goal_as_baseline": "Välj en $t(common:goal_one) att använda som baslinje (värdena kopieras snarare än att länkas)",
     "data_missing": "DATA SAKNAS; ",
     "baseline_copied": "Baslinje, kopierad från vald $t(common:goal_one)"

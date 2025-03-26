@@ -296,7 +296,7 @@ function TestNestedKeysSyntax() {
       });
 
       /** Every instance where $.(...) is called. Anything but t as the function name. */
-      const noTNameTCalls = values.matchAll(/\$[^t]\([^)]*\)/gm) || [];
+      const noTNameTCalls = values.matchAll(/\$[^t]?\([^)]*\)/gm) || [];
       noTNameTCalls.forEach(call => {
         const [match] = call;
         if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];

@@ -8,6 +8,8 @@
   "keys_found_other": "Total: {{count}} keys found",
   "empty_string": "[EMPTY STRING]",
   "not_found": "[NOT FOUND]",
+  "unresolved_one": "Unresolved key",
+  "unresolved_other": "Unresolved keys",
   "server": "Server:",
   "client": "Client:"
 }
