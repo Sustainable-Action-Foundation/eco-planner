@@ -1,6 +1,6 @@
 'use client';
 
-import { ActionSelector, GoalSelector } from "./effectFormSections";
+import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "./effectFormSections";
 import { dataSeriesPattern } from "@/components/forms/goalForm/goalForm";
 import formSubmitter from "@/functions/formSubmitter";
 import { dataSeriesDataFieldNames, EffectInput } from "@/types";
@@ -9,6 +9,7 @@ import type getOneAction from "@/fetchers/getOneAction.ts";
 import type getOneGoal from "@/fetchers/getOneGoal.ts";
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 
 export default function EffectForm({
   action,
@@ -26,6 +27,10 @@ export default function EffectForm({
   },
 }) {
   const { t } = useTranslation();
+
+  const [selectedImpactType, setSelectedImpactType] = useState<ActionImpactType>(currentEffect?.impactType || ActionImpactType.ABSOLUTE);
+  // Use existing data series converted to a string as a default value
+  const [dataSeriesString, setDataSeriesString] = useState<string>(currentEffect?.dataSeries ? dataSeriesDataFieldNames.map(i => currentEffect.dataSeries?.[i]).join(';') : '');
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -77,13 +82,13 @@ export default function EffectForm({
   const timestamp = Date.now();
 
   // If there is a data series, convert it to an array of numbers to use as a default value in the form
-  const dataArray: (number | null)[] = [];
-  if (currentEffect?.dataSeries) {
-    for (const i of dataSeriesDataFieldNames) {
-      dataArray.push(currentEffect.dataSeries[i]);
-    }
-  }
-  const dataSeriesString = dataArray.join(';');
+  // const dataArray: (number | null)[] = [];
+  // if (currentEffect?.dataSeries) {
+  //   for (const i of dataSeriesDataFieldNames) {
+  //     dataArray.push(currentEffect.dataSeries[i]);
+  //   }
+  // }
+  // const dataSeriesString = dataArray.join(';');
 
   return (
     <>
@@ -101,15 +106,44 @@ export default function EffectForm({
             pattern={dataSeriesPattern}
             title={t("forms:effect.data_series_title")}
             className="margin-block-25"
-            defaultValue={dataSeriesString}
+            value={dataSeriesString}
+            onChange={(event) => setDataSeriesString(event.target.value)}
           />
         </label>
+
+        { // Button for changing between absolute and delta impact types
+          // TODO: Styling
+          selectedImpactType === ActionImpactType.ABSOLUTE ?
+            <div className="margin-block-100">
+              <button type="button" onClick={() => {
+                setSelectedImpactType(ActionImpactType.DELTA);
+                setDataSeriesString(absoluteToDelta(dataSeriesString));
+              }}>
+                {t("forms:effect.to_year_by_year")}
+              </button>
+              <p>{t("forms:effect.to_year_by_year_info")}</p>
+            </div>
+            :
+            selectedImpactType === ActionImpactType.DELTA ?
+              <div className="margin-block-100">
+                <button type="button" onClick={() => {
+                  setSelectedImpactType(ActionImpactType.ABSOLUTE);
+                  setDataSeriesString(deltaToAbsolute(dataSeriesString));
+                }}>
+                  {t("forms:effect.to_absolute")}
+                </button>
+                <p>{t("forms:effect.to_absolute_info")}</p>
+              </div>
+              :
+              null
+        }
 
         {/* TODO: Show preview of how it would affect the goal */}
         <label className="block margin-block-100">
           {t("forms:effect.impact_type_label")}
           <select className="block margin-block-25" name="impactType" id="impactType" required
-            defaultValue={currentEffect?.impactType || ActionImpactType.ABSOLUTE}
+            value={selectedImpactType}
+            onChange={(event) => setSelectedImpactType(event.target.value as ActionImpactType)}
           >
             <option value={ActionImpactType.ABSOLUTE}>{t("forms:effect.impact_types.absolute")}</option>
             <option value={ActionImpactType.DELTA}>{t("forms:effect.impact_types.delta")}</option>

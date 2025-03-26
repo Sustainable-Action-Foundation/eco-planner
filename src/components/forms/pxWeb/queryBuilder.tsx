@@ -122,7 +122,7 @@ export default function QueryBuilder({
 
   return (
     <>
-      <button type="button" className="transparent flex align-items-center gap-25 font-weight-500" style={{ fontSize: '.75rem', padding: '.3rem .6rem' }} onClick={() => openModal(modalRef)}>
+      <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: '.75rem', padding: '.3rem .6rem' }} onClick={() => openModal(modalRef)}>
         {t("components:query_builder.add_historical_data")}
         <Image src='/icons/chartAdd.svg' alt="" width={16} height={16} />
       </button>

@@ -127,6 +127,7 @@
   "goal": {
     "update_needed": "Update your $t(common:goal_one) to get the latest information.",
     "title_label": "{{$t(common:goal_one), titleCase}}",
+    "menu": "Menu",
     "description": "Description",
     "compare_with_goal": "Compare with $t(common:goal_definite_one) {{goalName}}",
     "scale_notice": "All values in the $t(common:goal_definite_one) use the following scale: \"{{scale}}\"",

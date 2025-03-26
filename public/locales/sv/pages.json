@@ -133,6 +133,7 @@
   "goal": {
     "update_needed": "Uppdatera din $t(common:goal_one) för att få senaste informationen.",
     "title_label": "{{$t(common:goal_one), titleCase}}",
+    "menu": "Meny",
     "description": "Beskrivning",
     "compare_with_goal": "Jämför med $t(common:goal_definite_one) {{goalName}}",
     "scale_notice": "Alla värden i $t(common:goal_definite_one) använder följande skala: \"{{scale}}\"",

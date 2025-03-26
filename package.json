@@ -35,7 +35,7 @@
     "use-debounce": "^10.0.3"
   },
   "name": "eco-planner",
-  "version": "0.12.1",
+  "version": "0.12.2",
   "description": "A tool intended to help planning actions to achieve local environmental goals",
   "repository": "https://github.com/Sustainable-Action-Foundation/eco-planner.git",
   "author": "Leon Lööv",

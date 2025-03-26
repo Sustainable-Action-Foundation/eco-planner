@@ -148,7 +148,7 @@
     "update": "Uppdatera $t(common:goal_one)"
   },
   "secondary_graph_selector": {
-    "goal_id_placeholder": "{{$t(common:goal_definite_one), titleCase, possessive}} ID",
+    "compare_with": "Jämför $t(common:goal_one)",
     "compare": "Jämför"
   },
   "query_builder": {
@@ -191,13 +191,18 @@
     "unknown_roadmap": "Okänd $t(common:roadmap_version_one)"
   },
   "graph_selector": {
-    "goal_path": "{{$t(common:goal_one), titleCase}}",
+    "show": "Visa",
+    "goal": "{{$t(common:goal_one), titleCase}}",
     "annual_change": "Årlig förändring",
     "percentage_change": "Procentuell förändring"
   },
   "child_graph_selector": {
     "target_paths": "{{$t(common:goal_other), titleCase}}",
     "expected_outcomes": "Förväntade utfall"
+  },
+  "child_graph_container": {
+    "change_graph_type": "Change graph type",
+    "goals_toward": "{{$t(common:goal_other), titleCase}} som jobbar mot {{goalName}}"
   },
   "main_graph": {
     "baseline_scenario": "Basscenario",
@@ -208,10 +213,15 @@
     "secondary_goal": "Sekundär $t(common:goal_one) ({{unit}})"
   },
   "prediction_child_graph": {
+    "unknown_roadmap": "Okänd $t(common:roadmap_version_one)",
     "no_child_roadmaps": "Inga underliggande $t(common:goal_other) med $(common:effect_other) eller anpassade baslinjer hittades"
   },
   "action_graph": {
     "actions": "{{$t(common:action_other), titleCase}}"
+  },
+  "sibling_graph": {
+    "change_graph_type": "Byt graftyp",
+    "adjacent_goals": "Angränsande $t(common:goal_other)"
   },
   "effects_table": {
     "no_effects": "Det finns inga $t(common:effect_other) att visa.",

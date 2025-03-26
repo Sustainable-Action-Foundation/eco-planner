@@ -124,3 +124,23 @@ export function GoalSelector({
     </>
   );
 }
+
+export function absoluteToDelta(absoluteDataSeries: string): string {
+  return absoluteDataSeries.split(';').map((value, index, array) => {
+    if (index === 0) {
+      return value;
+    } else {
+      return (parseFloat(value) - parseFloat(array[index - 1])).toString();
+    }
+  }).join(';');
+}
+
+export function deltaToAbsolute(deltaDataSeries: string): string {
+  return deltaDataSeries.split(';').map((value, index, array) => {
+    if (index === 0) {
+      return value;
+    } else {
+      return array.slice(0, index + 1).reduce((sum, value) => sum + parseFloat(value), 0).toString();
+    }
+  }).join(';');
+}

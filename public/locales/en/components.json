@@ -148,7 +148,7 @@
     "update": "Update $t(common:goal_one)"
   },
   "secondary_graph_selector": {
-    "goal_id_placeholder": "{{$t(common:goal_one), titleCase}} ID",
+    "compare_with": "Compare $t(common:goal_one)",
     "compare": "Compare"
   },
   "query_builder": {
@@ -191,13 +191,18 @@
     "unknown_roadmap": "Unknown $t(common:roadmap_version_one)"
   },
   "graph_selector": {
-    "goal_path": "{{$t(common:goal_one), titleCase}}",
+    "show": "Show",
+    "goal": "{{$t(common:goal_one), titleCase}}",
     "annual_change": "Annual change",
     "percentage_change": "Percentage change"
   },
   "child_graph_selector": {
     "target_paths": "{{$t(common:goal_other), titleCase}}",
     "expected_outcomes": "Expected outcomes"
+  },
+  "child_graph_container": {
+    "change_graph_type": "Change graph type",
+    "goals_toward": "{{$t(common:goal_other), titleCase}} contributing to {{goalName}}"
   },
   "main_graph": {
     "baseline_scenario": "Baseline scenario",
@@ -208,10 +213,15 @@
     "secondary_goal": "Secondary $t(common:goal_one) ({{unit}})"
   },
   "prediction_child_graph": {
+    "unknown_roadmap": "Unknown $t(common:roadmap_version_one)",
     "no_child_roadmaps": "No underlying $t(common:goal_other) with $t(common:effect_other) or custom baselines found"
   },
   "action_graph": {
     "actions": "{{$t(common:action_other), titleCase}}"
+  },
+  "sibling_graph": {
+    "change_graph_type": "Change graph type",
+    "adjacent_goals": "Adjacent $t(common:goal_other)"
   },
   "effects_table": {
     "no_effects": "There are no $t(common:effect_other) to display.",
