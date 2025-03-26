@@ -1,20 +1,20 @@
 {
-  "meta_roadmap_one": {
-    "description_legend": "Beskriv din $t(common:meta_roadmap_one)",
-    "roadmap_series_name": "Namn för $t(common:meta_roadmap_definite_one)",
-    "roadmap_series_description": "Beskrivning av $t(common:meta_roadmap_definite_one)",
+  "roadmap_series_one": {
+    "description_legend": "Beskriv din $t(common:roadmap_series_one)",
+    "roadmap_series_name": "Namn för $t(common:roadmap_series_definite_one)",
+    "roadmap_series_description": "Beskrivning av $t(common:roadmap_series_definite_one)",
     "actor_legend": "Välj ansvarig aktör",
-    "roadmap_scope_label": "Typ av $t(common:meta_roadmap_one)",
+    "roadmap_scope_label": "Typ av $t(common:roadmap_series_one)",
     "no_chosen_roadmap_scope": "Välj en typ",
     "choose_actor": "Ange en aktör",
     "attach_external": "Bifoga externa resurser",
     "change_read_access": "Justera läsbehörighet",
     "change_edit_access": "Justera redigeringsbehörighet",
-    "relationship_legend": "Jobbar denna $t(common:meta_roadmap_one) mot en annan $t(common:meta_roadmap_one)?",
+    "relationship_legend": "Jobbar denna $t(common:roadmap_series_one) mot en annan $t(common:roadmap_series_one)?",
     "relationship_label": "Förälder",
     "relationship_no_chosen": "Ingen förälder",
     "submit_save": "Spara",
-    "submit_create": "Skapa $t(common:meta_roadmap_one)"
+    "submit_create": "$t(common:new.roadmap_series)"
   },
   "link_input": {
     "name_label": "Namn",
@@ -39,10 +39,10 @@
     "file_read_error": "Filen kunde inte läsas: {{error}}",
     "unknown_error": "Okänt fel",
     "relationship_legend": "Ange relationen till andra inlägg",
-    "relationship_label": "{{$t(common:meta_roadmap_one), titleCase}} som detta är ett nytt inlägg i",
-    "relationship_no_chosen": "Ingen $t(common:meta_roadmap_one) vald",
-    "relationship_no_found": "Du verkar inte ha tillgång till några $t(common:meta_roadmap_other)",
-    "roadmap_target_label": "Version av $t(common:meta_roadmap_definite_one) {{targetName}} den här $t(common:meta_roadmap_definite_one) arbetar mot",
+    "relationship_label": "{{$t(common:roadmap_series_one), titleCase}} som detta är ett nytt inlägg i",
+    "relationship_no_chosen": "Ingen $t(common:roadmap_series_one) vald",
+    "relationship_no_found": "Du verkar inte ha tillgång till några $t(common:roadmap_series_other)",
+    "roadmap_target_label": "Version av $t(common:roadmap_series_definite_one) {{targetName}} den här $t(common:roadmap_series_definite_one) arbetar mot",
     "roadmap_target_no_chosen": "Inget alternativ valt",
     "roadmap_target_always_latest": "Alltid senaste versionen",
     "roadmap_version_legend": "Beskriv $t(common:roadmap_version_definite_one)",
@@ -53,12 +53,12 @@
     "change_read_access": "Justera läsbehörighet",
     "change_edit_access": "Justera redigeringsbehörighet",
     "submit_save": "Spara",
-    "submit_create": "Skapa $t(common:roadmap_version_one)"
+    "submit_create": "$t(common:new.roadmap_version)"
   },
   "goal": {
     "choose_relationship": "Ange relationen till andra inlägg",
-    "relationship_label": "Välj $t(common:meta_roadmap_one) att skapa $t(common:goal_one) under:",
-    "relationship_no_chosen": "Välj $t(common:meta_roadmap_one)",
+    "relationship_label": "Välj $t(common:roadmap_series_one) att $t(common:new.goal) under:",
+    "relationship_no_chosen": "Välj $t(common:roadmap_series_one)",
     "action_count": "{{count}} $t(common:action, {\"count\":{{count}}})",
     "data_series_type_legend": "Välj typ av dataserie för din $t(common:goal_one)",
     "data_series_type_label": "Dataserie",
@@ -91,7 +91,7 @@
     "scale_deprecated": "{{$t(common:goal_definite_one), titleCase}} innehåller en skala. Vänligen baka in skalan i värdet eller enheten och checka sedan i den här rutan. Alla skalor kommer att tas bort i framtiden",
     "remove_scale": "Ta bort skalan, {{scale}}",
     "submit_save": "Spara",
-    "submit_create": "Skapa $t(common:goal_one)",
+    "submit_create": "$t(common:new.goal)",
     "leap_parameter": "LEAP parameter",
     "data_unit": "Enhet för dataserie",
     "unit_interpreted_as": "Enheten tolkas som:",
@@ -158,7 +158,7 @@
     "category_efficiency": "Efficiency",
     "category_renewables": "Renewables",
     "submit_save": "Spara",
-    "submit_create": "Skapa $t(common:action_one)"
+    "submit_create": "$t(common:new.action)"
   },
   "effect": {
     "select_roadmap_version_for_action": "Välj $t(common:roadmap_version_one) som $t(common:action_definite_one) ligger under",
@@ -184,6 +184,6 @@
       "percent": "Skillnad gentemot baslinjen i procent av föregående års totalvärde (baslinje + $t(common:action_other))"
     },
     "submit_save": "Spara",
-    "submit_create": "Skapa $t(common:effect_one)"
+    "submit_create": "$t(common:new.effect)"
   }
 }

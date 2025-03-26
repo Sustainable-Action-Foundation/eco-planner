@@ -30,13 +30,13 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
         <section className="margin-block-300">
           <div className="flex gap-100 flex-wrap-wrap justify-content-space-between" style={{ fontSize: '1rem' }}>
             <div>
-              <span style={{ color: 'gray' }}>{t("pages:meta_roadmap_one.title_legend")}</span>
+              <span style={{ color: 'gray' }}>{t("pages:roadmap_series_one.title_legend")}</span>
               <h1 className="margin-0">{metaRoadmap.name}</h1>
-              <small>{t("pages:meta_roadmap_one.description_legend")}</small>
+              <small>{t("pages:roadmap_series_one.description_legend")}</small>
               <p>{metaRoadmap.description}</p>
               {metaRoadmap.links.length > 0 ?
                 <>
-                  <h2 className="margin-bottom-0 margin-top-200">{t("pages:meta_roadmap_one.external_resources")}</h2>
+                  <h2 className="margin-bottom-0 margin-top-200">{t("pages:roadmap_series_one.external_resources")}</h2>
                   <ul>
                     {metaRoadmap.links.map((link: { url: string, description: string | null }, index: number) =>
                       <li className="margin-block-25" key={index}>
@@ -59,10 +59,10 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
         </section>
 
         <section className="margin-block-300">
-          <h2 className="margin-block-100 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:meta_roadmap_one.roadmap_versions")}</h2>
+          <h2 className="margin-block-100 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:roadmap_series_one.roadmap_versions")}</h2>
           <menu className="margin-0 padding-0 margin-bottom-100 flex justify-content-flex-end">
             {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
-              <a href={`/roadmap/create?metaRoadmapId=${metaRoadmap.id}`} className="button pureblack color-purewhite round">{t("pages:meta_roadmap_one.create_roadmap_version")}</a>
+              <a href={`/roadmap/create?metaRoadmapId=${metaRoadmap.id}`} className="button pureblack color-purewhite round">{t("pages:roadmap_series_one.create_roadmap_version")}</a>
             : null }
           </menu>
           <RoadmapTable user={session.user} metaRoadmap={metaRoadmap} />

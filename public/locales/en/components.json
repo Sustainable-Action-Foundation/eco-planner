@@ -4,7 +4,7 @@
     "on": "on"
   },
   "roadmap_filters": {
-    "search_roadmaps": "Search $t(common:meta_roadmap_one)",
+    "search_roadmaps": "Search $t(common:roadmap_series_one)",
     "sort_by": "Sort by:",
     "default": "Default",
     "name_descending": "Name (A-Z)",
@@ -15,21 +15,21 @@
     "show": "Show"
   },
   "roadmap_tree": {
-    "no_meta_roadmap_ones": "No $t(common:meta_roadmap_one) found. If you have any filters active, no $t(common:meta_roadmap_one) were found that match them.",
+    "no_roadmap_series_ones": "No $t(common:roadmap_series_one) found. If you have any filters active, no $t(common:roadmap_series_one) were found that match them.",
     "show_source_alt": "Show underlying $t(common:roadmap_version_other)",
     "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
   },
   "user_filters": {
     "posts": "Posts",
     "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
-    "roadmap_series": "{{$t(common:meta_roadmap_one), titleCase}}",
+    "roadmap_series": "{{$t(common:roadmap_series_one), titleCase}}",
     "access_level": "Access level",
     "editing_access": "Editing access"
   },
   "logout": "Log out",
   "table_menu": {
     "new_roadmap_version": "New $t(common:roadmap_version_one)",
-    "go_to_series": "Go to $t(common:meta_roadmap_one)",
+    "go_to_series": "Go to $t(common:roadmap_series_one)",
     "go_to_version": "Go to $t(common:roadmap_version_one)",
     "go_to_goal": "Go to $t(common:goal_one)",
     "new_goal": "New $t(common:goal_one)",
@@ -82,7 +82,7 @@
   },
   "breadcrumbs": {
     "home": "Home",
-    "roadmap_series": "{{$t(common:meta_roadmap_one), titleCase}}:",
+    "roadmap_series": "{{$t(common:roadmap_series_one), titleCase}}:",
     "version_label": "Version:",
     "version": "Version {{version}}",
     "goal": "{{$t(common:goal_one), titleCase}}:",
@@ -136,12 +136,12 @@
   "action_table": {
     "no_actions": "There are no $t(common:action_other) to display.",
     "wanna_create_action": "Do you want to create one?",
-    "create_action": "Create new $t(common:action_one)"
+    "create_action": "$t(common:new.action)"
   },
   "link_tree": {
     "no_roadmaps": "You do not have access to any $t(common:goal_other) in this $t(common:roadmap_version_one), or $t(common:roadmap_version_definite_one) is empty."
   },
-  "meta_roadmap_one_deleter": {
+  "roadmap_series_one_deleter": {
     "remove_metadata": "Remove metadata"
   },
   "update_goal_button": {
@@ -185,7 +185,7 @@
     "invalid_input": "Invalid input. The scaling factor could not be calculated. This is often due to a non-numeric value in an input field or that the product of all scaling factors is negative."
   },
   "goal_edit": {
-    "title": "Edit $t(common:goal_one)"
+    "title": "$t(common:edit.goal)"
   },
   "goal_child_graph": {
     "unknown_roadmap": "Unknown $t(common:roadmap_version_one)"
@@ -226,7 +226,7 @@
   "effects_table": {
     "no_effects": "There are no $t(common:effect_other) to display.",
     "wanna_create_effect": "Do you want to create one?",
-    "create_new_effect": "Create new $t(common:effect_one)"
+    "create_new_effect": "$t(common:new.effect)"
   },
   "graph_cookie": {
     "save_preferences": "Save future view changes between sessions and page navigations"

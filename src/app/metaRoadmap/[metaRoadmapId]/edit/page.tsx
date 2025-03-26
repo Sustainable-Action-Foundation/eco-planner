@@ -25,10 +25,10 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
 
   return (
     <>
-      <Breadcrumb object={currentRoadmap} customSections={[t("pages:meta_roadmap_one_edit.breadcrumb")]} />
+      <Breadcrumb object={currentRoadmap} customSections={[t("pages:roadmap_series_one_edit.breadcrumb")]} />
 
       <div className='container-text margin-inline-auto'>
-        <h1>{t("pages:meta_roadmap_one_edit.title", { name: currentRoadmap.name })}</h1>
+        <h1>{t("pages:roadmap_series_one_edit.title", { name: currentRoadmap.name })}</h1>
         <MetaRoadmapForm
           user={session.user}
           userGroups={session.user?.userGroups}

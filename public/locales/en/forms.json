@@ -1,24 +1,20 @@
 {
-  "read_access": "read access",
-  "edit_access": "edit access",
-  "save": "Save",
-  "create": "Create {{what}}",
-  "meta_roadmap_one": {
-    "description_legend": "Describe your $t(common:meta_roadmap_one)",
-    "roadmap_series_name": "Name $t(common:meta_roadmap_definite_one)",
-    "roadmap_series_description": "Description of $t(common:meta_roadmap_definite_one)",
+  "roadmap_series_one": {
+    "description_legend": "Describe your $t(common:roadmap_series_one)",
+    "roadmap_series_name": "Name $t(common:roadmap_series_definite_one)",
+    "roadmap_series_description": "Description of $t(common:roadmap_series_definite_one)",
     "actor_legend": "Choose responsible actor",
-    "roadmap_scope_label": "Type of $t(common:meta_roadmap_one)",
+    "roadmap_scope_label": "Type of $t(common:roadmap_series_one)",
     "no_chosen_roadmap_scope": "Choose a type",
     "choose_actor": "Specify an actor",
     "attach_external": "Attach external resources",
     "change_read_access": "Adjust read access",
     "change_edit_access": "Adjust editing access",
-    "relationship_legend": "Is this $t(common:meta_roadmap_one) working towards another $t(common:meta_roadmap_one)?",
+    "relationship_legend": "Is this $t(common:roadmap_series_one) working towards another $t(common:roadmap_series_one)?",
     "relationship_label": "Parent",
     "relationship_no_chosen": "No parent",
     "submit_save": "Save",
-    "submit_create": "Create $t(common:meta_roadmap_one)"
+    "submit_create": "$t(common:new.roadmap_series)"
   },
   "link_input": {
     "name_label": "Name",
@@ -43,10 +39,10 @@
     "file_read_error": "The file could not be read: {{error}}",
     "unknown_error": "Unknown error",
     "relationship_legend": "Specify the relationship to other posts",
-    "relationship_label": "{{$t(common:meta_roadmap_one), titleCase}} that this is a new post in",
-    "relationship_no_chosen": "No $t(common:meta_roadmap_one) chosen",
-    "relationship_no_found": "You seem to not have access to any $t(common:meta_roadmap_one)",
-    "roadmap_target_label": "Version of $t(common:meta_roadmap_definite_one) {{targetName}} this $t(common:meta_roadmap_definite_one) is working towards",
+    "relationship_label": "{{$t(common:roadmap_series_one), titleCase}} that this is a new post in",
+    "relationship_no_chosen": "No $t(common:roadmap_series_one) chosen",
+    "relationship_no_found": "You seem to not have access to any $t(common:roadmap_series_one)",
+    "roadmap_target_label": "Version of $t(common:roadmap_series_definite_one) {{targetName}} this $t(common:roadmap_series_definite_one) is working towards",
     "roadmap_target_no_chosen": "No option chosen",
     "roadmap_target_always_latest": "Always latest version",
     "roadmap_version_legend": "Describe $t(common:roadmap_version_definite_one)",
@@ -57,12 +53,12 @@
     "change_read_access": "Adjust read access",
     "change_edit_access": "Adjust editing access",
     "submit_save": "Save",
-    "submit_create": "Create $t(common:roadmap_version_one)"
+    "submit_create": "$t(common:new.roadmap_version)"
   },
   "goal": {
     "choose_relationship": "Specify the relationship to other posts",
-    "relationship_label": "Choose $t(common:meta_roadmap_one) to create $t(common:goal_one) under:",
-    "relationship_no_chosen": "Choose $t(common:meta_roadmap_one)",
+    "relationship_label": "Choose $t(common:roadmap_series_one) to $t(common:new.goal) under:",
+    "relationship_no_chosen": "Choose $t(common:roadmap_series_one)",
     "action_count": "{{count}} $t(common:action, {\"count\":{{count}}})",
     "data_series_type_legend": "Choose type of data series for your $t(common:goal_one)",
     "data_series_type_label": "Data series",
@@ -95,7 +91,7 @@
     "scale_deprecated": "This $t(common:goal_one) contains a scale. Please bake the scale into the value or unit and then check this box. All scales will be removed in the future",
     "remove_scale": "Remove scale, {{scale}}",
     "submit_save": "Save",
-    "submit_create": "Create $t(common:goal_one)",
+    "submit_create": "$t(common:new.goal)",
     "leap_parameter": "LEAP parameter",
     "data_unit": "Data series unit",
     "unit_interpreted_as": "Unit interpreted as:",
@@ -162,7 +158,7 @@
     "category_efficiency": "Efficiency",
     "category_renewables": "Renewables",
     "submit_save": "Save",
-    "submit_create": "Create $t(common:action_one)"
+    "submit_create": "$t(common:new.action)"
   },
   "effect": {
     "select_roadmap_version_for_action": "Select $t(common:roadmap_version_one) that the $t(common:action_one) is under",
@@ -188,6 +184,6 @@
       "percent": "Difference compared to baseline as a percentage of the previous year's total value (baseline + $t(common:action_other))"
     },
     "submit_save": "Save",
-    "submit_create": "Create $t(common:effect_one)"
+    "submit_create": "$t(common:new.effect)"
   }
 }

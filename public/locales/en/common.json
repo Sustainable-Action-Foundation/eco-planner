@@ -1,10 +1,10 @@
 {
   "roadmap_short_one": "roadmap",
   "roadmap_short_other": "roadmaps",
-  "meta_roadmap_one": "roadmap series",
-  "meta_roadmap_other": "roadmap series",
-  "meta_roadmap_definite_one": "the roadmap series",
-  "meta_roadmap_definite_other": "the roadmap series",
+  "roadmap_series_one": "roadmap series",
+  "roadmap_series_other": "roadmap series",
+  "roadmap_series_definite_one": "the roadmap series",
+  "roadmap_series_definite_other": "the roadmap series",
   "roadmap_version_one": "roadmap version",
   "roadmap_version_other": "roadmap versions",
   "roadmap_version_definite_one": "the roadmap version",
@@ -21,6 +21,20 @@
   "goal_other": "goals",
   "goal_definite_one": "the goal",
   "goal_definite_other": "the goals",
+  "new": {
+    "roadmap_series": "Create new roadmap series",
+    "roadmap_version": "Create new roadmap version",
+    "action": "Create new action",
+    "effect": "Create new effect",
+    "goal": "Create new goal"
+  },
+  "edit": {
+    "roadmap_series": "Edit roadmap series",
+    "roadmap_version": "Edit roadmap version",
+    "action": "Edit action",
+    "effect": "Edit effect",
+    "goal": "Edit goal"
+  },
   "app_name": "Eco - Planner",
   "meta_description": "A tool that aims to contribute to Sweden's climate transition. In the tool, national users can be inspired by each other's actions, creating a common action database for Sweden. At the local level, different actors can also collaborate on actions.",
   "og_locale": "en",
@@ -31,11 +45,11 @@
     "municipal": "Municipal",
     "local": "Local",
     "other": "Other",
-    "national_roadmap": "National $t(meta_roadmap_one)",
-    "regional_roadmap": "Regional $t(meta_roadmap_one)",
-    "municipal_roadmap": "Municipal $t(meta_roadmap_one)",
-    "local_roadmap": "Local $t(meta_roadmap_one)",
-    "other_roadmap": "Other $t(meta_roadmap_one), e.g. an organization"
+    "national_roadmap": "National $t(roadmap_series_one)",
+    "regional_roadmap": "Regional $t(roadmap_series_one)",
+    "municipal_roadmap": "Municipal $t(roadmap_series_one)",
+    "local_roadmap": "Local $t(roadmap_series_one)",
+    "other_roadmap": "Other $t(roadmap_series_one), e.g. an organization"
   },
   "scaling_methods": {
     "geo_mean": "Geometric mean (recommended)",

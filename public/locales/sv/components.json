@@ -4,7 +4,7 @@
     "on": "på"
   },
   "roadmap_filters": {
-    "search_roadmaps": "Sök bland $t(common:meta_roadmap_other)",
+    "search_roadmaps": "Sök bland $t(common:roadmap_series_other)",
     "sort_by": "Sortera på:",
     "default": "Standard",
     "name_descending": "Namn (A-Ö)",
@@ -15,21 +15,21 @@
     "show": "Visa"
   },
   "roadmap_tree": {
-    "no_meta_roadmap_ones": "Inga $t(common:meta_roadmap_other) hittades. Om du har några aktiva filter hittades inga $t(common:meta_roadmap_other) som matchar dem.",
+    "no_roadmap_series_ones": "Inga $t(common:roadmap_series_other) hittades. Om du har några aktiva filter hittades inga $t(common:roadmap_series_other) som matchar dem.",
     "show_source_alt": "Visa underliggande $t(common:roadmap_version_other)",
     "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
   },
   "user_filters": {
     "posts": "Inlägg",
     "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
-    "roadmap_series": "{{$t(common:meta_roadmap_other), titleCase}}",
+    "roadmap_series": "{{$t(common:roadmap_series_other), titleCase}}",
     "access_level": "Behörighet",
     "editing_access": "Redigeringsbehörighet"
   },
   "logout": "Logga ut",
   "table_menu": {
     "new_roadmap_version": "Ny $t(common:roadmap_version_one)",
-    "go_to_series": "Gå till $t(common:meta_roadmap_one)",
+    "go_to_series": "Gå till $t(common:roadmap_series_one)",
     "go_to_version": "Gå till $t(common:roadmap_version_one)",
     "go_to_goal": "Gå till $t(common:goal_one)",
     "new_goal": "Ny $t(common:goal_one)",
@@ -55,7 +55,7 @@
     "sort_action_count_descending": "Antal $t(common:action_other) (fallande)",
     "sort_action_count_ascending": "Antal $t(common:action_other) (stigande)",
     "sort_interest": "Intresse",
-    "new_goal": "Skapa ny $t(common:goal_one)",
+    "new_goal": "$t(common:new.goal)",
     "loading_alt": "Laddar"
   },
   "comments": {
@@ -82,7 +82,7 @@
   },
   "breadcrumbs": {
     "home": "Hem",
-    "roadmap_series": "{{$t(common:meta_roadmap_one), titleCase}}:",
+    "roadmap_series": "{{$t(common:roadmap_series_one), titleCase}}:",
     "version_label": "Version:",
     "version": "Version {{version}}",
     "goal": "{{$t(common:goal_one), titleCase}}:",
@@ -136,12 +136,12 @@
   "action_table": {
     "no_actions": "Det finns inga $t(common:action_other) att visa.",
     "wanna_create_action": "Vill du skapa en?",
-    "create_action": "Skapa ny $t(common:action_one)"
+    "create_action": "$t(common:new.action)"
   },
   "link_tree": {
     "no_roadmaps": "Du har inte tillgång till några $t(common:goal_other) i denna $t(common:roadmap_version_one), eller så är $t(common:roadmap_version_definite_one) tom."
   },
-  "meta_roadmap_one_deleter": {
+  "roadmap_series_one_deleter": {
     "remove_metadata": "Ta bort metadata"
   },
   "update_goal_button": {
@@ -185,7 +185,7 @@
     "invalid_input": "Felaktig inmatning. Skalningsfaktorn kunde inte beräknas. Ofta beror detta på ett ickenumeriskt värde i ett inmatningsfält eller att produkten av alla skalningsfaktorer är negativ."
   },
   "goal_edit": {
-    "title": "Redigera $t(common:goal_one)"
+    "title": "$t(common:edit.goal)"
   },
   "goal_child_graph": {
     "unknown_roadmap": "Okänd $t(common:roadmap_version_one)"
@@ -226,7 +226,7 @@
   "effects_table": {
     "no_effects": "Det finns inga $t(common:effect_other) att visa.",
     "wanna_create_effect": "Vill du skapa en?",
-    "create_new_effect": "Skapa ny $t(common:effect_one)"
+    "create_new_effect": "$t(common:new.effect)"
   },
   "graph_cookie": {
     "save_preferences": "Spara framtida vyändringar mellan sessioner och sidnavigeringar"

@@ -417,33 +417,26 @@ function TestVariableSyntax() {
 /** Test for duplicate values between objects within the same namespace for extraction */
 function TestDuplicateValues() {
 
-  const perLocale: { [key: string]: { [key: string]: string[] } }
-    = Object.fromEntries(expectedLocales.map(locale => [locale, {}]));
+  const perLocale: { [key: string]: string[] }
+    = Object.fromEntries(expectedLocales.map(locale => [locale, []]));
 
   expectedLocales.forEach((locale) => {
-    expectedNS.forEach((namespace) => {
 
-      // We don't really care about common namespace here since it's so small and the source for others
-      if (namespace === "common") return;
+    const flattenedValues = expectedNS.flatMap((namespace) => getFlattenedValues(locale, namespace));
 
-      const values = getFlattenedValues(locale, namespace);
+    const dupeValues = flattenedValues
+      .filter(value => {
+        const matches = flattenedValues.filter(otherValue => otherValue === value);
+        return matches.length > 1;
+      })
 
-      values.forEach(value => {
-        const matches = values.filter(otherValue => otherValue === value);
-        if (matches.length > 1) {
-          if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-          perLocale[locale][namespace].push(`[Duplicate] > '${value}'`);
-        }
-      });
-    });
+    perLocale[locale] = dupeValues;
   });
 
-  const totalBad = Object.values(getFlattenedObject(perLocale)).length;
-
-  assertWarn(totalBad === 0,
-    `Duplicate values in locale files: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f in vscode to find the perpetrators.`,
-    "No duplicate values found"
-  );
+  if (!fs.existsSync("dupeLocales")) fs.mkdirSync("dupeLocales");
+  expectedLocales.forEach(locale => {
+    fs.writeFileSync(`dupeLocales/${locale}.json`, JSON.stringify(perLocale[locale], null, 2));
+  });
 }
 
 
