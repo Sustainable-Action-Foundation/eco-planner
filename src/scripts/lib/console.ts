@@ -69,7 +69,7 @@ function styleError(error: Error, options: Options): string {
   return colors.red(stack);
 }
 
-function styleObject(obj: object, options: Options): string {
+function styleObject(obj: object, _options: Options): string {
   return JSON.stringify(obj, null, 2);
 }
 

@@ -11,7 +11,7 @@ import escape from "regexp.escape"; // Polyfill for RegExp.escape. Not in node y
 /** Where to find the locale files */
 const localesDir = "public/locales";
 /** Which folder to search for files with locale accesses */
-const appDir = "src"
+// const appDir = "src"
 /** Expected namespaces */
 const expectedNS = ns;
 const expectedLocales = uniqueLocales;
@@ -414,30 +414,7 @@ function TestVariableSyntax() {
   );
 }
 
-/** Test for duplicate values between objects within the same namespace for extraction */
-function TestDuplicateValues() {
-
-  const perLocale: { [key: string]: string[] }
-    = Object.fromEntries(expectedLocales.map(locale => [locale, []]));
-
-  expectedLocales.forEach((locale) => {
-
-    const flattenedValues = expectedNS.flatMap((namespace) => getFlattenedValues(locale, namespace));
-
-    const dupeValues = flattenedValues
-      .filter(value => {
-        const matches = flattenedValues.filter(otherValue => otherValue === value);
-        return matches.length > 1;
-      })
-
-    perLocale[locale] = dupeValues;
-  });
-
-  if (!fs.existsSync("dupeLocales")) fs.mkdirSync("dupeLocales");
-  expectedLocales.forEach(locale => {
-    fs.writeFileSync(`dupeLocales/${locale}.json`, JSON.stringify(perLocale[locale], null, 2));
-  });
-}
+/** TODO: Test the tsx. Use appDir from top of file */
 
 
 /** Run all tests */
@@ -456,7 +433,6 @@ TestMissedUseOfCommon();
 TestNestedKeysDefined();
 TestNestedKeysSyntax();
 TestVariableSyntax();
-TestDuplicateValues();
 console.info(`
 All tests passed! 🎉
 `);
