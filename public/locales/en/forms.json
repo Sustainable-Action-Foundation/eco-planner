@@ -1,4 +1,8 @@
 {
+  "read_access": "read access",
+  "edit_access": "edit access",
+  "save": "Save",
+  "create": "Create {{what}}",
   "meta_roadmap_one": {
     "description_legend": "Describe your $t(common:meta_roadmap_one)",
     "roadmap_series_name": "Name $t(common:meta_roadmap_definite_one)",

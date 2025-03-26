@@ -16,7 +16,12 @@ const appDir = "src"
 const expectedNS = ns;
 const expectedLocales = uniqueLocales;
 const keyCountModifiers = ["_other", "_zero", "_one", "_two", "_few", "_many", "_plural"];
-
+/** These values will be ignored when checking if common values are being used directly in other namespaces */
+const exemptedValues = [
+  "Are you sure you want to delete post <strong>{{targetName}}</strong>?<br />This action cannot be undone.",
+  "This tool aims to contribute to Sweden's climate transition.\n\nIn the tool, national scenarios, also called quantitative roadmaps, can be broken down to regional and local levels and an action plan can be created.\n\nThe action plan is built up by actions which relate to a specific goal and the goals together make up the entire roadmap.\n\nUsers can be inspired by each other's actions, creating a common action database for Sweden.\n\nAt the local level, different actors can also collaborate on actions.",
+  "Detta verktyg syftar till att bidra till Sveriges klimatomställning.\n\nI verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas.\n\nHandlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen.\n\nAnvändare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige.\n\nPå lokal nivå kan också olika aktörer samarbeta kring åtgärder.",
+];
 
 /** 
  * Tests:
@@ -178,6 +183,9 @@ async function TestMissedUseOfCommon() {
       const values = getFlattenedValues(locale, namespace);
 
       values.forEach(value => {
+        // Skip if value is exempted
+        if (exemptedValues.includes(value)) return
+
         commonValues.forEach(commonValue => {
 
           const escapedCommonValue = escape(commonValue);
@@ -191,17 +199,17 @@ async function TestMissedUseOfCommon() {
 
           if (value.match(regex)) {
             if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-            perLocale[locale][namespace].push(`[${commonValue}] > ${value}`);
+            perLocale[locale][namespace].push(`[${commonValue}] > '${value}'`);
           }
         });
       });
     });
   });
 
-  const totalBadKeys = Object.values(perLocale).flat().length;
+  const totalBadKeys = Object.values(getFlattenedObject(perLocale)).length;
 
   assertWarn(totalBadKeys === 0,
-    `These locale files might be using duplicate values defined in common: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f in vscode to find the perpetrators.`,
+    `These locale files might be using values defined in common. Reference common instead: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f in vscode to find the perpetrators.`,
     ""
   );
 }
@@ -227,12 +235,19 @@ function TestNestedKeysDefined() {
       const tCalls = values.matchAll(nestedTFunctionRegex) || [];
 
       tCalls.forEach(call => {
+        /** 
+         * match = $t([key])
+         * key = [key]
+         */
         const [match, key] = call;
 
         // Skip if key is defined
         if (allKeys.includes(key)) return;
 
-        // Does it have args?
+        /** 
+         * key could look like this:
+         * "key, { "count": count }"
+         */
         const [keyArg, tOptions] = key.split(/\s?,\s?/gm);
 
         // Skip if key is defined
@@ -246,20 +261,20 @@ function TestNestedKeysDefined() {
         }
 
         if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-        perLocale[locale][namespace].push(`[${key}] > ${match}`);
+        perLocale[locale][namespace].push(`[${key}] > '${match}'`);
       });
     });
   });
 
   const totalBadKeys = Object.values(getFlattenedObject(perLocale)).length;
 
-  assertWarn(totalBadKeys === 0,
-    `These locale files have nested keys that are not defined: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f in vscode to find the perpetrators.`,
+  assert(totalBadKeys === 0,
+    `Nested keys not defined: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f in vscode to find the perpetrators.`,
     "All nested keys seem to be defined"
   );
 }
 
-/**  */
+/** Are all the nested keys used in locale files correctly formatted? */
 function TestNestedKeysSyntax() {
   const perLocale: { [key: string]: { [key: string]: string[] } }
     = Object.fromEntries(expectedLocales.map(locale => [locale, {}]));
@@ -276,7 +291,7 @@ function TestNestedKeysSyntax() {
       emptyTCalls.forEach(call => {
         const [, key] = call;
         if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-        perLocale[locale][namespace].push(`${key} - Empty $t() call`);
+        perLocale[locale][namespace].push(`[Empty $t() call] > '${key}'`);
       });
 
       /** Every instance where $t(...  No closing ")" */
@@ -284,7 +299,7 @@ function TestNestedKeysSyntax() {
       noClosingTCalls.forEach(call => {
         const [match] = call;
         if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-        perLocale[locale][namespace].push(`${match} - Missing closing parenthesis`);
+        perLocale[locale][namespace].push(`[$t() never closed] > '${match}'`);
       });
 
       /** Every instance where t(...) is called. No dollar sign. */
@@ -292,7 +307,7 @@ function TestNestedKeysSyntax() {
       noDollarTCalls.forEach(call => {
         const [match] = call;
         if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-        perLocale[locale][namespace].push(`${match} - Missing dollar sign`);
+        perLocale[locale][namespace].push(`[Missing $t] > '${match}'`);
       });
 
       /** Every instance where $.(...) is called. Anything but t as the function name. */
@@ -300,7 +315,7 @@ function TestNestedKeysSyntax() {
       noTNameTCalls.forEach(call => {
         const [match] = call;
         if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-        perLocale[locale][namespace].push(`${match} - Invalid function name. Must be $t`);
+        perLocale[locale][namespace].push(`[$t() must be t] > '${match}'`);
       });
 
       /** Every instance where $t... is called. No "()" */
@@ -308,7 +323,7 @@ function TestNestedKeysSyntax() {
       noOpeningTCallas.forEach(call => {
         const [match] = call;
         if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-        perLocale[locale][namespace].push(`${match} - Missing opening parenthesis`);
+        perLocale[locale][namespace].push(`[$t() never opened] > '${match}'`);
       });
 
       /** Every instance where $t(...) is called. The regular valid calls */
@@ -319,12 +334,37 @@ function TestNestedKeysSyntax() {
         // Missing ":" and is a namespace indicating missing ":"
         if (!key.includes(":") && expectedNS.some(ns => key.startsWith(ns))) {
           if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-          perLocale[locale][namespace].push(`${key} - Missing namespace. Might be missing ':'?`);
+          perLocale[locale][namespace].push(`[Missing ':'] > '${key}'`);
         }
         // Invalid namespace
         else if (expectedNS.every(ns => !key.startsWith(ns))) {
           if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-          perLocale[locale][namespace].push(`${key} - Invalid namespace. Must start with [ ${expectedNS.join(", ")} ]`);
+          perLocale[locale][namespace].push(`[Invalid namespace] > '${key}'`);
+        }
+
+        /** 
+         * Key may be = "key, { "count": count }" 
+         */
+        const keyArg = key.split(",")[0];
+        const tOptions = key.replace(keyArg, "").replace(/\s*,\s*/m, "");
+        if (tOptions) {
+          const args = tOptions
+            .trim()
+            // Remove surrounding curly brackets
+            .replace(/^\{/m, "")
+            .replace(/\}$/m, "")
+            .split(",")
+            .map(arg => arg.trim())
+
+          // Are any of the names missing surrounding quotes? 
+          const missingQuotes = args
+            .map(arg => arg.split(":")[0])
+            .filter(arg => !arg.startsWith("\"") || !arg.endsWith("\""));
+
+          if (missingQuotes.length > 0) {
+            if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
+            perLocale[locale][namespace].push(`[Missing quotes in tOptions] > '${key}'`);
+          }
         }
       });
     });
@@ -332,14 +372,89 @@ function TestNestedKeysSyntax() {
 
   const totalBadKeys = Object.values(getFlattenedObject(perLocale)).length;
 
-  assertWarn(totalBadKeys === 0,
-    `These locale files have nested keys with syntax issues: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f in vscode to find the perpetrators.`,
+  assert(totalBadKeys === 0,
+    `Nested keys with syntax issues: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f in vscode to find the perpetrators.`,
     "Nested key syntax looks good"
+  );
+}
+
+/** Variable syntax */
+function TestVariableSyntax() {
+
+  const perLocale: { [key: string]: { [key: string]: string[] } }
+    = Object.fromEntries(expectedLocales.map(locale => [locale, {}]));
+
+  expectedLocales.forEach((locale) => {
+    expectedNS.forEach((namespace) => {
+      const values = getFlattenedValues(locale, namespace);
+
+      values.forEach(value => {
+        let count = 0;
+        for (let i = 0; i < value.length; i++) {
+          const char = value[i];
+
+          if (char === "{") count++;
+          if (char === "}") count--;
+
+          if (count < 0) {
+            if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
+            perLocale[locale][namespace].push(`[Missing '{'] > '${value}'`);
+            break;
+          }
+        }
+      });
+    });
+  });
+
+  const totalBad = Object.values(getFlattenedObject(perLocale)).length;
+
+  assert(totalBad === 0,
+    `Variable syntax issues: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f in vscode to find the perpetrators.`,
+    "Variable syntax looks good"
+  );
+}
+
+/** Test for duplicate values between objects within the same namespace for extraction */
+function TestDuplicateValues() {
+
+  const perLocale: { [key: string]: { [key: string]: string[] } }
+    = Object.fromEntries(expectedLocales.map(locale => [locale, {}]));
+
+  expectedLocales.forEach((locale) => {
+    expectedNS.forEach((namespace) => {
+
+      // We don't really care about common namespace here since it's so small and the source for others
+      if (namespace === "common") return;
+
+      const values = getFlattenedValues(locale, namespace);
+
+      values.forEach(value => {
+        const matches = values.filter(otherValue => otherValue === value);
+        if (matches.length > 1) {
+          if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
+          perLocale[locale][namespace].push(`[Duplicate] > '${value}'`);
+        }
+      });
+    });
+  });
+
+  const totalBad = Object.values(getFlattenedObject(perLocale)).length;
+
+  assertWarn(totalBad === 0,
+    `Duplicate values in locale files: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f in vscode to find the perpetrators.`,
+    "No duplicate values found"
   );
 }
 
 
 /** Run all tests */
+console.info(`
+Running all tests...
+ｉ ... is a passed pass-warn test
+✔  ... is a passed pass-fail test
+❕ ... is a failed pass-warn test
+❌ ... is a failed pass-fail test
+`);
 TestLocalesDir();
 TestNamespaces();
 TestKeyCompleteness();
@@ -347,6 +462,11 @@ TestSnakeCase();
 TestMissedUseOfCommon();
 TestNestedKeysDefined();
 TestNestedKeysSyntax();
+TestVariableSyntax();
+TestDuplicateValues();
+console.info(`
+All tests passed! 🎉
+`);
 
 
 /** Get all keys from a locale and namespace from the filesystem */
