@@ -15,6 +15,7 @@ const appDir = "src"
 /** Expected namespaces */
 const expectedNS = ns;
 const expectedLocales = uniqueLocales;
+const keyCountModifiers = ["_other", "_zero", "_one", "_two", "_few", "_many", "_plural"];
 
 
 /** 
@@ -190,7 +191,7 @@ async function TestMissedUseOfCommon() {
 
           if (value.match(regex)) {
             if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-            perLocale[locale][namespace].push(`[${commonValue}] > '${value}'`);
+            perLocale[locale][namespace].push(`[${commonValue}] > ${value}`);
           }
         });
       });
@@ -200,7 +201,7 @@ async function TestMissedUseOfCommon() {
   const totalBadKeys = Object.values(perLocale).flat().length;
 
   assertWarn(totalBadKeys === 0,
-    `These locale files might be using duplicate values defined in common: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f to find the perpetrators.`,
+    `These locale files might be using duplicate values defined in common: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f in vscode to find the perpetrators.`,
     ""
   );
 }
@@ -215,7 +216,7 @@ function TestNestedKeysDefined() {
 
 
   expectedLocales.forEach((locale) => {
-    const allNamespaceKeys = expectedNS.flatMap((namespace) => getResolvedKeys(locale, namespace));
+    const allKeys = expectedNS.flatMap((namespace) => getResolvedKeys(locale, namespace));
 
     expectedNS.forEach((namespace) => {
       // Skip checking common namespace
@@ -228,28 +229,38 @@ function TestNestedKeysDefined() {
       tCalls.forEach(call => {
         const [match, key] = call;
 
-        if (allNamespaceKeys.includes(key)) return;
+        // Skip if key is defined
+        if (allKeys.includes(key)) return;
+
+        // Does it have args?
+        const [keyArg, tOptions] = key.split(/\s?,\s?/gm);
+
+        // Skip if key is defined
+        if (allKeys.includes(keyArg)) return;
+
+        // If it has a count arg, skip if base key is defined
+        if (tOptions?.includes("\"count\"")) {
+          // Find count versions of base key
+          const countVersionKeys = keyCountModifiers.map(mod => keyArg + mod);
+          if (countVersionKeys.some(countKey => allKeys.includes(countKey))) return;
+        }
 
         if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-        perLocale[locale][namespace].push(`[${key}] > '${match}'`);
+        perLocale[locale][namespace].push(`[${key}] > ${match}`);
       });
     });
   });
 
-  const totalBadKeys = Object.values(perLocale).flat().length;
+  const totalBadKeys = Object.values(getFlattenedObject(perLocale)).length;
 
   assertWarn(totalBadKeys === 0,
-    `These locale files have nested keys that are not defined: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f to find the perpetrators.`,
-    ""
+    `These locale files have nested keys that are not defined: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f in vscode to find the perpetrators.`,
+    "All nested keys seem to be defined"
   );
 }
 
 /**  */
 function TestNestedKeysSyntax() {
-  const nestedTFunctionRegex = /\$t\(([^\)]+)\)/gmu;
-  const escapedRegexes = expectedNS.map(ns => escape(ns)).join("|");
-  const nsRegex = new RegExp(`^(${escapedRegexes}):`, "gm");
-
   const perLocale: { [key: string]: { [key: string]: string[] } }
     = Object.fromEntries(expectedLocales.map(locale => [locale, {}]));
 
@@ -260,28 +271,70 @@ function TestNestedKeysSyntax() {
 
       const values = getFlattenedValues(locale, namespace).join("\n");
 
-      const tCalls = values.matchAll(nestedTFunctionRegex) || [];
+      /** Every instance where $t() is called */
+      const emptyTCalls = values.matchAll(/\$t\(\)/gm) || [];
+      emptyTCalls.forEach(call => {
+        const [, key] = call;
+        if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
+        perLocale[locale][namespace].push(`${key} - Empty $t() call`);
+      });
 
-      tCalls.forEach(call => {
+      /** Every instance where $t(...  No closing ")" */
+      const noClosingTCalls = values.matchAll(/\$t\([^)]*(?!.*\))/gm) || [];
+      noClosingTCalls.forEach(call => {
+        const [match] = call;
+        if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
+        perLocale[locale][namespace].push(`${match} - Missing closing parenthesis`);
+      });
+
+      /** Every instance where t(...) is called. No dollar sign. */
+      const noDollarTCalls = values.matchAll(/[^$]t\([^)]*\)/gm) || [];
+      noDollarTCalls.forEach(call => {
+        const [match] = call;
+        if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
+        perLocale[locale][namespace].push(`${match} - Missing dollar sign`);
+      });
+
+      /** Every instance where $.(...) is called. Anything but t as the function name. */
+      const noTNameTCalls = values.matchAll(/\$[^t]\([^)]*\)/gm) || [];
+      noTNameTCalls.forEach(call => {
+        const [match] = call;
+        if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
+        perLocale[locale][namespace].push(`${match} - Invalid function name. Must be $t`);
+      });
+
+      /** Every instance where $t... is called. No "()" */
+      const noOpeningTCallas = values.matchAll(/\$t[^()]{0,20}(?!\(|\))/gm) || [];
+      noOpeningTCallas.forEach(call => {
+        const [match] = call;
+        if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
+        perLocale[locale][namespace].push(`${match} - Missing opening parenthesis`);
+      });
+
+      /** Every instance where $t(...) is called. The regular valid calls */
+      const validTCalls = values.matchAll(/\$t\(([^\)]+)\)/gm) || [];
+      validTCalls.forEach(call => {
         const [, key] = call;
 
-        if (!key.includes(":")) {
+        // Missing ":" and is a namespace indicating missing ":"
+        if (!key.includes(":") && expectedNS.some(ns => key.startsWith(ns))) {
           if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-          perLocale[locale][namespace].push(`${key} - Missing namespace. Might be missing ':'`);
+          perLocale[locale][namespace].push(`${key} - Missing namespace. Might be missing ':'?`);
         }
-        else if (!key.match(nsRegex)) {
+        // Invalid namespace
+        else if (expectedNS.every(ns => !key.startsWith(ns))) {
           if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-          perLocale[locale][namespace].push(`${key} - Missing namespace`);
+          perLocale[locale][namespace].push(`${key} - Invalid namespace. Must start with [ ${expectedNS.join(", ")} ]`);
         }
       });
     });
   });
 
-  const totalBadKeys = Object.values(perLocale).flat().length;
+  const totalBadKeys = Object.values(getFlattenedObject(perLocale)).length;
 
   assertWarn(totalBadKeys === 0,
-    `These locale files have nested keys that are not namespaced: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f to find the perpetrators.`,
-    ""
+    `These locale files have nested keys with syntax issues: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f in vscode to find the perpetrators.`,
+    "Nested key syntax looks good"
   );
 }
 
@@ -360,6 +413,27 @@ function getFlattenedValues(locale: Locales, namespace: string) {
   const values = extractNestedValues(nestedData);
 
   return values;
+}
+
+/** Flatten an object including children */
+function getFlattenedObject(obj: object) {
+  const result: Record<string, string> = {};
+
+  const recurse = (obj: object, prefix = "") => {
+    for (const [key, value] of Object.entries(obj)) {
+      const newPrefix = prefix ? `${prefix}.${key}` : key;
+      if (typeof value === "object") {
+        recurse(value, newPrefix);
+      }
+      else {
+        result[newPrefix] = value;
+      }
+    }
+  };
+
+  recurse(obj);
+
+  return result;
 }
 
 /** Assert with error and exit */

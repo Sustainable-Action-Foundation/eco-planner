@@ -1,6 +1,6 @@
 "use client";
 
-import { initTemplate, Locales, ns, uniqueLocales } from "i18n.config";
+import { initTemplate, Locales, uniqueLocales } from "i18n.config";
 import { getCookie } from "cookies-next";
 import { I18nextProvider } from "react-i18next";
 import { initReactI18next } from "react-i18next";

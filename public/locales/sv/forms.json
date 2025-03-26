@@ -131,8 +131,8 @@
   },
   "action": {
     "choose_relationship": "Ange relationen till andra inlägg",
-    "relationship_label": "Välj $t(common:roadmap_version) att skapa $t(common:action_definite_one) under:",
-    "relationship_no_chosen": "Välj $t(common:roadmap_version)",
+    "relationship_label": "Välj $t(common:roadmap_version_one) att skapa $t(common:action_definite_one) under:",
+    "relationship_no_chosen": "Välj $t(common:roadmap_version_one)",
     "action_count": "{{count}} $t(common:action, {\"count\":{{count}}})",
     "action_description_legend": "Beskriv din $t(common:action_one)",
     "action_name": "Namn på $t(common:action_definite_one)",
