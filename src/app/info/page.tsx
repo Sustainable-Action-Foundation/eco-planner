@@ -30,8 +30,8 @@ export default async function Page() {
   let version: string | null = null;
   try {
     // Try to get repository url from package.json
-    if (metadata.repository) {
-      let repo = metadata.repository.replace(".git", "");
+    if (metadata.homepage) {
+      let repo = metadata.homepage.replace(".git", "");
       if (!repo.endsWith("/")) {
         repo += "/";
       }
@@ -63,29 +63,32 @@ export default async function Page() {
 
       {/* TODO: Add wiki once created */}
 
-      {
-        version
-          ? <p>Version: {version}</p>
-          : null
-      }
+      <p>
+        Verktyget är licenserat under AGPL version 3 och koden finns tillgänglig på GitHub: {
+          remoteURL ?
+            <a href={remoteURL.href} target="_blank" >
+              {/* Gets the repository name from a github-like url with a trailing slash, with hostname as fallback */}
+              {remoteURL.pathname.split("/")[remoteURL.pathname.split("/").length - 2] || remoteURL.hostname}
+            </a>
+            :
+            <a href="https://github.com/Sustainable-Action-Foundation/eco-planner" target="_blank">här</a>
+        }
+      </p>
 
       {
-        remoteURL
-          ? <p>Remote: <a href={remoteURL.href} target="_blank" >
-            {/* Gets the repository name from a github-like url with a trailing slash, with hostname as fallback */}
-            {remoteURL.pathname.split("/")[remoteURL.pathname.split("/").length - 2] || remoteURL.hostname}
-          </a></p>
+        version
+          ? <p>Nuvarande version: {version}</p>
           : null
       }
 
       {
         gitHash.shortHash || gitHash.longHash
           ? commitURL
-            ? <p>Commit: <a href={commitURL.href} target="_blank" >
+            ? <p>Baserad på commit: <a href={commitURL.href} target="_blank" >
               {gitHash.shortHash || gitHash.longHash}
             </a></p>
             :
-            <p>Commit: {gitHash.shortHash || gitHash.longHash}</p>
+            <p>Baserad på commit: {gitHash.shortHash || gitHash.longHash}</p>
           : null
       }
     </>
