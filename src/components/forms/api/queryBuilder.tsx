@@ -201,7 +201,7 @@ export default function QueryBuilder({
       variableSelectionFieldsets.forEach(variableSelectionFieldset => {
         if (!isDefaultValue && variableSelectionFieldset.hasAttribute("disabled")) {
           variableSelectionFieldset.removeAttribute("disabled");
-          // TODO - should trafa table details be fetched here?
+          // TODO - should trafa table details be fetched here? - no it is already fetched when the form is changed
         }
         else if (isDefaultValue) {
           // Reset the selection of all select elements in the variable fieldset before disabling
