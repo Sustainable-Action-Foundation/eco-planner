@@ -190,24 +190,27 @@ export default function QueryBuilder({
 
   function handleMetricSelect(event: React.ChangeEvent<HTMLSelectElement>) {
     const isDefaultValue = event.target.value.length == 0;
-    const variableFieldset = document.getElementById("variable-fieldset");
-    if (variableFieldset) {
-      if (!isDefaultValue && variableFieldset.hasAttribute("disabled")) {
-        variableFieldset.removeAttribute("disabled");
-        // TODO - should trafa table details be fetched here?
-      }
-      else if (isDefaultValue) {
-        // Reset the selection of all select elements in the variable fieldset before disabling
-        variableFieldset.querySelectorAll("select").forEach(select => {
-          select.value = "";
-        });
-        variableFieldset.setAttribute("disabled", "true");
-        // Reset all the table details when disabling the form so all options are displayed when re-enabling
-        if (dataSource == "Trafa") {
-          getTableDetails(tableDetails?.id ?? "", dataSource, undefined, locale).then(result => { setTableDetails(result); });
+    const variableSelectionFieldsets = document.getElementsByName("variable-selection-fieldset");
+    
+    if (variableSelectionFieldsets.length > 0) {
+      variableSelectionFieldsets.forEach(variableSelectionFieldset => {
+        if (!isDefaultValue && variableSelectionFieldset.hasAttribute("disabled")) {
+          variableSelectionFieldset.removeAttribute("disabled");
+          // TODO - should trafa table details be fetched here?
         }
-      }
-    } else console.log("no variable fieldset found");
+        else if (isDefaultValue) {
+          // Reset the selection of all select elements in the variable fieldset before disabling
+          variableSelectionFieldset.querySelectorAll("select").forEach(select => {
+            select.value = "";
+          });
+          variableSelectionFieldset.setAttribute("disabled", "true");
+          // Reset all the table details when disabling the form so all options are displayed when re-enabling
+          if (dataSource == "Trafa") {
+            getTableDetails(tableDetails?.id ?? "", dataSource, undefined, locale).then(result => { setTableDetails(result); });
+          }
+        }
+      });
+    } else console.log("no variable selection fieldset found");
   }
 
   function optionalTag(dataSource: string, variableIsOptional: boolean) {
@@ -377,7 +380,7 @@ export default function QueryBuilder({
 
                   </label>
                 </fieldset>
-                <fieldset id="variable-fieldset" disabled={true} className={`margin-block-100 smooth padding-50 fieldset-unset-pseudo-class`} style={{ border: `${shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? "1px solid var(--gray-90)" : ""}` }}>
+                <fieldset name="variable-selection-fieldset" disabled={true} className={`margin-block-100 smooth padding-50 fieldset-unset-pseudo-class`} style={{ border: `${shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? "1px solid var(--gray-90)" : ""}` }}>
                   {shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
                     <>
                       <legend className="padding-inline-50">
