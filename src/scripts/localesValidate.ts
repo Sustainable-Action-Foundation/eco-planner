@@ -24,7 +24,7 @@ const exemptedValues = [
 ];
 
 /** Does every supported locale have a corresponding folder in the locales directory? */
-async function TestLocalesDir() {
+function TestLocalesDir() {
   const localeDirs = glob.sync(`${localesDir}/*/`)
     .map(dir => path.basename(dir));
 
@@ -43,7 +43,7 @@ async function TestLocalesDir() {
 }
 
 /** Does every namespace exist in every locale? */
-async function TestNamespaces() {
+function TestNamespaces() {
   // Track missing and extra namespaces per locale
   const perLocale: { [key: string]: { missing: string[], extra: string[] } }
     = Object.fromEntries(expectedLocales.map(locale => [locale, { missing: [], extra: [] }]));
@@ -74,7 +74,7 @@ async function TestNamespaces() {
 }
 
 /** Does english have all keys to function as a fallback? */
-async function TestKeyCompleteness() {
+function TestKeyCompleteness() {
   const enKeys = expectedNS.flatMap((namespace) => getResolvedKeys(Locales.en, namespace));
 
   // Track both types of missing keys
@@ -96,25 +96,25 @@ async function TestKeyCompleteness() {
     missingFromEnglish[locale] = keysNotInEnglish;
   });
 
-  const missingFromOtherLocalesNoEnglish = Object.fromEntries(Object.entries(missingFromOtherLocales).filter(([key, value]) => key !== Locales.en && value.length));
-  const missingFromEnglishNoEnglish = Object.fromEntries(Object.entries(missingFromEnglish).filter(([key, value]) => key !== Locales.en && value.length));
+  const missingFromOtherLocalesFiltered = Object.fromEntries(Object.entries(missingFromOtherLocales).filter(([key, value]) => key !== Locales.en && value.length));
+  const missingFromEnglishFiltered = Object.fromEntries(Object.entries(missingFromEnglish).filter(([key, value]) => key !== Locales.en && value.length));
 
   // Report missing keys in other locales
-  assertWarn(Object.keys(missingFromOtherLocalesNoEnglish).length === 0,
-    `Keys missing in other locales but present in English: ${JSON.stringify(missingFromOtherLocalesNoEnglish, null, 2)}`,
-    "All English keys exist in all locales"
+  assertWarn(Object.keys(missingFromOtherLocalesFiltered).length === 0,
+    `English has more keys than other locales. This might lead to preemptive fallback use. ${JSON.stringify(missingFromOtherLocalesFiltered, null, 2)}`,
+    ""
   );
 
   // Report missing keys in English
-  assert(Object.keys(missingFromEnglishNoEnglish).length === 0,
-    `Keys missing in English but present in: ${JSON.stringify(missingFromEnglishNoEnglish, null, 2)
+  assert(Object.keys(missingFromEnglishFiltered).length === 0,
+    `Keys missing in English but present in: ${JSON.stringify(missingFromEnglishFiltered, null, 2)
     }. This is a problem if English is the fallback language.`,
     "English has the keys to function as a fallback"
   );
 }
 
 /** Do all the keys follow snake case? */
-async function TestSnakeCase() {
+function TestSnakeCase() {
   const perLocale: { [key: string]: string[] }
     = Object.fromEntries(expectedLocales.map(locale => [locale, []]));
 
@@ -146,7 +146,7 @@ async function TestSnakeCase() {
 }
 
 /** Do namespaces use the values of common keys instead of referencing? */
-async function TestMissedUseOfCommon() {
+function TestMissedUseOfCommon() {
 
   const perLocale: { [key: string]: { [key: string]: string[] } }
     = Object.fromEntries(expectedLocales.map(locale => [locale, {}]));
@@ -504,7 +504,7 @@ function TestImports() {
 
   const totalBad = Object.values(perFile).flat().length;
 
-  assertWarn(totalBad === 0,
+  assert(totalBad === 0,
     `Translation functions are being used incorrectly. Non marked files are assumed to be server side: ${JSON.stringify(perFile, null, 2)}`,
     "Translation functions are being used correctly"
   );
@@ -538,7 +538,7 @@ function TestTCallsNamespace() {
 
   const totalBad = Object.values(perFile).flat().length;
 
-  assertWarn(totalBad === 0,
+  assert(totalBad === 0,
     `Non-namespaced keys found in t() calls: ${JSON.stringify(perFile, null, 2)}`,
     "All t() calls are namespaced"
   );
@@ -568,7 +568,7 @@ function TestTCallsKeyDefined() {
 
   const totalBad = Object.values(perFile).flat().length;
 
-  assertWarn(totalBad === 0,
+  assert(totalBad === 0,
     `Undefined keys found in t() calls: ${JSON.stringify(perFile, null, 2)}`,
     "All t() calls have defined keys"
   );
