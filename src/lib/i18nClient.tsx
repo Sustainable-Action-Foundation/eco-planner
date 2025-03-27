@@ -18,22 +18,22 @@ i18nClient
       loadPath: "/api/locales?lng={{lng}}&ns={{ns}}",
     },
   });
-i18nClient.changeLanguage(match([...navigator.languages], uniqueLocales, Locales.default));
+// i18nClient.changeLanguage(match([...navigator.languages], uniqueLocales, Locales.default));
 
 /** React component that wraps all translatable client side content */
 export default function I18nProvider(
-  { children }: { children: React.ReactNode }
+  { children, lng }: { children: React.ReactNode, lng?: string }
 ) {
   const [isI18nInitialized, setIsI18nInitialized] = useState(false);
   const [forceUpdate, setForceUpdate] = useState(0);
 
   useEffect(() => {
     const initI18n = async () => {
-      const cookieLang = await getCookie("locale");
+      const cookieLang = (await getCookie("locale")) || navigator.language;
 
       // If cookie exists, respect that language
       if (cookieLang && i18nClient.language !== cookieLang) {
-        await i18nClient.changeLanguage(match([cookieLang], uniqueLocales, Locales.default));
+        await i18nClient.changeLanguage(match(["en"], uniqueLocales, Locales.default));
         return setIsI18nInitialized(true);
       }
 

@@ -31,9 +31,7 @@ export function t(key: string | string[], options?: (TOptionsBase & $Dictionary)
     ? match([cookieLocale], uniqueLocales, Locales.default)
     : Locales.default;
 
-  i18nServer.changeLanguage(locale, () => {
-    return
-  });
+  // i18nServer.changeLanguage(locale);
 
-  return i18nServer.t(key, options);
+  return i18nServer.t(key, { ...options, lng: locale });
 }

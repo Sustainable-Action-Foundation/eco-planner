@@ -16,13 +16,19 @@ export async function middleware(req: NextRequest) {
   if (existingLocaleCookie) {
     // Sanitize the locale cookie
     const cookieLocale = acceptLanguage.get(existingLocaleCookie) ?? Locales.default;
+    // Set reset cookie
     response.cookies.set("locale", cookieLocale);
   }
-  else {
-    // No locale cookie found, define it with accept-language header (or default)
-    const headerLocale = acceptLanguage.get(req.headers.get("accept-language")) ?? Locales.default;
-    response.cookies.set("locale", headerLocale ?? Locales.default);
+  else if (req.headers.get("x-locale")) {
+    // Sanitize the locale header
+    const headerLocale = acceptLanguage.get(req.headers.get("x-locale")) ?? Locales.default;
+    response.headers.set("x-locale", headerLocale);
   }
+  // else {
+  //   // No locale cookie found, define it with accept-language header (or default)
+  //   const headerLocale = acceptLanguage.get(req.headers.get("accept-language")) ?? Locales.default;
+  //   response.cookies.set("locale", headerLocale ?? Locales.default);
+  // }
 
   // Redirect away from login page if already logged in
   if (req.nextUrl.pathname.startsWith('/login')) {

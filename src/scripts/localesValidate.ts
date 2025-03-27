@@ -75,7 +75,7 @@ function TestNamespaces() {
 
 /** Does english have all keys to function as a fallback? */
 function TestKeyCompleteness() {
-  const enKeys = expectedNS.flatMap((namespace) => getResolvedKeys(Locales.en, namespace));
+  const enKeys = expectedNS.flatMap((namespace) => getResolvedKeys(Locales.enSE, namespace));
 
   // Track both types of missing keys
   const missingFromOtherLocales: Record<string, string[]> = {};
@@ -96,8 +96,8 @@ function TestKeyCompleteness() {
     missingFromEnglish[locale] = keysNotInEnglish;
   });
 
-  const missingFromOtherLocalesFiltered = Object.fromEntries(Object.entries(missingFromOtherLocales).filter(([key, value]) => key !== Locales.en && value.length));
-  const missingFromEnglishFiltered = Object.fromEntries(Object.entries(missingFromEnglish).filter(([key, value]) => key !== Locales.en && value.length));
+  const missingFromOtherLocalesFiltered = Object.fromEntries(Object.entries(missingFromOtherLocales).filter(([key, value]) => key !== Locales.enSE && value.length));
+  const missingFromEnglishFiltered = Object.fromEntries(Object.entries(missingFromEnglish).filter(([key, value]) => key !== Locales.enSE && value.length));
 
   // Report missing keys in other locales
   assertWarn(Object.keys(missingFromOtherLocalesFiltered).length === 0,

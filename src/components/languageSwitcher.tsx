@@ -20,11 +20,11 @@ export function LanguageSwitcher() {
     // Update i18n instance
     await i18n.changeLanguage(newLocale);
 
-    // Update the locale cookie (to sync with server-side)
-    setCookie("locale", newLocale);
-
     // Update local state for rendering of this component
     setCurrentLocale(newLocale);
+
+    // Update the locale cookie (to sync with server-side)
+    setCookie("locale", newLocale);
 
     // Rerender the page with the new locale
     startTransition(() => {
