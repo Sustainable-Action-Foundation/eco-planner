@@ -12,7 +12,7 @@ export enum Locales {
 };
 export const uniqueLocales = [...new Set(Object.values(Locales))];
 
-export const ns = ["common", "forms", "components", "pages", "test",];
+export const ns = ["common", "forms", "components", "pages", "email", "test",];
 
 export function initTemplate(t: TFunction): InitOptions {
   return {
