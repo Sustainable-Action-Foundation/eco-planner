@@ -184,9 +184,6 @@ export function ManualGoalForm({
     for (let i = 0; i < (columnCount ? columnCount : 4); i++) {
       columns.push(drawGridColumn(i + 1));
     }
-    console.log(values);
-    console.log(columnCount);
-    console.log(columns);
     const gridInput = document.getElementById("inputGrid");
     if (gridInput) {
       console.log("gridInput exists");
@@ -275,7 +272,7 @@ export function ManualGoalForm({
         <button type="button" onClick={() => { console.log(document.getElementById("inputGrid")) }}>Logga</button>
         <button type="button" onClick={addColumn}>Lägg till kolumn</button>
         <button type="button" onClick={removeColumn}>Ta bort kolumn</button>
-        <div id="inputGrid" style={{ display: "grid", gridTemplateColumns: `repeat(${columnCount}, 1fr)`, gap: "1rem", gridTemplateRows: "auto" }} key="adwad">
+        <div id="inputGrid" style={{ display: "grid", gridTemplateColumns: `repeat(${columnCount}, 1fr)`, gap: "1rem", gridTemplateRows: "auto", overflow: "scroll" }} key="adwad">
           {columns.map((column) => column)}
         </div>
       </label>
