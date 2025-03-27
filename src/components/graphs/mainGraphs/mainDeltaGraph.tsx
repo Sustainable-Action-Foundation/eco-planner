@@ -1,3 +1,5 @@
+"use client";
+
 import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";

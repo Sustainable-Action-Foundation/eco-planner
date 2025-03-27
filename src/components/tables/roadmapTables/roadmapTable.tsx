@@ -1,3 +1,5 @@
+"use server";
+
 import { LoginData } from '@/lib/session';
 import styles from '@/components/tables/tables.module.css' with { type: "css" };
 import { MetaRoadmap, Roadmap } from "@prisma/client";
@@ -22,7 +24,7 @@ interface RoadmapTableWithRoadmaps extends RoadmapTableCommonProps {
 
 type RoadmapTableProps = RoadmapTableWithMetaRoadmap | RoadmapTableWithRoadmaps;
 
-export default function RoadmapTable({
+export default async function RoadmapTable({
   user,
   roadmaps,
   metaRoadmap,

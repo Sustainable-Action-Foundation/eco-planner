@@ -1,3 +1,5 @@
+"use client";
+
 import styles from '../tables.module.css' with { type: "css" };
 import { DataSeries, Goal } from "@prisma/client";
 import Image from 'next/image';

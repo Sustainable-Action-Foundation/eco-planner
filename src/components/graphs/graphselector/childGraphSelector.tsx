@@ -1,3 +1,5 @@
+"use client";
+
 import { DataSeries, Goal } from "@prisma/client";
 import { ChildGraphType } from "../childGraphs/childGraphContainer";
 import { ChangeEvent, Dispatch, SetStateAction } from "react";

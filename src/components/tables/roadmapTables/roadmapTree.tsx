@@ -1,3 +1,5 @@
+"use server";
+
 import styles from "@/components/tables/tables.module.css" with { type: "css" };
 import { TableMenu } from "@/components/tables/tableMenu/tableMenu.tsx";
 import accessChecker from "@/lib/accessChecker.ts";
@@ -20,7 +22,7 @@ type RoadmapTreeProps = {
  * 
  * Ignores which roadmap versions work towards which other versions; only MetaRoadmap relationships are considered.
  */
-export default function RoadmapTree({
+export default async function RoadmapTree({
   roadmaps,
   user,
 }: RoadmapTreeProps) {

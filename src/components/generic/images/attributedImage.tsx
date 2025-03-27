@@ -1,9 +1,11 @@
+"use server";
+
 import { t } from "@/lib/i18nServer";
 import styles from './images.module.css' with { type: "css" };
 import Image from "next/image";
 
 
-export default function AttributedImage({
+export default async function AttributedImage({
   children,
   src,
   alt,
@@ -22,7 +24,7 @@ export default function AttributedImage({
   )
 }
 
-export function AttributeText(
+export async function AttributeText(
   {
     className = "",
     author,

@@ -1,3 +1,5 @@
+"use client";
+
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
 import { Goal, DataSeries } from "@prisma/client";

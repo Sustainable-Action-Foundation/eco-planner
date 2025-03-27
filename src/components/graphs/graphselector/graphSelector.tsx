@@ -1,3 +1,5 @@
+"use client";
+
 import React, { ChangeEvent, Dispatch, SetStateAction } from 'react';
 import { DataSeries, Goal } from "@prisma/client";
 import { GraphType } from "../graphGraph";

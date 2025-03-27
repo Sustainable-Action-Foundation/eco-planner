@@ -1,3 +1,5 @@
+"use client"
+
 import React, { ChangeEvent, Dispatch, SetStateAction } from 'react';
 import RadioImage from './radioImage';
 import { ViewMode } from '../goals';
