@@ -41,10 +41,6 @@ export default function QueryBuilder({
     getTables(dataSource, query, locale).then(result => { setTables(result); setIsLoading(false); });
   }, [dataSource, locale]);
 
-  // useEffect(() => {
-  //   if (!isLoading)
-  // }, [isLoading])
-
   function buildQuery(formData: FormData) {
     const queryObject: object[] = [];
     formData.forEach((value, key) => {
@@ -215,9 +211,12 @@ export default function QueryBuilder({
         } else {
           setIsLoading(false);
         }
+      } else {
+        setIsLoading(false);
       }
     } else {
       console.log("no variable fieldset found");
+      setIsLoading(false);
     }
   }
 
