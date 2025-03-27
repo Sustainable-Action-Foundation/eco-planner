@@ -6,9 +6,9 @@
 import { InitOptions, TFunction } from "i18next";
 
 export enum Locales {
-  en = "en",
-  sv = "sv",
-  default = en,
+  enSE = "en-SE",
+  svSE = "sv-SE",
+  default = enSE,
 };
 export const uniqueLocales = [...new Set(Object.values(Locales))];
 
@@ -36,16 +36,16 @@ export function initTemplate(t: TFunction): InitOptions {
 
         /* Possessive */
         if (options && formats.includes("possessive")) {
-          if (lng === Locales.en) {
+          if (lng === Locales.enSE) {
             if (["s", "x", "y"].includes(value.slice(-1))) {
               value = value + "'";
             } else {
               value = value + "'s";
             }
           }
-          if (lng === Locales.sv) {
+          if (lng === Locales.svSE) {
             if (["s", "x", "z"].includes(value.slice(-1))) {
-              value = value + "'";
+              // Nothing
             } else {
               value = value + "s";
             }
