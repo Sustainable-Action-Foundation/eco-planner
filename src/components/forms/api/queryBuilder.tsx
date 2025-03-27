@@ -195,7 +195,7 @@ export default function QueryBuilder({
 
   function handleMetricSelect(event: React.ChangeEvent<HTMLSelectElement>) {
     const isDefaultValue = event.target.value.length == 0;
-    const variableSelectionFieldsets = document.getElementsByName("variable-selection-fieldset");
+    const variableSelectionFieldsets = document.getElementsByName("variableSelectionFieldset");
 
     if (variableSelectionFieldsets.length > 0) {
       variableSelectionFieldsets.forEach(variableSelectionFieldset => {
@@ -385,7 +385,7 @@ export default function QueryBuilder({
 
                   </label>
                 </fieldset>
-                <fieldset name="variable-selection-fieldset" disabled={true} className={`margin-block-100 smooth padding-50 fieldset-unset-pseudo-class`} style={{ border: `${shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? "1px solid var(--gray-90)" : ""}` }}>
+                <fieldset name="variableSelectionFieldset" disabled={true} className={`margin-block-100 smooth padding-50 fieldset-unset-pseudo-class`} style={{ border: `${shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? "1px solid var(--gray-90)" : ""}` }}>
                   {shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
                     <>
                       <legend className="padding-inline-50">
