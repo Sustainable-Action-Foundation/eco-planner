@@ -58,5 +58,10 @@
   },
   "css": {
     "optional": " - (valfri)"
+  },
+  "404": {
+    "status": "404",
+    "title": "Sidan hittades inte",
+    "description": "Se till att du har rätt address för sidan du söker."
   }
 }

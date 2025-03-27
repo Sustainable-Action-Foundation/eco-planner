@@ -58,5 +58,10 @@
   },
   "css": {
     "optional": " - (optional)"
+  },
+  "404": {
+    "status": "404",
+    "title": "Page not found",
+    "description": "Please ensure the URL is correct."
   }
 }
