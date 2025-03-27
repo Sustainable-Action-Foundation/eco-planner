@@ -103,7 +103,7 @@ export default function QueryBuilder({
     }
   }
 
-  function tryGetResult() {
+  function tryGetResult(event?: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
     // null check
     if (!(formRef.current instanceof HTMLFormElement)) return;
 
@@ -121,7 +121,12 @@ export default function QueryBuilder({
         }
       });
       if (dataSource == "Trafa") {
-        getTableDetails(tableId, dataSource, query, locale).then(result => { setTableDetails(result); });
+        // If metric was changed, only send the metric as a query to the API
+        if (event?.target instanceof HTMLSelectElement && event?.target.name == "metric") {
+          getTableDetails(tableId, dataSource, query.filter(q => q.variableCode == "metric"), locale).then(result => { setTableDetails(result); });
+        } else {
+          getTableDetails(tableId, dataSource, query, locale).then(result => { setTableDetails(result); });
+        }
       }
     }
     // If not, make sure the submit button is disabled
@@ -137,7 +142,7 @@ export default function QueryBuilder({
 
     console.log(tableDetails);
     if (!changedElementIsExternalDataset && !changedElementIsTableSearch && !changedElementIsTable && tables && tableDetails) {
-      tryGetResult();
+      tryGetResult(event);
     }
   }
 
@@ -191,7 +196,7 @@ export default function QueryBuilder({
   function handleMetricSelect(event: React.ChangeEvent<HTMLSelectElement>) {
     const isDefaultValue = event.target.value.length == 0;
     const variableSelectionFieldsets = document.getElementsByName("variable-selection-fieldset");
-    
+
     if (variableSelectionFieldsets.length > 0) {
       variableSelectionFieldsets.forEach(variableSelectionFieldset => {
         if (!isDefaultValue && variableSelectionFieldset.hasAttribute("disabled")) {
