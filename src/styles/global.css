@@ -34,7 +34,7 @@ p {
 
 /* Legends and labels */
 
-fieldset:not(:has(input:required, select:required, textarea:required), #variable-fieldset) legend::after {
+fieldset:not(:has(input:required, select:required, textarea:required)) legend::after {
   content: ' - (valfri)';
   font-style: italic;
   color: gray;
