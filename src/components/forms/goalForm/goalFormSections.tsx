@@ -1,15 +1,15 @@
 'use client';
 
-import { DataSeries, Goal } from "@prisma/client";
-import { dataSeriesPattern } from "./goalForm";
-import { Fragment, useEffect, useRef, useState } from "react";
-import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
 import { clientSafeGetOneGoal } from "@/fetchers/getOneGoal";
-import { clientSafeGetRoadmaps } from "@/fetchers/getRoadmaps";
+import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
 import type getRoadmaps from "@/fetchers/getRoadmaps";
+import { clientSafeGetRoadmaps } from "@/fetchers/getRoadmaps";
 import mathjs from "@/math";
+import CaseHandler from "@/scripts/caseHandler";
 import { dataSeriesDataFieldNames } from "@/types";
-import { column } from "mathjs";
+import { DataSeries, Goal } from "@prisma/client";
+import { Fragment, useEffect, useState } from "react";
+import { dataSeriesPattern } from "./goalForm";
 
 export function ManualGoalForm({
   currentGoal,
@@ -43,7 +43,7 @@ export function ManualGoalForm({
   }, [currentGoal]);
 
   // const inputFormRef = useRef<HTMLFormElement | null>(null);
-  // const inputGridElement = document.getElementById("inputForm");
+  const inputGridElement = document?.getElementById("inputForm");
 
   console.log(document.getElementById("inputGrid")?.style);
   console.log(document.getElementById("inputGrid")?.style.gridTemplateColumns);
@@ -84,25 +84,20 @@ export function ManualGoalForm({
     columns.push(column);
   }
 
-  function addColumn() {
-    console.log("Add column called");
-    columnCount++;
-    columns.push(drawGridColumn(columns.length + 1));
-  }
 
-  function jsxElementToString(element: JSX.Element) {
-    console.log(element);
-    if (element.props.style) {
-      return `<${element.type} ${element.props.style ? `style="${getStyleString(element.props.style)}"`: ""}>${getChildrenString(element.props.children)}</${element.type}>`;
-    }
-    else {
-      return `<${element.type}>${getChildrenString(element.props.children)}</${element.type}>`;
-    }
-  }
+  // function jsxElementToString(element: JSX.Element) {
+  //   console.log(element);
+  //   if (element.props.style) {
+  //     return `<${element.type} ${element.props.style ? `style="${getStyleString(element.props.style)}"`: ""}>${getChildrenString(element.props.children)}</${element.type}>`;
+  //   }
+  //   else {
+  //     return `<${element.type}>${getChildrenString(element.props.children)}</${element.type}>`;
+  //   }
+  // }
 
   function getStyleString(style: { [key: string]: string }) {
     const keys = Object.keys(style);
-    return keys.map((key) => `${key}: '${style[key]}'`).join("; ");
+    return keys.map((key) => `${CaseHandler.toKebabCase(key)}: ${style[key]}`).join("; ");
   }
 
   function getChildrenString(children: JSX.Element[]) {
@@ -113,7 +108,7 @@ export function ManualGoalForm({
     let childrenString = "";
     children.forEach((child: JSX.Element) => {
       console.log(child);
-      if (child.props && child.props.children){
+      if (child.props && child.props.children) {
         console.log("child has children");
         console.log(`<${child.type}>${child.props.children.join("")}</${child.type}>`);
         childrenString += `<${child.type}>${child.props.children.join("")}</${child.type}>`;
@@ -127,6 +122,31 @@ export function ManualGoalForm({
     return childrenString;
   }
 
+  function generateInputGridInnerHTML() {
+    return columns.map(column => `<${column.type} style="${getStyleString(column.props.style)}">${getChildrenString(column.props.children)}</${column.type}>`).join("");
+  }
+  function updateInputGrid(inputGridElement: HTMLElement) {
+    inputGridElement.innerHTML = generateInputGridInnerHTML();
+    inputGridElement.style.gridTemplateColumns = `repeat(${columnCount}, 1fr)`;
+    if (inputGridElement) {
+      [...inputGridElement.children].forEach((child) => {
+        [...child.children].filter((child) => child.tagName == "INPUT").forEach((child) => { child.addEventListener("paste", (e) => handlePaste(e as ClipboardEvent)) })
+      })
+    }
+  }
+
+
+  function addColumn() {
+    console.log("Add column called");
+    columnCount++;
+    columns.push(drawGridColumn(columns.length + 1));
+    const inputGrid = document.getElementById("inputGrid");
+    if (inputGrid) {
+      // inputGrid.innerHTML = generateInputGridInnerHTML()
+      // inputGrid.style.gridTemplateColumns = `repeat(${columnCount}, 1fr)`;
+      updateInputGrid(inputGrid);
+    }
+  }
 
   function removeColumn() {
     console.log("Remove column called");
@@ -142,50 +162,61 @@ export function ManualGoalForm({
       console.log(columns.map(column => column.props.style));
       console.log("keys: ");
       console.log(columns.map(column => Object.keys(column.props.style)));
-      
+
       console.log(columns.map(column => `<${column.type} style="${getStyleString(column.props.style)}">${getChildrenString(column.props.children)}</${column.type}>`));
-      inputGrid.innerHTML = columns.map(column => `<${column.type} style="${getStyleString(column.props.style)}">${getChildrenString(column.props.children)}</${column.type}>`).join("");
+      // inputGrid.innerHTML = generateInputGridInnerHTML()
+      // inputGrid.style.gridTemplateColumns = `repeat(${columnCount}, 1fr)`;
+      updateInputGrid(inputGrid);
     }
   }
 
-  // function handlePaste(e: ClipboardEvent) {
-  //   console.log("pasting");
-  //   console.log("\n\n\n")
-  //   if (!e.clipboardData) return;
-  //   const clip = e.clipboardData.getData("text");
-  //   console.log(clip);
-  //   const values = clip.split(/[\t;]/);
-  //   console.log(values);
-  //   console.log(values.length);
-  //   columnCount = values.length;
-  //   setTimeout(() => {
-  //     console.log(values);
-  //     console.log(columnCount);
-  //     console.log(columns);
-  //     const gridInput = document.getElementById("inputForm");
-  //     if (gridInput) {
-  //       gridInput.style.gridTemplateColumns = `repeat(${columnCount}, 1fr)`;
-  //       columns = [];
-  //       for (let i = 0; i < (columnCount ? columnCount : 4); i++) {
-  //         const column = drawGridColumn(i + 1);
-  //         columns.push(column);
-  //       }
-  //       [...gridInput.children].forEach((child) => {
-  //         [...child.children].filter((child) => child.tagName == "INPUT").forEach((child) => { child.innerHTML = ""})
-  //       })
-  //       // gridInput.innerHTML = columns.map(column => JSON.stringify(column)).join("");
-  //       console.log(columns);
-  //       console.log(gridInput);
-  //     }
-  //   }, 0);
-  // }
+  function handlePaste(e: ClipboardEvent) {
+    console.log("pasting");
+    console.log("\n\n\n")
+    if (!e.clipboardData) return;
+    const clip = e.clipboardData.getData("text");
+    console.log(clip);
+    const values = clip.split(/[\t;]/);
+    console.log(values);
+    console.log(values.length);
+    columnCount = values.length;
+    columns = [];
+    for (let i = 0; i < (columnCount ? columnCount : 4); i++) {
+      columns.push(drawGridColumn(i + 1));
+    }
+    console.log(values);
+    console.log(columnCount);
+    console.log(columns);
+    const gridInput = document.getElementById("inputGrid");
+    if (gridInput) {
+      console.log("gridInput exists");
+      updateInputGrid(gridInput);
+      console.log([...gridInput.children].map((child) => {
+        return [...child.children];
+      }))
+      // gridInput.style.gridTemplateColumns = `repeat(${columnCount}, 1fr)`;
+      // columns = [];
+      // for (let i = 0; i < (columnCount ? columnCount : 4); i++) {
+      //   const column = drawGridColumn(i + 1);
+      //   columns.push(column);
+      // }
+      // [...gridInput.children].forEach((child) => {
+      //   [...child.children].filter((child) => child.tagName == "INPUT").forEach((child) => { child.innerHTML = ""})
+      // })
+      // // gridInput.innerHTML = columns.map(column => JSON.stringify(column)).join("");
+      // console.log(columns);
+      // console.log(gridInput);
+    } else {
+      console.log("gridInput does not exist");
+    }
+  }
 
-  // // Add event listener for pasting
-  // if (inputGridElement) {
-  //   [...inputGridElement.children].forEach((child) => {
-  //     [...child.children].filter((child) => child.tagName == "INPUT").forEach((child) => { child.addEventListener("paste", (e) => handlePaste(e as ClipboardEvent)) })
-  //   })
-  // }
+  // Add event listener for pasting
+  if (inputGridElement) {
+    [...inputGridElement.children].forEach((child) => {
+      [...child.children].filter((child) => child.tagName == "INPUT").forEach((child) => { child.addEventListener("paste", (e) => handlePaste(e as ClipboardEvent)) })
+    })
+  }
 
   // function addInputGridColumns(columns: number) {
   //   columnCount += columns;
