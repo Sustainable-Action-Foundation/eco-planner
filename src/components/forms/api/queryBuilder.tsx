@@ -377,7 +377,7 @@ export default function QueryBuilder({
 
                   </label>
                 </fieldset>
-                <fieldset id="variable-fieldset" disabled={true} className={`margin-block-100 smooth padding-50`} style={{ border: `${shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? "1px solid var(--gray-90)" : ""}` }}>
+                <fieldset id="variable-fieldset" disabled={true} className={`margin-block-100 smooth padding-50 fieldset-unset-pseudo-class`} style={{ border: `${shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? "1px solid var(--gray-90)" : ""}` }}>
                   {shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
                     <>
                       <legend className="padding-inline-50">
