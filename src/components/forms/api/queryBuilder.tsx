@@ -408,7 +408,7 @@ export default function QueryBuilder({
           </FormWrapper>
 
           {tableContent && tableContent.data.length > 0 ? (
-            <div>
+            <>
               <p>Ser detta rimligt ut? (visar max 5 värden)</p>
               <table>
                 <thead>
@@ -436,7 +436,7 @@ export default function QueryBuilder({
                     })}
                 </tbody>
               </table>
-            </div>
+            </>
           ) : (
             <div>
               <p>Inget läsbart resultat hittades. Vänligen uppdatera dina val.</p>

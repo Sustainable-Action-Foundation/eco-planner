@@ -76,7 +76,7 @@ export default function GraphGraph({
           {graphSwitch(graphType)}
         </div>
         {historicalData && (
-          <div>
+          <>
             Den historiska datan i grafen är hämtad från
             {getHistoricalDataLink(historicalData) ?
               <Link href={getHistoricalDataLink(historicalData) as string} target="_blank">
@@ -86,7 +86,7 @@ export default function GraphGraph({
               :
               externalDatasets[historicalData.metadata[0].source]?.fullName ? externalDatasets[historicalData.metadata[0].source]?.fullName : historicalData.metadata[0].source
             }
-          </div>
+          </>
         )}
       </article>
     </>
