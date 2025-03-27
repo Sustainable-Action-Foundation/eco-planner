@@ -153,7 +153,7 @@ export function InheritedGoalForm({
           <option value="">{t("forms:goal.select_roadmap_version")}</option>
           {roadmapAlternatives.map((roadmap) => (
             <option value={roadmap.id} key={`roadmap-inherit${roadmap.id}`}>
-              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.goals} ${t("forms:goal.goals")}`}
+              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("forms:goal.goal_count", { count: roadmap._count.goals })}`}
             </option>
           ))}
         </select>
@@ -270,7 +270,7 @@ export function CombinedGoalForm({
         </legend>
         <Trans
           i18nKey={"forms:goal.search_tip"}
-          components={{kbd: <kbd />}}
+          components={{ kbd: <kbd /> }}
         />
         {currentRoadmap?.goals.map((goal) => (
           goal.id == currentGoal?.id ? null :
@@ -344,7 +344,7 @@ export function InheritingBaseline() {
           <option value="">{t("forms:goal.select_roadmap_version")}</option>
           {roadmapList.map((roadmap) => (
             <option value={roadmap.id} key={`roadmap-inherit${roadmap.id}`}>
-              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.goals} ${t("forms:goal.goals")}`}
+              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("forms:goal.goal_count", { count: roadmap._count.goals })}`}
             </option>
           ))}
         </select>

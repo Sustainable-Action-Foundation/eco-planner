@@ -101,6 +101,7 @@
     "data_series": "Data series",
     "data_series_title": "Use numeric values separated by semicolons or tabs. Decimal numbers can use either dots or commas.",
     "select_roadmap_version": "Select a $t(common:roadmap_version_one) to inherit a $t(common:goal_one) from",
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "select_goal_to_inherit": "Select a $t(common:goal_one) to inherit from",
     "select_goal": "Select $t(common:goal_one)",
     "unnamed_goal": "Unnamed $t(common:goal_one)",

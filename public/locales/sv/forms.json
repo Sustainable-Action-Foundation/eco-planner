@@ -101,6 +101,7 @@
     "data_series": "Dataserie",
     "data_series_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma.",
     "select_roadmap_version": "Välj en $t(common:roadmap_version_one) att ärva en $t(common:goal_one) från",
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "select_goal_to_inherit": "Välj en $t(common:goal_one) att ärva från",
     "select_goal": "Välj $t(common:goal_one)",
     "unnamed_goal": "Namnlös $t(common:goal_one)",
