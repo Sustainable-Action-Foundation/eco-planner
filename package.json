@@ -7,7 +7,8 @@
     "start": "next start",
     "lint": "next lint",
     "e2e:chrome": "cypress run --browser chrome --headless",
-    "test": "docker compose -f compose.test.yaml up -d"
+    "test": "docker compose -f compose.test.yaml up -d",
+    "test:locale": "tsx ./src/scripts/localesValidate.ts"
   },
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.6.0",
