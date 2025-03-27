@@ -10,7 +10,8 @@ import ThumbnailGraph from "@/components/graphs/mainGraphs/thumbnailGraph";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import Image from "next/image";
 import { DataSeries, Goal } from "@prisma/client";
-
+import type { Metadata } from 'next'
+ 
 export default async function Page({ params }: { params: { roadmapId: string } }) {
   const [session, roadmap] = await Promise.all([
     getSession(cookies()),
