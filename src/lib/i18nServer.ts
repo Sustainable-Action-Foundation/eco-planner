@@ -12,6 +12,7 @@ i18nServer
   .init({
     ...initTemplate(t as TFunction),
     initImmediate: false, // Synchronous loading, prevents showing unloaded keys
+    preload: uniqueLocales,
     backend: {
       // Get locale data by reading files with fs
       loadPath: path.join(process.cwd(), "public/locales/{{lng}}/{{ns}}.json"),

@@ -1,13 +1,12 @@
 "use client";
 
 import { initTemplate, Locales, uniqueLocales } from "i18n.config";
-import { getCookie } from "cookies-next";
-import { I18nextProvider } from "react-i18next";
-import { initReactI18next } from "react-i18next";
-import { match } from "@formatjs/intl-localematcher";
-import { useEffect, useState } from "react";
-import Backend from "i18next-http-backend";
+import { I18nextProvider, initReactI18next } from "react-i18next";
 import i18nClient, { t, TFunction } from "i18next";
+import { match } from "@formatjs/intl-localematcher";
+import { getCookie } from "cookies-next/client";
+import Backend from "i18next-http-backend";
+import { useEffect, useState } from "react";
 
 i18nClient
   .use(Backend)
