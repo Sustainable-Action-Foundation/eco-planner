@@ -10,8 +10,8 @@ import escape from "regexp.escape"; // Polyfill for RegExp.escape. Not in node y
 
 /** Where to find the locale files */
 const localesDir = "public/locales";
-/** Which folder to search for files with locale accesses */
-// const appDir = "src"
+/** Which folder to search for files that access locale functions */
+const appFiles = "src/**/*.ts*";
 /** Expected namespaces */
 const expectedNS = ns;
 const expectedLocales = uniqueLocales;
@@ -22,18 +22,6 @@ const exemptedValues = [
   "This tool aims to contribute to Sweden's climate transition.\n\nIn the tool, national scenarios, also called quantitative roadmaps, can be broken down to regional and local levels and an action plan can be created.\n\nThe action plan is built up by actions which relate to a specific goal and the goals together make up the entire roadmap.\n\nUsers can be inspired by each other's actions, creating a common action database for Sweden.\n\nAt the local level, different actors can also collaborate on actions.",
   "Detta verktyg syftar till att bidra till Sveriges klimatomställning.\n\nI verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas.\n\nHandlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen.\n\nAnvändare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige.\n\nPå lokal nivå kan också olika aktörer samarbeta kring åtgärder.",
 ];
-
-/** 
- * Tests:
- *  - English as a fallback
- *    - En has all expected NS. If more than expected, inform.
- *    - En has all or equal keys to the sum of all other locales. Inform which locale if it has more.
- *  - All locales have all expected NS.
- *  - All locales have less or equal keys to English. Else, inform.
- *  - All keys are snake_case.
- *  - All keys are used in the app.
- *  - Kist all common keys in pages or components.
- */
 
 /** Does every supported locale have a corresponding folder in the locales directory? */
 async function TestLocalesDir() {
@@ -414,8 +402,177 @@ function TestVariableSyntax() {
   );
 }
 
-/** TODO: Test the tsx. Use appDir from top of file */
+function TestImports() {
+  const perFile: { [key: string]: string[] } = {};
 
+  const files = glob.sync(appFiles, { ignore: ["src/scripts/**/*"] });
+
+  const serverT = [
+    "@/lib/i18nServer",
+  ];
+  const clientT = [
+    "react-i18next",
+    "useTranslation",
+  ];
+  const severIndications = [
+    "use server",
+    // "next/server",
+    // "next/headers",
+    // "accessChecker",
+  ];
+  const clientIndications = [
+    "use client",
+    // "useEffect",
+    // "useMemo",
+    // "useState",
+    // "useRef",
+  ];
+  const assumedServerSideFiles: string[] = [
+    "page.tsx",
+    "layout.tsx",
+  ];
+  const assumedClientSideFiles: string[] = [
+  ];
+
+  files.forEach(filePath => {
+    const content = fs.readFileSync(filePath, "utf-8");
+    const lines = content.split(/\r?\n$/gm);
+
+    let isClient = false;
+    let isServer = false;
+    let usingClientT = false;
+    let usingServerT = false;
+
+    lines.forEach(line => {
+      if (serverT.some(t => line.includes(t))) {
+        usingServerT = true;
+      }
+      if (clientT.some(t => line.includes(t))) {
+        usingClientT = true;
+      }
+
+      if (severIndications.some(t => line.includes(t))) {
+        isServer = true;
+      }
+      if (clientIndications.some(t => line.includes(t))) {
+        isClient = true;
+      }
+    });
+
+    // Ignore files not using translation functions
+    const isTranslated = usingClientT || usingServerT;
+    if (!isTranslated) return;
+
+    // Add assumed
+    if (assumedServerSideFiles.some(file => filePath.endsWith(file)) && !isClient) {
+      isServer = true;
+    }
+    if (assumedClientSideFiles.some(file => filePath.endsWith(file)) && !isServer) {
+      isClient = true;
+    }
+
+    // Both server and client code
+    if (isClient && isServer) {
+      if (!perFile[filePath]) perFile[filePath] = [];
+      perFile[filePath].push("Found both server and client side code");
+    }
+
+    // Both server and client translations
+    if (usingClientT && usingServerT) {
+      if (!perFile[filePath]) perFile[filePath] = [];
+      perFile[filePath].push("Found both server and client side i18n imports");
+    }
+
+    // Server side file using client side translations
+    if (isClient && !usingClientT) {
+      if (!perFile[filePath]) perFile[filePath] = [];
+      perFile[filePath].push("Client side file using server side translations");
+    }
+
+    // Server side file using client side translations
+    if ((isServer || !isClient) && !usingServerT) {
+      if (!perFile[filePath]) perFile[filePath] = [];
+      perFile[filePath].push("Server side file using client side translations");
+    }
+
+    // Ambiguous file
+    if (!isServer && !isClient) {
+      if (!perFile[filePath]) perFile[filePath] = [];
+      perFile[filePath].push("Ambiguous file");
+    }
+  });
+
+  const totalBad = Object.values(perFile).flat().length;
+
+  assertWarn(totalBad === 0,
+    `Translation functions are being used incorrectly. Non marked files are assumed to be server side: ${JSON.stringify(perFile, null, 2)}`,
+    "Translation functions are being used correctly"
+  );
+}
+
+function TestTCallsNamespace() {
+  const perFile: { [key: string]: string[] } = {};
+
+  const files = glob.sync(appFiles, { ignore: ["src/scripts/**/*"] });
+
+  files.forEach(filePath => {
+    const content = fs.readFileSync(filePath, "utf-8");
+
+    const tCalls = content.matchAll(/(?<!\w)t\(["']([^"']*)["']\)/gmu) || [];
+
+    tCalls.forEach(call => {
+      const [, key] = call;
+
+      // Non-namespaced key
+      if (!key.includes(":")) {
+        if (!perFile[filePath]) perFile[filePath] = [];
+        perFile[filePath].push(`[Non-namespaced key] > '${key}'`);
+      }
+      // Invalid namespace
+      else if (expectedNS.every(ns => !key.startsWith(ns))) {
+        if (!perFile[filePath]) perFile[filePath] = [];
+        perFile[filePath].push(`[Invalid namespace] > '${key}'`);
+      }
+    });
+  });
+
+  const totalBad = Object.values(perFile).flat().length;
+
+  assertWarn(totalBad === 0,
+    `Non-namespaced keys found in t() calls: ${JSON.stringify(perFile, null, 2)}`,
+    "All t() calls are namespaced"
+  );
+}
+
+function TestTCallsKeyDefined() {
+  const perFile: { [key: string]: string[] } = {};
+
+  const files = glob.sync(appFiles, { ignore: ["src/scripts/**/*"] });
+
+  files.forEach(filePath => {
+    const content = fs.readFileSync(filePath, "utf-8");
+
+    const tCalls = content.matchAll(/(?<!\w)t\(["']([^"']*)["']\)/gmu) || [];
+
+    tCalls.forEach(call => {
+      const [, key] = call;
+
+      const validKeys = expectedNS.flatMap((namespace) => getResolvedKeys(Locales.default, namespace));
+
+      if (!validKeys.includes(key)) {
+        if (!perFile[filePath]) perFile[filePath] = [];
+        perFile[filePath].push(`[Undefined key] > '${key}'`);
+      }
+    });
+  });
+
+  const totalBad = Object.values(perFile).flat().length;
+
+  assertWarn(totalBad === 0,
+    `Undefined keys found in t() calls: ${JSON.stringify(perFile, null, 2)}`,
+    "All t() calls have defined keys"
+  );
+}
 
 /** Run all tests */
 console.info(`
@@ -433,6 +590,9 @@ TestMissedUseOfCommon();
 TestNestedKeysDefined();
 TestNestedKeysSyntax();
 TestVariableSyntax();
+TestImports();
+TestTCallsNamespace();
+TestTCallsKeyDefined();
 console.info(`
 All tests passed! 🎉
 `);
