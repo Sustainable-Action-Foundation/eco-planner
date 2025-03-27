@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { getStoredGraphType } from "./functions/graphFunctions";
 import SecondaryGoalSelector from "./secondaryGraphSelector";
 import { ApiTableContent } from "@/lib/api/apiTypes";
+import { useTranslation } from "react-i18next";
 
 export enum GraphType {
   Main = "MAIN",
@@ -31,6 +32,8 @@ export default function GraphGraph({
   effects: (Effect & { dataSeries: DataSeries | null })[],
   children: React.ReactNode
 }) {
+  const { t } = useTranslation();
+
   const [graphType, setGraphType] = useState<GraphType | "">("");
 
   useEffect(() => {
@@ -57,14 +60,14 @@ export default function GraphGraph({
         <SecondaryGoalSelector />
         {children}
       </menu>
-      <article className="smooth padding-inline-25 padding-bottom-50 purewhite" style={{border: '1px solid var(--gray)'}}>
-        {goal.name ? 
+      <article className="smooth padding-inline-25 padding-bottom-50 purewhite" style={{ border: '1px solid var(--gray)' }}>
+        {goal.name ?
           <h3 className="text-align-center block font-weight-500 margin-top-200 margin-bottom-50">{goal.name}</h3>
-        : 
+          :
           <h3 className="text-align-center block font-weight-500 margin-top-200 margin-bottom-50">{goal.indicatorParameter}</h3>
         }
-        {secondaryGoal && <p className="margin-block-0 margin-inline-auto text-align-center">Jämför med målbanan {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
-        <div style={{ height: '500px'}}>
+        {secondaryGoal && <p className="margin-block-0 margin-inline-auto text-align-center">{t("components:graph_graph.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicatorParameter })}</p>}
+        <div style={{ height: '500px' }}>
           {graphSwitch(graphType)}
         </div>
       </article>

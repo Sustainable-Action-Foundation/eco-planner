@@ -196,6 +196,9 @@
     "annual_change": "Annual change",
     "percentage_change": "Percentage change"
   },
+  "graph_graph": {
+    "compare_with_goal": "Compare with $t(common:goal_one) {{goalName}}"
+  },
   "child_graph_selector": {
     "target_paths": "{{$t(common:goal_other), titleCase}}",
     "expected_outcomes": "Expected outcomes"
