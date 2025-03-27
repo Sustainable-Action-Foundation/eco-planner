@@ -1,7 +1,7 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import UpdateGoalButton from "@/components/buttons/updateGoalButton";
 import Comments from "@/components/comments/comments";
-import QueryBuilder from "@/components/forms/pxWeb/queryBuilder";
+import QueryBuilder from "@/components/forms/api/queryBuilder";
 import ActionGraph from "@/components/graphs/actionGraph";
 import ChildGraphContainer from "@/components/graphs/childGraphs/childGraphContainer.tsx";
 import GraphGraph from "@/components/graphs/graphGraph";
@@ -17,7 +17,6 @@ import getRoadmaps from "@/fetchers/getRoadmaps";
 import findSiblings from "@/functions/findSiblings.ts";
 import accessChecker from "@/lib/accessChecker";
 import { ApiTableContent } from "@/lib/api/apiTypes";
-import { getPxWebTableContent } from "@/lib/pxWeb/getPxWebTableContent";
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
 import { AccessControlled, AccessLevel } from "@/types";
@@ -26,6 +25,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import getTableContent from "@/lib/api/getTableContent";
 
 export default async function Page({
   params,
@@ -37,6 +37,8 @@ export default async function Page({
     [key: string]: string | string[] | undefined
   },
 }) {
+  const locale = "sv";
+
   const [session, { goal, roadmap }, secondaryGoal, unfilteredRoadmapOptions] = await Promise.all([
     getSession(cookies()),
     getOneGoal(params.goalId).then(async goal => { return { goal, roadmap: (goal ? await getOneRoadmap(goal.roadmapId) : null) } }),
@@ -74,7 +76,7 @@ export default async function Page({
   // Fetch external data
   let externalData: ApiTableContent | null = null;
   if (goal.externalDataset && goal.externalTableId && goal.externalSelection) {
-    externalData = await getPxWebTableContent(goal.externalTableId, JSON.parse(goal.externalSelection), goal.externalDataset);
+    externalData = await getTableContent(goal.externalTableId, goal.externalDataset, JSON.parse(goal.externalSelection), locale);
   }
 
   // Fetch parent goal
