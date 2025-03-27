@@ -77,7 +77,7 @@ export default function GraphGraph({
         </div>
         {historicalData && (
           <>
-            Den historiska datan i grafen är hämtad från
+            Den historiska datan i grafen är hämtad från{" "}
             {getHistoricalDataLink(historicalData) ?
               <Link href={getHistoricalDataLink(historicalData) as string} target="_blank">
                 {// If the data source has a full name, display the full name. Otherwise display the 
