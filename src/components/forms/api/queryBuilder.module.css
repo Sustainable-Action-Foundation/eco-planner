@@ -3,11 +3,6 @@
     max-width: 100%;
 }
 
-.defaultOption {
-    color: gray;
-    font-style: italic;
-}
-
 /* For selecting tables when choosin a specific data source */
 .tableSelect {
     position: relative;
