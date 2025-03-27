@@ -1,5 +1,5 @@
 import '@/styles/global.css'
-import "@/lib/i18nServer";
+import { initI18nServer } from "@/lib/i18nServer";
 import Sidebar from '@/components/generic/header/sidebar'
 import styles from './page.module.css' with { type: "css" }
 import { baseUrl } from '@/lib/baseUrl.ts'
@@ -14,8 +14,11 @@ export default async function RootLayout(
 ) {
   const cookieLocale = await cookies().get("locale")?.value;
   const locale = cookieLocale
-    ? match([cookieLocale], uniqueLocales, Locales.default)
+    ? (match([cookieLocale], uniqueLocales, Locales.default) as Locales)
     : Locales.default;
+
+  // Initialize i18n server side
+  initI18nServer(locale);
 
   return (
     <html lang={locale}>

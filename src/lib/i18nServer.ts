@@ -6,19 +6,22 @@ import { match } from "@formatjs/intl-localematcher";
 import Backend from "i18next-fs-backend";
 import path from "node:path";
 
-export const i18nServer = createInstance();
-i18nServer
-  .use(Backend)
-  .init({
-    ...initTemplate(t as TFunction),
-    initImmediate: false, // Synchronous loading, prevents showing unloaded keys
-    preload: uniqueLocales,
-    backend: {
-      // Get locale data by reading files with fs
-      loadPath: path.join(process.cwd(), "public/locales/{{lng}}/{{ns}}.json"),
-    },
-  });
-i18nServer.changeLanguage(match([cookies().get("locale")?.value || ""], uniqueLocales, Locales.default));
+const i18nServer = createInstance();
+
+export function initI18nServer(locale: Locales) {
+  i18nServer
+    .use(Backend)
+    .init({
+      ...initTemplate(t as TFunction),
+      initImmediate: false, // Synchronous loading, prevents showing unloaded keys
+      preload: uniqueLocales,
+      backend: {
+        // Get locale data by reading files with fs
+        loadPath: path.join(process.cwd(), "public/locales/{{lng}}/{{ns}}.json"),
+      },
+    });
+  i18nServer.changeLanguage(match([locale], uniqueLocales, Locales.default));
+}
 
 export function t(key: string | string[], options?: (TOptionsBase & $Dictionary) | undefined) {
   // Get locale from cookies
