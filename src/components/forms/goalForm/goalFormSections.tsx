@@ -10,7 +10,6 @@ import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 import { Fragment, useEffect, useState } from "react";
 import { dataSeriesPattern } from "./goalForm";
-import { get } from "node_modules/cypress/types/lodash";
 
 export function ManualGoalForm({
   currentGoal,
@@ -132,12 +131,9 @@ export function ManualGoalForm({
     inputGridElement.innerHTML = generateInputGridInnerHTML();
 
     const inputGridInputBoxes = inputGridElement.getElementsByTagName("input");
-    for (let inputBox of inputGridInputBoxes) {
+    for (const inputBox of inputGridInputBoxes) {
       inputBox.addEventListener("change", updateStringInput);
     }
-    // inputGridInputBoxes.forEach((inputBox) => {
-    //   inputBox.addEventListener("change", updateStringInput);
-    // });
 
     // let re = new RegExp(/<input.+?>/gi);
     // console.log(inputGridElement.innerHTML.match(re));
