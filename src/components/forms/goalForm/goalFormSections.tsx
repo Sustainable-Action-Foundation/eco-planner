@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { clientSafeGetOneGoal } from "@/fetchers/getOneGoal";
 import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
@@ -6,7 +6,7 @@ import type getRoadmaps from "@/fetchers/getRoadmaps";
 import { clientSafeGetRoadmaps } from "@/fetchers/getRoadmaps";
 import mathjs from "@/math";
 import CaseHandler from "@/scripts/caseHandler";
-import { dataSeriesDataFieldNames } from "@/types";
+import { dataSeriesDataFieldNames } from "@/types"; // TODO - implement this, these are all the valid years for the data series
 import { DataSeries, Goal } from "@prisma/client";
 import { Fragment, useEffect, useState } from "react";
 import { dataSeriesPattern } from "./goalForm";
@@ -42,41 +42,20 @@ export function ManualGoalForm({
     }
   }, [currentGoal]);
 
-  // const inputFormRef = useRef<HTMLFormElement | null>(null);
   const inputGridElement = document.getElementById("inputGrid");
 
-  // console.log(document.getElementById("inputGrid")?.style);
-  // console.log(document.getElementById("inputGrid")?.style.gridTemplateColumns);
-  // console.log(document.getElementById("inputGrid")?.style.gridTemplateRows);
-
-  ///**
-  // * Add columns to a grid element
-  // * @param gridId The id of the grid element to add columns to
-  // * @param columns Amount of columns to add
-  // */
-  // function addColumns(gridId: string, columns: number) {
-  //   const gridElement = document.getElementById(gridId);
-  //   if (!gridElement) {
-  //     return;
-  //   }
-  //   const match = gridElement.style.gridTemplateColumns.match(/repeat\((\d+),\s*1fr\)/);
-  //   if (match) {
-  //     console.log(match[1]);
-  //     gridElement.style.gridTemplateColumns = `repeat(${parseInt(match[1]) + columns}, 1fr)`;
-  //   }
-  // }
-  // // addColumns("inputForm", 4);
-  // console.log(document.getElementById("inputForm")?.style.gridTemplateColumns);
-
+  // TODO - wrap input in label !!!OR!!! give all inputs unique id's and use htmlFor in labels
+  // TODO - all inputs should have exactly the same name
   function drawGridColumn(column: number) {
     return (
-      <div style={{ opacity: "50%", backgroundColor: "pink" }} key={`column-${column}`}>
+      <div style={{ backgroundColor: "pink" }} key={`column-${column}`}>
         <label>item-{column}</label>
-        <input type="text" name={`item-${column}`} />
+        <input type="text" name={`item-${column}`} value={dataSeriesString?.split(";")[column - 1]} />
       </div>
     )
   }
 
+  console.log(dataSeriesDataFieldNames);
   let columnCount = 2;
   let columns: JSX.Element[] = [];
   for (let i = 0; i < (columnCount); i++) {
@@ -84,48 +63,64 @@ export function ManualGoalForm({
     columns.push(column);
   }
 
-  // function jsxElementToString(element: JSX.Element) {
-  //   console.log(element);
-  //   if (element.props.style) {
-  //     return `<${element.type} ${element.props.style ? `style="${getStyleString(element.props.style)}"`: ""}>${getChildrenString(element.props.children)}</${element.type}>`;
-  //   }
-  //   else {
-  //     return `<${element.type}>${getChildrenString(element.props.children)}</${element.type}>`;
-  //   }
-  // }
-
-  function getStyleString(style: { [key: string]: string }) {
-    const keys = Object.keys(style);
-    return keys.map((key) => `${CaseHandler.toKebabCase(key)}: ${style[key]}`).join("; ");
+  /**
+   * Generate a string of CSS attributes from a style object
+   * @param style object containing CSS attributes
+   * @returns string of CSS attributes
+   */
+  function getStyleString(style: { [attribute: string]: string }) {
+    const attributes = Object.keys(style);
+    return attributes.map((attribute) => `${CaseHandler.toKebabCase(attribute)}: ${style[attribute]}`).join("; ");
   }
 
+  /**
+   * Generate HTML text for children of a JSX element
+   * @param children List of JSX elements to be returned as HTML text
+   * @returns string of HTML elements
+   */
   function getChildrenString(children: JSX.Element[]) {
-    // console.log("children: ")
-    // console.log(children);
-    // console.log("children spread: ");
-    // console.log([...children]);
     let childrenString = "";
+
     children.forEach((child: JSX.Element) => {
-      // console.log(child);
-      if (child.props && child.props.children) {
-        // console.log("child has children");
-        // console.log(`<${child.type}>${child.props.children.join("")}</${child.type}>`);
-        childrenString += `<${child.type}>${child.props.children.join("")}</${child.type}>`;
-      } else if (child.props && child.props.name && child.props.type) {
-        // console.log("child has no children");
-        // console.log(`<${child.type} name="${child.props.name} type="${child.props.type}"/>`)
-        childrenString += `<${child.type} name="${child.props.name}" type="${child.props.type}"/>`;
+      let propsString = "";
+
+      for (const key in child.props) {
+        if (key === "children") {
+          continue;
+        } else if (key === "style") {
+          propsString += ` style="${getStyleString(child.props[key])}"`;
+          continue;
+        }
+        propsString += ` ${key}="${child.props[key]}"`;
       }
-      // console.log(jsxElementToString(child));
+
+      childrenString += `<${child.type}${propsString}${child.props.children ? `>${child.props.children.join("")}</${child.type}>` : "/>"}`;
     })
+
     return childrenString;
   }
 
+  /**
+   * Generate HTML text for the grid of input elements
+   * @returns 
+   */
   function generateInputGridInnerHTML() {
+    console.log("generating inner html")
+    console.log(columns);
     return columns.map(column => `<${column.type} style="${getStyleString(column.props.style)}">${getChildrenString(column.props.children)}</${column.type}>`).join("");
   }
+
+  /**
+   * Update the input grid element with new columns
+   * @param inputGridElement The element to update
+   */
   function updateInputGrid(inputGridElement: HTMLElement) {
+    
     inputGridElement.innerHTML = generateInputGridInnerHTML();
+    
+    // let re = new RegExp(/<input.+?>/gi);
+    // console.log(inputGridElement.innerHTML.match(re));
+
     inputGridElement.style.gridTemplateColumns = `repeat(${columnCount}, 1fr)`;
     if (inputGridElement) {
       inputGridElement.addEventListener("paste", (e) => handlePaste(e as ClipboardEvent));
@@ -141,28 +136,18 @@ export function ManualGoalForm({
     columns.push(drawGridColumn(columns.length + 1));
     const inputGrid = document.getElementById("inputGrid");
     if (inputGrid) {
-      // inputGrid.innerHTML = generateInputGridInnerHTML()
-      // inputGrid.style.gridTemplateColumns = `repeat(${columnCount}, 1fr)`;
       updateInputGrid(inputGrid);
     }
   }
 
   function removeColumn() {
     console.log("Remove column called");
+    console.log(columns);
     columnCount--;
     columns.pop();
+    console.log(columns);
     const inputGrid = document.getElementById("inputGrid");
     if (inputGrid) {
-      // console.log("inputgrid innerhtml: ");
-      // console.log(inputGrid.innerHTML);
-      // console.log("columns: ");
-      // console.log(columns.map(column => column));
-      // console.log("style: ");
-      // console.log(columns.map(column => column.props.style));
-      // console.log("keys: ");
-      // console.log(columns.map(column => Object.keys(column.props.style)));
-
-      // console.log(columns.map(column => `<${column.type} style="${getStyleString(column.props.style)}">${getChildrenString(column.props.children)}</${column.type}>`));
       updateInputGrid(inputGrid);
     }
   }
@@ -174,71 +159,29 @@ export function ManualGoalForm({
     for (let i = 0; i < (columnCount ? columnCount : 4); i++) {
       columns.push(drawGridColumn(i + 1));
     }
-    const gridInput = document.getElementById("inputGrid");
-    if (gridInput) {
-      // console.log("gridInput exists");
-      updateInputGrid(gridInput);
-      const inputs = gridInput.getElementsByTagName("input");
-      // console.log(inputs);
-      // for (const key of inputs) {
-      //   console.log(key);
-      //   console.log(key.value);
-      // }
+    const inputGrid = document.getElementById("inputGrid");
+    if (inputGrid) {
+      updateInputGrid(inputGrid);
+      const inputs = inputGrid.getElementsByTagName("input");
       valuesList.forEach((value, index) => {
         inputs[index].value = value;
-        // console.log(value);
       })
     } else {
-      console.log("gridInput does not exist");
+      console.log("inputGrid does not exist");
     }
-    // const gridInput = document.getElementById("inputGrid");
-    // if (gridInput) {
-    //   const inputs = gridInput.getElementsByTagName("input");
-    //   values.forEach((value, index) => {
-    //     inputs[index].value = value;
-    //   })
-    // }
   }
 
+  /**
+   * Function to handle pasting into the input grid
+   */
   function handlePaste(e: ClipboardEvent) {
-    // console.log("pasting");
-    // console.log("\n\n\n")
     if (!e.clipboardData) return;
     const clip = e.clipboardData.getData("text");
-    // console.log(clip);
     insertValuesToInputGrid(clip);
-    // const values = clip.split(/[\t;]/);
-    // // console.log(values);
-    // // console.log(values.length);
-    // columnCount = values.length;
-    // columns = [];
-    // for (let i = 0; i < (columnCount ? columnCount : 4); i++) {
-    //   columns.push(drawGridColumn(i + 1));
-    // }
-    // const gridInput = document.getElementById("inputGrid");
-    // if (gridInput) {
-    //   // console.log("gridInput exists");
-    //   updateInputGrid(gridInput);
-    //   const inputs = gridInput.getElementsByTagName("input");
-    //   // console.log(inputs);
-    //   // for (const key of inputs) {
-    //   //   console.log(key);
-    //   //   console.log(key.value);
-    //   // }
-    //   values.forEach((value, index) => {
-    //     inputs[index].value = value;
-    //     // console.log(value);
-    //   })
-    // } else {
-    //   console.log("gridInput does not exist");
-    // }
   }
 
   // Add event listener for pasting
   if (inputGridElement) {
-    // [...inputGridElement.children].forEach((child) => {
-    //   [...child.children].filter((child) => child.tagName == "INPUT").forEach((child) => { child.addEventListener("paste", (e) => handlePaste(e as ClipboardEvent)) })
-    // })
     inputGridElement.addEventListener("paste", (e) => handlePaste(e as ClipboardEvent));
   } else {
     console.log("cant add event listeners");
@@ -247,16 +190,6 @@ export function ManualGoalForm({
   if (dataSeriesString) {
     insertValuesToInputGrid(dataSeriesString);
   }
-
-  // function addInputGridColumns(columns: number) {
-  //   columnCount += columns;
-  // }
-
-  // function removeInputGridColumns(columns: number) {
-  //   columnCount -= columns;
-  // }
-
-  // console.log(columns);
 
   return (
     <>
