@@ -41,6 +41,17 @@ export default function QueryBuilder({
     getTables(dataSource, query, locale).then(result => { setTables(result); setIsLoading(false); });
   }, [dataSource, locale]);
 
+  useEffect(() => {
+    const loadingText = document.getElementById("loading-text");
+    if (isLoading && loadingText) {
+      loadingText.classList.remove("hidden");
+    } else if (!isLoading && loadingText) {
+      setTimeout(() => {
+        loadingText.classList.add("hidden");
+      }, 0);
+    }
+  }, [isLoading]);
+
   function buildQuery(formData: FormData) {
     const queryObject: object[] = [];
     formData.forEach((value, key) => {
@@ -323,9 +334,7 @@ export default function QueryBuilder({
         <form ref={formRef} onChange={formChange} onSubmit={handleSubmit}>
           {/* Hidden disabled submit button to prevent accidental submisson */}
           <button type="submit" className="display-none" disabled></button>
-          {isLoading &&
-            <strong className="position-absolute gray-80 padding-100 rounded" style={{top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 100, opacity: "0.75"}}>Laddar...</strong>
-          }
+          <strong id="loading-text" className={`position-absolute gray-80 padding-100 rounded ${!isLoading && "hidden"}`} style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 100, opacity: "0.75" }}>Laddar...</strong>
 
           <FormWrapper>
             <fieldset>
