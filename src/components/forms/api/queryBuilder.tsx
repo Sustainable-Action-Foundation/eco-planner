@@ -324,9 +324,7 @@ export default function QueryBuilder({
           {/* Hidden disabled submit button to prevent accidental submisson */}
           <button type="submit" className="display-none" disabled></button>
           {isLoading &&
-            <div className={`gray-80 position-absolute display-inline-block margin-auto padding-100 rounded`} style={{ left: "0", right: "0", top: "0", bottom: "0", zIndex: 100, width: "fit-content", height: "fit-content", opacity: "0.75" }}>
-              <strong style={{}}>Laddar...</strong>
-            </div>
+            <strong className="position-absolute gray-80 padding-100 rounded" style={{top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 100, opacity: "0.75"}}>Laddar...</strong>
           }
 
           <FormWrapper>
