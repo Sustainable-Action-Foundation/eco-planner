@@ -11,7 +11,6 @@ export async function middleware(req: NextRequest) {
   const session = await getSession(cookies())
   const response = NextResponse.next()
 
-
   /** 
    * If cookie is set, use that locale.
    * Else, if x-locale is set, use that locale.

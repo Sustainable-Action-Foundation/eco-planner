@@ -5,32 +5,16 @@ import { baseUrl } from '@/lib/baseUrl.ts'
 import I18nProvider from "@/lib/i18nClient";
 import { initI18nServer, t } from "@/lib/i18nServer";
 import { cookies, headers } from "next/headers";
-import { match } from "@formatjs/intl-localematcher";
-import { Locales, uniqueLocales } from "i18n.config";
+import { getLocale } from "@/functions/getLocale";
 
 export default async function RootLayout(
   { children, }: { children: React.ReactNode, }
 ) {
-  let locale = Locales.default;
-
-  const localeCookie = cookies().get("locale")?.value;
-  const xLocaleHeader = headers().get("x-locale");
-  const acceptLanguageHeader = headers().get("accept-language") || "";
-  if (localeCookie) {
-    // Sanitize the locale
-    const cleanLocale = match([localeCookie], uniqueLocales, Locales.default);
-    locale = cleanLocale as Locales;
-  }
-  else if (xLocaleHeader) {
-    // Sanitize the locale
-    const cleanLocale = match([xLocaleHeader], uniqueLocales, Locales.default);
-    locale = cleanLocale as Locales;
-  }
-  else {
-    // Sanitize the locale
-    const cleanLocale = match([acceptLanguageHeader], uniqueLocales, Locales.default);
-    locale = cleanLocale as Locales;
-  }
+  const locale = getLocale(
+    cookies().get("locale")?.value,
+    headers().get("x-locale"),
+    headers().get("accept-language"),
+  );
 
   initI18nServer(locale);
 
