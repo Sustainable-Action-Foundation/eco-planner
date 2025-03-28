@@ -6,7 +6,7 @@ import type getRoadmaps from "@/fetchers/getRoadmaps";
 import { clientSafeGetRoadmaps } from "@/fetchers/getRoadmaps";
 import mathjs from "@/math";
 import CaseHandler from "@/scripts/caseHandler";
-import { dataSeriesDataFieldNames } from "@/types"; // TODO - implement this, these are all the valid years for the data series
+import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 import { Fragment, useEffect, useState } from "react";
 import { dataSeriesPattern } from "./goalForm";
@@ -47,16 +47,17 @@ export function ManualGoalForm({
   // TODO - wrap input in label !!!OR!!! give all inputs unique id's and use htmlFor in labels
   // TODO - all inputs should have exactly the same name
   function drawGridColumn(column: number) {
+    console.log(dataSeriesDataFieldNames[column-1]);
     return (
       <div style={{ backgroundColor: "pink" }} key={`column-${column}`}>
-        <label>item-{column}</label>
+        <label className="padding-25">{dataSeriesDataFieldNames[column-1].replace("val", "")}</label>
         <input type="text" name={`item-${column}`} value={dataSeriesString?.split(";")[column - 1]} />
       </div>
     )
   }
 
   console.log(dataSeriesDataFieldNames);
-  let columnCount = 2;
+  let columnCount = (1 > dataSeriesDataFieldNames.length) ? 1 : dataSeriesDataFieldNames.length;
   let columns: JSX.Element[] = [];
   for (let i = 0; i < (columnCount); i++) {
     const column = drawGridColumn(i + 1);
@@ -90,11 +91,14 @@ export function ManualGoalForm({
         } else if (key === "style") {
           propsString += ` style="${getStyleString(child.props[key])}"`;
           continue;
+        } else if (key === "className") {
+          propsString += ` class="${child.props[key]}"`;
+          continue;
         }
         propsString += ` ${key}="${child.props[key]}"`;
       }
 
-      childrenString += `<${child.type}${propsString}${child.props.children ? `>${child.props.children.join("")}</${child.type}>` : "/>"}`;
+      childrenString += `<${child.type}${propsString}${child.props.children ? `>${Array.isArray(child.props.children) ? child.props.children.join("") : [child.props.children].join("")}</${child.type}>` : "/>"}`;
     })
 
     return childrenString;
@@ -115,9 +119,9 @@ export function ManualGoalForm({
    * @param inputGridElement The element to update
    */
   function updateInputGrid(inputGridElement: HTMLElement) {
-    
+
     inputGridElement.innerHTML = generateInputGridInnerHTML();
-    
+
     // let re = new RegExp(/<input.+?>/gi);
     // console.log(inputGridElement.innerHTML.match(re));
 
@@ -142,10 +146,8 @@ export function ManualGoalForm({
 
   function removeColumn() {
     console.log("Remove column called");
-    console.log(columns);
     columnCount--;
     columns.pop();
-    console.log(columns);
     const inputGrid = document.getElementById("inputGrid");
     if (inputGrid) {
       updateInputGrid(inputGrid);
