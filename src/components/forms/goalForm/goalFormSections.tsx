@@ -305,7 +305,7 @@ export function ManualGoalForm({
         <button type="button" onClick={() => { console.log(document.getElementById("inputGrid")) }}>Logga</button>
         <button type="button" onClick={addColumn}>Lägg till kolumn</button>
         <button type="button" onClick={removeColumn}>Ta bort kolumn</button>
-        <div id="inputGrid" style={{ display: "grid", gridTemplateColumns: `repeat(${columnCount}, 1fr)`, gap: "1rem", gridTemplateRows: "auto", overflow: "scroll" }} key="adwad">
+        <div id="inputGrid" style={{ maxWidth: "50rem", display: "grid", gridTemplateColumns: `repeat(${columnCount}, 1fr)`, gap: "0rem", gridTemplateRows: "auto", overflow: "scroll" }} key="adwad">
           {columns.map((column) => column)}
         </div>
       </label>
