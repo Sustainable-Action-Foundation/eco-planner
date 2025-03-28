@@ -20,18 +20,16 @@ export function LanguageSwitcher() {
     // Update local state for rendering of this component
     setButtonLocale(cleanLocale);
 
-    // Set cookie
+    // Set cookie for future visits
     setCookie("locale", cleanLocale);
 
-    // Update i18n instance
-    await i18n.changeLanguage(cleanLocale);
-
-    // Rerender the page with the new locale
+    // Server update. Refresh the page
     startTransition(() => {
       router.refresh();
     });
 
-    // Trigger React context updates in client components
+    // Client update. Set lang and dispatch event for rerendering
+    await i18n.changeLanguage(cleanLocale);
     window.dispatchEvent(new CustomEvent("i18n-language-changed"));
   }
 

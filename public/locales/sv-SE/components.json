@@ -71,7 +71,7 @@
     "comment_count_one": "En kommentar",
     "cancel": "Avbryt",
     "send": "Skicka",
-    "relative_time": "{{date, relativeTime}}",
+    "relative_time": "{{{{date}}, relativeTime}}",
     "show_less": "Visa mindre",
     "show_more": "Visa mer"
   },
@@ -210,8 +210,8 @@
   "main_graph": {
     "baseline_scenario": "Basscenario",
     "expected_outcome": "Förväntat utfall",
-    "national_counterpart": "{{$t(common:scope.national), titleCase}} motsvarighet",
-    "national_goal": "{{$t(common:scope.national), titleCase}} $t(common:goal_one)",
+    "national_counterpart": "$t(common:scope.national) motsvarighet",
+    "national_goal": "$t(common:scope.national) $t(common:goal_one)",
     "history": "Historik",
     "secondary_goal": "Sekundär $t(common:goal_one) ({{unit}})"
   },
@@ -239,10 +239,10 @@
     "percentage_points": "procentenheter",
     "baseline_scenario": "Basscenario",
     "expected_outcome": "Förväntat utfall",
-    "national_counterpart": "{{$t(common:scope.national), titleCase}} motsvarighet"
+    "national_counterpart": "$t(common:scope.national) motsvarighet"
   },
   "main_relative_graph": {
     "percent_relative_to_base_year": "procent relativt basår",
-    "national_counterpart": "{{$t(common:scope.national), titleCase}} motsvarighet"
+    "national_counterpart": "$t(common:scope.national) motsvarighet"
   }
 }

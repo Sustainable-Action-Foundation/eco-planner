@@ -23,58 +23,109 @@ export function initTemplate(t: TFunction): InitOptions {
     ns: ns,
     interpolation: {
       escapeValue: false, // React already escapes
-      format: (value, format, lng, options): string => {
-        if (!options) return value;
+      format: (_, format, lng, options): string => {
+        /** 
+         * `format` is a requirement for the *formatter* of course.
+         * `options.interpolationkey` is required as it stores the value to be formatted.
+         * `uniqueLocales` is a check to ensure that the locale is supported.
+         */
+        if (!format || !options || !options.interpolationkey || !uniqueLocales.includes(lng as Locales)) return "";
+        /** There can be multiple formats */
+        const formats = format.split(",").map((f) => f.trim()).filter(Boolean);
 
-        value = value || t(options.interpolationkey);
-        const formats = (format || "").split(",").map((f) => f.trim());
+        // Resolve the value with provided key
+        let value: string | undefined = t(options.interpolationkey);
+
+        // Guard against undefined values
+        if (typeof value === "undefined") {
+          console.warn(`Value for key "${options.interpolationkey}" is undefined (Value: ${value}, type: ${typeof value}). Check the key and the translation file. Returning empty string.`);
+          return "";
+        }
+
+        // At this point a value is likely defined so if there are no formats, return the value
+        if (formats.length < 1) return value;
+
 
         /* Title case */
-        if (options && formats.includes("titleCase")) {
-          value = titleCase(value);
+        if (formats.includes("titleCase")) {
+          value = titleCase(value, lng);
         }
-
         /* Possessive */
-        if (options && formats.includes("possessive")) {
-          if (lng === Locales.enSE) {
-            if (["s", "x", "y"].includes(value.slice(-1))) {
-              value = value + "'";
-            } else {
-              value = value + "'s";
-            }
-          }
-          if (lng === Locales.svSE) {
-            if (["s", "x", "z"].includes(value.slice(-1))) {
-              // Nothing
-            } else {
-              value = value + "s";
-            }
-          }
+        if (formats.includes("possessive")) {
+          value = possessive(value, lng);
         }
-
         /* Relative time */
-        if (options && formats.includes("relativeTime")) {
-          value = relativeTime(new Date(value), lng || Locales.default);
+        if (formats.includes("relativeTime")) {
+          value = relativeTime(value, lng);
         }
 
-        return value || "";
+
+        // Guard against undefined values
+        if (!value) {
+          console.warn(`A formatter likely failed to return a value (returned: ${value}, type: ${typeof value}). Check the formatter for errors. Setting value to empty string.`);
+          value = "";
+        }
+        return value;
       },
     },
   };
 }
 
-export function titleCase(value: string) {
+function titleCase(value: string | undefined, _lng: string | undefined): string | undefined {
+  if (typeof value !== "string") {
+    console.warn(`Value passed to titleCase formatter is not a string. Received: ${value}, type: ${typeof value}. Returning value as is.`);
+    return value;
+  }
+
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-export function relativeTime(date: Date, lng: string) {
-  if (!date) {
-    console.error("No date provided for relative time calculation");
-    return "";
+function possessive(value: string | undefined, lng: string | undefined): string | undefined {
+  if (typeof value !== "string") {
+    console.warn(`Value passed to possessive formatter is not a string. Received: ${value}, type: ${typeof value}. Returning value as is.`);
+    return value;
   }
-  if (date.constructor.name !== "Date") {
-    console.error("Invalid date provided for relative time calculation");
-    return "";
+
+  if (!lng) {
+    console.warn("Possessive formatter requires a locale to be set. Returning value as is.");
+    return value;
+  }
+
+  if (lng === Locales.enSE) {
+    if (["s", "x", "y"].includes(value.slice(-1))) {
+      value = value + "'";
+    } else {
+      value = value + "'s";
+    }
+  }
+  else if (lng === Locales.svSE) {
+    if (["s", "x", "z"].includes(value.slice(-1))) {
+      // Nothing
+    } else {
+      value = value + "s";
+    }
+  }
+  else {
+    console.warn(`Possessive formatter not implemented for locale: ${lng}. Returning value as is.`);
+  }
+
+  return value;
+}
+
+function relativeTime(value: string | undefined, lng: string | undefined): string | undefined {
+  if (typeof value !== "string") {
+    console.warn(`Value passed to relativeTime formatter is not a string. Received: ${value}, type: ${typeof value}. Returning value as is.`);
+    return value;
+  }
+  if (!lng) {
+    console.warn("Relative time formatter requires a locale to be set. Returning value as is.");
+    return value;
+  }
+
+  const date = new Date(value);
+  if (isNaN(date.getTime())) {
+    console.warn(`Invalid date provided for relative time formatter. Received: ${value}, type: ${typeof value}. Returning value as is.`);
+    return value;
   }
 
   const relativeTime = new Intl.RelativeTimeFormat(lng);
@@ -85,8 +136,8 @@ export function relativeTime(date: Date, lng: string) {
   const secondDelta = Math.round((date.getTime() - Date.now()) / (1_000));
 
   if (isNaN(dayDelta) || isNaN(hourDelta) || isNaN(minuteDelta) || isNaN(secondDelta)) {
-    console.error("Invalid date provided for relative time calculation. NaN");
-    return "";
+    console.error(`Invalid date provided for relative time calculations. Received: ${value}, type: ${typeof value}. Returning value as is.`);
+    return value;
   }
 
   if (Math.abs(dayDelta) > 0) return relativeTime.format(dayDelta, "days");

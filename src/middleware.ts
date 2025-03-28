@@ -38,7 +38,6 @@ export async function middleware(req: NextRequest) {
     // Set header x-locale
     response.headers.set("x-locale", cleanLocale);
   }
-  
 
   // Redirect away from login page if already logged in
   if (req.nextUrl.pathname.startsWith('/login')) {

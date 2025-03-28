@@ -1,5 +1,5 @@
 {
-  "home_title": "{{$t(common:roadmap_short_other), titleCase}}",
+  "home_title": "{{thang, }} {{tgang2, titleCase}} {{thanf3, possessive, titleCase}} {{$t(common:roadmap_short_other), titleCase}}",
   "create_roadmap_series_one": "$t(common:new.roadmap_series)",
   "create_version_in_roadmap_series_one": "Create new $t(common:roadmap_version_one) in an existing $t(common:roadmap_series_one)",
   "toggle_menu_alt": "Toggle menu",
@@ -14,7 +14,7 @@
   "profile": {
     "handle_data": "Data management",
     "my_posts": "My posts",
-    "user_posts": "{{name, possessive, titleCase}} posts",
+    "user_posts": "{{{{name}}, possessive, titleCase}} posts",
     "roadmap_series_ones": "{{$t(common:roadmap_series_one), titleCase}}",
     "version_count_one": "{{count}} version",
     "version_count_other": "{{count}} versions",

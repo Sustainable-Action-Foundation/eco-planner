@@ -71,7 +71,7 @@
     "comment_count_one": "One comment",
     "cancel": "Cancel",
     "send": "Submit",
-    "relative_time": "{{date, relativeTime}}",
+    "relative_time": "{{{{date}}, relativeTime}}",
     "show_less": "Show less",
     "show_more": "Show more"
   },
@@ -210,8 +210,8 @@
   "main_graph": {
     "baseline_scenario": "Baseline scenario",
     "expected_outcome": "Expected outcome",
-    "national_counterpart": "{{$t(common:scope.national), titleCase}} counterpart",
-    "national_goal": "{{$t(common:scope.national), titleCase}} $t(common:goal_one)",
+    "national_counterpart": "$t(common:scope.national) counterpart",
+    "national_goal": "$t(common:scope.national) $t(common:goal_one)",
     "history": "History",
     "secondary_goal": "Secondary $t(common:goal_one) ({{unit}})"
   },
@@ -239,10 +239,10 @@
     "percentage_points": "percentage points",
     "baseline_scenario": "Baseline scenario",
     "expected_outcome": "Expected outcome",
-    "national_counterpart": "{{$t(common:scope.national), titleCase}} counterpart"
+    "national_counterpart": "$t(common:scope.national) counterpart"
   },
   "main_relative_graph": {
     "percent_relative_to_base_year": "percent relative to base year",
-    "national_counterpart": "{{$t(common:scope.national), titleCase}} counterpart"
+    "national_counterpart": "$t(common:scope.national) counterpart"
   }
 }
