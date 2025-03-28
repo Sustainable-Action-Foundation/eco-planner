@@ -152,6 +152,10 @@ export function ManualGoalForm({
     }
   }
 
+  /**
+   * Function to insert values into the input grid
+   * @param values a string or array of values to insert. If a string, it will be split by semicolon or tab
+   */
   function insertValuesToInputGrid(values: string | string[]) {
     const valuesList = Array.isArray(values) ? values : values.split(/[\t;]/);
     columnCount = valuesList.length;
