@@ -35,10 +35,10 @@ export default function QueryBuilder({
 
   useEffect(() => {
     if (!dataSource) return;
-
+    setIsLoading(true);
     const query = (formRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
 
-    getTables(dataSource, query, locale).then(result => setTables(result));
+    getTables(dataSource, query, locale).then(result => { setTables(result); setIsLoading(false); });
   }, [dataSource, locale]);
 
   function buildQuery(formData: FormData) {
@@ -186,14 +186,16 @@ export default function QueryBuilder({
     console.time("tableSelect");
     if (!externalDatasets[dataSource]?.baseUrl) return;
     if (!tableId) return;
+    setIsLoading(true);
     clearTableContent();
     clearTableDetails();
     disableSubmitButton();
 
-    getTableDetails(tableId, dataSource, undefined, locale).then(result => { setTableDetails(result); console.timeEnd("tableSelect"); });
+    getTableDetails(tableId, dataSource, undefined, locale).then(result => { setTableDetails(result); console.timeEnd("tableSelect"); setIsLoading(false); });
   }
 
   function handleMetricSelect(event: React.ChangeEvent<HTMLSelectElement>) {
+    setIsLoading(true);
     const isDefaultValue = event.target.value.length == 0;
     const variableSelectionFieldsets = document.getElementsByName("variableSelectionFieldset");
 
@@ -215,7 +217,13 @@ export default function QueryBuilder({
           }
         }
       });
-    } else console.log("no variable selection fieldset found");
+    } else {
+      console.log("no variable selection fieldset found");
+    }
+
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 0);
   }
 
   function optionalTag(dataSource: string, variableIsOptional: boolean) {
@@ -223,38 +231,42 @@ export default function QueryBuilder({
   }
 
   function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) {
-    if (variable.option) return (
-      <label key={variable.name} className="block margin-block-75">
-        {// Only display "optional" tags if the data source provides this information
-        }
-        {variable.label[0].toUpperCase() + variable.label.slice(1)}{optionalTag(dataSource, variable.optional)}
-        {// Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
-        }
-        <select className={`block margin-block-25 ${variable.label}`}
-          required={!variable.optional}
-          name={variable.name}
-          id={variable.name}
-          defaultValue={getDatasetKeysOfApis("PxWeb").includes(dataSource) ?
-            (// If only one value is available, pre-select it
-              variable.values && variable.values.length == 1 ? variable.values[0].label : undefined
-            )
-            :
-            undefined
-          }>
-          { // If only one value is available, don't show a placeholder option
-            getDatasetKeysOfApis("PxWeb").includes(dataSource) && variable.values && variable.values.length > 1 &&
-            <option value="" className={`${styles.defaultOption}`}>Välj ett värde</option>
+    if (variable.option) {
+      return (
+        <label key={variable.name} className="block margin-block-75">
+          {// Only display "optional" tags if the data source provides this information
           }
-          {
-            !getDatasetKeysOfApis("PxWeb").includes(dataSource) &&
-            <option value="" className={`${styles.defaultOption}`}>Välj ett värde</option>
+          {variable.label[0].toUpperCase() + variable.label.slice(1)}{optionalTag(dataSource, variable.optional)}
+          {// Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
           }
-          {variable.values && variable.values.map(value => (
-            <option key={`${variable.name}-${value.name}`} value={value.name} lang={tableDetails.language}>{value.label}</option>
-          ))}
-        </select>
-      </label>
-    )
+          <select className={`block margin-block-25 ${variable.label}`}
+            required={!variable.optional}
+            name={variable.name}
+            id={variable.name}
+            defaultValue={getDatasetKeysOfApis("PxWeb").includes(dataSource) ?
+              (// If only one value is available, pre-select it
+                variable.values && variable.values.length == 1 ? variable.values[0].label : undefined
+              )
+              :
+              undefined
+            }>
+            { // If only one value is available, don't show a placeholder option
+              getDatasetKeysOfApis("PxWeb").includes(dataSource) && variable.values && variable.values.length > 1 &&
+              <option value="" className={`${styles.defaultOption}`}>Välj ett värde</option>
+            }
+            {
+              !getDatasetKeysOfApis("PxWeb").includes(dataSource) &&
+              <option value="" className={`${styles.defaultOption}`}>Välj ett värde</option>
+            }
+            {variable.values && variable.values.map(value => (
+              <option key={`${variable.name}-${value.name}`} value={value.name} lang={tableDetails.language}>{value.label}</option>
+            ))}
+          </select>
+        </label>
+      )
+    } else if (dataSource == "Trafa" && !variable.option && (variable as TrafaVariable).selected) {
+      console.warn("The variable is selected while it is not an option. This should not happen.");
+    }
   }
 
   function timeVariableSelectionHelper(times: (TrafaVariable | PxWebTimeVariable)[], language: string) {
@@ -311,6 +323,9 @@ export default function QueryBuilder({
         <form ref={formRef} onChange={formChange} onSubmit={handleSubmit}>
           {/* Hidden disabled submit button to prevent accidental submisson */}
           <button type="submit" className="display-none" disabled></button>
+          {isLoading &&
+            <strong className="position-absolute gray-80 padding-100 rounded" style={{top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 100, opacity: "0.75"}}>Laddar...</strong>
+          }
 
           <FormWrapper>
             <fieldset>
