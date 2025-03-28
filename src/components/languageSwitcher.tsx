@@ -1,21 +1,22 @@
 "use client";
 
+import { LocaleContext, LocaleSetterContext } from "@/lib/i18nClient";
 import { match } from "@formatjs/intl-localematcher";
 import { setCookie } from "cookies-next/client";
 import { Locales, uniqueLocales } from "i18n.config";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
-import { useTranslation } from "react-i18next";
+import { useContext, useState, useTransition } from "react";
 
 export function LanguageSwitcher() {
-  const { i18n } = useTranslation();
-  const [buttonLocale, setButtonLocale] = useState(i18n.language);
-  const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const locale = useContext(LocaleContext);
+  const setLocaleContext = useContext(LocaleSetterContext);
+  const [isPending, startTransition] = useTransition();
+  const [buttonLocale, setButtonLocale] = useState<Locales>(locale);
 
   async function setLocale(lng: string) {
     // Sanitize locale
-    const cleanLocale = match([lng], uniqueLocales, Locales.default);
+    const cleanLocale = match([lng], uniqueLocales, Locales.default) as Locales;
 
     // Update local state for rendering of this component
     setButtonLocale(cleanLocale);
@@ -29,7 +30,7 @@ export function LanguageSwitcher() {
     });
 
     // Client update. Set lang and dispatch event for rerendering
-    await i18n.changeLanguage(cleanLocale);
+    setLocaleContext(cleanLocale);
     window.dispatchEvent(new CustomEvent("i18n-language-changed"));
   }
 

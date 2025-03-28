@@ -16,10 +16,9 @@ i18nClient
     },
   });
 
-const I18nContext = createContext<Locales>(Locales.default);
-const I18nSetterContext = createContext<(lng: Locales) => void>(() => { });
+export const LocaleContext = createContext<Locales>(Locales.default);
+export const LocaleSetterContext = createContext<(lng: Locales) => void>(() => { });
 // const I18nSetterContext = createContext<React.Dispatch<React.SetStateAction<Locales>> | null>(null);
-
 
 export default function I18nProvider(
   { children, lng }: { children: React.ReactNode, lng: Locales }
@@ -50,14 +49,14 @@ export default function I18nProvider(
 
   if (!isInitialized) return null;
 
-  // The key will be updated on language switch to force a rerender
   return (
-    <I18nContext.Provider value={locale}>
-      <I18nSetterContext.Provider value={setLocale}>
+    <LocaleContext.Provider value={locale}>
+      <LocaleSetterContext.Provider value={setLocale}>
+        {/* The key will be updated on language switch to force a rerender */}
         <I18nextProvider key={`i18n-provider-force-update-${forceRender}`} i18n={i18nClient}>
           {children}
         </I18nextProvider>
-      </I18nSetterContext.Provider>
-    </I18nContext.Provider>
+      </LocaleSetterContext.Provider>
+    </LocaleContext.Provider>
   );
 }
