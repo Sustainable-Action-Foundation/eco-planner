@@ -217,7 +217,9 @@ export default function QueryBuilder({
           }
         }
       });
-    } else console.log("no variable selection fieldset found");
+    } else {
+      console.log("no variable selection fieldset found");
+    }
 
     setTimeout(() => {
       setIsLoading(false);
