@@ -14,7 +14,7 @@ export default async function LocaleTestPage() {
 
   const namespaces = ns;
   const allKeys = await Promise.all(namespaces.map(async (namespace) => {
-    const json = await import(`public/locales/en/${namespace}.json`);
+    const json = await import(`public/locales/en-SE/${namespace}.json`);
 
     // Resolve all nested keys to [parent1].[..parentN].[key]
     const extractNestedKeys = (obj: LocaleJSON | null, prefix = ""): string[] => {

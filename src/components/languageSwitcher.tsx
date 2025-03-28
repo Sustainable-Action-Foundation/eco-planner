@@ -9,22 +9,22 @@ import { useTranslation } from "react-i18next";
 
 export function LanguageSwitcher() {
   const { i18n } = useTranslation();
+  const [buttonLocale, setButtonLocale] = useState(i18n.language);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const [currentLocale, setCurrentLocale] = useState(i18n.language);
 
-  async function setLocale(lang: string) {
+  async function setLocale(lng: string) {
     // Sanitize locale
-    const newLocale = match([lang], uniqueLocales, Locales.default);
-
-    // Update i18n instance
-    await i18n.changeLanguage(newLocale);
+    const cleanLocale = match([lng], uniqueLocales, Locales.default);
 
     // Update local state for rendering of this component
-    setCurrentLocale(newLocale);
+    setButtonLocale(cleanLocale);
 
-    // Update the locale cookie (to sync with server-side)
-    setCookie("locale", newLocale);
+    // Set cookie
+    setCookie("locale", cleanLocale);
+
+    // Update i18n instance
+    await i18n.changeLanguage(cleanLocale);
 
     // Rerender the page with the new locale
     startTransition(() => {
@@ -35,17 +35,17 @@ export function LanguageSwitcher() {
     window.dispatchEvent(new CustomEvent("i18n-language-changed"));
   }
 
-  return (
+  return (<>
     <select
       className={`height-100 width-100 cursor-pointer`}
       onChange={async (e) => await setLocale(e.target.value)}
-      value={currentLocale}
+      value={buttonLocale}
       disabled={isPending}
     >
       {
         uniqueLocales
           // Puts the current locale at the top of the list
-          .sort((a, b) => (a === currentLocale ? -1 : b === currentLocale ? 1 : 0))
+          .sort((a, b) => (a === buttonLocale ? -1 : b === buttonLocale ? 1 : 0))
           .map((locale) => (
             <option key={locale} value={locale} className="cursor-pointer">
               {locale}
@@ -53,5 +53,6 @@ export function LanguageSwitcher() {
           ))
       }
     </select>
+  </>
   );
 }

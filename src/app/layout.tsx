@@ -1,23 +1,37 @@
 import '@/styles/global.css'
-import { initI18nServer } from "@/lib/i18nServer";
 import Sidebar from '@/components/generic/header/sidebar'
 import styles from './page.module.css' with { type: "css" }
 import { baseUrl } from '@/lib/baseUrl.ts'
 import I18nProvider from "@/lib/i18nClient";
-import { t } from "@/lib/i18nServer";
-import { cookies } from "next/headers";
+import { initI18nServer, t } from "@/lib/i18nServer";
+import { cookies, headers } from "next/headers";
 import { match } from "@formatjs/intl-localematcher";
 import { Locales, uniqueLocales } from "i18n.config";
 
 export default async function RootLayout(
   { children, }: { children: React.ReactNode, }
 ) {
-  const cookieLocale = await cookies().get("locale")?.value;
-  const locale = cookieLocale
-    ? (match([cookieLocale], uniqueLocales, Locales.default) as Locales)
-    : Locales.default;
+  let locale = Locales.default;
 
-  // Initialize i18n server side
+  const localeCookie = cookies().get("locale")?.value;
+  const xLocaleHeader = headers().get("x-locale");
+  const acceptLanguageHeader = headers().get("accept-language") || "";
+  if (localeCookie) {
+    // Sanitize the locale
+    const cleanLocale = match([localeCookie], uniqueLocales, Locales.default);
+    locale = cleanLocale as Locales;
+  }
+  else if (xLocaleHeader) {
+    // Sanitize the locale
+    const cleanLocale = match([xLocaleHeader], uniqueLocales, Locales.default);
+    locale = cleanLocale as Locales;
+  }
+  else {
+    // Sanitize the locale
+    const cleanLocale = match([acceptLanguageHeader], uniqueLocales, Locales.default);
+    locale = cleanLocale as Locales;
+  }
+
   initI18nServer(locale);
 
   return (
@@ -47,7 +61,7 @@ export default async function RootLayout(
         `}}></style>
       </head>
       <body>
-        <I18nProvider>
+        <I18nProvider lng={locale}>
           <div className={`${styles.layout}`}>
             <Sidebar />
             <div className='padding-100 flex-grow-100' style={{ backgroundColor: '#fdfdfd' }}>

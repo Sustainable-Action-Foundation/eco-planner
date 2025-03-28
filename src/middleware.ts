@@ -11,24 +11,34 @@ export async function middleware(req: NextRequest) {
   const session = await getSession(cookies())
   const response = NextResponse.next()
 
-  // Is there a locale cookie in the request?
-  const existingLocaleCookie = req.cookies.get("locale")?.value;
-  if (existingLocaleCookie) {
-    // Sanitize the locale cookie
-    const cookieLocale = acceptLanguage.get(existingLocaleCookie) ?? Locales.default;
+
+  /** 
+   * If cookie is set, use that locale.
+   * Else, if x-locale is set, use that locale.
+   * Else, set x-locale to accept-language.
+   */
+  const localeCookie = req.cookies.get("locale")?.value;
+  const xLocaleHeader = req.headers.get("x-locale");
+  const acceptLanguageHeader = req.headers.get("accept-language");
+  if (localeCookie) {
+    // Sanitize the locale
+    const cleanLocale = acceptLanguage.get(localeCookie) ?? Locales.default;
     // Set reset cookie
-    response.cookies.set("locale", cookieLocale);
+    response.cookies.set("locale", cleanLocale);
   }
-  else if (req.headers.get("x-locale")) {
-    // Sanitize the locale header
-    const headerLocale = acceptLanguage.get(req.headers.get("x-locale")) ?? Locales.default;
-    response.headers.set("x-locale", headerLocale);
+  else if (xLocaleHeader) {
+    // Sanitize the locale
+    const cleanLocale = acceptLanguage.get(xLocaleHeader) ?? Locales.default;
+    // Set header x-locale
+    response.headers.set("x-locale", cleanLocale);
   }
-  // else {
-  //   // No locale cookie found, define it with accept-language header (or default)
-  //   const headerLocale = acceptLanguage.get(req.headers.get("accept-language")) ?? Locales.default;
-  //   response.cookies.set("locale", headerLocale ?? Locales.default);
-  // }
+  else {
+    // Sanitize the locale
+    const cleanLocale = acceptLanguage.get(acceptLanguageHeader) ?? Locales.default;
+    // Set header x-locale
+    response.headers.set("x-locale", cleanLocale);
+  }
+  
 
   // Redirect away from login page if already logged in
   if (req.nextUrl.pathname.startsWith('/login')) {
