@@ -44,23 +44,28 @@ export function ManualGoalForm({
 
   const inputGridElement = document.getElementById("inputGrid");
 
-  // TODO - wrap input in label !!!OR!!! give all inputs unique id's and use htmlFor in labels
-  // TODO - all inputs should have exactly the same name
-  function drawGridColumn(column: number) {
-    console.log(dataSeriesDataFieldNames[column-1]);
+  // TODO - update text field input when input grid is changed
+  /**
+   * Function for drawing grid columns
+   * @param columnIndex the index of the column to draw (starting at 1)
+   * @returns 
+   */
+  function drawGridColumn(columnIndex: number) {
+    console.log(dataSeriesDataFieldNames[columnIndex]);
     return (
-      <div style={{ backgroundColor: "pink" }} key={`column-${column}`}>
-        <label className="padding-25">{dataSeriesDataFieldNames[column-1].replace("val", "")}</label>
-        <input type="text" name={`item-${column}`} value={dataSeriesString?.split(";")[column - 1]} />
+      <div style={{ backgroundColor: "pink" }} key={`column-${columnIndex}`}>
+        <label htmlFor={dataSeriesDataFieldNames[columnIndex]} className="padding-25">{dataSeriesDataFieldNames[columnIndex].replace("val", "")}</label>
+        <input type="text" id={dataSeriesDataFieldNames[columnIndex]} name="dataSeriesInput" value={dataSeriesString?.split(";")[columnIndex]} />
       </div>
     )
   }
 
   console.log(dataSeriesDataFieldNames);
-  let columnCount = (1 > dataSeriesDataFieldNames.length) ? 1 : dataSeriesDataFieldNames.length;
+  const defaultColumnCount = (1 > dataSeriesDataFieldNames.length) ? 1 : dataSeriesDataFieldNames.length;
+  let columnCount = defaultColumnCount;
   let columns: JSX.Element[] = [];
   for (let i = 0; i < (columnCount); i++) {
-    const column = drawGridColumn(i + 1);
+    const column = drawGridColumn(i);
     columns.push(column);
   }
 
@@ -129,7 +134,7 @@ export function ManualGoalForm({
     if (inputGridElement) {
       inputGridElement.addEventListener("paste", (e) => handlePaste(e as ClipboardEvent));
     } else {
-      console.log("cant add event listeners when updating input grid");
+      console.warn("cant add event listeners when updating input grid");
     }
   }
 
@@ -137,7 +142,11 @@ export function ManualGoalForm({
   function addColumn() {
     console.log("Add column called");
     columnCount++;
-    columns.push(drawGridColumn(columns.length + 1));
+    if (columnCount > dataSeriesDataFieldNames.length) {
+      columnCount = dataSeriesDataFieldNames.length;
+      return;
+    }
+    columns.push(drawGridColumn(columns.length));
     const inputGrid = document.getElementById("inputGrid");
     if (inputGrid) {
       updateInputGrid(inputGrid);
@@ -147,6 +156,10 @@ export function ManualGoalForm({
   function removeColumn() {
     console.log("Remove column called");
     columnCount--;
+    if (columnCount < 1) {
+      columnCount = 1;
+      return;
+    }
     columns.pop();
     const inputGrid = document.getElementById("inputGrid");
     if (inputGrid) {
@@ -162,18 +175,18 @@ export function ManualGoalForm({
     const valuesList = Array.isArray(values) ? values : values.split(/[\t;]/);
     columnCount = valuesList.length;
     columns = [];
-    for (let i = 0; i < (columnCount ? columnCount : 4); i++) {
-      columns.push(drawGridColumn(i + 1));
+    for (let i = 0; i < (columnCount ? columnCount : defaultColumnCount); i++) {
+      columns.push(drawGridColumn(i));
     }
     const inputGrid = document.getElementById("inputGrid");
     if (inputGrid) {
       updateInputGrid(inputGrid);
       const inputs = inputGrid.getElementsByTagName("input");
-      valuesList.forEach((value, index) => {
+      valuesList.forEach((value, index) => { // TODO - is this necessary?
         inputs[index].value = value;
       })
     } else {
-      console.log("inputGrid does not exist");
+      console.warn("inputGrid does not exist");
     }
   }
 
@@ -190,7 +203,7 @@ export function ManualGoalForm({
   if (inputGridElement) {
     inputGridElement.addEventListener("paste", (e) => handlePaste(e as ClipboardEvent));
   } else {
-    console.log("cant add event listeners");
+    console.warn("cant add event listeners");
   }
 
   if (dataSeriesString) {
