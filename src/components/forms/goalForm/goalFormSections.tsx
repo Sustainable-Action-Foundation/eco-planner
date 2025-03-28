@@ -10,6 +10,7 @@ import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 import { Fragment, useEffect, useState } from "react";
 import { dataSeriesPattern } from "./goalForm";
+import { get } from "node_modules/cypress/types/lodash";
 
 export function ManualGoalForm({
   currentGoal,
@@ -44,18 +45,18 @@ export function ManualGoalForm({
 
   const inputGridElement = document.getElementById("inputGrid");
 
-  // TODO - update text field input when input grid is changed
+  // TODO - update grid input when text input is changed
   /**
    * Function for drawing grid columns
    * @param columnIndex the index of the column to draw (starting at 1)
    * @returns 
    */
   function drawGridColumn(columnIndex: number) {
-    console.log(dataSeriesDataFieldNames[columnIndex]);
+    console.log("FUNCTION CALLED - Drawing grid column");
     return (
       <div style={{ backgroundColor: "pink" }} key={`column-${columnIndex}`}>
         <label htmlFor={dataSeriesDataFieldNames[columnIndex]} className="padding-25">{dataSeriesDataFieldNames[columnIndex].replace("val", "")}</label>
-        <input type="text" id={dataSeriesDataFieldNames[columnIndex]} name="dataSeriesInput" value={dataSeriesString?.split(";")[columnIndex]} />
+        <input type="text" id={dataSeriesDataFieldNames[columnIndex]} name="dataSeriesInput" value={dataSeriesString?.split(";")[columnIndex]} onChange={updateStringInput} />
       </div>
     )
   }
@@ -99,7 +100,10 @@ export function ManualGoalForm({
         } else if (key === "className") {
           propsString += ` class="${child.props[key]}"`;
           continue;
+        } else if (key === "onChange") {
+          continue; // the onChange event listener is added later
         }
+        // console.log(key);
         propsString += ` ${key}="${child.props[key]}"`;
       }
 
@@ -114,7 +118,7 @@ export function ManualGoalForm({
    * @returns 
    */
   function generateInputGridInnerHTML() {
-    console.log("generating inner html")
+    console.log("FUNCTION CALLED - generating inner html")
     console.log(columns);
     return columns.map(column => `<${column.type} style="${getStyleString(column.props.style)}">${getChildrenString(column.props.children)}</${column.type}>`).join("");
   }
@@ -124,8 +128,16 @@ export function ManualGoalForm({
    * @param inputGridElement The element to update
    */
   function updateInputGrid(inputGridElement: HTMLElement) {
-
+    console.log("FUNCTION CALLED - Updating input grid");
     inputGridElement.innerHTML = generateInputGridInnerHTML();
+
+    const inputGridInputBoxes = inputGridElement.getElementsByTagName("input");
+    for (let inputBox of inputGridInputBoxes) {
+      inputBox.addEventListener("change", updateStringInput);
+    }
+    // inputGridInputBoxes.forEach((inputBox) => {
+    //   inputBox.addEventListener("change", updateStringInput);
+    // });
 
     // let re = new RegExp(/<input.+?>/gi);
     // console.log(inputGridElement.innerHTML.match(re));
@@ -172,6 +184,7 @@ export function ManualGoalForm({
    * @param values a string or array of values to insert. If a string, it will be split by semicolon or tab
    */
   function insertValuesToInputGrid(values: string | string[]) {
+    console.log("FUNCTION CALLED - Inserting values to input grid");
     const valuesList = Array.isArray(values) ? values : values.split(/[\t;]/);
     columnCount = valuesList.length;
     columns = [];
@@ -190,10 +203,37 @@ export function ManualGoalForm({
     }
   }
 
+  function getValuesFromInputGrid() {
+    console.log("FUNCTION CALLED - Getting values from input grid");
+    const inputGrid = document.getElementById("inputGrid");
+    if (!inputGrid) {
+      console.warn("inputGrid does not exist");
+      return;
+    }
+    const inputs = inputGrid.getElementsByTagName("input");
+    const values = [];
+    for (let i = 0; i < inputs.length; i++) {
+      values.push(inputs[i].value);
+    }
+    return values;
+  }
+
+  function updateStringInput(){
+    console.log("FUNCTION CALLED - Updating string input");
+    const valuesString = getValuesFromInputGrid()?.join(";");
+    const input = document.getElementById("dataSeries") as HTMLInputElement | null;
+    if (input && valuesString) {
+      console.log(input);
+      console.log(input.value);
+      input.value = valuesString;
+    }
+  }
+
   /**
    * Function to handle pasting into the input grid
-   */
+  */
   function handlePaste(e: ClipboardEvent) {
+    console.log("FUNCTION CALLED - Handling paste");
     if (!e.clipboardData) return;
     const clip = e.clipboardData.getData("text");
     insertValuesToInputGrid(clip);
@@ -206,9 +246,12 @@ export function ManualGoalForm({
     console.warn("cant add event listeners");
   }
 
+  console.log(getValuesFromInputGrid());
   if (dataSeriesString) {
     insertValuesToInputGrid(dataSeriesString);
   }
+  console.log(getValuesFromInputGrid());
+  console.log(getValuesFromInputGrid()?.join(";"));
 
   return (
     <>
@@ -255,6 +298,7 @@ export function ManualGoalForm({
           defaultValue={dataSeriesString}
         />
         <button type="button" onClick={() => { console.log(document.getElementById("inputGrid")) }}>Logga</button>
+        <button type="button" onClick={updateStringInput}>Uppdatera</button>
         <button type="button" onClick={addColumn}>Lägg till kolumn</button>
         <button type="button" onClick={removeColumn}>Ta bort kolumn</button>
         <div id="inputGrid" style={{ maxWidth: "50rem", display: "grid", gridTemplateColumns: `repeat(${columnCount}, 1fr)`, gap: "0rem", gridTemplateRows: "auto", overflow: "scroll" }}>
