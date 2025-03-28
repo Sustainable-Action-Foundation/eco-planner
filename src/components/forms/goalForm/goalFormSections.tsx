@@ -188,9 +188,21 @@ export function ManualGoalForm({
     if (gridInput) {
       console.log("gridInput exists");
       updateInputGrid(gridInput);
-      console.log([...gridInput.children].map((child) => {
-        return [...child.children];
-      }))
+      // console.log([...gridInput.children].map((child) => {
+      //   return [...child.children];
+      // }))
+      const inputs = gridInput.getElementsByTagName("input");
+      console.log(inputs);
+      for (const key of inputs) {
+        console.log(key);
+        console.log(key.value);
+        // console.log(inputs[key].value);
+      }
+      values.forEach((value, index) => {
+        inputs[index].value = value;
+        console.log(value);
+      })
+      // console.log([...gridInput.getElementsByTagName("input")].map((element) => element.value));
       // gridInput.style.gridTemplateColumns = `repeat(${columnCount}, 1fr)`;
       // columns = [];
       // for (let i = 0; i < (columnCount ? columnCount : 4); i++) {
