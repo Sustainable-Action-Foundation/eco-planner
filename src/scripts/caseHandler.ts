@@ -392,166 +392,172 @@ export default class CaseHandler {
   }
 }
 
-function testAllCases() {
-  const snakeCaseString: string = "this_is_a_snake_case_string";
-  const camelCaseString: string = "thisIsACamelCaseString";
-  const pascalCaseString: string = "ThisIsAPascalCaseString";
-  const macroCaseString: string = "THIS_IS_A_MACRO_CASE_STRING";
-  const pascalSnakeCaseString: string = "This_Is_A_Pascal_Snake_Case_String";
-  const kebabCaseString: string = "this-is-a-kebab-case-string";
-  const pascalKebabCaseString: string = "This-Is-A-Pascal-Kebab-Case-String";
+function testAllCases(doTests: boolean = false): void {
+  if (doTests) {
+    const snakeCaseString: string = "this_is_a_snake_case_string";
+    const camelCaseString: string = "thisIsACamelCaseString";
+    const pascalCaseString: string = "ThisIsAPascalCaseString";
+    const macroCaseString: string = "THIS_IS_A_MACRO_CASE_STRING";
+    const pascalSnakeCaseString: string = "This_Is_A_Pascal_Snake_Case_String";
+    const kebabCaseString: string = "this-is-a-kebab-case-string";
+    const pascalKebabCaseString: string = "This-Is-A-Pascal-Kebab-Case-String";
 
-  console.log("--------------------------------------------------");
-  console.log("TO PASCAL CASE");
-  console.log("--------------------------------------------------");
+    console.log("--------------------------------------------------");
+    console.log("TO PASCAL CASE");
+    console.log("--------------------------------------------------");
 
-  console.log(CaseHandler.camelToPascal(camelCaseString)); // ThisIsACamelCaseString
-  console.log(CaseHandler.macroToPascal(macroCaseString)); // ThisIsAMacroCaseString
-  console.log(CaseHandler.pascalSnakeToPascal(pascalSnakeCaseString)); // ThisIsAPascalSnakeCaseString
-  console.log(CaseHandler.pascalKebabToPascal(pascalKebabCaseString)); // ThisIsAPascalKebabCaseString
-  console.log(CaseHandler.kebabToPascal(kebabCaseString)); // ThisIsAKebabCaseString
-  console.log(CaseHandler.snakeToPascal(snakeCaseString)); // ThisIsASnakeCaseString
+    console.log(CaseHandler.camelToPascal(camelCaseString)); // ThisIsACamelCaseString
+    console.log(CaseHandler.macroToPascal(macroCaseString)); // ThisIsAMacroCaseString
+    console.log(CaseHandler.pascalSnakeToPascal(pascalSnakeCaseString)); // ThisIsAPascalSnakeCaseString
+    console.log(CaseHandler.pascalKebabToPascal(pascalKebabCaseString)); // ThisIsAPascalKebabCaseString
+    console.log(CaseHandler.kebabToPascal(kebabCaseString)); // ThisIsAKebabCaseString
+    console.log(CaseHandler.snakeToPascal(snakeCaseString)); // ThisIsASnakeCaseString
 
-  console.log("");
+    console.log("");
 
-  console.log(CaseHandler.toPascalCase(camelCaseString)); // ThisIsACamelCaseString
-  console.log(CaseHandler.toPascalCase(macroCaseString)); // ThisIsAMacroCaseString
-  console.log(CaseHandler.toPascalCase(pascalSnakeCaseString)); // ThisIsAPascalSnakeCaseString
-  console.log(CaseHandler.toPascalCase(pascalKebabCaseString)); // ThisIsAPascalKebabCaseString
-  console.log(CaseHandler.toPascalCase(kebabCaseString)); // ThisIsAKebabCaseString
-  console.log(CaseHandler.toPascalCase(snakeCaseString)); // ThisIsASnakeCaseString
+    console.log(CaseHandler.toPascalCase(camelCaseString)); // ThisIsACamelCaseString
+    console.log(CaseHandler.toPascalCase(macroCaseString)); // ThisIsAMacroCaseString
+    console.log(CaseHandler.toPascalCase(pascalSnakeCaseString)); // ThisIsAPascalSnakeCaseString
+    console.log(CaseHandler.toPascalCase(pascalKebabCaseString)); // ThisIsAPascalKebabCaseString
+    console.log(CaseHandler.toPascalCase(kebabCaseString)); // ThisIsAKebabCaseString
+    console.log(CaseHandler.toPascalCase(snakeCaseString)); // ThisIsASnakeCaseString
 
-  console.log("--------------------------------------------------");
-  console.log("TO CAMEL CASE");
-  console.log("--------------------------------------------------");
+    console.log("--------------------------------------------------");
+    console.log("TO CAMEL CASE");
+    console.log("--------------------------------------------------");
 
-  console.log(CaseHandler.pascalToCamel(pascalCaseString)); // thisIsAPascalCaseString
-  console.log(CaseHandler.macroToCamel(macroCaseString)); // thisIsAMacroCaseString
-  console.log(CaseHandler.pascalSnakeToCamel(pascalSnakeCaseString)); // thisIsAPascalSnakeCaseString
-  console.log(CaseHandler.pascalKebabToCamel(pascalKebabCaseString)); // thisIsAPascalKebabCaseString
-  console.log(CaseHandler.kebabToCamel(kebabCaseString)); // thisIsAKebabCaseString
-  console.log(CaseHandler.snakeToCamel(snakeCaseString)); // thisIsASnakeCaseString
+    console.log(CaseHandler.pascalToCamel(pascalCaseString)); // thisIsAPascalCaseString
+    console.log(CaseHandler.macroToCamel(macroCaseString)); // thisIsAMacroCaseString
+    console.log(CaseHandler.pascalSnakeToCamel(pascalSnakeCaseString)); // thisIsAPascalSnakeCaseString
+    console.log(CaseHandler.pascalKebabToCamel(pascalKebabCaseString)); // thisIsAPascalKebabCaseString
+    console.log(CaseHandler.kebabToCamel(kebabCaseString)); // thisIsAKebabCaseString
+    console.log(CaseHandler.snakeToCamel(snakeCaseString)); // thisIsASnakeCaseString
 
-  console.log("");
+    console.log("");
 
-  console.log(CaseHandler.toCamelCase(pascalCaseString)); // thisIsAPascalCaseString
-  console.log(CaseHandler.toCamelCase(macroCaseString)); // thisIsAMacroCaseString
-  console.log(CaseHandler.toCamelCase(pascalSnakeCaseString)); // thisIsAPascalSnakeCaseString
-  console.log(CaseHandler.toCamelCase(pascalKebabCaseString)); // thisIsAPascalKebabCaseString
-  console.log(CaseHandler.toCamelCase(kebabCaseString)); // thisIsAKebabCaseString
-  console.log(CaseHandler.toCamelCase(snakeCaseString)); // thisIsASnakeCaseString
+    console.log(CaseHandler.toCamelCase(pascalCaseString)); // thisIsAPascalCaseString
+    console.log(CaseHandler.toCamelCase(macroCaseString)); // thisIsAMacroCaseString
+    console.log(CaseHandler.toCamelCase(pascalSnakeCaseString)); // thisIsAPascalSnakeCaseString
+    console.log(CaseHandler.toCamelCase(pascalKebabCaseString)); // thisIsAPascalKebabCaseString
+    console.log(CaseHandler.toCamelCase(kebabCaseString)); // thisIsAKebabCaseString
+    console.log(CaseHandler.toCamelCase(snakeCaseString)); // thisIsASnakeCaseString
 
-  console.log("--------------------------------------------------");
-  console.log("TO MACRO CASE");
-  console.log("--------------------------------------------------");
+    console.log("--------------------------------------------------");
+    console.log("TO MACRO CASE");
+    console.log("--------------------------------------------------");
 
-  console.log(CaseHandler.pascalToMacro(pascalCaseString)); // THIS_IS_A_PASCAL_CASE_STRING
-  console.log(CaseHandler.camelToMacro(camelCaseString)); // THIS_IS_A_CAMEL_CASE_STRING
-  console.log(CaseHandler.pascalSnakeToMacro(pascalSnakeCaseString)); // THIS_IS_A_PASCAL_SNAKE_CASE_STRING
-  console.log(CaseHandler.pascalKebabToMacro(pascalKebabCaseString)); // THIS_IS_A_PASCAL_KEBAB_CASE_STRING
-  console.log(CaseHandler.kebabToMacro(kebabCaseString)); // THIS_IS_A_KEBAB_CASE_STRING
-  console.log(CaseHandler.snakeToMacro(snakeCaseString)); // THIS_IS_A_SNAKE_CASE_STRING
+    console.log(CaseHandler.pascalToMacro(pascalCaseString)); // THIS_IS_A_PASCAL_CASE_STRING
+    console.log(CaseHandler.camelToMacro(camelCaseString)); // THIS_IS_A_CAMEL_CASE_STRING
+    console.log(CaseHandler.pascalSnakeToMacro(pascalSnakeCaseString)); // THIS_IS_A_PASCAL_SNAKE_CASE_STRING
+    console.log(CaseHandler.pascalKebabToMacro(pascalKebabCaseString)); // THIS_IS_A_PASCAL_KEBAB_CASE_STRING
+    console.log(CaseHandler.kebabToMacro(kebabCaseString)); // THIS_IS_A_KEBAB_CASE_STRING
+    console.log(CaseHandler.snakeToMacro(snakeCaseString)); // THIS_IS_A_SNAKE_CASE_STRING
 
-  console.log("");
+    console.log("");
 
-  console.log(CaseHandler.toMacroCase(pascalCaseString)); // THIS_IS_A_PASCAL_CASE_STRING
-  console.log(CaseHandler.toMacroCase(camelCaseString)); // THIS_IS_A_CAMEL_CASE_STRING
-  console.log(CaseHandler.toMacroCase(pascalSnakeCaseString)); // THIS_IS_A_PASCAL_SNAKE_CASE_STRING
-  console.log(CaseHandler.toMacroCase(pascalKebabCaseString)); // THIS_IS_A_PASCAL_KEBAB_CASE_STRING
-  console.log(CaseHandler.toMacroCase(kebabCaseString)); // THIS_IS_A_KEBAB_CASE_STRING
-  console.log(CaseHandler.toMacroCase(snakeCaseString)); // THIS_IS_A_SNAKE_CASE_STRING
+    console.log(CaseHandler.toMacroCase(pascalCaseString)); // THIS_IS_A_PASCAL_CASE_STRING
+    console.log(CaseHandler.toMacroCase(camelCaseString)); // THIS_IS_A_CAMEL_CASE_STRING
+    console.log(CaseHandler.toMacroCase(pascalSnakeCaseString)); // THIS_IS_A_PASCAL_SNAKE_CASE_STRING
+    console.log(CaseHandler.toMacroCase(pascalKebabCaseString)); // THIS_IS_A_PASCAL_KEBAB_CASE_STRING
+    console.log(CaseHandler.toMacroCase(kebabCaseString)); // THIS_IS_A_KEBAB_CASE_STRING
+    console.log(CaseHandler.toMacroCase(snakeCaseString)); // THIS_IS_A_SNAKE_CASE_STRING
 
-  console.log("--------------------------------------------------");
-  console.log("TO PASCAL SNAKE CASE");
-  console.log("--------------------------------------------------");
+    console.log("--------------------------------------------------");
+    console.log("TO PASCAL SNAKE CASE");
+    console.log("--------------------------------------------------");
 
-  console.log(CaseHandler.pascalToPascalSnake(pascalCaseString)); // This_Is_A_Pascal_Case_String
-  console.log(CaseHandler.camelToPascalSnake(camelCaseString)); // This_Is_A_Camel_Case_String
-  console.log(CaseHandler.macroToPascalSnake(macroCaseString)); // This_Is_A_Macro_Case_String
-  console.log(CaseHandler.pascalKebabToPascalSnake(pascalKebabCaseString)); // This_Is_A_Pascal_Kebab_Case_String
-  console.log(CaseHandler.kebabToPascalSnake(kebabCaseString)); // This_Is_A_Kebab_Case_String
-  console.log(CaseHandler.snakeToPascalSnake(snakeCaseString)); // This_Is_A_Snake_Case_String
+    console.log(CaseHandler.pascalToPascalSnake(pascalCaseString)); // This_Is_A_Pascal_Case_String
+    console.log(CaseHandler.camelToPascalSnake(camelCaseString)); // This_Is_A_Camel_Case_String
+    console.log(CaseHandler.macroToPascalSnake(macroCaseString)); // This_Is_A_Macro_Case_String
+    console.log(CaseHandler.pascalKebabToPascalSnake(pascalKebabCaseString)); // This_Is_A_Pascal_Kebab_Case_String
+    console.log(CaseHandler.kebabToPascalSnake(kebabCaseString)); // This_Is_A_Kebab_Case_String
+    console.log(CaseHandler.snakeToPascalSnake(snakeCaseString)); // This_Is_A_Snake_Case_String
 
-  console.log("");
+    console.log("");
 
-  console.log(CaseHandler.toPascalSnakeCase(pascalCaseString)); // This_Is_A_Pascal_Case_String
-  console.log(CaseHandler.toPascalSnakeCase(camelCaseString)); // This_Is_A_Camel_Case_String
-  console.log(CaseHandler.toPascalSnakeCase(macroCaseString)); // This_Is_A_Macro_Case_String
-  console.log(CaseHandler.toPascalSnakeCase(pascalKebabCaseString)); // This_Is_A_Pascal_Kebab_Case_String
-  console.log(CaseHandler.toPascalSnakeCase(kebabCaseString)); // This_Is_A_Kebab_Case_String
-  console.log(CaseHandler.toPascalSnakeCase(snakeCaseString)); // This_Is_A_Snake_Case_String
+    console.log(CaseHandler.toPascalSnakeCase(pascalCaseString)); // This_Is_A_Pascal_Case_String
+    console.log(CaseHandler.toPascalSnakeCase(camelCaseString)); // This_Is_A_Camel_Case_String
+    console.log(CaseHandler.toPascalSnakeCase(macroCaseString)); // This_Is_A_Macro_Case_String
+    console.log(CaseHandler.toPascalSnakeCase(pascalKebabCaseString)); // This_Is_A_Pascal_Kebab_Case_String
+    console.log(CaseHandler.toPascalSnakeCase(kebabCaseString)); // This_Is_A_Kebab_Case_String
+    console.log(CaseHandler.toPascalSnakeCase(snakeCaseString)); // This_Is_A_Snake_Case_String
 
-  console.log("--------------------------------------------------");
-  console.log("TO PASCAL KEBAB CASE");
-  console.log("--------------------------------------------------");
+    console.log("--------------------------------------------------");
+    console.log("TO PASCAL KEBAB CASE");
+    console.log("--------------------------------------------------");
 
-  console.log(CaseHandler.pascalToPascalKebab(pascalCaseString)); // This-Is-A-Pascal-Case-String
-  console.log(CaseHandler.camelToPascalKebab(camelCaseString)); // This-Is-A-Camel-Case-String
-  console.log(CaseHandler.macroToPascalKebab(macroCaseString)); // This-Is-A-Macro-Case-String
-  console.log(CaseHandler.pascalSnakeToPascalKebab(pascalSnakeCaseString)); // This-Is-A-Pascal-Snake-Case-String
-  console.log(CaseHandler.kebabToPascalKebab(kebabCaseString)); // This-Is-A-Kebab-Case-String
-  console.log(CaseHandler.snakeToPascalKebab(snakeCaseString)); // This-Is-A-Snake-Case-String
+    console.log(CaseHandler.pascalToPascalKebab(pascalCaseString)); // This-Is-A-Pascal-Case-String
+    console.log(CaseHandler.camelToPascalKebab(camelCaseString)); // This-Is-A-Camel-Case-String
+    console.log(CaseHandler.macroToPascalKebab(macroCaseString)); // This-Is-A-Macro-Case-String
+    console.log(CaseHandler.pascalSnakeToPascalKebab(pascalSnakeCaseString)); // This-Is-A-Pascal-Snake-Case-String
+    console.log(CaseHandler.kebabToPascalKebab(kebabCaseString)); // This-Is-A-Kebab-Case-String
+    console.log(CaseHandler.snakeToPascalKebab(snakeCaseString)); // This-Is-A-Snake-Case-String
 
-  console.log("");
+    console.log("");
 
-  console.log(CaseHandler.toPascalKebabCase(pascalCaseString)); // This-Is-A-Pascal-Case-String
-  console.log(CaseHandler.toPascalKebabCase(camelCaseString)); // This-Is-A-Camel-Case-String
-  console.log(CaseHandler.toPascalKebabCase(macroCaseString)); // This-Is-A-Macro-Case-String
-  console.log(CaseHandler.toPascalKebabCase(pascalSnakeCaseString)); // This-Is-A-Pascal-Snake-Case-String
-  console.log(CaseHandler.toPascalKebabCase(kebabCaseString)); // This-Is-A-Kebab-Case-String
-  console.log(CaseHandler.toPascalKebabCase(snakeCaseString)); // This-Is-A-Snake-Case-String
+    console.log(CaseHandler.toPascalKebabCase(pascalCaseString)); // This-Is-A-Pascal-Case-String
+    console.log(CaseHandler.toPascalKebabCase(camelCaseString)); // This-Is-A-Camel-Case-String
+    console.log(CaseHandler.toPascalKebabCase(macroCaseString)); // This-Is-A-Macro-Case-String
+    console.log(CaseHandler.toPascalKebabCase(pascalSnakeCaseString)); // This-Is-A-Pascal-Snake-Case-String
+    console.log(CaseHandler.toPascalKebabCase(kebabCaseString)); // This-Is-A-Kebab-Case-String
+    console.log(CaseHandler.toPascalKebabCase(snakeCaseString)); // This-Is-A-Snake-Case-String
 
-  console.log("--------------------------------------------------");
-  console.log("TO KEBAB CASE");
-  console.log("--------------------------------------------------");
+    console.log("--------------------------------------------------");
+    console.log("TO KEBAB CASE");
+    console.log("--------------------------------------------------");
 
-  console.log(CaseHandler.pascalToKebab(pascalCaseString)); // this-is-a-pascal-case-string
-  console.log(CaseHandler.camelToKebab(camelCaseString)); // this-is-a-camel-case-string
-  console.log(CaseHandler.macroToKebab(macroCaseString)); // this-is-a-macro-case-string
-  console.log(CaseHandler.pascalSnakeToKebab(pascalSnakeCaseString)); // this-is-a-pascal-snake-case-string
-  console.log(CaseHandler.pascalKebabToKebab(pascalKebabCaseString)); // this-is-a-pascal-kebab-case-string
-  console.log(CaseHandler.snakeToKebab(snakeCaseString)); // this-is-a-snake-case-string
+    console.log(CaseHandler.pascalToKebab(pascalCaseString)); // this-is-a-pascal-case-string
+    console.log(CaseHandler.camelToKebab(camelCaseString)); // this-is-a-camel-case-string
+    console.log(CaseHandler.macroToKebab(macroCaseString)); // this-is-a-macro-case-string
+    console.log(CaseHandler.pascalSnakeToKebab(pascalSnakeCaseString)); // this-is-a-pascal-snake-case-string
+    console.log(CaseHandler.pascalKebabToKebab(pascalKebabCaseString)); // this-is-a-pascal-kebab-case-string
+    console.log(CaseHandler.snakeToKebab(snakeCaseString)); // this-is-a-snake-case-string
 
-  console.log("");
+    console.log("");
 
-  console.log(CaseHandler.toKebabCase(pascalCaseString)); // this-is-a-pascal-case-string
-  console.log(CaseHandler.toKebabCase(camelCaseString)); // this-is-a-camel-case-string
-  console.log(CaseHandler.toKebabCase(macroCaseString)); // this-is-a-macro-case-string
-  console.log(CaseHandler.toKebabCase(pascalSnakeCaseString)); // this-is-a-pascal-snake-case-string
-  console.log(CaseHandler.toKebabCase(pascalKebabCaseString)); // this-is-a-pascal-kebab-case-string
-  console.log(CaseHandler.toKebabCase(snakeCaseString)); // this-is-a-snake-case-string
+    console.log(CaseHandler.toKebabCase(pascalCaseString)); // this-is-a-pascal-case-string
+    console.log(CaseHandler.toKebabCase(camelCaseString)); // this-is-a-camel-case-string
+    console.log(CaseHandler.toKebabCase(macroCaseString)); // this-is-a-macro-case-string
+    console.log(CaseHandler.toKebabCase(pascalSnakeCaseString)); // this-is-a-pascal-snake-case-string
+    console.log(CaseHandler.toKebabCase(pascalKebabCaseString)); // this-is-a-pascal-kebab-case-string
+    console.log(CaseHandler.toKebabCase(snakeCaseString)); // this-is-a-snake-case-string
 
-  console.log("--------------------------------------------------");
-  console.log("TO SNAKE CASE");
-  console.log("--------------------------------------------------");
+    console.log("--------------------------------------------------");
+    console.log("TO SNAKE CASE");
+    console.log("--------------------------------------------------");
 
-  console.log(CaseHandler.pascalToSnake(pascalCaseString)); // this_is_a_pascal_case_string
-  console.log(CaseHandler.camelToSnake(camelCaseString)); // this_is_a_camel_case_string
-  console.log(CaseHandler.macroToSnake(macroCaseString)); // this_is_a_macro_case_string
-  console.log(CaseHandler.pascalSnakeToSnake(pascalSnakeCaseString)); // this_is_a_pascal_snake_case_string
-  console.log(CaseHandler.kebabToSnake(kebabCaseString)); // this_is_a_kebab_case_string
-  console.log(CaseHandler.pascalKebabToSnake(pascalKebabCaseString)); // this_is_a_pascal_kebab_case_string
+    console.log(CaseHandler.pascalToSnake(pascalCaseString)); // this_is_a_pascal_case_string
+    console.log(CaseHandler.camelToSnake(camelCaseString)); // this_is_a_camel_case_string
+    console.log(CaseHandler.macroToSnake(macroCaseString)); // this_is_a_macro_case_string
+    console.log(CaseHandler.pascalSnakeToSnake(pascalSnakeCaseString)); // this_is_a_pascal_snake_case_string
+    console.log(CaseHandler.kebabToSnake(kebabCaseString)); // this_is_a_kebab_case_string
+    console.log(CaseHandler.pascalKebabToSnake(pascalKebabCaseString)); // this_is_a_pascal_kebab_case_string
 
-  console.log("");
+    console.log("");
 
-  console.log(CaseHandler.toSnakeCase(pascalCaseString)); // this_is_a_pascal_case_string
-  console.log(CaseHandler.toSnakeCase(camelCaseString)); // this_is_a_camel_case_string
-  console.log(CaseHandler.toSnakeCase(macroCaseString)); // this_is_a_macro_case_string
-  console.log(CaseHandler.toSnakeCase(pascalSnakeCaseString)); // this_is_a_pascal_snake_case_string
-  console.log(CaseHandler.toSnakeCase(kebabCaseString)); // this_is_a_kebab_case_string
-  console.log(CaseHandler.toSnakeCase(pascalKebabCaseString)); // this_is_a_pascal_kebab_case_string
+    console.log(CaseHandler.toSnakeCase(pascalCaseString)); // this_is_a_pascal_case_string
+    console.log(CaseHandler.toSnakeCase(camelCaseString)); // this_is_a_camel_case_string
+    console.log(CaseHandler.toSnakeCase(macroCaseString)); // this_is_a_macro_case_string
+    console.log(CaseHandler.toSnakeCase(pascalSnakeCaseString)); // this_is_a_pascal_snake_case_string
+    console.log(CaseHandler.toSnakeCase(kebabCaseString)); // this_is_a_kebab_case_string
+    console.log(CaseHandler.toSnakeCase(pascalKebabCaseString)); // this_is_a_pascal_kebab_case_string
 
-  console.log("--------------------------------------------------");
-  console.log("DETECT CASE");
-  console.log("--------------------------------------------------");
+    console.log("--------------------------------------------------");
+    console.log("DETECT CASE");
+    console.log("--------------------------------------------------");
 
-  console.log(CaseHandler.detectCase(snakeCaseString)); // snake
-  console.log(CaseHandler.detectCase(kebabCaseString)); // kebab
-  console.log(CaseHandler.detectCase(pascalCaseString)); // pascal
-  console.log(CaseHandler.detectCase(camelCaseString)); // camel
-  console.log(CaseHandler.detectCase(macroCaseString)); // macro
-  console.log(CaseHandler.detectCase(pascalSnakeCaseString)); // pascalSnake
-  console.log(CaseHandler.detectCase(pascalKebabCaseString)); // pascalKebab
+    console.log(CaseHandler.detectCase(snakeCaseString)); // snake
+    console.log(CaseHandler.detectCase(kebabCaseString)); // kebab
+    console.log(CaseHandler.detectCase(pascalCaseString)); // pascal
+    console.log(CaseHandler.detectCase(camelCaseString)); // camel
+    console.log(CaseHandler.detectCase(macroCaseString)); // macro
+    console.log(CaseHandler.detectCase(pascalSnakeCaseString)); // pascalSnake
+    console.log(CaseHandler.detectCase(pascalKebabCaseString)); // pascalKebab
+
+    return;
+  } else {
+    return;
+  }
 }
 
-// testAllCases();
+testAllCases();
