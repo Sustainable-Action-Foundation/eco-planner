@@ -17,32 +17,32 @@ export default async function Sidebar() {
     <aside className={styles.container}>
       <label className={styles.menuToggleContainer}>
         <input type="checkbox" className={styles.menuToggle} />
-        <Image src='/icons/menu.svg' alt={t("pages:toggle_menu_alt")} width='24' height='24' />
+        <Image src='/icons/menu.svg' alt={t("components:sidebar.toggle_menu_alt")} width='24' height='24' />
       </label>
       <aside className={`${styles.aside} flex-grow-100`}>
         <nav className={styles.nav}>
           {user?.isLoggedIn ?
             <Link href={`/@${user.username}`} className={styles.link}>
               <Image src='/icons/user.svg' alt='' width={24} height={24} />
-              {t("pages:sidebar.my_profile")}
+              {t("components:sidebar.my_profile")}
             </Link>
             :
             <Link href="/signup" className='flex gap-50 align-items-center padding-50 margin-block-25 round seagreen color-purewhite button font-weight-500' style={{ whiteSpace: 'nowrap' }}>
               <Image src='/icons/userAdd.svg' alt='' width={24} height={24} />
-              {t("pages:sidebar.create_account")}
+              {t("components:sidebar.create_account")}
             </Link>
           }
           <div className='flex-grow-100'>
             <Link href="/" className={styles.link}>
               <Image src='/icons/home.svg' alt='' width={24} height={24} />
-              {t("pages:sidebar.home")}
+              {t("components:sidebar.home")}
             </Link>
             <Link href="/info" className={styles.link}>
               <Image src='/icons/info.svg' alt='' width={24} height={24} />
-              {t("pages:sidebar.about")}
+              {t("components:sidebar.about")}
             </Link>
             <div className={`${styles.link} cursor-pointer`}>
-              <Image src="/icons/globe.svg" alt={t("pages:sidebar.language_alt")} width={24} height={24} />
+              <Image src="/icons/globe.svg" alt={t("components:sidebar.language_alt")} width={24} height={24} />
               <LanguageSwitcher />
             </div>
           </div>
@@ -51,7 +51,7 @@ export default async function Sidebar() {
             :
             <Link href="/login" className={styles.link}>
               <Image src='/icons/login.svg' alt='' width={24} height={24} />
-              {t("pages:sidebar.login")}
+              {t("components:sidebar.login")}
             </Link>
           }
         </nav>

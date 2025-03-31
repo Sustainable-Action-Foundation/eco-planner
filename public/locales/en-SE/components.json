@@ -1,4 +1,13 @@
 {
+  "sidebar": {
+    "toggle_menu_alt": "Toggle menu",
+    "my_profile": "My account",
+    "create_account": "Create account",
+    "home": "Home",
+    "about": "About the tool",
+    "language_alt": "Change language",
+    "login": "Login"
+  },
   "image_attribute": {
     "by": "Photo by",
     "on": "on"

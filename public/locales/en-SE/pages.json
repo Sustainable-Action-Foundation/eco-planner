@@ -1,15 +1,7 @@
 {
-  "home_title": "{{$t(common:roadmap_short_other), titleCase}}",
-  "create_roadmap_series_one": "$t(common:new.roadmap_series)",
-  "create_version_in_roadmap_series_one": "Create new $t(common:roadmap_version_one) in an existing $t(common:roadmap_series_one)",
-  "toggle_menu_alt": "Toggle menu",
-  "sidebar": {
-    "my_profile": "My account",
-    "create_account": "Create account",
-    "home": "Home",
-    "about": "About the tool",
-    "language_alt": "Change language",
-    "login": "Login"
+  "home": {
+    "title": "{{$t(common:roadmap_short_other), titleCase}}",
+    "create_roadmap": "$t(common:new.roadmap_series)"
   },
   "profile": {
     "handle_data": "Data management",
