@@ -5,7 +5,7 @@
   },
   "roadmap_filters": {
     "search_roadmaps": "Sök bland $t(common:roadmap_series_other)",
-    "sort_by": "Sortera på:",
+    "sort_by": "Sortera utifrån:",
     "default": "Standard",
     "name_descending": "Namn (A-Ö)",
     "name_ascending": "Namn (Ö-A)",
@@ -154,7 +154,7 @@
   "query_builder": {
     "add_historical_data": "Lägg till historisk data",
     "add_data_source": "Lägg till datakälla",
-    "add_data_to_goal": "Lägg till en historisk dataserie till {{goalName}}",
+    "add_data_to_goal": "Lägg till en historisk dataserie i {{goalName}}",
     "data_source": "Datakälla",
     "select_source": "Välj en källa",
     "search_for_table": "Sök efter tabell",
@@ -204,7 +204,7 @@
     "expected_outcomes": "Förväntade utfall"
   },
   "child_graph_container": {
-    "change_graph_type": "Change graph type",
+    "change_graph_type": "Ändra graftyp",
     "goals_toward": "{{$t(common:goal_other), titleCase}} som jobbar mot {{goalName}}"
   },
   "main_graph": {
@@ -223,7 +223,7 @@
     "actions": "{{$t(common:action_other), titleCase}}"
   },
   "sibling_graph": {
-    "change_graph_type": "Byt graftyp",
+    "change_graph_type": "Ändra graftyp",
     "adjacent_goals": "Angränsande $t(common:goal_other)"
   },
   "effects_table": {

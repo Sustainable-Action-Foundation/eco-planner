@@ -2,7 +2,7 @@
   "home_title": "{{$t(common:roadmap_short_other), titleCase}}",
   "create_roadmap_series_one": "$t(common:new.roadmap_series)",
   "create_version_in_roadmap_series_one": "$t(common:new.roadmap_series)",
-  "toggle_menu_alt": "Växla meny",
+  "toggle_menu_alt": "Visa/dölj meny",
   "sidebar": {
     "my_profile": "Mitt konto",
     "create_account": "Skapa konto",
@@ -33,7 +33,7 @@
   "roadmap_create": {
     "breadcrumb": "$t(common:new.roadmap_version)",
     "title": "$t(common:new.roadmap_series)",
-    "bad_roadmap_series_one": "Kunde inte hitta eller har inte tillgång till $t(common:roadmap_series_definite_one) i länken.",
+    "bad_roadmap_series_one": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_series_definite_one) i länken.",
     "use_dropdown": "Använd dropdown-menyn för att välja en $t(common:roadmap_series_one)."
   },
   "action": {
@@ -60,30 +60,30 @@
     "info_body": "Detta verktyg syftar till att bidra till Sveriges klimatomställning.\n\nI verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas.\n\nHandlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen.\n\nAnvändare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige.\n\nPå lokal nivå kan också olika aktörer samarbeta kring åtgärder.",
     "version": "Version:",
     "remote": "Remote:",
-    "commit": "Commit"
+    "commit": "Commit:"
   },
   "login": {
     "breadcrumb": "Logga in"
   },
   "verify": {
-    "title": "Verifiera din e‑post",
-    "description": "Ett meddelande har skickats till din e‑postadress. Verifiera din e‑post genom att följa instruktionerna i e‑postmeddelandet.",
+    "title": "Verifiera din e‑postadress",
+    "description": "Ett meddelande har skickats till din e‑postadress. Verifiera din e‑postadress genom att följa instruktionerna i e‑postmeddelandet.",
     "troubleshooting_title": "Har du inte fått något meddelande?",
-    "troubleshooting_description": "Kolla i din skräppost eller fyll i din e‑postadress nedan och klicka på knappen för att få ett nytt e‑postmeddelandet.",
+    "troubleshooting_description": "Kolla i din skräppost eller fyll i din e‑postadress nedan och klicka på knappen för att få ett nytt e‑postmeddelande.",
     "email_placeholder": "fornamn.efternamn@exempel.se",
     "submit_resend": "Skicka igen"
   },
   "verify_verify": {
-    "title": "Verifiera din e‑post",
-    "description": "Verifiera din e‑post genom att klicka på knappen nedan.",
-    "submit": "Verifiera min e‑post"
+    "title": "Verifiera din e‑postadress",
+    "description": "Verifiera din e‑postadress genom att klicka på knappen nedan.",
+    "submit": "Verifiera min e‑postadress"
   },
   "signup": {
     "breadcrumb": "Skapa konto"
   },
   "password": {
     "breadcrumb": "Återställ lösenord",
-    "description": "Har du glömt ditt lösenord? Fyll i din e‑post här så skickar vi ett e‑postmeddelande med instruktioner för att återställa lösenordet.",
+    "description": "Har du glömt ditt lösenord? Fyll i din e‑postadress här så skickar vi ett e‑postmeddelande med instruktioner för att återställa lösenordet.",
     "email_placeholder": "fornamn.efternamn@exempel.se",
     "submit": "Skicka"
   },
@@ -101,7 +101,7 @@
   "roadmap_edit": {
     "breadcrumb": "$t(common:edit.roadmap_version)",
     "title": "$t(common:edit.roadmap_version)",
-    "are_you_in_the_right_place": "Menade du att redigera den gemensamma metadatan för hela $t(common:roadmap_series_definite_one)? I så fall kan du <Link>gå hit</Link> för att redigera metadatan."
+    "are_you_in_the_right_place": "Ville du redigera den gemensamma metadatan för hela $t(common:roadmap_series_definite_one)? I så fall kan du <Link>gå hit</Link> för att redigera metadatan."
   },
   "roadmap_series_one": {
     "title_legend": "{{$t(common:roadmap_series_one), titleCase}}",
@@ -117,21 +117,21 @@
   "goal_create": {
     "breadcrumb": "$t(common:new.goal)",
     "title": "$t(common:new.goal)",
-    "bad_roadmap": "Kunde inte hitta eller har inte tillgång till $t(common:roadmap_version_definite_one) i länken.\n\nAnvänd dropdown-menyn för att välja en $t(common:roadmap_version_one) att skapa $t(common:goal_definite_one) under."
+    "bad_roadmap": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_version_definite_one) i länken.\n\nAnvänd dropdown-menyn för att välja en $t(common:roadmap_version_one) att skapa $t(common:goal_definite_one) under."
   },
   "action_create": {
     "breadcrumb": "$t(common:new.action)",
     "title": "$t(common:new.action)",
     "title_with_goal": "$t(common:new.goal): {{goalName}}",
-    "bad_goal": "Kunde inte hitta eller har inte tillgång till $t(common:goal_definite_one) i länken.",
-    "bad_roadmap": "Kunde inte hitta eller har inte tillgång till $t(common:roadmap_version_definite_one) i länken.\nAnvänd dropdown-menyn för att välja en $t(common:roadmap_version_one)."
+    "bad_goal": "Kunde inte hitta, eller har inte tillgång till, $t(common:goal_definite_one) i länken.",
+    "bad_roadmap": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_version_definite_one) i länken.\nAnvänd dropdown-menyn för att välja en $t(common:roadmap_version_one)."
   },
   "action_edit": {
     "breadcrumb": "$t(common:edit.action)",
     "title": "$t(common:edit.action): {{actionName}} under $t(common:roadmap_version_one): {{roadmapName}} (v{{version}})"
   },
   "goal": {
-    "update_needed": "Uppdatera din $t(common:goal_one) för att få senaste informationen.",
+    "update_needed": "Uppdatera din $t(common:goal_one) för att få den senaste informationen.",
     "title_label": "{{$t(common:goal_one), titleCase}}",
     "menu": "Meny",
     "description": "Beskrivning",
