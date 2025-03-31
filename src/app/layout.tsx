@@ -12,7 +12,6 @@ export default async function RootLayout(
 ) {
   const locale = getLocale(
     cookies().get("locale")?.value,
-    headers().get("x-locale"),
     headers().get("accept-language"),
   );
 

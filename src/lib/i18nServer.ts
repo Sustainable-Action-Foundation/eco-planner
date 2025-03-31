@@ -27,7 +27,6 @@ export function initI18nServer(locale: Locales) {
 export function t(key: string | string[], options?: (TOptionsBase & $Dictionary) | undefined) {
   const locale = getLocale(
     cookies().get("locale")?.value,
-    headers().get("x-locale"),
     headers().get("accept-language"),
   );
 

@@ -1,42 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { getSession } from '@/lib/session'
 import { cookies } from 'next/headers'
-import { Locales, uniqueLocales } from "i18n.config";
-import acceptLanguage from "accept-language";
-
-// Set accepted languages
-acceptLanguage.languages(uniqueLocales);
 
 export async function middleware(req: NextRequest) {
   const session = await getSession(cookies())
   const response = NextResponse.next()
-
-  /** 
-   * If cookie is set, use that locale.
-   * Else, if x-locale is set, use that locale.
-   * Else, set x-locale to accept-language.
-   */
-  const localeCookie = req.cookies.get("locale")?.value;
-  const xLocaleHeader = req.headers.get("x-locale");
-  const acceptLanguageHeader = req.headers.get("accept-language");
-  if (localeCookie) {
-    // Sanitize the locale
-    const cleanLocale = acceptLanguage.get(localeCookie) ?? Locales.default;
-    // Set reset cookie
-    response.cookies.set("locale", cleanLocale);
-  }
-  else if (xLocaleHeader) {
-    // Sanitize the locale
-    const cleanLocale = acceptLanguage.get(xLocaleHeader) ?? Locales.default;
-    // Set header x-locale
-    response.headers.set("x-locale", cleanLocale);
-  }
-  else {
-    // Sanitize the locale
-    const cleanLocale = acceptLanguage.get(acceptLanguageHeader) ?? Locales.default;
-    // Set header x-locale
-    response.headers.set("x-locale", cleanLocale);
-  }
 
   // Redirect away from login page if already logged in
   if (req.nextUrl.pathname.startsWith('/login')) {
