@@ -30,7 +30,12 @@ const commonKeysAllowedDirectlyInFile: string[] = [
   "common:scaling_methods.",
   "common:scope.",
   "common:css.",
+  "common:layout.",
 ];
+/** When checking if files in the app are using multiple namespaces, these files are ignored. */
+const mixedNamespacesExemptedFiles: string[] = ["src/app/layout.tsx"];
+/** When checking if files in the app are using multiple namespaces, these keys are ignored. */
+const mixedNamespacesExemptedKeys: string[] = [...commonKeysAllowedDirectlyInFile];
 
 
 /** Does every supported locale have a corresponding folder in the locales directory? */
@@ -585,7 +590,8 @@ function TestInFileKeysDefined() {
 function TestInFileNamespaceConsistency() {
   const perFile: { [key: string]: Record<string, number> } = {};
 
-  const files = glob.sync(appFiles, { ignore: ["src/scripts/**/*"] });
+  const files = glob.sync(appFiles, { ignore: ["src/scripts/**/*"] })
+    .filter(file => !mixedNamespacesExemptedFiles.some(exemptedFile => file.includes(exemptedFile))); // Ignore exempted files
 
   files.forEach(filePath => {
     const content = fs.readFileSync(filePath, "utf-8");
@@ -597,18 +603,18 @@ function TestInFileNamespaceConsistency() {
     tCalls.forEach(call => {
       const [, key] = call;
       // Skip the common keys that are explicitly allowed but still catches som stragglers
-      if (commonKeysAllowedDirectlyInFile.includes(key)) return;
+      if (mixedNamespacesExemptedKeys.some(exemptedKey => key.startsWith(exemptedKey))) return;
 
       // namespace:key1.keyN.keyN => namespace:key1
       const namespaceAndLowerKey = key.match(/[^:]+:[^.]+/)?.[0];
       if (!namespaceAndLowerKey) return;
 
-      // Namespace exceptions
+      // Hardcoded namespace exceptions
       const namespace = key.match(/[^:]+/)?.[0];
       if (namespace === "test") return;
 
       // Skip the common keys that are explicitly allowed but still catches som stragglers
-      if (commonKeysAllowedDirectlyInFile.includes(namespaceAndLowerKey)) return;
+      if (mixedNamespacesExemptedKeys.some(exemptedKey => namespaceAndLowerKey.startsWith(exemptedKey))) return;
 
       // Increment the count of this namespace + key
       if (!nsAndKeys[namespaceAndLowerKey]) nsAndKeys[namespaceAndLowerKey] = 0;
