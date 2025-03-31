@@ -12,10 +12,13 @@ import { t } from "@/lib/i18nServer"
 
 export default async function Sidebar() {
   const { user } = await getSession(cookies())
+
+  const sidebarToggleId = "sidebar-toggle"
+
   return <>
     <aside className={styles.container}>
       <label className={styles.menuToggleContainer}>
-        <input type="checkbox" className={styles.menuToggle} />
+        <input id={sidebarToggleId} type="checkbox" className={styles.menuToggle} />
         <Image src='/icons/menu.svg' alt={t("pages:toggle_menu_alt")} width='24' height='24' />
       </label>
       <aside className={`${styles.aside} flex-grow-100`}>
@@ -40,10 +43,10 @@ export default async function Sidebar() {
               <Image src='/icons/info.svg' alt='' width={24} height={24} />
               {t("pages:sidebar.about")}
             </Link>
-            <div className={`${styles.link} cursor-pointer`}>
+            <label htmlFor={sidebarToggleId} className={`${styles.link} cursor-pointer`}>
               <Image src="/icons/globe.svg" alt={t("pages:sidebar.language_alt")} width={24} height={24} />
               <LanguageSwitcher />
-            </div>
+            </label>
           </div>
           {user?.isLoggedIn ?
             <LogoutButton />
