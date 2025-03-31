@@ -1,6 +1,6 @@
-- Sort all root keys in alphabetical order
-- Remove root keys that are not objects
-- Create common root object in most namespaces for shared keys
-- Create `graph` namespace
-- Add language aliases to language switcher
-- Fix namespace inconsistencies that `yarn test:locales` catches
+- [ ] Sort all root keys in alphabetical order
+- [ ] Remove root keys that are not objects
+- [ ] Create common root object in most namespaces for shared keys
+- [ ] Create `graph` namespace
+- [X] Add language aliases to language switcher
+- [ ] Fix namespace inconsistencies that `yarn test:locales` catches

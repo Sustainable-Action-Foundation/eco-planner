@@ -3,7 +3,7 @@
 import { LocaleContext, LocaleSetterContext } from "@/lib/i18nClient";
 import { match } from "@formatjs/intl-localematcher";
 import { setCookie } from "cookies-next/client";
-import { Locales, uniqueLocales } from "i18n.config";
+import { localeAliases, Locales, uniqueLocales } from "i18n.config";
 import { useRouter } from "next/navigation";
 import { useContext, useState, useTransition } from "react";
 
@@ -47,7 +47,7 @@ export function LanguageSwitcher() {
           .sort((a, b) => (a === buttonLocale ? -1 : b === buttonLocale ? 1 : 0))
           .map((locale) => (
             <option key={locale} value={locale} className="cursor-pointer">
-              {locale}
+              {localeAliases[locale]}
             </option>
           ))
       }
