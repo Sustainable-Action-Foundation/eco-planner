@@ -14,15 +14,15 @@ const appFiles = "src/**/*.ts*";
 /** Expected namespaces */
 const expectedNS = ns;
 const expectedLocales = uniqueLocales;
-const keyCountModifiers = ["_other", "_zero", "_one", "_two", "_few", "_many", "_plural"];
+const keyCountModifiers: string[] = ["_other", "_zero", "_one", "_two", "_few", "_many", "_plural"];
 /** These values will be ignored when checking if common values are being used directly in other namespaces */
-const exemptedValues = [
+const exemptedValues: string[] = [
   "Are you sure you want to delete post <strong>{{targetName}}</strong>?<br />This action cannot be undone.",
   "This tool aims to contribute to Sweden's climate transition.\n\nIn the tool, national scenarios, also called quantitative roadmaps, can be broken down to regional and local levels and an action plan can be created.\n\nThe action plan is built up by actions which relate to a specific goal and the goals together make up the entire roadmap.\n\nUsers can be inspired by each other's actions, creating a common action database for Sweden.\n\nAt the local level, different actors can also collaborate on actions.",
   "Detta verktyg syftar till att bidra till Sveriges klimatomställning.\n\nI verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas.\n\nHandlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen.\n\nAnvändare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige.\n\nPå lokal nivå kan också olika aktörer samarbeta kring åtgärder.",
 ];
 /** A test checks for files using common namespace keys directly in the tsx instead of referencing them in another namespace */
-const commonKeysAllowedDirectlyInFile = [];
+const commonKeysAllowedDirectlyInFile: string[] = ["common:scope", "common:ellipsis"];
 
 /** Does every supported locale have a corresponding folder in the locales directory? */
 function TestLocalesDir() {
@@ -580,7 +580,50 @@ function TestTCallsKeyDefined() {
 
 /** Checks whether a file is consistent with namespaces and first level keys */
 function TestTCallsNamespaceConsistency() {
+  const perFile: { [key: string]: Record<string, number> } = {};
 
+  const files = glob.sync(appFiles, { ignore: ["src/scripts/**/*"] });
+
+  files.forEach(filePath => {
+    const content = fs.readFileSync(filePath, "utf-8");
+
+    const tCalls = content.matchAll(/(?<!\w)t\(["']([^"']*)["']\)/gmu) || [];
+
+    const nsAndKeys: Record<string, number> = {};
+
+    tCalls.forEach(call => {
+      const [, key] = call;
+      // Skip the common keys that are explicitly allowed but still catches som stragglers
+      if (commonKeysAllowedDirectlyInFile.includes(key)) return;
+
+      // namespace:key1.keyN.keyN => namespace:key1
+      const namespaceAndLowerKey = key.match(/[^:]+:[^.]+/)?.[0];
+      if (!namespaceAndLowerKey) return;
+      
+      // Namespace exceptions
+      const namespace = key.match(/[^:]+/)?.[0];
+      if (namespace === "test") return;
+
+      // Skip the common keys that are explicitly allowed but still catches som stragglers
+      if (commonKeysAllowedDirectlyInFile.includes(namespaceAndLowerKey)) return;
+
+      // Increment the count of this namespace + key
+      if (!nsAndKeys[namespaceAndLowerKey]) nsAndKeys[namespaceAndLowerKey] = 0;
+      nsAndKeys[namespaceAndLowerKey]++;
+    });
+
+    // If there are more than one namespace, add it
+    if (Object.values(nsAndKeys).length > 1) {
+      perFile[filePath] = nsAndKeys;
+    }
+  });
+
+  const totalBad = Object.values(perFile).flat().length;
+
+  assertWarn(totalBad === 0,
+    `Inconsistent namespace use in t() calls. Avoid mixing namespaces: ${JSON.stringify(perFile, null, 2)}`,
+    "All t() calls are consistent with namespaces and first level keys"
+  );
 }
 
 /** Checks whether a file is consistent with namespaces and first level keys */
@@ -607,6 +650,7 @@ TestNestedVariableSyntax();
 TestImports();
 TestTCallsNamespace();
 TestTCallsKeyDefined();
+TestTCallsNamespaceConsistency();
 console.info(`
 All tests passed! 🎉
 `);
