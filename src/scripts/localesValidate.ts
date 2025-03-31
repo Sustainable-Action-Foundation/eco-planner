@@ -24,7 +24,13 @@ const exemptedValues: string[] = [
   "Detta verktyg syftar till att bidra till Sveriges klimatomställning.\n\nI verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas.\n\nHandlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen.\n\nAnvändare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige.\n\nPå lokal nivå kan också olika aktörer samarbeta kring åtgärder.",
 ];
 /** A test checks for files using common namespace keys directly in the tsx instead of referencing them in another namespace */
-const commonKeysAllowedDirectlyInFile: string[] = [];
+const commonKeysAllowedDirectlyInFile: string[] = [
+  "common:404.",
+  "common:ellipsis",
+  "common:scaling_methods.",
+  "common:scope.",
+  "common:css.",
+];
 
 
 /** Does every supported locale have a corresponding folder in the locales directory? */
@@ -80,7 +86,7 @@ function TestJSONNamespaceFiles() {
 /** Does english have all keys to function as a fallback? */
 function TestJSONEnglishFallback() {
   /** All english keys since we assume it's the fallback language */
-  const enKeys = expectedNS.flatMap((namespace) => getResolvedKeys(Locales.enSE, namespace));
+  const enKeys = expectedNS.flatMap((namespace) => getFlattenedKeys(Locales.enSE, namespace));
 
   // Track both types of missing keys
   const missingFromOtherLocales: Record<string, string[]> = {};
@@ -88,7 +94,7 @@ function TestJSONEnglishFallback() {
 
   // Loop through all locales
   expectedLocales.forEach(locale => {
-    const localeKeys = expectedNS.flatMap((namespace) => getResolvedKeys(locale, namespace));
+    const localeKeys = expectedNS.flatMap((namespace) => getFlattenedKeys(locale, namespace));
 
     // Keys in English missing from this locale
     const keysNotInLocale = enKeys.filter(key => !localeKeys.includes(key));
@@ -124,7 +130,7 @@ function TestJSONKeySnakeCase() {
 
   expectedLocales.forEach((locale) => {
     expectedNS.forEach((namespace) => {
-      const keys = getResolvedKeys(locale, namespace);
+      const keys = getFlattenedKeys(locale, namespace);
 
       keys.forEach(key => {
         const noNS = key.split(":").at(-1);
@@ -151,7 +157,6 @@ function TestJSONKeySnakeCase() {
 
 /** Do namespaces use the values of common keys instead of referencing? */
 function TestJSONCommonValueUse() {
-
   const perLocale: { [key: string]: { [key: string]: string[] } }
     = Object.fromEntries(expectedLocales.map(locale => [locale, {}]));
 
@@ -208,12 +213,11 @@ function TestJSONCommonValueUse() {
 
 /** Are all the nested keys used in locale files defined? */
 function TestJSONNestedKeysDefined() {
-
   const perLocale: { [key: string]: { [key: string]: string[] } }
     = Object.fromEntries(expectedLocales.map(locale => [locale, {}]));
 
   expectedLocales.forEach((locale) => {
-    const allKeys = expectedNS.flatMap((namespace) => getResolvedKeys(locale, namespace));
+    const allKeys = expectedNS.flatMap((namespace) => getFlattenedKeys(locale, namespace));
 
     expectedNS.forEach((namespace) => {
       // Skip checking common namespace
@@ -368,8 +372,7 @@ function TestJSONKeysSyntax() {
 }
 
 /** Variable syntax in the JSON files i.e. {{var}}, {{var, formatter}} syntax */
-function TestVariableSyntax() {
-
+function TestJSONVariableSyntax() {
   const perLocale: { [key: string]: { [key: string]: string[] } }
     = Object.fromEntries(expectedLocales.map(locale => [locale, {}]));
 
@@ -404,7 +407,7 @@ function TestVariableSyntax() {
 }
 
 /** Checks if a file that is likely server or client side is using the wrong import method of t() */
-function TestImportSides() {
+function TestInFileImportSides() {
   const perFile: { [key: string]: string[] } = {};
 
   const files = glob.sync(appFiles, { ignore: ["src/scripts/**/*"] });
@@ -561,7 +564,7 @@ function TestInFileKeysDefined() {
     tCalls.forEach(call => {
       const [, key] = call;
 
-      const validKeys = expectedNS.flatMap((namespace) => getResolvedKeys(Locales.default, namespace));
+      const validKeys = expectedNS.flatMap((namespace) => getFlattenedKeys(Locales.default, namespace));
 
       if (!validKeys.includes(key)) {
         if (!perFile[filePath]) perFile[filePath] = [];
@@ -628,7 +631,36 @@ function TestInFileNamespaceConsistency() {
 
 /** Checks whether a file is consistent with namespaces and first level keys */
 function TestInFileCommonKeyUse() {
+  const perFile: { [key: string]: Record<string, number> } = {};
 
+  const files = glob.sync(appFiles, { ignore: ["src/scripts/**/*"] })
+    .filter(file => !file.includes("common")); // Ignore common namespace
+
+  files.forEach(filePath => {
+    const content = fs.readFileSync(filePath, "utf-8");
+
+    const tCalls = getAllInFileTCalls(content);
+
+    tCalls.forEach(call => {
+      const [, key] = call;
+      // Skip the common keys that are explicitly allowed
+      if (commonKeysAllowedDirectlyInFile.some(commonKey => key.startsWith(commonKey))) return;
+
+
+      if (!key.startsWith("common:")) return;
+
+      perFile[filePath] = perFile[filePath] || {};
+      perFile[filePath][key] = perFile[filePath][key] || 0;
+      perFile[filePath][key]++;
+    });
+  });
+
+  const totalBadKeys = Object.values(perFile).flat().length;
+
+  assertWarn(totalBadKeys === 0,
+    `Common keys are being used directly in files and not referenced: ${JSON.stringify(perFile, null, 2)}`,
+    "Common keys are used in an expected manor in the app"
+  );
 }
 
 /** Run all tests */
@@ -646,8 +678,8 @@ TestJSONKeySnakeCase();
 TestJSONCommonValueUse();
 TestJSONNestedKeysDefined();
 TestJSONKeysSyntax();
-TestVariableSyntax();
-TestImportSides();
+TestJSONVariableSyntax();
+TestInFileImportSides();
 TestInFileNamespaceUse();
 TestInFileKeysDefined();
 TestInFileNamespaceConsistency();
@@ -657,8 +689,28 @@ All tests passed! 🎉
 `);
 
 
+/** Flatten an object including children */
+function getFlattenedObject(obj: object) {
+  const result: Record<string, string> = {};
+
+  const recurse = (obj: object, prefix = "") => {
+    for (const [key, value] of Object.entries(obj)) {
+      const newPrefix = prefix ? `${prefix}.${key}` : key;
+      if (typeof value === "object") {
+        recurse(value, newPrefix);
+      }
+      else {
+        result[newPrefix] = value;
+      }
+    }
+  };
+
+  recurse(obj);
+
+  return result;
+}
 /** Get all keys from a locale and namespace from the filesystem */
-function getResolvedKeys(locale: Locales, namespace: string) {
+function getFlattenedKeys(locale: Locales, namespace: string) {
   const file = `${localesDir}/${locale}/${namespace}.json`;
   try { JSON.parse(fs.readFileSync(file, "utf-8")); }
   catch (e) {
@@ -693,27 +745,6 @@ function getFlattenedValues(locale: Locales, namespace: string) {
   return values;
 }
 
-/** Flatten an object including children */
-function getFlattenedObject(obj: object) {
-  const result: Record<string, string> = {};
-
-  const recurse = (obj: object, prefix = "") => {
-    for (const [key, value] of Object.entries(obj)) {
-      const newPrefix = prefix ? `${prefix}.${key}` : key;
-      if (typeof value === "object") {
-        recurse(value, newPrefix);
-      }
-      else {
-        result[newPrefix] = value;
-      }
-    }
-  };
-
-  recurse(obj);
-
-  return result;
-}
-
 /** Get all t("...") calls in a string. */
 function getAllInFileTCalls(content: string): string[][] {
   const tCalls = content.matchAll(/(?<!\w)t\(["']([^"']*)["']\)/gmu) || [];
@@ -722,7 +753,6 @@ function getAllInFileTCalls(content: string): string[][] {
     return call;
   });
 }
-
 /** Get all $t("...") calls in a string. */
 function getAllNestedTCalls(content: string): string[][] {
   const nestedTCalls = content.matchAll(/\$t\(([^\)]+)\)/gmu) || [];
