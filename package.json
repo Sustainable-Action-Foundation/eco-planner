@@ -16,7 +16,8 @@
     "lint": "next lint",
     "e2e:chrome": "cypress run --browser chrome --headless",
     "test": "docker compose -f compose.test.yaml up -d",
-    "test:locale": "tsx ./src/scripts/localesValidate.ts"
+    "test:locales": "tsx ./src/scripts/localesValidate.ts",
+    "format:locales": "tsx ./src/scripts/localesFormat.ts"
   },
   "author": {
     "name": "Sustainable Action Foundation",
