@@ -10,6 +10,43 @@ import { AccessLevel } from '@/types';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import styles from './page.module.css' with { type: "css" }
+import { baseUrl } from '@/lib/baseUrl';
+import { Metadata } from 'next';
+
+ export async function generateMetadata({
+  params,
+  searchParams
+}: {
+  params: { user: string },
+  searchParams: { [key: string]: string | string[] | undefined }
+}) {
+
+  let username = params.user;
+  const userIndicatorRegEx = /^(@|%40)/;
+  if (username?.match(userIndicatorRegEx)) {
+    username = username?.replace(userIndicatorRegEx, '');
+  } 
+  
+  const metadata: Metadata = {
+    title: `${username} - Eco - Planner`,
+    icons: "/icons/leaf.svg",
+    description: "Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas. Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen. Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder.",
+    openGraph: {
+      title: 'Eco - Planner',
+      type: 'website',
+      url: baseUrl,
+      images: [{
+        url: `${baseUrl}/images/solarpanels.jpg`
+      }],
+      siteName: 'Eco - Planner',
+      description: "Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas. Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen. Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder.",
+      locale: 'sv_SE'
+    }
+  }
+
+  return metadata
+
+}
 
 export default async function Page({
   params,
