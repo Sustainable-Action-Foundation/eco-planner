@@ -7,6 +7,35 @@ import { notFound } from "next/navigation";
 import RoadmapTable from "@/components/tables/roadmapTables/roadmapTable";
 import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import { Metadata } from "next";
+import { baseUrl } from "@/lib/baseUrl";
+
+export async function generateMetadata({ params }: { params: { metaRoadmapId: string } }) {
+  
+  const [metaRoadmap] = await Promise.all([
+    getOneMetaRoadmap(params.metaRoadmapId),
+  ]);
+
+  const metadata: Metadata = {
+    title: `${metaRoadmap?.name} - Eco - Planner`,
+    icons: "/icons/leaf.svg",
+    description: `${metaRoadmap?.description || 'Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas. Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen. Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder.'}`,
+    openGraph: {
+      title: `${metaRoadmap?.name} - Eco - Planner`,
+      type: 'website',
+      url: baseUrl,
+      images: [{
+        url: `${baseUrl}/images/solarpanels.jpg`
+      }],
+      siteName: 'Eco - Planner',
+      description: `${metaRoadmap?.description || 'Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas. Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen. Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder.'}`,
+      locale: 'sv_SE'
+    }
+  }
+
+  return metadata
+}
+
 
 export default async function Page({ params }: { params: { metaRoadmapId: string } }) {
   const [session, metaRoadmap] = await Promise.all([

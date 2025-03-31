@@ -26,6 +26,37 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import { baseUrl } from "@/lib/baseUrl";
+import { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+ }: {
+  params: { goalId: string },
+}){
+  const [{goal}] = await Promise.all([
+    getOneGoal(params.goalId).then(async goal => { return { goal, roadmap: (goal ? await getOneRoadmap(goal.roadmapId) : null) } }),
+  ]);
+
+  const metadata: Metadata = {
+    title: `${goal?.name} - Eco - Planner`,
+    icons: "/icons/leaf.svg",
+    description: `${goal?.description || 'Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas. Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen. Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder.'}`,
+    openGraph: {
+      title: `${goal?.name} - Eco - Planner`,
+      type: 'website',
+      url: baseUrl,
+      images: [{
+        url: `${baseUrl}/images/solarpanels.jpg`
+      }],
+      siteName: 'Eco - Planner',
+      description: `${goal?.description || 'Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas. Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen. Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder.'}`,
+      locale: 'sv_SE'
+    }
+  }
+
+  return metadata
+}
 
 export default async function Page({
   params,
