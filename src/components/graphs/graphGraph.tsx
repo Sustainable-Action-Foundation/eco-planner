@@ -1,15 +1,17 @@
 "use client"
 
+import { ApiTableContent } from "@/lib/api/apiTypes";
+import { externalDatasets } from "@/lib/api/utility";
+import { DataSeries, Effect, Goal } from "@prisma/client";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { getStoredGraphType } from "./functions/graphFunctions";
+import GraphSelector from "./graphSelector/graphSelector";
 import MainDeltaGraph from "./mainGraphs/mainDeltaGraph";
 import MainGraph from "./mainGraphs/mainGraph";
 import MainRelativeGraph from "./mainGraphs/mainRelativeGraph";
-import { DataSeries, Effect, Goal } from "@prisma/client";
-import GraphSelector from "./graphSelector/graphSelector";
-import { useEffect, useState } from "react";
-import { getStoredGraphType } from "./functions/graphFunctions";
 import SecondaryGoalSelector from "./secondaryGraphSelector";
-import { ApiTableContent } from "@/lib/api/apiTypes";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 
 export enum GraphType {
   Main = "MAIN",
@@ -53,6 +55,12 @@ export default function GraphGraph({
     }
   };
 
+  // TODO - link to specific table when possible
+  function getHistoricalDataLink(historicalData: ApiTableContent) {
+    const dataLink = externalDatasets[historicalData.metadata[0].source]?.userFacingUrl;
+    return dataLink;
+  }
+
   return (
     <>
       <menu className="flex align-items-flex-end gap-25 margin-0 margin-block-25 padding-0 flex-wrap-wrap">
@@ -70,6 +78,13 @@ export default function GraphGraph({
         <div style={{ height: '500px' }}>
           {graphSwitch(graphType)}
         </div>
+        {historicalData && (
+          <Trans 
+            i18nKey="components:graph_graph.historical_data_source"
+            components={{a: <a href={getHistoricalDataLink(historicalData) as string || ""} target="_blank" />}}
+            tOptions={{ source: externalDatasets[historicalData.metadata[0].source]?.fullName ? externalDatasets[historicalData.metadata[0].source]?.fullName : historicalData.metadata[0].source}}
+          />
+        )}
       </article>
     </>
   );

@@ -3,7 +3,7 @@
 import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Effect, Goal } from "@prisma/client";
-import { parsePeriod } from "@/lib/pxWeb/utility";
+import { parsePeriod } from "@/lib/api/utility";
 import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import { useTranslation } from "react-i18next";

@@ -3,6 +3,7 @@ import { t } from "@/lib/i18nServer";
 import { JSONValue } from "@/types.ts";
 import fs from "fs";
 import metadata from "package.json" with { type: "json" };
+import { Trans } from "react-i18next";
 
 export default async function Page() {
   const gitHash = { shortHash: process.env.GIT_SHORT_HASH, longHash: process.env.GIT_LONG_HASH };
@@ -31,8 +32,8 @@ export default async function Page() {
   let version: string | null = null;
   try {
     // Try to get repository url from package.json
-    if (metadata.repository) {
-      let repo = metadata.repository.replace(".git", "");
+    if (metadata.homepage) {
+      let repo = metadata.homepage.replace(".git", "");
       if (!repo.endsWith("/")) {
         repo += "/";
       }
@@ -60,29 +61,47 @@ export default async function Page() {
 
       {/* TODO: Add wiki once created */}
 
-      {
-        version
-          ? <p>{t("pages:info.version")} {version}</p>
-          : null
-      }
+      <p>
+        {remoteURL ?
+          <Trans
+            i18nKey="pages:info.known_remote"
+            components={{
+              a: <a href={remoteURL.href} target="_blank" />
+            }}
+            tOptions={{
+              remote: remoteURL.pathname.split("/")[remoteURL.pathname.split("/").length - 2] || remoteURL.hostname
+            }}
+          />
+          :
+          <Trans
+            i18nKey="pages:info.fallback_remote"
+            components={{
+              a: <a href="https://github.com/Sustainable-Action-Foundation/eco-planner" target="_blank" />,
+            }}
+          />
+        }
+      </p>
 
       {
-        remoteURL
-          ? <p>{t("pages:info.remote")} <a href={remoteURL.href} target="_blank" >
-            {/* Gets the repository name from a github-like url with a trailing slash, with hostname as fallback */}
-            {remoteURL.pathname.split("/")[remoteURL.pathname.split("/").length - 2] || remoteURL.hostname}
-          </a></p>
+        version
+          ? <p>{t("pages:info.version", { version: version })}</p>
           : null
       }
 
       {
         gitHash.shortHash || gitHash.longHash
           ? commitURL
-            ? <p>{t("pages:info.commit")} <a href={commitURL.href} target="_blank" >
-              {gitHash.shortHash || gitHash.longHash}
-            </a></p>
+            ? <Trans
+              i18nKey="pages.info.commit_with_link"
+              components={{
+                a: <a href={commitURL.href} target="_blank" />
+              }}
+              tOptions={{
+                commit: gitHash.shortHash || gitHash.longHash
+              }}
+            />
             :
-            <p>{t("pages:info.commit")} {gitHash.shortHash || gitHash.longHash}</p>
+            <p>{t("pages.info.commit_without_link", { commit: gitHash.shortHash || gitHash.longHash })}</p>
           : null
       }
     </>

@@ -52,9 +52,11 @@
     "breadcrumb": "Information",
     "title": "Information",
     "info_body": "This tool aims to contribute to Sweden's climate transition.\n\nIn the tool, national scenarios, also called quantitative roadmaps, can be broken down to regional and local levels and an action plan can be created.\n\nThe action plan is built up by actions which relate to a specific goal and the goals together make up the entire roadmap.\n\nUsers can be inspired by each other's actions, creating a common action database for Sweden.\n\nAt the local level, different actors can also collaborate on actions.",
-    "version": "Version:",
-    "remote": "Remote:",
-    "commit": "Commit"
+    "version": "Current version: {{version}}",
+    "known_remote": "This tool is licensed under AGPL version 3, with source code available on GitHub: <a>{{remote}}</a>",
+    "fallback_remote": "This tool is licensed under AGPL version 3, with source code available on <a>GitHub</a>",
+    "commit_with_link": "Based on commit: <a>{{commit}}</a>",
+    "commit_without_link": "Based on commit: {{commit}}"
   },
   "login": {
     "breadcrumb": "Login"

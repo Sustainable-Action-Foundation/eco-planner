@@ -58,9 +58,11 @@
     "breadcrumb": "Information",
     "title": "Information",
     "info_body": "Detta verktyg syftar till att bidra till Sveriges klimatomställning.\n\nI verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas.\n\nHandlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen.\n\nAnvändare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige.\n\nPå lokal nivå kan också olika aktörer samarbeta kring åtgärder.",
-    "version": "Version:",
-    "remote": "Remote:",
-    "commit": "Commit"
+    "version": "Nuvarande version: {{version}}",
+    "known_remote": "Verktyget är licenserat under AGPL version 3 och källkoden finns tillgänglig på GitHub: <a>{{remote}}</a>",
+    "fallback_remote": "Verktyget är licenserat under AGPL version 3 och källkoden finns tillgänglig på <a>GitHub</a>",
+    "commit_with_link": "Baserad på commit: <a>{{commit}}</a>",
+    "commit_without_link": "Baserad på commit: {{commit}}"
   },
   "login": {
     "breadcrumb": "Logga in"
