@@ -1,9 +1,9 @@
 import "./lib/console.ts";
-import { Locales, ns, uniqueLocales } from "i18n.config.ts";
-import { glob } from "glob";
+import { colors } from "./lib/colors.ts";
 import fs from "node:fs";
 import path from "node:path";
-import { colors } from "./lib/colors.ts";
+import { glob } from "glob";
+import { Locales, ns, uniqueLocales } from "i18n.config.ts";
 // @ts-expect-error - It's cjs
 import escape from "regexp.escape"; // Polyfill for RegExp.escape. Not in node yet.
 
@@ -11,9 +11,11 @@ import escape from "regexp.escape"; // Polyfill for RegExp.escape. Not in node y
 const localesDir = "public/locales";
 /** Which folder to search for files that access locale functions */
 const appFiles = "src/**/*.ts*";
-/** Expected namespaces */
-const expectedNS = ns;
-const expectedLocales = uniqueLocales;
+/** Expected namespaces and their corresponding files, you can add or remove from this to modify what is checked */
+const expectedNS = [...ns];
+/** Expected locales and their corresponding directories, you can add or remove from this to modify what is checked */
+const expectedLocales = [...uniqueLocales];
+/** The accepted count modifiers when validating key use that has a count argument specified */
 const keyCountModifiers: string[] = ["_other", "_zero", "_one", "_two", "_few", "_many", "_plural"];
 /** These values will be ignored when checking if common values are being used directly in other namespaces */
 const exemptedValues: string[] = [
@@ -22,10 +24,11 @@ const exemptedValues: string[] = [
   "Detta verktyg syftar till att bidra till Sveriges klimatomställning.\n\nI verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas.\n\nHandlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen.\n\nAnvändare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige.\n\nPå lokal nivå kan också olika aktörer samarbeta kring åtgärder.",
 ];
 /** A test checks for files using common namespace keys directly in the tsx instead of referencing them in another namespace */
-const commonKeysAllowedDirectlyInFile: string[] = ["common:scope", "common:ellipsis"];
+const commonKeysAllowedDirectlyInFile: string[] = [];
+
 
 /** Does every supported locale have a corresponding folder in the locales directory? */
-function TestLocalesDir() {
+function TestLocalesFolders() {
   const localeDirs = glob.sync(`${localesDir}/*/`)
     .map(dir => path.basename(dir));
 
@@ -44,7 +47,7 @@ function TestLocalesDir() {
 }
 
 /** Does every namespace exist in every locale? */
-function TestNamespaceFiles() {
+function TestJSONNamespaceFiles() {
   // Track missing and extra namespaces per locale
   const perLocale: { [key: string]: { missing: string[], extra: string[] } }
     = Object.fromEntries(expectedLocales.map(locale => [locale, { missing: [], extra: [] }]));
@@ -75,7 +78,8 @@ function TestNamespaceFiles() {
 }
 
 /** Does english have all keys to function as a fallback? */
-function TestKeyCompleteness() {
+function TestJSONEnglishFallback() {
+  /** All english keys since we assume it's the fallback language */
   const enKeys = expectedNS.flatMap((namespace) => getResolvedKeys(Locales.enSE, namespace));
 
   // Track both types of missing keys
@@ -108,14 +112,13 @@ function TestKeyCompleteness() {
 
   // Report missing keys in English
   assert(Object.keys(missingFromEnglishFiltered).length === 0,
-    `Keys missing in English but present in: ${JSON.stringify(missingFromEnglishFiltered, null, 2)
-    }. This is a problem if English is the fallback language.`,
+    `Keys missing in English but present in: ${JSON.stringify(missingFromEnglishFiltered, null, 2)}. This is a problem if English is the fallback language.`,
     "English has the keys to function as a fallback"
   );
 }
 
 /** Do all the keys follow snake case? */
-function TestKeySnakeCase() {
+function TestJSONKeySnakeCase() {
   const perLocale: { [key: string]: string[] }
     = Object.fromEntries(expectedLocales.map(locale => [locale, []]));
 
@@ -147,7 +150,7 @@ function TestKeySnakeCase() {
 }
 
 /** Do namespaces use the values of common keys instead of referencing? */
-function TestDuplicateValuesFromCommon() {
+function TestJSONCommonValueUse() {
 
   const perLocale: { [key: string]: { [key: string]: string[] } }
     = Object.fromEntries(expectedLocales.map(locale => [locale, {}]));
@@ -204,13 +207,10 @@ function TestDuplicateValuesFromCommon() {
 }
 
 /** Are all the nested keys used in locale files defined? */
-function TestNestedKeysIfDefined() {
-
-  const nestedTFunctionRegex = /\$t\(([^\)]+)\)/gmu;
+function TestJSONNestedKeysDefined() {
 
   const perLocale: { [key: string]: { [key: string]: string[] } }
     = Object.fromEntries(expectedLocales.map(locale => [locale, {}]));
-
 
   expectedLocales.forEach((locale) => {
     const allKeys = expectedNS.flatMap((namespace) => getResolvedKeys(locale, namespace));
@@ -221,7 +221,7 @@ function TestNestedKeysIfDefined() {
 
       const values = getFlattenedValues(locale, namespace).join("\n");
 
-      const tCalls = values.matchAll(nestedTFunctionRegex) || [];
+      const tCalls = getAllNestedTCalls(values);
 
       tCalls.forEach(call => {
         /** 
@@ -264,7 +264,7 @@ function TestNestedKeysIfDefined() {
 }
 
 /** Are all the nested keys used in locale files correctly formatted? */
-function TestNestedKeysSyntax() {
+function TestJSONKeysSyntax() {
   const perLocale: { [key: string]: { [key: string]: string[] } }
     = Object.fromEntries(expectedLocales.map(locale => [locale, {}]));
 
@@ -367,8 +367,8 @@ function TestNestedKeysSyntax() {
   );
 }
 
-/** Variable syntax */
-function TestNestedVariableSyntax() {
+/** Variable syntax in the JSON files i.e. {{var}}, {{var, formatter}} syntax */
+function TestVariableSyntax() {
 
   const perLocale: { [key: string]: { [key: string]: string[] } }
     = Object.fromEntries(expectedLocales.map(locale => [locale, {}]));
@@ -404,7 +404,7 @@ function TestNestedVariableSyntax() {
 }
 
 /** Checks if a file that is likely server or client side is using the wrong import method of t() */
-function TestImports() {
+function TestImportSides() {
   const perFile: { [key: string]: string[] } = {};
 
   const files = glob.sync(appFiles, { ignore: ["src/scripts/**/*"] });
@@ -513,7 +513,7 @@ function TestImports() {
 }
 
 /** Checks if all t() calls in the tsx have a defined namespace  */
-function TestTCallsNamespace() {
+function TestInFileNamespaceUse() {
   const perFile: { [key: string]: string[] } = {};
 
   const files = glob.sync(appFiles, { ignore: ["src/scripts/**/*"] });
@@ -521,7 +521,7 @@ function TestTCallsNamespace() {
   files.forEach(filePath => {
     const content = fs.readFileSync(filePath, "utf-8");
 
-    const tCalls = content.matchAll(/(?<!\w)t\(["']([^"']*)["']\)/gmu) || [];
+    const tCalls = getAllInFileTCalls(content);
 
     tCalls.forEach(call => {
       const [, key] = call;
@@ -548,7 +548,7 @@ function TestTCallsNamespace() {
 }
 
 /** Checks if all t() calls in the tsx are using defined keys */
-function TestTCallsKeyDefined() {
+function TestInFileKeysDefined() {
   const perFile: { [key: string]: string[] } = {};
 
   const files = glob.sync(appFiles, { ignore: ["src/scripts/**/*"] });
@@ -556,7 +556,7 @@ function TestTCallsKeyDefined() {
   files.forEach(filePath => {
     const content = fs.readFileSync(filePath, "utf-8");
 
-    const tCalls = content.matchAll(/(?<!\w)t\(["']([^"']*)["']\)/gmu) || [];
+    const tCalls = getAllInFileTCalls(content);
 
     tCalls.forEach(call => {
       const [, key] = call;
@@ -579,7 +579,7 @@ function TestTCallsKeyDefined() {
 }
 
 /** Checks whether a file is consistent with namespaces and first level keys */
-function TestTCallsNamespaceConsistency() {
+function TestInFileNamespaceConsistency() {
   const perFile: { [key: string]: Record<string, number> } = {};
 
   const files = glob.sync(appFiles, { ignore: ["src/scripts/**/*"] });
@@ -587,7 +587,7 @@ function TestTCallsNamespaceConsistency() {
   files.forEach(filePath => {
     const content = fs.readFileSync(filePath, "utf-8");
 
-    const tCalls = content.matchAll(/(?<!\w)t\(["']([^"']*)["']\)/gmu) || [];
+    const tCalls = getAllInFileTCalls(content);
 
     const nsAndKeys: Record<string, number> = {};
 
@@ -599,7 +599,7 @@ function TestTCallsNamespaceConsistency() {
       // namespace:key1.keyN.keyN => namespace:key1
       const namespaceAndLowerKey = key.match(/[^:]+:[^.]+/)?.[0];
       if (!namespaceAndLowerKey) return;
-      
+
       // Namespace exceptions
       const namespace = key.match(/[^:]+/)?.[0];
       if (namespace === "test") return;
@@ -627,7 +627,7 @@ function TestTCallsNamespaceConsistency() {
 }
 
 /** Checks whether a file is consistent with namespaces and first level keys */
-function TestTCallsCommonNamespaceUse() {
+function TestInFileCommonKeyUse() {
 
 }
 
@@ -639,18 +639,19 @@ Running all tests...
 ❕ ... is a failed pass-warn test
 ❌ ... is a failed pass-fail test
 `);
-TestLocalesDir();
-TestNamespaceFiles();
-TestKeyCompleteness();
-TestKeySnakeCase();
-TestDuplicateValuesFromCommon();
-TestNestedKeysIfDefined();
-TestNestedKeysSyntax();
-TestNestedVariableSyntax();
-TestImports();
-TestTCallsNamespace();
-TestTCallsKeyDefined();
-TestTCallsNamespaceConsistency();
+TestLocalesFolders();
+TestJSONNamespaceFiles();
+TestJSONEnglishFallback();
+TestJSONKeySnakeCase();
+TestJSONCommonValueUse();
+TestJSONNestedKeysDefined();
+TestJSONKeysSyntax();
+TestVariableSyntax();
+TestImportSides();
+TestInFileNamespaceUse();
+TestInFileKeysDefined();
+TestInFileNamespaceConsistency();
+TestInFileCommonKeyUse();
 console.info(`
 All tests passed! 🎉
 `);
@@ -660,34 +661,19 @@ All tests passed! 🎉
 function getResolvedKeys(locale: Locales, namespace: string) {
   const file = `${localesDir}/${locale}/${namespace}.json`;
   try { JSON.parse(fs.readFileSync(file, "utf-8")); }
-  catch (e) { assert(false, `Failed to parse ${file} with error ${e}`, `Parsed ${file}`); }
+  catch (e) {
+    assert(false,
+      `Failed to parse ${file} with error ${e}`,
+      `Parsed ${file}`
+    );
+  }
 
   const nestedData = JSON.parse(fs.readFileSync(file, "utf-8"));
+  const keys = Object.keys(getFlattenedObject(nestedData))
+    .map(key => `${namespace}:${key}`) // Add namespace to keys
+    .filter(key => !key.includes(":default.")); // Remove default keys which are dupes of every root key
 
-  // Resolve all nested keys to [parent1].[..parentN].[key]
-  const extractNestedKeys = (obj: LocaleJSON | null, prefix = ""): string[] => {
-    // If leaf node, return key
-    if (typeof obj !== "object" || obj === null) {
-      return [prefix];
-    }
-
-    // Else, recurse into children
-    return Object.keys(obj).flatMap(key => {
-      const newPrefix = prefix ? `${prefix}.${key}` : key;
-      return extractNestedKeys(obj[key], newPrefix);
-    });
-  };
-
-  // Extract all keys with their full paths
-  const keys = extractNestedKeys(nestedData);
-
-  // Add namespace to keys
-  const nsMappedKeys = keys.map(key => `${namespace}:${key}`);
-
-  // Remove default keys which are dupes of every root key
-  const noDefaultKeys = nsMappedKeys.filter(key => !key.includes(":default."));
-
-  return noDefaultKeys;
+  return keys;
 }
 /** Get all values from a locale and namespace from the filesystem */
 function getFlattenedValues(locale: Locales, namespace: string) {
@@ -702,22 +688,7 @@ function getFlattenedValues(locale: Locales, namespace: string) {
   }
 
   const nestedData = JSON.parse(fs.readFileSync(file, "utf-8"));
-
-  // Resolve all nested keys to [parent1].[..parentN].[key]
-  const extractNestedValues = (obj: LocaleJSON | null): string[] => {
-    // If leaf node, return key
-    if (typeof obj !== "object" || obj === null) {
-      return [obj || ""];
-    }
-
-    // Else, recurse into children
-    return Object.values(obj).flatMap(value => {
-      return extractNestedValues(value);
-    });
-  };
-
-  // Extract all keys with their full paths
-  const values = extractNestedValues(nestedData);
+  const values = Object.values(getFlattenedObject(nestedData));
 
   return values;
 }
@@ -741,6 +712,24 @@ function getFlattenedObject(obj: object) {
   recurse(obj);
 
   return result;
+}
+
+/** Get all t("...") calls in a string. */
+function getAllInFileTCalls(content: string): string[][] {
+  const tCalls = content.matchAll(/(?<!\w)t\(["']([^"']*)["']\)/gmu) || [];
+
+  return Array.from(tCalls).map(call => {
+    return call;
+  });
+}
+
+/** Get all $t("...") calls in a string. */
+function getAllNestedTCalls(content: string): string[][] {
+  const nestedTCalls = content.matchAll(/\$t\(([^\)]+)\)/gmu) || [];
+
+  return Array.from(nestedTCalls).map(call => {
+    return call;
+  });
 }
 
 /** Assert with error and exit */
@@ -767,9 +756,4 @@ function assertWarn(condition: boolean, badMessage: string, goodMessage?: string
       "ｉ", goodMessage
     );
   }
-}
-
-type LocaleJSON = NestedLocaleJSON | string;
-interface NestedLocaleJSON {
-  [key: string]: NestedLocaleJSON | string;
 }
