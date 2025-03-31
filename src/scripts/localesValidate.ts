@@ -1,4 +1,3 @@
-
 import "./lib/console.ts";
 import { Locales, ns, uniqueLocales } from "i18n.config.ts";
 import { glob } from "glob";
@@ -22,6 +21,8 @@ const exemptedValues = [
   "This tool aims to contribute to Sweden's climate transition.\n\nIn the tool, national scenarios, also called quantitative roadmaps, can be broken down to regional and local levels and an action plan can be created.\n\nThe action plan is built up by actions which relate to a specific goal and the goals together make up the entire roadmap.\n\nUsers can be inspired by each other's actions, creating a common action database for Sweden.\n\nAt the local level, different actors can also collaborate on actions.",
   "Detta verktyg syftar till att bidra till Sveriges klimatomställning.\n\nI verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas.\n\nHandlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen.\n\nAnvändare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige.\n\nPå lokal nivå kan också olika aktörer samarbeta kring åtgärder.",
 ];
+/** A test checks for files using common namespace keys directly in the tsx instead of referencing them in another namespace */
+const commonKeysAllowedDirectlyInFile = [];
 
 /** Does every supported locale have a corresponding folder in the locales directory? */
 function TestLocalesDir() {
@@ -43,7 +44,7 @@ function TestLocalesDir() {
 }
 
 /** Does every namespace exist in every locale? */
-function TestNamespaces() {
+function TestNamespaceFiles() {
   // Track missing and extra namespaces per locale
   const perLocale: { [key: string]: { missing: string[], extra: string[] } }
     = Object.fromEntries(expectedLocales.map(locale => [locale, { missing: [], extra: [] }]));
@@ -114,7 +115,7 @@ function TestKeyCompleteness() {
 }
 
 /** Do all the keys follow snake case? */
-function TestSnakeCase() {
+function TestKeySnakeCase() {
   const perLocale: { [key: string]: string[] }
     = Object.fromEntries(expectedLocales.map(locale => [locale, []]));
 
@@ -146,7 +147,7 @@ function TestSnakeCase() {
 }
 
 /** Do namespaces use the values of common keys instead of referencing? */
-function TestMissedUseOfCommon() {
+function TestDuplicateValuesFromCommon() {
 
   const perLocale: { [key: string]: { [key: string]: string[] } }
     = Object.fromEntries(expectedLocales.map(locale => [locale, {}]));
@@ -203,7 +204,7 @@ function TestMissedUseOfCommon() {
 }
 
 /** Are all the nested keys used in locale files defined? */
-function TestNestedKeysDefined() {
+function TestNestedKeysIfDefined() {
 
   const nestedTFunctionRegex = /\$t\(([^\)]+)\)/gmu;
 
@@ -367,7 +368,7 @@ function TestNestedKeysSyntax() {
 }
 
 /** Variable syntax */
-function TestVariableSyntax() {
+function TestNestedVariableSyntax() {
 
   const perLocale: { [key: string]: { [key: string]: string[] } }
     = Object.fromEntries(expectedLocales.map(locale => [locale, {}]));
@@ -402,6 +403,7 @@ function TestVariableSyntax() {
   );
 }
 
+/** Checks if a file that is likely server or client side is using the wrong import method of t() */
 function TestImports() {
   const perFile: { [key: string]: string[] } = {};
 
@@ -510,6 +512,7 @@ function TestImports() {
   );
 }
 
+/** Checks if all t() calls in the tsx have a defined namespace  */
 function TestTCallsNamespace() {
   const perFile: { [key: string]: string[] } = {};
 
@@ -544,6 +547,7 @@ function TestTCallsNamespace() {
   );
 }
 
+/** Checks if all t() calls in the tsx are using defined keys */
 function TestTCallsKeyDefined() {
   const perFile: { [key: string]: string[] } = {};
 
@@ -574,6 +578,16 @@ function TestTCallsKeyDefined() {
   );
 }
 
+/** Checks whether a file is consistent with namespaces and first level keys */
+function TestTCallsNamespaceConsistency() {
+
+}
+
+/** Checks whether a file is consistent with namespaces and first level keys */
+function TestTCallsCommonNamespaceUse() {
+
+}
+
 /** Run all tests */
 console.info(`
 Running all tests...
@@ -583,13 +597,13 @@ Running all tests...
 ❌ ... is a failed pass-fail test
 `);
 TestLocalesDir();
-TestNamespaces();
+TestNamespaceFiles();
 TestKeyCompleteness();
-TestSnakeCase();
-TestMissedUseOfCommon();
-TestNestedKeysDefined();
+TestKeySnakeCase();
+TestDuplicateValuesFromCommon();
+TestNestedKeysIfDefined();
 TestNestedKeysSyntax();
-TestVariableSyntax();
+TestNestedVariableSyntax();
 TestImports();
 TestTCallsNamespace();
 TestTCallsKeyDefined();
