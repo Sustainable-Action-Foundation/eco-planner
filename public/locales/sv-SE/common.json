@@ -35,9 +35,11 @@
     "effect": "Redigera effekt",
     "goal": "Redigera målbana"
   },
-  "app_name": "Eco - Planner",
-  "meta_description": "Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella användare kan inspireras av varandras $t(action_other), på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring $t(action_other).",
-  "og_locale": "sv_SE",
+  "layout": {
+    "app_name": "Eco - Planner",
+    "meta_description": "Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella användare kan inspireras av varandras $t(action_other), på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring $t(action_other).",
+    "og_locale": "sv_SE"
+  },
   "ellipsis": "...",
   "scope": {
     "national": "Nationell",

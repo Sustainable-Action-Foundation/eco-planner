@@ -22,20 +22,20 @@ export default async function RootLayout(
     <html lang={locale}>
       <head>
         {/* TODO: Lots of this should be dynamic probably */}
-        <title>{(t("common:app_name"))}</title>
+        <title>{(t("common:layout.app_name"))}</title>
         <link rel="icon" type="image/svg+xml" href="/icons/leaf.svg" />
-        <meta name="description" content={t("common:meta_description")} />
+        <meta name="description" content={t("common:layout.meta_description")} />
 
         {/* Open Graph Meta Tags */}
         {/* Required tags */}
-        <meta property="og:title" content={t("common:app_name")} />
+        <meta property="og:title" content={t("common:layout.app_name")} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={baseUrl} />
         <meta property="og:image" content={`${baseUrl}/images/solarpanels.jpg`} />
 
         {/* Optional tags */}
-        <meta name="og:site_name" content={t("common:app_name")} />
-        <meta property="og:locale" content={t("common:og_locale")} />
+        <meta name="og:site_name" content={t("common:layout.app_name")} />
+        <meta property="og:locale" content={t("common:layout.og_locale")} />
 
         <style dangerouslySetInnerHTML={{
           __html: `
