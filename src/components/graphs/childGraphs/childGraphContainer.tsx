@@ -6,8 +6,8 @@ import PredictionChildGraph from "./predictionChildGraph.tsx";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getStoredChildGraphType } from "../functions/graphFunctions";
-import { percentAndFraction } from "../graphSelectorTemp/graphSelector.tsx";
-import ChildGraphSelector from "../graphSelectorTemp/childGraphSelector.tsx";
+import { percentAndFraction } from "../graphSelector/graphSelector.tsx";
+import ChildGraphSelector from "../graphSelector/childGraphSelector.tsx";
 
 export enum ChildGraphType {
   Target = "TARGET",
