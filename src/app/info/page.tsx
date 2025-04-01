@@ -67,24 +67,20 @@ export default async function Page() {
         }
       </p>
 
-      <p>
-        {version ?
-          t("pages:info.version", { version: version })
-          :
-          null
-        }
-      </p>
+      {version ?
+        <p>{t("pages:info.version", { version: version })}</p>
+        :
+        null
+      }
 
-      <p>
-        {gitHash.shortHash || gitHash.longHash
-          ? commitURL
-            ?
-            <CommitWithLink commitURL={commitURL} gitHash={gitHash.shortHash || gitHash.longHash || ""} />
-            :
-            t("pages.info.commit_without_link", { commit: gitHash.shortHash || gitHash.longHash || "" })
-          : null
-        }
-      </p>
+      {gitHash.shortHash || gitHash.longHash
+        ? commitURL
+          ?
+          <p><CommitWithLink commitURL={commitURL} gitHash={gitHash.shortHash || gitHash.longHash || ""} /></p>
+          :
+          <p>{t("pages.info.commit_without_link", { commit: gitHash.shortHash || gitHash.longHash || "" })}</p>
+        : null
+      }
     </>
   )
 }
