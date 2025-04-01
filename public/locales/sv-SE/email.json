@@ -11,7 +11,7 @@
   },
   "verification": {
     "from": "Eco Planner {{emailServer}}",
-    "subject": "Verifiera din e-postadress",
-    "body": "Hej! Vänligen verifiera din e-postadress genom att klicka på den här länken: {{baseUrl}}/verify/verify?email={{email}}&hash={{userHash}}"
+    "subject": "Verifiera din e‑postadress",
+    "body": "Hej! Vänligen verifiera din e‑postadress genom att klicka på den här länken: {{baseUrl}}/verify/verify?email={{email}}&hash={{userHash}}"
   }
 }
