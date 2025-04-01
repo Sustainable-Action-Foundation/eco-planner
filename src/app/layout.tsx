@@ -39,7 +39,7 @@ export default async function RootLayout(
         <style dangerouslySetInnerHTML={{
           __html: `
             :root {
-              --locale-optional: "${t("common:css.optional")}";
+              --i18n-optional: "${t("common:css.optional")}";
             }
         `}}></style>
       </head>
