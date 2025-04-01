@@ -710,6 +710,104 @@ function TestInFileCommonKeyUse() {
   );
 }
 
+/** Checks if the <Trans /> tags have a defined i18nKey */
+function TestInFileTransKeysDefined() {
+  const perFile: { [key: string]: string[] } = {};
+
+  /** Trans tags need a prop called i18nKey which this regex finds */
+  const i18nKeyRegex = /(?<=<Trans(?:\r?\n.*)*)i18nKey=["'](.*?)["'](?=(?:\r?\n.*)*\/>)/gmu;
+
+  const validKeys = expectedNS.flatMap((namespace) => getFlattenedKeys(Locales.default, namespace));
+
+  const files = glob.sync(appFiles, { ignore: ["src/scripts/**/*"] });
+
+  files.forEach(filePath => {
+    const content = fs.readFileSync(filePath, "utf-8");
+
+    const i18nKeys = content.matchAll(i18nKeyRegex) || [];
+
+    Array.from(i18nKeys).forEach(call => {
+      const [, key] = call;
+
+      // Key is empty?
+      if (!key) {
+        if (!perFile[filePath]) perFile[filePath] = [];
+        perFile[filePath].push(`[Empty i18nKey] > '${key}'`);
+        return;
+      }
+
+      // Key exists?
+      if (!validKeys.includes(key)) {
+        if (!perFile[filePath]) perFile[filePath] = [];
+        perFile[filePath].push(`[i18nKey not defined] > '${key}'`);
+      };
+
+      // Namespace is valid?
+      if (expectedNS.every(ns => !key.startsWith(ns))) {
+        if (!perFile[filePath]) perFile[filePath] = [];
+        perFile[filePath].push(`[Invalid namespace] > '${key}'`);
+      }
+      // Non-namespaced key
+      else if (!key.includes(":")) {
+        if (!perFile[filePath]) perFile[filePath] = [];
+        perFile[filePath].push(`[Non-namespaced key] > '${key}'`);
+      }
+    });
+  });
+
+  const totalBadKeys = Object.values(perFile).flat().length;
+
+  assert(totalBadKeys === 0,
+    `Issues with keys of <Trans />: ${JSON.stringify(perFile, null, 2)}`,
+    "Key syntax in <Trans /> is valid"
+  );
+}
+
+/**  */
+// function TestInFileTransSyntax() {
+//   const perFile: { [key: string]: string[] } = {};
+
+//   // // @ts-expect-error - This test runs on tsx so it's not dependant on tsconfig
+//   // const transTagRegex = /<Trans.*?\/>(?!\s*\}\})(?!,)/gmus;
+
+//   const files = glob.sync(appFiles, { ignore: ["src/scripts/**/*"] });
+
+//   // const values: Record<string, string> = {};
+//   // expectedLocales.forEach(locale => {
+//   //   expectedNS.forEach(namespace => {
+//   //     const flattened = getFlattenedLocaleFile(locale, namespace);
+//   //     Object.assign(values, flattened);
+//   //   });
+//   // });
+
+//   // console.debug(values);
+
+//   files.forEach(filePath => {
+//     const content = fs.readFileSync(filePath, "utf-8");
+
+//     const transTags = content.matchAll(transTagRegex) || [];
+
+//     Array.from(transTags).forEach(call => {
+//       const [match] = call;
+//       const collapsedWhitespace = match.replace(/\s+/g, " ");
+
+//       const i18nKeyMatch = collapsedWhitespace.match(/i18nKey=["'](.*?)["']/);
+
+//       // Missing key
+//       if (!i18nKeyMatch) {
+//         if (!perFile[filePath]) perFile[filePath] = [];
+//         perFile[filePath].push(`[Missing i18nKey] > '${match}'`);
+//         return;
+//       }
+
+//       // Value of the 
+//       const values: Record<string, string> = {};
+//     });
+//   });
+// }
+
+
+
 /** Run all tests */
 console.info(`
 Running all tests...
@@ -732,6 +830,8 @@ TestInFileNamespaceUse();
 TestInFileKeysDefined();
 TestInFileNamespaceConsistency();
 TestInFileCommonKeyUse();
+TestInFileTransKeysDefined();
+// TestInFileTransSyntax();
 console.info(`
 All tests passed! 🎉
 `);
@@ -774,6 +874,28 @@ function getFlattenedKeys(locale: Locales, namespace: string) {
     .filter(key => !key.includes(":default.")); // Remove default keys which are dupes of every root key
 
   return keys;
+}
+/** Get flattened keys and their values in a flattened object */
+function getFlattenedLocaleFile(locale: Locales, namespace: string) {
+  const file = `${localesDir}/${locale}/${namespace}.json`;
+  try { JSON.parse(fs.readFileSync(file, "utf-8")); }
+  catch (e) {
+    assert(false,
+      `Failed to parse ${file} with error ${e}`,
+      `Parsed ${file}`
+    );
+  }
+
+  const flattened = getFlattenedObject(JSON.parse(fs.readFileSync(file, "utf-8")));
+
+  const keys = Object.keys(flattened)
+    .map(key => `${namespace}:${key}`); // Add namespace to keys
+
+  const values = Object.values(flattened);
+
+  const flattenedKeysAndValues = Object.fromEntries(keys.map((key, i) => [key, values[i]]));
+
+  return flattenedKeysAndValues;
 }
 /** Get all values from a locale and namespace from the filesystem */
 function getFlattenedValues(locale: Locales, namespace: string) {
