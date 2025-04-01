@@ -175,9 +175,9 @@
     "data_series": "Dataserie",
     "data_series_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma.",
     "to_year_by_year": "Konvertera värden till förändring år för år (delta)",
-    "to_year_by_year_info": "<small><strong>OBS!</strong> Det finns en viss felmarginal runt 14:e decimalen vid konvertering på grund av så kallade \"floating point errors\"</small>",
+    "to_year_by_year_info": "<strong>OBS!</strong> Det finns en viss felmarginal runt 14:e decimalen vid konvertering på grund av så kallade \"floating point errors\".",
     "to_absolute": "Konvertera värden till absolut skillnad gentemot baslinje",
-    "to_absolute_info": "<small><strong>OBS!</strong> Det finns en viss felmarginal runt 14:e decimalen vid konvertering på grund av så kallade \"floating point errors\"<small>",
+    "to_absolute_info": "<strong>OBS!</strong> Det finns en viss felmarginal runt 14:e decimalen vid konvertering på grund av så kallade \"floating point errors\".",
     "impact_type_label": "Vilken typ av påverkan har $t(common:action_definite_one)?",
     "impact_types": {
       "absolute": "Absolut skillnad gentemot baslinje",

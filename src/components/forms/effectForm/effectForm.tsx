@@ -121,10 +121,10 @@ export default function EffectForm({
               }}>
                 {t("forms:effect.to_year_by_year")}
               </button>
-              <p><Trans
+              <p><small><Trans
                 i18nKey="forms:effect.to_year_by_year_info"
-                components={{ small: <small />, strong: <strong /> }}
-              /></p>
+                components={{ strong: <strong /> }}
+              /></small></p>
             </div>
             :
             selectedImpactType === ActionImpactType.DELTA ?
@@ -135,10 +135,10 @@ export default function EffectForm({
                 }}>
                   {t("forms:effect.to_absolute")}
                 </button>
-                <p><Trans
+                <p><small><Trans
                   i18nKey="forms:effect.to_absolute_info"
-                  components={{ small: <small />, strong: <strong /> }}
-                /></p>
+                  components={{ strong: <strong /> }}
+                /></small></p>
               </div>
               :
               null
