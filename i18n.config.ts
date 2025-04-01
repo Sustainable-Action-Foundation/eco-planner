@@ -11,6 +11,10 @@ export enum Locales {
   default = enSE,
 };
 export const uniqueLocales = [...new Set(Object.values(Locales))];
+export const localeAliases: Record<Locales, string> = {
+  [Locales.enSE]: "English",
+  [Locales.svSE]: "Svenska",
+};
 
 export const ns = ["common", "forms", "components", "pages", "email", "test",];
 

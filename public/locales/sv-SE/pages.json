@@ -1,15 +1,7 @@
 {
-  "home_title": "{{$t(common:roadmap_short_other), titleCase}}",
-  "create_roadmap_series_one": "$t(common:new.roadmap_series)",
-  "create_version_in_roadmap_series_one": "$t(common:new.roadmap_series)",
-  "toggle_menu_alt": "Visa/dölj meny",
-  "sidebar": {
-    "my_profile": "Mitt konto",
-    "create_account": "Skapa konto",
-    "home": "Hem",
-    "about": "Om verktyget",
-    "language_alt": "Byt språk",
-    "login": "Logga in"
+  "home": {
+    "title": "{{$t(common:roadmap_short_other), titleCase}}",
+    "create_roadmap": "$t(common:new.roadmap_series)"
   },
   "profile": {
     "handle_data": "Hantera min data",

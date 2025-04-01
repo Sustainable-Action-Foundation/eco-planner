@@ -411,6 +411,46 @@ function TestJSONVariableSyntax() {
   );
 }
 
+/** Shows any keys in root of their ns file which only has a string as a value instead of an object */
+function TestJSONOrphanInRoot() {
+  const perFile: { [key: string]: string[] } = {};
+
+  const exemptedNS = ["common", "test"];
+
+  const files = glob.sync(`${localesDir}/*/*.json`);
+  files.forEach(filePath => {
+    if (exemptedNS.some(ns => filePath.endsWith(ns) + ".json")) return; // Skip exempted namespaces
+
+    const content = fs.readFileSync(filePath, "utf-8");
+
+    try { JSON.parse(content); }
+    catch (e) {
+      assert(false,
+        `Failed to parse ${filePath} with error ${e}`,
+        ""
+      );
+    }
+
+    const data = JSON.parse(content);
+    const keys = Object.keys(data);
+
+    keys.forEach(key => {
+      const value = data[key];
+      if (typeof value === "string") {
+        if (!perFile[filePath]) perFile[filePath] = [];
+        perFile[filePath].push(`[Orphan key] > '${key}'`);
+      }
+    });
+  });
+
+  const totalBad = Object.values(perFile).flat().length;
+
+  assertWarn(totalBad === 0,
+    `Avoid orphan keys in root of namespace files. Use nested objects instead: ${JSON.stringify(perFile, null, 2)}`,
+    "No orphan keys found in root of namespace files"
+  );
+}
+
 /** Checks if a file that is likely server or client side is using the wrong import method of t() */
 function TestInFileImportSides() {
   const perFile: { [key: string]: string[] } = {};
@@ -685,6 +725,7 @@ TestJSONCommonValueUse();
 TestJSONNestedKeysDefined();
 TestJSONKeysSyntax();
 TestJSONVariableSyntax();
+TestJSONOrphanInRoot();
 TestInFileImportSides();
 TestInFileNamespaceUse();
 TestInFileKeysDefined();

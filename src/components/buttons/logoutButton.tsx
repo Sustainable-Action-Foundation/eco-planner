@@ -19,7 +19,7 @@ export default function LogoutButton() {
       })
     }}>
       <Image src="/icons/logout.svg" alt="" width="24" height="24" />
-      {t("components:logout")}
+      {t("components:logout_button.logout")}
     </button>
   )
 }
