@@ -8,7 +8,7 @@ import { ActionImpactType, DataSeries, Effect } from "@prisma/client";
 import type getOneAction from "@/fetchers/getOneAction.ts";
 import type getOneGoal from "@/fetchers/getOneGoal.ts";
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { useState } from "react";
 
 export default function EffectForm({
@@ -121,7 +121,10 @@ export default function EffectForm({
               }}>
                 {t("forms:effect.to_year_by_year")}
               </button>
-              <p>{t("forms:effect.to_year_by_year_info")}</p>
+              <p><small><Trans
+                i18nKey="forms:effect.to_year_by_year_info"
+                components={{ strong: <strong /> }}
+              /></small></p>
             </div>
             :
             selectedImpactType === ActionImpactType.DELTA ?
@@ -132,7 +135,10 @@ export default function EffectForm({
                 }}>
                   {t("forms:effect.to_absolute")}
                 </button>
-                <p>{t("forms:effect.to_absolute_info")}</p>
+                <p><small><Trans
+                  i18nKey="forms:effect.to_absolute_info"
+                  components={{ strong: <strong /> }}
+                /></small></p>
               </div>
               :
               null

@@ -2,7 +2,7 @@
   "signup": {
     "from": "Eco Planner {{emailServer}}",
     "subject": "Välkommen till Eco Planner",
-    "body": "Välkommen till Eco Planner! Vänligen följ länken och tryck på knappen för att verifiera din e‑post: {{baseUrl}}/verify/verify?email={{email}}&hash={{userHash}}"
+    "body": "Välkommen till Eco Planner! Vänligen följ länken och tryck på knappen för att verifiera din e‑postadress: {{baseUrl}}/verify/verify?email={{email}}&hash={{userHash}}"
   },
   "reset": {
     "from": "Eco Planner {{emailServer}}",
