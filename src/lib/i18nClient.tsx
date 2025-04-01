@@ -17,8 +17,7 @@ i18nClient
   });
 
 export const LocaleContext = createContext<Locales>(Locales.default);
-export const LocaleSetterContext = createContext<(lng: Locales) => void>(() => { });
-// const I18nSetterContext = createContext<React.Dispatch<React.SetStateAction<Locales>> | null>(null);
+export const LocaleSetterContext = createContext<React.Dispatch<React.SetStateAction<Locales>>>(() => {});
 
 export default function I18nProvider(
   { children, lng }: { children: React.ReactNode, lng: Locales }
