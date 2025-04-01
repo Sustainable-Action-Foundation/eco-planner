@@ -35,6 +35,7 @@ export default function QueryBuilder({
 
   const tableSearchInputName = "tableSearch";
 
+  // TODO - comment
   const tablesListRenderingChunkSize = 50;
   const renderedTablesListMaxLength = 100;
   const initialRenderingMargin = 15;
@@ -50,9 +51,12 @@ export default function QueryBuilder({
 
   useEffect(() => {
     if (tables) {
+      // TODO - comment
       setRenderedTables(tables.slice(0, tables.length < renderedTablesListMaxLength + initialRenderingMargin ? renderedTablesListMaxLength + initialRenderingMargin : renderedTablesListMaxLength > tables.length ? renderedTablesListMaxLength : tablesListRenderingChunkSize));
+      setOffset(0);
     } else {
       setRenderedTables(null);
+      setOffset(0);
     }
   }, [tables]);
 
@@ -272,8 +276,8 @@ export default function QueryBuilder({
 
   function handleTableListScroll(event: React.UIEvent<HTMLDivElement, UIEvent>) {
     if (event.target && event.target instanceof HTMLElement && tables && event.target.children.length < tables.length) {
-      if (event.target.scrollTop + event.target.clientHeight * 2 >= event.target.scrollHeight && renderedTables && tables.findIndex(table => table.tableId == renderedTables[renderedTables.length - 1].tableId) < tables.length - 1) {
-        if (!renderedTables) console.log("renderedTables is null");
+      // TODO - comment
+      if (renderedTables && event.target.scrollTop + event.target.clientHeight * 2 >= event.target.scrollHeight && tables.findIndex(table => table.tableId == renderedTables[renderedTables.length - 1].tableId) < tables.length - 1) {
         const newOffset = renderedTables.length == renderedTablesListMaxLength ? offset + tablesListRenderingChunkSize : offset;
         const newRenderedTables = tables.slice(newOffset, newOffset + renderedTablesListMaxLength);
         setRenderedTables(newRenderedTables);
@@ -284,9 +288,6 @@ export default function QueryBuilder({
         const newRenderedTables = tables.slice(newOffset, newOffset + renderedTablesListMaxLength);
         setRenderedTables(newRenderedTables);
         setOffset(newOffset);
-      }
-      else {
-        console.log(event.target.clientHeight, event.target.scrollHeight, event.target.scrollTop);
       }
     }
   }
