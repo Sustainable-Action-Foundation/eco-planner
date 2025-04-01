@@ -137,7 +137,7 @@ export default function QueryBuilder({
       });
       if (dataSource == "Trafa") {
         // If metric was changed, only send the metric as a query to the API
-        if (event?.target instanceof HTMLSelectElement && event?.target.name == "metric") {
+        if (event?.target instanceof HTMLSelectElement && event.target.name == "metric") {
           getTableDetails(tableId, dataSource, query.filter(q => q.variableCode == "metric"), locale).then(result => { setTableDetails(result); });
         } else {
           getTableDetails(tableId, dataSource, query, locale).then(result => { setTableDetails(result); });
@@ -254,6 +254,16 @@ export default function QueryBuilder({
   function optionalTag(dataSource: string, variableIsOptional: boolean) {
     if (getDatasetKeysOfApis("PxWeb").includes(dataSource) && variableIsOptional) return <a className={`font-style-italic color-gray`}> - (valfri)</a>;
   }
+
+  document.getElementById("tablesList")?.addEventListener("scroll", (event) => {
+    console.log(event);
+    if (event.target) {
+      if (event.target instanceof HTMLElement) {
+        console.log(event.target.scrollTop);
+        console.log(event.target.scrollHeight);
+      }
+    }
+  });
 
   function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) {
     if (variable.option) {
@@ -384,7 +394,7 @@ export default function QueryBuilder({
                   </div>
 
                   <div className="padding-25 smooth" style={{ border: "1px solid var(--gray-90)" }}>
-                    <div className={styles.temporary}>
+                    <div id="tablesList" className={styles.temporary}>
                       {tables && tables.map(({ tableId: id, label }) => (
                         <label id={`table${id}`} key={id} className={`${styles.tableSelect} block padding-block-25`}>
                           {label}
