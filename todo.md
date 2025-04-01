@@ -4,3 +4,4 @@
 - [ ] Create `graph` namespace
 - [X] Add language aliases to language switcher
 - [ ] Fix namespace inconsistencies that `yarn test:locales` catches
+- [ ] Test <Trans /> uses

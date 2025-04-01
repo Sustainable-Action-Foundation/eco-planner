@@ -463,6 +463,7 @@ function TestInFileImportSides() {
   const clientT = [
     "react-i18next",
     "useTranslation",
+    "<Trans",
   ];
   const severIndications = [
     "use server",
