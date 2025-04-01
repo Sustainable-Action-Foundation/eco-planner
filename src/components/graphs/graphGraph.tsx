@@ -3,7 +3,6 @@
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import { externalDatasets } from "@/lib/api/utility";
 import { DataSeries, Effect, Goal } from "@prisma/client";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getStoredGraphType } from "./functions/graphFunctions";
 import GraphSelector from "./graphSelector/graphSelector";
