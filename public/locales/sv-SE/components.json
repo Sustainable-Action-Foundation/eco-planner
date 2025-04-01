@@ -1,4 +1,13 @@
 {
+  "sidebar": {
+    "toggle_menu_alt": "Växla meny",
+    "my_profile": "Mitt konto",
+    "create_account": "Skapa konto",
+    "home": "Hem",
+    "about": "Om verktyget",
+    "language_alt": "Byt språk",
+    "login": "Logga in"
+  },
   "image_attribute": {
     "by": "Foto av",
     "on": "på"
@@ -26,7 +35,9 @@
     "access_level": "Behörighet",
     "editing_access": "Redigeringsbehörighet"
   },
-  "logout": "Logga ut",
+  "logout_button": {
+    "logout": "Logga ut"
+  },
   "table_menu": {
     "new_roadmap_version": "Ny $t(common:roadmap_version_one)",
     "go_to_series": "Gå till $t(common:roadmap_series_one)",

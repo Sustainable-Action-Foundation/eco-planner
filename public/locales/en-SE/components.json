@@ -1,4 +1,13 @@
 {
+  "sidebar": {
+    "toggle_menu_alt": "Toggle menu",
+    "my_profile": "My account",
+    "create_account": "Create account",
+    "home": "Home",
+    "about": "About the tool",
+    "language_alt": "Change language",
+    "login": "Login"
+  },
   "image_attribute": {
     "by": "Photo by",
     "on": "on"
@@ -26,7 +35,9 @@
     "access_level": "Access level",
     "editing_access": "Editing access"
   },
-  "logout": "Log out",
+  "logout_button": {
+    "logout": "Log out"
+  },
   "table_menu": {
     "new_roadmap_version": "New $t(common:roadmap_version_one)",
     "go_to_series": "Go to $t(common:roadmap_series_one)",
