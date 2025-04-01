@@ -118,11 +118,14 @@ export default function QueryBuilder({
     // null check
     if (!(formRef.current instanceof HTMLFormElement)) return;
 
+    console.time("tryGetResult");
+
     // Get a result if the form is valid
     if (formRef.current.checkValidity()) {
       const formData = new FormData(formRef.current);
       const query = buildQuery(formData); // This line is called before the form is cleared TODO - is this comment still relevant?
-      const tableId = formData.get("externalTableId") as string ?? "";
+      const tableId = tableDetails?.id ?? formData.get("externalTableId") as string ?? "";
+
       getTableContent(tableId, dataSource, query, locale).then(result => {
         setTableContent(result);
         if (result.data.length > 0) {
@@ -130,6 +133,7 @@ export default function QueryBuilder({
         } else {
           disableSubmitButton();
         }
+        console.timeEnd("tryGetResult");
       });
       if (dataSource == "Trafa") {
         // If metric was changed, only send the metric as a query to the API
@@ -144,6 +148,7 @@ export default function QueryBuilder({
     else {
       disableSubmitButton();
       clearTableContent();
+      console.timeEnd("tryGetResult");
     }
   }
   function formChange(event: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
@@ -201,6 +206,15 @@ export default function QueryBuilder({
     clearTableContent();
     clearTableDetails();
     disableSubmitButton();
+
+    const selectedTables = document.getElementsByClassName(styles.selectedTable);
+    for (let i = 0; i < selectedTables.length; i++) {
+      selectedTables[i].classList.remove(styles.selectedTable);
+    }
+    const selectedTable = document.getElementById(`table${tableId}`);
+    if (selectedTable) {
+      selectedTable.classList.add(styles.selectedTable);
+    }
 
     getTableDetails(tableId, dataSource, undefined, locale).then(result => { setTableDetails(result); console.timeEnd("tableSelect"); setIsLoading(false); });
   }
@@ -374,7 +388,7 @@ export default function QueryBuilder({
                       {tables && tables.map(({ tableId: id, label }) => (
                         <label id={`table${id}`} key={id} className={`${styles.tableSelect} block padding-block-25`}>
                           {label}
-                          <input type="radio" value={id} name="externalTableId" onChange={e => handleTableSelect(e.target.value)} />
+                          <button type="button" value={id} className={`hidden`} name="externalTableId" onClick={e => handleTableSelect((e.target as HTMLButtonElement).value)} />
                         </label>
                       ))}
                     </div>

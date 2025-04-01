@@ -12,16 +12,16 @@
     font-weight: 500;
 }
 
-.tableSelect:has(input[type="radio"]:checked) {
-    background-color: var(--blue-20);
-    color: white;
+.selectedTable {
+  background-color: var(--blue-20);
+  color: white;
 }
 
-.tableSelect:not(:has(input[type="radio"]:checked)):hover {
+.tableSelect:not(.selectedTable):hover {
     background-color: var(--gray-90);
 }
 
-.tableSelect > input[type="radio"] {
+.tableSelect > button {
     position: absolute;
     left: 0;
     top: 0;
