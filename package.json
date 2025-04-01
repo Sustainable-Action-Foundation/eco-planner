@@ -1,4 +1,12 @@
 {
+  "name": "eco-planner",
+  "version": "0.13.0",
+  "license": "AGPL-3.0-only",
+  "private": true,
+  "description": "A tool intended to help planning actions to achieve local environmental goals",
+  "homepage": "https://github.com/Sustainable-Action-Foundation/eco-planner",
+  "bugs": "https://github.com/Sustainable-Action-Foundation/eco-planner/issues",
+  "repository": "github:Sustainable-Action-Foundation/eco-planner",
   "scripts": {
     "predev": "tsx ./src/scripts/getBuildInfo.ts",
     "dev": "next dev",
@@ -10,6 +18,32 @@
     "test": "docker compose -f compose.test.yaml up -d",
     "test:locale": "tsx ./src/scripts/localesValidate.ts"
   },
+  "author": {
+    "name": "Sustainable Action Foundation",
+    "email": "info@sustainable-action.org",
+    "url": "https://sustainable-action.org"
+  },
+  "contributors": [
+    {
+      "name": "Leon Lööv",
+      "email": "leon.loov@sustainable-action.org"
+    },
+    {
+      "name": "Axel Schnürer",
+      "email": "axel.schnurer@sustainable-action.org"
+    },
+    {
+      "name": "Jesper Cejie",
+      "email": "jesper.cejie@sustainable-action.org",
+      "url": "https://jesper.cejie.se"
+    },
+    {
+      "name": "Viggo Ström",
+      "email": "viggo.strom@sustainable-action.org",
+      "url": "https://viggostrom.github.io/"
+    }
+  ],
+  "type": "module",
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.6.0",
     "@prisma/client": "^6.4.1",
@@ -24,7 +58,7 @@
     "i18next-http-backend": "^3.0.2",
     "iron-session": "^8.0.1",
     "mathjs": "^13.1.1",
-    "next": "^14.2.15",
+    "next": "^14.2.25",
     "nodemailer": "^6.9.14",
     "pocketbase": "^0.21.5",
     "react": "^18.2.0",
@@ -35,12 +69,6 @@
     "typescript": "^5.6.3",
     "use-debounce": "^10.0.3"
   },
-  "name": "eco-planner",
-  "version": "0.12.2",
-  "description": "A tool intended to help planning actions to achieve local environmental goals",
-  "repository": "https://github.com/Sustainable-Action-Foundation/eco-planner.git",
-  "author": "Leon Lööv",
-  "type": "module",
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
     "@types/nodemailer": "^6.4.15",
@@ -52,6 +80,12 @@
     "prisma": "^6.4.1",
     "regexp.escape": "^2.0.1",
     "tsx": "^4.19.2"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^20.0.0"
+    }
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

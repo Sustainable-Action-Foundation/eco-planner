@@ -1,9 +1,8 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
-import styles from './forms.module.css'
-import Image from 'next/image'
-import React from 'react'
+import Image from "next/image"
+import React, { /* useContext, */ useState } from "react"
+import styles from "./forms.module.css"
 
 export default function FormWrapper({
   children,
@@ -12,66 +11,66 @@ export default function FormWrapper({
 }) {
 
   function iterateIndicators(currentTransformIndex: number) {
-    const currentIndicator = document?.getElementById('current-indicator')
-    const indicatorsParent = document?.getElementById('indicators')
-    const indicators = Array.from(indicatorsParent?.children || [])
+    const currentIndicator = document?.getElementById("current-indicator");
+    const indicatorsParent = document?.getElementById("indicators");
+    const indicators = Array.from(indicatorsParent?.children || []);
 
+    // TODO - maybe more than index should be used to check if the sections are complete? A section can be complete even if it is still in view
     // Turn indicators green if they are complete
     for (let i = 0; i < indicators.length; i++) {
       if (i < currentTransformIndex) {
-        (indicators[i] as HTMLElement).style.backgroundColor = 'seagreen'
+        (indicators[i] as HTMLElement).style.backgroundColor = "seagreen";
       } else {
-        (indicators[i] as HTMLElement).style.backgroundColor = 'var(--gray-90)'
+        (indicators[i] as HTMLElement).style.backgroundColor = "var(--gray-90)";
       }
     }
 
+    // Move the thin green line under the indicators to indicate which section is visible
     if (currentIndicator) {
-      currentIndicator.style.transform = `translate(${(250 * currentTransformIndex) + 50}%, 0)`
+      currentIndicator.style.transform = `translate(${(250 * currentTransformIndex) + 50}%, 0)`;
     }
   }
 
-  function enableSubmitButton(currentTransformIndex: number) {
-    const submitButton = document?.getElementById('submit-button')
-
-    if (submitButton) {
-      if (currentTransformIndex == sections.length - 1) {
-        submitButton.removeAttribute('disabled')
-      } else {
-        submitButton.setAttribute('disabled', 'true')
-      }
-    }
-  }
-
-  const [transformIndex, setTransformIndex] = useState(0)
-  const sections = React.Children.toArray(children)
+  const [transformIndex, setTransformIndex] = useState(0);
+  const sections = React.Children.toArray(children);
 
   function iterateSections(options?: { reverse?: boolean }) {
-    const formSlide = Array.prototype.slice.call(document?.getElementsByClassName('fieldsetWrapper'))
+    const formSlide = Array.prototype.slice.call(document?.getElementsByClassName("fieldsetWrapper"));
 
-    const currentTransformIndex = transformIndex + (options?.reverse ? -1 : 1)
+    const currentTransformIndex = transformIndex + (options?.reverse ? -1 : 1);
 
     if (sections) {
+      // If trying to slide to a non-existent section, do nothing
       if ((currentTransformIndex >= sections.length && !options?.reverse) || (currentTransformIndex < 0 && options?.reverse)) {
-        return
+        return;
       }
 
+      // Move each form element in the appropriate direction to create a sliding effect
       formSlide.forEach(element => {
         if (element) {
           if (options?.reverse) {
-            element.style.transform = `translateX(-${(currentTransformIndex) * 100}%)`
+            element.style.transform = `translateX(-${(currentTransformIndex) * 100}%)`;
           } else {
-            element.style.transform = `translateX(-${(currentTransformIndex) * 100}%)`
+            element.style.transform = `translateX(-${(currentTransformIndex) * 100}%)`;
           }
         }
-      }
-      )
+      });
     }
 
+    iterateIndicators(currentTransformIndex);
+    setTransformIndex(currentTransformIndex);
+  }
 
-    iterateIndicators(currentTransformIndex)
-    enableSubmitButton(currentTransformIndex)
-    setTransformIndex(currentTransformIndex)
+  // Hide the "next" button when at the final slide
+  let nextButtonHiddenClass = "";
+  if (transformIndex == sections.length - 1) {
+    nextButtonHiddenClass = "hidden";
+  }
 
+  // Hide the "back" button when at the first slide
+  let backButtonHiddenClass = "";
+  if (transformIndex == 0) {
+    backButtonHiddenClass = "hidden";
   }
 
   return (
@@ -85,7 +84,7 @@ export default function FormWrapper({
       </div>
 
       <div className={`margin-block-100 padding-inline-100 gap-50 grid ${styles.indicatorLayout}`}>
-        <button type="button" className={`flex align-items-center transparent round gap-25 ${styles.indicatorButton}`} onClick={() => iterateSections({ reverse: true })}>
+        <button type="button" id="backButton" className={`flex align-items-center transparent round gap-25 ${backButtonHiddenClass} ${styles.indicatorButton}`} onClick={() => iterateSections({ reverse: true })}>
           <Image src="/icons/arrowLeft.svg" alt="" width={24} height={24} />
           Tillbaka
         </button>
@@ -99,7 +98,8 @@ export default function FormWrapper({
           <div className={styles.currentIndicator} id="current-indicator"></div>
         </div>
 
-        <button type="button" className={`flex align-items-center transparent round gap-25 margin-left-auto ${styles.indicatorButton}`} onClick={() => iterateSections()}>
+
+        <button type="button" id="nextButton" className={`flex align-items-center transparent round gap-25 margin-left-auto ${nextButtonHiddenClass} ${styles.indicatorButton}`} onClick={() => iterateSections()}>
           Nästa
           <Image src="/icons/arrowRight.svg" alt="" width={24} height={24} />
         </button>

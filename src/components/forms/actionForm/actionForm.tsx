@@ -118,6 +118,7 @@ export default function ActionForm({
         </fieldset>
 
         {(goalId && !currentAction) ?
+          // TODO: Allow conversion between absolute and delta like in effectForm?
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
             <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:action.expected_effect_legend")}</legend>
             <label className="block margin-block-75">

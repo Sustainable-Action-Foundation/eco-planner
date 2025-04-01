@@ -170,7 +170,11 @@
     "period": "Period",
     "value": "Värde",
     "no_result_found": "Inget läsbart resultat hittades. Vänligen uppdatera dina val.",
-    "add_data_source_button": "Lägg till datakälla"
+    "add_data_source_button": "Lägg till datakälla",
+    "loading": "Laddar...",
+    "language_support_warning": "{{dataSource}} stödjer inte ditt valda språk. Ett tillgängligt språk kommer att användas istället.",
+    "selected_table": "Vald tabell: {{table}}",
+    "no_variables_found": "Det finns inga variabler"
   },
   "copy_and_scale": {
     "copy_and_scale": "Kopiera och skala",
@@ -197,7 +201,8 @@
     "percentage_change": "Procentuell förändring"
   },
   "graph_graph": {
-    "compare_with_goal": "Jämför $t(common:goal_one) med {{goalName}}"
+    "compare_with_goal": "Jämför $t(common:goal_one) med {{goalName}}",
+    "historical_data_source": "Den historiska datan i grafen är hämtad från <a>{{source}}</a>"
   },
   "child_graph_selector": {
     "target_paths": "{{$t(common:goal_other), titleCase}}",

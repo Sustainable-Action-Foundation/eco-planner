@@ -170,7 +170,11 @@
     "period": "Period",
     "value": "Value",
     "no_result_found": "No readable result found. Please update your selections.",
-    "add_data_source_button": "Add data source"
+    "add_data_source_button": "Add data source",
+    "loading": "Loading...",
+    "language_support_warning": "{{dataSource}} does not support your current language. A fallback language will be used.",
+    "selected_table": "Selected table: {{table}}",
+    "no_variables_found": "There are no variables"
   },
   "copy_and_scale": {
     "copy_and_scale": "Copy and scale",
@@ -197,7 +201,8 @@
     "percentage_change": "Percentage change"
   },
   "graph_graph": {
-    "compare_with_goal": "Compare with $t(common:goal_one) {{goalName}}"
+    "compare_with_goal": "Compare with $t(common:goal_one) {{goalName}}",
+    "historical_data_source": "The historical data in the graph is fetched from <a>{{source}}</a>"
   },
   "child_graph_selector": {
     "target_paths": "{{$t(common:goal_other), titleCase}}",
