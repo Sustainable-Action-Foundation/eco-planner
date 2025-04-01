@@ -3,7 +3,7 @@ import { JSONValue } from "@/types.ts";
 import fs from "fs";
 import metadata from "package.json" with { type: "json" };
 import { t } from "@/lib/i18nServer";
-import { CommitWithLink, FallbackRemote, Intro, KnownRemote } from "@/components/info/appMetaInfo";
+import { CommitWithLink, FallbackRemote, Intro, KnownRemote } from "@/app/info/appMetaInfo";
 
 export default async function Page() {
   const gitHash = { shortHash: process.env.GIT_SHORT_HASH, longHash: process.env.GIT_LONG_HASH };
