@@ -25,6 +25,8 @@ export default function QueryBuilder({
   const [isLoading, setIsLoading] = useState(false);
   const [dataSource, setDataSource] = useState<string>("");
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
+  const [renderedTables, setRenderedTables] = useState<{ tableId: string, label: string }[] | null>(null);
+  const [offset, setOffset] = useState(0);
   const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
 
@@ -33,13 +35,26 @@ export default function QueryBuilder({
 
   const tableSearchInputName = "tableSearch";
 
+  const tablesListRenderingChunkSize = 50;
+  const renderedTablesListMaxLength = 100;
+  const initialRenderingMargin = 15;
+
   useEffect(() => {
     if (!dataSource) return;
     setIsLoading(true);
+    console.time("getTables");
     const query = (formRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
 
-    getTables(dataSource, query, locale).then(result => { setTables(result); setIsLoading(false); });
+    getTables(dataSource, query, locale).then(result => { setTables(result); setIsLoading(false); console.timeEnd("getTables"); });
   }, [dataSource, locale]);
+
+  useEffect(() => {
+    if (tables) {
+      setRenderedTables(tables.slice(0, tables.length < renderedTablesListMaxLength + initialRenderingMargin ? renderedTablesListMaxLength + initialRenderingMargin : renderedTablesListMaxLength > tables.length ? renderedTablesListMaxLength : tablesListRenderingChunkSize));
+    } else {
+      setRenderedTables(null);
+    }
+  }, [tables]);
 
   useEffect(() => {
     const loadingText = document.getElementById("loading-text");
@@ -255,15 +270,26 @@ export default function QueryBuilder({
     if (getDatasetKeysOfApis("PxWeb").includes(dataSource) && variableIsOptional) return <a className={`font-style-italic color-gray`}> - (valfri)</a>;
   }
 
-  document.getElementById("tablesList")?.addEventListener("scroll", (event) => {
-    console.log(event);
-    if (event.target) {
-      if (event.target instanceof HTMLElement) {
-        console.log(event.target.scrollTop);
-        console.log(event.target.scrollHeight);
+  function handleTableListScroll(event: React.UIEvent<HTMLDivElement, UIEvent>) {
+    if (event.target && event.target instanceof HTMLElement && tables && event.target.children.length < tables.length) {
+      if (event.target.scrollTop + event.target.clientHeight * 2 >= event.target.scrollHeight && renderedTables && tables.findIndex(table => table.tableId == renderedTables[renderedTables.length - 1].tableId) < tables.length - 1) {
+        if (!renderedTables) console.log("renderedTables is null");
+        const newOffset = renderedTables.length == renderedTablesListMaxLength ? offset + tablesListRenderingChunkSize : offset;
+        const newRenderedTables = tables.slice(newOffset, newOffset + renderedTablesListMaxLength);
+        setRenderedTables(newRenderedTables);
+        setOffset(newOffset);
+      }
+      else if (event.target.scrollTop < event.target.clientHeight * 2 && offset > 0) {
+        const newOffset = offset - tablesListRenderingChunkSize;
+        const newRenderedTables = tables.slice(newOffset, newOffset + renderedTablesListMaxLength);
+        setRenderedTables(newRenderedTables);
+        setOffset(newOffset);
+      }
+      else {
+        console.log(event.target.clientHeight, event.target.scrollHeight, event.target.scrollTop);
       }
     }
-  });
+  }
 
   function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) {
     if (variable.option) {
@@ -394,8 +420,8 @@ export default function QueryBuilder({
                   </div>
 
                   <div className="padding-25 smooth" style={{ border: "1px solid var(--gray-90)" }}>
-                    <div id="tablesList" className={styles.temporary}>
-                      {tables && tables.map(({ tableId: id, label }) => (
+                    <div id="tablesList" className={styles.temporary} onScroll={e => handleTableListScroll(e)}>
+                      {renderedTables && renderedTables.map(({ tableId: id, label }) => (
                         <label id={`table${id}`} key={id} className={`${styles.tableSelect} block padding-block-25`}>
                           {label}
                           <button type="button" value={id} className={`hidden`} name="externalTableId" onClick={e => handleTableSelect((e.target as HTMLButtonElement).value)} />
