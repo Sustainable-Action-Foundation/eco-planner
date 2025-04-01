@@ -242,7 +242,7 @@
     "national_counterpart": "$t(common:scope.national) counterpart"
   },
   "main_relative_graph": {
-    "percent_relative_to_base_year": "percent relative to base year",
+    "percent_relative_to_base_year": "Percent relative to base year",
     "national_counterpart": "$t(common:scope.national) counterpart"
   }
 }
