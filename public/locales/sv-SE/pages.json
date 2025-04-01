@@ -34,7 +34,7 @@
     "breadcrumb": "$t(common:new.roadmap_version)",
     "title": "$t(common:new.roadmap_series)",
     "bad_roadmap_series_one": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_series_definite_one) i länken.",
-    "use_dropdown": "Använd dropdown-menyn för att välja en $t(common:roadmap_series_one)."
+    "use_dropdown": "Använd rullgardinsmenyn för att välja en $t(common:roadmap_series_one)."
   },
   "action": {
     "action_label": "{{$t(common:action_one), titleCase}}",
@@ -117,14 +117,14 @@
   "goal_create": {
     "breadcrumb": "$t(common:new.goal)",
     "title": "$t(common:new.goal)",
-    "bad_roadmap": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_version_definite_one) i länken.\n\nAnvänd dropdown-menyn för att välja en $t(common:roadmap_version_one) att skapa $t(common:goal_definite_one) under."
+    "bad_roadmap": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_version_definite_one) i länken.\n\nAnvänd rullgardinsmenyn för att välja en $t(common:roadmap_version_one) att skapa $t(common:goal_definite_one) under."
   },
   "action_create": {
     "breadcrumb": "$t(common:new.action)",
     "title": "$t(common:new.action)",
     "title_with_goal": "$t(common:new.goal): {{goalName}}",
     "bad_goal": "Kunde inte hitta, eller har inte tillgång till, $t(common:goal_definite_one) i länken.",
-    "bad_roadmap": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_version_definite_one) i länken.\nAnvänd dropdown-menyn för att välja en $t(common:roadmap_version_one)."
+    "bad_roadmap": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_version_definite_one) i länken.\nAnvänd rullgardinsmenyn för att välja en $t(common:roadmap_version_one)."
   },
   "action_edit": {
     "breadcrumb": "$t(common:edit.action)",
