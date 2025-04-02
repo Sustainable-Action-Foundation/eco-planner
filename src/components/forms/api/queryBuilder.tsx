@@ -374,169 +374,175 @@ export default function QueryBuilder({
         <Image src="/icons/chartAdd.svg" alt="" width={16} height={16} />
       </button>
       <dialog className={`smooth ${styles.dialog}`} ref={modalRef} aria-modal style={{ border: "0", boxShadow: "0 0 .5rem -.25rem rgba(0,0,0,.25)" }}>
-        <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>
-          <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label="Close" >
-            <Image src="/icons/close.svg" alt="" width={18} height={18} />
-          </button>
-          <h2 className="margin-0">Lägg till datakälla</h2>
-        </div>
-        <p>Lägg till historisk dataserie till {goal.name ?? goal.indicatorParameter}</p>
+        <div className={`${styles.dialogChild}`} >
+          <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>
+            <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label="Close" >
+              <Image src="/icons/close.svg" alt="" width={18} height={18} />
+            </button>
+            <h2 className="margin-0">Lägg till datakälla</h2>
+          </div>
+          <p>Lägg till historisk dataserie till {goal.name ?? goal.indicatorParameter}</p>
 
-        <form ref={formRef} onChange={formChange} onSubmit={handleSubmit}>
-          {/* Hidden disabled submit button to prevent accidental submisson */}
-          <button type="submit" className="display-none" disabled></button>
-          <strong id="loading-text" className={`position-absolute gray-80 padding-100 rounded ${!isLoading && "hidden"}`} style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 100, opacity: "0.75" }}>Laddar...</strong>
+          <form ref={formRef} onChange={formChange} onSubmit={handleSubmit}>
+            {/* Hidden disabled submit button to prevent accidental submisson */}
+            <button type="submit" className="display-none" disabled></button>
+            <strong id="loading-text" className={`position-absolute gray-80 padding-100 rounded ${!isLoading && "hidden"}`} style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 100, opacity: "0.75" }}>Laddar...</strong>
 
-          <FormWrapper>
-            <fieldset>
-              <label className="margin-block-75">
-                Datakälla
-                <select className="block margin-block-25" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
-                  <option value="" className={`font-style-italic color-gray`}>Välj en källa</option>
-                  {Object.keys(externalDatasets).map((name) => (
-                    <option key={name} value={name}>{name}</option>
-                  ))}
-                </select>
-                {// Display warning message if the selected language is not supported by the api
-                  (
-                    (externalDatasets[dataSource])
+            <FormWrapper>
+              <fieldset>
+                <label className="margin-block-75">
+                  Datakälla
+                  <select className="block margin-block-25" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
+                    <option value="" className={`font-style-italic color-gray`}>Välj en källa</option>
+                    {Object.keys(externalDatasets).map((name) => (
+                      <option key={name} value={name}>{name}</option>
+                    ))}
+                  </select>
+                  {// Display warning message if the selected language is not supported by the api
+                    (
+                      (externalDatasets[dataSource])
+                      &&
+                      !(externalDatasets[dataSource]?.supportedLanguages.includes(locale))
+                    )
                     &&
-                    !(externalDatasets[dataSource]?.supportedLanguages.includes(locale))
-                  )
-                  &&
-                  <p style={{ color: "red" }}>{dataSource} stödjer inte ditt valda språk. Ett tillgängligt språk kommer att användas istället.</p>
-                }
-              </label>
-
-              {// TODO: Check that this works well with dynamic keyboards (smartphone/tablet)
-              }
-              {dataSource ?
-                <>
-                  <div className="flex gap-25 align-items-flex-end margin-block-75">
-                    <label className="flex-grow-100">
-                      <span className="block margin-block-25">Sök efter tabell</span>
-                      <input name={tableSearchInputName} type="search" className="block" onKeyDown={searchOnEnter} />
-                    </label>
-                    <button type="button" onClick={searchWithButton} style={{ fontSize: "1rem" }}>Sök</button>
-                  </div>
-
-                  <div className="padding-25 smooth" style={{ border: "1px solid var(--gray-90)" }}>
-                    <div id="tablesList" className={styles.temporary} onScroll={e => handleTableListScroll(e)}>
-                      {renderedTables && renderedTables.map(({ tableId: id, label }) => (
-                        <label id={`table${id}`} key={id} className={`${styles.tableSelect} block padding-block-25`}>
-                          {label}
-                          <button type="button" value={id} className={`display-none`} name="externalTableId" onClick={e => handleTableSelect((e.target as HTMLButtonElement).value)} />
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                </>
-                : null}
-            </fieldset>
-
-            {tableDetails && (
-              // TODO - which inputs should be optional?
-              <>
-                <label className="block margin-block-75">
-                  <strong>Vald tabell:</strong> {document.getElementById(`table${tableDetails.id}`)?.innerText}
-                </label>
-                <fieldset className="margin-block-100 smooth padding-50" style={{ border: "1px solid var(--gray-90)" }}>
-                  <legend className="padding-inline-50">
-                    <b>Välj mätvärde för tabellen</b>
-                  </legend>
-                  <label key={`metric-${tableDetails.id}`} className="block margin-block-75">
-                    <select className={`block margin-block-25 metric`}
-                      required={true}
-                      name="metric"
-                      id="metric"
-                      defaultValue={undefined}
-                      onChange={handleMetricSelect}>
-                      <option value="" className={`font-style-italic color-gray`}>Välj ett mätvärde</option>
-                      {tableDetails.metrics && tableDetails.metrics.map(metric => (
-                        <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
-                      ))}
-                    </select>
-                  </label>
-                </fieldset>
-                <fieldset name="variableSelectionFieldset" disabled={true} className={`margin-block-100 smooth padding-50 fieldset-unset-pseudo-class`} style={{ border: `${shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? "1px solid var(--gray-90)" : ""}`, maxHeight: "280px", overflow: "auto" }}>
-                  {shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
-                    <>
-                      <legend className="padding-inline-50">
-                        <b>Välj värden för tabell</b>
-                      </legend>
-                      {tableDetails.times &&
-                        timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
-                      }
-                      {tableDetails.variables.map(variable => {
-                        return variableSelectionHelper(variable, tableDetails);
-                      })}
-                      {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
-                        if (hierarchy.children?.some(variable => variable.option)) return (
-                          <label key={hierarchy.name} className="block margin-block-75">
-                            <b>{hierarchy.label}</b>
-                            {// TODO - indent all children
-                            }
-                            {hierarchy.children && hierarchy.children.map(variable => {
-                              return variableSelectionHelper(variable, tableDetails);
-                            })}
-                          </label>
-                        )
-                      })}
-                    </>) : (<p className={`font-style-italic color-gray`}>Det finns inga variabler</p>)}
-                </fieldset>
-              </>
-            )}
-          </FormWrapper>
-
-          {tableContent && tableContent.data.length > 0
-            ?
-            (<>
-              <p>Ser detta rimligt ut? (visar max 5 värden)</p>
-              <table>
-                <thead>
-                  <tr>
-                    <th scope="col">Period</th>
-                    <th scope="col">Värde</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {
-                    tableContent.data.map((row, index) => {
-                      // Find the column of the time value
-                      let timeColumnIndex = 0;
-                      tableContent.columns.map((column, index) => {
-                        if (column.type == "t") timeColumnIndex = index
-                      })
-                      return (
-                        index < 5 &&
-                        <tr key={row.key[timeColumnIndex].value}>
-                          <td>{row.key[timeColumnIndex].value}</td>
-                          <td>{row.values[0]}</td>
-                        </tr>
-                      )
-                    })
+                    <p style={{ color: "red" }}>{dataSource} stödjer inte ditt valda språk. Ett tillgängligt språk kommer att användas istället.</p>
                   }
-                </tbody>
-              </table>
-            </>)
-            :
-            (document.getElementById("metric") as HTMLSelectElement)
-            &&
-            (document.getElementById("metric") as HTMLSelectElement).value.length != 0
-            &&
-            (formRef.current instanceof HTMLFormElement)
-            &&
-            formRef.current.checkValidity()
-            &&
-            (
-              <div>
-                <p>Inget läsbart resultat hittades. Vänligen uppdatera dina val.</p>
-              </div>
-            )
-          }
+                </label>
 
-          <button id="submit-button" disabled={true} type="submit" className="display-none seagreen color-purewhite">Lägg till datakälla</button>
-        </form>
+                {// TODO: Check that this works well with dynamic keyboards (smartphone/tablet)
+                }
+                {dataSource ?
+                  <>
+                    <div className="flex gap-25 align-items-flex-end margin-block-75">
+                      <label className="flex-grow-100">
+                        <span className="block margin-block-25">Sök efter tabell</span>
+                        <input name={tableSearchInputName} type="search" className="block" onKeyDown={searchOnEnter} />
+                      </label>
+                      <button type="button" onClick={searchWithButton} style={{ fontSize: "1rem" }}>Sök</button>
+                    </div>
+
+                    <div className="padding-25 smooth" style={{ border: "1px solid var(--gray-90)" }}>
+                      <div id="tablesList" className={styles.temporary} onScroll={e => handleTableListScroll(e)} style={{ maxHeight: "300px" }}>
+                        {renderedTables && renderedTables.map(({ tableId: id, label }) => (
+                          <label id={`table${id}`} key={id} className={`${styles.tableSelect} block padding-block-25`}>
+                            {label}
+                            <button type="button" value={id} className={`display-none`} name="externalTableId" onClick={e => handleTableSelect((e.target as HTMLButtonElement).value)} />
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                  : null}
+              </fieldset>
+
+              {tableDetails && (
+                // TODO - which inputs should be optional?
+                <>
+                  <label className="block margin-block-75">
+                    <strong>Vald tabell:</strong> {document.getElementById(`table${tableDetails.id}`)?.innerText}
+                  </label>
+                  <fieldset className="margin-block-100 smooth padding-50" style={{ border: "1px solid var(--gray-90)" }}>
+                    <legend className="padding-inline-50">
+                      <b>Välj mätvärde för tabellen</b>
+                    </legend>
+                    <div>
+                      <label key={`metric-${tableDetails.id}`} className="block margin-block-75">
+                        <select className={`block margin-block-25 metric`}
+                          required={true}
+                          name="metric"
+                          id="metric"
+                          defaultValue={undefined}
+                          onChange={handleMetricSelect}>
+                          <option value="" className={`font-style-italic color-gray`}>Välj ett mätvärde</option>
+                          {tableDetails.metrics && tableDetails.metrics.map(metric => (
+                            <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
+                  </fieldset>
+                  <fieldset name="variableSelectionFieldset" disabled={true} className={`margin-block-100 smooth padding-25 fieldset-unset-pseudo-class`} style={{ border: `${shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? "1px solid var(--gray-90)" : ""}`, maxHeight: "280px" }}>
+                    {shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
+                      <>
+                        <legend className="padding-inline-50">
+                          <b>Välj värden för tabell</b>
+                        </legend>
+                        <div className={`${styles.temporary}`} style={{ maxHeight: "240px", boxSizing: "content-box", padding: ".25rem", paddingRight: ".375rem" }}>
+                          {tableDetails.times &&
+                            timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
+                          }
+                          {tableDetails.variables.map(variable => {
+                            return variableSelectionHelper(variable, tableDetails);
+                          })}
+                          {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
+                            if (hierarchy.children?.some(variable => variable.option)) return (
+                              <label key={hierarchy.name} className="block margin-block-75">
+                                <b>{hierarchy.label}</b>
+                                {// TODO - indent all children
+                                }
+                                {hierarchy.children && hierarchy.children.map(variable => {
+                                  return variableSelectionHelper(variable, tableDetails);
+                                })}
+                              </label>
+                            )
+                          })}
+                        </div>
+                      </>) : (<p className={`font-style-italic color-gray`}>Det finns inga variabler</p>)}
+                  </fieldset>
+                </>
+              )}
+            </FormWrapper>
+
+            {tableContent && tableContent.data.length > 0
+              ?
+              (<>
+                <p>Ser detta rimligt ut? (visar max 5 värden)</p>
+                <table>
+                  <thead>
+                    <tr>
+                      <th scope="col">Period</th>
+                      <th scope="col">Värde</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      tableContent.data.map((row, index) => {
+                        // Find the column of the time value
+                        let timeColumnIndex = 0;
+                        tableContent.columns.map((column, index) => {
+                          if (column.type == "t") timeColumnIndex = index
+                        })
+                        return (
+                          index < 5 &&
+                          <tr key={row.key[timeColumnIndex].value}>
+                            <td>{row.key[timeColumnIndex].value}</td>
+                            <td>{row.values[0]}</td>
+                          </tr>
+                        )
+                      })
+                    }
+                  </tbody>
+                </table>
+              </>)
+              :
+              (document.getElementById("metric") as HTMLSelectElement)
+              &&
+              (document.getElementById("metric") as HTMLSelectElement).value.length != 0
+              &&
+              (formRef.current instanceof HTMLFormElement)
+              &&
+              formRef.current.checkValidity()
+              &&
+              (
+                <div>
+                  <p>Inget läsbart resultat hittades. Vänligen uppdatera dina val.</p>
+                </div>
+              )
+            }
+
+            <button id="submit-button" disabled={true} type="submit" className="display-none seagreen color-purewhite">Lägg till datakälla</button>
+          </form>
+        </div>
       </dialog>
     </>
   )

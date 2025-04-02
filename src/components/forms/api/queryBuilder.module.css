@@ -1,19 +1,43 @@
-.dialog select { 
-    width: 100%;
-    max-width: 100%;
+.dialog select {
+  width: 100%;
+  max-width: 100%;
 }
 
 .dialog {
   width: min(100vw, 1000px);
+  overflow: unset;
+  padding-right: .75rem;
+}
+
+.dialogChild {
+  overflow-y: scroll;
+  max-height: calc(100vh - 4rem);
+}
+
+.dialogChild::-webkit-scrollbar {
+  width: .5rem;
+}
+
+.dialogChild::-webkit-scrollbar-track {
+  border-radius: 9999px;
+}
+
+.dialogChild::-webkit-scrollbar-thumb {
+  background: var(--gray-90);
+  border-radius: 9999px;
+}
+
+.dialogChild::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-70);
 }
 
 /* For selecting tables when choosin a specific data source */
 .tableSelect {
-    position: relative;
-    padding: .5rem;
-    border-radius: .25rem;
-    transition: background-color .1s ease;
-    font-weight: 500;
+  position: relative;
+  padding: .5rem;
+  border-radius: .25rem;
+  transition: background-color .1s ease;
+  font-weight: 500;
 }
 
 .selectedTable {
@@ -22,45 +46,52 @@
 }
 
 .tableSelect:not(.selectedTable):hover {
-    background-color: var(--gray-90);
+  background-color: var(--gray-90);
 }
 
-.tableSelect > button {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
+.tableSelect>button {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+
+.dialog fieldset label:first-child {
+  margin-top: 0;
+}
+
+.dialog fieldset label:last-child {
+  margin-bottom: 0;
 }
 
 /* Temp */
 
 .temporary {
-    max-height: 300px;
-    overflow-y: scroll;
-    padding-right: .25rem;
+  overflow-y: scroll;
+  padding-right: .25rem;
 }
 
 /* width */
 .temporary::-webkit-scrollbar {
-    width: .5rem;
+  width: .5rem;
 }
-  
+
 /* Track */
 .temporary::-webkit-scrollbar-track {
-    border-radius: 9999px;
+  border-radius: 9999px;
 }
-   
+
 /* Handle */
 .temporary::-webkit-scrollbar-thumb {
-    background: var(--gray-90); 
-    border-radius: 9999px;
+  background: var(--gray-90);
+  border-radius: 9999px;
 }
-  
+
 /* Handle on hover */
 .temporary::-webkit-scrollbar-thumb:hover {
-    background: var(--gray-70); 
+  background: var(--gray-70);
 }
 
 @media (min-width: 1250px) {
