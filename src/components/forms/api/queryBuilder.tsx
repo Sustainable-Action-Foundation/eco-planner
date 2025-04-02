@@ -314,11 +314,11 @@ export default function QueryBuilder({
             }>
             { // If only one value is available, don't show a placeholder option
               getDatasetKeysOfApis("PxWeb").includes(dataSource) && variable.values && variable.values.length > 1 &&
-              <option value="" className={`${styles.defaultOption}`}>Välj ett värde</option>
+              <option value="" className={`font-style-italic color-gray`}>Välj ett värde</option>
             }
             {
               !getDatasetKeysOfApis("PxWeb").includes(dataSource) &&
-              <option value="" className={`${styles.defaultOption}`}>Välj ett värde</option>
+              <option value="" className={`font-style-italic color-gray`}>Välj ett värde</option>
             }
             {variable.values && variable.values.map(value => (
               <option key={`${variable.name}-${value.name}`} value={value.name} lang={tableDetails.language}>{value.label}</option>
@@ -353,7 +353,7 @@ export default function QueryBuilder({
           name="Tid"
           id="Tid"
           defaultValue={times && times.length == 1 ? times[0].label : undefined}>
-          <option value="" className={`${styles.defaultOption}`}>{defaultValue}</option>
+          <option value="" className={`font-style-italic color-gray`}>{defaultValue}</option>
           {times.map(time => (
             <option key={time.name} value={time.name} lang={language}>{time[displayValueKey]}</option>
           ))}
@@ -392,7 +392,7 @@ export default function QueryBuilder({
               <label className="margin-block-75">
                 Datakälla
                 <select className="block margin-block-25" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
-                  <option value="" className={`${styles.defaultOption}`}>Välj en källa</option>
+                  <option value="" className={`font-style-italic color-gray`}>Välj en källa</option>
                   {Object.keys(externalDatasets).map((name) => (
                     <option key={name} value={name}>{name}</option>
                   ))}
@@ -484,7 +484,7 @@ export default function QueryBuilder({
                           </label>
                         )
                       })}
-                    </>) : (<p className={`${styles.defaultOption}`}>Det finns inga variabler</p>)}
+                    </>) : (<p className={`font-style-italic color-gray`}>Det finns inga variabler</p>)}
                 </fieldset>
               </>
             )}
