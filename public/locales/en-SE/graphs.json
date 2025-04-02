@@ -10,12 +10,10 @@
     "actions": "{{$t(common:action_other), titleCase}}"
   },
   "child_graph_container": {
-    "change_graph_type": "$t(graphs:common.change_graph_type)",
     "goals_toward": "{{$t(common:goal_other), titleCase}} contributing to {{goalName}}"
   },
   "child_graph_selector": {
-    "target_goals": "{{$t(common:goal_other), titleCase}}",
-    "expected_outcomes": "$t(graphs:common.expected_outcome)"
+    "target_goals": "{{$t(common:goal_other), titleCase}}"
   },
   "graph_cookie": {
     "save_preferences": "Save future view changes between sessions and page navigations"
@@ -31,13 +29,9 @@
   },
   "main_delta_graph": {
     "annual_change": "Annual change in {{unit}}",
-    "percentage_points": "percentage points",
-    "baseline_scenario": "$t(graphs:common.baseline_scenario)",
-    "expected_outcome": "$t(graphs:common.expected_outcome)"
+    "percentage_points": "percentage points"
   },
   "main_graph": {
-    "baseline_scenario": "$t(graphs:common.baseline_scenario)",
-    "expected_outcome": "$t(graphs:common.expected_outcome)",
     "national_goal": "$t(common:scope.national) $t(common:goal_one)",
     "history": "History",
     "secondary_goal": "Secondary $t(common:goal_one) ({{unit}})"
@@ -46,7 +40,6 @@
     "percent_relative_to_base_year": "Percent relative to base year"
   },
   "prediction_child_graph": {
-    "unknown_roadmap": "$t(graphs:common.unknown_roadmap)",
     "no_child_roadmaps": "No underlying $t(common:goal_other) with $t(common:effect_other) or custom baselines found"
   },
   "secondary_graph_selector": {
@@ -54,7 +47,6 @@
     "compare": "$t(common:tsx.compare)"
   },
   "sibling_graph": {
-    "change_graph_type": "$t(graphs:common.change_graph_type)",
     "related_goals": "Related $t(common:goal_other)"
   }
 }

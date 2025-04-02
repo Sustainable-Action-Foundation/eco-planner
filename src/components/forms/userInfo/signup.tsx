@@ -49,14 +49,14 @@ export default function Signup() {
           {t("components:signup.username")}
           <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
             <Image src="/icons/user.svg" alt="" width={24} height={24} />
-            <input className="padding-0 margin-inline-50" type="text" placeholder={t("components:signup.username_placeholder")} name="username" required id="username" autoComplete="username" />
+            <input className="padding-0 margin-inline-50" type="text" placeholder={t("common:placeholder.name")} name="username" required id="username" autoComplete="username" />
           </div>
         </label>
         <label className="block margin-block-100">
           {t("components:signup.email")}
           <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
             <Image src="/icons/email.svg" alt="" width={24} height={24} />
-            <input className="padding-0 margin-inline-50" type="email" placeholder={t("components:signup.email_placeholder")} name="email" required id="email" autoComplete="email" />
+            <input className="padding-0 margin-inline-50" type="email" placeholder={t("common:placeholder.email")} name="email" required id="email" autoComplete="email" />
           </div>
         </label>
         <label className="block margin-block-100">

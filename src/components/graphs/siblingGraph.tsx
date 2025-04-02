@@ -100,8 +100,8 @@ export default function SiblingGraph({
           style={{ width: 'fit-content', fontSize: '.75rem', padding: '.3rem .6rem' }}
           type="button" onClick={() => setIsStacked(!isStacked)}
         >
-          {t("graphs:sibling_graph.change_graph_type")}
-          <Image src='/icons/chartArea.svg' alt={t("graphs:sibling_graph.change_graph_type")} width={16} height={16} />
+          {t("graphs:common.change_graph_type")}
+          <Image src='/icons/chartArea.svg' alt={t("graphs:common.change_graph_type")} width={16} height={16} />
         </button>
       </menu>
       <article className="smooth padding-inline-25 padding-bottom-50 purewhite" style={{ border: '1px solid var(--gray)' }}>

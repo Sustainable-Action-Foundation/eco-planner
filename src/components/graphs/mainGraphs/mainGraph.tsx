@@ -49,8 +49,8 @@ export default function MainGraph({
         labels: { formatter: floatSmoother },
         seriesName: [
           (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
-          t("graphs:main_graph.baseline_scenario"),
-          t("graphs:main_graph.expected_outcome"),
+          t("graphs:common.baseline_scenario"),
+          t("graphs:common.expected_outcome"),
           (secondaryGoal?.dataSeries?.unit == goal.dataSeries.unit) ? (secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0] : "",
         ]
       }
@@ -91,7 +91,7 @@ export default function MainGraph({
       });
     }
     mainChart.push({
-      name: t("graphs:main_graph.baseline_scenario"),
+      name: t("graphs:common.baseline_scenario"),
       data: baseline,
       type: 'line',
     })
@@ -102,7 +102,7 @@ export default function MainGraph({
       // Line based on totalEffect + baseline
       if (totalEffect.length > 0) {
         mainChart.push({
-          name: t("graphs:main_graph.expected_outcome"),
+          name: t("graphs:common.expected_outcome"),
           data: totalEffect,
           type: 'line',
         });
@@ -126,14 +126,14 @@ export default function MainGraph({
           });
         }
         mainChart.push({
-          name: t("graphs:main_graph.baseline_scenario"),
+          name: t("graphs:common.baseline_scenario"),
           data: baseline,
           type: 'line',
         });
 
         // Line based on totalEffect
         mainChart.push({
-          name: t("graphs:main_graph.expected_outcome"),
+          name: t("graphs:common.expected_outcome"),
           data: totalEffect,
           type: 'line',
         });

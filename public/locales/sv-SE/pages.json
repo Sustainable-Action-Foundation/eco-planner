@@ -1,23 +1,10 @@
 {
   "common": {
-    "{{edit_action,breadcrumb}}": "$t(common:edit.action)",
-    "{{breadcrumb,title}}": "Information",
-    "{{edit_roadmap_version,breadcrumb,title}}": "$t(common:edit.roadmap_version)",
-    "{{breadcrumb,title,create_new_action}}": "$t(common:new.action)",
-    "{{create_new_effect,breadcrumb,title}}": "$t(common:new.effect)",
-    "{{create_roadmap,title,breadcrumb}}": "$t(common:new.roadmap_series)",
-    "{{breadcrumb,create_roadmap_version}}": "$t(common:new.roadmap_version)",
-    "external_resources": "Externa resurser",
-    "title": "Verifiera din e‑postadress",
-    "email_placeholder": "fornamn.efternamn@exempel.se",
-    "{{title,version}}": "{{$t(common:roadmap_version_one), titleCase}}",
-    "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
-    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
+    "external_resources": "Externa resurser"
   },
   "action": {
     "action_label": "{{$t(common:action_one), titleCase}}",
     "effects_label": "{{$t(common:effect_other), titleCase}}",
-    "external_resources": "Externa resurser",
     "edit_action": "$t(common:edit.action)",
     "edit_action_alt": "$t(common:edit.action): {{actionName}}",
     "expected_effect": "Förväntad $t(common:effect_one)",
@@ -67,8 +54,7 @@
     "create_new_action": "$t(common:new.action)",
     "action_timeline": "Tidslinje över $t(common:action_other)",
     "goals_working_towards": "{{$t(common:goal_other), titleCase}} som jobbar mot {{goalName}}",
-    "related_goals": "Angränsande $t(common:goal_other)",
-    "external_resources": "Externa resurser"
+    "related_goals": "Angränsande $t(common:goal_other)"
   },
   "goal_create": {
     "breadcrumb": "$t(common:new.goal)",
@@ -99,7 +85,6 @@
   "password": {
     "breadcrumb": "Återställ lösenord",
     "description": "Har du glömt ditt lösenord? Fyll i din e‑postadress här så skickar vi ett e‑postmeddelande med instruktioner för att återställa lösenordet.",
-    "email_placeholder": "fornamn.efternamn@exempel.se",
     "submit": "Skicka"
   },
   "password_reset": {
@@ -142,7 +127,6 @@
   "roadmap_series_one": {
     "title_legend": "{{$t(common:roadmap_series_one), titleCase}}",
     "description_legend": "Metadata för en serie av $t(common:roadmap_version_other)",
-    "external_resources": "Externa resurser",
     "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
     "create_roadmap_version": "$t(common:new.roadmap_version)"
   },
@@ -162,7 +146,6 @@
     "description": "Ett meddelande har skickats till din e‑postadress. Verifiera din e‑postadress genom att följa instruktionerna i e‑postmeddelandet.",
     "troubleshooting_title": "Har du inte fått något meddelande?",
     "troubleshooting_description": "Kolla i din skräppost eller fyll i din e‑postadress nedan och klicka på knappen för att få ett nytt e‑postmeddelande.",
-    "email_placeholder": "fornamn.efternamn@exempel.se",
     "submit_resend": "Skicka igen"
   },
   "verify_verify": {

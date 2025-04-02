@@ -1,23 +1,10 @@
 {
   "common": {
-    "{{edit_action,breadcrumb}}": "$t(common:edit.action)",
-    "{{breadcrumb,title}}": "Information",
-    "{{breadcrumb,title,create_new_action}}": "$t(common:new.action)",
-    "{{create_new_effect,breadcrumb,title}}": "$t(common:new.effect)",
-    "{{create_roadmap,breadcrumb,title}}": "$t(common:new.roadmap_series)",
-    "{{edit_roadmap_version,breadcrumb,title,create_roadmap_version}}": "$t(common:new.roadmap_version)",
-    "external_resources": "External resources",
-    "title": "Verify your email",
-    "email_placeholder": "name.surname@example.com",
-    "{{roadmap_series_ones,title_legend}}": "{{$t(common:roadmap_series_one), titleCase}}",
-    "{{title,version}}": "{{$t(common:roadmap_version_one), titleCase}}",
-    "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
-    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
+    "external_resources": "External resources"
   },
   "action": {
     "action_label": "{{$t(common:action_one), titleCase}}",
     "effects_label": "{{$t(common:effect_other), titleCase}}",
-    "external_resources": "External resources",
     "edit_action": "$t(common:edit.action)",
     "edit_action_alt": "$t(common:edit.action): {{actionName}}",
     "expected_effect": "Expected $t(common:effect_other)",
@@ -67,8 +54,7 @@
     "create_new_action": "$t(common:new.action)",
     "action_timeline": "{{$t(common:action_one), titleCase}} timeline",
     "goals_working_towards": "{{$t(common:goal_other), titleCase}} working towards {{goalName}}",
-    "related_goals": "Related $t(common:goal_other)",
-    "external_resources": "External resources"
+    "related_goals": "Related $t(common:goal_other)"
   },
   "goal_create": {
     "breadcrumb": "$t(common:new.goal)",
@@ -99,7 +85,6 @@
   "password": {
     "breadcrumb": "Reset password",
     "description": "Forgot your password? Enter your email here and we will send an email with instructions to reset your password.",
-    "email_placeholder": "name.surname@example.com",
     "submit": "Submit"
   },
   "password_reset": {
@@ -142,7 +127,6 @@
   "roadmap_series_one": {
     "title_legend": "{{$t(common:roadmap_series_one), titleCase}}",
     "description_legend": "Metadata for a series of $t(common:roadmap_version_other)",
-    "external_resources": "External resources",
     "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
     "create_roadmap_version": "$t(common:new.roadmap_version)"
   },
@@ -162,7 +146,6 @@
     "description": "An email has been sent to your email address. Verify your email by following the instructions in the email.",
     "troubleshooting_title": "Haven't received an email?",
     "troubleshooting_description": "Check your spam folder or fill in your email address below and click the button to receive a new email.",
-    "email_placeholder": "name.surname@example.com",
     "submit_resend": "Resend email"
   },
   "verify_verify": {

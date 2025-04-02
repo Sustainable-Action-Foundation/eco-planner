@@ -57,8 +57,8 @@ export default function ChildGraphContainer({
           style={{ width: 'fit-content', fontSize: '.75rem', padding: '.3rem .6rem' }}
           type="button" onClick={() => setIsStacked(!isStacked)}
         >
-          {t("graphs:child_graph_container.change_graph_type")}
-          <Image src='/icons/chartArea.svg' alt={t("graphs:child_graph_container.change_graph_type")} width={16} height={16} />
+          {t("graphs:common.change_graph_type")}
+          <Image src='/icons/chartArea.svg' alt={t("graphs:common.change_graph_type")} width={16} height={16} />
         </button>
         {children}
       </menu>

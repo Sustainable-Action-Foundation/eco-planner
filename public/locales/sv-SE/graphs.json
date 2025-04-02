@@ -10,12 +10,10 @@
     "actions": "{{$t(common:action_other), titleCase}}"
   },
   "child_graph_container": {
-    "change_graph_type": "Ändra graftyp",
     "goals_toward": "{{$t(common:goal_other), titleCase}} som jobbar mot {{goalName}}"
   },
   "child_graph_selector": {
-    "target_goals": "{{$t(common:goal_other), titleCase}}",
-    "expected_outcomes": "Förväntade utfall"
+    "target_goals": "{{$t(common:goal_other), titleCase}}"
   },
   "graph_cookie": {
     "save_preferences": "Spara framtida vyändringar mellan sessioner och sidnavigeringar"
@@ -31,13 +29,9 @@
   },
   "main_delta_graph": {
     "annual_change": "Årlig förändring i {{unit}}",
-    "percentage_points": "procentenheter",
-    "baseline_scenario": "Basscenario",
-    "expected_outcome": "Förväntat utfall"
+    "percentage_points": "procentenheter"
   },
   "main_graph": {
-    "baseline_scenario": "Basscenario",
-    "expected_outcome": "Förväntat utfall",
     "national_goal": "$t(common:scope.national) $t(common:goal_one)",
     "history": "Historik",
     "secondary_goal": "Sekundär $t(common:goal_one) ({{unit}})"
@@ -46,7 +40,6 @@
     "percent_relative_to_base_year": "Procent i förhållande till basår"
   },
   "prediction_child_graph": {
-    "unknown_roadmap": "Okänd $t(common:roadmap_version_one)",
     "no_child_roadmaps": "Inga underliggande $t(common:goal_other) med $t(common:effect_other) eller anpassade baslinjer hittades"
   },
   "secondary_graph_selector": {
@@ -54,7 +47,6 @@
     "compare": "$t(common:tsx.compare)"
   },
   "sibling_graph": {
-    "change_graph_type": "Ändra graftyp",
     "related_goals": "Angränsande $t(common:goal_other)"
   }
 }

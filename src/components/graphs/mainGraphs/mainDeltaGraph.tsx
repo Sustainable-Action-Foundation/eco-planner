@@ -45,8 +45,8 @@ export default function MainDeltaGraph({
       labels: { formatter: floatSmoother },
       seriesName: [
         (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
-        t("graphs:main_delta_graph.baseline_scenario"),
-        t("graphs:main_delta_graph.expected_outcome"),
+        t("graphs:common.baseline_scenario"),
+        t("graphs:common.expected_outcome"),
         (secondaryGoal?.dataSeries?.unit == goal.dataSeries.unit) ? (secondaryGoal?.name || secondaryGoal?.indicatorParameter) : '',
         t("graphs:common.national_counterpart"),
       ],
@@ -99,7 +99,7 @@ export default function MainDeltaGraph({
       });
     }
     chart.push({
-      name: t("graphs:main_delta_graph.baseline_scenario"),
+      name: t("graphs:common.baseline_scenario"),
       data: baselineSeries,
       type: 'line',
     });
@@ -119,7 +119,7 @@ export default function MainDeltaGraph({
       totalEffect.shift();
 
       chart.push({
-        name: t("graphs:main_delta_graph.expected_outcome"),
+        name: t("graphs:common.expected_outcome"),
         data: totalEffect,
         type: 'line',
       });
@@ -146,7 +146,7 @@ export default function MainDeltaGraph({
         totalEffect.shift();
 
         chart.push({
-          name: t("graphs:main_delta_graph.expected_outcome"),
+          name: t("graphs:common.expected_outcome"),
           data: totalEffect,
           type: 'line',
         });

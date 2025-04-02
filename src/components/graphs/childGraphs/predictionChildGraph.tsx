@@ -65,7 +65,7 @@ export default function PredictionChildGraph({
       }
       if (totalEffect.length > 0) {
         dataPoints.push({
-          name: `${child.name || child.indicatorParameter.split('\\').slice(-1)[0]} (${child.roadmapName || t("graphs:prediction_child_graph.unknown_roadmap")})`,
+          name: `${child.name || child.indicatorParameter.split('\\').slice(-1)[0]} (${child.roadmapName || t("graphs:common.unknown_roadmap")})`,
           data: totalEffect,
           type: isStacked ? 'area' : 'line',
         });

@@ -36,7 +36,7 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
               <p>{metaRoadmap.description}</p>
               {metaRoadmap.links.length > 0 ?
                 <>
-                  <h2 className="margin-bottom-0 margin-top-200">{t("pages:roadmap_series_one.external_resources")}</h2>
+                  <h2 className="margin-bottom-0 margin-top-200">{t("pages:common.external_resources")}</h2>
                   <ul>
                     {metaRoadmap.links.map((link: { url: string, description: string | null }, index: number) =>
                       <li className="margin-block-25" key={index}>

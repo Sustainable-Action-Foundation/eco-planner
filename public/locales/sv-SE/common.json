@@ -67,6 +67,10 @@
     "version": "Version",
     "version_label": "Version:"
   },
+  "placeholder": {
+    "name": "Förnamn Efternamn",
+    "email": "fornamn.efternamn@exempel.se"
+  },
   "scope": {
     "national": "Nationell",
     "regional": "Regional",

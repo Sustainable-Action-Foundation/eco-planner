@@ -52,7 +52,7 @@ export default async function Page({ params }: { params: { actionId: string } })
                 : null}
               {action.links.length > 0 ?
                 <>
-                  <h2 className="margin-bottom-0 margin-top-200" style={{ fontSize: '1.25rem' }}>{t("pages:action.external_resources")}</h2>
+                  <h2 className="margin-bottom-0 margin-top-200" style={{ fontSize: '1.25rem' }}>{t("pages:common.external_resources")}</h2>
                   <ul>
                     {action.links.map((link: { url: string, description: string | null }, index: number) =>
                       <li className="margin-block-25" key={index}>
