@@ -25,6 +25,8 @@ function _ExtractLocalCommon() {
     }));
 
     ns.forEach(namespace => {
+      if (namespace === "common") return; // Skip common namespace
+
       const dupes = perNSDupes[namespace];
       if (!dupes.length) return;
 
@@ -49,7 +51,10 @@ function _ExtractLocalCommon() {
         }
       });
 
-      console.dir(localCommon, { depth: null });
+      const file = fs.readFileSync(`public/locales/${locale}/${namespace}.json`, "utf-8");
+      const parsed = JSON.parse(file);
+      const newParsed = { ...parsed, common: { ...localCommon } };
+      fs.writeFileSync(`public/locales/${locale}/${namespace}.json`, JSON.stringify(newParsed, null, 2), "utf-8");
     });
   });
 }
