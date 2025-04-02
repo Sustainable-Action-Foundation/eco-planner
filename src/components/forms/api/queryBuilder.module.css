@@ -3,6 +3,10 @@
     max-width: 100%;
 }
 
+.dialog {
+  width: min(100vw, 1000px);
+}
+
 /* For selecting tables when choosin a specific data source */
 .tableSelect {
     position: relative;
@@ -57,4 +61,16 @@
 /* Handle on hover */
 .temporary::-webkit-scrollbar-thumb:hover {
     background: var(--gray-70); 
+}
+
+@media (min-width: 1250px) {
+  .dialog {
+    width: min(80vw, 1200px);
+  }
+}
+
+@media (min-width: 2000px) {
+  .dialog {
+    width: 60vw;
+  }
 }

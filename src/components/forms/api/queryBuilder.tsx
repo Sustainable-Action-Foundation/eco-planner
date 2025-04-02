@@ -373,7 +373,7 @@ export default function QueryBuilder({
         Lägg till historisk data
         <Image src="/icons/chartAdd.svg" alt="" width={16} height={16} />
       </button>
-      <dialog className={`smooth${styles.dialog} rounded`} ref={modalRef} aria-modal style={{ border: "0", boxShadow: "0 0 .5rem -.25rem rgba(0,0,0,.25)" }}>
+      <dialog className={`smooth ${styles.dialog}`} ref={modalRef} aria-modal style={{ border: "0", boxShadow: "0 0 .5rem -.25rem rgba(0,0,0,.25)" }}>
         <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>
           <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label="Close" >
             <Image src="/icons/close.svg" alt="" width={18} height={18} />
@@ -456,11 +456,9 @@ export default function QueryBuilder({
                         <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
                       ))}
                     </select>
-
-
                   </label>
                 </fieldset>
-                <fieldset name="variableSelectionFieldset" disabled={true} className={`margin-block-100 smooth padding-50 fieldset-unset-pseudo-class`} style={{ border: `${shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? "1px solid var(--gray-90)" : ""}` }}>
+                <fieldset name="variableSelectionFieldset" disabled={true} className={`margin-block-100 smooth padding-50 fieldset-unset-pseudo-class`} style={{ border: `${shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? "1px solid var(--gray-90)" : ""}`, maxHeight: "280px", overflow: "auto" }}>
                   {shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
                     <>
                       <legend className="padding-inline-50">
@@ -503,7 +501,6 @@ export default function QueryBuilder({
                 </thead>
                 <tbody>
                   {
-
                     tableContent.data.map((row, index) => {
                       // Find the column of the time value
                       let timeColumnIndex = 0;
@@ -517,7 +514,8 @@ export default function QueryBuilder({
                           <td>{row.values[0]}</td>
                         </tr>
                       )
-                    })}
+                    })
+                  }
                 </tbody>
               </table>
             </>)
