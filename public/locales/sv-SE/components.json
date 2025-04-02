@@ -49,10 +49,13 @@
   },
   "copy_and_scale": {
     "copy_and_scale": "Kopiera och skala",
+    "close_button_alt": "Stäng",
     "title": "Kopiera och skala $t(common:goal_definite_one) {{goalName}}",
     "select_roadmap_version": "I vilken $t(common:roadmap_version_one) vill du placera den skalade $t(common:goal_definite_one)?",
     "select_roadmap_version_option": "Välj $t(common:roadmap_version_one)",
     "version": "version",
+    "remove_scaling": "Ta bort skalning",
+    "add_scaling": "Lägg till skalning",
     "advanced": "Avancerat",
     "scaling_method": "Välj skalningsmetod",
     "resulting_scale_factor": "Resulterande skalfaktor",

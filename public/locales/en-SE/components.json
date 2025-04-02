@@ -49,10 +49,13 @@
   },
   "copy_and_scale": {
     "copy_and_scale": "Copy and scale",
+    "close_button_alt": "Close",
     "title": "Copy and scale $t(common:goal_one) {{goalName}}",
     "select_roadmap_version": "In which $t(common:roadmap_version_one) do you want to place the scaled $t(common:goal_one)?",
     "select_roadmap_version_option": "Select $t(common:roadmap_version_one)",
     "version": "version",
+    "remove_scaling": "Remove scaling",
+    "add_scaling": "Add scaling",
     "advanced": "Advanced",
     "scaling_method": "Select scaling method",
     "resulting_scale_factor": "Resulting scale factor",

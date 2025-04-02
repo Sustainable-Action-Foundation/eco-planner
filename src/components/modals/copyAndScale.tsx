@@ -286,7 +286,7 @@ export default function CopyAndScale({
       </button>
       <dialog ref={modalRef} aria-modal className="rounded" style={{ border: '0', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25' }}>
         <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>
-          <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("components:table_menu.close_button_alt")} >
+          <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("components:copy_and_scale.close_button_alt")} >
             <Image src='/icons/close.svg' alt="" width={18} height={18} />
           </button>
           <h2 className="margin-0">{t("components:copy_and_scale.title", { goalName: goal.name })}</h2>
@@ -320,13 +320,13 @@ export default function CopyAndScale({
                       display: 'grid',
                       cursor: 'pointer'
                     }} onClick={() => setScalingComponents(scalingComponents.filter((i) => i !== id))}>
-                    <Image src='/icons/circleMinus.svg' alt={t("forms:goal.remove_scaling")} width={24} height={24} />
+                    <Image src='/icons/circleMinus.svg' alt={t("components:copy_and_scale.remove_scaling")} width={24} height={24} />
                   </button>
                 </RepeatableScaling>
               )
             })}
           </div>
-          <button type="button" className="margin-block-100" onClick={() => setScalingComponents([...scalingComponents, (crypto?.randomUUID() || Math.random().toString())])}>{t("forms:goal.add_scaling")}</button>
+          <button type="button" className="margin-block-100" onClick={() => setScalingComponents([...scalingComponents, (crypto?.randomUUID() || Math.random().toString())])}>{t("components:copy_and_scale.add_scaling")}</button>
 
           <details className="padding-block-25 margin-block-75" style={{ borderBottom: '1px solid var(--gray-90)' }}>
             <summary>{t("components:copy_and_scale.advanced")}</summary>
