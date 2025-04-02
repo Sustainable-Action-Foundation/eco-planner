@@ -62,7 +62,8 @@
   "effects_table": {
     "no_effects": "Det finns inga $t(common:effect_other) att visa.",
     "wanna_create_effect": "Vill du skapa en?",
-    "create_new_effect": "$t(common:new.effect)"
+    "create_new_effect": "$t(common:new.effect)",
+    "effect_missing_name": "Namn saknas" 
   },
   "goal_child_graph": {
     "unknown_roadmap": "Okänd $t(common:roadmap_version_one)"

@@ -46,19 +46,19 @@ export default function EffectTable({
   }
 
   return (
-    <ul className={`${styles['roadmap-nav-ul']}`} style={{paddingInlineStart: '0'}}>
+    <ul className={`${styles['roadmap-nav-ul']}`} style={{ paddingInlineStart: '0' }}>
       {object.effects.map(effect => (
         <li key={`${effect.actionId}_${effect.goalId}`} className="margin-block-75">
           <div className='flex justify-content-space-between align-items-center width-100'>
             <Image src="/icons/caret-right-gray.svg" alt="" width={24} height={24} className="margin-inline-25 padding-25" />
-            <a 
-              href={(object as Action).isSufficiency != undefined ? `/goal/${effect.goalId}` : `/action/${effect.actionId}`}  
+            <a
+              href={(object as Action).isSufficiency != undefined ? `/goal/${effect.goalId}` : `/action/${effect.actionId}`}
               className="font-weight-500 color-pureblack text-decoration-none flex-grow-100 inline-block padding-25 smooth">
-              <span>{effect.action?.name || effect.goal?.name || effect.goal?.indicatorParameter || t("components:table_menu.effect_missing_name")}</span>
+              <span>{effect.action?.name || effect.goal?.name || effect.goal?.indicatorParameter || t("components:effects_table.effect_missing_name")}</span>
               <br />
               {effect.action?.startYear && effect.action?.endYear ? (
                 <small className="color-gray">{effect.action?.startYear} - {effect.action?.endYear}</small>
-              ): null }
+              ) : null}
             </a>
             <TableMenu
               accessLevel={accessLevel}

@@ -62,7 +62,8 @@
   "effects_table": {
     "no_effects": "There are no $t(common:effect_other) to display.",
     "wanna_create_effect": "Do you want to create one?",
-    "create_new_effect": "$t(common:new.effect)"
+    "create_new_effect": "$t(common:new.effect)",
+    "effect_missing_name": "Name missing"
   },
   "goal_child_graph": {
     "unknown_roadmap": "Unknown $t(common:roadmap_version_one)"
