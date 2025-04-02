@@ -117,7 +117,7 @@ export default function QueryBuilder({
     const submitButton = document.getElementById("submit-button");
     if (submitButton) {
       submitButton.removeAttribute("disabled");
-      if (submitButton.classList.contains("hidden")) submitButton.classList.remove("hidden");
+      if (submitButton.classList.contains("display-none")) submitButton.classList.remove("display-none");
       if (submitButton.classList.contains("height-0")) submitButton.classList.remove("height-0");
       if (submitButton.classList.contains("padding-0")) submitButton.classList.remove("padding-0");
     }
@@ -127,7 +127,7 @@ export default function QueryBuilder({
     const submitButton = document.getElementById("submit-button");
     if (submitButton) {
       submitButton.setAttribute("disabled", "true");
-      if (!submitButton.classList.contains("hidden")) submitButton.classList.add("hidden");
+      if (!submitButton.classList.contains("display-none")) submitButton.classList.add("display-none");
       if (!submitButton.classList.contains("height-0")) submitButton.classList.add("height-0");
       if (!submitButton.classList.contains("padding-0")) submitButton.classList.add("padding-0");
     }
@@ -373,7 +373,7 @@ export default function QueryBuilder({
         Lägg till historisk data
         <Image src="/icons/chartAdd.svg" alt="" width={16} height={16} />
       </button>
-      <dialog className={`smooth${styles.dialog} rounded`} ref={modalRef} aria-modal style={{ border: "0", boxShadow: "0 0 .5rem -.25rem rgba(0,0,0,.25" }}>
+      <dialog className={`smooth${styles.dialog} rounded`} ref={modalRef} aria-modal style={{ border: "0", boxShadow: "0 0 .5rem -.25rem rgba(0,0,0,.25)" }}>
         <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>
           <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label="Close" >
             <Image src="/icons/close.svg" alt="" width={18} height={18} />
@@ -425,7 +425,7 @@ export default function QueryBuilder({
                       {renderedTables && renderedTables.map(({ tableId: id, label }) => (
                         <label id={`table${id}`} key={id} className={`${styles.tableSelect} block padding-block-25`}>
                           {label}
-                          <button type="button" value={id} className={`hidden`} name="externalTableId" onClick={e => handleTableSelect((e.target as HTMLButtonElement).value)} />
+                          <button type="button" value={id} className={`display-none`} name="externalTableId" onClick={e => handleTableSelect((e.target as HTMLButtonElement).value)} />
                         </label>
                       ))}
                     </div>
@@ -537,7 +537,7 @@ export default function QueryBuilder({
             )
           }
 
-          <button id="submit-button" disabled={true} type="submit" className="hidden seagreen color-purewhite">Lägg till datakälla</button>
+          <button id="submit-button" disabled={true} type="submit" className="display-none seagreen color-purewhite">Lägg till datakälla</button>
         </form>
       </dialog>
     </>
