@@ -1,4 +1,3 @@
-"use server";
 
 // This file allows us to use a single transport instance across the entire application.
 import { createTransport } from "nodemailer";
