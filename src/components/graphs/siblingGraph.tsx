@@ -105,7 +105,7 @@ export default function SiblingGraph({
         </button>
       </menu>
       <article className="smooth padding-inline-25 padding-bottom-50 purewhite" style={{ border: '1px solid var(--gray)' }}>
-        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{ fontSize: '1rem' }}>{t("graphs:sibling_graph.adjacent_goals")}</h2>
+        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{ fontSize: '1rem' }}>{t("graphs:sibling_graph.related_goals")}</h2>
         <div style={{ height: '500px' }}>
           <WrappedChart
             key={"combinedGraph"}

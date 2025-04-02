@@ -53,7 +53,19 @@
     "login": "Login",
     "logout": "Logout",
     "cancel": "Cancel",
-    "ellipsis": "..."
+    "ellipsis": "...",
+    "show": "Show",
+    "hide": "Hide",
+    "show_more": "Show more",
+    "show_less": "Show less",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "create": "Create",
+    "submit": "Submit",
+    "compare": "Compare",
+    "version": "Version",
+    "version_label": "Version:"
   },
   "scope": {
     "national": "National",

@@ -48,7 +48,7 @@ export default function MainDeltaGraph({
         t("graphs:main_delta_graph.baseline_scenario"),
         t("graphs:main_delta_graph.expected_outcome"),
         (secondaryGoal?.dataSeries?.unit == goal.dataSeries.unit) ? (secondaryGoal?.name || secondaryGoal?.indicatorParameter) : '',
-        t("graphs:main_delta_graph.national_counterpart"),
+        t("graphs:common.national_counterpart"),
       ],
     }],
     tooltip: {
@@ -206,7 +206,7 @@ export default function MainDeltaGraph({
       });
     }
     chart.push({
-      name: t("graphs:main_delta_graph.national_counterpart"),
+      name: t("graphs:common.national_counterpart"),
       data: nationalSeries,
       type: 'line',
     });

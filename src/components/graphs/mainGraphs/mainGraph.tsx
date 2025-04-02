@@ -179,14 +179,14 @@ export default function MainGraph({
       });
     }
     mainChart.push({
-      name: t("graphs:main_graph.national_counterpart"),
+      name: t("graphs:common.national_counterpart"),
       data: nationalSeries,
       type: 'line',
     });
     (mainChartOptions.yaxis as ApexYAxis[]).push({
       title: { text: t("graphs:main_graph.national_goal") },
       labels: { formatter: floatSmoother },
-      seriesName: [t("graphs:main_graph.national_counterpart")],
+      seriesName: [t("graphs:common.national_counterpart")],
       opposite: true,
     });
   }

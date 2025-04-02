@@ -1,4 +1,11 @@
 {
+  "common": {
+    "national_counterpart": "$t(common:scope.national) motsvarighet",
+    "baseline_scenario": "Basscenario",
+    "expected_outcome": "Förväntat utfall",
+    "unknown_roadmap": "Okänd $t(common:roadmap_version_one)",
+    "change_graph_type": "Ändra graftyp"
+  },
   "action_graph": {
     "actions": "{{$t(common:action_other), titleCase}}"
   },
@@ -7,11 +14,8 @@
     "goals_toward": "{{$t(common:goal_other), titleCase}} som jobbar mot {{goalName}}"
   },
   "child_graph_selector": {
-    "target_paths": "{{$t(common:goal_other), titleCase}}",
+    "target_goals": "{{$t(common:goal_other), titleCase}}",
     "expected_outcomes": "Förväntade utfall"
-  },
-  "goal_child_graph": {
-    "unknown_roadmap": "Okänd $t(common:roadmap_version_one)"
   },
   "graph_cookie": {
     "save_preferences": "Spara framtida vyändringar mellan sessioner och sidnavigeringar"
@@ -21,7 +25,6 @@
     "historical_data_source": "Den historiska datan i grafen är hämtad från <a>{{source}}</a>"
   },
   "graph_selector": {
-    "show": "Visa",
     "goal": "{{$t(common:goal_one), titleCase}}",
     "annual_change": "Årlig förändring",
     "percentage_change": "Procentuell förändring"
@@ -30,20 +33,17 @@
     "annual_change": "Årlig förändring i {{unit}}",
     "percentage_points": "procentenheter",
     "baseline_scenario": "Basscenario",
-    "expected_outcome": "Förväntat utfall",
-    "national_counterpart": "$t(common:scope.national) motsvarighet"
+    "expected_outcome": "Förväntat utfall"
   },
   "main_graph": {
     "baseline_scenario": "Basscenario",
     "expected_outcome": "Förväntat utfall",
-    "national_counterpart": "$t(common:scope.national) motsvarighet",
     "national_goal": "$t(common:scope.national) $t(common:goal_one)",
     "history": "Historik",
     "secondary_goal": "Sekundär $t(common:goal_one) ({{unit}})"
   },
   "main_relative_graph": {
-    "percent_relative_to_base_year": "Procent i förhållande till basår",
-    "national_counterpart": "$t(common:scope.national) motsvarighet"
+    "percent_relative_to_base_year": "Procent i förhållande till basår"
   },
   "prediction_child_graph": {
     "unknown_roadmap": "Okänd $t(common:roadmap_version_one)",
@@ -51,10 +51,10 @@
   },
   "secondary_graph_selector": {
     "compare_with": "Jämför $t(common:goal_one)",
-    "compare": "Jämför"
+    "compare": "$t(common:tsx.compare)"
   },
   "sibling_graph": {
     "change_graph_type": "Ändra graftyp",
-    "adjacent_goals": "Angränsande $t(common:goal_other)"
+    "related_goals": "Angränsande $t(common:goal_other)"
   }
 }

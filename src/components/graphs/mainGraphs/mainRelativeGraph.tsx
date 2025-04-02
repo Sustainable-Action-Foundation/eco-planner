@@ -80,7 +80,7 @@ export default function MainRelativeGraph({
       });
     }
     chart.push({
-      name: t("graphs:main_relative_graph.national_counterpart"),
+      name: t("graphs:common.national_counterpart"),
       data: nationalSeries,
       type: 'line',
     });

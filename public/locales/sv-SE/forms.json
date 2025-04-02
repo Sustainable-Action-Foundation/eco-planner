@@ -1,4 +1,26 @@
 {
+  "common": {
+    "{{to_year_by_year_info,to_absolute_info}}": "<strong>OBS!</strong> Det finns en viss felmarginal runt 14:e decimalen vid konvertering på grund av så kallade \"floating point errors\".",
+    "absolute": "Absolut skillnad gentemot baslinje",
+    "{{choose_relationship,relationship_legend}}": "Ange relationen till andra inlägg",
+    "data_series_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma.",
+    "{{attach_external_resources,attach_external}}": "Bifoga externa resurser",
+    "{{data_series,data_series_type_label}}": "Dataserie",
+    "unit_missing": "Enhet saknas",
+    "extra_info_data_series": "Extra information om dataserie",
+    "data_series_info": "Fältet \"Dataserie\" tar emot en serie med värden som är separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie med värden från Excel eller liknande.<br /><strong>OBS: Värden får inte vara separerade med kommatecken (\",\").</strong><br />Decimaltal kan antingen skrivas med punkt eller kommatecken.<br />Det första värdet representerar år 2020 och serien kan som längst fortsätta till år 2050 (totalt 31 värden).<br />Om värden saknas för ett år kan du lämna det tomt, exempelvis anger \";1;;;;5\" värdena 1 och 5 för år 2021 respektive 2025.",
+    "delta": "Förändring år för år (delta)",
+    "{{no_option_selected,roadmap_target_no_chosen}}": "Inget alternativ valt",
+    "change_read_access": "Justera läsbehörighet",
+    "change_edit_access": "Justera redigeringsbehörighet",
+    "unnamed_goal": "Namnlös $t(common:goal_one)",
+    "submit_save": "Spara",
+    "impact_type_label": "Vilken typ av påverkan har $t(common:action_definite_one)?",
+    "select_goal": "Välj $t(common:goal_one)",
+    "{{relationship_no_chosen,select_roadmap_version}}": "Välj $t(common:roadmap_version_one)",
+    "action_count": "{{count}} $t(common:action, {\"count\":{{count}}})",
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
+  },
   "access_selector": {
     "groups_with_edit_access": "Grupper med redigeringsbehörighet",
     "users_with_edit_access": "Användare med redigeringsbehörighet",

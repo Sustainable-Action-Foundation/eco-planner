@@ -53,7 +53,19 @@
     "login": "Logga in",
     "logout": "Logga ut",
     "cancel": "Avbryt",
-    "ellipsis": "..."
+    "ellipsis": "...",
+    "show": "Visa",
+    "hide": "Dölj",
+    "show_more": "Visa mer",
+    "show_less": "Visa mindre",
+    "edit": "Redigera",
+    "delete": "Radera",
+    "save": "Spara",
+    "create": "Skapa",
+    "submit": "Skicka",
+    "compare": "Jämför",
+    "version": "Version",
+    "version_label": "Version:"
   },
   "scope": {
     "national": "Nationell",

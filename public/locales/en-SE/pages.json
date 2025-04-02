@@ -1,4 +1,19 @@
 {
+  "common": {
+    "{{edit_action,breadcrumb}}": "$t(common:edit.action)",
+    "{{breadcrumb,title}}": "Information",
+    "{{breadcrumb,title,create_new_action}}": "$t(common:new.action)",
+    "{{create_new_effect,breadcrumb,title}}": "$t(common:new.effect)",
+    "{{create_roadmap,breadcrumb,title}}": "$t(common:new.roadmap_series)",
+    "{{edit_roadmap_version,breadcrumb,title,create_roadmap_version}}": "$t(common:new.roadmap_version)",
+    "external_resources": "External resources",
+    "title": "Verify your email",
+    "email_placeholder": "name.surname@example.com",
+    "{{roadmap_series_ones,title_legend}}": "{{$t(common:roadmap_series_one), titleCase}}",
+    "{{title,version}}": "{{$t(common:roadmap_version_one), titleCase}}",
+    "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
+  },
   "action": {
     "action_label": "{{$t(common:action_one), titleCase}}",
     "effects_label": "{{$t(common:effect_other), titleCase}}",

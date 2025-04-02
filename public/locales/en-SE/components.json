@@ -1,4 +1,25 @@
 {
+  "common": {
+    "{{add_data_source,add_data_source_button}}": "Add data source",
+    "cancel": "Cancel",
+    "close_button_alt": "Close",
+    "create_account": "Create account",
+    "{{sort_default,default}}": "Default",
+    "{{delete_post,delete}}": "Delete post",
+    "{{wanna_create_action,wanna_create_effect}}": "Do you want to create one?",
+    "home": "Home",
+    "login": "Login",
+    "{{sort_name_descending,name_descending}}": "Name (A-Z)",
+    "{{sort_name_ascending,name_ascending}}": "Name (Z-A)",
+    "{{effect_missing_name,button_aria_alt,delete_missing_name}}": "Name missing",
+    "new_goal": "New $t(common:goal_one)",
+    "{{no_comments,comment_count_zero}}": "No comments",
+    "password": "Password",
+    "username": "Username",
+    "password_placeholder": "password",
+    "{{action_count,actions}}": "{{$t(common:action_other), titleCase}}",
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
+  },
   "action_table": {
     "no_actions": "There are no $t(common:action_other) to display.",
     "wanna_create_action": "Do you want to create one?",

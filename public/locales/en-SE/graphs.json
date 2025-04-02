@@ -1,17 +1,21 @@
 {
+  "common": {
+    "national_counterpart": "$t(common:scope.national) counterpart",
+    "baseline_scenario": "Baseline scenario",
+    "change_graph_type": "Change graph type",
+    "expected_outcome": "Expected outcome",
+    "unknown_roadmap": "Unknown $t(common:roadmap_version_one)"
+  },
   "action_graph": {
     "actions": "{{$t(common:action_other), titleCase}}"
   },
   "child_graph_container": {
-    "change_graph_type": "Change graph type",
+    "change_graph_type": "$t(graphs:common.change_graph_type)",
     "goals_toward": "{{$t(common:goal_other), titleCase}} contributing to {{goalName}}"
   },
   "child_graph_selector": {
-    "target_paths": "{{$t(common:goal_other), titleCase}}",
-    "expected_outcomes": "Expected outcomes"
-  },
-  "goal_child_graph": {
-    "unknown_roadmap": "Unknown $t(common:roadmap_version_one)"
+    "target_goals": "{{$t(common:goal_other), titleCase}}",
+    "expected_outcomes": "$t(graphs:common.expected_outcome)"
   },
   "graph_cookie": {
     "save_preferences": "Save future view changes between sessions and page navigations"
@@ -21,7 +25,6 @@
     "historical_data_source": "The historical data in the graph is fetched from <a>{{source}}</a>"
   },
   "graph_selector": {
-    "show": "Show",
     "goal": "{{$t(common:goal_one), titleCase}}",
     "annual_change": "Annual change",
     "percentage_change": "Percentage change"
@@ -29,32 +32,29 @@
   "main_delta_graph": {
     "annual_change": "Annual change in {{unit}}",
     "percentage_points": "percentage points",
-    "baseline_scenario": "Baseline scenario",
-    "expected_outcome": "Expected outcome",
-    "national_counterpart": "$t(common:scope.national) counterpart"
+    "baseline_scenario": "$t(graphs:common.baseline_scenario)",
+    "expected_outcome": "$t(graphs:common.expected_outcome)"
   },
   "main_graph": {
-    "baseline_scenario": "Baseline scenario",
-    "expected_outcome": "Expected outcome",
-    "national_counterpart": "$t(common:scope.national) counterpart",
+    "baseline_scenario": "$t(graphs:common.baseline_scenario)",
+    "expected_outcome": "$t(graphs:common.expected_outcome)",
     "national_goal": "$t(common:scope.national) $t(common:goal_one)",
     "history": "History",
     "secondary_goal": "Secondary $t(common:goal_one) ({{unit}})"
   },
   "main_relative_graph": {
-    "percent_relative_to_base_year": "Percent relative to base year",
-    "national_counterpart": "$t(common:scope.national) counterpart"
+    "percent_relative_to_base_year": "Percent relative to base year"
   },
   "prediction_child_graph": {
-    "unknown_roadmap": "Unknown $t(common:roadmap_version_one)",
+    "unknown_roadmap": "$t(graphs:common.unknown_roadmap)",
     "no_child_roadmaps": "No underlying $t(common:goal_other) with $t(common:effect_other) or custom baselines found"
   },
   "secondary_graph_selector": {
     "compare_with": "Compare $t(common:goal_one)",
-    "compare": "Compare"
+    "compare": "$t(common:tsx.compare)"
   },
   "sibling_graph": {
-    "change_graph_type": "Change graph type",
-    "adjacent_goals": "Adjacent $t(common:goal_other)"
+    "change_graph_type": "$t(graphs:common.change_graph_type)",
+    "related_goals": "Related $t(common:goal_other)"
   }
 }

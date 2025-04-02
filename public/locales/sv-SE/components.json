@@ -1,4 +1,24 @@
 {
+  "common": {
+    "username": "Användarnamn",
+    "cancel": "Avbryt",
+    "{{no_goals,no_roadmaps}}": "Du har inte tillgång till några $t(common:goal_other) i denna $t(common:roadmap_version_one), eller så är $t(common:roadmap_version_definite_one) tom.",
+    "home": "Hem",
+    "{{no_comments,comment_count_zero}}": "Inga kommentarer",
+    "login": "Logga in",
+    "{{add_data_source,add_data_source_button}}": "Lägg till datakälla",
+    "password": "Lösenord",
+    "{{sort_name_descending,name_descending}}": "Namn (A-Ö)",
+    "{{sort_name_ascending,name_ascending}}": "Namn (Ö-A)",
+    "{{effect_missing_name,delete_missing_name}}": "Namn saknas",
+    "{{delete_post,delete}}": "Radera inlägg",
+    "create_account": "Skapa konto",
+    "{{sort_default,default}}": "Standard",
+    "close_button_alt": "Stäng",
+    "{{wanna_create_action,wanna_create_effect}}": "Vill du skapa en?",
+    "password_placeholder": "lösenord",
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
+  },
   "action_table": {
     "no_actions": "Det finns inga $t(common:action_other) att visa.",
     "wanna_create_action": "Vill du skapa en?",

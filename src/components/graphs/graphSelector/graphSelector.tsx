@@ -34,7 +34,7 @@ export default function GraphSelector({
   return (
     <>
       <label className='font-weight-500'>
-        {t("graphs:graph_selector.show")}
+        {t("common:tsx.show")}
         <select className='block margin-top-25' onChange={handleSelectChange} value={currentSelection}
           style={{ padding: '.3rem calc(.5rem * 2 + 20px) .3rem .5rem', borderRadius: '2px', backgroundSize: '20px', fontSize: '.75rem' }}>
           <option value={GraphType.Main}>{t("graphs:graph_selector.goal")}</option>

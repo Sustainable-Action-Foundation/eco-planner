@@ -1,16 +1,16 @@
 {
+  "common": {
+    "from": "$t(common:layout.app_name_compact) {{emailServer}}"
+  },
   "reset": {
-    "from": "$t(common:layout.app_name_compact) {{emailServer}}",
     "subject": "Reset password for $t(common:layout.app_name_compact)",
     "body": "Hello! To reset your password, you can click on this link: {{baseUrl}}/password/reset?email={{email}}&hash={{userHash}}"
   },
   "signup": {
-    "from": "$t(common:layout.app_name_compact) {{emailServer}}",
     "subject": "Welcome to $t(common:layout.app_name_compact)",
     "body": "Welcome to $t(common:layout.app_name_compact)! Please follow the link and press the button to verify your email: {{baseUrl}}/verify/verify?email={{email}}&hash={{userHash}}"
   },
   "verification": {
-    "from": "$t(common:layout.app_name_compact) {{emailServer}}",
     "subject": "Verify your email address",
     "body": "Hello! Please verify your email address by clicking on this link: {{baseUrl}}/verify/verify?email={{email}}&hash={{userHash}}"
   }
