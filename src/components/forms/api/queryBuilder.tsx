@@ -373,7 +373,7 @@ export default function QueryBuilder({
         Lägg till historisk data
         <Image src="/icons/chartAdd.svg" alt="" width={16} height={16} />
       </button>
-      <dialog className={`smooth${styles.dialog}`} ref={modalRef} aria-modal style={{ border: "0", boxShadow: "0 0 .5rem -.25rem rgba(0,0,0,.25" }}>
+      <dialog className={`smooth${styles.dialog} rounded`} ref={modalRef} aria-modal style={{ border: "0", boxShadow: "0 0 .5rem -.25rem rgba(0,0,0,.25" }}>
         <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>
           <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label="Close" >
             <Image src="/icons/close.svg" alt="" width={18} height={18} />
@@ -442,7 +442,7 @@ export default function QueryBuilder({
                 </label>
                 <fieldset className="margin-block-100 smooth padding-50" style={{ border: "1px solid var(--gray-90)" }}>
                   <legend className="padding-inline-50">
-                    <strong>Välj mätvärde för tabellen</strong>
+                    <b>Välj mätvärde för tabellen</b>
                   </legend>
                   <label key={`metric-${tableDetails.id}`} className="block margin-block-75">
                     <select className={`block margin-block-25 metric`}
@@ -464,7 +464,7 @@ export default function QueryBuilder({
                   {shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
                     <>
                       <legend className="padding-inline-50">
-                        <strong>Välj värden för tabell</strong>
+                        <b>Välj värden för tabell</b>
                       </legend>
                       {tableDetails.times &&
                         timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
@@ -475,7 +475,7 @@ export default function QueryBuilder({
                       {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
                         if (hierarchy.children?.some(variable => variable.option)) return (
                           <label key={hierarchy.name} className="block margin-block-75">
-                            <strong>{hierarchy.label}</strong>
+                            <b>{hierarchy.label}</b>
                             {// TODO - indent all children
                             }
                             {hierarchy.children && hierarchy.children.map(variable => {
