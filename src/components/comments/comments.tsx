@@ -72,7 +72,7 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
           <span className={styles.textarea} role="textbox" id="comment-text" contentEditable aria-label={t("components:comments.add_comment")} aria-placeholder={t("components:comments.add_comment")} onInput={handleInput} onBlur={handleInput} ref={spanRef}></span>
           <input type="hidden" name="comment" id="comment" value={editedContent} />
           <div className="display-flex justify-content-flex-end gap-50 padding-block-50">
-            <button type="button" disabled={!editedContent} className={`${styles.button} ${styles.cancel}`} onClick={removeText}>{t("components:comments.cancel")}</button>
+            <button type="button" disabled={!editedContent} className={`${styles.button} ${styles.cancel}`} onClick={removeText}>{t("common:tsx.cancel")}</button>
             <button type="submit" disabled={!editedContent} className={`${styles.button} ${styles.comment}`}>{t("components:comments.send")}</button>
           </div>
         </form>
@@ -89,7 +89,7 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
             </p>
             {comment.commentText.length > 300 ?
               <button className={`margin-block-25 ${styles.readMoreButton}`} onClick={() => expandComment(comment.id)}>
-                {expandedComments.includes(comment.id) ? t("components:comments.show_less") : t("components:comments.show_more")}
+                {expandedComments.includes(comment.id) ? t("common:tsx.show_less") : t("common:tsx.show_more")}
               </button>
               : null}
           </div>

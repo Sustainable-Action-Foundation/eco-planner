@@ -40,12 +40,18 @@ export default async function Page({ params }: { params: { roadmapId: string } }
           <span style={{ color: 'gray' }}>{t("pages:roadmap.title")}</span>
           <h1 className="margin-0">{roadmap.metaRoadmap.name}</h1>
           <p className="margin-0">
-            {`${t("pages:roadmap.version")} ${roadmap.version} • `}
-            {(roadmap.metaRoadmap.actor) ?
-              <>{`${roadmap.metaRoadmap.actor} • `}</>
-              : null
+            {t("pages:roadmap.version", { version: roadmap.version })}
+            {" • "}
+            {roadmap.metaRoadmap.actor ?
+              <>
+                {roadmap.metaRoadmap.actor}
+                {" • "}
+              </>
+              :
+              null
             }
-            {`${t("pages:roadmap.goal_count", {count: roadmap.goals.length})} • `}
+            {t("common:count.goal", { count: roadmap.goals.length })}
+            {" • "}
             {/* TODO: style link to better match surroundings */}
             <a href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>{t("pages:roadmap.show_series")}</a>
           </p>
@@ -72,33 +78,33 @@ export default async function Page({ params }: { params: { roadmapId: string } }
             className="flex align-items-center gap-50 font-weight-500 button transparent round color-pureblack text-decoration-none"
             style={{ height: 'fit-content' }}
           >
-            {t("pages:roadmap.edit_roadmap_version")}
+            {t("common:edit.roadmap_version")}
             <Image src="/icons/edit.svg" alt="" width="24" height="24" />
           </a>
         }
       </section>
 
-      {featuredGoals.length > 0 ? 
+      {featuredGoals.length > 0 ?
         <section className="margin-block-300">
           <h2>{t("pages:roadmap.featured_goals")}</h2>
           <div className="grid gap-100" style={{ gridTemplateColumns: 'repeat(auto-fit, 300px)' }}>
             {featuredGoals.map((goal, key) =>
               goal && (
-              <a key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none">
-                <ThumbnailGraph goal={goal} />
-              </a>
+                <a key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none">
+                  <ThumbnailGraph goal={goal} />
+                </a>
               )
             )}
           </div>
         </section>
-      : null }
-        
+        : null}
+
       <section className="margin-block-300">
         <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:roadmap.all_goals")}</h2>
         <Goals roadmap={roadmap} accessLevel={accessLevel} />
       </section>
     </main>
-    
+
     <section className="margin-block-500">
       <Comments comments={roadmap.comments} objectId={roadmap.id} />
     </section>

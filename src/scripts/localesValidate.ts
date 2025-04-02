@@ -32,6 +32,7 @@ const commonKeysAllowedDirectlyInFile: string[] = [
   "common:layout.",
   "common:tsx.",
   "common:count.",
+  "common:placeholder.",
 ];
 /** When checking if files in the app are using multiple namespaces, these files are ignored. */
 const mixedNamespacesExemptedFiles: string[] = ["src/app/layout.tsx"];

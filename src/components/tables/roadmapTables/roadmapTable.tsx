@@ -2,7 +2,7 @@
 
 import { LoginData } from '@/lib/session';
 import styles from '@/components/tables/tables.module.css' with { type: "css" };
-import { MetaRoadmap, Roadmap } from "@prisma/client";
+import { MetaRoadmap, Roadmap, RoadmapType } from "@prisma/client";
 import { TableMenu } from '@/components/tables/tableMenu/tableMenu';
 import { AccessControlled } from '@/types';
 import accessChecker from '@/lib/accessChecker';
@@ -50,12 +50,27 @@ export default async function RoadmapTable({
     {roadmaps.length ?
       <>
         {roadmaps.map(roadmap => {
+          let typeAlias = roadmap.metaRoadmap.type.toString();
+          if (roadmap.metaRoadmap.type === "NATIONAL") typeAlias = t("common:scope.national");
+          else if (roadmap.metaRoadmap.type === "REGIONAL") typeAlias = t("common:scope.regional");
+          else if (roadmap.metaRoadmap.type === "MUNICIPAL") typeAlias = t("common:scope.municipal");
+          else if (roadmap.metaRoadmap.type === "LOCAL") typeAlias = t("common:scope.local");
+          else if (roadmap.metaRoadmap.type === "OTHER") typeAlias = t("common:scope.other");
+
           const accessLevel = accessChecker(roadmap, user);
           return (
             <div className='flex gap-100 justify-content-space-between align-items-center' key={roadmap.id}>
               <a href={`/roadmap/${roadmap.id}`} className={`${styles.roadmapLink} flex-grow-100`}>
-                <span className={styles.linkTitle}>{`${roadmap.metaRoadmap.name} (v${roadmap.version})`}</span>
-                <span className={styles.linkInfo}>{roadmap.metaRoadmap.type} • {t("components:roadmap_table.goal_count", { count: roadmap._count.goals })}</span>
+                {/* Name, version */}
+                <span className={styles.linkTitle}>
+                  {t("components:roadmap_table.title", { name: roadmap.metaRoadmap.name, version: roadmap.version })}
+                </span>
+                {/* Type, goal count */}
+                <span className={styles.linkInfo}>
+                  {typeAlias}
+                  {" • "}
+                  {t("common:count.goal", { count: roadmap._count.goals })}
+                </span>
               </a>
               <TableMenu
                 accessLevel={accessLevel}

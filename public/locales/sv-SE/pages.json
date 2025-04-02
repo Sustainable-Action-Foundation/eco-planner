@@ -106,10 +106,9 @@
   },
   "roadmap": {
     "title": "{{$t(common:roadmap_version_one), titleCase}}",
-    "version": "{{$t(common:roadmap_version_one), titleCase}}",
+    "version": "{{$t(common:roadmap_version_one), titleCase}} v{{version}}",
     "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "show_series": "Besök $t(common:roadmap_series_one)",
-    "edit_roadmap_version": "$t(common:edit.roadmap_version)",
     "featured_goals": "Utvalda $t(common:goal_other)",
     "all_goals": "Alla $t(common:goal_other)"
   },

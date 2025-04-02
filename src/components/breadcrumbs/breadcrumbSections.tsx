@@ -16,7 +16,7 @@ export function BaseSection() {
   return (
     <span className='display-flex align-items-center gap-25'>
       <Link href='/' className={styles.breadCrumb}>
-        {t("components:breadcrumbs.home")}
+        {t("components:breadcrumbs_sections.home")}
       </Link>
     </span>
   )
@@ -59,7 +59,7 @@ export function MetaRoadmapSection({
   const { t } = useTranslation();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
-      {t("components:breadcrumbs.roadmap_series")}
+      {t("components:breadcrumbs_sections.roadmap_series")}
       <Link href={`/metaRoadmap/${metaRoadmap.id}`} className={styles.breadCrumb}>
         {metaRoadmap.name}
       </Link>
@@ -78,9 +78,9 @@ export function RoadmapSection({
   const { t } = useTranslation();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
-      {t("components:breadcrumbs.version_label")}
+      {t("components:breadcrumbs_sections.version_label")}
       <Link href={`/roadmap/${roadmap.id}`} className={styles.breadCrumb}>
-        {t("components:breadcrumbs.version", { version: roadmap.version })}
+        {t("components:breadcrumbs_sections.version", { version: roadmap.version })}
       </Link>
     </span>
   )
@@ -98,7 +98,7 @@ export function GoalSection({
   const { t } = useTranslation();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
-      {t("components:breadcrumbs.goal")}
+      {t("components:breadcrumbs_sections.goal")}
       <Link href={`/goal/${goal.id}`} className={styles.breadCrumb}>
         {goal.name || goal.indicatorParameter}
       </Link>
@@ -117,7 +117,7 @@ export function ActionSection({
   const { t } = useTranslation();
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
-      {t("components:breadcrumbs.action")}
+      {t("components:breadcrumbs_sections.action")}
       <Link href={`/action/${action.id}`} className={styles.breadCrumb}>
         {action.name}
       </Link>

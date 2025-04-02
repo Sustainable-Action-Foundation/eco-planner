@@ -58,6 +58,13 @@ function NestedRoadmapRenderer({
 }) {
   return <>
     {childRoadmaps.map(roadmap => {
+      let typeAlias = roadmap.metaRoadmap.type.toString();
+      if (roadmap.metaRoadmap.type === "NATIONAL") typeAlias = t("common:scope.national");
+      else if (roadmap.metaRoadmap.type === "REGIONAL") typeAlias = t("common:scope.regional");
+      else if (roadmap.metaRoadmap.type === "MUNICIPAL") typeAlias = t("common:scope.municipal");
+      else if (roadmap.metaRoadmap.type === "LOCAL") typeAlias = t("common:scope.local");
+      else if (roadmap.metaRoadmap.type === "OTHER") typeAlias = t("common:scope.other");
+
       const accessLevel = accessChecker(roadmap, user);
       const newChildRoadmaps = allRoadmaps.filter(potentialChild => (potentialChild.metaRoadmap.parentRoadmapId === roadmap.metaRoadmapId) && (potentialChild.id !== roadmap.id) && (potentialChild.metaRoadmap.parentRoadmapId != null));
 
@@ -70,8 +77,16 @@ function NestedRoadmapRenderer({
                   <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
                     <Image src="/icons/caret-right.svg" alt={t("components:roadmap_tree.show_source_alt")} width={24} height={24} className="round padding-25 margin-inline-25" />
                     <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth' style={{ lineHeight: '1' }}>
-                      <div>{`${roadmap.metaRoadmap.name} (v${roadmap.version})`}</div>
-                      <div className={styles["roadmap-information"]}>{roadmap.metaRoadmap.type} • {t("components:roadmap_tree.goal_count", { count: roadmap._count.goals })}</div>
+                      {/* Name, version */}
+                      <div>
+                        {t("components:roadmap_tree.title", { name: roadmap.metaRoadmap.name, version: roadmap.version })}
+                      </div>
+                      {/* Type, goal count */}
+                      <div className={styles["roadmap-information"]}>
+                        {typeAlias}
+                        {" • "}
+                        {t("common:count.goal", { count: roadmap._count.goals })}
+                      </div>
                     </Link>
                   </div>
                   <span className="flex align-items-center padding-inline-25">
@@ -92,8 +107,16 @@ function NestedRoadmapRenderer({
               <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
                 <Image src="/icons/caret-right-gray.svg" alt={t("components:roadmap_tree.show_source_alt")} width="24" height="24" className="round padding-25 margin-inline-25" />
                 <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth' style={{ lineHeight: '1' }}>
-                  <div>{`${roadmap.metaRoadmap.name} (v${roadmap.version})`}</div>
-                  <div className={styles["roadmap-information"]}>{roadmap.metaRoadmap.type} • {t("components:roadmap_tree.goal_count", { count: roadmap._count.goals })}</div>
+                  {/* Name, version */}
+                  <div>
+                    {t("components:roadmap_tree.title", { name: roadmap.metaRoadmap.name, version: roadmap.version })}
+                  </div>
+                  {/* Type, goal count */}
+                  <div className={styles["roadmap-information"]}>
+                    {typeAlias}
+                    {" • "}
+                    {t("common:count.goal", { count: roadmap._count.goals })}
+                  </div>
                 </Link>
               </div>
               <span className="flex align-items-center padding-inline-25">

@@ -1,32 +1,30 @@
 {
   "common": {
+    "{{action_count,actions}}": "{{$t(common:action_other), titleCase}}",
     "{{add_data_source,add_data_source_button}}": "Add data source",
+    "{{delete_post,delete}}": "Delete post",
+    "{{effect_missing_name,button_aria_alt,delete_missing_name}}": "Name missing",
+    "{{no_comments,comment_count_zero}}": "No comments",
+    "{{sort_default,default}}": "Default",
+    "{{sort_name_ascending,name_ascending}}": "Name (Z-A)",
+    "{{sort_name_descending,name_descending}}": "Name (A-Z)",
+    "{{wanna_create_action,wanna_create_effect}}": "Do you want to create one?",
     "cancel": "Cancel",
     "close_button_alt": "Close",
     "create_account": "Create account",
-    "{{sort_default,default}}": "Default",
-    "{{delete_post,delete}}": "Delete post",
-    "{{wanna_create_action,wanna_create_effect}}": "Do you want to create one?",
-    "home": "Home",
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "login": "Login",
-    "{{sort_name_descending,name_descending}}": "Name (A-Z)",
-    "{{sort_name_ascending,name_ascending}}": "Name (Z-A)",
-    "{{effect_missing_name,button_aria_alt,delete_missing_name}}": "Name missing",
     "new_goal": "New $t(common:goal_one)",
-    "{{no_comments,comment_count_zero}}": "No comments",
     "password": "Password",
-    "username": "Username",
-    "password_placeholder": "password",
-    "{{action_count,actions}}": "{{$t(common:action_other), titleCase}}",
-    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
+    "username": "Username"
   },
   "action_table": {
     "no_actions": "There are no $t(common:action_other) to display.",
     "wanna_create_action": "Do you want to create one?",
     "create_action": "$t(common:new.action)"
   },
-  "breadcrumbs": {
-    "home": "Home",
+  "breadcrumbs_sections": {
+    "home": "$t(common:tsx.home)",
     "roadmap_series": "{{$t(common:roadmap_series_one), titleCase}}:",
     "version_label": "Version:",
     "version": "Version {{version}}",
@@ -44,18 +42,13 @@
     "comment_count_other": "{{count}} comments",
     "comment_count_zero": "No comments",
     "comment_count_one": "One comment",
-    "cancel": "Cancel",
     "send": "Submit",
-    "relative_time": "{{{{date}}, relativeTime}}",
-    "show_less": "Show less",
-    "show_more": "Show more"
+    "relative_time": "{{{{date}}, relativeTime}}"
   },
   "confirm_delete": {
     "delete_post": "Delete post",
     "confirmation": "Are you sure you want to delete post <strong>{{targetName}}</strong>?<br />This action cannot be undone.",
-    "type_to_confirm": "Type <strong>{{targetName}}</strong> to confirm.",
-    "cancel": "Cancel",
-    "delete": "Delete"
+    "type_to_confirm": "Type <strong>{{targetName}}</strong> to confirm."
   },
   "copy_and_scale": {
     "copy_and_scale": "Copy and scale",
@@ -156,26 +149,25 @@
     "name_ascending": "Name (Z-A)",
     "goal_count_descending": "{{$t(common:goal_one), titleCase}} count (high to low)",
     "goal_count_ascending": "{{$t(common:goal_one), titleCase}} count (low to high)",
-    "filter": "Filter",
-    "show": "Show"
+    "filter": "Filter"
   },
   "roadmap_series_one_deleter": {
     "remove_metadata": "Remove metadata"
   },
   "roadmap_table": {
-    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
+    "title": "{{name}} (v{{version}})",
     "no_roadmap_versions_found": "No $t(common:roadmap_version_other) found. If you have any filters active, no $t(common:roadmap_version_other) were found that match them."
   },
   "roadmap_tree": {
+    "title": "{{name}} (v{{version}})",
     "no_roadmap_series_ones": "No $t(common:roadmap_series_one) found. If you have any filters active, no $t(common:roadmap_series_one) were found that match them.",
-    "show_source_alt": "Show underlying $t(common:roadmap_version_other)",
-    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
+    "show_source_alt": "Show underlying $t(common:roadmap_version_other)"
   },
   "sidebar": {
     "toggle_menu_alt": "Toggle menu",
     "my_profile": "My account",
     "create_account": "Create account",
-    "home": "Home",
+    "home": "$t(common:tsx.home)",
     "about": "About the tool",
     "language_alt": "Change language",
     "login": "Login"

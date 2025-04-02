@@ -63,13 +63,13 @@
     "save": "Save",
     "create": "Create",
     "submit": "Submit",
-    "compare": "Compare",
-    "version": "Version",
-    "version_label": "Version:"
+    "compare": "Compare"
   },
   "placeholder": {
     "name": "Name Surname",
-    "email": "name.surname@example.com"
+    "email": "name.surname@example.com",
+    "username": "Username",
+    "password": "Password"
   },
   "scope": {
     "national": "National",

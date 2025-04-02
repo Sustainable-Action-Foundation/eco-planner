@@ -1,31 +1,30 @@
 {
   "common": {
-    "username": "Användarnamn",
-    "cancel": "Avbryt",
-    "{{no_goals,no_roadmaps}}": "Du har inte tillgång till några $t(common:goal_other) i denna $t(common:roadmap_version_one), eller så är $t(common:roadmap_version_definite_one) tom.",
-    "home": "Hem",
-    "{{no_comments,comment_count_zero}}": "Inga kommentarer",
-    "login": "Logga in",
     "{{add_data_source,add_data_source_button}}": "Lägg till datakälla",
-    "password": "Lösenord",
-    "{{sort_name_descending,name_descending}}": "Namn (A-Ö)",
-    "{{sort_name_ascending,name_ascending}}": "Namn (Ö-A)",
-    "{{effect_missing_name,delete_missing_name}}": "Namn saknas",
     "{{delete_post,delete}}": "Radera inlägg",
-    "create_account": "Skapa konto",
+    "{{effect_missing_name,delete_missing_name}}": "Namn saknas",
+    "{{no_comments,comment_count_zero}}": "Inga kommentarer",
+    "{{no_goals,no_roadmaps}}": "Du har inte tillgång till några $t(common:goal_other) i denna $t(common:roadmap_version_one), eller så är $t(common:roadmap_version_definite_one) tom.",
     "{{sort_default,default}}": "Standard",
-    "close_button_alt": "Stäng",
+    "{{sort_name_ascending,name_ascending}}": "Namn (Ö-A)",
+    "{{sort_name_descending,name_descending}}": "Namn (A-Ö)",
     "{{wanna_create_action,wanna_create_effect}}": "Vill du skapa en?",
-    "password_placeholder": "lösenord",
-    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
+    "cancel": "Avbryt",
+    "close_button_alt": "Stäng",
+    "create_account": "Skapa konto",
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
+    "home": "Hem",
+    "login": "Logga in",
+    "password": "Lösenord",
+    "username": "Användarnamn"
   },
   "action_table": {
     "no_actions": "Det finns inga $t(common:action_other) att visa.",
     "wanna_create_action": "Vill du skapa en?",
     "create_action": "$t(common:new.action)"
   },
-  "breadcrumbs": {
-    "home": "Hem",
+  "breadcrumbs_sections": {
+    "home": "$t(common:tsx.home)",
     "roadmap_series": "{{$t(common:roadmap_series_one), titleCase}}:",
     "version_label": "Version:",
     "version": "Version {{version}}",
@@ -43,18 +42,13 @@
     "comment_count_other": "{{count}} kommentarer",
     "comment_count_zero": "Inga kommentarer",
     "comment_count_one": "En kommentar",
-    "cancel": "Avbryt",
     "send": "Skicka",
-    "relative_time": "{{{{date}}, relativeTime}}",
-    "show_less": "Visa mindre",
-    "show_more": "Visa mer"
+    "relative_time": "{{{{date}}, relativeTime}}"
   },
   "confirm_delete": {
     "delete_post": "Radera inlägg",
     "confirmation": "Är du säker på att du vill radera inlägget <strong>{{targetName}}</strong>?<br />Detta går inte att ångra.",
-    "type_to_confirm": "Skriv <strong>{{targetName}}</strong> för att bekräfta.",
-    "cancel": "Avbryt",
-    "delete": "Radera"
+    "type_to_confirm": "Skriv <strong>{{targetName}}</strong> för att bekräfta."
   },
   "copy_and_scale": {
     "copy_and_scale": "Kopiera och skala",
@@ -155,20 +149,19 @@
     "name_ascending": "Namn (Ö-A)",
     "goal_count_descending": "Antal $t(common:goal_other) (fallande)",
     "goal_count_ascending": "Antal $t(common:goal_other) (stigande)",
-    "filter": "Filtrera",
-    "show": "Visa"
+    "filter": "Filtrera"
   },
   "roadmap_series_one_deleter": {
     "remove_metadata": "Ta bort metadata"
   },
   "roadmap_table": {
-    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
+    "title": "{{name}} (v{{version}})",
     "no_roadmap_versions_found": "Inga $t(common:roadmap_version_other) hittades. Om du har några aktiva filter hittades inga $t(common:roadmap_version_other) som matchar dem."
   },
   "roadmap_tree": {
+    "title": "{{name}} (v{{version}})",
     "no_roadmap_series_ones": "Inga $t(common:roadmap_series_other) hittades. Om du har några aktiva filter hittades inga $t(common:roadmap_series_other) som matchar dem.",
-    "show_source_alt": "Visa underliggande $t(common:roadmap_version_other)",
-    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
+    "show_source_alt": "Visa underliggande $t(common:roadmap_version_other)"
   },
   "sidebar": {
     "toggle_menu_alt": "Växla meny",

@@ -67,8 +67,8 @@ export default function ConfirmDelete({
           <input className="margin-block-25" type="text" placeholder={targetName} id={`delete-name-input-${elementId}`} required pattern={targetName} />
         </label>
         <div className="display-flex justify-content-flex-end margin-top-75 gap-50">
-          <button type="button" className="font-weight-500" onClick={() => closeModal(modalRef)}>{t("components:confirm_delete.cancel")}</button>
-          <button type="submit" className="red color-purewhite font-weight-500" disabled={isLoading} onClick={handleDelete}>{t("components:confirm_delete.delete")}</button>
+          <button type="button" className="font-weight-500" onClick={() => closeModal(modalRef)}>{t("common:tsx.cancel")}</button>
+          <button type="submit" className="red color-purewhite font-weight-500" disabled={isLoading} onClick={handleDelete}>{t("common:tsx.delete")}</button>
         </div>
       </form>
     </dialog>

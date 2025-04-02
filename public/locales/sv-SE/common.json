@@ -63,13 +63,13 @@
     "save": "Spara",
     "create": "Skapa",
     "submit": "Skicka",
-    "compare": "Jämför",
-    "version": "Version",
-    "version_label": "Version:"
+    "compare": "Jämför"
   },
   "placeholder": {
     "name": "Förnamn Efternamn",
-    "email": "fornamn.efternamn@exempel.se"
+    "email": "fornamn.efternamn@exempel.se",
+    "username": "Användarnamn",
+    "password": "Lösenord"
   },
   "scope": {
     "national": "Nationell",

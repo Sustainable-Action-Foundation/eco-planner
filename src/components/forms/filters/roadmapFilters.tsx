@@ -81,7 +81,7 @@ export default function RoadmapFilters() {
     </menu>
 
     <menu id="roadmapFilters" className="margin-block-100 margin-inline-0 padding-100 gray-90 smooth">
-      <b>{t("components:roadmap_filters.show")}</b>
+      <b>{t("common:tsx.show")}</b>
       {Object.values(RoadmapType).map((thisType, key) => (
         <label className="flex align-items-center gap-25 margin-block-50" key={key}>
           <input type="checkbox" value={thisType} defaultChecked={searchParams.getAll('typeFilter').includes(thisType)} onChange={(e) => {

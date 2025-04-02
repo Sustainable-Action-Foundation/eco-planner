@@ -106,10 +106,9 @@
   },
   "roadmap": {
     "title": "{{$t(common:roadmap_version_one), titleCase}}",
-    "version": "{{$t(common:roadmap_version_one), titleCase}}",
+    "version": "{{$t(common:roadmap_version_one), titleCase}} v{{version}}",
     "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "show_series": "Visit $t(common:roadmap_series_one)",
-    "edit_roadmap_version": "$t(common:new.roadmap_version)",
     "featured_goals": "Featured $t(common:goal_other)",
     "all_goals": "All $t(common:goal_other)"
   },

@@ -15,7 +15,6 @@ export function initI18nServer(locale: Locales) {
       ...initTemplate(t as TFunction),
       initImmediate: false, // Synchronous loading, prevents showing unloaded keys
       lng: locale,
-      preload: uniqueLocales,
       backend: {
         // Get locale data by reading files with fs
         loadPath: path.join(process.cwd(), "public/locales/{{lng}}/{{ns}}.json"),
