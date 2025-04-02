@@ -20,12 +20,17 @@ localePaths.forEach(localePath => {
   const json = JSON.parse(content);
 
   // Sort all root levels keys in alphabetical order
-  const sortedJson = Object.keys(json).sort().reduce((acc: Record<string, object | string>, key) => {
+  const sortedJson = Object.keys(json).sort().reduce((acc: Record<string, object>, key) => {
     acc[key] = json[key];
     return acc;
   }, {});
 
-  fs.writeFileSync(localePath, JSON.stringify(sortedJson, null, 2), "utf-8");
+  // Move common first
+  const withoutCommon = Object.entries(sortedJson).filter(([key]) => key !== "common");
+  const common = sortedJson.common || {};
+
+  const returnStruct = { common, ...Object.fromEntries(withoutCommon) };
+  fs.writeFileSync(localePath, JSON.stringify(returnStruct, null, 2), "utf-8");
 });
 
 console.info("Locale files formatted successfully.");
