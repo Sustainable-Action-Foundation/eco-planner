@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 
 export function ClientLocales({ allKeys, className = "" }: { allKeys: string[], className?: string }) {
   const { t } = useTranslation();
@@ -32,7 +32,23 @@ export function ClientLocales({ allKeys, className = "" }: { allKeys: string[], 
           className={className}
           style={{ gridRow: index + 2, color: textColor, fontWeight }}
         >
-          {translation}
+          {(/<.*>/).test(translation) ?
+            <Trans
+              i18nKey={key}
+              tOptions={{ count: 17, date: new Date(Date.now() - 10000) }}
+              components={{
+                a: <a href="#" />,
+                Link: <a href="#" />,
+                br: <br />,
+                kbd: <kbd />,
+                small: <small />,
+                span: <span />,
+                strong: <strong />,
+              }}
+            />
+            :
+            <>{translation}</>
+          }
         </p>
       );
     })}
