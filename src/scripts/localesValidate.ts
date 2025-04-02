@@ -23,7 +23,7 @@ const exemptedValues: string[] = [
   "This tool aims to contribute to Sweden's climate transition.\n\nIn the tool, national scenarios, also called quantitative roadmaps, can be broken down to regional and local levels and an action plan can be created.\n\nThe action plan is built up by actions which relate to a specific goal and the goals together make up the entire roadmap.\n\nUsers can be inspired by each other's actions, creating a common action database for Sweden.\n\nAt the local level, different actors can also collaborate on actions.",
   "Detta verktyg syftar till att bidra till Sveriges klimatomställning.\n\nI verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas.\n\nHandlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen.\n\nAnvändare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige.\n\nPå lokal nivå kan också olika aktörer samarbeta kring åtgärder.",
 ];
-/** A test checks for files using common namespace keys directly in the tsx instead of referencing them in another namespace */
+/** A test checks for files using common namespace keys directly in the tsx instead of referencing them in another namespace. Matches against start of flattened key */
 const commonKeysAllowedDirectlyInFile: string[] = [
   "common:404.",
   "common:ellipsis",
@@ -907,7 +907,7 @@ function getFlattenedKeys(locale: Locales, namespace: string) {
   return keys;
 }
 /** Get flattened keys and their values in a flattened object */
-export function getFlattenedLocaleFile(locale: Locales, namespace: string) {
+function getFlattenedLocaleFile(locale: Locales, namespace: string) {
   const file = `${localesDir}/${locale}/${namespace}.json`;
   try { JSON.parse(fs.readFileSync(file, "utf-8")); }
   catch (e) {
