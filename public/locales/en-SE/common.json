@@ -63,7 +63,8 @@
     "save": "Save",
     "create": "Create",
     "submit": "Submit",
-    "compare": "Compare"
+    "compare": "Compare",
+    "close": "Close"
   },
   "placeholder": {
     "name": "Name Surname",

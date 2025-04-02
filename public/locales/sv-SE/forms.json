@@ -1,25 +1,22 @@
 {
   "common": {
+    "{{attach_external_resources,attach_external}}": "Bifoga externa resurser",
+    "{{choose_relationship,relationship_legend}}": "Ange relationen till andra inlägg",
+    "{{data_series,data_series_type_label}}": "Dataserie",
+    "{{no_option_selected,roadmap_target_no_chosen}}": "Inget alternativ valt",
+    "{{relationship_no_chosen,select_roadmap_version}}": "Välj $t(common:roadmap_version_one)",
     "{{to_year_by_year_info,to_absolute_info}}": "<strong>OBS!</strong> Det finns en viss felmarginal runt 14:e decimalen vid konvertering på grund av så kallade \"floating point errors\".",
     "absolute": "Absolut skillnad gentemot baslinje",
-    "{{choose_relationship,relationship_legend}}": "Ange relationen till andra inlägg",
-    "data_series_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma.",
-    "{{attach_external_resources,attach_external}}": "Bifoga externa resurser",
-    "{{data_series,data_series_type_label}}": "Dataserie",
-    "unit_missing": "Enhet saknas",
-    "extra_info_data_series": "Extra information om dataserie",
-    "data_series_info": "Fältet \"Dataserie\" tar emot en serie med värden som är separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie med värden från Excel eller liknande.<br /><strong>OBS: Värden får inte vara separerade med kommatecken (\",\").</strong><br />Decimaltal kan antingen skrivas med punkt eller kommatecken.<br />Det första värdet representerar år 2020 och serien kan som längst fortsätta till år 2050 (totalt 31 värden).<br />Om värden saknas för ett år kan du lämna det tomt, exempelvis anger \";1;;;;5\" värdena 1 och 5 för år 2021 respektive 2025.",
-    "delta": "Förändring år för år (delta)",
-    "{{no_option_selected,roadmap_target_no_chosen}}": "Inget alternativ valt",
-    "change_read_access": "Justera läsbehörighet",
     "change_edit_access": "Justera redigeringsbehörighet",
-    "unnamed_goal": "Namnlös $t(common:goal_one)",
-    "submit_save": "Spara",
+    "change_read_access": "Justera läsbehörighet",
+    "data_series_info": "Fältet \"Dataserie\" tar emot en serie med värden som är separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie med värden från Excel eller liknande.<br /><strong>OBS: Värden får inte vara separerade med kommatecken (\",\").</strong><br />Decimaltal kan antingen skrivas med punkt eller kommatecken.<br />Det första värdet representerar år 2020 och serien kan som längst fortsätta till år 2050 (totalt 31 värden).<br />Om värden saknas för ett år kan du lämna det tomt, exempelvis anger \";1;;;;5\" värdena 1 och 5 för år 2021 respektive 2025.",
+    "data_series_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma.",
+    "delta": "Förändring år för år (delta)",
+    "extra_info_data_series": "Extra information om dataserie",
     "impact_type_label": "Vilken typ av påverkan har $t(common:action_definite_one)?",
     "select_goal": "Välj $t(common:goal_one)",
-    "{{relationship_no_chosen,select_roadmap_version}}": "Välj $t(common:roadmap_version_one)",
-    "action_count": "{{count}} $t(common:action, {\"count\":{{count}}})",
-    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
+    "unit_missing": "Enhet saknas",
+    "unnamed_goal": "Namnlös $t(common:goal_one)"
   },
   "access_selector": {
     "groups_with_edit_access": "Grupper med redigeringsbehörighet",
@@ -34,7 +31,6 @@
     "choose_relationship": "Ange relationen till andra inlägg",
     "relationship_label": "Välj $t(common:roadmap_version_one) att skapa $t(common:action_definite_one) under:",
     "relationship_no_chosen": "Välj $t(common:roadmap_version_one)",
-    "action_count": "{{count}} $t(common:action, {\"count\":{{count}}})",
     "action_description_legend": "Beskriv din $t(common:action_one)",
     "action_name": "Namn på $t(common:action_definite_one)",
     "action_description": "Beskrivning av $t(common:action_definite_one)",
@@ -61,9 +57,7 @@
     "category_sufficiency": "Sufficiency",
     "category_efficiency": "Efficiency",
     "category_renewables": "Renewables",
-    "attach_external_resources": "Bifoga externa resurser",
-    "submit_save": "Spara",
-    "submit_create": "$t(common:new.action)"
+    "attach_external_resources": "Bifoga externa resurser"
   },
   "effect": {
     "select_roadmap_version_for_action": "Välj $t(common:roadmap_version_one) som $t(common:action_definite_one) ligger under",
@@ -76,8 +70,6 @@
     "select_goal": "Välj $t(common:goal_one)",
     "unnamed_goal": "Namnlös $t(common:goal_one)",
     "unit_missing": "Enhet saknas",
-    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
-    "action_count": "{{count}} $t(common:action, {\"count\":{{count}}})",
     "data_series": "Dataserie",
     "data_series_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma.",
     "to_year_by_year": "Konvertera värden till förändring år för år (delta)",
@@ -89,15 +81,12 @@
       "absolute": "Absolut skillnad gentemot baslinje",
       "delta": "Förändring år för år (delta)",
       "percent": "Skillnad gentemot baslinjen i procent av föregående års totalvärde (baslinje + $t(common:action_other))"
-    },
-    "submit_save": "Spara",
-    "submit_create": "$t(common:new.effect)"
+    }
   },
   "goal": {
     "choose_relationship": "Ange relationen till andra inlägg",
     "relationship_label": "Välj $t(common:roadmap_series_one) att $t(common:new.goal) under:",
     "relationship_no_chosen": "Välj $t(common:roadmap_series_one)",
-    "action_count": "{{count}} $t(common:action, {\"count\":{{count}}})",
     "data_series_type_legend": "Välj typ av dataserie för din $t(common:goal_one)",
     "data_series_type_label": "Dataserie",
     "data_series_types": {
@@ -128,8 +117,6 @@
     "feature_goal": "Lyft fram $t(common:goal_definite_one)",
     "scale_deprecated": "{{$t(common:goal_definite_one), titleCase}} innehåller en skala. Vänligen baka in skalan i värdet eller enheten och checka sedan i den här rutan. Alla skalor kommer att tas bort i framtiden",
     "remove_scale": "Ta bort skalan, {{scale}}",
-    "submit_save": "Spara",
-    "submit_create": "$t(common:new.goal)",
     "leap_parameter": "LEAP parameter",
     "data_unit": "Enhet för dataserie",
     "unit_interpreted_as": "Enheten tolkas som:",
@@ -139,7 +126,6 @@
     "data_series": "Dataserie",
     "data_series_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller kommatecken.",
     "select_roadmap_version": "Välj en $t(common:roadmap_version_one) att ärva en $t(common:goal_one) från",
-    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "select_goal_to_inherit": "Välj en $t(common:goal_one) att ärva från",
     "select_goal": "Välj $t(common:goal_one)",
     "unnamed_goal": "Namnlös $t(common:goal_one)",
@@ -194,9 +180,7 @@
     "goal_accepted_formats": "{{$t(common:goal_other), titleCase}} <small> - giltiga filtyper: {{fileTypes, list}} - giltiga filkodningar: {{encodings, list}}</small>",
     "inherit_goal_legend": "Välj $t(common:goal_one) att ärva",
     "change_read_access": "Justera läsbehörighet",
-    "change_edit_access": "Justera redigeringsbehörighet",
-    "submit_save": "Spara",
-    "submit_create": "$t(common:new.roadmap_version)"
+    "change_edit_access": "Justera redigeringsbehörighet"
   },
   "roadmap_series_one": {
     "description_legend": "Beskriv din $t(common:roadmap_series_one)",
@@ -211,8 +195,6 @@
     "change_edit_access": "Justera redigeringsbehörighet",
     "relationship_legend": "Jobbar denna $t(common:roadmap_series_one) mot en annan $t(common:roadmap_series_one)?",
     "relationship_label": "Förälder",
-    "relationship_no_chosen": "Ingen förälder",
-    "submit_save": "Spara",
-    "submit_create": "$t(common:new.roadmap_series)"
+    "relationship_no_chosen": "Ingen förälder"
   }
 }

@@ -360,7 +360,7 @@ export default function GoalForm({
             : null
         }
 
-        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentGoal ? t("forms:goal.submit_save") : t("forms:goal.submit_create")} />
+        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentGoal ? t("common:tsx.save") : t("common:tsx.create")} />
       </form>
 
       <datalist id="LEAPOptions">

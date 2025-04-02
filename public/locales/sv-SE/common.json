@@ -63,7 +63,8 @@
     "save": "Spara",
     "create": "Skapa",
     "submit": "Skicka",
-    "compare": "Jämför"
+    "compare": "Jämför",
+    "close": "Stäng"
   },
   "placeholder": {
     "name": "Förnamn Efternamn",

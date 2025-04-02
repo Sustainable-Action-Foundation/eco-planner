@@ -157,7 +157,7 @@ export default function EffectForm({
           </select>
         </label>
 
-        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentEffect ? t("forms:effect.submit_save") : t("forms:effect.submit_create")} />
+        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentEffect ? t("common:tsx.save") : t("common:tsx.create")} />
       </form>
     </>
   )

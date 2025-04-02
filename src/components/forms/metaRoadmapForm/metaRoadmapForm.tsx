@@ -187,7 +187,7 @@ export default function MetaRoadmapForm({
 
 
         {/* Add copy of RoadmapForm? Only if we decide to include it immediately rather than redirecting to it */}
-        <input className="seagreen color-purewhite margin-block-200" type="submit" id="submit-button" value={currentRoadmap ? t("forms:roadmap_series_one.submit_save") : t("forms:roadmap_series_one.submit_create")} /> {/* TODO: Set disabled if form not filled out */}
+        <input className="seagreen color-purewhite margin-block-200" type="submit" id="submit-button" value={currentRoadmap ? t("common:tsx.save") : t("common:tsx.create")} /> {/* TODO: Set disabled if form not filled out */}
       </form>
 
       <datalist id="actors">

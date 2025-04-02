@@ -9,10 +9,7 @@
     "{{sort_name_ascending,name_ascending}}": "Namn (Ö-A)",
     "{{sort_name_descending,name_descending}}": "Namn (A-Ö)",
     "{{wanna_create_action,wanna_create_effect}}": "Vill du skapa en?",
-    "cancel": "Avbryt",
-    "close_button_alt": "Stäng",
     "create_account": "Skapa konto",
-    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "home": "Hem",
     "login": "Logga in",
     "password": "Lösenord",
@@ -52,7 +49,6 @@
   },
   "copy_and_scale": {
     "copy_and_scale": "Kopiera och skala",
-    "close_button_alt": "Stäng",
     "title": "Kopiera och skala $t(common:goal_definite_one) {{goalName}}",
     "select_roadmap_version": "I vilken $t(common:roadmap_version_one) vill du placera den skalade $t(common:goal_definite_one)?",
     "select_roadmap_version_option": "Välj $t(common:roadmap_version_one)",
@@ -117,7 +113,6 @@
   },
   "query_builder": {
     "add_historical_data": "Lägg till historisk data",
-    "close_button_alt": "Stäng",
     "add_data_source": "Lägg till datakälla",
     "add_data_to_goal": "Lägg till en historisk dataserie i {{goalName}}",
     "data_source": "Datakälla",
@@ -198,7 +193,6 @@
     "button_aria": "Meny för {{component}}",
     "button_aria_alt": "namn saknas",
     "button_image_alt": "meny",
-    "close_button_alt": "stäng",
     "edit": "Redigera",
     "delete": "Radera inlägg",
     "delete_missing_name": "Namn saknas"

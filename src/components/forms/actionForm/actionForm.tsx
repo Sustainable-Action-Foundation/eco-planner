@@ -205,7 +205,7 @@ export default function ActionForm({
           <LinkInput links={currentAction?.links} />
         </fieldset>
 
-        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentAction ? t("forms:action.submit_save") : t("forms:action.submit_create")} />
+        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentAction ? t("common:tsx.save") : t("common:tsx.create")} />
 
       </form>
     </>

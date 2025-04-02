@@ -185,7 +185,7 @@ export function TableMenu(
           <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between ${styles.menuHeading}`}>
             {/* Button to close menu */}
             <button type="button" onClick={closeMenu} className={styles.button} autoFocus >
-              <Image src='/icons/close.svg' alt={t("components:table_menu.close_button_alt")} width={18} height={18} />
+              <Image src='/icons/close.svg' alt={t("common:tsx.close")} width={18} height={18} />
             </button>
             {/* Link to the object */}
             <Link href={selfLink} className={styles.menuHeadingTitle}>{object.name || object.metaRoadmap?.name}</Link>

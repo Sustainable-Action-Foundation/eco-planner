@@ -153,7 +153,7 @@ export function InheritedGoalForm({
           <option value="">{t("forms:goal.select_roadmap_version")}</option>
           {roadmapAlternatives.map((roadmap) => (
             <option value={roadmap.id} key={`roadmap-inherit${roadmap.id}`}>
-              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("forms:goal.goal_count", { count: roadmap._count.goals })}`}
+              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("common:count.goal", { count: roadmap._count.goals })}`}
             </option>
           ))}
         </select>
@@ -344,7 +344,7 @@ export function InheritingBaseline() {
           <option value="">{t("forms:goal.select_roadmap_version")}</option>
           {roadmapList.map((roadmap) => (
             <option value={roadmap.id} key={`roadmap-inherit${roadmap.id}`}>
-              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("forms:goal.goal_count", { count: roadmap._count.goals })}`}
+              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("common:count.goal", { count: roadmap._count.goals })}`}
             </option>
           ))}
         </select>

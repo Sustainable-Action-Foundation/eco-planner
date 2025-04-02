@@ -22,6 +22,9 @@ const exemptedValues: string[] = [
   "Are you sure you want to delete post <strong>{{targetName}}</strong>?<br />This action cannot be undone.",
   "This tool aims to contribute to Sweden's climate transition.\n\nIn the tool, national scenarios, also called quantitative roadmaps, can be broken down to regional and local levels and an action plan can be created.\n\nThe action plan is built up by actions which relate to a specific goal and the goals together make up the entire roadmap.\n\nUsers can be inspired by each other's actions, creating a common action database for Sweden.\n\nAt the local level, different actors can also collaborate on actions.",
   "Detta verktyg syftar till att bidra till Sveriges klimatomställning.\n\nI verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas.\n\nHandlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen.\n\nAnvändare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige.\n\nPå lokal nivå kan också olika aktörer samarbeta kring åtgärder.",
+  // TODO: Remove these exceptions
+  ...Object.values(JSON.parse(fs.readFileSync(`${localesDir}/en-SE/common.json`, "utf-8"))["tsx"] as string[]),
+  ...Object.values(JSON.parse(fs.readFileSync(`${localesDir}/sv-SE/common.json`, "utf-8"))["tsx"] as string[]),
 ];
 /** A test checks for files using common namespace keys directly in the tsx instead of referencing them in another namespace. Matches against start of flattened key */
 const commonKeysAllowedDirectlyInFile: string[] = [
@@ -32,12 +35,14 @@ const commonKeysAllowedDirectlyInFile: string[] = [
   "common:layout.",
   "common:tsx.",
   "common:count.",
+  "common:edit.",
+  "common:new.",
   "common:placeholder.",
 ];
 /** When checking if files in the app are using multiple namespaces, these files are ignored. */
 const mixedNamespacesExemptedFiles: string[] = ["src/app/layout.tsx"];
 /** When checking if files in the app are using multiple namespaces, these keys are ignored. */
-const mixedNamespacesExemptedKeys: string[] = [...commonKeysAllowedDirectlyInFile];
+const mixedNamespacesExemptedKeys: string[] = [...commonKeysAllowedDirectlyInFile, ...expectedNS.map(ns => `${ns}:common.`)];
 
 
 /** Does every supported locale have a corresponding folder in the locales directory? */

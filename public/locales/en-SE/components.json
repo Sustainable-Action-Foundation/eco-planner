@@ -1,6 +1,5 @@
 {
   "common": {
-    "{{action_count,actions}}": "{{$t(common:action_other), titleCase}}",
     "{{add_data_source,add_data_source_button}}": "Add data source",
     "{{delete_post,delete}}": "Delete post",
     "{{effect_missing_name,button_aria_alt,delete_missing_name}}": "Name missing",
@@ -9,10 +8,7 @@
     "{{sort_name_ascending,name_ascending}}": "Name (Z-A)",
     "{{sort_name_descending,name_descending}}": "Name (A-Z)",
     "{{wanna_create_action,wanna_create_effect}}": "Do you want to create one?",
-    "cancel": "Cancel",
-    "close_button_alt": "Close",
     "create_account": "Create account",
-    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "login": "Login",
     "new_goal": "New $t(common:goal_one)",
     "password": "Password",
@@ -52,7 +48,6 @@
   },
   "copy_and_scale": {
     "copy_and_scale": "Copy and scale",
-    "close_button_alt": "Close",
     "title": "Copy and scale $t(common:goal_one) {{goalName}}",
     "select_roadmap_version": "In which $t(common:roadmap_version_one) do you want to place the scaled $t(common:goal_one)?",
     "select_roadmap_version_option": "Select $t(common:roadmap_version_one)",
@@ -117,7 +112,6 @@
   },
   "query_builder": {
     "add_historical_data": "Add historical data",
-    "close_button_alt": "Close",
     "add_data_source": "Add data source",
     "add_data_to_goal": "Add a historical data series to {{goalName}}",
     "data_source": "Data source",
@@ -198,7 +192,6 @@
     "button_aria": "Menu for {{component}}",
     "button_aria_alt": "Name missing",
     "button_image_alt": "menu",
-    "close_button_alt": "close",
     "edit": "Edit",
     "delete": "Delete post",
     "delete_missing_name": "Name missing"

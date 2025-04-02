@@ -286,7 +286,7 @@ export default function CopyAndScale({
       </button>
       <dialog ref={modalRef} aria-modal className="rounded" style={{ border: '0', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25' }}>
         <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>
-          <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("components:copy_and_scale.close_button_alt")} >
+          <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
             <Image src='/icons/close.svg' alt="" width={18} height={18} />
           </button>
           <h2 className="margin-0">{t("components:copy_and_scale.title", { goalName: goal.name })}</h2>

@@ -289,7 +289,7 @@ export default function RoadmapForm({
         <input
           type="submit"
           className="margin-block-200 seagreen color-purewhite"
-          value={currentRoadmap ? t("forms:roadmap.submit_save") : t("forms:roadmap.submit_create")}
+          value={currentRoadmap ? t("common:tsx.save") : t("common:tsx.create")}
           disabled={isLoading}
         />
       </form>
