@@ -132,11 +132,11 @@ export default function ActionForm({
 
             <details className="margin-block-75">
               <summary>
-                {t("forms:goal.extra_info_data_series")}
+                {t("forms:action.extra_info_data_series")}
               </summary>
               <p>
                 <Trans
-                  i18nKey={"forms:goal.data_series_info"}
+                  i18nKey={"forms:action.data_series_info"}
                   components={{ strong: <strong />, br: <br /> }}
                 />
               </p>
@@ -147,7 +147,7 @@ export default function ActionForm({
               {/* TODO: Make this allow .csv files and possibly excel files */}
               <input type="text" name="dataSeries" required id="dataSeries"
                 pattern={dataSeriesPattern}
-                title={t("forms:goal.data_series_title")}
+                title={t("forms:action.data_series_title")}
                 className="margin-block-25"
               // defaultValue={dataSeriesString}
               />
@@ -201,7 +201,7 @@ export default function ActionForm({
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:goal.attach_external_resources")}</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:action.attach_external_resources")}</legend>
           <LinkInput links={currentAction?.links} />
         </fieldset>
 

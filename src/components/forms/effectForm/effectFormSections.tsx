@@ -116,7 +116,7 @@ export function GoalSelector({
             <option value="" disabled>{t("forms:effect.select_goal")}</option>
             {roadmapData?.goals.map(goal => (
               <option key={`goal-selector${goal.id}`} value={goal.id}>
-                {`${goal.name ?? t("forms:goal.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || t("forms:goal.unit_missing")})`}
+                {`${goal.name ?? t("forms:effect.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || t("forms:effect.unit_missing")})`}
               </option>
             ))}
           </select>

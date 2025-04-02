@@ -154,6 +154,7 @@
   },
   "query_builder": {
     "add_historical_data": "Add historical data",
+    "close_button_alt": "Close",
     "add_data_source": "Add data source",
     "add_data_to_goal": "Add a historical data series to {{goalName}}",
     "data_source": "Data source",

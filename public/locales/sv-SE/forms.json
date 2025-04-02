@@ -25,7 +25,10 @@
       "delta": "Förändring år för år (delta)",
       "percent": "Skillnad gentemot baslinjen i procent av föregående års totalvärde (baslinje + $t(common:action_definite_other))"
     },
+    "extra_info_data_series": "Extra information om dataserie",
+    "data_series_info": "Fältet \"Dataserie\" tar emot en serie med värden som är separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie med värden från Excel eller liknande.<br /><strong>OBS: Värden får inte vara separerade med kommatecken (\",\").</strong><br />Decimaltal kan antingen skrivas med punkt eller kommatecken.<br />Det första värdet representerar år 2020 och serien kan som längst fortsätta till år 2050 (totalt 31 värden).<br />Om värden saknas för ett år kan du lämna det tomt, exempelvis anger \";1;;;;5\" värdena 1 och 5 för år 2021 respektive 2025.",
     "data_series_label": "Dataserie:",
+    "data_series_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma.",
     "action_years_legend": "Välj pågående år för din $t(common:action_one)",
     "start_year": "Startår",
     "end_year": "Slutår",
@@ -36,6 +39,7 @@
     "category_sufficiency": "Sufficiency",
     "category_efficiency": "Efficiency",
     "category_renewables": "Renewables",
+    "attach_external_resources": "Bifoga externa resurser",
     "submit_save": "Spara",
     "submit_create": "$t(common:new.action)"
   },
@@ -48,6 +52,8 @@
     "select_roadmap_version_for_goal": "Välj $t(common:roadmap_version_one) som $t(common:goal_definite_one) ligger under",
     "select_goal_to_affect": "Välj $t(common:goal_one) att påverka",
     "select_goal": "Välj $t(common:goal_one)",
+    "unnamed_goal": "Namnlös $t(common:goal_one)",
+    "unit_missing": "Enhet saknas",
     "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "action_count": "{{count}} $t(common:action, {\"count\":{{count}}})",
     "data_series": "Dataserie",

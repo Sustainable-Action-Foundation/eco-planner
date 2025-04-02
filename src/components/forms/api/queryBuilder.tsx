@@ -320,7 +320,7 @@ export default function QueryBuilder({
       </button>
       <dialog className={`smooth${styles.dialog}`} ref={modalRef} aria-modal style={{ border: "0", boxShadow: "0 0 .5rem -.25rem rgba(0,0,0,.25" }}>
         <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>
-          <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("components:table_menu.close_button_alt")} >
+          <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("components:query_builder.close_button_alt")} >
             <Image src="/icons/close.svg" alt="" width={18} height={18} />
           </button>
           <h2 className="margin-0">{t("components:query_builder.add_data_source")}</h2>

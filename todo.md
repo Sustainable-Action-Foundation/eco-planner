@@ -3,6 +3,6 @@
 - [ ] Create common root object in most namespaces for shared keys
 - [ ] Create `graph` namespace
 - [X] Add language aliases to language switcher
-- [ ] Fix namespace inconsistencies that `yarn test:locales` catches
+- [X] Fix namespace inconsistencies that `yarn test:locales` catches
 - [X] Test <Trans /> uses
   - [ ] Rework `TestInFileTransSyntax()` to make it more robust especially how it handles languages.

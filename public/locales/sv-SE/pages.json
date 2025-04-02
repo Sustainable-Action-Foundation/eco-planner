@@ -52,7 +52,8 @@
     "create_new_action": "$t(common:new.action)",
     "action_timeline": "Tidslinje över $t(common:action_other)",
     "goals_working_towards": "{{$t(common:goal_other), titleCase}} som jobbar mot {{goalName}}",
-    "related_goals": "Angränsande $t(common:goal_other)"
+    "related_goals": "Angränsande $t(common:goal_other)",
+    "external_resources": "Externa resurser"
   },
   "goal_create": {
     "breadcrumb": "$t(common:new.goal)",

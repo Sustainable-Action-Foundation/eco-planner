@@ -154,6 +154,7 @@
   },
   "query_builder": {
     "add_historical_data": "Lägg till historisk data",
+    "close_button_alt": "Stäng",
     "add_data_source": "Lägg till datakälla",
     "add_data_to_goal": "Lägg till en historisk dataserie i {{goalName}}",
     "data_source": "Datakälla",

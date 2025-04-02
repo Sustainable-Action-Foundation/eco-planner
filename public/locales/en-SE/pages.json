@@ -52,7 +52,8 @@
     "create_new_action": "$t(common:new.action)",
     "action_timeline": "{{$t(common:action_one), titleCase}} timeline",
     "goals_working_towards": "{{$t(common:goal_other), titleCase}} working towards {{goalName}}",
-    "related_goals": "Related $t(common:goal_other)"
+    "related_goals": "Related $t(common:goal_other)",
+    "external_resources": "External resources"
   },
   "goal_create": {
     "breadcrumb": "$t(common:new.goal)",
