@@ -34,14 +34,14 @@ export default function GraphSelector({
   return (
     <>
       <label className='font-weight-500'>
-        {t("components:graph_selector.show")}
+        {t("graphs:graph_selector.show")}
         <select className='block margin-top-25' onChange={handleSelectChange} value={currentSelection}
           style={{ padding: '.3rem calc(.5rem * 2 + 20px) .3rem .5rem', borderRadius: '2px', backgroundSize: '20px', fontSize: '.75rem' }}>
-          <option value={GraphType.Main}>{t("components:graph_selector.goal")}</option>
-          <option value={GraphType.Delta}>{t("components:graph_selector.annual_change")}</option>
+          <option value={GraphType.Main}>{t("graphs:graph_selector.goal")}</option>
+          <option value={GraphType.Delta}>{t("graphs:graph_selector.annual_change")}</option>
           { // Don't allow relative graph if the main graph is already percent or fraction
             !percentAndFraction.includes(goal.dataSeries?.unit?.toLowerCase() ?? "") &&
-            <option value={GraphType.Relative}>{t("components:graph_selector.percentage_change")}</option>
+            <option value={GraphType.Relative}>{t("graphs:graph_selector.percentage_change")}</option>
           }
         </select>
       </label>

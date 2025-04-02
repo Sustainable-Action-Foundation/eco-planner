@@ -57,14 +57,14 @@ export default function ChildGraphContainer({
           style={{ width: 'fit-content', fontSize: '.75rem', padding: '.3rem .6rem' }}
           type="button" onClick={() => setIsStacked(!isStacked)}
         >
-          {t("components:child_graph_container.change_graph_type")}
-          <Image src='/icons/chartArea.svg' alt={t("components:child_graph_container.change_graph_type")} width={16} height={16} />
+          {t("graphs:child_graph_container.change_graph_type")}
+          <Image src='/icons/chartArea.svg' alt={t("graphs:child_graph_container.change_graph_type")} width={16} height={16} />
         </button>
         {children}
       </menu>
       <article className="smooth padding-inline-25 padding-bottom-50 purewhite" style={{ border: '1px solid var(--gray)' }}>
         <h2 className="text-align-center block font-weight-500 margin-block-200" style={{ fontSize: '1rem' }}>
-          {t("components:child_graph_container.goals_toward", { goalName: goal.name ? `${goal.name}` : `${goal.indicatorParameter}` })}
+          {t("graphs:child_graph_container.goals_toward", { goalName: goal.name ? `${goal.name}` : `${goal.indicatorParameter}` })}
         </h2>
         <div style={{ height: '500px' }}>
           {childGraphSwitch(childGraphType)}

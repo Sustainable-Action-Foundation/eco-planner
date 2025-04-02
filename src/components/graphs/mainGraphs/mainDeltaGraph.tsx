@@ -40,15 +40,15 @@ export default function MainDeltaGraph({
     },
     yaxis: [{
       title: {
-        text: t("components:main_delta_graph.annual_change", { unit: goal.dataSeries.unit.toLowerCase() == 'procent' ? t("components:main_delta_graph.percentage_points") : goal.dataSeries.unit })
+        text: t("graphs:main_delta_graph.annual_change", { unit: goal.dataSeries.unit.toLowerCase() == 'procent' ? t("graphs:main_delta_graph.percentage_points") : goal.dataSeries.unit })
       },
       labels: { formatter: floatSmoother },
       seriesName: [
         (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
-        t("components:main_delta_graph.baseline_scenario"),
-        t("components:main_delta_graph.expected_outcome"),
+        t("graphs:main_delta_graph.baseline_scenario"),
+        t("graphs:main_delta_graph.expected_outcome"),
         (secondaryGoal?.dataSeries?.unit == goal.dataSeries.unit) ? (secondaryGoal?.name || secondaryGoal?.indicatorParameter) : '',
-        t("components:main_delta_graph.national_counterpart"),
+        t("graphs:main_delta_graph.national_counterpart"),
       ],
     }],
     tooltip: {
@@ -99,7 +99,7 @@ export default function MainDeltaGraph({
       });
     }
     chart.push({
-      name: t("components:main_delta_graph.baseline_scenario"),
+      name: t("graphs:main_delta_graph.baseline_scenario"),
       data: baselineSeries,
       type: 'line',
     });
@@ -119,7 +119,7 @@ export default function MainDeltaGraph({
       totalEffect.shift();
 
       chart.push({
-        name: t("components:main_delta_graph.expected_outcome"),
+        name: t("graphs:main_delta_graph.expected_outcome"),
         data: totalEffect,
         type: 'line',
       });
@@ -146,7 +146,7 @@ export default function MainDeltaGraph({
         totalEffect.shift();
 
         chart.push({
-          name: t("components:main_delta_graph.expected_outcome"),
+          name: t("graphs:main_delta_graph.expected_outcome"),
           data: totalEffect,
           type: 'line',
         });
@@ -180,7 +180,7 @@ export default function MainDeltaGraph({
     if (secondaryGoal.dataSeries.unit != goal.dataSeries.unit) {
       (chartOptions.yaxis as ApexYAxis[]).push({
         title: {
-          text: t("components:main_delta_graph.annual_change", { unit: secondaryGoal.dataSeries.unit.toLowerCase() == 'procent' ? t("components:main_delta_graph.percentage_points") : secondaryGoal.dataSeries.unit })
+          text: t("graphs:main_delta_graph.annual_change", { unit: secondaryGoal.dataSeries.unit.toLowerCase() == 'procent' ? t("graphs:main_delta_graph.percentage_points") : secondaryGoal.dataSeries.unit })
         },
         labels: { formatter: floatSmoother },
         seriesName: secondaryGoal.name || secondaryGoal.indicatorParameter,
@@ -206,7 +206,7 @@ export default function MainDeltaGraph({
       });
     }
     chart.push({
-      name: t("components:main_delta_graph.national_counterpart"),
+      name: t("graphs:main_delta_graph.national_counterpart"),
       data: nationalSeries,
       type: 'line',
     });

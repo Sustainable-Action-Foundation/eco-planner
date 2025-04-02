@@ -73,13 +73,13 @@ export default function GraphGraph({
           :
           <h3 className="text-align-center block font-weight-500 margin-top-200 margin-bottom-50">{goal.indicatorParameter}</h3>
         }
-        {secondaryGoal && <p className="margin-block-0 margin-inline-auto text-align-center">{t("components:graph_graph.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicatorParameter })}</p>}
+        {secondaryGoal && <p className="margin-block-0 margin-inline-auto text-align-center">{t("graphs:graph_graph.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicatorParameter })}</p>}
         <div style={{ height: '500px' }}>
           {graphSwitch(graphType)}
         </div>
         {historicalData && (
           <Trans 
-            i18nKey="components:graph_graph.historical_data_source"
+            i18nKey="graphs:graph_graph.historical_data_source"
             components={{a: <a href={getHistoricalDataLink(historicalData) as string || ""} target="_blank" />}}
             tOptions={{ source: externalDatasets[historicalData.metadata[0].source]?.fullName ? externalDatasets[historicalData.metadata[0].source]?.fullName : historicalData.metadata[0].source}}
           />

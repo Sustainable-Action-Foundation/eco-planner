@@ -100,12 +100,12 @@ export default function SiblingGraph({
           style={{ width: 'fit-content', fontSize: '.75rem', padding: '.3rem .6rem' }}
           type="button" onClick={() => setIsStacked(!isStacked)}
         >
-          {t("components:sibling_graph.change_graph_type")}
-          <Image src='/icons/chartArea.svg' alt={t("components:sibling_graph.change_graph_type")} width={16} height={16} />
+          {t("graphs:sibling_graph.change_graph_type")}
+          <Image src='/icons/chartArea.svg' alt={t("graphs:sibling_graph.change_graph_type")} width={16} height={16} />
         </button>
       </menu>
       <article className="smooth padding-inline-25 padding-bottom-50 purewhite" style={{ border: '1px solid var(--gray)' }}>
-        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{ fontSize: '1rem' }}>{t("components:sibling_graph.adjacent_goals")}</h2>
+        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{ fontSize: '1rem' }}>{t("graphs:sibling_graph.adjacent_goals")}</h2>
         <div style={{ height: '500px' }}>
           <WrappedChart
             key={"combinedGraph"}

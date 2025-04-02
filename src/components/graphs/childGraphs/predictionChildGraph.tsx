@@ -65,7 +65,7 @@ export default function PredictionChildGraph({
       }
       if (totalEffect.length > 0) {
         dataPoints.push({
-          name: `${child.name || child.indicatorParameter.split('\\').slice(-1)[0]} (${child.roadmapName || t("components:prediction_child_graph.unknown_roadmap")})`,
+          name: `${child.name || child.indicatorParameter.split('\\').slice(-1)[0]} (${child.roadmapName || t("graphs:prediction_child_graph.unknown_roadmap")})`,
           data: totalEffect,
           type: isStacked ? 'area' : 'line',
         });
@@ -76,7 +76,7 @@ export default function PredictionChildGraph({
   // Early return if there is no data to compare
   if (dataPoints.length < 2) {
     return <b className="flex justify-content-center align-items-center font-weight-500 padding-inline-100" style={{ width: '100%', height: '100%' }}>
-      {t("components:prediction_child_graph.no_child_roadmaps")}
+      {t("graphs:prediction_child_graph.no_child_roadmaps")}
     </b>
   }
 

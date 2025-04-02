@@ -24,7 +24,7 @@ export default function GraphCookie() {
           clearStorage();
         }
       }} />
-      {t("components:graph_cookie.save_preferences")}
+      {t("graphs:graph_cookie.save_preferences")}
     </label>
   )
 }

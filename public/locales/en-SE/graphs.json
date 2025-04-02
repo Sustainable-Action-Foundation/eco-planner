@@ -1,0 +1,60 @@
+{
+  "action_graph": {
+    "actions": "{{$t(common:action_other), titleCase}}"
+  },
+  "child_graph_container": {
+    "change_graph_type": "Change graph type",
+    "goals_toward": "{{$t(common:goal_other), titleCase}} contributing to {{goalName}}"
+  },
+  "child_graph_selector": {
+    "target_paths": "{{$t(common:goal_other), titleCase}}",
+    "expected_outcomes": "Expected outcomes"
+  },
+  "goal_child_graph": {
+    "unknown_roadmap": "Unknown $t(common:roadmap_version_one)"
+  },
+  "graph_cookie": {
+    "save_preferences": "Save future view changes between sessions and page navigations"
+  },
+  "graph_graph": {
+    "compare_with_goal": "Compare with $t(common:goal_one) {{goalName}}",
+    "historical_data_source": "The historical data in the graph is fetched from <a>{{source}}</a>"
+  },
+  "graph_selector": {
+    "show": "Show",
+    "goal": "{{$t(common:goal_one), titleCase}}",
+    "annual_change": "Annual change",
+    "percentage_change": "Percentage change"
+  },
+  "main_delta_graph": {
+    "annual_change": "Annual change in {{unit}}",
+    "percentage_points": "percentage points",
+    "baseline_scenario": "Baseline scenario",
+    "expected_outcome": "Expected outcome",
+    "national_counterpart": "$t(common:scope.national) counterpart"
+  },
+  "main_graph": {
+    "baseline_scenario": "Baseline scenario",
+    "expected_outcome": "Expected outcome",
+    "national_counterpart": "$t(common:scope.national) counterpart",
+    "national_goal": "$t(common:scope.national) $t(common:goal_one)",
+    "history": "History",
+    "secondary_goal": "Secondary $t(common:goal_one) ({{unit}})"
+  },
+  "main_relative_graph": {
+    "percent_relative_to_base_year": "Percent relative to base year",
+    "national_counterpart": "$t(common:scope.national) counterpart"
+  },
+  "prediction_child_graph": {
+    "unknown_roadmap": "Unknown $t(common:roadmap_version_one)",
+    "no_child_roadmaps": "No underlying $t(common:goal_other) with $t(common:effect_other) or custom baselines found"
+  },
+  "secondary_graph_selector": {
+    "compare_with": "Compare $t(common:goal_one)",
+    "compare": "Compare"
+  },
+  "sibling_graph": {
+    "change_graph_type": "Change graph type",
+    "adjacent_goals": "Adjacent $t(common:goal_other)"
+  }
+}

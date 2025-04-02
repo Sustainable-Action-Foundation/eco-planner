@@ -49,8 +49,8 @@ export default function MainGraph({
         labels: { formatter: floatSmoother },
         seriesName: [
           (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
-          t("components:main_graph.baseline_scenario"),
-          t("components:main_graph.expected_outcome"),
+          t("graphs:main_graph.baseline_scenario"),
+          t("graphs:main_graph.expected_outcome"),
           (secondaryGoal?.dataSeries?.unit == goal.dataSeries.unit) ? (secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0] : "",
         ]
       }
@@ -91,7 +91,7 @@ export default function MainGraph({
       });
     }
     mainChart.push({
-      name: t("components:main_graph.baseline_scenario"),
+      name: t("graphs:main_graph.baseline_scenario"),
       data: baseline,
       type: 'line',
     })
@@ -102,7 +102,7 @@ export default function MainGraph({
       // Line based on totalEffect + baseline
       if (totalEffect.length > 0) {
         mainChart.push({
-          name: t("components:main_graph.expected_outcome"),
+          name: t("graphs:main_graph.expected_outcome"),
           data: totalEffect,
           type: 'line',
         });
@@ -126,14 +126,14 @@ export default function MainGraph({
           });
         }
         mainChart.push({
-          name: t("components:main_graph.baseline_scenario"),
+          name: t("graphs:main_graph.baseline_scenario"),
           data: baseline,
           type: 'line',
         });
 
         // Line based on totalEffect
         mainChart.push({
-          name: t("components:main_graph.expected_outcome"),
+          name: t("graphs:main_graph.expected_outcome"),
           data: totalEffect,
           type: 'line',
         });
@@ -160,7 +160,7 @@ export default function MainGraph({
     // TODO: Use mathjs to see if the units are the same, rather than just comparing strings
     if (secondaryGoal.dataSeries.unit != goal.dataSeries.unit) {
       (mainChartOptions.yaxis as ApexYAxis[]).push({
-        title: { text: `${t("components:main_graph.secondary_goal", { unit: secondaryGoal.dataSeries.unit })}` },
+        title: { text: `${t("graphs:main_graph.secondary_goal", { unit: secondaryGoal.dataSeries.unit })}` },
         labels: { formatter: floatSmoother },
         seriesName: [(secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0]],
         opposite: true,
@@ -179,14 +179,14 @@ export default function MainGraph({
       });
     }
     mainChart.push({
-      name: t("components:main_graph.national_counterpart"),
+      name: t("graphs:main_graph.national_counterpart"),
       data: nationalSeries,
       type: 'line',
     });
     (mainChartOptions.yaxis as ApexYAxis[]).push({
-      title: { text: t("components:main_graph.national_goal") },
+      title: { text: t("graphs:main_graph.national_goal") },
       labels: { formatter: floatSmoother },
-      seriesName: [t("components:main_graph.national_counterpart")],
+      seriesName: [t("graphs:main_graph.national_counterpart")],
       opposite: true,
     });
   }
@@ -210,7 +210,7 @@ export default function MainGraph({
         type: 'line',
       });
       (mainChartOptions.yaxis as ApexYAxis[]).push({
-        title: { text: t("components:main_graph.history") },
+        title: { text: t("graphs:main_graph.history") },
         labels: { formatter: floatSmoother },
         seriesName: [`${historicalData.metadata[0]?.label}`],
         opposite: true,

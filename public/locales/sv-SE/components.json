@@ -1,7 +1,4 @@
 {
-  "action_graph": {
-    "actions": "{{$t(common:action_other), titleCase}}"
-  },
   "action_table": {
     "no_actions": "Det finns inga $t(common:action_other) att visa.",
     "wanna_create_action": "Vill du skapa en?",
@@ -14,14 +11,6 @@
     "version": "Version {{version}}",
     "goal": "{{$t(common:goal_one), titleCase}}:",
     "action": "{{$t(common:action_one), titleCase}}:"
-  },
-  "child_graph_container": {
-    "change_graph_type": "Ändra graftyp",
-    "goals_toward": "{{$t(common:goal_other), titleCase}} som jobbar mot {{goalName}}"
-  },
-  "child_graph_selector": {
-    "target_paths": "{{$t(common:goal_other), titleCase}}",
-    "expected_outcomes": "Förväntade utfall"
   },
   "comments": {
     "comment": "Kommentar",
@@ -66,10 +55,7 @@
     "no_effects": "Det finns inga $t(common:effect_other) att visa.",
     "wanna_create_effect": "Vill du skapa en?",
     "create_new_effect": "$t(common:new.effect)",
-    "effect_missing_name": "Namn saknas" 
-  },
-  "goal_child_graph": {
-    "unknown_roadmap": "Okänd $t(common:roadmap_version_one)"
+    "effect_missing_name": "Namn saknas"
   },
   "goal_edit": {
     "title": "$t(common:edit.goal)"
@@ -93,19 +79,6 @@
     "new_goal": "$t(common:new.goal)",
     "loading_alt": "Laddar"
   },
-  "graph_cookie": {
-    "save_preferences": "Spara framtida vyändringar mellan sessioner och sidnavigeringar"
-  },
-  "graph_graph": {
-    "compare_with_goal": "Jämför $t(common:goal_one) med {{goalName}}",
-    "historical_data_source": "Den historiska datan i grafen är hämtad från <a>{{source}}</a>"
-  },
-  "graph_selector": {
-    "show": "Visa",
-    "goal": "{{$t(common:goal_one), titleCase}}",
-    "annual_change": "Årlig förändring",
-    "percentage_change": "Procentuell förändring"
-  },
   "image_attribute": {
     "by": "Foto av",
     "on": "på"
@@ -128,29 +101,6 @@
   },
   "logout_button": {
     "logout": "Logga ut"
-  },
-  "main_delta_graph": {
-    "annual_change": "Årlig förändring i {{unit}}",
-    "percentage_points": "procentenheter",
-    "baseline_scenario": "Basscenario",
-    "expected_outcome": "Förväntat utfall",
-    "national_counterpart": "$t(common:scope.national) motsvarighet"
-  },
-  "main_graph": {
-    "baseline_scenario": "Basscenario",
-    "expected_outcome": "Förväntat utfall",
-    "national_counterpart": "$t(common:scope.national) motsvarighet",
-    "national_goal": "$t(common:scope.national) $t(common:goal_one)",
-    "history": "Historik",
-    "secondary_goal": "Sekundär $t(common:goal_one) ({{unit}})"
-  },
-  "main_relative_graph": {
-    "percent_relative_to_base_year": "Procent i förhållande till basår",
-    "national_counterpart": "$t(common:scope.national) motsvarighet"
-  },
-  "prediction_child_graph": {
-    "unknown_roadmap": "Okänd $t(common:roadmap_version_one)",
-    "no_child_roadmaps": "Inga underliggande $t(common:goal_other) med $t(common:effect_other) eller anpassade baslinjer hittades"
   },
   "query_builder": {
     "add_historical_data": "Lägg till historisk data",
@@ -200,14 +150,6 @@
     "no_roadmap_series_ones": "Inga $t(common:roadmap_series_other) hittades. Om du har några aktiva filter hittades inga $t(common:roadmap_series_other) som matchar dem.",
     "show_source_alt": "Visa underliggande $t(common:roadmap_version_other)",
     "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
-  },
-  "secondary_graph_selector": {
-    "compare_with": "Jämför $t(common:goal_one)",
-    "compare": "Jämför"
-  },
-  "sibling_graph": {
-    "change_graph_type": "Ändra graftyp",
-    "adjacent_goals": "Angränsande $t(common:goal_other)"
   },
   "sidebar": {
     "toggle_menu_alt": "Växla meny",

@@ -80,7 +80,7 @@ export default function MainRelativeGraph({
       });
     }
     chart.push({
-      name: t("components:main_relative_graph.national_counterpart"),
+      name: t("graphs:main_relative_graph.national_counterpart"),
       data: nationalSeries,
       type: 'line',
     });
@@ -102,7 +102,7 @@ export default function MainRelativeGraph({
       max: new Date(dataSeriesDataFieldNames[dataSeriesDataFieldNames.length - 1].replace('val', '')).getTime()
     },
     yaxis: {
-      title: { text: t("components:main_relative_graph.percent_relative_to_base_year") },
+      title: { text: t("graphs:main_relative_graph.percent_relative_to_base_year") },
       labels: { formatter: floatSmoother },
     },
     tooltip: {

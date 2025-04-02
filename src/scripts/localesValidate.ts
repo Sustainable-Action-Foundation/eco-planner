@@ -907,7 +907,7 @@ function getFlattenedKeys(locale: Locales, namespace: string) {
   return keys;
 }
 /** Get flattened keys and their values in a flattened object */
-function getFlattenedLocaleFile(locale: Locales, namespace: string) {
+export function getFlattenedLocaleFile(locale: Locales, namespace: string) {
   const file = `${localesDir}/${locale}/${namespace}.json`;
   try { JSON.parse(fs.readFileSync(file, "utf-8")); }
   catch (e) {

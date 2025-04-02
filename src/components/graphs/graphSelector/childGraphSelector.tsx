@@ -32,8 +32,8 @@ export default function ChildGraphSelector({
   return (
     <>
       <select onChange={handleSelectChange} value={currentSelection} style={{ padding: '.3rem .5rem', borderRadius: '2px', fontSize: '.75rem' }}>
-        <option value={ChildGraphType.Target}>{t("components:child_graph_selector.target_paths")}</option>
-        <option value={ChildGraphType.Prediction}>{t("components:child_graph_selector.expected_outcomes")}</option>
+        <option value={ChildGraphType.Target}>{t("graphs:child_graph_selector.target_paths")}</option>
+        <option value={ChildGraphType.Prediction}>{t("graphs:child_graph_selector.expected_outcomes")}</option>
       </select>
     </>
   );

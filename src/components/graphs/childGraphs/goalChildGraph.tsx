@@ -65,7 +65,7 @@ export default function GoalChildGraph({
     // Only add the series to the graph if it isn't all null/0
     if (childSeries.filter((entry) => entry.y).length > 0) {
       dataPoints.push({
-        name: `${child.name || child.indicatorParameter.split('\\').slice(-1)[0]} (${child.roadmapName || t("components:goal_child_graph.unknown_roadmap")})`,
+        name: `${child.name || child.indicatorParameter.split('\\').slice(-1)[0]} (${child.roadmapName || t("graphs:goal_child_graph.unknown_roadmap")})`,
         data: childSeries,
         type: isStacked ? 'area' : 'line',
       });

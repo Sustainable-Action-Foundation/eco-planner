@@ -31,7 +31,7 @@ export default async function ActionGraph({
   actionData.sort(actionGraphSorter)
 
   series.push({
-    name: t("components:action_graph.actions"),
+    name: t("graphs:action_graph.actions"),
     data: actionData,
     type: 'rangeBar',
   })
