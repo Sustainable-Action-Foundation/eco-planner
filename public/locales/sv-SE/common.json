@@ -35,13 +35,26 @@
     "effect": "Redigera effekt",
     "goal": "Redigera målbana"
   },
+  "count": {
+    "roadmap_series": "{{count}} $t(common:roadmap_series, {\"count\":{{count}}})",
+    "roadmap_version": "{{count}} $t(common:roadmap_version, {\"count\":{{count}}})",
+    "action": "{{count}} $t(common:action, {\"count\":{{count}}})",
+    "goal": "{{count}} $t(common:goal, {\"count\":{{count}}})",
+    "effect": "{{count}} $t(common:effect, {\"count\":{{count}}})"
+  },
   "layout": {
     "app_name_compact": "Eco Planner",
     "app_name": "Eco - Planner",
     "meta_description": "Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella användare kan inspireras av varandras $t(action_other), på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring $t(action_other).",
     "og_locale": "sv_SE"
   },
-  "ellipsis": "...",
+  "tsx": {
+    "home": "Hem",
+    "login": "Logga in",
+    "logout": "Logga ut",
+    "cancel": "Avbryt",
+    "ellipsis": "..."
+  },
   "scope": {
     "national": "Nationell",
     "regional": "Regional",

@@ -85,7 +85,7 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
               </span>
             </div>
             <p className="margin-0" style={{ wordBreak: 'break-word', }}>
-              {expandedComments.includes(comment.id) ? comment.commentText : comment.commentText.length > 300 ? `${comment.commentText.substring(0, 300)}${t("common:ellipsis")}` : comment.commentText}
+              {expandedComments.includes(comment.id) ? comment.commentText : comment.commentText.length > 300 ? `${comment.commentText.substring(0, 300)}${t("common:tsx.ellipsis")}` : comment.commentText}
             </p>
             {comment.commentText.length > 300 ?
               <button className={`margin-block-25 ${styles.readMoreButton}`} onClick={() => expandComment(comment.id)}>
