@@ -763,49 +763,80 @@ function TestInFileTransKeysDefined() {
   );
 }
 
-/**  */
-// function TestInFileTransSyntax() {
-//   const perFile: { [key: string]: string[] } = {};
+/** Checks if the <Trans /> tags have valid syntax */
+function TestInFileTransSyntax() {
+  const perFile: { [key: string]: string[] } = {};
 
-//   // // @ts-expect-error - This test runs on tsx so it's not dependant on tsconfig
-//   // const transTagRegex = /<Trans.*?\/>(?!\s*\}\})(?!,)/gmus;
+  // @ts-expect-error - This test runs on tsx so it's not dependant on tsconfig
+  const transTagRegex = /<Trans.*?\/>(?!\s*\}\})(?!,)/gmus;
 
-//   const files = glob.sync(appFiles, { ignore: ["src/scripts/**/*"] });
+  const files = glob.sync(appFiles, { ignore: ["src/scripts/**/*"] });
 
-//   // const values: Record<string, string> = {};
-//   // expectedLocales.forEach(locale => {
-//   //   expectedNS.forEach(namespace => {
-//   //     const flattened = getFlattenedLocaleFile(locale, namespace);
-//   //     Object.assign(values, flattened);
-//   //   });
-//   // });
+  const values: { [key in typeof expectedLocales as string]: Record<string, string> } = {};
+  expectedLocales.forEach(locale => {
+    values[locale] = {};
+    expectedNS.forEach(namespace => {
+      const flattened = getFlattenedLocaleFile(locale, namespace);
+      Object.assign(values[locale], flattened);
+    });
+  });
 
-//   // console.debug(values);
+  files.forEach(filePath => {
+    const content = fs.readFileSync(filePath, "utf-8");
 
-//   files.forEach(filePath => {
-//     const content = fs.readFileSync(filePath, "utf-8");
+    const transTags = content.matchAll(transTagRegex) || [];
 
-//     const transTags = content.matchAll(transTagRegex) || [];
+    Array.from(transTags).forEach(call => {
+      const [matchTrans] = call;
+      const collapsedWhitespace = matchTrans.replace(/\s+/g, " ");
 
-//     Array.from(transTags).forEach(call => {
-//       const [match] = call;
-//       const collapsedWhitespace = match.replace(/\s+/g, " ");
+      const i18nKeyStringMatch = collapsedWhitespace.match(/\si18nKey=["'](.*?)["']/);
+      const i18nKeyVarMatch = collapsedWhitespace.match(/\si18nKey=\{(.*?)\}/);
 
-//       const i18nKeyMatch = collapsedWhitespace.match(/i18nKey=["'](.*?)["']/);
+      if (i18nKeyVarMatch) {
+        return; // Skip if it's a variable
+      }
 
-//       // Missing key
-//       if (!i18nKeyMatch) {
-//         if (!perFile[filePath]) perFile[filePath] = [];
-//         perFile[filePath].push(`[Missing i18nKey] > '${match}'`);
-//         return;
-//       }
+      // Missing key
+      if (!i18nKeyStringMatch) {
+        if (!perFile[filePath]) perFile[filePath] = [];
+        perFile[filePath].push(`[Missing i18nKey] > '${matchTrans}'`);
+        return;
+      }
 
-//       // Value of the 
-//       const values: Record<string, string> = {};
-//     });
-//   });
-// }
+      const componentsMatch = collapsedWhitespace.match(/components=\{\{(.*?)\}\}/);
 
+      // Value of key
+      const i18nKey = i18nKeyStringMatch[1];
+      expectedLocales.forEach(locale => {
+        const value = values[locale][i18nKey];
+        if (!value) {
+          if (!perFile[filePath]) perFile[filePath] = [];
+          perFile[filePath].push(`[Undefined i18nKey] > '${collapsedWhitespace}'`);
+        }
+
+        // Is it using components?
+        const componentsInValue = /<.*?>/.test(value);
+        const componentsInTag = componentsMatch && componentsMatch[1] !== "null" && componentsMatch[1] !== "undefined";
+        if (componentsInTag && !componentsInValue) {
+          if (!perFile[filePath]) perFile[filePath] = [];
+          perFile[filePath].push(`[Missing components in value] > '${collapsedWhitespace}'`);
+        }
+        if (!componentsInTag && componentsInValue) {
+          if (!perFile[filePath]) perFile[filePath] = [];
+          perFile[filePath].push(`[Missing components in tag] > '${collapsedWhitespace}'`);
+        }
+      });
+    });
+  });
+
+  const totalBadKeys = Object.values(perFile).flat().length;
+
+  assert(totalBadKeys === 0,
+    `Syntax issues in <Trans />: ${JSON.stringify(perFile, null, 2)}`,
+    "Valid syntax in <Trans />"
+  );
+}
 
 
 /** Run all tests */
@@ -831,7 +862,7 @@ TestInFileKeysDefined();
 TestInFileNamespaceConsistency();
 TestInFileCommonKeyUse();
 TestInFileTransKeysDefined();
-// TestInFileTransSyntax();
+TestInFileTransSyntax();
 console.info(`
 All tests passed! 🎉
 `);
