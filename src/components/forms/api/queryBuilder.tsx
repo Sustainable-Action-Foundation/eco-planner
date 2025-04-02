@@ -461,13 +461,13 @@ export default function QueryBuilder({
                       </label>
                     </div>
                   </fieldset>
-                  <fieldset name="variableSelectionFieldset" disabled={true} className={`margin-block-100 smooth padding-25 fieldset-unset-pseudo-class`} style={{ border: `${shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? "1px solid var(--gray-90)" : ""}`, maxHeight: "280px" }}>
+                  <fieldset name="variableSelectionFieldset" disabled={true} className={`margin-block-100 smooth padding-25 fieldset-unset-pseudo-class`} style={{ border: `${shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? "1px solid var(--gray-90)" : ""}`, maxHeight: "322px" }}>
                     {shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
                       <>
                         <legend className="padding-inline-50">
                           <b>Välj värden för tabell</b>
                         </legend>
-                        <div className={`${styles.temporary}`} style={{ maxHeight: "240px", boxSizing: "content-box", padding: ".25rem", paddingRight: ".375rem" }}>
+                        <div className={`${styles.temporary}`} style={{ maxHeight: "282px", boxSizing: "content-box", padding: ".25rem", paddingRight: ".375rem" }}>
                           {tableDetails.times &&
                             timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
                           }

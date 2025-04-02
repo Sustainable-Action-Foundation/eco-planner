@@ -9,6 +9,14 @@
   padding: 0 1rem;
 }
 
+.formSlider>.formSlide *:first-child:not(:only-child) {
+  margin-top: 0;
+}
+
+.formSlider>.formSlide *:last-child:not(:only-child) {
+  margin-bottom: 0;
+}
+
 .indicatorWrapper {
   @media(max-width: 615px) {
     grid-column: 1 / 3;
