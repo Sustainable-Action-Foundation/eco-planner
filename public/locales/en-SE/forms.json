@@ -1,22 +1,4 @@
 {
-  "common": {
-    "{{attach_external_resources,attach_external}}": "Attach external resources",
-    "{{choose_relationship,relationship_legend}}": "Specify the relationship to other posts",
-    "{{data_series,data_series_type_label}}": "Data series",
-    "{{to_year_by_year_info,to_absolute_info}}": "<strong>Note</strong> that there is a small margin of error around the 14th decimal when converting due to \"floating point errors\".",
-    "absolute": "Absolute difference compared to baseline",
-    "change_edit_access": "Adjust editing access",
-    "change_read_access": "Adjust read access",
-    "data_series_info": "The \"Data series\" field accepts a series of values separated by semicolons or tabs, which means you can paste a series of values from Excel or similar.<br /><strong>NOTE: Values must not be separated by commas (\",\").</strong><br />Decimal numbers can use either decimal points or decimal commas.<br />The first value represents the year 2020 and the series can continue up to the year 2050 (a total of 31 values).<br />If values are missing for a year, you can leave it blank, for example \";1;;;;5\" can be used to specify the values 1 and 5 for the years 2021 and 2025.",
-    "data_series_title": "Use numeric values separated by semicolons or tabs. Decimal numbers can use either dots or commas.",
-    "delta": "Change year by year (delta)",
-    "extra_info_data_series": "Extra information about data series",
-    "impact_type_label": "What type of impact does $t(common:action_definite_one) have?",
-    "percent": "Difference compared to baseline as a percentage of the previous year's total value (baseline + $t(common:action_other))",
-    "select_goal": "Select $t(common:goal_one)",
-    "unit_missing": "Unit missing",
-    "unnamed_goal": "Unnamed $t(common:goal_one)"
-  },
   "access_selector": {
     "groups_with_edit_access": "Groups with editing access",
     "users_with_edit_access": "Users with editing access",

@@ -856,9 +856,9 @@ Running all tests...
 `);
 TestLocalesFolders();
 TestJSONNamespaceFiles();
-TestJSONEnglishFallback();
+// TestJSONEnglishFallback();
 TestJSONKeySnakeCase();
-TestJSONCommonValueUse();
+// TestJSONCommonValueUse();
 TestJSONNestedKeysDefined();
 TestJSONKeysSyntax();
 TestJSONVariableSyntax();

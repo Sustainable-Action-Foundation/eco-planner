@@ -91,7 +91,6 @@
     "breadcrumb": "Update password",
     "description": "Enter your new password below and submit to update your password.",
     "password": "New password",
-    "password_placeholder": "new password",
     "submit": "Change password"
   },
   "profile": {

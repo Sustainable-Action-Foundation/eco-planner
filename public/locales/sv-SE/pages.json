@@ -80,7 +80,7 @@
     "commit_without_link": "Baserad på commit: {{commit}}"
   },
   "login": {
-    "breadcrumb": "Logga in"
+    "breadcrumb": "$t(common:tsx.login)"
   },
   "password": {
     "breadcrumb": "Återställ lösenord",
@@ -91,7 +91,6 @@
     "breadcrumb": "Uppdatera lösenord",
     "description": "Fyll i ditt nya lösenord nedan och klicka på knappen för att uppdatera ditt lösenord.",
     "password": "Nytt lösenord",
-    "password_placeholder": "nytt lösenord",
     "submit": "Byt lösenord"
   },
   "profile": {

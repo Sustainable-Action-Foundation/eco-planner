@@ -1,20 +1,4 @@
 {
-  "common": {
-    "{{add_data_source,add_data_source_button}}": "Lägg till datakälla",
-    "{{delete_post,delete}}": "Radera inlägg",
-    "{{effect_missing_name,delete_missing_name}}": "Namn saknas",
-    "{{no_comments,comment_count_zero}}": "Inga kommentarer",
-    "{{no_goals,no_roadmaps}}": "Du har inte tillgång till några $t(common:goal_other) i denna $t(common:roadmap_version_one), eller så är $t(common:roadmap_version_definite_one) tom.",
-    "{{sort_default,default}}": "Standard",
-    "{{sort_name_ascending,name_ascending}}": "Namn (Ö-A)",
-    "{{sort_name_descending,name_descending}}": "Namn (A-Ö)",
-    "{{wanna_create_action,wanna_create_effect}}": "Vill du skapa en?",
-    "create_account": "Skapa konto",
-    "home": "Hem",
-    "login": "Logga in",
-    "password": "Lösenord",
-    "username": "Användarnamn"
-  },
   "action_table": {
     "no_actions": "Det finns inga $t(common:action_other) att visa.",
     "wanna_create_action": "Vill du skapa en?",
@@ -98,10 +82,8 @@
   },
   "login": {
     "login_failed": "Inloggningen misslyckades. Kontrollera dina uppgifter och försök igen.",
-    "login": "Logga in",
     "username": "Användarnamn",
     "password": "Lösenord",
-    "password_placeholder": "lösenord",
     "remember_me": "Kom ihåg mig",
     "forgot_password": "Glömt lösenordet?",
     "no_account": "Har du inget konto?",
@@ -109,7 +91,7 @@
     "verify_account": "Verifiera mitt konto"
   },
   "logout_button": {
-    "logout": "Logga ut"
+    "failed": "Utloggningen misslyckades"
   },
   "query_builder": {
     "add_historical_data": "Lägg till historisk data",
@@ -162,10 +144,9 @@
     "toggle_menu_alt": "Växla meny",
     "my_profile": "Mitt konto",
     "create_account": "Skapa konto",
-    "home": "Hem",
+    "home": "$t(common:tsx.home)",
     "about": "Om verktyget",
-    "language_alt": "Byt språk",
-    "login": "Logga in"
+    "language_alt": "Byt språk"
   },
   "signup": {
     "signup_failed_motivated": "Registreringen misslyckades. Skäl: {{reason}}",
@@ -174,9 +155,7 @@
     "username": "Användarnamn",
     "email": "E‑postadress",
     "password": "Lösenord",
-    "password_placeholder": "lösenord",
     "already_have_account": "Har du redan ett konto?",
-    "login": "Logga in",
     "disclaimer": "Din organisation måste ha tecknat ett användaravtal med oss för att du ska kunna skapa ett konto.\n\nVid frågor eller funderingar, vänligen kontakta"
   },
   "table_menu": {

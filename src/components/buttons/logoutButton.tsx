@@ -14,12 +14,12 @@ export default function LogoutButton() {
         if (res.ok) {
           window.location.href = '/'
         } else {
-          alert('Logout failed.')
+          alert(t("components:logout_button.failed"))
         }
       })
     }}>
       <Image src="/icons/logout.svg" alt="" width="24" height="24" />
-      {t("components:logout_button.logout")}
+      {t("common:tsx.logout")}
     </button>
   )
 }

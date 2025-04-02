@@ -72,7 +72,7 @@ export default function Signup() {
 
         <input value={t("components:signup.create_account")} className="block margin-top-200 smooth font-weight-bold seagreen color-purewhite" type="submit" />
         <p className="text-align-center padding-block-50 margin-bottom-100 margin-top-0">
-          {t("components:signup.already_have_account")} <Link href='/login'>{t("components:signup.login")}</Link>
+          {t("components:signup.already_have_account")} <Link href='/login'>{t("common:tsx.login")}</Link>
         </p>
         <p className="text-align-center padding-block-50 margin-bottom-100 margin-top-0">
           {t("components:signup.disclaimer")} <Link href='mailto:kontakt@sustainable-action.org'>kontakt@sustainable-action.org</Link>

@@ -51,7 +51,7 @@ export default async function Sidebar() {
             :
             <Link href="/login" className={styles.link}>
               <Image src='/icons/login.svg' alt='' width={24} height={24} />
-              {t("components:sidebar.login")}
+              {t("common:tsx.login")}
             </Link>
           }
         </nav>

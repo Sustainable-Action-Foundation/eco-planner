@@ -1,19 +1,4 @@
 {
-  "common": {
-    "{{add_data_source,add_data_source_button}}": "Add data source",
-    "{{delete_post,delete}}": "Delete post",
-    "{{effect_missing_name,button_aria_alt,delete_missing_name}}": "Name missing",
-    "{{no_comments,comment_count_zero}}": "No comments",
-    "{{sort_default,default}}": "Default",
-    "{{sort_name_ascending,name_ascending}}": "Name (Z-A)",
-    "{{sort_name_descending,name_descending}}": "Name (A-Z)",
-    "{{wanna_create_action,wanna_create_effect}}": "Do you want to create one?",
-    "create_account": "Create account",
-    "login": "Login",
-    "new_goal": "New $t(common:goal_one)",
-    "password": "Password",
-    "username": "Username"
-  },
   "action_table": {
     "no_actions": "There are no $t(common:action_other) to display.",
     "wanna_create_action": "Do you want to create one?",
@@ -97,10 +82,8 @@
   },
   "login": {
     "login_failed": "Login failed. Please try again.",
-    "login": "Login",
     "username": "Username",
     "password": "Password",
-    "password_placeholder": "password",
     "remember_me": "Remember me",
     "forgot_password": "Forgot password?",
     "no_account": "Don't have an account?",
@@ -108,7 +91,7 @@
     "verify_account": "Verify my account"
   },
   "logout_button": {
-    "logout": "Log out"
+    "failed": "Logout failed"
   },
   "query_builder": {
     "add_historical_data": "Add historical data",
@@ -163,8 +146,7 @@
     "create_account": "Create account",
     "home": "$t(common:tsx.home)",
     "about": "About the tool",
-    "language_alt": "Change language",
-    "login": "Login"
+    "language_alt": "Change language"
   },
   "signup": {
     "signup_failed_motivated": "Registration failed. Reason: {{reason}}",
@@ -173,9 +155,7 @@
     "username": "Username",
     "email": "Email",
     "password": "Password",
-    "password_placeholder": "password",
     "already_have_account": "Already have an account?",
-    "login": "Login",
     "disclaimer": "Your organization must have signed a user agreement with us for you to be able to create an account.\n\nIf you have any questions or concerns, please contact"
   },
   "table_menu": {

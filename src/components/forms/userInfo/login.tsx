@@ -47,7 +47,7 @@ export default function Login() {
   return (
     <>
       <form onSubmit={(event: React.ChangeEvent<HTMLFormElement>) => handleSubmit(event, t)} className={`${styles.padding}`}>
-        <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid var(--gray-90)' }}>{t("components:login.login")}</h1>
+        <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid var(--gray-90)' }}>{t("common:tsx.login")}</h1>
 
         <label className="block margin-block-100">
           {t("components:login.username")}
@@ -78,7 +78,7 @@ export default function Login() {
 
         </div>
 
-        <input type="submit" value={t("components:login.login")} className="block font-weight-bold seagreen smooth color-purewhite margin-top-200" />
+        <input type="submit" value={t("common:tsx.login")} className="block font-weight-bold seagreen smooth color-purewhite margin-top-200" />
 
         <div className="flex gap-100 align-items-center justify-content-space-between alignt-items-center flex-wrap-wrap margin-block-100">
           <span>{t("components:login.no_account")} <Link href='/signup'>{t("components:login.create_account")}</Link></span>

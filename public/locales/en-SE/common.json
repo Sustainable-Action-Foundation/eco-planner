@@ -51,7 +51,7 @@
   "tsx":{
     "home": "Home",
     "login": "Login",
-    "logout": "Logout",
+    "logout": "Log out",
     "cancel": "Cancel",
     "ellipsis": "...",
     "show": "Show",

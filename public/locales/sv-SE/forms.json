@@ -1,23 +1,4 @@
 {
-  "common": {
-    "{{attach_external_resources,attach_external}}": "Bifoga externa resurser",
-    "{{choose_relationship,relationship_legend}}": "Ange relationen till andra inlägg",
-    "{{data_series,data_series_type_label}}": "Dataserie",
-    "{{no_option_selected,roadmap_target_no_chosen}}": "Inget alternativ valt",
-    "{{relationship_no_chosen,select_roadmap_version}}": "Välj $t(common:roadmap_version_one)",
-    "{{to_year_by_year_info,to_absolute_info}}": "<strong>OBS!</strong> Det finns en viss felmarginal runt 14:e decimalen vid konvertering på grund av så kallade \"floating point errors\".",
-    "absolute": "Absolut skillnad gentemot baslinje",
-    "change_edit_access": "Justera redigeringsbehörighet",
-    "change_read_access": "Justera läsbehörighet",
-    "data_series_info": "Fältet \"Dataserie\" tar emot en serie med värden som är separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie med värden från Excel eller liknande.<br /><strong>OBS: Värden får inte vara separerade med kommatecken (\",\").</strong><br />Decimaltal kan antingen skrivas med punkt eller kommatecken.<br />Det första värdet representerar år 2020 och serien kan som längst fortsätta till år 2050 (totalt 31 värden).<br />Om värden saknas för ett år kan du lämna det tomt, exempelvis anger \";1;;;;5\" värdena 1 och 5 för år 2021 respektive 2025.",
-    "data_series_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma.",
-    "delta": "Förändring år för år (delta)",
-    "extra_info_data_series": "Extra information om dataserie",
-    "impact_type_label": "Vilken typ av påverkan har $t(common:action_definite_one)?",
-    "select_goal": "Välj $t(common:goal_one)",
-    "unit_missing": "Enhet saknas",
-    "unnamed_goal": "Namnlös $t(common:goal_one)"
-  },
   "access_selector": {
     "groups_with_edit_access": "Grupper med redigeringsbehörighet",
     "users_with_edit_access": "Användare med redigeringsbehörighet",
