@@ -1,7 +1,7 @@
 - [X] Sort all root keys in alphabetical order
 - [X] Remove root keys that are not objects
 - [ ] Create common root object in most namespaces for shared keys
-- [ ] Create `graph` namespace
+- [X] Create `graph` namespace
 - [X] Add language aliases to language switcher
 - [X] Fix namespace inconsistencies that `yarn test:locales` catches
 - [X] Test <Trans /> uses

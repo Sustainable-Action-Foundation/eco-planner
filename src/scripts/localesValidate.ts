@@ -26,11 +26,12 @@ const exemptedValues: string[] = [
 /** A test checks for files using common namespace keys directly in the tsx instead of referencing them in another namespace. Matches against start of flattened key */
 const commonKeysAllowedDirectlyInFile: string[] = [
   "common:404.",
-  "common:ellipsis",
   "common:scaling_methods.",
   "common:scope.",
   "common:css.",
   "common:layout.",
+  "common:tsx.",
+  "common:count.",
 ];
 /** When checking if files in the app are using multiple namespaces, these files are ignored. */
 const mixedNamespacesExemptedFiles: string[] = ["src/app/layout.tsx"];

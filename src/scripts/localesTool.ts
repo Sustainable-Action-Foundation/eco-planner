@@ -53,7 +53,7 @@ function _ExtractLocalCommon() {
 
       const file = fs.readFileSync(`public/locales/${locale}/${namespace}.json`, "utf-8");
       const parsed = JSON.parse(file);
-      const newParsed = { ...parsed, common: { ...localCommon } };
+      const newParsed = { common: { ...localCommon }, ...parsed };
       fs.writeFileSync(`public/locales/${locale}/${namespace}.json`, JSON.stringify(newParsed, null, 2), "utf-8");
     });
   });
