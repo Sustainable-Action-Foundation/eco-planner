@@ -490,8 +490,9 @@ export default function QueryBuilder({
             )}
           </FormWrapper>
 
-          {tableContent && tableContent.data.length > 0 ? (
-            <>
+          {tableContent && tableContent.data.length > 0
+            ?
+            (<>
               <p>Ser detta rimligt ut? (visar max 5 värden)</p>
               <table>
                 <thead>
@@ -519,12 +520,22 @@ export default function QueryBuilder({
                     })}
                 </tbody>
               </table>
-            </>
-          ) : (
-            <div>
-              <p>Inget läsbart resultat hittades. Vänligen uppdatera dina val.</p>
-            </div>
-          )}
+            </>)
+            :
+            (document.getElementById("metric") as HTMLSelectElement)
+            &&
+            (document.getElementById("metric") as HTMLSelectElement).value.length != 0
+            &&
+            (formRef.current instanceof HTMLFormElement)
+            &&
+            formRef.current.checkValidity()
+            &&
+            (
+              <div>
+                <p>Inget läsbart resultat hittades. Vänligen uppdatera dina val.</p>
+              </div>
+            )
+          }
 
           <button id="submit-button" disabled={true} type="submit" className="hidden seagreen color-purewhite">Lägg till datakälla</button>
         </form>
