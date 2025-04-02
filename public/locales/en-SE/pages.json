@@ -1,7 +1,97 @@
 {
+  "action": {
+    "action_label": "{{$t(common:action_one), titleCase}}",
+    "effects_label": "{{$t(common:effect_other), titleCase}}",
+    "external_resources": "External resources",
+    "edit_action": "$t(common:edit.action)",
+    "edit_action_alt": "$t(common:edit.action): {{actionName}}",
+    "expected_effect": "Expected $t(common:effect_other)",
+    "no_effect": "No specified $t(common:effect_other)",
+    "cost_efficiency": "Cost efficiency",
+    "no_cost_efficiency": "No specified cost efficiency",
+    "project_manager": "Project manager",
+    "no_project_manager": "No specified project manager",
+    "relevant_actors": "Relevant actors",
+    "no_actors": "No specified actors",
+    "categories": "Categories",
+    "no_category": "No specified category",
+    "create_new_effect": "$t(common:new.effect)"
+  },
+  "action_create": {
+    "breadcrumb": "$t(common:new.action)",
+    "title": "$t(common:new.action)",
+    "title_with_goal": "Create a new $t(common:action_one) under $t(common:goal_one): {{goalName}}",
+    "bad_goal": "Could not find or do not have access to the $t(common:goal_one) in the link.",
+    "bad_roadmap": "Could not find or do not have access to the $t(common:roadmap_version_one) in the link.\nUse the dropdown menu to select a $t(common:roadmap_version_one)."
+  },
+  "action_edit": {
+    "breadcrumb": "$t(common:edit.action)",
+    "title": "$t(common:edit.action): {{actionName}} under $t(common:roadmap_version_one): {{roadmapName}} (v{{version}})"
+  },
+  "effect_create": {
+    "breadcrumb": "$t(common:new.effect)",
+    "title": "$t(common:new.effect)",
+    "bad_action": "Could not find or do not have access to the $t(common:action_one) in the link. Please select a new one in the form below.",
+    "bad_goal": "Could not find or do not have access to the $t(common:goal_one) in the link. Please select a new one in the form below."
+  },
+  "effect_edit": {
+    "breadcrumb": "$t(common:edit.effect)",
+    "title": "$t(common:edit.effect)",
+    "no_access": "{{$t(common:effect_definite_one), titleCase}} you are trying to edit does not exist or you do not have permission to edit it."
+  },
+  "goal": {
+    "update_needed": "Update your $t(common:goal_one) to get the latest information.",
+    "title_label": "{{$t(common:goal_one), titleCase}}",
+    "menu": "Menu",
+    "description": "Description",
+    "compare_with_goal": "Compare with $t(common:goal_definite_one) {{goalName}}",
+    "scale_notice": "All values in the $t(common:goal_definite_one) use the following scale: \"{{scale}}\"",
+    "scale_deprecation_warning": "Please bake the scale into the value or unit; scales will be removed in the future",
+    "actions_for_goal": "{{$t(common:action_other), titleCase}} for {{goalName}}",
+    "link_existing_action": "Link to an existing $t(common:action_one)",
+    "create_new_action": "$t(common:new.action)",
+    "action_timeline": "{{$t(common:action_one), titleCase}} timeline",
+    "goals_working_towards": "{{$t(common:goal_other), titleCase}} working towards {{goalName}}",
+    "related_goals": "Related $t(common:goal_other)"
+  },
+  "goal_create": {
+    "breadcrumb": "$t(common:new.goal)",
+    "title": "$t(common:new.goal)",
+    "bad_roadmap": "Could not find or do not have access to the $t(common:roadmap_version_one) version in the link.\n\nUse the dropdown menu to select a $t(common:roadmap_version_one) to create $t(common:goal_other) under."
+  },
+  "goal_edit": {
+    "breadcrumb": "$t(common:edit.goal)",
+    "title": "$t(common:edit.goal): {{goalName}}"
+  },
   "home": {
     "title": "{{$t(common:roadmap_short_other), titleCase}}",
     "create_roadmap": "$t(common:new.roadmap_series)"
+  },
+  "info": {
+    "breadcrumb": "Information",
+    "title": "Information",
+    "info_body": "This tool aims to contribute to Sweden's climate transition.\n\nIn the tool, national scenarios, also called quantitative roadmaps, can be broken down to regional and local levels and an action plan can be created.\n\nThe action plan is built up by actions which relate to a specific goal and the goals together make up the entire roadmap.\n\nUsers can be inspired by each other's actions, creating a common action database for Sweden.\n\nAt the local level, different actors can also collaborate on actions.",
+    "version": "Current version: {{version}}",
+    "known_remote": "This tool is licensed under AGPL version 3, with source code available on GitHub: <a>{{remote}}</a>",
+    "fallback_remote": "This tool is licensed under AGPL version 3, with source code available on <a>GitHub</a>",
+    "commit_with_link": "Based on commit: <a>{{commit}}</a>",
+    "commit_without_link": "Based on commit: {{commit}}"
+  },
+  "login": {
+    "breadcrumb": "Login"
+  },
+  "password": {
+    "breadcrumb": "Reset password",
+    "description": "Forgot your password? Enter your email here and we will send an email with instructions to reset your password.",
+    "email_placeholder": "name.surname@example.com",
+    "submit": "Submit"
+  },
+  "password_reset": {
+    "breadcrumb": "Update password",
+    "description": "Enter your new password below and submit to update your password.",
+    "password": "New password",
+    "password_placeholder": "new password",
+    "submit": "Change password"
   },
   "profile": {
     "handle_data": "Data management",
@@ -22,69 +112,11 @@
     "featured_goals": "Featured $t(common:goal_other)",
     "all_goals": "All $t(common:goal_other)"
   },
-  "action": {
-    "action_label": "{{$t(common:action_one), titleCase}}",
-    "effects_label": "{{$t(common:effect_other), titleCase}}",
-    "external_resources": "External resources",
-    "edit_action": "$t(common:edit.action)",
-    "edit_action_alt": "$t(common:edit.action): {{actionName}}",
-    "expected_effect": "Expected $t(common:effect_other)",
-    "no_effect": "No specified $t(common:effect_other)",
-    "cost_efficiency": "Cost efficiency",
-    "no_cost_efficiency": "No specified cost efficiency",
-    "project_manager": "Project manager",
-    "no_project_manager": "No specified project manager",
-    "relevant_actors": "Relevant actors",
-    "no_actors": "No specified actors",
-    "categories": "Categories",
-    "no_category": "No specified category",
-    "create_new_effect": "$t(common:new.effect)"
-  },
-  "info": {
-    "breadcrumb": "Information",
-    "title": "Information",
-    "info_body": "This tool aims to contribute to Sweden's climate transition.\n\nIn the tool, national scenarios, also called quantitative roadmaps, can be broken down to regional and local levels and an action plan can be created.\n\nThe action plan is built up by actions which relate to a specific goal and the goals together make up the entire roadmap.\n\nUsers can be inspired by each other's actions, creating a common action database for Sweden.\n\nAt the local level, different actors can also collaborate on actions.",
-    "version": "Current version: {{version}}",
-    "known_remote": "This tool is licensed under AGPL version 3, with source code available on GitHub: <a>{{remote}}</a>",
-    "fallback_remote": "This tool is licensed under AGPL version 3, with source code available on <a>GitHub</a>",
-    "commit_with_link": "Based on commit: <a>{{commit}}</a>",
-    "commit_without_link": "Based on commit: {{commit}}"
-  },
-  "login": {
-    "breadcrumb": "Login"
-  },
-  "verify": {
-    "title": "Verify your email",
-    "description": "An email has been sent to your email address. Verify your email by following the instructions in the email.",
-    "troubleshooting_title": "Haven't received an email?",
-    "troubleshooting_description": "Check your spam folder or fill in your email address below and click the button to receive a new email.",
-    "email_placeholder": "name.surname@example.com",
-    "submit_resend": "Resend email"
-  },
-  "verify_verify": {
-    "title": "Verify your email",
-    "description": "Verify your email by clicking the button below.",
-    "submit": "Verify my email"
-  },
-  "signup": {
-    "breadcrumb": "Create account"
-  },
-  "password": {
-    "breadcrumb": "Reset password",
-    "description": "Forgot your password? Enter your email here and we will send an email with instructions to reset your password.",
-    "email_placeholder": "name.surname@example.com",
-    "submit": "Submit"
-  },
-  "password_reset": {
-    "breadcrumb": "Update password",
-    "description": "Enter your new password below and submit to update your password.",
-    "password": "New password",
-    "password_placeholder": "new password",
-    "submit": "Change password"
-  },
-  "roadmap_series_one_create": {
-    "breadcrumb": "$t(common:new.roadmap_series)",
-    "title": "$t(common:new.roadmap_series)"
+  "roadmap_create": {
+    "breadcrumb": "$t(common:new.roadmap_version)",
+    "title": "Create a new version in a $t(common:roadmap_series_one)",
+    "bad_roadmap_series_one": "Could not find or do not have access to $t(common:roadmap_series_definite_one) in the link.",
+    "use_dropdown": "Use the dropdown menu to select a $t(common:roadmap_series_one)."
   },
   "roadmap_edit": {
     "breadcrumb": "$t(common:new.roadmap_version)",
@@ -98,60 +130,28 @@
     "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
     "create_roadmap_version": "$t(common:new.roadmap_version)"
   },
+  "roadmap_series_one_create": {
+    "breadcrumb": "$t(common:new.roadmap_series)",
+    "title": "$t(common:new.roadmap_series)"
+  },
   "roadmap_series_one_edit": {
     "breadcrumb": "Edit metadata",
     "title": "Edit metadata for $t(common:roadmap_series_definite_one): {{name}}"
   },
-  "goal_create": {
-    "breadcrumb": "$t(common:new.goal)",
-    "title": "$t(common:new.goal)",
-    "bad_roadmap": "Could not find or do not have access to the $t(common:roadmap_version_one) version in the link.\n\nUse the dropdown menu to select a $t(common:roadmap_version_one) to create $t(common:goal_other) under."
+  "signup": {
+    "breadcrumb": "Create account"
   },
-  "action_create": {
-    "breadcrumb": "$t(common:new.action)",
-    "title": "$t(common:new.action)",
-    "title_with_goal": "Create a new $t(common:action_one) under $t(common:goal_one): {{goalName}}",
-    "bad_goal": "Could not find or do not have access to the $t(common:goal_one) in the link.",
-    "bad_roadmap": "Could not find or do not have access to the $t(common:roadmap_version_one) in the link.\nUse the dropdown menu to select a $t(common:roadmap_version_one)."
+  "verify": {
+    "title": "Verify your email",
+    "description": "An email has been sent to your email address. Verify your email by following the instructions in the email.",
+    "troubleshooting_title": "Haven't received an email?",
+    "troubleshooting_description": "Check your spam folder or fill in your email address below and click the button to receive a new email.",
+    "email_placeholder": "name.surname@example.com",
+    "submit_resend": "Resend email"
   },
-  "action_edit": {
-    "breadcrumb": "$t(common:edit.action)",
-    "title": "$t(common:edit.action): {{actionName}} under $t(common:roadmap_version_one): {{roadmapName}} (v{{version}})"
-  },
-  "goal": {
-    "update_needed": "Update your $t(common:goal_one) to get the latest information.",
-    "title_label": "{{$t(common:goal_one), titleCase}}",
-    "menu": "Menu",
-    "description": "Description",
-    "compare_with_goal": "Compare with $t(common:goal_definite_one) {{goalName}}",
-    "scale_notice": "All values in the $t(common:goal_definite_one) use the following scale: \"{{scale}}\"",
-    "scale_deprecation_warning": "Please bake the scale into the value or unit; scales will be removed in the future",
-    "actions_for_goal": "{{$t(common:action_other), titleCase}} for {{goalName}}",
-    "link_existing_action": "Link to an existing $t(common:action_one)",
-    "create_new_action": "$t(common:new.action)",
-    "action_timeline": "{{$t(common:action_one), titleCase}} timeline",
-    "goals_working_towards": "{{$t(common:goal_other), titleCase}} working towards {{goalName}}",
-    "related_goals": "Related $t(common:goal_other)"
-  },
-  "goal_edit": {
-    "breadcrumb": "$t(common:edit.goal)",
-    "title": "$t(common:edit.goal): {{goalName}}"
-  },
-  "effect_create": {
-    "breadcrumb": "$t(common:new.effect)",
-    "title": "$t(common:new.effect)",
-    "bad_action": "Could not find or do not have access to the $t(common:action_one) in the link. Please select a new one in the form below.",
-    "bad_goal": "Could not find or do not have access to the $t(common:goal_one) in the link. Please select a new one in the form below."
-  },
-  "effect_edit": {
-    "breadcrumb": "$t(common:edit.effect)",
-    "title": "$t(common:edit.effect)",
-    "no_access": "{{$t(common:effect_definite_one), titleCase}} you are trying to edit does not exist or you do not have permission to edit it."
-  },
-  "roadmap_create": {
-    "breadcrumb": "$t(common:new.roadmap_version)",
-    "title": "Create a new version in a $t(common:roadmap_series_one)",
-    "bad_roadmap_series_one": "Could not find or do not have access to $t(common:roadmap_series_definite_one) in the link.",
-    "use_dropdown": "Use the dropdown menu to select a $t(common:roadmap_series_one)."
+  "verify_verify": {
+    "title": "Verify your email",
+    "description": "Verify your email by clicking the button below.",
+    "submit": "Verify my email"
   }
 }

@@ -1,13 +1,13 @@
 {
-  "signup": {
-    "from": "Eco Planner {{emailServer}}",
-    "subject": "Welcome to Eco Planner",
-    "body": "Welcome to Eco Planner! Please follow the link and press the button to verify your email: {{baseUrl}}/verify/verify?email={{email}}&hash={{userHash}}"
-  },
   "reset": {
     "from": "Eco Planner {{emailServer}}",
     "subject": "Reset password for Eco Planner",
     "body": "Hello! To reset your password, you can click on this link: {{baseUrl}}/password/reset?email={{email}}&hash={{userHash}}"
+  },
+  "signup": {
+    "from": "Eco Planner {{emailServer}}",
+    "subject": "Welcome to Eco Planner",
+    "body": "Welcome to Eco Planner! Please follow the link and press the button to verify your email: {{baseUrl}}/verify/verify?email={{email}}&hash={{userHash}}"
   },
   "verification": {
     "from": "Eco Planner {{emailServer}}",

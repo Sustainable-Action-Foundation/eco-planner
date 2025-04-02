@@ -1,5 +1,5 @@
-- [ ] Sort all root keys in alphabetical order
-- [ ] Remove root keys that are not objects
+- [X] Sort all root keys in alphabetical order
+- [X] Remove root keys that are not objects
 - [ ] Create common root object in most namespaces for shared keys
 - [ ] Create `graph` namespace
 - [X] Add language aliases to language switcher

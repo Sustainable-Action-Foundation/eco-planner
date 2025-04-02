@@ -1,73 +1,27 @@
 {
-  "sidebar": {
-    "toggle_menu_alt": "Toggle menu",
-    "my_profile": "My account",
-    "create_account": "Create account",
+  "action_graph": {
+    "actions": "{{$t(common:action_other), titleCase}}"
+  },
+  "action_table": {
+    "no_actions": "There are no $t(common:action_other) to display.",
+    "wanna_create_action": "Do you want to create one?",
+    "create_action": "$t(common:new.action)"
+  },
+  "breadcrumbs": {
     "home": "Home",
-    "about": "About the tool",
-    "language_alt": "Change language",
-    "login": "Login"
+    "roadmap_series": "{{$t(common:roadmap_series_one), titleCase}}:",
+    "version_label": "Version:",
+    "version": "Version {{version}}",
+    "goal": "{{$t(common:goal_one), titleCase}}:",
+    "action": "{{$t(common:action_one), titleCase}}:"
   },
-  "image_attribute": {
-    "by": "Photo by",
-    "on": "on"
+  "child_graph_container": {
+    "change_graph_type": "Change graph type",
+    "goals_toward": "{{$t(common:goal_other), titleCase}} contributing to {{goalName}}"
   },
-  "roadmap_filters": {
-    "search_roadmaps": "Search $t(common:roadmap_series_one)",
-    "sort_by": "Sort by:",
-    "default": "Default",
-    "name_descending": "Name (A-Z)",
-    "name_ascending": "Name (Z-A)",
-    "goal_count_descending": "{{$t(common:goal_one), titleCase}} count (high to low)",
-    "goal_count_ascending": "{{$t(common:goal_one), titleCase}} count (low to high)",
-    "filter": "Filter",
-    "show": "Show"
-  },
-  "roadmap_tree": {
-    "no_roadmap_series_ones": "No $t(common:roadmap_series_one) found. If you have any filters active, no $t(common:roadmap_series_one) were found that match them.",
-    "show_source_alt": "Show underlying $t(common:roadmap_version_other)",
-    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
-  },
-  "user_filters": {
-    "posts": "Posts",
-    "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
-    "roadmap_series": "{{$t(common:roadmap_series_one), titleCase}}",
-    "access_level": "Access level",
-    "editing_access": "Editing access"
-  },
-  "logout_button": {
-    "logout": "Log out"
-  },
-  "table_menu": {
-    "new_roadmap_version": "New $t(common:roadmap_version_one)",
-    "go_to_series": "Go to $t(common:roadmap_series_one)",
-    "go_to_version": "Go to $t(common:roadmap_version_one)",
-    "go_to_goal": "Go to $t(common:goal_one)",
-    "new_goal": "New $t(common:goal_one)",
-    "new_action": "New $t(common:action_one)",
-    "new_effect": "New $t(common:effect_one)",
-    "add_effect_from_existing_action": "Add $t(common:effect_one) from existing $t(common:action_one)",
-    "effect_missing_name": "Name missing",
-    "effect_from_action": "{{$t(common:effect_one), titleCase}} from {{source}}",
-    "button_aria": "Menu for {{component}}",
-    "button_aria_alt": "Name missing",
-    "button_image_alt": "menu",
-    "close_button_alt": "close",
-    "edit": "Edit",
-    "delete": "Delete post",
-    "delete_missing_name": "Name missing"
-  },
-  "goals": {
-    "search": "Search $t(common:goal_other)",
-    "sort_by": "Sort by",
-    "sort_default": "Default",
-    "sort_name_descending": "Name (A-Z)",
-    "sort_name_ascending": "Name (Z-A)",
-    "sort_action_count_descending": "{{$t(common:action_one), titleCase}} count (high to low)",
-    "sort_action_count_ascending": "{{$t(common:action_one), titleCase}} count (low to high)",
-    "sort_interest": "Interest",
-    "new_goal": "New $t(common:goal_one)",
-    "loading_alt": "Loading"
+  "child_graph_selector": {
+    "target_paths": "{{$t(common:goal_other), titleCase}}",
+    "expected_outcomes": "Expected outcomes"
   },
   "comments": {
     "comment": "Comment",
@@ -86,18 +40,74 @@
     "show_less": "Show less",
     "show_more": "Show more"
   },
-  "table_selector": {
-    "tree": "Tree",
-    "table": "Table",
-    "actions": "{{$t(common:action_other), titleCase}}"
+  "confirm_delete": {
+    "delete_post": "Delete post",
+    "confirmation": "Are you sure you want to delete post <strong>{{targetName}}</strong>?<br />This action cannot be undone.",
+    "type_to_confirm": "Type <strong>{{targetName}}</strong> to confirm.",
+    "cancel": "Cancel",
+    "delete": "Delete"
   },
-  "breadcrumbs": {
-    "home": "Home",
-    "roadmap_series": "{{$t(common:roadmap_series_one), titleCase}}:",
-    "version_label": "Version:",
-    "version": "Version {{version}}",
-    "goal": "{{$t(common:goal_one), titleCase}}:",
-    "action": "{{$t(common:action_one), titleCase}}:"
+  "copy_and_scale": {
+    "copy_and_scale": "Copy and scale",
+    "title": "Copy and scale $t(common:goal_one) {{goalName}}",
+    "select_roadmap_version": "In which $t(common:roadmap_version_one) do you want to place the scaled $t(common:goal_one)?",
+    "select_roadmap_version_option": "Select $t(common:roadmap_version_one)",
+    "version": "version",
+    "advanced": "Advanced",
+    "scaling_method": "Select scaling method",
+    "resulting_scale_factor": "Resulting scale factor",
+    "create_scaled_copy": "Create scaled copy",
+    "invalid_input": "Invalid input. The scaling factor could not be calculated. This is often due to a non-numeric value in an input field or that the product of all scaling factors is negative."
+  },
+  "effects_table": {
+    "no_effects": "There are no $t(common:effect_other) to display.",
+    "wanna_create_effect": "Do you want to create one?",
+    "create_new_effect": "$t(common:new.effect)"
+  },
+  "goal_child_graph": {
+    "unknown_roadmap": "Unknown $t(common:roadmap_version_one)"
+  },
+  "goal_edit": {
+    "title": "$t(common:edit.goal)"
+  },
+  "goal_table": {
+    "no_goals": "You do not have access to any $t(common:goal_other) in this $t(common:roadmap_version_one), or $t(common:roadmap_version_definite_one) lacks $t(common:goal_other).",
+    "goal_name": "{{$t(common:goal_one), titleCase}} name",
+    "leap_parameter": "LEAP parameter",
+    "unit": "Unit",
+    "action_count": "{{$t(common:action_other), titleCase}}"
+  },
+  "goals": {
+    "search": "Search $t(common:goal_other)",
+    "sort_by": "Sort by",
+    "sort_default": "Default",
+    "sort_name_descending": "Name (A-Z)",
+    "sort_name_ascending": "Name (Z-A)",
+    "sort_action_count_descending": "{{$t(common:action_one), titleCase}} count (high to low)",
+    "sort_action_count_ascending": "{{$t(common:action_one), titleCase}} count (low to high)",
+    "sort_interest": "Interest",
+    "new_goal": "New $t(common:goal_one)",
+    "loading_alt": "Loading"
+  },
+  "graph_cookie": {
+    "save_preferences": "Save future view changes between sessions and page navigations"
+  },
+  "graph_graph": {
+    "compare_with_goal": "Compare with $t(common:goal_one) {{goalName}}",
+    "historical_data_source": "The historical data in the graph is fetched from <a>{{source}}</a>"
+  },
+  "graph_selector": {
+    "show": "Show",
+    "goal": "{{$t(common:goal_one), titleCase}}",
+    "annual_change": "Annual change",
+    "percentage_change": "Percentage change"
+  },
+  "image_attribute": {
+    "by": "Photo by",
+    "on": "on"
+  },
+  "link_tree": {
+    "no_roadmaps": "You do not have access to any $t(common:goal_other) in this $t(common:roadmap_version_one), or $t(common:roadmap_version_definite_one) is empty."
   },
   "login": {
     "login_failed": "Login failed. Please try again.",
@@ -112,55 +122,31 @@
     "create_account": "Create account",
     "verify_account": "Verify my account"
   },
-  "signup": {
-    "signup_failed_motivated": "Registration failed. Reason: {{reason}}",
-    "signup_failed": "Registration failed. Please try again.",
-    "create_account": "Create account",
-    "username": "Username",
-    "username_placeholder": "Name Surname",
-    "email": "Email",
-    "email_placeholder": "name.surname@example.com",
-    "password": "Password",
-    "password_placeholder": "password",
-    "already_have_account": "Already have an account?",
-    "login": "Login",
-    "disclaimer": "Your organization must have signed a user agreement with us for you to be able to create an account.\n\nIf you have any questions or concerns, please contact"
+  "logout_button": {
+    "logout": "Log out"
   },
-  "confirm_delete": {
-    "delete_post": "Delete post",
-    "confirmation": "Are you sure you want to delete post <strong>{{targetName}}</strong>?<br />This action cannot be undone.",
-    "type_to_confirm": "Type <strong>{{targetName}}</strong> to confirm.",
-    "cancel": "Cancel",
-    "delete": "Delete"
+  "main_delta_graph": {
+    "annual_change": "Annual change in {{unit}}",
+    "percentage_points": "percentage points",
+    "baseline_scenario": "Baseline scenario",
+    "expected_outcome": "Expected outcome",
+    "national_counterpart": "$t(common:scope.national) counterpart"
   },
-  "roadmap_table": {
-    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
-    "no_roadmap_versions_found": "No $t(common:roadmap_version_other) found. If you have any filters active, no $t(common:roadmap_version_other) were found that match them."
+  "main_graph": {
+    "baseline_scenario": "Baseline scenario",
+    "expected_outcome": "Expected outcome",
+    "national_counterpart": "$t(common:scope.national) counterpart",
+    "national_goal": "$t(common:scope.national) $t(common:goal_one)",
+    "history": "History",
+    "secondary_goal": "Secondary $t(common:goal_one) ({{unit}})"
   },
-  "goal_table": {
-    "no_goals": "You do not have access to any $t(common:goal_other) in this $t(common:roadmap_version_one), or $t(common:roadmap_version_definite_one) lacks $t(common:goal_other).",
-    "goal_name": "{{$t(common:goal_one), titleCase}} name",
-    "leap_parameter": "LEAP parameter",
-    "unit": "Unit",
-    "action_count": "{{$t(common:action_other), titleCase}}"
+  "main_relative_graph": {
+    "percent_relative_to_base_year": "Percent relative to base year",
+    "national_counterpart": "$t(common:scope.national) counterpart"
   },
-  "action_table": {
-    "no_actions": "There are no $t(common:action_other) to display.",
-    "wanna_create_action": "Do you want to create one?",
-    "create_action": "$t(common:new.action)"
-  },
-  "link_tree": {
-    "no_roadmaps": "You do not have access to any $t(common:goal_other) in this $t(common:roadmap_version_one), or $t(common:roadmap_version_definite_one) is empty."
-  },
-  "roadmap_series_one_deleter": {
-    "remove_metadata": "Remove metadata"
-  },
-  "update_goal_button": {
-    "update": "Update $t(common:goal_one)"
-  },
-  "secondary_graph_selector": {
-    "compare_with": "Compare $t(common:goal_one)",
-    "compare": "Compare"
+  "prediction_child_graph": {
+    "unknown_roadmap": "Unknown $t(common:roadmap_version_one)",
+    "no_child_roadmaps": "No underlying $t(common:goal_other) with $t(common:effect_other) or custom baselines found"
   },
   "query_builder": {
     "add_historical_data": "Add historical data",
@@ -187,78 +173,92 @@
     "selected_table": "Selected table: {{table}}",
     "no_variables_found": "There are no variables"
   },
-  "copy_and_scale": {
-    "copy_and_scale": "Copy and scale",
-    "title": "Copy and scale $t(common:goal_one) {{goalName}}",
-    "select_roadmap_version": "In which $t(common:roadmap_version_one) do you want to place the scaled $t(common:goal_one)?",
-    "select_roadmap_version_option": "Select $t(common:roadmap_version_one)",
-    "version": "version",
-    "advanced": "Advanced",
-    "scaling_method": "Select scaling method",
-    "resulting_scale_factor": "Resulting scale factor",
-    "create_scaled_copy": "Create scaled copy",
-    "invalid_input": "Invalid input. The scaling factor could not be calculated. This is often due to a non-numeric value in an input field or that the product of all scaling factors is negative."
+  "roadmap_filters": {
+    "search_roadmaps": "Search $t(common:roadmap_series_one)",
+    "sort_by": "Sort by:",
+    "default": "Default",
+    "name_descending": "Name (A-Z)",
+    "name_ascending": "Name (Z-A)",
+    "goal_count_descending": "{{$t(common:goal_one), titleCase}} count (high to low)",
+    "goal_count_ascending": "{{$t(common:goal_one), titleCase}} count (low to high)",
+    "filter": "Filter",
+    "show": "Show"
   },
-  "goal_edit": {
-    "title": "$t(common:edit.goal)"
+  "roadmap_series_one_deleter": {
+    "remove_metadata": "Remove metadata"
   },
-  "goal_child_graph": {
-    "unknown_roadmap": "Unknown $t(common:roadmap_version_one)"
+  "roadmap_table": {
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
+    "no_roadmap_versions_found": "No $t(common:roadmap_version_other) found. If you have any filters active, no $t(common:roadmap_version_other) were found that match them."
   },
-  "graph_selector": {
-    "show": "Show",
-    "goal": "{{$t(common:goal_one), titleCase}}",
-    "annual_change": "Annual change",
-    "percentage_change": "Percentage change"
+  "roadmap_tree": {
+    "no_roadmap_series_ones": "No $t(common:roadmap_series_one) found. If you have any filters active, no $t(common:roadmap_series_one) were found that match them.",
+    "show_source_alt": "Show underlying $t(common:roadmap_version_other)",
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})"
   },
-  "graph_graph": {
-    "compare_with_goal": "Compare with $t(common:goal_one) {{goalName}}",
-    "historical_data_source": "The historical data in the graph is fetched from <a>{{source}}</a>"
-  },
-  "child_graph_selector": {
-    "target_paths": "{{$t(common:goal_other), titleCase}}",
-    "expected_outcomes": "Expected outcomes"
-  },
-  "child_graph_container": {
-    "change_graph_type": "Change graph type",
-    "goals_toward": "{{$t(common:goal_other), titleCase}} contributing to {{goalName}}"
-  },
-  "main_graph": {
-    "baseline_scenario": "Baseline scenario",
-    "expected_outcome": "Expected outcome",
-    "national_counterpart": "$t(common:scope.national) counterpart",
-    "national_goal": "$t(common:scope.national) $t(common:goal_one)",
-    "history": "History",
-    "secondary_goal": "Secondary $t(common:goal_one) ({{unit}})"
-  },
-  "prediction_child_graph": {
-    "unknown_roadmap": "Unknown $t(common:roadmap_version_one)",
-    "no_child_roadmaps": "No underlying $t(common:goal_other) with $t(common:effect_other) or custom baselines found"
-  },
-  "action_graph": {
-    "actions": "{{$t(common:action_other), titleCase}}"
+  "secondary_graph_selector": {
+    "compare_with": "Compare $t(common:goal_one)",
+    "compare": "Compare"
   },
   "sibling_graph": {
     "change_graph_type": "Change graph type",
     "adjacent_goals": "Adjacent $t(common:goal_other)"
   },
-  "effects_table": {
-    "no_effects": "There are no $t(common:effect_other) to display.",
-    "wanna_create_effect": "Do you want to create one?",
-    "create_new_effect": "$t(common:new.effect)"
+  "sidebar": {
+    "toggle_menu_alt": "Toggle menu",
+    "my_profile": "My account",
+    "create_account": "Create account",
+    "home": "Home",
+    "about": "About the tool",
+    "language_alt": "Change language",
+    "login": "Login"
   },
-  "graph_cookie": {
-    "save_preferences": "Save future view changes between sessions and page navigations"
+  "signup": {
+    "signup_failed_motivated": "Registration failed. Reason: {{reason}}",
+    "signup_failed": "Registration failed. Please try again.",
+    "create_account": "Create account",
+    "username": "Username",
+    "username_placeholder": "Name Surname",
+    "email": "Email",
+    "email_placeholder": "name.surname@example.com",
+    "password": "Password",
+    "password_placeholder": "password",
+    "already_have_account": "Already have an account?",
+    "login": "Login",
+    "disclaimer": "Your organization must have signed a user agreement with us for you to be able to create an account.\n\nIf you have any questions or concerns, please contact"
   },
-  "main_delta_graph": {
-    "annual_change": "Annual change in {{unit}}",
-    "percentage_points": "percentage points",
-    "baseline_scenario": "Baseline scenario",
-    "expected_outcome": "Expected outcome",
-    "national_counterpart": "$t(common:scope.national) counterpart"
+  "table_menu": {
+    "new_roadmap_version": "New $t(common:roadmap_version_one)",
+    "go_to_series": "Go to $t(common:roadmap_series_one)",
+    "go_to_version": "Go to $t(common:roadmap_version_one)",
+    "go_to_goal": "Go to $t(common:goal_one)",
+    "new_goal": "New $t(common:goal_one)",
+    "new_action": "New $t(common:action_one)",
+    "new_effect": "New $t(common:effect_one)",
+    "add_effect_from_existing_action": "Add $t(common:effect_one) from existing $t(common:action_one)",
+    "effect_missing_name": "Name missing",
+    "effect_from_action": "{{$t(common:effect_one), titleCase}} from {{source}}",
+    "button_aria": "Menu for {{component}}",
+    "button_aria_alt": "Name missing",
+    "button_image_alt": "menu",
+    "close_button_alt": "close",
+    "edit": "Edit",
+    "delete": "Delete post",
+    "delete_missing_name": "Name missing"
   },
-  "main_relative_graph": {
-    "percent_relative_to_base_year": "Percent relative to base year",
-    "national_counterpart": "$t(common:scope.national) counterpart"
+  "table_selector": {
+    "tree": "Tree",
+    "table": "Table",
+    "actions": "{{$t(common:action_other), titleCase}}"
+  },
+  "update_goal_button": {
+    "update": "Update $t(common:goal_one)"
+  },
+  "user_filters": {
+    "posts": "Posts",
+    "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
+    "roadmap_series": "{{$t(common:roadmap_series_one), titleCase}}",
+    "access_level": "Access level",
+    "editing_access": "Editing access"
   }
 }
