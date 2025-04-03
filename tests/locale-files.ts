@@ -50,9 +50,15 @@ const data = Object.fromEntries(
         // Third layer is the keys
         Object.fromEntries(
           Object.entries(
-            flattenTree(
-              JSON.parse(fs.readFileSync(path.join("public", "locales", locale, `${namespace}.json`), "utf-8")),
-            ),
+            flattenTree(() => {
+              const filePath = path.join(localesDir, locale, `${namespace}.json`);
+              try { JSON.parse(fs.readFileSync(filePath, "utf-8")); }
+              catch (e) {
+                console.error(`Failed to parse ${filePath} with error ${e}`);
+                return {};
+              }
+              return JSON.parse(fs.readFileSync(filePath, "utf-8"));
+            }),
           ).map(([key, value]) => [key.replace(`${namespace}:`, ""), value]),
         ),
       ]),
@@ -85,8 +91,11 @@ function TestNamespaceFiles() {
 
   // Check if any locales have missing namespaces
   const missingNamespaces = Object.entries(perLocale).filter(([_, { missing }]) => missing.length > 0);
-  console.debug(missingNamespaces);
+
+  expect(missingNamespaces.length).toBe(0);
 }
+
+console.dir(data);
 
 // /** Does english have all keys to function as a fallback? */
 // function TestJSONEnglishFallback() {

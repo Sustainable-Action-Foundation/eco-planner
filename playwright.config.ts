@@ -28,25 +28,34 @@ export default defineConfig({
     trace: "on-first-retry",
 
     locale: "sv-SE",
+    timezoneId: "Europe/Stockholm",
   },
+
   // Configure projects for major browsers.
   projects: [
     {
+      name: "Locale files validation",
+      fullyParallel: false,
+      testMatch: ["**/locale-files.ts"],
+    },
+    {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: { ...devices["Desktop Chrome"], channel: "chromium" },
+      dependencies: ["Locale files validation"],
     },
     {
       name: "firefox",
       use: { ...devices["Desktop Firefox"] },
+      dependencies: ["Locale files validation"],
     },
     {
       name: "webkit",
       use: { ...devices["Desktop Safari"] },
+      dependencies: ["Locale files validation"],
     }
   ],
-  // Run your local dev server before starting the tests.
   webServer: {
-    timeout: 120 * 1000,
+    timeout: 1000 * 1000,
     command: "yarn run start",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
