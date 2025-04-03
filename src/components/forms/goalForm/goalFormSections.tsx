@@ -48,10 +48,9 @@ export function ManualGoalForm({
   /**
    * Function for drawing grid columns
    * @param columnIndex the index of the column to draw (starting at 1)
-   * @returns 
+   * @returns JSX element for the column
    */
   function drawGridColumn(columnIndex: number) {
-    console.log("FUNCTION CALLED - Drawing grid column");
     return (
       <div key={`column-${columnIndex}`}>
         <label htmlFor={dataSeriesDataFieldNames[columnIndex]} className="padding-25">{dataSeriesDataFieldNames[columnIndex].replace("val", "")}</label>
@@ -60,12 +59,13 @@ export function ManualGoalForm({
     )
   }
 
+  // Create a list of columns for the input grid
+  // Make sure there is at least one column
   const defaultColumnCount = (1 > dataSeriesDataFieldNames.length) ? 1 : dataSeriesDataFieldNames.length;
   let columnCount = defaultColumnCount;
   let columns: JSX.Element[] = [];
   for (let i = 0; i < (columnCount); i++) {
-    const column = drawGridColumn(i);
-    columns.push(column);
+    columns.push(drawGridColumn(i));
   }
 
   /**
@@ -86,9 +86,11 @@ export function ManualGoalForm({
   function getChildrenString(children: JSX.Element[]) {
     let childrenString = "";
 
+    // Loop through the children and add them to the string in HTML format
     children.forEach((child: JSX.Element) => {
       let propsString = "";
 
+      // Loop through the props of the child element and add them to the props string in HTML format
       for (const key in child.props) {
         if (key === "children") {
           continue;
@@ -104,6 +106,7 @@ export function ManualGoalForm({
         propsString += ` ${key}="${child.props[key]}"`;
       }
 
+      // Create an opening tag and a closing tag if the child has children, otherwise self-close the tag
       childrenString += `<${child.type}${propsString}${child.props.children ? `>${Array.isArray(child.props.children) ? child.props.children.join("") : [child.props.children].join("")}</${child.type}>` : "/>"}`;
     })
 
@@ -112,7 +115,7 @@ export function ManualGoalForm({
 
   /**
    * Generate HTML text for the grid of input elements
-   * @returns 
+   * @returns HTML string for the grid of input elements
    */
   function generateInputGridInnerHTML() {
     return columns.map(column => `<${column.type} style="${getStyleString(column.props.style)}">${getChildrenString(column.props.children)}</${column.type}>`).join("");
@@ -125,16 +128,18 @@ export function ManualGoalForm({
   function updateInputGrid(inputGridElement: HTMLElement) {
     inputGridElement.innerHTML = generateInputGridInnerHTML();
 
+    // Add on change event listeners to all the input elements
     const inputGridInputBoxes = inputGridElement.getElementsByTagName("input");
     for (const inputBox of inputGridInputBoxes) {
       inputBox.addEventListener("change", updateStringInput);
     }
 
     inputGridElement.style.gridTemplateColumns = `repeat(${columnCount}, 1fr)`;
+    // Add an on paste event listener to the input grid element
     if (inputGridElement) {
       inputGridElement.addEventListener("paste", (e) => handlePaste(e as ClipboardEvent));
     } else {
-      console.warn("cant add event listeners when updating input grid");
+      console.warn("Unable to add event listeners to input grid element because it could not be found.");
     }
   }
 
@@ -143,12 +148,17 @@ export function ManualGoalForm({
    * @param values a string or array of values to insert. If a string, it will be split by semicolon or tab
    */
   function insertValuesToInputGrid(values: string | string[]) {
+    // Make sure to get the values as an array if it is a string and make sure there are no more than the allowed amount of values
     const valuesList = (Array.isArray(values) ? values : values.split(/[\t;]/)).slice(0, defaultColumnCount);
+
+    // Generate the columns for the input grid
     columnCount = valuesList.length ? valuesList.length : defaultColumnCount;
     columns = [];
     for (let i = 0; i < (columnCount); i++) {
       columns.push(drawGridColumn(i));
     }
+
+    // Update the input grid element with the new columns and values
     const inputGrid = document.getElementById("inputGrid");
     if (inputGrid) {
       updateInputGrid(inputGrid);
@@ -161,12 +171,15 @@ export function ManualGoalForm({
     }
   }
 
+  /**
+   * Function to get the values from the input grid and return them as an array
+   * @returns array of values from the input grid
+   */
   function getValuesFromInputGrid() {
     const inputGrid = document.getElementById("inputGrid");
-    if (!inputGrid) {
-      console.warn("inputGrid does not exist");
-      return;
-    }
+    if (!inputGrid) { console.warn("inputGrid does not exist"); return; }
+
+    // Get the values from all the input elements in the grid
     const inputs = inputGrid.getElementsByTagName("input");
     const values = [];
     for (let i = 0; i < inputs.length; i++) {
@@ -175,6 +188,9 @@ export function ManualGoalForm({
     return values;
   }
 
+  /**
+   * Function to update the string input with the values from the input grid
+   */
   function updateStringInput() {
     const valuesString = getValuesFromInputGrid()?.join(";");
     const input = document.getElementById("dataSeries") as HTMLInputElement | null;
@@ -183,7 +199,12 @@ export function ManualGoalForm({
     }
   }
 
+  /**
+   * Function to handle changes to the string input and update the input grid
+   * @param e the event object from the input change
+   */
   function handleStringInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    // Update the input grid with the new values from the string input
     insertValuesToInputGrid(e.target.value);
     // Call this to make sure there are not too many values in the string input
     updateStringInput();
@@ -191,7 +212,7 @@ export function ManualGoalForm({
 
   /**
    * Function to handle pasting into the input grid
-  */
+   */
   function handlePaste(e: ClipboardEvent) {
     if (!e.clipboardData) return;
     const clip = e.clipboardData.getData("text");
@@ -205,14 +226,9 @@ export function ManualGoalForm({
     console.warn("cant add event listeners");
   }
 
-  console.log(getValuesFromInputGrid());
   if (dataSeriesString && document.getElementById("dataSeries") && (document.getElementById("dataSeries") as HTMLSelectElement).value == dataSeriesString) {
     insertValuesToInputGrid(dataSeriesString);
   }
-  console.log(getValuesFromInputGrid());
-  console.log(getValuesFromInputGrid()?.join(";"));
-
-  console.count("render");
 
   return (
     <>
