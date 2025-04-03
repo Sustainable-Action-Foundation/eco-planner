@@ -5,8 +5,10 @@ import path from "node:path";
 import { glob } from "glob";
 import { errors, expect, test } from "playwright/test";
 
-/* ******
- * Config
+/* 
+ **********
+ * Config *
+ **********
  */
 
 enum Locales {
@@ -85,20 +87,13 @@ test("Namespace files exist", async () => {
   });
 
   // const missingNS = Object.entries(perLocale).filter(([_, { missing }]) => missing.length > 0);
-  const missingNS = [1, , 2]
-  // const extraNS = Object.entries(perLocale).filter(([_, { extra }]) => extra.length > 0);
-  const extraNS = [1, , 2]
-  // const emptyNS = Object.entries(perLocale).filter(([_, { empty }]) => empty.length > 0);
-  const emptyNS = [1, , 2]
+  const missingNS = [, , ,]
+  const extraNS = Object.entries(perLocale).filter(([_, { extra }]) => extra.length > 0);
+  const emptyNS = Object.entries(perLocale).filter(([_, { empty }]) => empty.length > 0);
 
-  if (missingNS.length > 0) console.error(`Missing namespaces in locales: ${JSON.stringify(missingNS, null, 2)}`);
-  expect(missingNS.length).toBe(0);
-
-  if (extraNS.length > 0) console.error(`Extra namespaces in locales: ${JSON.stringify(extraNS, null, 2)}`);
-  expect(extraNS.length).toBe(0);
-
-  if (emptyNS.length > 0) console.error(`Empty namespaces in locales: ${JSON.stringify(emptyNS, null, 2)}`);
-  expect(emptyNS.length).toBe(0);
+  expect(missingNS.length, `Missing namespaces in locales: ${JSON.stringify(missingNS, null, 2)}`).toBe(0);
+  expect(extraNS.length, `Extra namespaces in locales: ${JSON.stringify(extraNS, null, 2)}`).toBe(0);
+  expect(emptyNS.length, `Empty namespaces in locales: ${JSON.stringify(emptyNS, null, 2)}`).toBe(0);
 });
 
 // /** Does english have all keys to function as a fallback? */

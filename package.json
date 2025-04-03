@@ -19,7 +19,7 @@
     "locales:validate": "tsx ./src/scripts/localesValidate.ts",
     "locales:format": "tsx ./src/scripts/localesFormat.ts",
     "_pretest:local": "yarn run build",
-    "test:local": "tsx node_modules/playwright/cli.js test"
+    "test:local": "node --experimental-transform-types node_modules/playwright/cli.js test"
   },
   "author": {
     "name": "Sustainable Action Foundation",
@@ -89,7 +89,7 @@
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": "^v20.0.0"
+      "version": "^v22.7.0"
     }
   },
   "prisma": {
