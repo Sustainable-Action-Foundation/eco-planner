@@ -1,0 +1,55 @@
+.sideScroll {
+  overflow-x: scroll;
+  padding-bottom: .25rem;
+}
+
+.sideScroll::-webkit-scrollbar {
+  height: .5rem;
+}
+  
+/* Track */
+.sideScroll::-webkit-scrollbar-track {
+    border-radius: 9999px;
+}
+   
+/* Handle */
+.sideScroll::-webkit-scrollbar-thumb {
+    background: var(--gray-90); 
+    border-radius: 9999px;
+}
+  
+/* Handle on hover */
+.sideScroll::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-70); 
+}
+
+.sideScroll input {
+  border-radius: 0;
+  border: 1px solid var(--gray-90)
+}
+
+.sideScroll input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.sideScroll input::-webkit-inner-spin-button,
+.sideScroll input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.sideScroll label {
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
+/* .sideScroll>div:first-child {
+  border-top-left-radius: .25rem;
+  border-bottom-left-radius: .25rem;
+}
+
+.sideScroll>div:last-child {
+  border-top-right-radius: .25rem;
+  border-bottom-right-radius: .25rem;
+} */

@@ -10,6 +10,7 @@ import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 import { Fragment, useEffect, useState } from "react";
 import { dataSeriesPattern } from "./goalForm";
+import styles from "./goalForm.module.css";
 
 export function ManualGoalForm({
   currentGoal,
@@ -52,9 +53,9 @@ export function ManualGoalForm({
   function drawGridColumn(columnIndex: number) {
     console.log("FUNCTION CALLED - Drawing grid column");
     return (
-      <div style={{ backgroundColor: "pink" }} key={`column-${columnIndex}`}>
+      <div key={`column-${columnIndex}`}>
         <label htmlFor={dataSeriesDataFieldNames[columnIndex]} className="padding-25">{dataSeriesDataFieldNames[columnIndex].replace("val", "")}</label>
-        <input type="text" id={dataSeriesDataFieldNames[columnIndex]} name="dataSeriesInput" value={dataSeriesString?.split(/[\t;]/)[columnIndex]} onChange={updateStringInput} />
+        <input type="number" id={dataSeriesDataFieldNames[columnIndex]} name="dataSeriesInput" value={dataSeriesString?.split(/[\t;]/)[columnIndex]} onChange={updateStringInput} />
       </div>
     )
   }
@@ -73,8 +74,8 @@ export function ManualGoalForm({
    * @returns string of CSS attributes
    */
   function getStyleString(style: { [attribute: string]: string }) {
-    const attributes = Object.keys(style);
-    return attributes.map((attribute) => `${CaseHandler.toKebabCase(attribute)}: ${style[attribute]}`).join("; ");
+    const attributes = style ? Object.keys(style) : null;
+    return attributes?.map((attribute) => `${CaseHandler.toKebabCase(attribute)}: ${style[attribute]}`).join("; ") ?? "";
   }
 
   /**
@@ -136,33 +137,6 @@ export function ManualGoalForm({
       console.warn("cant add event listeners when updating input grid");
     }
   }
-
-
-  // function addColumn() {
-  //   columnCount++;
-  //   if (columnCount > dataSeriesDataFieldNames.length) {
-  //     columnCount = dataSeriesDataFieldNames.length;
-  //     return;
-  //   }
-  //   columns.push(drawGridColumn(columns.length));
-  //   const inputGrid = document.getElementById("inputGrid");
-  //   if (inputGrid) {
-  //     updateInputGrid(inputGrid);
-  //   }
-  // }
-
-  // function removeColumn() {
-  //   columnCount--;
-  //   if (columnCount < 1) {
-  //     columnCount = 1;
-  //     return;
-  //   }
-  //   columns.pop();
-  //   const inputGrid = document.getElementById("inputGrid");
-  //   if (inputGrid) {
-  //     updateInputGrid(inputGrid);
-  //   }
-  // }
 
   /**
    * Function to insert values into the input grid
@@ -278,8 +252,10 @@ export function ManualGoalForm({
       <label className="block margin-block-75">
         Dataserie
         {/* TODO: Make this allow .csv files and possibly excel files */}
-        <div id="inputGrid" style={{ maxWidth: "50rem", display: "grid", gridTemplateColumns: `repeat(${columnCount}, 1fr)`, gap: "0rem", gridTemplateRows: "auto", overflow: "scroll" }}>
-          {columns.map((column) => column)}
+        <div style={{ border: "1px solid var(--gray-90)", padding: ".25rem", borderRadius: "0.25rem", maxWidth: "48.5rem" }}>
+          <div id="inputGrid" className={`${styles.sideScroll}`} style={{ display: "grid", gridTemplateColumns: `repeat(${columnCount}, 1fr)`, gap: "0rem", gridTemplateRows: "auto", borderRadius: "0.25rem" }}>
+            {columns.map((column) => column)}
+          </div>
         </div>
         <input type="text" name="dataSeries" required id="dataSeries"
           pattern={dataSeriesPattern}
