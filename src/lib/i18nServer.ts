@@ -1,7 +1,7 @@
 import { $Dictionary } from "node_modules/i18next/typescript/helpers";
 import { cookies, headers } from "next/headers";
 import { createInstance, TFunction, TOptionsBase } from "i18next";
-import { initTemplate, Locales, uniqueLocales } from "i18n.config";
+import { initTemplate, Locales } from "i18n.config";
 import Backend from "i18next-fs-backend";
 import path from "node:path";
 import { getLocale } from "@/functions/getLocale";
