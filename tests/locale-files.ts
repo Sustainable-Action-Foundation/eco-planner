@@ -11,11 +11,8 @@ import { errors, expect, test } from "playwright/test";
  **********
  */
 
-enum Locales {
-  enSE = "en-SE",
-  svSE = "sv-SE",
-  default = enSE,
-};
+/** Note: this should not have line breaks since it will mess with the test trace due to type stripping transforming the line count */
+enum Locales { enSE = "en-SE", svSE = "sv-SE", default = enSE, };
 
 /** All locales */
 const uniqueLocales = [...new Set(Object.values(Locales))];
@@ -27,13 +24,13 @@ const localeAliases: Record<Locales, string> = {
 };
 
 /** All namespaces */
-const ns = ["common", "forms", "components", "graphs", "pages", "email", "test",];
+const namespaces = ["common", "forms", "components", "graphs", "pages", "email", "test",];
 
 /** Where the locale files are located relative to project root */
 const localesDir = "public/locales";
 
 /** Every combo of locale and ns in a 2d array */
-const allPermutations: string[][] = uniqueLocales.flatMap(locale => ns.map(namespace => [locale, namespace]));
+const allPermutations: string[][] = uniqueLocales.flatMap(locale => namespaces.map(namespace => [locale, namespace]));
 
 /** Every NS file per locale with their flattened key-values */
 const allData = Object.fromEntries(
@@ -42,7 +39,7 @@ const allData = Object.fromEntries(
     locale,
     // Second layer is the namespace
     Object.fromEntries(
-      ns.map(namespace => [
+      namespaces.map(namespace => [
         namespace,
         // Third layer is the keys
         Object.fromEntries(
@@ -64,36 +61,36 @@ const allData = Object.fromEntries(
 );
 
 /** Does every namespace exist in every locale? */
-test("Namespace files exist", async () => {
+test.describe("Namespace files exist", async () => {
   // Track missing and extra namespaces per locale
   const perLocale = Object.fromEntries(uniqueLocales.map(locale =>
     [locale as Locales, { missing: [] as string[], extra: [] as string[], empty: [] as string[] }]
   ));
 
-  // Loop through every locale and namespace
-  allPermutations.forEach(([locale, namespace]) => {
-    const filePath = path.join(localesDir, locale, `${namespace}.json`);
+  uniqueLocales.forEach(locale => {
+    const nsFiles = glob.sync(`${localesDir}/${locale}/*.json`);
+    const nsFilesNames = nsFiles.map(file => path.basename(file, ".json"));
 
-    // Check if the file exists
-    if (!fs.existsSync(filePath)) {
-      perLocale[locale].missing.push(namespace);
-    } else {
-      // Check if the file is empty
-      const content = fs.readFileSync(filePath, "utf-8");
-      if (!content) {
-        perLocale[locale].empty.push(namespace);
-      }
-    }
+    const missingNS = namespaces.filter(ns => !nsFilesNames.includes(ns));
+    const extraNS = nsFilesNames.filter(ns => !namespaces.includes(ns));
+    const emptyNS = nsFilesNames.filter(ns => {
+      const filePath = path.join(localesDir, locale, `${ns}.json`);
+      const content = fs.readFileSync(filePath, "utf-8").trim();
+      return !content || content === "{}";
+    });
+
+    if (missingNS.length > 0) perLocale[locale].missing.push(...missingNS);
+    if (extraNS.length > 0) perLocale[locale].extra.push(...extraNS);
+    if (emptyNS.length > 0) perLocale[locale].empty.push(...emptyNS);
   });
 
-  // const missingNS = Object.entries(perLocale).filter(([_, { missing }]) => missing.length > 0);
-  const missingNS = [, , ,]
+  const missingNS = Object.entries(perLocale).filter(([_, { missing }]) => missing.length > 0);
   const extraNS = Object.entries(perLocale).filter(([_, { extra }]) => extra.length > 0);
   const emptyNS = Object.entries(perLocale).filter(([_, { empty }]) => empty.length > 0);
 
-  expect(missingNS.length, `Missing namespaces in locales: ${JSON.stringify(missingNS, null, 2)}`).toBe(0);
-  expect(extraNS.length, `Extra namespaces in locales: ${JSON.stringify(extraNS, null, 2)}`).toBe(0);
-  expect(emptyNS.length, `Empty namespaces in locales: ${JSON.stringify(emptyNS, null, 2)}`).toBe(0);
+  test("Missing namespaces", () => expect(missingNS.length, `Missing namespaces in locales: ${JSON.stringify(missingNS, null, 2)}`).toBe(0));
+  test("Extra namespaces", () => expect(extraNS.length, `Extra namespaces in locales: ${JSON.stringify(extraNS, null, 2)}`).toBe(0));
+  test("Empty namespaces", () => expect(emptyNS.length, `Empty namespaces in locales: ${JSON.stringify(emptyNS, null, 2)}`).toBe(0));
 });
 
 // /** Does english have all keys to function as a fallback? */

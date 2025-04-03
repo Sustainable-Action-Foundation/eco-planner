@@ -19,7 +19,7 @@
     "locales:validate": "tsx ./src/scripts/localesValidate.ts",
     "locales:format": "tsx ./src/scripts/localesFormat.ts",
     "_pretest:local": "yarn run build",
-    "test:local": "node --experimental-transform-types node_modules/playwright/cli.js test"
+    "test:local": "node --experimental-transform-types --experimental-strip-types node_modules/playwright/cli.js test"
   },
   "author": {
     "name": "Sustainable Action Foundation",

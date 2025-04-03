@@ -4,6 +4,6 @@
     "strict": true,
     "module": "NodeNext",
     "target": "ES2024",
-    "baseUrl": ".",
+    "baseUrl": "."
   }
 }
