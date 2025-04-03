@@ -113,12 +113,11 @@ kbd>kbd {
   box-shadow: 0 0 .5rem -3px var(--seagreen);
   background-color: transparent;
 }
-
+ 
 .focusable input {
   outline: none;
   box-shadow: none;
 }
-
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover,

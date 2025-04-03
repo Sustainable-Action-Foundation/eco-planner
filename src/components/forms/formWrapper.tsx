@@ -97,8 +97,7 @@ export default function FormWrapper({
           </div>
           <div className={styles.currentIndicator} id="current-indicator"></div>
         </div>
-
-
+        
         <button type="button" id="nextButton" className={`flex align-items-center transparent round gap-25 margin-left-auto ${nextButtonHiddenClass} ${styles.indicatorButton}`} onClick={() => iterateSections()}>
           Nästa
           <Image src="/icons/arrowRight.svg" alt="" width={24} height={24} />

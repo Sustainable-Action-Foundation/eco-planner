@@ -1,107 +1,25 @@
-.dialog select {
-  width: 100%;
-  max-width: 100%;
-}
-
 .dialog {
-  width: min(100vw, 1000px);
+  width: min(75ch, 100%);
   overflow: unset;
-  padding-right: .75rem;
-}
-
-.dialogChild {
+  height: 80vh;
+  border: 0; 
+  box-shadow: 0 0 .5rem -.25rem rgba(0,0,0,.25);
   overflow-y: scroll;
-  max-height: calc(100vh - 4rem);
+  scrollbar-width: thin;
 }
 
-.dialogChild::-webkit-scrollbar {
-  width: .5rem;
-}
-
-.dialogChild::-webkit-scrollbar-track {
-  border-radius: 9999px;
-}
-
-.dialogChild::-webkit-scrollbar-thumb {
-  background: var(--gray-90);
-  border-radius: 9999px;
-}
-
-.dialogChild::-webkit-scrollbar-thumb:hover {
-  background: var(--gray-70);
-}
-
-/* For selecting tables when choosin a specific data source */
-.tableSelect {
-  position: relative;
-  padding: .5rem;
-  border-radius: .25rem;
-  transition: background-color .1s ease;
-  font-weight: 500;
+/* TODO: Do we want this class? Or do we want to scroll the entire dialog? */
+.temporary {
+  overflow-y: scroll;
+  padding-right: .25rem;
+  scrollbar-width: thin;
 }
 
 .selectedTable {
   background-color: var(--blue-20);
   color: white;
 }
-
-.tableSelect:not(.selectedTable):hover {
-  background-color: var(--gray-90);
-}
-
-.tableSelect>button {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-}
-
-.dialog fieldset label:first-child {
-  margin-top: 0;
-}
-
-.dialog fieldset label:last-child {
-  margin-bottom: 0;
-}
-
-/* Temp */
-
-.temporary {
-  overflow-y: scroll;
-  padding-right: .25rem;
-}
-
-/* width */
-.temporary::-webkit-scrollbar {
-  width: .5rem;
-}
-
-/* Track */
-.temporary::-webkit-scrollbar-track {
-  border-radius: 9999px;
-}
-
-/* Handle */
-.temporary::-webkit-scrollbar-thumb {
-  background: var(--gray-90);
-  border-radius: 9999px;
-}
-
-/* Handle on hover */
-.temporary::-webkit-scrollbar-thumb:hover {
-  background: var(--gray-70);
-}
-
-@media (min-width: 1250px) {
-  .dialog {
-    width: min(80vw, 1200px);
-  }
-}
-
-@media (min-width: 2000px) {
-  .dialog {
-    width: 60vw;
-  }
+ 
+.dialog fieldset button:active {
+  transform: scale(.995);
 }
