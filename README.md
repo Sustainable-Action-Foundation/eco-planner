@@ -2,11 +2,12 @@
 A tool intended to help planning actions to achieve local environmental goals
 
 ## Copyright
-Upstream repository is located [here](https://github.com/Leon-Loov/eco-planner) and is copyright of Leon Lööv and Axel Gustav Schnürer. It is licensed under the MIT license.
+Copyright (C) 2023-2025 Sustainable Action Foundation
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, version 3.
 
-**This fork, on the other hand, is copyright of Sustainable Action Foundation, all rights reserved.**
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
 
-For the sake of simplicity, we bumped the version number to 0.7.0. All versions <0.7.0 are copyright of Leon Lööv and Axel Gustav Schnürer while the additions in versions >=0.7.0 are copyright of Sustainable Action Foundation.
+You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 ## Setup
 This tool requires the following environment variables to be set:
