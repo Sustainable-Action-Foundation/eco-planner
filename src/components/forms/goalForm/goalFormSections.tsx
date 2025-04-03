@@ -55,7 +55,7 @@ export function ManualGoalForm({
     return (
       <div style={{ backgroundColor: "pink" }} key={`column-${columnIndex}`}>
         <label htmlFor={dataSeriesDataFieldNames[columnIndex]} className="padding-25">{dataSeriesDataFieldNames[columnIndex].replace("val", "")}</label>
-        <input type="text" id={dataSeriesDataFieldNames[columnIndex]} name="dataSeriesInput" value={dataSeriesString?.split(";")[columnIndex]} onChange={updateStringInput} />
+        <input type="text" id={dataSeriesDataFieldNames[columnIndex]} name="dataSeriesInput" value={dataSeriesString?.split(/[\t;]/)[columnIndex]} onChange={updateStringInput} />
       </div>
     )
   }
