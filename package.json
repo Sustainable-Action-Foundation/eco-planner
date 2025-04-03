@@ -16,8 +16,10 @@
     "lint": "next lint",
     "e2e:chrome": "cypress run --browser chrome --headless",
     "test": "docker compose -f compose.test.yaml up -d",
-    "test:locales": "tsx ./src/scripts/localesValidate.ts",
-    "format:locales": "tsx ./src/scripts/localesFormat.ts"
+    "locales:validate": "tsx ./src/scripts/localesValidate.ts",
+    "locales:format": "tsx ./src/scripts/localesFormat.ts",
+    "_pretest:local": "yarn run build",
+    "test:local": "tsx node_modules/playwright/cli.js test"
   },
   "author": {
     "name": "Sustainable Action Foundation",
@@ -79,6 +81,7 @@
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.15",
     "lorem-ipsum": "^2.0.8",
+    "playwright": "^1.51.1",
     "prisma": "^6.4.1",
     "regexp.escape": "^2.0.1",
     "tsx": "^4.19.2"
