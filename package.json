@@ -89,7 +89,7 @@
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": "^20.0.0"
+      "version": "^v20.0.0"
     }
   },
   "prisma": {
