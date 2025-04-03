@@ -44,7 +44,6 @@ export function ManualGoalForm({
 
   const inputGridElement = document.getElementById("inputGrid");
 
-  // TODO - update grid input when text input is changed
   /**
    * Function for drawing grid columns
    * @param columnIndex the index of the column to draw (starting at 1)
@@ -60,7 +59,6 @@ export function ManualGoalForm({
     )
   }
 
-  console.log(dataSeriesDataFieldNames);
   const defaultColumnCount = (1 > dataSeriesDataFieldNames.length) ? 1 : dataSeriesDataFieldNames.length;
   let columnCount = defaultColumnCount;
   let columns: JSX.Element[] = [];
@@ -102,7 +100,6 @@ export function ManualGoalForm({
         } else if (key === "onChange") {
           continue; // the onChange event listener is added later
         }
-        // console.log(key);
         propsString += ` ${key}="${child.props[key]}"`;
       }
 
@@ -117,8 +114,6 @@ export function ManualGoalForm({
    * @returns 
    */
   function generateInputGridInnerHTML() {
-    console.log("FUNCTION CALLED - generating inner html")
-    console.log(columns);
     return columns.map(column => `<${column.type} style="${getStyleString(column.props.style)}">${getChildrenString(column.props.children)}</${column.type}>`).join("");
   }
 
@@ -127,16 +122,12 @@ export function ManualGoalForm({
    * @param inputGridElement The element to update
    */
   function updateInputGrid(inputGridElement: HTMLElement) {
-    console.log("FUNCTION CALLED - Updating input grid");
     inputGridElement.innerHTML = generateInputGridInnerHTML();
 
     const inputGridInputBoxes = inputGridElement.getElementsByTagName("input");
     for (const inputBox of inputGridInputBoxes) {
       inputBox.addEventListener("change", updateStringInput);
     }
-
-    // let re = new RegExp(/<input.+?>/gi);
-    // console.log(inputGridElement.innerHTML.match(re));
 
     inputGridElement.style.gridTemplateColumns = `repeat(${columnCount}, 1fr)`;
     if (inputGridElement) {
@@ -147,44 +138,41 @@ export function ManualGoalForm({
   }
 
 
-  function addColumn() {
-    console.log("Add column called");
-    columnCount++;
-    if (columnCount > dataSeriesDataFieldNames.length) {
-      columnCount = dataSeriesDataFieldNames.length;
-      return;
-    }
-    columns.push(drawGridColumn(columns.length));
-    const inputGrid = document.getElementById("inputGrid");
-    if (inputGrid) {
-      updateInputGrid(inputGrid);
-    }
-  }
+  // function addColumn() {
+  //   columnCount++;
+  //   if (columnCount > dataSeriesDataFieldNames.length) {
+  //     columnCount = dataSeriesDataFieldNames.length;
+  //     return;
+  //   }
+  //   columns.push(drawGridColumn(columns.length));
+  //   const inputGrid = document.getElementById("inputGrid");
+  //   if (inputGrid) {
+  //     updateInputGrid(inputGrid);
+  //   }
+  // }
 
-  function removeColumn() {
-    console.log("Remove column called");
-    columnCount--;
-    if (columnCount < 1) {
-      columnCount = 1;
-      return;
-    }
-    columns.pop();
-    const inputGrid = document.getElementById("inputGrid");
-    if (inputGrid) {
-      updateInputGrid(inputGrid);
-    }
-  }
+  // function removeColumn() {
+  //   columnCount--;
+  //   if (columnCount < 1) {
+  //     columnCount = 1;
+  //     return;
+  //   }
+  //   columns.pop();
+  //   const inputGrid = document.getElementById("inputGrid");
+  //   if (inputGrid) {
+  //     updateInputGrid(inputGrid);
+  //   }
+  // }
 
   /**
    * Function to insert values into the input grid
    * @param values a string or array of values to insert. If a string, it will be split by semicolon or tab
    */
   function insertValuesToInputGrid(values: string | string[]) {
-    console.log("FUNCTION CALLED - Inserting values to input grid");
-    const valuesList = Array.isArray(values) ? values : values.split(/[\t;]/);
-    columnCount = valuesList.length;
+    const valuesList = (Array.isArray(values) ? values : values.split(/[\t;]/)).slice(0, defaultColumnCount);
+    columnCount = valuesList.length ? valuesList.length : defaultColumnCount;
     columns = [];
-    for (let i = 0; i < (columnCount ? columnCount : defaultColumnCount); i++) {
+    for (let i = 0; i < (columnCount); i++) {
       columns.push(drawGridColumn(i));
     }
     const inputGrid = document.getElementById("inputGrid");
@@ -200,7 +188,6 @@ export function ManualGoalForm({
   }
 
   function getValuesFromInputGrid() {
-    console.log("FUNCTION CALLED - Getting values from input grid");
     const inputGrid = document.getElementById("inputGrid");
     if (!inputGrid) {
       console.warn("inputGrid does not exist");
@@ -214,22 +201,24 @@ export function ManualGoalForm({
     return values;
   }
 
-  function updateStringInput(){
-    console.log("FUNCTION CALLED - Updating string input");
+  function updateStringInput() {
     const valuesString = getValuesFromInputGrid()?.join(";");
     const input = document.getElementById("dataSeries") as HTMLInputElement | null;
     if (input && valuesString) {
-      console.log(input);
-      console.log(input.value);
       input.value = valuesString;
     }
+  }
+
+  function handleStringInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    insertValuesToInputGrid(e.target.value);
+    // Call this to make sure there are not too many values in the string input
+    updateStringInput();
   }
 
   /**
    * Function to handle pasting into the input grid
   */
   function handlePaste(e: ClipboardEvent) {
-    console.log("FUNCTION CALLED - Handling paste");
     if (!e.clipboardData) return;
     const clip = e.clipboardData.getData("text");
     insertValuesToInputGrid(clip);
@@ -243,11 +232,13 @@ export function ManualGoalForm({
   }
 
   console.log(getValuesFromInputGrid());
-  if (dataSeriesString) {
+  if (dataSeriesString && document.getElementById("dataSeries") && (document.getElementById("dataSeries") as HTMLSelectElement).value == dataSeriesString) {
     insertValuesToInputGrid(dataSeriesString);
   }
   console.log(getValuesFromInputGrid());
   console.log(getValuesFromInputGrid()?.join(";"));
+
+  console.count("render");
 
   return (
     <>
@@ -287,19 +278,16 @@ export function ManualGoalForm({
       <label className="block margin-block-75">
         Dataserie
         {/* TODO: Make this allow .csv files and possibly excel files */}
+        <div id="inputGrid" style={{ maxWidth: "50rem", display: "grid", gridTemplateColumns: `repeat(${columnCount}, 1fr)`, gap: "0rem", gridTemplateRows: "auto", overflow: "scroll" }}>
+          {columns.map((column) => column)}
+        </div>
         <input type="text" name="dataSeries" required id="dataSeries"
           pattern={dataSeriesPattern}
           title="Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma."
           className="margin-block-25"
           defaultValue={dataSeriesString}
+          onChange={(e) => handleStringInputChange(e)}
         />
-        <button type="button" onClick={() => { console.log(document.getElementById("inputGrid")) }}>Logga</button>
-        <button type="button" onClick={updateStringInput}>Uppdatera</button>
-        <button type="button" onClick={addColumn}>Lägg till kolumn</button>
-        <button type="button" onClick={removeColumn}>Ta bort kolumn</button>
-        <div id="inputGrid" style={{ maxWidth: "50rem", display: "grid", gridTemplateColumns: `repeat(${columnCount}, 1fr)`, gap: "0rem", gridTemplateRows: "auto", overflow: "scroll" }}>
-          {columns.map((column) => column)}
-        </div>
       </label>
     </>
   )
