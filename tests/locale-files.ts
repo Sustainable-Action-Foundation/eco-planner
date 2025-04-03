@@ -11,17 +11,14 @@ import { errors, expect, test } from "playwright/test";
  **********
  */
 
-/** Note: this should not have line breaks since it will mess with the test trace due to type stripping transforming the line count */
+/** The locale type */
 enum Locales { enSE = "en-SE", svSE = "sv-SE", default = enSE, };
 
 /** All locales */
 const uniqueLocales = [...new Set(Object.values(Locales))];
 
 /** The language switcher uses these values */
-const localeAliases: Record<Locales, string> = {
-  [Locales.enSE]: "English",
-  [Locales.svSE]: "Svenska",
-};
+const localeAliases: Record<Locales, string> = { [Locales.enSE]: "English", [Locales.svSE]: "Svenska", };
 
 /** All namespaces */
 const namespaces = ["common", "forms", "components", "graphs", "pages", "email", "test",];
@@ -33,34 +30,15 @@ const localesDir = "public/locales";
 const allPermutations: string[][] = uniqueLocales.flatMap(locale => namespaces.map(namespace => [locale, namespace]));
 
 /** Every NS file per locale with their flattened key-values */
-const allData = Object.fromEntries(
-  // First layer is the locale
-  uniqueLocales.map(locale => [
-    locale,
-    // Second layer is the namespace
-    Object.fromEntries(
-      namespaces.map(namespace => [
-        namespace,
-        // Third layer is the keys
-        Object.fromEntries(
-          Object.entries(
-            flattenTree(() => {
-              const filePath = path.join(localesDir, locale, `${namespace}.json`);
-              try { JSON.parse(fs.readFileSync(filePath, "utf-8")); }
-              catch (e) {
-                console.error(`Failed to parse ${filePath} with error ${e}`);
-                return {};
-              }
-              return JSON.parse(fs.readFileSync(filePath, "utf-8"));
-            }),
-          ).map(([key, value]) => [key.replace(`${namespace}:`, ""), value]),
-        ),
-      ]),
-    ),
-  ]),
-);
+const allData = getAllDataFlattened();
 
-/** Does every namespace exist in every locale? */
+/* 
+ *********
+ * Tests *
+ *********
+ */
+
+/* Does every namespace exist in every locale? */
 test.describe("Namespace files exist", async () => {
   // Track missing and extra namespaces per locale
   const perLocale = Object.fromEntries(uniqueLocales.map(locale =>
@@ -93,45 +71,26 @@ test.describe("Namespace files exist", async () => {
   test("Empty namespaces", () => expect(emptyNS.length, `Empty namespaces in locales: ${JSON.stringify(emptyNS, null, 2)}`).toBe(0));
 });
 
-// /** Does english have all keys to function as a fallback? */
-// function TestJSONEnglishFallback() {
-//   /** All english keys since we assume it's the fallback language */
-//   const enKeys = expectedNS.flatMap((namespace) => getFlattenedKeys(Locales.enSE, namespace));
+/* Does english have all keys to function as a fallback? */
+test.describe("English as fallback", () => {
+  const enKeys = Object.keys(allData[Locales.default]);
 
-//   // Track both types of missing keys
-//   const missingFromOtherLocales: Record<string, string[]> = {};
-//   const missingFromEnglish: Record<string, string[]> = {};
+  // Track both types of missing keys
+  const missingInOthers: Record<string, string[]> = {};
+  const missingInEnglish: Record<string, string[]> = {};
 
-//   // Loop through all locales
-//   uniqueLocales.forEach(locale => {
-//     const localeKeys = expectedNS.flatMap((namespace) => getFlattenedKeys(locale, namespace));
+  uniqueLocales.forEach((locale) => {
+    const keys = Object.keys(allData[locale]);
+    const missingOther = enKeys.filter(key => !keys.includes(key));
+    const missingEng = keys.filter(key => !enKeys.includes(key));
 
-//     // Keys in English missing from this locale
-//     const keysNotInLocale = enKeys.filter(key => !localeKeys.includes(key));
-//     if (keysNotInLocale.length > 0) {
-//       missingFromOtherLocales[locale] = keysNotInLocale;
-//     }
+    if (missingOther.length > 0) missingInOthers[locale] = missingOther;
+    if (missingEng.length > 0) missingInEnglish[locale] = missingEng;
+  });
 
-//     // Keys in this locale missing from English
-//     const keysNotInEnglish = localeKeys.filter(key => !enKeys.includes(key));
-//     missingFromEnglish[locale] = keysNotInEnglish;
-//   });
-
-//   const missingFromOtherLocalesFiltered = Object.fromEntries(Object.entries(missingFromOtherLocales).filter(([key, value]) => key !== Locales.enSE && value.length));
-//   const missingFromEnglishFiltered = Object.fromEntries(Object.entries(missingFromEnglish).filter(([key, value]) => key !== Locales.enSE && value.length));
-
-//   // Report missing keys in other locales
-//   assertWarn(Object.keys(missingFromOtherLocalesFiltered).length === 0,
-//     `English has more keys than other locales. This might lead to preemptive fallback use. ${JSON.stringify(missingFromOtherLocalesFiltered, null, 2)}`,
-//     ""
-//   );
-
-//   // Report missing keys in English
-//   assert(Object.keys(missingFromEnglishFiltered).length === 0,
-//     `Keys missing in English but present in: ${JSON.stringify(missingFromEnglishFiltered, null, 2)}. This is a problem if English is the fallback language.`,
-//     "English has the keys to function as a fallback"
-//   );
-// }
+  test("Missing keys in other locales", () => expect(Object.keys(missingInOthers).length, `Missing keys in other locales: ${JSON.stringify(missingInOthers, null, 2)}`).toBe(0));
+  test("Missing keys in english", () => expect(Object.keys(missingInEnglish).length, `Missing keys in english: ${JSON.stringify(missingInEnglish, null, 2)}`).toBe(0));
+})
 
 // /** Do all the keys follow snake case? */
 // function TestJSONKeySnakeCase() {
@@ -844,6 +803,27 @@ test.describe("Namespace files exist", async () => {
 // }
 
 
+/* 
+ ***********
+ * Helpers *
+ ***********
+ */
+
+/** Structure is is `{ Locales: { "namespace:key.keyN": value } }` */
+function getAllDataFlattened(): Record<string, Record<string, string>> {
+  return Object.fromEntries(
+    allPermutations.map(([locale, namespace]) => {
+      const nsData = JSON.parse(fs.readFileSync(path.join(localesDir, locale, `${namespace}.json`), "utf-8"));
+      const flattened = flattenTree(nsData);
+      const prefixed = Object.fromEntries(Object.entries(flattened)
+        .map(([key, value]) => [`${namespace}:${key}`, value])
+      );
+      return [locale, prefixed];
+    })
+  );
+}
+
+/** Returns a flattened object with the structure `{ "key1.key2.keyN": value }` */
 function flattenTree(obj: object) {
   const result: Record<string, string> = {};
 
