@@ -2,7 +2,7 @@
 
 import { LoginData } from '@/lib/session';
 import styles from '@/components/tables/tables.module.css' with { type: "css" };
-import { MetaRoadmap, Roadmap, RoadmapType } from "@prisma/client";
+import { MetaRoadmap, Roadmap } from "@prisma/client";
 import { TableMenu } from '@/components/tables/tableMenu/tableMenu';
 import { AccessControlled } from '@/types';
 import accessChecker from '@/lib/accessChecker';
