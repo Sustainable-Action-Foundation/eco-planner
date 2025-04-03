@@ -3,7 +3,7 @@ import { colors } from "./lib/colors.js";
 import fs from "node:fs";
 import path from "node:path";
 import { glob } from "glob";
-import { expect, test } from "playwright/test";
+import { errors, expect, test } from "playwright/test";
 
 /* ******
  * Config
@@ -33,13 +33,8 @@ const localesDir = "public/locales";
 /** Every combo of locale and ns in a 2d array */
 const allPermutations: string[][] = uniqueLocales.flatMap(locale => ns.map(namespace => [locale, namespace]));
 
-/** Pre file read test */
-test("Locale files exist", () => {
-  TestNamespaceFiles();
-});
-
 /** Every NS file per locale with their flattened key-values */
-const data = Object.fromEntries(
+const allData = Object.fromEntries(
   // First layer is the locale
   uniqueLocales.map(locale => [
     locale,
@@ -67,7 +62,7 @@ const data = Object.fromEntries(
 );
 
 /** Does every namespace exist in every locale? */
-function TestNamespaceFiles() {
+test("Namespace files exist", async () => {
   // Track missing and extra namespaces per locale
   const perLocale = Object.fromEntries(uniqueLocales.map(locale =>
     [locale as Locales, { missing: [] as string[], extra: [] as string[], empty: [] as string[] }]
@@ -89,13 +84,22 @@ function TestNamespaceFiles() {
     }
   });
 
-  // Check if any locales have missing namespaces
-  const missingNamespaces = Object.entries(perLocale).filter(([_, { missing }]) => missing.length > 0);
+  // const missingNS = Object.entries(perLocale).filter(([_, { missing }]) => missing.length > 0);
+  const missingNS = [1, , 2]
+  // const extraNS = Object.entries(perLocale).filter(([_, { extra }]) => extra.length > 0);
+  const extraNS = [1, , 2]
+  // const emptyNS = Object.entries(perLocale).filter(([_, { empty }]) => empty.length > 0);
+  const emptyNS = [1, , 2]
 
-  expect(missingNamespaces.length).toBe(0);
-}
+  if (missingNS.length > 0) console.error(`Missing namespaces in locales: ${JSON.stringify(missingNS, null, 2)}`);
+  expect(missingNS.length).toBe(0);
 
-console.dir(data);
+  if (extraNS.length > 0) console.error(`Extra namespaces in locales: ${JSON.stringify(extraNS, null, 2)}`);
+  expect(extraNS.length).toBe(0);
+
+  if (emptyNS.length > 0) console.error(`Empty namespaces in locales: ${JSON.stringify(emptyNS, null, 2)}`);
+  expect(emptyNS.length).toBe(0);
+});
 
 // /** Does english have all keys to function as a fallback? */
 // function TestJSONEnglishFallback() {
