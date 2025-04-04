@@ -35,7 +35,9 @@ export default function QueryBuilder({
 
   const tableSearchInputName = "tableSearch";
 
-  // TODO - comment
+  // These variables determine how many tables are rendered at a time, and how many are rendered when the user scrolls down/up
+  // The first number is the amount of tables that are rendered when the user scrolls down/up, and the second number is the maximum amount of tables that are rendered at once.
+  // The initial rendering margin allows for more than the maximum amount of tables to be rendered at once if the total amount of tables is less than the maximum amount of tables plus the margin (currently adding to 115).
   const tablesListRenderingChunkSize = 50;
   const renderedTablesListMaxLength = 100;
   const initialRenderingMargin = 15;
@@ -51,8 +53,16 @@ export default function QueryBuilder({
 
   useEffect(() => {
     if (tables) {
-      // TODO - comment
-      setRenderedTables(tables.slice(0, tables.length < renderedTablesListMaxLength + initialRenderingMargin ? renderedTablesListMaxLength + initialRenderingMargin : renderedTablesListMaxLength > tables.length ? renderedTablesListMaxLength : tablesListRenderingChunkSize));
+      setRenderedTables(tables
+        .slice(
+          0,
+          /* If the total amount of tables is less than, or equal to, the max amount of rendered tables plus a margin (currently adding to 115), show all tables */
+          tables.length <= renderedTablesListMaxLength + initialRenderingMargin
+            ?
+            tables.length
+            : /* Otherwhise, only show the first (100) tables. */
+            renderedTablesListMaxLength
+        ));
       setOffset(0);
     } else {
       setRenderedTables(null);
@@ -142,7 +152,7 @@ export default function QueryBuilder({
     // Get a result if the form is valid
     if (formRef.current.checkValidity()) {
       const formData = new FormData(formRef.current);
-      const query = buildQuery(formData); // This line is called before the form is cleared TODO - is this comment still relevant?
+      const query = buildQuery(formData);
       const tableId = tableDetails?.id ?? formData.get("externalTableId") as string ?? "";
 
       getTableContent(tableId, dataSource, query, locale).then(result => {
@@ -248,7 +258,6 @@ export default function QueryBuilder({
       variableSelectionFieldsets.forEach(variableSelectionFieldset => {
         if (!isDefaultValue && variableSelectionFieldset.hasAttribute("disabled")) {
           variableSelectionFieldset.removeAttribute("disabled");
-          // TODO - should trafa table details be fetched here? - no it is already fetched when the form is changed
         }
         else if (isDefaultValue) {
           // Reset the selection of all select elements in the variable fieldset before disabling
@@ -277,15 +286,30 @@ export default function QueryBuilder({
 
   function handleTableListScroll(event: React.UIEvent<HTMLUListElement, UIEvent>) {
     if (event.target && event.target instanceof HTMLElement && tables && event.target.children.length < tables.length) {
-      // TODO - comment
-      if (renderedTables && event.target.scrollTop + event.target.clientHeight * 2 >= event.target.scrollHeight && tables.findIndex(table => table.tableId == renderedTables[renderedTables.length - 1].tableId) < tables.length - 1) {
-        const newOffset = renderedTables.length == renderedTablesListMaxLength ? offset + tablesListRenderingChunkSize : offset;
+      if ( // This block is only executed when the user scrolls down
+        renderedTables
+        &&
+        /* Check if the user has scrolled far enough to render more tables (including some margin so the scroll does not get stuck at the bottom while waiting for more tables to render) */
+        event.target.scrollTop + event.target.clientHeight * 2 >= event.target.scrollHeight
+        &&
+        /* Make sure that the very last table has not been rendered */
+        !renderedTables.includes(tables[tables.length - 1])
+      ) {
+        const newOffset = offset + tablesListRenderingChunkSize;
         const newRenderedTables = tables.slice(newOffset, newOffset + renderedTablesListMaxLength);
         setRenderedTables(newRenderedTables);
         setOffset(newOffset);
       }
-      else if (event.target.scrollTop < event.target.clientHeight * 2 && offset > 0) {
-        const newOffset = offset - tablesListRenderingChunkSize;
+      else if ( // This block is only executed when the user scrolls up
+        renderedTables
+        &&
+        /* Check if the user has scrolled far enough to render more tables (including some margin so the scroll does not get stuck at the top while waiting for more tables to render) */
+        event.target.scrollTop < event.target.clientHeight * 2
+        &&
+        /* Check that the very first table has not been rendered */
+        !renderedTables.includes(tables[0])
+      ) {
+        const newOffset = Math.max(offset - tablesListRenderingChunkSize, 0);
         const newRenderedTables = tables.slice(newOffset, newOffset + renderedTablesListMaxLength);
         setRenderedTables(newRenderedTables);
         setOffset(newOffset);
@@ -293,10 +317,13 @@ export default function QueryBuilder({
     }
   }
 
-  function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) {
+  type VariableSelectionHelperOptions = {
+    classNames?: string[],
+  }
+  function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails, options?: VariableSelectionHelperOptions) {
     if (variable.option) {
       return (
-        <label key={variable.name} className="block margin-block-75">
+        <label key={variable.name} className={`block margin-block-75 ${options?.classNames && (options?.classNames as string[]).map((className: string) => className).join(" ")}`}>
           {// Only display "optional" tags if the data source provides this information
           }
           {variable.label[0].toUpperCase() + variable.label.slice(1)}{optionalTag(dataSource, variable.optional)}
@@ -376,187 +403,185 @@ export default function QueryBuilder({
       </button>
 
       <dialog className={`smooth padding-inline-0 ${styles.dialog}`} ref={modalRef} aria-modal>
-          <div className='display-flex flex-direction-row-reverse align-items-center justify-content-space-between padding-inline-100'>
-            <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label="Close" >
-              <Image src="/icons/close.svg" alt="" width={18} height={18} />
-            </button>
-            <h2 className="margin-0">Lägg till datakälla</h2>
-          </div>
+        <div className="display-flex flex-direction-row-reverse align-items-center justify-content-space-between padding-inline-100">
+          <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label="Close" >
+            <Image src="/icons/close.svg" alt="" width={18} height={18} />
+          </button>
+          <h2 className="margin-0">Lägg till datakälla</h2>
+        </div>
 
-          <p className="padding-inline-100">Lägg till historisk dataserie till {goal.name ?? goal.indicatorParameter}</p>
+        <p className="padding-inline-100">Lägg till historisk dataserie till {goal.name ?? goal.indicatorParameter}</p>
 
-          <form ref={formRef} onChange={formChange} onSubmit={handleSubmit}>
-            {/* Hidden disabled submit button to prevent accidental submisson */}
-            <button type="submit" className="display-none" disabled></button>
+        <form ref={formRef} onChange={formChange} onSubmit={handleSubmit}>
+          {/* Hidden disabled submit button to prevent accidental submisson */}
+          <button type="submit" className="display-none" disabled></button>
 
-            <FormWrapper>
-              <fieldset className="position-relative">
-                <label className="margin-block-75 font-weight-500">
-                  Datakälla
-                  <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
-                    <option value="" className='font-style-italic color-gray'>Välj en källa</option>
-                    {Object.keys(externalDatasets).map((name) => (
-                      <option key={name} value={name}>{name}</option>
-                    ))}
-                  </select>
+          <FormWrapper>
+            <fieldset className="position-relative">
+              <label className="margin-block-75 font-weight-500">
+                Datakälla
+                <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
+                  <option value="" className="font-style-italic color-gray">Välj en källa</option>
+                  {Object.keys(externalDatasets).map((name) => (
+                    <option key={name} value={name}>{name}</option>
+                  ))}
+                </select>
 
-                  {/* Display warning message if the selected language is not supported by the api */}
-                  {((externalDatasets[dataSource]) && !(externalDatasets[dataSource]?.supportedLanguages.includes(locale))) ?
-                    <p style={{ color: "red" }}>{dataSource} stödjer inte ditt valda språk. Ett tillgängligt språk kommer att användas istället.</p>
-                  : null }
-                </label>
- 
-                {dataSource ?
-                  <>
-                    <div className="margin-top-200 margin-bottom-25">
-                      <label className="font-weight-500">
-                        Sök efter tabell 
-                        <div className="focusable gray-90 flex align-items-center margin-top-25 padding-left-50 smooth">
-                          <Image alt="" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" src="/icons/search.svg" />
-                          <input name={tableSearchInputName} type="search" className="padding-0 margin-inline-50" onKeyDown={searchOnEnter} style={{backgroundColor: 'transparent'}} />
-                          <button type="button" onClick={searchWithButton} className="padding-block-50 padding-inline-100 transparent font-weight-500">Sök</button>
-                        </div>
-                      </label>
-                    </div>
-
-                    <ul 
-                      id="tablesList" 
-                      className={`position-relative padding-25 smooth ${styles.temporary}`} onScroll={e => handleTableListScroll(e)} 
-                      style={{ maxHeight: "300px", border: "1px solid var(--gray-90)", listStyle: 'none' }} >
-                      <div 
-                        id="loader" 
-                        className={`position-absolute padding-100 smooth width-100 height-100 flex align-items-center justify-content-center font-weight-500 ${!isLoading && "hidden"}`} 
-                        style={{backgroundColor: 'rgba(255,255,255,.75)', top: '0', left: '0'}}>
-                          Laddar...
-                      </div>
-                      {renderedTables && renderedTables.map(({ tableId: id, label }) => (
-                        <li key={id} >
-                          <button 
-                            type="button" 
-                            className="block width-100 text-align-left font-weight-500 transparent"  
-                            id={`table${id}`}
-                            value={id}  
-                            name="externalTableId" 
-                            onClick={e => handleTableSelect((e.target as HTMLButtonElement).value)}>
-                            {label}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </>
+                {/* Display warning message if the selected language is not supported by the api */}
+                {((externalDatasets[dataSource]) && !(externalDatasets[dataSource]?.supportedLanguages.includes(locale))) ?
+                  <p style={{ color: "red" }}>{dataSource} stödjer inte ditt valda språk. Ett tillgängligt språk kommer att användas istället.</p>
                   : null}
-                  
-              </fieldset>
+              </label>
 
-              {tableDetails && (
-                // TODO - which inputs should be optional?
+              {dataSource ?
                 <>
-                  <label className="block margin-block-75">
-                    <strong>Vald tabell:</strong> {document.getElementById(`table${tableDetails.id}`)?.innerText}
-                  </label>
-                  <fieldset className="margin-block-100 smooth padding-50" style={{ border: "1px solid var(--gray-90)" }}>
-                    <legend className="padding-inline-50">
-                      <b>Välj mätvärde för tabellen</b>
-                    </legend>
-                    <div>
-                      <label key={`metric-${tableDetails.id}`} className="block margin-block-75">
-                        <select className={`block margin-block-25 metric`}
-                          required={true}
-                          name="metric"
-                          id="metric"
-                          defaultValue={undefined}
-                          onChange={handleMetricSelect}>
-                          <option value="" className={`font-style-italic color-gray`}>Välj ett mätvärde</option>
-                          {tableDetails.metrics && tableDetails.metrics.map(metric => (
-                            <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
-                          ))}
-                        </select>
-                      </label>
-                    </div>
-                  </fieldset>
-                  <fieldset name="variableSelectionFieldset" disabled={true} className={`margin-block-100 smooth padding-25 fieldset-unset-pseudo-class`} style={{ border: `${shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? "1px solid var(--gray-90)" : ""}`, maxHeight: "322px" }}>
-                    {shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
-                      <>
-                        <legend className="padding-inline-50">
-                          <b>Välj värden för tabell</b>
-                        </legend>
-                        <div className={`${styles.temporary}`} style={{ maxHeight: "282px", boxSizing: "content-box", padding: ".25rem", paddingRight: ".375rem" }}>
-                          {tableDetails.times &&
-                            timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
-                          }
-                          {tableDetails.variables.map(variable => {
-                            return variableSelectionHelper(variable, tableDetails);
-                          })}
-                          {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
-                            if (hierarchy.children?.some(variable => variable.option)) return (
-                              <label key={hierarchy.name} className="block margin-block-75">
-                                <b>{hierarchy.label}</b>
-                                {// TODO - indent all children
-                                }
-                                {hierarchy.children && hierarchy.children.map(variable => {
-                                  return variableSelectionHelper(variable, tableDetails);
-                                })}
-                              </label>
-                            )
-                          })}
-                        </div>
-                      </>) : (<p className={`font-style-italic color-gray`}>Det finns inga variabler</p>)}
-                  </fieldset>
-                  <output>
-                    {/* TODO: style this better */}
-                    {tableContent && tableContent.data.length > 0 ? (
-                      <div className="padding-inline-100">
-                        <p>Ser detta rimligt ut? (visar max 5 värden)</p>
-                        <table>
-                          <thead>
-                            <tr>
-                              <th scope="col">Period</th>
-                              <th scope="col">Värde</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {
-                              tableContent.data.map((row, index) => {
-                                // Find the column of the time value
-                                let timeColumnIndex = 0;
-                                tableContent.columns.map((column, index) => {
-                                  if (column.type == "t") timeColumnIndex = index
-                                })
-                                return (
-                                  index < 5 &&
-                                  <tr key={row.key[timeColumnIndex].value}>
-                                    <td>{row.key[timeColumnIndex].value}</td>
-                                    <td>{row.values[0]}</td>
-                                  </tr>
-                                )
-                              })
-                            }
-                          </tbody>
-                        </table>
+                  <div className="margin-top-200 margin-bottom-25">
+                    <label className="font-weight-500">
+                      Sök efter tabell
+                      <div className="focusable gray-90 flex align-items-center margin-top-25 padding-left-50 smooth">
+                        <Image alt="" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" src="/icons/search.svg" />
+                        <input name={tableSearchInputName} type="search" className="padding-0 margin-inline-50" onKeyDown={searchOnEnter} style={{ backgroundColor: "transparent" }} />
+                        <button type="button" onClick={searchWithButton} className="padding-block-50 padding-inline-100 transparent font-weight-500">Sök</button>
                       </div>
-                      ) : 
-                      (document.getElementById("metric") as HTMLSelectElement) &&
-                      (document.getElementById("metric") as HTMLSelectElement).value.length != 0 &&
-                      (formRef.current instanceof HTMLFormElement) &&
-                      formRef.current.checkValidity() && (
-                        <p>Inget läsbart resultat hittades. Vänligen uppdatera dina val.</p>
-                      )
-                    }
-                  </output>
-                </>
-              )}
-            </FormWrapper>
-              
-            {/* TODO: Should prbly only be displayed on last slide? */}
-            <button 
-              id="submit-button" 
-              disabled={true} 
-              type="submit" 
-              className="display-none seagreen color-purewhite margin-inline-auto block" 
-              style={{width: 'calc(100% - 2rem)'}}>Lägg till datakälla
-            </button>
+                    </label>
+                  </div>
 
-          </form>
+                  <ul
+                    id="tablesList"
+                    className={`position-relative padding-25 smooth ${styles.temporary}`} onScroll={e => handleTableListScroll(e)}
+                    style={{ maxHeight: "300px", border: "1px solid var(--gray-90)", listStyle: "none" }} >
+                    <div
+                      id="loader"
+                      className={`position-absolute padding-100 smooth width-100 height-100 flex align-items-center justify-content-center font-weight-500 ${!isLoading && "hidden"}`}
+                      style={{ backgroundColor: "rgba(255,255,255,.75)", top: "0", left: "0" }}>
+                      Laddar...
+                    </div>
+                    {renderedTables && renderedTables.map(({ tableId: id, label }) => (
+                      <li key={id} >
+                        <button
+                          type="button"
+                          className="block width-100 text-align-left font-weight-500 transparent"
+                          id={`table${id}`}
+                          value={id}
+                          name="externalTableId"
+                          onClick={e => handleTableSelect((e.target as HTMLButtonElement).value)}>
+                          {label}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+                : null}
+
+            </fieldset>
+
+            {tableDetails && (
+              // TODO - which inputs should be optional?
+              <>
+                <label className="block margin-block-75">
+                  <strong>Vald tabell:</strong> {document.getElementById(`table${tableDetails.id}`)?.innerText}
+                </label>
+                <fieldset className="margin-block-100 smooth padding-50" style={{ border: "1px solid var(--gray-90)" }}>
+                  <legend className="padding-inline-50">
+                    <b>Välj mätvärde för tabellen</b>
+                  </legend>
+                  <div>
+                    <label key={`metric-${tableDetails.id}`} className="block margin-block-75">
+                      <select className={`block margin-block-25 metric`}
+                        required={true}
+                        name="metric"
+                        id="metric"
+                        defaultValue={undefined}
+                        onChange={handleMetricSelect}>
+                        <option value="" className={`font-style-italic color-gray`}>Välj ett mätvärde</option>
+                        {tableDetails.metrics && tableDetails.metrics.map(metric => (
+                          <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                </fieldset>
+                <fieldset name="variableSelectionFieldset" disabled={true} className={`margin-block-100 smooth padding-25 fieldset-unset-pseudo-class`} style={{ border: `${shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? "1px solid var(--gray-90)" : ""}`, maxHeight: "322px" }}>
+                  {shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
+                    <>
+                      <legend className="padding-inline-50">
+                        <b>Välj värden för tabell</b>
+                      </legend>
+                      <div className={`${styles.temporary}`} style={{ maxHeight: "282px", boxSizing: "content-box", padding: ".25rem", paddingRight: ".375rem" }}>
+                        {tableDetails.times &&
+                          timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
+                        }
+                        {tableDetails.variables.map(variable => {
+                          return variableSelectionHelper(variable, tableDetails);
+                        })}
+                        {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
+                          if (hierarchy.children?.some(variable => variable.option)) return (
+                            <label key={hierarchy.name} className="block margin-block-75">
+                              <b>{hierarchy.label}</b>
+                              {hierarchy.children && hierarchy.children.map(variable => {
+                                return variableSelectionHelper(variable, tableDetails, { classNames: ["margin-left-75"] });
+                              })}
+                            </label>
+                          )
+                        })}
+                      </div>
+                    </>) : (<p className={`font-style-italic color-gray`}>Det finns inga variabler</p>)}
+                </fieldset>
+                <output>
+                  {/* TODO: style this better */}
+                  {tableContent && tableContent.data.length > 0 ? (
+                    <div className="padding-inline-100">
+                      <p>Ser detta rimligt ut? (visar max 5 värden)</p>
+                      <table>
+                        <thead>
+                          <tr>
+                            <th scope="col">Period</th>
+                            <th scope="col">Värde</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {
+                            tableContent.data.map((row, index) => {
+                              // Find the column of the time value
+                              let timeColumnIndex = 0;
+                              tableContent.columns.map((column, index) => {
+                                if (column.type == "t") timeColumnIndex = index
+                              })
+                              return (
+                                index < 5 &&
+                                <tr key={row.key[timeColumnIndex].value}>
+                                  <td>{row.key[timeColumnIndex].value}</td>
+                                  <td>{row.values[0]}</td>
+                                </tr>
+                              )
+                            })
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  ) :
+                    (document.getElementById("metric") as HTMLSelectElement) &&
+                    (document.getElementById("metric") as HTMLSelectElement).value.length != 0 &&
+                    (formRef.current instanceof HTMLFormElement) &&
+                    formRef.current.checkValidity() && (
+                      <p>Inget läsbart resultat hittades. Vänligen uppdatera dina val.</p>
+                    )
+                  }
+                </output>
+              </>
+            )}
+          </FormWrapper>
+
+          {/* TODO: Should prbly only be displayed on last slide? */}
+          <button
+            id="submit-button"
+            disabled={true}
+            type="submit"
+            className="display-none seagreen color-purewhite margin-inline-auto block"
+            style={{ width: "calc(100% - 2rem)" }}>Lägg till datakälla
+          </button>
+
+        </form>
       </dialog>
     </>
   )
