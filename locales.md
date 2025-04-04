@@ -82,3 +82,6 @@ As of writing this, in [`package.json`](/package.json) there are some locale rel
  - `"pretest:local": "yarn run build"`
  - `"test:local": "tsx node_modules/playwright/cli.js test"`
    - Runs the tests in [`/tests/locale-files.ts`](/tests/locale-files.ts) using `playwright`. All tests from `locales:validate` are being ported to this system. Additional tests will also be added soon, including browser tests.
+
+### Manual testing
+There's a page on the site [`http://localhost:3000/localesTest`](http://localhost:3000/localesTest) that shows every key, translated both on the server and client and displays some stats and help text.
