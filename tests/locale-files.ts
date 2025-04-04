@@ -6,7 +6,6 @@ import { glob } from "glob";
 import { expect, test } from "playwright/test";
 import escape from "regexp.escape"; // Polyfill for RegExp.escape. Not in node yet.
 
-
 /* 
  **********
  * Config *
@@ -172,61 +171,75 @@ test("Common values not referenced", () => {
   expect(totalBadKeys, `Common keys used as values: ${JSON.stringify(perLocaleNS, null, 2)}`).toBe(0);
 });
 
-// /** Are all the nested keys used in locale files defined? */
-// function TestJSONNestedKeysDefined() {
-//   const perLocale: { [key: string]: { [key: string]: string[] } }
-//     = Object.fromEntries(uniqueLocales.map(locale => [locale, {}]));
+/** Are all the nested keys used in locale files defined? */
+test("Are nested keys defined", () => {
+  const perLocaleNS: Record<string, Record<string, string[]>>
+    = Object.fromEntries(uniqueLocales.map(locale => [locale, {}]));
 
-//   uniqueLocales.forEach((locale) => {
-//     const allKeys = expectedNS.flatMap((namespace) => getFlattenedKeys(locale, namespace));
+  const nestedTRegex = /\$t\((.*?)\)/gm;
 
-//     expectedNS.forEach((namespace) => {
-//       // Skip checking common namespace
-//       if (namespace === "common") return
+  uniqueLocales.forEach(locale => {
+    const translations = Object.fromEntries(Object.entries(allData[locale])
+      .map(([key, value]) => [key, {
+        key, value, nested: [
+          ...value.matchAll(nestedTRegex) // Find all nested t() calls
+        ]
+      }])
+    );
 
-//       const values = getFlattenedValues(locale, namespace).join("\n");
+    // console.dir(translations, { depth: null });
+  });
 
-//       const tCalls = getAllNestedTCalls(values);
+  // uniqueLocales.forEach((locale) => {
+  //   const allKeys = expectedNS.flatMap((namespace) => getFlattenedKeys(locale, namespace));
 
-//       tCalls.forEach(call => {
-//         /**
-//          * match = $t([key])
-//          * key = [key]
-//          */
-//         const [match, key] = call;
+  //   expectedNS.forEach((namespace) => {
+  //     // Skip checking common namespace
+  //     if (namespace === "common") return
 
-//         // Skip if key is defined
-//         if (allKeys.includes(key)) return;
+  //     const values = getFlattenedValues(locale, namespace).join("\n");
 
-//         /**
-//          * key could look like this:
-//          * "key, { "count": count }"
-//          */
-//         const [keyArg, tOptions] = key.split(/\s?,\s?/gm);
+  //     const tCalls = getAllNestedTCalls(values);
 
-//         // Skip if key is defined
-//         if (allKeys.includes(keyArg)) return;
+  //     tCalls.forEach(call => {
+  //       /**
+  //        * match = $t([key])
+  //        * key = [key]
+  //        */
+  //       const [match, key] = call;
 
-//         // If it has a count arg, skip if base key is defined
-//         if (tOptions?.includes("\"count\"")) {
-//           // Find count versions of base key
-//           const countVersionKeys = keyCountModifiers.map(mod => keyArg + mod);
-//           if (countVersionKeys.some(countKey => allKeys.includes(countKey))) return;
-//         }
+  //       // Skip if key is defined
+  //       if (allKeys.includes(key)) return;
 
-//         if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-//         perLocale[locale][namespace].push(`[${key}] > '${match}'`);
-//       });
-//     });
-//   });
+  //       /**
+  //        * key could look like this:
+  //        * "key, { "count": count }"
+  //        */
+  //       const [keyArg, tOptions] = key.split(/\s?,\s?/gm);
 
-//   const totalBadKeys = Object.values(getFlattenedObject(perLocale)).length;
+  //       // Skip if key is defined
+  //       if (allKeys.includes(keyArg)) return;
 
-//   assert(totalBadKeys === 0,
-//     `Nested keys not defined: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f in vscode to find the perpetrators.`,
-//     "All nested keys seem to be defined"
-//   );
-// }
+  //       // If it has a count arg, skip if base key is defined
+  //       if (tOptions?.includes("\"count\"")) {
+  //         // Find count versions of base key
+  //         const countVersionKeys = keyCountModifiers.map(mod => keyArg + mod);
+  //         if (countVersionKeys.some(countKey => allKeys.includes(countKey))) return;
+  //       }
+
+  //       if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
+  //       perLocale[locale][namespace].push(`[${key}] > '${match}'`);
+  //     });
+  //   });
+  // });
+
+  // const totalBadKeys = Object.values(getFlattenedObject(perLocale)).length;
+
+  // assert(totalBadKeys === 0,
+  //   `Nested keys not defined: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f in vscode to find the perpetrators.`,
+  //   "All nested keys seem to be defined"
+  // );
+});
 
 // /** Are all the nested keys used in locale files correctly formatted? */
 // function TestJSONKeysSyntax() {

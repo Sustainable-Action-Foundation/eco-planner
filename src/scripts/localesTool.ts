@@ -2,12 +2,11 @@ import "./lib/console";
 import { Locales, ns, uniqueLocales } from "i18n.config";
 import fs from "node:fs";
 
-_ExtractLocalCommon();
 
 /** 
- * Local-common-for-duplicate-values-inator
+ * Adds a common object to all namespaces with all duplicate values in that namespace.
  */
-function _ExtractLocalCommon() {
+function ExtractLocalCommon() {
   uniqueLocales.forEach((locale) => {
     const allValues: string[] = [];
 
@@ -61,9 +60,9 @@ function _ExtractLocalCommon() {
 
 
 /** 
- * Namespace migrator
+ * Finds a group of values via their keys and parents and moves them to a new namespace file.
  */
-function _MigrateNamespaceValues(originNS: string, destNS: string, valueMatcher: string | RegExp) {
+function MigrateNamespaceValues(originNS: string, destNS: string, valueMatcher: string | RegExp) {
   uniqueLocales.forEach((locale) => {
     const old = JSON.parse(fs.readFileSync(`public/locales/${locale}/${originNS}.json`, "utf-8"))
 

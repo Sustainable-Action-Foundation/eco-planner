@@ -15,7 +15,7 @@ const nextConfig = {
   },
   webpack: (
     config,
-    { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }
+    { _buildId, _dev, _isServer, _defaultLoaders, _nextRuntime, _webpack }
   ) => {
 
     // Ignore "src/scripts" folder in the build process
