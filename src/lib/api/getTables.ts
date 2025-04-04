@@ -1,3 +1,4 @@
+import getKoladaTables from "../kolada/getKoladaTables";
 import getPxWebTables from "../pxWeb/getPxWebTables";
 import getTrafaTables from "../trafa/getTrafaTables";
 import { getDatasetKeysOfApis } from "./utility";
@@ -9,6 +10,10 @@ export default async function getTables(dataSource: string, query: string | null
   }
   else if (dataSource == "Trafa") {
     return getTrafaTables(query?.length == 0 ? null : query, locale);
+  }
+  else if (dataSource == "Kolada") {
+    getKoladaTables();
+    return [{tableId: "placeholder", label: "placeholder"}];
   }
   else return null;
 }
