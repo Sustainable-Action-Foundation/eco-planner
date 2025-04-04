@@ -3,7 +3,7 @@ import { colors } from "./lib/colors.js";
 import fs from "node:fs";
 import path from "node:path";
 import { glob } from "glob";
-import { errors, expect, test } from "playwright/test";
+import { expect, test } from "playwright/test";
 
 /* 
  **********
@@ -90,39 +90,29 @@ test.describe("English as fallback", () => {
 
   test("Missing keys in other locales", () => expect(Object.keys(missingInOthers).length, `Missing keys in other locales: ${JSON.stringify(missingInOthers, null, 2)}`).toBe(0));
   test("Missing keys in english", () => expect(Object.keys(missingInEnglish).length, `Missing keys in english: ${JSON.stringify(missingInEnglish, null, 2)}`).toBe(0));
-})
+});
 
-// /** Do all the keys follow snake case? */
-// function TestJSONKeySnakeCase() {
-//   const perLocale: { [key: string]: string[] }
-//     = Object.fromEntries(uniqueLocales.map(locale => [locale, []]));
+/** Do all the keys follow snake case? */
+test("Keys are snake_case", () => {
+  const perLocale: Record<string, string[]> = Object.fromEntries(uniqueLocales.map(locale => [locale, []]));
 
-//   uniqueLocales.forEach((locale) => {
-//     expectedNS.forEach((namespace) => {
-//       const keys = getFlattenedKeys(locale, namespace);
+  uniqueLocales.forEach((locale) => {
+    const keys = Object.keys(allData[locale]);
+    keys.forEach(key => {
+      const noNS = key.replace(/^[^:]+:/, "");
+      const parts = noNS.split(".");
+      if (!parts) return;
 
-//       keys.forEach(key => {
-//         const noNS = key.split(":").at(-1);
-//         const parts = noNS?.split(".");
-//         if (!parts) return;
+      if (parts.some(part => !/^[a-z0-9_]+$/.test(part))) {
+        perLocale[locale].push(key);
+      }
+    });
+  });
 
-//         if (parts.some(part => !/^[a-z0-9_]+$/.test(part))) {
-//           perLocale[locale].push(key);
-//         }
-//       });
-//     });
-//   });
+  const totalBadKeys = Object.values(perLocale).flat().length;
 
-//   const totalBadKeys = Object.values(perLocale).flat().length;
-
-//   assertWarn(totalBadKeys === 0,
-//     `There are keys that are not snake_case: ${Object.entries(perLocale)
-//       .filter(([_, keys]) => keys.length > 0)
-//       .map(([locale, keys]) => `\n  ${locale}: [ ${keys.join(", ")} ]`)
-//       .join("")}`,
-//     "All keys are snake_case"
-//   );
-// }
+  expect(totalBadKeys, `Keys not in snake_case: ${JSON.stringify(perLocale, null, 2)}`).toBe(0);
+});
 
 // /** Do namespaces use the values of common keys instead of referencing? */
 // function TestJSONCommonValueUse() {
