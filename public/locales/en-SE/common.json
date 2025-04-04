@@ -78,11 +78,11 @@
     "municipal": "Municipal",
     "local": "Local",
     "other": "Other",
-    "national_roadmap": "National $t(roadmap_series_one)",
-    "regional_roadmap": "Regional $t(roadmap_series_one)",
-    "municipal_roadmap": "Municipal $t(roadmap_series_one)",
-    "local_roadmap": "Local $t(roadmap_series_one)",
-    "other_roadmap": "Other $t(roadmap_series_one), e.g. an organization"
+    "national_roadmap": "National $t(common:roadmap_series_one)",
+    "regional_roadmap": "Regional $t(common:roadmap_series_one)",
+    "municipal_roadmap": "Municipal $t(common:roadmap_series_one)",
+    "local_roadmap": "Local $t(common:roadmap_series_one)",
+    "other_roadmap": "Other $t(common:roadmap_series_one), e.g. an organization"
   },
   "scaling_methods": {
     "geo_mean": "Geometric mean (recommended)",

@@ -78,11 +78,11 @@
     "municipal": "Kommunal",
     "local": "Lokal",
     "other": "Övrig",
-    "national_roadmap": "Nationell $t(roadmap_series_one)",
-    "regional_roadmap": "Regional $t(roadmap_series_one)",
-    "municipal_roadmap": "Kommunal $t(roadmap_series_one)",
-    "local_roadmap": "Lokal $t(roadmap_series_one)",
-    "other_roadmap": "Övrig $t(roadmap_series_one), exempelvis en organisation"
+    "national_roadmap": "Nationell $t(common:roadmap_series_one)",
+    "regional_roadmap": "Regional $t(common:roadmap_series_one)",
+    "municipal_roadmap": "Kommunal $t(common:roadmap_series_one)",
+    "local_roadmap": "Lokal $t(common:roadmap_series_one)",
+    "other_roadmap": "Övrig $t(common:roadmap_series_one), exempelvis en organisation"
   },
   "scaling_methods": {
     "geo_mean": "Geometriskt genomsnitt (rekommenderad)",
