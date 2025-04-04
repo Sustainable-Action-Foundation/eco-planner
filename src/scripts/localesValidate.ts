@@ -4,7 +4,6 @@ import fs from "node:fs";
 import path from "node:path";
 import { glob } from "glob";
 import { Locales, ns, uniqueLocales } from "i18n.config.ts";
-// @ts-expect-error - It's cjs
 import escape from "regexp.escape"; // Polyfill for RegExp.escape. Not in node yet.
 
 /** Where to find the locale files */
