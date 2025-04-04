@@ -1,7 +1,10 @@
+"use client"
+
 import { goalSorter, goalSorterActionAmount, goalSorterActionAmountReverse, goalSorterInterest, goalSorterReverse } from '@/lib/sorters';
 import { GoalSortBy } from '../goals';
 import styles from '../tables.module.css' with { type: "css" };
 import { DataSeries, Goal } from "@prisma/client";
+import { useTranslation } from "react-i18next";
 
 interface GoalTableCommonProps {
   sortBy?: GoalSortBy,
@@ -35,6 +38,8 @@ export default function GoalTable({
   roadmap,
   sortBy,
 }: GoalTableProps) {
+  const { t } = useTranslation();
+
   // Failsafe in case wrong props are passed
   if ((!goals && !roadmap) || (goals && roadmap)) throw new Error('GoalTable: Either `goals` XOR `roadmap` must be provided');
 
@@ -47,7 +52,7 @@ export default function GoalTable({
     })
   }
 
-  if (!goals?.length) return (<p>Du har inte tillgång till några målbanor i denna färdplansversion, eller så är färdplansversionen tom.</p>);
+  if (!goals?.length) return (<p>{t("components:goal_table.no_goals")}</p>);
 
   switch (sortBy) {
     case GoalSortBy.Alpha:
@@ -76,10 +81,10 @@ export default function GoalTable({
       <table id="goalTable" className={styles.table}>
         <thead>
           <tr>
-            <th>Målbanenamn</th>
-            <th>LEAP parameter</th>
-            <th>Enhet för dataserie</th>
-            <th>Antal åtgärder</th>
+            <th>{t("components:goal_table.goal_name")}</th>
+            <th>{t("components:goal_table.leap_parameter")}</th>
+            <th>{t("components:goal_table.unit")}</th>
+            <th>{t("components:goal_table.action_count")}</th>
           </tr>
         </thead>
         <tbody>

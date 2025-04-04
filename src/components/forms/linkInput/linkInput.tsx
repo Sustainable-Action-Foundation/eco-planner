@@ -2,8 +2,11 @@
 
 import { useState } from "react"
 import Image from "next/image"
+import { useTranslation } from "react-i18next";
 
 export default function LinkInput({ links }: { links?: { url: string, description: string | null }[] }) {
+  const { t } = useTranslation();
+
   // The list of links
   const [linkList, setLinkList] = useState<{ url: string, description: string | null }[]>(links ?? [])
 
@@ -12,8 +15,8 @@ export default function LinkInput({ links }: { links?: { url: string, descriptio
       {/* A text field whose contents get appended to linkList upon pressing enter */}
       <div className="flex gap-25">
         <label className="block margin-block-75">
-          Namn
-          <input className="margin-block-25" type="text" name="linkDescription" id="newDescription" onKeyDown={(event) => {
+          {t("forms:link_input.name_label")}
+          <input className="margin-block-25" placeholder={t("forms:link_input.name_placeholder")} type="text" name="linkDescription" id="newDescription" onKeyDown={(event) => {
             if (event.key === 'Enter') {
               const url = (document.querySelector('#newLink') as HTMLInputElement)?.value ?? '';
               const description = event.currentTarget.value;
@@ -27,8 +30,8 @@ export default function LinkInput({ links }: { links?: { url: string, descriptio
         </label>
 
         <label className="block margin-block-75 flex-grow-100">
-          Länk
-          <input className="margin-block-25" type="url" name="linkUrl" id="newLink" placeholder="https://example.com" onKeyDown={(event) => {
+          {t("forms:link_input.url_label")}
+          <input className="margin-block-25" type="url" name="linkUrl" id="newLink" placeholder={t("forms:link_input.url_placeholder")} onKeyDown={(event) => {
             if (event.key === 'Enter') {
               const url = event.currentTarget.value;
               // #newDescription is the input field for the description of the link

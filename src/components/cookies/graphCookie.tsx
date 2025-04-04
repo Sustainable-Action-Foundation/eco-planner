@@ -2,8 +2,10 @@
 
 import { storageConsent, allowStorage, clearStorage } from "@/functions/localStorage";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function GraphCookie() {
+  const { t } = useTranslation();
 
   const [storageAllowed, setStorageAllowed] = useState(false)
 
@@ -22,7 +24,7 @@ export default function GraphCookie() {
           clearStorage();
         }
       }} />
-      Spara framtida vyändringar mellan sessioner och sidnavigeringar
+      {t("graphs:graph_cookie.save_preferences")}
     </label>
   )
 }

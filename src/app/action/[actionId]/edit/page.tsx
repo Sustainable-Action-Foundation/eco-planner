@@ -6,6 +6,7 @@ import accessChecker from "@/lib/accessChecker";
 import getOneAction from "@/fetchers/getOneAction";
 import { AccessControlled, AccessLevel } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import { t } from "@/lib/i18nServer";
 
 export default async function Page({
   params,
@@ -36,11 +37,15 @@ export default async function Page({
 
   return (
     <>
-      <Breadcrumb object={action} customSections={['Redigera åtgärd']} />
+      <Breadcrumb object={action} customSections={[t("pages:action_edit.breadcrumb")]} />
 
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          Redigera åtgärd: {`${action.name} under färdplansversion: ${`${action.roadmap.metaRoadmap.name} (v${action.roadmap.version})` || "ERROR"}`}
+          {t("pages:action_edit.title", { 
+            actionName: action.name,
+            roadmapName: action.roadmap.metaRoadmap.name,
+            version: action.roadmap.version
+          })}
         </h1>
         <ActionForm roadmapId={action.roadmapId} currentAction={action} roadmapAlternatives={[]} />
       </div>

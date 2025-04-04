@@ -6,6 +6,7 @@ import { Action } from '@prisma/client';
 import { AccessLevel } from '@/types';
 import Link from 'next/link';
 import { TableMenu } from './tableMenu/tableMenu';
+import { useTranslation } from "react-i18next";
 
 /**
  * Displays a table of actions. Requires either a goal XOR a list of actions.
@@ -33,15 +34,17 @@ export default function ActionTable({
   accessLevel?: AccessLevel,
   roadmapId?: string,
 }) {
+  const { t } = useTranslation();
+
   // If no actions are found, return a message
   if (!actions?.length) return (
     <>
-      <p>Det finns inga åtgärder att visa.
+      <p>{t("components:action_table.no_actions")}
         { // Only show the button if the user has edit access and a roadmapId is provided
           (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) && roadmapId &&
-          <span> Vill du skapa en?&nbsp;
+          <span> {t("components:action_table.wanna_create_action")}&nbsp;
             <Link href={`/action/create?roadmapId=${roadmapId}`}>
-              Skapa ny åtgärd
+              {t("components:action_table.create_action")}
             </Link>
           </span>
         }

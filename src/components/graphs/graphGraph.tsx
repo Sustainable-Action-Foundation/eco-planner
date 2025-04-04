@@ -3,7 +3,6 @@
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import { externalDatasets } from "@/lib/api/utility";
 import { DataSeries, Effect, Goal } from "@prisma/client";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getStoredGraphType } from "./functions/graphFunctions";
 import GraphSelector from "./graphSelector/graphSelector";
@@ -11,6 +10,7 @@ import MainDeltaGraph from "./mainGraphs/mainDeltaGraph";
 import MainGraph from "./mainGraphs/mainGraph";
 import MainRelativeGraph from "./mainGraphs/mainRelativeGraph";
 import SecondaryGoalSelector from "./secondaryGraphSelector";
+import { Trans, useTranslation } from "react-i18next";
 
 export enum GraphType {
   Main = "MAIN",
@@ -33,6 +33,8 @@ export default function GraphGraph({
   effects: (Effect & { dataSeries: DataSeries | null })[],
   children: React.ReactNode
 }) {
+  const { t } = useTranslation();
+
   const [graphType, setGraphType] = useState<GraphType | "">("");
 
   useEffect(() => {
@@ -71,22 +73,16 @@ export default function GraphGraph({
           :
           <h3 className="text-align-center block font-weight-500 margin-top-200 margin-bottom-50">{goal.indicatorParameter}</h3>
         }
-        {secondaryGoal && <p className="margin-block-0 margin-inline-auto text-align-center">Jämför med målbanan {secondaryGoal.name || secondaryGoal.indicatorParameter}</p>}
+        {secondaryGoal && <p className="margin-block-0 margin-inline-auto text-align-center">{t("graphs:graph_graph.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicatorParameter })}</p>}
         <div style={{ height: '500px' }}>
           {graphSwitch(graphType)}
         </div>
         {historicalData && (
-          <>
-            Den historiska datan i grafen är hämtad från{" "}
-            {getHistoricalDataLink(historicalData) ?
-              <Link href={getHistoricalDataLink(historicalData) as string} target="_blank">
-                {// If the data source has a full name, display the full name. Otherwise display the 
-                  externalDatasets[historicalData.metadata[0].source]?.fullName ? externalDatasets[historicalData.metadata[0].source]?.fullName : historicalData.metadata[0].source}
-              </Link>
-              :
-              externalDatasets[historicalData.metadata[0].source]?.fullName ? externalDatasets[historicalData.metadata[0].source]?.fullName : historicalData.metadata[0].source
-            }
-          </>
+          <Trans 
+            i18nKey="graphs:graph_graph.historical_data_source"
+            components={{a: <a href={getHistoricalDataLink(historicalData) as string || ""} target="_blank" />}}
+            tOptions={{ source: externalDatasets[historicalData.metadata[0].source]?.fullName ? externalDatasets[historicalData.metadata[0].source]?.fullName : historicalData.metadata[0].source}}
+          />
         )}
       </article>
     </>

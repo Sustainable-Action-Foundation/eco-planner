@@ -7,6 +7,7 @@ import { getSession } from "@/lib/session.ts";
 import { AccessLevel } from "@/types.ts";
 import { cookies } from "next/headers";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import { t } from "@/lib/i18nServer";
 
 const editAccess = [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin];
 
@@ -29,11 +30,11 @@ export default async function Page({
     return (
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          Redigera effekt
+          {t("pages:effect_edit.title")}
         </h1>
         <p style={{ color: 'red' }}>
           <Image src="/icons/info.svg" width={24} height={24} alt='' />
-          Effekten du försöker redigera finns inte eller så har du inte redigeringsbehörighet till den.
+          {t("pages:effect_edit.no_access")}
         </p>
       </div>
     )
@@ -43,11 +44,11 @@ export default async function Page({
 
   return (
     <>
-      <Breadcrumb object={effect?.action} customSections={['Redigera effekt']} />
+      <Breadcrumb object={effect?.action} customSections={[t("pages:effect_edit.breadcrumb")]} />
 
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          Redigera effekt
+          {t("pages:effect_edit.title")}
         </h1>
         <EffectForm action={effect.action} goal={effect.goal} roadmapAlternatives={roadmapList} currentEffect={effect} />
       </div>

@@ -4,6 +4,7 @@ import { cookies } from 'next/headers'
 
 export async function middleware(req: NextRequest) {
   const session = await getSession(cookies())
+  const response = NextResponse.next()
 
   // Redirect away from login page if already logged in
   if (req.nextUrl.pathname.startsWith('/login')) {
@@ -67,5 +68,5 @@ export async function middleware(req: NextRequest) {
   }
   // If we add for example # or $ to go to organisation pages or something, we can do it in a similar way to the above user rewrite
 
-  return NextResponse.next()
+  return response;
 }

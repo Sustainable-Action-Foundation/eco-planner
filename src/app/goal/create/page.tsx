@@ -7,6 +7,7 @@ import Image from "next/image";
 import { AccessLevel } from "@/types";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import { t } from "@/lib/i18nServer";
 
 
 export default async function Page({
@@ -33,16 +34,15 @@ export default async function Page({
 
   return (
     <>
-      <Breadcrumb object={roadmap || undefined} customSections={['Skapa ny målbana']} />
+      <Breadcrumb object={roadmap || undefined} customSections={[t("pages:goal_create.breadcrumb")]} />
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          Skapa en ny målbana
+          {t("pages:goal_create.title")}
         </h1>
         {badRoadmap &&
           <p style={{ color: 'red' }}>
             <Image src="/icons/info.svg" width={24} height={24} alt='' />
-            Kunde inte hitta eller har inte tillgång till färdplansversionen i länken. <br />
-            Använd dropdown-menyn för att välja en färdplansversion att skapa målbanan under.
+            {t("pages:goal_create.bad_roadmap")}
           </p>
         }
         <GoalForm roadmapId={badRoadmap ? undefined : searchParams.roadmapId as string} roadmapAlternatives={filteredRoadmaps} />
