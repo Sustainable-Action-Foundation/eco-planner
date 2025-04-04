@@ -4,6 +4,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { glob } from "glob";
 import { expect, test } from "playwright/test";
+import escape from "regexp.escape"; // Polyfill for RegExp.escape. Not in node yet.
+
 
 /* 
  **********
@@ -31,6 +33,18 @@ const allPermutations: string[][] = uniqueLocales.flatMap(locale => namespaces.m
 
 /** Every NS file per locale with their flattened key-values */
 const allData = getAllDataFlattened();
+
+/* 
+ * Exceptions
+ */
+
+/** Almost always prefer having nested $t() calls to common in namespaces over using duplicate values. Exceptions to that need to be here. */
+const exemptedCommonKeysRef = ["common:tsx.", "common:placeholder."]; // Things that shouldn't always be referenced
+/** When checking if a value may be a duplicate of a common value, values starting with any of these strings will be skipped.  */
+const exemptedCommonValuesRef = []; // More fine grained option to the above one (useful for language specific exemptions)
+/** To prevent recurring false positives, exempt these keys */
+const exemptedKeysUsingCommonValues = ["pages:info.info_body", "components:confirm_delete.confirmation"];
+
 
 /* 
  *********
@@ -88,7 +102,7 @@ test.describe("English as fallback", () => {
     if (missingEng.length > 0) missingInEnglish[locale] = missingEng;
   });
 
-  test("Missing keys in other locales", () => expect(Object.keys(missingInOthers).length, `Missing keys in other locales: ${JSON.stringify(missingInOthers, null, 2)}`).toBe(0));
+  test("Missing keys in non-english locales", () => expect(Object.keys(missingInOthers).length, `Missing keys in other locales: ${JSON.stringify(missingInOthers, null, 2)}`).toBe(0));
   test("Missing keys in english", () => expect(Object.keys(missingInEnglish).length, `Missing keys in english: ${JSON.stringify(missingInEnglish, null, 2)}`).toBe(0));
 });
 
@@ -114,61 +128,49 @@ test("Keys are snake_case", () => {
   expect(totalBadKeys, `Keys not in snake_case: ${JSON.stringify(perLocale, null, 2)}`).toBe(0);
 });
 
-// /** Do namespaces use the values of common keys instead of referencing? */
-// function TestJSONCommonValueUse() {
-//   const perLocale: { [key: string]: { [key: string]: string[] } }
-//     = Object.fromEntries(uniqueLocales.map(locale => [locale, {}]));
+/** Do namespaces use the values of common keys instead of referencing? */
+test("Common values not referenced", () => {
+  const perLocaleNS: Record<string, Record<string, string[]>>
+    = Object.fromEntries(uniqueLocales.map(locale => [locale, {}]));
 
-//   uniqueLocales.forEach((locale) => {
-//     const commonFile = fs.readFileSync(`${localesDir}/${locale}/common.json`, "utf-8");
+  /** To minimize false positives, the values will have to match one of these */
+  const wordPatterns = [
+    (text: string) => `\\s${text}\\s`, // Surrounding whitespace
+    (text: string) => `^${text}$`, // Only thing in string
+    (text: string) => `^${text}\\s`, // At start of string with whitespace after
+    (text: string) => `\\s${text}$`, // At end of string with whitespace before
+  ];
 
-//     try { JSON.parse(commonFile); }
-//     catch (e) {
-//       assert(false,
-//         `Failed to parse ${localesDir}/${locale}/common.json with error ${e}`,
-//         ""
-//       );
-//     }
+  uniqueLocales.forEach((locale) => {
+    const commonTranslations = Object.fromEntries(Object.entries(allData[locale])
+      .filter(([key,]) => key.startsWith("common:"))
+      .filter(([key,]) => !exemptedCommonKeysRef.some(exemptedKey => key.startsWith(exemptedKey)))
+      .filter(([, value]) => !exemptedCommonValuesRef.some(exemptedValue => value.startsWith(exemptedValue)))
+      .map(([key, value]) => [key, { key, value, pattern: wordPatterns.map(pattern => new RegExp(pattern(escape(value)), "gm")) }])
+    );
 
-//     const commonValues = getFlattenedValues(locale, "common");
+    const namespacesToCheck = namespaces.filter(ns => ns !== "common");
 
-//     expectedNS.forEach((namespace) => {
-//       // Skip common namespace since that's what we're checking against
-//       if (namespace === "common") return;
+    const everyOtherTranslation = Object.fromEntries(Object.entries(allData[locale])
+      .filter(([key,]) => namespacesToCheck.some(ns => key.startsWith(ns)))
+      .filter(([key,]) => !exemptedKeysUsingCommonValues.some(exemptedKey => key.startsWith(exemptedKey)))
+    );
 
-//       const values = getFlattenedValues(locale, namespace);
+    Object.entries(everyOtherTranslation).forEach(([key, value]) => {
+      Object.entries(commonTranslations).forEach(([commonKey, commonValues]) => {
+        // Check if the value matches any of the patterns
+        const hasCommonValue = commonValues.pattern.some(p => p.test(value));
+        if (hasCommonValue) {
+          if (!perLocaleNS[locale][commonKey]) perLocaleNS[locale][commonKey] = [];
+          perLocaleNS[locale][commonKey].push(`[${commonKey}] > '${key}': '${value}'`);
+        }
+      });
+    });
+  });
 
-//       values.forEach(value => {
-//         // Skip if value is exempted
-//         if (exemptedValues.includes(value)) return
-
-//         commonValues.forEach(commonValue => {
-
-//           const escapedCommonValue = escape(commonValue);
-//           const patterns = [
-//             (text: string) => `\\s${text}\\s`, // Surrounding whitespace
-//             (text: string) => `^${text}$`, // Only thing in string
-//             (text: string) => `^${text}\\s`, // At start of string with whitespace after
-//             (text: string) => `\\s${text}$`, // At end of string with whitespace before
-//           ];
-//           const regex = new RegExp(patterns.map(pattern => pattern(escapedCommonValue)).join("|"), "g");
-
-//           if (value.match(regex)) {
-//             if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-//             perLocale[locale][namespace].push(`[${commonValue}] > '${value}'`);
-//           }
-//         });
-//       });
-//     });
-//   });
-
-//   const totalBadKeys = Object.values(getFlattenedObject(perLocale)).length;
-
-//   assertWarn(totalBadKeys === 0,
-//     `These locale files might be using values defined in common. Reference common instead: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f in vscode to find the perpetrators.`,
-//     ""
-//   );
-// }
+  const totalBadKeys = Object.values(flattenTree(perLocaleNS)).length;
+  expect(totalBadKeys, `Common keys used as values: ${JSON.stringify(perLocaleNS, null, 2)}`).toBe(0);
+});
 
 // /** Are all the nested keys used in locale files defined? */
 // function TestJSONNestedKeysDefined() {
@@ -801,16 +803,16 @@ test("Keys are snake_case", () => {
 
 /** Structure is is `{ Locales: { "namespace:key.keyN": value } }` */
 function getAllDataFlattened(): Record<string, Record<string, string>> {
-  return Object.fromEntries(
-    allPermutations.map(([locale, namespace]) => {
-      const nsData = JSON.parse(fs.readFileSync(path.join(localesDir, locale, `${namespace}.json`), "utf-8"));
-      const flattened = flattenTree(nsData);
-      const prefixed = Object.fromEntries(Object.entries(flattened)
-        .map(([key, value]) => [`${namespace}:${key}`, value])
-      );
-      return [locale, prefixed];
-    })
-  );
+  const perLocale: Record<string, Record<string, string>> = Object.fromEntries(uniqueLocales.map(locale => [locale, {}]));
+  allPermutations.map(([locale, namespace]) => {
+    const nsData = JSON.parse(fs.readFileSync(path.join(localesDir, locale, `${namespace}.json`), "utf-8"));
+    const flattened = flattenTree(nsData);
+    const prefixed = Object.fromEntries(Object.entries(flattened)
+      .map(([key, value]) => [`${namespace}:${key}`, value])
+    );
+    perLocale[locale] = { ...perLocale[locale], ...prefixed };
+  })
+  return perLocale;
 }
 
 /** Returns a flattened object with the structure `{ "key1.key2.keyN": value }` */
