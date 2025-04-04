@@ -179,66 +179,38 @@ test("Are nested keys defined", () => {
   const nestedTRegex = /\$t\((.*?)\)/gm;
 
   uniqueLocales.forEach(locale => {
-    const translations = Object.fromEntries(Object.entries(allData[locale])
+    const translations = Object.entries(allData[locale])
       .map(([key, value]) => [key, {
-        key, value, nested: [
-          ...value.matchAll(nestedTRegex) // Find all nested t() calls
-        ]
-      }])
-    );
+        value, nested: Array.from(value.matchAll(nestedTRegex)) // Find all nested t() calls
+      }]);
 
-    // console.dir(translations, { depth: null });
+    translations.forEach(([key, values]) => {
+      values["nested"].forEach(([match, nestedKey]) => {
+        match = match as RegExpExecArray;
+        nestedKey = nestedKey as string;
+
+        // Is defined?
+        if (allData[locale][nestedKey]) return;
+
+        // Arguments
+
+        
+        const namespace = nestedKey.match(/[^:]+:/)?.[0];
+        if (!namespace) {
+          if (!perLocaleNS[locale]["Missing Namespace in nested t()"]) perLocaleNS[locale]["Missing Namespace in nested t()"] = [];
+          perLocaleNS[locale]["Missing Namespace in nested t()"].push(`[Missing namespace] > '${key}': '${values["value"]}'`);
+          return;
+        }
+
+        if (!perLocaleNS[locale][namespace]) perLocaleNS[locale][namespace] = [];
+        perLocaleNS[locale][namespace].push(`[${key}] > '${match}'`);
+      });
+    });
   });
 
-  // uniqueLocales.forEach((locale) => {
-  //   const allKeys = expectedNS.flatMap((namespace) => getFlattenedKeys(locale, namespace));
+  const totalBadKeys = Object.values(flattenTree(perLocaleNS)).length;
 
-  //   expectedNS.forEach((namespace) => {
-  //     // Skip checking common namespace
-  //     if (namespace === "common") return
-
-  //     const values = getFlattenedValues(locale, namespace).join("\n");
-
-  //     const tCalls = getAllNestedTCalls(values);
-
-  //     tCalls.forEach(call => {
-  //       /**
-  //        * match = $t([key])
-  //        * key = [key]
-  //        */
-  //       const [match, key] = call;
-
-  //       // Skip if key is defined
-  //       if (allKeys.includes(key)) return;
-
-  //       /**
-  //        * key could look like this:
-  //        * "key, { "count": count }"
-  //        */
-  //       const [keyArg, tOptions] = key.split(/\s?,\s?/gm);
-
-  //       // Skip if key is defined
-  //       if (allKeys.includes(keyArg)) return;
-
-  //       // If it has a count arg, skip if base key is defined
-  //       if (tOptions?.includes("\"count\"")) {
-  //         // Find count versions of base key
-  //         const countVersionKeys = keyCountModifiers.map(mod => keyArg + mod);
-  //         if (countVersionKeys.some(countKey => allKeys.includes(countKey))) return;
-  //       }
-
-  //       if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-  //       perLocale[locale][namespace].push(`[${key}] > '${match}'`);
-  //     });
-  //   });
-  // });
-
-  // const totalBadKeys = Object.values(getFlattenedObject(perLocale)).length;
-
-  // assert(totalBadKeys === 0,
-  //   `Nested keys not defined: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f in vscode to find the perpetrators.`,
-  //   "All nested keys seem to be defined"
-  // );
+  expect(totalBadKeys, `Nested keys not defined: ${JSON.stringify(perLocaleNS, null, 2)}`).toBe(0);
 });
 
 // /** Are all the nested keys used in locale files correctly formatted? */
