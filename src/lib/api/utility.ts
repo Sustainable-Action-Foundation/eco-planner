@@ -23,6 +23,13 @@ export const externalDatasets: { [key: string]: { baseUrl: string, userFacingUrl
     api: "Trafa",
     fullName: "Trafikanalys",
   },
+  "Kolada": { // Dokuentation: https://api.kolada.se/v3/docs
+    baseUrl:"https://api.kolada.se/v3",
+    userFacingUrl: "https://kolada.se/verktyg/fri-sokning/",
+    supportedLanguages: ["sv"],
+    api: "Kolada",
+    fullName: "Kolada",
+  }
   // Add more datasets as they implement the PxWeb API v2
   // "SSB": "some url",
   // "stat.fi": "some url",
