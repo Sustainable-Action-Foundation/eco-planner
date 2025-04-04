@@ -7,15 +7,15 @@ import getTableContent from "@/lib/api/getTableContent";
 import getTableDetails from "@/lib/api/getTableDetails";
 import getTables from "@/lib/api/getTables";
 import { externalDatasets, getDatasetKeysOfApis } from "@/lib/api/utility";
+import { LocaleContext } from "@/lib/i18nClient.tsx";
 import { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import { TrafaVariable } from "@/lib/trafa/trafaTypes";
 import { Goal } from "@prisma/client";
 import Image from "next/image";
 import { FormEvent, useContext, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
-import { useTranslation } from "react-i18next";
-import { LocaleContext } from "@/lib/i18nClient.tsx";
 
 export default function QueryBuilder({
   goal,
@@ -338,21 +338,23 @@ export default function QueryBuilder({
             <fieldset>
               <label className="margin-block-75">
                 {t("components:query_builder.data_source")}
-                <select className="block margin-block-25" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
-                  <option value="" className={`${styles.defaultOption}`}>Välj en källa</option>
-                  {Object.keys(externalDatasets).map((name) => (
-                    <option key={name} value={name}>{name}</option>
-                  ))}
-                </select>
-                {// Display warning message if the selected language is not supported by the api
-                  (
-                    (externalDatasets[dataSource])
+                <div className="flex align-items-center gap-25">
+                  <select className="block margin-block-25" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
+                    <option value="" className={`${styles.defaultOption}`}>Välj en källa</option>
+                    {Object.keys(externalDatasets).map((name) => (
+                      <option key={name} value={name}>{name}</option>
+                    ))}
+                  </select>
+                  {// Display warning message if the selected language is not supported by the api
+                    (
+                      (externalDatasets[dataSource])
+                      &&
+                      !(externalDatasets[dataSource]?.supportedLanguages.includes(lang))
+                    )
                     &&
-                    !(externalDatasets[dataSource]?.supportedLanguages.includes(lang))
-                  )
-                  &&
-                  <p style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</p>
-                }
+                    <span className="margin-left-50" style={{ fontSize: ".8rem", marginLeft: ".5rem", color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</span>
+                  }
+                </div>
               </label>
 
               {// TODO: Check that this works well with dynamic keyboards (smartphone/tablet)
