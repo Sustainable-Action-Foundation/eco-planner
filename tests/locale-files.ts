@@ -33,6 +33,9 @@ const allPermutations: string[][] = uniqueLocales.flatMap(locale => namespaces.m
 /** Every NS file per locale with their flattened key-values */
 const allData = getAllDataFlattened();
 
+/** When validating pluralized translations, use these to determine if a base key isa valid */
+const validPluralSuffixes = ["_one", "_two", "_few", "_many", "_other", "_zero",];
+
 /* 
  * Exceptions
  */
@@ -173,8 +176,8 @@ test("Common values not referenced", () => {
 
 /** Are all the nested keys used in locale files defined? */
 test("Are nested keys defined", () => {
-  const perLocaleNS: Record<string, Record<string, string[]>>
-    = Object.fromEntries(uniqueLocales.map(locale => [locale, {}]));
+  const perLocale: Record<string, string[]>
+    = Object.fromEntries(uniqueLocales.map(locale => [locale, []]));
 
   const nestedTRegex = /\$t\((.*?)\)/gm;
 
@@ -184,33 +187,56 @@ test("Are nested keys defined", () => {
         value, nested: Array.from(value.matchAll(nestedTRegex)) // Find all nested t() calls
       }]);
 
-    translations.forEach(([key, values]) => {
-      values["nested"].forEach(([match, nestedKey]) => {
-        match = match as RegExpExecArray;
-        nestedKey = nestedKey as string;
+    (translations as [string, { value: string, nested: [RegExpMatchArray, string][] }][]).forEach(([key, values]) => {
+      values.nested.forEach(([match, nestedKey]) => {
 
         // Is defined?
         if (allData[locale][nestedKey]) return;
 
-        // Arguments
-
-        
-        const namespace = nestedKey.match(/[^:]+:/)?.[0];
-        if (!namespace) {
-          if (!perLocaleNS[locale]["Missing Namespace in nested t()"]) perLocaleNS[locale]["Missing Namespace in nested t()"] = [];
-          perLocaleNS[locale]["Missing Namespace in nested t()"].push(`[Missing namespace] > '${key}': '${values["value"]}'`);
+        // Is it a valid namespace?
+        const nestedNS = nestedKey.match(/[^:]+:/)?.[0];
+        if (!nestedNS) {
+          if (!perLocale[locale]) perLocale[locale] = [];
+          perLocale[locale].push(`[Missing namespace] > '${key}': '${values.value}'`);
           return;
         }
 
-        if (!perLocaleNS[locale][namespace]) perLocaleNS[locale][namespace] = [];
-        perLocaleNS[locale][namespace].push(`[${key}] > '${match}'`);
+        // Does it have arguments?
+        const hasArgs = nestedKey.includes(",");
+        if (hasArgs) {
+          // Find and escape the arguments
+          const args = nestedKey
+            .replace(/.*?:.*?,\s*/gm, "") // Remove key part
+            .replace(/(?<=\".*?\":\s*)([^"']*?)(?=\s*,|\s*}$)/gm, "\"$1\"") // var => "var"
+
+          // Notice on argument, syntax error
+          try { JSON.parse(args); }
+          catch (e) {
+            if (!perLocale[locale]) perLocale[locale] = [];
+            perLocale[locale].push(`[Syntax error: args] > '${key}': '${values.value}'`);
+            return;
+          }
+
+          // If so, will the key resolve to something valid?
+          const baseKey = nestedKey.split(",")[0];
+          const allVariants = validPluralSuffixes.map(suffix => `${baseKey}${suffix}`);
+          const isValid = allVariants.some(variant => allData[locale][variant]);
+          if (isValid) return; // Valid plural key
+          if (!isValid) {
+            if (!perLocale[locale]) perLocale[locale] = [];
+            perLocale[locale].push(`[Missing plural key] > '${key}': '${values.value}'`);
+          }
+        }
+
+        if (!perLocale[locale]) perLocale[locale] = [];
+        perLocale[locale].push(`[${key}] > '${match}'`);
       });
     });
   });
 
-  const totalBadKeys = Object.values(flattenTree(perLocaleNS)).length;
+  const totalBadKeys = Object.values(flattenTree(perLocale)).length;
 
-  expect(totalBadKeys, `Nested keys not defined: ${JSON.stringify(perLocaleNS, null, 2)}`).toBe(0);
+  expect(totalBadKeys, `Nested keys not defined: ${JSON.stringify(perLocale, null, 2)}`).toBe(0);
 });
 
 // /** Are all the nested keys used in locale files correctly formatted? */
