@@ -385,68 +385,27 @@ test("Server and client side code is not mixed", () => {
 });
 
 /** Checks if all t() calls in the tsx have a defined namespace  */
-// test("t() calls have a defined namespace", () => {
-//   const perFile: Record<string, string[]> = {};
+test("Keys used in app are not defined", () => {
+  const perFile: Record<string, string[]> = {};
 
-//   files.forEach(filePath => {
-//     const content = fs.readFileSync(filePath, "utf-8");
+  allTSX.forEach(({ filePath, content }) => {
+    const allTCalls = Array.from(content.matchAll(/\Wt\(["']([^"']*)["']\)/gm)) || [];
 
-//     const tCalls = getAllInFileTCalls(content);
+    allTCalls.forEach(call => {
+      const [, key] = call;
 
-//     tCalls.forEach(call => {
-//       const [, key] = call;
+      uniqueLocales.forEach(locale => {
+        if (allJSON[locale][key]) return; // Skip if key is defined
+        if (!perFile[filePath]) perFile[filePath] = [];
+        perFile[filePath].push(`[Undefined key] > '${locale}': '${key}'`);
+      });
+    });
+  });
 
-//       // Non-namespaced key
-//       if (!key.includes(":")) {
-//         if (!perFile[filePath]) perFile[filePath] = [];
-//         perFile[filePath].push(`[Non-namespaced key] > '${key}'`);
-//       }
-//       // Invalid namespace
-//       else if (expectedNS.every(ns => !key.startsWith(ns))) {
-//         if (!perFile[filePath]) perFile[filePath] = [];
-//         perFile[filePath].push(`[Invalid namespace] > '${key}'`);
-//       }
-//     });
-//   });
+  const totalBad = Object.values(perFile).flat().length;
 
-//   const totalBad = Object.values(perFile).flat().length;
-
-//   assert(totalBad === 0,
-//     `Non-namespaced keys found in t() calls: ${JSON.stringify(perFile, null, 2)}`,
-//     "All t() calls are namespaced"
-//   );
-// });
-
-// /** Checks if all t() calls in the tsx are using defined keys */
-// function TestInFileKeysDefined() {
-//   const perFile: { [key: string]: string[] } = {};
-
-//   const files = glob.sync(appFiles, { ignore: ["src/scripts/**/*"] });
-
-//   files.forEach(filePath => {
-//     const content = fs.readFileSync(filePath, "utf-8");
-
-//     const tCalls = getAllInFileTCalls(content);
-
-//     tCalls.forEach(call => {
-//       const [, key] = call;
-
-//       const validKeys = expectedNS.flatMap((namespace) => getFlattenedKeys(Locales.default, namespace));
-
-//       if (!validKeys.includes(key)) {
-//         if (!perFile[filePath]) perFile[filePath] = [];
-//         perFile[filePath].push(`[Undefined key] > '${key}'`);
-//       }
-//     });
-//   });
-
-//   const totalBad = Object.values(perFile).flat().length;
-
-//   assert(totalBad === 0,
-//     `Undefined keys found in t() calls: ${JSON.stringify(perFile, null, 2)}`,
-//     "All t() calls have defined keys"
-//   );
-// }
+  expect(totalBad, `Keys used in app are not defined in JSON: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
+});
 
 // /** Checks whether a file is consistent with namespaces and first level keys */
 // function TestInFileNamespaceConsistency() {
@@ -684,7 +643,7 @@ function getAllJSONFlattened(): Record<string, Record<string, string>> {
 
 /** Get every file where t might be implemented as an array of objects storing the file path and their content as text */
 function getAllTSXFiles() {
-  const allTSXPaths = glob.sync("src/app/**/*.{tsx,ts}", { ignore: ["src/scripts/**/*"] });
+  const allTSXPaths = glob.sync("src/**/*.{tsx,ts}", { ignore: ["src/scripts/**/*"] });
   const allTSX = allTSXPaths.map(filePath => {
     const content = fs.readFileSync(filePath, "utf-8");
     return { filePath, content };
