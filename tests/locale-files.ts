@@ -24,17 +24,28 @@ const localeAliases = { [Locales.enSE]: "English", [Locales.svSE]: "Svenska", };
 /** All namespaces */
 const namespaces = ["common", "forms", "components", "graphs", "pages", "email", "test",];
 
-/** Where the locale files are located relative to project root */
+/** Where the locale files are located relative to project root. */
 const localesDir = "public/locales";
 
-/** Every combo of locale and ns in a 2d array */
+/** Every combo of locale and ns in a 2d array. */
 const allPermutations = uniqueLocales.flatMap(locale => namespaces.map(namespace => [locale, namespace]));
 
-/** Every NS file per locale with their flattened key-values */
-const allData = getAllDataFlattened();
+/** Every NS file per locale with their flattened key-values. */
+const allJSON = getAllJSONFlattened();
 
-/** When validating pluralized translations, use these to determine if a base key isa valid */
+/** The app files to check. */
+const allTSX = getAllTSXFiles();
+
+/** When validating pluralized translations, use these to determine if a base key isa valid. */
 const validPluralSuffixes = ["_one", "_two", "_few", "_many", "_other", "_zero",];
+
+/** Since the translation system uses client and server side instances of i18next, we test for mismatches. */
+const tServerUsageIndications = ["@/lib/i18nServer",];
+const tClientUsageIndications = ["react-i18next", "useTranslation", "<Trans",];
+const serverIndications = ["use server", "next/server", "next/headers", "accessChecker",];
+const clientIndications = ["use client", "useEffect", "useMemo", "useState", "useRef",];
+const serverSideFilesOverride = ["page.tsx", "layout.tsx",];
+const clientSideFilesOverride = ["src\\app\\verify\\page.tsx", "src\\app\\verify\\verify\\page.tsx", "src\\app\\password\\page.tsx", "src\\app\\password\\reset\\page.tsx"];
 
 /* 
  * Exceptions
@@ -92,14 +103,14 @@ test.describe("Namespace files exist", async () => {
 
 /* Does english have all keys to function as a fallback? */
 test.describe("English as fallback", () => {
-  const enKeys = Object.keys(allData[Locales.default]);
+  const enKeys = Object.keys(allJSON[Locales.default]);
 
   // Track both types of missing keys
   const missingInOthers: Record<string, string[]> = {};
   const missingInEnglish: Record<string, string[]> = {};
 
   uniqueLocales.forEach((locale) => {
-    const keys = Object.keys(allData[locale]);
+    const keys = Object.keys(allJSON[locale]);
     const missingOther = enKeys.filter(key => !keys.includes(key));
     const missingEng = keys.filter(key => !enKeys.includes(key));
 
@@ -116,7 +127,7 @@ test("Keys are snake_case", () => {
   const perLocale: Record<string, string[]> = Object.fromEntries(uniqueLocales.map(locale => [locale, []]));
 
   uniqueLocales.forEach((locale) => {
-    const keys = Object.keys(allData[locale]);
+    const keys = Object.keys(allJSON[locale]);
     keys.forEach(key => {
       const noNS = key.replace(/^[^:]+:/, "");
       const parts = noNS.split(".");
@@ -147,7 +158,7 @@ test("Common values not referenced", () => {
   ];
 
   uniqueLocales.forEach((locale) => {
-    const commonTranslations = Object.fromEntries(Object.entries(allData[locale])
+    const commonTranslations = Object.fromEntries(Object.entries(allJSON[locale])
       .filter(([key,]) => key.startsWith("common:"))
       .filter(([key,]) => !exemptedCommonKeysRef.some(exemptedKey => key.startsWith(exemptedKey)))
       .filter(([, value]) => !exemptedCommonValuesRef.some(exemptedValue => value.startsWith(exemptedValue)))
@@ -156,7 +167,7 @@ test("Common values not referenced", () => {
 
     const namespacesToCheck = namespaces.filter(ns => ns !== "common");
 
-    const everyOtherTranslation = Object.fromEntries(Object.entries(allData[locale])
+    const everyOtherTranslation = Object.fromEntries(Object.entries(allJSON[locale])
       .filter(([key,]) => namespacesToCheck.some(ns => key.startsWith(ns)))
       .filter(([key,]) => !exemptedKeysUsingCommonValues.some(exemptedKey => key.startsWith(exemptedKey)))
     );
@@ -185,7 +196,7 @@ test("Are nested keys defined", () => {
   const nestedTRegex = /\$t\((.*?)\)/gm;
 
   uniqueLocales.forEach(locale => {
-    const translations = Object.entries(allData[locale])
+    const translations = Object.entries(allJSON[locale])
       .map(([key, value]) => [key, {
         value, nested: Array.from(value.matchAll(nestedTRegex)) // Find all nested t() calls
       }]);
@@ -194,7 +205,7 @@ test("Are nested keys defined", () => {
       values.nested.forEach(([match, nestedKey]) => {
 
         // Is defined?
-        if (allData[locale][nestedKey]) return;
+        if (allJSON[locale][nestedKey]) return;
 
         // Is it a valid namespace?
         const nestedNS = nestedKey.match(/[^:]+:/)?.[0];
@@ -223,7 +234,7 @@ test("Are nested keys defined", () => {
           // If so, will the key resolve to something valid?
           const baseKey = nestedKey.split(",")[0];
           const allVariants = validPluralSuffixes.map(suffix => `${baseKey}${suffix}`);
-          const isValid = allVariants.some(variant => allData[locale][variant]);
+          const isValid = allVariants.some(variant => allJSON[locale][variant]);
           if (isValid) return; // Valid plural key
           if (!isValid) {
             if (!perLocale[locale]) perLocale[locale] = [];
@@ -248,7 +259,7 @@ test("Variable syntax in JSON files", () => {
     = Object.fromEntries(uniqueLocales.map(locale => [locale, []]));
 
   uniqueLocales.forEach(locale => {
-    const translations = Object.entries(allData[locale])
+    const translations = Object.entries(allJSON[locale])
       .filter(([, value]) => value.includes("{") || value.includes("}"));
 
     translations.forEach(([key, value]) => {
@@ -318,115 +329,80 @@ test("Orphan keys in root of namespace files", () => {
   expect(totalBad, `Orphan keys in root of namespace files: ${JSON.stringify(perLocale, null, 2)}`).toBe(0);
 });
 
-// /** Checks if a file that is likely server or client side is using the wrong import method of t() */
-// function TestInFileImportSides() {
-//   const perFile: { [key: string]: string[] } = {};
+/** Checks if a file that is likely server or client side is using the wrong import method of t() */
+test("Server and client side code is not mixed", () => {
+  const perFile: Record<string, string[]> = {};
 
-//   const files = glob.sync(appFiles, { ignore: ["src/scripts/**/*"] });
+  allTSX.forEach(({ filePath, content }) => {
+    const usingTServer = tServerUsageIndications.some(indication => content.includes(indication));
+    const usingTClient = tClientUsageIndications.some(indication => content.includes(indication));
 
-//   const serverT = [
-//     "@/lib/i18nServer",
-//   ];
-//   const clientT = [
-//     "react-i18next",
-//     "useTranslation",
-//     "<Trans",
-//   ];
-//   const severIndications = [
-//     "use server",
-//     // "next/server",
-//     // "next/headers",
-//     // "accessChecker",
-//   ];
-//   const clientIndications = [
-//     "use client",
-//     // "useEffect",
-//     // "useMemo",
-//     // "useState",
-//     // "useRef",
-//   ];
-//   const assumedServerSideFiles: string[] = [
-//     "page.tsx",
-//     "layout.tsx",
-//   ];
-//   const assumedClientSideFiles: string[] = [
-//   ];
+    if (!usingTServer && !usingTClient) return; // Skip if not using t()
+    if (usingTServer && usingTClient) {
+      if (!perFile[filePath]) perFile[filePath] = [];
+      perFile[filePath].push("Found both server and client side translations");
+    }
 
-//   files.forEach(filePath => {
-//     const content = fs.readFileSync(filePath, "utf-8");
-//     const lines = content.split(/\r?\n$/gm);
+    const serverOverride = serverSideFilesOverride.some(file => filePath.endsWith(file));
+    const clientOverride = clientSideFilesOverride.some(file => filePath.endsWith(file));
+    const isServer = serverIndications.some(indication => content.includes(indication) || (serverOverride && !clientOverride));
+    const isClient = clientIndications.some(indication => content.includes(indication) || (clientOverride && !serverOverride));
 
-//     let isClient = false;
-//     let isServer = false;
-//     let usingClientT = false;
-//     let usingServerT = false;
+    if (isServer && isClient) {
+      if (!perFile[filePath]) perFile[filePath] = [];
+      perFile[filePath].push("Found both server and client side code");
+    }
 
-//     lines.forEach(line => {
-//       if (serverT.some(t => line.includes(t))) {
-//         usingServerT = true;
-//       }
-//       if (clientT.some(t => line.includes(t))) {
-//         usingClientT = true;
-//       }
+    if (usingTServer && isClient) {
+      if (!perFile[filePath]) perFile[filePath] = [];
+      perFile[filePath].push("Server side file using client side translations");
+    }
 
-//       if (severIndications.some(t => line.includes(t))) {
-//         isServer = true;
-//       }
-//       if (clientIndications.some(t => line.includes(t))) {
-//         isClient = true;
-//       }
-//     });
+    if (usingTClient && isServer) {
+      if (!perFile[filePath]) perFile[filePath] = [];
+      perFile[filePath].push("Client side file using server side translations");
+    }
 
-//     // Ignore files not using translation functions
-//     const isTranslated = usingClientT || usingServerT;
-//     if (!isTranslated) return;
+    if (!isServer && !isClient) {
+      if (!perFile[filePath]) perFile[filePath] = [];
+      perFile[filePath].push("Ambiguous file");
+    }
 
-//     // Add assumed
-//     if (assumedServerSideFiles.some(file => filePath.endsWith(file)) && !isClient) {
-//       isServer = true;
-//     }
-//     if (assumedClientSideFiles.some(file => filePath.endsWith(file)) && !isServer) {
-//       isClient = true;
-//     }
+    if (usingTServer && !isServer) {
+      if (!perFile[filePath]) perFile[filePath] = [];
+      perFile[filePath].push("Server side file using client side translations");
+    }
 
-//     // Both server and client code
-//     if (isClient && isServer) {
-//       if (!perFile[filePath]) perFile[filePath] = [];
-//       perFile[filePath].push("Found both server and client side code");
-//     }
+    if (usingTClient && !isClient) {
+      if (!perFile[filePath]) perFile[filePath] = [];
+      perFile[filePath].push("Client side file using server side translations");
+    }
 
-//     // Both server and client translations
-//     if (usingClientT && usingServerT) {
-//       if (!perFile[filePath]) perFile[filePath] = [];
-//       perFile[filePath].push("Found both server and client side i18n imports");
-//     }
+    if (isClient && !usingTClient) {
+      if (!perFile[filePath]) perFile[filePath] = [];
+      perFile[filePath].push("Client side file using server side translations");
+    }
 
-//     // Server side file using client side translations
-//     if (isClient && !usingClientT) {
-//       if (!perFile[filePath]) perFile[filePath] = [];
-//       perFile[filePath].push("Client side file using server side translations");
-//     }
+    if (isServer && !usingTServer) {
+      if (!perFile[filePath]) perFile[filePath] = [];
+      perFile[filePath].push("Server side file using client side translations");
+    }
 
-//     // Server side file using client side translations
-//     if ((isServer || !isClient) && !usingServerT) {
-//       if (!perFile[filePath]) perFile[filePath] = [];
-//       perFile[filePath].push("Server side file using client side translations");
-//     }
+    if (isClient && isServer) {
+      if (!perFile[filePath]) perFile[filePath] = [];
+      perFile[filePath].push("Found both server and client side code");
+    }
 
-//     // Ambiguous file
-//     if (!isServer && !isClient) {
-//       if (!perFile[filePath]) perFile[filePath] = [];
-//       perFile[filePath].push("Ambiguous file");
-//     }
-//   });
+    if (usingTServer && usingTClient) {
+      if (!perFile[filePath]) perFile[filePath] = [];
+      perFile[filePath].push("Found both server and client side i18n imports");
+    }
+  });
 
-//   const totalBad = Object.values(perFile).flat().length;
+  const totalBad = Object.values(perFile).flat().length;
 
-//   assert(totalBad === 0,
-//     `Translation functions are being used incorrectly. Non marked files are assumed to be server side: ${JSON.stringify(perFile, null, 2)}`,
-//     "Translation functions are being used correctly"
-//   );
-// }
+  expect(totalBad, `Server and client side code mixed: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
+});
 
 // /** Checks if all t() calls in the tsx have a defined namespace  */
 // function TestInFileNamespaceUse() {
@@ -715,7 +691,7 @@ test("Orphan keys in root of namespace files", () => {
  */
 
 /** Structure is is `{ Locales: { "namespace:key.keyN": value } }` */
-function getAllDataFlattened(): Record<string, Record<string, string>> {
+function getAllJSONFlattened(): Record<string, Record<string, string>> {
   const perLocale: Record<string, Record<string, string>> = Object.fromEntries(uniqueLocales.map(locale => [locale, {}]));
   allPermutations.map(([locale, namespace]) => {
     const nsData = JSON.parse(fs.readFileSync(path.join(localesDir, locale, `${namespace}.json`), "utf-8"));
@@ -726,6 +702,16 @@ function getAllDataFlattened(): Record<string, Record<string, string>> {
     perLocale[locale] = { ...perLocale[locale], ...prefixed };
   })
   return perLocale;
+}
+
+/** Get every file where t might be implemented as an array of objects storing the file path and their content as text */
+function getAllTSXFiles() {
+  const allTSXPaths = glob.sync("src/app/**/*.{tsx,ts}", { ignore: ["src/scripts/**/*"] });
+  const allTSX = allTSXPaths.map(filePath => {
+    const content = fs.readFileSync(filePath, "utf-8");
+    return { filePath, content };
+  });
+  return allTSX;
 }
 
 /** Returns a flattened object with the structure `{ "key1.key2.keyN": value }` */
