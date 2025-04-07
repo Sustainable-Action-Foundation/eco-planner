@@ -47,6 +47,10 @@ const clientIndications = ["use client", "useEffect", "useMemo", "useState", "us
 const serverSideFilesOverride = ["page.tsx", "layout.tsx",];
 const clientSideFilesOverride = ["src\\app\\verify\\page.tsx", "src\\app\\verify\\verify\\page.tsx", "src\\app\\password\\page.tsx", "src\\app\\password\\reset\\page.tsx"];
 
+/** When checking for mixed use of spaces these are allowed in any file */
+const keysAllowedDirectlyInApp = ["common:tsx.", "common:placeholder.", "common:scope.", "common:layout.", "common:count.", "common:new.", "common:edit", "common:scaling_methods", "common:css.", "common:404."];
+
+
 /* 
  * Exceptions
  */
@@ -407,54 +411,39 @@ test("Keys used in app are not defined", () => {
   expect(totalBad, `Keys used in app are not defined in JSON: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
 });
 
-// /** Checks whether a file is consistent with namespaces and first level keys */
-// function TestInFileNamespaceConsistency() {
-//   const perFile: { [key: string]: Record<string, number> } = {};
+/** Checks whether a file is consistent with namespaces and first level keys */
+test("Namespace consistency in app", () => {
+  const perFile: Record<string, string[]> = {};
 
-//   const files = glob.sync(appFiles, { ignore: ["src/scripts/**/*"] })
-//     .filter(file => !mixedNamespacesExemptedFiles.some(exemptedFile => file.includes(exemptedFile))); // Ignore exempted files
+  allTSX.forEach(({ filePath, content }) => {
+    const allTCalls = Array.from(content.matchAll(/\Wt\(["']([^"']*)["']\)/gm)) || [];
+    if (allTCalls.length === 0) return; // Skip if no t() calls
 
-//   files.forEach(filePath => {
-//     const content = fs.readFileSync(filePath, "utf-8");
+    const usedNS: Record<string, number> = {};
 
-//     const tCalls = getAllInFileTCalls(content);
+    allTCalls.forEach(call => {
+      const [, key] = call;
+      if (keysAllowedDirectlyInApp.some(allowedKey => key.startsWith(allowedKey))) return; // Skip allowed keys
 
-//     const nsAndKeys: Record<string, number> = {};
+      const namespace = key.match(/(^[^:]+):/)?.[1];
+      if (!namespace) return; // Skip if no namespace
 
-//     tCalls.forEach(call => {
-//       const [, key] = call;
-//       // Skip the common keys that are explicitly allowed but still catches som stragglers
-//       if (mixedNamespacesExemptedKeys.some(exemptedKey => key.startsWith(exemptedKey))) return;
+      if (!usedNS[namespace]) usedNS[namespace] = 0;
+      usedNS[namespace]++;
+    });
 
-//       // namespace:key1.keyN.keyN => namespace:key1
-//       const namespaceAndLowerKey = key.match(/[^:]+:[^.]+/)?.[0];
-//       if (!namespaceAndLowerKey) return;
+    // If it's only using one (or zero) namespace, skip it
+    if (Object.values(usedNS).length < 2) return; // Skip if no namespaces used
 
-//       // Hardcoded namespace exceptions
-//       const namespace = key.match(/[^:]+/)?.[0];
-//       if (namespace === "test") return;
+    perFile[filePath] = perFile[filePath] || [];
+    const usedNSString = Object.entries(usedNS).map(([ns, count]) => `${ns}: ${count}`).join(", ");
+    perFile[filePath].push(`[Mixed namespaces] > { ${usedNSString} }`);
+  });
 
-//       // Skip the common keys that are explicitly allowed but still catches som stragglers
-//       if (mixedNamespacesExemptedKeys.some(exemptedKey => namespaceAndLowerKey.startsWith(exemptedKey))) return;
+  const totalBadKeys = Object.values(perFile).flat().length;
 
-//       // Increment the count of this namespace + key
-//       if (!nsAndKeys[namespaceAndLowerKey]) nsAndKeys[namespaceAndLowerKey] = 0;
-//       nsAndKeys[namespaceAndLowerKey]++;
-//     });
-
-//     // If there are more than one namespace, add it
-//     if (Object.values(nsAndKeys).length > 1) {
-//       perFile[filePath] = nsAndKeys;
-//     }
-//   });
-
-//   const totalBad = Object.values(perFile).flat().length;
-
-//   assertWarn(totalBad === 0,
-//     `Inconsistent namespace use in t() calls. Avoid mixing namespaces: ${JSON.stringify(perFile, null, 2)}`,
-//     "All t() calls are consistent with namespaces and first level keys"
-//   );
-// }
+  expect(totalBadKeys, `Mixed namespaces: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
+});
 
 // /** Checks whether a file is consistent with namespaces and first level keys */
 // function TestInFileCommonKeyUse() {
