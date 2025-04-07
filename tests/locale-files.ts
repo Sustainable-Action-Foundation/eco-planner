@@ -19,7 +19,7 @@ enum Locales { enSE = "en-SE", svSE = "sv-SE", default = enSE, };
 const uniqueLocales = [...new Set(Object.values(Locales))];
 
 /** The language switcher uses these values */
-const localeAliases: Record<Locales, string> = { [Locales.enSE]: "English", [Locales.svSE]: "Svenska", };
+const localeAliases = { [Locales.enSE]: "English", [Locales.svSE]: "Svenska", };
 
 /** All namespaces */
 const namespaces = ["common", "forms", "components", "graphs", "pages", "email", "test",];
@@ -28,7 +28,7 @@ const namespaces = ["common", "forms", "components", "graphs", "pages", "email",
 const localesDir = "public/locales";
 
 /** Every combo of locale and ns in a 2d array */
-const allPermutations: string[][] = uniqueLocales.flatMap(locale => namespaces.map(namespace => [locale, namespace]));
+const allPermutations = uniqueLocales.flatMap(locale => namespaces.map(namespace => [locale, namespace]));
 
 /** Every NS file per locale with their flattened key-values */
 const allData = getAllDataFlattened();
@@ -41,11 +41,14 @@ const validPluralSuffixes = ["_one", "_two", "_few", "_many", "_other", "_zero",
  */
 
 /** Almost always prefer having nested $t() calls to common in namespaces over using duplicate values. Exceptions to that need to be here. */
-const exemptedCommonKeysRef = ["common:tsx.", "common:placeholder."]; // Things that shouldn't always be referenced
+const exemptedCommonKeysRef = ["common:tsx.", "common:placeholder.",]; // Things that shouldn't always be referenced
 /** When checking if a value may be a duplicate of a common value, values starting with any of these strings will be skipped.  */
 const exemptedCommonValuesRef = []; // More fine grained option to the above one (useful for language specific exemptions)
 /** To prevent recurring false positives, exempt these keys */
-const exemptedKeysUsingCommonValues = ["pages:info.info_body", "components:confirm_delete.confirmation"];
+const exemptedKeysUsingCommonValues = ["pages:info.info_body", "components:confirm_delete.confirmation",];
+/** Orphaned keys in root levels of namespaces are discouraged, except in these namespaces */
+const exemptedOrphanNS = ["common", "test",];
+const exemptedOrphanKeys = [];
 
 
 /* 
@@ -104,7 +107,7 @@ test.describe("English as fallback", () => {
     if (missingEng.length > 0) missingInEnglish[locale] = missingEng;
   });
 
-  test("Missing keys in non-english locales", () => expect(Object.keys(missingInOthers).length, `Missing keys in other locales: ${JSON.stringify(missingInOthers, null, 2)}`).toBe(0));
+  test("Missing keys in non-english locales", () => expect(Object.keys(missingInOthers).length, `Missing keys in non-english locales: ${JSON.stringify(missingInOthers, null, 2)}`).toBe(0));
   test("Missing keys in english", () => expect(Object.keys(missingInEnglish).length, `Missing keys in english: ${JSON.stringify(missingInEnglish, null, 2)}`).toBe(0));
 });
 
@@ -278,45 +281,42 @@ test("Variable syntax in JSON files", () => {
   expect(totalBad, `Invalid variable syntax: ${JSON.stringify(perLocale, null, 2)}`).toBe(0);
 });
 
-// /** Shows any keys in root of their ns file which only has a string as a value instead of an object */
-// function TestJSONOrphanInRoot() {
-//   const perFile: { [key: string]: string[] } = {};
+/** Shows any keys in root of their ns file which only has a string as a value instead of an object */
+test("Orphan keys in root of namespace files", () => {
+  const perLocale: Record<string, string[]> = {};
 
-//   const exemptedNS = ["common", "test"];
+  allPermutations.forEach(([locale, namespace]) => {
+    if (exemptedOrphanNS.includes(namespace)) return; // Skip exempted namespaces
 
-//   const files = glob.sync(`${localesDir}/*/*.json`);
-//   files.forEach(filePath => {
-//     if (exemptedNS.some(ns => filePath.endsWith(ns) + ".json")) return; // Skip exempted namespaces
+    const filePath = path.join(localesDir, locale, `${namespace}.json`);
 
-//     const content = fs.readFileSync(filePath, "utf-8");
+    // Read file instead of allData to not get flattened data
+    const content = fs.readFileSync(filePath, "utf-8").toString().trim();
 
-//     try { JSON.parse(content); }
-//     catch (e) {
-//       assert(false,
-//         `Failed to parse ${filePath} with error ${e}`,
-//         ""
-//       );
-//     }
+    try { JSON.parse(content); }
+    catch (e) {
+      if (!perLocale[locale]) perLocale[locale] = [];
+      perLocale[locale].push(`[Invalid JSON] > '${namespace}.json': '${e}'`);
+      return;
+    }
 
-//     const data = JSON.parse(content);
-//     const keys = Object.keys(data);
+    const data = JSON.parse(content);
+    const keys = Object.keys(data);
 
-//     keys.forEach(key => {
-//       const value = data[key];
-//       if (typeof value === "string") {
-//         if (!perFile[filePath]) perFile[filePath] = [];
-//         perFile[filePath].push(`[Orphan key] > '${key}'`);
-//       }
-//     });
-//   });
+    keys.forEach(key => {
+      if (exemptedOrphanKeys.some(exemptedKey => key.startsWith(exemptedKey))) return; // Skip exempted keys
+      if (typeof data[key] === "string") {
+        const value = data[key];
+        if (!perLocale[locale]) perLocale[locale] = [];
+        perLocale[locale].push(`[Orphan key] > '${namespace}:${key}': '${value}'`);
+      }
+    });
+  });
 
-//   const totalBad = Object.values(perFile).flat().length;
+  const totalBad = Object.values(perLocale).flat().length;
 
-//   assertWarn(totalBad === 0,
-//     `Avoid orphan keys in root of namespace files. Use nested objects instead: ${JSON.stringify(perFile, null, 2)}`,
-//     "No orphan keys found in root of namespace files"
-//   );
-// }
+  expect(totalBad, `Orphan keys in root of namespace files: ${JSON.stringify(perLocale, null, 2)}`).toBe(0);
+});
 
 // /** Checks if a file that is likely server or client side is using the wrong import method of t() */
 // function TestInFileImportSides() {
