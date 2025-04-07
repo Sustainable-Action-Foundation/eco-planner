@@ -163,7 +163,7 @@
     "change_read_access": "Adjust read access",
     "change_edit_access": "Adjust editing access"
   },
-  "roadmap_series_one": {
+  "meta_roadmap": {
     "description_legend": "Describe your $t(common:roadmap_series_one)",
     "roadmap_series_name": "Name $t(common:roadmap_series_definite_one)",
     "roadmap_series_description": "Description of $t(common:roadmap_series_definite_one)",

@@ -163,7 +163,7 @@
     "change_read_access": "Justera läsbehörighet",
     "change_edit_access": "Justera redigeringsbehörighet"
   },
-  "roadmap_series_one": {
+  "meta_roadmap": {
     "description_legend": "Beskriv din $t(common:roadmap_series_one)",
     "roadmap_series_name": "Namn för $t(common:roadmap_series_definite_one)",
     "roadmap_series_description": "Beskrivning av $t(common:roadmap_series_definite_one)",
