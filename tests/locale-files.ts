@@ -353,29 +353,9 @@ test("Server and client side code is not mixed", () => {
       perFile[filePath].push("Found both server and client side code");
     }
 
-    if (usingTServer && isClient) {
-      if (!perFile[filePath]) perFile[filePath] = [];
-      perFile[filePath].push("Server side file using client side translations");
-    }
-
-    if (usingTClient && isServer) {
-      if (!perFile[filePath]) perFile[filePath] = [];
-      perFile[filePath].push("Client side file using server side translations");
-    }
-
     if (!isServer && !isClient) {
       if (!perFile[filePath]) perFile[filePath] = [];
       perFile[filePath].push("Ambiguous file");
-    }
-
-    if (usingTServer && !isServer) {
-      if (!perFile[filePath]) perFile[filePath] = [];
-      perFile[filePath].push("Server side file using client side translations");
-    }
-
-    if (usingTClient && !isClient) {
-      if (!perFile[filePath]) perFile[filePath] = [];
-      perFile[filePath].push("Client side file using server side translations");
     }
 
     if (isClient && !usingTClient) {
@@ -395,7 +375,7 @@ test("Server and client side code is not mixed", () => {
 
     if (usingTServer && usingTClient) {
       if (!perFile[filePath]) perFile[filePath] = [];
-      perFile[filePath].push("Found both server and client side i18n imports");
+      perFile[filePath].push("Found both server and client side i18n functions");
     }
   });
 
@@ -404,11 +384,9 @@ test("Server and client side code is not mixed", () => {
   expect(totalBad, `Server and client side code mixed: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
 });
 
-// /** Checks if all t() calls in the tsx have a defined namespace  */
-// function TestInFileNamespaceUse() {
-//   const perFile: { [key: string]: string[] } = {};
-
-//   const files = glob.sync(appFiles, { ignore: ["src/scripts/**/*"] });
+/** Checks if all t() calls in the tsx have a defined namespace  */
+// test("t() calls have a defined namespace", () => {
+//   const perFile: Record<string, string[]> = {};
 
 //   files.forEach(filePath => {
 //     const content = fs.readFileSync(filePath, "utf-8");
@@ -437,7 +415,7 @@ test("Server and client side code is not mixed", () => {
 //     `Non-namespaced keys found in t() calls: ${JSON.stringify(perFile, null, 2)}`,
 //     "All t() calls are namespaced"
 //   );
-// }
+// });
 
 // /** Checks if all t() calls in the tsx are using defined keys */
 // function TestInFileKeysDefined() {
