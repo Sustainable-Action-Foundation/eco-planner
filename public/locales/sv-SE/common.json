@@ -67,7 +67,7 @@
     "close": "Stäng"
   },
   "placeholder": {
-    "name": "Förnamn Efternamn",
+    "name": "Username",
     "email": "fornamn.efternamn@exempel.se",
     "username": "Användarnamn",
     "password": "Lösenord"

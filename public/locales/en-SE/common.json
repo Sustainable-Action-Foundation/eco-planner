@@ -67,7 +67,7 @@
     "close": "Close"
   },
   "placeholder": {
-    "name": "Name Surname",
+    "name": "Username",
     "email": "name.surname@example.com",
     "username": "Username",
     "password": "Password"
