@@ -239,144 +239,44 @@ test("Are nested keys defined", () => {
   expect(totalBadKeys, `Nested keys not defined: ${JSON.stringify(perLocale, null, 2)}`).toBe(0);
 });
 
-// /** Are all the nested keys used in locale files correctly formatted? */
-// function TestJSONKeysSyntax() {
-//   const perLocale: { [key: string]: { [key: string]: string[] } }
-//     = Object.fromEntries(uniqueLocales.map(locale => [locale, {}]));
+/** Variable syntax in the JSON files i.e. {{var}}, {{var, formatter}} syntax */
+test("Variable syntax in JSON files", () => {
+  const perLocale: Record<string, string[]>
+    = Object.fromEntries(uniqueLocales.map(locale => [locale, []]));
 
-//   uniqueLocales.forEach((locale) => {
-//     expectedNS.forEach((namespace) => {
-//       // Skip checking common namespace
-//       if (namespace === "common") return
+  uniqueLocales.forEach(locale => {
+    const translations = Object.entries(allData[locale])
+      .filter(([, value]) => value.includes("{") || value.includes("}"));
 
-//       const values = getFlattenedValues(locale, namespace).join("\n");
+    translations.forEach(([key, value]) => {
+      let count = 0;
+      for (let i = 0; i < value.length; i++) {
+        const char = value[i];
 
-//       /** Every instance where $t() is called */
-//       const emptyTCalls = values.matchAll(/\$t\(\)/gm) || [];
-//       emptyTCalls.forEach(call => {
-//         const [, key] = call;
-//         if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-//         perLocale[locale][namespace].push(`[Empty $t() call] > '${key}'`);
-//       });
+        if (char === "{") count++;
+        if (char === "}") count--;
 
-//       /** Every instance where $t(...  No closing ")" */
-//       const noClosingTCalls = values.matchAll(/\$t\([^)]*(?!.*\))/gm) || [];
-//       noClosingTCalls.forEach(call => {
-//         const [match] = call;
-//         if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-//         perLocale[locale][namespace].push(`[$t() never closed] > '${match}'`);
-//       });
+        if (count < 0) {
+          if (!perLocale[locale]) perLocale[locale] = [];
+          perLocale[locale].push(`[Missing '{'] > '${key}': '${value}'`);
+          break;
+        }
+      }
+      if (count > 0) {
+        if (!perLocale[locale]) perLocale[locale] = [];
+        perLocale[locale].push(`[Missing '}'] > '${key}': '${value}'`);
+      }
+      if (count === 0) return; // Valid syntax
 
-//       /** Every instance where t(...) is called. No dollar sign. */
-//       const noDollarTCalls = values.matchAll(/[^$]t\([^)]*\)/gm) || [];
-//       noDollarTCalls.forEach(call => {
-//         const [match] = call;
-//         if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-//         perLocale[locale][namespace].push(`[Missing $t] > '${match}'`);
-//       });
+      if (!perLocale[locale]) perLocale[locale] = [];
+      perLocale[locale].push(`[Syntax error: '{' & '}' usage] > '${key}': '${value}'`);
+    });
+  });
 
-//       /** Every instance where $.(...) is called. Anything but t as the function name. */
-//       const noTNameTCalls = values.matchAll(/\$[^t]?\([^)]*\)/gm) || [];
-//       noTNameTCalls.forEach(call => {
-//         const [match] = call;
-//         if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-//         perLocale[locale][namespace].push(`[$t() must be t] > '${match}'`);
-//       });
+  const totalBad = Object.values(flattenTree(perLocale)).length;
 
-//       /** Every instance where $t... is called. No "()" */
-//       const noOpeningTCallas = values.matchAll(/\$t[^()]{0,20}(?!\(|\))/gm) || [];
-//       noOpeningTCallas.forEach(call => {
-//         const [match] = call;
-//         if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-//         perLocale[locale][namespace].push(`[$t() never opened] > '${match}'`);
-//       });
-
-//       /** Every instance where $t(...) is called. The regular valid calls */
-//       const validTCalls = values.matchAll(/\$t\(([^\)]+)\)/gm) || [];
-//       validTCalls.forEach(call => {
-//         const [, key] = call;
-
-//         // Missing ":" and is a namespace indicating missing ":"
-//         if (!key.includes(":") && expectedNS.some(ns => key.startsWith(ns))) {
-//           if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-//           perLocale[locale][namespace].push(`[Missing ':'] > '${key}'`);
-//         }
-//         // Invalid namespace
-//         else if (expectedNS.every(ns => !key.startsWith(ns))) {
-//           if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-//           perLocale[locale][namespace].push(`[Invalid namespace] > '${key}'`);
-//         }
-
-//         /**
-//          * Key may be = "key, { "count": count }"
-//          */
-//         const keyArg = key.split(",")[0];
-//         const tOptions = key.replace(keyArg, "").replace(/\s*,\s*/m, "");
-//         if (tOptions) {
-//           const args = tOptions
-//             .trim()
-//             // Remove surrounding curly brackets
-//             .replace(/^\{/m, "")
-//             .replace(/\}$/m, "")
-//             .split(",")
-//             .map(arg => arg.trim())
-
-//           // Are any of the names missing surrounding quotes?
-//           const missingQuotes = args
-//             .map(arg => arg.split(":")[0])
-//             .filter(arg => !arg.startsWith("\"") || !arg.endsWith("\""));
-
-//           if (missingQuotes.length > 0) {
-//             if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-//             perLocale[locale][namespace].push(`[Missing quotes in tOptions] > '${key}'`);
-//           }
-//         }
-//       });
-//     });
-//   });
-
-//   const totalBadKeys = Object.values(getFlattenedObject(perLocale)).length;
-
-//   assert(totalBadKeys === 0,
-//     `Nested keys with syntax issues: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f in vscode to find the perpetrators.`,
-//     "Nested key syntax looks good"
-//   );
-// }
-
-// /** Variable syntax in the JSON files i.e. {{var}}, {{var, formatter}} syntax */
-// function TestJSONVariableSyntax() {
-//   const perLocale: { [key: string]: { [key: string]: string[] } }
-//     = Object.fromEntries(uniqueLocales.map(locale => [locale, {}]));
-
-//   uniqueLocales.forEach((locale) => {
-//     expectedNS.forEach((namespace) => {
-//       const values = getFlattenedValues(locale, namespace);
-
-//       values.forEach(value => {
-//         let count = 0;
-//         for (let i = 0; i < value.length; i++) {
-//           const char = value[i];
-
-//           if (char === "{") count++;
-//           if (char === "}") count--;
-
-//           if (count < 0) {
-//             if (!perLocale[locale][namespace]) perLocale[locale][namespace] = [];
-//             perLocale[locale][namespace].push(`[Missing '{'] > '${value}'`);
-//             break;
-//           }
-//         }
-//       });
-//     });
-//   });
-
-//   const totalBad = Object.values(getFlattenedObject(perLocale)).length;
-
-//   assert(totalBad === 0,
-//     `Variable syntax issues: ${JSON.stringify(perLocale, null, 2)}\nUse ctrl+shift+f in vscode to find the perpetrators.`,
-//     "Variable syntax looks good"
-//   );
-// }
+  expect(totalBad, `Invalid variable syntax: ${JSON.stringify(perLocale, null, 2)}`).toBe(0);
+});
 
 // /** Shows any keys in root of their ns file which only has a string as a value instead of an object */
 // function TestJSONOrphanInRoot() {
