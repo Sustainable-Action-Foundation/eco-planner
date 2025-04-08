@@ -71,12 +71,12 @@ export default function QueryBuilder({
   }, [tables]);
 
   useEffect(() => {
-    const loadingText = document.getElementById("loader");
-    if (isLoading && loadingText) {
-      loadingText.classList.remove("hidden");
-    } else if (!isLoading && loadingText) {
+    const loader = document.getElementById("loader");
+    if (isLoading && loader) {
+      loader.classList.remove("hidden");
+    } else if (!isLoading && loader) {
       setTimeout(() => {
-        loadingText.classList.add("hidden");
+        loader.classList.add("hidden");
       }, 0);
     }
   }, [isLoading]);
@@ -148,6 +148,7 @@ export default function QueryBuilder({
     if (!(formRef.current instanceof HTMLFormElement)) return;
 
     console.time("tryGetResult");
+    setIsLoading(true);
 
     // Get a result if the form is valid
     if (formRef.current.checkValidity()) {
@@ -163,6 +164,7 @@ export default function QueryBuilder({
           disableSubmitButton();
         }
         console.timeEnd("tryGetResult");
+        setIsLoading(false);
       });
       if (dataSource == "Trafa") {
         // If metric was changed, only send the metric as a query to the API
@@ -178,6 +180,7 @@ export default function QueryBuilder({
       disableSubmitButton();
       clearTableContent();
       console.timeEnd("tryGetResult");
+      setIsLoading(false);
     }
   }
   function formChange(event: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
@@ -267,17 +270,17 @@ export default function QueryBuilder({
           variableSelectionFieldset.setAttribute("disabled", "true");
           // Reset all the table details when disabling the form so all options are displayed when re-enabling
           if (dataSource == "Trafa") {
-            getTableDetails(tableDetails?.id ?? "", dataSource, undefined, locale).then(result => { setTableDetails(result); });
+            getTableDetails(tableDetails?.id ?? "", dataSource, undefined, locale).then(result => { setTableDetails(result); setIsLoading(false); });
+          }
+          else {
+            setIsLoading(false);
           }
         }
       });
     } else {
       console.log("no variable selection fieldset found");
-    }
-
-    setTimeout(() => {
       setIsLoading(false);
-    }, 0);
+    }
   }
 
   function optionalTag(dataSource: string, variableIsOptional: boolean) {
@@ -415,6 +418,12 @@ export default function QueryBuilder({
         <form ref={formRef} onChange={formChange} onSubmit={handleSubmit}>
           {/* Hidden disabled submit button to prevent accidental submisson */}
           <button type="submit" className="display-none" disabled></button>
+          <strong
+            id="loader"
+            className={`position-absolute gray-80 padding-100 smooth ${!isLoading && "hidden"}`}
+            style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 100, opacity: "0.75" }}>
+            Laddar...
+          </strong>
 
           <FormWrapper>
             <fieldset className="position-relative">
@@ -450,12 +459,6 @@ export default function QueryBuilder({
                     id="tablesList"
                     className={`position-relative padding-25 smooth ${styles.temporary}`} onScroll={e => handleTableListScroll(e)}
                     style={{ maxHeight: "300px", border: "1px solid var(--gray-90)", listStyle: "none" }} >
-                    <div
-                      id="loader"
-                      className={`position-absolute padding-100 smooth width-100 height-100 flex align-items-center justify-content-center font-weight-500 ${!isLoading && "hidden"}`}
-                      style={{ backgroundColor: "rgba(255,255,255,.75)", top: "0", left: "0" }}>
-                      Laddar...
-                    </div>
                     {renderedTables && renderedTables.map(({ tableId: id, label }) => (
                       <li key={id} className={`${styles.tableSelect} block padding-block-25`}>
                         {label}
