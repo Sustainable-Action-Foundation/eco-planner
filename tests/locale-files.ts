@@ -525,7 +525,7 @@ test("<Trans /> syntax is valid", () => {
         perFile[filePath].push(`[Missing i18nKey] > '${matchTrans}'`);
         return;
       }
-      
+
       const i18nKey = i18nKeyStringMatch[1];
       const componentsMatch = collapsedWhitespace.match(/components=\{\{(.*?)\}\}/);
 
@@ -553,49 +553,70 @@ test("<Trans /> syntax is valid", () => {
 /** Check for Swedish text in code files that should be internationalized */
 test("No hardcoded Swedish text in code", () => {
   const perFile: Record<string, string[]> = {};
-  
+
   allTSX.forEach(({ filePath, content }) => {
     // Split content by lines to report line numbers
     const lines = content.split(/\r?\n/);
-    const matches: {line: number, text: string, context: string}[] = [];
-    
-    // Check each line for Swedish text
-    lines.forEach((line, index) => {
-      // Skip comment lines completely
+    const matches: { line: number, text: string, context: string }[] = [];
+
+    // Comment removal
+    const strippedLines = lines.map((line, i) => {
       const trimmedLine = line.trim();
-      if (trimmedLine.startsWith('//') || 
-          trimmedLine.startsWith('/*') || 
-          trimmedLine.startsWith('*') || 
-          trimmedLine.endsWith('*/') ||
-          trimmedLine.match(/^\s*\*/) // JSDoc line
+
+      if (!trimmedLine) return line; // Skip empty lines
+
+      // Single line comments
+      if (
+        trimmedLine.startsWith("//") // Single line comment
+        ||
+        (trimmedLine.startsWith("/*") && trimmedLine.endsWith("*/")) // Single line block comment
+        ||
+        (trimmedLine.startsWith("{/*") && trimmedLine.endsWith("*/}")) // Single line block comment
       ) {
-        return;
+        return "";
       }
-      
-      // Remove any inline comments from the line
-      const lineWithoutComments = line
-        .replace(/\/\/.*$/, '') // Remove single line comments
-        .replace(/\/\*.*?\*\//g, ''); // Remove inline block comments
-      
-      const lineMatches = Array.from(lineWithoutComments.matchAll(swedishRegex) || []);
+
+      // Remove block comments
+      if (trimmedLine.startsWith("/*") || trimmedLine.startsWith("/**") || trimmedLine.startsWith("{/*") || trimmedLine.startsWith("{/**")) {
+        const spanStart = i;
+        const spanEnd = lines.findIndex((l, j) => ((l.trim().endsWith("*/") || l.trim().endsWith("*/}")) && j > spanStart));
+
+        if (spanEnd === -1) {
+          console.warn(`Comment stripping failed ${filePath}:${i + 1}`);
+          return line;
+        }
+
+        for (let j = spanStart; j <= spanEnd; j++) {
+          lines[j] = ""; // Remove the comment lines
+        }
+      }
+
+      return line; // Keep the line as is
+    });
+
+    // Check each line for Swedish text
+    strippedLines.forEach((line, index) => {
+      if (!line.trim()) return; // Skip empty lines
+
+      const lineMatches = Array.from(line.matchAll(swedishRegex) || []);
       if (lineMatches.length > 0) {
         lineMatches.forEach(match => {
           matches.push({
             line: index + 1,
             text: match[0],
-            context: trimmedLine
+            context: line,
           });
         });
       }
     });
-    
+
     if (matches.length > 0) {
       perFile[filePath] = matches.map(m => `[Line ${m.line}] > '${m.text}' in: '${m.context}'`);
     }
   });
-  
+
   const totalMatches = Object.values(perFile).flat().length;
-  
+
   expect(totalMatches, `Found Swedish text that should be internationalized: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
 });
 
