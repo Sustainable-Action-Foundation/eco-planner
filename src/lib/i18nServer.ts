@@ -6,7 +6,7 @@ import Backend from "i18next-fs-backend";
 import path from "node:path";
 import { getLocale } from "@/functions/getLocale";
 
-const i18nServer = createInstance();
+export const i18nServer = createInstance();
 
 export function initI18nServer(locale: Locales) {
   i18nServer
@@ -27,7 +27,12 @@ export function t(key: string | string[], options?: (TOptionsBase & $Dictionary)
   const locale = getLocale(
     cookies().get("locale")?.value,
     headers().get("accept-language"),
+    options?.lng,
   );
+
+  if (!i18nServer.isInitialized) {
+    initI18nServer(locale);
+  }
 
   return i18nServer.t(key, { ...options, lng: locale });
 }

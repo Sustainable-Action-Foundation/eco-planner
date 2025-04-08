@@ -7,12 +7,16 @@ acceptLanguage.languages(uniqueLocales);
 export function getLocale(
   localeCookie: string | undefined,
   acceptLanguageHeader: string | null,
+  overrideLng: string | undefined = undefined,
 ): Locales {
   let localeContender: string | Locales = Locales.default;
 
-  if (localeCookie) localeContender = localeCookie;
+  if (overrideLng) localeContender = overrideLng;
+  else if (localeCookie) localeContender = localeCookie;
   else if (acceptLanguageHeader) localeContender = acceptLanguage.get(acceptLanguageHeader) ?? Locales.default;
   else {
+    // TODO: remove. In some cases, which i cannot reproduce, this is thrown but I don't know why.
+    console.debug(new Error().stack);
     console.warn("No locale was found. Defaulting to the default locale.");
   }
 
