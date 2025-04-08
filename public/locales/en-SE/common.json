@@ -68,7 +68,7 @@
   },
   "placeholder": {
     "name": "Username",
-    "email": "name.surname@example.com",
+    "email": "name@example.com",
     "username": "Username",
     "password": "Password"
   },
