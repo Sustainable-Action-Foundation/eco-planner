@@ -6,6 +6,7 @@
   box-shadow: 0 0 .5rem -.25rem rgba(0,0,0,.25);
   overflow-y: auto;
   scrollbar-width: thin;
+  scrollbar-color: var(--gray) rgba(0,0,0,0);
 }
 
 /* TODO: Do we want this class? Or do we want to scroll the entire dialog? */
@@ -13,6 +14,7 @@
   overflow-y: auto;
   padding-right: .25rem;
   scrollbar-width: thin;
+  scrollbar-color: var(--gray) rgba(0,0,0,0);
 }
 
 .dialog fieldset button:active {
