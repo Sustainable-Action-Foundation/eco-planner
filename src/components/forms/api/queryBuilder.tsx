@@ -232,22 +232,14 @@ export default function QueryBuilder({
 
   function handleTableSelect(tableId: string) {
     console.time("tableSelect");
+    setIsLoading(true);
+
     if (!externalDatasets[dataSource]?.baseUrl) return;
     if (!tableId) return;
-    setIsLoading(true);
+
     clearTableContent();
     clearTableDetails();
     disableSubmitButton();
-
-    const selectedTables = document.getElementsByClassName(styles.selectedTable);
-    for (let i = 0; i < selectedTables.length; i++) {
-      selectedTables[i].classList.remove(styles.selectedTable);
-    }
-
-    const selectedTable = document.getElementById(`table${tableId}`);
-    if (selectedTable) {
-      selectedTable.classList.add(styles.selectedTable)
-    }
 
     getTableDetails(tableId, dataSource, undefined, locale).then(result => { setTableDetails(result); console.timeEnd("tableSelect"); setIsLoading(false); });
   }
