@@ -457,16 +457,15 @@ export default function QueryBuilder({
                       Laddar...
                     </div>
                     {renderedTables && renderedTables.map(({ tableId: id, label }) => (
-                      <li key={id} >
-                        <button
-                          type="button"
-                          className="block width-100 text-align-left font-weight-500 transparent"
+                      <li key={id} className={`${styles.tableSelect} block padding-block-25`}>
+                        {label}
+                        <input
+                          type="radio"
                           id={`table${id}`}
                           value={id}
                           name="externalTableId"
-                          onClick={e => handleTableSelect((e.target as HTMLButtonElement).value)}>
-                          {label}
-                        </button>
+                          onClick={e => handleTableSelect((e.target as HTMLButtonElement).value)}
+                        />
                       </li>
                     ))}
                   </ul>
