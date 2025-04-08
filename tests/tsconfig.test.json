@@ -1,9 +1,0 @@
-{
-  "compilerOptions": {
-    "noEmit": true,
-    "strict": true,
-    "module": "NodeNext",
-    "target": "ES2024",
-    "baseUrl": "."
-  }
-}
