@@ -71,7 +71,7 @@ export default function QueryBuilder({
   }, [tables]);
 
   useEffect(() => {
-    const loader = document.getElementById("loader");
+    const loader = document?.getElementById("loader");
     if (isLoading && loader) {
       loader.classList.remove("hidden");
     } else if (!isLoading && loader) {
@@ -124,7 +124,7 @@ export default function QueryBuilder({
   }
 
   function enableSubmitButton() {
-    const submitButton = document.getElementById("submit-button");
+    const submitButton = document?.getElementById("submit-button");
     if (submitButton) {
       submitButton.removeAttribute("disabled");
       if (submitButton.classList.contains("display-none")) submitButton.classList.remove("display-none");
@@ -134,7 +134,7 @@ export default function QueryBuilder({
   }
 
   function disableSubmitButton() {
-    const submitButton = document.getElementById("submit-button");
+    const submitButton = document?.getElementById("submit-button");
     if (submitButton) {
       submitButton.setAttribute("disabled", "true");
       if (!submitButton.classList.contains("display-none")) submitButton.classList.add("display-none");
@@ -247,7 +247,7 @@ export default function QueryBuilder({
   function handleMetricSelect(event: React.ChangeEvent<HTMLSelectElement>) {
     setIsLoading(true);
     const isDefaultValue = event.target.value.length == 0;
-    const variableSelectionFieldsets = document.getElementsByName("variableSelectionFieldset");
+    const variableSelectionFieldsets = document?.getElementsByName("variableSelectionFieldset");
 
     if (variableSelectionFieldsets.length > 0) {
       variableSelectionFieldsets.forEach(variableSelectionFieldset => {
@@ -476,7 +476,7 @@ export default function QueryBuilder({
               // TODO - which inputs should be optional?
               <>
                 <label className="block margin-block-75">
-                  <strong>Vald tabell:</strong> <i>{document.getElementById(`table${tableDetails.id}`)?.innerText}</i>
+                  <strong>Vald tabell:</strong> <i>{document?.getElementById(`table${tableDetails.id}`)?.innerText}</i>
                 </label>
                 <fieldset className="margin-block-100 smooth padding-50" style={{ border: "1px solid var(--gray-90)" }}>
                   <legend className="padding-inline-50">
@@ -561,8 +561,8 @@ export default function QueryBuilder({
                 </table>
               </div>
             ) :
-              (document.getElementById("metric") as HTMLSelectElement) &&
-              (document.getElementById("metric") as HTMLSelectElement).value.length != 0 &&
+              (document?.getElementById("metric") as HTMLSelectElement) &&
+              (document?.getElementById("metric") as HTMLSelectElement).value.length != 0 &&
               (formRef.current instanceof HTMLFormElement) &&
               formRef.current.checkValidity() && (
                 <p className="padding-100">Inget läsbart resultat hittades. Vänligen uppdatera dina val.</p>
