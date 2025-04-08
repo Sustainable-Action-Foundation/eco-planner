@@ -3,7 +3,7 @@
   "client_side": "Client-side",
   "description": "Här ser man alla översättningsnycklar som finns i projektet för att lätt se om något saknas eller är fel. Alla nycklar kommer att få argumenten {{args}} för att underlätta felsökning. Dessutom, om en nyckel löses till en tom sträng, kommer den att visas som $t(test:empty_string) i rött och om nyckeln inte kan lösas, kommer den att visas som $t(test:not_found) i rött.",
   "empty_string": "[TOM STRÄNG]",
-  "keys": "Nycklar (en)",
+  "keys": "Nycklar ({{keyLng}})",
   "keys_found_one": "Totalt: {{count}} nyckel hittades",
   "keys_found_other": "Totalt: {{count}} nycklar hittades",
   "not_found": "[HITTAS EJ]",

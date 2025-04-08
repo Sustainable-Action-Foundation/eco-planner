@@ -1,5 +1,7 @@
 import { defineConfig, devices } from "playwright/test";
 
+export const webserverURL = "http://localhost:3000";
+
 export default defineConfig({
   // Look for test files in the "tests" directory, relative to this configuration file.
   testDir: "./tests",
@@ -37,7 +39,7 @@ export default defineConfig({
       name: "Locale files validation",
       fullyParallel: false,
       testMatch: ["**/locale-files.ts"],
-      use: { },
+      use: {},
     },
     {
       name: "chromium",
@@ -58,7 +60,7 @@ export default defineConfig({
   webServer: {
     timeout: 1000 * 1000,
     command: "yarn run start",
-    url: "http://localhost:3000",
+    url: webserverURL,
     reuseExistingServer: !process.env.CI,
   },
 });

@@ -61,12 +61,12 @@ const swedishRegex = /(?<!\/\/|\*|\/\*)(?:åtgärd|åtgärden|åtgärder|åtgär
 /** Almost always prefer having nested $t() calls to common in namespaces over using duplicate values. Exceptions to that need to be here. */
 const exemptedCommonKeysRef = ["common:tsx.", "common:placeholder.",]; // Things that shouldn't always be referenced
 /** When checking if a value may be a duplicate of a common value, values starting with any of these strings will be skipped.  */
-const exemptedCommonValuesRef = []; // More fine grained option to the above one (useful for language specific exemptions)
+const exemptedCommonValuesRef: string[] = []; // More fine grained option to the above one (useful for language specific exemptions)
 /** To prevent recurring false positives, exempt these keys */
 const exemptedKeysUsingCommonValues = ["pages:info.info_body", "components:confirm_delete.confirmation",];
 /** Orphaned keys in root levels of namespaces are discouraged, except in these namespaces */
 const exemptedOrphanNS = ["common", "test",];
-const exemptedOrphanKeys = [];
+const exemptedOrphanKeys: string[] = [];
 
 
 /* 
