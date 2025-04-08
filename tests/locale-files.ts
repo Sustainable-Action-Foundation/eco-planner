@@ -50,6 +50,9 @@ const clientSideFilesOverride = ["src\\app\\verify\\page.tsx", "src\\app\\verify
 /** When checking for mixed use of spaces these are allowed in any file */
 const keysAllowedDirectlyInApp = ["common:tsx.", "common:placeholder.", "common:scope.", "common:layout.", "common:count.", "common:new.", "common:edit", "common:scaling_methods", "common:css.", "common:404."];
 
+/** The Swedish regex is used to find hard coded swedish in the app */
+const swedishRegex = /(?<!\/\/|\*|\/\*)(?:åtgärd|åtgärden|åtgärder|åtgärderna|målbana|målbanan|målbanor|målbanorna|färdplan|färdplanen|färdplaner|färdplansversion|färdplansversionen|färdplansversioner|effekt|effekten|effekter|effekterna|Skapa|Redigera|Radera|Ta bort|Lägg till|Spara|Avbryt|Sök|Välj|Visa|Sortera|Sök bland|Välj en|Ingen angiven|Skapa ny|Det finns inga|Vill du|Utvalda|Alla|Externa resurser|Relevanta aktörer|Kostnadseffektivitet|Beskrivning|Sverige|Sveriges|[åäöÅÄÖ])[\W]/gm;
+
 
 /* 
  * Exceptions
@@ -445,170 +448,156 @@ test("Namespace consistency in app", () => {
   expect(totalBadKeys, `Mixed namespaces: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
 });
 
-// /** Checks whether a file is consistent with namespaces and first level keys */
-// function TestInFileCommonKeyUse() {
-//   const perFile: { [key: string]: Record<string, number> } = {};
+/** Checks whether a file is consistent with namespaces and first level keys */
+test("Common keys used directly in files", () => {
+  const perFile: Record<string, string[]> = {};
 
-//   const files = glob.sync(appFiles, { ignore: ["src/scripts/**/*"] })
-//     .filter(file => !file.includes("common")); // Ignore common namespace
+  allTSX.forEach(({ filePath, content }) => {
+    const allTCalls = Array.from(content.matchAll(/\Wt\(["']([^"']*)["']\)/gm)) || [];
+    if (allTCalls.length === 0) return; // Skip if no t() calls
 
-//   files.forEach(filePath => {
-//     const content = fs.readFileSync(filePath, "utf-8");
+    allTCalls.forEach(call => {
+      const [, key] = call;
+      if (keysAllowedDirectlyInApp.some(allowedKey => key.startsWith(allowedKey))) return; // Skip allowed keys
 
-//     const tCalls = getAllInFileTCalls(content);
+      const namespace = key.match(/(^[^:]+):/)?.[1];
+      if (!namespace) return; // Skip if no namespace
 
-//     tCalls.forEach(call => {
-//       const [, key] = call;
-//       // Skip the common keys that are explicitly allowed
-//       if (commonKeysAllowedDirectlyInFile.some(commonKey => key.startsWith(commonKey))) return;
+      if (namespace === "common") {
+        perFile[filePath] = perFile[filePath] || [];
+        perFile[filePath].push(`[Common key used directly] > '${key}'`);
+      }
+    });
+  });
 
+  const totalBadKeys = Object.values(perFile).flat().length;
 
-//       if (!key.startsWith("common:")) return;
+  expect(totalBadKeys, `Common keys used directly in files: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
+});
 
-//       perFile[filePath] = perFile[filePath] || {};
-//       perFile[filePath][key] = perFile[filePath][key] || 0;
-//       perFile[filePath][key]++;
-//     });
-//   });
+/** Checks if the <Trans /> tags have a defined i18nKey */
+test("<Trans /> keys are defined", () => {
+  const perFile: Record<string, string[]> = {};
 
-//   const totalBadKeys = Object.values(perFile).flat().length;
+  /** Trans tags need a prop called i18nKey which this regex finds */
+  const i18nKeyRegex = /(?<=<Trans(?:\r?\n.*)*)i18nKey=["'](.*?)["'](?=(?:\r?\n.*)*\/>)/gmu;
 
-//   assertWarn(totalBadKeys === 0,
-//     `Common keys are being used directly in files and not referenced: ${JSON.stringify(perFile, null, 2)}`,
-//     "Common keys are used in an expected manor in the app"
-//   );
-// }
+  allTSX.forEach(({ filePath, content }) => {
+    const calls = Array.from(content.matchAll(i18nKeyRegex)) || [];
 
-// /** Checks if the <Trans /> tags have a defined i18nKey */
-// function TestInFileTransKeysDefined() {
-//   const perFile: { [key: string]: string[] } = {};
+    calls.forEach(call => {
+      const [match, key] = call;
+      const isValidKey = key && allJSON[Locales.default][key]; // Check if key is valid
 
-//   /** Trans tags need a prop called i18nKey which this regex finds */
-//   const i18nKeyRegex = /(?<=<Trans(?:\r?\n.*)*)i18nKey=["'](.*?)["'](?=(?:\r?\n.*)*\/>)/gmu;
+      if (!isValidKey) {
+        if (!perFile[filePath]) perFile[filePath] = [];
+        perFile[filePath].push(`[Invalid i18nKey] > '${match}'`);
+      }
+    });
+  });
 
-//   const validKeys = expectedNS.flatMap((namespace) => getFlattenedKeys(Locales.default, namespace));
+  const totalBadKeys = Object.values(perFile).flat().length;
 
-//   const files = glob.sync(appFiles, { ignore: ["src/scripts/**/*"] });
+  expect(totalBadKeys, `Invalid i18nKey: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
+});
 
-//   files.forEach(filePath => {
-//     const content = fs.readFileSync(filePath, "utf-8");
+/** Checks if the <Trans /> tags have valid syntax */
+test("<Trans /> syntax is valid", () => {
+  const perFile: Record<string, string[]> = {};
 
-//     const i18nKeys = content.matchAll(i18nKeyRegex) || [];
+  const transTagRegex = /<Trans.*?\/>(?!\s*\}\})(?!,)/gmus;
 
-//     Array.from(i18nKeys).forEach(call => {
-//       const [, key] = call;
+  allTSX.forEach(({ filePath, content }) => {
+    const calls = Array.from(content.matchAll(transTagRegex)) || [];
 
-//       // Key is empty?
-//       if (!key) {
-//         if (!perFile[filePath]) perFile[filePath] = [];
-//         perFile[filePath].push(`[Empty i18nKey] > '${key}'`);
-//         return;
-//       }
+    calls.forEach(call => {
+      const [matchTrans] = call;
+      const collapsedWhitespace = matchTrans.replace(/\s+/g, " ");
 
-//       // Key exists?
-//       if (!validKeys.includes(key)) {
-//         if (!perFile[filePath]) perFile[filePath] = [];
-//         perFile[filePath].push(`[i18nKey not defined] > '${key}'`);
-//       };
+      const i18nKeyStringMatch = collapsedWhitespace.match(/\si18nKey=["'](.*?)["']/);
+      const i18nKeyVarMatch = collapsedWhitespace.match(/\si18nKey=\{(.*?)\}/);
 
-//       // Namespace is valid?
-//       if (expectedNS.every(ns => !key.startsWith(ns))) {
-//         if (!perFile[filePath]) perFile[filePath] = [];
-//         perFile[filePath].push(`[Invalid namespace] > '${key}'`);
-//       }
-//       // Non-namespaced key
-//       else if (!key.includes(":")) {
-//         if (!perFile[filePath]) perFile[filePath] = [];
-//         perFile[filePath].push(`[Non-namespaced key] > '${key}'`);
-//       }
-//     });
-//   });
+      if (i18nKeyVarMatch) return; // Skip if it's a variable
 
-//   const totalBadKeys = Object.values(perFile).flat().length;
+      // Missing key
+      if (!i18nKeyStringMatch) {
+        if (!perFile[filePath]) perFile[filePath] = [];
+        perFile[filePath].push(`[Missing i18nKey] > '${matchTrans}'`);
+        return;
+      }
+      
+      const i18nKey = i18nKeyStringMatch[1];
+      const componentsMatch = collapsedWhitespace.match(/components=\{\{(.*?)\}\}/);
 
-//   assert(totalBadKeys === 0,
-//     `Issues with keys of <Trans />: ${JSON.stringify(perFile, null, 2)}`,
-//     "Key syntax in <Trans /> is valid"
-//   );
-// }
+      // TODO: Maybe use a more sophisticated check for this?
+      const componentsInTag = componentsMatch && componentsMatch[1] !== "null" && componentsMatch[1] !== "undefined";
+      const componentsInValue = allJSON[Locales.default][i18nKey]?.includes("<") || allJSON[Locales.default][i18nKey]?.includes(">");
 
-// /** Checks if the <Trans /> tags have valid syntax */
-// function TestInFileTransSyntax() {
-//   const perFile: { [key: string]: string[] } = {};
+      if (componentsInTag && !componentsInValue) {
+        if (!perFile[filePath]) perFile[filePath] = [];
+        perFile[filePath].push(`[Missing components in value] > '${collapsedWhitespace}'`);
+      }
+      if (!componentsInTag && componentsInValue) {
+        if (!perFile[filePath]) perFile[filePath] = [];
+        perFile[filePath].push(`[Missing components in tag] > '${collapsedWhitespace}'`);
+      }
+      if (componentsInTag && componentsInValue) return; // Valid syntax
+    });
+  });
 
-//   // @ts-expect-error - This test runs on tsx so it's not dependant on tsconfig
-//   const transTagRegex = /<Trans.*?\/>(?!\s*\}\})(?!,)/gmus;
+  const totalBadKeys = Object.values(perFile).flat().length;
 
-//   const files = glob.sync(appFiles, { ignore: ["src/scripts/**/*"] });
+  expect(totalBadKeys, `Invalid <Trans /> syntax: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
+});
 
-//   const values: { [key in typeof uniqueLocales as string]: Record<string, string> } = {};
-//   uniqueLocales.forEach(locale => {
-//     values[locale] = {};
-//     expectedNS.forEach(namespace => {
-//       const flattened = getFlattenedLocaleFile(locale, namespace);
-//       Object.assign(values[locale], flattened);
-//     });
-//   });
-
-//   files.forEach(filePath => {
-//     const content = fs.readFileSync(filePath, "utf-8");
-
-//     const transTags = content.matchAll(transTagRegex) || [];
-
-//     Array.from(transTags).forEach(call => {
-//       const [matchTrans] = call;
-//       const collapsedWhitespace = matchTrans.replace(/\s+/g, " ");
-
-//       const i18nKeyStringMatch = collapsedWhitespace.match(/\si18nKey=["'](.*?)["']/);
-//       const i18nKeyVarMatch = collapsedWhitespace.match(/\si18nKey=\{(.*?)\}/);
-
-//       if (i18nKeyVarMatch) {
-//         return; // Skip if it's a variable
-//       }
-
-//       // Missing key
-//       if (!i18nKeyStringMatch) {
-//         if (!perFile[filePath]) perFile[filePath] = [];
-//         perFile[filePath].push(`[Missing i18nKey] > '${matchTrans}'`);
-//         return;
-//       }
-
-//       const componentsMatch = collapsedWhitespace.match(/components=\{\{(.*?)\}\}/);
-
-//       // Value of key
-//       const i18nKey = i18nKeyStringMatch[1];
-//       uniqueLocales.forEach(locale => {
-//         const value = values[locale][i18nKey];
-//         if (!value) {
-//           if (!perFile[filePath]) perFile[filePath] = [];
-//           perFile[filePath].push(`[Undefined i18nKey] > '${collapsedWhitespace}'`);
-//         }
-
-//         // Is it using components?
-//         const componentsInValue = /<.*?>/.test(value);
-//         const componentsInTag = componentsMatch && componentsMatch[1] !== "null" && componentsMatch[1] !== "undefined";
-//         if (componentsInTag && !componentsInValue) {
-//           if (!perFile[filePath]) perFile[filePath] = [];
-//           perFile[filePath].push(`[Missing components in value] > '${collapsedWhitespace}'`);
-//         }
-//         if (!componentsInTag && componentsInValue) {
-//           if (!perFile[filePath]) perFile[filePath] = [];
-//           perFile[filePath].push(`[Missing components in tag] > '${collapsedWhitespace}'`);
-//         }
-//       });
-//     });
-//   });
-
-//   const totalBadKeys = Object.values(perFile).flat().length;
-
-//   assert(totalBadKeys === 0,
-//     `Syntax issues in <Trans />: ${JSON.stringify(perFile, null, 2)}`,
-//     "Valid syntax in <Trans />"
-//   );
-// }
-
-/** The Swedish Regex */
-// const swedishRegex = /(?<!\/\/|\*|\/\*)(?:åtgärd|åtgärden|åtgärder|åtgärderna|målbana|målbanan|målbanor|målbanorna|färdplan|färdplanen|färdplaner|färdplansversion|färdplansversionen|färdplansversioner|effekt|effekten|effekter|effekterna|Skapa|Redigera|Radera|Ta bort|Lägg till|Spara|Avbryt|Sök|Välj|Visa|Sortera|Sök bland|Välj en|Ingen angiven|Skapa ny|Det finns inga|Vill du|Utvalda|Alla|Externa resurser|Relevanta aktörer|Kostnadseffektivitet|Beskrivning|Sverige|Sveriges|[åäöÅÄÖ])[\W]/gm;
+/** Check for Swedish text in code files that should be internationalized */
+test("No hardcoded Swedish text in code", () => {
+  const perFile: Record<string, string[]> = {};
+  
+  allTSX.forEach(({ filePath, content }) => {
+    // Split content by lines to report line numbers
+    const lines = content.split(/\r?\n/);
+    const matches: {line: number, text: string, context: string}[] = [];
+    
+    // Check each line for Swedish text
+    lines.forEach((line, index) => {
+      // Skip comment lines completely
+      const trimmedLine = line.trim();
+      if (trimmedLine.startsWith('//') || 
+          trimmedLine.startsWith('/*') || 
+          trimmedLine.startsWith('*') || 
+          trimmedLine.endsWith('*/') ||
+          trimmedLine.match(/^\s*\*/) // JSDoc line
+      ) {
+        return;
+      }
+      
+      // Remove any inline comments from the line
+      const lineWithoutComments = line
+        .replace(/\/\/.*$/, '') // Remove single line comments
+        .replace(/\/\*.*?\*\//g, ''); // Remove inline block comments
+      
+      const lineMatches = Array.from(lineWithoutComments.matchAll(swedishRegex) || []);
+      if (lineMatches.length > 0) {
+        lineMatches.forEach(match => {
+          matches.push({
+            line: index + 1,
+            text: match[0],
+            context: trimmedLine
+          });
+        });
+      }
+    });
+    
+    if (matches.length > 0) {
+      perFile[filePath] = matches.map(m => `[Line ${m.line}] > '${m.text}' in: '${m.context}'`);
+    }
+  });
+  
+  const totalMatches = Object.values(perFile).flat().length;
+  
+  expect(totalMatches, `Found Swedish text that should be internationalized: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
+});
 
 /* 
  ***********
