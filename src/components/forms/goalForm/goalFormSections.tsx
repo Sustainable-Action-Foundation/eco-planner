@@ -54,7 +54,7 @@ export function ManualGoalForm({
     return (
       <div key={`column-${columnIndex}`}>
         <label htmlFor={dataSeriesDataFieldNames[columnIndex]} className="padding-25">{dataSeriesDataFieldNames[columnIndex].replace("val", "")}</label>
-        <input type="number" id={dataSeriesDataFieldNames[columnIndex]} name="dataSeriesInput" value={dataSeriesString?.split(/[\t;]/)[columnIndex]} onChange={updateStringInput} />
+        <input type="number" id={dataSeriesDataFieldNames[columnIndex]} name="dataSeriesInput" value={dataSeriesString?.split(/[\t;]/)[columnIndex]} onChange={() => updateStringInput} />
       </div>
     )
   }
@@ -100,8 +100,8 @@ export function ManualGoalForm({
         } else if (key === "className") {
           propsString += ` class="${child.props[key]}"`;
           continue;
-        } else if (key === "onChange") {
-          continue; // the onChange event listener is added later
+        } else if (key === "onChange" || key === "onPaste") {
+          continue; // the event listeners are added later
         }
         propsString += ` ${key}="${child.props[key]}"`;
       }
@@ -131,13 +131,14 @@ export function ManualGoalForm({
     // Add on change event listeners to all the input elements
     const inputGridInputBoxes = inputGridElement.getElementsByTagName("input");
     for (const inputBox of inputGridInputBoxes) {
-      inputBox.addEventListener("change", updateStringInput);
+      inputBox.addEventListener("change", () => updateStringInput);
+      inputBox.addEventListener("paste", handleFocusedPaste);
     }
 
     inputGridElement.style.gridTemplateColumns = `repeat(${columnCount}, 1fr)`;
     // Add an on paste event listener to the input grid element
     if (inputGridElement) {
-      inputGridElement.addEventListener("paste", (e) => handlePaste(e as ClipboardEvent));
+      // inputGridElement.addEventListener("paste", (e) => handlePaste(e as ClipboardEvent));
     } else {
       console.warn("Unable to add event listeners to input grid element because it could not be found.");
     }
@@ -147,27 +148,49 @@ export function ManualGoalForm({
    * Function to insert values into the input grid
    * @param values a string or array of values to insert. If a string, it will be split by semicolon or tab
    */
-  function insertValuesToInputGrid(values: string | string[]) {
+  function insertValuesToInputGrid(values: string | string[], startingColumn?: number) {
     // Make sure to get the values as an array if it is a string and make sure there are no more than the allowed amount of values
+    // const valuesList = (Array.isArray(values) ? values : values.split(/[\t;]/)).slice(0, defaultColumnCount);
     const valuesList = (Array.isArray(values) ? values : values.split(/[\t;]/)).slice(0, defaultColumnCount);
 
+    const inputGrid = document.getElementById("inputGrid");
+    if (!inputGrid) {
+      console.warn("\"inputGrid\" does not exist");
+      return;
+    }
+    console.log(valuesList);
+    // if (startingColumn) {
+    //   for (let i = 0; i < startingColumn && i < defaultColumnCount; i++) {
+    //     valuesList.push
+    //   }
+    // } else {
+    //   valuesList = (Array.isArray(values) ? values : values.split(/[\t;]/)).slice(0, defaultColumnCount);
+    // }
+
     // Generate the columns for the input grid
-    columnCount = valuesList.length ? valuesList.length : defaultColumnCount;
+    columnCount = valuesList.length > inputGrid.getElementsByTagName("input").length ? valuesList.length : defaultColumnCount;
+    const newValuesList: string[] = []; // Explicitly define as string array
+    for (const input of inputGrid.getElementsByTagName("input")) {
+      newValuesList.push(input.value);
+    }
+    if (startingColumn) {
+      for (let i = startingColumn; i < valuesList.length; i++) {
+        newValuesList[i] = valuesList[i - startingColumn];
+      }
+      updateStringInput(newValuesList.join(";"));
+    }
     columns = [];
     for (let i = 0; i < (columnCount); i++) {
       columns.push(drawGridColumn(i));
     }
 
     // Update the input grid element with the new columns and values
-    const inputGrid = document.getElementById("inputGrid");
-    if (inputGrid) {
-      updateInputGrid(inputGrid);
-      const inputs = inputGrid.getElementsByTagName("input");
-      valuesList.forEach((value, index) => { // TODO - is this necessary?
-        inputs[index].value = value;
-      })
-    } else {
-      console.warn("inputGrid does not exist");
+    updateInputGrid(inputGrid);
+    const inputs = inputGrid.getElementsByTagName("input");
+    for (let i = 0; i < inputs.length; i++) {
+      if (startingColumn && i >= startingColumn && i < startingColumn + valuesList.length) {
+        inputs[i].value = valuesList[i - startingColumn]
+      }
     }
   }
 
@@ -177,7 +200,7 @@ export function ManualGoalForm({
    */
   function getValuesFromInputGrid() {
     const inputGrid = document.getElementById("inputGrid");
-    if (!inputGrid) { console.warn("inputGrid does not exist"); return; }
+    if (!inputGrid) { console.warn("\"inputGrid\" does not exist"); return; }
 
     // Get the values from all the input elements in the grid
     const inputs = inputGrid.getElementsByTagName("input");
@@ -191,8 +214,12 @@ export function ManualGoalForm({
   /**
    * Function to update the string input with the values from the input grid
    */
-  function updateStringInput() {
-    const valuesString = getValuesFromInputGrid()?.join(";");
+  function updateStringInput(customValuesString?: string) {
+    let valuesString = getValuesFromInputGrid()?.join(";");
+    if (customValuesString) {
+      valuesString = customValuesString;
+    }
+
     const input = document.getElementById("dataSeries") as HTMLInputElement | null;
     if (input && valuesString) {
       input.value = valuesString;
@@ -210,20 +237,38 @@ export function ManualGoalForm({
     updateStringInput();
   }
 
+  // /**
+  //  * Function to handle pasting into the input grid
+  //  */
+  // function handlePaste(e: ClipboardEvent) {
+  //   if (!e.clipboardData) return;
+  //   const clip = e.clipboardData.getData("text");
+  //   insertValuesToInputGrid(clip);
+  // }
+
   /**
    * Function to handle pasting into the input grid
    */
-  function handlePaste(e: ClipboardEvent) {
+  function handleFocusedPaste(e: ClipboardEvent) {
     if (!e.clipboardData) return;
     const clip = e.clipboardData.getData("text");
-    insertValuesToInputGrid(clip);
+    if (!inputGridElement) {
+      console.warn("inputGridElement does not exist");
+      return;
+    }
+    insertValuesToInputGrid(clip, [...inputGridElement.getElementsByTagName("input")].indexOf(e.target as HTMLInputElement));
+    updateStringInput();
   }
 
-  // Add event listener for pasting
+  // Add event listeners for pasting
   if (inputGridElement) {
-    inputGridElement.addEventListener("paste", (e) => handlePaste(e as ClipboardEvent));
+    for (const inputElement of inputGridElement.getElementsByTagName("input")) {
+      inputElement.addEventListener("paste", (e) => handleFocusedPaste(e as ClipboardEvent));
+    }
+
+
   } else {
-    console.warn("cant add event listeners");
+    console.warn("Can't add event listeners");
   }
 
   if (dataSeriesString && document.getElementById("dataSeries") && (document.getElementById("dataSeries") as HTMLSelectElement).value == dataSeriesString) {

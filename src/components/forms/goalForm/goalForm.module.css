@@ -1,27 +1,27 @@
 .sideScroll {
-  overflow-x: scroll;
+  overflow-x: auto;
   padding-bottom: .25rem;
 }
 
-.sideScroll::-webkit-scrollbar {
+/* .sideScroll::-webkit-scrollbar {
   height: .5rem;
-}
+} */
   
 /* Track */
-.sideScroll::-webkit-scrollbar-track {
-    border-radius: 9999px;
-}
+/* .sideScroll::-webkit-scrollbar-track {
+  border-radius: 9999px;
+} */
    
 /* Handle */
-.sideScroll::-webkit-scrollbar-thumb {
-    background: var(--gray-90); 
-    border-radius: 9999px;
-}
+/* .sideScroll::-webkit-scrollbar-thumb {
+  background: var(--gray-90); 
+  border-radius: 9999px;
+} */
   
 /* Handle on hover */
-.sideScroll::-webkit-scrollbar-thumb:hover {
-    background: var(--gray-70); 
-}
+/* .sideScroll::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-70); 
+} */
 
 .sideScroll input {
   border-radius: 0;
