@@ -156,7 +156,7 @@
     "roadmap_target_no_chosen": "No option chosen",
     "roadmap_target_always_latest": "Always latest version",
     "roadmap_version_legend": "Describe $t(common:roadmap_version_definite_one)",
-    "roadmap_description": "Extra description of this $t(common:roadmap_version_definite_one)",
+    "roadmap_description": "Extra description of this $t(common:roadmap_version_one)",
     "upload_goals": "Upload $t(common:goal_other)",
     "goal_accepted_formats": "{{$t(common:goal_other), titleCase}} <small> - accepted file types: {{fileTypes, list}} - accepted file encodings: {{encodings, list}}</small>",
     "inherit_goal_legend": "Choose $t(common:goal_one) to inherit",
