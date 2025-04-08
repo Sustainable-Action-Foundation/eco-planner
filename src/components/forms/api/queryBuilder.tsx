@@ -570,7 +570,7 @@ export default function QueryBuilder({
               (document.getElementById("metric") as HTMLSelectElement).value.length != 0 &&
               (formRef.current instanceof HTMLFormElement) &&
               formRef.current.checkValidity() && (
-                <p>Inget läsbart resultat hittades. Vänligen uppdatera dina val.</p>
+                <p className="padding-100">Inget läsbart resultat hittades. Vänligen uppdatera dina val.</p>
               )
             }
           </output>
