@@ -435,7 +435,7 @@ export default function QueryBuilder({
 
               {dataSource ?
                 <>
-                  <div className="margin-top-200 margin-bottom-25">
+                  <div className="margin-top-100 margin-bottom-25">
                     <label className="font-weight-500">
                       Sök efter tabell
                       <div className="focusable gray-90 flex align-items-center margin-top-25 padding-left-50 smooth">
@@ -527,51 +527,51 @@ export default function QueryBuilder({
                       </div>
                     </>) : (<p className={`font-style-italic color-gray`}>Det finns inga variabler</p>)}
                 </fieldset>
-                <output>
-                  {/* TODO: style this better */}
-                  {tableContent && tableContent.data.length > 0 ? (
-                    <div className="padding-inline-100">
-                      <p>Ser detta rimligt ut? (visar max 5 värden)</p>
-                      <table>
-                        <thead>
-                          <tr>
-                            <th scope="col">Period</th>
-                            <th scope="col">Värde</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {
-                            tableContent.data.map((row, index) => {
-                              // Find the column of the time value
-                              let timeColumnIndex = 0;
-                              tableContent.columns.map((column, index) => {
-                                if (column.type == "t") timeColumnIndex = index
-                              })
-                              return (
-                                index < 5 &&
-                                <tr key={row.key[timeColumnIndex].value}>
-                                  <td>{row.key[timeColumnIndex].value}</td>
-                                  <td>{row.values[0]}</td>
-                                </tr>
-                              )
-                            })
-                          }
-                        </tbody>
-                      </table>
-                    </div>
-                  ) :
-                    (document.getElementById("metric") as HTMLSelectElement) &&
-                    (document.getElementById("metric") as HTMLSelectElement).value.length != 0 &&
-                    (formRef.current instanceof HTMLFormElement) &&
-                    formRef.current.checkValidity() && (
-                      <p>Inget läsbart resultat hittades. Vänligen uppdatera dina val.</p>
-                    )
-                  }
-                </output>
+
               </>
             )}
           </FormWrapper>
-
+          <output>
+            {/* TODO: style this better */}
+            {tableContent && tableContent.data.length > 0 ? (
+              <div className="padding-inline-100">
+                <p>Ser detta rimligt ut? (visar max 5 värden)</p>
+                <table>
+                  <thead>
+                    <tr>
+                      <th scope="col">Period</th>
+                      <th scope="col">Värde</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      tableContent.data.map((row, index) => {
+                        // Find the column of the time value
+                        let timeColumnIndex = 0;
+                        tableContent.columns.map((column, index) => {
+                          if (column.type == "t") timeColumnIndex = index
+                        })
+                        return (
+                          index < 5 &&
+                          <tr key={row.key[timeColumnIndex].value}>
+                            <td>{row.key[timeColumnIndex].value}</td>
+                            <td>{row.values[0]}</td>
+                          </tr>
+                        )
+                      })
+                    }
+                  </tbody>
+                </table>
+              </div>
+            ) :
+              (document.getElementById("metric") as HTMLSelectElement) &&
+              (document.getElementById("metric") as HTMLSelectElement).value.length != 0 &&
+              (formRef.current instanceof HTMLFormElement) &&
+              formRef.current.checkValidity() && (
+                <p>Inget läsbart resultat hittades. Vänligen uppdatera dina val.</p>
+              )
+            }
+          </output>
           {/* TODO: Should prbly only be displayed on last slide? */}
           <button
             id="submit-button"

@@ -1,16 +1,16 @@
 .dialog {
   width: min(75ch, 100%);
   overflow: unset;
-  height: 80vh;
+  height: calc(100vh - 2rem);
   border: 0; 
   box-shadow: 0 0 .5rem -.25rem rgba(0,0,0,.25);
-  overflow-y: scroll;
+  overflow-y: auto;
   scrollbar-width: thin;
 }
 
 /* TODO: Do we want this class? Or do we want to scroll the entire dialog? */
 .temporary {
-  overflow-y: scroll;
+  overflow-y: auto;
   padding-right: .25rem;
   scrollbar-width: thin;
 }
