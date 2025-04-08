@@ -37,6 +37,7 @@ export default defineConfig({
       name: "Locale files validation",
       fullyParallel: false,
       testMatch: ["**/locale-files.ts"],
+      use: { },
     },
     {
       name: "chromium",

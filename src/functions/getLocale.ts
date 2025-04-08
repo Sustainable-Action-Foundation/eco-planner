@@ -15,9 +15,8 @@ export function getLocale(
   else if (localeCookie) localeContender = localeCookie;
   else if (acceptLanguageHeader) localeContender = acceptLanguage.get(acceptLanguageHeader) ?? Locales.default;
   else {
-    // TODO: remove. In some cases, which i cannot reproduce, this is thrown but I don't know why.
-    console.debug(new Error().stack);
-    console.warn("No locale was found. Defaulting to the default locale.");
+    // Note: When running tests with playwright, this will be thrown one tests without a defined browser environment since the server tries to translate in the prerendering phase.
+    console.warn(`No user locale found. Using default locale (${Locales.default}). If this is is a browserless test, ignore this.`);
   }
 
   // Sanitize the locale
