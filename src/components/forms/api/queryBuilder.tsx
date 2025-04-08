@@ -452,11 +452,14 @@ export default function QueryBuilder({
                     className={`position-relative padding-25 smooth ${styles.temporary}`} onScroll={e => handleTableListScroll(e)}
                     style={{ maxHeight: "300px", border: "1px solid var(--gray-90)", listStyle: "none" }} >
                     {renderedTables && renderedTables.map(({ tableId: id, label }) => (
-                      <li key={id} className={`${styles.tableSelect} block padding-block-25`}>
+                      <li
+                        key={id}
+                        id={`table${id}`}
+                        className={`${styles.tableSelect} block padding-block-25`}
+                      >
                         {label}
                         <input
                           type="radio"
-                          id={`table${id}`}
                           value={id}
                           name="externalTableId"
                           onClick={e => handleTableSelect((e.target as HTMLButtonElement).value)}
@@ -473,7 +476,7 @@ export default function QueryBuilder({
               // TODO - which inputs should be optional?
               <>
                 <label className="block margin-block-75">
-                  <strong>Vald tabell:</strong> {document.getElementById(`table${tableDetails.id}`)?.innerText}
+                  <strong>Vald tabell:</strong> <i>{document.getElementById(`table${tableDetails.id}`)?.innerText}</i>
                 </label>
                 <fieldset className="margin-block-100 smooth padding-50" style={{ border: "1px solid var(--gray-90)" }}>
                   <legend className="padding-inline-50">
