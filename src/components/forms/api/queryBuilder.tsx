@@ -234,7 +234,7 @@ export default function QueryBuilder({
 
   // TODO: Take a look at this; should it really be an <a> element? Also translate.
   function optionalTag(dataSource: string, variableIsOptional: boolean) {
-    if (getDatasetKeysOfApis("PxWeb").includes(dataSource) && variableIsOptional) return <a className={`font-style-italic color-gray`}> - (valfri)</a>;
+    if (getDatasetKeysOfApis("PxWeb").includes(dataSource) && variableIsOptional) return <a className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</a>;
   }
 
   function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) {
@@ -259,11 +259,11 @@ export default function QueryBuilder({
             }>
             { // If only one value is available, don't show a placeholder option
               getDatasetKeysOfApis("PxWeb").includes(dataSource) && variable.values && variable.values.length > 1 &&
-              <option value="" className={`${styles.defaultOption}`}>Välj ett värde</option>
+              <option value="" className={`${styles.defaultOption}`}>{t("components:query_builder.select_value")}</option>
             }
             {
               !getDatasetKeysOfApis("PxWeb").includes(dataSource) &&
-              <option value="" className={`${styles.defaultOption}`}>Välj ett värde</option>
+              <option value="" className={`${styles.defaultOption}`}>{t("components:query_builder.select_value")}</option>
             }
             {variable.values && variable.values.map(value => (
               <option key={`${variable.name}-${value.name}`} value={value.name} lang={tableDetails.language}>{value.label}</option>
@@ -283,12 +283,16 @@ export default function QueryBuilder({
       let displayValueKey: keyof typeof times[0]/* "label" | "id" | "name" | "type" */ = "id";
       const variableIsOptional = times[0].optional;
       if (dataSource == "Trafa") {
-        heading = "Välj tidsintervall";
-        defaultValue = "Välj tidsintervall";
+        // heading = "Välj tidsintervall";
+        heading = t("components:query_builder.select_time_interval");
+        // defaultValue = "Välj tidsintervall";
+        defaultValue = t("components:query_builder.select_time_interval");
         displayValueKey = "label";
       } else if (getDatasetKeysOfApis("PxWeb").includes(dataSource)) {
-        heading = "Välj startperiod";
-        defaultValue = "Välj tidsperiod";
+        // heading = "Välj startperiod";
+        heading = t("components:query_builder.select_starting_period");
+        // defaultValue = "Välj tidsperiod";
+        defaultValue = t("components:query_builder.select_time_period");
         displayValueKey = "id";
       }
       return (<label key="Tid" className="block margin-block-75">
@@ -340,7 +344,7 @@ export default function QueryBuilder({
                 {t("components:query_builder.data_source")}
                 <div className="flex align-items-center gap-25">
                   <select className="block margin-block-25" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
-                    <option value="" className={`${styles.defaultOption}`}>Välj en källa</option>
+                    <option value="" className={`${styles.defaultOption}`}>{t("components:query_builder.select_source")}</option>
                     {Object.keys(externalDatasets).map((name) => (
                       <option key={name} value={name}>{name}</option>
                     ))}
@@ -366,7 +370,7 @@ export default function QueryBuilder({
                       <span className="block margin-block-25">{t("components:query_builder.search_for_table")}</span>
                       <input name={tableSearchInputName} type="search" className="block" onKeyDown={searchOnEnter} />
                     </label>
-                    <button type="button" onClick={searchWithButton} style={{ fontSize: "1rem" }}>Sök</button>
+                    <button type="button" onClick={searchWithButton} style={{ fontSize: "1rem" }}>{t("components:query_builder.search")}</button>
                   </div>
 
                   <div className="padding-25 smooth" style={{ border: "1px solid var(--gray-90)" }}>
