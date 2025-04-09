@@ -18,10 +18,15 @@ export default async function LocaleTestPage() {
       {/* Override side padding to fit table to full width */}
       <style>{`aside~div {padding:0 !important;}`}</style>
 
-      {/* Header */}
+      {/* Description */}
       <section className={styles.description}>
         <h1>{t("test:title")}</h1>
-        <p>{t("test:description", { args: "{ count: 17, date: new Date(Date.now() - 10000) }" })}</p>
+        <p>{t("test:description", { args: JSON.stringify(defaultArgs) })}</p>
+
+        {/* Stats */}
+        <div className={styles.stats}>
+          <p>{t("test:keys_found", { count: allKeys.length })}</p>
+        </div>
       </section>
 
       {/* Table */}

@@ -1,12 +1,10 @@
 {
   "client": "Client:",
   "client_side": "Client side",
-  "description": "Here you can see all translation keys in the project to easily see if something is missing or wrong. All keys will receive the arguments {{args}} to make debugging easier. In addition to that, if a key resolves to an empty string, it will be displayed as $t(test:empty_string) in red and if the key cannot be resolved, it will be displayed as $t(test:not_found) in red.",
-  "empty_string": "[EMPTY STRING]",
+  "description": "Here you can see all translation keys in the project to easily see if something is missing or wrong. All keys will receive the arguments {{args}} to make debugging easier. In addition to that, if a key resolves to an empty string, it will be displayed as \"[EMPTY]\" and if the key cannot be resolved, it will be displayed as \"[MISSING]\".",
   "keys": "Keys ({{keyLng}})",
   "keys_found_one": "Total: {{count}} key found",
   "keys_found_other": "Total: {{count}} keys found",
-  "not_found": "[NOT FOUND]",
   "server": "Server:",
   "server_side": "Server side",
   "title": "Test page for translations",
