@@ -3,11 +3,12 @@
   "client_side": "Client-side",
   "description": "Här ser man alla översättningsnycklar som finns i projektet för att lätt se om något saknas eller är fel. Alla nycklar kommer att få argumenten {{args}} för att underlätta felsökning. Dessutom, om en nyckel löses till en tom sträng, kommer den att visas som \"[EMPTY]\" och om nyckeln inte kan lösas, kommer den att visas som \"[MISSING]\".",
   "keys": "Nycklar ({{keyLng}})",
-  "keys_found_one": "Totalt: {{count}} nyckel hittades",
-  "keys_found_other": "Totalt: {{count}} nycklar hittades",
+  "keys_found_one": "{{count}} nyckel hittades",
+  "keys_found_other": "{{count}} nycklar hittades",
   "server": "Server:",
   "server_side": "Server-side",
   "title": "Testsida för översättningar",
-  "unresolved_one": "Olöst nyckel",
-  "unresolved_other": "Olösta nycklar"
+  "empty": "{{count}} löste till tomt värde",
+  "missing_one": "{{count}} saknar översättning",
+  "missing_other": "{{count}} saknar översättningar"
 }

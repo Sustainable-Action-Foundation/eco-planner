@@ -5,7 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { ServerSideT } from "./serverSide";
 import { ClientSideT } from "./clientSide";
-
+import { Stats } from "./stats";
 
 export default async function LocaleTestPage() {
   const defaultArgs = { count: 17, date: new Date(Date.now() - 10000) };
@@ -23,14 +23,12 @@ export default async function LocaleTestPage() {
         <h1>{t("test:title")}</h1>
         <p>{t("test:description", { args: JSON.stringify(defaultArgs) })}</p>
 
-        {/* Stats */}
-        <div className={styles.stats}>
-          <p>{t("test:keys_found", { count: allKeys.length })}</p>
-        </div>
+        {/* Stats is client side to count empty and missing results */}
+        <Stats keys={allKeys} />
       </section>
 
       {/* Table */}
-      <section className={styles.table}>
+      <section className={styles.table} id="translation-table">
         {/* Header */}
         <div className={styles.header}>
           <h2>{t("test:keys", { keyLng: Locales.default })}</h2>
@@ -41,11 +39,11 @@ export default async function LocaleTestPage() {
         {allKeys.map((key, index) => {
           return (
             <div key={index} className={`${index % 2 === 0 ? styles.even : styles.odd}`}>
-              <p>{key}</p>
+              <p data-type="key">{key}</p>
               <hr />
-              <ServerSideT i18nKey={key} options={defaultArgs} />
+              <ServerSideT data-type="server" i18nKey={key} options={defaultArgs} />
               <hr />
-              <ClientSideT i18nKey={key} options={defaultArgs} />
+              <ClientSideT data-type="client" i18nKey={key} options={defaultArgs} />
             </div>
           );
         })}
