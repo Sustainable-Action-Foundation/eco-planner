@@ -13,12 +13,7 @@
     "action": "{{$t(common:action_one), titleCase}}:"
   },
   "comments": {
-    "comment": "Kommentar",
-    "comments": "Kommentarer",
-    "no_comments": "Inga kommentarer",
     "add_comment": "Lägg till kommentar",
-    "edit_comment": "Redigera kommentar",
-    "delete_comment": "Radera kommentar",
     "comment_count": "{{count}} kommentar",
     "comment_count_other": "{{count}} kommentarer",
     "comment_count_zero": "Inga kommentarer",
@@ -50,9 +45,6 @@
     "wanna_create_effect": "Vill du skapa en?",
     "create_new_effect": "$t(common:new.effect)",
     "effect_missing_name": "Namn saknas"
-  },
-  "goal_edit": {
-    "title": "$t(common:edit.goal)"
   },
   "goal_table": {
     "no_goals": "Du har inte tillgång till några $t(common:goal_other) i denna $t(common:roadmap_version_one), eller så är $t(common:roadmap_version_definite_one) tom.",
@@ -105,7 +97,6 @@
     "select_metric_for_table": "Välj mätvärde för tabell",
     "select_metric": "Välj mätvärde",
     "select_values_for_table": "Välj värden för tabell",
-    "select_start_time": "Välj starttid",
     "select_time_period": "Välj tidsperiod",
     "select_time_interval": "Välj tidsintervall",
     "select_starting_period": "Välj startperiod",

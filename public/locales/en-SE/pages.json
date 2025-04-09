@@ -46,7 +46,6 @@
     "title_label": "{{$t(common:goal_one), titleCase}}",
     "menu": "Menu",
     "description": "Description",
-    "compare_with_goal": "Compare with $t(common:goal_definite_one) {{goalName}}",
     "scale_notice": "All values in the $t(common:goal_definite_one) use the following scale: \"{{scale}}\"",
     "scale_deprecation_warning": "Please bake the scale into the value or unit; scales will be removed in the future",
     "actions_for_goal": "{{$t(common:action_other), titleCase}} for {{goalName}}",

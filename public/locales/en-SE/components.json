@@ -13,12 +13,7 @@
     "action": "{{$t(common:action_one), titleCase}}:"
   },
   "comments": {
-    "comment": "Comment",
-    "comments": "Comments",
-    "no_comments": "No comments",
     "add_comment": "Make a comment",
-    "edit_comment": "Edit comment",
-    "delete_comment": "Delete comment",
     "comment_count": "{{count}} comment",
     "comment_count_other": "{{count}} comments",
     "comment_count_zero": "No comments",
@@ -50,9 +45,6 @@
     "wanna_create_effect": "Do you want to create one?",
     "create_new_effect": "$t(common:new.effect)",
     "effect_missing_name": "Name missing"
-  },
-  "goal_edit": {
-    "title": "$t(common:edit.goal)"
   },
   "goal_table": {
     "no_goals": "You do not have access to any $t(common:goal_other) in this $t(common:roadmap_version_one), or $t(common:roadmap_version_definite_one) lacks $t(common:goal_other).",
@@ -105,7 +97,6 @@
     "select_metric_for_table": "Select metric for table",
     "select_metric": "Select metric",
     "select_values_for_table": "Select values for table",
-    "select_start_time": "Select start time",
     "select_time_period": "Select time period",
     "select_time_interval": "Select time interval",
     "select_starting_period": "Select starting period",
