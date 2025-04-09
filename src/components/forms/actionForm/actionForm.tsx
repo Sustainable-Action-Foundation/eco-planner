@@ -7,6 +7,7 @@ import { ActionInput } from "@/types"
 import { Action, ActionImpactType, DataSeries, Effect } from "@prisma/client"
 import type getRoadmaps from "@/fetchers/getRoadmaps"
 import styles from '../forms.module.css'
+import { Trans, useTranslation } from "react-i18next"
 
 
 export default function ActionForm({
@@ -25,6 +26,8 @@ export default function ActionForm({
     links: { url: string, description: string | null }[],
   },
 }) {
+  const { t } = useTranslation();
+
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
 
@@ -75,14 +78,14 @@ export default function ActionForm({
 
         {!(roadmapId || currentAction?.roadmapId) ?
           <fieldset className={`${styles.timeLineFieldset} width-100`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>Ange relationen till andra inlägg</legend>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>{t("forms:action.choose_relationship")}</legend>
             <label className="block margin-block-100">
-              Välj färdplanversion att skapa åtgärden under:
+              {t("forms:action.relationship_label")}
               <select name="roadmapId" id="roadmapId" required className="block margin-block-25" defaultValue={""}>
-                <option value="" disabled>Välj färdplansversion</option>
+                <option value="" disabled>{t("forms:action.relationship_no_chosen")}</option>
                 {roadmapAlternatives.map(roadmap => (
                   <option key={roadmap.id} value={roadmap.id}>
-                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.actions} åtgärder`}
+                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("forms:action.action_count", { count: roadmap._count.actions })}`}
                   </option>
                 ))}
               </select>
@@ -92,24 +95,24 @@ export default function ActionForm({
         }
 
         <fieldset className={`${styles.timeLineFieldset} width-100 ${positionIndex > 1 ? "margin-top-200" : ""}`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend}  font-weight-bold`}>Beskriv din åtgärd</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend}  font-weight-bold`}>{t("forms:action.action_description_legend")}</legend>
           <label className="block margin-block-100">
-            Namn på åtgärden
+            {t("forms:action.action_name")}
             <input className="margin-block-25" type="text" name="actionName" required id="actionName" defaultValue={currentAction?.name} />
           </label>
 
           <label className="block margin-block-100">
-            Beskrivning av åtgärden
+            {t("forms:action.action_description")}
             <textarea className="margin-block-25" name="actionDescription" id="actionDescription" defaultValue={currentAction?.description ?? undefined} ></textarea>
           </label>
 
           <label className="block margin-block-100">
-            Kostnadseffektivitet
+            {t("forms:action.cost_efficiency")}
             <input className="margin-block-25" type="text" name="costEfficiency" id="costEfficiency" defaultValue={currentAction?.costEfficiency ?? undefined} />
           </label>
 
           <label className="block margin-block-100">
-            Förväntat resultat
+            {t("forms:action.expected_outcome")}
             <textarea className="margin-block-25" name="expectedOutcome" id="expectedOutcome" defaultValue={currentAction?.expectedOutcome ?? undefined} />
           </label>
         </fieldset>
@@ -117,35 +120,34 @@ export default function ActionForm({
         {(goalId && !currentAction) ?
           // TODO: Allow conversion between absolute and delta like in effectForm?
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Ange förväntad effekt av åtgärden</legend>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:action.expected_effect_legend")}</legend>
             <label className="block margin-block-75">
-              Vilken typ av påverkan har åtgärden?
+              {t("forms:action.impact_type_label")}
               <select name="impactType" id="impactType" /* defaultValue={actionImpactType} onChange={e => setActionImpactType(e.target.value as ActionImpactType)} */ >
-                <option value={ActionImpactType.ABSOLUTE}>Absolut skillnad gentemot baslinje</option>
-                <option value={ActionImpactType.DELTA}>Förändring år för år (delta)</option>
-                <option value={ActionImpactType.PERCENT}>Skillnad gentemot baslinjen i procent av föregående års totalvärde (baslinje + åtgärder)</option>
+                <option value={ActionImpactType.ABSOLUTE}>{t("forms:action.impact_types.absolute")}</option>
+                <option value={ActionImpactType.DELTA}>{t("forms:action.impact_types.delta")}</option>
+                <option value={ActionImpactType.PERCENT}>{t("forms:action.impact_types.percent")}</option>
               </select>
             </label>
 
             <details className="margin-block-75">
               <summary>
-                Extra information om dataserie
+                {t("forms:action.extra_info_data_series")}
               </summary>
               <p>
-                Fältet &quot;Dataserie&quot; tar emot en serie värden separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie värden från Excel eller liknande.<br />
-                <strong>OBS: Värden får inte vara separerade med komma (&quot;,&quot;).</strong><br />
-                Decimaltal kan använda antingen decimalpunkt eller decimalkomma.<br />
-                Det första värdet representerar år 2020 och serien kan fortsätta maximalt till år 2050 (totalt 31 värden).<br />
-                Om värden saknas för ett år kan du lämna det tomt, exempelvis kan &quot;;1;;;;5&quot; användas för att ange värdena 1 och 5 för år 2021 och 2025.
+                <Trans
+                  i18nKey={"forms:action.data_series_info"}
+                  components={{ strong: <strong />, br: <br /> }}
+                />
               </p>
             </details>
 
             <label className="block margin-block-75">
-              Dataserie:
+              {t("forms:action.data_series_label")}
               {/* TODO: Make this allow .csv files and possibly excel files */}
               <input type="text" name="dataSeries" required id="dataSeries"
                 pattern={dataSeriesPattern}
-                title="Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma."
+                title={t("forms:action.data_series_title")}
                 className="margin-block-25"
               // defaultValue={dataSeriesString}
               />
@@ -155,55 +157,55 @@ export default function ActionForm({
         }
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Välj pågående år för din åtgärd</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:action.action_years_legend")}</legend>
           <label className="block margin-bottom-100">
-            Startår
+            {t("forms:action.start_year")}
             <input className="margin-block-25" type="number" name="startYear" id="startYear" defaultValue={currentAction?.startYear ?? undefined} min={2000} />
           </label>
 
           <label className="block margin-block-100">
-            Slutår
+            {t("forms:action.end_year")}
             <input className="margin-block-25" type="number" name="endYear" id="endYear" defaultValue={currentAction?.endYear ?? undefined} min={2000} />
           </label>
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Beskriv aktörer för din åtgärd</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:action.describe_actors_legend")}</legend>
           <label className="block margin-bottom-100">
-            Projektansvarig
+            {t("forms:action.project_manager")}
             <input className="margin-block-25" type="text" name="projectManager" id="projectManager" defaultValue={currentAction?.projectManager ?? undefined} />
           </label>
 
           <label className="block margin-block-100">
-            Relevanta aktörer
+            {t("forms:action.relevant_actors")}
             <input className="margin-block-25" type="text" name="relevantActors" id="relevantActors" defaultValue={currentAction?.relevantActors ?? undefined} />
           </label>
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Vilka kategorier faller åtgärden under?</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:action.categories_legend")}</legend>
           <label className="flex gap-25 align-items-center margin-bottom-50" htmlFor="isSufficiency">
             <input type="checkbox" name="isSufficiency" id="isSufficiency" defaultChecked={currentAction?.isSufficiency} />
-            Sufficiency
+            {t("forms:action.category_sufficiency")}
           </label>
 
           <label className="flex gap-25 align-items-center margin-block-50" htmlFor="isEfficiency">
             <input type="checkbox" name="isEfficiency" id="isEfficiency" defaultChecked={currentAction?.isEfficiency} />
-            Efficiency
+            {t("forms:action.category_efficiency")}
           </label>
 
           <label className="flex gap-25 align-items-center margin-block-50" htmlFor="isRenewables">
             <input type="checkbox" name="isRenewables" id="isRenewables" defaultChecked={currentAction?.isRenewables} />
-            Renewables
+            {t("forms:action.category_renewables")}
           </label>
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>Bifoga externa resurser</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:action.attach_external_resources")}</legend>
           <LinkInput links={currentAction?.links} />
         </fieldset>
 
-        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentAction ? "Spara" : "Skapa åtgärd"} />
+        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentAction ? t("common:tsx.save") : t("common:tsx.create")} />
 
       </form>
     </>
