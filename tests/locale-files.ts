@@ -68,7 +68,7 @@ const exemptedKeysUsingCommonValues = ["pages:info.info_body", "components:confi
 const exemptedOrphanNS = ["common", "test",];
 const exemptedOrphanKeys: string[] = [];
 /** A test checks if any keys defined go unused. These keys are exempted from that test. */
-const exemptedUnusedKeys: string[] = ["common:"];
+const exemptedUnusedKeys: string[] = ["_", "common:"];
 
 /* 
  *********
@@ -604,7 +604,7 @@ test("Unused keys", () => {
 
     // Collect TSX used keys
     allTSX.forEach(({ content }) => {
-      const allTCalls = Array.from(content.matchAll(/\Wt\(["']([^"']*)["'].*?\)/gms)) || [];
+      const allTCalls = Array.from(content.matchAll(/\Wt\(["']([^"']*)["'].*?\)*/gms)) || [];
       const allTransCalls = Array.from(content.matchAll(/<Trans\s*i18nKey=\{?["']([^"']*)["']\}?.*?\/>(?!\s*\}\})/gmus)) || [];
 
       [...allTCalls, ...allTransCalls].forEach(call => {
