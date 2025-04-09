@@ -39,7 +39,7 @@ export default async function LocaleTestPage() {
         {/* Body */}
         {allKeys.map((key, index) => {
           return (
-            <div key={index} className={`${index % 2 === 0 ? styles.even : styles.odd}`}>
+            <div data-testid="row" key={index} className={`${index % 2 === 0 ? styles.even : styles.odd}`}>
               <span>{index + 1}</span>
               <p data-testid="key" data-type="key">{key}</p>
               <hr />

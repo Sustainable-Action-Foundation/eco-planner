@@ -13,7 +13,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
 
   // Retry on CI only.
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 0 : 0,
 
   // Opt out of parallel tests on CI.
   workers: process.env.CI ? 1 : undefined,
@@ -35,26 +35,26 @@ export default defineConfig({
 
   // Configure projects for major browsers.
   projects: [
-    {
-      name: "Locale files validation",
-      fullyParallel: false,
-      testMatch: ["**/locale-files.ts"],
-      use: {},
-    },
+    // {
+    //   name: "Locale files validation",
+    //   fullyParallel: false,
+    //   testMatch: ["**/locale-files.ts"],
+    //   use: {},
+    // },
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"], channel: "chromium" },
-      dependencies: ["Locale files validation"],
+      // dependencies: ["Locale files validation"],
     },
     {
       name: "firefox",
       use: { ...devices["Desktop Firefox"] },
-      dependencies: ["Locale files validation"],
+      // dependencies: ["Locale files validation"],
     },
     {
       name: "webkit",
       use: { ...devices["Desktop Safari"] },
-      dependencies: ["Locale files validation"],
+      // dependencies: ["Locale files validation"],
     }
   ],
   webServer: {
