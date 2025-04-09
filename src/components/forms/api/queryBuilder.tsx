@@ -29,6 +29,7 @@ export default function QueryBuilder({
   const [offset, setOffset] = useState(0);
   const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
+  const [defaultMetricSelected, setDefaultMetricSelected] = useState(true);
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -80,6 +81,15 @@ export default function QueryBuilder({
       }, 0);
     }
   }, [isLoading]);
+
+  useEffect(() => {
+    const metricSelectElement = document.getElementById("metric") as HTMLSelectElement | null;
+    if (metricSelectElement) {
+      setDefaultMetricSelected(metricSelectElement.value.length == 0);
+    } else {
+      setDefaultMetricSelected(true);
+    }
+  }, [tableDetails]);
 
   function buildQuery(formData: FormData) {
     const queryObject: object[] = [];
@@ -247,6 +257,7 @@ export default function QueryBuilder({
   function handleMetricSelect(event: React.ChangeEvent<HTMLSelectElement>) {
     setIsLoading(true);
     const isDefaultValue = event.target.value.length == 0;
+    setDefaultMetricSelected(isDefaultValue);
     const variableSelectionFieldsets = document?.getElementsByName("variableSelectionFieldset");
 
     if (variableSelectionFieldsets.length > 0) {
@@ -561,10 +572,8 @@ export default function QueryBuilder({
                 </table>
               </div>
             ) :
-              (document?.getElementById("metric") as HTMLSelectElement) &&
-              (document?.getElementById("metric") as HTMLSelectElement).value.length != 0 &&
-              (formRef.current instanceof HTMLFormElement) &&
-              formRef.current.checkValidity() && (
+              !defaultMetricSelected &&
+              formRef.current?.checkValidity() && (
                 <p className="padding-100">Inget läsbart resultat hittades. Vänligen uppdatera dina val.</p>
               )
             }
