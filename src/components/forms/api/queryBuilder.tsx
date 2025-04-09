@@ -45,10 +45,10 @@ export default function QueryBuilder({
   useEffect(() => {
     if (!dataSource) return;
     setIsLoading(true);
-    console.time("getTables");
+    /* console.time("getTables"); */
     const query = (formRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
 
-    getTables(dataSource, query, locale).then(result => { setTables(result); setIsLoading(false); console.timeEnd("getTables"); });
+    getTables(dataSource, query, locale).then(result => { setTables(result); setIsLoading(false); /* console.timeEnd("getTables"); */ });
   }, [dataSource, locale]);
 
   useEffect(() => {
@@ -147,7 +147,7 @@ export default function QueryBuilder({
     // null check
     if (!(formRef.current instanceof HTMLFormElement)) return;
 
-    console.time("tryGetResult");
+    /* console.time("tryGetResult"); */
     setIsLoading(true);
 
     // Get a result if the form is valid
@@ -163,7 +163,7 @@ export default function QueryBuilder({
         } else {
           disableSubmitButton();
         }
-        console.timeEnd("tryGetResult");
+        /* console.timeEnd("tryGetResult"); */
         setIsLoading(false);
       });
       if (dataSource == "Trafa") {
@@ -179,7 +179,7 @@ export default function QueryBuilder({
     else {
       disableSubmitButton();
       clearTableContent();
-      console.timeEnd("tryGetResult");
+      /* console.timeEnd("tryGetResult"); */
       setIsLoading(false);
     }
   }
@@ -188,7 +188,7 @@ export default function QueryBuilder({
     const changedElementIsTableSearch = event.target instanceof HTMLInputElement && (event.target as HTMLInputElement).name == "tableSearch";
     const changedElementIsTable = event.target instanceof HTMLInputElement && (event.target as HTMLInputElement).name == "externalTableId";
 
-    console.log(tableDetails);
+    /* console.log(tableDetails); */
     if (!changedElementIsExternalDataset && !changedElementIsTableSearch && !changedElementIsTable && tables && tableDetails) {
       tryGetResult(event);
     }
@@ -231,7 +231,7 @@ export default function QueryBuilder({
   }
 
   function handleTableSelect(tableId: string) {
-    console.time("tableSelect");
+    /* console.time("tableSelect"); */
     setIsLoading(true);
 
     if (!externalDatasets[dataSource]?.baseUrl) return;
@@ -241,7 +241,7 @@ export default function QueryBuilder({
     clearTableDetails();
     disableSubmitButton();
 
-    getTableDetails(tableId, dataSource, undefined, locale).then(result => { setTableDetails(result); console.timeEnd("tableSelect"); setIsLoading(false); });
+    getTableDetails(tableId, dataSource, undefined, locale).then(result => { setTableDetails(result); /* console.timeEnd("tableSelect"); */ setIsLoading(false); });
   }
 
   function handleMetricSelect(event: React.ChangeEvent<HTMLSelectElement>) {
@@ -270,7 +270,7 @@ export default function QueryBuilder({
         }
       });
     } else {
-      console.log("no variable selection fieldset found");
+      /* console.log("no variable selection fieldset found"); */
       setIsLoading(false);
     }
   }
