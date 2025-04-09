@@ -14,7 +14,7 @@
 .stats {
   display: flex;
   flex-flow: row nowrap;
-  justify-content: start;
+  justify-content: flex-start;
   align-items: center;
   gap: 0 1ch;
   opacity: 0.8;
