@@ -10,6 +10,19 @@ const nextConfig = {
     }
   } : {}),
   output: 'standalone',
+  webpack: (
+    config,
+    { _buildId, _dev, _isServer, _defaultLoaders, _nextRuntime, _webpack }
+  ) => {
+
+    // Ignore "src/scripts" folder in the build process
+    config.module.rules.push({
+      test: /src\/scripts/,
+      use: 'ignore-loader',
+    })
+
+    return config;
+  },
 }
 
 export default nextConfig

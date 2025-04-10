@@ -1,10 +1,10 @@
 /* Toggle minimized/expanded */
 
-.menuToggleContainer:has(input[type="checkbox"]:checked) + aside {
+.menuToggleContainer:has(input[type="checkbox"]:checked)+aside {
   @media (min-width: 1251px) {
-    width: calc(24px + 1rem + 2rem); 
+    width: calc(24px + 1rem + 2rem);
   }
-  
+
   @media (max-width: 1250px) {
     transform: translate(0, 0);
   }
@@ -15,15 +15,15 @@
   display: grid;
   place-items: center;
   width: fit-content;
-  transition: background-color .2s ease, 
-              transform .2s ease,
+  transition: background-color .2s ease,
+    transform .2s ease,
   ;
   padding: .25rem;
   margin: 1rem;
   border-radius: 9999px;
   z-index: 999;
 }
-  
+
 .menuToggle {
   position: absolute;
   width: 100%;
@@ -38,7 +38,7 @@
   background-color: var(--gray);
 }
 
-.menuToggleContainer:has(.menuToggle:checked) ~ nav {
+.menuToggleContainer:has(.menuToggle:checked)~nav {
   width: calc(24px + 1rem);
 }
 
@@ -52,6 +52,7 @@
   flex-direction: column;
   z-index: 998;
   background-color: rgba(255, 255, 255, 0.9);
+
   @media (max-width: 1250px) {
     height: auto;
     border-right: unset;
@@ -70,6 +71,7 @@
   position: relative;
   background-color: white;
   display: flex;
+
   @media (max-width: 1250px) {
     transform: translate(-100%, 0);
     position: absolute;
@@ -85,6 +87,7 @@
   flex-direction: column;
   gap: 3rem;
   flex-grow: 1;
+
   @media (max-width: 1250px) {
     margin-top: 64px;
   }
@@ -105,7 +108,7 @@
   transition: background-color .1s ease;
   white-space: nowrap;
 }
-  
+
 .link:hover {
   background-color: var(--gray-90);
 }

@@ -5,8 +5,9 @@ import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import accessChecker from "@/lib/accessChecker";
 import { AccessLevel } from "@/types";
-import Link from "next/link";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import { t } from "@/lib/i18nServer";
+import { ScopeReminder } from "@/components/forms/roadmapForm/scopeReminder";
 
 export default async function Page(props: { params: Promise<{ roadmapId: string }> }) {
   const params = await props.params;
@@ -24,13 +25,13 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
 
   return (
     <>
-      <Breadcrumb object={roadmap} customSections={['Redigera färdplansversion']} />
-      
+      <Breadcrumb object={roadmap} customSections={[t("pages:roadmap_edit.breadcrumb")]} />
+
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          Redigera färdplansversion
+          {t("pages:roadmap_edit.title")}
         </h1>
-        <p className="margin-block-300">Menade du att redigera den gemensamma metadatan för hela färdplansserien? I så fall kan du <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}/edit`}>gå hit</Link> för att redigera metadatan.</p>
+        <ScopeReminder roadmap={roadmap} />
         <RoadmapForm
           user={session.user}
           userGroups={session.user?.userGroups}

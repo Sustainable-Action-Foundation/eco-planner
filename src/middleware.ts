@@ -4,6 +4,7 @@ import { cookies } from 'next/headers'
 
 export async function middleware(req: NextRequest) {
   const session = await getSession(await cookies())
+  const response = NextResponse.next()
 
   // Redirect away from login page if already logged in
   if (req.nextUrl.pathname.startsWith('/login')) {
@@ -35,6 +36,8 @@ export async function middleware(req: NextRequest) {
     }
   }
 
+  /** Matches strings starting with /@ or /%40 (URL-encoded @) */
+  const userIndicatorRegEx = /^\/(@|%40)/;
 
   // Locks all pages except the login/signup process and the info and home pages to logged in users.
   // TODO: Probably invert this? ex. if(!req.nextUrl.pathname.startsWith(/login))?
@@ -48,6 +51,7 @@ export async function middleware(req: NextRequest) {
       || req.nextUrl.pathname.startsWith('/action')
       || req.nextUrl.pathname.startsWith('/effect')
       || req.nextUrl.pathname.startsWith('/user')
+      || req.nextUrl.pathname.match(userIndicatorRegEx)
     ) {
       const loginUrl = new URL('/login', req.url)
       // Save the current page as the "from" query parameter so we can redirect back after logging in
@@ -56,8 +60,6 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  /** Matches strings starting with /@ or /%40 (URL-encoded @) */
-  const userIndicatorRegEx = /^\/(@|%40)/;
   // Silently redirect from "/@username" to "/user/@username"
   if (req.nextUrl.pathname.match(userIndicatorRegEx)) {
     const newUrl = new URL(`/user${req.nextUrl.pathname}`, req.url)
@@ -66,5 +68,5 @@ export async function middleware(req: NextRequest) {
   }
   // If we add for example # or $ to go to organisation pages or something, we can do it in a similar way to the above user rewrite
 
-  return NextResponse.next()
+  return response;
 }

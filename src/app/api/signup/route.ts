@@ -5,6 +5,8 @@ import bcrypt from "bcryptjs";
 import mailClient from "@/mailClient";
 import getUserHash from "@/functions/getUserHash";
 import { baseUrl } from "@/lib/baseUrl";
+import { t } from "@/lib/i18nServer";
+import Mail from "nodemailer/lib/mailer";
 
 export async function POST(request: NextRequest) {
   const { username, email, password }: { username: string; email: string; password: string; } = await request.json();
@@ -98,12 +100,14 @@ export async function POST(request: NextRequest) {
       throw new Error('User not found');
     }
 
-    await mailClient.sendMail({
-      from: `Eco Planner ${process.env.MAIL_USER}`,
+    const mailContent: Mail.Options = {
+      from: t("email:common.from", { emailServer: process.env.MAIL_USER }),
       to: lowercaseEmail,
-      subject: 'Välkommen till Eco Planner',
-      text: `Välkommen till Eco Planner! Vänligen följ länken och tryck på knappen för att verifiera din e-post: ${baseUrl}/verify/verify?email=${email}&hash=${userHash}`,
-    }).catch((error) => {
+      subject: t("email:signup.subject"),
+      text: t("email:signup.body", { baseUrl: baseUrl, email: lowercaseEmail, userHash: userHash }),
+    };
+
+    await mailClient.sendMail(mailContent).catch((error) => {
       console.log(error);
       throw new Error('Error sending verification email');
     });

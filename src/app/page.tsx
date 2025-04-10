@@ -1,6 +1,6 @@
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
-import AttributedImage from "@/components/generic/images/attributedImage";
+import AttributedImage, { AttributeText } from "@/components/generic/images/attributedImage";
 import getMetaRoadmaps from "@/fetchers/getMetaRoadmaps";;
 import { roadmapSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
 import { RoadmapType } from "@prisma/client";
@@ -8,6 +8,7 @@ import RoadmapFilters from "@/components/forms/filters/roadmapFilters";
 import { RoadmapSortBy } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree.tsx";
+import { t } from "@/lib/i18nServer";
 import Link from "next/link";
 
 export default async function Page(
@@ -112,15 +113,19 @@ export default async function Page(
       <AttributedImage src="/images/solarpanels.jpg" alt="" >
         <div className="flex gap-100 flex-wrap-wrap align-items-flex-end justify-content-space-between padding-100 width-100">
           <div>
-            <h1 className="margin-block-25">Färdplaner</h1>
-            <p className="margin-0">Photo by <a className="color-purewhite" href="https://unsplash.com/@markusspiske?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Markus Spiske</a> on <a className="color-purewhite" href="https://unsplash.com/photos/white-and-blue-solar-panels-pwFr_1SUXRo?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Unsplash</a></p>
+            <h1 className="margin-block-25">{t("pages:home.title")}</h1>
+            <AttributeText
+              author={"Markus Spiske"}
+              authorLink="https://unsplash.com/@markusspiske?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash"
+              source={"Unsplash"}
+              sourceLink="https://unsplash.com/photos/white-and-blue-solar-panels-pwFr_1SUXRo?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" />
           </div>
           { // Link to create roadmap form if logged in
             session.user &&
             <>
-              <Link href="/metaRoadmap/create" className="button purewhite round block">Skapa ny färdplansserie</Link>
+              <Link href="/metaRoadmap/create" className="button purewhite round block">{t("pages:home.create_roadmap")}</Link>
               {/* TODO: Incorporate this in a reasonable way */}
-              {/* <a href="/roadmap/createRoadmap" className="button purewhite round block">Skapa ny version i en existerande serie</a> */}
+              {/* <a href="/roadmap/createRoadmap" className="button purewhite round block"></a> */}
             </>
           }
         </div>

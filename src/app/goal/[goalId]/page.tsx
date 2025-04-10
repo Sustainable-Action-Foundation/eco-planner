@@ -1,7 +1,7 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import UpdateGoalButton from "@/components/buttons/updateGoalButton";
 import Comments from "@/components/comments/comments";
-import QueryBuilder from "@/components/forms/pxWeb/queryBuilder";
+import QueryBuilder from "@/components/forms/api/queryBuilder";
 import ActionGraph from "@/components/graphs/actionGraph";
 import ChildGraphContainer from "@/components/graphs/childGraphs/childGraphContainer.tsx";
 import GraphGraph from "@/components/graphs/graphGraph";
@@ -17,8 +17,8 @@ import getRoadmaps from "@/fetchers/getRoadmaps";
 import findSiblings from "@/functions/findSiblings.ts";
 import accessChecker from "@/lib/accessChecker";
 import { ApiTableContent } from "@/lib/api/apiTypes";
-import { getPxWebTableContent } from "@/lib/pxWeb/getPxWebTableContent";
 import { getSession } from "@/lib/session";
+import { t } from "@/lib/i18nServer";
 import prisma from "@/prismaClient";
 import { AccessControlled, AccessLevel } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
@@ -26,6 +26,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import getTableContent from "@/lib/api/getTableContent";
 
 export default async function Page(
   props: {
@@ -38,6 +39,8 @@ export default async function Page(
 ) {
   const searchParams = await props.searchParams;
   const params = await props.params;
+  const locale = "sv";
+
   const [session, { goal, roadmap }, secondaryGoal, unfilteredRoadmapOptions] = await Promise.all([
     getSession(await cookies()),
     getOneGoal(params.goalId).then(async goal => { return { goal, roadmap: (goal ? await getOneRoadmap(goal.roadmapId) : null) } }),
@@ -75,7 +78,7 @@ export default async function Page(
   // Fetch external data
   let externalData: ApiTableContent | null = null;
   if (goal.externalDataset && goal.externalTableId && goal.externalSelection) {
-    externalData = await getPxWebTableContent(goal.externalTableId, JSON.parse(goal.externalSelection), goal.externalDataset);
+    externalData = await getTableContent(goal.externalTableId, goal.externalDataset, JSON.parse(goal.externalSelection), locale);
   }
 
   // Fetch parent goal
@@ -134,7 +137,7 @@ export default async function Page(
           >
             <div className="flex align-items-center gap-100 margin-left-100">
               <Image src="/icons/alert.svg" alt="" width={24} height={24} />
-              <strong className="font-weight-500">Uppdatera din målbana för att få senaste informationen.</strong>
+              <strong className="font-weight-500">{t("pages:goal.update_needed")}</strong>
             </div>
             <UpdateGoalButton id={goal.id} />
           </section>
@@ -143,11 +146,11 @@ export default async function Page(
         <section className="margin-block-300">
           {goal.name ? (
             <>
-              <small style={{ color: 'gray' }}>Målbana</small>
+              <small style={{ color: 'gray' }}>{t("pages:goal.title_label")}</small>
               <div className="flex align-items-center justify-content-space-between gap-100">
                 <h1 className="margin-0" style={{ fontSize: '3rem', lineHeight: '1' }}>{goal.name}</h1>
                 <label className="flex gap-50 align-items-center">
-                  <span className="font-weight-500">Meny</span>
+                  <span className="font-weight-500">{t("pages:goal.menu")}</span>
                   {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
                     <TableMenu
                       width={24}
@@ -162,11 +165,11 @@ export default async function Page(
             </>
           ) :
             <>
-              <small style={{ color: 'gray' }}>Målbana</small>
+              <small style={{ color: 'gray' }}>{t("pages:goal.title_label")}</small>
               <div className="flex align-items-center justify-content-space-between">
                 <h1 className="margin-0" style={{ lineHeight: '1' }}>{goal.indicatorParameter}</h1>
                 <label className="flex gap-50 align-items-center">
-                  <span className="font-weight-500">Meny</span>
+                  <span className="font-weight-500">{t("pages:goal.menu")}</span>
                   {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
                     <TableMenu
                       width={24}
@@ -182,14 +185,14 @@ export default async function Page(
 
           {goal.description ?
             <>
-              <h2 className="margin-top-200 margin-bottom-0">Beskrivning</h2>
+              <h2 className="margin-top-200 margin-bottom-0">{t("pages:goal.description")}</h2>
               <p className="container-text">{goal.description}</p>
             </>
             : null}
 
           {goal.links.length > 0 ?
             <>
-              <h3 className="margin-bottom-0 margin-top-200" >Externa resurser</h3>
+              <h3 className="margin-bottom-0 margin-top-200" >{t("pages:common.external_resources")}</h3>
               <ul>
                 {goal.links.map((link: { url: string, description: string | null }, index: number) =>
                   <li className="margin-block-25" key={index}>
@@ -202,7 +205,7 @@ export default async function Page(
         </section>
 
         <section className='margin-top-300'>
-          <h2 className="padding-bottom-50 margin-bottom-100" style={{ borderBottom: '1px solid var(--gray)' }}>Målbana</h2>
+          <h2 className="padding-bottom-50 margin-bottom-100" style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:goal.title_label")}</h2>
           <section>
             {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
             <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects}>
@@ -214,9 +217,9 @@ export default async function Page(
 
             {goal.dataSeries?.scale &&
               <>
-                <p>Alla värden i målbanan använder följande skala: {`"${goal.dataSeries?.scale}"`}</p>
+                <p>{t("pages:goal.scale_notice", { scale: goal.dataSeries?.scale })}</p>
                 {[AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel) &&
-                  <strong>Vänligen baka in skalan i värdet eller enheten; skalor kommer att tas bort i framtiden</strong>
+                  <strong>{t("pages:goal.scale_deprecation_warning")}</strong>
                 }
               </>
             }
@@ -227,7 +230,7 @@ export default async function Page(
               className='margin-bottom-100 padding-bottom-50 flex justify-content-space-between align-items-center gap-100 flex-wrap-wrap'
               style={{ borderBottom: '1px solid var(--gray)' }}>
               <h3 className='margin-0 font-weight-600' style={{ fontSize: '1.1rem' }}>
-                Åtgärder som jobbar mot denna målbana
+                {t("pages:goal.actions_for_goal", { goalName: goal.name ? goal.name : goal.indicatorParameter })}
               </h3>
 
               {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
@@ -236,13 +239,13 @@ export default async function Page(
                     href={`/effect/create?goalId=${goal.id}`}
                     className="button smooth font-weight-500"
                     style={{ fontSize: '.75rem', padding: '.3rem .6rem' }}>
-                    Koppla till existerande åtgärd
+                    {t("pages:goal.link_existing_action")}
                   </Link>
                   <Link
                     href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`}
                     className="button smooth seagreen color-purewhite"
                     style={{ fontSize: '.75rem', padding: '.3rem .6rem' }}>
-                    Skapa ny åtgärd
+                    {t("pages:goal.create_new_action")}
                   </Link>
                 </menu>
               }
@@ -254,7 +257,7 @@ export default async function Page(
             {goal.effects.some(effect => effect.action.startYear || effect.action.endYear) &&
               <>
                 <h4 className="margin-top-500 font-weight-500">
-                  Tidslinje
+                  {t("pages:goal.action_timeline")}
                 </h4>
                 <article className="smooth purewhite margin-bottom-500" style={{ border: '1px solid var(--gray-90)' }}>
                   <ActionGraph actions={goal.effects.map(effect => effect.action)} />
@@ -267,7 +270,7 @@ export default async function Page(
         {childGoals.length > 0 ?
           <section className="margin-block-300">
             <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>
-              Målbanor som jobbar mot {goal.name || goal.indicatorParameter}
+              {t("pages:goal.goals_working_towards", { goalName: goal.name ? goal.name : goal.indicatorParameter })}
             </h2>
             <ChildGraphContainer goal={goal} childGoals={childGoals} />
           </section>
@@ -277,7 +280,7 @@ export default async function Page(
         {findSiblings(roadmap, goal).length > 1 ?
           <section className="margin-block-300">
             <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>
-              Angränsande målbanor
+              {t("pages:goal.related_goals")}
             </h2>
             <SiblingGraph roadmap={roadmap} goal={goal} />
           </section>

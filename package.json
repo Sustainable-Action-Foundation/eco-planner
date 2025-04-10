@@ -15,7 +15,10 @@
     "start": "next start",
     "lint": "next lint",
     "e2e:chrome": "cypress run --browser chrome --headless",
-    "test": "docker compose -f compose.test.yaml up -d"
+    "test": "docker compose -f compose.test.yaml up -d",
+    "locales:format": "tsx ./src/scripts/localesFormat.ts",
+    "pretest:local": "yarn run build",
+    "test:local": "tsx node_modules/playwright/cli.js test"
   },
   "author": {
     "name": "Sustainable Action Foundation",
@@ -44,37 +47,47 @@
   ],
   "type": "module",
   "dependencies": {
-    "@prisma/client": "^6.5.0",
+    "@formatjs/intl-localematcher": "^0.6.1",
+    "@prisma/client": "^6.6.0",
+    "accept-language": "^3.0.20",
     "apexcharts": "^4.5.0",
     "bcryptjs": "^3.0.2",
+    "cookies-next": "^5.1.0",
     "dotenv": "^16.4.7",
+    "glob": "^11.0.1",
+    "i18next": "^24.2.3",
+    "i18next-fs-backend": "^2.6.0",
+    "i18next-http-backend": "^3.0.2",
     "iron-session": "^8.0.4",
-    "mathjs": "^14.3.1",
-    "next": "^15.2.4",
+    "mathjs": "^14.4.0",
+    "next": "^15.3.0",
     "nodemailer": "^6.10.0",
-    "react": "^19.0.0",
+    "react": "^19.1.0",
     "react-apexcharts": "^1.7.0",
-    "react-dom": "^19.0.0",
-    "sharp": "^0.33.5",
+    "react-dom": "^19.1.0",
+    "react-i18next": "^15.4.1",
     "use-debounce": "^10.0.4"
   },
   "devDependencies": {
-    "@types/node": "^22.13.11",
+    "@types/node": "^22.14.0",
     "@types/nodemailer": "^6.4.17",
-    "@types/react": "^19.0.12",
-    "cypress": "^14.2.0",
-    "eslint": "^9.22.0",
-    "eslint-config-next": "^15.2.3",
+    "@types/react": "^19.1.0",
+    "@types/regexp.escape": "^2.0.0",
+    "cypress": "^14.3.0",
+    "eslint": "^9.24.0",
+    "eslint-config-next": "^15.3.0",
     "lorem-ipsum": "^2.0.8",
+    "playwright": "^1.51.1",
     "pocketbase": "^0.25.2",
-    "prisma": "^6.5.0",
+    "prisma": "^6.6.0",
+    "regexp.escape": "^2.0.1",
     "tsx": "^4.19.3",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.3"
   },
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": "^20.0.0"
+      "version": "^v22.7.0"
     }
   },
   "prisma": {
