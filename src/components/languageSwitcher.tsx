@@ -40,6 +40,7 @@ export function LanguageSwitcher() {
       onChange={async (e) => await setLocale(e.target.value)}
       value={buttonLocale}
       disabled={isPending}
+      data-testid="language-switcher"
     >
       {
         uniqueLocales

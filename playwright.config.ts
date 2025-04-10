@@ -37,23 +37,22 @@ export default defineConfig({
   projects: [
     // {
     //   name: "Locale files validation",
-    //   fullyParallel: false,
     //   testMatch: ["**/locale-files.ts"],
     //   use: {},
     // },
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"], channel: "chromium" },
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 }, channel: "chromium", },
       // dependencies: ["Locale files validation"],
     },
     {
       name: "firefox",
-      use: { ...devices["Desktop Firefox"] },
+      use: { ...devices["Desktop Firefox"], viewport: { width: 1920, height: 1080 }, },
       // dependencies: ["Locale files validation"],
     },
     {
       name: "webkit",
-      use: { ...devices["Desktop Safari"] },
+      use: { ...devices["Desktop Safari"], viewport: { width: 1920, height: 1080 }, },
       // dependencies: ["Locale files validation"],
     }
   ],

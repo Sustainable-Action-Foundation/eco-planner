@@ -1,3 +1,4 @@
+import { switcherLanguage as switchLanguage } from "lib/switch-language";
 import "./lib/console";
 import { expect, test } from "playwright/test";
 
@@ -11,45 +12,73 @@ test.describe("Locales Test page", () => {
   test("Key count", async ({ page }) => {
     await page.goto("/localesTest");
 
-    await page.waitForSelector("[data-testid='translation-table']");
-    await page.waitForSelector("[data-testid='row']");
-    
-    const table = await page.getByTestId("translation-table");
-    const rows = await table.getByTestId("row");
+    const checkKeyCount = async () => {
+      await page.waitForSelector("[data-testid='translation-table']");
+      await page.waitForSelector("[data-testid='row']");
 
-    const rowCount = await rows.count();
+      const table = page.getByTestId("translation-table");
+      const rows = table.getByTestId("row");
 
-    expect(rowCount, `There are fewer rows than expected. Current threshold is ${keyCountThreshold}`).toBeGreaterThan(keyCountThreshold);
+      const rowCount = await rows.count();
+      const serverCount = await table.getByTestId("server").count();
+      const clientCount = await table.getByTestId("client").count();
+
+      expect(rowCount, `There are fewer rows than expected with initial local. Current threshold is ${keyCountThreshold}`).toBeGreaterThan(keyCountThreshold);
+      expect(serverCount, "Server and client columns are not equal").toEqual(clientCount);
+    };
+
+    // Initial locale
+    await checkKeyCount();
+
+    // Change language to English
+    await switchLanguage(page, "English")
+
+    // English locale
+    await checkKeyCount();
+
+    // Change language to Swedish
+    await switchLanguage(page, "Svenska")
+
+    // Swedish locale
+    await checkKeyCount();
   });
 
   test("Empty or missing translations", async ({ page }) => {
     await page.goto("/localesTest");
 
-    await page.waitForSelector("[data-testid='translation-table']");
-    await page.waitForSelector("[data-testid='row']");
+    const checkEmptyAndMissing = async () => {
+      await page.waitForSelector("[data-testid='translation-table']");
+      await page.waitForSelector("[data-testid='row']");
 
-    const table = await page.getByTestId("translation-table");
-    const rows = await table.getByTestId("row");
-    const rowCount = await rows.count();
+      const table = page.getByTestId("translation-table");
 
-    for (let i = 0; i < rowCount; i++) {
-      const row = await rows.nth(i);
-      const key = await row.getByTestId("key").textContent();
-      const server = await row.getByTestId("server").textContent();
-      const client = await row.getByTestId("client").textContent();
+      const serverEntries = await table.getByTestId("server").allTextContents();
+      const clientEntries = await table.getByTestId("client").allTextContents();
 
-      // Null checks
-      expect(key, `Null key found on row ${i + 1}`).not.toBeNull();
-      expect(server, `Null server translation found for key ${key} on row ${i + 1}`).not.toBeNull();
-      expect(client, `Null client translation found for key ${key} on row ${i + 1}`).not.toBeNull();
+      const emptyServer = serverEntries.filter((entry) => entry === emptyMessage).length;
+      const missingServer = serverEntries.filter((entry) => entry === missingMessage).length;
+      const emptyClient = clientEntries.filter((entry) => entry === emptyMessage).length;
+      const missingClient = clientEntries.filter((entry) => entry === missingMessage).length;
 
-      // Empty checks
-      expect(server, `Empty server translation found for key ${key} on row ${i + 1}`).not.toEqual(emptyMessage);
-      expect(client, `Empty client translation found for key ${key} on row ${i + 1}`).not.toEqual(emptyMessage);
+      expect(emptyServer, "There are empty translations on the server side").toEqual(0);
+      expect(missingServer, "There are missing translations on the server side").toEqual(0);
+      expect(emptyClient, "There are empty translations on the client side").toEqual(0);
+      expect(missingClient, "There are missing translations on the client side").toEqual(0);
+    };
 
-      // Missing checks
-      expect(server, `Missing server translation found for key ${key} on row ${i + 1}`).not.toEqual(missingMessage);
-      expect(client, `Missing client translation found for key ${key} on row ${i + 1}`).not.toEqual(missingMessage);
-    }
+    // Initial locale
+    await checkEmptyAndMissing();
+
+    // Change language to English
+    await switchLanguage(page, "English")
+
+    // English locale
+    await checkEmptyAndMissing();
+
+    // Change language to Swedish
+    await switchLanguage(page, "Svenska")
+
+    // Swedish locale
+    await checkEmptyAndMissing();
   });
 });
