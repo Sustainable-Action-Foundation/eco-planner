@@ -78,7 +78,7 @@ export default async function Page() {
           ?
           <p><CommitWithLink commitURL={commitURL} gitHash={gitHash.shortHash || gitHash.longHash || ""} /></p>
           :
-          <p>{t("pages.info.commit_without_link", { commit: gitHash.shortHash || gitHash.longHash || "" })}</p>
+          <p>{t("pages:info.commit_without_link", { commit: gitHash.shortHash || gitHash.longHash || "" })}</p>
         : null
       }
     </>

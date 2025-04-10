@@ -28,9 +28,10 @@ export default async function LocaleTestPage() {
       </section>
 
       {/* Table */}
-      <section className={styles.table} id="translation-table">
+      <section data-testid="translation-table" className={styles.table} id="translation-table">
         {/* Header */}
         <div className={styles.header}>
+          <span>{/* For consistent spacing */}</span>
           <h2>{t("test:keys", { keyLng: Locales.default })}</h2>
           <h2>{t("test:server_side")}</h2>
           <h2>{t("test:client_side")}</h2>
@@ -39,11 +40,12 @@ export default async function LocaleTestPage() {
         {allKeys.map((key, index) => {
           return (
             <div key={index} className={`${index % 2 === 0 ? styles.even : styles.odd}`}>
-              <p data-type="key">{key}</p>
+              <span>{index + 1}</span>
+              <p data-testid="key" data-type="key">{key}</p>
               <hr />
-              <ServerSideT data-type="server" i18nKey={key} options={defaultArgs} />
+              <ServerSideT data-testid="server" data-type="server" i18nKey={key} options={defaultArgs} />
               <hr />
-              <ClientSideT data-type="client" i18nKey={key} options={defaultArgs} />
+              <ClientSideT data-testid="client" data-type="client" i18nKey={key} options={defaultArgs} />
             </div>
           );
         })}

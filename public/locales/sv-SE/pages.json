@@ -46,7 +46,6 @@
     "title_label": "{{$t(common:goal_one), titleCase}}",
     "menu": "Meny",
     "description": "Beskrivning",
-    "compare_with_goal": "Jämför med $t(common:goal_definite_one) {{goalName}}",
     "scale_notice": "Alla värden i $t(common:goal_definite_one) använder följande skala: \"{{scale}}\"",
     "scale_deprecation_warning": "Vänligen baka in skalan i värdet eller enheten; skalor kommer att tas bort i framtiden",
     "actions_for_goal": "{{$t(common:action_other), titleCase}} för {{goalName}}",
