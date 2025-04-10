@@ -8,6 +8,7 @@ import { Action, DataSeries, Effect, Goal, MetaRoadmap } from "@prisma/client";
 import { AccessLevel } from "@/types";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
+import { useTranslation } from "react-i18next";
 
 // General purpose button for roadmaps, goals and actions. 
 // Update the name of the component to reflect this
@@ -73,6 +74,8 @@ export function TableMenu(
       })
     )
   }) {
+  const { t } = useTranslation();
+
   const menu = useRef<HTMLDialogElement | null>(null);
   const deletionRef = useRef<HTMLDialogElement | null>(null);
 
@@ -89,7 +92,7 @@ export function TableMenu(
   if (object.roadmapVersions != undefined) {
     selfLink = `/metaRoadmap/${object.id}`;
     creationLink = `/roadmap/create?metaRoadmapId=${object.id}`;
-    creationDescription = 'Ny färdplansversion';
+    creationDescription = t("components:table_menu.new_roadmap_version");
     editLink = `/metaRoadmap/${object.id}/edit`;
     deleteLink = "/api/metaRoadmap"
   }
@@ -97,11 +100,11 @@ export function TableMenu(
   else if (object.metaRoadmap != undefined) {
     selfLink = `/roadmap/${object.id}`
     parentLink = `/metaRoadmap/${object.metaRoadmap.id}`;
-    parentDescription = 'Gå till färdplansserien';
+    parentDescription = t("components:table_menu.go_to_series");
     creationLink = `/goal/create?roadmapId=${object.id}`;
-    creationDescription = 'Ny målbana';
+    creationDescription = t("components:table_menu.new_goal");
     creationLink2 = `/action/create?roadmapId=${object.id}`;
-    creationDescription2 = 'Ny åtgärd';
+    creationDescription2 = t("components:table_menu.new_action");
     editLink = `/roadmap/${object.id}/edit`;
     deleteLink = "/api/roadmap"
   }
@@ -109,11 +112,11 @@ export function TableMenu(
   else if (object.indicatorParameter != undefined) {
     selfLink = `/goal/${object.id}`;
     parentLink = `/roadmap/${object.roadmap.id}`;
-    parentDescription = 'Gå till färdplansversionen';
+    parentDescription = t("components:table_menu.go_to_version");
     creationLink = `/action/create?roadmapId=${object.roadmapId}&goalId=${object.id}`;
-    creationDescription = 'Ny åtgärd';
+    creationDescription = t("components:table_menu.new_action");
     creationLink2 = `/effect/create?goalId=${object.id}`;
-    creationDescription2 = 'Lägg till effekt från existerande åtgärd';
+    creationDescription2 = t("components:table_menu.add_effect_from_existing_action");
     editLink = `/goal/${object.id}/edit`;
     deleteLink = "/api/goal"
     if (!object.name) {
@@ -124,9 +127,9 @@ export function TableMenu(
   else if (object.isSufficiency != undefined) {
     selfLink = `/action/${object.id}`;
     parentLink = `/roadmap/${object.roadmapId}`;
-    parentDescription = 'Gå till färdplansversionen';
+    parentDescription = t("components:table_menu.go_to_version"); 
     creationLink = `/effect/create?actionId=${object.id}`;
-    creationDescription = 'Ny effekt';
+    creationDescription = t("components:table_menu.new_effect");
     editLink = `/action/${object.id}/edit`;
     deleteLink = "/api/action"
   }
@@ -134,11 +137,12 @@ export function TableMenu(
   else if (object.actionId != undefined) {
     selfLink = `/action/${object.actionId}`;
     parentLink = `/goal/${object.goalId}`;
-    parentDescription = 'Gå till målbanan';
+    parentDescription = t("components:table_menu.go_to_goal");
     editLink = `/effect/edit?actionId=${object.actionId}&goalId=${object.goalId}`;
     deleteLink = '/api/effect';
     if (!object.name) {
-      object.name = object.action?.name ? `Effekt från ${object.action.name}` : object.goal ? (object.goal.name || object.goal.indicatorParameter) : "Namn saknas";
+      // object.name = object.action?.name ? `Effekt från ${object.action.name}` : object.goal ? (object.goal.name || object.goal.indicatorParameter) : "Namn saknas";
+      object.name = object.action?.name ? t("components:table_menu.effect_from_action", {source: object.action.name}) : object.goal ? (object.goal.name || object.goal.indicatorParameter) : t("components:table_menu.effect_missing_name");
     }
     if (!object.id) {
       object.id = { actionId: object.actionId, goalId: object.goalId };
@@ -174,14 +178,14 @@ export function TableMenu(
   return (
     <>
       <div className={`${styles.actionButton} display-flex`}>
-        <button type="button" onClick={openMenu} className={styles.button} aria-label={`meny för ${object.name || object.metaRoadmap?.name || "Namn saknas"}`}>
-          <Image src='/icons/dotsVertical.svg' width={width} height={height} alt="meny"></Image>
+        <button type="button" onClick={openMenu} className={styles.button} aria-label={t("components:table_menu.button_aria", { component: object.name || object.metaRoadmap?.name || t("components:table_menu.button_aria_alt") })}>
+          <Image src='/icons/dotsVertical.svg' width={width} height={height} alt={t("components:table_menu.button_image_alt")}></Image>
         </button>
         <dialog className={styles.menu} id={`${object.id}-menu`} onBlur={closeMenu} ref={menu} onKeyUp={closeMenu}>
           <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between ${styles.menuHeading}`}>
             {/* Button to close menu */}
             <button type="button" onClick={closeMenu} className={styles.button} autoFocus >
-              <Image src='/icons/close.svg' alt="stäng" width={18} height={18} />
+              <Image src='/icons/close.svg' alt={t("common:tsx.close")} width={18} height={18} />
             </button>
             {/* Link to the object */}
             <Link href={selfLink} className={styles.menuHeadingTitle}>{object.name || object.metaRoadmap?.name}</Link>
@@ -197,27 +201,27 @@ export function TableMenu(
               {creationLink &&
                 <Link href={creationLink} className={styles.menuAction}>
                   <span>{creationDescription}</span>
-                  <Image src='/icons/plus-light.svg' alt="" width={24} height={24} className={styles.actionImage} />
+                  <Image src='/icons/plus-light.svg' alt="+" width={24} height={24} className={styles.actionImage} />
                 </Link>
               }
               {creationLink2 &&
                 <Link href={creationLink2} className={styles.menuAction}>
                   <span>{creationDescription2 || creationLink2}</span>
-                  <Image src='/icons/plus-light.svg' alt="" width={24} height={24} className={styles.actionImage} />
+                  <Image src='/icons/plus-light.svg' alt="+" width={24} height={24} className={styles.actionImage} />
                 </Link>
               }
               <Link href={editLink} className={styles.menuAction}>
-                <span>Redigera</span>
+                <span>{t("components:table_menu.edit")}</span>
                 <Image src='/icons/edit.svg' alt="" width={24} height={24} className={styles.actionImage} />
               </Link>
               { // Admins and authors can delete items
                 (accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) &&
                 <>
                   <button type="button" className="width-100 transparent display-flex align-items-center justify-content-space-between padding-50" style={{ fontSize: '1rem' }} onClick={() => openModal(deletionRef)}>
-                    Radera inlägg
+                    {t("components:table_menu.delete")}
                     <Image src='/icons/delete.svg' alt="" width={24} height={24} className={styles.actionImage} />
                   </button>
-                  <ConfirmDelete modalRef={deletionRef} targetUrl={deleteLink} targetName={object.name || object.metaRoadmap?.name || "Namn saknas"} targetId={object.id} />
+                  <ConfirmDelete modalRef={deletionRef} targetUrl={deleteLink} targetName={object.name || object.metaRoadmap?.name || t("components:table_menu.delete_missing_name")} targetId={object.id} />
                 </>
               }
             </>

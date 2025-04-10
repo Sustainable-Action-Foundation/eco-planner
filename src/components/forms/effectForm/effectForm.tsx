@@ -8,6 +8,7 @@ import { ActionImpactType, DataSeries, Effect } from "@prisma/client";
 import type getOneAction from "@/fetchers/getOneAction.ts";
 import type getOneGoal from "@/fetchers/getOneGoal.ts";
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
+import { Trans, useTranslation } from "react-i18next";
 import { useState } from "react";
 
 export default function EffectForm({
@@ -25,6 +26,8 @@ export default function EffectForm({
     goal: Awaited<ReturnType<typeof getOneGoal>> | null,
   },
 }) {
+  const { t } = useTranslation();
+
   const [selectedImpactType, setSelectedImpactType] = useState<ActionImpactType>(currentEffect?.impactType || ActionImpactType.ABSOLUTE);
   // Use existing data series converted to a string as a default value
   const [dataSeriesString, setDataSeriesString] = useState<string>(currentEffect?.dataSeries ? dataSeriesDataFieldNames.map(i => currentEffect.dataSeries?.[i]).join(';') : '');
@@ -97,11 +100,11 @@ export default function EffectForm({
         <GoalSelector goal={goal} roadmapAlternatives={roadmapAlternatives} />
 
         <label className="block margin-block-100">
-          Dataserie
+          {t("forms:effect.data_series")}
           {/* TODO: Make this allow .csv files and possibly excel files */}
           <input type="text" name="dataSeries" required id="dataSeries"
             pattern={dataSeriesPattern}
-            title="Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma."
+            title={t("forms:effect.data_series_title")}
             className="margin-block-25"
             value={dataSeriesString}
             onChange={(event) => setDataSeriesString(event.target.value)}
@@ -116,9 +119,12 @@ export default function EffectForm({
                 setSelectedImpactType(ActionImpactType.DELTA);
                 setDataSeriesString(absoluteToDelta(dataSeriesString));
               }}>
-                Konvertera värden till förändring år för år (delta)
+                {t("forms:effect.to_year_by_year")}
               </button>
-              <p>Notera att det finns en viss felmarginal runt 14:e decimalen vid konvertering på grund av så kallade &quot;floating point errors&quot;</p>
+              <p><small><Trans
+                i18nKey="forms:effect.to_year_by_year_info"
+                components={{ strong: <strong /> }}
+              /></small></p>
             </div>
             :
             selectedImpactType === ActionImpactType.DELTA ?
@@ -127,9 +133,12 @@ export default function EffectForm({
                   setSelectedImpactType(ActionImpactType.ABSOLUTE);
                   setDataSeriesString(deltaToAbsolute(dataSeriesString));
                 }}>
-                  Konvertera värden till absolut skillnad gentemot baslinje
+                  {t("forms:effect.to_absolute")}
                 </button>
-                <p>Notera att det finns en viss felmarginal runt 14:e decimalen vid konvertering på grund av så kallade &quot;floating point errors&quot;</p>
+                <p><small><Trans
+                  i18nKey="forms:effect.to_absolute_info"
+                  components={{ strong: <strong /> }}
+                /></small></p>
               </div>
               :
               null
@@ -137,18 +146,18 @@ export default function EffectForm({
 
         {/* TODO: Show preview of how it would affect the goal */}
         <label className="block margin-block-100">
-          Vilken typ av påverkan har åtgärden?
+          {t("forms:effect.impact_type_label")}
           <select className="block margin-block-25" name="impactType" id="impactType" required
             value={selectedImpactType}
             onChange={(event) => setSelectedImpactType(event.target.value as ActionImpactType)}
           >
-            <option value={ActionImpactType.ABSOLUTE}>Absolut skillnad gentemot baslinje</option>
-            <option value={ActionImpactType.DELTA}>Förändring år för år (delta)</option>
-            <option value={ActionImpactType.PERCENT}>Skillnad gentemot baslinjen i procent av föregående års totalvärde (baslinje + åtgärder)</option>
+            <option value={ActionImpactType.ABSOLUTE}>{t("forms:effect.impact_types.absolute")}</option>
+            <option value={ActionImpactType.DELTA}>{t("forms:effect.impact_types.delta")}</option>
+            <option value={ActionImpactType.PERCENT}>{t("forms:effect.impact_types.percent")}</option>
           </select>
         </label>
 
-        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentEffect ? "Spara" : "Skapa effekt"} />
+        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentEffect ? t("common:tsx.save") : t("common:tsx.create")} />
       </form>
     </>
   )

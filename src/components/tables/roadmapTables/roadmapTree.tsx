@@ -1,3 +1,5 @@
+"use server";
+
 import styles from "@/components/tables/tables.module.css" with { type: "css" };
 import { TableMenu } from "@/components/tables/tableMenu/tableMenu.tsx";
 import accessChecker from "@/lib/accessChecker.ts";
@@ -7,6 +9,7 @@ import { MetaRoadmap, Roadmap } from "@prisma/client";
 import Link from "next/link";
 import Image from "next/image";
 import { Fragment } from "react";
+import { t } from "@/lib/i18nServer";
 
 type RoadmapTreeProps = {
   user: LoginData['user'],
@@ -19,12 +22,12 @@ type RoadmapTreeProps = {
  * 
  * Ignores which roadmap versions work towards which other versions; only MetaRoadmap relationships are considered.
  */
-export default function RoadmapTree({
+export default async function RoadmapTree({
   roadmaps,
   user,
 }: RoadmapTreeProps) {
   if (!roadmaps.length) {
-    return <p>Inga färdplaner hittades. Om du har några filter aktiva så hittade inga färdplaner som matchar dem.</p>;
+    return <p>{t("components:roadmap_tree.no_roadmap_series_ones")}</p>;
   }
 
   const accessibleMetaRoadmaps = roadmaps.map(roadmap => roadmap.metaRoadmapId);
@@ -55,6 +58,13 @@ function NestedRoadmapRenderer({
 }) {
   return <>
     {childRoadmaps.map(roadmap => {
+      let typeAlias = roadmap.metaRoadmap.type.toString();
+      if (roadmap.metaRoadmap.type === "NATIONAL") typeAlias = t("common:scope.national");
+      else if (roadmap.metaRoadmap.type === "REGIONAL") typeAlias = t("common:scope.regional");
+      else if (roadmap.metaRoadmap.type === "MUNICIPAL") typeAlias = t("common:scope.municipal");
+      else if (roadmap.metaRoadmap.type === "LOCAL") typeAlias = t("common:scope.local");
+      else if (roadmap.metaRoadmap.type === "OTHER") typeAlias = t("common:scope.other");
+
       const accessLevel = accessChecker(roadmap, user);
       const newChildRoadmaps = allRoadmaps.filter(potentialChild => (potentialChild.metaRoadmap.parentRoadmapId === roadmap.metaRoadmapId) && (potentialChild.id !== roadmap.id) && (potentialChild.metaRoadmap.parentRoadmapId != null));
 
@@ -65,10 +75,18 @@ function NestedRoadmapRenderer({
               <details>
                 <summary className="flex justify-content-space-between">
                   <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
-                    <Image src="/icons/caret-right.svg" alt="Visa underliggande färdplaner" width={24} height={24} className="round padding-25 margin-inline-25" />
+                    <Image src="/icons/caret-right.svg" alt={t("components:roadmap_tree.show_source_alt")} width={24} height={24} className="round padding-25 margin-inline-25" />
                     <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth' style={{ lineHeight: '1' }}>
-                      <div>{`${roadmap.metaRoadmap.name} (v${roadmap.version})`}</div>
-                      <div className={styles["roadmap-information"]}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} målbanor</div>
+                      {/* Name, version */}
+                      <div>
+                        {t("components:roadmap_tree.title", { name: roadmap.metaRoadmap.name, version: roadmap.version })}
+                      </div>
+                      {/* Type, goal count */}
+                      <div className={styles["roadmap-information"]}>
+                        {typeAlias}
+                        {" • "}
+                        {t("common:count.goal", { count: roadmap._count.goals })}
+                      </div>
                     </Link>
                   </div>
                   <span className="flex align-items-center padding-inline-25">
@@ -87,10 +105,18 @@ function NestedRoadmapRenderer({
             :
             <li className="inline-flex align-items-center flex-grow-100 width-100">
               <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
-                <Image src="/icons/caret-right-gray.svg" alt="" width="24" height="24" className="round padding-25 margin-inline-25" />
+                <Image src="/icons/caret-right-gray.svg" alt={t("components:roadmap_tree.show_source_alt")} width="24" height="24" className="round padding-25 margin-inline-25" />
                 <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth' style={{ lineHeight: '1' }}>
-                  <div>{`${roadmap.metaRoadmap.name} (v${roadmap.version})`}</div>
-                  <div className={styles["roadmap-information"]}>{roadmap.metaRoadmap.type} • {roadmap._count.goals} målbanor</div>
+                  {/* Name, version */}
+                  <div>
+                    {t("components:roadmap_tree.title", { name: roadmap.metaRoadmap.name, version: roadmap.version })}
+                  </div>
+                  {/* Type, goal count */}
+                  <div className={styles["roadmap-information"]}>
+                    {typeAlias}
+                    {" • "}
+                    {t("common:count.goal", { count: roadmap._count.goals })}
+                  </div>
                 </Link>
               </div>
               <span className="flex align-items-center padding-inline-25">
