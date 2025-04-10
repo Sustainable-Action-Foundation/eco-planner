@@ -19,7 +19,7 @@
     "comment_count_zero": "Inga kommentarer",
     "comment_count_one": "En kommentar",
     "send": "Skicka",
-    "relative_time": "{{{{date}}, relativeTime}}"
+    "relative_time": "{{date, relativeTime}}"
   },
   "confirm_delete": {
     "delete_post": "Radera inlägg",
