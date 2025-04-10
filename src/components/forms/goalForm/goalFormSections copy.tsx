@@ -5,9 +5,10 @@ import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
 import type getRoadmaps from "@/fetchers/getRoadmaps";
 import { clientSafeGetRoadmaps } from "@/fetchers/getRoadmaps";
 import mathjs from "@/math";
+import CaseHandler from "@/scripts/caseHandler";
 import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { dataSeriesPattern } from "./goalForm";
 import styles from "./goalForm.module.css";
@@ -33,10 +34,6 @@ export function ManualGoalForm({
 }) {
   const { t } = useTranslation();
   const [parsedUnit, setParsedUnit] = useState<string | null>(null);
-  const [dataSeriesValues, setDataSeriesValues] = useState<string[]>(
-    dataSeriesString?.split(/[\t;]/) ?? [""]
-  );
-  const isPasting = useRef(false);
 
   useEffect(() => {
     if (currentGoal?.dataSeries?.unit) {
@@ -48,53 +45,236 @@ export function ManualGoalForm({
     }
   }, [currentGoal]);
 
-  useEffect(() => {
-    // console.log("Data series values changed:", dataSeriesValues);
-  }, [dataSeriesValues]);
+  const inputGridElement = document.getElementById("inputGrid");
 
-  function isValidSingleInputForGrid(char: string): boolean {
-    // For onBeforeInput – blocks invalid keystrokes
-    return /^[0-9]+$/.test(char);
-  }
-  function isValidSingleInputForTextField(char: string): boolean {
-    // For onBeforeInput – blocks invalid keystrokes
-    return /^[0-9;\t\b]$/.test(char);
-  }
-  
-  function isValidPastedInput(text: string): boolean {
-    // For onPaste – allows numbers, semicolons, tabs, whitespace, and newlines
-    return /^[0-9;\t\n\r\s]+$/.test(text);
+  /**
+   * Function for drawing grid columns
+   * @param columnIndex the index of the column to draw (starting at 1)
+   * @returns JSX element for the column
+   */
+  function drawGridColumn(columnIndex: number) {
+    return (
+      <div key={`column-${columnIndex}`}>
+        <label htmlFor={dataSeriesDataFieldNames[columnIndex]} className="padding-25">{dataSeriesDataFieldNames[columnIndex].replace("val", "")}</label>
+        <input type="number" id={dataSeriesDataFieldNames[columnIndex]} name="dataSeriesInput" value={dataSeriesString?.split(/[\t;]/)[columnIndex]} onChange={() => updateStringInput} />
+      </div>
+    )
   }
 
-  function handleValueChange(e: React.ChangeEvent<HTMLInputElement>, index: number) {
-    if (isPasting.current) return;
-
-    const newValues = [...dataSeriesValues];
-    newValues[index] = e.target.value;
-    setDataSeriesValues(newValues);
+  // Create a list of columns for the input grid
+  // Make sure there is at least one column
+  const defaultColumnCount = (1 > dataSeriesDataFieldNames.length) ? 1 : dataSeriesDataFieldNames.length;
+  let columnCount = defaultColumnCount;
+  let columns: JSX.Element[] = [];
+  for (let i = 0; i < (columnCount); i++) {
+    columns.push(drawGridColumn(i));
   }
 
-  function handlePaste(e: React.ClipboardEvent<HTMLInputElement>, startIndex: number) {
-    isPasting.current = true;
-    const clipboardText = e.clipboardData.getData("text");
-    const pastedValues = clipboardText.split(/[\t;]/);
+  /**
+   * Generate a string of CSS attributes from a style object
+   * @param style object containing CSS attributes
+   * @returns string of CSS attributes
+   */
+  function getStyleString(style: { [attribute: string]: string }) {
+    const attributes = style ? Object.keys(style) : null;
+    return attributes?.map((attribute) => `${CaseHandler.toKebabCase(attribute)}: ${style[attribute]}`).join("; ") ?? "";
+  }
 
-    const newValues = [...dataSeriesValues];
+  /**
+   * Generate HTML text for children of a JSX element
+   * @param children List of JSX elements to be returned as HTML text
+   * @returns string of HTML elements
+   */
+  function getChildrenString(children: JSX.Element[]) {
+    let childrenString = "";
 
-    for (let i = 0; i < pastedValues.length && i + startIndex < dataSeriesDataFieldNames.length; i++) {
-      const targetIndex = startIndex + i;
-      if (targetIndex < newValues.length) {
-        newValues[targetIndex] = pastedValues[i].trim();
-      } else {
-        newValues.push(pastedValues[i].trim());
+    // Loop through the children and add them to the string in HTML format
+    children.forEach((child: JSX.Element) => {
+      let propsString = "";
+
+      // Loop through the props of the child element and add them to the props string in HTML format
+      for (const key in child.props) {
+        if (key === "children") {
+          continue;
+        } else if (key === "style") {
+          propsString += ` style="${getStyleString(child.props[key])}"`;
+          continue;
+        } else if (key === "className") {
+          propsString += ` class="${child.props[key]}"`;
+          continue;
+        } else if (key === "onChange" || key === "onPaste") {
+          continue; // the event listeners are added later
+        }
+        propsString += ` ${key}="${child.props[key]}"`;
       }
+
+      // Create an opening tag and a closing tag if the child has children, otherwise self-close the tag
+      childrenString += `<${child.type}${propsString}${child.props.children ? `>${Array.isArray(child.props.children) ? child.props.children.join("") : [child.props.children].join("")}</${child.type}>` : "/>"}`;
+    })
+
+    return childrenString;
+  }
+
+  /**
+   * Generate HTML text for the grid of input elements
+   * @returns HTML string for the grid of input elements
+   */
+  function generateInputGridInnerHTML() {
+    return columns.map(column => `<${column.type} style="${getStyleString(column.props.style)}">${getChildrenString(column.props.children)}</${column.type}>`).join("");
+  }
+
+  /**
+   * Update the input grid element with new columns
+   * @param inputGridElement The element to update
+   */
+  function updateInputGrid(inputGridElement: HTMLElement) {
+    inputGridElement.innerHTML = generateInputGridInnerHTML();
+
+    // Add on change event listeners to all the input elements
+    const inputGridInputBoxes = inputGridElement.getElementsByTagName("input");
+    for (const inputBox of inputGridInputBoxes) {
+      inputBox.addEventListener("change", () => updateStringInput);
+      inputBox.addEventListener("paste", handleFocusedPaste);
     }
 
-    setDataSeriesValues(newValues);
+    inputGridElement.style.gridTemplateColumns = `repeat(${columnCount}, 1fr)`;
+    // Add an on paste event listener to the input grid element
+    if (inputGridElement) {
+      // inputGridElement.addEventListener("paste", (e) => handlePaste(e as ClipboardEvent));
+    } else {
+      console.warn("Unable to add event listeners to input grid element because it could not be found.");
+    }
+  }
 
-    setTimeout(() => {
-      isPasting.current = false;
-    }, 0);
+  /**
+   * Function to insert values into the input grid
+   * @param values a string or array of values to insert. If a string, it will be split by semicolon or tab
+   */
+  function insertValuesToInputGrid(values: string | string[], startingColumn?: number) {
+    // Make sure to get the values as an array if it is a string and make sure there are no more than the allowed amount of values
+    // const valuesList = (Array.isArray(values) ? values : values.split(/[\t;]/)).slice(0, defaultColumnCount);
+    const valuesList = (Array.isArray(values) ? values : values.split(/[\t;]/)).slice(0, defaultColumnCount);
+
+    const inputGrid = document.getElementById("inputGrid");
+    if (!inputGrid) {
+      console.warn("\"inputGrid\" does not exist");
+      return;
+    }
+    console.log(valuesList);
+    // if (startingColumn) {
+    //   for (let i = 0; i < startingColumn && i < defaultColumnCount; i++) {
+    //     valuesList.push
+    //   }
+    // } else {
+    //   valuesList = (Array.isArray(values) ? values : values.split(/[\t;]/)).slice(0, defaultColumnCount);
+    // }
+
+    // Generate the columns for the input grid
+    columnCount = valuesList.length > inputGrid.getElementsByTagName("input").length ? valuesList.length : defaultColumnCount;
+    const newValuesList: string[] = []; // Explicitly define as string array
+    for (const input of inputGrid.getElementsByTagName("input")) {
+      newValuesList.push(input.value);
+    }
+    if (startingColumn) {
+      for (let i = startingColumn; i < valuesList.length; i++) {
+        newValuesList[i] = valuesList[i - startingColumn];
+      }
+      updateStringInput(newValuesList.join(";"));
+    }
+    columns = [];
+    for (let i = 0; i < (columnCount); i++) {
+      columns.push(drawGridColumn(i));
+    }
+
+    // Update the input grid element with the new columns and values
+    updateInputGrid(inputGrid);
+    const inputs = inputGrid.getElementsByTagName("input");
+    for (let i = 0; i < inputs.length; i++) {
+      if (startingColumn && i >= startingColumn && i < startingColumn + valuesList.length) {
+        inputs[i].value = valuesList[i - startingColumn]
+      }
+    }
+  }
+
+  /**
+   * Function to get the values from the input grid and return them as an array
+   * @returns array of values from the input grid
+   */
+  function getValuesFromInputGrid() {
+    const inputGrid = document.getElementById("inputGrid");
+    if (!inputGrid) { console.warn("\"inputGrid\" does not exist"); return; }
+
+    // Get the values from all the input elements in the grid
+    const inputs = inputGrid.getElementsByTagName("input");
+    const values = [];
+    for (let i = 0; i < inputs.length; i++) {
+      values.push(inputs[i].value);
+    }
+    return values;
+  }
+
+  /**
+   * Function to update the string input with the values from the input grid
+   */
+  function updateStringInput(customValuesString?: string) {
+    let valuesString = getValuesFromInputGrid()?.join(";");
+    if (customValuesString) {
+      valuesString = customValuesString;
+    }
+
+    const input = document.getElementById("dataSeries") as HTMLInputElement | null;
+    if (input && valuesString) {
+      input.value = valuesString;
+    }
+  }
+
+  /**
+   * Function to handle changes to the string input and update the input grid
+   * @param e the event object from the input change
+   */
+  function handleStringInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    // Update the input grid with the new values from the string input
+    insertValuesToInputGrid(e.target.value);
+    // Call this to make sure there are not too many values in the string input
+    updateStringInput();
+  }
+
+  // /**
+  //  * Function to handle pasting into the input grid
+  //  */
+  // function handlePaste(e: ClipboardEvent) {
+  //   if (!e.clipboardData) return;
+  //   const clip = e.clipboardData.getData("text");
+  //   insertValuesToInputGrid(clip);
+  // }
+
+  /**
+   * Function to handle pasting into the input grid
+   */
+  function handleFocusedPaste(e: ClipboardEvent) {
+    if (!e.clipboardData) return;
+    const clip = e.clipboardData.getData("text");
+    if (!inputGridElement) {
+      console.warn("inputGridElement does not exist");
+      return;
+    }
+    insertValuesToInputGrid(clip, [...inputGridElement.getElementsByTagName("input")].indexOf(e.target as HTMLInputElement));
+    updateStringInput();
+  }
+
+  // Add event listeners for pasting
+  if (inputGridElement) {
+    for (const inputElement of inputGridElement.getElementsByTagName("input")) {
+      inputElement.addEventListener("paste", (e) => handleFocusedPaste(e as ClipboardEvent));
+    }
+
+
+  } else {
+    console.warn("Can't add event listeners");
+  }
+
+  if (dataSeriesString && document.getElementById("dataSeries") && (document.getElementById("dataSeries") as HTMLSelectElement).value == dataSeriesString) {
+    insertValuesToInputGrid(dataSeriesString);
   }
 
   return (
@@ -135,59 +315,16 @@ export function ManualGoalForm({
         {t("forms:goal.data_series")}
         {/* TODO: Make this allow .csv files and possibly excel files */}
         <div style={{ border: "1px solid var(--gray-90)", padding: ".25rem", borderRadius: "0.25rem", maxWidth: "48.5rem" }}>
-          <div id="inputGrid" className={`${styles.sideScroll}`} style={{ display: "grid", gridTemplateColumns: `repeat(${dataSeriesValues.length}, 1fr)`, gap: "0rem", gridTemplateRows: "auto", borderRadius: "0.25rem" }}>
-            {dataSeriesValues.map((value, index) => index < dataSeriesDataFieldNames.length && (
-              <div key={`column-${index}`}>
-                <label htmlFor={dataSeriesDataFieldNames[index]} className="padding-25">{dataSeriesDataFieldNames[index].replace("val", "")}</label>
-                <input
-                  type="number"
-                  id={dataSeriesDataFieldNames[index]}
-                  name="dataSeriesInput"
-                  value={value}
-                  onChange={(e) => handleValueChange(e, index)}
-                  onBeforeInput={(e) => {
-                    const inputEvent = e.nativeEvent as InputEvent;
-                    if (inputEvent.data && !isValidSingleInputForGrid(inputEvent.data)) {
-                      e.preventDefault();
-                    }
-                  }}
-                  onPaste={(e) => {
-                    const pasted = e.clipboardData.getData("text");
-                    if (!isValidPastedInput(pasted)) {
-                      e.preventDefault();
-                    } else {
-                      handlePaste(e, index); // TODO - pass text instead of event
-                    }
-                  }}
-                />
-              </div>
-            ))}
+          <div id="inputGrid" className={`${styles.sideScroll}`} style={{ display: "grid", gridTemplateColumns: `repeat(${columnCount}, 1fr)`, gap: "0rem", gridTemplateRows: "auto", borderRadius: "0.25rem" }}>
+            {columns.map((column) => column)}
           </div>
         </div>
         <input type="text" name="dataSeries" required id="dataSeries"
           pattern={dataSeriesPattern}
           title={t("forms:goal.data_series_title")}
-          value={dataSeriesValues.join(";")}
           className="margin-block-25"
-          onBeforeInput={(e) => {
-            const inputEvent = e.nativeEvent as InputEvent;
-            if (inputEvent.data && !isValidSingleInputForTextField(inputEvent.data)) {
-              e.preventDefault();
-            }
-          }}
-          onPaste={(e) => {
-            const pasted = e.clipboardData.getData("text");
-            if (!isValidPastedInput(pasted)) {
-              e.preventDefault();
-            }
-          }}
-          onChange={(e) => {
-            const values = e.target.value
-              .split(/[\t;]/)
-              .map((v) => v.trim())
-              .slice(0, dataSeriesDataFieldNames.length);
-            setDataSeriesValues(values);
-          }}
+          defaultValue={dataSeriesString}
+          onChange={(e) => handleStringInputChange(e)}
         />
       </label>
     </>
