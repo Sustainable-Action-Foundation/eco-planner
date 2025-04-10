@@ -35,26 +35,41 @@ export default defineConfig({
 
   // Configure projects for major browsers.
   projects: [
-    // {
-    //   name: "Locale files validation",
-    //   testMatch: ["**/locale-files.ts"],
-    //   use: {},
-    // },
     {
-      name: "chromium",
+      name: "Locale files validation",
+      testMatch: ["**/locale-files.ts"],
+      use: {},
+    },
+    {
+      name: "chromium 1080p",
       use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 }, channel: "chromium", },
       // dependencies: ["Locale files validation"],
     },
     {
-      name: "firefox",
+      name: "chromium 720p",
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 720 }, channel: "chromium", },
+      // dependencies: ["Locale files validation"],
+    },
+    {
+      name: "firefox 1080p",
       use: { ...devices["Desktop Firefox"], viewport: { width: 1920, height: 1080 }, },
       // dependencies: ["Locale files validation"],
     },
     {
-      name: "webkit",
+      name: "firefox 720p",
+      use: { ...devices["Desktop Firefox"], viewport: { width: 1280, height: 720 }, },
+      // dependencies: ["Locale files validation"],
+    },
+    {
+      name: "webkit 1080p",
       use: { ...devices["Desktop Safari"], viewport: { width: 1920, height: 1080 }, },
       // dependencies: ["Locale files validation"],
-    }
+    },
+    {
+      name: "webkit 720p",
+      use: { ...devices["Desktop Safari"], viewport: { width: 1280, height: 720 }, },
+      // dependencies: ["Locale files validation"],
+    },
   ],
   webServer: {
     timeout: 1000 * 1000,
