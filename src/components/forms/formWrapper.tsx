@@ -83,7 +83,7 @@ export default function FormWrapper({
         ))}
       </div>
 
-      <div className={`margin-block-100 padding-inline-100 gap-50 grid ${styles.indicatorLayout}`}>
+      <div className={`margin-block-start-100 padding-inline-100 gap-50 grid ${styles.indicatorLayout}`}>
         <button type="button" id="backButton" className={`flex align-items-center transparent round gap-25 ${backButtonHiddenClass} ${styles.indicatorButton}`} onClick={() => iterateSections({ reverse: true })}>
           <Image src="/icons/arrowLeft.svg" alt="" width={24} height={24} />
           Tillbaka
@@ -97,8 +97,7 @@ export default function FormWrapper({
           </div>
           <div className={styles.currentIndicator} id="current-indicator"></div>
         </div>
-
-
+        
         <button type="button" id="nextButton" className={`flex align-items-center transparent round gap-25 margin-left-auto ${nextButtonHiddenClass} ${styles.indicatorButton}`} onClick={() => iterateSections()}>
           Nästa
           <Image src="/icons/arrowRight.svg" alt="" width={24} height={24} />
