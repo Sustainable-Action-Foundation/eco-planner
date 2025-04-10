@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "noEmit": true,
+    "strict": true,
+    "module": "Preserve",
+    "target": "ES2024",
+    "baseUrl": ".",
+  }
+}

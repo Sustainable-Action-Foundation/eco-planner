@@ -6,10 +6,10 @@ import { getDatasetKeysOfApis } from "./utility";
 export default async function getTables(dataSource: string, query: string | null | undefined, locale: "sv" | "en") {
   if (getDatasetKeysOfApis("PxWeb").includes(dataSource)) {
     // TODO - when searching for table id, also return partial matches
-    return getPxWebTables(dataSource, query ?? undefined, locale);
+    return (await getPxWebTables(dataSource, query ?? undefined, locale))?.filter((table) => table != null) ?? null;
   }
   else if (dataSource == "Trafa") {
-    return getTrafaTables(query?.length == 0 ? null : query, locale);
+    return (await getTrafaTables(query?.length == 0 ? null : query, locale))?.filter((table) => table != null) ?? null;
   }
   else if (dataSource == "Kolada") {
     getKoladaTables();

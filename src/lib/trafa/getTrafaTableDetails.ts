@@ -148,10 +148,6 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
     }
   });
 
-  if (tableDetails.metrics.length <= 1) {
-    console.warn("This table only has one metric, which is not expected.\nTable: " + tableId);
-  }
-
   return tableDetails;
 }
 

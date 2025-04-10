@@ -1,0 +1,152 @@
+{
+  "common": {
+    "external_resources": "Externa resurser"
+  },
+  "action": {
+    "action_label": "{{$t(common:action_one), titleCase}}",
+    "effects_label": "{{$t(common:effect_other), titleCase}}",
+    "edit_action": "$t(common:edit.action)",
+    "edit_action_alt": "$t(common:edit.action): {{actionName}}",
+    "expected_effect": "Förväntad $t(common:effect_one)",
+    "no_effect": "Ingen angiven $t(common:effect_one)",
+    "cost_efficiency": "Kostnadseffektivitet",
+    "no_cost_efficiency": "Ingen angiven kostnadseffektivitet",
+    "project_manager": "Projektledare",
+    "no_project_manager": "Ingen angiven projektledare",
+    "relevant_actors": "Relevanta aktörer",
+    "no_actors": "Inga angivna aktörer",
+    "categories": "Kategorier",
+    "no_category": "Ingen angiven kategori",
+    "create_new_effect": "$t(common:new.effect)"
+  },
+  "action_create": {
+    "breadcrumb": "$t(common:new.action)",
+    "title": "$t(common:new.action)",
+    "title_with_goal": "$t(common:new.goal): {{goalName}}",
+    "bad_goal": "Kunde inte hitta, eller har inte tillgång till, $t(common:goal_definite_one) i länken.",
+    "bad_roadmap": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_version_definite_one) i länken.\nAnvänd dropdown-menyn för att välja en $t(common:roadmap_version_one)."
+  },
+  "action_edit": {
+    "breadcrumb": "$t(common:edit.action)",
+    "title": "$t(common:edit.action): {{actionName}} under $t(common:roadmap_version_one): {{roadmapName}} (v{{version}})"
+  },
+  "effect_create": {
+    "breadcrumb": "$t(common:new.effect)",
+    "title": "$t(common:new.effect)",
+    "bad_action": "{{$t(common:action_definite_one), titleCase}} du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan.",
+    "bad_goal": "{{$t(common:goal_definite_one), titleCase}} du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan."
+  },
+  "effect_edit": {
+    "breadcrumb": "$t(common:edit.effect)",
+    "title": "$t(common:edit.effect)",
+    "no_access": "{{$t(common:effect_definite_one), titleCase}} du försöker redigera finns inte eller så har du inte redigeringsbehörighet till den."
+  },
+  "goal": {
+    "update_needed": "Uppdatera din $t(common:goal_one) för att få den senaste informationen.",
+    "title_label": "{{$t(common:goal_one), titleCase}}",
+    "menu": "Meny",
+    "description": "Beskrivning",
+    "compare_with_goal": "Jämför med $t(common:goal_definite_one) {{goalName}}",
+    "scale_notice": "Alla värden i $t(common:goal_definite_one) använder följande skala: \"{{scale}}\"",
+    "scale_deprecation_warning": "Vänligen baka in skalan i värdet eller enheten; skalor kommer att tas bort i framtiden",
+    "actions_for_goal": "{{$t(common:action_other), titleCase}} för {{goalName}}",
+    "link_existing_action": "Koppla till en existerande $t(common:action_one)",
+    "create_new_action": "$t(common:new.action)",
+    "action_timeline": "Tidslinje över $t(common:action_other)",
+    "goals_working_towards": "{{$t(common:goal_other), titleCase}} som jobbar mot {{goalName}}",
+    "related_goals": "Angränsande $t(common:goal_other)"
+  },
+  "goal_create": {
+    "breadcrumb": "$t(common:new.goal)",
+    "title": "$t(common:new.goal)",
+    "bad_roadmap": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_version_definite_one) i länken.\n\nAnvänd dropdown-menyn för att välja en $t(common:roadmap_version_one) att skapa $t(common:goal_definite_one) under."
+  },
+  "goal_edit": {
+    "breadcrumb": "$t(common:edit.goal)",
+    "title": "$t(common:edit.goal): {{goalName}}"
+  },
+  "home": {
+    "title": "{{$t(common:roadmap_short_other), titleCase}}",
+    "create_roadmap": "$t(common:new.roadmap_series)"
+  },
+  "info": {
+    "breadcrumb": "Information",
+    "title": "Information",
+    "info_body": "Detta verktyg syftar till att bidra till Sveriges klimatomställning.\n\nI verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas.\n\nHandlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen.\n\nAnvändare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige.\n\nPå lokal nivå kan också olika aktörer samarbeta kring åtgärder.",
+    "version": "Nuvarande version: {{version}}",
+    "known_remote": "Verktyget är licenserat under AGPL version 3 och källkoden finns tillgänglig på GitHub: <a>{{remote}}</a>",
+    "fallback_remote": "Verktyget är licenserat under AGPL version 3 och källkoden finns tillgänglig på <a>GitHub</a>",
+    "commit_with_link": "Baserad på commit: <a>{{commit}}</a>",
+    "commit_without_link": "Baserad på commit: {{commit}}"
+  },
+  "login": {
+    "breadcrumb": "$t(common:tsx.login)"
+  },
+  "password": {
+    "breadcrumb": "Återställ lösenord",
+    "description": "Har du glömt ditt lösenord? Fyll i din e‑postadress här så skickar vi ett e‑postmeddelande med instruktioner för att återställa lösenordet.",
+    "submit": "Skicka"
+  },
+  "password_reset": {
+    "breadcrumb": "Uppdatera lösenord",
+    "description": "Fyll i ditt nya lösenord nedan och klicka på knappen för att uppdatera ditt lösenord.",
+    "password": "Nytt lösenord",
+    "submit": "Byt lösenord"
+  },
+  "profile": {
+    "handle_data": "Hantera min data",
+    "my_posts": "Mina inlägg",
+    "user_posts": "{{{{name}}, possessive, titleCase}} inlägg",
+    "roadmap_series_ones": "{{$t(common:roadmap_series_other), titleCase}}",
+    "version_count_one": "{{count}} version",
+    "version_count_other": "{{count}} versioner",
+    "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}"
+  },
+  "roadmap": {
+    "title": "{{$t(common:roadmap_version_one), titleCase}}",
+    "version": "{{$t(common:roadmap_version_one), titleCase}} v{{version}}",
+    "show_series": "Besök $t(common:roadmap_series_one)",
+    "featured_goals": "Utvalda $t(common:goal_other)",
+    "all_goals": "Alla $t(common:goal_other)"
+  },
+  "roadmap_create": {
+    "breadcrumb": "$t(common:new.roadmap_version)",
+    "title": "$t(common:new.roadmap_series)",
+    "bad_roadmap_series_one": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_series_definite_one) i länken.",
+    "use_dropdown": "Använd dropdown-menyn för att välja en $t(common:roadmap_series_one)."
+  },
+  "roadmap_edit": {
+    "breadcrumb": "$t(common:edit.roadmap_version)",
+    "title": "$t(common:edit.roadmap_version)",
+    "are_you_in_the_right_place": "Ville du redigera den gemensamma metadatan för hela $t(common:roadmap_series_definite_one)? I så fall kan du <Link>gå hit</Link> för att redigera metadatan."
+  },
+  "roadmap_series_one": {
+    "title_legend": "{{$t(common:roadmap_series_one), titleCase}}",
+    "description_legend": "Metadata för en serie av $t(common:roadmap_version_other)",
+    "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
+    "create_roadmap_version": "$t(common:new.roadmap_version)"
+  },
+  "roadmap_series_one_create": {
+    "breadcrumb": "$t(common:new.roadmap_series)",
+    "title": "$t(common:new.roadmap_series)"
+  },
+  "roadmap_series_one_edit": {
+    "breadcrumb": "Redigera metadata",
+    "title": "Redigera metadata för $t(common:roadmap_series_definite_one): {{name}}"
+  },
+  "signup": {
+    "breadcrumb": "Skapa konto"
+  },
+  "verify": {
+    "title": "Verifiera din e‑postadress",
+    "description": "Ett meddelande har skickats till din e‑postadress. Verifiera din e‑postadress genom att följa instruktionerna i e‑postmeddelandet.",
+    "troubleshooting_title": "Har du inte fått något meddelande?",
+    "troubleshooting_description": "Kolla i din skräppost eller fyll i din e‑postadress nedan och klicka på knappen för att få ett nytt e‑postmeddelande.",
+    "submit_resend": "Skicka igen"
+  },
+  "verify_verify": {
+    "title": "Verifiera din e‑postadress",
+    "description": "Verifiera din e‑postadress genom att klicka på knappen nedan.",
+    "submit": "Verifiera min e‑postadress"
+  }
+}

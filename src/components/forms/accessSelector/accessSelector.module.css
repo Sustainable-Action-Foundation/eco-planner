@@ -1,7 +1,7 @@
 .multiAddContainer {
-    outline: 1px solid var(--gray-90);
+  outline: 1px solid var(--gray-90);
 }
 
 .multiAddContainer:not(:has(span)) {
-    background-color: var(--gray-90);
+  background-color: var(--gray-90);
 }

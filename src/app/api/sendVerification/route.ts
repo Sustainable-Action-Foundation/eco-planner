@@ -1,7 +1,9 @@
 import getUserHash from "@/functions/getUserHash";
 import { baseUrl } from "@/lib/baseUrl";
+import { t } from "@/lib/i18nServer";
 import mailClient from "@/mailClient";
 import { NextRequest } from "next/server";
+import Mail from "nodemailer/lib/mailer";
 
 export async function POST(request: NextRequest) {
   // Get email from request body
@@ -17,14 +19,16 @@ export async function POST(request: NextRequest) {
     return Response.json({ message: 'If the user exists and is unverified, an email with instructions for verification will be sent' }, { status: 200, headers: { 'Location': '/verify' } });
   }
 
+  const mailContent: Mail.Options = {
+    from: t("email:common.from", { emailServer: process.env.MAIL_USER }),
+    to: email.toLowerCase(),
+    subject: t("email:verification.subject"),
+    text: t("email:verification.body", { baseUrl: baseUrl, email: email, userHash: userHash }),
+  };
+
   try {
     // Send verification message
-    await mailClient.sendMail({
-      from: `Eco Planner ${process.env.MAIL_USER}`,
-      to: email.toLowerCase(),
-      subject: 'Välkommen till Eco Planner',
-      text: `Välkommen till Eco Planner! Vänligen följ länken och tryck på knappen för att verifiera din e-post: ${baseUrl}/verify/verify?email=${email}&hash=${userHash}`,
-    });
+    await mailClient.sendMail(mailContent);
   } catch (e) {
     console.log(e);
     return Response.json({ message: 'Internal server error' }, { status: 500 });

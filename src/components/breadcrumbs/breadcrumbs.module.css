@@ -1,14 +1,14 @@
 .breadCrumb {
-    color: black;
-    text-decoration: none;
-    font-weight: bold;
+  color: black;
+  text-decoration: none;
+  font-weight: bold;
 }
 
 .breadCrumb:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 .breadCrumbTitle {
-    color: gray;
-    font-weight: initial
+  color: gray;
+  font-weight: initial
 }
