@@ -1,0 +1,93 @@
+.description {
+  padding: 0.5rem 2ch;
+
+  &>h1 {
+    margin-bottom: 0;
+  }
+
+  &>p {
+    margin-top: 0.3rem;
+    margin-bottom: 0rem;
+  }
+}
+
+.stats {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: start;
+  align-items: center;
+  gap: 0 1ch;
+  opacity: 0.8;
+
+  &>p {
+    font-size: 0.85rem;
+    width: max-content;
+  }
+}
+
+.table {
+  display: flex;
+  flex-flow: column nowrap;
+
+  &>div {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    padding: 0;
+    margin: 0;
+
+    &:last-child {
+      padding-bottom: 3rem;
+    }
+
+    &>p {
+      flex: 1;
+      padding: 0.1rem 1ch;
+      margin: 0;
+
+      /* If content is [EMPTY] or [MISSING] */
+      &:is([data-content="empty"], [data-content="missing"]) {
+        color: #d32f2f;
+        font-style: italic;
+        font-weight: bold;
+      }
+
+      /* For the keys which can be long */
+      &:first-child {
+        overflow-wrap: anywhere;
+      }
+
+      &:last-child {
+        padding-right: 2ch;
+      }
+    }
+
+    &>hr {
+      padding: 0;
+      margin: 0;
+
+      /* I'm aware that there are more sensible ways of doing this */
+      opacity: 0.3;
+      transform: scaleX(0.6);
+    }
+  }
+}
+
+.header {
+  &>* {
+    flex: 1;
+    margin: 0.4rem 0;
+
+    &:first-child {
+      padding-left: 1ch;
+    }
+  }
+}
+
+.odd {
+  background-color: #f0f0f0;
+}
+
+.even {
+  background-color: #e0e0e0;
+}

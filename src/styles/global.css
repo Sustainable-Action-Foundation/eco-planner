@@ -43,7 +43,7 @@ p {
 /* Legends and labels */
 
 fieldset:not(:has(input:required, select:required, textarea:required)) legend::after {
-  content: ' - (valfri)';
+  content: var(--i18n-optional);
   font-style: italic;
   color: gray;
   font-weight: 500;
