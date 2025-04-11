@@ -1,0 +1,100 @@
+{
+  "roadmap_short_one": "roadmap",
+  "roadmap_short_other": "roadmaps",
+  "roadmap_series_one": "roadmap series",
+  "roadmap_series_other": "roadmap series",
+  "roadmap_series_definite_one": "the roadmap series",
+  "roadmap_series_definite_other": "the roadmap series",
+  "roadmap_version_one": "roadmap version",
+  "roadmap_version_other": "roadmap versions",
+  "roadmap_version_definite_one": "the roadmap version",
+  "roadmap_version_definite_other": "the roadmap versions",
+  "action_one": "action",
+  "action_other": "actions",
+  "action_definite_one": "the action",
+  "action_definite_other": "the actions",
+  "effect_one": "effect",
+  "effect_other": "effects",
+  "effect_definite_one": "the effect",
+  "effect_definite_other": "the effects",
+  "goal_one": "goal",
+  "goal_other": "goals",
+  "goal_definite_one": "the goal",
+  "goal_definite_other": "the goals",
+  "new": {
+    "roadmap_series": "Create new roadmap series",
+    "roadmap_version": "Create new roadmap version",
+    "action": "Create new action",
+    "effect": "Create new effect",
+    "goal": "Create new goal"
+  },
+  "edit": {
+    "roadmap_series": "Edit roadmap series",
+    "roadmap_version": "Edit roadmap version",
+    "action": "Edit action",
+    "effect": "Edit effect",
+    "goal": "Edit goal"
+  },
+  "count": {
+    "roadmap_series": "{{count}} $t(common:roadmap_series, {\"count\":{{count}}})",
+    "roadmap_version": "{{count}} $t(common:roadmap_version, {\"count\":{{count}}})",
+    "action": "{{count}} $t(common:action, {\"count\":{{count}}})",
+    "goal": "{{count}} $t(common:goal, {\"count\":{{count}}})",
+    "effect": "{{count}} $t(common:effect, {\"count\":{{count}}})"
+  },
+  "layout": {
+    "app_name_compact": "Eco Planner",
+    "app_name": "Eco - Planner",
+    "meta_description": "A tool that aims to contribute to Sweden's climate transition. In the tool, national users can be inspired by each other's actions, creating a common action database for Sweden. At the local level, different actors can also collaborate on actions.",
+    "og_locale": "en_SE"
+  },
+  "tsx":{
+    "home": "Home",
+    "login": "Login",
+    "logout": "Log out",
+    "cancel": "Cancel",
+    "ellipsis": "...",
+    "show": "Show",
+    "hide": "Hide",
+    "show_more": "Show more",
+    "show_less": "Show less",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "create": "Create",
+    "submit": "Submit",
+    "compare": "Compare",
+    "close": "Close"
+  },
+  "placeholder": {
+    "name": "Username",
+    "email": "name@example.com",
+    "username": "Username",
+    "password": "Password"
+  },
+  "scope": {
+    "national": "National",
+    "regional": "Regional",
+    "municipal": "Municipal",
+    "local": "Local",
+    "other": "Other",
+    "national_roadmap": "National $t(common:roadmap_series_one)",
+    "regional_roadmap": "Regional $t(common:roadmap_series_one)",
+    "municipal_roadmap": "Municipal $t(common:roadmap_series_one)",
+    "local_roadmap": "Local $t(common:roadmap_series_one)",
+    "other_roadmap": "Other $t(common:roadmap_series_one), e.g. an organization"
+  },
+  "scaling_methods": {
+    "geo_mean": "Geometric mean (recommended)",
+    "arith_mean": "Arithmetic mean",
+    "multiplicative": "Multiplicative"
+  },
+  "css": {
+    "optional": " - (optional)"
+  },
+  "404": {
+    "status": "404",
+    "title": "Page not found",
+    "description": "Please ensure the URL is correct."
+  }
+}

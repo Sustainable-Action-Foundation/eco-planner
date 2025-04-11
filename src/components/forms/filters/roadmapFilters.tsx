@@ -5,12 +5,14 @@ import { RoadmapType } from "@prisma/client";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
+import { useTranslation } from "react-i18next";
 import { useDebouncedCallback } from "use-debounce";
 
 export default function RoadmapFilters() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { t } = useTranslation();
 
   const [_isPending, startTransition] = useTransition();
 
@@ -47,7 +49,7 @@ export default function RoadmapFilters() {
   return <>
     <menu className="flex gap-100 align-items-flex-end padding-0 margin-0 margin-top-300 margin-bottom-100 ">
       <label className="font-weight-bold container-text">
-        Sök bland färdplaner
+        {t("components:roadmap_filters.search_roadmaps")}
         <div className="margin-top-25 flex align-items-center gray-90 padding-50 smooth focusable">
           <Image src='/icons/search.svg' alt="" width={24} height={24} />
           <input type="search" className="padding-0 margin-inline-50" defaultValue={searchParams.get('searchFilter') ?? undefined} onChange={(e) => {
@@ -56,21 +58,21 @@ export default function RoadmapFilters() {
         </div>
       </label>
       <label className="font-weight-bold">
-        Sortera på:
-        <select 
-          className="font-weight-500 margin-top-25" 
-          style={{fontSize: '1rem', minHeight: 'calc(24px + 1rem)'}}
+        {t("components:roadmap_filters.sort_by")}
+        <select
+          className="font-weight-500 margin-top-25"
+          style={{ fontSize: '1rem', minHeight: 'calc(24px + 1rem)' }}
           defaultValue={searchParams.get('sortBy') ?? ""} onChange={(e) => { updateStringParam('sortBy', e.target.value) }}
         >
-          <option value="">Standard</option>
-          <option value={RoadmapSortBy.Alpha}>Namn (A-Ö)</option>
-          <option value={RoadmapSortBy.AlphaReverse}>Namn (Ö-A)</option>
-          <option value={RoadmapSortBy.GoalsFalling}>Antal målbanor (fallande)</option>
-          <option value={RoadmapSortBy.GoalsRising}>Antal målbanor (stigande)</option>
+          <option value="">{t("components:roadmap_filters.default")}</option>
+          <option value={RoadmapSortBy.Alpha}>{t("components:roadmap_filters.name_descending")}</option>
+          <option value={RoadmapSortBy.AlphaReverse}>{t("components:roadmap_filters.name_ascending")}</option>
+          <option value={RoadmapSortBy.GoalsFalling}>{t("components:roadmap_filters.goal_count_descending")}</option>
+          <option value={RoadmapSortBy.GoalsRising}>{t("components:roadmap_filters.goal_count_ascending")}</option>
         </select>
       </label>
       <label className='flex align-items-center gap-50 padding-50 font-weight-bold button smooth transparent'>
-        <span style={{ lineHeight: '1', }}>Filtrera</span>
+        <span style={{ lineHeight: '1', }}>{t("components:roadmap_filters.filter")}</span>
         <div className='position-relative grid place-items-center'>
           <input type="checkbox" className="position-absolute width-100 height-100 hidden" />
           <Image src="/icons/filter.svg" alt="" width="24" height="24" />
@@ -79,7 +81,7 @@ export default function RoadmapFilters() {
     </menu>
 
     <menu id="roadmapFilters" className="margin-block-100 margin-inline-0 padding-100 gray-90 smooth">
-      <b>Visa</b>
+      <b>{t("common:tsx.show")}</b>
       {Object.values(RoadmapType).map((thisType, key) => (
         <label className="flex align-items-center gap-25 margin-block-50" key={key}>
           <input type="checkbox" value={thisType} defaultChecked={searchParams.getAll('typeFilter').includes(thisType)} onChange={(e) => {
@@ -91,13 +93,13 @@ export default function RoadmapFilters() {
               // setTypeFilter(typeFilter.filter((item) => item != e.target.value))
             }
           }} />
-          {`${thisType == RoadmapType.NATIONAL ? "Nationella" :
-            thisType == RoadmapType.REGIONAL ? "Regionala" :
-              thisType == RoadmapType.MUNICIPAL ? "Kommunala" :
-                thisType == RoadmapType.LOCAL ? "Lokala" :
-                  thisType == RoadmapType.OTHER ? "Övriga" :
-                    thisType
-            } färdplaner`}
+          {`${thisType == RoadmapType.NATIONAL ? t("common:scope.national_roadmap") :
+              thisType == RoadmapType.REGIONAL ? t("common:scope.regional_roadmap") :
+                thisType == RoadmapType.MUNICIPAL ? t("common:scope.municipal_roadmap") :
+                  thisType == RoadmapType.LOCAL ? t("common:scope.local_roadmap") :
+                    thisType == RoadmapType.OTHER ? t("common:scope.other_roadmap") :
+                      thisType
+            }`}
         </label>
       ))}
     </menu>

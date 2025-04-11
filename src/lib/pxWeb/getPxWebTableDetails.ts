@@ -1,9 +1,13 @@
-import { externalDatasetBaseUrls } from "./utility";
-import { ApiTableDetails, ScbMetric, ScbTimeVariable, ScbVariable, ScbVariableValue } from "../api/apiTypes";
+import { ApiTableDetails } from "../api/apiTypes";
+import { externalDatasets } from "../api/utility";
+import { PxWebMetric, PxWebTimeVariable, PxWebVariable, PxWebVariableValue } from "./pxWebApiV2Types";
 
-export async function getPxWebTableDetails(tableId: string, externalDataset: string, language: string = 'sv') {
-  const baseUrl = externalDatasetBaseUrls[externalDataset as keyof typeof externalDatasetBaseUrls] ?? externalDatasetBaseUrls.SCB;
+export default async function getPxWebTableDetails(tableId: string, externalDataset: string, language: string = 'sv') {
+  // Get the base URL for the external dataset, defaulting to SCB
+  const baseUrl = externalDatasets[externalDataset]?.baseUrl ?? externalDatasets.SCB?.baseUrl;
   const url = new URL(`${baseUrl}/tables/${tableId}/metadata`);
+
+  /* console.time("pxWebTableDetails"); */
 
   url.searchParams.append('lang', language);
 
@@ -37,7 +41,7 @@ export async function getPxWebTableDetails(tableId: string, externalDataset: str
   // Get all metrics for the table and add to tableDetails
   const metricsCategory = data.dimension.ContentsCode.category;
   for (const key in metricsCategory.index) {
-    const scbMetric: ScbMetric = {
+    const pxWebMetric: PxWebMetric = {
       type: "metric",
       id: key,
       name: key,
@@ -45,60 +49,62 @@ export async function getPxWebTableDetails(tableId: string, externalDataset: str
       label: metricsCategory.label[key],
       unit: metricsCategory.unit[key],
     };
-    tableDetails.metrics.push(scbMetric);
+    tableDetails.metrics.push(pxWebMetric);
   }
 
   // Find all time periods for the table and add to tableDetails
   const timeCategory = data.dimension.Tid.category
   for (const timeVariableName in timeCategory.index) {
-    const scbItem = data.dimension.Tid;
-    const scbTimeVariable: ScbTimeVariable = {
+    const pxWebItem = data.dimension.Tid;
+    const pxWebTimeVariable: PxWebTimeVariable = {
       type: "time",
       id: timeVariableName,
       name: timeVariableName,
-      label: scbItem.label,
-      elimination: scbItem.extension.elimination,
-      show: scbItem.extension.show,
+      label: pxWebItem.label,
+      optional: true,
+      elimination: pxWebItem.extension.elimination,
+      show: pxWebItem.extension.show,
     };
 
-    tableDetails.times.push(scbTimeVariable);
+    tableDetails.times.push(pxWebTimeVariable);
   }
 
   // Find all variables for the table and add to tableDetails
   for (const variableName of data.extension.px.stub) {
-    const scbItem = data.dimension[variableName]
-    const scbVariable: ScbVariable = {
+    const pxWebItem = data.dimension[variableName]
+    const pxWebVariable: PxWebVariable = {
       type: "variable",
       id: variableName,
       name: variableName,
-      label: scbItem.label,
-      optional: scbItem.extension.elimination,
+      label: pxWebItem.label,
+      optional: pxWebItem.extension.elimination,
       option: true,
-      elimination: scbItem.extension.elimination,
-      show: scbItem.extension.show,
-      categoryNoteMandatory: scbItem.extension.categoryNoteMandatory ?? null,
+      elimination: pxWebItem.extension.elimination,
+      show: pxWebItem.extension.show,
+      categoryNoteMandatory: pxWebItem.extension.categoryNoteMandatory ?? null,
       values: [],
     };
 
     // Find all values for the variable and add them to the variable object
-    for (const key in scbItem.category.index) {
-      const scbVariableValue: ScbVariableValue = {
+    for (const key in pxWebItem.category.index) {
+      const pxWebVariableValue: PxWebVariableValue = {
         type: "variableValue",
         id: key,
         name: key,
-        index: scbItem.category.index[key],
-        label: scbItem.category.label[key],
+        index: pxWebItem.category.index[key],
+        label: pxWebItem.category.label[key],
       };
       try {
-        if (scbItem.category.note[key]) {
-          scbVariableValue.note = scbItem.category.note[key];
+        if (pxWebItem.category.note[key]) {
+          pxWebVariableValue.note = pxWebItem.category.note[key];
         }
       } catch { }
-      scbVariable.values.push(scbVariableValue);
+      pxWebVariable.values.push(pxWebVariableValue);
     }
 
-    tableDetails.variables.push(scbVariable);
+    tableDetails.variables.push(pxWebVariable);
   }
 
+  /* console.timeEnd("pxWebTableDetails"); */
   return tableDetails;
 }
