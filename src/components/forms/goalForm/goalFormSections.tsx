@@ -7,10 +7,9 @@ import { clientSafeGetRoadmaps } from "@/fetchers/getRoadmaps";
 import mathjs from "@/math";
 import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { dataSeriesPattern } from "./goalForm";
-import styles from "./goalForm.module.css";
+import DataSeriesInput from "../dataSeriesInput/dataSeriesInput";
 
 export function ManualGoalForm({
   currentGoal,
@@ -33,10 +32,10 @@ export function ManualGoalForm({
 }) {
   const { t } = useTranslation();
   const [parsedUnit, setParsedUnit] = useState<string | null>(null);
-  const [dataSeriesValues, setDataSeriesValues] = useState<string[]>(
-    dataSeriesString?.split(/[\t;]/) ?? [""]
-  );
-  const isPasting = useRef(false);
+  // const [dataSeriesValues, setDataSeriesValues] = useState<string[]>(
+  //   dataSeriesString?.split(/[\t;]/) ?? [""]
+  // );
+  // const isPasting = useRef(false);
 
   useEffect(() => {
     if (currentGoal?.dataSeries?.unit) {
@@ -48,54 +47,54 @@ export function ManualGoalForm({
     }
   }, [currentGoal]);
 
-  useEffect(() => {
-    // console.log("Data series values changed:", dataSeriesValues);
-  }, [dataSeriesValues]);
+  // useEffect(() => {
+  //   // console.log("Data series values changed:", dataSeriesValues);
+  // }, [dataSeriesValues]);
 
-  function isValidSingleInputForGrid(char: string): boolean {
-    // For onBeforeInput – blocks invalid keystrokes
-    return /^[0-9.,]+$/.test(char);
-  }
-  function isValidSingleInputForTextField(char: string): boolean {
-    // For onBeforeInput – blocks invalid keystrokes
-    return /^[0-9;\t\b.,]$/.test(char);
-  }
+  // function isValidSingleInputForGrid(char: string): boolean {
+  //   // For onBeforeInput – blocks invalid keystrokes
+  //   return /^[0-9.,]+$/.test(char);
+  // }
+  // function isValidSingleInputForTextField(char: string): boolean {
+  //   // For onBeforeInput – blocks invalid keystrokes
+  //   return /^[0-9;\t\b.,]$/.test(char);
+  // }
 
-  function isValidPastedInput(text: string): boolean {
-    // For onPaste – allows numbers, semicolons, tabs, whitespace, and newlines
-    return /^[0-9;\t\n\r\s.,]+$/.test(text);
-  }
+  // function isValidPastedInput(text: string): boolean {
+  //   // For onPaste – allows numbers, semicolons, tabs, whitespace, and newlines
+  //   return /^[0-9;\t\n\r\s.,]+$/.test(text);
+  // }
 
-  function handleValueChange(e: React.ChangeEvent<HTMLInputElement>, index: number) {
-    if (isPasting.current) return;
+  // function handleValueChange(e: React.ChangeEvent<HTMLInputElement>, index: number) {
+  //   if (isPasting.current) return;
 
-    const newValues = [...dataSeriesValues];
-    newValues[index] = e.target.value;
-    setDataSeriesValues(newValues);
-  }
+  //   const newValues = [...dataSeriesValues];
+  //   newValues[index] = e.target.value;
+  //   setDataSeriesValues(newValues);
+  // }
 
-  function handlePaste(e: React.ClipboardEvent<HTMLInputElement>, startIndex: number) {
-    isPasting.current = true;
-    const clipboardText = e.clipboardData.getData("text");
-    const pastedValues = clipboardText.split(/[\t;]/);
+  // function handlePaste(e: React.ClipboardEvent<HTMLInputElement>, startIndex: number) {
+  //   isPasting.current = true;
+  //   const clipboardText = e.clipboardData.getData("text");
+  //   const pastedValues = clipboardText.split(/[\t;]/);
 
-    const newValues = [...dataSeriesValues];
+  //   const newValues = [...dataSeriesValues];
 
-    for (let i = 0; i < pastedValues.length && i + startIndex < dataSeriesDataFieldNames.length; i++) {
-      const targetIndex = startIndex + i;
-      if (targetIndex < newValues.length) {
-        newValues[targetIndex] = pastedValues[i].trim();
-      } else {
-        newValues.push(pastedValues[i].trim());
-      }
-    }
+  //   for (let i = 0; i < pastedValues.length && i + startIndex < dataSeriesDataFieldNames.length; i++) {
+  //     const targetIndex = startIndex + i;
+  //     if (targetIndex < newValues.length) {
+  //       newValues[targetIndex] = pastedValues[i].trim();
+  //     } else {
+  //       newValues.push(pastedValues[i].trim());
+  //     }
+  //   }
 
-    setDataSeriesValues(newValues);
+  //   setDataSeriesValues(newValues);
 
-    setTimeout(() => {
-      isPasting.current = false;
-    }, 0);
-  }
+  //   setTimeout(() => {
+  //     isPasting.current = false;
+  //   }, 0);
+  // }
 
   return (
     <>
@@ -120,7 +119,10 @@ export function ManualGoalForm({
       </label>
 
       { /* Use grid input here */ }
-      <details className="margin-block-75">
+      <DataSeriesInput 
+        dataSeriesString={dataSeriesString}
+      />
+      { /* <details className="margin-block-75">
         <summary>
           {t("forms:goal.extra_info_data_series")}
         </summary>
@@ -129,17 +131,19 @@ export function ManualGoalForm({
             i18nKey={"forms:goal.data_series_info"}
             components={{ strong: <strong />, br: <br /> }}
           />
-          {/* The &quot;Data series&quot; field accepts a series of values separated by semicolons or tabs, which means you can paste a series of values from Excel or similar.<br />
-          <strong>NOTE: Values must not be separated by commas (&quot;,&quot;).</strong><br />
-          Decimal numbers can use either decimal points or decimal commas.<br />
-          The first value represents the year 2020 and the series can continue up to the year 2050 (a total of 31 values).<br />
-          If values are missing for a year, you can leave it blank, for example &quot;;1;;;;5&quot; can be used to specify the values 1 and 5 for the years 2021 and 2025. */}
+          {// The &quot;Data series&quot; field accepts a series of values separated by semicolons or tabs, which means you can paste a series of values from Excel or similar.<br />
+          // <strong>NOTE: Values must not be separated by commas (&quot;,&quot;).</strong><br />
+          // Decimal numbers can use either decimal points or decimal commas.<br />
+          // The first value represents the year 2020 and the series can continue up to the year 2050 (a total of 31 values).<br />
+          // If values are missing for a year, you can leave it blank, for example &quot;;1;;;;5&quot; can be used to specify the values 1 and 5 for the years 2021 and 2025. 
+          }
         </p>
       </details>
 
       <label className="block margin-block-75">
         {t("forms:goal.data_series")}
-        {/* TODO: Make this allow .csv files and possibly excel files */}
+        {// TODO: Make this allow .csv files and possibly excel files 
+        }
         <div style={{ border: "1px solid var(--gray-90)", padding: ".25rem", borderRadius: "0.25rem", maxWidth: "48.5rem" }}>
           <div id="inputGrid" className={`${styles.sideScroll}`} style={{ display: "grid", gridTemplateColumns: `repeat(${dataSeriesValues.length}, 1fr)`, gap: "0rem", gridTemplateRows: "auto", borderRadius: "0.25rem" }}>
             {dataSeriesValues.map((value, index) => index < dataSeriesDataFieldNames.length && (
@@ -173,10 +177,12 @@ export function ManualGoalForm({
       </label>
       <details className="margin-block-75">
         <summary>
-          Advanced {/* TODO - translate */}
+          Advanced {// TODO - translate 
+          }
         </summary>
         <p>
-          {/* TODO - translate (data series text field info) */}
+          {// TODO - translate (data series text field info) 
+          }
           <Trans
             i18nKey={"forms:goal.data_series_info"}
             components={{ strong: <strong />, br: <br /> }}
@@ -218,7 +224,7 @@ export function ManualGoalForm({
             }}
           />
         </label>
-      </details>
+      </details> */}
     </>
   )
 }

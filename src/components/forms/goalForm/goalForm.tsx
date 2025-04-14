@@ -1,19 +1,20 @@
 'use client';
 
+import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput";
+import { getScalingResult } from "@/components/modals/copyAndScale";
+import RepeatableScaling from "@/components/repeatableScaling";
+import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
-import Image from "next/image";
+import mathjs from "@/math";
 import { GoalInput, ScaleBy, ScaleMethod, ScalingRecipie, dataSeriesDataFieldNames, isScalingRecipie } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
-import /* LinkInput, */ LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput";
-import formSubmitter from "@/functions/formSubmitter";
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
-import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
-import RepeatableScaling from "@/components/repeatableScaling";
-import { getScalingResult } from "@/components/modals/copyAndScale";
-import mathjs from "@/math";
-import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
-import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
+import { getDataSeries } from "../dataSeriesInput/utils";
+import styles from '../forms.module.css';
+import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
+import formSubmitter from "@/functions/formSubmitter";
 
 enum DataSeriesType {
   Static = "STATIC",
@@ -101,9 +102,8 @@ export default function GoalForm({
 
     const links = getLinks(event.target);
 
-    // Convert the data series to an array of numbers, the actual parsing is done by the API
-    const dataSeriesInput = (form.namedItem("dataSeries") as HTMLInputElement | null)?.value;
-    const dataSeries = dataSeriesInput?.replaceAll(',', '.').split(/[\t;]/);
+    // Get data series as an array of numbers in string format, the actual parsing is done by the API
+    const dataSeries = getDataSeries(form);
 
     // And likewise for the baseline data series, if any
     const baselineDataSeriesInput = (form.namedItem("baselineDataSeries") as HTMLInputElement | null)?.value;

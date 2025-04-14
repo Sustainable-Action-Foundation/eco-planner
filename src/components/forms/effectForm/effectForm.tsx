@@ -1,15 +1,16 @@
 'use client';
 
-import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "./effectFormSections";
-import { dataSeriesPattern } from "@/components/forms/goalForm/goalForm";
-import formSubmitter from "@/functions/formSubmitter";
-import { dataSeriesDataFieldNames, EffectInput } from "@/types";
-import { ActionImpactType, DataSeries, Effect } from "@prisma/client";
 import type getOneAction from "@/fetchers/getOneAction.ts";
 import type getOneGoal from "@/fetchers/getOneGoal.ts";
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
-import { Trans, useTranslation } from "react-i18next";
+import formSubmitter from "@/functions/formSubmitter";
+import { dataSeriesDataFieldNames, EffectInput } from "@/types";
+import { ActionImpactType, DataSeries, Effect } from "@prisma/client";
 import { useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
+import DataSeriesInput from "../dataSeriesInput/dataSeriesInput";
+import { getDataSeries } from "../dataSeriesInput/utils";
+import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "./effectFormSections";
 
 export default function EffectForm({
   action,
@@ -54,7 +55,8 @@ export default function EffectForm({
     }
 
     // Convert the data series to an array of numbers in string format, the actual parsing is done by the API
-    const dataSeries = dataSeriesInput.replaceAll(',', '.').split(/[\t;]/);
+    // const dataSeries = dataSeriesInput.replaceAll(',', '.').split(/[\t;]/); // TODO - make sure this works
+    const dataSeries = getDataSeries(event.target.elements);
 
     const formContent: EffectInput & { timestamp: number } = {
       actionId: selectedAction,
@@ -99,10 +101,11 @@ export default function EffectForm({
 
         <GoalSelector goal={goal} roadmapAlternatives={roadmapAlternatives} />
 
-        { /* Use grid input here */ }
-        <label className="block margin-block-100">
+        { /* Use grid input here */}
+        {/* <label className="block margin-block-100">
           {t("forms:effect.data_series")}
-          {/* TODO: Make this allow .csv files and possibly excel files */}
+          {// TODO: Make this allow .csv files and possibly excel files 
+          }
           <input type="text" name="dataSeries" required id="dataSeries"
             pattern={dataSeriesPattern}
             title={t("forms:effect.data_series_title")}
@@ -110,7 +113,10 @@ export default function EffectForm({
             value={dataSeriesString}
             onChange={(event) => setDataSeriesString(event.target.value)}
           />
-        </label>
+        </label> */}
+        <DataSeriesInput
+          dataSeriesString={dataSeriesString}
+        />
 
         { // Button for changing between absolute and delta impact types
           // TODO: Styling

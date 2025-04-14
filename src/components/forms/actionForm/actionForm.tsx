@@ -8,6 +8,8 @@ import { Action, ActionImpactType, DataSeries, Effect } from "@prisma/client"
 import type getRoadmaps from "@/fetchers/getRoadmaps"
 import styles from '../forms.module.css'
 import { Trans, useTranslation } from "react-i18next"
+import { getDataSeries } from "../dataSeriesInput/utils"
+// import DataSeriesInput from "../dataSeriesInput/dataSeriesInput"
 
 
 export default function ActionForm({
@@ -36,8 +38,10 @@ export default function ActionForm({
     const links = getLinks(event.target)
 
     // Convert the data series to an array of numbers, the actual parsing is done by the API
-    const dataSeriesInput = (form.namedItem("dataSeries") as HTMLInputElement | null)?.value;
-    const dataSeries = dataSeriesInput ? dataSeriesInput?.replaceAll(',', '.').split(/[\t;]/) : undefined;
+    // TODO - make sure this works
+    // const dataSeriesInput = (form.namedItem("dataSeries") as HTMLInputElement | null)?.value;
+    // const dataSeries = dataSeriesInput ? dataSeriesInput?.replaceAll(',', '.').split(/[\t;]/) : undefined;
+    const dataSeries = getDataSeries(form);
 
     const formContent: ActionInput & { actionId: string | undefined, timestamp: number } = {
       name: (form.namedItem("actionName") as HTMLInputElement)?.value,
@@ -131,6 +135,8 @@ export default function ActionForm({
             </label>
 
             { /* Use grid input here */ }
+            { // TODO - why is there no dataSeriesString?
+            }
             <details className="margin-block-75">
               <summary>
                 {t("forms:action.extra_info_data_series")}
@@ -145,7 +151,8 @@ export default function ActionForm({
 
             <label className="block margin-block-75">
               {t("forms:action.data_series_label")}
-              {/* TODO: Make this allow .csv files and possibly excel files */}
+              {// TODO: Make this allow .csv files and possibly excel files 
+              }
               <input type="text" name="dataSeries" required id="dataSeries"
                 pattern={dataSeriesPattern}
                 title={t("forms:action.data_series_title")}
@@ -153,6 +160,9 @@ export default function ActionForm({
               // defaultValue={dataSeriesString}
               />
             </label>
+            {/* <DataSeriesInput
+              dataSeriesString={dataSeriesString}
+            /> */}
           </fieldset>
           : null
         }
