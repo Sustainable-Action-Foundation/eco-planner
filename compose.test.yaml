@@ -1,38 +1,55 @@
-name: eco-planner
+name: eco-planner:test
 
 services:
+  db:
+    build:
+      context: .
+      dockerfile: docker/testdb.Dockerfile
+    networks:
+      - test_network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-padmin" ]
+      interval: 2s
+      timeout: 20s
+      retries: 10
+
+  web:
+    image: ecoplanner:web
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    networks:
+      - test_network
+    ports:
+      - 127.0.0.1:8082:8081
+    environment:
+      - DATABASE_URL=mysql://root:admin@db:3306/eco-planner
+      - IRON_SESSION_PASSWORD=mt6EAckefnuUpKKzLG7Rr8mQJVkmvJ3j
+    env_file:
+      - .env.test.local
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c 'yarn prisma migrate reset -f' # Seed the database
+
   test:
     image: ecoplanner:test
     build:
       context: .
       dockerfile: docker/test.Dockerfile
-    pull_policy: build
     networks:
-      - default
-      - testDatabase
-    ports:
-      - 127.0.0.1:8082:8081
+      - test_network
+    volumes:
+      - ./playwright-report:/app/playwright-report
+      - ./test-results:/app/test-results
     environment:
-      # Database connection string
-      - DATABASE_URL=mysql://root:admin@testdb:3306/eco-planner
-      # Session 'secret', just a simple string as it's only for testing
-      - IRON_SESSION_PASSWORD=abcdefghijklmnopqrstuvwxyz1234567890
-    env_file:
-      # Add `MAIL_HOST`, `MAIL_USER`, and `MAIL_PASSWORD` to this file if you need to test email functionality
-      # No such tests are set up yet.
-      - docker/.env
-    command: sh -c 'sleep 15; yarn prisma migrate reset -f; HOSTNAME="0.0.0.0" node server.js' # Add test commands
-
-  testdb:
-    build:
-      context: .
-      dockerfile: docker/testdb.Dockerfile
-    networks:
-      - testDatabase
-    # Uncomment if you need to connect to testdb from your host. Internal port 3306 is exposed to localhost:3366
-    # ports:
-    #   - 127.0.0.1:3366:3306
+      - TEST_BASE_URL=http://web:8081
+      - CI=true # For playwright config
+    depends_on:
+      web:
+        condition: service_started
+    command: sh -c 'yarn test'
 
 networks:
-  testDatabase:
+  test_network:
     internal: true

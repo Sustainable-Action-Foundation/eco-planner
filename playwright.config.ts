@@ -1,6 +1,6 @@
 import { defineConfig, devices } from "playwright/test";
 
-export const webserverURL = "http://localhost:3000";
+export const webserverURL = process.env.TEST_BASE_URL || "http://localhost:3000";
 
 export default defineConfig({
   // Look for test files in the "tests" directory, relative to this configuration file.
@@ -13,18 +13,18 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
 
   // Retry on CI only.
-  retries: process.env.CI ? 0 : 0,
+  retries: process.env.CI ? 0 : 1,
 
   // Opt out of parallel tests on CI.
   workers: process.env.CI ? 1 : undefined,
 
   // Reporter to use
-  reporter: "line", // "html"
+  reporter: [["html", { open: "never" }], ["list"]],
 
   // Global use
   use: {
     // Base URL to use in actions like `await page.goto("/")`.
-    baseURL: "http://localhost:3000",
+    baseURL: webserverURL,
 
     // Collect trace when retrying the failed test.
     trace: "on-first-retry",
@@ -71,10 +71,10 @@ export default defineConfig({
       // dependencies: ["Locale files validation"],
     },
   ],
-  webServer: {
+  webServer: !process.env.CI ? {
     timeout: 1000 * 1000,
     command: "yarn run start",
     url: webserverURL,
-    reuseExistingServer: !process.env.CI,
-  },
+    reuseExistingServer: true,
+  } : undefined,
 });
