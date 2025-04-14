@@ -441,7 +441,11 @@ export default function QueryBuilder({
           <FormWrapper>
             <fieldset className="position-relative">
               <label className="margin-block-75 font-weight-500">
-              {t("components:query_builder.data_source")}
+                {t("components:query_builder.data_source")}
+                {/* Display warning message if the selected language is not supported by the api */}
+                {((externalDatasets[dataSource]) && !(externalDatasets[dataSource]?.supportedLanguages.includes(lang))) ?
+                  <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
+                  : null}
                 <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
                   <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
                   {Object.keys(externalDatasets).map((name) => (
@@ -449,10 +453,7 @@ export default function QueryBuilder({
                   ))}
                 </select>
 
-                {/* Display warning message if the selected language is not supported by the api */}
-                {((externalDatasets[dataSource]) && !(externalDatasets[dataSource]?.supportedLanguages.includes(lang))) ?
-                  <p style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</p>
-                  : null}
+
               </label>
 
               {dataSource ?
