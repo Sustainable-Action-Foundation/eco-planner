@@ -40,7 +40,7 @@ export default function EffectForm({
 
     const selectedAction = currentEffect?.actionId || action?.id || formData.get("actionId");
     const selectedGoal = currentEffect?.goalId || goal?.id || formData.get("goalId");
-    const dataSeriesInput = formData.get("dataSeries");
+    const dataSeriesInput = getDataSeries(event.target.elements).join(";");
     const impactType = formData.get("impactType");
 
     if (!(

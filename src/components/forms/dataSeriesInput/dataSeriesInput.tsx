@@ -1,7 +1,7 @@
 "use client";
 
 import { dataSeriesDataFieldNames } from "@/types";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import styles from "../goalForm/goalForm.module.css"; // TODO - make unique style file
 import { dataSeriesPattern } from "../goalForm/goalForm"; // TODO - fix this
@@ -14,9 +14,16 @@ export default function DataSeriesInput({
 
   const { t } = useTranslation();
   const [dataSeriesValues, setDataSeriesValues] = useState<string[]>(
-    dataSeriesString?.split(/[\t;]/) ?? [""]
+    dataSeriesString?.split(/[\t;]/) ?? new Array(dataSeriesDataFieldNames.length).fill(""),
   );
   const isPasting = useRef(false);
+
+  useEffect(() => {
+    if (dataSeriesString) {
+      console.log(dataSeriesString);
+      setDataSeriesValues(dataSeriesString.split(/[\t;]/).slice(0, dataSeriesDataFieldNames.length));
+    }
+  }, [dataSeriesString]);
 
   // TODO - dont allow negative values?
   function isValidSingleInputForGrid(char: string): boolean {

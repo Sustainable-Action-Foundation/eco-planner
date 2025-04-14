@@ -1,14 +1,14 @@
 'use client'
 
-import { dataSeriesPattern } from "@/components/forms/goalForm/goalForm"
 import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput"
+import type getRoadmaps from "@/fetchers/getRoadmaps"
 import formSubmitter from "@/functions/formSubmitter"
 import { ActionInput } from "@/types"
 import { Action, ActionImpactType, DataSeries, Effect } from "@prisma/client"
-import type getRoadmaps from "@/fetchers/getRoadmaps"
-import styles from '../forms.module.css'
-import { Trans, useTranslation } from "react-i18next"
+import { useTranslation } from "react-i18next"
+import DataSeriesInput from "../dataSeriesInput/dataSeriesInput"
 import { getDataSeries } from "../dataSeriesInput/utils"
+import styles from '../forms.module.css'
 // import DataSeriesInput from "../dataSeriesInput/dataSeriesInput"
 
 
@@ -134,10 +134,10 @@ export default function ActionForm({
               </select>
             </label>
 
-            { /* Use grid input here */ }
+            { /* Use grid input here */}
             { // TODO - why is there no dataSeriesString?
             }
-            <details className="margin-block-75">
+            {/* <details className="margin-block-75">
               <summary>
                 {t("forms:action.extra_info_data_series")}
               </summary>
@@ -159,10 +159,8 @@ export default function ActionForm({
                 className="margin-block-25"
               // defaultValue={dataSeriesString}
               />
-            </label>
-            {/* <DataSeriesInput
-              dataSeriesString={dataSeriesString}
-            /> */}
+            </label> */}
+            <DataSeriesInput />
           </fieldset>
           : null
         }
