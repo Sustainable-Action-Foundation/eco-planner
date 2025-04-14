@@ -128,6 +128,11 @@ export function ManualGoalForm({
             i18nKey={"forms:goal.data_series_info"}
             components={{ strong: <strong />, br: <br /> }}
           />
+          {/* The &quot;Data series&quot; field accepts a series of values separated by semicolons or tabs, which means you can paste a series of values from Excel or similar.<br />
+          <strong>NOTE: Values must not be separated by commas (&quot;,&quot;).</strong><br />
+          Decimal numbers can use either decimal points or decimal commas.<br />
+          The first value represents the year 2020 and the series can continue up to the year 2050 (a total of 31 values).<br />
+          If values are missing for a year, you can leave it blank, for example &quot;;1;;;;5&quot; can be used to specify the values 1 and 5 for the years 2021 and 2025. */}
         </p>
       </details>
 
@@ -164,40 +169,55 @@ export function ManualGoalForm({
             ))}
           </div>
         </div>
-        <input type="text" name="dataSeries" required id="dataSeries"
-          pattern={dataSeriesPattern}
-          title={t("forms:goal.data_series_title")}
-          value={dataSeriesValues.join(";")}
-          className="margin-block-25"
-          onBeforeInput={(e) => {
-            if (isPasting.current) return;
-
-            const inputEvent = e.nativeEvent as InputEvent;
-            if (inputEvent.data && !isValidSingleInputForTextField(inputEvent.data)) {
-              e.preventDefault();
-            }
-          }}
-          onPaste={(e) => {
-            const pasted = e.clipboardData.getData("text");
-            if (!isValidPastedInput(pasted)) {
-              e.preventDefault();
-              return;
-            }
-
-            isPasting.current = true;
-            setTimeout(() => {
-              isPasting.current = false;
-            }, 0);
-          }}
-          onChange={(e) => {
-            const values = e.target.value
-              .split(/[\t;]/)
-              .map((v) => v.trim())
-              .slice(0, dataSeriesDataFieldNames.length);
-            setDataSeriesValues(values);
-          }}
-        />
       </label>
+      <details className="margin-block-75">
+        <summary>
+          Advanced {/* TODO - translate */}
+        </summary>
+        <p>
+          {/* TODO - translate (data series text field info) */}
+          <Trans
+            i18nKey={"forms:goal.data_series_info"}
+            components={{ strong: <strong />, br: <br /> }}
+          />
+        </p>
+        <label className="block margin-block-75">
+          {t("forms:goal.data_series")}
+          <input type="text" name="dataSeries" required id="dataSeries"
+            pattern={dataSeriesPattern}
+            title={t("forms:goal.data_series_title")}
+            value={dataSeriesValues.join(";")}
+            className="margin-block-25"
+            onBeforeInput={(e) => {
+              if (isPasting.current) return;
+
+              const inputEvent = e.nativeEvent as InputEvent;
+              if (inputEvent.data && !isValidSingleInputForTextField(inputEvent.data)) {
+                e.preventDefault();
+              }
+            }}
+            onPaste={(e) => {
+              const pasted = e.clipboardData.getData("text");
+              if (!isValidPastedInput(pasted)) {
+                e.preventDefault();
+                return;
+              }
+
+              isPasting.current = true;
+              setTimeout(() => {
+                isPasting.current = false;
+              }, 0);
+            }}
+            onChange={(e) => {
+              const values = e.target.value
+                .split(/[\t;]/)
+                .map((v) => v.trim())
+                .slice(0, dataSeriesDataFieldNames.length);
+              setDataSeriesValues(values);
+            }}
+          />
+        </label>
+      </details>
     </>
   )
 }
