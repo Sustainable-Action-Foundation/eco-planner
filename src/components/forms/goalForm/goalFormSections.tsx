@@ -170,6 +170,8 @@ export function ManualGoalForm({
           value={dataSeriesValues.join(";")}
           className="margin-block-25"
           onBeforeInput={(e) => {
+            if (isPasting.current) return;
+
             const inputEvent = e.nativeEvent as InputEvent;
             if (inputEvent.data && !isValidSingleInputForTextField(inputEvent.data)) {
               e.preventDefault();
@@ -179,7 +181,13 @@ export function ManualGoalForm({
             const pasted = e.clipboardData.getData("text");
             if (!isValidPastedInput(pasted)) {
               e.preventDefault();
+              return;
             }
+
+            isPasting.current = true;
+            setTimeout(() => {
+              isPasting.current = false;
+            }, 0);
           }}
           onChange={(e) => {
             const values = e.target.value
