@@ -67,7 +67,8 @@ const exemptedKeysUsingCommonValues = ["pages:info.info_body", "components:confi
 /** Orphaned keys in root levels of namespaces are discouraged, except in these namespaces */
 const exemptedOrphanNS = ["common", "test",];
 const exemptedOrphanKeys: string[] = [];
-
+/** A test checks if any keys defined go unused. These keys are exempted from that test. */
+const exemptedUnusedKeys: string[] = ["_", "common:"];
 
 /* 
  *********
@@ -476,7 +477,7 @@ test("Common keys used directly in files", () => {
 });
 
 /** Checks if the <Trans /> tags have a defined i18nKey */
-test("<Trans /> keys are defined", () => {
+test("<Trans /> keys", () => {
   const perFile: Record<string, string[]> = {};
 
   /** Trans tags need a prop called i18nKey which this regex finds */
@@ -502,7 +503,7 @@ test("<Trans /> keys are defined", () => {
 });
 
 /** Checks if the <Trans /> tags have valid syntax */
-test("<Trans /> syntax is valid", () => {
+test("<Trans /> syntax", () => {
   const perFile: Record<string, string[]> = {};
 
   const transTagRegex = /<Trans.*?\/>(?!\s*\}\})(?!,)/gmus;
@@ -559,11 +560,142 @@ test("No hardcoded Swedish text in code", () => {
     const lines = content.split(/\r?\n/);
     const matches: { line: number, text: string, context: string }[] = [];
 
-    // Comment removal
-    const strippedLines = lines.map((line, i) => {
-      const trimmedLine = line.trim();
+    // Check each line for Swedish text
+    lines.forEach((line, index) => {
+      if (!line.trim()) return; // Skip empty lines
 
-      if (!trimmedLine) return line; // Skip empty lines
+      const lineMatches = Array.from(line.matchAll(swedishRegex) || []);
+      if (lineMatches.length > 0) {
+        lineMatches.forEach(match => {
+          matches.push({
+            line: index + 1,
+            text: match[0],
+            context: line,
+          });
+        });
+      }
+    });
+
+    if (matches.length > 0) {
+      perFile[filePath] = matches.map(m => `[Line ${m.line}] > '${m.text}' in: '${m.context}'`);
+    }
+  });
+
+  const totalMatches = Object.values(perFile).flat().length;
+
+  expect(totalMatches, `Found Swedish text that should be internationalized: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
+});
+
+/** Checks for keys in locale files that aren't used in the application */
+test("Unused keys", () => {
+  const unusedPerLocale: Record<string, string[]> = Object.fromEntries(uniqueLocales.map(locale => [locale, []]));
+
+  const stripSuffix = (key: string) => {
+    validPluralSuffixes.forEach(suffix => {
+      if (key.endsWith(suffix)) {
+        key = key.slice(0, -suffix.length);
+      }
+    });
+    return key;
+  };
+
+  uniqueLocales.forEach(locale => {
+    const usedKeys: string[] = [];
+
+    // Collect TSX used keys
+    allTSX.forEach(({ content }) => {
+      const allTCalls = Array.from(content.matchAll(/\Wt\(["']([^"']*)["'].*?\)*/gms)) || [];
+      const allTransCalls = Array.from(content.matchAll(/<Trans\s*i18nKey=\{?["']([^"']*)["']\}?.*?\/>(?!\s*\}\})/gmus)) || [];
+
+      [...allTCalls, ...allTransCalls].forEach(call => {
+        let [, key] = call;
+
+        if (key) {
+          // Remove any plural suffix
+          key = stripSuffix(key);
+
+          usedKeys.push(key);
+        }
+      });
+    });
+
+    // Collect nested keys in JSON files
+    (() => {
+      const data = allJSON[locale];
+      if (!data) {
+        console.warn("No data for locale:", locale);
+        return;
+      };
+
+      const values = Object.values(data);
+
+      values.forEach(value => {
+        const nestedKeys = Array.from(value.matchAll(/\$t\((.*?)\)/gm)) || [];
+
+        nestedKeys.forEach(([_, key]) => {
+          // Remove options object
+          const optionsStart = key.indexOf(",");
+          if (optionsStart !== -1) {
+            key = key.slice(0, optionsStart).trim();
+          }
+
+          // Remove any plural suffix
+          key = stripSuffix(key);
+
+          usedKeys.push(key);
+        });
+      });
+    })();
+
+    const uniqueUsedKeys = [...new Set(usedKeys)];
+    const allKeys = Object.keys(allJSON[locale]);
+    const unusedKeys = allKeys
+      // Remove exempted keys
+      .filter(key => !exemptedUnusedKeys.some(exemptedKey => key.startsWith(exemptedKey)))
+      .filter(key => !uniqueUsedKeys.includes(stripSuffix(key)));
+    if (unusedKeys.length > 0) {
+      unusedPerLocale[locale].push(...unusedKeys.map(key => `[Unused key] > '${key}'`));
+    }
+  });
+
+  const totalUnusedKeys = Object.values(unusedPerLocale).flat().length;
+
+  expect(totalUnusedKeys, `Unused keys in locale files: ${JSON.stringify(unusedPerLocale, null, 2)}`).toBe(0);
+});
+
+/* 
+ ***********
+ * Helpers *
+ ***********
+ */
+
+/** Structure is is `{ Locales: { "namespace:key.keyN": value } }` */
+function getAllJSONFlattened(): Record<string, Record<string, string>> {
+  const perLocale: Record<string, Record<string, string>> = Object.fromEntries(uniqueLocales.map(locale => [locale, {}]));
+  allPermutations.map(([locale, namespace]) => {
+    const nsData = JSON.parse(fs.readFileSync(path.join(localesDir, locale, `${namespace}.json`), "utf-8"));
+    const flattened = flattenTree(nsData);
+    const prefixed = Object.fromEntries(Object.entries(flattened)
+      .map(([key, value]) => [`${namespace}:${key}`, value])
+    );
+    perLocale[locale] = { ...perLocale[locale], ...prefixed };
+  })
+  return perLocale;
+}
+
+/** Get every file where t might be implemented as an array of objects storing the file path and their content as text */
+function getAllTSXFiles() {
+  const allTSXPaths = glob.sync("src/**/*.{tsx,ts}", { ignore: ["src/scripts/**/*"] });
+
+  return allTSXPaths.map(filePath => {
+    const contentRaw = fs.readFileSync(filePath, "utf-8");
+
+    const lines = contentRaw.split(/\r?\n/);
+    // Remove comments
+    const strippedLines = lines.map((line, i) => {
+
+      const trimmedLine = line.trim();
+      if (!trimmedLine) return ""; // Empty lines
 
       // Single line comments
       if (
@@ -594,62 +726,10 @@ test("No hardcoded Swedish text in code", () => {
       return line; // Keep the line as is
     });
 
-    // Check each line for Swedish text
-    strippedLines.forEach((line, index) => {
-      if (!line.trim()) return; // Skip empty lines
+    const content = strippedLines.join("\n");
 
-      const lineMatches = Array.from(line.matchAll(swedishRegex) || []);
-      if (lineMatches.length > 0) {
-        lineMatches.forEach(match => {
-          matches.push({
-            line: index + 1,
-            text: match[0],
-            context: line,
-          });
-        });
-      }
-    });
-
-    if (matches.length > 0) {
-      perFile[filePath] = matches.map(m => `[Line ${m.line}] > '${m.text}' in: '${m.context}'`);
-    }
+    return { filePath, content: content };
   });
-
-  const totalMatches = Object.values(perFile).flat().length;
-
-  expect(totalMatches, `Found Swedish text that should be internationalized: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
-});
-
-/** TODO: Unused keys */
-
-/* 
- ***********
- * Helpers *
- ***********
- */
-
-/** Structure is is `{ Locales: { "namespace:key.keyN": value } }` */
-function getAllJSONFlattened(): Record<string, Record<string, string>> {
-  const perLocale: Record<string, Record<string, string>> = Object.fromEntries(uniqueLocales.map(locale => [locale, {}]));
-  allPermutations.map(([locale, namespace]) => {
-    const nsData = JSON.parse(fs.readFileSync(path.join(localesDir, locale, `${namespace}.json`), "utf-8"));
-    const flattened = flattenTree(nsData);
-    const prefixed = Object.fromEntries(Object.entries(flattened)
-      .map(([key, value]) => [`${namespace}:${key}`, value])
-    );
-    perLocale[locale] = { ...perLocale[locale], ...prefixed };
-  })
-  return perLocale;
-}
-
-/** Get every file where t might be implemented as an array of objects storing the file path and their content as text */
-function getAllTSXFiles() {
-  const allTSXPaths = glob.sync("src/**/*.{tsx,ts}", { ignore: ["src/scripts/**/*"] });
-  const allTSX = allTSXPaths.map(filePath => {
-    const content = fs.readFileSync(filePath, "utf-8");
-    return { filePath, content };
-  });
-  return allTSX;
 }
 
 /** Returns a flattened object with the structure `{ "key1.key2.keyN": value }` */

@@ -29,17 +29,32 @@
   display: flex;
   flex-flow: column nowrap;
 
+  /* Row */
   &>div {
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
+
     padding: 0;
     margin: 0;
 
+    /* Bottom padding */
     &:last-child {
       padding-bottom: 3rem;
     }
 
+    /* Line number */
+    &>span:first-of-type {
+      font-size: smaller;
+      opacity: 0.8;
+      padding: 0 1ch;
+      width: 5ch;
+      height: 1.9rem;
+      text-align: center;
+      align-content: center;
+    }
+
+    /* Keys and translations */
     &>p {
       flex: 1;
       padding: 0.1rem 1ch;
@@ -53,11 +68,12 @@
       }
 
       /* For the keys which can be long */
-      &:first-child {
+      &:first-of-type {
         overflow-wrap: anywhere;
       }
 
-      &:last-child {
+      /* Right side padding */
+      &:last-of-type {
         padding-right: 2ch;
       }
     }
@@ -74,12 +90,12 @@
 }
 
 .header {
-  &>* {
+  &>h2 {
     flex: 1;
     margin: 0.4rem 0;
 
-    &:first-child {
-      padding-left: 1ch;
+    &:first-of-type {
+      padding-left: 0.5ch;
     }
   }
 }
