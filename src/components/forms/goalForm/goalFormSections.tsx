@@ -54,16 +54,16 @@ export function ManualGoalForm({
 
   function isValidSingleInputForGrid(char: string): boolean {
     // For onBeforeInput – blocks invalid keystrokes
-    return /^[0-9]+$/.test(char);
+    return /^[0-9.,]+$/.test(char);
   }
   function isValidSingleInputForTextField(char: string): boolean {
     // For onBeforeInput – blocks invalid keystrokes
-    return /^[0-9;\t\b]$/.test(char);
+    return /^[0-9;\t\b.,]$/.test(char);
   }
-  
+
   function isValidPastedInput(text: string): boolean {
     // For onPaste – allows numbers, semicolons, tabs, whitespace, and newlines
-    return /^[0-9;\t\n\r\s]+$/.test(text);
+    return /^[0-9;\t\n\r\s.,]+$/.test(text);
   }
 
   function handleValueChange(e: React.ChangeEvent<HTMLInputElement>, index: number) {
