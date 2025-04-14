@@ -449,7 +449,7 @@ export default function QueryBuilder({
                 <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
                   <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
                   {Object.keys(externalDatasets).map((name) => (
-                    <option key={name} value={name}>{name}</option>
+                    <option key={name} value={name}>{externalDatasets[name]?.fullName}</option>
                   ))}
                 </select>
 
