@@ -130,6 +130,7 @@ export default function ActionForm({
               </select>
             </label>
 
+            { /* Use grid input here */ }
             <details className="margin-block-75">
               <summary>
                 {t("forms:action.extra_info_data_series")}

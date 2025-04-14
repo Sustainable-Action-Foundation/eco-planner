@@ -119,6 +119,7 @@ export function ManualGoalForm({
         }
       </label>
 
+      { /* Use grid input here */ }
       <details className="margin-block-75">
         <summary>
           {t("forms:goal.extra_info_data_series")}

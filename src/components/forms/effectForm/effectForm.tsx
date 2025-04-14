@@ -99,6 +99,7 @@ export default function EffectForm({
 
         <GoalSelector goal={goal} roadmapAlternatives={roadmapAlternatives} />
 
+        { /* Use grid input here */ }
         <label className="block margin-block-100">
           {t("forms:effect.data_series")}
           {/* TODO: Make this allow .csv files and possibly excel files */}
