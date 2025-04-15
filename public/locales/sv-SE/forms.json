@@ -24,10 +24,6 @@
       "delta": "Förändring år för år (delta)",
       "percent": "Skillnad gentemot baslinjen i procent av föregående års totalvärde (baslinje + $t(common:action_definite_other))"
     },
-    "extra_info_data_series": "Extra information om dataserie",
-    "data_series_info": "Fältet \"Dataserie\" tar emot en serie med värden som är separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie med värden från Excel eller liknande.<br /><strong>OBS: Värden får inte vara separerade med kommatecken (\",\").</strong><br />Decimaltal kan antingen skrivas med punkt eller kommatecken.<br />Det första värdet representerar år 2020 och serien kan som längst fortsätta till år 2050 (totalt 31 värden).<br />Om värden saknas för ett år kan du lämna det tomt, exempelvis anger \";1;;;;5\" värdena 1 och 5 för år 2021 respektive 2025.",
-    "data_series_label": "Dataserie:",
-    "data_series_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma.",
     "action_years_legend": "Välj pågående år för din $t(common:action_one)",
     "start_year": "Startår",
     "end_year": "Slutår",
@@ -40,6 +36,17 @@
     "category_renewables": "Renewables",
     "attach_external_resources": "Bifoga externa resurser"
   },
+  "data_series_input": {
+    "extra_info_data_series": "Extra information om dataserie",
+    "data_series_info": "Fältet \"Dataserie\" tar emot en serie med värden som är separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie med värden från Excel eller liknande.<br /><strong>OBS: Värden får inte vara separerade med kommatecken (\",\").</strong><br />Decimaltal kan antingen skrivas med punkt eller kommatecken.<br />Det första värdet representerar år 2020 och serien kan som längst fortsätta till år 2050 (totalt 31 värden).<br />Om värden saknas för ett år kan du lämna det tomt, exempelvis anger \";1;;;;5\" värdena 1 och 5 för år 2021 respektive 2025.",
+    "data_series": "Dataserie",
+    "data_series_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller kommatecken.",
+    "add_column": "Lägg till kolumn",
+    "remove_column": "Ta bort kolumn",
+    "add_new_column_to_data_series": "Lägg till ny kolumn i dataserie",
+    "remove_column_from_data_series": "Ta bort kolumn från dataserie",
+    "advanced": "Avancerade alternativ"
+  },
   "effect": {
     "select_roadmap_version_for_action": "Välj $t(common:roadmap_version_one) som $t(common:action_definite_one) ligger under",
     "select_roadmap_version": "Välj $t(common:roadmap_version_one)",
@@ -51,8 +58,6 @@
     "select_goal": "Välj $t(common:goal_one)",
     "unnamed_goal": "Namnlös $t(common:goal_one)",
     "unit_missing": "Enhet saknas",
-    "data_series": "Dataserie",
-    "data_series_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma.",
     "to_year_by_year": "Konvertera värden till förändring år för år (delta)",
     "to_year_by_year_info": "<strong>OBS!</strong> Det finns en viss felmarginal runt 14:e decimalen vid konvertering på grund av så kallade \"floating point errors\".",
     "to_absolute": "Konvertera värden till absolut skillnad gentemot baslinje",
@@ -102,10 +107,6 @@
     "data_unit": "Enhet för dataserie",
     "unit_interpreted_as": "Enheten tolkas som:",
     "unit_not_interpreted": "Enheten kunde inte tolkas. Du kan fortfarande spara $t(common:goal_definite_one), men viss funktionalitet kan saknas.",
-    "extra_info_data_series": "Extra information om dataserie",
-    "data_series_info": "Fältet \"Dataserie\" tar emot en serie med värden som är separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie med värden från Excel eller liknande.<br /><strong>OBS: Värden får inte vara separerade med kommatecken (\",\").</strong><br />Decimaltal kan antingen skrivas med punkt eller kommatecken.<br />Det första värdet representerar år 2020 och serien kan som längst fortsätta till år 2050 (totalt 31 värden).<br />Om värden saknas för ett år kan du lämna det tomt, exempelvis anger \";1;;;;5\" värdena 1 och 5 för år 2021 respektive 2025.",
-    "data_series": "Dataserie",
-    "data_series_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller kommatecken.",
     "select_roadmap_version": "Välj en $t(common:roadmap_version_one) att ärva en $t(common:goal_one) från",
     "select_goal_to_inherit": "Välj en $t(common:goal_one) att ärva från",
     "select_goal": "Välj $t(common:goal_one)",

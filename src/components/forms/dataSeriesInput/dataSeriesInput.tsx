@@ -98,20 +98,20 @@ export default function DataSeriesInput({
     <>
       <details className="margin-block-75">
         <summary>
-          {t("forms:goal.extra_info_data_series")}
+          {t("forms:data_series_input.extra_info_data_series")}
         </summary>
         <p>
           { // TODO - modify so that this text is not identical to the text in the advanced section
           }
           <Trans
-            i18nKey={"forms:goal.data_series_info"}
+            i18nKey={"forms:data_series_input.data_series_info"}
             components={{ strong: <strong />, br: <br /> }}
           />
         </p>
       </details>
 
       <label className="block margin-block-75">
-        {t("forms:goal.data_series")}
+        {t("forms:data_series_input.data_series")}
         {/* TODO: Make this allow .csv files and possibly excel files */}
         <div className="padding-25 smooth flex" style={{ border: "1px solid var(--gray-90)", maxWidth: "48.5rem" }}>
           <div id="inputGrid" className={`${styles.sideScroll} smooth grid gap-0`} style={{ gridTemplateColumns: `repeat(${dataSeriesValues.length}, 1fr)`, gridTemplateRows: "auto" }}>
@@ -146,37 +146,37 @@ export default function DataSeriesInput({
             <button
               type="button"
               className={`${styles.columnControlsButton}`}
-              title="Add column" // TODO - translate
+              title={t("forms:data_series_input.add_column")}
               onClick={addColumn}
             >
-              <Image src="/icons/circlePlus.svg" alt="Add new data series" width={24} height={24} />
+              <Image src="/icons/circlePlus.svg" alt={t("forms:data_series_input.add_column_to_data_series")} width={24} height={24} />
             </button>
             <button
               type="button"
               className={`${styles.columnControlsButton}`}
-              title="Remove column" // TODO - translate
+              title={t("forms:data_series_input.remove_column")}
               onClick={removeColumn}
             >
-              <Image src="/icons/circleMinus.svg" alt="Remove data series" width={24} height={24} />
+              <Image src="/icons/circleMinus.svg" alt={t("forms:data_series_input.remove_column_from_data_series")} width={24} height={24} />
             </button>
           </div>
         </div>
       </label>
       <details className="margin-block-75">
         <summary>
-          Advanced {/* TODO - translate */}
+          {t("forms:data_series_input.advanced")}
         </summary>
         <p>
           <Trans
-            i18nKey={"forms:goal.data_series_info"}
+            i18nKey={"forms:data_series_input.data_series_info"}
             components={{ strong: <strong />, br: <br /> }}
           />
         </p>
         <label className="block margin-block-75">
-          {t("forms:goal.data_series")}
+          {t("forms:data_series_input.data_series")}
           <input type="text" name="dataSeries" required id="dataSeries"
             pattern={dataSeriesPattern}
-            title={t("forms:goal.data_series_title")}
+            title={t("forms:data_series_input.data_series_title")}
             value={dataSeriesValues.join(";")}
             className="margin-block-25"
             onBeforeInput={(e) => {
