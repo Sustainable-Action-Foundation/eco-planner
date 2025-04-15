@@ -4,6 +4,7 @@ import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput";
 import { getScalingResult } from "@/components/modals/copyAndScale";
 import RepeatableScaling from "@/components/repeatableScaling";
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
+import formSubmitter from "@/functions/formSubmitter";
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 import mathjs from "@/math";
 import { GoalInput, ScaleBy, ScaleMethod, ScalingRecipie, dataSeriesDataFieldNames, isScalingRecipie } from "@/types";
@@ -14,7 +15,6 @@ import { useTranslation } from "react-i18next";
 import { getDataSeries } from "../dataSeriesInput/utils";
 import styles from '../forms.module.css';
 import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
-import formSubmitter from "@/functions/formSubmitter";
 
 enum DataSeriesType {
   Static = "STATIC",
@@ -40,7 +40,7 @@ const dataSeriesLength = dataSeriesDataFieldNames.length
  * and  
  * ";0;;;4;1"
  */
-export const dataSeriesPattern = `(([-]?[0-9]+([.,][0-9]+)?)?[(\t);]){0,${dataSeriesLength - 1}}([-]?[0-9]+([.,][0-9]+)?)?`;
+export const dataSeriesPattern = `(([\\-]?[0-9]+([.,][0-9]+)?)?[\t;]){0,${dataSeriesLength - 1}}([\\-]?[0-9]+([.,][0-9]+)?)?`;
 
 export default function GoalForm({
   roadmapId,
