@@ -113,8 +113,8 @@ export default function DataSeriesInput({
       <label className="block margin-block-75">
         {t("forms:goal.data_series")}
         {/* TODO: Make this allow .csv files and possibly excel files */}
-        <div style={{ border: "1px solid var(--gray-90)", padding: ".25rem", borderRadius: "0.25rem", maxWidth: "48.5rem", display: "flex" }}>
-          <div id="inputGrid" className={`${styles.sideScroll}`} style={{ display: "grid", gridTemplateColumns: `repeat(${dataSeriesValues.length}, 1fr)`, gap: "0rem", gridTemplateRows: "auto", borderRadius: "0.25rem" }}>
+        <div className="padding-25 smooth flex" style={{ border: "1px solid var(--gray-90)", maxWidth: "48.5rem" }}>
+          <div id="inputGrid" className={`${styles.sideScroll} smooth grid gap-0`} style={{ gridTemplateColumns: `repeat(${dataSeriesValues.length}, 1fr)`, gridTemplateRows: "auto" }}>
             {dataSeriesValues.map((value, index) => index < dataSeriesDataFieldNames.length && (
               <div key={`column-${index}`}>
                 <label htmlFor={dataSeriesDataFieldNames[index]} className="padding-25">{dataSeriesDataFieldNames[index].replace("val", "")}</label>
@@ -142,7 +142,7 @@ export default function DataSeriesInput({
               </div>
             ))}
           </div>
-          <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
+          <div className="flex flex-direction-column justify-content-center">
             <button
               type="button"
               className={`${styles.columnControlsButton}`}
