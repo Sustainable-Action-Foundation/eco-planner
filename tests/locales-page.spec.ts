@@ -1,4 +1,4 @@
-import { switcherLanguage as switchLanguage } from "lib/switch-language";
+import { switchLanguage } from "lib/switch-language";
 import "./lib/console";
 import { expect, test } from "playwright/test";
 
