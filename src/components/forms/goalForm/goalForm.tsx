@@ -40,7 +40,7 @@ const dataSeriesLength = dataSeriesDataFieldNames.length
  * and  
  * ";0;;;4;1"
  */
-export const dataSeriesPattern = `(([0-9]+([.,][0-9]+)?)?[\t;]){0,${dataSeriesLength - 1}}([0-9]+([.,][0-9]+)?)?`;
+export const dataSeriesPattern = `(([-]?[0-9]+([.,][0-9]+)?)?[(\t);]){0,${dataSeriesLength - 1}}([-]?[0-9]+([.,][0-9]+)?)?`;
 
 export default function GoalForm({
   roadmapId,
