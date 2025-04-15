@@ -1,4 +1,6 @@
-FROM node:20-alpine
+FROM node:20-bookworm AS base
+
+FROM base AS deps
 
 WORKDIR /app
 

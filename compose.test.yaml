@@ -8,17 +8,19 @@ services:
     networks:
       - test_network
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-padmin" ]
+      test: [ "CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "root", "-padmin" ]
       interval: 2s
       timeout: 20s
       retries: 10
 
   web:
     image: ecoplanner:web
+    pull_policy: build
     build:
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: Dockerfile
     networks:
+      - default
       - test_network
     ports:
       - 127.0.0.1:8082:8081
@@ -34,10 +36,12 @@ services:
 
   test:
     image: ecoplanner:test
+    pull_policy: build
     build:
       context: .
       dockerfile: docker/test.Dockerfile
     networks:
+      - default
       - test_network
     volumes:
       - ./playwright-report:/app/playwright-report
