@@ -111,7 +111,11 @@ export default function EffectForm({
             <div className="margin-block-100">
               <button type="button" onClick={() => {
                 setSelectedImpactType(ActionImpactType.DELTA);
-                setDataSeriesString(absoluteToDelta(dataSeriesString));
+
+                const formElement = document?.querySelector('form');
+                if (formElement) {
+                  setDataSeriesString(absoluteToDelta(getDataSeries(formElement.elements).join(";")));
+                }
               }}>
                 {t("forms:effect.to_year_by_year")}
               </button>
@@ -125,7 +129,11 @@ export default function EffectForm({
               <div className="margin-block-100">
                 <button type="button" onClick={() => {
                   setSelectedImpactType(ActionImpactType.ABSOLUTE);
-                  setDataSeriesString(deltaToAbsolute(dataSeriesString));
+
+                  const formElement = document?.querySelector('form');
+                  if (formElement) {
+                    setDataSeriesString(deltaToAbsolute(getDataSeries(formElement.elements).join(";")));
+                  }
                 }}>
                   {t("forms:effect.to_absolute")}
                 </button>
