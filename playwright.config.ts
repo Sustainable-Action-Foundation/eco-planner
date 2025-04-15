@@ -15,11 +15,22 @@ export default defineConfig({
   // Retry on CI only.
   retries: process.env.CI ? 0 : 1,
 
-  // Opt out of parallel tests on CI.
-  workers: process.env.CI ? 1 : undefined,
+  // // Opt out of parallel tests on CI.
+  // workers: process.env.CI ? 1 : undefined,
+  workers: undefined, // Always run in parallel
 
   // Reporter to use
-  reporter: [["html", { open: "never" }], ["list"]],
+  // reporter: [["html", { open: "never" }], ["list"]],
+  reporter: [
+    // ["json"],
+    // ["html", { open: "never" }],
+    // ["list"],
+    // ["line"], // Not good with tsx runtime
+    // ["dot"], // Pretty but uninformative
+    // ["junit"],
+    process.env.CI ? ["github"] : ["list"],
+    // ["blob"],
+  ],
 
   // Global use
   use: {

@@ -141,6 +141,7 @@ dist
 # Playwright test results
 certificates
 /test-results
+/blob-report
 /playwright-report
 /playwright-results.json
 /test/screenshots
