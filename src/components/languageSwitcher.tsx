@@ -4,11 +4,9 @@ import { LocaleContext, LocaleSetterContext } from "@/lib/i18nClient";
 import { match } from "@formatjs/intl-localematcher";
 import { setCookie } from "cookies-next/client";
 import { localeAliases, Locales, uniqueLocales } from "i18n.config";
-import { useRouter } from "next/navigation";
 import { useContext, useState, useTransition } from "react";
 
 export function LanguageSwitcher() {
-  const router = useRouter();
   const locale = useContext(LocaleContext);
   const setLocaleContext = useContext(LocaleSetterContext);
   const [isPending, startTransition] = useTransition();
@@ -25,8 +23,9 @@ export function LanguageSwitcher() {
     setCookie("locale", cleanLocale);
 
     // Server update. Refresh the page
+    // TODO: Find a better solution than hard refresh
     startTransition(() => {
-      router.refresh();
+      window.location.reload();
     });
 
     // Client update. Set lang and dispatch event for rerendering

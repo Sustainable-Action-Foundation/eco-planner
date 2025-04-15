@@ -15,7 +15,7 @@ export default async function RootLayout(
     (await headers()).get("accept-language"),
   );
 
-  initI18nServer(locale);
+  await initI18nServer(locale);
 
   return (
     <html lang={locale}>
