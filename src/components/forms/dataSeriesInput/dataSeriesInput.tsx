@@ -26,7 +26,6 @@ export default function DataSeriesInput({
     }
   }, [dataSeriesString]);
 
-  // TODO - dont allow negative values?
   function isValidSingleInputForGrid(char: string): boolean {
     // For onBeforeInput – blocks invalid keystrokes
     return /^[0-9.,-]+$/.test(char);

@@ -54,8 +54,7 @@ export default function EffectForm({
       return;
     }
 
-    // Convert the data series to an array of numbers in string format, the actual parsing is done by the API
-    // const dataSeries = dataSeriesInput.replaceAll(',', '.').split(/[\t;]/); // TODO - make sure this works
+    // Get the data series as an array of numbers in string format, the actual parsing is done by the API
     const dataSeries = getDataSeries(event.target.elements);
 
     const formContent: EffectInput & { timestamp: number } = {
