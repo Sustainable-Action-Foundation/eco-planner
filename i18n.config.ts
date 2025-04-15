@@ -60,7 +60,8 @@ export function initTemplate(t: TFunction): InitOptions {
         }
         /* Relative time */
         if (formats.includes("relativeTime")) {
-          value = relativeTime(value, lng);
+          const date = options && options.date;
+          value = relativeTime(value, lng, date);
         }
 
 
@@ -116,7 +117,7 @@ function possessive(value: string | undefined, lng: string | undefined): string 
   return value;
 }
 
-function relativeTime(value: string | undefined, lng: string | undefined): string | undefined {
+function relativeTime(value: string | undefined, lng: string | undefined, date: Date | undefined): string | undefined {
   if (typeof value !== "string") {
     console.warn(`Value passed to relativeTime formatter is not a string. Received: ${value}, type: ${typeof value}. Returning value as is.`);
     return value;
@@ -125,8 +126,11 @@ function relativeTime(value: string | undefined, lng: string | undefined): strin
     console.warn("Relative time formatter requires a locale to be set. Returning value as is.");
     return value;
   }
+  if (!date) {
+    console.warn("Relative time formatter requires a date to be set. Returning value as is.");
+    return value;
+  }
 
-  const date = new Date(value);
   if (isNaN(date.getTime())) {
     console.warn(`Invalid date provided for relative time formatter. Received: ${value}, type: ${typeof value}. Returning value as is.`);
     return value;

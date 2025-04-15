@@ -19,7 +19,7 @@
     "comment_count_zero": "Inga kommentarer",
     "comment_count_one": "En kommentar",
     "send": "Skicka",
-    "relative_time": "{{{{date}}, relativeTime}}"
+    "relative_time": "{{date, relativeTime}}"
   },
   "confirm_delete": {
     "delete_post": "Radera inlägg",
@@ -109,7 +109,7 @@
     "add_data_source_button": "Lägg till datakälla",
     "loading": "Laddar...",
     "language_support_warning": "{{dataSource}} stödjer inte ditt valda språk. Ett tillgängligt språk kommer att användas istället.",
-    "selected_table": "Vald tabell: {{table}}",
+    "selected_table": "<strong>Vald tabell:</strong> <small><i>{{table}}</i></small>",
     "no_variables_found": "Det finns inga variabler"
   },
   "roadmap_filters": {

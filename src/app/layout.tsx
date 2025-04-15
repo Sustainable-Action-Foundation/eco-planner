@@ -11,11 +11,11 @@ export default async function RootLayout(
   { children, }: { children: React.ReactNode, }
 ) {
   const locale = getLocale(
-    cookies().get("locale")?.value,
-    headers().get("accept-language"),
+    (await cookies()).get("locale")?.value,
+    (await headers()).get("accept-language"),
   );
 
-  initI18nServer(locale);
+  await initI18nServer(locale);
 
   return (
     <html lang={locale}>

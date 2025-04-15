@@ -19,7 +19,7 @@ import { cookies } from "next/headers";
  * @returns Goal object with actions
  */
 export default async function getGoalByIndicator(roadmapId: string, indicatorParameter: string, unit?: string) {
-  const session = await getSession(cookies());
+  const session = await getSession(await cookies());
   return getCachedGoal(roadmapId, indicatorParameter, unit, session.user)
 }
 

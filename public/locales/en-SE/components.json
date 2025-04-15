@@ -19,7 +19,7 @@
     "comment_count_zero": "No comments",
     "comment_count_one": "One comment",
     "send": "Submit",
-    "relative_time": "{{{{date}}, relativeTime}}"
+    "relative_time": "{{date, relativeTime}}"
   },
   "confirm_delete": {
     "delete_post": "Delete post",
@@ -109,7 +109,7 @@
     "add_data_source_button": "Add data source",
     "loading": "Loading...",
     "language_support_warning": "{{dataSource}} does not support your current language. A fallback language will be used.",
-    "selected_table": "Selected table: {{table}}",
+    "selected_table": "<strong>Selected table:</strong> <small><i>{{table}}</i></small>",
     "no_variables_found": "There are no variables"
   },
   "roadmap_filters": {

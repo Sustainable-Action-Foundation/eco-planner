@@ -13,7 +13,7 @@ import { NextRequest } from "next/server";
  */
 export async function POST(request: NextRequest) {
   const [session, effect] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     request.json() as Promise<JSONValue>,
   ]);
 
@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
   function isEffect(effect: JSONValue): effect is EffectInput {
     return (
       // effect should be an object
+      (// impactType may be included, and should in that case be one of the values in ActionImpactType
       typeof effect === 'object' &&
       effect != null &&
       !(effect instanceof Array) &&
@@ -29,10 +30,8 @@ export async function POST(request: NextRequest) {
       typeof effect.goalId === 'string' &&
       // dataSeries should be an array of strings
       effect.dataSeries instanceof Array &&
-      effect.dataSeries.every((value) => typeof value === 'string') &&
-      // impactType may be included, and should in that case be one of the values in ActionImpactType
-      (effect.impactType === undefined || Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType))
-    )
+      effect.dataSeries.every((value) => typeof value === 'string') && (effect.impactType === undefined || Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType)))
+    );
   }
 
   if (!isEffect(effect)) {
@@ -180,7 +179,7 @@ export async function POST(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   const [session, effect] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     request.json() as Promise<JSONValue>,
   ]);
 
@@ -188,7 +187,7 @@ export async function PUT(request: NextRequest) {
   function isEffect(effect: JSONValue): effect is EffectInput & { timestamp: number } {
     return (
       // effect should be an object
-      typeof effect === 'object' &&
+      (typeof effect === 'object' &&
       effect != null &&
       !(effect instanceof Array) &&
       // actionId and goalId should be strings
@@ -203,10 +202,9 @@ export async function PUT(request: NextRequest) {
         )
       ) &&
       // impactType may be included, and should in that case be one of the values in ActionImpactType
-      (effect.impactType === undefined || Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType)) &&
-      // timestamp should be a number
-      typeof effect.timestamp === 'number'
-    )
+      (effect.impactType === undefined || Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType)) && // timestamp should be a number
+      typeof effect.timestamp === 'number')
+    );
   }
 
   if (!isEffect(effect)) {
@@ -367,7 +365,7 @@ export async function PUT(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   const [session, effect] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     request.json() as Promise<JSONValue>,
   ]);
 
@@ -376,13 +374,12 @@ export async function DELETE(request: NextRequest) {
   function isEffect(effect: JSONValue): effect is { actionId: string, goalId: string } {
     return (
       // effect should be an object
-      typeof effect === 'object' &&
+      (typeof effect === 'object' &&
       effect != null &&
       !(effect instanceof Array) &&
       // actionId and goalId should be strings
-      typeof effect.actionId === 'string' &&
-      typeof effect.goalId === 'string'
-    )
+      typeof effect.actionId === 'string' && typeof effect.goalId === 'string')
+    );
   }
 
   if (!isEffect(effect)) {

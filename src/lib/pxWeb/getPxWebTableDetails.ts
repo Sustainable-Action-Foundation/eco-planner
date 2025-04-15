@@ -7,7 +7,7 @@ export default async function getPxWebTableDetails(tableId: string, externalData
   const baseUrl = externalDatasets[externalDataset]?.baseUrl ?? externalDatasets.SCB?.baseUrl;
   const url = new URL(`${baseUrl}/tables/${tableId}/metadata`);
 
-  console.time("pxWebTableDetails");
+  /* console.time("pxWebTableDetails"); */
 
   url.searchParams.append('lang', language);
 
@@ -105,6 +105,6 @@ export default async function getPxWebTableDetails(tableId: string, externalData
     tableDetails.variables.push(pxWebVariable);
   }
 
-  console.timeEnd("pxWebTableDetails");
+  /* console.timeEnd("pxWebTableDetails"); */
   return tableDetails;
 }
