@@ -14,7 +14,7 @@ import { cookies } from "next/headers";
  * @returns Array of roadmaps
  */
 export default async function getNationals() {
-  const session = await getSession(cookies());
+  const session = await getSession(await cookies());
   return getCachedRoadmaps(session.user);
 }
 

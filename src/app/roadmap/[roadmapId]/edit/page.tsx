@@ -9,9 +9,10 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { t } from "@/lib/i18nServer";
 import { ScopeReminder } from "@/components/forms/roadmapForm/scopeReminder";
 
-export default async function Page({ params }: { params: { roadmapId: string } }) {
+export default async function Page(props: { params: Promise<{ roadmapId: string }> }) {
+  const params = await props.params;
   const [session, roadmap] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     getOneRoadmap(params.roadmapId),
   ]);
 

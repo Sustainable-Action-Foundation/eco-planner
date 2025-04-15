@@ -17,7 +17,7 @@ import prisma from "@/prismaClient.ts";
  * @returns Effect object with action and goal
  */
 export default async function getOneEffect(actionId: string, goalId: string) {
-  const session = await getSession(cookies());
+  const session = await getSession(await cookies());
   return getCachedEffect(actionId, goalId, session.user);
 }
 

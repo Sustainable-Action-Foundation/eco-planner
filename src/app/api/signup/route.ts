@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { allowedDomains } from "@/lib/allowedDomains";
 import prisma from "@/prismaClient"
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import mailClient from "@/mailClient";
 import getUserHash from "@/functions/getUserHash";
 import { baseUrl } from "@/lib/baseUrl";

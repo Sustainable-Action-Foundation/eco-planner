@@ -14,7 +14,7 @@ import { Prisma } from "@prisma/client";
  */
 export async function POST(request: NextRequest) {
   const [session, action] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     request.json() as Promise<ActionInput>,
   ]);
 
@@ -213,7 +213,7 @@ export async function POST(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   const [session, action] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     request.json() as Promise<ActionInput & { actionId: string, timestamp?: number }>
   ]);
 
@@ -363,7 +363,7 @@ export async function PUT(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   const [session, action] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     request.json() as Promise<{ id: string }>
   ]);
 

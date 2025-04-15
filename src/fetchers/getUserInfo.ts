@@ -16,7 +16,7 @@ import { cookies } from "next/headers";
  * @returns User object with authored roadmaps
  */
 export default async function getUserInfo(username: string) {
-  const session = await getSession(cookies());
+  const session = await getSession(await cookies());
   return getCachedUserInfo(username, session.user);
 }
 

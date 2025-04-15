@@ -10,9 +10,6 @@ const nextConfig = {
     }
   } : {}),
   output: 'standalone',
-  experimental: {
-    instrumentationHook: true,
-  },
   webpack: (
     config,
     { _buildId, _dev, _isServer, _defaultLoaders, _nextRuntime, _webpack }
@@ -26,6 +23,13 @@ const nextConfig = {
 
     return config;
   },
+  turbopack: {
+    rules: {
+      "/src/scripts/": {
+        loaders: ['ignore-loader'],
+      }
+    },
+  }
 }
 
 export default nextConfig

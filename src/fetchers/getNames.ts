@@ -14,7 +14,7 @@ import { cookies } from "next/headers";
  * @returns Nested array of meta roadmaps, roadmaps, goals, and actions (just ids and names, plus indicator parameter for goals, and a version rather than name for roadmaps)
  */
 export default async function getNames() {
-  const session = await getSession(cookies());
+  const session = await getSession(await cookies());
   return getCachedNames(session.user);
 }
 

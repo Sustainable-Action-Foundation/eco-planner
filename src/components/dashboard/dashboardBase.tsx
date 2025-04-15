@@ -9,7 +9,7 @@ import getOneAction from "@/fetchers/getOneAction";
 
 export default async function DashboardBase({ actor }: { actor: string }) {
   const [session, roadmaps] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     getRoadmapSubset(actor)
   ]);
 

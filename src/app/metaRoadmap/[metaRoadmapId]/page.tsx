@@ -9,9 +9,10 @@ import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { t } from "@/lib/i18nServer";
 
-export default async function Page({ params }: { params: { metaRoadmapId: string } }) {
+export default async function Page(props: { params: Promise<{ metaRoadmapId: string }> }) {
+  const params = await props.params;
   const [session, metaRoadmap] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     getOneMetaRoadmap(params.metaRoadmapId),
   ]);
 
