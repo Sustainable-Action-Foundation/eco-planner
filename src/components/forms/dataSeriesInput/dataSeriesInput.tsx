@@ -1,6 +1,7 @@
 "use client";
 
 import { dataSeriesDataFieldNames } from "@/types";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import styles from "../goalForm/goalForm.module.css"; // TODO - make unique style file
@@ -71,6 +72,28 @@ export default function DataSeriesInput({
     }, 0);
   }
 
+  function addColumn() {
+    setDataSeriesValues((prevValues) => {
+      if (prevValues.length >= dataSeriesDataFieldNames.length) {
+        return prevValues; // Prevent adding more columns than the maximum allowed
+      }
+
+      const newValues = [...prevValues, ""];
+      return newValues;
+    })
+  }
+
+  function removeColumn() {
+    setDataSeriesValues((prevValues) => {
+      if (prevValues.length <= 1) {
+        return prevValues; // Prevent removing the last column
+      }
+
+      const newValues = prevValues.slice(0, -1);
+      return newValues;
+    })
+  }
+
   return (
     <>
       <details className="margin-block-75">
@@ -78,22 +101,19 @@ export default function DataSeriesInput({
           {t("forms:goal.extra_info_data_series")}
         </summary>
         <p>
+          { // TODO - modify so that this text is not identical to the text in the advanced section
+          }
           <Trans
             i18nKey={"forms:goal.data_series_info"}
             components={{ strong: <strong />, br: <br /> }}
           />
-          {/* The &quot;Data series&quot; field accepts a series of values separated by semicolons or tabs, which means you can paste a series of values from Excel or similar.<br />
-          <strong>NOTE: Values must not be separated by commas (&quot;,&quot;).</strong><br />
-          Decimal numbers can use either decimal points or decimal commas.<br />
-          The first value represents the year 2020 and the series can continue up to the year 2050 (a total of 31 values).<br />
-          If values are missing for a year, you can leave it blank, for example &quot;;1;;;;5&quot; can be used to specify the values 1 and 5 for the years 2021 and 2025. */}
         </p>
       </details>
 
       <label className="block margin-block-75">
         {t("forms:goal.data_series")}
         {/* TODO: Make this allow .csv files and possibly excel files */}
-        <div style={{ border: "1px solid var(--gray-90)", padding: ".25rem", borderRadius: "0.25rem", maxWidth: "48.5rem" }}>
+        <div style={{ border: "1px solid var(--gray-90)", padding: ".25rem", borderRadius: "0.25rem", maxWidth: "48.5rem", display: "flex" }}>
           <div id="inputGrid" className={`${styles.sideScroll}`} style={{ display: "grid", gridTemplateColumns: `repeat(${dataSeriesValues.length}, 1fr)`, gap: "0rem", gridTemplateRows: "auto", borderRadius: "0.25rem" }}>
             {dataSeriesValues.map((value, index) => index < dataSeriesDataFieldNames.length && (
               <div key={`column-${index}`}>
@@ -122,6 +142,24 @@ export default function DataSeriesInput({
               </div>
             ))}
           </div>
+          <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
+            <button
+              type="button"
+              className={`${styles.columnControlsButton}`}
+              title="Add column" // TODO - translate
+              onClick={addColumn}
+            >
+              <Image src="/icons/circlePlus.svg" alt="Add new data series" width={24} height={24} />
+            </button>
+            <button
+              type="button"
+              className={`${styles.columnControlsButton}`}
+              title="Remove column" // TODO - translate
+              onClick={removeColumn}
+            >
+              <Image src="/icons/circleMinus.svg" alt="Remove data series" width={24} height={24} />
+            </button>
+          </div>
         </div>
       </label>
       <details className="margin-block-75">
@@ -129,7 +167,6 @@ export default function DataSeriesInput({
           Advanced {/* TODO - translate */}
         </summary>
         <p>
-          {/* TODO - translate (data series text field info) */}
           <Trans
             i18nKey={"forms:goal.data_series_info"}
             components={{ strong: <strong />, br: <br /> }}
