@@ -28,20 +28,21 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import getTableContent from "@/lib/api/getTableContent";
 
-export default async function Page({
-  params,
-  searchParams,
-}: {
-  params: { goalId: string },
-  searchParams: {
-    secondaryGoal?: string | string[] | undefined,
-    [key: string]: string | string[] | undefined
-  },
-}) {
+export default async function Page(
+  props: {
+    params: Promise<{ goalId: string }>,
+    searchParams: Promise<{
+      secondaryGoal?: string | string[] | undefined,
+      [key: string]: string | string[] | undefined
+    }>,
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const locale = "sv";
 
   const [session, { goal, roadmap }, secondaryGoal, unfilteredRoadmapOptions] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     getOneGoal(params.goalId).then(async goal => { return { goal, roadmap: (goal ? await getOneRoadmap(goal.roadmapId) : null) } }),
     typeof searchParams.secondaryGoal == "string" ? getOneGoal(searchParams.secondaryGoal) : Promise.resolve(null),
     getRoadmaps(),

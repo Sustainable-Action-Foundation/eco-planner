@@ -1,14 +1,14 @@
 import { NextRequest } from "next/server";
 import { getSession, options } from "@/lib/session"
 import prisma from "@/prismaClient";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 
 export async function POST(request: NextRequest) {
   const { username, password, remember }: { username: string, password: string, remember?: boolean } = await request.json();
 
   // Create session, set maxAge if user toggled remember me
-  const session = await getSession(cookies(), remember ? {
+  const session = await getSession(await cookies(), remember ? {
     ...options,
     cookieOptions: {
       ...options.cookieOptions,

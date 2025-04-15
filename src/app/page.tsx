@@ -9,10 +9,14 @@ import { RoadmapSortBy } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree.tsx";
 import { t } from "@/lib/i18nServer";
+import Link from "next/link";
 
-export default async function Page({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
+export default async function Page(
+  props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }
+) {
+  const searchParams = await props.searchParams;
   const [session, metaRoadmaps] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     getMetaRoadmaps(),
   ]);
 
@@ -119,7 +123,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
           { // Link to create roadmap form if logged in
             session.user &&
             <>
-              <a href="/metaRoadmap/create" className="button purewhite round block">{t("pages:home.create_roadmap")}</a>
+              <Link href="/metaRoadmap/create" className="button purewhite round block">{t("pages:home.create_roadmap")}</Link>
               {/* TODO: Incorporate this in a reasonable way */}
               {/* <a href="/roadmap/createRoadmap" className="button purewhite round block"></a> */}
             </>

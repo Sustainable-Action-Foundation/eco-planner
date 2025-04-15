@@ -1,7 +1,8 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import { useEffect, useState } from 'react'
+
+const Chart = dynamic(() => import('react-apexcharts'), { ssr: false })
 
 /**
  * A wrapper for ApexCharts that only renders the chart on the client.
@@ -37,22 +38,16 @@ export default function WrappedChart({
   height?: string | number,
   options?: ApexCharts.ApexOptions
 }) {
-  const [isClient, setIsClient] = useState(false)
-  useEffect(() => setIsClient(true), [])
-
-  const Chart = dynamic(() => import('react-apexcharts'))
   return (
     <>
-      {isClient &&
-        <Chart
-          type={type}
-          series={series}
-          width={width}
-          height={height}
-          options={options}
-          {...props}
-        />
-      }
+      <Chart
+        type={type}
+        series={series}
+        width={width}
+        height={height}
+        options={options}
+        {...props}
+      />
     </>
   )
 }

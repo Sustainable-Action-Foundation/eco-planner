@@ -14,7 +14,7 @@ export default async function scaleDataSeries(
   dataSeriesId: string,
   scaleFactor: number,
 ): Promise<string> {
-  const session = await getSession(cookies())
+  const session = await getSession(await cookies())
   if (!session.user) return "Not logged in";
 
   // Create an object with the yearly dataSeries fields as keys, and each value is an object with a multiply key and the scaleFactor as the value

@@ -16,7 +16,7 @@ import { recalculateGoal } from "@/functions/recalculateGoal";
  */
 export async function POST(request: NextRequest) {
   const [session, goal] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     request.json() as Promise<GoalInput & { roadmapId: string }>,
   ]);
 
@@ -224,7 +224,7 @@ export async function POST(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   const [session, goal] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     request.json() as Promise<GoalInput & { goalId: string, timestamp?: number }>,
   ]);
 
@@ -466,7 +466,7 @@ export async function PUT(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   const [session, goal] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     request.json() as Promise<{ id: string }>
   ]);
 

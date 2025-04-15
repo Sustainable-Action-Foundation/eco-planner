@@ -10,9 +10,10 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { t } from "@/lib/i18nServer";
 
 
-export default async function Page({ params }: { params: { goalId: string } }) {
+export default async function Page(props: { params: Promise<{ goalId: string }> }) {
+  const params = await props.params;
   const [session, currentGoal, roadmaps] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     getOneGoal(params.goalId),
     getRoadmaps(),
   ]);

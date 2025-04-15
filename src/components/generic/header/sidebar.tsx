@@ -11,7 +11,7 @@ import { t } from "@/lib/i18nServer"
 // import Notifications from '../notifications/notification'
 
 export default async function Sidebar() {
-  const { user } = await getSession(cookies())
+  const { user } = await getSession(await cookies())
 
   return <>
     <aside className={styles.container}>
