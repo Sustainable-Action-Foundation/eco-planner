@@ -315,6 +315,8 @@ export default function GoalForm({
             </select>
           </label>
 
+          {// TODO - use input component here
+          }
           {baselineType === BaselineType.Custom &&
             <label className="block margin-block-100">
               {t("forms:goal.custom_baseline_label")}

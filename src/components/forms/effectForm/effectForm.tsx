@@ -101,19 +101,6 @@ export default function EffectForm({
 
         <GoalSelector goal={goal} roadmapAlternatives={roadmapAlternatives} />
 
-        { /* Use grid input here */}
-        {/* <label className="block margin-block-100">
-          {t("forms:effect.data_series")}
-          {// TODO: Make this allow .csv files and possibly excel files 
-          }
-          <input type="text" name="dataSeries" required id="dataSeries"
-            pattern={dataSeriesPattern}
-            title={t("forms:effect.data_series_title")}
-            className="margin-block-25"
-            value={dataSeriesString}
-            onChange={(event) => setDataSeriesString(event.target.value)}
-          />
-        </label> */}
         <DataSeriesInput
           dataSeriesString={dataSeriesString}
         />
