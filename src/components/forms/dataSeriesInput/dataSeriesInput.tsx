@@ -4,8 +4,8 @@ import { dataSeriesDataFieldNames } from "@/types";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import styles from "../goalForm/goalForm.module.css"; // TODO - make unique style file
 import { dataSeriesPattern } from "../goalForm/goalForm"; // TODO - fix this
+import styles from "./dataSeriesInput.module.css";
 
 export default function DataSeriesInput({
   dataSeriesString
