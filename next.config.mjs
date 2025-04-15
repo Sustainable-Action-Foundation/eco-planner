@@ -23,6 +23,13 @@ const nextConfig = {
 
     return config;
   },
+  turbopack: {
+    rules: {
+      "/src/scripts/": {
+        loaders: ['ignore-loader'],
+      }
+    },
+  }
 }
 
 export default nextConfig
