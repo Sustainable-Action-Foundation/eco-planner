@@ -10,6 +10,23 @@ test.describe("Locales Test page", () => {
   const emptyMessage = "[EMPTY]";
   const missingMessage = "[MISSING]";
 
+  test("Formatters", async ({ page }) => {
+    await page.goto("/localesTest");
+
+    await page.waitForSelector("[data-testid='formatter-table']");
+
+    const table = page.getByTestId("formatter-table");
+    const rows = table.getByTestId("formatter-row");
+
+    for (let i = 0; i < await rows.count(); i++) {
+      const row = rows.nth(i);
+      const output = await row.getByTestId("output").textContent();
+      const input = await row.getByTestId("input").textContent();
+
+      expect(output !== input, `Formatter (row ${i + 1}) failed to transform`).toBeTruthy();
+    }
+  });
+
   test("Key count", async ({ page }) => {
     await page.goto("/localesTest");
 

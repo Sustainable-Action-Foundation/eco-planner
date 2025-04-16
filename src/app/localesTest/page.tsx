@@ -68,7 +68,7 @@ export default async function LocaleTestPage() {
             </p>
           </div>
 
-          <table>
+          <table data-testid="formatter-table">
             {/* Header */}
             <thead>
               <tr>
@@ -104,12 +104,12 @@ export default async function LocaleTestPage() {
                   const resolvedVar = t(formatterVar, defaultArgs);
 
                   return (
-                    <tr key={index} className={`${index % 2 === 0 ? styles.even : styles.odd}`}>
+                    <tr data-testid="formatter-row" key={index} className={`${index % 2 === 0 ? styles.even : styles.odd}`}>
                       <td>{index + 1}</td>
                       <td>{formatterType}</td>
-                      <td>{resolvedVar}</td>
+                      <td data-testid="input">{resolvedVar}</td>
                       <td>{"→"}</td>
-                      <td data-content={isEmpty ? "empty" : isMissing ? "missing" : ""}>{output}</td>
+                      <td data-testid="output" data-content={isEmpty ? "empty" : isMissing ? "missing" : ""}>{output}</td>
                       <td>{resolvedVar === output ? "❌" : "✔"}</td>
                       <td>{key}</td>
                     </tr>
