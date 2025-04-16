@@ -26,8 +26,8 @@ export function Stats(
     let missingCount = 0;
 
     rows.forEach((row) => {
-      const serverSide: HTMLElement | null = row.querySelector(`p[data-type="server"]`);
-      const clientSide: HTMLElement | null = row.querySelector(`p[data-type="client"]`);
+      const serverSide: HTMLElement | null = row.querySelector(`*[data-type="server"]`);
+      const clientSide: HTMLElement | null = row.querySelector(`*[data-type="client"]`);
 
       // Server side check
       if (serverSide && serverSide.textContent === empty) {

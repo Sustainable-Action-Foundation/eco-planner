@@ -19,7 +19,7 @@ export const localeAliases: Record<Locales, string> = {
 export const ns = ["common", "forms", "components", "graphs", "pages", "email"];
 
 const i18nFormatter = createInstance();
-i18nFormatter.init();
+i18nFormatter.init({});
 
 export function initTemplate(t: TFunction): InitOptions {
   return {

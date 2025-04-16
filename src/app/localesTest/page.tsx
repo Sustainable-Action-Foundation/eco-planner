@@ -9,9 +9,14 @@ import { Stats } from "./stats";
 
 export default async function LocaleTestPage() {
   // In dev mode i18next can be kinda flakey so this just boots the server side i18n instance
-  const _preloadT = t("common:action_one")
+  const _preloadT = t("common:action_one");
 
-  const defaultArgs = { count: 17, date: new Date(Date.now() - 10000) };
+  const defaultArgs = {
+    count: 17,
+    date: new Date("2025-04-23T18:23:31.501Z"),
+    fileTypes: [".txt", ".pdf", ".docx"],
+    encodings: ["utf-8", "utf-16", "ascii"],
+  };
 
   const allFlattened = getAllJSONFlattened()[Locales.default];
   const allKeys = Object.keys(allFlattened);
@@ -32,7 +37,12 @@ export default async function LocaleTestPage() {
       {/* Description */}
       <section className={styles.description}>
         <h1>Test page for translations</h1>
-        <p>Here you can see all translation keys in the project to easily see if something is missing or wrong. All keys will receive the arguments {JSON.stringify(defaultArgs)} to make debugging easier. In addition to that, if a key resolves to an empty string, it will be displayed as &quot;[EMPTY]&quot; and if the key cannot be resolved, it will be displayed as &quot;[MISSING]&quot;.</p>
+        <p>
+          Here you can see all translation keys in the project to easily see if something is missing or wrong. All keys will receive the arguments:
+          <strong style={{ whiteSpace: "preserve" }}>{JSON.stringify(defaultArgs, null, 2)}</strong>
+          <br />
+          to make debugging easier. In addition to that, if a key resolves to an empty string, it will be displayed as <span data-content="empty">[EMPTY]</span> and if the key cannot be resolved, it will be displayed as <span data-content="missing">[MISSING]</span>.
+        </p>
       </section>
 
       {/* Tables */}
@@ -40,15 +50,34 @@ export default async function LocaleTestPage() {
         {/* Formatters */}
         <div className={styles.formatters}>
           <h2>Formatters</h2>
+          <div>
+            <p>
+              This table shows every instance of a <a href="https://www.i18next.com/translation-function/formatting" target="_blank" rel="noopener noreferrer">formatter</a> being used in the app.
+            </p>
+            <p>
+              Definition: formatter statement = &quot;{"{{"}variable, formatters{"}}"}&quot;
+            </p>
+            <p>
+              Input is the variable, resolved trough t(), in case of it being a nested key.
+            </p>
+            <p>
+              Output is the entire formatter statement resolved through t().
+            </p>
+            <p>
+              The mark afterward (✔ or ❌) indicates if the input was transformed in any way by the formatter. If not, that is concerning.
+            </p>
+          </div>
+
           <table>
             {/* Header */}
             <thead>
               <tr>
                 <th>{/* Spacing */}</th>
-                <th>Formatters</th>
+                <th>Formatter</th>
                 <th>Input</th>
                 <th>{/* Arrow */}</th>
                 <th>Output</th>
+                <th>{/* Did it change? */}</th>
                 <th>Key</th>
               </tr>
             </thead>
@@ -67,18 +96,21 @@ export default async function LocaleTestPage() {
                 .map(([key, interpolationCall], index) => {
                   const [formattedInput, formatterVar, formatterType] = interpolationCall;
 
-                  const formattedOutput = t(formattedInput);
+                  const formattedOutput = t(formattedInput, defaultArgs);
                   const isEmpty = formattedOutput == "";
                   const isMissing = formattedOutput == formattedInput;
                   const output = isEmpty ? "[EMPTY]" : isMissing ? "[MISSING]" : formattedOutput;
+
+                  const resolvedVar = t(formatterVar, defaultArgs);
 
                   return (
                     <tr key={index} className={`${index % 2 === 0 ? styles.even : styles.odd}`}>
                       <td>{index + 1}</td>
                       <td>{formatterType}</td>
-                      <td>{formattedInput}</td>
+                      <td>{resolvedVar}</td>
                       <td>{"→"}</td>
                       <td data-content={isEmpty ? "empty" : isMissing ? "missing" : ""}>{output}</td>
+                      <td>{resolvedVar === output ? "❌" : "✔"}</td>
                       <td>{key}</td>
                     </tr>
                   );
@@ -98,6 +130,9 @@ export default async function LocaleTestPage() {
         {/* All translations */}
         <div className={styles.allTranslations}>
           <h2>All Translations</h2>
+          <div>
+            <p>The server side translations simply call the i18nServer t() function. The client side translations either use t() defined with useTranslation() or {"<Trans />"} in cases where the translation has any elements in it.</p>
+          </div>
           <table data-testid="translation-table">
             {/* Header */}
             <thead>

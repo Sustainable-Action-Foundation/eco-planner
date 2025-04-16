@@ -27,7 +27,7 @@
       margin-bottom: 0;
     }
 
-    &>* {
+    &>*:last-child {
       margin-bottom: 3rem;
     }
 
@@ -39,11 +39,6 @@
       & tr>* {
         padding-inline: 1ch;
         vertical-align: top;
-
-        &:is([data-content="empty"], [data-content="missing"]) {
-          color: red;
-          background-color: yellow;
-        }
       }
     }
   }
@@ -73,4 +68,9 @@
 
 .even {
   background-color: #e0e0e0;
+}
+
+*:is([data-content="empty"], [data-content="missing"]) {
+  color: red;
+  background-color: yellow;
 }
