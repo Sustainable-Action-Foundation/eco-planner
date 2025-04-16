@@ -95,7 +95,7 @@
   "profile": {
     "handle_data": "Hantera min data",
     "my_posts": "Mina inlägg",
-    "user_posts": "{{{{name}}, possessive, titleCase}} inlägg",
+    "user_posts": "{{name, possessive, titleCase}} inlägg",
     "roadmap_series_ones": "{{$t(common:roadmap_series_other), titleCase}}",
     "version_count_one": "{{count}} version",
     "version_count_other": "{{count}} versioner",
