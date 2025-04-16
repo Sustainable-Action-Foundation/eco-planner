@@ -44,12 +44,12 @@
     "data_series_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller kommatecken.",
     "custom_baseline_label": "Anpassad baslinje:",
     "custom_baseline_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller komma.",
-    "add_column": "Lägg till kolumn",
-    "remove_column": "Ta bort kolumn",
-    "add_new_column_to_data_series": "Lägg till ny kolumn i dataserie",
-    "remove_column_from_data_series": "Ta bort kolumn från dataserie",
-    "add_new_column_to_custom_baseline": "Lägg till ny kolumn i anpassad baslinje",
-    "remove_column_from_custom_baseline": "Ta bort kolumn från anpassad baslinje",
+    "add_year": "Lägg till år",
+    "remove_year": "Ta bort år",
+    "add_new_year_to_data_series": "Lägg till ny år i dataserie",
+    "remove_year_from_data_series": "Ta bort år från dataserie",
+    "add_new_year_to_custom_baseline": "Lägg till ny år i anpassad baslinje",
+    "remove_year_from_custom_baseline": "Ta bort år från anpassad baslinje",
     "advanced": "Avancerade alternativ"
   },
   "effect": {

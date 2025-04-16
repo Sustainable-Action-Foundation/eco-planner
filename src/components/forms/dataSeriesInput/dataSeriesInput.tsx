@@ -130,18 +130,18 @@ export default function DataSeriesInput({
             <button
               type="button"
               className={`${styles.columnControlsButton}`}
-              title={t("forms:data_series_input.add_column")}
+              title={t("forms:data_series_input.add_year")}
               onClick={addColumn}
             >
-              <Image src="/icons/circlePlus.svg" alt={t("forms:data_series_input.add_column_to_data_series")} width={24} height={24} />
+              <Image src="/icons/circlePlus.svg" alt={t("forms:data_series_input.add_year_to_data_series")} width={24} height={24} />
             </button>
             <button
               type="button"
               className={`${styles.columnControlsButton}`}
-              title={t("forms:data_series_input.remove_column")}
+              title={t("forms:data_series_input.remove_year")}
               onClick={removeColumn}
             >
-              <Image src="/icons/circleMinus.svg" alt={t("forms:data_series_input.remove_column_from_data_series")} width={24} height={24} />
+              <Image src="/icons/circleMinus.svg" alt={t("forms:data_series_input.remove_year_from_data_series")} width={24} height={24} />
             </button>
           </div>
         </div>
