@@ -169,7 +169,7 @@ export function InheritedGoalForm({
             <option value="">{t("forms:goal.select_goal")}</option>
             {roadmapData?.goals.map((goal) => (
               <option value={goal.id} key={`inherit-${goal.id}`}>
-                {`${goal.name ?? t("forms:goal.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || t("forms:goal.unit_missing")})`}
+                {`${goal.name ?? t("forms:goal.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || t("common:tsx.unit_missing")})`}
               </option>
             ))}
           </select>
@@ -286,7 +286,7 @@ export function CombinedGoalForm({
                     }
                   }}
                 />
-                {`${goal.name ?? t("forms:goal.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || t("forms:goal.unit_missing")})`}
+                {`${goal.name ?? t("forms:goal.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || t("common:tsx.unit_missing")})`}
               </label>
               {/* TODO: marginLeft: 25? What? */}
               {inheritFrom?.includes(goal.id) &&
@@ -360,7 +360,7 @@ export function InheritingBaseline() {
             <option value="">{t("forms:goal.select_goal")}</option>
             {roadmapData?.goals.map((goal) => (
               <option value={goal.id} key={`inherit-${goal.id}`} disabled={!goal.dataSeries}>
-                {`${(!goal.dataSeries) ? t("forms:goal.data_missing") : ""}${goal.name ?? t("forms:goal.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || t("forms:goal.unit_missing")})`}
+                {`${(!goal.dataSeries) ? t("forms:goal.data_missing") : ""}${goal.name ?? t("forms:goal.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || t("common:tsx.unit_missing")})`}
               </option>
             ))}
           </select>

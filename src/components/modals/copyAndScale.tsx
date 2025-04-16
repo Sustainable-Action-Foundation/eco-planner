@@ -261,7 +261,7 @@ export default function CopyAndScale({
       name: goal.name,
       description: goal.description,
       indicatorParameter: goal.indicatorParameter,
-      dataUnit: goal.dataSeries?.unit || "missing",
+      dataUnit: goal.dataSeries?.unit || "",
       dataScale: goal.dataSeries?.scale || undefined,
       dataSeries: dataSeries,
       roadmapId: copyToId ?? "",

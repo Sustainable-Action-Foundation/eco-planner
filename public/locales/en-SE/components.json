@@ -19,7 +19,7 @@
     "comment_count_zero": "No comments",
     "comment_count_one": "One comment",
     "send": "Submit",
-    "relative_time": "{{date, relativeTime}}"
+    "relative_time": "{{date, timeAgo}}"
   },
   "confirm_delete": {
     "delete_post": "Delete post",

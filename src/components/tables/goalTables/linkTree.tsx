@@ -103,7 +103,7 @@ export default function LinkTree({
     );
   };
 
-  const data = goalsToTree(goals);
+  const data = goalsToTree(goals, t);
 
   return (
     <>

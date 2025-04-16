@@ -1,8 +1,8 @@
 "use client";
 
-import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
+import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
-import { DataSeries, Effect, Goal } from "@prisma/client";
+import type { DataSeries, Effect, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
 import { parsePeriod } from "@/lib/api/utility";
 import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
 import { ApiTableContent } from "@/lib/api/apiTypes";
@@ -11,13 +11,15 @@ import { useTranslation } from "react-i18next";
 export default function MainGraph({
   goal,
   secondaryGoal,
-  nationalGoal,
+  parentGoal,
+  parentGoalRoadmap,
   historicalData,
   effects,
 }: {
   goal: Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null },
   secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
-  nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
+  parentGoal: Goal & { dataSeries: DataSeries | null } | null,
+  parentGoalRoadmap: Roadmap & { metaRoadmap: MetaRoadmap } | null,
   historicalData?: ApiTableContent | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
 }) {
@@ -46,7 +48,7 @@ export default function MainGraph({
     yaxis: [
       {
         title: { text: goal.dataSeries?.unit },
-        labels: { formatter: floatSmoother },
+        labels: { formatter: graphNumberFormatter },
         seriesName: [
           (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
           t("graphs:common.baseline_scenario"),
@@ -161,17 +163,17 @@ export default function MainGraph({
     if (secondaryGoal.dataSeries.unit != goal.dataSeries.unit) {
       (mainChartOptions.yaxis as ApexYAxis[]).push({
         title: { text: `${t("graphs:main_graph.secondary_goal", { unit: secondaryGoal.dataSeries.unit })}` },
-        labels: { formatter: floatSmoother },
+        labels: { formatter: graphNumberFormatter },
         seriesName: [(secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0]],
         opposite: true,
       });
     }
   }
 
-  if (nationalGoal?.dataSeries) {
+  if (parentGoal?.dataSeries) {
     const nationalSeries = [];
     for (const i of dataSeriesDataFieldNames) {
-      const value = nationalGoal.dataSeries[i];
+      const value = parentGoal.dataSeries[i];
 
       nationalSeries.push({
         x: new Date(i.replace('val', '')).getTime(),
@@ -179,14 +181,14 @@ export default function MainGraph({
       });
     }
     mainChart.push({
-      name: t("graphs:common.national_counterpart"),
+      name: t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name || "" }),
       data: nationalSeries,
       type: 'line',
     });
     (mainChartOptions.yaxis as ApexYAxis[]).push({
       title: { text: t("graphs:main_graph.national_goal") },
-      labels: { formatter: floatSmoother },
-      seriesName: [t("graphs:common.national_counterpart")],
+      labels: { formatter: graphNumberFormatter },
+      seriesName: [t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name || "" })],
       opposite: true,
     });
   }
@@ -211,7 +213,7 @@ export default function MainGraph({
       });
       (mainChartOptions.yaxis as ApexYAxis[]).push({
         title: { text: t("graphs:main_graph.history") },
-        labels: { formatter: floatSmoother },
+        labels: { formatter: graphNumberFormatter },
         seriesName: [`${historicalData.metadata[0]?.label}`],
         opposite: true,
       });

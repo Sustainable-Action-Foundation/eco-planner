@@ -1,6 +1,6 @@
 "use client";
 
-import WrappedChart, { floatSmoother } from "@/lib/chartWrapper.tsx";
+import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper.tsx";
 import { dataSeriesDataFieldNames } from "@/types.ts";
 import { DataSeries, Effect, Goal } from "@prisma/client";
 import { calculatePredictedOutcome, firstNonNullValue } from "../functions/graphFunctions.ts";
@@ -111,7 +111,7 @@ export default function PredictionChildGraph({
     },
     yaxis: {
       title: { text: goal.dataSeries?.unit },
-      labels: { formatter: floatSmoother },
+      labels: { formatter: graphNumberFormatter },
     },
     tooltip: {
       x: { format: 'yyyy' },
