@@ -22,22 +22,25 @@ export default function DataSeriesInput({
 }) {
 
   const { t } = useTranslation();
-  const [dataSeriesValues, setDataSeriesValues] = useState<string[]>(
-    dataSeriesString && dataSeriesString.length > 0
-      ? dataSeriesString.split(/[\t;]/).slice(0, dataSeriesDataFieldNames.length)
-      : Array.from({ length: dataSeriesDataFieldNames.length }, () => ""),
-  );
+  const initialValues = dataSeriesString && dataSeriesString.length > 0
+    ? dataSeriesString.split(/[\t;]/).slice(0, dataSeriesDataFieldNames.length)
+    : Array.from({ length: dataSeriesDataFieldNames.length }, () => "");
+  const [dataSeriesValues, setDataSeriesValues] = useState<string[]>(initialValues);
   const isPasting = useRef(false);
+  const [history, setHistory] = useState<string[][]>([initialValues]);
+  const [historyIndex, setHistoryIndex] = useState<number>(0);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [hasFocus, setHasFocus] = useState(false);
 
   const addColumnRef = useRef<HTMLButtonElement>(null);
   const removeColumnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (dataSeriesString) {
-      setDataSeriesValues(
-        dataSeriesString
-          .split(/[\t;]/)
-          .slice(0, dataSeriesDataFieldNames.length)
+      pushToHistory(dataSeriesString
+        .split(/[\t;]/)
+        .slice(0, dataSeriesDataFieldNames.length)
       );
     }
   }, [dataSeriesString]);
@@ -50,12 +53,61 @@ export default function DataSeriesInput({
     );
   }, [dataSeriesValues]);
 
+  const historyRef = useRef(history);
+  const historyIndexRef = useRef(historyIndex);
+
+  useEffect(() => {
+    historyRef.current = history;
+    historyIndexRef.current = historyIndex;
+  }, [history, historyIndex]);
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (!hasFocus) return;
+
+      // Undo
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === "z") {
+        // if (historyIndex <= 0) return;
+        console.log(history);
+        console.log(historyIndex);
+        e.preventDefault();
+        const currentIndex = historyIndexRef.current;
+
+        if (currentIndex > 0) {
+          const prev = historyRef.current[currentIndex - 1];
+          setDataSeriesValues(prev);
+          historyIndexRef.current = Math.max(0, currentIndex - 1);
+          setHistoryIndex(Math.max(0, currentIndex - 1));
+        }
+      }
+
+      // Redo
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        console.log(history);
+        console.log(historyIndex);
+        const currentIndex = historyIndexRef.current;
+        const redoTarget = historyRef.current[currentIndex + 1];
+
+        if (redoTarget) {
+          setDataSeriesValues(redoTarget);
+          historyIndexRef.current = currentIndex + 1;
+          // historyIndexRef.current = Math.min(historyRef.current.length - 1, currentIndex + 1);
+          setHistoryIndex(currentIndex + 1);
+        }
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown, { capture: true });
+    return () => window.removeEventListener("keydown", handleKeyDown, { capture: true });
+  }, [hasFocus]);
+
   function handleValueChange(e: React.ChangeEvent<HTMLInputElement>, index: number) {
     if (isPasting.current) return;
 
     const newValues = [...dataSeriesValues];
     newValues[index] = e.target.value;
-    setDataSeriesValues(newValues);
+    pushToHistory(newValues);
   }
 
   function handlePaste(e: React.ClipboardEvent<HTMLInputElement>, startIndex: number) {
@@ -72,7 +124,7 @@ export default function DataSeriesInput({
       }
     }
 
-    setDataSeriesValues(newValues);
+    pushToHistory(newValues);
 
     setTimeout(() => {
       isPasting.current = false;
@@ -94,21 +146,51 @@ export default function DataSeriesInput({
   }
 
   function addColumn(e: React.MouseEvent<HTMLButtonElement>) {
-    setDataSeriesValues((prevValues) => {
-      if (prevValues.length >= dataSeriesDataFieldNames.length) return prevValues; // Prevent adding more columns than the maximum allowed
-      return [...prevValues, ""];
-    });
+
+    if (dataSeriesValues.length >= dataSeriesDataFieldNames.length) return dataSeriesValues; // Prevent adding more columns than the maximum allowed
+    pushToHistory([...dataSeriesValues, ""]);
   }
 
   function removeColumn(e: React.MouseEvent<HTMLButtonElement>) {
-    setDataSeriesValues((prevValues) => {
-      if (prevValues.length <= 1) return prevValues; // Prevent removing the last column
-      return prevValues.slice(0, -1);
+    if (dataSeriesValues.length <= 1) return dataSeriesValues; // Prevent removing the last column
+    pushToHistory(dataSeriesValues.slice(0, -1));
+  }
+
+  function pushToHistory(newValues: string[]) {
+    // if (JSON.stringify(newValues) === JSON.stringify(dataSeriesValues)) return; // Prevent pushing the same state to history
+    console.log(dataSeriesValues);
+    console.log(newValues);
+    console.log(history);
+    console.log(historyIndex);
+    setHistory((prev) => {
+      const currentIndex = historyIndexRef.current;
+      if (prev[currentIndex] &&
+        JSON.stringify(prev[currentIndex]) === JSON.stringify(newValues)) {
+        return prev; // Prevent pushing the same state to history
+      }
+
+      const truncated = prev.slice(0, currentIndex + 1); // Cut off any "future" redo history
+      const updated = [...truncated, newValues];
+
+      historyIndexRef.current = updated.length - 1;
+      setHistoryIndex(updated.length - 1);
+      return updated;
     });
+
+    setDataSeriesValues(newValues);
   }
 
   return (
-    <>
+    <div
+      ref={containerRef}
+      tabIndex={-1}
+      onFocus={() => setHasFocus(true)}
+      onBlur={(e) => {
+        if (!containerRef.current?.contains(e.relatedTarget as Node)) {
+          setHasFocus(false);
+        }
+      }}
+    >
       {summaryKey && (
         <details className="margin-block-75">
           <summary>
@@ -143,7 +225,7 @@ export default function DataSeriesInput({
                   type="number"
                   id={dataSeriesDataFieldNames[index]}
                   name={`${inputName}Input`}
-                  value={value}
+                  value={value.replace(",", ".")}
                   onWheel={(e) => {
                     // Prevent the value from changing when scrolling
                     (e.target as HTMLInputElement).blur();
@@ -243,11 +325,11 @@ export default function DataSeriesInput({
                 .split(/[\t;]/)
                 .map((v) => v.trim())
                 .slice(0, dataSeriesDataFieldNames.length);
-              setDataSeriesValues(values);
+              pushToHistory(values);
             }}
           />
         </label>
       </details>
-    </>
+    </div>
   )
 }
