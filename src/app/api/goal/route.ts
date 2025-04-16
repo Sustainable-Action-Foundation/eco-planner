@@ -365,6 +365,7 @@ export async function PUT(request: NextRequest) {
   }
 
   // Prepare goal baseline (if any)
+  const shouldRemoveBaseline = goal.baselineDataSeries === null;
   let baselineValues: Partial<DataSeriesDataFields> | undefined | null = undefined;
   if (goal.baselineDataSeries?.length) {
     // Get baseline data series from the request
@@ -415,7 +416,9 @@ export async function PUT(request: NextRequest) {
           }
         ),
         // Only update the baseline data series if it is not undefined (undefined means no change)
-        ...(baselineValues ? {
+        ...(shouldRemoveBaseline ? {
+          baselineDataSeriesId: null,
+        } : baselineValues ? {
           baselineDataSeries: {
             upsert: {
               create: {
