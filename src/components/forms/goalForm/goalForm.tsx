@@ -123,7 +123,7 @@ export default function GoalForm({
       dataUnit: parsedUnit || (form.namedItem("dataUnit") as HTMLInputElement)?.value || null,
       dataSeries: dataSeries,
       dataScale: (form.namedItem("scale") as HTMLInputElement)?.checked ? null : undefined,
-      baselineDataSeries: baselineDataSeries,
+      baselineDataSeries: baselineDataSeries ?? null,
       combinationScale: JSON.stringify(combinationScale),
       inheritFrom: inheritFrom,
       roadmapId: currentGoal?.roadmapId || roadmapId || (typeof formData.get("roadmapId") == "string" ? formData.get("roadmapId") : null),

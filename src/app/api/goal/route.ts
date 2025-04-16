@@ -417,7 +417,9 @@ export async function PUT(request: NextRequest) {
         ),
         // Only update the baseline data series if it is not undefined (undefined means no change)
         ...(shouldRemoveBaseline ? {
-          baselineDataSeriesId: null,
+          baselineDataSeries: {
+            delete: {}
+          },
         } : baselineValues ? {
           baselineDataSeries: {
             upsert: {
