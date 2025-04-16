@@ -117,6 +117,17 @@ export default function QueryBuilder({
     return queryObject as { variableCode: string, valueCodes: string[] }[];
   }
 
+  function deleteHistoricalData() {
+    formSubmitter("/api/goal", JSON.stringify({
+      goalId: goal.id,
+      externalDataset: null,
+      externalTableId: null,
+      externalSelection: null,
+      timestamp: Date.now(),
+    }), "PUT", setIsLoading);
+    closeModal(modalRef);
+  }
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     // Return if insufficient selection has been made
@@ -413,10 +424,25 @@ export default function QueryBuilder({
 
   return (
     <>
-      <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
-        {t("components:query_builder.add_historical_data")}
-        <Image src="/icons/chartAdd.svg" alt="" width={16} height={16} />
-      </button>
+      {goal.externalDataset && goal.externalTableId
+        ?
+        <>
+          <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
+            {t("components:query_builder.change_historical_data")}
+            <Image src="/icons/chartAdd.svg" alt="" width={16} height={16} />
+          </button>
+
+          <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={deleteHistoricalData}>
+            {t("components:query_builder.remove_historical_data")}
+            <Image src="/icons/delete.svg" alt="" width={16} height={16} />
+          </button>
+        </>
+        :
+        <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
+          {t("components:query_builder.add_historical_data")}
+          <Image src="/icons/chartAdd.svg" alt="" width={16} height={16} />
+        </button>
+      }
 
       <dialog className={`smooth padding-inline-0 ${styles.dialog}`} ref={modalRef} aria-modal>
         <div className="display-flex flex-direction-row-reverse align-items-center justify-content-space-between padding-inline-100">

@@ -87,6 +87,8 @@
   },
   "query_builder": {
     "add_historical_data": "Add historical data",
+    "change_historical_data": "Change historical data",
+    "remove_historical_data": "Remove historical data",
     "add_data_source": "Add data source",
     "add_data_to_goal": "Add a historical data series to {{goalName}}",
     "data_source": "Data source",
