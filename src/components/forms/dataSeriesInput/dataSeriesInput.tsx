@@ -15,13 +15,12 @@ export default function DataSeriesInput({
 
   const { t } = useTranslation();
   const [dataSeriesValues, setDataSeriesValues] = useState<string[]>(
-    dataSeriesString?.split(/[\t;]/) ?? new Array(dataSeriesDataFieldNames.length).fill(""),
+    dataSeriesString && dataSeriesString.length > 0 ? dataSeriesString.split(/[\t;]/) : Array.from({ length: dataSeriesDataFieldNames.length }, () => ""),
   );
   const isPasting = useRef(false);
 
   useEffect(() => {
     if (dataSeriesString) {
-      console.log(dataSeriesString);
       setDataSeriesValues(dataSeriesString.split(/[\t;]/).slice(0, dataSeriesDataFieldNames.length));
     }
   }, [dataSeriesString]);
@@ -36,7 +35,7 @@ export default function DataSeriesInput({
   }
 
   function isValidPastedInput(text: string): boolean {
-    // For onPaste – allows numbers, semicolons, tabs, whitespace, and newlines
+    // For onPaste – allows numbers, semicolons, tabs, whitespace, newlines, commas, dots and minus signs
     return /^[0-9;\t\n\r\s.,-]+$/.test(text);
   }
 
@@ -79,7 +78,7 @@ export default function DataSeriesInput({
 
       const newValues = [...prevValues, ""];
       return newValues;
-    })
+    });
   }
 
   function removeColumn() {
@@ -90,7 +89,7 @@ export default function DataSeriesInput({
 
       const newValues = prevValues.slice(0, -1);
       return newValues;
-    })
+    });
   }
 
   return (
