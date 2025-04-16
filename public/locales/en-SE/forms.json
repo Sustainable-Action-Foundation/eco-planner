@@ -46,9 +46,9 @@
     "custom_baseline_title": "Use numeric values separated by semicolons or tabs. Decimal numbers can use dots or commas as decimal separators.",
     "add_year": "Add year",
     "remove_year": "Remove year",
-    "add_new_year_to_data_series": "Add new year to data series",
+    "add_year_to_data_series": "Add new year to data series",
     "remove_year_from_data_series": "Remove year from data series",
-    "add_new_year_to_custom_baseline": "Add new year to baseline data series",
+    "add_year_to_custom_baseline": "Add new year to baseline data series",
     "remove_year_from_custom_baseline": "Remove year from baseline data series",
     "advanced": "Advanced"
   },
