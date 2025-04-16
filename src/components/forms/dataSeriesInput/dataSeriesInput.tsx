@@ -124,7 +124,7 @@ export default function DataSeriesInput({
           <div id="inputGrid" className={`${styles.sideScroll} smooth grid gap-0`} style={{ gridTemplateColumns: `repeat(${dataSeriesValues.length}, 1fr)`, gridTemplateRows: "auto" }}>
             {dataSeriesValues.map((value, index) => index < dataSeriesDataFieldNames.length && (
               <div key={`column-${index}`}>
-                <label htmlFor={dataSeriesDataFieldNames[index]} className="padding-25">{dataSeriesDataFieldNames[index].replace("val", "")}</label>
+                <label htmlFor={dataSeriesDataFieldNames[index]} className="padding-25 margin-left-25 margin-right-25">{dataSeriesDataFieldNames[index].replace("val", "")}</label>
                 <input
                   type="number"
                   id={dataSeriesDataFieldNames[index]}
