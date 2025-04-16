@@ -46,9 +46,9 @@
     "custom_baseline_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller komma.",
     "add_year": "Lägg till år",
     "remove_year": "Ta bort år",
-    "add_year_to_data_series": "Lägg till år till dataserie",
+    "add_year_to_data_series": "Lägg till år i dataserie",
     "remove_year_from_data_series": "Ta bort år från dataserie",
-    "add_year_to_custom_baseline": "Lägg till år till anpassad baslinje",
+    "add_year_to_custom_baseline": "Lägg till år i anpassad baslinje",
     "remove_year_from_custom_baseline": "Ta bort år från anpassad baslinje",
     "advanced": "Avancerade alternativ"
   },
