@@ -8,6 +8,14 @@
   border-radius: 9999px;
 }
 
+.columnControlsButton:disabled {
+  opacity: .5;
+}
+
+.columnControlsButton:disabled:hover {
+  box-shadow: none;
+}
+
 .sideScroll {
   overflow-x: auto;
   padding-bottom: .25rem;

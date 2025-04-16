@@ -56,24 +56,47 @@ export default function DataSeriesInput({
     }, 0);
   }
 
-  function addColumn() {
+  function updateControlsState(addColumnButton: HTMLElement | null, removeColumnButton: HTMLElement | null, valuesList: string[]) {
+    if (valuesList.length >= dataSeriesDataFieldNames.length) {
+      addColumnButton?.setAttribute("disabled", "true");
+      removeColumnButton?.removeAttribute("disabled");
+    } else if (valuesList.length <= 1) {
+      addColumnButton?.removeAttribute("disabled");
+      removeColumnButton?.setAttribute("disabled", "true");
+    } else {
+      addColumnButton?.removeAttribute("disabled");
+      removeColumnButton?.removeAttribute("disabled");
+    }
+  }
+
+  function addColumn(e: React.MouseEvent<HTMLButtonElement>) {
     setDataSeriesValues((prevValues) => {
+      const addColumnButton = (e.target as HTMLElement).parentElement as HTMLElement | null;
+      const removeColumnButton = (e.target as HTMLElement).parentElement?.nextSibling as HTMLElement | null;
+
       if (prevValues.length >= dataSeriesDataFieldNames.length) {
+        updateControlsState(addColumnButton, removeColumnButton, prevValues);
         return prevValues; // Prevent adding more columns than the maximum allowed
       }
 
       const newValues = [...prevValues, ""];
+      updateControlsState(addColumnButton, removeColumnButton, newValues);
       return newValues;
     });
   }
 
-  function removeColumn() {
+  function removeColumn(e: React.MouseEvent<HTMLButtonElement>) {
     setDataSeriesValues((prevValues) => {
+      const addColumnButton = (e.target as HTMLElement).parentElement?.previousSibling as HTMLElement | null;
+      const removeColumnButton = (e.target as HTMLElement).parentElement as HTMLElement | null;
+
       if (prevValues.length <= 1) {
+        updateControlsState(addColumnButton, removeColumnButton, prevValues);
         return prevValues; // Prevent removing the last column
       }
 
       const newValues = prevValues.slice(0, -1);
+      updateControlsState(addColumnButton, removeColumnButton, newValues);
       return newValues;
     });
   }
@@ -131,6 +154,7 @@ export default function DataSeriesInput({
               type="button"
               className={`${styles.columnControlsButton}`}
               title={t("forms:data_series_input.add_year")}
+              onLoad={(e) => updateControlsState((e.target as HTMLElement).parentElement, null, dataSeriesValues)}
               onClick={addColumn}
             >
               <Image src="/icons/circlePlus.svg" alt={t("forms:data_series_input.add_year_to_data_series")} width={24} height={24} />
@@ -139,6 +163,7 @@ export default function DataSeriesInput({
               type="button"
               className={`${styles.columnControlsButton}`}
               title={t("forms:data_series_input.remove_year")}
+              onLoad={(e) => updateControlsState(null, (e.target as HTMLElement).parentElement, dataSeriesValues)}
               onClick={removeColumn}
             >
               <Image src="/icons/circleMinus.svg" alt={t("forms:data_series_input.remove_year_from_data_series")} width={24} height={24} />
