@@ -2,7 +2,7 @@
 
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
-import { DataSeries, Effect, Goal } from "@prisma/client";
+import type { DataSeries, Effect, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
 import { parsePeriod } from "@/lib/api/utility";
 import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
 import { ApiTableContent } from "@/lib/api/apiTypes";
@@ -11,13 +11,15 @@ import { useTranslation } from "react-i18next";
 export default function MainGraph({
   goal,
   secondaryGoal,
-  nationalGoal,
+  parentGoal,
+  parentGoalRoadmap,
   historicalData,
   effects,
 }: {
   goal: Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null },
   secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
-  nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
+  parentGoal: Goal & { dataSeries: DataSeries | null } | null,
+  parentGoalRoadmap: Roadmap & { metaRoadmap: MetaRoadmap } | null,
   historicalData?: ApiTableContent | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
 }) {
@@ -168,10 +170,10 @@ export default function MainGraph({
     }
   }
 
-  if (nationalGoal?.dataSeries) {
+  if (parentGoal?.dataSeries) {
     const nationalSeries = [];
     for (const i of dataSeriesDataFieldNames) {
-      const value = nationalGoal.dataSeries[i];
+      const value = parentGoal.dataSeries[i];
 
       nationalSeries.push({
         x: new Date(i.replace('val', '')).getTime(),
@@ -179,14 +181,14 @@ export default function MainGraph({
       });
     }
     mainChart.push({
-      name: t("graphs:common.national_counterpart"),
+      name: t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name || "" }),
       data: nationalSeries,
       type: 'line',
     });
     (mainChartOptions.yaxis as ApexYAxis[]).push({
       title: { text: t("graphs:main_graph.national_goal") },
       labels: { formatter: graphNumberFormatter },
-      seriesName: [t("graphs:common.national_counterpart")],
+      seriesName: [t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name || "" })],
       opposite: true,
     });
   }

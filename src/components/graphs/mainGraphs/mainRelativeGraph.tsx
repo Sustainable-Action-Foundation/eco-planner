@@ -2,17 +2,19 @@
 
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
-import { Goal, DataSeries } from "@prisma/client";
+import { Goal, DataSeries, Roadmap, MetaRoadmap } from "@prisma/client";
 import { useTranslation } from "react-i18next";
 
 export default function MainRelativeGraph({
   goal,
   secondaryGoal,
-  nationalGoal,
+  parentGoal,
+  parentGoalRoadmap,
 }: {
   goal: Goal & { dataSeries: DataSeries | null },
   secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
-  nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
+  parentGoal: Goal & { dataSeries: DataSeries | null } | null,
+  parentGoalRoadmap: Roadmap & { metaRoadmap: MetaRoadmap } | null,
 }) {
   const { t } = useTranslation();
 
@@ -65,22 +67,22 @@ export default function MainRelativeGraph({
   }
 
   // National goal
-  if (nationalGoal?.dataSeries) {
+  if (parentGoal?.dataSeries) {
     const nationalSeries = [];
-    const firstNonNullOrZero = dataSeriesDataFieldNames.find(i => nationalGoal.dataSeries && Number.isFinite(nationalGoal.dataSeries[i]) && nationalGoal.dataSeries[i] !== 0);
+    const firstNonNullOrZero = dataSeriesDataFieldNames.find(i => parentGoal.dataSeries && Number.isFinite(parentGoal.dataSeries[i]) && parentGoal.dataSeries[i] !== 0);
     let baseValue: number = NaN;
     if (firstNonNullOrZero) {
-      baseValue = nationalGoal.dataSeries[firstNonNullOrZero] as number;
+      baseValue = parentGoal.dataSeries[firstNonNullOrZero] as number;
     }
     for (const i of dataSeriesDataFieldNames) {
-      const value = ((nationalGoal.dataSeries[i] ?? NaN) / baseValue) * 100;
+      const value = ((parentGoal.dataSeries[i] ?? NaN) / baseValue) * 100;
       nationalSeries.push({
         x: new Date(i.replace('val', '')).getTime(),
         y: Number.isFinite(value) ? value : null,
       });
     }
     chart.push({
-      name: t("graphs:common.national_counterpart"),
+      name: t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name || "" }),
       data: nationalSeries,
       type: 'line',
     });

@@ -1,6 +1,6 @@
 {
   "common": {
-    "national_counterpart": "$t(common:scope.national) motsvarighet",
+    "parent_counterpart": "Motsvarande $t(common:goal_one) i {{parent}}",
     "baseline_scenario": "Basscenario",
     "expected_outcome": "Förväntat utfall",
     "unknown_roadmap": "Okänd $t(common:roadmap_version_one)",
