@@ -39,12 +39,17 @@
   "data_series_input": {
     "extra_info_data_series": "Extra information om dataserie",
     "data_series_info": "Fältet \"Dataserie\" tar emot en serie med värden som är separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie med värden från Excel eller liknande.<br /><strong>OBS: Värden får inte vara separerade med kommatecken (\",\").</strong><br />Decimaltal kan antingen skrivas med punkt eller kommatecken.<br />Det första värdet representerar år 2020 och serien kan som längst fortsätta till år 2050 (totalt 31 värden).<br />Om värden saknas för ett år kan du lämna det tomt, exempelvis anger \";1;;;;5\" värdena 1 och 5 för år 2021 respektive 2025.",
+    "custom_baseline_info": "Fältet \"Anpassad baslinje\" tar emot en serie med värden som är separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie med värden från Excel eller liknande.<br /><strong>OBS: Värden får inte vara separerade med kommatecken (\",\").</strong><br />Decimaltal kan antingen skrivas med punkt eller kommatecken.<br />Det första värdet representerar år 2020 och serien kan som längst fortsätta till år 2050 (totalt 31 värden).<br />Om värden saknas för ett år kan du lämna det tomt, exempelvis anger \";1;;;;5\" värdena 1 och 5 för år 2021 respektive 2025.",
     "data_series": "Dataserie",
     "data_series_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller kommatecken.",
+    "custom_baseline_label": "Anpassad baslinje:",
+    "custom_baseline_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller komma.",
     "add_column": "Lägg till kolumn",
     "remove_column": "Ta bort kolumn",
     "add_new_column_to_data_series": "Lägg till ny kolumn i dataserie",
     "remove_column_from_data_series": "Ta bort kolumn från dataserie",
+    "add_new_column_to_custom_baseline": "Lägg till ny kolumn i anpassad baslinje",
+    "remove_column_from_custom_baseline": "Ta bort kolumn från anpassad baslinje",
     "advanced": "Avancerade alternativ"
   },
   "effect": {
@@ -96,8 +101,6 @@
       "custom": "Anpassad baslinje",
       "inherited": "Använd en annan $t(common:goal_one) som baslinje"
     },
-    "custom_baseline_label": "Anpassad baslinje:",
-    "custom_baseline_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller komma.",
     "attach_external_resources": "Bifoga externa resurser",
     "feature_this_goal": "Vill du lyfta fram den här $t(common:goal_definite_one) under din $t(common:roadmap_version_one)?",
     "feature_goal": "Lyft fram $t(common:goal_definite_one)",

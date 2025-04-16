@@ -39,12 +39,17 @@
   "data_series_input": {
     "extra_info_data_series": "Extra information about data series",
     "data_series_info": "The \"Data series\" field accepts a series of values separated by semicolons or tabs, which means you can paste a series of values from Excel or similar.<br /><strong>NOTE: Values must not be separated by commas (\",\").</strong><br />Decimal numbers can use either decimal points or decimal commas.<br />The first value represents the year 2020 and the series can continue up to the year 2050 (a total of 31 values).<br />If values are missing for a year, you can leave it blank, for example \";1;;;;5\" can be used to specify the values 1 and 5 for the years 2021 and 2025.",
+    "custom_baseline_info": "The \"Custom baseline\" field accepts a series of values separated by semicolons or tabs, which means you can paste a series of values from Excel or similar.<br /><strong>NOTE: Values must not be separated by commas (\",\").</strong><br />Decimal numbers can use either decimal points or decimal commas.<br />The first value represents the year 2020 and the series can continue up to the year 2050 (a total of 31 values).<br />If values are missing for a year, you can leave it blank, for example \";1;;;;5\" can be used to specify the values 1 and 5 for the years 2021 and 2025.",
     "data_series": "Data series",
     "data_series_title": "Use numeric values separated by semicolons or tabs. Decimal numbers can use either dots or commas.",
+    "custom_baseline_label": "Custom baseline:",
+    "custom_baseline_title": "Use numeric values separated by semicolons or tabs. Decimal numbers can use dots or commas as decimal separators.",
     "add_column": "Add column",
     "remove_column": "Remove column",
     "add_new_column_to_data_series": "Add new column to data series",
     "remove_column_from_data_series": "Remove column from data series",
+    "add_new_column_to_custom_baseline": "Add new column to baseline data series",
+    "remove_column_from_custom_baseline": "Remove column from baseline data series",
     "advanced": "Advanced"
   },
   "effect": {
@@ -96,8 +101,6 @@
       "custom": "Custom baseline",
       "inherited": "Use another $t(common:goal_one) as baseline"
     },
-    "custom_baseline_label": "Custom baseline:",
-    "custom_baseline_title": "Use numeric values, separated by semicolons or tabs. Decimal numbers may use dots or commas as decimal separators.",
     "attach_external_resources": "Attach external resources",
     "feature_this_goal": "Do you want to feature this $t(common:goal_one) in your $t(common:roadmap_version_one)?",
     "feature_goal": "Feature this $t(common:goal_one)",

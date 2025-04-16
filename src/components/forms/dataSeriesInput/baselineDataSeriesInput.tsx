@@ -4,33 +4,33 @@ import { dataSeriesDataFieldNames } from "@/types";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
+// import { dataSeriesPattern } from "../goalForm/goalForm"; // TODO - fix this
 import styles from "./dataSeriesInput.module.css";
 import { dataSeriesPattern, isValidPastedInput, isValidSingleInputForGrid, isValidSingleInputForTextField } from "./utils";
 
-export default function DataSeriesInput({
-  dataSeriesString
+export default function BaselineDataSeriesInput({
+  baselineDataSeriesString,
 }: {
-  dataSeriesString?: string
+  baselineDataSeriesString?: string;
 }) {
-
   const { t } = useTranslation();
-  const [dataSeriesValues, setDataSeriesValues] = useState<string[]>(
-    dataSeriesString && dataSeriesString.length > 0 ? dataSeriesString.split(/[\t;]/) : Array.from({ length: dataSeriesDataFieldNames.length }, () => ""),
+  const [baselineDataSeriesValues, setBaselineDataSeriesValues] = useState<string[]>(
+    baselineDataSeriesString && baselineDataSeriesString.length > 0 ? baselineDataSeriesString.split(/[\t;]/) : Array.from({ length: dataSeriesDataFieldNames.length }, () => ""),
   );
   const isPasting = useRef(false);
 
   useEffect(() => {
-    if (dataSeriesString) {
-      setDataSeriesValues(dataSeriesString.split(/[\t;]/).slice(0, dataSeriesDataFieldNames.length));
+    if (baselineDataSeriesString) {
+      setBaselineDataSeriesValues(baselineDataSeriesString.split(/[\t;]/).slice(0, dataSeriesDataFieldNames.length));
     }
-  }, [dataSeriesString]);
+  }, [baselineDataSeriesString]);
 
   function handleValueChange(e: React.ChangeEvent<HTMLInputElement>, index: number) {
     if (isPasting.current) return;
 
-    const newValues = [...dataSeriesValues];
+    const newValues = [...baselineDataSeriesValues];
     newValues[index] = e.target.value;
-    setDataSeriesValues(newValues);
+    setBaselineDataSeriesValues(newValues);
   }
 
   function handlePaste(e: React.ClipboardEvent<HTMLInputElement>, startIndex: number) {
@@ -38,7 +38,7 @@ export default function DataSeriesInput({
     const clipboardText = e.clipboardData.getData("text");
     const pastedValues = clipboardText.split(/[\t;]/);
 
-    const newValues = [...dataSeriesValues];
+    const newValues = [...baselineDataSeriesValues];
 
     for (let i = 0; i < pastedValues.length && i + startIndex < dataSeriesDataFieldNames.length; i++) {
       const targetIndex = startIndex + i;
@@ -49,7 +49,7 @@ export default function DataSeriesInput({
       }
     }
 
-    setDataSeriesValues(newValues);
+    setBaselineDataSeriesValues(newValues);
 
     setTimeout(() => {
       isPasting.current = false;
@@ -57,7 +57,7 @@ export default function DataSeriesInput({
   }
 
   function addColumn() {
-    setDataSeriesValues((prevValues) => {
+    setBaselineDataSeriesValues((prevValues) => {
       if (prevValues.length >= dataSeriesDataFieldNames.length) {
         return prevValues; // Prevent adding more columns than the maximum allowed
       }
@@ -68,7 +68,7 @@ export default function DataSeriesInput({
   }
 
   function removeColumn() {
-    setDataSeriesValues((prevValues) => {
+    setBaselineDataSeriesValues((prevValues) => {
       if (prevValues.length <= 1) {
         return prevValues; // Prevent removing the last column
       }
@@ -80,32 +80,18 @@ export default function DataSeriesInput({
 
   return (
     <>
-      <details className="margin-block-75">
-        <summary>
-          {t("forms:data_series_input.extra_info_data_series")}
-        </summary>
-        <p>
-          { // TODO - modify so that this text is not identical to the text in the advanced section
-          }
-          <Trans
-            i18nKey={"forms:data_series_input.data_series_info"}
-            components={{ strong: <strong />, br: <br /> }}
-          />
-        </p>
-      </details>
-
       <label className="block margin-block-75">
-        {t("forms:data_series_input.data_series")}
+        {t("forms:data_series_input.custom_baseline_label")}
         {/* TODO: Make this allow .csv files and possibly excel files */}
         <div className="padding-25 smooth flex" style={{ border: "1px solid var(--gray-90)", maxWidth: "48.5rem" }}>
-          <div id="inputGrid" className={`${styles.sideScroll} smooth grid gap-0`} style={{ gridTemplateColumns: `repeat(${dataSeriesValues.length}, 1fr)`, gridTemplateRows: "auto" }}>
-            {dataSeriesValues.map((value, index) => index < dataSeriesDataFieldNames.length && (
+          <div id="baselineInputGrid" className={`${styles.sideScroll} smooth grid gap-0`} style={{ gridTemplateColumns: `repeat(${baselineDataSeriesValues.length}, 1fr)`, gridTemplateRows: "auto" }}>
+            {baselineDataSeriesValues.map((value, index) => index < dataSeriesDataFieldNames.length && (
               <div key={`column-${index}`}>
                 <label htmlFor={dataSeriesDataFieldNames[index]} className="padding-25">{dataSeriesDataFieldNames[index].replace("val", "")}</label>
                 <input
                   type="number"
                   id={dataSeriesDataFieldNames[index]}
-                  name="dataSeriesInput"
+                  name="baselineDataSeriesInput"
                   value={value}
                   onChange={(e) => handleValueChange(e, index)}
                   onBeforeInput={(e) => {
@@ -133,7 +119,7 @@ export default function DataSeriesInput({
               title={t("forms:data_series_input.add_column")}
               onClick={addColumn}
             >
-              <Image src="/icons/circlePlus.svg" alt={t("forms:data_series_input.add_column_to_data_series")} width={24} height={24} />
+              <Image src="/icons/circlePlus.svg" alt={t("forms:data_series_input.add_column_to_custom_baseline")} width={24} height={24} />
             </button>
             <button
               type="button"
@@ -141,7 +127,7 @@ export default function DataSeriesInput({
               title={t("forms:data_series_input.remove_column")}
               onClick={removeColumn}
             >
-              <Image src="/icons/circleMinus.svg" alt={t("forms:data_series_input.remove_column_from_data_series")} width={24} height={24} />
+              <Image src="/icons/circleMinus.svg" alt={t("forms:data_series_input.remove_column_from_custom_baseline")} width={24} height={24} />
             </button>
           </div>
         </div>
@@ -152,16 +138,16 @@ export default function DataSeriesInput({
         </summary>
         <p>
           <Trans
-            i18nKey={"forms:data_series_input.data_series_info"}
+            i18nKey={"forms:data_series_input.custom_baseline_info"}
             components={{ strong: <strong />, br: <br /> }}
           />
         </p>
         <label className="block margin-block-75">
-          {t("forms:data_series_input.data_series")}
-          <input type="text" name="dataSeries" required id="dataSeries"
+          {t("forms:data_series_input.custom_baseline_label")}
+          <input type="text" name="baselineDataSeries" required id="baselineDataSeries"
             pattern={dataSeriesPattern}
-            title={t("forms:data_series_input.data_series_title")}
-            value={dataSeriesValues.join(";")}
+            title={t("forms:data_series_input.custom_baseline_title")}
+            value={baselineDataSeriesValues.join(";")}
             className="margin-block-25"
             onBeforeInput={(e) => {
               if (isPasting.current) return;
@@ -188,7 +174,7 @@ export default function DataSeriesInput({
                 .split(/[\t;]/)
                 .map((v) => v.trim())
                 .slice(0, dataSeriesDataFieldNames.length);
-              setDataSeriesValues(values);
+              setBaselineDataSeriesValues(values);
             }}
           />
         </label>

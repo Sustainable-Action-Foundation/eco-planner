@@ -12,7 +12,8 @@ import { DataSeries, Goal } from "@prisma/client";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { getDataSeries } from "../dataSeriesInput/utils";
+import BaselineDataSeriesInput from "../dataSeriesInput/baselineDataSeriesInput";
+import { getBaselineDataSeries, getDataSeries } from "../dataSeriesInput/utils";
 import styles from '../forms.module.css';
 import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
 
@@ -27,20 +28,6 @@ enum BaselineType {
   Custom = "CUSTOM",
   Inherited = "INHERIT",
 }
-
-// The amount of years in the data series
-const dataSeriesLength = dataSeriesDataFieldNames.length
-/**
- * This matches 0 to `dataSeriesLength` numbers separated by tabs or semicolons, with an optional decimal part.
- * The first position represents the value for the first year (currently 2020), and any number in the `dataSeriesLength`:th position
- * represents the value for the last year (currently 2050).
- * 
- * Two examle strings that match this pattern are:  
- * "2.0;2.1;2.2;2.3;2.4;2.5;2.6;2.7;2.8;2.9;3.0;3.1;3.2;3.3;3.4;3.5;3.6;3.7;3.8;3.9;4.0;4.1;4.2;4.3;4.4;4.5;4.6;4.7;4.8;4.9;5.0"  
- * and  
- * ";0;;;4;1"
- */
-export const dataSeriesPattern = `(([\\-]?[0-9]+([.,][0-9]+)?)?[\t;]){0,${dataSeriesLength - 1}}([\\-]?[0-9]+([.,][0-9]+)?)?`;
 
 export default function GoalForm({
   roadmapId,
@@ -106,9 +93,7 @@ export default function GoalForm({
     const dataSeries = getDataSeries(form);
 
     // And likewise for the baseline data series, if any
-    const baselineDataSeriesInput = (form.namedItem("baselineDataSeries") as HTMLInputElement | null)?.value;
-    // The baseline may be omitted, in which case we don't want to send an empty array
-    const baselineDataSeries = baselineDataSeriesInput ? baselineDataSeriesInput?.replaceAll(',', '.').split(/[\t;]/) : undefined;
+    const baselineDataSeries = getBaselineDataSeries(form);
 
     const { scalingRecipie: combinationScale } = getScalingResult(formData, scalingRecipie.method || ScaleMethod.Geometric);
 
@@ -315,19 +300,8 @@ export default function GoalForm({
             </select>
           </label>
 
-          {// TODO - use input component here
-          }
           {baselineType === BaselineType.Custom &&
-            <label className="block margin-block-100">
-              {t("forms:goal.custom_baseline_label")}
-              {/* TODO: Make this allow .csv files and possibly excel files */}
-              <input type="text" name="baselineDataSeries" id="baselineDataSeries"
-                pattern={dataSeriesPattern}
-                title={t("forms:goal.custom_baseline_title")}
-                className="margin-block-25"
-                defaultValue={baselineString}
-              />
-            </label>
+            <BaselineDataSeriesInput baselineDataSeriesString={baselineString} />
           }
 
           {baselineType === BaselineType.Inherited &&
