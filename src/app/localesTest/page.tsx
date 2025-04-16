@@ -9,7 +9,7 @@ import { Stats } from "./stats";
 
 export default async function LocaleTestPage() {
   // In dev mode i18next can be kinda flakey so this just boots the server side i18n instance
-  const _preloadT = t("common:action_one");
+  const _preloadT = t("common:tsx.close");
 
   const defaultArgs = {
     count: 17,
@@ -48,7 +48,7 @@ export default async function LocaleTestPage() {
       {/* Tables */}
       <section className={styles.tables}>
         {/* Formatters */}
-        <div className={styles.formatters}>
+        <div>
           <h2>Formatters</h2>
           <div>
             <p>
@@ -128,10 +128,10 @@ export default async function LocaleTestPage() {
         </div>
 
         {/* All translations */}
-        <div className={styles.allTranslations}>
+        <div>
           <h2>All Translations</h2>
           <div>
-            <p>The server side translations simply call the i18nServer t() function. The client side translations either use t() defined with useTranslation() or {"<Trans />"} in cases where the translation has any elements in it.</p>
+            <p>The server side translations simply call the i18nServer t() function. The client side translations either use t() defined with useTranslation() or {`<Trans i18nKey="common:tsx.close" />`} in cases where the translation has any elements in it.</p>
           </div>
           <table data-testid="translation-table">
             {/* Header */}

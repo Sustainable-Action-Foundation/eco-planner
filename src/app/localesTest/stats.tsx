@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import styles from "./localesTest.module.css" with {type: "css"};
 
 export function Stats(
   {

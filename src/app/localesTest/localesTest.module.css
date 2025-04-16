@@ -10,6 +10,11 @@
     margin-top: 0.3rem;
     margin-bottom: 0rem;
   }
+
+  span:is([data-content="empty"], [data-content="missing"]) {
+    color: red;
+    background-color: yellow;
+  }
 }
 
 .tables {
@@ -39,12 +44,16 @@
       & tr>* {
         padding-inline: 1ch;
         vertical-align: top;
+
+        td:is([data-content="empty"], [data-content="missing"]),
+        span:is([data-content="empty"], [data-content="missing"]) {
+          color: red;
+          background-color: yellow;
+        }
       }
     }
   }
 }
-
-.formatters {}
 
 .stats {
   &>* {
@@ -60,17 +69,10 @@
   }
 }
 
-.allTranslations {}
-
 .odd {
   background-color: #f0f0f0;
 }
 
 .even {
   background-color: #e0e0e0;
-}
-
-*:is([data-content="empty"], [data-content="missing"]) {
-  color: red;
-  background-color: yellow;
 }

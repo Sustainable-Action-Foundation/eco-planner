@@ -14,6 +14,7 @@ const consoleColors: { [key: string]: (text: string) => string; } = {
 
 /* Apply modification */
 for (const [key, colorFunc] of Object.entries(consoleColors)) {
+  // @ts-expect-error - Intentionally override console method
   console[key] = (...args: unknown[]) => {
     let color = colorFunc;
 

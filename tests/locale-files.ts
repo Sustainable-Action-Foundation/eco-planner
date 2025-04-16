@@ -1,31 +1,16 @@
-import "./lib/console.js";
-import { colors } from "./lib/colors.js";
+import "./lib/console";
 import fs from "node:fs";
 import path from "node:path";
 import { glob } from "glob";
 import { expect, test } from "playwright/test";
 import escape from "regexp.escape"; // Polyfill for RegExp.escape. Not in node yet.
+import { uniqueLocales, namespaces, Locales, localeAliases, localesDir } from "i18nTestVariables";
 
 /* 
  **********
  * Config *
  **********
  */
-
-/** The locale type */
-enum Locales { enSE = "en-SE", svSE = "sv-SE", default = enSE, };
-
-/** All locales */
-const uniqueLocales = [...new Set(Object.values(Locales))];
-
-/** The language switcher uses these values */
-const localeAliases = { [Locales.enSE]: "English", [Locales.svSE]: "Svenska", };
-
-/** All namespaces */
-const namespaces = ["common", "forms", "components", "graphs", "pages", "email", "test",];
-
-/** Where the locale files are located relative to project root. */
-const localesDir = "public/locales";
 
 /** Every combo of locale and ns in a 2d array. */
 const allPermutations = uniqueLocales.flatMap(locale => namespaces.map(namespace => [locale, namespace]));
@@ -46,6 +31,7 @@ const serverIndications = ["use server", "next/server", "next/headers", "accessC
 const clientIndications = ["use client", "useEffect", "useMemo", "useState", "useRef",];
 const serverSideFilesOverride = ["page.tsx", "layout.tsx",];
 const clientSideFilesOverride = ["src\\app\\verify\\page.tsx", "src\\app\\verify\\verify\\page.tsx", "src\\app\\password\\page.tsx", "src\\app\\password\\reset\\page.tsx"];
+const exemptedMixedUseFiles = ["src\\app\\localesTest\\page.tsx",];
 
 /** When checking for mixed use of spaces these are allowed in any file */
 const keysAllowedDirectlyInApp = ["common:tsx.", "common:placeholder.", "common:scope.", "common:layout.", "common:count.", "common:new.", "common:edit", "common:scaling_methods", "common:css.", "common:404."];
@@ -338,10 +324,12 @@ test("Orphan keys in root of namespace files", () => {
 });
 
 /** Checks if a file that is likely server or client side is using the wrong import method of t() */
-test("Server and client side code is not mixed", () => {
+test("Mixed server and client side code", () => {
   const perFile: Record<string, string[]> = {};
 
   allTSX.forEach(({ filePath, content }) => {
+    if (exemptedMixedUseFiles.some(file => filePath.endsWith(file))) return; // Skip exempted files
+
     const usingTServer = tServerUsageIndications.some(indication => content.includes(indication));
     const usingTClient = tClientUsageIndications.some(indication => content.includes(indication));
 

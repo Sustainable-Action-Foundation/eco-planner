@@ -1,5 +1,6 @@
-import { switchLanguage } from "lib/switch-language";
+import { localeAliases } from "i18nTestVariables";
 import "./lib/console";
+import { switchLanguage } from "lib/switch-language";
 import { expect, test } from "playwright/test";
 
 
@@ -14,7 +15,7 @@ test.describe("Locales Test page", () => {
 
     const checkKeyCount = async () => {
       await page.waitForSelector("[data-testid='translation-table']");
-      await page.waitForSelector("[data-testid='row']");
+      await page.waitForSelector("[data-testid='translation-table']");
 
       const table = page.getByTestId("translation-table");
       const rows = table.getByTestId("row");
@@ -31,13 +32,13 @@ test.describe("Locales Test page", () => {
     await checkKeyCount();
 
     // Change language to English
-    await switchLanguage(page, "English")
+    await switchLanguage(page, localeAliases["en-SE"])
 
     // English locale
     await checkKeyCount();
 
     // Change language to Swedish
-    await switchLanguage(page, "Svenska")
+    await switchLanguage(page, localeAliases["sv-SE"])
 
     // Swedish locale
     await checkKeyCount();
@@ -70,13 +71,13 @@ test.describe("Locales Test page", () => {
     await checkEmptyAndMissing();
 
     // Change language to English
-    await switchLanguage(page, "English")
+    await switchLanguage(page, localeAliases["en-SE"])
 
     // English locale
     await checkEmptyAndMissing();
 
     // Change language to Swedish
-    await switchLanguage(page, "Svenska")
+    await switchLanguage(page, localeAliases["sv-SE"])
 
     // Swedish locale
     await checkEmptyAndMissing();
