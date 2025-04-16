@@ -235,7 +235,7 @@ export default function RoadmapForm({
             Notera att det här skapar nya målbanor även om det redan finns några. */}
             <Trans
               i18nKey={"forms:roadmap.goal_accepted_formats"}
-              tOptions={{ fileTypes: [".csv"], encodings: ["UTF-8"] }}
+              tOptions={{ fileTypes: [".csv"], encodings: ["UTF-8"], type: "unit" }}
               components={{ small: <small /> }}
             />
 
