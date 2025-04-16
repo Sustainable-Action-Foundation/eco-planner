@@ -64,7 +64,8 @@
     "create": "Skapa",
     "submit": "Skicka",
     "compare": "Jämför",
-    "close": "Stäng"
+    "close": "Stäng",
+    "unit_missing": "ingen enhet"
   },
   "placeholder": {
     "name": "Användarnamn",

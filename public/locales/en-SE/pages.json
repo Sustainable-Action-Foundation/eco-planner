@@ -110,8 +110,8 @@
   },
   "roadmap_create": {
     "breadcrumb": "$t(common:new.roadmap_version)",
-    "title": "Create a new version in a $t(common:roadmap_series_one)",
-    "bad_roadmap_series_one": "Could not find or do not have access to $t(common:roadmap_series_definite_one) in the link.",
+    "title": "$t(common:new.roadmap_version)",
+    "bad_roadmap_series": "Could not find or do not have access to $t(common:roadmap_series_definite_one) in the link.",
     "use_dropdown": "Use the dropdown menu to select a $t(common:roadmap_series_one)."
   },
   "roadmap_edit": {

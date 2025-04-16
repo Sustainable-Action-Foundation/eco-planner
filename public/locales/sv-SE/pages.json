@@ -110,8 +110,8 @@
   },
   "roadmap_create": {
     "breadcrumb": "$t(common:new.roadmap_version)",
-    "title": "$t(common:new.roadmap_series)",
-    "bad_roadmap_series_one": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_series_definite_one) i länken.",
+    "title": "$t(common:new.roadmap_version)",
+    "bad_roadmap_series": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_series_definite_one) i länken.",
     "use_dropdown": "Använd dropdown-menyn för att välja en $t(common:roadmap_series_one)."
   },
   "roadmap_edit": {

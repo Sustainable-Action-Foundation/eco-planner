@@ -64,7 +64,8 @@
     "create": "Create",
     "submit": "Submit",
     "compare": "Compare",
-    "close": "Close"
+    "close": "Close",
+    "unit_missing": "no unit"
   },
   "placeholder": {
     "name": "Username",
