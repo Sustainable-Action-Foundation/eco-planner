@@ -15,10 +15,9 @@ test.describe("Locales Test page", () => {
 
     const checkKeyCount = async () => {
       await page.waitForSelector("[data-testid='translation-table']");
-      await page.waitForSelector("[data-testid='translation-table']");
 
       const table = page.getByTestId("translation-table");
-      const rows = table.getByTestId("row");
+      const rows = table.getByTestId("translation-row");
 
       const rowCount = await rows.count();
       const serverCount = await table.getByTestId("server").count();
@@ -49,7 +48,6 @@ test.describe("Locales Test page", () => {
 
     const checkEmptyAndMissing = async () => {
       await page.waitForSelector("[data-testid='translation-table']");
-      await page.waitForSelector("[data-testid='row']");
 
       const table = page.getByTestId("translation-table");
 

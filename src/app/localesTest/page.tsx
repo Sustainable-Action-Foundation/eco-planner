@@ -147,7 +147,7 @@ export default async function LocaleTestPage() {
             <tbody>
               {allKeys.map((key, index) => {
                 return (
-                  <tr key={index} className={`${index % 2 === 0 ? styles.even : styles.odd}`}>
+                  <tr data-testid="translation-row" key={index} className={`${index % 2 === 0 ? styles.even : styles.odd}`}>
                     <td>{index + 1}</td>
                     <td data-testid="key" data-type="key">{key}</td>
                     <td data-testid="server" data-type="server"><ServerSideT i18nKey={key} options={defaultArgs} /></td>
