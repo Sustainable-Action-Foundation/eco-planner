@@ -1,6 +1,6 @@
 "use client";
 
-import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
+import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Effect, Goal } from "@prisma/client";
 import { parsePeriod } from "@/lib/api/utility";
@@ -46,7 +46,7 @@ export default function MainGraph({
     yaxis: [
       {
         title: { text: goal.dataSeries?.unit },
-        labels: { formatter: floatSmoother },
+        labels: { formatter: graphNumberFormatter },
         seriesName: [
           (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
           t("graphs:common.baseline_scenario"),
@@ -161,7 +161,7 @@ export default function MainGraph({
     if (secondaryGoal.dataSeries.unit != goal.dataSeries.unit) {
       (mainChartOptions.yaxis as ApexYAxis[]).push({
         title: { text: `${t("graphs:main_graph.secondary_goal", { unit: secondaryGoal.dataSeries.unit })}` },
-        labels: { formatter: floatSmoother },
+        labels: { formatter: graphNumberFormatter },
         seriesName: [(secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0]],
         opposite: true,
       });
@@ -185,7 +185,7 @@ export default function MainGraph({
     });
     (mainChartOptions.yaxis as ApexYAxis[]).push({
       title: { text: t("graphs:main_graph.national_goal") },
-      labels: { formatter: floatSmoother },
+      labels: { formatter: graphNumberFormatter },
       seriesName: [t("graphs:common.national_counterpart")],
       opposite: true,
     });
@@ -211,7 +211,7 @@ export default function MainGraph({
       });
       (mainChartOptions.yaxis as ApexYAxis[]).push({
         title: { text: t("graphs:main_graph.history") },
-        labels: { formatter: floatSmoother },
+        labels: { formatter: graphNumberFormatter },
         seriesName: [`${historicalData.metadata[0]?.label}`],
         opposite: true,
       });

@@ -1,7 +1,7 @@
 'use client';
 
 import findSiblings from "@/functions/findSiblings";
-import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
+import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Goal, Roadmap } from "@prisma/client";
 import { useState } from "react";
@@ -71,7 +71,7 @@ export default function SiblingGraph({
     },
     yaxis: {
       title: { text: goal.dataSeries?.unit },
-      labels: { formatter: floatSmoother },
+      labels: { formatter: graphNumberFormatter },
     },
     tooltip: {
       x: { format: 'yyyy' },

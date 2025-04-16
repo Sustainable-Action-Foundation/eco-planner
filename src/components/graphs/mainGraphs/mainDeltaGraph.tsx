@@ -1,7 +1,7 @@
 "use client";
 
 import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
-import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
+import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
 import { Goal, DataSeries, Effect } from "@prisma/client";
 import { useTranslation } from "react-i18next";
@@ -42,7 +42,7 @@ export default function MainDeltaGraph({
       title: {
         text: t("graphs:main_delta_graph.annual_change", { unit: goal.dataSeries.unit.toLowerCase() == 'procent' ? t("graphs:main_delta_graph.percentage_points") : goal.dataSeries.unit })
       },
-      labels: { formatter: floatSmoother },
+      labels: { formatter: graphNumberFormatter },
       seriesName: [
         (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
         t("graphs:common.baseline_scenario"),
@@ -182,7 +182,7 @@ export default function MainDeltaGraph({
         title: {
           text: t("graphs:main_delta_graph.annual_change", { unit: secondaryGoal.dataSeries.unit.toLowerCase() == 'procent' ? t("graphs:main_delta_graph.percentage_points") : secondaryGoal.dataSeries.unit })
         },
-        labels: { formatter: floatSmoother },
+        labels: { formatter: graphNumberFormatter },
         seriesName: secondaryGoal.name || secondaryGoal.indicatorParameter,
         opposite: true,
       });
