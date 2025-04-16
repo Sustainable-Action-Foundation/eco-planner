@@ -1,6 +1,6 @@
 "use client";
 
-import WrappedChart, { floatSmoother } from "@/lib/chartWrapper.tsx";
+import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper.tsx";
 import { dataSeriesDataFieldNames } from "@/types.ts";
 import { DataSeries, Goal } from "@prisma/client";
 import { useTranslation } from "react-i18next";
@@ -108,7 +108,7 @@ export default function GoalChildGraph({
     },
     yaxis: {
       title: { text: goal.dataSeries?.unit },
-      labels: { formatter: floatSmoother },
+      labels: { formatter: graphNumberFormatter },
     },
     tooltip: {
       x: { format: 'yyyy' },

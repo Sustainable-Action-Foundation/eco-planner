@@ -1,6 +1,6 @@
 "use client";
 
-import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
+import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
 import { Goal, DataSeries } from "@prisma/client";
 import { useTranslation } from "react-i18next";
@@ -103,7 +103,7 @@ export default function MainRelativeGraph({
     },
     yaxis: {
       title: { text: t("graphs:main_relative_graph.percent_relative_to_base_year") },
-      labels: { formatter: floatSmoother },
+      labels: { formatter: graphNumberFormatter },
     },
     tooltip: {
       x: { format: 'yyyy' },

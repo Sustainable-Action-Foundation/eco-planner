@@ -52,7 +52,7 @@ export default async function Page(
         {badMetaRoadmap &&
           <p style={{ color: 'red' }}>
             <Image src="/icons/info.svg" width={24} height={24} alt='' />
-            {t("pages:roadmap_create.bad_roadmap_series_one")} <br />
+            {t("pages:roadmap_create.bad_roadmap_series")} <br />
             {t("pages:roadmap_create.use_dropdown")}
           </p>
         }
