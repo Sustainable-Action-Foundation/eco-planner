@@ -4,7 +4,6 @@ import { dataSeriesDataFieldNames } from "@/types";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
-// import { dataSeriesPattern } from "../goalForm/goalForm"; // TODO - fix this
 import styles from "./dataSeriesInput.module.css";
 import { dataSeriesPattern, isValidPastedInput, isValidSingleInputForGrid, isValidSingleInputForTextField } from "./utils";
 
@@ -128,7 +127,7 @@ export default function BaselineDataSeriesInput({
                     if (!isValidPastedInput(pasted)) {
                       e.preventDefault();
                     } else {
-                      handlePaste(e, index); // TODO - pass text instead of event
+                      handlePaste(e, index);
                     }
                   }}
                 />

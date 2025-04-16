@@ -142,7 +142,7 @@ export default function DataSeriesInput({
                     if (!isValidPastedInput(pasted)) {
                       e.preventDefault();
                     } else {
-                      handlePaste(e, index); // TODO - pass text instead of event
+                      handlePaste(e, index);
                     }
                   }}
                 />
