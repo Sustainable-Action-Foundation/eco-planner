@@ -19,12 +19,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: builder
     networks:
       - default
       - test_network
     ports:
-      - 127.0.0.1:8082:8081
+      - 127.0.0.1:8082:3000
     environment:
+      - PORT=3000
       - DATABASE_URL=mysql://root:admin@db:3306/eco-planner
       - IRON_SESSION_PASSWORD=mt6EAckefnuUpKKzLG7Rr8mQJVkmvJ3j
     env_file:
@@ -32,7 +34,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: sh -c 'yarn prisma migrate reset -f' # Seed the database
+    command: sh -c 'yarn prisma migrate reset -f && node .next/standalone/server.js' # Seed the database
 
   test:
     image: ecoplanner:test
@@ -47,12 +49,11 @@ services:
       - ./playwright-report:/app/playwright-report
       - ./test-results:/app/test-results
     environment:
-      - TEST_BASE_URL=http://web:8081
+      - TEST_BASE_URL=http://web:3000
       - CI=true # For playwright config
     depends_on:
       web:
         condition: service_started
-    command: sh -c 'yarn test'
 
 networks:
   test_network:

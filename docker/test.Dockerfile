@@ -19,6 +19,8 @@ RUN \
 COPY .env* ./
 COPY playwright.config.* ./
 COPY tests ./tests/
+COPY src ./src/
+COPY public ./public/
 
 # Install Playwright browsers
 RUN yarn playwright install --with-deps
