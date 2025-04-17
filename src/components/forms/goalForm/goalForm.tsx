@@ -12,7 +12,7 @@ import { DataSeries, Goal } from "@prisma/client";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import BaselineDataSeriesInput from "../dataSeriesInput/baselineDataSeriesInput";
+import DataSeriesInput from "../dataSeriesInput/dataSeriesInput";
 import { getBaselineDataSeries, getDataSeries } from "../dataSeriesInput/utils";
 import styles from '../forms.module.css';
 import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
@@ -301,7 +301,15 @@ export default function GoalForm({
           </label>
 
           {baselineType === BaselineType.Custom &&
-            <BaselineDataSeriesInput baselineDataSeriesString={baselineString} />
+            <DataSeriesInput
+              dataSeriesString={baselineString}
+              inputName="baselineDataSeries"
+              inputId="baselineDataSeries"
+              labelKey="forms:data_series_input.custom_baseline"
+              advancedInfoKey="forms:data_series_input.custom_baseline_info"
+              addAltTextKey="forms:data_series_input.add_year_to_custom_baseline"
+              removeAltTextKey="forms:data_series_input.remove_year_from_custom_baseline"
+            />
           }
 
           {baselineType === BaselineType.Inherited &&

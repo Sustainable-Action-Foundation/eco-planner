@@ -42,7 +42,7 @@
     "custom_baseline_info": "Fältet \"Anpassad baslinje\" tar emot en serie med värden som är separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie med värden från Excel eller liknande.<br /><strong>OBS: Värden får inte vara separerade med kommatecken (\",\").</strong><br />Decimaltal kan antingen skrivas med punkt eller kommatecken.<br />Det första värdet representerar år 2020 och serien kan som längst fortsätta till år 2050 (totalt 31 värden).<br />Om värden saknas för ett år kan du lämna det tomt, exempelvis anger \";1;;;;5\" värdena 1 och 5 för år 2021 respektive 2025.",
     "data_series": "Dataserie",
     "data_series_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller kommatecken.",
-    "custom_baseline_label": "Anpassad baslinje:",
+    "custom_baseline": "Anpassad baslinje:",
     "custom_baseline_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller komma.",
     "add_year": "Lägg till år",
     "remove_year": "Ta bort år",

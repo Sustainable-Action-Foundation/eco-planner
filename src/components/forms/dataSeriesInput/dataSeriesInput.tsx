@@ -8,9 +8,27 @@ import styles from "./dataSeriesInput.module.css";
 import { dataSeriesPattern, isValidPastedInput, isValidSingleInputForGrid, isValidSingleInputForTextField } from "./utils";
 
 export default function DataSeriesInput({
-  dataSeriesString
+  dataSeriesString, // TODO - rename "dataSeriesString" to "dataSeriesInput" or "initialValue" (latest suggested by chatgpt)
+  inputName = "dataSeries",
+  inputId = "dataSeries",
+  labelKey = "forms:data_series_input.data_series",
+  titleKey = "forms:data_series_input.data_series_title",
+  summaryKey,
+  summaryInfoKey,
+  advancedInfoKey,
+  addAltTextKey,
+  removeAltTextKey,
 }: {
   dataSeriesString?: string
+  inputName?: string;
+  inputId?: string;
+  labelKey?: string;
+  titleKey?: string;
+  summaryKey?: string;
+  summaryInfoKey?: string
+  advancedInfoKey: string;
+  addAltTextKey: string;
+  removeAltTextKey: string;
 }) {
 
   const { t } = useTranslation();
@@ -103,22 +121,24 @@ export default function DataSeriesInput({
 
   return (
     <>
-      <details className="margin-block-75">
-        <summary>
-          {t("forms:data_series_input.extra_info_data_series")}
-        </summary>
-        <p>
-          { // TODO - modify so that this text is not identical to the text in the advanced section
-          }
-          <Trans
-            i18nKey={"forms:data_series_input.data_series_info"}
-            components={{ strong: <strong />, br: <br /> }}
-          />
-        </p>
-      </details>
+      {summaryKey && summaryInfoKey && (
+        <details className="margin-block-75">
+          <summary>
+            {t(summaryKey)}
+          </summary>
+          <p>
+            { // TODO - modify so that this text is not identical to the text in the advanced section
+            }
+            <Trans
+              i18nKey={summaryInfoKey}
+              components={{ strong: <strong />, br: <br /> }}
+            />
+          </p>
+        </details>
+      )}
 
       <label className="block margin-block-75">
-        {t("forms:data_series_input.data_series")}
+        {t(labelKey)}
         {/* TODO: Make this allow .csv files and possibly excel files */}
         <div className="padding-25 smooth flex" style={{ border: "1px solid var(--gray-90)", maxWidth: "48.5rem" }}>
           <div id="inputGrid" className={`${styles.sideScroll} smooth grid gap-0`} style={{ gridTemplateColumns: `repeat(${dataSeriesValues.length}, 1fr)`, gridTemplateRows: "auto" }}>
@@ -128,7 +148,7 @@ export default function DataSeriesInput({
                 <input
                   type="number"
                   id={dataSeriesDataFieldNames[index]}
-                  name="dataSeriesInput"
+                  name={`${inputName}Input`}
                   value={value}
                   onChange={(e) => handleValueChange(e, index)}
                   onBeforeInput={(e) => {
@@ -157,7 +177,7 @@ export default function DataSeriesInput({
               onLoad={(e) => updateControlsState((e.target as HTMLElement).parentElement, null, dataSeriesValues)}
               onClick={addColumn}
             >
-              <Image src="/icons/circlePlus.svg" alt={t("forms:data_series_input.add_year_to_data_series")} width={24} height={24} />
+              <Image src="/icons/circlePlus.svg" alt={t(addAltTextKey)} width={24} height={24} />
             </button>
             <button
               type="button"
@@ -166,7 +186,7 @@ export default function DataSeriesInput({
               onLoad={(e) => updateControlsState(null, (e.target as HTMLElement).parentElement, dataSeriesValues)}
               onClick={removeColumn}
             >
-              <Image src="/icons/circleMinus.svg" alt={t("forms:data_series_input.remove_year_from_data_series")} width={24} height={24} />
+              <Image src="/icons/circleMinus.svg" alt={t(removeAltTextKey)} width={24} height={24} />
             </button>
           </div>
         </div>
@@ -177,15 +197,19 @@ export default function DataSeriesInput({
         </summary>
         <p>
           <Trans
-            i18nKey={"forms:data_series_input.data_series_info"}
+            i18nKey={advancedInfoKey}
             components={{ strong: <strong />, br: <br /> }}
           />
         </p>
         <label className="block margin-block-75">
-          {t("forms:data_series_input.data_series")}
-          <input type="text" name="dataSeries" required id="dataSeries"
+          {t(labelKey)}
+          <input
+            type="text"
+            name={inputName}
+            required
+            id={inputId}
             pattern={dataSeriesPattern}
-            title={t("forms:data_series_input.data_series_title")}
+            title={t(titleKey)}
             value={dataSeriesValues.join(";")}
             className="margin-block-25"
             onBeforeInput={(e) => {
