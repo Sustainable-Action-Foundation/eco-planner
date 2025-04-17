@@ -91,7 +91,7 @@ export default defineConfig({
       name: "webkit 720p",
       use: { ...devices["Desktop Safari"], viewport: { width: 1280, height: 720 }, },
       // dependencies: ["Locale files validation"],
-    },
+    }
   ],
   webServer: !process.env.CI ? {
     timeout: 1000 * 1000,

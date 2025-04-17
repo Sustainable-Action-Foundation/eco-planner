@@ -29,4 +29,25 @@ test.describe("Sidebar tests", () => {
 
     expect(allOptions.every(option => allAliases.includes(option)), "Language switcher options do not match expected aliases").toBe(true);
   });
+
+  test("Language switcher changes language", async ({ page }) => {
+    await page.goto("/");
+
+    await page.waitForSelector("[data-testid='language-switcher']");
+
+    const homeTitle = page.getByTestId("home-title");
+
+    const initialTitle = await homeTitle.textContent();
+    expect(initialTitle, "Page is not in Swedish").toBe("Färdplaner")
+
+    await switchLanguage(page, localeAliases[Locales.enSE]);
+
+    const englishTitle = await homeTitle.textContent();
+    expect(englishTitle, "Page is not in English").toBe("Roadmaps")
+
+    await switchLanguage(page, localeAliases[Locales.svSE]);
+
+    const swedishTitle = await homeTitle.textContent();
+    expect(swedishTitle, "Page is not in Swedish").toBe("Färdplaner")
+  });
 });
