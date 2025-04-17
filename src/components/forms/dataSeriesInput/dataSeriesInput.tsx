@@ -33,15 +33,32 @@ export default function DataSeriesInput({
 
   const { t } = useTranslation();
   const [dataSeriesValues, setDataSeriesValues] = useState<string[]>(
-    dataSeriesString && dataSeriesString.length > 0 ? dataSeriesString.split(/[\t;]/) : Array.from({ length: dataSeriesDataFieldNames.length }, () => ""),
+    dataSeriesString && dataSeriesString.length > 0
+      ? dataSeriesString.split(/[\t;]/).slice(0, dataSeriesDataFieldNames.length)
+      : Array.from({ length: dataSeriesDataFieldNames.length }, () => ""),
   );
   const isPasting = useRef(false);
 
+  const addColumnRef = useRef<HTMLButtonElement>(null);
+  const removeColumnRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
     if (dataSeriesString) {
-      setDataSeriesValues(dataSeriesString.split(/[\t;]/).slice(0, dataSeriesDataFieldNames.length));
+      setDataSeriesValues(
+        dataSeriesString
+          .split(/[\t;]/)
+          .slice(0, dataSeriesDataFieldNames.length)
+      );
     }
   }, [dataSeriesString]);
+
+  useEffect(() => {
+    updateControlsState(
+      addColumnRef.current,
+      removeColumnRef.current,
+      dataSeriesValues
+    );
+  }, [dataSeriesValues]);
 
   function handleValueChange(e: React.ChangeEvent<HTMLInputElement>, index: number) {
     if (isPasting.current) return;
@@ -53,9 +70,7 @@ export default function DataSeriesInput({
 
   function handlePaste(e: React.ClipboardEvent<HTMLInputElement>, startIndex: number) {
     isPasting.current = true;
-    const clipboardText = e.clipboardData.getData("text");
-    const pastedValues = clipboardText.split(/[\t;]/);
-
+    const pastedValues = e.clipboardData.getData("text").split(/[\t;]/);
     const newValues = [...dataSeriesValues];
 
     for (let i = 0; i < pastedValues.length && i + startIndex < dataSeriesDataFieldNames.length; i++) {
@@ -89,33 +104,15 @@ export default function DataSeriesInput({
 
   function addColumn(e: React.MouseEvent<HTMLButtonElement>) {
     setDataSeriesValues((prevValues) => {
-      const addColumnButton = (e.target as HTMLElement).parentElement as HTMLElement | null;
-      const removeColumnButton = (e.target as HTMLElement).parentElement?.nextSibling as HTMLElement | null;
-
-      if (prevValues.length >= dataSeriesDataFieldNames.length) {
-        updateControlsState(addColumnButton, removeColumnButton, prevValues);
-        return prevValues; // Prevent adding more columns than the maximum allowed
-      }
-
-      const newValues = [...prevValues, ""];
-      updateControlsState(addColumnButton, removeColumnButton, newValues);
-      return newValues;
+      if (prevValues.length >= dataSeriesDataFieldNames.length) return prevValues; // Prevent adding more columns than the maximum allowed
+      return [...prevValues, ""];
     });
   }
 
   function removeColumn(e: React.MouseEvent<HTMLButtonElement>) {
     setDataSeriesValues((prevValues) => {
-      const addColumnButton = (e.target as HTMLElement).parentElement?.previousSibling as HTMLElement | null;
-      const removeColumnButton = (e.target as HTMLElement).parentElement as HTMLElement | null;
-
-      if (prevValues.length <= 1) {
-        updateControlsState(addColumnButton, removeColumnButton, prevValues);
-        return prevValues; // Prevent removing the last column
-      }
-
-      const newValues = prevValues.slice(0, -1);
-      updateControlsState(addColumnButton, removeColumnButton, newValues);
-      return newValues;
+      if (prevValues.length <= 1) return prevValues; // Prevent removing the last column
+      return prevValues.slice(0, -1);
     });
   }
 
@@ -140,11 +137,19 @@ export default function DataSeriesInput({
       <label className="block margin-block-75">
         {t(labelKey)}
         {/* TODO: Make this allow .csv files and possibly excel files */}
-        <div className="padding-25 smooth flex" style={{ border: "1px solid var(--gray-90)", maxWidth: "48.5rem" }}>
-          <div id="inputGrid" className={`${styles.sideScroll} smooth grid gap-0`} style={{ gridTemplateColumns: `repeat(${dataSeriesValues.length}, 1fr)`, gridTemplateRows: "auto" }}>
+        <div
+          className="padding-25 smooth flex"
+          style={{ border: "1px solid var(--gray-90)", maxWidth: "48.5rem" }}
+        >
+          <div
+            className={`${styles.sideScroll} smooth grid gap-0`}
+            style={{ gridTemplateColumns: `repeat(${dataSeriesValues.length}, 1fr)`, gridTemplateRows: "auto" }}
+          >
             {dataSeriesValues.map((value, index) => index < dataSeriesDataFieldNames.length && (
               <div key={`column-${index}`}>
-                <label htmlFor={dataSeriesDataFieldNames[index]} className="padding-25 margin-left-25 margin-right-25">{dataSeriesDataFieldNames[index].replace("val", "")}</label>
+                <label htmlFor={dataSeriesDataFieldNames[index]} className="padding-25 margin-left-25 margin-right-25">
+                  {dataSeriesDataFieldNames[index].replace("val", "")}
+                </label>
                 <input
                   type="number"
                   id={dataSeriesDataFieldNames[index]}
@@ -174,6 +179,7 @@ export default function DataSeriesInput({
               type="button"
               className={`${styles.columnControlsButton}`}
               title={t("forms:data_series_input.add_year")}
+              ref={addColumnRef}
               onLoad={(e) => updateControlsState((e.target as HTMLElement).parentElement, null, dataSeriesValues)}
               onClick={addColumn}
             >
@@ -183,6 +189,7 @@ export default function DataSeriesInput({
               type="button"
               className={`${styles.columnControlsButton}`}
               title={t("forms:data_series_input.remove_year")}
+              ref={removeColumnRef}
               onLoad={(e) => updateControlsState(null, (e.target as HTMLElement).parentElement, dataSeriesValues)}
               onClick={removeColumn}
             >
@@ -191,6 +198,7 @@ export default function DataSeriesInput({
           </div>
         </div>
       </label>
+
       <details className="margin-block-75">
         <summary>
           {t("forms:data_series_input.advanced")}
