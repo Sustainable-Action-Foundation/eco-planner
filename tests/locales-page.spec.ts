@@ -1,11 +1,10 @@
-import { localeAliases } from "i18nTestVariables";
 import "./lib/console";
+import { localeAliases } from "i18nTestVariables";
 import { switchLanguage } from "lib/switch-language";
 import { expect, test } from "playwright/test";
 
 
 test.describe("Locales Test page", () => {
-
   const keyCountThreshold = 400;
   const emptyMessage = "[EMPTY]";
   const missingMessage = "[MISSING]";

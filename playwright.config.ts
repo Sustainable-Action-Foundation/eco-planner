@@ -38,6 +38,8 @@ export default defineConfig({
     timezoneId: "Europe/Stockholm",
   },
 
+  globalTeardown: "./tests/lib/global.teardown.ts",
+
   // Configure projects for major browsers.
   projects: [
     {
