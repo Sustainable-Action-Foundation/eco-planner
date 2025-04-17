@@ -3,18 +3,20 @@
 import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
-import { Goal, DataSeries, Effect } from "@prisma/client";
+import type { Goal, DataSeries, Effect, MetaRoadmap, Roadmap } from "@prisma/client";
 import { useTranslation } from "react-i18next";
 
 export default function MainDeltaGraph({
   goal,
   secondaryGoal,
-  nationalGoal,
+  parentGoal,
+  parentGoalRoadmap,
   effects,
 }: {
   goal: Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null },
   secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
-  nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
+  parentGoal: Goal & { dataSeries: DataSeries | null } | null,
+  parentGoalRoadmap: Roadmap & { metaRoadmap: MetaRoadmap } | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
 }) {
   const { t } = useTranslation();
@@ -48,7 +50,7 @@ export default function MainDeltaGraph({
         t("graphs:common.baseline_scenario"),
         t("graphs:common.expected_outcome"),
         (secondaryGoal?.dataSeries?.unit == goal.dataSeries.unit) ? (secondaryGoal?.name || secondaryGoal?.indicatorParameter) : '',
-        t("graphs:common.national_counterpart"),
+        t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name || "" }),
       ],
     }],
     tooltip: {
@@ -190,14 +192,14 @@ export default function MainDeltaGraph({
   }
 
   // National goal
-  if (nationalGoal?.dataSeries) {
+  if (parentGoal?.dataSeries) {
     const nationalSeries = []
     for (let i = 1; i < dataSeriesDataFieldNames.length; i++) {
       const currentField = dataSeriesDataFieldNames[i];
       const previousField = dataSeriesDataFieldNames[i - 1];
 
-      const currentValue = nationalGoal.dataSeries[currentField] ?? NaN;
-      const previousValue = nationalGoal.dataSeries[previousField] ?? NaN;
+      const currentValue = parentGoal.dataSeries[currentField] ?? NaN;
+      const previousValue = parentGoal.dataSeries[previousField] ?? NaN;
 
       const value = currentValue - previousValue;
       nationalSeries.push({
@@ -206,7 +208,7 @@ export default function MainDeltaGraph({
       });
     }
     chart.push({
-      name: t("graphs:common.national_counterpart"),
+      name: t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name || "" }),
       data: nationalSeries,
       type: 'line',
     });

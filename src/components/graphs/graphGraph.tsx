@@ -2,7 +2,7 @@
 
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import { externalDatasets } from "@/lib/api/utility";
-import { DataSeries, Effect, Goal } from "@prisma/client";
+import type { DataSeries, Effect, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
 import { useEffect, useState } from "react";
 import { getStoredGraphType } from "./functions/graphFunctions";
 import GraphSelector from "./graphSelector/graphSelector";
@@ -21,14 +21,16 @@ export enum GraphType {
 export default function GraphGraph({
   goal,
   secondaryGoal,
-  nationalGoal,
+  parentGoal,
+  parentGoalRoadmap,
   historicalData,
   effects,
   children,
 }: {
   goal: Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null },
   secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
-  nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
+  parentGoal: Goal & { dataSeries: DataSeries | null } | null,
+  parentGoalRoadmap: Roadmap & { metaRoadmap: MetaRoadmap } | null,
   historicalData?: ApiTableContent | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
   children: React.ReactNode
@@ -44,11 +46,11 @@ export default function GraphGraph({
   function graphSwitch(graphType: string) {
     switch (graphType) {
       case GraphType.Main:
-        return <MainGraph goal={goal} nationalGoal={nationalGoal} historicalData={historicalData} secondaryGoal={secondaryGoal} effects={effects} />
+        return <MainGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} historicalData={historicalData} secondaryGoal={secondaryGoal} effects={effects} />
       case GraphType.Relative:
-        return <MainRelativeGraph goal={goal} nationalGoal={nationalGoal} secondaryGoal={secondaryGoal} />
+        return <MainRelativeGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} secondaryGoal={secondaryGoal} />
       case GraphType.Delta:
-        return <MainDeltaGraph goal={goal} nationalGoal={nationalGoal} secondaryGoal={secondaryGoal} effects={effects} />
+        return <MainDeltaGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} secondaryGoal={secondaryGoal} effects={effects} />
       default:
         return graphSwitch(GraphType.Main);
     }
@@ -78,10 +80,10 @@ export default function GraphGraph({
           {graphSwitch(graphType)}
         </div>
         {historicalData && (
-          <Trans 
+          <Trans
             i18nKey="graphs:graph_graph.historical_data_source"
-            components={{a: <a href={getHistoricalDataLink(historicalData) as string || ""} target="_blank" />}}
-            tOptions={{ source: externalDatasets[historicalData.metadata[0].source]?.fullName ? externalDatasets[historicalData.metadata[0].source]?.fullName : historicalData.metadata[0].source}}
+            components={{ a: <a href={getHistoricalDataLink(historicalData) as string || ""} target="_blank" /> }}
+            tOptions={{ source: externalDatasets[historicalData.metadata[0].source]?.fullName ? externalDatasets[historicalData.metadata[0].source]?.fullName : historicalData.metadata[0].source }}
           />
         )}
       </article>
