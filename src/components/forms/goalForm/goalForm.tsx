@@ -13,7 +13,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import DataSeriesInput from "../dataSeriesInput/dataSeriesInput";
-import { getBaselineDataSeries, getDataSeries } from "../dataSeriesInput/utils";
+import { getDataSeries } from "../dataSeriesInput/utils";
 import styles from '../forms.module.css';
 import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
 
@@ -93,7 +93,8 @@ export default function GoalForm({
     const dataSeries = getDataSeries(form);
 
     // And likewise for the baseline data series, if any
-    const baselineDataSeries = getBaselineDataSeries(form);
+    const baselineDataSeriesArray = getDataSeries(form, "baselineDataSeries");
+    const baselineDataSeries = baselineDataSeriesArray.length > 0 ? baselineDataSeriesArray : undefined; // The baseline may be omitted, in which case we don't want to send an empty array
 
     const { scalingRecipie: combinationScale } = getScalingResult(formData, scalingRecipie.method || ScaleMethod.Geometric);
 

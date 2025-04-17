@@ -14,33 +14,20 @@ const dataSeriesLength = dataSeriesDataFieldNames.length
  */
 export const dataSeriesPattern = `(([\\-]?[0-9]+([.,][0-9]+)?)?[\t;]){0,${dataSeriesLength - 1}}([\\-]?[0-9]+([.,][0-9]+)?)?`;
 
-export function getDataSeries(form: HTMLFormControlsCollection) {
+export function getDataSeries(form: HTMLFormControlsCollection, dataSeriesInputName: string = "dataSeries") {
   let values = [];
+  
   for (const item of form) {
-    if (item instanceof HTMLInputElement && item.name == "dataSeriesInput") {
+    if (item instanceof HTMLInputElement && item.name == `${dataSeriesInputName}Input`) {
       values.push(item.value);
     }
   }
   if (values.length == 0) {
-    const dataSeriesInput = (form.namedItem("dataSeries") as HTMLInputElement | null)?.value;
+    const dataSeriesInput = (form.namedItem(dataSeriesInputName) as HTMLInputElement | null)?.value;
     values = dataSeriesInput ? dataSeriesInput?.replaceAll(',', '.').split(/[\t;]/) : [];
   }
-  return values;
-}
 
-export function getBaselineDataSeries(form: HTMLFormControlsCollection) {
-  let values = [];
-  for (const item of form) {
-    if (item instanceof HTMLInputElement && item.name == "baselineDataSeriesInput") {
-      values.push(item.value);
-    }
-  }
-  if (values.length == 0) {
-    const baselineDataSeriesInput = (form.namedItem("baselineDataSeries") as HTMLInputElement | null)?.value;
-    values = baselineDataSeriesInput ? baselineDataSeriesInput?.replaceAll(',', '.').split(/[\t;]/) : [];
-  }
-  // The baseline may be omitted, in which case we don't want to send an empty array
-  return values.length > 0 ? values : undefined;
+  return values;
 }
 
 export function isValidSingleInputForGrid(char: string): boolean {
