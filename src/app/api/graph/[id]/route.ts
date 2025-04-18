@@ -12,20 +12,19 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     getOneGoal(params.id).then(async goal => { return { goal, roadmap: (goal ? await getOneRoadmap(goal.id) : null) } }),
   ]);
 
-  let predictedOutcome: ReturnType<typeof calculatePredictedOutcome> = [];
-  predictedOutcome.length = 31
-  let firstNonNullValueValue = null;
-  if (goal?.dataSeries) {
-    firstNonNullValueValue = firstNonNullValue(goal?.dataSeries)
-    predictedOutcome = calculatePredictedOutcome(goal?.effects, goal?.baselineDataSeries || firstNonNullValue(goal?.dataSeries) || 0)
+  if (!goal?.dataSeries) {
+    return
   }
+
+  const firstNonNullValueValue = firstNonNullValue(goal.dataSeries)
+  const predictedOutcome = calculatePredictedOutcome(goal.effects, goal.baselineDataSeries || firstNonNullValue(goal.dataSeries) || 0)
 
   const rawData = dataSeriesDataFieldNames.map((field, index) => {
     return {
       category: field.replace('val', ''),
-      malbana: goal?.dataSeries?.[field],
-      baseScenario: goal?.baselineDataSeries ? goal.baselineDataSeries[field] : firstNonNullValueValue,
-      forvantat: predictedOutcome[index]?.y,
+      malbana: goal.dataSeries?.[field],
+      baseScenario: goal.baselineDataSeries ? goal.baselineDataSeries[field] : firstNonNullValueValue,
+      forvantat: predictedOutcome[index].y,
     }
   })
 
@@ -39,13 +38,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const stepX = (width - 2 * padding) / (rawData.length - 1); // Total distance in pixels between x value (~17.33)
 
   // Find min/max
-  const allValues = rawData.flatMap(d => [
+  const allValues = rawData.map(d => [
     d.malbana ?? 0,
     d.baseScenario ?? 0,
     d.forvantat ?? 0,
-  ]);
+  ]).flat()
 
-  const minVal = Math.min(...allValues);
+  const minVal = Math.min(...allValues, 0);
   const maxVal = Math.max(...allValues);
   const valueRange = maxVal - minVal || 1;
 
@@ -137,7 +136,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       </text>
 
       <text x="${width / 2}" y="${titleY}" text-anchor="middle" font-size="20" fill="black" font-weight="bold">
-        ${goal?.name?.charAt(0).toUpperCase() + String(goal?.name).slice(1)} 
+        ${goal?.name?.charAt(0).toUpperCase() + String(goal?.name).slice(1)}
       </text>
     </svg>
   `;
