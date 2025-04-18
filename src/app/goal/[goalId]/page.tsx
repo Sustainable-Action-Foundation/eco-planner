@@ -47,7 +47,7 @@ export async function generateMetadata({
       type: 'website',
       url: baseUrl,
       images: [{
-        url: `${baseUrl}/images/solarpanels.jpg`
+        url: `${baseUrl}/api/graph/${goal?.id}`,
       }],
       siteName: 'Eco - Planner',
       description: `${goal?.description || 'Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas. Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen. Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder.'}`,

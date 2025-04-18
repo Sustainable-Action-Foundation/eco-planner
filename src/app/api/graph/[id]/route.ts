@@ -48,12 +48,12 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
   // Dimensions
   const width = 600;
-  const offsetY = 50;
-  const heightGraph = 300
+  const offsetY = 50; // TODO: Maybe just use padding here somehow to simplify this
+  const heightGraph = 200
   const heightCanvas = heightGraph + offsetY * 2;
   const padding = 40;
   const titleY = offsetY - 5; // a bit above the chart
-  const stepX = (width - 2 * padding) / (rawData.length - 1);
+  const stepX = (width - 2 * padding) / (rawData.length - 1); // Total distance in pixels between x value (~17.33)
 
   // Find min/max
   const allValues = rawData.flatMap(d => [
@@ -98,17 +98,28 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       <polyline points="${pointsForvantat}" fill="none" stroke="#feb019" stroke-width="3"/>
       <polyline points="${pointsBase}" fill="none" stroke="#00e396" stroke-width="3"/>
       
-      <text x="${width/2 - 100}" y="${heightCanvas - 25}" font-size="10" text-anchor="middle" fill="#008ffb">
+  
+      <text x="${10}" y="${heightCanvas/2}" font-size="12" fill="rgb(55, 61, 63)" >
+        ${goal?.dataSeries?.unit} 
+      </text>
+
+      <circle cx="${width/2 - 135}" cy="${heightCanvas - 29}" r="5" fill="#008ffb" />
+      <text x="${width/2 - 100}" y="${heightCanvas - 25}" font-size="12" text-anchor="middle" fill="rgb(55, 61, 63)">
         Målbana
       </text>
-      <text x="${width/2}" y="${heightCanvas - 25}" font-size="10" text-anchor="middle" fill="#00e396">
+
+      <circle cx="${width/2 - 43}" cy="${heightCanvas - 29}"  r="5" fill="#00e396" />
+      <text x="${width/2}" y="${heightCanvas - 25}" font-size="12" text-anchor="middle" fill="rgb(55, 61, 63)">
         Basscenario
       </text>
-      <text x="${width/2 + 100}" y="${heightCanvas - 25}" font-size="10" text-anchor="middle" fill="#feb019">
+
+      <circle cx="${width/2 + 60}" cy="${heightCanvas - 29}" r="5" fill="#feb019" />
+      <text x="${width/2 + 110}" y="${heightCanvas - 25}" font-size="12" text-anchor="middle" fill="rgb(55, 61, 63)">
         Förväntat ufall
       </text>
-      <text x="${width/2}" y="${titleY}" text-anchor="middle" font-size="20" fill="black">
-        Målbana 
+
+      <text x="${width/2}" y="${titleY}" text-anchor="middle" font-size="20" fill="black" font-weight="bold">
+        ${goal?.name?.charAt(0).toUpperCase() + String(goal?.name).slice(1)} 
       </text>
     </svg>
   `;
