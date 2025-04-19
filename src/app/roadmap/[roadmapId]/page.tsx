@@ -12,6 +12,7 @@ import Image from "next/image";
 import { DataSeries, Goal } from "@prisma/client";
 import type { Metadata } from 'next'
 import { baseUrl } from "@/lib/baseUrl";
+import { buildMetadata } from "@/functions/buildMetadata";
  
 
 export async function generateMetadata({ params }: { params: { roadmapId: string } }) {
@@ -19,24 +20,11 @@ export async function generateMetadata({ params }: { params: { roadmapId: string
     getOneRoadmap(params.roadmapId)
   ]);
 
-  const metadata: Metadata = {
-    title: `${roadmap?.metaRoadmap.name} - Eco - Planner`,
-    icons: "/icons/leaf.svg",
-    description: `${roadmap?.description || roadmap?.metaRoadmap.description || 'Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas. Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen. Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder.'}`,
-    openGraph: {
-      title: `${roadmap?.metaRoadmap.name} - Eco - Planner`,
-      type: 'website',
-      url: baseUrl,
-      images: [{
-        url: `${baseUrl}/images/solarpanels.jpg`
-      }],
-      siteName: 'Eco - Planner',
-      description: `${roadmap?.description || roadmap?.metaRoadmap.description || 'Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas. Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen. Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder.'}`,
-      locale: 'sv_SE'
-    }
-  }
-
-  return metadata
+  return buildMetadata({
+    title: roadmap?.metaRoadmap.name,
+    description: roadmap?.description || roadmap?.metaRoadmap.description, // TODO: Do fallbacks here make sense?
+    og_url: `/roadmap/${roadmap?.id}`
+  }) 
 }
 
 export default async function Page({ params }: { params: { roadmapId: string } }) {

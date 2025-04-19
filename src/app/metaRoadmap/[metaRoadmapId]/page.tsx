@@ -9,6 +9,7 @@ import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { Metadata } from "next";
 import { baseUrl } from "@/lib/baseUrl";
+import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata({ params }: { params: { metaRoadmapId: string } }) {
   
@@ -16,24 +17,11 @@ export async function generateMetadata({ params }: { params: { metaRoadmapId: st
     getOneMetaRoadmap(params.metaRoadmapId),
   ]);
 
-  const metadata: Metadata = {
-    title: `${metaRoadmap?.name} - Eco - Planner`,
-    icons: "/icons/leaf.svg",
-    description: `${metaRoadmap?.description || 'Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas. Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen. Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder.'}`,
-    openGraph: {
-      title: `${metaRoadmap?.name} - Eco - Planner`,
-      type: 'website',
-      url: baseUrl,
-      images: [{
-        url: `${baseUrl}/images/solarpanels.jpg`
-      }],
-      siteName: 'Eco - Planner',
-      description: `${metaRoadmap?.description || 'Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas. Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen. Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder.'}`,
-      locale: 'sv_SE'
-    }
-  }
-
-  return metadata
+  return buildMetadata({
+    title: metaRoadmap?.name,
+    description: metaRoadmap?.description,
+    og_url: `/metaRoadmap/${metaRoadmap?.id}`
+  })  
 }
 
 

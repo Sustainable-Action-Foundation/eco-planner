@@ -20,11 +20,11 @@ export async function generateMetadata({
     getOneAction(params.actionId)
   ]);
 
-    return buildMetadata({
-      title: action?.name,
-      description: action?.description,
-      og_url: `/action/${action?.id}`
-    })
+  return buildMetadata({
+    title: action?.name,
+    description: action?.description,
+    og_url: `/action/${action?.id}`
+  })
 
 }
 

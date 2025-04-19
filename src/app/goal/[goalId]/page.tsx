@@ -28,6 +28,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { baseUrl } from "@/lib/baseUrl";
 import { Metadata } from "next";
+import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata({
   params,
@@ -37,25 +38,13 @@ export async function generateMetadata({
   const [{goal}] = await Promise.all([
     getOneGoal(params.goalId).then(async goal => { return { goal, roadmap: (goal ? await getOneRoadmap(goal.roadmapId) : null) } }),
   ]);
-
-  const metadata: Metadata = {
-    title: `${goal?.name} - Eco - Planner`,
-    icons: "/icons/leaf.svg",
-    description: `${goal?.description || 'Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas. Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen. Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder.'}`,
-    openGraph: {
-      title: `${goal?.name} - Eco - Planner`,
-      type: 'website',
-      url: baseUrl,
-      images: [{
-        url: `${baseUrl}/api/graph/${goal?.id}`,
-      }],
-      siteName: 'Eco - Planner',
-      description: `${goal?.description || 'Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas. Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen. Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder.'}`,
-      locale: 'sv_SE'
-    }
-  }
-
-  return metadata
+  
+  return buildMetadata({
+    title: goal?.name,
+    description: goal?.description,
+    image_url: `${baseUrl}/api/graph/${goal?.id}`,
+    og_url: `/goal/${goal?.id}`
+  }) 
 }
 
 export default async function Page({

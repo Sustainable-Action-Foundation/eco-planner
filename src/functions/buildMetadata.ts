@@ -7,7 +7,9 @@ const default_image_path: string = '/images/solarpanels_small.jpg'
 
 // TODO: Ensure description not longer than 150chars
 // TODO: Ensure title not to long either 
-// TODO: Dynamically resize image using code
+// TODO: Dynamically resize images using code
+// TODO: Dynamically set locale
+// TODO: Decide on if the image should be optional or not, does an og image make sense for the graph pages i.e goal/[id]/edit?
 export function buildMetadata(
   {
     title,
