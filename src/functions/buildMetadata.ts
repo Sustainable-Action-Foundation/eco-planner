@@ -10,11 +10,12 @@ const default_image_path: string = '/images/solarpanels_small.jpg'
 // TODO: Dynamically resize images using code
 // TODO: Dynamically set locale
 // TODO: Decide on if the image should be optional or not, does an og image make sense for the graph pages i.e goal/[id]/edit?
+// TODO: Generate metadata which this relies on does not work on client side components
 export function buildMetadata(
   {
     title,
     description,
-    image_url,
+    image_url, // TODO: Should be og_image_url
     og_url
   }: {
     title: string | null | undefined;

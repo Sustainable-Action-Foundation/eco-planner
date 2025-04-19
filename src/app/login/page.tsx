@@ -2,6 +2,16 @@ import Login from "@/components/forms/userInfo/login";
 import styles from "./page.module.css" with { type: "css" };
 import AttributedImage from "@/components/generic/images/attributedImage";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import { buildMetadata } from "@/functions/buildMetadata";
+
+export async function generateMetadata() {
+  return buildMetadata({
+    title: 'Logga in',
+    description: undefined, // TODO: Seperate description for this page?  
+    image_url: '/images/windturbines_small.jpg',
+    og_url: '/login'
+  })  
+}
 
 export default async function Page() {
   return (

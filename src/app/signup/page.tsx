@@ -2,6 +2,16 @@ import Signup from "@/components/forms/userInfo/signup";
 import AttributedImage from "@/components/generic/images/attributedImage";
 import styles from "./page.module.css" with { type: "css" }; 
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import { buildMetadata } from "@/functions/buildMetadata";
+
+export async function generateMetadata() {
+  return buildMetadata({
+    title: 'Skapa konto',
+    description: undefined, // TODO: Seperate description for this page?  
+    image_url: '/images/hydroelectric_small.jpg',
+    og_url: '/signup'
+  })  
+}
 
 export default async function Page() {
   return (
