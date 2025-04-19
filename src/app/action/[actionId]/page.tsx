@@ -20,13 +20,11 @@ export async function generateMetadata({
     getOneAction(params.actionId)
   ]);
 
-  if (action?.name && action.description) {
     return buildMetadata({
       title: action?.name,
-      description: action.description,
-      image: '/images/solarpanels_small.jpg'
+      description: action?.description,
+      og_url: `/action/${action?.id}`
     })
-  }
 
 }
 
