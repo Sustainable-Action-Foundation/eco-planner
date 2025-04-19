@@ -8,7 +8,15 @@ import RoadmapFilters from "@/components/forms/filters/roadmapFilters";
 import { RoadmapSortBy } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree.tsx";
+import { buildMetadata } from "@/functions/buildMetadata";
 
+export async function generateMetadata() {
+  return buildMetadata({ // TODO: This might not be the best looking solution
+    title: undefined,
+    description: undefined,  
+    og_url: undefined
+  })  
+}
 
 export default async function Page({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
   const [session, metaRoadmaps] = await Promise.all([

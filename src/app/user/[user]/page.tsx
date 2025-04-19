@@ -12,6 +12,7 @@ import { notFound } from 'next/navigation';
 import styles from './page.module.css' with { type: "css" }
 import { baseUrl } from '@/lib/baseUrl';
 import { Metadata } from 'next';
+import { buildMetadata } from '@/functions/buildMetadata';
 
  export async function generateMetadata({
   params,
@@ -25,24 +26,11 @@ import { Metadata } from 'next';
     username = username?.replace(userIndicatorRegEx, '');
   } 
 
-  const metadata: Metadata = {
-    title: `${username} - Eco - Planner`,
-    icons: "/icons/leaf.svg",
-    description: "Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas. Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen. Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder.",
-    openGraph: {
-      title: `${username} - Eco - Planner`,
-      type: 'website',
-      url: baseUrl,
-      images: [{
-        url: `${baseUrl}/images/solarpanels.jpg`
-      }],
-      siteName: 'Eco - Planner',
-      description: "Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas. Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen. Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder.",
-      locale: 'sv_SE'
-    }
-  }
-
-  return metadata
+  return buildMetadata({
+    title: `@${username}`,
+    description: undefined, // TODO: Should be like a bio or something
+    og_url: `/@${username}`
+  })  
 }
 
 export default async function Page({
