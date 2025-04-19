@@ -9,8 +9,7 @@ import accessChecker from "@/lib/accessChecker";
 import Comments from "@/components/comments/comments";
 import EffectTable from "@/components/tables/effects.tsx";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { baseUrl } from "@/lib/baseUrl";
-import { Metadata } from "next";
+import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata({
   params,
@@ -21,24 +20,14 @@ export async function generateMetadata({
     getOneAction(params.actionId)
   ]);
 
-  const metadata: Metadata = {
-    title: `${action?.name} - Eco - Planner`,
-    icons: "/icons/leaf.svg",
-    description: `${action?.description || 'Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas. Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen. Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder.'}`,
-    openGraph: {
-      title: `${action?.name} - Eco - Planner`,
-      type: 'website',
-      url: baseUrl,
-      images: [{
-        url: `${baseUrl}/images/solarpanels.jpg`
-      }],
-      siteName: 'Eco - Planner',
-      description: `${action?.description || 'Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas. Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen. Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder.'}`,
-      locale: 'sv_SE'
-    }
+  if (action?.name && action.description) {
+    return buildMetadata({
+      title: action?.name,
+      description: action.description,
+      image: '/images/solarpanels_small.jpg'
+    })
   }
 
-  return metadata
 }
 
 export default async function Page({ params }: { params: { actionId: string } }) {
