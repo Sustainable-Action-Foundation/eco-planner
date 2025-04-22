@@ -89,6 +89,7 @@ export default function DataSeriesInput({
     }, 0);
   }
 
+  // Update the state of the add/remove buttons based on the number of values in the data series
   function updateControlsState(addColumnButton: HTMLElement | null, removeColumnButton: HTMLElement | null, valuesList: string[]) {
     if (valuesList.length >= dataSeriesDataFieldNames.length) {
       addColumnButton?.setAttribute("disabled", "true");
