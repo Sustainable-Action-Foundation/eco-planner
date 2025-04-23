@@ -155,12 +155,14 @@ export default function DataSeriesInput({
                   }}
                   onChange={(e) => handleValueChange(e, index)}
                   onBeforeInput={(e) => {
+                    // Make sure the input is valid
                     const inputEvent = e.nativeEvent as InputEvent;
                     if (inputEvent.data && !isValidSingleInputForGrid(inputEvent.data)) {
                       e.preventDefault();
                     }
                   }}
                   onPaste={(e) => {
+                    // Make sure the pasted input is valid before handling paste
                     const pasted = e.clipboardData.getData("text");
                     if (!isValidPastedInput(pasted)) {
                       e.preventDefault();
@@ -178,6 +180,7 @@ export default function DataSeriesInput({
               className={`${styles.columnControlsButton}`}
               title={t("forms:data_series_input.add_year")}
               ref={addColumnRef}
+              // Make sure the button is displayed as it should be (diabled or not) depending on the number of columns
               onLoad={(e) => updateControlsState((e.target as HTMLElement).parentElement, null, dataSeriesValues)}
               onClick={addColumn}
             >
@@ -188,6 +191,7 @@ export default function DataSeriesInput({
               className={`${styles.columnControlsButton}`}
               title={t("forms:data_series_input.remove_year")}
               ref={removeColumnRef}
+              // Make sure the button is displayed as it should be (diabled or not) depending on the number of columns
               onLoad={(e) => updateControlsState(null, (e.target as HTMLElement).parentElement, dataSeriesValues)}
               onClick={removeColumn}
             >

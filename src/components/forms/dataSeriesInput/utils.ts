@@ -14,6 +14,7 @@ const dataSeriesLength = dataSeriesDataFieldNames.length
  */
 export const dataSeriesPattern = `(([\\-]?[0-9]+([.,][0-9]+)?)?[\t;]){0,${dataSeriesLength - 1}}([\\-]?[0-9]+([.,][0-9]+)?)?`;
 
+// Finds data series values in a form, either from the dataSeries or from the dataSeriesInput inputs, and returns them as an array of strings
 export function getDataSeries(form: HTMLFormControlsCollection, dataSeriesInputName: string = "dataSeries") {
   let values = [];
   
