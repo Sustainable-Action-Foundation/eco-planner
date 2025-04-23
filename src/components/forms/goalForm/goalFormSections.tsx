@@ -71,10 +71,6 @@ export function ManualGoalForm({
         inputId="dataSeries"
         labelKey="forms:data_series_input.data_series"
         summaryKey="forms:data_series_input.extra_info_data_series"
-        summaryInfoKey="forms:data_series_input.data_series_info"
-        advancedInfoKey="forms:data_series_input.data_series_info"
-        addAltTextKey="forms:data_series_input.add_year_to_data_series"
-        removeAltTextKey="forms:data_series_input.remove_year_from_data_series"
       />
     </>
   )

@@ -30,6 +30,7 @@ export function getDataSeries(form: HTMLFormControlsCollection, dataSeriesInputN
   return values;
 }
 
+// TODO - maybe allow "e"?
 export function isValidSingleInputForGrid(char: string): boolean {
   // For onBeforeInput – blocks invalid keystrokes
   return /^[0-9.,-]+$/.test(char);

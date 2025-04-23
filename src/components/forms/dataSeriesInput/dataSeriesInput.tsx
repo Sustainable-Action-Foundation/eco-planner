@@ -12,23 +12,13 @@ export default function DataSeriesInput({
   inputName = "dataSeries",
   inputId = "dataSeries",
   labelKey = "forms:data_series_input.data_series",
-  titleKey = "forms:data_series_input.data_series_title",
   summaryKey,
-  summaryInfoKey,
-  advancedInfoKey,
-  addAltTextKey,
-  removeAltTextKey,
 }: {
   dataSeriesString?: string
   inputName?: string;
   inputId?: string;
   labelKey?: string;
-  titleKey?: string;
   summaryKey?: string;
-  summaryInfoKey?: string
-  advancedInfoKey: string;
-  addAltTextKey: string;
-  removeAltTextKey: string;
 }) {
 
   const { t } = useTranslation();
@@ -119,16 +109,14 @@ export default function DataSeriesInput({
 
   return (
     <>
-      {summaryKey && summaryInfoKey && (
+      {summaryKey && (
         <details className="margin-block-75">
           <summary>
             {t(summaryKey)}
           </summary>
           <p>
-            { // TODO - modify so that this text is not identical to the text in the advanced section
-            }
             <Trans
-              i18nKey={summaryInfoKey}
+              i18nKey={"forms:data_series_input.data_series_info"}
               components={{ strong: <strong />, br: <br /> }}
             />
           </p>
@@ -156,6 +144,15 @@ export default function DataSeriesInput({
                   id={dataSeriesDataFieldNames[index]}
                   name={`${inputName}Input`}
                   value={value}
+                  onWheel={(e) => {
+                    // Prevent the value from changing when scrolling
+                    (e.target as HTMLInputElement).blur();
+
+                    // Refocus the input on the next tick to prevent the scroll from changing the value
+                    setTimeout(() => {
+                      (e.target as HTMLInputElement).focus();
+                    }, 0);
+                  }}
                   onChange={(e) => handleValueChange(e, index)}
                   onBeforeInput={(e) => {
                     const inputEvent = e.nativeEvent as InputEvent;
@@ -184,7 +181,7 @@ export default function DataSeriesInput({
               onLoad={(e) => updateControlsState((e.target as HTMLElement).parentElement, null, dataSeriesValues)}
               onClick={addColumn}
             >
-              <Image src="/icons/circlePlus.svg" alt={t(addAltTextKey)} width={24} height={24} />
+              <Image src="/icons/circlePlus.svg" alt={t("forms:data_series_input.add_year_to_table")} width={24} height={24} />
             </button>
             <button
               type="button"
@@ -194,7 +191,7 @@ export default function DataSeriesInput({
               onLoad={(e) => updateControlsState(null, (e.target as HTMLElement).parentElement, dataSeriesValues)}
               onClick={removeColumn}
             >
-              <Image src="/icons/circleMinus.svg" alt={t(removeAltTextKey)} width={24} height={24} />
+              <Image src="/icons/circleMinus.svg" alt={t("forms:data_series_input.remove_year_from_table")} width={24} height={24} />
             </button>
           </div>
         </div>
@@ -206,7 +203,7 @@ export default function DataSeriesInput({
         </summary>
         <p>
           <Trans
-            i18nKey={advancedInfoKey}
+            i18nKey={"forms:data_series_input.data_series_advanced_info"}
             components={{ strong: <strong />, br: <br /> }}
           />
         </p>
@@ -218,7 +215,7 @@ export default function DataSeriesInput({
             required
             id={inputId}
             pattern={dataSeriesPattern}
-            title={t(titleKey)}
+            title={t("forms:data_series_input.data_series_tooltip")}
             value={dataSeriesValues.join(";")}
             className="margin-block-25"
             onBeforeInput={(e) => {

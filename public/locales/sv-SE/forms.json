@@ -38,19 +38,16 @@
   },
   "data_series_input": {
     "extra_info_data_series": "Extra information om dataserie",
-    "data_series_info": "Fältet \"Dataserie\" tar emot en serie med värden som är separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie med värden från Excel eller liknande.<br /><strong>OBS: Värden får inte vara separerade med kommatecken (\",\").</strong><br />Decimaltal kan antingen skrivas med punkt eller kommatecken.<br />Det första värdet representerar år 2020 och serien kan som längst fortsätta till år 2050 (totalt 31 värden).<br />Om värden saknas för ett år kan du lämna det tomt, exempelvis anger \";1;;;;5\" värdena 1 och 5 för år 2021 respektive 2025.",
-    "custom_baseline_info": "Fältet \"Anpassad baslinje\" tar emot en serie med värden som är separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie med värden från Excel eller liknande.<br /><strong>OBS: Värden får inte vara separerade med kommatecken (\",\").</strong><br />Decimaltal kan antingen skrivas med punkt eller kommatecken.<br />Det första värdet representerar år 2020 och serien kan som längst fortsätta till år 2050 (totalt 31 värden).<br />Om värden saknas för ett år kan du lämna det tomt, exempelvis anger \";1;;;;5\" värdena 1 och 5 för år 2021 respektive 2025.",
+    "data_series_info": "Använd semikolon eller tab för att separera värden när du klistrar in en dataserie i tabellen. Detta innebär att man kan klistra in en serie med värden från Excel eller liknande.<br /><strong>OBS: Värden får inte vara separerade med kommatecken (\",\").</strong><br />Decimaltal kan antingen skrivas med punkt eller kommatecken.",
     "data_series": "Dataserie",
-    "data_series_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller kommatecken.",
-    "custom_baseline": "Anpassad baslinje:",
-    "custom_baseline_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller komma.",
+    "data_series_tooltip": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller kommatecken.",
+    "custom_baseline": "Anpassad baslinje",
     "add_year": "Lägg till år",
     "remove_year": "Ta bort år",
-    "add_year_to_data_series": "Lägg till år i dataserie",
-    "remove_year_from_data_series": "Ta bort år från dataserie",
-    "add_year_to_custom_baseline": "Lägg till år i anpassad baslinje",
-    "remove_year_from_custom_baseline": "Ta bort år från anpassad baslinje",
-    "advanced": "Avancerade alternativ"
+    "add_year_to_table": "Lägg till år i tabellen",
+    "remove_year_from_table": "Ta bort år från tabellen",
+    "advanced": "Avancerade alternativ",
+    "data_series_advanced_info": "Detta fält tar emot en serie med värden som är separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie med värden från Excel eller liknande.<br /><strong>OBS: Värden får inte vara separerade med kommatecken (\",\").</strong><br />Decimaltal kan antingen skrivas med punkt eller kommatecken.<br />Det första värdet representerar år 2020 och serien kan som längst fortsätta till år 2050 (totalt 31 värden).<br />Om värden saknas för ett år kan du lämna det tomt, exempelvis anger \";1;;;;5\" värdena 1 och 5 för år 2021 respektive 2025."
   },
   "effect": {
     "select_roadmap_version_for_action": "Välj $t(common:roadmap_version_one) som $t(common:action_definite_one) ligger under",

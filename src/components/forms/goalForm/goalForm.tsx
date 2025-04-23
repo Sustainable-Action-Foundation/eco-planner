@@ -307,9 +307,6 @@ export default function GoalForm({
               inputName="baselineDataSeries"
               inputId="baselineDataSeries"
               labelKey="forms:data_series_input.custom_baseline"
-              advancedInfoKey="forms:data_series_input.custom_baseline_info"
-              addAltTextKey="forms:data_series_input.add_year_to_custom_baseline"
-              removeAltTextKey="forms:data_series_input.remove_year_from_custom_baseline"
             />
           }
 
