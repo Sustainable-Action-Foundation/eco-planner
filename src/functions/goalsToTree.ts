@@ -1,9 +1,10 @@
 import { goalSorterTree } from "@/lib/sorters.ts";
-import { DataSeries, Goal } from "@prisma/client";
+import type { DataSeries, Goal } from "@prisma/client";
+import type { TFunction } from "i18next";
 
 export type GoalTree = { [key: string]: GoalTree | (Goal & { dataSeries: DataSeries | null } & { roadmap: { id: string, metaRoadmap: { name: string, id: string } } }) };
 
-export default function goalsToTree(goals: ((Goal & { dataSeries: DataSeries | null } & { roadmap: { id: string, metaRoadmap: { name: string, id: string } } }) | null)[]) {
+export default function goalsToTree(goals: ((Goal & { dataSeries: DataSeries | null } & { roadmap: { id: string, metaRoadmap: { name: string, id: string } } }) | null)[], t: TFunction) {
   const filteredGoals = goals.filter(goal => goal != null);
   const sortedGoals = filteredGoals.sort(goalSorterTree);
   const tree: GoalTree = {};
@@ -30,7 +31,7 @@ export default function goalsToTree(goals: ((Goal & { dataSeries: DataSeries | n
     // Includes a zero width non-joiner to decrease risk of colliding with user input
     // Otherwise, a param subsection could theoretically collide with a goal name/parameter and prevent the rendering of either the goal link or the param subsection <details> element
     // Example: Nameless goal with parameter "test" and unit "kg" would collide with a goal with parameter "test (kg)\\whatever"
-    current[`${goal.name || goal.indicatorParameter.split('\\').slice(-1)} (\u200c${goal.dataSeries?.unit || "Enhet saknas"})`] = goal;
+    current[`${goal.name || goal.indicatorParameter.split('\\').slice(-1)} (\u200c${goal.dataSeries?.unit || t("common:tsx.unit_missing")})`] = goal;
   }
 
   return tree;

@@ -15,7 +15,7 @@ import { cookies } from "next/headers";
  * @returns Action object
  */
 export default async function getOneAction(id: string) {
-  const session = await getSession(cookies());
+  const session = await getSession(await cookies());
   return getCachedAction(id, session.user);
 }
 

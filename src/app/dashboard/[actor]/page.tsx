@@ -2,7 +2,8 @@ import { notFound, redirect } from "next/navigation";
 import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" with { type: "json" };
 import DashboardBase from "@/components/dashboard/dashboardBase";
 
-export default async function Page({ params }: { params: { actor: string } }) {
+export default async function Page(props: { params: Promise<{ actor: string }> }) {
+  const params = await props.params;
   const decodedActor = decodeURI(params.actor)
   // TODO: Get valid actors from some other source, since they can now be more than just counties and municipalities
   // TODO: Allow URLs with a and o to match values with å, ä, and ö

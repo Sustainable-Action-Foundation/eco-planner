@@ -117,6 +117,17 @@ export default function QueryBuilder({
     return queryObject as { variableCode: string, valueCodes: string[] }[];
   }
 
+  function deleteHistoricalData() {
+    formSubmitter("/api/goal", JSON.stringify({
+      goalId: goal.id,
+      externalDataset: null,
+      externalTableId: null,
+      externalSelection: null,
+      timestamp: Date.now(),
+    }), "PUT", setIsLoading);
+    closeModal(modalRef);
+  }
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     // Return if insufficient selection has been made
@@ -413,10 +424,25 @@ export default function QueryBuilder({
 
   return (
     <>
-      <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
-        {t("components:query_builder.add_historical_data")}
-        <Image src="/icons/chartAdd.svg" alt="" width={16} height={16} />
-      </button>
+      {goal.externalDataset && goal.externalTableId
+        ?
+        <>
+          <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
+            {t("components:query_builder.change_historical_data")}
+            <Image src="/icons/chartAdd.svg" alt="" width={16} height={16} />
+          </button>
+
+          <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={deleteHistoricalData}>
+            {t("components:query_builder.remove_historical_data")}
+            <Image src="/icons/delete.svg" alt="" width={16} height={16} />
+          </button>
+        </>
+        :
+        <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
+          {t("components:query_builder.add_historical_data")}
+          <Image src="/icons/chartAdd.svg" alt="" width={16} height={16} />
+        </button>
+      }
 
       <dialog className={`smooth padding-inline-0 ${styles.dialog}`} ref={modalRef} aria-modal>
         <div className="display-flex flex-direction-row-reverse align-items-center justify-content-space-between padding-inline-100">
@@ -441,18 +467,19 @@ export default function QueryBuilder({
           <FormWrapper>
             <fieldset className="position-relative">
               <label className="margin-block-75 font-weight-500">
-              {t("components:query_builder.data_source")}
+                {t("components:query_builder.data_source")}
+                {/* Display warning message if the selected language is not supported by the api */}
+                {((externalDatasets[dataSource]) && !(externalDatasets[dataSource]?.supportedLanguages.includes(lang))) ?
+                  <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
+                  : null}
                 <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
                   <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
                   {Object.keys(externalDatasets).map((name) => (
-                    <option key={name} value={name}>{name}</option>
+                    <option key={name} value={name}>{externalDatasets[name]?.fullName}</option>
                   ))}
                 </select>
 
-                {/* Display warning message if the selected language is not supported by the api */}
-                {((externalDatasets[dataSource]) && !(externalDatasets[dataSource]?.supportedLanguages.includes(lang))) ?
-                  <p style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</p>
-                  : null}
+
               </label>
 
               {dataSource ?

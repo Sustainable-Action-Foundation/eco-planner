@@ -15,7 +15,7 @@ import { multiRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
  * @returns Array of roadmaps
  */
 export default async function getRoadmaps() {
-  const session = await getSession(cookies());
+  const session = await getSession(await cookies());
   return getCachedRoadmaps(session.user);
 }
 

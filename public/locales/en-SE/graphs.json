@@ -1,6 +1,6 @@
 {
   "common": {
-    "national_counterpart": "$t(common:scope.national) counterpart",
+    "parent_counterpart": "Corresponding $t(common:goal_one) in {{parent}}",
     "baseline_scenario": "Baseline scenario",
     "change_graph_type": "Change graph type",
     "expected_outcome": "Expected outcome",

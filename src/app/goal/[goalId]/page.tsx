@@ -21,27 +21,28 @@ import { getSession } from "@/lib/session";
 import { t } from "@/lib/i18nServer";
 import prisma from "@/prismaClient";
 import { AccessControlled, AccessLevel } from "@/types";
-import { DataSeries, Goal } from "@prisma/client";
+import type { DataSeries, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import getTableContent from "@/lib/api/getTableContent";
 
-export default async function Page({
-  params,
-  searchParams,
-}: {
-  params: { goalId: string },
-  searchParams: {
-    secondaryGoal?: string | string[] | undefined,
-    [key: string]: string | string[] | undefined
-  },
-}) {
+export default async function Page(
+  props: {
+    params: Promise<{ goalId: string }>,
+    searchParams: Promise<{
+      secondaryGoal?: string | string[] | undefined,
+      [key: string]: string | string[] | undefined
+    }>,
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const locale = "sv";
 
   const [session, { goal, roadmap }, secondaryGoal, unfilteredRoadmapOptions] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     getOneGoal(params.goalId).then(async goal => { return { goal, roadmap: (goal ? await getOneRoadmap(goal.roadmapId) : null) } }),
     typeof searchParams.secondaryGoal == "string" ? getOneGoal(searchParams.secondaryGoal) : Promise.resolve(null),
     getRoadmaps(),
@@ -82,17 +83,18 @@ export default async function Page({
 
   // Fetch parent goal
   let parentGoal: Goal & { dataSeries: DataSeries | null } | null = null;
+  let parentGoalRoadmap: Roadmap & { metaRoadmap: MetaRoadmap } | null = null;
   if (roadmap?.metaRoadmap.parentRoadmapId) {
     try {
       // Get the parent roadmap (if any)
-      const parentRoadmap = await getRoadmapByVersion(roadmap.metaRoadmap.parentRoadmapId,
+      parentGoalRoadmap = await getRoadmapByVersion(roadmap.metaRoadmap.parentRoadmapId,
         roadmap.targetVersion ||
         (await prisma.roadmap.aggregate({ where: { metaRoadmapId: roadmap.metaRoadmap.parentRoadmapId }, _max: { version: true } }))._max.version ||
         0);
 
       // If there is a parent roadmap, look for a goal with the same indicator parameter in it
-      if (parentRoadmap) {
-        parentGoal = await getGoalByIndicator(parentRoadmap.id, goal.indicatorParameter, goal.dataSeries?.unit);
+      if (parentGoalRoadmap) {
+        parentGoal = await getGoalByIndicator(parentGoalRoadmap.id, goal.indicatorParameter, goal.dataSeries?.unit);
       }
     } catch (error) {
       parentGoal = null;
@@ -207,7 +209,7 @@ export default async function Page({
           <h2 className="padding-bottom-50 margin-bottom-100" style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:goal.title_label")}</h2>
           <section>
             {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
-            <GraphGraph goal={goal} nationalGoal={parentGoal} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects}>
+            <GraphGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects}>
               <QueryBuilder goal={goal} />
               {(goal.dataSeries?.id && session.user) ?
                 <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />

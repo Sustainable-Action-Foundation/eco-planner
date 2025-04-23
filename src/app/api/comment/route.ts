@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
-  const session = await getSession(cookies());
+  const session = await getSession(await cookies());
 
   // Validate session
   if (!session.user?.isLoggedIn) {

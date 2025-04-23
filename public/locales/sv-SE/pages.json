@@ -95,7 +95,7 @@
   "profile": {
     "handle_data": "Hantera min data",
     "my_posts": "Mina inlägg",
-    "user_posts": "{{{{name}}, possessive, titleCase}} inlägg",
+    "user_posts": "{{name, possessive, titleCase}} inlägg",
     "roadmap_series_ones": "{{$t(common:roadmap_series_other), titleCase}}",
     "version_count_one": "{{count}} version",
     "version_count_other": "{{count}} versioner",
@@ -110,8 +110,8 @@
   },
   "roadmap_create": {
     "breadcrumb": "$t(common:new.roadmap_version)",
-    "title": "$t(common:new.roadmap_series)",
-    "bad_roadmap_series_one": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_series_definite_one) i länken.",
+    "title": "$t(common:new.roadmap_version)",
+    "bad_roadmap_series": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_series_definite_one) i länken.",
     "use_dropdown": "Använd dropdown-menyn för att välja en $t(common:roadmap_series_one)."
   },
   "roadmap_edit": {

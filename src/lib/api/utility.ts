@@ -14,7 +14,7 @@ export const externalDatasets: { [key: string]: { baseUrl: string, userFacingUrl
     userFacingUrl: "https://www.statistikdatabasen.scb.se/pxweb/sv/ssd/",
     supportedLanguages: ["sv", "en"],
     api: "PxWeb",
-    fullName: "Statistiska Centralbyrån",
+    fullName: "Statistiska centralbyrån",
   },
   "Trafa": {
     baseUrl: "https://api.trafa.se/api",

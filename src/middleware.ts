@@ -3,7 +3,7 @@ import { getSession } from '@/lib/session'
 import { cookies } from 'next/headers'
 
 export async function middleware(req: NextRequest) {
-  const session = await getSession(cookies())
+  const session = await getSession(await cookies())
   const response = NextResponse.next()
 
   // Redirect away from login page if already logged in

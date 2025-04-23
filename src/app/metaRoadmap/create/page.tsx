@@ -8,7 +8,7 @@ import { t } from "@/lib/i18nServer";
 
 export default async function Page() {
   const [session, parentRoadmapOptions] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     getMetaRoadmaps(),
   ]);
 

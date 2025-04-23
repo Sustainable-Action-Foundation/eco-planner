@@ -10,16 +10,17 @@ import accessChecker from '@/lib/accessChecker';
 import getOneMetaRoadmap from '@/fetchers/getOneMetaRoadmap';
 import { t } from '@/lib/i18nServer';
 
-export default async function Page({
-  searchParams
-}: {
-  searchParams: {
-    metaRoadmapId?: string | string[] | undefined,
-    [key: string]: string | string[] | undefined
+export default async function Page(
+  props: {
+    searchParams: Promise<{
+      metaRoadmapId?: string | string[] | undefined,
+      [key: string]: string | string[] | undefined
+    }>
   }
-}) {
+) {
+  const searchParams = await props.searchParams;
   const [session, parent, metaRoadmapAlternatives] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     getOneMetaRoadmap(typeof searchParams.metaRoadmapId == 'string' ? searchParams.metaRoadmapId : ''),
     getMetaRoadmaps(),
   ]);
@@ -51,7 +52,7 @@ export default async function Page({
         {badMetaRoadmap &&
           <p style={{ color: 'red' }}>
             <Image src="/icons/info.svg" width={24} height={24} alt='' />
-            {t("pages:roadmap_create.bad_roadmap_series_one")} <br />
+            {t("pages:roadmap_create.bad_roadmap_series")} <br />
             {t("pages:roadmap_create.use_dropdown")}
           </p>
         }

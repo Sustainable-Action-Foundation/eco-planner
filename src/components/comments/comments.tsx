@@ -80,7 +80,7 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
           <div key={comment.id}>
             <div className="flex align-items-center gap-50 margin-top-200">
               <a className={styles.commentAuthor} href={`/@${comment.author.username}`}>{comment.author.username}</a>
-              <span className="font-weight-300" style={{ color: 'gray', fontSize: '.75rem' }}>
+              <span className="font-weight-300" style={{ color: 'gray', fontSize: '.75rem' }} title={new Date(comment.createdAt).toLocaleString()}>
                 {t("components:comments.relative_time", { date: new Date(comment.createdAt) })}
               </span>
             </div>

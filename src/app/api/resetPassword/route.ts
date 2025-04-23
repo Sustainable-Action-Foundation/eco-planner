@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import getUserHash from "@/functions/getUserHash";
 import prisma from "@/prismaClient";
 import { NextRequest } from "next/server";

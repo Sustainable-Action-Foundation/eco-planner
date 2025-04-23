@@ -13,7 +13,7 @@ import { cookies } from "next/headers";
  */
 export async function POST(request: NextRequest) {
   const [session, metaRoadmap] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     request.json() as Promise<MetaRoadmapInput>,
   ]);
 
@@ -186,7 +186,7 @@ export async function POST(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   const [session, metaRoadmap] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     request.json() as Promise<MetaRoadmapInput & { id: string, timestamp?: number }>,
   ]);
 
@@ -382,7 +382,7 @@ export async function PUT(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   const [session, metaRoadmap] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     request.json() as Promise<{ id: string }>
   ]);
 

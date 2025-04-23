@@ -3,7 +3,7 @@
  * This file contains shared resources for the client and server instances of i18next.
  */
 
-import { InitOptions, TFunction } from "i18next";
+import { createInstance, InitOptions, TFunction } from "i18next";
 
 export enum Locales {
   enSE = "en-SE",
@@ -18,6 +18,9 @@ export const localeAliases: Record<Locales, string> = {
 
 export const ns = ["common", "forms", "components", "graphs", "pages", "email", "test",];
 
+const i18nFormatter = createInstance();
+i18nFormatter.init();
+
 export function initTemplate(t: TFunction): InitOptions {
   return {
     debug: false, // Set to true to get logs from i18next
@@ -27,7 +30,7 @@ export function initTemplate(t: TFunction): InitOptions {
     ns: ns,
     interpolation: {
       escapeValue: false, // React already escapes
-      format: (_, format, lng, options): string => {
+      format: (formatterValue, format, lng, options): string => {
         /** 
          * `format` is a requirement for the *formatter* of course.
          * `options.interpolationkey` is required as it stores the value to be formatted.
@@ -38,7 +41,7 @@ export function initTemplate(t: TFunction): InitOptions {
         const formats = format.split(",").map((f) => f.trim()).filter(Boolean);
 
         // Resolve the value with provided key
-        let value: string | undefined = t(options.interpolationkey);
+        let value: string | undefined = options.interpolationkey.includes("$t(") ? t(options.interpolationkey) : options.interpolationkey;
 
         // Guard against undefined values
         if (typeof value === "undefined") {
@@ -50,6 +53,11 @@ export function initTemplate(t: TFunction): InitOptions {
         if (formats.length < 1) return value;
 
 
+        /* Default formatters */
+        const defaultFormat = i18nFormatter.format(formatterValue, format, lng, options);
+        if (defaultFormat && typeof defaultFormat === "string") {
+          value = defaultFormat;
+        }
         /* Title case */
         if (formats.includes("titleCase")) {
           value = titleCase(value, lng);
@@ -59,8 +67,8 @@ export function initTemplate(t: TFunction): InitOptions {
           value = possessive(value, lng);
         }
         /* Relative time */
-        if (formats.includes("relativeTime")) {
-          const date = options && options.date;
+        if (formats.includes("timeAgo")) {
+          const date = options.date;
           value = relativeTime(value, lng, date);
         }
 
@@ -76,13 +84,40 @@ export function initTemplate(t: TFunction): InitOptions {
   };
 }
 
-function titleCase(value: string | undefined, _lng: string | undefined): string | undefined {
+function titleCase(value: string | undefined, lng: string | undefined): string | undefined {
   if (typeof value !== "string") {
     console.warn(`Value passed to titleCase formatter is not a string. Received: ${value}, type: ${typeof value}. Returning value as is.`);
     return value;
   }
 
-  return value.charAt(0).toUpperCase() + value.slice(1);
+  if (!value) {
+    console.warn("Value passed to titleCase formatter is empty. Returning value as is.");
+    return value;
+  }
+
+  if (!lng) {
+    console.warn("Title case formatter requires a locale to be set. Returning value as is.");
+    return value;
+  }
+
+  if (lng === Locales.enSE) {
+    // https://en.wikipedia.org/wiki/Title_case
+    return value.replace(/\b\w+\b/g, (word) => {
+      if (word.length > 3) {
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      } else {
+        return word.toLowerCase();
+      }
+    });
+  }
+  else if (lng === Locales.svSE) {
+    // https://sv.wikipedia.org/wiki/Versalisering#I_egennamn
+    return value.charAt(0).toUpperCase() + value.slice(1);
+  }
+  else {
+    console.warn(`Title case formatter not implemented for locale: ${lng}. Returning value as is.`);
+    return value;
+  }
 }
 
 function possessive(value: string | undefined, lng: string | undefined): string | undefined {
@@ -97,6 +132,7 @@ function possessive(value: string | undefined, lng: string | undefined): string 
   }
 
   if (lng === Locales.enSE) {
+    // https://en.wikipedia.org/wiki/Genitive_case
     if (["s", "x", "y"].includes(value.slice(-1))) {
       value = value + "'";
     } else {
@@ -104,6 +140,7 @@ function possessive(value: string | undefined, lng: string | undefined): string 
     }
   }
   else if (lng === Locales.svSE) {
+    // https://sv.wikipedia.org/wiki/Genitiv
     if (["s", "x", "z"].includes(value.slice(-1))) {
       // Nothing
     } else {
@@ -118,10 +155,6 @@ function possessive(value: string | undefined, lng: string | undefined): string 
 }
 
 function relativeTime(value: string | undefined, lng: string | undefined, date: Date | undefined): string | undefined {
-  if (typeof value !== "string") {
-    console.warn(`Value passed to relativeTime formatter is not a string. Received: ${value}, type: ${typeof value}. Returning value as is.`);
-    return value;
-  }
   if (!lng) {
     console.warn("Relative time formatter requires a locale to be set. Returning value as is.");
     return value;
