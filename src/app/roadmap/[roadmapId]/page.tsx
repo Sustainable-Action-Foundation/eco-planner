@@ -14,7 +14,6 @@ import type { Metadata } from 'next'
 import { baseUrl } from "@/lib/baseUrl";
 import { buildMetadata } from "@/functions/buildMetadata";
  
-
 export async function generateMetadata({ params }: { params: { roadmapId: string } }) {
   const [roadmap] = await Promise.all([
     getOneRoadmap(params.roadmapId)

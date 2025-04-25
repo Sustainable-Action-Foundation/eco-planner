@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: { metaRoadmapId: st
 
   return buildMetadata({ 
     title: `Redigera färdplansserie ${metaRoadmap?.name}`, // TODO: UUID To long if no name here?
-    description: undefined,  /* TODO: Seperate description? */
+    description: metaRoadmap?.description,  /* TODO: Seperate description? */
     og_url: `roadmap/${metaRoadmap?.id}/edit` // TODO: metaroadmap?.id fine?
   })  
 }

@@ -8,6 +8,15 @@ import Image from "next/image";
 import { AccessLevel } from '@/types';
 import accessChecker from '@/lib/accessChecker';
 import getOneMetaRoadmap from '@/fetchers/getOneMetaRoadmap';
+import { buildMetadata } from '@/functions/buildMetadata';
+
+export async function generateMetadata() {
+  return buildMetadata({ 
+    title: 'Skapa ny färdplan', 
+    description: undefined,  /* TODO: Seperate description? */
+    og_url: '/roadmap/create'
+  })  
+}
 
 export default async function Page({
   searchParams

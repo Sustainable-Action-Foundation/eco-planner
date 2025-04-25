@@ -7,6 +7,20 @@ import accessChecker from "@/lib/accessChecker";
 import { AccessLevel } from "@/types";
 import Link from "next/link";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import { buildMetadata } from "@/functions/buildMetadata";
+
+export async function generateMetadata({ params }: { params: { roadmapId: string } }) {
+  const [roadmap] = await Promise.all([
+    getOneRoadmap(params.roadmapId)
+  ]);
+
+  return buildMetadata({
+    title: `Redigera färdplan ${roadmap?.metaRoadmap.name}`,
+    description: roadmap?.description || roadmap?.metaRoadmap.description, // TODO: Do fallbacks here make sense?
+    og_url: `/roadmap/${roadmap?.id}`
+  }) 
+}
+
 
 export default async function Page({ params }: { params: { roadmapId: string } }) {
   const [session, roadmap] = await Promise.all([
