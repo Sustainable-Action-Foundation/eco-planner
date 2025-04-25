@@ -1,7 +1,16 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import { buildMetadata } from "@/functions/buildMetadata";
 import { JSONValue } from "@/types.ts";
 import fs from "fs";
 import metadata from "package.json" with { type: "json" };
+
+export async function generateMetadata() {
+  return buildMetadata({ 
+    title: 'Information',
+    description: undefined,  
+    og_url: '/information'
+  })  
+}
 
 export default async function Page() {
   const gitHash = { shortHash: process.env.GIT_SHORT_HASH, longHash: process.env.GIT_LONG_HASH };

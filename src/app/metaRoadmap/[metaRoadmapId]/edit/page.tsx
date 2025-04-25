@@ -7,6 +7,21 @@ import getOneMetaRoadmap from '@/fetchers/getOneMetaRoadmap';
 import accessChecker from '@/lib/accessChecker';
 import { AccessLevel } from '@/types';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
+import { buildMetadata } from '@/functions/buildMetadata';
+
+export async function generateMetadata({ params }: { params: { metaRoadmapId: string } }) {
+
+  const [metaRoadmap] = await Promise.all([
+    getOneMetaRoadmap(params.metaRoadmapId),
+  ]);
+
+  return buildMetadata({ 
+    title: `Redigera färdplansserie ${metaRoadmap?.name}`, // TODO: UUID To long if no name here?
+    description: undefined,  /* TODO: Seperate description? */
+    og_url: `roadmap/${metaRoadmap?.id}/edit` // TODO: metaroadmap?.id fine?
+  })  
+}
+
 
 export default async function Page({ params }: { params: { metaRoadmapId: string } }) {
   const [session, currentRoadmap, parentRoadmapOptions] = await Promise.all([

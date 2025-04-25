@@ -6,9 +6,7 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import RoadmapTable from "@/components/tables/roadmapTables/roadmapTable";
 import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
-import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { Metadata } from "next";
-import { baseUrl } from "@/lib/baseUrl";
+import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb"; 
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata({ params }: { params: { metaRoadmapId: string } }) {
