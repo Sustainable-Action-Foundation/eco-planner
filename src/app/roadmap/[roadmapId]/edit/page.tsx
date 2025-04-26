@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: { roadmapId: string
   ]);
 
   return buildMetadata({
-    title: `Redigera färdplan ${roadmap?.metaRoadmap.name}`,
+    title: `Redigera färdplan: ${roadmap?.metaRoadmap.name}`,
     description: roadmap?.description || roadmap?.metaRoadmap.description, // TODO: Do fallbacks here make sense?
     og_url: `/roadmap/${roadmap?.id}/edit`
   }) 

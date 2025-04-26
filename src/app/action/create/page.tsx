@@ -8,6 +8,15 @@ import { AccessControlled, AccessLevel } from "@/types";
 import getOneRoadmap from "@/fetchers/getOneRoadmap";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import { buildMetadata } from "@/functions/buildMetadata";
+
+export async function generateMetadata() {
+  return buildMetadata({
+    title: `Skapa åtgärd`,
+    description: undefined,  /* TODO: Seperate description? */
+    og_url: `/action/create` /* TODO: How do we handle query params here? */
+  }) 
+}
 
 export default async function Page({
   searchParams

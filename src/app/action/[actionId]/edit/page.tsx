@@ -6,6 +6,19 @@ import accessChecker from "@/lib/accessChecker";
 import getOneAction from "@/fetchers/getOneAction";
 import { AccessControlled, AccessLevel } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import { buildMetadata } from "@/functions/buildMetadata";
+
+export async function generateMetadata({ params }: { params: { actionId: string } }){
+  const [action] = await Promise.all([
+    getOneAction(params.actionId)
+  ]);
+
+  return buildMetadata({
+    title: `Redigera åtgärd: ${action?.name}`,
+    description: action?.description,
+    og_url: `/goal/${action?.id}/edit` // TODO: Query params?
+  }) 
+}
 
 export default async function Page({
   params,

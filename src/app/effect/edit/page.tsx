@@ -7,8 +7,31 @@ import { getSession } from "@/lib/session.ts";
 import { AccessLevel } from "@/types.ts";
 import { cookies } from "next/headers";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import { buildMetadata } from "@/functions/buildMetadata";
 
 const editAccess = [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin];
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: {
+    actionId?: string | string[] | undefined,
+    goalId?: string | string[] | undefined,
+    [key: string]: string | string[] | undefined
+  },
+}) {
+  const [effect] = await Promise.all([
+    getOneEffect(typeof searchParams.actionId == 'string' ? searchParams.actionId : '', typeof searchParams.goalId == 'string' ? searchParams.goalId : ''),
+  ]);
+
+  /* TODO: Check if edit access to effect? This probably needs to be done elsewhere aswell? */
+  return buildMetadata({
+    title: `Redigera effekt`, // TODO: Effects should have a name?
+    description: undefined,
+    og_url: `/effect/edit` // TODO: Query params?
+  }) 
+}
+
 
 export default async function Page({
   searchParams,

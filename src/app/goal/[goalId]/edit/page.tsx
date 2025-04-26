@@ -16,13 +16,12 @@ export async function generateMetadata({ params }: { params: { goalId: string } 
   ]);
 
   return buildMetadata({
-    title: `Redigera målbana ${currentGoal?.name}`,
+    title: `Redigera målbana: ${currentGoal?.name}`,
     description: currentGoal?.description,
     image_url: `${baseUrl}/api/graph/${currentGoal?.id}`, // TODO: Custom image?
     og_url: `/goal/${currentGoal?.id}/edit`
   }) 
 }
-
 
 export default async function Page({ params }: { params: { goalId: string } }) {
   const [session, currentGoal, roadmaps] = await Promise.all([

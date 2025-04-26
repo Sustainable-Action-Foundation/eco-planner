@@ -10,14 +10,12 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata() {
-
   return buildMetadata({
     title: `Skapa målbana`,
     description: undefined,  /* TODO: Seperate description? */
-    og_url: `/goal/create`
+    og_url: `/goal/create` /* TODO: How do we handle query params here? */
   }) 
 }
-
 
 export default async function Page({
   searchParams
