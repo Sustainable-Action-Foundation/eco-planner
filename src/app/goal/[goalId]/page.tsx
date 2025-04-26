@@ -27,7 +27,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { baseUrl } from "@/lib/baseUrl";
-import { Metadata } from "next";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata({

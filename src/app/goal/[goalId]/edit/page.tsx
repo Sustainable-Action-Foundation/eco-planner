@@ -7,6 +7,21 @@ import getOneGoal from "@/fetchers/getOneGoal";
 import { AccessControlled, AccessLevel } from "@/types";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import { buildMetadata } from "@/functions/buildMetadata";
+import { baseUrl } from "@/lib/baseUrl";
+
+export async function generateMetadata({ params }: { params: { goalId: string } }){
+  const [currentGoal] = await Promise.all([
+    getOneGoal(params.goalId),
+  ]);
+
+  return buildMetadata({
+    title: `Redigera målbana ${currentGoal?.name}`,
+    description: currentGoal?.description,
+    image_url: `${baseUrl}/api/graph/${currentGoal?.id}`, // TODO: Custom image?
+    og_url: `/goal/${currentGoal?.id}/edit`
+  }) 
+}
 
 
 export default async function Page({ params }: { params: { goalId: string } }) {

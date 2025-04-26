@@ -7,6 +7,16 @@ import Image from "next/image";
 import { AccessLevel } from "@/types";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import { buildMetadata } from "@/functions/buildMetadata";
+
+export async function generateMetadata() {
+
+  return buildMetadata({
+    title: `Skapa målbana`,
+    description: undefined,  /* TODO: Seperate description? */
+    og_url: `/goal/create`
+  }) 
+}
 
 
 export default async function Page({
