@@ -16,7 +16,6 @@ export default function TableSelector({ id, current, setter }: { id: string, cur
     }
   };
 
-  // Set the selectedOption as the context value
   return (
     <div className='flex align-items-center gap-25'>
       <RadioImage text='Träd' value={ViewMode.Tree} src="/icons/listTree.svg" name="table" checked={current == ViewMode.Tree} onChange={handleRadioChange} />

@@ -23,7 +23,6 @@ export default function ChildGraphSelector({
     }
   };
 
-  // Set the selectedOption as the context value
   return (
     <>
       <select onChange={handleSelectChange} value={currentSelection} style={{ padding: '.3rem .5rem', borderRadius: '2px', fontSize: '.75rem' }}>

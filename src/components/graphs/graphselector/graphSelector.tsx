@@ -25,7 +25,6 @@ export default function GraphSelector({
     }
   };
 
-  // Set the selectedOption as the context value
   return (
     <>
       <label className='font-weight-500'>

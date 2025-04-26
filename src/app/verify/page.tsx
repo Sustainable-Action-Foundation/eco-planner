@@ -1,6 +1,5 @@
 'use client';
 
-import { buildMetadata } from "@/functions/buildMetadata";
 import formSubmitter from "@/functions/formSubmitter";
 import Image from "next/image";
 
