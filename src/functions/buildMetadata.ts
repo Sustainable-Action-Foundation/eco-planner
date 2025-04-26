@@ -12,12 +12,10 @@ function truncateText(string: string | null | undefined, maxLength: number): str
   if (!string) return
   if (string.length <= maxLength) return string;
   
-  const truncated = string.slice(0, maxLength);
-  return truncated.slice(0, truncated.lastIndexOf(' ')) + '…';
+  const truncatedString = string.slice(0, maxLength);
+  return truncatedString.slice(0, truncatedString.lastIndexOf(' ')) + '…';
 }
 
-// TODO: Ensure description not longer than 150chars
-// TODO: Ensure title not to long either 
 // TODO: Dynamically resize images using code
 // TODO: Dynamically set locale
 // TODO: Decide on if the image should be optional or not, does an og image make sense for the graph pages i.e goal/[id]/edit?
