@@ -114,7 +114,7 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
     <Breadcrumb />
 
     <div className="rounded width-100 margin-bottom-100 margin-top-300 position-relative overflow-hidden" style={{ height: '350px' }}>
-      <AttributedImage src="/images/solarpanels.jpg" alt="" >
+      <AttributedImage src="/images/solar.jpg" alt="" >
         <div className="flex gap-100 flex-wrap-wrap align-items-flex-end justify-content-space-between padding-100 width-100">
           <div>
             <h1 className="margin-block-25">Färdplaner</h1>

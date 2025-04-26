@@ -4,7 +4,7 @@ import { Metadata } from "next";
 
 const default_title: string = 'Eco - planner'
 const default_description: string = 'Ett verktyg som stödjer Sveriges klimatomställning genom lokala handlingsplaner, gemensam åtgärdsdatabas och samarbete kring färdplaner.'
-const default_image_path: string = '/images/solarpanels_small.jpg'
+const default_image_path: string = '/images/og_solar.png' // TODO: See how we can make theese smaller
 
 // TODO: Export this function?
 // Truncates text after the end of a word
@@ -16,10 +16,8 @@ function truncateText(string: string | null | undefined, maxLength: number): str
   return truncatedString.slice(0, truncatedString.lastIndexOf(' ')) + '…';
 }
 
-// TODO: Dynamically resize images using code
 // TODO: Dynamically set locale
 // TODO: Decide on if the image should be optional or not, does an og image make sense for the graph pages i.e goal/[id]/edit?
-// TODO: Generate metadata which this relies on does not work on client side components
 export function buildMetadata(
   {
     title,

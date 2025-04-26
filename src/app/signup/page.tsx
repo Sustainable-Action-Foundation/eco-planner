@@ -8,7 +8,7 @@ export async function generateMetadata() {
   return buildMetadata({
     title: 'Skapa konto',
     description: undefined, // TODO: Seperate description for this page?  
-    image_url: '/images/hydroelectric_small.jpg',
+    image_url: '/images/og_hydro.png',
     og_url: '/signup'
   })  
 }
@@ -21,7 +21,7 @@ export default async function Page() {
       <main className={`${styles.gridLayout} container margin-auto padding-block-500 grid gap-300 align-items-center`}>
         <Signup />
         <div className={`${styles.image} position-relative width-100 rounded overflow-hidden`}>
-          <AttributedImage src="/images/hydroelectric.jpg" alt="">
+          <AttributedImage src="/images/hydro.jpg" alt="">
             <div className="width-100 padding-100">
               Photo by <a className="color-purewhite" href="https://unsplash.com/@dmey503?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Dan Meyers</a> on <a className="color-purewhite" href="https://unsplash.com/photos/aerial-photography-of-body-of-water-w6X7XaolqA0?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Unsplash</a>
             </div>
