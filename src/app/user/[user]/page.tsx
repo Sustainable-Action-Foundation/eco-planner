@@ -10,8 +10,6 @@ import { AccessLevel } from '@/types';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import styles from './page.module.css' with { type: "css" }
-import { baseUrl } from '@/lib/baseUrl';
-import { Metadata } from 'next';
 import { buildMetadata } from '@/functions/buildMetadata';
 
  export async function generateMetadata({

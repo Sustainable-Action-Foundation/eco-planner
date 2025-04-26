@@ -1,4 +1,13 @@
 import VerifyForm from "@/components/forms/verify/verifyForm";
+import { buildMetadata } from "@/functions/buildMetadata";
+
+export async function generateMetadata() {
+  return buildMetadata({ 
+    title: 'Verifiera din e-post',
+    description: undefined,  
+    og_url: '/verify'
+  })  
+}
 
 export default function Page() {
   return (
