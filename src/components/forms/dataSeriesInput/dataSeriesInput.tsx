@@ -135,10 +135,8 @@ export default function DataSeriesInput({
             style={{ gridTemplateColumns: `repeat(${dataSeriesValues.length}, 1fr)`, gridTemplateRows: "auto" }}
           >
             {dataSeriesValues.map((value, index) => index < dataSeriesDataFieldNames.length && (
-              <div key={`column-${index}`}>
-                <label htmlFor={dataSeriesDataFieldNames[index]} className="padding-25 margin-left-25 margin-right-25">
-                  {dataSeriesDataFieldNames[index].replace("val", "")}
-                </label>
+              <label key={`column-${index}`}>
+                <p className="padding-left-100 padding-right-100 margin-0 margin-left-25 margin-right-25">{dataSeriesDataFieldNames[index].replace("val", "")}</p>
                 <input
                   type="number"
                   id={dataSeriesDataFieldNames[index]}
@@ -171,7 +169,7 @@ export default function DataSeriesInput({
                     }
                   }}
                 />
-              </div>
+              </label>
             ))}
           </div>
           <div className="flex flex-direction-column justify-content-center">
