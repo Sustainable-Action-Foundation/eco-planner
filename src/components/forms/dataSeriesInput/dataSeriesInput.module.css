@@ -31,11 +31,11 @@
   box-shadow: none;
 }
 
-.inputTable {
+/* .inputTable {
   overflow-x: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--gray) transparent;
-}
+} */
 
 .inputTable label {
   border-radius: 0;

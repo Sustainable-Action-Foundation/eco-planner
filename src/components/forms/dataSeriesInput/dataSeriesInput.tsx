@@ -183,9 +183,9 @@ export default function DataSeriesInput({
         {/* TODO: Make this allow .csv files and possibly excel files */}
         <div
           className="padding-25 smooth"
-          style={{ border: "1px solid var(--gray-90)", maxWidth: "48.5rem" }}
+          style={{ border: "1px solid var(--gray-90)"/* , maxWidth: "48.5rem" */ }}
         >
-          <ControlButtons className={`${tableIsVisible && "padding-bottom-25"}`} />
+          <ControlButtons className={`${tableIsVisible && "padding-bottom-25"}`} /> {/* TODO - this no longer needs to be extracted */}
           {tableIsVisible && (
 
             <div
