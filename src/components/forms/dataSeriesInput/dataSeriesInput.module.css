@@ -2,7 +2,7 @@
   content: none !important;
 }
 
-.columnControlsButton {
+.tableControlsButton {
   display: flex;
   background-color: transparent;
   padding: 0;
@@ -12,11 +12,11 @@
   border-radius: 9999px;
 }
 
-.columnControlsButton:disabled {
+.tableControlsButton:disabled {
   opacity: .5;
 }
 
-.columnControlsButton:disabled:hover {
+.tableControlsButton:disabled:hover {
   box-shadow: none;
 }
 
@@ -27,14 +27,33 @@
   scrollbar-color: var(--gray) transparent;
 }
 
+.sideScroll label {
+  border-radius: 0;
+  border: 1px solid var(--gray-90);
+  border-top-width: 0;
+}
+
+.sideScroll label:first-child {
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+  border-top-width: 1px;
+}
+
+.sideScroll label:last-child {
+  border-bottom-left-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+}
+
 .sideScroll input {
   border-radius: 0;
-  border: 1px solid var(--gray-90)
+  border-left: 1px solid var(--gray-90);
+  background-color: var(--gray-95);
 }
 
 .sideScroll input:focus {
   outline: none;
   box-shadow: none;
+  background-color: white;
 }
 
 /* Hide number incrementors */

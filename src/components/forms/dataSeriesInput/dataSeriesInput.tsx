@@ -29,8 +29,8 @@ export default function DataSeriesInput({
   );
   const isPasting = useRef(false);
 
-  const addColumnRef = useRef<HTMLButtonElement>(null);
-  const removeColumnRef = useRef<HTMLButtonElement>(null);
+  const addYearRef = useRef<HTMLButtonElement>(null);
+  const removeYearRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (dataSeriesString) {
@@ -44,8 +44,8 @@ export default function DataSeriesInput({
 
   useEffect(() => {
     updateControlsState(
-      addColumnRef.current,
-      removeColumnRef.current,
+      addYearRef.current,
+      removeYearRef.current,
       dataSeriesValues
     );
   }, [dataSeriesValues]);
@@ -93,16 +93,16 @@ export default function DataSeriesInput({
     }
   }
 
-  function addColumn(e: React.MouseEvent<HTMLButtonElement>) {
+  function addYear(e: React.MouseEvent<HTMLButtonElement>) {
     setDataSeriesValues((prevValues) => {
-      if (prevValues.length >= dataSeriesDataFieldNames.length) return prevValues; // Prevent adding more columns than the maximum allowed
+      if (prevValues.length >= dataSeriesDataFieldNames.length) return prevValues; // Prevent adding more years than the maximum allowed
       return [...prevValues, ""];
     });
   }
 
-  function removeColumn(e: React.MouseEvent<HTMLButtonElement>) {
+  function removeYear(e: React.MouseEvent<HTMLButtonElement>) {
     setDataSeriesValues((prevValues) => {
-      if (prevValues.length <= 1) return prevValues; // Prevent removing the last column
+      if (prevValues.length <= 1) return prevValues; // Prevent removing the last year
       return prevValues.slice(0, -1);
     });
   }
@@ -127,16 +127,15 @@ export default function DataSeriesInput({
         <legend className={styles.dataSeriesInputLegend}>{t(labelKey)}</legend>
         {/* TODO: Make this allow .csv files and possibly excel files */}
         <div
-          className="padding-25 smooth flex"
+          className="padding-25 smooth"
           style={{ border: "1px solid var(--gray-90)", maxWidth: "48.5rem" }}
         >
           <div
-            className={`${styles.sideScroll} smooth grid gap-0`}
-            style={{ gridTemplateColumns: `repeat(${dataSeriesValues.length}, 1fr)`, gridTemplateRows: "auto" }}
+            className={`${styles.sideScroll} smooth `}
           >
             {dataSeriesValues.map((value, index) => index < dataSeriesDataFieldNames.length && (
-              <label key={`column-${index}`}>
-                <p className="padding-left-100 padding-right-100 margin-0 margin-left-25 margin-right-25">{dataSeriesDataFieldNames[index].replace("val", "")}</p>
+              <label key={`year-${index}`} className="flex align-items-center">
+                <p className="padding-left-100 padding-right-100 margin-0 margin-right-25" style={{ width: "auto" }}>{dataSeriesDataFieldNames[index].replace("val", "")}</p>
                 <input
                   type="number"
                   id={dataSeriesDataFieldNames[index]}
