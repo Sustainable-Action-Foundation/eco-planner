@@ -133,7 +133,7 @@ export default function DataSeriesInput({
           )}
         </button>
 
-        <button
+        {/* <button
           type="button"
           className={`${styles.tableControlsButton}`}
           title={t("forms:data_series_input.add_year")}
@@ -157,7 +157,7 @@ export default function DataSeriesInput({
         >
           <Image src="/icons/circleMinus.svg" alt={t("forms:data_series_input.remove_year_from_table")} width={24} height={24} />
           <p>{t("forms:data_series_input.remove_year_from_table")}</p>
-        </button>
+        </button> */}
       </div>
     )
   }
@@ -191,14 +191,14 @@ export default function DataSeriesInput({
             <div
               className={`${styles.inputTable} smooth `}
             >
-              {dataSeriesValues.map((value, index) => index < dataSeriesDataFieldNames.length && (
+              {dataSeriesDataFieldNames.map((value, index) => (
                 <label key={`year-${index}`} className="flex align-items-center">
-                  <p className="padding-left-100 padding-right-100 margin-0 margin-right-25" style={{ width: "auto" }}>{dataSeriesDataFieldNames[index].replace("val", "")}</p>
+                  <p className="padding-left-100 padding-right-100 margin-0 margin-right-25" style={{ width: "auto" }}>{value.replace("val", "")}</p>
                   <input
                     type="number"
-                    id={dataSeriesDataFieldNames[index]}
+                    id={value}
                     name={`${inputName}Input`}
-                    value={value}
+                    value={dataSeriesValues[index] ?? ""}
                     onWheel={(e) => {
                       // Prevent the value from changing when scrolling
                       (e.target as HTMLInputElement).blur();
@@ -231,9 +231,9 @@ export default function DataSeriesInput({
             </div>
           )}
           {/* Only show the control buttons at the bottom if the list of years is long enough */}
-          {tableIsVisible && dataSeriesValues.length > 10 && (
+          {/* {tableIsVisible && dataSeriesValues.length > 10 && (
             <ControlButtons className="padding-top-25" />
-          )}
+          )} */}
         </div>
       </fieldset>
 
