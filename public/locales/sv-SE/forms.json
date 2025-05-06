@@ -42,6 +42,8 @@
     "data_series": "Dataserie",
     "data_series_tooltip": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller kommatecken.",
     "custom_baseline": "Anpassad baslinje",
+    "show_table": "Visa tabellen",
+    "hide_table": "Dölj tabellen",
     "add_year": "Lägg till år",
     "remove_year": "Ta bort år",
     "add_year_to_table": "Lägg till år i tabellen",

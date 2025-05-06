@@ -28,6 +28,7 @@ export default function DataSeriesInput({
       : Array.from({ length: dataSeriesDataFieldNames.length }, () => ""),
   );
   const isPasting = useRef(false);
+  const [tableIsVisible, setTableIsVisible] = useState(true);
 
   const addYearRef = useRef<HTMLButtonElement>(null);
   const removeYearRef = useRef<HTMLButtonElement>(null);
@@ -118,6 +119,21 @@ export default function DataSeriesInput({
       <div className={`flex flex-direction-row justify-content-center ${className}`}>
         <button
           type="button"
+          className={`${styles.tableControlsButton} ${styles.tableVisibilityButton}`}
+          title={tableIsVisible ? t("forms:data_series_input.hide_table") : t("forms:data_series_input.show_table")}
+          onClick={() => {
+            setTableIsVisible(!tableIsVisible);
+          }}
+        >
+          {tableIsVisible ? (
+            <p>{t("forms:data_series_input.hide_table")}</p>
+          ) : (
+            <p>{t("forms:data_series_input.show_table")}</p>
+          )}
+        </button>
+        
+        <button
+          type="button"
           className={`${styles.tableControlsButton}`}
           title={t("forms:data_series_input.add_year")}
           ref={addYearRef}
@@ -167,50 +183,53 @@ export default function DataSeriesInput({
           className="padding-25 smooth"
           style={{ border: "1px solid var(--gray-90)", maxWidth: "48.5rem" }}
         >
-          <ControlButtons className="padding-bottom-25" />
-          <div
-            className={`${styles.sideScroll} smooth `}
-          >
-            {dataSeriesValues.map((value, index) => index < dataSeriesDataFieldNames.length && (
-              <label key={`year-${index}`} className="flex align-items-center">
-                <p className="padding-left-100 padding-right-100 margin-0 margin-right-25" style={{ width: "auto" }}>{dataSeriesDataFieldNames[index].replace("val", "")}</p>
-                <input
-                  type="number"
-                  id={dataSeriesDataFieldNames[index]}
-                  name={`${inputName}Input`}
-                  value={value}
-                  onWheel={(e) => {
-                    // Prevent the value from changing when scrolling
-                    (e.target as HTMLInputElement).blur();
+          <ControlButtons className={`${tableIsVisible && "padding-bottom-25"}`} />
+          {tableIsVisible && (
 
-                    // Refocus the input on the next tick to prevent the scroll from changing the value
-                    setTimeout(() => {
-                      (e.target as HTMLInputElement).focus();
-                    }, 0);
-                  }}
-                  onChange={(e) => handleValueChange(e, index)}
-                  onBeforeInput={(e) => {
-                    // Make sure the input is valid
-                    const inputEvent = e.nativeEvent as InputEvent;
-                    if (inputEvent.data && !isValidSingleInputForGrid(inputEvent.data)) {
-                      e.preventDefault();
-                    }
-                  }}
-                  onPaste={(e) => {
-                    // Make sure the pasted input is valid before handling paste
-                    const pasted = e.clipboardData.getData("text");
-                    if (!isValidPastedInput(pasted)) {
-                      e.preventDefault();
-                    } else {
-                      handlePaste(e, index);
-                    }
-                  }}
-                />
-              </label>
-            ))}
-          </div>
+            <div
+              className={`${styles.sideScroll} smooth `}
+            >
+              {dataSeriesValues.map((value, index) => index < dataSeriesDataFieldNames.length && (
+                <label key={`year-${index}`} className="flex align-items-center">
+                  <p className="padding-left-100 padding-right-100 margin-0 margin-right-25" style={{ width: "auto" }}>{dataSeriesDataFieldNames[index].replace("val", "")}</p>
+                  <input
+                    type="number"
+                    id={dataSeriesDataFieldNames[index]}
+                    name={`${inputName}Input`}
+                    value={value}
+                    onWheel={(e) => {
+                      // Prevent the value from changing when scrolling
+                      (e.target as HTMLInputElement).blur();
+
+                      // Refocus the input on the next tick to prevent the scroll from changing the value
+                      setTimeout(() => {
+                        (e.target as HTMLInputElement).focus();
+                      }, 0);
+                    }}
+                    onChange={(e) => handleValueChange(e, index)}
+                    onBeforeInput={(e) => {
+                      // Make sure the input is valid
+                      const inputEvent = e.nativeEvent as InputEvent;
+                      if (inputEvent.data && !isValidSingleInputForGrid(inputEvent.data)) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onPaste={(e) => {
+                      // Make sure the pasted input is valid before handling paste
+                      const pasted = e.clipboardData.getData("text");
+                      if (!isValidPastedInput(pasted)) {
+                        e.preventDefault();
+                      } else {
+                        handlePaste(e, index);
+                      }
+                    }}
+                  />
+                </label>
+              ))}
+            </div>
+          )}
           {/* Only show the control buttons at the bottom if the list of years is long enough */}
-          {dataSeriesValues.length > 10 && (
+          {tableIsVisible && dataSeriesValues.length > 10 && (
             <ControlButtons className="padding-top-25" />
           )}
         </div>

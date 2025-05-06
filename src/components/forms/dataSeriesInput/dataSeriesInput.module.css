@@ -19,6 +19,10 @@
   width: auto;
 }
 
+.tableVisibilityButton p {
+  padding-left: .4rem;
+}
+
 .tableControlsButton:disabled {
   opacity: .5;
 }
