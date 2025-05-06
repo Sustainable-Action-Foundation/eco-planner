@@ -44,8 +44,8 @@
     "data_series_tooltip": "Use numeric values separated by semicolons or tabs. Decimal numbers can use dots or commas as decimal separators.",
     "add_year": "Add year",
     "remove_year": "Remove year",
-    "add_year_to_table": "Add new year to this table",
-    "remove_year_from_table": "Remove year from this table",
+    "add_year_to_table": "Add new year to table",
+    "remove_year_from_table": "Remove year from table",
     "advanced": "Advanced",
     "data_series_advanced_info": "This field accepts a series of values separated by semicolons or tabs, which means you can paste a series of values from Excel or something similar.<br /><strong>NOTE: Values must not be separated by commas (\",\").</strong><br />Decimal numbers can use either decimal points or decimal commas.<br />The first value represents the year 2020 and the series can continue up to the year 2050 (a total of 31 values).<br />If values are missing for a year, you can leave it blank, for example \";1;;;;5\" can be used to specify the values 1 and 5 for the years 2021 and 2025."
   },

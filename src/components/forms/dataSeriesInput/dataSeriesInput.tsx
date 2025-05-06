@@ -107,6 +107,43 @@ export default function DataSeriesInput({
     });
   }
 
+  function ControlButtons(
+    {
+      className,
+    }: {
+      className?: string;
+    }
+  ) {
+    return (
+      <div className={`flex flex-direction-row justify-content-center ${className}`}>
+        <button
+          type="button"
+          className={`${styles.tableControlsButton}`}
+          title={t("forms:data_series_input.add_year")}
+          ref={addYearRef}
+          // Make sure the button is displayed as it should be (diabled or not) depending on the number of years
+          onLoad={(e) => updateControlsState((e.target as HTMLElement).parentElement, null, dataSeriesValues)}
+          onClick={addYear}
+        >
+          <Image src="/icons/circlePlus.svg" alt={t("forms:data_series_input.add_year_to_table")} width={24} height={24} />
+          <p>{t("forms:data_series_input.add_year_to_table")}</p>
+        </button>
+        <button
+          type="button"
+          className={`${styles.tableControlsButton}`}
+          title={t("forms:data_series_input.remove_year")}
+          ref={removeYearRef}
+          // Make sure the button is displayed as it should be (diabled or not) depending on the number of years
+          onLoad={(e) => updateControlsState(null, (e.target as HTMLElement).parentElement, dataSeriesValues)}
+          onClick={removeYear}
+        >
+          <Image src="/icons/circleMinus.svg" alt={t("forms:data_series_input.remove_year_from_table")} width={24} height={24} />
+          <p>{t("forms:data_series_input.remove_year_from_table")}</p>
+        </button>
+      </div>
+    )
+  }
+
   return (
     <>
       {summaryKey && (
@@ -130,6 +167,7 @@ export default function DataSeriesInput({
           className="padding-25 smooth"
           style={{ border: "1px solid var(--gray-90)", maxWidth: "48.5rem" }}
         >
+          <ControlButtons className="padding-bottom-25" />
           <div
             className={`${styles.sideScroll} smooth `}
           >
@@ -171,30 +209,10 @@ export default function DataSeriesInput({
               </label>
             ))}
           </div>
-          <div className="flex flex-direction-column justify-content-center">
-            <button
-              type="button"
-              className={`${styles.columnControlsButton}`}
-              title={t("forms:data_series_input.add_year")}
-              ref={addColumnRef}
-              // Make sure the button is displayed as it should be (diabled or not) depending on the number of columns
-              onLoad={(e) => updateControlsState((e.target as HTMLElement).parentElement, null, dataSeriesValues)}
-              onClick={addColumn}
-            >
-              <Image src="/icons/circlePlus.svg" alt={t("forms:data_series_input.add_year_to_table")} width={24} height={24} />
-            </button>
-            <button
-              type="button"
-              className={`${styles.columnControlsButton}`}
-              title={t("forms:data_series_input.remove_year")}
-              ref={removeColumnRef}
-              // Make sure the button is displayed as it should be (diabled or not) depending on the number of columns
-              onLoad={(e) => updateControlsState(null, (e.target as HTMLElement).parentElement, dataSeriesValues)}
-              onClick={removeColumn}
-            >
-              <Image src="/icons/circleMinus.svg" alt={t("forms:data_series_input.remove_year_from_table")} width={24} height={24} />
-            </button>
-          </div>
+          {/* Only show the control buttons at the bottom if the list of years is long enough */}
+          {dataSeriesValues.length > 10 && (
+            <ControlButtons className="padding-top-25" />
+          )}
         </div>
       </fieldset>
 
