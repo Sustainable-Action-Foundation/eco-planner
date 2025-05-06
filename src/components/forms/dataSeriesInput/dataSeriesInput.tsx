@@ -30,26 +30,17 @@ export default function DataSeriesInput({
   const isPasting = useRef(false);
   const [tableIsVisible, setTableIsVisible] = useState(true);
 
-  const addYearRef = useRef<HTMLButtonElement>(null);
-  const removeYearRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (dataSeriesString) {
-      setDataSeriesValues(
-        dataSeriesString
-          .split(/[\t;]/)
-          .slice(0, dataSeriesDataFieldNames.length)
-      );
-    }
-  }, [dataSeriesString]);
-
-  useEffect(() => {
-    updateControlsState(
-      addYearRef.current,
-      removeYearRef.current,
-      dataSeriesValues
-    );
-  }, [dataSeriesValues]);
+  // TODO - this might not be necessary, since we are using the dataSeriesString prop to set the initial values
+  // useEffect(() => {
+  //   console.warn("dataSeriesString changed")
+  //   if (dataSeriesString) {
+  //     setDataSeriesValues(
+  //       dataSeriesString
+  //         .split(/[\t;]/)
+  //         .slice(0, dataSeriesDataFieldNames.length)
+  //     );
+  //   }
+  // }, [dataSeriesString]);
 
   function handleValueChange(e: React.ChangeEvent<HTMLInputElement>, index: number) {
     if (isPasting.current) return;
@@ -80,94 +71,6 @@ export default function DataSeriesInput({
     }, 0);
   }
 
-  // Update the state of the add/remove buttons based on the number of values in the data series
-  function updateControlsState(addColumnButton: HTMLElement | null, removeColumnButton: HTMLElement | null, valuesList: string[]) {
-    if (valuesList.length >= dataSeriesDataFieldNames.length) {
-      addColumnButton?.setAttribute("disabled", "true");
-      removeColumnButton?.removeAttribute("disabled");
-    } else if (valuesList.length <= 1) {
-      addColumnButton?.removeAttribute("disabled");
-      removeColumnButton?.setAttribute("disabled", "true");
-    } else {
-      addColumnButton?.removeAttribute("disabled");
-      removeColumnButton?.removeAttribute("disabled");
-    }
-  }
-
-  function addYear(e: React.MouseEvent<HTMLButtonElement>) {
-    setDataSeriesValues((prevValues) => {
-      if (prevValues.length >= dataSeriesDataFieldNames.length) return prevValues; // Prevent adding more years than the maximum allowed
-      return [...prevValues, ""];
-    });
-  }
-
-  function removeYear(e: React.MouseEvent<HTMLButtonElement>) {
-    setDataSeriesValues((prevValues) => {
-      if (prevValues.length <= 1) return prevValues; // Make sure at least one year is always present
-      return prevValues.slice(0, -1);
-    });
-  }
-
-  function ControlButtons(
-    {
-      className,
-    }: {
-      className?: string;
-    }
-  ) {
-    return (
-      <div className={`flex flex-direction-row justify-content-center ${className}`}>
-        {/* Button for toggling table visibility */}
-        <button
-          type="button"
-          className={`${styles.tableControlsButton} ${styles.tableVisibilityButton}`}
-          title={tableIsVisible ? t("forms:data_series_input.hide_table") : t("forms:data_series_input.show_table")}
-          onClick={() => {
-            setTableIsVisible(!tableIsVisible);
-          }}
-        >
-          {tableIsVisible ? (
-            <>
-              <Image src="/icons/circleMinus.svg" alt={t("forms:data_series_input.hide_table")} width={24} height={24} />
-              <p>{t("forms:data_series_input.hide_table")}</p>
-            </>
-          ) : (
-            <>
-              <Image src="/icons/circlePlus.svg" alt={t("forms:data_series_input.show_table")} width={24} height={24} />
-              <p>{t("forms:data_series_input.show_table")}</p>
-            </>
-          )}
-        </button>
-
-        {/* <button
-          type="button"
-          className={`${styles.tableControlsButton}`}
-          title={t("forms:data_series_input.add_year")}
-          ref={addYearRef}
-          // Make sure the button is displayed as it should be (diabled or not) depending on the number of years
-          onLoad={(e) => updateControlsState((e.target as HTMLElement).parentElement, null, dataSeriesValues)}
-          onClick={addYear}
-        >
-          <Image src="/icons/circlePlus.svg" alt={t("forms:data_series_input.add_year_to_table")} width={24} height={24} />
-          <p>{t("forms:data_series_input.add_year_to_table")}</p>
-        </button>
-
-        <button
-          type="button"
-          className={`${styles.tableControlsButton}`}
-          title={t("forms:data_series_input.remove_year")}
-          ref={removeYearRef}
-          // Make sure the button is displayed as it should be (diabled or not) depending on the number of years
-          onLoad={(e) => updateControlsState(null, (e.target as HTMLElement).parentElement, dataSeriesValues)}
-          onClick={removeYear}
-        >
-          <Image src="/icons/circleMinus.svg" alt={t("forms:data_series_input.remove_year_from_table")} width={24} height={24} />
-          <p>{t("forms:data_series_input.remove_year_from_table")}</p>
-        </button> */}
-      </div>
-    )
-  }
-
   return (
     <>
       {summaryKey && (
@@ -189,17 +92,45 @@ export default function DataSeriesInput({
         {/* TODO: Make this allow .csv files and possibly excel files */}
         <div
           className="padding-25 smooth"
-          style={{ border: "1px solid var(--gray-90)"/* , maxWidth: "48.5rem" */ }}
+          style={{ border: "1px solid var(--gray-90)" }}
         >
-          <ControlButtons className={`${tableIsVisible && "padding-bottom-25"}`} /> {/* TODO - this no longer needs to be extracted */}
-          {tableIsVisible && (
+          <div className={`flex flex-direction-row justify-content-center padding-bottom-25`}>
+            {/* Button for toggling table visibility */}
+            <button
+              type="button"
+              className={`${styles.tableControlsButton} ${styles.tableVisibilityButton}`}
+              title={tableIsVisible ? t("forms:data_series_input.hide_table") : t("forms:data_series_input.show_table")}
+              onClick={() => {
+                setTableIsVisible(!tableIsVisible);
+              }}
+            >
+              {/* Display different text and image depending on if the table is visible or not */}
+              {tableIsVisible ? (
+                <>
+                  <Image src="/icons/circleMinus.svg" alt={t("forms:data_series_input.hide_table")} width={24} height={24} />
+                  <p>{t("forms:data_series_input.hide_table")}</p>
+                </>
+              ) : (
+                <>
+                  <Image src="/icons/circlePlus.svg" alt={t("forms:data_series_input.show_table")} width={24} height={24} />
+                  <p>{t("forms:data_series_input.show_table")}</p>
+                </>
+              )}
+            </button>
+          </div>
 
+          {tableIsVisible && (
             <div
               className={`${styles.inputTable} smooth `}
             >
               {dataSeriesDataFieldNames.map((value, index) => (
                 <label key={`year-${index}`} className="flex align-items-center">
-                  <p className="padding-left-100 padding-right-100 margin-0 margin-right-25" style={{ width: "auto" }}>{value.replace("val", "")}</p>
+                  <p
+                    className="padding-left-100 padding-right-100 margin-0 margin-right-25"
+                    style={{ width: "auto" }}
+                  >
+                    {value.replace("val", "")}
+                  </p>
                   <input
                     type="number"
                     id={value}
@@ -236,10 +167,6 @@ export default function DataSeriesInput({
               ))}
             </div>
           )}
-          {/* Only show the control buttons at the bottom if the list of years is long enough */}
-          {/* {tableIsVisible && dataSeriesValues.length > 10 && (
-            <ControlButtons className="padding-top-25" />
-          )} */}
         </div>
       </fieldset>
 
