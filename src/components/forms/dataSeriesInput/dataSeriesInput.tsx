@@ -127,9 +127,15 @@ export default function DataSeriesInput({
           }}
         >
           {tableIsVisible ? (
-            <p>{t("forms:data_series_input.hide_table")}</p>
+            <>
+              <Image src="/icons/circleMinus.svg" alt={t("forms:data_series_input.hide_table")} width={24} height={24} />
+              <p>{t("forms:data_series_input.hide_table")}</p>
+            </>
           ) : (
-            <p>{t("forms:data_series_input.show_table")}</p>
+            <>
+              <Image src="/icons/circlePlus.svg" alt={t("forms:data_series_input.show_table")} width={24} height={24} />
+              <p>{t("forms:data_series_input.show_table")}</p>
+            </>
           )}
         </button>
 
