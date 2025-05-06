@@ -103,7 +103,7 @@ export default function DataSeriesInput({
 
   function removeYear(e: React.MouseEvent<HTMLButtonElement>) {
     setDataSeriesValues((prevValues) => {
-      if (prevValues.length <= 1) return prevValues; // Prevent removing the last year
+      if (prevValues.length <= 1) return prevValues; // Make sure at least one year is always present
       return prevValues.slice(0, -1);
     });
   }
@@ -117,6 +117,7 @@ export default function DataSeriesInput({
   ) {
     return (
       <div className={`flex flex-direction-row justify-content-center ${className}`}>
+        {/* Button for toggling table visibility */}
         <button
           type="button"
           className={`${styles.tableControlsButton} ${styles.tableVisibilityButton}`}
@@ -131,7 +132,7 @@ export default function DataSeriesInput({
             <p>{t("forms:data_series_input.show_table")}</p>
           )}
         </button>
-        
+
         <button
           type="button"
           className={`${styles.tableControlsButton}`}
@@ -144,6 +145,7 @@ export default function DataSeriesInput({
           <Image src="/icons/circlePlus.svg" alt={t("forms:data_series_input.add_year_to_table")} width={24} height={24} />
           <p>{t("forms:data_series_input.add_year_to_table")}</p>
         </button>
+
         <button
           type="button"
           className={`${styles.tableControlsButton}`}
@@ -245,8 +247,11 @@ export default function DataSeriesInput({
             components={{ strong: <strong />, br: <br /> }}
           />
         </p>
+
         <label className="block margin-block-75">
           {t(labelKey)}
+
+          {/* This input gives the user the option to enter their data series as a string */}
           <input
             type="text"
             name={inputName}
