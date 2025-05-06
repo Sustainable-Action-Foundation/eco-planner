@@ -123,8 +123,8 @@ export default function DataSeriesInput({
         </details>
       )}
 
-      <label className="block margin-block-75">
-        {t(labelKey)}
+      <fieldset className="block margin-block-75">
+        <legend className={styles.dataSeriesInputLegend}>{t(labelKey)}</legend>
         {/* TODO: Make this allow .csv files and possibly excel files */}
         <div
           className="padding-25 smooth flex"
@@ -199,7 +199,7 @@ export default function DataSeriesInput({
             </button>
           </div>
         </div>
-      </label>
+      </fieldset>
 
       <details className="margin-block-75">
         <summary>

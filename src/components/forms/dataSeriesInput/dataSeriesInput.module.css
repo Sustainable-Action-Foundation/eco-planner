@@ -1,3 +1,7 @@
+.dataSeriesInputLegend::after {
+  content: none !important;
+}
+
 .columnControlsButton {
   display: flex;
   background-color: transparent;
