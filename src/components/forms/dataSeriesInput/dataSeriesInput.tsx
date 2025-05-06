@@ -187,7 +187,7 @@ export default function DataSeriesInput({
           {tableIsVisible && (
 
             <div
-              className={`${styles.sideScroll} smooth `}
+              className={`${styles.inputTable} smooth `}
             >
               {dataSeriesValues.map((value, index) => index < dataSeriesDataFieldNames.length && (
                 <label key={`year-${index}`} className="flex align-items-center">

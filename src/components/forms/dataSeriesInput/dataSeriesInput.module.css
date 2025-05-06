@@ -31,49 +31,49 @@
   box-shadow: none;
 }
 
-.sideScroll {
+.inputTable {
   overflow-x: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--gray) transparent;
 }
 
-.sideScroll label {
+.inputTable label {
   border-radius: 0;
   border: 1px solid var(--gray-90);
   border-top-width: 0;
 }
 
-.sideScroll label:first-child {
+.inputTable label:first-child {
   border-top-left-radius: 0.25rem;
   border-top-right-radius: 0.25rem;
   border-top-width: 1px;
 }
 
-.sideScroll label:last-child {
+.inputTable label:last-child {
   border-bottom-left-radius: 0.25rem;
   border-bottom-right-radius: 0.25rem;
 }
 
-.sideScroll input {
+.inputTable input {
   border-radius: 0;
   border-left: 1px solid var(--gray-90);
   background-color: var(--gray-95);
 }
 
-.sideScroll input:focus {
+.inputTable input:focus {
   outline: none;
   box-shadow: none;
   background-color: white;
 }
 
 /* Hide number incrementors */
-.sideScroll input[type="number"] {
+.inputTable input[type="number"] {
   appearance: textfield;
 }
 
 /* Hide number incrementors on webkit browsers */
-.sideScroll input::-webkit-inner-spin-button,
-.sideScroll input::-webkit-outer-spin-button {
+.inputTable input::-webkit-inner-spin-button,
+.inputTable input::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
