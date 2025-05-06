@@ -8,13 +8,13 @@ import styles from "./dataSeriesInput.module.css";
 import { dataSeriesPattern, isValidPastedInput, isValidSingleInputForGrid, isValidSingleInputForTextField } from "./utils";
 
 export default function DataSeriesInput({
-  dataSeriesString, // TODO - rename "dataSeriesString" to "dataSeriesInput" or "initialValue" (latest suggested by chatgpt)
+  dataSeriesString, // TODO - rename "dataSeriesString" to "dataSeriesInput" or "initialValue" (latter suggested by chatgpt)
   inputName = "dataSeries",
   inputId = "dataSeries",
   labelKey = "forms:data_series_input.data_series",
   summaryKey,
 }: {
-  dataSeriesString?: string
+  dataSeriesString?: string;
   inputName?: string;
   inputId?: string;
   labelKey?: string;
