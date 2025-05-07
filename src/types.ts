@@ -150,7 +150,7 @@ export type GoalInput = Omit<
   // This will be turned into an actual dataSeries object by the API
   // The expected input is a stringified array of floats
   dataSeries: string[];
-  baselineDataSeries?: string[] | undefined;
+  baselineDataSeries?: string[] | undefined | null;
   // The unit of measurement for the data series
   dataUnit: string;
   // Scale of the data, for example "millions"

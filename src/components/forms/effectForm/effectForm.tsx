@@ -1,15 +1,16 @@
 'use client';
 
-import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "./effectFormSections";
-import { dataSeriesPattern } from "@/components/forms/goalForm/goalForm";
-import formSubmitter from "@/functions/formSubmitter";
-import { dataSeriesDataFieldNames, EffectInput } from "@/types";
-import { ActionImpactType, DataSeries, Effect } from "@prisma/client";
 import type getOneAction from "@/fetchers/getOneAction.ts";
 import type getOneGoal from "@/fetchers/getOneGoal.ts";
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
-import { Trans, useTranslation } from "react-i18next";
+import formSubmitter from "@/functions/formSubmitter";
+import { dataSeriesDataFieldNames, EffectInput } from "@/types";
+import { ActionImpactType, DataSeries, Effect } from "@prisma/client";
 import { useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
+import DataSeriesInput from "../dataSeriesInput/dataSeriesInput";
+import { getDataSeries } from "../dataSeriesInput/utils";
+import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "./effectFormSections";
 
 export default function EffectForm({
   action,
@@ -39,7 +40,7 @@ export default function EffectForm({
 
     const selectedAction = currentEffect?.actionId || action?.id || formData.get("actionId");
     const selectedGoal = currentEffect?.goalId || goal?.id || formData.get("goalId");
-    const dataSeriesInput = formData.get("dataSeries");
+    const dataSeriesInput = getDataSeries(event.target.elements).join(";");
     const impactType = formData.get("impactType");
 
     if (!(
@@ -53,8 +54,8 @@ export default function EffectForm({
       return;
     }
 
-    // Convert the data series to an array of numbers in string format, the actual parsing is done by the API
-    const dataSeries = dataSeriesInput.replaceAll(',', '.').split(/[\t;]/);
+    // Get the data series as an array of numbers in string format, the actual parsing is done by the API
+    const dataSeries = getDataSeries(event.target.elements);
 
     const formContent: EffectInput & { timestamp: number } = {
       actionId: selectedAction,
@@ -99,17 +100,13 @@ export default function EffectForm({
 
         <GoalSelector goal={goal} roadmapAlternatives={roadmapAlternatives} />
 
-        <label className="block margin-block-100">
-          {t("forms:effect.data_series")}
-          {/* TODO: Make this allow .csv files and possibly excel files */}
-          <input type="text" name="dataSeries" required id="dataSeries"
-            pattern={dataSeriesPattern}
-            title={t("forms:effect.data_series_title")}
-            className="margin-block-25"
-            value={dataSeriesString}
-            onChange={(event) => setDataSeriesString(event.target.value)}
-          />
-        </label>
+        <DataSeriesInput
+          dataSeriesString={dataSeriesString}
+          inputName="dataSeries"
+          inputId="dataSeries"
+          labelKey="forms:data_series_input.data_series"
+          summaryKey="forms:data_series_input.extra_info_data_series"
+        />
 
         { // Button for changing between absolute and delta impact types
           // TODO: Styling
@@ -117,7 +114,11 @@ export default function EffectForm({
             <div className="margin-block-100">
               <button type="button" onClick={() => {
                 setSelectedImpactType(ActionImpactType.DELTA);
-                setDataSeriesString(absoluteToDelta(dataSeriesString));
+
+                const formElement = document?.querySelector('form');
+                if (formElement) {
+                  setDataSeriesString(absoluteToDelta(getDataSeries(formElement.elements).join(";")));
+                }
               }}>
                 {t("forms:effect.to_year_by_year")}
               </button>
@@ -131,7 +132,11 @@ export default function EffectForm({
               <div className="margin-block-100">
                 <button type="button" onClick={() => {
                   setSelectedImpactType(ActionImpactType.ABSOLUTE);
-                  setDataSeriesString(deltaToAbsolute(dataSeriesString));
+
+                  const formElement = document?.querySelector('form');
+                  if (formElement) {
+                    setDataSeriesString(deltaToAbsolute(getDataSeries(formElement.elements).join(";")));
+                  }
                 }}>
                   {t("forms:effect.to_absolute")}
                 </button>

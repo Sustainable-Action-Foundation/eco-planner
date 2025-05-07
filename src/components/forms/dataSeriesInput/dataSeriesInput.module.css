@@ -1,0 +1,79 @@
+.dataSeriesInputLegend::after {
+  content: none !important;
+}
+
+.tableControlsButton {
+  display: flex;
+  padding: 0;
+  margin-left: .25rem;
+  margin-right: .25rem;
+  border: none;
+  border-radius: 9999px;
+  align-items: center;
+}
+
+.tableControlsButton p {
+  margin: 0;
+  padding-left: .1rem;
+  padding-right: .4rem;
+  width: auto;
+}
+
+.tableVisibilityButton p {
+  padding-left: .4rem;
+}
+
+.tableControlsButton:disabled {
+  opacity: .5;
+}
+
+.tableControlsButton:disabled:hover {
+  box-shadow: none;
+}
+
+/* .inputTable {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray) transparent;
+} */
+
+.inputTable label {
+  border-radius: 0;
+  border: 1px solid var(--gray-90);
+  border-top-width: 0;
+}
+
+.inputTable label:first-child {
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+  border-top-width: 1px;
+}
+
+.inputTable label:last-child {
+  border-bottom-left-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+}
+
+.inputTable input {
+  border-radius: 0;
+  border-left: 1px solid var(--gray-90);
+  background-color: var(--gray-95);
+}
+
+.inputTable input:focus {
+  outline: none;
+  box-shadow: none;
+  background-color: white;
+}
+
+/* Hide number incrementors */
+.inputTable input[type="number"] {
+  appearance: textfield;
+}
+
+/* Hide number incrementors on webkit browsers */
+.inputTable input::-webkit-inner-spin-button,
+.inputTable input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
