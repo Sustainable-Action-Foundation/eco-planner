@@ -1,6 +1,6 @@
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
-import AttributedImage from "@/components/generic/images/attributedImage";
+import AttributedImage, { AttributeText } from "@/components/generic/images/attributedImage";
 import getMetaRoadmaps from "@/fetchers/getMetaRoadmaps";;
 import { roadmapSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
 import { RoadmapType } from "@prisma/client";
@@ -8,6 +8,8 @@ import RoadmapFilters from "@/components/forms/filters/roadmapFilters";
 import { RoadmapSortBy } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree.tsx";
+import { t } from "@/lib/i18nServer";
+import Link from "next/link";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata() {
@@ -18,9 +20,12 @@ export async function generateMetadata() {
   })  
 }
 
-export default async function Page({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
+export default async function Page(
+  props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }
+) {
+  const searchParams = await props.searchParams;
   const [session, metaRoadmaps] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     getMetaRoadmaps(),
   ]);
 
@@ -114,18 +119,22 @@ export default async function Page({ searchParams }: { searchParams: { [key: str
     <Breadcrumb />
 
     <div className="rounded width-100 margin-bottom-100 margin-top-300 position-relative overflow-hidden" style={{ height: '350px' }}>
-      <AttributedImage src="/images/solar.jpg" alt="" >
+      <AttributedImage src="/images/solar.jpg" alt="" sizes="(max-width: 1250: 100vw), 1250px">
         <div className="flex gap-100 flex-wrap-wrap align-items-flex-end justify-content-space-between padding-100 width-100">
           <div>
-            <h1 className="margin-block-25">Färdplaner</h1>
-            <p className="margin-0">Photo by <a className="color-purewhite" href="https://unsplash.com/@markusspiske?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Markus Spiske</a> on <a className="color-purewhite" href="https://unsplash.com/photos/white-and-blue-solar-panels-pwFr_1SUXRo?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Unsplash</a></p>
+            <h1 className="margin-block-25">{t("pages:home.title")}</h1>
+            <AttributeText
+              author={"Markus Spiske"}
+              authorLink="https://unsplash.com/@markusspiske?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash"
+              source={"Unsplash"}
+              sourceLink="https://unsplash.com/photos/white-and-blue-solar-panels-pwFr_1SUXRo?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" />
           </div>
           { // Link to create roadmap form if logged in
             session.user &&
             <>
-              <a href="/metaRoadmap/create" className="button purewhite round block">Skapa ny färdplansserie</a>
+              <Link href="/metaRoadmap/create" className="button purewhite round block">{t("pages:home.create_roadmap")}</Link>
               {/* TODO: Incorporate this in a reasonable way */}
-              {/* <a href="/roadmap/createRoadmap" className="button purewhite round block">Skapa ny version i en existerande serie</a> */}
+              {/* <a href="/roadmap/createRoadmap" className="button purewhite round block"></a> */}
             </>
           }
         </div>

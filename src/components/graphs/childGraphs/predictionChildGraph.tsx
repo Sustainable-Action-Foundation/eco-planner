@@ -1,7 +1,10 @@
-import WrappedChart, { floatSmoother } from "@/lib/chartWrapper.tsx";
+"use client";
+
+import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper.tsx";
 import { dataSeriesDataFieldNames } from "@/types.ts";
 import { DataSeries, Effect, Goal } from "@prisma/client";
 import { calculatePredictedOutcome, firstNonNullValue } from "../functions/graphFunctions.ts";
+import { useTranslation } from "react-i18next";
 
 export default function PredictionChildGraph({
   goal,
@@ -12,6 +15,8 @@ export default function PredictionChildGraph({
   childGoals: (Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null, effects: (Effect & { dataSeries: DataSeries | null })[], roadmapName?: string })[],
   isStacked: boolean,
 }) {
+  const { t } = useTranslation();
+
   // Early returns if there is no relevant data to compare
   if (!goal.dataSeries) {
     return null;
@@ -60,7 +65,7 @@ export default function PredictionChildGraph({
       }
       if (totalEffect.length > 0) {
         dataPoints.push({
-          name: `${child.name || child.indicatorParameter.split('\\').slice(-1)[0]} (${child.roadmapName || 'Okänd målbana'})`,
+          name: `${child.name || child.indicatorParameter.split('\\').slice(-1)[0]} (${child.roadmapName || t("graphs:common.unknown_roadmap")})`,
           data: totalEffect,
           type: isStacked ? 'area' : 'line',
         });
@@ -70,8 +75,8 @@ export default function PredictionChildGraph({
 
   // Early return if there is no data to compare
   if (dataPoints.length < 2) {
-     return <b className="flex justify-content-center align-items-center font-weight-500 padding-inline-100" style={{width: '100%', height: '100%'}}>
-      Inga underliggande målbanor med effekter eller anpassade baslinjer hittades  
+    return <b className="flex justify-content-center align-items-center font-weight-500 padding-inline-100" style={{ width: '100%', height: '100%' }}>
+      {t("graphs:prediction_child_graph.no_child_roadmaps")}
     </b>
   }
 
@@ -106,7 +111,7 @@ export default function PredictionChildGraph({
     },
     yaxis: {
       title: { text: goal.dataSeries?.unit },
-      labels: { formatter: floatSmoother },
+      labels: { formatter: graphNumberFormatter },
     },
     tooltip: {
       x: { format: 'yyyy' },

@@ -1,6 +1,10 @@
 'use client';
 
+import { useTranslation } from "react-i18next";
+
 export default function SecondaryGoalSelector() {
+  const { t } = useTranslation();
+
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -12,17 +16,20 @@ export default function SecondaryGoalSelector() {
 
     window.location.href = target.href;
   }
+
   return (
     <>
       <form onSubmit={handleSubmit} className="flex-grow-100">
         <label className='font-weight-500'>
-          Jämför målbana
+          {t("graphs:secondary_graph_selector.compare_with")}
           <div className="focusable flex margin-top-25" style={{borderRadius: '2px', backgroundColor: 'var(--gray-90)'}}>
             <input type="text" id="secondaryGoal" name="secondaryGoal" className="transparent" style={{fontSize: '.75rem', borderRadius: '2px', padding: '.3rem .6rem'}} />
-            <button type="submit" className="font-weight-500 transparent" style={{fontSize: '.75rem', borderRadius: '2px', padding: '.3rem .6rem'}} >Jämför</button>
+            <button type="submit" className="font-weight-500 transparent" style={{fontSize: '.75rem', borderRadius: '2px', padding: '.3rem .6rem'}} >
+              {t("graphs:secondary_graph_selector.compare")}
+            </button>
           </div>
         </label>
-      </form>
+      </form >
     </>
   )
 }

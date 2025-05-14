@@ -17,7 +17,7 @@ import { cookies } from "next/headers";
  * @returns Roadmap object with goals
  */
 export default async function getRoadmapByVersion(metaId: string, version: number) {
-  const session = await getSession(cookies());
+  const session = await getSession(await cookies());
   return getCachedRoadmap(metaId, version, session.user)
 }
 

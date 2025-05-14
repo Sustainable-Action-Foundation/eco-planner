@@ -9,6 +9,7 @@ import { clientSafeGetRoadmaps } from "@/fetchers/getRoadmaps";
 import type getRoadmaps from "@/fetchers/getRoadmaps";
 import mathjs from "@/math";
 import { dataSeriesDataFieldNames } from "@/types";
+import { Trans, useTranslation } from "react-i18next";
 
 export function ManualGoalForm({
   currentGoal,
@@ -29,6 +30,7 @@ export function ManualGoalForm({
   },
   dataSeriesString?: string,
 }) {
+  const { t } = useTranslation();
   const [parsedUnit, setParsedUnit] = useState<string | null>(null);
 
   useEffect(() => {
@@ -44,12 +46,12 @@ export function ManualGoalForm({
   return (
     <>
       <label className="block margin-bottom-100">
-        LEAP parameter
+        {t("forms:goal.leap_parameter")}
         <input className="margin-block-25" type="text" list="LEAPOptions" name="indicatorParameter" required id="indicatorParameter" defaultValue={currentGoal?.indicatorParameter || undefined} />
       </label>
 
       <label className="block margin-block-100">
-        Enhet för dataserie
+        {t("forms:goal.data_unit")}
         <input className="margin-block-25" type="text" name="dataUnit" required id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
           try {
             setParsedUnit(mathjs.unit(e.target.value).toString());
@@ -58,30 +60,29 @@ export function ManualGoalForm({
           }
         }} />
         {parsedUnit ?
-          <p className="margin-block-25">Enheten tolkas som: <strong>{parsedUnit}</strong></p>
-          : <p className="margin-block-25">Enheten kunde inte tolkas. Du kan fortfarande spara målbanan, men viss funktionalitet kan saknas.</p>
+          <p className="margin-block-25">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></p>
+          : <p className="margin-block-25">{t("forms:goal.unit_not_interpreted")}</p>
         }
       </label>
 
       <details className="margin-block-75">
         <summary>
-          Extra information om dataserie
+          {t("forms:goal.extra_info_data_series")}
         </summary>
         <p>
-          Fältet &quot;Dataserie&quot; tar emot en serie värden separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie värden från Excel eller liknande.<br />
-          <strong>OBS: Värden får inte vara separerade med komma (&quot;,&quot;).</strong><br />
-          Decimaltal kan använda antingen decimalpunkt eller decimalkomma.<br />
-          Det första värdet representerar år 2020 och serien kan fortsätta maximalt till år 2050 (totalt 31 värden).<br />
-          Om värden saknas för ett år kan du lämna det tomt, exempelvis kan &quot;;1;;;;5&quot; användas för att ange värdena 1 och 5 för år 2021 och 2025.
+          <Trans
+            i18nKey={"forms:goal.data_series_info"}
+            components={{ strong: <strong />, br: <br /> }}
+          />
         </p>
       </details>
 
       <label className="block margin-block-75">
-        Dataserie
+        {t("forms:goal.data_series")}
         {/* TODO: Make this allow .csv files and possibly excel files */}
         <input type="text" name="dataSeries" required id="dataSeries"
           pattern={dataSeriesPattern}
-          title="Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma."
+          title={t("forms:goal.data_series_title")}
           className="margin-block-25"
           defaultValue={dataSeriesString}
         />
@@ -111,6 +112,7 @@ export function InheritedGoalForm({
   },
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
 }) {
+  const { t } = useTranslation();
   const [selectedRoadmap, setSelectedRoadmap] = useState(currentGoal?.combinationParents[0]?.parentGoal.roadmapId);
   const [roadmapData, setRoadmapData] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
   const [selectedGoal, setSelectedGoal] = useState(currentGoal?.combinationParents[0]?.parentGoal.id);
@@ -143,15 +145,15 @@ export function InheritedGoalForm({
   return (
     <>
       <label className="block margin-block-75">
-        Välj en färdplansversion att ärva en målbana från
+        {t("forms:goal.select_roadmap_version")}
         <select name="selectedRoadmap" id="selectedRoadmap" className="margin-inline-25" required
           value={selectedRoadmap}
           onChange={(e) => { setSelectedRoadmap(e.target.value); setSelectedGoal(undefined) }}
         >
-          <option value="">Välj färdplansversion</option>
+          <option value="">{t("forms:goal.select_roadmap_version")}</option>
           {roadmapAlternatives.map((roadmap) => (
             <option value={roadmap.id} key={`roadmap-inherit${roadmap.id}`}>
-              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.goals} mål`}
+              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("common:count.goal", { count: roadmap._count.goals })}`}
             </option>
           ))}
         </select>
@@ -159,15 +161,15 @@ export function InheritedGoalForm({
 
       {roadmapData &&
         <label className="block margin-block-75">
-          Välj en målbana att ärva från
+          {t("forms:goal.select_goal_to_inherit")}
           <select name="inheritFrom" id="inheritFrom" className="margin-inline-25" required
             value={selectedGoal}
             onChange={(e) => setSelectedGoal(e.target.value)}
           >
-            <option value="">Välj målbana</option>
+            <option value="">{t("forms:goal.select_goal")}</option>
             {roadmapData?.goals.map((goal) => (
               <option value={goal.id} key={`inherit-${goal.id}`}>
-                {`${goal.name ?? "Namnlöst mål"}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || "Enhet saknas"})`}
+                {`${goal.name ?? t("forms:goal.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || t("common:tsx.unit_missing")})`}
               </option>
             ))}
           </select>
@@ -175,12 +177,12 @@ export function InheritedGoalForm({
       }
 
       <label className="block margin-block-75">
-        LEAP parameter
+        {t("forms:goal.leap_parameter")}
         <input className="margin-block-25" type="text" list="LEAPOptions" name="indicatorParameter" required disabled id="indicatorParameter" value={goalData?.indicatorParameter || ""} />
       </label>
 
       <label className="block margin-block-75">
-        Enhet för dataserie
+        {t("forms:goal.data_unit")}
         <input className="margin-block-25" type="text" name="dataUnit" required disabled id="dataUnit" value={goalData?.dataSeries?.unit || ""} onChange={(e) => {
           try {
             setParsedUnit(mathjs.unit(e.target.value).toString());
@@ -189,8 +191,8 @@ export function InheritedGoalForm({
           }
         }} />
         {parsedUnit ?
-          <p className="margin-block-25">Enheten tolkas som: <strong>{parsedUnit}</strong></p>
-          : <p className="margin-block-25">Enheten kunde inte tolkas. Du kan fortfarande spara målbanan, men viss funktionalitet kan saknas.</p>
+          <p className="margin-block-25">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></p>
+          : <p className="margin-block-25">{t("forms:goal.unit_not_interpreted")}</p>
         }
       </label>
     </>
@@ -218,6 +220,7 @@ export function CombinedGoalForm({
     roadmap: { id: string },
   },
 }) {
+  const { t } = useTranslation();
   const [currentRoadmap, setCurrentRoadmap] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
   const [inheritFrom, setInheritFrom] = useState<string[]>([]);
   const [parsedUnit, setParsedUnit] = useState<string | null>(null);
@@ -242,12 +245,12 @@ export function CombinedGoalForm({
   return (
     <>
       <label className="block margin-block-75">
-        LEAP parameter
+        {t("forms:goal.leap_parameter")}
         <input className="margin-block-25" type="text" list="LEAPOptions" name="indicatorParameter" required id="indicatorParameter" defaultValue={currentGoal?.indicatorParameter || undefined} />
       </label>
 
       <label className="block margin-block-75">
-        Enhet för dataserie
+        {t("forms:goal.data_unit")}
         <input className="margin-block-25" type="text" name="dataUnit" required id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
           try {
             setParsedUnit(mathjs.unit(e.target.value).toString());
@@ -256,16 +259,19 @@ export function CombinedGoalForm({
           }
         }} />
         {parsedUnit ?
-          <p className="margin-block-25">Enheten tolkas som: <strong>{parsedUnit}</strong></p>
-          : <p className="margin-block-25">Enheten kunde inte tolkas. Du kan fortfarande spara målbanan, men viss funktionalitet kan saknas.</p>
+          <p className="margin-block-25">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></p>
+          : <p className="margin-block-25">{t("forms:goal.unit_not_interpreted")}</p>
         }
       </label>
 
       <fieldset className="padding-50 smooth position-relative" style={{ border: '1px solid var(--gray-90)' }}>
         <legend className="padding-25">
-          Välj målbanor i den aktuella färdplansversionen att kombinera
+          {t("forms:goal.select_goals_to_combine")}
         </legend>
-        <p>Tips: använd <kbd><kbd>CTRL</kbd> + <kbd>F</kbd></kbd> för att hitta målbanorna du söker efter</p>
+        <Trans
+          i18nKey={"forms:goal.search_tip"}
+          components={{ kbd: <kbd /> }}
+        />
         {currentRoadmap?.goals.map((goal) => (
           goal.id == currentGoal?.id ? null :
             <Fragment key={`combine-${goal.id}`}>
@@ -280,7 +286,7 @@ export function CombinedGoalForm({
                     }
                   }}
                 />
-                {`${goal.name ?? "Namnlöst mål"}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || "Enhet saknas"})`}
+                {`${goal.name ?? t("forms:goal.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || t("common:tsx.unit_missing")})`}
               </label>
               {/* TODO: marginLeft: 25? What? */}
               {inheritFrom?.includes(goal.id) &&
@@ -288,7 +294,7 @@ export function CombinedGoalForm({
                   <input type="checkbox" name="invert-inherit" className="margin-inline-25" value={goal.id}
                     defaultChecked={currentGoal?.combinationParents.some((parent) => parent.parentGoal.id == goal.id && parent.isInverted)}
                   />
-                  {"Invertera målet (dividera med denna målbana snarare än att multiplicera)"}
+                  {t("forms:goal.invert_goal")}
                 </label>
               }
             </Fragment>
@@ -299,6 +305,7 @@ export function CombinedGoalForm({
 }
 
 export function InheritingBaseline() {
+  const { t } = useTranslation();
   const [roadmapList, setRoadmapList] = useState<Awaited<ReturnType<typeof clientSafeGetRoadmaps>>>([]);
   const [selectedRoadmap, setSelectedRoadmap] = useState<string | undefined>(undefined);
   const [roadmapData, setRoadmapData] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
@@ -329,15 +336,15 @@ export function InheritingBaseline() {
   return (
     <>
       <label className="block margin-block-75">
-        Välj en färdplansversion att hämta målbanan från
+        {t("forms:goal.select_roadmap_version")}
         <select name="selectedRoadmap" id="selectedRoadmap" className="margin-inline-25" required
           value={selectedRoadmap}
           onChange={(e) => { setSelectedRoadmap(e.target.value); setSelectedGoal(undefined) }}
         >
-          <option value="">Välj färdplansversion</option>
+          <option value="">{t("forms:goal.select_roadmap_version")}</option>
           {roadmapList.map((roadmap) => (
             <option value={roadmap.id} key={`roadmap-inherit${roadmap.id}`}>
-              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${roadmap._count.goals} mål`}
+              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("common:count.goal", { count: roadmap._count.goals })}`}
             </option>
           ))}
         </select>
@@ -345,15 +352,15 @@ export function InheritingBaseline() {
 
       {roadmapData &&
         <label className="block margin-block-75">
-          Välj en målbana att använda som baslinje (värdena kopieras snarare än att länkas)
+          {t("forms:goal.select_goal_as_baseline")}
           <select name="inheritFrom" id="inheritFrom" className="margin-inline-25" required
             value={selectedGoal}
             onChange={(e) => setSelectedGoal(e.target.value)}
           >
-            <option value="">Välj målbana</option>
+            <option value="">{t("forms:goal.select_goal")}</option>
             {roadmapData?.goals.map((goal) => (
               <option value={goal.id} key={`inherit-${goal.id}`} disabled={!goal.dataSeries}>
-                {`${(!goal.dataSeries) ? "DATA SAKNAS; " : ""}${goal.name ?? "Namnlöst mål"}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || "Enhet saknas"})`}
+                {`${(!goal.dataSeries) ? t("forms:goal.data_missing") : ""}${goal.name ?? t("forms:goal.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || t("common:tsx.unit_missing")})`}
               </option>
             ))}
           </select>
@@ -362,7 +369,7 @@ export function InheritingBaseline() {
 
       {goalData &&
         <label className="block margin-block-75">
-          Baslinje, kopierad från vald målbana
+          {t("forms:goal.baseline_copied")}
           <input name="baselineDataSeries" id="baselineDataSeries" type="text" readOnly value={dataSeriesString} />
         </label>
       }

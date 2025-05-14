@@ -1,23 +1,30 @@
-import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
+"use client";
+
+import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
-import { DataSeries, Effect, Goal } from "@prisma/client";
-import { parsePeriod } from "@/lib/pxWeb/utility";
+import type { DataSeries, Effect, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
+import { parsePeriod } from "@/lib/api/utility";
 import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
 import { ApiTableContent } from "@/lib/api/apiTypes";
+import { useTranslation } from "react-i18next";
 
 export default function MainGraph({
   goal,
   secondaryGoal,
-  nationalGoal,
+  parentGoal,
+  parentGoalRoadmap,
   historicalData,
   effects,
 }: {
   goal: Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null },
   secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
-  nationalGoal: Goal & { dataSeries: DataSeries | null } | null,
+  parentGoal: Goal & { dataSeries: DataSeries | null } | null,
+  parentGoalRoadmap: Roadmap & { metaRoadmap: MetaRoadmap } | null,
   historicalData?: ApiTableContent | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
 }) {
+  const { t } = useTranslation();
+
   if (!goal.dataSeries) {
     return null;
   }
@@ -41,11 +48,11 @@ export default function MainGraph({
     yaxis: [
       {
         title: { text: goal.dataSeries?.unit },
-        labels: { formatter: floatSmoother },
+        labels: { formatter: graphNumberFormatter },
         seriesName: [
           (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
-          'Basscenario',
-          'Förväntat utfall',
+          t("graphs:common.baseline_scenario"),
+          t("graphs:common.expected_outcome"),
           (secondaryGoal?.dataSeries?.unit == goal.dataSeries.unit) ? (secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0] : "",
         ]
       }
@@ -86,7 +93,7 @@ export default function MainGraph({
       });
     }
     mainChart.push({
-      name: 'Basscenario',
+      name: t("graphs:common.baseline_scenario"),
       data: baseline,
       type: 'line',
     })
@@ -97,7 +104,7 @@ export default function MainGraph({
       // Line based on totalEffect + baseline
       if (totalEffect.length > 0) {
         mainChart.push({
-          name: 'Förväntat utfall',
+          name: t("graphs:common.expected_outcome"),
           data: totalEffect,
           type: 'line',
         });
@@ -121,14 +128,14 @@ export default function MainGraph({
           });
         }
         mainChart.push({
-          name: 'Basscenario',
+          name: t("graphs:common.baseline_scenario"),
           data: baseline,
           type: 'line',
         });
 
         // Line based on totalEffect
         mainChart.push({
-          name: 'Förväntat utfall',
+          name: t("graphs:common.expected_outcome"),
           data: totalEffect,
           type: 'line',
         });
@@ -155,18 +162,18 @@ export default function MainGraph({
     // TODO: Use mathjs to see if the units are the same, rather than just comparing strings
     if (secondaryGoal.dataSeries.unit != goal.dataSeries.unit) {
       (mainChartOptions.yaxis as ApexYAxis[]).push({
-        title: { text: `Sekundär målbana (${secondaryGoal.dataSeries.unit})` },
-        labels: { formatter: floatSmoother },
+        title: { text: `${t("graphs:main_graph.secondary_goal", { unit: secondaryGoal.dataSeries.unit })}` },
+        labels: { formatter: graphNumberFormatter },
         seriesName: [(secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0]],
         opposite: true,
       });
     }
   }
 
-  if (nationalGoal?.dataSeries) {
+  if (parentGoal?.dataSeries) {
     const nationalSeries = [];
     for (const i of dataSeriesDataFieldNames) {
-      const value = nationalGoal.dataSeries[i];
+      const value = parentGoal.dataSeries[i];
 
       nationalSeries.push({
         x: new Date(i.replace('val', '')).getTime(),
@@ -174,14 +181,14 @@ export default function MainGraph({
       });
     }
     mainChart.push({
-      name: 'Nationell motsvarighet',
+      name: t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name || "" }),
       data: nationalSeries,
       type: 'line',
     });
     (mainChartOptions.yaxis as ApexYAxis[]).push({
-      title: { text: "Nationell målbana" },
-      labels: { formatter: floatSmoother },
-      seriesName: ['Nationell motsvarighet'],
+      title: { text: t("graphs:main_graph.national_goal") },
+      labels: { formatter: graphNumberFormatter },
+      seriesName: [t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name || "" })],
       opposite: true,
     });
   }
@@ -205,8 +212,8 @@ export default function MainGraph({
         type: 'line',
       });
       (mainChartOptions.yaxis as ApexYAxis[]).push({
-        title: { text: "Historik" },
-        labels: { formatter: floatSmoother },
+        title: { text: t("graphs:main_graph.history") },
+        labels: { formatter: graphNumberFormatter },
         seriesName: [`${historicalData.metadata[0]?.label}`],
         opposite: true,
       });

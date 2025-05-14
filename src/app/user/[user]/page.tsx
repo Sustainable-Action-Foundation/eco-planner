@@ -10,6 +10,7 @@ import { AccessLevel } from '@/types';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import styles from './page.module.css' with { type: "css" }
+import { t } from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';
 
  export async function generateMetadata({
@@ -31,13 +32,14 @@ import { buildMetadata } from '@/functions/buildMetadata';
   })  
 }
 
-export default async function Page({
-  params,
-  searchParams
-}: {
-  params: { user: string },
-  searchParams: { [key: string]: string | string[] | undefined }
-}) {
+export default async function Page(
+  props: {
+    params: Promise<{ user: string }>,
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
 
   let username = params.user;
 
@@ -48,7 +50,7 @@ export default async function Page({
   }
 
   const [session, userdata] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     getUserInfo(username),
   ]);
 
@@ -127,7 +129,7 @@ export default async function Page({
       {session.user?.username === username ?
         <>
           <section className='margin-block-300'>
-            <h2>Hantera min data</h2>
+            <h2>{t("pages:profile.handle_data")}</h2>
             <GraphCookie />
           </section>
         </>
@@ -136,9 +138,9 @@ export default async function Page({
       <section className='margin-block-300'>
         <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>
           {session.user?.username === username ?
-            'Mina inlägg'
+            t("pages:profile.my_posts")
             :
-            `${userdata.username}'s inlägg`
+            t("pages:profile.user_posts", { name: userdata.username })
           }
         </h2>
 
@@ -147,7 +149,7 @@ export default async function Page({
         <nav>
           {displayedMetaRoadmaps.length > 0 ?
             <section className='margin-block-300'>
-              <h3 className='margin-top-0'>Färdplansserier</h3>
+              <h3 className='margin-top-0'>{t("pages:profile.roadmap_series_ones")}</h3>
                 <ul className={`${styles.itemsList}`}>
                     {displayedMetaRoadmaps.map((metaRoadmap, index) =>
                       <li key={index}>
@@ -155,7 +157,7 @@ export default async function Page({
                           <div className='flex justify-content-space-between align-items-center'>
                               <a href={`/metaRoadmap/${metaRoadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
                                 <h4 className='font-weight-500 margin-0'>{metaRoadmap.name} </h4>
-                                <p className='margin-0'>Antal färdplaner: {metaRoadmap.childRoadmaps.length}</p>
+                                <p className='margin-0'>{t("pages:profile.version_count", {count: metaRoadmap.roadmapVersions.length})}</p>
                               </a> 
                             <TableMenu object={metaRoadmap} />
                           </div>
@@ -168,15 +170,15 @@ export default async function Page({
 
           {displayedRoadmaps.length > 0 ?
             <section className='margin-block-300'>
-              <h3 className='margin-top-0'>Färdplaner</h3>
+              <h3 className='margin-top-0'>{t("pages:profile.roadmap_versions")}</h3>
               <ul className={`${styles.itemsList}`}>
                 {displayedRoadmaps.map((roadmap, index) =>
                   <li key={index}>
                     <div className='inline-block width-100' style={{verticalAlign: 'middle'}}>
                       <div className='flex justify-content-space-between align-items-center'>
                         <a href={`/roadmap/${roadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
-                          <h4 className='font-weight-500 margin-0'>{roadmap.metaRoadmap.name}</h4>
-                          <p className='margin-0'>Antal målbanor: {roadmap._count.goals}</p>
+                          <h4 className='font-weight-500 margin-0'>{roadmap.metaRoadmap.name} {`(v${roadmap.version})`}</h4>
+                          <p className='margin-0'>{t("common:count.goal", {count: roadmap._count.goals})}</p>
                         </a> 
                         <TableMenu object={roadmap} />
                       </div>

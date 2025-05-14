@@ -1,9 +1,9 @@
 .layout {
-    display: flex;
+  display: flex;
 }
 
 @media (max-width: 1250px) {
-    .layout {
-        display: initial;
-    }
+  .layout {
+    display: initial;
+  }
 }

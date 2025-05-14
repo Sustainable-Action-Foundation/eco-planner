@@ -1,16 +1,39 @@
 /**
- * Key-value pairs of external dataset base URLs
- * The base URL points to the base of the API, without a trailing slash, e.g. "https://api.scb.se/ov0104/v2beta/api/v2".
- * The key is the name of the dataset, e.g. "SCB".
+ * Key-value pairs of of external datasets.
+ * @param key The key is the name of the dataset, e.g. "SCB" or "Trafa".
+ * @param baseUrl The base URL points to the base of the API, without a trailing slash, e.g. "https://api.scb.se/ov0104/v2beta/api/v2".
  * To fetch any data, an additional path must be appended to the end, for example "/navigation", "/tables" or "/tables/{tableId}/data".
+ * @param userFacingUrl User facing URL is the link to the website where the user will be directed when clicking the link declaring where historical data is fetched from.
+ * @param supportedLanguages Supported languages is a list of languages that each dataset supports.
+ * @param api Api is which api the dataset is using.
+ * @param fullName Full name is the full name of the dataset as the key will usually be a shorthand for the full name.
  */
-export const externalDatasetBaseUrls = {
-  "SCB": "https://api.scb.se/ov0104/v2beta/api/v2",
+export const externalDatasets: { [key: string]: { baseUrl: string, userFacingUrl: string, supportedLanguages: string[], api: string, fullName?: string } | undefined} = {
+  "SCB": {
+    baseUrl: "https://api.scb.se/ov0104/v2beta/api/v2",
+    userFacingUrl: "https://www.statistikdatabasen.scb.se/pxweb/sv/ssd/",
+    supportedLanguages: ["sv", "en"],
+    api: "PxWeb",
+    fullName: "Statistiska centralbyrån",
+  },
+  "Trafa": {
+    baseUrl: "https://api.trafa.se/api",
+    userFacingUrl: "https://www.trafa.se/sidor/statistikportalen/",
+    supportedLanguages: ["sv"],
+    api: "Trafa",
+    fullName: "Trafikanalys",
+  },
   // Add more datasets as they implement the PxWeb API v2
   // "SSB": "some url",
   // "stat.fi": "some url",
   // ...
 }
+
+/**
+ * @param apiNames a string or an array of strings that represent the api(s) to filter by
+ * @returns list of datasets that use specified api(s)
+ */
+export function getDatasetKeysOfApis(apiNames: string | string[]): string[] { return typeof apiNames == "string" ? Object.keys(externalDatasets).filter(key => externalDatasets[key]?.api === apiNames) : Object.keys(externalDatasets).filter(key => apiNames.includes(externalDatasets[key]?.api as string)); }
 
 export function parsePeriod(period: string) {
   period = period.trim().toUpperCase();

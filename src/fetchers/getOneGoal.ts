@@ -16,7 +16,7 @@ import { cookies } from "next/headers";
  * @returns Goal object with actions
  */
 export default async function getOneGoal(id: string) {
-  const session = await getSession(cookies());
+  const session = await getSession(await cookies());
   return getCachedGoal(id, session.user)
 }
 

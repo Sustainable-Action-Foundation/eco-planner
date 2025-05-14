@@ -1,17 +1,17 @@
 import { baseUrl } from "@/lib/baseUrl";
-import { re } from "mathjs";
 import { Metadata } from "next";
 
-const default_title: string = 'Eco - planner'
-const default_description: string = 'Ett verktyg som stödjer Sveriges klimatomställning genom lokala handlingsplaner, gemensam åtgärdsdatabas och samarbete kring färdplaner.'
-const default_image_path: string = '/images/og_solar.png' // TODO: See how we can make theese smaller
+// TODO: Add i18n support
+const default_title: string = 'Eco - planner';
+const default_description: string = 'Ett verktyg som stödjer Sveriges klimatomställning genom lokala handlingsplaner, gemensam åtgärdsdatabas och samarbete kring färdplaner.';
+const default_image_path: string = '/images/og_solar.png'; // TODO: See how we can make these smaller
 
 // TODO: Export this function?
 // Truncates text after the end of a word
 function truncateText(string: string | null | undefined, maxLength: number): string | undefined {
-  if (!string) return
+  if (!string) return;
   if (string.length <= maxLength) return string;
-  
+
   const truncatedString = string.slice(0, maxLength);
   return truncatedString.slice(0, truncatedString.lastIndexOf(' ')) + '…';
 }
@@ -27,14 +27,14 @@ export function buildMetadata(
   }: {
     title: string | null | undefined;
     description: string | null | undefined;
-    image_url?: string | URL
-    og_url: string | undefined
+    image_url?: string | URL;
+    og_url: string | undefined;
   }): Metadata {
 
   // Truncates metadata text to fit commonly used lengths
-  title = truncateText(title, 60 - default_title.length)
-  description = truncateText(description, 150)  
-   
+  title = truncateText(title, 60 - default_title.length);
+  description = truncateText(description, 150);
+
   return {
     title: `${title ? `${title} | ${default_title}` : default_title}`,
     description: description ?? default_description,
@@ -43,14 +43,13 @@ export function buildMetadata(
     openGraph: {
       title: `${title ? `${title} | ${default_title}` : default_title}`,
       description: description ?? default_description,
-      images: [{ 
-        url: image_url ?? default_image_path 
+      images: [{
+        url: image_url ?? default_image_path
       }],
       type: "website",
       url: `${og_url ? `${baseUrl}${og_url}` : baseUrl}`,
       siteName: "Eco - Planner",
       locale: "sv_SE"
     }
-    
   };
 }

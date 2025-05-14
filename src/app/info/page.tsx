@@ -3,6 +3,8 @@ import { buildMetadata } from "@/functions/buildMetadata";
 import { JSONValue } from "@/types.ts";
 import fs from "fs";
 import metadata from "package.json" with { type: "json" };
+import { t } from "@/lib/i18nServer";
+import { CommitWithLink, FallbackRemote, Intro, KnownRemote } from "@/app/info/appMetaInfo";
 
 export async function generateMetadata() {
   return buildMetadata({ 
@@ -34,17 +36,17 @@ export default async function Page() {
     } catch { /* Silently fail */ }
   }
 
-  let remoteURL: URL | null = null;
-  let commitURL: URL | null = null;
+  let remoteURL: string | null = null;
+  let commitURL: string | null = null;
   let version: string | null = null;
   try {
     // Try to get repository url from package.json
-    if (metadata.repository) {
-      let repo = metadata.repository.replace(".git", "");
+    if (metadata.homepage) {
+      let repo = metadata.homepage.replace(".git", "");
       if (!repo.endsWith("/")) {
         repo += "/";
       }
-      remoteURL = new URL(repo);
+      remoteURL = new URL(repo).toString();
     }
 
     // Try to get version from package.json
@@ -54,48 +56,39 @@ export default async function Page() {
   } catch { /* Silently fail */ }
 
   if ((gitHash.shortHash || gitHash.longHash) && remoteURL) {
-    commitURL = new URL(`commit/${gitHash.longHash || gitHash.shortHash}`, remoteURL)
+    commitURL = new URL(`commit/${gitHash.longHash || gitHash.shortHash}`, remoteURL).toString();
   }
 
   return (
     <>
-      <Breadcrumb customSections={["Information"]} />
+      <Breadcrumb customSections={[t("pages:info.breadcrumb")]} />
 
-      <h1>Information</h1>
-      <p>
-        Detta verktyg syftar till att bidra till Sveriges klimatomställning.
-        I verktyget kan nationella scenarier, även kallade kvantitativa färdplaner, brytas ner till regional och lokal nivå och en handlingsplan kan skapas.
-        Handlingsplanen byggs upp av åtgärder vilka relaterar till en specifik målbana och målbanorna utgör tillsammans hela färdplanen.
-        Användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige.
-        På lokal nivå kan också olika aktörer samarbeta kring åtgärder.
-      </p>
+      {/* This is static but the above code seems to be messing with the translations and make them disappear sometimes. The below component is client side */}
+      <Intro />
 
       {/* TODO: Add wiki once created */}
 
-      {
-        version
-          ? <p>Version: {version}</p>
-          : null
+      <p>
+        {remoteURL ?
+          <KnownRemote remoteURL={remoteURL} />
+          :
+          <FallbackRemote />
+        }
+      </p>
+
+      {version ?
+        <p>{t("pages:info.version", { version: version })}</p>
+        :
+        null
       }
 
-      {
-        remoteURL
-          ? <p>Remote: <a href={remoteURL.href} target="_blank" >
-            {/* Gets the repository name from a github-like url with a trailing slash, with hostname as fallback */}
-            {remoteURL.pathname.split("/")[remoteURL.pathname.split("/").length - 2] || remoteURL.hostname}
-          </a></p>
-          : null
-      }
-
-      {
-        gitHash.shortHash || gitHash.longHash
-          ? commitURL
-            ? <p>Commit: <a href={commitURL.href} target="_blank" >
-              {gitHash.shortHash || gitHash.longHash}
-            </a></p>
-            :
-            <p>Commit: {gitHash.shortHash || gitHash.longHash}</p>
-          : null
+      {gitHash.shortHash || gitHash.longHash
+        ? commitURL
+          ?
+          <p><CommitWithLink commitURL={commitURL} gitHash={gitHash.shortHash || gitHash.longHash || ""} /></p>
+          :
+          <p>{t("pages:info.commit_without_link", { commit: gitHash.shortHash || gitHash.longHash || "" })}</p>
+        : null
       }
     </>
   )

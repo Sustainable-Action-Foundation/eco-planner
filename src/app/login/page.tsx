@@ -1,7 +1,8 @@
 import Login from "@/components/forms/userInfo/login";
 import styles from "./page.module.css" with { type: "css" };
-import AttributedImage from "@/components/generic/images/attributedImage";
+import AttributedImage, { AttributeText } from "@/components/generic/images/attributedImage";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import { t } from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata() {
@@ -16,14 +17,19 @@ export async function generateMetadata() {
 export default async function Page() {
   return (
     <>
-      <Breadcrumb customSections={['Logga in']} />
+      <Breadcrumb customSections={[t("pages:login.breadcrumb")]} />
 
       <main className={`${styles.gridLayout} container margin-auto padding-block-500 grid gap-300 align-items-center`}>
         <Login />
         <div className={`${styles.image} position-relative width-100 rounded overflow-hidden`}>
-          <AttributedImage src="/images/wind.jpg" alt="">
+          <AttributedImage src="/images/wind.jpg" alt="" sizes="(max-width: 1250: 100vw), 555px">
             <div className="width-100 padding-100">
-              Photo by <a className="color-purewhite" href="https://unsplash.com/@nrdoherty?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Nicholas Doherty</a> on <a className="color-purewhite" href="https://unsplash.com/photos/white-electic-windmill-pONBhDyOFoM?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" target="_blank">Unsplash</a>
+              <AttributeText
+                author="Nicholas Doherty"
+                authorLink="https://unsplash.com/@nrdoherty?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash"
+                source="Unsplash"
+                sourceLink="https://unsplash.com/photos/white-electic-windmill-pONBhDyOFoM?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash"
+              />
             </div>
           </AttributedImage>
         </div>

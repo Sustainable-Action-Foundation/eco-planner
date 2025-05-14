@@ -8,6 +8,7 @@ import Image from "next/image";
 import { AccessLevel } from '@/types';
 import accessChecker from '@/lib/accessChecker';
 import getOneMetaRoadmap from '@/fetchers/getOneMetaRoadmap';
+import { t } from '@/lib/i18nServer';
 import { buildMetadata } from '@/functions/buildMetadata';
 
 export async function generateMetadata() {
@@ -18,16 +19,17 @@ export async function generateMetadata() {
   })  
 }
 
-export default async function Page({
-  searchParams
-}: {
-  searchParams: {
-    metaRoadmapId?: string | string[] | undefined,
-    [key: string]: string | string[] | undefined
+export default async function Page(
+  props: {
+    searchParams: Promise<{
+      metaRoadmapId?: string | string[] | undefined,
+      [key: string]: string | string[] | undefined
+    }>
   }
-}) {
+) {
+  const searchParams = await props.searchParams;
   const [session, parent, metaRoadmapAlternatives] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     getOneMetaRoadmap(typeof searchParams.metaRoadmapId == 'string' ? searchParams.metaRoadmapId : ''),
     getMetaRoadmaps(),
   ]);
@@ -50,17 +52,17 @@ export default async function Page({
 
   return (
     <>
-      <Breadcrumb object={parent || undefined} customSections={['Skapa ny färdplansversion']} />
+      <Breadcrumb object={parent || undefined} customSections={[t("pages:roadmap_create.breadcrumb")]} />
 
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          Skapa en ny version i en färdplansserie
+          {t("pages:roadmap_create.title")}
         </h1>
         {badMetaRoadmap &&
           <p style={{ color: 'red' }}>
             <Image src="/icons/info.svg" width={24} height={24} alt='' />
-            Kunde inte hitta eller har inte tillgång till färdplansserien i länken. <br />
-            Använd dropdown-menyn för att välja en färdplansserie.
+            {t("pages:roadmap_create.bad_roadmap_series")} <br />
+            {t("pages:roadmap_create.use_dropdown")}
           </p>
         }
         <RoadmapForm

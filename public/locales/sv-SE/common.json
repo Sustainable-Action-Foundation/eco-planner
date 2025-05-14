@@ -1,0 +1,101 @@
+{
+  "roadmap_short_one": "färdplan",
+  "roadmap_short_other": "färdplaner",
+  "roadmap_series_one": "färdplansserie",
+  "roadmap_series_other": "färdplansserier",
+  "roadmap_series_definite_one": "färdplansserien",
+  "roadmap_series_definite_other": "färdplansserierna",
+  "roadmap_version_one": "färdplansversion",
+  "roadmap_version_other": "färdplansversioner",
+  "roadmap_version_definite_one": "färdplansversionen",
+  "roadmap_version_definite_other": "färdplansversionerna",
+  "action_one": "åtgärd",
+  "action_other": "åtgärder",
+  "action_definite_one": "åtgärden",
+  "action_definite_other": "åtgärderna",
+  "effect_one": "effekt",
+  "effect_other": "effekter",
+  "effect_definite_one": "effekten",
+  "effect_definite_other": "effekterna",
+  "goal_one": "målbana",
+  "goal_other": "målbanor",
+  "goal_definite_one": "målbanan",
+  "goal_definite_other": "målbanorna",
+  "new": {
+    "roadmap_series": "Skapa ny färdplansserie",
+    "roadmap_version": "Skapa ny färdplansversion",
+    "action": "Skapa ny åtgärd",
+    "effect": "Skapa ny effekt",
+    "goal": "Skapa ny målbana"
+  },
+  "edit": {
+    "roadmap_series": "Redigera färdplansserie",
+    "roadmap_version": "Redigera färdplansversion",
+    "action": "Redigera åtgärd",
+    "effect": "Redigera effekt",
+    "goal": "Redigera målbana"
+  },
+  "count": {
+    "roadmap_series": "{{count}} $t(common:roadmap_series, {\"count\":{{count}}})",
+    "roadmap_version": "{{count}} $t(common:roadmap_version, {\"count\":{{count}}})",
+    "action": "{{count}} $t(common:action, {\"count\":{{count}}})",
+    "goal": "{{count}} $t(common:goal, {\"count\":{{count}}})",
+    "effect": "{{count}} $t(common:effect, {\"count\":{{count}}})"
+  },
+  "layout": {
+    "app_name_compact": "Eco Planner",
+    "app_name": "Eco - Planner",
+    "meta_description": "Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder.",
+    "og_locale": "sv_SE"
+  },
+  "tsx": {
+    "home": "Hem",
+    "login": "Logga in",
+    "logout": "Logga ut",
+    "cancel": "Avbryt",
+    "ellipsis": "...",
+    "show": "Visa",
+    "hide": "Dölj",
+    "show_more": "Visa mer",
+    "show_less": "Visa mindre",
+    "edit": "Redigera",
+    "delete": "Radera",
+    "save": "Spara",
+    "create": "Skapa",
+    "submit": "Skicka",
+    "compare": "Jämför",
+    "close": "Stäng",
+    "unit_missing": "ingen enhet"
+  },
+  "placeholder": {
+    "name": "Användarnamn",
+    "email": "namn@example.com",
+    "username": "Användarnamn",
+    "password": "Lösenord"
+  },
+  "scope": {
+    "national": "Nationell",
+    "regional": "Regional",
+    "municipal": "Kommunal",
+    "local": "Lokal",
+    "other": "Övrig",
+    "national_roadmap": "Nationell $t(common:roadmap_series_one)",
+    "regional_roadmap": "Regional $t(common:roadmap_series_one)",
+    "municipal_roadmap": "Kommunal $t(common:roadmap_series_one)",
+    "local_roadmap": "Lokal $t(common:roadmap_series_one)",
+    "other_roadmap": "Övrig $t(common:roadmap_series_one), exempelvis en organisation"
+  },
+  "scaling_methods": {
+    "geo_mean": "Geometriskt genomsnitt (rekommenderad)",
+    "arith_mean": "Algebraiskt genomsnitt",
+    "multiplicative": "Multiplikativ"
+  },
+  "css": {
+    "optional": " - (valfri)"
+  },
+  "404": {
+    "status": "404",
+    "title": "Sidan hittades inte",
+    "description": "Se till att du har rätt address för sidan du söker."
+  }
+}

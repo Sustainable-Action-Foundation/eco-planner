@@ -7,6 +7,7 @@ import getOneGoal from "@/fetchers/getOneGoal";
 import { AccessControlled, AccessLevel } from "@/types";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import { t } from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { baseUrl } from "@/lib/baseUrl";
 
@@ -23,9 +24,10 @@ export async function generateMetadata({ params }: { params: { goalId: string } 
   }) 
 }
 
-export default async function Page({ params }: { params: { goalId: string } }) {
+export default async function Page(props: { params: Promise<{ goalId: string }> }) {
+  const params = await props.params;
   const [session, currentGoal, roadmaps] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     getOneGoal(params.goalId),
     getRoadmaps(),
   ]);
@@ -50,12 +52,13 @@ export default async function Page({ params }: { params: { goalId: string } }) {
 
   return (
     <>
-      <Breadcrumb object={currentGoal} customSections={['Redigera målbana']} />
+      <Breadcrumb object={currentGoal} customSections={[t("pages:goal_edit.breadcrumb")]} />
 
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          Redigera målbana: 
-          {currentGoal.name ? currentGoal.name : currentGoal.indicatorParameter}
+          {t("pages:goal_edit.title", { 
+            goalName: currentGoal.name ? currentGoal.name : currentGoal.indicatorParameter
+          })}
         </h1>
         <GoalForm roadmapId={currentGoal.roadmapId} currentGoal={currentGoal} roadmapAlternatives={roadmapList} />
       </div>

@@ -7,6 +7,7 @@ import getOneMetaRoadmap from '@/fetchers/getOneMetaRoadmap';
 import accessChecker from '@/lib/accessChecker';
 import { AccessLevel } from '@/types';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
+import { t } from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';
 
 export async function generateMetadata({ params }: { params: { metaRoadmapId: string } }) {
@@ -23,9 +24,10 @@ export async function generateMetadata({ params }: { params: { metaRoadmapId: st
 }
 
 
-export default async function Page({ params }: { params: { metaRoadmapId: string } }) {
+export default async function Page(props: { params: Promise<{ metaRoadmapId: string }> }) {
+  const params = await props.params;
   const [session, currentRoadmap, parentRoadmapOptions] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     getOneMetaRoadmap(params.metaRoadmapId),
     getMetaRoadmaps(),
   ]);
@@ -39,10 +41,10 @@ export default async function Page({ params }: { params: { metaRoadmapId: string
 
   return (
     <>
-      <Breadcrumb object={currentRoadmap} customSections={['Redigera metadata']} />
+      <Breadcrumb object={currentRoadmap} customSections={[t("pages:roadmap_series_one_edit.breadcrumb")]} />
 
       <div className='container-text margin-inline-auto'>
-        <h1>Redigera metadatan för färdplansserie: {`${currentRoadmap.name}`}</h1>
+        <h1>{t("pages:roadmap_series_one_edit.title", { name: currentRoadmap.name })}</h1>
         <MetaRoadmapForm
           user={session.user}
           userGroups={session.user?.userGroups}

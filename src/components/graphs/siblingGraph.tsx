@@ -1,11 +1,12 @@
 'use client';
 
 import findSiblings from "@/functions/findSiblings";
-import WrappedChart, { floatSmoother } from "@/lib/chartWrapper";
+import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Goal, Roadmap } from "@prisma/client";
 import { useState } from "react";
 import Image from "next/image";
+import { useTranslation } from "react-i18next";
 
 /**
  * A graph that shows how a goal stacks up against its siblings (other goals in the same roadmap version with similar indicator parameters and same unit).
@@ -19,6 +20,8 @@ export default function SiblingGraph({
   },
   goal: Goal & { dataSeries: DataSeries | null },
 }) {
+  const { t } = useTranslation();
+
   const siblings = findSiblings(roadmap, goal);
   const dataPoints: ApexAxisChartSeries = [];
 
@@ -68,7 +71,7 @@ export default function SiblingGraph({
     },
     yaxis: {
       title: { text: goal.dataSeries?.unit },
-      labels: { formatter: floatSmoother },
+      labels: { formatter: graphNumberFormatter },
     },
     tooltip: {
       x: { format: 'yyyy' },
@@ -97,13 +100,13 @@ export default function SiblingGraph({
           style={{ width: 'fit-content', fontSize: '.75rem', padding: '.3rem .6rem' }}
           type="button" onClick={() => setIsStacked(!isStacked)}
         >
-          Byt graftyp
-          <Image src='/icons/chartArea.svg' alt='Byt graf' width={16} height={16} />
+          {t("graphs:common.change_graph_type")}
+          <Image src='/icons/chartArea.svg' alt={t("graphs:common.change_graph_type")} width={16} height={16} />
         </button>
       </menu>
-      <article className="smooth padding-inline-25 padding-bottom-50 purewhite" style={{border: '1px solid var(--gray)'}}> 
-        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{fontSize: '1rem'}}>Angränsande målbanor</h2>
-        <div style={{ height: '500px'}}>
+      <article className="smooth padding-inline-25 padding-bottom-50 purewhite" style={{ border: '1px solid var(--gray)' }}>
+        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{ fontSize: '1rem' }}>{t("graphs:sibling_graph.related_goals")}</h2>
+        <div style={{ height: '500px' }}>
           <WrappedChart
             key={"combinedGraph"}
             options={chartOptions}

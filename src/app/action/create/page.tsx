@@ -8,27 +8,29 @@ import { AccessControlled, AccessLevel } from "@/types";
 import getOneRoadmap from "@/fetchers/getOneRoadmap";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import { t } from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata() {
   return buildMetadata({
     title: `Skapa åtgärd`,
-    description: undefined,  /* TODO: Seperate description? */
+    description: undefined,  /* TODO: Separate description? */
     og_url: `/action/create` /* TODO: How do we handle query params here? */
   }) 
 }
 
-export default async function Page({
-  searchParams
-}: {
-  searchParams: {
-    roadmapId?: string | string[] | undefined,
-    goalId?: string | string[] | undefined,
-    [key: string]: string | string[] | undefined
+export default async function Page(
+  props: {
+    searchParams: Promise<{
+      roadmapId?: string | string[] | undefined,
+      goalId?: string | string[] | undefined,
+      [key: string]: string | string[] | undefined
+    }>
   }
-}) {
+) {
+  const searchParams = await props.searchParams;
   const [session, goal, roadmap, roadmapList] = await Promise.all([
-    getSession(cookies()),
+    getSession(await cookies()),
     getOneGoal(typeof searchParams.goalId == 'string' ? searchParams.goalId : ''),
     getOneRoadmap(typeof searchParams.roadmapId == 'string' ? searchParams.roadmapId : ''),
     getRoadmaps(),
@@ -61,28 +63,28 @@ export default async function Page({
 
   return (
     <>
-      <Breadcrumb object={goal || roadmap || undefined} customSections={['Skapa ny åtgärd']} />
+      <Breadcrumb object={goal || roadmap || undefined} customSections={[t("pages:action_create.breadcrumb")]} />
 
       <div className="container-text margin-inline-auto">
         {goal ?
           <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-            Skapa en ny åtgärd under målbana: {`${goal?.name || goal?.indicatorParameter}`}
-          </h1> : <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-            Skapa en ny åtgärd
+            {t("pages:action_create.title_with_goal", { goalName: goal?.name || goal?.indicatorParameter })}
+          </h1>
+          :
+          <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
+            {t("pages:action_create.title")}
           </h1>
         }
         {badGoal &&
           <p style={{ color: 'red' }}>
             <Image src="/icons/info.svg" width={24} height={24} alt='' />
-            Kunde inte hitta eller har inte tillgång till målbanan i länken.
-            {/* Använd dropdown-menyn för att välja en målbana om du vill lägga till en effekt gentemot en målbana. */}
+            {t("pages:action_create.bad_goal")}
           </p>
         }
         {badRoadmap &&
           <p style={{ color: 'red' }}>
             <Image src="/icons/info.svg" width={24} height={24} alt='' />
-            Kunde inte hitta eller har inte tillgång till färdplansversionen i länken. <br />
-            Använd dropdown-menyn för att välja en färdplansversion.
+            {t("pages:action_create.bad_roadmap")}
           </p>
         }
         <ActionForm
