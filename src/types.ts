@@ -157,7 +157,7 @@ export type GoalInput = Omit<
   // Deprecated, please bake the scale into the data series values or unit
   // For example {value: 10, scale: "thousands"} => {value: 10000}
   // or {scale: "millions", unit: "kW"} => {unit: "GW"}
-  dataScale?: string | undefined;
+  // dataScale: never;
   // Array of IDs of goals for combinationParents
   inheritFrom?: { id: string, isInverted?: boolean }[];
   links?: { url: string, description?: string }[] | undefined;

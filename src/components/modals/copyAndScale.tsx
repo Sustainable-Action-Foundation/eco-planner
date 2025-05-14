@@ -262,7 +262,6 @@ export default function CopyAndScale({
       description: goal.description,
       indicatorParameter: goal.indicatorParameter,
       dataUnit: goal.dataSeries?.unit || "",
-      dataScale: goal.dataSeries?.scale || undefined,
       dataSeries: dataSeries,
       roadmapId: copyToId ?? "",
       inheritFrom: [{ id: goal.id }],
@@ -276,11 +275,11 @@ export default function CopyAndScale({
 
   return (
     <>
-      <button 
-        type="button" 
-        className="seagreen color-purewhite smooth padding-block-50 padding-inline-100 smooth" 
+      <button
+        type="button"
+        className="seagreen color-purewhite smooth padding-block-50 padding-inline-100 smooth"
         onClick={() => openModal(modalRef)}
-        style={{padding: '.3rem .6rem', fontSize: '.75rem'}}
+        style={{ padding: '.3rem .6rem', fontSize: '.75rem' }}
       >
         {t("components:copy_and_scale.copy_and_scale")}
       </button>

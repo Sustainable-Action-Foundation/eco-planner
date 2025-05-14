@@ -204,8 +204,6 @@ model DataSeries {
   // Unit used for the yearly fields
   // Ignored if used as goal baseline or action outcome, as those should get their unit from the goal
   unit    String
-  // An optional scale for the data series, for example % or thousands
-  scale   String?
   // Following is a series values for each year from 2020 to 2050
   // These are the goals for each year
   val2020 Float?  @map("val_2020")

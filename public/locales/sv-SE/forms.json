@@ -95,8 +95,6 @@
     "attach_external_resources": "Bifoga externa resurser",
     "feature_this_goal": "Vill du lyfta fram den här $t(common:goal_definite_one) under din $t(common:roadmap_version_one)?",
     "feature_goal": "Lyft fram $t(common:goal_definite_one)",
-    "scale_deprecated": "{{$t(common:goal_definite_one), titleCase}} innehåller en skala. Vänligen baka in skalan i värdet eller enheten och checka sedan i den här rutan. Alla skalor kommer att tas bort i framtiden",
-    "remove_scale": "Ta bort skalan, {{scale}}",
     "leap_parameter": "LEAP parameter",
     "data_unit": "Enhet för dataserie",
     "unit_interpreted_as": "Enheten tolkas som:",

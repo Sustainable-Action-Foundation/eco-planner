@@ -95,8 +95,6 @@
     "attach_external_resources": "Attach external resources",
     "feature_this_goal": "Do you want to feature this $t(common:goal_one) in your $t(common:roadmap_version_one)?",
     "feature_goal": "Feature this $t(common:goal_one)",
-    "scale_deprecated": "This $t(common:goal_one) contains a scale. Please bake the scale into the value or unit and then check this box. All scales will be removed in the future",
-    "remove_scale": "Remove scale, {{scale}}",
     "leap_parameter": "LEAP parameter",
     "data_unit": "Data series unit",
     "unit_interpreted_as": "Unit interpreted as:",

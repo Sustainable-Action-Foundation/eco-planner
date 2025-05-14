@@ -137,7 +137,6 @@ export default function GoalForm({
       indicatorParameter: (form.namedItem("indicatorParameter") as HTMLInputElement)?.value || null,
       dataUnit: parsedUnit || (form.namedItem("dataUnit") as HTMLInputElement)?.value || null,
       dataSeries: dataSeries,
-      dataScale: (form.namedItem("scale") as HTMLInputElement)?.checked ? null : undefined,
       baselineDataSeries: baselineDataSeries,
       combinationScale: JSON.stringify(combinationScale),
       inheritFrom: inheritFrom,
@@ -345,20 +344,6 @@ export default function GoalForm({
             {t("forms:goal.feature_goal")}
           </label>
         </fieldset>
-
-        {
-          currentGoal?.dataSeries?.scale ?
-            <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-              <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>
-                {t("forms:goal.scale_deprecated")}
-              </legend>
-              <label className="flex align-items-center gap-50 margin-block-50">
-                <input type="checkbox" name="scale" id="scale" />
-                {t("forms:goal.remove_scale", { scale: currentGoal?.dataSeries?.scale })}
-              </label>
-            </fieldset>
-            : null
-        }
 
         <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentGoal ? t("common:tsx.save") : t("common:tsx.create")} />
       </form>
