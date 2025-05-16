@@ -120,7 +120,7 @@
     "name_label": "Namn",
     "name_placeholder": "ex. SCB",
     "url_label": "Länk",
-    "url_placeholder": "https://exampel.se"
+    "url_placeholder": "https://example.com"
   },
   "repeatable_scaling": {
     "specific_value_label": "Med vilket värde vill du skala?",
