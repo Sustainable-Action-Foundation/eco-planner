@@ -97,8 +97,9 @@ export default function RoadmapFilters() {
               thisType == RoadmapType.REGIONAL ? t("common:scope.regional_roadmap") :
                 thisType == RoadmapType.MUNICIPAL ? t("common:scope.municipal_roadmap") :
                   thisType == RoadmapType.LOCAL ? t("common:scope.local_roadmap") :
-                    thisType == RoadmapType.OTHER ? t("common:scope.other_roadmap") :
-                      thisType
+                    thisType == RoadmapType.ORGANIZATIONAL ? t("common:scope.organizational_roadmap") :
+                      thisType == RoadmapType.OTHER ? t("common:scope.other_roadmap") :
+                        thisType
             }`}
         </label>
       ))}
