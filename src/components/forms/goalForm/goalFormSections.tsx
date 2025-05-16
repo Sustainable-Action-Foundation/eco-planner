@@ -60,8 +60,8 @@ export function ManualGoalForm({
           }
         }} />
         {parsedUnit ?
-          <p className="margin-block-25">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></p>
-          : <p className="margin-block-25">{t("forms:goal.unit_not_interpreted")}</p>
+          <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></small>
+          : <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_not_interpreted")}</small>
         }
       </label>
 
@@ -176,8 +176,8 @@ export function InheritedGoalForm({
           }
         }} />
         {parsedUnit ?
-          <p className="margin-block-25">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></p>
-          : <p className="margin-block-25">{t("forms:goal.unit_not_interpreted")}</p>
+          <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></small>
+          : <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_not_interpreted")}</small>
         }
       </label>
     </>
@@ -244,8 +244,8 @@ export function CombinedGoalForm({
           }
         }} />
         {parsedUnit ?
-          <p className="margin-block-25">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></p>
-          : <p className="margin-block-25">{t("forms:goal.unit_not_interpreted")}</p>
+          <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></small>
+          : <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_not_interpreted")}</small>
         }
       </label>
 

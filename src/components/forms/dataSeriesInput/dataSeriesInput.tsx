@@ -73,102 +73,79 @@ export default function DataSeriesInput({
   }
 
   return (
-    <>
-      {summaryKey && (
-        <details className="margin-block-75">
-          <summary>
-            {t(summaryKey)}
-          </summary>
-          <p>
-            <Trans
-              i18nKey={"forms:data_series_input.data_series_info"}
-              components={{ strong: <strong />, br: <br /> }}
-            />
-          </p>
-        </details>
-      )}
-
-      <fieldset className="block margin-block-75">
-        <legend className={styles.dataSeriesInputLegend}>{t(labelKey)}</legend>
-        {/* TODO: Make this allow .csv files and possibly excel files */}
-        <div
-          className="padding-25 smooth"
-          style={{ border: "1px solid var(--gray-90)" }}
+    <> 
+      <fieldset className="block margin-block-100 fieldset-unset-pseudo-class">
+        <legend 
+          className="flex flex-wrap-wrap gap-100 justify-content-space-between align-items-center width-100 margin-bottom-100 padding-bottom-25"
+          style={{borderBottom: '1px solid var(--gray)'}}
         >
-          <div className={`flex flex-direction-row justify-content-center padding-bottom-25`}>
-            {/* Button for toggling table visibility */}
-            <button
-              type="button"
-              className={`${styles.tableControlsButton} ${styles.tableVisibilityButton}`}
-              title={tableIsVisible ? t("forms:data_series_input.hide_table") : t("forms:data_series_input.show_table")}
-              onClick={() => {
-                setTableIsVisible(!tableIsVisible);
-              }}
-            >
-              {/* Display different text and image depending on if the table is visible or not */}
-              {tableIsVisible ? (
-                <>
-                  <Image src="/icons/circleMinus.svg" alt={t("forms:data_series_input.hide_table")} width={24} height={24} />
-                  <p>{t("forms:data_series_input.hide_table")}</p>
-                </>
-              ) : (
-                <>
-                  <Image src="/icons/circlePlus.svg" alt={t("forms:data_series_input.show_table")} width={24} height={24} />
-                  <p>{t("forms:data_series_input.show_table")}</p>
-                </>
-              )}
-            </button>
+          {t(labelKey)}
+          {/* Probably just use details for this */}
+          <button
+            type="button"
+            className="round transparent flex gap-50 align-items-center padding-inline-75"
+            title={tableIsVisible ? t("forms:data_series_input.hide_table") : t("forms:data_series_input.show_table")}
+            onClick={() => { setTableIsVisible(!tableIsVisible) }}
+          >
+            {tableIsVisible ? (
+              <>                
+                {t("forms:data_series_input.hide_table")}
+                <Image src="/icons/caret-up.svg" alt="" width={20} height={20} />
+              </>
+            ) : (
+              <>                
+                {t("forms:data_series_input.show_table")}
+                <Image src="/icons/caret-down.svg" alt="" width={20} height={20} />
+              </>
+            )}
+          </button>
+        </legend>
+        {/* TODO: Make this allow .csv files and possibly excel files */}
+ 
+        {tableIsVisible && (
+          <div
+            className={`${styles.inputTable} padding-left-100`}
+          >
+            {dataSeriesDataFieldNames.map((value, index) => (
+              <label key={`year-${index}`} className="flex align-items-center gap-100 ">
+                {value.replace("val", "")}
+                 <input
+                  type="number"
+                  id={value}
+                  name={`${inputName}Input`}
+                  value={dataSeriesValues[index] ?? ""}
+                  style={{marginBlock: '1px'}}
+                  onWheel={(e) => {
+                    // Prevent the value from changing when scrolling
+                    (e.target as HTMLInputElement).blur();
+
+                    // Refocus the input on the next tick to prevent the scroll from changing the value
+                    setTimeout(() => {
+                      (e.target as HTMLInputElement).focus();
+                    }, 0);
+                  }}
+                  onChange={(e) => handleValueChange(e, index)}
+                  onBeforeInput={(e) => {
+                    // Make sure the input is valid
+                    const inputEvent = e.nativeEvent as InputEvent;
+                    if (inputEvent.data && !isValidSingleInputForGrid(inputEvent.data)) {
+                      e.preventDefault();
+                    }
+                  }}
+                  onPaste={(e) => {
+                    // Make sure the pasted input is valid before handling paste
+                    const pasted = e.clipboardData.getData("text");
+                    if (!isValidPastedInput(pasted)) {
+                      e.preventDefault();
+                    } else {
+                      handlePaste(e, index);
+                    }
+                  }}
+                />
+              </label>
+            ))}
           </div>
-
-          {tableIsVisible && (
-            <div
-              className={`${styles.inputTable} smooth`}
-            >
-              {dataSeriesDataFieldNames.map((value, index) => (
-                <label key={`year-${index}`} className="flex align-items-center">
-                  <p
-                    className="padding-left-100 padding-right-100 margin-0 margin-right-25"
-                    style={{ width: "auto" }}
-                  >
-                    {value.replace("val", "")}
-                  </p>
-                  <input
-                    type="number"
-                    id={value}
-                    name={`${inputName}Input`}
-                    value={dataSeriesValues[index] ?? ""}
-                    onWheel={(e) => {
-                      // Prevent the value from changing when scrolling
-                      (e.target as HTMLInputElement).blur();
-
-                      // Refocus the input on the next tick to prevent the scroll from changing the value
-                      setTimeout(() => {
-                        (e.target as HTMLInputElement).focus();
-                      }, 0);
-                    }}
-                    onChange={(e) => handleValueChange(e, index)}
-                    onBeforeInput={(e) => {
-                      // Make sure the input is valid
-                      const inputEvent = e.nativeEvent as InputEvent;
-                      if (inputEvent.data && !isValidSingleInputForGrid(inputEvent.data)) {
-                        e.preventDefault();
-                      }
-                    }}
-                    onPaste={(e) => {
-                      // Make sure the pasted input is valid before handling paste
-                      const pasted = e.clipboardData.getData("text");
-                      if (!isValidPastedInput(pasted)) {
-                        e.preventDefault();
-                      } else {
-                        handlePaste(e, index);
-                      }
-                    }}
-                  />
-                </label>
-              ))}
-            </div>
-          )}
-        </div>
+        )}
       </fieldset>
 
       <details className="margin-block-75">
