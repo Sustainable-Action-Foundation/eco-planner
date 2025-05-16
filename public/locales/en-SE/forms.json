@@ -82,7 +82,7 @@
     "data_series_type_legend": "Choose type of data series for your $t(common:goal_one)",
     "data_series_type_label": "Data series",
     "data_series_types": {
-      "static": "Static",
+      "static": "Manually specified",
       "inherited": "Inherited",
       "combined": "Combined"
     },

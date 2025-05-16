@@ -82,7 +82,7 @@
     "data_series_type_legend": "Välj typ av dataserie för din $t(common:goal_one)",
     "data_series_type_label": "Dataserie",
     "data_series_types": {
-      "static": "Statisk",
+      "static": "Manuellt angiven",
       "inherited": "Ärvd",
       "combined": "Kombinerad"
     },
