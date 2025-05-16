@@ -38,7 +38,7 @@
   },
   "data_series_input": {
     "extra_info_data_series": "Extra information om dataserie",
-    "data_series_info": "Använd semikolon eller tab för att separera värden när du klistrar in en dataserie i tabellen. Detta innebär att man kan klistra in en serie med värden från Excel eller liknande.<br /><strong>OBS: Värden får inte vara separerade med kommatecken (\",\").</strong><br />Decimaltal kan antingen skrivas med punkt eller kommatecken.",
+    "data_series_info": "Använd semikolon, tab eller ny rad för att separera värden när du klistrar in en dataserie i tabellen. Detta innebär att man kan klistra in en serie med värden från Excel eller liknande.<br /><strong>OBS: Värden får inte vara separerade med kommatecken (\",\").</strong><br />Decimaltal kan antingen skrivas med punkt eller kommatecken.",
     "data_series": "Dataserie",
     "data_series_tooltip": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller kommatecken.",
     "custom_baseline": "Anpassad baslinje",

@@ -52,7 +52,8 @@ export default function DataSeriesInput({
 
   function handlePaste(e: React.ClipboardEvent<HTMLInputElement>, startIndex: number) {
     isPasting.current = true;
-    const pastedValues = e.clipboardData.getData("text").split(/[\t;]/);
+    // Splits input at tabs, newlines, carriage returns, vertical tabs, and semicolons (other whitespace is trimmed a few lines below)
+    const pastedValues = e.clipboardData.getData("text").split(/[\t\n\r\v;]/);
     const newValues = [...dataSeriesValues];
 
     for (let i = 0; i < pastedValues.length && i + startIndex < dataSeriesDataFieldNames.length; i++) {
@@ -121,7 +122,7 @@ export default function DataSeriesInput({
 
           {tableIsVisible && (
             <div
-              className={`${styles.inputTable} smooth `}
+              className={`${styles.inputTable} smooth`}
             >
               {dataSeriesDataFieldNames.map((value, index) => (
                 <label key={`year-${index}`} className="flex align-items-center">

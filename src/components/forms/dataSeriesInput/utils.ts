@@ -17,7 +17,7 @@ export const dataSeriesPattern = `(([\\-]?[0-9]+([.,][0-9]+)?)?[\t;]){0,${dataSe
 // Finds data series values in a form, either from the dataSeries or from the dataSeriesInput inputs, and returns them as an array of strings
 export function getDataSeries(form: HTMLFormControlsCollection, dataSeriesInputName: string = "dataSeries") {
   let values = [];
-  
+
   for (const item of form) {
     if (item instanceof HTMLInputElement && item.name == `${dataSeriesInputName}Input`) {
       values.push(item.value);
@@ -42,6 +42,6 @@ export function isValidSingleInputForTextField(char: string): boolean {
 }
 
 export function isValidPastedInput(text: string): boolean {
-  // For onPaste – allows numbers, semicolons, tabs, whitespace, newlines, commas, dots and minus signs
-  return /^[0-9;\t\n\r\s.,-]+$/.test(text);
+  // For onPaste – allows numbers, semicolons, tabs, newlines (CR/LF), vertical tabs, whitespace (any whitespace, including, but not limited to, the ones already mentioned), commas, dots and minus signs
+  return /^[0-9;\t\n\r\v\s.,-]+$/.test(text);
 }
