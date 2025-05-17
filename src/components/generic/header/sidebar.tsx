@@ -41,9 +41,25 @@ export default async function Sidebar() {
               <Image src='/icons/info.svg' alt='' width={24} height={24} />
               {t("components:sidebar.about")}
             </Link>
-            <div className={`${styles.link} cursor-pointer`}>
-              <Image src="/icons/globe.svg" alt={t("components:sidebar.language_alt")} width={24} height={24} />
-              <LanguageSwitcher />
+          </div>
+          <div className={`${styles['menu-settings-wrapper']}`}>
+            <label className={`${styles.link}`}>
+              {/* 
+                TODO: Hide the checkbox, use entire label instead, 
+                show open/closed state by filling cog
+              */}
+              <input type='checkbox' />
+              <Image src="/icons/settings.svg" alt={t("components:sidebar.language_alt")} width={24} height={24} />
+              {/* TODO: i18n */}
+              Inställningar
+            </label>
+            <div className={`${styles['menu-settings-container']}`}>
+              <h2 className='margin-0' style={{fontSize: '1rem'}}>Inställningar</h2>
+              <label className='margin-top-100 block'>
+                {/* TODO: i18n */}
+                <div className='margin-bottom-25'>Välj språk</div>
+                <LanguageSwitcher />
+              </label>
             </div>
           </div>
           {user?.isLoggedIn ?
