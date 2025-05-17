@@ -3,7 +3,7 @@
   border-color: var(--gray);
   border-style: solid;
   font-size: .8rem;
-  grid-template-columns: 35px 1fr;
+  grid-template-columns: 40px 1fr;
 }
 
 fieldset .spreadsheet-label:last-child {

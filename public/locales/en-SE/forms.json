@@ -44,6 +44,8 @@
     "data_series_tooltip": "Use numeric values separated by semicolons or tabs. Decimal numbers can use dots or commas as decimal separators.",
     "show_table": "Expand table",
     "hide_table": "Minimize table",
+    "year": "Year",
+    "value": "Value",
     "add_year": "Add year",
     "remove_year": "Remove year",
     "add_year_to_table": "Add new year to table",

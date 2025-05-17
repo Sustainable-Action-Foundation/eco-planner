@@ -44,6 +44,8 @@
     "custom_baseline": "Anpassad baslinje",
     "show_table": "Expandera tabell",
     "hide_table": "Minimera tabell",
+    "year": "År",
+    "value": "Värde",
     "add_year": "Lägg till år",
     "remove_year": "Ta bort år",
     "add_year_to_table": "Lägg till år i tabellen",

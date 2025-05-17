@@ -80,7 +80,6 @@ export default function DataSeriesInput({
           style={{borderBottom: '1px solid var(--gray)'}}
         >
           {t(labelKey)}
-          {/* Probably just use details for this */}
           <button
             type="button"
             className="round transparent flex gap-50 align-items-center padding-inline-75"
@@ -101,13 +100,16 @@ export default function DataSeriesInput({
           </button>
         </legend>
         {/* TODO: Make this allow .csv files and possibly excel files */}
- 
+        <label className={`${styles['spreadsheet-label']} grid padding-left-100 gap-100 gray-90 font-weight-600`}>
+          <span className="padding-50 text-align-center">{t("forms:data_series_input.year")}</span>
+          <span className="padding-50 padding-left-100" style={{borderLeft: '1px solid var(--gray)'}}>{t("forms:data_series_input.value")}</span>
+        </label>
         {tableIsVisible && (
           <>
             {dataSeriesDataFieldNames.map((value, index) => (
               <label 
                 key={`year-${index}`} 
-                className={`${styles['spreadsheet-label']} grid place-items-center padding-left-100 gap-100 gray-90 font-weight-600`} 
+                className={`${styles['spreadsheet-label']} grid place-items-center padding-left-100 gap-100`} 
               >
                 {value.replace("val", "")}
                 <input
