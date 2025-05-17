@@ -103,18 +103,19 @@ export default function DataSeriesInput({
         {/* TODO: Make this allow .csv files and possibly excel files */}
  
         {tableIsVisible && (
-          <div
-            className={`${styles.inputTable} padding-left-100`}
-          >
+          <>
             {dataSeriesDataFieldNames.map((value, index) => (
-              <label key={`year-${index}`} className="flex align-items-center gap-100 ">
+              <label 
+                key={`year-${index}`} 
+                className={`${styles['spreadsheet-label']} grid place-items-center padding-left-100 gap-100 gray-90 font-weight-600`} 
+              >
                 {value.replace("val", "")}
-                 <input
+                <input
                   type="number"
                   id={value}
                   name={`${inputName}Input`}
                   value={dataSeriesValues[index] ?? ""}
-                  style={{marginBlock: '1px'}}
+                  className={`${styles['spreadsheet-input']} purewhite`}
                   onWheel={(e) => {
                     // Prevent the value from changing when scrolling
                     (e.target as HTMLInputElement).blur();
@@ -144,7 +145,7 @@ export default function DataSeriesInput({
                 />
               </label>
             ))}
-          </div>
+          </>
         )}
       </fieldset>
 

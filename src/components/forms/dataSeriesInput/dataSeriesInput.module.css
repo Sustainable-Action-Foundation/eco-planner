@@ -1,15 +1,35 @@
- .inputTable input:focus {
+.spreadsheet-label {
+  border-width: 1px 1px 0 1px; 
+  border-color: var(--gray);
+  border-style: solid;
+  font-size: .8rem;
+  grid-template-columns: 35px 1fr;
+}
+
+fieldset .spreadsheet-label:last-child {
+  border-width: 1px 0 1px 1px; 
+  border-color: var(--gray);
+  border-style: solid;
+}
+
+.spreadsheet-input {
+  border-left: 1px solid var(--gray);
+  border-radius: 0;
+  font-size: .8rem;
+}
+
+.spreadsheet-input:focus {
   outline: 1px solid var(--seagreen);
- }
+}
 
 /* Hide number incrementors */
-.inputTable input[type="number"] {
+.spreadsheet-input[type="number"] {
   appearance: textfield;
 }
 
 /* Hide number incrementors on webkit browsers */
-.inputTable input::-webkit-inner-spin-button,
-.inputTable input::-webkit-outer-spin-button {
+.spreadsheet-input::-webkit-inner-spin-button,
+.spreadsheet-input::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
