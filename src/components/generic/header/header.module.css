@@ -132,3 +132,13 @@
 .menu-settings-wrapper:has(input[type="checkbox"]:checked) .menu-settings-container {
   display: block;
 }
+  
+.menu-settings-wrapper > label:before {
+  content: url('/icons/settings.svg');
+  display: grid;
+}
+
+.menu-settings-wrapper:has(input[type="checkbox"]:checked) > label:before {
+  content: url('/icons/settings-filled.svg');
+  display: grid;
+}

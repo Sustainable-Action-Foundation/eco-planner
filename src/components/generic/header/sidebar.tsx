@@ -44,12 +44,7 @@ export default async function Sidebar() {
           </div>
           <div className={`${styles['menu-settings-wrapper']}`}>
             <label className={`${styles.link}`}>
-              {/* 
-                TODO: Hide the checkbox, use entire label instead, 
-                show open/closed state by filling cog
-              */}
-              <input type='checkbox' />
-              <Image src="/icons/settings.svg" alt={t("components:sidebar.language_alt")} width={24} height={24} />
+              <input type='checkbox' className='display-none' />
               {/* TODO: i18n */}
               Inställningar
             </label>
