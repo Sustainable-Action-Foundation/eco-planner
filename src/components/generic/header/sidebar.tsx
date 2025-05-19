@@ -43,13 +43,18 @@ export default async function Sidebar() {
             </Link>
           </div>
           <div className={`${styles['menu-settings-wrapper']}`}>
-            <label className={`${styles.link}`}>
-              <input type='checkbox' className='display-none' />
+            <label className={`${styles.link} justify-content-space-between`}>
               {/* TODO: i18n */}
-              Inställningar
+              <div className='flex align-items-center gap-50'>
+                <Image src='/icons/globe.svg' alt='' width={24} height={24} />
+                Välj språk
+              </div>
+              <Image src='/icons/caret-right.svg' alt='' width={16} height={16} />
+              <input type='checkbox' className='display-none' />
             </label>
             <div className={`${styles['menu-settings-container']}`}>
-              <h2 className='margin-0' style={{fontSize: '1rem'}}>Inställningar</h2>
+              {/* TODO: i18n */}
+              <h2 className='margin-0' style={{fontSize: '1rem'}}>Välj språk</h2>
               <label className='margin-top-100 block'>
                 {/* TODO: i18n */}
                 <div className='margin-bottom-25'>Välj språk</div>
