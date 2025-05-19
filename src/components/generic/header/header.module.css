@@ -66,7 +66,6 @@
   width: 12rem;
   padding: 1rem;
   transition: transform .2s ease-in-out, width .2s ease-in-out;
-  overflow: hidden;
   z-index: 998;
   position: relative;
   background-color: white;
@@ -111,4 +110,33 @@
 
 .link:hover {
   background-color: var(--gray-90);
+}
+
+/* Container for settings */
+
+.menu-settings-container {
+  position: absolute;
+  left: 100%;
+  margin-left: 1rem;
+  background-color: white;
+  border: 1px solid var(--gray);
+  bottom: 0;
+  margin-bottom: 1rem;
+  width: 10rem;
+  min-height: 300px;
+  border-radius: .25rem;
+  padding: 1rem;
+  display: none;
+}
+
+.menu-settings-wrapper:has(input[type="checkbox"]:checked) .menu-settings-container {
+  display: block;
+}
+
+.menu-settings-wrapper img[src='/icons/caret-right.svg'] {
+  transition: rotate .2s ease;
+}  
+
+.menu-settings-wrapper:has(input[type="checkbox"]:checked) img[src='/icons/caret-right.svg'] {
+  rotate: 90deg;
 }

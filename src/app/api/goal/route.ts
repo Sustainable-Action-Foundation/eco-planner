@@ -364,7 +364,25 @@ export async function PUT(request: NextRequest) {
     );
   }
 
-  // Prepare goal baseline (if any)
+  // Prepare goal baseline (if any), or deletion thereof
+  // If the baseline data series is null, it means the user wants to delete it. A value of undefined means no change.
+  let shouldRemoveBaseline = goal.baselineDataSeries === null;
+  if (shouldRemoveBaseline) {
+    // Check if current goal has a baseline data series, if not, no need to delete it
+    try {
+      const currentGoal = await prisma.goal.findUnique({
+        where: { id: goal.goalId },
+        select: { baselineDataSeries: true }
+      });
+      if (currentGoal?.baselineDataSeries == null) {
+        // Trying to delete the baseline when it doesn't exist will cause Prisma to throw an error
+        shouldRemoveBaseline = false;
+      }
+    } catch {
+      // Fail silently, this should either already be handled by the access check, or get handled when updating the goal
+    }
+  }
+
   let baselineValues: Partial<DataSeriesDataFields> | undefined | null = undefined;
   if (goal.baselineDataSeries?.length) {
     // Get baseline data series from the request
@@ -415,7 +433,11 @@ export async function PUT(request: NextRequest) {
           }
         ),
         // Only update the baseline data series if it is not undefined (undefined means no change)
-        ...(baselineValues ? {
+        ...(shouldRemoveBaseline ? {
+          baselineDataSeries: {
+            delete: true,
+          },
+        } : baselineValues ? {
           baselineDataSeries: {
             upsert: {
               create: {

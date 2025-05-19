@@ -41,10 +41,21 @@ export default async function Sidebar() {
               <Image src='/icons/info.svg' alt='' width={24} height={24} />
               {t("components:sidebar.about")}
             </Link>
-            <div className={`${styles.link} cursor-pointer`}>
-              <Image src="/icons/globe.svg" alt={t("components:sidebar.language_alt")} width={24} height={24} />
+          </div>
+          <div className={`${styles['menu-settings-wrapper']}`}>
+            <label className={`${styles.link} justify-content-space-between`}>
+              <div className='flex align-items-center gap-50'>
+                <Image src='/icons/globe.svg' alt='' width={24} height={24} />
+                {t("components:sidebar.language")}
+              </div>
+              <Image src='/icons/caret-right.svg' alt='' width={16} height={16} />
+              {/* TODO: Some kind of indication showing this is checked? */}
+              <input type='checkbox' className='display-none' />
+            </label>
+            <fieldset className={`${styles['menu-settings-container']} fieldset-unset-pseudo-class`}>
+              <legend className=' font-weight-600 padding-inline-25'>{t("components:sidebar.language_alt")}</legend>
               <LanguageSwitcher />
-            </div>
+            </fieldset>
           </div>
           {user?.isLoggedIn ?
             <LogoutButton />

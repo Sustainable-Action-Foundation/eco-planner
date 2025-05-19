@@ -24,10 +24,6 @@
       "delta": "Förändring år för år (delta)",
       "percent": "Skillnad gentemot baslinjen i procent av föregående års totalvärde (baslinje + $t(common:action_definite_other))"
     },
-    "extra_info_data_series": "Extra information om dataserie",
-    "data_series_info": "Fältet \"Dataserie\" tar emot en serie med värden som är separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie med värden från Excel eller liknande.<br /><strong>OBS: Värden får inte vara separerade med kommatecken (\",\").</strong><br />Decimaltal kan antingen skrivas med punkt eller kommatecken.<br />Det första värdet representerar år 2020 och serien kan som längst fortsätta till år 2050 (totalt 31 värden).<br />Om värden saknas för ett år kan du lämna det tomt, exempelvis anger \";1;;;;5\" värdena 1 och 5 för år 2021 respektive 2025.",
-    "data_series_label": "Dataserie:",
-    "data_series_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma.",
     "action_years_legend": "Välj pågående år för din $t(common:action_one)",
     "start_year": "Startår",
     "end_year": "Slutår",
@@ -40,6 +36,23 @@
     "category_renewables": "Renewables",
     "attach_external_resources": "Bifoga externa resurser"
   },
+  "data_series_input": {
+    "extra_info_data_series": "Extra information om dataserie",
+    "data_series_info": "Använd semikolon, tab eller ny rad för att separera värden när du klistrar in en dataserie i tabellen. Detta innebär att man kan klistra in en serie med värden från Excel eller liknande.<br /><strong>OBS: Värden får inte vara separerade med kommatecken (\",\").</strong><br />Decimaltal kan antingen skrivas med punkt eller kommatecken.",
+    "data_series": "Dataserie",
+    "data_series_tooltip": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller kommatecken.",
+    "custom_baseline": "Anpassad baslinje",
+    "show_table": "Expandera tabell",
+    "hide_table": "Minimera tabell",
+    "year": "År",
+    "value": "Värde",
+    "add_year": "Lägg till år",
+    "remove_year": "Ta bort år",
+    "add_year_to_table": "Lägg till år i tabellen",
+    "remove_year_from_table": "Ta bort år från tabellen",
+    "advanced": "Avancerade alternativ",
+    "data_series_advanced_info": "Detta fält tar emot en serie med värden som är separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie med värden från Excel eller liknande.<br /><strong>OBS: Värden får inte vara separerade med kommatecken (\",\").</strong><br />Decimaltal kan antingen skrivas med punkt eller kommatecken.<br />Det första värdet representerar år 2020 och serien kan som längst fortsätta till år 2050 (totalt 31 värden).<br />Om värden saknas för ett år kan du lämna det tomt, exempelvis anger \";1;;;;5\" värdena 1 och 5 för år 2021 respektive 2025."
+  },
   "effect": {
     "select_roadmap_version_for_action": "Välj $t(common:roadmap_version_one) som $t(common:action_definite_one) ligger under",
     "select_roadmap_version": "Välj $t(common:roadmap_version_one)",
@@ -50,6 +63,7 @@
     "select_goal_to_affect": "Välj $t(common:goal_one) att påverka",
     "select_goal": "Välj $t(common:goal_one)",
     "unnamed_goal": "Namnlös $t(common:goal_one)",
+    "unit_missing": "Enhet saknas",
     "data_series": "Dataserie",
     "data_series_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma.",
     "to_year_by_year": "Konvertera värden till förändring år för år (delta)",
@@ -70,7 +84,7 @@
     "data_series_type_legend": "Välj typ av dataserie för din $t(common:goal_one)",
     "data_series_type_label": "Dataserie",
     "data_series_types": {
-      "static": "Statisk",
+      "static": "Manuellt angiven",
       "inherited": "Ärvd",
       "combined": "Kombinerad"
     },
@@ -90,8 +104,6 @@
       "custom": "Anpassad baslinje",
       "inherited": "Använd en annan $t(common:goal_one) som baslinje"
     },
-    "custom_baseline_label": "Anpassad baslinje:",
-    "custom_baseline_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller komma.",
     "attach_external_resources": "Bifoga externa resurser",
     "feature_this_goal": "Vill du lyfta fram den här $t(common:goal_definite_one) under din $t(common:roadmap_version_one)?",
     "feature_goal": "Lyft fram $t(common:goal_definite_one)",
@@ -101,10 +113,6 @@
     "data_unit": "Enhet för dataserie",
     "unit_interpreted_as": "Enheten tolkas som:",
     "unit_not_interpreted": "Enheten kunde inte tolkas. Du kan fortfarande spara $t(common:goal_definite_one), men viss funktionalitet kan saknas.",
-    "extra_info_data_series": "Extra information om dataserie",
-    "data_series_info": "Fältet \"Dataserie\" tar emot en serie med värden som är separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie med värden från Excel eller liknande.<br /><strong>OBS: Värden får inte vara separerade med kommatecken (\",\").</strong><br />Decimaltal kan antingen skrivas med punkt eller kommatecken.<br />Det första värdet representerar år 2020 och serien kan som längst fortsätta till år 2050 (totalt 31 värden).<br />Om värden saknas för ett år kan du lämna det tomt, exempelvis anger \";1;;;;5\" värdena 1 och 5 för år 2021 respektive 2025.",
-    "data_series": "Dataserie",
-    "data_series_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller kommatecken.",
     "select_roadmap_version": "Välj en $t(common:roadmap_version_one) att ärva en $t(common:goal_one) från",
     "select_goal_to_inherit": "Välj en $t(common:goal_one) att ärva från",
     "select_goal": "Välj $t(common:goal_one)",
@@ -120,7 +128,7 @@
     "name_label": "Namn",
     "name_placeholder": "ex. SCB",
     "url_label": "Länk",
-    "url_placeholder": "https://exampel.se"
+    "url_placeholder": "https://example.com"
   },
   "repeatable_scaling": {
     "specific_value_label": "Med vilket värde vill du skala?",
