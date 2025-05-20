@@ -13,12 +13,12 @@ import styles from './page.module.css' with { type: "css" }
 import { t } from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';
 
- export async function generateMetadata({
-  params,
- }: {
-  params: { user: string },
- }) {
-
+ export async function generateMetadata( props: {
+  params: Promise<{ user: string }>,
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+  }
+) {
+  const params = await props.params
   let username = params.user;
   const userIndicatorRegEx = /^(@|%40)/;
   if (username?.match(userIndicatorRegEx)) {
