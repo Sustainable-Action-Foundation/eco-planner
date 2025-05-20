@@ -10,7 +10,8 @@ import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
 import { t } from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';
 
-export async function generateMetadata({ params }: { params: { metaRoadmapId: string } }) {
+export async function generateMetadata(props: { params: Promise<{ metaRoadmapId: string }> }) {
+  const params = await props.params
 
   const [metaRoadmap] = await Promise.all([
     getOneMetaRoadmap(params.metaRoadmapId),

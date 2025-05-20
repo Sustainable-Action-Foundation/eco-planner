@@ -6,8 +6,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import sharp from 'sharp';
 
 /* TODO: Get rid of react-dom package as its no longer used */
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-
+export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params
   const [{ goal }] = await Promise.all([
     getOneGoal(params.id).then(async goal => { return { goal, roadmap: (goal ? await getOneRoadmap(goal.id) : null) } }),
   ]);

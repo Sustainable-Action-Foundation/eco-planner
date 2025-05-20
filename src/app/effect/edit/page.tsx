@@ -12,15 +12,7 @@ import { buildMetadata } from "@/functions/buildMetadata";
 
 const editAccess = [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin];
 
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: {
-    actionId?: string | string[] | undefined,
-    goalId?: string | string[] | undefined,
-    [key: string]: string | string[] | undefined
-  },
-}) {
+export async function generateMetadata() { 
   /* TODO: Check if edit access to effect? This probably needs to be done elsewhere aswell? */
   return buildMetadata({
     title: `Redigera effekt`, // TODO: Effects should have a name?
