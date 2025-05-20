@@ -21,10 +21,6 @@ export async function generateMetadata({
     [key: string]: string | string[] | undefined
   },
 }) {
-  const [effect] = await Promise.all([
-    getOneEffect(typeof searchParams.actionId == 'string' ? searchParams.actionId : '', typeof searchParams.goalId == 'string' ? searchParams.goalId : ''),
-  ]);
-
   /* TODO: Check if edit access to effect? This probably needs to be done elsewhere aswell? */
   return buildMetadata({
     title: `Redigera effekt`, // TODO: Effects should have a name?

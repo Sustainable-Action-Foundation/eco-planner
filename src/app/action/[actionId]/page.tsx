@@ -12,11 +12,8 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { t } from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 
-export async function generateMetadata({
-  params,
- }: {
-  params: { actionId: string },
-}){
+export async function generateMetadata(props: { params: Promise<{ actionId: string }> }) {
+  const params = await props.params
   const [action] = await Promise.all([
     getOneAction(params.actionId)
   ]);

@@ -11,7 +11,8 @@ import { t } from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { baseUrl } from "@/lib/baseUrl";
 
-export async function generateMetadata({ params }: { params: { goalId: string } }){
+export async function generateMetadata(props: { params: Promise<{ goalId: string }> }){
+  const params = await props.params;
   const [currentGoal] = await Promise.all([
     getOneGoal(params.goalId),
   ]);

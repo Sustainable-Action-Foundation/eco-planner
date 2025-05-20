@@ -15,7 +15,7 @@ export async function generateMetadata() {
   return buildMetadata({
     title: `Skapa åtgärd`,
     description: undefined,  /* TODO: Separate description? */
-    og_url: `/action/create` /* TODO: How do we handle query params here? */
+    og_url: `/action/create`
   }) 
 }
 

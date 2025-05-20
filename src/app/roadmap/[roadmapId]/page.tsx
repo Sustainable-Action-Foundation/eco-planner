@@ -13,7 +13,8 @@ import { DataSeries, Goal } from "@prisma/client";
 import { t } from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 
-export async function generateMetadata({ params }: { params: { roadmapId: string } }) {
+export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {
+  const params = await props.params
   const [roadmap] = await Promise.all([
     getOneRoadmap(params.roadmapId)
   ]);

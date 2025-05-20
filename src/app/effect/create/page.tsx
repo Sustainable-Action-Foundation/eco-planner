@@ -19,7 +19,6 @@ export async function generateMetadata() {
   }) 
 }
 
-
 export default async function Page(
   props: {
     searchParams: Promise<{

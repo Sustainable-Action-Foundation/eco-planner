@@ -30,11 +30,14 @@ import getTableContent from "@/lib/api/getTableContent";
 import { baseUrl } from "@/lib/baseUrl";
 import { buildMetadata } from "@/functions/buildMetadata";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { goalId: string },
+export async function generateMetadata(props: {
+  params: Promise<{ goalId: string }>,
+    searchParams: Promise<{
+      secondaryGoal?: string | string[] | undefined,
+      [key: string]: string | string[] | undefined
+    }>,
 }) {
+  const params = await props.params
   const [{ goal }] = await Promise.all([
     getOneGoal(params.goalId).then(async goal => { return { goal, roadmap: (goal ? await getOneRoadmap(goal.roadmapId) : null) } }),
   ]);

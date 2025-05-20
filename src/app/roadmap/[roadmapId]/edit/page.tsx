@@ -10,7 +10,8 @@ import { t } from "@/lib/i18nServer";
 import { ScopeReminder } from "@/components/forms/roadmapForm/scopeReminder";
 import { buildMetadata } from "@/functions/buildMetadata";
 
-export async function generateMetadata({ params }: { params: { roadmapId: string } }) {
+export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {
+  const params = await props.params
   const [roadmap] = await Promise.all([
     getOneRoadmap(params.roadmapId)
   ]);
