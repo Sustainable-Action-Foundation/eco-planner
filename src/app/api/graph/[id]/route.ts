@@ -1,12 +1,17 @@
+/*
 import { calculatePredictedOutcome, firstNonNullValue } from '@/components/graphs/functions/graphFunctions';
 import getOneGoal from '@/fetchers/getOneGoal';
 import getOneRoadmap from '@/fetchers/getOneRoadmap';
 import { dataSeriesDataFieldNames } from '@/types';
-import { NextRequest, NextResponse } from 'next/server';
 import sharp from 'sharp';
+*/
+import { NextRequest, NextResponse } from 'next/server';
 
-/* TODO: Get rid of react-dom package as its no longer used */
+/* TODO METADATA: Get rid of react-dom package as its no longer used */
+/* TODO METADATA: Re add all of this once functional */
 export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  return
+  /*
   const params = await props.params
   const [{ goal }] = await Promise.all([
     getOneGoal(params.id).then(async goal => { return { goal, roadmap: (goal ? await getOneRoadmap(goal.id) : null) } }),
@@ -150,4 +155,5 @@ export async function GET(req: NextRequest, props: { params: Promise<{ id: strin
       'Content-Length': pngBuffer.length.toString(),
     },
   });
+  */
 }

@@ -20,7 +20,7 @@ export async function generateMetadata(props: { params: Promise<{ goalId: string
   return buildMetadata({
     title: `Redigera målbana: ${currentGoal?.name}`,
     description: currentGoal?.description,
-    image_url: `${baseUrl}/api/graph/${currentGoal?.id}`, // TODO: Custom image?
+    image_url: undefined, // TODO: Use graph api here once ready?
     og_url: `/goal/${currentGoal?.id}/edit`
   }) 
 }
