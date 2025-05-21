@@ -1,9 +1,17 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import SendResetMail from "@/components/forms/password/resetPassword";
+import { buildMetadata } from "@/functions/buildMetadata";
 import { t } from "@/lib/i18nServer";
 
+export async function generateMetadata() {
+  return buildMetadata({ 
+    title: 'Återställ lösenord',
+    description: undefined,  
+    og_url: '/password'
+  })
+} 
+
 export default function Page() {
- 
   return (
     <>
       <Breadcrumb customSections={[t("pages:password.breadcrumb")]} />

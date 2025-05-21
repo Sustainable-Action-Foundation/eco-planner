@@ -1,6 +1,15 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import ResetPassword from "@/components/forms/password/resetPassword";
+import { buildMetadata } from "@/functions/buildMetadata";
 import { t } from "@/lib/i18nServer";
+
+export async function generateMetadata() {
+  return buildMetadata({ 
+    title: 'Uppdatera lösenord',
+    description: undefined,  
+    og_url: '/password/reset'
+  })
+} 
 
 export default function Page() {
   return (
