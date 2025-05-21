@@ -18,7 +18,7 @@ export default async function RootLayout(
 
   return (
     <html lang={locale}>
-      <head>
+      <head> 
         {/* CSS variable containing the text indicator for optional input fields */}
         <style dangerouslySetInnerHTML={{
           __html: `
