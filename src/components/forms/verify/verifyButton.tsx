@@ -1,9 +1,11 @@
 "use client"
 
+import { useTranslation } from "react-i18next";
 import formSubmitter from "@/functions/formSubmitter";
 
-// TODO: make sure this actually works
-export default function VerifyButton() {
+ export default function VerifyButton() {
+	const { t } = useTranslation();
+	
 	function verify() {
 		const params = new URLSearchParams(window.location.search)
 		const email = params.get('email')
@@ -13,6 +15,6 @@ export default function VerifyButton() {
 	}
 
 	return (
-		<button type="button" className="seagreen color-purewhite font-weight-bold width-100" style={{ fontSize: '1rem' }} onClick={verify}>Verifiera min e-post</button>
+		<button type="button" className="seagreen color-purewhite font-weight-bold width-100" style={{ fontSize: '1rem' }} onClick={verify}>{t("pages:verify_verify.submit")}</button>
 	)
 }
