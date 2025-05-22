@@ -7,9 +7,11 @@ import serveTea from "@/lib/i18nServer";
 import { CommitWithLink, FallbackRemote, Intro, KnownRemote } from "@/app/info/appMetaInfo";
 
 export async function generateMetadata() {
+  const t = await serveTea("pages");
+
   return buildMetadata({
-    title: 'Information',
-    description: undefined,
+    title: t("pages:info.title"),
+    description: t("pages:info.info_body"),
     og_url: '/information'
   })
 }

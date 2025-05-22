@@ -7,6 +7,7 @@ import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata() {
   const t = await serveTea("metadata");
+  
   return buildMetadata({
     title: t("metadata:login.title"),
     description: t("metadata:login.description"),
