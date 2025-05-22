@@ -5,6 +5,8 @@ import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata() {
+  const t = await serveTea();
+
   return buildMetadata({ 
     title: t("pages:verify.title"),
     description: t("pages:verify.description"),  

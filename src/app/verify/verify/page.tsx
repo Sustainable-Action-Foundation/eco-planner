@@ -5,6 +5,8 @@ import VerifyButton from "@/components/forms/verify/verifyButton";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata() {
+  const t = await serveTea();
+
   return buildMetadata({
     title: t("pages:verify_verify.title"),
     description: t("metadata:verify_verify.description"),
