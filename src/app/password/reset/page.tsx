@@ -1,17 +1,18 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import ResetPassword from "@/components/forms/password/resetPassword";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 
 export async function generateMetadata() {
-  return buildMetadata({ 
+  return buildMetadata({
     title: 'Uppdatera lösenord',
-    description: undefined,  
+    description: undefined,
     og_url: '/password/reset'
   })
-} 
+}
 
-export default function Page() {
+export default async function Page() {
+  const t = await serveTea();
   return (
     <>
       <Breadcrumb customSections={[t("pages:password_reset.breadcrumb")]} />

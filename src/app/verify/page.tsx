@@ -1,5 +1,7 @@
+"use server";
+
 import VerifyForm from "@/components/forms/verify/verifyForm.tsx";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata() {
@@ -8,9 +10,10 @@ export async function generateMetadata() {
     description: t("pages:verify.description"),  
     og_url: '/verify'
   })
-} 
+}
 
-export default function Page() {
+export default async function Page() {
+  const t = await serveTea();
   return (
     <main>
       {/* TODO METADATA: Why are theese translations behaving weird? */}

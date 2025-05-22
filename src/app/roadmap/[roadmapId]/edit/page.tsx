@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation';
 import accessChecker from "@/lib/accessChecker";
 import { AccessLevel } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 import { ScopeReminder } from "@/components/forms/roadmapForm/scopeReminder";
 import { buildMetadata } from "@/functions/buildMetadata";
 
@@ -20,11 +20,12 @@ export async function generateMetadata(props: { params: Promise<{ roadmapId: str
     title: `Redigera färdplan: ${roadmap?.metaRoadmap.name}`,
     description: roadmap?.description || roadmap?.metaRoadmap.description, // TODO: Do fallbacks here make sense?
     og_url: `/roadmap/${roadmap?.id}/edit`
-  }) 
+  })
 }
 
 
 export default async function Page(props: { params: Promise<{ roadmapId: string }> }) {
+  const t = await serveTea();
   const params = await props.params;
   const [session, roadmap] = await Promise.all([
     getSession(await cookies()),

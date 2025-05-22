@@ -1,5 +1,5 @@
 import styles from "./localesTest.module.css" with {type: "css"};
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 import { uniqueLocales, ns as namespaces, Locales } from "i18n.config";
 import fs from "node:fs";
 import path from "node:path";
@@ -8,6 +8,7 @@ import { ClientSideT } from "./clientSide";
 import { Stats } from "./stats";
 
 export default async function LocaleTestPage() {
+  const t = await serveTea();
   const defaultArgs = { count: 17, date: new Date(Date.now() - 10000) };
 
   const allFlattened = getAllJSONFlattened()[Locales.default];

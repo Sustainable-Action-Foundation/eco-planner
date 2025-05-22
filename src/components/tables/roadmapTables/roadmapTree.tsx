@@ -9,7 +9,7 @@ import { MetaRoadmap, Roadmap } from "@prisma/client";
 import Link from "next/link";
 import Image from "next/image";
 import { Fragment } from "react";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 
 type RoadmapTreeProps = {
   user: LoginData['user'],
@@ -26,6 +26,7 @@ export default async function RoadmapTree({
   roadmaps,
   user,
 }: RoadmapTreeProps) {
+  const t = await serveTea();
   if (!roadmaps.length) {
     return <p>{t("components:roadmap_tree.no_roadmap_series_ones")}</p>;
   }
@@ -47,7 +48,7 @@ export default async function RoadmapTree({
 /**
  * Does the nesting of roadmaps for the `RoadmapTree` component.
  */
-function NestedRoadmapRenderer({
+async function NestedRoadmapRenderer({
   allRoadmaps,
   childRoadmaps,
   user,
@@ -56,6 +57,7 @@ function NestedRoadmapRenderer({
   childRoadmaps: RoadmapTreeProps['roadmaps'],
   user: RoadmapTreeProps['user'],
 }) {
+  const t = await serveTea();
   return <>
     {childRoadmaps.map(roadmap => {
       let typeAlias = roadmap.metaRoadmap.type.toString();

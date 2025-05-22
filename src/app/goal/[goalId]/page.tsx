@@ -18,7 +18,7 @@ import findSiblings from "@/functions/findSiblings.ts";
 import accessChecker from "@/lib/accessChecker";
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import { getSession } from "@/lib/session";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 import prisma from "@/prismaClient";
 import { AccessControlled, AccessLevel } from "@/types";
 import type { DataSeries, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
@@ -32,10 +32,10 @@ import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata(props: {
   params: Promise<{ goalId: string }>,
-    searchParams: Promise<{
-      secondaryGoal?: string | string[] | undefined,
-      [key: string]: string | string[] | undefined
-    }>,
+  searchParams: Promise<{
+    secondaryGoal?: string | string[] | undefined,
+    [key: string]: string | string[] | undefined
+  }>,
 }) {
   const params = await props.params
   const [{ goal }] = await Promise.all([
@@ -59,6 +59,7 @@ export default async function Page(
     }>,
   }
 ) {
+  const t = await serveTea();
   const searchParams = await props.searchParams;
   const params = await props.params;
   // TODO: Use user locale instead of hardcoded value

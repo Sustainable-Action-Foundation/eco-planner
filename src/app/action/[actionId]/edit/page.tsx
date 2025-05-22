@@ -6,7 +6,7 @@ import accessChecker from "@/lib/accessChecker";
 import getOneAction from "@/fetchers/getOneAction";
 import { AccessControlled, AccessLevel } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata(props: { params: Promise<{ actionId: string }> }) {
@@ -27,6 +27,7 @@ export default async function Page(
     params: Promise<{ actionId: string }>,
   }
 ) {
+  const t = await serveTea();
   const params = await props.params;
   const [session, action] = await Promise.all([
     getSession(await cookies()),

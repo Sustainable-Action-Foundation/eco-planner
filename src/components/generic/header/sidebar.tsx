@@ -7,10 +7,11 @@ import { cookies } from 'next/headers'
 import Link from 'next/link'
 import Image from 'next/image'
 import { LanguageSwitcher } from "@/components/languageSwitcher"
-import { t } from "@/lib/i18nServer"
+import serveTea from "@/lib/i18nServer";
 // import Notifications from '../notifications/notification'
 
 export default async function Sidebar() {
+  const t = await serveTea();
   const { user } = await getSession(await cookies())
 
   return <>

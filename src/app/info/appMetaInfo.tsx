@@ -3,7 +3,7 @@
 import { Trans, useTranslation } from "react-i18next";
 
 export function Intro() {
-  const { t } = useTranslation("info");
+  const { t } = useTranslation("pages");
   return (<>
     <h1>{t("pages:info.title")}</h1>
     <p>

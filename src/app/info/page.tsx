@@ -3,18 +3,19 @@ import { buildMetadata } from "@/functions/buildMetadata";
 import { JSONValue } from "@/types.ts";
 import fs from "fs";
 import metadata from "package.json" with { type: "json" };
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 import { CommitWithLink, FallbackRemote, Intro, KnownRemote } from "@/app/info/appMetaInfo";
 
 export async function generateMetadata() {
-  return buildMetadata({ 
+  return buildMetadata({
     title: 'Information',
-    description: undefined,  
+    description: undefined,
     og_url: '/information'
-  })  
+  })
 }
 
 export default async function Page() {
+  const t = await serveTea();
   const gitHash = { shortHash: process.env.GIT_SHORT_HASH, longHash: process.env.GIT_LONG_HASH };
 
   // If hash is not set in env, try to get it from file

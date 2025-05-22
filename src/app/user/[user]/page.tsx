@@ -10,26 +10,26 @@ import { AccessLevel } from '@/types';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import styles from './page.module.css' with { type: "css" }
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';
 
- export async function generateMetadata( props: {
+export async function generateMetadata(props: {
   params: Promise<{ user: string }>,
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-  }
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
 ) {
   const params = await props.params
   let username = params.user;
   const userIndicatorRegEx = /^(@|%40)/;
   if (username?.match(userIndicatorRegEx)) {
     username = username?.replace(userIndicatorRegEx, '');
-  } 
+  }
 
   return buildMetadata({
     title: `@${username}`,
     description: undefined, // TODO: Should be like a bio or something
     og_url: `/@${username}`
-  })  
+  })
 }
 
 export default async function Page(
@@ -38,6 +38,7 @@ export default async function Page(
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
   }
 ) {
+  const t = await serveTea();
   const searchParams = await props.searchParams;
   const params = await props.params;
 
@@ -133,7 +134,7 @@ export default async function Page(
             <GraphCookie />
           </section>
         </>
-      : null}
+        : null}
 
       <section className='margin-block-300'>
         <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>
@@ -145,28 +146,28 @@ export default async function Page(
         </h2>
 
         <UserFilters userPage={session.user?.username === username} />
-        
+
         <nav>
           {displayedMetaRoadmaps.length > 0 ?
             <section className='margin-block-300'>
               <h3 className='margin-top-0'>{t("pages:profile.roadmap_series_ones")}</h3>
-                <ul className={`${styles.itemsList}`}>
-                    {displayedMetaRoadmaps.map((metaRoadmap, index) =>
-                      <li key={index}>
-                        <div className='inline-block width-100' style={{verticalAlign: 'middle'}}>
-                          <div className='flex justify-content-space-between align-items-center'>
-                              <a href={`/metaRoadmap/${metaRoadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
-                                <h4 className='font-weight-500 margin-0'>{metaRoadmap.name} </h4>
-                                <p className='margin-0'>{t("pages:profile.version_count", {count: metaRoadmap.roadmapVersions.length})}</p>
-                              </a> 
-                            <TableMenu object={metaRoadmap} />
-                          </div>
-                        </div>
-                      </li>
-                    )}
-                </ul>
+              <ul className={`${styles.itemsList}`}>
+                {displayedMetaRoadmaps.map((metaRoadmap, index) =>
+                  <li key={index}>
+                    <div className='inline-block width-100' style={{ verticalAlign: 'middle' }}>
+                      <div className='flex justify-content-space-between align-items-center'>
+                        <a href={`/metaRoadmap/${metaRoadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
+                          <h4 className='font-weight-500 margin-0'>{metaRoadmap.name} </h4>
+                          <p className='margin-0'>{t("pages:profile.version_count", { count: metaRoadmap.roadmapVersions.length })}</p>
+                        </a>
+                        <TableMenu object={metaRoadmap} />
+                      </div>
+                    </div>
+                  </li>
+                )}
+              </ul>
             </section>
-          : null}
+            : null}
 
           {displayedRoadmaps.length > 0 ?
             <section className='margin-block-300'>
@@ -174,20 +175,20 @@ export default async function Page(
               <ul className={`${styles.itemsList}`}>
                 {displayedRoadmaps.map((roadmap, index) =>
                   <li key={index}>
-                    <div className='inline-block width-100' style={{verticalAlign: 'middle'}}>
+                    <div className='inline-block width-100' style={{ verticalAlign: 'middle' }}>
                       <div className='flex justify-content-space-between align-items-center'>
                         <a href={`/roadmap/${roadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
                           <h4 className='font-weight-500 margin-0'>{roadmap.metaRoadmap.name} {`(v${roadmap.version})`}</h4>
-                          <p className='margin-0'>{t("common:count.goal", {count: roadmap._count.goals})}</p>
-                        </a> 
+                          <p className='margin-0'>{t("common:count.goal", { count: roadmap._count.goals })}</p>
+                        </a>
                         <TableMenu object={roadmap} />
                       </div>
                     </div>
                   </li>
                 )}
-            </ul>
-          </section>
-        : null }
+              </ul>
+            </section>
+            : null}
 
         </nav>
       </section>

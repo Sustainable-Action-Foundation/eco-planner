@@ -1,10 +1,12 @@
 import getUserHash from "@/functions/getUserHash";
 import { baseUrl } from "@/lib/baseUrl";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 import mailClient from "@/mailClient";
 import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
+  const t = await serveTea();
+
   // Get email from request body
   const { email } = await request.json().catch(() => null);
   if (!email || typeof email !== 'string') {

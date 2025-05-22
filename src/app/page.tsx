@@ -8,21 +8,22 @@ import RoadmapFilters from "@/components/forms/filters/roadmapFilters";
 import { RoadmapSortBy } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree.tsx";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 import Link from "next/link";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata() {
-  return buildMetadata({ 
+  return buildMetadata({
     title: undefined,
-    description: undefined,  
+    description: undefined,
     og_url: undefined
-  })  
+  })
 }
 
 export default async function Page(
   props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }
 ) {
+  const t = await serveTea();
   const searchParams = await props.searchParams;
   const [session, metaRoadmaps] = await Promise.all([
     getSession(await cookies()),
