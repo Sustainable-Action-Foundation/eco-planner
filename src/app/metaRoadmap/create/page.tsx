@@ -16,8 +16,8 @@ export async function generateMetadata() {
 }
 
 export default async function Page() {
-  const t = await serveTea();
-  const [session, parentRoadmapOptions] = await Promise.all([
+  const [t, session, parentRoadmapOptions] = await Promise.all([
+    serveTea("pages"),
     getSession(await cookies()),
     getMetaRoadmaps(),
   ]);

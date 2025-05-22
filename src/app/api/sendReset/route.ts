@@ -5,7 +5,7 @@ import mailClient from "@/mailClient";
 import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
-  const t = await serveTea();
+  const t = await serveTea("email");
 
   // Get email from request body
   const { email } = await request.json().catch(() => null);

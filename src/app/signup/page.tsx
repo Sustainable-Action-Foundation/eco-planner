@@ -15,7 +15,7 @@ export async function generateMetadata() {
 }
 
 export default async function Page() {
-  const t = await serveTea();
+  const t = await serveTea("pages");
   return (
     <>
       <Breadcrumb customSections={[t("pages:signup.breadcrumb")]} />

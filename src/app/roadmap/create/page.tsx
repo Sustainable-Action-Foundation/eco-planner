@@ -27,9 +27,9 @@ export default async function Page(
     }>
   }
 ) {
-  const t = await serveTea();
   const searchParams = await props.searchParams;
-  const [session, parent, metaRoadmapAlternatives] = await Promise.all([
+  const [t, session, parent, metaRoadmapAlternatives] = await Promise.all([
+    serveTea("pages"),
     getSession(await cookies()),
     getOneMetaRoadmap(typeof searchParams.metaRoadmapId == 'string' ? searchParams.metaRoadmapId : ''),
     getMetaRoadmaps(),

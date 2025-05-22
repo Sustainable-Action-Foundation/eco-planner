@@ -23,9 +23,9 @@ export async function generateMetadata() {
 export default async function Page(
   props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }
 ) {
-  const t = await serveTea();
-  const searchParams = await props.searchParams;
-  const [session, metaRoadmaps] = await Promise.all([
+  const [t, searchParams, session, metaRoadmaps] = await Promise.all([
+    serveTea("pages"),
+    props.searchParams,
     getSession(await cookies()),
     getMetaRoadmaps(),
   ]);

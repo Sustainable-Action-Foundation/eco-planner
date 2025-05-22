@@ -11,7 +11,7 @@ export default async function ActionGraph({
 }: {
   actions: Action[],
 }) {
-  const t = await serveTea();
+  const t = await serveTea("graphs");
   const series: ApexAxisChartSeries = [];
   const actionData = []
 

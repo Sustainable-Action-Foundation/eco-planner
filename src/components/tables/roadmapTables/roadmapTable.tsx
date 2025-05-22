@@ -29,7 +29,7 @@ export default async function RoadmapTable({
   roadmaps,
   metaRoadmap,
 }: RoadmapTableProps) {
-  const t = await serveTea();
+  const t = await serveTea(["components", "common"]);
   // Failsafe in case wrong props are passed
   if ((!roadmaps && !metaRoadmap) || (roadmaps && metaRoadmap)) throw new Error('RoadmapTable: Either `roadmaps` XOR `metaRoadmap` must be provided');
 

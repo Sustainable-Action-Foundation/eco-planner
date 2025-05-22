@@ -11,8 +11,10 @@ import serveTea from "@/lib/i18nServer";
 // import Notifications from '../notifications/notification'
 
 export default async function Sidebar() {
-  const t = await serveTea();
-  const { user } = await getSession(await cookies())
+  const [t, { user }] = await Promise.all([
+    serveTea(["components", "common"]),
+    getSession(await cookies()),
+  ]);
 
   return <>
     <aside className={styles.container}>

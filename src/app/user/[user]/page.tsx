@@ -38,9 +38,11 @@ export default async function Page(
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
   }
 ) {
-  const t = await serveTea();
-  const searchParams = await props.searchParams;
-  const params = await props.params;
+  const [t, params, searchParams] = await Promise.all([
+    serveTea(["pages", "common"]),
+    props.params,
+    props.searchParams
+  ]);
 
   let username = params.user;
 

@@ -19,7 +19,7 @@ export default async function RootLayout(
     headerContent.get("accept-language"),
   );
 
-  const t = await serveTea();
+  const t = await serveTea("common");
 
   return (
     <html lang={locale}>

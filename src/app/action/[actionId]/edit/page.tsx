@@ -19,7 +19,7 @@ export async function generateMetadata(props: { params: Promise<{ actionId: stri
     title: `Redigera åtgärd: ${action?.name}`,
     description: action?.description,
     og_url: `/goal/${action?.id}/edit` // TODO: Query params?
-  }) 
+  })
 }
 
 export default async function Page(
@@ -27,9 +27,9 @@ export default async function Page(
     params: Promise<{ actionId: string }>,
   }
 ) {
-  const t = await serveTea();
   const params = await props.params;
-  const [session, action] = await Promise.all([
+  const [t, session, action] = await Promise.all([
+    serveTea("pages"),
     getSession(await cookies()),
     getOneAction(params.actionId)
   ]);
@@ -57,7 +57,7 @@ export default async function Page(
 
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          {t("pages:action_edit.title", { 
+          {t("pages:action_edit.title", {
             actionName: action.name,
             roadmapName: action.roadmap.metaRoadmap.name,
             version: action.roadmap.version
