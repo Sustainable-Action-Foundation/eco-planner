@@ -3,17 +3,22 @@ import type { MetadataRoute } from 'next'
 {/* TODO METADATA: Get this working on android */}
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Next.js PWA',
-    short_name: 'NextPWA',
-    description: 'A Progressive Web App built with Next.js',
+    name: 'Eco - planner',
+    short_name: 'Eco - planner',
+    description: 'Ett verktyg som stödjer Sveriges klimatomställning genom lokala handlingsplaner, gemensam åtgärdsdatabas och samarbete kring färdplaner',
     start_url: '/',
     display: 'standalone',
-    background_color: '#ffffff',
-    theme_color: '#000000',
+    background_color: '#191919',
+    theme_color: '#fefefe',
     icons: [
       {
-        src: '/favicon/favicon-96x96.png',
-        sizes: '96x96',
+        src: '/favicon/web-app-manifest-192x192.png',
+        sizes: '192x192',
+        type: 'image/png',
+      }, 
+      {
+        src: '/favicon/web-app-manifest-512x512.png',
+        sizes: '512x512',
         type: 'image/png',
       }, 
     ],
