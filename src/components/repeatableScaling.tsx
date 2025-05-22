@@ -48,8 +48,8 @@ export default function RepeatableScaling({
   defaultSpecificValue?: number,
   useWeight?: boolean
 }) {
-  const { t } = useTranslation();
-  
+  const { t } = useTranslation("forms");
+
   const [scaleBy, setScaleBy] = useState<ScaleBy | "">(defaultScaleBy ?? "");
   const [numericInput, setNumericInput] = useState<number | null>(null);
   const [parentValue, setParentValue] = useState<number | null>(null);

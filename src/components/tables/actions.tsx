@@ -34,7 +34,7 @@ export default function ActionTable({
   accessLevel?: AccessLevel,
   roadmapId?: string,
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("components");
 
   // If no actions are found, return a message
   if (!actions?.length) return (

@@ -89,7 +89,7 @@ function addUser(name: string | undefined, selectedOptions: string[], selectedSe
 }
 
 export function EditUsers({ existingUsers, groupOptions, existingGroups }: { existingUsers?: string[], groupOptions: string[], existingGroups?: string[] }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("forms");
 
   // The users that have editing access to the item
   const [editUsers, setEditUsers] = useState<string[]>(existingUsers ?? []);
@@ -103,7 +103,6 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
 
   return (
     <>
-
       <fieldset className="margin-bottom-100">
         <legend>{t("forms:access_selector.groups_with_edit_access")}</legend>
         <ul className="padding-left-100" style={{ listStyle: 'none' }}>
@@ -150,13 +149,12 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
         onClick={() => { addUser(editorRef.current?.value, editUsers, setEditUsers); if (editorRef.current) editorRef.current.value = '' }}>
         {t("forms:access_selector.add_user")}
       </button>
-
     </>
   )
 }
 
 export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPublic }: { existingUsers?: string[], groupOptions: string[], existingGroups?: string[], isPublic?: boolean }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("forms");
 
   // The users that have viewing access to the item
   const [viewUsers, setViewUsers] = useState<string[]>(existingUsers ?? []);

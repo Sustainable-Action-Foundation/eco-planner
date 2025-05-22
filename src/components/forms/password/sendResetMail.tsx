@@ -2,7 +2,7 @@
 
 import formSubmitter from "@/functions/formSubmitter"
 import { useTranslation } from "react-i18next"
-import Image from "next/image" 
+import Image from "next/image"
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
   event.preventDefault()
@@ -16,7 +16,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
 
 
 export default function SendResetMail() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["pages", "common"]);
 
   return (
     <form onSubmit={handleSubmit}>

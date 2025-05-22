@@ -26,7 +26,7 @@ export default function ActionForm({
     links: { url: string, description: string | null }[],
   },
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["forms", "common"]);
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()

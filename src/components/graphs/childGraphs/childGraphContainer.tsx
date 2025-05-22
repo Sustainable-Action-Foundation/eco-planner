@@ -24,7 +24,7 @@ export default function ChildGraphContainer({
   childGoals: (Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null, effects: (Effect & { dataSeries: DataSeries | null })[], roadmapName?: string })[],
   children?: React.ReactNode,
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("graphs");
 
   const [childGraphType, setChildGraphType] = useState<ChildGraphType>(ChildGraphType.Target);
   // Default to stacked unless the unit is percent or fraction

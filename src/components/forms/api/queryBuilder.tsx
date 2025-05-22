@@ -22,7 +22,7 @@ export default function QueryBuilder({
 }: {
   goal: Goal,
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("components");
   // Locale has the format language-locale, e.g. "sv-SE" or "en-US"
   // We only need the language part, so we split it and take the first part
   // TODO: Fix typing, use match() instead of casting

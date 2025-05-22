@@ -3,9 +3,9 @@
 import { useTranslation } from "react-i18next";
 import formSubmitter from "@/functions/formSubmitter";
 
- export default function VerifyButton() {
-	const { t } = useTranslation();
-	
+export default function VerifyButton() {
+	const { t } = useTranslation("pages");
+
 	function verify() {
 		const params = new URLSearchParams(window.location.search)
 		const email = params.get('email')

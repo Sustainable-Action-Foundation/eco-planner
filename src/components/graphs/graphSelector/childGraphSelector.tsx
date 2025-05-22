@@ -15,7 +15,7 @@ export default function ChildGraphSelector({
   currentSelection: ChildGraphType,
   setter: Dispatch<SetStateAction<ChildGraphType>>
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("graphs");
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     if (Object.values(ChildGraphType).includes(event.target.value as ChildGraphType)) {

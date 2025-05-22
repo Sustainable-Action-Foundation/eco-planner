@@ -16,7 +16,7 @@ export default function MainRelativeGraph({
   parentGoal: Goal & { dataSeries: DataSeries | null } | null,
   parentGoalRoadmap: Roadmap & { metaRoadmap: MetaRoadmap } | null,
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("graphs");
 
   if (!goal.dataSeries || ["procent", "percent", "andel", "ratio", "fraction"].includes(goal.dataSeries.unit.toLowerCase())) {
     return null;

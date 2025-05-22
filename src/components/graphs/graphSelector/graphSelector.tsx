@@ -17,7 +17,7 @@ export default function GraphSelector({
   currentSelection: GraphType | "",
   setter: Dispatch<SetStateAction<GraphType | "">>
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["graphs", "common"]);
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setStoredGraphType(event.target.value, goal.id);
