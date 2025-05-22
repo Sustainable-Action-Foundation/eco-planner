@@ -2,7 +2,7 @@ import Signup from "@/components/forms/userInfo/signup";
 import AttributedImage, { AttributeText } from "@/components/generic/images/attributedImage";
 import styles from "./page.module.css" with { type: "css" };
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata() {
@@ -11,10 +11,11 @@ export async function generateMetadata() {
     description: undefined, // TODO: Seperate description for this page?  
     image_url: '/images/og_hydro.png',
     og_url: '/signup'
-  })  
+  })
 }
 
 export default async function Page() {
+  const t = await serveTea();
   return (
     <>
       <Breadcrumb customSections={[t("pages:signup.breadcrumb")]} />

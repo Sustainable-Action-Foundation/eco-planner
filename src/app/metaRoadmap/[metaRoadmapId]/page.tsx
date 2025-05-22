@@ -7,7 +7,7 @@ import { notFound } from "next/navigation";
 import RoadmapTable from "@/components/tables/roadmapTables/roadmapTable";
 import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata(props: { params: Promise<{ metaRoadmapId: string }> }) {
@@ -26,6 +26,7 @@ export async function generateMetadata(props: { params: Promise<{ metaRoadmapId:
 
 
 export default async function Page(props: { params: Promise<{ metaRoadmapId: string }> }) {
+  const t = await serveTea();
   const params = await props.params;
   const [session, metaRoadmap] = await Promise.all([
     getSession(await cookies()),

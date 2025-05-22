@@ -7,7 +7,7 @@ import Image from "next/image";
 import { AccessLevel } from "@/types";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata() {
@@ -15,7 +15,7 @@ export async function generateMetadata() {
     title: `Skapa målbana`,
     description: undefined,  /* TODO: Seperate description? */
     og_url: `/goal/create` /* TODO: How do we handle query params here? */
-  }) 
+  })
 }
 
 export default async function Page(
@@ -26,6 +26,7 @@ export default async function Page(
     }>
   }
 ) {
+  const t = await serveTea();
   const searchParams = await props.searchParams;
   const [session, roadmap, roadmapList] = await Promise.all([
     getSession(await cookies()),

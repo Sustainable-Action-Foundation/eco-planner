@@ -7,7 +7,7 @@ import getOneMetaRoadmap from '@/fetchers/getOneMetaRoadmap';
 import accessChecker from '@/lib/accessChecker';
 import { AccessLevel } from '@/types';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';
 
 export async function generateMetadata(props: { params: Promise<{ metaRoadmapId: string }> }) {
@@ -17,15 +17,16 @@ export async function generateMetadata(props: { params: Promise<{ metaRoadmapId:
     getOneMetaRoadmap(params.metaRoadmapId),
   ]);
 
-  return buildMetadata({ 
+  return buildMetadata({
     title: `Redigera färdplansserie: ${metaRoadmap?.name}`, // TODO: UUID To long if no name here?
     description: metaRoadmap?.description,  /* TODO: Seperate description? */
     og_url: `roadmap/${metaRoadmap?.id}/edit` // TODO: metaroadmap?.id fine?
-  })  
+  })
 }
 
 
 export default async function Page(props: { params: Promise<{ metaRoadmapId: string }> }) {
+  const t = await serveTea();
   const params = await props.params;
   const [session, currentRoadmap, parentRoadmapOptions] = await Promise.all([
     getSession(await cookies()),

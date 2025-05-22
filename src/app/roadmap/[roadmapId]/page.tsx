@@ -10,7 +10,7 @@ import ThumbnailGraph from "@/components/graphs/mainGraphs/thumbnailGraph";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import Image from "next/image";
 import { DataSeries, Goal } from "@prisma/client";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {
@@ -27,6 +27,7 @@ export async function generateMetadata(props: { params: Promise<{ roadmapId: str
 }
 
 export default async function Page(props: { params: Promise<{ roadmapId: string }> }) {
+  const t = await serveTea();
   const params = await props.params;
   const [session, roadmap] = await Promise.all([
     getSession(await cookies()),

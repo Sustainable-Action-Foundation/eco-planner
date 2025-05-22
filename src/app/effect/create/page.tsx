@@ -8,7 +8,7 @@ import { getSession } from "@/lib/session.ts";
 import { AccessLevel } from "@/types.ts";
 import { cookies } from "next/headers";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata() {
@@ -16,7 +16,7 @@ export async function generateMetadata() {
     title: `Skapa effekt`,
     description: undefined,  /* TODO: Seperate description? */
     og_url: `/effect/create` /* TODO: How do we handle query params here? */
-  }) 
+  })
 }
 
 export default async function Page(
@@ -28,6 +28,7 @@ export default async function Page(
     }>,
   }
 ) {
+  const t = await serveTea();
   const searchParams = await props.searchParams;
   const [session, action, goal, roadmaps] = await Promise.all([
     getSession(await cookies()),

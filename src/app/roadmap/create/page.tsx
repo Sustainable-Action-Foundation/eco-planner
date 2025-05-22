@@ -8,15 +8,15 @@ import Image from "next/image";
 import { AccessLevel } from '@/types';
 import accessChecker from '@/lib/accessChecker';
 import getOneMetaRoadmap from '@/fetchers/getOneMetaRoadmap';
-import { t } from '@/lib/i18nServer';
+import serveTea from "@/lib/i18nServer";;
 import { buildMetadata } from '@/functions/buildMetadata';
 
 export async function generateMetadata() {
-  return buildMetadata({ 
-    title: 'Skapa ny färdplan', 
+  return buildMetadata({
+    title: 'Skapa ny färdplan',
     description: undefined,  /* TODO: Seperate description? */
     og_url: '/roadmap/create' /* TODO: How do we handle query params here? */
-  })  
+  })
 }
 
 export default async function Page(
@@ -27,6 +27,7 @@ export default async function Page(
     }>
   }
 ) {
+  const t = await serveTea();
   const searchParams = await props.searchParams;
   const [session, parent, metaRoadmapAlternatives] = await Promise.all([
     getSession(await cookies()),

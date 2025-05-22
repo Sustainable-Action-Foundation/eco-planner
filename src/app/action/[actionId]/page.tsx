@@ -9,7 +9,7 @@ import accessChecker from "@/lib/accessChecker";
 import Comments from "@/components/comments/comments";
 import EffectTable from "@/components/tables/effects.tsx";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata(props: { params: Promise<{ actionId: string }> }) {
@@ -27,6 +27,7 @@ export async function generateMetadata(props: { params: Promise<{ actionId: stri
 }
 
 export default async function Page(props: { params: Promise<{ actionId: string }> }) {
+  const t = await serveTea();
   const params = await props.params;
   const [session, action] = await Promise.all([
     getSession(await cookies()),

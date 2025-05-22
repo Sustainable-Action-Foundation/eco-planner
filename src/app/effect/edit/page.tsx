@@ -7,12 +7,12 @@ import { getSession } from "@/lib/session.ts";
 import { AccessLevel } from "@/types.ts";
 import { cookies } from "next/headers";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 const editAccess = [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin];
 
-export async function generateMetadata() { 
+export async function generateMetadata() {
   /* TODO: Check if edit access to effect? This probably needs to be done elsewhere aswell? */
   return buildMetadata({
     title: `Redigera effekt`, // TODO: Effects should have a name?
@@ -31,6 +31,7 @@ export default async function Page(
     }>,
   }
 ) {
+  const t = await serveTea();
   const searchParams = await props.searchParams;
   const [session, effect, roadmaps] = await Promise.all([
     getSession(await cookies()),
