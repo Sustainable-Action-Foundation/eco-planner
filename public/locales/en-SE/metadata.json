@@ -8,5 +8,13 @@
   },  
   "password_reset": {
     "description": "Update password"
+  },
+  "signup": {
+    "title": "Create account",
+    "description": "Create an Eco - planner account"
+  },
+  "login": {
+    "title": "Log in",
+    "description": "Log in to Eco - planner"
   }
 }

@@ -79,7 +79,7 @@
     "commit_without_link": "Based on commit: {{commit}}"
   },
   "login": {
-    "breadcrumb": "Login"
+    "breadcrumb": "Log in"
   },
   "password": {
     "breadcrumb": "Reset password",

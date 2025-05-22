@@ -8,5 +8,13 @@
   }, 
   "password_reset": {
     "description": "Uppdatera lösenord"
+  },
+  "signup": {
+    "title": "Skapa konto",
+    "description": "Skapa ett konto hos Eco - planner"
+  },
+  "login": {
+    "title": "Logga in",
+    "description": "Logga in till Eco - planner"
   }
 }

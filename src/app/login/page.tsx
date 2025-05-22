@@ -6,9 +6,10 @@ import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata() {
+  const t = await serveTea("metadata");
   return buildMetadata({
-    title: 'Logga in',
-    description: undefined, // TODO: Seperate description for this page?  
+    title: t("metadata:login.title"),
+    description: t("metadata:login.description"),
     image_url: '/images/og_wind.png',
     og_url: '/login'
   })
