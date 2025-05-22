@@ -12,10 +12,12 @@ import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata() {
+  const t = await serveTea("metadata")
+
   return buildMetadata({
-    title: `Skapa effekt`,
-    description: undefined,  /* TODO: Seperate description? */
-    og_url: `/effect/create` /* TODO: How do we handle query params here? */
+    title: t("metadata:effect_create.title"),
+    description: t("metadata:effect_create.description"), 
+    og_url: `/effect/create` /* TODO METADATA: How do we handle query params here? */
   })
 }
 

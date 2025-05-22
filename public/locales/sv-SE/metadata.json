@@ -37,5 +37,19 @@
   "goal_create": {
     "title": "Skapa målbana",
     "description": "Skapa en ny målbana"
+  },
+  "effect_edit": {
+    "title": "Redigera effekt"
+  },
+  "effect_create": {
+    "title": "Skapa effekt",
+    "description": "Skapa en ny effekt"
+  },
+  "action_edit": {
+    "title": "Redigera åtgärd:"
+  },
+  "action_create": {
+    "title": "Skapa åtgärd",
+    "description": "Skapa en ny åtgärd"
   }
 }

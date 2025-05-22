@@ -37,5 +37,19 @@
   "goal_create": {
     "title": "Create goal",
     "description": "Create a new goal"
+  },
+  "effect_edit": {
+    "title": "Edit effect"
+  },
+  "effect_create": {
+    "title": "Create effect",
+    "description": "Create a new effect"
+  },
+  "action_edit": {
+    "title": "Edit action:"
+  },
+  "action_create": {
+    "title": "Create action",
+    "description": "Create a new action"
   }
 }

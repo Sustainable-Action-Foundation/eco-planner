@@ -11,14 +11,15 @@ import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata(props: { params: Promise<{ actionId: string }> }) {
   const params = await props.params
-  const [action] = await Promise.all([
+  const [t, action] = await Promise.all([
+    serveTea("metadata"),
     getOneAction(params.actionId)
   ]);
 
   return buildMetadata({
-    title: `Redigera åtgärd: ${action?.name}`,
+    title: `${t("metadata:action_edit.title")} ${action?.name}`,
     description: action?.description,
-    og_url: `/goal/${action?.id}/edit` // TODO: Query params?
+    og_url: `/goal/${action?.id}/edit` // TODO METADATA: Query params?
   })
 }
 

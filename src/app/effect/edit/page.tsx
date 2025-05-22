@@ -13,11 +13,12 @@ import { buildMetadata } from "@/functions/buildMetadata";
 const editAccess = [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin];
 
 export async function generateMetadata() {
-  /* TODO: Check if edit access to effect? This probably needs to be done elsewhere aswell? */
+  const t = await serveTea("metadata")
+
   return buildMetadata({
-    title: `Redigera effekt`, // TODO: Effects should have a name?
-    description: undefined,
-    og_url: `/effect/edit` // TODO: Query params?
+    title: t("metadata:effect_edit.title"), 
+    description: undefined, // TODO METADATA: description?
+    og_url: `/effect/edit` // TODO METADATA: Query params?
   })
 }
 
