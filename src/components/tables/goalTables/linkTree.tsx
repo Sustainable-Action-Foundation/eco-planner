@@ -37,7 +37,8 @@ export default function LinkTree({
   goals,
   roadmap,
 }: LinkTreeProps) {
-  const { t } = useTranslation();
+  // common is used in goalsToTree, which this TFunction is passed into
+  const { t } = useTranslation(["components", "common"]);
 
   // Failsafe in case wrong props are passed
   if ((!goals && !roadmap) || (goals && roadmap)) throw new Error('LinkTree: Either `goals` XOR `roadmap` must be provided');

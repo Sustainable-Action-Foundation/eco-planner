@@ -20,10 +20,10 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
 }
 
 export default function SendResetMail() {
-  const { t } = useTranslation();
-  
+  const { t } = useTranslation(["pages", "common"]);
+
   const [showPassword, setShowPassword] = useState(false)
-  
+
   return (
     <form onSubmit={handleSubmit}>
       <label className="block margin-block-100">

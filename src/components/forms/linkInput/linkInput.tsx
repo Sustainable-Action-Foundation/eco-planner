@@ -5,7 +5,7 @@ import Image from "next/image"
 import { useTranslation } from "react-i18next";
 
 export default function LinkInput({ links }: { links?: { url: string, description: string | null }[] }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("forms");
 
   // The list of links
   const [linkList, setLinkList] = useState<{ url: string, description: string | null }[]>(links ?? [])

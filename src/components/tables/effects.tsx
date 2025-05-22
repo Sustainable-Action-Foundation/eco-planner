@@ -27,7 +27,7 @@ export default function EffectTable({
   object,
   accessLevel,
 }: EffectTableComonProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("components");
 
   // If no effects are found, show a message
   if (!object.effects.length) {

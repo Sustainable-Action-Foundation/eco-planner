@@ -7,7 +7,7 @@ import { setStoredViewMode } from '../functions/tableFunctions';
 import { useTranslation } from "react-i18next";
 
 export default function TableSelector({ id, current, setter }: { id: string, current: ViewMode | "", setter: Dispatch<SetStateAction<ViewMode | "">> }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("components");
 
   const handleRadioChange = (event: ChangeEvent<HTMLInputElement>) => {
     setStoredViewMode(event.target.value, id);

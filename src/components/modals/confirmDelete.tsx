@@ -12,12 +12,12 @@ export default function ConfirmDelete({
   targetName,
   targetId,
 }: {
-  modalRef: React.MutableRefObject<HTMLDialogElement | null>;
+  modalRef: React.RefObject<HTMLDialogElement | null>;
   targetUrl: string;
   targetName: string;
   targetId?: string | { actionId: string, goalId: string };
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["components", "common"]);
 
   const [isLoading, setIsLoading] = useState(false);
   let elementId: string;

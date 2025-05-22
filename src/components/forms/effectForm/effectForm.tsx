@@ -27,7 +27,7 @@ export default function EffectForm({
     goal: Awaited<ReturnType<typeof getOneGoal>> | null,
   },
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["forms", "common"]);
 
   const [selectedImpactType, setSelectedImpactType] = useState<ActionImpactType>(currentEffect?.impactType || ActionImpactType.ABSOLUTE);
   // Use existing data series converted to a string as a default value

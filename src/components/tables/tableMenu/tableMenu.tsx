@@ -74,7 +74,7 @@ export function TableMenu(
       })
     )
   }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["components", "common"]);
 
   const menu = useRef<HTMLDialogElement | null>(null);
   const deletionRef = useRef<HTMLDialogElement | null>(null);
@@ -127,7 +127,7 @@ export function TableMenu(
   else if (object.isSufficiency != undefined) {
     selfLink = `/action/${object.id}`;
     parentLink = `/roadmap/${object.roadmapId}`;
-    parentDescription = t("components:table_menu.go_to_version"); 
+    parentDescription = t("components:table_menu.go_to_version");
     creationLink = `/effect/create?actionId=${object.id}`;
     creationDescription = t("components:table_menu.new_effect");
     editLink = `/action/${object.id}/edit`;
@@ -142,7 +142,7 @@ export function TableMenu(
     deleteLink = '/api/effect';
     if (!object.name) {
       // object.name = object.action?.name ? `Effekt från ${object.action.name}` : object.goal ? (object.goal.name || object.goal.indicatorParameter) : "Namn saknas";
-      object.name = object.action?.name ? t("components:table_menu.effect_from_action", {source: object.action.name}) : object.goal ? (object.goal.name || object.goal.indicatorParameter) : t("components:table_menu.effect_missing_name");
+      object.name = object.action?.name ? t("components:table_menu.effect_from_action", { source: object.action.name }) : object.goal ? (object.goal.name || object.goal.indicatorParameter) : t("components:table_menu.effect_missing_name");
     }
     if (!object.id) {
       object.id = { actionId: object.actionId, goalId: object.goalId };

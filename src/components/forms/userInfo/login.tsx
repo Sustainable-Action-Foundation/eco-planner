@@ -40,7 +40,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction) {
 }
 
 export default function Login() {
-  const { t } = useTranslation()
+  const { t } = useTranslation(["components", "common"]);
 
   const [showPassword, setShowPassword] = useState(false)
 

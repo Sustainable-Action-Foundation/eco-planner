@@ -1,6 +1,6 @@
 import styles from "./localesTest.module.css" with {type: "css"};
 import serveTea from "@/lib/i18nServer";
-import { uniqueLocales, ns as namespaces, Locales } from "i18n.config";
+import { uniqueLocales, Locales, allNamespaces } from "i18n.config";
 import fs from "node:fs";
 import path from "node:path";
 import { ServerSideT } from "./serverSide";
@@ -58,7 +58,7 @@ export default async function LocaleTestPage() {
 function getAllJSONFlattened(): Record<string, Record<string, string>> {
   const perLocale: Record<string, Record<string, string>> = Object.fromEntries(uniqueLocales.map(locale => [locale, {}]));
 
-  const allPermutations = uniqueLocales.flatMap(locale => namespaces.map(namespace => [locale, namespace]));
+  const allPermutations = uniqueLocales.flatMap(locale => allNamespaces.map(namespace => [locale, namespace]));
 
   allPermutations.map(([locale, namespace]) => {
     const nsData = JSON.parse(fs.readFileSync(path.join("public/locales", locale, `${namespace}.json`), "utf-8"));

@@ -12,7 +12,7 @@ export function BreadcrumbChevron() {
 }
 
 export function BaseSection() {
-  const { t } = useTranslation();
+  const { t } = useTranslation("components");
   return (
     <span className='display-flex align-items-center gap-25'>
       <Link href='/' className={styles.breadCrumb}>
@@ -56,7 +56,7 @@ export function MetaRoadmapSection({
     name: string,
   }
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("components");
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
       {t("components:breadcrumbs_sections.roadmap_series")}
@@ -75,7 +75,7 @@ export function RoadmapSection({
     version: number,
   }
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("components");
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
       {t("components:breadcrumbs_sections.version_label")}
@@ -95,7 +95,7 @@ export function GoalSection({
     indicatorParameter: string,
   }
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("components");
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
       {t("components:breadcrumbs_sections.goal")}
@@ -114,7 +114,7 @@ export function ActionSection({
     name: string,
   }
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("components");
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
       {t("components:breadcrumbs_sections.action")}

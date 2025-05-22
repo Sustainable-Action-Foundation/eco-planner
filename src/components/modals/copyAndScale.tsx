@@ -200,7 +200,7 @@ export default function CopyAndScale({
   goal: Goal & { dataSeries: DataSeries | null },
   roadmapOptions: { id: string, name: string, version: number, actor: string | null }[],
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("components");
   const [isLoading, setIsLoading] = useState(false);
   const [scalingComponents, setScalingComponents] = useState<string[]>([crypto?.randomUUID() || Math.random().toString()]);
   const [scalingMethod, setScalingMethod] = useState<ScaleMethod>(ScaleMethod.Geometric);
@@ -276,11 +276,11 @@ export default function CopyAndScale({
 
   return (
     <>
-      <button 
-        type="button" 
-        className="seagreen color-purewhite smooth padding-block-50 padding-inline-100 smooth" 
+      <button
+        type="button"
+        className="seagreen color-purewhite smooth padding-block-50 padding-inline-100 smooth"
         onClick={() => openModal(modalRef)}
-        style={{padding: '.3rem .6rem', fontSize: '.75rem'}}
+        style={{ padding: '.3rem .6rem', fontSize: '.75rem' }}
       >
         {t("components:copy_and_scale.copy_and_scale")}
       </button>

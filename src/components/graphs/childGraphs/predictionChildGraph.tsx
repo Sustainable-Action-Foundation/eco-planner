@@ -15,7 +15,7 @@ export default function PredictionChildGraph({
   childGoals: (Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null, effects: (Effect & { dataSeries: DataSeries | null })[], roadmapName?: string })[],
   isStacked: boolean,
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("graphs");
 
   // Early returns if there is no relevant data to compare
   if (!goal.dataSeries) {

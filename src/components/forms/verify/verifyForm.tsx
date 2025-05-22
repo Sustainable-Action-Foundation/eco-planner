@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useTranslation } from "react-i18next";
 
 export default function VerifyForm() {
-  const { t } = useTranslation();
+	const { t } = useTranslation("pages");
 
 	function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
 		event.preventDefault()
