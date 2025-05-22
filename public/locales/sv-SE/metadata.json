@@ -5,5 +5,8 @@
   },
   "verify_verify": {
     "description": "Verifiera din e‑postadress"
-  } 
+  }, 
+  "password_reset": {
+    "description": "Uppdatera lösenord"
+  }
 }

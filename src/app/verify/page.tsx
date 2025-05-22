@@ -18,7 +18,6 @@ export default async function Page() {
   const t = await serveTea();
   return (
     <main>
-      {/* TODO METADATA: Why are theese translations behaving weird? */}
       <div className="margin-block-300 padding-inline-100 padding-bottom-100 container-text margin-inline-auto purewhite smooth" style={{ border: '1px solid var(--gray)' }}>
         <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:verify.title")}</h1>
         <p>{t("pages:verify.description")}</p>

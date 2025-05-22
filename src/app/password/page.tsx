@@ -4,9 +4,10 @@ import { buildMetadata } from "@/functions/buildMetadata";
 import serveTea from "@/lib/i18nServer";
 
 export async function generateMetadata() {
+  const t = await serveTea();
   return buildMetadata({
-    title: 'Återställ lösenord',
-    description: undefined,
+    title: t("pages:password.title"),
+    description: t("pages:password.description"),
     og_url: '/password'
   })
 }

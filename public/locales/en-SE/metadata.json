@@ -5,5 +5,8 @@
   },
   "verify_verify": {
     "description": "Verify your email."
-  } 
+  },  
+  "password_reset": {
+    "description": "Update password"
+  }
 }
