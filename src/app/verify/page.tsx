@@ -4,8 +4,8 @@ import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata() {
   return buildMetadata({ 
-    title: 'Verifiera din e-post',
-    description: undefined,  
+    title: t("pages:verify.title"),
+    description: t("pages:verify.description"),  
     og_url: '/verify'
   })
 } 

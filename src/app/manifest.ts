@@ -1,6 +1,5 @@
 import type { MetadataRoute } from 'next'
  
-{/* TODO METADATA: Get this working on android */}
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Eco - planner',

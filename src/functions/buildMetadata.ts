@@ -1,5 +1,6 @@
 import { baseUrl } from "@/lib/baseUrl";
 import { Metadata } from "next";
+import { t } from "i18next";
 
 // TODO: Add i18n support
 const default_title: string = 'Eco - planner';
