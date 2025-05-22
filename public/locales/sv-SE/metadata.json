@@ -30,5 +30,12 @@
   "roadmap_series_create": {
     "title": "Skapa färdplansserie",
     "description": "Skapa en ny färdplansserie"
+  },
+  "goal_edit": {
+    "title": "Redigera målbana:"
+  },
+  "goal_create": {
+    "title": "Skapa målbana",
+    "description": "Skapa en ny målbana"
   }
 }

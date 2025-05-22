@@ -11,10 +11,12 @@ import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata() {
+  const t = await serveTea("metadata")
+  
   return buildMetadata({
-    title: `Skapa målbana`,
-    description: undefined,  /* TODO: Seperate description? */
-    og_url: `/goal/create` /* TODO: How do we handle query params here? */
+    title: t("metadata:goal_create.title"),
+    description: t("metadata:goal_create.title"),
+    og_url: `/goal/create` /* TODO METADATA: How do we handle query params here? */
   })
 }
 

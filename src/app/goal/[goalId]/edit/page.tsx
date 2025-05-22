@@ -9,18 +9,18 @@ import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { baseUrl } from "@/lib/baseUrl";
-
+ 
 export async function generateMetadata(props: { params: Promise<{ goalId: string }> }) {
   const params = await props.params;
-  const [currentGoal] = await Promise.all([
+  const [t, currentGoal] = await Promise.all([
+    serveTea("metadata"),
     getOneGoal(params.goalId),
   ]);
 
   return buildMetadata({
-    title: `Redigera målbana: ${currentGoal?.name}`,
-    description: currentGoal?.description,
-    image_url: undefined, // TODO: Use graph api here once ready?
+    title: `${t("metadata:goal_edit.title")} ${currentGoal?.name}`,
+    description: currentGoal?.description, // TODO METADATA: Fallback description?
+    image_url: undefined, // TODO METADATA: Use graph api here once ready?
     og_url: `/goal/${currentGoal?.id}/edit`
   })
 }
