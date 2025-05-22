@@ -12,10 +12,12 @@ import serveTea from "@/lib/i18nServer";;
 import { buildMetadata } from '@/functions/buildMetadata';
 
 export async function generateMetadata() {
+  const t = await serveTea("metadata")
+  
   return buildMetadata({
-    title: 'Skapa ny färdplan',
-    description: undefined,  /* TODO: Seperate description? */
-    og_url: '/roadmap/create' /* TODO: How do we handle query params here? */
+    title: t("metadata:roadmap_create.title"),
+    description: t('metadata:roadmap_create.description'), 
+    og_url: '/roadmap/create' /* TODO METADATA: How do we handle query params here? */
   })
 }
 

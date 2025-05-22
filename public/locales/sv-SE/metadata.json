@@ -16,5 +16,19 @@
   "login": {
     "title": "Logga in",
     "description": "Logga in till Eco - planner"
+  },
+  "roadmap_edit": {
+    "title": "Redigera färdplan:"
+  },
+  "roadmap_create": {
+    "title": "Skapa färdplan",
+    "description": "Skapa en ny färdplan"
+  },
+  "roadmap_series_edit": {
+    "title": "Redigera färdplansserie:"
+  },
+  "roadmap_series_create": {
+    "title": "Skapa färdplansserie",
+    "description": "Skapa en ny färdplansserie"
   }
 }

@@ -16,5 +16,19 @@
   "login": {
     "title": "Log in",
     "description": "Log in to Eco - planner"
+  },
+  "roadmap_edit": {
+    "title": "Edit roadmap:"
+  },
+  "roadmap_create": {
+    "title": "Create roadmap",
+    "description": "Create a new roadmap"
+  },
+  "roadmap_series_edit": {
+    "title": "Edit roadmap series:"
+  },
+  "roadmap_series_create": {
+    "title": "Create roadmapseries",
+    "description": "Create a new roadmapseries"
   }
 }

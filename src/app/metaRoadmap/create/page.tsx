@@ -8,9 +8,11 @@ import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';
 
 export async function generateMetadata() {
+  const t = await serveTea("metadata")
+
   return buildMetadata({
-    title: 'Skapa ny färdplansserie',
-    description: undefined,  /* TODO: Seperate description? */
+    title: t("metadata:roadmap_series_create.title"),
+    description: t("metadata:roadmap_series_create.description"),  /* TODO: Seperate description? */
     og_url: '/metaRoadmap/create'
   })
 }

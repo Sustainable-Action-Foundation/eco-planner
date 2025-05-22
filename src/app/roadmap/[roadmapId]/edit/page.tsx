@@ -12,13 +12,14 @@ import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {
   const params = await props.params
-  const [roadmap] = await Promise.all([
+  const [t, roadmap] = await Promise.all([
+    serveTea("metadata"),
     getOneRoadmap(params.roadmapId)
   ]);
 
   return buildMetadata({
-    title: `Redigera färdplan: ${roadmap?.metaRoadmap.name}`,
-    description: roadmap?.description || roadmap?.metaRoadmap.description, // TODO: Do fallbacks here make sense?
+    title: `${t("metadata:roadmap_edit.title")} ${roadmap?.metaRoadmap.name}`,
+    description: roadmap?.description || roadmap?.metaRoadmap.description, // TODO METADATA: Fallback description?
     og_url: `/roadmap/${roadmap?.id}/edit`
   })
 }

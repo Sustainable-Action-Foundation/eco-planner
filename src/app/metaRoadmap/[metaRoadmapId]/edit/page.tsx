@@ -12,15 +12,15 @@ import { buildMetadata } from '@/functions/buildMetadata';
 
 export async function generateMetadata(props: { params: Promise<{ metaRoadmapId: string }> }) {
   const params = await props.params
-
-  const [metaRoadmap] = await Promise.all([
+  const [t, metaRoadmap] = await Promise.all([
+    serveTea("metadata"),
     getOneMetaRoadmap(params.metaRoadmapId),
   ]);
 
   return buildMetadata({
-    title: `Redigera färdplansserie: ${metaRoadmap?.name}`, // TODO: UUID To long if no name here?
-    description: metaRoadmap?.description,  /* TODO: Seperate description? */
-    og_url: `roadmap/${metaRoadmap?.id}/edit` // TODO: metaroadmap?.id fine?
+    title: `${t("metadata:roadmap_series_edit.title")} ${metaRoadmap?.name}`,
+    description: metaRoadmap?.description,  /* TODO METADATA: Fallback description? */
+    og_url: `roadmap/${metaRoadmap?.id}/edit` // TODO METADATA: metaroadmap?.id fine?
   })
 }
 
