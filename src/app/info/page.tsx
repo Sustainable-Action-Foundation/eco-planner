@@ -15,7 +15,7 @@ export async function generateMetadata() {
 }
 
 export default async function Page() {
-  const t = await serveTea();
+  const t = await serveTea("pages");
   const gitHash = { shortHash: process.env.GIT_SHORT_HASH, longHash: process.env.GIT_LONG_HASH };
 
   // If hash is not set in env, try to get it from file

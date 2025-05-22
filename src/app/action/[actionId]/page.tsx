@@ -27,9 +27,9 @@ export async function generateMetadata(props: { params: Promise<{ actionId: stri
 }
 
 export default async function Page(props: { params: Promise<{ actionId: string }> }) {
-  const t = await serveTea();
   const params = await props.params;
-  const [session, action] = await Promise.all([
+  const [t, session, action] = await Promise.all([
+    serveTea("pages"),
     getSession(await cookies()),
     getOneAction(params.actionId)
   ]);

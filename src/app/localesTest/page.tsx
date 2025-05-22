@@ -8,7 +8,7 @@ import { ClientSideT } from "./clientSide";
 import { Stats } from "./stats";
 
 export default async function LocaleTestPage() {
-  const t = await serveTea();
+  const t = await serveTea("test");
   const defaultArgs = { count: 17, date: new Date(Date.now() - 10000) };
 
   const allFlattened = getAllJSONFlattened()[Locales.default];

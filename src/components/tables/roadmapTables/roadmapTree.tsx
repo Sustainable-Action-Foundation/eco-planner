@@ -26,7 +26,7 @@ export default async function RoadmapTree({
   roadmaps,
   user,
 }: RoadmapTreeProps) {
-  const t = await serveTea();
+  const t = await serveTea("components");
   if (!roadmaps.length) {
     return <p>{t("components:roadmap_tree.no_roadmap_series_ones")}</p>;
   }
@@ -57,7 +57,7 @@ async function NestedRoadmapRenderer({
   childRoadmaps: RoadmapTreeProps['roadmaps'],
   user: RoadmapTreeProps['user'],
 }) {
-  const t = await serveTea();
+  const t = await serveTea(["components", "common"]);
   return <>
     {childRoadmaps.map(roadmap => {
       let typeAlias = roadmap.metaRoadmap.type.toString();

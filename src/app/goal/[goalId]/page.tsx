@@ -59,13 +59,15 @@ export default async function Page(
     }>,
   }
 ) {
-  const t = await serveTea();
-  const searchParams = await props.searchParams;
-  const params = await props.params;
+  const [params, searchParams] = await Promise.all([
+    props.params,
+    props.searchParams
+  ]);
   // TODO: Use user locale instead of hardcoded value
   const locale = "sv";
 
-  const [session, { goal, roadmap }, secondaryGoal, unfilteredRoadmapOptions] = await Promise.all([
+  const [t, session, { goal, roadmap }, secondaryGoal, unfilteredRoadmapOptions] = await Promise.all([
+    serveTea("pages"),
     getSession(await cookies()),
     getOneGoal(params.goalId).then(async goal => { return { goal, roadmap: (goal ? await getOneRoadmap(goal.roadmapId) : null) } }),
     typeof searchParams.secondaryGoal == "string" ? getOneGoal(searchParams.secondaryGoal) : Promise.resolve(null),

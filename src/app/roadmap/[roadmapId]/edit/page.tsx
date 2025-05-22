@@ -25,9 +25,9 @@ export async function generateMetadata(props: { params: Promise<{ roadmapId: str
 
 
 export default async function Page(props: { params: Promise<{ roadmapId: string }> }) {
-  const t = await serveTea();
   const params = await props.params;
-  const [session, roadmap] = await Promise.all([
+  const [t, session, roadmap] = await Promise.all([
+    serveTea("pages"),
     getSession(await cookies()),
     getOneRoadmap(params.roadmapId),
   ]);

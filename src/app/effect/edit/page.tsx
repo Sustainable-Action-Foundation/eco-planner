@@ -31,9 +31,9 @@ export default async function Page(
     }>,
   }
 ) {
-  const t = await serveTea();
   const searchParams = await props.searchParams;
-  const [session, effect, roadmaps] = await Promise.all([
+  const [t, session, effect, roadmaps] = await Promise.all([
+    serveTea("pages"),
     getSession(await cookies()),
     getOneEffect(typeof searchParams.actionId == 'string' ? searchParams.actionId : '', typeof searchParams.goalId == 'string' ? searchParams.goalId : ''),
     getRoadmaps(),

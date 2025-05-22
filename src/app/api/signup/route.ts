@@ -9,7 +9,7 @@ import serveTea from "@/lib/i18nServer";
 import Mail from "nodemailer/lib/mailer";
 
 export async function POST(request: NextRequest) {
-  const t = await serveTea();
+  const t = await serveTea("email");
 
   const { username, email, password }: { username: string; email: string; password: string; } = await request.json();
 

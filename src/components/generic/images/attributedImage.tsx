@@ -40,7 +40,7 @@ export async function AttributeText(
     source: string,
     sourceLink: string,
   }) {
-  const t = await serveTea();
+  const t = await serveTea("components");
   return (
     <p className={`margin-0 ${className}`}>
       {t("components:image_attribute.by")}

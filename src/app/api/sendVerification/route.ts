@@ -7,7 +7,7 @@ import { NextRequest } from "next/server";
 import Mail from "nodemailer/lib/mailer";
 
 export async function POST(request: NextRequest) {
-  const t = await serveTea();
+  const t = await serveTea("email");
   // Get email from request body
   const { email } = await request.json().catch(() => null);
   if (!email || typeof email !== 'string') {
