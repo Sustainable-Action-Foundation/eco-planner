@@ -82,6 +82,9 @@ export default async function Page() {
           <p>{t("pages:info.commit_without_link", { commit: gitHash.shortHash || gitHash.longHash || "" })}</p>
         : null
       }
+
+      <NonModalDialog dialogPosition="bottom" toggleButtonWidth='auto' />
+
     </>
   )
 }

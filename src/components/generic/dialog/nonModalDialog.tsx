@@ -8,7 +8,7 @@ export default  function NonModalDialog({
   toggleButtonWidth // Maybe?
 }: {
   dialogPosition: "top" | "right" | "bottom" | "left";
-  toggleButtonWidth: any
+  toggleButtonWidth: string
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
