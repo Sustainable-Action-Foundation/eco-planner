@@ -1,7 +1,8 @@
+/* Toggle button */
 .toggle-button {
     anchor-name: --toggle-button;
+    display: flex;
     gap: 10px;
-    width: 100%;
     background-color: transparent;
     overflow: hidden;
     border-radius: .5rem;
@@ -12,6 +13,7 @@
     box-shadow: none;
 }
 
+/* Indicator */
 .dialog-arrow-indicator {
     display: none;
     border-width: .5rem;
@@ -43,4 +45,45 @@
 .dialog-arrow-indicator-left {
     position-area: center start;
     border-color: transparent transparent transparent #292929;
+}
+
+/* Dialog */
+.non-modal-dialog {
+    margin: 0;
+    z-index: 9999;
+
+    border: 1px solid silver;
+    border-radius: .25rem;
+    padding: .25rem;
+
+    position: absolute;
+    position-anchor: --toggle-button;
+}
+ 
+.non-modal-dialog-top {
+    bottom: anchor(top);
+    justify-self: anchor-center;
+    margin-bottom: 2rem;
+    margin-top: auto;
+}
+
+.non-modal-dialog-right {
+    left: anchor(right);
+    align-self: anchor-center;
+    margin-left: 2rem;
+    margin-right: auto;
+}
+
+.non-modal-dialog-bottom {
+    top: anchor(bottom);
+    justify-self: anchor-center;
+    margin-top: 2rem;
+    margin-bottom: auto;
+}
+
+.non-modal-dialog-left {
+    right: anchor(left);
+    align-self: anchor-center;
+    margin-right: 2rem;
+    margin-left: auto;
 }
