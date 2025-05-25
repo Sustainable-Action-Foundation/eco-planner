@@ -13,38 +13,51 @@
     box-shadow: none;
 }
 
+.toggle-button:active {
+    transform: scale(1);
+}
+
+/* 
+    TODO: All fallbacks using @support are based on this modal being explicitely
+    used for the translation menu. This wont be the case and thus needs to be 
+    fleshed out later
+*/
+
 /* Indicator */
-.dialog-arrow-indicator {
-    display: none;
-    border-width: .5rem;
-    border-style: solid;
+@supports (position-area: start start) and (position-anchor: --toggle-button) {
 
-    position: absolute;
-    position-anchor: --toggle-button;
-}
+    .dialog-arrow-indicator {
+        display: none;
+        border-width: .5rem;
+        border-style: solid;
 
-.toggle-button-wrapper:has(+ dialog[open]) .dialog-arrow-indicator {
-    display: block;
-}
+        position: absolute;
+        position-anchor: --toggle-button;
+    }
 
-.dialog-arrow-indicator-top {
-    position-area: start center;
-    border-color: #292929 transparent transparent transparent;
-}
+    .toggle-button-wrapper:has(+ dialog[open]) .dialog-arrow-indicator {
+        display: block;
+    }
 
-.dialog-arrow-indicator-right {
-    position-area: center end;
-    border-color: transparent #292929 transparent transparent;
-}
+    .dialog-arrow-indicator-top {
+        position-area: start center;
+        border-color: #292929 transparent transparent transparent;
+    }
 
-.dialog-arrow-indicator-bottom {
-    position-area: end center;
-    border-color: transparent transparent #292929 transparent;
-}
+    .dialog-arrow-indicator-right {
+        position-area: center end;
+        border-color: transparent #292929 transparent transparent;
+    }
 
-.dialog-arrow-indicator-left {
-    position-area: center start;
-    border-color: transparent transparent transparent #292929;
+    .dialog-arrow-indicator-bottom {
+        position-area: end center;
+        border-color: transparent transparent #292929 transparent;
+    }
+
+    .dialog-arrow-indicator-left {
+        position-area: center start;
+        border-color: transparent transparent transparent #292929;
+    }
 }
 
 /* Dialog */
@@ -56,41 +69,53 @@
     padding: 0;
 
     position: absolute;
-    position-anchor: --toggle-button;
+
+    @supports (position-anchor: --toggle-button) {
+        position-anchor: --toggle-button;
+    };
+
+    @supports not (position-anchor: --toggle-button) {
+        left: calc(100% - 1rem);
+        bottom: 1rem;
+        height: 250px;
+    }
 }
  
-/* Area align */
-.non-modal-dialog-top {
-    bottom: anchor(top);
-    justify-self: anchor-center;
-    margin-top: auto;
-}
+@supports (bottom: anchor(top)) {
 
-.non-modal-dialog-right {
-    left: anchor(right);
-    margin-right: auto;
-}
+    /* Area align */
+    .non-modal-dialog-top {
+        bottom: anchor(top);
+        justify-self: anchor-center;
+        margin-top: auto;
+    }
 
-.non-modal-dialog-bottom {
-    top: anchor(bottom);
-    justify-self: anchor-center;
-    margin-bottom: auto;
-}
+    .non-modal-dialog-right {
+        left: anchor(right);
+        margin-right: auto;
+    }
 
-.non-modal-dialog-left {
-    right: anchor(left);
-    margin-left: auto;
-}
+    .non-modal-dialog-bottom {
+        top: anchor(bottom);
+        justify-self: anchor-center;
+        margin-bottom: auto;
+    }
 
-/* Vertical align */
-.non-modal-dialog-vertical-top {
-    bottom: anchor(bottom);
-}
+    .non-modal-dialog-left {
+        right: anchor(left);
+        margin-left: auto;
+    }
 
-.non-modal-dialog-vertical-center {
-    align-self: anchor-center
-}
+    /* Vertical align */
+    .non-modal-dialog-vertical-top {
+        bottom: anchor(bottom);
+    }
 
-.non-modal-dialog-vertical-bottom {
-    top: anchor(top)
+    .non-modal-dialog-vertical-center {
+        align-self: anchor-center
+    }
+
+    .non-modal-dialog-vertical-bottom {
+        top: anchor(top)
+    }
 }

@@ -1,5 +1,7 @@
 "use client"
 
+import { t } from 'i18next';
+import Image from 'next/image';
 import styles from './nonModalDialog.module.css' with { type: "css" }
 import { useRef } from "react";
 
@@ -54,8 +56,11 @@ export default  function NonModalDialog({
   return ( 
     <>
       <div className={`${styles['toggle-button-wrapper']} position-relative`}>
-        <button onClick={toggleDialog} className={`${styles['toggle-button']}`} style={{width: toggleButtonWidth}}>
-          Open Dialog
+        {/* TODO: We primarily implemented this for translation menu */}
+        {/* Adapt button image and text to a broader usage later (and style appropriately)*/}
+        <button onClick={toggleDialog} className={`${styles['toggle-button']} align-items-center font-weight-500`} style={{width: toggleButtonWidth, fontSize: '1rem'}}>
+          <Image src='/icons/globe.svg' alt='' width={24} height={24} />
+          {t("components:sidebar.language")}
         </button>
         <div 
           className={`
@@ -86,7 +91,7 @@ export default  function NonModalDialog({
       >
         <form 
           method="dialog" 
-          className='flex justify-content-space-between align-items-center gap-300 margin-25 padding-bottom-25' 
+          className='flex justify-content-space-between align-items-center gap-300 margin-block-25 margin-inline-50 padding-bottom-25' 
           style={{borderBottom: '1px solid var(--gray)'}} > 
           <h2
             id={`dialog-${title.replace(' ', '').toLowerCase()}-title`}
@@ -98,8 +103,9 @@ export default  function NonModalDialog({
             type="submit" 
             className="padding-25" 
             style={{backgroundColor: 'transparent', borderRadius: '9999px'}}
-          >
-            <img src="/icons/close.svg" className="grid" width="12" height="12" alt={`Close dialog`} />
+          > 
+            {/* TODO: Use image component */}
+            <img src="/icons/close.svg" className="grid" width="16" height="16" alt={`Close dialog`} />
           </button>
         </form>
         {children}
