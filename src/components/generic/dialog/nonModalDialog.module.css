@@ -54,7 +54,7 @@
 
     border: 1px solid silver;
     border-radius: .25rem;
-    padding: .25rem;
+    padding: 0;
 
     position: absolute;
     position-anchor: --toggle-button;
@@ -63,27 +63,37 @@
 .non-modal-dialog-top {
     bottom: anchor(top);
     justify-self: anchor-center;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     margin-top: auto;
 }
 
 .non-modal-dialog-right {
     left: anchor(right);
-    align-self: anchor-center;
-    margin-left: 2rem;
+    margin-left: 1rem;
     margin-right: auto;
 }
 
 .non-modal-dialog-bottom {
     top: anchor(bottom);
     justify-self: anchor-center;
-    margin-top: 2rem;
+    margin-top: 1rem;
     margin-bottom: auto;
 }
 
 .non-modal-dialog-left {
     right: anchor(left);
-    align-self: anchor-center;
-    margin-right: 2rem;
+    margin-right: 1rem;
     margin-left: auto;
+}
+
+.non-modal-dialog-vertical-top {
+    bottom: anchor(bottom);
+}
+
+.non-modal-dialog-vertical-center {
+    align-self: anchor-center
+}
+
+.non-modal-dialog-vertical-bottom {
+    top: anchor(top)
 }

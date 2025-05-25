@@ -5,11 +5,24 @@ import { useRef } from "react";
 
 export default  function NonModalDialog({
   dialogPosition,
-  toggleButtonWidth // Maybe?
-}: {
-  dialogPosition: "top" | "right" | "bottom" | "left";
-  toggleButtonWidth: string
-}) {
+  toggleButtonWidth,
+  title,
+  verticalAlign
+}: 
+  | {
+      dialogPosition: "top" | "bottom";
+      toggleButtonWidth: string;
+      title: string,
+      verticalAlign?: never;
+    }
+  | {
+      dialogPosition: "right" | "left";
+      toggleButtonWidth: string;
+      title: string,
+      verticalAlign: "top" | "center" | "bottom";
+    }
+) {
+ 
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   const toggleDialog = () => {
@@ -30,14 +43,24 @@ export default  function NonModalDialog({
         <div className={`${styles['dialog-arrow-indicator']}  ${styles[`dialog-arrow-indicator-${dialogPosition}`]}`}></div>
       </div>
 
-      <dialog ref={dialogRef} className={`${styles['non-modal-dialog']} ${styles[`non-modal-dialog-${dialogPosition}`]}`}>
-        <form method="dialog" > 
+      <dialog 
+        ref={dialogRef} 
+        className={`
+          ${styles['non-modal-dialog']} 
+          ${styles[`non-modal-dialog-${dialogPosition}`]}
+          ${verticalAlign ? styles[`non-modal-dialog-vertical-${verticalAlign}`] : ''}
+        `}>
+        <form 
+          method="dialog" 
+          className='flex justify-content-space-between align-items-center gap-300 margin-25 padding-bottom-25' 
+          style={{borderBottom: '1px solid var(--gray)'}} > 
+          <p className='margin-0 font-weight-600'>{title}</p>
           <button 
             type="submit" 
             className="padding-25" 
             style={{backgroundColor: 'transparent', borderRadius: '9999px'}}
           >
-            <img src="/icons/close.svg" className="grid" width="16" height="16" alt="close" />
+            <img src="/icons/close.svg" className="grid" width="12" height="12" alt="close" />
           </button>
         </form>
       </dialog>
