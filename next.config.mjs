@@ -2,6 +2,9 @@
  * @type {import('next').NextConfig}
  */
 const nextConfig = {
+  devIndicators: {
+    position: 'bottom-right'
+  },
   ...(process.env.NODE_ENV == "production" ? {
     compiler: {
       removeConsole: {

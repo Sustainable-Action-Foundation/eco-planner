@@ -142,7 +142,8 @@
     "create_account": "Skapa konto",
     "home": "$t(common:tsx.home)",
     "about": "Om verktyget",
-    "language_alt": "Byt språk"
+    "language": "Språk",
+    "language_alt": "Välj språk"
   },
   "signup": {
     "signup_failed_motivated": "Registreringen misslyckades. Skäl: {{reason}}",

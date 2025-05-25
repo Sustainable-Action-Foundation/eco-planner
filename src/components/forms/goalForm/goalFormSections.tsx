@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { DataSeries, Goal } from "@prisma/client";
-import { dataSeriesPattern } from "./goalForm";
-import { Fragment, useEffect, useState } from "react";
-import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
 import { clientSafeGetOneGoal } from "@/fetchers/getOneGoal";
-import { clientSafeGetRoadmaps } from "@/fetchers/getRoadmaps";
+import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
 import type getRoadmaps from "@/fetchers/getRoadmaps";
+import { clientSafeGetRoadmaps } from "@/fetchers/getRoadmaps";
 import mathjs from "@/math";
 import { dataSeriesDataFieldNames } from "@/types";
+import { DataSeries, Goal } from "@prisma/client";
+import { Fragment, useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
+import DataSeriesInput from "../dataSeriesInput/dataSeriesInput";
 
 export function ManualGoalForm({
   currentGoal,
@@ -60,33 +60,18 @@ export function ManualGoalForm({
           }
         }} />
         {parsedUnit ?
-          <p className="margin-block-25">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></p>
-          : <p className="margin-block-25">{t("forms:goal.unit_not_interpreted")}</p>
+          <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></small>
+          : <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_not_interpreted")}</small>
         }
       </label>
 
-      <details className="margin-block-75">
-        <summary>
-          {t("forms:goal.extra_info_data_series")}
-        </summary>
-        <p>
-          <Trans
-            i18nKey={"forms:goal.data_series_info"}
-            components={{ strong: <strong />, br: <br /> }}
-          />
-        </p>
-      </details>
-
-      <label className="block margin-block-75">
-        {t("forms:goal.data_series")}
-        {/* TODO: Make this allow .csv files and possibly excel files */}
-        <input type="text" name="dataSeries" required id="dataSeries"
-          pattern={dataSeriesPattern}
-          title={t("forms:goal.data_series_title")}
-          className="margin-block-25"
-          defaultValue={dataSeriesString}
-        />
-      </label>
+      <DataSeriesInput
+        dataSeriesString={dataSeriesString}
+        inputName="dataSeries"
+        inputId="dataSeries"
+        labelKey="forms:data_series_input.data_series"
+        summaryKey="forms:data_series_input.extra_info_data_series"
+      />
     </>
   )
 }
@@ -191,8 +176,8 @@ export function InheritedGoalForm({
           }
         }} />
         {parsedUnit ?
-          <p className="margin-block-25">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></p>
-          : <p className="margin-block-25">{t("forms:goal.unit_not_interpreted")}</p>
+          <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></small>
+          : <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_not_interpreted")}</small>
         }
       </label>
     </>
@@ -259,8 +244,8 @@ export function CombinedGoalForm({
           }
         }} />
         {parsedUnit ?
-          <p className="margin-block-25">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></p>
-          : <p className="margin-block-25">{t("forms:goal.unit_not_interpreted")}</p>
+          <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></small>
+          : <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_not_interpreted")}</small>
         }
       </label>
 

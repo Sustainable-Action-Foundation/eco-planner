@@ -33,24 +33,31 @@ export function LanguageSwitcher() {
     window.dispatchEvent(new CustomEvent("i18n-language-changed"));
   }
 
-  return (<>
-    <select
-      className={`height-100 width-100 cursor-pointer`}
-      onChange={async (e) => await setLocale(e.target.value)}
-      value={buttonLocale}
-      disabled={isPending}
-    >
-      {
-        uniqueLocales
-          // Puts the current locale at the top of the list
-          .sort((a, b) => (a === buttonLocale ? -1 : b === buttonLocale ? 1 : 0))
+  return (
+    <>
+      <ul className="margin-0 padding-0" style={{listStyle: 'none'}}>
+        {uniqueLocales
+          .sort((a, b) => localeAliases[a].localeCompare(localeAliases[b]))
           .map((locale) => (
-            <option key={locale} value={locale} className="cursor-pointer">
-              {localeAliases[locale]}
-            </option>
-          ))
-      }
-    </select>
-  </>
+            <li key={locale} className="margin-top-25">
+              <button
+                key={locale}
+                onClick={async () => await setLocale(locale)}
+                disabled={isPending}
+                style={{fontSize: '14px'}}
+                className={`flex transparent justify-content-space-between align-items-center width-100 padding-25`}
+              >
+                {localeAliases[locale]}
+                <div className="flex align-items-center justify-content-center" style={{width: '14px', height: '14px', border: locale === buttonLocale ? '1px solid var(--blue-30)' : '1px solid black', borderRadius: '9999px' }}>
+                  {locale === buttonLocale ? 
+                    <div style={{width: '8px', height: '8px', borderRadius: '9999px', backgroundColor: 'var(--blue-30)'}}></div>
+                  : null }
+                </div>
+              </button>
+            </li>
+          ))}
+      </ul>
+    </>
+
   );
 }
