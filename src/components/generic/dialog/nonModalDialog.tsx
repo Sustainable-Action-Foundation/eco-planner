@@ -39,7 +39,6 @@ export default  function NonModalDialog({
     }
 ) {
 
-  const adjustedMargin = `calc(${margin?.top ?? "0"} - 1rem) calc(${margin?.right ?? "0"} - 1rem) calc(${margin?.bottom ?? "0"} - 1rem) calc(${margin?.left ?? "0"} - 1rem)`;
 
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -72,7 +71,9 @@ export default  function NonModalDialog({
         ></div>
       </div>
 
+      {/* TODO: I18n for all this */}
       <dialog 
+        aria-labelledby={`dialog-${title.replace(' ', '').toLowerCase()}-title`}
         ref={dialogRef} 
         className={`
           ${styles['non-modal-dialog']} 
@@ -87,13 +88,18 @@ export default  function NonModalDialog({
           method="dialog" 
           className='flex justify-content-space-between align-items-center gap-300 margin-25 padding-bottom-25' 
           style={{borderBottom: '1px solid var(--gray)'}} > 
-          <p className='margin-0 font-weight-600' style={{whiteSpace: 'nowrap'}}>{title}</p>
+          <h2
+            id={`dialog-${title.replace(' ', '').toLowerCase()}-title`}
+            className='margin-0 font-weight-600' 
+            style={{whiteSpace: 'nowrap', fontSize: '1rem'}}>
+              {title}
+          </h2>
           <button 
             type="submit" 
             className="padding-25" 
             style={{backgroundColor: 'transparent', borderRadius: '9999px'}}
           >
-            <img src="/icons/close.svg" className="grid" width="12" height="12" alt="close" />
+            <img src="/icons/close.svg" className="grid" width="12" height="12" alt={`Close dialog`} />
           </button>
         </form>
         {children}
