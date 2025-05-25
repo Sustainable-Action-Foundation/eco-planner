@@ -1,0 +1,46 @@
+.toggle-button {
+    anchor-name: --toggle-button;
+    gap: 10px;
+    width: 100%;
+    background-color: transparent;
+    overflow: hidden;
+    border-radius: .5rem;
+}
+
+.toggle-button:hover {
+    background-color: #e0e6eb;
+    box-shadow: none;
+}
+
+.dialog-arrow-indicator {
+    display: none;
+    border-width: .5rem;
+    border-style: solid;
+
+    position: absolute;
+    position-anchor: --toggle-button;
+}
+
+.toggle-button-wrapper:has(+ dialog[open]) .dialog-arrow-indicator {
+    display: block;
+}
+
+.dialog-arrow-indicator-top {
+    position-area: start center;
+    border-color: #292929 transparent transparent transparent;
+}
+
+.dialog-arrow-indicator-right {
+    position-area: center end;
+    border-color: transparent #292929 transparent transparent;
+}
+
+.dialog-arrow-indicator-bottom {
+    position-area: end center;
+    border-color: transparent transparent #292929 transparent;
+}
+
+.dialog-arrow-indicator-left {
+    position-area: center start;
+    border-color: transparent transparent transparent #292929;
+}
