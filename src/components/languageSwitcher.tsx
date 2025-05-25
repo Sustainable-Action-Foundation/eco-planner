@@ -39,16 +39,20 @@ export function LanguageSwitcher() {
         {uniqueLocales
           .sort((a, b) => localeAliases[a].localeCompare(localeAliases[b]))
           .map((locale) => (
-            <li key={locale} className="margin-block-25">
+            <li key={locale} className="margin-top-25">
               <button
                 key={locale}
                 onClick={async () => await setLocale(locale)}
                 disabled={isPending}
-                style={{fontSize: '.8rem'}}
-                className={`width-100 padding-25 ${locale === buttonLocale ? 'blue-30 color-purewhite' : 'gray-90'}`}
-                
+                style={{fontSize: '14px'}}
+                className={`flex transparent justify-content-space-between align-items-center width-100 padding-25`}
               >
                 {localeAliases[locale]}
+                <div className="flex align-items-center justify-content-center" style={{width: '14px', height: '14px', border: locale === buttonLocale ? '1px solid var(--blue-30)' : '1px solid black', borderRadius: '9999px' }}>
+                  {locale === buttonLocale ? 
+                    <div style={{width: '8px', height: '8px', borderRadius: '9999px', backgroundColor: 'var(--blue-30)'}}></div>
+                  : null }
+                </div>
               </button>
             </li>
           ))}

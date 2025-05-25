@@ -49,7 +49,6 @@
 
 /* Dialog */
 .non-modal-dialog {
-    margin: 0;
     z-index: 9999;
 
     border: 1px solid silver;
@@ -60,32 +59,30 @@
     position-anchor: --toggle-button;
 }
  
+/* Area align */
 .non-modal-dialog-top {
     bottom: anchor(top);
     justify-self: anchor-center;
-    margin-bottom: 1rem;
     margin-top: auto;
 }
 
 .non-modal-dialog-right {
     left: anchor(right);
-    margin-left: 1rem;
     margin-right: auto;
 }
 
 .non-modal-dialog-bottom {
     top: anchor(bottom);
     justify-self: anchor-center;
-    margin-top: 1rem;
     margin-bottom: auto;
 }
 
 .non-modal-dialog-left {
     right: anchor(left);
-    margin-right: 1rem;
     margin-left: auto;
 }
 
+/* Vertical align */
 .non-modal-dialog-vertical-top {
     bottom: anchor(bottom);
 }

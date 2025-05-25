@@ -8,6 +8,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { LanguageSwitcher } from "@/components/languageSwitcher"
 import { t } from "@/lib/i18nServer"
+import NonModalDialog from '@/components/generic/dialog/nonModalDialog';
 // import Notifications from '../notifications/notification'
 
 export default async function Sidebar() {
@@ -57,6 +58,19 @@ export default async function Sidebar() {
               <LanguageSwitcher />
             </fieldset>
           </div>
+          {/*
+            <NonModalDialog 
+              dialogPosition='right' 
+              verticalAlign='top' 
+              title={t("components:sidebar.language_alt")} 
+              toggleButtonWidth='100%'
+              margin={{ top: '0', right: '0', bottom: '0', left: ''}}
+            >
+              <fieldset className={`padding-inline-25 padding-bottom-25 fieldset-unset-pseudo-class`}>
+                <LanguageSwitcher />
+              </fieldset>
+            </NonModalDialog>
+          */}
           {user?.isLoggedIn ?
             <LogoutButton />
             :

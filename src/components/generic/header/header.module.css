@@ -140,3 +140,4 @@
 .menu-settings-wrapper:has(input[type="checkbox"]:checked) img[src='/icons/caret-right.svg'] {
   rotate: 90deg;
 }
+ 
