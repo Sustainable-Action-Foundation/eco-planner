@@ -52,7 +52,7 @@ export function ManualGoalForm({
 
       <label className="block margin-block-100">
         {t("forms:goal.data_unit")}
-        <input className="margin-block-25" type="text" name="dataUnit" required id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
+        <input className="margin-block-25" type="text" name="dataUnit" id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
           try {
             setParsedUnit(mathjs.unit(e.target.value).toString());
           } catch {
@@ -168,7 +168,7 @@ export function InheritedGoalForm({
 
       <label className="block margin-block-75">
         {t("forms:goal.data_unit")}
-        <input className="margin-block-25" type="text" name="dataUnit" required disabled id="dataUnit" value={goalData?.dataSeries?.unit || ""} onChange={(e) => {
+        <input className="margin-block-25" type="text" name="dataUnit" disabled id="dataUnit" value={goalData?.dataSeries?.unit || ""} onChange={(e) => {
           try {
             setParsedUnit(mathjs.unit(e.target.value).toString());
           } catch {
@@ -236,7 +236,7 @@ export function CombinedGoalForm({
 
       <label className="block margin-block-75">
         {t("forms:goal.data_unit")}
-        <input className="margin-block-25" type="text" name="dataUnit" required id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
+        <input className="margin-block-25" type="text" name="dataUnit" id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
           try {
             setParsedUnit(mathjs.unit(e.target.value).toString());
           } catch {
