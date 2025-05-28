@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       // "Recipe" for combining data series, can be a stringified number or a stringified object matching the ScalingRecipie type
       (typeof goal.combinationScale === 'string' || goal.combinationScale === undefined || goal.combinationScale === null) &&
       // Data series should be either undefined or have a length between 1 and dataSeriesDataFieldNames.length
-      ((Array.isArray(goal.dataSeries) && goal.dataSeries.every((entry: JSONValue) => (typeof entry === 'string')) && goal.dataSeries.length > 0 && goal.dataSeries.length <= dataSeriesDataFieldNames.length)
+      ((Array.isArray(goal.dataSeries) && goal.dataSeries.every((entry: JSONValue) => (typeof entry === 'string')) && goal.dataSeries.length <= dataSeriesDataFieldNames.length)
         || goal.dataSeries === undefined) &&
       // baselineDataSeries can be a valid data series to set values, undefined to not set a baseline, or null to delete the baseline
       ((Array.isArray(goal.baselineDataSeries) && goal.baselineDataSeries.every((entry: JSONValue) => (typeof entry === 'string')) && goal.baselineDataSeries.length > 0 && goal.baselineDataSeries.length <= dataSeriesDataFieldNames.length)
@@ -65,8 +65,8 @@ export async function POST(request: NextRequest) {
       // Roadmap ID must be a non-empty string
       // Invalid and forbidden IDs are rejected further down
       (typeof goal.roadmapId === 'string' && goal.roadmapId.length > 0) &&
-      // Either dataSeries or inheritFrom must be defined and not null
-      (goal.dataSeries !== undefined || goal.inheritFrom != undefined)
+      // Either dataSeries or inheritFrom must be defined and not null or empty
+      ((goal.dataSeries?.length ?? 0) > 0 || (goal.inheritFrom?.length ?? 0) > 0)
     );
   }
 
@@ -288,7 +288,7 @@ export async function PUT(request: NextRequest) {
       // "Recipe" for combining data series, can be a stringified number or a stringified object matching the ScalingRecipie type
       (typeof goal.combinationScale === 'string' || goal.combinationScale === undefined || goal.combinationScale === null) &&
       // Data series should be either undefined or have a length between 1 and dataSeriesDataFieldNames.length
-      ((Array.isArray(goal.dataSeries) && goal.dataSeries.every((entry: JSONValue) => (typeof entry === 'string')) && goal.dataSeries.length > 0 && goal.dataSeries.length <= dataSeriesDataFieldNames.length)
+      ((Array.isArray(goal.dataSeries) && goal.dataSeries.every((entry: JSONValue) => (typeof entry === 'string')) && goal.dataSeries.length <= dataSeriesDataFieldNames.length)
         || goal.dataSeries === undefined) &&
       // baselineDataSeries can be a valid data series to set values, undefined to not set a baseline, or null to delete the baseline
       ((Array.isArray(goal.baselineDataSeries) && goal.baselineDataSeries.every((entry: JSONValue) => (typeof entry === 'string')) && goal.baselineDataSeries.length > 0 && goal.baselineDataSeries.length <= dataSeriesDataFieldNames.length)
@@ -312,7 +312,9 @@ export async function PUT(request: NextRequest) {
         (typeof entry.description === 'string' || entry.description === undefined || entry.description === null)
       ))) || goal.links === undefined || goal.links === null) &&
       // Goal ID must be a non-empty string
-      (typeof goal.goalId === 'string' && goal.goalId.length > 0)
+      (typeof goal.goalId === 'string' && goal.goalId.length > 0) &&
+      // Either dataSeries or inheritFrom must be defined and not null or empty
+      ((goal.dataSeries?.length ?? 0) > 0 || (goal.inheritFrom?.length ?? 0) > 0)
     );
   }
 
