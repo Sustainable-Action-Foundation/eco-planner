@@ -368,6 +368,7 @@ export const allowedDomains = [
   "internetstiftelsen.se",
   // "lansstyrelsen.se",
   "ltu.se",
+  "postkodstiftelsen.se",
   // "stuns.se",
   "sustainable-action.org",
 ]

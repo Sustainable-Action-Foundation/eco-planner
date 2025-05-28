@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/session"
 import prisma from "@/prismaClient";
-import { AccessControlled, AccessLevel, ClientError, DataSeriesDataFields, GoalInput } from "@/types";
+import { AccessControlled, AccessLevel, ClientError, dataSeriesDataFieldNames, DataSeriesDataFields, GoalInput, JSONValue } from "@/types";
 import { DataSeries, Prisma } from "@prisma/client";
 import accessChecker from "@/lib/accessChecker";
 import { revalidateTag } from "next/cache";
@@ -17,18 +17,61 @@ import { recalculateGoal } from "@/functions/recalculateGoal";
 export async function POST(request: NextRequest) {
   const [session, goal] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<GoalInput & { roadmapId: string }>,
+    request.json() as Promise<JSONValue>,
   ]);
 
-  // Validate request body
-  if (!goal.indicatorParameter || !goal.dataUnit || (!goal.dataSeries && !goal.inheritFrom?.length)) {
-    return Response.json({ message: 'Missing required input parameters' },
-      { status: 400 }
+  // Type guard and check if the request body is a valid GoalInput
+  function isGoal(goal: JSONValue): goal is GoalInput & { roadmapId: string } {
+    return (
+      // Should be a non-null object
+      typeof goal === 'object' &&
+      goal !== null &&
+      !Array.isArray(goal) &&
+      // Typecheck properties
+      (typeof goal.name === 'string' || goal.name === undefined || goal.name === null) &&
+      (typeof goal.description === 'string' || goal.description === undefined || goal.description === null) &&
+      // Indicator parameter must be a non-empty string
+      (typeof goal.indicatorParameter === 'string' && goal.indicatorParameter.length > 0) &&
+      (typeof goal.isFeatured === 'boolean' || goal.isFeatured === undefined) &&
+      (typeof goal.externalDataset === 'string' || goal.externalDataset === undefined || goal.externalDataset === null) &&
+      (typeof goal.externalTableId === 'string' || goal.externalTableId === undefined || goal.externalTableId === null) &&
+      (typeof goal.externalSelection === 'string' || goal.externalSelection === undefined || goal.externalSelection === null) &&
+      // "Recipe" for combining data series, can be a stringified number or a stringified object matching the ScalingRecipie type
+      (typeof goal.combinationScale === 'string' || goal.combinationScale === undefined || goal.combinationScale === null) &&
+      // Data series should be either undefined or have a length between 1 and dataSeriesDataFieldNames.length
+      ((Array.isArray(goal.dataSeries) && goal.dataSeries.every((entry: JSONValue) => (typeof entry === 'string')) && goal.dataSeries.length <= dataSeriesDataFieldNames.length)
+        || goal.dataSeries === undefined) &&
+      // baselineDataSeries can be a valid data series to set values, undefined to not set a baseline, or null to delete the baseline
+      ((Array.isArray(goal.baselineDataSeries) && goal.baselineDataSeries.every((entry: JSONValue) => (typeof entry === 'string')) && goal.baselineDataSeries.length > 0 && goal.baselineDataSeries.length <= dataSeriesDataFieldNames.length)
+        || goal.baselineDataSeries === undefined || goal.baselineDataSeries === null) &&
+      // TODO: When database is next updated, dataUnit might be nullable, and an isUnitless boolean might be added
+      typeof goal.dataUnit === 'string' &&
+      // TODO: dataScale is deprecated, to be removed in next database update
+      (typeof goal.dataScale === 'string' || goal.dataScale === undefined || goal.dataScale === null) &&
+      ((Array.isArray(goal.inheritFrom) && goal.inheritFrom.every((entry: JSONValue) => (
+        typeof entry === 'object' &&
+        entry !== null &&
+        !Array.isArray(entry) &&
+        typeof entry.id === 'string' &&
+        (typeof entry.isInverted === 'boolean' || entry.isInverted === undefined)
+      ))) || goal.inheritFrom === undefined || goal.inheritFrom === null) &&
+      ((Array.isArray(goal.links) && goal.links.every((entry: JSONValue) => (
+        typeof entry === 'object' &&
+        entry !== null &&
+        !Array.isArray(entry) &&
+        typeof entry.url === 'string' &&
+        (typeof entry.description === 'string' || entry.description === undefined || entry.description === null)
+      ))) || goal.links === undefined || goal.links === null) &&
+      // Roadmap ID must be a non-empty string
+      // Invalid and forbidden IDs are rejected further down
+      (typeof goal.roadmapId === 'string' && goal.roadmapId.length > 0) &&
+      // Either dataSeries or inheritFrom must be defined and not null or empty
+      ((goal.dataSeries?.length ?? 0) > 0 || (goal.inheritFrom?.length ?? 0) > 0)
     );
   }
 
-  if (!goal.roadmapId) {
-    return Response.json({ message: 'Missing parent. Please report this problem unless you are sending custom requests.' },
+  if (!isGoal(goal)) {
+    return Response.json({ message: 'Invalid request body' },
       { status: 400 }
     );
   }
@@ -78,7 +121,7 @@ export async function POST(request: NextRequest) {
       viewGroups: roadmap.viewGroups,
       isPublic: roadmap.isPublic,
     }
-    const accessLevel = accessChecker(accessFields, session.user)
+    const accessLevel = accessChecker(accessFields, session.user);
     if (accessLevel === AccessLevel.None || accessLevel === AccessLevel.View) {
       throw new Error(ClientError.IllegalParent, { cause: 'goal' });
     }
@@ -132,9 +175,7 @@ export async function POST(request: NextRequest) {
   }
   // If the data series is invalid, return an error
   if (dataValues == null) {
-    return Response.json({
-      message: 'Bad data series'
-    },
+    return Response.json({ message: 'Bad data series' },
       { status: 400 }
     );
   }
@@ -225,17 +266,60 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   const [session, goal] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<GoalInput & { goalId: string, timestamp?: number }>,
+    request.json() as Promise<JSONValue>,
   ]);
 
-  // Convert externalSelection to string so it can be stored in the database
-  if (goal.externalSelection && typeof goal.externalSelection == "object") {
-    goal.externalSelection = JSON.stringify(goal.externalSelection);
+  // Type guard and check if the request body is a valid GoalInput
+  function isGoal(goal: JSONValue): goal is Partial<GoalInput> & { goalId: string, timestamp?: number } {
+    return (
+      // Should be a non-null object
+      typeof goal === 'object' &&
+      goal !== null &&
+      !Array.isArray(goal) &&
+      // Typecheck properties
+      (typeof goal.name === 'string' || goal.name === undefined || goal.name === null) &&
+      (typeof goal.description === 'string' || goal.description === undefined || goal.description === null) &&
+      // Indicator parameter must be a non-empty string
+      ((typeof goal.indicatorParameter === 'string' && goal.indicatorParameter.length > 0) || goal.indicatorParameter === undefined) &&
+      (typeof goal.isFeatured === 'boolean' || goal.isFeatured === undefined) &&
+      (typeof goal.externalDataset === 'string' || goal.externalDataset === undefined || goal.externalDataset === null) &&
+      (typeof goal.externalTableId === 'string' || goal.externalTableId === undefined || goal.externalTableId === null) &&
+      (typeof goal.externalSelection === 'string' || goal.externalSelection === undefined || goal.externalSelection === null) &&
+      // "Recipe" for combining data series, can be a stringified number or a stringified object matching the ScalingRecipie type
+      (typeof goal.combinationScale === 'string' || goal.combinationScale === undefined || goal.combinationScale === null) &&
+      // Data series should be either undefined or have a length between 1 and dataSeriesDataFieldNames.length
+      ((Array.isArray(goal.dataSeries) && goal.dataSeries.every((entry: JSONValue) => (typeof entry === 'string')) && goal.dataSeries.length <= dataSeriesDataFieldNames.length)
+        || goal.dataSeries === undefined) &&
+      // baselineDataSeries can be a valid data series to set values, undefined to not set a baseline, or null to delete the baseline
+      ((Array.isArray(goal.baselineDataSeries) && goal.baselineDataSeries.every((entry: JSONValue) => (typeof entry === 'string')) && goal.baselineDataSeries.length > 0 && goal.baselineDataSeries.length <= dataSeriesDataFieldNames.length)
+        || goal.baselineDataSeries === undefined || goal.baselineDataSeries === null) &&
+      // TODO: When database is next updated, dataUnit might be nullable, and an isUnitless boolean might be added
+      (typeof goal.dataUnit === 'string' || goal.dataUnit === undefined) &&
+      // TODO: dataScale is deprecated, to be removed in next database update
+      (typeof goal.dataScale === 'string' || goal.dataScale === undefined || goal.dataScale === null) &&
+      ((Array.isArray(goal.inheritFrom) && goal.inheritFrom.every((entry: JSONValue) => (
+        typeof entry === 'object' &&
+        entry !== null &&
+        !Array.isArray(entry) &&
+        typeof entry.id === 'string' &&
+        (typeof entry.isInverted === 'boolean' || entry.isInverted === undefined)
+      ))) || goal.inheritFrom === undefined || goal.inheritFrom === null) &&
+      ((Array.isArray(goal.links) && goal.links.every((entry: JSONValue) => (
+        typeof entry === 'object' &&
+        entry !== null &&
+        !Array.isArray(entry) &&
+        typeof entry.url === 'string' &&
+        (typeof entry.description === 'string' || entry.description === undefined || entry.description === null)
+      ))) || goal.links === undefined || goal.links === null) &&
+      // Goal ID must be a non-empty string
+      (typeof goal.goalId === 'string' && goal.goalId.length > 0) &&
+      // Either dataSeries or inheritFrom must be defined and not null or empty
+      ((goal.dataSeries?.length ?? 0) > 0 || (goal.inheritFrom?.length ?? 0) > 0)
+    );
   }
 
-  // Validate request body
-  if (goal.indicatorParameter === null || goal.dataUnit === null || goal.dataSeries === null || !goal.goalId) {
-    return Response.json({ message: 'Missing required input parameters' },
+  if (!isGoal(goal)) {
+    return Response.json({ message: 'Invalid request body' },
       { status: 400 }
     );
   }
@@ -413,7 +497,7 @@ export async function PUT(request: NextRequest) {
             upsert: {
               create: {
                 ...dataValues,
-                unit: goal.dataUnit,
+                unit: goal.dataUnit ?? '',
                 authorId: session.user.id,
               },
               update: {
@@ -428,7 +512,7 @@ export async function PUT(request: NextRequest) {
             // Delete all previous connections and make new ones if goal.inheritFrom changes
             combinationParents: {
               deleteMany: {},
-              create: [...goal.inheritFrom.map(({ id, isInverted }) => { return ({ parentGoalId: id, isInverted }) })],
+              create: [...(goal.inheritFrom ? goal.inheritFrom.map(({ id, isInverted }) => { return ({ parentGoalId: id, isInverted }) }) : [])],
             }
           }
         ),
@@ -442,7 +526,7 @@ export async function PUT(request: NextRequest) {
             upsert: {
               create: {
                 ...baselineValues,
-                unit: goal.dataUnit,
+                unit: goal.dataUnit ?? '',
                 authorId: session.user.id,
               },
               update: {
@@ -532,7 +616,7 @@ export async function DELETE(request: NextRequest) {
       throw new Error(ClientError.BadSession, { cause: 'goal' });
     }
 
-    // If the goal is not found it eiter does not exist or the user has no access to it
+    // If the goal is not found it either does not exist or the user has no access to it
     if (!currentGoal) {
       throw new Error(ClientError.AccessDenied, { cause: 'goal' });
     }
