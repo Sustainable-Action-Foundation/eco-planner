@@ -1,6 +1,6 @@
 {
   "default": {
-    "Title": "Eco - planner",
+    "title": "Eco - planner",
     "description": "A tool that supports Sweden's climate transition through local action plans, a shared measures database, and collaboration on roadmaps."
   },
   "verify_verify": {

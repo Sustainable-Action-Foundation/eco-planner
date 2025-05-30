@@ -1,12 +1,6 @@
 import { baseUrl } from "@/lib/baseUrl";
 import { Metadata } from "next";
-import { t } from "i18next";
-
-// TODO METADATA: 
-// TODO METADATA: Add i18n support
-const default_title: string = 'Eco - planner';
-const default_description: string = 'Ett verktyg som stödjer Sveriges klimatomställning genom lokala handlingsplaner, gemensam åtgärdsdatabas och samarbete kring färdplaner.';
-const default_image_path: string = '/images/og_solar.png'; // TODO: See how we can make these smaller
+import serveTea from "@/lib/i18nServer";
 
 // TODO METADATA: Export this function?
 // Truncates text after the end of a word
@@ -19,8 +13,8 @@ function truncateText(string: string | null | undefined, maxLength: number): str
 }
 
 // TODO METADATA: Dynamically set locale
-// TODO METADATA: Decide on if the image should be optional or not, does an og image make sense for the graph pages i.e goal/[id]/edit?
-export function buildMetadata(
+// TODO METADATA: Any unintended side effects of this being async?
+export async function buildMetadata(
   {
     title,
     description,
@@ -31,27 +25,29 @@ export function buildMetadata(
     description: string | null | undefined;
     og_url: string | undefined;
     og_image_url: string | undefined;
-  }): Metadata {
+  }): Promise<Metadata> {
+  
+  const t = await serveTea('metadata')
 
   // Truncates metadata text to fit commonly used lengths
-  title = truncateText(title, 60 - default_title.length);
+  title = truncateText(title, 60 - t("metadata:default.title").length);
   description = truncateText(description, 150);
 
   return {
-    title: `${title ? `${title} | ${default_title}` : default_title}`,
-    description: description ?? default_description,
+    title: `${title ? `${title} | ${t("metadata:default.title")}` : t("metadata:default.title")}`,
+    description: t("metadata:default.description"),
     icons: "/icons/leaf.svg",
 
     openGraph: {
-      title: `${title ? `${title} | ${default_title}` : default_title}`,
-      description: description ?? default_description,
+      title: `${title ? `${title} | ${t("metadata:default.title")}` : t("metadata:default.title")}`,
+      description: description ?? t("metadata:default.description"),
       images: [{
-        url: og_image_url ?? default_image_path
+        url: og_image_url ?? '/images/og_solar.png'
       }],
       type: "website",
       url: `${og_url ? `${baseUrl}${og_url}` : baseUrl}`,
       siteName: "Eco - Planner",
-      locale: "sv_SE"
+      locale: "sv_SE" // TODO METADATA: Set this dynamically 
     }
   };
 }
