@@ -16,7 +16,8 @@ export async function generateMetadata({ params }: { params: { actionId: string 
   return buildMetadata({
     title: `Redigera åtgärd: ${action?.name}`,
     description: action?.description,
-    og_url: `/goal/${action?.id}/edit` // TODO: Query params?
+    og_url: `/goal/${action?.id}/edit`, // TODO: Query params?
+    og_image_url: undefined
   }) 
 }
 

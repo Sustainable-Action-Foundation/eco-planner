@@ -8,8 +8,8 @@ export async function generateMetadata() {
   return buildMetadata({
     title: 'Logga in',
     description: undefined, // TODO: Seperate description for this page?  
+    og_url: '/login',
     og_image_url: '/images/og_wind.png',
-    og_url: '/login'
   })  
 }
 

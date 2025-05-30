@@ -23,7 +23,8 @@ export async function generateMetadata({
   return buildMetadata({
     title: action?.name,
     description: action?.description,
-    og_url: `/action/${action?.id}`
+    og_url: `/action/${action?.id}`,
+    og_image_url: undefined
   })
 
 }

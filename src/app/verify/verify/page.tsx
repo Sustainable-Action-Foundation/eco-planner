@@ -5,7 +5,8 @@ export async function generateMetadata() {
   return buildMetadata({ 
     title: 'Slutför verifiering',
     description: undefined,  
-    og_url: '/verify/verify'
+    og_url: '/verify/verify',
+    og_image_url: undefined
   })  
 }
 

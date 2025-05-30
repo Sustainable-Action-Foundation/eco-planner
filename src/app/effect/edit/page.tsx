@@ -28,7 +28,8 @@ export async function generateMetadata({
   return buildMetadata({
     title: `Redigera effekt`, // TODO: Effects should have a name?
     description: undefined,
-    og_url: `/effect/edit` // TODO: Query params?
+    og_url: `/effect/edit`, // TODO: Query params?
+    og_image_url: undefined
   }) 
 }
 

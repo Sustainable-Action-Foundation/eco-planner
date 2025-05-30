@@ -10,7 +10,8 @@ export async function generateMetadata() {
   return buildMetadata({ 
     title: 'Skapa ny färdplansserie', 
     description: undefined,  /* TODO: Seperate description? */
-    og_url: '/metaRoadmap/create'
+    og_url: '/metaRoadmap/create',
+    og_image_url: undefined
   })  
 }
 

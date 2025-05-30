@@ -26,8 +26,9 @@ import { buildMetadata } from '@/functions/buildMetadata';
 
   return buildMetadata({
     title: `@${username}`,
-    description: undefined, // TODO: Should be like a bio or something
-    og_url: `/@${username}`
+    description: undefined, // TODO METADATA: Should be like a bio or something
+    og_url: `/@${username}`,
+    og_image_url: undefined
   })  
 }
 

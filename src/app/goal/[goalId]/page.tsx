@@ -41,8 +41,8 @@ export async function generateMetadata({
   return buildMetadata({
     title: goal?.name,
     description: goal?.description,
+    og_url: `/goal/${goal?.id}`,
     og_image_url: `${baseUrl}/api/graph/${goal?.id}`,
-    og_url: `/goal/${goal?.id}`
   }) 
 }
 

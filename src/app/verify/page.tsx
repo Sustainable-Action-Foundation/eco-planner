@@ -5,7 +5,8 @@ export async function generateMetadata() {
   return buildMetadata({ 
     title: 'Verifiera din e-post',
     description: undefined,  
-    og_url: '/verify'
+    og_url: '/verify',
+    og_image_url: undefined
   })  
 }
 

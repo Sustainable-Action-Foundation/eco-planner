@@ -8,7 +8,8 @@ export async function generateMetadata() {
   return buildMetadata({ 
     title: 'Information',
     description: undefined,  
-    og_url: '/information'
+    og_url: '/information',
+    og_image_url: undefined
   })  
 }
 

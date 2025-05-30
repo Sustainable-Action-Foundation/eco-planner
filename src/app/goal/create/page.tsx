@@ -13,7 +13,8 @@ export async function generateMetadata() {
   return buildMetadata({
     title: `Skapa målbana`,
     description: undefined,  /* TODO: Seperate description? */
-    og_url: `/goal/create` /* TODO: How do we handle query params here? */
+    og_url: `/goal/create`, /* TODO: How do we handle query params here? */
+    og_image_url: undefined
   }) 
 }
 
