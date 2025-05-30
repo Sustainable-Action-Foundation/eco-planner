@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: { goalId: string } 
   return buildMetadata({
     title: `Redigera målbana: ${currentGoal?.name}`,
     description: currentGoal?.description,
-    image_url: `${baseUrl}/api/graph/${currentGoal?.id}`, // TODO: Custom image?
+    og_image_url: `${baseUrl}/api/graph/${currentGoal?.id}`, // TODO METADATA: Custom image?
     og_url: `/goal/${currentGoal?.id}/edit`
   }) 
 }

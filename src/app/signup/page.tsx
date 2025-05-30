@@ -8,7 +8,7 @@ export async function generateMetadata() {
   return buildMetadata({
     title: 'Skapa konto',
     description: undefined, // TODO: Seperate description for this page?  
-    image_url: '/images/og_hydro.png',
+    og_image_url: '/images/og_hydro.png',
     og_url: '/signup'
   })  
 }
