@@ -12,8 +12,9 @@ export async function generateMetadata() {
 
   return buildMetadata({
     title: t("metadata:roadmap_series_create.title"),
-    description: t("metadata:roadmap_series_create.description"),  /* TODO: Seperate description? */
-    og_url: '/metaRoadmap/create'
+    description: t("metadata:roadmap_series_create.description"), 
+    og_url: '/metaRoadmap/create',
+    og_image_url: undefined
   })
 }
 

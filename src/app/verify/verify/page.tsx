@@ -10,7 +10,8 @@ export async function generateMetadata() {
   return buildMetadata({
     title: t("pages:verify_verify.title"),
     description: t("metadata:verify_verify.description"),
-    og_url: '/verify/verify'
+    og_url: '/verify/verify',
+    og_image_url: undefined
   })
 }
 

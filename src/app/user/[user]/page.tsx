@@ -28,7 +28,8 @@ export async function generateMetadata(props: {
   return buildMetadata({
     title: `@${username}`,
     description: undefined, // TODO METADATA: Should be like a bio or something
-    og_url: `/@${username}`
+    og_url: `/@${username}`,
+    og_image_url: undefined
   })
 }
 

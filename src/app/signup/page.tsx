@@ -11,8 +11,8 @@ export async function generateMetadata() {
   return buildMetadata({
     title: t("metadata:signup.title"),
     description: t("metadata:signup.description"),   
-    image_url: '/images/og_hydro.png',
-    og_url: '/signup'
+    og_url: '/signup',
+    og_image_url: '/images/og_hydro.png',
   })
 }
 

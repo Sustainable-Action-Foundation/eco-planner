@@ -20,7 +20,8 @@ export async function generateMetadata(props: { params: Promise<{ metaRoadmapId:
   return buildMetadata({
     title: metaRoadmap?.name,
     description: metaRoadmap?.description,
-    og_url: `/metaRoadmap/${metaRoadmap?.id}`
+    og_url: `/metaRoadmap/${metaRoadmap?.id}`,
+    og_image_url: undefined
   })
 }
 

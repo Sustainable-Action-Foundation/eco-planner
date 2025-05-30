@@ -19,7 +19,8 @@ export async function generateMetadata(props: { params: Promise<{ actionId: stri
   return buildMetadata({
     title: `${t("metadata:action_edit.title")} ${action?.name}`,
     description: action?.description,
-    og_url: `/goal/${action?.id}/edit` // TODO METADATA: Query params?
+    og_url: `/goal/${action?.id}/edit`, // TODO METADATA: Query params?
+    og_image_url: undefined
   })
 }
 

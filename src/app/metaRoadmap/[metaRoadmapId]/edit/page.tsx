@@ -18,9 +18,10 @@ export async function generateMetadata(props: { params: Promise<{ metaRoadmapId:
   ]);
 
   return buildMetadata({
-    title: `${t("metadata:roadmap_series_edit.title")} ${metaRoadmap?.name}`,
-    description: metaRoadmap?.description,  /* TODO METADATA: Fallback description? */
-    og_url: `roadmap/${metaRoadmap?.id}/edit` // TODO METADATA: metaroadmap?.id fine?
+    title: `${t("metadata:roadmap_series_edit.title")} ${metaRoadmap?.name}`, 
+    description: metaRoadmap?.description, 
+    og_url: `roadmap/${metaRoadmap?.id}/edit`, // TODO METADATA: metaroadmap?.id fine?
+    og_image_url: undefined
   })
 }
 

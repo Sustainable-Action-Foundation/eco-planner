@@ -27,7 +27,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import getTableContent from "@/lib/api/getTableContent";
-import { baseUrl } from "@/lib/baseUrl";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata(props: {
@@ -45,8 +44,8 @@ export async function generateMetadata(props: {
   return buildMetadata({
     title: goal?.name,
     description: goal?.description,
-    image_url: undefined, // TODO METADATA: Use graph api here once ready 
-    og_url: `/goal/${goal?.id}`
+    og_url: `/goal/${goal?.id}`,
+    og_image_url: undefined, // TODO METADATA: Use graph api here once ready 
   })
 }
 

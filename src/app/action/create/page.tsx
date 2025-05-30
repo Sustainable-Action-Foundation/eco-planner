@@ -17,7 +17,8 @@ export async function generateMetadata() {
   return buildMetadata({
     title: t("metadata:action_create.title"),
     description: t("metadata:action_create.description"),
-    og_url: `/action/create`
+    og_url: `/action/create`,
+    og_image_url: undefined
   })
 }
 

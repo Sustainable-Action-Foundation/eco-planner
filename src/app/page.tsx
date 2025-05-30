@@ -16,7 +16,8 @@ export async function generateMetadata() {
   return buildMetadata({
     title: undefined,
     description: undefined,
-    og_url: undefined
+    og_url: undefined,
+    og_image_url: undefined,
   })
 }
 

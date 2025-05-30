@@ -19,9 +19,9 @@ export async function generateMetadata(props: { params: Promise<{ goalId: string
 
   return buildMetadata({
     title: `${t("metadata:goal_edit.title")} ${currentGoal?.name}`,
-    description: currentGoal?.description, // TODO METADATA: Fallback description?
-    image_url: undefined, // TODO METADATA: Use graph api here once ready?
-    og_url: `/goal/${currentGoal?.id}/edit`
+    description: currentGoal?.description,
+    og_url: `/goal/${currentGoal?.id}/edit`,
+    og_image_url: undefined, // TODO METADATA: Use graph api here once ready?
   })
 }
 

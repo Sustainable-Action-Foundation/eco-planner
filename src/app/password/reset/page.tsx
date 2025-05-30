@@ -8,7 +8,8 @@ export async function generateMetadata() {
   return buildMetadata({
     title: t('pages:password_reset.title'),
     description: t('metadata:password_reset.description'),
-    og_url: '/password/reset'
+    og_url: '/password/reset', 
+    og_image_url: undefined
   })
 }
 

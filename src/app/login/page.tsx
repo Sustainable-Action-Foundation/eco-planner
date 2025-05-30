@@ -11,8 +11,8 @@ export async function generateMetadata() {
   return buildMetadata({
     title: t("metadata:login.title"),
     description: t("metadata:login.description"),
-    image_url: '/images/og_wind.png',
-    og_url: '/login'
+    og_url: '/login',
+    og_image_url: '/images/og_wind.png',
   })
 }
 

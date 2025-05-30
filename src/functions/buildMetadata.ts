@@ -24,13 +24,13 @@ export function buildMetadata(
   {
     title,
     description,
-    image_url, // TODO: Should be og_image_url
-    og_url
+    og_url,
+    og_image_url,
   }: {
     title: string | null | undefined;
     description: string | null | undefined;
-    image_url?: string | URL;
     og_url: string | undefined;
+    og_image_url: string | undefined;
   }): Metadata {
 
   // Truncates metadata text to fit commonly used lengths
@@ -46,7 +46,7 @@ export function buildMetadata(
       title: `${title ? `${title} | ${default_title}` : default_title}`,
       description: description ?? default_description,
       images: [{
-        url: image_url ?? default_image_path
+        url: og_image_url ?? default_image_path
       }],
       type: "website",
       url: `${og_url ? `${baseUrl}${og_url}` : baseUrl}`,

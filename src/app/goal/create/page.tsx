@@ -16,7 +16,8 @@ export async function generateMetadata() {
   return buildMetadata({
     title: t("metadata:goal_create.title"),
     description: t("metadata:goal_create.title"),
-    og_url: `/goal/create` /* TODO METADATA: How do we handle query params here? */
+    og_url: `/goal/create`, /* TODO METADATA: How do we handle query params here? */
+    og_image_url: undefined,
   })
 }
 

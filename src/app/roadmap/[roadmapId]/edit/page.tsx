@@ -19,8 +19,9 @@ export async function generateMetadata(props: { params: Promise<{ roadmapId: str
 
   return buildMetadata({
     title: `${t("metadata:roadmap_edit.title")} ${roadmap?.metaRoadmap.name}`,
-    description: roadmap?.description || roadmap?.metaRoadmap.description, // TODO METADATA: Fallback description?
-    og_url: `/roadmap/${roadmap?.id}/edit`
+    description: roadmap?.description || roadmap?.metaRoadmap.description,
+    og_url: `/roadmap/${roadmap?.id}/edit`,
+    og_image_url: undefined
   })
 }
 
