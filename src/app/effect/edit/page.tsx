@@ -17,7 +17,7 @@ export async function generateMetadata() {
 
   return buildMetadata({
     title: t("metadata:effect_edit.title"), 
-    description: undefined, // TODO METADATA: description?
+    description: undefined, 
     og_url: `/effect/edit`, // TODO METADATA: Query params?
     og_image_url: undefined
   })
