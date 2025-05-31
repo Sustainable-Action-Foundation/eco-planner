@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
  
+// TODO METATA: Add translations
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Eco - planner',

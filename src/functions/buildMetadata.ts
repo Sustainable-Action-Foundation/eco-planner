@@ -1,18 +1,10 @@
 import { baseUrl } from "@/lib/baseUrl";
 import { Metadata } from "next";
+import truncateText from "./truncateText";
 import serveTea from "@/lib/i18nServer";
+import { getLocale } from "./getLocale";
+import { cookies, headers } from "next/headers";
 
-// TODO METADATA: Export this function?
-// Truncates text after the end of a word
-function truncateText(string: string | null | undefined, maxLength: number): string | undefined {
-  if (!string) return;
-  if (string.length <= maxLength) return string;
-
-  const truncatedString = string.slice(0, maxLength);
-  return truncatedString.slice(0, truncatedString.lastIndexOf(' ')) + '…';
-}
-
-// TODO METADATA: Dynamically set locale
 // TODO METADATA: Any unintended side effects of this being async?
 export async function buildMetadata(
   {
@@ -27,9 +19,19 @@ export async function buildMetadata(
     og_image_url: string | undefined;
   }): Promise<Metadata> {
   
+  const [cookieContent, headerContent] = await Promise.all([
+    cookies(),
+    headers(),
+  ]);
+
+  const locale = getLocale(
+    cookieContent.get("locale")?.value,
+    headerContent.get("accept-language"),
+  );
+
   const t = await serveTea('metadata')
 
-  // Truncates metadata text to fit commonly used lengths
+  // Truncates metadata text to fit commonly used lengths (60 for title, 150 for description)
   title = truncateText(title, 60 - t("metadata:default.title").length);
   description = truncateText(description, 150);
 
@@ -37,7 +39,6 @@ export async function buildMetadata(
     title: `${title ? `${title} | ${t("metadata:default.title")}` : t("metadata:default.title")}`,
     description: t("metadata:default.description"),
     icons: "/icons/leaf.svg",
-
     openGraph: {
       title: `${title ? `${title} | ${t("metadata:default.title")}` : t("metadata:default.title")}`,
       description: description ?? t("metadata:default.description"),
@@ -47,7 +48,7 @@ export async function buildMetadata(
       type: "website",
       url: `${og_url ? `${baseUrl}${og_url}` : baseUrl}`,
       siteName: "Eco - Planner",
-      locale: "sv_SE" // TODO METADATA: Set this dynamically 
+      locale: locale 
     }
   };
 }
