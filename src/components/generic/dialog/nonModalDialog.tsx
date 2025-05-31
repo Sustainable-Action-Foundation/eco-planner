@@ -5,7 +5,29 @@ import Image from 'next/image';
 import styles from './nonModalDialog.module.css' with { type: "css" }
 import { useRef } from "react";
 
-export default  function NonModalDialog({
+export function NonModalDialogButton({
+  id,
+  className,
+  style,
+  children
+}: {
+  id?: string,
+  className?: string,
+  style?: React.CSSProperties;
+  children?: React.ReactNode,
+}) {
+  return (
+    <button 
+      id={id}
+      className={`${className}`}
+      style={{...style}}
+    >
+      {children}
+    </button>
+  )
+}
+
+export default function NonModalDialog({
   dialogPosition,
   toggleButtonWidth,
   title,
@@ -58,7 +80,11 @@ export default  function NonModalDialog({
       <div className={`${styles['toggle-button-wrapper']} position-relative`}>
         {/* TODO: We primarily implemented this for translation menu */}
         {/* Adapt button image and text to a broader usage later (and style appropriately)*/}
-        <button onClick={toggleDialog} className={`${styles['toggle-button']} align-items-center font-weight-500`} style={{width: toggleButtonWidth, fontSize: '1rem'}}>
+        <button 
+          onClick={toggleDialog} 
+          className={`${styles['toggle-button']} align-items-center font-weight-500`} 
+          style={{width: toggleButtonWidth, fontSize: '1rem'}}
+        >
           <Image src='/icons/globe.svg' alt='' width={24} height={24} />
           {t("components:sidebar.language")}
         </button>
