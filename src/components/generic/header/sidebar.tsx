@@ -23,12 +23,12 @@ export default async function Sidebar() {
       <aside className={`${styles.aside} flex-grow-100`}>
         <nav className={styles.nav}>
           {user?.isLoggedIn ?
-            <Link href={`/@${user.username}`} className={styles.link}>
+            <Link href={`/@${user.username}`} className={styles.link} style={{overflow: 'hidden'}}>
               <Image src='/icons/user.svg' alt='' width={24} height={24} />
               {t("components:sidebar.my_profile")}
             </Link>
             :
-            <Link href="/signup" className='flex gap-50 align-items-center padding-50 margin-block-25 round seagreen color-purewhite button font-weight-500' style={{ whiteSpace: 'nowrap' }}>
+            <Link href="/signup" className='flex gap-50 align-items-center padding-50 margin-block-25 round seagreen color-purewhite button font-weight-500' style={{ whiteSpace: 'nowrap', overflow: 'hidden' }}>
               <Image src='/icons/userAdd.svg' alt='' width={24} height={24} />
               {t("components:sidebar.create_account")}
             </Link>
@@ -38,6 +38,23 @@ export default async function Sidebar() {
               <Image src='/icons/home.svg' alt='' width={24} height={24} />
               {t("components:sidebar.home")}
             </Link>
+            {/*
+            <NonModalDialogWrapper>
+              <NonModalDialogButton 
+                id='create-dialog-button'
+                indicatorMargin='1rem'
+                dialogPosition='right'
+                className='transparent rounded flex gap-50 font-weight-600 align-items-center width-100' 
+                style={{fontSize: '1rem', overflow: 'hidden' }}
+              >
+                <img src="/icons/circlePlus.svg" alt='Skapa' width={24} height={24} />
+                Skapa
+              </NonModalDialogButton>
+              <NonModalDialogTemp>
+                Skapa
+              </NonModalDialogTemp>
+            </NonModalDialogWrapper>
+            */} 
           </div>
           <section>
             <NonModalDialog
@@ -51,20 +68,27 @@ export default async function Sidebar() {
                 <LanguageSwitcher />
               </fieldset>
             </NonModalDialog>
+            {/*
+              <NonModalDialogWrapper>
+                <NonModalDialogButton 
+                  id='settings-dialog-button'
+                  indicatorMargin='1rem'
+                  dialogPosition='right'
+                  className='transparent rounded flex gap-50 font-weight-600 align-items-center width-100' 
+                  style={{fontSize: '1rem', overflow: 'hidden' }}
+                >
+                  <img src="/icons/settings.svg" alt='Inställningar' width={24} height={24} />
+                  Inställningar
+                </NonModalDialogButton>
+                <NonModalDialogTemp>
+                  Inställningar
+                </NonModalDialogTemp>
+              </NonModalDialogWrapper>
+             */}
             <Link href="/info" className={`${styles.link} margin-top-300`}>
               <Image src='/icons/info.svg' alt='' width={24} height={24} />
               {t("components:sidebar.about")}
             </Link>  
-            {/*
-            <NonModalDialogWrapper>
-              <NonModalDialogButton >
-                Test
-              </NonModalDialogButton>
-              <NonModalDialogTemp>
-                Test
-              </NonModalDialogTemp>
-            </NonModalDialogWrapper>
-            */}
           </section>
           {user?.isLoggedIn ?
             <LogoutButton />

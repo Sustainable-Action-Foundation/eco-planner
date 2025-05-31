@@ -2,7 +2,7 @@
 .toggle-button {
     anchor-name: --toggle-button;
     display: flex;
-    gap: 10px;
+    gap: .5rem;
     background-color: transparent;
     overflow: hidden;
     border-radius: .5rem;
@@ -32,7 +32,8 @@
         border-style: solid;
 
         position: absolute;
-        position-anchor: --toggle-button;
+        --position-anchor: --toggle-button;
+        position-anchor: var(--position-anchor);
     }
 
     .toggle-button-wrapper:has(+ dialog[open]) .dialog-arrow-indicator {

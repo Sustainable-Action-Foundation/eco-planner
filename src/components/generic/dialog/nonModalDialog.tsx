@@ -3,15 +3,17 @@
 import { t } from 'i18next';
 import Image from 'next/image';
 import styles from './nonModalDialog.module.css' with { type: "css" }
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import React from "react";
 
 interface NonModalDialogButtonProps {
-  id?: string,
+  id: string,
   className?: string,
   style?: React.CSSProperties;
   children?: React.ReactNode,
   onToggleDialog?: () => void;  
+  dialogPosition: "top" | "right" | "bottom" | "left";
+  indicatorMargin: string
 }
 
 interface NonModalDialogProps {
@@ -63,17 +65,45 @@ export function NonModalDialogButton({
   className,
   style,
   children,
-  onToggleDialog
+  onToggleDialog,
+  dialogPosition,
+  indicatorMargin,
 }: NonModalDialogButtonProps ) {
+  
+  // TODO: This useEffect can be removed once nextjs support anchor-name within inline styles
+  useEffect(() => {
+    const toggle_dialog_button = document.getElementById(id)
+    const toggle_dialog_button_indicator = document.getElementById(`${id}-indicator`)
+    if (toggle_dialog_button && toggle_dialog_button_indicator) {
+      toggle_dialog_button.style.setProperty('anchor-name', `--${id}`)
+      toggle_dialog_button_indicator.style.setProperty('--position-anchor', `--${id}`)
+    }
+  })
+  
   return (
-    <button 
-      id={id}
-      className={`${className}`}
-      style={{...style}}
-      onClick={onToggleDialog}
-    >
-      {children}
-    </button>
+    <div className={`${styles['toggle-button-wrapper']} position-relative`}>
+      <button 
+        id={id}
+        className={`${className}`}
+        style={{...style}}
+        onClick={onToggleDialog}
+      >
+        {children}
+      </button>
+      <div 
+        id={`${id}-indicator`}
+        className={`
+          ${styles['dialog-arrow-indicator']}  
+          ${styles[`dialog-arrow-indicator-${dialogPosition}`]}
+        `}
+        style={{
+          marginTop: dialogPosition === 'bottom' ? indicatorMargin : 0,
+          marginRight: dialogPosition === 'left' ? indicatorMargin : 0,
+          marginBottom: dialogPosition === 'top' ? indicatorMargin : 0,
+          marginLeft: dialogPosition === 'right' ? indicatorMargin : 0
+        }}
+      ></div>
+    </div>
   )
 } 
 
@@ -120,7 +150,7 @@ export default function NonModalDialog({
     }
   | {
       dialogPosition: "right" | "left";
-      verticalAlign: "top" | "center" | "bottom";
+      verticalAlign: "top" | "center" | "bottom"; // TODO: Add horizontal align (left, center, right)?
       toggleButtonWidth: string;
       title: string,
       margin: {
