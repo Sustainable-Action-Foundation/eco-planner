@@ -1,11 +1,14 @@
 import type { MetadataRoute } from 'next'
- 
-// TODO METATA: Add translations
-export default function manifest(): MetadataRoute.Manifest {
+import serveTea from "@/lib/i18nServer";
+
+export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  
+  const t = await serveTea('metadata')
+  
   return {
-    name: 'Eco - planner',
-    short_name: 'Eco - planner',
-    description: 'Ett verktyg som stödjer Sveriges klimatomställning genom lokala handlingsplaner, gemensam åtgärdsdatabas och samarbete kring färdplaner',
+    name: t("metadata:default.title"),
+    short_name: t("metadata:default.short_title"),
+    description: t("metadata:default.description"),
     start_url: '/',
     display: 'standalone',
     background_color: '#191919',

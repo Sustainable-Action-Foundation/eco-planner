@@ -20,7 +20,6 @@ export default async function Page() {
       <Breadcrumb customSections={[t("pages:password_reset.breadcrumb")]} />
 
       <main>
-        {/* TODO METADATA: Why are theese translations behaving weird? */}
         <div className="margin-block-300 padding-inline-100 padding-bottom-100 container-text purewhite smooth" style={{ border: '1px solid var(--gray)' }}>
           <h1>{t("pages:password_reset.title")}</h1>
           <p>{t("pages:password_reset.description")}</p>
