@@ -8,7 +8,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { LanguageSwitcher } from "@/components/languageSwitcher"
 import { t } from "@/lib/i18nServer"
-import NonModalDialog, { NonModalDialogButton } from '@/components/generic/dialog/nonModalDialog';
+import NonModalDialog, { NonModalDialogButton, NonModalDialogTemp, NonModalDialogWrapper } from '@/components/generic/dialog/nonModalDialog';
 // import Notifications from '../notifications/notification'
 
 export default async function Sidebar() {
@@ -56,9 +56,14 @@ export default async function Sidebar() {
               {t("components:sidebar.about")}
             </Link>  
             {/*
+            <NonModalDialogWrapper>
               <NonModalDialogButton >
                 Test
               </NonModalDialogButton>
+              <NonModalDialogTemp>
+                Test
+              </NonModalDialogTemp>
+            </NonModalDialogWrapper>
             */}
           </section>
           {user?.isLoggedIn ?

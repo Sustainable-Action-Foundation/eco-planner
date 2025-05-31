@@ -4,28 +4,98 @@ import { t } from 'i18next';
 import Image from 'next/image';
 import styles from './nonModalDialog.module.css' with { type: "css" }
 import { useRef } from "react";
+import React from "react";
+
+interface NonModalDialogButtonProps {
+  id?: string,
+  className?: string,
+  style?: React.CSSProperties;
+  children?: React.ReactNode,
+  onToggleDialog?: () => void;  
+}
+
+interface NonModalDialogProps {
+  id?: string,
+  className?: string,
+  style?: React.CSSProperties;
+  children?: React.ReactNode;
+  dialogRef?: React.RefObject<HTMLDialogElement | null>;
+}
+
+export function NonModalDialogWrapper({
+  children 
+}: { 
+  children: [
+    React.ReactElement<NonModalDialogButtonProps>,
+    React.ReactElement<NonModalDialogProps>
+  ]; // expect only button and dialog as the children
+}) {
+
+  // Pass ref to dialog child
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
+  // function to toggle dialog child using ref 
+  const toggleDialog = () => {
+    if (!dialogRef.current) return;
+    if (!dialogRef.current.open) {
+      dialogRef.current.show();
+    } else {
+      dialogRef.current.close();
+    }
+  };
+  
+  // Clone the button to inject the toggle handler
+  // Clone the dialog to inject the ref
+  const [button, dialog] = children;
+  const buttonWithProps = React.cloneElement(button, { onToggleDialog: toggleDialog });
+  const dialogWithProps = React.cloneElement(dialog, { dialogRef });
+
+  return (
+    <>
+      {buttonWithProps}
+      {dialogWithProps}
+    </>
+  );
+}
 
 export function NonModalDialogButton({
   id,
   className,
   style,
-  children
-}: {
-  id?: string,
-  className?: string,
-  style?: React.CSSProperties;
-  children?: React.ReactNode,
-}) {
+  children,
+  onToggleDialog
+}: NonModalDialogButtonProps ) {
   return (
     <button 
       id={id}
       className={`${className}`}
       style={{...style}}
+      onClick={onToggleDialog}
     >
       {children}
     </button>
   )
+} 
+
+export function NonModalDialogTemp({ 
+  id,
+  className,
+  style,
+  children,
+  dialogRef, 
+}: NonModalDialogProps ) {
+  return (
+    <dialog 
+      id={id}
+      className={`${className}`}
+      style={{...style}}
+      ref={dialogRef}
+    >
+      {children}
+    </dialog>
+  );
 }
+
 
 export default function NonModalDialog({
   dialogPosition,
