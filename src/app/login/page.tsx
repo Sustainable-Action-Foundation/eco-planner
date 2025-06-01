@@ -12,7 +12,7 @@ export async function generateMetadata() {
   return buildMetadata({
     title: t("metadata:login.title"),
     description: t("metadata:login.description"),
-    og_url: `${baseUrl}/login`,
+    og_url: `/login`,
     og_image_url: '/images/og_wind.png',
   })
 }

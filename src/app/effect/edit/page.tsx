@@ -28,7 +28,7 @@ export async function generateMetadata(
   return buildMetadata({
     title: t("metadata:effect_edit.title"),
     description: undefined,
-    og_url: `${baseUrl}/effect/edit?actionId=${searchParams.actionId}&goalId=${searchParams.goalId}`,
+    og_url: `/effect/edit?actionId=${searchParams.actionId}&goalId=${searchParams.goalId}`,
     og_image_url: undefined
   })
 }

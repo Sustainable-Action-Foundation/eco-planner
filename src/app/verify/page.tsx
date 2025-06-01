@@ -11,7 +11,7 @@ export async function generateMetadata() {
   return await buildMetadata({
     title: t("pages:verify.title"),
     description: t("pages:verify.description"),
-    og_url: `${baseUrl}/verify`,
+    og_url: `/verify`,
     og_image_url: undefined
   })
 }

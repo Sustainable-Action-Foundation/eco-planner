@@ -13,7 +13,7 @@ export async function generateMetadata() {
   return buildMetadata({
     title: t("pages:info.title"),
     description: t("pages:info.info_body"),
-    og_url: `${baseUrl}/information`,
+    og_url: `/information`,
     og_image_url: undefined,
   })
 }

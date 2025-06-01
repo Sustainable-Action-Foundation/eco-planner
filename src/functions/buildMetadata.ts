@@ -38,14 +38,18 @@ export async function buildMetadata(
     title: `${title ? `${title} | ${t("metadata:default.title")}` : t("metadata:default.title")}`,
     description: t("metadata:default.description"),
     icons: "/icons/leaf.svg",
+    metadataBase: new URL(baseUrl),
+    alternates: {
+      canonical: og_url || '/'
+    },
     openGraph: {
       title: `${title ? `${title} | ${t("metadata:default.title")}` : t("metadata:default.title")}`,
       description: description ?? t("metadata:default.description"),
       images: [{
-        url: og_image_url ?? '/images/og_solar.png'
+        url: og_image_url || '/images/og_solar.png'
       }],
       type: "website",
-      url: `${og_url ? `${baseUrl}${og_url}` : baseUrl}`,
+      url: og_url || '/',
       siteName: "Eco - Planner",
       locale: locale 
     }

@@ -22,7 +22,7 @@ export async function generateMetadata(props: { params: Promise<{ actionId: stri
   return buildMetadata({
     title: action?.name,
     description: action?.description,
-    og_url: `${baseUrl}/action/${params.actionId}`,
+    og_url: `/action/${params.actionId}`,
     og_image_url: undefined
   })
 

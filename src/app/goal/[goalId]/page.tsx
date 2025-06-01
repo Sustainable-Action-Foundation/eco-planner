@@ -46,7 +46,7 @@ export async function generateMetadata(props: {
   return buildMetadata({
     title: goal?.name,
     description: goal?.description,
-    og_url: `${baseUrl}/goal/${params.goalId}`,
+    og_url: `/goal/${params.goalId}`,
     og_image_url: undefined, // TODO: Use graph api here once ready 
   })
 }

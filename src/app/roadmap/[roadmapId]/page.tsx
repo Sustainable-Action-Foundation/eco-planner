@@ -23,7 +23,7 @@ export async function generateMetadata(props: { params: Promise<{ roadmapId: str
   return buildMetadata({
     title: roadmap?.metaRoadmap.name,
     description: roadmap?.description,
-    og_url: `${baseUrl}/roadmap/${params.roadmapId}`,
+    og_url: `/roadmap/${params.roadmapId}`,
     og_image_url: undefined
   })
 }

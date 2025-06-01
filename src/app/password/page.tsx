@@ -9,7 +9,7 @@ export async function generateMetadata() {
   return buildMetadata({
     title: t("pages:password.title"),
     description: t("pages:password.description"),
-    og_url: `${baseUrl}/password`,
+    og_url: `/password`,
     og_image_url: undefined
   })
 }
