@@ -9,6 +9,7 @@ import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
+import { baseUrl } from "@/lib/baseUrl";
 
 export async function generateMetadata(props: { params: Promise<{ metaRoadmapId: string }> }) {
   const params = await props.params
@@ -20,7 +21,7 @@ export async function generateMetadata(props: { params: Promise<{ metaRoadmapId:
   return buildMetadata({
     title: metaRoadmap?.name,
     description: metaRoadmap?.description,
-    og_url: `/metaRoadmap/${metaRoadmap?.id}`,
+    og_url: `${baseUrl}/metaRoadmap/${params.metaRoadmapId}`,
     og_image_url: undefined
   })
 }

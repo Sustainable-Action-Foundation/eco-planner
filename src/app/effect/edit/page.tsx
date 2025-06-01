@@ -9,16 +9,26 @@ import { cookies } from "next/headers";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
+import { baseUrl } from "@/lib/baseUrl";
 
 const editAccess = [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin];
 
-export async function generateMetadata() {
+export async function generateMetadata(
+  props: {
+    searchParams: Promise<{
+      actionId?: string | string[] | undefined,
+      goalId?: string | string[] | undefined,
+      [key: string]: string | string[] | undefined
+    }>,
+  }
+) {
+  const searchParams = await props.searchParams;
   const t = await serveTea("metadata")
 
   return buildMetadata({
-    title: t("metadata:effect_edit.title"), 
-    description: undefined, 
-    og_url: `/effect/edit`, // TODO METADATA: Query params?
+    title: t("metadata:effect_edit.title"),
+    description: undefined,
+    og_url: `${baseUrl}/effect/edit?actionId=${searchParams.actionId}&goalId=${searchParams.goalId}`,
     og_image_url: undefined
   })
 }

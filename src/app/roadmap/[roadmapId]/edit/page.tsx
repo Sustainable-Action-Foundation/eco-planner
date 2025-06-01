@@ -9,6 +9,7 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { ScopeReminder } from "@/components/forms/roadmapForm/scopeReminder";
 import { buildMetadata } from "@/functions/buildMetadata";
+import { baseUrl } from "@/lib/baseUrl";
 
 export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {
   const params = await props.params
@@ -20,7 +21,7 @@ export async function generateMetadata(props: { params: Promise<{ roadmapId: str
   return buildMetadata({
     title: `${t("metadata:roadmap_edit.title")} ${roadmap?.metaRoadmap.name}`,
     description: roadmap?.description || roadmap?.metaRoadmap.description,
-    og_url: `/roadmap/${roadmap?.id}/edit`,
+    og_url: `${baseUrl}/roadmap/${params.roadmapId}/edit`,
     og_image_url: undefined
   })
 }

@@ -3,14 +3,15 @@
 import VerifyForm from "@/components/forms/verify/verifyForm.tsx";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
+import { baseUrl } from "@/lib/baseUrl";
 
 export async function generateMetadata() {
   const t = await serveTea("pages");
 
-  return buildMetadata({
+  return await buildMetadata({
     title: t("pages:verify.title"),
     description: t("pages:verify.description"),
-    og_url: '/verify',
+    og_url: `${baseUrl}/verify`,
     og_image_url: undefined
   })
 }

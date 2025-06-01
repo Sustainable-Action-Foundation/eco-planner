@@ -4,6 +4,7 @@ import styles from "./page.module.css" with { type: "css" };
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
+import { baseUrl } from "@/lib/baseUrl";
 
 export async function generateMetadata() {
   const t = await serveTea("metadata");
@@ -11,7 +12,7 @@ export async function generateMetadata() {
   return buildMetadata({
     title: t("metadata:signup.title"),
     description: t("metadata:signup.description"),   
-    og_url: '/signup',
+    og_url: `${baseUrl}/signup`,
     og_image_url: '/images/og_hydro.png',
   })
 }

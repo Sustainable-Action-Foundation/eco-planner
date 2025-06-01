@@ -12,6 +12,7 @@ import Image from "next/image";
 import { DataSeries, Goal } from "@prisma/client";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
+import { baseUrl } from "@/lib/baseUrl";
 
 export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {
   const params = await props.params
@@ -22,7 +23,7 @@ export async function generateMetadata(props: { params: Promise<{ roadmapId: str
   return buildMetadata({
     title: roadmap?.metaRoadmap.name,
     description: roadmap?.description,
-    og_url: `/roadmap/${roadmap?.id}`,
+    og_url: `${baseUrl}/roadmap/${params.roadmapId}`,
     og_image_url: undefined
   })
 }

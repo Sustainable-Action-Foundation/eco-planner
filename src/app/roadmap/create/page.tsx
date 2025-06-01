@@ -10,6 +10,7 @@ import accessChecker from '@/lib/accessChecker';
 import getOneMetaRoadmap from '@/fetchers/getOneMetaRoadmap';
 import serveTea from "@/lib/i18nServer";;
 import { buildMetadata } from '@/functions/buildMetadata';
+import { baseUrl } from '@/lib/baseUrl';
 
 export async function generateMetadata() {
   const t = await serveTea("metadata")
@@ -17,7 +18,7 @@ export async function generateMetadata() {
   return buildMetadata({
     title: t("metadata:roadmap_create.title"),
     description: t('metadata:roadmap_create.description'), 
-    og_url: '/roadmap/create', /* TODO METADATA: How do we handle query params here? */
+    og_url: `${baseUrl}/roadmap/create`,
     og_image_url: undefined
   })
 }

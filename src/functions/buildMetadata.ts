@@ -5,7 +5,6 @@ import serveTea from "@/lib/i18nServer";
 import { getLocale } from "./getLocale";
 import { cookies, headers } from "next/headers";
 
-// TODO METADATA: Any unintended side effects of this being async?
 export async function buildMetadata(
   {
     title,

@@ -1,6 +1,7 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import SendResetMail from "@/components/forms/password/resetPassword";
 import { buildMetadata } from "@/functions/buildMetadata";
+import { baseUrl } from "@/lib/baseUrl";
 import serveTea from "@/lib/i18nServer";
 
 export async function generateMetadata() {
@@ -8,7 +9,7 @@ export async function generateMetadata() {
   return buildMetadata({
     title: t("pages:password.title"),
     description: t("pages:password.description"),
-    og_url: '/password',
+    og_url: `${baseUrl}/password`,
     og_image_url: undefined
   })
 }

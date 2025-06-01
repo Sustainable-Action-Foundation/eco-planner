@@ -13,7 +13,7 @@ import Link from "next/link";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata() {
-  return buildMetadata({
+  return await buildMetadata({
     title: undefined,
     description: undefined,
     og_url: undefined,

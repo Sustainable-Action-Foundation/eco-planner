@@ -12,6 +12,7 @@ import { notFound } from 'next/navigation';
 import styles from './page.module.css' with { type: "css" }
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';
+import { baseUrl } from '@/lib/baseUrl';
 
 export async function generateMetadata(props: {
   params: Promise<{ user: string }>,
@@ -28,7 +29,7 @@ export async function generateMetadata(props: {
   return buildMetadata({
     title: `@${username}`,
     description: undefined, // TODO: Should be like a bio or something
-    og_url: `/@${username}`,
+    og_url: `${baseUrl}/user/${username}`,
     og_image_url: undefined
   })
 }

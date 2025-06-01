@@ -11,6 +11,7 @@ import EffectTable from "@/components/tables/effects.tsx";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
+import { baseUrl } from "@/lib/baseUrl";
 
 export async function generateMetadata(props: { params: Promise<{ actionId: string }> }) {
   const params = await props.params
@@ -21,7 +22,7 @@ export async function generateMetadata(props: { params: Promise<{ actionId: stri
   return buildMetadata({
     title: action?.name,
     description: action?.description,
-    og_url: `/action/${action?.id}`,
+    og_url: `${baseUrl}/action/${params.actionId}`,
     og_image_url: undefined
   })
 
