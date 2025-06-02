@@ -3,7 +3,6 @@
 import serveTea from "@/lib/i18nServer";
 import VerifyButton from "@/components/forms/verify/verifyButton";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { baseUrl } from "@/lib/baseUrl";
 
 export async function generateMetadata() {
   const t = await serveTea(["pages", "metadata"]);

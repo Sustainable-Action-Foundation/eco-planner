@@ -9,7 +9,6 @@ import { AccessLevel } from '@/types';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';
-import { baseUrl } from '@/lib/baseUrl';
 
 export async function generateMetadata(props: { params: Promise<{ metaRoadmapId: string }> }) {
   const params = await props.params
@@ -19,8 +18,8 @@ export async function generateMetadata(props: { params: Promise<{ metaRoadmapId:
   ]);
 
   return buildMetadata({
-    title: `${t("metadata:roadmap_series_edit.title")} ${metaRoadmap?.name}`, 
-    description: metaRoadmap?.description, 
+    title: `${t("metadata:roadmap_series_edit.title")} ${metaRoadmap?.name}`,
+    description: metaRoadmap?.description,
     og_url: `/roadmap/${params.metaRoadmapId}/edit`,
     og_image_url: undefined
   })

@@ -6,14 +6,13 @@ import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';
-import { baseUrl } from '@/lib/baseUrl';
 
 export async function generateMetadata() {
   const t = await serveTea("metadata")
 
   return buildMetadata({
     title: t("metadata:roadmap_series_create.title"),
-    description: t("metadata:roadmap_series_create.description"), 
+    description: t("metadata:roadmap_series_create.description"),
     og_url: `/metaRoadmap/create`,
     og_image_url: undefined
   })

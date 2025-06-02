@@ -28,8 +28,6 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import getTableContent from "@/lib/api/getTableContent";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { baseUrl } from "@/lib/baseUrl";
-import { param } from "node_modules/cypress/types/jquery";
 
 export async function generateMetadata(props: {
   params: Promise<{ goalId: string }>,

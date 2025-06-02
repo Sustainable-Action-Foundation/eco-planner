@@ -5,7 +5,6 @@ import fs from "fs";
 import metadata from "package.json" with { type: "json" };
 import serveTea from "@/lib/i18nServer";
 import { CommitWithLink, FallbackRemote, Intro, KnownRemote } from "@/app/info/appMetaInfo";
-import { baseUrl } from "@/lib/baseUrl";
 
 export async function generateMetadata() {
   const t = await serveTea("pages");

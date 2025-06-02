@@ -12,13 +12,11 @@ export default function DataSeriesInput({
   inputName = "dataSeries",
   inputId = "dataSeries",
   labelKey = "forms:data_series_input.data_series",
-  summaryKey,
 }: {
   dataSeriesString?: string;
   inputName?: string;
   inputId?: string;
   labelKey?: string;
-  summaryKey?: string;
 }) {
 
   const { t } = useTranslation("forms");

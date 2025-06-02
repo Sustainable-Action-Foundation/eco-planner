@@ -9,7 +9,6 @@ import { cookies } from "next/headers";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { baseUrl } from "@/lib/baseUrl";
 
 const editAccess = [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin];
 

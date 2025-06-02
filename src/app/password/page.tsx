@@ -1,7 +1,6 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import SendResetMail from "@/components/forms/password/resetPassword";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { baseUrl } from "@/lib/baseUrl";
 import serveTea from "@/lib/i18nServer";
 
 export async function generateMetadata() {

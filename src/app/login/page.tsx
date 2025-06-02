@@ -4,11 +4,10 @@ import AttributedImage, { AttributeText } from "@/components/generic/images/attr
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { baseUrl } from "@/lib/baseUrl";
 
 export async function generateMetadata() {
   const t = await serveTea("metadata");
-  
+
   return buildMetadata({
     title: t("metadata:login.title"),
     description: t("metadata:login.description"),

@@ -133,7 +133,6 @@ export default function ActionForm({
               inputName="dataSeries"
               inputId="dataSeries"
               labelKey="forms:data_series_input.data_series"
-              summaryKey="forms:data_series_input.extra_info_data_series"
             />
           </fieldset>
           : null
