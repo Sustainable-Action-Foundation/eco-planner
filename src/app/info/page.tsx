@@ -5,6 +5,7 @@ import fs from "fs";
 import metadata from "package.json" with { type: "json" };
 import serveTea from "@/lib/i18nServer";
 import { CommitWithLink, FallbackRemote, Intro, KnownRemote } from "@/app/info/appMetaInfo";
+import NonModalDialog from "@/components/generic/dialog/nonModalDialog";
 
 export async function generateMetadata() {
   const t = await serveTea("pages");

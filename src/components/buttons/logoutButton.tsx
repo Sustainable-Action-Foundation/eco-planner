@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 export default function LogoutButton() {
   const { t } = useTranslation(["common", "components"])
   return (
-    <button className="flex align-items-center rounded transparent padding-50 gap-50 width-100 font-weight-500" style={{ fontSize: '1rem', whiteSpace: 'nowrap' }} onClick={async () => {
+    <button className="flex align-items-center rounded transparent padding-50 gap-50 width-100 font-weight-500" style={{ fontSize: '1rem', whiteSpace: 'nowrap', overflow: 'hidden' }} onClick={async () => {
       fetch('/api/logout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

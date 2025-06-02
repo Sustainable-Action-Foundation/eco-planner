@@ -98,10 +98,12 @@ export default function QueryBuilder({
   }, [tableDetails]);
 
   function buildQuery(formData: FormData) {
-    const queryObject: object[] = [];
+    const queryObject: { variableCode: string, valueCodes: string[] }[] = [];
     formData.forEach((value, key) => {
       // Skip empty values
       if (!value) return;
+      // Skip File inputs
+      if (value instanceof File) return;
       // Skip externalDataset, externalTableId, and `tableSearchInputName`, as they are not part of the query
       if (key == "externalDataset") return;
       if (key == "externalTableId") return;
@@ -114,7 +116,7 @@ export default function QueryBuilder({
       queryObject.push({ variableCode: key, valueCodes: [value] });
     });
 
-    return queryObject as { variableCode: string, valueCodes: string[] }[];
+    return queryObject;
   }
 
   function deleteHistoricalData() {
@@ -145,7 +147,7 @@ export default function QueryBuilder({
       goalId: goal.id,
       externalDataset: dataSource,
       externalTableId: formData.get("externalTableId"),
-      externalSelection: query,
+      externalSelection: JSON.stringify(query),
       timestamp: Date.now(),
     }), "PUT", setIsLoading);
   }

@@ -141,7 +141,7 @@
     "my_profile": "My account",
     "create_account": "Create account",
     "home": "$t(common:tsx.home)",
-    "about": "About the tool",
+    "about": "About",
     "language": "Language",
     "language_alt": "Select language"
   },

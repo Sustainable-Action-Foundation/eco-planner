@@ -8,6 +8,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { LanguageSwitcher } from "@/components/languageSwitcher"
 import serveTea from "@/lib/i18nServer";
+import NonModalDialog, { NonModalDialogButton, NonModalDialogTemp, NonModalDialogWrapper } from '@/components/generic/dialog/nonModalDialog';
 // import Notifications from '../notifications/notification'
 
 export default async function Sidebar() {
@@ -25,12 +26,12 @@ export default async function Sidebar() {
       <aside className={`${styles.aside} flex-grow-100`}>
         <nav className={styles.nav}>
           {user?.isLoggedIn ?
-            <Link href={`/@${user.username}`} className={styles.link}>
+            <Link href={`/@${user.username}`} className={styles.link} style={{ overflow: 'hidden' }}>
               <Image src='/icons/user.svg' alt='' width={24} height={24} />
               {t("components:sidebar.my_profile")}
             </Link>
             :
-            <Link href="/signup" className='flex gap-50 align-items-center padding-50 margin-block-25 round seagreen color-purewhite button font-weight-500' style={{ whiteSpace: 'nowrap' }}>
+            <Link href="/signup" className='flex gap-50 align-items-center padding-50 margin-block-25 round seagreen color-purewhite button font-weight-500' style={{ whiteSpace: 'nowrap', overflow: 'hidden' }}>
               <Image src='/icons/userAdd.svg' alt='' width={24} height={24} />
               {t("components:sidebar.create_account")}
             </Link>
@@ -40,26 +41,58 @@ export default async function Sidebar() {
               <Image src='/icons/home.svg' alt='' width={24} height={24} />
               {t("components:sidebar.home")}
             </Link>
-            <Link href="/info" className={styles.link}>
+            {/*
+            <NonModalDialogWrapper>
+              <NonModalDialogButton 
+                id='create-dialog-button'
+                indicatorMargin='1rem'
+                dialogPosition='right'
+                className='transparent rounded flex gap-50 font-weight-600 align-items-center width-100' 
+                style={{fontSize: '1rem', overflow: 'hidden' }}
+              >
+                <img src="/icons/circlePlus.svg" alt='Skapa' width={24} height={24} />
+                Skapa
+              </NonModalDialogButton>
+              <NonModalDialogTemp>
+                Skapa
+              </NonModalDialogTemp>
+            </NonModalDialogWrapper>
+            */}
+          </div>
+          <section>
+            <NonModalDialog
+              dialogPosition='right'
+              verticalAlign='top'
+              title={t("components:sidebar.language_alt")}
+              toggleButtonWidth='100%'
+              margin={{ top: '0', right: '0', bottom: '0', left: '2rem' }}
+            >
+              <fieldset className={`padding-inline-25 padding-bottom-25 fieldset-unset-pseudo-class`}>
+                <LanguageSwitcher />
+              </fieldset>
+            </NonModalDialog>
+            {/*
+              <NonModalDialogWrapper>
+                <NonModalDialogButton 
+                  id='settings-dialog-button'
+                  indicatorMargin='1rem'
+                  dialogPosition='right'
+                  className='transparent rounded flex gap-50 font-weight-600 align-items-center width-100' 
+                  style={{fontSize: '1rem', overflow: 'hidden' }}
+                >
+                  <img src="/icons/settings.svg" alt='Inställningar' width={24} height={24} />
+                  Inställningar
+                </NonModalDialogButton>
+                <NonModalDialogTemp>
+                  Inställningar
+                </NonModalDialogTemp>
+              </NonModalDialogWrapper>
+             */}
+            <Link href="/info" className={`${styles.link} margin-top-300`}>
               <Image src='/icons/info.svg' alt='' width={24} height={24} />
               {t("components:sidebar.about")}
             </Link>
-          </div>
-          <div className={`${styles['menu-settings-wrapper']}`}>
-            <label className={`${styles.link} justify-content-space-between`}>
-              <div className='flex align-items-center gap-50'>
-                <Image src='/icons/globe.svg' alt='' width={24} height={24} />
-                {t("components:sidebar.language")}
-              </div>
-              <Image src='/icons/caret-right.svg' alt='' width={16} height={16} />
-              {/* TODO: Some kind of indication showing this is checked? */}
-              <input type='checkbox' className='display-none' />
-            </label>
-            <fieldset className={`${styles['menu-settings-container']} fieldset-unset-pseudo-class`}>
-              <legend className=' font-weight-600 padding-inline-25'>{t("components:sidebar.language_alt")}</legend>
-              <LanguageSwitcher />
-            </fieldset>
-          </div>
+          </section>
           {user?.isLoggedIn ?
             <LogoutButton />
             :
