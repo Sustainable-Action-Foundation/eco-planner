@@ -33,7 +33,7 @@ export default function RoadmapForm({
   currentRoadmap?: Roadmap & AccessControlled & { metaRoadmap: MetaRoadmap },
   defaultMetaRoadmap?: string,
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["forms", "common"]);
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()

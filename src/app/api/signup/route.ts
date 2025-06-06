@@ -5,10 +5,12 @@ import bcrypt from "bcryptjs";
 import mailClient from "@/mailClient";
 import getUserHash from "@/functions/getUserHash";
 import { baseUrl } from "@/lib/baseUrl";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 import Mail from "nodemailer/lib/mailer";
 
 export async function POST(request: NextRequest) {
+  const t = await serveTea("email");
+
   const { username, email, password }: { username: string; email: string; password: string; } = await request.json();
 
   // Validate request body

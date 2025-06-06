@@ -12,7 +12,7 @@ export default function RoadmapFilters() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { t } = useTranslation();
+  const { t } = useTranslation(["components", "common"]);
 
   const [_isPending, startTransition] = useTransition();
 
@@ -94,11 +94,11 @@ export default function RoadmapFilters() {
             }
           }} />
           {`${thisType == RoadmapType.NATIONAL ? t("common:scope.national_roadmap") :
-              thisType == RoadmapType.REGIONAL ? t("common:scope.regional_roadmap") :
-                thisType == RoadmapType.MUNICIPAL ? t("common:scope.municipal_roadmap") :
-                  thisType == RoadmapType.LOCAL ? t("common:scope.local_roadmap") :
-                    thisType == RoadmapType.OTHER ? t("common:scope.other_roadmap") :
-                      thisType
+            thisType == RoadmapType.REGIONAL ? t("common:scope.regional_roadmap") :
+              thisType == RoadmapType.MUNICIPAL ? t("common:scope.municipal_roadmap") :
+                thisType == RoadmapType.LOCAL ? t("common:scope.local_roadmap") :
+                  thisType == RoadmapType.OTHER ? t("common:scope.other_roadmap") :
+                    thisType
             }`}
         </label>
       ))}

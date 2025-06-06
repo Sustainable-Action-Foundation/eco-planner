@@ -20,7 +20,7 @@ export default function SiblingGraph({
   },
   goal: Goal & { dataSeries: DataSeries | null },
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("graphs");
 
   const siblings = findSiblings(roadmap, goal);
   const dataPoints: ApexAxisChartSeries = [];

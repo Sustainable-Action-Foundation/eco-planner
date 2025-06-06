@@ -7,12 +7,15 @@ import { cookies } from 'next/headers'
 import Link from 'next/link'
 import Image from 'next/image'
 import { LanguageSwitcher } from "@/components/languageSwitcher"
-import { t } from "@/lib/i18nServer"
+import serveTea from "@/lib/i18nServer";
 import NonModalDialog, { NonModalDialogButton, NonModalDialogTemp, NonModalDialogWrapper } from '@/components/generic/dialog/nonModalDialog';
 // import Notifications from '../notifications/notification'
 
 export default async function Sidebar() {
-  const { user } = await getSession(await cookies())
+  const [t, { user }] = await Promise.all([
+    serveTea(["components", "common"]),
+    getSession(await cookies()),
+  ]);
 
   return <>
     <aside className={styles.container}>
@@ -23,7 +26,7 @@ export default async function Sidebar() {
       <aside className={`${styles.aside} flex-grow-100`}>
         <nav className={styles.nav}>
           {user?.isLoggedIn ?
-            <Link href={`/@${user.username}`} className={styles.link} style={{overflow: 'hidden'}}>
+            <Link href={`/@${user.username}`} className={styles.link} style={{ overflow: 'hidden' }}>
               <Image src='/icons/user.svg' alt='' width={24} height={24} />
               {t("components:sidebar.my_profile")}
             </Link>
@@ -54,13 +57,14 @@ export default async function Sidebar() {
                 Skapa
               </NonModalDialogTemp>
             </NonModalDialogWrapper>
-            */} 
+            */}
           </div>
           <section>
             <NonModalDialog
               dialogPosition='right'
               verticalAlign='top'
               title={t("components:sidebar.language_alt")}
+              buttonTitle={t("components:sidebar.language")}
               toggleButtonWidth='100%'
               margin={{ top: '0', right: '0', bottom: '0', left: '2rem' }}
             >
@@ -88,7 +92,7 @@ export default async function Sidebar() {
             <Link href="/info" className={`${styles.link} margin-top-300`}>
               <Image src='/icons/info.svg' alt='' width={24} height={24} />
               {t("components:sidebar.about")}
-            </Link>  
+            </Link>
           </section>
           {user?.isLoggedIn ?
             <LogoutButton />

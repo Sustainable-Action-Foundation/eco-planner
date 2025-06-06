@@ -30,7 +30,7 @@ export function ManualGoalForm({
   },
   dataSeriesString?: string,
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("forms");
   const [parsedUnit, setParsedUnit] = useState<string | null>(null);
 
   useEffect(() => {
@@ -70,7 +70,6 @@ export function ManualGoalForm({
         inputName="dataSeries"
         inputId="dataSeries"
         labelKey="forms:data_series_input.data_series"
-        summaryKey="forms:data_series_input.extra_info_data_series"
       />
     </>
   )
@@ -97,7 +96,7 @@ export function InheritedGoalForm({
   },
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["forms", "common"]);
   const [selectedRoadmap, setSelectedRoadmap] = useState(currentGoal?.combinationParents[0]?.parentGoal.roadmapId);
   const [roadmapData, setRoadmapData] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
   const [selectedGoal, setSelectedGoal] = useState(currentGoal?.combinationParents[0]?.parentGoal.id);
@@ -205,7 +204,7 @@ export function CombinedGoalForm({
     roadmap: { id: string },
   },
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["forms", "common"]);
   const [currentRoadmap, setCurrentRoadmap] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
   const [inheritFrom, setInheritFrom] = useState<string[]>([]);
   const [parsedUnit, setParsedUnit] = useState<string | null>(null);
@@ -290,7 +289,7 @@ export function CombinedGoalForm({
 }
 
 export function InheritingBaseline() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["forms", "common"]);
   const [roadmapList, setRoadmapList] = useState<Awaited<ReturnType<typeof clientSafeGetRoadmaps>>>([]);
   const [selectedRoadmap, setSelectedRoadmap] = useState<string | undefined>(undefined);
   const [roadmapData, setRoadmapData] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);

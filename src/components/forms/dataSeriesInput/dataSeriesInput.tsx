@@ -2,7 +2,7 @@
 
 import { dataSeriesDataFieldNames } from "@/types";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import styles from "./dataSeriesInput.module.css";
 import { dataSeriesPattern, isValidPastedInput, isValidSingleInputForGrid, isValidSingleInputForTextField } from "./utils";
@@ -12,16 +12,14 @@ export default function DataSeriesInput({
   inputName = "dataSeries",
   inputId = "dataSeries",
   labelKey = "forms:data_series_input.data_series",
-  summaryKey,
 }: {
   dataSeriesString?: string;
   inputName?: string;
   inputId?: string;
   labelKey?: string;
-  summaryKey?: string;
 }) {
 
-  const { t } = useTranslation();
+  const { t } = useTranslation("forms");
   const [dataSeriesValues, setDataSeriesValues] = useState<string[]>(
     dataSeriesString && dataSeriesString.length > 0
       ? dataSeriesString.split(/[\t;]/).slice(0, dataSeriesDataFieldNames.length)
@@ -73,11 +71,11 @@ export default function DataSeriesInput({
   }
 
   return (
-    <> 
+    <>
       <fieldset className="block margin-block-100 fieldset-unset-pseudo-class">
-        <legend 
+        <legend
           className="flex flex-wrap-wrap gap-100 justify-content-space-between align-items-center width-100 margin-bottom-100 padding-bottom-25"
-          style={{borderBottom: '1px solid var(--gray)'}}
+          style={{ borderBottom: '1px solid var(--gray)' }}
         >
           {t(labelKey)}
           <button
@@ -87,12 +85,12 @@ export default function DataSeriesInput({
             onClick={() => { setTableIsVisible(!tableIsVisible) }}
           >
             {tableIsVisible ? (
-              <>                
+              <>
                 {t("forms:data_series_input.hide_table")}
                 <Image src="/icons/caret-up.svg" alt="" width={20} height={20} />
               </>
             ) : (
-              <>                
+              <>
                 {t("forms:data_series_input.show_table")}
                 <Image src="/icons/caret-down.svg" alt="" width={20} height={20} />
               </>
@@ -102,14 +100,14 @@ export default function DataSeriesInput({
         {/* TODO: Make this allow .csv files and possibly excel files */}
         <label className={`${styles['spreadsheet-label']} grid padding-left-100 gap-100 gray-90 font-weight-600`}>
           <span className="padding-50 text-align-center">{t("forms:data_series_input.year")}</span>
-          <span className="padding-50 padding-left-100" style={{borderLeft: '1px solid var(--gray)'}}>{t("forms:data_series_input.value")}</span>
+          <span className="padding-50 padding-left-100" style={{ borderLeft: '1px solid var(--gray)' }}>{t("forms:data_series_input.value")}</span>
         </label>
         {tableIsVisible && (
           <>
             {dataSeriesDataFieldNames.map((value, index) => (
-              <label 
-                key={`year-${index}`} 
-                className={`${styles['spreadsheet-label']} grid place-items-center padding-left-100 gap-100`} 
+              <label
+                key={`year-${index}`}
+                className={`${styles['spreadsheet-label']} grid place-items-center padding-left-100 gap-100`}
               >
                 {value.replace("val", "")}
                 <input

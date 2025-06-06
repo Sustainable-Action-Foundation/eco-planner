@@ -18,7 +18,7 @@ import findSiblings from "@/functions/findSiblings.ts";
 import accessChecker from "@/lib/accessChecker";
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import { getSession } from "@/lib/session";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 import prisma from "@/prismaClient";
 import { AccessControlled, AccessLevel } from "@/types";
 import type { DataSeries, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
@@ -27,6 +27,39 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import getTableContent from "@/lib/api/getTableContent";
+import { buildMetadata } from "@/functions/buildMetadata";
+
+export async function generateMetadata(props: {
+  params: Promise<{ goalId: string }>,
+  searchParams: Promise<{
+    secondaryGoal?: string | string[] | undefined,
+    [key: string]: string | string[] | undefined
+  }>,
+}) {
+  const params = await props.params
+
+  const [t, session, goal] = await Promise.all([
+    serveTea("metadata"),
+    getSession(await cookies()),
+    getOneGoal(params.goalId),
+  ]);
+
+  if (!session.user?.isLoggedIn) {
+    return buildMetadata({
+      title: t("metadata:login.title"),
+      description: t("metadata:login.title"),
+      og_url: `/goal/${params.goalId}`,
+      og_image_url: '/images/og_wind.png'
+    })
+  }
+  
+  return buildMetadata({
+    title: goal?.name,
+    description: goal?.description,
+    og_url: `/goal/${params.goalId}`,
+    og_image_url: undefined, // TODO: Use graph api here once ready 
+  })
+}
 
 export default async function Page(
   props: {
@@ -37,11 +70,15 @@ export default async function Page(
     }>,
   }
 ) {
-  const searchParams = await props.searchParams;
-  const params = await props.params;
+  const [params, searchParams] = await Promise.all([
+    props.params,
+    props.searchParams
+  ]);
+  // TODO: Use user locale instead of hardcoded value
   const locale = "sv";
 
-  const [session, { goal, roadmap }, secondaryGoal, unfilteredRoadmapOptions] = await Promise.all([
+  const [t, session, { goal, roadmap }, secondaryGoal, unfilteredRoadmapOptions] = await Promise.all([
+    serveTea("pages"),
     getSession(await cookies()),
     getOneGoal(params.goalId).then(async goal => { return { goal, roadmap: (goal ? await getOneRoadmap(goal.roadmapId) : null) } }),
     typeof searchParams.secondaryGoal == "string" ? getOneGoal(searchParams.secondaryGoal) : Promise.resolve(null),

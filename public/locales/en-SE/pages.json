@@ -79,15 +79,17 @@
     "commit_without_link": "Based on commit: {{commit}}"
   },
   "login": {
-    "breadcrumb": "Login"
+    "breadcrumb": "Log in"
   },
   "password": {
     "breadcrumb": "Reset password",
+    "title": "Reset password",
     "description": "Forgot your password? Enter your email here and we will send an email with instructions to reset your password.",
     "submit": "Submit"
   },
   "password_reset": {
     "breadcrumb": "Update password",
+    "title": "Update password",
     "description": "Enter your new password below and submit to update your password.",
     "password": "New password",
     "submit": "Change password"
