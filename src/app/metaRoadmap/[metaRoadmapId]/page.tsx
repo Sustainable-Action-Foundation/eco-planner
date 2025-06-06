@@ -12,11 +12,21 @@ import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata(props: { params: Promise<{ metaRoadmapId: string }> }) {
   const params = await props.params
-
-  const [metaRoadmap] = await Promise.all([
+  const [t, session, metaRoadmap] = await Promise.all([
+    serveTea("pages"),
+    getSession(await cookies()),
     getOneMetaRoadmap(params.metaRoadmapId),
   ]);
 
+  if (!session.user?.isLoggedIn) {
+    return buildMetadata({
+      title: t("metadata:login.title"),
+      description: t("metadata:login.title"),
+      og_url: `/metaRoadmap/${params.metaRoadmapId}`,
+      og_image_url: '/images/og_wind.png'
+    })
+  }
+ 
   return buildMetadata({
     title: metaRoadmap?.name,
     description: metaRoadmap?.description,
