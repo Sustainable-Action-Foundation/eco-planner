@@ -12,10 +12,20 @@ import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata(props: { params: Promise<{ goalId: string }> }) {
   const params = await props.params;
-  const [t, currentGoal] = await Promise.all([
+  const [t, session, currentGoal] = await Promise.all([
     serveTea("metadata"),
+    getSession(await cookies()),
     getOneGoal(params.goalId),
   ]);
+
+  if (!session.user?.isLoggedIn) {
+    return buildMetadata({
+      title: t("metadata:login.title"),
+      description: t("metadata:login.title"),
+      og_url: `/goal/${params.goalId}/edit`,
+      og_image_url: '/images/og_wind.png'
+    })
+  }
 
   return buildMetadata({
     title: `${t("metadata:goal_edit.title")} ${currentGoal?.name}`,

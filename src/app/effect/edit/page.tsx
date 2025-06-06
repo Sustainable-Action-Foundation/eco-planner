@@ -22,7 +22,19 @@ export async function generateMetadata(
   }
 ) {
   const searchParams = await props.searchParams;
-  const t = await serveTea("metadata")
+  const [t, session] = await Promise.all([
+    serveTea("metadata"),
+    getSession(await cookies()),
+  ]);
+
+  if (!session.user?.isLoggedIn) {
+    return buildMetadata({
+      title: t("metadata:login.title"),
+      description: t("metadata:login.title"),
+      og_url: `/effect/edit?actionId=${searchParams.actionId}&goalId=${searchParams.goalId}`,
+      og_image_url: '/images/og_wind.png'
+    })
+  }
 
   return buildMetadata({
     title: t("metadata:effect_edit.title"),

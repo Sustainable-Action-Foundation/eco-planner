@@ -37,10 +37,22 @@ export async function generateMetadata(props: {
   }>,
 }) {
   const params = await props.params
-  const [{ goal }] = await Promise.all([
-    getOneGoal(params.goalId).then(async goal => { return { goal, roadmap: (goal ? await getOneRoadmap(goal.roadmapId) : null) } }),
+
+  const [t, session, goal] = await Promise.all([
+    serveTea("metadata"),
+    getSession(await cookies()),
+    getOneGoal(params.goalId),
   ]);
 
+  if (!session.user?.isLoggedIn) {
+    return buildMetadata({
+      title: t("metadata:login.title"),
+      description: t("metadata:login.title"),
+      og_url: `/goal/${params.goalId}`,
+      og_image_url: '/images/og_wind.png'
+    })
+  }
+  
   return buildMetadata({
     title: goal?.name,
     description: goal?.description,
