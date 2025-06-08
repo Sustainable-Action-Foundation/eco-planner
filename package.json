@@ -49,6 +49,7 @@
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.6.1",
     "@prisma/client": "^6.6.0",
+    "@tabler/icons-react": "^3.34.0",
     "accept-language": "^3.0.20",
     "apexcharts": "^4.5.0",
     "bcryptjs": "^3.0.2",

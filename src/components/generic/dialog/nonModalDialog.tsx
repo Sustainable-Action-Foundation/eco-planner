@@ -1,9 +1,9 @@
 "use client"
 
-import Image from 'next/image';
 import styles from './nonModalDialog.module.css' with { type: "css" }
 import { useEffect, useRef } from "react";
 import React from "react";
+import { IconWorld, IconX } from "@tabler/icons-react"
 
 interface NonModalDialogButtonProps {
   id: string,
@@ -187,7 +187,7 @@ export default function NonModalDialog({
           className={`${styles['toggle-button']} align-items-center font-weight-500`}
           style={{ width: toggleButtonWidth, fontSize: '1rem' }}
         >
-          <Image src='/icons/globe.svg' alt='' width={24} height={24} />
+          <IconWorld style={{minWidth: "24px"}} />
           {buttonTitle}
         </button>
         <div
@@ -232,8 +232,7 @@ export default function NonModalDialog({
             className="padding-25"
             style={{ backgroundColor: 'transparent', borderRadius: '9999px' }}
           >
-            {/* TODO: Use image component */}
-            <img src="/icons/close.svg" className="grid" width="16" height="16" alt={`Close dialog`} />
+            <IconX width={16} height={16} aria-label='Close dialog' className='grid' />
           </button>
         </form>
         {children}

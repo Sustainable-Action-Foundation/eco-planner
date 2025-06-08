@@ -1,7 +1,7 @@
 'use client'
 
-import Image from "next/image"
 import { useTranslation } from "react-i18next"
+import { IconLogout2 } from "@tabler/icons-react"
 
 export default function LogoutButton() {
   const { t } = useTranslation(["common", "components"])
@@ -18,7 +18,7 @@ export default function LogoutButton() {
         }
       })
     }}>
-      <Image src="/icons/logout.svg" alt="" width="24" height="24" />
+      <IconLogout2 style={{minWidth: "24px"}} />
       {t("common:tsx.logout")}
     </button>
   )
