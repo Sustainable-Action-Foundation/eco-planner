@@ -2,7 +2,7 @@
 
 import { RoadmapSortBy } from "@/types";
 import { RoadmapType } from "@prisma/client";
-import { IconFilter } from "@tabler/icons-react";
+import { IconAdjustmentsHorizontal } from "@tabler/icons-react";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
@@ -76,7 +76,7 @@ export default function RoadmapFilters() {
         <span style={{ lineHeight: '1', }}>{t("components:roadmap_filters.filter")}</span>
         <div className='position-relative grid place-items-center'>
           <input type="checkbox" className="position-absolute width-100 height-100 hidden" />
-          <IconFilter style={{minWidth: '24px'}} />
+          <IconAdjustmentsHorizontal style={{minWidth: '24px'}} />
         </div>
       </label>
     </menu>

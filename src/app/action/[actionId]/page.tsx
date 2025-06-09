@@ -11,6 +11,7 @@ import EffectTable from "@/components/tables/effects.tsx";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
+import { IconEdit } from "@tabler/icons-react";
 
 export async function generateMetadata(props: { params: Promise<{ actionId: string }> }) {
   const params = await props.params
@@ -98,7 +99,7 @@ export default async function Page(props: { params: Promise<{ actionId: string }
                 style={{ width: 'fit-content', height: 'fit-content' }}
               >
                 {t("pages:action.edit_action")}
-                <Image src="/icons/edit.svg" width={24} height={24} alt={t("pages:action.edit_action_alt", { actionName: action.name })} />
+                <IconEdit style={{minWidth: '24px'}} />
               </Link>
               : null}
           </div>

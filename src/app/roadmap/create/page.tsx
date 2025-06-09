@@ -10,6 +10,7 @@ import accessChecker from '@/lib/accessChecker';
 import getOneMetaRoadmap from '@/fetchers/getOneMetaRoadmap';
 import serveTea from "@/lib/i18nServer";;
 import { buildMetadata } from '@/functions/buildMetadata';
+import { IconInfoCircle } from '@tabler/icons-react';
 
 export async function generateMetadata() {
   const t = await serveTea("metadata")
@@ -64,7 +65,7 @@ export default async function Page(
         </h1>
         {badMetaRoadmap &&
           <p style={{ color: 'red' }}>
-            <Image src="/icons/info.svg" width={24} height={24} alt='' />
+            <IconInfoCircle />
             {t("pages:roadmap_create.bad_roadmap_series")} <br />
             {t("pages:roadmap_create.use_dropdown")}
           </p>

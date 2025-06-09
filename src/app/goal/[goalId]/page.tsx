@@ -28,6 +28,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import getTableContent from "@/lib/api/getTableContent";
 import { buildMetadata } from "@/functions/buildMetadata";
+import { IconAlertTriangle } from "@tabler/icons-react";
 
 export async function generateMetadata(props: {
   params: Promise<{ goalId: string }>,
@@ -174,7 +175,7 @@ export default async function Page(
             style={{ border: '1px solid gold', backgroundColor: 'rgba(255, 255, 0, .35)' }}
           >
             <div className="flex align-items-center gap-100 margin-left-100">
-              <Image src="/icons/alert.svg" alt="" width={24} height={24} />
+              <IconAlertTriangle style={{minWidth: '24px'}} />
               <strong className="font-weight-500">{t("pages:goal.update_needed")}</strong>
             </div>
             <UpdateGoalButton id={goal.id} />

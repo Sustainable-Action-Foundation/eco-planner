@@ -9,6 +9,7 @@ import { cookies } from "next/headers";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
+import { IconInfoCircle } from "@tabler/icons-react";
 
 const editAccess = [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin];
 
@@ -69,7 +70,7 @@ export default async function Page(
           {t("pages:effect_edit.title")}
         </h1>
         <p style={{ color: 'red' }}>
-          <Image src="/icons/info.svg" width={24} height={24} alt='' />
+          <IconInfoCircle />
           {t("pages:effect_edit.no_access")}
         </p>
       </div>

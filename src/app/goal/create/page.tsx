@@ -9,6 +9,7 @@ import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
+import { IconInfoCircle } from "@tabler/icons-react";
 
 export async function generateMetadata() {
   const t = await serveTea("metadata")
@@ -54,7 +55,7 @@ export default async function Page(
         </h1>
         {badRoadmap &&
           <p style={{ color: 'red' }}>
-            <Image src="/icons/info.svg" width={24} height={24} alt='' />
+            <IconInfoCircle />
             {t("pages:goal_create.bad_roadmap")}
           </p>
         }
