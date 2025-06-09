@@ -1,5 +1,5 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import ResetPassword from "@/components/forms/password/resetPassword";
+import UpdatePassword from "@/components/forms/password/updatePassword";
 import { buildMetadata } from "@/functions/buildMetadata";
 import serveTea from "@/lib/i18nServer";
 
@@ -23,7 +23,7 @@ export default async function Page() {
         <div className="margin-block-300 padding-inline-100 padding-bottom-100 container-text purewhite smooth" style={{ border: '1px solid var(--gray)' }}>
           <h1>{t("pages:password_reset.title")}</h1>
           <p>{t("pages:password_reset.description")}</p>
-          <ResetPassword />
+          <UpdatePassword />
         </div>
       </main>
     </>

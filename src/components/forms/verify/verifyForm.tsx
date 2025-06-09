@@ -1,7 +1,7 @@
 "use client"
 
 import formSubmitter from "@/functions/formSubmitter";
-import Image from "next/image";
+import { IconMail } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
 export default function VerifyForm() {
@@ -21,7 +21,7 @@ export default function VerifyForm() {
 		<form onSubmit={handleSubmit} className="flex gap-50 flex-wrap-wrap align-items-center">
 			<label className="flex-grow-100">
 				<div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
-					<Image src="/icons/email.svg" alt="" width={24} height={24} />
+					<IconMail  style={{minWidth: '24px'}}/>
 					<input className="padding-0 margin-inline-50" type="email" placeholder="email" name="email" required id="email" autoComplete="email" />
 				</div>
 			</label>
