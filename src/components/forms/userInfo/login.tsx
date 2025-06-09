@@ -6,6 +6,7 @@ import { useState } from "react";
 import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
+import { IconEye, IconEyeOff, IconLock, IconUser } from "@tabler/icons-react";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction) {
   event.preventDefault()
@@ -52,7 +53,7 @@ export default function Login() {
         <label className="block margin-block-100">
           {t("components:login.username")}
           <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
-            <Image src="/icons/user.svg" alt="" width={24} height={24} />
+            <IconUser style={{minWidth: '24px'}} />
             <input className="padding-0 margin-inline-50" type="text" placeholder={t("common:placeholder.name")} name="username" required id="username" autoComplete="username" />
           </div>
         </label>
@@ -61,10 +62,10 @@ export default function Login() {
         <label className="block margin-block-100">
           {t("components:login.password")}
           <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
-            <Image src="/icons/password.svg" alt="" width={24} height={24} />
+            <IconLock style={{minWidth: '24px'}} />
             <input className="padding-0 margin-inline-50 transparent" type={showPassword ? 'text' : 'password'} placeholder={t("common:placeholder.password")} name="password" required id="password" autoComplete="current-password" />
             <button type="button" className={`${styles.showPasswordButton} grid padding-0 transparent`} onClick={() => setShowPassword(prevState => !prevState)}>
-              <Image src={showPassword ? '/icons/eyeDisabled.svg' : '/icons/eye.svg'} alt="" width={24} height={24} />
+              {showPassword ? <IconEye style={{minWidth: '24px'}} /> : <IconEyeOff style={{minWidth: '24px'}} /> } 
             </button>
           </div>
         </label>
