@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import styles from "./dataSeriesInput.module.css";
 import { dataSeriesPattern, isValidPastedInput, isValidSingleInputForGrid, isValidSingleInputForTextField } from "./utils";
+import { IconCaretDownFilled, IconCaretUpFilled } from "@tabler/icons-react";
 
 export default function DataSeriesInput({
   dataSeriesString, // TODO - rename "dataSeriesString" to "dataSeriesInput" or "initialValue" (latter suggested by chatgpt)
@@ -87,12 +88,12 @@ export default function DataSeriesInput({
             {tableIsVisible ? (
               <>
                 {t("forms:data_series_input.hide_table")}
-                <Image src="/icons/caret-up.svg" alt="" width={20} height={20} />
+                <IconCaretUpFilled width={20} height={20} style={{minWidth: '20px'}} />
               </>
             ) : (
               <>
                 {t("forms:data_series_input.show_table")}
-                <Image src="/icons/caret-down.svg" alt="" width={20} height={20} />
+                <IconCaretDownFilled width={20} height={20} style={{minWidth: '20px'}} />
               </>
             )}
           </button>

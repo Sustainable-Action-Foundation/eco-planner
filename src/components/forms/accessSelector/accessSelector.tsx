@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import styles from './accessSelector.module.css' with { type: "css" }
 import { useTranslation } from "react-i18next";
+import { IconX } from "@tabler/icons-react";
 
 /**
  * Converts the form data to a JSON object that can be sent to the API.
@@ -130,7 +131,7 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
                 className="grid padding-0"
                 onClick={() => { setEditUsers(editUsers.filter((editUser) => editUser !== user)); }}
                 type="button">
-                <Image src="/icons/close.svg" alt={t("forms:access_selector.remove_user")} width={12} height={12}></Image>
+                <IconX aria-label={t("forms:access_selector.remove_user")} width={12} height={12} strokeWidth={3} />
               </button>
             </span>
           ))}
@@ -201,7 +202,7 @@ export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPubli
                 className="grid padding-0"
                 onClick={() => { setViewUsers(viewUsers.filter((viewUser) => viewUser !== user)); }}
                 type="button">
-                <Image src="/icons/close.svg" alt={t("forms:access_selector.remove_user")} width={12} height={12}></Image>
+                <IconX aria-label={t("forms:access_selector.remove_user")} width={12} height={12} strokeWidth={3} />
               </button>
             </span>
           ))}

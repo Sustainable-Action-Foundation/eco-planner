@@ -22,6 +22,7 @@ export default function TableSelector({ id, current, setter }: { id: string, cur
 
   return (
     <div className='flex align-items-center gap-25'>
+      {/* TODO TABLER_ICONS: Figure out how to replace using tabler icons */}
       <RadioImage text={t("components:table_selector.tree")} value={ViewMode.Tree} src="/icons/listTree.svg" name="table" checked={current == ViewMode.Tree} onChange={handleRadioChange} />
       <RadioImage text={t("components:table_selector.table")} value={ViewMode.Table} src="/icons/table.svg" name="table" checked={current == ViewMode.Table} onChange={handleRadioChange} />
       <RadioImage text={t("components:table_selector.actions")} value={ViewMode.Actions} src="/icons/list.svg" name="table" checked={current == ViewMode.Actions} onChange={handleRadioChange} />

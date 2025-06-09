@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import { useTranslation } from "react-i18next";
+import { IconTrashFilled, IconTrashXFilled } from "@tabler/icons-react";
 
 export default function LinkInput({ links }: { links?: { url: string, description: string | null }[] }) {
   const { t } = useTranslation("forms");
@@ -56,7 +57,7 @@ export default function LinkInput({ links }: { links?: { url: string, descriptio
                 type="button"
                 className="grid transparent round margin-left-100"
                 onClick={() => setLinkList(linkList.filter((_, i) => i !== index))}>
-                <Image src="/icons/delete.svg" width={24} height={24} alt="" />
+                <IconTrashXFilled fill='#CB3C3C' />
               </button>
             </div>
           </li>

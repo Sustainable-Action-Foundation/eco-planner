@@ -16,6 +16,7 @@ import { FormEvent, useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
+import { IconTrashXFilled, IconX } from "@tabler/icons-react";
 
 export default function QueryBuilder({
   goal,
@@ -431,17 +432,19 @@ export default function QueryBuilder({
         <>
           <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
             {t("components:query_builder.change_historical_data")}
+            {/* TODO TABLER_ICONS: This is a custom icon, figure out how to replace using tabler icons */}
             <Image src="/icons/chartAdd.svg" alt="" width={16} height={16} />
           </button>
 
           <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={deleteHistoricalData}>
             {t("components:query_builder.remove_historical_data")}
-            <Image src="/icons/delete.svg" alt="" width={16} height={16} />
-          </button>
+            <IconTrashXFilled fill='#CB3C3C' width={16} height={16} style={{minWidth: '16px'}}  />
+           </button>
         </>
         :
         <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
           {t("components:query_builder.add_historical_data")}
+          {/* TODO TABLER_ICONS: This is a custom icon, figure out how to replace using tabler icons */}
           <Image src="/icons/chartAdd.svg" alt="" width={16} height={16} />
         </button>
       }
@@ -449,7 +452,7 @@ export default function QueryBuilder({
       <dialog className={`smooth padding-inline-0 ${styles.dialog}`} ref={modalRef} aria-modal>
         <div className="display-flex flex-direction-row-reverse align-items-center justify-content-space-between padding-inline-100">
           <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
-            <Image src="/icons/close.svg" alt="" width={18} height={18} />
+            <IconX strokeWidth={3} width={18} height={18} style={{minWidth: '18px'}} />
           </button>
           <h2 className="margin-0">{t("components:query_builder.add_data_source")}</h2>
         </div>
