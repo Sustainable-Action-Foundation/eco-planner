@@ -1,12 +1,13 @@
 import styles from './notification.module.css'
 import Link from "next/link"
 import Image from "next/image"
+import { IconBell } from '@tabler/icons-react'
 
 export default function Notifications({ amount }: { amount: number }) {
   return (
     <Link href="/" className={`flex align-items-center ${styles.link}`}>
       <div style={{position: 'relative', display: 'grid'}}>
-        <Image src="/icons/bell.svg" alt="notifikationer" width={24} height={24} />
+        <IconBell aria-label='notifikationer' style={{minWidth: '24px'}} />
         <div style={{
           padding: '1px',
           borderRadius: '9999px', 

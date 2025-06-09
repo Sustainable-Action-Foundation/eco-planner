@@ -164,7 +164,7 @@
   margin: 0;
 }
 
-.roadmap-nav-ul summary>div>img {
+.roadmap-nav-ul summary>div>svg {
   transition: background-color .1s ease,
     transform .1s ease-out;
 }
@@ -173,15 +173,15 @@
   outline: none;
 }
 
-.roadmap-nav-ul summary:focus-visible>div>img {
+.roadmap-nav-ul summary:focus-visible>div>svg {
   outline: 2px solid;
 }
 
-.roadmap-nav-ul summary:hover:not(:has(a:hover, span:hover))>div>img {
+.roadmap-nav-ul summary:hover:not(:has(a:hover, span:hover))>div>svg {
   background-color: rgba(225, 225, 235);
 }
 
-.roadmap-nav-ul details[open]>summary>div>img {
+.roadmap-nav-ul details[open]>summary>div>svg {
   transform: rotate(90deg);
 }
 

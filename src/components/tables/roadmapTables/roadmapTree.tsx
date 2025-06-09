@@ -7,9 +7,9 @@ import { LoginData } from "@/lib/session.ts";
 import { AccessControlled } from "@/types.ts";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
 import Link from "next/link";
-import Image from "next/image";
 import { Fragment } from "react";
 import serveTea from "@/lib/i18nServer";
+import { IconCaretRightFilled } from "@tabler/icons-react";
 
 type RoadmapTreeProps = {
   user: LoginData['user'],
@@ -77,7 +77,7 @@ async function NestedRoadmapRenderer({
               <details>
                 <summary className="flex justify-content-space-between">
                   <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
-                    <Image src="/icons/caret-right.svg" alt={t("components:roadmap_tree.show_source_alt")} width={24} height={24} className="round padding-25 margin-inline-25" />
+                    <IconCaretRightFilled aria-label={t("components:roadmap_tree.show_source_alt")} className="round padding-25 margin-inline-25" />
                     <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth' style={{ lineHeight: '1' }}>
                       {/* Name, version */}
                       <div>
@@ -107,7 +107,7 @@ async function NestedRoadmapRenderer({
             :
             <li className="inline-flex align-items-center flex-grow-100 width-100">
               <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
-                <Image src="/icons/caret-right-gray.svg" alt={t("components:roadmap_tree.show_source_alt")} width="24" height="24" className="round padding-25 margin-inline-25" />
+                <IconCaretRightFilled color="lightgray" aria-label={t("components:roadmap_tree.show_source_alt")} className="round padding-25 margin-inline-25" />
                 <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth' style={{ lineHeight: '1' }}>
                   {/* Name, version */}
                   <div>

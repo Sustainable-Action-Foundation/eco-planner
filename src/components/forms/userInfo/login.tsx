@@ -65,7 +65,7 @@ export default function Login() {
             <IconLock style={{minWidth: '24px'}} />
             <input className="padding-0 margin-inline-50 transparent" type={showPassword ? 'text' : 'password'} placeholder={t("common:placeholder.password")} name="password" required id="password" autoComplete="current-password" />
             <button type="button" className={`${styles.showPasswordButton} grid padding-0 transparent`} onClick={() => setShowPassword(prevState => !prevState)}>
-              {showPassword ? <IconEye style={{minWidth: '24px'}} /> : <IconEyeOff style={{minWidth: '24px'}} /> } 
+              {showPassword ? <IconEyeOff style={{minWidth: '24px'}}/> : <IconEye style={{minWidth: '24px'}}/>  } 
             </button>
           </div>
         </label>
