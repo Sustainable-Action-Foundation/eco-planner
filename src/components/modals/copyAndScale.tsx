@@ -288,6 +288,7 @@ export default function CopyAndScale({
         <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>
           <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
             {/* TODO TABLER_ICONS: Fix i18n for aria-label */}
+            {/* TODO TABLER_ICONS: Strictly decorative icons should have aria-hidden="true"?*/}
             <IconX aria-label='close' width={18} height={18} strokeWidth={3} />
           </button>
           <h2 className="margin-0">{t("components:copy_and_scale.title", { goalName: goal.name })}</h2>

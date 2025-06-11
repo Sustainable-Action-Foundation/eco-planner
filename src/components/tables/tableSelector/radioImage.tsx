@@ -16,8 +16,7 @@ export default function RadioImage({
   text: string,
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
-
-
+  
   return (
     <>
       <label className={`button transparent font-weight-bold flex align-items-center gap-50 smooth ${styles.radioImageWrapper}`}>

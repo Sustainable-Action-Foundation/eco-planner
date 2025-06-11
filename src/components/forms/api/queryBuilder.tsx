@@ -11,12 +11,11 @@ import { LocaleContext } from "@/lib/i18nClient.tsx";
 import { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import { TrafaVariable } from "@/lib/trafa/trafaTypes";
 import { Goal } from "@prisma/client";
-import Image from "next/image";
 import { FormEvent, useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
-import { IconSearch, IconTrashXFilled, IconX } from "@tabler/icons-react";
+import { IconChartHistogram, IconSearch, IconTrashXFilled, IconX } from "@tabler/icons-react";
 
 export default function QueryBuilder({
   goal,
@@ -432,8 +431,7 @@ export default function QueryBuilder({
         <>
           <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
             {t("components:query_builder.change_historical_data")}
-            {/* TODO TABLER_ICONS: This is a custom icon, figure out how to replace using tabler icons */}
-            <Image src="/custom-icons/chartAdd.svg" alt="" width={16} height={16} />
+            <IconChartHistogram width={16} height={16} style={{maxWidth: '16px'}} />
           </button>
 
           <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={deleteHistoricalData}>
@@ -444,8 +442,8 @@ export default function QueryBuilder({
         :
         <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
           {t("components:query_builder.add_historical_data")}
-          {/* TODO TABLER_ICONS: This is a custom icon, figure out how to replace using tabler icons */}
-          <Image src="/custom-icons/chartAdd.svg" alt="" width={16} height={16} />
+          <IconChartHistogram width={16} height={16} style={{maxWidth: '16px'}} />
+
         </button>
       }
 

@@ -49,8 +49,8 @@ export default async function Sidebar() {
                 dialogPosition='right'
                 className='transparent rounded flex gap-50 font-weight-600 align-items-center width-100' 
                 style={{fontSize: '1rem', overflow: 'hidden' }}
-              >
-                <img src="/custom-icons/circlePlus.svg" alt='Skapa' width={24} height={24} />
+              > 
+                <IconCirclePlus aria-label='Skapa' style={{maxWidth: '24px'}} />
                 Skapa
               </NonModalDialogButton>
               <NonModalDialogTemp>
@@ -81,7 +81,7 @@ export default async function Sidebar() {
                   className='transparent rounded flex gap-50 font-weight-600 align-items-center width-100' 
                   style={{fontSize: '1rem', overflow: 'hidden' }}
                 >
-                  <img src="/custom-icons/settings.svg" alt='Inställningar' width={24} height={24} />
+                  <IconSettings aria-label='Inställningar' style={{maxWidth: '24px'}} />
                   Inställningar
                 </NonModalDialogButton>
                 <NonModalDialogTemp>
