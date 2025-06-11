@@ -7,6 +7,7 @@ import { DataSeries, Goal, Roadmap } from "@prisma/client";
 import { useState } from "react";
 import Image from "next/image";
 import { useTranslation } from "react-i18next";
+import { IconChartAreaLineFilled } from "@tabler/icons-react";
 
 /**
  * A graph that shows how a goal stacks up against its siblings (other goals in the same roadmap version with similar indicator parameters and same unit).
@@ -101,7 +102,7 @@ export default function SiblingGraph({
           type="button" onClick={() => setIsStacked(!isStacked)}
         >
           {t("graphs:common.change_graph_type")}
-          <Image src='/icons/chartArea.svg' alt={t("graphs:common.change_graph_type")} width={16} height={16} />
+          <IconChartAreaLineFilled aria-label={t("graphs:common.change_graph_type")} width={16} height={16} />
         </button>
       </menu>
       <article className="smooth padding-inline-25 padding-bottom-50 purewhite" style={{ border: '1px solid var(--gray)' }}>

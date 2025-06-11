@@ -9,6 +9,7 @@ import { AccessLevel } from "@/types";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
 import { useTranslation } from "react-i18next";
+import { IconArrowBackUp, IconDotsVertical, IconEdit, IconPlus, IconTrashXFilled, IconX } from "@tabler/icons-react";
 
 // General purpose button for roadmaps, goals and actions. 
 // Update the name of the component to reflect this
@@ -179,13 +180,13 @@ export function TableMenu(
     <>
       <div className={`${styles.actionButton} display-flex`}>
         <button type="button" onClick={openMenu} className={styles.button} aria-label={t("components:table_menu.button_aria", { component: object.name || object.metaRoadmap?.name || t("components:table_menu.button_aria_alt") })}>
-          <Image src='/icons/dotsVertical.svg' width={width} height={height} alt={t("components:table_menu.button_image_alt")}></Image>
+          <IconDotsVertical aria-label={t("components:table_menu.button_image_alt")} width={width} height={height} />
         </button>
         <dialog className={styles.menu} id={`${object.id}-menu`} onBlur={closeMenu} ref={menu} onKeyUp={closeMenu}>
           <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between ${styles.menuHeading}`}>
             {/* Button to close menu */}
-            <button type="button" onClick={closeMenu} className={styles.button} autoFocus >
-              <Image src='/icons/close.svg' alt={t("common:tsx.close")} width={18} height={18} />
+            <button type="button" aria-label={t("common:tsx.close")} onClick={closeMenu} className={styles.button} autoFocus >
+              <IconX  width={18} height={18} strokeWidth={3} style={{minWidth: '18px'}} />
             </button>
             {/* Link to the object */}
             <Link href={selfLink} className={styles.menuHeadingTitle}>{object.name || object.metaRoadmap?.name}</Link>
@@ -193,7 +194,7 @@ export function TableMenu(
           {parentLink &&
             <Link href={parentLink} className={styles.menuAction}>
               <span>{parentDescription || parentLink}</span>
-              <Image src='/icons/back.svg' alt="" width={24} height={24} className={styles.actionImage} />
+              <IconArrowBackUp style={{minWidth: '24px'}}/>
             </Link>
           }
           {[AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel ?? AccessLevel.None) ?
@@ -201,25 +202,25 @@ export function TableMenu(
               {creationLink &&
                 <Link href={creationLink} className={styles.menuAction}>
                   <span>{creationDescription}</span>
-                  <Image src='/icons/plus-light.svg' alt="+" width={24} height={24} className={styles.actionImage} />
+                  <IconPlus style={{minWidth: '24px'}}/>
                 </Link>
               }
               {creationLink2 &&
                 <Link href={creationLink2} className={styles.menuAction}>
                   <span>{creationDescription2 || creationLink2}</span>
-                  <Image src='/icons/plus-light.svg' alt="+" width={24} height={24} className={styles.actionImage} />
+                  <IconPlus style={{minWidth: '24px'}}/>
                 </Link>
               }
               <Link href={editLink} className={styles.menuAction}>
                 <span>{t("components:table_menu.edit")}</span>
-                <Image src='/icons/edit.svg' alt="" width={24} height={24} className={styles.actionImage} />
+                <IconEdit style={{minWidth: '24px'}}/>
               </Link>
               { // Admins and authors can delete items
                 (accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) &&
                 <>
                   <button type="button" className="width-100 transparent display-flex align-items-center justify-content-space-between padding-50" style={{ fontSize: '1rem' }} onClick={() => openModal(deletionRef)}>
                     {t("components:table_menu.delete")}
-                    <Image src='/icons/delete.svg' alt="" width={24} height={24} className={styles.actionImage} />
+                    <IconTrashXFilled fill="#CB3C3C" style={{minWidth: '24px'}}/>
                   </button>
                   <ConfirmDelete modalRef={deletionRef} targetUrl={deleteLink} targetName={object.name || object.metaRoadmap?.name || t("components:table_menu.delete_missing_name")} targetId={object.id} />
                 </>

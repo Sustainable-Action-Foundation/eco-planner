@@ -2,12 +2,12 @@
 
 import styles from './breadcrumbs.module.css' with { type: "css" };
 import Link from 'next/link';
-import Image from "next/image";
 import { useTranslation } from "react-i18next";
+import { IconChevronRight } from '@tabler/icons-react';
 
 export function BreadcrumbChevron() {
   return (
-    <Image src='/icons/chevronRight.svg' alt=' > ' height={16} width={16} />
+    <IconChevronRight strokeWidth='2px' stroke='gray' aria-label=' > ' height={16} width={16} />
   )
 }
 

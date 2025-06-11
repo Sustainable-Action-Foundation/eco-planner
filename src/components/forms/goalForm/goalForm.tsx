@@ -16,6 +16,7 @@ import DataSeriesInput from "../dataSeriesInput/dataSeriesInput";
 import { getDataSeries } from "../dataSeriesInput/utils";
 import styles from '../forms.module.css';
 import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
+import { IconCircleMinus } from "@tabler/icons-react";
 
 enum DataSeriesType {
   Static = "STATIC",
@@ -263,9 +264,9 @@ export default function GoalForm({
                       defaultChildArea={value.type == ScaleBy.Area || value.type == ScaleBy.Inhabitants ? value.childArea : undefined}
                       defaultScaleBy={value.type || ScaleBy.Custom}
                     > {/* Multiplicative scaling doesn't use weights */}
-                      <button type="button"
+                      <button type="button" className="grid"
                         onClick={() => setScalingRecipe({ method: scalingRecipie.method, values: scalingRecipie.values.filter((_, i) => i !== index) })}>
-                        <Image src='/icons/circleMinus.svg' alt={t("forms:goal.remove_scaling")} width={24} height={24} />
+                        <IconCircleMinus aria-label={t("forms:goal.remove_scaling")} width={24} height={24}  />
                       </button>
                     </RepeatableScaling>
                   )

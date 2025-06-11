@@ -8,6 +8,7 @@ import RepeatableScaling from "../repeatableScaling";
 import { GoalInput, dataSeriesDataFieldNames, ScaleBy, ScaleMethod, ScalingRecipie } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
+import { IconCircleMinus, IconX } from "@tabler/icons-react";
 
 /** Get the resulting scaling factor from form data */
 export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, setIsLoading?: React.Dispatch<React.SetStateAction<boolean>>) {
@@ -287,7 +288,8 @@ export default function CopyAndScale({
       <dialog ref={modalRef} aria-modal className="rounded" style={{ border: '0', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25' }}>
         <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>
           <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
-            <Image src='/icons/close.svg' alt="" width={18} height={18} />
+            {/* TODO TABLER_ICONS: Fix i18n for aria-label */}
+            <IconX aria-label='close' width={18} height={18} strokeWidth={3} />
           </button>
           <h2 className="margin-0">{t("components:copy_and_scale.title", { goalName: goal.name })}</h2>
         </div>
@@ -320,7 +322,7 @@ export default function CopyAndScale({
                       display: 'grid',
                       cursor: 'pointer'
                     }} onClick={() => setScalingComponents(scalingComponents.filter((i) => i !== id))}>
-                    <Image src='/icons/circleMinus.svg' alt={t("components:copy_and_scale.remove_scaling")} width={24} height={24} />
+                    <IconCircleMinus aria-label={t("components:copy_and_scale.remove_scaling")} />
                   </button>
                 </RepeatableScaling>
               )

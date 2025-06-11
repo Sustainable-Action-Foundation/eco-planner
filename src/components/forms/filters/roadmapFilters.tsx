@@ -2,7 +2,7 @@
 
 import { RoadmapSortBy } from "@/types";
 import { RoadmapType } from "@prisma/client";
-import { IconAdjustmentsHorizontal } from "@tabler/icons-react";
+import { IconAdjustmentsHorizontal, IconSearch } from "@tabler/icons-react";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
@@ -52,7 +52,7 @@ export default function RoadmapFilters() {
       <label className="font-weight-bold container-text">
         {t("components:roadmap_filters.search_roadmaps")}
         <div className="margin-top-25 flex align-items-center gray-90 padding-50 smooth focusable">
-          <Image src='/icons/search.svg' alt="" width={24} height={24} />
+          <IconSearch style={{minWidth: '24px'}} strokeWidth={1.5} />
           <input type="search" className="padding-0 margin-inline-50" defaultValue={searchParams.get('searchFilter') ?? undefined} onChange={(e) => {
             debouncedUpdateStringParam('searchFilter', e.target.value)
           }} />
