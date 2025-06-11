@@ -4,7 +4,6 @@ import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
-import Image from "next/image";
 import { AccessLevel } from '@/types';
 import accessChecker from '@/lib/accessChecker';
 import getOneMetaRoadmap from '@/fetchers/getOneMetaRoadmap';

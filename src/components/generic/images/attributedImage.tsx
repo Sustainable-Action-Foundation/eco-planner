@@ -4,7 +4,6 @@ import serveTea from "@/lib/i18nServer";
 import styles from './images.module.css' with { type: "css" };
 import Image from "next/image";
 
-
 export default async function AttributedImage({
   children,
   src,

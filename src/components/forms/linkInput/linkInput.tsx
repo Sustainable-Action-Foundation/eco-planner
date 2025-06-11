@@ -1,9 +1,8 @@
 'use client'
 
 import { useState } from "react"
-import Image from "next/image"
 import { useTranslation } from "react-i18next";
-import { IconTrashFilled, IconTrashXFilled } from "@tabler/icons-react";
+import { IconTrashXFilled } from "@tabler/icons-react";
 
 export default function LinkInput({ links }: { links?: { url: string, description: string | null }[] }) {
   const { t } = useTranslation("forms");

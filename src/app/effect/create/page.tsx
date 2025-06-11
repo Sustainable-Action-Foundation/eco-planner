@@ -3,7 +3,6 @@ import getOneAction from "@/fetchers/getOneAction.ts";
 import getOneGoal from "@/fetchers/getOneGoal.ts";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import accessChecker from "@/lib/accessChecker.ts";
-import Image from "next/image";
 import { getSession } from "@/lib/session.ts";
 import { AccessLevel } from "@/types.ts";
 import { cookies } from "next/headers";

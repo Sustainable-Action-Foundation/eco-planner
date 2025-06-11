@@ -2,7 +2,6 @@ import getOneAction from "@/fetchers/getOneAction";
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { AccessControlled, AccessLevel } from "@/types";
 import accessChecker from "@/lib/accessChecker";

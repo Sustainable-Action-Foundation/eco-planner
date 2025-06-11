@@ -1,7 +1,6 @@
 "use client"
 
-import Image from "next/image"
-import React, { /* useContext, */ useState } from "react"
+import React, { useState } from "react"
 import styles from "./forms.module.css"
 import { IconArrowLeft, IconArrowRight } from "@tabler/icons-react";
 

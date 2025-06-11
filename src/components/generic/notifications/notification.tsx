@@ -1,6 +1,5 @@
 import styles from './notification.module.css'
 import Link from "next/link"
-import Image from "next/image"
 import { IconBell } from '@tabler/icons-react'
 
 export default function Notifications({ amount }: { amount: number }) {

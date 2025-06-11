@@ -1,7 +1,6 @@
 'use client';
 
 import { DataSeries, Goal } from "@prisma/client";
-import Image from "next/image";
 import { closeModal, openModal } from "./modalFunctions";
 import { useRef, useState } from "react";
 import RepeatableScaling from "../repeatableScaling";

@@ -3,7 +3,6 @@
 import { DataSeries, Effect, Goal } from "@prisma/client";
 import GoalChildGraph from "./goalChildGraph";
 import PredictionChildGraph from "./predictionChildGraph.tsx";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getStoredChildGraphType } from "../functions/graphFunctions";
 import { percentAndFraction } from "../graphSelector/graphSelector";

@@ -9,7 +9,6 @@ import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 import mathjs from "@/math";
 import { GoalInput, ScaleBy, ScaleMethod, ScalingRecipie, dataSeriesDataFieldNames, isScalingRecipie } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
-import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import DataSeriesInput from "../dataSeriesInput/dataSeriesInput";

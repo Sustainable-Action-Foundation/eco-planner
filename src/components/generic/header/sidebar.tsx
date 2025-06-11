@@ -5,12 +5,11 @@ import LogoutButton from '@/components/buttons/logoutButton'
 import { getSession } from '@/lib/session'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
-import Image from 'next/image'
 import { LanguageSwitcher } from "@/components/languageSwitcher"
 import serveTea from "@/lib/i18nServer";
 import NonModalDialog, { NonModalDialogButton, NonModalDialogTemp, NonModalDialogWrapper } from '@/components/generic/dialog/nonModalDialog';
 // import Notifications from '../notifications/notification'
-import { IconHome, IconHome2, IconHomeFilled, IconInfoCircle, IconLogin2, IconLogout, IconMenu2, IconUser, IconUserPlus } from '@tabler/icons-react'
+import { IconHome, IconInfoCircle, IconLogin2, IconMenu2, IconUser, IconUserPlus } from '@tabler/icons-react'
 
 export default async function Sidebar() {
   const [t, { user }] = await Promise.all([
@@ -51,7 +50,7 @@ export default async function Sidebar() {
                 className='transparent rounded flex gap-50 font-weight-600 align-items-center width-100' 
                 style={{fontSize: '1rem', overflow: 'hidden' }}
               >
-                <img src="/icons/circlePlus.svg" alt='Skapa' width={24} height={24} />
+                <img src="/custom-icons/circlePlus.svg" alt='Skapa' width={24} height={24} />
                 Skapa
               </NonModalDialogButton>
               <NonModalDialogTemp>
@@ -82,7 +81,7 @@ export default async function Sidebar() {
                   className='transparent rounded flex gap-50 font-weight-600 align-items-center width-100' 
                   style={{fontSize: '1rem', overflow: 'hidden' }}
                 >
-                  <img src="/icons/settings.svg" alt='Inställningar' width={24} height={24} />
+                  <img src="/custom-icons/settings.svg" alt='Inställningar' width={24} height={24} />
                   Inställningar
                 </NonModalDialogButton>
                 <NonModalDialogTemp>

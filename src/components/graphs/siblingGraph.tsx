@@ -5,7 +5,6 @@ import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Goal, Roadmap } from "@prisma/client";
 import { useState } from "react";
-import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import { IconChartAreaLineFilled } from "@tabler/icons-react";
 

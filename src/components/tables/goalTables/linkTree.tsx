@@ -2,7 +2,6 @@
 
 import styles from '../tables.module.css' with { type: "css" };
 import { DataSeries, Goal } from "@prisma/client";
-import Image from 'next/image';
 import goalsToTree, { GoalTree } from '@/functions/goalsToTree';
 import { SyntheticEvent } from 'react';
 import { getSessionStorage, setSessionStorage } from '@/functions/localStorage';

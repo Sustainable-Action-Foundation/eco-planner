@@ -37,7 +37,7 @@ export async function buildMetadata(
   return {
     title: `${title ? `${title} | ${t("metadata:default.title")}` : t("metadata:default.title")}`,
     description: description ?? t("metadata:default.description"),
-    icons: "/icons/leaf.svg",
+    icons: "/favicon/leaf.svg",
     metadataBase: new URL(baseUrl),
     alternates: {
       canonical: og_url || '/'

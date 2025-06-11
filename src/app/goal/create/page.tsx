@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 import GoalForm from "@/components/forms/goalForm/goalForm";
 import getOneRoadmap from "@/fetchers/getOneRoadmap";
 import accessChecker from "@/lib/accessChecker";
-import Image from "next/image";
 import { AccessLevel } from "@/types";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";

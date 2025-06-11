@@ -8,7 +8,6 @@ import Comments from "@/components/comments/comments";
 import { AccessLevel } from "@/types";
 import ThumbnailGraph from "@/components/graphs/mainGraphs/thumbnailGraph";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import Image from "next/image";
 import { DataSeries, Goal } from "@prisma/client";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";

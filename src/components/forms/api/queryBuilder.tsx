@@ -16,7 +16,7 @@ import { FormEvent, useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
-import { IconTrashXFilled, IconX } from "@tabler/icons-react";
+import { IconSearch, IconTrashXFilled, IconX } from "@tabler/icons-react";
 
 export default function QueryBuilder({
   goal,
@@ -433,7 +433,7 @@ export default function QueryBuilder({
           <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
             {t("components:query_builder.change_historical_data")}
             {/* TODO TABLER_ICONS: This is a custom icon, figure out how to replace using tabler icons */}
-            <Image src="/icons/chartAdd.svg" alt="" width={16} height={16} />
+            <Image src="/custom-icons/chartAdd.svg" alt="" width={16} height={16} />
           </button>
 
           <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={deleteHistoricalData}>
@@ -445,7 +445,7 @@ export default function QueryBuilder({
         <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
           {t("components:query_builder.add_historical_data")}
           {/* TODO TABLER_ICONS: This is a custom icon, figure out how to replace using tabler icons */}
-          <Image src="/icons/chartAdd.svg" alt="" width={16} height={16} />
+          <Image src="/custom-icons/chartAdd.svg" alt="" width={16} height={16} />
         </button>
       }
 
@@ -493,7 +493,7 @@ export default function QueryBuilder({
                     <label className="font-weight-500">
                       {t("components:query_builder.search_for_table")}
                       <div className="focusable gray-90 flex align-items-center margin-top-25 padding-left-50 smooth">
-                        <Image alt="" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" src="/icons/search.svg" />
+                        <IconSearch strokeWidth={1.5} style={{minWidth: '24px'}} />
                         <input name={tableSearchInputName} type="search" className="padding-0 margin-inline-50" onKeyDown={searchOnEnter} style={{ backgroundColor: "transparent" }} />
                         <button type="button" onClick={searchWithButton} className="padding-block-50 padding-inline-100 transparent font-weight-500">{t("components:query_builder.search")}</button>
                       </div>

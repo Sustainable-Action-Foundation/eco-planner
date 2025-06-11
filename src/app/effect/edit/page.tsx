@@ -2,7 +2,6 @@ import EffectForm from "@/components/forms/effectForm/effectForm.tsx";
 import getOneEffect from "@/fetchers/getOneEffect.ts";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import accessChecker from "@/lib/accessChecker.ts";
-import Image from "next/image";
 import { getSession } from "@/lib/session.ts";
 import { AccessLevel } from "@/types.ts";
 import { cookies } from "next/headers";

@@ -1,7 +1,6 @@
 'use client'
 
 import { useRef, useState } from "react";
-import Image from "next/image";
 import styles from './accessSelector.module.css' with { type: "css" }
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";

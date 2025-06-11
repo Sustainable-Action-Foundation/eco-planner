@@ -5,7 +5,6 @@ import { Action, Effect, Goal } from "@prisma/client";
 import Link from "next/link";
 import { TableMenu } from "./tableMenu/tableMenu.tsx";
 import { useTranslation } from "react-i18next";
-import Image from "next/image";
 import styles from "@/components/tables/tables.module.css" with { type: "css" };
 import { IconCaretRightFilled } from "@tabler/icons-react";
 

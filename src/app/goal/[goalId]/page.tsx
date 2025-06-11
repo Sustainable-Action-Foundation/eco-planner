@@ -25,7 +25,6 @@ import type { DataSeries, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import getTableContent from "@/lib/api/getTableContent";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconAlertTriangle } from "@tabler/icons-react";
