@@ -121,7 +121,8 @@ export default function GoalForm({
       name: (form.namedItem("goalName") as HTMLInputElement)?.value || null,
       description: (form.namedItem("description") as HTMLInputElement)?.value || null,
       indicatorParameter: (form.namedItem("indicatorParameter") as HTMLInputElement)?.value || null,
-      dataUnit: parsedUnit || (form.namedItem("dataUnit") as HTMLInputElement)?.value || '',
+      // TODO: Add a toggle isUnitless to the form, which sets dataUnit to null if checked
+      dataUnit: parsedUnit || (form.namedItem("dataUnit") as HTMLInputElement)?.value,
       dataSeries: dataSeries,
       baselineDataSeries: baselineDataSeries ?? null,
       combinationScale: JSON.stringify(combinationScale),

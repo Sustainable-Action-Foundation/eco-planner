@@ -44,8 +44,8 @@ export async function POST(request: NextRequest) {
       // baselineDataSeries can be a valid data series to set values, undefined to not set a baseline, or null to delete the baseline
       ((Array.isArray(goal.baselineDataSeries) && goal.baselineDataSeries.every((entry: JSONValue) => (typeof entry === 'string')) && goal.baselineDataSeries.length > 0 && goal.baselineDataSeries.length <= dataSeriesDataFieldNames.length)
         || goal.baselineDataSeries === undefined || goal.baselineDataSeries === null) &&
-      // TODO: When database is next updated, dataUnit might be nullable, and an isUnitless boolean might be added
-      typeof goal.dataUnit === 'string' &&
+      // dataUnit should be a string or null, but can also be undefined, which will be defaulted to an empty string in the database. null is treated as intentionally unitless while empty string/undefined is treated as a missing unit.
+      (typeof goal.dataUnit === 'string' || goal.dataUnit === undefined || goal.dataUnit === null) &&
       // TODO: dataScale is deprecated, to be removed in next database update
       (typeof goal.dataScale === 'string' || goal.dataScale === undefined || goal.dataScale === null) &&
       ((Array.isArray(goal.inheritFrom) && goal.inheritFrom.every((entry: JSONValue) => (
@@ -293,8 +293,8 @@ export async function PUT(request: NextRequest) {
       // baselineDataSeries can be a valid data series to set values, undefined to not set a baseline, or null to delete the baseline
       ((Array.isArray(goal.baselineDataSeries) && goal.baselineDataSeries.every((entry: JSONValue) => (typeof entry === 'string')) && goal.baselineDataSeries.length > 0 && goal.baselineDataSeries.length <= dataSeriesDataFieldNames.length)
         || goal.baselineDataSeries === undefined || goal.baselineDataSeries === null) &&
-      // TODO: When database is next updated, dataUnit might be nullable, and an isUnitless boolean might be added
-      (typeof goal.dataUnit === 'string' || goal.dataUnit === undefined) &&
+      // dataUnit should be a string , null, or undefined. null is treated as intentionally unitless while empty string is treated as a missing unit and undefined as no change.
+      (typeof goal.dataUnit === 'string' || goal.dataUnit === undefined || goal.dataUnit === null) &&
       // TODO: dataScale is deprecated, to be removed in next database update
       (typeof goal.dataScale === 'string' || goal.dataScale === undefined || goal.dataScale === null) &&
       ((Array.isArray(goal.inheritFrom) && goal.inheritFrom.every((entry: JSONValue) => (
@@ -497,7 +497,7 @@ export async function PUT(request: NextRequest) {
             upsert: {
               create: {
                 ...dataValues,
-                unit: goal.dataUnit ?? '',
+                unit: goal.dataUnit,
                 authorId: session.user.id,
               },
               update: {
@@ -526,7 +526,7 @@ export async function PUT(request: NextRequest) {
             upsert: {
               create: {
                 ...baselineValues,
-                unit: goal.dataUnit ?? '',
+                unit: goal.dataUnit,
                 authorId: session.user.id,
               },
               update: {

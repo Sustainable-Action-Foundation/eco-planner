@@ -47,13 +47,13 @@ export default function MainGraph({
     },
     yaxis: [
       {
-        title: { text: goal.dataSeries?.unit },
+        title: { text: goal.dataSeries.unit === null ? t("common:tsx.unitless") : goal.dataSeries.unit || t("common:tsx.unit_missing") },
         labels: { formatter: graphNumberFormatter },
         seriesName: [
           (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
           t("graphs:common.baseline_scenario"),
           t("graphs:common.expected_outcome"),
-          (secondaryGoal?.dataSeries?.unit == goal.dataSeries.unit) ? (secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0] : "",
+          (secondaryGoal?.dataSeries?.unit === goal.dataSeries.unit) ? (secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0] : "",
           historicalData ? `${historicalData.metadata[0]?.label}` : "",
         ]
       }

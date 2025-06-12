@@ -65,7 +65,8 @@
     "submit": "Submit",
     "compare": "Compare",
     "close": "Close",
-    "unit_missing": "no unit"
+    "unit_missing": "missing unit",
+    "unitless": "unitless"
   },
   "placeholder": {
     "name": "Username",

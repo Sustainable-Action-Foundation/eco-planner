@@ -65,7 +65,8 @@
     "submit": "Skicka",
     "compare": "Jämför",
     "close": "Stäng",
-    "unit_missing": "ingen enhet"
+    "unit_missing": "enhet saknas",
+    "unitless": "enhetslös"
   },
   "placeholder": {
     "name": "Användarnamn",

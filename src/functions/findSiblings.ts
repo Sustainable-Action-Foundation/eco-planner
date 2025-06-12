@@ -23,7 +23,8 @@ export default function findSiblings(
 
     let isSibling = true;
     // Goals with different data units are not siblings
-    if (goal.dataSeries?.unit != sibling.dataSeries?.unit) {
+    // TODO: Use mathjs for comparison
+    if (goal.dataSeries?.unit !== sibling.dataSeries?.unit) {
       isSibling = false;
     }
     // Goals on different levels are not siblings

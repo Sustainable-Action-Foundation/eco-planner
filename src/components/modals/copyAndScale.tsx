@@ -261,7 +261,7 @@ export default function CopyAndScale({
       name: goal.name,
       description: goal.description,
       indicatorParameter: goal.indicatorParameter,
-      dataUnit: goal.dataSeries?.unit || "",
+      dataUnit: goal.dataSeries?.unit,
       dataSeries: dataSeries,
       roadmapId: copyToId ?? "",
       inheritFrom: [{ id: goal.id }],

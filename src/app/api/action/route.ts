@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
             dataSeries: {
               create: {
                 ...impactData,
-                unit: '',
+                unit: null,
                 authorId: session.user.id,
               }
             },

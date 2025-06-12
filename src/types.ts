@@ -152,7 +152,7 @@ export type GoalInput = Omit<
   dataSeries?: string[];
   baselineDataSeries?: string[] | undefined | null;
   // The unit of measurement for the data series
-  dataUnit: string;
+  dataUnit: string | undefined | null;
   // Scale of the data, for example "millions"
   // Deprecated, please bake the scale into the data series values or unit
   // For example {value: 10, scale: "thousands"} => {value: 10000}
