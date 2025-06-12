@@ -5,6 +5,7 @@ import RadioImage from './radioImage';
 import { ViewMode } from '../goals';
 import { setStoredViewMode } from '../functions/tableFunctions';
 import { useTranslation } from "react-i18next";
+import { IconList, IconListTree, IconTableFilled } from '@tabler/icons-react';
 
 export default function TableSelector({ id, current, setter }: { id: string, current: ViewMode | "", setter: Dispatch<SetStateAction<ViewMode | "">> }) {
   const { t } = useTranslation("components");
@@ -23,9 +24,18 @@ export default function TableSelector({ id, current, setter }: { id: string, cur
   return (
     <div className='flex align-items-center gap-25'>
       {/* TODO TABLER_ICONS: Figure out how to replace using tabler icons */}
-      <RadioImage text={t("components:table_selector.tree")} value={ViewMode.Tree} src="/custom-icons/listTree.svg" name="table" checked={current == ViewMode.Tree} onChange={handleRadioChange} />
-      <RadioImage text={t("components:table_selector.table")} value={ViewMode.Table} src="/custom-icons/table.svg" name="table" checked={current == ViewMode.Table} onChange={handleRadioChange} />
-      <RadioImage text={t("components:table_selector.actions")} value={ViewMode.Actions} src="/custom-icons/list.svg" name="table" checked={current == ViewMode.Actions} onChange={handleRadioChange} />
+      <RadioImage value={ViewMode.Tree} name="table" checked={current == ViewMode.Tree} onChange={handleRadioChange}>
+        {t("components:table_selector.tree")}
+        <IconListTree style={{minWidth: '24px'}}/>
+      </RadioImage>
+      <RadioImage value={ViewMode.Table} name="table" checked={current == ViewMode.Table} onChange={handleRadioChange}>
+        {t("components:table_selector.table")}
+        <IconTableFilled style={{minWidth: '24px'}}/>
+      </RadioImage>
+      <RadioImage value={ViewMode.Actions} name="table" checked={current == ViewMode.Actions} onChange={handleRadioChange}>
+        {t("components:table_selector.actions")}
+        <IconList style={{minWidth: '24px'}}/>
+      </RadioImage>
     </div>
   );
 }
