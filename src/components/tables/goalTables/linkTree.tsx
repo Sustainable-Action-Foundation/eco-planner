@@ -85,7 +85,7 @@ export default function LinkTree({
             { // If the current object is a goal (has an id), render a link to the goal
               typeof data[key].id == 'string' ? (
                 <a href={`/goal/${data[key].id}`} className={`display-flex gap-50 align-items-center padding-block-50 ${styles.link}`}>
-                  <IconLink aria-label={`Link to ${key}`} width={16} height={16} style={{minWidth: '16px'}} />
+                  <IconLink aria-hidden="true" width={16} height={16} style={{minWidth: '16px'}} />
                   <span>
                     {key}
                   </span>

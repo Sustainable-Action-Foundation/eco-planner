@@ -85,7 +85,7 @@ export default function FormWrapper({
 
       <div className={`margin-block-start-100 padding-inline-100 gap-50 grid ${styles.indicatorLayout}`}>
         <button type="button" id="backButton" className={`flex align-items-center transparent round gap-25 ${backButtonHiddenClass} ${styles.indicatorButton}`} onClick={() => iterateSections({ reverse: true })}>
-          <IconArrowLeft style={{minWidth: '24px'}} />
+          <IconArrowLeft style={{minWidth: '24px'}} aria-hidden="true" />
           Tillbaka
         </button>
 
@@ -100,7 +100,7 @@ export default function FormWrapper({
         
         <button type="button" id="nextButton" className={`flex align-items-center transparent round gap-25 margin-left-auto ${nextButtonHiddenClass} ${styles.indicatorButton}`} onClick={() => iterateSections()}>
           Nästa
-          <IconArrowRight style={{minWidth: '24px'}} />
+          <IconArrowRight style={{minWidth: '24px'}} aria-hidden="true" />
         </button>
       </div>
 

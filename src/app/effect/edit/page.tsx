@@ -69,7 +69,7 @@ export default async function Page(
           {t("pages:effect_edit.title")}
         </h1>
         <p style={{ color: 'red' }}>
-          <IconInfoCircle />
+          <IconInfoCircle role="img" aria-label="information" />
           {t("pages:effect_edit.no_access")}
         </p>
       </div>

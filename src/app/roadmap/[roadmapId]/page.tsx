@@ -107,7 +107,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
             style={{ height: 'fit-content' }}
           >
             {t("common:edit.roadmap_version")}
-            <IconEdit style={{minWidth: '24px'}} />
+            <IconEdit style={{minWidth: '24px'}} aria-hidden="true" />
           </a>
         }
       </section>

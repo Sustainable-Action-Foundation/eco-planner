@@ -18,14 +18,16 @@ export default function VerifyForm() {
 	}
 
 	return (
-		<form onSubmit={handleSubmit} className="flex gap-50 flex-wrap-wrap align-items-center">
+		<form onSubmit={handleSubmit}>
 			<label className="flex-grow-100">
+        {/* TODO TABLER_ICONS: I18n for label */}
+        E-post
 				<div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
-					<IconMail  style={{minWidth: '24px'}}/>
+					<IconMail aria-hidden="true" style={{minWidth: '24px'}}/>
 					<input className="padding-0 margin-inline-50" type="email" placeholder="email" name="email" required id="email" autoComplete="email" />
 				</div>
 			</label>
-			<button type="submit" className="font-weight-500" style={{ fontSize: '1rem', minHeight: 'calc(24px + 1rem)' }}>{t("pages:verify.submit_resend")}</button>
+			<button type="submit" className="font-weight-500 margin-left-auto block" >{t("pages:verify.submit_resend")}</button>
 		</form>
 	)
 }

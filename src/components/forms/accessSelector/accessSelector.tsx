@@ -129,8 +129,9 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
               <button
                 className="grid padding-0"
                 onClick={() => { setEditUsers(editUsers.filter((editUser) => editUser !== user)); }}
-                type="button">
-                <IconX aria-label={t("forms:access_selector.remove_user")} width={12} height={12} strokeWidth={3} />
+                type="button"
+                aria-label={t("forms:access_selector.remove_user")}>
+                <IconX aria-hidden="true" width={12} height={12} strokeWidth={3} />
               </button>
             </span>
           ))}

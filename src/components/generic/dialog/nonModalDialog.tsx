@@ -187,7 +187,7 @@ export default function NonModalDialog({
           className={`${styles['toggle-button']} align-items-center font-weight-500`}
           style={{ width: toggleButtonWidth, fontSize: '1rem' }}
         >
-          <IconWorld style={{minWidth: "24px"}} />
+          <IconWorld aria-hidden="true" style={{minWidth: "24px"}} />
           {buttonTitle}
         </button>
         <div
@@ -231,8 +231,9 @@ export default function NonModalDialog({
             type="submit"
             className="padding-25"
             style={{ backgroundColor: 'transparent', borderRadius: '9999px' }}
+            aria-label='Close dialog'
           >
-            <IconX width={16} height={16} aria-label='Close dialog' className='grid' />
+            <IconX width={16} height={16} aria-hidden="true" className='grid' />
           </button>
         </form>
         {children}

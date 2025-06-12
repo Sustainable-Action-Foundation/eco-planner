@@ -167,14 +167,17 @@ export default async function Page(
   return (
     <>
       <Breadcrumb object={goal} />
+
+      {/* TODO TABLER_ICONS: translation for ctrl+f("aria-label") */}
       <main>
         {shouldUpdate &&
           <section
+            aria-label="attention" 
             className="flex justify-content-space-between align-items-center margin-block-300 padding-25 rounded"
             style={{ border: '1px solid gold', backgroundColor: 'rgba(255, 255, 0, .35)' }}
           >
             <div className="flex align-items-center gap-100 margin-left-100">
-              <IconAlertTriangle style={{minWidth: '24px'}} />
+              <IconAlertTriangle style={{minWidth: '24px'}} aria-hidden="true" />
               <strong className="font-weight-500">{t("pages:goal.update_needed")}</strong>
             </div>
             <UpdateGoalButton id={goal.id} />

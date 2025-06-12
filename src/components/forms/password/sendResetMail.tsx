@@ -21,12 +21,14 @@ export default function SendResetMail() {
   return (
     <form onSubmit={handleSubmit}>
       <label>
+        {/* TODO TABLER_ICONS: I18n */}
+        E-post
         <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
           <IconMail />
           <input className="padding-0 margin-inline-50" type="email" placeholder={t("common:placeholder.email")} name="email" required id="email" autoComplete="email" />
         </div>
       </label>
-      <button type="submit">{t("pages:password.submit")}</button>
+      <button className="margin-left-auto block" type="submit">{t("pages:password.submit")}</button>
     </form>
   )
 }

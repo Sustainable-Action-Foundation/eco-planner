@@ -263,9 +263,9 @@ export default function GoalForm({
                       defaultChildArea={value.type == ScaleBy.Area || value.type == ScaleBy.Inhabitants ? value.childArea : undefined}
                       defaultScaleBy={value.type || ScaleBy.Custom}
                     > {/* Multiplicative scaling doesn't use weights */}
-                      <button type="button" className="grid"
+                      <button type="button" className="grid" aria-label={t("forms:goal.remove_scaling")}
                         onClick={() => setScalingRecipe({ method: scalingRecipie.method, values: scalingRecipie.values.filter((_, i) => i !== index) })}>
-                        <IconCircleMinus aria-label={t("forms:goal.remove_scaling")} width={24} height={24}  />
+                        <IconCircleMinus aria-hidden="true" width={24} height={24}  />
                       </button>
                     </RepeatableScaling>
                   )

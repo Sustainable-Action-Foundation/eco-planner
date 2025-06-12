@@ -58,7 +58,7 @@ export default function ChildGraphContainer({
           type="button" onClick={() => setIsStacked(!isStacked)}
         >
           {t("graphs:common.change_graph_type")}
-          <IconChartAreaLineFilled aria-label={t("graphs:common.change_graph_type")} width={16} height={16} />
+          <IconChartAreaLineFilled aria-hidden="true" width={16} height={16} />
         </button>
         {children}
       </menu>

@@ -75,9 +75,9 @@ async function NestedRoadmapRenderer({
           {newChildRoadmaps.length > 0 ?
             <li>
               <details>
-                <summary className="flex justify-content-space-between">
+                <summary className="flex justify-content-space-between" aria-label={t("components:roadmap_tree.show_source_alt")}>
                   <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
-                    <IconCaretRightFilled aria-label={t("components:roadmap_tree.show_source_alt")} className="round padding-25 margin-inline-25" />
+                    <IconCaretRightFilled aria-hidden="true" className="round padding-25 margin-inline-25" />
                     <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth' style={{ lineHeight: '1' }}>
                       {/* Name, version */}
                       <div>
@@ -107,7 +107,7 @@ async function NestedRoadmapRenderer({
             :
             <li className="inline-flex align-items-center flex-grow-100 width-100">
               <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
-                <IconCaretRightFilled color="lightgray" aria-label={t("components:roadmap_tree.show_source_alt")} className="round padding-25 margin-inline-25" />
+                <IconCaretRightFilled aria-hidden="true" color="lightgray" className="round padding-25 margin-inline-25" />
                 <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth' style={{ lineHeight: '1' }}>
                   {/* Name, version */}
                   <div>

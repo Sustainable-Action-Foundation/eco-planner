@@ -64,7 +64,7 @@ export default async function Page(
         </h1>
         {badMetaRoadmap &&
           <p style={{ color: 'red' }}>
-            <IconInfoCircle />
+            <IconInfoCircle role="img" aria-label="information" />
             {t("pages:roadmap_create.bad_roadmap_series")} <br />
             {t("pages:roadmap_create.use_dropdown")}
           </p>

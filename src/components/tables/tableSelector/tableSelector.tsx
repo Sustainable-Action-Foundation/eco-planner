@@ -26,15 +26,15 @@ export default function TableSelector({ id, current, setter }: { id: string, cur
       {/* TODO TABLER_ICONS: Figure out how to replace using tabler icons */}
       <RadioImage value={ViewMode.Tree} name="table" checked={current == ViewMode.Tree} onChange={handleRadioChange}>
         {t("components:table_selector.tree")}
-        <IconListTree style={{minWidth: '24px'}}/>
+        <IconListTree  aria-hidden="true" style={{minWidth: '24px'}} />
       </RadioImage>
       <RadioImage value={ViewMode.Table} name="table" checked={current == ViewMode.Table} onChange={handleRadioChange}>
         {t("components:table_selector.table")}
-        <IconTableFilled style={{minWidth: '24px'}}/>
+        <IconTableFilled aria-hidden="true" style={{minWidth: '24px'}}/>
       </RadioImage>
       <RadioImage value={ViewMode.Actions} name="table" checked={current == ViewMode.Actions} onChange={handleRadioChange}>
         {t("components:table_selector.actions")}
-        <IconList style={{minWidth: '24px'}}/>
+        <IconList aria-hidden="true" style={{minWidth: '24px'}}/>
       </RadioImage>
     </div>
   );

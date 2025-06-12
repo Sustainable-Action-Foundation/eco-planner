@@ -7,7 +7,7 @@ import { IconChevronRight } from '@tabler/icons-react';
 
 export function BreadcrumbChevron() {
   return (
-    <IconChevronRight strokeWidth='2px' stroke='gray' aria-label=' > ' height={16} width={16} />
+    <IconChevronRight strokeWidth='2px' stroke='gray' aria-label=' > ' height={16} width={16} aria-hidden="true" />
   )
 }
 

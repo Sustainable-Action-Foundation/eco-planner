@@ -51,7 +51,7 @@ export default function RoadmapFilters() {
       <label className="font-weight-bold container-text">
         {t("components:roadmap_filters.search_roadmaps")}
         <div className="margin-top-25 flex align-items-center gray-90 padding-50 smooth focusable">
-          <IconSearch style={{minWidth: '24px'}} strokeWidth={1.5} />
+          <IconSearch style={{minWidth: '24px'}} strokeWidth={1.5} aria-hidden="true" />
           <input type="search" className="padding-0 margin-inline-50" defaultValue={searchParams.get('searchFilter') ?? undefined} onChange={(e) => {
             debouncedUpdateStringParam('searchFilter', e.target.value)
           }} />
@@ -75,7 +75,7 @@ export default function RoadmapFilters() {
         <span style={{ lineHeight: '1', }}>{t("components:roadmap_filters.filter")}</span>
         <div className='position-relative grid place-items-center'>
           <input type="checkbox" className="position-absolute width-100 height-100 hidden" />
-          <IconAdjustmentsHorizontal style={{minWidth: '24px'}} />
+          <IconAdjustmentsHorizontal style={{minWidth: '24px'}} aria-hidden="true" />
         </div>
       </label>
     </menu>

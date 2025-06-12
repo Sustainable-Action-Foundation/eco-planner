@@ -49,14 +49,16 @@ export default function LinkInput({ links }: { links?: { url: string, descriptio
         {linkList.map((link, index) => (
           <li key={`${index}link${link.url}${link.description}`}>
             <div className="flex align-items-flex-end">
-              {/* TODO: Missing labels for inputs */}
-              <input className="font-weight-bold transparent" type="text" name="linkDescription" defaultValue={link.description || ""} />
-              <input className="transparent" type="url" name="linkUrl" defaultValue={link.url} />
+              {/* TODO TABLER_ICONS: I18n for all aria-labels */}
+              <input className="font-weight-bold transparent" type="text" name="linkDescription" defaultValue={link.description || ""} aria-label="link name" />
+              <input className="transparent" type="url" name="linkUrl" defaultValue={link.url} aria-label="link url" />
               <button
                 type="button"
                 className="grid transparent round margin-left-100"
-                onClick={() => setLinkList(linkList.filter((_, i) => i !== index))}>
-                <IconTrashXFilled fill='#CB3C3C' />
+                onClick={() => setLinkList(linkList.filter((_, i) => i !== index))}
+                aria-label="remove link"
+                >
+                <IconTrashXFilled fill='#CB3C3C' aria-hidden="true" />
               </button>
             </div>
           </li>

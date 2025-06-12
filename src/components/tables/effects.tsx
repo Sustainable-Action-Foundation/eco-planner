@@ -50,7 +50,7 @@ export default function EffectTable({
       {object.effects.map(effect => (
         <li key={`${effect.actionId}_${effect.goalId}`} className="margin-block-75">
           <div className='flex justify-content-space-between align-items-center width-100'>
-            <IconCaretRightFilled fill="lightgray" className="margin-inline-25 padding-25" style={{minWidth: '24px'}} />
+            <IconCaretRightFilled fill="lightgray" aria-hidden="true" className="margin-inline-25 padding-25" style={{minWidth: '24px'}} />
             <a
               href={(object as Action).isSufficiency != undefined ? `/goal/${effect.goalId}` : `/action/${effect.actionId}`}
               className="font-weight-500 color-pureblack text-decoration-none flex-grow-100 inline-block padding-25 smooth">

@@ -62,13 +62,13 @@ export default async function Page(
         </h1>
         {badAction &&
           <p style={{ color: 'red' }}>
-            <IconInfoCircle />
+            <IconInfoCircle role="img" aria-label="information" />
             {t("pages:effect_create.bad_action")}
           </p>
         }
         {badGoal &&
           <p style={{ color: 'red' }}>
-            <IconInfoCircle />
+            <IconInfoCircle role="img" aria-label="information" />
             {t("pages:effect_create.bad_goal")}
           </p>
         }

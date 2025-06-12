@@ -21,24 +21,24 @@ export default async function Sidebar() {
     <aside className={styles.container}>
       <label className={styles.menuToggleContainer}>
         <input type="checkbox" className={styles.menuToggle} />
-        <IconMenu2 aria-label={t("components:sidebar.toggle_menu_alt")}  />
+        <IconMenu2 role='img' aria-label={t("components:sidebar.toggle_menu_alt")}  />
       </label>
       <aside className={`${styles.aside} flex-grow-100`}>
         <nav className={styles.nav}>
           {user?.isLoggedIn ?
             <Link href={`/@${user.username}`} className={styles.link}>
-              <IconUser style={{minWidth: "24px"}} />
+              <IconUser style={{minWidth: "24px"}} aria-hidden="true" />
               {t("components:sidebar.my_profile")}
             </Link>
             :
             <Link href="/signup" className='flex gap-50 align-items-center padding-50 margin-block-25 round seagreen color-purewhite button font-weight-500' style={{ whiteSpace: 'nowrap', overflow: 'hidden' }}>
-              <IconUserPlus style={{minWidth: "24px"}} />
+              <IconUserPlus style={{minWidth: "24px"}} aria-hidden="true" />
               {t("components:sidebar.create_account")}
             </Link>
           }
           <div className='flex-grow-100'>
             <Link href="/" className={styles.link}>
-              <IconHome style={{minWidth: "24px"}} />
+              <IconHome style={{minWidth: "24px"}} aria-hidden="true" />
               {t("components:sidebar.home")}
             </Link>
             {/*
@@ -50,7 +50,7 @@ export default async function Sidebar() {
                 className='transparent rounded flex gap-50 font-weight-600 align-items-center width-100' 
                 style={{fontSize: '1rem', overflow: 'hidden' }}
               > 
-                <IconCirclePlus aria-label='Skapa' style={{maxWidth: '24px'}} />
+                <IconCirclePlus aria-hidden="true" style={{maxWidth: '24px'}} />
                 Skapa
               </NonModalDialogButton>
               <NonModalDialogTemp>
@@ -81,7 +81,7 @@ export default async function Sidebar() {
                   className='transparent rounded flex gap-50 font-weight-600 align-items-center width-100' 
                   style={{fontSize: '1rem', overflow: 'hidden' }}
                 >
-                  <IconSettings aria-label='Inställningar' style={{maxWidth: '24px'}} />
+                  <IconSettings aria-hidden="true"' style={{maxWidth: '24px'}} />
                   Inställningar
                 </NonModalDialogButton>
                 <NonModalDialogTemp>
@@ -90,7 +90,7 @@ export default async function Sidebar() {
               </NonModalDialogWrapper>
              */}
             <Link href="/info" className={`${styles.link} margin-top-300`}>
-              <IconInfoCircle style={{minWidth: "24px"}} />
+              <IconInfoCircle style={{minWidth: "24px"}} aria-hidden="true" />
               {t("components:sidebar.about")}
             </Link>
           </section>
@@ -98,7 +98,7 @@ export default async function Sidebar() {
             <LogoutButton />
             :
             <Link href="/login" className={styles.link}>
-              <IconLogin2 style={{minWidth: "24px"}} />
+              <IconLogin2 style={{minWidth: "24px"}} aria-hidden="true" />
               {t("common:tsx.login")}
             </Link>
           }

@@ -54,7 +54,7 @@ export default async function Page(
         </h1>
         {badRoadmap &&
           <p style={{ color: 'red' }}>
-            <IconInfoCircle />
+            <IconInfoCircle role="img" aria-label="information" />
             {t("pages:goal_create.bad_roadmap")}
           </p>
         }

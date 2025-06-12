@@ -18,7 +18,7 @@ export default function LogoutButton() {
         }
       })
     }}>
-      <IconLogout2 style={{minWidth: "24px"}} />
+      <IconLogout2 style={{minWidth: "24px"}} aria-hidden="true" />
       {t("common:tsx.logout")}
     </button>
   )

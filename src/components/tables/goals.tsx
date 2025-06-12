@@ -68,7 +68,7 @@ export default function Goals({
         <label className="font-weight-bold flex-grow-100">
           {t("components:goals.search")}
           <div className="flex align-items-center margin-top-25 gray-90 padding-50 smooth focusable">
-            <IconSearch strokeWidth={1.5} style={{minWidth: '24px'}} />
+            <IconSearch strokeWidth={1.5} style={{minWidth: '24px'}} aria-hidden="true" />
             <input type="search" className="padding-0 margin-inline-50" onChange={(e) => setSearchFilter(e.target.value)} />
           </div>
         </label>

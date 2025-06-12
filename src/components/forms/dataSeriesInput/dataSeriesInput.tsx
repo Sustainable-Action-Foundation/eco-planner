@@ -87,12 +87,12 @@ export default function DataSeriesInput({
             {tableIsVisible ? (
               <>
                 {t("forms:data_series_input.hide_table")}
-                <IconCaretUpFilled width={20} height={20} style={{minWidth: '20px'}} />
+                <IconCaretUpFilled width={20} height={20} style={{minWidth: '20px'}} aria-hidden="true" />
               </>
             ) : (
               <>
                 {t("forms:data_series_input.show_table")}
-                <IconCaretDownFilled width={20} height={20} style={{minWidth: '20px'}} />
+                <IconCaretDownFilled width={20} height={20} style={{minWidth: '20px'}} aria-hidden="true" />
               </>
             )}
           </button>

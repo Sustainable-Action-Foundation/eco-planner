@@ -6,7 +6,7 @@ export default function Notifications({ amount }: { amount: number }) {
   return (
     <Link href="/" className={`flex align-items-center ${styles.link}`}>
       <div style={{position: 'relative', display: 'grid'}}>
-        <IconBell aria-label='notifikationer' style={{minWidth: '24px'}} />
+        <IconBell role='img' aria-label='notifikationer' style={{minWidth: '24px'}} />
         <div style={{
           padding: '1px',
           borderRadius: '9999px', 
