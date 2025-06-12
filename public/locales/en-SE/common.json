@@ -50,7 +50,7 @@
   },
   "tsx": {
     "home": "Home",
-    "login": "Login",
+    "login": "Log in",
     "logout": "Log out",
     "cancel": "Cancel",
     "ellipsis": "...",

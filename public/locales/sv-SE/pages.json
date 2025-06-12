@@ -81,11 +81,13 @@
   },
   "password": {
     "breadcrumb": "Återställ lösenord",
+    "title": "Återställ lösenord",
     "description": "Har du glömt ditt lösenord? Fyll i din e‑postadress här så skickar vi ett e‑postmeddelande med instruktioner för att återställa lösenordet.",
     "submit": "Skicka"
   },
   "password_reset": {
     "breadcrumb": "Uppdatera lösenord",
+    "title": "Uppdatera lösenord",
     "description": "Fyll i ditt nya lösenord nedan och klicka på knappen för att uppdatera ditt lösenord.",
     "password": "Nytt lösenord",
     "submit": "Byt lösenord"
@@ -139,7 +141,7 @@
     "description": "Ett meddelande har skickats till din e‑postadress. Verifiera din e‑postadress genom att följa instruktionerna i e‑postmeddelandet.",
     "troubleshooting_title": "Har du inte fått något meddelande?",
     "troubleshooting_description": "Kolla i din skräppost eller fyll i din e‑postadress nedan och klicka på knappen för att få ett nytt e‑postmeddelande.",
-    "submit_resend": "Skicka igen"
+    "submit_resend": "Skicka nytt mail"
   },
   "verify_verify": {
     "title": "Verifiera din e‑postadress",

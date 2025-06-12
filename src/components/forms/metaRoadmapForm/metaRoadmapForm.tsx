@@ -22,7 +22,7 @@ export default function MetaRoadmapForm({
   parentRoadmapOptions?: MetaRoadmap[],
   currentRoadmap?: MetaRoadmap & AccessControlled,
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["forms", "common"]);
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     // Mostly the usual submit handler stuff.

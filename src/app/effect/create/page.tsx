@@ -8,7 +8,19 @@ import { getSession } from "@/lib/session.ts";
 import { AccessLevel } from "@/types.ts";
 import { cookies } from "next/headers";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
+import { buildMetadata } from "@/functions/buildMetadata";
+
+export async function generateMetadata() {
+  const t = await serveTea("metadata")
+
+  return buildMetadata({
+    title: t("metadata:effect_create.title"),
+    description: t("metadata:effect_create.description"),
+    og_url: `/effect/create`,
+    og_image_url: undefined
+  })
+}
 
 export default async function Page(
   props: {
@@ -20,7 +32,8 @@ export default async function Page(
   }
 ) {
   const searchParams = await props.searchParams;
-  const [session, action, goal, roadmaps] = await Promise.all([
+  const [t, session, action, goal, roadmaps] = await Promise.all([
+    serveTea("pages"),
     getSession(await cookies()),
     getOneAction(typeof searchParams.actionId == 'string' ? searchParams.actionId : ''),
     getOneGoal(typeof searchParams.goalId == 'string' ? searchParams.goalId : ''),

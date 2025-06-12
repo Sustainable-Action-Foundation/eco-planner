@@ -10,11 +10,38 @@ import ThumbnailGraph from "@/components/graphs/mainGraphs/thumbnailGraph";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import Image from "next/image";
 import { DataSeries, Goal } from "@prisma/client";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
+import { buildMetadata } from "@/functions/buildMetadata";
+
+export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {
+  const params = await props.params
+  const [t, session, roadmap] = await Promise.all([
+    serveTea("metadata"),
+    getSession(await cookies()),
+    getOneRoadmap(params.roadmapId)
+  ]);
+
+  if (!session.user?.isLoggedIn) {
+    return buildMetadata({
+      title: t("metadata:login.title"),
+      description: t("metadata:login.title"),
+      og_url: `/roadmap/${params.roadmapId}`,
+      og_image_url: '/images/og_wind.png'
+    })
+  }
+
+  return buildMetadata({
+    title: roadmap?.metaRoadmap.name,
+    description: roadmap?.description,
+    og_url: `/roadmap/${params.roadmapId}`,
+    og_image_url: undefined
+  })
+}
 
 export default async function Page(props: { params: Promise<{ roadmapId: string }> }) {
   const params = await props.params;
-  const [session, roadmap] = await Promise.all([
+  const [t, session, roadmap] = await Promise.all([
+    serveTea(["pages", "common"]),
     getSession(await cookies()),
     getOneRoadmap(params.roadmapId)
   ]);

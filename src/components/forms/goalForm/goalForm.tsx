@@ -1,19 +1,21 @@
 'use client';
 
+import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput";
+import { getScalingResult } from "@/components/modals/copyAndScale";
+import RepeatableScaling from "@/components/repeatableScaling";
+import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
+import formSubmitter from "@/functions/formSubmitter";
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
-import Image from "next/image";
+import mathjs from "@/math";
 import { GoalInput, ScaleBy, ScaleMethod, ScalingRecipie, dataSeriesDataFieldNames, isScalingRecipie } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
-import /* LinkInput, */ LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput";
-import formSubmitter from "@/functions/formSubmitter";
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
-import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
-import RepeatableScaling from "@/components/repeatableScaling";
-import { getScalingResult } from "@/components/modals/copyAndScale";
-import mathjs from "@/math";
-import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
-import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
+import DataSeriesInput from "../dataSeriesInput/dataSeriesInput";
+import { getDataSeries } from "../dataSeriesInput/utils";
+import styles from '../forms.module.css';
+import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
 
 enum DataSeriesType {
   Static = "STATIC",
@@ -26,20 +28,6 @@ enum BaselineType {
   Custom = "CUSTOM",
   Inherited = "INHERIT",
 }
-
-// The amount of years in the data series
-const dataSeriesLength = dataSeriesDataFieldNames.length
-/**
- * This matches 0 to `dataSeriesLength` numbers separated by tabs or semicolons, with an optional decimal part.
- * The first position represents the value for the first year (currently 2020), and any number in the `dataSeriesLength`:th position
- * represents the value for the last year (currently 2050).
- * 
- * Two examle strings that match this pattern are:  
- * "2.0;2.1;2.2;2.3;2.4;2.5;2.6;2.7;2.8;2.9;3.0;3.1;3.2;3.3;3.4;3.5;3.6;3.7;3.8;3.9;4.0;4.1;4.2;4.3;4.4;4.5;4.6;4.7;4.8;4.9;5.0"  
- * and  
- * ";0;;;4;1"
- */
-export const dataSeriesPattern = `(([0-9]+([.,][0-9]+)?)?[\t;]){0,${dataSeriesLength - 1}}([0-9]+([.,][0-9]+)?)?`;
 
 export default function GoalForm({
   roadmapId,
@@ -65,7 +53,7 @@ export default function GoalForm({
     roadmap: { id: string },
   },
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["forms", "common"]);
 
   const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(!currentGoal?.combinationParents.length ? DataSeriesType.Static : currentGoal.combinationParents.length >= 2 ? DataSeriesType.Combined : DataSeriesType.Inherited)
   const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baselineDataSeries ? BaselineType.Custom : BaselineType.Initial)
@@ -101,14 +89,12 @@ export default function GoalForm({
 
     const links = getLinks(event.target);
 
-    // Convert the data series to an array of numbers, the actual parsing is done by the API
-    const dataSeriesInput = (form.namedItem("dataSeries") as HTMLInputElement | null)?.value;
-    const dataSeries = dataSeriesInput?.replaceAll(',', '.').split(/[\t;]/);
+    // Get data series as an array of numbers in string format, the actual parsing is done by the API
+    const dataSeries = getDataSeries(form);
 
     // And likewise for the baseline data series, if any
-    const baselineDataSeriesInput = (form.namedItem("baselineDataSeries") as HTMLInputElement | null)?.value;
-    // The baseline may be omitted, in which case we don't want to send an empty array
-    const baselineDataSeries = baselineDataSeriesInput ? baselineDataSeriesInput?.replaceAll(',', '.').split(/[\t;]/) : undefined;
+    const baselineDataSeriesArray = getDataSeries(form, "baselineDataSeries");
+    const baselineDataSeries = baselineDataSeriesArray.length > 0 ? baselineDataSeriesArray : undefined; // The baseline may be omitted, in which case we don't want to send an empty array
 
     const { scalingRecipie: combinationScale } = getScalingResult(formData, scalingRecipie.method || ScaleMethod.Geometric);
 
@@ -135,9 +121,9 @@ export default function GoalForm({
       name: (form.namedItem("goalName") as HTMLInputElement)?.value || null,
       description: (form.namedItem("description") as HTMLInputElement)?.value || null,
       indicatorParameter: (form.namedItem("indicatorParameter") as HTMLInputElement)?.value || null,
-      dataUnit: parsedUnit || (form.namedItem("dataUnit") as HTMLInputElement)?.value || null,
+      dataUnit: parsedUnit || (form.namedItem("dataUnit") as HTMLInputElement)?.value || '',
       dataSeries: dataSeries,
-      baselineDataSeries: baselineDataSeries,
+      baselineDataSeries: baselineDataSeries ?? null,
       combinationScale: JSON.stringify(combinationScale),
       inheritFrom: inheritFrom,
       roadmapId: currentGoal?.roadmapId || roadmapId || (typeof formData.get("roadmapId") == "string" ? formData.get("roadmapId") : null),
@@ -315,16 +301,12 @@ export default function GoalForm({
           </label>
 
           {baselineType === BaselineType.Custom &&
-            <label className="block margin-block-100">
-              {t("forms:goal.custom_baseline_label")}
-              {/* TODO: Make this allow .csv files and possibly excel files */}
-              <input type="text" name="baselineDataSeries" id="baselineDataSeries"
-                pattern={dataSeriesPattern}
-                title={t("forms:goal.custom_baseline_title")}
-                className="margin-block-25"
-                defaultValue={baselineString}
-              />
-            </label>
+            <DataSeriesInput
+              dataSeriesString={baselineString}
+              inputName="baselineDataSeries"
+              inputId="baselineDataSeries"
+              labelKey="forms:data_series_input.custom_baseline"
+            />
           }
 
           {baselineType === BaselineType.Inherited &&

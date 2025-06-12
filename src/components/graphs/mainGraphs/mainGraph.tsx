@@ -23,7 +23,7 @@ export default function MainGraph({
   historicalData?: ApiTableContent | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("graphs");
 
   if (!goal.dataSeries) {
     return null;
@@ -54,6 +54,7 @@ export default function MainGraph({
           t("graphs:common.baseline_scenario"),
           t("graphs:common.expected_outcome"),
           (secondaryGoal?.dataSeries?.unit == goal.dataSeries.unit) ? (secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0] : "",
+          historicalData ? `${historicalData.metadata[0]?.label}` : "",
         ]
       }
     ],
@@ -143,6 +144,27 @@ export default function MainGraph({
     }
   }
 
+  if (historicalData) {
+    const historicalSeries = [];
+    const timeColumnIndex = historicalData.columns.findIndex(column => column.type == "t");
+
+    if (timeColumnIndex >= 0) {
+      for (const row of historicalData.data) {
+        const value = parseFloat(row.values[0]);
+
+        historicalSeries.push({
+          x: parsePeriod(row.key[timeColumnIndex].value).getTime(),
+          y: Number.isFinite(value) ? value : null,
+        });
+      }
+      mainChart.push({
+        name: `${historicalData.metadata[0]?.label}`,
+        data: historicalSeries,
+        type: 'line',
+      });
+    }
+  }
+
   if (secondaryGoal?.dataSeries) {
     const secondarySeries = [];
     for (const i of dataSeriesDataFieldNames) {
@@ -191,33 +213,6 @@ export default function MainGraph({
       seriesName: [t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name || "" })],
       opposite: true,
     });
-  }
-
-  if (historicalData) {
-    const historicalSeries = [];
-    const timeColumnIndex = historicalData.columns.findIndex(column => column.type == "t");
-
-    if (timeColumnIndex >= 0) {
-      for (const row of historicalData.data) {
-        const value = parseFloat(row.values[0]);
-
-        historicalSeries.push({
-          x: parsePeriod(row.key[timeColumnIndex].value).getTime(),
-          y: Number.isFinite(value) ? value : null,
-        });
-      }
-      mainChart.push({
-        name: `${historicalData.metadata[0]?.label}`,
-        data: historicalSeries,
-        type: 'line',
-      });
-      (mainChartOptions.yaxis as ApexYAxis[]).push({
-        title: { text: t("graphs:main_graph.history") },
-        labels: { formatter: graphNumberFormatter },
-        seriesName: [`${historicalData.metadata[0]?.label}`],
-        opposite: true,
-      });
-    }
   }
 
   return (

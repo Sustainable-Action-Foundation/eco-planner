@@ -35,7 +35,7 @@ export default function GraphGraph({
   effects: (Effect & { dataSeries: DataSeries | null })[],
   children: React.ReactNode
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("graphs");
 
   const [graphType, setGraphType] = useState<GraphType | "">("");
 

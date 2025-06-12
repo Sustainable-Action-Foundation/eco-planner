@@ -7,7 +7,7 @@ import { setStoredViewMode } from '../functions/tableFunctions';
 import { useTranslation } from "react-i18next";
 
 export default function TableSelector({ id, current, setter }: { id: string, current: ViewMode | "", setter: Dispatch<SetStateAction<ViewMode | "">> }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("components");
 
   const handleRadioChange = (event: ChangeEvent<HTMLInputElement>) => {
     setStoredViewMode(event.target.value, id);
@@ -20,7 +20,6 @@ export default function TableSelector({ id, current, setter }: { id: string, cur
     }
   };
 
-  // Set the selectedOption as the context value
   return (
     <div className='flex align-items-center gap-25'>
       <RadioImage text={t("components:table_selector.tree")} value={ViewMode.Tree} src="/icons/listTree.svg" name="table" checked={current == ViewMode.Tree} onChange={handleRadioChange} />

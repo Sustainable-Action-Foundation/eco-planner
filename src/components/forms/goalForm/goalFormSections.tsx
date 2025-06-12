@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { DataSeries, Goal } from "@prisma/client";
-import { dataSeriesPattern } from "./goalForm";
-import { Fragment, useEffect, useState } from "react";
-import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
 import { clientSafeGetOneGoal } from "@/fetchers/getOneGoal";
-import { clientSafeGetRoadmaps } from "@/fetchers/getRoadmaps";
+import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
 import type getRoadmaps from "@/fetchers/getRoadmaps";
+import { clientSafeGetRoadmaps } from "@/fetchers/getRoadmaps";
 import mathjs from "@/math";
 import { dataSeriesDataFieldNames } from "@/types";
+import { DataSeries, Goal } from "@prisma/client";
+import { Fragment, useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
+import DataSeriesInput from "../dataSeriesInput/dataSeriesInput";
 
 export function ManualGoalForm({
   currentGoal,
@@ -30,7 +30,7 @@ export function ManualGoalForm({
   },
   dataSeriesString?: string,
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("forms");
   const [parsedUnit, setParsedUnit] = useState<string | null>(null);
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export function ManualGoalForm({
 
       <label className="block margin-block-100">
         {t("forms:goal.data_unit")}
-        <input className="margin-block-25" type="text" name="dataUnit" required id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
+        <input className="margin-block-25" type="text" name="dataUnit" id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
           try {
             setParsedUnit(mathjs.unit(e.target.value).toString());
           } catch {
@@ -60,33 +60,17 @@ export function ManualGoalForm({
           }
         }} />
         {parsedUnit ?
-          <p className="margin-block-25">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></p>
-          : <p className="margin-block-25">{t("forms:goal.unit_not_interpreted")}</p>
+          <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></small>
+          : <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_not_interpreted")}</small>
         }
       </label>
 
-      <details className="margin-block-75">
-        <summary>
-          {t("forms:goal.extra_info_data_series")}
-        </summary>
-        <p>
-          <Trans
-            i18nKey={"forms:goal.data_series_info"}
-            components={{ strong: <strong />, br: <br /> }}
-          />
-        </p>
-      </details>
-
-      <label className="block margin-block-75">
-        {t("forms:goal.data_series")}
-        {/* TODO: Make this allow .csv files and possibly excel files */}
-        <input type="text" name="dataSeries" required id="dataSeries"
-          pattern={dataSeriesPattern}
-          title={t("forms:goal.data_series_title")}
-          className="margin-block-25"
-          defaultValue={dataSeriesString}
-        />
-      </label>
+      <DataSeriesInput
+        dataSeriesString={dataSeriesString}
+        inputName="dataSeries"
+        inputId="dataSeries"
+        labelKey="forms:data_series_input.data_series"
+      />
     </>
   )
 }
@@ -112,7 +96,7 @@ export function InheritedGoalForm({
   },
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["forms", "common"]);
   const [selectedRoadmap, setSelectedRoadmap] = useState(currentGoal?.combinationParents[0]?.parentGoal.roadmapId);
   const [roadmapData, setRoadmapData] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
   const [selectedGoal, setSelectedGoal] = useState(currentGoal?.combinationParents[0]?.parentGoal.id);
@@ -183,7 +167,7 @@ export function InheritedGoalForm({
 
       <label className="block margin-block-75">
         {t("forms:goal.data_unit")}
-        <input className="margin-block-25" type="text" name="dataUnit" required disabled id="dataUnit" value={goalData?.dataSeries?.unit || ""} onChange={(e) => {
+        <input className="margin-block-25" type="text" name="dataUnit" disabled id="dataUnit" value={goalData?.dataSeries?.unit || ""} onChange={(e) => {
           try {
             setParsedUnit(mathjs.unit(e.target.value).toString());
           } catch {
@@ -191,8 +175,8 @@ export function InheritedGoalForm({
           }
         }} />
         {parsedUnit ?
-          <p className="margin-block-25">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></p>
-          : <p className="margin-block-25">{t("forms:goal.unit_not_interpreted")}</p>
+          <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></small>
+          : <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_not_interpreted")}</small>
         }
       </label>
     </>
@@ -220,7 +204,7 @@ export function CombinedGoalForm({
     roadmap: { id: string },
   },
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["forms", "common"]);
   const [currentRoadmap, setCurrentRoadmap] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
   const [inheritFrom, setInheritFrom] = useState<string[]>([]);
   const [parsedUnit, setParsedUnit] = useState<string | null>(null);
@@ -251,7 +235,7 @@ export function CombinedGoalForm({
 
       <label className="block margin-block-75">
         {t("forms:goal.data_unit")}
-        <input className="margin-block-25" type="text" name="dataUnit" required id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
+        <input className="margin-block-25" type="text" name="dataUnit" id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
           try {
             setParsedUnit(mathjs.unit(e.target.value).toString());
           } catch {
@@ -259,8 +243,8 @@ export function CombinedGoalForm({
           }
         }} />
         {parsedUnit ?
-          <p className="margin-block-25">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></p>
-          : <p className="margin-block-25">{t("forms:goal.unit_not_interpreted")}</p>
+          <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></small>
+          : <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_not_interpreted")}</small>
         }
       </label>
 
@@ -305,7 +289,7 @@ export function CombinedGoalForm({
 }
 
 export function InheritingBaseline() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["forms", "common"]);
   const [roadmapList, setRoadmapList] = useState<Awaited<ReturnType<typeof clientSafeGetRoadmaps>>>([]);
   const [selectedRoadmap, setSelectedRoadmap] = useState<string | undefined>(undefined);
   const [roadmapData, setRoadmapData] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);

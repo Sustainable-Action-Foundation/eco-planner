@@ -40,7 +40,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction) {
 }
 
 export default function Login() {
-  const { t } = useTranslation()
+  const { t } = useTranslation(["components", "common"]);
 
   const [showPassword, setShowPassword] = useState(false)
 
@@ -57,6 +57,7 @@ export default function Login() {
           </div>
         </label>
 
+        {/* TODO: This label is currently invalid due to multiple nested inputs (Similar invalid labels may exist elsewhere) */}
         <label className="block margin-block-100">
           {t("components:login.password")}
           <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">

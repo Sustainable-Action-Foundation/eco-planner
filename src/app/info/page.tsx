@@ -1,11 +1,27 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import { buildMetadata } from "@/functions/buildMetadata";
 import { JSONValue } from "@/types.ts";
 import fs from "fs";
 import metadata from "package.json" with { type: "json" };
-import { t } from "@/lib/i18nServer";
-import { CommitWithLink, FallbackRemote, Intro, KnownRemote } from "@/app/info/appMetaInfo";
+import serveTea from "@/lib/i18nServer";
+// Uses TransWithoutContext, passing in our server-side i18n instance to the component,
+// rather than using the base Trans component which would use a client-side i18n instance.
+import { Trans } from "react-i18next/TransWithoutContext";
+import i18next from "i18next";
+
+export async function generateMetadata() {
+  const t = await serveTea("pages");
+
+  return buildMetadata({
+    title: t("pages:info.title"),
+    description: t("pages:info.info_body"),
+    og_url: `/info`,
+    og_image_url: undefined,
+  })
+}
 
 export default async function Page() {
+  const t = await serveTea("pages");
   const gitHash = { shortHash: process.env.GIT_SHORT_HASH, longHash: process.env.GIT_LONG_HASH };
 
   // If hash is not set in env, try to get it from file
@@ -50,20 +66,39 @@ export default async function Page() {
     commitURL = new URL(`commit/${gitHash.longHash || gitHash.shortHash}`, remoteURL).toString();
   }
 
+  const remoteURLObject = remoteURL ? new URL(remoteURL) : undefined;
+  const remoteURLString = remoteURLObject ? `${remoteURLObject.hostname}${remoteURLObject.pathname}` : null;
+
   return (
     <>
       <Breadcrumb customSections={[t("pages:info.breadcrumb")]} />
 
-      {/* This is static but the above code seems to be messing with the translations and make them disappear sometimes. The below component is client side */}
-      <Intro />
+      <h1>{t("pages:info.title")}</h1>
 
-      {/* TODO: Add wiki once created */}
+      <p>{t("pages:info.info_body")}</p>
+
+      {/* TODO: Link to wiki once created */}
 
       <p>
         {remoteURL ?
-          <KnownRemote remoteURL={remoteURL} />
+          <Trans
+            i18nKey="pages:info.known_remote"
+            components={{
+              a: <a href={remoteURL} target="_blank" />
+            }}
+            tOptions={{
+              remote: remoteURLString
+            }}
+            i18n={i18next}
+          />
           :
-          <FallbackRemote />
+          <Trans
+            i18nKey="pages:info.fallback_remote"
+            components={{
+              a: <a href="https://github.com/Sustainable-Action-Foundation/eco-planner" target="_blank" />,
+            }}
+            i18n={i18next}
+          />
         }
       </p>
 
@@ -76,7 +111,18 @@ export default async function Page() {
       {gitHash.shortHash || gitHash.longHash
         ? commitURL
           ?
-          <p><CommitWithLink commitURL={commitURL} gitHash={gitHash.shortHash || gitHash.longHash || ""} /></p>
+          <p>
+            <Trans
+              i18nKey="pages:info.commit_with_link"
+              components={{
+                a: <a href={commitURL} target="_blank" />
+              }}
+              tOptions={{
+                commit: gitHash.shortHash || gitHash.longHash || "",
+              }}
+              i18n={i18next}
+            />
+          </p>
           :
           <p>{t("pages:info.commit_without_link", { commit: gitHash.shortHash || gitHash.longHash || "" })}</p>
         : null

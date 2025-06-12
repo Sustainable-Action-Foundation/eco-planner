@@ -9,7 +9,7 @@ export default function UserFilters({
 }: {
   userPage: boolean
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("components");
 
   const router = useRouter();
   const pathname = usePathname();

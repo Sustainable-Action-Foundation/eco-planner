@@ -19,7 +19,7 @@ export default function MainDeltaGraph({
   parentGoalRoadmap: Roadmap & { metaRoadmap: MetaRoadmap } | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("graphs");
 
   if (!goal.dataSeries) {
     return null

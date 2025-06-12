@@ -4,11 +4,11 @@ import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 
 export default function UpdateGoalButton({ id }: { id: string }) {
-  const { t } = useTranslation();
-  
+  const { t } = useTranslation("components");
+
   return (
-    <button 
-      type="button" 
+    <button
+      type="button"
       className="transparent padding-inline-100 font-weight-500 smooth seagreen color-purewhite"
       onClick={() => formSubmitter('/api/recalculate', JSON.stringify({ id: id }), "POST")}
     >

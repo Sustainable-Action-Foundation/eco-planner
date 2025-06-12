@@ -200,7 +200,7 @@ export default function CopyAndScale({
   goal: Goal & { dataSeries: DataSeries | null },
   roadmapOptions: { id: string, name: string, version: number, actor: string | null }[],
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("components");
   const [isLoading, setIsLoading] = useState(false);
   const [scalingComponents, setScalingComponents] = useState<string[]>([crypto?.randomUUID() || Math.random().toString()]);
   const [scalingMethod, setScalingMethod] = useState<ScaleMethod>(ScaleMethod.Geometric);

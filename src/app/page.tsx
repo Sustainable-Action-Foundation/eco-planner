@@ -8,14 +8,25 @@ import RoadmapFilters from "@/components/forms/filters/roadmapFilters";
 import { RoadmapSortBy } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree.tsx";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 import Link from "next/link";
+import { buildMetadata } from "@/functions/buildMetadata";
+
+export async function generateMetadata() {
+  return await buildMetadata({
+    title: undefined,
+    description: undefined,
+    og_url: undefined,
+    og_image_url: undefined,
+  })
+}
 
 export default async function Page(
   props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }
 ) {
-  const searchParams = await props.searchParams;
-  const [session, metaRoadmaps] = await Promise.all([
+  const [t, searchParams, session, metaRoadmaps] = await Promise.all([
+    serveTea("pages"),
+    props.searchParams,
     getSession(await cookies()),
     getMetaRoadmaps(),
   ]);
@@ -101,7 +112,7 @@ export default async function Page(
     <Breadcrumb />
 
     <div className="rounded width-100 margin-bottom-100 margin-top-300 position-relative overflow-hidden" style={{ height: '350px' }}>
-      <AttributedImage src="/images/solarpanels.jpg" alt="" sizes="(max-width: 1250: 100vw), 1250px">
+      <AttributedImage src="/images/solar.jpg" alt="" sizes="(max-width: 1250: 100vw), 1250px">
         <div className="flex gap-100 flex-wrap-wrap align-items-flex-end justify-content-space-between padding-100 width-100">
           <div>
             <h1 className="margin-block-25">{t("pages:home.title")}</h1>
