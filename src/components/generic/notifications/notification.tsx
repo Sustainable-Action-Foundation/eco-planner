@@ -1,12 +1,15 @@
 import styles from './notification.module.css'
 import Link from "next/link"
 import { IconBell } from '@tabler/icons-react'
+import serveTea from "@/lib/i18nServer";
 
-export default function Notifications({ amount }: { amount: number }) {
+export default async function Notifications({ amount }: { amount: number }) {
+  const t = await serveTea("components");
+
   return (
     <Link href="/" className={`flex align-items-center ${styles.link}`}>
       <div style={{position: 'relative', display: 'grid'}}>
-        <IconBell role='img' aria-label='notifikationer' style={{minWidth: '24px'}} />
+        <IconBell role='img' aria-label={t("components:notification.icon_aria_label")} style={{minWidth: '24px'}} />
         <div style={{
           padding: '1px',
           borderRadius: '9999px', 

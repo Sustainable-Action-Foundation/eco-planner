@@ -187,5 +187,8 @@
     "roadmap_series": "{{$t(common:roadmap_series_other), titleCase}}",
     "access_level": "Behörighet",
     "editing_access": "Redigeringsbehörighet"
+  },
+  "notification": {
+    "icon_aria_label": "notiser"
   }
 }

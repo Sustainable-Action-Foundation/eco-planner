@@ -227,11 +227,12 @@ export default function NonModalDialog({
             style={{ whiteSpace: 'nowrap', fontSize: '1rem' }}>
             {title}
           </h2>
+          {/* TODO: i18n */}
           <button
             type="submit"
             className="padding-25"
             style={{ backgroundColor: 'transparent', borderRadius: '9999px' }}
-            aria-label='Close dialog'
+            aria-label="Close dialog"
           >
             <IconX width={16} height={16} aria-hidden="true" className='grid' />
           </button>

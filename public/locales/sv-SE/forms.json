@@ -122,7 +122,8 @@
     "name_label": "Namn",
     "name_placeholder": "ex. SCB",
     "url_label": "Länk",
-    "url_placeholder": "https://example.com"
+    "url_placeholder": "https://example.com" ,
+    "remove_link_aria_label": "ta bort länk"
   },
   "repeatable_scaling": {
     "specific_value_label": "Med vilket värde vill du skala?",

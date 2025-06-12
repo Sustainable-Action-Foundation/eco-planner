@@ -167,12 +167,10 @@ export default async function Page(
   return (
     <>
       <Breadcrumb object={goal} />
-
-      {/* TODO TABLER_ICONS: translation for ctrl+f("aria-label") */}
       <main>
         {shouldUpdate &&
           <section
-            aria-label="attention" 
+            aria-label={t("pages:goal.update_needed_attention_message")}
             className="flex justify-content-space-between align-items-center margin-block-300 padding-25 rounded"
             style={{ border: '1px solid gold', backgroundColor: 'rgba(255, 255, 0, .35)' }}
           >

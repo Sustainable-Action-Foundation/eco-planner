@@ -8,7 +8,6 @@ import Link from 'next/link'
 import { LanguageSwitcher } from "@/components/languageSwitcher"
 import serveTea from "@/lib/i18nServer";
 import NonModalDialog, { NonModalDialogButton, NonModalDialogTemp, NonModalDialogWrapper } from '@/components/generic/dialog/nonModalDialog';
-// import Notifications from '../notifications/notification'
 import { IconHome, IconInfoCircle, IconLogin2, IconMenu2, IconUser, IconUserPlus } from '@tabler/icons-react'
 
 export default async function Sidebar() {
