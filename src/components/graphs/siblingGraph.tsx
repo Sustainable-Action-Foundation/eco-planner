@@ -61,6 +61,7 @@ export default function SiblingGraph({
       animations: { enabled: false, dynamicAnimation: { enabled: false } },
       zoom: { allowMouseWheelZoom: false },
     },
+    stroke: { curve: 'straight' },
     markers: { size: isStacked ? 0 : 5 },
     xaxis: {
       type: 'datetime',
