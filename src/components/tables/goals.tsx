@@ -106,7 +106,7 @@ export default function Goals({
         <ActionTable actions={filteredRoadmap.actions} accessLevel={accessLevel} roadmapId={roadmap.id} />
       ) :
         <Image
-          src='/animations/3-dots-scale.svg'
+          src='/loaders/3-dots-scale.svg'
           width={64}
           height={64}
           alt={t("components:goals.loading_alt")}
