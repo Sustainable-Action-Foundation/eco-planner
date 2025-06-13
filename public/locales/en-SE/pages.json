@@ -90,6 +90,7 @@
     "breadcrumb": "Reset password",
     "title": "Reset password",
     "description": "Forgot your password? Enter your email here and we will send an email with instructions to reset your password.",
+    "input_label": "E-post",
     "submit": "Submit"
   },
   "password_reset": {
@@ -149,6 +150,7 @@
     "description": "An email has been sent to your email address. Verify your email by following the instructions in the email.",
     "troubleshooting_title": "Haven't received an email?",
     "troubleshooting_description": "Check your spam folder or fill in your email address below and click the button to receive a new email.",
+    "input_label": "Email",
     "submit_resend": "Resend email"
   },
   "verify_verify": {
