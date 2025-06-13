@@ -170,6 +170,9 @@ model Goal {
   links     Link[]    @relation("goal_link")
   // Comments related to this goal
   comments  Comment[] @relation("goal_comment")
+  // Tags for this goal
+  // Tags are used to categorize goals, such as "climate", "energy", "transport", etc.
+  tags      GoalTag[] @relation("goal_tag")
   // The person who created this goal
   authorId  String    @map("author_id")
   author    User      @relation("goal_author", fields: [authorId], references: [id])
@@ -260,6 +263,16 @@ model DataSeries {
 
   @@unique(name: "effectId", [effectActionId, effectGoalId], map: "effect_id")
   @@map("data_series")
+}
+
+model GoalTag {
+  // The name of a tag is used as the ID, since it doesn't make sense to have multiple different tags with the same name
+  name String @id
+
+  // Goals that are tagged with this tag
+  goals Goal[] @relation("goal_tag")
+
+  @@map("goal_tag")
 }
 
 model Action {
