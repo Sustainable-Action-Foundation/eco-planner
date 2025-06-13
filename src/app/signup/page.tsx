@@ -25,7 +25,7 @@ export default async function Page() {
       <main className={`${styles.gridLayout} container margin-auto padding-block-500 grid gap-300 align-items-center`}>
         <Signup />
         <div className={`${styles.image} position-relative width-100 rounded overflow-hidden`}>
-          <AttributedImage src="/images/hydro.jpg" alt="" sizes="(max-width: 1250: 100vw), 555px">
+          <AttributedImage src="/images/hydro.jpg" alt="" sizes="(max-width: 1250px) 100vw, 555px">
             <div className="width-100 padding-100">
               <AttributeText
                 author="Dan Meyers"

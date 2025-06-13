@@ -8,7 +8,7 @@ export default async function AttributedImage({
   children,
   src,
   alt,
-  sizes = "(max-width: 1250: 100vw), 1250px",
+  sizes = "(max-width: 1250px) 100vw, 1250px",
 }: {
   children: React.ReactNode
   src: string,

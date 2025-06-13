@@ -10,7 +10,7 @@ import { externalDatasets } from "../api/utility";
 export default async function getPxWebTables(externalDataset: string, searchQuery?: string, language: string = 'sv', pageSize: number = 9999) {
   // Get the base URL for the external dataset, defaulting to SCB
   const baseUrl = externalDatasets[externalDataset]?.baseUrl ?? externalDatasets.SCB?.baseUrl;
-  const url = new URL(`${baseUrl}/tables`);
+  const url = new URL('./tables', baseUrl);
 
   if (searchQuery) url.searchParams.append('query', searchQuery);
   if (language) url.searchParams.append('lang', language);
