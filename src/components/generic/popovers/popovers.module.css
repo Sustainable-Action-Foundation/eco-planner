@@ -1,45 +1,34 @@
-/* 
-    TODO: All fallbacks using @support are based on this modal being explicitely
-    used for the translation menu. This wont be the case and thus needs to be 
-    fleshed out later
-*/
-
-/* Indicator */
-@supports (position-area: start start) and (position-anchor: --toggle-button) {
-
-    .popover-indicator {
-        display: none;
-        border-width: '.5rem';
-        border-style: 'solid'
-    }
-
-    .popover-indicator:has(+[popover]:popover-open) {
-        display: block;
-    }
-
-    .popover-indicator-top {
-        position-area: start center;
-        border-color: #292929 transparent transparent transparent;
-    }
-
-    .popover-indicator-right {
-        position-area: center end;
-        border-color: transparent #292929 transparent transparent;
-    }
-
-    .popover-indicator-bottom {
-        position-area: end center;
-        border-color: transparent transparent #292929 transparent;
-    }
-
-    .popover-indicator-left {
-        position-area: center start;
-        border-color: transparent transparent transparent #292929;
-    }
+.popover-indicator {
+    display: none;
+    border-width: .5rem;
+    border-style: solid;
 }
 
-/* Rewriting stuff: */
-/* TODO: Get rid of this and set anchor-name inline once its supported by nextjs */
+.popover-indicator:has(+[popover]:popover-open) {
+    display: block;
+}
+
+.popover-indicator-top {
+    position-area: start center;
+    border-color: #292929 transparent transparent transparent;
+}
+
+.popover-indicator-right {
+    position-area: center end;
+    border-color: transparent #292929 transparent transparent;
+}
+
+.popover-indicator-bottom {
+    position-area: end center;
+    border-color: transparent transparent #292929 transparent;
+}
+
+.popover-indicator-left {
+    position-area: center start;
+    border-color: transparent transparent transparent #292929;
+}
+
+
 .anchor-name {
     --anchor-name: ;
     anchor-name: var(--anchor-name);
@@ -59,6 +48,7 @@
 
 .anchor-inline-center {
     inset-inline-start: anchor(center);
+    margin-inline: 0;
     transform: translateX(-50%);
 }
 
@@ -115,16 +105,3 @@
     inset-inline-start: initial;
     transform: initial;
 }
-
-/*
-    List of acceptable classes:
-    - anchor-inline-start
-    - anchor-inline-center
-    - anchor-inline-end
-
-    - popup-direction-up
-    - popup-direction-down
-    - popup-direction-vertical
-    - (popup-direction-right)
-    - (popup-direction-left)
-  */

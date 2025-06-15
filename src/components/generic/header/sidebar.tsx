@@ -57,7 +57,8 @@ export default async function Sidebar() {
               positionAnchor='--create-popover-button'
               anchorInlinePosition='end'
               popoverDirection={{ vertical: 'down' }}
-              className='margin-inline-start-200'
+              className='margin-inline-0'
+              margin={{left: '2rem'}}
               indicator
             >
               <nav className='padding-25 smooth' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
@@ -108,7 +109,7 @@ export default async function Sidebar() {
               positionAnchor='--select-language-popover-button'
               anchorInlinePosition='end'
               popoverDirection={{ vertical: 'up' }}
-              className='margin-inline-start-200'
+              margin={{left: '2rem'}}
               indicator
             >
               <div className='padding-25 smooth' style={{ backgroundColor: 'white', border: '1px solid silver' }}>

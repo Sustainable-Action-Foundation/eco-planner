@@ -42,7 +42,8 @@ export function Popover({
   positionAnchor,
   anchorInlinePosition,
   popoverDirection,
-  indicator
+  indicator,
+  margin
 }: {
   id: string,
   className?: string,
@@ -55,10 +56,16 @@ export function Popover({
     vertical: 'up' | 'vertical' | 'down',
     horizontal?: 'left' | 'right'
   } | 'up' | 'vertical' | 'down',
-  indicator?: boolean
+  indicator?: boolean,
+  margin?: {
+    top?: string,
+    right?: string,
+    bottom?: string,
+    left?: string, 
+  }
 }) {
 
-    // Normalize vertical direction for consistent access
+  // Normalize vertical direction for consistent access
   const vertical =
     typeof popoverDirection === 'string'
       ? popoverDirection
@@ -76,7 +83,6 @@ export function Popover({
     } else if (vertical === 'down') {
       indicatorClass = styles['popover-indicator-bottom'];
     } else {
-      // vertical === 'vertical', no indicator
       indicatorClass = '';
     }
   }
@@ -86,7 +92,13 @@ export function Popover({
       {indicator ? 
         <div 
           className={`${styles['popover-indicator']} ${indicatorClass} ${styles['position-anchor']} position-absolute`}
-          style={{borderWidth: '.5rem', borderStyle: 'solid', '--position-anchor': positionAnchor} as React.CSSProperties}
+          style={{
+            marginTop: `${margin ? `calc(${margin.top} - 1rem)` : ''}`,
+            marginRight: `${margin ? `calc(${margin.right} - 1rem)` : ''}`,
+            marginBottom: `${margin ? `calc(${margin.bottom} - 1rem)` : ''}`,
+            marginLeft: `${margin ? `calc(${margin.left} - 1rem)` : ''}`,
+            '--position-anchor': positionAnchor,
+          } as React.CSSProperties}
         >
         </div>
       : null } 
@@ -103,7 +115,14 @@ export function Popover({
           ${styles['position-anchor']} 
           ${className ?? ''}
         `}
-        style={{ '--position-anchor': positionAnchor, ...style, } as React.CSSProperties} // TODO: Do i need React.Cssproperties here?
+        style={{ 
+            marginTop: `${margin ? margin.top : ''}`,
+            marginRight: `${margin ? margin.right : ''}`,
+            marginBottom: `${margin ? margin.bottom : ''}`,
+            marginLeft: `${margin ? margin.left : ''}`,
+          '--position-anchor': positionAnchor, 
+          ...style, 
+        } as React.CSSProperties} // TODO: Do i need React.Cssproperties here?
         popover={popover}
       >
         {children}
