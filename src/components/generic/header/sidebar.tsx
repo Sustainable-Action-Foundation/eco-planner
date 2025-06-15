@@ -7,8 +7,8 @@ import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { LanguageSwitcher } from "@/components/languageSwitcher"
 import serveTea from "@/lib/i18nServer";
-import NonModalDialog, { NonModalDialogButton, NonModalDialogTemp, NonModalDialogWrapper } from '@/components/generic/dialog/nonModalDialog';
-import { IconHome, IconInfoCircle, IconLogin2, IconMenu2, IconUser, IconUserPlus } from '@tabler/icons-react'
+import NonModalDialog, { PopoverButton, Popover } from '@/components/generic/dialog/nonModalDialog';
+import { IconCirclePlus, IconHome, IconInfoCircle, IconLogin2, IconMenu2, IconSettings, IconUser, IconUserPlus, IconX } from '@tabler/icons-react'
 
 export default async function Sidebar() {
   const [t, { user }] = await Promise.all([
@@ -40,24 +40,35 @@ export default async function Sidebar() {
               <IconHome style={{minWidth: "24px"}} aria-hidden="true" />
               {t("components:sidebar.home")}
             </Link>
+
             {/*
-            <NonModalDialogWrapper>
-              <NonModalDialogButton 
-                id='create-dialog-button'
-                indicatorMargin='1rem'
-                dialogPosition='right'
-                className='transparent rounded flex gap-50 font-weight-600 align-items-center width-100' 
-                style={{fontSize: '1rem', overflow: 'hidden' }}
-              > 
-                <IconCirclePlus aria-hidden="true" style={{maxWidth: '24px'}} />
-                Skapa
-              </NonModalDialogButton>
-              <NonModalDialogTemp>
-                Skapa
-              </NonModalDialogTemp>
-            </NonModalDialogWrapper>
-            */}
+            <PopoverButton 
+              anchorName='--create-dialog-button' 
+              popoverTarget='create-dialog-popover'                
+              className='transparent rounded flex gap-50 font-weight-600 align-items-center width-100' 
+              style={{fontSize: '1rem', overflow: 'hidden' }}
+            >
+              <IconCirclePlus aria-hidden="true" style={{minWidth: '24px'}} />
+              Skapa
+            </PopoverButton>
+            <Popover 
+              id='create-dialog-popover' 
+              popover='auto' 
+              anchorInlinePosition='end' 
+              popoverDirection={{vertical: 'down'}} 
+            >
+              <div className='padding-25 smooth margin-left-200' style={{backgroundColor: 'white', border: '1px solid silver'}}>
+                <div className='padding-bottom-25 margin-bottom-25 flex gap-300 justify-content-space-between alignt-items-center' style={{borderBottom: '1px solid silver'}}>
+                  <span className='font-weight-600'>Skapa</span>
+                  <button popoverTarget='create-dialog-popover' className='transparent grid padding-25 round'>
+                    <IconX role='img' aria-label='Stäng meny: skapa' width={16} height={16} />
+                  </button>
+                </div>
+              </div>
+            </Popover>  
+             */}
           </div>
+
           <section>
             <NonModalDialog
               dialogPosition='right'
@@ -70,24 +81,37 @@ export default async function Sidebar() {
               <fieldset className={`padding-inline-25 padding-bottom-25 fieldset-unset-pseudo-class`}>
                 <LanguageSwitcher />
               </fieldset>
-            </NonModalDialog>
+            </NonModalDialog> 
+
+            {/* TODO: i18n */}
+            {/* TODO: Actually fill menu */}
             {/*
-              <NonModalDialogWrapper>
-                <NonModalDialogButton 
-                  id='settings-dialog-button'
-                  indicatorMargin='1rem'
-                  dialogPosition='right'
-                  className='transparent rounded flex gap-50 font-weight-600 align-items-center width-100' 
-                  style={{fontSize: '1rem', overflow: 'hidden' }}
-                >
-                  <IconSettings aria-hidden="true"' style={{maxWidth: '24px'}} />
-                  Inställningar
-                </NonModalDialogButton>
-                <NonModalDialogTemp>
-                  Inställningar
-                </NonModalDialogTemp>
-              </NonModalDialogWrapper>
-             */}
+            <PopoverButton 
+              anchorName='--settings-dialog-button' 
+              popoverTarget='settings-dialog-popover'                
+              className='transparent rounded flex gap-50 font-weight-600 align-items-center width-100' 
+              style={{fontSize: '1rem', overflow: 'hidden' }}
+            >
+              <IconSettings aria-hidden="true" style={{minWidth: '24px'}} />
+              Inställningar
+            </PopoverButton>
+            <Popover 
+              id='settings-dialog-popover' 
+              popover='auto' 
+              anchorInlinePosition='end' 
+              popoverDirection={{vertical: 'up'}} 
+            >
+              <div className='padding-25 smooth margin-left-200' style={{backgroundColor: 'white', border: '1px solid silver'}}>
+                <div className='padding-bottom-25 margin-bottom-25 flex gap-300 justify-content-space-between alignt-items-center' style={{borderBottom: '1px solid silver'}}>
+                  <span className='font-weight-600'>Inställningar</span>
+                  <button popoverTarget='settings-dialog-popover' className='transparent grid padding-25 round'>
+                    <IconX role='img' aria-label='Stäng meny: inställningar' width={16} height={16} />
+                  </button>
+                </div>
+              </div>
+            </Popover>
+           */}
+
             <Link href="/info" className={`${styles.link} margin-top-300`}>
               <IconInfoCircle style={{minWidth: "24px"}} aria-hidden="true" />
               {t("components:sidebar.about")}

@@ -1,130 +1,80 @@
 "use client"
 
 import styles from './nonModalDialog.module.css' with { type: "css" }
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import React from "react";
 import { IconWorld, IconX } from "@tabler/icons-react"
 
-interface NonModalDialogButtonProps {
-  id: string,
-  className?: string,
-  style?: React.CSSProperties;
-  children?: React.ReactNode,
-  onToggleDialog?: () => void;
-  dialogPosition: "top" | "right" | "bottom" | "left";
-  indicatorMargin: string
-}
-
-interface NonModalDialogProps {
-  id?: string,
-  className?: string,
-  style?: React.CSSProperties;
-  children?: React.ReactNode;
-  dialogRef?: React.RefObject<HTMLDialogElement | null>;
-}
-
-export function NonModalDialogWrapper({
-  children
-}: {
-  children: [
-    React.ReactElement<NonModalDialogButtonProps>,
-    React.ReactElement<NonModalDialogProps>
-  ]; // expect only button and dialog as the children
-}) {
-
-  // Pass ref to dialog child
-  const dialogRef = useRef<HTMLDialogElement>(null);
-
-  // function to toggle dialog child using ref 
-  const toggleDialog = () => {
-    if (!dialogRef.current) return;
-    if (!dialogRef.current.open) {
-      dialogRef.current.show();
-    } else {
-      dialogRef.current.close();
-    }
-  };
-
-  // Clone the button to inject the toggle handler
-  // Clone the dialog to inject the ref
-  const [button, dialog] = children;
-  const buttonWithProps = React.cloneElement(button, { onToggleDialog: toggleDialog });
-  const dialogWithProps = React.cloneElement(dialog, { dialogRef });
-
-  return (
-    <>
-      {buttonWithProps}
-      {dialogWithProps}
-    </>
-  );
-}
-
-export function NonModalDialogButton({
+// TODO: Do i even need a popoverbutton component actually?
+export function PopoverButton({
   id,
   className,
   style,
   children,
-  onToggleDialog,
-  dialogPosition,
-  indicatorMargin,
-}: NonModalDialogButtonProps) {
-
-  // TODO: This useEffect can be removed once nextjs support anchor-name within inline styles
-  useEffect(() => {
-    const toggle_dialog_button = document.getElementById(id)
-    const toggle_dialog_button_indicator = document.getElementById(`${id}-indicator`)
-    if (toggle_dialog_button && toggle_dialog_button_indicator) {
-      toggle_dialog_button.style.setProperty('anchor-name', `--${id}`)
-      toggle_dialog_button_indicator.style.setProperty('--position-anchor', `--${id}`)
-    }
-  })
-
+  anchorName,
+  popoverTarget
+}: {
+  id?: string,
+  className?: string,
+  style?: React.CSSProperties,
+  children?: React.ReactNode,
+  anchorName: string,
+  popoverTarget: string
+}) {
   return (
-    <div className={`${styles['toggle-button-wrapper']} position-relative`}>
-      <button
-        id={id}
-        className={`${className}`}
-        style={{ ...style }}
-        onClick={onToggleDialog}
-      >
-        {children}
-      </button>
-      <div
-        id={`${id}-indicator`}
-        className={`
-          ${styles['dialog-arrow-indicator']}  
-          ${styles[`dialog-arrow-indicator-${dialogPosition}`]}
-        `}
-        style={{
-          marginTop: dialogPosition === 'bottom' ? indicatorMargin : 0,
-          marginRight: dialogPosition === 'left' ? indicatorMargin : 0,
-          marginBottom: dialogPosition === 'top' ? indicatorMargin : 0,
-          marginLeft: dialogPosition === 'right' ? indicatorMargin : 0
-        }}
-      ></div>
-    </div>
+    <button
+      id={id}
+      className={`${styles['anchor-name']} ${className}`}
+      style={{ '--anchor-name': anchorName, ...style, } as React.CSSProperties} // TODO: Do i need React.Cssproperties here?
+      popoverTarget={popoverTarget}
+    >
+      {children}
+    </button>
   )
 }
 
-export function NonModalDialogTemp({
+// TODO: A horizontal popover direction should only be 
+// Given assuming an anchorInlinePosition of center
+export function Popover({
   id,
   className,
   style,
   children,
-  dialogRef,
-}: NonModalDialogProps) {
+  popover,
+  anchorInlinePosition,
+  popoverDirection
+}: {
+  id: string,
+  className?: string,
+  style?: React.CSSProperties,
+  children?: React.ReactNode,
+  popover: "" | "auto" | "manual" | undefined,
+  anchorInlinePosition: 'start' | 'center' | 'end',
+  popoverDirection: {
+    vertical: 'up' | 'vertical' | 'down',
+    horizontal?: 'left' | 'right'
+  } | 'up' | 'vertical' | 'down'
+}) {
   return (
-    <dialog
+    <div
       id={id}
-      className={`${className}`}
+      className={`
+        ${styles[`anchor-inline-${anchorInlinePosition}`]} 
+        ${typeof popoverDirection === 'string' ?
+          styles[`popover-direction-${popoverDirection}`]
+          :
+          `${styles[`popover-direction-${popoverDirection.vertical}`]} 
+          ${popoverDirection.horizontal ? styles[`popover-direction-${popoverDirection.horizontal}`] : ''}`
+        }   
+        ${className ?? ''}
+      `}
       style={{ ...style }}
-      ref={dialogRef}
+      popover={popover}
     >
       {children}
-    </dialog>
-  );
+    </div>
+  )
 }
-
 
 export default function NonModalDialog({
   dialogPosition,
@@ -187,7 +137,7 @@ export default function NonModalDialog({
           className={`${styles['toggle-button']} align-items-center font-weight-500`}
           style={{ width: toggleButtonWidth, fontSize: '1rem' }}
         >
-          <IconWorld aria-hidden="true" style={{minWidth: "24px"}} />
+          <IconWorld aria-hidden="true" style={{ minWidth: "24px" }} />
           {buttonTitle}
         </button>
         <div
