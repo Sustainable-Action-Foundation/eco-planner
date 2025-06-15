@@ -4,8 +4,10 @@
     border-style: solid;
 }
 
-.popover-indicator:has(+[popover]:popover-open) {
-    display: block;
+@supports (position-anchor: auto) {
+    .popover-indicator:has(+[popover]:popover-open) {
+        display: block;
+    }
 }
 
 .popover-indicator-top {
@@ -28,6 +30,27 @@
     border-color: transparent transparent transparent #292929;
 }
 
+
+@supports not (position-anchor: auto) {
+    *.position-anchor {
+        height: 100vh;
+        position: absolute;
+        margin-top: 0 !important;
+        margin-right: 0 !important;
+        margin-bottom: 0 !important;
+        margin-left: 0 !important;
+        width: 12rem;
+        padding: 0 !important;
+    }
+
+    .position-anchor > * {
+        height: 100dvh;
+        padding: 1rem;
+        border: 0 !important; 
+        border-right: 1px solid var(--gray-90) !important;
+        border-radius: 0;
+    }
+}
 
 .anchor-name {
     --anchor-name: ;

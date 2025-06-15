@@ -45,7 +45,7 @@ export default async function Sidebar() {
             <PopoverButton
               anchorName='--create-popover-button'
               popoverTarget='create-popover'
-              className='transparent rounded flex gap-50 font-weight-600 align-items-center width-100'
+              className='transparent rounded flex gap-50 font-weight-500 align-items-center width-100'
               style={{ fontSize: '1rem', overflow: 'hidden' }}
             >
               <IconCirclePlus aria-hidden="true" style={{ minWidth: '24px' }} />
@@ -68,25 +68,25 @@ export default async function Sidebar() {
                     <IconX role='img' aria-label='Stäng meny: skapa' width={16} height={16} />
                   </button>
                 </div>
-                <Link href='/metaRoadmap/create' className={`${styles['menu-link']} flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none`}>
+                <Link href='/metaRoadmap/create' className={`${styles['menu-link']} flex align-items-center justify-content-space-between gap-100 padding-25 smooth color-pureblack text-decoration-none`}>
                   Färdplansserie
-                  <IconPlus width={16} height={16} />
+                  <IconPlus width={16} height={16} style={{minWidth: '16px'}} />
                 </Link>
-                <Link href='/roadmap/create' className={`${styles['menu-link']} flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none`}>
+                <Link href='/roadmap/create' className={`${styles['menu-link']} flex align-items-center justify-content-space-between gap-100 padding-25 smooth color-pureblack text-decoration-none`}>
                   Färdplan
-                  <IconPlus width={16} height={16} />
+                  <IconPlus width={16} height={16} style={{minWidth: '16px'}} />
                 </Link>
-                <Link href='/goal/create' className={`${styles['menu-link']} flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none`}>
+                <Link href='/goal/create' className={`${styles['menu-link']} flex align-items-center justify-content-space-between gap-100 padding-25 smooth color-pureblack text-decoration-none`}>
                   Målbana
-                  <IconPlus width={16} height={16} />
+                  <IconPlus width={16} height={16} style={{minWidth: '16px'}} />
                 </Link>
-                <Link href='/action/create' className={`${styles['menu-link']} flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none`}>
+                <Link href='/action/create' className={`${styles['menu-link']} flex align-items-center justify-content-space-between gap-100 padding-25 smooth color-pureblack text-decoration-none`}>
                   Åtgärd
-                  <IconPlus width={16} height={16} />
+                  <IconPlus width={16} height={16} style={{minWidth: '16px'}} />
                 </Link>
-                <Link href='/effect/create' className={`${styles['menu-link']} flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none`}>
+                <Link href='/effect/create' className={`${styles['menu-link']} flex align-items-center justify-content-space-between gap-100 padding-25 smooth color-pureblack text-decoration-none`}>
                   Effekt
-                  <IconPlus width={16} height={16} />
+                  <IconPlus width={16} height={16} style={{minWidth: '16px'}} />
                 </Link>
               </nav>
             </Popover>
@@ -97,7 +97,7 @@ export default async function Sidebar() {
             <PopoverButton
               anchorName='--select-language-popover-button'
               popoverTarget='select-language-popover'
-              className='transparent rounded flex gap-50 font-weight-600 align-items-center width-100'
+              className='transparent rounded flex gap-50 font-weight-500 align-items-center width-100'
               style={{ fontSize: '1rem', overflow: 'hidden' }}
             >
               <IconWorld aria-hidden="true" style={{ minWidth: '24px' }} />
@@ -124,35 +124,6 @@ export default async function Sidebar() {
                 </fieldset>
               </div>
             </Popover> 
-
-            {/* TODO: i18n */}
-            {/* TODO: Actually fill menu */}
-            {/*
-            <PopoverButton 
-              anchorName='--settings-dialog-button' 
-              popoverTarget='settings-dialog-popover'                
-              className='transparent rounded flex gap-50 font-weight-600 align-items-center width-100' 
-              style={{fontSize: '1rem', overflow: 'hidden' }}
-            >
-              <IconSettings aria-hidden="true" style={{minWidth: '24px'}} />
-              Inställningar
-            </PopoverButton>
-            <Popover 
-              id='settings-dialog-popover' 
-              popover='auto' 
-              anchorInlinePosition='end' 
-              popoverDirection={{vertical: 'up'}} 
-            >
-              <div className='padding-25 smooth margin-left-200' style={{backgroundColor: 'white', border: '1px solid silver'}}>
-                <div className='padding-bottom-25 margin-bottom-25 flex gap-300 justify-content-space-between alignt-items-center' style={{borderBottom: '1px solid silver'}}>
-                  <span className='font-weight-600'>Inställningar</span>
-                  <button popoverTarget='settings-dialog-popover' className='transparent grid padding-25 round'>
-                    <IconX role='img' aria-label='Stäng meny: inställningar' width={16} height={16} />
-                  </button>
-                </div>
-              </div>
-            </Popover>
-           */}
 
             <Link href="/info" className={`${styles.link} margin-top-300`}>
               <IconInfoCircle style={{ minWidth: "24px" }} aria-hidden="true" />
