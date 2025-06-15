@@ -111,3 +111,11 @@
 .link:hover {
   background-color: var(--gray-90);
 }
+
+.menu-link {
+  transition: background-color .1s ease;
+}
+
+.menu-link:hover {
+  background-color: var(--gray-90);
+}

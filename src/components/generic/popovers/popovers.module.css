@@ -131,6 +131,11 @@
     anchor-name: var(--anchor-name);
 }
 
+.position-anchor {
+    --position-anchor: ;
+    position-anchor: var(--position-anchor);
+}
+
 /* Anchor to left, center or right side of toggle button. */
 .anchor-inline-start {
     inset-inline-end: anchor(left);
