@@ -1,22 +1,3 @@
-/* Toggle button */
-.toggle-button {
-    anchor-name: --toggle-button;
-    display: flex;
-    gap: .5rem;
-    background-color: transparent;
-    overflow: hidden;
-    border-radius: .5rem;
-}
-
-.toggle-button:hover {
-    background-color: #e0e6eb;
-    box-shadow: none;
-}
-
-.toggle-button:active {
-    transform: scale(1);
-}
-
 /* 
     TODO: All fallbacks using @support are based on this modal being explicitely
     used for the translation menu. This wont be the case and thus needs to be 
@@ -26,103 +7,36 @@
 /* Indicator */
 @supports (position-area: start start) and (position-anchor: --toggle-button) {
 
-    .dialog-arrow-indicator {
+    .popover-indicator {
         display: none;
-        border-width: .5rem;
-        border-style: solid;
-
-        position: absolute;
-        --position-anchor: --toggle-button;
-        position-anchor: var(--position-anchor);
+        border-width: '.5rem';
+        border-style: 'solid'
     }
 
-    .toggle-button-wrapper:has(+ dialog[open]) .dialog-arrow-indicator {
+    .popover-indicator:has(+[popover]:popover-open) {
         display: block;
     }
 
-    .dialog-arrow-indicator-top {
+    .popover-indicator-top {
         position-area: start center;
         border-color: #292929 transparent transparent transparent;
     }
 
-    .dialog-arrow-indicator-right {
+    .popover-indicator-right {
         position-area: center end;
         border-color: transparent #292929 transparent transparent;
     }
 
-    .dialog-arrow-indicator-bottom {
+    .popover-indicator-bottom {
         position-area: end center;
         border-color: transparent transparent #292929 transparent;
     }
 
-    .dialog-arrow-indicator-left {
+    .popover-indicator-left {
         position-area: center start;
         border-color: transparent transparent transparent #292929;
     }
 }
-
-/* Dialog */
-.non-modal-dialog {
-    z-index: 9999;
-
-    border: 1px solid silver;
-    border-radius: .25rem;
-    padding: 0;
-
-    position: absolute;
-
-    @supports (position-anchor: --toggle-button) {
-        position-anchor: --toggle-button;
-    }
-
-    ;
-
-    @supports not (position-anchor: --toggle-button) {
-        left: calc(100% - 1rem);
-        bottom: 1rem;
-        height: 250px;
-    }
-}
-
-@supports (bottom: anchor(top)) {
-
-    /* Area align */
-    .non-modal-dialog-top {
-        bottom: anchor(top);
-        justify-self: anchor-center;
-        margin-top: auto;
-    }
-
-    .non-modal-dialog-right {
-        left: anchor(right);
-        margin-right: auto;
-    }
-
-    .non-modal-dialog-bottom {
-        top: anchor(bottom);
-        justify-self: anchor-center;
-        margin-bottom: auto;
-    }
-
-    .non-modal-dialog-left {
-        right: anchor(left);
-        margin-left: auto;
-    }
-
-    /* Vertical align */
-    .non-modal-dialog-vertical-top {
-        bottom: anchor(bottom);
-    }
-
-    .non-modal-dialog-vertical-center {
-        align-self: anchor-center
-    }
-
-    .non-modal-dialog-vertical-bottom {
-        top: anchor(top)
-    }
-}
-
 
 /* Rewriting stuff: */
 /* TODO: Get rid of this and set anchor-name inline once its supported by nextjs */
@@ -145,7 +59,6 @@
 
 .anchor-inline-center {
     inset-inline-start: anchor(center);
-    margin-block: 0;
     transform: translateX(-50%);
 }
 

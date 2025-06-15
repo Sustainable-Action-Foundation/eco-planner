@@ -41,7 +41,8 @@ export function Popover({
   popover,
   positionAnchor,
   anchorInlinePosition,
-  popoverDirection
+  popoverDirection,
+  indicator
 }: {
   id: string,
   className?: string,
@@ -53,26 +54,60 @@ export function Popover({
   popoverDirection: {
     vertical: 'up' | 'vertical' | 'down',
     horizontal?: 'left' | 'right'
-  } | 'up' | 'vertical' | 'down'
+  } | 'up' | 'vertical' | 'down',
+  indicator?: boolean
 }) {
+
+    // Normalize vertical direction for consistent access
+  const vertical =
+    typeof popoverDirection === 'string'
+      ? popoverDirection
+      : popoverDirection.vertical;
+
+  // Determine indicator class based on direction and position
+  let indicatorClass = '';
+  if (anchorInlinePosition === 'start') {
+    indicatorClass = styles['popover-indicator-left'];
+  } else if (anchorInlinePosition === 'end') {
+    indicatorClass = styles['popover-indicator-right'];
+  } else if (anchorInlinePosition === 'center') {
+    if (vertical === 'up') {
+      indicatorClass = styles['popover-indicator-top'];
+    } else if (vertical === 'down') {
+      indicatorClass = styles['popover-indicator-bottom'];
+    } else {
+      // vertical === 'vertical', no indicator
+      indicatorClass = '';
+    }
+  }
+
   return (
-    <div
-      id={id}
-      className={`
-        ${styles[`anchor-inline-${anchorInlinePosition}`]} 
-        ${typeof popoverDirection === 'string' ?
-          styles[`popover-direction-${popoverDirection}`]
-          :
-          `${styles[`popover-direction-${popoverDirection.vertical}`]} 
-          ${popoverDirection.horizontal ? styles[`popover-direction-${popoverDirection.horizontal}`] : ''}`
-        }   
-        ${styles['position-anchor']} 
-        ${className ?? ''}
-      `}
-      style={{ '--position-anchor': positionAnchor, ...style, } as React.CSSProperties} // TODO: Do i need React.Cssproperties here?
-      popover={popover}
-    >
-      {children}
-    </div>
+    <>
+      {indicator ? 
+        <div 
+          className={`${styles['popover-indicator']} ${indicatorClass} ${styles['position-anchor']} position-absolute`}
+          style={{borderWidth: '.5rem', borderStyle: 'solid', '--position-anchor': positionAnchor} as React.CSSProperties}
+        >
+        </div>
+      : null } 
+      <div
+        id={id}
+        className={`
+          ${styles[`anchor-inline-${anchorInlinePosition}`]} 
+          ${typeof popoverDirection === 'string' ?
+            styles[`popover-direction-${popoverDirection}`]
+            :
+            `${styles[`popover-direction-${popoverDirection.vertical}`]} 
+            ${popoverDirection.horizontal ? styles[`popover-direction-${popoverDirection.horizontal}`] : ''}`
+          }   
+          ${styles['position-anchor']} 
+          ${className ?? ''}
+        `}
+        style={{ '--position-anchor': positionAnchor, ...style, } as React.CSSProperties} // TODO: Do i need React.Cssproperties here?
+        popover={popover}
+      >
+        {children}
+      </div>
+    </>
   )
 }
