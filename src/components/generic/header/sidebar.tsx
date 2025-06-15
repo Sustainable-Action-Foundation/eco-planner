@@ -57,7 +57,7 @@ export default async function Sidebar() {
               positionAnchor='--create-popover-button'
               anchorInlinePosition='end'
               popoverDirection={{ vertical: 'down' }}
-              className='margin-left-200'
+              className='margin-inline-start-200'
             >
               <nav className='padding-25 smooth' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
                 <div className='padding-bottom-25 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between alignt-items-center' style={{ borderBottom: '1px solid var(--gray)' }}>
@@ -107,11 +107,12 @@ export default async function Sidebar() {
               positionAnchor='--select-language-popover-button'
               anchorInlinePosition='end'
               popoverDirection={{ vertical: 'up' }}
+              className='margin-inline-start-0'
             >
               <div className='padding-25 smooth margin-left-200' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
                 <div className='padding-bottom-25 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between alignt-items-center' style={{ borderBottom: '1px solid var(--gray)' }}>
                   <span className='font-weight-600'>Välj språk</span>
-                  <button popoverTarget='create-popover' className='transparent grid padding-25 round'>
+                  <button popoverTarget='select-language-popover' className='transparent grid padding-25 round'>
                     <IconX role='img' aria-label='Stäng meny: välj språk' width={16} height={16} />
                   </button>
                 </div>

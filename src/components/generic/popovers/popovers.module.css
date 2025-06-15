@@ -139,19 +139,19 @@
 /* Anchor to left, center or right side of toggle button. */
 .anchor-inline-start {
     inset-inline-end: anchor(left);
-    margin: 0;
+    margin-block: 0;
     margin-left: auto;
 }
 
 .anchor-inline-center {
     inset-inline-start: anchor(center);
-    margin: 0;
+    margin-block: 0;
     transform: translateX(-50%);
 }
 
 .anchor-inline-end {
     inset-inline-start: anchor(right);
-    margin: 0;
+    margin-block: 0;
     margin-right: auto;
 }
 
@@ -168,7 +168,7 @@
 
 .popover-direction-vertical {
     inset-block-start: anchor(center);
-    margin-top: 0;
+    margin-bottom: auto;
     /*
       Use translate instead of transform as to not 
       override values of anchor-inline-center
