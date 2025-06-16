@@ -98,10 +98,12 @@ export default function QueryBuilder({
   }, [tableDetails]);
 
   function buildQuery(formData: FormData) {
-    const queryObject: object[] = [];
+    const queryObject: { variableCode: string, valueCodes: string[] }[] = [];
     formData.forEach((value, key) => {
       // Skip empty values
       if (!value) return;
+      // Skip File inputs
+      if (value instanceof File) return;
       // Skip externalDataset, externalTableId, and `tableSearchInputName`, as they are not part of the query
       if (key == "externalDataset") return;
       if (key == "externalTableId") return;
@@ -114,7 +116,18 @@ export default function QueryBuilder({
       queryObject.push({ variableCode: key, valueCodes: [value] });
     });
 
-    return queryObject as { variableCode: string, valueCodes: string[] }[];
+    return queryObject;
+  }
+
+  function deleteHistoricalData() {
+    formSubmitter("/api/goal", JSON.stringify({
+      goalId: goal.id,
+      externalDataset: null,
+      externalTableId: null,
+      externalSelection: null,
+      timestamp: Date.now(),
+    }), "PUT", setIsLoading);
+    closeModal(modalRef);
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -134,7 +147,7 @@ export default function QueryBuilder({
       goalId: goal.id,
       externalDataset: dataSource,
       externalTableId: formData.get("externalTableId"),
-      externalSelection: query,
+      externalSelection: JSON.stringify(query),
       timestamp: Date.now(),
     }), "PUT", setIsLoading);
   }
@@ -413,10 +426,25 @@ export default function QueryBuilder({
 
   return (
     <>
-      <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
-        {t("components:query_builder.add_historical_data")}
-        <Image src="/icons/chartAdd.svg" alt="" width={16} height={16} />
-      </button>
+      {goal.externalDataset && goal.externalTableId
+        ?
+        <>
+          <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
+            {t("components:query_builder.change_historical_data")}
+            <Image src="/icons/chartAdd.svg" alt="" width={16} height={16} />
+          </button>
+
+          <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={deleteHistoricalData}>
+            {t("components:query_builder.remove_historical_data")}
+            <Image src="/icons/delete.svg" alt="" width={16} height={16} />
+          </button>
+        </>
+        :
+        <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
+          {t("components:query_builder.add_historical_data")}
+          <Image src="/icons/chartAdd.svg" alt="" width={16} height={16} />
+        </button>
+      }
 
       <dialog className={`smooth padding-inline-0 ${styles.dialog}`} ref={modalRef} aria-modal>
         <div className="display-flex flex-direction-row-reverse align-items-center justify-content-space-between padding-inline-100">

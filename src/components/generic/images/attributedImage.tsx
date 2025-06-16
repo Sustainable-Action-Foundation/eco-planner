@@ -9,14 +9,16 @@ export default async function AttributedImage({
   children,
   src,
   alt,
+  sizes = "(max-width: 1250: 100vw), 1250px",
 }: {
   children: React.ReactNode
   src: string,
   alt: string,
+  sizes?: string,
 }) {
   return (
     <>
-      <Image src={src} alt={alt} fill={true} className={styles.attributedImage} priority={true} />
+      <Image sizes={sizes} src={src} alt={alt} fill={true} className={styles.attributedImage} priority={true} />
       <div className={styles.attribution}>
         {children}
       </div>

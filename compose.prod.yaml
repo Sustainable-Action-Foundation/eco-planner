@@ -2,8 +2,9 @@ name: transition-planner
 
 services:
   prod:
-    image: ghcr.io/sustainable-action-foundation/eco-planner:latest
+    image: ghcr.io/sustainable-action-foundation/eco-planner:edge
     pull_policy: always
+    restart: always
     networks:
       - default
     ports:
@@ -19,5 +20,5 @@ services:
       - MAIL_PASSWORD=${MAIL_PASSWORD:?error}
       # Used for links in emails and as canonical url in meta tags
       - BASE_URL=${BASE_URL}
-    # Wait for database to start, then reset and seed the database and start the server
+    # Start the server
     command: sh -c 'HOSTNAME="0.0.0.0" node server.js'

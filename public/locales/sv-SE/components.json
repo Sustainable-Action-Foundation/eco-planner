@@ -87,6 +87,8 @@
   },
   "query_builder": {
     "add_historical_data": "Lägg till historisk data",
+    "change_historical_data": "Ändra historisk data",
+    "remove_historical_data": "Ta bort historisk data",
     "add_data_source": "Lägg till datakälla",
     "add_data_to_goal": "Lägg till en historisk dataserie i {{goalName}}",
     "data_source": "Datakälla",
@@ -140,7 +142,8 @@
     "create_account": "Skapa konto",
     "home": "$t(common:tsx.home)",
     "about": "Om verktyget",
-    "language_alt": "Byt språk"
+    "language": "Språk",
+    "language_alt": "Välj språk"
   },
   "signup": {
     "signup_failed_motivated": "Registreringen misslyckades. Skäl: {{reason}}",
