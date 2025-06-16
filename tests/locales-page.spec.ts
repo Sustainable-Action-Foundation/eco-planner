@@ -11,8 +11,7 @@ test.describe("Locales Test page", () => {
 
   test("Formatters", async ({ page }) => {
     await page.goto("/localesTest");
-
-    await page.waitForSelector("[data-testid='formatter-table']");
+    await page.waitForLoadState("networkidle");
 
     const table = page.getByTestId("formatter-table");
     const rows = table.getByTestId("formatter-row");
@@ -28,10 +27,9 @@ test.describe("Locales Test page", () => {
 
   test("Key count", async ({ page }) => {
     await page.goto("/localesTest");
+    await page.waitForLoadState("networkidle");
 
     const checkKeyCount = async () => {
-      await page.waitForSelector("[data-testid='translation-table']");
-
       const table = page.getByTestId("translation-table");
       const rows = table.getByTestId("translation-row");
 
@@ -61,10 +59,9 @@ test.describe("Locales Test page", () => {
 
   test("Empty or missing translations", async ({ page }) => {
     await page.goto("/localesTest");
+    await page.waitForLoadState("networkidle");
 
     const checkEmptyAndMissing = async () => {
-      await page.waitForSelector("[data-testid='translation-table']");
-
       const table = page.getByTestId("translation-table");
 
       const serverEntries = await table.getByTestId("server").allTextContents();

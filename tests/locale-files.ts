@@ -29,9 +29,9 @@ const tServerUsageIndications = ["@/lib/i18nServer",];
 const tClientUsageIndications = ["react-i18next", "useTranslation", "<Trans",];
 const serverIndications = ["use server", "next/server", "next/headers", "accessChecker",];
 const clientIndications = ["use client", "useEffect", "useMemo", "useState", "useRef",];
-const serverSideFilesOverride = ["page.tsx", "layout.tsx",];
-const clientSideFilesOverride = ["src\\app\\verify\\page.tsx", "src\\app\\verify\\verify\\page.tsx", "src\\app\\password\\page.tsx", "src\\app\\password\\reset\\page.tsx"];
-const exemptedMixedUseFiles = ["src\\app\\localesTest\\page.tsx",];
+const serverSideFilesOverride = ["page.tsx", "layout.tsx",].map(file => path.join(...file.split("/")));
+const clientSideFilesOverride = ["src/app/verify/page.tsx", "src/app/verify/verify/page.tsx", "src/app/password/page.tsx", "src/app/password/reset/page.tsx"].map(file => path.join(...file.split("/")));
+const exemptedMixedUseFiles = ["src/app/localesTest/page.tsx",].map(file => path.join(...file.split("/")));
 
 /** When checking for mixed use of spaces these are allowed in any file */
 const keysAllowedDirectlyInApp = ["common:tsx.", "common:placeholder.", "common:scope.", "common:layout.", "common:count.", "common:new.", "common:edit", "common:scaling_methods", "common:css.", "common:404."];
@@ -593,7 +593,7 @@ test("Unused keys", () => {
     // Collect TSX used keys
     allTSX.forEach(({ content }) => {
       const allTCalls = Array.from(content.matchAll(/\Wt\(["']([^"']*)["'].*?\)*/gms)) || [];
-      const allTransCalls = Array.from(content.matchAll(/<Trans\s*i18nKey=\{?["']([^"']*)["']\}?.*?\/>(?!\s*\}\})/gmus)) || [];
+      const allTransCalls = Array.from(content.matchAll(/(?<=<\w*.*?\W)(?:\w*?[kK]ey\w*?)=\{?["'](.*?)["']\}?(?=.*?\/>)/gmus)) || [];
 
       [...allTCalls, ...allTransCalls].forEach(call => {
         let [, key] = call;

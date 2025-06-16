@@ -3,45 +3,45 @@
 import { t } from 'i18next';
 import Image from 'next/image';
 import styles from './nonModalDialog.module.css' with { type: "css" }
-import { useRef } from "react";
+import { HTMLProps, useRef } from "react";
 
-export default  function NonModalDialog({
+export default function NonModalDialog({
   dialogPosition,
   toggleButtonWidth,
   title,
   verticalAlign,
   margin,
-  children
-}: 
+  children,
+  ...props
+}: (
   | {
-      dialogPosition: "top" | "bottom";
-      verticalAlign?: never;
-      toggleButtonWidth: string;
-      title: string,
-      margin: {
-        top: string, 
-        right: string, 
-        bottom: string, 
-        left: string
-      },
-      children?: React.ReactNode,
-    }
+    dialogPosition: "top" | "bottom";
+    verticalAlign?: never;
+    toggleButtonWidth: string;
+    title: string,
+    margin: {
+      top: string,
+      right: string,
+      bottom: string,
+      left: string
+    },
+    children?: React.ReactNode,
+  }
   | {
-      dialogPosition: "right" | "left";
-      verticalAlign: "top" | "center" | "bottom";
-      toggleButtonWidth: string;
-      title: string,
-      margin: {
-        top?: string, 
-        right?: string, 
-        bottom?: string, 
-        left?: string
-      },
-      children?: React.ReactNode,
-    }
+    dialogPosition: "right" | "left";
+    verticalAlign: "top" | "center" | "bottom";
+    toggleButtonWidth: string;
+    title: string,
+    margin: {
+      top?: string,
+      right?: string,
+      bottom?: string,
+      left?: string
+    },
+    children?: React.ReactNode,
+  }) &
+  HTMLProps<HTMLDivElement>
 ) {
-
-
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   const toggleDialog = () => {
@@ -49,20 +49,20 @@ export default  function NonModalDialog({
     if (!dialogRef.current.open) {
       dialogRef.current.show();
       return
-    } 
+    }
     dialogRef.current.close();
   };
 
-  return ( 
+  return (
     <>
-      <div className={`${styles['toggle-button-wrapper']} position-relative`}>
+      <div className={`${styles['toggle-button-wrapper']} position-relative`} {...props}>
         {/* TODO: We primarily implemented this for translation menu */}
         {/* Adapt button image and text to a broader usage later (and style appropriately)*/}
-        <button onClick={toggleDialog} className={`${styles['toggle-button']} align-items-center font-weight-500`} style={{width: toggleButtonWidth, fontSize: '1rem'}}>
+        <button onClick={toggleDialog} className={`${styles['toggle-button']} align-items-center font-weight-500`} style={{ width: toggleButtonWidth, fontSize: '1rem' }}>
           <Image src='/icons/globe.svg' alt='' width={24} height={24} />
           {t("components:sidebar.language")}
         </button>
-        <div 
+        <div
           className={`
             ${styles['dialog-arrow-indicator']}  
             ${styles[`dialog-arrow-indicator-${dialogPosition}`]}
@@ -77,9 +77,9 @@ export default  function NonModalDialog({
       </div>
 
       {/* TODO: I18n for all this */}
-      <dialog 
+      <dialog
         aria-labelledby={`dialog-${title.replace(' ', '').toLowerCase()}-title`}
-        ref={dialogRef} 
+        ref={dialogRef}
         className={`
           ${styles['non-modal-dialog']} 
           ${styles[`non-modal-dialog-${dialogPosition}`]}
@@ -89,21 +89,21 @@ export default  function NonModalDialog({
           margin: `${margin.top} ${margin.right} ${margin.bottom} ${margin.left}`
         }}
       >
-        <form 
-          method="dialog" 
-          className='flex justify-content-space-between align-items-center gap-300 margin-block-25 margin-inline-50 padding-bottom-25' 
-          style={{borderBottom: '1px solid var(--gray)'}} > 
+        <form
+          method="dialog"
+          className='flex justify-content-space-between align-items-center gap-300 margin-block-25 margin-inline-50 padding-bottom-25'
+          style={{ borderBottom: '1px solid var(--gray)' }} >
           <h2
             id={`dialog-${title.replace(' ', '').toLowerCase()}-title`}
-            className='margin-0 font-weight-600' 
-            style={{whiteSpace: 'nowrap', fontSize: '1rem'}}>
-              {title}
+            className='margin-0 font-weight-600'
+            style={{ whiteSpace: 'nowrap', fontSize: '1rem' }}>
+            {title}
           </h2>
-          <button 
-            type="submit" 
-            className="padding-25" 
-            style={{backgroundColor: 'transparent', borderRadius: '9999px'}}
-          > 
+          <button
+            type="submit"
+            className="padding-25"
+            style={{ backgroundColor: 'transparent', borderRadius: '9999px' }}
+          >
             {/* TODO: Use image component */}
             <img src="/icons/close.svg" className="grid" width="16" height="16" alt={`Close dialog`} />
           </button>

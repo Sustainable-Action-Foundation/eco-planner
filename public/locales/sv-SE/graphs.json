@@ -33,7 +33,6 @@
   },
   "main_graph": {
     "national_goal": "$t(common:scope.national) $t(common:goal_one)",
-    "history": "Historik",
     "secondary_goal": "Sekundär $t(common:goal_one) ({{unit}})"
   },
   "main_relative_graph": {

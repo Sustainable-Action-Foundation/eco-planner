@@ -39,7 +39,7 @@ export default defineConfig({
   },
 
   globalTeardown: "./tests/lib/global.teardown.ts",
-
+  
   // Configure projects for major browsers.
   projects: [
     {

@@ -35,7 +35,7 @@ export function LanguageSwitcher() {
 
   return (
     <>
-      <ul className="margin-0 padding-0" style={{listStyle: 'none'}}>
+      <ul className="margin-0 padding-0" style={{listStyle: 'none'}} data-testid="language-switcher-options">
         {uniqueLocales
           .sort((a, b) => localeAliases[a].localeCompare(localeAliases[b]))
           .map((locale) => (
@@ -46,6 +46,7 @@ export function LanguageSwitcher() {
                 disabled={isPending}
                 style={{fontSize: '14px'}}
                 className={`flex transparent justify-content-space-between align-items-center width-100 padding-25`}
+                data-testid={`language-switcher-option-${locale}`}
               >
                 {localeAliases[locale]}
                 <div className="flex align-items-center justify-content-center" style={{width: '14px', height: '14px', border: locale === buttonLocale ? '1px solid var(--blue-30)' : '1px solid black', borderRadius: '9999px' }}>

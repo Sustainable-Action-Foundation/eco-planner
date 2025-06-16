@@ -49,6 +49,7 @@ export default async function Sidebar() {
             title={t("components:sidebar.language_alt")}
             toggleButtonWidth='100%'
             margin={{ top: '0', right: '0', bottom: '0', left: '2rem' }}
+            data-testid="language-switcher-dialog-wrapper"
           >
             <fieldset className={`padding-inline-25 padding-bottom-25 fieldset-unset-pseudo-class`}>
               <LanguageSwitcher />

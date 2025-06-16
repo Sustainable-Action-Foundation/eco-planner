@@ -38,7 +38,6 @@
   },
   "data_series_input": {
     "extra_info_data_series": "Extra information om dataserie",
-    "data_series_info": "Använd semikolon, tab eller ny rad för att separera värden när du klistrar in en dataserie i tabellen. Detta innebär att man kan klistra in en serie med värden från Excel eller liknande.<br /><strong>OBS: Värden får inte vara separerade med kommatecken (\",\").</strong><br />Decimaltal kan antingen skrivas med punkt eller kommatecken.",
     "data_series": "Dataserie",
     "data_series_tooltip": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller kommatecken.",
     "custom_baseline": "Anpassad baslinje",
@@ -46,10 +45,6 @@
     "hide_table": "Minimera tabell",
     "year": "År",
     "value": "Värde",
-    "add_year": "Lägg till år",
-    "remove_year": "Ta bort år",
-    "add_year_to_table": "Lägg till år i tabellen",
-    "remove_year_from_table": "Ta bort år från tabellen",
     "advanced": "Avancerade alternativ",
     "data_series_advanced_info": "Detta fält tar emot en serie med värden som är separerade med semikolon eller tab, vilket innebär att du kan klistra in en serie med värden från Excel eller liknande.<br /><strong>OBS: Värden får inte vara separerade med kommatecken (\",\").</strong><br />Decimaltal kan antingen skrivas med punkt eller kommatecken.<br />Det första värdet representerar år 2020 och serien kan som längst fortsätta till år 2050 (totalt 31 värden).<br />Om värden saknas för ett år kan du lämna det tomt, exempelvis anger \";1;;;;5\" värdena 1 och 5 för år 2021 respektive 2025."
   },
@@ -63,9 +58,6 @@
     "select_goal_to_affect": "Välj $t(common:goal_one) att påverka",
     "select_goal": "Välj $t(common:goal_one)",
     "unnamed_goal": "Namnlös $t(common:goal_one)",
-    "unit_missing": "Enhet saknas",
-    "data_series": "Dataserie",
-    "data_series_title": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan använda antingen punkt eller komma.",
     "to_year_by_year": "Konvertera värden till förändring år för år (delta)",
     "to_year_by_year_info": "<strong>OBS!</strong> Det finns en viss felmarginal runt 14:e decimalen vid konvertering på grund av så kallade \"floating point errors\".",
     "to_absolute": "Konvertera värden till absolut skillnad gentemot baslinje",
