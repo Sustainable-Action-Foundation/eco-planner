@@ -6,7 +6,7 @@ import { IconLogout2 } from "@tabler/icons-react"
 export default function LogoutButton() {
   const { t } = useTranslation(["common", "components"])
   return (
-    <button className="flex align-items-center rounded transparent padding-50 gap-50 width-100 font-weight-500" style={{ fontSize: '1rem', whiteSpace: 'nowrap', overflow: 'hidden' }} onClick={async () => {
+    <button className="flex align-items-center justify-content-flex-end" style={{ gap: "10px" }} onClick={async () => {
       fetch('/api/logout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -18,8 +18,8 @@ export default function LogoutButton() {
         }
       })
     }}>
-      <IconLogout2 style={{minWidth: "24px"}} aria-hidden="true" />
-      {t("common:tsx.logout")}
+      <div className="flex-grow-100" style={{ marginLeft: "2px", textAlign: "left" }}>{t("common:tsx.logout")}</div>
+      <IconLogout2 width={20} height={20} style={{minWidth: "20px", marginRight: '2px'}} aria-hidden="true" />
     </button>
   )
 }

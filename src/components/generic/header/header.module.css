@@ -1,5 +1,5 @@
 /* Toggle minimized/expanded */
-
+/*
 .menuToggleContainer:has(input[type="checkbox"]:checked)+aside {
   @media (min-width: 1251px) {
     width: calc(24px + 1rem + 2rem);
@@ -16,7 +16,7 @@
   place-items: center;
   width: fit-content;
   transition: background-color .2s ease,
-              transform .2s ease;
+    transform .2s ease;
   padding: .25rem;
   margin: 1rem;
   border-radius: 9999px;
@@ -39,9 +39,10 @@
 
 .menuToggleContainer:has(.menuToggle:checked)~nav {
   width: calc(24px + 1rem);
-}
+}*/
 
 /* Container for navigation */
+/*
 .container {
   position: sticky;
   top: 0;
@@ -57,10 +58,11 @@
     border-right: unset;
     border-bottom: 1px solid var(--gray-90);
   }
-}
+}*/
 
 /* Navigation */
 
+/*
 .aside {
   width: 12rem;
   padding: 1rem;
@@ -90,9 +92,9 @@
     margin-top: 64px;
   }
 }
-
+*/
 /* Appearance of links in navigation */
-
+/*
 .link {
   overflow: hidden;
   text-decoration: unset;
@@ -118,4 +120,66 @@
 
 .menu-link:hover {
   background-color: var(--gray-90);
+}
+*/
+
+/* TODO: TEMPORY, REWRITING*/
+/* TODO SIDENAV: A bunch of magic numbers, fix this :)*/
+
+.aside {
+  position: sticky;
+  top: 0;
+  width: auto;
+  height: 100dvh;
+  border-right: 1px solid silver;
+  interpolate-size: allow-keywords;
+  transition: width .2s ease-out;
+}
+
+/* WIDTH: Largest image size, padding aside, padding links, border aside*/
+.aside:has(input[type="checkbox"]:checked) {
+  width: calc(24px + (1rem * 2 + .5rem * 2) + 1px);
+}
+
+.aside a {
+  width: 100%;
+  padding: .5rem;
+  /* Padding right here should also affect buttons and such */
+  padding-right: calc(.5rem + 10px);
+  border-radius: .5rem;
+  color: black;
+  text-decoration: none;
+  transition: background-color .1s ease;
+}
+
+.aside a:hover {
+  background-color: #e0e6eb;
+}
+
+.aside>nav>a,
+.aside>section>a,
+.aside>section>button {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.aside label {
+  width: fit-content;
+  /* Margin + padding aligns with images of links which have paddings of .5 */
+  padding: .25rem;
+  margin-left: 4px;
+  transition: background-color .1s ease;
+  border-radius: 99999px;
+}
+
+.aside label:hover {
+  background-color: #e0e6eb;
+}
+
+.aside button {
+  gap: 10px;
+  width: 100%;
+  background-color: transparent;
+  overflow: hidden;
+  border-radius: .5rem;
 }

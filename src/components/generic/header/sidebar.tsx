@@ -8,7 +8,7 @@ import Link from 'next/link'
 import { LanguageSwitcher } from "@/components/languageSwitcher"
 import serveTea from "@/lib/i18nServer";
 import { PopoverButton, Popover } from '@/components/generic/popovers/popovers';
-import { IconCirclePlus, IconHome, IconInfoCircle, IconLogin2, IconMenu2, IconPlus, IconSettings, IconUser, IconUserPlus, IconWorld, IconX } from '@tabler/icons-react'
+import { IconCirclePlus, IconHome, IconInfoCircle, IconLogin2, IconLogout, IconLogout2, IconMenu2, IconPlus, IconSettings, IconUser, IconUserPlus, IconWorld, IconX } from '@tabler/icons-react'
 
 export default async function Sidebar() {
   const [t, { user }] = await Promise.all([
@@ -17,6 +17,70 @@ export default async function Sidebar() {
   ]);
 
   return <>
+
+    <aside className={`${styles["aside"]} padding-100 inline-flex flex-direction-column`}>
+      <label>
+        <input type="checkbox" className="none" />
+        <IconMenu2 role="img" aria-label="open/close menu" height={24} width={24} className='grid' style={{minWidth: '24px'}} />
+      </label>
+
+      {/* TODO SIDENAV: check if more svg's (globally) accidentally use maxWidth instead of minWidth  */}
+      {/* TODO SIDENAV: i18n */}
+      <nav className="flex-grow-100 flex flex-direction-column margin-block-200">
+        {user?.isLoggedIn ?
+          <Link href={`/@${user.username}`} className="flex align-items-center margin-bottom-300" style={{ gap: "10px" }}>
+            <IconUser aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px", minWidth: '20px' }} />
+            Profil
+          </Link>
+          :
+          <Link href="/signup" className='flex align-items-center margin-bottom-300' style={{ gap: '10px' }}>
+            {/* TODO: Call to action an all that */}
+            <IconUserPlus aria-hidden='true' height={20} width={20} style={{ minWidth: "24px", }} />
+            {t("components:sidebar.create_account")}
+          </Link>
+        }
+
+        <Link href="/" className="flex align-items-center" style={{ gap: "10px" }}>
+          <IconHome aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px", minWidth: '20px' }} />
+          Hem
+        </Link>
+        {/* TODO: This is the create button */}
+        <Link href="/" className="flex align-items-center" style={{ gap: "10px" }}>
+          <IconCirclePlus aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px", minWidth: '20px' }} />
+          Skapa
+        </Link>
+      </nav>
+
+      <section className="margin-top-200" style={{fontSize: '.8rem'}}>
+        {/* TODO SIDENAV: This is the language selector */}
+        {/* TODO SIDENAV: Buttons: .8rem, Links, 1rem */}
+        <button className="flex align-items-center" >
+          <IconWorld aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px", minWidth: '20px' }} />
+          Språk
+        </button>
+        {/* TODO SIDENAV: This is a settings menu */}
+        <Link href="" className="flex align-items-center margin-bottom-300" style={{ gap: "10px" }}>
+          <IconSettings aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px", minWidth: '20px' }} />
+          Inställningar
+        </Link>
+        <Link href="/info" className="flex align-items-center" style={{ gap: "10px", fontSize: '1rem' }}>
+          <IconInfoCircle aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px", minWidth: '20px' }} />
+          Om
+        </Link>
+      </section>
+      <section className="padding-top-100 margin-top-100" style={{ borderTop: "1px solid silver", fontSize: '.8rem' }}>
+        {user?.isLoggedIn ?
+          <LogoutButton />
+          :
+          <Link href="/login" className="flex align-items-center justify-content-flex-end" style={{ gap: "10px" }}>
+            <div className="flex-grow-100" style={{ marginLeft: "2px", textAlign: "left" }}>Logga in</div>
+            <IconLogin2 aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px", minWidth: '20px' }} />
+          </Link>
+        }
+      </section>
+    </aside>
+
+    {/* 
     <aside className={styles.container}>
       <label className={styles.menuToggleContainer}>
         <input type="checkbox" className={styles.menuToggle} />
@@ -47,7 +111,7 @@ export default async function Sidebar() {
               className='transparent rounded flex gap-50 font-weight-500 align-items-center width-100'
               style={{ fontSize: '1rem', overflow: 'hidden' }}
             >
-              <IconCirclePlus aria-hidden="true" style={{ minWidth: '24px' }} />
+              <IconCirclePlus aria-hidden="true" style={{ minWidth: '20px' }} />
               {t("components:sidebar.create")}
             </PopoverButton>
             <Popover
@@ -98,7 +162,7 @@ export default async function Sidebar() {
               className='transparent rounded flex gap-50 font-weight-500 align-items-center width-100'
               style={{ fontSize: '1rem', overflow: 'hidden' }}
             >
-              <IconWorld aria-hidden="true" style={{ minWidth: '24px' }} />
+              <IconWorld aria-hidden="true" style={{ minWidth: '20px' }} />
               {t("components:sidebar.language")}
             </PopoverButton>
             <Popover
@@ -139,5 +203,6 @@ export default async function Sidebar() {
         </nav>
       </aside>
     </aside>
+    */}
   </>
 }
