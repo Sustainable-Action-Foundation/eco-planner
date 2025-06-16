@@ -1,5 +1,9 @@
 /* custom (not yet added to semantic style sheets= */
 
+.text-transform-capitalize {
+  text-transform: capitalize;
+}
+
 .place-items-center {
   place-items: center;
 }

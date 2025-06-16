@@ -41,7 +41,6 @@ export default async function Sidebar() {
               {t("components:sidebar.home")}
             </Link>
 
-            {/* TODO: i18n */}
             <PopoverButton
               anchorName='--create-popover-button'
               popoverTarget='create-popover'
@@ -49,7 +48,7 @@ export default async function Sidebar() {
               style={{ fontSize: '1rem', overflow: 'hidden' }}
             >
               <IconCirclePlus aria-hidden="true" style={{ minWidth: '24px' }} />
-              Skapa
+              {t("components:sidebar.create")}
             </PopoverButton>
             <Popover
               id='create-popover'
@@ -63,29 +62,29 @@ export default async function Sidebar() {
             >
               <nav className='padding-25 smooth' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
                 <div className='padding-bottom-25 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between alignt-items-center' style={{ borderBottom: '1px solid var(--gray)' }}>
-                  <span className='font-weight-600'>Skapa</span>
+                  <span className='font-weight-600'>{t("components:sidebar.create")}</span>
                   <button popoverTarget='create-popover' className='transparent grid padding-25 round'>
                     <IconX role='img' aria-label='Stäng meny: skapa' width={16} height={16} />
                   </button>
                 </div>
-                <Link href='/metaRoadmap/create' className={`${styles['menu-link']} flex align-items-center justify-content-space-between gap-100 padding-25 smooth color-pureblack text-decoration-none`}>
-                  Färdplansserie
+                <Link href='/metaRoadmap/create' className={`${styles['menu-link']} text-transform-capitalize flex align-items-center justify-content-space-between gap-100 padding-25 smooth color-pureblack text-decoration-none`}>
+                  {t("common:roadmap_series_one")}
                   <IconPlus width={16} height={16} style={{minWidth: '16px'}} />
                 </Link>
-                <Link href='/roadmap/create' className={`${styles['menu-link']} flex align-items-center justify-content-space-between gap-100 padding-25 smooth color-pureblack text-decoration-none`}>
-                  Färdplan
+                <Link href='/roadmap/create' className={`${styles['menu-link']} text-transform-capitalize flex align-items-center justify-content-space-between gap-100 padding-25 smooth color-pureblack text-decoration-none`}>
+                  {t("common:roadmap_short_one")}
                   <IconPlus width={16} height={16} style={{minWidth: '16px'}} />
                 </Link>
-                <Link href='/goal/create' className={`${styles['menu-link']} flex align-items-center justify-content-space-between gap-100 padding-25 smooth color-pureblack text-decoration-none`}>
-                  Målbana
+                <Link href='/goal/create' className={`${styles['menu-link']} text-transform-capitalize flex align-items-center justify-content-space-between gap-100 padding-25 smooth color-pureblack text-decoration-none`}>
+                  {t("common:goal_one")}
                   <IconPlus width={16} height={16} style={{minWidth: '16px'}} />
                 </Link>
-                <Link href='/action/create' className={`${styles['menu-link']} flex align-items-center justify-content-space-between gap-100 padding-25 smooth color-pureblack text-decoration-none`}>
-                  Åtgärd
+                <Link href='/action/create' className={`${styles['menu-link']} text-transform-capitalize flex align-items-center justify-content-space-between gap-100 padding-25 smooth color-pureblack text-decoration-none`}>
+                  {t("common:action_one")}
                   <IconPlus width={16} height={16} style={{minWidth: '16px'}} />
                 </Link>
-                <Link href='/effect/create' className={`${styles['menu-link']} flex align-items-center justify-content-space-between gap-100 padding-25 smooth color-pureblack text-decoration-none`}>
-                  Effekt
+                <Link href='/effect/create' className={`${styles['menu-link']} text-transform-capitalize flex align-items-center justify-content-space-between gap-100 padding-25 smooth color-pureblack text-decoration-none`}>
+                  {t("common:effect_one")}
                   <IconPlus width={16} height={16} style={{minWidth: '16px'}} />
                 </Link>
               </nav>
@@ -93,7 +92,6 @@ export default async function Sidebar() {
           </div>
 
           <section>
-            {/* TODO: i18n */}
             <PopoverButton
               anchorName='--select-language-popover-button'
               popoverTarget='select-language-popover'
@@ -101,7 +99,7 @@ export default async function Sidebar() {
               style={{ fontSize: '1rem', overflow: 'hidden' }}
             >
               <IconWorld aria-hidden="true" style={{ minWidth: '24px' }} />
-              Språk
+              {t("components:sidebar.language")}
             </PopoverButton>
             <Popover
               id='select-language-popover'
@@ -114,7 +112,7 @@ export default async function Sidebar() {
             >
               <div className='padding-25 smooth' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
                 <div className='padding-bottom-25 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between alignt-items-center' style={{ borderBottom: '1px solid var(--gray)' }}>
-                  <span className='font-weight-600'>Välj språk</span>
+                  <span className='font-weight-600'>{t("components:sidebar.language_alt")}</span>
                   <button popoverTarget='select-language-popover' className='transparent grid padding-25 round'>
                     <IconX role='img' aria-label='Stäng meny: välj språk' width={16} height={16} />
                   </button>
