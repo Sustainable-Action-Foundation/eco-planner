@@ -142,7 +142,7 @@
   width: calc(24px + (1rem * 2 + .5rem * 2) + 1px);
 }
 
-.aside a {
+.aside a:not([href="/signup"]) {
   width: 100%;
   padding: .5rem;
   border-radius: .5rem;
@@ -153,6 +153,11 @@
 
 .aside a:hover {
   background-color: #e0e6eb;
+}
+
+/* TODO: Hate this hover do something about it (why does box shadow inset not work like it should ): )*/ 
+.aside a[href="/signup"]:hover {
+  background-color: var(--seagreen-30);
 }
 
 .aside>nav>a,

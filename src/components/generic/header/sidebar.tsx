@@ -34,7 +34,7 @@ export default async function Sidebar() {
             Profil
           </Link>
           :
-          <Link href="/signup" className='flex align-items-center margin-bottom-300' style={{ gap: '10px', paddingRight: "calc(.5rem + 10px)" }}>
+          <Link href="/signup" className='flex align-items-center margin-bottom-300 seagreen color-purewhite round padding-50 text-decoration-none' style={{ gap: '10px', paddingRight: "calc(.5rem + 10px)"}}>
             {/* TODO: Call to action an all that */}
             <IconUserPlus aria-hidden='true' height={20} width={20} style={{ minWidth: "24px" }} />
             {t("components:sidebar.create_account")}
