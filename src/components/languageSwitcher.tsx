@@ -33,6 +33,10 @@ export function LanguageSwitcher() {
     window.dispatchEvent(new CustomEvent("i18n-language-changed"));
   }
 
+  {/* 
+    TODO SIDENAV: Use aria to turn buttons into radio buttons?
+    as they are only buttons for performance reasons?
+  */}
   return (
     <>
       <ul className="margin-0 padding-0" style={{listStyle: 'none'}}>
