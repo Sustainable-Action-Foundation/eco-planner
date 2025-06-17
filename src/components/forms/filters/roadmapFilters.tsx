@@ -47,7 +47,7 @@ export default function RoadmapFilters() {
   }
 
   return <>
-    <menu className="flex gap-100 align-items-flex-end padding-0 margin-0 margin-top-300 margin-bottom-100 ">
+    <menu className="flex gap-100 align-items-flex-end padding-0 margin-0 margin-top-300 margin-bottom-100 flex-wrap-wrap">
       <label className="font-weight-bold container-text">
         {t("components:roadmap_filters.search_roadmaps")}
         <div className="margin-top-25 flex align-items-center gray-90 padding-50 smooth focusable">
@@ -60,7 +60,7 @@ export default function RoadmapFilters() {
       <label className="font-weight-bold">
         {t("components:roadmap_filters.sort_by")}
         <select
-          className="font-weight-500 margin-top-25"
+          className="font-weight-500 margin-top-25 block"
           style={{ fontSize: '1rem', minHeight: 'calc(24px + 1rem)' }}
           defaultValue={searchParams.get('sortBy') ?? ""} onChange={(e) => { updateStringParam('sortBy', e.target.value) }}
         >

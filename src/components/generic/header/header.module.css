@@ -135,17 +135,50 @@
   border-right: 1px solid silver;
   interpolate-size: allow-keywords;
   transition: width .2s ease-out;
+
+  @media (max-width: 1250px) {
+    z-index: 8;
+    background-color: rgba(255,255,255,.9);
+    border-bottom: 1px solid silver;
+    border-right: 0;
+    width: 100%;
+    height: unset;
+    label {
+      /* TODO: Set all margin lefts when in phone mode */ 
+      margin-left: 1rem !important;
+      position: relative;
+    }
+  }
 }
 
-/* WIDTH: Largest image size, padding aside, padding links, border aside*/
 .aside > div {
   width: auto;
   interpolate-size: allow-keywords;
-  transition: width .2s ease-out;
+  transition: width .2s ease-out, transform .2s ease-out;
+
+  @media (max-width: 1250px) {
+    z-index: 9;
+    height: 100dvh;
+    top: 0;
+    /* Image height + image margin-block + image-padding-block + padding-top */
+    padding-top: calc(1rem * 2 + 24px + .25rem * 2 + 1rem);
+    
+    transform: translate(-100%, 0);
+    position: absolute;
+    border-right: 1px solid silver;
+    background-color: white;
+  }
 }
 
 .aside:has(input[type="checkbox"]:checked) > div {
-  width: calc(24px + (1rem * 2 + .5rem * 2));
+  /* WIDTH: Largest image size, padding aside, padding links, border aside*/
+  @media (min-width: 1251px) {
+    width: calc(24px + (1rem * 2 + .5rem * 2));
+  }
+
+  @media (max-width: 1250px) {
+    transform: translate(0, 0);
+  }
 }
 
 .aside a:not([href="/signup"]) {
@@ -177,6 +210,9 @@
   /* Margin + padding aligns with images of links which have paddings of .5 */
   transition: background-color .1s ease;
   border-radius: 99999px;
+  @media (max-width: 1250px) {
+    z-index: 10;
+  }
 }
 
 .aside label:hover {
