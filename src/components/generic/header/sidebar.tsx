@@ -32,7 +32,7 @@ export default async function Sidebar() {
           {user?.isLoggedIn ?
             <Link href={`/@${user.username}`} className="flex align-items-center margin-bottom-300" style={{ gap: "10px" }}>
               <IconUser aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px", minWidth: '20px' }} />
-              Profil
+              {t("components:sidebar.my_profile")}
             </Link>
             :
             <Link href="/signup" className='flex align-items-center margin-bottom-300 seagreen color-purewhite round padding-50 text-decoration-none' style={{ gap: '10px', paddingRight: "calc(.5rem + 10px)" }}>
@@ -44,7 +44,7 @@ export default async function Sidebar() {
 
           <Link href="/" className="flex align-items-center" style={{ gap: "10px" }}>
             <IconHome aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px", minWidth: '20px' }} />
-            Hem
+            {t("components:sidebar.home")}
           </Link>
           <PopoverButton
             anchorName='--create-popover-button'
@@ -68,8 +68,9 @@ export default async function Sidebar() {
             <nav className='padding-25 smooth' style={{ backgroundColor: 'white', border: '1px solid silver', fontSize: '.8rem' }}>
               <div className='padding-bottom-25 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center' style={{ borderBottom: '1px solid var(--gray)' }}>
                 <span className='font-weight-600'>{t("components:sidebar.create")}</span>
-                <button popoverTarget='create-popover' className='transparent grid padding-25 round'>
-                  <IconX role='img' aria-label='Stäng meny: skapa' width={16} height={16} />
+                {/* TODO: I18n */}
+                <button popoverTarget='create-popover' aria-label='Stäng meny: skapa' className='transparent grid padding-25 round'>
+                  <IconX aria-hidden='true' width={16} height={16} />
                 </button>
               </div>
               <Link href='/metaRoadmap/create' className={`${styles['menu-link']} text-transform-capitalize flex align-items-center justify-content-space-between gap-100 padding-25 smooth color-pureblack text-decoration-none`}>
@@ -97,7 +98,6 @@ export default async function Sidebar() {
         </nav>
 
         <section className="margin-top-200" style={{ fontSize: '.8rem' }}>
-          {/* TODO SIDENAV: This is the language selector */}
           {/* TODO SIDENAV: Buttons: .8rem, Links, 1rem */}
           {/* TODO SIDENAV: Consistent hover behavior between links and buttons */}
           <PopoverButton
@@ -121,8 +121,8 @@ export default async function Sidebar() {
             <div className='padding-25 smooth' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
               <div className='padding-bottom-25 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center' style={{ borderBottom: '1px solid var(--gray)' }}>
                 <span className='font-weight-600'>{t("components:sidebar.language_alt")}</span>
-                <button popoverTarget='select-language-popover' className='transparent grid padding-25 round'>
-                  <IconX role='img' aria-label='Stäng meny: välj språk' width={16} height={16} />
+                <button popoverTarget='select-language-popover' aria-label='Stäng meny: välj språk' className='transparent grid padding-25 round'>
+                  <IconX aria-hidden='true' width={16} height={16} />
                 </button>
               </div>
               <fieldset className={`fieldset-unset-pseudo-class`}>
@@ -130,14 +130,13 @@ export default async function Sidebar() {
               </fieldset>
             </div>
           </Popover>
-          {/* TODO SIDENAV: This is a settings menu */}
           <Link href="" className="flex align-items-center margin-bottom-300" style={{ gap: "10px" }}>
             <IconSettings aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px", minWidth: '20px' }} />
-            Inställningar
+            {t("components:sidebar.settings")}
           </Link>
           <Link href="/info" className="flex align-items-center" style={{ gap: "10px", fontSize: '1rem' }}>
             <IconInfoCircle aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px", minWidth: '20px' }} />
-            Om
+            {t("components:sidebar.about")}
           </Link>
         </section>
         <section className="padding-top-100 margin-top-100" style={{ borderTop: "1px solid silver", fontSize: '.8rem' }}>
@@ -145,7 +144,7 @@ export default async function Sidebar() {
             <LogoutButton />
             :
             <Link href="/login" className="flex align-items-center justify-content-flex-end" style={{ gap: "10px", padding: '.5rem' }}>
-              <div className="flex-grow-100" style={{ marginLeft: "2px", textAlign: "left" }}>Logga in</div>
+              <div className="flex-grow-100" style={{ marginLeft: "2px", textAlign: "left" }}>{t("common:tsx.login")}</div>
               <IconLogin2 aria-hidden='true' height={20} width={20} style={{ marginRight: "2px", minWidth: '20px' }} />
             </Link>
           }

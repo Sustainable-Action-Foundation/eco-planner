@@ -142,6 +142,7 @@
     "create_account": "Skapa konto",
     "create": "Skapa",
     "home": "$t(common:tsx.home)",
+    "settings": "Inställningar",
     "about": "Om",
     "language": "Språk",
     "language_alt": "Välj språk"
