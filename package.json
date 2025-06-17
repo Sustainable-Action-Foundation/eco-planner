@@ -85,7 +85,8 @@
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": "^v22.7.0"
+      "version": ">v22.7.0",
+      "onFail": "warn"
     }
   },
   "prisma": {
