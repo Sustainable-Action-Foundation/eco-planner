@@ -12,6 +12,7 @@ import { notFound } from 'next/navigation';
 import styles from './page.module.css' with { type: "css" }
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';
+import Link from 'next/link';
 
 export async function generateMetadata(props: {
   params: Promise<{ user: string }>,
@@ -159,10 +160,10 @@ export default async function Page(
                   <li key={index}>
                     <div className='inline-block width-100' style={{ verticalAlign: 'middle' }}>
                       <div className='flex justify-content-space-between align-items-center'>
-                        <a href={`/metaRoadmap/${metaRoadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
+                        <Link href={`/metaRoadmap/${metaRoadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
                           <h4 className='font-weight-500 margin-0'>{metaRoadmap.name} </h4>
                           <p className='margin-0'>{t("pages:profile.version_count", { count: metaRoadmap.roadmapVersions.length })}</p>
-                        </a>
+                        </Link>
                         <TableMenu object={metaRoadmap} />
                       </div>
                     </div>
@@ -180,10 +181,10 @@ export default async function Page(
                   <li key={index}>
                     <div className='inline-block width-100' style={{ verticalAlign: 'middle' }}>
                       <div className='flex justify-content-space-between align-items-center'>
-                        <a href={`/roadmap/${roadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
+                        <Link href={`/roadmap/${roadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
                           <h4 className='font-weight-500 margin-0'>{roadmap.metaRoadmap.name} {`(v${roadmap.version})`}</h4>
                           <p className='margin-0'>{t("common:count.goal", { count: roadmap._count.goals })}</p>
-                        </a>
+                        </Link>
                         <TableMenu object={roadmap} />
                       </div>
                     </div>

@@ -9,6 +9,7 @@ import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
+import Link from "next/link";
 
 export async function generateMetadata(props: { params: Promise<{ metaRoadmapId: string }> }) {
   const params = await props.params
@@ -91,7 +92,7 @@ export default async function Page(props: { params: Promise<{ metaRoadmapId: str
           <h2 className="margin-block-100 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:roadmap_series_one.roadmap_versions")}</h2>
           <menu className="margin-0 padding-0 margin-bottom-100 flex justify-content-flex-end">
             {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
-              <a href={`/roadmap/create?metaRoadmapId=${metaRoadmap.id}`} className="button pureblack color-purewhite round">{t("pages:roadmap_series_one.create_roadmap_version")}</a>
+              <Link href={`/roadmap/create?metaRoadmapId=${metaRoadmap.id}`} className="button pureblack color-purewhite round">{t("pages:roadmap_series_one.create_roadmap_version")}</Link>
               : null}
           </menu>
           <RoadmapTable user={session.user} metaRoadmap={metaRoadmap} />

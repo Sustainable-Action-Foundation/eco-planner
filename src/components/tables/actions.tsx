@@ -55,10 +55,10 @@ export default function ActionTable({
   return <>
     {actions.map(action => (
       <div className='flex gap-100 justify-content-space-between align-items-center' key={action.id}>
-        <a href={`/action/${action.id}`} className={`${styles.roadmapLink} flex-grow-100`}>
+        <Link href={`/action/${action.id}`} className={`${styles.roadmapLink} flex-grow-100`}>
           <span className={styles.linkTitle}>{action.name}</span>
           <p className={styles.actionLinkInfo}>{action.description}</p>
-        </a>
+        </Link>
         <TableMenu
           accessLevel={accessLevel}
           object={action}

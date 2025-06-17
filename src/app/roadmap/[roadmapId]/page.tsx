@@ -12,6 +12,7 @@ import { DataSeries, Goal } from "@prisma/client";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconEdit } from "@tabler/icons-react";
+import Link from "next/link";
 
 export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {
   const params = await props.params
@@ -81,7 +82,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
             {t("common:count.goal", { count: roadmap.goals.length })}
             {"  "}
             {/* TODO: style link to better match surroundings */}
-            <a href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>{t("pages:roadmap.show_series")}</a>
+            <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>{t("pages:roadmap.show_series")}</Link>
           </p>
           <p className="margin-bottom-0">{roadmap.metaRoadmap.description}</p>
           {roadmap.description ? (
@@ -101,14 +102,14 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
 
         {/* Only show the edit link if the user has edit access to the roadmap */}
         {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-          <a
+          <Link
             href={`/roadmap/${roadmap.id}/edit`}
             className="flex align-items-center gap-50 font-weight-500 button transparent round color-pureblack text-decoration-none"
             style={{ height: 'fit-content' }}
           >
             {t("common:edit.roadmap_version")}
             <IconEdit style={{minWidth: '24px'}} aria-hidden="true" />
-          </a>
+          </Link>
         }
       </section>
 
@@ -118,9 +119,9 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
           <div className="grid gap-100" style={{ gridTemplateColumns: 'repeat(auto-fit, 300px)' }}>
             {featuredGoals.map((goal, key) =>
               goal && (
-                <a key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none">
+                <Link key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none">
                   <ThumbnailGraph goal={goal} />
-                </a>
+                </Link>
               )
             )}
           </div>

@@ -7,6 +7,7 @@ import { TableMenu } from '@/components/tables/tableMenu/tableMenu';
 import { AccessControlled } from '@/types';
 import accessChecker from '@/lib/accessChecker';
 import serveTea from "@/lib/i18nServer";
+import Link from 'next/link';
 
 interface RoadmapTableCommonProps {
   user: LoginData['user'],
@@ -61,7 +62,7 @@ export default async function RoadmapTable({
           const accessLevel = accessChecker(roadmap, user);
           return (
             <div className='flex gap-100 justify-content-space-between align-items-center' key={roadmap.id}>
-              <a href={`/roadmap/${roadmap.id}`} className={`${styles.roadmapLink} flex-grow-100`}>
+              <Link href={`/roadmap/${roadmap.id}`} className={`${styles.roadmapLink} flex-grow-100`}>
                 {/* Name, version */}
                 <span className={styles.linkTitle}>
                   {t("components:roadmap_table.title", { name: roadmap.metaRoadmap.name, version: roadmap.version })}
@@ -72,7 +73,7 @@ export default async function RoadmapTable({
                   {" • "}
                   {t("common:count.goal", { count: roadmap._count.goals })}
                 </span>
-              </a>
+              </Link>
               <TableMenu
                 accessLevel={accessLevel}
                 object={roadmap}

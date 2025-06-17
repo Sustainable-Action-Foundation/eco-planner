@@ -304,9 +304,9 @@ export default function QueryBuilder({
     }
   }
 
-  // TODO: Take a look at this; should it really be an <a> element? Also translate.
+  // TODO: should probably use a pseudo class (::after) instead of a span here.
   function optionalTag(dataSource: string, variableIsOptional: boolean) {
-    if (getDatasetKeysOfApis("PxWeb").includes(dataSource) && variableIsOptional) return <a className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</a>;
+    if (getDatasetKeysOfApis("PxWeb").includes(dataSource) && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
   }
 
   function handleTableListScroll(event: React.UIEvent<HTMLUListElement, UIEvent>) {
@@ -352,7 +352,7 @@ export default function QueryBuilder({
           {// Only display "optional" tags if the data source provides this information
           }
           {variable.label[0].toUpperCase() + variable.label.slice(1)}{optionalTag(dataSource, variable.optional)}
-          {// Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
+          {// TODO: Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
           }
           <select className={`block margin-block-25 ${variable.label}`}
             required={!variable.optional}
