@@ -1,4 +1,4 @@
-import "./lib/console";
+import "../lib/console";
 import { localeAliases } from "i18nTestVariables";
 import { switchLanguage } from "lib/switch-language";
 import { expect, test } from "playwright/test";

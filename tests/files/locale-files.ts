@@ -1,4 +1,4 @@
-import "./lib/console";
+import "../lib/console";
 import fs from "node:fs";
 import path from "node:path";
 import { glob } from "glob";
