@@ -6,7 +6,7 @@ import { IconLogout2 } from "@tabler/icons-react"
 export default function LogoutButton() {
   const { t } = useTranslation(["common", "components"])
   return (
-    <button className="flex align-items-center justify-content-flex-end" style={{ gap: "10px" }} onClick={async () => {
+    <button className="flex align-items-center justify-content-flex-end width-100 transparent rounded" style={{ gap: "10px" }} onClick={async () => {
       fetch('/api/logout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

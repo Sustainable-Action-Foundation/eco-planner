@@ -138,8 +138,14 @@
 }
 
 /* WIDTH: Largest image size, padding aside, padding links, border aside*/
-.aside:has(input[type="checkbox"]:checked) {
-  width: calc(24px + (1rem * 2 + .5rem * 2) + 1px);
+.aside > div {
+  width: auto;
+  interpolate-size: allow-keywords;
+  transition: width .2s ease-out;
+}
+
+.aside:has(input[type="checkbox"]:checked) > div {
+  width: calc(24px + (1rem * 2 + .5rem * 2));
 }
 
 .aside a:not([href="/signup"]) {
@@ -160,18 +166,15 @@
   background-color: var(--seagreen-30);
 }
 
-.aside>nav>a,
-.aside>section>a,
-.aside>section>button {
+.aside>div>nav>a,
+.aside>div>section>a,
+.aside>div>section>button {
   overflow: hidden;
   white-space: nowrap;
 }
 
 .aside label {
-  width: fit-content;
   /* Margin + padding aligns with images of links which have paddings of .5 */
-  padding: .25rem;
-  margin-left: 4px;
   transition: background-color .1s ease;
   border-radius: 99999px;
 }
