@@ -26,7 +26,7 @@ export function initTemplate(t: TFunction): InitOptions {
     debug: false, // Set to true to get logs from i18next
     fallbackLng: Locales.default,
     supportedLngs: uniqueLocales,
-    defaultNS: "common",
+    defaultNS: false,
     ns: "common",
     interpolation: {
       escapeValue: false, // React already escapes
