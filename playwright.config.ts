@@ -12,12 +12,12 @@ export default defineConfig({
   // Fail the build on CI if you accidentally left test.only in the source code.
   forbidOnly: !!process.env.CI,
 
-  // Retry on CI only.
-  retries: process.env.CI ? 0 : 0,
+  // retries: process.env.CI ? 0 : 0,
+  retries: 0,
 
   // // Opt out of parallel tests on CI.
   // workers: process.env.CI ? 1 : undefined,
-  workers: undefined, // Always run in parallel
+  workers: "80%", // Always run in parallel
 
   // Reporter to use
   // reporter: [["html", { open: "never" }], ["list"]],
