@@ -6,8 +6,7 @@ import { expect, test } from "playwright/test";
 test.describe("Sidebar tests", () => {
   test("Language switcher initial language", async ({ page }) => {
     await page.goto("/");
-
-    await page.waitForSelector("[data-testid='language-switcher']");
+    await page.waitForLoadState("networkidle");
 
     const languageSwitcher = page.getByTestId("language-switcher");
     const options = await languageSwitcher.locator("option").allTextContents();
@@ -19,8 +18,7 @@ test.describe("Sidebar tests", () => {
 
   test("Language switcher correct aliases", async ({ page }) => {
     await page.goto("/");
-
-    await page.waitForSelector("[data-testid='language-switcher']");
+    await page.waitForLoadState("networkidle");
 
     const languageSwitcher = page.getByTestId("language-switcher");
 
@@ -32,8 +30,7 @@ test.describe("Sidebar tests", () => {
 
   test("Language switcher changes language", async ({ page }) => {
     await page.goto("/");
-
-    await page.waitForSelector("[data-testid='language-switcher']");
+    await page.waitForLoadState("networkidle");
 
     const homeTitle = page.getByTestId("home-title");
 
