@@ -1,6 +1,6 @@
 import "../lib/console";
-import { localeAliases, Locales } from "i18nTestVariables";
-import { switchLanguage } from "lib/switch-language";
+import { localeAliases, Locales } from "../i18nTestVariables";
+import { switchLanguage } from "../lib/switch-language";
 import { expect, test } from "playwright/test";
 
 test.describe("Sidebar tests", () => {
@@ -8,9 +8,21 @@ test.describe("Sidebar tests", () => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    const languageSwitcher = page.getByTestId("language-switcher");
-    const options = await languageSwitcher.locator("option").allTextContents();
-    const initialLanguage = options.at(0);
+    const wrapper = page.getByTestId("language-switcher-dialog-wrapper");
+    await expect(wrapper, "Language switcher dialog is not visible").toBeVisible();
+
+    // Open dialog
+    await wrapper
+      .locator("button").first()
+      .click();
+
+    const optionsUL = page.getByTestId("language-switcher-options");
+    await optionsUL.waitFor({ state: "visible" });
+    await expect(optionsUL, "Language switcher options are not visible").toBeVisible();
+
+    // Find aria-checked element
+    const checkedElement = optionsUL.locator("li button[aria-checked='true']").first();    
+    const initialLanguage = await checkedElement.textContent();
 
     // Test browsers have accept-language set to Swedish
     expect(initialLanguage).toBe(localeAliases[Locales.svSE]);

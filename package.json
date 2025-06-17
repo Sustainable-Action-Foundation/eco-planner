@@ -16,8 +16,8 @@
     "lint": "next lint",
     "locales:format": "tsx ./src/scripts/localesFormat.ts",
     "test:compose": "sudo docker compose -f compose.test.yaml up -d",
-    "test:ci": "tsx node_modules/playwright/cli.js test",
-    "test:local": "yarn build && tsx node_modules/playwright/cli.js test"
+    "test:run": "tsx node_modules/playwright/cli.js test",
+    "test:build-run": "yarn build && yarn test:run"
   },
   "author": {
     "name": "Sustainable Action Foundation",

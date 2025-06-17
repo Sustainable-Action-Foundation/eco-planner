@@ -4,7 +4,7 @@ import path from "node:path";
 import { glob } from "glob";
 import { expect, test } from "playwright/test";
 import escape from "regexp.escape"; // Polyfill for RegExp.escape. Not in node yet.
-import { uniqueLocales, namespaces, Locales, localeAliases, localesDir } from "i18nTestVariables";
+import { uniqueLocales, namespaces, Locales, localesDir } from "../i18nTestVariables";
 
 /* 
  **********
