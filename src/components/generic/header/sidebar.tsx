@@ -8,7 +8,7 @@ import Link from 'next/link'
 import { LanguageSwitcher } from "@/components/languageSwitcher"
 import serveTea from "@/lib/i18nServer";
 import { PopoverButton, Popover } from '@/components/generic/popovers/popovers';
-import { IconCirclePlus, IconHome, IconInfoCircle, IconLogin2, IconLogout, IconLogout2, IconMenu2, IconPlus, IconSettings, IconUser, IconUserPlus, IconWorld, IconX } from '@tabler/icons-react'
+import { IconCirclePlus, IconHome, IconInfoCircle, IconLogin2, IconMenu2, IconPlus, IconSettings, IconUser, IconUserPlus, IconWorld, IconX } from '@tabler/icons-react'
 import GraphCookie from '@/components/cookies/graphCookie';
 
 export default async function Sidebar() {
@@ -18,15 +18,15 @@ export default async function Sidebar() {
   ]);
 
   return <>
-
     <aside className={`${styles["aside"]} inline-flex flex-direction-column`}>
-      <label className='margin-100 padding-25' aria-label="open/close menu" style={{ width: 'fit-content', marginLeft: 'calc(1rem + 4px)' }}>
-        <input type="checkbox" className="none" id={`${styles['toggle-sidebar']}`} />
-        {/* TODO SIDENAV: I18n for all aria-labels */}
+      {/* TODO SIDENAV: I18n for all aria-labels */}
+      <label className='margin-100 padding-25' aria-label="öppna menu" style={{ width: 'fit-content', marginLeft: 'calc(1rem + 4px)' }}>
+        <input type="checkbox" style={{opacity: '0', position: 'absolute'}} className={`${styles['toggle-sidebar']}`} defaultChecked />
         <IconMenu2 aria-hidden="true" height={24} width={24} className='grid' style={{ minWidth: '24px' }} />
       </label>
 
-      <div className='padding-100 flex-grow-100 flex flex-direction-column'>
+      {/* TODO SIDENAV: For accesability purposes, this should be hidden when collapsed and on a phone  */}
+      <div className='padding-100 flex-grow-100 flex flex-direction-column' id="sidebar">
         <nav className='flex-grow-100 flex flex-direction-column'>
           {/* TODO SIDENAV: check if more svg's (globally) accidentally use maxWidth instead of minWidth  */}
           {/* TODO SIDENAV: Is the usage of nav correct if theres more than links?  */}
