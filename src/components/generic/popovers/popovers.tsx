@@ -1,3 +1,12 @@
+// This is built as a placement agnostic component.
+// However firefox does not yet support anchor positioning as of 2025-06-18
+// Fallbacks for browsers which do not support anchor position places-
+// any popover in the top left of the page with a height of 100%.
+// As such this should only be used within the sidebar until-
+// greater browser support. 
+
+// TODO: Check what gets passed for optional style, id and class props
+
 "use client"
 
 import styles from './popovers.module.css' with { type: "css" }
@@ -31,8 +40,10 @@ export function PopoverButton({
   )
 }
 
+// TODO: popover should always be manual if browser does 
+// not support anchor positioning?
 // TODO: A horizontal popover direction should only be 
-// Given assuming an anchorInlinePosition of center
+// given assuming an anchorInlinePosition of center
 export function Popover({
   id,
   className,

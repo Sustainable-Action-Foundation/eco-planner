@@ -75,6 +75,7 @@ async function NestedRoadmapRenderer({
           {newChildRoadmaps.length > 0 ?
             <li>
               <details>
+                {/* TODO SIDENAV: In accesibility tree, this shows as the link being labeled under "visa underliggande färdplaner" */}
                 <summary className="flex justify-content-space-between" aria-label={t("components:roadmap_tree.show_source_alt")}>
                   <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
                     <IconCaretRightFilled aria-hidden="true" className="round padding-25 margin-inline-25" />

@@ -39,13 +39,14 @@
         margin-right: 0 !important;
         margin-bottom: 0 !important;
         margin-left: 0 !important;
-        width: 12rem;
         padding: 0 !important;
     }
 
     .position-anchor > * {
         height: 100dvh;
-        padding: 1rem;
+        padding-block: 1rem;
+        padding-inline: .75rem;
+        min-width: 180px;
         border: 0 !important; 
         border-right: 1px solid var(--gray-90) !important;
         border-radius: 0;

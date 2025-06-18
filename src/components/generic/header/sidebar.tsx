@@ -9,6 +9,7 @@ import { LanguageSwitcher } from "@/components/languageSwitcher"
 import serveTea from "@/lib/i18nServer";
 import { PopoverButton, Popover } from '@/components/generic/popovers/popovers';
 import { IconCirclePlus, IconHome, IconInfoCircle, IconLogin2, IconLogout, IconLogout2, IconMenu2, IconPlus, IconSettings, IconUser, IconUserPlus, IconWorld, IconX } from '@tabler/icons-react'
+import GraphCookie from '@/components/cookies/graphCookie';
 
 export default async function Sidebar() {
   const [t, { user }] = await Promise.all([
@@ -20,7 +21,7 @@ export default async function Sidebar() {
 
     <aside className={`${styles["aside"]} inline-flex flex-direction-column`}>
       <label className='margin-100 padding-25' aria-label="open/close menu" style={{ width: 'fit-content', marginLeft: 'calc(1rem + 4px)' }}>
-        <input type="checkbox" className="none" />
+        <input type="checkbox" className="none" id={`${styles['toggle-sidebar']}`} />
         {/* TODO SIDENAV: I18n for all aria-labels */}
         <IconMenu2 aria-hidden="true" height={24} width={24} className='grid' style={{ minWidth: '24px' }} />
       </label>
@@ -76,31 +77,31 @@ export default async function Sidebar() {
               {/* TODO SIDENAV: Does this need to be a list? */}
               <ul className='padding-0 margin-0' style={{ listStyle: 'none' }}>
                 <li>
-                  <Link href='/metaRoadmap/create' className={`${styles['menu-link']} text-transform-capitalize flex align-items-center justify-content-space-between gap-100 padding-25 smooth color-pureblack text-decoration-none`}>
+                  <Link href='/metaRoadmap/create' className={`${styles['menu-link']} text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none`}>
                     {t("common:roadmap_series_one")}
                     <IconPlus width={16} height={16} style={{ minWidth: '16px' }} />
                   </Link>
                 </li>
                 <li>
-                  <Link href='/roadmap/create' className={`${styles['menu-link']} text-transform-capitalize flex align-items-center justify-content-space-between gap-100 padding-25 smooth color-pureblack text-decoration-none`}>
+                  <Link href='/roadmap/create' className={`${styles['menu-link']} text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none`}>
                     {t("common:roadmap_short_one")}
                     <IconPlus width={16} height={16} style={{ minWidth: '16px' }} />
                   </Link>
                 </li>
                 <li>
-                  <Link href='/goal/create' className={`${styles['menu-link']} text-transform-capitalize flex align-items-center justify-content-space-between gap-100 padding-25 smooth color-pureblack text-decoration-none`}>
+                  <Link href='/goal/create' className={`${styles['menu-link']} text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none`}>
                     {t("common:goal_one")}
                     <IconPlus width={16} height={16} style={{ minWidth: '16px' }} />
                   </Link>
                 </li>
                 <li>
-                  <Link href='/action/create' className={`${styles['menu-link']} text-transform-capitalize flex align-items-center justify-content-space-between gap-100 padding-25 smooth color-pureblack text-decoration-none`}>
+                  <Link href='/action/create' className={`${styles['menu-link']} text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none`}>
                     {t("common:action_one")}
                     <IconPlus width={16} height={16} style={{ minWidth: '16px' }} />
                   </Link>
                 </li>
                 <li>
-                  <Link href='/effect/create' className={`${styles['menu-link']} text-transform-capitalize flex align-items-center justify-content-space-between gap-100 padding-25 smooth color-pureblack text-decoration-none`}>
+                  <Link href='/effect/create' className={`${styles['menu-link']} text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none`}>
                     {t("common:effect_one")}
                     <IconPlus width={16} height={16} style={{ minWidth: '16px' }} />
                   </Link>
@@ -147,10 +148,36 @@ export default async function Sidebar() {
             </fieldset>
           </Popover>
           {/* TODO: Should be a settings menu */}
-          <Link href="" className="flex align-items-center" style={{ gap: "10px" }}>
+          <PopoverButton
+            anchorName='--settings-popover-button'
+            popoverTarget='settings-popover'
+            className='transparent rounded flex align-items-center width-100'
+            style={{ gap: '10px', fontSize: '.8rem' }}
+          >
             <IconSettings aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px", minWidth: '20px' }} />
             {t("components:sidebar.settings")}
-          </Link>
+          </PopoverButton>
+          <Popover
+            id='settings-popover'
+            popover='auto'
+            positionAnchor='--settings-popover-button'
+            anchorInlinePosition='end'
+            popoverDirection={{ vertical: 'up' }}
+            margin={{ left: '2rem' }}
+            indicator
+          >
+            {/* TODO SIDENAV: accessibility, Fieldset is a group nested within a group? */}
+            <fieldset className='padding-25 smooth fieldset-unset-pseudo-class' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
+              <div className='padding-bottom-25 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center' style={{ borderBottom: '1px solid var(--gray)' }}>
+                <legend className='font-weight-600'>{t("components:sidebar.settings")}</legend>
+                {/* TODO SIDENAV: labels i18n */}
+                <button popoverTarget='settings-popover' aria-label='Stäng meny: inställningar' className='transparent grid padding-25 round'>
+                  <IconX aria-hidden='true' width={16} height={16} />
+                </button>
+              </div>
+              <GraphCookie className='margin-block-25 padding-50' style={{width: '250px', gap: '.75rem'}} />
+            </fieldset>
+          </Popover>
         </div>
         <div className="padding-top-100 margin-top-100" style={{ borderTop: "1px solid silver", fontSize: '.8rem' }}>
           {user?.isLoggedIn ?

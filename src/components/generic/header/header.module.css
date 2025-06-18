@@ -40,7 +40,7 @@
   }
 }
 
-.aside:has(input[type="checkbox"]:checked) > div {
+.aside:has(#toggle-sidebar:checked) > div {
   /* WIDTH: Largest image size, padding aside, padding links, border aside*/
   @media (min-width: 1251px) {
     width: calc(24px + (1rem * 2 + .5rem * 2));
@@ -70,8 +70,8 @@
 }
 
 .aside>div>nav>a,
-.aside>div>section>a,
-.aside>div>section>button {
+.aside>div>div>a,
+.aside>div>div>button {
   overflow: hidden;
   white-space: nowrap;
 }
