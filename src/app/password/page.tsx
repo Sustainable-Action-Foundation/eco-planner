@@ -1,39 +1,31 @@
-'use client';
-
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import formSubmitter from "@/functions/formSubmitter";
-import Image from "next/image";
-import { useTranslation } from "react-i18next";
+import SendResetMail from "@/components/forms/password/sendResetMail";
+import { buildMetadata } from "@/functions/buildMetadata";
+import serveTea from "@/lib/i18nServer";
 
-function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
-  event.preventDefault()
-
-  const form = event.target
-  const emailAdress = form.email.value
-
-  // Send a new verification email
-  formSubmitter('/api/sendReset', JSON.stringify({ email: emailAdress }), 'POST')
+export async function generateMetadata() {
+  const t = await serveTea("pages");
+  return buildMetadata({
+    title: t("pages:password.title"),
+    description: t("pages:password.description"),
+    og_url: `/password`,
+    og_image_url: undefined
+  })
 }
 
-export default function Page() {
-  const { t } = useTranslation();
-
+export default async function Page() {
+  const t = await serveTea("pages");
   return (
     <>
       <Breadcrumb customSections={[t("pages:password.breadcrumb")]} />
 
-      <div>
-        <p>{t("pages:password.description")}</p>
-        <form onSubmit={handleSubmit}>
-          <label>
-            <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
-              <Image src="/icons/email.svg" alt="" width={24} height={24} />
-              <input className="padding-0 margin-inline-50" type="email" placeholder={t("common:placeholder.email")} name="email" required id="email" autoComplete="email" />
-            </div>
-          </label>
-          <button type="submit">{t("pages:password.submit")}</button>
-        </form>
-      </div>
+      <main>
+        <div className="margin-block-300 padding-inline-100 padding-bottom-100 container-text purewhite smooth" style={{ border: '1px solid var(--gray)' }}>
+          <h1>{t("pages:password.title")}</h1>
+          <p>{t("pages:password.description")}</p>
+          <SendResetMail />
+        </div>
+      </main>
     </>
   )
 }

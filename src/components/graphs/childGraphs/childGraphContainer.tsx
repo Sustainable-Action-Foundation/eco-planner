@@ -3,12 +3,12 @@
 import { DataSeries, Effect, Goal } from "@prisma/client";
 import GoalChildGraph from "./goalChildGraph";
 import PredictionChildGraph from "./predictionChildGraph.tsx";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getStoredChildGraphType } from "../functions/graphFunctions";
 import { percentAndFraction } from "../graphSelector/graphSelector";
 import ChildGraphSelector from "../graphSelector/childGraphSelector";
 import { useTranslation } from "react-i18next";
+import { IconChartAreaLineFilled } from "@tabler/icons-react";
 
 export enum ChildGraphType {
   Target = "TARGET",
@@ -24,7 +24,7 @@ export default function ChildGraphContainer({
   childGoals: (Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null, effects: (Effect & { dataSeries: DataSeries | null })[], roadmapName?: string })[],
   children?: React.ReactNode,
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("graphs");
 
   const [childGraphType, setChildGraphType] = useState<ChildGraphType>(ChildGraphType.Target);
   // Default to stacked unless the unit is percent or fraction
@@ -58,7 +58,7 @@ export default function ChildGraphContainer({
           type="button" onClick={() => setIsStacked(!isStacked)}
         >
           {t("graphs:common.change_graph_type")}
-          <Image src='/icons/chartArea.svg' alt={t("graphs:common.change_graph_type")} width={16} height={16} />
+          <IconChartAreaLineFilled aria-hidden="true" width={16} height={16} />
         </button>
         {children}
       </menu>

@@ -1,14 +1,26 @@
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import ActionForm from "@/components/forms/actionForm/actionForm";
-import Image from "next/image";
 import accessChecker from "@/lib/accessChecker";
 import getOneGoal from "@/fetchers/getOneGoal";
 import { AccessControlled, AccessLevel } from "@/types";
 import getOneRoadmap from "@/fetchers/getOneRoadmap";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
+import { buildMetadata } from "@/functions/buildMetadata";
+import { IconInfoCircle } from "@tabler/icons-react";
+
+export async function generateMetadata() {
+  const t = await serveTea("metadata")
+
+  return buildMetadata({
+    title: t("metadata:action_create.title"),
+    description: t("metadata:action_create.description"),
+    og_url: `/action/create`,
+    og_image_url: undefined
+  })
+}
 
 export default async function Page(
   props: {
@@ -20,7 +32,8 @@ export default async function Page(
   }
 ) {
   const searchParams = await props.searchParams;
-  const [session, goal, roadmap, roadmapList] = await Promise.all([
+  const [t, session, goal, roadmap, roadmapList] = await Promise.all([
+    serveTea("pages"),
     getSession(await cookies()),
     getOneGoal(typeof searchParams.goalId == 'string' ? searchParams.goalId : ''),
     getOneRoadmap(typeof searchParams.roadmapId == 'string' ? searchParams.roadmapId : ''),
@@ -68,13 +81,13 @@ export default async function Page(
         }
         {badGoal &&
           <p style={{ color: 'red' }}>
-            <Image src="/icons/info.svg" width={24} height={24} alt='' />
+            <IconInfoCircle role="img" aria-label={t("pages:action_create.information_icon_aria")} />
             {t("pages:action_create.bad_goal")}
           </p>
         }
         {badRoadmap &&
           <p style={{ color: 'red' }}>
-            <Image src="/icons/info.svg" width={24} height={24} alt='' />
+            <IconInfoCircle role="img" ria-label={t("pages:action_create.information_icon_aria")} />
             {t("pages:action_create.bad_roadmap")}
           </p>
         }

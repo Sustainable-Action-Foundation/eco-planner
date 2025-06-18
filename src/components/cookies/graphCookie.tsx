@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export default function GraphCookie() {
-  const { t } = useTranslation();
+  const { t } = useTranslation("graphs");
 
   const [storageAllowed, setStorageAllowed] = useState(false)
 

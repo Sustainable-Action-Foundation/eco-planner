@@ -7,7 +7,7 @@ import { ChangeEvent, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export default function Comments({ comments, objectId }: { comments?: (Comment & { author: { id: string, username: string } })[], objectId: string }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["components", "common"]);
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()

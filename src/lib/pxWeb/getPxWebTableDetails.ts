@@ -5,7 +5,7 @@ import { PxWebMetric, PxWebTimeVariable, PxWebVariable, PxWebVariableValue } fro
 export default async function getPxWebTableDetails(tableId: string, externalDataset: string, language: string = 'sv') {
   // Get the base URL for the external dataset, defaulting to SCB
   const baseUrl = externalDatasets[externalDataset]?.baseUrl ?? externalDatasets.SCB?.baseUrl;
-  const url = new URL(`${baseUrl}/tables/${tableId}/metadata`);
+  const url = new URL(`./tables/${tableId}/metadata`, baseUrl);
 
   /* console.time("pxWebTableDetails"); */
 

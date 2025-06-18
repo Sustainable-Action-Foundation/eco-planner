@@ -23,7 +23,7 @@ export default function MainGraph({
   historicalData?: ApiTableContent | null,
   effects: (Effect & { dataSeries: DataSeries | null })[],
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("graphs");
 
   if (!goal.dataSeries) {
     return null;

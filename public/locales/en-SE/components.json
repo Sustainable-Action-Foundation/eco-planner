@@ -141,7 +141,8 @@
     "my_profile": "My account",
     "create_account": "Create account",
     "home": "$t(common:tsx.home)",
-    "about": "About the tool",
+    "create": "Create",
+    "about": "About",
     "language": "Language",
     "language_alt": "Select language"
   },
@@ -187,5 +188,8 @@
     "roadmap_series": "{{$t(common:roadmap_series_one), titleCase}}",
     "access_level": "Access level",
     "editing_access": "Editing access"
+  },
+  "notification": {
+    "icon_aria_label": "notifications"
   }
 }

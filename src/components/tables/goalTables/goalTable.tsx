@@ -38,7 +38,7 @@ export default function GoalTable({
   roadmap,
   sortBy,
 }: GoalTableProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("components");
 
   // Failsafe in case wrong props are passed
   if ((!goals && !roadmap) || (goals && roadmap)) throw new Error('GoalTable: Either `goals` XOR `roadmap` must be provided');

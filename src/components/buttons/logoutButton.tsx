@@ -1,10 +1,10 @@
 'use client'
 
-import Image from "next/image"
 import { useTranslation } from "react-i18next"
+import { IconLogout2 } from "@tabler/icons-react"
 
 export default function LogoutButton() {
-  const { t } = useTranslation()
+  const { t } = useTranslation(["common", "components"])
   return (
     <button className="flex align-items-center rounded transparent padding-50 gap-50 width-100 font-weight-500" style={{ fontSize: '1rem', whiteSpace: 'nowrap', overflow: 'hidden' }} onClick={async () => {
       fetch('/api/logout', {
@@ -18,7 +18,7 @@ export default function LogoutButton() {
         }
       })
     }}>
-      <Image src="/icons/logout.svg" alt="" width="24" height="24" />
+      <IconLogout2 style={{minWidth: "24px"}} aria-hidden="true" />
       {t("common:tsx.logout")}
     </button>
   )

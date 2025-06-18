@@ -7,9 +7,9 @@ import { LoginData } from "@/lib/session.ts";
 import { AccessControlled } from "@/types.ts";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
 import Link from "next/link";
-import Image from "next/image";
 import { Fragment } from "react";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
+import { IconCaretRightFilled } from "@tabler/icons-react";
 
 type RoadmapTreeProps = {
   user: LoginData['user'],
@@ -26,6 +26,7 @@ export default async function RoadmapTree({
   roadmaps,
   user,
 }: RoadmapTreeProps) {
+  const t = await serveTea("components");
   if (!roadmaps.length) {
     return <p>{t("components:roadmap_tree.no_roadmap_series_ones")}</p>;
   }
@@ -47,7 +48,7 @@ export default async function RoadmapTree({
 /**
  * Does the nesting of roadmaps for the `RoadmapTree` component.
  */
-function NestedRoadmapRenderer({
+async function NestedRoadmapRenderer({
   allRoadmaps,
   childRoadmaps,
   user,
@@ -56,6 +57,7 @@ function NestedRoadmapRenderer({
   childRoadmaps: RoadmapTreeProps['roadmaps'],
   user: RoadmapTreeProps['user'],
 }) {
+  const t = await serveTea(["components", "common"]);
   return <>
     {childRoadmaps.map(roadmap => {
       let typeAlias = roadmap.metaRoadmap.type.toString();
@@ -73,9 +75,9 @@ function NestedRoadmapRenderer({
           {newChildRoadmaps.length > 0 ?
             <li>
               <details>
-                <summary className="flex justify-content-space-between">
+                <summary className="flex justify-content-space-between" aria-label={t("components:roadmap_tree.show_source_alt")}>
                   <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
-                    <Image src="/icons/caret-right.svg" alt={t("components:roadmap_tree.show_source_alt")} width={24} height={24} className="round padding-25 margin-inline-25" />
+                    <IconCaretRightFilled aria-hidden="true" className="round padding-25 margin-inline-25" />
                     <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth' style={{ lineHeight: '1' }}>
                       {/* Name, version */}
                       <div>
@@ -105,7 +107,7 @@ function NestedRoadmapRenderer({
             :
             <li className="inline-flex align-items-center flex-grow-100 width-100">
               <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
-                <Image src="/icons/caret-right-gray.svg" alt={t("components:roadmap_tree.show_source_alt")} width="24" height="24" className="round padding-25 margin-inline-25" />
+                <IconCaretRightFilled aria-hidden="true" color="lightgray" className="round padding-25 margin-inline-25" />
                 <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth' style={{ lineHeight: '1' }}>
                   {/* Name, version */}
                   <div>

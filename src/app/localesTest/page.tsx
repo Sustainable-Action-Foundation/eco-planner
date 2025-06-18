@@ -1,6 +1,6 @@
 import styles from "./localesTest.module.css" with {type: "css"};
-import { t } from "@/lib/i18nServer";
-import { uniqueLocales, ns as namespaces, Locales } from "i18n.config";
+import serveTea from "@/lib/i18nServer";
+import { uniqueLocales, Locales, allNamespaces } from "i18n.config";
 import fs from "node:fs";
 import path from "node:path";
 import { ServerSideT } from "./serverSide";
@@ -8,15 +8,8 @@ import { ClientSideT } from "./clientSide";
 import { Stats } from "./stats";
 
 export default async function LocaleTestPage() {
-  // In dev mode i18next can be kinda flakey so this just boots the server side i18n instance
-  const _preloadT = t("common:tsx.close");
-
-  const defaultArgs = {
-    count: 17,
-    date: new Date("2025-04-23T18:23:31.501Z"),
-    fileTypes: [".txt", ".pdf", ".docx"],
-    encodings: ["utf-8", "utf-16", "ascii"],
-  };
+  const t = await serveTea("test");
+  const defaultArgs = { count: 17, date: new Date(Date.now() - 10000) };
 
   const allFlattened = getAllJSONFlattened()[Locales.default];
   const allKeys = Object.keys(allFlattened);
@@ -166,7 +159,7 @@ export default async function LocaleTestPage() {
 function getAllJSONFlattened(): Record<string, Record<string, string>> {
   const perLocale: Record<string, Record<string, string>> = Object.fromEntries(uniqueLocales.map(locale => [locale, {}]));
 
-  const allPermutations = uniqueLocales.flatMap(locale => namespaces.map(namespace => [locale, namespace]));
+  const allPermutations = uniqueLocales.flatMap(locale => allNamespaces.map(namespace => [locale, namespace]));
 
   allPermutations.map(([locale, namespace]) => {
     const nsData = JSON.parse(fs.readFileSync(path.join("public/locales", locale, `${namespace}.json`), "utf-8"));

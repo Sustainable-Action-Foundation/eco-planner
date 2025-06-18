@@ -1,15 +1,14 @@
 "use server";
 
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 import styles from './images.module.css' with { type: "css" };
 import Image from "next/image";
-
 
 export default async function AttributedImage({
   children,
   src,
   alt,
-  sizes = "(max-width: 1250: 100vw), 1250px",
+  sizes = "(max-width: 1250px) 100vw, 1250px",
 }: {
   children: React.ReactNode
   src: string,
@@ -40,6 +39,7 @@ export async function AttributeText(
     source: string,
     sourceLink: string,
   }) {
+  const t = await serveTea("components");
   return (
     <p className={`margin-0 ${className}`}>
       {t("components:image_attribute.by")}

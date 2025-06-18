@@ -37,7 +37,6 @@
     "attach_external_resources": "Bifoga externa resurser"
   },
   "data_series_input": {
-    "extra_info_data_series": "Extra information om dataserie",
     "data_series": "Dataserie",
     "data_series_tooltip": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller kommatecken.",
     "custom_baseline": "Anpassad baslinje",
@@ -120,7 +119,8 @@
     "name_label": "Namn",
     "name_placeholder": "ex. SCB",
     "url_label": "Länk",
-    "url_placeholder": "https://example.com"
+    "url_placeholder": "https://example.com" ,
+    "remove_link_aria_label": "ta bort länk"
   },
   "repeatable_scaling": {
     "specific_value_label": "Med vilket värde vill du skala?",

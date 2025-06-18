@@ -2,14 +2,48 @@ import EffectForm from "@/components/forms/effectForm/effectForm.tsx";
 import getOneEffect from "@/fetchers/getOneEffect.ts";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import accessChecker from "@/lib/accessChecker.ts";
-import Image from "next/image";
 import { getSession } from "@/lib/session.ts";
 import { AccessLevel } from "@/types.ts";
 import { cookies } from "next/headers";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
+import { buildMetadata } from "@/functions/buildMetadata";
+import { IconInfoCircle } from "@tabler/icons-react";
 
 const editAccess = [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin];
+
+export async function generateMetadata(
+  props: {
+    searchParams: Promise<{
+      actionId?: string | string[] | undefined,
+      goalId?: string | string[] | undefined,
+      [key: string]: string | string[] | undefined
+    }>,
+  }
+) {
+  const searchParams = await props.searchParams;
+  const [t, session] = await Promise.all([
+    serveTea("metadata"),
+    getSession(await cookies()),
+  ]);
+
+  if (!session.user?.isLoggedIn) {
+    return buildMetadata({
+      title: t("metadata:login.title"),
+      description: t("metadata:login.title"),
+      og_url: `/effect/edit?actionId=${searchParams.actionId}&goalId=${searchParams.goalId}`,
+      og_image_url: '/images/og_wind.png'
+    })
+  }
+
+  return buildMetadata({
+    title: t("metadata:effect_edit.title"),
+    description: undefined,
+    og_url: `/effect/edit?actionId=${searchParams.actionId}&goalId=${searchParams.goalId}`,
+    og_image_url: undefined
+  })
+}
+
 
 export default async function Page(
   props: {
@@ -21,7 +55,8 @@ export default async function Page(
   }
 ) {
   const searchParams = await props.searchParams;
-  const [session, effect, roadmaps] = await Promise.all([
+  const [t, session, effect, roadmaps] = await Promise.all([
+    serveTea("pages"),
     getSession(await cookies()),
     getOneEffect(typeof searchParams.actionId == 'string' ? searchParams.actionId : '', typeof searchParams.goalId == 'string' ? searchParams.goalId : ''),
     getRoadmaps(),
@@ -34,7 +69,7 @@ export default async function Page(
           {t("pages:effect_edit.title")}
         </h1>
         <p style={{ color: 'red' }}>
-          <Image src="/icons/info.svg" width={24} height={24} alt='' />
+          <IconInfoCircle role="img" aria-label={t("pages:effect_edit.information_icon_aria")} />
           {t("pages:effect_edit.no_access")}
         </p>
       </div>

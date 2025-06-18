@@ -1,11 +1,11 @@
 'use client'
 
 import Link from "next/link";
-import Image from "next/image";
 import { useState } from "react";
 import styles from '../forms.module.css'
 import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import { IconEye, IconEyeOff, IconLock, IconMail, IconUser } from "@tabler/icons-react";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction) {
   event.preventDefault()
@@ -37,7 +37,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction) {
 }
 
 export default function Signup() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["components", "common"]);
 
   const [showPassword, setShowPassword] = useState(false)
 
@@ -48,24 +48,29 @@ export default function Signup() {
         <label className="block margin-block-100">
           {t("components:signup.username")}
           <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
-            <Image src="/icons/user.svg" alt="" width={24} height={24} />
+            <IconUser style={{minWidth: '24px'}} aria-hidden="true" />
             <input className="padding-0 margin-inline-50" type="text" placeholder={t("common:placeholder.name")} name="username" required id="username" autoComplete="username" />
           </div>
         </label>
         <label className="block margin-block-100">
           {t("components:signup.email")}
           <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
-            <Image src="/icons/email.svg" alt="" width={24} height={24} />
+            <IconMail style={{minWidth: '24px'}} aria-hidden="true" />
             <input className="padding-0 margin-inline-50" type="email" placeholder={t("common:placeholder.email")} name="email" required id="email" autoComplete="email" />
           </div>
         </label>
         <label className="block margin-block-100">
           {t("components:signup.password")}
           <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
-            <Image src="/icons/password.svg" alt="" width={24} height={24} />
+            <IconLock style={{minWidth: '24px'}} aria-hidden="true" />
             <input className="padding-0 margin-inline-50 transparent" type={showPassword ? 'text' : 'password'} placeholder={t("common:placeholder.password")} name="password" required id="password" autoComplete="new-password" />
-            <button type="button" className={`${styles.showPasswordButton} grid padding-0 transparent`} onClick={() => setShowPassword(prevState => !prevState)}>
-              <Image src={showPassword ? '/icons/eyeDisabled.svg' : '/icons/eye.svg'} alt="" width={24} height={24} />
+            <button 
+              type="button" 
+              className={`${styles.showPasswordButton} grid padding-0 transparent`} 
+              onClick={() => setShowPassword(prevState => !prevState)}
+              aria-label={showPassword ? 'hide password' : 'show password'}  
+            >
+              {showPassword ? <IconEyeOff style={{minWidth: '24px'}} aria-hidden="true" /> : <IconEye style={{minWidth: '24px'}} aria-hidden="true" />  } 
             </button>
           </div>
         </label>

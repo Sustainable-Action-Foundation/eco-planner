@@ -4,14 +4,14 @@ import WrappedChart from "@/lib/chartWrapper";
 import { actionGraphSorter } from "@/lib/sorters";
 import { Action } from "@prisma/client";
 import styles from './graphs.module.css'
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
 
 export default async function ActionGraph({
   actions,
 }: {
   actions: Action[],
 }) {
-
+  const t = await serveTea("graphs");
   const series: ApexAxisChartSeries = [];
   const actionData = []
 

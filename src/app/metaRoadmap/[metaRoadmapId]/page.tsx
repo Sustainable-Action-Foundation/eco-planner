@@ -7,11 +7,39 @@ import { notFound } from "next/navigation";
 import RoadmapTable from "@/components/tables/roadmapTables/roadmapTable";
 import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
+import { buildMetadata } from "@/functions/buildMetadata";
+
+export async function generateMetadata(props: { params: Promise<{ metaRoadmapId: string }> }) {
+  const params = await props.params
+  const [t, session, metaRoadmap] = await Promise.all([
+    serveTea("pages"),
+    getSession(await cookies()),
+    getOneMetaRoadmap(params.metaRoadmapId),
+  ]);
+
+  if (!session.user?.isLoggedIn) {
+    return buildMetadata({
+      title: t("metadata:login.title"),
+      description: t("metadata:login.title"),
+      og_url: `/metaRoadmap/${params.metaRoadmapId}`,
+      og_image_url: '/images/og_wind.png'
+    })
+  }
+ 
+  return buildMetadata({
+    title: metaRoadmap?.name,
+    description: metaRoadmap?.description,
+    og_url: `/metaRoadmap/${params.metaRoadmapId}`,
+    og_image_url: undefined
+  })
+}
+
 
 export default async function Page(props: { params: Promise<{ metaRoadmapId: string }> }) {
   const params = await props.params;
-  const [session, metaRoadmap] = await Promise.all([
+  const [t, session, metaRoadmap] = await Promise.all([
+    serveTea("pages"),
     getSession(await cookies()),
     getOneMetaRoadmap(params.metaRoadmapId),
   ]);
@@ -49,13 +77,13 @@ export default async function Page(props: { params: Promise<{ metaRoadmapId: str
                 : null
               }
             </div>
-        
+
             {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
               <TableMenu
                 accessLevel={accessLevel}
                 object={metaRoadmap}
               />
-            : null }
+              : null}
           </div>
         </section>
 
@@ -64,7 +92,7 @@ export default async function Page(props: { params: Promise<{ metaRoadmapId: str
           <menu className="margin-0 padding-0 margin-bottom-100 flex justify-content-flex-end">
             {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
               <a href={`/roadmap/create?metaRoadmapId=${metaRoadmap.id}`} className="button pureblack color-purewhite round">{t("pages:roadmap_series_one.create_roadmap_version")}</a>
-            : null }
+              : null}
           </menu>
           <RoadmapTable user={session.user} metaRoadmap={metaRoadmap} />
         </section>

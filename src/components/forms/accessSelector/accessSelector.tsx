@@ -1,9 +1,9 @@
 'use client'
 
 import { useRef, useState } from "react";
-import Image from "next/image";
 import styles from './accessSelector.module.css' with { type: "css" }
 import { useTranslation } from "react-i18next";
+import { IconX } from "@tabler/icons-react";
 
 /**
  * Converts the form data to a JSON object that can be sent to the API.
@@ -89,7 +89,7 @@ function addUser(name: string | undefined, selectedOptions: string[], selectedSe
 }
 
 export function EditUsers({ existingUsers, groupOptions, existingGroups }: { existingUsers?: string[], groupOptions: string[], existingGroups?: string[] }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("forms");
 
   // The users that have editing access to the item
   const [editUsers, setEditUsers] = useState<string[]>(existingUsers ?? []);
@@ -103,7 +103,6 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
 
   return (
     <>
-
       <fieldset className="margin-bottom-100">
         <legend>{t("forms:access_selector.groups_with_edit_access")}</legend>
         <ul className="padding-left-100" style={{ listStyle: 'none' }}>
@@ -130,8 +129,9 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
               <button
                 className="grid padding-0"
                 onClick={() => { setEditUsers(editUsers.filter((editUser) => editUser !== user)); }}
-                type="button">
-                <Image src="/icons/close.svg" alt={t("forms:access_selector.remove_user")} width={12} height={12}></Image>
+                type="button"
+                aria-label={t("forms:access_selector.remove_user")}>
+                <IconX aria-hidden="true" width={12} height={12} strokeWidth={3} />
               </button>
             </span>
           ))}
@@ -150,13 +150,12 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
         onClick={() => { addUser(editorRef.current?.value, editUsers, setEditUsers); if (editorRef.current) editorRef.current.value = '' }}>
         {t("forms:access_selector.add_user")}
       </button>
-
     </>
   )
 }
 
 export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPublic }: { existingUsers?: string[], groupOptions: string[], existingGroups?: string[], isPublic?: boolean }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("forms");
 
   // The users that have viewing access to the item
   const [viewUsers, setViewUsers] = useState<string[]>(existingUsers ?? []);
@@ -203,7 +202,7 @@ export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPubli
                 className="grid padding-0"
                 onClick={() => { setViewUsers(viewUsers.filter((viewUser) => viewUser !== user)); }}
                 type="button">
-                <Image src="/icons/close.svg" alt={t("forms:access_selector.remove_user")} width={12} height={12}></Image>
+                <IconX aria-label={t("forms:access_selector.remove_user")} width={12} height={12} strokeWidth={3} />
               </button>
             </span>
           ))}

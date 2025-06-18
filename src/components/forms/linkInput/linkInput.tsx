@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from "react"
-import Image from "next/image"
 import { useTranslation } from "react-i18next";
+import { IconTrashXFilled } from "@tabler/icons-react";
 
 export default function LinkInput({ links }: { links?: { url: string, description: string | null }[] }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("forms");
 
   // The list of links
   const [linkList, setLinkList] = useState<{ url: string, description: string | null }[]>(links ?? [])
@@ -49,14 +49,15 @@ export default function LinkInput({ links }: { links?: { url: string, descriptio
         {linkList.map((link, index) => (
           <li key={`${index}link${link.url}${link.description}`}>
             <div className="flex align-items-flex-end">
-              {/* TODO: Missing labels for inputs */}
-              <input className="font-weight-bold transparent" type="text" name="linkDescription" defaultValue={link.description || ""} />
-              <input className="transparent" type="url" name="linkUrl" defaultValue={link.url} />
+              <input className="font-weight-bold transparent" type="text" name="linkDescription" defaultValue={link.description || ""} aria-label={t("forms:link_input.name_label")}/>
+              <input className="transparent" type="url" name="linkUrl" defaultValue={link.url} aria-label={t("forms:link_input.url_label")} />
               <button
                 type="button"
                 className="grid transparent round margin-left-100"
-                onClick={() => setLinkList(linkList.filter((_, i) => i !== index))}>
-                <Image src="/icons/delete.svg" width={24} height={24} alt="" />
+                onClick={() => setLinkList(linkList.filter((_, i) => i !== index))}
+                aria-label={t("forms:link_input.remove_link_aria_label")}
+                >
+                <IconTrashXFilled fill='#CB3C3C' aria-hidden="true" />
               </button>
             </div>
           </li>

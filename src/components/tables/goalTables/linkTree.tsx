@@ -2,11 +2,11 @@
 
 import styles from '../tables.module.css' with { type: "css" };
 import { DataSeries, Goal } from "@prisma/client";
-import Image from 'next/image';
 import goalsToTree, { GoalTree } from '@/functions/goalsToTree';
 import { SyntheticEvent } from 'react';
 import { getSessionStorage, setSessionStorage } from '@/functions/localStorage';
 import { useTranslation } from "react-i18next";
+import { IconLink } from '@tabler/icons-react';
 
 // interface LinkTreeCommonProps {}
 
@@ -37,7 +37,8 @@ export default function LinkTree({
   goals,
   roadmap,
 }: LinkTreeProps) {
-  const { t } = useTranslation();
+  // common is used in goalsToTree, which this TFunction is passed into
+  const { t } = useTranslation(["components", "common"]);
 
   // Failsafe in case wrong props are passed
   if ((!goals && !roadmap) || (goals && roadmap)) throw new Error('LinkTree: Either `goals` XOR `roadmap` must be provided');
@@ -84,7 +85,7 @@ export default function LinkTree({
             { // If the current object is a goal (has an id), render a link to the goal
               typeof data[key].id == 'string' ? (
                 <a href={`/goal/${data[key].id}`} className={`display-flex gap-50 align-items-center padding-block-50 ${styles.link}`}>
-                  <Image src="/icons/link.svg" alt={`Link to ${key}`} width={16} height={16} />
+                  <IconLink aria-hidden="true" width={16} height={16} style={{minWidth: '16px'}} />
                   <span>
                     {key}
                   </span>

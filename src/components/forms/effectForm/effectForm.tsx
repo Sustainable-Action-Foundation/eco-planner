@@ -27,7 +27,7 @@ export default function EffectForm({
     goal: Awaited<ReturnType<typeof getOneGoal>> | null,
   },
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["forms", "common"]);
 
   const [selectedImpactType, setSelectedImpactType] = useState<ActionImpactType>(currentEffect?.impactType || ActionImpactType.ABSOLUTE);
   // Use existing data series converted to a string as a default value
@@ -105,7 +105,6 @@ export default function EffectForm({
           inputName="dataSeries"
           inputId="dataSeries"
           labelKey="forms:data_series_input.data_series"
-          summaryKey="forms:data_series_input.extra_info_data_series"
         />
 
         { // Button for changing between absolute and delta impact types

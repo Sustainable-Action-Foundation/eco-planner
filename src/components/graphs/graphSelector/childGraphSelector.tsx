@@ -15,7 +15,7 @@ export default function ChildGraphSelector({
   currentSelection: ChildGraphType,
   setter: Dispatch<SetStateAction<ChildGraphType>>
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("graphs");
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     if (Object.values(ChildGraphType).includes(event.target.value as ChildGraphType)) {
@@ -28,7 +28,6 @@ export default function ChildGraphSelector({
     }
   };
 
-  // Set the selectedOption as the context value
   return (
     <>
       <select onChange={handleSelectChange} value={currentSelection} style={{ padding: '.3rem .5rem', borderRadius: '2px', fontSize: '.75rem' }}>

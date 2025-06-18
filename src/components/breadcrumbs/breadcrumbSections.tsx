@@ -2,17 +2,17 @@
 
 import styles from './breadcrumbs.module.css' with { type: "css" };
 import Link from 'next/link';
-import Image from "next/image";
 import { useTranslation } from "react-i18next";
+import { IconChevronRight } from '@tabler/icons-react';
 
 export function BreadcrumbChevron() {
   return (
-    <Image src='/icons/chevronRight.svg' alt=' > ' height={16} width={16} />
+    <IconChevronRight strokeWidth='2px' stroke='gray' aria-hidden="true"  height={16} width={16} />
   )
 }
 
 export function BaseSection() {
-  const { t } = useTranslation();
+  const { t } = useTranslation("components");
   return (
     <span className='display-flex align-items-center gap-25'>
       <Link href='/' className={styles.breadCrumb}>
@@ -56,7 +56,7 @@ export function MetaRoadmapSection({
     name: string,
   }
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("components");
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
       {t("components:breadcrumbs_sections.roadmap_series")}
@@ -75,7 +75,7 @@ export function RoadmapSection({
     version: number,
   }
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("components");
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
       {t("components:breadcrumbs_sections.version_label")}
@@ -95,7 +95,7 @@ export function GoalSection({
     indicatorParameter: string,
   }
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("components");
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
       {t("components:breadcrumbs_sections.goal")}
@@ -114,7 +114,7 @@ export function ActionSection({
     name: string,
   }
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("components");
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
       {t("components:breadcrumbs_sections.action")}

@@ -16,8 +16,7 @@
   place-items: center;
   width: fit-content;
   transition: background-color .2s ease,
-    transform .2s ease,
-  ;
+              transform .2s ease;
   padding: .25rem;
   margin: 1rem;
   border-radius: 9999px;
@@ -110,5 +109,13 @@
 }
 
 .link:hover {
+  background-color: var(--gray-90);
+}
+
+.menu-link {
+  transition: background-color .1s ease;
+}
+
+.menu-link:hover {
   background-color: var(--gray-90);
 }
