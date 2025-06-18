@@ -23,28 +23,31 @@ export default async function Sidebar() {
         Should there even be labels and stuff here? the screenreader is functionally the same regardless of if it is minimized or not.
         However the absence of labels may be confusing for visually impaired users who might still see the menu button but now have no context. 
       */}
-      <label className='margin-100 padding-25' aria-label={t("components:sidebar.toggle_menu_alt")} style={{ width: 'fit-content', marginLeft: 'calc(1rem + 4px)' }}>
-        <input type="checkbox" style={{opacity: '0', position: 'absolute'}} className={`${styles['toggle-sidebar']}`} defaultChecked />
-        <IconMenu2 aria-hidden="true" height={24} width={24} className='grid' style={{ minWidth: '24px' }} />
-      </label>
+      {/* Maybe consider using aria-expanded alongside a button and additional js instead */}
+      <header className='padding-100'>
+        <label className='padding-25 inline-grid round position-relative' aria-label={t("components:sidebar.toggle_menu_alt")}>
+          <input type="checkbox" className={`${styles['sidebar-toggle']} position-absolute opacity-0`} defaultChecked />
+          <IconMenu2 aria-hidden="true" height={24} width={24} style={{ minWidth: '24px' }} />
+        </label>
+      </header>
 
       {/* TODO SIDENAV: For accesability purposes, this should be hidden when collapsed and on a phone  */}
-      <div className='padding-100 flex-grow-100 flex flex-direction-column' id="sidebar">
+      <div className={`${styles['sidebar-menu']} padding-100 flex-grow-100 flex flex-direction-column`}>
         <nav className='flex-grow-100 flex flex-direction-column'>
           {user?.isLoggedIn ?
-            <Link href={`/@${user.username}`} className="flex align-items-center margin-bottom-300" style={{ gap: "10px" }}>
+            <Link href={`/@${user.username}`} className="flex align-items-center margin-bottom-300">
               <IconUser aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px", minWidth: '20px' }} />
               {t("components:sidebar.my_profile")}
             </Link>
             :
-            <Link href="/signup" className='flex align-items-center margin-bottom-300 seagreen color-purewhite round padding-50 text-decoration-none' style={{ gap: '10px', paddingRight: "calc(.5rem + 10px)" }}>
+            <Link href="/signup" className='flex align-items-center margin-bottom-300 seagreen color-purewhite round padding-50 text-decoration-none'>
               {/* TODO: Padding-right fix for all links? */}
-              <IconUserPlus aria-hidden='true' height={20} width={20} style={{ minWidth: "24px" }} />
+              <IconUserPlus aria-hidden='true' height={20} width={20} style={{ minWidth: "20px" }} />
               {t("components:sidebar.create_account")}
             </Link>
           }
 
-          <Link href="/" className="flex align-items-center" style={{ gap: "10px" }}>
+          <Link href="/" className="flex align-items-center">
             <IconHome aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px", minWidth: '20px' }} />
             {t("components:sidebar.home")}
           </Link>
@@ -52,7 +55,7 @@ export default async function Sidebar() {
             anchorName='--create-popover-button'
             popoverTarget='create-popover'
             className='transparent rounded flex align-items-center width-100'
-            style={{ gap: '10px', fontSize: '1rem', overflow: 'hidden' }}
+            style={{ fontSize: '1rem', overflow: 'hidden' }}
           >
             <IconCirclePlus width={20} height={20} aria-hidden="true" style={{ marginLeft: "2px", minWidth: '20px' }} />
             {t("components:sidebar.create")}
@@ -70,7 +73,6 @@ export default async function Sidebar() {
             <nav className='padding-25 smooth' style={{ backgroundColor: 'white', border: '1px solid silver', fontSize: '.8rem' }}>
               <header className='padding-bottom-25 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center' style={{ borderBottom: '1px solid var(--gray)' }}>
                 <h2 className='font-weight-600 margin-0' style={{ fontSize: 'inherit' }}>{t("components:sidebar.create")}</h2>
-                {/* TODO: I18n */}
                 <button popoverTarget='create-popover' aria-label={t("components:sidebar.close_menu_create")} className='transparent grid padding-25 round'>
                   <IconX aria-hidden='true' width={16} height={16} />
                 </button>
@@ -78,31 +80,31 @@ export default async function Sidebar() {
               {/* TODO SIDENAV: Does this need to be a list? */}
               <ul className='padding-0 margin-0' style={{ listStyle: 'none' }}>
                 <li>
-                  <Link href='/metaRoadmap/create' className={`${styles['menu-link']} text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none`}>
+                  <Link href='/metaRoadmap/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
                     {t("common:roadmap_series_one")}
                     <IconPlus width={16} height={16} style={{ minWidth: '16px' }} />
                   </Link>
                 </li>
                 <li>
-                  <Link href='/roadmap/create' className={`${styles['menu-link']} text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none`}>
+                  <Link href='/roadmap/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
                     {t("common:roadmap_short_one")}
                     <IconPlus width={16} height={16} style={{ minWidth: '16px' }} />
                   </Link>
                 </li>
                 <li>
-                  <Link href='/goal/create' className={`${styles['menu-link']} text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none`}>
+                  <Link href='/goal/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
                     {t("common:goal_one")}
                     <IconPlus width={16} height={16} style={{ minWidth: '16px' }} />
                   </Link>
                 </li>
                 <li>
-                  <Link href='/action/create' className={`${styles['menu-link']} text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none`}>
+                  <Link href='/action/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
                     {t("common:action_one")}
                     <IconPlus width={16} height={16} style={{ minWidth: '16px' }} />
                   </Link>
                 </li>
                 <li>
-                  <Link href='/effect/create' className={`${styles['menu-link']} text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none`}>
+                  <Link href='/effect/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
                     {t("common:effect_one")}
                     <IconPlus width={16} height={16} style={{ minWidth: '16px' }} />
                   </Link>
@@ -110,7 +112,7 @@ export default async function Sidebar() {
               </ul>
             </nav>
           </Popover>
-          <Link href="/info" className="flex align-items-center margin-top-auto" style={{ gap: "10px", fontSize: '1rem' }}>
+          <Link href="/info" className="flex align-items-center margin-top-auto" style={{ fontSize: '1rem' }}>
             <IconInfoCircle aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px", minWidth: '20px' }} />
             {t("components:sidebar.about")}
           </Link>
@@ -122,7 +124,7 @@ export default async function Sidebar() {
             anchorName='--select-language-popover-button'
             popoverTarget='select-language-popover'
             className='transparent rounded flex align-items-center width-100'
-            style={{ gap: '10px', fontSize: '.8rem' }}
+            style={{ fontSize: '.8rem' }}
           >
             <IconWorld aria-hidden="true" width={20} height={20} style={{ marginLeft: "2px", minWidth: '20px' }} />
             {t("components:sidebar.language")}
@@ -140,7 +142,6 @@ export default async function Sidebar() {
             <fieldset className='padding-25 smooth fieldset-unset-pseudo-class' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
               <div className='padding-bottom-25 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center' style={{ borderBottom: '1px solid var(--gray)' }}>
                 <legend className='font-weight-600'>{t("components:sidebar.language_alt")}</legend>
-                {/* TODO SIDENAV: i18n */}
                 <button popoverTarget='select-language-popover' aria-label={t("components:sidebar.close_menu_language")} className='transparent grid padding-25 round'>
                   <IconX aria-hidden='true' width={16} height={16} />
                 </button>
@@ -153,7 +154,7 @@ export default async function Sidebar() {
             anchorName='--settings-popover-button'
             popoverTarget='settings-popover'
             className='transparent rounded flex align-items-center width-100'
-            style={{ gap: '10px', fontSize: '.8rem' }}
+            style={{ fontSize: '.8rem' }}
           >
             <IconSettings aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px", minWidth: '20px' }} />
             {t("components:sidebar.settings")}
@@ -175,7 +176,7 @@ export default async function Sidebar() {
                   <IconX aria-hidden='true' width={16} height={16} />
                 </button>
               </div>
-              <GraphCookie className='margin-block-25 padding-50' style={{width: '250px', gap: '.75rem'}} />
+              <GraphCookie className='margin-block-25 padding-50' style={{ width: '250px', gap: '.75rem' }} />
             </fieldset>
           </Popover>
         </div>
@@ -183,7 +184,7 @@ export default async function Sidebar() {
           {user?.isLoggedIn ?
             <LogoutButton />
             :
-            <Link href="/login" className="flex align-items-center justify-content-flex-end" style={{ gap: "10px", padding: '.5rem' }}>
+            <Link href="/login" className="flex align-items-center justify-content-flex-end" style={{ padding: '.5rem' }}>
               <div className="flex-grow-100" style={{ marginLeft: "2px", textAlign: "left" }}>{t("common:tsx.login")}</div>
               <IconLogin2 aria-hidden='true' height={20} width={20} style={{ marginRight: "2px", minWidth: '20px' }} />
             </Link>

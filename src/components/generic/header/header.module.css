@@ -1,10 +1,10 @@
 /* TODO SIDENAV: A bunch of magic numbers, fix this :)*/
 /* TODO SIDENAV: A bunch of wonky selectors, fix this :)*/
 
+/* Main sidebar */
 .aside {
   position: sticky;
   top: 0;
-  width: auto;
   height: 100dvh;
   border-right: 1px solid silver;
   interpolate-size: allow-keywords;
@@ -21,17 +21,32 @@
   }
 }
 
-.aside > div {
-  width: calc(24px + (1rem * 2 + .5rem * 2));
+/* Sidebar header (toggle open/closed) */
+.aside > header:first-of-type label { 
+  margin-left: 4px; /* TODO SIDENAV: Magic number */
+  transition: background-color .1s ease;
+  @media (max-width: 1250px) {
+    z-index: 10;
+  }
+}
+
+.aside > header:first-of-type label:hover {
+  background-color: #e0e6eb;
+}
+
+/* Sidebar menu (collection of action items such as links and buttons) */
+.aside > .sidebar-menu {
+  width: calc(24px + (1rem * 2 + .5rem * 2)); /* TODO SIDENAV: Magic number */
   interpolate-size: allow-keywords;
   transition: width .2s ease-out, transform .2s ease-out;
 
   @media (max-width: 1250px) {
+    width: initial;
     z-index: 9;
     height: 100dvh;
     top: 0;
     /* Image height + image margin-block + image-padding-block + padding-top */
-    padding-top: calc(1rem * 2 + 24px + .25rem * 2 + 1rem);
+    padding-top: calc(1rem * 2 + 24px + .25rem * 2 + 1rem); /* TODO SIDENAV: Magic number */
      
     transform: translateX(0);
     position: absolute;
@@ -40,10 +55,10 @@
   }
 }
  
-.aside:has(.toggle-sidebar:checked) > div {
+.aside:has(.sidebar-toggle:checked) > .sidebar-menu {
   /* WIDTH: Largest image size, padding aside, padding links, border aside*/
   @media (min-width: 1251px) {
-    width: auto;
+    width: initial;
   }
 
   @media (max-width: 1250px) {
@@ -51,48 +66,36 @@
   }
 }
 
-.aside a:not([href="/signup"]) {
-  width: 100%;
-  padding: .5rem;
-  border-radius: .5rem;
-  color: black;
-  text-decoration: none;
-  transition: background-color .1s ease;
+/* The links and buttons in themselves */
+
+/* TODO: dont like the way the signup link exists here )*/ 
+.aside a[href="/signup"] {
+  color: white;
+  border-radius: 9999px;
 }
 
-.aside a:hover {
-  background-color: #e0e6eb;
-}
-
-/* TODO: Hate this hover do something about it (why does box shadow inset not work like it should ): )*/ 
 .aside a[href="/signup"]:hover {
   background-color: var(--seagreen-30);
 }
 
-.aside>div>nav>a,
-.aside>div>div>a,
-.aside>div>div>button {
+.sidebar-menu > * > a,
+.sidebar-menu > * > button {
+  width: 100%;
+  padding: .5rem;
+  padding-right: calc(.5rem + 10px); /* TODO: Magic number */
+  border-radius: .5rem;
+  color: black;
+  text-decoration: none;
+  transition: background-color .1s ease;
   overflow: hidden;
   white-space: nowrap;
-}
+  gap: 10px; /* TODO: Magic number */
+} 
 
-.aside label {
-  /* Margin + padding aligns with images of links which have paddings of .5 */
-  transition: background-color .1s ease;
-  border-radius: 99999px;
-  @media (max-width: 1250px) {
-    z-index: 10;
-  }
-}
-
-.aside label:hover {
+.sidebar-menu > * > a:hover,
+.sidebar-menu > * > button:hover {
   background-color: #e0e6eb;
+  box-shadow: none; /* TODO: Might be good to remove box shadows from the semantic style sheet hover class so we don't need to constantly overwrite it */ 
 }
 
-.aside > section > button {
-  gap: 10px;
-  width: 100%;
-  background-color: transparent;
-  overflow: hidden;
-  border-radius: .5rem;
-}
+/* TODO: Control svg minwidth using something like: img[width="20"] {min-width: 20px;}*/

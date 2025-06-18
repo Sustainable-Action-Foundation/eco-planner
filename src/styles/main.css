@@ -1,5 +1,9 @@
 /* custom (not yet added to semantic style sheets= */
 
+.opacity-0 {
+  opacity: 0;
+}
+
 .text-transform-capitalize {
   text-transform: capitalize;
 }
