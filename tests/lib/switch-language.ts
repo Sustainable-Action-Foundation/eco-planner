@@ -2,13 +2,10 @@ import { uniqueLocales } from "i18nTestVariables";
 import { expect, Page } from "playwright/test";
 
 export async function switchLanguage(page: Page, languageAlias: string) {
-  const wrapper = page.getByTestId("language-switcher-dialog-wrapper");
-  await expect(wrapper, "Language switcher dialog is not visible").toBeVisible();
-
   // Open dialog
-  await wrapper
-    .locator("button").first()
-    .click();
+  const dialogButton = page.getByTestId("language-switcher-dialog-button");
+  await expect(dialogButton, "Language switcher dialog button is not visible").toBeVisible();
+  await dialogButton.click();
 
   // Wait for the language options
   const options = page.getByTestId("language-switcher-options");

@@ -16,7 +16,7 @@ export const localeAliases: Record<Locales, string> = {
   [Locales.svSE]: "Svenska",
 };
 
-export const allNamespaces = ["common", "forms", "components", "graphs", "pages", "email", "test", "metadata"];
+export const allNamespaces = ["common", "forms", "components", "graphs", "pages", "email", "metadata"];
 
 const i18nFormatter = createInstance();
 i18nFormatter.init({});

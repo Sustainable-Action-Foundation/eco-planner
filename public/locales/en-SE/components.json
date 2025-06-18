@@ -144,7 +144,9 @@
     "create": "Create",
     "about": "About",
     "language": "Language",
-    "language_alt": "Select language"
+    "language_alt": "Select language",
+    "close_menu_create_alt": "Close menu: create",
+    "close_menu_choose_language_alt": "Close menu: choose language"
   },
   "signup": {
     "signup_failed_motivated": "Registration failed. Reason: {{reason}}",

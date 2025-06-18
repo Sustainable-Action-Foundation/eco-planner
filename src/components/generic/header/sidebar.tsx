@@ -64,7 +64,7 @@ export default async function Sidebar() {
                 <div className='padding-bottom-25 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between alignt-items-center' style={{ borderBottom: '1px solid var(--gray)' }}>
                   <span className='font-weight-600'>{t("components:sidebar.create")}</span>
                   <button popoverTarget='create-popover' className='transparent grid padding-25 round'>
-                    <IconX role='img' aria-label='Stäng meny: skapa' width={16} height={16} />
+                    <IconX role='img' aria-label={t("components:sidebar.close_menu_create_alt")} width={16} height={16} />
                   </button>
                 </div>
                 <Link href='/metaRoadmap/create' className={`${styles['menu-link']} text-transform-capitalize flex align-items-center justify-content-space-between gap-100 padding-25 smooth color-pureblack text-decoration-none`}>
@@ -97,6 +97,7 @@ export default async function Sidebar() {
               popoverTarget='select-language-popover'
               className='transparent rounded flex gap-50 font-weight-500 align-items-center width-100'
               style={{ fontSize: '1rem', overflow: 'hidden' }}
+              data-testid="language-switcher-dialog-button"
             >
               <IconWorld aria-hidden="true" style={{ minWidth: '24px' }} />
               {t("components:sidebar.language")}
@@ -114,7 +115,7 @@ export default async function Sidebar() {
                 <div className='padding-bottom-25 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between alignt-items-center' style={{ borderBottom: '1px solid var(--gray)' }}>
                   <span className='font-weight-600'>{t("components:sidebar.language_alt")}</span>
                   <button popoverTarget='select-language-popover' className='transparent grid padding-25 round'>
-                    <IconX role='img' aria-label='Stäng meny: välj språk' width={16} height={16} />
+                    <IconX role='img' aria-label={t("components:sidebar.close_menu_choose_language_alt")} width={16} height={16} />
                   </button>
                 </div>
                 <fieldset className={`fieldset-unset-pseudo-class`}>

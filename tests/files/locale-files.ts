@@ -3,7 +3,6 @@ import fs from "node:fs";
 import path from "node:path";
 import { glob } from "glob";
 import { expect, test } from "playwright/test";
-import escape from "regexp.escape"; // Polyfill for RegExp.escape. Not in node yet.
 import { uniqueLocales, namespaces, Locales, localesDir } from "../i18nTestVariables";
 
 /* 
@@ -25,35 +24,39 @@ const allTSX = getAllTSXFiles();
 const validPluralSuffixes = ["_one", "_two", "_few", "_many", "_other", "_zero",];
 
 /** Since the translation system uses client and server side instances of i18next, we test for mismatches. */
-const tServerUsageIndications = ["@/lib/i18nServer",];
-const tClientUsageIndications = ["react-i18next", "useTranslation", "<Trans",];
-const serverIndications = ["use server", "next/server", "next/headers", "accessChecker",];
+const tServerUsageIndications = ["@/lib/i18nServer", "serveTea(",];
+const tClientUsageIndications = ["useTranslation"];
+const serverIndications = ["use server", "next/server", "next/headers", "accessChecker", "export default async function", "export async function"];
 const clientIndications = ["use client", "useEffect", "useMemo", "useState", "useRef",];
-const serverSideFilesOverride = ["page.tsx", "layout.tsx",].map(file => path.join(...file.split("/")));
-const clientSideFilesOverride = ["src/app/verify/page.tsx", "src/app/verify/verify/page.tsx", "src/app/password/page.tsx", "src/app/password/reset/page.tsx"].map(file => path.join(...file.split("/")));
-const exemptedMixedUseFiles = ["src/app/localesTest/page.tsx",].map(file => path.join(...file.split("/")));
+const serverSideFilesOverride = ["page.tsx", "layout.tsx",].map(file => file && path.join(...file.split("/")));
+const clientSideFilesOverride: string[] = ([] as string[]).map(file => file && path.join(...file.split("/")));
+const exemptedMixedUseFiles = ["src/app/localesTest/page.tsx",].map(file => file && path.join(...file.split("/")));
+
+/** Theses are ignored for checking namespace usage consistency */
+const commonNamespaces = ["common", "metadata"];
 
 /** When checking for mixed use of spaces these are allowed in any file */
 const keysAllowedDirectlyInApp = ["common:tsx.", "common:placeholder.", "common:scope.", "common:layout.", "common:count.", "common:new.", "common:edit", "common:scaling_methods", "common:css.", "common:404."];
 
 /** The Swedish regex is used to find hard coded swedish in the app */
-const swedishRegex = /(?<!\/\/|\*|\/\*)(?:åtgärd|åtgärden|åtgärder|åtgärderna|målbana|målbanan|målbanor|målbanorna|färdplan|färdplanen|färdplaner|färdplansversion|färdplansversionen|färdplansversioner|effekt|effekten|effekter|effekterna|Skapa|Redigera|Radera|Ta bort|Lägg till|Spara|Avbryt|Sök|Välj|Visa|Sortera|Sök bland|Välj en|Ingen angiven|Skapa ny|Det finns inga|Vill du|Utvalda|Alla|Externa resurser|Relevanta aktörer|Kostnadseffektivitet|Beskrivning|Sverige|Sveriges|[åäöÅÄÖ])[\W]/gm;
+const swedishRegex = /(?<!\/\/|\*|\/\*)(?:åtgärd|åtgärden|åtgärder|åtgärderna|målbana|målbanan|målbanor|målbanorna|färdplan|färdplanen|färdplaner|färdplansversion|färdplansversionen|färdplansversioner|effekt|effekten|effekter|effekterna|Skapa|Redigera|Radera|Ta bort|Lägg till|Spara|Avbryt|Sök|Välj|Visa|Sortera|Sök bland|Välj en|Ingen angiven|Skapa ny|Det finns inga|Vill du|Utvalda|Alla|Externa resurser|Relevanta aktörer|Kostnadseffektivitet|Beskrivning|Sverige|Sveriges|Stäng|meny|välj|språk|[åäöÅÄÖ])[\W]/gim;
 
 
 /* 
  * Exceptions
  */
 
-/** Almost always prefer having nested $t() calls to common in namespaces over using duplicate values. Exceptions to that need to be here. */
-const exemptedCommonKeysRef = ["common:tsx.", "common:placeholder.",]; // Things that shouldn't always be referenced
-/** When checking if a value may be a duplicate of a common value, values starting with any of these strings will be skipped.  */
-const exemptedCommonValuesRef: string[] = []; // More fine grained option to the above one (useful for language specific exemptions)
-/** To prevent recurring false positives, exempt these keys */
-const exemptedKeysUsingCommonValues = ["pages:info.info_body", "components:confirm_delete.confirmation",];
+// Removed since these are dependencies of a disabled test ("Common values not referenced").
+// /** Almost always prefer having nested $t() calls to common in namespaces over using duplicate values. Exceptions to that need to be here. */
+// const exemptedCommonKeysRef = ["common:tsx.", "common:placeholder.",]; // Things that shouldn't always be referenced
+// /** When checking if a value may be a duplicate of a common value, values starting with any of these strings will be skipped.  */
+// const exemptedCommonValuesRef: string[] = []; // More fine grained option to the above one (useful for language specific exemptions)
+// /** To prevent recurring false positives, exempt these keys */
+// const exemptedKeysUsingCommonValues = ["pages:info.info_body", "components:confirm_delete.confirmation",];
 /** Orphaned keys in root levels of namespaces are discouraged, except in these namespaces */
-const exemptedOrphanNS = ["common", "test",];
+const exemptedOrphanNS = ["common", ];
 const exemptedOrphanKeys: string[] = [];
-/** A test checks if any keys defined go unused. These keys are exempted from that test. */
+/** A test checks if any keys defined go unused. These keys are exempted from that test. _ is for descriptions. */
 const exemptedUnusedKeys: string[] = ["_", "common:"];
 
 /* 
@@ -138,49 +141,50 @@ test("Keys are snake_case", () => {
   expect(totalBadKeys, `Keys not in snake_case: ${JSON.stringify(perLocale, null, 2)}`).toBe(0);
 });
 
-/** Do namespaces use the values of common keys instead of referencing? */
-test("Common values not referenced", () => {
-  const perLocaleNS: Record<string, Record<string, string[]>>
-    = Object.fromEntries(uniqueLocales.map(locale => [locale, {}]));
+// Disabled due to it not being an actual implementation standard.
+// /** Do namespaces use the values of common keys instead of referencing? */
+// test("Common values not referenced", () => {
+//   const perLocaleNS: Record<string, Record<string, string[]>>
+//     = Object.fromEntries(uniqueLocales.map(locale => [locale, {}]));
 
-  /** To minimize false positives, the values will have to match one of these */
-  const wordPatterns = [
-    (text: string) => `\\s${text}\\s`, // Surrounding whitespace
-    (text: string) => `^${text}$`, // Only thing in string
-    (text: string) => `^${text}\\s`, // At start of string with whitespace after
-    (text: string) => `\\s${text}$`, // At end of string with whitespace before
-  ];
+//   /** To minimize false positives, the values will have to match one of these */
+//   const wordPatterns = [
+//     (text: string) => `\\s${text}\\s`, // Surrounding whitespace
+//     (text: string) => `^${text}$`, // Only thing in string
+//     (text: string) => `^${text}\\s`, // At start of string with whitespace after
+//     (text: string) => `\\s${text}$`, // At end of string with whitespace before
+//   ];
 
-  uniqueLocales.forEach((locale) => {
-    const commonTranslations = Object.fromEntries(Object.entries(allJSON[locale])
-      .filter(([key,]) => key.startsWith("common:"))
-      .filter(([key,]) => !exemptedCommonKeysRef.some(exemptedKey => key.startsWith(exemptedKey)))
-      .filter(([, value]) => !exemptedCommonValuesRef.some(exemptedValue => value.startsWith(exemptedValue)))
-      .map(([key, value]) => [key, { key, value, pattern: wordPatterns.map(pattern => new RegExp(pattern(escape(value)), "gm")) }])
-    );
+//   uniqueLocales.forEach((locale) => {
+//     const commonTranslations = Object.fromEntries(Object.entries(allJSON[locale])
+//       .filter(([key,]) => key.startsWith("common:"))
+//       .filter(([key,]) => !exemptedCommonKeysRef.some(exemptedKey => key.startsWith(exemptedKey)))
+//       .filter(([, value]) => !exemptedCommonValuesRef.some(exemptedValue => value.startsWith(exemptedValue)))
+//       .map(([key, value]) => [key, { key, value, pattern: wordPatterns.map(pattern => new RegExp(pattern(escape(value)), "gm")) }])
+//     );
 
-    const namespacesToCheck = namespaces.filter(ns => ns !== "common");
+//     const namespacesToCheck = namespaces.filter(ns => ns !== "common");
 
-    const everyOtherTranslation = Object.fromEntries(Object.entries(allJSON[locale])
-      .filter(([key,]) => namespacesToCheck.some(ns => key.startsWith(ns)))
-      .filter(([key,]) => !exemptedKeysUsingCommonValues.some(exemptedKey => key.startsWith(exemptedKey)))
-    );
+//     const everyOtherTranslation = Object.fromEntries(Object.entries(allJSON[locale])
+//       .filter(([key,]) => namespacesToCheck.some(ns => key.startsWith(ns)))
+//       .filter(([key,]) => !exemptedKeysUsingCommonValues.some(exemptedKey => key.startsWith(exemptedKey)))
+//     );
 
-    Object.entries(everyOtherTranslation).forEach(([key, value]) => {
-      Object.entries(commonTranslations).forEach(([commonKey, commonValues]) => {
-        // Check if the value matches any of the patterns
-        const hasCommonValue = commonValues.pattern.some(p => p.test(value));
-        if (hasCommonValue) {
-          if (!perLocaleNS[locale][commonKey]) perLocaleNS[locale][commonKey] = [];
-          perLocaleNS[locale][commonKey].push(`[${commonKey}] > '${key}': '${value}'`);
-        }
-      });
-    });
-  });
+//     Object.entries(everyOtherTranslation).forEach(([key, value]) => {
+//       Object.entries(commonTranslations).forEach(([commonKey, commonValues]) => {
+//         // Check if the value matches any of the patterns
+//         const hasCommonValue = commonValues.pattern.some(p => p.test(value));
+//         if (hasCommonValue) {
+//           if (!perLocaleNS[locale][commonKey]) perLocaleNS[locale][commonKey] = [];
+//           perLocaleNS[locale][commonKey].push(`[${commonKey}] > '${key}': '${value}'`);
+//         }
+//       });
+//     });
+//   });
 
-  const totalBadKeys = Object.values(flattenTree(perLocaleNS)).length;
-  expect(totalBadKeys, `Common keys used as values: ${JSON.stringify(perLocaleNS, null, 2)}`).toBe(0);
-});
+//   const totalBadKeys = Object.values(flattenTree(perLocaleNS)).length;
+//   expect(totalBadKeys, `Common keys used as values: ${JSON.stringify(perLocaleNS, null, 2)}`).toBe(0);
+// });
 
 /** Are all the nested keys used in locale files defined? */
 test("Are nested keys defined", () => {
@@ -420,6 +424,8 @@ test("Namespace consistency in app", () => {
       const namespace = key.match(/(^[^:]+):/)?.[1];
       if (!namespace) return; // Skip if no namespace
 
+      if (commonNamespaces.includes(namespace)) return; // Skip common namespaces
+
       if (!usedNS[namespace]) usedNS[namespace] = 0;
       usedNS[namespace]++;
     });
@@ -437,32 +443,33 @@ test("Namespace consistency in app", () => {
   expect(totalBadKeys, `Mixed namespaces: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
 });
 
-/** Checks whether a file is consistent with namespaces and first level keys */
-test("Common keys used directly in files", () => {
-  const perFile: Record<string, string[]> = {};
+// Disabled due to it not being an actual implementation standard.
+// /** Checks whether a file is consistent with namespaces and first level keys */
+// test("Common keys used directly in files", () => {
+//   const perFile: Record<string, string[]> = {};
 
-  allTSX.forEach(({ filePath, content }) => {
-    const allTCalls = Array.from(content.matchAll(/\Wt\(["']([^"']*)["']\)/gm)) || [];
-    if (allTCalls.length === 0) return; // Skip if no t() calls
+//   allTSX.forEach(({ filePath, content }) => {
+//     const allTCalls = Array.from(content.matchAll(/\Wt\(["']([^"']*)["']\)/gm)) || [];
+//     if (allTCalls.length === 0) return; // Skip if no t() calls
 
-    allTCalls.forEach(call => {
-      const [, key] = call;
-      if (keysAllowedDirectlyInApp.some(allowedKey => key.startsWith(allowedKey))) return; // Skip allowed keys
+//     allTCalls.forEach(call => {
+//       const [, key] = call;
+//       if (keysAllowedDirectlyInApp.some(allowedKey => key.startsWith(allowedKey))) return; // Skip allowed keys
 
-      const namespace = key.match(/(^[^:]+):/)?.[1];
-      if (!namespace) return; // Skip if no namespace
+//       const namespace = key.match(/(^[^:]+):/)?.[1];
+//       if (!namespace) return; // Skip if no namespace
 
-      if (namespace === "common") {
-        perFile[filePath] = perFile[filePath] || [];
-        perFile[filePath].push(`[Common key used directly] > '${key}'`);
-      }
-    });
-  });
+//       if (namespace === "common") {
+//         perFile[filePath] = perFile[filePath] || [];
+//         perFile[filePath].push(`[Common key used directly] > '${key}'`);
+//       }
+//     });
+//   });
 
-  const totalBadKeys = Object.values(perFile).flat().length;
+//   const totalBadKeys = Object.values(perFile).flat().length;
 
-  expect(totalBadKeys, `Common keys used directly in files: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
-});
+//   expect(totalBadKeys, `Common keys used directly in files: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
+// });
 
 /** Checks if the <Trans /> tags have a defined i18nKey */
 test("<Trans /> keys", () => {
@@ -565,7 +572,7 @@ test("No hardcoded Swedish text in code", () => {
     });
 
     if (matches.length > 0) {
-      perFile[filePath] = matches.map(m => `[Line ${m.line}] > '${m.text}' in: '${m.context}'`);
+      perFile[filePath] = matches.map(m => `[Line ${m.line}] > '${m.text}' in: '${m.context.trim()}'`);
     }
   });
 

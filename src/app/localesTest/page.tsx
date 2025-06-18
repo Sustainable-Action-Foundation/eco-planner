@@ -8,8 +8,14 @@ import { ClientSideT } from "./clientSide";
 import { Stats } from "./stats";
 
 export default async function LocaleTestPage() {
-  const t = await serveTea("test");
-  const defaultArgs = { count: 17, date: new Date(Date.now() - 10000) };
+  const t = await serveTea(allNamespaces);
+
+  const defaultArgs = {
+    count: 17,
+    date: new Date("2025-04-23T18:23:31.501Z"),
+    fileTypes: [".txt", ".pdf", ".docx"],
+    encodings: ["utf-8", "utf-16", "ascii"],
+  };
 
   const allFlattened = getAllJSONFlattened()[Locales.default];
   const allKeys = Object.keys(allFlattened);

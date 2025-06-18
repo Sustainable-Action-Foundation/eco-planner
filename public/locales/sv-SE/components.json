@@ -144,7 +144,9 @@
     "home": "$t(common:tsx.home)",
     "about": "Om",
     "language": "Språk",
-    "language_alt": "Välj språk"
+    "language_alt": "Välj språk",
+    "close_menu_create_alt": "Stäng meny: skapa",
+    "close_menu_choose_language_alt": "Stäng meny: välj språk"
   },
   "signup": {
     "signup_failed_motivated": "Registreringen misslyckades. Skäl: {{reason}}",

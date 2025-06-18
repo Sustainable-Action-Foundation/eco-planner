@@ -31,6 +31,7 @@ export function ClientSideT({ i18nKey, options, ...props }: { i18nKey: string, o
           kbd: <kbd />,
           code: <code />,
         }}
+        {...props}
       />
     );
   }

@@ -8,13 +8,10 @@ test.describe("Sidebar tests", () => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    const wrapper = page.getByTestId("language-switcher-dialog-wrapper");
-    await expect(wrapper, "Language switcher dialog is not visible").toBeVisible();
-
     // Open dialog
-    await wrapper
-      .locator("button").first()
-      .click();
+    const dialogButton = page.getByTestId("language-switcher-dialog-button");
+    await expect(dialogButton, "Language switcher dialog is not visible").toBeVisible();
+    await dialogButton.click();
 
     const optionsUL = page.getByTestId("language-switcher-options");
     await optionsUL.waitFor({ state: "visible" });

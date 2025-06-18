@@ -1,9 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import styles from "./localesTest.module.css" with {type: "css"};
-import { useTranslation } from "react-i18next";
-import { allNamespaces } from "i18n.config.ts";
 
 export function Stats(
   {
@@ -12,8 +9,6 @@ export function Stats(
     keys: string[],
   }
 ) {
-  const { t } = useTranslation(allNamespaces);
-
   const [emptyCount, setEmptyCount] = useState(0);
   const [missingCount, setMissingCount] = useState(0);
 
