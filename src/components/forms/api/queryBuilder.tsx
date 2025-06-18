@@ -431,7 +431,7 @@ export default function QueryBuilder({
         <>
           <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
             {t("components:query_builder.change_historical_data")}
-            <IconChartHistogram width={16} height={16} style={{maxWidth: '16px'}} aria-hidden="true" />
+            <IconChartHistogram width={16} height={16} style={{minWidth: '16px'}} aria-hidden="true" />
           </button>
 
           <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={deleteHistoricalData}>
@@ -442,7 +442,7 @@ export default function QueryBuilder({
         :
         <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
           {t("components:query_builder.add_historical_data")}
-          <IconChartHistogram width={16} height={16} style={{maxWidth: '16px'}} aria-hidden="true" />
+          <IconChartHistogram width={16} height={16} style={{minWidth: '16px'}} aria-hidden="true" />
 
         </button>
       }

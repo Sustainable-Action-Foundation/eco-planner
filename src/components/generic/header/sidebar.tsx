@@ -19,8 +19,11 @@ export default async function Sidebar() {
 
   return <>
     <aside className={`${styles["aside"]} inline-flex flex-direction-column`}>
-      {/* TODO SIDENAV: I18n for all aria-labels */}
-      <label className='margin-100 padding-25' aria-label="öppna menu" style={{ width: 'fit-content', marginLeft: 'calc(1rem + 4px)' }}>
+      {/* TODO SIDENAV: 
+        Should there even be labels and stuff here? the screenreader is functionally the same regardless of if it is minimized or not.
+        However the absence of labels may be confusing for visually impaired users who might still see the menu button but now have no context. 
+      */}
+      <label className='margin-100 padding-25' aria-label={t("components:sidebar.toggle_menu_alt")} style={{ width: 'fit-content', marginLeft: 'calc(1rem + 4px)' }}>
         <input type="checkbox" style={{opacity: '0', position: 'absolute'}} className={`${styles['toggle-sidebar']}`} defaultChecked />
         <IconMenu2 aria-hidden="true" height={24} width={24} className='grid' style={{ minWidth: '24px' }} />
       </label>
@@ -28,8 +31,6 @@ export default async function Sidebar() {
       {/* TODO SIDENAV: For accesability purposes, this should be hidden when collapsed and on a phone  */}
       <div className='padding-100 flex-grow-100 flex flex-direction-column' id="sidebar">
         <nav className='flex-grow-100 flex flex-direction-column'>
-          {/* TODO SIDENAV: check if more svg's (globally) accidentally use maxWidth instead of minWidth  */}
-          {/* TODO SIDENAV: Is the usage of nav correct if theres more than links?  */}
           {user?.isLoggedIn ?
             <Link href={`/@${user.username}`} className="flex align-items-center margin-bottom-300" style={{ gap: "10px" }}>
               <IconUser aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px", minWidth: '20px' }} />
@@ -70,7 +71,7 @@ export default async function Sidebar() {
               <header className='padding-bottom-25 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center' style={{ borderBottom: '1px solid var(--gray)' }}>
                 <h2 className='font-weight-600 margin-0' style={{ fontSize: 'inherit' }}>{t("components:sidebar.create")}</h2>
                 {/* TODO: I18n */}
-                <button popoverTarget='create-popover' aria-label='Stäng meny: skapa' className='transparent grid padding-25 round'>
+                <button popoverTarget='create-popover' aria-label={t("components:sidebar.close_menu_create")} className='transparent grid padding-25 round'>
                   <IconX aria-hidden='true' width={16} height={16} />
                 </button>
               </header>
@@ -140,7 +141,7 @@ export default async function Sidebar() {
               <div className='padding-bottom-25 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center' style={{ borderBottom: '1px solid var(--gray)' }}>
                 <legend className='font-weight-600'>{t("components:sidebar.language_alt")}</legend>
                 {/* TODO SIDENAV: i18n */}
-                <button popoverTarget='select-language-popover' aria-label='Stäng meny: välj språk' className='transparent grid padding-25 round'>
+                <button popoverTarget='select-language-popover' aria-label={t("components:sidebar.close_menu_language")} className='transparent grid padding-25 round'>
                   <IconX aria-hidden='true' width={16} height={16} />
                 </button>
               </div>
@@ -170,8 +171,7 @@ export default async function Sidebar() {
             <fieldset className='padding-25 smooth fieldset-unset-pseudo-class' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
               <div className='padding-bottom-25 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center' style={{ borderBottom: '1px solid var(--gray)' }}>
                 <legend className='font-weight-600'>{t("components:sidebar.settings")}</legend>
-                {/* TODO SIDENAV: labels i18n */}
-                <button popoverTarget='settings-popover' aria-label='Stäng meny: inställningar' className='transparent grid padding-25 round'>
+                <button popoverTarget='settings-popover' aria-label={t("components:sidebar.close_menu_settings")} className='transparent grid padding-25 round'>
                   <IconX aria-hidden='true' width={16} height={16} />
                 </button>
               </div>
