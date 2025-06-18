@@ -17,7 +17,8 @@
     "locales:format": "tsx ./src/scripts/localesFormat.ts",
     "test:compose": "sudo docker compose -f compose.test.yaml up -d",
     "test:run": "tsx node_modules/playwright/cli.js test",
-    "test:build-run": "yarn build && yarn test:run"
+    "test:build-run": "yarn build && yarn test:run",
+    "test:health": "tsx ./tests/lib/health-check.ts"
   },
   "author": {
     "name": "Sustainable Action Foundation",

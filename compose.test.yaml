@@ -10,9 +10,8 @@ services:
     healthcheck:
       test: [ "CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "root", "-padmin" ]
       interval: 2s
-      timeout: 20s
+      timeout: 30s
       retries: 10
-      start_period: 5s
 
   web:
     image: ecoplanner:web
@@ -21,6 +20,8 @@ services:
       context: .
       dockerfile: Dockerfile
       target: builder
+      args:
+        BUILDKIT_INLINE_CACHE: 1
     networks:
       - default
       - test_network
@@ -36,11 +37,10 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "web:3000" ]
+      test: [ "CMD-SHELL", "yarn", "test:health", "-p", "3000" ]
       interval: 2s
       timeout: 30s
       retries: 10
-      start_period: 10s
     command: sh -c 'yarn prisma migrate reset -f && node .next/standalone/server.js' # Seed the database
 
   test:
