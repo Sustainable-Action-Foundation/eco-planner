@@ -5,79 +5,15 @@ FROM node:${NODE_VERSION}-alpine AS base
 
 FROM base AS deps
 
-# Install dependencies based on the preferred package manager
-RUN yarn --frozen-lockfile
-
-# Generate types for Prisma
-RUN yarn run prisma generate
-
-# Install Playwright browsers
-RUN yarn playwright install
-
 # Copy necessary files for tests
-COPY .env* ./app
-COPY playwright.config.* ./app
-COPY tests ./tests/app
-COPY src ./src/app
-COPY public ./public/app
-
-# Rebuild the source code only when needed
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-
-# Next.js collects completely anonymous telemetry data about general usage.
-# Learn more here: https://nextjs.org/telemetry
-# Uncomment the following line in case you want to disable telemetry during the build.
-ENV NEXT_TELEMETRY_DISABLED=1
-
-RUN \
-  if [ -f yarn.lock ]; then yarn run build; \
-  elif [ -f package-lock.json ]; then npm run build; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
-  else echo "Lockfile not found." && exit 1; \
-  fi
-
-# Production image, copy all the files and run next
-FROM base AS runner
-WORKDIR /app
-
-ENV NODE_ENV=production
-# Uncomment the following line in case you want to disable telemetry during runtime.
-ENV NEXT_TELEMETRY_DISABLED=1
-
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
-COPY --from=builder /app/public ./public
-
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-# Copy files necessary to run `yarn prisma migrate reset` to reset and seed the database
-# FOR DEVELOPMENT/TESTING/STAGING
-COPY --from=deps /app/node_modules ./node_modules
-COPY /prisma ./prisma
+COPY .env* ./
+COPY playwright.config.* ./
+COPY tests ./tests/
 COPY package.json ./
 
-USER nextjs
+RUN yarn install --frozen-lockfile
 
-# Network config
-EXPOSE 8081
+# Install Playwright browsers
+RUN yarn run playwright install
 
-ENV PORT=8081
-ENV HOSTNAME=0.0.0.0
-
-# Git commit info
-ARG GIT_LONG_HASH
-ENV GIT_LONG_HASH=$GIT_LONG_HASH
-
-ARG GIT_SHORT_HASH
-ENV GIT_SHORT_HASH=$GIT_SHORT_HASH
-
-# server.js is created by next build from the standalone output
-# https://nextjs.org/docs/pages/api-reference/next-config-js/output
-CMD ["node", "server.js"]
+CMD ["yarn", "run", "test:run"]

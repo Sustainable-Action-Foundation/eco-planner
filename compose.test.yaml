@@ -12,6 +12,7 @@ services:
       interval: 2s
       timeout: 20s
       retries: 10
+      start_period: 5s
 
   web:
     image: ecoplanner:web
@@ -34,6 +35,12 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "web:3000" ]
+      interval: 2s
+      timeout: 30s
+      retries: 10
+      start_period: 10s
     command: sh -c 'yarn prisma migrate reset -f && node .next/standalone/server.js' # Seed the database
 
   test:
@@ -45,15 +52,12 @@ services:
     networks:
       - default
       - test_network
-    volumes:
-      - ./playwright-report:/app/playwright-report
-      - ./test-results:/app/test-results
     environment:
       - TEST_BASE_URL=http://web:3000
       - CI=true # For playwright config
     depends_on:
       web:
-        condition: service_started
+        condition: service_healthy
 
 networks:
   test_network:

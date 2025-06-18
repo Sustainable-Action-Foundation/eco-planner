@@ -8,19 +8,14 @@ export default defineConfig({
 
   // Run all tests in parallel.
   fullyParallel: true,
+  workers: "90%",
 
   // Fail the build on CI if you accidentally left test.only in the source code.
   forbidOnly: !!process.env.CI,
 
-  // retries: process.env.CI ? 0 : 0,
   retries: 0,
 
-  // // Opt out of parallel tests on CI.
-  // workers: process.env.CI ? 1 : undefined,
-  workers: "80%", // Always run in parallel
-
   // Reporter to use
-  // reporter: [["html", { open: "never" }], ["list"]],
   reporter: process.env.CI ?
     [["github"]]
     :
@@ -39,7 +34,7 @@ export default defineConfig({
   },
 
   globalTeardown: "./tests/lib/global.teardown.ts",
-  
+
   // Configure projects for major browsers.
   projects: [
     {
