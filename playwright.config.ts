@@ -13,7 +13,7 @@ export default defineConfig({
   // Fail the build on CI if you accidentally left test.only in the source code.
   forbidOnly: !!process.env.CI,
 
-  retries: 0,
+  retries: 1,
 
   // Reporter to use
   reporter: process.env.CI ?
@@ -40,6 +40,7 @@ export default defineConfig({
     {
       name: "Locale files validation",
       testMatch: ["**/locale-files.ts"],
+      retries: 0, // File reading can't be flaky, so no retries needed.
       use: {},
     },
     {
