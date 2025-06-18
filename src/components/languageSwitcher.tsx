@@ -47,7 +47,7 @@ export function LanguageSwitcher() {
                 style={{ fontSize: '14px' }}
                 className={`flex transparent justify-content-space-between align-items-center width-100 padding-25`}
                 data-testid={`language-switcher-option-${localeAliases[locale]}`}
-                aria-checked={locale === buttonLocale}
+                data-checked={locale === buttonLocale}
               >
                 {localeAliases[locale]}
                 <div

@@ -20,8 +20,8 @@ test.describe("Sidebar tests", () => {
     await optionsUL.waitFor({ state: "visible" });
     await expect(optionsUL, "Language switcher options are not visible").toBeVisible();
 
-    // Find aria-checked element
-    const checkedElement = optionsUL.locator("li button[aria-checked='true']").first();    
+    // Find the checked element
+    const checkedElement = optionsUL.locator("li button[data-checked='true']").first();    
     const initialLanguage = await checkedElement.textContent();
 
     // Test browsers have accept-language set to Swedish
