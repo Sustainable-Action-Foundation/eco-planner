@@ -34,27 +34,6 @@
   background-color: #e0e6eb;
 }
 
-/* Sidebar menu (collection of action items such as links and buttons) */
-.aside > .sidebar-menu {
-  width: calc(24px + (1rem * 2 + .5rem * 2)); /* TODO SIDENAV: Magic number */
-  interpolate-size: allow-keywords;
-  transition: width .2s ease-out, transform .2s ease-out;
-
-  @media (max-width: 1250px) {
-    width: initial;
-    z-index: 9;
-    height: 100dvh;
-    top: 0;
-    /* Image height + image margin-block + image-padding-block + padding-top */
-    padding-top: calc(1rem * 2 + 24px + .25rem * 2 + 1rem); /* TODO SIDENAV: Magic number */
-     
-    transform: translateX(0);
-    position: absolute;
-    border-right: 1px solid silver;
-    background-color: white;
-  }
-}
- 
 .aside:has(.sidebar-toggle:checked) > .sidebar-menu {
   /* WIDTH: Largest image size, padding aside, padding links, border aside*/
   @media (min-width: 1251px) {
@@ -64,22 +43,36 @@
   @media (max-width: 1250px) {
     transform: translateX(-100%);
   }
+} 
+
+/* Sidebar menu (collection of action items such as links and buttons) */
+.aside > .sidebar-menu {
+  width: calc(24px + (1rem * 2 + .5rem * 2)); /* TODO SIDENAV: Magic number */
+  interpolate-size: allow-keywords;
+  transition: width .2s ease-out, transform .2s ease-out;
+
+  @media (max-width: 1250px) {
+    transform: translateX(0);
+
+    position: absolute;
+    z-index: 9;
+    top: 0;
+
+    width: initial;
+    height: 100dvh;
+    border-right: 1px solid silver;
+    background-color: white;
+    /* Image height + image margin-block + image-padding-block + padding-top */
+    padding-top: calc(1rem * 2 + 24px + .25rem * 2 + 1rem); /* TODO SIDENAV: Magic number */
+  }
 }
 
-/* The links and buttons in themselves */
-
-/* TODO: dont like the way the signup link exists here )*/ 
-.aside a[href="/signup"] {
-  color: white;
-  border-radius: 9999px;
-}
-
-.aside a[href="/signup"]:hover {
-  background-color: var(--seagreen-30);
-}
-
+/* Sidebar items */
+/* TODO: Maybe apply properties which do not apply to all anchor tags and buttons (CTA and the rest) as utility classes instead? */  
 .sidebar-menu > * > a,
 .sidebar-menu > * > button {
+  display: flex;
+  align-items: center;
   width: 100%;
   padding: .5rem;
   padding-right: calc(.5rem + 10px); /* TODO: Magic number */
@@ -92,10 +85,37 @@
   gap: 10px; /* TODO: Magic number */
 } 
 
-.sidebar-menu > * > a:hover,
-.sidebar-menu > * > button:hover {
+.sidebar-menu a:hover,
+.sidebar-menu button:hover {
   background-color: #e0e6eb;
   box-shadow: none; /* TODO: Might be good to remove box shadows from the semantic style sheet hover class so we don't need to constantly overwrite it */ 
 }
 
-/* TODO: Control svg minwidth using something like: img[width="20"] {min-width: 20px;}*/
+/* Link to signup page styled seperately from other links as a CTA */
+.sidebar-menu > * > a[href="/signup"] {
+  color: white;
+  border-radius: 9999px;
+  transition: box-shadow .1s ease;  
+}
+
+.sidebar-menu > * > a[href="/signup"]:hover {
+  background-color: seagreen;
+  box-shadow: inset 0 0 999px rgba(0, 0, 0, 0.1);
+}
+
+/* TODO SIDENAV: Figure out a way to deal with margins of the links icons */ 
+
+/* TODO SIDENAV: Apply globally? */
+/* Prevent flexbox from resizing svg elements by setting min width of commonly used widths */ 
+.aside svg[width="24"] {
+  min-width: 24px;
+}
+
+.aside svg[width="20"] {
+  min-width: 20px;
+}
+
+.aside svg[width="16"] {
+  min-width: 16px;
+}
+
