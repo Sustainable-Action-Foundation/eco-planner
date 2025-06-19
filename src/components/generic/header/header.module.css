@@ -11,13 +11,13 @@
   transition: width .2s ease-out;
 
   @media (max-width: 1250px) {
-    z-index: 8;
+    height: unset;
+    width: 100%;
+    border-right: 0;
+    border-bottom: 1px solid silver;
     background-color: rgba(255,255,255,.95);
     backdrop-filter: blur(2px);
-    border-bottom: 1px solid silver;
-    border-right: 0;
-    width: 100%;
-    height: unset;
+    z-index: 8;
   }
 }
 
@@ -35,7 +35,6 @@
 }
 
 .aside:has(.sidebar-toggle:checked) > .sidebar-menu {
-  /* WIDTH: Largest image size, padding aside, padding links, border aside*/
   @media (min-width: 1251px) {
     width: initial;
   }
@@ -68,38 +67,27 @@
 }
 
 /* Sidebar items */
-/* TODO: Maybe apply properties which do not apply to all anchor tags and buttons (CTA and the rest) as utility classes instead? */  
 .sidebar-menu > * > a,
 .sidebar-menu > * > button {
   display: flex;
   align-items: center;
+  gap: 10px; /* TODO: Magic number */
   width: 100%;
   padding: .5rem;
-  padding-right: calc(.5rem + 10px); /* TODO: Magic number */
-  border-radius: .5rem;
-  color: black;
+  padding-right: calc(.5rem + 10px); /* TODO: Magic number, TODO SIDENAV: This is wrong for our logout/login button where the image is on the right hand side */
+  transition: background-color .1s ease, box-shadow .1s ease;
   text-decoration: none;
-  transition: background-color .1s ease;
   overflow: hidden;
   white-space: nowrap;
-  gap: 10px; /* TODO: Magic number */
 } 
 
-.sidebar-menu a:hover,
+.sidebar-menu a:not([href="/signup"]):hover,
 .sidebar-menu button:hover {
   background-color: #e0e6eb;
   box-shadow: none; /* TODO: Might be good to remove box shadows from the semantic style sheet hover class so we don't need to constantly overwrite it */ 
 }
 
-/* Link to signup page styled seperately from other links as a CTA */
-.sidebar-menu > * > a[href="/signup"] {
-  color: white;
-  border-radius: 9999px;
-  transition: box-shadow .1s ease;  
-}
-
 .sidebar-menu > * > a[href="/signup"]:hover {
-  background-color: seagreen;
   box-shadow: inset 0 0 999px rgba(0, 0, 0, 0.1);
 }
 

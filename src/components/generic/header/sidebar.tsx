@@ -35,25 +35,25 @@ export default async function Sidebar() {
       <div className={`${styles['sidebar-menu']} padding-100 flex-grow-100 flex flex-direction-column`}>
         <nav className='flex-grow-100 flex flex-direction-column'>
           {user?.isLoggedIn ?
-            <Link href={`/@${user.username}`} className="margin-bottom-300">
+            <Link href={`/@${user.username}`} className="margin-bottom-300 color-pureblack rounded'">
               <IconUser aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px" }} />
               {t("components:sidebar.my_profile")}
             </Link>
             :
-            <Link href="/signup" className='margin-bottom-300 seagreen round'>
+            <Link href="/signup" className='margin-bottom-300 seagreen round color-purewhite'>
               <IconUserPlus aria-hidden='true' height={20} width={20} style={{ marginLeft: '2px'}} />
               {t("components:sidebar.create_account")}
             </Link>
           }
 
-          <Link href="/">
+          <Link href="/" className='color-pureblack rounded'>
             <IconHome aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px" }} />
             {t("components:sidebar.home")}
           </Link>
           <PopoverButton
             anchorName='--create-popover-button'
             popoverTarget='create-popover'
-            className='transparent'
+            className='transparent rounded'
             style={{ fontSize: '1rem'}}
           >
             <IconCirclePlus width={20} height={20} aria-hidden="true" style={{ marginLeft: "2px" }} />
@@ -111,7 +111,7 @@ export default async function Sidebar() {
               </ul>
             </nav>
           </Popover>
-          <Link href="/info" className="margin-top-auto" style={{ fontSize: '1rem' }}>
+          <Link href="/info" className="margin-top-auto color-pureblack rounded">
             <IconInfoCircle aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px" }} />
             {t("components:sidebar.about")}
           </Link>
@@ -120,7 +120,7 @@ export default async function Sidebar() {
           <PopoverButton
             anchorName='--select-language-popover-button'
             popoverTarget='select-language-popover'
-            className='transparent'
+            className='transparent rounded'
            >
             <IconWorld aria-hidden="true" width={20} height={20} style={{ marginLeft: "2px" }} />
             {t("components:sidebar.language")}
@@ -148,7 +148,7 @@ export default async function Sidebar() {
           <PopoverButton
             anchorName='--settings-popover-button'
             popoverTarget='settings-popover'
-            className='transparent'
+            className='transparent rounded'
           >
             <IconSettings aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px" }} />
             {t("components:sidebar.settings")}
@@ -178,7 +178,7 @@ export default async function Sidebar() {
           {user?.isLoggedIn ?
             <LogoutButton />
             :
-            <Link href="/login" className="justify-content-flex-end" style={{ padding: '.5rem' }}>
+            <Link href="/login" className="justify-content-flex-end color-pureblack rounded">
               <div className="flex-grow-100" style={{ marginLeft: "2px", textAlign: "left" }}>{t("common:tsx.login")}</div>
               <IconLogin2 aria-hidden='true' height={20} width={20} style={{ marginRight: "2px",}} />
             </Link>
