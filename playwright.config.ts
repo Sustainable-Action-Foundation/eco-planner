@@ -16,10 +16,11 @@ export default defineConfig({
   retries: 1,
 
   // Reporter to use
-  reporter: process.env.CI ?
-    [["github"]]
-    :
-    [["list"], ["html", { open: "never" }]],
+  // reporter: process.env.CI ?
+  //   [["github"], ["list"]]
+  //   :
+  //   [["list"], ["html", { open: "never" }]],
+  reporter: [["json"]],
 
   // Global use
   use: {

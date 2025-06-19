@@ -1,0 +1,841 @@
+{
+  "config": {
+    "configFile": "/home/viggo/GitHub/eco-planner/playwright.config.ts",
+    "rootDir": "/home/viggo/GitHub/eco-planner/tests",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": "/home/viggo/GitHub/eco-planner/tests/lib/global.teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 7
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "json",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/home/viggo/GitHub/eco-planner/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 7
+        },
+        "id": "Locale files validation",
+        "name": "Locale files validation",
+        "testDir": "/home/viggo/GitHub/eco-planner/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/locale-files.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/viggo/GitHub/eco-planner/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 7
+        },
+        "id": "chromium 1440p",
+        "name": "chromium 1440p",
+        "testDir": "/home/viggo/GitHub/eco-planner/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/viggo/GitHub/eco-planner/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 7
+        },
+        "id": "chromium 1080p",
+        "name": "chromium 1080p",
+        "testDir": "/home/viggo/GitHub/eco-planner/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/viggo/GitHub/eco-planner/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 7
+        },
+        "id": "chromium 720p",
+        "name": "chromium 720p",
+        "testDir": "/home/viggo/GitHub/eco-planner/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/viggo/GitHub/eco-planner/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 7
+        },
+        "id": "firefox 1440p",
+        "name": "firefox 1440p",
+        "testDir": "/home/viggo/GitHub/eco-planner/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/viggo/GitHub/eco-planner/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 7
+        },
+        "id": "firefox 1080p",
+        "name": "firefox 1080p",
+        "testDir": "/home/viggo/GitHub/eco-planner/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/viggo/GitHub/eco-planner/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 7
+        },
+        "id": "firefox 720p",
+        "name": "firefox 720p",
+        "testDir": "/home/viggo/GitHub/eco-planner/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/viggo/GitHub/eco-planner/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 7
+        },
+        "id": "webkit 1440p",
+        "name": "webkit 1440p",
+        "testDir": "/home/viggo/GitHub/eco-planner/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/viggo/GitHub/eco-planner/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 7
+        },
+        "id": "webkit 1080p",
+        "name": "webkit 1080p",
+        "testDir": "/home/viggo/GitHub/eco-planner/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/viggo/GitHub/eco-planner/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 7
+        },
+        "id": "webkit 720p",
+        "name": "webkit 720p",
+        "testDir": "/home/viggo/GitHub/eco-planner/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.51.1",
+    "workers": 7,
+    "webServer": {
+      "timeout": 1000000,
+      "command": "yarn run start",
+      "url": "http://localhost:3000",
+      "reuseExistingServer": true
+    }
+  },
+  "suites": [
+    {
+      "title": "files/locale-files.ts",
+      "file": "files/locale-files.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Keys are snake_case",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "Locale files validation",
+              "projectName": "Locale files validation",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 5,
+                  "status": "passed",
+                  "duration": 10,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-06-19T12:42:18.066Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b37be48a585905a7554f-df312190d0e97b010b66",
+          "file": "files/locale-files.ts",
+          "line": 1,
+          "column": 4334
+        },
+        {
+          "title": "Are nested keys defined",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "Locale files validation",
+              "projectName": "Locale files validation",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 6,
+                  "status": "passed",
+                  "duration": 15,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-06-19T12:42:18.028Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b37be48a585905a7554f-12014eaa4ebe4c4afa30",
+          "file": "files/locale-files.ts",
+          "line": 1,
+          "column": 4846
+        },
+        {
+          "title": "Variable syntax in JSON files",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "Locale files validation",
+              "projectName": "Locale files validation",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-06-19T12:42:17.952Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b37be48a585905a7554f-4d0ad6623b51efc5b32e",
+          "file": "files/locale-files.ts",
+          "line": 1,
+          "column": 6362
+        },
+        {
+          "title": "Orphan keys in root of namespace files",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "Locale files validation",
+              "projectName": "Locale files validation",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-06-19T12:42:17.962Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b37be48a585905a7554f-6788f5fc3427b7ad52cd",
+          "file": "files/locale-files.ts",
+          "line": 1,
+          "column": 7308
+        },
+        {
+          "title": "Mixed server and client side code",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "Locale files validation",
+              "projectName": "Locale files validation",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-06-19T12:42:17.971Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b37be48a585905a7554f-674091a1da4f09f6f289",
+          "file": "files/locale-files.ts",
+          "line": 1,
+          "column": 8247
+        },
+        {
+          "title": "Keys used in app are not defined",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "Locale files validation",
+              "projectName": "Locale files validation",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-06-19T12:42:17.981Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b37be48a585905a7554f-cb4302834e3391a645a5",
+          "file": "files/locale-files.ts",
+          "line": 1,
+          "column": 10133
+        },
+        {
+          "title": "Namespace consistency in app",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "Locale files validation",
+              "projectName": "Locale files validation",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-06-19T12:42:17.991Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b37be48a585905a7554f-64b58e3e25241b36934c",
+          "file": "files/locale-files.ts",
+          "line": 1,
+          "column": 10687
+        },
+        {
+          "title": "<Trans /> keys",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "Locale files validation",
+              "projectName": "Locale files validation",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-06-19T12:42:18.001Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b37be48a585905a7554f-30d4572425708f5fad1c",
+          "file": "files/locale-files.ts",
+          "line": 1,
+          "column": 11587
+        },
+        {
+          "title": "<Trans /> syntax",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "Locale files validation",
+              "projectName": "Locale files validation",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-06-19T12:42:18.008Z",
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b37be48a585905a7554f-3e5935518ccb1a3aa8a0",
+          "file": "files/locale-files.ts",
+          "line": 1,
+          "column": 12172
+        },
+        {
+          "title": "No hardcoded Swedish text in code",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "Locale files validation",
+              "projectName": "Locale files validation",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 4,
+                  "status": "failed",
+                  "duration": 46,
+                  "error": {
+                    "message": "Error: Found Swedish text that should be internationalized: {\n  \"src/lib/trafa/getTrafaTables.ts\": [\n    \"[Line 110] > 'lägg till ' in: '/* -- On \\\"lägg till historisk data\\\" page --'\"\n  ]\n}\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m1\u001b[39m",
+                    "stack": "Error: Found Swedish text that should be internationalized: {\n  \"src/lib/trafa/getTrafaTables.ts\": [\n    \"[Line 110] > 'lägg till ' in: '/* -- On \\\"lägg till historisk data\\\" page --'\"\n  ]\n}\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m1\u001b[39m\n    at /home/viggo/GitHub/eco-planner/tests/files/locale-files.ts:1:14311",
+                    "matcherResult": {
+                      "actual": 1,
+                      "expected": 0,
+                      "message": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m1\u001b[39m",
+                      "name": "toBe",
+                      "pass": false
+                    },
+                    "location": {
+                      "file": "/home/viggo/GitHub/eco-planner/tests/files/locale-files.ts",
+                      "column": 14311,
+                      "line": 1
+                    },
+                    "snippet": "> 1 | import \"../lib/console\";\n    |                         ^\n  2 | import fs from \"node:fs\";\n  3 | import path from \"node:path\";\n  4 | import { glob } from \"glob\";"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/home/viggo/GitHub/eco-planner/tests/files/locale-files.ts",
+                        "column": 14311,
+                        "line": 1
+                      },
+                      "message": "Error: Found Swedish text that should be internationalized: {\n  \"src/lib/trafa/getTrafaTables.ts\": [\n    \"[Line 110] > 'lägg till ' in: '/* -- On \\\"lägg till historisk data\\\" page --'\"\n  ]\n}\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m1\u001b[39m\n\n> 1 | import \"../lib/console\";\n    |                         ^\n  2 | import fs from \"node:fs\";\n  3 | import path from \"node:path\";\n  4 | import { glob } from \"glob\";\n    at /home/viggo/GitHub/eco-planner/tests/files/locale-files.ts:1:14311"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-06-19T12:42:18.012Z",
+                  "attachments": [
+                    {
+                      "name": "_prompt-0",
+                      "contentType": "text/markdown",
+                      "body": "IyBJbnN0cnVjdGlvbnMKCi0gRm9sbG93aW5nIFBsYXl3cmlnaHQgdGVzdCBmYWlsZWQuCi0gRXhwbGFpbiB3aHksIGJlIGNvbmNpc2UsIHJlc3BlY3QgUGxheXdyaWdodCBiZXN0IHByYWN0aWNlcy4KLSBQcm92aWRlIGEgc25pcHBldCBvZiBjb2RlIHdpdGggdGhlIGZpeCwgaWYgcG9zc2libGUuCgojIFRlc3QgaW5mbwoKLSBOYW1lOiBObyBoYXJkY29kZWQgU3dlZGlzaCB0ZXh0IGluIGNvZGUKLSBMb2NhdGlvbjogL2hvbWUvdmlnZ28vR2l0SHViL2Vjby1wbGFubmVyL3Rlc3RzL2ZpbGVzL2xvY2FsZS1maWxlcy50czoxOjEzNjQ3CgojIEVycm9yIGRldGFpbHMKCmBgYApFcnJvcjogRm91bmQgU3dlZGlzaCB0ZXh0IHRoYXQgc2hvdWxkIGJlIGludGVybmF0aW9uYWxpemVkOiB7CiAgInNyYy9saWIvdHJhZmEvZ2V0VHJhZmFUYWJsZXMudHMiOiBbCiAgICAiW0xpbmUgMTEwXSA+ICdsw6RnZyB0aWxsICcgaW46ICcvKiAtLSBPbiBcImzDpGdnIHRpbGwgaGlzdG9yaXNrIGRhdGFcIiBwYWdlIC0tJyIKICBdCn0KCmV4cGVjdChyZWNlaXZlZCkudG9CZShleHBlY3RlZCkgLy8gT2JqZWN0LmlzIGVxdWFsaXR5CgpFeHBlY3RlZDogMApSZWNlaXZlZDogMQogICAgYXQgL2hvbWUvdmlnZ28vR2l0SHViL2Vjby1wbGFubmVyL3Rlc3RzL2ZpbGVzL2xvY2FsZS1maWxlcy50czoxOjE0MzExCmBgYAoKIyBUZXN0IHNvdXJjZQoKYGBgdHMKPiAgMSB8IGltcG9ydCAiLi4vbGliL2NvbnNvbGUiOwogICAgIHwgICAgICAgICAgICAgICAgICAgICAgICAgXiBFcnJvcjogRm91bmQgU3dlZGlzaCB0ZXh0IHRoYXQgc2hvdWxkIGJlIGludGVybmF0aW9uYWxpemVkOiB7CiAgIDIgfCBpbXBvcnQgZnMgZnJvbSAibm9kZTpmcyI7CiAgIDMgfCBpbXBvcnQgcGF0aCBmcm9tICJub2RlOnBhdGgiOwogICA0IHwgaW1wb3J0IHsgZ2xvYiB9IGZyb20gImdsb2IiOwogICA1IHwgaW1wb3J0IHsgZXhwZWN0LCB0ZXN0IH0gZnJvbSAicGxheXdyaWdodC90ZXN0IjsKICAgNiB8IGltcG9ydCB7IHVuaXF1ZUxvY2FsZXMsIG5hbWVzcGFjZXMsIExvY2FsZXMsIGxvY2FsZXNEaXIgfSBmcm9tICIuLi9pMThuVGVzdFZhcmlhYmxlcyI7CiAgIDcgfAogICA4IHwgLyogCiAgIDkgfCAgKioqKioqKioqKgogICAxMCB8ICAqIENvbmZpZyAqCiAgIDExIHwgICoqKioqKioqKioKICAgMTIgfCAgKi8KICAgMTMgfAogICAxNCB8IC8qKiBFdmVyeSBjb21ibyBvZiBsb2NhbGUgYW5kIG5zIGluIGEgMmQgYXJyYXkuICovCiAgIDE1IHwgY29uc3QgYWxsUGVybXV0YXRpb25zID0gdW5pcXVlTG9jYWxlcy5mbGF0TWFwKGxvY2FsZSA9PiBuYW1lc3BhY2VzLm1hcChuYW1lc3BhY2UgPT4gW2xvY2FsZSwgbmFtZXNwYWNlXSkpOwogICAxNiB8CiAgIDE3IHwgLyoqIEV2ZXJ5IE5TIGZpbGUgcGVyIGxvY2FsZSB3aXRoIHRoZWlyIGZsYXR0ZW5lZCBrZXktdmFsdWVzLiAqLwogICAxOCB8IGNvbnN0IGFsbEpTT04gPSBnZXRBbGxKU09ORmxhdHRlbmVkKCk7CiAgIDE5IHwKICAgMjAgfCAvKiogVGhlIGFwcCBmaWxlcyB0byBjaGVjay4gKi8KICAgMjEgfCBjb25zdCBhbGxUU1ggPSBnZXRBbGxUU1hGaWxlcygpOwogICAyMiB8CiAgIDIzIHwgLyoqIFdoZW4gdmFsaWRhdGluZyBwbHVyYWxpemVkIHRyYW5zbGF0aW9ucywgdXNlIHRoZXNlIHRvIGRldGVybWluZSBpZiBhIGJhc2Uga2V5IGlzYSB2YWxpZC4gKi8KICAgMjQgfCBjb25zdCB2YWxpZFBsdXJhbFN1ZmZpeGVzID0gWyJfb25lIiwgIl90d28iLCAiX2ZldyIsICJfbWFueSIsICJfb3RoZXIiLCAiX3plcm8iLF07CiAgIDI1IHwKICAgMjYgfCAvKiogU2luY2UgdGhlIHRyYW5zbGF0aW9uIHN5c3RlbSB1c2VzIGNsaWVudCBhbmQgc2VydmVyIHNpZGUgaW5zdGFuY2VzIG9mIGkxOG5leHQsIHdlIHRlc3QgZm9yIG1pc21hdGNoZXMuICovCiAgIDI3IHwgY29uc3QgdFNlcnZlclVzYWdlSW5kaWNhdGlvbnMgPSBbIkAvbGliL2kxOG5TZXJ2ZXIiLCAic2VydmVUZWEoIixdOwogICAyOCB8IGNvbnN0IHRDbGllbnRVc2FnZUluZGljYXRpb25zID0gWyJ1c2VUcmFuc2xhdGlvbiJdOwogICAyOSB8IGNvbnN0IHNlcnZlckluZGljYXRpb25zID0gWyJ1c2Ugc2VydmVyIiwgIm5leHQvc2VydmVyIiwgIm5leHQvaGVhZGVycyIsICJhY2Nlc3NDaGVja2VyIiwgImV4cG9ydCBkZWZhdWx0IGFzeW5jIGZ1bmN0aW9uIiwgImV4cG9ydCBhc3luYyBmdW5jdGlvbiJdOwogICAzMCB8IGNvbnN0IGNsaWVudEluZGljYXRpb25zID0gWyJ1c2UgY2xpZW50IiwgInVzZUVmZmVjdCIsICJ1c2VNZW1vIiwgInVzZVN0YXRlIiwgInVzZVJlZiIsXTsKICAgMzEgfCBjb25zdCBzZXJ2ZXJTaWRlRmlsZXNPdmVycmlkZSA9IFsicGFnZS50c3giLCAibGF5b3V0LnRzeCIsXS5tYXAoZmlsZSA9PiBmaWxlICYmIHBhdGguam9pbiguLi5maWxlLnNwbGl0KCIvIikpKTsKICAgMzIgfCBjb25zdCBjbGllbnRTaWRlRmlsZXNPdmVycmlkZTogc3RyaW5nW10gPSAoW10gYXMgc3RyaW5nW10pLm1hcChmaWxlID0+IGZpbGUgJiYgcGF0aC5qb2luKC4uLmZpbGUuc3BsaXQoIi8iKSkpOwogICAzMyB8IGNvbnN0IGV4ZW1wdGVkTWl4ZWRVc2VGaWxlcyA9IFsic3JjL2FwcC9sb2NhbGVzVGVzdC9wYWdlLnRzeCIsXS5tYXAoZmlsZSA9PiBmaWxlICYmIHBhdGguam9pbiguLi5maWxlLnNwbGl0KCIvIikpKTsKICAgMzQgfAogICAzNSB8IC8qKiBUaGVzZXMgYXJlIGlnbm9yZWQgZm9yIGNoZWNraW5nIG5hbWVzcGFjZSB1c2FnZSBjb25zaXN0ZW5jeSAqLwogICAzNiB8IGNvbnN0IGNvbW1vbk5hbWVzcGFjZXMgPSBbImNvbW1vbiIsICJtZXRhZGF0YSJdOwogICAzNyB8CiAgIDM4IHwgLyoqIFdoZW4gY2hlY2tpbmcgZm9yIG1peGVkIHVzZSBvZiBzcGFjZXMgdGhlc2UgYXJlIGFsbG93ZWQgaW4gYW55IGZpbGUgKi8KICAgMzkgfCBjb25zdCBrZXlzQWxsb3dlZERpcmVjdGx5SW5BcHAgPSBbImNvbW1vbjp0c3guIiwgImNvbW1vbjpwbGFjZWhvbGRlci4iLCAiY29tbW9uOnNjb3BlLiIsICJjb21tb246bGF5b3V0LiIsICJjb21tb246Y291bnQuIiwgImNvbW1vbjpuZXcuIiwgImNvbW1vbjplZGl0IiwgImNvbW1vbjpzY2FsaW5nX21ldGhvZHMiLCAiY29tbW9uOmNzcy4iLCAiY29tbW9uOjQwNC4iXTsKICAgNDAgfAogICA0MSB8IC8qKiBUaGUgU3dlZGlzaCByZWdleCBpcyB1c2VkIHRvIGZpbmQgaGFyZCBjb2RlZCBzd2VkaXNoIGluIHRoZSBhcHAgKi8KICAgNDIgfCBjb25zdCBzd2VkaXNoUmVnZXggPSAvKD88IVwvXC98XCp8XC9cKikoPzrDpXRnw6RyZHzDpXRnw6RyZGVufMOldGfDpHJkZXJ8w6V0Z8OkcmRlcm5hfG3DpWxiYW5hfG3DpWxiYW5hbnxtw6VsYmFub3J8bcOlbGJhbm9ybmF8ZsOkcmRwbGFufGbDpHJkcGxhbmVufGbDpHJkcGxhbmVyfGbDpHJkcGxhbnN2ZXJzaW9ufGbDpHJkcGxhbnN2ZXJzaW9uZW58ZsOkcmRwbGFuc3ZlcnNpb25lcnxlZmZla3R8ZWZmZWt0ZW58ZWZmZWt0ZXJ8ZWZmZWt0ZXJuYXxTa2FwYXxSZWRpZ2VyYXxSYWRlcmF8VGEgYm9ydHxMw6RnZyB0aWxsfFNwYXJhfEF2YnJ5dHxTw7ZrfFbDpGxqfFZpc2F8U29ydGVyYXxTw7ZrIGJsYW5kfFbDpGxqIGVufEluZ2VuIGFuZ2l2ZW58U2thcGEgbnl8RGV0IGZpbm5zIGluZ2F8VmlsbCBkdXxVdHZhbGRhfEFsbGF8RXh0ZXJuYSByZXN1cnNlcnxSZWxldmFudGEgYWt0w7ZyZXJ8S29zdG5hZHNlZmZla3Rpdml0ZXR8QmVza3Jpdm5pbmd8U3ZlcmlnZXxTdmVyaWdlc3xTdMOkbmd8bWVueXx2w6RsanxzcHLDpWt8YXR0fHNvbXxww6V8w6RyfGbDtnJ8dGlsbHxpbnRlfGV0dHxoYW58bWVufFvDpcOkw7bDhcOEw5ZdKVtcV10vZ2ltOwogICA0MyB8CiAgIDQ0IHwKICAgNDUgfCAvKiAKICAgNDYgfCAgKiBFeGNlcHRpb25zCiAgIDQ3IHwgICovCiAgIDQ4IHwKICAgNDkgfCAvLyBSZW1vdmVkIHNpbmNlIHRoZXNlIGFyZSBkZXBlbmRlbmNpZXMgb2YgYSBkaXNhYmxlZCB0ZXN0ICgiQ29tbW9uIHZhbHVlcyBub3QgcmVmZXJlbmNlZCIpLgogICA1MCB8IC8vIC8qKiBBbG1vc3QgYWx3YXlzIHByZWZlciBoYXZpbmcgbmVzdGVkICR0KCkgY2FsbHMgdG8gY29tbW9uIGluIG5hbWVzcGFjZXMgb3ZlciB1c2luZyBkdXBsaWNhdGUgdmFsdWVzLiBFeGNlcHRpb25zIHRvIHRoYXQgbmVlZCB0byBiZSBoZXJlLiAqLwogICA1MSB8IC8vIGNvbnN0IGV4ZW1wdGVkQ29tbW9uS2V5c1JlZiA9IFsiY29tbW9uOnRzeC4iLCAiY29tbW9uOnBsYWNlaG9sZGVyLiIsXTsgLy8gVGhpbmdzIHRoYXQgc2hvdWxkbid0IGFsd2F5cyBiZSByZWZlcmVuY2VkCiAgIDUyIHwgLy8gLyoqIFdoZW4gY2hlY2tpbmcgaWYgYSB2YWx1ZSBtYXkgYmUgYSBkdXBsaWNhdGUgb2YgYSBjb21tb24gdmFsdWUsIHZhbHVlcyBzdGFydGluZyB3aXRoIGFueSBvZiB0aGVzZSBzdHJpbmdzIHdpbGwgYmUgc2tpcHBlZC4gICovCiAgIDUzIHwgLy8gY29uc3QgZXhlbXB0ZWRDb21tb25WYWx1ZXNSZWY6IHN0cmluZ1tdID0gW107IC8vIE1vcmUgZmluZSBncmFpbmVkIG9wdGlvbiB0byB0aGUgYWJvdmUgb25lICh1c2VmdWwgZm9yIGxhbmd1YWdlIHNwZWNpZmljIGV4ZW1wdGlvbnMpCiAgIDU0IHwgLy8gLyoqIFRvIHByZXZlbnQgcmVjdXJyaW5nIGZhbHNlIHBvc2l0aXZlcywgZXhlbXB0IHRoZXNlIGtleXMgKi8KICAgNTUgfCAvLyBjb25zdCBleGVtcHRlZEtleXNVc2luZ0NvbW1vblZhbHVlcyA9IFsicGFnZXM6aW5mby5pbmZvX2JvZHkiLCAiY29tcG9uZW50czpjb25maXJtX2RlbGV0ZS5jb25maXJtYXRpb24iLF07CiAgIDU2IHwgLyoqIE9ycGhhbmVkIGtleXMgaW4gcm9vdCBsZXZlbHMgb2YgbmFtZXNwYWNlcyBhcmUgZGlzY291cmFnZWQsIGV4Y2VwdCBpbiB0aGVzZSBuYW1lc3BhY2VzICovCiAgIDU3IHwgY29uc3QgZXhlbXB0ZWRPcnBoYW5OUyA9IFsiY29tbW9uIiwgXTsKICAgNTggfCBjb25zdCBleGVtcHRlZE9ycGhhbktleXM6IHN0cmluZ1tdID0gW107CiAgIDU5IHwgLyoqIEEgdGVzdCBjaGVja3MgaWYgYW55IGtleXMgZGVmaW5lZCBnbyB1bnVzZWQuIFRoZXNlIGtleXMgYXJlIGV4ZW1wdGVkIGZyb20gdGhhdCB0ZXN0LiBfIGlzIGZvciBkZXNjcmlwdGlvbnMuICovCiAgIDYwIHwgY29uc3QgZXhlbXB0ZWRVbnVzZWRLZXlzOiBzdHJpbmdbXSA9IFsiXyIsICJjb21tb246Il07CiAgIDYxIHwKICAgNjIgfCAvKiAKICAgNjMgfCAgKioqKioqKioqCiAgIDY0IHwgICogVGVzdHMgKgogICA2NSB8ICAqKioqKioqKioKICAgNjYgfCAgKi8KICAgNjcgfAogICA2OCB8IC8qIERvZXMgZXZlcnkgbmFtZXNwYWNlIGV4aXN0IGluIGV2ZXJ5IGxvY2FsZT8gKi8KICAgNjkgfCB0ZXN0LmRlc2NyaWJlKCJOYW1lc3BhY2UgZmlsZXMgZXhpc3QiLCBhc3luYyAoKSA9PiB7CiAgIDcwIHwgICAvLyBUcmFjayBtaXNzaW5nIGFuZCBleHRyYSBuYW1lc3BhY2VzIHBlciBsb2NhbGUKICAgNzEgfCAgIGNvbnN0IHBlckxvY2FsZSA9IE9iamVjdC5mcm9tRW50cmllcyh1bmlxdWVMb2NhbGVzLm1hcChsb2NhbGUgPT4KICAgNzIgfCAgICAgW2xvY2FsZSBhcyBMb2NhbGVzLCB7IG1pc3Npbmc6IFtdIGFzIHN0cmluZ1tdLCBleHRyYTogW10gYXMgc3RyaW5nW10sIGVtcHR5OiBbXSBhcyBzdHJpbmdbXSB9XQogICA3MyB8ICAgKSk7CiAgIDc0IHwKICAgNzUgfCAgIHVuaXF1ZUxvY2FsZXMuZm9yRWFjaChsb2NhbGUgPT4gewogICA3NiB8ICAgICBjb25zdCBuc0ZpbGVzID0gZ2xvYi5zeW5jKGAke2xvY2FsZXNEaXJ9LyR7bG9jYWxlfS8qLmpzb25gKTsKICAgNzcgfCAgICAgY29uc3QgbnNGaWxlc05hbWVzID0gbnNGaWxlcy5tYXAoZmlsZSA9PiBwYXRoLmJhc2VuYW1lKGZpbGUsICIuanNvbiIpKTsKICAgNzggfAogICA3OSB8ICAgICBjb25zdCBtaXNzaW5nTlMgPSBuYW1lc3BhY2VzLmZpbHRlcihucyA9PiAhbnNGaWxlc05hbWVzLmluY2x1ZGVzKG5zKSk7CiAgIDgwIHwgICAgIGNvbnN0IGV4dHJhTlMgPSBuc0ZpbGVzTmFtZXMuZmlsdGVyKG5zID0+ICFuYW1lc3BhY2VzLmluY2x1ZGVzKG5zKSk7CiAgIDgxIHwgICAgIGNvbnN0IGVtcHR5TlMgPSBuc0ZpbGVzTmFtZXMuZmlsdGVyKG5zID0+IHsKICAgODIgfCAgICAgICBjb25zdCBmaWxlUGF0aCA9IHBhdGguam9pbihsb2NhbGVzRGlyLCBsb2NhbGUsIGAke25zfS5qc29uYCk7CiAgIDgzIHwgICAgICAgY29uc3QgY29udGVudCA9IGZzLnJlYWRGaWxlU3luYyhmaWxlUGF0aCwgInV0Zi04IikudHJpbSgpOwogICA4NCB8ICAgICAgIHJldHVybiAhY29udGVudCB8fCBjb250ZW50ID09PSAie30iOwogICA4NSB8ICAgICB9KTsKICAgODYgfAogICA4NyB8ICAgICBpZiAobWlzc2luZ05TLmxlbmd0aCA+IDApIHBlckxvY2FsZVtsb2NhbGVdLm1pc3NpbmcucHVzaCguLi5taXNzaW5nTlMpOwogICA4OCB8ICAgICBpZiAoZXh0cmFOUy5sZW5ndGggPiAwKSBwZXJMb2NhbGVbbG9jYWxlXS5leHRyYS5wdXNoKC4uLmV4dHJhTlMpOwogICA4OSB8ICAgICBpZiAoZW1wdHlOUy5sZW5ndGggPiAwKSBwZXJMb2NhbGVbbG9jYWxlXS5lbXB0eS5wdXNoKC4uLmVtcHR5TlMpOwogICA5MCB8ICAgfSk7CiAgIDkxIHwKICAgOTIgfCAgIGNvbnN0IG1pc3NpbmdOUyA9IE9iamVjdC5lbnRyaWVzKHBlckxvY2FsZSkuZmlsdGVyKChbXywgeyBtaXNzaW5nIH1dKSA9PiBtaXNzaW5nLmxlbmd0aCA+IDApOwogICA5MyB8ICAgY29uc3QgZXh0cmFOUyA9IE9iamVjdC5lbnRyaWVzKHBlckxvY2FsZSkuZmlsdGVyKChbXywgeyBleHRyYSB9XSkgPT4gZXh0cmEubGVuZ3RoID4gMCk7CiAgIDk0IHwgICBjb25zdCBlbXB0eU5TID0gT2JqZWN0LmVudHJpZXMocGVyTG9jYWxlKS5maWx0ZXIoKFtfLCB7IGVtcHR5IH1dKSA9PiBlbXB0eS5sZW5ndGggPiAwKTsKICAgOTUgfAogICA5NiB8ICAgdGVzdCgiTWlzc2luZyBuYW1lc3BhY2VzIiwgKCkgPT4gZXhwZWN0KG1pc3NpbmdOUy5sZW5ndGgsIGBNaXNzaW5nIG5hbWVzcGFjZXMgaW4gbG9jYWxlczogJHtKU09OLnN0cmluZ2lmeShtaXNzaW5nTlMsIG51bGwsIDIpfWApLnRvQmUoMCkpOwogICA5NyB8ICAgdGVzdCgiRXh0cmEgbmFtZXNwYWNlcyIsICgpID0+IGV4cGVjdChleHRyYU5TLmxlbmd0aCwgYEV4dHJhIG5hbWVzcGFjZXMgaW4gbG9jYWxlczogJHtKU09OLnN0cmluZ2lmeShleHRyYU5TLCBudWxsLCAyKX1gKS50b0JlKDApKTsKICAgOTggfCAgIHRlc3QoIkVtcHR5IG5hbWVzcGFjZXMiLCAoKSA9PiBleHBlY3QoZW1wdHlOUy5sZW5ndGgsIGBFbXB0eSBuYW1lc3BhY2VzIGluIGxvY2FsZXM6ICR7SlNPTi5zdHJpbmdpZnkoZW1wdHlOUywgbnVsbCwgMil9YCkudG9CZSgwKSk7CiAgIDk5IHwgfSk7CiAgMTAwIHwKICAxMDEgfCAvKiBEb2VzIGVuZ2xpc2ggaGF2ZSBhbGwga2V5cyB0byBmdW5jdGlvbiBhcyBhIGZhbGxiYWNrPyAqLwpgYGA="
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/home/viggo/GitHub/eco-planner/tests/files/locale-files.ts",
+                    "column": 14311,
+                    "line": 1
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "b37be48a585905a7554f-e90bcc254abb6addde93",
+          "file": "files/locale-files.ts",
+          "line": 1,
+          "column": 13647
+        },
+        {
+          "title": "Unused keys",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "Locale files validation",
+              "projectName": "Locale files validation",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 3620,
+                  "error": {
+                    "message": "Error: Unused keys in locale files: {\n  \"en-SE\": [\n    \"[Unused key] > 'components:table_menu.button_image_alt'\",\n    \"[Unused key] > 'pages:action.edit_action_alt'\",\n    \"[Unused key] > 'metadata:goal_create.description'\"\n  ],\n  \"sv-SE\": [\n    \"[Unused key] > 'components:table_menu.button_image_alt'\",\n    \"[Unused key] > 'pages:action.edit_action_alt'\",\n    \"[Unused key] > 'metadata:goal_create.description'\"\n  ]\n}\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m6\u001b[39m",
+                    "stack": "Error: Unused keys in locale files: {\n  \"en-SE\": [\n    \"[Unused key] > 'components:table_menu.button_image_alt'\",\n    \"[Unused key] > 'pages:action.edit_action_alt'\",\n    \"[Unused key] > 'metadata:goal_create.description'\"\n  ],\n  \"sv-SE\": [\n    \"[Unused key] > 'components:table_menu.button_image_alt'\",\n    \"[Unused key] > 'pages:action.edit_action_alt'\",\n    \"[Unused key] > 'metadata:goal_create.description'\"\n  ]\n}\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m6\u001b[39m\n    at /home/viggo/GitHub/eco-planner/tests/files/locale-files.ts:1:15889",
+                    "matcherResult": {
+                      "actual": 6,
+                      "expected": 0,
+                      "message": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m6\u001b[39m",
+                      "name": "toBe",
+                      "pass": false
+                    },
+                    "location": {
+                      "file": "/home/viggo/GitHub/eco-planner/tests/files/locale-files.ts",
+                      "column": 15889,
+                      "line": 1
+                    },
+                    "snippet": "> 1 | import \"../lib/console\";\n    |                         ^\n  2 | import fs from \"node:fs\";\n  3 | import path from \"node:path\";\n  4 | import { glob } from \"glob\";"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/home/viggo/GitHub/eco-planner/tests/files/locale-files.ts",
+                        "column": 15889,
+                        "line": 1
+                      },
+                      "message": "Error: Unused keys in locale files: {\n  \"en-SE\": [\n    \"[Unused key] > 'components:table_menu.button_image_alt'\",\n    \"[Unused key] > 'pages:action.edit_action_alt'\",\n    \"[Unused key] > 'metadata:goal_create.description'\"\n  ],\n  \"sv-SE\": [\n    \"[Unused key] > 'components:table_menu.button_image_alt'\",\n    \"[Unused key] > 'pages:action.edit_action_alt'\",\n    \"[Unused key] > 'metadata:goal_create.description'\"\n  ]\n}\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m6\u001b[39m\n\n> 1 | import \"../lib/console\";\n    |                         ^\n  2 | import fs from \"node:fs\";\n  3 | import path from \"node:path\";\n  4 | import { glob } from \"glob\";\n    at /home/viggo/GitHub/eco-planner/tests/files/locale-files.ts:1:15889"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-06-19T12:42:18.023Z",
+                  "attachments": [
+                    {
+                      "name": "_prompt-0",
+                      "contentType": "text/markdown",
+                      "body": "IyBJbnN0cnVjdGlvbnMKCi0gRm9sbG93aW5nIFBsYXl3cmlnaHQgdGVzdCBmYWlsZWQuCi0gRXhwbGFpbiB3aHksIGJlIGNvbmNpc2UsIHJlc3BlY3QgUGxheXdyaWdodCBiZXN0IHByYWN0aWNlcy4KLSBQcm92aWRlIGEgc25pcHBldCBvZiBjb2RlIHdpdGggdGhlIGZpeCwgaWYgcG9zc2libGUuCgojIFRlc3QgaW5mbwoKLSBOYW1lOiBVbnVzZWQga2V5cwotIExvY2F0aW9uOiAvaG9tZS92aWdnby9HaXRIdWIvZWNvLXBsYW5uZXIvdGVzdHMvZmlsZXMvbG9jYWxlLWZpbGVzLnRzOjE6MTQzMjEKCiMgRXJyb3IgZGV0YWlscwoKYGBgCkVycm9yOiBVbnVzZWQga2V5cyBpbiBsb2NhbGUgZmlsZXM6IHsKICAiZW4tU0UiOiBbCiAgICAiW1VudXNlZCBrZXldID4gJ2NvbXBvbmVudHM6dGFibGVfbWVudS5idXR0b25faW1hZ2VfYWx0JyIsCiAgICAiW1VudXNlZCBrZXldID4gJ3BhZ2VzOmFjdGlvbi5lZGl0X2FjdGlvbl9hbHQnIiwKICAgICJbVW51c2VkIGtleV0gPiAnbWV0YWRhdGE6Z29hbF9jcmVhdGUuZGVzY3JpcHRpb24nIgogIF0sCiAgInN2LVNFIjogWwogICAgIltVbnVzZWQga2V5XSA+ICdjb21wb25lbnRzOnRhYmxlX21lbnUuYnV0dG9uX2ltYWdlX2FsdCciLAogICAgIltVbnVzZWQga2V5XSA+ICdwYWdlczphY3Rpb24uZWRpdF9hY3Rpb25fYWx0JyIsCiAgICAiW1VudXNlZCBrZXldID4gJ21ldGFkYXRhOmdvYWxfY3JlYXRlLmRlc2NyaXB0aW9uJyIKICBdCn0KCmV4cGVjdChyZWNlaXZlZCkudG9CZShleHBlY3RlZCkgLy8gT2JqZWN0LmlzIGVxdWFsaXR5CgpFeHBlY3RlZDogMApSZWNlaXZlZDogNgogICAgYXQgL2hvbWUvdmlnZ28vR2l0SHViL2Vjby1wbGFubmVyL3Rlc3RzL2ZpbGVzL2xvY2FsZS1maWxlcy50czoxOjE1ODg5CmBgYAoKIyBUZXN0IHNvdXJjZQoKYGBgdHMKPiAgMSB8IGltcG9ydCAiLi4vbGliL2NvbnNvbGUiOwogICAgIHwgICAgICAgICAgICAgICAgICAgICAgICAgXiBFcnJvcjogVW51c2VkIGtleXMgaW4gbG9jYWxlIGZpbGVzOiB7CiAgIDIgfCBpbXBvcnQgZnMgZnJvbSAibm9kZTpmcyI7CiAgIDMgfCBpbXBvcnQgcGF0aCBmcm9tICJub2RlOnBhdGgiOwogICA0IHwgaW1wb3J0IHsgZ2xvYiB9IGZyb20gImdsb2IiOwogICA1IHwgaW1wb3J0IHsgZXhwZWN0LCB0ZXN0IH0gZnJvbSAicGxheXdyaWdodC90ZXN0IjsKICAgNiB8IGltcG9ydCB7IHVuaXF1ZUxvY2FsZXMsIG5hbWVzcGFjZXMsIExvY2FsZXMsIGxvY2FsZXNEaXIgfSBmcm9tICIuLi9pMThuVGVzdFZhcmlhYmxlcyI7CiAgIDcgfAogICA4IHwgLyogCiAgIDkgfCAgKioqKioqKioqKgogICAxMCB8ICAqIENvbmZpZyAqCiAgIDExIHwgICoqKioqKioqKioKICAgMTIgfCAgKi8KICAgMTMgfAogICAxNCB8IC8qKiBFdmVyeSBjb21ibyBvZiBsb2NhbGUgYW5kIG5zIGluIGEgMmQgYXJyYXkuICovCiAgIDE1IHwgY29uc3QgYWxsUGVybXV0YXRpb25zID0gdW5pcXVlTG9jYWxlcy5mbGF0TWFwKGxvY2FsZSA9PiBuYW1lc3BhY2VzLm1hcChuYW1lc3BhY2UgPT4gW2xvY2FsZSwgbmFtZXNwYWNlXSkpOwogICAxNiB8CiAgIDE3IHwgLyoqIEV2ZXJ5IE5TIGZpbGUgcGVyIGxvY2FsZSB3aXRoIHRoZWlyIGZsYXR0ZW5lZCBrZXktdmFsdWVzLiAqLwogICAxOCB8IGNvbnN0IGFsbEpTT04gPSBnZXRBbGxKU09ORmxhdHRlbmVkKCk7CiAgIDE5IHwKICAgMjAgfCAvKiogVGhlIGFwcCBmaWxlcyB0byBjaGVjay4gKi8KICAgMjEgfCBjb25zdCBhbGxUU1ggPSBnZXRBbGxUU1hGaWxlcygpOwogICAyMiB8CiAgIDIzIHwgLyoqIFdoZW4gdmFsaWRhdGluZyBwbHVyYWxpemVkIHRyYW5zbGF0aW9ucywgdXNlIHRoZXNlIHRvIGRldGVybWluZSBpZiBhIGJhc2Uga2V5IGlzYSB2YWxpZC4gKi8KICAgMjQgfCBjb25zdCB2YWxpZFBsdXJhbFN1ZmZpeGVzID0gWyJfb25lIiwgIl90d28iLCAiX2ZldyIsICJfbWFueSIsICJfb3RoZXIiLCAiX3plcm8iLF07CiAgIDI1IHwKICAgMjYgfCAvKiogU2luY2UgdGhlIHRyYW5zbGF0aW9uIHN5c3RlbSB1c2VzIGNsaWVudCBhbmQgc2VydmVyIHNpZGUgaW5zdGFuY2VzIG9mIGkxOG5leHQsIHdlIHRlc3QgZm9yIG1pc21hdGNoZXMuICovCiAgIDI3IHwgY29uc3QgdFNlcnZlclVzYWdlSW5kaWNhdGlvbnMgPSBbIkAvbGliL2kxOG5TZXJ2ZXIiLCAic2VydmVUZWEoIixdOwogICAyOCB8IGNvbnN0IHRDbGllbnRVc2FnZUluZGljYXRpb25zID0gWyJ1c2VUcmFuc2xhdGlvbiJdOwogICAyOSB8IGNvbnN0IHNlcnZlckluZGljYXRpb25zID0gWyJ1c2Ugc2VydmVyIiwgIm5leHQvc2VydmVyIiwgIm5leHQvaGVhZGVycyIsICJhY2Nlc3NDaGVja2VyIiwgImV4cG9ydCBkZWZhdWx0IGFzeW5jIGZ1bmN0aW9uIiwgImV4cG9ydCBhc3luYyBmdW5jdGlvbiJdOwogICAzMCB8IGNvbnN0IGNsaWVudEluZGljYXRpb25zID0gWyJ1c2UgY2xpZW50IiwgInVzZUVmZmVjdCIsICJ1c2VNZW1vIiwgInVzZVN0YXRlIiwgInVzZVJlZiIsXTsKICAgMzEgfCBjb25zdCBzZXJ2ZXJTaWRlRmlsZXNPdmVycmlkZSA9IFsicGFnZS50c3giLCAibGF5b3V0LnRzeCIsXS5tYXAoZmlsZSA9PiBmaWxlICYmIHBhdGguam9pbiguLi5maWxlLnNwbGl0KCIvIikpKTsKICAgMzIgfCBjb25zdCBjbGllbnRTaWRlRmlsZXNPdmVycmlkZTogc3RyaW5nW10gPSAoW10gYXMgc3RyaW5nW10pLm1hcChmaWxlID0+IGZpbGUgJiYgcGF0aC5qb2luKC4uLmZpbGUuc3BsaXQoIi8iKSkpOwogICAzMyB8IGNvbnN0IGV4ZW1wdGVkTWl4ZWRVc2VGaWxlcyA9IFsic3JjL2FwcC9sb2NhbGVzVGVzdC9wYWdlLnRzeCIsXS5tYXAoZmlsZSA9PiBmaWxlICYmIHBhdGguam9pbiguLi5maWxlLnNwbGl0KCIvIikpKTsKICAgMzQgfAogICAzNSB8IC8qKiBUaGVzZXMgYXJlIGlnbm9yZWQgZm9yIGNoZWNraW5nIG5hbWVzcGFjZSB1c2FnZSBjb25zaXN0ZW5jeSAqLwogICAzNiB8IGNvbnN0IGNvbW1vbk5hbWVzcGFjZXMgPSBbImNvbW1vbiIsICJtZXRhZGF0YSJdOwogICAzNyB8CiAgIDM4IHwgLyoqIFdoZW4gY2hlY2tpbmcgZm9yIG1peGVkIHVzZSBvZiBzcGFjZXMgdGhlc2UgYXJlIGFsbG93ZWQgaW4gYW55IGZpbGUgKi8KICAgMzkgfCBjb25zdCBrZXlzQWxsb3dlZERpcmVjdGx5SW5BcHAgPSBbImNvbW1vbjp0c3guIiwgImNvbW1vbjpwbGFjZWhvbGRlci4iLCAiY29tbW9uOnNjb3BlLiIsICJjb21tb246bGF5b3V0LiIsICJjb21tb246Y291bnQuIiwgImNvbW1vbjpuZXcuIiwgImNvbW1vbjplZGl0IiwgImNvbW1vbjpzY2FsaW5nX21ldGhvZHMiLCAiY29tbW9uOmNzcy4iLCAiY29tbW9uOjQwNC4iXTsKICAgNDAgfAogICA0MSB8IC8qKiBUaGUgU3dlZGlzaCByZWdleCBpcyB1c2VkIHRvIGZpbmQgaGFyZCBjb2RlZCBzd2VkaXNoIGluIHRoZSBhcHAgKi8KICAgNDIgfCBjb25zdCBzd2VkaXNoUmVnZXggPSAvKD88IVwvXC98XCp8XC9cKikoPzrDpXRnw6RyZHzDpXRnw6RyZGVufMOldGfDpHJkZXJ8w6V0Z8OkcmRlcm5hfG3DpWxiYW5hfG3DpWxiYW5hbnxtw6VsYmFub3J8bcOlbGJhbm9ybmF8ZsOkcmRwbGFufGbDpHJkcGxhbmVufGbDpHJkcGxhbmVyfGbDpHJkcGxhbnN2ZXJzaW9ufGbDpHJkcGxhbnN2ZXJzaW9uZW58ZsOkcmRwbGFuc3ZlcnNpb25lcnxlZmZla3R8ZWZmZWt0ZW58ZWZmZWt0ZXJ8ZWZmZWt0ZXJuYXxTa2FwYXxSZWRpZ2VyYXxSYWRlcmF8VGEgYm9ydHxMw6RnZyB0aWxsfFNwYXJhfEF2YnJ5dHxTw7ZrfFbDpGxqfFZpc2F8U29ydGVyYXxTw7ZrIGJsYW5kfFbDpGxqIGVufEluZ2VuIGFuZ2l2ZW58U2thcGEgbnl8RGV0IGZpbm5zIGluZ2F8VmlsbCBkdXxVdHZhbGRhfEFsbGF8RXh0ZXJuYSByZXN1cnNlcnxSZWxldmFudGEgYWt0w7ZyZXJ8S29zdG5hZHNlZmZla3Rpdml0ZXR8QmVza3Jpdm5pbmd8U3ZlcmlnZXxTdmVyaWdlc3xTdMOkbmd8bWVueXx2w6RsanxzcHLDpWt8YXR0fHNvbXxww6V8w6RyfGbDtnJ8dGlsbHxpbnRlfGV0dHxoYW58bWVufFvDpcOkw7bDhcOEw5ZdKVtcV10vZ2ltOwogICA0MyB8CiAgIDQ0IHwKICAgNDUgfCAvKiAKICAgNDYgfCAgKiBFeGNlcHRpb25zCiAgIDQ3IHwgICovCiAgIDQ4IHwKICAgNDkgfCAvLyBSZW1vdmVkIHNpbmNlIHRoZXNlIGFyZSBkZXBlbmRlbmNpZXMgb2YgYSBkaXNhYmxlZCB0ZXN0ICgiQ29tbW9uIHZhbHVlcyBub3QgcmVmZXJlbmNlZCIpLgogICA1MCB8IC8vIC8qKiBBbG1vc3QgYWx3YXlzIHByZWZlciBoYXZpbmcgbmVzdGVkICR0KCkgY2FsbHMgdG8gY29tbW9uIGluIG5hbWVzcGFjZXMgb3ZlciB1c2luZyBkdXBsaWNhdGUgdmFsdWVzLiBFeGNlcHRpb25zIHRvIHRoYXQgbmVlZCB0byBiZSBoZXJlLiAqLwogICA1MSB8IC8vIGNvbnN0IGV4ZW1wdGVkQ29tbW9uS2V5c1JlZiA9IFsiY29tbW9uOnRzeC4iLCAiY29tbW9uOnBsYWNlaG9sZGVyLiIsXTsgLy8gVGhpbmdzIHRoYXQgc2hvdWxkbid0IGFsd2F5cyBiZSByZWZlcmVuY2VkCiAgIDUyIHwgLy8gLyoqIFdoZW4gY2hlY2tpbmcgaWYgYSB2YWx1ZSBtYXkgYmUgYSBkdXBsaWNhdGUgb2YgYSBjb21tb24gdmFsdWUsIHZhbHVlcyBzdGFydGluZyB3aXRoIGFueSBvZiB0aGVzZSBzdHJpbmdzIHdpbGwgYmUgc2tpcHBlZC4gICovCiAgIDUzIHwgLy8gY29uc3QgZXhlbXB0ZWRDb21tb25WYWx1ZXNSZWY6IHN0cmluZ1tdID0gW107IC8vIE1vcmUgZmluZSBncmFpbmVkIG9wdGlvbiB0byB0aGUgYWJvdmUgb25lICh1c2VmdWwgZm9yIGxhbmd1YWdlIHNwZWNpZmljIGV4ZW1wdGlvbnMpCiAgIDU0IHwgLy8gLyoqIFRvIHByZXZlbnQgcmVjdXJyaW5nIGZhbHNlIHBvc2l0aXZlcywgZXhlbXB0IHRoZXNlIGtleXMgKi8KICAgNTUgfCAvLyBjb25zdCBleGVtcHRlZEtleXNVc2luZ0NvbW1vblZhbHVlcyA9IFsicGFnZXM6aW5mby5pbmZvX2JvZHkiLCAiY29tcG9uZW50czpjb25maXJtX2RlbGV0ZS5jb25maXJtYXRpb24iLF07CiAgIDU2IHwgLyoqIE9ycGhhbmVkIGtleXMgaW4gcm9vdCBsZXZlbHMgb2YgbmFtZXNwYWNlcyBhcmUgZGlzY291cmFnZWQsIGV4Y2VwdCBpbiB0aGVzZSBuYW1lc3BhY2VzICovCiAgIDU3IHwgY29uc3QgZXhlbXB0ZWRPcnBoYW5OUyA9IFsiY29tbW9uIiwgXTsKICAgNTggfCBjb25zdCBleGVtcHRlZE9ycGhhbktleXM6IHN0cmluZ1tdID0gW107CiAgIDU5IHwgLyoqIEEgdGVzdCBjaGVja3MgaWYgYW55IGtleXMgZGVmaW5lZCBnbyB1bnVzZWQuIFRoZXNlIGtleXMgYXJlIGV4ZW1wdGVkIGZyb20gdGhhdCB0ZXN0LiBfIGlzIGZvciBkZXNjcmlwdGlvbnMuICovCiAgIDYwIHwgY29uc3QgZXhlbXB0ZWRVbnVzZWRLZXlzOiBzdHJpbmdbXSA9IFsiXyIsICJjb21tb246Il07CiAgIDYxIHwKICAgNjIgfCAvKiAKICAgNjMgfCAgKioqKioqKioqCiAgIDY0IHwgICogVGVzdHMgKgogICA2NSB8ICAqKioqKioqKioKICAgNjYgfCAgKi8KICAgNjcgfAogICA2OCB8IC8qIERvZXMgZXZlcnkgbmFtZXNwYWNlIGV4aXN0IGluIGV2ZXJ5IGxvY2FsZT8gKi8KICAgNjkgfCB0ZXN0LmRlc2NyaWJlKCJOYW1lc3BhY2UgZmlsZXMgZXhpc3QiLCBhc3luYyAoKSA9PiB7CiAgIDcwIHwgICAvLyBUcmFjayBtaXNzaW5nIGFuZCBleHRyYSBuYW1lc3BhY2VzIHBlciBsb2NhbGUKICAgNzEgfCAgIGNvbnN0IHBlckxvY2FsZSA9IE9iamVjdC5mcm9tRW50cmllcyh1bmlxdWVMb2NhbGVzLm1hcChsb2NhbGUgPT4KICAgNzIgfCAgICAgW2xvY2FsZSBhcyBMb2NhbGVzLCB7IG1pc3Npbmc6IFtdIGFzIHN0cmluZ1tdLCBleHRyYTogW10gYXMgc3RyaW5nW10sIGVtcHR5OiBbXSBhcyBzdHJpbmdbXSB9XQogICA3MyB8ICAgKSk7CiAgIDc0IHwKICAgNzUgfCAgIHVuaXF1ZUxvY2FsZXMuZm9yRWFjaChsb2NhbGUgPT4gewogICA3NiB8ICAgICBjb25zdCBuc0ZpbGVzID0gZ2xvYi5zeW5jKGAke2xvY2FsZXNEaXJ9LyR7bG9jYWxlfS8qLmpzb25gKTsKICAgNzcgfCAgICAgY29uc3QgbnNGaWxlc05hbWVzID0gbnNGaWxlcy5tYXAoZmlsZSA9PiBwYXRoLmJhc2VuYW1lKGZpbGUsICIuanNvbiIpKTsKICAgNzggfAogICA3OSB8ICAgICBjb25zdCBtaXNzaW5nTlMgPSBuYW1lc3BhY2VzLmZpbHRlcihucyA9PiAhbnNGaWxlc05hbWVzLmluY2x1ZGVzKG5zKSk7CiAgIDgwIHwgICAgIGNvbnN0IGV4dHJhTlMgPSBuc0ZpbGVzTmFtZXMuZmlsdGVyKG5zID0+ICFuYW1lc3BhY2VzLmluY2x1ZGVzKG5zKSk7CiAgIDgxIHwgICAgIGNvbnN0IGVtcHR5TlMgPSBuc0ZpbGVzTmFtZXMuZmlsdGVyKG5zID0+IHsKICAgODIgfCAgICAgICBjb25zdCBmaWxlUGF0aCA9IHBhdGguam9pbihsb2NhbGVzRGlyLCBsb2NhbGUsIGAke25zfS5qc29uYCk7CiAgIDgzIHwgICAgICAgY29uc3QgY29udGVudCA9IGZzLnJlYWRGaWxlU3luYyhmaWxlUGF0aCwgInV0Zi04IikudHJpbSgpOwogICA4NCB8ICAgICAgIHJldHVybiAhY29udGVudCB8fCBjb250ZW50ID09PSAie30iOwogICA4NSB8ICAgICB9KTsKICAgODYgfAogICA4NyB8ICAgICBpZiAobWlzc2luZ05TLmxlbmd0aCA+IDApIHBlckxvY2FsZVtsb2NhbGVdLm1pc3NpbmcucHVzaCguLi5taXNzaW5nTlMpOwogICA4OCB8ICAgICBpZiAoZXh0cmFOUy5sZW5ndGggPiAwKSBwZXJMb2NhbGVbbG9jYWxlXS5leHRyYS5wdXNoKC4uLmV4dHJhTlMpOwogICA4OSB8ICAgICBpZiAoZW1wdHlOUy5sZW5ndGggPiAwKSBwZXJMb2NhbGVbbG9jYWxlXS5lbXB0eS5wdXNoKC4uLmVtcHR5TlMpOwogICA5MCB8ICAgfSk7CiAgIDkxIHwKICAgOTIgfCAgIGNvbnN0IG1pc3NpbmdOUyA9IE9iamVjdC5lbnRyaWVzKHBlckxvY2FsZSkuZmlsdGVyKChbXywgeyBtaXNzaW5nIH1dKSA9PiBtaXNzaW5nLmxlbmd0aCA+IDApOwogICA5MyB8ICAgY29uc3QgZXh0cmFOUyA9IE9iamVjdC5lbnRyaWVzKHBlckxvY2FsZSkuZmlsdGVyKChbXywgeyBleHRyYSB9XSkgPT4gZXh0cmEubGVuZ3RoID4gMCk7CiAgIDk0IHwgICBjb25zdCBlbXB0eU5TID0gT2JqZWN0LmVudHJpZXMocGVyTG9jYWxlKS5maWx0ZXIoKFtfLCB7IGVtcHR5IH1dKSA9PiBlbXB0eS5sZW5ndGggPiAwKTsKICAgOTUgfAogICA5NiB8ICAgdGVzdCgiTWlzc2luZyBuYW1lc3BhY2VzIiwgKCkgPT4gZXhwZWN0KG1pc3NpbmdOUy5sZW5ndGgsIGBNaXNzaW5nIG5hbWVzcGFjZXMgaW4gbG9jYWxlczogJHtKU09OLnN0cmluZ2lmeShtaXNzaW5nTlMsIG51bGwsIDIpfWApLnRvQmUoMCkpOwogICA5NyB8ICAgdGVzdCgiRXh0cmEgbmFtZXNwYWNlcyIsICgpID0+IGV4cGVjdChleHRyYU5TLmxlbmd0aCwgYEV4dHJhIG5hbWVzcGFjZXMgaW4gbG9jYWxlczogJHtKU09OLnN0cmluZ2lmeShleHRyYU5TLCBudWxsLCAyKX1gKS50b0JlKDApKTsKICAgOTggfCAgIHRlc3QoIkVtcHR5IG5hbWVzcGFjZXMiLCAoKSA9PiBleHBlY3QoZW1wdHlOUy5sZW5ndGgsIGBFbXB0eSBuYW1lc3BhY2VzIGluIGxvY2FsZXM6ICR7SlNPTi5zdHJpbmdpZnkoZW1wdHlOUywgbnVsbCwgMil9YCkudG9CZSgwKSk7CiAgIDk5IHwgfSk7CiAgMTAwIHwKICAxMDEgfCAvKiBEb2VzIGVuZ2xpc2ggaGF2ZSBhbGwga2V5cyB0byBmdW5jdGlvbiBhcyBhIGZhbGxiYWNrPyAqLwpgYGA="
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/home/viggo/GitHub/eco-planner/tests/files/locale-files.ts",
+                    "column": 15889,
+                    "line": 1
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "b37be48a585905a7554f-d7e9f1d272770425a7f1",
+          "file": "files/locale-files.ts",
+          "line": 1,
+          "column": 14321
+        }
+      ],
+      "suites": [
+        {
+          "title": "Namespace files exist",
+          "file": "files/locale-files.ts",
+          "line": 1,
+          "column": 2099,
+          "specs": [
+            {
+              "title": "Missing namespaces",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Locale files validation",
+                  "projectName": "Locale files validation",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 13,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-19T12:42:17.922Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b37be48a585905a7554f-3273346e23ab64d6fff0",
+              "file": "files/locale-files.ts",
+              "line": 1,
+              "column": 3154
+            },
+            {
+              "title": "Extra namespaces",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Locale files validation",
+                  "projectName": "Locale files validation",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 18,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-19T12:42:18.042Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b37be48a585905a7554f-aeb8ecad9f190438b18a",
+              "file": "files/locale-files.ts",
+              "line": 1,
+              "column": 3287
+            },
+            {
+              "title": "Empty namespaces",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Locale files validation",
+                  "projectName": "Locale files validation",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 6,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-19T12:42:18.100Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b37be48a585905a7554f-f11e506046a58be55bc5",
+              "file": "files/locale-files.ts",
+              "line": 1,
+              "column": 3412
+            }
+          ]
+        },
+        {
+          "title": "English as fallback",
+          "file": "files/locale-files.ts",
+          "line": 1,
+          "column": 3544,
+          "specs": [
+            {
+              "title": "Missing keys in non-english locales",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Locale files validation",
+                  "projectName": "Locale files validation",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 9,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-19T12:42:18.044Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b37be48a585905a7554f-6d354d2e8c51d960e97f",
+              "file": "files/locale-files.ts",
+              "line": 1,
+              "column": 3992
+            },
+            {
+              "title": "Missing keys in english",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Locale files validation",
+                  "projectName": "Locale files validation",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 10,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-19T12:42:17.989Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b37be48a585905a7554f-26157719f79a3e2ee406",
+              "file": "files/locale-files.ts",
+              "line": 1,
+              "column": 4173
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-06-19T12:42:16.459Z",
+    "duration": 5706.478,
+    "expected": 14,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}
