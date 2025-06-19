@@ -16,4 +16,4 @@ RUN yarn install --frozen-lockfile
 # Install Playwright browsers
 RUN yarn run playwright install
 
-CMD ["sh", "-c", "yarn run test:run | node tests/lib/test-middleware.ts"]
+CMD ["sh", "-c", "yarn run test:run"]

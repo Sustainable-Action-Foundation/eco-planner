@@ -20,7 +20,7 @@ export default defineConfig({
   //   [["github"], ["list"]]
   //   :
   //   [["list"], ["html", { open: "never" }]],
-  reporter: [["json"]],
+  reporter: [["github"]],
 
   // Global use
   use: {

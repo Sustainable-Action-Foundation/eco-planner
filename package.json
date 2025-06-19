@@ -11,7 +11,7 @@
     "predev": "tsx ./src/scripts/getBuildInfo.ts",
     "dev": "next dev --turbopack",
     "prebuild": "tsx ./src/scripts/generateLeapList.ts && tsx ./src/scripts/getDataSeriesValueFieldNames.ts && tsx ./src/scripts/getBuildInfo.ts",
-    "build": "next build",
+    "build": "next build --turbopack",
     "start": "next start",
     "lint": "next lint",
     "locales:format": "tsx ./src/scripts/localesFormat.ts",
