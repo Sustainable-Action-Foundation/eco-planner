@@ -52,7 +52,7 @@ export async function generateMetadata(props: {
       og_image_url: '/images/og_wind.png'
     })
   }
-  
+
   return buildMetadata({
     title: goal?.name,
     description: goal?.description,
@@ -157,7 +157,7 @@ export default async function Page(
   let shouldUpdate = false;
   if (goal.combinationParents) {
     for (const parent of goal.combinationParents) {
-      if (parent.parentGoal.dataSeries?.updatedAt && parent.parentGoal.dataSeries.updatedAt > (goal.dataSeries?.updatedAt ?? new Date(0))) {
+      if (parent.parentDataSeries?.updatedAt && parent.parentDataSeries.updatedAt > (goal.dataSeries?.updatedAt ?? new Date(0))) {
         shouldUpdate = true;
         break;
       }

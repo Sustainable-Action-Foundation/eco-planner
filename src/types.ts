@@ -145,7 +145,7 @@ export type RoadmapInput = Omit<
 export type GoalInput = Omit<
   Prisma.GoalCreateInput,
   'id' | 'createdAt' | 'updatedAt' | 'roadmap' | 'author' | 'dataSeries' | 'baselineDataSeries' |
-  'links' | 'comments' | 'actions' | 'combinationParents' | 'combinationChildren' | 'effects'
+  'links' | 'comments' | 'actions' | 'combinationParents' | 'effects' | 'tags'
 > & {
   // This will be turned into an actual dataSeries object by the API
   // The expected input is a stringified array of floats

@@ -20,9 +20,7 @@ export function ManualGoalForm({
     combinationScale: string | null,
     combinationParents: {
       isInverted: boolean,
-      parentGoal: {
-        dataSeries: DataSeries | null
-      }
+      parentDataSeries: DataSeries
     }[],
     author: { id: string, username: string },
     links?: { url: string, description: string | null }[],
@@ -84,11 +82,7 @@ export function InheritedGoalForm({
     combinationScale: string | null,
     combinationParents: {
       isInverted: boolean,
-      parentGoal: {
-        id: string,
-        dataSeries: DataSeries | null,
-        roadmapId: string,
-      }
+      parentDataSeries: DataSeries
     }[],
     author: { id: string, username: string },
     links?: { url: string, description: string | null }[],
@@ -193,11 +187,7 @@ export function CombinedGoalForm({
     combinationScale: string | null,
     combinationParents: {
       isInverted: boolean,
-      parentGoal: {
-        id: string,
-        dataSeries: DataSeries | null,
-        roadmapId: string,
-      }
+      parentDataSeries: DataSeries
     }[],
     author: { id: string, username: string },
     links?: { url: string, description: string | null }[],

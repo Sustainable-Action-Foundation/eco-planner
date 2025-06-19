@@ -42,11 +42,7 @@ export default function GoalForm({
     combinationScale: string | null,
     combinationParents: {
       isInverted: boolean,
-      parentGoal: {
-        id: string,
-        dataSeries: DataSeries | null,
-        roadmapId: string,
-      }
+      parentDataSeries: DataSeries,
     }[],
     author: { id: string, username: string },
     links?: { url: string, description: string | null }[],

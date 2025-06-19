@@ -159,15 +159,20 @@ export async function POST(request: NextRequest) {
   if (goal.inheritFrom?.length) {
     // Combine the data series of the parent goals
     const parentGoals = await Promise.all(goal.inheritFrom.map(({ id }) => getOneGoal(id)));
+    // If any parent is missing or has no data series, return an error
+    if (parentGoals.some(goal => !goal || !goal.dataSeries)) {
+      return Response.json({ message: 'Bad parent goals' },
+        { status: 400 }
+      );
+    }
     const combinationParents: {
       isInverted: boolean,
-      parentGoal: {
-        dataSeries: DataSeries | null
-      }
+      parentDataSeries: DataSeries
     }[] = goal.inheritFrom.map(({ id, isInverted }) => {
       const parentGoal = parentGoals.find(goal => goal?.id === id);
-      return { isInverted: isInverted ?? false, parentGoal: { dataSeries: parentGoal?.dataSeries ?? null } };
-    });
+      if (!parentGoal || !parentGoal.dataSeries) { return null; }
+      return { isInverted: isInverted ?? false, parentDataSeries: parentGoal.dataSeries };
+    }).filter((entry): entry is { isInverted: boolean, parentDataSeries: DataSeries } => entry !== null);
     dataValues = await recalculateGoal({ combinationScale: goal.combinationScale ?? null, combinationParents });
   } else if (goal.dataSeries?.length) {
     // Get data series from the request
@@ -226,7 +231,7 @@ export async function POST(request: NextRequest) {
           },
         } : undefined,
         combinationParents: {
-          create: [...(goal.inheritFrom ? goal.inheritFrom.map(({ id, isInverted }) => { return ({ parentGoalId: id, isInverted }) }) : [])],
+          create: [...(goal.inheritFrom ? goal.inheritFrom.map(({ id, isInverted }) => { return ({ parentDataSeriesId: id, isInverted }) }) : [])],
         },
         links: {
           create: goal.links?.map(link => {
@@ -427,15 +432,20 @@ export async function PUT(request: NextRequest) {
   if (goal.inheritFrom?.length) {
     // Combine the data series of the parent goals
     const parentGoals = await Promise.all(goal.inheritFrom.map(({ id }) => getOneGoal(id)));
+    // If any parent is missing or has no data series, return an error
+    if (parentGoals.some(goal => !goal || !goal.dataSeries)) {
+      return Response.json({ message: 'Bad parent goals' },
+        { status: 400 }
+      );
+    }
     const combinationParents: {
       isInverted: boolean,
-      parentGoal: {
-        dataSeries: DataSeries | null
-      }
+      parentDataSeries: DataSeries
     }[] = goal.inheritFrom.map(({ id, isInverted }) => {
       const parentGoal = parentGoals.find(goal => goal?.id === id);
-      return { isInverted: isInverted ?? false, parentGoal: { dataSeries: parentGoal?.dataSeries ?? null } };
-    });
+      if (!parentGoal || !parentGoal.dataSeries) { return null; }
+      return { isInverted: isInverted ?? false, parentDataSeries: parentGoal.dataSeries };
+    }).filter((entry): entry is { isInverted: boolean, parentDataSeries: DataSeries } => entry !== null);
     dataValues = await recalculateGoal({ combinationScale: goal.combinationScale ?? null, combinationParents });
   } else if (goal.dataSeries) {
     // Don't try to update if the received data series is undefined (but complain about null)
@@ -512,7 +522,7 @@ export async function PUT(request: NextRequest) {
             // Delete all previous connections and make new ones if goal.inheritFrom changes
             combinationParents: {
               deleteMany: {},
-              create: [...(goal.inheritFrom ? goal.inheritFrom.map(({ id, isInverted }) => { return ({ parentGoalId: id, isInverted }) }) : [])],
+              create: [...(goal.inheritFrom ? goal.inheritFrom.map(({ id, isInverted }) => { return ({ parentDataSeriesId: id, isInverted }) }) : [])],
             }
           }
         ),
