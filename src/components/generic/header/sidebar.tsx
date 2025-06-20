@@ -23,7 +23,7 @@ export default async function Sidebar() {
         Should there even be labels and stuff here? the screenreader is functionally the same regardless of if it is minimized or not.
         However the absence of labels may be confusing for visually impaired users who might still see the menu button but now have no context. 
       */}
-      {/* Maybe consider using aria-expanded alongside a button and additional js instead */}
+      {/* Consider using aria-expanded alongside a button and additional js instead */}
       <header className='padding-100'>
         <label className='padding-25 inline-grid round position-relative' aria-label={t("components:sidebar.toggle_menu_alt")}>
           <input type="checkbox" className={`${styles['sidebar-toggle']} position-absolute opacity-0`} defaultChecked />
@@ -41,7 +41,7 @@ export default async function Sidebar() {
             </Link>
             :
             <Link href="/signup" className='margin-bottom-300 seagreen round color-purewhite'>
-              <IconUserPlus aria-hidden='true' height={20} width={20} style={{ marginLeft: '2px'}} />
+              <IconUserPlus aria-hidden='true' height={20} width={20} style={{ marginLeft: '2px' }} />
               {t("components:sidebar.create_account")}
             </Link>
           }
@@ -54,7 +54,7 @@ export default async function Sidebar() {
             anchorName='--create-popover-button'
             popoverTarget='create-popover'
             className='transparent rounded'
-            style={{ fontSize: '1rem'}}
+            style={{ fontSize: '1rem' }}
           >
             <IconCirclePlus width={20} height={20} aria-hidden="true" style={{ marginLeft: "2px" }} />
             {t("components:sidebar.create")}
@@ -70,8 +70,8 @@ export default async function Sidebar() {
             indicator
           >
             <nav className='padding-25 smooth' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
-              <header 
-                className='padding-bottom-50 margin-bottom-50 margin-top-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center' 
+              <header
+                className='padding-bottom-50 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center'
                 style={{ borderBottom: '1px solid var(--gray)' }}
               >
                 <h2 className='font-weight-600 margin-0' style={{ fontSize: 'inherit' }}>{t("components:sidebar.create")}</h2>
@@ -79,7 +79,6 @@ export default async function Sidebar() {
                   <IconX aria-hidden='true' width={16} height={16} />
                 </button>
               </header>
-              {/* TODO SIDENAV: Does this need to be a list? */}
               <ul className='padding-0 margin-0' style={{ listStyle: 'none' }}>
                 <li>
                   <Link href='/metaRoadmap/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
@@ -124,7 +123,7 @@ export default async function Sidebar() {
             anchorName='--select-language-popover-button'
             popoverTarget='select-language-popover'
             className='transparent rounded'
-           >
+          >
             <IconWorld aria-hidden="true" width={20} height={20} style={{ marginLeft: "2px" }} />
             {t("components:sidebar.language")}
           </PopoverButton>
@@ -137,10 +136,9 @@ export default async function Sidebar() {
             margin={{ left: '2rem' }}
             indicator
           >
-            {/* TODO SIDENAV: accessibility, Fieldset is a group nested within a group? */}
             <fieldset className='padding-25 smooth fieldset-unset-pseudo-class' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
-              <div 
-                className='padding-bottom-50 margin-bottom-50 margin-top-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center' 
+              <div
+                className='padding-bottom-50 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center'
                 style={{ borderBottom: '1px solid var(--gray)' }}>
                 <legend className='font-weight-600'>{t("components:sidebar.language_alt")}</legend>
                 <button popoverTarget='select-language-popover' aria-label={t("components:sidebar.close_menu_language")} className='transparent grid padding-25 round'>
@@ -167,10 +165,9 @@ export default async function Sidebar() {
             margin={{ left: '2rem' }}
             indicator
           >
-            {/* TODO SIDENAV: accessibility, Fieldset is a group nested within a group? */}
             <fieldset className='padding-25 smooth fieldset-unset-pseudo-class' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
-              <div 
-                className='padding-bottom-50 margin-bottom-50 margin-top-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center' 
+              <div
+                className='padding-bottom-50 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center'
                 style={{ borderBottom: '1px solid var(--gray)' }}>
                 <legend className='font-weight-600'>{t("components:sidebar.settings")}</legend>
                 <button popoverTarget='settings-popover' aria-label={t("components:sidebar.close_menu_settings")} className='transparent grid padding-25 round'>
@@ -187,7 +184,7 @@ export default async function Sidebar() {
             :
             <Link href="/login" className="justify-content-flex-end color-pureblack rounded">
               <div className="flex-grow-100" style={{ marginLeft: "2px", textAlign: "left" }}>{t("common:tsx.login")}</div>
-              <IconLogin2 aria-hidden='true' height={20} width={20} style={{ marginRight: "2px",}} />
+              <IconLogin2 aria-hidden='true' height={20} width={20} style={{ marginRight: "2px", }} />
             </Link>
           }
         </div>

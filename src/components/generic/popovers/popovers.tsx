@@ -114,6 +114,7 @@ export function Popover({
         </div>
       : null } 
       <div
+        role='dialog'
         id={id}
         className={`
           ${styles[`anchor-inline-${anchorInlinePosition}`]} 
