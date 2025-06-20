@@ -61,6 +61,7 @@ services:
     depends_on:
       web:
         condition: service_healthy
+    restart: "no"
 
 networks:
   test_network:
