@@ -27,7 +27,6 @@ export default async function Sidebar() {
         </label>
       </header>
 
-      {/* TODO SIDENAV: For accesability purposes, this should be hidden when collapsed and on a phone  */}
       <div className={`${styles['sidebar-menu']} padding-100 flex-grow-100 flex flex-direction-column`}>
         <nav className='flex-grow-100 flex flex-direction-column'>
           {user?.isLoggedIn ?
