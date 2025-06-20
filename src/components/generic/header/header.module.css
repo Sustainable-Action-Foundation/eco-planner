@@ -41,6 +41,7 @@
 
   @media (max-width: 1250px) {
     transform: translateX(-100%);
+    display: none;
   }
 } 
 
@@ -48,7 +49,11 @@
 .aside > .sidebar-menu {
   width: calc(24px + (1rem * 2 + .5rem * 2)); /* TODO SIDENAV: Magic number */
   interpolate-size: allow-keywords;
-  transition: width .2s ease-out, transform .2s ease-out;
+  transition-property: width, transform, display; 
+
+  transition-duration: .2s;
+  transition-timing-function: ease-out;
+  transition-behavior: allow-discrete;
 
   @media (max-width: 1250px) {
     transform: translateX(0);
@@ -63,6 +68,19 @@
     background-color: white;
     /* Image height + image margin-block + image-padding-block + padding-top */
     padding-top: calc(1rem * 2 + 24px + .25rem * 2 + 1rem); /* TODO SIDENAV: Magic number */
+    @starting-style { 
+      transform: translateX(-100%);
+    }
+  }
+
+  /* 
+    TODO: Firefox is currently the only browser to not support transition-behavior: allow-discrete
+    togheter with display: none; However as transition-behavior is still a supported property
+    we cannot use a @support query. Thus we have this wonky fix which we can remove once firefox 
+    supports transition-behavior fully.  
+  */
+  @-moz-document url-prefix() { 
+    transition-property: width, display 
   }
 }
 

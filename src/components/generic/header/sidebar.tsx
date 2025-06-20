@@ -19,10 +19,6 @@ export default async function Sidebar() {
 
   return <>
     <aside className={`${styles["aside"]} inline-flex flex-direction-column`}>
-      {/* TODO SIDENAV: 
-        Should there even be labels and stuff here? the screenreader is functionally the same regardless of if it is minimized or not.
-        However the absence of labels may be confusing for visually impaired users who might still see the menu button but now have no context. 
-      */}
       {/* Consider using aria-expanded alongside a button and additional js instead */}
       <header className='padding-100'>
         <label className='padding-25 inline-grid round position-relative' aria-label={t("components:sidebar.toggle_menu_alt")}>
