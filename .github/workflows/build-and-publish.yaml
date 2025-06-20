@@ -5,6 +5,7 @@ on:
     branches:
       - 'main'
       - 'dev'
+      - 'tests'
     tags:
       - 'v*.*.*'
   pull_request:
