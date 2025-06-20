@@ -70,7 +70,10 @@ export default async function Sidebar() {
             indicator
           >
             <nav className='padding-25 smooth' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
-              <header className='padding-bottom-25 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center' style={{ borderBottom: '1px solid var(--gray)' }}>
+              <header 
+                className='padding-bottom-50 margin-bottom-50 margin-top-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center' 
+                style={{ borderBottom: '1px solid var(--gray)' }}
+              >
                 <h2 className='font-weight-600 margin-0' style={{ fontSize: 'inherit' }}>{t("components:sidebar.create")}</h2>
                 <button popoverTarget='create-popover' aria-label={t("components:sidebar.close_menu_create")} className='transparent grid padding-25 round'>
                   <IconX aria-hidden='true' width={16} height={16} />
@@ -136,7 +139,9 @@ export default async function Sidebar() {
           >
             {/* TODO SIDENAV: accessibility, Fieldset is a group nested within a group? */}
             <fieldset className='padding-25 smooth fieldset-unset-pseudo-class' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
-              <div className='padding-bottom-25 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center' style={{ borderBottom: '1px solid var(--gray)' }}>
+              <div 
+                className='padding-bottom-50 margin-bottom-50 margin-top-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center' 
+                style={{ borderBottom: '1px solid var(--gray)' }}>
                 <legend className='font-weight-600'>{t("components:sidebar.language_alt")}</legend>
                 <button popoverTarget='select-language-popover' aria-label={t("components:sidebar.close_menu_language")} className='transparent grid padding-25 round'>
                   <IconX aria-hidden='true' width={16} height={16} />
@@ -164,13 +169,15 @@ export default async function Sidebar() {
           >
             {/* TODO SIDENAV: accessibility, Fieldset is a group nested within a group? */}
             <fieldset className='padding-25 smooth fieldset-unset-pseudo-class' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
-              <div className='padding-bottom-25 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center' style={{ borderBottom: '1px solid var(--gray)' }}>
+              <div 
+                className='padding-bottom-50 margin-bottom-50 margin-top-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center' 
+                style={{ borderBottom: '1px solid var(--gray)' }}>
                 <legend className='font-weight-600'>{t("components:sidebar.settings")}</legend>
                 <button popoverTarget='settings-popover' aria-label={t("components:sidebar.close_menu_settings")} className='transparent grid padding-25 round'>
                   <IconX aria-hidden='true' width={16} height={16} />
                 </button>
               </div>
-              <GraphCookie className='margin-block-25 padding-50' style={{ width: '250px', gap: '.75rem' }} />
+              <GraphCookie className='margin-block-25 padding-50' style={{ width: '300px', gap: '.75rem' }} />
             </fieldset>
           </Popover>
         </div>
