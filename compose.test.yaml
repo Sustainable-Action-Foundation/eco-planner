@@ -55,6 +55,9 @@ services:
     environment:
       - TEST_BASE_URL=http://web:3000
       - CI=true # For playwright config
+    volumes:
+      - ./test-results:/app/test-results
+      - ./playwright-report:/app/playwright-report
     depends_on:
       web:
         condition: service_healthy

@@ -11,16 +11,35 @@ on:
     branches:
       - 'main'
       - 'dev'
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: sustainable-action-foundation/eco-planner
 
 jobs:
-# 
+  tests:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
+        
+        - name: Run tests
+          run: |
+            docker compose -f compose.test.yaml up --build --abort-on-container-exit --exit-code-from test
+        
+        - name: Upload test results
+          if: always()
+          uses: actions/upload-artifact@v4
+          with:
+            name: test-results
+            path: |
+              test-results/
+              playwright-report/
+            retention-days: 30
 
-
-  docker:
+  build-and-publish:
+    needs: tests
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -28,28 +47,31 @@ jobs:
       attestations: write
       id-token: write
     steps:
-      - name: Setup docker metadata
-        id: metadata
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          # Commits to main are tagged as edge in addition to its branch name tag
-          # Semver-major tags are only created for non-v0 tags
-          tags: |
-            type=edge
-            type=ref,event=branch
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}},enable=${{ !startsWith(github.ref, 'refs/tags/v0.') }}
+      - name: This was run 
+        run: echo "This was run on ${{ github.event_name }} event"
+        
+      # - name: Setup docker metadata
+      #   id: metadata
+      #   uses: docker/metadata-action@v5
+      #   with:
+      #     images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      #     # Commits to main are tagged as edge in addition to its branch name tag
+      #     # Semver-major tags are only created for non-v0 tags
+      #     tags: |
+      #       type=edge
+      #       type=ref,event=branch
+      #       type=semver,pattern={{major}}.{{minor}}
+      #       type=semver,pattern={{major}},enable=${{ !startsWith(github.ref, 'refs/tags/v0.') }}
 
-      - name: Login to GitHub Container Registry
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Login to GitHub Container Registry
+      #   if: github.event_name != 'pull_request'
+      #   uses: docker/login-action@v3
+      #   with:
+      #     registry: ${{ env.REGISTRY }}
+      #     username: ${{ github.repository_owner }}
+      #     password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
+      # - name: Build and push
         uses: docker/build-push-action@v6
         with:
           # Use a separate Dockerfile on non-main branches (contains prisma files in addition to the contents of the main Dockerfile)

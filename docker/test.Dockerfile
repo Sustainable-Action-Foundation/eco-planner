@@ -10,10 +10,12 @@ COPY .env* ./
 COPY playwright.config.* ./
 COPY tests ./tests/
 COPY package.json ./
+COPY yarn.lock ./
 
 RUN yarn install --frozen-lockfile
 
 # Install Playwright browsers
 RUN yarn run playwright install
 
-CMD ["sh", "-c", "yarn run test:run"]
+# CMD ["sh", "-c", "yarn run test:run"]
+CMD ["sh", "-c", "yarn run test:run --reporter=json > /app/test-results/results.json 2>&1 || exit $?"]
