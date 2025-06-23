@@ -31,8 +31,6 @@ services:
       - PORT=3000
       - DATABASE_URL=mysql://root:admin@db:3306/eco-planner
       - IRON_SESSION_PASSWORD=mt6EAckefnuUpKKzLG7Rr8mQJVkmvJ3j
-    env_file:
-      - .env
     depends_on:
       db:
         condition: service_healthy

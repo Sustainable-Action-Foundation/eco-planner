@@ -22,10 +22,24 @@ jobs:
   tests:  
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: adambirds/docker-compose-action@v1.5.0
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Run tests with Docker Compose
+        uses: adambirds/docker-compose-action@v1.5.0
         with:
           compose-file: "compose.test.yaml"
+          down-flags: "--volumes --remove-orphans"
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 30
 
   build-and-publish:
     needs: tests
