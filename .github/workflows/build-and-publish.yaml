@@ -39,7 +39,6 @@ jobs:
         with:
           compose-file: "compose.test.yaml"
           down-flags: "--volumes --remove-orphans"
-          services: "db web test"
       
       - name: Upload test results
         if: always()
