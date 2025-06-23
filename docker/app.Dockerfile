@@ -84,7 +84,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 RUN mkdir -p .next && chown -R nextjs:nodejs .next
 
 # App has an API endpoint which always returns 200 OK
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=5s --timeout=10s --start-period=5s --retries=10 \
   CMD curl -f http://localhost:${PORT}/api/health || exit 1
 
 # Switch to non-root user for security
