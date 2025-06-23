@@ -99,7 +99,7 @@ ARG GIT_SHORT_HASH
 ENV GIT_LONG_HASH=${GIT_LONG_HASH}
 ENV GIT_SHORT_HASH=${GIT_SHORT_HASH}
 
-# Use dumb-init to handle signals properly in containers
+# Use dumb-init to handle signals properly in containers since node isn't built for it
 ENTRYPOINT ["dumb-init", "--"]
 
 # Start the Next.js server
