@@ -31,6 +31,12 @@ services:
       - PORT=3000
       - DATABASE_URL=mysql://root:admin@db:3306/eco-planner
       - IRON_SESSION_PASSWORD=mt6EAckefnuUpKKzLG7Rr8mQJVkmvJ3j
+      - NODE_ENV=test
+      - NEXTAUTH_URL=http://web:3000
+      - NEXTAUTH_SECRET=test-secret-key-for-github-actions
+      - HOSTNAME=0.0.0.0
+    env_file:
+      - .env
     depends_on:
       db:
         condition: service_healthy

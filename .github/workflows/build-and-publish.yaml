@@ -25,11 +25,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
+      - name: Create test environment file
+        run: |
+          echo "DATABASE_URL=mysql://root:admin@db:3306/eco-planner" > .env
+          echo "TEST_BASE_URL=http://web:3000" >> .env
+          echo "IRON_SESSION_PASSWORD=mt6EAckefnuUpKKzLG7Rr8mQJVkmvJ3j" >> .env
+          echo "NODE_ENV=test" >> .env
+          echo "NEXTAUTH_URL=http://web:3000" >> .env
+          echo "NEXTAUTH_SECRET=test-secret-key-for-github-actions" >> .env
+      
       - name: Run tests with Docker Compose
         uses: adambirds/docker-compose-action@v1.5.0
         with:
           compose-file: "compose.test.yaml"
           down-flags: "--volumes --remove-orphans"
+          services: "db web test"
       
       - name: Upload test results
         if: always()
