@@ -18,35 +18,13 @@ env:
   IMAGE_NAME: sustainable-action-foundation/eco-planner
 
 jobs:
-  tests:
+  tests:  
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Create test environment file
-        run: |
-          echo "DATABASE_URL=mysql://root:admin@db:3306/eco-planner" > .env
-          echo "TEST_BASE_URL=http://web:3000" >> .env
-      
-      - name: Run tests
-        run: |
-          docker compose -f compose.test.yaml up --build --abort-on-container-exit --exit-code-from test
-      
-      - name: Cleanup test containers
-        if: always()
-        run: |
-          docker compose -f compose.test.yaml down --volumes --remove-orphans
-      
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
+      - uses: actions/checkout@v4
+      - uses: adambirds/docker-compose-action@v1.5.0
         with:
-          name: test-results
-          path: |
-            test-results/
-            playwright-report/
-          retention-days: 30
+          compose-file: "compose.test.yaml"
 
   build-and-publish:
     needs: tests
