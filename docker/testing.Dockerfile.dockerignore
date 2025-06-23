@@ -1,0 +1,5 @@
+**/*
+!tests/
+!docker/
+!playwright.config.*
+!package.json
