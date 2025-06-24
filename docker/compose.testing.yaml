@@ -3,12 +3,14 @@ name: Eco Planner Test Suite
 services:
   run_tests:
     build: 
-      context: docker/
-      dockerfile: testing.Dockerfile
+      context: ..
+      dockerfile: docker/testing.Dockerfile
     image: eco-planner-testing:latest
     depends_on:
-      - app
-      - db
+      app:
+        condition: service_healthy
+      db:
+        condition: service_healthy
     networks:
       - testing_network
     environment:
@@ -16,29 +18,46 @@ services:
 
   db:
     build:
-      context: docker/
-      dockerfile: db.Dockerfile
+      context: ..
+      dockerfile: docker/db.Dockerfile
     image: eco-planner-db:latest
     networks:
       - testing_network
     environment:
       - MARIADB_ROOT_PASSWORD=admin
       - MARIADB_DATABASE=eco-planner
-
+    healthcheck:
+      test: [ "CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "root", "-padmin" ]
+      interval: 3s
+      timeout: 10s
+      start_period: 3s
+      retries: 10
   app:
     build:
-      context: docker/
-      dockerfile: app.Dockerfile
+      context: ..
+      dockerfile: docker/app.Dockerfile
     image: eco-planner-app:latest
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - testing_network
+    ports:
+      - "8081:8081"
     environment:
       - IRON_SESSION_PASSWORD=7LSP6h4CNt9MKjgzxemgvbqQxb6ud5SMaLFfLLBbHxHb9BH7tK79nTmEvs6724kg
-      - DATABASE_URL=mariadb://root:password@db:3306/eco-planner
-
+      - DATABASE_URL=mysql://root:admin@db:3306/eco-planner
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_USER=${MAIL_USER}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - BASE_URL=http://localhost:8081
+    healthcheck:
+      test: "CMD-SHELL curl -f http://localhost:8081/api/health || exit 1"
+      interval: 3s
+      timeout: 10s
+      start_period: 3s
+      retries: 10
 
 networks:
   testing_network:
-    internal: true
+    internal: true 
