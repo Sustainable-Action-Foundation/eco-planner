@@ -2,6 +2,7 @@ name: eco-planner-test-suite
 
 services:
   run_tests:
+    pull_policy: build
     build: 
       context: ..
       dockerfile: docker/testing.Dockerfile
@@ -19,6 +20,7 @@ services:
     restart: "no"
 
   db:
+    pull_policy: build
     build:
       context: ..
       dockerfile: docker/db.Dockerfile
@@ -28,11 +30,12 @@ services:
     environment:
       - MARIADB_ROOT_PASSWORD=admin
       - MARIADB_DATABASE=eco-planner
-    # Debugging locally
+    # Debugging locally. Also switch to `internal: false`
     # ports:
     #   - "3366:3306"
 
   db_seed:
+    pull_policy: build
     build:
       context: ..
       dockerfile: docker/db-seed.Dockerfile
@@ -47,6 +50,7 @@ services:
     restart: "no"
 
   app:
+    pull_policy: build
     build:
       context: ..
       dockerfile: docker/app.Dockerfile
@@ -69,4 +73,6 @@ services:
 
 networks:
   testing_network:
-    internal: false 
+    # Swap these to access the database from outside the Docker network 
+    internal: true
+    # internal: false
