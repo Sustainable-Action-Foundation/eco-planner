@@ -2,16 +2,42 @@ name: Eco Planner Test Suite
 
 services:
   run_tests:
+    build: 
+      context: docker/
+      dockerfile: testing.Dockerfile
+    image: eco-planner-testing:latest
+    depends_on:
+      - app
+      - db
     networks:
       - testing_network
+    environment:
+      - CI=true
 
   db:
+    build:
+      context: docker/
+      dockerfile: db.Dockerfile
+    image: eco-planner-db:latest
     networks:
       - testing_network
+    environment:
+      - MARIADB_ROOT_PASSWORD=admin
+      - MARIADB_DATABASE=eco-planner
 
   app:
+    build:
+      context: docker/
+      dockerfile: app.Dockerfile
+    image: eco-planner-app:latest
+    depends_on:
+      - db
     networks:
       - testing_network
+    environment:
+      - IRON_SESSION_PASSWORD=7LSP6h4CNt9MKjgzxemgvbqQxb6ud5SMaLFfLLBbHxHb9BH7tK79nTmEvs6724kg
+      - DATABASE_URL=mariadb://root:password@db:3306/eco-planner
+
 
 networks:
   testing_network:
