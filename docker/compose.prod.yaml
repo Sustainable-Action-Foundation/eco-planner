@@ -1,0 +1,17 @@
+name: eco-planner-production-build
+
+services:
+  app:
+    pull_policy: build
+    build:
+      context: ..
+      dockerfile: docker/app.Dockerfile
+    image: eco-planner-app:edge
+    networks:
+      - default
+    ports:
+      - "8081:8081"
+    environment:
+      - IRON_SESSION_PASSWORD=7LSP6h4CNt9MKjgzxemgvbqQxb6ud5SMaLFfLLBbHxHb9BH7tK79nTmEvs6724kg
+      - DATABASE_URL=mysql://root:admin@db:3306/eco-planner
+      - BASE_URL=http://localhost:8081
