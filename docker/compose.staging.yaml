@@ -1,57 +1,70 @@
-name: eco-planner-staging-build
+name: eco-planner-staging
 
 services:
   db:
-    pull_policy: build
-    build:
-      context: ..
-      dockerfile: docker/db.Dockerfile
-    image: eco-planner-db:dev
+    image: mariadb:lts
+    restart: always
     networks:
       - staging_network
+    volumes:
+      - staging_data:/mariadb
     environment:
-      - MARIADB_ROOT_PASSWORD=admin
-      - MARIADB_DATABASE=eco-planner
-    restart: always
+      - MARIADB_DATABASE=${MARIADB_DATABASE}
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      start_period: 1m
+      start_interval: 5s
+      interval: 15s
+      timeout: 5s
+      retries: 10
 
   db_seed:
+    # TODO: Change to pulling a prebuilt image when available
+    image: eco-planner-db-seed:dev
     pull_policy: build
     build:
       context: ..
       dockerfile: docker/db-seed.Dockerfile
-    image: eco-planner-db-seed:dev
+    restart: no
     depends_on:
       db:
         condition: service_healthy
     networks:
       - staging_network
     environment:
-      - DATABASE_URL=mysql://root:admin@db:3306/eco-planner
-    restart: "no"
+      - DATABASE_URL=${DATABASE_URL}
 
   app:
-    pull_policy: build
-    build:
-      context: ..
-      dockerfile: docker/app.Dockerfile
-    image: eco-planner-app:dev
+    image: ghcr.io/sustainable-action-foundation/eco-planner:dev
+    pull_policy: pull
+    restart: always
     depends_on:
       db:
         condition: service_healthy
       db_seed:
         condition: service_completed_successfully
     networks:
-      - staging_network
       - default
+      - staging_network
     ports:
       - "8081:8081"
     environment:
-      - IRON_SESSION_PASSWORD=7LSP6h4CNt9MKjgzxemgvbqQxb6ud5SMaLFfLLBbHxHb9BH7tK79nTmEvs6724kg
-      - DATABASE_URL=mysql://root:admin@db:3306/eco-planner
-      - SKIP_MAIL_SELF_TEST=true
-      - BASE_URL=http://localhost:8081
-    restart: always
+      # Database connection string
+      - DATABASE_URL=${DATABASE_URL}
+      # Iron session cookie encryption password
+      - IRON_SESSION_PASSWORD=${IRON_SESSION_PASSWORD}
+      # Used to connect mailClient to SMTP server
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_USER=${MAIL_USER}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      # Used for links in emails and as canonical url in meta tags
+      - BASE_URL=${BASE_URL}
 
 networks:
   staging_network:
     internal: true
+
+volumes:
+  staging_data:
+    driver: local

@@ -2,11 +2,12 @@ name: eco-planner-test-suite
 
 services:
   run_tests:
+    image: eco-planner-testing:test
     pull_policy: build
     build: 
       context: ..
       dockerfile: docker/testing.Dockerfile
-    image: eco-planner-testing:dev
+    restart: no
     depends_on:
       app:
         condition: service_healthy
@@ -17,30 +18,37 @@ services:
     environment:
       - CI=true
       - TEST_BASE_URL=http://app:8081
-    restart: "no"
 
   db:
-    pull_policy: build
-    build:
-      context: ..
-      dockerfile: docker/db.Dockerfile
-    image: eco-planner-db:dev
-    networks:
-      - testing_network
-    environment:
-      - MARIADB_ROOT_PASSWORD=admin
-      - MARIADB_DATABASE=eco-planner
+    image: mariadb:lts
     restart: always
-    # Debugging locally. Also switch to `internal: false`
+    networks:
+      # - default
+      - testing_network
+    # For debugging locally you can uncomment the port mapping below and the default network above,
+    # allowing you to access the database from your host machine at localhost:3366.
     # ports:
     #   - "3366:3306"
+    volumes:
+      - testing_data:/mariadb
+    environment:
+      - MARIADB_DATABASE=eco-planner
+      - MARIADB_ROOT_PASSWORD=admin
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      start_period: 1m
+      start_interval: 5s
+      interval: 15s
+      timeout: 5s
+      retries: 10
 
   db_seed:
+    image: eco-planner-db-seed:test
     pull_policy: build
     build:
       context: ..
       dockerfile: docker/db-seed.Dockerfile
-    image: eco-planner-db-seed:dev
+    restart: no
     depends_on:
       db:
         condition: service_healthy
@@ -48,22 +56,22 @@ services:
       - testing_network
     environment:
       - DATABASE_URL=mysql://root:admin@db:3306/eco-planner
-    restart: "no"
 
   app:
+    image: eco-planner-app:test
     pull_policy: build
     build:
       context: ..
       dockerfile: docker/app.Dockerfile
-    image: eco-planner-app:dev
+    restart: always
     depends_on:
       db:
         condition: service_healthy
       db_seed:
         condition: service_completed_successfully
     networks:
-      - testing_network
       - default
+      - testing_network
     ports:
       - "8081:8081"
     environment:
@@ -71,10 +79,11 @@ services:
       - DATABASE_URL=mysql://root:admin@db:3306/eco-planner
       - SKIP_MAIL_SELF_TEST=true
       - BASE_URL=http://localhost:8081
-    restart: always
 
 networks:
   testing_network:
-    # Swap these to access the database from outside the Docker network 
     internal: true
-    # internal: false
+
+volumes:
+  testing_data:
+    driver: local

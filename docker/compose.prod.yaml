@@ -1,15 +1,22 @@
-name: eco-planner-production-build
+name: eco-planner-production
 
 services:
   app:
-    pull_policy: always
     image: ghcr.io/sustainable-action-foundation/eco-planner:edge
+    pull_policy: always
+    restart: always
     networks:
       - default
     ports:
       - "8081:8081"
     environment:
-      - IRON_SESSION_PASSWORD=7LSP6h4CNt9MKjgzxemgvbqQxb6ud5SMaLFfLLBbHxHb9BH7tK79nTmEvs6724kg
-      - DATABASE_URL=mysql://root:admin@db:3306/eco-planner
-      - BASE_URL=http://localhost:8081
-    restart: always
+      # Database connection string
+      - DATABASE_URL=${DATABASE_URL:?error}
+      # Iron session cookie encryption password
+      - IRON_SESSION_PASSWORD=${IRON_SESSION_PASSWORD:?error}
+      # Used to connect mailClient to SMTP server
+      - MAIL_HOST=${MAIL_HOST:?error}
+      - MAIL_USER=${MAIL_USER:?error}
+      - MAIL_PASSWORD=${MAIL_PASSWORD:?error}
+      # Used for links in emails and as canonical url in meta tags
+      - BASE_URL=${BASE_URL}
