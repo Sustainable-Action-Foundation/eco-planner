@@ -16,6 +16,7 @@ services:
     environment:
       - CI=true
       - TEST_BASE_URL=http://app:8081
+    restart: "no"
 
   db:
     build:
@@ -27,8 +28,11 @@ services:
     environment:
       - MARIADB_ROOT_PASSWORD=admin
       - MARIADB_DATABASE=eco-planner
+    # Debugging locally
+    # ports:
+    #   - "3366:3306"
 
-  db-seed:
+  db_seed:
     build:
       context: ..
       dockerfile: docker/db-seed.Dockerfile
@@ -50,7 +54,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      db-seed:
+      db_seed:
         condition: service_completed_successfully
     networks:
       - testing_network
@@ -65,4 +69,4 @@ services:
 
 networks:
   testing_network:
-    internal: true 
+    internal: false 
