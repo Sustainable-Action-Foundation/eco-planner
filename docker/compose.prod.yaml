@@ -3,11 +3,7 @@ name: eco-planner-production-build
 services:
   app:
     pull_policy: always
-    build:
-      context: ..
-      dockerfile: docker/app.Dockerfile
     image: ghcr.io/sustainable-action-foundation/eco-planner:edge
-    restart: always
     networks:
       - default
     ports:
@@ -16,3 +12,4 @@ services:
       - IRON_SESSION_PASSWORD=7LSP6h4CNt9MKjgzxemgvbqQxb6ud5SMaLFfLLBbHxHb9BH7tK79nTmEvs6724kg
       - DATABASE_URL=mysql://root:admin@db:3306/eco-planner
       - BASE_URL=http://localhost:8081
+    restart: always
