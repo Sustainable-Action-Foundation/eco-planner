@@ -28,6 +28,20 @@ services:
       - MARIADB_ROOT_PASSWORD=admin
       - MARIADB_DATABASE=eco-planner
 
+  db-seed:
+    build:
+      context: ..
+      dockerfile: docker/db-seed.Dockerfile
+    image: eco-planner-db-seed:latest
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - testing_network
+    environment:
+      - DATABASE_URL=mysql://root:admin@db:3306/eco-planner
+    restart: "no"
+
   app:
     build:
       context: ..
@@ -36,6 +50,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      db-seed:
+        condition: service_completed_successfully
     networks:
       - testing_network
       - default
