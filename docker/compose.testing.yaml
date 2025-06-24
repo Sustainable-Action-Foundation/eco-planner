@@ -1,4 +1,4 @@
-name: Eco Planner Test Suite
+name: eco-planner-test-suite
 
 services:
   run_tests:
@@ -15,6 +15,7 @@ services:
       - testing_network
     environment:
       - CI=true
+      - TEST_BASE_URL=http://app:8081
 
   db:
     build:
@@ -26,12 +27,7 @@ services:
     environment:
       - MARIADB_ROOT_PASSWORD=admin
       - MARIADB_DATABASE=eco-planner
-    healthcheck:
-      test: [ "CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "root", "-padmin" ]
-      interval: 3s
-      timeout: 10s
-      start_period: 3s
-      retries: 10
+
   app:
     build:
       context: ..
@@ -42,21 +38,14 @@ services:
         condition: service_healthy
     networks:
       - testing_network
+      - default
     ports:
       - "8081:8081"
     environment:
       - IRON_SESSION_PASSWORD=7LSP6h4CNt9MKjgzxemgvbqQxb6ud5SMaLFfLLBbHxHb9BH7tK79nTmEvs6724kg
       - DATABASE_URL=mysql://root:admin@db:3306/eco-planner
-      - MAIL_HOST=${MAIL_HOST}
-      - MAIL_USER=${MAIL_USER}
-      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - SKIP_MAIL_SELF_TEST=true
       - BASE_URL=http://localhost:8081
-    healthcheck:
-      test: "CMD-SHELL curl -f http://localhost:8081/api/health || exit 1"
-      interval: 3s
-      timeout: 10s
-      start_period: 3s
-      retries: 10
 
 networks:
   testing_network:
