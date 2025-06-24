@@ -30,6 +30,7 @@ services:
     environment:
       - MARIADB_ROOT_PASSWORD=admin
       - MARIADB_DATABASE=eco-planner
+    restart: always
     # Debugging locally. Also switch to `internal: false`
     # ports:
     #   - "3366:3306"
@@ -70,6 +71,7 @@ services:
       - DATABASE_URL=mysql://root:admin@db:3306/eco-planner
       - SKIP_MAIL_SELF_TEST=true
       - BASE_URL=http://localhost:8081
+    restart: always
 
 networks:
   testing_network:

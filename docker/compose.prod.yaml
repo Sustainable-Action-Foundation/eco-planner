@@ -2,11 +2,12 @@ name: eco-planner-production-build
 
 services:
   app:
-    pull_policy: build
+    pull_policy: always
     build:
       context: ..
       dockerfile: docker/app.Dockerfile
-    image: eco-planner-app:edge
+    image: ghcr.io/sustainable-action-foundation/eco-planner:edge
+    restart: always
     networks:
       - default
     ports:

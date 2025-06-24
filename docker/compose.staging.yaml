@@ -12,6 +12,7 @@ services:
     environment:
       - MARIADB_ROOT_PASSWORD=admin
       - MARIADB_DATABASE=eco-planner
+    restart: always
 
   db_seed:
     pull_policy: build
@@ -49,6 +50,7 @@ services:
       - DATABASE_URL=mysql://root:admin@db:3306/eco-planner
       - SKIP_MAIL_SELF_TEST=true
       - BASE_URL=http://localhost:8081
+    restart: always
 
 networks:
   staging_network:
