@@ -1,12 +1,25 @@
 'use client'
 
 import { useTranslation } from "react-i18next"
-import { IconLogout2 } from "@tabler/icons-react"
 
-export default function LogoutButton() {
+export default function LogoutButton({
+  id,
+  className,
+  style,
+  children,
+}: {
+  id?: string,
+  className?: string,
+  style?: React.CSSProperties,
+  children?: React.ReactNode,
+}) {
   const { t } = useTranslation(["common", "components"])
   return (
-    <button className="justify-content-flex-end transparent rounded" onClick={async () => {
+    <button       
+      id={id}
+      className={`${className}`}
+      style={{ ...style }}
+      onClick={async () => {
       fetch('/api/logout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -18,8 +31,7 @@ export default function LogoutButton() {
         }
       })
     }}>
-      <div className="flex-grow-100" style={{ marginLeft: "2px", textAlign: "left" }}>{t("common:tsx.logout")}</div>
-      <IconLogout2 width={20} height={20} style={{ marginRight: '2px'}} aria-hidden="true" />
+      {children}
     </button>
   )
 }

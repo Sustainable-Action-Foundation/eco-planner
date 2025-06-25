@@ -8,7 +8,7 @@ import Link from 'next/link'
 import { LanguageSwitcher } from "@/components/languageSwitcher"
 import serveTea from "@/lib/i18nServer";
 import { PopoverButton, Popover } from '@/components/generic/popovers/popovers';
-import { IconCirclePlus, IconHome, IconInfoCircle, IconLogin2, IconMenu2, IconPlus, IconSettings, IconUser, IconUserPlus, IconWorld, IconX } from '@tabler/icons-react'
+import { IconCirclePlus, IconHome, IconInfoCircle, IconLogin2, IconLogout2, IconMenu2, IconPlus, IconSettings, IconUser, IconUserPlus, IconWorld, IconX } from '@tabler/icons-react'
 import GraphCookie from '@/components/cookies/graphCookie';
 
 export default async function Sidebar() {
@@ -174,12 +174,16 @@ export default async function Sidebar() {
           </Popover>
         </div>
         <div className="padding-top-100 margin-top-100" style={{ borderTop: "1px solid silver", fontSize: '.8rem' }}>
+          {/* Overwrite logout/login button padding given in css file, as icon is on the right not left as with the links */}
           {user?.isLoggedIn ?
-            <LogoutButton />
+            <LogoutButton className='justify-content-flex-end transparent rounded' style={{paddingRight: '.5rem'}}>
+              <div className="flex-grow-100" style={{ marginLeft: "2px", textAlign: "left" }}>{t("common:tsx.logout")}</div>
+              <IconLogout2 width={20} height={20} style={{ marginRight: '2px'}} aria-hidden="true" />
+            </LogoutButton>
             :
-            <Link href="/login" className="justify-content-flex-end color-pureblack rounded">
+            <Link href="/login" className="justify-content-flex-end color-pureblack rounded" style={{paddingRight: '.5rem'}}>
               <div className="flex-grow-100" style={{ marginLeft: "2px", textAlign: "left" }}>{t("common:tsx.login")}</div>
-              <IconLogin2 aria-hidden='true' height={20} width={20} style={{ marginRight: "2px", }} />
+              <IconLogin2 height={20} width={20} style={{ marginRight: "2px", }} aria-hidden='true' />
             </Link>
           }
         </div>
