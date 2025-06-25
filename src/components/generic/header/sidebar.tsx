@@ -113,7 +113,7 @@ export default async function Sidebar() {
             {t("components:sidebar.about")}
           </Link>
         </nav>
-        <div className="margin-top-300">
+        <div className="margin-top-300 font-size-smaller">
           <PopoverButton
             anchorName='--select-language-popover-button'
             popoverTarget='select-language-popover'
@@ -173,17 +173,17 @@ export default async function Sidebar() {
             </fieldset>
           </Popover>
         </div>
-        <div className="padding-top-100 margin-top-100" style={{ borderTop: "1px solid silver", fontSize: '.8rem' }}>
+        <div className="padding-top-100 margin-top-100 font-size-smaller" style={{ borderTop: "1px solid silver"}}>
           {/* Overwrite logout/login button padding given in css file, as icon is on the right not left as with the links */}
           {user?.isLoggedIn ?
             <LogoutButton className='justify-content-flex-end transparent rounded' style={{paddingRight: '.5rem'}}>
-              <div className="flex-grow-100" style={{ marginLeft: "2px", textAlign: "left" }}>{t("common:tsx.logout")}</div>
-              <IconLogout2 width={20} height={20} style={{ marginRight: '2px'}} aria-hidden="true" />
+              <div className="flex-grow-100 text-align-left">{t("common:tsx.logout")}</div>
+              <IconLogout2 width={20} height={20} aria-hidden="true" />
             </LogoutButton>
             :
             <Link href="/login" className="justify-content-flex-end color-pureblack rounded" style={{paddingRight: '.5rem'}}>
-              <div className="flex-grow-100" style={{ marginLeft: "2px", textAlign: "left" }}>{t("common:tsx.login")}</div>
-              <IconLogin2 height={20} width={20} style={{ marginRight: "2px", }} aria-hidden='true' />
+              <div className="flex-grow-100 text-align-left">{t("common:tsx.login")}</div>
+              <IconLogin2 height={20} width={20} aria-hidden='true' />
             </Link>
           }
         </div>

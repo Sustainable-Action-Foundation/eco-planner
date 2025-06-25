@@ -1,5 +1,9 @@
 /* custom (not yet added to semantic style sheets= */
 
+.font-size-smaller {
+  font-size: smaller;
+}
+
 .opacity-0 {
   opacity: 0;
 }
