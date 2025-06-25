@@ -57,6 +57,7 @@ COPY . .
 ENV NODE_ENV=production
 # Next.js collects completely anonymous telemetry data about general usage. Learn more here: https://nextjs.org/telemetry
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV CI=true
 
 # Build the application
 RUN yarn run build

@@ -1,18 +1,16 @@
 import { defineConfig, devices } from "playwright/test";
 
 export const webserverURL = process.env.TEST_BASE_URL || "http://localhost:3000";
+const CI = !!process.env.CI;
 
 export default defineConfig({
-  // Look for test files in the "tests" directory, relative to this configuration file.
   testDir: "./tests",
 
-  // Run all tests in parallel.
-  fullyParallel: true,
-  workers: "90%",
+  // Parallelize in non-CI
+  fullyParallel: CI ? false : true,
+  workers: CI ? undefined : "90%",
 
-  // Fail the build on CI if you accidentally left test.only in the source code.
-  forbidOnly: !!process.env.CI,
-
+  // One retry in case of flaky tests
   retries: 1,
 
   // Reporter to use
@@ -20,7 +18,7 @@ export default defineConfig({
   //   [["github"], ["list"]]
   //   :
   //   [["list"], ["html", { open: "never" }]],
-  reporter: [["github"], ["list"]],
+  reporter: [["github"]],
 
   // Global use
   use: {
@@ -90,10 +88,15 @@ export default defineConfig({
       // dependencies: ["Locale files validation"],
     }
   ],
-  webServer: !process.env.CI ? {
+
+  // Running locally starts next.js server from here. Make sure to have built the app first.
+  webServer: !!process.env.CI ? undefined : {
     timeout: 1000 * 1000,
     command: "yarn run start",
     url: webserverURL,
     reuseExistingServer: true,
-  } : undefined,
+  },
+
+  // Fail the build on CI if you accidentally left test.only in the source code.
+  forbidOnly: !!process.env.CI,
 });

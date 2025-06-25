@@ -1,5 +1,5 @@
 import { uniqueLocales } from "i18nTestVariables";
-import { expect, Page } from "playwright/test";
+import { expect, type Page } from "playwright/test";
 
 export async function switchLanguage(page: Page, languageAlias: string) {
   // Open dialog

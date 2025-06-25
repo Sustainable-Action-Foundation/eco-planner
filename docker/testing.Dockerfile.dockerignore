@@ -3,3 +3,5 @@
 !docker/
 !playwright.config.*
 !package.json
+!public/locales
+!yarn.lock*

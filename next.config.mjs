@@ -12,7 +12,7 @@ const nextConfig = {
       },
     }
   } : {}),
-  output: 'standalone',
+  output: process.env.CI ? 'standalone' : undefined,
   webpack: (
     config,
     { _buildId, _dev, _isServer, _defaultLoaders, _nextRuntime, _webpack }

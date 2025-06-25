@@ -45,10 +45,10 @@ COPY --from=deps /testing/node_modules ./node_modules
 # Copy source code (has its own .dockerignore)
 COPY . .
 
-# Set environment variables for testing
+# Set   environment variables for testing
 ENV LOGIN_USERNAME=admin
 ENV LOGIN_PASSWORD=admin
-ENV SITE_URL=http://localhost:3000
+ENV CI=true
 
 # Set the entrypoint for testing
 ENTRYPOINT ["dumb-init", "yarn", "test:run"]
