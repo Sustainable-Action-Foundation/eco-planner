@@ -2,16 +2,15 @@
 # Dockerfile for Prisma database seeding
 
 # Build arguments
-ARG NODE_VERSION="20"
+ARG NODE_VERSION="22"
 
-FROM node:${NODE_VERSION}-alpine AS base
+FROM node:${NODE_VERSION}-bookworm AS base
 
 # Install security updates and essential packages
-RUN apk update && apk upgrade && \
-  apk add --no-cache \
-  libc6-compat \
-  curl \
-  && rm -rf /var/cache/apk/*
+RUN apt-get update && apt-get upgrade -y && \
+  apt-get install -y --no-install-recommends \
+  dumb-init \
+  && rm -rf /var/lib/apt/lists/*
 
 # Enable corepack for modern package manager support
 RUN corepack enable

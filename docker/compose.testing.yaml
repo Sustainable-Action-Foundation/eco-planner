@@ -1,13 +1,13 @@
 name: eco-planner-test-suite
 
 services:
-  run_tests:
+  tests:
     image: eco-planner-testing:test
     pull_policy: build
     build: 
       context: ..
       dockerfile: docker/testing.Dockerfile
-    restart: no
+    restart: "no"
     depends_on:
       app:
         condition: service_healthy
@@ -48,7 +48,7 @@ services:
     build:
       context: ..
       dockerfile: docker/db-seed.Dockerfile
-    restart: no
+    restart: "no"
     depends_on:
       db:
         condition: service_healthy
@@ -79,6 +79,22 @@ services:
       - DATABASE_URL=mysql://root:admin@db:3306/eco-planner
       - SKIP_MAIL_SELF_TEST=true
       - BASE_URL=http://localhost:8081
+
+  # Shuts down the stack after tests are completed
+  cleanup:
+    image: docker:cli
+    restart: "no"
+    depends_on:
+      tests:
+        condition: service_completed_successfully
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: >
+      sh -c "
+        echo 'Tests completed, shutting down stack...' &&
+        # Wait
+        sleep 5 && docker compose -f /compose/compose.testing.yaml down
+      "
 
 networks:
   testing_network:

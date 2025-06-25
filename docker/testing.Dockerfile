@@ -7,13 +7,13 @@ ARG NODE_VERSION="20"
 # ============================================================================
 # Base stage - Common dependencies and setup
 # ============================================================================
-FROM node:${NODE_VERSION}-alpine AS base
+FROM node:${NODE_VERSION}-bookworm AS base
 
 # Install security updates and essential packages
-RUN apk update && apk upgrade && \
-  apk add --no-cache \
+RUN apt-get update && apt-get upgrade -y && \
+  apt-get install -y --no-install-recommends \
   dumb-init \
-  && rm -rf /var/cache/apk/*
+  && rm -rf /var/lib/apt/lists/*
 
 # Enable corepack for modern package manager support
 RUN corepack enable
