@@ -37,7 +37,7 @@ services:
 
   app:
     image: ghcr.io/sustainable-action-foundation/eco-planner:dev
-    pull_policy: pull
+    pull_policy: always
     restart: always
     depends_on:
       db:
