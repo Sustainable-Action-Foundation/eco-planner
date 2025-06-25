@@ -27,22 +27,22 @@ export default async function Sidebar() {
         </label>
       </header>
 
-      <div className={`${styles['sidebar-menu']} padding-100 flex-grow-100 flex flex-direction-column`}>
+      <div className={`${styles['sidebar-menu']} flex-grow-100 flex flex-direction-column`}>
         <nav className='flex-grow-100 flex flex-direction-column'>
           {user?.isLoggedIn ?
-            <Link href={`/@${user.username}`} className="margin-bottom-300 color-pureblack rounded'">
-              <IconUser aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px" }} />
+            <Link href={`/@${user.username}`} className="margin-bottom-300 color-pureblack rounded">
+              <IconUser aria-hidden='true' height={20} width={20} />
               {t("components:sidebar.my_profile")}
             </Link>
             :
             <Link href="/signup" className='margin-bottom-300 seagreen round color-purewhite'>
-              <IconUserPlus aria-hidden='true' height={20} width={20} style={{ marginLeft: '2px' }} />
+              <IconUserPlus aria-hidden='true' height={20} width={20} />
               {t("components:sidebar.create_account")}
             </Link>
           }
 
           <Link href="/" className='color-pureblack rounded'>
-            <IconHome aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px" }} />
+            <IconHome aria-hidden='true' height={20} width={20} />
             {t("components:sidebar.home")}
           </Link>
           <PopoverButton
@@ -51,7 +51,7 @@ export default async function Sidebar() {
             className='transparent rounded'
             style={{ fontSize: '1rem' }}
           >
-            <IconCirclePlus width={20} height={20} aria-hidden="true" style={{ marginLeft: "2px" }} />
+            <IconCirclePlus width={20} height={20} aria-hidden="true" />
             {t("components:sidebar.create")}
           </PopoverButton>
           <Popover
@@ -109,7 +109,7 @@ export default async function Sidebar() {
             </nav>
           </Popover>
           <Link href="/info" className="margin-top-auto color-pureblack rounded">
-            <IconInfoCircle aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px" }} />
+            <IconInfoCircle aria-hidden='true' height={20} width={20} />
             {t("components:sidebar.about")}
           </Link>
         </nav>
@@ -119,7 +119,7 @@ export default async function Sidebar() {
             popoverTarget='select-language-popover'
             className='transparent rounded'
           >
-            <IconWorld aria-hidden="true" width={20} height={20} style={{ marginLeft: "2px" }} />
+            <IconWorld width={20} height={20} aria-hidden="true" />
             {t("components:sidebar.language")}
           </PopoverButton>
           <Popover
@@ -148,7 +148,7 @@ export default async function Sidebar() {
             popoverTarget='settings-popover'
             className='transparent rounded'
           >
-            <IconSettings aria-hidden='true' height={20} width={20} style={{ marginLeft: "2px" }} />
+            <IconSettings height={20} width={20} aria-hidden="true" />
             {t("components:sidebar.settings")}
           </PopoverButton>
           <Popover

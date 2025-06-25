@@ -5,9 +5,7 @@
   position: sticky;
   top: 0;
   height: 100dvh;
-  border-right: 1px solid silver;
-  interpolate-size: allow-keywords;
-  transition: width .2s ease-out;
+  border-right: 1px solid silver; 
 
   @media (max-width: 1250px) {
     height: unset;
@@ -22,7 +20,7 @@
 
 /* Sidebar header (toggle open/closed) */
 .aside > header:first-of-type label { 
-  margin-left: 4px; /* TODO SIDENAV: Magic number */
+  margin-left: 2px; /* TODO SIDENAV: Magic number */
   transition: background-color .1s ease;
   @media (max-width: 1250px) {
     z-index: 10;
@@ -46,7 +44,17 @@
 
 /* Sidebar menu (collection of action items such as links and buttons) */
 .aside > .sidebar-menu {
-  width: calc(24px + (1rem * 2 + .5rem * 2)); /* TODO SIDENAV: Magic number */
+  --icon-min-width: 20px;
+  --padding: 1rem;
+  --sidebar-child-element-padding: .5rem;
+
+  width: calc(
+        var(--icon-min-width) +
+        var(--padding) * 2 + 
+        var(--sidebar-child-element-padding) * 2
+  ); 
+  padding: var(--padding);
+  
   interpolate-size: allow-keywords;
   transition-property: width, transform, display; 
 
@@ -90,8 +98,8 @@
   align-items: center;
   gap: 10px; /* TODO: Magic number */
   width: 100%;
-  padding: .5rem;
-  padding-right: calc(.5rem + 10px); /* TODO: Magic number, TODO SIDENAV: This is wrong for our logout/login button where the image is on the right hand side */
+  padding: var(--sidebar-child-element-padding);
+  padding-right: calc(var(--sidebar-child-element-padding) + 10px); /* TODO: Magic number */
   transition: background-color .1s ease, box-shadow .1s ease;
   text-decoration: none;
   overflow: hidden;
@@ -108,9 +116,6 @@
   box-shadow: inset 0 0 999px rgba(0, 0, 0, 0.1);
 }
 
-/* TODO SIDENAV: Figure out a way to deal with margins of the links icons */ 
-
-/* TODO SIDENAV: Apply globally? */
 /* Prevent flexbox from resizing svg elements by setting min width of commonly used widths */ 
 .aside svg[width="24"] {
   min-width: 24px;
