@@ -22,18 +22,14 @@ export async function register() {
         errorCount++;
       }
 
-      const skipMailSelfTest = process.env.SKIP_MAIL_SELF_TEST === 'true';
-
       // Self-test email functionality
-      if (!skipMailSelfTest) {
-        const mailClient = await import('@/mailClient').then(module => module.default);
+      const mailClient = await import('@/mailClient').then(module => module.default);
 
-        await mailClient.verify().catch(error => {
-          console.error("Mail client is not configured correctly: " + error);
-          console.warn("Check that the email-related environment variables (`MAIL_HOST`, `MAIL_USER`, `MAIL_PASSWORD`) are set correctly.");
-          errorCount++;
-        });
-      }
+      await mailClient.verify().catch(error => {
+        console.error("Mail client is not configured correctly: " + error);
+        console.warn("Check that the email-related environment variables (`MAIL_HOST`, `MAIL_USER`, `MAIL_PASSWORD`) are set correctly.");
+        errorCount++;
+      });
 
       // Self-test database connection
       const prisma = await import('@/prismaClient').then(module => module.default);
