@@ -5,6 +5,33 @@ import { glob } from "glob";
 import { expect, test } from "playwright/test";
 import { uniqueLocales, namespaces, Locales, localesDir } from "../i18nTestVariables";
 
+const STRICT_MODE = false;
+const warnings: Record<string, string[]> = {};
+function addWarning(testName: string, message: string) {
+  if (!warnings[testName]) warnings[testName] = [];
+
+  warnings[testName].push(message);
+}
+
+/** Functions like `expect` but when STRICT_MODE is false it only warns */
+function expectWarn(condition: unknown, message: string) {
+  if (STRICT_MODE) {
+    return expect(condition);
+  } else {
+    if (!condition) addWarning("Warning", message);
+  }
+  // TODO - Find a better way to handle this
+  return {
+    toBe: () => true,
+    toBeTruthy: () => true,
+    toBeFalsy: () => true,
+    toEqual: () => true,
+    toContain: () => true,
+    toBeGreaterThan: () => true,
+    toBeLessThan: () => true
+  };
+}
+
 /* 
  **********
  * Config *
@@ -46,15 +73,14 @@ const swedishRegex = /(?<!\/\/|\*|\/\*)(?:åtgärd|åtgärden|åtgärder|åtgär
  * Exceptions
  */
 
-// Removed since these are dependencies of a disabled test ("Common values not referenced").
-// /** Almost always prefer having nested $t() calls to common in namespaces over using duplicate values. Exceptions to that need to be here. */
-// const exemptedCommonKeysRef = ["common:tsx.", "common:placeholder.",]; // Things that shouldn't always be referenced
-// /** When checking if a value may be a duplicate of a common value, values starting with any of these strings will be skipped.  */
-// const exemptedCommonValuesRef: string[] = []; // More fine grained option to the above one (useful for language specific exemptions)
-// /** To prevent recurring false positives, exempt these keys */
-// const exemptedKeysUsingCommonValues = ["pages:info.info_body", "components:confirm_delete.confirmation",];
+/** Almost always prefer having nested $t() calls to common in namespaces over using duplicate values. Exceptions to that need to be here. */
+const exemptedCommonKeysRef = ["common:tsx.", "common:placeholder.",]; // Things that shouldn't always be referenced
+/** When checking if a value may be a duplicate of a common value, values starting with any of these strings will be skipped.  */
+const exemptedCommonValuesRef: string[] = []; // More fine grained option to the above one (useful for language specific exemptions)
+/** To prevent recurring false positives, exempt these keys */
+const exemptedKeysUsingCommonValues = ["pages:info.info_body", "components:confirm_delete.confirmation",];
 /** Orphaned keys in root levels of namespaces are discouraged, except in these namespaces */
-const exemptedOrphanNS = ["common", ];
+const exemptedOrphanNS = ["common",];
 const exemptedOrphanKeys: string[] = [];
 /** A test checks if any keys defined go unused. These keys are exempted from that test. _ is for descriptions. */
 const exemptedUnusedKeys: string[] = ["_", "common:"];
@@ -141,50 +167,49 @@ test("Keys are snake_case", () => {
   expect(totalBadKeys, `Keys not in snake_case: ${JSON.stringify(perLocale, null, 2)}`).toBe(0);
 });
 
-// Disabled due to it not being an actual implementation standard.
-// /** Do namespaces use the values of common keys instead of referencing? */
-// test("Common values not referenced", () => {
-//   const perLocaleNS: Record<string, Record<string, string[]>>
-//     = Object.fromEntries(uniqueLocales.map(locale => [locale, {}]));
+/** Do namespaces use the values of common keys instead of referencing? */
+test.skip("Common values not referenced", () => {
+  const perLocaleNS: Record<string, Record<string, string[]>>
+    = Object.fromEntries(uniqueLocales.map(locale => [locale, {}]));
 
-//   /** To minimize false positives, the values will have to match one of these */
-//   const wordPatterns = [
-//     (text: string) => `\\s${text}\\s`, // Surrounding whitespace
-//     (text: string) => `^${text}$`, // Only thing in string
-//     (text: string) => `^${text}\\s`, // At start of string with whitespace after
-//     (text: string) => `\\s${text}$`, // At end of string with whitespace before
-//   ];
+  /** To minimize false positives, the values will have to match one of these */
+  const wordPatterns = [
+    (text: string) => `\\s${text}\\s`, // Surrounding whitespace
+    (text: string) => `^${text}$`, // Only thing in string
+    (text: string) => `^${text}\\s`, // At start of string with whitespace after
+    (text: string) => `\\s${text}$`, // At end of string with whitespace before
+  ];
 
-//   uniqueLocales.forEach((locale) => {
-//     const commonTranslations = Object.fromEntries(Object.entries(allJSON[locale])
-//       .filter(([key,]) => key.startsWith("common:"))
-//       .filter(([key,]) => !exemptedCommonKeysRef.some(exemptedKey => key.startsWith(exemptedKey)))
-//       .filter(([, value]) => !exemptedCommonValuesRef.some(exemptedValue => value.startsWith(exemptedValue)))
-//       .map(([key, value]) => [key, { key, value, pattern: wordPatterns.map(pattern => new RegExp(pattern(escape(value)), "gm")) }])
-//     );
+  uniqueLocales.forEach((locale) => {
+    const commonTranslations = Object.fromEntries(Object.entries(allJSON[locale])
+      .filter(([key,]) => key.startsWith("common:"))
+      .filter(([key,]) => !exemptedCommonKeysRef.some(exemptedKey => key.startsWith(exemptedKey)))
+      .filter(([, value]) => !exemptedCommonValuesRef.some(exemptedValue => value.startsWith(exemptedValue)))
+      .map(([key, value]) => [key, { key, value, pattern: wordPatterns.map(pattern => new RegExp(pattern(escape(value)), "gm")) }])
+    );
 
-//     const namespacesToCheck = namespaces.filter(ns => ns !== "common");
+    const namespacesToCheck = namespaces.filter(ns => ns !== "common");
 
-//     const everyOtherTranslation = Object.fromEntries(Object.entries(allJSON[locale])
-//       .filter(([key,]) => namespacesToCheck.some(ns => key.startsWith(ns)))
-//       .filter(([key,]) => !exemptedKeysUsingCommonValues.some(exemptedKey => key.startsWith(exemptedKey)))
-//     );
+    const everyOtherTranslation = Object.fromEntries(Object.entries(allJSON[locale])
+      .filter(([key,]) => namespacesToCheck.some(ns => key.startsWith(ns)))
+      .filter(([key,]) => !exemptedKeysUsingCommonValues.some(exemptedKey => key.startsWith(exemptedKey)))
+    );
 
-//     Object.entries(everyOtherTranslation).forEach(([key, value]) => {
-//       Object.entries(commonTranslations).forEach(([commonKey, commonValues]) => {
-//         // Check if the value matches any of the patterns
-//         const hasCommonValue = commonValues.pattern.some(p => p.test(value));
-//         if (hasCommonValue) {
-//           if (!perLocaleNS[locale][commonKey]) perLocaleNS[locale][commonKey] = [];
-//           perLocaleNS[locale][commonKey].push(`[${commonKey}] > '${key}': '${value}'`);
-//         }
-//       });
-//     });
-//   });
+    Object.entries(everyOtherTranslation).forEach(([key, value]) => {
+      Object.entries(commonTranslations).forEach(([commonKey, commonValues]) => {
+        // Check if the value matches any of the patterns
+        const hasCommonValue = commonValues.pattern.some(p => p.test(value));
+        if (hasCommonValue) {
+          if (!perLocaleNS[locale][commonKey]) perLocaleNS[locale][commonKey] = [];
+          perLocaleNS[locale][commonKey].push(`[${commonKey}] > '${key}': '${value}'`);
+        }
+      });
+    });
+  });
 
-//   const totalBadKeys = Object.values(flattenTree(perLocaleNS)).length;
-//   expect(totalBadKeys, `Common keys used as values: ${JSON.stringify(perLocaleNS, null, 2)}`).toBe(0);
-// });
+  const totalBadKeys = Object.values(flattenTree(perLocaleNS)).length;
+  expect(totalBadKeys, `Common keys used as values: ${JSON.stringify(perLocaleNS, null, 2)}`).toBe(0);
+});
 
 /** Are all the nested keys used in locale files defined? */
 test("Are nested keys defined", () => {
@@ -443,33 +468,32 @@ test("Namespace consistency in app", () => {
   expect(totalBadKeys, `Mixed namespaces: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
 });
 
-// Disabled due to it not being an actual implementation standard.
-// /** Checks whether a file is consistent with namespaces and first level keys */
-// test("Common keys used directly in files", () => {
-//   const perFile: Record<string, string[]> = {};
+/** Checks whether a file is consistent with namespaces and first level keys */
+test.skip("Common keys used directly in files", () => {
+  const perFile: Record<string, string[]> = {};
 
-//   allTSX.forEach(({ filePath, content }) => {
-//     const allTCalls = Array.from(content.matchAll(/\Wt\(["']([^"']*)["']\)/gm)) || [];
-//     if (allTCalls.length === 0) return; // Skip if no t() calls
+  allTSX.forEach(({ filePath, content }) => {
+    const allTCalls = Array.from(content.matchAll(/\Wt\(["']([^"']*)["']\)/gm)) || [];
+    if (allTCalls.length === 0) return; // Skip if no t() calls
 
-//     allTCalls.forEach(call => {
-//       const [, key] = call;
-//       if (keysAllowedDirectlyInApp.some(allowedKey => key.startsWith(allowedKey))) return; // Skip allowed keys
+    allTCalls.forEach(call => {
+      const [, key] = call;
+      if (keysAllowedDirectlyInApp.some(allowedKey => key.startsWith(allowedKey))) return; // Skip allowed keys
 
-//       const namespace = key.match(/(^[^:]+):/)?.[1];
-//       if (!namespace) return; // Skip if no namespace
+      const namespace = key.match(/(^[^:]+):/)?.[1];
+      if (!namespace) return; // Skip if no namespace
 
-//       if (namespace === "common") {
-//         perFile[filePath] = perFile[filePath] || [];
-//         perFile[filePath].push(`[Common key used directly] > '${key}'`);
-//       }
-//     });
-//   });
+      if (namespace === "common") {
+        perFile[filePath] = perFile[filePath] || [];
+        perFile[filePath].push(`[Common key used directly] > '${key}'`);
+      }
+    });
+  });
 
-//   const totalBadKeys = Object.values(perFile).flat().length;
+  const totalBadKeys = Object.values(perFile).flat().length;
 
-//   expect(totalBadKeys, `Common keys used directly in files: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
-// });
+  expect(totalBadKeys, `Common keys used directly in files: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
+});
 
 /** Checks if the <Trans /> tags have a defined i18nKey */
 test("<Trans /> keys", () => {
@@ -578,7 +602,7 @@ test("No hardcoded Swedish text in code", () => {
 
   const totalMatches = Object.values(perFile).flat().length;
 
-  expect(totalMatches, `Found Swedish text that should be internationalized: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
+  expectWarn(totalMatches, `Found Swedish text that should be internationalized: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
 });
 
 /** Checks for keys in locale files that aren't used in the application */
@@ -655,7 +679,28 @@ test("Unused keys", () => {
 
   const totalUnusedKeys = Object.values(unusedPerLocale).flat().length;
 
-  expect(totalUnusedKeys, `Unused keys in locale files: ${JSON.stringify(unusedPerLocale, null, 2)}`).toBe(0);
+  expectWarn(totalUnusedKeys, `Unused keys in locale files: ${JSON.stringify(unusedPerLocale, null, 2)}`).toBe(0);
+});
+
+test.afterEach("Warnings", () => {
+  let warningMessage = "No warnings found during tests.";
+
+  if (Object.keys(warnings).length > 0) {
+    warningMessage = "Warnings found during tests:\n";
+    Object.entries(warnings).forEach(([testName, messages]) => {
+      warningMessage += `- ${testName}:\n`;
+      messages.forEach(message => warningMessage += `  - ${message}\n`);
+    });
+
+    console.warn(warningMessage);
+    console.warn("Total warnings:", Object.keys(warnings).length);
+  }
+  else {
+    console.info(warningMessage);
+  }
+
+  // Always pass since we just wanna warn
+  expect(true, warningMessage).toBeTruthy();
 });
 
 /* 

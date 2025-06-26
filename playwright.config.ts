@@ -14,11 +14,11 @@ export default defineConfig({
   retries: 1,
 
   // Reporter to use
-  // reporter: process.env.CI ?
-  //   [["github"], ["list"]]
-  //   :
-  //   [["list"], ["html", { open: "never" }]],
-  reporter: [["list"]],
+  reporter: [
+    ...(CI ? [["github"], ["list"]] : [["html", { open: "never" }]]) as [string, object][],
+
+    ["json", { outputFile: "json-results/report.json" }],
+  ],
 
   // Global use
   use: {
