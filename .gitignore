@@ -148,4 +148,4 @@ playwright-results.json/
 test/screenshots/
 
 # Transpiled tests
-tests/compiled/**/*.js
+tests/compiled/

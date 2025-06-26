@@ -4,6 +4,9 @@
     "module": "Preserve",
     "target": "ES2024",
     "baseUrl": ".",
-    "outDir": "./tests/compiled"
-  }
+    "outDir": "./compiled"
+  },
+  "exclude": [
+    "./*.ts"
+  ]
 }

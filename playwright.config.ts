@@ -4,7 +4,7 @@ export const webserverURL = process.env.TEST_BASE_URL || "http://localhost:3000"
 const CI = !!process.env.CI;
 
 export default defineConfig({
-  testDir: "./tests",
+  testDir: "./tests/compiled/",
 
   // Parallelize in non-CI
   fullyParallel: CI ? false : true,
@@ -36,13 +36,13 @@ export default defineConfig({
     timezoneId: "Europe/Stockholm",
   },
 
-  globalTeardown: "./tests/lib/global.teardown",
+  globalTeardown: "./tests/compiled/lib/global.teardown",
 
   // Configure projects for major browsers.
   projects: [
     {
       name: "Locale files validation",
-      testMatch: ["**/locale-files.ts"],
+      testMatch: ["**/locale-files.js"],
       retries: 0, // File reading can't be flaky, so no retries needed.
       use: {},
     },
