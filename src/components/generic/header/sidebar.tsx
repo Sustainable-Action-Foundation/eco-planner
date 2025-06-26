@@ -177,6 +177,7 @@ export default async function Sidebar() {
           </Popover>
         </div>
         <div className="padding-top-100 margin-top-100 font-size-smaller" style={{ borderTop: "1px solid silver"}}>
+          {/* TODO SIDENAV: clarify comment below */}
           {/* Overwrite logout/login button padding given in css file, as icon is on the right not left as with the links */}
           {user?.isLoggedIn ?
             <LogoutButton className='justify-content-flex-end transparent rounded' style={{paddingRight: '.5rem'}}>

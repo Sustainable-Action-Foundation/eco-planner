@@ -1,20 +1,23 @@
 /* Main sidebar */
-.aside {
-  --icon-min-width: 20px; /* TODO SIDENAV: Give better name, which icon? */ 
-  --sidebar-padding: 1rem; /* TODO SIDENAV: rename, Techically also header padding */ 
-  --sidebar-child-element-padding: .5rem;
-  --sidebar-child-gap: var(--sidebar-child-element-padding);
-  --sidebar-width: calc(
-    var(--icon-min-width) +
-    var(--sidebar-padding) * 2 + 
-    var(--sidebar-child-element-padding) * 2 
-  ); 
+/* TODO SIDENAV: Use aside instead of sidebar for naming? or vice versa? */
+/* TODO SIDENAV: make schematic of where variable names are located inside the html */
+.aside { 
+  --sidebar-menu-child-element-padding: .5rem;
+  --sidebar-menu-child-element-gap: var(--sidebar-menu-child-element-padding);
+  
+  --sidebar-child-element-padding: 1rem; /* Same for both header and menu */
+  --sidebar-child-element-width: calc(
+    var(--sidebar-child-element-icon-min-size) +
+    var(--sidebar-child-element-padding) * 2 + 
+    var(--sidebar-menu-child-element-padding) * 2 
+  ); /* Same for both header and menu */
+  --sidebar-child-element-icon-min-size: 20px;
 
-  --label-icon-width: 24px; /* TODO SIDENAV: rename, label-icon-size? */ 
-  --label-padding: .25rem;
-  --label-width: calc(
-    var(--label-icon-width) + 
-    var(--label-padding)
+  --sidebar-header-icon-size: 24px; 
+  --sidebar-header-label-padding: .25rem;
+  --sidebar-header-label-width: calc(
+    var(--sidebar-header-icon-size) + 
+    var(--sidebar-header-label-padding)
   );
 
   position: sticky;
@@ -35,17 +38,15 @@
 
 /* Sidebar header (toggle open/closed) */
 .aside > header {
-  padding: var(--sidebar-padding);
+  padding: var(--sidebar-child-element-padding);
 }
 
 .aside > header:first-of-type label { 
-  padding: var(--label-padding);
-  margin-left: calc(
-    (
-      (var(--sidebar-width) - (var(--sidebar-padding) * 2)) -
-      (var(--label-icon-width) + (var(--label-padding) * 2)) 
-    ) / 2
-  ); 
+  padding: var(--sidebar-header-label-padding);
+  margin-left: calc((
+    (var(--sidebar-child-element-width) - (var(--sidebar-child-element-padding) * 2)) -
+    (var(--sidebar-header-icon-size) + (var(--sidebar-header-label-padding) * 2))
+  ) / 2 ); 
   transition: background-color .1s ease;
   @media (max-width: 1250px) {
     z-index: 10;
@@ -78,8 +79,8 @@ maybe replace checkbox with button or find a better way of doing this?
 /* Sidebar menu (collection of action items such as links and buttons) */
 .aside > .sidebar-menu {
 
-  width: var(--sidebar-width);
-  padding: var(--sidebar-padding);
+  width: var(--sidebar-child-element-width);
+  padding: var(--sidebar-child-element-padding);
 
   interpolate-size: allow-keywords;
   transition-property: width, transform, display; 
@@ -101,10 +102,10 @@ maybe replace checkbox with button or find a better way of doing this?
     background-color: white;
 
     padding-top: calc(
-      var(--sidebar-padding) * 2 + 
-      var(--label-icon-width) + 
-      var(--label-padding) * 2 + 
-      var(--sidebar-padding)
+      var(--sidebar-child-element-padding) +
+      var(--sidebar-child-element-padding) * 2 +
+      var(--sidebar-header-icon-size) + 
+      var(--sidebar-header-label-padding) * 2 
     ); 
     
     @starting-style { 
@@ -123,17 +124,17 @@ maybe replace checkbox with button or find a better way of doing this?
   }
 }
 
-/* Sidebar items */
+/* Sidebar menu items */
 .sidebar-menu > * > a,
 .sidebar-menu > * > button {
   display: flex;
   align-items: center;
-  gap: var(--sidebar-child-gap);
+  gap: var(--sidebar-menu-child-element-gap);
   width: 100%;
-  padding: var(--sidebar-child-element-padding);
+  padding: var(--sidebar-menu-child-element-padding);
   padding-right: calc(
-    var(--sidebar-child-element-padding) + 
-    var(--sidebar-child-gap)
+    var(--sidebar-menu-child-element-padding) + 
+    var(--sidebar-menu-child-element-gap)
   ); 
   transition: background-color .1s ease, box-shadow .1s ease;
   text-decoration: none;
