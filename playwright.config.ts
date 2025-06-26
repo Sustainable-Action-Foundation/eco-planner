@@ -15,7 +15,11 @@ export default defineConfig({
 
   // Reporter to use
   reporter: [
-    ...(CI ? [["github"], ["list"]] : [["html", { open: "never" }]]) as [string, object][],
+    ...(CI ?
+      [["github"], ["list"]]
+      :
+      [["html", { open: "never" }]]
+    ) as [string, object][],
 
     ["json", { outputFile: "json-results/report.json" }],
   ],
@@ -32,7 +36,7 @@ export default defineConfig({
     timezoneId: "Europe/Stockholm",
   },
 
-  globalTeardown: "./tests/lib/global.teardown.ts",
+  globalTeardown: "./tests/lib/global.teardown",
 
   // Configure projects for major browsers.
   projects: [

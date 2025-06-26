@@ -15,7 +15,9 @@
     "start": "next start",
     "lint": "next lint",
     "locales:format": "tsx ./src/scripts/localesFormat.ts",
-    "test:run": "tsx node_modules/playwright/cli.js test"
+    "test:locale-files": "yarn test:run  --project 'Locale files validation' && yarn test:middleware",
+    "test:run": "tsx node_modules/playwright/cli.js test",
+    "test:middleware": "tsx tests/test-middleware.ts"
   },
   "author": {
     "name": "Sustainable Action Foundation",
