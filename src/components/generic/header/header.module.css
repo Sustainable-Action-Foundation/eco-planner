@@ -1,9 +1,7 @@
-/* TODO SIDENAV: A bunch of magic numbers, fix this :)*/
-
 /* Main sidebar */
 .aside {
-  --icon-min-width: 20px;
-  --sidebar-padding: 1rem;
+  --icon-min-width: 20px; /* TODO SIDENAV: Give better name, which icon? */ 
+  --sidebar-padding: 1rem; /* TODO SIDENAV: rename, Techically also header padding */ 
   --sidebar-child-element-padding: .5rem;
   --sidebar-child-gap: var(--sidebar-child-element-padding);
   --sidebar-width: calc(
@@ -11,6 +9,13 @@
     var(--sidebar-padding) * 2 + 
     var(--sidebar-child-element-padding) * 2 
   ); 
+
+  --label-icon-width: 24px; /* TODO SIDENAV: rename, label-icon-size? */ 
+  --label-padding: .25rem;
+  --label-width: calc(
+    var(--label-icon-width) + 
+    var(--label-padding)
+  );
 
   position: sticky;
   top: 0;
@@ -34,13 +39,6 @@
 }
 
 .aside > header:first-of-type label { 
-  --label-icon-width: 24px;
-  --label-padding: .25rem;
-  --label-width: calc(
-    var(--label-icon-width) + 
-    var(--label-padding)
-  );
-  
   padding: var(--label-padding);
   margin-left: calc(
     (
@@ -101,8 +99,14 @@ maybe replace checkbox with button or find a better way of doing this?
     height: 100dvh;
     border-right: 1px solid silver;
     background-color: white;
-    /* Image height + image margin-block + image-padding-block + padding-top */
-    padding-top: calc(1rem * 2 + 24px + .25rem * 2 + 1rem); /* TODO SIDENAV: Magic number */
+
+    padding-top: calc(
+      var(--sidebar-padding) * 2 + 
+      var(--label-icon-width) + 
+      var(--label-padding) * 2 + 
+      var(--sidebar-padding)
+    ); 
+    
     @starting-style { 
       transform: translateX(-100%);
     }
