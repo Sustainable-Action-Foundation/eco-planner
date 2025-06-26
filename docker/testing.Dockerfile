@@ -2,18 +2,19 @@
 # Dockerfile for playwright testing environment
 
 # Build arguments
-ARG NODE_VERSION="20"
+ARG NODE_VERSION="22"
 
 # ============================================================================
 # Base stage - Common dependencies and setup
 # ============================================================================
-FROM node:${NODE_VERSION}-bookworm AS base
+FROM node:${NODE_VERSION}-alpine AS base
 
 # Install security updates and essential packages
-RUN apt-get update && apt-get upgrade -y && \
-  apt-get install -y --no-install-recommends \
+RUN apk update && apk upgrade && \
+  apk add --no-cache \
+  libc6-compat \
   dumb-init \
-  && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/cache/apk/*
 
 # Enable corepack for modern package manager support
 RUN corepack enable
