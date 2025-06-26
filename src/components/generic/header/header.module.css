@@ -2,18 +2,26 @@
 
 /* Main sidebar */
 .aside {
-  --border-width: 1px;
+  --icon-min-width: 20px;
+  --sidebar-padding: 1rem;
+  --sidebar-child-element-padding: .5rem;
+  --sidebar-child-gap: var(--sidebar-child-element-padding);
+  --sidebar-width: calc(
+    var(--icon-min-width) +
+    var(--sidebar-padding) * 2 + 
+    var(--sidebar-child-element-padding) * 2 
+  ); 
 
   position: sticky;
   top: 0;
   height: 100dvh;
-  border-right: var(--border-width) solid silver; 
+  border-right: 1px solid silver; 
 
   @media (max-width: 1250px) {
     height: unset;
     width: 100%;
     border-right: 0;
-    border-bottom: var(--border-width) solid silver;
+    border-bottom: 1px solid silver;
     background-color: rgba(255,255,255,.95);
     backdrop-filter: blur(2px);
     z-index: 8;
@@ -21,8 +29,25 @@
 }
 
 /* Sidebar header (toggle open/closed) */
+.aside > header {
+  padding: var(--sidebar-padding);
+}
+
 .aside > header:first-of-type label { 
-  margin-left: 2px; /* TODO SIDENAV: Magic number ((width of sidebar menu - width of this element) / 2  */ 
+  --label-icon-width: 24px;
+  --label-padding: .25rem;
+  --label-width: calc(
+    var(--label-icon-width) + 
+    var(--label-padding)
+  );
+  
+  padding: var(--label-padding);
+  margin-left: calc(
+    (
+      (var(--sidebar-width) - (var(--sidebar-padding) * 2)) -
+      (var(--label-icon-width) + (var(--label-padding) * 2)) 
+    ) / 2
+  ); 
   transition: background-color .1s ease;
   @media (max-width: 1250px) {
     z-index: 10;
@@ -32,6 +57,14 @@
 .aside > header:first-of-type label:hover {
   background-color: #e0e6eb;
 }
+
+/*
+TODO SIDENAV: Checkbox keeps focus after pressing which is kinda annoying,
+maybe replace checkbox with button or find a better way of doing this? 
+.aside > header:first-of-type label:focus-within {
+  outline: 1px solid black;
+}
+*/
 
 .aside:has(.sidebar-toggle:checked) > .sidebar-menu {
   @media (min-width: 1251px) {
@@ -46,17 +79,9 @@
 
 /* Sidebar menu (collection of action items such as links and buttons) */
 .aside > .sidebar-menu {
-  --icon-min-width: 20px;
-  --padding: 1rem;
-  --sidebar-child-element-padding: .5rem;
-  --sidebar-child-gap: var(--sidebar-child-element-padding);
 
-  width: calc(
-    var(--icon-min-width) +
-    var(--padding) * 2 + 
-    var(--sidebar-child-element-padding) * 2 
-  ); 
-  padding: var(--padding);
+  width: var(--sidebar-width);
+  padding: var(--sidebar-padding);
 
   interpolate-size: allow-keywords;
   transition-property: width, transform, display; 
@@ -105,7 +130,7 @@
   padding-right: calc(
     var(--sidebar-child-element-padding) + 
     var(--sidebar-child-gap)
-  ); /* TODO: Should we have this? */
+  ); 
   transition: background-color .1s ease, box-shadow .1s ease;
   text-decoration: none;
   overflow: hidden;

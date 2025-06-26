@@ -20,10 +20,13 @@ export default async function Sidebar() {
   return <>
     <aside className={`${styles["aside"]} inline-flex flex-direction-column`}>
       {/* Consider using aria-expanded alongside a button and additional js instead */}
-      <header className='padding-100'>
-        <label className='padding-25 inline-grid round position-relative' aria-label={t("components:sidebar.toggle_menu_alt")}>
+      {/* TODO SIDENAV: Tooltips for links (should have a custom tooltip, name="" technically covers all usecases except for keyboard only users ): [might also lead to repetition in screen readers]) */}
+      <header>
+        <label className='inline-grid round position-relative' aria-label={t("components:sidebar.toggle_menu_alt")}>
           <input type="checkbox" className={`${styles['sidebar-toggle']} position-absolute opacity-0`} defaultChecked />
-          <IconMenu2 aria-hidden="true" height={24} width={24} />
+          {/* TODO SIDENAV: do i need to set width for svgs or can i do in css so that i can use variables? */}
+          {/* TODO SIDENAV: note that setting width through css breaks min-width selectors as they currently are */}
+          <IconMenu2 aria-hidden="true" height={24} width={24} />  
         </label>
       </header>
 
