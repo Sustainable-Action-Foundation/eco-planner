@@ -1,4 +1,4 @@
-import { uniqueLocales } from "i18nTestVariables";
+import { uniqueLocales } from "../i18nTestVariables";
 import { expect, type Page } from "playwright/test";
 
 export async function switchLanguage(page: Page, languageAlias: string) {

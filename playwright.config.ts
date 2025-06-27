@@ -4,7 +4,7 @@ export const webserverURL = process.env.TEST_BASE_URL || "http://localhost:3000"
 const CI = !!process.env.CI;
 
 export default defineConfig({
-  testDir: "./tests/compiled/",
+  testDir: "tests/compiled/",
 
   // Parallelize in non-CI
   fullyParallel: CI ? false : true,

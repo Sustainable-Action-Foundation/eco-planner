@@ -4,9 +4,14 @@
     "module": "Preserve",
     "target": "ES2024",
     "baseUrl": ".",
-    "outDir": "./compiled"
+    "outDir": "./compiled",
+    "allowImportingTsExtensions": false
   },
   "exclude": [
     "./*.ts"
+  ],
+  "include": [
+    "./**/*.ts",
+    "./i18nTestVariables.ts"
   ]
 }

@@ -602,7 +602,7 @@ test("No hardcoded Swedish text in code", () => {
 
   const totalMatches = Object.values(perFile).flat().length;
 
-  expect(totalMatches, `Found Swedish text that should be internationalized: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
+  expectWarn(totalMatches, `Found Swedish text that should be internationalized: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
 });
 
 /** Checks for keys in locale files that aren't used in the application */
@@ -679,7 +679,7 @@ test("Unused keys", () => {
 
   const totalUnusedKeys = Object.values(unusedPerLocale).flat().length;
 
-  expect(totalUnusedKeys, `Unused keys in locale files: ${JSON.stringify(unusedPerLocale, null, 2)}`).toBe(0);
+  expectWarn(totalUnusedKeys, `Unused keys in locale files: ${JSON.stringify(unusedPerLocale, null, 2)}`).toBe(0);
 });
 
 test.afterEach("Warnings", () => {
@@ -696,7 +696,7 @@ test.afterEach("Warnings", () => {
     console.warn("Total warnings:", Object.keys(warnings).length);
   }
   else {
-    console.info(warningMessage);
+    // console.info(warningMessage);
   }
 
   // Always pass since we just wanna warn

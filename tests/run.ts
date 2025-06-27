@@ -22,18 +22,19 @@ catch (error) {
 // Run Playwright tests
 try {
   const project = args.values.project ? `--project "${args.values.project}"` : "";
-  execSync(`yarn playwright test ${project}`)
+  execSync(`node --trace-warnings node_modules/playwright/cli.js test ${project}`, { stdio: "inherit" });
+  // execSync(`yarn playwright test ${project}`, { stdio: "inherit" });
 }
 catch (error) {
   console.error("Failed to run tests:", error);
   process.exit(1);
 }
 
-// // Run reporter which will read the JSON report from the tests
-// try {
-//   execSync("tsx ./tests/reporter.ts", { stdio: "inherit" });
-// }
-// catch (error) {
-//   console.error("Failed to run reporter:", error);
-//   process.exit(1);
-// }
+// Run reporter which will read the JSON report from the tests
+try {
+  execSync("tsx ./tests/reporter.ts", { stdio: "inherit" });
+}
+catch (error) {
+  console.error("Failed to run reporter:", error);
+  process.exit(1);
+}

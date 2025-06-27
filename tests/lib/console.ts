@@ -1,4 +1,4 @@
-import { colors } from "./colors.js";
+import { colors } from "./colors";
 import { isNativeError } from "node:util/types";
 
 /** Unmodified console */
