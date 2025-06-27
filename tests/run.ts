@@ -25,8 +25,7 @@ try {
   execSync(`tsx  node_modules/playwright/cli.js test ${project}`, { stdio: "inherit" });
 }
 catch (error) {
-  console.error("Failed to run tests:", error);
-  process.exit(1);
+  console.warn("One or more tests failed. Continuing to run reporter...");
 }
 
 // Run reporter which will read the JSON report from the tests
