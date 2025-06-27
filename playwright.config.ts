@@ -1,7 +1,15 @@
 import { defineConfig, devices } from "playwright/test";
+import { parseEnv } from "node:util";
+import fs from "node:fs";
+
+//  Load environment variables from .env file
+let env: Record<string, string> = parseEnv(fs.readFileSync(".env", "utf-8")) as Record<string, string>;
+process.env = { ...process.env, CI: env["CI"] || "false" };
+env = {}; // Clear it just in case any reporter dumps the heap.
 
 export const webserverURL = process.env.TEST_BASE_URL || "http://localhost:3000";
-const CI = !!process.env.CI;
+
+const CI = process.env.CI == "true";
 
 export default defineConfig({
   testDir: "tests/compiled/",
@@ -94,7 +102,7 @@ export default defineConfig({
   ],
 
   // Running locally starts next.js server from here. Make sure to have built the app first.
-  webServer: !!process.env.CI ? undefined : {
+  webServer: CI ? undefined : {
     timeout: 1000 * 1000,
     command: "yarn run start",
     url: webserverURL,
@@ -102,5 +110,5 @@ export default defineConfig({
   },
 
   // Fail the build on CI if you accidentally left test.only in the source code.
-  forbidOnly: !!process.env.CI,
+  forbidOnly: CI,
 });
