@@ -1,16 +1,30 @@
 /* Main sidebar */
-/* TODO SIDENAV: Use aside instead of sidebar for naming? or vice versa? */
-/* TODO SIDENAV: make schematic of where variable names are located inside the html */
-.aside { 
+
+/*
+  Psuedo code showing sidebar layout represented as css variable names 
+  <sidebar>
+    <sidebar-header>
+      <sidebar-header-label />
+      ...
+    </sidebar-header>
+    <sidebar-menu>
+      <sidebar-menu-child-element />
+      ...
+    </sidebar-menu>
+  </sidebar>
+*/
+
+.sidebar { 
   --sidebar-menu-child-element-padding: .5rem;
   --sidebar-menu-child-element-gap: var(--sidebar-menu-child-element-padding);
   
-  --sidebar-child-element-padding: 1rem; /* Same for both header and menu */
+  /* Sidebar child element = header, menu */
+  --sidebar-child-element-padding: 1rem; 
   --sidebar-child-element-width: calc(
     var(--sidebar-child-element-icon-min-size) +
     var(--sidebar-child-element-padding) * 2 + 
     var(--sidebar-menu-child-element-padding) * 2 
-  ); /* Same for both header and menu */
+  ); 
   --sidebar-child-element-icon-min-size: 20px;
 
   --sidebar-header-icon-size: 24px; 
@@ -37,11 +51,11 @@
 }
 
 /* Sidebar header (toggle open/closed) */
-.aside > header {
+.sidebar > header {
   padding: var(--sidebar-child-element-padding);
 }
 
-.aside > header:first-of-type label { 
+.sidebar > header:first-of-type label { 
   padding: var(--sidebar-header-label-padding);
   margin-left: calc((
     (var(--sidebar-child-element-width) - (var(--sidebar-child-element-padding) * 2)) -
@@ -53,19 +67,19 @@
   }
 }
 
-.aside > header:first-of-type label:hover {
+.sidebar > header:first-of-type label:hover {
   background-color: #e0e6eb;
 }
 
 /*
 TODO SIDENAV: Checkbox keeps focus after pressing which is kinda annoying,
 maybe replace checkbox with button or find a better way of doing this? 
-.aside > header:first-of-type label:focus-within {
+.sidebar > header:first-of-type label:focus-within {
   outline: 1px solid black;
 }
 */
 
-.aside:has(.sidebar-toggle:checked) > .sidebar-menu {
+.sidebar:has(.sidebar-toggle:checked) > .sidebar-menu {
   @media (min-width: 1251px) {
     width: initial;
   }
@@ -77,7 +91,7 @@ maybe replace checkbox with button or find a better way of doing this?
 } 
 
 /* Sidebar menu (collection of action items such as links and buttons) */
-.aside > .sidebar-menu {
+.sidebar > .sidebar-menu {
 
   width: var(--sidebar-child-element-width);
   padding: var(--sidebar-child-element-padding);
@@ -154,14 +168,14 @@ maybe replace checkbox with button or find a better way of doing this?
 }
 
 /* Prevent flexbox from resizing svg elements by setting min width of commonly used widths */ 
-.aside svg[width="24"] {
+.sidebar svg[width="24"] {
   min-width: 24px;
 }
 
-.aside svg[width="20"] {
+.sidebar svg[width="20"] {
   min-width: 20px;
 }
 
-.aside svg[width="16"] {
+.sidebar svg[width="16"] {
   min-width: 16px;
 }

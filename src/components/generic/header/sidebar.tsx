@@ -18,7 +18,7 @@ export default async function Sidebar() {
   ]);
 
   return <>
-    <aside className={`${styles["aside"]} inline-flex flex-direction-column`}>
+    <aside className={`${styles["sidebar"]} inline-flex flex-direction-column`}>
       {/* Consider using aria-expanded alongside a button and additional js instead */}
       {/* TODO SIDENAV: Tooltips for links (should have a custom tooltip, name="" technically covers all usecases except for keyboard only users ): [might also lead to repetition in screen readers]) */}
       <header>
