@@ -1,5 +1,5 @@
 /* Main sidebar */
-/* TODO SIDENAV: See if selectors can be clarified */ 
+/* TODO SIDENAV: See if selectors can be made clearer */ 
 
 /*
   Psuedo code showing sidebar layout represented as css variable names 
@@ -78,13 +78,10 @@
   min-width: var(--sidebar-header-icon-size); /* Prevents element from being resized by flexbox */
 }
 
-/*
-TODO SIDENAV: Checkbox keeps focus after pressing which is kinda annoying,
-maybe replace checkbox with button or find a better way of doing this? 
-.sidebar > header:first-of-type label:focus-within {
-  outline: 1px solid black;
+/* Prevent sticky focus behaviour by using :focus-visible */
+.sidebar > header:first-of-type label:has(input[type="checkbox"]:focus-visible) {
+  outline: 2px solid;
 }
-*/
 
 .sidebar:has(.sidebar-toggle:checked) > .sidebar-menu {
   @media (min-width: 1251px) {

@@ -17,6 +17,8 @@ export default async function Sidebar() {
     getSession(await cookies()),
   ]);
 
+
+
   return <>
     <aside className={`${styles["sidebar"]} inline-flex flex-direction-column`}>
       {/* Consider using aria-expanded alongside a button and additional js instead */}
@@ -175,8 +177,11 @@ export default async function Sidebar() {
           </Popover>
         </div>
         <div className="padding-top-100 margin-top-100 font-size-smaller" style={{ borderTop: "1px solid silver"}}>
-          {/* TODO SIDENAV: clarify comment below */}
-          {/* Overwrite logout/login button padding given in css file, as icon is on the right not left as with the links */}
+          { /*
+            Logout/login button padding is given in css file,
+            we overwrite this as the icon for theese buttons is on the right 
+            instead of on the left as is the case with other menu items
+          */ }
           {user?.isLoggedIn ?
             <LogoutButton className='justify-content-flex-end transparent rounded' style={{paddingRight: '.5rem'}}>
               <div className="flex-grow-100 text-align-left">{t("common:tsx.logout")}</div>
