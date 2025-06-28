@@ -24,9 +24,7 @@ export default async function Sidebar() {
       <header>
         <label className='inline-grid round position-relative' aria-label={t("components:sidebar.toggle_menu_alt")}>
           <input type="checkbox" className={`${styles['sidebar-toggle']} position-absolute opacity-0`} defaultChecked />
-          {/* TODO SIDENAV: do i need to set width for svgs or can i do in css so that i can use variables? */}
-          {/* TODO SIDENAV: note that setting width through css breaks min-width selectors as they currently are */}
-          <IconMenu2 aria-hidden="true" height={24} width={24} />  
+          <IconMenu2 aria-hidden="true" />  
         </label>
       </header>
 
@@ -34,18 +32,18 @@ export default async function Sidebar() {
         <nav className='flex-grow-100 flex flex-direction-column'>
           {user?.isLoggedIn ?
             <Link href={`/@${user.username}`} className="margin-bottom-300 color-pureblack rounded">
-              <IconUser aria-hidden='true' height={20} width={20} />
+              <IconUser aria-hidden='true' />
               {t("components:sidebar.my_profile")}
             </Link>
             :
             <Link href="/signup" className='margin-bottom-300 seagreen round color-purewhite'>
-              <IconUserPlus aria-hidden='true' height={20} width={20} />
+              <IconUserPlus aria-hidden='true' />
               {t("components:sidebar.create_account")}
             </Link>
           }
 
           <Link href="/" className='color-pureblack rounded'>
-            <IconHome aria-hidden='true' height={20} width={20} />
+            <IconHome aria-hidden='true' />
             {t("components:sidebar.home")}
           </Link>
           <PopoverButton
@@ -54,7 +52,7 @@ export default async function Sidebar() {
             className='transparent rounded'
             style={{ fontSize: '1rem' }}
           >
-            <IconCirclePlus width={20} height={20} aria-hidden="true" />
+            <IconCirclePlus aria-hidden="true" />
             {t("components:sidebar.create")}
           </PopoverButton>
           <Popover
@@ -112,7 +110,7 @@ export default async function Sidebar() {
             </nav>
           </Popover>
           <Link href="/info" className="margin-top-auto color-pureblack rounded">
-            <IconInfoCircle aria-hidden='true' height={20} width={20} />
+            <IconInfoCircle aria-hidden='true' />
             {t("components:sidebar.about")}
           </Link>
         </nav>
@@ -122,7 +120,7 @@ export default async function Sidebar() {
             popoverTarget='select-language-popover'
             className='transparent rounded'
           >
-            <IconWorld width={20} height={20} aria-hidden="true" />
+            <IconWorld aria-hidden="true" />
             {t("components:sidebar.language")}
           </PopoverButton>
           <Popover
@@ -151,7 +149,7 @@ export default async function Sidebar() {
             popoverTarget='settings-popover'
             className='transparent rounded'
           >
-            <IconSettings height={20} width={20} aria-hidden="true" />
+            <IconSettings aria-hidden="true" />
             {t("components:sidebar.settings")}
           </PopoverButton>
           <Popover
@@ -182,12 +180,12 @@ export default async function Sidebar() {
           {user?.isLoggedIn ?
             <LogoutButton className='justify-content-flex-end transparent rounded' style={{paddingRight: '.5rem'}}>
               <div className="flex-grow-100 text-align-left">{t("common:tsx.logout")}</div>
-              <IconLogout2 width={20} height={20} aria-hidden="true" />
+              <IconLogout2 aria-hidden="true" />
             </LogoutButton>
             :
             <Link href="/login" className="justify-content-flex-end color-pureblack rounded" style={{paddingRight: '.5rem'}}>
               <div className="flex-grow-100 text-align-left">{t("common:tsx.login")}</div>
-              <IconLogin2 height={20} width={20} aria-hidden='true' />
+              <IconLogin2 aria-hidden='true' />
             </Link>
           }
         </div>
