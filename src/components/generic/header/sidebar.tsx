@@ -17,12 +17,10 @@ export default async function Sidebar() {
     getSession(await cookies()),
   ]);
 
-
-
   return <>
     <aside className={`${styles["sidebar"]} inline-flex flex-direction-column`}>
-      {/* Consider using aria-expanded alongside a button and additional js instead */}
-      {/* TODO SIDENAV: Tooltips for links (should have a custom tooltip, name="" technically covers all usecases except for keyboard only users ): [might also lead to repetition in screen readers]) */}
+      {/* Consider using js + button instead of checkbox (or on top of using a checkbox) for accesability purposes */}
+      {/* Consider adding infobubbles to items in the navbar */}
       <header>
         <label className='inline-grid round position-relative' aria-label={t("components:sidebar.toggle_menu_alt")}>
           <input type="checkbox" className={`${styles['sidebar-toggle']} position-absolute opacity-0`} defaultChecked />

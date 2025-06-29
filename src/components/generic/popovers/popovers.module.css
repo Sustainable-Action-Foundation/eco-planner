@@ -42,12 +42,12 @@
         padding: 0 !important;
     }
 
-    .position-anchor > * {
+    .position-anchor>* {
         height: 100dvh;
         padding-block: 1rem;
         padding-inline: .75rem;
         min-width: 180px;
-        border: 0 !important; 
+        border: 0 !important;
         border-right: 1px solid var(--gray-90) !important;
         border-radius: 0;
     }
@@ -61,6 +61,7 @@
 .position-anchor {
     --position-anchor: ;
     position-anchor: var(--position-anchor);
+    position: absolute;
 }
 
 /* Anchor to left, center or right side of toggle button. */
@@ -80,6 +81,10 @@
     inset-inline-start: anchor(right);
     margin-block: 0;
     margin-right: auto;
+
+    /* Temporyr while figuring this out  */
+    position: absolute;
+    position-try-fallbacks: --my-popover-position;
 }
 
 /* Direction of the popup */
@@ -127,5 +132,114 @@
 .anchor-inline-center.popover-direction-left {
     inset-inline-end: anchor(right);
     inset-inline-start: initial;
+    transform: initial;
+}
+
+/* Temporary */
+
+/* 
+    We need to get a move on here... The most sensible option is 
+    probably to pass a list of fallback options as props to our 
+    component and then decide on which fallback options are most important
+    on a case by case basis
+  */
+.test[popover] {
+    position: absolute;
+    margin: 0;
+    inset: auto;
+
+    position-anchor: --button;
+
+    position-try-fallbacks:
+        flip-inline,
+        /* 
+        flip-block,
+        flip-inline flip-block,
+        */
+        --direction-down-direction-right,
+        --direction-down-direction-left,
+        --direction-up-direction-right,
+        --direction-up-direction-left, /*  This breaks --center */
+        --center;
+}
+
+.anchor-start {
+    right: anchor(left);
+}
+
+.anchor-center {
+    left: anchor(center);
+    transform: translateX(-50%);
+}
+
+.anchor-end {
+    left: anchor(right);
+}
+
+.direction-up {
+    bottom: anchor(bottom);
+}
+
+.direction-vertical {
+    top: anchor(center);
+    translate: 0 -50%;
+}
+
+.direction-down {
+    top: anchor(top);
+}
+
+.anchor-center.direction-up {
+    bottom: anchor(top);
+}
+
+.anchor-center.direction-down {
+    top: anchor(bottom);
+}
+
+.anchor-center.direction-right {
+    transform: initial;
+    left: anchor(left);
+}
+
+.anchor-center.direction-left {
+    transform: initial;
+    right: anchor(right);
+    left: unset; /* Overwrites anchor-center */
+}
+
+@position-try --direction-down-direction-right {
+    inset: auto;
+    top: anchor(bottom);
+    transform: initial;
+    left: anchor(left);
+}
+
+@position-try --direction-down-direction-left {
+    inset: auto;
+    left: unset; /* Overwrites anchor-center */
+    top: anchor(bottom);
+    transform: initial;
+    right: anchor(right);
+}
+
+@position-try --direction-up-direction-right {
+    inset: auto;
+    bottom: anchor(top);
+    transform: initial;
+    left: anchor(left);
+}
+
+@position-try --direction-up-direction-left {
+    inset: auto;
+    left: unset; /* Overwrites anchor-center */
+    bottom: anchor(top);
+    transform: initial;
+    right: anchor(right);
+}
+
+@position-try --center {
+    inset: 0;
+    margin: auto;
     transform: initial;
 }

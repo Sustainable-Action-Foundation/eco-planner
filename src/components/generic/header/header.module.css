@@ -1,5 +1,4 @@
 /* Main sidebar */
-/* TODO SIDENAV: See if selectors can be made clearer */ 
 
 /*
   Psuedo code showing sidebar layout represented as css variable names 
@@ -52,7 +51,7 @@
 }
 
 /* Sidebar header (toggle open/closed) */
-.sidebar > header {
+.sidebar > header:first-of-type {
   padding: var(--sidebar-child-element-padding);
 }
 
