@@ -1,36 +1,3 @@
-.popover-indicator {
-    display: none;
-    border-width: .5rem;
-    border-style: solid;
-}
-
-@supports (position-anchor: auto) {
-    .popover-indicator:has(+[popover]:popover-open) {
-        display: block;
-    }
-}
-
-.popover-indicator-top {
-    position-area: start center;
-    border-color: #292929 transparent transparent transparent;
-}
-
-.popover-indicator-right {
-    position-area: center end;
-    border-color: transparent #292929 transparent transparent;
-}
-
-.popover-indicator-bottom {
-    position-area: end center;
-    border-color: transparent transparent #292929 transparent;
-}
-
-.popover-indicator-left {
-    position-area: center start;
-    border-color: transparent transparent transparent #292929;
-}
-
-
 @supports not (position-anchor: auto) {
     *.position-anchor {
         height: 100vh;
@@ -59,6 +26,7 @@
 }
 
 .position-anchor {
+    --margin: ;
     --position-anchor: ;
     position-anchor: var(--position-anchor);
 
@@ -79,10 +47,11 @@
         --direction-up-direction-left, /*  This breaks --center */
         --center;
 }
-
+/* Do some margin variable and then use that to set margins in each anchor-position class aswell as the fallbacks...*/
  
 .anchor-inline-start {
     right: anchor(left);
+    margin-right: var(--margin);
 }
 
 .anchor-inline-center {
@@ -92,6 +61,7 @@
 
 .anchor-inline-end {
     left: anchor(right);
+    margin-left: var(--margin);
 }
 
 .popover-direction-up {
@@ -119,10 +89,12 @@
 
 .anchor-inline-center.popover-direction-up {
     bottom: anchor(top);
+    margin-bottom: var(--margin);
 }
 
 .anchor-inline-center.popover-direction-down {
     top: anchor(bottom);
+    margin-top: var(--margin);
 }
 
 .anchor-inline-center.popover-direction-right {
@@ -141,6 +113,9 @@
     top: anchor(bottom);
     transform: initial;
     left: anchor(left);
+    margin-top: var(--margin);
+    margin-right: 0;
+    margin-left: 0;
 }
 
 @position-try --direction-down-direction-left {
@@ -149,6 +124,9 @@
     top: anchor(bottom);
     transform: initial;
     right: anchor(right);
+    margin-top: var(--margin);
+    margin-right: 0;
+    margin-left: 0;
 }
 
 @position-try --direction-up-direction-right {
@@ -156,6 +134,9 @@
     bottom: anchor(top);
     transform: initial;
     left: anchor(left);
+    margin-bottom: var(--margin);
+    margin-right: 0;
+    margin-left: 0;
 }
 
 @position-try --direction-up-direction-left {
@@ -164,10 +145,52 @@
     bottom: anchor(top);
     transform: initial;
     right: anchor(right);
+    margin-bottom: var(--margin);
+    margin-right: 0;
+    margin-left: 0;
 }
 
 @position-try --center {
     inset: 0;
     margin: auto;
     transform: initial;
+}
+
+
+/* Indicator styles */
+.popover-indicator {
+    display: none;
+    border-width: .5rem;
+    border-style: solid;
+    --margin: ;
+}
+
+@supports (position-anchor: auto) {
+    .popover-indicator:has(+[popover]:popover-open) {
+        display: block;
+    }
+}
+
+.popover-indicator-top {
+    margin-bottom: calc(var(--margin) - 1rem);
+    position-area: start center;
+    border-color: #292929 transparent transparent transparent;
+}
+
+.popover-indicator-right {
+    margin-left: calc(var(--margin) - 1rem);
+    position-area: center end;
+    border-color: transparent #292929 transparent transparent;
+}
+
+.popover-indicator-bottom {
+    margin-top: calc(var(--margin) - 1rem);
+    position-area: end center;
+    border-color: transparent transparent #292929 transparent;
+}
+
+.popover-indicator-left {
+    margin-right: calc(var(--margin) - 1rem);
+    position-area: center start;
+    border-color: transparent transparent transparent #292929;
 }

@@ -62,7 +62,7 @@ export default async function Sidebar() {
             anchorInlinePosition='end'
             popoverDirection={{ vertical: 'down' }}
             className='margin-inline-0'
-            margin={{ left: '2rem' }}
+            margin='2rem'
             indicator
           >
             <nav className='padding-25 smooth' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
@@ -129,7 +129,7 @@ export default async function Sidebar() {
             positionAnchor='--select-language-popover-button'
             anchorInlinePosition='end'
             popoverDirection={{ vertical: 'up' }}
-            margin={{ left: '2rem' }}
+            margin='2rem'
             indicator
           >
             <fieldset className='padding-25 smooth fieldset-unset-pseudo-class' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
@@ -158,7 +158,7 @@ export default async function Sidebar() {
             positionAnchor='--settings-popover-button'
             anchorInlinePosition='end'
             popoverDirection={{ vertical: 'up' }}
-            margin={{ left: '2rem' }}
+            margin='2rem'
             indicator
           >
             <fieldset className='padding-25 smooth fieldset-unset-pseudo-class' style={{ backgroundColor: 'white', border: '1px solid silver' }}>

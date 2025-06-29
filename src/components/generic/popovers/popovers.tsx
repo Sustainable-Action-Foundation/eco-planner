@@ -71,12 +71,7 @@ export function Popover({
   // TODO SIDENAV: How do i handle margins when applying fallbacks? 
   // (note that flip-inline correctly deals with margins, we likely need to manually invert them, 
   // likely by setting them as css variables insted of inline styles?)
-  margin?: { 
-    top?: string,
-    right?: string,
-    bottom?: string,
-    left?: string, 
-  }
+  margin?: string
 }) {
 
   // Normalize vertical direction for consistent access
@@ -107,10 +102,7 @@ export function Popover({
         <div 
           className={`${styles['popover-indicator']} ${indicatorClass} ${styles['position-anchor']} position-absolute`}
           style={{
-            marginTop: `${margin ? `calc(${margin.top} - 1rem)` : ''}`,
-            marginRight: `${margin ? `calc(${margin.right} - 1rem)` : ''}`,
-            marginBottom: `${margin ? `calc(${margin.bottom} - 1rem)` : ''}`,
-            marginLeft: `${margin ? `calc(${margin.left} - 1rem)` : ''}`,
+            '--margin': margin,
             '--position-anchor': positionAnchor,
           } as React.CSSProperties}
         >
@@ -131,10 +123,7 @@ export function Popover({
           ${className ?? ''}
         `}
         style={{ 
-          marginTop: `${margin ? margin.top : ''}`,
-          marginRight: `${margin ? margin.right : ''}`,
-          marginBottom: `${margin ? margin.bottom : ''}`,
-          marginLeft: `${margin ? margin.left : ''}`,
+          '--margin': margin,
           '--position-anchor': positionAnchor, 
           ...style, 
         } as React.CSSProperties} // TODO: Do i need React.Cssproperties here?
