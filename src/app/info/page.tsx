@@ -143,7 +143,7 @@ export default async function Page() {
         id='test-popover'
         popover='auto'
         positionAnchor='--test-popover-button'
-        anchorInlinePosition='end'
+        anchorInlinePosition='center'
         popoverDirection={{ vertical: 'down' }}
         margin='1rem'
         indicator

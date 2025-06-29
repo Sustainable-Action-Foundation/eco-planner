@@ -37,7 +37,7 @@
     
     position-try-fallbacks:
         flip-inline,
-        /* 
+        /* Theese break --center and --direction-up-direction-left
         flip-block,
         flip-inline flip-block,
         */
@@ -108,10 +108,14 @@
     left: unset; /* Overwrites anchor-center */
 }
 
+
+/* TODO SIDENAV: Cannot overwrite transform which poses an issue for centered popovers (both vertically and horizontally?) */
+/* Using align-self and justify-self as is intended seems to create weird interactions with position-try-fallbacks */
+/* One idea is to use anchor-size and manually calculate offset */
+/* Another idea is to use position-area */
 @position-try --direction-down-direction-right {
     inset: auto;
     top: anchor(bottom);
-    transform: initial;
     left: anchor(left);
     margin-top: var(--margin);
     margin-right: 0;
@@ -122,7 +126,6 @@
     inset: auto;
     left: unset; /* Overwrites anchor-center */
     top: anchor(bottom);
-    transform: initial;
     right: anchor(right);
     margin-top: var(--margin);
     margin-right: 0;
@@ -132,7 +135,6 @@
 @position-try --direction-up-direction-right {
     inset: auto;
     bottom: anchor(top);
-    transform: initial;
     left: anchor(left);
     margin-bottom: var(--margin);
     margin-right: 0;
@@ -143,7 +145,6 @@
     inset: auto;
     left: unset; /* Overwrites anchor-center */
     bottom: anchor(top);
-    transform: initial;
     right: anchor(right);
     margin-bottom: var(--margin);
     margin-right: 0;
