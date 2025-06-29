@@ -145,8 +145,8 @@ export default async function Page() {
         positionAnchor='--test-popover-button'
         anchorInlinePosition='start'
         popoverDirection={{ vertical: 'down' }}
-        margin={{right: '1rem'}}
-        indicator={false}
+        margin={{right: '1rem' }}
+        indicator
       >
         <nav className='padding-25 smooth' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
           <header

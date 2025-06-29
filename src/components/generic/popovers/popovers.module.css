@@ -61,95 +61,12 @@
 .position-anchor {
     --position-anchor: ;
     position-anchor: var(--position-anchor);
-    position: absolute;
-}
 
-/* Anchor to left, center or right side of toggle button. */
-.anchor-inline-start {
-    inset-inline-end: anchor(left);
-    margin-block: 0;
-    margin-left: auto;
-}
-
-.anchor-inline-center {
-    inset-inline-start: anchor(center);
-    margin-inline: 0;
-    transform: translateX(-50%);
-}
-
-.anchor-inline-end {
-    inset-inline-start: anchor(right);
-    margin-block: 0;
-    margin-right: auto;
-
-    /* Temporyr while figuring this out  */
-    position: absolute;
-    position-try-fallbacks: --my-popover-position;
-}
-
-/* Direction of the popup */
-.popover-direction-up {
-    inset-block-end: anchor(bottom);
-    margin-top: auto;
-}
-
-.popover-direction-down {
-    inset-block-start: anchor(top);
-    margin-bottom: auto;
-}
-
-.popover-direction-vertical {
-    inset-block-start: anchor(center);
-    margin-bottom: auto;
-    /*
-      Use translate instead of transform as to not 
-      override values of anchor-inline-center
-    */
-    translate: 0 -50%;
-}
-
-/* 
-    Directional classes behave differently if
-    the anchor-inline = center, as to not cover 
-    the toggle button.
-  */
-.anchor-inline-center.popover-direction-up {
-    inset-block-end: anchor(top);
-    margin-top: auto;
-}
-
-.anchor-inline-center.popover-direction-down {
-    inset-block-start: anchor(bottom);
-    margin-bottom: auto;
-}
-
-.anchor-inline-center.popover-direction-right {
-    inset-inline-start: anchor(left);
-    inset-inline-end: initial;
-    transform: initial;
-}
-
-.anchor-inline-center.popover-direction-left {
-    inset-inline-end: anchor(right);
-    inset-inline-start: initial;
-    transform: initial;
-}
-
-/* Temporary */
-
-/* 
-    We need to get a move on here... The most sensible option is 
-    probably to pass a list of fallback options as props to our 
-    component and then decide on which fallback options are most important
-    on a case by case basis
-  */
-.test[popover] {
     position: absolute;
     margin: 0;
     inset: auto;
 
-    position-anchor: --button;
-
+    
     position-try-fallbacks:
         flip-inline,
         /* 
@@ -163,46 +80,57 @@
         --center;
 }
 
-.anchor-start {
+ 
+.anchor-inline-start {
     right: anchor(left);
 }
 
-.anchor-center {
+.anchor-inline-center {
     left: anchor(center);
     transform: translateX(-50%);
 }
 
-.anchor-end {
+.anchor-inline-end {
     left: anchor(right);
 }
 
-.direction-up {
+.popover-direction-up {
     bottom: anchor(bottom);
 }
 
-.direction-vertical {
+.popover-direction-vertical {
     top: anchor(center);
+    /*
+      Use translate instead of transform as to not 
+      override values of anchor-inline-center
+    */
     translate: 0 -50%;
 }
 
-.direction-down {
+.popover-direction-down {
     top: anchor(top);
 }
 
-.anchor-center.direction-up {
+/* 
+    Directional classes behave differently if
+    the anchor-inline = center, as to not cover 
+    the toggle button.
+  */
+
+.anchor-inline-center.popover-direction-up {
     bottom: anchor(top);
 }
 
-.anchor-center.direction-down {
+.anchor-inline-center.popover-direction-down {
     top: anchor(bottom);
 }
 
-.anchor-center.direction-right {
+.anchor-inline-center.popover-direction-right {
     transform: initial;
     left: anchor(left);
 }
 
-.anchor-center.direction-left {
+.anchor-inline-center.popover-direction-left {
     transform: initial;
     right: anchor(right);
     left: unset; /* Overwrites anchor-center */
