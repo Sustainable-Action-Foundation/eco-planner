@@ -7,6 +7,7 @@
         margin-bottom: 0 !important;
         margin-left: 0 !important;
         padding: 0 !important;
+        inset: 0 !important;
     }
 
     .position-anchor>* {
@@ -113,6 +114,7 @@
 /* Using align-self and justify-self as is intended seems to create weird interactions with position-try-fallbacks */
 /* One idea is to use anchor-size and manually calculate offset */
 /* Another idea is to use position-area */
+/* Alternatively look at splitting theese into multiple components */
 @position-try --direction-down-direction-right {
     inset: auto;
     top: anchor(bottom);
