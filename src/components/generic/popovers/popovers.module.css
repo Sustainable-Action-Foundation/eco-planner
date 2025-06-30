@@ -56,8 +56,7 @@
 }
 
 .anchor-inline-center {
-    left: anchor(center);
-    transform: translateX(-50%);
+    justify-self: unsafe anchor-center;
 }
 
 .anchor-inline-end {
@@ -70,12 +69,7 @@
 }
 
 .popover-direction-vertical {
-    top: anchor(center);
-    /*
-      Use translate instead of transform as to not 
-      override values of anchor-inline-center
-    */
-    translate: 0 -50%;
+    align-self: unsafe anchor-center;
 }
 
 .popover-direction-down {
@@ -99,14 +93,13 @@
 }
 
 .anchor-inline-center.popover-direction-right {
-    transform: initial;
+    justify-self: initial;
     left: anchor(left);
 }
 
 .anchor-inline-center.popover-direction-left {
-    transform: initial;
+    justify-self: initial;
     right: anchor(right);
-    left: unset; /* Overwrites anchor-center */
 }
 
 
@@ -117,40 +110,43 @@
 /* Alternatively look at splitting theese into multiple components */
 @position-try --direction-down-direction-right {
     inset: auto;
+    align-self: initial;
+    justify-self: initial;
     top: anchor(bottom);
     left: anchor(left);
+    margin: 0;
     margin-top: var(--margin);
-    margin-right: 0;
-    margin-left: 0;
 }
 
 @position-try --direction-down-direction-left {
     inset: auto;
-    left: unset; /* Overwrites anchor-center */
+    align-self: initial;
+    justify-self: initial;
     top: anchor(bottom);
     right: anchor(right);
+    margin: 0;
     margin-top: var(--margin);
-    margin-right: 0;
-    margin-left: 0;
 }
 
 @position-try --direction-up-direction-right {
     inset: auto;
+    align-self: initial;
+    justify-self: initial;
     bottom: anchor(top);
     left: anchor(left);
+    margin: 0;
     margin-bottom: var(--margin);
-    margin-right: 0;
-    margin-left: 0;
+    
 }
 
 @position-try --direction-up-direction-left {
     inset: auto;
-    left: unset; /* Overwrites anchor-center */
+    align-self: initial;
+    justify-self: initial;
     bottom: anchor(top);
     right: anchor(right);
+    margin: 0;
     margin-bottom: var(--margin);
-    margin-right: 0;
-    margin-left: 0;
 }
 
 @position-try --center {
