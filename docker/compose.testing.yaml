@@ -89,7 +89,6 @@ services:
   # Shuts down the stack after tests are completed
   cleanup:
     image: docker:cli
-    pull_policy: build
     restart: "no"
     depends_on:
       tests:
