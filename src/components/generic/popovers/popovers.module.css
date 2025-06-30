@@ -1,3 +1,4 @@
+/* TODO: REPLACE WITH POLYFILL */
 @supports not (position-anchor: auto) {
     *.position-anchor {
         height: 100vh;
@@ -29,14 +30,15 @@
 .position-anchor {
     --margin: ;
     --position-anchor: ;
-    position-anchor: var(--position-anchor);
 
-    position: absolute;
-    margin: 0;
-    inset: auto;
-
-    
-    position-try-fallbacks:
+    /*  TODO SIDENAV:
+        Broken fallback values may be explained by a limit on  the length of position options list
+        which must be atleast 5. https://www.w3.org/TR/css-anchor-position-1/#fallback-apply
+        I cannot fint any specs on the implementation on position-try-fallbacks for chrome, try to 
+        find theese. Until then we limit fallbacks to the five deemed most important.
+        An alternative might be to pass the most relevant ones by using props
+    */
+    --position-try-fallbacks: 
         flip-inline,
         /* Theese break --center and --direction-up-direction-left
         flip-block,
@@ -45,10 +47,17 @@
         --direction-down-direction-right,
         --direction-down-direction-left,
         --direction-up-direction-right,
-        --direction-up-direction-left, /*  This breaks --center */
-        --center;
+        --direction-up-direction-left; /*  This breaks --center */
+        /* --center; */
+
+    position-anchor: var(--position-anchor);
+
+    position: absolute;
+    margin: 0; /* TODO: Look at how we deal with this in fallbacks, looks kinda wonky in sidenav */
+    inset: auto;
+
+    position-try-fallbacks: var(--position-try-fallbacks)
 }
-/* Do some margin variable and then use that to set margins in each anchor-position class aswell as the fallbacks...*/
  
 .anchor-inline-start {
     right: anchor(left);
@@ -102,12 +111,6 @@
     right: anchor(right);
 }
 
-
-/* TODO SIDENAV: Cannot overwrite transform which poses an issue for centered popovers (both vertically and horizontally?) */
-/* Using align-self and justify-self as is intended seems to create weird interactions with position-try-fallbacks */
-/* One idea is to use anchor-size and manually calculate offset */
-/* Another idea is to use position-area */
-/* Alternatively look at splitting theese into multiple components */
 @position-try --direction-down-direction-right {
     inset: auto;
     align-self: initial;

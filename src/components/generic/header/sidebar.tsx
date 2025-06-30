@@ -63,7 +63,6 @@ export default async function Sidebar() {
             popoverDirection={{ vertical: 'down' }}
             className='margin-inline-0'
             margin='2rem'
-            indicator
           >
             <nav className='padding-25 smooth' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
               <header
@@ -130,7 +129,6 @@ export default async function Sidebar() {
             anchorInlinePosition='end'
             popoverDirection={{ vertical: 'up' }}
             margin='2rem'
-            indicator
           >
             <fieldset className='padding-25 smooth fieldset-unset-pseudo-class' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
               <div
@@ -159,7 +157,6 @@ export default async function Sidebar() {
             anchorInlinePosition='end'
             popoverDirection={{ vertical: 'up' }}
             margin='2rem'
-            indicator
           >
             <fieldset className='padding-25 smooth fieldset-unset-pseudo-class' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
               <div

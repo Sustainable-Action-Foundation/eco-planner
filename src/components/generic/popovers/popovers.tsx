@@ -32,7 +32,7 @@ export function PopoverButton({
     <button
       id={id}
       className={`${styles['anchor-name']} ${className}`}
-      style={{ '--anchor-name': anchorName, ...style, } as React.CSSProperties} // TODO: Do i need React.Cssproperties here?
+      style={{ '--anchor-name': anchorName, ...style, } as React.CSSProperties}
       popoverTarget={popoverTarget}
     >
       {children}
@@ -40,8 +40,6 @@ export function PopoverButton({
   )
 }
 
-// TODO: popover should always be manual if browser does 
-// not support anchor positioning?
 // TODO: A horizontal popover direction should only be 
 // given assuming an anchorInlinePosition of center
 export function Popover({
@@ -53,6 +51,7 @@ export function Popover({
   positionAnchor,
   anchorInlinePosition,
   popoverDirection,
+  positionTryFallbacks,
   indicator,
   margin
 }: {
@@ -67,10 +66,14 @@ export function Popover({
     vertical: 'up' | 'vertical' | 'down',
     horizontal?: 'left' | 'right'
   } | 'up' | 'vertical' | 'down',
-  indicator?: boolean,
-  // TODO SIDENAV: How do i handle margins when applying fallbacks? 
-  // (note that flip-inline correctly deals with margins, we likely need to manually invert them, 
-  // likely by setting them as css variables insted of inline styles?)
+  positionTryFallbacks?: "none" | string,
+  /* 
+    As of now, an indicator can only be given assuming a positionTryFallbacks of none. 
+    It is likely that future browsers will support some css selector for checking fallback values,
+    in which case we can support indicator for all cases and use said selector for proper alignment.
+    Until then we use :popover-open to ensure that our popover is visibly connected to a button. 
+  */
+  indicator?: boolean, 
   margin?: string
 }) {
 
@@ -102,7 +105,7 @@ export function Popover({
         <div 
           className={`${styles['popover-indicator']} ${indicatorClass} ${styles['position-anchor']} position-absolute`}
           style={{
-            '--margin': margin,
+            '--margin': margin, // TODO: Margin is o
             '--position-anchor': positionAnchor,
           } as React.CSSProperties}
         >
@@ -122,11 +125,11 @@ export function Popover({
           ${styles['position-anchor']} 
           ${className ?? ''}
         `}
-        style={{ 
-          '--margin': margin,
+        style={{ // TODO: Add fallbacks
+          '--margin': margin, // TODO: Margin is o
           '--position-anchor': positionAnchor, 
           ...style, 
-        } as React.CSSProperties} // TODO: Do i need React.Cssproperties here?
+        } as React.CSSProperties}
         popover={popover}
       >
         {children}

@@ -151,12 +151,17 @@
     var(--sidebar-menu-child-element-padding) + 
     var(--sidebar-menu-child-element-gap)
   ); 
-  transition: background-color .1s ease, box-shadow .1s ease;
+  transition: background-color .1s ease, box-shadow .1s ease, color .1s ease;
   text-decoration: none;
   overflow: hidden;
   white-space: nowrap;
   line-height: 1;
 } 
+
+.sidebar-menu button[popovertarget]:has(+ div:popover-open) {
+  background-color: var(--darkblue-10);
+  color: white;
+}
 
 .sidebar-menu > * > a > svg,
 .sidebar-menu > * > button > svg {
