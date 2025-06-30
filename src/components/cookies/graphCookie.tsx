@@ -4,7 +4,15 @@ import { storageConsent, allowStorage, clearStorage } from "@/functions/localSto
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export default function GraphCookie() {
+export default function GraphCookie({
+  id,
+  className,
+  style,
+}: {
+  id?: string,
+  className?: string,
+  style?: React.CSSProperties,
+}) {
   const { t } = useTranslation("graphs");
 
   const [storageAllowed, setStorageAllowed] = useState(false)
@@ -14,7 +22,11 @@ export default function GraphCookie() {
   }, [])
 
   return (
-    <label className="flex gap-25 align-items-center">
+    <label 
+      id={id || undefined} 
+      className={`${className ? className + ' ' : ''} flex gap-25 align-items-center`} 
+      style={style}
+    >
       <input type="checkbox" id="allowStorage" checked={storageAllowed} onChange={e => {
         if (e.target.checked) {
           setStorageAllowed(true);

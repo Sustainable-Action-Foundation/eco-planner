@@ -1,3 +1,10 @@
+// This is built as a placement agnostic component.
+// However firefox does not yet support anchor positioning as of 2025-06-18
+// Fallbacks for browsers which do not support anchor position places-
+// any popover in the top left of the page with a height of 100%.
+// As such this should only be used within the sidebar until-
+// greater browser support. 
+
 "use client"
 
 import styles from './popovers.module.css' with { type: "css" }
@@ -23,7 +30,7 @@ export function PopoverButton({
     <button
       id={id}
       className={`${styles['anchor-name']} ${className}`}
-      style={{ '--anchor-name': anchorName, ...style, } as React.CSSProperties} // TODO: Do i need React.Cssproperties here?
+      style={{ '--anchor-name': anchorName, ...style, } as React.CSSProperties}
       popoverTarget={popoverTarget}
     >
       {children}
@@ -32,7 +39,7 @@ export function PopoverButton({
 }
 
 // TODO: A horizontal popover direction should only be 
-// Given assuming an anchorInlinePosition of center
+// given assuming an anchorInlinePosition of center
 export function Popover({
   id,
   className,
@@ -42,6 +49,7 @@ export function Popover({
   positionAnchor,
   anchorInlinePosition,
   popoverDirection,
+  positionTryFallbacks,
   indicator,
   margin
 }: {
@@ -56,14 +64,21 @@ export function Popover({
     vertical: 'up' | 'vertical' | 'down',
     horizontal?: 'left' | 'right'
   } | 'up' | 'vertical' | 'down',
-  indicator?: boolean,
-  margin?: {
-    top?: string,
-    right?: string,
-    bottom?: string,
-    left?: string, 
-  }
+  positionTryFallbacks?: "none" | string, // TODO: String should be a comma seperated string with suggestions on allowed fallback values. (or an array?) 
+  /* 
+    As of now, an indicator can only be given assuming a positionTryFallbacks of none. 
+    It is likely that future browsers will support some css selector for checking fallback values,
+    in which case we can support indicator for all cases and use said selector for proper alignment.
+    Until then we may use :popover-open to ensure that our popover is visibly connected to a button. 
+  */
+  indicator?: boolean, 
+  margin?: string
 }) {
+
+  // TODO: Probably prevent passing none in our types if positionTryFallbacks != "none"?
+  if (positionTryFallbacks != "none") {
+    indicator = undefined
+  }
 
   // Normalize vertical direction for consistent access
   const vertical =
@@ -93,16 +108,14 @@ export function Popover({
         <div 
           className={`${styles['popover-indicator']} ${indicatorClass} ${styles['position-anchor']} position-absolute`}
           style={{
-            marginTop: `${margin ? `calc(${margin.top} - 1rem)` : ''}`,
-            marginRight: `${margin ? `calc(${margin.right} - 1rem)` : ''}`,
-            marginBottom: `${margin ? `calc(${margin.bottom} - 1rem)` : ''}`,
-            marginLeft: `${margin ? `calc(${margin.left} - 1rem)` : ''}`,
+            '--margin': margin,
             '--position-anchor': positionAnchor,
           } as React.CSSProperties}
         >
         </div>
       : null } 
       <div
+        role='dialog'
         id={id}
         className={`
           ${styles[`anchor-inline-${anchorInlinePosition}`]} 
@@ -116,13 +129,11 @@ export function Popover({
           ${className ?? ''}
         `}
         style={{ 
-            marginTop: `${margin ? margin.top : ''}`,
-            marginRight: `${margin ? margin.right : ''}`,
-            marginBottom: `${margin ? margin.bottom : ''}`,
-            marginLeft: `${margin ? margin.left : ''}`,
+          '--position-try-fallbacks': positionTryFallbacks,
+          '--margin': margin,
           '--position-anchor': positionAnchor, 
           ...style, 
-        } as React.CSSProperties} // TODO: Do i need React.Cssproperties here?
+        } as React.CSSProperties}
         popover={popover}
       >
         {children}

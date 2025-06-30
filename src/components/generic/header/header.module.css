@@ -1,121 +1,186 @@
-/* Toggle minimized/expanded */
+/* Main sidebar */
 
-.menuToggleContainer:has(input[type="checkbox"]:checked)+aside {
-  @media (min-width: 1251px) {
-    width: calc(24px + 1rem + 2rem);
-  }
+/*
+  Psuedo code showing sidebar layout represented as css variable names 
+  <sidebar>
+    <sidebar-header>
+      <sidebar-header-label />
+      ...
+    </sidebar-header>
+    <sidebar-menu>
+      <sidebar-menu-child-element />
+      ...
+    </sidebar-menu>
+  </sidebar>
+*/
 
-  @media (max-width: 1250px) {
-    transform: translate(0, 0);
-  }
-}
+.sidebar { 
+  --sidebar-menu-child-element-padding: .5rem;
+  --sidebar-menu-child-element-gap: var(--sidebar-menu-child-element-padding);
+  
+  /* Sidebar child element = header, menu */
+  --sidebar-child-element-padding: .75rem; 
+  --sidebar-child-element-width: calc(
+    var(--sidebar-child-element-icon-min-size) +
+    var(--sidebar-child-element-padding) * 2 + 
+    var(--sidebar-menu-child-element-padding) * 2 
+  ); 
+  --sidebar-child-element-icon-min-size: 20px;
 
-.menuToggleContainer {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: fit-content;
-  transition: background-color .2s ease,
-              transform .2s ease;
-  padding: .25rem;
-  margin: 1rem;
-  border-radius: 9999px;
-  z-index: 999;
-}
+  --sidebar-header-icon-size: 24px; 
+  --sidebar-header-label-padding: .25rem;
+  --sidebar-header-label-width: calc(
+    var(--sidebar-header-icon-size) + 
+    var(--sidebar-header-label-padding)
+  );
 
-.menuToggle {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.menuToggleContainer:has(.menuToggle:hover) {
-  background-color: var(--gray);
-}
-
-.menuToggleContainer:has(.menuToggle:checked)~nav {
-  width: calc(24px + 1rem);
-}
-
-/* Container for navigation */
-.container {
   position: sticky;
   top: 0;
-  border-right: 1px solid var(--gray-90);
   height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  z-index: 998;
-  background-color: rgba(255, 255, 255, 0.9);
+  border-right: 1px solid silver; 
 
   @media (max-width: 1250px) {
-    height: auto;
-    border-right: unset;
-    border-bottom: 1px solid var(--gray-90);
+    height: unset;
+    width: 100%;
+    border-right: 0;
+    border-bottom: 1px solid silver;
+    background-color: rgba(255,255,255,.95);
+    backdrop-filter: blur(2px);
+    z-index: 8;
   }
 }
 
-/* Navigation */
+/* Sidebar header (toggle open/closed) */
+.sidebar > header:first-of-type {
+  padding: var(--sidebar-child-element-padding);
+}
 
-.aside {
-  width: 12rem;
-  padding: 1rem;
-  transition: transform .2s ease-in-out, width .2s ease-in-out;
-  z-index: 998;
-  position: relative;
-  background-color: white;
-  display: flex;
+.sidebar > header:first-of-type label { 
+  padding: var(--sidebar-header-label-padding);
+  margin-left: calc((
+    (var(--sidebar-child-element-width) - (var(--sidebar-child-element-padding) * 2)) -
+    (var(--sidebar-header-icon-size) + (var(--sidebar-header-label-padding) * 2))
+  ) / 2 ); 
+  transition: background-color .1s ease;
+  @media (max-width: 1250px) {
+    z-index: 10;
+  }
+}
+
+.sidebar > header:first-of-type label:hover {
+  background-color: #e0e6eb;
+}
+
+.sidebar > header:first-of-type > label > svg {
+  width: var(--sidebar-header-icon-size);
+  height: var(--sidebar-header-icon-size);
+  min-width: var(--sidebar-header-icon-size); /* Prevents element from being resized by flexbox */
+}
+
+/* Prevent sticky focus behaviour by using :focus-visible */
+.sidebar > header:first-of-type label:has(input[type="checkbox"]:focus-visible) {
+  outline: 2px solid;
+}
+
+.sidebar:has(.sidebar-toggle:checked) > .sidebar-menu {
+  @media (min-width: 1251px) {
+    width: initial;
+  }
 
   @media (max-width: 1250px) {
-    transform: translate(-100%, 0);
+    transform: translateX(-100%);
+    display: none;
+  }
+} 
+
+/* Sidebar menu (collection of action items such as links and buttons) */
+.sidebar > .sidebar-menu {
+  width: var(--sidebar-child-element-width);
+  padding: var(--sidebar-child-element-padding);
+
+  interpolate-size: allow-keywords;
+  transition-property: width, transform, display; 
+  transition-duration: .2s;
+  transition-timing-function: ease-out;
+  transition-behavior: allow-discrete;
+
+  @media (max-width: 1250px) {
+    transform: translateX(0);
+
     position: absolute;
-    left: 0;
-    height: calc(100dvh);
-    border-right: 1px solid var(--gray-90);
+    z-index: 9;
+    top: 0;
+
+    width: initial;
+    height: 100dvh;
+    border-right: 1px solid silver;
+    background-color: white;
+
+    padding-top: calc(
+      var(--sidebar-child-element-padding) +
+      var(--sidebar-child-element-padding) * 2 +
+      var(--sidebar-header-icon-size) + 
+      var(--sidebar-header-label-padding) * 2 
+    ); 
+    
+    @starting-style { 
+      transform: translateX(-100%);
+    }
+  }
+
+  /* 
+    TODO: Firefox is currently the only browser to not support transition-behavior: allow-discrete
+    togheter with display: none; However as transition-behavior is still a supported property
+    we cannot use a @support query. Thus we have this wonky fix which we can remove once firefox 
+    supports transition-behavior fully.  
+  */
+  @-moz-document url-prefix() { 
+    transition-property: width, display 
   }
 }
 
-.nav {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 3rem;
-  flex-grow: 1;
-
-  @media (max-width: 1250px) {
-    margin-top: 64px;
-  }
-}
-
-/* Appearance of links in navigation */
-
-.link {
-  overflow: hidden;
-  text-decoration: unset;
-  color: black;
-  font-weight: 500;
+/* Sidebar menu items */
+.sidebar-menu > * > a,
+.sidebar-menu > * > button {
   display: flex;
   align-items: center;
-  gap: .5rem;
-  padding: .5rem;
-  border-radius: .5rem;
-  outline: 0;
-  transition: background-color .1s ease;
+  gap: var(--sidebar-menu-child-element-gap);
+  width: 100%;
+  padding: var(--sidebar-menu-child-element-padding);
+  padding-right: calc(
+    var(--sidebar-menu-child-element-padding) + 
+    var(--sidebar-menu-child-element-gap)
+  ); 
+  transition: background-color .1s ease, box-shadow .1s ease;
+  text-decoration: none;
+  overflow: hidden;
   white-space: nowrap;
+  line-height: 1;
+} 
+
+.sidebar-menu button[popovertarget]:active {
+  transform: initial;
 }
 
-.link:hover {
-  background-color: var(--gray-90);
+.sidebar-menu button[popovertarget]:has(+ div:popover-open) {
+  background-color: #191919;
+  color: white;
+  transition: initial;
 }
 
-.menu-link {
-  transition: background-color .1s ease;
+.sidebar-menu > * > a > svg,
+.sidebar-menu > * > button > svg {
+  width: var(--sidebar-child-element-icon-min-size);
+  height: var(--sidebar-child-element-icon-min-size);
+  min-width: var(--sidebar-child-element-icon-min-size); /* Prevents element from being resized by flexbox */
 }
 
-.menu-link:hover {
-  background-color: var(--gray-90);
+.sidebar-menu a:not([href="/signup"]):hover,
+.sidebar-menu button:hover {
+  background-color: #e0e6eb;
+  box-shadow: none; 
+}
+
+.sidebar-menu > * > a[href="/signup"]:hover {
+  box-shadow: inset 0 0 999px rgba(0, 0, 0, 0.1);
 }

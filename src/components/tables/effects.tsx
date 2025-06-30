@@ -51,7 +51,7 @@ export default function EffectTable({
         <li key={`${effect.actionId}_${effect.goalId}`} className="margin-block-75">
           <div className='flex justify-content-space-between align-items-center width-100'>
             <IconCaretRightFilled fill="lightgray" aria-hidden="true" className="margin-inline-25 padding-25" style={{minWidth: '24px'}} />
-            <a
+            <Link
               href={(object as Action).isSufficiency != undefined ? `/goal/${effect.goalId}` : `/action/${effect.actionId}`}
               className="font-weight-500 color-pureblack text-decoration-none flex-grow-100 inline-block padding-25 smooth">
               <span>{effect.action?.name || effect.goal?.name || effect.goal?.indicatorParameter || t("components:effects_table.effect_missing_name")}</span>
@@ -59,7 +59,7 @@ export default function EffectTable({
               {effect.action?.startYear && effect.action?.endYear ? (
                 <small className="color-gray">{effect.action?.startYear} - {effect.action?.endYear}</small>
               ) : null}
-            </a>
+            </Link>
             <TableMenu
               accessLevel={accessLevel}
               object={effect}

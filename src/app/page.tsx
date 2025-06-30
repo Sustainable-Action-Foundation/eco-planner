@@ -135,8 +135,6 @@ export default async function Page(
             session.user &&
             <>
               <Link href="/metaRoadmap/create" className="button purewhite round block">{t("pages:home.create_roadmap")}</Link>
-              {/* TODO: Incorporate this in a reasonable way */}
-              {/* <a href="/roadmap/createRoadmap" className="button purewhite round block"></a> */}
             </>
           }
         </div>

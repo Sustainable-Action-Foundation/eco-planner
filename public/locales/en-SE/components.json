@@ -142,9 +142,13 @@
     "create_account": "Create account",
     "home": "$t(common:tsx.home)",
     "create": "Create",
+    "close_menu_create": "Close menu: Create",
+    "settings": "Settings",
+    "close_menu_settings": "Close menu: Settings",
     "about": "About",
     "language": "Language",
-    "language_alt": "Select language"
+    "language_alt": "Select language",
+    "close_menu_language": "Close menu: Select language"
   },
   "signup": {
     "signup_failed_motivated": "Registration failed. Reason: {{reason}}",

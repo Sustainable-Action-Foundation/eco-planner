@@ -7,6 +7,7 @@ import { SyntheticEvent } from 'react';
 import { getSessionStorage, setSessionStorage } from '@/functions/localStorage';
 import { useTranslation } from "react-i18next";
 import { IconLink } from '@tabler/icons-react';
+import Link from 'next/link';
 
 // interface LinkTreeCommonProps {}
 
@@ -84,12 +85,12 @@ export default function LinkTree({
           <li key={key}>
             { // If the current object is a goal (has an id), render a link to the goal
               typeof data[key].id == 'string' ? (
-                <a href={`/goal/${data[key].id}`} className={`display-flex gap-50 align-items-center padding-block-50 ${styles.link}`}>
+                <Link href={`/goal/${data[key].id}`} className={`display-flex gap-50 align-items-center padding-block-50 ${styles.link}`}>
                   <IconLink aria-hidden="true" width={16} height={16} style={{minWidth: '16px'}} />
                   <span>
                     {key}
                   </span>
-                </a>
+                </Link>
               ) : (
                 <details className={styles.details} open={openCategories?.includes(previousKeys + "\\" + key)} onToggle={(e) => handleToggle(e, previousKeys + "\\" + key)}>
                   <summary>{key}</summary>

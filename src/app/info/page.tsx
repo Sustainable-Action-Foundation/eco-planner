@@ -7,7 +7,7 @@ import serveTea from "@/lib/i18nServer";
 // Uses TransWithoutContext, passing in our server-side i18n instance to the component,
 // rather than using the base Trans component which would use a client-side i18n instance.
 import { Trans } from "react-i18next/TransWithoutContext";
-import i18next from "i18next";
+import i18next from "i18next"; 
 
 export async function generateMetadata() {
   const t = await serveTea("pages");

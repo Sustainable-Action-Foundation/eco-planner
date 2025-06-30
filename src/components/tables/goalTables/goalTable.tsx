@@ -5,6 +5,7 @@ import { GoalSortBy } from '../goals';
 import styles from '../tables.module.css' with { type: "css" };
 import { DataSeries, Goal } from "@prisma/client";
 import { useTranslation } from "react-i18next";
+import Link from 'next/link';
 
 interface GoalTableCommonProps {
   sortBy?: GoalSortBy,
@@ -90,7 +91,7 @@ export default function GoalTable({
         <tbody>
           {goals.map(goal => (goal &&
             <tr key={goal.id}>
-              <td><a href={`/goal/${goal.id}`}>{goal.name || goal.indicatorParameter}</a></td>
+              <td><Link href={`/goal/${goal.id}`}>{goal.name || goal.indicatorParameter}</Link></td>
               <td>{goal.indicatorParameter}</td>
               <td>{goal.dataSeries?.unit}</td>
               <td>{goal._count.effects}</td>

@@ -1,36 +1,3 @@
-.popover-indicator {
-    display: none;
-    border-width: .5rem;
-    border-style: solid;
-}
-
-@supports (position-anchor: auto) {
-    .popover-indicator:has(+[popover]:popover-open) {
-        display: block;
-    }
-}
-
-.popover-indicator-top {
-    position-area: start center;
-    border-color: #292929 transparent transparent transparent;
-}
-
-.popover-indicator-right {
-    position-area: center end;
-    border-color: transparent #292929 transparent transparent;
-}
-
-.popover-indicator-bottom {
-    position-area: end center;
-    border-color: transparent transparent #292929 transparent;
-}
-
-.popover-indicator-left {
-    position-area: center start;
-    border-color: transparent transparent transparent #292929;
-}
-
-
 @supports not (position-anchor: auto) {
     *.position-anchor {
         height: 100vh;
@@ -39,14 +6,16 @@
         margin-right: 0 !important;
         margin-bottom: 0 !important;
         margin-left: 0 !important;
-        width: 12rem;
         padding: 0 !important;
+        inset: 0 !important;
     }
 
-    .position-anchor > * {
+    .position-anchor>* {
         height: 100dvh;
-        padding: 1rem;
-        border: 0 !important; 
+        padding-block: 1rem;
+        padding-inline: .75rem;
+        min-width: 180px;
+        border: 0 !important;
         border-right: 1px solid var(--gray-90) !important;
         border-radius: 0;
     }
@@ -58,73 +27,171 @@
 }
 
 .position-anchor {
+    --margin: ;
     --position-anchor: ;
-    position-anchor: var(--position-anchor);
-}
 
-/* Anchor to left, center or right side of toggle button. */
+    /*  TODO SIDENAV:
+        Broken fallback values may be explained by a limit on  the length of position options list
+        which must be atleast 5. https://www.w3.org/TR/css-anchor-position-1/#fallback-apply
+        I cannot fint any specs on the implementation on position-try-fallbacks for chrome, try to 
+        find theese. Until then we limit fallbacks to the five deemed most important.
+        An alternative might be to pass the most relevant ones by using props
+    */
+    --position-try-fallbacks: 
+        flip-inline,
+        /* Theese break --center and --direction-up-direction-left
+        flip-block,
+        flip-inline flip-block,
+        */
+        --direction-down-direction-right,
+        --direction-down-direction-left,
+        --direction-up-direction-right,
+        --direction-up-direction-left; /*  This breaks --center */
+        /* --center; */
+
+    position-anchor: var(--position-anchor);
+
+    position: absolute;
+    margin: 0; /* TODO: Look at how we deal with this in fallbacks, looks kinda wonky in sidenav */
+    inset: auto;
+
+    position-try-fallbacks: var(--position-try-fallbacks)
+}
+ 
 .anchor-inline-start {
-    inset-inline-end: anchor(left);
-    margin-block: 0;
-    margin-left: auto;
+    right: anchor(left);
+    margin-inline: var(--margin);
 }
 
 .anchor-inline-center {
-    inset-inline-start: anchor(center);
-    margin-inline: 0;
-    transform: translateX(-50%);
+    justify-self: unsafe anchor-center;
 }
 
 .anchor-inline-end {
-    inset-inline-start: anchor(right);
-    margin-block: 0;
-    margin-right: auto;
+    left: anchor(right);
+    margin-inline: var(--margin);
 }
 
-/* Direction of the popup */
 .popover-direction-up {
-    inset-block-end: anchor(bottom);
-    margin-top: auto;
-}
-
-.popover-direction-down {
-    inset-block-start: anchor(top);
-    margin-bottom: auto;
+    bottom: anchor(bottom);
 }
 
 .popover-direction-vertical {
-    inset-block-start: anchor(center);
-    margin-bottom: auto;
-    /*
-      Use translate instead of transform as to not 
-      override values of anchor-inline-center
-    */
-    translate: 0 -50%;
+    align-self: unsafe anchor-center;
+}
+
+.popover-direction-down {
+    top: anchor(top);
 }
 
 /* 
     Directional classes behave differently if
     the anchor-inline = center, as to not cover 
     the toggle button.
-  */
+*/
+
 .anchor-inline-center.popover-direction-up {
-    inset-block-end: anchor(top);
-    margin-top: auto;
+    bottom: anchor(top);
+    margin-block: var(--margin);
 }
 
 .anchor-inline-center.popover-direction-down {
-    inset-block-start: anchor(bottom);
-    margin-bottom: auto;
+    top: anchor(bottom);
+    margin-block: var(--margin);
 }
 
 .anchor-inline-center.popover-direction-right {
-    inset-inline-start: anchor(left);
-    inset-inline-end: initial;
-    transform: initial;
+    justify-self: initial;
+    left: anchor(left);
 }
 
 .anchor-inline-center.popover-direction-left {
-    inset-inline-end: anchor(right);
-    inset-inline-start: initial;
+    justify-self: initial;
+    right: anchor(right);
+}
+
+@position-try --direction-down-direction-right {
+    inset: auto;
+    align-self: initial;
+    justify-self: initial;
+    top: anchor(bottom);
+    left: anchor(left);
+    margin: 0;
+    margin-block: var(--margin);
+}
+
+@position-try --direction-down-direction-left {
+    inset: auto;
+    align-self: initial;
+    justify-self: initial;
+    top: anchor(bottom);
+    right: anchor(right);
+    margin: 0;
+    margin-block: var(--margin);
+}
+
+@position-try --direction-up-direction-right {
+    inset: auto;
+    align-self: initial;
+    justify-self: initial;
+    bottom: anchor(top);
+    left: anchor(left);
+    margin: 0;
+    margin-block: var(--margin);
+    
+}
+
+@position-try --direction-up-direction-left {
+    inset: auto;
+    align-self: initial;
+    justify-self: initial;
+    bottom: anchor(top);
+    right: anchor(right);
+    margin: 0;
+    margin-block: var(--margin);
+}
+
+@position-try --center {
+    inset: 0;
+    margin: auto;
     transform: initial;
+}
+
+
+/* Indicator styles */
+.popover-indicator {
+    display: none;
+    border-width: .5rem;
+    border-style: solid;
+    --margin: ;
+}
+
+@supports (position-anchor: auto) {
+    .popover-indicator:has(+[popover]:popover-open) {
+        display: block;
+    }
+}
+
+.popover-indicator-top {
+    margin-bottom: calc(var(--margin) - 1rem);
+    position-area: start center;
+    border-color: #292929 transparent transparent transparent;
+}
+
+.popover-indicator-right {
+    margin-left: calc(var(--margin) - 1rem);
+    position-area: center end;
+    border-color: transparent #292929 transparent transparent;
+}
+
+.popover-indicator-bottom {
+    margin-top: calc(var(--margin) - 1rem);
+    position-area: end center;
+    border-color: transparent transparent #292929 transparent;
+}
+
+.popover-indicator-left {
+    margin-right: calc(var(--margin) - 1rem);
+    position-area: center start;
+    border-color: transparent transparent transparent #292929;
 }
