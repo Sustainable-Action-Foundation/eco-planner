@@ -122,7 +122,8 @@ export default async function Sidebar() {
             <IconWorld aria-hidden="true" />
             {t("components:sidebar.language")}
           </PopoverButton>
-          <Popover
+          {/* TODO: Update margins of the title/close section in all popovers once firefox supports anchor positions */} 
+          <Popover  
             id='select-language-popover'
             popover='auto'
             positionAnchor='--select-language-popover-button'

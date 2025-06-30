@@ -130,68 +130,6 @@ export default async function Page() {
           <p>{t("pages:info.commit_without_link", { commit: gitHash.shortHash || gitHash.longHash || "" })}</p>
         : null
       }
-      <PopoverButton
-        anchorName='--test-popover-button'
-        popoverTarget='test-popover'
-        className='transparent rounded flex align-items-center gap-25'
-        style={{ fontSize: '1rem', marginLeft: '10rem' }}
-      >
-        <IconCirclePlus aria-hidden="true" />
-        test
-      </PopoverButton>
-      <Popover
-        id='test-popover'
-        popover='auto'
-        positionAnchor='--test-popover-button'
-        anchorInlinePosition='center'
-        popoverDirection={{ vertical: 'up'}}
-        margin='.25rem'
-        indicator
-      >
-        <nav className='padding-25 smooth' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
-          <header
-            className='padding-bottom-50 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center'
-            style={{ borderBottom: '1px solid var(--gray)' }}
-          >
-            <h2 className='font-weight-600 margin-0' style={{ fontSize: 'inherit' }}>{t("components:sidebar.create")}</h2>
-            <button popoverTarget='test-popover' aria-label={t("components:sidebar.close_menu_create")} className='transparent grid padding-25 round'>
-              <IconX aria-hidden='true' width={16} height={16} />
-            </button>
-          </header>
-          <ul className='padding-0 margin-0' style={{ listStyle: 'none' }}>
-            <li>
-              <Link href='/metaRoadmap/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
-                {t("common:roadmap_series_one")}
-                <IconPlus width={16} height={16} />
-              </Link>
-            </li>
-            <li>
-              <Link href='/roadmap/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
-                {t("common:roadmap_short_one")}
-                <IconPlus width={16} height={16} />
-              </Link>
-            </li>
-            <li>
-              <Link href='/goal/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
-                {t("common:goal_one")}
-                <IconPlus width={16} height={16} />
-              </Link>
-            </li>
-            <li>
-              <Link href='/action/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
-                {t("common:action_one")}
-                <IconPlus width={16} height={16} />
-              </Link>
-            </li>
-            <li>
-              <Link href='/effect/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
-                {t("common:effect_one")}
-                <IconPlus width={16} height={16} />
-              </Link>
-            </li>
-          </ul>
-        </nav>
-      </Popover>
     </>
   )
 }
