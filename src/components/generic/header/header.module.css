@@ -19,7 +19,7 @@
   --sidebar-menu-child-element-gap: var(--sidebar-menu-child-element-padding);
   
   /* Sidebar child element = header, menu */
-  --sidebar-child-element-padding: 1rem; 
+  --sidebar-child-element-padding: .75rem; 
   --sidebar-child-element-width: calc(
     var(--sidebar-child-element-icon-min-size) +
     var(--sidebar-child-element-padding) * 2 + 

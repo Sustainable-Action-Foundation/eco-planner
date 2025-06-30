@@ -144,9 +144,8 @@ export default async function Page() {
         popover='auto'
         positionAnchor='--test-popover-button'
         anchorInlinePosition='center'
-        popoverDirection={{ vertical: 'down', horizontal: 'left' }}
-        margin='1rem'
-        positionTryFallbacks="none"
+        popoverDirection={{ vertical: 'up'}}
+        margin='.25rem'
         indicator
       >
         <nav className='padding-25 smooth' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
