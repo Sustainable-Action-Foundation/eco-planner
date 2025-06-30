@@ -3,8 +3,11 @@ import { parseEnv } from "node:util";
 import fs from "node:fs";
 
 //  Load environment variables from .env file
-let env: Record<string, string> = parseEnv(fs.readFileSync(".env", "utf-8")) as Record<string, string>;
-process.env = { ...process.env, CI: env["CI"] || "false" };
+let env: Record<string, string> = {};
+if (fs.existsSync(".env")) {
+  env = parseEnv(fs.readFileSync(".env", "utf-8")) as Record<string, string>;
+}
+process.env = Object.keys(env).length > 0 ? { ...process.env, ...env } : process.env;
 env = {}; // Clear it just in case any reporter dumps the heap.
 
 export const webserverURL = process.env.TEST_BASE_URL || "http://localhost:3000";
