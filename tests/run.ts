@@ -44,7 +44,9 @@ Runs Playwright tests on transpiled TypeScript files in the tests/ folder and ru
 
 // Transpile tests/ folder with tsc
 try {
+  console.info("Transpiling tests/ folder with TypeScript compiler...");
   execSync("yarn tsc --project tests/tsconfig.json", { stdio: "inherit" });
+  console.info("Transpilation complete.");
 }
 catch (error) {
   console.error("Failed to transpile tests:", error);
@@ -53,6 +55,7 @@ catch (error) {
 
 // Run Playwright tests
 try {
+  console.info("Running Playwright tests..." + (!args.values.verbose ? " If you wish to see the stdout of the tests, use the --verbose flag." : ""));
   const project = args.values.project ? `--project "${args.values.project}"` : "";
   execSync(`tsx  node_modules/playwright/cli.js test ${project}`, args.values.verbose ? { stdio: "inherit" } : {});
 }
@@ -62,6 +65,7 @@ catch (error) {
 
 // Run reporter which will read the JSON report from the tests
 try {
+  console.info("Running reporter to process test results...");
   execSync("tsx ./tests/reporter.ts", { stdio: "inherit" });
 }
 catch (error) {

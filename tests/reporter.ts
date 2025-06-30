@@ -6,23 +6,33 @@ import fs from "node:fs";
 if (!fs.existsSync(path.join("json-results", "report.json"))) {
   throw new Error("Test report file does not exist. Please run the tests first.");
 }
-
 import testReport from "../json-results/report.json" with {type: "json"};
 
+// Test if the reporter config file exists
+if (!fs.existsSync(path.join("tests", "test-exceptions.json"))) {
+  throw new Error("Reporter config file does not exist. Please create a tests/test-exceptions.json file to configure the reporter.");
+}
 import reporterConfig from "./test-exceptions.json" with {type: "json"};
+
+// Reporter config validation
+if (!reporterConfig || !reporterConfig.warnOnFail || !Array.isArray(reporterConfig.warnOnFail)) {
+  throw new Error("Invalid reporter config file. Please ensure it contains a 'warnOnFail' array with the test titles which should not stop the test run.");
+}
 
 const failedCount = testReport.stats.unexpected;
 const flakyCount = testReport.stats.flaky;
 
-if (flakyCount > 0) {
-  console.warn(`⚠️  ${flakyCount} flaky test(s) detected. Please investigate. This will not fail the run.`);
-}
-
-if (failedCount === 0) {
-  console.info("✅ All tests passed successfully.");
+if (failedCount === 0 && flakyCount === 0) {
+  console.info(colors.green("✅ All tests passed successfully."));
   process.exit(0);
 }
 
+if (flakyCount > 0) {
+  const flakyTests = testReport.suites.flatMap(suite => suite)
+  console.dir(flakyTests, { depth: null });
+}
+
+/** All failed tests, may contain non failing tests as well. */
 const badTests = testReport.suites
   .flatMap(suite => suite.specs
     .filter(spec => !spec.ok)
@@ -34,31 +44,37 @@ const badTests = testReport.suites
     }))
   );
 
-const warnings = badTests.filter(test => test.warnOnFail);
+// Tests that fail in playwright but are configured to not fail the test run
+const nonFailingTests = badTests.filter(test => test.warnOnFail);
+if (nonFailingTests.length > 0) {
+  console.warn(colors.yellowBG(`\n⚠️ ${nonFailingTests.length} test(s) have warnings:`));
 
-if (warnings.length > 0) {
-  console.warn(`\n⚠️ ${warnings.length} test(s) have warnings:`);
-  warnings.forEach((test, i) => {
-    console.warn("-".repeat(process.stdout.columns || 80));
+  nonFailingTests.forEach((test, i) => {
+    console.warn(`-[${i + 1}]`.padEnd(process.stdout.columns || 80, "-"));
 
-    console.warn(`\u2022 ${colors.blue(test.title)} (ID: ${test.id})\n`);
+    console.warn(`Test:\n ${colors.blue(test.title)} (ID: ${test.id})\n`);
     console.warn("Message from test:\n", colors.yellow(test.message));
 
-    if (i === warnings.length - 1) console.warn("-".repeat(process.stdout.columns || 80));
+    if (i !== nonFailingTests.length - 1) console.warn(""); // Add a separator between warnings
+    if (i === nonFailingTests.length - 1) console.warn("-".repeat(process.stdout.columns || 80));
   });
 }
 
+// Tests that fail in playwright and are not configured to not fail the test run i.e. regular unit tests.
 const failedTests = badTests.filter(test => !test.warnOnFail);
-
 if (failedTests.length > 0) {
-  console.error(`\n❌ ${failedTests.length} test(s) failed:`);
-  failedTests.forEach((test, i) => {
-    console.warn("-".repeat(process.stdout.columns || 80));
+  console.error(colors.redBG(`\n❌ ${failedTests.length} test(s) failed:`));
 
-    console.error(`\u2022 ${colors.blue(test.title)} (ID: ${test.id})\n`);
+  failedTests.forEach((test, i) => {
+    console.error(`-[${i + 1}]`.padEnd(process.stdout.columns || 80, "-"));
+
+    console.error(`Test:\n ${colors.blue(test.title)} (ID: ${test.id})\n`);
     console.error("Message from test:\n", colors.red(test.message));
 
-    if (i === warnings.length - 1) console.warn("-".repeat(process.stdout.columns || 80));
+    if (i !== failedTests.length - 1) console.error(""); // Add a separator between tests
+    if (i === nonFailingTests.length - 1) console.error("-".repeat(process.stdout.columns || 80));
   });
   process.exit(1);
 }
+
+console.info(colors.green("✅ All tests passed, but some may have had warnings."));
