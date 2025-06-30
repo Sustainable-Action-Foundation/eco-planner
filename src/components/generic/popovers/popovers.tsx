@@ -5,8 +5,6 @@
 // As such this should only be used within the sidebar until-
 // greater browser support. 
 
-// TODO: Check what gets passed for optional style, id and class props
-
 "use client"
 
 import styles from './popovers.module.css' with { type: "css" }
@@ -66,16 +64,21 @@ export function Popover({
     vertical: 'up' | 'vertical' | 'down',
     horizontal?: 'left' | 'right'
   } | 'up' | 'vertical' | 'down',
-  positionTryFallbacks?: "none" | string,
+  positionTryFallbacks?: "none" | string, // TODO: String should be a comma seperated string with suggestions on allowed fallback values. (or an array?) 
   /* 
     As of now, an indicator can only be given assuming a positionTryFallbacks of none. 
     It is likely that future browsers will support some css selector for checking fallback values,
     in which case we can support indicator for all cases and use said selector for proper alignment.
-    Until then we use :popover-open to ensure that our popover is visibly connected to a button. 
+    Until then we may use :popover-open to ensure that our popover is visibly connected to a button. 
   */
   indicator?: boolean, 
   margin?: string
 }) {
+
+  // TODO: Probably prevent passing none in our types if positionTryFallbacks != "none"?
+  if (positionTryFallbacks != "none") {
+    indicator = undefined
+  }
 
   // Normalize vertical direction for consistent access
   const vertical =
@@ -105,7 +108,7 @@ export function Popover({
         <div 
           className={`${styles['popover-indicator']} ${indicatorClass} ${styles['position-anchor']} position-absolute`}
           style={{
-            '--margin': margin, // TODO: Margin is o
+            '--margin': margin,
             '--position-anchor': positionAnchor,
           } as React.CSSProperties}
         >
@@ -125,8 +128,9 @@ export function Popover({
           ${styles['position-anchor']} 
           ${className ?? ''}
         `}
-        style={{ // TODO: Add fallbacks
-          '--margin': margin, // TODO: Margin is o
+        style={{ 
+          '--position-try-fallbacks': positionTryFallbacks,
+          '--margin': margin,
           '--position-anchor': positionAnchor, 
           ...style, 
         } as React.CSSProperties}
