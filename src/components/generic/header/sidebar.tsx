@@ -61,7 +61,6 @@ export default async function Sidebar() {
             positionAnchor='--create-popover-button'
             anchorInlinePosition='end'
             popoverDirection={{ vertical: 'down' }}
-            className='margin-inline-0'
             margin='1.5rem'
           >
             <nav className='padding-25 smooth' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
