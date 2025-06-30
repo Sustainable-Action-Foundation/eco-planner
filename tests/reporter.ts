@@ -28,8 +28,29 @@ if (failedCount === 0 && flakyCount === 0) {
 }
 
 if (flakyCount > 0) {
-  const flakyTests = testReport.suites.flatMap(suite => suite)
-  console.dir(flakyTests, { depth: null });
+  const flakyTests = testReport.suites
+    .flatMap(suite => suite.suites
+      .flatMap(suite2 => suite2.specs
+        .flatMap(spec => spec.tests
+          .flatMap(test => ({
+            test: spec.title,
+            project: test.projectName,
+            status: test.status
+          }))
+        )
+      )
+    )
+    .filter(test => test.status === "flaky");
+
+  console.warn(colors.yellowBG(`\n⚠️ ${flakyCount} test(s) were flaky:`));
+  flakyTests.forEach((test, i) => {
+    console.warn(`-[${i + 1}]`.padEnd(process.stdout.columns || 80, "-"));
+
+    console.warn(`Test: ${colors.blue(test.test)}\nProject: ${colors.blue(test.project)}\nStatus: ${colors.yellow(test.status)}`);
+
+    if (i !== flakyTests.length - 1) console.warn(""); // Add a separator between flaky tests
+    if (i === flakyTests.length - 1) console.warn("-".repeat(process.stdout.columns || 80));
+  });
 }
 
 /** All failed tests, may contain non failing tests as well. */
