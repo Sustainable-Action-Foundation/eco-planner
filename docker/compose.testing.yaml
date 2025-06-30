@@ -89,6 +89,7 @@ services:
   # Shuts down the stack after tests are completed
   cleanup:
     image: docker:cli
+    pull_policy: build
     restart: "no"
     depends_on:
       tests:
@@ -98,8 +99,7 @@ services:
     command: >
       sh -c "
         echo 'Tests completed, shutting down stack...' &&
-        # Wait
-        sleep 5 && docker compose -f /compose/compose.testing.yaml down
+        docker compose -p eco-planner-test-suite kill -s SIGTERM app db
       "
 
 networks:
