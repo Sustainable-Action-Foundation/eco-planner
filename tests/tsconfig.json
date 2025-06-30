@@ -5,7 +5,7 @@
     "target": "ES2024",
     "baseUrl": ".",
     "outDir": "./compiled",
-    "allowImportingTsExtensions": false
+    "allowImportingTsExtensions": false,
   },
   "exclude": [
     "./*.ts"

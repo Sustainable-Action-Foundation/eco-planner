@@ -29,8 +29,8 @@ Preferred usage:
 Also supported:
   # with node > 22.7
   node tests/run.ts [--project | -p <playwright project name>] [--verbose | -v]
-  # with tsx
-  tsx tests/run.ts [--project | -p <playwright project name>] [--verbose | -v]
+  # with tsx -- which is a project dependency (checked 2025-06-30)
+  yarn tsx tests/run.ts [--project | -p <playwright project name>] [--verbose | -v]
 
 Arguments:
   --help, -h: Show this help message and exit
