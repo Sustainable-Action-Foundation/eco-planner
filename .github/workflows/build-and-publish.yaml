@@ -61,6 +61,27 @@ jobs:
         run: |
           docker compose -f docker/compose.testing.yaml up --build
 
+      - name: Extract test results
+        if: always()
+        run: |
+          # Create results directory
+          mkdir -p test-artifacts
+          
+          # Extract test results from the volume
+          docker run --rm \
+            -v eco-planner-test-suite_test-results:/source \
+            -v ${{ github.workspace }}/test-artifacts:/dest \
+            alpine sh -c "cp -r /source/* /dest/ 2>/dev/null || echo 'No test files found'"
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.run_number }}
+          path: test-artifacts/
+          retention-days: 30
+          if-no-files-found: warn
+
       - name: Setup docker metadata
         id: metadata
         uses: docker/metadata-action@v5

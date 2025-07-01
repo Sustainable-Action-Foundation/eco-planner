@@ -3,8 +3,8 @@ import path from "node:path";
 import fs from "node:fs";
 import util from "node:util";
 
-fs.writeFileSync(path.join("reporter.log"), "", { flag: "w" }); // Clear the log file at the start
-const logFile = fs.createWriteStream(path.join("reporter.log"), { flags: "a" });
+fs.writeFileSync(path.join("tests", "reporter.log"), "", { flag: "w" }); // Clear the log file at the start
+const logFile = fs.createWriteStream(path.join("tests", "reporter.log"), { flags: "a" });
 
 const __console = { ...console };
 console.log = (...args: unknown[]) => {

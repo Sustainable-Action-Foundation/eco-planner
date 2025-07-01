@@ -17,7 +17,7 @@ services:
       - default
       - testing_network
     volumes:
-      - /:reporter.log:rw
+      - test-results:/app/tests/reporter.log
     environment:
       - TEST_BASE_URL=${TEST_BASE_URL:-http://app:8081}
 
@@ -109,4 +109,6 @@ networks:
 
 volumes:
   testing_data:
+    driver: local
+  test-results:
     driver: local
