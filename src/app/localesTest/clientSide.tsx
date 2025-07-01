@@ -12,6 +12,7 @@ export function ClientSideT({ i18nKey, options, ...props }: { i18nKey: string, o
   const value = reporter(i18nKey, t(i18nKey, options));
 
   // In case of nested html elements, use <Trans />
+  // TODO: Should Link: <Link href="#" /> ? 
   if (value.includes("<") && value.includes(">")) {
     return (
       <Trans

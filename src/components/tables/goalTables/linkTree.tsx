@@ -6,7 +6,8 @@ import goalsToTree, { GoalTree } from '@/functions/goalsToTree';
 import { SyntheticEvent } from 'react';
 import { getSessionStorage, setSessionStorage } from '@/functions/localStorage';
 import { useTranslation } from "react-i18next";
-import { IconLink } from '@tabler/icons-react';
+import { IconCaretRightFilled, IconLink } from '@tabler/icons-react';
+import Link from 'next/link';
 
 // interface LinkTreeCommonProps {}
 
@@ -79,23 +80,33 @@ export default function LinkTree({
 
   const NestedKeysRenderer = ({ data, previousKeys = "" }: { data: GoalTree, previousKeys?: string }) => {
     return (
-      <ul className={styles.list}>
+      <ul className={`${styles['roadmap-nav-ul']}`} style={previousKeys ? { marginInlineStart: 'calc((24px + .5rem) / 2)' } : {marginInlineStart: '0', paddingInlineStart: '0'}}>
         {Object.keys(data).map((key) => (
           <li key={key}>
             { // If the current object is a goal (has an id), render a link to the goal
               typeof data[key].id == 'string' ? (
-                <a href={`/goal/${data[key].id}`} className={`display-flex gap-50 align-items-center padding-block-50 ${styles.link}`}>
-                  <IconLink aria-hidden="true" width={16} height={16} style={{minWidth: '16px'}} />
+                <Link href={`/goal/${data[key].id}`} className={`display-flex align-items-center padding-block-50 smooth text-decoration-none`}>
+                  <IconCaretRightFilled aria-hidden="true" color="lightgray" className="round padding-25 margin-inline-25" /> {/* TODO: Use link icon? */}
                   <span>
                     {key}
                   </span>
-                </a>
+                </Link>
               ) : (
                 <details className={styles.details} open={openCategories?.includes(previousKeys + "\\" + key)} onToggle={(e) => handleToggle(e, previousKeys + "\\" + key)}>
-                  <summary>{key}</summary>
+                  <summary className="flex justify-content-space-between" aria-label={t("components:roadmap_tree.show_source_alt")}>
+                    <div className='inline-flex align-items-center flex-grow-100 padding-block-50 '>
+                      <IconCaretRightFilled aria-hidden="true" className="round padding-25 margin-inline-25" />
+                      <span style={{ lineHeight: '1', }}>
+                        {key}
+                      </span>
+                    </div>
+                  </summary>
+
                   {Object.keys(data[key]).length > 0 && (
                     <NestedKeysRenderer data={data[key] as GoalTree} previousKeys={previousKeys + "\\" + key} />
                   )}
+
+
                 </details>
               )}
           </li>

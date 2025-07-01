@@ -141,12 +141,16 @@
     "my_profile": "Mitt konto",
     "create_account": "Skapa konto",
     "create": "Skapa",
+    "close_menu_create": "Stäng meny: Skapa",
     "home": "$t(common:tsx.home)",
+    "settings": "Inställningar",
+    "close_menu_settings": "Stäng meny: Inställningar",
     "about": "Om",
     "language": "Språk",
     "language_alt": "Välj språk",
     "close_menu_create_alt": "Stäng meny: skapa",
-    "close_menu_choose_language_alt": "Stäng meny: välj språk"
+    "close_menu_choose_language_alt": "Stäng meny: välj språk",
+    "close_menu_language": "Stäng meny: Välj språk"
   },
   "signup": {
     "signup_failed_motivated": "Registreringen misslyckades. Skäl: {{reason}}",

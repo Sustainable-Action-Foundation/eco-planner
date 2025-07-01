@@ -33,6 +33,10 @@ export function LanguageSwitcher() {
     window.dispatchEvent(new CustomEvent("i18n-language-changed"));
   }
 
+  {/* 
+    TODO SIDENAV: Use aria to turn buttons into radio buttons?
+    as they are only buttons for performance reasons?
+  */}
   return (
     <>
       <ul className="margin-0 padding-0" style={{ listStyle: 'none' }} data-testid="language-switcher-options">
@@ -45,7 +49,7 @@ export function LanguageSwitcher() {
                 onClick={async () => await setLocale(locale)}
                 disabled={isPending}
                 style={{ fontSize: '14px' }}
-                className={`flex transparent justify-content-space-between align-items-center width-100 padding-25`}
+                className={`flex transparent justify-content-space-between align-items-center width-100 padding-25 smooth`}
                 data-testid={`language-switcher-option-${localeAliases[locale]}`}
                 data-checked={locale === buttonLocale}
               >
