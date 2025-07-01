@@ -23,9 +23,10 @@ RUN corepack enable
 # Set working directory
 WORKDIR /app
 
-# Create non-root user for security
+# Create non-root user for security (no shell)
 RUN addgroup --system --gid 1001 nodejs && \
-  adduser --system --uid 1001 nextjs
+  adduser --system --uid 1001 --shell /bin/false nextjs
+
 
 # ============================================================================
 # Dependencies stage - Install and cache dependencies
@@ -35,20 +36,27 @@ FROM base AS deps
 # Copy package manager files for dependency installation
 COPY package.json yarn.lock* ./
 
-# Install dependencies
-RUN yarn install --frozen-lockfile
+# Install dependencies with cache mount
+RUN --mount=type=cache,target=/root/.yarn \
+  yarn install --frozen-lockfile
 
-# Copy Prisma schema and generate types
-COPY prisma/schema.prisma ./prisma/
+
+# ============================================================================
+# Prisma stage - Generate Prisma client
+# ============================================================================
+FROM deps AS prisma
+
+COPY prisma/ ./prisma/
 RUN yarn prisma generate
+
 
 # ============================================================================
 # Builder stage - Build the application
 # ============================================================================
 FROM base AS builder
 
-# Copy dependencies from deps stage
-COPY --from=deps /app/node_modules ./node_modules
+# Copy dependencies from prisma stage
+COPY --from=prisma /app/node_modules ./node_modules
 
 # Copy source code (using .dockerignore)
 COPY . .
@@ -59,13 +67,22 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV CI=true
 
-# Build the application
-RUN yarn run build
+# Build with cache mount for Next.js
+RUN --mount=type=cache,target=/app/.next/cache \
+  yarn run build
+
 
 # ============================================================================
 # Production runtime stage
 # ============================================================================
 FROM base AS runner
+
+ARG GIT_LONG_HASH
+ARG GIT_SHORT_HASH
+
+# Build arguments for git information (for debugging/monitoring)
+ENV GIT_LONG_HASH=${GIT_LONG_HASH}
+ENV GIT_SHORT_HASH=${GIT_SHORT_HASH}
 
 # Set production environment variables
 ENV NODE_ENV=production
@@ -93,12 +110,6 @@ USER nextjs
 
 # Expose the application port
 EXPOSE ${PORT}
-
-# Build arguments for git information (for debugging/monitoring)
-ARG GIT_LONG_HASH
-ARG GIT_SHORT_HASH
-ENV GIT_LONG_HASH=${GIT_LONG_HASH}
-ENV GIT_SHORT_HASH=${GIT_SHORT_HASH}
 
 # Use dumb-init to handle signals properly in containers since node isn't built for it
 ENTRYPOINT ["dumb-init", "--"]
