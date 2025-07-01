@@ -4,9 +4,9 @@
 # Build arguments
 ARG NODE_VERSION="22"
 
-# ============================================================================
+# =============================================================================
 # Base stage - Common dependencies and setup
-# ============================================================================
+# =============================================================================
 FROM node:${NODE_VERSION}-alpine AS base
 
 # Install security updates and essential packages
@@ -21,32 +21,59 @@ RUN corepack enable
 
 WORKDIR /testing
 
-# ============================================================================
-# Dependencies stage - Install and cache dependencies
-# ============================================================================
 
+# =============================================================================
+# Dependencies stage - Install and cache dependencies
+# =============================================================================
 FROM base AS deps
 
 # Copy package manager files for dependency installation
 COPY package.json yarn.lock* ./
 
-# Install dependencies
-RUN yarn install --frozen-lockfile
-RUN yarn playwright install
+# Install dependencies with cache mount
+RUN --mount=type=cache,target=/root/.yarn \
+  yarn install --frozen-lockfile
 
-# ============================================================================
-# Runner stage - Prepare for testing
-# ============================================================================
 
-FROM base AS runner
+# =============================================================================
+# Browser install stage - Install browsers for Playwright
+# =============================================================================
+FROM base AS browser
 
-# Copy dependencies from deps stage
+# Install runtime dependencies for Playwright browsers
+RUN apk add --no-cache \
+  chromium \
+  firefox \
+  webkit2gtk \
+  && rm -rf /var/cache/apk/*
+
+
+# =============================================================================
+# Playwright stage - Install Playwright and its browsers
+# =============================================================================
+FROM deps AS playwright
+
+# Install Playwright and its dependencies
+RUN yarn playwright install --with-deps
+
+
+# =============================================================================
+# Runner stage - Final testing environment
+# =============================================================================
+FROM browser AS runner
+
+# Copy dependencies from previous stages
+COPY --from=playwright /root/.cache/ms-playwright /root/.cache/ms-playwright
 COPY --from=deps /testing/node_modules ./node_modules
 
-# Copy source code (has its own .dockerignore)
+# Copy only necessary files first (better layer caching)
+COPY package.json yarn.lock* ./
+COPY playwright.config.* ./
+
+# Copy source code last (changes most frequently)
 COPY . .
 
-# Set   environment variables for testing
+# Set environment variables for testing
 ENV LOGIN_USERNAME=admin
 ENV LOGIN_PASSWORD=admin
 ENV CI=true
