@@ -86,7 +86,7 @@ export default function LinkTree({
             { // If the current object is a goal (has an id), render a link to the goal
               typeof data[key].id == 'string' ? (
                 <Link href={`/goal/${data[key].id}`} className={`display-flex align-items-center padding-block-50 smooth text-decoration-none`}>
-                  <IconCaretRightFilled aria-hidden="true" color="lightgray" className="round padding-25 margin-inline-25" /> {/* TODO: Use link icon? */}
+                  <IconLink aria-hidden="true" color="gray" className="round padding-25 margin-inline-25" /> {/* TODO: Use link icon? */}
                   <span>
                     {key}
                   </span>
@@ -96,7 +96,7 @@ export default function LinkTree({
                   <summary className="flex justify-content-space-between" aria-label={t("components:roadmap_tree.show_source_alt")}>
                     <div className='inline-flex align-items-center flex-grow-100 padding-block-50 '>
                       <IconCaretRightFilled aria-hidden="true" className="round padding-25 margin-inline-25" />
-                      <span style={{ lineHeight: '1', }}>
+                      <span style={{ lineHeight: '1', userSelect: 'none' }}>
                         {key}
                       </span>
                     </div>
