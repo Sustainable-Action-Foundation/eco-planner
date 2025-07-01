@@ -41,12 +41,13 @@ RUN --mount=type=cache,target=/root/.yarn \
 FROM base AS browser
 
 # Install runtime dependencies for Playwright browsers
-RUN apk add --no-cache \
+RUN apk update && \ 
+  apk add \
   chromium \
-  firefox \
-  webkit2gtk \
-  && rm -rf /var/cache/apk/*
-
+  firefox 
+  # TODO - I cannot get apk to install webkit2gtk since it can't find it
+  # \
+  # webkit2gtk
 
 # =============================================================================
 # Playwright stage - Install Playwright and its browsers
