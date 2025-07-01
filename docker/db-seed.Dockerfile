@@ -48,6 +48,5 @@ RUN yarn prisma generate
 # =============================================================================
 FROM prisma as seed
 
-COPY package.json ./
-
-CMD ["sh", "-c", "yarn prisma migrate reset --force"]
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["sh", "-c", "yarn prisma migrate reset --force && yarn prisma db seed"]
