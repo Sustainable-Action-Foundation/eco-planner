@@ -16,6 +16,8 @@ services:
     networks:
       - default
       - testing_network
+    volumes:
+      - /:reporter.log:rw
     environment:
       - TEST_BASE_URL=${TEST_BASE_URL:-http://app:8081}
 

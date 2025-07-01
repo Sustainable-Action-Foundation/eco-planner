@@ -1,5 +1,6 @@
 import { execSync } from "node:child_process";
 import { parseArgs } from "node:util";
+import { colors } from "./lib/colors";
 
 const args = parseArgs({
   options: {
@@ -44,31 +45,31 @@ Runs Playwright tests on transpiled TypeScript files in the tests/ folder and ru
 
 // Transpile tests/ folder with tsc
 try {
-  console.info("Transpiling tests/ folder with TypeScript compiler...");
+  console.info("🧰 Transpiling tests/ folder with TypeScript compiler...");
   execSync("yarn tsc --project tests/tsconfig.json", { stdio: "inherit" });
-  console.info("Transpilation complete.");
+  console.info("📦 Transpilation complete.");
 }
 catch (error) {
-  console.error("Failed to transpile tests:", error);
+  console.error("❌ Failed to transpile tests:", error);
   process.exit(1);
 }
 
 // Run Playwright tests
 try {
-  console.info("Running Playwright tests..." + (!args.values.verbose ? " If you wish to see the stdout of the tests, use the --verbose flag." : ""));
+  console.info("🏃 Running Playwright tests..." + (!args.values.verbose ? colors.blue(" (ｉ) If you wish to see the stdout of the tests, use the --verbose flag") : ""));
   const project = args.values.project ? `--project "${args.values.project}"` : "";
-  execSync(`tsx  node_modules/playwright/cli.js test ${project}`, args.values.verbose ? { stdio: "inherit" } : {});
+  execSync(`tsx node_modules/playwright/cli.js test ${project}`, args.values.verbose ? { stdio: "inherit" } : {});
 }
 catch (error) {
-  console.warn("One or more tests failed. Continuing to run reporter...");
+  console.warn("❕ One or more tests failed. Continuing to run reporter...");
 }
 
 // Run reporter which will read the JSON report from the tests
 try {
-  console.info("Running reporter to process test results...");
-  execSync("tsx ./tests/reporter.ts", { stdio: "inherit" });
+  console.info("📃 Running reporter to process test results...");
+  execSync("tsx ./tests/reporter.ts > reporter.log", { stdio: "inherit" });
 }
 catch (error) {
-  console.error("Failed to run reporter:", error);
+  console.error("❌ Failed to run reporter:", error);
   process.exit(1);
 }

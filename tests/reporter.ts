@@ -1,6 +1,29 @@
 import { colors } from "./lib/colors.ts";
 import path from "node:path";
 import fs from "node:fs";
+import util from "node:util";
+
+fs.writeFileSync(path.join("reporter.log"), "", { flag: "w" }); // Clear the log file at the start
+const logFile = fs.createWriteStream(path.join("reporter.log"), { flags: "a" });
+
+const __console = { ...console };
+console.log = (...args: unknown[]) => {
+  __console.log(...args);
+  logFile.write(util.format(...args) + "\n");
+};
+console.error = (...args: unknown[]) => {
+  __console.error(...args);
+  logFile.write(util.format(...args) + "\n");
+};
+console.warn = (...args: unknown[]) => {
+  __console.warn(...args);
+  logFile.write(util.format(...args) + "\n");
+};
+console.info = (...args: unknown[]) => {
+  __console.info(...args);
+  logFile.write(util.format(...args) + "\n");
+};
+// Omit console.debug
 
 // Test if the json file exists
 if (!fs.existsSync(path.join("json-results", "report.json"))) {
