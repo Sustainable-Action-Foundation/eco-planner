@@ -74,7 +74,7 @@ jobs:
             echo "Found tests container: $CONTAINER_ID"
             
             # Copy test files from the container
-            docker cp ${CONTAINER_ID}:/app/tests/reporter.log test-artifacts/ 2>/dev/null || echo "❌ reporter.log not found"
+            docker cp ${CONTAINER_ID}:/testing/tests/reporter.log test-artifacts/ 2>/dev/null || echo "❌ reporter.log not found"
             
             # List what we found
             echo "📁 Files extracted:"
