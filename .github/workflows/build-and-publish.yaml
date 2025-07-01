@@ -61,17 +61,29 @@ jobs:
         run: |
           docker compose -f docker/compose.testing.yaml up --build
 
-      - name: Extract test results
+      - name: Extract test results from container
         if: always()
         run: |
           # Create results directory
           mkdir -p test-artifacts
           
-          # Extract test results from the volume
-          docker run --rm \
-            -v eco-planner-test-suite_test-results:/source \
-            -v ${{ github.workspace }}/test-artifacts:/dest \
-            alpine sh -c "cp -r /source/* /dest/ 2>/dev/null || echo 'No test files found'"
+          # Get the container ID
+          CONTAINER_ID=$(docker compose -f docker/compose.testing.yaml ps -aq tests)
+          
+          if [ -n "$CONTAINER_ID" ]; then
+            echo "Found tests container: $CONTAINER_ID"
+            
+            # Copy test files from the container
+            docker cp ${CONTAINER_ID}:/app/tests/reporter.log test-artifacts/ 2>/dev/null || echo "❌ reporter.log not found"
+            
+            # List what we found
+            echo "📁 Files extracted:"
+            ls -la test-artifacts/ || echo "No files extracted"            
+          else
+            echo "❌ Could not find tests container"
+            echo "Available containers:"
+            docker compose -f docker/compose.testing.yaml ps -a
+          fi
 
       - name: Upload test artifacts
         if: always()
