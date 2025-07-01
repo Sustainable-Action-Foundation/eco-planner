@@ -4,6 +4,10 @@
 # Build arguments
 ARG NODE_VERSION="22"
 
+
+# =============================================================================
+# Base stage - Common dependencies and setup
+# =============================================================================
 FROM node:${NODE_VERSION}-alpine AS base
 
 # Install security updates and essential packages
@@ -16,13 +20,34 @@ RUN apk update && apk upgrade && \
 # Enable corepack for modern package manager support
 RUN corepack enable
 
-# Set working directory
 WORKDIR /app
 
-COPY package.json yarn.lock* ./
-COPY prisma/ ./prisma/
+# =============================================================================
+# Dependencies stage - Install and cache dependencies
+# =============================================================================
+FROM base as deps
 
-RUN yarn install --frozen-lockfile
+COPY package.json yarn.lock* ./
+
+# Install dependencies with cache mount
+RUN --mount=type=cache,target=/root/.yarn \
+  yarn install --frozen-lockfile
+
+
+# =============================================================================
+# Prisma stage - Generate Prisma client
+# =============================================================================
+FROM deps as prisma
+
+COPY prisma/ ./prisma/
 RUN yarn prisma generate
+
+
+# =============================================================================
+# Seed stage - Run database seeding
+# =============================================================================
+FROM prisma as seed
+
+COPY package.json ./
 
 CMD ["sh", "-c", "yarn prisma migrate reset --force"]
