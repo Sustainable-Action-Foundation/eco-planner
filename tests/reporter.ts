@@ -25,7 +25,7 @@ console.info = (...args: unknown[]) => {
 };
 // Omit console.debug
 
-// Test if the json file exists
+// Test if the json report file exists
 if (!fs.existsSync(path.join("json-results", "report.json"))) {
   throw new Error("Test report file does not exist. Please run the tests first.");
 }
@@ -118,7 +118,17 @@ if (failedTests.length > 0) {
     if (i !== failedTests.length - 1) console.error(""); // Add a separator between tests
     if (i === nonFailingTests.length - 1) console.error("-".repeat(process.stdout.columns || 80));
   });
-  process.exit(1);
 }
 
-console.info(colors.green("✅ All tests passed, but some may have had warnings."));
+// Summery of results
+console.info("");
+console.info(colors.blueBG(`(ｉ) Summery    Failed: ${failedTests.length}  Warning: ${nonFailingTests.length}  Flaky: ${testReport.stats.flaky}  Skipped: ${testReport.stats.skipped}  Passed: ${testReport.stats.expected}+${nonFailingTests.length}=${testReport.stats.expected + nonFailingTests.length} (incl. warnings)`));
+console.info("");
+
+if (failedTests.length > 0) {
+  console.info(colors.red("❌ Some tests failed. Exiting..."));
+  process.exit(1);
+}
+else {
+  console.info(colors.green("✅ All tests passed, but some may have had warnings or flakiness."));
+}
