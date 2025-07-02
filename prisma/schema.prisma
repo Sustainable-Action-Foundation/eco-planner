@@ -156,15 +156,15 @@ model Goal {
   externalSelection String? @map("external_selection") @db.Text
 
   // A series of datapoints representing the goals for each year
-  dataSeries         DataSeries?    @relation("data_series")
+  dataSeries          DataSeries?    @relation("data_series")
   // A series of datapoints serving as a "baseline" where no action is taken
-  baselineDataSeries DataSeries?    @relation("baseline_data_series")
+  baselineDataSeries  DataSeries?    @relation("baseline_data_series")
   // A number of other goals, whose DataSeries combine to create a derived data series
-  combinationParents CombinedGoal[] @relation("combined_goal_target")
+  combinationParents  CombinedGoal[] @relation("combined_goal_target")
   // A list of goals which are a combination of this goal and some other
-  // combinationChildren CombinedGoal[] @relation("combined_goal_parent")
+  combinationChildren CombinedGoal[] @relation("combined_goal_parent")
   // A JSON parseable string containing either a number or an object with a "recipie" (ScalingRecipie in @/types) to multiply the data series from combinationParents with
-  combinationScale   String?        @map("combination_scale") @db.Text
+  combinationScale    String?        @map("combination_scale") @db.Text
 
   // Links related to this goal
   links     Link[]    @relation("goal_link")
@@ -187,18 +187,15 @@ model Goal {
 
 model CombinedGoal {
   // The goal which is the "target" for the calculation
-  resultingGoalId    String     @map("resulting_goal_id")
-  resultingGoal      Goal       @relation("combined_goal_target", fields: [resultingGoalId], references: [id], onDelete: Cascade)
-  // // The goal used as a factor in multiplication
-  // parentGoalId    String  @map("parent_goal_id")
-  // parentGoal      Goal    @relation("combined_goal_parent", fields: [parentGoalId], references: [id])
-  // The DataSeries used as a factor in multiplication
-  parentDataSeriesId String     @map("parent_data_series_id")
-  parentDataSeries   DataSeries @relation("combined_goal_parent", fields: [parentDataSeriesId], references: [id], onDelete: Restrict)
-  // If isInverted == true, use the inverse (1/x rather than x) of all values in parentDataSeries
-  isInverted         Boolean    @default(false) @map("is_inverted")
+  resultingGoalId String  @map("resulting_goal_id")
+  resultingGoal   Goal    @relation("combined_goal_target", fields: [resultingGoalId], references: [id])
+  // The goal used as a factor in multiplication
+  parentGoalId    String  @map("parent_goal_id")
+  parentGoal      Goal    @relation("combined_goal_parent", fields: [parentGoalId], references: [id])
+  // If isInverted == true, use the inverse (1/x rather than x) of all values in parentGoal
+  isInverted      Boolean @default(false) @map("is_inverted")
 
-  @@unique([resultingGoalId, parentDataSeriesId])
+  @@unique([resultingGoalId, parentGoalId])
   @@map("combined_goal")
 }
 
@@ -249,18 +246,16 @@ model DataSeries {
   val2050 Float?  @map("val_2050")
 
   // Goal using this data series as goals
-  goalId              String?        @unique @map("goal_id")
-  goal                Goal?          @relation("data_series", fields: [goalId], references: [id], onDelete: SetNull)
+  goalId         String? @unique @map("goal_id")
+  goal           Goal?   @relation("data_series", fields: [goalId], references: [id], onDelete: Cascade)
   // Goal using this data series as baseline
-  baselineGoalId      String?        @unique @map("baseline_goal_id")
-  baseline            Goal?          @relation("baseline_data_series", fields: [baselineGoalId], references: [id], onDelete: SetNull)
+  baselineGoalId String? @unique @map("baseline_goal_id")
+  baseline       Goal?   @relation("baseline_data_series", fields: [baselineGoalId], references: [id], onDelete: Cascade)
   // Effect using this data series to show the effect of an action on a goal
   // effectActionId and effectGoalId are combined to create a unique constraint, referencing the composite primary key of the effect table
-  effectActionId      String?        @map("effect_action_id")
-  effectGoalId        String?        @map("effect_goal_id")
-  effect              Effect?        @relation("effect_data_series", fields: [effectActionId, effectGoalId], references: [actionId, goalId], onDelete: SetNull)
-  // Combined goals using this data series as a parent
-  combinationChildren CombinedGoal[] @relation("combined_goal_parent")
+  effectActionId String? @map("effect_action_id")
+  effectGoalId   String? @map("effect_goal_id")
+  effect         Effect? @relation("effect_data_series", fields: [effectActionId, effectGoalId], references: [actionId, goalId])
 
   // Author of the data series
   authorId String @map("author_id")

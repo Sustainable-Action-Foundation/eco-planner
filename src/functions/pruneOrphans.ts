@@ -12,7 +12,6 @@ export default async function pruneOrphans() {
           AND: [
             { actionId: null },
             { goalId: null },
-            { roadmapId: null },
             { metaRoadmapId: null },
           ]
         }
@@ -24,33 +23,6 @@ export default async function pruneOrphans() {
             { goalId: null },
             { roadmapId: null },
             { metaRoadmapId: null },
-          ]
-        }
-      }),
-    ]);
-    success = true;
-  } catch {
-    success = false;
-  } finally {
-    return success;
-  }
-}
-
-export async function pruneDataSeries() {
-  let success: boolean = false;
-  try {
-    await prisma.$transaction([
-      prisma.dataSeries.deleteMany({
-        where: {
-          AND: [
-            { goal: null },
-            { baseline: null },
-            { effect: null },
-            {
-              combinationChildren: {
-                none: {}
-              }
-            },
           ]
         }
       }),

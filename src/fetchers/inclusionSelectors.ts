@@ -118,7 +118,13 @@ export const goalInclusionSelection /* Prisma.GoalInclude */ = {
   baselineDataSeries: true,
   combinationParents: {
     include: {
-      parentDataSeries: true,
+      parentGoal: {
+        select: {
+          id: true,
+          dataSeries: true,
+          roadmapId: true,
+        },
+      },
     },
   },
   effects: {

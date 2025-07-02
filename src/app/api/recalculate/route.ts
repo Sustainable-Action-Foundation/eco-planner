@@ -43,7 +43,11 @@ export async function POST(request: NextRequest) {
           combinationParents: {
             select: {
               isInverted: true,
-              parentDataSeries: true,
+              parentGoal: {
+                select: {
+                  dataSeries: true,
+                }
+              },
             }
           },
           roadmap: {

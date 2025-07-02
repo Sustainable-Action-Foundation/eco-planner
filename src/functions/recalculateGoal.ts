@@ -65,7 +65,9 @@ export async function recalculateGoal(goal: {
   combinationScale: string | null,
   combinationParents: {
     isInverted: boolean,
-    parentDataSeries: DataSeries,
+    parentGoal: {
+      dataSeries: DataSeries | null
+    }
   }[]
 }) {
   if (!goal || goal.combinationParents.length == 0) {
@@ -151,20 +153,20 @@ export async function recalculateGoal(goal: {
     let value: number | null = null;
     for (const parent of goal.combinationParents) {
       // Skip current parent if it has no dataSeries
-      if (!parent.parentDataSeries) {
+      if (!parent.parentGoal.dataSeries) {
         continue;
       }
       // But if it has a data series but no value, set value to null and break inner loop, as we can't calculate the product if factors are missing
       // Doesn't break outer for-loop
-      else if (parent.parentDataSeries[i] == null) {
+      else if (parent.parentGoal.dataSeries[i] == null) {
         value = null;
         break;
       }
 
       if (value == null) {
-        value = parent.isInverted ? (1 / parent.parentDataSeries[i]) : parent.parentDataSeries[i];
+        value = parent.isInverted ? (1 / parent.parentGoal.dataSeries[i]) : parent.parentGoal.dataSeries[i];
       } else {
-        value *= parent.isInverted ? (1 / parent.parentDataSeries[i]) : parent.parentDataSeries[i];
+        value *= parent.isInverted ? (1 / parent.parentGoal.dataSeries[i]) : parent.parentGoal.dataSeries[i];
       }
     }
     // If value is good, multiply by the scale factor, otherwise set it to null
