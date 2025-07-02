@@ -26,9 +26,24 @@ console.info = (...args: unknown[]) => {
 // Omit console.debug
 
 // Test if the json report file exists
-if (!fs.existsSync(path.join("json-results", "report.json"))) {
+const jsonResultPath = path.join("json-results", "report.json");
+if (!fs.existsSync(jsonResultPath)) {
   throw new Error("Test report file does not exist. Please run the tests first.");
 }
+// To prevent reading before the file is fully written
+async function waitForValidJSON(filePath: string, maxRetries = 10): Promise<any> {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    }
+    catch (error) {
+      if (i === maxRetries - 1) throw error;
+      console.warn(`JSON file not ready, retrying... (${i + 1}/${maxRetries})`);
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+  }
+}
+await waitForValidJSON(jsonResultPath);
 import testReport from "../json-results/report.json" with {type: "json"};
 
 // Test if the reporter config file exists
@@ -36,6 +51,7 @@ if (!fs.existsSync(path.join("tests", "test-exceptions.json"))) {
   throw new Error("Reporter config file does not exist. Please create a tests/test-exceptions.json file to configure the reporter.");
 }
 import reporterConfig from "./test-exceptions.json" with {type: "json"};
+import { json } from "node:stream/consumers";
 
 // Reporter config validation
 if (!reporterConfig || !reporterConfig.warnOnFail || !Array.isArray(reporterConfig.warnOnFail)) {
