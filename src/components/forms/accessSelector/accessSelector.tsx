@@ -1,7 +1,6 @@
 'use client'
 
 import { useRef, useState } from "react";
-import styles from './accessSelector.module.css' with { type: "css" }
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
 
@@ -121,7 +120,7 @@ export function EditUsers({ existingUsers, groupOptions, existingGroups }: { exi
 
       <label className="block margin-block-100" htmlFor="newEditUser">
         {t("forms:access_selector.users_with_edit_access")}
-        <div className={`${styles.multiAddContainer} flex align-items-flex-end flex-wrap-wrap margin-block-25 focusable smooth padding-25 gap-25`}>
+        <div className={`flex align-items-flex-end flex-wrap-wrap margin-block-25 focusable smooth padding-25 gap-25`}>
           {editUsers.map((user, index) => (
             <span className="display-flex gap-50 align-items-center padding-block-25 padding-inline-50 smooth" style={{ backgroundColor: 'var(--gray-90)', width: 'fit-content' }} key={'viewUser' + index}>
               {/* TODO: Add focusable to span here */}
@@ -193,7 +192,7 @@ export function ViewUsers({ existingUsers, groupOptions, existingGroups, isPubli
       {/* A text field whose contents get appended to viewUsers upon pressing enter */}
       <label className="block margin-block-100" htmlFor="newViewUser">
         {t("forms:access_selector.users_with_read_access")}
-        <div className={`${styles.multiAddContainer} flex align-items-flex-end flex-wrap-wrap margin-block-25 focusable smooth padding-25 gap-25`}>
+        <div className={`flex align-items-flex-end flex-wrap-wrap margin-block-25 focusable smooth padding-25 gap-25`}>
           {viewUsers.map((user, index) => (
             <span className="display-flex gap-50 align-items-center padding-block-25 padding-inline-50 smooth" style={{ backgroundColor: 'var(--gray-90)', width: 'fit-content' }} key={'viewUser' + index}>
               {/* TODO: Add focusable to span here */}

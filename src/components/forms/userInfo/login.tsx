@@ -47,11 +47,11 @@ export default function Login() {
   return (
     <>
       <form onSubmit={(event: React.ChangeEvent<HTMLFormElement>) => handleSubmit(event, t)} className={`${styles.padding}`}>
-        <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid var(--gray-90)' }}>{t("common:tsx.login")}</h1>
+        <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid silver' }}>{t("common:tsx.login")}</h1>
 
         <label className="block margin-block-100">
           {t("components:login.username")}
-          <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
+          <div className="margin-block-50 padding-50 flex align-items-center smooth focusable">
             <IconUser style={{minWidth: '24px'}} aria-hidden="true" />
             <input className="padding-0 margin-inline-50" type="text" placeholder={t("common:placeholder.name")} name="username" required id="username" autoComplete="username" />
           </div>
@@ -60,7 +60,7 @@ export default function Login() {
         {/* TODO: This label is currently invalid due to multiple nested inputs (Similar invalid labels may exist elsewhere) */}
         <label className="block margin-block-100">
           {t("components:login.password")}
-          <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
+          <div className="margin-block-50 padding-50 flex align-items-center smooth focusable">
             <IconLock style={{minWidth: '24px'}} aria-hidden="true" />
             <input className="padding-0 margin-inline-50 transparent" type={showPassword ? 'text' : 'password'} placeholder={t("common:placeholder.password")} name="password" required id="password" autoComplete="current-password" />
             <button 

@@ -192,22 +192,28 @@
 }
 
 :where(textarea) {
-  background-color: #e0e6eb;
+  background-color: white;
   display: block;
   width: 100%;
   padding: .5rem;
-  border: none;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--gray-70);
+  outline-width: 1px;
+  outline-style: solid;
+  outline-color: transparent;
   border-radius: 3px;
   resize: vertical;
   min-height: 150px;
   font-size: 1rem;
   line-height: 1.5;
+  transition: border-color .1s ease, 
+              outline-color .1s ease;
 }
 
 :where(textarea:focus) {
-  outline: 2px solid var(--seagreen);
-  box-shadow: 0 0 .5rem -3px var(--seagreen);
-  background-color: transparent;
+  border-color: var(--blue-40);
+  outline-color:var(--blue-80);
 }
 
 
@@ -252,13 +258,20 @@
   input[type=month],
   input[type=time],
   input[type=week]) {
-  background-color: var(--gray-90);
-  display: block;
-  width: 100%;
-  padding: 0.5rem;
-  border: none;
-  border-radius: 3px;
-}
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--gray-70);
+    outline-width: 1px;
+    outline-style: solid;
+    outline-color: transparent;
+    background-color: white;
+    display: block;
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 3px;
+    transition: border-color .1s ease, 
+                outline-color .1s ease;
+  }
 
 :where(input[type=text],
   input[type=email],
@@ -272,10 +285,9 @@
   input[type=month],
   input[type=time],
   input[type=week]):focus {
-  outline: 2px solid var(--seagreen);
-  box-shadow: 0 0 0.5rem -3px var(--seagreen);
-  background-color: transparent;
-}
+    border-color: var(--blue-40);
+    outline-color: var(--blue-80);
+ } 
 
 /* Button inputs (button, reset, submit, image) */
 :where(input[type=button],
@@ -338,6 +350,7 @@ input[type=file]:focus::file-selector-button {
 :where(input[type=radio],
   input[type=checkbox]) {
   margin: 0;
+  accent-color: var(--blue-40);
 }
 
 :where(input[type=range]) {

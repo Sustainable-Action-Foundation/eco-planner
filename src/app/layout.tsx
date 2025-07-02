@@ -36,7 +36,7 @@ export default async function RootLayout(
         <I18nProvider lng={locale}>
           <div className={`${styles.layout}`}>
             <Sidebar />
-            <div className='padding-100 flex-grow-100' style={{ backgroundColor: '#fdfdfd' }}>
+            <div className='padding-100 flex-grow-100' style={{ backgroundColor: '#f9f9f9' }}>
               <div className='container margin-inline-auto'>
                 {children}
               </div>

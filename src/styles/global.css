@@ -114,21 +114,35 @@ kbd>kbd {
   border: 1px solid black;
 }
 
+.focusable {
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--gray-70);
+  outline-width: 1px;
+  outline-style: solid;
+  outline-color: transparent;
+  background-color: white;
+  border-radius: 3px;
+  transition: border-color .1s ease, 
+              outline-color .1s ease;
+}
+
 .focusable:focus-within {
-  outline: 2px solid var(--seagreen);
-  box-shadow: 0 0 .5rem -3px var(--seagreen);
-  background-color: transparent;
+  border-color: var(--blue-40);
+  outline: 1px solid var(--blue-80);
 }
  
 .focusable input {
   outline: none;
   box-shadow: none;
+  background-color: transparent;
+  border: none;
 }
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:active {
-  -webkit-box-shadow: inset 0 0 0 9999px #e0e6eb !important;
+  -webkit-box-shadow: inset 0 0 0 9999px white !important;
 }
 
 input:-webkit-autofill:focus {

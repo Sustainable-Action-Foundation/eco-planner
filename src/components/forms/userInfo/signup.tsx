@@ -44,7 +44,7 @@ export default function Signup() {
   return (
     <>
       <form onSubmit={(event: React.ChangeEvent<HTMLFormElement>) => handleSubmit(event, t)} className={`${styles.padding}`}>
-        <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid var(--gray-90)' }}>{t("components:signup.create_account")}</h1>
+        <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid silver' }}>{t("components:signup.create_account")}</h1>
         <label className="block margin-block-100">
           {t("components:signup.username")}
           <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
