@@ -18,8 +18,8 @@ export default defineConfig({
   testDir: "tests/compiled/",
 
   // Parallelize in non-CI
-  fullyParallel: CI ? false : true,
-  workers: CI ? undefined : "90%",
+  fullyParallel: true,
+  workers: "90%",
 
   // One retry in case of flaky tests
   retries: 1,
@@ -27,12 +27,12 @@ export default defineConfig({
   // Reporter to use
   reporter: [
     ...(CI ?
-      [["github"], ["list"]]
+      [["github"]]
       :
       [["html", { open: "never" }]]
     ) as [string, object][],
 
-    ["json", { outputFile: "json-results/report.json" }],
+    ["json", { outputFile: "tests/report.json" }],
   ],
 
   // Global use

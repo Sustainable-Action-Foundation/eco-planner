@@ -1,6 +1,8 @@
 import { execSync } from "node:child_process";
 import { parseArgs } from "node:util";
 import { colors } from "./lib/colors";
+import path from "node:path";
+import fs from "node:fs";
 
 const args = parseArgs({
   options: {
@@ -64,12 +66,10 @@ catch (error) {
   console.warn("❕ One or more tests failed. Continuing to run reporter...");
 }
 
-await new Promise(resolve => setTimeout(resolve, 1000));
-
 // Run reporter which will read the JSON report from the tests
 try {
   console.info("📃 Running reporter to process test results...");
-  execSync("tsx ./tests/reporter.ts > reporter.log", { stdio: "inherit" });
+  execSync("tsx ./tests/reporter.ts", { stdio: "inherit" });
 }
 catch (error) {
   console.error("❌ Failed to run reporter:", error);

@@ -17,7 +17,7 @@ services:
       - default
       - testing_network
     volumes:
-      - test-results:/testing/tests
+      - test-folder:/testing/tests
     environment:
       - TEST_BASE_URL=${TEST_BASE_URL:-http://app:8081}
 
@@ -110,5 +110,5 @@ networks:
 volumes:
   testing_data:
     driver: local
-  test-results:
+  test-folder:
     driver: local

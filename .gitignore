@@ -149,3 +149,4 @@ test/screenshots/
 
 # Transpiled tests
 tests/compiled/
+tests/report.json

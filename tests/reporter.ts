@@ -26,31 +26,34 @@ console.info = (...args: unknown[]) => {
 // Omit console.debug
 
 // Test if the json report file exists
-const jsonResultPath = path.join("json-results", "report.json");
-if (!fs.existsSync(jsonResultPath)) {
+if (!fs.existsSync(path.join("tests", "report.json"))) {
   throw new Error("Test report file does not exist. Please run the tests first.");
 }
-// To prevent reading before the file is fully written
-async function waitForValidJSON(filePath: string, maxRetries = 10): Promise<any> {
-  for (let i = 0; i < maxRetries; i++) {
-    try {
-      JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-    }
-    catch (error) {
-      if (i === maxRetries - 1) throw error;
-      console.warn(`JSON file not ready, retrying... (${i + 1}/${maxRetries})`);
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-  }
-}
-await waitForValidJSON(jsonResultPath);
-import testReport from "../json-results/report.json" with {type: "json"};
+// console.info("📂 Waiting for test results to be written to tests/report.json...");
+// // To prevent reading before the file is fully written
+// async function waitForValidJSON(filePath: string, maxRetries = 10): Promise<any> {
+//   for (let i = 0; i < maxRetries; i++) {
+//     try {
+//       JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+//     }
+//     catch (error) {
+//       if (i === maxRetries - 1) throw error;
+//       console.warn(`JSON file not ready, retrying... (${i + 1}/${maxRetries})`);
+//       await new Promise(resolve => setTimeout(resolve, 500));
+//     }
+//   }
+// }
+// await waitForValidJSON(path.join("tests", "report.json"));
+// console.info("ｉ Test results are ready for processing.");
+// const { default: testReport } = await import("../tests/report.json");
+const { default: testReport } = await import("../tests/report.json", { with: { type: "json" } });
+// const testReport = JSON.parse(fs.readFileSync(path.join("tests", "report.json"), "utf-8"));
 
 // Test if the reporter config file exists
 if (!fs.existsSync(path.join("tests", "test-exceptions.json"))) {
   throw new Error("Reporter config file does not exist. Please create a tests/test-exceptions.json file to configure the reporter.");
 }
-import reporterConfig from "./test-exceptions.json" with {type: "json"};
+const { default: reporterConfig } = await import("./test-exceptions.json", { with: { type: "json" } });
 
 // Reporter config validation
 if (!reporterConfig || !reporterConfig.warnOnFail || !Array.isArray(reporterConfig.warnOnFail)) {
