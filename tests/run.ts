@@ -64,6 +64,8 @@ catch (error) {
   console.warn("❕ One or more tests failed. Continuing to run reporter...");
 }
 
+await new Promise(resolve => setTimeout(resolve, 1000));
+
 // Run reporter which will read the JSON report from the tests
 try {
   console.info("📃 Running reporter to process test results...");

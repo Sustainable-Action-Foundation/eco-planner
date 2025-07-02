@@ -51,7 +51,6 @@ if (!fs.existsSync(path.join("tests", "test-exceptions.json"))) {
   throw new Error("Reporter config file does not exist. Please create a tests/test-exceptions.json file to configure the reporter.");
 }
 import reporterConfig from "./test-exceptions.json" with {type: "json"};
-import { json } from "node:stream/consumers";
 
 // Reporter config validation
 if (!reporterConfig || !reporterConfig.warnOnFail || !Array.isArray(reporterConfig.warnOnFail)) {
