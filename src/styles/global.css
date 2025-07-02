@@ -122,9 +122,7 @@ kbd>kbd {
   outline-style: solid;
   outline-color: transparent;
   background-color: white;
-  border-radius: 3px;
-  transition: border-color .1s ease, 
-              outline-color .1s ease;
+  border-radius: 3px; 
 }
 
 .focusable:focus-within {

@@ -206,9 +206,7 @@
   resize: vertical;
   min-height: 150px;
   font-size: 1rem;
-  line-height: 1.5;
-  transition: border-color .1s ease, 
-              outline-color .1s ease;
+  line-height: 1.5; 
 }
 
 :where(textarea:focus) {
@@ -268,9 +266,7 @@
     display: block;
     width: 100%;
     padding: 0.5rem;
-    border-radius: 3px;
-    transition: border-color .1s ease, 
-                outline-color .1s ease;
+    border-radius: 3px; 
   }
 
 :where(input[type=text],
