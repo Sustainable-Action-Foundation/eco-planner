@@ -36,32 +36,18 @@ RUN --mount=type=cache,target=/root/.yarn \
 
 
 # =============================================================================
-# Browser install stage - Install browsers for Playwright
-# =============================================================================
-FROM base AS browser
-
-# Install runtime dependencies for Playwright browsers
-RUN apk update && \ 
-  apk add \
-  chromium \
-  firefox 
-  # TODO - I cannot get apk to install webkit2gtk since it can't find it
-  # \
-  # webkit2gtk
-
-# =============================================================================
 # Playwright stage - Install Playwright and its browsers
 # =============================================================================
 FROM deps AS playwright
 
 # Install Playwright and its dependencies
-RUN yarn playwright install --with-deps
+RUN yarn playwright install
 
 
 # =============================================================================
 # Runner stage - Final testing environment
 # =============================================================================
-FROM browser AS runner
+FROM playwright AS runner
 
 # Copy dependencies from previous stages
 COPY --from=playwright /root/.cache/ms-playwright /root/.cache/ms-playwright
