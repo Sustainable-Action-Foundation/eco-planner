@@ -15,7 +15,8 @@
     "start": "next start",
     "lint": "next lint",
     "locales:format": "tsx ./src/scripts/localesFormat.ts",
-    "test:run": "tsx ./tests/run.ts"
+    "test:run": "tsx ./tests/run.ts",
+    "test:clean": "rm -rf test-results & rm -rf playwright-report & rm tests/report.json & rm tests/reporter.log"
   },
   "author": {
     "name": "Sustainable Action Foundation",

@@ -55,11 +55,14 @@ RUN yarn prisma generate
 # ============================================================================
 FROM base AS builder
 
-# Copy dependencies from prisma stage
-COPY --from=prisma /app/node_modules ./node_modules
+# Copy dependencies
+COPY --from=deps /app/node_modules ./node_modules
 
 # Copy source code (using .dockerignore)
 COPY . .
+
+# Copy Prisma clients generated files from the prisma stage
+COPY --from=prisma /app/src/prisma/generated/ ./src/prisma/generated/
 
 # Set build environment variables
 ENV NODE_ENV=production
