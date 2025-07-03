@@ -6,6 +6,7 @@ import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';
+import TextEditor from '@/components/generic/textEditor/textEditor';
 
 export async function generateMetadata() {
   const t = await serveTea("metadata")
@@ -38,6 +39,7 @@ export default async function Page() {
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
           {t("pages:roadmap_series_one_create.title")}
         </h1>
+        <TextEditor />
         <MetaRoadmapForm
           user={session.user}
           userGroups={session.user?.userGroups}
