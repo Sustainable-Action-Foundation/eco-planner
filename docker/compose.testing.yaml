@@ -7,6 +7,8 @@ services:
     build: 
       context: ..
       dockerfile: docker/testing.Dockerfile
+      cache_from:
+        - eco-planner-testing:test
     restart: "no"
     depends_on:
       app:
@@ -50,6 +52,8 @@ services:
     build:
       context: ..
       dockerfile: docker/db-seed.Dockerfile
+      cache_from:
+        - eco-planner-db-seed:test
     restart: "no"
     depends_on:
       db:
@@ -65,6 +69,8 @@ services:
     build:
       context: ..
       dockerfile: docker/app.Dockerfile
+      cache_from:
+        - eco-planner-app:test
     restart: always
     depends_on:
       db:
