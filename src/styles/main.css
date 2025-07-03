@@ -170,13 +170,18 @@
 
 :where(select) {
   padding: .5rem calc(.5rem * 2 + 24px) .5rem .5rem;
-  border: none;
-  border-radius: 3px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--gray-70);
+  outline-width: 1px;
+  outline-style: solid;
+  outline-color: transparent;
+  border-radius: 4px;
   max-width: 100%;
   
   /* Hardcoded SVG for downards chevron */
   background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-down"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 9l6 6l6 -6" /></svg>') 
-              no-repeat calc(100% - .5rem) center #e0e6eb;
+              no-repeat calc(100% - .5rem) center white;
 
   -moz-appearance: none;
   /* Firefox */
@@ -186,9 +191,8 @@
 }
 
 :where(select):focus {
-  outline: 2px solid var(--seagreen);
-  box-shadow: 0 0 .5rem -3px var(--seagreen);
-  background-color: transparent;
+  border-color: var(--blue-40);
+  outline-color: var(--blue-80);
 }
 
 :where(textarea) {
@@ -202,7 +206,7 @@
   outline-width: 1px;
   outline-style: solid;
   outline-color: transparent;
-  border-radius: 3px;
+  border-radius: 4px;
   resize: vertical;
   min-height: 150px;
   font-size: 1rem;
@@ -211,7 +215,7 @@
 
 :where(textarea:focus) {
   border-color: var(--blue-40);
-  outline-color:var(--blue-80);
+  outline-color: var(--blue-80);
 }
 
 
@@ -224,7 +228,7 @@
 :where(button) {
   background-color: var(--gray-90);
   border: 0;
-  border-radius: 3px;
+  border-radius: 4px;
   padding: 0.5rem;
   transition: box-shadow 0.1s ease;
 }
@@ -266,7 +270,7 @@
     display: block;
     width: 100%;
     padding: 0.5rem;
-    border-radius: 3px; 
+    border-radius: 4px; 
   }
 
 :where(input[type=text],
@@ -295,7 +299,7 @@
   width: 100%;
   padding: 0.5rem;
   border: none;
-  border-radius: 3px;
+  border-radius: 4px;
   transition: box-shadow 0.1s ease;
 }
 
@@ -319,7 +323,7 @@
   display: block;
   width: 100%;
   padding: 1em;
-  border-radius: 3px;
+  border-radius: 4px;
   border: 2px dashed var(--gray-90);
   outline: none;
 }
@@ -328,7 +332,7 @@ input[type=file]::file-selector-button {
   background-color: var(--gray-90);
   border: none;
   padding: 0.5rem 1rem;
-  border-radius: 3px;
+  border-radius: 4px;
   margin: 0 0.5rem;
   cursor: pointer;
 }
