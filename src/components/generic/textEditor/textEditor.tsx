@@ -8,12 +8,12 @@ import Paragraph from '@tiptap/extension-paragraph'
 import Text from '@tiptap/extension-text'
 import Highlight from '@tiptap/extension-highlight'
 import { EditorContent, useEditor } from '@tiptap/react'
-import TextStyle from '@tiptap/extension-text-style'
 import Superscript from '@tiptap/extension-superscript'
 import Subscript from '@tiptap/extension-subscript'
 import Details from '@tiptap/extension-details'
 import DetailsContent from '@tiptap/extension-details-content'
 import DetailsSummary from '@tiptap/extension-details-summary'
+import UnderlineSpan from './underlineSpan'
 
 const TextEditor = () => {
   const editor = useEditor({
@@ -25,10 +25,10 @@ const TextEditor = () => {
       Highlight,
       Subscript,
       Superscript,
-      TextStyle,
       BulletList, 
       OrderedList, 
       ListItem,
+      UnderlineSpan,
       Details.configure({
         HTMLAttributes: {
           class: 'details',
@@ -47,6 +47,10 @@ const TextEditor = () => {
     <>
       <div className="control-group">
         <div className="button-group">
+
+          <button onClick={() => editor.chain().focus().toggleUnderline().run()}
+          >Test</button>
+
           <button onClick={() => editor.chain().focus().setDetails().run()} disabled={!editor.can().setDetails()}>
             Set details
           </button> 
