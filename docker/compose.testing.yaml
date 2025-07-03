@@ -9,6 +9,9 @@ services:
       dockerfile: docker/testing.Dockerfile
       cache_from:
         - eco-planner-testing:test
+        - type=gha
+      cache_to:
+        - type=gha,mode=max
     restart: "no"
     depends_on:
       app:
@@ -54,6 +57,9 @@ services:
       dockerfile: docker/db-seed.Dockerfile
       cache_from:
         - eco-planner-db-seed:test
+        - type=gha
+      cache_to:
+        - type=gha,mode=max
     restart: "no"
     depends_on:
       db:
