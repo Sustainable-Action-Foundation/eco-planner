@@ -108,27 +108,16 @@ jobs:
           TEST_MARIADB_ROOT_PASSWORD: ${{ secrets.TEST_MARIADB_ROOT_PASSWORD }}
           BUILDX_EXPERIMENTAL: 1
         run: |
-          # Pre-pull and cache base images
-          docker pull node:20-alpine
-          docker pull mariadb:lts
-          
-          # Build with aggressive caching
-          docker compose -f docker/compose.testing.yaml build \
-            --cache-from type=gha \
-            --cache-to type=gha,mode=max \
-            --parallel
-          
-          docker compose -f docker/compose.testing.yaml up
-        # # Cache base images
-        # docker pull node:20-alpine || true
-        # docker pull mariadb:lts || true
+          # Cache base images
+          docker pull node:20-alpine || true
+          docker pull mariadb:lts || true
 
-        # # Use registry cache for faster builds
-        # docker buildx create --use --driver docker-container
-        
-        # # Build with registry cache
-        # docker compose -f docker/compose.testing.yaml build --cache-from type=gha --cache-to type=gha,mode=max
-        # docker compose -f docker/compose.testing.yaml up
+          # Use registry cache for faster builds
+          docker buildx create --use --driver docker-container
+          
+          # Build with registry cache
+          docker compose -f docker/compose.testing.yaml build
+          docker compose -f docker/compose.testing.yaml up
 
       - name: Extract test results from container
         if: always()
