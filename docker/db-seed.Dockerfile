@@ -48,5 +48,8 @@ RUN yarn prisma generate
 # =============================================================================
 FROM prisma as seed
 
+# Seeding script uses some general script lib files
+COPY src/scripts/lib ./src/scripts/lib
+
 ENTRYPOINT ["dumb-init", "--"]
 CMD ["sh", "-c", "yarn prisma migrate reset --force"]
