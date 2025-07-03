@@ -66,4 +66,4 @@ ENV LOGIN_PASSWORD=admin
 ENV CI=true
 
 # Set the entrypoint for testing
-ENTRYPOINT ["dumb-init", "yarn", "test:run"]
+ENTRYPOINT ["dumb-init", "yarn", "test:run", "--", "-v"]
