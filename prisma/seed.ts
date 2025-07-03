@@ -1,6 +1,6 @@
 // DO NOT SEED PRODUCTION DATABASE
 
-import { colors } from "@/scripts/lib/colors";
+import { colors } from "../src/scripts/lib/colors";
 import { PrismaClient, RoadmapType } from '@prisma/client';
 import bcrypt from "bcryptjs";
 import { LoremIpsum } from "lorem-ipsum";

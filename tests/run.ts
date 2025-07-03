@@ -1,8 +1,6 @@
 import { execSync } from "node:child_process";
 import { parseArgs } from "node:util";
 import { colors } from "./lib/colors";
-import path from "node:path";
-import fs from "node:fs";
 
 const args = parseArgs({
   options: {
