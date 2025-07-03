@@ -1,7 +1,7 @@
 // DO NOT SEED PRODUCTION DATABASE
 
 import { colors } from "../src/scripts/lib/colors";
-import { PrismaClient, RoadmapType } from '@prisma/client';
+import { PrismaClient, RoadmapType } from '../src/prisma/generated/client';
 import bcrypt from "bcryptjs";
 import { LoremIpsum } from "lorem-ipsum";
 

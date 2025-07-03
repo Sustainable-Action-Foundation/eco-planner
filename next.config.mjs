@@ -30,7 +30,7 @@ const nextConfig = {
     rules: {
       "/src/scripts/": {
         loaders: ['ignore-loader'],
-      }
+      },
     },
   }
 }

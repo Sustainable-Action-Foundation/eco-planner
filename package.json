@@ -45,7 +45,7 @@
   "type": "module",
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.6.1",
-    "@prisma/client": "^6.6.0",
+    "@prisma/client": "^6.11.0",
     "@tabler/icons-react": "^3.34.0",
     "accept-language": "^3.0.20",
     "apexcharts": "^4.5.0",
@@ -76,7 +76,7 @@
     "lorem-ipsum": "^2.0.8",
     "playwright": "^1.51.1",
     "pocketbase": "^0.25.2",
-    "prisma": "^6.6.0",
+    "prisma": "^6.11.0",
     "regexp.escape": "^2.0.1",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3"

@@ -150,3 +150,6 @@ test/screenshots/
 # Transpiled tests
 tests/compiled/
 tests/report.json
+
+# Prisma generated client
+src/prisma/generated/
