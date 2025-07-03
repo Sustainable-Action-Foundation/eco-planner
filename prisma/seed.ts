@@ -1,10 +1,19 @@
 // DO NOT SEED PRODUCTION DATABASE
 
+import { colors } from "@/scripts/lib/colors";
 import { PrismaClient, RoadmapType } from '@prisma/client';
 import bcrypt from "bcryptjs";
 import { LoremIpsum } from "lorem-ipsum";
 
 const prisma = new PrismaClient();
+prisma.$connect().catch((e) => {
+  console.error(colors.yellow(`
+    Could not connect to the database. Ensure DATABASE_URL is set correctly in the .env file.
+
+    Error thrown:
+    `), e);
+  process.exit(1);
+});
 const lorem = new LoremIpsum();
 
 async function main() {
@@ -291,7 +300,16 @@ async function main() {
 main().then(async () => {
   await prisma.$disconnect();
 }).catch(async (e) => {
-  console.error('Error caught while seeding: ', e);
+  console.error(colors.yellow(`
+    Error found while seeding.
+
+    - Do you have a valid database connection?
+    - Is the database empty?
+
+    This seed script must run against an empty database.
+
+    Error thrown:
+    `), e);
   await prisma.$disconnect();
   process.exit(1)
 });
