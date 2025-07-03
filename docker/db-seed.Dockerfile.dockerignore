@@ -1,0 +1,6 @@
+**/*
+
+!prisma/
+!package.json
+!yarn.lock
+!src/scripts/lib
