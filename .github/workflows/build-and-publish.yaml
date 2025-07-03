@@ -95,6 +95,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-prisma-
 
+
+      - name: Show disk usage before build
+        run: df -h && du -sh /*
+
+
       - name: Run tests
         if: ${{ !inputs.skip_tests }}
         env:
