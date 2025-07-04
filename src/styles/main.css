@@ -169,7 +169,10 @@
 }
 
 :where(select) {
-  padding: .5rem calc(.5rem * 2 + 24px) .5rem .5rem;
+  --padding: .5rem;
+  --icon-size: 24px;
+
+  padding: var(--padding) calc(var(--padding) * 2 + var(--icon-size)) var(--padding) var(--padding);
   border-width: 1px;
   border-style: solid;
   border-color: var(--gray-70);
@@ -181,7 +184,9 @@
   
   /* Hardcoded SVG for downards chevron */
   background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-down"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 9l6 6l6 -6" /></svg>') 
-              no-repeat calc(100% - .5rem) center white;
+              no-repeat calc(100% - var(--padding)) center white;
+  background-size: var(--icon-size);
+
 
   -moz-appearance: none;
   /* Firefox */

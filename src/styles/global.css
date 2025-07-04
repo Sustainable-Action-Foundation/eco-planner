@@ -150,28 +150,18 @@ input:-webkit-autofill:focus {
 /* TipTap text editor */
 
 .tiptap {
-  padding: .5rem;
-  background-color: white;
-  border: 1px solid var(--gray-70);
-  border-radius: .25rem;
-  border-width: 1px;
-  border-style: solid;
-  border-color: var(--gray-70);
-  outline-width: 1px;
-  outline-style: solid;
-  outline-color: transparent;
+  padding-inline: .5rem;
 }
 
 .tiptap:focus {
-  border-color: var(--blue-40);
-  outline-color: var(--blue-80);
+  outline: 0;
 }
 
 .tiptap .details {
   display: flex;
   gap: .25rem;
   margin: 1.5rem 0;
-  border: 1px solid var(--gray-3);
+  border: 1px solid var(--gray-30);
   border-radius: .5rem;
 }
 
@@ -196,3 +186,12 @@ input:-webkit-autofill:focus {
 .tiptap .details.is-open>button:before {
   transform: rotate(90deg);
 }
+
+.tiptap p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
