@@ -144,6 +144,8 @@ const TextEditor = () => {
     return null
   }
 
+  /* TODO: Apply aria-hidden to empty <p> tags */
+  /* TODO: If there are empty tags after the last piece of content, remove them */
   return (
     <>
       <div className='padding-25 purewhite smooth margin-bottom-300' style={{ border: '1px solid var(--gray)' }}>
@@ -151,9 +153,9 @@ const TextEditor = () => {
           <div className="button-group flex align-items-center" style={{ backgroundColor: 'var(--gray-95)', padding: '3px', borderRadius: '2px' }}>
             <div className='inline-flex align-items-center gap-25 padding-right-50 margin-right-50' style={{ borderRight: '1px solid var(--gray-80)' }}>
               <select defaultValue="default" className='transparent' style={{ fontSize: '12px', border: '0', outline: '0', '--icon-size': '16px', '--padding': '.25rem' } as React.CSSProperties}>
-                <option value="smaller">Mindre</option>
-                <option value="default">Normal</option>
-                <option value="larger">Större</option>
+                <option value="smaller">Liten text</option>
+                <option value="default">Normal text</option>
+                <option value="larger">Rubrik</option>
               </select>
             </div>
             <div className='inline-flex align-items-center gap-25 padding-right-50 margin-right-50' style={{ borderRight: '1px solid var(--gray-80)' }}>
@@ -161,6 +163,7 @@ const TextEditor = () => {
                 onClick={() => editor.chain().focus().setColor('black').run()}
                 data-testid="setBlack"
                 className='padding-25 transparent'
+                aria-label=''
               >
                 <IconTextColor color="black" className="grid" width={16} height={16} aria-hidden="true" />
               </button>
