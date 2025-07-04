@@ -40,6 +40,9 @@ COPY package.json yarn.lock* ./
 RUN --mount=type=cache,target=/root/.yarn \
   yarn install --frozen-lockfile
 
+# Clean up temporary files to reduce image size
+RUN rm -rf /tmp/* /var/tmp/* /root/.cache/yarn
+
 
 # ============================================================================
 # Prisma stage - Generate Prisma client
