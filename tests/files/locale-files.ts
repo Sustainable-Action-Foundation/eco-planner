@@ -5,33 +5,6 @@ import { glob } from "glob";
 import { expect, test } from "playwright/test";
 import { uniqueLocales, namespaces, Locales, localesDir } from "../i18nTestVariables";
 
-const STRICT_MODE = false;
-const warnings: Record<string, string[]> = {};
-function addWarning(testName: string, message: string) {
-  if (!warnings[testName]) warnings[testName] = [];
-
-  warnings[testName].push(message);
-}
-
-/** Functions like `expect` but when STRICT_MODE is false it only warns */
-function expectWarn(condition: unknown, message: string) {
-  if (STRICT_MODE) {
-    return expect(condition);
-  } else {
-    if (!condition) addWarning("Warning", message);
-  }
-  // TODO - Find a better way to handle this
-  return {
-    toBe: () => true,
-    toBeTruthy: () => true,
-    toBeFalsy: () => true,
-    toEqual: () => true,
-    toContain: () => true,
-    toBeGreaterThan: () => true,
-    toBeLessThan: () => true
-  };
-}
-
 /* 
  **********
  * Config *
@@ -682,27 +655,6 @@ test("Unused keys", () => {
   expect(totalUnusedKeys, `Unused keys in locale files: ${JSON.stringify(unusedPerLocale, null, 2)}`).toBe(0);
 });
 
-test.afterEach("Warnings", () => {
-  let warningMessage = "No warnings found during tests.";
-
-  if (Object.keys(warnings).length > 0) {
-    warningMessage = "Warnings found during tests:\n";
-    Object.entries(warnings).forEach(([testName, messages]) => {
-      warningMessage += `- ${testName}:\n`;
-      messages.forEach(message => warningMessage += `  - ${message}\n`);
-    });
-
-    console.warn(warningMessage);
-    console.warn("Total warnings:", Object.keys(warnings).length);
-  }
-  else {
-    // console.info(warningMessage);
-  }
-
-  // Always pass since we just wanna warn
-  expect(true, warningMessage).toBeTruthy();
-});
-
 /* 
  ***********
  * Helpers *
@@ -725,7 +677,7 @@ function getAllJSONFlattened(): Record<string, Record<string, string>> {
 
 /** Get every file where t might be implemented as an array of objects storing the file path and their content as text */
 function getAllTSXFiles() {
-  const allTSXPaths = glob.sync("src/**/*.{tsx,ts}", { ignore: ["src/scripts/**/*"] });
+  const allTSXPaths = glob.sync("src/**/*.{tsx,ts}", { ignore: ["src/scripts/**/*", "src/prisma/generated/**/*"] });
 
   return allTSXPaths.map(filePath => {
     const contentRaw = fs.readFileSync(filePath, "utf-8");
