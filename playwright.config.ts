@@ -17,7 +17,7 @@ const CI = process.env.CI == "true";
 export default defineConfig({
   testDir: "tests/compiled/",
 
-  fullyParallel: !CI,
+  fullyParallel: true,
   workers: "90%",
 
   // One retry in case of flaky tests
@@ -32,7 +32,9 @@ export default defineConfig({
     ) as [string, object][],
 
     ["json", { outputFile: "tests/report.json" }],
+    ["list"],
   ],
+  // reporter: "list",
 
   // Global use
   use: {

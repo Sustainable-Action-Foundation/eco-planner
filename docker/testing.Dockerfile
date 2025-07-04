@@ -31,14 +31,25 @@ FROM base AS deps
 COPY package.json yarn.lock* ./
 
 # Install dependencies with cache mount
-RUN --mount=type=cache,target=/root/.yarn \
-  yarn install --frozen-lockfile
+# RUN --mount=type=cache,target=/root/.yarn \
+#   yarn install --frozen-lockfile
+RUN yarn install --frozen-lockfile
+
+
+# =============================================================================
+# Playwright browsers stage - Install Playwright browsers
+# =============================================================================
+FROM deps AS playwright-browsers
+
+RUN apk add --no-cache \
+  chromium \
+  firefox
 
 
 # =============================================================================
 # Playwright stage - Install Playwright and its browsers
 # =============================================================================
-FROM deps AS playwright
+FROM playwright-browsers AS playwright
 
 # Install Playwright and its dependencies
 RUN yarn playwright install
