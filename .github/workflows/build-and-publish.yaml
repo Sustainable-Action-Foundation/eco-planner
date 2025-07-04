@@ -75,7 +75,7 @@ jobs:
           docker pull node:20-alpine || true
           docker pull mariadb:lts || true
           
-          # Build and run tests (caching handled by cache mounts)
+          # Build and run tests (caching handled by GHA cache)
           docker compose -f docker/compose.testing.yaml up --build --remove-orphans
           
           # Clean up

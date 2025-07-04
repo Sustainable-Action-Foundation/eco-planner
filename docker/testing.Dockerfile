@@ -30,13 +30,11 @@ FROM base AS deps
 # Copy package manager files for dependency installation
 COPY package.json yarn.lock* ./
 
-# Install dependencies with cache mount
-RUN --mount=type=cache,target=/root/.yarn \
-  yarn install --frozen-lockfile
-# RUN yarn install --frozen-lockfile
+# Install dependencies (GHA cache handled by buildx)
+RUN yarn install --frozen-lockfile
 
 # Clean up temporary files to reduce image size
-RUN rm -rf /tmp/* /var/tmp/* /root/.cache/yarn
+RUN rm -rf /tmp/* /var/tmp/*
 
 
 # =============================================================================

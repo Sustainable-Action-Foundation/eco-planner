@@ -7,11 +7,11 @@ services:
     build: 
       context: ..
       dockerfile: docker/testing.Dockerfile
-      # cache_from:
-      #   - eco-planner-testing:test
-      #   - type=gha
-      # cache_to:
-      #   - type=gha,mode=max
+      cache_from:
+        - eco-planner-testing:test
+        - type=gha
+      cache_to:
+        - type=gha,mode=max
     restart: "no"
     depends_on:
       app:
@@ -55,11 +55,11 @@ services:
     build:
       context: ..
       dockerfile: docker/db-seed.Dockerfile
-      # cache_from:
-      #   - eco-planner-db-seed:test
-      #   - type=gha
-      # cache_to:
-      #   - type=gha,mode=max
+      cache_from:
+        - eco-planner-db-seed:test
+        - type=gha
+      cache_to:
+        - type=gha,mode=max
     restart: "no"
     depends_on:
       db:
@@ -77,6 +77,9 @@ services:
       dockerfile: docker/app.Dockerfile
       cache_from:
         - eco-planner-app:test
+        - type=gha
+      cache_to:
+        - type=gha,mode=max
     restart: always
     depends_on:
       db:
