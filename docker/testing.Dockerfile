@@ -35,24 +35,26 @@ COPY package.json yarn.lock* ./
 #   yarn install --frozen-lockfile
 RUN yarn install --frozen-lockfile
 
-
-# =============================================================================
-# Playwright browsers stage - Install Playwright browsers
-# =============================================================================
-FROM deps AS playwright-browsers
-
-RUN apk add --no-cache \
-  chromium \
-  firefox
+# Clean up yarn cache to reduce image size
+RUN yarn cache clean && \
+  rm -rf /tmp/* /var/tmp/* /root/.cache/yarn
 
 
 # =============================================================================
 # Playwright stage - Install Playwright and its browsers
 # =============================================================================
-FROM playwright-browsers AS playwright
+FROM deps AS playwright
 
 # Install Playwright and its dependencies
-RUN yarn playwright install
+RUN apk add --no-cache \
+  chromium \
+  firefox \
+  && yarn playwright install
+
+# Clean up unnecessary browser caches
+RUN rm -rf \
+  /tmp/* \
+  /var/tmp/*
 
 
 # =============================================================================
