@@ -13,8 +13,9 @@ import Subscript from '@tiptap/extension-subscript'
 import Details from '@tiptap/extension-details'
 import DetailsContent from '@tiptap/extension-details-content'
 import DetailsSummary from '@tiptap/extension-details-summary'
-import { Underline, LineThrough } from './underlineSpan'
+import { Underline, LineThrough, Bold, Italic } from './underlineSpan'
 import TextStyle from '@tiptap/extension-text-style'
+import { IconBold, IconHighlight, IconItalic, IconList, IconListNumbers, IconSelect, IconStrikethrough, IconSubmarine, IconSubscript, IconSuperscript, IconUnderline } from '@tabler/icons-react'
 
 const TextEditor = () => {
   const editor = useEditor({
@@ -32,6 +33,8 @@ const TextEditor = () => {
       ListItem,
       Underline,
       LineThrough,
+      Bold,
+      Italic,
       Details.configure({
         HTMLAttributes: {
           class: 'details',
@@ -51,70 +54,51 @@ const TextEditor = () => {
       <div className="control-group">
         <div className="button-group">
 
-
-
-          <button onClick={() => editor.chain().focus().toggleLineThrough().run()}
-          >Toggle line-through</button> 
-          <button onClick={() => editor.chain().focus().toggleUnderline().run()}
-          >Toggle underline</button> <br /><br />
-
-          <button onClick={() => editor.chain().focus().setDetails().run()} disabled={!editor.can().setDetails()}>
-            Set details
+          <button onClick={() => editor.chain().focus().toggleItalic().run()}>
+            <IconItalic width={16} height={16} />
+            Toggle Italic
           </button> 
-          <button onClick={() => editor.chain().focus().unsetDetails().run()} disabled={!editor.can().unsetDetails()}>
-            Unset details
-          </button> <br /><br />
-          <button
-            onClick={() => editor.chain().focus().toggleSubscript().run()}
-            className={editor.isActive('subscript') ? 'is-active' : ''}
-          >
-            Toggle subscript
-          </button> <br /> <br />
-
-          <button
-            onClick={() => editor.chain().focus().toggleSuperscript().run()}
-            className={editor.isActive('superscript') ? 'is-active' : ''}
-          >
+          <button onClick={() => editor.chain().focus().toggleBold().run()}>
+            <IconBold width={16} height={16} />
+            Toggle bold
+          </button> 
+          <button onClick={() => editor.chain().focus().toggleLineThrough().run()}>
+            <IconStrikethrough width={16} height={16} />
+            Toggle line-through
+          </button> 
+          <button onClick={() => editor.chain().focus().toggleUnderline().run()}>
+            <IconUnderline width={16} height={16} />
+            Toggle underline
+          </button>
+          <button onClick={() => editor.chain().focus().toggleSuperscript().run()}>
+            <IconSuperscript width={16} height={16} />
             Toggle superscript
-          </button> <br /> <br />
-
-          <button
-            onClick={() => editor.chain().focus().toggleHighlight().run()}
-            className={editor.isActive('highlight') ? 'is-active' : ''}
-          >
+          </button>
+          <button onClick={() => editor.chain().focus().toggleSubscript().run()}>
+            <IconSubscript width={16} height={16} />
+            Toggle subscript
+          </button>
+          <button onClick={() => editor.chain().focus().toggleHighlight().run()}>
+            <IconHighlight width={16} height={16} />
             Toggle highlight
           </button> <br /><br />
 
-          <button
-            onClick={() => editor.chain().focus().toggleBulletList().run()}
-            className={editor.isActive('bulletList') ? 'is-active' : ''}
-          >
+          <button onClick={() => editor.chain().focus().toggleBulletList().run()}>
+            <IconList width={16} height={16} />
             Toggle bullet list
-          </button> <br />
-          <button
-            onClick={() => editor.chain().focus().toggleOrderedList().run()}
-            className={editor.isActive('orderedList') ? 'is-active' : ''}
-          >
+          </button>
+          <button onClick={() => editor.chain().focus().toggleOrderedList().run()}>
+            <IconListNumbers width={16} height={16} />
             Toggle ordered list
-          </button> <br />
-          <button
-            onClick={() => editor.chain().focus().splitListItem('listItem').run()}
-            disabled={!editor.can().splitListItem('listItem')}
-          >
-            Split list item
+          </button>        
+          <button onClick={() => editor.chain().focus().setDetails().run()} disabled={!editor.can().setDetails()}>
+            <IconSelect width={16} height={16} />
+            Set details
           </button>
-          <button
-            onClick={() => editor.chain().focus().sinkListItem('listItem').run()}
-            disabled={!editor.can().sinkListItem('listItem')}
-          >
-            Sink list item
-          </button>
-          <button
-            onClick={() => editor.chain().focus().liftListItem('listItem').run()}
-            disabled={!editor.can().liftListItem('listItem')}
-          >
-            Lift list item
-          </button>
+          <button onClick={() => editor.chain().focus().unsetDetails().run()} disabled={!editor.can().unsetDetails()}>
+            <IconSelect width={16} height={16} />
+            Unset details
+          </button> <br /><br />
         </div>
       </div>
       <EditorContent className='margin-bottom-300' editor={editor} />
