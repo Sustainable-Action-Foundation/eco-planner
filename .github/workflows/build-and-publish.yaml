@@ -55,46 +55,6 @@ jobs:
         with:
           driver: docker-container
 
-      - name: Cache Node.js dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.yarn/cache
-            node_modules
-            .yarn/cache
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Cache Next.js build
-        uses: actions/cache@v4
-        with:
-          path: |
-            .next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/package.json') }}-
-            ${{ runner.os }}-nextjs-
-
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/ms-playwright
-            ~/.cache/playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-
-
-      - name: Cache Prisma generated client
-        uses: actions/cache@v4
-        with:
-          path: |
-            src/prisma/generated
-          key: ${{ runner.os }}-prisma-${{ hashFiles('**/schema.prisma') }}
-          restore-keys: |
-            ${{ runner.os }}-prisma-
-
       - name: Run tests
         if: ${{ !inputs.skip_tests }}
         env:
@@ -108,21 +68,17 @@ jobs:
           TEST_MARIADB_ROOT_PASSWORD: ${{ secrets.TEST_MARIADB_ROOT_PASSWORD }}
           BUILDX_EXPERIMENTAL: 1
         run: |
-          # Prune dangling images
+          # Clean up
           docker image prune -f || true
-
-          # Cache base images
+          
+          # Pull base images
           docker pull node:20-alpine || true
           docker pull mariadb:lts || true
-
-          # Use registry cache for faster builds
-          docker buildx create --use --driver docker-container
           
-          # Build with registry cache
-          docker compose -f docker/compose.testing.yaml build
-          docker compose -f docker/compose.testing.yaml up --remove-orphans
-
-          # Prune dangling images again
+          # Build and run tests (caching handled by cache mounts)
+          docker compose -f docker/compose.testing.yaml up --build --remove-orphans
+          
+          # Clean up
           docker image prune -f || true
 
       - name: Extract test results from container

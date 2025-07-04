@@ -31,13 +31,13 @@ FROM base AS deps
 COPY package.json yarn.lock* ./
 
 # Install dependencies with cache mount
-# RUN --mount=type=cache,target=/root/.yarn \
-#   yarn install --frozen-lockfile
-RUN yarn install --frozen-lockfile
+RUN --mount=type=cache,target=/root/.yarn \
+  yarn install --frozen-lockfile
+# RUN yarn install --frozen-lockfile
 
 # Clean up yarn cache to reduce image size
-RUN yarn cache clean && \
-  rm -rf /tmp/* /var/tmp/* /root/.cache/yarn
+# RUN yarn cache clean && \
+#   rm -rf /tmp/* /var/tmp/* /root/.cache/yarn
 
 
 # =============================================================================
