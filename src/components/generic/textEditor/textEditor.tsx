@@ -13,7 +13,8 @@ import Subscript from '@tiptap/extension-subscript'
 import Details from '@tiptap/extension-details'
 import DetailsContent from '@tiptap/extension-details-content'
 import DetailsSummary from '@tiptap/extension-details-summary'
-import UnderlineSpan from './underlineSpan'
+import { Underline, LineThrough } from './underlineSpan'
+import TextStyle from '@tiptap/extension-text-style'
 
 const TextEditor = () => {
   const editor = useEditor({
@@ -22,13 +23,15 @@ const TextEditor = () => {
       Document, // Required
       Text, // Required
       Paragraph, 
+      TextStyle.configure({ mergeNestedSpanStyles: true }),
       Highlight,
       Subscript,
       Superscript,
       BulletList, 
       OrderedList, 
       ListItem,
-      UnderlineSpan,
+      Underline,
+      LineThrough,
       Details.configure({
         HTMLAttributes: {
           class: 'details',
@@ -48,8 +51,12 @@ const TextEditor = () => {
       <div className="control-group">
         <div className="button-group">
 
+
+
+          <button onClick={() => editor.chain().focus().toggleLineThrough().run()}
+          >Toggle line-through</button> 
           <button onClick={() => editor.chain().focus().toggleUnderline().run()}
-          >Test</button>
+          >Toggle underline</button> <br /><br />
 
           <button onClick={() => editor.chain().focus().setDetails().run()} disabled={!editor.can().setDetails()}>
             Set details
