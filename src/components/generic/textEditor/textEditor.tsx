@@ -52,53 +52,44 @@ const TextEditor = () => {
   return (
     <>
       <div className="control-group">
-        <div className="button-group">
-
-          <button onClick={() => editor.chain().focus().toggleItalic().run()}>
-            <IconItalic width={16} height={16} />
-            Toggle Italic
-          </button> 
-          <button onClick={() => editor.chain().focus().toggleBold().run()}>
-            <IconBold width={16} height={16} />
-            Toggle bold
-          </button> 
-          <button onClick={() => editor.chain().focus().toggleLineThrough().run()}>
-            <IconStrikethrough width={16} height={16} />
-            Toggle line-through
-          </button> 
-          <button onClick={() => editor.chain().focus().toggleUnderline().run()}>
-            <IconUnderline width={16} height={16} />
-            Toggle underline
-          </button>
-          <button onClick={() => editor.chain().focus().toggleSuperscript().run()}>
-            <IconSuperscript width={16} height={16} />
-            Toggle superscript
-          </button>
-          <button onClick={() => editor.chain().focus().toggleSubscript().run()}>
-            <IconSubscript width={16} height={16} />
-            Toggle subscript
-          </button>
-          <button onClick={() => editor.chain().focus().toggleHighlight().run()}>
-            <IconHighlight width={16} height={16} />
-            Toggle highlight
-          </button> <br /><br />
-
-          <button onClick={() => editor.chain().focus().toggleBulletList().run()}>
-            <IconList width={16} height={16} />
-            Toggle bullet list
-          </button>
-          <button onClick={() => editor.chain().focus().toggleOrderedList().run()}>
-            <IconListNumbers width={16} height={16} />
-            Toggle ordered list
-          </button>        
-          <button onClick={() => editor.chain().focus().setDetails().run()} disabled={!editor.can().setDetails()}>
-            <IconSelect width={16} height={16} />
-            Set details
-          </button>
-          <button onClick={() => editor.chain().focus().unsetDetails().run()} disabled={!editor.can().unsetDetails()}>
-            <IconSelect width={16} height={16} />
-            Unset details
-          </button> <br /><br />
+        <div className="button-group margin-block-25">
+          <div className='inline-flex align-items-center gap-25 padding-right-50 margin-right-50' style={{borderRight: '1px solid var(--gray-80)'}}>
+            <button className='padding-25 transparent' onClick={() => editor.chain().focus().toggleItalic().run()} aria-label="toggle italic">
+              <IconItalic className="grid" width={16} height={16} aria-hidden="true" />
+            </button> 
+            <button className='padding-25 transparent' onClick={() => editor.chain().focus().toggleBold().run()} aria-label="toggle bold" >
+              <IconBold className="grid" width={16} height={16} aria-hidden="true" />
+            </button> 
+            <button className='padding-25 transparent' onClick={() => editor.chain().focus().toggleLineThrough().run()} aria-label="toggle strike-trough">
+              <IconStrikethrough className="grid" width={16} height={16} aria-hidden="true" />
+            </button> 
+            <button className='padding-25 transparent' onClick={() => editor.chain().focus().toggleUnderline().run()} aria-label="toggle underline">
+              <IconUnderline className="grid" width={16} height={16} aria-hidden="true" />
+            </button>
+            <button className='padding-25 transparent' onClick={() => editor.chain().focus().toggleSuperscript().run()} aria-label="toggle superscript">
+              <IconSuperscript className="grid" width={16} height={16} aria-hidden="true" />
+            </button>
+            <button className='padding-25 transparent' onClick={() => editor.chain().focus().toggleSubscript().run()} aria-label="toggle subscript">
+              <IconSubscript className="grid" width={16} height={16} aria-hidden="true" />
+            </button>
+            <button className='padding-25 transparent' onClick={() => editor.chain().focus().toggleHighlight().run()} aria-label="toggle highlight">
+              <IconHighlight className="grid" width={16} height={16} aria-hidden="true" />
+            </button>
+          </div>
+          <div className='inline-flex align-items-center gap-25 padding-right-50 margin-right-50' style={{borderRight: '1px solid var(--gray-80)'}}>
+            <button className="padding-25 transparent" onClick={() => editor.chain().focus().toggleBulletList().run()} aria-label="toggle highlight">
+              <IconList width={16} height={16} className="grid" /> 
+            </button>
+            <button className="padding-25 transparent" onClick={() => editor.chain().focus().toggleOrderedList().run()} aria-label="toggle highlight">
+              <IconListNumbers width={16} height={16} className="grid" /> 
+            </button>        
+            <button className="padding-25 transparent" onClick={() => editor.chain().focus().setDetails().run()} disabled={!editor.can().setDetails()} aria-label="add details">
+              <IconSelect width={16} height={16} className="grid" />
+            </button>
+            <button className="padding-25 transparent" onClick={() => editor.chain().focus().unsetDetails().run()} disabled={!editor.can().unsetDetails()} aria-label="remove details">
+              <IconSelect width={16} height={16} className="grid" />
+            </button>  
+          </div>
         </div>
       </div>
       <EditorContent className='margin-bottom-300' editor={editor} />
