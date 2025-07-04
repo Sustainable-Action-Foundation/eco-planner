@@ -97,12 +97,58 @@ jobs:
             echo "Found tests container: $CONTAINER_ID"
             
             # Copy test files from the container
-            docker cp ${CONTAINER_ID}:/testing/tests/reporter.log test-artifacts/ 2>/dev/null || echo "❌ reporter.log not found"            
+            docker cp ${CONTAINER_ID}:/testing/tests/reporter.log test-artifacts/ 2>/dev/null || echo "❌ reporter.log not found"
+            docker cp ${CONTAINER_ID}:/testing/json-results/report.json test-artifacts/ 2>/dev/null || echo "❌ report.json not found"
           else
             echo "❌ Could not find tests container"
             echo "Available containers:"
             docker compose -f docker/compose.testing.yaml ps -a
           fi
+
+      - name: Generate test summary
+        if: always()
+        run: |
+          echo "## 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f "test-artifacts/reporter.log" ]; then
+            echo "### Test Report" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat test-artifacts/reporter.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ -f "test-artifacts/report.json" ]; then
+            echo "### Test Statistics" >> $GITHUB_STEP_SUMMARY
+            
+            # Parse JSON and extract key metrics
+            TOTAL_TESTS=$(jq -r '.suites | map(.specs | length) | add' test-artifacts/report.json 2>/dev/null || echo "0")
+            PASSED_TESTS=$(jq -r '.suites | map(.specs | map(select(.tests[0].results[0].status == "passed")) | length) | add' test-artifacts/report.json 2>/dev/null || echo "0")
+            FAILED_TESTS=$(jq -r '.suites | map(.specs | map(select(.tests[0].results[0].status == "failed")) | length) | add' test-artifacts/report.json 2>/dev/null || echo "0")
+            DURATION=$(jq -r '.stats.duration' test-artifacts/report.json 2>/dev/null || echo "0")
+            
+            echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| Total Tests | $TOTAL_TESTS |" >> $GITHUB_STEP_SUMMARY
+            echo "| Passed | ✅ $PASSED_TESTS |" >> $GITHUB_STEP_SUMMARY
+            echo "| Failed | ❌ $FAILED_TESTS |" >> $GITHUB_STEP_SUMMARY
+            echo "| Duration | ${DURATION}ms |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            # Show failed tests if any
+            if [ "$FAILED_TESTS" -gt "0" ]; then
+              echo "### ❌ Failed Tests" >> $GITHUB_STEP_SUMMARY
+              jq -r '.suites[] | .specs[] | select(.tests[0].results[0].status == "failed") | "- **" + .title + "**: " + .tests[0].results[0].error.message' test-artifacts/report.json 2>/dev/null >> $GITHUB_STEP_SUMMARY || echo "Failed to parse failed tests" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          
+          echo "### 📊 Build Information" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Run Number**: ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Workflow**: ${{ github.workflow }}" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload test artifacts
         if: always()
