@@ -88,7 +88,7 @@ jobs:
             
             # Copy test files from the container
             docker cp ${CONTAINER_ID}:/testing/tests/reporter.log test-artifacts/ 2>/dev/null || echo "❌ reporter.log not found"
-            docker cp ${CONTAINER_ID}:/testing/json-results/report.json test-artifacts/ 2>/dev/null || echo "❌ report.json not found"
+            docker cp ${CONTAINER_ID}:/testing/tests/report.json test-artifacts/ 2>/dev/null || echo "❌ report.json not found"
           else
             echo "❌ Could not find tests container"
             echo "Available containers:"
@@ -100,15 +100,16 @@ jobs:
         run: |
           echo "## 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ -f "test-artifacts/reporter.log" ]; then
             echo "### Test Report" >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
-            cat test-artifacts/reporter.log >> $GITHUB_STEP_SUMMARY
+            # Strip ANSI color codes from the log file
+            sed 's/\x1b\[[0-9;]*m//g' test-artifacts/reporter.log >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           if [ -f "test-artifacts/report.json" ]; then
             echo "### Test Statistics" >> $GITHUB_STEP_SUMMARY
             
