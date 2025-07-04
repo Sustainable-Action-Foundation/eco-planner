@@ -54,6 +54,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
         with:
           driver: docker-container
+          use: true  # Set as default builder
 
       - name: Run tests
         if: ${{ !inputs.skip_tests }}
@@ -74,10 +75,7 @@ jobs:
           # Pull base images
           docker pull node:20-alpine || true
           docker pull mariadb:lts || true
-          
-          # Set buildx as default builder for compose
-          docker buildx use default
-          
+                    
           # Build and run tests (caching handled by GHA cache)
           docker compose -f docker/compose.testing.yaml up --build --remove-orphans
           
