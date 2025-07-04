@@ -63,8 +63,8 @@ RUN rm -rf \
 FROM playwright AS runner
 
 # Copy dependencies from previous stages
-COPY --from=playwright /root/.cache/ms-playwright /root/.cache/ms-playwright
-COPY --from=deps /testing/node_modules ./node_modules
+# COPY --from=playwright /root/.cache/ms-playwright /root/.cache/ms-playwright
+# COPY --from=deps /testing/node_modules ./node_modules
 
 # Copy only necessary files first (better layer caching)
 COPY package.json yarn.lock* ./
