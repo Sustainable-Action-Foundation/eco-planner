@@ -18,7 +18,7 @@ export default defineConfig({
   testDir: "tests/compiled/",
 
   fullyParallel: !CI,
-  workers: CI ? 1 : undefined,
+  workers: "90%",
 
   // One retry in case of flaky tests
   retries: 1,
@@ -59,47 +59,38 @@ export default defineConfig({
     {
       name: "chromium 1440p",
       use: { ...devices["Desktop Chrome"], viewport: { width: 2560, height: 1440 }, channel: "chromium", },
-      dependencies: ["Locale files validation"],
     },
     {
       name: "chromium 1080p",
       use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 }, channel: "chromium", },
-      dependencies: ["Locale files validation"],
     },
     {
       name: "chromium 720p",
       use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 720 }, channel: "chromium", },
-      dependencies: ["Locale files validation"],
     },
     {
       name: "firefox 1440p",
       use: { ...devices["Desktop Firefox"], viewport: { width: 2560, height: 1440 }, },
-      dependencies: ["Locale files validation"],
     },
     {
       name: "firefox 1080p",
       use: { ...devices["Desktop Firefox"], viewport: { width: 1920, height: 1080 }, },
-      dependencies: ["Locale files validation"],
     },
     {
       name: "firefox 720p",
       use: { ...devices["Desktop Firefox"], viewport: { width: 1280, height: 720 }, },
-      dependencies: ["Locale files validation"],
     },
     {
       name: "webkit 1440p",
       use: { ...devices["Desktop Safari"], viewport: { width: 2560, height: 1440 }, },
-      dependencies: ["Locale files validation"],
     },
     {
       name: "webkit 1080p",
       use: { ...devices["Desktop Safari"], viewport: { width: 1920, height: 1080 }, },
-      dependencies: ["Locale files validation"],
     },
     {
       name: "webkit 720p",
       use: { ...devices["Desktop Safari"], viewport: { width: 1280, height: 720 }, },
-      dependencies: ["Locale files validation"],
     }
   ],
 

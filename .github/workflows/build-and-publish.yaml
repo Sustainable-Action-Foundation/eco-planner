@@ -95,7 +95,6 @@ jobs:
       #     restore-keys: |
       #       ${{ runner.os }}-prisma-
 
-
       - name: Run tests
         if: ${{ !inputs.skip_tests }}
         env:
@@ -109,6 +108,9 @@ jobs:
           TEST_MARIADB_ROOT_PASSWORD: ${{ secrets.TEST_MARIADB_ROOT_PASSWORD }}
           BUILDX_EXPERIMENTAL: 1
         run: |
+          # Prune dangling images
+          docker image prune -f || true
+
           # Cache base images
           docker pull node:20-alpine || true
           docker pull mariadb:lts || true
@@ -118,7 +120,10 @@ jobs:
           
           # Build with registry cache
           docker compose -f docker/compose.testing.yaml build
-          docker compose -f docker/compose.testing.yaml up
+          docker compose -f docker/compose.testing.yaml up --remove-orphans
+
+          # Prune dangling images again
+          docker image prune -f || true
 
       - name: Extract test results from container
         if: always()

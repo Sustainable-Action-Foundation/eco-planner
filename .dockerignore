@@ -16,6 +16,7 @@ coverage/
 .nyc_output/
 test-results/
 playwright-report/
+json-report/
 
 # Environment variables (security)
 .env*
