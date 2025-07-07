@@ -162,6 +162,7 @@ input:-webkit-autofill:focus {
   padding-inline: .5rem;
   padding-bottom: .25rem;
   min-height: 150px;
+  max-width: 90ch; /* Figure out why this is needed */
 }
 
 .tiptap p,

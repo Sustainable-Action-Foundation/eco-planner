@@ -1,7 +1,7 @@
 'use client'
 
-import { useCallback } from 'react'
-import { IconArrowBackUp, IconArrowForwardUp, IconTextColor, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconSelect, IconCircle, IconCircleFilled } from "@tabler/icons-react"
+import { useCallback, useEffect, useState } from 'react'
+import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconSelect } from "@tabler/icons-react"
 import { Editor } from "@tiptap/core"
 
 export default function TextEditorMenu({
@@ -9,6 +9,12 @@ export default function TextEditorMenu({
 }: {
   editor: Editor
 }) {
+
+  if (!editor) {
+    return null
+  }
+
+  const [fontSize, setFontSize] = useState<'12px' | '20px' | 'normal'>('normal')
 
   const setLink = useCallback(() => {
     const previousUrl = editor.getAttributes('link').href
@@ -40,6 +46,36 @@ export default function TextEditorMenu({
       alert(e.message)
     }
   }, [editor])
+  
+  // Updates value of font size select whenever a new area of the editor is selected
+  useEffect(() => {
+    const updateFontSize = () => {
+      const currentFontSize = editor.getAttributes('textStyle').fontSize
+      if (currentFontSize === '12px') setFontSize('12px')
+      else if (currentFontSize === '20px') setFontSize('20px')
+      else setFontSize('normal')
+    }
+
+    updateFontSize()
+
+    editor.on('selectionUpdate', updateFontSize)
+    editor.on('transaction', updateFontSize)
+
+    return () => {
+      editor.off('selectionUpdate', updateFontSize)
+      editor.off('transaction', updateFontSize)
+    }
+  }, [editor])
+
+  // Changes the font size
+  const changeFontSize  = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value
+    if (value === 'normal') {
+      editor.chain().focus().unsetFontSize().run()
+    } else {
+      editor.chain().focus().setFontSize(e.target.value).run()
+    }
+  }
 
   return (
     <div className="button-group flex align-items-center margin-0" style={{ backgroundColor: 'var(--gray-95)', padding: '3px', borderRadius: '.25rem .25rem 0 0', borderBottom: '1px solid var(--gray)' }}>
@@ -52,10 +88,10 @@ export default function TextEditorMenu({
         </button>
       </div>
       <div className='inline-flex align-items-center gap-25 padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
-        <select defaultValue="default" className='transparent' style={{ fontSize: '12px', border: '0', outline: '0', '--icon-size': '16px', '--padding': '.25rem' } as React.CSSProperties}>
-          <option value="smaller">Liten text</option>
-          <option value="default">Normal text</option>
-          <option value="larger">Rubrik</option>
+        <select onChange={changeFontSize} value={fontSize}  className='transparent' style={{ fontSize: '12px', border: '0', outline: '0', '--icon-size': '16px', '--padding': '.25rem' } as React.CSSProperties}>
+          <option value="20px">Stor text</option> 
+          <option value="normal">Normal text</option>
+          <option value="12px">Liten text</option>
         </select>
       </div>
       <div className='inline-flex align-items-center gap-25 padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
@@ -64,7 +100,7 @@ export default function TextEditorMenu({
           className={`padding-25 transparent ${editor.getAttributes('textStyle').color === 'grey' ? 'is-active' : ''}`}
           aria-label='toggle grey text'
         >
-           <svg className='grid' aria-hidden='true' xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+           <svg className='grid' aria-hidden='true' xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
             <path d="M9 15v-7a3 3 0 0 1 6 0v7" />
             <path d="M9 11h6" />

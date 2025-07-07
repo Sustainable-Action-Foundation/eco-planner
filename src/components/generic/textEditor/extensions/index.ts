@@ -4,6 +4,7 @@ export { Bold } from './bold'
 export { LineThrough } from './linethrough'
 export { Underline } from './underline'
 export { GreyText } from './greytext'
+export { FontSize } from './fontsize'
 
 // Tiptap extensions
 export { default as Superscript } from '@tiptap/extension-superscript'

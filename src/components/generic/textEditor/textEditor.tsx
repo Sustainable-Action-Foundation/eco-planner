@@ -1,6 +1,7 @@
 'use client'
 
 // TODO: Remove duplicate extension names
+// TODO: Check which extensions are actually used
 
 import { EditorContent, useEditor } from '@tiptap/react'
 import TextEditorMenu from './textEditorMenu'
@@ -26,7 +27,8 @@ import {
   Bold,
   LineThrough,
   Underline,
-  GreyText
+  GreyText,
+  FontSize
 } from './extensions' 
 
 const TextEditor = () => {
@@ -53,6 +55,9 @@ const TextEditor = () => {
       Color,
       History,
       GreyText,
+      FontSize.configure({
+        sizes: ['12px', '20px'],
+      }),
       Details.configure({
         HTMLAttributes: {
           class: 'details',
@@ -119,6 +124,7 @@ const TextEditor = () => {
 
   /* TODO: Apply aria-hidden to empty <p> tags */
   /* TODO: If there are empty tags after the last piece of content, remove them */
+  /* TODO: Keyboard Shortcut for font size and grey-text */
   return (
     <div className='purewhite smooth margin-bottom-300' style={{ border: '1px solid var(--gray)' }}>
       <TextEditorMenu editor={editor} />
