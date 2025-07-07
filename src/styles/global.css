@@ -149,6 +149,14 @@ input:-webkit-autofill:focus {
 
 /* TipTap text editor */
 
+.button-group button {
+  transform: initial;
+} 
+
+.button-group .is-active {
+  background-color: hsl(206, 100%, 80%, .5)
+} 
+
 .tiptap {
   padding-top: .75rem;
   padding-inline: .5rem;
@@ -156,7 +164,9 @@ input:-webkit-autofill:focus {
   min-height: 150px;
 }
 
-.tiptap p {
+.tiptap p,
+.tiptap ol,
+.tiptap ul {
   margin-block: 0;
 }
 

@@ -296,7 +296,7 @@ export const Italic = Extension.create<italicOptions>({
             .setMark('textStyle', { fontStyle: 'italic' })
             .run()
       }
-
     }
   },
+
 })
