@@ -71,9 +71,16 @@ export const Underline = Extension.create<UnderlineOptions>({
             .setMark('textStyle', { textDecoration: 'underline' })
             .run()
       }
-
     }
   },
+  
+  addKeyboardShortcuts() {
+    return {
+      'Mod-u': () => this.editor.commands.toggleUnderline(),
+      'Mod-U': () => this.editor.commands.toggleUnderline(),
+    }
+  },
+
 })
 
 export type LineThroughOptions = {
@@ -146,9 +153,15 @@ export const LineThrough = Extension.create<LineThroughOptions>({
             .setMark('textStyle', { textDecoration: 'line-through' })
             .run()
       }
-
     }
   },
+
+  addKeyboardShortcuts() {
+    return {
+      'Mod-Shift-s': () => this.editor.commands.toggleLineThrough(),
+    }
+  },
+
 })
 
 export type boldOptions = {
@@ -221,9 +234,16 @@ export const Bold = Extension.create<boldOptions>({
             .setMark('textStyle', { fontWeight: 'bold' })
             .run()
       }
-
     }
   },
+
+  addKeyboardShortcuts() {
+    return {
+      'Mod-b': () => this.editor.commands.toggleBold(),
+      'Mod-B': () => this.editor.commands.toggleBold(),
+    }
+  },
+
 })
 
 export type italicOptions = {
@@ -296,6 +316,13 @@ export const Italic = Extension.create<italicOptions>({
             .setMark('textStyle', { fontStyle: 'italic' })
             .run()
       }
+    }
+  },
+
+  addKeyboardShortcuts() {
+    return {
+      'Mod-i': () => this.editor.commands.toggleItalic(),
+      'Mod-I': () => this.editor.commands.toggleItalic(),
     }
   },
 
