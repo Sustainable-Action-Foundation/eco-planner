@@ -161,12 +161,18 @@ model Goal {
   dataSeries          DataSeries?    @relation("data_series")
   // A series of datapoints serving as a "baseline" where no action is taken
   baselineDataSeries  DataSeries?    @relation("baseline_data_series")
+
+  // Combination columns will soon be DEPRECATED
   // A number of other goals, whose DataSeries combine to create a derived data series
   combinationParents  CombinedGoal[] @relation("combined_goal_target")
   // A list of goals which are a combination of this goal and some other
   combinationChildren CombinedGoal[] @relation("combined_goal_parent")
   // A JSON parseable string containing either a number or an object with a "recipie" (ScalingRecipie in @/types) to multiply the data series from combinationParents with
   combinationScale    String?        @map("combination_scale") @db.Text
+
+  howToInherit Recipe[] @relation("how_to_inherit_goal")
+  recipeId String?
+  usedRecipe Recipe? @relation("used_goal_recipe", fields: [recipeId], references: [hash])
 
   // Links related to this goal
   links     Link[]    @relation("goal_link")
@@ -265,6 +271,17 @@ model DataSeries {
 
   @@unique(name: "effectId", [effectActionId, effectGoalId], map: "effect_id")
   @@map("data_series")
+}
+
+model Recipe {
+  // A hash of the JSON data, used as an ID. Risk of hash collisions is basically non-existent when using sha256.
+  hash String @id
+
+  data Json
+
+  templatingGoals Goal[] @relation("how_to_inherit_goal")
+
+  inheritiongGoals Goal[] @relation("used_goal_recipe")
 }
 
 model GoalTag {
