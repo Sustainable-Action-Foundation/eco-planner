@@ -17,6 +17,7 @@ enum RoadmapType {
   REGIONAL
   MUNICIPAL
   LOCAL
+  ORGANIZATIONAL
   OTHER
 }
 
@@ -101,6 +102,8 @@ model Roadmap {
 
   // Comments related to this roadmap
   comments Comment[] @relation("roadmap_comment")
+  // Links related to this meta roadmap
+  links    Link[]    @relation("roadmap_link")
   // Goals related to this roadmap
   goals    Goal[]    @relation("roadmap_goal")
   // Actions related to this roadmap
@@ -169,6 +172,9 @@ model Goal {
   links     Link[]    @relation("goal_link")
   // Comments related to this goal
   comments  Comment[] @relation("goal_comment")
+  // Tags for this goal
+  // Tags are used to categorize goals, such as "climate", "energy", "transport", etc.
+  tags      GoalTag[] @relation("goal_tag")
   // The person who created this goal
   authorId  String    @map("author_id")
   author    User      @relation("goal_author", fields: [authorId], references: [id])
@@ -205,9 +211,8 @@ model DataSeries {
 
   // Unit used for the yearly fields
   // Ignored if used as goal baseline or action outcome, as those should get their unit from the goal
-  unit    String
-  // An optional scale for the data series, for example % or thousands
-  scale   String?
+  // An empty string indicates a missing unit, while null indicates an intentionally unitless data series, such as an amount of electric cars
+  unit    String? @default("")
   // Following is a series values for each year from 2020 to 2050
   // These are the goals for each year
   val2020 Float?  @map("val_2020")
@@ -260,6 +265,16 @@ model DataSeries {
 
   @@unique(name: "effectId", [effectActionId, effectGoalId], map: "effect_id")
   @@map("data_series")
+}
+
+model GoalTag {
+  // The name of a tag is used as the ID, since it doesn't make sense to have multiple different tags with the same name
+  name String @id
+
+  // Goals that are tagged with this tag
+  goals Goal[] @relation("goal_tag")
+
+  @@map("goal_tag")
 }
 
 model Action {
@@ -373,7 +388,7 @@ model Link {
   // Description of the link
   description String?
 
-  // A link should be related to either an action, a goal, XOR a meta roadmap.
+  // A link should be related to either an action, a goal, a roadmap, XOR a meta roadmap.
   // Has to be enforced in the code, as prisma does not support custom constraints and many SQL implementations
   // do not support check constraints on columns with referential actions.
   // Any action this link is related to
@@ -382,6 +397,9 @@ model Link {
   // Any goal this link is related to
   goalId        String?      @map("goal_id")
   goal          Goal?        @relation("goal_link", fields: [goalId], references: [id], onDelete: Cascade)
+  // Any roadmap this link is related to
+  roadmapId     String?      @map("roadmap_id")
+  roadmap       Roadmap?     @relation("roadmap_link", fields: [roadmapId], references: [id], onDelete: Cascade)
   // Any meta roadmap this link is related to
   metaRoadmapId String?      @map("meta_roadmap_id")
   metaRoadmap   MetaRoadmap? @relation("meta_roadmap_link", fields: [metaRoadmapId], references: [id], onDelete: Cascade)

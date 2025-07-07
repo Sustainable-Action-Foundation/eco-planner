@@ -152,12 +152,12 @@ export type GoalInput = Omit<
   dataSeries?: string[];
   baselineDataSeries?: string[] | undefined | null;
   // The unit of measurement for the data series
-  dataUnit: string;
+  dataUnit: string | undefined | null;
   // Scale of the data, for example "millions"
   // Deprecated, please bake the scale into the data series values or unit
   // For example {value: 10, scale: "thousands"} => {value: 10000}
   // or {scale: "millions", unit: "kW"} => {unit: "GW"}
-  dataScale?: string | undefined | null;
+  // dataScale: never;
   // Array of IDs of goals for combinationParents
   inheritFrom?: { id: string, isInverted?: boolean }[] | undefined | null;
   links?: { url: string, description?: string | undefined | null }[] | undefined | null;

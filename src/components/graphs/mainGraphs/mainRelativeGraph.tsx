@@ -18,7 +18,7 @@ export default function MainRelativeGraph({
 }) {
   const { t } = useTranslation("graphs");
 
-  if (!goal.dataSeries || ["procent", "percent", "andel", "ratio", "fraction"].includes(goal.dataSeries.unit.toLowerCase())) {
+  if (!goal.dataSeries || ["procent", "percent", "andel", "ratio", "fraction"].includes(goal.dataSeries.unit?.toLowerCase() ?? "")) {
     return null;
   }
 

@@ -74,6 +74,7 @@ export default function MetaRoadmapForm({
     [RoadmapType.REGIONAL]: t("common:scope.regional"),
     [RoadmapType.MUNICIPAL]: t("common:scope.municipal"),
     [RoadmapType.LOCAL]: t("common:scope.local"),
+    [RoadmapType.ORGANIZATIONAL]: t("common:scope.organizational"),
     [RoadmapType.OTHER]: t("common:scope.other"),
   }
 

@@ -65,7 +65,8 @@
     "submit": "Skicka",
     "compare": "Jämför",
     "close": "Stäng",
-    "unit_missing": "ingen enhet"
+    "unit_missing": "enhet saknas",
+    "unitless": "enhetslös"
   },
   "placeholder": {
     "name": "Användarnamn",
@@ -78,12 +79,14 @@
     "regional": "Regional",
     "municipal": "Kommunal",
     "local": "Lokal",
+    "organizational": "Organisatorisk",
     "other": "Övrig",
     "national_roadmap": "Nationell $t(common:roadmap_series_one)",
     "regional_roadmap": "Regional $t(common:roadmap_series_one)",
     "municipal_roadmap": "Kommunal $t(common:roadmap_series_one)",
     "local_roadmap": "Lokal $t(common:roadmap_series_one)",
-    "other_roadmap": "Övrig $t(common:roadmap_series_one), exempelvis en organisation"
+    "organizational_roadmap": "Organisatorisk $t(common:roadmap_series_one)",
+    "other_roadmap": "Övrig $t(common:roadmap_series_one)"
   },
   "scaling_methods": {
     "geo_mean": "Geometriskt genomsnitt (rekommenderad)",

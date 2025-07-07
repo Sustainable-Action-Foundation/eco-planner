@@ -28,7 +28,7 @@
     "percentage_change": "Procentuell förändring"
   },
   "main_delta_graph": {
-    "annual_change": "Årlig förändring i {{unit}}",
+    "annual_change": "Årlig förändring ({{unit}})",
     "percentage_points": "procentenheter"
   },
   "main_graph": {

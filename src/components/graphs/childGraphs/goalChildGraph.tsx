@@ -107,7 +107,7 @@ export default function GoalChildGraph({
       max: new Date(dataSeriesDataFieldNames[dataSeriesDataFieldNames.length - 1].replace('val', '')).getTime()
     },
     yaxis: {
-      title: { text: goal.dataSeries?.unit },
+      title: { text: goal.dataSeries.unit === null ? t("common:tsx.unitless") : goal.dataSeries.unit || t("common:tsx.unit_missing") },
       labels: { formatter: graphNumberFormatter },
     },
     tooltip: {

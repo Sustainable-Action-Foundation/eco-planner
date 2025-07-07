@@ -53,10 +53,7 @@ export default function RoadmapForm({
     let goals: GoalInput[] = [];
     if (currentFile) {
       try {
-        goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer })));
-        if (goals.some((goal) => goal.dataScale)) {
-          alert(t("forms:roadmap.scale_deprecated"));
-        }
+        goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer })), () => alert(t("forms:roadmap.scale_deprecated")));
       }
       catch (error) {
         setIsLoading(false)
@@ -134,12 +131,7 @@ export default function RoadmapForm({
           .then((buffer) => parseCsv(buffer))
           .then((csv) => {
             checkForBadDecoding(csv, t);
-            return csvToGoalList(csv);
-          })
-          .then((goals) => {
-            if (goals.some((goal) => goal.dataScale)) {
-              alert(t("forms:roadmap.scale_deprecated_extended"));
-            }
+            return csvToGoalList(csv, () => alert(t("forms:roadmap.scale_deprecated_extended")));
           })
           .then(() => setIsLoading(false));
       }

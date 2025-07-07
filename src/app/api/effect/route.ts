@@ -22,15 +22,15 @@ export async function POST(request: NextRequest) {
     return (
       // effect should be an object
       (// impactType may be included, and should in that case be one of the values in ActionImpactType
-      typeof effect === 'object' &&
-      effect != null &&
-      !(effect instanceof Array) &&
-      // actionId and goalId should be strings
-      typeof effect.actionId === 'string' &&
-      typeof effect.goalId === 'string' &&
-      // dataSeries should be an array of strings
-      effect.dataSeries instanceof Array &&
-      effect.dataSeries.every((value) => typeof value === 'string') && (effect.impactType === undefined || Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType)))
+        typeof effect === 'object' &&
+        effect != null &&
+        !(effect instanceof Array) &&
+        // actionId and goalId should be strings
+        typeof effect.actionId === 'string' &&
+        typeof effect.goalId === 'string' &&
+        // dataSeries should be an array of strings
+        effect.dataSeries instanceof Array &&
+        effect.dataSeries.every((value) => typeof value === 'string') && (effect.impactType === undefined || Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType)))
     );
   }
 
@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
         dataSeries: {
           create: {
             ...dataSeries,
-            unit: '',
+            unit: null,
             authorId: session.user.id
           }
         },
@@ -188,22 +188,22 @@ export async function PUT(request: NextRequest) {
     return (
       // effect should be an object
       (typeof effect === 'object' &&
-      effect != null &&
-      !(effect instanceof Array) &&
-      // actionId and goalId should be strings
-      typeof effect.actionId === 'string' &&
-      typeof effect.goalId === 'string' &&
-      // dataSeries should be either undefined or an array of strings
-      (
-        effect.dataSeries === undefined ||
+        effect != null &&
+        !(effect instanceof Array) &&
+        // actionId and goalId should be strings
+        typeof effect.actionId === 'string' &&
+        typeof effect.goalId === 'string' &&
+        // dataSeries should be either undefined or an array of strings
         (
-          effect.dataSeries instanceof Array &&
-          effect.dataSeries.every((value) => typeof value === 'string')
-        )
-      ) &&
-      // impactType may be included, and should in that case be one of the values in ActionImpactType
-      (effect.impactType === undefined || Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType)) && // timestamp should be a number
-      typeof effect.timestamp === 'number')
+          effect.dataSeries === undefined ||
+          (
+            effect.dataSeries instanceof Array &&
+            effect.dataSeries.every((value) => typeof value === 'string')
+          )
+        ) &&
+        // impactType may be included, and should in that case be one of the values in ActionImpactType
+        (effect.impactType === undefined || Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType)) && // timestamp should be a number
+        typeof effect.timestamp === 'number')
     );
   }
 
@@ -335,7 +335,7 @@ export async function PUT(request: NextRequest) {
           upsert: {
             create: {
               ...dataSeries,
-              unit: '',
+              unit: null,
               authorId: session.user.id
             },
             update: {
@@ -375,10 +375,10 @@ export async function DELETE(request: NextRequest) {
     return (
       // effect should be an object
       (typeof effect === 'object' &&
-      effect != null &&
-      !(effect instanceof Array) &&
-      // actionId and goalId should be strings
-      typeof effect.actionId === 'string' && typeof effect.goalId === 'string')
+        effect != null &&
+        !(effect instanceof Array) &&
+        // actionId and goalId should be strings
+        typeof effect.actionId === 'string' && typeof effect.goalId === 'string')
     );
   }
 

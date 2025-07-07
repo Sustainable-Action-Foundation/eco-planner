@@ -253,15 +253,6 @@ export default async function Page(
                 <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
                 : null}
             </GraphGraph>
-
-            {goal.dataSeries?.scale &&
-              <>
-                <p>{t("pages:goal.scale_notice", { scale: goal.dataSeries?.scale })}</p>
-                {[AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel) &&
-                  <strong>{t("pages:goal.scale_deprecation_warning")}</strong>
-                }
-              </>
-            }
           </section>
 
           <section className="margin-block-300">
