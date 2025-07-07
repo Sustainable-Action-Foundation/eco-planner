@@ -1,5 +1,6 @@
 'use client'
 
+import { useCallback } from 'react'
 import { IconArrowBackUp, IconArrowForwardUp, IconTextColor, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconSelect } from "@tabler/icons-react"
 import { Editor } from "@tiptap/core"
 
@@ -8,6 +9,38 @@ export default function TextEditorMenu({
 }: {
   editor: Editor
 }) {
+
+  const setLink = useCallback(() => {
+    const previousUrl = editor.getAttributes('link').href
+    const url = window.prompt('URL', previousUrl)
+
+    // cancelled
+    if (url === null) {
+      return
+    }
+
+    // empty
+    if (url === '') {
+      editor.chain().focus().extendMarkRange('link').unsetLink()
+        .run()
+
+      return
+    }
+
+    // update link
+    try {
+      let properUrl = url.split(':').pop()
+      if (!properUrl?.startsWith('//')) {
+        properUrl = '//' + properUrl
+      }
+
+      editor.chain().focus().extendMarkRange('link').setLink({ href: properUrl })
+        .run()
+    } catch (e: any) {
+      alert(e.message)
+    }
+  }, [editor])
+
   return (
     <div className="control-group">
       <div className="button-group flex align-items-center" style={{ backgroundColor: 'var(--gray-95)', padding: '3px', borderRadius: '.25rem .25rem 0 0', borderBottom: '1px solid var(--gray)' }}>
@@ -66,13 +99,11 @@ export default function TextEditorMenu({
             <IconHighlight className="grid" width={16} height={16} aria-hidden="true" />
           </button>
         </div>
-        {/*
-          <div className='inline-flex align-items-center gap-25 padding-right-50 margin-right-50' style={{ borderRight: '1px solid var(--gray-80)' }}>
-            <button className={`padding-25 transparent ${editor.isActive('link') ? 'is-active' : ''}`} onClick={setLink} aria-label="set link">
-              <IconLink className="grid" width={16} height={16} aria-hidden="true" />
-            </button>
-          </div>
-        */}
+        <div className='inline-flex align-items-center gap-25 padding-right-50 margin-right-50' style={{ borderRight: '1px solid var(--gray-80)' }}>
+          <button className={`padding-25 transparent ${editor.isActive('link') ? 'is-active' : ''}`} onClick={setLink} aria-label="set link">
+            <IconLink className="grid" width={16} height={16} aria-hidden="true" />
+          </button>
+        </div>
         <div className='inline-flex align-items-center gap-25 padding-right-50 margin-right-50'>
           <button className={`padding-25 transparent ${editor.isActive('bulletList') ? 'is-active' : ''}`} onClick={() => editor.chain().focus().toggleBulletList().run()} aria-label="toggle bulleted list">
             <IconList width={16} height={16} className="grid" />
