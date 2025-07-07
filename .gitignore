@@ -140,7 +140,16 @@ dist
 
 # Playwright test results
 certificates
-/test-results
-/playwright-report
-/playwright-results.json
-/test/screenshots
+json-results/
+test-results/
+blob-report/
+playwright-report/
+playwright-results.json/
+test/screenshots/
+
+# Transpiled tests
+tests/compiled/
+tests/report.json
+
+# Prisma generated client
+src/prisma/generated/
