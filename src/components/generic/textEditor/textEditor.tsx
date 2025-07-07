@@ -16,10 +16,11 @@ import DetailsSummary from '@tiptap/extension-details-summary'
 import { Underline, LineThrough, Bold, Italic } from './underlineSpan'
 import TextStyle from '@tiptap/extension-text-style'
 import Link from '@tiptap/extension-link'
-import { IconBold, IconHighlight, IconItalic, IconLink, IconList, IconListNumbers, IconSelect, IconStrikethrough, IconSubscript, IconSuperscript, IconTextColor, IconUnderline } from '@tabler/icons-react'
+import { IconArrowBackUp, IconArrowForwardUp, IconBold, IconHighlight, IconItalic, IconLink, IconList, IconListNumbers, IconSelect, IconStrikethrough, IconSubscript, IconSuperscript, IconTextColor, IconUnderline } from '@tabler/icons-react'
 import { useCallback } from 'react'
 import Placeholder from '@tiptap/extension-placeholder'
 import { Color } from '@tiptap/extension-color'
+import History from '@tiptap/extension-history'
 
 const TextEditor = () => {
   const editor = useEditor({
@@ -43,6 +44,7 @@ const TextEditor = () => {
       Bold,
       Italic,
       Color,
+      History,
       Link.configure({
         openOnClick: true,
         autolink: true,
@@ -151,6 +153,14 @@ const TextEditor = () => {
       <div className='purewhite smooth margin-bottom-300' style={{ border: '1px solid var(--gray)' }}>
         <div className="control-group">
           <div className="button-group flex align-items-center" style={{ backgroundColor: 'var(--gray-95)', padding: '3px', borderRadius: '.25rem .25rem 0 0', borderBottom: '1px solid var(--gray)' }}>
+            <div className='inline-flex align-items-center gap-25 padding-right-50 margin-right-50' style={{ borderRight: '1px solid var(--gray-80)' }}>
+              <button className='padding-25 transparent' onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} aria-label='Undo'>
+                <IconArrowBackUp color="black" className="grid" width={16} height={16} aria-hidden="true" />
+              </button>
+              <button className='padding-25 transparent' onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} aria-label='Redo'>
+                <IconArrowForwardUp color="black" className="grid" width={16} height={16} aria-hidden="true" />
+              </button>
+            </div>
             <div className='inline-flex align-items-center gap-25 padding-right-50 margin-right-50' style={{ borderRight: '1px solid var(--gray-80)' }}>
               <select defaultValue="default" className='transparent' style={{ fontSize: '12px', border: '0', outline: '0', '--icon-size': '16px', '--padding': '.25rem' } as React.CSSProperties}>
                 <option value="smaller">Liten text</option>
