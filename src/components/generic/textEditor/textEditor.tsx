@@ -1,5 +1,7 @@
 'use client'
 
+// TODO: Remove duplicate extension names
+
 import { EditorContent, useEditor } from '@tiptap/react'
 import TextEditorMenu from './textEditorMenu'
 import {
@@ -23,7 +25,8 @@ import {
   Italic,
   Bold,
   LineThrough,
-  Underline
+  Underline,
+  GreyText
 } from './extensions' 
 
 const TextEditor = () => {
@@ -49,6 +52,7 @@ const TextEditor = () => {
       Italic,
       Color,
       History,
+      GreyText,
       Details.configure({
         HTMLAttributes: {
           class: 'details',
