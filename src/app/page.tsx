@@ -124,7 +124,7 @@ export default async function Page(
       <AttributedImage src="/images/solar.jpg" alt="" sizes="(max-width: 1250px) 100vw, 1250px">
         <div className="flex gap-100 flex-wrap-wrap align-items-flex-end justify-content-space-between padding-100 width-100">
           <div>
-            <h1 className="margin-block-25">{t("pages:home.title")}</h1>
+            <h1 className="margin-block-25" data-testid="home-title">{t("pages:home.title")}</h1>
             <AttributeText
               author={"Markus Spiske"}
               authorLink="https://unsplash.com/@markusspiske?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash"

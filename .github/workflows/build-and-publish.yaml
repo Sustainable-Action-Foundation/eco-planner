@@ -5,19 +5,33 @@ on:
     branches:
       - 'main'
       - 'dev'
+      # Temporary to test the workflow
+      - 'tests'
     tags:
       - 'v*.*.*'
   pull_request:
     branches:
       - 'main'
       - 'dev'
+  workflow_dispatch:
+    inputs:
+      should_push:
+        description: 'Should the image be pushed to the registry? (uses default tags for the branch)'
+        required: false
+        default: false
+        type: boolean
+      skip_tests:
+        description: 'Skip tests?'
+        required: false
+        default: false
+        type: boolean
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: sustainable-action-foundation/eco-planner
 
 jobs:
-  docker:
+  build-and-publish:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -25,13 +39,122 @@ jobs:
       attestations: write
       id-token: write
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker-container
+          use: true  # Set as default builder
+
+      - name: Run tests
+        if: ${{ !inputs.skip_tests }}
+        env:
+          TEST_BASE_URL: ${{ secrets.TEST_BASE_URL }}
+          TEST_DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+          TEST_IRON_SESSION_PASSWORD: ${{ secrets.TEST_IRON_SESSION_PASSWORD }}
+          TEST_MAIL_HOST: ${{ secrets.TEST_MAIL_HOST }}
+          TEST_MAIL_USER: ${{ secrets.TEST_MAIL_USER }}
+          TEST_MAIL_PASSWORD: ${{ secrets.TEST_MAIL_PASSWORD }}
+          TEST_MARIADB_DATABASE: ${{ secrets.TEST_MARIADB_DATABASE }}
+          TEST_MARIADB_ROOT_PASSWORD: ${{ secrets.TEST_MARIADB_ROOT_PASSWORD }}
+          BUILDX_EXPERIMENTAL: 1
+        run: |
+          # Clean up
+          docker image prune -f || true
+          
+          # Pull base images
+          docker pull node:20-alpine || true
+          docker pull mariadb:lts || true
+                    
+          # Build and run tests (caching handled by GHA cache)
+          docker compose -f docker/compose.testing.yaml up --build --remove-orphans
+          
+          # Clean up
+          docker image prune -f || true
+
+      - name: Extract test results from container
+        if: always()
+        run: |
+          # Create results directory
+          mkdir -p test-artifacts
+          
+          # Get the container ID
+          CONTAINER_ID=$(docker compose -f docker/compose.testing.yaml ps -aq tests)
+          
+          if [ -n "$CONTAINER_ID" ]; then
+            echo "Found tests container: $CONTAINER_ID"
+            
+            # Copy test files from the container
+            docker cp ${CONTAINER_ID}:/testing/tests/reporter.log test-artifacts/ 2>/dev/null || echo "❌ reporter.log not found"
+            docker cp ${CONTAINER_ID}:/testing/tests/report.json test-artifacts/ 2>/dev/null || echo "❌ report.json not found"
+          else
+            echo "❌ Could not find tests container"
+            echo "Available containers:"
+            docker compose -f docker/compose.testing.yaml ps -a
+          fi
+
+      - name: Generate test summary
+        if: always()
+        run: |
+          echo "## 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "test-artifacts/reporter.log" ]; then
+            echo "### Test Report" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            # Strip ANSI color codes from the log file
+            sed 's/\x1b\[[0-9;]*m//g' test-artifacts/reporter.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ -f "test-artifacts/report.json" ]; then
+            echo "### Test Statistics" >> $GITHUB_STEP_SUMMARY
+            
+            # Parse JSON and extract key metrics
+            TOTAL_TESTS=$(jq -r '.suites | map(.specs | length) | add' test-artifacts/report.json 2>/dev/null || echo "0")
+            PASSED_TESTS=$(jq -r '.suites | map(.specs | map(select(.tests[0].results[0].status == "passed")) | length) | add' test-artifacts/report.json 2>/dev/null || echo "0")
+            FAILED_TESTS=$(jq -r '.suites | map(.specs | map(select(.tests[0].results[0].status == "failed")) | length) | add' test-artifacts/report.json 2>/dev/null || echo "0")
+            DURATION=$(jq -r '.stats.duration' test-artifacts/report.json 2>/dev/null || echo "0")
+            
+            echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| Total Tests | $TOTAL_TESTS |" >> $GITHUB_STEP_SUMMARY
+            echo "| Passed | ✅ $PASSED_TESTS |" >> $GITHUB_STEP_SUMMARY
+            echo "| Failed | ❌ $FAILED_TESTS |" >> $GITHUB_STEP_SUMMARY
+            echo "| Duration | ${DURATION}ms |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            # Show failed tests if any
+            if [ "$FAILED_TESTS" -gt "0" ]; then
+              echo "### ❌ Failed Tests" >> $GITHUB_STEP_SUMMARY
+              jq -r '.suites[] | .specs[] | select(.tests[0].results[0].status == "failed") | "- **" + .title + "**: " + .tests[0].results[0].error.message' test-artifacts/report.json 2>/dev/null >> $GITHUB_STEP_SUMMARY || echo "Failed to parse failed tests" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          
+          echo "### 📊 Build Information" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Run Number**: ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Workflow**: ${{ github.workflow }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.run_number }}
+          path: test-artifacts/
+          retention-days: 30
+          if-no-files-found: warn
+
       - name: Setup docker metadata
         id: metadata
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          # Commits to main are tagged as edge in addition to its branch name tag
-          # Semver-major tags are only created for non-v0 tags
           tags: |
             type=edge
             type=ref,event=branch
@@ -39,7 +162,7 @@ jobs:
             type=semver,pattern={{major}},enable=${{ !startsWith(github.ref, 'refs/tags/v0.') }}
 
       - name: Login to GitHub Container Registry
-        if: github.event_name != 'pull_request'
+        if: ${{ github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.should_push == true) }}
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -49,8 +172,14 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          # Use a separate Dockerfile on non-main branches (contains prisma files in addition to the contents of the main Dockerfile)
-          file: ${{ ( github.ref_type == 'branch' && github.ref != 'refs/heads/main' && './docker/test.Dockerfile' ) || './Dockerfile'}}
-          push: ${{ github.event_name != 'pull_request' }}
+          context: .
+          file: ./docker/app.Dockerfile
+          # Don't push on pull requests, or manual workflow dispatches without the `should_push` input set to true
+          push: ${{ github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.should_push == true) }}
           tags: ${{ steps.metadata.outputs.tags }}
-          build-args: GIT_LONG_HASH=${{ github.sha }}
+          labels: ${{ steps.metadata.outputs.labels }}
+          build-args: |
+            GIT_LONG_HASH=${{ github.sha }}
+            GIT_SHORT_HASH=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

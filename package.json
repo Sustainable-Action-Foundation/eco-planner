@@ -14,11 +14,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "e2e:chrome": "cypress run --browser chrome --headless",
-    "test": "docker compose -f compose.test.yaml up -d",
     "locales:format": "tsx ./src/scripts/localesFormat.ts",
-    "pretest:local": "yarn run build",
-    "test:local": "tsx node_modules/playwright/cli.js test"
+    "test:run": "tsx ./tests/run.ts",
+    "test:clean": "rm -rf test-results & rm -rf playwright-report & rm tests/report.json & rm tests/reporter.log"
   },
   "author": {
     "name": "Sustainable Action Foundation",
@@ -48,7 +46,7 @@
   "type": "module",
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.6.1",
-    "@prisma/client": "^6.6.0",
+    "@prisma/client": "^6.11.0",
     "@tabler/icons-react": "^3.34.0",
     "accept-language": "^3.0.20",
     "apexcharts": "^4.5.0",
@@ -74,13 +72,12 @@
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^19.1.2",
     "@types/regexp.escape": "^2.0.0",
-    "cypress": "^14.3.0",
     "eslint": "^9.24.0",
     "eslint-config-next": "^15.3.0",
     "lorem-ipsum": "^2.0.8",
     "playwright": "^1.51.1",
     "pocketbase": "^0.25.2",
-    "prisma": "^6.6.0",
+    "prisma": "^6.11.0",
     "regexp.escape": "^2.0.1",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3"
@@ -88,10 +85,12 @@
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": "^v22.7.0"
+      "version": ">v22.7.0",
+      "onFail": "warn"
     }
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
-  }
+  },
+  "packageManager": "yarn@1.22.22"
 }

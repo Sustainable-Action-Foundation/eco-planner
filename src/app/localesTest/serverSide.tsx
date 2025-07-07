@@ -9,7 +9,5 @@ export async function ServerSideT({ i18nKey, options, ...props }: { i18nKey: str
   const t = await serveTea(allNamespaces);
   const value = reporter(i18nKey, t(i18nKey, options));
 
-  return (
-    <p {...props}>{value}</p>
-  );
+  return value;
 }
