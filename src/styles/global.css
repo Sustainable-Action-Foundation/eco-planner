@@ -153,6 +153,7 @@ input:-webkit-autofill:focus {
   padding-top: .75rem;
   padding-inline: .5rem;
   padding-bottom: .25rem;
+  min-height: 150px;
 }
 
 .tiptap p {

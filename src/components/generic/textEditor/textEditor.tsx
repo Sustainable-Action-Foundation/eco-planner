@@ -148,9 +148,9 @@ const TextEditor = () => {
   /* TODO: If there are empty tags after the last piece of content, remove them */
   return (
     <>
-      <div className='padding-25 purewhite smooth margin-bottom-300' style={{ border: '1px solid var(--gray)' }}>
+      <div className='purewhite smooth margin-bottom-300' style={{ border: '1px solid var(--gray)' }}>
         <div className="control-group">
-          <div className="button-group flex align-items-center" style={{ backgroundColor: 'var(--gray-95)', padding: '3px', borderRadius: '2px' }}>
+          <div className="button-group flex align-items-center" style={{ backgroundColor: 'var(--gray-95)', padding: '3px', borderRadius: '.25rem .25rem 0 0', borderBottom: '1px solid var(--gray)' }}>
             <div className='inline-flex align-items-center gap-25 padding-right-50 margin-right-50' style={{ borderRight: '1px solid var(--gray-80)' }}>
               <select defaultValue="default" className='transparent' style={{ fontSize: '12px', border: '0', outline: '0', '--icon-size': '16px', '--padding': '.25rem' } as React.CSSProperties}>
                 <option value="smaller">Liten text</option>
@@ -216,7 +216,7 @@ const TextEditor = () => {
             </div>
           </div>
         </div>
-        <EditorContent className='margin-bottom-300' editor={editor} />
+        <EditorContent editor={editor} />
       </div>
     </>
   )
