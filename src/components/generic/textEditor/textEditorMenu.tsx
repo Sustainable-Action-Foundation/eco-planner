@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconSelect } from "@tabler/icons-react"
+import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconSelect, IconDotsVertical } from "@tabler/icons-react"
 import { Editor } from "@tiptap/core"
 
 export default function TextEditorMenu({
@@ -78,8 +78,8 @@ export default function TextEditorMenu({
   }
 
   return (
-    <div className="button-group flex align-items-center margin-0" style={{ backgroundColor: 'var(--gray-95)', padding: '3px', borderRadius: '.25rem .25rem 0 0', borderBottom: '1px solid var(--gray)' }}>
-      <div className='inline-flex align-items-center gap-25 padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
+    <div className="button-group margin-0" style={{ backgroundColor: 'var(--gray-95)', padding: '3px', borderRadius: '.25rem .25rem 0 0', borderBottom: '1px solid var(--gray)', whiteSpace: 'nowrap' }}>
+      <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
         <button className='padding-25 transparent' onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} aria-label='Undo'>
           <IconArrowBackUp color="black" className="grid" width={16} height={16} aria-hidden="true" />
         </button>
@@ -88,15 +88,15 @@ export default function TextEditorMenu({
         </button>
       </div>
       
-      <div className='inline-flex align-items-center gap-25 padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
-        <select onChange={changeFontSize} value={fontSize}  className='transparent' style={{ fontSize: '12px', border: '0', outline: '0', '--icon-size': '16px', '--padding': '.25rem' } as React.CSSProperties}>
+      <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', verticalAlign: 'top', lineHeight: '1' }}>
+        <select aria-label='font size' onChange={changeFontSize} value={fontSize}  className='transparent' style={{ fontSize: '12px', border: '0', outline: '0', '--icon-size': '16px', '--padding': '.25rem' } as React.CSSProperties}>
           <option value="20px">Stor text</option> 
           <option value="normal">Normal text</option>
           <option value="12px">Liten text</option>
         </select>
       </div>
 
-      <div className='inline-flex align-items-center gap-25 padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
+      <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
         <button
           onClick={() => editor.chain().focus().toggleGreyText().run()}
           className={`padding-25 transparent ${editor.getAttributes('textStyle').color === 'grey' ? 'is-active' : ''}`}
@@ -112,7 +112,7 @@ export default function TextEditorMenu({
         </button>
       </div>
       
-      <div className='inline-flex align-items-center gap-25 padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
+      <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
         <button 
           className={`padding-25 transparent ${editor.getAttributes('textStyle').fontStyle === 'italic' ? 'is-active' : ''}`} 
           onClick={() => editor.chain().focus().toggleItalic().run()} 
@@ -171,7 +171,7 @@ export default function TextEditorMenu({
         </button>
       </div>
 
-      <div className='inline-flex align-items-center gap-25 padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
+      <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
         <button 
           className={`padding-25 transparent ${editor.isActive('link') ? 'is-active' : ''}`} 
           onClick={setLink} 
@@ -182,7 +182,7 @@ export default function TextEditorMenu({
         </button>
       </div>
 
-      <div className='inline-flex align-items-center gap-25 padding-right-25 margin-right-25'>
+      <div className='inline-block'>
         <button 
           className={`padding-25 transparent ${editor.isActive('bulletList') ? 'is-active' : ''}`} 
           onClick={() => editor.chain().focus().toggleBulletList().run()} 
@@ -200,13 +200,20 @@ export default function TextEditorMenu({
           <IconListNumbers width={16} height={16} className="grid" aria-hidden='true' />
         </button>
         <button 
-          className="padding-25 transparent" onClick={() => editor.chain().focus().setDetails().run()} 
+          className="padding-25 transparent" 
+          onClick={() => editor.chain().focus().setDetails().run()} 
           disabled={!editor.can().setDetails()} 
           aria-label="add details"
         >
           <IconSelect width={16} height={16} className="grid" aria-hidden='true' />
         </button>
       </div>
+      <button 
+        className="padding-25 transparent" 
+        aria-label="open menu"
+      >
+        <IconDotsVertical width={16} height={16} className="grid" aria-hidden='true' />
+      </button>
     </div>
   )
 }

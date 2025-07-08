@@ -2,6 +2,7 @@
 
 // TODO: Remove duplicate extension names
 // TODO: Check which extensions are actually used
+// TODO: Replace rich text-editor with textarea if no js
 
 import { EditorContent, useEditor } from '@tiptap/react'
 import TextEditorMenu from './textEditorMenu'
