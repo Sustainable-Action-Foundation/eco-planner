@@ -143,8 +143,8 @@ export type RoadmapInput = Omit<
 
 /** The format of t he data needed to create a new goal. */
 export type GoalCreateInput = {
-  /* 
-   * This type is derived from Prisma.GoalCreateInput, but with some fields omitted in clear text for better intellisense readability and maintainability.
+  /**
+   * This type is derived from @type {Prisma.GoalCreateInput}, but with some fields omitted in clear text for better intellisense readability and maintainability.
    * 
    * That being said, if the schema changes, this type will need to be updated manually.
    */
@@ -186,6 +186,8 @@ export type GoalCreateInput = {
    */
   // To link the goal to a roadmap, the API expects the roadmapId to be passed in
   roadmapId: string;
+
+  recipeHash?: string;
 
   // The user inputs data series as an array of strings, which is then converted to a DataSeries object in the API
   rawDataSeries?: string[];

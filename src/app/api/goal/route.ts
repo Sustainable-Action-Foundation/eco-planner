@@ -63,6 +63,8 @@ function isTypeGoalCreateInput(goal: JSONValue): goal is GoalCreateInput {
 
     && (isString(goal.roadmapId))
 
+    && (isUndefined(goal.recipeHash) || isString(goal.recipeHash))
+
     && (isUndefined(goal.rawDataSeries) || isArrayOfStrings(goal.rawDataSeries))
     && (isNullOrUndefined(goal.rawBaselineDataSeries) || isArrayOfStrings(goal.rawBaselineDataSeries))
     && (isNullOrUndefined(goal.dataUnit) || isString(goal.dataUnit))
@@ -143,12 +145,13 @@ export async function POST(request: NextRequest) {
       throw new Error(ClientError.IllegalParent, { cause: 'goal' });
     }
 
-    // If the user tries to inherit from a goal they don't have access to, return IllegalParent
-    for (const relatedGoal of relatedGoals) {
-      if (!relatedGoal) {
-        throw new Error(ClientError.IllegalParent, { cause: 'goal' });
-      }
-    }
+    // TODO - reimplement with recipe
+    // // If the user tries to inherit from a goal they don't have access to, return IllegalParent
+    // for (const relatedGoal of relatedGoals) {
+    //   if (!relatedGoal) {
+    //     throw new Error(ClientError.IllegalParent, { cause: 'goal' });
+    //   }
+    // }
   } catch (error) {
     if (error instanceof Error) {
       if (error.message == ClientError.BadSession) {
@@ -171,37 +174,38 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Prepare for creating data series
-  let dataValues: Partial<DataSeriesDataFields> | undefined | null = null;
-  if (goal.inheritFrom?.length) {
-    // Combine the data series of the parent goals
-    const parentGoals = await Promise.all(goal.inheritFrom.map(({ id }) => getOneGoal(id)));
-    const combinationParents: {
-      isInverted: boolean,
-      parentGoal: {
-        dataSeries: DataSeries | null
-      }
-    }[] = goal.inheritFrom.map(({ id, isInverted }) => {
-      const parentGoal = parentGoals.find(goal => goal?.id === id);
-      return { isInverted: isInverted ?? false, parentGoal: { dataSeries: parentGoal?.dataSeries ?? null } };
-    });
-    dataValues = await recalculateGoal({ combinationScale: goal.combinationScale ?? null, combinationParents });
-  } else if (goal.dataSeries?.length) {
-    // Get data series from the request
-    dataValues = dataSeriesPrep(goal.dataSeries);
-  }
-  // If the data series is invalid, return an error
-  if (dataValues == null) {
-    return Response.json({ message: 'Bad data series' },
-      { status: 400 }
-    );
-  }
+  // TODO - reimplement with recipes
+  // // Prepare for creating data series
+  // let dataValues: Partial<DataSeriesDataFields> | undefined | null = null;
+  // if (goal.inheritFrom?.length) {
+  //   // Combine the data series of the parent goals
+  //   const parentGoals = await Promise.all(goal.inheritFrom.map(({ id }) => getOneGoal(id)));
+  //   const combinationParents: {
+  //     isInverted: boolean,
+  //     parentGoal: {
+  //       dataSeries: DataSeries | null
+  //     }
+  //   }[] = goal.inheritFrom.map(({ id, isInverted }) => {
+  //     const parentGoal = parentGoals.find(goal => goal?.id === id);
+  //     return { isInverted: isInverted ?? false, parentGoal: { dataSeries: parentGoal?.dataSeries ?? null } };
+  //   });
+  //   dataValues = await recalculateGoal({ combinationScale: goal.combinationScale ?? null, combinationParents });
+  // } else if (goal.dataSeries?.length) {
+  //   // Get data series from the request
+  //   dataValues = dataSeriesPrep(goal.dataSeries);
+  // }
+  // // If the data series is invalid, return an error
+  // if (dataValues == null) {
+  //   return Response.json({ message: 'Bad data series' },
+  //     { status: 400 }
+  //   );
+  // }
 
   // Prepare goal baseline (if any)
   let baselineValues: Partial<DataSeriesDataFields> | undefined | null = undefined;
-  if (goal.baselineDataSeries?.length) {
+  if (goal.rawBaselineDataSeries?.length) {
     // Get baseline data series from the request
-    baselineValues = dataSeriesPrep(goal.baselineDataSeries);
+    baselineValues = dataSeriesPrep(goal.rawBaselineDataSeries);
   }
   // If the baseline data series is invalid, return an error
   if (baselineValues === null) {
@@ -221,20 +225,19 @@ export async function POST(request: NextRequest) {
         externalDataset: goal.externalDataset,
         externalTableId: goal.externalTableId,
         externalSelection: goal.externalSelection,
-        combinationScale: goal.combinationScale || undefined,
         author: {
           connect: { id: session.user.id },
         },
         roadmap: {
           connect: { id: goal.roadmapId },
         },
-        dataSeries: {
-          create: {
-            ...dataValues,
-            unit: goal.dataUnit,
-            authorId: session.user.id,
-          },
-        },
+        // dataSeries: {
+        //   create: {
+        //     ...dataValues,
+        //     unit: goal.dataUnit,
+        //     authorId: session.user.id,
+        //   },
+        // },
         baselineDataSeries: baselineValues ? {
           create: {
             ...baselineValues,
@@ -242,9 +245,6 @@ export async function POST(request: NextRequest) {
             authorId: session.user.id,
           },
         } : undefined,
-        combinationParents: {
-          create: [...(goal.inheritFrom ? goal.inheritFrom.map(({ id, isInverted }) => { return ({ parentGoalId: id, isInverted }) }) : [])],
-        },
         links: {
           create: goal.links?.map(link => {
             return {
