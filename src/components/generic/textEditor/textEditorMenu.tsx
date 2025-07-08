@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconSelect, IconDotsVertical } from "@tabler/icons-react"
 import { Editor } from "@tiptap/core"
 
@@ -46,7 +46,7 @@ export default function TextEditorMenu({
       alert(e.message)
     }
   }, [editor])
-  
+
   // Updates value of font size select whenever a new area of the editor is selected
   useEffect(() => {
     const updateFontSize = () => {
@@ -68,7 +68,7 @@ export default function TextEditorMenu({
   }, [editor])
 
   // Changes the font size
-  const changeFontSize  = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const changeFontSize = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value
     if (value === 'normal') {
       editor.chain().focus().unsetFontSize().run()
@@ -77,143 +77,169 @@ export default function TextEditorMenu({
     }
   }
 
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [overflowingChildren, setOverflowingChildren] = useState<Element[]>([]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const containerRect = container.getBoundingClientRect();
+
+    const children = Array.from(container.children);
+    const overflowing = children.filter(child => {
+      const childRect = child.getBoundingClientRect();
+      // Check if child's bottom goes below container's bottom
+      return childRect.bottom > containerRect.bottom;
+    });
+
+    setOverflowingChildren(overflowing);
+  }, []);
+
+
+  console.log(overflowingChildren)
+
   return (
-    <div className="button-group margin-0" style={{ backgroundColor: 'var(--gray-95)', padding: '3px', borderRadius: '.25rem .25rem 0 0', borderBottom: '1px solid var(--gray)', whiteSpace: 'nowrap' }}>
-      <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
-        <button className='padding-25 transparent' onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} aria-label='Undo'>
-          <IconArrowBackUp color="black" className="grid" width={16} height={16} aria-hidden="true" />
-        </button>
-        <button className='padding-25 transparent' onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} aria-label='Redo'>
-          <IconArrowForwardUp color="black" className="grid" width={16} height={16} aria-hidden="true" />
-        </button>
-      </div>
-      
-      <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', verticalAlign: 'top', lineHeight: '1' }}>
-        <select aria-label='font size' onChange={changeFontSize} value={fontSize}  className='transparent' style={{ fontSize: '12px', border: '0', outline: '0', '--icon-size': '16px', '--padding': '.25rem' } as React.CSSProperties}>
-          <option value="20px">Stor text</option> 
-          <option value="normal">Normal text</option>
-          <option value="12px">Liten text</option>
-        </select>
-      </div>
+    <div className="button-group margin-0 flex" style={{ backgroundColor: 'var(--gray-95)', paddingInline: '3px', borderRadius: '.25rem .25rem 0 0', borderBottom: '1px solid var(--gray)' }}>
+      <div ref={containerRef} style={{ overflow: 'hidden', height: '30px'}}>
+        <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', marginBlock: '3px'}}>
+          <button className='padding-25 transparent' onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} aria-label='Undo'>
+            <IconArrowBackUp color="black" className="grid" width={16} height={16} aria-hidden="true" />
+          </button>
+          <button className='padding-25 transparent' onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} aria-label='Redo'>
+            <IconArrowForwardUp color="black" className="grid" width={16} height={16} aria-hidden="true" />
+          </button>
+        </div>
 
-      <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
-        <button
-          onClick={() => editor.chain().focus().toggleGreyText().run()}
-          className={`padding-25 transparent ${editor.getAttributes('textStyle').color === 'grey' ? 'is-active' : ''}`}
-          aria-label='grey text'
-          aria-pressed={editor.getAttributes('textStyle').color === 'grey'}
-        >
-           <svg className='grid' aria-hidden='true' xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-            <path d="M9 15v-7a3 3 0 0 1 6 0v7" />
-            <path d="M9 11h6" />
-            <path d="M5 21h14" color='darkgrey' strokeWidth={3} />
-          </svg>
-        </button>
-      </div>
-      
-      <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
-        <button 
-          className={`padding-25 transparent ${editor.getAttributes('textStyle').fontStyle === 'italic' ? 'is-active' : ''}`} 
-          onClick={() => editor.chain().focus().toggleItalic().run()} 
-          aria-label="italic"
-          aria-pressed={editor.getAttributes('fontStyle').fontWeight === 'italic'}
-        >
-          <IconItalic className="grid" width={16} height={16} aria-hidden="true" />
-        </button>
-        <button 
-          className={`padding-25 transparent ${editor.getAttributes('textStyle').fontWeight === 'bold' ? 'is-active' : ''}`} 
-          onClick={() => editor.chain().focus().toggleBold().run()} 
-          aria-label="bold"
-          aria-pressed={editor.getAttributes('textStyle').fontWeight === 'bold'}
-        >
-          <IconBold className="grid" width={16} height={16} aria-hidden="true" />
-        </button>
-        <button 
-          className={`padding-25 transparent ${editor.getAttributes('textStyle').textDecoration === 'line-through' ? 'is-active' : ''}`} 
-          onClick={() => editor.chain().focus().toggleLineThrough().run()} 
-          aria-label="strike-trough"
-          aria-pressed={editor.getAttributes('textStyle').textDecoration === 'line-through'}
-        >
-          <IconStrikethrough className="grid" width={16} height={16} aria-hidden="true" />
-        </button>
-        <button 
-          className={`padding-25 transparent ${editor.getAttributes('textStyle').textDecoration === 'underline' ? 'is-active' : ''}`} 
-          onClick={() => editor.chain().focus().toggleUnderline().run()} 
-          aria-label="underline"
-          aria-pressed={editor.getAttributes('textStyle').textDecoration === 'underline'}
-        >
-          <IconUnderline className="grid" width={16} height={16} aria-hidden="true" />
-        </button>
-        <button 
-          className={`padding-25 transparent ${editor.isActive('superscript') ? 'is-active' : ''}`} 
-          onClick={() => editor.chain().focus().toggleSuperscript().run()} 
-          aria-label="superscript"
-          aria-pressed={editor.isActive('superscript')}
-        >
-          <IconSuperscript className="grid" width={16} height={16} aria-hidden="true" />
-        </button>
-        <button 
-          className={`padding-25 transparent ${editor.isActive('subscript') ? 'is-active' : ''}`} 
-          onClick={() => editor.chain().focus().toggleSubscript().run()} 
-          aria-label="subscript"
-          aria-pressed={editor.isActive('subscript')}
-        >
-          <IconSubscript className="grid" width={16} height={16} aria-hidden="true" />
-        </button>
-        <button 
-          className={`padding-25 transparent ${editor.isActive('highlight') ? 'is-active' : ''}`} 
-          onClick={() => editor.chain().focus().toggleHighlight().run()} 
-          aria-label="highlight"
-          aria-pressed={editor.isActive('highlight')}
-        >
-          <IconHighlight className="grid" width={16} height={16} aria-hidden="true" />
-        </button>
-      </div>
+        <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', verticalAlign: 'top', lineHeight: '1', marginBlock: '3px'}}>
+          <select aria-label='font size' onChange={changeFontSize} value={fontSize} className='transparent' style={{ fontSize: '12px', border: '0', outline: '0', '--icon-size': '16px', '--padding': '.25rem' } as React.CSSProperties}>
+            <option value="20px">Stor text</option>
+            <option value="normal">Normal text</option>
+            <option value="12px">Liten text</option>
+          </select>
+        </div>
 
-      <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
-        <button 
-          className={`padding-25 transparent ${editor.isActive('link') ? 'is-active' : ''}`} 
-          onClick={setLink} 
-          aria-label="link"
-          aria-pressed={editor.isActive('link')}
-        >
-          <IconLink className="grid" width={16} height={16} aria-hidden="true" />
-        </button>
-      </div>
+        <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', marginBlock: '3px'}}>
+          <button
+            onClick={() => editor.chain().focus().toggleGreyText().run()}
+            className={`padding-25 transparent ${editor.getAttributes('textStyle').color === 'grey' ? 'is-active' : ''}`}
+            aria-label='grey text'
+            aria-pressed={editor.getAttributes('textStyle').color === 'grey'}
+          >
+            <svg className='grid' aria-hidden='true' xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M9 15v-7a3 3 0 0 1 6 0v7" />
+              <path d="M9 11h6" />
+              <path d="M5 21h14" color='darkgrey' strokeWidth={3} />
+            </svg>
+          </button>
+        </div>
 
-      <div className='inline-block'>
-        <button 
-          className={`padding-25 transparent ${editor.isActive('bulletList') ? 'is-active' : ''}`} 
-          onClick={() => editor.chain().focus().toggleBulletList().run()} 
-          aria-label="Bullet list"
-          aria-pressed={editor.isActive('bulletList')}
-        >
-          <IconList width={16} height={16} className="grid" aria-hidden='true' />
-        </button>
-        <button 
-          className={`padding-25 transparent ${editor.isActive('orderedList') ? 'is-active' : ''}`} 
-          onClick={() => editor.chain().focus().toggleOrderedList().run()} 
-          aria-label="Numbered list" 
-          aria-pressed={editor.isActive('orderedList')}
-        >
-          <IconListNumbers width={16} height={16} className="grid" aria-hidden='true' />
-        </button>
-        <button 
-          className="padding-25 transparent" 
-          onClick={() => editor.chain().focus().setDetails().run()} 
-          disabled={!editor.can().setDetails()} 
-          aria-label="add details"
-        >
-          <IconSelect width={16} height={16} className="grid" aria-hidden='true' />
-        </button>
+        <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', marginBlock: '3px'}}>
+          <button
+            className={`padding-25 transparent ${editor.getAttributes('textStyle').fontStyle === 'italic' ? 'is-active' : ''}`}
+            onClick={() => editor.chain().focus().toggleItalic().run()}
+            aria-label="italic"
+            aria-pressed={editor.getAttributes('fontStyle').fontWeight === 'italic'}
+          >
+            <IconItalic className="grid" width={16} height={16} aria-hidden="true" />
+          </button>
+          <button
+            className={`padding-25 transparent ${editor.getAttributes('textStyle').fontWeight === 'bold' ? 'is-active' : ''}`}
+            onClick={() => editor.chain().focus().toggleBold().run()}
+            aria-label="bold"
+            aria-pressed={editor.getAttributes('textStyle').fontWeight === 'bold'}
+          >
+            <IconBold className="grid" width={16} height={16} aria-hidden="true" />
+          </button>
+          <button
+            className={`padding-25 transparent ${editor.getAttributes('textStyle').textDecoration === 'line-through' ? 'is-active' : ''}`}
+            onClick={() => editor.chain().focus().toggleLineThrough().run()}
+            aria-label="strike-trough"
+            aria-pressed={editor.getAttributes('textStyle').textDecoration === 'line-through'}
+          >
+            <IconStrikethrough className="grid" width={16} height={16} aria-hidden="true" />
+          </button>
+          <button
+            className={`padding-25 transparent ${editor.getAttributes('textStyle').textDecoration === 'underline' ? 'is-active' : ''}`}
+            onClick={() => editor.chain().focus().toggleUnderline().run()}
+            aria-label="underline"
+            aria-pressed={editor.getAttributes('textStyle').textDecoration === 'underline'}
+          >
+            <IconUnderline className="grid" width={16} height={16} aria-hidden="true" />
+          </button>
+          <button
+            className={`padding-25 transparent ${editor.isActive('superscript') ? 'is-active' : ''}`}
+            onClick={() => editor.chain().focus().toggleSuperscript().run()}
+            aria-label="superscript"
+            aria-pressed={editor.isActive('superscript')}
+          >
+            <IconSuperscript className="grid" width={16} height={16} aria-hidden="true" />
+          </button>
+          <button
+            className={`padding-25 transparent ${editor.isActive('subscript') ? 'is-active' : ''}`}
+            onClick={() => editor.chain().focus().toggleSubscript().run()}
+            aria-label="subscript"
+            aria-pressed={editor.isActive('subscript')}
+          >
+            <IconSubscript className="grid" width={16} height={16} aria-hidden="true" />
+          </button>
+          <button
+            className={`padding-25 transparent ${editor.isActive('highlight') ? 'is-active' : ''}`}
+            onClick={() => editor.chain().focus().toggleHighlight().run()}
+            aria-label="highlight"
+            aria-pressed={editor.isActive('highlight')}
+          >
+            <IconHighlight className="grid" width={16} height={16} aria-hidden="true" />
+          </button>
+        </div>
+
+        <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', marginBlock: '3px'}}>
+          <button
+            className={`padding-25 transparent ${editor.isActive('link') ? 'is-active' : ''}`}
+            onClick={setLink}
+            aria-label="link"
+            aria-pressed={editor.isActive('link')}
+          >
+            <IconLink className="grid" width={16} height={16} aria-hidden="true" />
+          </button>
+        </div>
+
+        <div className='inline-block' style={{marginBlock: '3px'}}>
+          <button
+            className={`padding-25 transparent ${editor.isActive('bulletList') ? 'is-active' : ''}`}
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+            aria-label="Bullet list"
+            aria-pressed={editor.isActive('bulletList')}
+          >
+            <IconList width={16} height={16} className="grid" aria-hidden='true' />
+          </button>
+          <button
+            className={`padding-25 transparent ${editor.isActive('orderedList') ? 'is-active' : ''}`}
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            aria-label="Numbered list"
+            aria-pressed={editor.isActive('orderedList')}
+          >
+            <IconListNumbers width={16} height={16} className="grid" aria-hidden='true' />
+          </button>
+          <button
+            className="padding-25 transparent"
+            onClick={() => editor.chain().focus().setDetails().run()}
+            disabled={!editor.can().setDetails()}
+            aria-label="add details"
+          >
+            <IconSelect width={16} height={16} className="grid" aria-hidden='true' />
+          </button>
+        </div>
       </div>
-      <button 
-        className="padding-25 transparent" 
+      <button
+        style={{marginBlock: '3px', alignSelf: 'flex-start'}}
+        className="padding-25 transparent position-relative inline-block"
         aria-label="open menu"
       >
         <IconDotsVertical width={16} height={16} className="grid" aria-hidden='true' />
       </button>
+
     </div>
   )
 }
