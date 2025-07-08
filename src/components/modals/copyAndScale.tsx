@@ -4,7 +4,7 @@ import { DataSeries, Goal } from "@prisma/client";
 import { closeModal, openModal } from "./modalFunctions";
 import { useRef, useState } from "react";
 import RepeatableScaling from "../repeatableScaling";
-import { GoalInput, dataSeriesDataFieldNames, ScaleBy, ScaleMethod, ScalingRecipie } from "@/types";
+import { GoalInput, dataSeriesDataFieldNames, ScaleBy, ScaleMethod, ScalingRecipe } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconCircleMinus, IconX } from "@tabler/icons-react";
@@ -20,7 +20,7 @@ export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, set
   let totalWeight: number;
   // Index for getting parentArea and childArea for ScaleBy.Inhabitants and ScaleBy.Area
   let mutableScalarIndex: number = 0;
-  const scalingRecipie: ScalingRecipie = { values: [] }
+  const scalingRecipe: ScalingRecipe = { values: [] }
   // If the input is a single value, use it as the scale factor
   if (scalars.length == 1) {
     // If any of the inputs are files, throw. This will only happen if the user has tampered with the form, so no need to give a nice error message
@@ -35,20 +35,20 @@ export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, set
     if (Number.isFinite(tempScale)) {
       scaleFactor = tempScale;
       if (scalingType == ScaleBy.Custom) {
-        scalingRecipie.values.push({
+        scalingRecipe.values.push({
           type: scalingType,
           value: tempScale,
           weight: Number.isFinite(weight) ? weight : 1,
         });
       } else if (scalingType == ScaleBy.Area || scalingType == ScaleBy.Inhabitants) {
-        scalingRecipie.values.push({
+        scalingRecipe.values.push({
           type: scalingType,
           parentArea: parentAreas[mutableScalarIndex] as string,
           childArea: childAreas[mutableScalarIndex] as string,
           weight: Number.isFinite(weight) ? weight : 1,
         })
       } else {
-        scalingRecipie.values.push({
+        scalingRecipe.values.push({
           value: tempScale,
         });
       }
@@ -58,7 +58,7 @@ export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, set
   else if (scalars.length > 1) {
     switch (scalingMethod) {
       case ScaleMethod.Algebraic:
-        scalingRecipie.method = ScaleMethod.Algebraic;
+        scalingRecipe.method = ScaleMethod.Algebraic;
         totalWeight = 0;
         scaleFactor = 0;
         for (let i = 0; i < scalars.length; i++) {
@@ -82,13 +82,13 @@ export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, set
               scaleFactor += scalar * 1;
             }
             if (scalingType == ScaleBy.Custom) {
-              scalingRecipie.values.push({
+              scalingRecipe.values.push({
                 type: scalingType,
                 value: scalar,
                 weight: Number.isFinite(weight) ? weight : 1,
               });
             } else if (scalingType == ScaleBy.Area || scalingType == ScaleBy.Inhabitants) {
-              scalingRecipie.values.push({
+              scalingRecipe.values.push({
                 type: scalingType,
                 parentArea: parentAreas[mutableScalarIndex] as string,
                 childArea: childAreas[mutableScalarIndex] as string,
@@ -106,7 +106,7 @@ export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, set
         }
         break;
       case ScaleMethod.Multiplicative:
-        scalingRecipie.method = ScaleMethod.Multiplicative;
+        scalingRecipe.method = ScaleMethod.Multiplicative;
         scaleFactor = 1;
         for (let i = 0; i < scalars.length; i++) {
           if (scalars[i] instanceof File) {
@@ -121,12 +121,12 @@ export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, set
           if (Number.isFinite(scalar)) {
             scaleFactor *= scalar;
             if (scalingType == ScaleBy.Custom) {
-              scalingRecipie.values.push({
+              scalingRecipe.values.push({
                 type: scalingType,
                 value: scalar,
               });
             } else if (scalingType == ScaleBy.Area || scalingType == ScaleBy.Inhabitants) {
-              scalingRecipie.values.push({
+              scalingRecipe.values.push({
                 type: scalingType,
                 parentArea: parentAreas[mutableScalarIndex] as string,
                 childArea: childAreas[mutableScalarIndex] as string,
@@ -141,7 +141,7 @@ export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, set
       // Default to geometric scaling
       case ScaleMethod.Geometric:
       default:
-        scalingRecipie.method = ScaleMethod.Geometric;
+        scalingRecipe.method = ScaleMethod.Geometric;
         totalWeight = 0;
         scaleFactor = 1; // This initial value won't affect the result since it's the identity element for multiplication and is not given a weight
 
@@ -166,13 +166,13 @@ export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, set
               scaleFactor *= Math.pow(scalar, 1);
             }
             if (scalingType == ScaleBy.Custom) {
-              scalingRecipie.values.push({
+              scalingRecipe.values.push({
                 type: scalingType,
                 value: scalar,
                 weight: Number.isFinite(weight) ? weight : 1,
               });
             } else if (scalingType == ScaleBy.Area || scalingType == ScaleBy.Inhabitants) {
-              scalingRecipie.values.push({
+              scalingRecipe.values.push({
                 type: scalingType,
                 parentArea: parentAreas[mutableScalarIndex] as string,
                 childArea: childAreas[mutableScalarIndex] as string,
@@ -190,7 +190,7 @@ export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, set
         break;
     }
   }
-  return { scaleFactor, scalingRecipie };
+  return { scaleFactor, scalingRecipe: scalingRecipe };
 }
 
 export default function CopyAndScale({
@@ -237,8 +237,7 @@ export default function CopyAndScale({
       throw new Error("Why is this a file?");
     }
 
-    const { scaleFactor, scalingRecipie } = getScalingResult(form, scalingMethod, setIsLoading);
-    console.log(scalingRecipie)
+    const { scaleFactor, scalingRecipe } = getScalingResult(form, scalingMethod, setIsLoading);
     // Don't proceed if the resultant scale factor is NaN, infinite, or non-numeric for some reason
     if (!Number.isFinite(scaleFactor)) {
       setIsLoading(false);
@@ -265,7 +264,7 @@ export default function CopyAndScale({
       dataSeries: dataSeries,
       roadmapId: copyToId ?? "",
       inheritFrom: [{ id: goal.id }],
-      combinationScale: JSON.stringify(scalingRecipie),
+      combinationScale: JSON.stringify(scalingRecipe),
     };
 
     const formJSON = JSON.stringify(formData);

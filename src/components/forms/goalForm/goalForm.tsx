@@ -7,7 +7,7 @@ import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import formSubmitter from "@/functions/formSubmitter";
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 import mathjs from "@/math";
-import { GoalInput, ScaleBy, ScaleMethod, ScalingRecipie, dataSeriesDataFieldNames, isScalingRecipie } from "@/types";
+import { GoalInput, ScaleBy, ScaleMethod, ScalingRecipe, dataSeriesDataFieldNames, isScalingRecipe } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -57,14 +57,14 @@ export default function GoalForm({
 
   const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(!currentGoal?.combinationParents.length ? DataSeriesType.Static : currentGoal.combinationParents.length >= 2 ? DataSeriesType.Combined : DataSeriesType.Inherited)
   const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baselineDataSeries ? BaselineType.Custom : BaselineType.Initial)
-  const [scalingRecipie, setScalingRecipe] = useState<ScalingRecipie>({ values: [] });
+  const [scalingRecipe, setScalingRecipe] = useState<ScalingRecipe>({ values: [] });
   const [scalingResult, setScalingResult] = useState<number | null>(null);
   const [selectedRoadmap, setSelectedRoadmap] = useState<string>(currentGoal?.roadmapId || roadmapId || "");
 
   useEffect(() => {
     try {
       const parsed = JSON.parse(currentGoal?.combinationScale ?? "")
-      if (isScalingRecipie(parsed)) {
+      if (isScalingRecipe(parsed)) {
         setScalingRecipe(parsed)
       } else if (typeof parsed == "number") {
         setScalingRecipe({ method: ScaleMethod.Geometric, values: [{ value: parsed, weight: 1 }] })
@@ -73,7 +73,7 @@ export default function GoalForm({
     // Fail silently if combination scale is missing, notify user if it's malformed
     catch (error) {
       if (currentGoal?.combinationScale) {
-        console.error("Failed to parse scaling recipie", error)
+        console.error("Failed to parse scaling recipe", error)
       }
     }
   }, [currentGoal]);
@@ -96,7 +96,7 @@ export default function GoalForm({
     const baselineDataSeriesArray = getDataSeries(form, "baselineDataSeries");
     const baselineDataSeries = baselineDataSeriesArray.length > 0 ? baselineDataSeriesArray : undefined; // The baseline may be omitted, in which case we don't want to send an empty array
 
-    const { scalingRecipie: combinationScale } = getScalingResult(formData, scalingRecipie.method || ScaleMethod.Geometric);
+    const { scalingRecipe: combinationScale } = getScalingResult(formData, scalingRecipe.method || ScaleMethod.Geometric);
 
     const inheritFrom: GoalInput["inheritFrom"] = [];
     formData.getAll("inheritFrom")?.forEach((id) => {
@@ -144,10 +144,10 @@ export default function GoalForm({
       if (formElement instanceof HTMLFormElement) {
         const formData = new FormData(formElement);
         const scalingMethod = formData.get("scalingMethod")?.valueOf() as ScaleMethod;
-        const { scaleFactor, scalingRecipie: tempRecipie } = getScalingResult(formData, scalingMethod || ScaleMethod.Geometric);
+        const { scaleFactor, scalingRecipe: tempRecipe } = getScalingResult(formData, scalingMethod || ScaleMethod.Geometric);
         // Avoid setting state if the value hasn't changed.
-        if (tempRecipie !== scalingRecipie) {
-          setScalingRecipe(tempRecipie);
+        if (tempRecipe !== scalingRecipe) {
+          setScalingRecipe(tempRecipe);
         }
         if (Number.isFinite(scaleFactor) && scaleFactor !== scalingResult) {
           setScalingResult(scaleFactor);
@@ -253,29 +253,29 @@ export default function GoalForm({
             <fieldset className="padding-50 smooth position-relative" style={{ border: '1px solid var(--gray-90)' }}>
               <legend>{t("forms:goal.scaling_legend")}</legend>
               <div className="margin-block-100">
-                {scalingRecipie.values.map((value, index) => {
+                {scalingRecipe.values.map((value, index) => {
                   return (
                     <RepeatableScaling
                       key={`scalar-${index}`}
-                      useWeight={scalingRecipie.method != ScaleMethod.Multiplicative}
+                      useWeight={scalingRecipe.method != ScaleMethod.Multiplicative}
                       defaultSpecificValue={value.type == ScaleBy.Custom || !value.type ? value.value : undefined}
                       defaultParentArea={value.type == ScaleBy.Area || value.type == ScaleBy.Inhabitants ? value.parentArea : undefined}
                       defaultChildArea={value.type == ScaleBy.Area || value.type == ScaleBy.Inhabitants ? value.childArea : undefined}
                       defaultScaleBy={value.type || ScaleBy.Custom}
                     > {/* Multiplicative scaling doesn't use weights */}
                       <button type="button" className="grid" aria-label={t("forms:goal.remove_scaling")}
-                        onClick={() => setScalingRecipe({ method: scalingRecipie.method, values: scalingRecipie.values.filter((_, i) => i !== index) })}>
+                        onClick={() => setScalingRecipe({ method: scalingRecipe.method, values: scalingRecipe.values.filter((_, i) => i !== index) })}>
                         <IconCircleMinus aria-hidden="true" width={24} height={24}  />
                       </button>
                     </RepeatableScaling>
                   )
                 })}
               </div>
-              <button type="button" className="margin-block-100" onClick={() => setScalingRecipe({ method: scalingRecipie.method, values: [...scalingRecipie.values, { value: 1 }] })}>{t("forms:goal.add_scaling")}</button>
+              <button type="button" className="margin-block-100" onClick={() => setScalingRecipe({ method: scalingRecipe.method, values: [...scalingRecipe.values, { value: 1 }] })}>{t("forms:goal.add_scaling")}</button>
 
               <label className="block margin-block-100">
                 {t("forms:goal.scaling_method_legend")}
-                <select name="scalingMethod" id="scalingMethod" className="margin-inline-25" defaultValue={scalingRecipie.method || ScaleMethod.Geometric}>
+                <select name="scalingMethod" id="scalingMethod" className="margin-inline-25" defaultValue={scalingRecipe.method || ScaleMethod.Geometric}>
                   <option value={ScaleMethod.Geometric}>{t("common:scaling_methods.geo_mean")}</option>
                   <option value={ScaleMethod.Algebraic}>{t("common:scaling_methods.arith_mean")}</option>
                   <option value={ScaleMethod.Multiplicative}>{t("common:scaling_methods.multiplicative")}</option>

@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       (typeof goal.externalDataset === 'string' || goal.externalDataset === undefined || goal.externalDataset === null) &&
       (typeof goal.externalTableId === 'string' || goal.externalTableId === undefined || goal.externalTableId === null) &&
       (typeof goal.externalSelection === 'string' || goal.externalSelection === undefined || goal.externalSelection === null) &&
-      // "Recipe" for combining data series, can be a stringified number or a stringified object matching the ScalingRecipie type
+      // "Recipe" for combining data series, can be a stringified number or a stringified object matching the ScalingRecipe type
       (typeof goal.combinationScale === 'string' || goal.combinationScale === undefined || goal.combinationScale === null) &&
       // Data series should be either undefined or have a length between 1 and dataSeriesDataFieldNames.length
       ((Array.isArray(goal.dataSeries) && goal.dataSeries.every((entry: JSONValue) => (typeof entry === 'string')) && goal.dataSeries.length <= dataSeriesDataFieldNames.length)
@@ -285,7 +285,7 @@ export async function PUT(request: NextRequest) {
       (typeof goal.externalDataset === 'string' || goal.externalDataset === undefined || goal.externalDataset === null) &&
       (typeof goal.externalTableId === 'string' || goal.externalTableId === undefined || goal.externalTableId === null) &&
       (typeof goal.externalSelection === 'string' || goal.externalSelection === undefined || goal.externalSelection === null) &&
-      // "Recipe" for combining data series, can be a stringified number or a stringified object matching the ScalingRecipie type
+      // "Recipe" for combining data series, can be a stringified number or a stringified object matching the ScalingRecipe type
       (typeof goal.combinationScale === 'string' || goal.combinationScale === undefined || goal.combinationScale === null) &&
       // Data series should be either undefined or have a length between 1 and dataSeriesDataFieldNames.length
       ((Array.isArray(goal.dataSeries) && goal.dataSeries.every((entry: JSONValue) => (typeof entry === 'string')) && goal.dataSeries.length <= dataSeriesDataFieldNames.length)

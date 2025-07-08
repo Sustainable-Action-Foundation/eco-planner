@@ -46,7 +46,7 @@ export enum RoadmapSortBy {
   GoalsRising = "LOW FIRST",
 }
 
-/** Different scaling methods used in scalingRecipie */
+/** Different scaling methods used in scalingRecipe */
 export enum ScaleMethod {
   Algebraic = "ALGEBRAIC",
   Geometric = "GEOMETRIC",
@@ -80,8 +80,8 @@ export type GenericEntry = (
   }
 );
 
-/** Recipie containing all information needed to calculate a scale for a goal. Saved stringified in Goal.combinationScale in the db */
-export type ScalingRecipie = {
+/** Recipe containing all information needed to calculate a scale for a goal. Saved stringified in Goal.combinationScale in the db */
+export type ScalingRecipe = {
   method?: ScaleMethod,
   values: (SimpleScalingValue | AdvancedScalingValue)[]
 }
@@ -102,8 +102,8 @@ export type AdvancedScalingValue = {
 /** The return type of JSON.parse */
 export type JSONValue = Partial<{ [key: string]: JSONValue }> | JSONValue[] | string | number | boolean | null;
 
-export function isScalingRecipie(object: unknown): object is ScalingRecipie {
-  return (typeof object == "object" && (object as ScalingRecipie)?.values instanceof Array)
+export function isScalingRecipe(object: unknown): object is ScalingRecipe {
+  return (typeof object == "object" && (object as ScalingRecipe)?.values instanceof Array)
 }
 
 /** The format of the data needed to create new roadmap metadata. */
