@@ -110,7 +110,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "plugins": [ { "name": "next" } ]
+    "plugins": [ { "name": "next" } ],
+    "noErrorTruncation": true
   },
   "include": [
     "next-env.d.ts",

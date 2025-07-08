@@ -199,6 +199,65 @@ export type GoalCreateInput = {
   links?: { url: string, description?: string | undefined | null }[] | undefined | null;
 }
 
+export type GoalUpdateInput = {
+  /**
+   * This type is derived from @type {Prisma.GoalCreateInput}, but with some fields omitted in clear text for better intellisense readability and maintainability.
+   * 
+   * That being said, if the schema changes, this type will need to be updated manually.
+   */
+
+  /* 
+   * These fields are commented out since they are not applicable in the API
+   */
+  // id?: string
+  // createdAt?: Date | string
+  // updatedAt?: Date | string
+
+  name?: string | null
+  description?: string | null
+  indicatorParameter?: string
+
+  isFeatured?: boolean
+
+  externalDataset?: string | null
+  externalTableId?: string | null
+  externalSelection?: string | null
+
+  /*
+   * The relational fields are commented out since they are not applicable in the API
+   */
+  // dataSeries?: DataSeriesCreateNestedOneWithoutGoalInput
+  // baselineDataSeries?: DataSeriesCreateNestedOneWithoutBaselineInput
+  // recipeUsed?: RecipeCreateNestedOneWithoutUsedInGoalsInput
+  // recipeSuggestions?: RecipeCreateNestedManyWithoutSuggestedInGoalsInput
+  // links?: LinkCreateNestedManyWithoutGoalInput
+  // comments?: CommentCreateNestedManyWithoutGoalInput
+  // tags?: GoalTagCreateNestedManyWithoutGoalsInput
+  // author: UserCreateNestedOneWithoutAuthoredGoalsInput
+  // effects?: EffectCreateNestedManyWithoutGoalInput
+  // roadmap: RoadmapCreateNestedOneWithoutGoalsInput
+
+  /* 
+   * Non-prisma fields
+   * These are used to make the API more usable and nice to deal with due to formatting and types.
+   */
+  // To find the goal to update
+  goalId: string;
+
+  timestamp?: number
+
+  recipeHash?: string;
+
+  // The user inputs data series as an array of strings, which is then converted to a DataSeries object in the API
+  rawDataSeries?: string[];
+  rawBaselineDataSeries?: string[] | undefined | null;
+  // The unit of measurement for the data series
+  dataUnit?: string | undefined | null;
+
+  // TODO - DEPRECATED - Will be migrated to description
+  links?: { url: string, description?: string | undefined | null }[] | undefined | null;
+}
+
 /** The format of the data needed to create a new action. */
 export type ActionInput = Omit<
   Prisma.ActionCreateInput,
