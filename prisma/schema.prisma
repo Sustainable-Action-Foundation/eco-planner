@@ -2,8 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
-  output = "../src/prisma/generated"
+  provider      = "prisma-client-js"
+  output        = "../src/prisma/generated"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x", "debian-openssl-3.0.x"]
 }
 
@@ -157,22 +157,25 @@ model Goal {
   // JSON string containing the selection for the external dataset. Is sent in the body of the request to the external API
   externalSelection String? @map("external_selection") @db.Text
 
-  // A series of datapoints representing the goals for each year
-  dataSeries          DataSeries?    @relation("data_series")
-  // A series of datapoints serving as a "baseline" where no action is taken
-  baselineDataSeries  DataSeries?    @relation("baseline_data_series")
+  // A series of data points representing the goals for each year
+  dataSeries         DataSeries? @relation("data_series")
+  // A series of data points serving as a "baseline" where no action is taken
+  baselineDataSeries DataSeries? @relation("baseline_data_series")
 
   // Combination columns will soon be DEPRECATED
   // A number of other goals, whose DataSeries combine to create a derived data series
   combinationParents  CombinedGoal[] @relation("combined_goal_target")
   // A list of goals which are a combination of this goal and some other
   combinationChildren CombinedGoal[] @relation("combined_goal_parent")
-  // A JSON parseable string containing either a number or an object with a "recipie" (ScalingRecipie in @/types) to multiply the data series from combinationParents with
+  // A JSON parsable string containing either a number or an object with a "recipe" (ScalingRecipe in @/types) to multiply the data series from combinationParents with
   combinationScale    String?        @map("combination_scale") @db.Text
 
-  howToInherit Recipe[] @relation("how_to_inherit_goal")
-  recipeId String?
-  usedRecipe Recipe? @relation("used_goal_recipe", fields: [recipeId], references: [hash])
+  // If this goal inherited it's data then it will have been sent through this recipe
+  recipeUsedId String? @map("recipe_used_id")
+  recipeUsed   Recipe? @relation("used_recipe", fields: [recipeUsedId], references: [hash])
+
+  // When inheriting data from this goal, these suggestions will appear for the user to choose from e.g. "Scale by area" or "Scale by population"
+  recipeSuggestions Recipe[] @relation("inheritance_suggestions")
 
   // Links related to this goal
   links     Link[]    @relation("goal_link")
@@ -193,6 +196,7 @@ model Goal {
   @@map("goal")
 }
 
+// TODO - Remove. Recipes will replace this functionality
 model CombinedGoal {
   // The goal which is the "target" for the calculation
   resultingGoalId String  @map("resulting_goal_id")
@@ -277,11 +281,11 @@ model Recipe {
   // A hash of the JSON data, used as an ID. Risk of hash collisions is basically non-existent when using sha256.
   hash String @id
 
-  data Json
+  recipe Json @db.Json
 
-  templatingGoals Goal[] @relation("how_to_inherit_goal")
+  suggestedInGoals Goal[] @relation("inheritance_suggestions")
 
-  inheritiongGoals Goal[] @relation("used_goal_recipe")
+  usedInGoals Goal[] @relation("used_recipe")
 }
 
 model GoalTag {
