@@ -12,10 +12,6 @@ export default function TextEditorMenu({
   editor: Editor
 }) {
 
-  if (!editor) {
-    return null
-  }
-
   const [fontSize, setFontSize] = useState<'12px' | '20px' | 'normal'>('normal')
 
   const setLink = useCallback(() => {
@@ -115,7 +111,9 @@ export default function TextEditorMenu({
 
   const [showMenu, setShowMenu] = useState<boolean>(false)
 
-  console.log(overflowingChildren)
+  if (!editor) {
+    return null
+  }
 
   return (
     <div className="button-group margin-0 flex" style={{ backgroundColor: 'var(--gray-95)', paddingInline: '3px', borderRadius: '.25rem .25rem 0 0', borderBottom: '1px solid var(--gray)' }}>
