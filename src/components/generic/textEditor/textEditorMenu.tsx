@@ -80,7 +80,8 @@ export default function TextEditorMenu({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [overflowingChildren, setOverflowingChildren] = useState<Element[]>([]);
 
-  useEffect(() => {
+  // Function to check which children overflow
+  const checkOverflow = () => {
     const container = containerRef.current;
     if (!container) return;
 
@@ -89,11 +90,25 @@ export default function TextEditorMenu({
     const children = Array.from(container.children);
     const overflowing = children.filter(child => {
       const childRect = child.getBoundingClientRect();
-      // Check if child's bottom goes below container's bottom
       return childRect.bottom > containerRect.bottom;
     });
 
     setOverflowingChildren(overflowing);
+  };
+
+  useEffect(() => {
+    checkOverflow(); // initial check
+
+    if (!containerRef.current) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      checkOverflow();
+    });
+
+    resizeObserver.observe(containerRef.current);
+
+    // Cleanup on unmount
+    return () => resizeObserver.disconnect();
   }, []);
 
 
@@ -101,8 +116,8 @@ export default function TextEditorMenu({
 
   return (
     <div className="button-group margin-0 flex" style={{ backgroundColor: 'var(--gray-95)', paddingInline: '3px', borderRadius: '.25rem .25rem 0 0', borderBottom: '1px solid var(--gray)' }}>
-      <div ref={containerRef} style={{ overflow: 'hidden', height: '30px'}}>
-        <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', marginBlock: '3px'}}>
+      <div ref={containerRef} style={{ overflow: 'hidden', height: '30px' }}>
+        <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', marginBlock: '3px' }}>
           <button className='padding-25 transparent' onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} aria-label='Undo'>
             <IconArrowBackUp color="black" className="grid" width={16} height={16} aria-hidden="true" />
           </button>
@@ -111,7 +126,7 @@ export default function TextEditorMenu({
           </button>
         </div>
 
-        <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', verticalAlign: 'top', lineHeight: '1', marginBlock: '3px'}}>
+        <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', verticalAlign: 'top', lineHeight: '1', marginBlock: '3px' }}>
           <select aria-label='font size' onChange={changeFontSize} value={fontSize} className='transparent' style={{ fontSize: '12px', border: '0', outline: '0', '--icon-size': '16px', '--padding': '.25rem' } as React.CSSProperties}>
             <option value="20px">Stor text</option>
             <option value="normal">Normal text</option>
@@ -119,7 +134,7 @@ export default function TextEditorMenu({
           </select>
         </div>
 
-        <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', marginBlock: '3px'}}>
+        <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', marginBlock: '3px' }}>
           <button
             onClick={() => editor.chain().focus().toggleGreyText().run()}
             className={`padding-25 transparent ${editor.getAttributes('textStyle').color === 'grey' ? 'is-active' : ''}`}
@@ -135,7 +150,7 @@ export default function TextEditorMenu({
           </button>
         </div>
 
-        <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', marginBlock: '3px'}}>
+        <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', marginBlock: '3px' }}>
           <button
             className={`padding-25 transparent ${editor.getAttributes('textStyle').fontStyle === 'italic' ? 'is-active' : ''}`}
             onClick={() => editor.chain().focus().toggleItalic().run()}
@@ -194,7 +209,7 @@ export default function TextEditorMenu({
           </button>
         </div>
 
-        <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', marginBlock: '3px'}}>
+        <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', marginBlock: '3px' }}>
           <button
             className={`padding-25 transparent ${editor.isActive('link') ? 'is-active' : ''}`}
             onClick={setLink}
@@ -205,7 +220,7 @@ export default function TextEditorMenu({
           </button>
         </div>
 
-        <div className='inline-block' style={{marginBlock: '3px'}}>
+        <div className='inline-block' style={{ marginBlock: '3px' }}>
           <button
             className={`padding-25 transparent ${editor.isActive('bulletList') ? 'is-active' : ''}`}
             onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -232,13 +247,26 @@ export default function TextEditorMenu({
           </button>
         </div>
       </div>
-      <button
-        style={{marginBlock: '3px', alignSelf: 'flex-start'}}
-        className="padding-25 transparent position-relative inline-block"
-        aria-label="open menu"
-      >
-        <IconDotsVertical width={16} height={16} className="grid" aria-hidden='true' />
-      </button>
+
+      {overflowingChildren.length > 0 && (
+        <button
+          style={{ marginBlock: '3px', alignSelf: 'flex-start' }}
+          className="padding-25 transparent position-relative inline-block"
+          aria-label="open menu"
+          aria-hidden="true"
+        >
+          <IconDotsVertical width={16} height={16} className="grid" aria-hidden='true' />
+          <div className='position-absolute flex' style={{ right: '0', top: 'calc(100% + 4px)', zIndex: '10' }}>
+            {overflowingChildren.map((el, i) => (
+              <div
+                key={i}
+                // Render actual HTML inside the li
+                dangerouslySetInnerHTML={{ __html: el.innerHTML || 'Unknown content' }}
+              ></div>
+            ))}
+          </div>
+        </button>
+      )}
 
     </div>
   )
