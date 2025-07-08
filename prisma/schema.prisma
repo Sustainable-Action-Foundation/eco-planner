@@ -162,14 +162,6 @@ model Goal {
   // A series of data points serving as a "baseline" where no action is taken
   baselineDataSeries DataSeries? @relation("baseline_data_series")
 
-  // Combination columns will soon be DEPRECATED
-  // A number of other goals, whose DataSeries combine to create a derived data series
-  combinationParents  CombinedGoal[] @relation("combined_goal_target")
-  // A list of goals which are a combination of this goal and some other
-  combinationChildren CombinedGoal[] @relation("combined_goal_parent")
-  // A JSON parsable string containing either a number or an object with a "recipe" (ScalingRecipe in @/types) to multiply the data series from combinationParents with
-  combinationScale    String?        @map("combination_scale") @db.Text
-
   // If this goal inherited it's data then it will have been sent through this recipe
   recipeUsedId String? @map("recipe_used_id")
   recipeUsed   Recipe? @relation("used_recipe", fields: [recipeUsedId], references: [hash])
@@ -194,21 +186,6 @@ model Goal {
   roadmap   Roadmap   @relation("roadmap_goal", fields: [roadmapId], references: [id], onDelete: Cascade)
 
   @@map("goal")
-}
-
-// TODO - Remove. Recipes will replace this functionality
-model CombinedGoal {
-  // The goal which is the "target" for the calculation
-  resultingGoalId String  @map("resulting_goal_id")
-  resultingGoal   Goal    @relation("combined_goal_target", fields: [resultingGoalId], references: [id])
-  // The goal used as a factor in multiplication
-  parentGoalId    String  @map("parent_goal_id")
-  parentGoal      Goal    @relation("combined_goal_parent", fields: [parentGoalId], references: [id])
-  // If isInverted == true, use the inverse (1/x rather than x) of all values in parentGoal
-  isInverted      Boolean @default(false) @map("is_inverted")
-
-  @@unique([resultingGoalId, parentGoalId])
-  @@map("combined_goal")
 }
 
 model DataSeries {

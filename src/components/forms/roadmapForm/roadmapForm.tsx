@@ -5,7 +5,7 @@ import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
 import formSubmitter from "@/functions/formSubmitter";
 import parseCsv, { csvToGoalList } from "@/functions/parseCsv";
 import { LoginData } from "@/lib/session";
-import { AccessControlled, GoalInput, RoadmapInput } from "@/types";
+import { AccessControlled, GoalCreateInput, RoadmapInput } from "@/types";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
 import { useEffect, useMemo, useState } from "react";
 import styles from '../forms.module.css';
@@ -50,7 +50,7 @@ export default function RoadmapForm({
       form.namedItem("viewGroups")
     )
 
-    let goals: GoalInput[] = [];
+    let goals: GoalCreateInput[] = [];
     if (currentFile) {
       try {
         goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer })), () => alert(t("forms:roadmap.scale_deprecated")));
@@ -69,7 +69,7 @@ export default function RoadmapForm({
       }
     })
 
-    const formData: RoadmapInput & { roadmapId?: string, goals?: GoalInput[], timestamp: number } = {
+    const formData: RoadmapInput & { roadmapId?: string, goals?: GoalCreateInput[], timestamp: number } = {
       description: (form.namedItem("description") as HTMLTextAreaElement)?.value || undefined,
       editors: editUsers,
       viewers: viewUsers,

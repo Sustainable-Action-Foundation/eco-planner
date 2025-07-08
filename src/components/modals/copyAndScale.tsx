@@ -4,7 +4,7 @@ import { DataSeries, Goal } from "@prisma/client";
 import { closeModal, openModal } from "./modalFunctions";
 import { useRef, useState } from "react";
 import RepeatableScaling from "../repeatableScaling";
-import { GoalInput, dataSeriesDataFieldNames, ScaleBy, ScaleMethod, ScalingRecipe } from "@/types";
+import { GoalCreateInput, dataSeriesDataFieldNames, ScaleBy, ScaleMethod, ScalingRecipe } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconCircleMinus, IconX } from "@tabler/icons-react";
@@ -256,7 +256,7 @@ export default function CopyAndScale({
       }
     }
 
-    const formData: GoalInput & { roadmapId: string } = {
+    const formData: GoalCreateInput & { roadmapId: string } = {
       name: goal.name,
       description: goal.description,
       indicatorParameter: goal.indicatorParameter,

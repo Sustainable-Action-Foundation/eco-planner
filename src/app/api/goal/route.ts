@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/session"
 import prisma from "@/prismaClient";
-import { AccessControlled, AccessLevel, ClientError, dataSeriesDataFieldNames, DataSeriesDataFields, GoalInput, JSONValue } from "@/types";
+import { AccessControlled, AccessLevel, ClientError, dataSeriesDataFieldNames, DataSeriesDataFields, GoalCreateInput, JSONValue } from "@/types";
 import { DataSeries, Prisma } from "@prisma/client";
 import accessChecker from "@/lib/accessChecker";
 import { revalidateTag } from "next/cache";
@@ -10,6 +10,73 @@ import pruneOrphans from "@/functions/pruneOrphans";
 import { cookies } from "next/headers";
 import getOneGoal from "@/fetchers/getOneGoal";
 import { recalculateGoal } from "@/functions/recalculateGoal";
+
+function isNull(value: unknown): value is null {
+  return value === null;
+}
+
+function isUndefined(value: unknown): value is undefined {
+  return value === undefined;
+}
+
+function isNullOrUndefined(value: unknown): value is null | undefined {
+  return value === null || value === undefined;
+}
+
+function isString(value: unknown): value is string {
+  return !isNullOrUndefined(value) && typeof value === 'string' && value.length > 0;
+}
+
+function isBoolean(value: unknown): value is boolean {
+  return !isNullOrUndefined(value) && typeof value === 'boolean';
+}
+
+function isDate(value: unknown): value is Date {
+  return !isNullOrUndefined(value) && value instanceof Date && !isNaN(value.getTime());
+}
+
+function isArray(value: unknown): value is unknown[] {
+  return !isNullOrUndefined(value) && Array.isArray(value);
+}
+
+function isArrayOfStrings(value: unknown): value is string[] {
+  return isArray(value) && value.every(item => isString(item));
+}
+
+// Type guard and check if the request body is a valid GoalInput
+function isTypeGoalCreateInput(goal: JSONValue): goal is GoalCreateInput {
+  return (
+    typeof goal === 'object'
+    && !isNullOrUndefined(goal)
+    && !isArray(goal)
+    && Object.keys(goal).length > 0 // Ensure it's not an empty object
+
+    && (isNullOrUndefined(goal.name) || isString(goal.name))
+    && (isNullOrUndefined(goal.description) || isString(goal.description))
+    && (isString(goal.indicatorParameter))
+
+    && (isUndefined(goal.isFeatured) || isBoolean(goal.isFeatured))
+
+    && (isNullOrUndefined(goal.externalDataset) || isString(goal.externalDataset))
+    && (isNullOrUndefined(goal.externalTableId) || isString(goal.externalTableId))
+    && (isNullOrUndefined(goal.externalSelection) || isString(goal.externalSelection))
+
+    && (isString(goal.roadmapId))
+
+    && (isUndefined(goal.rawDataSeries) || isArrayOfStrings(goal.rawDataSeries))
+    && (isNullOrUndefined(goal.rawBaselineDataSeries) || isArrayOfStrings(goal.rawBaselineDataSeries))
+    && (isNullOrUndefined(goal.dataUnit) || isString(goal.dataUnit))
+
+    && (isNullOrUndefined(goal.links) || (isArray(goal.links) && goal.links.every(link => (
+      typeof link === 'object'
+      && !isNullOrUndefined(link)
+      && !Array.isArray(link)
+      && isString(link.url)
+      && (isNullOrUndefined(link.description) || isString(link.description))
+    ))))
+  );
+}
+
 
 /**
  * Handles POST requests to the goal API
@@ -20,62 +87,6 @@ export async function POST(request: NextRequest) {
     request.json() as Promise<JSONValue>,
   ]);
 
-  // Type guard and check if the request body is a valid GoalInput
-  function isGoal(goal: JSONValue): goal is GoalInput & { roadmapId: string } {
-    return (
-      // Should be a non-null object
-      typeof goal === 'object' &&
-      goal !== null &&
-      !Array.isArray(goal) &&
-      // Typecheck properties
-      (typeof goal.name === 'string' || goal.name === undefined || goal.name === null) &&
-      (typeof goal.description === 'string' || goal.description === undefined || goal.description === null) &&
-      // Indicator parameter must be a non-empty string
-      (typeof goal.indicatorParameter === 'string' && goal.indicatorParameter.length > 0) &&
-      (typeof goal.isFeatured === 'boolean' || goal.isFeatured === undefined) &&
-      (typeof goal.externalDataset === 'string' || goal.externalDataset === undefined || goal.externalDataset === null) &&
-      (typeof goal.externalTableId === 'string' || goal.externalTableId === undefined || goal.externalTableId === null) &&
-      (typeof goal.externalSelection === 'string' || goal.externalSelection === undefined || goal.externalSelection === null) &&
-      // "Recipe" for combining data series, can be a stringified number or a stringified object matching the ScalingRecipe type
-      (typeof goal.combinationScale === 'string' || goal.combinationScale === undefined || goal.combinationScale === null) &&
-      // Data series should be either undefined or have a length between 1 and dataSeriesDataFieldNames.length
-      ((Array.isArray(goal.dataSeries) && goal.dataSeries.every((entry: JSONValue) => (typeof entry === 'string')) && goal.dataSeries.length <= dataSeriesDataFieldNames.length)
-        || goal.dataSeries === undefined) &&
-      // baselineDataSeries can be a valid data series to set values, undefined to not set a baseline, or null to delete the baseline
-      ((Array.isArray(goal.baselineDataSeries) && goal.baselineDataSeries.every((entry: JSONValue) => (typeof entry === 'string')) && goal.baselineDataSeries.length > 0 && goal.baselineDataSeries.length <= dataSeriesDataFieldNames.length)
-        || goal.baselineDataSeries === undefined || goal.baselineDataSeries === null) &&
-      // dataUnit should be a string or null, but can also be undefined, which will be defaulted to an empty string in the database. null is treated as intentionally unitless while empty string/undefined is treated as a missing unit.
-      (typeof goal.dataUnit === 'string' || goal.dataUnit === undefined || goal.dataUnit === null) &&
-      // TODO: dataScale is deprecated, to be removed in next database update
-      (typeof goal.dataScale === 'string' || goal.dataScale === undefined || goal.dataScale === null) &&
-      ((Array.isArray(goal.inheritFrom) && goal.inheritFrom.every((entry: JSONValue) => (
-        typeof entry === 'object' &&
-        entry !== null &&
-        !Array.isArray(entry) &&
-        typeof entry.id === 'string' &&
-        (typeof entry.isInverted === 'boolean' || entry.isInverted === undefined)
-      ))) || goal.inheritFrom === undefined || goal.inheritFrom === null) &&
-      ((Array.isArray(goal.links) && goal.links.every((entry: JSONValue) => (
-        typeof entry === 'object' &&
-        entry !== null &&
-        !Array.isArray(entry) &&
-        typeof entry.url === 'string' &&
-        (typeof entry.description === 'string' || entry.description === undefined || entry.description === null)
-      ))) || goal.links === undefined || goal.links === null) &&
-      // Roadmap ID must be a non-empty string
-      // Invalid and forbidden IDs are rejected further down
-      (typeof goal.roadmapId === 'string' && goal.roadmapId.length > 0) &&
-      // Either dataSeries or inheritFrom must be defined and not null or empty
-      ((goal.dataSeries?.length ?? 0) > 0 || (goal.inheritFrom?.length ?? 0) > 0)
-    );
-  }
-
-  if (!isGoal(goal)) {
-    return Response.json({ message: 'Invalid request body' },
-      { status: 400 }
-    );
-  }
-
   // Validate session
   if (!session.user?.id) {
     return Response.json({ message: 'Unauthorized' },
@@ -83,9 +94,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Validate form data type
+  if (!isTypeGoalCreateInput(goal)) {
+    return Response.json({ message: 'Invalid request body' },
+      { status: 400 }
+    );
+  }
+
   try {
-    // Get user, roadmap, and related goals
-    const [user, roadmap, relatedGoals] = await Promise.all([
+    // Get user, roadmap
+    const [user, roadmap] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
         select: { id: true, username: true, isAdmin: true, userGroups: true }
@@ -101,7 +119,6 @@ export async function POST(request: NextRequest) {
           isPublic: true,
         }
       }),
-      Promise.all([...(goal?.inheritFrom ? goal.inheritFrom.map(({ id }) => getOneGoal(id)) : [])]),
     ]);
 
     // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
@@ -270,7 +287,7 @@ export async function PUT(request: NextRequest) {
   ]);
 
   // Type guard and check if the request body is a valid GoalInput
-  function isGoal(goal: JSONValue): goal is Partial<GoalInput> & { goalId: string, timestamp?: number } {
+  function isGoal(goal: JSONValue): goal is Partial<GoalCreateInput> & { goalId: string, timestamp?: number } {
     return (
       // Should be a non-null object
       typeof goal === 'object' &&

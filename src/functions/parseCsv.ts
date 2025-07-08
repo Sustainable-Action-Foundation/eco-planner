@@ -1,4 +1,4 @@
-import { GoalInput, dataSeriesDataFieldNames } from "@/types";
+import { GoalCreateInput, dataSeriesDataFieldNames } from "@/types";
 
 export default function parseCsv(csv: ArrayBuffer): string[][] {
   // Despite Windows-1252 being more common than UTF-8 in a Windows/Microsoft environment (such as when exporting CSV files from Excel),
@@ -40,7 +40,7 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
   }
 
   const headerIndex: { [key: string]: number | undefined } = {};
-  const output: GoalInput[] = [];
+  const output: GoalCreateInput[] = [];
 
   // Check that all headers are present and get their indices
   for (const i of Object.keys(nonNumericHeaders)) {

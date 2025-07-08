@@ -1,9 +1,9 @@
-import { dataSeriesDataFieldNames, GoalInput } from "@/types";
+import { dataSeriesDataFieldNames, GoalCreateInput } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 
 
 export default function goalInputFromGoalArray(goals: (Goal & { dataSeries: DataSeries | null } | null)[], combinationScale?: string | null) {
-  const output: GoalInput[] = [];
+  const output: GoalCreateInput[] = [];
 
   for (const goal of goals || []) {
     if (!goal || !goal.dataSeries) {

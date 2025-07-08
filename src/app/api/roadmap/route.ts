@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/session"
 import prisma from "@/prismaClient";
-import { AccessControlled, AccessLevel, ClientError, GoalInput, RoadmapInput } from "@/types";
+import { AccessControlled, AccessLevel, ClientError, GoalCreateInput, RoadmapInput } from "@/types";
 import roadmapGoalCreator from "./roadmapGoalCreator";
 import accessChecker from "@/lib/accessChecker";
 import { revalidateTag } from "next/cache";
@@ -17,7 +17,7 @@ import { Prisma } from "@prisma/client";
 export async function POST(request: NextRequest) {
   const [session, roadmap] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<RoadmapInput & { goals?: GoalInput[] }>,
+    request.json() as Promise<RoadmapInput & { goals?: GoalCreateInput[] }>,
   ]);
 
   // Validate request body
@@ -201,7 +201,7 @@ export async function PUT(request: NextRequest) {
   const [session, roadmap] = await Promise.all([
     getSession(await cookies()),
     // The version number is not allowed to be changed
-    request.json() as Promise<Omit<RoadmapInput, 'version'> & { goals?: GoalInput[], roadmapId: string, timestamp?: number }>,
+    request.json() as Promise<Omit<RoadmapInput, 'version'> & { goals?: GoalCreateInput[], roadmapId: string, timestamp?: number }>,
   ]);
 
   // Validate request body

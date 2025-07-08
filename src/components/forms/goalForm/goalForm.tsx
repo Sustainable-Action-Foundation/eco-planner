@@ -7,7 +7,7 @@ import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import formSubmitter from "@/functions/formSubmitter";
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 import mathjs from "@/math";
-import { GoalInput, ScaleBy, ScaleMethod, ScalingRecipe, dataSeriesDataFieldNames, isScalingRecipe } from "@/types";
+import { GoalCreateInput, ScaleBy, ScaleMethod, ScalingRecipe, dataSeriesDataFieldNames, isScalingRecipe } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -98,7 +98,7 @@ export default function GoalForm({
 
     const { scalingRecipe: combinationScale } = getScalingResult(formData, scalingRecipe.method || ScaleMethod.Geometric);
 
-    const inheritFrom: GoalInput["inheritFrom"] = [];
+    const inheritFrom: GoalCreateInput["inheritFrom"] = [];
     formData.getAll("inheritFrom")?.forEach((id) => {
       if (id instanceof File) {
         return;
@@ -132,7 +132,7 @@ export default function GoalForm({
       links,
       timestamp,
       isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked,
-    } as GoalInput);
+    } as GoalCreateInput);
 
     formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST');
   }
