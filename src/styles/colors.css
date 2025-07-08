@@ -272,6 +272,10 @@
   background-color: var(--gray-90);
 }
 
+.gray-95 {
+  background-color: var(--gray-95);
+}
+
 .white {
   background-color: var(--white);
 }

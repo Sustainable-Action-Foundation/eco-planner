@@ -154,7 +154,7 @@ input:-webkit-autofill:focus {
 } 
 
 .button-group .is-active {
-  background-color: hsl(206, 100%, 80%, .5)
+  background-color: hsl(206, 100%, 80%, .5);
 } 
 
 .tiptap {

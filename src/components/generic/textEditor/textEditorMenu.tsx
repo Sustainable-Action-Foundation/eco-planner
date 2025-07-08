@@ -1,5 +1,7 @@
 'use client'
 
+// TODO: Make button type="button"
+
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconSelect, IconDotsVertical } from "@tabler/icons-react"
 import { Editor } from "@tiptap/core"
@@ -111,6 +113,7 @@ export default function TextEditorMenu({
     return () => resizeObserver.disconnect();
   }, []);
 
+  const [showMenu, setShowMenu] = useState<boolean>(false)
 
   console.log(overflowingChildren)
 
@@ -249,23 +252,28 @@ export default function TextEditorMenu({
       </div>
 
       {overflowingChildren.length > 0 && (
-        <button
-          style={{ marginBlock: '3px', alignSelf: 'flex-start' }}
-          className="padding-25 transparent position-relative inline-block"
-          aria-label="open menu"
-          aria-hidden="true"
-        >
-          <IconDotsVertical width={16} height={16} className="grid" aria-hidden='true' />
-          <div className='position-absolute flex' style={{ right: '0', top: 'calc(100% + 4px)', zIndex: '10' }}>
-            {overflowingChildren.map((el, i) => (
-              <div
-                key={i}
-                // Render actual HTML inside the li
-                dangerouslySetInnerHTML={{ __html: el.innerHTML || 'Unknown content' }}
-              ></div>
-            ))}
-          </div>
-        </button>
+        <div className='position-relative inline-block' style={{ marginBlock: '3px', alignSelf: 'flex-start' }}>
+          <button
+            onClick={() => setShowMenu(!showMenu)}
+            style={{backgroundColor: `${showMenu ? 'hsl(206, 100%, 80%, .5)' : ''}`}}
+            className="padding-25 transparent"
+            aria-label="open menu"
+            aria-hidden="true" /* TODO: This is a lil wonky, in the long run, elements which are overflown should have an aria-hidden instead */
+          >
+            <IconDotsVertical width={16} height={16} className="grid" aria-hidden='true' />
+          </button>
+          {showMenu ? 
+            <div className='position-absolute flex gray-95 smooth' style={{ top: 'calc(100% + 4px + 3px)', right: '0', zIndex: '10', padding: '3px' }}>
+              {overflowingChildren.map((el, i) => (
+                <div
+                  className='flex'
+                  key={i}
+                  dangerouslySetInnerHTML={{ __html: el.innerHTML || 'Unknown content' }}
+                ></div>
+              ))}
+            </div>
+          : null }
+        </div>
       )}
 
     </div>
