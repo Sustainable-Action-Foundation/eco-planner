@@ -87,6 +87,7 @@ export default function TextEditorMenu({
           <IconArrowForwardUp color="black" className="grid" width={16} height={16} aria-hidden="true" />
         </button>
       </div>
+      
       <div className='inline-flex align-items-center gap-25 padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
         <select onChange={changeFontSize} value={fontSize}  className='transparent' style={{ fontSize: '12px', border: '0', outline: '0', '--icon-size': '16px', '--padding': '.25rem' } as React.CSSProperties}>
           <option value="20px">Stor text</option> 
@@ -94,11 +95,13 @@ export default function TextEditorMenu({
           <option value="12px">Liten text</option>
         </select>
       </div>
+
       <div className='inline-flex align-items-center gap-25 padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
         <button
           onClick={() => editor.chain().focus().toggleGreyText().run()}
           className={`padding-25 transparent ${editor.getAttributes('textStyle').color === 'grey' ? 'is-active' : ''}`}
-          aria-label='toggle grey text'
+          aria-label='grey text'
+          aria-pressed={editor.getAttributes('textStyle').color === 'grey'}
         >
            <svg className='grid' aria-hidden='true' xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -108,43 +111,100 @@ export default function TextEditorMenu({
           </svg>
         </button>
       </div>
+      
       <div className='inline-flex align-items-center gap-25 padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
-        <button className={`padding-25 transparent ${editor.getAttributes('textStyle').fontStyle === 'italic' ? 'is-active' : ''}`} onClick={() => editor.chain().focus().toggleItalic().run()} aria-label="toggle italic">
+        <button 
+          className={`padding-25 transparent ${editor.getAttributes('textStyle').fontStyle === 'italic' ? 'is-active' : ''}`} 
+          onClick={() => editor.chain().focus().toggleItalic().run()} 
+          aria-label="italic"
+          aria-pressed={editor.getAttributes('fontStyle').fontWeight === 'italic'}
+        >
           <IconItalic className="grid" width={16} height={16} aria-hidden="true" />
         </button>
-        <button className={`padding-25 transparent ${editor.getAttributes('textStyle').fontWeight === 'bold' ? 'is-active' : ''}`} onClick={() => editor.chain().focus().toggleBold().run()} aria-label="toggle bold" >
+        <button 
+          className={`padding-25 transparent ${editor.getAttributes('textStyle').fontWeight === 'bold' ? 'is-active' : ''}`} 
+          onClick={() => editor.chain().focus().toggleBold().run()} 
+          aria-label="bold"
+          aria-pressed={editor.getAttributes('textStyle').fontWeight === 'bold'}
+        >
           <IconBold className="grid" width={16} height={16} aria-hidden="true" />
         </button>
-        <button className={`padding-25 transparent ${editor.getAttributes('textStyle').textDecoration === 'line-through' ? 'is-active' : ''}`} onClick={() => editor.chain().focus().toggleLineThrough().run()} aria-label="toggle strike-trough">
+        <button 
+          className={`padding-25 transparent ${editor.getAttributes('textStyle').textDecoration === 'line-through' ? 'is-active' : ''}`} 
+          onClick={() => editor.chain().focus().toggleLineThrough().run()} 
+          aria-label="strike-trough"
+          aria-pressed={editor.getAttributes('textStyle').textDecoration === 'line-through'}
+        >
           <IconStrikethrough className="grid" width={16} height={16} aria-hidden="true" />
         </button>
-        <button className={`padding-25 transparent ${editor.getAttributes('textStyle').textDecoration === 'underline' ? 'is-active' : ''}`} onClick={() => editor.chain().focus().toggleUnderline().run()} aria-label="toggle underline">
+        <button 
+          className={`padding-25 transparent ${editor.getAttributes('textStyle').textDecoration === 'underline' ? 'is-active' : ''}`} 
+          onClick={() => editor.chain().focus().toggleUnderline().run()} 
+          aria-label="underline"
+          aria-pressed={editor.getAttributes('textStyle').textDecoration === 'underline'}
+        >
           <IconUnderline className="grid" width={16} height={16} aria-hidden="true" />
         </button>
-        <button className={`padding-25 transparent ${editor.isActive('superscript') ? 'is-active' : ''}`} onClick={() => editor.chain().focus().toggleSuperscript().run()} aria-label="toggle superscript">
+        <button 
+          className={`padding-25 transparent ${editor.isActive('superscript') ? 'is-active' : ''}`} 
+          onClick={() => editor.chain().focus().toggleSuperscript().run()} 
+          aria-label="superscript"
+          aria-pressed={editor.isActive('superscript')}
+        >
           <IconSuperscript className="grid" width={16} height={16} aria-hidden="true" />
         </button>
-        <button className={`padding-25 transparent ${editor.isActive('subscript') ? 'is-active' : ''}`} onClick={() => editor.chain().focus().toggleSubscript().run()} aria-label="toggle subscript">
+        <button 
+          className={`padding-25 transparent ${editor.isActive('subscript') ? 'is-active' : ''}`} 
+          onClick={() => editor.chain().focus().toggleSubscript().run()} 
+          aria-label="subscript"
+          aria-pressed={editor.isActive('subscript')}
+        >
           <IconSubscript className="grid" width={16} height={16} aria-hidden="true" />
         </button>
-        <button className={`padding-25 transparent ${editor.isActive('highlight') ? 'is-active' : ''}`} onClick={() => editor.chain().focus().toggleHighlight().run()} aria-label="toggle highlight">
+        <button 
+          className={`padding-25 transparent ${editor.isActive('highlight') ? 'is-active' : ''}`} 
+          onClick={() => editor.chain().focus().toggleHighlight().run()} 
+          aria-label="highlight"
+          aria-pressed={editor.isActive('highlight')}
+        >
           <IconHighlight className="grid" width={16} height={16} aria-hidden="true" />
         </button>
       </div>
+
       <div className='inline-flex align-items-center gap-25 padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
-        <button className={`padding-25 transparent ${editor.isActive('link') ? 'is-active' : ''}`} onClick={setLink} aria-label="set link">
+        <button 
+          className={`padding-25 transparent ${editor.isActive('link') ? 'is-active' : ''}`} 
+          onClick={setLink} 
+          aria-label="link"
+          aria-pressed={editor.isActive('link')}
+        >
           <IconLink className="grid" width={16} height={16} aria-hidden="true" />
         </button>
       </div>
+
       <div className='inline-flex align-items-center gap-25 padding-right-25 margin-right-25'>
-        <button className={`padding-25 transparent ${editor.isActive('bulletList') ? 'is-active' : ''}`} onClick={() => editor.chain().focus().toggleBulletList().run()} aria-label="toggle bulleted list">
-          <IconList width={16} height={16} className="grid" />
+        <button 
+          className={`padding-25 transparent ${editor.isActive('bulletList') ? 'is-active' : ''}`} 
+          onClick={() => editor.chain().focus().toggleBulletList().run()} 
+          aria-label="Bullet list"
+          aria-pressed={editor.isActive('bulletList')}
+        >
+          <IconList width={16} height={16} className="grid" aria-hidden='true' />
         </button>
-        <button className={`padding-25 transparent ${editor.isActive('orderedList') ? 'is-active' : ''}`} onClick={() => editor.chain().focus().toggleOrderedList().run()} aria-label="toggle numbered list">
-          <IconListNumbers width={16} height={16} className="grid" />
+        <button 
+          className={`padding-25 transparent ${editor.isActive('orderedList') ? 'is-active' : ''}`} 
+          onClick={() => editor.chain().focus().toggleOrderedList().run()} 
+          aria-label="Numbered list" 
+          aria-pressed={editor.isActive('orderedList')}
+        >
+          <IconListNumbers width={16} height={16} className="grid" aria-hidden='true' />
         </button>
-        <button className="padding-25 transparent" onClick={() => editor.chain().focus().setDetails().run()} disabled={!editor.can().setDetails()} aria-label="add details">
-          <IconSelect width={16} height={16} className="grid" />
+        <button 
+          className="padding-25 transparent" onClick={() => editor.chain().focus().setDetails().run()} 
+          disabled={!editor.can().setDetails()} 
+          aria-label="add details"
+        >
+          <IconSelect width={16} height={16} className="grid" aria-hidden='true' />
         </button>
       </div>
     </div>
