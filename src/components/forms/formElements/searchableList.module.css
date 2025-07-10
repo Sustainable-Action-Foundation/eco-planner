@@ -7,7 +7,6 @@
     top: 100%;
     left: 0;
     z-index: 9;
-    box-shadow: 0 4px .5rem 2px rgba(0, 0, 0, .1);
     transition-property: display, opacity, transform;
     transition-duration: .15s;
     transition-behavior: allow-discrete;
@@ -26,8 +25,7 @@
     margin: 0;
 }
 
-.search-container:has(input[type="search"]:focus) output div,
-.search-container output div:has(*:focus, *:active) {
+.search-container:focus-within output div {
     display: block;
     opacity: 1;
     transform: scale(1);
