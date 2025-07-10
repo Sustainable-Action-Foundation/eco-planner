@@ -8,6 +8,7 @@ import serveTea from "@/lib/i18nServer";
 // rather than using the base Trans component which would use a client-side i18n instance.
 import { Trans } from "react-i18next/TransWithoutContext";
 import i18next from "i18next"; 
+import SearchableList from "@/components/forms/formElements/searchableList";
 
 export async function generateMetadata() {
   const t = await serveTea("pages");
@@ -127,6 +128,7 @@ export default async function Page() {
           <p>{t("pages:info.commit_without_link", { commit: gitHash.shortHash || gitHash.longHash || "" })}</p>
         : null
       }
+      <SearchableList list={['item1', 'item2', 'item3', 'item4', 'item5', 'thing1', 'thing2', 'thing3', 'object1', 'object2', 'object3', 'object4', 'object5', ]} />
     </>
   )
 }

@@ -1,6 +1,8 @@
 'use client'
 
 // TODO: Make button type="button"
+// TODO: i18n
+// TODO: Tooltip
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconSelect, IconDotsVertical } from "@tabler/icons-react"
