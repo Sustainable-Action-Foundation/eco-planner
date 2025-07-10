@@ -102,6 +102,30 @@ const testLongVariableNames: Recipe = {
   },
 };
 
+const testBadCharactersInEquation: Recipe = {
+  eq: "${A} % 3 & ${B} | | $ 7",
+  inputs: {
+    A: { type: "scalar", value: 10 },
+    B: { type: "scalar", value: 20 },
+  },
+};
+
+const testEmptyStringTemplate: Recipe = {
+  eq: "${}",
+  inputs: {
+    A: { type: "scalar", value: 10 },
+    B: { type: "scalar", value: 20 },
+  },
+};
+
+const testNumberVariableName: Recipe = {
+  eq: "${5}",
+  inputs: {
+    5: { type: "scalar", value: 10 }, // Invalid variable name
+    B: { type: "scalar", value: 20 },
+  },
+};
+
 // Test Cases Array
 // ----------------
 
@@ -117,6 +141,9 @@ const testCases = [
   { description: "Huge scalar values", recipe: testHugeScalar, shouldPass: true },
   { description: "Divide by zero recipe", recipe: testDivideByZero, shouldPass: false },
   { description: "Long variable names", recipe: testLongVariableNames, shouldPass: true },
+  { description: "Bad characters in equation", recipe: testBadCharactersInEquation, shouldPass: false },
+  { description: "Empty string template", recipe: testEmptyStringTemplate, shouldPass: false },
+  { description: "Number variable name", recipe: testNumberVariableName, shouldPass: true },
 ];
 
 // Test Runner
@@ -136,9 +163,9 @@ function runTests() {
 
     try {
       // Test with object
-      run(recipe, "object");
+      run({...recipe}, "object");
       // Test with stringified JSON
-      run(JSON.stringify(recipe), "string");
+      run(JSON.stringify({...recipe}), "string");
 
       if (shouldPass) {
         console.info(colors.green(`\n${description} passed as expected.`));

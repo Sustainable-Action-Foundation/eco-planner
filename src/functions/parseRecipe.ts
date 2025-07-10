@@ -66,18 +66,72 @@ function isValidRecipe(recipe: any): recipe is Recipe {
   )
 }
 
-const allowedEqCharacters = /^[\w\s\+\-\*\/\(\)\$\{\}]+$/; // Allowed characters in the equation
+const allowedEqCharacters = /^[\w\s\+\-\*\/\(\)]+$/; // Allowed characters in the equation
 function isValidEquationSyntax(equation: string): boolean {
-  return (
+  const validStructure = (
     typeof equation === "string"
     && equation.trim() !== ""
     && equation.match(/\$\{(\w+)\}/g) !== null // Contains at least one variable
 
-    && allowedEqCharacters.test(equation) // Only contains allowed characters
+    && allowedEqCharacters.test(equation.replace(/\$\{(\w+)\}/g, "X")) // Only contains allowed characters
   );
+  if (!validStructure) return false;
+
+  // Syntax checks
+
+  // General syntax is: value operator value [operator value]*
+  // where value can be a variable, or scalar and operator can be +, -, /, *
+
+  // 1. Split the equation by tokens. Space between values and operators is optional.
+  const tokens = equation.split(/(\s*[\+\-\*\/]\s*)/).map(token => token.trim()).filter(token => token !== "");
+  const operatorTokens = tokens.filter(token => ["+", "-", "*", "/"].includes(token));
+  const valueTokens = tokens.filter(token => !["+", "-", "*", "/"].includes(token));
+
+  // 2. Check if there is at least one value
+  if (valueTokens.length === 0) {
+    console.error("Invalid equation syntax: Equation must contain at least one value.");
+    return false;
+  }
+
+  // 3. Check if the first and last tokens are values (not operators)
+  if (valueTokens[0] !== tokens[0] || valueTokens[valueTokens.length - 1] !== tokens[tokens.length - 1]) {
+    console.error("Invalid equation syntax: Equation must start and end with a value.");
+    return false;
+  }
+
+  // 4. Check if there are no consecutive operators
+  for (let i = 0; i < tokens.length - 1; i++) {
+    if (["+", "-", "*", "/"].includes(tokens[i]) && ["+", "-", "*", "/"].includes(tokens[i + 1])) {
+      console.error("Invalid equation syntax: Equation cannot have consecutive operators.");
+      return false;
+    }
+  }
+
+  // 5. Check if all values are valid variables (e.g., ${A}, ${B}) or numbers
+  for (const token of valueTokens) {
+    if (!/^(\$\{\w+\}|-?\d+(\.\d+)?)$/.test(token)) {
+      console.error(`Invalid equation syntax: Invalid value token "${token}". Expected a variable (e.g., \${A}), a number, or a vector.`);
+      // Check if token is a variable (e.g., ${A}), a number, or a vector
+      return false;
+    }
+  }
+
+  // 6. Check if all operators are valid
+  for (const token of operatorTokens) {
+    if (!["+", "-", "*", "/"].includes(token)) {
+      console.error(`Invalid equation syntax: Invalid operator "${token}". Expected one of +, -, *, /.`);
+      return false;
+    }
+  }
+
+
+  return true;
 }
 
-export function parseRecipe(recipe: Recipe | string, options: RecipeParserOptions = defaultRecipeParserOptions) {
+/** 
+ * Returns the resulting vector of the recipe equation as a string array.
+ */
+export function parseRecipe(recipe: Recipe | string, options: RecipeParserOptions = defaultRecipeParserOptions): string[] {
   // Validate JSON
   try {
     if (typeof recipe === "string") {
@@ -92,6 +146,10 @@ export function parseRecipe(recipe: Recipe | string, options: RecipeParserOption
     // TODO - handle error more gracefully
     throw new Error("Invalid JSON format for recipe");
   }
+  // At this point reading it as a Recipe type should be safe even thought it might not contain all the properties
+  recipe = recipe as Recipe;
+
+  console.info("Parsing recipe...", `${colors.green(recipe.eq)} (${colors.gray(hash(JSON.stringify(recipe)))})`);
 
   // Validate Recipe type
   if (!isValidRecipe(recipe)) {
@@ -104,11 +162,6 @@ export function parseRecipe(recipe: Recipe | string, options: RecipeParserOption
     // TODO - handle error more gracefully
     throw new Error("Invalid equation syntax. Expected a non-empty string with at least one variable.");
   }
-
-  // Should be a Recipe type at this point
-  recipe = recipe as Recipe;
-
-  console.info("Parsing recipe...", `${colors.green(recipe.eq)} (${colors.gray(hash(JSON.stringify(recipe)))})`);
 
   // Extract variables from the equation
   const variables = recipe.eq.match(/\$\{(\w+)\}/g);
@@ -180,4 +233,5 @@ export function parseRecipe(recipe: Recipe | string, options: RecipeParserOption
   }
 
 
+  return ["1", "2", "3"]; // Placeholder for the actual recipe evaluation logic
 }
