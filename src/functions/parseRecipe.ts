@@ -1,3 +1,4 @@
+import mathjs from "@/math.ts";
 import { colors } from "../scripts/lib/colors.ts";
 import "../scripts/lib/console.ts";
 import crypto from "crypto";
@@ -34,7 +35,7 @@ export type Recipe = {
 };
 
 export type RecipeParserOptions = {
-  interpolationMethod: "interpolate all" | "only overlapping";
+  interpolationMethod: "interpolate all" | "only overlapping" | "zero fill" | "none";
 };
 const defaultRecipeParserOptions: RecipeParserOptions = {
   interpolationMethod: "interpolate all",
@@ -232,6 +233,36 @@ export function parseRecipe(recipe: Recipe | string, options: RecipeParserOption
     console.warn("Warning: Recipe contains a zero, which may result in an error during evaluation.");
   }
 
+  const resolvedEquation = recipe.eq.replace(/\$\{(\w+)\}/g, (_, varName) => {
+    if (recipe.inputs[varName]) {
+      const input = recipe.inputs[varName];
+      if (input.type === "scalar") {
+        return input.value.toString();
+      } else if (input.type === "vector") {
+        return `[${(input.value as number[]).join(",")}]`; // Convert vector to a string representation
+      } else if (input.type === "url") {
+        return `"${input.value}"`; // Convert URL to a string representation
+      }
+    }
+    return `\${${varName}}`; // Fallback to original variable name if not found
+  });
 
-  return ["1", "2", "3"]; // Placeholder for the actual recipe evaluation logic
+  const result: number | math.Matrix = mathjs.evaluate(resolvedEquation);
+
+  if (typeof result === "number" && !isFinite(result)) {
+    // TODO - handle error more gracefully
+    throw new Error("Result is not a finite number.");
+  }
+
+  if (typeof result === "number") {
+    return [result.toString()];
+  }
+  if (mathjs.isMatrix(result)) {
+    const data = result.toArray();
+    if (Array.isArray(data)) {
+      return data.flat().map(v => v.toString());
+    }
+  }
+
+  throw new Error("Unexpected result type. Expected a number or an array of numbers.");
 }
