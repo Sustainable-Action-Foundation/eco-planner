@@ -1,42 +1,65 @@
+/*
+GoalForm Component (React, TypeScript)
+======================================
+
+Summary:
+--------
+This file defines the main form for creating and editing "Goal" objects in the eco-planner app. It supports static, inherited, and combined goal types, as well as custom scaling, baseline data, and external links. The form is highly dynamic, adapting its fields and logic based on the current goal and user selections. It uses i18n for translations, and integrates with several subcomponents for modularity. The form's structure and submission logic are tightly coupled to the shape of the Goal object in the database, so any changes to the Goal schema require updates here.
+
+Key Features:
+- Handles three goal types: Static, Inherited, Combined
+- Supports custom scaling recipes and methods
+- Allows selection of baseline data (initial, custom, inherited)
+- Integrates with roadmap selection and external links
+- Uses modular subcomponents for complex form sections
+- Submits data as JSON to the API, with careful handling of optional/complex fields
+- Uses i18n for all user-facing text
+- Designed for extensibility and maintainability
+*/
+
 'use client';
 
-import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput";
-import { getScalingResult } from "@/components/modals/copyAndScale";
-import RepeatableScaling from "@/components/repeatableScaling";
-import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
-import formSubmitter from "@/functions/formSubmitter";
-import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
-import mathjs from "@/math";
-import { GoalCreateInput, ScaleBy, ScaleMethod, ScalingRecipe, dataSeriesDataFieldNames, isScalingRecipe } from "@/types";
-import { DataSeries, Goal } from "@prisma/client";
-import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
-import DataSeriesInput from "../dataSeriesInput/dataSeriesInput";
-import { getDataSeries } from "../dataSeriesInput/utils";
-import styles from '../forms.module.css';
-import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
-import { IconCircleMinus } from "@tabler/icons-react";
+// Import dependencies and subcomponents
+import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput"; // For handling external links
+import { getScalingResult } from "@/components/modals/copyAndScale"; // For calculating scaling results
+import RepeatableScaling from "@/components/repeatableScaling"; // For rendering repeatable scaling inputs
+import type getRoadmaps from "@/fetchers/getRoadmaps.ts"; // Type for roadmap fetching
+import formSubmitter from "@/functions/formSubmitter"; // Handles form submission to API
+import parameterOptions from "@/lib/LEAPList.json" with { type: "json" }; // Options for indicator parameter
+import mathjs from "@/math"; // Math library for unit parsing
+import { GoalCreateInput, ScaleBy, ScaleMethod, ScalingRecipe, dataSeriesDataFieldNames, isScalingRecipe } from "@/types"; // Types and helpers
+import { DataSeries, Goal } from "@prisma/client"; // Prisma types
+import { useEffect, useMemo, useState } from "react"; // React hooks
+import { useTranslation } from "react-i18next"; // i18n hook
+import DataSeriesInput from "../dataSeriesInput/dataSeriesInput"; // For entering data series
+import { getDataSeries } from "../dataSeriesInput/utils"; // Helper for extracting data series from form
+import styles from '../forms.module.css'; // CSS module for styling
+import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections"; // Subcomponents for form sections
+import { IconCircleMinus } from "@tabler/icons-react"; // Icon for removing scaling entries
 
+// Enum for selecting the type of data series for the goal
 enum DataSeriesType {
-  Static = "STATIC",
-  Inherited = "INHERIT",
-  Combined = "COMBINE",
+  Static = "STATIC",      // Manually entered data
+  Inherited = "INHERIT", // Inherited from another goal
+  Combined = "COMBINE",  // Combination of multiple goals
 }
 
+// Enum for selecting the type of baseline for the goal
 enum BaselineType {
-  Initial = "INITIAL",
-  Custom = "CUSTOM",
-  Inherited = "INHERIT",
+  Initial = "INITIAL",    // Use initial value as baseline
+  Custom = "CUSTOM",      // User provides custom baseline
+  Inherited = "INHERIT",  // Inherit baseline from another goal
 }
 
+// Main GoalForm component
 export default function GoalForm({
   roadmapId,
   roadmapAlternatives,
   currentGoal,
 }: {
-  roadmapId?: string,
-  roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
-  currentGoal?: Goal & {
+  roadmapId?: string, // ID of the parent roadmap (if already selected)
+  roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>, // List of possible roadmaps
+  currentGoal?: Goal & { // Current goal (if editing)
     dataSeries: DataSeries | null,
     baselineDataSeries: DataSeries | null,
     combinationScale: string | null,
@@ -53,14 +76,20 @@ export default function GoalForm({
     roadmap: { id: string },
   },
 }) {
-  const { t } = useTranslation(["forms", "common"]);
+  const { t } = useTranslation(["forms", "common"]); // i18n translation hook
 
+  // State for the type of data series (static, inherited, combined)
   const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(!currentGoal?.combinationParents.length ? DataSeriesType.Static : currentGoal.combinationParents.length >= 2 ? DataSeriesType.Combined : DataSeriesType.Inherited)
+  // State for the type of baseline (initial, custom, inherited)
   const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baselineDataSeries ? BaselineType.Custom : BaselineType.Initial)
+  // State for the scaling recipe (used for combined/inherited goals)
   const [scalingRecipe, setScalingRecipe] = useState<ScalingRecipe>({ values: [] });
+  // State for the calculated scaling result (displayed in the form)
   const [scalingResult, setScalingResult] = useState<number | null>(null);
+  // State for the selected roadmap (if not already fixed)
   const [selectedRoadmap, setSelectedRoadmap] = useState<string>(currentGoal?.roadmapId || roadmapId || "");
 
+  // Effect: Parse and set the scaling recipe from the current goal (if editing)
   useEffect(() => {
     try {
       const parsed = JSON.parse(currentGoal?.combinationScale ?? "")
@@ -78,26 +107,30 @@ export default function GoalForm({
     }
   }, [currentGoal]);
 
+  // Memoized timestamp for the form submission (used for optimistic updates)
   const timestamp = useMemo(() => Date.now(), []);
 
-  // Submit the form to the API
+  // Form submission handler
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const form = event.target.elements;
     const formData = new FormData(event.target);
 
+    // Extract links from the form
     const links = getLinks(event.target);
 
-    // Get data series as an array of numbers in string format, the actual parsing is done by the API
+    // Extract data series (array of numbers as strings)
     const dataSeries = getDataSeries(form);
 
-    // And likewise for the baseline data series, if any
+    // Extract baseline data series (if any)
     const baselineDataSeriesArray = getDataSeries(form, "baselineDataSeries");
-    const baselineDataSeries = baselineDataSeriesArray.length > 0 ? baselineDataSeriesArray : undefined; // The baseline may be omitted, in which case we don't want to send an empty array
+    const baselineDataSeries = baselineDataSeriesArray.length > 0 ? baselineDataSeriesArray : undefined; // Omit if empty
 
+    // Get scaling recipe for combined/inherited goals
     const { scalingRecipe: combinationScale } = getScalingResult(formData, scalingRecipe.method || ScaleMethod.Geometric);
 
+    // Build inheritFrom array (for inherited/combined goals)
     const inheritFrom: GoalCreateInput["inheritFrom"] = [];
     formData.getAll("inheritFrom")?.forEach((id) => {
       if (id instanceof File) {
@@ -110,6 +143,7 @@ export default function GoalForm({
       }
     })
 
+    // Parse the unit (if provided)
     let parsedUnit: string | null = null;
     try {
       parsedUnit = mathjs.unit((form.namedItem("dataUnit") as HTMLInputElement)?.value).toString();
@@ -117,6 +151,7 @@ export default function GoalForm({
       console.log("Failed to parse unit. Using raw string instead, which may disable some features.");
     }
 
+    // Build the JSON payload for the API
     const formJSON = JSON.stringify({
       name: (form.namedItem("goalName") as HTMLInputElement)?.value || null,
       description: (form.namedItem("description") as HTMLInputElement)?.value || null,
@@ -134,11 +169,13 @@ export default function GoalForm({
       isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked,
     } as GoalCreateInput);
 
+    // Submit the form to the API (POST for new, PUT for edit)
     formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST');
   }
 
+  // Recalculate scaling result when form changes (for combined/inherited goals)
   async function recalculateScalingResult() {
-    await new Promise(resolve => setTimeout(resolve, 0)); // Wait for the form to update; without this we get the value *before* the action that triggered the update
+    await new Promise(resolve => setTimeout(resolve, 0)); // Wait for the form to update
     if (typeof document != "undefined") {
       const formElement = document.forms.namedItem("goalForm");
       if (formElement instanceof HTMLFormElement) {
@@ -158,7 +195,7 @@ export default function GoalForm({
     }
   }
 
-  // If there is a data series, convert it to an array of numbers to use as a default value for the form
+  // Prepare data series string for default value (if editing)
   const dataArray: (number | null)[] = []
   if (currentGoal?.dataSeries) {
     for (const i of dataSeriesDataFieldNames) {
@@ -167,7 +204,7 @@ export default function GoalForm({
   }
   const dataSeriesString = dataArray.join(';')
 
-  // Likewise for any baseline data series
+  // Prepare baseline data series string for default value (if editing)
   const baselineArray: (number | null)[] = []
   if (currentGoal?.baselineDataSeries) {
     for (const i of dataSeriesDataFieldNames) {
@@ -176,9 +213,10 @@ export default function GoalForm({
   }
   const baselineString = baselineArray.join(';')
 
-  // Indexes for the data-position attribute in the legend elements
+  // Index for data-position attribute in legend elements (for accessibility)
   let positionIndex = 1;
 
+  // Render the form
   return (
     <>
       <form onSubmit={handleSubmit} onChange={() => { recalculateScalingResult() }} name="goalForm">
@@ -206,6 +244,7 @@ export default function GoalForm({
           : null
         }
 
+        {/* Data series type selection (static, inherited, combined) */}
         <fieldset className={`${styles.timeLineFieldset} width-100 ${positionIndex > 1 ? "margin-top-200" : ""}`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend}  font-weight-bold`}>{t("forms:goal.data_series_type_legend")}</legend>
           <label className="block margin-block-100">
@@ -221,7 +260,7 @@ export default function GoalForm({
           </label>
         </fieldset>
 
-
+        {/* Goal name and description */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:goal.goal_description_legend")}</legend>
           <label className="block margin-bottom-100">
@@ -235,6 +274,7 @@ export default function GoalForm({
           </label>
         </fieldset>
 
+        {/* Data series input section (varies by type) */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:goal.choose_goal_data_series")}</legend>
           {(dataSeriesType === DataSeriesType.Static || !dataSeriesType) &&
@@ -249,6 +289,7 @@ export default function GoalForm({
             <CombinedGoalForm currentGoal={currentGoal} roadmapId={currentGoal?.roadmapId || roadmapId || selectedRoadmap} />
           }
 
+          {/* Scaling section for inherited/combined goals */}
           {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
             <fieldset className="padding-50 smooth position-relative" style={{ border: '1px solid var(--gray-90)' }}>
               <legend>{t("forms:goal.scaling_legend")}</legend>
@@ -265,7 +306,7 @@ export default function GoalForm({
                     > {/* Multiplicative scaling doesn't use weights */}
                       <button type="button" className="grid" aria-label={t("forms:goal.remove_scaling")}
                         onClick={() => setScalingRecipe({ method: scalingRecipe.method, values: scalingRecipe.values.filter((_, i) => i !== index) })}>
-                        <IconCircleMinus aria-hidden="true" width={24} height={24}  />
+                        <IconCircleMinus aria-hidden="true" width={24} height={24} />
                       </button>
                     </RepeatableScaling>
                   )
@@ -290,6 +331,7 @@ export default function GoalForm({
           }
         </fieldset>
 
+        {/* Baseline selection section */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:goal.choose_baseline_for_actions")}</legend>
           <label className="block margin-bottom-100">
@@ -301,6 +343,7 @@ export default function GoalForm({
             </select>
           </label>
 
+          {/* Custom baseline input */}
           {baselineType === BaselineType.Custom &&
             <DataSeriesInput
               dataSeriesString={baselineString}
@@ -310,16 +353,19 @@ export default function GoalForm({
             />
           }
 
+          {/* Inherited baseline input */}
           {baselineType === BaselineType.Inherited &&
             <InheritingBaseline />
           }
         </fieldset>
 
+        {/* External links section */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:goal.attach_external_resources")}</legend>
           <LinkInput links={currentGoal?.links} />
         </fieldset>
 
+        {/* Feature this goal section */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:goal.feature_this_goal")}</legend>
           <label className="flex align-items-center gap-50 margin-block-50">
@@ -328,9 +374,11 @@ export default function GoalForm({
           </label>
         </fieldset>
 
+        {/* Submit button */}
         <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentGoal ? t("common:tsx.save") : t("common:tsx.create")} />
       </form>
 
+      {/* Datalist for indicator parameter suggestions */}
       <datalist id="LEAPOptions">
         {/* Use all unique entries as suggestions for indicator parameter */}
         {parameterOptions.filter((option, index, self) => {
