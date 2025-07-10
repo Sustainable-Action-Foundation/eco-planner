@@ -152,7 +152,7 @@ function runTests() {
         console.error(`\n${description} failed unexpectedly:`, error);
         failed.push(description);
       } else {
-        console.info(colors.rgb(150, 50, 50, "\n" + error.stack));
+        console.info(colors.rgb(150, 75, 75, "\n" + error.stack));
         console.info(colors.green(`\n${description} failed as expected.`));
         passed.push(description);
       }

@@ -2,11 +2,31 @@ import { colors } from "../scripts/lib/colors.ts";
 import "../scripts/lib/console.ts";
 import crypto from "crypto";
 
-const hash = (input: string) => {
+function hash(input: string) {
   const hashObject = crypto.createHash("sha256");
   hashObject.update(JSON.stringify(input));
   return hashObject.digest("hex");
-};
+}
+
+const normalizedVariableNames = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AL", "AM", "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU", "AV", "AW", "AX", "AY", "AZ", "BA", "BB", "BC", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BK", "BL", "BM", "BN", "BO", "BP", "BQ", "BR", "BS", "BT", "BU", "BV", "BW", "BX", "BY", "BZ", "CA", "CB", "CC", "CD", "CE", "CF", "CG", "CH", "CI", "CJ", "CK", "CL", "CM", "CN", "CO", "CP", "CQ", "CR", "CS", "CT", "CU", "CV"];
+function getVariableName(index: number): string {
+  // Try to get a normalized variable name from the predefined list
+  if (normalizedVariableNames[index]) {
+    return normalizedVariableNames[index];
+  }
+
+  // Fallback to calculating a name based on the index
+  index = normalizedVariableNames.length; // Start from the end of the predefined list
+
+  // Convert index to a letter (e.g., 0 -> 'A', 1 -> 'B', ..., 25 -> 'Z', 26 -> 'AA', etc.)
+  let name = "";
+  let i = index;
+  do {
+    name = String.fromCharCode((i % 26) + 65) + name; // 65 is ASCII code for 'A'
+    i = Math.floor(i / 26) - 1; // Adjust for zero-based index
+  } while (i >= 0);
+  return name;
+}
 
 export type Recipe = {
   eq: string;
@@ -46,6 +66,17 @@ function isValidRecipe(recipe: any): recipe is Recipe {
   )
 }
 
+const allowedEqCharacters = /^[\w\s\+\-\*\/\(\)\$\{\}]+$/; // Allowed characters in the equation
+function isValidEquationSyntax(equation: string): boolean {
+  return (
+    typeof equation === "string"
+    && equation.trim() !== ""
+    && equation.match(/\$\{(\w+)\}/g) !== null // Contains at least one variable
+
+    && allowedEqCharacters.test(equation) // Only contains allowed characters
+  );
+}
+
 export function parseRecipe(recipe: Recipe | string, options: RecipeParserOptions = defaultRecipeParserOptions) {
   // Validate JSON
   try {
@@ -66,6 +97,12 @@ export function parseRecipe(recipe: Recipe | string, options: RecipeParserOption
   if (!isValidRecipe(recipe)) {
     // TODO - handle error more gracefully
     throw new Error("Invalid recipe format. Expected an object with 'eq' and 'inputs' properties.");
+  }
+
+  // Validate equation syntax
+  if (!isValidEquationSyntax(recipe.eq)) {
+    // TODO - handle error more gracefully
+    throw new Error("Invalid equation syntax. Expected a non-empty string with at least one variable.");
   }
 
   // Should be a Recipe type at this point
@@ -90,7 +127,21 @@ export function parseRecipe(recipe: Recipe | string, options: RecipeParserOption
     console.warn(`Extra variables defined but not used in the equation: ${extraVariables.join(", ")}`);
   }
 
-  // TODO - normalize variable names to letters
+  // Normalize variable names to letters
+  const renameMap: Record<string, string> = Object.fromEntries(Object.keys(recipe.inputs).map((key, index) => [`${key}`, getVariableName(index)]));
+  recipe.eq = recipe.eq.replace(/\$\{(\w+)\}/g, (_, varName) => {
+    if (renameMap[varName]) {
+      return `\${${renameMap[varName]}}`;
+    }
+    return `\${${varName}}`; // Fallback to original variable name if not found
+  });
+  recipe.inputs = Object.fromEntries(Object.entries(recipe.inputs).map(([key, input]) => {
+    if (!renameMap[key]) {
+      console.warn("Variable name not found in rename map:", key);
+    }
+    const normalizedKey = renameMap[key] || key; // Use the normalized name or fallback
+    return [normalizedKey, input];
+  }));
 
   // Validate inputs
   const vectors = Object.entries(recipe.inputs).filter(([_, input]) => input.type === "vector");
@@ -128,5 +179,5 @@ export function parseRecipe(recipe: Recipe | string, options: RecipeParserOption
     console.warn("Warning: Recipe contains a zero, which may result in an error during evaluation.");
   }
 
-  
+
 }
