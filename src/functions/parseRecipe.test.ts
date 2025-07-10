@@ -126,6 +126,13 @@ const testNumberVariableName: Recipe = {
   },
 };
 
+const test2000Variables: Recipe = {
+  eq: new Array(2000).fill(0).map((_, i) => `\${V${i}}`).join("+"),
+  inputs: Object.fromEntries(
+    new Array(2000).fill(0).map((_, i) => [`V${i}`, { type: "scalar", value: i }])
+  ),
+};
+
 // Test Cases Array
 // ----------------
 
@@ -144,6 +151,7 @@ const testCases = [
   { description: "Bad characters in equation", recipe: testBadCharactersInEquation, shouldPass: false },
   { description: "Empty string template", recipe: testEmptyStringTemplate, shouldPass: false },
   { description: "Number variable name", recipe: testNumberVariableName, shouldPass: true },
+  { description: "2000 variables", recipe: test2000Variables, shouldPass: true },
 ];
 
 // Test Runner
@@ -163,9 +171,12 @@ function runTests() {
 
     try {
       // Test with object
-      run({...recipe}, "object");
+      run({ ...recipe }, "object");
+
+      console.log("\n" + colors.rgbBG(60, 75, 75, colors.white(" ...now with stringified JSON...".padEnd(process.stdout.columns || 40))));
+
       // Test with stringified JSON
-      run(JSON.stringify({...recipe}), "string");
+      run(JSON.stringify({ ...recipe }), "string");
 
       if (shouldPass) {
         console.info(colors.green(`\n${description} passed as expected.`));
