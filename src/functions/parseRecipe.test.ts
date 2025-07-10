@@ -155,7 +155,7 @@ function runTests() {
   console.info(colors.grayBG(colors.white(" Summary:".padEnd(process.stdout.columns || 40))));
   console.info(colors.green(`Passed: ${passed.length} ${colors.gray(`- ${passed.join(", ")}`)}`));
   if (failed.length > 0) {
-    console.info(colors.red(`Failed: ${failed.length} - ${failed.join(", ")}`));
+    console.info(colors.red(`Failed: ${failed.length}\n\t- ${failed.join("\n\t- ")}`));
   } else {
     console.info(colors.gray("Failed: 0"));
   }

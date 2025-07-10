@@ -13,6 +13,32 @@ export type Recipe = {
   inputs: Record<string, { type: "scalar" | "vector" | "url"; value: number | number[] | string }>;
 };
 
+function isValidRecipe(recipe: any): recipe is Recipe {
+  return (
+    // Basic structure checks
+    typeof recipe === "object"
+    && typeof recipe.eq === "string"
+    && typeof recipe.inputs === "object"
+
+    // Equation checks
+    && recipe.eq.trim() !== ""
+    && recipe.eq.match(/\$\{(\w+)\}/g) !== null // Contains at least one variable
+
+    // Inputs checks
+    && !Array.isArray(recipe.inputs) // It's an object, not an array
+    && Object.keys(recipe.inputs).length > 0 // Has at least one input
+    && Object.values(recipe.inputs).every(input =>
+      !!input
+      && typeof input === "object"
+      && typeof (input as any).type === "string"
+      && ["scalar", "vector", "url"].includes((input as any).type)
+      && ((input as any).type !== "scalar" || (typeof (input as any).value === "number" && isFinite((input as any).value)))
+      && ((input as any).type !== "vector" || (Array.isArray((input as any).value) && (input as any).value.every((v: any) => typeof v === "number")))
+      && ((input as any).type !== "url" || (typeof (input as any).value === "string" && (input as any).value.trim() !== ""))
+    )
+  )
+}
+
 export function parseRecipe(recipe: Recipe | string) {
   // Validate JSON
   try {
@@ -30,28 +56,7 @@ export function parseRecipe(recipe: Recipe | string) {
   }
 
   // Validate Recipe type
-  if (
-    typeof recipe !== "object"
-    || !recipe.eq
-    || !recipe.inputs
-    || typeof recipe.eq !== "string"
-    || typeof recipe.inputs !== "object"
-    || Array.isArray(recipe.inputs)
-    || Object.keys(recipe.inputs).length === 0
-    || Object.values(recipe.inputs).some(input =>
-      typeof input !== "object" || !input.type || !input.value
-
-      // Has a valid input type
-      || (input.type !== "scalar" && input.type !== "vector" && input.type !== "url")
-
-      // Scalar checks
-      || (input.type === "scalar" && typeof input.value === "number" && !isFinite(input.value))
-      // Vector checks
-      || (input.type === "vector" && Array.isArray(input.value) && !input.value.every(v => typeof v === "number")
-        // URL checks
-        // TODO - @Leon, please add URL validation - Viggo
-      ))
-  ) {
+  if (!isValidRecipe(recipe)) {
     // TODO - handle error more gracefully
     throw new Error("Invalid recipe format. Expected an object with 'eq' and 'inputs' properties.");
   }
