@@ -1,6 +1,6 @@
 "use client"
 
-import { IconSearch } from "@tabler/icons-react";
+import { IconSearch, IconX } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import Fuse from "fuse.js";
 import styles from './searchableList.module.css'
@@ -14,6 +14,13 @@ export default function SearchableList({
 
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState<string[]>([])
+  const [chosenItem, setChosenItem] = useState<string[] | string>('')
+
+  useEffect(() => {
+    if (chosenItem !== null) {
+      console.log('New chosenItem:', chosenItem);
+    }
+  }, [chosenItem]);
 
   useEffect(() => {
     const fuse = new Fuse(list);
@@ -27,6 +34,18 @@ export default function SearchableList({
         Search
         <div className="focusable flex align-items-center padding-50 margin-top-25">
           <IconSearch width={24} height={24} />
+          {chosenItem ? 
+            <span className="display-flex gap-50 align-items-center padding-block-25 padding-inline-50 smooth" style={{ backgroundColor: 'var(--gray-90)', width: 'fit-content' }}>
+              {/* TODO: Add focusable to span here */}
+              {chosenItem}
+              <button
+                className="grid padding-0"
+                onClick={() => {setChosenItem('')}}
+                type="button">
+                <IconX width={12} height={12} strokeWidth={3} />
+              </button>
+            </span>
+          : null }
           <input
             type="search"
             value={searchTerm}
@@ -46,7 +65,15 @@ export default function SearchableList({
             <ul>
               {results.map((item, index) => (
                 <li className="margin-bottom-25" key={index}>
-                  <button role="button" aria-pressed="false" className="block width-100" style={{ borderRadius: '2px' }}>{item}</button>
+                  <button
+                    type="button"
+                    aria-pressed="false"
+                    className="block width-100"
+                    style={{ borderRadius: '2px' }}
+                    onClick={() => setChosenItem(item)}
+                  >
+                    {item}
+                  </button>
                 </li>
               ))}
             </ul>

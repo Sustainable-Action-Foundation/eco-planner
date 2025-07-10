@@ -1,9 +1,19 @@
 .search-container output div {
     display: none;
+    opacity: 0;
+    transform: scale(.95);
+    transform-origin: top left;
     position: absolute;
     top: 100%;
     left: 0;
     z-index: 9;
+    box-shadow: 0 4px .5rem 2px rgba(0, 0, 0, .1);
+    transition-property: display, opacity, transform;
+    transition-duration: .15s;
+    transition-behavior: allow-discrete;
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
 } 
 
 .search-container ul {
@@ -16,6 +26,14 @@
     margin: 0;
 }
 
-.search-container:has(input[type="search"]:focus) output div {
+.search-container:has(input[type="search"]:focus) output div,
+.search-container output div:has(*:focus, *:active) {
     display: block;
+    opacity: 1;
+    transform: scale(1);
+
+    @starting-style {
+        opacity: 0;
+        transform: scale(.95);
+    }
 }
