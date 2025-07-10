@@ -1,6 +1,6 @@
 "use client"
 
-import { IconSearch, IconX } from "@tabler/icons-react";
+import { IconSearch, IconSelector, IconX } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import Fuse from "fuse.js";
 import styles from './searchableList.module.css'
@@ -77,7 +77,10 @@ export default function SearchableList({
             </button>
           </span>
         ))}
+        {/* TODO: This should likely be a combobox */}
+        {/* TODO: When making this a combobox we need to use aria-expanded */}
         <input
+          autoComplete="off"
           id="search-elements"
           type="search"
           value={searchTerm}
@@ -116,23 +119,29 @@ export default function SearchableList({
           className="padding-0 flex-grow-100"
           style={{ borderRadius: '0', width: 'auto' }}
         />
+        <IconSelector width={24} height={24} style={{ minWidth: '24px' }} />
       </div>
       <output>
         <div
           className="purewhite margin-block-25 smooth"
-          style={{ border: '1px solid var(--gray-70)', padding: '3px', width: 'fit-content' }}
+          style={{ border: '1px solid var(--gray-70)', padding: '3px' }}
         >
+          {/* TODO: No need to use UL/LI here since i use listbox role */}
+          {/* TODO: Do not remove items, instead use aria-selected */}
+          {/* TODO: Shift needs to select multiple options */}
           {filteredResults.length > 0 ?
-            <ul
+            <ul 
               tabIndex={-1}
+              role="listbox"
             >
               {filteredResults.map((item, index) => (
                 <li className="margin-bottom-25" key={index}>
                   <button
                     tabIndex={-1}
                     ref={(el) => { itemRefs.current[index] = el }}
-                    type="button"
-                    aria-pressed="false"
+                    type="button" 
+                    role="option"
+                    aria-label={item}
                     className={`block width-100 text-align-left transparent ${focusedIndex === index ? 'focused-class' : ''}`}
                     style={focusedIndex === index ? { backgroundColor: 'var(--gray-90)' } : {}}
                     onClick={() => {
