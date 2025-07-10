@@ -1,5 +1,5 @@
-import "../scripts/lib/console.ts";
 import { colors } from "../scripts/lib/colors.ts";
+import "../scripts/lib/console.ts";
 import crypto from "crypto";
 
 const hash = (input: string) => {
@@ -38,12 +38,14 @@ export function parseRecipe(recipe: Recipe | string) {
     || typeof recipe.inputs !== "object"
     || Array.isArray(recipe.inputs)
     || Object.keys(recipe.inputs).length === 0
-    || Object.values(recipe.inputs).some(
-      input => typeof input !== "object" || !input.type || !input.value
-        || (input.type !== "scalar" && input.type !== "vector")
-        || (input.type === "scalar" && typeof input.value !== "number")
-        || (input.type === "vector" && Array.isArray(input.value) && !input.value.every(v => typeof v === "number")
-        ))
+    || Object.values(recipe.inputs).some(input =>
+      typeof input !== "object"
+      || !input.type
+      || !input.value
+      || (input.type !== "scalar" && input.type !== "vector")
+      || (input.type === "scalar" && typeof input.value !== "number")
+      || (input.type === "vector" && Array.isArray(input.value) && !input.value.every(v => typeof v === "number")
+      ))
   ) {
     // TODO - handle error more gracefully
     throw new Error("Invalid recipe format. Expected an object with 'eq' and 'inputs' properties.");
@@ -130,6 +132,61 @@ const testNoEquation = {
     A: { type: "vector", value: [43, 44, 45] },
     B: { type: "vector", value: [6, 7, 8] },
     C: { type: "scalar", value: 0.5 },
+  },
+};
+
+const testManyInputs: Recipe = {
+  eq: "${A} + ${B} + ${C} + ${D} + ${E} + ${F} + ${G} + ${H} + ${I} + ${J} + ${K} + ${L} + ${M} + ${N} + ${O} + ${P} + ${Q} + ${R} + ${S} + ${T} + ${U} + ${V} + ${W} + ${X} + ${Y} + ${Z}",
+  inputs: {
+    A: { type: "scalar", value: 1 },
+    B: { type: "scalar", value: 2 },
+    C: { type: "scalar", value: 3 },
+    D: { type: "scalar", value: 4 },
+    E: { type: "scalar", value: 5 },
+    F: { type: "scalar", value: 6 },
+    G: { type: "scalar", value: 7 },
+    H: { type: "scalar", value: 8 },
+    I: { type: "scalar", value: 9 },
+    J: { type: "scalar", value: 10 },
+    K: { type: "scalar", value: 11 },
+    L: { type: "scalar", value: 12 },
+    M: { type: "scalar", value: 13 },
+    N: { type: "scalar", value: 14 },
+    O: { type: "scalar", value: 15 },
+    P: { type: "scalar", value: 16 },
+    Q: { type: "scalar", value: 17 },
+    R: { type: "scalar", value: 18 },
+    S: { type: "scalar", value: 19 },
+    T: { type: "scalar", value: 20 },
+    U: { type: "scalar", value: 21 },
+    V: { type: "scalar", value: 22 },
+    W: { type: "scalar", value: 23 },
+    X: { type: "scalar", value: 24 },
+    Y: { type: "scalar", value: 25 },
+    Z: { type: "scalar", value: 26 },
+  }
+}
+
+const testPassthroughRecipe: Recipe = {
+  eq: "${A}",
+  inputs: {
+    A: { type: "vector", value: [23, 1543, 123243, 223] },
+  },
+};
+
+const testLongVectorRecipe: Recipe = {
+  eq: "${A} + ${B}",
+  inputs: {
+    A: { type: "vector", value: Array.from({ length: 1000 }, (_, i) => i + 1) },
+    B: { type: "vector", value: Array.from({ length: 1000 }, (_, i) => i + 1001) },
+  },
+};
+
+const testHugeScalarRecipe: Recipe = {
+  eq: "${A} + ${B}",
+  inputs: {
+    A: { type: "scalar", value: 1e12 },
+    B: { type: "scalar", value: 2e12 },
   },
 };
 
@@ -257,6 +314,23 @@ catch (error: any) {
   console.info(colors.rgb(150, 50, 50, "\n" + error.stack));
   console.info(colors.green("\nNo equation recipe failed as expected"));
   passed.push("No equation recipe");
+}
+console.log("");
+
+// Many inputs recipe test
+console.info(colors.grayBG(colors.white(" Many inputs recipe test:".padEnd(process.stdout.columns || 40))));
+try {
+  console.log("Parsing many inputs recipe...");
+  parseRecipe(testManyInputs);
+  console.log("Parsing many inputs recipe... (string)");
+  parseRecipe(JSON.stringify(testManyInputs));
+
+  console.info(colors.green("\nMany inputs recipe passed"));
+  passed.push("Many inputs recipe");
+}
+catch (error) {
+  console.error("\nMany inputs recipe failed:", error);
+  failed.push("Many inputs recipe");
 }
 console.log("");
 
