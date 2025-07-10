@@ -1,0 +1,21 @@
+.search-container output div {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 9;
+} 
+
+.search-container ul {
+    max-height: 35vh;
+    overflow-y: scroll;
+    scrollbar-width: thin;
+    list-style: none;
+    padding: 0;
+    padding-right: 3px;
+    margin: 0;
+}
+
+.search-container:has(input[type="search"]:focus) output div {
+    display: block;
+}
