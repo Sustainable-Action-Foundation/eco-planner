@@ -13,6 +13,13 @@ export type Recipe = {
   inputs: Record<string, { type: "scalar" | "vector" | "url"; value: number | number[] | string }>;
 };
 
+export type RecipeParserOptions = {
+  interpolationMethod: "interpolate all" | "only overlapping";
+};
+const defaultRecipeParserOptions: RecipeParserOptions = {
+  interpolationMethod: "interpolate all",
+}
+
 function isValidRecipe(recipe: any): recipe is Recipe {
   return (
     // Basic structure checks
@@ -39,7 +46,7 @@ function isValidRecipe(recipe: any): recipe is Recipe {
   )
 }
 
-export function parseRecipe(recipe: Recipe | string) {
+export function parseRecipe(recipe: Recipe | string, options: RecipeParserOptions = defaultRecipeParserOptions) {
   // Validate JSON
   try {
     if (typeof recipe === "string") {
@@ -80,10 +87,46 @@ export function parseRecipe(recipe: Recipe | string) {
   }
   const extraVariables = definedVariables.filter(v => !variables.includes(`\${${v}}`));
   if (extraVariables.length > 0) {
-    // TODO - handle error more gracefully
     console.warn(`Extra variables defined but not used in the equation: ${extraVariables.join(", ")}`);
   }
 
+  // TODO - normalize variable names to letters
 
+  // Validate inputs
+  const vectors = Object.entries(recipe.inputs).filter(([_, input]) => input.type === "vector");
+  const scalars = Object.entries(recipe.inputs).filter(([_, input]) => input.type === "scalar");
+  const urls = Object.entries(recipe.inputs).filter(([_, input]) => input.type === "url");
 
+  if (vectors.some(([_, input]) => !Array.isArray(input.value) || input.value.some(v => typeof v !== "number"))) {
+    // TODO - handle error more gracefully
+    throw new Error("Invalid vector input. Expected an array of numbers.");
+  }
+  if (scalars.some(([_, input]) => typeof input.value !== "number" || !isFinite(input.value))) {
+    // TODO - handle error more gracefully
+    throw new Error("Invalid scalar input. Expected a finite number.");
+  }
+  if (urls.some(([_, input]) => typeof input.value !== "string" || input.value.trim() === "" || !URL.canParse(input.value))) {
+    // TODO - handle error more gracefully
+    throw new Error("Invalid URL input. Expected a non-empty string.");
+  }
+
+  // Warn about sketchy inputs such as huge scalars or vectors and divide by zero
+  const hugeScalar = scalars.some(([_, input]) => Math.abs(input.value as number) > 1e12);
+  if (hugeScalar) {
+    console.warn("Warning: Recipe contains huge scalar values, which may lead to performance issues or overflow errors.");
+  }
+  const hugeVector = vectors.some(([_, input]) => (input.value as number[]).some(v => Math.abs(v) > 1e12));
+  if (hugeVector) {
+    console.warn("Warning: Recipe contains huge vector values, which may lead to performance issues or overflow errors.");
+  }
+  const longVector = vectors.some(([_, input]) => (input.value as number[]).length > 50); // Data series should not be this long
+  if (longVector) {
+    console.warn("Warning: Recipe contains long vectors. Why?");
+  }
+  const divideByZero = scalars.some(([_, input]) => input.value === 0 && recipe.eq.includes(`\${${_}}`));
+  if (divideByZero) {
+    console.warn("Warning: Recipe contains a zero, which may result in an error during evaluation.");
+  }
+
+  
 }
