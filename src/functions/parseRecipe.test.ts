@@ -94,6 +94,14 @@ const testDivideByZero: Recipe = {
   },
 };
 
+const testLongVariableNames: Recipe = {
+  eq: "${veryLongVariableName1} + ${veryLongVariableName2}",
+  inputs: {
+    veryLongVariableName1: { type: "scalar", value: 1 },
+    veryLongVariableName2: { type: "scalar", value: 2 },
+  },
+};
+
 // Test Cases Array
 // ----------------
 
@@ -108,6 +116,7 @@ const testCases = [
   { description: "Many inputs recipe", recipe: testManyInputs, shouldPass: true },
   { description: "Huge scalar values", recipe: testHugeScalar, shouldPass: true },
   { description: "Divide by zero recipe", recipe: testDivideByZero, shouldPass: false },
+  { description: "Long variable names", recipe: testLongVariableNames, shouldPass: true },
 ];
 
 // Test Runner
