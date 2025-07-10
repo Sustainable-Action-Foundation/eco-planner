@@ -17,12 +17,33 @@
 
 .search-container ul {
     max-height: 35vh;
-    overflow-y: scroll;
+    overflow-y: auto;
     scrollbar-width: thin;
     list-style: none;
     padding: 0;
     padding-right: 3px;
     margin: 0;
+}
+
+.search-container > div:has(input[type="search"]) {
+    background-color: white;
+    border: 1px solid var(--gray-70);
+    border-radius: .25rem;
+}
+
+.search-container > div:has(input[type="search"]:focus) {
+    border-color: var(--blue-40);
+    outline: 1px solid var(--blue-80);
+}
+
+.search-container > div:has(input[type="search"]) input[type="search"] {
+    border: 0;
+    background-color: transparent;
+}
+
+.search-container > div:has(input[type="search"]) input[type="search"]:focus {
+    outline: 0;
+    border: 0;
 }
 
 .search-container:focus-within output div {
