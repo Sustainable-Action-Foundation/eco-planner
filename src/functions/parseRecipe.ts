@@ -48,10 +48,7 @@ const defaultRecipeParserOptions: RecipeParserOptions = {
   interpolationMethod: "interpolate all",
 }
 
-/** 
- * Returns the resulting vector of the recipe equation as a string array.
- */
-export function parseRecipe(recipe: Recipe | string, options: RecipeParserOptions = defaultRecipeParserOptions): string[] {
+function validateRecipeType(recipe: Recipe | string): Recipe {
   // Validate JSON
   try {
     if (typeof recipe === "string") {
@@ -68,8 +65,6 @@ export function parseRecipe(recipe: Recipe | string, options: RecipeParserOption
   }
   // At this point reading it as a Recipe type should be safe even thought it might not contain all the properties
   recipe = recipe as Recipe;
-
-  console.info("Parsing recipe...", `${colors.green(recipe.eq)} (${colors.gray(hash(JSON.stringify(recipe)))})`);
 
   // Validate Recipe type
   if (!recipe) {
@@ -104,6 +99,36 @@ export function parseRecipe(recipe: Recipe | string, options: RecipeParserOption
     throw new Error("Invalid inputs format. Expected a non-empty object where keys are variable names and values are objects with type and value properties. " + JSON.stringify(recipe.inputs, null, 2));
   }
 
+  return recipe;
+}
+
+export function normalizeRecipe(recipe: Recipe | string): Recipe {
+  recipe = validateRecipeType(recipe);
+
+  // Normalize variable names
+  const renameMap: Record<string, string> = Object.fromEntries(Object.keys(recipe.inputs).map((key, index) => [`${key}`, getVariableName(index)]));
+  recipe.eq = recipe.eq.replace(/\$\{([\w-]+)\}/g, (_, varName) => {
+    if (renameMap[varName]) {
+      return `\${${renameMap[varName]}}`;
+    }
+    return `\${${varName}}`; // Fallback to original variable name if not found
+  });
+  recipe.inputs = Object.fromEntries(Object.entries(recipe.inputs).map(([key, input]) => {
+    if (!renameMap[key]) console.warn("Variable name not found in rename map:", key);
+    const normalizedKey = renameMap[key] || key; // Use the normalized name or fallback
+    return [normalizedKey, input];
+  }));
+
+  return recipe;
+}
+
+/** 
+ * Returns the resulting vector of the recipe equation as a string array.
+ */
+export function parseRecipe(recipe: Recipe | string, options: RecipeParserOptions = defaultRecipeParserOptions): string[] {
+  recipe = normalizeRecipe(recipe);
+
+  console.info("Parsing recipe...", `${colors.green(recipe.eq)} (${colors.gray(hash(JSON.stringify(recipe)))})`);
 
   // Extract variables from the equation
   const variables = recipe.eq.match(/\$\{([\w-]+)\}/g);
@@ -121,24 +146,6 @@ export function parseRecipe(recipe: Recipe | string, options: RecipeParserOption
   if (extraVariables.length > 0) {
     console.warn(`Extra variables defined but not used in the equation: ${extraVariables.join(", ")}`);
   }
-
-
-  // Normalize variable names to letters
-  const renameMap: Record<string, string> = Object.fromEntries(Object.keys(recipe.inputs).map((key, index) => [`${key}`, getVariableName(index)]));
-  recipe.eq = recipe.eq.replace(/\$\{([\w-]+)\}/g, (_, varName) => {
-    if (renameMap[varName]) {
-      return `\${${renameMap[varName]}}`;
-    }
-    return `\${${varName}}`; // Fallback to original variable name if not found
-  });
-  recipe.inputs = Object.fromEntries(Object.entries(recipe.inputs).map(([key, input]) => {
-    if (!renameMap[key]) console.warn("Variable name not found in rename map:", key);
-
-    const normalizedKey = renameMap[key] || key; // Use the normalized name or fallback
-    return [normalizedKey, input];
-  }));
-
-  console.info(`Normalized equation: ${colors.green(recipe.eq)} (${colors.gray(hash(JSON.stringify(recipe)))})`);
 
   // Validate inputs
   const vectors = Object.entries(recipe.inputs).filter(([_, input]) => input.type === "vector");
