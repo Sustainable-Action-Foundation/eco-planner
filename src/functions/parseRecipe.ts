@@ -3,6 +3,17 @@ import { colors } from "../scripts/lib/colors.ts";
 import "../scripts/lib/console.ts";
 import crypto from "crypto";
 
+function trunc(message: string) {
+  const maxLength = process.stdout.columns || 80; // Default to 80 if columns is not defined
+  if (message.length > maxLength) {
+    const ellipses = "... "
+    const excessLength = message.length - maxLength;
+    const excessMarker = `(${excessLength}) `
+    return message.slice(0, maxLength - ellipses.length - excessMarker.length) + ellipses + excessMarker;
+  }
+  return message;
+}
+
 function hash(input: string) {
   const hashObject = crypto.createHash("sha256");
   hashObject.update(JSON.stringify(input));
@@ -122,13 +133,13 @@ export function normalizeRecipe(recipe: Recipe | string): Recipe {
   return recipe;
 }
 
-/** 
+/**
  * Returns the resulting vector of the recipe equation as a string array.
  */
 export function parseRecipe(recipe: Recipe | string, options: RecipeParserOptions = defaultRecipeParserOptions): string[] {
   recipe = normalizeRecipe(recipe);
 
-  console.info("Parsing recipe...", `${colors.green(recipe.eq)} (${colors.gray(hash(JSON.stringify(recipe)))})`);
+  console.info(trunc(`Parsing recipe... ${recipe.eq}`));
 
   // Extract variables from the equation
   const variables = recipe.eq.match(/\$\{([\w-]+)\}/g);
@@ -197,7 +208,7 @@ export function parseRecipe(recipe: Recipe | string, options: RecipeParserOption
     return `\${${varName}}`; // Fallback to original variable name if not found
   });
 
-  console.info(`Resolved equation: ${colors.green(resolvedEquation)} (${colors.gray(hash(JSON.stringify({ ...recipe, eq: resolvedEquation })))})`);
+  console.info(trunc(`Resolved equation: ${colors.green(resolvedEquation)}`));
 
   const result: number | math.Matrix = mathjs.evaluate(resolvedEquation);
 
