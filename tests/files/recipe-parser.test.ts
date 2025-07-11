@@ -10,16 +10,16 @@ To add a new test:
 2. Add a new entry to the `testCases` array with a description, the recipe, and whether it should pass or fail.
 */
 
-import { colors } from "../scripts/lib/colors.ts";
-import "../scripts/lib/console.ts";
-import { parseRecipe, Recipe } from "./parseRecipe.ts";
+import { colors } from "../lib/colors";
+import "../lib/console.ts";
+import { parseRecipe, Recipe, trunc } from "../../src/functions/parseRecipe";
 
 // Test Case Definitions
 // ---------------------
 
 const testBasicRecipe: Recipe = {
   eq: "${A} * 3 + ${B}*2 / ${C}",
-  inputs: {
+  variables: {
     A: { type: "vector", value: [43, 44, 45] },
     B: { type: "vector", value: [6, 7, 8] },
     C: { type: "scalar", value: 0.5 },
@@ -28,7 +28,7 @@ const testBasicRecipe: Recipe = {
 
 const testMissingVariableRecipe: Recipe = {
   eq: "${A} * 3 + ${B}*2 / ${C}",
-  inputs: {
+  variables: {
     A: { type: "vector", value: [43, 44, 45] },
     B: { type: "vector", value: [6, 7, 8] },
     // C is missing
@@ -37,7 +37,7 @@ const testMissingVariableRecipe: Recipe = {
 
 const testExtraVariableRecipe: Recipe = {
   eq: "${A} * 3 + ${B}*2 / ${C}",
-  inputs: {
+  variables: {
     A: { type: "vector", value: [43, 44, 45] },
     B: { type: "vector", value: [6, 7, 8] },
     C: { type: "scalar", value: 0.5 },
@@ -47,7 +47,7 @@ const testExtraVariableRecipe: Recipe = {
 
 const testInvalidVariableRecipe = {
   eq: "${A} * 3 + ${B}*2 / ${C}",
-  inputs: {
+  variables: {
     A: { type: "vector", value: [43, 44, 45] },
     B: { type: "vector", value: [6, 7, 8] },
     C: { type: "string", value: "0.5" }, // Invalid type
@@ -56,7 +56,7 @@ const testInvalidVariableRecipe = {
 
 const testEmptyRecipe: Recipe = {
   eq: "",
-  inputs: {},
+  variables: {},
 };
 
 const testNoInput = {
@@ -64,23 +64,23 @@ const testNoInput = {
 };
 
 const testNoEquation = {
-  inputs: {
+  variables: {
     A: { type: "vector", value: [43, 44, 45] },
     B: { type: "vector", value: [6, 7, 8] },
     C: { type: "scalar", value: 0.5 },
   },
 };
 
-const testManyInputs: Recipe = {
+const testManyVariables: Recipe = {
   eq: "${A} + ${B} + ${C} + ${D} + ${E} + ${F} + ${G} + ${H} + ${I} + ${J} + ${K} + ${L} + ${M} + ${N} + ${O} + ${P} + ${Q} + ${R} + ${S} + ${T} + ${U} + ${V} + ${W} + ${X} + ${Y} + ${Z}",
-  inputs: {
+  variables: {
     A: { type: "scalar", value: 1 }, B: { type: "scalar", value: 2 }, C: { type: "scalar", value: 3 }, D: { type: "scalar", value: 4 }, E: { type: "scalar", value: 5 }, F: { type: "scalar", value: 6 }, G: { type: "scalar", value: 7 }, H: { type: "scalar", value: 8 }, I: { type: "scalar", value: 9 }, J: { type: "scalar", value: 10 }, K: { type: "scalar", value: 11 }, L: { type: "scalar", value: 12 }, M: { type: "scalar", value: 13 }, N: { type: "scalar", value: 14 }, O: { type: "scalar", value: 15 }, P: { type: "scalar", value: 16 }, Q: { type: "scalar", value: 17 }, R: { type: "scalar", value: 18 }, S: { type: "scalar", value: 19 }, T: { type: "scalar", value: 20 }, U: { type: "scalar", value: 21 }, V: { type: "scalar", value: 22 }, W: { type: "scalar", value: 23 }, X: { type: "scalar", value: 24 }, Y: { type: "scalar", value: 25 }, Z: { type: "scalar", value: 26 },
   }
 }
 
 const testHugeScalar: Recipe = {
   eq: "${A} + ${B}",
-  inputs: {
+  variables: {
     A: { type: "scalar", value: Number.MAX_SAFE_INTEGER },
     B: { type: "scalar", value: Number.MAX_SAFE_INTEGER },
   },
@@ -88,7 +88,7 @@ const testHugeScalar: Recipe = {
 
 const testDivideByZero: Recipe = {
   eq: "${A} / ${B}",
-  inputs: {
+  variables: {
     A: { type: "scalar", value: 10 },
     B: { type: "scalar", value: 0 }, // This will cause a divide by zero error
   },
@@ -96,7 +96,7 @@ const testDivideByZero: Recipe = {
 
 const testLongVariableNames: Recipe = {
   eq: "${veryLongVariableName1} + ${veryLongVariableName2}",
-  inputs: {
+  variables: {
     veryLongVariableName1: { type: "scalar", value: 1 },
     veryLongVariableName2: { type: "scalar", value: 2 },
   },
@@ -104,7 +104,7 @@ const testLongVariableNames: Recipe = {
 
 const testBadCharactersInEquation: Recipe = {
   eq: "${A} % 3 & ${B} | | $ 7",
-  inputs: {
+  variables: {
     A: { type: "scalar", value: 10 },
     B: { type: "scalar", value: 20 },
   },
@@ -112,7 +112,7 @@ const testBadCharactersInEquation: Recipe = {
 
 const testEmptyStringTemplate: Recipe = {
   eq: "${}",
-  inputs: {
+  variables: {
     A: { type: "scalar", value: 10 },
     B: { type: "scalar", value: 20 },
   },
@@ -120,7 +120,7 @@ const testEmptyStringTemplate: Recipe = {
 
 const testNumberVariableName: Recipe = {
   eq: "${5}",
-  inputs: {
+  variables: {
     5: { type: "scalar", value: 10 }, // Invalid variable name
     B: { type: "scalar", value: 20 },
   },
@@ -128,16 +128,23 @@ const testNumberVariableName: Recipe = {
 
 const test1800Variables: Recipe = {
   eq: new Array(1800).fill(0).map((_, i) => `\${V${i}}`).join("+"),
-  inputs: Object.fromEntries(
+  variables: Object.fromEntries(
     new Array(1800).fill(0).map((_, i) => [`V${i}`, { type: "scalar", value: i }])
   ),
 };
 
 const test3000Variables: Recipe = {
   eq: new Array(3000).fill(0).map((_, i) => `\${V${i}}`).join("+"),
-  inputs: Object.fromEntries(
+  variables: Object.fromEntries(
     new Array(3000).fill(0).map((_, i) => [`V${i}`, { type: "scalar", value: i }])
   ),
+};
+
+const testHugeVector: Recipe = {
+  eq: "${A} * 0.5",
+  variables: {
+    A: { type: "vector", value: new Array(10000).fill(1) }, // Huge vector
+  },
 };
 
 // Test Cases Array
@@ -151,7 +158,7 @@ const testCases = [
   { description: "Empty recipe", recipe: testEmptyRecipe, shouldPass: false },
   { description: "No input recipe", recipe: testNoInput, shouldPass: false },
   { description: "No equation recipe", recipe: testNoEquation, shouldPass: false },
-  { description: "Many inputs recipe", recipe: testManyInputs, shouldPass: true },
+  { description: "Many variables recipe", recipe: testManyVariables, shouldPass: true },
   { description: "Huge scalar values", recipe: testHugeScalar, shouldPass: true },
   { description: "Divide by zero recipe", recipe: testDivideByZero, shouldPass: false },
   { description: "Long variable names", recipe: testLongVariableNames, shouldPass: true },
@@ -160,6 +167,7 @@ const testCases = [
   { description: "Number variable name", recipe: testNumberVariableName, shouldPass: true },
   { description: "1800 variables", recipe: test1800Variables, shouldPass: true },
   { description: "3000 variables", recipe: test3000Variables, shouldPass: false },
+  { description: "Huge vector", recipe: testHugeVector, shouldPass: true },
 ];
 
 // Test Runner
@@ -180,13 +188,13 @@ function runTests() {
     try {
       // Test with object
       const res1 = run({ ...recipe }, "object");
-      console.log(`\n"${description}" result: ${colors.gray(res1.join(", "))}`);
+      console.log(trunc(`\n"${description}" result: ${colors.gray("[" + res1.join(", ") + "]")}`));
 
       console.log("\n" + colors.rgbBG(60, 75, 75, colors.white(" ...now with stringified JSON...".padEnd(process.stdout.columns || 40))));
 
       // Test with stringified JSON
       const res2 = run(JSON.stringify({ ...recipe }), "string");
-      console.log(`\n"${description}" result: ${colors.gray(res2.join(", "))}`);
+      console.log(trunc(`\n"${description}" result: ${colors.gray("[" + res2.join(", ") + "]")}`));
 
       // They should be the same
       if (JSON.stringify(res1) !== JSON.stringify(res2)) {

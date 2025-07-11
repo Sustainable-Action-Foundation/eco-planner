@@ -3,7 +3,8 @@ import { colors } from "../scripts/lib/colors.ts";
 import "../scripts/lib/console.ts";
 import crypto from "crypto";
 
-function trunc(message: string) {
+/** Truncates a message to fit within the terminal width, adding ellipses and excess length information if necessary. */
+export function trunc(message: string) {
   const maxLength = process.stdout.columns || 80; // Default to 80 if columns is not defined
   if (message.length > maxLength) {
     const ellipses = "... "
@@ -14,12 +15,14 @@ function trunc(message: string) {
   return message;
 }
 
-function hash(input: string) {
+/** Used when saving recipes into the database */
+function hashRecipe(input: string) {
   const hashObject = crypto.createHash("sha256");
   hashObject.update(JSON.stringify(input));
   return hashObject.digest("hex");
 }
 
+/** Predefined variable names for normalization. */
 const normalizedVariableNames = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AL", "AM", "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU", "AV", "AW", "AX", "AY", "AZ", "BA", "BB", "BC", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BK", "BL", "BM", "BN", "BO", "BP", "BQ", "BR", "BS", "BT", "BU", "BV", "BW", "BX", "BY", "BZ", "CA", "CB", "CC", "CD", "CE", "CF", "CG", "CH", "CI", "CJ", "CK", "CL", "CM", "CN", "CO", "CP", "CQ", "CR", "CS", "CT", "CU", "CV"];
 function getVariableName(index: number): string {
   // Try to get a normalized variable name from the predefined list
@@ -47,9 +50,19 @@ function getVariableName(index: number): string {
   return name;
 }
 
+export class RecipeError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = this.constructor.name;
+  }
+}
+export class RecipeInvalidFormatError extends RecipeError { }
+export class RecipeEquationError extends RecipeError { }
+export class RecipeVariablesError extends RecipeError { }
+
 export type Recipe = {
   eq: string;
-  inputs: Record<string, { type: "scalar" | "vector" | "url"; value: number | number[] | string }>;
+  variables: Record<string, { type: "scalar" | "vector" | "url"; value: number | number[] | string }>;
 };
 
 export type RecipeParserOptions = {
@@ -61,73 +74,87 @@ const defaultRecipeParserOptions: RecipeParserOptions = {
 
 function validateRecipeType(recipe: Recipe | string): Recipe {
   // Validate JSON
-  try {
-    if (typeof recipe === "string") {
+  if (typeof recipe === "string") {
+    try {
       console.log("Provided recipe is a string, parsing JSON...");
       recipe = JSON.parse(recipe);
     }
-    else {
-      JSON.parse(JSON.stringify(recipe));
+    catch (error) {
+      throw new Error("Invalid JSON format for recipe");
     }
   }
-  catch (error) {
-    // TODO - handle error more gracefully
-    throw new Error("Invalid JSON format for recipe");
-  }
+
   // At this point reading it as a Recipe type should be safe even thought it might not contain all the properties
-  recipe = recipe as Recipe;
+  const r = recipe as Recipe;
 
   // Validate Recipe type
-  if (!recipe) {
-    throw new Error("Recipe is undefined or null.");
+  if (!r) {
+    throw new RecipeInvalidFormatError("Recipe is undefined or null.");
   }
   // Has props
-  if (typeof recipe !== "object" || !recipe.eq || !recipe.inputs) {
-    throw new Error("Invalid recipe format. Expected an object with 'eq' and 'inputs' properties.");
+  if (typeof r !== "object" || !r.eq || !r.variables) {
+    throw new RecipeInvalidFormatError("Invalid recipe format. Expected an object with 'eq' and 'variables' properties.");
   }
   // Non-empty equation
-  if (typeof recipe.eq !== "string" || recipe.eq.trim() === "") {
-    throw new Error("Invalid equation format. Expected a non-empty string. (" + recipe.eq + ")");
+  if (typeof r.eq !== "string" || r.eq.trim() === "") {
+    throw new RecipeEquationError(`Invalid equation format. Expected a non-empty string. (${r.eq})`);
   }
   // At least one variable in the equation
-  if (recipe.eq.match(/\$\{([\w-]+)\}/g) === null) {
-    throw new Error("Invalid equation format. Expected at least one variable in the form ${variable}. (" + recipe.eq + ")");
+  if (r.eq.match(/\$\{([\w-]+)\}/g) === null) {
+    throw new RecipeEquationError(`Invalid equation format. Expected at least one variable in the form \${variable}. (${r.eq})`);
   }
-  // Inputs should be a non-empty object
-  if (typeof recipe.inputs !== "object" || Array.isArray(recipe.inputs) || Object.keys(recipe.inputs).length === 0) {
-    throw new Error("Invalid inputs format. Expected a non-empty object where keys are variable names and values are objects, see type definitions. " + JSON.stringify(recipe.inputs, null, 2));
+  // Variables should be a non-empty object
+  if (typeof r.variables !== "object" || Array.isArray(r.variables) || Object.keys(r.variables).length === 0) {
+    throw new RecipeVariablesError(`Invalid variables format. Expected a non-empty object where keys are variable names and values are objects, see type definitions. ${JSON.stringify(r.variables, null, 2)}`);
   }
-  // Input types should be valid
-  if (!Object.values(recipe.inputs).every(input =>
-    !!input
-    && typeof input === "object"
-    && typeof (input as any).type === "string"
-    && ["scalar", "vector", "url"].includes((input as any).type)
-    && ((input as any).type !== "scalar" || (typeof (input as any).value === "number" && isFinite((input as any).value)))
-    && ((input as any).type !== "vector" || (Array.isArray((input as any).value) && (input as any).value.every((v: any) => typeof v === "number")))
-    && ((input as any).type !== "url" || (typeof (input as any).value === "string" && (input as any).value.trim() !== ""))
-  )) {
-    throw new Error("Invalid inputs format. Expected a non-empty object where keys are variable names and values are objects with type and value properties. " + JSON.stringify(recipe.inputs, null, 2));
+  // Variable types should be valid
+  for (const key in r.variables) {
+    const variable = r.variables[key];
+    if (!variable || typeof variable !== "object") {
+      throw new RecipeVariablesError(`Invalid variable for '${key}'. Expected an object.`);
+    }
+    if (!("type" in variable) || !("value" in variable)) {
+      throw new RecipeVariablesError(`Invalid variable for '${key}'. Expected 'type' and 'value' properties.`);
+    }
+    switch (variable.type) {
+      case "scalar":
+        if (typeof variable.value !== "number" || !isFinite(variable.value)) {
+          throw new RecipeVariablesError(`Invalid scalar value for '${key}'. Expected a finite number.`);
+        }
+        break;
+      case "vector":
+        if (!Array.isArray(variable.value) || !variable.value.every(v => typeof v === "number" && isFinite(v))) {
+          throw new RecipeVariablesError(`Invalid vector value for '${key}'. Expected an array of finite numbers.`);
+        }
+        break;
+      case "url":
+        if (typeof variable.value !== "string" || variable.value.trim() === "" || !URL.canParse(variable.value)) {
+          throw new RecipeVariablesError(`Invalid URL value for '${key}'. Expected a valid URL string.`);
+        }
+        break;
+      default:
+        throw new RecipeVariablesError(`Invalid variable type for '${key}'. Expected 'scalar', 'vector', or 'url'.`);
+    }
   }
 
-  return recipe;
+  return r;
 }
 
 export function normalizeRecipe(recipe: Recipe | string): Recipe {
   recipe = validateRecipeType(recipe);
 
   // Normalize variable names
-  const renameMap: Record<string, string> = Object.fromEntries(Object.keys(recipe.inputs).map((key, index) => [`${key}`, getVariableName(index)]));
+  const renameMap: Record<string, string> = Object.fromEntries(Object.keys(recipe.variables).map((key, index) => [`${key}`, getVariableName(index)]));
   recipe.eq = recipe.eq.replace(/\$\{([\w-]+)\}/g, (_, varName) => {
     if (renameMap[varName]) {
       return `\${${renameMap[varName]}}`;
     }
     return `\${${varName}}`; // Fallback to original variable name if not found
   });
-  recipe.inputs = Object.fromEntries(Object.entries(recipe.inputs).map(([key, input]) => {
+  recipe.variables = Object.fromEntries(Object.entries(recipe.variables).map(([key, variable]) => {
     if (!renameMap[key]) console.warn("Variable name not found in rename map:", key);
     const normalizedKey = renameMap[key] || key; // Use the normalized name or fallback
-    return [normalizedKey, input];
+    return [normalizedKey, variable];
   }));
 
   return recipe;
@@ -143,66 +170,52 @@ export function parseRecipe(recipe: Recipe | string, options: RecipeParserOption
 
   // Extract variables from the equation
   const variables = recipe.eq.match(/\$\{([\w-]+)\}/g);
-  const definedVariables = Object.keys(recipe.inputs);
+  const definedVariables = Object.keys(recipe.variables);
   if (!variables) {
-    // TODO - handle error more gracefully
-    throw new Error("No variables found in the equation");
+    // This should be caught by validateRecipeType, but as a safeguard:
+    throw new RecipeEquationError("No variables found in the equation");
   }
   const missingVariables = variables.map(v => v.replace(/\$\{|\}/g, "")).filter(v => !definedVariables.includes(v));
   if (missingVariables.length > 0) {
-    // TODO - handle error more gracefully
-    throw new Error(`Missing variables in the equation: ${missingVariables.join(", ")}`);
+    throw new RecipeEquationError(`Missing variables in the equation: ${missingVariables.join(", ")}`);
   }
   const extraVariables = definedVariables.filter(v => !variables.includes(`\${${v}}`));
   if (extraVariables.length > 0) {
     console.warn(`Extra variables defined but not used in the equation: ${extraVariables.join(", ")}`);
   }
 
-  // Validate inputs
-  const vectors = Object.entries(recipe.inputs).filter(([_, input]) => input.type === "vector");
-  const scalars = Object.entries(recipe.inputs).filter(([_, input]) => input.type === "scalar");
-  const urls = Object.entries(recipe.inputs).filter(([_, input]) => input.type === "url");
+  const vectors = Object.entries(recipe.variables).filter(([, variable]) => variable.type === "vector");
+  const scalars = Object.entries(recipe.variables).filter(([, variable]) => variable.type === "scalar");
+  // TODO - see if any sanity checks can be done on URLs
+  // const urls = Object.entries(recipe.variables).filter(([, variable]) => variable.type === "url");
 
-  if (vectors.some(([_, input]) => !Array.isArray(input.value) || input.value.some(v => typeof v !== "number"))) {
-    // TODO - handle error more gracefully
-    throw new Error("Invalid vector input. Expected an array of numbers.");
-  }
-  if (scalars.some(([_, input]) => typeof input.value !== "number" || !isFinite(input.value))) {
-    // TODO - handle error more gracefully
-    throw new Error("Invalid scalar input. Expected a finite number.");
-  }
-  if (urls.some(([_, input]) => typeof input.value !== "string" || input.value.trim() === "" || !URL.canParse(input.value))) {
-    // TODO - handle error more gracefully
-    throw new Error("Invalid URL input. Expected a non-empty string.");
-  }
-
-  // Warn about sketchy inputs such as huge scalars or vectors and divide by zero
-  const hugeScalar = scalars.some(([_, input]) => Math.abs(input.value as number) > 1e12);
+  // Warn about sketchy variables such as huge scalars or vectors and divide by zero
+  const hugeScalar = scalars.some(([, variable]) => Math.abs(variable.value as number) > 1e12);
   if (hugeScalar) {
     console.warn("Warning: Recipe contains huge scalar values, which may lead to performance issues or overflow errors.");
   }
-  const hugeVector = vectors.some(([_, input]) => (input.value as number[]).some(v => Math.abs(v) > 1e12));
+  const hugeVector = vectors.some(([, variable]) => (variable.value as number[]).some(v => Math.abs(v) > 1e12));
   if (hugeVector) {
     console.warn("Warning: Recipe contains huge vector values, which may lead to performance issues or overflow errors.");
   }
-  const longVector = vectors.some(([_, input]) => (input.value as number[]).length > 50); // Data series should not be this long
+  const longVector = vectors.some(([, variable]) => (variable.value as number[]).length > 50); // Data series should not be this long
   if (longVector) {
-    console.warn("Warning: Recipe contains long vectors. Why?");
+    console.warn("Warning: Recipe contains very long vectors. Why?");
   }
-  const divideByZero = scalars.some(([_, input]) => input.value === 0 && recipe.eq.includes(`\${${_}}`));
+  const divideByZero = scalars.some(([key, variable]) => variable.value === 0 && new RegExp(`\\/\\s*\\$\\{${key}\\}`).test(recipe.eq));
   if (divideByZero) {
-    console.warn("Warning: Recipe contains a zero, which may result in an error during evaluation.");
+    console.warn("Warning: Recipe contains a division by a scalar with value zero, which may result in an error during evaluation.");
   }
 
   const resolvedEquation = recipe.eq.replace(/\$\{(\w+)\}/g, (_, varName) => {
-    if (recipe.inputs[varName]) {
-      const input = recipe.inputs[varName];
-      if (input.type === "scalar") {
-        return input.value.toString();
-      } else if (input.type === "vector") {
-        return `[${(input.value as number[]).join(",")}]`; // Convert vector to a string representation
-      } else if (input.type === "url") {
-        return `"${input.value}"`; // Convert URL to a string representation
+    if (recipe.variables[varName]) {
+      const variable = recipe.variables[varName];
+      if (variable.type === "scalar") {
+        return variable.value.toString();
+      } else if (variable.type === "vector") {
+        return `[${(variable.value as number[]).join(",")}]`; // Convert vector to a string representation
+      } else if (variable.type === "url") {
+        return `"${variable.value}"`; // Convert URL to a string representation
       }
     }
     return `\${${varName}}`; // Fallback to original variable name if not found
@@ -213,8 +226,7 @@ export function parseRecipe(recipe: Recipe | string, options: RecipeParserOption
   const result: number | math.Matrix = mathjs.evaluate(resolvedEquation);
 
   if (typeof result === "number" && !isFinite(result)) {
-    // TODO - handle error more gracefully
-    throw new Error("Result is not a finite number.");
+    throw new RecipeEquationError("Result is not a finite number.");
   }
 
   if (typeof result === "number") {
@@ -227,5 +239,5 @@ export function parseRecipe(recipe: Recipe | string, options: RecipeParserOption
     }
   }
 
-  throw new Error("Unexpected result type. Expected a number or an array of numbers.");
+  throw new RecipeError("Unexpected result type. Expected a number or an array of numbers.");
 }
