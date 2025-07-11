@@ -1,76 +1,120 @@
 "use client"
 
 import { IconSearch, IconSelector } from "@tabler/icons-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Combobox() {
 
+  // TODO: If element looses focus, do not display listbox
+  // TODO: Handle required inputs
+
+  const testArray: Array<string> = [
+    'apple',
+    'banana',
+    'orange',
+    'lemon',
+    'kiwi'
+  ]
+
   const [value, setValue] = useState<string>('');
   const [displayListBox, setDisplayListBox] = useState<boolean>(false)
+  const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null)
+  const [isFocused, setIsFocused] = useState<boolean>(false); // Ensures that listbox is only visible given that combobox actually retains focus
 
   const handleKeyDownSearchInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Always clear input and remove listbox if pressing escape
+    // Escape out of select menu if pressing escape
     if (e.key === 'Escape') {
-      setValue('')
+      setFocusedListBoxItem(null)
       setDisplayListBox(false)
     }
 
-    if (e.key === 'ArrowDown') {
-      if (displayListBox) {
-        return
+    // Select option and remove listbox
+    if (e.key === 'Enter') {
+      if (displayListBox && focusedListBoxItem != null) {
+        setValue(testArray[focusedListBoxItem])
+        setFocusedListBoxItem(null)
+        setDisplayListBox(false)
       } else {
+        setFocusedListBoxItem(0)
         setDisplayListBox(true)
       }
     }
 
-    if (e.key === 'ArrowUp') {
-      if (!displayListBox) {
-        return
+    if (e.key === 'ArrowDown') {
+      if (displayListBox && focusedListBoxItem != null) {
+
+        if (focusedListBoxItem != testArray.length - 1) {
+          setFocusedListBoxItem(focusedListBoxItem + 1)
+        } else {
+          setFocusedListBoxItem(0)
+        }
+
       } else {
-        setDisplayListBox(false)
+        setDisplayListBox(true)
+        setFocusedListBoxItem(0)
       }
     }
-  };
-  
+
+    // Retain keyboard shortcuts when disabling 
+    if (e.key === 'ArrowUp' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
+      if (displayListBox && focusedListBoxItem != null) {
+        e.preventDefault()
+
+        if (focusedListBoxItem != 0) {
+          setFocusedListBoxItem(focusedListBoxItem - 1)
+        } else {
+          setFocusedListBoxItem(testArray.length - 1)
+        }
+      }
+    }
+  }; 
+   
+
   return (
     <>
-      <div className="flex align-items-center focusable">
-        <IconSearch className="margin-left-50" />
-        <input 
+      <label htmlFor="combobox-control">Ange aktör</label>
+      <div className="flex align-items-center focusable margin-top-25">
+        <IconSearch aria-hidden="true" className="margin-left-50" width={24} height={24} style={{ minWidth: '24px' }} />
+        <input
           value={value}
-          onChange={(e) => setValue(e.target.value)} 
+          onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDownSearchInput}
-          role="combobox" 
-          type="text" 
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(true)}
+          id="combobox-control" /* TODO: Dynamic */
+          role="combobox"
+          type="text"
           placeholder="Sök.."
-          aria-expanded={displayListBox || !!value}
+          aria-expanded={(displayListBox || (value !== '' && !testArray.includes(value))) && isFocused}
           aria-haspopup="listbox"
-          aria-controls={displayListBox || !!value ? "listbox" : undefined} /* TODO: ID Must be dynamic to allow for multiple comboboxes on the same page */
-          /* TODO: aria-activedescendant="" Figure out an implementation of this? Probably using focused index or similar */ 
-          aria-autocomplete="list" /* TODO: Might want to implement features to enable this to have a value of "both"  */
+          aria-controls={(displayListBox || (value !== '' && !testArray.includes(value))) && isFocused ? "listbox" : undefined} /* TODO: ID Must be dynamic to allow for multiple comboboxes on the same page */
+          aria-activedescendant={focusedListBoxItem != null ? `listbox-${focusedListBoxItem}` : undefined}
+          aria-autocomplete="list" /* TODO: Might want to implement features to enable this to have a value of "both" (tab to autocomplete inline)  */
         />
-        <button 
-          onClick={() => setDisplayListBox(!displayListBox)}
-          aria-label="toggle listbox"
-          type="button" 
-          className="grid" 
-          tabIndex={-1}  
-        >
-          <IconSelector aria-hidden="true" />
-        </button>
+        <IconSelector aria-hidden="true" width={24} height={24} style={{ minWidth: '24px' }} className="margin-right-50" />
       </div>
 
-      {value || displayListBox ? 
-        <ul 
-          role="listbox" 
-          id="listbox" 
+      {(displayListBox || (value !== '' && !testArray.includes(value))) && isFocused ? (
+        <ul
+          role="listbox"
+          id="listbox" /* TODO: Dynamic */
+          aria-label="Aktörer"
           className="margin-inline-0 padding-0"
+          style={{ listStyle: 'none' }}
         >
-          <button role="option" aria-selected="false">1</button>
-          <button role="option" aria-selected="false">2</button>
-          <button role="option" aria-selected="false">3</button>
+          {testArray.map((item, index) =>
+            <li
+              key={index}
+              role="option"
+              aria-selected={item === value}
+              id={`listbox-${index}`}
+              style={{ backgroundColor: index === focusedListBoxItem ? '#e0e0e0' : 'transparent', }}
+            >
+              {item}
+            </li>
+          )}
         </ul>
-      : null }
+      )  : null}
     </>
   )
 }
