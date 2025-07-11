@@ -43,6 +43,11 @@ export default function Combobox() {
           role="combobox" 
           type="text" 
           placeholder="Sök.."
+          aria-expanded={displayListBox || !!value}
+          aria-haspopup="listbox"
+          aria-controls={displayListBox || !!value ? "listbox" : undefined} /* TODO: ID Must be dynamic to allow for multiple comboboxes on the same page */
+          /* TODO: aria-activedescendant="" Figure out an implementation of this? Probably using focused index or similar */ 
+          aria-autocomplete="list" /* TODO: Might want to implement features to enable this to have a value of "both"  */
         />
         <button 
           onClick={() => setDisplayListBox(!displayListBox)}
@@ -56,7 +61,11 @@ export default function Combobox() {
       </div>
 
       {value || displayListBox ? 
-        <ul role="listbox" id="listbox" className="margin-inline-0 padding-0">
+        <ul 
+          role="listbox" 
+          id="listbox" 
+          className="margin-inline-0 padding-0"
+        >
           <button role="option" aria-selected="false">1</button>
           <button role="option" aria-selected="false">2</button>
           <button role="option" aria-selected="false">3</button>
