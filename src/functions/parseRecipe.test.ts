@@ -126,10 +126,17 @@ const testNumberVariableName: Recipe = {
   },
 };
 
-const test2000Variables: Recipe = {
-  eq: new Array(2000).fill(0).map((_, i) => `\${V${i}}`).join("+"),
+const test1800Variables: Recipe = {
+  eq: new Array(1800).fill(0).map((_, i) => `\${V${i}}`).join("+"),
   inputs: Object.fromEntries(
-    new Array(2000).fill(0).map((_, i) => [`V${i}`, { type: "scalar", value: i }])
+    new Array(1800).fill(0).map((_, i) => [`V${i}`, { type: "scalar", value: i }])
+  ),
+};
+
+const test3000Variables: Recipe = {
+  eq: new Array(3000).fill(0).map((_, i) => `\${V${i}}`).join("+"),
+  inputs: Object.fromEntries(
+    new Array(3000).fill(0).map((_, i) => [`V${i}`, { type: "scalar", value: i }])
   ),
 };
 
@@ -151,7 +158,8 @@ const testCases = [
   { description: "Bad characters in equation", recipe: testBadCharactersInEquation, shouldPass: false },
   { description: "Empty string template", recipe: testEmptyStringTemplate, shouldPass: false },
   { description: "Number variable name", recipe: testNumberVariableName, shouldPass: true },
-  { description: "2000 variables", recipe: test2000Variables, shouldPass: true },
+  { description: "1800 variables", recipe: test1800Variables, shouldPass: true },
+  { description: "3000 variables", recipe: test3000Variables, shouldPass: false },
 ];
 
 // Test Runner
@@ -204,7 +212,7 @@ function runTests() {
   if (failed.length > 0) {
     console.info(colors.red(`Failed: ${failed.length}\n\t- ${failed.join("\n\t- ")}`));
   } else {
-    console.info(colors.gray("Failed: 0"));
+    console.info(colors.rgb(150, 75, 75, "Failed: 0"));
   }
   console.log("");
 }
