@@ -8,8 +8,13 @@ export default function Combobox() {
   const [value, setValue] = useState<string>('');
   const [displayListBox, setDisplayListBox] = useState<Boolean>(false)
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-   
+  const handleKeyDownSearchInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      if (displayListBox) {
+        setDisplayListBox(false)
+      }
+    }
+
     if (e.key === 'ArrowDown') {
       if (displayListBox) {
         return
@@ -19,15 +24,21 @@ export default function Combobox() {
     }
 
     if (e.key === 'ArrowUp') {
-      if (displayListBox) {
-        setDisplayListBox(false)
-      } else {
+      if (!displayListBox) {
         return
+      } else {
+        setDisplayListBox(false)
       }
     }
-
   };
 
+  const handleKeyDownListboxOption = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === 'Escape') {
+      if (displayListBox) {
+        setDisplayListBox(false)
+      }
+    }
+  };
 
   return (
     <>
@@ -35,7 +46,7 @@ export default function Combobox() {
         <IconSearch className="margin-left-50" />
         <input 
           onChange={(e) => setValue(e.target.value)} 
-          onKeyDown={handleKeyDown}
+          onKeyDown={handleKeyDownSearchInput}
           role="combobox" 
           type="search" 
         />
@@ -52,9 +63,9 @@ export default function Combobox() {
 
       {value || displayListBox ? 
         <ul role="listbox" id="listbox" className="margin-inline-0 padding-0">
-          <button role="option" aria-selected="false">1</button>
-          <button role="option" aria-selected="false">2</button>
-          <button role="option" aria-selected="false">3</button>
+          <button onKeyDown={handleKeyDownListboxOption} role="option" aria-selected="false">1</button>
+          <button onKeyDown={handleKeyDownListboxOption} role="option" aria-selected="false">2</button>
+          <button onKeyDown={handleKeyDownListboxOption} role="option" aria-selected="false">3</button>
         </ul>
       : null }
     </>
