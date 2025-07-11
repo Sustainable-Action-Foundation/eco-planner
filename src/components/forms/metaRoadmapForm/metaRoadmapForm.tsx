@@ -11,6 +11,7 @@ import formSubmitter from "@/functions/formSubmitter";
 import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
 import SearchableList from "../formElements/searchableList";
+import Combobox from "../formElements/combox";
 
 export default function MetaRoadmapForm({
   user,
@@ -134,6 +135,9 @@ export default function MetaRoadmapForm({
             <input className="margin-block-25" list="actors" id="actor" name="actor" type="text" defaultValue={currentRoadmap?.actor ?? undefined} />
           </label>
           <SearchableList list={Object.entries(countiesAndMunicipalities).flat(2)} />
+          <div className="margin-block-200">
+           <Combobox />
+          </div>
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
