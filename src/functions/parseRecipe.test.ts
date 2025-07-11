@@ -172,19 +172,28 @@ function runTests() {
   testCases.forEach(({ description, recipe, shouldPass }) => {
     console.info(colors.grayBG(colors.white(` ${description} test:`.padEnd(process.stdout.columns || 40))));
 
-    const run = (r: any, type: string) => {
+    const run = (r: any, type: string): string[] => {
       console.log(`Parsing ${description}... (${type})`);
-      parseRecipe(r);
+      return parseRecipe(r);
     }
 
     try {
       // Test with object
-      run({ ...recipe }, "object");
+      const res1 = run({ ...recipe }, "object");
+      console.log(`\n"${description}" result: ${colors.gray(res1.join(", "))}`);
 
       console.log("\n" + colors.rgbBG(60, 75, 75, colors.white(" ...now with stringified JSON...".padEnd(process.stdout.columns || 40))));
 
       // Test with stringified JSON
-      run(JSON.stringify({ ...recipe }), "string");
+      const res2 = run(JSON.stringify({ ...recipe }), "string");
+      console.log(`\n"${description}" result: ${colors.gray(res2.join(", "))}`);
+
+      // They should be the same
+      if (JSON.stringify(res1) !== JSON.stringify(res2)) {
+        console.error(`\n${description} failed: results do not match between object and stringified JSON.`);
+        failed.push(description);
+        return;
+      }
 
       if (shouldPass) {
         console.info(colors.green(`\n${description} passed as expected.`));
