@@ -21,6 +21,8 @@ export default function Combobox({
   // TODO: i18n
   // TODO: Re add button for opening and closing??
   // TODO: Scroll when navigating using keyboard
+  // TODO: Is it sensible to only show menu when we have a value? It probably makes more sense to
+  // display it on focus with the option to hide it using the escape key, and toggle ON display using arrow keys?
 
   const [value, setValue] = useState<string>('');
   const [displayListBox, setDisplayListBox] = useState<boolean>(false)
