@@ -1,8 +1,9 @@
 "use client"
 
 import { IconChevronDown, IconSearch } from "@tabler/icons-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from './searchableList.module.css'
+import Fuse from "fuse.js";
 
 export default function Combobox({
   id,
@@ -12,7 +13,7 @@ export default function Combobox({
   searchableList: Array<string>
 }) {
 
-  // TODO: Add fuse
+  // TODO: Check usage of !searchableList.includes(value)
   // TODO: Handle required inputs
   // TODO: i18n
   
@@ -22,6 +23,9 @@ export default function Combobox({
   const [displayListBox, setDisplayListBox] = useState<boolean>(false)
   const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null)
   const [isFocused, setIsFocused] = useState<boolean>(false); // Ensures that listbox is only visible given that combobox actually retains focus
+  
+  // Fuse search
+  const [results, setResults] = useState<string[]>([])
 
   const handleKeyDownSearchInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
     // Escape out of listbox if it is open
@@ -38,7 +42,7 @@ export default function Combobox({
     // Selects option and remove listbox
     if (e.key === 'Enter') {
       if (displayListBox && focusedListBoxItem != null) {
-        setValue(searchableList[focusedListBoxItem])
+        setValue(results[focusedListBoxItem])
         setFocusedListBoxItem(null)
         setDisplayListBox(false)
       }
@@ -50,7 +54,7 @@ export default function Combobox({
       if (displayListBox && focusedListBoxItem != null) {
         e.preventDefault()
 
-        if (focusedListBoxItem != searchableList.length - 1) {
+        if (focusedListBoxItem != results.length - 1) {
           setFocusedListBoxItem(focusedListBoxItem + 1)
         } else {
           setFocusedListBoxItem(0)
@@ -70,7 +74,7 @@ export default function Combobox({
         if (focusedListBoxItem != 0) {
           setFocusedListBoxItem(focusedListBoxItem - 1)
         } else {
-          setFocusedListBoxItem(searchableList.length - 1)
+          setFocusedListBoxItem(results.length - 1)
         } 
       } else { // If list is closed, open it
         setDisplayListBox(true)
@@ -79,7 +83,12 @@ export default function Combobox({
     }
   }; 
    
-
+  useEffect(() => {
+    const fuse = new Fuse(searchableList);
+    const newResults = value ? fuse.search(value).map(result => result.item) : searchableList;
+    setResults(newResults);
+  }, [value]);
+  
   return (
     <div className="position-relative" style={{width: 'min(350px, 100%)'}}>
       <label htmlFor={id}>Ange aktör</label>
@@ -117,7 +126,7 @@ export default function Combobox({
           transform: (displayListBox || (value !== '' && !searchableList.includes(value))) && isFocused ? 'scale(1)' : 'scale(0.95)'
         }}
       >
-        {searchableList.map((item, index) =>
+        {results.map((item, index) =>
           <li
             key={index}
             role="option"
