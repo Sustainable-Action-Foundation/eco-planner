@@ -1,6 +1,7 @@
 .search-container {
     width: min(350px, 100%);
 }
+ 
 
 .search-container output div {
     width: 100%;
@@ -63,3 +64,31 @@
 }
 
 /* NEW */
+
+.listbox {
+    list-style: none;
+    border: 1px solid var(--gray-70);
+    background-color: white;
+    margin-block: .25rem;
+    border-radius: .25rem;
+    padding: 3px;
+    position: absolute;
+    z-index: 9;
+    width: 100%;
+    transform-origin: top left;
+
+    transition-property: opacity, transform;
+    transition-duration: .15s;
+}
+
+.listbox > li {
+    border-radius: .25rem;
+    padding: .25rem;
+    transition: background-color .1s;
+    user-select: none;
+    font-size: smaller;
+}
+
+.listbox > li:hover {
+    background-color: var(--gray-90);    
+}
