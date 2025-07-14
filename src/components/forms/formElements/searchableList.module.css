@@ -83,7 +83,7 @@
 
 .listbox > li {
     border-radius: .25rem;
-    padding: .25rem;
+    padding: .5rem;
     user-select: none;
     font-size: smaller;
 }

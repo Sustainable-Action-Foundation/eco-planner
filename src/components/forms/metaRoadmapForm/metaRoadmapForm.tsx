@@ -136,7 +136,7 @@ export default function MetaRoadmapForm({
           </label>
           <SearchableList list={Object.entries(countiesAndMunicipalities).flat(2)} />
           <div className="margin-block-200">
-           <Combobox />
+           <Combobox id="actors" searchableList={Object.entries(countiesAndMunicipalities).flat(2)} />
           </div>
         </fieldset>
 

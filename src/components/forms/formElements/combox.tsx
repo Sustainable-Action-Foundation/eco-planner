@@ -4,21 +4,19 @@ import { IconChevronDown, IconSearch } from "@tabler/icons-react";
 import { useState } from "react";
 import styles from './searchableList.module.css'
 
-export default function Combobox() {
+export default function Combobox({
+  id,
+  searchableList
+}: {
+  id: string
+  searchableList: Array<string>
+}) {
 
   // TODO: Add fuse
   // TODO: Handle required inputs
   // TODO: i18n
   
   // TODO: Re add button for opening and closing??
-
-  const testArray: Array<string> = [
-    'apple',
-    'banana',
-    'orange',
-    'lemon',
-    'kiwi'
-  ]
 
   const [value, setValue] = useState<string>('');
   const [displayListBox, setDisplayListBox] = useState<boolean>(false)
@@ -40,7 +38,7 @@ export default function Combobox() {
     // Selects option and remove listbox
     if (e.key === 'Enter') {
       if (displayListBox && focusedListBoxItem != null) {
-        setValue(testArray[focusedListBoxItem])
+        setValue(searchableList[focusedListBoxItem])
         setFocusedListBoxItem(null)
         setDisplayListBox(false)
       }
@@ -52,7 +50,7 @@ export default function Combobox() {
       if (displayListBox && focusedListBoxItem != null) {
         e.preventDefault()
 
-        if (focusedListBoxItem != testArray.length - 1) {
+        if (focusedListBoxItem != searchableList.length - 1) {
           setFocusedListBoxItem(focusedListBoxItem + 1)
         } else {
           setFocusedListBoxItem(0)
@@ -72,7 +70,7 @@ export default function Combobox() {
         if (focusedListBoxItem != 0) {
           setFocusedListBoxItem(focusedListBoxItem - 1)
         } else {
-          setFocusedListBoxItem(testArray.length - 1)
+          setFocusedListBoxItem(searchableList.length - 1)
         } 
       } else { // If list is closed, open it
         setDisplayListBox(true)
@@ -84,7 +82,7 @@ export default function Combobox() {
 
   return (
     <div className="position-relative" style={{width: 'min(350px, 100%)'}}>
-      <label htmlFor="combobox-control">Ange aktör</label>
+      <label htmlFor={id}>Ange aktör</label>
       <div className="flex align-items-center focusable margin-top-25">
         <IconSearch aria-hidden="true" className="margin-left-50" width={24} height={24} style={{ minWidth: '24px' }} />
         <input
@@ -93,13 +91,13 @@ export default function Combobox() {
           onKeyDown={handleKeyDownSearchInput}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          id="combobox-control" /* TODO: Dynamic */
+          id={id}  
           role="combobox"
           type="text"
           placeholder="Sök.."
-          aria-expanded={(displayListBox || (value !== '' && !testArray.includes(value))) && isFocused}
+          aria-expanded={(displayListBox || (value !== '' && !searchableList.includes(value))) && isFocused}
           aria-haspopup="listbox"
-          aria-controls={(displayListBox || (value !== '' && !testArray.includes(value))) && isFocused ? "listbox" : undefined} /* TODO: ID Must be dynamic to allow for multiple comboboxes on the same page */
+          aria-controls={(displayListBox || (value !== '' && !searchableList.includes(value))) && isFocused ? `${id}-listbox` : undefined} 
           aria-activedescendant={focusedListBoxItem != null ? `listbox-${focusedListBoxItem}` : undefined}
           aria-autocomplete="list" /* TODO: Might want to implement features to enable this to have a value of "both" (tab to autocomplete inline)  */
         />
@@ -108,23 +106,23 @@ export default function Combobox() {
 
       <ul
         role="listbox"
-        id="listbox" /* TODO: Dynamic */
+        id={`${id}-listbox`} 
         aria-label="Aktörer"
-        aria-hidden={!(displayListBox || (value !== '' && !testArray.includes(value))) && isFocused} // TODO: Check that this works as expected on screenreader
+        aria-hidden={!(displayListBox || (value !== '' && !searchableList.includes(value))) && isFocused} // TODO: Check that this works as expected on screenreader
         className={`${styles['listbox']} margin-inline-0 padding-0`}
         /* Setting styling instead of conditionally rendering allows us to animate using css transitions */
         style={{    
-          pointerEvents: (displayListBox || (value !== '' && !testArray.includes(value))) && isFocused ? 'auto' : 'none',
-          opacity: (displayListBox || (value !== '' && !testArray.includes(value))) && isFocused ? 1 : 0,
-          transform: (displayListBox || (value !== '' && !testArray.includes(value))) && isFocused ? 'scale(1)' : 'scale(0.95)'
+          pointerEvents: (displayListBox || (value !== '' && !searchableList.includes(value))) && isFocused ? 'auto' : 'none',
+          opacity: (displayListBox || (value !== '' && !searchableList.includes(value))) && isFocused ? 1 : 0,
+          transform: (displayListBox || (value !== '' && !searchableList.includes(value))) && isFocused ? 'scale(1)' : 'scale(0.95)'
         }}
       >
-        {testArray.map((item, index) =>
+        {searchableList.map((item, index) =>
           <li
             key={index}
             role="option"
             aria-selected={item === value}
-            id={`listbox-${index}`}
+            id={`${id}-listbox-${index}`}
             style={{backgroundColor: index === focusedListBoxItem ? 'var(--gray-90)' : '', }}
             onClick={() => {setValue(item), setDisplayListBox(false)}} /* TODO: Pointer events make this buggy */
           >
