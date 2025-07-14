@@ -7,14 +7,17 @@ import Fuse from "fuse.js";
 
 export default function Combobox({
   id,
+  required,
+  placeholder,
   searchableList
 }: {
   id: string
+  required?: boolean
+  placeholder?: string
   searchableList: Array<string>
 }) {
 
   // TODO: Check usage of !searchableList.includes(value)
-  // TODO: Handle required inputs
   // TODO: i18n
   
   // TODO: Re add button for opening and closing??
@@ -91,10 +94,10 @@ export default function Combobox({
   
   return (
     <div className="position-relative" style={{width: 'min(350px, 100%)'}}>
-      <label htmlFor={id}>Ange aktör</label>
-      <div className="flex align-items-center focusable margin-top-25">
+      <div className="flex align-items-center focusable">
         <IconSearch aria-hidden="true" className="margin-left-50" width={24} height={24} style={{ minWidth: '24px' }} />
         <input
+          required={required ? required : false}
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDownSearchInput}
@@ -103,7 +106,7 @@ export default function Combobox({
           id={id}  
           role="combobox"
           type="text"
-          placeholder="Sök.."
+          placeholder={placeholder ? placeholder : undefined}
           aria-expanded={(displayListBox || (value !== '' && !searchableList.includes(value))) && isFocused}
           aria-haspopup="listbox"
           aria-controls={(displayListBox || (value !== '' && !searchableList.includes(value))) && isFocused ? `${id}-listbox` : undefined} 

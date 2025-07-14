@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import SearchableList from "../formElements/searchableList";
 import Combobox from "../formElements/combox";
 
+/* TODO: Check usage of autocomplete both here and for other forms */
 export default function MetaRoadmapForm({
   user,
   userGroups,
@@ -136,7 +137,13 @@ export default function MetaRoadmapForm({
           </label>
           <SearchableList list={Object.entries(countiesAndMunicipalities).flat(2)} />
           <div className="margin-block-200">
-           <Combobox id="actors" searchableList={Object.entries(countiesAndMunicipalities).flat(2)} />
+            <label htmlFor="actors" className="margin-bottom-25 block">Ange aktör</label>
+            <Combobox
+              id="actors"
+              required={true}
+              placeholder="Sök..."
+              searchableList={Object.entries(countiesAndMunicipalities).flat(2)}
+            />
           </div>
         </fieldset>
 
