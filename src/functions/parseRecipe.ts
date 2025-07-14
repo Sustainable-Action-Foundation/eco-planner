@@ -1,6 +1,7 @@
 import mathjs from "@/math.ts";
 import "../scripts/lib/console.ts";
 import crypto from "crypto";
+import { isNull } from "mathjs";
 
 /** Truncates a message to fit within the terminal width, adding ellipses and excess length information if necessary. */
 export function trunc(message: string) {
@@ -59,24 +60,92 @@ export class RecipeInvalidFormatError extends RecipeError { }
 export class RecipeEquationError extends RecipeError { }
 export class RecipeVariablesError extends RecipeError { }
 
-export type Recipe = {
-  eq: string;
-  variables: Record<string, { type: "scalar" | "vector" | "url"; value: number | number[] | string }>;
-};
-
-export type RecipeParseResult = {
-  result: string[];
-  warnings: string[];
-};
-
-export type RecipeParserOptions = {
-  interpolationMethod: "interpolate all" | "only overlapping" | "zero fill" | "none";
-};
-const defaultRecipeParserOptions: RecipeParserOptions = {
-  interpolationMethod: "interpolate all",
+export type DataSeries = {
+  "2020": number | null;
+  "2021": number | null;
+  "2022": number | null;
+  "2023": number | null;
+  "2024": number | null;
+  "2025": number | null;
+  "2026": number | null;
+  "2027": number | null;
+  "2028": number | null;
+  "2029": number | null;
+  "2030": number | null;
+  "2031": number | null;
+  "2032": number | null;
+  "2033": number | null;
+  "2034": number | null;
+  "2035": number | null;
+  "2036": number | null;
+  "2037": number | null;
+  "2038": number | null;
+  "2039": number | null;
+  "2040": number | null;
+  "2041": number | null;
+  "2042": number | null;
+  "2043": number | null;
+  "2044": number | null;
+  "2045": number | null;
+  "2046": number | null;
+  "2047": number | null;
+  "2048": number | null;
+  "2049": number | null;
+  "2050": number | null;
 }
 
-function validateRecipeType(recipe: Recipe | string): Recipe {
+export type RecipeVariableScalar = {
+  type: "scalar";
+  value: number;
+}
+/** Should maybe be transformed into a @type {DataSeries} for better compatibility with other data sources? TODO */
+export type RecipeVariableVector = {
+  type: "vector";
+  value: number[];
+}
+export type RecipeVariableDataSeries = {
+  type: "dataSeries";
+  value: DataSeries;
+}
+/** This should not be saved in the recipe on the db. It should be transformed into @type {RecipeVariableExternalDataset} */
+export type RecipeVariableUrl = {
+  type: "url";
+  value: string;
+}
+export type RecipeVariableExternalDataset = {
+  type: "externalDataset";
+  value: {
+    dataset: string; // e.g. "SCB", "Trafa"
+    tableId: string; // e.g. "AM0101"
+    variableId: string; // e.g. "Inkomst"
+  }
+}
+
+export type UnparsedRecipeVariables = Record<string, RecipeVariableScalar | RecipeVariableVector | RecipeVariableDataSeries | RecipeVariableUrl | RecipeVariableExternalDataset>;
+export type ParsedRecipeVariables = Record<string, RecipeVariableScalar | RecipeVariableDataSeries | RecipeVariableExternalDataset>;
+
+/** Some variables are fine to take as input but need to be transformed to fit in the backend so that's why there are two types */
+export type UnparsedRecipe = {
+  eq: string;
+  variables: UnparsedRecipeVariables;
+};
+/** Some variables will need to be transformed to fit this normalized recipe */
+export type ParsedRecipe = {
+  eq: string;
+  variables: ParsedRecipeVariables;
+};
+
+/** 
+ * TODO - add descriptions for all interpolation methods
+ */
+export type RecipeParserOptions = {
+  interpolationMethod: "interpolate_missing" | "only_overlapping" | "zero_fill" | "none";
+};
+const defaultRecipeParserOptions: RecipeParserOptions = {
+  interpolationMethod: "interpolate_missing",
+}
+
+function validateRecipeType(recipe: UnparsedRecipe | string): UnparsedRecipe {
   // Validate JSON
   if (typeof recipe === "string") {
     try {
@@ -89,7 +158,7 @@ function validateRecipeType(recipe: Recipe | string): Recipe {
   }
 
   // At this point reading it as a Recipe type should be safe even thought it might not contain all the properties
-  const r = recipe as Recipe;
+  const r = recipe as UnparsedRecipe;
 
   // Validate Recipe type
   if (!r) {
@@ -144,7 +213,7 @@ function validateRecipeType(recipe: Recipe | string): Recipe {
   return r;
 }
 
-export function normalizeRecipe(recipe: Recipe | string, warnings: string[] = []): Recipe {
+export function normalizeRecipeVariableNames(recipe: UnparsedRecipe | string, warnings: string[] = []): UnparsedRecipe {
   recipe = validateRecipeType(recipe);
 
   // Normalize variable names
@@ -164,57 +233,141 @@ export function normalizeRecipe(recipe: Recipe | string, warnings: string[] = []
   return recipe;
 }
 
-/**
- * Returns the resulting vector of the recipe equation as a string array.
- */
-export function parseRecipe(recipe: Recipe | string, options: RecipeParserOptions = defaultRecipeParserOptions): RecipeParseResult {
-  const warnings: string[] = [];
-  const normalizedRecipe = normalizeRecipe(recipe, warnings);
+function sketchyScalars(scalars: [string, RecipeVariableScalar][], warnings: string[]) {
+  const hugeScalar = scalars.filter(([, variable]) => Math.abs(variable.value) > 1e12);
+  if (hugeScalar.length > 0) {
+    warnings.push(`Recipe contains huge scalar values: ${hugeScalar.map(s => s.at(0)).join(", ")}, which may lead to performance issues or overflow errors.`);
+  }
 
-  console.log(trunc(`Parsing recipe... ${normalizedRecipe.eq}`));
+  const nearZeroScalar = scalars.filter(([, variable]) => Math.abs(variable.value) < 1e-12 && variable.value !== 0);
+  if (nearZeroScalar.length > 0) {
+    warnings.push(`Recipe contains scalar values close to zero: ${nearZeroScalar.map(s => s.at(0)).join(", ")}, which may lead to precision issues during evaluation.`);
+  }
+
+  const negativeScalar = scalars.filter(([, variable]) => variable.value < 0);
+  if (negativeScalar.length > 0) {
+    warnings.push(`Recipe contains negative scalar values: ${negativeScalar.map(s => s.at(0)).join(", ")}, which may lead to unexpected results in calculations.`);
+  }
+
+  const divideByZero = scalars.filter(([, variable]) => variable.value === 0);
+  if (divideByZero.length > 0) {
+    warnings.push("Recipe contains scalar values that are zero, which may lead to division by zero errors during evaluation or zeroing of other values in multiplication.");
+  }
+}
+
+function sketchyVectors(vectors: [string, RecipeVariableVector][], warnings: string[]) {
+  const hugeValuesInVector = vectors.filter(([, variable]) => variable.value.some(v => Math.abs(v) > 1e12));
+  if (hugeValuesInVector.length > 0) {
+    warnings.push(`Recipe contains huge vector values: ${hugeValuesInVector.map(v => v.at(0)).join(", ")}, which may lead to performance issues or overflow errors.`);
+  }
+
+  const longVector = vectors.filter(([, variable]) => variable.value.length > 50);
+  if (longVector.length > 0) {
+    warnings.push(`Recipe contains very long vectors: ${longVector.map(v => v.at(0)).join(", ")}, which may lead to performance issues or unexpected results in calculations.`);
+  }
+
+  const shortVector = vectors.filter(([, variable]) => variable.value.length < 2);
+  if (shortVector.length > 0) {
+    warnings.push(`Recipe contains very short vectors: ${shortVector.map(v => v.at(0)).join(", ")}, which may lead to unexpected results in calculations.`);
+  }
+}
+
+function sketchyUrls(urls: [string, RecipeVariableUrl][], warnings: string[]) {
+  // TODO - implement
+}
+
+function sketchyDataSeries(dataSeries: [string, RecipeVariableDataSeries][], warnings: string[]) {
+  const hugeValuesInDataSeries = dataSeries.filter(([, variable]) => Object.values(variable.value).some(v => !isNull(v) && Math.abs(v) > 1e12));
+  if (hugeValuesInDataSeries.length > 0) {
+    warnings.push(`Recipe contains huge data series values: ${hugeValuesInDataSeries.map(ds => ds.at(0)).join(", ")}, which may lead to performance issues or overflow errors.`);
+  }
+
+  const longDataSeries = dataSeries.filter(([, variable]) => Object.keys(variable.value).length > 50);
+  if (longDataSeries.length > 0) {
+    warnings.push(`Recipe contains very long data series: ${longDataSeries.map(ds => ds.at(0)).join(", ")}, which may lead to performance issues or unexpected results in calculations.`);
+  }
+
+  const shortDataSeries = dataSeries.filter(([, variable]) => Object.keys(variable.value).length < 2);
+  if (shortDataSeries.length > 0) {
+    warnings.push(`Recipe contains very short data series: ${shortDataSeries.map(ds => ds.at(0)).join(", ")}, which may lead to unexpected results in calculations.`);
+  }
+}
+
+function sketchyExternalDatasets(externalDatasets: [string, RecipeVariableExternalDataset][], warnings: string[]) {
+  // TODO - implement
+}
+
+export function parseRecipe(recipe: UnparsedRecipe | string, options: RecipeParserOptions = defaultRecipeParserOptions): { recipe: ParsedRecipe, result: DataSeries, warnings: string[] } {
+  const warnings: string[] = [];
+  const normalizedNamesRecipe = normalizeRecipeVariableNames(recipe, warnings);
+
+  console.log(trunc(`Parsing recipe... ${normalizedNamesRecipe.eq}`));
 
   // Extract variables from the equation
-  const variables = normalizedRecipe.eq.match(/\$\{([\w-]+)\}/g);
-  const definedVariables = Object.keys(normalizedRecipe.variables);
+  const variables = normalizedNamesRecipe.eq.match(/\$\{([\w-]+)\}/g);
+
+  // No variables
   if (!variables) {
     // This should be caught by validateRecipeType, but as a safeguard:
     throw new RecipeEquationError("No variables found in the equation");
   }
+
+  const definedVariables = Object.keys(normalizedNamesRecipe.variables);
+
+  // Missing variable definitions
   const missingVariables = variables.map(v => v.replace(/\$\{|\}/g, "")).filter(v => !definedVariables.includes(v));
   if (missingVariables.length > 0) {
     throw new RecipeVariablesError(`Missing variables in the equation: ${missingVariables.join(", ")}`);
   }
+
+  // Excess variable definitions
   const extraVariables = definedVariables.filter(v => !variables.includes(`\${${v}}`));
   if (extraVariables.length > 0) {
     warnings.push(`Extra variables defined but not used in the equation: ${extraVariables.join(", ")}`);
   }
 
-  const vectors = Object.entries(normalizedRecipe.variables).filter(([, variable]) => variable.type === "vector");
-  const scalars = Object.entries(normalizedRecipe.variables).filter(([, variable]) => variable.type === "scalar");
-  // TODO - see if any sanity checks can be done on URLs
-  // const urls = Object.entries(recipe.variables).filter(([, variable]) => variable.type === "url");
 
-  // Warn about sketchy variables such as huge scalars or vectors and divide by zero
-  const hugeScalar = scalars.some(([, variable]) => Math.abs(variable.value as number) > 1e12);
-  if (hugeScalar) {
-    warnings.push("Recipe contains huge scalar values, which may lead to performance issues or overflow errors.");
-  }
-  const hugeVector = vectors.some(([, variable]) => (variable.value as number[]).some(v => Math.abs(v) > 1e12));
-  if (hugeVector) {
-    warnings.push("Recipe contains huge vector values, which may lead to performance issues or overflow errors.");
-  }
-  const longVector = vectors.some(([, variable]) => (variable.value as number[]).length > 50); // Data series should not be this long
-  if (longVector) {
-    warnings.push("Recipe contains very long vectors. Why?");
-  }
-  const divideByZero = scalars.some(([key, variable]) => variable.value === 0 && new RegExp(`\\/\\s*\\$\\{${key}\\}`).test(normalizedRecipe.eq));
-  if (divideByZero) {
-    warnings.push("Recipe contains a division by a scalar with value zero, which may result in an error during evaluation.");
-  }
+  // Variable type sanity checks
+  const vectors: [string, RecipeVariableVector][] = [];
+  const scalars: [string, RecipeVariableScalar][] = [];
+  const urls: [string, RecipeVariableUrl][] = [];
+  const dataSeries: [string, RecipeVariableDataSeries][] = [];
+  const externalDatasets: [string, RecipeVariableExternalDataset][] = [];
+  Object.entries(normalizedNamesRecipe.variables).forEach(([key, variable]) => {
+    switch (variable.type) {
+      case "scalar":
+        scalars.push([key, variable]);
+        break;
+      case "vector":
+        vectors.push([key, variable]);
+        break;
+      case "url":
+        urls.push([key, variable]);
+        break;
+      case "dataSeries":
+        dataSeries.push([key, variable]);
+        break;
+      case "externalDataset":
+        externalDatasets.push([key, variable]);
+        break;
+      default:
+        throw new RecipeVariablesError(`Unknown variable type for '${key}': ${variable.type}`);
+    }
+  });
 
-  const resolvedEquation = normalizedRecipe.eq.replace(/\$\{(\w+)\}/g, (_, varName) => {
-    if (normalizedRecipe.variables[varName]) {
-      const variable = normalizedRecipe.variables[varName];
+  sketchyScalars(scalars, warnings);
+  sketchyVectors(vectors, warnings);
+  sketchyUrls(urls, warnings);
+  sketchyDataSeries(dataSeries, warnings);
+  sketchyExternalDatasets(externalDatasets, warnings);
+
+  // Transform vectors to data series
+  // if (options.interpolationMethod === "")
+
+  /** Replace all variables with their values to prepare for calculation */
+  const resolvedEquation = normalizedNamesRecipe.eq.replace(/\$\{(\w+)\}/g, (_, varName) => {
+    if (normalizedNamesRecipe.variables[varName]) {
+      const variable = normalizedNamesRecipe.variables[varName];
       if (variable.type === "scalar") {
         return variable.value.toString();
       } else if (variable.type === "vector") {

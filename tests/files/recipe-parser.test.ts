@@ -12,12 +12,12 @@ To add a new test:
 
 import { colors } from "../lib/colors";
 import "../lib/console";
-import { parseRecipe, Recipe, RecipeParseResult, trunc } from "../../src/functions/parseRecipe";
+import { parseRecipe, UnparsedRecipe, RecipeParseResult, trunc } from "../../src/functions/parseRecipe";
 
 // Test Case Definitions
 // ---------------------
 
-const testBasicRecipe: Recipe = {
+const testBasicRecipe: UnparsedRecipe = {
   eq: "${A} * 3 + ${B}*2 / ${C}",
   variables: {
     A: { type: "vector", value: [43, 44, 45] },
@@ -26,7 +26,7 @@ const testBasicRecipe: Recipe = {
   },
 };
 
-const testMissingVariableRecipe: Recipe = {
+const testMissingVariableRecipe: UnparsedRecipe = {
   eq: "${A} * 3 + ${B}*2 / ${C}",
   variables: {
     A: { type: "vector", value: [43, 44, 45] },
@@ -35,7 +35,7 @@ const testMissingVariableRecipe: Recipe = {
   },
 };
 
-const testExtraVariableRecipe: Recipe = {
+const testExtraVariableRecipe: UnparsedRecipe = {
   eq: "${A} * 3 + ${B}*2 / ${C}",
   variables: {
     A: { type: "vector", value: [43, 44, 45] },
@@ -54,7 +54,7 @@ const testInvalidVariableRecipe = {
   },
 };
 
-const testEmptyRecipe: Recipe = {
+const testEmptyRecipe: UnparsedRecipe = {
   eq: "",
   variables: {},
 };
@@ -71,14 +71,14 @@ const testNoEquation = {
   },
 };
 
-const testManyVariables: Recipe = {
+const testManyVariables: UnparsedRecipe = {
   eq: "${A} + ${B} + ${C} + ${D} + ${E} + ${F} + ${G} + ${H} + ${I} + ${J} + ${K} + ${L} + ${M} + ${N} + ${O} + ${P} + ${Q} + ${R} + ${S} + ${T} + ${U} + ${V} + ${W} + ${X} + ${Y} + ${Z}",
   variables: {
     A: { type: "scalar", value: 1 }, B: { type: "scalar", value: 2 }, C: { type: "scalar", value: 3 }, D: { type: "scalar", value: 4 }, E: { type: "scalar", value: 5 }, F: { type: "scalar", value: 6 }, G: { type: "scalar", value: 7 }, H: { type: "scalar", value: 8 }, I: { type: "scalar", value: 9 }, J: { type: "scalar", value: 10 }, K: { type: "scalar", value: 11 }, L: { type: "scalar", value: 12 }, M: { type: "scalar", value: 13 }, N: { type: "scalar", value: 14 }, O: { type: "scalar", value: 15 }, P: { type: "scalar", value: 16 }, Q: { type: "scalar", value: 17 }, R: { type: "scalar", value: 18 }, S: { type: "scalar", value: 19 }, T: { type: "scalar", value: 20 }, U: { type: "scalar", value: 21 }, V: { type: "scalar", value: 22 }, W: { type: "scalar", value: 23 }, X: { type: "scalar", value: 24 }, Y: { type: "scalar", value: 25 }, Z: { type: "scalar", value: 26 },
   }
 }
 
-const testHugeScalar: Recipe = {
+const testHugeScalar: UnparsedRecipe = {
   eq: "${A} + ${B}",
   variables: {
     A: { type: "scalar", value: Number.MAX_SAFE_INTEGER },
@@ -86,7 +86,7 @@ const testHugeScalar: Recipe = {
   },
 };
 
-const testDivideByZero: Recipe = {
+const testDivideByZero: UnparsedRecipe = {
   eq: "${A} / ${B}",
   variables: {
     A: { type: "scalar", value: 10 },
@@ -94,7 +94,7 @@ const testDivideByZero: Recipe = {
   },
 };
 
-const testLongVariableNames: Recipe = {
+const testLongVariableNames: UnparsedRecipe = {
   eq: "${veryLongVariableName1} + ${veryLongVariableName2}",
   variables: {
     veryLongVariableName1: { type: "scalar", value: 1 },
@@ -102,7 +102,7 @@ const testLongVariableNames: Recipe = {
   },
 };
 
-const testBadCharactersInEquation: Recipe = {
+const testBadCharactersInEquation: UnparsedRecipe = {
   eq: "${A} % 3 & ${B} | | $ 7",
   variables: {
     A: { type: "scalar", value: 10 },
@@ -110,7 +110,7 @@ const testBadCharactersInEquation: Recipe = {
   },
 };
 
-const testEmptyStringTemplate: Recipe = {
+const testEmptyStringTemplate: UnparsedRecipe = {
   eq: "${}",
   variables: {
     A: { type: "scalar", value: 10 },
@@ -118,7 +118,7 @@ const testEmptyStringTemplate: Recipe = {
   },
 };
 
-const testNumberVariableName: Recipe = {
+const testNumberVariableName: UnparsedRecipe = {
   eq: "${5}",
   variables: {
     5: { type: "scalar", value: 10 }, // Invalid variable name
@@ -126,21 +126,21 @@ const testNumberVariableName: Recipe = {
   },
 };
 
-const test1800Variables: Recipe = {
+const test1800Variables: UnparsedRecipe = {
   eq: new Array(1800).fill(0).map((_, i) => `\${V${i}}`).join("+"),
   variables: Object.fromEntries(
     new Array(1800).fill(0).map((_, i) => [`V${i}`, { type: "scalar", value: i }])
   ),
 };
 
-const test3000Variables: Recipe = {
+const test3000Variables: UnparsedRecipe = {
   eq: new Array(3000).fill(0).map((_, i) => `\${V${i}}`).join("+"),
   variables: Object.fromEntries(
     new Array(3000).fill(0).map((_, i) => [`V${i}`, { type: "scalar", value: i }])
   ),
 };
 
-const testHugeVector: Recipe = {
+const testHugeVector: UnparsedRecipe = {
   eq: "${A} * 0.5",
   variables: {
     A: { type: "vector", value: new Array(10000).fill(1) }, // Huge vector
@@ -172,14 +172,13 @@ const testCases = [
 
 type TestCase = {
   description: string;
-  recipe: Partial<Recipe> | string;
+  recipe: Partial<UnparsedRecipe> | string;
   shouldPass: boolean;
 };
 
 const passColor = (text: string) => colors.rgbBG(20, 100, 20, text);
 const failColor = (text: string) => colors.rgbBG(120, 20, 20, text);
 const warnColor = colors.yellow;
-const errorColor = (text: string) => colors.rgb(150, 75, 75, text);
 const headerColor = colors.grayBG;
 const infoColor = colors.white;
 
@@ -202,7 +201,7 @@ function runTests() {
     try {
       // Test with recipe as object or string
       console.debug(`Sending recipe as ${typeof recipe}...\n`);
-      const res1 = parseRecipe(typeof recipe === 'string' ? recipe : { ...recipe } as Recipe);
+      const res1 = parseRecipe(typeof recipe === 'string' ? recipe : { ...recipe } as UnparsedRecipe);
       logResult(res1);
 
       // Test with stringified JSON
