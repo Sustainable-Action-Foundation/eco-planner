@@ -362,39 +362,192 @@ export function parseRecipe(recipe: UnparsedRecipe | string, options: RecipePars
   sketchyExternalDatasets(externalDatasets, warnings);
 
   // Transform vectors to data series
-  // if (options.interpolationMethod === "")
+  const transformedVariables: ParsedRecipeVariables = {};
+  for (const [key, variable] of Object.entries(normalizedNamesRecipe.variables)) {
+    switch (variable.type) {
+      case "scalar":
+        transformedVariables[key] = variable; // Scalars remain unchanged
+        break;
+      case "vector":
+        // Convert vector to data series
+        // TODO - add config for vector transformation method. Now it's just index to index with now interpolation or extrapolation
+        transformedVariables[key] = {
+          type: "dataSeries",
+          value: {
+            "2020": variable.value[0] || null,
+            "2021": variable.value[1] || null,
+            "2022": variable.value[2] || null,
+            "2023": variable.value[3] || null,
+            "2024": variable.value[4] || null,
+            "2025": variable.value[5] || null,
+            "2026": variable.value[6] || null,
+            "2027": variable.value[7] || null,
+            "2028": variable.value[8] || null,
+            "2029": variable.value[9] || null,
+            "2030": variable.value[10] || null,
+            "2031": variable.value[11] || null,
+            "2032": variable.value[12] || null,
+            "2033": variable.value[13] || null,
+            "2034": variable.value[14] || null,
+            "2035": variable.value[15] || null,
+            "2036": variable.value[16] || null,
+            "2037": variable.value[17] || null,
+            "2038": variable.value[18] || null,
+            "2039": variable.value[19] || null,
+            "2040": variable.value[20] || null,
+            "2041": variable.value[21] || null,
+            "2042": variable.value[22] || null,
+            "2043": variable.value[23] || null,
+            "2044": variable.value[24] || null,
+            "2045": variable.value[25] || null,
+            "2046": variable.value[26] || null,
+            "2047": variable.value[27] || null,
+            "2048": variable.value[28] || null,
+            "2049": variable.value[29] || null,
+            "2050": variable.value[30] || null,
+          }
+        };
+        break;
+      case "dataSeries":
+        // Data series remain unchanged
+        transformedVariables[key] = variable;
+        break;
+      case "url":
+        // Ignore for now. TODO - implement URL handling
+        // transformedVariables[key] = variable;
+        break;
+      case "externalDataset":
+        // Ignore for now. TODO - implement external dataset handling
+        break;
+      default:
+        // @ts-expect-error - In case of extreme type mismanagement
+        throw new RecipeVariablesError(`Unknown variable type for '${key}': ${variable.type}`);
+    }
+  }
+
+  const normalizedRecipe: ParsedRecipe = {
+    eq: normalizedNamesRecipe.eq,
+    variables: transformedVariables,
+  };
 
   /** Replace all variables with their values to prepare for calculation */
-  const resolvedEquation = normalizedNamesRecipe.eq.replace(/\$\{(\w+)\}/g, (_, varName) => {
-    if (normalizedNamesRecipe.variables[varName]) {
-      const variable = normalizedNamesRecipe.variables[varName];
-      if (variable.type === "scalar") {
-        return variable.value.toString();
-      } else if (variable.type === "vector") {
-        return `[${(variable.value as number[]).join(",")}]`; // Convert vector to a string representation
-      } else if (variable.type === "url") {
-        return `"${variable.value}"`; // Convert URL to a string representation
+  const resolvedEquation = normalizedRecipe.eq.replace(/\$\{(\w+)\}/g, (_, varName) => {
+    if (normalizedRecipe.variables[varName]) {
+      const variable = normalizedRecipe.variables[varName];
+
+      // TODO - handle ExternalDataset stuff
+      switch (variable.type) {
+        case "scalar":
+          return variable.value.toString();
+        case "dataSeries":
+          return `{${Object.entries(variable.value).map(([year, value]) => year ? value : "").join(",")}}`; // Convert data series to a string representation
+        default:
+          throw new RecipeVariablesError(`Unknown variable type for '${varName}': ${variable.type}`);
       }
     }
-    return `\${${varName}}`; // Fallback to original variable name if not found
+    else {
+      throw new RecipeVariablesError(`Variable '${varName}' not found in the recipe variables.`);
+    }
   });
 
   console.log(trunc(`Resolved equation: ${resolvedEquation}`));
 
-  const result: number | math.Matrix = mathjs.evaluate(resolvedEquation);
+  const rawResult: number | math.Matrix = mathjs.evaluate(resolvedEquation);
 
-  if (typeof result === "number" && !Number.isFinite(result)) {
-    throw new RecipeEquationError("Result is not a finite number.");
+  if (mathjs.isNaN(rawResult)) {
+    throw new RecipeEquationError("Result is NaN. This may be due to invalid operations such as division by zero or invalid mathematical operations.");
+  }
+  if (mathjs.isComplex(rawResult)) {
+    throw new RecipeEquationError("Result is a complex number. This may be due to invalid operations or complex numbers in the equation.");
+  }
+  if (mathjs.isUnit(rawResult)) {
+    throw new RecipeEquationError("Result is a unit. This may be due to invalid operations or units in the equation.");
+  }
+  if (mathjs.isBigNumber(rawResult)) {
+    throw new RecipeEquationError("Result is a BigNumber. This may be due to invalid operations or very large numbers in the equation.");
   }
 
-  if (typeof result === "number") {
-    return { result: [result.toString()], warnings };
+  // Return depending on the type of result
+  if (typeof rawResult === "number" && isFinite(rawResult)) {
+    return {
+      recipe: normalizedRecipe,
+      result: {
+        "2020": rawResult,
+        "2021": rawResult,
+        "2022": rawResult,
+        "2023": rawResult,
+        "2024": rawResult,
+        "2025": rawResult,
+        "2026": rawResult,
+        "2027": rawResult,
+        "2028": rawResult,
+        "2029": rawResult,
+        "2030": rawResult,
+        "2031": rawResult,
+        "2032": rawResult,
+        "2033": rawResult,
+        "2034": rawResult,
+        "2035": rawResult,
+        "2036": rawResult,
+        "2037": rawResult,
+        "2038": rawResult,
+        "2039": rawResult,
+        "2040": rawResult,
+        "2041": rawResult,
+        "2042": rawResult,
+        "2043": rawResult,
+        "2044": rawResult,
+        "2045": rawResult,
+        "2046": rawResult,
+        "2047": rawResult,
+        "2048": rawResult,
+        "2049": rawResult,
+        "2050": rawResult
+      },
+      warnings
+    };
   }
-  if (mathjs.isMatrix(result)) {
-    const data = result.toArray();
-    if (Array.isArray(data)) {
-      return { result: data.flat().map(v => v.toString()), warnings };
-    }
+
+  if (Array.isArray(rawResult)) {
+    // If the result is an array or matrix, convert it to a data series
+    const dataSeriesResult: DataSeries = {
+      "2020": rawResult[0] || null,
+      "2021": rawResult[1] || null,
+      "2022": rawResult[2] || null,
+      "2023": rawResult[3] || null,
+      "2024": rawResult[4] || null,
+      "2025": rawResult[5] || null,
+      "2026": rawResult[6] || null,
+      "2027": rawResult[7] || null,
+      "2028": rawResult[8] || null,
+      "2029": rawResult[9] || null,
+      "2030": rawResult[10] || null,
+      "2031": rawResult[11] || null,
+      "2032": rawResult[12] || null,
+      "2033": rawResult[13] || null,
+      "2034": rawResult[14] || null,
+      "2035": rawResult[15] || null,
+      "2036": rawResult[16] || null,
+      "2037": rawResult[17] || null,
+      "2038": rawResult[18] || null,
+      "2039": rawResult[19] || null,
+      "2040": rawResult[20] || null,
+      "2041": rawResult[21] || null,
+      "2042": rawResult[22] || null,
+      "2043": rawResult[23] || null,
+      "2044": rawResult[24] || null,
+      "2045": rawResult[25] || null,
+      "2046": rawResult[26] || null,
+      "2047": rawResult[27] || null,
+      "2048": rawResult[28] || null,
+      "2049": rawResult[29] || null,
+      "2050": rawResult[30] || null,
+    };
+    return {
+      recipe: normalizedRecipe,
+      result: dataSeriesResult,
+      warnings
+    };
   }
 
   throw new RecipeError("Unexpected result type. Expected a number or an array of numbers.");
