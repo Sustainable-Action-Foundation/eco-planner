@@ -84,7 +84,6 @@
 .listbox > li {
     border-radius: .25rem;
     padding: .25rem;
-    transition: background-color .1s;
     user-select: none;
     font-size: smaller;
 }

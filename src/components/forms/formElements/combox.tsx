@@ -1,15 +1,15 @@
 "use client"
 
-import { IconSearch, IconSelector } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { IconChevronDown, IconSearch } from "@tabler/icons-react";
+import { useState } from "react";
 import styles from './searchableList.module.css'
 
 export default function Combobox() {
 
+  // TODO: Add fuse
   // TODO: Handle required inputs
   // TODO: i18n
   
-  // TODO: Up arrow should also open listbox
   // TODO: Re add button for opening and closing??
 
   const testArray: Array<string> = [
@@ -37,37 +37,35 @@ export default function Combobox() {
       }
     }
 
-    // Select option and remove listbox
-    // TODO: Weird that this opens listbox?
+    // Selects option and remove listbox
     if (e.key === 'Enter') {
       if (displayListBox && focusedListBoxItem != null) {
         setValue(testArray[focusedListBoxItem])
         setFocusedListBoxItem(null)
         setDisplayListBox(false)
-      } else {
-        setFocusedListBoxItem(0)
-        setDisplayListBox(true)
       }
     }
-
-    if (e.key === 'ArrowDown') {
+    
+    // Retain keyboard shortcuts
+    if (e.key === 'ArrowDown' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
+      // If list is open, navigate between items
       if (displayListBox && focusedListBoxItem != null) {
+        e.preventDefault()
 
         if (focusedListBoxItem != testArray.length - 1) {
           setFocusedListBoxItem(focusedListBoxItem + 1)
         } else {
           setFocusedListBoxItem(0)
         }
-
-      } else {
+      } else { // If list is closed, open it
         setDisplayListBox(true)
         setFocusedListBoxItem(0)
       }
     }
 
     // Retain keyboard shortcuts
-    // TODO: Retention of keyboard shortcuts same for down arrow?
     if (e.key === 'ArrowUp' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
+      // If list is open, navigate between items
       if (displayListBox && focusedListBoxItem != null) {
         e.preventDefault()
 
@@ -75,7 +73,10 @@ export default function Combobox() {
           setFocusedListBoxItem(focusedListBoxItem - 1)
         } else {
           setFocusedListBoxItem(testArray.length - 1)
-        }
+        } 
+      } else { // If list is closed, open it
+        setDisplayListBox(true)
+        setFocusedListBoxItem(0)
       }
     }
   }; 
@@ -102,16 +103,16 @@ export default function Combobox() {
           aria-activedescendant={focusedListBoxItem != null ? `listbox-${focusedListBoxItem}` : undefined}
           aria-autocomplete="list" /* TODO: Might want to implement features to enable this to have a value of "both" (tab to autocomplete inline)  */
         />
-        <IconSelector aria-hidden="true" width={24} height={24} style={{ minWidth: '24px' }} className="margin-right-50" />
+        <IconChevronDown aria-hidden="true" width={24} height={24} style={{ minWidth: '24px' }} className="margin-right-50" />
       </div>
 
       <ul
         role="listbox"
         id="listbox" /* TODO: Dynamic */
         aria-label="Aktörer"
-        aria-hidden={!(displayListBox || (value !== '' && !testArray.includes(value))) && isFocused} // TODO: Check that this works as expected
+        aria-hidden={!(displayListBox || (value !== '' && !testArray.includes(value))) && isFocused} // TODO: Check that this works as expected on screenreader
         className={`${styles['listbox']} margin-inline-0 padding-0`}
-        /* Setting styling insead of conditionally rendering allows us to animate using css transitions */
+        /* Setting styling instead of conditionally rendering allows us to animate using css transitions */
         style={{    
           pointerEvents: (displayListBox || (value !== '' && !testArray.includes(value))) && isFocused ? 'auto' : 'none',
           opacity: (displayListBox || (value !== '' && !testArray.includes(value))) && isFocused ? 1 : 0,
@@ -125,7 +126,7 @@ export default function Combobox() {
             aria-selected={item === value}
             id={`listbox-${index}`}
             style={{backgroundColor: index === focusedListBoxItem ? 'var(--gray-90)' : '', }}
-            onClick={() => {setValue(item), setDisplayListBox(false)}}
+            onClick={() => {setValue(item), setDisplayListBox(false)}} /* TODO: Pointer events make this buggy */
           >
             {item}
           </li>
