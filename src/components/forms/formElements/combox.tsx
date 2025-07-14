@@ -19,8 +19,8 @@ export default function Combobox({
 
   // TODO: Check usage of !searchableList.includes(value)
   // TODO: i18n
-  
   // TODO: Re add button for opening and closing??
+  // TODO: Scroll when navigating using keyboard
 
   const [value, setValue] = useState<string>('');
   const [displayListBox, setDisplayListBox] = useState<boolean>(false)
@@ -91,7 +91,7 @@ export default function Combobox({
     const newResults = value ? fuse.search(value).map(result => result.item) : searchableList;
     setResults(newResults);
   }, [value]);
-  
+ 
   return (
     <div className="position-relative" style={{width: 'min(350px, 100%)'}}>
       <div className="flex align-items-center focusable">
@@ -117,6 +117,7 @@ export default function Combobox({
       </div>
 
       <ul
+      /* This steals focus, should it? */
         role="listbox"
         id={`${id}-listbox`} 
         aria-label="Aktörer"

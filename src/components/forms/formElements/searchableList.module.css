@@ -79,6 +79,10 @@
 
     transition-property: opacity, transform;
     transition-duration: .15s;
+
+    overflow-y: auto;
+    scrollbar-width: thin;
+    height: 350px;
 }
 
 .listbox > li {
