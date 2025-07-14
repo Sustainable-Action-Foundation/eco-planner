@@ -11,8 +11,8 @@ To add a new test:
 */
 
 import { colors } from "../lib/colors";
-import "../lib/console.ts";
-import { parseRecipe, Recipe, trunc } from "../../src/functions/parseRecipe";
+import "../lib/console";
+import { parseRecipe, Recipe, RecipeParseResult, trunc } from "../../src/functions/parseRecipe";
 
 // Test Case Definitions
 // ---------------------
@@ -147,24 +147,21 @@ const testHugeVector: Recipe = {
   },
 };
 
-// Test Cases Array
-// ----------------
-
 const testCases = [
   { description: "Basic recipe", recipe: testBasicRecipe, shouldPass: true },
-  { description: "Missing variable recipe", recipe: testMissingVariableRecipe, shouldPass: false },
-  { description: "Extra variable recipe", recipe: testExtraVariableRecipe, shouldPass: true },
-  { description: "Invalid variable recipe", recipe: testInvalidVariableRecipe, shouldPass: false },
+  { description: "Missing variable", recipe: testMissingVariableRecipe, shouldPass: false },
+  { description: "Extra variable", recipe: testExtraVariableRecipe, shouldPass: true },
+  { description: "Invalid variable", recipe: testInvalidVariableRecipe, shouldPass: false },
   { description: "Empty recipe", recipe: testEmptyRecipe, shouldPass: false },
-  { description: "No input recipe", recipe: testNoInput, shouldPass: false },
-  { description: "No equation recipe", recipe: testNoEquation, shouldPass: false },
-  { description: "Many variables recipe", recipe: testManyVariables, shouldPass: true },
-  { description: "Huge scalar values", recipe: testHugeScalar, shouldPass: true },
-  { description: "Divide by zero recipe", recipe: testDivideByZero, shouldPass: false },
+  { description: "No input", recipe: testNoInput, shouldPass: false },
+  { description: "No equation", recipe: testNoEquation, shouldPass: false },
+  { description: "Many variables", recipe: testManyVariables, shouldPass: true },
+  { description: "Huge scalar", recipe: testHugeScalar, shouldPass: true },
+  { description: "Divide by zero", recipe: testDivideByZero, shouldPass: false },
   { description: "Long variable names", recipe: testLongVariableNames, shouldPass: true },
   { description: "Bad characters in equation", recipe: testBadCharactersInEquation, shouldPass: false },
   { description: "Empty string template", recipe: testEmptyStringTemplate, shouldPass: false },
-  { description: "Number variable name", recipe: testNumberVariableName, shouldPass: true },
+  { description: "Number as variable name", recipe: testNumberVariableName, shouldPass: true },
   { description: "1800 variables", recipe: test1800Variables, shouldPass: true },
   { description: "3000 variables", recipe: test3000Variables, shouldPass: false },
   { description: "Huge vector", recipe: testHugeVector, shouldPass: true },
@@ -173,63 +170,90 @@ const testCases = [
 // Test Runner
 // -----------
 
+type TestCase = {
+  description: string;
+  recipe: Partial<Recipe> | string;
+  shouldPass: boolean;
+};
+
+const passColor = (text: string) => colors.rgbBG(20, 100, 20, text);
+const failColor = (text: string) => colors.rgbBG(120, 20, 20, text);
+const warnColor = colors.yellow;
+const errorColor = (text: string) => colors.rgb(150, 75, 75, text);
+const headerColor = colors.grayBG;
+const infoColor = colors.white;
+
+function logResult(res: RecipeParseResult) {
+  console.debug("");
+  console.debug(trunc(`Result: ${colors.gray("[" + (res.result || []).join(", ") + "]")}`));
+  console.debug(trunc(`Warnings: ${res.warnings.length > 0 ? warnColor(res.warnings.join(", ")) : "None"}`));
+}
+
 function runTests() {
   const passed: string[] = [];
   const failed: string[] = [];
 
-  testCases.forEach(({ description, recipe, shouldPass }) => {
-    console.info(colors.grayBG(colors.white(` ${description} test:`.padEnd(process.stdout.columns || 40))));
+  (testCases as TestCase[]).forEach(({ description, recipe, shouldPass }) => {
+    console.debug(headerColor(infoColor(`--- Testing: ${description} ---`.padEnd(process.stdout.columns || 40))));
 
-    const run = (r: any, type: string): string[] => {
-      console.log(`Parsing ${description}... (${type})`);
-      return parseRecipe(r);
-    }
+    let testPassed = false;
+    let resultMessage = "";
 
     try {
-      // Test with object
-      const res1 = run({ ...recipe }, "object");
-      console.log(trunc(`\n"${description}" result: ${colors.gray("[" + res1.join(", ") + "]")}`));
-
-      console.log("\n" + colors.rgbBG(60, 75, 75, colors.white(" ...now with stringified JSON...".padEnd(process.stdout.columns || 40))));
+      // Test with recipe as object or string
+      console.debug(`Sending recipe as ${typeof recipe}...\n`);
+      const res1 = parseRecipe(typeof recipe === 'string' ? recipe : { ...recipe } as Recipe);
+      logResult(res1);
 
       // Test with stringified JSON
-      const res2 = run(JSON.stringify({ ...recipe }), "string");
-      console.log(trunc(`\n"${description}" result: ${colors.gray("[" + res2.join(", ") + "]")}`));
+      console.debug(`\n\nSending as stringified JSON...\n`);
+      const res2 = parseRecipe(JSON.stringify(recipe));
+      logResult(res2);
 
       // They should be the same
       if (JSON.stringify(res1) !== JSON.stringify(res2)) {
-        console.error(`\n${description} failed: results do not match between object and stringified JSON.`);
-        failed.push(description);
-        return;
+        throw new Error("Results do not match between object and stringified JSON.");
       }
 
       if (shouldPass) {
-        console.info(colors.green(`\n${description} passed as expected.`));
-        passed.push(description);
+        testPassed = true;
+        resultMessage = "Test passed as expected.";
       } else {
-        console.error(`\n${description} should have failed but passed.`);
-        failed.push(description);
+        testPassed = false;
+        resultMessage = "Test failed: Should have failed but passed without errors.";
       }
     } catch (error: any) {
-      if (shouldPass) {
-        console.error(`\n${description} failed unexpectedly:`, error);
-        failed.push(description);
+      if (!shouldPass) {
+        testPassed = true;
+        resultMessage = `Test failed as expected: ${error.message}`;
       } else {
-        console.info(colors.rgb(150, 75, 75, "\n" + error.stack));
-        console.info(colors.green(`\n${description} failed as expected.`));
-        passed.push(description);
+        testPassed = false;
+        resultMessage = `Test failed unexpectedly: ${error.message}`;
       }
+    }
+
+    // Footer
+    const footerText = ` ${testPassed ? "PASS" : "FAIL"}: ${description} `;
+    const footerColor = testPassed ? passColor : failColor;
+    console.debug(footerColor(infoColor(footerText.padEnd(process.stdout.columns || 40))));
+    console.debug(resultMessage);
+
+
+    if (testPassed) {
+      passed.push(description);
+    } else {
+      failed.push(description);
     }
     console.log("");
   });
 
   // Summary
-  console.info(colors.grayBG(colors.white(" Summary:".padEnd(process.stdout.columns || 40))));
+  console.info(headerColor(infoColor(" Summary ".padEnd(process.stdout.columns || 40))));
   console.info(colors.green(`Passed: ${passed.length} ${colors.gray(`- ${passed.join(", ")}`)}`));
   if (failed.length > 0) {
     console.info(colors.red(`Failed: ${failed.length}\n\t- ${failed.join("\n\t- ")}`));
   } else {
-    console.info(colors.rgb(150, 75, 75, "Failed: 0"));
+    console.info(colors.red("Failed: 0"));
   }
   console.log("");
 }

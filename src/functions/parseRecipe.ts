@@ -1,5 +1,4 @@
 import mathjs from "@/math.ts";
-import { colors } from "../scripts/lib/colors.ts";
 import "../scripts/lib/console.ts";
 import crypto from "crypto";
 
@@ -63,6 +62,11 @@ export class RecipeVariablesError extends RecipeError { }
 export type Recipe = {
   eq: string;
   variables: Record<string, { type: "scalar" | "vector" | "url"; value: number | number[] | string }>;
+};
+
+export type RecipeParseResult = {
+  result: string[];
+  warnings: string[];
 };
 
 export type RecipeParserOptions = {
@@ -140,7 +144,7 @@ function validateRecipeType(recipe: Recipe | string): Recipe {
   return r;
 }
 
-export function normalizeRecipe(recipe: Recipe | string): Recipe {
+export function normalizeRecipe(recipe: Recipe | string, warnings: string[] = []): Recipe {
   recipe = validateRecipeType(recipe);
 
   // Normalize variable names
@@ -152,7 +156,7 @@ export function normalizeRecipe(recipe: Recipe | string): Recipe {
     return `\${${varName}}`; // Fallback to original variable name if not found
   });
   recipe.variables = Object.fromEntries(Object.entries(recipe.variables).map(([key, variable]) => {
-    if (!renameMap[key]) console.warn("Variable name not found in rename map:", key);
+    if (!renameMap[key]) warnings.push(`Variable name not found in rename map: ${key}`);
     const normalizedKey = renameMap[key] || key; // Use the normalized name or fallback
     return [normalizedKey, variable];
   }));
@@ -163,53 +167,54 @@ export function normalizeRecipe(recipe: Recipe | string): Recipe {
 /**
  * Returns the resulting vector of the recipe equation as a string array.
  */
-export function parseRecipe(recipe: Recipe | string, options: RecipeParserOptions = defaultRecipeParserOptions): string[] {
-  recipe = normalizeRecipe(recipe);
+export function parseRecipe(recipe: Recipe | string, options: RecipeParserOptions = defaultRecipeParserOptions): RecipeParseResult {
+  const warnings: string[] = [];
+  const normalizedRecipe = normalizeRecipe(recipe, warnings);
 
-  console.info(trunc(`Parsing recipe... ${recipe.eq}`));
+  console.log(trunc(`Parsing recipe... ${normalizedRecipe.eq}`));
 
   // Extract variables from the equation
-  const variables = recipe.eq.match(/\$\{([\w-]+)\}/g);
-  const definedVariables = Object.keys(recipe.variables);
+  const variables = normalizedRecipe.eq.match(/\$\{([\w-]+)\}/g);
+  const definedVariables = Object.keys(normalizedRecipe.variables);
   if (!variables) {
     // This should be caught by validateRecipeType, but as a safeguard:
     throw new RecipeEquationError("No variables found in the equation");
   }
   const missingVariables = variables.map(v => v.replace(/\$\{|\}/g, "")).filter(v => !definedVariables.includes(v));
   if (missingVariables.length > 0) {
-    throw new RecipeEquationError(`Missing variables in the equation: ${missingVariables.join(", ")}`);
+    throw new RecipeVariablesError(`Missing variables in the equation: ${missingVariables.join(", ")}`);
   }
   const extraVariables = definedVariables.filter(v => !variables.includes(`\${${v}}`));
   if (extraVariables.length > 0) {
-    console.warn(`Extra variables defined but not used in the equation: ${extraVariables.join(", ")}`);
+    warnings.push(`Extra variables defined but not used in the equation: ${extraVariables.join(", ")}`);
   }
 
-  const vectors = Object.entries(recipe.variables).filter(([, variable]) => variable.type === "vector");
-  const scalars = Object.entries(recipe.variables).filter(([, variable]) => variable.type === "scalar");
+  const vectors = Object.entries(normalizedRecipe.variables).filter(([, variable]) => variable.type === "vector");
+  const scalars = Object.entries(normalizedRecipe.variables).filter(([, variable]) => variable.type === "scalar");
   // TODO - see if any sanity checks can be done on URLs
   // const urls = Object.entries(recipe.variables).filter(([, variable]) => variable.type === "url");
 
   // Warn about sketchy variables such as huge scalars or vectors and divide by zero
   const hugeScalar = scalars.some(([, variable]) => Math.abs(variable.value as number) > 1e12);
   if (hugeScalar) {
-    console.warn("Warning: Recipe contains huge scalar values, which may lead to performance issues or overflow errors.");
+    warnings.push("Recipe contains huge scalar values, which may lead to performance issues or overflow errors.");
   }
   const hugeVector = vectors.some(([, variable]) => (variable.value as number[]).some(v => Math.abs(v) > 1e12));
   if (hugeVector) {
-    console.warn("Warning: Recipe contains huge vector values, which may lead to performance issues or overflow errors.");
+    warnings.push("Recipe contains huge vector values, which may lead to performance issues or overflow errors.");
   }
   const longVector = vectors.some(([, variable]) => (variable.value as number[]).length > 50); // Data series should not be this long
   if (longVector) {
-    console.warn("Warning: Recipe contains very long vectors. Why?");
+    warnings.push("Recipe contains very long vectors. Why?");
   }
-  const divideByZero = scalars.some(([key, variable]) => variable.value === 0 && new RegExp(`\\/\\s*\\$\\{${key}\\}`).test(recipe.eq));
+  const divideByZero = scalars.some(([key, variable]) => variable.value === 0 && new RegExp(`\\/\\s*\\$\\{${key}\\}`).test(normalizedRecipe.eq));
   if (divideByZero) {
-    console.warn("Warning: Recipe contains a division by a scalar with value zero, which may result in an error during evaluation.");
+    warnings.push("Recipe contains a division by a scalar with value zero, which may result in an error during evaluation.");
   }
 
-  const resolvedEquation = recipe.eq.replace(/\$\{(\w+)\}/g, (_, varName) => {
-    if (recipe.variables[varName]) {
-      const variable = recipe.variables[varName];
+  const resolvedEquation = normalizedRecipe.eq.replace(/\$\{(\w+)\}/g, (_, varName) => {
+    if (normalizedRecipe.variables[varName]) {
+      const variable = normalizedRecipe.variables[varName];
       if (variable.type === "scalar") {
         return variable.value.toString();
       } else if (variable.type === "vector") {
@@ -221,7 +226,7 @@ export function parseRecipe(recipe: Recipe | string, options: RecipeParserOption
     return `\${${varName}}`; // Fallback to original variable name if not found
   });
 
-  console.info(trunc(`Resolved equation: ${colors.green(resolvedEquation)}`));
+  console.log(trunc(`Resolved equation: ${resolvedEquation}`));
 
   const result: number | math.Matrix = mathjs.evaluate(resolvedEquation);
 
@@ -230,12 +235,12 @@ export function parseRecipe(recipe: Recipe | string, options: RecipeParserOption
   }
 
   if (typeof result === "number") {
-    return [result.toString()];
+    return { result: [result.toString()], warnings };
   }
   if (mathjs.isMatrix(result)) {
     const data = result.toArray();
     if (Array.isArray(data)) {
-      return data.flat().map(v => v.toString());
+      return { result: data.flat().map(v => v.toString()), warnings };
     }
   }
 
