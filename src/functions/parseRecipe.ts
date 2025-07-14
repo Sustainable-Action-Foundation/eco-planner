@@ -230,7 +230,7 @@ export function parseRecipe(recipe: Recipe | string, options: RecipeParserOption
 
   const result: number | math.Matrix = mathjs.evaluate(resolvedEquation);
 
-  if (typeof result === "number" && !isFinite(result)) {
+  if (typeof result === "number" && !Number.isFinite(result)) {
     throw new RecipeEquationError("Result is not a finite number.");
   }
 
