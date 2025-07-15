@@ -137,7 +137,7 @@ export default function MetaRoadmapForm({
           </label>
           <SearchableList list={Object.entries(countiesAndMunicipalities).flat(2)} />
           <div className="margin-block-200">
-            <label htmlFor="actors" className="margin-bottom-25 block">Ange aktör</label>
+            <div className="margin-bottom-25"><label htmlFor="actors">Ange aktör</label></div>
             <Combobox
               id="actors"
               required={true}
