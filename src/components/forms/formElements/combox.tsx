@@ -171,7 +171,8 @@ export default function Combobox({
         tabIndex={-1} /* TODO: Element steals focus if i don't do this, but is it allowed? */
         role="listbox"
         id={`${id}-listbox`}
-        aria-label="Aktörer - förslag"
+        aria-label="Aktörer - förslag" /* Check this in a screenreader */
+        data-tooltip={results.length > 0 ? "Förslag" : "Inga förslag"}
         // aria-hidden={displayListBox} TODO: Check that this works as expected on screenreader
         className={`
             ${!renderListBox ? 'display-none' : 'display-block'}

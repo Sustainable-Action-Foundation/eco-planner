@@ -1,5 +1,5 @@
 .listbox::before {
-    content: 'Förslag' / "";
+    content: attr(data-tooltip) / "";
     position: sticky;
     top: 0;
     display: block;
