@@ -140,8 +140,8 @@ export default function MetaRoadmapForm({
             <div className="margin-bottom-25"><label htmlFor="actors">Ange aktör</label></div>
             <Combobox
               id="actors"
-              required={true}
-              placeholder="Sök..."
+              required={false}
+              placeholder="värde"
               searchableList={Object.entries(countiesAndMunicipalities).flat(2)}
             />
           </div>

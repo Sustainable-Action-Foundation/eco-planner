@@ -17,8 +17,7 @@ export default function Combobox({
   searchableList: Array<string>
 }) {
 
-  // TODO: i18n
-  // TODO: Scroll when navigating using keyboard 
+  // TODO: i18n 
 
   const [value, setValue] = useState<string>('');
   const [renderListBox, setRenderListBox] = useState<boolean>(false)
@@ -30,6 +29,7 @@ export default function Combobox({
 
   // Refs
   const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleKeyDownSearchInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
     // Escape out of listbox if it is open
@@ -116,19 +116,17 @@ export default function Combobox({
   return (
     <div
       className={`position-relative ${styles['combobox-container']}`} // TODO: Name combobox-container is technically wrong
-      style={{ width: 'min(350px, 100%)' }}
+      style={{ width: 'fit-content' }}
     >
-      <div 
-        className="flex align-items-center focusable"
-        onFocus={() => setDisplayListBox(true)}
-        onBlur={() => setDisplayListBox(false)}
-      >
-        <IconSearch aria-hidden="true" className="margin-left-50" width={24} height={24} style={{ minWidth: '24px' }} />
+      <div className="flex align-items-center focusable">
         <input
+          ref={inputRef}
           required={required ? required : false}
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDownSearchInput}
+          onFocus={() => setDisplayListBox(true)}
+          onBlur={(e) => { if (e.relatedTarget?.id != `${id}-listbox` && e.relatedTarget?.id != `${id}-button`) { setDisplayListBox(false) } }}
           id={id}
           role="combobox"
           type="text"
@@ -140,10 +138,18 @@ export default function Combobox({
           aria-autocomplete="list" /* TODO: Might want to implement features to enable this to have a value of "both" (tab to autocomplete inline)  */
           className={`${styles['combobox']}`}
         />
-        <IconChevronDown aria-hidden="true" width={24} height={24} style={{ minWidth: '24px' }} className="margin-right-50"  />
+        <button
+          type="button"
+          tabIndex={-1}
+          id={`${id}-button`}
+          onClick={() => {inputRef.current?.focus(), setDisplayListBox(!displayListBox)}}
+        >
+          <IconChevronDown aria-hidden="true" width={24} height={24} style={{ minWidth: '24px' }} className="margin-right-50" />
+        </button>
       </div>
 
       <ul
+        onBlur={(e) => { if (e.relatedTarget?.id != id) { setDisplayListBox(false) } }}
         tabIndex={-1} /* TODO: Element steals focus if i don't do this, but is it allowed? */
         role="listbox"
         id={`${id}-listbox`}
@@ -165,7 +171,7 @@ export default function Combobox({
             aria-selected={item === value}
             id={`${id}-listbox-${index}`}
             style={{ backgroundColor: index === focusedListBoxItem ? 'var(--gray-90)' : '', }}
-            onClick={() => { setValue(item) }}
+            onClick={() => { setValue(item), setDisplayListBox(false) }}
           >
             {item}
           </li>
