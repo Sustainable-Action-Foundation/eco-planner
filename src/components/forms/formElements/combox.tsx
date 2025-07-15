@@ -47,9 +47,7 @@ export default function Combobox({
       if (displayListBox && focusedListBoxItem != null) {
         setValue(results[focusedListBoxItem])
         setFocusedListBoxItem(null)
-        setTimeout(() => {
-          setDisplayListBox(false);
-        }, 150);
+        setDisplayListBox(false);
       }
     }
 
