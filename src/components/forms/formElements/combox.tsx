@@ -17,9 +17,7 @@ export default function Combobox({
   searchableList: Array<string>
 }) {
 
-  // TODO: Check usage of !searchableList.includes(value)
   // TODO: i18n
-  // TODO: Re add button for opening and closing??
   // TODO: Scroll when navigating using keyboard 
 
   const [value, setValue] = useState<string>('');
@@ -29,6 +27,9 @@ export default function Combobox({
 
   // Fuse search
   const [results, setResults] = useState<string[]>([])
+
+  // Refs
+  const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
 
   const handleKeyDownSearchInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
     // Escape out of listbox if it is open
@@ -86,6 +87,15 @@ export default function Combobox({
     }
   };
 
+  // Sroll listbox element into view
+  useEffect(() => {
+    if (focusedListBoxItem !== null && itemRefs.current[focusedListBoxItem]) {
+      itemRefs.current[focusedListBoxItem]?.scrollIntoView({
+        block: "nearest",
+      });
+    }
+  }, [focusedListBoxItem]);
+
   useEffect(() => {
     const fuse = new Fuse(searchableList);
     const newResults = value ? fuse.search(value).map(result => result.item) : searchableList;
@@ -108,15 +118,17 @@ export default function Combobox({
       className={`position-relative ${styles['combobox-container']}`} // TODO: Name combobox-container is technically wrong
       style={{ width: 'min(350px, 100%)' }}
     >
-      <div className="flex align-items-center focusable">
+      <div 
+        className="flex align-items-center focusable"
+        onFocus={() => setDisplayListBox(true)}
+        onBlur={() => setDisplayListBox(false)}
+      >
         <IconSearch aria-hidden="true" className="margin-left-50" width={24} height={24} style={{ minWidth: '24px' }} />
         <input
           required={required ? required : false}
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDownSearchInput}
-          onFocus={() => setDisplayListBox(true)}
-          onBlur={() => setDisplayListBox(false)}
           id={id}
           role="combobox"
           type="text"
@@ -128,10 +140,11 @@ export default function Combobox({
           aria-autocomplete="list" /* TODO: Might want to implement features to enable this to have a value of "both" (tab to autocomplete inline)  */
           className={`${styles['combobox']}`}
         />
-        <IconChevronDown aria-hidden="true" width={24} height={24} style={{ minWidth: '24px' }} className="margin-right-50" />
+        <IconChevronDown aria-hidden="true" width={24} height={24} style={{ minWidth: '24px' }} className="margin-right-50"  />
       </div>
 
       <ul
+        tabIndex={-1} /* TODO: Element steals focus if i don't do this, but is it allowed? */
         role="listbox"
         id={`${id}-listbox`}
         aria-label="Aktörer"
@@ -146,6 +159,7 @@ export default function Combobox({
       >
         {results.map((item, index) =>
           <li
+            ref={(el) => { itemRefs.current[index] = el }}
             key={index}
             role="option"
             aria-selected={item === value}
