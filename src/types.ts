@@ -1,4 +1,4 @@
-import { ActionImpactType, DataSeries, Prisma } from "@prisma/client";
+import { ActionImpactType, DataSeries, Prisma, RoadmapType } from "@prisma/client";
 import dataFieldArray from "./lib/dataSeriesDataFieldNames.json" with { type: "json" };
 
 /** An object that implements the AccessControlled interface can be checked with the accessChecker function. */
@@ -106,7 +106,103 @@ export function isScalingRecipe(object: unknown): object is ScalingRecipe {
   return (typeof object == "object" && (object as ScalingRecipe)?.values instanceof Array)
 }
 
-/** The format of the data needed to create new roadmap metadata. */
+/** The format of data needed to create a new roadmap series */
+export type MetaRoadmapCreateInput = {
+  /**
+   * This type is derived from @type {Prisma.MetaRoadmapCreateInput}, but with some fields omitted in clear text for better intellisense readability and maintainability.
+   * 
+   * That being said, if the schema changes, this type will need to be updated manually.
+   */
+  /* Automatically managed by Prisma */
+  // id?: string,
+  // createdAt?: Date | string,
+  // updatedAt?: Date | string,
+
+  name: string,
+  description: string,
+  type?: RoadmapType,
+  actor?: string | null,
+  isPublic?: boolean,
+
+  /* Relational fields are handeled differently in our API */
+  // roadmapVersions?: RoadmapCreateNestedManyWithoutMetaRoadmapInput,
+  // parentRoadmap?: MetaRoadmapCreateNestedOneWithoutChildRoadmapsInput,
+  // childRoadmaps?: MetaRoadmapCreateNestedManyWithoutParentRoadmapInput,
+  // comments?: CommentCreateNestedManyWithoutMetaRoadmapInput,
+  // links?: LinkCreateNestedManyWithoutMetaRoadmapInput,
+  // author: UserCreateNestedOneWithoutAuthoredMetaRoadmapsInput,
+  // editors?: UserCreateNestedManyWithoutEditMetaRoadmapsInput,
+  // editGroups?: UserGroupCreateNestedManyWithoutEditMetaRoadmapInput,
+  // viewers?: UserCreateNestedManyWithoutViewMetaRoadmapsInput,
+  // viewGroups?: UserGroupCreateNestedManyWithoutViewMetaRoadmapInput,
+
+  /* 
+   * Non-prisma fields
+   * These are used to make the API more usable and nice to deal with due to formatting and types.
+   */
+  // Accepts lists of UUIDs for all of the following, to link them to the roadmap (optional)
+  editors?: string[] | null;
+  viewers?: string[] | null;
+  editGroups?: string[] | null;
+  viewGroups?: string[] | null;
+
+  // UUID for the parent meta roadmap (if any)
+  parentRoadmapId?: string | null;
+
+  // TODO - DEPRECATED - Will be migrated to description
+  links?: { url: string, description?: string }[] | null;
+}
+
+/** The format of data needed to update an existing data series. When compared to MetaRoadmapCreateInput, this type allows most fields to be undefined, indicating that they should not be changed. */
+export type MetaRoadmapUpdateInput = {
+  /**
+   * This type is derived from @type {Prisma.MetaRoadmapCreateInput}, but with some fields omitted in clear text for better intellisense readability and maintainability.
+   * 
+   * That being said, if the schema changes, this type will need to be updated manually.
+   */
+  /* Automatically managed by Prisma */
+  // createdAt?: Date | string,
+  // updatedAt?: Date | string,
+
+  id: string,
+  name?: string | undefined,
+  description?: string | undefined,
+  type?: RoadmapType | undefined,
+  actor?: string | null | undefined,
+  isPublic?: boolean | undefined,
+
+  /* Relational fields are handeled differently in our API */
+  // roadmapVersions?: RoadmapCreateNestedManyWithoutMetaRoadmapInput,
+  // parentRoadmap?: MetaRoadmapCreateNestedOneWithoutChildRoadmapsInput,
+  // childRoadmaps?: MetaRoadmapCreateNestedManyWithoutParentRoadmapInput,
+  // comments?: CommentCreateNestedManyWithoutMetaRoadmapInput,
+  // links?: LinkCreateNestedManyWithoutMetaRoadmapInput,
+  // author: UserCreateNestedOneWithoutAuthoredMetaRoadmapsInput,
+  // editors?: UserCreateNestedManyWithoutEditMetaRoadmapsInput,
+  // editGroups?: UserGroupCreateNestedManyWithoutEditMetaRoadmapInput,
+  // viewers?: UserCreateNestedManyWithoutViewMetaRoadmapsInput,
+  // viewGroups?: UserGroupCreateNestedManyWithoutViewMetaRoadmapInput,
+
+  /* 
+   * Non-prisma fields
+   * These are used to make the API more usable and nice to deal with due to formatting and types.
+   */
+  // Accepts lists of UUIDs for all of the following, to link them to the roadmap (optional)
+  editors?: string[] | null | undefined;
+  viewers?: string[] | null | undefined;
+  editGroups?: string[] | null | undefined;
+  viewGroups?: string[] | null | undefined;
+
+  // UUID for the parent meta roadmap (if any)
+  parentRoadmapId?: string | null | undefined;
+
+  // Timestamp to check if the user is trying to update based on stale data
+  timestamp: number;
+
+  // TODO - DEPRECATED - Will be migrated to description
+  links?: { url: string, description?: string }[] | null | undefined;
+}
+
 export type MetaRoadmapInput = Omit<
   Prisma.MetaRoadmapCreateInput,
   'id' | 'createdAt' | 'updatedAt' | 'author' | 'editors' |
@@ -244,7 +340,7 @@ export type GoalUpdateInput = {
   // To find the goal to update
   goalId: string;
 
-  timestamp?: number
+  timestamp: number;
 
   recipeHash?: string;
 
