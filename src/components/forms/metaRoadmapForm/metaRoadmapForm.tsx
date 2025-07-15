@@ -10,7 +10,6 @@ import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput"
 import formSubmitter from "@/functions/formSubmitter";
 import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
-import SearchableList from "../formElements/searchableList";
 import Combobox from "../formElements/combox";
 
 /* TODO: Check usage of autocomplete both here and for other forms */
@@ -135,7 +134,6 @@ export default function MetaRoadmapForm({
             {t("forms:meta_roadmap.choose_actor")}
             <input className="margin-block-25" list="actors" id="actor" name="actor" type="text" defaultValue={currentRoadmap?.actor ?? undefined} />
           </label>
-          <SearchableList list={Object.entries(countiesAndMunicipalities).flat(2)} />
           <div className="margin-block-200">
             <div className="margin-bottom-25"><label htmlFor="actors">Ange aktör</label></div>
             <Combobox

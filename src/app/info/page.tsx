@@ -128,7 +128,6 @@ export default async function Page() {
           <p>{t("pages:info.commit_without_link", { commit: gitHash.shortHash || gitHash.longHash || "" })}</p>
         : null
       }
-      <SearchableList list={['item1', 'item2', 'item3', 'item4', 'item5', 'thing1', 'thing2', 'thing3', 'object1', 'object2', 'object3', 'object4', 'object5', ]} />
     </>
   )
 }

@@ -143,7 +143,7 @@ export default function Combobox({
           aria-autocomplete="list" /* TODO: Might want to implement features to enable this to have a value of "both" (tab to autocomplete inline)  */
           className={`${styles['combobox']}`}
         />
-        <button
+        <button // TODO: Is this a toggle button?
           type="button"
           tabIndex={-1}
           id={`${id}-button`}
