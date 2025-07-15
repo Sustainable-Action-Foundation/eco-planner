@@ -78,11 +78,9 @@ export type ParsedRecipe = {
  */
 export type RecipeParserOptions = {
   interpolationMethod: "interpolate_missing" | "only_overlapping" | "zero_fill" | "none";
-  log: boolean; // Whether to log the parsing process
 };
-export const defaultRecipeParserOptions: RecipeParserOptions = {
+export const defaultRecipeParserOptions: Partial<RecipeParserOptions> = {
   interpolationMethod: "interpolate_missing",
-  log: false, // Default to not logging the parsing process
 };
 export type VectorTransformationOptions = {
   interpolationMethod: "naive_index_map" | "even_distribution" | "require_length_match";

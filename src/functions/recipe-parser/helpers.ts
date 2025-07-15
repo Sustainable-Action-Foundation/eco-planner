@@ -39,6 +39,9 @@ export function trunc(message: string) {
   }
   return message;
 }
+export function truncPad(message: string, padLength: number = process.stdout.columns || 80) {
+  return trunc(message).padEnd(padLength, " ");
+}
 
 export function groupVariables(variables: Record<string, any>): {
   vectors: [string, RecipeVariableVector][],

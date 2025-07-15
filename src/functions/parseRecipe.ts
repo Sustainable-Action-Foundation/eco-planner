@@ -17,13 +17,13 @@ import { vectorToDataSeries } from "./recipe-parser/transformations.js";
 export * from "./recipe-parser/errors.js";
 export * from "./recipe-parser/types.js";
 
-export function parseRecipe(recipe: UnparsedRecipe | string, options: RecipeParserOptions = defaultRecipeParserOptions): { recipe: ParsedRecipe, result: DataSeries, warnings: string[] } {
+export function parseRecipe(recipe: UnparsedRecipe | string, options: Partial<RecipeParserOptions> = defaultRecipeParserOptions): { recipe: ParsedRecipe, result: DataSeries, warnings: string[] } {
   options = { ...defaultRecipeParserOptions, ...options };
 
   const warnings: string[] = [];
   const normalizedNamesRecipe = normalizeRecipeVariableNames(recipe, warnings);
 
-  if (options.log) console.log(trunc(`Parsing recipe... ${normalizedNamesRecipe.eq}`));
+  console.log(trunc(`Parsing recipe... ${normalizedNamesRecipe.eq}`));
 
   // Extract variables from the equation
   const variablesInEq = normalizedNamesRecipe.eq.match(/\$\{([\w-]+)\}/g);
@@ -78,11 +78,11 @@ export function parseRecipe(recipe: UnparsedRecipe | string, options: RecipePars
         break;
       case "url":
         // Ignore for now. TODO - implement URL handling
-        if (options.log) console.warn(`Ignoring URL variable '${key}' for now. TODO - implement URL handling.`);
+        console.warn(`Ignoring URL variable '${key}' for now. TODO - implement URL handling.`);
         break;
       case "externalDataset":
         // Ignore for now. TODO - implement external dataset handling
-        if (options.log) console.warn(`Ignoring external dataset variable '${key}' for now. TODO - implement external dataset handling.`);
+        console.warn(`Ignoring external dataset variable '${key}' for now. TODO - implement external dataset handling.`);
         break;
       default:
         // @ts-expect-error - In case of extreme type mismanagement
@@ -115,14 +115,7 @@ export function parseRecipe(recipe: UnparsedRecipe | string, options: RecipePars
     }
   });
 
-
-  if (Object.keys(normalizedRecipe.variables).length < 35) {
-    // console.log(normalizedRecipe);
-    console.log(resolvedEquation);
-  }
-
-
-  if (options.log) console.log(trunc(`Resolved equation: ${resolvedEquation}`));
+  console.log(trunc(`Resolved equation: ${resolvedEquation}`));
 
   const rawResult: number | math.Matrix = mathjs.evaluate(resolvedEquation);
 

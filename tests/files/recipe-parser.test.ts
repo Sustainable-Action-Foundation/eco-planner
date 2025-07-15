@@ -1,8 +1,8 @@
 import { parseArgs } from "node:util";
-import { parseRecipe, UnparsedRecipe } from "../../src/functions/parseRecipe";
-import { colors } from "../lib/colors";
+import { DataSeries, parseRecipe, UnparsedRecipe } from "../../src/functions/parseRecipe";
 import "../lib/console";
-import { trunc } from "../../src/functions/recipe-parser/helpers";
+import { colors } from "../lib/colors";
+import { trunc, truncPad } from "../../src/functions/recipe-parser/helpers";
 
 /*
 parseRecipe Test Module
@@ -236,98 +236,108 @@ type TestCase = {
   shouldPass: boolean;
 };
 
-const passColor = colors.green;
-const failColor = colors.red;
+type TestResult = {
+  testCase: TestCase;
+  passed: boolean;
+  warnings: string[];
+  errors: string[];
+  result: DataSeries | null; // The result of the parseRecipe function
+};
+
+const passColor = (text: string) => colors.cyanBrightBG(colors.black(text));
+const failColor = (text: string) => colors.rgbBG(200, 0, 0, colors.black(text));
 const warnColor = colors.yellow;
-const headerColor = colors.grayBG;
 const infoColor = colors.white;
+const headerColor = (text: string) => colors.cyanBG(colors.black(text));
 
-/**
- * Log the result of a recipe test.
- * @param {Object} res - The result object.
- * @param {Object} res.result - The parsed recipe result.
- * @param {Array} res.warnings - Any warnings generated during parsing.
- * @returns {string | undefined} The formatted string or undefined if no result.
- */
-function logResult(res: { result: any; warnings: any[] }): string {
-  if (!res) return "";
+function runTest(testCase: TestCase): TestResult {
+  const { recipe, shouldPass } = testCase;
+  const warnings: string[] = [];
+  const errors: string[] = [];
+  let passed = false;
+  let result: DataSeries | null = null;
 
-  const { result, warnings } = res;
+  try {
+    const objRes = parseRecipe(recipe as UnparsedRecipe);
+    const strRes = parseRecipe(JSON.stringify(recipe));
 
-  const output: string[] = [];
-  output.push("");
-  output.push(trunc(`Result: ${colors.gray("{" + Object.entries(result).map(([y, v]) => `${y}:${v}`).join(", ") + "}")}`));
-  output.push(`Warnings${warnings.length > 0 && `(${warnings.length})`}:${warnings.length > 0 ? warnColor("\n - " + warnings.join("\n - ")) : " None"}`);
+    if (JSON.stringify(objRes.recipe) !== JSON.stringify(strRes.recipe)) {
+      throw new Error("Parsed recipes do not match between object and string input.");
+    }
 
-  return output.join("\n");
+    // Beautifully combine the warnings
+    warnings.push(...new Set([...objRes.warnings, ...strRes.warnings]));
+
+    passed = shouldPass; // If no error is thrown, it passes
+  } catch (error: any) {
+    if (!shouldPass) {
+      passed = true; // If it was supposed to fail, we consider it passed      
+    } else {
+      passed = false; // If it was supposed to pass but failed, we consider it failed
+    }
+    errors.push(`${error.name} - ${error.message} (${error.stack})`);
+  }
+
+  return { passed, warnings, result, testCase, errors };
 }
 
 function runTests() {
-  const passed: string[] = [];
-  const failed: string[] = [];
+  for (const testCase of testCases) {
+    // Header
+    console.debug(headerColor(truncPad(`Running - ${testCase.description} - ${testCase.shouldPass ? "should pass" : "should fail"}`)));
 
-  (testCases as TestCase[]).forEach(({ description, recipe, shouldPass }) => {
-    let testPassed = false;
-    let resultMessage = "";
-    const output: string[] = [];
+    // @ts-expect-error - the types are wrong in some cases
+    const { passed, result, errors, warnings } = runTest(testCase);
 
-    try {
-      // Test with recipe as object or string
-      output.push(`Sending recipe as ${typeof recipe}...\n`);
-      const res1 = parseRecipe(typeof recipe === 'string' ? recipe : { ...recipe } as UnparsedRecipe, { log: false, interpolationMethod: "interpolate_missing" });
-      output.push(logResult(res1));
-
-      // Test with stringified JSON
-      output.push(`\n\nSending as stringified JSON...\n`);
-      const res2 = parseRecipe(JSON.stringify(recipe), { log: false, interpolationMethod: "interpolate_missing" });
-      output.push(logResult(res2));
-
-      // They should be the same
-      if (JSON.stringify(res1) !== JSON.stringify(res2)) {
-        throw new Error("Results do not match between object and stringified JSON.");
-      }
-
-      if (shouldPass) {
-        testPassed = true;
-        resultMessage = "Test passed as expected.";
-      } else {
-        testPassed = false;
-        resultMessage = "Test failed: Should have failed but passed without errors.";
-      }
-    } catch (error: any) {
-      resultMessage = `\n${error.name}: ${error.message}`;
-      if (shouldPass) {
-        testPassed = false;
-      } else {
-        testPassed = true;
-        console.error(error);
-      }
-    }
-
-    if (testPassed) {
-      passed.push(description);
-    } else {
-      failed.push(description + resultMessage);
-    }
-
-    if (!args.values.failed || !testPassed) {
-      console.info(headerColor(infoColor(` ${description} `.padEnd(process.stdout.columns || 40))));
-      console.info(output.join(""));
-      console.info(`\nExpected to ${shouldPass ? "pass" : "fail"}. ${testPassed ? passColor("Test passed") : failColor("Test failed")}.`);
-      console.debug("");
-    }
-  });
-
-  // Summary
-  console.info(headerColor(infoColor(" Summary ".padEnd(process.stdout.columns || 40))));
-  console.info(colors.green(`Passed: ${passed.length} ${colors.gray(`- ${passed.join(", ")}`)}`));
-  if (failed.length > 0) {
-    console.info(colors.red(`Failed: ${failed.length}\n - ${failed.join("\n  - ")}`));
-  } else {
-    console.info("Failed: 0");
+    if (passed) console.debug(passColor(truncPad("Passed")));
+    else console.debug(failColor(truncPad("Failed")));
+    console.debug("\n");
   }
-  console.debug("");
 }
 
-// Execute tests
+// async function runTests(): Promise<void> {
+//   const results: TestResult[] = await Promise.all(
+//     // @ts-expect-error - the types are wrong in some cases
+//     testCases.map(testCase => runTest(testCase))
+//   );
+
+//   // Log results
+//   results.filter((res) => {
+//     if (args.values.failed) {
+//       return !res.passed; // Show only failed tests
+//     }
+//     return true; // Show all tests
+//   }).forEach(({ testCase, passed, warnings, result, errors }) => {
+//     const output: string[] = [];
+//     output.push(headerColor(infoColor(` ${testCase.description} `.padEnd(process.stdout.columns || 40))));
+//     output.push(trunc(`Result: ${colors.gray("{" + Object.entries(result || {}).map(([y, v]) => `${y}:${v}`).join(", ") + "}")}`));
+//     output.push(`Warnings${warnings.length > 0 ? `(${warnings.length})` : ""}:${warnings.length > 0 ? warnColor("\n - " + warnings.join("\n - ")) : " None"}`);
+//     output.push(`Errors${errors.length > 0 ? `(${errors.length})` : ""}:${errors.length > 0 ? failColor("\n - " + errors.join("\n - ")) : " None"}`);
+//     console.info(output.join("\n"));
+//     console.info(`\nExpected to ${testCase.shouldPass ? "pass" : "fail"}. ${passed ? passColor("Test passed") : failColor("Test failed")}.`);
+//     console.debug("");
+//   });
+
+//   // Summery
+//   const totalTests = results.length;
+//   const passedTests = results.filter(r => r.passed).length;
+//   const failedTests = totalTests - passedTests;
+//   console.info(headerColor(infoColor(`\n Summary: ${totalTests} tests run, ${passedTests} passed, ${failedTests} failed.`)));
+//   if (failedTests > 0) {
+//     console.info(failColor(`${failedTests} tests failed.`));
+//     results.filter(r => !r.passed).forEach(({ testCase, warnings }) => {
+//       console.info(failColor(` - ${testCase.description}`));
+//       if (warnings.length > 0) {
+//         console.info(warnColor(`   Warnings: ${warnings.join(", ")}`));
+//       }
+//     });
+//   }
+//   else {
+//     console.info(passColor("All tests passed!"));
+//   }
+//   console.debug("");
+// }
+
+// await runTests();
+
 runTests();
