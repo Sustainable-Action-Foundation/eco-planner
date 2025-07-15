@@ -1,3 +1,9 @@
+import { parseArgs } from "node:util";
+import { parseRecipe, UnparsedRecipe } from "../../src/functions/parseRecipe";
+import { colors } from "../lib/colors";
+import "../lib/console";
+import { trunc } from "../../src/functions/recipe-parser/helpers";
+
 /*
 parseRecipe Test Module
 =======================
@@ -9,11 +15,6 @@ To add a new test:
 1. Define your test recipe object.
 2. Add a new entry to the `testCases` array with a description, the recipe, and whether it should pass or fail.
 */
-
-import { colors } from "../lib/colors";
-import "../lib/console";
-import { parseRecipe, UnparsedRecipe, trunc, ParsedRecipe, DataSeries } from "../../src/functions/parseRecipe";
-import { parseArgs } from "node:util";
 
 const args = parseArgs({
   options: {
@@ -235,8 +236,8 @@ type TestCase = {
   shouldPass: boolean;
 };
 
-const passColor = (text: string) => colors.rgbBG(20, 100, 20, text);
-const failColor = (text: string) => colors.rgbBG(120, 20, 20, text);
+const passColor = colors.green;
+const failColor = colors.red;
 const warnColor = colors.yellow;
 const headerColor = colors.grayBG;
 const infoColor = colors.white;
@@ -273,12 +274,12 @@ function runTests() {
     try {
       // Test with recipe as object or string
       output.push(`Sending recipe as ${typeof recipe}...\n`);
-      const res1 = parseRecipe(typeof recipe === 'string' ? recipe : { ...recipe } as UnparsedRecipe);
+      const res1 = parseRecipe(typeof recipe === 'string' ? recipe : { ...recipe } as UnparsedRecipe, { log: false, interpolationMethod: "interpolate_missing" });
       output.push(logResult(res1));
 
       // Test with stringified JSON
       output.push(`\n\nSending as stringified JSON...\n`);
-      const res2 = parseRecipe(JSON.stringify(recipe));
+      const res2 = parseRecipe(JSON.stringify(recipe), { log: false, interpolationMethod: "interpolate_missing" });
       output.push(logResult(res2));
 
       // They should be the same
@@ -294,31 +295,25 @@ function runTests() {
         resultMessage = "Test failed: Should have failed but passed without errors.";
       }
     } catch (error: any) {
-      if (!shouldPass) {
-        testPassed = true;
-        resultMessage = `Test failed as expected: ${error.message}`;
-      } else {
+      resultMessage = `\n${error.name}: ${error.message}`;
+      if (shouldPass) {
         testPassed = false;
-        resultMessage = `Test failed unexpectedly: ${error.message}`;
+      } else {
+        testPassed = true;
+        console.error(error);
       }
     }
 
     if (testPassed) {
       passed.push(description);
     } else {
-      failed.push(description);
+      failed.push(description + resultMessage);
     }
 
     if (!args.values.failed || !testPassed) {
-      console.debug(headerColor(infoColor(`--- Testing: ${description} ---`.padEnd(process.stdout.columns || 40))));
-      console.debug(output.join("\n"));
-
-      // Footer
-      const footerText = ` ${testPassed ? "PASS" : "FAIL"}: ${description} `;
-      const footerColor = testPassed ? passColor : failColor;
-      console.debug("");
-      console.debug(footerColor(infoColor(footerText.padEnd(process.stdout.columns || 40))));
-      console.debug(resultMessage);
+      console.info(headerColor(infoColor(` ${description} `.padEnd(process.stdout.columns || 40))));
+      console.info(output.join(""));
+      console.info(`\nExpected to ${shouldPass ? "pass" : "fail"}. ${testPassed ? passColor("Test passed") : failColor("Test failed")}.`);
       console.debug("");
     }
   });
@@ -327,9 +322,9 @@ function runTests() {
   console.info(headerColor(infoColor(" Summary ".padEnd(process.stdout.columns || 40))));
   console.info(colors.green(`Passed: ${passed.length} ${colors.gray(`- ${passed.join(", ")}`)}`));
   if (failed.length > 0) {
-    console.info(colors.red(`Failed: ${failed.length}\n\t- ${failed.join("\n\t- ")}`));
+    console.info(colors.red(`Failed: ${failed.length}\n - ${failed.join("\n  - ")}`));
   } else {
-    console.info(colors.red("Failed: 0"));
+    console.info("Failed: 0");
   }
   console.debug("");
 }
