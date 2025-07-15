@@ -18,6 +18,11 @@ export default function Combobox({
 }) {
 
   // TODO: i18n 
+  // TODO: Scroll to top when searching 
+  // TODO: Add keyboard shortcut for first and last element
+  // TODO: Figure out focus for listbox...
+  // TODO: alt + up/down moves focus from combobox to list box and viceversa
+  // TODO: home/end when focusing listbox moves to first/last element
 
   const [value, setValue] = useState<string>('');
   const [renderListBox, setRenderListBox] = useState<boolean>(false)
@@ -123,7 +128,7 @@ export default function Combobox({
           ref={inputRef}
           required={required ? required : false}
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => {setValue(e.target.value), setFocusedListBoxItem(0), itemRefs.current[0]?.scrollIntoView({block: "nearest"})}}
           onKeyDown={handleKeyDownSearchInput}
           onFocus={() => setDisplayListBox(true)}
           onBlur={(e) => { if (e.relatedTarget?.id != `${id}-listbox` && e.relatedTarget?.id != `${id}-button`) { setDisplayListBox(false) } }}
@@ -142,9 +147,11 @@ export default function Combobox({
           type="button"
           tabIndex={-1}
           id={`${id}-button`}
+          className="round grid margin-right-25 transparent"
+          style={{padding: '2px'}}
           onClick={() => {inputRef.current?.focus(), setDisplayListBox(!displayListBox)}}
         >
-          <IconChevronDown aria-hidden="true" width={24} height={24} style={{ minWidth: '24px' }} className="margin-right-50" />
+          <IconChevronDown aria-hidden="true" width={24} height={24} style={{ minWidth: '24px' }} />
         </button>
       </div>
 
@@ -153,14 +160,13 @@ export default function Combobox({
         tabIndex={-1} /* TODO: Element steals focus if i don't do this, but is it allowed? */
         role="listbox"
         id={`${id}-listbox`}
-        aria-label="Aktörer"
-        aria-hidden={!displayListBox} // TODO: Check that this works as expected on screenreader
+        aria-label="Aktörer - förslag"
+        // aria-hidden={displayListBox} TODO: Check that this works as expected on screenreader
         className={`
             ${!renderListBox ? 'display-none' : 'display-block'}
             ${styles['listbox']} 
             ${displayListBox ? styles['visible'] : ''} 
-            margin-inline-0 
-            padding-0`
+            margin-inline-0`
         }
       >
         {results.map((item, index) =>
