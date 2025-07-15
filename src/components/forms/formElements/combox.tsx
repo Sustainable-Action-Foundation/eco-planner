@@ -18,11 +18,9 @@ export default function Combobox({
 }) {
 
   // TODO: i18n 
-  // TODO: Scroll to top when searching 
-  // TODO: Add keyboard shortcut for first and last element
   // TODO: Figure out focus for listbox...
-  // TODO: alt + up/down moves focus from combobox to list box and viceversa
-  // TODO: home/end when focusing listbox moves to first/last element
+  // TODO: alt + up/down moves focus from combobox to list box and viceversa (do i want this?)
+  // TODO: See if i can improve performance here somewhere
 
   const [value, setValue] = useState<string>('');
   const [renderListBox, setRenderListBox] = useState<boolean>(false)
@@ -90,6 +88,19 @@ export default function Combobox({
         setFocusedListBoxItem(0)
       }
     }
+
+    if (e.key === 'Home')  {
+      if (displayListBox) {
+        setFocusedListBoxItem(0)
+      }
+    }
+
+    if (e.key === 'End')  {
+      if (displayListBox) {
+        setFocusedListBoxItem(results.length - 1)
+      }
+    }
+
   };
 
   // Sroll listbox element into view
