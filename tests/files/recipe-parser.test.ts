@@ -12,7 +12,33 @@ To add a new test:
 
 import { colors } from "../lib/colors";
 import "../lib/console";
-import { parseRecipe, UnparsedRecipe, RecipeParseResult, trunc } from "../../src/functions/parseRecipe";
+import { parseRecipe, UnparsedRecipe, trunc, ParsedRecipe, DataSeries } from "../../src/functions/parseRecipe";
+import { parseArgs } from "node:util";
+
+const args = parseArgs({
+  options: {
+    "help": {
+      short: "h",
+      type: "boolean",
+      description: "Show this help message",
+      default: false,
+    },
+    "failed": {
+      type: "boolean",
+      description: "Show only failed tests",
+      default: false,
+    }
+  }
+});
+
+if (args.values.help) {
+  console.info("Usage: yarn tsx tests/files/recipe-parser.test.ts [--help] [--failed]");
+  console.info("Options:");
+  console.info("  --help, -h    Show this help message");
+  console.info("  --failed      Show only failed tests");
+  process.exit(0);
+}
+
 
 // Test Case Definitions
 // ---------------------
@@ -147,6 +173,35 @@ const testHugeVector: UnparsedRecipe = {
   },
 };
 
+const testMixedDataVector: UnparsedRecipe = {
+  eq: "${A} * 0.5",
+  variables: {
+    A: { type: "vector", value: [1, 2, 3, null, undefined, 5, "6", 7] }, // Mixed data types
+  },
+};
+
+const testInvalidVector: UnparsedRecipe = {
+  eq: "${A} * 0.5",
+  variables: {
+    A: { type: "vector", value: [1, 2, "three", 4, 5] }, // Invalid vector with a string
+  },
+};
+
+const testNegativeValues: UnparsedRecipe = {
+  eq: "${A} + ${B}",
+  variables: {
+    A: { type: "vector", value: [-1, -2, -3] },
+    B: { type: "vector", value: [-4, -5, -6] },
+  },
+};
+
+const testNegativeVectorValues: UnparsedRecipe = {
+  eq: "${A} * 2",
+  variables: {
+    A: { type: "vector", value: [-1, -2, -3] }, // Negative vector values
+  },
+};
+
 const testCases = [
   { description: "Basic recipe", recipe: testBasicRecipe, shouldPass: true },
   { description: "Missing variable", recipe: testMissingVariableRecipe, shouldPass: false },
@@ -165,6 +220,10 @@ const testCases = [
   { description: "1800 variables", recipe: test1800Variables, shouldPass: true },
   { description: "3000 variables", recipe: test3000Variables, shouldPass: false },
   { description: "Huge vector", recipe: testHugeVector, shouldPass: true },
+  { description: "Mixed data vector", recipe: testMixedDataVector, shouldPass: true },
+  { description: "Invalid vector", recipe: testInvalidVector, shouldPass: false },
+  { description: "Negative values", recipe: testNegativeValues, shouldPass: true },
+  { description: "Negative vector values", recipe: testNegativeVectorValues, shouldPass: true },
 ];
 
 // Test Runner
@@ -182,10 +241,24 @@ const warnColor = colors.yellow;
 const headerColor = colors.grayBG;
 const infoColor = colors.white;
 
-function logResult(res: RecipeParseResult) {
-  console.debug("");
-  console.debug(trunc(`Result: ${colors.gray("[" + (res.result || []).join(", ") + "]")}`));
-  console.debug(trunc(`Warnings: ${res.warnings.length > 0 ? warnColor(res.warnings.join(", ")) : "None"}`));
+/**
+ * Log the result of a recipe test.
+ * @param {Object} res - The result object.
+ * @param {Object} res.result - The parsed recipe result.
+ * @param {Array} res.warnings - Any warnings generated during parsing.
+ * @returns {string | undefined} The formatted string or undefined if no result.
+ */
+function logResult(res: { result: any; warnings: any[] }): string {
+  if (!res) return "";
+
+  const { result, warnings } = res;
+
+  const output: string[] = [];
+  output.push("");
+  output.push(trunc(`Result: ${colors.gray("{" + Object.entries(result).map(([y, v]) => `${y}:${v}`).join(", ") + "}")}`));
+  output.push(`Warnings${warnings.length > 0 && `(${warnings.length})`}:${warnings.length > 0 ? warnColor("\n - " + warnings.join("\n - ")) : " None"}`);
+
+  return output.join("\n");
 }
 
 function runTests() {
@@ -193,21 +266,20 @@ function runTests() {
   const failed: string[] = [];
 
   (testCases as TestCase[]).forEach(({ description, recipe, shouldPass }) => {
-    console.debug(headerColor(infoColor(`--- Testing: ${description} ---`.padEnd(process.stdout.columns || 40))));
-
     let testPassed = false;
     let resultMessage = "";
+    const output: string[] = [];
 
     try {
       // Test with recipe as object or string
-      console.debug(`Sending recipe as ${typeof recipe}...\n`);
+      output.push(`Sending recipe as ${typeof recipe}...\n`);
       const res1 = parseRecipe(typeof recipe === 'string' ? recipe : { ...recipe } as UnparsedRecipe);
-      logResult(res1);
+      output.push(logResult(res1));
 
       // Test with stringified JSON
-      console.debug(`\n\nSending as stringified JSON...\n`);
+      output.push(`\n\nSending as stringified JSON...\n`);
       const res2 = parseRecipe(JSON.stringify(recipe));
-      logResult(res2);
+      output.push(logResult(res2));
 
       // They should be the same
       if (JSON.stringify(res1) !== JSON.stringify(res2)) {
@@ -231,19 +303,24 @@ function runTests() {
       }
     }
 
-    // Footer
-    const footerText = ` ${testPassed ? "PASS" : "FAIL"}: ${description} `;
-    const footerColor = testPassed ? passColor : failColor;
-    console.debug(footerColor(infoColor(footerText.padEnd(process.stdout.columns || 40))));
-    console.debug(resultMessage);
-
-
     if (testPassed) {
       passed.push(description);
     } else {
       failed.push(description);
     }
-    console.log("");
+
+    if (!args.values.failed || !testPassed) {
+      console.debug(headerColor(infoColor(`--- Testing: ${description} ---`.padEnd(process.stdout.columns || 40))));
+      console.debug(output.join("\n"));
+
+      // Footer
+      const footerText = ` ${testPassed ? "PASS" : "FAIL"}: ${description} `;
+      const footerColor = testPassed ? passColor : failColor;
+      console.debug("");
+      console.debug(footerColor(infoColor(footerText.padEnd(process.stdout.columns || 40))));
+      console.debug(resultMessage);
+      console.log("");
+    }
   });
 
   // Summary

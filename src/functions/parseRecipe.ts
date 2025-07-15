@@ -60,6 +60,13 @@ export class RecipeInvalidFormatError extends RecipeError { }
 export class RecipeEquationError extends RecipeError { }
 export class RecipeVariablesError extends RecipeError { }
 
+export class VectorTransformError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = this.constructor.name;
+  }
+}
+
 export type DataSeries = {
   "2020": number | null;
   "2021": number | null;
@@ -101,7 +108,7 @@ export type RecipeVariableScalar = {
 /** Should maybe be transformed into a @type {DataSeries} for better compatibility with other data sources? TODO */
 export type RecipeVariableVector = {
   type: "vector";
-  value: number[];
+  value: (number | string | null | undefined)[];
 }
 export type RecipeVariableDataSeries = {
   type: "dataSeries";
@@ -140,10 +147,89 @@ export type ParsedRecipe = {
  */
 export type RecipeParserOptions = {
   interpolationMethod: "interpolate_missing" | "only_overlapping" | "zero_fill" | "none";
+  log: boolean; // Whether to log the parsing process
 };
-const defaultRecipeParserOptions: RecipeParserOptions = {
+export const defaultRecipeParserOptions: RecipeParserOptions = {
   interpolationMethod: "interpolate_missing",
+  log: false, // Default to not logging the parsing process
+};
+export type VectorTransformationOptions = {
+  interpolationMethod: "naive_index_map" | "even_distribution" | "require_length_match";
+  fillMethod: "zero_fill" | "null_fill";
+};
+export const defaultVectorTransformationOptions: Partial<VectorTransformationOptions> = {
+  interpolationMethod: "naive_index_map",
+  fillMethod: "null_fill",
+};
+
+function vectorToDataSeries(vector: (number | string | undefined | null)[], options = defaultVectorTransformationOptions) {
+  options = { ...defaultVectorTransformationOptions, ...options };
+
+  const vec: (number | null)[] = [];
+
+  for (const val of vector) {
+    if (typeof val === "string") {
+      const parsedNumber = parseFloat(val);
+      if (!Number.isFinite(parsedNumber) && !Number.isNaN(parsedNumber)) throw new VectorTransformError(`Tried converting string (${val}) into a number but the result is not finite or NaN.`)
+      vec.push(parsedNumber)
+    }
+    else if (typeof val === "number") {
+      const number = val;
+      if (!Number.isFinite(number) && !Number.isNaN(number)) throw new VectorTransformError(`Tried converting number (${number}) into a number but the result is not finite or NaN.`)
+      vec.push(number);
+    }
+    else if (typeof val === "undefined" || val === null) {
+      // Explicit undefined and empty values are treated as null for the sake of data base ease
+      vec.push(null);
+    }
+    else {
+      throw new VectorTransformError(`Vector to data series function received vector containing unknown type (${typeof val})`);
+    }
+  }
+
+  const dataSeries = {} as DataSeries;
+  // TODO - Don't do it like this. Theres a file with all the years in it. `src/lib/dataSeriesDataFieldNames.json` at the time of writing
+  const years: (keyof DataSeries)[] = new Array(31).fill(2020).map((year: number, i) => (year + i).toString() as keyof DataSeries);
+
+  switch (options.interpolationMethod) {
+    case "naive_index_map":
+      years.forEach((year, i) => {
+        dataSeries[year] = vec[i] ?? (options.fillMethod === "zero_fill" ? 0 : null);
+      });
+      break;
+    case "even_distribution":
+      const vectorLength = vec.length;
+      const yearCount = years.length;
+      const step = yearCount / vectorLength;
+      const indices = Array.from({ length: yearCount }, (_, i) => Math.floor(i * step));
+      for (let i = 0; i < yearCount; i++) {
+        if (indices.includes(i)) {
+          const index = indices.indexOf(i);
+          dataSeries[years[i]] = vec[index] ?? (options.fillMethod === "zero_fill" ? 0 : null);
+        }
+        else {
+          // Fill
+          dataSeries[years[i]] = (options.fillMethod === "zero_fill" ? 0 : null);
+        }
+      }
+      break;
+    case "require_length_match":
+      if (vec.length !== years.length) {
+        throw new VectorTransformError(`Vector length (${vec.length}) does not match the number of years (${years.length}). Use a different interpolation method or adjust the vector length.`);
+      }
+      years.forEach((year, i) => {
+        dataSeries[year] = vec[i] ?? (options.fillMethod === "zero_fill" ? 0 : null);
+      });
+      break;
+    default:
+      throw new VectorTransformError(`Unknown interpolation method: ${options.interpolationMethod}`);
+  }
+
+  return dataSeries;
 }
+
+// vectorToDataSeries([123, 3, 4, , 23234, 24, null, undefined, , 2, undefined, undefined], {})
+// vectorToDataSeries([123, 3, 4, , 23234, 24, null, undefined, , 2, undefined, undefined], { interpolationMethod: "even_distribution" })
 
 function validateRecipeType(recipe: UnparsedRecipe | string): UnparsedRecipe {
   // Validate JSON
@@ -205,6 +291,17 @@ function validateRecipeType(recipe: UnparsedRecipe | string): UnparsedRecipe {
           throw new RecipeVariablesError(`Invalid URL value for '${key}'. Expected a valid URL string.`);
         }
         break;
+      case "dataSeries":
+        if (typeof variable.value !== "object" || Array.isArray(variable.value) || Object.keys(variable.value).length === 0 || !Object.values(variable.value).every(v => typeof v === "number" && isFinite(v) || v === null)) {
+          throw new RecipeVariablesError(`Invalid data series value for '${key}'. Expected an object with year keys and finite number values or null.`);
+        }
+        break;
+      case "externalDataset":
+        if (typeof variable.value !== "object" || !("dataset" in variable.value) || !("tableId" in variable.value) || !("variableId" in variable.value) ||
+          typeof variable.value.dataset !== "string" || typeof variable.value.tableId !== "string" || typeof variable.value.variableId !== "string") {
+          throw new RecipeVariablesError(`Invalid external dataset value for '${key}'. Expected an object with 'dataset', 'tableId', and 'variableId' properties.`);
+        }
+        break;
       default:
         throw new RecipeVariablesError(`Invalid variable type for '${key}'. Expected 'scalar', 'vector', or 'url'.`);
     }
@@ -213,7 +310,7 @@ function validateRecipeType(recipe: UnparsedRecipe | string): UnparsedRecipe {
   return r;
 }
 
-export function normalizeRecipeVariableNames(recipe: UnparsedRecipe | string, warnings: string[] = []): UnparsedRecipe {
+function normalizeRecipeVariableNames(recipe: UnparsedRecipe | string, warnings: string[] = []): UnparsedRecipe {
   recipe = validateRecipeType(recipe);
 
   // Normalize variable names
@@ -256,7 +353,7 @@ function sketchyScalars(scalars: [string, RecipeVariableScalar][], warnings: str
 }
 
 function sketchyVectors(vectors: [string, RecipeVariableVector][], warnings: string[]) {
-  const hugeValuesInVector = vectors.filter(([, variable]) => variable.value.some(v => Math.abs(v) > 1e12));
+  const hugeValuesInVector = vectors.filter(([, variable]) => variable.value.some(v => (typeof v === "number" || typeof v === "string") && Math.abs(parseFloat(v.toString())) > 1e12));
   if (hugeValuesInVector.length > 0) {
     warnings.push(`Recipe contains huge vector values: ${hugeValuesInVector.map(v => v.at(0)).join(", ")}, which may lead to performance issues or overflow errors.`);
   }
@@ -298,10 +395,12 @@ function sketchyExternalDatasets(externalDatasets: [string, RecipeVariableExtern
 }
 
 export function parseRecipe(recipe: UnparsedRecipe | string, options: RecipeParserOptions = defaultRecipeParserOptions): { recipe: ParsedRecipe, result: DataSeries, warnings: string[] } {
+  options = { ...defaultRecipeParserOptions, ...options };
+
   const warnings: string[] = [];
   const normalizedNamesRecipe = normalizeRecipeVariableNames(recipe, warnings);
 
-  console.log(trunc(`Parsing recipe... ${normalizedNamesRecipe.eq}`));
+  if (options.log) console.log(trunc(`Parsing recipe... ${normalizedNamesRecipe.eq}`));
 
   // Extract variables from the equation
   const variables = normalizedNamesRecipe.eq.match(/\$\{([\w-]+)\}/g);
@@ -351,6 +450,7 @@ export function parseRecipe(recipe: UnparsedRecipe | string, options: RecipePars
         externalDatasets.push([key, variable]);
         break;
       default:
+        // @ts-expect-error - In case of extreme type mismanagement
         throw new RecipeVariablesError(`Unknown variable type for '${key}': ${variable.type}`);
     }
   });
@@ -370,42 +470,9 @@ export function parseRecipe(recipe: UnparsedRecipe | string, options: RecipePars
         break;
       case "vector":
         // Convert vector to data series
-        // TODO - add config for vector transformation method. Now it's just index to index with now interpolation or extrapolation
         transformedVariables[key] = {
           type: "dataSeries",
-          value: {
-            "2020": variable.value[0] || null,
-            "2021": variable.value[1] || null,
-            "2022": variable.value[2] || null,
-            "2023": variable.value[3] || null,
-            "2024": variable.value[4] || null,
-            "2025": variable.value[5] || null,
-            "2026": variable.value[6] || null,
-            "2027": variable.value[7] || null,
-            "2028": variable.value[8] || null,
-            "2029": variable.value[9] || null,
-            "2030": variable.value[10] || null,
-            "2031": variable.value[11] || null,
-            "2032": variable.value[12] || null,
-            "2033": variable.value[13] || null,
-            "2034": variable.value[14] || null,
-            "2035": variable.value[15] || null,
-            "2036": variable.value[16] || null,
-            "2037": variable.value[17] || null,
-            "2038": variable.value[18] || null,
-            "2039": variable.value[19] || null,
-            "2040": variable.value[20] || null,
-            "2041": variable.value[21] || null,
-            "2042": variable.value[22] || null,
-            "2043": variable.value[23] || null,
-            "2044": variable.value[24] || null,
-            "2045": variable.value[25] || null,
-            "2046": variable.value[26] || null,
-            "2047": variable.value[27] || null,
-            "2048": variable.value[28] || null,
-            "2049": variable.value[29] || null,
-            "2050": variable.value[30] || null,
-          }
+          value: vectorToDataSeries(variable.value),
         };
         break;
       case "dataSeries":
@@ -414,10 +481,11 @@ export function parseRecipe(recipe: UnparsedRecipe | string, options: RecipePars
         break;
       case "url":
         // Ignore for now. TODO - implement URL handling
-        // transformedVariables[key] = variable;
+        if (options.log) console.warn(`Ignoring URL variable '${key}' for now. TODO - implement URL handling.`);
         break;
       case "externalDataset":
         // Ignore for now. TODO - implement external dataset handling
+        if (options.log) console.warn(`Ignoring external dataset variable '${key}' for now. TODO - implement external dataset handling.`);
         break;
       default:
         // @ts-expect-error - In case of extreme type mismanagement
@@ -440,7 +508,7 @@ export function parseRecipe(recipe: UnparsedRecipe | string, options: RecipePars
         case "scalar":
           return variable.value.toString();
         case "dataSeries":
-          return `{${Object.entries(variable.value).map(([year, value]) => year ? value : "").join(",")}}`; // Convert data series to a string representation
+          return `{${Object.entries(variable.value).map(([year, value]) => value ?? "0").join(", ")}}`; // Convert data series to a string representation
         default:
           throw new RecipeVariablesError(`Unknown variable type for '${varName}': ${variable.type}`);
       }
@@ -450,7 +518,7 @@ export function parseRecipe(recipe: UnparsedRecipe | string, options: RecipePars
     }
   });
 
-  console.log(trunc(`Resolved equation: ${resolvedEquation}`));
+  if (options.log) console.log(trunc(`Resolved equation: ${resolvedEquation}`));
 
   const rawResult: number | math.Matrix = mathjs.evaluate(resolvedEquation);
 
@@ -469,83 +537,18 @@ export function parseRecipe(recipe: UnparsedRecipe | string, options: RecipePars
 
   // Return depending on the type of result
   if (typeof rawResult === "number" && isFinite(rawResult)) {
+    warnings.push("Recipe result is a single number. This may not be what you expected. Consider using vectors or data series for more complex calculations. Filling the result with the same number for each year.");
     return {
       recipe: normalizedRecipe,
-      result: {
-        "2020": rawResult,
-        "2021": rawResult,
-        "2022": rawResult,
-        "2023": rawResult,
-        "2024": rawResult,
-        "2025": rawResult,
-        "2026": rawResult,
-        "2027": rawResult,
-        "2028": rawResult,
-        "2029": rawResult,
-        "2030": rawResult,
-        "2031": rawResult,
-        "2032": rawResult,
-        "2033": rawResult,
-        "2034": rawResult,
-        "2035": rawResult,
-        "2036": rawResult,
-        "2037": rawResult,
-        "2038": rawResult,
-        "2039": rawResult,
-        "2040": rawResult,
-        "2041": rawResult,
-        "2042": rawResult,
-        "2043": rawResult,
-        "2044": rawResult,
-        "2045": rawResult,
-        "2046": rawResult,
-        "2047": rawResult,
-        "2048": rawResult,
-        "2049": rawResult,
-        "2050": rawResult
-      },
+      result: vectorToDataSeries(new Array(31).fill(rawResult)), // Fill with the same number for each year
       warnings
     };
   }
 
   if (Array.isArray(rawResult)) {
-    // If the result is an array or matrix, convert it to a data series
-    const dataSeriesResult: DataSeries = {
-      "2020": rawResult[0] || null,
-      "2021": rawResult[1] || null,
-      "2022": rawResult[2] || null,
-      "2023": rawResult[3] || null,
-      "2024": rawResult[4] || null,
-      "2025": rawResult[5] || null,
-      "2026": rawResult[6] || null,
-      "2027": rawResult[7] || null,
-      "2028": rawResult[8] || null,
-      "2029": rawResult[9] || null,
-      "2030": rawResult[10] || null,
-      "2031": rawResult[11] || null,
-      "2032": rawResult[12] || null,
-      "2033": rawResult[13] || null,
-      "2034": rawResult[14] || null,
-      "2035": rawResult[15] || null,
-      "2036": rawResult[16] || null,
-      "2037": rawResult[17] || null,
-      "2038": rawResult[18] || null,
-      "2039": rawResult[19] || null,
-      "2040": rawResult[20] || null,
-      "2041": rawResult[21] || null,
-      "2042": rawResult[22] || null,
-      "2043": rawResult[23] || null,
-      "2044": rawResult[24] || null,
-      "2045": rawResult[25] || null,
-      "2046": rawResult[26] || null,
-      "2047": rawResult[27] || null,
-      "2048": rawResult[28] || null,
-      "2049": rawResult[29] || null,
-      "2050": rawResult[30] || null,
-    };
     return {
       recipe: normalizedRecipe,
-      result: dataSeriesResult,
+      result: vectorToDataSeries(rawResult as (number | string | null | undefined)[]),
       warnings
     };
   }
