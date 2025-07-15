@@ -319,7 +319,7 @@ function runTests() {
       console.debug("");
       console.debug(footerColor(infoColor(footerText.padEnd(process.stdout.columns || 40))));
       console.debug(resultMessage);
-      console.log("");
+      console.debug("");
     }
   });
 
@@ -331,7 +331,7 @@ function runTests() {
   } else {
     console.info(colors.red("Failed: 0"));
   }
-  console.log("");
+  console.debug("");
 }
 
 // Execute tests

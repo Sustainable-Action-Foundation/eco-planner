@@ -188,8 +188,7 @@ function vectorToDataSeries(vector: (number | string | undefined | null)[], opti
   }
 
   const dataSeries = {} as DataSeries;
-  // TODO - Don't do it like this. Theres a file with all the years in it. `src/lib/dataSeriesDataFieldNames.json` at the time of writing
-  const years: (keyof DataSeries)[] = new Array(31).fill(2020).map((year: number, i) => (year + i).toString() as keyof DataSeries);
+  const years: (keyof DataSeries)[] = new Array(31).fill(2020).map((y, i) => (y + i).toString()) as (keyof DataSeries)[];
 
   switch (options.interpolationMethod) {
     case "naive_index_map":
@@ -228,14 +227,10 @@ function vectorToDataSeries(vector: (number | string | undefined | null)[], opti
   return dataSeries;
 }
 
-// vectorToDataSeries([123, 3, 4, , 23234, 24, null, undefined, , 2, undefined, undefined], {})
-// vectorToDataSeries([123, 3, 4, , 23234, 24, null, undefined, , 2, undefined, undefined], { interpolationMethod: "even_distribution" })
-
 function validateRecipeType(recipe: UnparsedRecipe | string): UnparsedRecipe {
   // Validate JSON
   if (typeof recipe === "string") {
     try {
-      console.log("Provided recipe is a string, parsing JSON...");
       recipe = JSON.parse(recipe);
     }
     catch (error) {
@@ -282,8 +277,8 @@ function validateRecipeType(recipe: UnparsedRecipe | string): UnparsedRecipe {
         }
         break;
       case "vector":
-        if (!Array.isArray(variable.value) || !variable.value.every(v => typeof v === "number" && isFinite(v))) {
-          throw new RecipeVariablesError(`Invalid vector value for '${key}'. Expected an array of finite numbers.`);
+        if (!Array.isArray(variable.value) || !variable.value.every(v => v === null || v === undefined || (typeof v === "number" && isFinite(v)) || (typeof v === "string" && isFinite(parseFloat(v))))) {
+          throw new RecipeVariablesError(`Invalid vector value for '${key}'. Expected an array of finite numbers, nulls, or numeric strings.`);
         }
         break;
       case "url":
@@ -319,10 +314,10 @@ function normalizeRecipeVariableNames(recipe: UnparsedRecipe | string, warnings:
     if (renameMap[varName]) {
       return `\${${renameMap[varName]}}`;
     }
-    return `\${${varName}}`; // Fallback to original variable name if not found
+    throw new RecipeEquationError(`Variable "${varName}" is used in the equation but not defined in variables.`);
   });
   recipe.variables = Object.fromEntries(Object.entries(recipe.variables).map(([key, variable]) => {
-    if (!renameMap[key]) warnings.push(`Variable name not found in rename map: ${key}`);
+    if (!renameMap[key]) throw new RecipeEquationError(`Variable "${key}" does not exist.`);
     const normalizedKey = renameMap[key] || key; // Use the normalized name or fallback
     return [normalizedKey, variable];
   }));
