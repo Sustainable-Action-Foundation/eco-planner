@@ -24,19 +24,19 @@ const args = parseArgs({
       description: "Show this help message",
       default: false,
     },
-    "failed": {
-      type: "boolean",
-      description: "Show only failed tests",
-      default: false,
-    }
+    // "failed": {
+    //   type: "boolean",
+    //   description: "Show only failed tests",
+    //   default: false,
+    // }
   }
 });
 
 if (args.values.help) {
-  console.info("Usage: yarn tsx tests/files/recipe-parser.test.ts [--help] [--failed]");
+  console.info("Usage: yarn tsx tests/files/recipe-parser.test.ts [--help]");
   console.info("Options:");
   console.info("  --help, -h    Show this help message");
-  console.info("  --failed      Show only failed tests");
+  // console.info("  --failed      Show only failed tests");
   process.exit(0);
 }
 
