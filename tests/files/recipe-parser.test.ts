@@ -273,24 +273,73 @@ function runTest(testCase: TestCase): TestResult {
     } else {
       passed = false; // If it was supposed to pass but failed, we consider it failed
     }
-    errors.push(`${error.name} - ${error.message} (${error.stack})`);
+    errors.push(error.stack);
   }
 
   return { passed, warnings, result, testCase, errors };
 }
 
 function runTests() {
+  const results: TestResult[] = [];
+
   for (const testCase of testCases) {
     // Header
     console.debug(headerColor(truncPad(`Running - ${testCase.description} - ${testCase.shouldPass ? "should pass" : "should fail"}`)));
 
     // @ts-expect-error - the types are wrong in some cases
-    const { passed, result, errors, warnings } = runTest(testCase);
+    const testResult = runTest(testCase);
+    const { passed, result, errors, warnings } = testResult;
+
+    results.push(testResult);
 
     if (passed) console.debug(passColor(truncPad("Passed")));
     else console.debug(failColor(truncPad("Failed")));
+
+    // Deets
+    if (result) {
+      console.debug("Data series:", JSON.stringify(result));
+    } else {
+      console.debug("Data series: None (early exit)");
+    }
+
+    // Warnings
+    if (warnings.length > 0) {
+      console.debug("Warnings:");
+      warnings.forEach(warning => console.debug(colors.yellow(` - ${warning}`)));
+    } else {
+      console.debug("Warnings: None");
+    }
+
+    // Errors
+    if (errors.length > 0) {
+      console.debug("Errors:");
+      if (passed) errors.forEach(error => console.debug(` - ${error}`));
+      else errors.forEach(error => console.debug(colors.red(` - ${error}`)));
+    } else {
+      console.debug("Errors: None");
+    }
+
     console.debug("\n");
   }
+
+  // Summary
+  const total = results.length;
+  const passedCount = results.filter(r => r.passed).length;
+  const failedCount = total - passedCount;
+
+  const passedNames = results.filter(r => r.passed).map(r => r.testCase.description);
+  const failedCases = results.filter(r => !r.passed);
+
+  console.debug(headerColor(truncPad(`Summary: passed=${passedCount}, failed=${failedCount}, ${passedCount}/${total} tests passed`)));
+  console.debug(`Passed(${passedCount}): ${passedNames.length > 0 ? passedNames.join(", ") : "None"}`);
+  if (failedCount > 0) {
+    console.debug(colors.red(`Failed(${failedCount}):`));
+    failedCases.forEach(testRes => console.debug(colors.red(` - ${testRes.testCase.description}  ${colors.gray(testRes.errors.map(e => e.split("\n")[0]).join(", "))}`)));
+  }
+  else {
+    console.debug(colors.red("Failed: None"));
+  }
+  console.debug("\n");
 }
 
 runTests();
