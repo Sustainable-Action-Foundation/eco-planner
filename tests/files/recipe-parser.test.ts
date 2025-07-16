@@ -246,8 +246,6 @@ type TestResult = {
 
 const passColor = (text: string) => colors.cyanBrightBG(colors.black(text));
 const failColor = (text: string) => colors.rgbBG(200, 0, 0, colors.black(text));
-const warnColor = colors.yellow;
-const infoColor = colors.white;
 const headerColor = (text: string) => colors.cyanBG(colors.black(text));
 
 function runTest(testCase: TestCase): TestResult {
@@ -294,50 +292,5 @@ function runTests() {
     console.debug("\n");
   }
 }
-
-// async function runTests(): Promise<void> {
-//   const results: TestResult[] = await Promise.all(
-//     // @ts-expect-error - the types are wrong in some cases
-//     testCases.map(testCase => runTest(testCase))
-//   );
-
-//   // Log results
-//   results.filter((res) => {
-//     if (args.values.failed) {
-//       return !res.passed; // Show only failed tests
-//     }
-//     return true; // Show all tests
-//   }).forEach(({ testCase, passed, warnings, result, errors }) => {
-//     const output: string[] = [];
-//     output.push(headerColor(infoColor(` ${testCase.description} `.padEnd(process.stdout.columns || 40))));
-//     output.push(trunc(`Result: ${colors.gray("{" + Object.entries(result || {}).map(([y, v]) => `${y}:${v}`).join(", ") + "}")}`));
-//     output.push(`Warnings${warnings.length > 0 ? `(${warnings.length})` : ""}:${warnings.length > 0 ? warnColor("\n - " + warnings.join("\n - ")) : " None"}`);
-//     output.push(`Errors${errors.length > 0 ? `(${errors.length})` : ""}:${errors.length > 0 ? failColor("\n - " + errors.join("\n - ")) : " None"}`);
-//     console.info(output.join("\n"));
-//     console.info(`\nExpected to ${testCase.shouldPass ? "pass" : "fail"}. ${passed ? passColor("Test passed") : failColor("Test failed")}.`);
-//     console.debug("");
-//   });
-
-//   // Summery
-//   const totalTests = results.length;
-//   const passedTests = results.filter(r => r.passed).length;
-//   const failedTests = totalTests - passedTests;
-//   console.info(headerColor(infoColor(`\n Summary: ${totalTests} tests run, ${passedTests} passed, ${failedTests} failed.`)));
-//   if (failedTests > 0) {
-//     console.info(failColor(`${failedTests} tests failed.`));
-//     results.filter(r => !r.passed).forEach(({ testCase, warnings }) => {
-//       console.info(failColor(` - ${testCase.description}`));
-//       if (warnings.length > 0) {
-//         console.info(warnColor(`   Warnings: ${warnings.join(", ")}`));
-//       }
-//     });
-//   }
-//   else {
-//     console.info(passColor("All tests passed!"));
-//   }
-//   console.debug("");
-// }
-
-// await runTests();
 
 runTests();
