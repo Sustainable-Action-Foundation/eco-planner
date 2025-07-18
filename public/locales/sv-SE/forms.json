@@ -164,6 +164,11 @@
     "change_read_access": "Justera läsbehörighet",
     "change_edit_access": "Justera redigeringsbehörighet"
   },
+  "suggestive_text": {
+    "toggle_button": "Visa förslag",
+    "listbox_label": "Förslag",
+    "listbox_empty_label": "Inga förslag"
+  },
   "meta_roadmap": {
     "description_legend": "Beskriv din $t(common:roadmap_series_one)",
     "roadmap_series_name": "Namn för $t(common:roadmap_series_definite_one)",

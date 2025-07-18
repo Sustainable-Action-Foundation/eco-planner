@@ -1,11 +1,12 @@
 "use client"
 
-import { IconChevronDown, IconSearch } from "@tabler/icons-react";
+import { IconChevronDown } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
-import styles from './searchableList.module.css'
+import styles from './comboBox.module.css' with { type: "css" }
 import Fuse from "fuse.js";
+import { useTranslation } from "react-i18next";
 
-export default function Combobox({
+export default function SuggestiveText({
   id,
   required,
   placeholder,
@@ -17,15 +18,17 @@ export default function Combobox({
   searchableList: Array<string>
 }) {
 
-  // TODO: i18n 
-  // TODO: Figure out focus for listbox...
-  // TODO: alt + up/down moves focus from combobox to list box and viceversa (do i want this?)
-  // TODO: See if i can improve performance here somewhere
+  // TODO: Fallback for no JS
+  
+  const { t } = useTranslation(["forms"]);
 
   const [value, setValue] = useState<string>('');
-  const [renderListBox, setRenderListBox] = useState<boolean>(false)
-  const [displayListBox, setDisplayListBox] = useState<boolean>(false)
-  const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null)
+  const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null);
+  // We only need this to ensure animations play. 
+  // We set displayListBox to transition from opacity: 1 -> 0
+  // Then renderListBox after 150ms (duration of transition) to set display: block -> none
+  const [renderListBox, setRenderListBox] = useState<boolean>(false);
+  const [displayListBox, setDisplayListBox] = useState<boolean>(false);
 
   // Fuse search
   const [results, setResults] = useState<string[]>([])
@@ -36,7 +39,6 @@ export default function Combobox({
 
   const handleKeyDownSearchInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
     // Escape out of listbox if it is open
-    // Clear text if listbox is closed
     if (e.key === 'Escape') {
       if (displayListBox) {
         setFocusedListBoxItem(null)
@@ -44,7 +46,7 @@ export default function Combobox({
       }
     }
 
-    // Selects option and remove listbox
+    // Selects option and remove listbox (TODO: Check value aswell/lenght of list or whatever...)
     if (e.key === 'Enter') {
       if (displayListBox && focusedListBoxItem != null) {
         setValue(results[focusedListBoxItem])
@@ -101,6 +103,13 @@ export default function Combobox({
 
   };
 
+  // Handle search results
+  useEffect(() => {
+    const fuse = new Fuse(searchableList);
+    const newResults = value ? fuse.search(value).map(result => result.item) : searchableList;
+    setResults(newResults);
+  }, [value]);
+
   // Sroll listbox element into view
   useEffect(() => {
     if (focusedListBoxItem !== null && itemRefs.current[focusedListBoxItem]) {
@@ -110,13 +119,7 @@ export default function Combobox({
     }
   }, [focusedListBoxItem]);
 
-  useEffect(() => {
-    const fuse = new Fuse(searchableList);
-    const newResults = value ? fuse.search(value).map(result => result.item) : searchableList;
-    setResults(newResults);
-  }, [value]);
-
-  // Ensure animations are synced
+  // Ensure animations are synced 
   useEffect(() => {
     if (displayListBox) {
       setRenderListBox(true)
@@ -129,8 +132,7 @@ export default function Combobox({
 
   return (
     <div
-      className={`position-relative ${styles['combobox-container']}`} // TODO: Name combobox-container is technically wrong
-      style={{ width: 'fit-content' }}
+      className={`position-relative`}
     >
       <div className="flex align-items-center focusable">
         <input
@@ -149,10 +151,11 @@ export default function Combobox({
           aria-haspopup="listbox"
           aria-controls={displayListBox ? `${id}-listbox` : undefined}
           aria-activedescendant={focusedListBoxItem != null ? `${id}-listbox-${focusedListBoxItem}` : undefined}
-          aria-autocomplete="list" /* TODO: Might want to implement features to enable this to have a value of "both" (tab to autocomplete inline)  */
-          className={`${styles['combobox']}`}
+          aria-autocomplete="list" /* TODO: Implement features to enable this to have a value of "both" (tab to autocomplete inline)  */
         />
-        <button // TODO: Is this a toggle button?
+        <button 
+          aria-pressed={displayListBox}
+          aria-label={t("forms:suggestive_text.toggle_button")}
           type="button"
           tabIndex={-1}
           id={`${id}-button`}
@@ -166,11 +169,11 @@ export default function Combobox({
 
       <ul
         onBlur={(e) => { if (e.relatedTarget?.id != id) { setDisplayListBox(false) } }}
-        tabIndex={-1} /* TODO: Element steals focus if i don't do this, but is it allowed? */
+        tabIndex={-1}
         role="listbox"
-        id={`${id}-listbox`}
-        aria-label="Förslag"
-        data-tooltip={results.length > 0 ? "Förslag" : "Inga förslag"}
+        id={`${id}-listbox`} 
+        aria-label={t("forms:suggestive_text.listbox_label")} 
+        data-listbox-label={results.length > 0 ? `${t("forms:suggestive_text.listbox_label")}` : `${t("forms:suggestive_text.listbox_empty_label")}`} // TODO: I18n
         className={`
             ${!renderListBox ? 'display-none' : 'display-block'}
             ${styles['listbox']} 

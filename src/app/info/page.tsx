@@ -8,7 +8,6 @@ import serveTea from "@/lib/i18nServer";
 // rather than using the base Trans component which would use a client-side i18n instance.
 import { Trans } from "react-i18next/TransWithoutContext";
 import i18next from "i18next"; 
-import SearchableList from "@/components/forms/formElements/searchableList";
 
 export async function generateMetadata() {
   const t = await serveTea("pages");

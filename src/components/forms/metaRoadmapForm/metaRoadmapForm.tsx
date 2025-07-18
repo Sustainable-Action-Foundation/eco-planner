@@ -10,7 +10,8 @@ import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput"
 import formSubmitter from "@/functions/formSubmitter";
 import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
-import Combobox from "../formElements/combox";
+import SuggestiveText from "../formElements/suggestiveText";
+import TextEditor from "@/components/generic/textEditor/textEditor";
 
 /* TODO: Check usage of autocomplete both here and for other forms */
 export default function MetaRoadmapForm({
@@ -111,6 +112,8 @@ export default function MetaRoadmapForm({
             {t("forms:meta_roadmap.roadmap_series_description")}
             <textarea className="block margin-block-25" name="description" id="description" defaultValue={currentRoadmap?.description ?? undefined} required></textarea>
           </label>
+          <TextEditor />
+          
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
@@ -135,8 +138,8 @@ export default function MetaRoadmapForm({
             <input className="margin-block-25" list="actors" id="actor" name="actor" type="text" defaultValue={currentRoadmap?.actor ?? undefined} />
           </label>
           <div className="margin-block-200">
-            <div className="margin-bottom-25"><label htmlFor="actors">Ange aktör</label></div>
-            <Combobox
+            <label htmlFor="actors">Ange aktör</label>
+            <SuggestiveText
               id="actors"
               required={false}
               placeholder="värde"

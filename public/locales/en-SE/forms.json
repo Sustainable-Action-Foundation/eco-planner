@@ -164,6 +164,11 @@
     "change_read_access": "Adjust read access",
     "change_edit_access": "Adjust editing access"
   },
+  "suggestive_text": {
+    "toggle_button": "Show suggestions",
+    "listbox_label": "Suggestions",
+    "listbox_empty_label": "No suggestions"
+  },
   "meta_roadmap": {
     "description_legend": "Describe your $t(common:roadmap_series_one)",
     "roadmap_series_name": "Name $t(common:roadmap_series_definite_one)",
