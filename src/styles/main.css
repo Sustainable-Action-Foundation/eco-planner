@@ -242,7 +242,7 @@
   transition: box-shadow 0.1s ease;
 }
 
-:where(button:hover) {
+:where(button:not(:disabled):hover) {
   box-shadow: inset 0 0 999px rgba(0, 0, 0, 0.1);
 }
 

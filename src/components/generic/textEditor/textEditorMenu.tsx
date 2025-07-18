@@ -1,5 +1,5 @@
 'use client'
- 
+
 // TODO: i18n
 // TODO: Tooltip
 
@@ -76,7 +76,7 @@ export default function TextEditorMenu({
     }
   }
 
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLUListElement | null>(null);
   const [overflowingChildren, setOverflowingChildren] = useState<Element[]>([]);
 
   // Function to check which children overflow
@@ -118,13 +118,150 @@ export default function TextEditorMenu({
 
   return (
     <div className="button-group margin-0 flex" style={{ backgroundColor: 'var(--gray-95)', paddingInline: '3px', borderRadius: '.25rem .25rem 0 0', borderBottom: '1px solid var(--gray)' }}>
-      <div ref={containerRef} style={{ overflow: 'hidden', height: '30px' }}>
+      <ul
+        role='menubar'
+        className='margin-0 padding-0'
+        ref={containerRef}
+        style={{ overflow: 'hidden', height: '30px' }}
+      >
+        <li role='presentation'>
+          <span
+            tabIndex={0}
+            role='menuitem'
+            onClick={() => editor.chain().focus().undo().run()}
+            aria-disabled={!editor.can().undo()} // TODO input_updates: implement actual functionality for this
+          >
+            <IconArrowBackUp
+              color={`${editor.can().undo() ? 'black' : 'gray'}`}
+              className="grid"
+              width={16}
+              height={16}
+              aria-hidden="true"
+            />
+          </span>
+        </li>
+        <li role='presentation'>
+          <span 
+            tabIndex={-1} 
+            role='menuitem'
+            onClick={() => editor.chain().focus().redo().run()}
+            aria-disabled={!editor.can().redo()} // TODO input_updates: implement actual functionality for this
+          >
+            <IconArrowForwardUp
+              color={`${editor.can().redo() ? 'black' : 'gray'}`}
+              className="grid"
+              width={16}
+              height={16}
+              aria-hidden="true"
+            />
+          </span>
+        </li>
+
+        <hr aria-orientation='vertical' /> {/* TODO input_updates: Is this correct usage of hr? */}
+
+        <li role='presentation'>  
+          <span // Font size menu item is a vertical submenu not a select  
+            tabIndex={-1}
+            role='menuitem'>
+
+          </span>
+        </li>
+        <li role='presentation'>
+          <span
+            tabIndex={-1}
+            role='menuitem'>
+
+          </span>
+        </li>
+        <li role='presentation'>
+          <span
+            tabIndex={-1}
+            role='menuitem'>
+
+          </span>
+        </li>
+        <li role='presentation'>
+          <span
+            tabIndex={-1}
+            role='menuitem'>
+
+          </span>
+        </li>
+        <li role='presentation'>
+          <span
+            tabIndex={-1}
+            role='menuitem'>
+
+          </span>
+        </li>
+        <li role='presentation'>
+          <span
+            tabIndex={-1}
+            role='menuitem'>
+
+          </span>
+        </li>
+        <li role='presentation'>
+          <span
+            tabIndex={-1}
+            role='menuitem'>
+
+          </span>
+        </li>
+        <li role='presentation'>
+          <span
+            tabIndex={-1}
+            role='menuitem'>
+
+          </span>
+        </li>
+        <li role='presentation'>
+          <span
+            tabIndex={-1}
+            role='menuitem'>
+
+          </span>
+        </li>
+        <li role='presentation'>
+          <span
+            tabIndex={-1}
+            role='menuitem'>
+
+          </span>
+        </li>
+        <li role='presentation'>
+          <span
+            tabIndex={-1}
+            role='menuitem'>
+
+          </span>
+        </li>
+        <li role='presentation'>
+          <span
+            tabIndex={-1}
+            role='menuitem'>
+
+          </span>
+        </li>
+
         <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', marginBlock: '3px' }}>
-          <button type='button' className='padding-25 transparent' onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} aria-label='Undo'>
-            <IconArrowBackUp color="black" className="grid" width={16} height={16} aria-hidden="true" />
+          <button
+            className='padding-25 transparent'
+            onClick={() => editor.chain().focus().undo().run()}
+            disabled={!editor.can().undo()}
+            type='button'
+            aria-label='Undo'
+          >
+            <IconArrowBackUp color={`${editor.can().undo() ? 'black' : 'gray'}`} className="grid" width={16} height={16} aria-hidden="true" />
           </button>
-          <button type='button' className='padding-25 transparent' onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} aria-label='Redo'>
-            <IconArrowForwardUp color="black" className="grid" width={16} height={16} aria-hidden="true" />
+          <button
+            className='padding-25 transparent'
+            onClick={() => editor.chain().focus().redo().run()}
+            disabled={!editor.can().redo()}
+            type='button'
+            aria-label='Redo'
+          >
+            <IconArrowForwardUp color={`${editor.can().redo() ? 'black' : 'gray'}`} className="grid" width={16} height={16} aria-hidden="true" />
           </button>
         </div>
 
@@ -250,23 +387,14 @@ export default function TextEditorMenu({
           >
             <IconListNumbers width={16} height={16} className="grid" aria-hidden='true' />
           </button>
-          <button
-            className="padding-25 transparent"
-            onClick={() => editor.chain().focus().setDetails().run()}
-            disabled={!editor.can().setDetails()}
-            type='button'
-            aria-label="add details"
-          >
-            <IconSelect width={16} height={16} className="grid" aria-hidden='true' />
-          </button>
         </div>
-      </div>
+      </ul>
 
       {overflowingChildren.length > 0 && (
         <div className='position-relative inline-block' style={{ marginBlock: '3px', alignSelf: 'flex-start' }}>
           <button
             onClick={() => setShowMenu(!showMenu)}
-            style={{backgroundColor: `${showMenu ? 'hsl(206, 100%, 80%, .5)' : ''}`}}
+            style={{ backgroundColor: `${showMenu ? 'hsl(206, 100%, 80%, .5)' : ''}` }}
             className="padding-25 transparent"
             aria-pressed={showMenu}
             type='button'
@@ -275,7 +403,7 @@ export default function TextEditorMenu({
           >
             <IconDotsVertical width={16} height={16} className="grid" aria-hidden='true' />
           </button>
-          {showMenu ? 
+          {showMenu ?
             <div className='position-absolute flex gray-95 smooth' style={{ top: 'calc(100% + 4px + 3px)', right: '0', zIndex: '10', padding: '3px' }}>
               {overflowingChildren.map((el, i) => (
                 <div
@@ -285,7 +413,7 @@ export default function TextEditorMenu({
                 ></div>
               ))}
             </div>
-          : null }
+            : null}
         </div>
       )}
 

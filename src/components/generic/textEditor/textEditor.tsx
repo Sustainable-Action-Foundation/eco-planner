@@ -127,7 +127,7 @@ const TextEditor = () => {
   /* TODO: If there are empty tags after the last piece of content, remove them */
   /* TODO: Keyboard Shortcut for font size and grey-text */
   return (
-    <div className='purewhite smooth margin-bottom-300' style={{ border: '1px solid var(--gray)' }}>
+    <div className='purewhite smooth' style={{ border: '1px solid var(--gray)' }}>
       <TextEditorMenu editor={editor} />
       <EditorContent editor={editor} />
     </div>

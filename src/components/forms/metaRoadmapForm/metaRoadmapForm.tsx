@@ -108,11 +108,18 @@ export default function MetaRoadmapForm({
             <input id="metaRoadmapName" name="metaRoadmapName" className="margin-block-25" type="text" defaultValue={currentRoadmap?.name ?? undefined} required />
           </label>
 
+          {/*
           <label className="block margin-block-100">
             {t("forms:meta_roadmap.roadmap_series_description")}
             <textarea className="block margin-block-25" name="description" id="description" defaultValue={currentRoadmap?.description ?? undefined} required></textarea>
           </label>
-          <TextEditor />
+          */}
+
+          {/* TODO input_updates: How do i properly label this? */}
+          <div className="margin-block-100">
+            <div className="margin-block-25">{t("forms:meta_roadmap.roadmap_series_description")}</div>
+            <TextEditor />
+          </div>
           
         </fieldset>
 
@@ -148,7 +155,7 @@ export default function MetaRoadmapForm({
           </div>
         </fieldset>
 
-        <fieldset className={`${styles.timeLineFieldset} width-100`}>
+        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:meta_roadmap.attach_external")}</legend>
           <LinkInput />
         </fieldset>
@@ -179,7 +186,7 @@ export default function MetaRoadmapForm({
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:meta_roadmap.relationship_legend")}</legend>
-          <label className="block margin-block-75">
+          <label className="block margin-block-100">
             {t("forms:meta_roadmap.relationship_label")}
             <select name="parentRoadmap" id="parentRoadmap" className="block margin-block-25" defaultValue={currentRoadmap?.parentRoadmapId ?? ""}>
               <option value="">{t("forms:meta_roadmap.relationship_no_chosen")}</option>
