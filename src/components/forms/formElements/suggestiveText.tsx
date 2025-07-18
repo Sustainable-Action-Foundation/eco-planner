@@ -26,7 +26,7 @@ export default function SuggestiveText({
   suggestiveList: Array<string>
 }) {
 
-  // TODO: Fallback for no JS
+  // TODO input_updates: Fallback for no JS
 
   const { t } = useTranslation(["forms"]);
 
@@ -42,8 +42,8 @@ export default function SuggestiveText({
   const [results, setResults] = useState<string[]>([])
 
   // Refs
-  const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
+  const comboboxRef = useRef<HTMLInputElement>(null);
 
   const handleKeyDownSearchInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
     // Escape out of listbox if it is open
@@ -56,7 +56,7 @@ export default function SuggestiveText({
 
     // Selects option and remove listbox (TODO: Check value aswell/lenght of list or whatever...)
     if (e.key === 'Enter') {
-      if (displayListBox && focusedListBoxItem != null) {
+      if (displayListBox && focusedListBoxItem != null && results.length > 0) {
         setValue(results[focusedListBoxItem])
         setFocusedListBoxItem(null)
         setDisplayListBox(false);
@@ -120,8 +120,8 @@ export default function SuggestiveText({
 
   // Sroll listbox element into view
   useEffect(() => {
-    if (focusedListBoxItem !== null && itemRefs.current[focusedListBoxItem]) {
-      itemRefs.current[focusedListBoxItem]?.scrollIntoView({
+    if (focusedListBoxItem !== null && optionRefs.current[focusedListBoxItem]) {
+      optionRefs.current[focusedListBoxItem]?.scrollIntoView({
         block: "nearest",
       });
     }
@@ -141,7 +141,7 @@ export default function SuggestiveText({
   return (
     <div
       className={`${className ? `${className} ` : ''}position-relative`}
-      style={{...style}}
+      style={{ ...style }}
     >
       <div className="flex align-items-center focusable">
         <input
@@ -151,8 +151,8 @@ export default function SuggestiveText({
           id={id}
           required={required ? required : false}
           value={value}
-          ref={inputRef}
-          onChange={(e) => { setValue(e.target.value), setFocusedListBoxItem(0), itemRefs.current[0]?.scrollIntoView({ block: "nearest" }) }}
+          ref={comboboxRef}
+          onChange={(e) => { setValue(e.target.value), setFocusedListBoxItem(0), optionRefs.current[0]?.scrollIntoView({ block: "nearest" }) }}
           onKeyDown={handleKeyDownSearchInput}
           onFocus={() => setDisplayListBox(true)}
           onBlur={(e) => { if (e.relatedTarget?.id != `${id}-listbox` && e.relatedTarget?.id != `${id}-button`) { setDisplayListBox(false) } }}
@@ -161,54 +161,54 @@ export default function SuggestiveText({
           aria-haspopup="listbox"
           aria-controls={displayListBox ? `${id}-listbox` : undefined}
           aria-activedescendant={focusedListBoxItem != null ? `${id}-listbox-${focusedListBoxItem}` : undefined}
-          aria-autocomplete="list" /* TODO: Implement features to enable this to have a value of "both" (tab to autocomplete inline)  */
+          aria-autocomplete="list" /* TODO input_updates: Implement features to enable this to have a value of "both" (tab to autocomplete inline)  */
         />
-        {suggestiveList.length > 0 ? 
+        {suggestiveList.length > 0 ?
           <button
-            aria-pressed={displayListBox}
-            aria-label={t("forms:suggestive_text.toggle_button")}
-            type="button"
-            tabIndex={-1}
             id={`${id}-button`}
             className="round grid margin-right-25 transparent"
             style={{ padding: '2px' }}
-            onClick={() => { inputRef.current?.focus(), setDisplayListBox(!displayListBox) }}
+            onClick={() => { comboboxRef.current?.focus(), setDisplayListBox(!displayListBox) }}
+            type="button"
+            tabIndex={-1}
+            aria-pressed={displayListBox}
+            aria-label={t("forms:suggestive_text.toggle_button")}
           >
             <IconChevronDown aria-hidden="true" width={24} height={24} style={{ minWidth: '24px' }} />
           </button>
-        : null }
+          : null}
       </div>
 
-      {suggestiveList.length > 0 ? 
+      {suggestiveList.length > 0 ?
         <ul
-          onBlur={(e) => { if (e.relatedTarget?.id != id) { setDisplayListBox(false) } }}
-          tabIndex={-1}
-          role="listbox"
           id={`${id}-listbox`}
-          aria-label={t("forms:suggestive_text.listbox_label")}
-          data-listbox-label={results.length > 0 ? `${t("forms:suggestive_text.listbox_label")}` : `${t("forms:suggestive_text.listbox_empty_label")}`} // TODO: I18n
           className={`
               ${!renderListBox ? 'display-none' : 'display-block'}
               ${styles['listbox']} 
               ${displayListBox ? styles['visible'] : ''} 
               margin-inline-0`
           }
+          onBlur={(e) => { if (e.relatedTarget?.id != id) { setDisplayListBox(false) } }}
+          role="listbox"
+          tabIndex={-1}
+          aria-label={t("forms:suggestive_text.listbox_label")}
+          data-listbox-label={results.length > 0 ? `${t("forms:suggestive_text.listbox_label")}` : `${t("forms:suggestive_text.listbox_empty_label")}`} // TODO: I18n
         >
           {results.map((item, index) =>
             <li
-              ref={(el) => { itemRefs.current[index] = el }}
               key={index}
-              role="option"
-              aria-selected={item === value}
               id={`${id}-listbox-${index}`}
               style={{ backgroundColor: index === focusedListBoxItem ? 'var(--gray-90)' : '', }}
+              ref={(el) => { optionRefs.current[index] = el }}
               onClick={() => { setValue(item), setDisplayListBox(false) }}
+              role="option"
+              aria-selected={item === value}
             >
               {item}
             </li>
           )}
         </ul>
-      : null }
+        : null}
     </div>
   )
 }
