@@ -41,8 +41,6 @@ export default function Combobox({
       if (displayListBox) {
         setFocusedListBoxItem(null)
         setDisplayListBox(false)
-      } else {
-        setValue('')
       }
     }
 
@@ -150,7 +148,7 @@ export default function Combobox({
           aria-expanded={displayListBox}
           aria-haspopup="listbox"
           aria-controls={displayListBox ? `${id}-listbox` : undefined}
-          aria-activedescendant={focusedListBoxItem != null ? `listbox-${focusedListBoxItem}` : undefined}
+          aria-activedescendant={focusedListBoxItem != null ? `${id}-listbox-${focusedListBoxItem}` : undefined}
           aria-autocomplete="list" /* TODO: Might want to implement features to enable this to have a value of "both" (tab to autocomplete inline)  */
           className={`${styles['combobox']}`}
         />
@@ -171,9 +169,8 @@ export default function Combobox({
         tabIndex={-1} /* TODO: Element steals focus if i don't do this, but is it allowed? */
         role="listbox"
         id={`${id}-listbox`}
-        aria-label="Aktörer - förslag" /* Check this in a screenreader */
+        aria-label="Förslag"
         data-tooltip={results.length > 0 ? "Förslag" : "Inga förslag"}
-        // aria-hidden={displayListBox} TODO: Check that this works as expected on screenreader
         className={`
             ${!renderListBox ? 'display-none' : 'display-block'}
             ${styles['listbox']} 
