@@ -163,48 +163,52 @@ export default function SuggestiveText({
           aria-activedescendant={focusedListBoxItem != null ? `${id}-listbox-${focusedListBoxItem}` : undefined}
           aria-autocomplete="list" /* TODO: Implement features to enable this to have a value of "both" (tab to autocomplete inline)  */
         />
-        <button
-          aria-pressed={displayListBox}
-          aria-label={t("forms:suggestive_text.toggle_button")}
-          type="button"
-          tabIndex={-1}
-          id={`${id}-button`}
-          className="round grid margin-right-25 transparent"
-          style={{ padding: '2px' }}
-          onClick={() => { inputRef.current?.focus(), setDisplayListBox(!displayListBox) }}
-        >
-          <IconChevronDown aria-hidden="true" width={24} height={24} style={{ minWidth: '24px' }} />
-        </button>
+        {suggestiveList.length > 0 ? 
+          <button
+            aria-pressed={displayListBox}
+            aria-label={t("forms:suggestive_text.toggle_button")}
+            type="button"
+            tabIndex={-1}
+            id={`${id}-button`}
+            className="round grid margin-right-25 transparent"
+            style={{ padding: '2px' }}
+            onClick={() => { inputRef.current?.focus(), setDisplayListBox(!displayListBox) }}
+          >
+            <IconChevronDown aria-hidden="true" width={24} height={24} style={{ minWidth: '24px' }} />
+          </button>
+        : null }
       </div>
 
-      <ul
-        onBlur={(e) => { if (e.relatedTarget?.id != id) { setDisplayListBox(false) } }}
-        tabIndex={-1}
-        role="listbox"
-        id={`${id}-listbox`}
-        aria-label={t("forms:suggestive_text.listbox_label")}
-        data-listbox-label={results.length > 0 ? `${t("forms:suggestive_text.listbox_label")}` : `${t("forms:suggestive_text.listbox_empty_label")}`} // TODO: I18n
-        className={`
-            ${!renderListBox ? 'display-none' : 'display-block'}
-            ${styles['listbox']} 
-            ${displayListBox ? styles['visible'] : ''} 
-            margin-inline-0`
-        }
-      >
-        {results.map((item, index) =>
-          <li
-            ref={(el) => { itemRefs.current[index] = el }}
-            key={index}
-            role="option"
-            aria-selected={item === value}
-            id={`${id}-listbox-${index}`}
-            style={{ backgroundColor: index === focusedListBoxItem ? 'var(--gray-90)' : '', }}
-            onClick={() => { setValue(item), setDisplayListBox(false) }}
-          >
-            {item}
-          </li>
-        )}
-      </ul>
+      {suggestiveList.length > 0 ? 
+        <ul
+          onBlur={(e) => { if (e.relatedTarget?.id != id) { setDisplayListBox(false) } }}
+          tabIndex={-1}
+          role="listbox"
+          id={`${id}-listbox`}
+          aria-label={t("forms:suggestive_text.listbox_label")}
+          data-listbox-label={results.length > 0 ? `${t("forms:suggestive_text.listbox_label")}` : `${t("forms:suggestive_text.listbox_empty_label")}`} // TODO: I18n
+          className={`
+              ${!renderListBox ? 'display-none' : 'display-block'}
+              ${styles['listbox']} 
+              ${displayListBox ? styles['visible'] : ''} 
+              margin-inline-0`
+          }
+        >
+          {results.map((item, index) =>
+            <li
+              ref={(el) => { itemRefs.current[index] = el }}
+              key={index}
+              role="option"
+              aria-selected={item === value}
+              id={`${id}-listbox-${index}`}
+              style={{ backgroundColor: index === focusedListBoxItem ? 'var(--gray-90)' : '', }}
+              onClick={() => { setValue(item), setDisplayListBox(false) }}
+            >
+              {item}
+            </li>
+          )}
+        </ul>
+      : null }
     </div>
   )
 }

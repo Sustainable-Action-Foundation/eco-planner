@@ -133,18 +133,15 @@ export default function MetaRoadmapForm({
             </select>
           </label>
 
-          <label className="block margin-block-100">
-            {t("forms:meta_roadmap.choose_actor")}
-            <input className="margin-block-25" list="actors" id="actor" name="actor" type="text" defaultValue={currentRoadmap?.actor ?? undefined} />
-          </label>
           <div className="margin-block-100">
             <label htmlFor="actors">{t("forms:meta_roadmap.choose_actor")}</label>
             <SuggestiveText
               className="margin-top-25"
-              id="actors"
-              name="actors"
+              id="actor"
+              name="actor"
               required={false}
               defaultValue={currentRoadmap?.actor ?? undefined}
+              // suggestiveList={Object.keys(countiesAndMunicipalities)}
               suggestiveList={Object.entries(countiesAndMunicipalities).flat(2)}
             />
           </div>
