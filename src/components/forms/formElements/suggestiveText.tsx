@@ -8,21 +8,29 @@ import { useTranslation } from "react-i18next";
 
 export default function SuggestiveText({
   id,
+  name,
+  className,
+  style,
   required,
   placeholder,
-  searchableList
+  defaultValue,
+  suggestiveList,
 }: {
   id: string
+  name: string,
+  className?: string,
+  style?: React.CSSProperties,
   required?: boolean
   placeholder?: string
-  searchableList: Array<string>
+  defaultValue?: string
+  suggestiveList: Array<string>
 }) {
 
   // TODO: Fallback for no JS
-  
+
   const { t } = useTranslation(["forms"]);
 
-  const [value, setValue] = useState<string>('');
+  const [value, setValue] = useState<string>(defaultValue ? defaultValue : '');
   const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null);
   // We only need this to ensure animations play. 
   // We set displayListBox to transition from opacity: 1 -> 0
@@ -89,13 +97,13 @@ export default function SuggestiveText({
       }
     }
 
-    if (e.key === 'Home')  {
+    if (e.key === 'Home') {
       if (displayListBox) {
         setFocusedListBoxItem(0)
       }
     }
 
-    if (e.key === 'End')  {
+    if (e.key === 'End') {
       if (displayListBox) {
         setFocusedListBoxItem(results.length - 1)
       }
@@ -105,8 +113,8 @@ export default function SuggestiveText({
 
   // Handle search results
   useEffect(() => {
-    const fuse = new Fuse(searchableList);
-    const newResults = value ? fuse.search(value).map(result => result.item) : searchableList;
+    const fuse = new Fuse(suggestiveList);
+    const newResults = value ? fuse.search(value).map(result => result.item) : suggestiveList;
     setResults(newResults);
   }, [value]);
 
@@ -132,36 +140,38 @@ export default function SuggestiveText({
 
   return (
     <div
-      className={`position-relative`}
+      className={`${className ? `${className} ` : ''}position-relative`}
+      style={{...style}}
     >
       <div className="flex align-items-center focusable">
         <input
-          ref={inputRef}
+          type="text"
+          placeholder={placeholder ? placeholder : undefined}
+          name={name}
+          id={id}
           required={required ? required : false}
           value={value}
-          onChange={(e) => {setValue(e.target.value), setFocusedListBoxItem(0), itemRefs.current[0]?.scrollIntoView({block: "nearest"})}}
+          ref={inputRef}
+          onChange={(e) => { setValue(e.target.value), setFocusedListBoxItem(0), itemRefs.current[0]?.scrollIntoView({ block: "nearest" }) }}
           onKeyDown={handleKeyDownSearchInput}
           onFocus={() => setDisplayListBox(true)}
           onBlur={(e) => { if (e.relatedTarget?.id != `${id}-listbox` && e.relatedTarget?.id != `${id}-button`) { setDisplayListBox(false) } }}
-          id={id}
           role="combobox"
-          type="text"
-          placeholder={placeholder ? placeholder : undefined}
           aria-expanded={displayListBox}
           aria-haspopup="listbox"
           aria-controls={displayListBox ? `${id}-listbox` : undefined}
           aria-activedescendant={focusedListBoxItem != null ? `${id}-listbox-${focusedListBoxItem}` : undefined}
           aria-autocomplete="list" /* TODO: Implement features to enable this to have a value of "both" (tab to autocomplete inline)  */
         />
-        <button 
+        <button
           aria-pressed={displayListBox}
           aria-label={t("forms:suggestive_text.toggle_button")}
           type="button"
           tabIndex={-1}
           id={`${id}-button`}
           className="round grid margin-right-25 transparent"
-          style={{padding: '2px'}}
-          onClick={() => {inputRef.current?.focus(), setDisplayListBox(!displayListBox)}}
+          style={{ padding: '2px' }}
+          onClick={() => { inputRef.current?.focus(), setDisplayListBox(!displayListBox) }}
         >
           <IconChevronDown aria-hidden="true" width={24} height={24} style={{ minWidth: '24px' }} />
         </button>
@@ -171,8 +181,8 @@ export default function SuggestiveText({
         onBlur={(e) => { if (e.relatedTarget?.id != id) { setDisplayListBox(false) } }}
         tabIndex={-1}
         role="listbox"
-        id={`${id}-listbox`} 
-        aria-label={t("forms:suggestive_text.listbox_label")} 
+        id={`${id}-listbox`}
+        aria-label={t("forms:suggestive_text.listbox_label")}
         data-listbox-label={results.length > 0 ? `${t("forms:suggestive_text.listbox_label")}` : `${t("forms:suggestive_text.listbox_empty_label")}`} // TODO: I18n
         className={`
             ${!renderListBox ? 'display-none' : 'display-block'}
