@@ -77,16 +77,14 @@ export type ParsedRecipe = {
  * TODO - add descriptions for all interpolation methods
  */
 export type RecipeParserOptions = {
-  interpolationMethod: "interpolate_missing" | "only_overlapping" | "zero_fill" | "none";
+  // interpolationMethod: "interpolate_missing" | "only_overlapping" | "zero_fill" | "none";
 };
 export const defaultRecipeParserOptions: Partial<RecipeParserOptions> = {
-  interpolationMethod: "interpolate_missing",
+  // interpolationMethod: "interpolate_missing",
 };
 export type VectorTransformationOptions = {
-  interpolationMethod: "naive_index_map" | "even_distribution" | "require_length_match";
-  fillMethod: "zero_fill" | "null_fill";
+  fillMethod: "zero_fill" | "interpolate_missing" | "error";
 };
 export const defaultVectorTransformationOptions: Partial<VectorTransformationOptions> = {
-  interpolationMethod: "naive_index_map",
-  fillMethod: "null_fill",
+  fillMethod: "interpolate_missing",
 };

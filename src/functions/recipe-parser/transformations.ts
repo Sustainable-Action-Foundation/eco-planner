@@ -1,66 +1,79 @@
 import { VectorTransformError } from "./errors";
-import { DataSeries, VectorTransformationOptions, defaultVectorTransformationOptions } from "./types";
+import { DataSeries, defaultVectorTransformationOptions } from "./types";
+
+
+const startYear = 2020;
+const endYear = 2050;
+const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => (startYear + i).toString()) as (keyof DataSeries)[];
 
 export function vectorToDataSeries(vector: (number | string | undefined | null)[], options = defaultVectorTransformationOptions): DataSeries {
   options = { ...defaultVectorTransformationOptions, ...options };
 
+  /** The working array for the cleaned input before mapping to years */
   const vec: (number | null)[] = [];
 
+  /** Cast types */
   for (const val of vector) {
+    /** Strings */
     if (typeof val === "string") {
       const parsedNumber = parseFloat(val);
       if (!Number.isFinite(parsedNumber) && !Number.isNaN(parsedNumber)) throw new VectorTransformError(`Tried converting string (${val}) into a number but the result is not finite or NaN.`)
       vec.push(parsedNumber)
     }
+
+    /** Numbers */
     else if (typeof val === "number") {
       const number = val;
       if (!Number.isFinite(number) && !Number.isNaN(number)) throw new VectorTransformError(`Tried converting number (${number}) into a number but the result is not finite or NaN.`)
       vec.push(number);
     }
+
+    /** Null or undefined */
     else if (typeof val === "undefined" || val === null) {
       // Explicit undefined and empty values are treated as null for the sake of data base ease
       vec.push(null);
     }
+
+    /** Wtf... */
     else {
       throw new VectorTransformError(`Vector to data series function received vector containing unknown type (${typeof val})`);
     }
   }
 
+  /**
+   * Start transforming the vector into a DataSeries.
+   */
   const dataSeries = {} as DataSeries;
-  const years: (keyof DataSeries)[] = new Array(31).fill(2020).map((y, i) => (y + i).toString()) as (keyof DataSeries)[];
 
-  switch (options.interpolationMethod) {
-    case "naive_index_map":
-      years.forEach((year, i) => {
-        dataSeries[year] = vec[i] ?? (options.fillMethod === "zero_fill" ? 0 : null);
-      });
+  switch (options.fillMethod) {
+    case "zero_fill":
+      for (let i = 0; i < years.length; i++) {
+        dataSeries[years[i]] = vec[i] ?? 0; // Fill with 0 if undefined
+      }
       break;
-    case "even_distribution":
-      const vectorLength = vec.length;
-      const yearCount = years.length;
-      const step = yearCount / vectorLength;
-      const indices = Array.from({ length: yearCount }, (_, i) => Math.floor(i * step));
-      for (let i = 0; i < yearCount; i++) {
-        if (indices.includes(i)) {
-          const index = indices.indexOf(i);
-          dataSeries[years[i]] = vec[index] ?? (options.fillMethod === "zero_fill" ? 0 : null);
+
+    case "interpolate_missing":
+      for (let i = 0; i < years.length; i++) {
+        if (vec[i]) {
+          dataSeries[years[i]] = vec[i]; // Use the actual value if it exists
         }
-        else {
-          // Fill
-          dataSeries[years[i]] = (options.fillMethod === "zero_fill" ? 0 : null);
+        // Else... 
+        else if (vec[i] === undefined || vec[i] === null) {
+          // Interpolate missing values
+          const prev = vec[i - 1];
+          const next = vec[i + 1];
+          if (prev !== undefined && next !== undefined) {
+            dataSeries[years[i]] = (prev + next) / 2; // Simple average interpolation
+          }
+          else {
+            dataSeries[years[i]] = prev; // Carry forward the last known value
+          }
         }
       }
       break;
-    case "require_length_match":
-      if (vec.length !== years.length) {
-        throw new VectorTransformError(`Vector length (${vec.length}) does not match the number of years (${years.length}). Use a different interpolation method or adjust the vector length.`);
-      }
-      years.forEach((year, i) => {
-        dataSeries[year] = vec[i] ?? (options.fillMethod === "zero_fill" ? 0 : null);
-      });
-      break;
+
     default:
-      throw new VectorTransformError(`Unknown interpolation method: ${options.interpolationMethod}`);
+      throw new VectorTransformError(`Unknown interpolation method: ${options.fillMethod}`);
   }
 
   return dataSeries;
