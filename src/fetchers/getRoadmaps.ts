@@ -1,5 +1,4 @@
-'use server';
-
+import "server-only";
 import { getSession, LoginData } from "@/lib/session"
 import prisma from "@/prismaClient";
 import { roadmapSorter } from "@/lib/sorters";
@@ -17,33 +16,6 @@ import { multiRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 export default async function getRoadmaps() {
   const session = await getSession(await cookies());
   return getCachedRoadmaps(session.user);
-}
-
-/**
- * A wrapper for `getRoadmaps` that excludes sensitive data.
- * 
- * Returns an empty array if no roadmaps are found or user does not have access to any. Also returns an empty array on error.
- * @returns Array of roadmaps
- */
-export async function clientSafeGetRoadmaps() {
-  const roadmaps = await getRoadmaps();
-  return roadmaps.map(roadmap => ({
-    id: roadmap.id,
-    description: roadmap.description,
-    version: roadmap.version,
-    targetVersion: roadmap.targetVersion,
-    isPublic: roadmap.isPublic,
-    _count: roadmap._count,
-    metaRoadmap: {
-      id: roadmap.metaRoadmap.id,
-      name: roadmap.metaRoadmap.name,
-      description: roadmap.metaRoadmap.description,
-      type: roadmap.metaRoadmap.type,
-      actor: roadmap.metaRoadmap.actor,
-      parentRoadmapId: roadmap.metaRoadmap.parentRoadmapId,
-      isPublic: roadmap.metaRoadmap.isPublic,
-    },
-  }));
 }
 
 /**

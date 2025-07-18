@@ -1,5 +1,4 @@
-"use server";
-
+import "server-only";
 import { LoginData } from '@/lib/session';
 import styles from '@/components/tables/tables.module.css' with { type: "css" };
 import { MetaRoadmap, Roadmap } from "@prisma/client";

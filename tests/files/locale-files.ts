@@ -26,7 +26,7 @@ const validPluralSuffixes = ["_one", "_two", "_few", "_many", "_other", "_zero",
 /** Since the translation system uses client and server side instances of i18next, we test for mismatches. */
 const tServerUsageIndications = ["@/lib/i18nServer", "serveTea(",];
 const tClientUsageIndications = ["useTranslation"];
-const serverIndications = ["use server", "next/server", "next/headers", "accessChecker", "export default async function", "export async function"];
+const serverIndications = ["server-only", "use server", "next/server", "next/headers", "accessChecker", "export default async function", "export async function"];
 const clientIndications = ["use client", "useEffect", "useMemo", "useState", "useRef",];
 const serverSideFilesOverride = ["page.tsx", "layout.tsx",].map(file => file && path.join(...file.split("/")));
 const clientSideFilesOverride: string[] = ([] as string[]).map(file => file && path.join(...file.split("/")));

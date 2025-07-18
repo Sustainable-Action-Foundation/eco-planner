@@ -1,5 +1,4 @@
-"use server";
-
+import "server-only";
 import styles from "@/components/tables/tables.module.css" with { type: "css" };
 import { TableMenu } from "@/components/tables/tableMenu/tableMenu.tsx";
 import accessChecker from "@/lib/accessChecker.ts";

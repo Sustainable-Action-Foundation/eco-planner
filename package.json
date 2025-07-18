@@ -65,6 +65,7 @@
     "react-apexcharts": "^1.7.0",
     "react-dom": "^19.1.0",
     "react-i18next": "^15.4.1",
+    "server-only": "^0.0.1",
     "use-debounce": "^10.0.4"
   },
   "devDependencies": {

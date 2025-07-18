@@ -1,5 +1,4 @@
-'use server';
-
+import "server-only";
 import { getSession, LoginData } from "@/lib/session"
 import prisma from "@/prismaClient";
 import { roadmapSorter } from "@/lib/sorters";

@@ -1,5 +1,4 @@
-"use server";
-
+import "server-only";
 import serveTea from "@/lib/i18nServer";
 import { TOptions } from "i18next";
 import { reporter } from "./commonLogic";
