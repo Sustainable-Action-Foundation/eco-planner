@@ -141,7 +141,8 @@ export default function MetaRoadmapForm({
               name="actor"
               required={false}
               defaultValue={currentRoadmap?.actor ?? undefined}
-              // suggestiveList={Object.keys(countiesAndMunicipalities)}
+              // suggestiveList={Object.keys(countiesAndMunicipalities)} Enbart län
+              // suggestiveList={Object.values(countiesAndMunicipalities).flat()} Enbart kommuner
               suggestiveList={Object.entries(countiesAndMunicipalities).flat(2)}
             />
           </div>

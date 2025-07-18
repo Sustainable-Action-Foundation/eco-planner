@@ -1,6 +1,5 @@
 'use client'
-
-// TODO: Make button type="button"
+ 
 // TODO: i18n
 // TODO: Tooltip
 
@@ -121,10 +120,10 @@ export default function TextEditorMenu({
     <div className="button-group margin-0 flex" style={{ backgroundColor: 'var(--gray-95)', paddingInline: '3px', borderRadius: '.25rem .25rem 0 0', borderBottom: '1px solid var(--gray)' }}>
       <div ref={containerRef} style={{ overflow: 'hidden', height: '30px' }}>
         <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', marginBlock: '3px' }}>
-          <button className='padding-25 transparent' onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} aria-label='Undo'>
+          <button type='button' className='padding-25 transparent' onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} aria-label='Undo'>
             <IconArrowBackUp color="black" className="grid" width={16} height={16} aria-hidden="true" />
           </button>
-          <button className='padding-25 transparent' onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} aria-label='Redo'>
+          <button type='button' className='padding-25 transparent' onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} aria-label='Redo'>
             <IconArrowForwardUp color="black" className="grid" width={16} height={16} aria-hidden="true" />
           </button>
         </div>
@@ -141,6 +140,7 @@ export default function TextEditorMenu({
           <button
             onClick={() => editor.chain().focus().toggleGreyText().run()}
             className={`padding-25 transparent ${editor.getAttributes('textStyle').color === 'grey' ? 'is-active' : ''}`}
+            type='button'
             aria-label='grey text'
             aria-pressed={editor.getAttributes('textStyle').color === 'grey'}
           >
@@ -157,6 +157,7 @@ export default function TextEditorMenu({
           <button
             className={`padding-25 transparent ${editor.getAttributes('textStyle').fontStyle === 'italic' ? 'is-active' : ''}`}
             onClick={() => editor.chain().focus().toggleItalic().run()}
+            type='button'
             aria-label="italic"
             aria-pressed={editor.getAttributes('fontStyle').fontWeight === 'italic'}
           >
@@ -165,6 +166,7 @@ export default function TextEditorMenu({
           <button
             className={`padding-25 transparent ${editor.getAttributes('textStyle').fontWeight === 'bold' ? 'is-active' : ''}`}
             onClick={() => editor.chain().focus().toggleBold().run()}
+            type='button'
             aria-label="bold"
             aria-pressed={editor.getAttributes('textStyle').fontWeight === 'bold'}
           >
@@ -173,6 +175,7 @@ export default function TextEditorMenu({
           <button
             className={`padding-25 transparent ${editor.getAttributes('textStyle').textDecoration === 'line-through' ? 'is-active' : ''}`}
             onClick={() => editor.chain().focus().toggleLineThrough().run()}
+            type='button'
             aria-label="strike-trough"
             aria-pressed={editor.getAttributes('textStyle').textDecoration === 'line-through'}
           >
@@ -181,6 +184,7 @@ export default function TextEditorMenu({
           <button
             className={`padding-25 transparent ${editor.getAttributes('textStyle').textDecoration === 'underline' ? 'is-active' : ''}`}
             onClick={() => editor.chain().focus().toggleUnderline().run()}
+            type='button'
             aria-label="underline"
             aria-pressed={editor.getAttributes('textStyle').textDecoration === 'underline'}
           >
@@ -189,6 +193,7 @@ export default function TextEditorMenu({
           <button
             className={`padding-25 transparent ${editor.isActive('superscript') ? 'is-active' : ''}`}
             onClick={() => editor.chain().focus().toggleSuperscript().run()}
+            type='button'
             aria-label="superscript"
             aria-pressed={editor.isActive('superscript')}
           >
@@ -197,6 +202,7 @@ export default function TextEditorMenu({
           <button
             className={`padding-25 transparent ${editor.isActive('subscript') ? 'is-active' : ''}`}
             onClick={() => editor.chain().focus().toggleSubscript().run()}
+            type='button'
             aria-label="subscript"
             aria-pressed={editor.isActive('subscript')}
           >
@@ -205,6 +211,7 @@ export default function TextEditorMenu({
           <button
             className={`padding-25 transparent ${editor.isActive('highlight') ? 'is-active' : ''}`}
             onClick={() => editor.chain().focus().toggleHighlight().run()}
+            type='button'
             aria-label="highlight"
             aria-pressed={editor.isActive('highlight')}
           >
@@ -216,6 +223,7 @@ export default function TextEditorMenu({
           <button
             className={`padding-25 transparent ${editor.isActive('link') ? 'is-active' : ''}`}
             onClick={setLink}
+            type='button'
             aria-label="link"
             aria-pressed={editor.isActive('link')}
           >
@@ -227,6 +235,7 @@ export default function TextEditorMenu({
           <button
             className={`padding-25 transparent ${editor.isActive('bulletList') ? 'is-active' : ''}`}
             onClick={() => editor.chain().focus().toggleBulletList().run()}
+            type='button'
             aria-label="Bullet list"
             aria-pressed={editor.isActive('bulletList')}
           >
@@ -235,6 +244,7 @@ export default function TextEditorMenu({
           <button
             className={`padding-25 transparent ${editor.isActive('orderedList') ? 'is-active' : ''}`}
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            type='button'
             aria-label="Numbered list"
             aria-pressed={editor.isActive('orderedList')}
           >
@@ -244,6 +254,7 @@ export default function TextEditorMenu({
             className="padding-25 transparent"
             onClick={() => editor.chain().focus().setDetails().run()}
             disabled={!editor.can().setDetails()}
+            type='button'
             aria-label="add details"
           >
             <IconSelect width={16} height={16} className="grid" aria-hidden='true' />
@@ -257,7 +268,9 @@ export default function TextEditorMenu({
             onClick={() => setShowMenu(!showMenu)}
             style={{backgroundColor: `${showMenu ? 'hsl(206, 100%, 80%, .5)' : ''}`}}
             className="padding-25 transparent"
-            aria-label="open menu"
+            aria-pressed={showMenu}
+            type='button'
+            aria-label="Show menu"
             aria-hidden="true" /* TODO: This is a lil wonky, in the long run, elements which are overflown should have an aria-hidden instead */
           >
             <IconDotsVertical width={16} height={16} className="grid" aria-hidden='true' />
