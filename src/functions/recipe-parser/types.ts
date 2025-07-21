@@ -1,4 +1,5 @@
-export type DataSeries = {
+
+export type DataSeriesArray = {
   "2020": number | null;
   "2021": number | null;
   "2022": number | null;
@@ -30,48 +31,47 @@ export type DataSeries = {
   "2048": number | null;
   "2049": number | null;
   "2050": number | null;
-}
+};
 
 export type RecipeVariableScalar = {
   type: "scalar";
   value: number;
-}
-/** Should maybe be transformed into a @type {DataSeries} for better compatibility with other data sources? TODO */
+  unit?: string;
+};
 export type RecipeVariableVector = {
   type: "vector";
   value: (number | string | null | undefined)[];
+  unit?: string;
+};
+
+export type RawDataSeriesByLink = {
+  type: "dataSeries";
+  link: string; // uuid of data series in the database
 }
+export type RawDataSeriesByValue = {
+  type: "dataSeries";
+  value: Partial<DataSeriesArray>;
+  unit?: string;
+}
+/** A data series might be defined in the inheritance form or it might be imported and it might have a unit */
+export type RecipeVariableRawDataSeries = RawDataSeriesByLink | RawDataSeriesByValue;
 export type RecipeVariableDataSeries = {
   type: "dataSeries";
-  value: DataSeries;
-}
-/** This should not be saved in the recipe on the db. It should be transformed into @type {RecipeVariableExternalDataset} */
-export type RecipeVariableUrl = {
-  type: "url";
-  value: string;
-}
-export type RecipeVariableExternalDataset = {
-  type: "externalDataset";
-  value: {
-    dataset: string; // e.g. "SCB", "Trafa"
-    tableId: string; // e.g. "AM0101"
-    variableId: string; // e.g. "Inkomst"
-  }
+  link: string; // uuid of data series in the database
+};
+
+export type RecipeVariables = RecipeVariableScalar | RecipeVariableDataSeries;
+export type Recipe = {
+  eq: string;
+  variables: Record<string, RecipeVariables>;
 }
 
-export type UnparsedRecipeVariables = Record<string, RecipeVariableScalar | RecipeVariableVector | RecipeVariableDataSeries | RecipeVariableUrl | RecipeVariableExternalDataset>;
-export type ParsedRecipeVariables = Record<string, RecipeVariableScalar | RecipeVariableDataSeries | RecipeVariableExternalDataset>;
-
-/** Some variables are fine to take as input but need to be transformed to fit in the backend so that's why there are two types */
-export type UnparsedRecipe = {
+export type RawRecipeVariables = RecipeVariableScalar | RecipeVariableVector | RecipeVariableRawDataSeries;
+/** Considered unsafe as it is. Comes from the client */
+export type RawRecipe = {
   eq: string;
-  variables: UnparsedRecipeVariables;
-};
-/** Some variables will need to be transformed to fit this normalized recipe */
-export type ParsedRecipe = {
-  eq: string;
-  variables: ParsedRecipeVariables;
-};
+  variables: Record<string, RawRecipeVariables>;
+}
 
 /** 
  * TODO - add descriptions for all interpolation methods

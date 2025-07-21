@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { getVariableName } from "./recipe-parser/helpers";
 import { vectorToDataSeries, years } from "./recipe-parser/transformations";
+import { DataSeriesArray, RawDataSeriesByLink, RawDataSeriesByValue, RawRecipe, Recipe, RecipeVariables } from "./recipe-parser/types";
 
 type DataSeriesDbEntry = {
   uuid: string;
@@ -8,81 +9,6 @@ type DataSeriesDbEntry = {
   data: DataSeriesArray;
 };
 const dataSeriesDB: Record<string, DataSeriesDbEntry> = {};
-
-
-export type DataSeriesArray = {
-  "2020": number | null;
-  "2021": number | null;
-  "2022": number | null;
-  "2023": number | null;
-  "2024": number | null;
-  "2025": number | null;
-  "2026": number | null;
-  "2027": number | null;
-  "2028": number | null;
-  "2029": number | null;
-  "2030": number | null;
-  "2031": number | null;
-  "2032": number | null;
-  "2033": number | null;
-  "2034": number | null;
-  "2035": number | null;
-  "2036": number | null;
-  "2037": number | null;
-  "2038": number | null;
-  "2039": number | null;
-  "2040": number | null;
-  "2041": number | null;
-  "2042": number | null;
-  "2043": number | null;
-  "2044": number | null;
-  "2045": number | null;
-  "2046": number | null;
-  "2047": number | null;
-  "2048": number | null;
-  "2049": number | null;
-  "2050": number | null;
-};
-
-export type RecipeVariableScalar = {
-  type: "scalar";
-  value: number;
-  unit?: string;
-};
-export type RecipeVariableVector = {
-  type: "vector";
-  value: (number | string | null | undefined)[];
-  unit?: string;
-};
-
-export type RawDataSeriesByLink = {
-  type: "dataSeries";
-  link: string; // uuid of data series in the database
-}
-export type RawDataSeriesByValue = {
-  type: "dataSeries";
-  value: Partial<DataSeriesArray>;
-  unit?: string;
-}
-/** A data series might be defined in the inheritance form or it might be imported and it might have a unit */
-export type RecipeVariableRawDataSeries = RawDataSeriesByLink | RawDataSeriesByValue;
-export type RecipeVariableDataSeries = {
-  type: "dataSeries";
-  link: string; // uuid of data series in the database
-};
-
-type RecipeVariables = RecipeVariableScalar | RecipeVariableDataSeries;
-export type Recipe = {
-  eq: string;
-  variables: Record<string, RecipeVariables>;
-}
-
-type RawRecipeVariables = RecipeVariableScalar | RecipeVariableVector | RecipeVariableRawDataSeries;
-/** Considered unsafe as it is. Comes from the client */
-export type RawRecipe = {
-  eq: string;
-  variables: Record<string, RawRecipeVariables>;
-}
 
 export class RecipeError extends Error {
   constructor(message: string) {
@@ -280,16 +206,6 @@ const input: RawRecipe = {
     dfgvhsödlfsjlfdnkj: { type: "dataSeries", value: { "2020": 1, "2021": 2, "2022": 3 } }
   }
 };
-const rec = parseRecipe(input);
-
-console.log("Before:");
-console.log(input);
-console.log("After:");
-console.log(rec);
-
-console.log(rec.variables);
-
-// const dataSeries = rec.variables.C.value;
 
 // TODO - Implement
 export function evaluateRecipe(recipe: Recipe): Partial<DataSeriesArray> {

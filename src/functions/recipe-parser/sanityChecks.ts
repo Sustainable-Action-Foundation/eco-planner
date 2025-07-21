@@ -1,5 +1,5 @@
 import { isNull } from "mathjs";
-import { RecipeVariableDataSeries, RecipeVariableExternalDataset, RecipeVariableScalar, RecipeVariableVector, RecipeVariableUrl } from "./types.js";
+import { RecipeVariableDataSeries, RecipeVariableScalar, RecipeVariableVector } from "./types";
 
 export function sketchyScalars(scalars: [string, RecipeVariableScalar][], warnings: string[]) {
   const hugeScalar = scalars.filter(([, variable]) => Math.abs(variable.value) > 1e12);
@@ -40,7 +40,7 @@ export function sketchyVectors(vectors: [string, RecipeVariableVector][], warnin
   }
 }
 
-export function sketchyUrls(urls: [string, RecipeVariableUrl][], warnings:string[]) {
+export function sketchyUrls(urls: [string, unknown][], warnings:string[]) {
   // TODO - implement
 }
 
@@ -61,6 +61,6 @@ export function sketchyDataSeries(dataSeries: [string, RecipeVariableDataSeries]
   }
 }
 
-export function sketchyExternalDatasets(externalDatasets: [string, RecipeVariableExternalDataset][], warnings: string[]) {
+export function sketchyExternalDatasets(externalDatasets: [string, unknown][], warnings: string[]) {
   // TODO - implement
 }

@@ -1,12 +1,17 @@
-import { VectorTransformError } from "./errors";
-import { DataSeries, defaultVectorTransformationOptions } from "./types";
+import { DataSeriesArray, defaultVectorTransformationOptions } from "./types";
 
+export class VectorTransformError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "VectorTransformError";
+  }
+}
 
 const startYear = 2020;
 const endYear = 2050;
-export const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => (startYear + i).toString()) as (keyof DataSeries)[];
+export const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => (startYear + i).toString()) as (keyof DataSeriesArray)[];
 
-export function vectorToDataSeries(vector: (number | string | undefined | null)[], options = defaultVectorTransformationOptions): DataSeries {
+export function vectorToDataSeries(vector: (number | string | undefined | null)[], options = defaultVectorTransformationOptions): Partial<DataSeriesArray> {
   options = { ...defaultVectorTransformationOptions, ...options };
 
   /** The working array for the cleaned input before mapping to years */
@@ -43,7 +48,7 @@ export function vectorToDataSeries(vector: (number | string | undefined | null)[
   /**
    * Start transforming the vector into a DataSeries.
    */
-  const dataSeries = {} as DataSeries;
+  const dataSeries = {} as Partial<DataSeriesArray>;
 
   switch (options.fillMethod) {
     case "zero_fill":
