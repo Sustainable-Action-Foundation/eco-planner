@@ -27,31 +27,3 @@ export function getVariableName(index: number): string {
   } while (i >= 0);
   return name;
 }
-
-export function groupVariables(variables: Record<string, any>): {
-  vectors: [string, RecipeVariableVector][],
-  scalars: [string, RecipeVariableScalar][],
-  dataSeries: [string, RecipeVariableDataSeries][],
-} {
-  const vectors: [string, RecipeVariableVector][] = [];
-  const scalars: [string, RecipeVariableScalar][] = [];
-  const dataSeries: [string, RecipeVariableDataSeries][] = [];
-
-  Object.entries(variables).forEach(([key, variable]) => {
-    switch (variable.type) {
-      case "scalar":
-        scalars.push([key, variable]);
-        break;
-      case "vector":
-        vectors.push([key, variable]);
-        break;
-      case "dataSeries":
-        dataSeries.push([key, variable]);
-        break;
-      default:
-        throw new Error(`Unknown variable type for '${key}': ${variable.type}`);
-    }
-  });
-
-  return { vectors, scalars, dataSeries };
-}
