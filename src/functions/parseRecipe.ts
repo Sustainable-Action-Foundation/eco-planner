@@ -17,12 +17,88 @@ export class RecipeError extends Error {
   }
 }
 
-export function recipeFromString(recipe: string): RawRecipe {
-  try {
-    return JSON.parse(recipe) as RawRecipe;
-  } catch (error) {
-    throw new RecipeError(`Failed to parse recipe from string: ${error instanceof Error ? error.message : String(error)}`);
+export function unsafeIsRawRecipe(recipe: unknown): recipe is RawRecipe {
+  return (
+    // Should be a regular object
+    typeof recipe === "object" &&
+    recipe != null &&
+    !Array.isArray(recipe) &&
+    // Should have equation string
+    "eq" in recipe &&
+    typeof recipe.eq === "string" &&
+    // Should have variables object
+    "variables" in recipe &&
+    typeof recipe.variables === "object" &&
+    recipe.variables != null &&
+    !Array.isArray(recipe.variables) &&
+    Object.entries(recipe.variables).every(([key, value]: [string, unknown]) => (
+      // Each variable should have a string key and a value object
+      typeof key === "string" &&
+      typeof value === "object" &&
+      value != null &&
+      !Array.isArray(value) &&
+      // Each variable should match a RawRecipeVariables type
+      (
+        // Scalar
+        (
+          "type" in value &&
+          value.type === "scalar" &&
+          "value" in value &&
+          typeof value.value === "number" &&
+          ( // unit is optional
+            !("unit" in value) ||
+            typeof value.unit === "string"
+          )
+        ) ||
+        // Vector
+        (
+          "type" in value &&
+          value.type === "vector" &&
+          "value" in value &&
+          Array.isArray(value.value) &&
+          value.value.every((v: unknown) => typeof v === "number" || typeof v === "string" || v === null || v === undefined) &&
+          (!("unit" in value) || typeof value.unit === "string")
+        ) ||
+        // Linked data series
+        (
+          "type" in value &&
+          value.type === "dataSeries" &&
+          "link" in value &&
+          typeof value.link === "string"
+        ) ||
+        // New data series with values
+        (
+          "type" in value &&
+          value.type === "dataSeries" &&
+          "value" in value &&
+          typeof value.value === "object" &&
+          value.value != null &&
+          !Array.isArray(value.value) &&
+          Object.entries(value.value).every(([year, val]: [string, unknown]) => (
+            // Each year should be a string and value should be a number or null
+            typeof year === "string" &&
+            Number.isFinite(parseInt(year)) &&
+            (typeof val === "number" || val === null)
+          ))
+        )
+      )
+    ))
+  );
+}
+
+export function recipeFromUnknown(recipe: unknown): RawRecipe {
+  if (typeof recipe === "string") {
+    try {
+      recipe = JSON.parse(recipe);
+    } catch (error) {
+      throw new RecipeError(`Failed to parse recipe from string: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
+  if (!unsafeIsRawRecipe(recipe)) {
+    throw new RecipeError("Invalid recipe format. Expected a RawRecipe JSON string or object.");
+  }
+
+  return { eq: recipe.eq, variables: recipe.variables };
 }
 
 /** Cleans up a possibly unsafe user made recipe */

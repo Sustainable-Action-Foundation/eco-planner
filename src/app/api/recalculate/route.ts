@@ -1,8 +1,8 @@
-import { recalculateGoal } from "@/functions/recalculateGoal";
+import { evaluateRecipe, parseRecipe, RecipeError, recipeFromUnknown, unsafeIsRawRecipe } from "@/functions/parseRecipe";
 import accessChecker from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
-import { AccessControlled, AccessLevel, ClientError } from "@/types";
+import { AccessControlled, AccessLevel, ClientError, DataSeriesDataFields } from "@/types";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
@@ -39,17 +39,7 @@ export async function POST(request: NextRequest) {
           id: requestJson.id,
         },
         select: {
-          combinationScale: true,
-          combinationParents: {
-            select: {
-              isInverted: true,
-              parentGoal: {
-                select: {
-                  dataSeries: true,
-                }
-              },
-            }
-          },
+          recipeUsed: true,
           roadmap: {
             select: {
               author: { select: { id: true, username: true } },
@@ -87,8 +77,14 @@ export async function POST(request: NextRequest) {
       throw new Error(ClientError.AccessDenied)
     }
 
+    let parsedRecipe = parseRecipe(recipeFromUnknown(goal.recipeUsed?.recipe));
+
     // Try to update goal
-    const recalculatedData = await recalculateGoal(goal);
+    const recalculatedData = await evaluateRecipe(parsedRecipe);
+    const dataSeries: Partial<DataSeriesDataFields> = {};
+    for (const [key, value] of Object.entries(recalculatedData)) {
+      dataSeries[("val" + key) as keyof DataSeriesDataFields] = value;
+    }
 
     const updatedGoal = await prisma.goal.update({
       where: {
@@ -97,7 +93,7 @@ export async function POST(request: NextRequest) {
       data: {
         dataSeries: {
           update: {
-            ...recalculatedData
+            ...dataSeries,
           }
         }
       },
@@ -125,6 +121,10 @@ export async function POST(request: NextRequest) {
       } else if (error.message == ClientError.AccessDenied) {
         return Response.json({ message: ClientError.AccessDenied },
           { status: 403 }
+        );
+      } else if (error instanceof RecipeError) {
+        return Response.json({ message: error.message },
+          { status: 500 }
         );
       }
     }
