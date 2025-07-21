@@ -59,14 +59,16 @@ export function vectorToDataSeries(vector: (number | string | undefined | null)[
         }
         // Else... 
         else if (vec[i] === undefined || vec[i] === null) {
-          // Interpolate missing values
+          // Interpolate missing values only if both previous and next values are available
+          // This is a simple linear interpolation
           const prev = vec[i - 1];
           const next = vec[i + 1];
-          if (prev !== undefined && next !== undefined) {
-            dataSeries[years[i]] = (prev + next) / 2; // Simple average interpolation
-          }
-          else {
-            dataSeries[years[i]] = prev; // Carry forward the last known value
+          if (prev && next) {
+            const sum = prev + next;
+            if (!Number.isFinite(sum)) {
+              throw new VectorTransformError(`Interpolation resulted in a non-finite number (${sum}) for year ${years[i]}. Previous: ${prev}, Next: ${next}`);
+            }
+            dataSeries[years[i]] = sum / 2; // Average of previous and next
           }
         }
       }

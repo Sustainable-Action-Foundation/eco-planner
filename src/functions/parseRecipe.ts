@@ -8,6 +8,7 @@
 //   defaultRecipeParserOptions
 // } from "./recipe-parser/types.js";
 
+import { randomUUID } from "node:crypto";
 import { getVariableName } from "./recipe-parser/helpers";
 import { vectorToDataSeries } from "./recipe-parser/transformations";
 
@@ -266,6 +267,14 @@ import { vectorToDataSeries } from "./recipe-parser/transformations";
 // // fs.writeFileSync("src/functions/recipe-parser/interpolate.svg", makeSVG(interpolate));
 // // console.log("SVG files created: zero-fill.svg and interpolate.svg");
 
+type uuid = string;
+type DataSeriesDbEntry = {
+  uuid: uuid;
+  unit?: string;
+  data: DataSeriesArray;
+};
+const dataSeriesDB: Record<uuid, DataSeriesDbEntry> = {};
+
 
 export type DataSeriesArray = {
   "2020": number | null;
@@ -299,28 +308,31 @@ export type DataSeriesArray = {
   "2048": number | null;
   "2049": number | null;
   "2050": number | null;
-}
+};
 
 export type RecipeVariableScalar = {
   type: "scalar";
   value: number;
   unit?: string;
-}
+};
 export type RecipeVariableVector = {
   type: "vector";
   value: (number | string | null | undefined)[];
   unit?: string;
-}
+};
+/** A data series might be defined in the inheritance form or it might be imported and it might have a unit */
 export type RecipeVariableRawDataSeries = {
   type: "dataSeries";
-  value?: Partial<DataSeriesArray>;
+  link: string; // uuid of data series in the database
+} | {
+  type: "dataSeries";
+  value: Partial<DataSeriesArray>;
   unit?: string;
-  link?: string; // uuid
-}
+};
 export type RecipeVariableDataSeries = {
   type: "dataSeries";
-  link: string; // uuid
-}
+  link: uuid; // uuid of data series in the database
+};
 
 type RecipeVariables = RecipeVariableScalar | RecipeVariableDataSeries;
 export type Recipe = {
@@ -356,6 +368,7 @@ export function parseRecipe(rawRecipe: RawRecipe): Recipe {
     throw new RecipeError("Invalid recipe format. Expected an object with 'eq' and 'variables' properties.");
   }
 
+  const parsedRecipe: Recipe = {} as Recipe;
 
   /** 
    * Cast and clean variables
@@ -382,15 +395,51 @@ export function parseRecipe(rawRecipe: RawRecipe): Recipe {
       if (!Array.isArray(variable.value)) {
         throw new RecipeError(`Invalid vector value for variable '${key}': expected an array, got ${typeof variable.value}`);
       }
-      parsedVariables[key] = { type: "dataSeries", value: vectorToDataSeries(variable.value) };
+
+      const dataSeries = vectorToDataSeries(variable.value);
+
+      if (!dataSeries) {
+        throw new RecipeError(`Failed to convert vector to data series for variable '${key}'. Ensure the vector has valid numeric values.`);
+      }
+      if (Object.keys(dataSeries).length === 0) {
+        throw new RecipeError(`Converted vector to data series for variable '${key}' is empty. Ensure the vector has valid numeric values.`);
+      }
+
+      // Write to "db" and link TODO - do this properly
+      const uuid = randomUUID();
+      dataSeriesDB[uuid] = {
+        uuid,
+        data: dataSeries,
+        unit: variable.unit
+      };
+      parsedVariables[key] = { type: "dataSeries", link: uuid };
     }
 
     /** Data series parsing */
     else if (variable.type === "dataSeries") {
-      if (typeof variable.value !== "object") {
-        throw new RecipeError(`Invalid data series value for variable '${key}': expected a DataSeries object`);
+      // If it has a link, use that
+      // @ts-expect-error - type checking
+      const link = variable.link;
+      if (link) {
+        if (typeof link !== "string" || !dataSeriesDB[link]) {
+          throw new RecipeError(`Invalid data series link for variable '${key}': link '${link}' does not exist in the database.`);
+        }
+
+        // If link is valid, use it
+        parsedVariables[key] = { type: "dataSeries", link };
       }
-      parsedVariables[key] = { type: "dataSeries", value: variable.value };
+      else {
+        // @ts-expect-error - type checking
+        const value = variable.value;
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+          throw new RecipeError(`Invalid data series value for variable '${key}': expected an object, got ${typeof value}`);
+        }
+
+        
+      }
+
+      // parsedVariables[key] = { type: "dataSeries", value: variable.value };
     }
 
     /** Wtf... */
@@ -405,7 +454,6 @@ export function parseRecipe(rawRecipe: RawRecipe): Recipe {
   if (Object.keys(parsedVariables).length === 0) {
     throw new RecipeError("No valid variables found in the recipe.");
   }
-
 
   /** 
    * Normalize variable names
@@ -432,7 +480,6 @@ export function parseRecipe(rawRecipe: RawRecipe): Recipe {
     throw new RecipeError("No valid variables found in the recipe after renaming.");
   }
 
-
   /** 
    * Replace variable names in the equation
    */
@@ -452,10 +499,13 @@ export function parseRecipe(rawRecipe: RawRecipe): Recipe {
     throw new RecipeError("Recipe equation is empty after renaming variables.");
   }
 
-  return {
-    eq: renamedEquation,
-    variables: renamedVariables,
-  };
+
+  /** 
+   * Return the parsed recipe
+  */
+  parsedRecipe.eq = renamedEquation;
+  parsedRecipe.variables = renamedVariables;
+  return parsedRecipe;
 }
 
 const input: RawRecipe = {
@@ -475,4 +525,4 @@ console.log(rec);
 
 console.log(rec.variables);
 
-const dataSeries = rec.variables.C.value;
+// const dataSeries = rec.variables.C.value;
