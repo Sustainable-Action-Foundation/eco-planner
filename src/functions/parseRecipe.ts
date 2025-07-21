@@ -554,3 +554,8 @@ console.log(rec);
 console.log(rec.variables);
 
 // const dataSeries = rec.variables.C.value;
+
+// TODO - Implement
+export function evaluateRecipe(recipe: Recipe): Partial<DataSeriesArray> {
+  return {};
+}
