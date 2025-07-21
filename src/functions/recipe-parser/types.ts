@@ -64,27 +64,33 @@ export type RecipeVariables = RecipeVariableScalar | RecipeVariableDataSeries;
 export type Recipe = {
   eq: string;
   variables: Record<string, RecipeVariables>;
-}
+};
 
 export type RawRecipeVariables = RecipeVariableScalar | RecipeVariableVector | RecipeVariableRawDataSeries;
 /** Considered unsafe as it is. Comes from the client */
 export type RawRecipe = {
   eq: string;
   variables: Record<string, RawRecipeVariables>;
-}
+};
+export class RecipeError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "RecipeError";
+  }
+};
 
 /** 
  * TODO - add descriptions for all interpolation methods
  */
-export type RecipeParserOptions = {
-  // interpolationMethod: "interpolate_missing" | "only_overlapping" | "zero_fill" | "none";
-};
-export const defaultRecipeParserOptions: Partial<RecipeParserOptions> = {
-  // interpolationMethod: "interpolate_missing",
-};
 export type VectorTransformationOptions = {
   fillMethod: "zero_fill" | "interpolate_missing" | "error";
 };
 export const defaultVectorTransformationOptions: Partial<VectorTransformationOptions> = {
   fillMethod: "interpolate_missing",
+};
+export class VectorTransformError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "VectorTransformError";
+  }
 };

@@ -2,7 +2,7 @@ import { parseArgs } from "node:util";
 import "../lib/console";
 import { colors } from "../lib/colors";
 import type { DataSeriesArray, RawRecipe } from "../../src/functions/recipe-parser/types";
-import { parseRecipe, recipeFromUnknown } from "../../src/functions/parseRecipe";
+import { parseRecipe, recipeFromUnknown, unsafeIsRawRecipe } from "../../src/functions/parseRecipe";
 
 /** Truncates a message to fit within the terminal width, adding ellipses and excess length information if necessary. */
 export function trunc(message: string) {
@@ -278,11 +278,17 @@ function runTest(testCase: TestCase): TestResult {
     if (JSON.stringify(recipeFromObject) !== JSON.stringify(recipeFromString)) {
       throw new Error("Parsed recipes do not match between object and string input.");
     }
-    
-    const 
 
-    // Beautifully combine the warnings
-    warnings.push(...new Set([...recipeFromObject.warnings, ...recipeFromString.warnings]));
+    // Test if unsafeIsRawRecipe works 
+    const recipeFromObjectIsRaw = unsafeIsRawRecipe(recipeFromObject);
+    const recipeFromStringIsRaw = unsafeIsRawRecipe(recipeFromString);
+    // Add warning if it isn't acceptable which some shouldn't be
+    if (!recipeFromObjectIsRaw || !recipeFromStringIsRaw) {
+      warnings.push("Parsed recipe is not a valid RawRecipe object according to unsafeIsRawRecipe().");
+    }
+
+    // Resolve
+    
 
     passed = shouldPass; // If no error is thrown, it passes
   } catch (error: any) {

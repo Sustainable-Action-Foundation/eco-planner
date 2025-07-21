@@ -1,11 +1,4 @@
-import { DataSeriesArray, defaultVectorTransformationOptions } from "./types";
-
-export class VectorTransformError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "VectorTransformError";
-  }
-}
+import { DataSeriesArray, defaultVectorTransformationOptions, VectorTransformError } from "./types";
 
 const startYear = 2020;
 const endYear = 2050;

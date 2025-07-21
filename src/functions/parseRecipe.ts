@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { getVariableName } from "./recipe-parser/helpers";
 import { vectorToDataSeries, years } from "./recipe-parser/transformations";
-import { DataSeriesArray, RawDataSeriesByLink, RawDataSeriesByValue, RawRecipe, Recipe, RecipeVariables } from "./recipe-parser/types";
+import { DataSeriesArray, RawDataSeriesByLink, RawDataSeriesByValue, RawRecipe, Recipe, RecipeError, RecipeVariables } from "./recipe-parser/types";
 
 type DataSeriesDbEntry = {
   uuid: string;
@@ -9,13 +9,6 @@ type DataSeriesDbEntry = {
   data: Partial<DataSeriesArray>;
 };
 const dataSeriesDB: Record<string, DataSeriesDbEntry> = {};
-
-export class RecipeError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "RecipeError";
-  }
-}
 
 export function unsafeIsRawRecipe(recipe: unknown): recipe is RawRecipe {
   return (
@@ -101,8 +94,8 @@ export function recipeFromUnknown(recipe: unknown): RawRecipe {
   return { eq: recipe.eq, variables: recipe.variables };
 }
 
-/** Cleans up a possibly unsafe user made recipe */
-export function parseRecipe(rawRecipe: RawRecipe): Recipe {
+/** Cleans up a user made recipe from the form into a db friendly @type {Recipe} */
+export async function parseRecipe(rawRecipe: RawRecipe): Promise<Recipe> {
   // Basic validation of the recipe structure
   if (!rawRecipe || typeof rawRecipe !== "object" || !rawRecipe.eq || !rawRecipe.variables || Array.isArray(rawRecipe) || Array.isArray(rawRecipe.variables) || Array.isArray(rawRecipe.eq)) {
     throw new RecipeError("Invalid recipe format. Expected an object with 'eq' and 'variables' properties.");
@@ -275,6 +268,6 @@ export function parseRecipe(rawRecipe: RawRecipe): Recipe {
 }
 
 // TODO - Implement
-export function evaluateRecipe(recipe: Recipe): DataSeriesArray {
+export async function evaluateRecipe(recipe: Recipe): Promise<DataSeriesArray> {
   return {};
 }
