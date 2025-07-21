@@ -4,7 +4,7 @@ import { DataSeries, defaultVectorTransformationOptions } from "./types";
 
 const startYear = 2020;
 const endYear = 2050;
-const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => (startYear + i).toString()) as (keyof DataSeries)[];
+export const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => (startYear + i).toString()) as (keyof DataSeries)[];
 
 export function vectorToDataSeries(vector: (number | string | undefined | null)[], options = defaultVectorTransformationOptions): DataSeries {
   options = { ...defaultVectorTransformationOptions, ...options };

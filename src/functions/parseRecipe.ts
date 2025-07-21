@@ -10,7 +10,7 @@
 
 import { randomUUID } from "node:crypto";
 import { getVariableName } from "./recipe-parser/helpers";
-import { vectorToDataSeries } from "./recipe-parser/transformations";
+import { vectorToDataSeries, years } from "./recipe-parser/transformations";
 
 // import { RecipeError, RecipeEquationError, RecipeVariablesError } from "./recipe-parser/errors.js";
 // import { groupVariables, trunc } from "./recipe-parser/helpers.js";
@@ -436,10 +436,38 @@ export function parseRecipe(rawRecipe: RawRecipe): Recipe {
           throw new RecipeError(`Invalid data series value for variable '${key}': expected an object, got ${typeof value}`);
         }
 
-        
-      }
+        // Validate the data series structure and map to known valid years
+        const dataSeries: Partial<DataSeriesArray> = {};
+        for (const year of years) {
+          const inputValue = value[year];
+          if (inputValue === undefined || inputValue === null) {
+            dataSeries[year] = null; // Explicitly set to null for missing years
+          }
+          else if (typeof inputValue === "number" && Number.isFinite(inputValue)) {
+            dataSeries[year] = inputValue; // Valid number
+          }
+          else {
+            throw new RecipeError(`Invalid data series value for year '${year}' in variable '${key}': expected a finite number, got ${inputValue}`);
+          }
+        }
 
-      // parsedVariables[key] = { type: "dataSeries", value: variable.value };
+        // Check unit
+        // @ts-expect-error - type checking
+        const unit = variable.unit;
+        if (unit && typeof unit !== "string") {
+          throw new RecipeError(`Invalid unit for variable '${key}': expected a string, got ${typeof unit}`);
+        }
+
+        // Write to "db" and link TODO - do this properly
+        const uuid = randomUUID();
+        dataSeriesDB[uuid] = {
+          uuid,
+          data: dataSeries as DataSeriesArray,
+          ...(unit ? { unit } : {})
+        };
+
+        parsedVariables[key] = { type: "dataSeries", link: uuid };
+      }
     }
 
     /** Wtf... */
