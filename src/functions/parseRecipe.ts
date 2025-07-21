@@ -99,6 +99,7 @@ export function recipeFromString(recipe: string): RawRecipe {
   }
 }
 
+/** Cleans up a possibly unsafe user made recipe */
 export function parseRecipe(rawRecipe: RawRecipe): Recipe {
   // Basic validation of the recipe structure
   if (!rawRecipe || typeof rawRecipe !== "object" || !rawRecipe.eq || !rawRecipe.variables || Array.isArray(rawRecipe) || Array.isArray(rawRecipe.variables) || Array.isArray(rawRecipe.eq)) {
@@ -156,8 +157,7 @@ export function parseRecipe(rawRecipe: RawRecipe): Recipe {
     /** Data series parsing */
     else if (variable.type === "dataSeries") {
       // If it has a link, use that
-      // @ts-expect-error - type checking
-      const link = variable.link;
+      const link = (variable as RawDataSeriesByLink).link;
       if (link) {
         if (typeof link !== "string" || !dataSeriesDB[link]) {
           throw new RecipeError(`Invalid data series link for variable '${key}': link '${link}' does not exist in the database.`);
@@ -167,8 +167,7 @@ export function parseRecipe(rawRecipe: RawRecipe): Recipe {
         parsedVariables[key] = { type: "dataSeries", link };
       }
       else {
-        // @ts-expect-error - type checking
-        const value = variable.value;
+        const value = (variable as RawDataSeriesByValue).value;
 
         if (typeof value !== "object" || value === null || Array.isArray(value)) {
           throw new RecipeError(`Invalid data series value for variable '${key}': expected an object, got ${typeof value}`);
@@ -190,8 +189,7 @@ export function parseRecipe(rawRecipe: RawRecipe): Recipe {
         }
 
         // Check unit
-        // @ts-expect-error - type checking
-        const unit = variable.unit;
+        const unit = (variable as RawDataSeriesByValue).unit;
         if (unit && typeof unit !== "string") {
           throw new RecipeError(`Invalid unit for variable '${key}': expected a string, got ${typeof unit}`);
         }
