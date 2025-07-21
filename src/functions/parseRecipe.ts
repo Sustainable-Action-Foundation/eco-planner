@@ -268,6 +268,6 @@ export async function parseRecipe(rawRecipe: RawRecipe): Promise<Recipe> {
 }
 
 // TODO - Implement
-export async function evaluateRecipe(recipe: Recipe): Promise<DataSeriesArray> {
+export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promise<DataSeriesArray> {
   return {};
 }

@@ -2,7 +2,7 @@ import { parseArgs } from "node:util";
 import "../lib/console";
 import { colors } from "../lib/colors";
 import type { DataSeriesArray, RawRecipe } from "../../src/functions/recipe-parser/types";
-import { parseRecipe, recipeFromUnknown, unsafeIsRawRecipe } from "../../src/functions/parseRecipe";
+import { evaluateRecipe, parseRecipe, recipeFromUnknown, unsafeIsRawRecipe } from "../../src/functions/parseRecipe";
 
 /** Truncates a message to fit within the terminal width, adding ellipses and excess length information if necessary. */
 export function trunc(message: string) {
@@ -262,7 +262,7 @@ const passColor = (text: string) => colors.cyanBrightBG(colors.black(text));
 const failColor = (text: string) => colors.rgbBG(200, 0, 0, colors.black(text));
 const headerColor = (text: string) => colors.cyanBG(colors.black(text));
 
-function runTest(testCase: TestCase): TestResult {
+async function runTest(testCase: TestCase): Promise<TestResult> {
   const { recipe, shouldPass } = testCase;
   const warnings: string[] = [];
   const errors: string[] = [];
@@ -271,8 +271,8 @@ function runTest(testCase: TestCase): TestResult {
 
   try {
     // Parse and normalize recipes
-    const recipeFromObject = parseRecipe(recipe as RawRecipe);
-    const recipeFromString = parseRecipe(recipeFromUnknown(JSON.stringify(recipe)));
+    const recipeFromObject = await parseRecipe(recipe as RawRecipe);
+    const recipeFromString = await parseRecipe(recipeFromUnknown(JSON.stringify(recipe)));
 
     // See if they're the same
     if (JSON.stringify(recipeFromObject) !== JSON.stringify(recipeFromString)) {
@@ -287,8 +287,17 @@ function runTest(testCase: TestCase): TestResult {
       warnings.push("Parsed recipe is not a valid RawRecipe object according to unsafeIsRawRecipe().");
     }
 
-    // Resolve
-    
+    // Resolve clean Recipes
+    const objWarnings: string[] = [];
+    const strWarnings: string[] = [];
+    const resultFromObject = await evaluateRecipe(recipeFromObject, objWarnings);
+    const resultFromString = await evaluateRecipe(recipeFromString, strWarnings);
+    // They should still be the same
+    if (JSON.stringify(resultFromObject) !== JSON.stringify(resultFromString)) {
+      warnings.push("Results from object and string input do not match.");
+    }
+
+    warnings.push(...new Set([...objWarnings, ...strWarnings]));
 
     passed = shouldPass; // If no error is thrown, it passes
   } catch (error: any) {
@@ -303,15 +312,14 @@ function runTest(testCase: TestCase): TestResult {
   return { passed, warnings, result, testCase, errors };
 }
 
-function runTests() {
+async function runTests() {
   const results: TestResult[] = [];
 
   for (const testCase of testCases) {
     // Header
     console.debug(headerColor(truncPad(`Running - ${testCase.description} - ${testCase.shouldPass ? "should pass" : "should fail"}`)));
 
-    // @ts-expect-error - the types are wrong in some cases
-    const testResult = runTest(testCase);
+    const testResult = await runTest(testCase as unknown as TestCase);
     const { passed, result, errors, warnings } = testResult;
 
     results.push(testResult);
@@ -366,4 +374,4 @@ function runTests() {
   console.debug("\n");
 }
 
-runTests();
+await runTests();
