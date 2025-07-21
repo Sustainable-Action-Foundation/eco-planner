@@ -1,8 +1,23 @@
 import { parseArgs } from "node:util";
-import { DataSeries, parseRecipe, UnparsedRecipe } from "../../src/functions/parseRecipe";
 import "../lib/console";
 import { colors } from "../lib/colors";
-import { trunc, truncPad } from "../../src/functions/recipe-parser/helpers";
+import type { DataSeriesArray, RawRecipe } from "../../src/functions/recipe-parser/types";
+import { parseRecipe, recipeFromUnknown } from "../../src/functions/parseRecipe";
+
+/** Truncates a message to fit within the terminal width, adding ellipses and excess length information if necessary. */
+export function trunc(message: string) {
+  const maxLength = process.stdout.columns || 80; // Default to 80 if columns is not defined
+  if (message.length > maxLength) {
+    const ellipses = "... "
+    const excessLength = message.length - maxLength;
+    const excessMarker = `(${excessLength}) `
+    return message.slice(0, maxLength - ellipses.length - excessMarker.length) + ellipses + excessMarker;
+  }
+  return message;
+}
+export function truncPad(message: string, padLength: number = process.stdout.columns || 80) {
+  return trunc(message).padEnd(padLength, " ");
+}
 
 /*
 parseRecipe Test Module
@@ -40,11 +55,10 @@ if (args.values.help) {
   process.exit(0);
 }
 
-
 // Test Case Definitions
 // ---------------------
 
-const testBasicRecipe: UnparsedRecipe = {
+const testBasicRecipe: RawRecipe = {
   eq: "${A} * 3 + ${B}*2 / ${C}",
   variables: {
     A: { type: "vector", value: [43, 44, 45] },
@@ -53,7 +67,7 @@ const testBasicRecipe: UnparsedRecipe = {
   },
 };
 
-const testMissingVariableRecipe: UnparsedRecipe = {
+const testMissingVariableRecipe: RawRecipe = {
   eq: "${A} * 3 + ${B}*2 / ${C}",
   variables: {
     A: { type: "vector", value: [43, 44, 45] },
@@ -62,7 +76,7 @@ const testMissingVariableRecipe: UnparsedRecipe = {
   },
 };
 
-const testExtraVariableRecipe: UnparsedRecipe = {
+const testExtraVariableRecipe: RawRecipe = {
   eq: "${A} * 3 + ${B}*2 / ${C}",
   variables: {
     A: { type: "vector", value: [43, 44, 45] },
@@ -81,7 +95,7 @@ const testInvalidVariableRecipe = {
   },
 };
 
-const testEmptyRecipe: UnparsedRecipe = {
+const testEmptyRecipe: RawRecipe = {
   eq: "",
   variables: {},
 };
@@ -98,14 +112,14 @@ const testNoEquation = {
   },
 };
 
-const testManyVariables: UnparsedRecipe = {
+const testManyVariables: RawRecipe = {
   eq: "${A} + ${B} + ${C} + ${D} + ${E} + ${F} + ${G} + ${H} + ${I} + ${J} + ${K} + ${L} + ${M} + ${N} + ${O} + ${P} + ${Q} + ${R} + ${S} + ${T} + ${U} + ${V} + ${W} + ${X} + ${Y} + ${Z}",
   variables: {
     A: { type: "scalar", value: 1 }, B: { type: "scalar", value: 2 }, C: { type: "scalar", value: 3 }, D: { type: "scalar", value: 4 }, E: { type: "scalar", value: 5 }, F: { type: "scalar", value: 6 }, G: { type: "scalar", value: 7 }, H: { type: "scalar", value: 8 }, I: { type: "scalar", value: 9 }, J: { type: "scalar", value: 10 }, K: { type: "scalar", value: 11 }, L: { type: "scalar", value: 12 }, M: { type: "scalar", value: 13 }, N: { type: "scalar", value: 14 }, O: { type: "scalar", value: 15 }, P: { type: "scalar", value: 16 }, Q: { type: "scalar", value: 17 }, R: { type: "scalar", value: 18 }, S: { type: "scalar", value: 19 }, T: { type: "scalar", value: 20 }, U: { type: "scalar", value: 21 }, V: { type: "scalar", value: 22 }, W: { type: "scalar", value: 23 }, X: { type: "scalar", value: 24 }, Y: { type: "scalar", value: 25 }, Z: { type: "scalar", value: 26 },
   }
 }
 
-const testHugeScalar: UnparsedRecipe = {
+const testHugeScalar: RawRecipe = {
   eq: "${A} + ${B}",
   variables: {
     A: { type: "scalar", value: Number.MAX_SAFE_INTEGER },
@@ -113,7 +127,7 @@ const testHugeScalar: UnparsedRecipe = {
   },
 };
 
-const testDivideByZero: UnparsedRecipe = {
+const testDivideByZero: RawRecipe = {
   eq: "${A} / ${B}",
   variables: {
     A: { type: "scalar", value: 10 },
@@ -121,7 +135,7 @@ const testDivideByZero: UnparsedRecipe = {
   },
 };
 
-const testLongVariableNames: UnparsedRecipe = {
+const testLongVariableNames: RawRecipe = {
   eq: "${veryLongVariableName1} + ${veryLongVariableName2}",
   variables: {
     veryLongVariableName1: { type: "scalar", value: 1 },
@@ -129,7 +143,7 @@ const testLongVariableNames: UnparsedRecipe = {
   },
 };
 
-const testBadCharactersInEquation: UnparsedRecipe = {
+const testBadCharactersInEquation: RawRecipe = {
   eq: "${A} % 3 & ${B} | | $ 7",
   variables: {
     A: { type: "scalar", value: 10 },
@@ -137,7 +151,7 @@ const testBadCharactersInEquation: UnparsedRecipe = {
   },
 };
 
-const testEmptyStringTemplate: UnparsedRecipe = {
+const testEmptyStringTemplate: RawRecipe = {
   eq: "${}",
   variables: {
     A: { type: "scalar", value: 10 },
@@ -145,7 +159,7 @@ const testEmptyStringTemplate: UnparsedRecipe = {
   },
 };
 
-const testNumberVariableName: UnparsedRecipe = {
+const testNumberVariableName: RawRecipe = {
   eq: "${5}",
   variables: {
     5: { type: "scalar", value: 10 }, // Invalid variable name
@@ -153,42 +167,42 @@ const testNumberVariableName: UnparsedRecipe = {
   },
 };
 
-const test1800Variables: UnparsedRecipe = {
+const test1800Variables: RawRecipe = {
   eq: new Array(1800).fill(0).map((_, i) => `\${V${i}}`).join("+"),
   variables: Object.fromEntries(
     new Array(1800).fill(0).map((_, i) => [`V${i}`, { type: "scalar", value: i }])
   ),
 };
 
-const test3000Variables: UnparsedRecipe = {
+const test3000Variables: RawRecipe = {
   eq: new Array(3000).fill(0).map((_, i) => `\${V${i}}`).join("+"),
   variables: Object.fromEntries(
     new Array(3000).fill(0).map((_, i) => [`V${i}`, { type: "scalar", value: i }])
   ),
 };
 
-const testHugeVector: UnparsedRecipe = {
+const testHugeVector: RawRecipe = {
   eq: "${A} * 0.5",
   variables: {
     A: { type: "vector", value: new Array(10000).fill(1) }, // Huge vector
   },
 };
 
-const testMixedDataVector: UnparsedRecipe = {
+const testMixedDataVector: RawRecipe = {
   eq: "${A} * 0.5",
   variables: {
     A: { type: "vector", value: [1, 2, 3, null, undefined, 5, "6", 7] }, // Mixed data types
   },
 };
 
-const testInvalidVector: UnparsedRecipe = {
+const testInvalidVector: RawRecipe = {
   eq: "${A} * 0.5",
   variables: {
     A: { type: "vector", value: [1, 2, "three", 4, 5] }, // Invalid vector with a string
   },
 };
 
-const testNegativeValues: UnparsedRecipe = {
+const testNegativeValues: RawRecipe = {
   eq: "${A} + ${B}",
   variables: {
     A: { type: "vector", value: [-1, -2, -3] },
@@ -196,7 +210,7 @@ const testNegativeValues: UnparsedRecipe = {
   },
 };
 
-const testNegativeVectorValues: UnparsedRecipe = {
+const testNegativeVectorValues: RawRecipe = {
   eq: "${A} * 2",
   variables: {
     A: { type: "vector", value: [-1, -2, -3] }, // Negative vector values
@@ -232,7 +246,7 @@ const testCases = [
 
 type TestCase = {
   description: string;
-  recipe: Partial<UnparsedRecipe> | string;
+  recipe: Partial<RawRecipe> | string;
   shouldPass: boolean;
 };
 
@@ -241,7 +255,7 @@ type TestResult = {
   passed: boolean;
   warnings: string[];
   errors: string[];
-  result: DataSeries | null; // The result of the parseRecipe function
+  result: DataSeriesArray | null; // The result of the parseRecipe function
 };
 
 const passColor = (text: string) => colors.cyanBrightBG(colors.black(text));
@@ -253,18 +267,22 @@ function runTest(testCase: TestCase): TestResult {
   const warnings: string[] = [];
   const errors: string[] = [];
   let passed = false;
-  let result: DataSeries | null = null;
+  let result: DataSeriesArray | null = null;
 
   try {
-    const objRes = parseRecipe(recipe as UnparsedRecipe);
-    const strRes = parseRecipe(JSON.stringify(recipe));
+    // Parse and normalize recipes
+    const recipeFromObject = parseRecipe(recipe as RawRecipe);
+    const recipeFromString = parseRecipe(recipeFromUnknown(JSON.stringify(recipe)));
 
-    if (JSON.stringify(objRes.recipe) !== JSON.stringify(strRes.recipe)) {
+    // See if they're the same
+    if (JSON.stringify(recipeFromObject) !== JSON.stringify(recipeFromString)) {
       throw new Error("Parsed recipes do not match between object and string input.");
     }
+    
+    const 
 
     // Beautifully combine the warnings
-    warnings.push(...new Set([...objRes.warnings, ...strRes.warnings]));
+    warnings.push(...new Set([...recipeFromObject.warnings, ...recipeFromString.warnings]));
 
     passed = shouldPass; // If no error is thrown, it passes
   } catch (error: any) {

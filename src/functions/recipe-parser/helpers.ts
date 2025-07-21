@@ -1,4 +1,4 @@
-import { RecipeVariableDataSeries, RecipeVariableExternalDataset, RecipeVariableScalar, RecipeVariableUrl, RecipeVariableVector } from "./types";
+import { RecipeVariableDataSeries, RecipeVariableScalar, RecipeVariableVector } from "./types";
 
 /** Predefined variable names for normalization. */
 const normalizedVariableNames = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AL", "AM", "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU", "AV", "AW", "AX", "AY", "AZ", "BA", "BB", "BC", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BK", "BL", "BM", "BN", "BO", "BP", "BQ", "BR", "BS", "BT", "BU", "BV", "BW", "BX", "BY", "BZ", "CA", "CB", "CC", "CD", "CE", "CF", "CG", "CH", "CI", "CJ", "CK", "CL", "CM", "CN", "CO", "CP", "CQ", "CR", "CS", "CT", "CU", "CV"];
@@ -28,33 +28,14 @@ export function getVariableName(index: number): string {
   return name;
 }
 
-/** Truncates a message to fit within the terminal width, adding ellipses and excess length information if necessary. */
-export function trunc(message: string) {
-  const maxLength = process.stdout.columns || 80; // Default to 80 if columns is not defined
-  if (message.length > maxLength) {
-    const ellipses = "... "
-    const excessLength = message.length - maxLength;
-    const excessMarker = `(${excessLength}) `
-    return message.slice(0, maxLength - ellipses.length - excessMarker.length) + ellipses + excessMarker;
-  }
-  return message;
-}
-export function truncPad(message: string, padLength: number = process.stdout.columns || 80) {
-  return trunc(message).padEnd(padLength, " ");
-}
-
 export function groupVariables(variables: Record<string, any>): {
   vectors: [string, RecipeVariableVector][],
   scalars: [string, RecipeVariableScalar][],
-  urls: [string, RecipeVariableUrl][],
   dataSeries: [string, RecipeVariableDataSeries][],
-  externalDatasets: [string, RecipeVariableExternalDataset][]
 } {
   const vectors: [string, RecipeVariableVector][] = [];
   const scalars: [string, RecipeVariableScalar][] = [];
-  const urls: [string, RecipeVariableUrl][] = [];
   const dataSeries: [string, RecipeVariableDataSeries][] = [];
-  const externalDatasets: [string, RecipeVariableExternalDataset][] = [];
 
   Object.entries(variables).forEach(([key, variable]) => {
     switch (variable.type) {
@@ -64,19 +45,13 @@ export function groupVariables(variables: Record<string, any>): {
       case "vector":
         vectors.push([key, variable]);
         break;
-      case "url":
-        urls.push([key, variable]);
-        break;
       case "dataSeries":
         dataSeries.push([key, variable]);
-        break;
-      case "externalDataset":
-        externalDatasets.push([key, variable]);
         break;
       default:
         throw new Error(`Unknown variable type for '${key}': ${variable.type}`);
     }
   });
 
-  return { vectors, scalars, urls, dataSeries, externalDatasets };
+  return { vectors, scalars, dataSeries };
 }

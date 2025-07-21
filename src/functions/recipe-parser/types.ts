@@ -1,5 +1,5 @@
 
-export type DataSeriesArray = {
+export type DataSeriesArray = Partial<{
   "2020": number | null;
   "2021": number | null;
   "2022": number | null;
@@ -31,7 +31,7 @@ export type DataSeriesArray = {
   "2048": number | null;
   "2049": number | null;
   "2050": number | null;
-};
+}>;
 
 export type RecipeVariableScalar = {
   type: "scalar";
@@ -50,7 +50,7 @@ export type RawDataSeriesByLink = {
 }
 export type RawDataSeriesByValue = {
   type: "dataSeries";
-  value: Partial<DataSeriesArray>;
+  value: DataSeriesArray;
   unit?: string;
 }
 /** A data series might be defined in the inheritance form or it might be imported and it might have a unit */

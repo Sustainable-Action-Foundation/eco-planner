@@ -6,7 +6,7 @@ import { DataSeriesArray, RawDataSeriesByLink, RawDataSeriesByValue, RawRecipe, 
 type DataSeriesDbEntry = {
   uuid: string;
   unit?: string;
-  data: DataSeriesArray;
+  data: Partial<DataSeriesArray>;
 };
 const dataSeriesDB: Record<string, DataSeriesDbEntry> = {};
 
@@ -176,7 +176,7 @@ export function parseRecipe(rawRecipe: RawRecipe): Recipe {
         }
 
         // Validate the data series structure and map to known valid years
-        const dataSeries: Partial<DataSeriesArray> = {};
+        const dataSeries: DataSeriesArray = {};
         for (const year of years) {
           const inputValue = value[year];
           if (inputValue === undefined || inputValue === null) {
@@ -274,16 +274,7 @@ export function parseRecipe(rawRecipe: RawRecipe): Recipe {
   return parsedRecipe;
 }
 
-const input: RawRecipe = {
-  eq: "(${Aasdåaö\`a} + ${qdB}) / 2",
-  variables: {
-    "Aasdåaö\`a": { type: "scalar", value: 10 },
-    qdB: { type: "vector", value: [1, 2, 3, 4, 5] },
-    dfgvhsödlfsjlfdnkj: { type: "dataSeries", value: { "2020": 1, "2021": 2, "2022": 3 } }
-  }
-};
-
 // TODO - Implement
-export function evaluateRecipe(recipe: Recipe): Partial<DataSeriesArray> {
+export function evaluateRecipe(recipe: Recipe): DataSeriesArray {
   return {};
 }
