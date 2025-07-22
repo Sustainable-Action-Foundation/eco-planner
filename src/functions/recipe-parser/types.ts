@@ -72,6 +72,12 @@ export class RecipeError extends Error {
     this.name = "RecipeError";
   }
 };
+export class MathjsError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "MathjsError";
+  }
+}
 
 export type EvalTimeScalar = {
   name: string; // Variable name

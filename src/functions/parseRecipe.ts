@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { getVariableName } from "./recipe-parser/helpers";
-import { DataSeriesArray, EvalTimeDataSeries, EvalTimeScalar, RawDataSeriesByLink, RawDataSeriesByValue, RawRecipe, Recipe, RecipeError, RecipeVariableDataSeries, RecipeVariables, RecipeVariableScalar } from "./recipe-parser/types";
+import type { DataSeriesArray, EvalTimeDataSeries, EvalTimeScalar, RawDataSeriesByLink, RawDataSeriesByValue, RawRecipe, Recipe, RecipeVariableDataSeries, RecipeVariables, RecipeVariableScalar } from "./recipe-parser/types";
+import { MathjsError, RecipeError } from "./recipe-parser/types";
 import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
 import mathjs from "@/math";
 
@@ -235,15 +236,13 @@ export async function parseRecipe(rawRecipe: RawRecipe): Promise<Recipe> {
 
   /** 
    * Return the parsed recipe
-  */
+   */
   parsedRecipe.eq = renamedEquation;
   parsedRecipe.variables = renamedVariables;
   return parsedRecipe;
 }
 
-// TODO - Implement
 export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promise<DataSeriesArray> {
-
   /** 
    * Early sanity checks
    */
@@ -306,6 +305,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
       throw new RecipeError(`Data series '${series.name}' has no valid years.`);
     }
 
+    // Try casting strings to numbers and throw when they are not valid or simply not numbers
     for (const [year, value] of Object.entries(series.data)) {
       if (value == null) {
         // If the value is null or undefined, we skip it
@@ -340,8 +340,63 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
 
     // Replace the variable in the equation
     resolvedEquation = resolvedEquation.replace(`\${${series.name}}`, `[${paddedData.join(",")}]`);
-
   }
 
-  return {};
+  let result: number | math.Matrix | number[];
+  try {
+    result = mathjs.evaluate(resolvedEquation);
+    result = JSON.parse(result.toString())
+  }
+  catch (error) {
+    throw new MathjsError(`Failed to evaluate recipe equation: ${error instanceof Error ? error.message : String(error)}`);
+  }
+
+  // TODO - transform the result into a DataSeriesArray
+  // Arrays are easily mapped from the start year to the end year unless they're too long then take the first 31 years and warn. This will be where interpolation options will come in later.
+  // Scalars are mapped to every year as well with a warning.
+  // Matrices throw.
+  // anything else throws.
+  if (Array.isArray(result)) {
+    if (result.length > years.length) {
+      warnings.push(`Resulting array is longer than the number of years (${years.length}). Only the first ${years.length} years will be used.`);
+      result = result.slice(0, years.length);
+    }
+    const dataSeriesArray: DataSeriesArray = {};
+    for (let i = 0; i < years.length; i++) {
+      const year = years[i];
+      const value = result[i];
+      if (value == null || value === undefined) {
+        dataSeriesArray[year] = null; // Explicitly set to null for missing years
+      }
+      else if (typeof value === "number" && Number.isFinite(value)) {
+        dataSeriesArray[year] = value; // Valid number
+      }
+      else {
+        throw new RecipeError(`Invalid value '${value}' for year '${year}': expected a finite number.`);
+      }
+    }
+    return dataSeriesArray;
+  }
+  if (typeof result === "number" && Number.isFinite(result)) {
+    // If the result is a scalar, map it to all years
+    const dataSeriesArray: DataSeriesArray = {};
+    for (const year of years) {
+      dataSeriesArray[year] = result; // Use the scalar value for all years
+    }
+    return dataSeriesArray;
+  }
+  if (typeof result === "string") {
+    // If the result is a string, try to parse it as a number
+    const parsedResult = parseFloat(result);
+    if (isNaN(parsedResult) || !Number.isFinite(parsedResult)) {
+      throw new RecipeError(`Invalid result from equation: expected a finite number, got '${result}'`);
+    }
+    const dataSeriesArray: DataSeriesArray = {};
+    for (const year of years) {
+      dataSeriesArray[year] = parsedResult; // Use the parsed number for all years
+    }
+    return dataSeriesArray;
+  }
+  // If the result is anything else, throw an error
+  throw new RecipeError(`Invalid result from equation: expected an array or a finite number, got '${typeof result}'`);
 }
