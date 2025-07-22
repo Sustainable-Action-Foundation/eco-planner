@@ -225,6 +225,22 @@ const testUnicodeVariableNames: RawRecipe = {
   },
 };
 
+const testVariableNameWithSpaces: RawRecipe = {
+  eq: "${Variable With Spaces} / ${Another Variable}",
+  variables: {
+    "Variable With Spaces": { type: "vector", value: [5, 25, 123, 68, 675, , , 23, , 34, 56, 78, 90] },
+    "Another Variable": { type: "scalar", value: 2 },
+  },
+};
+
+const testNoEarlyDataInDataSeries: RawRecipe = {
+  eq: "${CoolVector} * ${B}",
+  variables: {
+    "CoolVector": { type: "vector", value: [, , , 0, 12, 33, 0, , , , 2, 12, 23, 4, 5, 6,] },
+    "B": { type: "scalar", value: 0.03 },
+  },
+};
+
 const testCases = [
   { description: "Basic recipe", recipe: testBasicRecipe, shouldPass: true },
   { description: "Missing variable", recipe: testMissingVariableRecipe, shouldPass: false },
@@ -248,6 +264,8 @@ const testCases = [
   { description: "Negative values", recipe: testNegativeValues, shouldPass: true },
   { description: "Negative vector values", recipe: testNegativeVectorValues, shouldPass: true },
   { description: "Unicode variable names", recipe: testUnicodeVariableNames, shouldPass: true },
+  { description: "Variable names with spaces", recipe: testVariableNameWithSpaces, shouldPass: true },
+  { description: "No early data in data series", recipe: testNoEarlyDataInDataSeries, shouldPass: true },
 ];
 
 // Test Runner

@@ -3,6 +3,7 @@ import { getVariableName } from "./recipe-parser/helpers";
 import { vectorToDataSeries, years } from "./recipe-parser/transformations";
 import { DataSeriesArray, EvalTimeDataSeries, EvalTimeScalar, RawDataSeriesByLink, RawDataSeriesByValue, RawRecipe, Recipe, RecipeError, RecipeVariableDataSeries, RecipeVariables, RecipeVariableScalar } from "./recipe-parser/types";
 import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
+import mathjs from "@/math";
 
 type DataSeriesDbEntry = {
   uuid: string;
@@ -325,7 +326,53 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
   /**
    * Resolve equation
    */
-    
+  let resolvedEquation = recipe.eq;
+  for (const scalar of scalars) {
+    resolvedEquation = resolvedEquation.replace(`\${${scalar.name}}`, scalar.value.toString());
+  }
+  for (const series of dataSeries) {
+    // TODO - depending on if the db will give null for unused years or omit them this might need to be adjusted
+    const lastYear = Object.entries(series.data).findLast(([year, value]) => year && value)?.[0];
+    if (!lastYear) {
+      throw new RecipeError(`Data series '${series.name}' has no valid years.`);
+    }
+
+    for (const [year, value] of Object.entries(series.data)) {
+      if (value == null) {
+        // If the value is null or undefined, we skip it
+        continue;
+      }
+      if (typeof value === "number" && Number.isFinite(value)) {
+        // Valid number, do nothing
+        continue
+      }
+      if (typeof value === "string" && (value as string).trim() !== "") {
+        // Try to parse it as a number
+        const parsedValue = parseFloat(value as string);
+        if (isNaN(parsedValue) || !Number.isFinite(parsedValue)) {
+          throw new RecipeError(`Invalid value '${value}' for year '${year}' in data series '${series.name}': expected a finite number.`);
+        }
+        warnings.push(`Value '${value}' for year '${year}' in data series '${series.name}' was parsed as ${parsedValue}.`);
+        series.data[year as keyof DataSeriesArray] = parsedValue; // Update the value to the parsed number
+      }
+      else {
+        throw new RecipeError(`Invalid value '${value}' for year '${year}' in data series '${series.name}': expected a finite number or a valid string representation of a number.`);
+      }
+    }
+
+    // Pad start with zeros if needed up until the last given year
+    const paddedData: number[] = [];
+    for (const year of years) {
+      // Use data if it exists, otherwise use 0 up to the last year
+      if (year <= lastYear) {
+        paddedData.push(series.data[year] ?? 0);
+      }
+    }
+
+    // Replace the variable in the equation
+    resolvedEquation = resolvedEquation.replace(`\${${series.name}}`, `[${paddedData.join(",")}]`);
+
+  }
 
   return {};
 }
