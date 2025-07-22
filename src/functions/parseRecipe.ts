@@ -134,7 +134,7 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
       throw new RecipeError(`Missing or invalid 'type' property in variable '${key}'.`);
     }
 
-    if (!(variable.type in Object.entries(RecipeVariableType))) {
+    if (![RecipeVariableType.Scalar, RecipeVariableType.DataSeries].includes(variable.type as RecipeVariableType)) {
       throw new RecipeError(`Unknown variable type '${variable.type}' in variable '${key}'.`);
     }
 
