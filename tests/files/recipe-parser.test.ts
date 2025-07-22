@@ -241,6 +241,86 @@ const testNoEarlyDataInDataSeries: RawRecipe = {
   },
 };
 
+const testOperatorPrecedence: RawRecipe = {
+  eq: "(${a} + ${b}) * ${c} / (${d} - ${e})^2",
+  variables: {
+    a: { type: RecipeVariableType.Scalar, value: 10 },
+    b: { type: RecipeVariableType.Scalar, value: 5 },
+    c: { type: RecipeVariableType.Scalar, value: 2 },
+    d: { type: RecipeVariableType.Scalar, value: 4 },
+    e: { type: RecipeVariableType.Scalar, value: 2 },
+  },
+};
+
+const testMathFunctions: RawRecipe = {
+  eq: "map(map(map(${matrix}, sin), abs), sqrt) + log(${ten}) - pow(${a number}, 2)",
+  variables: {
+    matrix: { type: RecipeVariableType.DataSeries, value: { "2020": -1, "2021": 0.5, "2022": 1 } },
+    ten: { type: RecipeVariableType.Scalar, value: 10 },
+    "a number": { type: RecipeVariableType.Scalar, value: 2 },
+  },
+};
+
+const testComplexResult: RawRecipe = {
+  eq: "sqrt(${a})",
+  variables: {
+    a: { type: RecipeVariableType.Scalar, value: -4 },
+  },
+};
+
+const testInfinityResult: RawRecipe = {
+  eq: "log(${a})",
+  variables: {
+    a: { type: RecipeVariableType.Scalar, value: 0 },
+  },
+};
+
+const testMatrixResult: RawRecipe = {
+  eq: "${a} * transpose(${b})",
+  variables: {
+    a: { type: RecipeVariableType.DataSeries, value: { "2020": 1, "2021": 2 } },
+    b: { type: RecipeVariableType.DataSeries, value: { "2020": 3, "2021": 4 } },
+  },
+};
+
+const testUnitCalculation: RawRecipe = {
+  eq: "${distance} / ${time}",
+  variables: {
+    distance: { type: RecipeVariableType.DataSeries, value: { "2020": 100, "2021": 200 }, unit: "km" },
+    time: { type: RecipeVariableType.Scalar, value: 2, unit: "h" },
+  },
+};
+
+const testIncompatibleUnits: RawRecipe = {
+  eq: "${mass} + ${length}",
+  variables: {
+    mass: { type: RecipeVariableType.Scalar, value: 10, unit: "kg" },
+    length: { type: RecipeVariableType.Scalar, value: 5, unit: "m" },
+  },
+};
+
+const testRecursiveDefinition: RawRecipe = {
+  eq: "${a}",
+  variables: {
+    a: { type: RecipeVariableType.Scalar, value: "${b}" as any },
+    b: { type: RecipeVariableType.Scalar, value: 10 },
+  },
+};
+
+const testInvalidSyntax: RawRecipe = {
+  eq: "sqrt(4",
+  variables: {},
+};
+
+const testReservedJSKeywords: RawRecipe = {
+  eq: "${function} + ${class} * ${case}",
+  variables: {
+    function: { type: RecipeVariableType.Scalar, value: 1 },
+    class: { type: RecipeVariableType.Scalar, value: 2 },
+    case: { type: RecipeVariableType.Scalar, value: 3 },
+  },
+};
+
 const testCases = [
   { description: "Basic recipe", recipe: testBasicRecipe, shouldPass: true },
   { description: "Missing variable", recipe: testMissingVariableRecipe, shouldPass: false },
@@ -266,6 +346,16 @@ const testCases = [
   { description: "Unicode variable names", recipe: testUnicodeVariableNames, shouldPass: true },
   { description: "Variable names with spaces", recipe: testVariableNameWithSpaces, shouldPass: true },
   { description: "No early data in data series", recipe: testNoEarlyDataInDataSeries, shouldPass: true },
+  { description: "Operator precedence", recipe: testOperatorPrecedence, shouldPass: true },
+  { description: "Math functions", recipe: testMathFunctions, shouldPass: true },
+  { description: "Complex number result", recipe: testComplexResult, shouldPass: false },
+  { description: "Infinity result", recipe: testInfinityResult, shouldPass: false },
+  { description: "Matrix result", recipe: testMatrixResult, shouldPass: false },
+  { description: "Unit calculation", recipe: testUnitCalculation, shouldPass: false },
+  { description: "Incompatible units", recipe: testIncompatibleUnits, shouldPass: false },
+  { description: "Recursive definition", recipe: testRecursiveDefinition, shouldPass: false },
+  { description: "Invalid syntax", recipe: testInvalidSyntax, shouldPass: false },
+  { description: "Reserved JS keywords", recipe: testReservedJSKeywords, shouldPass: true },
 ];
 
 // Test Runner
