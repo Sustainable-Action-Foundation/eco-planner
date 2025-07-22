@@ -219,17 +219,21 @@ export async function parseRecipe(rawRecipe: RawRecipe): Promise<Recipe> {
    */
   const renamedVariables: Record<string, RecipeVariables> = {};
   const nameMapping: Record<string, string> = {};
-  for (const [key, variable] of Object.entries(parsedVariables)) {
-    const index = Object.keys(renamedVariables).length;
-    const newName = getVariableName(index);
+  const keys = Object.keys(parsedVariables);
+  const variableCount = keys.length;
+  for (let i = 0; i < variableCount; i++) {
+    const newName = getVariableName(i);
 
     // If it already exists, panic
     if (renamedVariables[newName]) {
       throw new RecipeError(`Variable name '${newName}' already exists. This should not happen.`);
     }
 
+    const oldName = keys[i];
+    const variable = parsedVariables[oldName];
+
     renamedVariables[newName] = variable;
-    nameMapping[key] = newName;
+    nameMapping[oldName] = newName;
   }
   // Sanity checks
   if (Object.keys(nameMapping).length === 0) {
@@ -257,7 +261,6 @@ export async function parseRecipe(rawRecipe: RawRecipe): Promise<Recipe> {
   if (!renamedEquation) {
     throw new RecipeError("Recipe equation is empty after renaming variables.");
   }
-
 
   /** 
    * Return the parsed recipe
