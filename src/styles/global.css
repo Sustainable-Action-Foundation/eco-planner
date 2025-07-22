@@ -149,6 +149,22 @@ input:-webkit-autofill:focus {
 
 /* TipTap text editor */
 
+.button-group > ul[role="menubar"] > li {
+  display: inline-block;
+} 
+
+.button-group > ul[role="menubar"] > li span[role="menuitem"] {
+  font-size: smaller;
+  display: inline-block;
+  vertical-align: middle;
+  border-radius: .25rem;
+  padding: .25rem;
+}
+
+.button-group > ul[role="menubar"] > li:hover span[role="menuitem"] {
+  background-color: var(--gray-90)
+} 
+
 .button-group button {
   transform: initial;
 } 

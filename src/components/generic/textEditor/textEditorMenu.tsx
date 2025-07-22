@@ -4,7 +4,7 @@
 // TODO: Tooltip
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconSelect, IconDotsVertical } from "@tabler/icons-react"
+import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconSelect, IconDotsVertical, IconChevronDown } from "@tabler/icons-react"
 import { Editor } from "@tiptap/core"
 
 export default function TextEditorMenu({
@@ -117,12 +117,11 @@ export default function TextEditorMenu({
   }
 
   return (
-    <div className="button-group margin-0 flex" style={{ backgroundColor: 'var(--gray-95)', paddingInline: '3px', borderRadius: '.25rem .25rem 0 0', borderBottom: '1px solid var(--gray)' }}>
+    <div className="button-group margin-0" style={{ backgroundColor: 'var(--gray-95)', padding: '3px', borderRadius: '.25rem .25rem 0 0', borderBottom: '1px solid var(--gray)' }}>
       <ul
         role='menubar'
         className='margin-0 padding-0'
         ref={containerRef}
-        style={{ overflow: 'hidden', height: '30px' }}
       >
         <li role='presentation'>
           <span
@@ -140,7 +139,7 @@ export default function TextEditorMenu({
             />
           </span>
         </li>
-        <li role='presentation'>
+        <li role='presentation' className='margin-right-25 padding-right-25' style={{borderRight: '1px solid var(--gray-80)'}}>
           <span 
             tabIndex={-1} 
             role='menuitem'
@@ -156,94 +155,98 @@ export default function TextEditorMenu({
             />
           </span>
         </li>
-
-        <hr aria-orientation='vertical' /> {/* TODO input_updates: Is this correct usage of hr? */}
-
-        <li role='presentation'>  
-          <span // Font size menu item is a vertical submenu not a select  
+        <li role='presentation' className='margin-right-25 padding-right-25' style={{borderRight: '1px solid var(--gray-80)'}}>  
+          <span // Font size menu (contains a vertical menu)
             tabIndex={-1}
             role='menuitem'>
-
+              Font size
+              <IconChevronDown className="inline-grid margin-left-25" width={16} height={16} aria-hidden="true" style={{verticalAlign: 'bottom'}} />
+          </span>
+        </li>
+        <li role='presentation'>
+          <span // Grey text
+            tabIndex={-1}
+            role='menuitem'>
+            <svg className='grid' aria-hidden='true' xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M9 15v-7a3 3 0 0 1 6 0v7" />
+              <path d="M9 11h6" />
+              <path d="M5 21h14" color='darkgrey' strokeWidth={3} />
+            </svg>
           </span>
         </li>
         <li role='presentation'>
           <span
             tabIndex={-1}
             role='menuitem'>
-
+             <IconItalic className="grid" width={16} height={16} aria-hidden="true" />
           </span>
         </li>
         <li role='presentation'>
           <span
             tabIndex={-1}
             role='menuitem'>
-
+              <IconBold className="grid" width={16} height={16} aria-hidden="true" />
           </span>
         </li>
         <li role='presentation'>
           <span
             tabIndex={-1}
             role='menuitem'>
-
+              <IconStrikethrough className="grid" width={16} height={16} aria-hidden="true" />
           </span>
         </li>
         <li role='presentation'>
           <span
             tabIndex={-1}
             role='menuitem'>
-
+              <IconUnderline className="grid" width={16} height={16} aria-hidden="true" />
           </span>
         </li>
         <li role='presentation'>
           <span
             tabIndex={-1}
             role='menuitem'>
-
+              <IconSuperscript className="grid" width={16} height={16} aria-hidden="true" />
           </span>
         </li>
         <li role='presentation'>
           <span
             tabIndex={-1}
             role='menuitem'>
-
+             <IconSubscript className="grid" width={16} height={16} aria-hidden="true" />
+          </span>
+        </li>
+        <li role='presentation' className='margin-right-25 padding-right-25' style={{borderRight: '1px solid var(--gray-80)'}}>
+          <span
+            tabIndex={-1}
+            role='menuitem'>
+              <IconHighlight className="grid" width={16} height={16} aria-hidden="true" />
+          </span>
+        </li>
+        <li role='presentation' className='margin-right-25 padding-right-25' style={{borderRight: '1px solid var(--gray-80)'}}>
+          <span
+            tabIndex={-1}
+            role='menuitem'>
+             <IconLink className="grid" width={16} height={16} aria-hidden="true" />
           </span>
         </li>
         <li role='presentation'>
           <span
             tabIndex={-1}
             role='menuitem'>
-
+              <IconList width={16} height={16} className="grid" aria-hidden='true' />
           </span>
         </li>
         <li role='presentation'>
           <span
             tabIndex={-1}
             role='menuitem'>
-
-          </span>
-        </li>
-        <li role='presentation'>
-          <span
-            tabIndex={-1}
-            role='menuitem'>
-
-          </span>
-        </li>
-        <li role='presentation'>
-          <span
-            tabIndex={-1}
-            role='menuitem'>
-
-          </span>
-        </li>
-        <li role='presentation'>
-          <span
-            tabIndex={-1}
-            role='menuitem'>
-
+             <IconListNumbers width={16} height={16} className="grid" aria-hidden='true' />
           </span>
         </li>
 
+        {/*
         <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', marginBlock: '3px' }}>
           <button
             className='padding-25 transparent'
@@ -387,10 +390,10 @@ export default function TextEditorMenu({
           >
             <IconListNumbers width={16} height={16} className="grid" aria-hidden='true' />
           </button>
-        </div>
+        </div> */}
       </ul>
 
-      {overflowingChildren.length > 0 && (
+      {/*
         <div className='position-relative inline-block' style={{ marginBlock: '3px', alignSelf: 'flex-start' }}>
           <button
             onClick={() => setShowMenu(!showMenu)}
@@ -399,8 +402,7 @@ export default function TextEditorMenu({
             aria-pressed={showMenu}
             type='button'
             aria-label="Show menu"
-            aria-hidden="true" /* TODO: This is a lil wonky, in the long run, elements which are overflown should have an aria-hidden instead */
-          >
+            aria-hidden="true"  
             <IconDotsVertical width={16} height={16} className="grid" aria-hidden='true' />
           </button>
           {showMenu ?
@@ -415,7 +417,7 @@ export default function TextEditorMenu({
             </div>
             : null}
         </div>
-      )}
+      */}
 
     </div>
   )
