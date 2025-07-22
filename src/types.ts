@@ -53,6 +53,13 @@ export enum ScaleMethod {
   Multiplicative = "MULTIPLICATIVE",
 }
 
+export function isStandardObject(object: unknown): object is object {
+  return typeof object === "object" && object != null && !Array.isArray(object);
+}
+
+/** A regex to match UUIDs. Allows all UUIDs of all versions and variants, even non-standard ones, as specified by RFC 9562 */
+export const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+
 /**
  * A type used by the breadcrumbs component to display the names of objects rather than their UUIDs.
  */
