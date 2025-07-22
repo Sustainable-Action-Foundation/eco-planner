@@ -76,42 +76,6 @@ export default function TextEditorMenu({
     }
   }
 
-  const containerRef = useRef<HTMLUListElement | null>(null);
-  const [overflowingChildren, setOverflowingChildren] = useState<Element[]>([]);
-
-  // Function to check which children overflow
-  const checkOverflow = () => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const containerRect = container.getBoundingClientRect();
-
-    const children = Array.from(container.children);
-    const overflowing = children.filter(child => {
-      const childRect = child.getBoundingClientRect();
-      return childRect.bottom > containerRect.bottom;
-    });
-
-    setOverflowingChildren(overflowing);
-  };
-
-  useEffect(() => {
-    checkOverflow(); // initial check
-
-    if (!containerRef.current) return;
-
-    const resizeObserver = new ResizeObserver(() => {
-      checkOverflow();
-    });
-
-    resizeObserver.observe(containerRef.current);
-
-    // Cleanup on unmount
-    return () => resizeObserver.disconnect();
-  }, []);
-
-  const [showMenu, setShowMenu] = useState<boolean>(false)
-
   if (!editor) {
     return null
   }
@@ -121,13 +85,16 @@ export default function TextEditorMenu({
       <ul
         role='menubar'
         className='margin-0 padding-0'
-        ref={containerRef}
+        style={{lineHeight: '1'}}
       >
         <li role='presentation'>
+          {/* TODO: OnkeyDown spacebar fungerar för alla checkbox items */}
+          {/* TODO: Check the case for regular menuitems and menuradio item */}
           <span
-            tabIndex={0}
-            role='menuitem'
             onClick={() => editor.chain().focus().undo().run()}
+            tabIndex={0}
+            aria-label='undo'
+            role='menuitem'
             aria-disabled={!editor.can().undo()} // TODO input_updates: implement actual functionality for this
           >
             <IconArrowBackUp
@@ -141,9 +108,10 @@ export default function TextEditorMenu({
         </li>
         <li role='presentation' className='margin-right-25 padding-right-25' style={{borderRight: '1px solid var(--gray-80)'}}>
           <span 
-            tabIndex={-1} 
-            role='menuitem'
             onClick={() => editor.chain().focus().redo().run()}
+            tabIndex={-1} 
+            aria-label='redo'
+            role='menuitem'
             aria-disabled={!editor.can().redo()} // TODO input_updates: implement actual functionality for this
           >
             <IconArrowForwardUp
@@ -155,18 +123,24 @@ export default function TextEditorMenu({
             />
           </span>
         </li>
+        {/* TODO: Implement font size selector */}
         <li role='presentation' className='margin-right-25 padding-right-25' style={{borderRight: '1px solid var(--gray-80)'}}>  
           <span // Font size menu (contains a vertical menu)
             tabIndex={-1}
-            role='menuitem'>
-              Font size
-              <IconChevronDown className="inline-grid margin-left-25" width={16} height={16} aria-hidden="true" style={{verticalAlign: 'bottom'}} />
+            role='menuitem'
+          >
+            Font size
+            <IconChevronDown className="inline-grid margin-left-25" width={16} height={16} aria-hidden="true" style={{verticalAlign: 'top'}} />
           </span>
         </li>
         <li role='presentation'>
-          <span // Grey text
+          <span 
+            onClick={() => editor.chain().focus().toggleGreyText().run()}
             tabIndex={-1}
-            role='menuitem'>
+            aria-label='grey text'
+            role='menuitemcheckbox'
+            aria-checked={editor.getAttributes('textStyle').color === 'grey'}  
+          >
             <svg className='grid' aria-hidden='true' xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M9 15v-7a3 3 0 0 1 6 0v7" />
@@ -177,71 +151,111 @@ export default function TextEditorMenu({
         </li>
         <li role='presentation'>
           <span
+            onClick={() => editor.chain().focus().toggleItalic().run()}
             tabIndex={-1}
-            role='menuitem'>
-             <IconItalic className="grid" width={16} height={16} aria-hidden="true" />
+            role='menuitemcheckbox'
+            aria-label="italic"
+            aria-checked={editor.getAttributes('textStyle').fontStyle === 'italic'}
+          >
+            <IconItalic className="grid" width={16} height={16} aria-hidden="true" />
           </span>
         </li>
         <li role='presentation'>
           <span
+            onClick={() => editor.chain().focus().toggleBold().run()}
             tabIndex={-1}
-            role='menuitem'>
-              <IconBold className="grid" width={16} height={16} aria-hidden="true" />
+            role='menuitemcheckbox'
+            aria-label="bold"
+            aria-checked={editor.getAttributes('textStyle').fontWeight === 'bold'}  
+          >
+            <IconBold className="grid" width={16} height={16} aria-hidden="true" />
           </span>
         </li>
         <li role='presentation'>
           <span
+            onClick={() => editor.chain().focus().toggleLineThrough().run()}
             tabIndex={-1}
-            role='menuitem'>
-              <IconStrikethrough className="grid" width={16} height={16} aria-hidden="true" />
+            role='menuitemcheckbox'
+            aria-label="strike-trough"
+            aria-checked={editor.getAttributes('textStyle').textDecoration === 'line-through'}
+          >
+            <IconStrikethrough className="grid" width={16} height={16} aria-hidden="true" />
           </span>
         </li>
         <li role='presentation'>
           <span
+            onClick={() => editor.chain().focus().toggleUnderline().run()}
             tabIndex={-1}
-            role='menuitem'>
-              <IconUnderline className="grid" width={16} height={16} aria-hidden="true" />
+            role='menuitemcheckbox'
+            aria-label="underline"
+            aria-checked={editor.getAttributes('textStyle').textDecoration === 'underline'}
+          >
+            <IconUnderline className="grid" width={16} height={16} aria-hidden="true" />
           </span>
         </li>
         <li role='presentation'>
           <span
+            onClick={() => editor.chain().focus().toggleSuperscript().run()}
             tabIndex={-1}
-            role='menuitem'>
-              <IconSuperscript className="grid" width={16} height={16} aria-hidden="true" />
+            role='menuitemcheckbox'
+            aria-label="superscript"
+            aria-checked={editor.isActive('superscript')}
+          >
+            <IconSuperscript className="grid" width={16} height={16} aria-hidden="true" />
           </span>
         </li>
         <li role='presentation'>
           <span
+            onClick={() => editor.chain().focus().toggleSubscript().run()}
             tabIndex={-1}
-            role='menuitem'>
-             <IconSubscript className="grid" width={16} height={16} aria-hidden="true" />
+            role='menuitemcheckbox'
+            aria-label="subscript"
+            aria-checked={editor.isActive('subscript')}
+          >
+            <IconSubscript className="grid" width={16} height={16} aria-hidden="true" />
           </span>
         </li>
         <li role='presentation' className='margin-right-25 padding-right-25' style={{borderRight: '1px solid var(--gray-80)'}}>
           <span
+            onClick={() => editor.chain().focus().toggleHighlight().run()}
             tabIndex={-1}
-            role='menuitem'>
-              <IconHighlight className="grid" width={16} height={16} aria-hidden="true" />
+            role='menuitemcheckbox'
+            aria-label="highlight"
+            aria-checked={editor.isActive('highlight')}
+          >
+            <IconHighlight className="grid" width={16} height={16} aria-hidden="true" />
           </span>
         </li>
         <li role='presentation' className='margin-right-25 padding-right-25' style={{borderRight: '1px solid var(--gray-80)'}}>
           <span
+            onClick={setLink}
             tabIndex={-1}
-            role='menuitem'>
-             <IconLink className="grid" width={16} height={16} aria-hidden="true" />
+            role='menuitemcheckbox'
+            aria-label="link"
+            aria-checked={editor.isActive('link')}  
+          >
+            <IconLink className="grid" width={16} height={16} aria-hidden="true" />
           </span>
         </li>
         <li role='presentation'>
           <span
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
             tabIndex={-1}
-            role='menuitem'>
-              <IconList width={16} height={16} className="grid" aria-hidden='true' />
+            role='menuitemcheckbox'
+            aria-label="Bullet list"
+            aria-checked={editor.isActive('bulletList')}  
+          >
+            <IconList width={16} height={16} className="grid" aria-hidden='true' />
           </span>
         </li>
         <li role='presentation'>
           <span
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
             tabIndex={-1}
-            role='menuitem'>
+            role='menuitemcheckbox'
+            aria-label="Numbered list"
+            aria-checked={editor.isActive('orderedList')}
+          >
              <IconListNumbers width={16} height={16} className="grid" aria-hidden='true' />
           </span>
         </li>
@@ -276,149 +290,8 @@ export default function TextEditorMenu({
           </select>
         </div>
 
-        <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', marginBlock: '3px' }}>
-          <button
-            onClick={() => editor.chain().focus().toggleGreyText().run()}
-            className={`padding-25 transparent ${editor.getAttributes('textStyle').color === 'grey' ? 'is-active' : ''}`}
-            type='button'
-            aria-label='grey text'
-            aria-pressed={editor.getAttributes('textStyle').color === 'grey'}
-          >
-            <svg className='grid' aria-hidden='true' xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M9 15v-7a3 3 0 0 1 6 0v7" />
-              <path d="M9 11h6" />
-              <path d="M5 21h14" color='darkgrey' strokeWidth={3} />
-            </svg>
-          </button>
-        </div>
-
-        <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', marginBlock: '3px' }}>
-          <button
-            className={`padding-25 transparent ${editor.getAttributes('textStyle').fontStyle === 'italic' ? 'is-active' : ''}`}
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-            type='button'
-            aria-label="italic"
-            aria-pressed={editor.getAttributes('fontStyle').fontWeight === 'italic'}
-          >
-            <IconItalic className="grid" width={16} height={16} aria-hidden="true" />
-          </button>
-          <button
-            className={`padding-25 transparent ${editor.getAttributes('textStyle').fontWeight === 'bold' ? 'is-active' : ''}`}
-            onClick={() => editor.chain().focus().toggleBold().run()}
-            type='button'
-            aria-label="bold"
-            aria-pressed={editor.getAttributes('textStyle').fontWeight === 'bold'}
-          >
-            <IconBold className="grid" width={16} height={16} aria-hidden="true" />
-          </button>
-          <button
-            className={`padding-25 transparent ${editor.getAttributes('textStyle').textDecoration === 'line-through' ? 'is-active' : ''}`}
-            onClick={() => editor.chain().focus().toggleLineThrough().run()}
-            type='button'
-            aria-label="strike-trough"
-            aria-pressed={editor.getAttributes('textStyle').textDecoration === 'line-through'}
-          >
-            <IconStrikethrough className="grid" width={16} height={16} aria-hidden="true" />
-          </button>
-          <button
-            className={`padding-25 transparent ${editor.getAttributes('textStyle').textDecoration === 'underline' ? 'is-active' : ''}`}
-            onClick={() => editor.chain().focus().toggleUnderline().run()}
-            type='button'
-            aria-label="underline"
-            aria-pressed={editor.getAttributes('textStyle').textDecoration === 'underline'}
-          >
-            <IconUnderline className="grid" width={16} height={16} aria-hidden="true" />
-          </button>
-          <button
-            className={`padding-25 transparent ${editor.isActive('superscript') ? 'is-active' : ''}`}
-            onClick={() => editor.chain().focus().toggleSuperscript().run()}
-            type='button'
-            aria-label="superscript"
-            aria-pressed={editor.isActive('superscript')}
-          >
-            <IconSuperscript className="grid" width={16} height={16} aria-hidden="true" />
-          </button>
-          <button
-            className={`padding-25 transparent ${editor.isActive('subscript') ? 'is-active' : ''}`}
-            onClick={() => editor.chain().focus().toggleSubscript().run()}
-            type='button'
-            aria-label="subscript"
-            aria-pressed={editor.isActive('subscript')}
-          >
-            <IconSubscript className="grid" width={16} height={16} aria-hidden="true" />
-          </button>
-          <button
-            className={`padding-25 transparent ${editor.isActive('highlight') ? 'is-active' : ''}`}
-            onClick={() => editor.chain().focus().toggleHighlight().run()}
-            type='button'
-            aria-label="highlight"
-            aria-pressed={editor.isActive('highlight')}
-          >
-            <IconHighlight className="grid" width={16} height={16} aria-hidden="true" />
-          </button>
-        </div>
-
-        <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', marginBlock: '3px' }}>
-          <button
-            className={`padding-25 transparent ${editor.isActive('link') ? 'is-active' : ''}`}
-            onClick={setLink}
-            type='button'
-            aria-label="link"
-            aria-pressed={editor.isActive('link')}
-          >
-            <IconLink className="grid" width={16} height={16} aria-hidden="true" />
-          </button>
-        </div>
-
-        <div className='inline-block' style={{ marginBlock: '3px' }}>
-          <button
-            className={`padding-25 transparent ${editor.isActive('bulletList') ? 'is-active' : ''}`}
-            onClick={() => editor.chain().focus().toggleBulletList().run()}
-            type='button'
-            aria-label="Bullet list"
-            aria-pressed={editor.isActive('bulletList')}
-          >
-            <IconList width={16} height={16} className="grid" aria-hidden='true' />
-          </button>
-          <button
-            className={`padding-25 transparent ${editor.isActive('orderedList') ? 'is-active' : ''}`}
-            onClick={() => editor.chain().focus().toggleOrderedList().run()}
-            type='button'
-            aria-label="Numbered list"
-            aria-pressed={editor.isActive('orderedList')}
-          >
-            <IconListNumbers width={16} height={16} className="grid" aria-hidden='true' />
-          </button>
-        </div> */}
+        */}
       </ul>
-
-      {/*
-        <div className='position-relative inline-block' style={{ marginBlock: '3px', alignSelf: 'flex-start' }}>
-          <button
-            onClick={() => setShowMenu(!showMenu)}
-            style={{ backgroundColor: `${showMenu ? 'hsl(206, 100%, 80%, .5)' : ''}` }}
-            className="padding-25 transparent"
-            aria-pressed={showMenu}
-            type='button'
-            aria-label="Show menu"
-            aria-hidden="true"  
-            <IconDotsVertical width={16} height={16} className="grid" aria-hidden='true' />
-          </button>
-          {showMenu ?
-            <div className='position-absolute flex gray-95 smooth' style={{ top: 'calc(100% + 4px + 3px)', right: '0', zIndex: '10', padding: '3px' }}>
-              {overflowingChildren.map((el, i) => (
-                <div
-                  className='flex'
-                  key={i}
-                  dangerouslySetInnerHTML={{ __html: el.innerHTML || 'Unknown content' }}
-                ></div>
-              ))}
-            </div>
-            : null}
-        </div>
-      */}
-
     </div>
   )
 }
