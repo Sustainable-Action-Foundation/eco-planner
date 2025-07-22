@@ -28,7 +28,7 @@ export function sketchyDataSeries(dataSeries: EvalTimeDataSeries[], warnings: st
     Object.values(variable.data).some(v => !isNull(v) && v !== null && Math.abs(v) > 1e12)
   );
   if (hugeValuesInDataSeries.length > 0) {
-    warnings.push(`Recipe contains huge data series values, which may lead to performance issues or overflow errors. Found in: ${hugeValuesInDataSeries.map(ds => ds.name).join(", ")}`);
+    warnings.push(`Recipe contains data series with huge values: ${hugeValuesInDataSeries.map(ds => ds.name).join(", ")}, which may lead to performance issues or overflow errors.`);
   }
 
   const longDataSeries = dataSeries.filter(variable => Object.keys(variable.data).length > 50);

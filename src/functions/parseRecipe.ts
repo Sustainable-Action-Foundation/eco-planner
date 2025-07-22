@@ -322,10 +322,10 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
   sketchyScalars(scalars, warnings);
   sketchyDataSeries(dataSeries, warnings);
 
-
   /**
    * Resolve equation
    */
+    
 
   return {};
 }
