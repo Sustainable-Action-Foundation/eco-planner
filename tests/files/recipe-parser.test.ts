@@ -270,10 +270,9 @@ const testCases = [
 
 // Test Runner
 // -----------
-
 type TestCase = {
   description: string;
-  recipe: Partial<RawRecipe> | string;
+  recipe: Partial<RawRecipe>;
   shouldPass: boolean;
 };
 
@@ -352,11 +351,15 @@ async function runTests() {
     if (passed) console.debug(passColor(truncPad("Passed")));
     else console.debug(failColor(truncPad("Failed")));
 
-    // Deets
+    // Input details
+    console.debug(truncPad("Eq: " + JSON.stringify((testCase.recipe as RawRecipe)?.eq || "")));
+    console.debug(truncPad("Variables: " + JSON.stringify((testCase.recipe as RawRecipe)?.variables || {})));
+
+    // Result
     if (result) {
-      console.debug(truncPad("Data series: " + JSON.stringify(result)));
+      console.debug(truncPad("Result: " + JSON.stringify(result)));
     } else {
-      console.debug("Data series: None (early exit?)");
+      console.debug("Result: None (early exit?)");
     }
 
     // Warnings
