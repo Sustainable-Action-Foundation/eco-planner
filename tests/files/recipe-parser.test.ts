@@ -1,7 +1,7 @@
 import { parseArgs } from "node:util";
 import "../lib/console";
 import { colors } from "../lib/colors";
-import type { DataSeriesArray, RawRecipe } from "../../src/functions/recipe-parser/types";
+import { RecipeVariableType, type DataSeriesArray, type RawRecipe } from "../../src/functions/recipe-parser/types";
 import { evaluateRecipe, parseRecipe, recipeFromUnknown, unsafeIsRawRecipe } from "../../src/functions/parseRecipe";
 
 /** Truncates a message to fit within the terminal width, adding ellipses and excess length information if necessary. */
@@ -61,17 +61,17 @@ if (args.values.help) {
 const testBasicRecipe: RawRecipe = {
   eq: "${A} * 3 + ${B}*2 / ${C}",
   variables: {
-    A: { type: "dataSeries", value: { "2020": 43, "2021": 44, "2022": 45 } },
-    B: { type: "dataSeries", value: { "2020": 6, "2021": 7, "2022": 8 } },
-    C: { type: "scalar", value: 0.5 },
+    A: { type: RecipeVariableType.DataSeries, value: { "2020": 43, "2021": 44, "2022": 45 } },
+    B: { type: RecipeVariableType.DataSeries, value: { "2020": 6, "2021": 7, "2022": 8 } },
+    C: { type: RecipeVariableType.Scalar, value: 0.5 },
   },
 };
 
 const testMissingVariableRecipe: RawRecipe = {
   eq: "${A} * 3 + ${B}*2 / ${C}",
   variables: {
-    A: { type: "dataSeries", value: { "2020": 43, "2021": 44, "2022": 45 } },
-    B: { type: "dataSeries", value: { "2020": 6, "2021": 7, "2022": 8 } },
+    A: { type: RecipeVariableType.DataSeries, value: { "2020": 43, "2021": 44, "2022": 45 } },
+    B: { type: RecipeVariableType.DataSeries, value: { "2020": 6, "2021": 7, "2022": 8 } },
     // C is missing
   },
 };
@@ -79,18 +79,18 @@ const testMissingVariableRecipe: RawRecipe = {
 const testExtraVariableRecipe: RawRecipe = {
   eq: "${A} * 3 + ${B}*2 / ${C}",
   variables: {
-    A: { type: "dataSeries", value: { "2020": 43, "2021": 44, "2022": 45 } },
-    B: { type: "dataSeries", value: { "2020": 6, "2021": 7, "2022": 8 } },
-    C: { type: "scalar", value: 0.5 },
-    D: { type: "scalar", value: 10 }, // Extra variable
+    A: { type: RecipeVariableType.DataSeries, value: { "2020": 43, "2021": 44, "2022": 45 } },
+    B: { type: RecipeVariableType.DataSeries, value: { "2020": 6, "2021": 7, "2022": 8 } },
+    C: { type: RecipeVariableType.Scalar, value: 0.5 },
+    D: { type: RecipeVariableType.Scalar, value: 10 }, // Extra variable
   },
 };
 
 const testInvalidVariableRecipe = {
   eq: "${A} * 3 + ${B}*2 / ${C}",
   variables: {
-    A: { type: "dataSeries", value: { "2020": 43, "2021": 44, "2022": 45 } },
-    B: { type: "dataSeries", value: { "2020": 6, "2021": 7, "2022": 8 } },
+    A: { type: RecipeVariableType.DataSeries, value: { "2020": 43, "2021": 44, "2022": 45 } },
+    B: { type: RecipeVariableType.DataSeries, value: { "2020": 6, "2021": 7, "2022": 8 } },
     C: { type: "string", value: "0.5" }, // Invalid type
   },
 };
@@ -106,138 +106,138 @@ const testNoInput = {
 
 const testNoEquation = {
   variables: {
-    A: { type: "dataSeries", value: { "2020": 43, "2021": 44, "2022": 45 } },
-    B: { type: "dataSeries", value: { "2020": 6, "2021": 7, "2022": 8 } },
-    C: { type: "scalar", value: 0.5 },
+    A: { type: RecipeVariableType.DataSeries, value: { "2020": 43, "2021": 44, "2022": 45 } },
+    B: { type: RecipeVariableType.DataSeries, value: { "2020": 6, "2021": 7, "2022": 8 } },
+    C: { type: RecipeVariableType.Scalar, value: 0.5 },
   },
 };
 
 const testManyVariables: RawRecipe = {
   eq: "${A} + ${B} + ${C} + ${D} + ${E} + ${F} + ${G} + ${H} + ${I} + ${J} + ${K} + ${L} + ${M} + ${N} + ${O} + ${P} + ${Q} + ${R} + ${S} + ${T} + ${U} + ${V} + ${W} + ${X} + ${Y} + ${Z}",
   variables: {
-    A: { type: "scalar", value: 1 }, B: { type: "scalar", value: 2 }, C: { type: "scalar", value: 3 }, D: { type: "scalar", value: 4 }, E: { type: "scalar", value: 5 }, F: { type: "scalar", value: 6 }, G: { type: "scalar", value: 7 }, H: { type: "scalar", value: 8 }, I: { type: "scalar", value: 9 }, J: { type: "scalar", value: 10 }, K: { type: "scalar", value: 11 }, L: { type: "scalar", value: 12 }, M: { type: "scalar", value: 13 }, N: { type: "scalar", value: 14 }, O: { type: "scalar", value: 15 }, P: { type: "scalar", value: 16 }, Q: { type: "scalar", value: 17 }, R: { type: "scalar", value: 18 }, S: { type: "scalar", value: 19 }, T: { type: "scalar", value: 20 }, U: { type: "scalar", value: 21 }, V: { type: "scalar", value: 22 }, W: { type: "scalar", value: 23 }, X: { type: "scalar", value: 24 }, Y: { type: "scalar", value: 25 }, Z: { type: "scalar", value: 26 },
+    A: { type: RecipeVariableType.Scalar, value: 1 }, B: { type: RecipeVariableType.Scalar, value: 2 }, C: { type: RecipeVariableType.Scalar, value: 3 }, D: { type: RecipeVariableType.Scalar, value: 4 }, E: { type: RecipeVariableType.Scalar, value: 5 }, F: { type: RecipeVariableType.Scalar, value: 6 }, G: { type: RecipeVariableType.Scalar, value: 7 }, H: { type: RecipeVariableType.Scalar, value: 8 }, I: { type: RecipeVariableType.Scalar, value: 9 }, J: { type: RecipeVariableType.Scalar, value: 10 }, K: { type: RecipeVariableType.Scalar, value: 11 }, L: { type: RecipeVariableType.Scalar, value: 12 }, M: { type: RecipeVariableType.Scalar, value: 13 }, N: { type: RecipeVariableType.Scalar, value: 14 }, O: { type: RecipeVariableType.Scalar, value: 15 }, P: { type: RecipeVariableType.Scalar, value: 16 }, Q: { type: RecipeVariableType.Scalar, value: 17 }, R: { type: RecipeVariableType.Scalar, value: 18 }, S: { type: RecipeVariableType.Scalar, value: 19 }, T: { type: RecipeVariableType.Scalar, value: 20 }, U: { type: RecipeVariableType.Scalar, value: 21 }, V: { type: RecipeVariableType.Scalar, value: 22 }, W: { type: RecipeVariableType.Scalar, value: 23 }, X: { type: RecipeVariableType.Scalar, value: 24 }, Y: { type: RecipeVariableType.Scalar, value: 25 }, Z: { type: RecipeVariableType.Scalar, value: 26 },
   }
 }
 
 const testHugeScalar: RawRecipe = {
   eq: "${A} + ${B}",
   variables: {
-    A: { type: "scalar", value: Number.MAX_SAFE_INTEGER },
-    B: { type: "scalar", value: Number.MAX_SAFE_INTEGER },
+    A: { type: RecipeVariableType.Scalar, value: Number.MAX_SAFE_INTEGER },
+    B: { type: RecipeVariableType.Scalar, value: Number.MAX_SAFE_INTEGER },
   },
 };
 
 const testDivideByZero: RawRecipe = {
   eq: "${A} / ${B}",
   variables: {
-    A: { type: "scalar", value: 10 },
-    B: { type: "scalar", value: 0 }, // This will cause a divide by zero error
+    A: { type: RecipeVariableType.Scalar, value: 10 },
+    B: { type: RecipeVariableType.Scalar, value: 0 }, // This will cause a divide by zero error
   },
 };
 
 const testLongVariableNames: RawRecipe = {
   eq: "${veryLongVariableName1} + ${veryLongVariableName2}",
   variables: {
-    veryLongVariableName1: { type: "scalar", value: 1 },
-    veryLongVariableName2: { type: "scalar", value: 2 },
+    veryLongVariableName1: { type: RecipeVariableType.Scalar, value: 1 },
+    veryLongVariableName2: { type: RecipeVariableType.Scalar, value: 2 },
   },
 };
 
 const testBadCharactersInEquation: RawRecipe = {
   eq: "${A} % 3 & ${B} | | $ 7",
   variables: {
-    A: { type: "scalar", value: 10 },
-    B: { type: "scalar", value: 20 },
+    A: { type: RecipeVariableType.Scalar, value: 10 },
+    B: { type: RecipeVariableType.Scalar, value: 20 },
   },
 };
 
 const testEmptyStringTemplate: RawRecipe = {
   eq: "${}",
   variables: {
-    A: { type: "scalar", value: 10 },
-    B: { type: "scalar", value: 20 },
+    A: { type: RecipeVariableType.Scalar, value: 10 },
+    B: { type: RecipeVariableType.Scalar, value: 20 },
   },
 };
 
 const testNumberVariableName: RawRecipe = {
   eq: "${5}",
   variables: {
-    5: { type: "scalar", value: 10 }, // Invalid variable name
-    B: { type: "scalar", value: 20 },
+    5: { type: RecipeVariableType.Scalar, value: 10 }, // Invalid variable name
+    B: { type: RecipeVariableType.Scalar, value: 20 },
   },
 };
 
 const test1800Variables: RawRecipe = {
   eq: new Array(1800).fill(0).map((_, i) => `\${V${i}}`).join("+"),
   variables: Object.fromEntries(
-    new Array(1800).fill(0).map((_, i) => [`V${i}`, { type: "scalar", value: i }])
+    new Array(1800).fill(0).map((_, i) => [`V${i}`, { type: RecipeVariableType.Scalar, value: i }])
   ),
 };
 
 const test3000Variables: RawRecipe = {
   eq: new Array(3000).fill(0).map((_, i) => `\${V${i}}`).join("+"),
   variables: Object.fromEntries(
-    new Array(3000).fill(0).map((_, i) => [`V${i}`, { type: "scalar", value: i }])
+    new Array(3000).fill(0).map((_, i) => [`V${i}`, { type: RecipeVariableType.Scalar, value: i }])
   ),
 };
 
 const testHugeVector: RawRecipe = {
   eq: "${A} * 0.5",
   variables: {
-    A: { type: "dataSeries", value: Object.fromEntries(new Array(10000).fill(1).map((v, i) => [2020 + i, v])) }, // Huge dataSeries
+    A: { type: RecipeVariableType.DataSeries, value: Object.fromEntries(new Array(10000).fill(1).map((v, i) => [2020 + i, v])) }, // Huge dataSeries
   },
 };
 
 const testMixedDataVector: RawRecipe = {
   eq: "${A} * 0.5",
   variables: {
-    A: { type: "dataSeries", value: { "2020": 1, "2021": 2, "2022": 3, "2023": null, "2025": 5, "2026": 6, "2027": 7 } }, // Mixed data types
+    A: { type: RecipeVariableType.DataSeries, value: { "2020": 1, "2021": 2, "2022": 3, "2023": null, "2025": 5, "2026": 6, "2027": 7 } }, // Mixed data types
   },
 };
 
 const testInvalidVector: RawRecipe = {
   eq: "${A} * 0.5",
   variables: {
-    A: { type: "dataSeries", value: { "2020": 1, "2021": 2, "2022": "three", "2023": 4, "2024": 5 } as unknown as DataSeriesArray }, // Invalid dataSeries with a string
+    A: { type: RecipeVariableType.DataSeries, value: { "2020": 1, "2021": 2, "2022": "three", "2023": 4, "2024": 5 } as unknown as DataSeriesArray }, // Invalid dataSeries with a string
   },
 };
 
 const testNegativeValues: RawRecipe = {
   eq: "${A} + ${B}",
   variables: {
-    A: { type: "dataSeries", value: { "2020": -1, "2021": -2, "2022": -3 } },
-    B: { type: "dataSeries", value: { "2020": -4, "2021": -5, "2022": -6 } },
+    A: { type: RecipeVariableType.DataSeries, value: { "2020": -1, "2021": -2, "2022": -3 } },
+    B: { type: RecipeVariableType.DataSeries, value: { "2020": -4, "2021": -5, "2022": -6 } },
   },
 };
 
 const testNegativeVectorValues: RawRecipe = {
   eq: "${A} * 2",
   variables: {
-    A: { type: "dataSeries", value: { "2020": -1, "2021": -2, "2022": -3 } }, // Negative dataSeries values
+    A: { type: RecipeVariableType.DataSeries, value: { "2020": -1, "2021": -2, "2022": -3 } }, // Negative dataSeries values
   },
 };
 
 const testUnicodeVariableNames: RawRecipe = {
   eq: "${变量1} + ${变量2}",
   variables: {
-    变量1: { type: "scalar", value: 10 },
-    变量2: { type: "scalar", value: 20 },
+    变量1: { type: RecipeVariableType.Scalar, value: 10 },
+    变量2: { type: RecipeVariableType.Scalar, value: 20 },
   },
 };
 
 const testVariableNameWithSpaces: RawRecipe = {
   eq: "${Variable With Spaces} / ${Another Variable}",
   variables: {
-    "Variable With Spaces": { type: "dataSeries", value: { "2020": 5, "2021": 25, "2022": 123, "2023": 68, "2024": 675, "2027": 23, "2029": 34, "2030": 56, "2031": 78, "2032": 90 } },
-    "Another Variable": { type: "scalar", value: 2 },
+    "Variable With Spaces": { type: RecipeVariableType.DataSeries, value: { "2020": 5, "2021": 25, "2022": 123, "2023": 68, "2024": 675, "2027": 23, "2029": 34, "2030": 56, "2031": 78, "2032": 90 } },
+    "Another Variable": { type: RecipeVariableType.Scalar, value: 2 },
   },
 };
 
 const testNoEarlyDataInDataSeries: RawRecipe = {
   eq: "${CoolVector} * ${B}",
   variables: {
-    "CoolVector": { type: "dataSeries", value: { "2023": 0, "2024": 12, "2025": 33, "2026": 0, "2030": 2, "2031": 12, "2032": 23, "2033": 4, "2034": 5, "2035": 6 } },
-    "B": { type: "scalar", value: 0.03 },
+    "CoolVector": { type: RecipeVariableType.DataSeries, value: { "2023": 0, "2024": 12, "2025": 33, "2026": 0, "2030": 2, "2031": 12, "2032": 23, "2033": 4, "2034": 5, "2035": 6 } },
+    "B": { type: RecipeVariableType.Scalar, value: 0.03 },
   },
 };
 

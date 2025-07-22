@@ -1,8 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { getVariableName } from "./recipe-parser/helpers";
 import type { DataSeriesArray, EvalTimeDataSeries, EvalTimeScalar, RawRecipe, Recipe, RecipeVariableDataSeries, RecipeVariables, RecipeVariableScalar } from "./recipe-parser/types";
-import { isRawDataSeriesByValue, lenientIsRawDataSeriesByLink, isRecipeVariableScalar, RecipeVariableType } from "./recipe-parser/types";
-import { MathjsError, RecipeError } from "./recipe-parser/types";
+import { RecipeVariableType, isRawDataSeriesByValue, lenientIsRawDataSeriesByLink, isRecipeVariableScalar, MathjsError, RecipeError } from "./recipe-parser/types";
 import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
 import mathjs from "@/math";
 import { isStandardObject, uuidRegex } from "@/types";
