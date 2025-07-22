@@ -14,6 +14,10 @@ export default function TextEditorMenu({
 }) {
 
   const [fontSize, setFontSize] = useState<'12px' | '20px' | 'normal'>('normal')
+  const [focusedMenubarItem, setFocusedMenubarItem] = useState<number | null>(null)
+
+  const menubarRef = useRef<HTMLUListElement | null>(null)
+  const menuItemsRef = useRef<NodeListOf<HTMLElement> | null>(null);
 
   const setLink = useCallback(() => {
     const previousUrl = editor.getAttributes('link').href
@@ -76,6 +80,72 @@ export default function TextEditorMenu({
     }
   }
 
+  useEffect(() => {
+    if (menubarRef.current) {
+      menuItemsRef.current = menubarRef.current.querySelectorAll(
+        "li > [role='menuitem'], li > [role='menuitemcheckbox'], li > [role='menuitemradio']"
+      ) as NodeListOf<HTMLElement>;;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (focusedMenubarItem !== null && menuItemsRef.current) {
+      const target = menuItemsRef.current[focusedMenubarItem] as HTMLElement | undefined;
+
+      if (target) {
+        console.log('Focusing menu item:', target);
+        target.focus();
+      }
+    }
+  }, [focusedMenubarItem]);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLUListElement>) => {
+    if (!menuItemsRef.current) return;
+
+    if (e.key === 'ArrowRight') {
+      if (focusedMenubarItem != menuItemsRef.current.length - 1) {
+        setFocusedMenubarItem(focusedMenubarItem === null ? 1 : focusedMenubarItem + 1);
+      } else {
+        setFocusedMenubarItem(0)
+      }
+    }
+
+    if (e.key === 'ArrowLeft') {
+      if (focusedMenubarItem != 0) {
+        setFocusedMenubarItem(focusedMenubarItem === null ? menuItemsRef.current.length - 1 : focusedMenubarItem - 1);
+      } else {
+        setFocusedMenubarItem(menuItemsRef.current.length - 1)
+      }
+    }
+
+
+    if (e.key === 'Home') {
+      e.preventDefault()
+      setFocusedMenubarItem(0)
+    }
+
+    if (e.key === 'End') {
+      e.preventDefault()
+      setFocusedMenubarItem(menuItemsRef.current.length - 1)
+    }
+  }
+
+  const handleFocus = (e: React.FocusEvent) => {
+    // If our menubar does not contain the element which focused moved from:
+    // Set focused menubaritem to 0 
+    if (!menubarRef.current?.contains(e.relatedTarget as Node)) {
+      setFocusedMenubarItem(0);
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent) => {
+    // If our menubar does not contain the element which focus moves to:
+    // Set focused menubaritem to null
+    if (menubarRef.current && !menubarRef.current.contains(e.relatedTarget as HTMLElement | null)) {
+      setFocusedMenubarItem(null);
+    }
+  };
+
   if (!editor) {
     return null
   }
@@ -83,9 +153,13 @@ export default function TextEditorMenu({
   return (
     <div className="button-group margin-0" style={{ backgroundColor: 'var(--gray-95)', padding: '3px', borderRadius: '.25rem .25rem 0 0', borderBottom: '1px solid var(--gray)' }}>
       <ul
+        onKeyDown={handleKeyDown}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        ref={menubarRef}
         role='menubar'
         className='margin-0 padding-0'
-        style={{lineHeight: '1'}}
+        style={{ lineHeight: '1' }}
       >
         <li role='presentation'>
           {/* TODO: OnkeyDown spacebar fungerar för alla checkbox items */}
@@ -106,10 +180,10 @@ export default function TextEditorMenu({
             />
           </span>
         </li>
-        <li role='presentation' className='margin-right-25 padding-right-25' style={{borderRight: '1px solid var(--gray-80)'}}>
-          <span 
+        <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
+          <span
             onClick={() => editor.chain().focus().redo().run()}
-            tabIndex={-1} 
+            tabIndex={-1}
             aria-label='redo'
             role='menuitem'
             aria-disabled={!editor.can().redo()} // TODO input_updates: implement actual functionality for this
@@ -124,22 +198,22 @@ export default function TextEditorMenu({
           </span>
         </li>
         {/* TODO: Implement font size selector */}
-        <li role='presentation' className='margin-right-25 padding-right-25' style={{borderRight: '1px solid var(--gray-80)'}}>  
+        <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
           <span // Font size menu (contains a vertical menu)
             tabIndex={-1}
             role='menuitem'
           >
             Font size
-            <IconChevronDown className="inline-grid margin-left-25" width={16} height={16} aria-hidden="true" style={{verticalAlign: 'top'}} />
+            <IconChevronDown className="inline-grid margin-left-25" width={16} height={16} aria-hidden="true" style={{ verticalAlign: 'top' }} />
           </span>
         </li>
         <li role='presentation'>
-          <span 
+          <span
             onClick={() => editor.chain().focus().toggleGreyText().run()}
             tabIndex={-1}
             aria-label='grey text'
             role='menuitemcheckbox'
-            aria-checked={editor.getAttributes('textStyle').color === 'grey'}  
+            aria-checked={editor.getAttributes('textStyle').color === 'grey'}
           >
             <svg className='grid' aria-hidden='true' xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -166,7 +240,7 @@ export default function TextEditorMenu({
             tabIndex={-1}
             role='menuitemcheckbox'
             aria-label="bold"
-            aria-checked={editor.getAttributes('textStyle').fontWeight === 'bold'}  
+            aria-checked={editor.getAttributes('textStyle').fontWeight === 'bold'}
           >
             <IconBold className="grid" width={16} height={16} aria-hidden="true" />
           </span>
@@ -215,7 +289,7 @@ export default function TextEditorMenu({
             <IconSubscript className="grid" width={16} height={16} aria-hidden="true" />
           </span>
         </li>
-        <li role='presentation' className='margin-right-25 padding-right-25' style={{borderRight: '1px solid var(--gray-80)'}}>
+        <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
           <span
             onClick={() => editor.chain().focus().toggleHighlight().run()}
             tabIndex={-1}
@@ -226,13 +300,13 @@ export default function TextEditorMenu({
             <IconHighlight className="grid" width={16} height={16} aria-hidden="true" />
           </span>
         </li>
-        <li role='presentation' className='margin-right-25 padding-right-25' style={{borderRight: '1px solid var(--gray-80)'}}>
+        <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
           <span
             onClick={setLink}
             tabIndex={-1}
             role='menuitemcheckbox'
             aria-label="link"
-            aria-checked={editor.isActive('link')}  
+            aria-checked={editor.isActive('link')}
           >
             <IconLink className="grid" width={16} height={16} aria-hidden="true" />
           </span>
@@ -243,7 +317,7 @@ export default function TextEditorMenu({
             tabIndex={-1}
             role='menuitemcheckbox'
             aria-label="Bullet list"
-            aria-checked={editor.isActive('bulletList')}  
+            aria-checked={editor.isActive('bulletList')}
           >
             <IconList width={16} height={16} className="grid" aria-hidden='true' />
           </span>
@@ -256,7 +330,7 @@ export default function TextEditorMenu({
             aria-label="Numbered list"
             aria-checked={editor.isActive('orderedList')}
           >
-             <IconListNumbers width={16} height={16} className="grid" aria-hidden='true' />
+            <IconListNumbers width={16} height={16} className="grid" aria-hidden='true' />
           </span>
         </li>
 

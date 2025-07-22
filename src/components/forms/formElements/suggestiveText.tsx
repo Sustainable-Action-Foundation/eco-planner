@@ -76,7 +76,7 @@ export default function SuggestiveText({
         }
       } else { // If list is closed, open it and focus the first element
         setDisplayListBox(true)
-        setFocusedListBoxItem(0)
+        setFocusedListBoxItem(0) // TODO: Should move to previous element if one was already selected
       }
     }
 
@@ -93,7 +93,7 @@ export default function SuggestiveText({
         }
       } else { // If list is closed, open it and focus the first element
         setDisplayListBox(true)
-        setFocusedListBoxItem(0)
+        setFocusedListBoxItem(0) // TODO: Should move to last element, TODO: Should move to previous element if one was already selected
       }
     }
 

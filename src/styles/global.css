@@ -165,7 +165,9 @@ input:-webkit-autofill:focus {
 }
 
 .button-group > ul[role="menubar"] > li:hover span[role="menuitem"],
-.button-group > ul[role="menubar"] > li:hover span[role="menuitemcheckbox"] {
+.button-group > ul[role="menubar"] > li:hover span[role="menuitemcheckbox"], 
+.button-group > ul[role="menubar"] > li span[role="menuitem"]:focus,
+.button-group > ul[role="menubar"] > li span[role="menuitemcheckbox"]:focus {
   background-color: var(--gray-90)
 } 
 
