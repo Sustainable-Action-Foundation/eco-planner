@@ -61,8 +61,8 @@ if (args.values.help) {
 const testBasicRecipe: RawRecipe = {
   eq: "${A} * 3 + ${B}*2 / ${C}",
   variables: {
-    A: { type: "vector", value: [43, 44, 45] },
-    B: { type: "vector", value: [6, 7, 8] },
+    A: { type: "dataSeries", value: { "2020": 43, "2021": 44, "2022": 45 } },
+    B: { type: "dataSeries", value: { "2020": 6, "2021": 7, "2022": 8 } },
     C: { type: "scalar", value: 0.5 },
   },
 };
@@ -70,8 +70,8 @@ const testBasicRecipe: RawRecipe = {
 const testMissingVariableRecipe: RawRecipe = {
   eq: "${A} * 3 + ${B}*2 / ${C}",
   variables: {
-    A: { type: "vector", value: [43, 44, 45] },
-    B: { type: "vector", value: [6, 7, 8] },
+    A: { type: "dataSeries", value: { "2020": 43, "2021": 44, "2022": 45 } },
+    B: { type: "dataSeries", value: { "2020": 6, "2021": 7, "2022": 8 } },
     // C is missing
   },
 };
@@ -79,8 +79,8 @@ const testMissingVariableRecipe: RawRecipe = {
 const testExtraVariableRecipe: RawRecipe = {
   eq: "${A} * 3 + ${B}*2 / ${C}",
   variables: {
-    A: { type: "vector", value: [43, 44, 45] },
-    B: { type: "vector", value: [6, 7, 8] },
+    A: { type: "dataSeries", value: { "2020": 43, "2021": 44, "2022": 45 } },
+    B: { type: "dataSeries", value: { "2020": 6, "2021": 7, "2022": 8 } },
     C: { type: "scalar", value: 0.5 },
     D: { type: "scalar", value: 10 }, // Extra variable
   },
@@ -89,8 +89,8 @@ const testExtraVariableRecipe: RawRecipe = {
 const testInvalidVariableRecipe = {
   eq: "${A} * 3 + ${B}*2 / ${C}",
   variables: {
-    A: { type: "vector", value: [43, 44, 45] },
-    B: { type: "vector", value: [6, 7, 8] },
+    A: { type: "dataSeries", value: { "2020": 43, "2021": 44, "2022": 45 } },
+    B: { type: "dataSeries", value: { "2020": 6, "2021": 7, "2022": 8 } },
     C: { type: "string", value: "0.5" }, // Invalid type
   },
 };
@@ -106,8 +106,8 @@ const testNoInput = {
 
 const testNoEquation = {
   variables: {
-    A: { type: "vector", value: [43, 44, 45] },
-    B: { type: "vector", value: [6, 7, 8] },
+    A: { type: "dataSeries", value: { "2020": 43, "2021": 44, "2022": 45 } },
+    B: { type: "dataSeries", value: { "2020": 6, "2021": 7, "2022": 8 } },
     C: { type: "scalar", value: 0.5 },
   },
 };
@@ -184,36 +184,36 @@ const test3000Variables: RawRecipe = {
 const testHugeVector: RawRecipe = {
   eq: "${A} * 0.5",
   variables: {
-    A: { type: "vector", value: new Array(10000).fill(1) }, // Huge vector
+    A: { type: "dataSeries", value: Object.fromEntries(new Array(10000).fill(1).map((v, i) => [2020 + i, v])) }, // Huge dataSeries
   },
 };
 
 const testMixedDataVector: RawRecipe = {
   eq: "${A} * 0.5",
   variables: {
-    A: { type: "vector", value: [1, 2, 3, null, undefined, 5, "6", 7] }, // Mixed data types
+    A: { type: "dataSeries", value: { "2020": 1, "2021": 2, "2022": 3, "2023": null, "2025": 5, "2026": 6, "2027": 7 } }, // Mixed data types
   },
 };
 
 const testInvalidVector: RawRecipe = {
   eq: "${A} * 0.5",
   variables: {
-    A: { type: "vector", value: [1, 2, "three", 4, 5] }, // Invalid vector with a string
+    A: { type: "dataSeries", value: { "2020": 1, "2021": 2, "2022": "three", "2023": 4, "2024": 5 } as unknown as DataSeriesArray }, // Invalid dataSeries with a string
   },
 };
 
 const testNegativeValues: RawRecipe = {
   eq: "${A} + ${B}",
   variables: {
-    A: { type: "vector", value: [-1, -2, -3] },
-    B: { type: "vector", value: [-4, -5, -6] },
+    A: { type: "dataSeries", value: { "2020": -1, "2021": -2, "2022": -3 } },
+    B: { type: "dataSeries", value: { "2020": -4, "2021": -5, "2022": -6 } },
   },
 };
 
 const testNegativeVectorValues: RawRecipe = {
   eq: "${A} * 2",
   variables: {
-    A: { type: "vector", value: [-1, -2, -3] }, // Negative vector values
+    A: { type: "dataSeries", value: { "2020": -1, "2021": -2, "2022": -3 } }, // Negative dataSeries values
   },
 };
 
@@ -228,7 +228,7 @@ const testUnicodeVariableNames: RawRecipe = {
 const testVariableNameWithSpaces: RawRecipe = {
   eq: "${Variable With Spaces} / ${Another Variable}",
   variables: {
-    "Variable With Spaces": { type: "vector", value: [5, 25, 123, 68, 675, , , 23, , 34, 56, 78, 90] },
+    "Variable With Spaces": { type: "dataSeries", value: { "2020": 5, "2021": 25, "2022": 123, "2023": 68, "2024": 675, "2027": 23, "2029": 34, "2030": 56, "2031": 78, "2032": 90 } },
     "Another Variable": { type: "scalar", value: 2 },
   },
 };
@@ -236,7 +236,7 @@ const testVariableNameWithSpaces: RawRecipe = {
 const testNoEarlyDataInDataSeries: RawRecipe = {
   eq: "${CoolVector} * ${B}",
   variables: {
-    "CoolVector": { type: "vector", value: [, , , 0, 12, 33, 0, , , , 2, 12, 23, 4, 5, 6,] },
+    "CoolVector": { type: "dataSeries", value: { "2023": 0, "2024": 12, "2025": 33, "2026": 0, "2030": 2, "2031": 12, "2032": 23, "2033": 4, "2034": 5, "2035": 6 } },
     "B": { type: "scalar", value: 0.03 },
   },
 };
@@ -258,11 +258,11 @@ const testCases = [
   { description: "Number as variable name", recipe: testNumberVariableName, shouldPass: true },
   { description: "1800 variables", recipe: test1800Variables, shouldPass: true },
   { description: "3000 variables", recipe: test3000Variables, shouldPass: false },
-  { description: "Huge vector", recipe: testHugeVector, shouldPass: true },
-  { description: "Mixed data vector", recipe: testMixedDataVector, shouldPass: true },
-  { description: "Invalid vector", recipe: testInvalidVector, shouldPass: false },
+  { description: "Huge dataSeries", recipe: testHugeVector, shouldPass: true },
+  { description: "Mixed data dataSeries", recipe: testMixedDataVector, shouldPass: true },
+  { description: "Invalid dataSeries", recipe: testInvalidVector, shouldPass: false },
   { description: "Negative values", recipe: testNegativeValues, shouldPass: true },
-  { description: "Negative vector values", recipe: testNegativeVectorValues, shouldPass: true },
+  { description: "Negative dataSeries values", recipe: testNegativeVectorValues, shouldPass: true },
   { description: "Unicode variable names", recipe: testUnicodeVariableNames, shouldPass: true },
   { description: "Variable names with spaces", recipe: testVariableNameWithSpaces, shouldPass: true },
   { description: "No early data in data series", recipe: testNoEarlyDataInDataSeries, shouldPass: true },
@@ -321,6 +321,9 @@ async function runTest(testCase: TestCase): Promise<TestResult> {
 
     warnings.push(...new Set([...objWarnings, ...strWarnings]));
 
+    // Write the result to the test result
+    result = resultFromObject;
+
     passed = shouldPass; // If no error is thrown, it passes
   } catch (error: any) {
     if (!shouldPass) {
@@ -351,7 +354,7 @@ async function runTests() {
 
     // Deets
     if (result) {
-      console.debug("Data series:", JSON.stringify(result));
+      console.debug(truncPad("Data series: " + JSON.stringify(result)));
     } else {
       console.debug("Data series: None (early exit?)");
     }
