@@ -1,7 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { getVariableName } from "./recipe-parser/helpers";
 import { vectorToDataSeries, years } from "./recipe-parser/transformations";
-import { DataSeriesArray, RawDataSeriesByLink, RawDataSeriesByValue, RawRecipe, Recipe, RecipeError, RecipeVariables } from "./recipe-parser/types";
+import { DataSeriesArray, EvalTimeDataSeries, EvalTimeScalar, RawDataSeriesByLink, RawDataSeriesByValue, RawRecipe, Recipe, RecipeError, RecipeVariableDataSeries, RecipeVariables, RecipeVariableScalar } from "./recipe-parser/types";
+import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
 
 type DataSeriesDbEntry = {
   uuid: string;
@@ -272,5 +273,59 @@ export async function parseRecipe(rawRecipe: RawRecipe): Promise<Recipe> {
 
 // TODO - Implement
 export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promise<DataSeriesArray> {
+
+  /** 
+   * Early sanity checks
+   */
+  if (Object.keys(recipe.variables).length === 0) {
+    throw new RecipeError("Recipe has no variables to evaluate.");
+  }
+  if (!recipe.eq) {
+    throw new RecipeError("Recipe equation is not a valid string.");
+  }
+
+  /**
+   * Extract variables 
+   */
+  const scalars: EvalTimeScalar[] = Object.entries(recipe.variables)
+    .filter(([_, variable]) => variable.type === "scalar")
+    .map(([name, variable]) => {
+      const unit = (variable as RecipeVariableScalar).unit;
+      const value = (variable as RecipeVariableScalar).value;
+      return {
+        name,
+        value,
+        ...(unit ? { unit } : {})
+      };
+    });
+
+  const dataSeries: EvalTimeDataSeries[] = Object.entries(recipe.variables)
+    .filter(([_, variable]) => variable.type === "dataSeries")
+    .map(([name, variable]) => {
+      const link = (variable as RecipeVariableDataSeries).link;
+      if (!link || !dataSeriesDB[link]) {
+        throw new RecipeError(`Data series link '${link}' for variable '${name}' does not exist in the database.`);
+      }
+      const dbEntry = dataSeriesDB[link];
+      const unit = dbEntry.unit;
+      return {
+        name,
+        link,
+        data: dbEntry.data,
+        ...(unit ? { unit } : {})
+      };
+    });
+
+  /** 
+   * Sanity checks on variables
+   */
+  sketchyScalars(scalars, warnings);
+  sketchyDataSeries(dataSeries, warnings);
+
+
+  /**
+   * Resolve equation
+   */
+
   return {};
 }

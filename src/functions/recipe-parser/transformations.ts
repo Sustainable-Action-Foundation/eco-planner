@@ -1,4 +1,5 @@
-import { DataSeriesArray, defaultVectorTransformationOptions, VectorTransformError } from "./types";
+import type { DataSeriesArray } from "./types";
+import { defaultVectorTransformationOptions, VectorTransformError } from "./types";
 
 const startYear = 2020;
 const endYear = 2050;
