@@ -391,6 +391,9 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     resolvedEquation = resolvedEquation.replace(`\${${series.name}}`, `[${paddedData.join(",")}]`);
   }
 
+  /** 
+   * Try to evaluate the equation using mathjs
+   */
   let result: number | math.Matrix | number[];
   try {
     result = mathjs.evaluate(resolvedEquation);
@@ -400,11 +403,9 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     throw new MathjsError(`Failed to evaluate recipe equation: ${error instanceof Error ? error.message : String(error)}`);
   }
 
-  // TODO - transform the result into a DataSeriesArray
-  // Arrays are easily mapped from the start year to the end year unless they're too long then take the first 31 years and warn. This will be where interpolation options will come in later.
-  // Scalars are mapped to every year as well with a warning.
-  // Matrices throw.
-  // anything else throws.
+  /** 
+   * Transform result into a DataSeriesArray or throw
+   */
   if (Array.isArray(result)) {
     if (result.length > years.length) {
       warnings.push(`Resulting array is longer than the number of years (${years.length}). Only the first ${years.length} years will be used.`);
