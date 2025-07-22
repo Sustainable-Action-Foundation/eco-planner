@@ -1,9 +1,12 @@
 import { randomUUID } from "node:crypto";
 import { getVariableName } from "./recipe-parser/helpers";
-import { vectorToDataSeries, years } from "./recipe-parser/transformations";
 import { DataSeriesArray, EvalTimeDataSeries, EvalTimeScalar, RawDataSeriesByLink, RawDataSeriesByValue, RawRecipe, Recipe, RecipeError, RecipeVariableDataSeries, RecipeVariables, RecipeVariableScalar } from "./recipe-parser/types";
 import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
 import mathjs from "@/math";
+
+const startYear = 2020;
+const endYear = 2050;
+export const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => (startYear + i).toString()) as (keyof DataSeriesArray)[];
 
 type DataSeriesDbEntry = {
   uuid: string;
@@ -44,15 +47,6 @@ export function unsafeIsRawRecipe(recipe: unknown): recipe is RawRecipe {
             !("unit" in value) ||
             typeof value.unit === "string"
           )
-        ) ||
-        // Vector
-        (
-          "type" in value &&
-          value.type === "vector" &&
-          "value" in value &&
-          Array.isArray(value.value) &&
-          value.value.every((v: unknown) => typeof v === "number" || typeof v === "string" || v === null || v === undefined) &&
-          (!("unit" in value) || typeof value.unit === "string")
         ) ||
         // Linked data series
         (
@@ -124,31 +118,6 @@ export async function parseRecipe(rawRecipe: RawRecipe): Promise<Recipe> {
         throw new RecipeError(`Scalar value for variable '${key}' is not finite: ${value}`);
       }
       parsedVariables[key] = { type: "scalar", value };
-    }
-
-    /** Vector parsing */
-    else if (variable.type === "vector") {
-      if (!Array.isArray(variable.value)) {
-        throw new RecipeError(`Invalid vector value for variable '${key}': expected an array, got ${typeof variable.value}`);
-      }
-
-      const dataSeries = vectorToDataSeries(variable.value);
-
-      if (!dataSeries) {
-        throw new RecipeError(`Failed to convert vector to data series for variable '${key}'. Ensure the vector has valid numeric values.`);
-      }
-      if (Object.keys(dataSeries).length === 0) {
-        throw new RecipeError(`Converted vector to data series for variable '${key}' is empty. Ensure the vector has valid numeric values.`);
-      }
-
-      // Write to "db" and link TODO - do this properly
-      const uuid = randomUUID();
-      dataSeriesDB[uuid] = {
-        uuid,
-        data: dataSeries,
-        unit: variable.unit
-      };
-      parsedVariables[key] = { type: "dataSeries", link: uuid };
     }
 
     /** Data series parsing */

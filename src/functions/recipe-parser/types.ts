@@ -38,12 +38,6 @@ export type RecipeVariableScalar = {
   value: number;
   unit?: string;
 };
-export type RecipeVariableVector = {
-  type: "vector";
-  value: (number | string | null | undefined)[];
-  unit?: string;
-};
-
 export type RawDataSeriesByLink = {
   type: "dataSeries";
   link: string; // uuid of data series in the database
@@ -66,7 +60,7 @@ export type Recipe = {
   variables: Record<string, RecipeVariables>;
 };
 
-export type RawRecipeVariables = RecipeVariableScalar | RecipeVariableVector | RecipeVariableRawDataSeries;
+export type RawRecipeVariables = RecipeVariableScalar | RecipeVariableRawDataSeries;
 /** Considered unsafe as it is. Comes from the client */
 export type RawRecipe = {
   eq: string;
@@ -89,20 +83,4 @@ export type EvalTimeDataSeries = {
   link: string; // For reference sake
   data: DataSeriesArray; // The actual data to be used
   unit?: string; // Optional unit
-};
-
-/** 
- * TODO - add descriptions for all interpolation methods
- */
-export type VectorTransformationOptions = {
-  fillMethod: "zero_fill" | "interpolate_missing" | "error";
-};
-export const defaultVectorTransformationOptions: Partial<VectorTransformationOptions> = {
-  fillMethod: "interpolate_missing",
-};
-export class VectorTransformError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "VectorTransformError";
-  }
 };
