@@ -5,6 +5,7 @@ import { RecipeVariableType, isRawDataSeriesByValue, lenientIsRawDataSeriesByLin
 import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
 import mathjs from "@/math";
 import { isStandardObject, uuidRegex } from "@/types";
+import { Unit } from "mathjs";
 
 const startYear = 2020;
 const endYear = 2050;
@@ -343,39 +344,23 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
   /**
    * Resolve equation
    */
+  const scope: Record<string, number | Unit | math.Matrix<number | Unit>> = {};
   let resolvedEquation = recipe.eq;
+  // Replace ${name maybe with spaces} -> name_maybe_with_spaces to use with mathjs evaluate later
   for (const scalar of scalars) {
-    resolvedEquation = resolvedEquation.replace(`\${${scalar.name}}`, scalar.value.toString());
+    const variableName = scalar.name.replace(/\s+/g, "_");
+    if (scalar.unit) {
+      scope[variableName] = mathjs.unit(scalar.value, scalar.unit);
+    } else {
+      scope[variableName] = scalar.value;
+    }
+    resolvedEquation = resolvedEquation.replace(`\${${scalar.name}}`, variableName);
   }
   for (const series of dataSeries) {
     // TODO - depending on if the db will give null for unused years or omit them this might need to be adjusted
     const lastYear = Object.entries(series.data).findLast(([year, value]) => year && value)?.[0];
     if (!lastYear) {
       throw new RecipeError(`Data series '${series.name}' has no valid years.`);
-    }
-
-    // Try casting strings to numbers and throw when they are not valid or simply not numbers
-    for (const [year, value] of Object.entries(series.data)) {
-      if (value == null) {
-        // If the value is null or undefined, we skip it
-        continue;
-      }
-      if (typeof value === "number" && Number.isFinite(value)) {
-        // Valid number, do nothing
-        continue
-      }
-      if (typeof value === "string" && (value as string).trim() !== "") {
-        // Try to parse it as a number
-        const parsedValue = parseFloat(value as string);
-        if (isNaN(parsedValue) || !Number.isFinite(parsedValue)) {
-          throw new RecipeError(`Invalid value '${value}' for year '${year}' in data series '${series.name}': expected a finite number.`);
-        }
-        warnings.push(`Value '${value}' for year '${year}' in data series '${series.name}' was parsed as ${parsedValue}.`);
-        series.data[year as keyof DataSeriesArray] = parsedValue; // Update the value to the parsed number
-      }
-      else {
-        throw new RecipeError(`Invalid value '${value}' for year '${year}' in data series '${series.name}': expected a finite number or a valid string representation of a number.`);
-      }
     }
 
     // Pad start with zeros if needed up until the last given year
@@ -387,16 +372,31 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
       }
     }
 
-    // Replace the variable in the equation
-    resolvedEquation = resolvedEquation.replace(`\${${series.name}}`, `[${paddedData.join(",")}]`);
+    // Add units if they exist
+    const withUnits: (Unit | number)[] = [];
+    for (const value of paddedData) {
+      if (series.unit) {
+        withUnits.push(mathjs.unit(value, series.unit));
+      } else {
+        withUnits.push(value);
+      }
+    }
+
+    // Clean up the name to be mathjs friendly
+    const variableName = series.name.replace(/\s+/g, "_");
+    resolvedEquation = resolvedEquation.replace(`\${${series.name}}`, variableName);
+
+    // Add to scope
+    scope[variableName] = mathjs.matrix(withUnits);
   }
+  console.log(("Resolved eq: " + resolvedEquation).slice(0, process.stdout.columns - 1 || 80));
 
   /** 
    * Try to evaluate the equation using mathjs
    */
   let result: number | math.Matrix | number[];
   try {
-    result = mathjs.evaluate(resolvedEquation);
+    result = mathjs.evaluate(resolvedEquation, scope);
     result = JSON.parse(result.toString())
   }
   catch (error) {
