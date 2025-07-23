@@ -376,7 +376,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
   /**
    * Try to evaluate the equation using mathjs
    */
-  let result: any;
+  let result: unknown;
   try {
     result = mathjs.evaluate(equation, scope);
   } catch (error) {
@@ -387,7 +387,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
    * Transform mathjs result into a DataSeriesArray
    */
   const output: DataSeriesArray & { unit?: string } = {};
-  let resultArray: any[] = [];
+  let resultArray: unknown[] = [];
 
   // Coerce result into a 1D array
   if (mathjs.isMatrix(result)) {
