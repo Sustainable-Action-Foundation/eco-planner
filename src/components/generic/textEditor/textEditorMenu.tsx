@@ -3,7 +3,7 @@
 // TODO: i18n
 // TODO: Tooltip
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconSelect, IconDotsVertical, IconChevronDown } from "@tabler/icons-react"
 import { Editor } from "@tiptap/core"
 
@@ -89,14 +89,15 @@ export default function TextEditorMenu({
   }, []);
 
   useEffect(() => {
-    if (focusedMenubarItem !== null && menuItemsRef.current) {
+    if (!menuItemsRef.current) return
+
+    if (focusedMenubarItem !== null) {
       const target = menuItemsRef.current[focusedMenubarItem] as HTMLElement | undefined;
 
       if (target) {
-        console.log('Focusing menu item:', target);
         target.focus();
       }
-    }
+    } 
   }, [focusedMenubarItem]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLUListElement>) => {
@@ -118,7 +119,6 @@ export default function TextEditorMenu({
       }
     }
 
-
     if (e.key === 'Home') {
       e.preventDefault()
       setFocusedMenubarItem(0)
@@ -128,8 +128,12 @@ export default function TextEditorMenu({
       e.preventDefault()
       setFocusedMenubarItem(menuItemsRef.current.length - 1)
     }
-  }
 
+    if (e.key === 'Escape') {
+      editor.commands.focus()
+    }
+  }
+ 
   const handleFocus = (e: React.FocusEvent) => {
     // If our menubar does not contain the element which focused moved from:
     // Set focused menubaritem to 0 
@@ -151,10 +155,10 @@ export default function TextEditorMenu({
   }
 
   return (
-    <div className="button-group margin-0" style={{ backgroundColor: 'var(--gray-95)', padding: '3px', borderRadius: '.25rem .25rem 0 0', borderBottom: '1px solid var(--gray)' }}>
+    <div className="button-group margin-0" style={{ backgroundColor: 'var(--gray-95)', padding: '2px', borderRadius: '.25rem .25rem 0 0', borderBottom: '1px solid var(--gray)' }}>
       <ul
         onKeyDown={handleKeyDown}
-        onFocus={handleFocus}
+        onFocus={handleFocus} // Causes buggy behavior :(
         onBlur={handleBlur}
         ref={menubarRef}
         role='menubar'
@@ -162,7 +166,6 @@ export default function TextEditorMenu({
         style={{ lineHeight: '1' }}
       >
         <li role='presentation'>
-          {/* TODO: OnkeyDown spacebar fungerar för alla checkbox items */}
           {/* TODO: Check the case for regular menuitems and menuradio item */}
           <span
             onClick={() => editor.chain().focus().undo().run()}
@@ -210,6 +213,12 @@ export default function TextEditorMenu({
         <li role='presentation'>
           <span
             onClick={() => editor.chain().focus().toggleGreyText().run()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                editor.chain().toggleGreyText().run(); 
+              }
+            }}
             tabIndex={-1}
             aria-label='grey text'
             role='menuitemcheckbox'
@@ -226,6 +235,12 @@ export default function TextEditorMenu({
         <li role='presentation'>
           <span
             onClick={() => editor.chain().focus().toggleItalic().run()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                editor.chain().toggleItalic().run(); 
+              }
+            }}
             tabIndex={-1}
             role='menuitemcheckbox'
             aria-label="italic"
@@ -237,6 +252,12 @@ export default function TextEditorMenu({
         <li role='presentation'>
           <span
             onClick={() => editor.chain().focus().toggleBold().run()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                editor.chain().toggleBold().run(); 
+              }
+            }}
             tabIndex={-1}
             role='menuitemcheckbox'
             aria-label="bold"
@@ -248,6 +269,12 @@ export default function TextEditorMenu({
         <li role='presentation'>
           <span
             onClick={() => editor.chain().focus().toggleLineThrough().run()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                editor.chain().toggleLineThrough().run(); 
+              }
+            }}
             tabIndex={-1}
             role='menuitemcheckbox'
             aria-label="strike-trough"
@@ -259,6 +286,12 @@ export default function TextEditorMenu({
         <li role='presentation'>
           <span
             onClick={() => editor.chain().focus().toggleUnderline().run()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                editor.chain().toggleUnderline().run(); 
+              }
+            }}
             tabIndex={-1}
             role='menuitemcheckbox'
             aria-label="underline"
@@ -270,6 +303,12 @@ export default function TextEditorMenu({
         <li role='presentation'>
           <span
             onClick={() => editor.chain().focus().toggleSuperscript().run()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                editor.chain().toggleSuperscript().run(); 
+              }
+            }}
             tabIndex={-1}
             role='menuitemcheckbox'
             aria-label="superscript"
@@ -281,6 +320,12 @@ export default function TextEditorMenu({
         <li role='presentation'>
           <span
             onClick={() => editor.chain().focus().toggleSubscript().run()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                editor.chain().toggleSubscript().run(); 
+              }
+            }}
             tabIndex={-1}
             role='menuitemcheckbox'
             aria-label="subscript"
@@ -292,6 +337,12 @@ export default function TextEditorMenu({
         <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
           <span
             onClick={() => editor.chain().focus().toggleHighlight().run()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                editor.chain().toggleHighlight().run(); 
+              }
+            }}
             tabIndex={-1}
             role='menuitemcheckbox'
             aria-label="highlight"
@@ -303,6 +354,12 @@ export default function TextEditorMenu({
         <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
           <span
             onClick={setLink}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setLink(); 
+              }
+            }}
             tabIndex={-1}
             role='menuitemcheckbox'
             aria-label="link"
@@ -314,6 +371,12 @@ export default function TextEditorMenu({
         <li role='presentation'>
           <span
             onClick={() => editor.chain().focus().toggleBulletList().run()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                editor.chain().toggleBulletList().run(); 
+              }
+            }}
             tabIndex={-1}
             role='menuitemcheckbox'
             aria-label="Bullet list"
@@ -325,6 +388,12 @@ export default function TextEditorMenu({
         <li role='presentation'>
           <span
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                editor.chain().toggleOrderedList().run(); 
+              }
+            }}
             tabIndex={-1}
             role='menuitemcheckbox'
             aria-label="Numbered list"
