@@ -205,7 +205,8 @@ export default function TextEditorMenu({
             className='margin-0 padding-0 gray-95 smooth' 
             style={{padding: '2px', position: 'absolute', minWidth: '100%', top: 'calc(100% + 5px)', left: '0', zIndex: '1', listStyle: 'none', display: `${fontSizeMenuOpen ? 'block' : 'none'}`}}>
             <li role='presentation' style={{borderBottom: '1px solid var(--gray)', paddingBottom: '2px'}}>
-              <div 
+              <div
+              // TODO: Selecting using onclick closes menu, additionally pressing outside the menu also closes it. 
               /* 
                 TODO: Keyboard controls for theese menuitems:
                 Enter -> If not checked, checks item and closes menu
