@@ -434,16 +434,16 @@ async function runTests() {
 
     const testResult = await runTest(testCase as unknown as TestCase);
     const { passed, result, errors, warnings } = testResult;
-    
-    // Failed flag
-    if (args.values.failed && passed) {
-      continue;
-    };
 
     results.push(testResult);
 
     if (passed) console.debug(passColor(truncPad("Passed")));
     else console.debug(failColor(truncPad("Failed")));
+    
+    // Failed flag
+    if (args.values.failed && passed) {
+      continue;
+    };
 
     // Input details
     console.debug(truncPad("Eq: " + colors.gray(JSON.stringify((testCase.recipe as RawRecipe)?.eq || ""))));
