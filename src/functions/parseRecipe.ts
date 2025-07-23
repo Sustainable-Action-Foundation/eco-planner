@@ -292,7 +292,7 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
   return parsedRecipe;
 }
 
-export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promise<DataSeriesArray> {
+export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promise<DataSeriesArray & { unit?: string }> {
   /** 
    * Early sanity checks
    */
@@ -397,7 +397,6 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
   let result: number | math.Matrix | number[];
   try {
     result = mathjs.evaluate(resolvedEquation, scope);
-    result = JSON.parse(result.toString())
   }
   catch (error) {
     throw new MathjsError(`Failed to evaluate recipe equation: ${error instanceof Error ? error.message : String(error)}`);
@@ -406,47 +405,68 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
   /** 
    * Transform result into a DataSeriesArray or throw
    */
+  const resultingDataSeries: DataSeriesArray & { unit?: string } = {};
+  let resultingUnit: Unit | undefined;
+
+  // If matrix, make 1d into array or throw
+  if (mathjs.isMatrix(result)) {
+    // If 1d
+    if (result.size().length === 1) {
+      result = result.toArray() as number[];
+      console.info("Transformed 1D matrix to array:", result);
+    }
+    // If 1d but transposed
+    else if (result.size().every(dim => dim === 1)) {
+      // Transpose to 1D
+      result = result.toArray() as number[];
+      console.info("Transposed matrix to 1D array:", result);
+    }
+    else {
+      throw new RecipeError("Resulting matrix has more than one column or row, which is not supported. Please ensure your recipe produces a single series of values.");
+    }
+  }
+
+  // If array, map to years from start to end and discard overflow
   if (Array.isArray(result)) {
     if (result.length > years.length) {
-      warnings.push(`Resulting array is longer than the number of years (${years.length}). Only the first ${years.length} years will be used.`);
-      result = result.slice(0, years.length);
+      warnings.push(`Resulting array has more values than years (${result.length} vs ${years.length}). Only the first ${years.length} values will be used.`);
     }
-    const dataSeriesArray: DataSeriesArray = {};
-    for (let i = 0; i < years.length; i++) {
-      const year = years[i];
+    for (let i = 0; i < Math.min(result.length, years.length); i++) {
       const value = result[i];
-      if (value == null || value === undefined) {
-        dataSeriesArray[year] = null; // Explicitly set to null for missing years
-      }
+      if (value === null || value === undefined) {
+        resultingDataSeries[years[i]] = null; // Explicitly set to null for missing years
+      } 
       else if (typeof value === "number" && Number.isFinite(value)) {
-        dataSeriesArray[year] = value; // Valid number
+        resultingDataSeries[years[i]] = value; // Valid number
+      }
+      else if (value instanceof Unit) {
+        resultingDataSeries[years[i]] = value.toNumber();
+        resultingUnit = value.units.toString(); // Store the unit for the whole series
       }
       else {
-        throw new RecipeError(`Invalid value '${value}' for year '${year}': expected a finite number.`);
+        throw new RecipeError(`Invalid data series value for year '${years[i]}': expected a finite number or null, got ${value} with type ${typeof value}`);
       }
     }
-    return dataSeriesArray;
   }
-  if (typeof result === "number" && Number.isFinite(result)) {
-    // If the result is a scalar, map it to all years
-    const dataSeriesArray: DataSeriesArray = {};
+
+  // If scalar, map to every year
+  else if (typeof result === "number") {
     for (const year of years) {
-      dataSeriesArray[year] = result; // Use the scalar value for all years
+      console.info("Scalar val:", result);
+      resultingDataSeries[year] = result;
+      warnings.push(`Resulting scalar value ${result} will be applied to all years. This may not be intended.`);
     }
-    return dataSeriesArray;
   }
-  if (typeof result === "string") {
-    // If the result is a string, try to parse it as a number
-    const parsedResult = parseFloat(result);
-    if (isNaN(parsedResult) || !Number.isFinite(parsedResult)) {
-      throw new RecipeError(`Invalid result from equation: expected a finite number, got '${result}'`);
-    }
-    const dataSeriesArray: DataSeriesArray = {};
-    for (const year of years) {
-      dataSeriesArray[year] = parsedResult; // Use the parsed number for all years
-    }
-    return dataSeriesArray;
+
+  // No other types are supported
+  else {
+    throw new RecipeError(`Unsupported result type: ${typeof result}. Expected a number, array, or matrix.`);
   }
-  // If the result is anything else, throw an error
-  throw new RecipeError(`Invalid result from equation: expected an array or a finite number, got '${typeof result}'`);
+
+  // Add unit if it exists
+  if (resultingUnit) {
+    resultingDataSeries.unit = resultingUnit.toString();
+  }
+
+  return resultingDataSeries;
 }

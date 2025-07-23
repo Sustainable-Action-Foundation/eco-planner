@@ -276,7 +276,7 @@ const testInfinityResult: RawRecipe = {
 };
 
 const testMatrixResult: RawRecipe = {
-  eq: "${a} * transpose(${b})",
+  eq: "${a} * transpose([[1,2], [3,4]])",
   variables: {
     a: { type: RecipeVariableType.DataSeries, value: { "2020": 1, "2021": 2 } },
     b: { type: RecipeVariableType.DataSeries, value: { "2020": 3, "2021": 4 } },
@@ -350,7 +350,7 @@ const testCases = [
   { description: "Math functions", recipe: testMathFunctions, shouldPass: true },
   { description: "Complex number result", recipe: testComplexResult, shouldPass: false },
   { description: "Infinity result", recipe: testInfinityResult, shouldPass: false },
-  { description: "Matrix result", recipe: testMatrixResult, shouldPass: false },
+  { description: "Matrix result", recipe: testMatrixResult, shouldPass: true },
   { description: "Unit calculation", recipe: testUnitCalculation, shouldPass: false },
   { description: "Incompatible units", recipe: testIncompatibleUnits, shouldPass: false },
   { description: "Recursive definition", recipe: testRecursiveDefinition, shouldPass: false },
@@ -371,7 +371,7 @@ type TestResult = {
   passed: boolean;
   warnings: string[];
   errors: string[];
-  result: DataSeriesArray | null; // The result of the parseRecipe function
+  result: (DataSeriesArray & { unit?: string }) | null; // The result of the parseRecipe function
 };
 
 const passColor = (text: string) => colors.cyanBrightBG(colors.black(text));
@@ -442,12 +442,12 @@ async function runTests() {
     else console.debug(failColor(truncPad("Failed")));
 
     // Input details
-    console.debug(truncPad("Eq: " + JSON.stringify((testCase.recipe as RawRecipe)?.eq || "")));
-    console.debug(truncPad("Variables: " + JSON.stringify((testCase.recipe as RawRecipe)?.variables || {})));
+    console.debug(truncPad("Eq: " + colors.gray(JSON.stringify((testCase.recipe as RawRecipe)?.eq || ""))));
+    console.debug(truncPad("Variables: " + colors.gray(JSON.stringify((testCase.recipe as RawRecipe)?.variables || {}))));
 
     // Result
     if (result) {
-      console.debug(truncPad("Result: " + JSON.stringify(result)));
+      console.debug(truncPad(`Result${result.unit ? ` (${result.unit})` : ""}: ${JSON.stringify(result)}`));
     } else {
       console.debug("Result: None (early exit?)");
     }
