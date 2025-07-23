@@ -151,7 +151,7 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
           }
           throw new RecipeError(`Invalid scalar value for variable '${key}': expected a finite number, got ${variable.value}, with type ${typeof variable.value}`);
         }
-        parsedVariables[key] = { type: RecipeVariableType.Scalar, value: variable.value };
+        parsedVariables[key] = { type: RecipeVariableType.Scalar, value: variable.value, ...(variable.unit && { unit: variable.unit }) };
         break;
 
       /** Data series parsing */
@@ -361,11 +361,18 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
 
       if (!canPad) break;
 
+      let valueToPush: number | Unit = 0;
       if (canPad && !value) {
-        seriesValues.push(0);
+        valueToPush = 0;
       }
       else if (value) {
-        seriesValues.push(value);
+        valueToPush = value;
+      }
+
+      if (series.unit) {
+        seriesValues.push(mathjs.unit(valueToPush as number, series.unit));
+      } else {
+        seriesValues.push(valueToPush);
       }
     }
 
@@ -457,11 +464,6 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     } else {
       throw new RecipeError(`Invalid value for year '${year}': expected a finite number, but got ${mathjs.typeOf(resultArray[i])}`);
     }
-  }
-
-  // If units were provided, but not resolved, warn
-  if (commonUnit && !output.unit) {
-    warnings.push(`Resulting data series has a unit '${commonUnit}' but it was not explicitly set in the recipe. It will be added to the output.`);
   }
 
   // Set the unit if it was resolved

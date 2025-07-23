@@ -350,7 +350,7 @@ const testCases = [
   { description: "Complex number result", recipe: testComplexResult, shouldPass: false },
   { description: "Infinity result", recipe: testInfinityResult, shouldPass: false },
   { description: "Matrix result", recipe: testMatrixResult, shouldPass: true },
-  { description: "Unit calculation", recipe: testUnitCalculation, shouldPass: false },
+  { description: "Unit calculation", recipe: testUnitCalculation, shouldPass: true },
   { description: "Incompatible units", recipe: testIncompatibleUnits, shouldPass: false },
   { description: "Recursive definition", recipe: testRecursiveDefinition, shouldPass: false },
   { description: "Invalid syntax", recipe: testInvalidSyntax, shouldPass: false },
