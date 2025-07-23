@@ -15,6 +15,7 @@ export default function TextEditorMenu({
 
   const [fontSize, setFontSize] = useState<'12px' | '20px' | 'normal'>('normal')
   const [focusedMenubarItem, setFocusedMenubarItem] = useState<number | null>(null)
+  const [fontSizeMenuOpen, setFontSizeMenuOpen] = useState<boolean>(false)
 
   const menubarRef = useRef<HTMLUListElement | null>(null)
   const menuItemsRef = useRef<NodeListOf<HTMLElement> | null>(null);
@@ -118,7 +119,7 @@ export default function TextEditorMenu({
         setFocusedMenubarItem(menuItemsRef.current.length - 1)
       }
     } 
-    
+
     if (e.key === 'Escape') {
       editor.commands.focus()
     }
@@ -202,15 +203,80 @@ export default function TextEditorMenu({
             />
           </span>
         </li>
-        {/* TODO: Implement font size selector */}
-        <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
-          <span // Font size menu (contains a vertical menu)
+        <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)', position: 'relative', userSelect: 'none'}}>
+          <span 
+            onClick={() => setFontSizeMenuOpen(!fontSizeMenuOpen)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setFontSizeMenuOpen(!fontSizeMenuOpen);
+              }
+              if (e.key == 'Escape') {
+                e.preventDefault()
+                if (fontSizeMenuOpen) {
+                  setFontSizeMenuOpen(false)
+                }
+              }
+            }}
             tabIndex={-1}
             role='menuitem'
+            aria-haspopup='menu'
+            aria-expanded={fontSizeMenuOpen}
+            aria-label='Textstorlek'
+            style={{width: '100px', display: 'flex'}}
+            className='align-items-center justify-content-space-between'
           >
-            Font size
-            <IconChevronDown className="inline-grid margin-left-25" width={16} height={16} aria-hidden="true" style={{ verticalAlign: 'top' }} />
+              {!editor.getAttributes('textStyle').fontSize ? 
+                'Normal text'
+              : editor.getAttributes('textStyle').fontSize == '1.25rem' ?
+                'Stor text'
+              : editor.getAttributes('textStyle').fontSize == '0.75rem' ?
+                'Liten text'
+              : ''
+              }  
+            <IconChevronDown width={16} height={16} aria-hidden="true" />
           </span>
+          <ul 
+            aria-label='Font size'
+            role='menu' 
+            className='margin-0 padding-0 gray-95 smooth' 
+            style={{padding: '2px', position: 'absolute', minWidth: '100%', top: 'calc(100% + 5px)', left: '0', zIndex: '1', listStyle: 'none', display: `${fontSizeMenuOpen ? 'block' : 'none'}`}}>
+            <li role='presentation' style={{borderBottom: '1px solid var(--gray)', paddingBottom: '2px'}}>
+              <div 
+                onClick={() => editor.chain().focus().setFontSize('1.25rem').run()}
+                className='smooth padding-50 font-size-smaller' 
+                style={{whiteSpace: 'nowrap'}} 
+                role='menuitemradio' 
+                aria-checked={editor.getAttributes('textStyle').fontSize === '1.25rem'} 
+                tabIndex={-1}>
+                  Stor text
+                </div>              
+            </li>
+            <li role='presentation' style={{borderBottom: '1px solid var(--gray)', paddingBlock: '2px'}}>
+              <div 
+                onClick={() => editor.chain().focus().unsetFontSize().run()}
+                className='smooth padding-50 font-size-smaller' 
+                style={{whiteSpace: 'nowrap'}} 
+                role='menuitemradio' 
+                aria-checked={!editor.getAttributes('textStyle').fontSize}
+                tabIndex={-1}
+              >
+                  Normal text
+              </div>
+            </li>
+            <li role='presentation' style={{paddingTop: '2px'}}>
+              <div 
+                onClick={() => editor.chain().focus().setFontSize('0.75rem').run()}
+                className='smooth padding-50 font-size-smaller' 
+                style={{whiteSpace: 'nowrap'}} 
+                role='menuitemradio' 
+                aria-checked={editor.getAttributes('textStyle').fontSize === '0.75rem'} 
+                tabIndex={-1}
+                >
+                  Liten text
+                </div>
+            </li>
+          </ul>
         </li>
         <li role='presentation'>
           <span
@@ -406,26 +472,6 @@ export default function TextEditorMenu({
         </li>
 
         {/*
-        <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', marginBlock: '3px' }}>
-          <button
-            className='padding-25 transparent'
-            onClick={() => editor.chain().focus().undo().run()}
-            disabled={!editor.can().undo()}
-            type='button'
-            aria-label='Undo'
-          >
-            <IconArrowBackUp color={`${editor.can().undo() ? 'black' : 'gray'}`} className="grid" width={16} height={16} aria-hidden="true" />
-          </button>
-          <button
-            className='padding-25 transparent'
-            onClick={() => editor.chain().focus().redo().run()}
-            disabled={!editor.can().redo()}
-            type='button'
-            aria-label='Redo'
-          >
-            <IconArrowForwardUp color={`${editor.can().redo() ? 'black' : 'gray'}`} className="grid" width={16} height={16} aria-hidden="true" />
-          </button>
-        </div>
 
         <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', verticalAlign: 'top', lineHeight: '1', marginBlock: '3px' }}>
           <select aria-label='font size' onChange={changeFontSize} value={fontSize} className='transparent' style={{ fontSize: '12px', border: '0', outline: '0', '--icon-size': '16px', '--padding': '.25rem' } as React.CSSProperties}>

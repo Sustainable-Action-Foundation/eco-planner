@@ -35,7 +35,7 @@ export const FontSize = Extension.create<FontSizeOptions>({
   addOptions() {
     return {
       types: ['textStyle'],
-      sizes: ['12px', '20px'],
+      sizes: ['0.75rem', '1rem', '1.25rem'],
     }
   },
 

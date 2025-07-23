@@ -57,7 +57,7 @@ const TextEditor = () => {
       History,
       GreyText,
       FontSize.configure({
-        sizes: ['12px', '20px'],
+        sizes: ['0.75rem', '1.25rem'],
       }),
       Details.configure({
         HTMLAttributes: {
