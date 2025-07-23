@@ -293,7 +293,7 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
 }
 
 export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promise<DataSeriesArray & { unit?: string }> {
-  /** 
+  /**
    * Early sanity checks
    */
   if (Object.keys(recipe.variables).length === 0) {
@@ -304,169 +304,170 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
   }
 
   /**
-   * Extract variables 
+   * Extract variables
    */
   const scalars: EvalTimeScalar[] = Object.entries(recipe.variables)
-    .filter(([_, variable]) => variable.type === "scalar")
+    .filter(([, variable]) => variable.type === "scalar")
     .map(([name, variable]) => {
-      const unit = (variable as RecipeVariableScalar).unit;
-      const value = (variable as RecipeVariableScalar).value;
-      return {
-        name,
-        value,
-        ...(unit ? { unit } : {})
-      };
+      const { value, unit } = variable as RecipeVariableScalar;
+      return { name, value, unit };
     });
 
   const dataSeries: EvalTimeDataSeries[] = Object.entries(recipe.variables)
-    .filter(([_, variable]) => variable.type === "dataSeries")
+    .filter(([, variable]) => variable.type === "dataSeries")
     .map(([name, variable]) => {
-      const link = (variable as RecipeVariableDataSeries).link;
+      const { link } = variable as RecipeVariableDataSeries;
       if (!link || !dataSeriesDB[link]) {
         throw new RecipeError(`Data series link '${link}' for variable '${name}' does not exist in the database.`);
       }
-      const dbEntry = dataSeriesDB[link];
-      const unit = dbEntry.unit;
-      return {
-        name,
-        link,
-        data: dbEntry.data,
-        ...(unit ? { unit } : {})
-      };
+      const { data, unit } = dataSeriesDB[link];
+      return { name, link, data, unit };
     });
 
-  /** 
+  /**
    * Sanity checks on variables
    */
   sketchyScalars(scalars, warnings);
   sketchyDataSeries(dataSeries, warnings);
 
   /**
-   * Resolve equation
+   * Resolve equation and build scope for mathjs
    */
-  const scope: Record<string, number | Unit | math.Matrix<number | Unit>> = {};
-  let resolvedEquation = recipe.eq;
-  // Replace ${name maybe with spaces} -> name_maybe_with_spaces to use with mathjs evaluate later
+  const scope: Record<string, unknown> = {};
+  let equation = recipe.eq;
+
+  // Add scalars to scope
   for (const scalar of scalars) {
-    const variableName = scalar.name.replace(/\s+/g, "_");
-    if (scalar.unit) {
-      scope[variableName] = mathjs.unit(scalar.value, scalar.unit);
-    } else {
-      scope[variableName] = scalar.value;
-    }
-    resolvedEquation = resolvedEquation.replace(`\${${scalar.name}}`, variableName);
+    const varName = scalar.name.replace(/\s+/g, "_");
+    scope[varName] = scalar.unit ? mathjs.unit(scalar.value, scalar.unit) : scalar.value;
+    equation = equation.replace(`\${${scalar.name}}`, varName);
   }
+
+  // Add data series to scope as matrices
   for (const series of dataSeries) {
-    // TODO - depending on if the db will give null for unused years or omit them this might need to be adjusted
-    const lastYear = Object.entries(series.data).findLast(([year, value]) => year && value)?.[0];
-    if (!lastYear) {
-      throw new RecipeError(`Data series '${series.name}' has no valid years.`);
+    const varName = series.name.replace(/\s+/g, "_");
+    const lastYearWithData = (Object.keys(series.data) as Array<keyof DataSeriesArray>)
+      .filter(year => series.data[year] != null)
+      .pop();
+
+    if (!lastYearWithData) {
+      throw new RecipeError(`Data series '${series.name}' contains no data and cannot be evaluated.`);
     }
 
-    // Pad start with zeros if needed up until the last given year
-    const paddedData: number[] = [];
+    const seriesValues = [];
     for (const year of years) {
-      // Use data if it exists, otherwise use 0 up to the last year
-      if (year <= lastYear) {
-        paddedData.push(series.data[year] ?? 0);
+      const canPad = parseInt(year) <= parseInt(lastYearWithData);
+      const value = series.data[year];
+
+      if (!canPad) break;
+
+      if (canPad && !value) {
+        seriesValues.push(0);
+      }
+      else if (value) {
+        seriesValues.push(value);
       }
     }
 
-    // Add units if they exist
-    const withUnits: (Unit | number)[] = [];
-    for (const value of paddedData) {
-      if (series.unit) {
-        withUnits.push(mathjs.unit(value, series.unit));
-      } else {
-        withUnits.push(value);
-      }
-    }
-
-    // Clean up the name to be mathjs friendly
-    const variableName = series.name.replace(/\s+/g, "_");
-    resolvedEquation = resolvedEquation.replace(`\${${series.name}}`, variableName);
-
-    // Add to scope
-    scope[variableName] = mathjs.matrix(withUnits);
+    scope[varName] = mathjs.matrix(seriesValues);
+    equation = equation.replace(`\${${series.name}}`, varName);
   }
-  console.log(("Resolved eq: " + resolvedEquation).slice(0, process.stdout.columns - 1 || 80));
 
-  /** 
+  /**
    * Try to evaluate the equation using mathjs
    */
-  let result: number | math.Matrix | number[];
+  let result: any;
   try {
-    result = mathjs.evaluate(resolvedEquation, scope);
-  }
-  catch (error) {
+    result = mathjs.evaluate(equation, scope);
+  } catch (error) {
     throw new MathjsError(`Failed to evaluate recipe equation: ${error instanceof Error ? error.message : String(error)}`);
   }
 
-  /** 
-   * Transform result into a DataSeriesArray or throw
+  /**
+   * Transform mathjs result into a DataSeriesArray
    */
-  const resultingDataSeries: DataSeriesArray & { unit?: string } = {};
-  let resultingUnit: Unit | undefined;
+  const output: DataSeriesArray & { unit?: string } = {};
+  let resultArray: any[] = [];
 
-  // If matrix, make 1d into array or throw
+  // Coerce result into a 1D array
   if (mathjs.isMatrix(result)) {
-    // If 1d
-    if (result.size().length === 1) {
-      result = result.toArray() as number[];
-      console.info("Transformed 1D matrix to array:", result);
+    if (result.size().filter((d: number) => d > 1).length > 1) {
+      throw new RecipeError(`Resulting matrix has more than one dimension (${result.size().join("x")}), which is not supported.`);
     }
-    // If 1d but transposed
-    else if (result.size().every(dim => dim === 1)) {
-      // Transpose to 1D
-      result = result.toArray() as number[];
-      console.info("Transposed matrix to 1D array:", result);
-    }
-    else {
-      throw new RecipeError("Resulting matrix has more than one column or row, which is not supported. Please ensure your recipe produces a single series of values.");
-    }
+    resultArray = result.toArray().flat();
   }
-
-  // If array, map to years from start to end and discard overflow
-  if (Array.isArray(result)) {
-    if (result.length > years.length) {
-      warnings.push(`Resulting array has more values than years (${result.length} vs ${years.length}). Only the first ${years.length} values will be used.`);
-    }
-    for (let i = 0; i < Math.min(result.length, years.length); i++) {
-      const value = result[i];
-      if (value === null || value === undefined) {
-        resultingDataSeries[years[i]] = null; // Explicitly set to null for missing years
-      } 
-      else if (typeof value === "number" && Number.isFinite(value)) {
-        resultingDataSeries[years[i]] = value; // Valid number
-      }
-      else if (value instanceof Unit) {
-        resultingDataSeries[years[i]] = value.toNumber();
-        resultingUnit = value.units.toString(); // Store the unit for the whole series
-      }
-      else {
-        throw new RecipeError(`Invalid data series value for year '${years[i]}': expected a finite number or null, got ${value} with type ${typeof value}`);
-      }
-    }
+  else if (Array.isArray(result)) {
+    resultArray = result;
   }
-
-  // If scalar, map to every year
-  else if (typeof result === "number") {
-    for (const year of years) {
-      console.info("Scalar val:", result);
-      resultingDataSeries[year] = result;
+  else if (mathjs.isCollection(result) && 'toArray' in result && typeof result.toArray === 'function') {
+    resultArray = result.toArray();
+  }
+  else if (["number", "BigNumber", "Complex", "Unit"].includes(mathjs.typeOf(result))) {
+    resultArray = years.map(() => result);
+    if (mathjs.typeOf(result) === "number") {
       warnings.push(`Resulting scalar value ${result} will be applied to all years. This may not be intended.`);
     }
   }
-
-  // No other types are supported
   else {
-    throw new RecipeError(`Unsupported result type: ${typeof result}. Expected a number, array, or matrix.`);
+    throw new RecipeError(`Unsupported result type: ${mathjs.typeOf(result)}. Expected a number, array, or matrix.`);
   }
 
-  // Add unit if it exists
-  if (resultingUnit) {
-    resultingDataSeries.unit = resultingUnit.toString();
+  if (resultArray.length > years.length) {
+    warnings.push(`Resulting array has more values than years (${resultArray.length} vs ${years.length}). The trailing ${resultArray.length - years.length} values will be discarded.`);
   }
 
-  return resultingDataSeries;
+  // Process the result array into the output format
+  let commonUnit: string | undefined;
+  for (let i = 0; i < Math.min(resultArray.length, years.length); i++) {
+    const year = years[i];
+    let value = resultArray[i];
+
+    if (value === null || value === undefined) {
+      output[year] = null;
+      continue;
+    }
+
+    // Handle complex numbers
+    if (mathjs.isComplex(value)) {
+      if (value.im !== 0) {
+        throw new RecipeError(`Result for year ${year} is a complex number with a non-zero imaginary part: ${value.toString()}`);
+      }
+      value = value.re;
+    }
+
+    // Handle units
+    if (mathjs.isUnit(value)) {
+      const unitString = value.formatUnits();
+      if (!commonUnit) {
+        commonUnit = unitString;
+      } else if (commonUnit !== unitString) {
+        warnings.push(`Inconsistent units in result for year ${year}. Expected '${commonUnit}', got '${unitString}'.`);
+      }
+      value = value.toNumber();
+    }
+
+    // Handle BigNumbers
+    if (mathjs.isBigNumber(value)) {
+      value = value.toNumber();
+    }
+
+    // Final check for a valid number
+    if (typeof value === "number" && Number.isFinite(value)) {
+      output[year] = value;
+    } else {
+      throw new RecipeError(`Invalid value for year '${year}': expected a finite number, but got ${mathjs.typeOf(resultArray[i])}`);
+    }
+  }
+
+  // If units were provided, but not resolved, warn
+  if (commonUnit && !output.unit) {
+    warnings.push(`Resulting data series has a unit '${commonUnit}' but it was not explicitly set in the recipe. It will be added to the output.`);
+  }
+
+  // Set the unit if it was resolved
+  if (commonUnit) {
+    output.unit = commonUnit;
+  }
+
+  return output;
 }

@@ -279,7 +279,6 @@ const testMatrixResult: RawRecipe = {
   eq: "${a} * transpose([[1,2], [3,4]])",
   variables: {
     a: { type: RecipeVariableType.DataSeries, value: { "2020": 1, "2021": 2 } },
-    b: { type: RecipeVariableType.DataSeries, value: { "2020": 3, "2021": 4 } },
   },
 };
 
