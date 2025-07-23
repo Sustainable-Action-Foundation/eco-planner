@@ -97,7 +97,7 @@ export default function TextEditorMenu({
       if (target) {
         target.focus();
       }
-    } 
+    }
   }, [focusedMenubarItem]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLUListElement>) => {
@@ -117,23 +117,13 @@ export default function TextEditorMenu({
       } else {
         setFocusedMenubarItem(menuItemsRef.current.length - 1)
       }
-    }
-
-    if (e.key === 'Home') {
-      e.preventDefault()
-      setFocusedMenubarItem(0)
-    }
-
-    if (e.key === 'End') {
-      e.preventDefault()
-      setFocusedMenubarItem(menuItemsRef.current.length - 1)
-    }
-
+    } 
+    
     if (e.key === 'Escape') {
       editor.commands.focus()
     }
   }
- 
+
   const handleFocus = (e: React.FocusEvent) => {
     // If our menubar does not contain the element which focused moved from:
     // Set focused menubaritem to 0 
@@ -169,10 +159,16 @@ export default function TextEditorMenu({
           {/* TODO: Check the case for regular menuitems and menuradio item */}
           <span
             onClick={() => editor.chain().focus().undo().run()}
+            onKeyDown={(e: React.KeyboardEvent<HTMLSpanElement>) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                editor.chain().undo().run();
+              }
+            }}
             tabIndex={0}
             aria-label='undo'
             role='menuitem'
-            aria-disabled={!editor.can().undo()} // TODO input_updates: implement actual functionality for this
+            aria-disabled={!editor.can().undo()}
           >
             <IconArrowBackUp
               color={`${editor.can().undo() ? 'black' : 'gray'}`}
@@ -186,10 +182,16 @@ export default function TextEditorMenu({
         <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
           <span
             onClick={() => editor.chain().focus().redo().run()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                editor.chain().redo().run();
+              }
+            }}
             tabIndex={-1}
             aria-label='redo'
             role='menuitem'
-            aria-disabled={!editor.can().redo()} // TODO input_updates: implement actual functionality for this
+            aria-disabled={!editor.can().redo()}
           >
             <IconArrowForwardUp
               color={`${editor.can().redo() ? 'black' : 'gray'}`}
@@ -216,7 +218,7 @@ export default function TextEditorMenu({
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                editor.chain().toggleGreyText().run(); 
+                editor.chain().toggleGreyText().run();
               }
             }}
             tabIndex={-1}
@@ -238,7 +240,7 @@ export default function TextEditorMenu({
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                editor.chain().toggleItalic().run(); 
+                editor.chain().toggleItalic().run();
               }
             }}
             tabIndex={-1}
@@ -255,7 +257,7 @@ export default function TextEditorMenu({
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                editor.chain().toggleBold().run(); 
+                editor.chain().toggleBold().run();
               }
             }}
             tabIndex={-1}
@@ -272,7 +274,7 @@ export default function TextEditorMenu({
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                editor.chain().toggleLineThrough().run(); 
+                editor.chain().toggleLineThrough().run();
               }
             }}
             tabIndex={-1}
@@ -289,7 +291,7 @@ export default function TextEditorMenu({
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                editor.chain().toggleUnderline().run(); 
+                editor.chain().toggleUnderline().run();
               }
             }}
             tabIndex={-1}
@@ -306,7 +308,7 @@ export default function TextEditorMenu({
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                editor.chain().toggleSuperscript().run(); 
+                editor.chain().toggleSuperscript().run();
               }
             }}
             tabIndex={-1}
@@ -323,7 +325,7 @@ export default function TextEditorMenu({
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                editor.chain().toggleSubscript().run(); 
+                editor.chain().toggleSubscript().run();
               }
             }}
             tabIndex={-1}
@@ -340,7 +342,7 @@ export default function TextEditorMenu({
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                editor.chain().toggleHighlight().run(); 
+                editor.chain().toggleHighlight().run();
               }
             }}
             tabIndex={-1}
@@ -357,7 +359,7 @@ export default function TextEditorMenu({
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                setLink(); 
+                setLink();
               }
             }}
             tabIndex={-1}
@@ -374,7 +376,7 @@ export default function TextEditorMenu({
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                editor.chain().toggleBulletList().run(); 
+                editor.chain().toggleBulletList().run();
               }
             }}
             tabIndex={-1}
@@ -391,7 +393,7 @@ export default function TextEditorMenu({
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                editor.chain().toggleOrderedList().run(); 
+                editor.chain().toggleOrderedList().run();
               }
             }}
             tabIndex={-1}
