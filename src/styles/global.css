@@ -164,12 +164,13 @@ input:-webkit-autofill:focus {
   /* TODO: Add some slight margin */
 }
 
-.button-group > ul[role="menubar"] > li:hover span[role="menuitem"],
-.button-group > ul[role="menubar"] > li:hover span[role="menuitemcheckbox"], 
-.button-group > ul[role="menubar"] > li span[role="menuitem"]:focus,
-.button-group > ul[role="menubar"] > li span[role="menuitemcheckbox"]:focus {
+.button-group > ul[role="menubar"] > li:hover span[role="menuitem"]:not([aria-disabled="true"]):not([aria-checked="true"]),
+.button-group > ul[role="menubar"] > li:hover span[role="menuitemcheckbox"]:not([aria-disabled="true"]):not([aria-checked="true"]), 
+.button-group > ul[role="menubar"] > li span[role="menuitem"]:focus:not([aria-disabled="true"]):not([aria-checked="true"]),
+.button-group > ul[role="menubar"] > li span[role="menuitemcheckbox"]:focus:not([aria-disabled="true"]):not([aria-checked="true"]) {
   background-color: var(--gray-90)
 } 
+ 
 
 .button-group > ul[role="menubar"] > li span[role="menuitemcheckbox"][aria-checked="true"] {
   background-color: hsl(206, 100%, 80%, .5);  
