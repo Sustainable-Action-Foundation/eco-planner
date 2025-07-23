@@ -4,7 +4,7 @@
 // TODO: Tooltip
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconSelect, IconDotsVertical, IconChevronDown } from "@tabler/icons-react"
+import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconChevronDown } from "@tabler/icons-react"
 import { Editor } from "@tiptap/core"
 
 export default function TextEditorMenu({
@@ -13,7 +13,6 @@ export default function TextEditorMenu({
   editor: Editor
 }) {
 
-  const [fontSize, setFontSize] = useState<'12px' | '20px' | 'normal'>('normal')
   const [focusedMenubarItem, setFocusedMenubarItem] = useState<number | null>(null)
   const [fontSizeMenuOpen, setFontSizeMenuOpen] = useState<boolean>(false)
 
@@ -50,36 +49,6 @@ export default function TextEditorMenu({
       alert(e.message)
     }
   }, [editor])
-
-  // Updates value of font size select whenever a new area of the editor is selected
-  useEffect(() => {
-    const updateFontSize = () => {
-      const currentFontSize = editor.getAttributes('textStyle').fontSize
-      if (currentFontSize === '12px') setFontSize('12px')
-      else if (currentFontSize === '20px') setFontSize('20px')
-      else setFontSize('normal')
-    }
-
-    updateFontSize()
-
-    editor.on('selectionUpdate', updateFontSize)
-    editor.on('transaction', updateFontSize)
-
-    return () => {
-      editor.off('selectionUpdate', updateFontSize)
-      editor.off('transaction', updateFontSize)
-    }
-  }, [editor])
-
-  // Changes the font size
-  const changeFontSize = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value
-    if (value === 'normal') {
-      editor.chain().focus().unsetFontSize().run()
-    } else {
-      editor.chain().focus().setFontSize(e.target.value).run()
-    }
-  }
 
   useEffect(() => {
     if (menubarRef.current) {
@@ -125,22 +94,6 @@ export default function TextEditorMenu({
     }
   }
 
-  const handleFocus = (e: React.FocusEvent) => {
-    // If our menubar does not contain the element which focused moved from:
-    // Set focused menubaritem to 0 
-    if (!menubarRef.current?.contains(e.relatedTarget as Node)) {
-      setFocusedMenubarItem(0);
-    }
-  };
-
-  const handleBlur = (e: React.FocusEvent) => {
-    // If our menubar does not contain the element which focus moves to:
-    // Set focused menubaritem to null
-    if (menubarRef.current && !menubarRef.current.contains(e.relatedTarget as HTMLElement | null)) {
-      setFocusedMenubarItem(null);
-    }
-  };
-
   if (!editor) {
     return null
   }
@@ -149,15 +102,12 @@ export default function TextEditorMenu({
     <div className="button-group margin-0" style={{ backgroundColor: 'var(--gray-95)', padding: '2px', borderRadius: '.25rem .25rem 0 0', borderBottom: '1px solid var(--gray)' }}>
       <ul
         onKeyDown={handleKeyDown}
-        onFocus={handleFocus} // Causes buggy behavior :(
-        onBlur={handleBlur}
         ref={menubarRef}
         role='menubar'
         className='margin-0 padding-0'
         style={{ lineHeight: '1' }}
       >
         <li role='presentation'>
-          {/* TODO: Check the case for regular menuitems and menuradio item */}
           <span
             onClick={() => editor.chain().focus().undo().run()}
             onKeyDown={(e: React.KeyboardEvent<HTMLSpanElement>) => {
@@ -237,12 +187,35 @@ export default function TextEditorMenu({
             <IconChevronDown width={16} height={16} aria-hidden="true" />
           </span>
           <ul 
+            // TODO: See if we need to set aria-owns here somewhere
+            /* 
+              TODO: Keyboard controls for this menu:
+              Enter -> If not checked, checks item and closes menu
+              Space -> If not checked, checks item
+              Escape -> Closes menu, moves focus to element which controls it
+              Left arrow -> Closes menu, moves focus to previous element in menubar
+              Right arrow -> Closes menu, moves focus to next element in menubar
+              Down arrow -> Open menu and move focus to first element, if menu is open move focus down
+              Up arrow -> Open menu and move focus to (last or first?) element, if menu is open move focus down
+              Home -> Moves focus to first element
+              End -> Moves focus to last element
+            */
             aria-label='Font size'
             role='menu' 
             className='margin-0 padding-0 gray-95 smooth' 
             style={{padding: '2px', position: 'absolute', minWidth: '100%', top: 'calc(100% + 5px)', left: '0', zIndex: '1', listStyle: 'none', display: `${fontSizeMenuOpen ? 'block' : 'none'}`}}>
             <li role='presentation' style={{borderBottom: '1px solid var(--gray)', paddingBottom: '2px'}}>
               <div 
+              /* 
+                TODO: Keyboard controls for theese menuitems:
+                Enter -> If not checked, checks item and closes menu
+                Space -> If not checked, checks item
+                Escape -> Closes menu, moves focus to element which controls it
+                Left arrow -> Closes menu, moves focus to previous element in menubar
+                Right arrow -> Closes menu, moves focus to next element in menubar
+                Home -> Moves focus to first element
+                End -> Moves focus to last element
+              */
                 onClick={() => editor.chain().focus().setFontSize('1.25rem').run()}
                 className='smooth padding-50 font-size-smaller' 
                 style={{whiteSpace: 'nowrap'}} 
@@ -469,19 +442,7 @@ export default function TextEditorMenu({
           >
             <IconListNumbers width={16} height={16} className="grid" aria-hidden='true' />
           </span>
-        </li>
-
-        {/*
-
-        <div className='inline-block padding-right-25 margin-right-25' style={{ borderRight: '1px solid var(--gray-80)', verticalAlign: 'top', lineHeight: '1', marginBlock: '3px' }}>
-          <select aria-label='font size' onChange={changeFontSize} value={fontSize} className='transparent' style={{ fontSize: '12px', border: '0', outline: '0', '--icon-size': '16px', '--padding': '.25rem' } as React.CSSProperties}>
-            <option value="20px">Stor text</option>
-            <option value="normal">Normal text</option>
-            <option value="12px">Liten text</option>
-          </select>
-        </div>
-
-        */}
+        </li> 
       </ul>
     </div>
   )

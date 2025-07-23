@@ -25,9 +25,6 @@ export default function SuggestiveText({
   defaultValue?: string
   suggestiveList: Array<string>
 }) {
-
-  // TODO input_updates: Fallback for no JS
-
   const { t } = useTranslation(["forms"]);
 
   const [value, setValue] = useState<string>(defaultValue ? defaultValue : '');
