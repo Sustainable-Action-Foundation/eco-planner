@@ -110,11 +110,14 @@ export default function TextEditorMenu({
     if (e.key === 'End') {
       e.preventDefault();
       setFocusedMenubarItem(menuItemsRef.current.length - 1);
-      setFontSizeMenuOpen(false);
-      setFocusedFontSizeMenuItem(null);
+    }
+
+    if (e.key == 'Tab') {
+      setFocusedMenubarItem(null);
     }
 
     if (e.key === 'Escape') {
+      setFocusedMenubarItem(null);
       editor.commands.focus()
     }
   }
@@ -159,7 +162,7 @@ export default function TextEditorMenu({
       e.preventDefault()
 
       if (fontSizeMenuOpen) {
-        e.stopPropagation(); 
+        e.stopPropagation();
         fontSizeMenuRef.current?.focus()
         setFontSizeMenuOpen(false)
         setFocusedFontSizeMenuItem(null)
@@ -167,7 +170,7 @@ export default function TextEditorMenu({
     }
 
     if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-      setFontSizeMenuOpen(false) 
+      setFontSizeMenuOpen(false)
       setFocusedFontSizeMenuItem(null)
     }
   }
@@ -184,7 +187,7 @@ export default function TextEditorMenu({
         } else {
           setFocusedFontSizeMenuItem(0)
         }
-      } 
+      }
     }
 
     if (e.key === 'ArrowUp') {
@@ -196,30 +199,53 @@ export default function TextEditorMenu({
         } else {
           setFocusedFontSizeMenuItem(fontSizeMenuItemsRef.current.length - 1)
         }
-      }  
+      }
     }
 
-    if (e.key == 'Escape') {
+    if (e.key == 'Escape') { // TODO: This is buggy for some reason
       e.preventDefault()
 
       if (fontSizeMenuOpen) {
-        e.stopPropagation(); 
+        e.stopPropagation();
         fontSizeMenuRef.current?.focus()
         setFontSizeMenuOpen(false)
         setFocusedFontSizeMenuItem(null)
       }
     }
 
-    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-      setFontSizeMenuOpen(false) 
-      setFocusedFontSizeMenuItem(null)
-    }
-
-    if (e.key === 'Tab') {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Tab' || e.key === 'End' || e.key === 'Home') {
       setFontSizeMenuOpen(false)
       setFocusedFontSizeMenuItem(null)
     }
 
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (focusedFontSizeMenuItem != null) {
+        const itemEl = fontSizeMenuItemsRef.current[focusedFontSizeMenuItem];
+        const selectedSize = itemEl?.getAttribute('data-size');
+        if (selectedSize === 'unset') {
+          editor.chain().focus().unsetFontSize().run();
+        } else if (selectedSize) {
+          editor.chain().focus().setFontSize(selectedSize).run();
+        }
+        setFontSizeMenuOpen(false);
+        setFocusedFontSizeMenuItem(null);
+        setFocusedMenubarItem(null);
+      }
+    }
+
+    if (e.key === ' ') {
+      e.preventDefault();
+      if (focusedFontSizeMenuItem != null) {
+        const itemEl = fontSizeMenuItemsRef.current[focusedFontSizeMenuItem];
+        const selectedSize = itemEl?.getAttribute('data-size');
+        if (selectedSize === 'unset') {
+          editor.chain().unsetFontSize().run();
+        } else if (selectedSize) {
+          editor.chain().setFontSize(selectedSize).run();
+        }
+      }
+    }
   }
 
   if (!editor) {
@@ -312,15 +338,14 @@ export default function TextEditorMenu({
             style={{ padding: '2px', position: 'absolute', minWidth: '100%', top: 'calc(100% + 5px)', left: '0', zIndex: '1', listStyle: 'none', display: `${fontSizeMenuOpen ? 'block' : 'none'}` }}>
             <li role='presentation' style={{ borderBottom: '1px solid var(--gray)', paddingBottom: '2px' }}>
               <div
-                // TODO: Selecting using onclick closes menu, additionally pressing outside the menu also closes it. 
+                // TODO: Pressing outside the menu also closes it. 
                 /* 
                   TODO: Keyboard controls for theese menuitems:
-                  Enter -> If not checked, checks item and closes menu
-                  Space -> If not checked, checks item
                   Escape -> Closes menu, moves focus to element which controls it
                 */
-                onClick={() => editor.chain().focus().setFontSize('1.25rem').run()}
+                onClick={() => { editor.chain().focus().setFontSize('1.25rem').run(), setFontSizeMenuOpen(false) }}
                 onKeyDown={handleKeyDownFontSizeMenuItem}
+                data-size="1.25rem"
                 className='smooth padding-50 font-size-smaller'
                 style={{ whiteSpace: 'nowrap' }}
                 role='menuitemradio'
@@ -331,8 +356,9 @@ export default function TextEditorMenu({
             </li>
             <li role='presentation' style={{ borderBottom: '1px solid var(--gray)', paddingBlock: '2px' }}>
               <div
-                onClick={() => editor.chain().focus().unsetFontSize().run()}
+                onClick={() => { editor.chain().focus().unsetFontSize().run(), setFontSizeMenuOpen(false) }}
                 onKeyDown={handleKeyDownFontSizeMenuItem}
+                data-size="unset"
                 className='smooth padding-50 font-size-smaller'
                 style={{ whiteSpace: 'nowrap' }}
                 role='menuitemradio'
@@ -344,8 +370,9 @@ export default function TextEditorMenu({
             </li>
             <li role='presentation' style={{ paddingTop: '2px' }}>
               <div
-                onClick={() => editor.chain().focus().setFontSize('0.75rem').run()}
+                onClick={() => { editor.chain().focus().setFontSize('0.75rem').run(), setFontSizeMenuOpen(false) }}
                 onKeyDown={handleKeyDownFontSizeMenuItem}
+                data-size="0.75rem"
                 className='smooth padding-50 font-size-smaller'
                 style={{ whiteSpace: 'nowrap' }}
                 role='menuitemradio'
