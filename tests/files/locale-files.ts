@@ -39,7 +39,7 @@ const commonNamespaces = ["common", "metadata"];
 const keysAllowedDirectlyInApp = ["common:tsx.", "common:placeholder.", "common:scope.", "common:layout.", "common:count.", "common:new.", "common:edit", "common:scaling_methods", "common:css.", "common:404."];
 
 /** The Swedish regex is used to find hard coded swedish in the app */
-const swedishRegex = /(?<!\/\/|\*|\/\*)(?:åtgärd|åtgärden|åtgärder|åtgärderna|målbana|målbanan|målbanor|målbanorna|färdplan|färdplanen|färdplaner|färdplansversion|färdplansversionen|färdplansversioner|effekt|effekten|effekter|effekterna|Skapa|Redigera|Radera|Ta bort|Lägg till|Spara|Avbryt|Sök|Välj|Visa|Sortera|Sök bland|Välj en|Ingen angiven|Skapa ny|Det finns inga|Vill du|Utvalda|Alla|Externa resurser|Relevanta aktörer|Kostnadseffektivitet|Beskrivning|Sverige|Sveriges|Stäng|meny|välj|språk|att|som|på|är|för|till|inte|ett|han|men|[åäöÅÄÖ])[\W]/gim;
+const swedishRegex = /(?<!\/\/|\*|\/\*|\/\*\*|^\s*\*\s*)(?:\b(?:åtgärd|åtgärden|åtgärder|åtgärderna|målbana|målbanan|målbanor|målbanorna|färdplan|färdplanen|färdplaner|färdplansversion|färdplansversionen|färdplansversioner|effekt|effekten|effekter|effekterna|Skapa|Redigera|Radera|Ta bort|Lägg till|Spara|Avbryt|Sök|Välj|Visa|Sortera|Sök bland|Välj en|Ingen angiven|Skapa ny|Det finns inga|Vill du|Utvalda|Alla|Externa resurser|Relevanta aktörer|Kostnadseffektivitet|Beskrivning|Sverige|Sveriges|Stäng|meny|välj|språk|att|som|på|är|för|till|inte|ett|han|men|ord|Nästa)\b|(?:\w*[åäöÅÄÖ]\w*))/gim;
 
 
 /* 
