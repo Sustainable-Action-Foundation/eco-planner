@@ -101,13 +101,17 @@ export default function TextEditorMenu({
     }
 
     if (e.key === 'Home') {
-      e.preventDefault()
+      e.preventDefault();
       setFocusedMenubarItem(0);
+      setFontSizeMenuOpen(false);
+      setFocusedFontSizeMenuItem(null);
     }
 
     if (e.key === 'End') {
-      e.preventDefault()
-      setFocusedMenubarItem(menuItemsRef.current.length - 1)
+      e.preventDefault();
+      setFocusedMenubarItem(menuItemsRef.current.length - 1);
+      setFontSizeMenuOpen(false);
+      setFocusedFontSizeMenuItem(null);
     }
 
     if (e.key === 'Escape') {
@@ -164,6 +168,55 @@ export default function TextEditorMenu({
 
     if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
       setFontSizeMenuOpen(false) 
+      setFocusedFontSizeMenuItem(null)
+    }
+  }
+
+  const handleKeyDownFontSizeMenuItem = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!fontSizeMenuItemsRef.current) return;
+
+    if (e.key === 'ArrowDown') {
+      if (fontSizeMenuOpen && focusedFontSizeMenuItem != null) {
+        e.preventDefault()
+
+        if (focusedFontSizeMenuItem != fontSizeMenuItemsRef.current.length - 1) {
+          setFocusedFontSizeMenuItem(focusedFontSizeMenuItem + 1)
+        } else {
+          setFocusedFontSizeMenuItem(0)
+        }
+      } 
+    }
+
+    if (e.key === 'ArrowUp') {
+      if (fontSizeMenuOpen && focusedFontSizeMenuItem != null) {
+        e.preventDefault()
+
+        if (focusedFontSizeMenuItem != 0) {
+          setFocusedFontSizeMenuItem(focusedFontSizeMenuItem - 1)
+        } else {
+          setFocusedFontSizeMenuItem(fontSizeMenuItemsRef.current.length - 1)
+        }
+      }  
+    }
+
+    if (e.key == 'Escape') {
+      e.preventDefault()
+
+      if (fontSizeMenuOpen) {
+        e.stopPropagation(); 
+        fontSizeMenuRef.current?.focus()
+        setFontSizeMenuOpen(false)
+        setFocusedFontSizeMenuItem(null)
+      }
+    }
+
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      setFontSizeMenuOpen(false) 
+      setFocusedFontSizeMenuItem(null)
+    }
+
+    if (e.key === 'Tab') {
+      setFontSizeMenuOpen(false)
       setFocusedFontSizeMenuItem(null)
     }
 
@@ -231,7 +284,7 @@ export default function TextEditorMenu({
         <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)', position: 'relative', userSelect: 'none' }}>
           <span
             onClick={() => setFontSizeMenuOpen(!fontSizeMenuOpen)}
-            onKeyDown={ handleKeyDownFontSizeMenu}
+            onKeyDown={handleKeyDownFontSizeMenu}
             tabIndex={-1}
             role='menuitem'
             aria-haspopup='menu'
@@ -265,12 +318,9 @@ export default function TextEditorMenu({
                   Enter -> If not checked, checks item and closes menu
                   Space -> If not checked, checks item
                   Escape -> Closes menu, moves focus to element which controls it
-                  Left arrow -> Closes menu, moves focus to previous element in menubar
-                  Right arrow -> Closes menu, moves focus to next element in menubar
-                  Home -> Moves focus to first element
-                  End -> Moves focus to last element
                 */
                 onClick={() => editor.chain().focus().setFontSize('1.25rem').run()}
+                onKeyDown={handleKeyDownFontSizeMenuItem}
                 className='smooth padding-50 font-size-smaller'
                 style={{ whiteSpace: 'nowrap' }}
                 role='menuitemradio'
@@ -282,6 +332,7 @@ export default function TextEditorMenu({
             <li role='presentation' style={{ borderBottom: '1px solid var(--gray)', paddingBlock: '2px' }}>
               <div
                 onClick={() => editor.chain().focus().unsetFontSize().run()}
+                onKeyDown={handleKeyDownFontSizeMenuItem}
                 className='smooth padding-50 font-size-smaller'
                 style={{ whiteSpace: 'nowrap' }}
                 role='menuitemradio'
@@ -294,6 +345,7 @@ export default function TextEditorMenu({
             <li role='presentation' style={{ paddingTop: '2px' }}>
               <div
                 onClick={() => editor.chain().focus().setFontSize('0.75rem').run()}
+                onKeyDown={handleKeyDownFontSizeMenuItem}
                 className='smooth padding-50 font-size-smaller'
                 style={{ whiteSpace: 'nowrap' }}
                 role='menuitemradio'
