@@ -20,6 +20,7 @@ export default function TextEditorMenu({
   const menubarRef = useRef<HTMLUListElement | null>(null)
   const menuItemsRef = useRef<NodeListOf<HTMLElement> | null>(null);
 
+  const fontSizeMenuButtonRef = useRef<HTMLSpanElement>(null);
   const fontSizeMenuRef = useRef<HTMLUListElement | null>(null)
   const fontSizeMenuItemsRef = useRef<NodeListOf<HTMLElement> | null>(null);
 
@@ -80,6 +81,23 @@ export default function TextEditorMenu({
       }
     }
   }, [focusedMenubarItem]);
+
+    useEffect(() => {
+    const handleClickOutside = (event: any) => {
+      if (fontSizeMenuRef.current && !fontSizeMenuRef.current.contains(event.target)) {
+        setFontSizeMenuOpen(false);
+        editor.commands.focus() // TODO: Shold this be editor.chain().focus()?
+      }
+    };
+
+    if (fontSizeMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [fontSizeMenuOpen, editor]);
 
   const handleKeyDownMenuBar = (e: React.KeyboardEvent<HTMLUListElement>) => {
     if (!menuItemsRef.current) return;
@@ -163,7 +181,7 @@ export default function TextEditorMenu({
 
       if (fontSizeMenuOpen) {
         e.stopPropagation();
-        fontSizeMenuRef.current?.focus()
+        fontSizeMenuButtonRef.current?.focus();
         setFontSizeMenuOpen(false)
         setFocusedFontSizeMenuItem(null)
       }
@@ -204,10 +222,10 @@ export default function TextEditorMenu({
 
     if (e.key == 'Escape') { // TODO: This is buggy for some reason
       e.preventDefault()
-
+      console.log(fontSizeMenuRef.current)
       if (fontSizeMenuOpen) {
         e.stopPropagation();
-        fontSizeMenuRef.current?.focus()
+        fontSizeMenuButtonRef.current?.focus();
         setFontSizeMenuOpen(false)
         setFocusedFontSizeMenuItem(null)
       }
@@ -311,6 +329,7 @@ export default function TextEditorMenu({
           <span
             onClick={() => setFontSizeMenuOpen(!fontSizeMenuOpen)}
             onKeyDown={handleKeyDownFontSizeMenu}
+            ref={fontSizeMenuButtonRef}
             tabIndex={-1}
             role='menuitem'
             aria-haspopup='menu'
@@ -338,11 +357,6 @@ export default function TextEditorMenu({
             style={{ padding: '2px', position: 'absolute', minWidth: '100%', top: 'calc(100% + 5px)', left: '0', zIndex: '1', listStyle: 'none', display: `${fontSizeMenuOpen ? 'block' : 'none'}` }}>
             <li role='presentation' style={{ borderBottom: '1px solid var(--gray)', paddingBottom: '2px' }}>
               <div
-                // TODO: Pressing outside the menu also closes it. 
-                /* 
-                  TODO: Keyboard controls for theese menuitems:
-                  Escape -> Closes menu, moves focus to element which controls it
-                */
                 onClick={() => { editor.chain().focus().setFontSize('1.25rem').run(), setFontSizeMenuOpen(false) }}
                 onKeyDown={handleKeyDownFontSizeMenuItem}
                 data-size="1.25rem"

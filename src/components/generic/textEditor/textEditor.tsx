@@ -70,8 +70,8 @@ const TextEditor = () => {
         openOnClick: true,
         autolink: true,
         defaultProtocol: 'https',
-        protocols: ['http', 'https', 'mailto', 'callto'],
-        isAllowedUri: (url, ctx) => {
+        protocols: ['http', 'https', 'mailto', 'callto', 'tel'],
+        /*isAllowedUri: (url, ctx) => {
           try {
             // construct URL
             const parsedUrl = url.includes(':') ? new URL(url) : new URL(`${ctx.defaultProtocol}://${url}`)
@@ -114,7 +114,7 @@ const TextEditor = () => {
           } catch {
             return false
           }
-        },
+        },*/
       })
     ], 
   })
