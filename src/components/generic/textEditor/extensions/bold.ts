@@ -59,7 +59,7 @@ export const Bold = Extension.create<boldOptions>({
   addCommands() {
     return {
       toggleBold: () => ({ chain }) => {
-        const attrs = (this.editor as any).getAttributes('textStyle')
+        const attrs = this.editor.getAttributes('textStyle');
         const isBold = attrs.fontWeight === 'bold'
 
         return isBold

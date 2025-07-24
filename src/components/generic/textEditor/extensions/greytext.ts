@@ -59,7 +59,7 @@ export const GreyText = Extension.create<greyTextOptions>({
   addCommands() {
     return {
       toggleGreyText: () => ({ chain }) => {
-        const attrs = (this.editor as any).getAttributes('textStyle')
+        const attrs = this.editor.getAttributes('textStyle');
         const isGreyText = attrs.color === 'grey'
 
         return isGreyText

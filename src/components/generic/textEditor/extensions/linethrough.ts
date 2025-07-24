@@ -59,7 +59,7 @@ export const LineThrough = Extension.create<LineThroughOptions>({
   addCommands() {
     return {
       toggleLineThrough: () => ({ chain }) => {
-        const attrs = (this.editor as any).getAttributes('textStyle')
+        const attrs = this.editor.getAttributes('textStyle');
         const isLineThrough = attrs.textDecoration === 'line-through'
 
         return isLineThrough

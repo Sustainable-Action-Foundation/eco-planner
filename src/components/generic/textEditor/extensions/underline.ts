@@ -59,7 +59,7 @@ export const Underline = Extension.create<UnderlineOptions>({
   addCommands() {
     return {
       toggleUnderline: () => ({ chain }) => {
-        const attrs = (this.editor as any).getAttributes('textStyle')
+        const attrs = this.editor.getAttributes('textStyle');
         const isUnderlined = attrs.textDecoration === 'underline'
 
         return isUnderlined
@@ -73,7 +73,7 @@ export const Underline = Extension.create<UnderlineOptions>({
       }
     }
   },
-  
+
   addKeyboardShortcuts() {
     return {
       'Mod-u': () => this.editor.commands.toggleUnderline(),

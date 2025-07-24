@@ -59,7 +59,7 @@ export const Italic = Extension.create<italicOptions>({
   addCommands() {
     return {
       toggleItalic: () => ({ chain }) => {
-        const attrs = (this.editor as any).getAttributes('textStyle')
+        const attrs = this.editor.getAttributes('textStyle');
         const isItalic = attrs.fontStyle === 'italic'
 
         return isItalic
