@@ -53,7 +53,7 @@ export default function TextEditorMenu({
   useEffect(() => {
     if (menubarRef.current) {
       menuItemsRef.current = menubarRef.current.querySelectorAll(
-        "li > [role='menuitem'], li > [role='menuitemcheckbox'], li > [role='menuitemradio']"
+        "[role='menubar'] > li > [role='menuitem'], [role='menubar'] > li > [role='menuitemcheckbox'], [role='menubar'] > li > [role='menuitemradio']"
       ) as NodeListOf<HTMLElement>;;
     }
   }, []);
