@@ -16,18 +16,18 @@ export const localeAliases: Record<Locales, string> = {
   [Locales.svSE]: "Svenska",
 };
 
-export const ns = ["common", "forms", "components", "graphs", "pages", "email", "test",];
+export const allNamespaces = ["common", "forms", "components", "graphs", "pages", "email", "metadata"];
 
 const i18nFormatter = createInstance();
-i18nFormatter.init();
+i18nFormatter.init({});
 
 export function initTemplate(t: TFunction): InitOptions {
   return {
     debug: false, // Set to true to get logs from i18next
     fallbackLng: Locales.default,
     supportedLngs: uniqueLocales,
-    defaultNS: "common",
-    ns: ns,
+    defaultNS: false,
+    ns: "common",
     interpolation: {
       escapeValue: false, // React already escapes
       format: (formatterValue, format, lng, options): string => {

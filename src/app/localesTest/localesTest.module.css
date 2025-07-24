@@ -1,7 +1,8 @@
 .description {
-  padding: 0.5rem 2ch;
+  padding: 0.5rem 3ch;
 
-  &>h1 {
+  &>h1,
+  &>h2 {
     margin-bottom: 0;
   }
 
@@ -9,93 +10,61 @@
     margin-top: 0.3rem;
     margin-bottom: 0rem;
   }
+
+  span:is([data-content="empty"], [data-content="missing"]) {
+    color: red;
+    background-color: yellow;
+  }
+}
+
+.tables {
+
+  /* Indent all non-table things */
+  &>*>*:not(table) {
+    margin-inline-start: 2ch;
+  }
+
+  &>* {
+    display: flex;
+    flex-flow: column nowrap;
+
+    &>h2 {
+      margin-bottom: 0;
+    }
+
+    &>*:last-child {
+      margin-bottom: 3rem;
+    }
+
+    &>table {
+      & th {
+        text-align: start;
+      }
+
+      & tr>* {
+        padding-inline: 1ch;
+        vertical-align: top;
+
+        td:is([data-content="empty"], [data-content="missing"]),
+        span:is([data-content="empty"], [data-content="missing"]) {
+          color: red;
+          background-color: yellow;
+        }
+      }
+    }
+  }
 }
 
 .stats {
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 0 1ch;
-  opacity: 0.8;
-
-  &>p {
-    font-size: 0.85rem;
-    width: max-content;
-  }
-}
-
-.table {
-  display: flex;
-  flex-flow: column nowrap;
-
-  /* Row */
-  &>div {
+  &>* {
     display: flex;
-    flex-flow: row nowrap;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 0 1ch;
+    opacity: 0.8;
 
-    padding: 0;
-    margin: 0;
-
-    /* Bottom padding */
-    &:last-child {
-      padding-bottom: 3rem;
-    }
-
-    /* Line number */
-    &>span:first-of-type {
-      font-size: smaller;
-      opacity: 0.8;
-      padding: 0 1ch;
-      width: 5ch;
-      height: 1.9rem;
-      text-align: center;
-      align-content: center;
-    }
-
-    /* Keys and translations */
-    &>p {
-      flex: 1;
-      padding: 0.1rem 1ch;
+    & p {
+      width: max-content;
       margin: 0;
-
-      /* If content is [EMPTY] or [MISSING] */
-      &:is([data-content="empty"], [data-content="missing"]) {
-        color: #d32f2f;
-        font-style: italic;
-        font-weight: bold;
-      }
-
-      /* For the keys which can be long */
-      &:first-of-type {
-        overflow-wrap: anywhere;
-      }
-
-      /* Right side padding */
-      &:last-of-type {
-        padding-right: 2ch;
-      }
-    }
-
-    &>hr {
-      padding: 0;
-      margin: 0;
-
-      /* I'm aware that there are more sensible ways of doing this */
-      opacity: 0.3;
-      transform: scaleX(0.6);
-    }
-  }
-}
-
-.header {
-  &>h2 {
-    flex: 1;
-    margin: 0.4rem 0;
-
-    &:first-of-type {
-      padding-left: 0.5ch;
     }
   }
 }

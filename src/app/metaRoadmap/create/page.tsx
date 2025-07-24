@@ -4,10 +4,23 @@ import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
+import { buildMetadata } from '@/functions/buildMetadata';
+
+export async function generateMetadata() {
+  const t = await serveTea("metadata")
+
+  return buildMetadata({
+    title: t("metadata:roadmap_series_create.title"),
+    description: t("metadata:roadmap_series_create.description"),
+    og_url: `/metaRoadmap/create`,
+    og_image_url: undefined
+  })
+}
 
 export default async function Page() {
-  const [session, parentRoadmapOptions] = await Promise.all([
+  const [t, session, parentRoadmapOptions] = await Promise.all([
+    serveTea("pages"),
     getSession(await cookies()),
     getMetaRoadmaps(),
   ]);

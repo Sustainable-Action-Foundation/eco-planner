@@ -23,6 +23,7 @@
     "breadcrumb": "$t(common:new.action)",
     "title": "$t(common:new.action)",
     "title_with_goal": "$t(common:new.goal): {{goalName}}",
+    "information_icon_aria": "Information",
     "bad_goal": "Kunde inte hitta, eller har inte tillgång till, $t(common:goal_definite_one) i länken.",
     "bad_roadmap": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_version_definite_one) i länken.\nAnvänd dropdown-menyn för att välja en $t(common:roadmap_version_one)."
   },
@@ -33,15 +34,18 @@
   "effect_create": {
     "breadcrumb": "$t(common:new.effect)",
     "title": "$t(common:new.effect)",
+    "information_icon_aria": "Information",
     "bad_action": "{{$t(common:action_definite_one), titleCase}} du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan.",
     "bad_goal": "{{$t(common:goal_definite_one), titleCase}} du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan."
   },
   "effect_edit": {
     "breadcrumb": "$t(common:edit.effect)",
     "title": "$t(common:edit.effect)",
+    "information_icon_aria": "Information",
     "no_access": "{{$t(common:effect_definite_one), titleCase}} du försöker redigera finns inte eller så har du inte redigeringsbehörighet till den."
   },
   "goal": {
+    "update_needed_attention_message": "Uppmärksamhet!",
     "update_needed": "Uppdatera din $t(common:goal_one) för att få den senaste informationen.",
     "title_label": "{{$t(common:goal_one), titleCase}}",
     "menu": "Meny",
@@ -57,6 +61,7 @@
   },
   "goal_create": {
     "breadcrumb": "$t(common:new.goal)",
+    "information_icon_aria": "Information",
     "title": "$t(common:new.goal)",
     "bad_roadmap": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_version_definite_one) i länken.\n\nAnvänd dropdown-menyn för att välja en $t(common:roadmap_version_one) att skapa $t(common:goal_definite_one) under."
   },
@@ -83,11 +88,14 @@
   },
   "password": {
     "breadcrumb": "Återställ lösenord",
+    "title": "Återställ lösenord",
     "description": "Har du glömt ditt lösenord? Fyll i din e‑postadress här så skickar vi ett e‑postmeddelande med instruktioner för att återställa lösenordet.",
+    "input_label": "E-post",
     "submit": "Skicka"
   },
   "password_reset": {
     "breadcrumb": "Uppdatera lösenord",
+    "title": "Uppdatera lösenord",
     "description": "Fyll i ditt nya lösenord nedan och klicka på knappen för att uppdatera ditt lösenord.",
     "password": "Nytt lösenord",
     "submit": "Byt lösenord"
@@ -111,6 +119,7 @@
   "roadmap_create": {
     "breadcrumb": "$t(common:new.roadmap_version)",
     "title": "$t(common:new.roadmap_version)",
+    "information_icon_aria": "Information",
     "bad_roadmap_series": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_series_definite_one) i länken.",
     "use_dropdown": "Använd dropdown-menyn för att välja en $t(common:roadmap_series_one)."
   },
@@ -141,7 +150,8 @@
     "description": "Ett meddelande har skickats till din e‑postadress. Verifiera din e‑postadress genom att följa instruktionerna i e‑postmeddelandet.",
     "troubleshooting_title": "Har du inte fått något meddelande?",
     "troubleshooting_description": "Kolla i din skräppost eller fyll i din e‑postadress nedan och klicka på knappen för att få ett nytt e‑postmeddelande.",
-    "submit_resend": "Skicka igen"
+    "input_label": "E-post",
+    "submit_resend": "Skicka nytt mail"
   },
   "verify_verify": {
     "title": "Verifiera din e‑postadress",

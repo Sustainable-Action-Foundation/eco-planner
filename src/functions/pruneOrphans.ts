@@ -1,5 +1,4 @@
-'use server';
-
+import "server-only";
 import prisma from "@/prismaClient";
 
 /** Deletes all links and comments without parents. Fails silently. */

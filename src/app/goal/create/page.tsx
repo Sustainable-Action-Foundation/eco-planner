@@ -3,12 +3,23 @@ import { cookies } from "next/headers";
 import GoalForm from "@/components/forms/goalForm/goalForm";
 import getOneRoadmap from "@/fetchers/getOneRoadmap";
 import accessChecker from "@/lib/accessChecker";
-import Image from "next/image";
 import { AccessLevel } from "@/types";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
+import { buildMetadata } from "@/functions/buildMetadata";
+import { IconInfoCircle } from "@tabler/icons-react";
 
+export async function generateMetadata() {
+  const t = await serveTea("metadata")
+
+  return buildMetadata({
+    title: t("metadata:goal_create.title"),
+    description: t("metadata:goal_create.title"),
+    og_url: `/goal/create`,
+    og_image_url: undefined,
+  })
+}
 
 export default async function Page(
   props: {
@@ -19,7 +30,8 @@ export default async function Page(
   }
 ) {
   const searchParams = await props.searchParams;
-  const [session, roadmap, roadmapList] = await Promise.all([
+  const [t, session, roadmap, roadmapList] = await Promise.all([
+    serveTea("pages"),
     getSession(await cookies()),
     getOneRoadmap(typeof searchParams.roadmapId == 'string' ? searchParams.roadmapId : ''),
     getRoadmaps(),
@@ -42,7 +54,7 @@ export default async function Page(
         </h1>
         {badRoadmap &&
           <p style={{ color: 'red' }}>
-            <Image src="/icons/info.svg" width={24} height={24} alt='' />
+            <IconInfoCircle role="img" aria-label={t("pages:goal_create.information_icon_aria")}/>
             {t("pages:goal_create.bad_roadmap")}
           </p>
         }

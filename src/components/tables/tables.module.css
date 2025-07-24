@@ -1,50 +1,3 @@
-.details[open]>ul {
-  border-left: 2px dashed lightgray;
-}
-
-.details[open]>summary {
-  font-weight: bold;
-}
-
-.details>summary {
-  background-color: unset;
-  padding: .5rem 3rem .5rem 0;
-  width: 100%;
-  cursor: default;
-}
-
-.details>summary:hover {
-  font-weight: bold;
-}
-
-.details>summary:hover::marker {
-  color: black;
-}
-
-.details>summary::marker {
-  color: gray;
-}
-
-.details[open]>summary::marker {
-  color: black;
-}
-
-.list {
-  margin-top: 0;
-}
-
-.list,
-.list li ul {
-  padding-inline-start: 40px;
-  margin-left: 5px;
-  list-style-type: none;
-}
-
-.list {
-  font-size: 1.25rem;
-  padding-inline-start: 0;
-}
-
 /* Links */
 
 .link,
@@ -156,7 +109,19 @@
   -webkit-box-orient: vertical;
 }
 
-/* TODO: Clean this (temp while rewriting some code) */
+/* Nested details for goals and roadmaps */
+
+.details[open]>ul {
+  border-left: 1px dashed var(--gray);
+}
+
+.details[open]>summary {
+  font-weight: bold;
+}
+ 
+.details>summary:hover {
+  font-weight: bold;
+}
 
 .roadmap-nav-ul {
   list-style: none;
@@ -164,24 +129,24 @@
   margin: 0;
 }
 
-.roadmap-nav-ul summary>div>img {
+.roadmap-nav-ul summary>div>svg {
   transition: background-color .1s ease,
-    transform .1s ease-out;
+              transform .1s ease-out;
 }
 
 .roadmap-nav-ul summary:focus {
   outline: none;
 }
 
-.roadmap-nav-ul summary:focus-visible>div>img {
+.roadmap-nav-ul summary:focus-visible>div>svg {
   outline: 2px solid;
 }
 
-.roadmap-nav-ul summary:hover:not(:has(a:hover, span:hover))>div>img {
+.roadmap-nav-ul summary:hover:not(:has(a:hover, span:hover))>div>svg {
   background-color: rgba(225, 225, 235);
 }
 
-.roadmap-nav-ul details[open]>summary>div>img {
+.roadmap-nav-ul details[open]>summary>div>svg {
   transform: rotate(90deg);
 }
 

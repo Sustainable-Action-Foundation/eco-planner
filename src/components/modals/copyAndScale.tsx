@@ -1,13 +1,13 @@
 'use client';
 
 import { DataSeries, Goal } from "@prisma/client";
-import Image from "next/image";
 import { closeModal, openModal } from "./modalFunctions";
 import { useRef, useState } from "react";
 import RepeatableScaling from "../repeatableScaling";
 import { GoalInput, dataSeriesDataFieldNames, ScaleBy, ScaleMethod, ScalingRecipie } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
+import { IconCircleMinus, IconX } from "@tabler/icons-react";
 
 /** Get the resulting scaling factor from form data */
 export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, setIsLoading?: React.Dispatch<React.SetStateAction<boolean>>) {
@@ -200,7 +200,7 @@ export default function CopyAndScale({
   goal: Goal & { dataSeries: DataSeries | null },
   roadmapOptions: { id: string, name: string, version: number, actor: string | null }[],
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("components");
   const [isLoading, setIsLoading] = useState(false);
   const [scalingComponents, setScalingComponents] = useState<string[]>([crypto?.randomUUID() || Math.random().toString()]);
   const [scalingMethod, setScalingMethod] = useState<ScaleMethod>(ScaleMethod.Geometric);
@@ -276,18 +276,18 @@ export default function CopyAndScale({
 
   return (
     <>
-      <button 
-        type="button" 
-        className="seagreen color-purewhite smooth padding-block-50 padding-inline-100 smooth" 
+      <button
+        type="button"
+        className="seagreen color-purewhite smooth padding-block-50 padding-inline-100 smooth"
         onClick={() => openModal(modalRef)}
-        style={{padding: '.3rem .6rem', fontSize: '.75rem'}}
+        style={{ padding: '.3rem .6rem', fontSize: '.75rem' }}
       >
         {t("components:copy_and_scale.copy_and_scale")}
       </button>
       <dialog ref={modalRef} aria-modal className="rounded" style={{ border: '0', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25' }}>
         <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>
           <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
-            <Image src='/icons/close.svg' alt="" width={18} height={18} />
+            <IconX aria-hidden="true" width={18} height={18} strokeWidth={3} />
           </button>
           <h2 className="margin-0">{t("components:copy_and_scale.title", { goalName: goal.name })}</h2>
         </div>
@@ -308,7 +308,8 @@ export default function CopyAndScale({
             {scalingComponents.map((id) => {
               return (
                 <RepeatableScaling key={id} useWeight={scalingMethod != ScaleMethod.Multiplicative}> {/* Multiplicative scaling doesn't use weights */}
-                  <button type="button"
+                  <button 
+                    type="button"
                     style={{
                       position: 'absolute',
                       top: '0',
@@ -319,8 +320,11 @@ export default function CopyAndScale({
                       borderRadius: '100%',
                       display: 'grid',
                       cursor: 'pointer'
-                    }} onClick={() => setScalingComponents(scalingComponents.filter((i) => i !== id))}>
-                    <Image src='/icons/circleMinus.svg' alt={t("components:copy_and_scale.remove_scaling")} width={24} height={24} />
+                    }} 
+                    aria-label={t("components:copy_and_scale.remove_scaling")}
+                    onClick={() => setScalingComponents(scalingComponents.filter((i) => i !== id))}
+                  >  
+                    <IconCircleMinus aria-hidden="true" />
                   </button>
                 </RepeatableScaling>
               )

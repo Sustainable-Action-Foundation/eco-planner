@@ -1,12 +1,12 @@
-"use server";
-
+import "server-only";
 import { LoginData } from '@/lib/session';
 import styles from '@/components/tables/tables.module.css' with { type: "css" };
 import { MetaRoadmap, Roadmap } from "@prisma/client";
 import { TableMenu } from '@/components/tables/tableMenu/tableMenu';
 import { AccessControlled } from '@/types';
 import accessChecker from '@/lib/accessChecker';
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
+import Link from 'next/link';
 
 interface RoadmapTableCommonProps {
   user: LoginData['user'],
@@ -29,6 +29,7 @@ export default async function RoadmapTable({
   roadmaps,
   metaRoadmap,
 }: RoadmapTableProps) {
+  const t = await serveTea(["components", "common"]);
   // Failsafe in case wrong props are passed
   if ((!roadmaps && !metaRoadmap) || (roadmaps && metaRoadmap)) throw new Error('RoadmapTable: Either `roadmaps` XOR `metaRoadmap` must be provided');
 
@@ -60,7 +61,7 @@ export default async function RoadmapTable({
           const accessLevel = accessChecker(roadmap, user);
           return (
             <div className='flex gap-100 justify-content-space-between align-items-center' key={roadmap.id}>
-              <a href={`/roadmap/${roadmap.id}`} className={`${styles.roadmapLink} flex-grow-100`}>
+              <Link href={`/roadmap/${roadmap.id}`} className={`${styles.roadmapLink} flex-grow-100`}>
                 {/* Name, version */}
                 <span className={styles.linkTitle}>
                   {t("components:roadmap_table.title", { name: roadmap.metaRoadmap.name, version: roadmap.version })}
@@ -71,7 +72,7 @@ export default async function RoadmapTable({
                   {" • "}
                   {t("common:count.goal", { count: roadmap._count.goals })}
                 </span>
-              </a>
+              </Link>
               <TableMenu
                 accessLevel={accessLevel}
                 object={roadmap}

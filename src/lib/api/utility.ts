@@ -8,16 +8,16 @@
  * @param api Api is which api the dataset is using.
  * @param fullName Full name is the full name of the dataset as the key will usually be a shorthand for the full name.
  */
-export const externalDatasets: { [key: string]: { baseUrl: string, userFacingUrl: string, supportedLanguages: string[], api: string, fullName?: string } | undefined} = {
+export const externalDatasets: { [key: string]: { baseUrl: string, userFacingUrl: string, supportedLanguages: string[], api: string, fullName?: string } | undefined } = {
   "SCB": {
-    baseUrl: "https://api.scb.se/ov0104/v2beta/api/v2",
+    baseUrl: "https://api.scb.se/ov0104/v2beta/api/v2/",
     userFacingUrl: "https://www.statistikdatabasen.scb.se/pxweb/sv/ssd/",
     supportedLanguages: ["sv", "en"],
     api: "PxWeb",
     fullName: "Statistiska centralbyrån",
   },
   "Trafa": {
-    baseUrl: "https://api.trafa.se/api",
+    baseUrl: "https://api.trafa.se/api/",
     userFacingUrl: "https://www.trafa.se/sidor/statistikportalen/",
     supportedLanguages: ["sv"],
     api: "Trafa",

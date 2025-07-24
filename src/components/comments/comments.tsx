@@ -5,9 +5,10 @@ import { Comment } from "@prisma/client";
 import styles from './comments.module.css'
 import { ChangeEvent, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import Link from "next/link";
 
 export default function Comments({ comments, objectId }: { comments?: (Comment & { author: { id: string, username: string } })[], objectId: string }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["components", "common"]);
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -79,7 +80,7 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
         {comments?.map((comment) => (
           <div key={comment.id}>
             <div className="flex align-items-center gap-50 margin-top-200">
-              <a className={styles.commentAuthor} href={`/@${comment.author.username}`}>{comment.author.username}</a>
+              <Link className={styles.commentAuthor} href={`/@${comment.author.username}`}>{comment.author.username}</Link>
               <span className="font-weight-300" style={{ color: 'gray', fontSize: '.75rem' }} title={new Date(comment.createdAt).toLocaleString()}>
                 {t("components:comments.relative_time", { date: new Date(comment.createdAt) })}
               </span>

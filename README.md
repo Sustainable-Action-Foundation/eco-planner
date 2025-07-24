@@ -39,33 +39,21 @@ We use the function unstable_cache from Next.js, which currently returns cached 
 See image, or refer to [schema.prisma](/prisma/schema.prisma) for the full, up-to-date schema.
 ![Database Schema](/public/images/eco-planner.png "Database Schema")
 
-## E2E Testing 
+## Playwright unit tests
 
+This project uses [Playwright](https://playwright.dev/) for testing the web application. The tests can be run locally using:
+```bash
+# Please follow project setup instructions above first so the tests have the necessary environment variables and database to run against.
 
-1. Create file cypress.env.json and add enviroment variables  
-
-```json
-{
-    "user_name": "",
-    "user_password": "",
-    "meta_roadmap_id": "",
-    "roadmap_id": "",
-    "goal_id": "",
-    "action_id": ""
-}
+# First
+yarn run build
+# Then
+yarn run test:run
 ```
-
-2. Add Aditional enviroment variables in the .env file to support uploading test results to PocketBase
-
+They can also be run via a docker compose file ([compose.testing.yaml](/docker/compose.testing.yaml)) which will run the tests in a docker container with an included db. This is what is used in the CI pipeline. Run the docker compose with:
+```bash
+docker compose -f docker/compose.testing.yaml up
 ```
-POCKETBASE_INSTANCE=''
-POCKETBASE_USER=''
-POCKETBASE_PASSWORD=''
-```
-
-3. Setup and run tests using `yarn cypress open`
-
-4. Run tests headless in a cli using: `yarn run e2e:chrome`
 
 ## Components
 

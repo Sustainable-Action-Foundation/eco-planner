@@ -37,8 +37,6 @@
     "attach_external_resources": "Attach external resources"
   },
   "data_series_input": {
-    "extra_info_data_series": "Extra information about data series",
-    "data_series_info": "When pasting into the table, use semicolons, tabs or newlines to separate the values. This means that you can paste a series of values from Excel or a similar tool.<br /><strong>NOTE: Values must not be separated by commas (\",\").</strong><br />Decimal numbers can use either decimal points or decimal commas.",
     "data_series": "Data series",
     "custom_baseline": "Custom baseline",
     "data_series_tooltip": "Use numeric values separated by semicolons or tabs. Decimal numbers can use dots or commas as decimal separators.",
@@ -46,10 +44,6 @@
     "hide_table": "Minimize table",
     "year": "Year",
     "value": "Value",
-    "add_year": "Add year",
-    "remove_year": "Remove year",
-    "add_year_to_table": "Add new year to table",
-    "remove_year_from_table": "Remove year from table",
     "advanced": "Advanced",
     "data_series_advanced_info": "This field accepts a series of values separated by semicolons or tabs, which means you can paste a series of values from Excel or something similar.<br /><strong>NOTE: Values must not be separated by commas (\",\").</strong><br />Decimal numbers can use either decimal points or decimal commas.<br />The first value represents the year 2020 and the series can continue up to the year 2050 (a total of 31 values).<br />If values are missing for a year, you can leave it blank, for example \";1;;;;5\" can be used to specify the values 1 and 5 for the years 2021 and 2025."
   },
@@ -63,9 +57,6 @@
     "select_goal_to_affect": "Select $t(common:goal_one) to affect",
     "select_goal": "Select $t(common:goal_one)",
     "unnamed_goal": "Unnamed $t(common:goal_one)",
-    "unit_missing": "Unit missing",
-    "data_series": "Data series",
-    "data_series_title": "Use numeric values separated by semicolons or tabs. Decimal numbers can use either dots or commas.",
     "to_year_by_year": "Convert values to year-by-year changes",
     "to_year_by_year_info": "<strong>Note</strong> that there is a small margin of error around the 14th decimal when converting due to \"floating point errors\".",
     "to_absolute": "Convert values to absolute values",
@@ -128,7 +119,8 @@
     "name_label": "Name",
     "name_placeholder": "e.g. SCB",
     "url_label": "URL",
-    "url_placeholder": "https://example.com"
+    "url_placeholder": "https://example.com", 
+    "remove_link_aria_label": "remove link"
   },
   "repeatable_scaling": {
     "specific_value_label": "With what value do you want to scale?",

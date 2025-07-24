@@ -1,0 +1,56 @@
+{
+  "default": {
+    "title": "Eco - planner",
+    "short_title": "Eco - planner",
+    "description": "Ett verktyg som stödjer Sveriges klimatomställning genom lokala handlingsplaner, gemensam åtgärdsdatabas och samarbete kring färdplaner."
+  },
+  "verify_verify": {
+    "description": "Verifiera din e‑postadress"
+  },
+  "password_reset": {
+    "description": "Uppdatera lösenord"
+  },
+  "signup": {
+    "title": "Skapa konto",
+    "description": "Skapa ett konto hos Eco - planner"
+  },
+  "login": {
+    "title": "Logga in",
+    "description": "Logga in till Eco - planner"
+  },
+  "roadmap_edit": {
+    "title": "Redigera färdplan:"
+  },
+  "roadmap_create": {
+    "title": "Skapa färdplan",
+    "description": "Skapa en ny färdplan"
+  },
+  "roadmap_series_edit": {
+    "title": "Redigera färdplansserie:"
+  },
+  "roadmap_series_create": {
+    "title": "Skapa färdplansserie",
+    "description": "Skapa en ny färdplansserie"
+  },
+  "goal_edit": {
+    "title": "Redigera målbana:"
+  },
+  "goal_create": {
+    "title": "Skapa målbana",
+    "description": "Skapa en ny målbana"
+  },
+  "effect_edit": {
+    "title": "Redigera effekt"
+  },
+  "effect_create": {
+    "title": "Skapa effekt",
+    "description": "Skapa en ny effekt"
+  },
+  "action_edit": {
+    "title": "Redigera åtgärd:"
+  },
+  "action_create": {
+    "title": "Skapa åtgärd",
+    "description": "Skapa en ny åtgärd"
+  }
+}

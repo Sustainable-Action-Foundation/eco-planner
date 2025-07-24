@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import styles from "./localesTest.module.css" with {type: "css"};
-import { useTranslation } from "react-i18next";
 
 export function Stats(
   {
@@ -11,8 +9,6 @@ export function Stats(
     keys: string[],
   }
 ) {
-  const { t } = useTranslation();
-
   const [emptyCount, setEmptyCount] = useState(0);
   const [missingCount, setMissingCount] = useState(0);
 
@@ -29,8 +25,8 @@ export function Stats(
     let missingCount = 0;
 
     rows.forEach((row) => {
-      const serverSide: HTMLElement | null = row.querySelector(`p[data-type="server"]`);
-      const clientSide: HTMLElement | null = row.querySelector(`p[data-type="client"]`);
+      const serverSide: HTMLElement | null = row.querySelector(`*[data-type="server"]`);
+      const clientSide: HTMLElement | null = row.querySelector(`*[data-type="client"]`);
 
       // Server side check
       if (serverSide && serverSide.textContent === empty) {
@@ -64,12 +60,12 @@ export function Stats(
   }, [keys, emptyCount, missingCount]);
 
   return (
-    <div className={styles.stats}>
-      <p>{t("test:keys_found", { count: keys.length })}</p>
+    <div>
+      <p>{keys.length} keys found</p>
       &middot;
-      <p>{t("test:empty", { count: emptyCount })}</p>
+      <p>{emptyCount} resolved to empty</p>
       &middot;
-      <p>{t("test:missing", { count: missingCount })}</p>
+      <p>{missingCount} resolved to missing</p>
     </div>
   );
 }

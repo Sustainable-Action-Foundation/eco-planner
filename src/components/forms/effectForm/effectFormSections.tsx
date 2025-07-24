@@ -1,6 +1,6 @@
 'use client';
 
-import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
+import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import { useEffect, useState } from "react";
 import type getOneAction from "@/fetchers/getOneAction.ts";
 import type getOneGoal from "@/fetchers/getOneGoal";
@@ -15,7 +15,7 @@ export function ActionSelector({
   action: Awaited<ReturnType<typeof getOneAction>> | null,
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("forms");
   const [selectedAction, setSelectedAction] = useState<string>(action?.id || "");
   const [selectedRoadmap, setSelectedRoadmap] = useState<string>(action?.roadmapId || "");
 
@@ -74,7 +74,7 @@ export function GoalSelector({
   goal: Awaited<ReturnType<typeof getOneGoal>> | null,
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["forms", "common"]);
   const [selectedGoal, setSelectedGoal] = useState<string>(goal?.id || "");
   const [selectedRoadmap, setSelectedRoadmap] = useState<string>(goal?.roadmapId || "");
 

@@ -7,7 +7,7 @@ import { openModal } from "../modals/modalFunctions";
 import { useTranslation } from "react-i18next";
 
 export default function MetaRoadmapDeleter({ metaRoadmap }: { metaRoadmap: NonNullable<Awaited<ReturnType<typeof getOneMetaRoadmap>>> }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("components");
   const deletionRef = useRef<HTMLDialogElement | null>(null);
   return (
     <>

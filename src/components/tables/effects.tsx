@@ -5,8 +5,8 @@ import { Action, Effect, Goal } from "@prisma/client";
 import Link from "next/link";
 import { TableMenu } from "./tableMenu/tableMenu.tsx";
 import { useTranslation } from "react-i18next";
-import Image from "next/image";
 import styles from "@/components/tables/tables.module.css" with { type: "css" };
+import { IconCaretRightFilled } from "@tabler/icons-react";
 
 interface EffectTableComonProps {
   accessLevel?: AccessLevel,
@@ -27,7 +27,7 @@ export default function EffectTable({
   object,
   accessLevel,
 }: EffectTableComonProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("components");
 
   // If no effects are found, show a message
   if (!object.effects.length) {
@@ -50,8 +50,8 @@ export default function EffectTable({
       {object.effects.map(effect => (
         <li key={`${effect.actionId}_${effect.goalId}`} className="margin-block-75">
           <div className='flex justify-content-space-between align-items-center width-100'>
-            <Image src="/icons/caret-right-gray.svg" alt="" width={24} height={24} className="margin-inline-25 padding-25" />
-            <a
+            <IconCaretRightFilled fill="lightgray" aria-hidden="true" className="margin-inline-25 padding-25" style={{minWidth: '24px'}} />
+            <Link
               href={(object as Action).isSufficiency != undefined ? `/goal/${effect.goalId}` : `/action/${effect.actionId}`}
               className="font-weight-500 color-pureblack text-decoration-none flex-grow-100 inline-block padding-25 smooth">
               <span>{effect.action?.name || effect.goal?.name || effect.goal?.indicatorParameter || t("components:effects_table.effect_missing_name")}</span>
@@ -59,7 +59,7 @@ export default function EffectTable({
               {effect.action?.startYear && effect.action?.endYear ? (
                 <small className="color-gray">{effect.action?.startYear} - {effect.action?.endYear}</small>
               ) : null}
-            </a>
+            </Link>
             <TableMenu
               accessLevel={accessLevel}
               object={effect}

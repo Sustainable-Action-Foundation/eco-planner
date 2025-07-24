@@ -9,13 +9,13 @@ import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 import mathjs from "@/math";
 import { GoalInput, ScaleBy, ScaleMethod, ScalingRecipie, dataSeriesDataFieldNames, isScalingRecipie } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
-import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import DataSeriesInput from "../dataSeriesInput/dataSeriesInput";
 import { getDataSeries } from "../dataSeriesInput/utils";
 import styles from '../forms.module.css';
 import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
+import { IconCircleMinus } from "@tabler/icons-react";
 
 enum DataSeriesType {
   Static = "STATIC",
@@ -53,7 +53,7 @@ export default function GoalForm({
     roadmap: { id: string },
   },
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["forms", "common"]);
 
   const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(!currentGoal?.combinationParents.length ? DataSeriesType.Static : currentGoal.combinationParents.length >= 2 ? DataSeriesType.Combined : DataSeriesType.Inherited)
   const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baselineDataSeries ? BaselineType.Custom : BaselineType.Initial)
@@ -263,9 +263,9 @@ export default function GoalForm({
                       defaultChildArea={value.type == ScaleBy.Area || value.type == ScaleBy.Inhabitants ? value.childArea : undefined}
                       defaultScaleBy={value.type || ScaleBy.Custom}
                     > {/* Multiplicative scaling doesn't use weights */}
-                      <button type="button"
+                      <button type="button" className="grid" aria-label={t("forms:goal.remove_scaling")}
                         onClick={() => setScalingRecipe({ method: scalingRecipie.method, values: scalingRecipie.values.filter((_, i) => i !== index) })}>
-                        <Image src='/icons/circleMinus.svg' alt={t("forms:goal.remove_scaling")} width={24} height={24} />
+                        <IconCircleMinus aria-hidden="true" width={24} height={24}  />
                       </button>
                     </RepeatableScaling>
                   )

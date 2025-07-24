@@ -1,7 +1,7 @@
 'use client'
 
 import { EditUsers, getAccessData, ViewUsers } from "@/components/forms/accessSelector/accessSelector";
-import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
+import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import formSubmitter from "@/functions/formSubmitter";
 import parseCsv, { csvToGoalList } from "@/functions/parseCsv";
 import { LoginData } from "@/lib/session";
@@ -33,7 +33,7 @@ export default function RoadmapForm({
   currentRoadmap?: Roadmap & AccessControlled & { metaRoadmap: MetaRoadmap },
   defaultMetaRoadmap?: string,
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["forms", "common"]);
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()

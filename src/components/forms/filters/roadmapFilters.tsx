@@ -2,7 +2,7 @@
 
 import { RoadmapSortBy } from "@/types";
 import { RoadmapType } from "@prisma/client";
-import Image from "next/image";
+import { IconAdjustmentsHorizontal, IconSearch } from "@tabler/icons-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
 import { useTranslation } from "react-i18next";
@@ -12,7 +12,7 @@ export default function RoadmapFilters() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { t } = useTranslation();
+  const { t } = useTranslation(["components", "common"]);
 
   const [_isPending, startTransition] = useTransition();
 
@@ -47,11 +47,11 @@ export default function RoadmapFilters() {
   }
 
   return <>
-    <menu className="flex gap-100 align-items-flex-end padding-0 margin-0 margin-top-300 margin-bottom-100 ">
+    <menu className="flex gap-100 align-items-flex-end padding-0 margin-0 margin-top-300 margin-bottom-100 flex-wrap-wrap">
       <label className="font-weight-bold container-text">
         {t("components:roadmap_filters.search_roadmaps")}
         <div className="margin-top-25 flex align-items-center gray-90 padding-50 smooth focusable">
-          <Image src='/icons/search.svg' alt="" width={24} height={24} />
+          <IconSearch style={{minWidth: '24px'}} strokeWidth={1.5} aria-hidden="true" />
           <input type="search" className="padding-0 margin-inline-50" defaultValue={searchParams.get('searchFilter') ?? undefined} onChange={(e) => {
             debouncedUpdateStringParam('searchFilter', e.target.value)
           }} />
@@ -60,7 +60,7 @@ export default function RoadmapFilters() {
       <label className="font-weight-bold">
         {t("components:roadmap_filters.sort_by")}
         <select
-          className="font-weight-500 margin-top-25"
+          className="font-weight-500 margin-top-25 block"
           style={{ fontSize: '1rem', minHeight: 'calc(24px + 1rem)' }}
           defaultValue={searchParams.get('sortBy') ?? ""} onChange={(e) => { updateStringParam('sortBy', e.target.value) }}
         >
@@ -75,7 +75,7 @@ export default function RoadmapFilters() {
         <span style={{ lineHeight: '1', }}>{t("components:roadmap_filters.filter")}</span>
         <div className='position-relative grid place-items-center'>
           <input type="checkbox" className="position-absolute width-100 height-100 hidden" />
-          <Image src="/icons/filter.svg" alt="" width="24" height="24" />
+          <IconAdjustmentsHorizontal style={{minWidth: '24px'}} aria-hidden="true" />
         </div>
       </label>
     </menu>
@@ -94,11 +94,11 @@ export default function RoadmapFilters() {
             }
           }} />
           {`${thisType == RoadmapType.NATIONAL ? t("common:scope.national_roadmap") :
-              thisType == RoadmapType.REGIONAL ? t("common:scope.regional_roadmap") :
-                thisType == RoadmapType.MUNICIPAL ? t("common:scope.municipal_roadmap") :
-                  thisType == RoadmapType.LOCAL ? t("common:scope.local_roadmap") :
-                    thisType == RoadmapType.OTHER ? t("common:scope.other_roadmap") :
-                      thisType
+            thisType == RoadmapType.REGIONAL ? t("common:scope.regional_roadmap") :
+              thisType == RoadmapType.MUNICIPAL ? t("common:scope.municipal_roadmap") :
+                thisType == RoadmapType.LOCAL ? t("common:scope.local_roadmap") :
+                  thisType == RoadmapType.OTHER ? t("common:scope.other_roadmap") :
+                    thisType
             }`}
         </label>
       ))}

@@ -2,19 +2,46 @@ import getOneAction from "@/fetchers/getOneAction";
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { AccessControlled, AccessLevel } from "@/types";
 import accessChecker from "@/lib/accessChecker";
-// import { Fragment } from "react";
 import Comments from "@/components/comments/comments";
 import EffectTable from "@/components/tables/effects.tsx";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
+import { buildMetadata } from "@/functions/buildMetadata";
+import { IconEdit } from "@tabler/icons-react";
+
+export async function generateMetadata(props: { params: Promise<{ actionId: string }> }) {
+  const params = await props.params
+  const [t, session, action] = await Promise.all([
+    serveTea("metadata"),
+    getSession(await cookies()),
+    getOneAction(params.actionId)
+  ]);
+
+  if (!session.user?.isLoggedIn) {
+    return buildMetadata({
+      title: t("metadata:login.title"),
+      description: t("metadata:login.title"),
+      og_url: `/action/${params.actionId}`,
+      og_image_url: '/images/og_wind.png'
+    })
+  }
+
+  return buildMetadata({
+    title: action?.name,
+    description: action?.description,
+    og_url: `/action/${params.actionId}`,
+    og_image_url: undefined
+  })
+
+}
 
 export default async function Page(props: { params: Promise<{ actionId: string }> }) {
   const params = await props.params;
-  const [session, action] = await Promise.all([
+  const [t, session, action] = await Promise.all([
+    serveTea("pages"),
     getSession(await cookies()),
     getOneAction(params.actionId)
   ]);
@@ -71,7 +98,7 @@ export default async function Page(props: { params: Promise<{ actionId: string }
                 style={{ width: 'fit-content', height: 'fit-content' }}
               >
                 {t("pages:action.edit_action")}
-                <Image src="/icons/edit.svg" width={24} height={24} alt={t("pages:action.edit_action_alt", { actionName: action.name })} />
+                <IconEdit style={{minWidth: '24px'}} aria-hidden="true" />
               </Link>
               : null}
           </div>

@@ -8,13 +8,41 @@ import Comments from "@/components/comments/comments";
 import { AccessLevel } from "@/types";
 import ThumbnailGraph from "@/components/graphs/mainGraphs/thumbnailGraph";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import Image from "next/image";
 import { DataSeries, Goal } from "@prisma/client";
-import { t } from "@/lib/i18nServer";
+import serveTea from "@/lib/i18nServer";
+import { buildMetadata } from "@/functions/buildMetadata";
+import { IconEdit } from "@tabler/icons-react";
+import Link from "next/link";
+
+export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {
+  const params = await props.params
+  const [t, session, roadmap] = await Promise.all([
+    serveTea("metadata"),
+    getSession(await cookies()),
+    getOneRoadmap(params.roadmapId)
+  ]);
+
+  if (!session.user?.isLoggedIn) {
+    return buildMetadata({
+      title: t("metadata:login.title"),
+      description: t("metadata:login.title"),
+      og_url: `/roadmap/${params.roadmapId}`,
+      og_image_url: '/images/og_wind.png'
+    })
+  }
+
+  return buildMetadata({
+    title: roadmap?.metaRoadmap.name,
+    description: roadmap?.description,
+    og_url: `/roadmap/${params.roadmapId}`,
+    og_image_url: undefined
+  })
+}
 
 export default async function Page(props: { params: Promise<{ roadmapId: string }> }) {
   const params = await props.params;
-  const [session, roadmap] = await Promise.all([
+  const [t, session, roadmap] = await Promise.all([
+    serveTea(["pages", "common"]),
     getSession(await cookies()),
     getOneRoadmap(params.roadmapId)
   ]);
@@ -54,7 +82,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
             {t("common:count.goal", { count: roadmap.goals.length })}
             {"  "}
             {/* TODO: style link to better match surroundings */}
-            <a href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>{t("pages:roadmap.show_series")}</a>
+            <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>{t("pages:roadmap.show_series")}</Link>
           </p>
           <p className="margin-bottom-0">{roadmap.metaRoadmap.description}</p>
           {roadmap.description ? (
@@ -74,14 +102,14 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
 
         {/* Only show the edit link if the user has edit access to the roadmap */}
         {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-          <a
+          <Link
             href={`/roadmap/${roadmap.id}/edit`}
             className="flex align-items-center gap-50 font-weight-500 button transparent round color-pureblack text-decoration-none"
             style={{ height: 'fit-content' }}
           >
             {t("common:edit.roadmap_version")}
-            <Image src="/icons/edit.svg" alt="" width="24" height="24" />
-          </a>
+            <IconEdit style={{minWidth: '24px'}} aria-hidden="true" />
+          </Link>
         }
       </section>
 
@@ -91,9 +119,9 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
           <div className="grid gap-100" style={{ gridTemplateColumns: 'repeat(auto-fit, 300px)' }}>
             {featuredGoals.map((goal, key) =>
               goal && (
-                <a key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none">
+                <Link key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none">
                   <ThumbnailGraph goal={goal} />
-                </a>
+                </Link>
               )
             )}
           </div>

@@ -1,5 +1,4 @@
-'use server';
-
+import "server-only";
 import { userInfoSelector } from "@/fetchers/inclusionSelectors";
 import { getSession, LoginData } from "@/lib/session";
 import { metaRoadmapSorter, roadmapSorter } from "@/lib/sorters";

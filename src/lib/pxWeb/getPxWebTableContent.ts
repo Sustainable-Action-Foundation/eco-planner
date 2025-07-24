@@ -1,5 +1,5 @@
 // Use server in order to circumvent CORS issues
-"use server"
+"use server";
 
 import { ApiTableContent } from "../api/apiTypes.ts";
 import { externalDatasets } from "../api/utility.ts";
@@ -9,7 +9,7 @@ import { PxWebApiV2TableContent } from "./pxWebApiV2Types.ts";
 export default async function getPxWebTableContent(tableId: string, externalDataset: string, selection: { variableCode: string, valueCodes: string[] }[], language: string = 'sv',) {
   // Get the base URL for the external dataset, defaulting to SCB
   const baseUrl = externalDatasets[externalDataset]?.baseUrl ?? externalDatasets.SCB?.baseUrl;
-  const url = new URL(`${baseUrl}/tables/${tableId}/data`);
+  const url = new URL(`./tables/${tableId}/data`, baseUrl);
 
   url.searchParams.append('lang', language);
   url.searchParams.append('outputformat', 'json-px'); // Decide preferred format of the response. Available formats are "csv", "px", "json-px", "json-stat2", "html", "parquet" and "xlsx"

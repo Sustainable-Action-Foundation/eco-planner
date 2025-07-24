@@ -1,0 +1,197 @@
+@supports not (position-anchor: auto) {
+    *.position-anchor {
+        height: 100vh;
+        position: absolute;
+        margin-top: 0 !important;
+        margin-right: 0 !important;
+        margin-bottom: 0 !important;
+        margin-left: 0 !important;
+        padding: 0 !important;
+        inset: 0 !important;
+    }
+
+    .position-anchor>* {
+        height: 100dvh;
+        padding-block: 1rem;
+        padding-inline: .75rem;
+        min-width: 180px;
+        border: 0 !important;
+        border-right: 1px solid var(--gray-90) !important;
+        border-radius: 0;
+    }
+}
+
+.anchor-name {
+    --anchor-name: ;
+    anchor-name: var(--anchor-name);
+}
+
+.position-anchor {
+    --margin: ;
+    --position-anchor: ;
+
+    /*  TODO SIDENAV:
+        Broken fallback values may be explained by a limit on  the length of position options list
+        which must be atleast 5. https://www.w3.org/TR/css-anchor-position-1/#fallback-apply
+        I cannot fint any specs on the implementation on position-try-fallbacks for chrome, try to 
+        find theese. Until then we limit fallbacks to the five deemed most important.
+        An alternative might be to pass the most relevant ones by using props
+    */
+    --position-try-fallbacks: 
+        flip-inline,
+        /* Theese break --center and --direction-up-direction-left
+        flip-block,
+        flip-inline flip-block,
+        */
+        --direction-down-direction-right,
+        --direction-down-direction-left,
+        --direction-up-direction-right,
+        --direction-up-direction-left; /*  This breaks --center */
+        /* --center; */
+
+    position-anchor: var(--position-anchor);
+
+    position: absolute;
+    margin: 0; /* TODO: Look at how we deal with this in fallbacks, looks kinda wonky in sidenav */
+    inset: auto;
+
+    position-try-fallbacks: var(--position-try-fallbacks)
+}
+ 
+.anchor-inline-start {
+    right: anchor(left);
+    margin-inline: var(--margin);
+}
+
+.anchor-inline-center {
+    justify-self: unsafe anchor-center;
+}
+
+.anchor-inline-end {
+    left: anchor(right);
+    margin-inline: var(--margin);
+}
+
+.popover-direction-up {
+    bottom: anchor(bottom);
+}
+
+.popover-direction-vertical {
+    align-self: unsafe anchor-center;
+}
+
+.popover-direction-down {
+    top: anchor(top);
+}
+
+/* 
+    Directional classes behave differently if
+    the anchor-inline = center, as to not cover 
+    the toggle button.
+*/
+
+.anchor-inline-center.popover-direction-up {
+    bottom: anchor(top);
+    margin-block: var(--margin);
+}
+
+.anchor-inline-center.popover-direction-down {
+    top: anchor(bottom);
+    margin-block: var(--margin);
+}
+
+.anchor-inline-center.popover-direction-right {
+    justify-self: initial;
+    left: anchor(left);
+}
+
+.anchor-inline-center.popover-direction-left {
+    justify-self: initial;
+    right: anchor(right);
+}
+
+@position-try --direction-down-direction-right {
+    inset: auto;
+    align-self: initial;
+    justify-self: initial;
+    top: anchor(bottom);
+    left: anchor(left);
+    margin: 0;
+    margin-block: var(--margin);
+}
+
+@position-try --direction-down-direction-left {
+    inset: auto;
+    align-self: initial;
+    justify-self: initial;
+    top: anchor(bottom);
+    right: anchor(right);
+    margin: 0;
+    margin-block: var(--margin);
+}
+
+@position-try --direction-up-direction-right {
+    inset: auto;
+    align-self: initial;
+    justify-self: initial;
+    bottom: anchor(top);
+    left: anchor(left);
+    margin: 0;
+    margin-block: var(--margin);
+    
+}
+
+@position-try --direction-up-direction-left {
+    inset: auto;
+    align-self: initial;
+    justify-self: initial;
+    bottom: anchor(top);
+    right: anchor(right);
+    margin: 0;
+    margin-block: var(--margin);
+}
+
+@position-try --center {
+    inset: 0;
+    margin: auto;
+    transform: initial;
+}
+
+
+/* Indicator styles */
+.popover-indicator {
+    display: none;
+    border-width: .5rem;
+    border-style: solid;
+    --margin: ;
+}
+
+@supports (position-anchor: auto) {
+    .popover-indicator:has(+[popover]:popover-open) {
+        display: block;
+    }
+}
+
+.popover-indicator-top {
+    margin-bottom: calc(var(--margin) - 1rem);
+    position-area: start center;
+    border-color: #292929 transparent transparent transparent;
+}
+
+.popover-indicator-right {
+    margin-left: calc(var(--margin) - 1rem);
+    position-area: center end;
+    border-color: transparent #292929 transparent transparent;
+}
+
+.popover-indicator-bottom {
+    margin-top: calc(var(--margin) - 1rem);
+    position-area: end center;
+    border-color: transparent transparent #292929 transparent;
+}
+
+.popover-indicator-left {
+    margin-right: calc(var(--margin) - 1rem);
+    position-area: center start;
+    border-color: transparent transparent transparent #292929;
+}

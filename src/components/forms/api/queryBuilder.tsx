@@ -11,18 +11,18 @@ import { LocaleContext } from "@/lib/i18nClient.tsx";
 import { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import { TrafaVariable } from "@/lib/trafa/trafaTypes";
 import { Goal } from "@prisma/client";
-import Image from "next/image";
 import { FormEvent, useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
+import { IconChartHistogram, IconSearch, IconTrashXFilled, IconX } from "@tabler/icons-react";
 
 export default function QueryBuilder({
   goal,
 }: {
   goal: Goal,
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("components");
   // Locale has the format language-locale, e.g. "sv-SE" or "en-US"
   // We only need the language part, so we split it and take the first part
   // TODO: Fix typing, use match() instead of casting
@@ -304,9 +304,9 @@ export default function QueryBuilder({
     }
   }
 
-  // TODO: Take a look at this; should it really be an <a> element? Also translate.
+  // TODO: should probably use a pseudo class (::after) instead of a span here.
   function optionalTag(dataSource: string, variableIsOptional: boolean) {
-    if (getDatasetKeysOfApis("PxWeb").includes(dataSource) && variableIsOptional) return <a className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</a>;
+    if (getDatasetKeysOfApis("PxWeb").includes(dataSource) && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
   }
 
   function handleTableListScroll(event: React.UIEvent<HTMLUListElement, UIEvent>) {
@@ -352,7 +352,7 @@ export default function QueryBuilder({
           {// Only display "optional" tags if the data source provides this information
           }
           {variable.label[0].toUpperCase() + variable.label.slice(1)}{optionalTag(dataSource, variable.optional)}
-          {// Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
+          {// TODO: Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
           }
           <select className={`block margin-block-25 ${variable.label}`}
             required={!variable.optional}
@@ -431,25 +431,26 @@ export default function QueryBuilder({
         <>
           <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
             {t("components:query_builder.change_historical_data")}
-            <Image src="/icons/chartAdd.svg" alt="" width={16} height={16} />
+            <IconChartHistogram width={16} height={16} style={{minWidth: '16px'}} aria-hidden="true" />
           </button>
 
           <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={deleteHistoricalData}>
             {t("components:query_builder.remove_historical_data")}
-            <Image src="/icons/delete.svg" alt="" width={16} height={16} />
-          </button>
+            <IconTrashXFilled fill='#CB3C3C' width={16} height={16} style={{minWidth: '16px'}} aria-hidden="true" />
+           </button>
         </>
         :
         <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
           {t("components:query_builder.add_historical_data")}
-          <Image src="/icons/chartAdd.svg" alt="" width={16} height={16} />
+          <IconChartHistogram width={16} height={16} style={{minWidth: '16px'}} aria-hidden="true" />
+
         </button>
       }
 
       <dialog className={`smooth padding-inline-0 ${styles.dialog}`} ref={modalRef} aria-modal>
         <div className="display-flex flex-direction-row-reverse align-items-center justify-content-space-between padding-inline-100">
           <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
-            <Image src="/icons/close.svg" alt="" width={18} height={18} />
+            <IconX strokeWidth={3} width={18} height={18} style={{minWidth: '18px'}} aria-hidden="true" />
           </button>
           <h2 className="margin-0">{t("components:query_builder.add_data_source")}</h2>
         </div>
@@ -487,10 +488,11 @@ export default function QueryBuilder({
               {dataSource ?
                 <>
                   <div className="margin-top-100 margin-bottom-25">
+                    {/* TODO: Label currently affects multiple elements, fix this */}
                     <label className="font-weight-500">
                       {t("components:query_builder.search_for_table")}
                       <div className="focusable gray-90 flex align-items-center margin-top-25 padding-left-50 smooth">
-                        <Image alt="" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" src="/icons/search.svg" />
+                        <IconSearch strokeWidth={1.5} style={{minWidth: '24px'}} aria-hidden="true" />
                         <input name={tableSearchInputName} type="search" className="padding-0 margin-inline-50" onKeyDown={searchOnEnter} style={{ backgroundColor: "transparent" }} />
                         <button type="button" onClick={searchWithButton} className="padding-block-50 padding-inline-100 transparent font-weight-500">{t("components:query_builder.search")}</button>
                       </div>
