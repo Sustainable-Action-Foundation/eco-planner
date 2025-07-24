@@ -8,7 +8,7 @@
 "use client"
 
 import styles from './popovers.module.css' with { type: "css" }
-import React from "react";
+import React, { HTMLProps } from "react";
 
 // TODO: Do i even need a popoverbutton component actually?
 export function PopoverButton({
@@ -17,7 +17,8 @@ export function PopoverButton({
   style,
   children,
   anchorName,
-  popoverTarget
+  popoverTarget,
+  ...props
 }: {
   id?: string,
   className?: string,
@@ -25,6 +26,7 @@ export function PopoverButton({
   children?: React.ReactNode,
   anchorName: string,
   popoverTarget: string
+  props?: HTMLProps<HTMLButtonElement>
 }) {
   return (
     <button
@@ -32,6 +34,7 @@ export function PopoverButton({
       className={`${styles['anchor-name']} ${className}`}
       style={{ '--anchor-name': anchorName, ...style, } as React.CSSProperties}
       popoverTarget={popoverTarget}
+      {...props}
     >
       {children}
     </button>
@@ -104,8 +107,8 @@ export function Popover({
 
   return (
     <>
-      {indicator ? 
-        <div 
+      {indicator ?
+        <div
           className={`${styles['popover-indicator']} ${indicatorClass} ${styles['position-anchor']} position-absolute`}
           style={{
             '--margin': margin,
@@ -113,7 +116,7 @@ export function Popover({
           } as React.CSSProperties}
         >
         </div>
-      : null } 
+        : null}
       <div
         role='dialog'
         id={id}

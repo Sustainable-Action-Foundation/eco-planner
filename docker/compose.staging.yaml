@@ -1,0 +1,70 @@
+name: eco-planner-staging
+
+services:
+  db:
+    image: mariadb:lts
+    restart: always
+    networks:
+      - staging_network
+    volumes:
+      - staging_data:/mariadb
+    environment:
+      - MARIADB_DATABASE=${MARIADB_DATABASE}
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      start_period: 1m
+      start_interval: 5s
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  db_seed:
+    # TODO: Change to pulling a prebuilt image when available
+    image: eco-planner-db-seed:dev
+    pull_policy: build
+    build:
+      context: ..
+      dockerfile: docker/db-seed.Dockerfile
+    restart: no
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - staging_network
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+
+  app:
+    image: ghcr.io/sustainable-action-foundation/eco-planner:dev
+    pull_policy: always
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+      db_seed:
+        condition: service_completed_successfully
+    networks:
+      - default
+      - staging_network
+    ports:
+      - "8081:8081"
+    environment:
+      # Database connection string
+      - DATABASE_URL=${DATABASE_URL}
+      # Iron session cookie encryption password
+      - IRON_SESSION_PASSWORD=${IRON_SESSION_PASSWORD}
+      # Used to connect mailClient to SMTP server
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_USER=${MAIL_USER}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      # Used for links in emails and as canonical url in meta tags
+      - BASE_URL=${BASE_URL}
+
+networks:
+  staging_network:
+    internal: true
+
+volumes:
+  staging_data:
+    driver: local

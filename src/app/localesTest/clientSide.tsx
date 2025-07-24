@@ -15,30 +15,27 @@ export function ClientSideT({ i18nKey, options, ...props }: { i18nKey: string, o
   // TODO: Should Link: <Link href="#" /> ? 
   if (value.includes("<") && value.includes(">")) {
     return (
-      <p {...props}>
-        <Trans
-          i18nKey={i18nKey}
-          tOptions={options}
-          components={{
-            a: <a href="#" />,
-            Link: <a href="#" />,
-            p: <p />,
-            span: <span />,
-            div: <div />,
-            small: <small />,
-            strong: <strong />,
-            italic: <i />,
-            i: <i />,
-            br: <br />,
-            kbd: <kbd />,
-            code: <code />,
-          }}
-        />
-      </p>
+      <Trans
+        i18nKey={i18nKey}
+        tOptions={options}
+        components={{
+          a: <a href="#" />,
+          Link: <a href="#" />,
+          p: <p />,
+          span: <span />,
+          div: <div />,
+          small: <small />,
+          strong: <strong />,
+          italic: <i />,
+          i: <i />,
+          br: <br />,
+          kbd: <kbd />,
+          code: <code />,
+        }}
+        {...props}
+      />
     );
   }
 
-  return (
-    <p {...props}>{value}</p>
-  );
+  return value;
 }

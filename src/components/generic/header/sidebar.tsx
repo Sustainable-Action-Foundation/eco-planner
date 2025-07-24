@@ -1,5 +1,4 @@
-"use server";
-
+import "server-only";
 import styles from './header.module.css' with { type: "css" }
 import LogoutButton from '@/components/buttons/logoutButton'
 import { getSession } from '@/lib/session'
@@ -24,7 +23,7 @@ export default async function Sidebar() {
       <header>
         <label className='inline-grid round position-relative' aria-label={t("components:sidebar.toggle_menu_alt")}>
           <input type="checkbox" className={`${styles['sidebar-toggle']} position-absolute opacity-0`} defaultChecked />
-          <IconMenu2 aria-hidden="true" />  
+          <IconMenu2 aria-hidden="true" />
         </label>
       </header>
 
@@ -117,12 +116,13 @@ export default async function Sidebar() {
             anchorName='--select-language-popover-button'
             popoverTarget='select-language-popover'
             className='transparent rounded'
+            data-testid="language-switcher-dialog-button"
           >
             <IconWorld aria-hidden="true" />
             {t("components:sidebar.language")}
           </PopoverButton>
-          {/* TODO: Update margins of the title/close section in all popovers once firefox supports anchor positions */} 
-          <Popover  
+          {/* TODO: Update margins of the title/close section in all popovers once firefox supports anchor positions */}
+          <Popover
             id='select-language-popover'
             popover='auto'
             positionAnchor='--select-language-popover-button'
@@ -171,19 +171,19 @@ export default async function Sidebar() {
             </fieldset>
           </Popover>
         </div>
-        <div className="padding-top-100 margin-top-100 font-size-smaller" style={{ borderTop: "1px solid silver"}}>
+        <div className="padding-top-100 margin-top-100 font-size-smaller" style={{ borderTop: "1px solid silver" }}>
           { /*
             Logout/login button padding is given in css file,
             we overwrite this as the icon for theese buttons is on the right 
             instead of on the left as is the case with other menu items
           */ }
           {user?.isLoggedIn ?
-            <LogoutButton className='justify-content-flex-end transparent rounded' style={{paddingRight: '.5rem'}}>
+            <LogoutButton className='justify-content-flex-end transparent rounded' style={{ paddingRight: '.5rem' }}>
               <div className="flex-grow-100 text-align-left">{t("common:tsx.logout")}</div>
               <IconLogout2 aria-hidden="true" />
             </LogoutButton>
             :
-            <Link href="/login" className="justify-content-flex-end color-pureblack rounded" style={{paddingRight: '.5rem'}}>
+            <Link href="/login" className="justify-content-flex-end color-pureblack rounded" style={{ paddingRight: '.5rem' }}>
               <div className="flex-grow-100 text-align-left">{t("common:tsx.login")}</div>
               <IconLogin2 aria-hidden='true' />
             </Link>

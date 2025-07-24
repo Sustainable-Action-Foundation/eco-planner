@@ -1,5 +1,4 @@
-"use server";
-
+import "server-only";
 import serveTea from "@/lib/i18nServer";
 import { TOptions } from "i18next";
 import { reporter } from "./commonLogic";
@@ -9,7 +8,5 @@ export async function ServerSideT({ i18nKey, options, ...props }: { i18nKey: str
   const t = await serveTea(allNamespaces);
   const value = reporter(i18nKey, t(i18nKey, options));
 
-  return (
-    <p {...props}>{value}</p>
-  );
+  return value;
 }

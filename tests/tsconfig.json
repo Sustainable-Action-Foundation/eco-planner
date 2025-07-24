@@ -1,9 +1,17 @@
 {
   "compilerOptions": {
-    "noEmit": true,
     "strict": true,
     "module": "Preserve",
     "target": "ES2024",
     "baseUrl": ".",
-  }
+    "outDir": "./compiled",
+    "allowImportingTsExtensions": false,
+  },
+  "exclude": [
+    "./*.ts"
+  ],
+  "include": [
+    "./**/*.ts",
+    "./i18nTestVariables.ts"
+  ]
 }

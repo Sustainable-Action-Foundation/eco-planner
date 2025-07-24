@@ -1,5 +1,4 @@
-"use server";
-
+import "server-only";
 import serveTea from "@/lib/i18nServer";
 import VerifyButton from "@/components/forms/verify/verifyButton";
 import { buildMetadata } from "@/functions/buildMetadata";

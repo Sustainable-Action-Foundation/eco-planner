@@ -1,5 +1,4 @@
-"use server";
-
+import "server-only";
 import VerifyForm from "@/components/forms/verify/verifyForm.tsx";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";

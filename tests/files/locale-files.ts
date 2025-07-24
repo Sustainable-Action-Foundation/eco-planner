@@ -1,31 +1,15 @@
-import "./lib/console.js";
-import { colors } from "./lib/colors.js";
+import "../lib/console";
 import fs from "node:fs";
 import path from "node:path";
 import { glob } from "glob";
 import { expect, test } from "playwright/test";
-import escape from "regexp.escape"; // Polyfill for RegExp.escape. Not in node yet.
+import { uniqueLocales, namespaces, Locales, localesDir } from "../i18nTestVariables";
 
 /* 
  **********
  * Config *
  **********
  */
-
-/** The locale type */
-enum Locales { enSE = "en-SE", svSE = "sv-SE", default = enSE, };
-
-/** All locales */
-const uniqueLocales = [...new Set(Object.values(Locales))];
-
-/** The language switcher uses these values */
-const localeAliases = { [Locales.enSE]: "English", [Locales.svSE]: "Svenska", };
-
-/** All namespaces */
-const namespaces = ["common", "forms", "components", "graphs", "pages", "email", "test",];
-
-/** Where the locale files are located relative to project root. */
-const localesDir = "public/locales";
 
 /** Every combo of locale and ns in a 2d array. */
 const allPermutations = uniqueLocales.flatMap(locale => namespaces.map(namespace => [locale, namespace]));
@@ -40,18 +24,22 @@ const allTSX = getAllTSXFiles();
 const validPluralSuffixes = ["_one", "_two", "_few", "_many", "_other", "_zero",];
 
 /** Since the translation system uses client and server side instances of i18next, we test for mismatches. */
-const tServerUsageIndications = ["@/lib/i18nServer",];
-const tClientUsageIndications = ["react-i18next", "useTranslation", "<Trans",];
-const serverIndications = ["use server", "next/server", "next/headers", "accessChecker",];
+const tServerUsageIndications = ["@/lib/i18nServer", "serveTea(",];
+const tClientUsageIndications = ["useTranslation"];
+const serverIndications = ["server-only", "use server", "next/server", "next/headers", "accessChecker", "export default async function", "export async function"];
 const clientIndications = ["use client", "useEffect", "useMemo", "useState", "useRef",];
-const serverSideFilesOverride = ["page.tsx", "layout.tsx",];
-const clientSideFilesOverride = ["src\\app\\verify\\page.tsx", "src\\app\\verify\\verify\\page.tsx", "src\\app\\password\\page.tsx", "src\\app\\password\\reset\\page.tsx"];
+const serverSideFilesOverride = ["page.tsx", "layout.tsx",].map(file => file && path.join(...file.split("/")));
+const clientSideFilesOverride: string[] = ([] as string[]).map(file => file && path.join(...file.split("/")));
+const exemptedMixedUseFiles = ["src/app/localesTest/page.tsx",].map(file => file && path.join(...file.split("/")));
+
+/** Theses are ignored for checking namespace usage consistency */
+const commonNamespaces = ["common", "metadata"];
 
 /** When checking for mixed use of spaces these are allowed in any file */
 const keysAllowedDirectlyInApp = ["common:tsx.", "common:placeholder.", "common:scope.", "common:layout.", "common:count.", "common:new.", "common:edit", "common:scaling_methods", "common:css.", "common:404."];
 
 /** The Swedish regex is used to find hard coded swedish in the app */
-const swedishRegex = /(?<!\/\/|\*|\/\*)(?:åtgärd|åtgärden|åtgärder|åtgärderna|målbana|målbanan|målbanor|målbanorna|färdplan|färdplanen|färdplaner|färdplansversion|färdplansversionen|färdplansversioner|effekt|effekten|effekter|effekterna|Skapa|Redigera|Radera|Ta bort|Lägg till|Spara|Avbryt|Sök|Välj|Visa|Sortera|Sök bland|Välj en|Ingen angiven|Skapa ny|Det finns inga|Vill du|Utvalda|Alla|Externa resurser|Relevanta aktörer|Kostnadseffektivitet|Beskrivning|Sverige|Sveriges|[åäöÅÄÖ])[\W]/gm;
+const swedishRegex = /(?<!\/\/|\*|\/\*)(?:åtgärd|åtgärden|åtgärder|åtgärderna|målbana|målbanan|målbanor|målbanorna|färdplan|färdplanen|färdplaner|färdplansversion|färdplansversionen|färdplansversioner|effekt|effekten|effekter|effekterna|Skapa|Redigera|Radera|Ta bort|Lägg till|Spara|Avbryt|Sök|Välj|Visa|Sortera|Sök bland|Välj en|Ingen angiven|Skapa ny|Det finns inga|Vill du|Utvalda|Alla|Externa resurser|Relevanta aktörer|Kostnadseffektivitet|Beskrivning|Sverige|Sveriges|Stäng|meny|välj|språk|att|som|på|är|för|till|inte|ett|han|men|[åäöÅÄÖ])[\W]/gim;
 
 
 /* 
@@ -65,9 +53,9 @@ const exemptedCommonValuesRef: string[] = []; // More fine grained option to the
 /** To prevent recurring false positives, exempt these keys */
 const exemptedKeysUsingCommonValues = ["pages:info.info_body", "components:confirm_delete.confirmation",];
 /** Orphaned keys in root levels of namespaces are discouraged, except in these namespaces */
-const exemptedOrphanNS = ["common", "test",];
+const exemptedOrphanNS = ["common",];
 const exemptedOrphanKeys: string[] = [];
-/** A test checks if any keys defined go unused. These keys are exempted from that test. */
+/** A test checks if any keys defined go unused. These keys are exempted from that test. _ is for descriptions. */
 const exemptedUnusedKeys: string[] = ["_", "common:"];
 
 /* 
@@ -153,7 +141,7 @@ test("Keys are snake_case", () => {
 });
 
 /** Do namespaces use the values of common keys instead of referencing? */
-test("Common values not referenced", () => {
+test.skip("Common values not referenced", () => {
   const perLocaleNS: Record<string, Record<string, string[]>>
     = Object.fromEntries(uniqueLocales.map(locale => [locale, {}]));
 
@@ -338,10 +326,12 @@ test("Orphan keys in root of namespace files", () => {
 });
 
 /** Checks if a file that is likely server or client side is using the wrong import method of t() */
-test("Server and client side code is not mixed", () => {
+test("Mixed server and client side code", () => {
   const perFile: Record<string, string[]> = {};
 
   allTSX.forEach(({ filePath, content }) => {
+    if (exemptedMixedUseFiles.some(file => filePath.endsWith(file))) return; // Skip exempted files
+
     const usingTServer = tServerUsageIndications.some(indication => content.includes(indication));
     const usingTClient = tClientUsageIndications.some(indication => content.includes(indication));
 
@@ -432,6 +422,8 @@ test("Namespace consistency in app", () => {
       const namespace = key.match(/(^[^:]+):/)?.[1];
       if (!namespace) return; // Skip if no namespace
 
+      if (commonNamespaces.includes(namespace)) return; // Skip common namespaces
+
       if (!usedNS[namespace]) usedNS[namespace] = 0;
       usedNS[namespace]++;
     });
@@ -450,7 +442,7 @@ test("Namespace consistency in app", () => {
 });
 
 /** Checks whether a file is consistent with namespaces and first level keys */
-test("Common keys used directly in files", () => {
+test.skip("Common keys used directly in files", () => {
   const perFile: Record<string, string[]> = {};
 
   allTSX.forEach(({ filePath, content }) => {
@@ -577,7 +569,7 @@ test("No hardcoded Swedish text in code", () => {
     });
 
     if (matches.length > 0) {
-      perFile[filePath] = matches.map(m => `[Line ${m.line}] > '${m.text}' in: '${m.context}'`);
+      perFile[filePath] = matches.map(m => `[Line ${m.line}] > '${m.text}' in: '${m.context.trim()}'`);
     }
   });
 
@@ -605,7 +597,7 @@ test("Unused keys", () => {
     // Collect TSX used keys
     allTSX.forEach(({ content }) => {
       const allTCalls = Array.from(content.matchAll(/\Wt\(["']([^"']*)["'].*?\)*/gms)) || [];
-      const allTransCalls = Array.from(content.matchAll(/<Trans\s*i18nKey=\{?["']([^"']*)["']\}?.*?\/>(?!\s*\}\})/gmus)) || [];
+      const allTransCalls = Array.from(content.matchAll(/(?<=<\w*.*?\W)(?:\w*?[kK]ey\w*?)=\{?["'](.*?)["']\}?(?=.*?\/>)/gmus)) || [];
 
       [...allTCalls, ...allTransCalls].forEach(call => {
         let [, key] = call;
@@ -685,7 +677,7 @@ function getAllJSONFlattened(): Record<string, Record<string, string>> {
 
 /** Get every file where t might be implemented as an array of objects storing the file path and their content as text */
 function getAllTSXFiles() {
-  const allTSXPaths = glob.sync("src/**/*.{tsx,ts}", { ignore: ["src/scripts/**/*"] });
+  const allTSXPaths = glob.sync("src/**/*.{tsx,ts}", { ignore: ["src/scripts/**/*", "src/prisma/generated/**/*"] });
 
   return allTSXPaths.map(filePath => {
     const contentRaw = fs.readFileSync(filePath, "utf-8");

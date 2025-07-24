@@ -1,5 +1,5 @@
 // Use server in order to circumvent CORS issues
-"use server"
+"use server";
 
 import { ApiTableContent } from "../api/apiTypes.ts";
 import { externalDatasets } from "../api/utility.ts";

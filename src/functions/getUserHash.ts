@@ -1,5 +1,4 @@
-'use server';
-
+import "server-only";
 import prisma from '@/prismaClient';
 import crypto from 'crypto';
 

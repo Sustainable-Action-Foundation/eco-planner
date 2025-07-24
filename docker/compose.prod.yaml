@@ -1,7 +1,7 @@
-name: transition-planner
+name: eco-planner-production
 
 services:
-  prod:
+  app:
     image: ghcr.io/sustainable-action-foundation/eco-planner:edge
     pull_policy: always
     restart: always
@@ -20,5 +20,3 @@ services:
       - MAIL_PASSWORD=${MAIL_PASSWORD:?error}
       # Used for links in emails and as canonical url in meta tags
       - BASE_URL=${BASE_URL}
-    # Start the server
-    command: sh -c 'HOSTNAME="0.0.0.0" node server.js'

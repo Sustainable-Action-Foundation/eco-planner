@@ -1,4 +1,4 @@
-"use server"
+"use server";
 
 import { externalDatasets } from "../api/utility";
 import { StructureItem, TrafaDataResponse } from "./trafaTypes";

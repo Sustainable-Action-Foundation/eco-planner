@@ -1,0 +1,6 @@
+{
+  "warnOnFail": [
+    "No hardcoded Swedish text in code",
+    "Unused keys"
+  ]
+}
