@@ -1,4 +1,5 @@
-import { evaluateRecipe, parseRecipe, RecipeError, recipeFromUnknown, unsafeIsRawRecipe } from "@/functions/parseRecipe";
+import { evaluateRecipe, parseRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
+import { RecipeError } from "@/functions/recipe-parser/types";
 import accessChecker from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
@@ -77,13 +78,15 @@ export async function POST(request: NextRequest) {
       throw new Error(ClientError.AccessDenied)
     }
 
-    let parsedRecipe = parseRecipe(recipeFromUnknown(goal.recipeUsed?.recipe));
+    let parsedRecipe = await parseRecipe(recipeFromUnknown(goal.recipeUsed?.recipe));
 
     // Try to update goal
-    const recalculatedData = await evaluateRecipe(parsedRecipe);
+    const warnings: string[] = [];
+    const recalculatedData = await evaluateRecipe(parsedRecipe, warnings);
     const dataSeries: Partial<DataSeriesDataFields> = {};
     for (const [key, value] of Object.entries(recalculatedData)) {
-      dataSeries[("val" + key) as keyof DataSeriesDataFields] = value;
+      if (key === "unit") continue; // Skip unit, it's not a data series field
+      dataSeries[("val" + key) as keyof DataSeriesDataFields] = value as number | null;
     }
 
     const updatedGoal = await prisma.goal.update({
