@@ -15,9 +15,13 @@ export default function TextEditorMenu({
 
   const [focusedMenubarItem, setFocusedMenubarItem] = useState<number | null>(null)
   const [fontSizeMenuOpen, setFontSizeMenuOpen] = useState<boolean>(false)
+  const [focusedFontSizeMenuItem, setFocusedFontSizeMenuItem] = useState<number | null>(null)
 
   const menubarRef = useRef<HTMLUListElement | null>(null)
   const menuItemsRef = useRef<NodeListOf<HTMLElement> | null>(null);
+
+  const fontSizeMenuRef = useRef<HTMLUListElement | null>(null)
+  const fontSizeMenuItemsRef = useRef<NodeListOf<HTMLElement> | null>(null);
 
   const setLink = useCallback(() => {
     const previousUrl = editor.getAttributes('link').href
@@ -56,6 +60,13 @@ export default function TextEditorMenu({
         "[role='menubar'] > li > [role='menuitem'], [role='menubar'] > li > [role='menuitemcheckbox'], [role='menubar'] > li > [role='menuitemradio']"
       ) as NodeListOf<HTMLElement>;;
     }
+
+    if (fontSizeMenuRef.current) {
+      fontSizeMenuItemsRef.current = fontSizeMenuRef.current.querySelectorAll(
+        "li > [role='menuitem'], li > [role='menuitemcheckbox'], li > [role='menuitemradio']"
+      ) as NodeListOf<HTMLElement>;;
+    }
+
   }, []);
 
   useEffect(() => {
@@ -70,7 +81,7 @@ export default function TextEditorMenu({
     }
   }, [focusedMenubarItem]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLUListElement>) => {
+  const handleKeyDownMenuBar = (e: React.KeyboardEvent<HTMLUListElement>) => {
     if (!menuItemsRef.current) return;
 
     if (e.key === 'ArrowRight') {
@@ -87,11 +98,75 @@ export default function TextEditorMenu({
       } else {
         setFocusedMenubarItem(menuItemsRef.current.length - 1)
       }
-    } 
+    }
+
+    if (e.key === 'Home') {
+      e.preventDefault()
+      setFocusedMenubarItem(0);
+    }
+
+    if (e.key === 'End') {
+      e.preventDefault()
+      setFocusedMenubarItem(menuItemsRef.current.length - 1)
+    }
 
     if (e.key === 'Escape') {
       editor.commands.focus()
     }
+  }
+
+  useEffect(() => {
+    if (!fontSizeMenuItemsRef.current) return
+
+    if (focusedFontSizeMenuItem !== null) {
+      const target = fontSizeMenuItemsRef.current[focusedFontSizeMenuItem] as HTMLElement | undefined;
+
+      if (target) {
+        target.focus();
+      }
+    }
+  }, [focusedFontSizeMenuItem]);
+
+  const handleKeyDownFontSizeMenu = (e: React.KeyboardEvent<HTMLSpanElement>) => {
+    if (!fontSizeMenuItemsRef.current) return;
+
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (!fontSizeMenuOpen) {
+        setFontSizeMenuOpen(true);
+        setFocusedFontSizeMenuItem(0);
+      } else {
+        setFontSizeMenuOpen(false);
+        setFocusedFontSizeMenuItem(null);
+      }
+    }
+
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault()
+
+      if (!fontSizeMenuOpen) {
+        setFontSizeMenuOpen(true)
+      }
+
+      setFocusedFontSizeMenuItem(0)
+    }
+
+    if (e.key == 'Escape') {
+      e.preventDefault()
+
+      if (fontSizeMenuOpen) {
+        e.stopPropagation(); 
+        fontSizeMenuRef.current?.focus()
+        setFontSizeMenuOpen(false)
+        setFocusedFontSizeMenuItem(null)
+      }
+    }
+
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      setFontSizeMenuOpen(false) 
+      setFocusedFontSizeMenuItem(null)
+    }
+
   }
 
   if (!editor) {
@@ -101,7 +176,7 @@ export default function TextEditorMenu({
   return (
     <div className="button-group margin-0" style={{ backgroundColor: 'var(--gray-95)', padding: '2px', borderRadius: '.25rem .25rem 0 0', borderBottom: '1px solid var(--gray)' }}>
       <ul
-        onKeyDown={handleKeyDown}
+        onKeyDown={handleKeyDownMenuBar}
         ref={menubarRef}
         role='menubar'
         className='margin-0 padding-0'
@@ -153,102 +228,80 @@ export default function TextEditorMenu({
             />
           </span>
         </li>
-        <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)', position: 'relative', userSelect: 'none'}}>
-          <span 
+        <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)', position: 'relative', userSelect: 'none' }}>
+          <span
             onClick={() => setFontSizeMenuOpen(!fontSizeMenuOpen)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setFontSizeMenuOpen(!fontSizeMenuOpen);
-              }
-              if (e.key == 'Escape') {
-                e.preventDefault()
-                if (fontSizeMenuOpen) {
-                  setFontSizeMenuOpen(false)
-                }
-              }
-            }}
+            onKeyDown={ handleKeyDownFontSizeMenu}
             tabIndex={-1}
             role='menuitem'
             aria-haspopup='menu'
             aria-expanded={fontSizeMenuOpen}
             aria-label='Textstorlek'
-            style={{width: '100px', display: 'flex'}}
+            style={{ width: '100px', display: 'flex' }}
             className='align-items-center justify-content-space-between'
           >
-              {!editor.getAttributes('textStyle').fontSize ? 
-                'Normal text'
+            {!editor.getAttributes('textStyle').fontSize ?
+              'Normal text'
               : editor.getAttributes('textStyle').fontSize == '1.25rem' ?
                 'Stor text'
-              : editor.getAttributes('textStyle').fontSize == '0.75rem' ?
-                'Liten text'
-              : ''
-              }  
+                : editor.getAttributes('textStyle').fontSize == '0.75rem' ?
+                  'Liten text'
+                  : ''
+            }
             <IconChevronDown width={16} height={16} aria-hidden="true" />
           </span>
-          <ul 
+          <ul
             // TODO: See if we need to set aria-owns here somewhere
-            /* 
-              TODO: Keyboard controls for this menu:
-              Enter -> If not checked, checks item and closes menu
-              Space -> If not checked, checks item
-              Escape -> Closes menu, moves focus to element which controls it
-              Left arrow -> Closes menu, moves focus to previous element in menubar
-              Right arrow -> Closes menu, moves focus to next element in menubar
-              Down arrow -> Open menu and move focus to first element, if menu is open move focus down
-              Up arrow -> Open menu and move focus to (last or first?) element, if menu is open move focus down
-              Home -> Moves focus to first element
-              End -> Moves focus to last element
-            */
+            ref={fontSizeMenuRef}
             aria-label='Font size'
-            role='menu' 
-            className='margin-0 padding-0 gray-95 smooth' 
-            style={{padding: '2px', position: 'absolute', minWidth: '100%', top: 'calc(100% + 5px)', left: '0', zIndex: '1', listStyle: 'none', display: `${fontSizeMenuOpen ? 'block' : 'none'}`}}>
-            <li role='presentation' style={{borderBottom: '1px solid var(--gray)', paddingBottom: '2px'}}>
+            role='menu'
+            className='margin-0 padding-0 gray-95 smooth'
+            style={{ padding: '2px', position: 'absolute', minWidth: '100%', top: 'calc(100% + 5px)', left: '0', zIndex: '1', listStyle: 'none', display: `${fontSizeMenuOpen ? 'block' : 'none'}` }}>
+            <li role='presentation' style={{ borderBottom: '1px solid var(--gray)', paddingBottom: '2px' }}>
               <div
-              // TODO: Selecting using onclick closes menu, additionally pressing outside the menu also closes it. 
-              /* 
-                TODO: Keyboard controls for theese menuitems:
-                Enter -> If not checked, checks item and closes menu
-                Space -> If not checked, checks item
-                Escape -> Closes menu, moves focus to element which controls it
-                Left arrow -> Closes menu, moves focus to previous element in menubar
-                Right arrow -> Closes menu, moves focus to next element in menubar
-                Home -> Moves focus to first element
-                End -> Moves focus to last element
-              */
+                // TODO: Selecting using onclick closes menu, additionally pressing outside the menu also closes it. 
+                /* 
+                  TODO: Keyboard controls for theese menuitems:
+                  Enter -> If not checked, checks item and closes menu
+                  Space -> If not checked, checks item
+                  Escape -> Closes menu, moves focus to element which controls it
+                  Left arrow -> Closes menu, moves focus to previous element in menubar
+                  Right arrow -> Closes menu, moves focus to next element in menubar
+                  Home -> Moves focus to first element
+                  End -> Moves focus to last element
+                */
                 onClick={() => editor.chain().focus().setFontSize('1.25rem').run()}
-                className='smooth padding-50 font-size-smaller' 
-                style={{whiteSpace: 'nowrap'}} 
-                role='menuitemradio' 
-                aria-checked={editor.getAttributes('textStyle').fontSize === '1.25rem'} 
+                className='smooth padding-50 font-size-smaller'
+                style={{ whiteSpace: 'nowrap' }}
+                role='menuitemradio'
+                aria-checked={editor.getAttributes('textStyle').fontSize === '1.25rem'}
                 tabIndex={-1}>
-                  Stor text
-                </div>              
+                Stor text
+              </div>
             </li>
-            <li role='presentation' style={{borderBottom: '1px solid var(--gray)', paddingBlock: '2px'}}>
-              <div 
+            <li role='presentation' style={{ borderBottom: '1px solid var(--gray)', paddingBlock: '2px' }}>
+              <div
                 onClick={() => editor.chain().focus().unsetFontSize().run()}
-                className='smooth padding-50 font-size-smaller' 
-                style={{whiteSpace: 'nowrap'}} 
-                role='menuitemradio' 
+                className='smooth padding-50 font-size-smaller'
+                style={{ whiteSpace: 'nowrap' }}
+                role='menuitemradio'
                 aria-checked={!editor.getAttributes('textStyle').fontSize}
                 tabIndex={-1}
               >
-                  Normal text
+                Normal text
               </div>
             </li>
-            <li role='presentation' style={{paddingTop: '2px'}}>
-              <div 
+            <li role='presentation' style={{ paddingTop: '2px' }}>
+              <div
                 onClick={() => editor.chain().focus().setFontSize('0.75rem').run()}
-                className='smooth padding-50 font-size-smaller' 
-                style={{whiteSpace: 'nowrap'}} 
-                role='menuitemradio' 
-                aria-checked={editor.getAttributes('textStyle').fontSize === '0.75rem'} 
+                className='smooth padding-50 font-size-smaller'
+                style={{ whiteSpace: 'nowrap' }}
+                role='menuitemradio'
+                aria-checked={editor.getAttributes('textStyle').fontSize === '0.75rem'}
                 tabIndex={-1}
-                >
-                  Liten text
-                </div>
+              >
+                Liten text
+              </div>
             </li>
           </ul>
         </li>
@@ -443,7 +496,7 @@ export default function TextEditorMenu({
           >
             <IconListNumbers width={16} height={16} className="grid" aria-hidden='true' />
           </span>
-        </li> 
+        </li>
       </ul>
     </div>
   )
