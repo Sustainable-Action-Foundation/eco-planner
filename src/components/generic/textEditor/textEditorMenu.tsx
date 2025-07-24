@@ -1,11 +1,12 @@
-'use client'
+'use client';
 
 // TODO: i18n
 // TODO: Tooltip
 
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconChevronDown } from "@tabler/icons-react"
-import { Editor } from "@tiptap/core"
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconChevronDown } from "@tabler/icons-react";
+import { Editor } from "@tiptap/core";
+import { allowedProtocols } from './textEditor';
 
 export default function TextEditorMenu({
   editor
@@ -13,65 +14,73 @@ export default function TextEditorMenu({
   editor: Editor
 }) {
 
-  const [focusedMenubarItem, setFocusedMenubarItem] = useState<number | null>(null)
-  const [fontSizeMenuOpen, setFontSizeMenuOpen] = useState<boolean>(false)
-  const [focusedFontSizeMenuItem, setFocusedFontSizeMenuItem] = useState<number | null>(null)
+  const [focusedMenubarItem, setFocusedMenubarItem] = useState<number | null>(null);
+  const [fontSizeMenuOpen, setFontSizeMenuOpen] = useState<boolean>(false);
+  const [focusedFontSizeMenuItem, setFocusedFontSizeMenuItem] = useState<number | null>(null);
 
-  const menubarRef = useRef<HTMLUListElement | null>(null)
+  const menubarRef = useRef<HTMLUListElement | null>(null);
   const menuItemsRef = useRef<NodeListOf<HTMLElement> | null>(null);
 
   const fontSizeMenuButtonRef = useRef<HTMLSpanElement>(null);
-  const fontSizeMenuRef = useRef<HTMLUListElement | null>(null)
+  const fontSizeMenuRef = useRef<HTMLUListElement | null>(null);
   const fontSizeMenuItemsRef = useRef<NodeListOf<HTMLElement> | null>(null);
 
   const setLink = useCallback(() => {
-    const previousUrl = editor.getAttributes('link').href
-    const url = window.prompt('URL', previousUrl)
+    const previousUrl = editor.getAttributes('link').href;
+    const url = window.prompt('URL', previousUrl);
 
     // cancelled
     if (url === null) {
-      return
+      return;
     }
 
     // empty
     if (url === '') {
       editor.chain().focus().extendMarkRange('link').unsetLink()
-        .run()
+        .run();
 
-      return
+      return;
     }
 
     // update link
-    try {
-      let properUrl = url.split(':').pop()
-      if (!properUrl?.startsWith('//')) {
-        properUrl = '//' + properUrl
-      }
-
-      editor.chain().focus().extendMarkRange('link').setLink({ href: properUrl })
-        .run()
-    } catch (e: any) {
-      alert(e.message)
+    let parsedUrl: URL | null = URL.parse(url);
+    // If parsing fails, try to prepend the default protocol
+    if (!parsedUrl) {
+      parsedUrl = URL.parse(`https://${url}`);
     }
+    // If parsing still fails, return
+    if (!parsedUrl) {
+      // TODO: i18n
+      alert('Failed to parse URL.');
+      return;
+    }
+
+    if (!allowedProtocols.includes(parsedUrl.protocol.replace(':', ''))) {
+      // TODO: i18n
+      alert(`Protocol "${parsedUrl.protocol.replace(':', '')}" is not allowed. Allowed protocols are: ${allowedProtocols.join(', ')}`);
+    }
+
+    editor.chain().focus().extendMarkRange('link').setLink({ href: parsedUrl.href })
+      .run();
   }, [editor])
 
   useEffect(() => {
     if (menubarRef.current) {
       menuItemsRef.current = menubarRef.current.querySelectorAll(
         "[role='menubar'] > li > [role='menuitem'], [role='menubar'] > li > [role='menuitemcheckbox'], [role='menubar'] > li > [role='menuitemradio']"
-      ) as NodeListOf<HTMLElement>;;
+      ) as NodeListOf<HTMLElement>;
     }
 
     if (fontSizeMenuRef.current) {
       fontSizeMenuItemsRef.current = fontSizeMenuRef.current.querySelectorAll(
         "li > [role='menuitem'], li > [role='menuitemcheckbox'], li > [role='menuitemradio']"
-      ) as NodeListOf<HTMLElement>;;
+      ) as NodeListOf<HTMLElement>;
     }
 
   }, []);
 
   useEffect(() => {
-    if (!menuItemsRef.current) return
+    if (!menuItemsRef.current) return;
 
     if (focusedMenubarItem !== null) {
       const target = menuItemsRef.current[focusedMenubarItem] as HTMLElement | undefined;
@@ -82,9 +91,9 @@ export default function TextEditorMenu({
     }
   }, [focusedMenubarItem]);
 
-    useEffect(() => {
-    const handleClickOutside = (event: any) => {
-      if (fontSizeMenuRef.current && !fontSizeMenuRef.current.contains(event.target)) {
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!(event.target instanceof Node) || (fontSizeMenuRef.current && !fontSizeMenuRef.current.contains(event.target))) {
         setFontSizeMenuOpen(false);
         editor.commands.focus() // TODO: Shold this be editor.chain().focus()?
       }
@@ -141,7 +150,7 @@ export default function TextEditorMenu({
   }
 
   useEffect(() => {
-    if (!fontSizeMenuItemsRef.current) return
+    if (!fontSizeMenuItemsRef.current) return;
 
     if (focusedFontSizeMenuItem !== null) {
       const target = fontSizeMenuItemsRef.current[focusedFontSizeMenuItem] as HTMLElement | undefined;
