@@ -1,5 +1,4 @@
-"use server";
-
+import "server-only";
 import WrappedChart from "@/lib/chartWrapper";
 import { actionGraphSorter } from "@/lib/sorters";
 import { Action } from "@prisma/client";

@@ -1,6 +1,6 @@
 'use client';
 
-import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
+import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import { useEffect, useState } from "react";
 import type getOneAction from "@/fetchers/getOneAction.ts";
 import type getOneGoal from "@/fetchers/getOneGoal";

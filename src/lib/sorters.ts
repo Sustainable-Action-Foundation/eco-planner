@@ -28,7 +28,7 @@ export function metaRoadmapSorter(a: MetaRoadmap, b: MetaRoadmap) {
 /**
  * Sorts roadmaps by type (national first), then alphabetically by name
  */
-export function roadmapSorter<T extends { metaRoadmap: MetaRoadmap, version: number }>(a: T, b: T) {
+export function roadmapSorter<T extends { metaRoadmap: { type: RoadmapType, name: string }, version: number }>(a: T, b: T) {
   // Higher priority roadmaps are first in the values array, so we reverse it to
   // account for the fact that indexOf() returns -1 if the element is not found, which
   // should be considered lower priority than any other index
@@ -76,7 +76,7 @@ export function roadmapSorterGoalAmount<T extends { metaRoadmap: MetaRoadmap, _c
  * Sorts goals alphabetically, with those with a set name placed before those with inferred names.
  * If no name is provided, the indicator parameter is used instead.
  */
-export function goalSorter(a: Goal, b: Goal) {
+export function goalSorter<T extends { name: string | null, indicatorParameter: string }>(a: T, b: T) {
   if (a.name && !b.name) {
     return -1;
   } else if (b.name && !a.name) {

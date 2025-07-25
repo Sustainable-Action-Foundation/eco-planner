@@ -1,6 +1,6 @@
 {
   "name": "eco-planner",
-  "version": "0.15.3",
+  "version": "0.15.4",
   "license": "AGPL-3.0-only",
   "private": true,
   "description": "A tool intended to help planning actions to achieve local environmental goals",
@@ -8,6 +8,7 @@
   "bugs": "https://github.com/Sustainable-Action-Foundation/eco-planner/issues",
   "repository": "github:Sustainable-Action-Foundation/eco-planner",
   "scripts": {
+    "preinstall": "(git update-index --skip-worktree src/lib/LEAPList.json && git update-index --skip-worktree src/lib/dataSeriesDataFieldNames.json) & echo 'This preinstall script might fail on Windows, have not tested it yet. If it does, feel free to remove it and run the command manually as specified in the README.'",
     "predev": "tsx ./src/scripts/getBuildInfo.ts",
     "dev": "next dev --turbopack",
     "prebuild": "tsx ./src/scripts/generateLeapList.ts && tsx ./src/scripts/getDataSeriesValueFieldNames.ts && tsx ./src/scripts/getBuildInfo.ts",
@@ -58,14 +59,15 @@
     "i18next-fs-backend": "^2.6.0",
     "i18next-http-backend": "^3.0.2",
     "iron-session": "^8.0.4",
-    "mathjs": "^14.5.3",
-    "next": "^15.3.5",
-    "nodemailer": "^7.0.5",
+    "mathjs": "^14.4.0",
+    "next": "^15.4.2",
+    "nodemailer": "^6.10.1",
     "react": "^19.1.0",
     "react-apexcharts": "^1.7.0",
     "react-dom": "^19.1.0",
-    "react-i18next": "^15.6.0",
-    "use-debounce": "^10.0.5"
+    "react-i18next": "^15.4.1",
+    "server-only": "^0.0.1",
+    "use-debounce": "^10.0.4"
   },
   "devDependencies": {
     "@types/node": "^24.0.10",

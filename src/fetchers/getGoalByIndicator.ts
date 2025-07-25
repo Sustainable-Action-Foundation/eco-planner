@@ -1,5 +1,4 @@
-'use server';
-
+import "server-only";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getSession } from "@/lib/session"
 import { effectSorter } from "@/lib/sorters";

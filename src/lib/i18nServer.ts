@@ -1,5 +1,4 @@
-"use server";
-
+import "server-only";
 import i18nServer, { type TFunction } from "i18next";
 import { initTemplate, Locales } from "i18n.config";
 import Backend from "i18next-fs-backend";

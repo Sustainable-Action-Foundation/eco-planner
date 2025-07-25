@@ -1,9 +1,9 @@
 "use client";
 
-import { clientSafeGetOneGoal } from "@/fetchers/getOneGoal";
-import { clientSafeGetOneRoadmap } from "@/fetchers/getOneRoadmap";
+import clientSafeGetOneGoal from "@/fetchers/clientSafeGetOneGoal";
+import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
+import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import type getRoadmaps from "@/fetchers/getRoadmaps";
-import { clientSafeGetRoadmaps } from "@/fetchers/getRoadmaps";
 import mathjs from "@/math";
 import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";

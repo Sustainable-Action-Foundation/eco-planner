@@ -1,5 +1,4 @@
-"use server";
-
+import "server-only";
 import styles from './header.module.css' with { type: "css" }
 import LogoutButton from '@/components/buttons/logoutButton'
 import { getSession } from '@/lib/session'

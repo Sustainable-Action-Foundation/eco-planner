@@ -32,6 +32,9 @@ const nextConfig = {
         loaders: ['ignore-loader'],
       },
     },
+  },
+  experimental: {
+    useCache: true,
   }
 }
 

@@ -1,5 +1,4 @@
-'use server';
-
+import "server-only";
 import { getSession, LoginData } from "@/lib/session.ts";
 import { Prisma } from "@prisma/client";
 import { unstable_cache } from "next/cache";
