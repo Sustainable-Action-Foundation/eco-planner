@@ -1,5 +1,22 @@
 /* custom (not yet added to semantic style sheets= */
 
+.focusable {
+  border: 1px solid var(--gray-80);
+  background-color: white;
+  border-radius: 4px; 
+}
+
+.focusable:focus-within {
+  border-color: #191919;
+}
+ 
+.focusable input {
+  outline: none;
+  box-shadow: none;
+  background-color: transparent;
+  border: none;
+}
+
 .font-size-smaller {
   font-size: smaller;
 }
@@ -179,12 +196,9 @@
   padding: var(--padding) calc(var(--padding) * 2 + var(--icon-size)) var(--padding) var(--padding);
   border-width: 1px;
   border-style: solid;
-  border-color: var(--gray-70);
-  outline-width: 1px;
-  outline-style: solid;
-  outline-color: transparent;
+  border-color: var(--gray-80);
   border-radius: 4px;
-  max-width: 100%;
+  width: min(175px, 100%);
   
   /* Hardcoded SVG for downards chevron */
   background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-down"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 9l6 6l6 -6" /></svg>') 
@@ -200,8 +214,7 @@
 }
 
 :where(select):focus {
-  border-color: var(--blue-40);
-  outline-color: var(--blue-80);
+  border-color: #191919;
 }
 
 :where(textarea) {
@@ -211,7 +224,7 @@
   padding: .5rem;
   border-width: 1px;
   border-style: solid;
-  border-color: var(--gray-70);
+  border-color: var(--gray-80);
   outline-width: 1px;
   outline-style: solid;
   outline-color: transparent;
@@ -223,8 +236,7 @@
 }
 
 :where(textarea:focus) {
-  border-color: var(--blue-40);
-  outline-color: var(--blue-80);
+  border-color: #191919;
 }
 
 
@@ -271,7 +283,7 @@
   input[type=week]) {
     border-width: 1px;
     border-style: solid;
-    border-color: var(--gray-70);
+    border-color: var(--gray-80);
     outline-width: 1px;
     outline-style: solid;
     outline-color: transparent;
@@ -294,8 +306,7 @@
   input[type=month],
   input[type=time],
   input[type=week]):focus {
-    border-color: var(--blue-40);
-    outline-color: var(--blue-80);
+    border-color: #191919;
  } 
 
 /* Button inputs (button, reset, submit, image) */

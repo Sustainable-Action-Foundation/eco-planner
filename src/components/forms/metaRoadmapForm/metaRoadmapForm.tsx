@@ -115,10 +115,9 @@ export default function MetaRoadmapForm({
           </label>
           */}
 
-          {/* TODO input_updates: How do i properly label this? */}
           <div className="margin-block-100">
-            <div className="margin-block-25">{t("forms:meta_roadmap.roadmap_series_description")}</div>
-            <TextEditor />
+            <div className="margin-bottom-25" id="roadmap-series-description">{t("forms:meta_roadmap.roadmap_series_description")}</div>
+            <TextEditor ariaLabelledBy="roadmap-series-description" />
           </div>
           
         </fieldset>
@@ -140,7 +139,7 @@ export default function MetaRoadmapForm({
             </select>
           </label>
 
-          <div className="margin-block-100">
+          <div className="margin-block-100" style={{width: 'min(250px, 100%)'}}>
             <label htmlFor="actors">{t("forms:meta_roadmap.choose_actor")}</label>
             <SuggestiveText
               className="margin-top-25"

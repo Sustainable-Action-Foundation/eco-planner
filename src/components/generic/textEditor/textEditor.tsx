@@ -2,7 +2,6 @@
 
 // TODO: Remove duplicate extension names
 // TODO: Check which extensions are actually used
-// TODO: Replace rich text-editor with textarea if no js
 
 import { EditorContent, useEditor } from '@tiptap/react'
 import TextEditorMenu from './textEditorMenu'
@@ -34,7 +33,11 @@ import {
 
 export const allowedProtocols = ['http', 'https', 'mailto', 'callto', 'tel'];
 
-const TextEditor = () => {
+const TextEditor = ({ 
+  ariaLabelledBy 
+}: {
+  ariaLabelledBy: string
+}) => {
   const editor = useEditor({
     immediatelyRender: true,
     extensions: [
@@ -85,9 +88,9 @@ const TextEditor = () => {
   /* TODO: If there are empty tags after the last piece of content, remove them */
   /* TODO: Keyboard Shortcut for font size and grey-text */
   return (
-    <div className='purewhite smooth' style={{ border: '1px solid var(--gray)' }}>
+    <div className='tiptap-wrapper purewhite smooth' style={{ border: '1px solid var(--gray-80)' }}>
       <TextEditorMenu editor={editor} />
-      <EditorContent editor={editor} />
+      <EditorContent editor={editor} aria-labelledby={ariaLabelledBy} />
     </div>
   )
 }

@@ -7,6 +7,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconChevronDown } from "@tabler/icons-react";
 import { Editor } from "@tiptap/core";
 import { allowedProtocols } from './textEditor';
+import styles from './textEditor.module.css' with { type: "css" }
 
 export default function TextEditorMenu({
   editor
@@ -93,7 +94,11 @@ export default function TextEditorMenu({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (!(event.target instanceof Node) || (fontSizeMenuRef.current && !fontSizeMenuRef.current.contains(event.target))) {
+      if (
+        !(event.target instanceof Node) || 
+        (fontSizeMenuRef.current && !fontSizeMenuRef.current.contains(event.target)) &&
+        (fontSizeMenuButtonRef.current && !fontSizeMenuButtonRef.current.contains(event.target))
+      ) {
         setFontSizeMenuOpen(false);
         editor.commands.focus() // TODO: Shold this be editor.chain().focus()?
       }
@@ -229,7 +234,7 @@ export default function TextEditorMenu({
       }
     }
 
-    if (e.key == 'Escape') { // TODO: This is buggy for some reason
+    if (e.key == 'Escape') { 
       e.preventDefault()
       console.log(fontSizeMenuRef.current)
       if (fontSizeMenuOpen) {
@@ -362,8 +367,12 @@ export default function TextEditorMenu({
             ref={fontSizeMenuRef}
             aria-label='Font size'
             role='menu'
-            className='margin-0 padding-0 gray-95 smooth'
-            style={{ padding: '2px', position: 'absolute', minWidth: '100%', top: 'calc(100% + 5px)', left: '0', zIndex: '1', listStyle: 'none', display: `${fontSizeMenuOpen ? 'block' : 'none'}` }}>
+            className={`
+              ${styles["animated-menu"]} 
+              ${fontSizeMenuOpen ? styles['visible'] : ''} 
+              margin-0 padding-0 gray-95 smooth`
+            }
+          >
             <li role='presentation' style={{ borderBottom: '1px solid var(--gray)', paddingBottom: '2px' }}>
               <div
                 onClick={() => { editor.chain().focus().setFontSize('1.25rem').run(), setFontSizeMenuOpen(false) }}

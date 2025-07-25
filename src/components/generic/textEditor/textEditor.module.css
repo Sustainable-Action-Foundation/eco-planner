@@ -1,0 +1,38 @@
+.animated-menu {
+    padding: 2px;
+    position: absolute;
+    min-width: 100%;
+    top: calc(100% + 5px);
+    left: 0;
+    z-index: 1;
+    list-style: none;
+    
+    display: none;
+    transform: scale(.95);
+    transform-origin: top left;
+    opacity: 0;
+
+    overflow-y: auto;
+    scrollbar-width: thin;
+    max-height: 300px;
+    scroll-padding-top: 37px; /* height of ::before plus its margin */
+    scroll-padding-bottom: .25rem;
+ 
+    transition-property: display, opacity, transform;
+    transition-duration: .15s;
+    transition-behavior: allow-discrete;
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
+
+    &.visible {
+        display: block;
+        opacity: 1;
+        transform: scale(1);
+
+        @starting-style {
+            opacity: 0;
+            transform: scale(.95);
+        }
+    }
+}

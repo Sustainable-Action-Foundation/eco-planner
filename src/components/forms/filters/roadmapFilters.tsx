@@ -48,16 +48,16 @@ export default function RoadmapFilters() {
 
   return <>
     <menu className="flex gap-100 align-items-flex-end padding-0 margin-0 margin-top-300 margin-bottom-100 flex-wrap-wrap">
-      <label className="font-weight-bold container-text">
+      <label className="font-weight-600">
         {t("components:roadmap_filters.search_roadmaps")}
-        <div className="margin-top-25 flex align-items-center gray-90 padding-50 smooth focusable">
+        <div className="margin-top-25 flex align-items-center padding-50 smooth focusable">
           <IconSearch style={{minWidth: '24px'}} strokeWidth={1.5} aria-hidden="true" />
           <input type="search" className="padding-0 margin-inline-50" defaultValue={searchParams.get('searchFilter') ?? undefined} onChange={(e) => {
             debouncedUpdateStringParam('searchFilter', e.target.value)
           }} />
         </div>
       </label>
-      <label className="font-weight-bold">
+      <label className="font-weight-600">
         {t("components:roadmap_filters.sort_by")}
         <select
           className="font-weight-500 margin-top-25 block"
@@ -71,19 +71,12 @@ export default function RoadmapFilters() {
           <option value={RoadmapSortBy.GoalsRising}>{t("components:roadmap_filters.goal_count_ascending")}</option>
         </select>
       </label>
-      <label className='flex align-items-center gap-50 padding-50 font-weight-bold button smooth transparent'>
-        <span style={{ lineHeight: '1', }}>{t("components:roadmap_filters.filter")}</span>
-        <div className='position-relative grid place-items-center'>
-          <input type="checkbox" className="position-absolute width-100 height-100 hidden" />
-          <IconAdjustmentsHorizontal style={{minWidth: '24px'}} aria-hidden="true" />
-        </div>
-      </label>
     </menu>
 
-    <menu id="roadmapFilters" className="margin-block-100 margin-inline-0 padding-100 gray-90 smooth">
-      <b>{t("common:tsx.show")}</b>
+    <fieldset id="roadmapFilters" className="margin-block-100 margin-inline-0 padding-100 fieldset-unset-pseudo-class purewhite smooth"  style={{border: '1px solid var(--gray)'}}>
+      <legend className="font-weight-600">{t("common:tsx.show")}</legend>
       {Object.values(RoadmapType).map((thisType, key) => (
-        <label className="flex align-items-center gap-25 margin-block-50" key={key}>
+        <label className="inline-flex margin-inline-50 align-items-center gap-25" key={key}>
           <input type="checkbox" value={thisType} defaultChecked={searchParams.getAll('typeFilter').includes(thisType)} onChange={(e) => {
             if (e.target.checked) {
               updateArrayParam('typeFilter', e.target.value)
@@ -102,6 +95,6 @@ export default function RoadmapFilters() {
             }`}
         </label>
       ))}
-    </menu>
+    </fieldset>
   </>
 }

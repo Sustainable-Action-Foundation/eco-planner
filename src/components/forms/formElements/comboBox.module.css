@@ -17,7 +17,7 @@
 
 .listbox {
     list-style: none;
-    border: 1px solid var(--gray-70);
+    border: 1px solid var(--gray);
     background-color: white;
     margin-block: .25rem;
     border-radius: .25rem;
