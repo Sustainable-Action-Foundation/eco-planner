@@ -6,37 +6,37 @@ export enum RecipeVariableType {
 }
 
 export type DataSeriesArray = Partial<{
-  "2020": number | null;
-  "2021": number | null;
-  "2022": number | null;
-  "2023": number | null;
-  "2024": number | null;
-  "2025": number | null;
-  "2026": number | null;
-  "2027": number | null;
-  "2028": number | null;
-  "2029": number | null;
-  "2030": number | null;
-  "2031": number | null;
-  "2032": number | null;
-  "2033": number | null;
-  "2034": number | null;
-  "2035": number | null;
-  "2036": number | null;
-  "2037": number | null;
-  "2038": number | null;
-  "2039": number | null;
-  "2040": number | null;
-  "2041": number | null;
-  "2042": number | null;
-  "2043": number | null;
-  "2044": number | null;
-  "2045": number | null;
-  "2046": number | null;
-  "2047": number | null;
-  "2048": number | null;
-  "2049": number | null;
-  "2050": number | null;
+  "val2020": number | null;
+  "val2021": number | null;
+  "val2022": number | null;
+  "val2023": number | null;
+  "val2024": number | null;
+  "val2025": number | null;
+  "val2026": number | null;
+  "val2027": number | null;
+  "val2028": number | null;
+  "val2029": number | null;
+  "val2030": number | null;
+  "val2031": number | null;
+  "val2032": number | null;
+  "val2033": number | null;
+  "val2034": number | null;
+  "val2035": number | null;
+  "val2036": number | null;
+  "val2037": number | null;
+  "val2038": number | null;
+  "val2039": number | null;
+  "val2040": number | null;
+  "val2041": number | null;
+  "val2042": number | null;
+  "val2043": number | null;
+  "val2044": number | null;
+  "val2045": number | null;
+  "val2046": number | null;
+  "val2047": number | null;
+  "val2048": number | null;
+  "val2049": number | null;
+  "val2050": number | null;
 }>;
 
 export type RecipeVariableScalar = {
@@ -100,7 +100,7 @@ export function isRawDataSeriesByValue(variable: unknown): variable is RawDataSe
     Object.entries(variable.value).every(([key, val]: [string, unknown]) => (
       // Each key should be a stringified year and value should be a number or null
       typeof key === "string" &&
-      Number.isFinite(parseInt(key)) &&
+      Number.isFinite(parseInt(key.replace("val", ""))) &&
       (typeof val === "number" || val === null)
     )) &&
     ( // unit is optional, but if it exists, it must be a string

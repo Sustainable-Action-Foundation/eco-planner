@@ -4,12 +4,13 @@ import type { DataSeriesArray, EvalTimeDataSeries, EvalTimeScalar, RawRecipe, Re
 import { RecipeVariableType, isRawDataSeriesByValue, lenientIsRawDataSeriesByLink, isRecipeVariableScalar, MathjsError, RecipeError } from "./recipe-parser/types";
 import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
 import mathjs from "@/math";
-import { isStandardObject, uuidRegex } from "@/types";
+import { dataSeriesDataFieldNames, isStandardObject, uuidRegex } from "@/types";
 import { Unit } from "mathjs";
 
-const startYear = 2020;
-const endYear = 2050;
-export const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => (startYear + i).toString()) as (keyof DataSeriesArray)[];
+const years = dataSeriesDataFieldNames
+// const startYear = 2020;
+// const endYear = 2050;
+// export const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => (startYear + i).toString());
 
 type DataSeriesDbEntry = {
   uuid: string;
@@ -69,7 +70,7 @@ export function unsafeIsRawRecipe(recipe: unknown): recipe is RawRecipe {
           Object.entries(value.value).every(([key, val]: [string, unknown]) => (
             // Each key should be a stringified year and value should be a number or null
             typeof key === "string" &&
-            Number.isFinite(parseInt(key)) &&
+            Number.isFinite(parseInt(key.replace("val", ""))) &&
             (typeof val === "number" || val === null)
           ))
         )
@@ -356,7 +357,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
 
     const seriesValues = [];
     for (const year of years) {
-      const canPad = parseInt(year) <= parseInt(lastYearWithData);
+      const canPad = parseInt(year.replace("val", "")) <= parseInt(lastYearWithData.replace("val", ""));
       const value = series.data[year];
 
       if (!canPad) break;
