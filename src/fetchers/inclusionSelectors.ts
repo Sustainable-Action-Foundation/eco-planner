@@ -36,7 +36,8 @@ export const nameSelector /* Prisma.MetaRoadmapSelect */ = {
   },
 };
 
-export const metaRoadmapInclusionSelection /* Prisma.MetaRoadmapInclude */ = {
+export const metaRoadmapInclusionSelection = {
+  // export const metaRoadmapInclusionSelection: Prisma.MetaRoadmapInclude = {
   roadmapVersions: {
     include: {
       metaRoadmap: {
@@ -76,13 +77,15 @@ export const metaRoadmapInclusionSelection /* Prisma.MetaRoadmapInclude */ = {
   viewGroups: { include: { users: { select: { id: true, username: true } } } },
 };
 
-export const roadmapInclusionSelection /* Prisma.RoadmapInclude */ = {
+export const roadmapInclusionSelection = {
+  // export const roadmapInclusionSelection: Prisma.RoadmapInclude = {
   metaRoadmap: true,
   goals: {
     include: {
       _count: { select: { effects: true } },
       dataSeries: true,
       author: { select: { id: true, username: true } },
+      recipeSuggestions: true,
     }
   },
   actions: {
@@ -214,6 +217,7 @@ export const clientSafeMultiRoadmapSelection /* Prisma.RoadmapSelect */ = {
 export const goalInclusionSelection /* Prisma.GoalInclude */ = {
   _count: { select: { effects: true } },
   dataSeries: true,
+  recipeSuggestions: true,
   baselineDataSeries: true,
   effects: {
     include: {

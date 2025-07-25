@@ -155,14 +155,14 @@ export default async function Page(
 
   // If any goalParent has a data series with a later updatedAt date than the goal, the goal should be updated
   let shouldUpdate = false;
-  if (goal.combinationParents) {
-    for (const parent of goal.combinationParents) {
-      if (parent.parentGoal.dataSeries?.updatedAt && parent.parentGoal.dataSeries.updatedAt > (goal.dataSeries?.updatedAt ?? new Date(0))) {
-        shouldUpdate = true;
-        break;
-      }
-    }
-  }
+  // if (goal.combinationParents) {
+  //   for (const parent of goal.combinationParents) {
+  //     if (parent.parentGoal.dataSeries?.updatedAt && parent.parentGoal.dataSeries.updatedAt > (goal.dataSeries?.updatedAt ?? new Date(0))) {
+  //       shouldUpdate = true;
+  //       break;
+  //     }
+  //   }
+  // }
 
   return (
     <>

@@ -1,13 +1,14 @@
 'use client';
 
-import { DataSeries, Goal } from "@prisma/client";
+import { DataSeries } from "@prisma/client";
 import { closeModal, openModal } from "./modalFunctions";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import RepeatableScaling from "../repeatableScaling";
-import { GoalCreateInput, dataSeriesDataFieldNames, ScaleBy, ScaleMethod, ScalingRecipe } from "@/types";
+import { GoalCreateInput, dataSeriesDataFieldNames, ScaleBy, ScaleMethod, ScalingRecipe, Goal } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconCircleMinus, IconX } from "@tabler/icons-react";
+import { Recipe } from "@/functions/recipe-parser/types";
 
 /** Get the resulting scaling factor from form data */
 export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, setIsLoading?: React.Dispatch<React.SetStateAction<boolean>>) {
@@ -197,16 +198,17 @@ export default function CopyAndScale({
   goal,
   roadmapOptions,
 }: {
-  goal: Goal & { dataSeries: DataSeries | null },
+  goal: Goal,
   roadmapOptions: { id: string, name: string, version: number, actor: string | null }[],
 }) {
   const { t } = useTranslation("components");
   const [isLoading, setIsLoading] = useState(false);
-  const [scalingComponents, setScalingComponents] = useState<string[]>([crypto?.randomUUID() || Math.random().toString()]);
   const [scalingMethod, setScalingMethod] = useState<ScaleMethod>(ScaleMethod.Geometric);
   const [scalingResult, setScalingResult] = useState<number>(1);
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
+  // TODO - remove. This is a debugging measure.
+  useEffect(() => openModal(modalRef), []);
 
   async function recalculateScalingResult() {
     await new Promise(resolve => setTimeout(resolve, 0)); // Wait for the form to update; without this we get the value *before* the action that triggered the update
@@ -261,10 +263,8 @@ export default function CopyAndScale({
       description: goal.description,
       indicatorParameter: goal.indicatorParameter,
       dataUnit: goal.dataSeries?.unit,
-      dataSeries: dataSeries,
+      rawDataSeries: dataSeries,
       roadmapId: copyToId ?? "",
-      inheritFrom: [{ id: goal.id }],
-      combinationScale: JSON.stringify(scalingRecipe),
     };
 
     const formJSON = JSON.stringify(formData);
@@ -274,6 +274,7 @@ export default function CopyAndScale({
 
   return (
     <>
+      {/* Opening button */}
       <button
         type="button"
         className="seagreen color-purewhite smooth padding-block-50 padding-inline-100 smooth"
@@ -282,31 +283,61 @@ export default function CopyAndScale({
       >
         {t("components:copy_and_scale.copy_and_scale")}
       </button>
+
+      {/* Modal */}
       <dialog ref={modalRef} aria-modal className="rounded" style={{ border: '0', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25' }}>
+        {/* Title bar */}
         <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>
+          {/* Close button */}
           <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
             <IconX aria-hidden="true" width={18} height={18} strokeWidth={3} />
           </button>
+
+          {/* Title */}
           <h2 className="margin-0">{t("components:copy_and_scale.title", { goalName: goal.name })}</h2>
         </div>
 
+        {/* Scaling form */}
         <form action={formSubmission} name="copyAndScale" onChange={recalculateScalingResult}>
 
+          {/* Roadmap version select */}
           <label className="block margin-block-100">
             {t("components:copy_and_scale.select_roadmap_version")}
+            {/* TODO - auto select the latest one? */}
             <select className="block margin-block-25 width-100" required name="copyTo" id="copyTo">
               <option value="">{t("components:copy_and_scale.select_roadmap_version_option")}</option>
               {roadmapOptions.map(roadmap => (
-                <option key={roadmap.id} value={roadmap.id}>{`${roadmap.name} ${roadmap.version ? `(${t("components:copy_and_scale.version")} ${roadmap.version.toString()})` : null}`}</option>
+                <option key={roadmap.id} value={roadmap.id}>
+                  {`${roadmap.name} ${roadmap.version ? `(${t("components:copy_and_scale.version")} ${roadmap.version.toString()})` : null}`}
+                </option>
               ))}
             </select>
           </label>
 
-          <div className="margin-block-100">
+          {/* Suggested recipes */}
+          {goal.recipeSuggestions.length > 0 ? (<>
+            <label>
+              <input type="radio" name="recipe-suggestion" />
+              &nbsp;
+              Ingen vald
+            </label>
+            {goal.recipeSuggestions.map((recipe, index) => (
+              <label key={index} className="block margin-block-50">
+                <input type="radio" name="recipe-suggestion" value={JSON.stringify(recipe)} />
+                &nbsp;
+                <>
+                  {(recipe.recipe as Recipe).name ?? "Namnlöst förslag"} <span style={{ color: "gray" }}> Recept: ({(recipe.recipe as Recipe).eq})</span>
+                </>
+              </label>
+            ))}
+          </>) : (<></>)}
+
+          {/* Repeatable scaling is deprecated TODO - remove */}
+          {/* <div className="margin-block-100">
             {scalingComponents.map((id) => {
               return (
-                <RepeatableScaling key={id} useWeight={scalingMethod != ScaleMethod.Multiplicative}> {/* Multiplicative scaling doesn't use weights */}
-                  <button 
+                <RepeatableScaling key={id} useWeight={scalingMethod != ScaleMethod.Multiplicative}>
+                  <button
                     type="button"
                     style={{
                       position: 'absolute',
@@ -318,18 +349,18 @@ export default function CopyAndScale({
                       borderRadius: '100%',
                       display: 'grid',
                       cursor: 'pointer'
-                    }} 
+                    }}
                     aria-label={t("components:copy_and_scale.remove_scaling")}
                     onClick={() => setScalingComponents(scalingComponents.filter((i) => i !== id))}
-                  >  
+                  >
                     <IconCircleMinus aria-hidden="true" />
                   </button>
                 </RepeatableScaling>
               )
             })}
           </div>
-          <button type="button" className="margin-block-100" onClick={() => setScalingComponents([...scalingComponents, (crypto?.randomUUID() || Math.random().toString())])}>{t("components:copy_and_scale.add_scaling")}</button>
-
+          <button type="button" className="margin-block-100" onClick={() => setScalingComponents([...scalingComponents, (crypto?.randomUUID() || Math.random().toString())])}>{t("components:copy_and_scale.add_scaling")}</button> */}
+          {/* 
           <details className="padding-block-25 margin-block-75" style={{ borderBottom: '1px solid var(--gray-90)' }}>
             <summary>{t("components:copy_and_scale.advanced")}</summary>
             <fieldset className="margin-block-100">
@@ -347,12 +378,12 @@ export default function CopyAndScale({
                 {t("common:scaling_methods.multiplicative")}
               </label>
             </fieldset>
-          </details>
+          </details> */}
 
-          <label className="margin-inline-auto">
+          {/* <label className="margin-inline-auto">
             <strong className="block bold text-align-center">{t("components:copy_and_scale.resulting_scale_factor")}</strong>
             <output className="margin-block-100 block text-align-center">{scalingResult}</output>
-          </label>
+          </label> */}
 
           <button className="block seagreen color-purewhite smooth width-100 margin-inline-auto font-weight-500">
             {t("components:copy_and_scale.create_scaled_copy")}

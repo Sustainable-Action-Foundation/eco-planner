@@ -121,6 +121,7 @@ export type RecipeVariableDataSeries = {
 
 export type RecipeVariables = RecipeVariableScalar | RecipeVariableDataSeries;
 export type Recipe = {
+  name?: string;
   eq: string;
   variables: Record<string, RecipeVariables>;
 };
@@ -128,6 +129,7 @@ export type Recipe = {
 export type RawRecipeVariables = RecipeVariableScalar | RecipeVariableRawDataSeries;
 /** Considered unsafe as it is. Comes from the client */
 export type RawRecipe = {
+  name?: string;
   eq: string;
   variables: Record<string, RawRecipeVariables>;
 };

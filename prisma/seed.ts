@@ -4,6 +4,7 @@ import { colors } from "../src/scripts/lib/colors";
 import { PrismaClient, RoadmapType } from '../src/prisma/generated';
 import bcrypt from "bcryptjs";
 import { LoremIpsum } from "lorem-ipsum";
+import { DataSeriesArray, RawRecipe, RecipeVariableType } from "@/functions/recipe-parser/types";
 
 const prisma = new PrismaClient();
 prisma.$connect().catch((e) => {
@@ -15,6 +16,61 @@ prisma.$connect().catch((e) => {
   process.exit(1);
 });
 const lorem = new LoremIpsum();
+
+function makeRecipeSuggestions(dataSeries: DataSeriesArray): RawRecipe[] {
+  return [
+    {
+      name: "Skala utifrån befolkning",
+      eq: "${förälder} * (${popF} / ${popB})",
+      variables: {
+        "förälder": {
+          type: RecipeVariableType.DataSeries,
+          value: dataSeries,
+        },
+        "popF": {
+          type: RecipeVariableType.Scalar,
+          value: 10587710,
+        },
+        "popB": {
+          type: RecipeVariableType.Scalar,
+          value: 504176,
+        }
+      }
+    },
+    {
+      name: "Skala utifrån yta",
+      eq: "${förälder} * (${areaF} / ${areaB})",
+      variables: {
+        "förälder": {
+          type: RecipeVariableType.DataSeries,
+          value: dataSeries,
+        },
+        "areaF": {
+          type: RecipeVariableType.Scalar,
+          value: 410000,
+        },
+        "areaB": {
+          type: RecipeVariableType.Scalar,
+          value: 60000,
+        }
+      }
+    },
+    {
+      name: "Skala utifrån fast värde",
+      eq: "${förälder} / ${value}",
+      variables: {
+        "förälder": {
+          type: RecipeVariableType.DataSeries,
+          value: dataSeries,
+        },
+        "value": {
+          type: RecipeVariableType.Scalar,
+          value: 2,
+        }
+      }
+    }
+  ];
+}
 
 async function main() {
   // TODO: We should consider adding more types of data to the seed, see the list below.
@@ -295,6 +351,66 @@ async function main() {
       }
     })
   }));
+
+  const testingDataSeries = {
+    val2020: 10,
+    val2021: 20,
+    val2022: 30,
+    val2023: 40,
+    val2024: 50,
+    val2025: 60,
+    val2026: 70,
+    val2027: 80,
+    val2028: 90,
+    val2029: 100,
+    val2030: 110,
+    val2031: 120,
+    val2032: 130,
+    val2033: 140,
+    val2034: 150,
+    val2035: 160,
+    val2036: 170,
+    val2037: 180,
+    val2038: 190,
+    val2039: 200,
+    val2040: 210,
+    val2041: 220,
+    val2042: 230,
+    val2043: 240,
+    val2044: 250,
+    val2045: 260,
+    val2046: 270,
+    val2047: 280,
+    val2048: 290,
+    val2049: 300,
+    val2050: 310,
+  }
+
+  const goalWithRecipeSuggestions = await prisma.goal.create({
+    data: {
+      name: 'Goal with Recipe Suggestions',
+      description: 'This goal has recipe suggestions for testing purposes.',
+      indicatorParameter: 'test-parameter',
+      isFeatured: true,
+      authorId: admin.id,
+      roadmapId: mainRoadmap.id,
+      dataSeries: {
+        create: {
+          unit: 'test-unit',
+          ...testingDataSeries,
+          authorId: admin.id,
+        }
+      },
+      recipeSuggestions: {
+        create: makeRecipeSuggestions(Object.fromEntries(Object.entries(testingDataSeries).map(([year, value]) => ([year.replace('val', ''), value]))))
+          .map((recipe, i) => ({
+            hash: (recipe.eq + i).toString(),
+            recipe: recipe as RawRecipe,
+          })),
+      }
+    },
+    // Include?
+  });
 }
 
 main().then(async () => {

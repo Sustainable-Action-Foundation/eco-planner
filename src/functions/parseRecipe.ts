@@ -25,6 +25,11 @@ export function unsafeIsRawRecipe(recipe: unknown): recipe is RawRecipe {
     typeof recipe === "object" &&
     recipe != null &&
     !Array.isArray(recipe) &&
+    // Name is optional, but if it exists, it must be a string
+    (
+      !("name" in recipe) ||
+      typeof recipe.name === "string"
+    ) &&
     // Should have equation string
     "eq" in recipe &&
     typeof recipe.eq === "string" &&
@@ -91,7 +96,7 @@ export function recipeFromUnknown(recipe: unknown): RawRecipe {
     throw new RecipeError("Invalid recipe format. Expected a RawRecipe JSON string or object.");
   }
 
-  return { eq: recipe.eq, variables: recipe.variables };
+  return { eq: recipe.eq, variables: recipe.variables, ...(recipe.name ? { name: recipe.name } : {}) };
 }
 
 /**
