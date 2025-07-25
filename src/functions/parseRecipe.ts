@@ -1,6 +1,6 @@
 import { getVariableName } from "./recipe-parser/helpers";
 import type { DataSeriesArray, EvalTimeDataSeries, EvalTimeScalar, RawRecipe, Recipe, RecipeVariableDataSeries, RecipeVariables, RecipeVariableScalar } from "./recipe-parser/types";
-import { RecipeVariableType, isRawDataSeriesByValue, lenientIsRawDataSeriesByLink, isRecipeVariableScalar, MathjsError, RecipeError } from "./recipe-parser/types";
+import { RecipeVariableType, isRawDataSeriesByValue, lenientIsRawDataSeriesByLink, isRecipeVariableScalar, MathjsError, RecipeError, isExternalDatasetVariable } from "./recipe-parser/types";
 import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
 import mathjs from "@/math";
 import { dataSeriesDataFieldNames, isStandardObject, uuidRegex } from "@/types";
@@ -21,63 +21,32 @@ const dataSeriesDB: Record<string, DataSeriesDbEntry> = {};
 export function unsafeIsRawRecipe(recipe: unknown): recipe is RawRecipe {
   return (
     // Should be a regular object
-    typeof recipe === "object" &&
-    recipe != null &&
-    !Array.isArray(recipe) &&
+    isStandardObject(recipe) &&
     // Name is optional, but if it exists, it must be a string
     (
       !("name" in recipe) ||
-      typeof recipe.name === "string"
+      typeof recipe.name === "string" ||
+      recipe.name === undefined
     ) &&
     // Should have equation string
     "eq" in recipe &&
     typeof recipe.eq === "string" &&
     // Should have variables object
     "variables" in recipe &&
-    typeof recipe.variables === "object" &&
-    recipe.variables != null &&
-    !Array.isArray(recipe.variables) &&
+    isStandardObject(recipe.variables) &&
     Object.entries(recipe.variables).every(([key, value]: [string, unknown]) => (
       // Each variable should have a string key and a value object
       typeof key === "string" &&
-      typeof value === "object" &&
-      value != null &&
-      !Array.isArray(value) &&
       // Each variable should match a RawRecipeVariables type
       (
         // Scalar
-        (
-          "type" in value &&
-          value.type === "scalar" &&
-          "value" in value &&
-          typeof value.value === "number" &&
-          ( // unit is optional
-            !("unit" in value) ||
-            typeof value.unit === "string"
-          )
-        ) ||
+        isRecipeVariableScalar(value) ||
         // Linked data series
-        (
-          "type" in value &&
-          value.type === "dataSeries" &&
-          "link" in value &&
-          typeof value.link === "string"
-        ) ||
+        lenientIsRawDataSeriesByLink(value) ||
         // New data series with values
-        (
-          "type" in value &&
-          value.type === "dataSeries" &&
-          "value" in value &&
-          typeof value.value === "object" &&
-          value.value != null &&
-          !Array.isArray(value.value) &&
-          Object.entries(value.value).every(([key, val]: [string, unknown]) => (
-            // Each key should be a stringified year and value should be a number or null
-            typeof key === "string" &&
-            Number.isFinite(parseInt(key.replace("val", ""))) &&
-            (typeof val === "number" || val === null)
-          ))
-        )
+        isRawDataSeriesByValue(value) ||
+        // Data from external dataset
+        isExternalDatasetVariable(value)
       )
     ))
   );
@@ -230,6 +199,18 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
         }
         break;
 
+      /** External data parsing */
+      case RecipeVariableType.External:
+        if (!isExternalDatasetVariable(variable)) {
+          throw new RecipeError(`Something went wrong when reading your reference to an external API: expected a valid ExternalDataset object, got ${JSON.stringify(variable)}`);
+        }
+        parsedVariables[key] = {
+          type: RecipeVariableType.External,
+          dataset: variable.dataset,
+          tableId: variable.tableId,
+          selection: variable.selection
+        };
+        break;
       /** Unhandled but allowed variable type */
       default:
         throw new RecipeError(`Unhandled but known variable type '${variable.type}' for variable '${key}'. Please report this as a bug.`);

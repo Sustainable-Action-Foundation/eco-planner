@@ -1,9 +1,11 @@
+import { externalDatasets } from "@/lib/api/utility";
 import { isStandardObject, uuidRegex } from "@/types";
 
 export enum RecipeVariableType {
   Scalar = "scalar",
   DataSeries = "dataSeries",
-}
+  External = "external",
+};
 
 export type DataSeriesArray = Partial<{
   "val2020": number | null;
@@ -58,12 +60,12 @@ export function isRecipeVariableScalar(variable: unknown): variable is RecipeVar
     // Ensure no other properties are present
     Object.keys(variable).filter(key => key !== "type" && key !== "value" && key !== "unit").length === 0
   );
-}
+};
 
 export type RawDataSeriesByLink = {
   type: RecipeVariableType.DataSeries;
   link: string; // uuid of data series in the database
-}
+};
 export function lenientIsRawDataSeriesByLink(variable: unknown): variable is RawDataSeriesByLink {
   return (
     isStandardObject(variable) &&
@@ -76,20 +78,20 @@ export function lenientIsRawDataSeriesByLink(variable: unknown): variable is Raw
     // The properties unit and value are allowed but should be dropped, either silently or with a warning
     Object.keys(variable).filter(key => !["link", "type", "value", "unit"].includes(key)).length === 0
   );
-}
+};
 export function isRawDataSeriesByLink(variable: unknown): variable is RawDataSeriesByLink {
   return (
     lenientIsRawDataSeriesByLink(variable) &&
     // Ensure no other properties are present
-    Object.keys(variable).filter(key => key !== "type" && key !== "link").length === 0
+    Object.keys(variable).filter(key => !["link", "type"].includes(key)).length === 0
   );
-}
+};
 
 export type RawDataSeriesByValue = {
   type: RecipeVariableType.DataSeries;
   value: DataSeriesArray;
   unit?: string;
-}
+};
 export function isRawDataSeriesByValue(variable: unknown): variable is RawDataSeriesByValue {
   return (
     isStandardObject(variable) &&
@@ -108,9 +110,9 @@ export function isRawDataSeriesByValue(variable: unknown): variable is RawDataSe
       typeof variable.unit === "string"
     ) &&
     // Ensure no other properties are present
-    Object.keys(variable).filter(key => key !== "type" && key !== "value" && key !== "unit").length === 0
+    Object.keys(variable).filter(key => !["type", "value", "unit"].includes(key)).length === 0
   );
-}
+};
 
 /** A data series might be defined in the inheritance form or it might be imported and it might have a unit */
 export type RecipeVariableRawDataSeries = RawDataSeriesByLink | RawDataSeriesByValue;
@@ -119,14 +121,49 @@ export type RecipeVariableDataSeries = {
   link: string; // uuid of data series in the database
 };
 
-export type RecipeVariables = RecipeVariableScalar | RecipeVariableDataSeries;
+export type ExternalDataset = {
+  type: RecipeVariableType.External;
+  dataset: string; // One of the datasets specified in externalDatasets
+  tableId: string; // The ID of the table in the dataset
+  selection: {
+    variableCode: string,
+    valueCodes: string[]
+  }[]; // The selection to be made on the table, e.g. [{ variableCode: "Tid", valueCodes: ["2020M01"] }]
+};
+
+export function isExternalDatasetVariable(variable: unknown): variable is ExternalDataset {
+  return (
+    isStandardObject(variable) &&
+    "type" in variable &&
+    variable.type === RecipeVariableType.External &&
+    "dataset" in variable &&
+    typeof variable.dataset === "string" &&
+    Object.keys(externalDatasets).includes(variable.dataset) && // Ensure the dataset is one of the known datasets
+    "tableId" in variable &&
+    typeof variable.tableId === "string" &&
+    "selection" in variable &&
+    Array.isArray(variable.selection) &&
+    variable.selection.every(item => (
+      isStandardObject(item) &&
+      "variableCode" in item &&
+      typeof item.variableCode === "string" &&
+      "valueCodes" in item &&
+      Array.isArray(item.valueCodes) &&
+      item.valueCodes.every(code => typeof code === "string")
+    )) &&
+    // Ensure no other properties are present
+    Object.keys(variable).filter(key => !["type", "dataset", "tableId", "selection"].includes(key)).length === 0
+  );
+};
+
+export type RecipeVariables = RecipeVariableScalar | RecipeVariableDataSeries | ExternalDataset;
 export type Recipe = {
   name?: string;
   eq: string;
   variables: Record<string, RecipeVariables>;
 };
 
-export type RawRecipeVariables = RecipeVariableScalar | RecipeVariableRawDataSeries;
+export type RawRecipeVariables = RecipeVariableScalar | RecipeVariableRawDataSeries | ExternalDataset;
 /** Considered unsafe as it is. Comes from the client */
 export type RawRecipe = {
   name?: string;
@@ -144,7 +181,7 @@ export class MathjsError extends Error {
     super(message);
     this.name = "MathjsError";
   }
-}
+};
 
 export type EvalTimeScalar = {
   name: string; // Variable name
