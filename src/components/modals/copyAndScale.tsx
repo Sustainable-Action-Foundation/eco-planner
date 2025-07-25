@@ -1,14 +1,13 @@
 'use client';
 
-import { DataSeries } from "@prisma/client";
 import { closeModal, openModal } from "./modalFunctions";
 import { useEffect, useRef, useState } from "react";
-import RepeatableScaling from "../repeatableScaling";
 import { GoalCreateInput, dataSeriesDataFieldNames, ScaleBy, ScaleMethod, ScalingRecipe, Goal } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
-import { IconCircleMinus, IconX } from "@tabler/icons-react";
-import { Recipe } from "@/functions/recipe-parser/types";
+import { IconX } from "@tabler/icons-react";
+import { RawRecipe, Recipe } from "@/functions/recipe-parser/types";
+import { parseRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
 
 /** Get the resulting scaling factor from form data */
 export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, setIsLoading?: React.Dispatch<React.SetStateAction<boolean>>) {
@@ -216,12 +215,26 @@ export default function CopyAndScale({
       const formElement = document.forms.namedItem("copyAndScale");
       if (formElement instanceof HTMLFormElement) {
         const formData = new FormData(formElement);
-        const { scaleFactor } = getScalingResult(formData, scalingMethod);
-        // Avoid setting the state if the value hasn't changed, to prevent infinite rerenders
-        // Also don't set the state if the value is NaN, infinite, or non-numeric
-        if (Number.isFinite(scaleFactor) && scaleFactor !== scalingResult) {
-          setScalingResult(scaleFactor);
+
+        const selectedRecipeHash = formData.getAll("recipeSuggestion").at(0) as string;
+        if (selectedRecipeHash === "none" || selectedRecipeHash == "") {
+          console.info("CopyAndScale: No recipe selected");
+          return;
         }
+
+        const selectedRecipe = goal.recipeSuggestions.find(r => r.hash === selectedRecipeHash)
+
+        let safeRawRecipe: RawRecipe;
+        try {
+          safeRawRecipe = recipeFromUnknown(selectedRecipe?.recipe);
+        }
+        catch (e) {
+          console.error("CopyAndScale: Failed to parse recipe", e);
+          alert(t("components:copy_and_scale.recipe_parse_error"));
+          return;
+        }
+        const parsedRecipe = await parseRecipe(safeRawRecipe);
+        console.log(parsedRecipe);
       }
     }
   }
@@ -317,13 +330,13 @@ export default function CopyAndScale({
           {/* Suggested recipes */}
           {goal.recipeSuggestions.length > 0 ? (<>
             <label>
-              <input type="radio" name="recipe-suggestion" />
+              <input type="radio" name="recipeSuggestion" value={"none"} />
               &nbsp;
               Ingen vald
             </label>
             {goal.recipeSuggestions.map((recipe, index) => (
               <label key={index} className="block margin-block-50">
-                <input type="radio" name="recipe-suggestion" value={JSON.stringify(recipe)} />
+                <input type="radio" name="recipeSuggestion" value={recipe.hash} />
                 &nbsp;
                 <>
                   {(recipe.recipe as Recipe).name ?? "Namnlöst förslag"} <span style={{ color: "gray" }}> Recept: ({(recipe.recipe as Recipe).eq})</span>

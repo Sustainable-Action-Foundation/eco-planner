@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import { getVariableName } from "./recipe-parser/helpers";
 import type { DataSeriesArray, EvalTimeDataSeries, EvalTimeScalar, RawRecipe, Recipe, RecipeVariableDataSeries, RecipeVariables, RecipeVariableScalar } from "./recipe-parser/types";
 import { RecipeVariableType, isRawDataSeriesByValue, lenientIsRawDataSeriesByLink, isRecipeVariableScalar, MathjsError, RecipeError } from "./recipe-parser/types";
@@ -189,7 +188,7 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
           }
 
           // Write to "db" and link TODO - do this properly
-          const uuid = randomUUID();
+          const uuid = crypto.randomUUID();
           dataSeriesDB[uuid] = {
             uuid,
             data: dataSeries,
