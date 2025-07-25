@@ -1,5 +1,6 @@
 import { ActionImpactType, DataSeries, Prisma, RoadmapType } from "@prisma/client";
 import dataFieldArray from "./lib/dataSeriesDataFieldNames.json" with { type: "json" };
+import { actionInclusionSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, roadmapInclusionSelection } from "./fetchers/inclusionSelectors";
 
 /** An object that implements the AccessControlled interface can be checked with the accessChecker function. */
 export interface AccessControlled {
@@ -112,6 +113,49 @@ export type JSONValue = Partial<{ [key: string]: JSONValue }> | JSONValue[] | st
 export function isScalingRecipe(object: unknown): object is ScalingRecipe {
   return (typeof object == "object" && (object as ScalingRecipe)?.values instanceof Array)
 }
+
+// Usually part of an array with the type NameObject[]
+export type NameObject = Prisma.MetaRoadmapGetPayload<{
+  select: typeof nameSelector
+}>;
+
+export type MetaRoadmap = Prisma.MetaRoadmapGetPayload<{
+  include: typeof metaRoadmapInclusionSelection
+}>;
+
+export type Roadmap = Prisma.RoadmapGetPayload<{
+  include: typeof roadmapInclusionSelection
+}>;
+
+export type ClientRoadmap = Prisma.RoadmapGetPayload<{
+  select: typeof clientSafeRoadmapSelection
+}>;
+
+// Will usually be part of an array with the type MultiRoadmapInstance[]
+export type MultiRoadmapInstance = Prisma.RoadmapGetPayload<{
+  include: typeof multiRoadmapInclusionSelection
+}>;
+
+// Will usually be part of an array with the type ClientMultiRoadmapInstance[]
+export type ClientMultiRoadmapInstance = Prisma.RoadmapGetPayload<{
+  select: typeof clientSafeMultiRoadmapSelection
+}>;
+
+export type Goal = Prisma.GoalGetPayload<{
+  include: typeof goalInclusionSelection
+}>;
+
+export type ClientGoal = Prisma.GoalGetPayload<{
+  select: typeof clientSafeGoalSelection
+}>;
+
+export type Action = Prisma.ActionGetPayload<{
+  include: typeof actionInclusionSelection
+}>;
+
+export type Effect = Prisma.EffectGetPayload<{
+  include: typeof effectInclusionSelection
+}>;
 
 /** The format of data needed to create a new roadmap series */
 export type MetaRoadmapCreateInput = {
