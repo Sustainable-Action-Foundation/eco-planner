@@ -4,7 +4,8 @@ import { colors } from "../src/scripts/lib/colors";
 import { PrismaClient, RoadmapType } from '../src/prisma/generated';
 import bcrypt from "bcryptjs";
 import { LoremIpsum } from "lorem-ipsum";
-import { DataSeriesArray, RawRecipe, RecipeVariableType } from "@/functions/recipe-parser/types";
+import { DataSeriesArray, RawRecipe, Recipe, RecipeVariableType } from "@/functions/recipe-parser/types";
+import crypto from "node:crypto";
 
 const prisma = new PrismaClient();
 prisma.$connect().catch((e) => {
@@ -16,6 +17,23 @@ prisma.$connect().catch((e) => {
   process.exit(1);
 });
 const lorem = new LoremIpsum();
+
+function hashRecipe(input: string | RawRecipe | Recipe) {
+  let stringifiedInput: string;
+  if (typeof input === 'string') {
+    stringifiedInput = input;
+  } else {
+    // If input is a RawRecipe or Recipe, we need to stringify it
+    stringifiedInput = JSON.stringify(input);
+  }
+
+  const hashObject = crypto.createHash("sha256");
+
+  hashObject.update(JSON.stringify(stringifiedInput));
+
+  return hashObject.digest("hex");
+
+}
 
 function makeRecipeSuggestions(dataSeries: DataSeriesArray): RawRecipe[] {
   return [
@@ -386,7 +404,7 @@ async function main() {
     val2050: 310,
   }
 
-  const goalWithRecipeSuggestions = await prisma.goal.create({
+  const _goalWithRecipeSuggestions = await prisma.goal.create({
     data: {
       name: 'Goal with Recipe Suggestions',
       description: 'This goal has recipe suggestions for testing purposes.',
@@ -402,10 +420,10 @@ async function main() {
         }
       },
       recipeSuggestions: {
-        create: makeRecipeSuggestions(Object.fromEntries(Object.entries(testingDataSeries).map(([year, value]) => ([year.replace('val', ''), value]))))
-          .map((recipe, i) => ({
-            hash: (recipe.eq + i).toString(),
-            recipe: recipe as RawRecipe,
+        create: makeRecipeSuggestions(testingDataSeries)
+          .map(recipe => ({
+            hash: hashRecipe(recipe),
+            recipe,
           })),
       }
     },
