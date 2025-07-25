@@ -1,3 +1,29 @@
+.text-editor-menu span[role="menuitem"],
+.text-editor-menu span[role="menuitemcheckbox"],
+.text-editor-menu span[role="menuitemradio"] {
+    position: relative;
+}
+
+@media not (pointer: coarse)  {
+    .text-editor-menu span[role="menuitem"]:hover::after,
+    .text-editor-menu span[role="menuitemcheckbox"]:hover::after,
+    .text-editor-menu span[role="menuitemradio"]:hover::after {
+        content: attr(aria-label) " (" attr(aria-keyshortcuts) ")" / '';
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgb(25, 25, 25, .85);
+        backdrop-filter: blur(1px);
+        z-index: 2;
+        color: white;
+        padding: .25rem;
+        border-radius: .25rem;
+        white-space: nowrap;
+        text-transform: capitalize;
+    }
+}
+
 .animated-menu {
     padding: 2px;
     position: absolute;

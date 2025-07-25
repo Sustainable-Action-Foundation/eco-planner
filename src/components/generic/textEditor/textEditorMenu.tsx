@@ -1,7 +1,6 @@
 'use client';
 
-// TODO: i18n
-// TODO: Tooltip
+// TODO: i18n 
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconChevronDown } from "@tabler/icons-react";
@@ -285,7 +284,7 @@ export default function TextEditorMenu({
   }
 
   return (
-    <div className="button-group margin-0" style={{ backgroundColor: 'var(--gray-95)', padding: '2px', borderRadius: '.25rem .25rem 0 0', borderBottom: '1px solid var(--gray)' }}>
+    <div className={`${styles["text-editor-menu"]} button-group margin-0`}style={{ backgroundColor: 'var(--gray-95)', padding: '2px', borderRadius: '.25rem .25rem 0 0', borderBottom: '1px solid var(--gray)' }}>
       <ul
         onKeyDown={handleKeyDownMenuBar}
         ref={menubarRef}
@@ -303,7 +302,8 @@ export default function TextEditorMenu({
               }
             }}
             tabIndex={0}
-            aria-label='undo'
+            aria-label='ångra'
+            aria-keyshortcuts='control+z'
             role='menuitem'
             aria-disabled={!editor.can().undo()}
           >
@@ -326,7 +326,8 @@ export default function TextEditorMenu({
               }
             }}
             tabIndex={-1}
-            aria-label='redo'
+            aria-label='gör om'
+            aria-keyshortcuts='control+shift+z'
             role='menuitem'
             aria-disabled={!editor.can().redo()}
           >
@@ -426,7 +427,7 @@ export default function TextEditorMenu({
               }
             }}
             tabIndex={-1}
-            aria-label='grey text'
+            aria-label='Grå text'
             role='menuitemcheckbox'
             aria-checked={editor.getAttributes('textStyle').color === 'grey'}
           >
@@ -449,7 +450,8 @@ export default function TextEditorMenu({
             }}
             tabIndex={-1}
             role='menuitemcheckbox'
-            aria-label="italic"
+            aria-label="kursiv"
+            aria-keyshortcuts='control+i'
             aria-checked={editor.getAttributes('textStyle').fontStyle === 'italic'}
           >
             <IconItalic className="grid" width={16} height={16} aria-hidden="true" />
@@ -466,7 +468,8 @@ export default function TextEditorMenu({
             }}
             tabIndex={-1}
             role='menuitemcheckbox'
-            aria-label="bold"
+            aria-label="fetstil"
+            aria-keyshortcuts='control+b'
             aria-checked={editor.getAttributes('textStyle').fontWeight === 'bold'}
           >
             <IconBold className="grid" width={16} height={16} aria-hidden="true" />
@@ -483,7 +486,8 @@ export default function TextEditorMenu({
             }}
             tabIndex={-1}
             role='menuitemcheckbox'
-            aria-label="strike-trough"
+            aria-keyshortcuts='control+shift+s'
+            aria-label="genomstryk"
             aria-checked={editor.getAttributes('textStyle').textDecoration === 'line-through'}
           >
             <IconStrikethrough className="grid" width={16} height={16} aria-hidden="true" />
@@ -500,7 +504,8 @@ export default function TextEditorMenu({
             }}
             tabIndex={-1}
             role='menuitemcheckbox'
-            aria-label="underline"
+            aria-keyshortcuts='control+u'
+            aria-label="understryk"
             aria-checked={editor.getAttributes('textStyle').textDecoration === 'underline'}
           >
             <IconUnderline className="grid" width={16} height={16} aria-hidden="true" />
@@ -517,7 +522,8 @@ export default function TextEditorMenu({
             }}
             tabIndex={-1}
             role='menuitemcheckbox'
-            aria-label="superscript"
+            aria-keyshortcuts='control+.'
+            aria-label="upphöj"
             aria-checked={editor.isActive('superscript')}
           >
             <IconSuperscript className="grid" width={16} height={16} aria-hidden="true" />
@@ -534,7 +540,8 @@ export default function TextEditorMenu({
             }}
             tabIndex={-1}
             role='menuitemcheckbox'
-            aria-label="subscript"
+            aria-label="nedsänk"
+            aria-keyshortcuts='control+,'
             aria-checked={editor.isActive('subscript')}
           >
             <IconSubscript className="grid" width={16} height={16} aria-hidden="true" />
@@ -551,7 +558,8 @@ export default function TextEditorMenu({
             }}
             tabIndex={-1}
             role='menuitemcheckbox'
-            aria-label="highlight"
+            aria-label="markera"
+            aria-keyshortcuts='control+shift+h'
             aria-checked={editor.isActive('highlight')}
           >
             <IconHighlight className="grid" width={16} height={16} aria-hidden="true" />
@@ -568,7 +576,7 @@ export default function TextEditorMenu({
             }}
             tabIndex={-1}
             role='menuitemcheckbox'
-            aria-label="link"
+            aria-label="infoga länk"
             aria-checked={editor.isActive('link')}
           >
             <IconLink className="grid" width={16} height={16} aria-hidden="true" />
@@ -585,7 +593,8 @@ export default function TextEditorMenu({
             }}
             tabIndex={-1}
             role='menuitemcheckbox'
-            aria-label="Bullet list"
+            aria-label="punktlista"
+            aria-keyshortcuts='control+shift+8'
             aria-checked={editor.isActive('bulletList')}
           >
             <IconList width={16} height={16} className="grid" aria-hidden='true' />
@@ -602,7 +611,8 @@ export default function TextEditorMenu({
             }}
             tabIndex={-1}
             role='menuitemcheckbox'
-            aria-label="Numbered list"
+            aria-label="numrerad lista"
+            aria-keyshortcuts='control+shift+7'
             aria-checked={editor.isActive('orderedList')}
           >
             <IconListNumbers width={16} height={16} className="grid" aria-hidden='true' />
