@@ -80,7 +80,7 @@ export const roadmapInclusionSelection /* Prisma.RoadmapInclude */ = {
   metaRoadmap: true,
   goals: {
     include: {
-      _count: { select: { effects: true, combinationParents: true } },
+      _count: { select: { effects: true } },
       dataSeries: true,
       author: { select: { id: true, username: true } },
     }
@@ -131,16 +131,13 @@ export const clientSafeRoadmapSelection /* Prisma.RoadmapSelect */ = {
       externalDataset: true,
       externalTableId: true,
       externalSelection: true,
-      combinationScale: true,
-      _count: { select: { effects: true, combinationParents: true } },
+      _count: { select: { effects: true } },
       dataSeries: {
         select: {
           id: true,
           unit: true,
           // All yearly data fields
           ...dataFieldSelector,
-          // DEPRECATED, remove once database is updated
-          scale: true,
         }
       },
     }
@@ -218,17 +215,6 @@ export const goalInclusionSelection /* Prisma.GoalInclude */ = {
   _count: { select: { effects: true } },
   dataSeries: true,
   baselineDataSeries: true,
-  combinationParents: {
-    include: {
-      parentGoal: {
-        select: {
-          id: true,
-          dataSeries: true,
-          roadmapId: true,
-        },
-      },
-    },
-  },
   effects: {
     include: {
       dataSeries: true,
@@ -275,7 +261,6 @@ export const clientSafeGoalSelection /* Prisma.GoalSelect */ = {
   externalDataset: true,
   externalTableId: true,
   externalSelection: true,
-  combinationScale: true,
   roadmapId: true,
   _count: { select: { effects: true } },
   dataSeries: {
@@ -284,8 +269,6 @@ export const clientSafeGoalSelection /* Prisma.GoalSelect */ = {
       unit: true,
       // All yearly data fields
       ...dataFieldSelector,
-      // DEPRECATED, remove once database is updated
-      scale: true,
     }
   },
   baselineDataSeries: {
@@ -294,32 +277,7 @@ export const clientSafeGoalSelection /* Prisma.GoalSelect */ = {
       unit: true,
       // All yearly data fields
       ...dataFieldSelector,
-      // DEPRECATED, remove once database is updated
-      scale: true,
     }
-  },
-  combinationParents: {
-    select: {
-      resultingGoalId: true,
-      parentGoalId: true,
-      isInverted: true,
-      parentGoal: {
-        select: {
-          id: true,
-          dataSeries: {
-            select: {
-              id: true,
-              unit: true,
-              // All yearly data fields
-              ...dataFieldSelector,
-              // DEPRECATED, remove once database is updated
-              scale: true,
-            }
-          },
-          roadmapId: true,
-        },
-      },
-    },
   },
   effects: {
     select: {
@@ -339,8 +297,6 @@ export const clientSafeGoalSelection /* Prisma.GoalSelect */ = {
           unit: true,
           // All yearly data fields
           ...dataFieldSelector,
-          // DEPRECATED, remove once database is updated
-          scale: true,
         }
       },
     }
