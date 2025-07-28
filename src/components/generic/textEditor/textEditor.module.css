@@ -1,12 +1,18 @@
-.text-editor-menu span[role="menuitem"],
-.text-editor-menu span[role="menuitemcheckbox"],
-.text-editor-menu span[role="menuitemradio"] {
+.text-editor-menu {
+    background-color: var(--gray-95); 
+    padding: 2px; 
+    border-radius: .25rem .25rem 0 0; 
+    border-bottom: 1px solid var(--gray);
+}
+
+.text-editor-menu span[role^="menuitem"] {
     position: relative;
 }
 
 @media not (pointer: coarse)  {
-    .text-editor-menu span:is([role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]):hover::after,
-    .text-editor-menu:not(:has(span:is([role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"])):hover) span:is([role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]):focus::after {
+    .text-editor-menu span[role^="menuitem"]:hover::after,
+    /* If texteditor does not contain a hovered menuitem, allow displaying tooltips on focus */
+    .text-editor-menu:not(:has(span[role^="menuitem"]):hover) span[role^="menuitem"]:focus::after { 
         content: attr(aria-label) " (" attr(aria-keyshortcuts) ")" / '';
         position: absolute;
         top: calc(100% + 5px);
@@ -23,8 +29,8 @@
     }
 }
 
-/* Hide tooltip if a menu exists */
-.text-editor-menu span:is([role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]):has(+ .animated-menu.visible)::after {
+/* Hide tooltip if a menu exists and is visible */
+.text-editor-menu span[role^="menuitem"]:has(+ .animated-menu.visible)::after {
     opacity: 0;
 }
 

@@ -1,6 +1,5 @@
 'use client';
 
-// TODO: i18n 
 import { useTranslation } from "react-i18next";
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconChevronDown } from "@tabler/icons-react";
@@ -286,7 +285,7 @@ export default function TextEditorMenu({
   }
 
   return (
-    <div className={`${styles["text-editor-menu"]} button-group margin-0`}style={{ backgroundColor: 'var(--gray-95)', padding: '2px', borderRadius: '.25rem .25rem 0 0', borderBottom: '1px solid var(--gray)' }}>
+    <div className={`${styles["text-editor-menu"]} button-group margin-0`}>
       <ul
         onKeyDown={handleKeyDownMenuBar}
         ref={menubarRef}
@@ -342,7 +341,7 @@ export default function TextEditorMenu({
             />
           </span>
         </li>
-        <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)', position: 'relative', userSelect: 'none' }}>
+        <li role='presentation' className='margin-right-25 padding-right-25 position-relative' style={{ borderRight: '1px solid var(--gray-80)', userSelect: 'none' }}>
           <span
             onClick={() => setFontSizeMenuOpen(!fontSizeMenuOpen)}
             onKeyDown={handleKeyDownFontSizeMenu}
