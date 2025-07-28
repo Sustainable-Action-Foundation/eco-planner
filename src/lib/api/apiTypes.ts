@@ -6,6 +6,9 @@ export type ApiTableContent = {
   columns: {
     id: string,
     label: string,
+    /**
+     * "d" for dimension, "m" for measure, "t" for time
+     */
     type: "d" | "m" | "t",
   }[],
   data: {

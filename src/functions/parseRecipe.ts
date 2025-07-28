@@ -5,6 +5,7 @@ import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks"
 import mathjs from "@/math";
 import { dataSeriesDataFieldNames, isStandardObject, uuidRegex } from "@/types";
 import { Unit } from "mathjs";
+import { ApiTableContent } from "@/lib/api/apiTypes";
 
 const years = dataSeriesDataFieldNames
 // const startYear = 2020;
@@ -310,6 +311,19 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
       return { name, link, data, unit };
     });
 
+  const externalData: (ApiTableContent & { name: string, type?: "matrix" | "scalar" })[] = Object.entries(recipe.variables)
+    .filter(([, variable]) => variable.type === "external")
+    .map(([name, variable]) => {
+      // Do magic here
+      return {
+        name: name,
+        id: "",
+        columns: [],
+        data: [],
+        metadata: [],
+      }
+    })
+
   /**
    * Sanity checks on variables
    */
@@ -364,6 +378,38 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
 
     scope[varName] = mathjs.matrix(seriesValues);
     equation = equation.replace(`\${${series.name}}`, varName);
+  }
+
+  // Add external data to scope, as either a matrix or a scalar
+  for (const data of externalData) {
+    const varName = data.name.replace(/\s+/g, "_");
+    if (data.data.length === 0) {
+      throw new RecipeError(`External data '${data.name}' contains no data and cannot be evaluated.`);
+    }
+
+    switch (data.type) {
+      case "matrix":
+        // TODO: implement this
+        break;
+      // Default case is to handle as a scalar
+      case "scalar":
+      default:
+        // If the data is a scalar, we can just take the last value
+        const dataColumn = data.columns.findIndex(col => col.type !== "t")
+        if (dataColumn === -1) {
+          throw new RecipeError(`External data '${data.name}' has no valid columns to evaluate as a scalar.`);
+        }
+        const lastValue = data.data[dataColumn].values.filter(item => item != null && item != "" && item != "-").slice(-1)[0];
+        if (lastValue) {
+          let value = parseFloat(lastValue);
+          if (Number.isFinite(value)) {
+            scope[varName] = value;
+          }
+        } else {
+          throw new RecipeError(`Failed to find a valid value in external data '${data.name}'.`);
+        }
+        break;
+    }
   }
 
   /**
