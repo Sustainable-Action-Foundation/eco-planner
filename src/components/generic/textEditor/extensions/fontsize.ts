@@ -84,4 +84,13 @@ export const FontSize = Extension.create<FontSizeOptions>({
       },
     }
   },
+
+  addKeyboardShortcuts() {
+    return {
+      'Mod-shift-1': () => this.editor.commands.setFontSize('1.25rem'),
+      'Mod-shift-2': () => this.editor.commands.unsetFontSize(),
+      'Mod-shift-3': () => this.editor.commands.setFontSize('0.75rem'),
+    }
+  },
+
 })

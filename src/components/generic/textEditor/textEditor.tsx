@@ -88,7 +88,7 @@ const TextEditor = ({
 
   /* TODO: Apply aria-hidden to empty <p> tags */
   /* TODO: If there are empty tags after the last piece of content, remove them */
-  /* TODO: Keyboard Shortcut for font size and grey-text */
+  /* TODO: Keyboard shortcut and custom menu for linkinput */
   return (
     <div className='tiptap-wrapper purewhite smooth' style={{ border: '1px solid var(--gray-80)' }}>
       <TextEditorMenu editor={editor} />

@@ -74,12 +74,10 @@ export const GreyText = Extension.create<greyTextOptions>({
     }
   },
 
-  /* TODO: Figure out commands for this
   addKeyboardShortcuts() {
     return {
-      'Mod-b': () => this.editor.commands.toggleBold(),
-      'Mod-B': () => this.editor.commands.toggleBold(),
+      'Mod-shift-g': () => this.editor.commands.toggleGreyText(),
+      'Mod-shift-G': () => this.editor.commands.toggleGreyText(),
     }
   },
-   */
 })

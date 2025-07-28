@@ -351,6 +351,7 @@ export default function TextEditorMenu({
             aria-haspopup='menu'
             aria-expanded={fontSizeMenuOpen}
             aria-label={t("forms:text_editor_menu.font_size.caption")}
+            data-tooltip={t("forms:text_editor_menu.font_size.caption")}
             style={{ width: '100px', display: 'flex' }}
             className='align-items-center justify-content-space-between'
           >
@@ -384,6 +385,7 @@ export default function TextEditorMenu({
                 style={{ whiteSpace: 'nowrap' }}
                 role='menuitemradio'
                 aria-label={t("forms:text_editor_menu.font_size.large")}
+                aria-keyshortcuts='control+shift+1'
                 aria-checked={editor.getAttributes('textStyle').fontSize === '1.25rem'}
                 tabIndex={-1}>
                 {t("forms:text_editor_menu.font_size.large")}
@@ -398,6 +400,7 @@ export default function TextEditorMenu({
                 style={{ whiteSpace: 'nowrap' }}
                 role='menuitemradio'
                 aria-label={t("forms:text_editor_menu.font_size.normal")}
+                aria-keyshortcuts='control+shift+2'
                 aria-checked={!editor.getAttributes('textStyle').fontSize}
                 tabIndex={-1}
               >
@@ -413,6 +416,7 @@ export default function TextEditorMenu({
                 style={{ whiteSpace: 'nowrap' }}
                 role='menuitemradio'
                 aria-label={t("forms:text_editor_menu.font_size.small")}
+                aria-keyshortcuts='control+shift+3'
                 aria-checked={editor.getAttributes('textStyle').fontSize === '0.75rem'}
                 tabIndex={-1}
               >
@@ -432,6 +436,7 @@ export default function TextEditorMenu({
             }}
             tabIndex={-1}
             aria-label={t("forms:text_editor_menu.grey_text")}
+            aria-keyshortcuts='control+shift+g'
             role='menuitemcheckbox'
             aria-checked={editor.getAttributes('textStyle').color === 'grey'}
           >

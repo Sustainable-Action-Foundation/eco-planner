@@ -5,14 +5,14 @@
     border-bottom: 1px solid var(--gray);
 }
 
-.text-editor-menu span[role^="menuitem"] {
+.text-editor-menu :is(span, div)[role^="menuitem"] {
     position: relative;
 }
 
 @media not (pointer: coarse)  {
-    .text-editor-menu span[role^="menuitem"]:hover::after,
+    .text-editor-menu :is(span, div)[role^="menuitem"]:hover::after,
     /* If texteditor does not contain a hovered menuitem, allow displaying tooltips on focus */
-    .text-editor-menu:not(:has(span[role^="menuitem"]):hover) span[role^="menuitem"]:focus::after { 
+    .text-editor-menu:not(:has(:is(span, div)[role^="menuitem"]):hover) :is(span, div)[role^="menuitem"]:focus::after { 
         content: attr(aria-label) " (" attr(aria-keyshortcuts) ")" / '';
         position: absolute;
         top: calc(100% + 5px);
@@ -27,10 +27,19 @@
         white-space: nowrap;
         text-transform: capitalize;
     }
+    .text-editor-menu :is(span, div)[role^="menuitem"][data-tooltip]:hover::after,
+    .text-editor-menu:not(:has(:is(span, div)[role^="menuitem"]):hover) :is(span, div)[role^="menuitem"][data-tooltip]:focus::after {
+        content: attr(data-tooltip);
+    }
+    .text-editor-menu :is(span, div)[role^="menuitem"] + .animated-menu.visible :is(span, div):hover::after {
+        top: calc(50%);
+        left: calc(100% + 4px);
+        transform: translateX(0) translateY(-50%);
+    }
 }
 
 /* Hide tooltip if a menu exists and is visible */
-.text-editor-menu span[role^="menuitem"]:has(+ .animated-menu.visible)::after {
+.text-editor-menu :is(span, div)[role^="menuitem"]:has(+ .animated-menu.visible)::after {
     opacity: 0;
 }
 
@@ -48,12 +57,6 @@
     transform-origin: top left;
     opacity: 0;
 
-    overflow-y: auto;
-    scrollbar-width: thin;
-    max-height: 300px;
-    scroll-padding-top: 37px; /* height of ::before plus its margin */
-    scroll-padding-bottom: .25rem;
- 
     transition-property: display, opacity, transform;
     transition-duration: .15s;
     transition-behavior: allow-discrete;
