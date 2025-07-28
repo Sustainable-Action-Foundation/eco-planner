@@ -1,6 +1,7 @@
 // Use server in order to circumvent CORS issues
 "use server";
 
+import { JSONValue } from "@/types.ts";
 import { ApiTableContent } from "../api/apiTypes.ts";
 import { externalDatasets } from "../api/utility.ts";
 import getPxWebTableDetails from "./getPxWebTableDetails.ts";
@@ -117,7 +118,7 @@ export default async function getPxWebTableContent(tableId: string, externalData
       });
   }
 
-  let data = null;
+  let data: JSONValue = null;
   try {
     const response = await fetch(url, {
       method: 'POST',
@@ -195,7 +196,9 @@ export default async function getPxWebTableContent(tableId: string, externalData
     return returnTable;
   }
 
-  if (data) return pxWebTableContentToApiTableContent(data);
-
-  return data;
+  if (data instanceof Object && "columns" in data && "data" in data && "metadata" in data) {
+    return pxWebTableContentToApiTableContent(data as PxWebApiV2TableContent);
+  } else {
+    return null;
+  }
 }

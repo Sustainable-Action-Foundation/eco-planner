@@ -8,5 +8,7 @@ export default async function getTableContent(tableId: string, externalDataset: 
   }
   else if (externalDataset == "Trafa") {
     return getTrafaTableContent(tableId, selection, language);
+  } else {
+    return null; // No matching dataset found
   }
 }
