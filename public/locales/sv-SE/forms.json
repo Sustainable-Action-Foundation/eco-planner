@@ -166,6 +166,27 @@
     "listbox_label": "Förslag",
     "listbox_empty_label": "Inga förslag"
   },
+  "text_editor_menu": {
+    "undo": "Ångra",
+    "redo": "Gör om",
+    "font_size": {
+      "caption": "Textstorlek",
+      "large": "Large text",
+      "normal": "Normal text",
+      "small": "Liten text"
+    },
+    "grey_text": "Grå text",
+    "italic": "Kursiv",
+    "bold": "Fetstil",
+    "strike_through": "Genomstryk",
+    "underline": "Understryk",
+    "superscript": "Upphöj",
+    "subscript": "Nedsänk",
+    "highlight": "Markera",
+    "insert_link": "Infoga länk",
+    "bullet_list": "Punktlista",
+    "numbered_list": "Numrerad lista"
+  },
   "meta_roadmap": {
     "description_legend": "Beskriv din $t(common:roadmap_series_one)",
     "roadmap_series_name": "Namn för $t(common:roadmap_series_definite_one)",

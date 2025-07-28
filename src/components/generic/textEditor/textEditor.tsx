@@ -34,9 +34,11 @@ import {
 export const allowedProtocols = ['http', 'https', 'mailto', 'callto', 'tel'];
 
 const TextEditor = ({ 
-  ariaLabelledBy 
+  ariaLabelledBy,
+  placeholder
 }: {
-  ariaLabelledBy: string
+  ariaLabelledBy: string,
+  placeholder?: string
 }) => {
   const editor = useEditor({
     immediatelyRender: true,
@@ -46,7 +48,7 @@ const TextEditor = ({
       Paragraph,
       TextStyle.configure({ mergeNestedSpanStyles: true }),
       Placeholder.configure({
-        placeholder: 'Skriv något...'
+        placeholder: placeholder ? placeholder : undefined
       }),
       Highlight,
       Subscript,

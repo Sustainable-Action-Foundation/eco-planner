@@ -166,6 +166,27 @@
     "listbox_label": "Suggestions",
     "listbox_empty_label": "No suggestions"
   },
+  "text_editor_menu": {
+    "undo": "Undo",
+    "redo": "Redo",
+    "font_size": {
+      "caption": "Font size",
+      "large": "Large text",
+      "normal": "Normal text",
+      "small": "Small text"
+    },
+    "grey_text": "Grey text",
+    "italic": "Italic",
+    "bold": "Bold",
+    "strike_through": "Strike through",
+    "underline": "Underline",
+    "superscript": "Superscript",
+    "subscript": "Subscript",
+    "highlight": "Highlight",
+    "insert_link": "Insert link",
+    "bullet_list": "Bulleted list",
+    "numbered_list": "Numbered list"
+  },
   "meta_roadmap": {
     "description_legend": "Describe your $t(common:roadmap_series_one)",
     "roadmap_series_name": "Name $t(common:roadmap_series_definite_one)",

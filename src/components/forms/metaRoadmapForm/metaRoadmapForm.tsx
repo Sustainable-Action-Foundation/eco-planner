@@ -117,7 +117,7 @@ export default function MetaRoadmapForm({
 
           <div className="margin-block-100">
             <div className="margin-bottom-25" id="roadmap-series-description">{t("forms:meta_roadmap.roadmap_series_description")}</div>
-            <TextEditor ariaLabelledBy="roadmap-series-description" />
+            <TextEditor ariaLabelledBy="roadmap-series-description" placeholder="Skriv något..." />
           </div>
           
         </fieldset>

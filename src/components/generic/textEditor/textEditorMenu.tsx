@@ -1,7 +1,7 @@
 'use client';
 
 // TODO: i18n 
-
+import { useTranslation } from "react-i18next";
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconChevronDown } from "@tabler/icons-react";
 import { Editor } from "@tiptap/core";
@@ -13,6 +13,8 @@ export default function TextEditorMenu({
 }: {
   editor: Editor
 }) {
+
+  const { t } = useTranslation("forms");
 
   const [focusedMenubarItem, setFocusedMenubarItem] = useState<number | null>(null);
   const [fontSizeMenuOpen, setFontSizeMenuOpen] = useState<boolean>(false);
@@ -99,7 +101,7 @@ export default function TextEditorMenu({
         (fontSizeMenuButtonRef.current && !fontSizeMenuButtonRef.current.contains(event.target))
       ) {
         setFontSizeMenuOpen(false);
-        editor.commands.focus() // TODO: Shold this be editor.chain().focus()?
+        editor.commands.focus() 
       }
     };
 
@@ -302,7 +304,7 @@ export default function TextEditorMenu({
               }
             }}
             tabIndex={0}
-            aria-label='ångra'
+            aria-label={t("forms:text_editor_menu.undo")}
             aria-keyshortcuts='control+z'
             role='menuitem'
             aria-disabled={!editor.can().undo()}
@@ -326,7 +328,7 @@ export default function TextEditorMenu({
               }
             }}
             tabIndex={-1}
-            aria-label='gör om'
+            aria-label={t("forms:text_editor_menu.redo")}
             aria-keyshortcuts='control+shift+z'
             role='menuitem'
             aria-disabled={!editor.can().redo()}
@@ -349,16 +351,16 @@ export default function TextEditorMenu({
             role='menuitem'
             aria-haspopup='menu'
             aria-expanded={fontSizeMenuOpen}
-            aria-label='Textstorlek'
+            aria-label={t("forms:text_editor_menu.font_size.caption")}
             style={{ width: '100px', display: 'flex' }}
             className='align-items-center justify-content-space-between'
           >
             {!editor.getAttributes('textStyle').fontSize ?
-              'Normal text'
+              t("forms:text_editor_menu.font_size.normal")
               : editor.getAttributes('textStyle').fontSize == '1.25rem' ?
-                'Stor text'
+                t("forms:text_editor_menu.font_size.large")
                 : editor.getAttributes('textStyle').fontSize == '0.75rem' ?
-                  'Liten text'
+                  t("forms:text_editor_menu.font_size.small")
                   : ''
             }
             <IconChevronDown width={16} height={16} aria-hidden="true" />
@@ -366,7 +368,7 @@ export default function TextEditorMenu({
           <ul
             // TODO: See if we need to set aria-owns here somewhere
             ref={fontSizeMenuRef}
-            aria-label='Font size'
+            aria-label={t("forms:text_editor_menu.font_size.caption")}
             role='menu'
             className={`
               ${styles["animated-menu"]} 
@@ -382,9 +384,10 @@ export default function TextEditorMenu({
                 className='smooth padding-50 font-size-smaller'
                 style={{ whiteSpace: 'nowrap' }}
                 role='menuitemradio'
+                aria-label={t("forms:text_editor_menu.font_size.large")}
                 aria-checked={editor.getAttributes('textStyle').fontSize === '1.25rem'}
                 tabIndex={-1}>
-                Stor text
+                {t("forms:text_editor_menu.font_size.large")}
               </div>
             </li>
             <li role='presentation' style={{ borderBottom: '1px solid var(--gray)', paddingBlock: '2px' }}>
@@ -395,10 +398,11 @@ export default function TextEditorMenu({
                 className='smooth padding-50 font-size-smaller'
                 style={{ whiteSpace: 'nowrap' }}
                 role='menuitemradio'
+                aria-label={t("forms:text_editor_menu.font_size.normal")}
                 aria-checked={!editor.getAttributes('textStyle').fontSize}
                 tabIndex={-1}
               >
-                Normal text
+                {t("forms:text_editor_menu.font_size.normal")}
               </div>
             </li>
             <li role='presentation' style={{ paddingTop: '2px' }}>
@@ -409,10 +413,11 @@ export default function TextEditorMenu({
                 className='smooth padding-50 font-size-smaller'
                 style={{ whiteSpace: 'nowrap' }}
                 role='menuitemradio'
+                aria-label={t("forms:text_editor_menu.font_size.small")}
                 aria-checked={editor.getAttributes('textStyle').fontSize === '0.75rem'}
                 tabIndex={-1}
               >
-                Liten text
+                {t("forms:text_editor_menu.font_size.small")}
               </div>
             </li>
           </ul>
@@ -427,7 +432,7 @@ export default function TextEditorMenu({
               }
             }}
             tabIndex={-1}
-            aria-label='Grå text'
+            aria-label={t("forms:text_editor_menu.grey_text")}
             role='menuitemcheckbox'
             aria-checked={editor.getAttributes('textStyle').color === 'grey'}
           >
@@ -450,7 +455,7 @@ export default function TextEditorMenu({
             }}
             tabIndex={-1}
             role='menuitemcheckbox'
-            aria-label="kursiv"
+            aria-label={t("forms:text_editor_menu.italic")}
             aria-keyshortcuts='control+i'
             aria-checked={editor.getAttributes('textStyle').fontStyle === 'italic'}
           >
@@ -468,7 +473,7 @@ export default function TextEditorMenu({
             }}
             tabIndex={-1}
             role='menuitemcheckbox'
-            aria-label="fetstil"
+            aria-label={t("forms:text_editor_menu.bold")}
             aria-keyshortcuts='control+b'
             aria-checked={editor.getAttributes('textStyle').fontWeight === 'bold'}
           >
@@ -486,8 +491,8 @@ export default function TextEditorMenu({
             }}
             tabIndex={-1}
             role='menuitemcheckbox'
+            aria-label={t("forms:text_editor_menu.strike_through")}
             aria-keyshortcuts='control+shift+s'
-            aria-label="genomstryk"
             aria-checked={editor.getAttributes('textStyle').textDecoration === 'line-through'}
           >
             <IconStrikethrough className="grid" width={16} height={16} aria-hidden="true" />
@@ -504,8 +509,8 @@ export default function TextEditorMenu({
             }}
             tabIndex={-1}
             role='menuitemcheckbox'
+            aria-label={t("forms:text_editor_menu.underline")}
             aria-keyshortcuts='control+u'
-            aria-label="understryk"
             aria-checked={editor.getAttributes('textStyle').textDecoration === 'underline'}
           >
             <IconUnderline className="grid" width={16} height={16} aria-hidden="true" />
@@ -522,8 +527,8 @@ export default function TextEditorMenu({
             }}
             tabIndex={-1}
             role='menuitemcheckbox'
+            aria-label={t("forms:text_editor_menu.superscript")}
             aria-keyshortcuts='control+.'
-            aria-label="upphöj"
             aria-checked={editor.isActive('superscript')}
           >
             <IconSuperscript className="grid" width={16} height={16} aria-hidden="true" />
@@ -540,7 +545,7 @@ export default function TextEditorMenu({
             }}
             tabIndex={-1}
             role='menuitemcheckbox'
-            aria-label="nedsänk"
+            aria-label={t("forms:text_editor_menu.subscript")}
             aria-keyshortcuts='control+,'
             aria-checked={editor.isActive('subscript')}
           >
@@ -558,7 +563,7 @@ export default function TextEditorMenu({
             }}
             tabIndex={-1}
             role='menuitemcheckbox'
-            aria-label="markera"
+            aria-label={t("forms:text_editor_menu.highlight")}
             aria-keyshortcuts='control+shift+h'
             aria-checked={editor.isActive('highlight')}
           >
@@ -567,7 +572,7 @@ export default function TextEditorMenu({
         </li>
         <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
           <span
-            onClick={setLink}
+            onClick={setLink} // TODO: Custom link menu :)
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -576,7 +581,7 @@ export default function TextEditorMenu({
             }}
             tabIndex={-1}
             role='menuitemcheckbox'
-            aria-label="infoga länk"
+            aria-label={t("forms:text_editor_menu.insert_link")}
             aria-checked={editor.isActive('link')}
           >
             <IconLink className="grid" width={16} height={16} aria-hidden="true" />
@@ -593,7 +598,7 @@ export default function TextEditorMenu({
             }}
             tabIndex={-1}
             role='menuitemcheckbox'
-            aria-label="punktlista"
+            aria-label={t("forms:text_editor_menu.bullet_list")}
             aria-keyshortcuts='control+shift+8'
             aria-checked={editor.isActive('bulletList')}
           >
@@ -611,7 +616,7 @@ export default function TextEditorMenu({
             }}
             tabIndex={-1}
             role='menuitemcheckbox'
-            aria-label="numrerad lista"
+            aria-label={t("forms:text_editor_menu.numbered_list")}
             aria-keyshortcuts='control+shift+7'
             aria-checked={editor.isActive('orderedList')}
           >
