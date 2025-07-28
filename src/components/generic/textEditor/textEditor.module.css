@@ -1,3 +1,8 @@
+.text-editor-menu [role="menubar"] > li {
+  display: inline-block;
+  vertical-align: top;
+}  
+
 .text-editor-menu {
     background-color: var(--gray-95); 
     padding: 2px; 
@@ -5,14 +10,38 @@
     border-bottom: 1px solid var(--gray);
 }
 
-.text-editor-menu :is(span, div)[role^="menuitem"] {
+.text-editor-menu [role^="menuitem"] {
     position: relative;
+    font-size: smaller;
+    display: inline-block;
+    vertical-align: top;
+    border-radius: .25rem;
+    padding: .25rem;
 }
 
+.text-editor-menu [role^="menuitem"][aria-checked="true"] {
+   background-color: hsl(206, 100%, 80%, .5);     
+}
+
+.text-editor-menu [role^="menuitem"][aria-expanded="true"] {
+    background-color: var(--gray);
+}
+
+/* Hide tooltip if a menu exists and is visible */
+.text-editor-menu [role^="menuitem"][aria-expanded="true"]::after {
+    opacity: 0;
+}
+
+/* Sticky tooltips and hover effects on phone might be perceived as annoying, thus we only desible on more precise devices */
 @media not (pointer: coarse)  {
-    .text-editor-menu :is(span, div)[role^="menuitem"]:hover::after,
-    /* If texteditor does not contain a hovered menuitem, allow displaying tooltips on focus */
-    .text-editor-menu:not(:has(:is(span, div)[role^="menuitem"]):hover) :is(span, div)[role^="menuitem"]:focus::after { 
+    .text-editor-menu [role^="menuitem"]:hover:not(:is([aria-checked="true"], [aria-disabled="true"], [aria-expanded="true"])),
+    .text-editor-menu [role^="menuitem"]:focus:not(:is([aria-checked="true"], [aria-disabled="true"], [aria-expanded="true"])) {
+        background-color: var(--gray-90)
+    }
+
+    .text-editor-menu [role^="menuitem"]:hover::after,
+    /* If texteditor does not contain a hovered menuitem, display tooltips on focus */
+    .text-editor-menu:not(:has([role^="menuitem"]):hover) [role^="menuitem"]:focus::after { 
         content: attr(aria-label) " (" attr(aria-keyshortcuts) ")" / '';
         position: absolute;
         top: calc(100% + 5px);
@@ -27,21 +56,18 @@
         white-space: nowrap;
         text-transform: capitalize;
     }
-    .text-editor-menu :is(span, div)[role^="menuitem"][data-tooltip]:hover::after,
-    .text-editor-menu:not(:has(:is(span, div)[role^="menuitem"]):hover) :is(span, div)[role^="menuitem"][data-tooltip]:focus::after {
-        content: attr(data-tooltip);
+
+    /* Override tooltip if we explicitly provide one*/
+    .text-editor-menu [role^="menuitem"][data-tooltip]:hover::after,
+    .text-editor-menu:not(:has([role^="menuitem"]):hover) [role^="menuitem"][data-tooltip]:focus::after {
+        content: attr(data-tooltip) / '';
     }
-    .animated-menu.visible :is(span, div)[role^="menuitem"]:hover::after,
-    .animated-menu.visible:not(:has(:is(span, div)[role^="menuitem"]):hover) :is(span, div)[role^="menuitem"]:focus::after {
+    .animated-menu.visible [role^="menuitem"]:hover::after,
+    .animated-menu.visible:not(:has([role^="menuitem"]):hover) :is(span, div)[role^="menuitem"]:focus::after {
         top: calc(50%);
         left: calc(100% + 4px);
         transform: translateX(0) translateY(-50%);
     }
-}
-
-/* Hide tooltip if a menu exists and is visible */
-.text-editor-menu :is(span, div)[role^="menuitem"]:has(+ .animated-menu.visible)::after {
-    opacity: 0;
 }
 
 .animated-menu {

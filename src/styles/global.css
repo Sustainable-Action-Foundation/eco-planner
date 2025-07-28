@@ -118,50 +118,6 @@ input:-webkit-autofill:focus {
 
 /* TipTap text editor */
 
-.button-group > ul[role="menubar"] > li {
-  display: inline-block;
-  vertical-align: top;
-} 
-
-.button-group > ul[role="menubar"] > li span[role="menuitem"],
-.button-group > ul[role="menubar"] > li span[role="menuitemcheckbox"] {
-  font-size: smaller;
-  display: inline-block;
-  vertical-align: top;
-  border-radius: .25rem;
-  padding: .25rem;
-  /* TODO: Add some slight margin */
-}
-
-.button-group > ul[role="menubar"] > li:hover span[role="menuitem"]:not([aria-disabled="true"]):not([aria-checked="true"]):not([aria-expanded="true"]),
-.button-group > ul[role="menubar"] > li:hover span[role="menuitemcheckbox"]:not([aria-disabled="true"]):not([aria-checked="true"]):not([aria-expanded="true"]), 
-.button-group > ul[role="menubar"] > li span[role="menuitem"]:focus:not([aria-disabled="true"]):not([aria-checked="true"]):not([aria-expanded="true"]),
-.button-group > ul[role="menubar"] > li span[role="menuitemcheckbox"]:focus:not([aria-disabled="true"]):not([aria-checked="true"]):not([aria-expanded="true"]) {
-  background-color: var(--gray-90)
-} 
-
-.button-group > ul[role="menubar"] > li span[role="menuitemcheckbox"][aria-checked="true"],
-[role="menu"] [role="menuitemradio"][aria-checked="true"] {
-  background-color: hsl(206, 100%, 80%, .5);  
-}
-
-.button-group > ul[role="menubar"] > li span[role="menuitem"][aria-expanded="true"] {
-  background-color: var(--gray);
-}
-
-[role="menu"] [role="menuitemradio"]:not([aria-disabled="true"]):not([aria-checked="true"]):hover,
-[role="menu"] [role="menuitemradio"]:not([aria-disabled="true"]):not([aria-checked="true"]):focus {
-  background-color: var(--gray-90)
-}
-
-.button-group .is-active {
-  background-color: hsl(206, 100%, 80%, .5);
-} 
-
-.button-group button {
-  transform: initial;
-} 
-
 .tiptap {
   border-radius: .25rem;
   padding-top: .75rem;

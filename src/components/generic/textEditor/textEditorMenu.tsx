@@ -8,9 +8,11 @@ import { allowedProtocols } from './textEditor';
 import styles from './textEditor.module.css' with { type: "css" }
 
 export default function TextEditorMenu({
-  editor
+  editor,
+  editorId
 }: {
-  editor: Editor
+  editor: Editor,
+  editorId: string
 }) {
 
   const { t } = useTranslation("forms");
@@ -350,6 +352,7 @@ export default function TextEditorMenu({
             role='menuitem'
             aria-haspopup='menu'
             aria-expanded={fontSizeMenuOpen}
+            aria-owns={`${editorId}-font-size-menu`}
             aria-label={t("forms:text_editor_menu.font_size.caption")}
             data-tooltip={t("forms:text_editor_menu.font_size.caption")}
             style={{ width: '100px', display: 'flex' }}
@@ -366,7 +369,7 @@ export default function TextEditorMenu({
             <IconChevronDown width={16} height={16} aria-hidden="true" />
           </span>
           <ul
-            // TODO: See if we need to set aria-owns here somewhere
+            id={`${editorId}-font-size-menu`}
             ref={fontSizeMenuRef}
             aria-label={t("forms:text_editor_menu.font_size.caption")}
             role='menu'
@@ -381,8 +384,8 @@ export default function TextEditorMenu({
                 onClick={() => { editor.chain().focus().setFontSize('1.25rem').run(), setFontSizeMenuOpen(false) }}
                 onKeyDown={handleKeyDownFontSizeMenuItem}
                 data-size="1.25rem"
-                className='smooth padding-50 font-size-smaller'
-                style={{ whiteSpace: 'nowrap' }}
+                className='smooth font-size-smaller width-100'
+                style={{ padding: '.5rem', whiteSpace: 'nowrap' }}
                 role='menuitemradio'
                 aria-label={t("forms:text_editor_menu.font_size.large")}
                 aria-keyshortcuts='control+shift+1'
@@ -396,8 +399,8 @@ export default function TextEditorMenu({
                 onClick={() => { editor.chain().focus().unsetFontSize().run(), setFontSizeMenuOpen(false) }}
                 onKeyDown={handleKeyDownFontSizeMenuItem}
                 data-size="unset"
-                className='smooth padding-50 font-size-smaller'
-                style={{ whiteSpace: 'nowrap' }}
+                className='smooth font-size-smaller width-100'
+                style={{ padding: '.5rem', whiteSpace: 'nowrap' }}
                 role='menuitemradio'
                 aria-label={t("forms:text_editor_menu.font_size.normal")}
                 aria-keyshortcuts='control+shift+2'
@@ -412,8 +415,8 @@ export default function TextEditorMenu({
                 onClick={() => { editor.chain().focus().setFontSize('0.75rem').run(), setFontSizeMenuOpen(false) }}
                 onKeyDown={handleKeyDownFontSizeMenuItem}
                 data-size="0.75rem"
-                className='smooth padding-50 font-size-smaller'
-                style={{ whiteSpace: 'nowrap' }}
+                className='smooth font-size-smaller width-100'
+                style={{ padding: '.5rem', whiteSpace: 'nowrap' }}
                 role='menuitemradio'
                 aria-label={t("forms:text_editor_menu.font_size.small")}
                 aria-keyshortcuts='control+shift+3'
