@@ -10,6 +10,7 @@ import pruneOrphans from "@/functions/pruneOrphans";
 import { cookies } from "next/headers";
 import getOneGoal from "@/fetchers/getOneGoal";
 import { recalculateGoal } from "@/functions/recalculateGoal";
+import { DataSeriesArray } from "@/functions/recipe-parser/types";
 
 function isNull(value: unknown): value is null {
   return value === null;
@@ -125,7 +126,7 @@ function isTypeGoalUpdateInput(goal: JSONValue): goal is GoalUpdateInput {
  * Handles POST requests to the goal API
  */
 export async function POST(request: NextRequest) {
-  const [session, goal] = await Promise.all([
+  const [session, formData] = await Promise.all([
     getSession(await cookies()),
     request.json() as Promise<JSONValue>,
   ]);
@@ -138,7 +139,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Validate form data type
-  if (!isTypeGoalCreateInput(goal)) {
+  if (!isTypeGoalCreateInput(formData)) {
     return Response.json({ message: 'Invalid request body' },
       { status: 400 }
     );
@@ -152,7 +153,7 @@ export async function POST(request: NextRequest) {
         select: { id: true, username: true, isAdmin: true, userGroups: true }
       }),
       prisma.roadmap.findUnique({
-        where: { id: goal.roadmapId },
+        where: { id: formData.roadmapId },
         select: {
           author: { select: { id: true, username: true } },
           editors: { select: { id: true, username: true } },
@@ -215,79 +216,59 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // TODO - reimplement with recipes
-  // // Prepare for creating data series
-  // let dataValues: Partial<DataSeriesDataFields> | undefined | null = null;
-  // if (goal.inheritFrom?.length) {
-  //   // Combine the data series of the parent goals
-  //   const parentGoals = await Promise.all(goal.inheritFrom.map(({ id }) => getOneGoal(id)));
-  //   const combinationParents: {
-  //     isInverted: boolean,
-  //     parentGoal: {
-  //       dataSeries: DataSeries | null
-  //     }
-  //   }[] = goal.inheritFrom.map(({ id, isInverted }) => {
-  //     const parentGoal = parentGoals.find(goal => goal?.id === id);
-  //     return { isInverted: isInverted ?? false, parentGoal: { dataSeries: parentGoal?.dataSeries ?? null } };
-  //   });
-  //   dataValues = await recalculateGoal({ combinationScale: goal.combinationScale ?? null, combinationParents });
-  // } else if (goal.dataSeries?.length) {
-  //   // Get data series from the request
-  //   dataValues = dataSeriesPrep(goal.dataSeries);
-  // }
-  // // If the data series is invalid, return an error
-  // if (dataValues == null) {
-  //   return Response.json({ message: 'Bad data series' },
-  //     { status: 400 }
-  //   );
-  // }
-
-  // Prepare goal baseline (if any)
-  let baselineValues: Partial<DataSeriesDataFields> | undefined | null = undefined;
-  if (goal.rawBaselineDataSeries?.length) {
-    // Get baseline data series from the request
-    baselineValues = dataSeriesPrep(goal.rawBaselineDataSeries);
-  }
-  // If the baseline data series is invalid, return an error
-  if (baselineValues === null) {
-    return Response.json({ message: 'Bad baseline data series' },
-      { status: 400 }
-    );
-  }
+  // TODO - validate data series
+  const dataSeriesArray: DataSeriesArray = {};
+  for (const field of dataSeriesDataFieldNames) {
+    const value = formData.dataSeriesArray?.[field];
+    if (isNullOrUndefined(value)) {
+      dataSeriesArray[field] = null;
+    }
+    else if (isString(value) && Number.isFinite(parseFloat(value))) {
+      dataSeriesArray[field] = parseFloat(value);
+    }
+    else if (isNumber(value)) {
+      dataSeriesArray[field] = value;
+    }
+    else {
+      console.warn(`Invalid value for data series field "${field}":`, value, "Setting to null");
+      dataSeriesArray[field] = null; // If the value is not a number or string, set it to null
+    }
+  };
 
   // Create goal
   try {
     const newGoal = await prisma.goal.create({
       data: {
-        name: goal.name,
-        description: goal.description,
-        indicatorParameter: goal.indicatorParameter,
-        isFeatured: goal.isFeatured,
-        externalDataset: goal.externalDataset,
-        externalTableId: goal.externalTableId,
-        externalSelection: goal.externalSelection,
+        name: formData.name,
+        description: formData.description,
+        indicatorParameter: formData.indicatorParameter,
+        isFeatured: formData.isFeatured,
+        externalDataset: formData.externalDataset,
+        externalTableId: formData.externalTableId,
+        externalSelection: formData.externalSelection,
         author: {
           connect: { id: session.user.id },
         },
         roadmap: {
-          connect: { id: goal.roadmapId },
+          connect: { id: formData.roadmapId },
         },
-        // dataSeries: {
-        //   create: {
-        //     ...dataValues,
-        //     unit: goal.dataUnit,
-        //     authorId: session.user.id,
-        //   },
-        // },
-        baselineDataSeries: baselineValues ? {
+        dataSeries: {
           create: {
-            ...baselineValues,
-            unit: goal.dataUnit,
+            ...dataSeriesArray,
+            unit: formData.dataUnit,
+            authorId: session.user.id,
+          },
+        },
+        // TODO - validate this
+        baselineDataSeries: formData.rawBaselineDataSeries ? {
+          create: {
+            ...formData.rawBaselineDataSeries,
+            unit: formData.dataUnit,
             authorId: session.user.id,
           },
         } : undefined,
         links: {
-          create: goal.links?.map(link => {
+          create: formData.links?.map(link => {
             return {
               url: link.url,
               description: link.description || undefined,
@@ -387,14 +368,6 @@ export async function PUT(request: NextRequest) {
       throw new Error(ClientError.AccessDenied, { cause: 'goal' });
     }
 
-    // TODO - reimplement with recipe
-    // // If the user tries to inherit from a goal they don't have access to, return IllegalParent
-    // for (const relatedGoal of relatedGoals) {
-    //   if (!relatedGoal) {
-    //     throw new Error(ClientError.IllegalParent, { cause: 'goal' });
-    //   }
-    // }
-
     // If the provided timestamp is not up-to-date, return StaleData
     if (!goal.timestamp || (currentGoal?.updatedAt?.getTime() || 0) > goal.timestamp) {
       throw new Error(ClientError.StaleData, { cause: 'goal' });
@@ -457,6 +430,8 @@ export async function PUT(request: NextRequest) {
   //     { status: 400 }
   //   );
   // }
+
+  
 
   // Prepare goal baseline (if any), or deletion thereof
   // If the baseline data series is null, it means the user wants to delete it. A value of undefined means no change.
