@@ -54,6 +54,7 @@
     "@tiptap/extension-details": "^2.24.0",
     "@tiptap/extension-details-content": "^2.24.0",
     "@tiptap/extension-details-summary": "^2.24.0",
+    "@tiptap/extension-hard-break": "^3.0.7",
     "@tiptap/extension-highlight": "^2.24.0",
     "@tiptap/extension-history": "^2.25.0",
     "@tiptap/extension-link": "^2.24.2",

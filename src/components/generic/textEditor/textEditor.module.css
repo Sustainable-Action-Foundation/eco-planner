@@ -31,7 +31,8 @@
     .text-editor-menu:not(:has(:is(span, div)[role^="menuitem"]):hover) :is(span, div)[role^="menuitem"][data-tooltip]:focus::after {
         content: attr(data-tooltip);
     }
-    .text-editor-menu :is(span, div)[role^="menuitem"] + .animated-menu.visible :is(span, div):hover::after {
+    .animated-menu.visible :is(span, div)[role^="menuitem"]:hover::after,
+    .animated-menu.visible:not(:has(:is(span, div)[role^="menuitem"]):hover) :is(span, div)[role^="menuitem"]:focus::after {
         top: calc(50%);
         left: calc(100% + 4px);
         transform: translateX(0) translateY(-50%);

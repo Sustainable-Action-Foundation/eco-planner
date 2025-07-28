@@ -6,6 +6,7 @@
 import { EditorContent, useEditor } from '@tiptap/react'
 import TextEditorMenu from './textEditorMenu'
 import {
+  HardBreak,
   Superscript,
   Subscript,
   Details,
@@ -46,6 +47,7 @@ const TextEditor = ({
       Document, // Required
       Text, // Required
       Paragraph,
+      HardBreak,
       TextStyle.configure({ mergeNestedSpanStyles: true }),
       Placeholder.configure({
         placeholder: placeholder ? placeholder : undefined
@@ -86,9 +88,8 @@ const TextEditor = ({
     return null
   }
 
-  /* TODO: Apply aria-hidden to empty <p> tags */
-  /* TODO: If there are empty tags after the last piece of content, remove them */
   /* TODO: Keyboard shortcut and custom menu for linkinput */
+  /* TODO: Max char count: 5 000chars */
   return (
     <div className='tiptap-wrapper purewhite smooth' style={{ border: '1px solid var(--gray-80)' }}>
       <TextEditorMenu editor={editor} />

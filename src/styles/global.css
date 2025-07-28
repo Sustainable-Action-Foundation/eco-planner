@@ -172,10 +172,13 @@ input:-webkit-autofill:focus {
   transition: outline-color .1s ease;
 }
 
-.tiptap p,
-.tiptap ol,
-.tiptap ul {
+.tiptap > :first-child {
   margin-block: 0;
+}
+
+.tiptap p {
+  margin-block: 0;
+  margin-top: 1rem;
 }
 
 .tiptap:focus {
