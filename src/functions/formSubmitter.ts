@@ -27,6 +27,7 @@ export default function formSubmitter(
       if (res.status >= 400) {
         const data = await res.json();
         // Throw the massage and any location provided by the API
+        // eslint-disable-next-line @typescript-eslint/only-throw-error
         throw { message: data.message, location: res.headers.get('Location') };
       } else {
         throw new Error('Något gick fel');

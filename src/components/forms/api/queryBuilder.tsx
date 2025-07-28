@@ -186,7 +186,7 @@ export default function QueryBuilder({
       const tableId = tableDetails?.id ?? formData.get("externalTableId") as string ?? "";
       getTableContent(tableId, dataSource, query, lang).then(result => {
         setTableContent(result);
-        if (result.data.length > 0) {
+        if ((result?.data.length ?? 0) > 0) {
           enableSubmitButton();
         } else {
           disableSubmitButton();
@@ -431,18 +431,18 @@ export default function QueryBuilder({
         <>
           <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
             {t("components:query_builder.change_historical_data")}
-            <IconChartHistogram width={16} height={16} style={{minWidth: '16px'}} aria-hidden="true" />
+            <IconChartHistogram width={16} height={16} style={{ minWidth: '16px' }} aria-hidden="true" />
           </button>
 
           <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={deleteHistoricalData}>
             {t("components:query_builder.remove_historical_data")}
-            <IconTrashXFilled fill='#CB3C3C' width={16} height={16} style={{minWidth: '16px'}} aria-hidden="true" />
-           </button>
+            <IconTrashXFilled fill='#CB3C3C' width={16} height={16} style={{ minWidth: '16px' }} aria-hidden="true" />
+          </button>
         </>
         :
         <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
           {t("components:query_builder.add_historical_data")}
-          <IconChartHistogram width={16} height={16} style={{minWidth: '16px'}} aria-hidden="true" />
+          <IconChartHistogram width={16} height={16} style={{ minWidth: '16px' }} aria-hidden="true" />
 
         </button>
       }
@@ -450,7 +450,7 @@ export default function QueryBuilder({
       <dialog className={`smooth padding-inline-0 ${styles.dialog}`} ref={modalRef} aria-modal>
         <div className="display-flex flex-direction-row-reverse align-items-center justify-content-space-between padding-inline-100">
           <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
-            <IconX strokeWidth={3} width={18} height={18} style={{minWidth: '18px'}} aria-hidden="true" />
+            <IconX strokeWidth={3} width={18} height={18} style={{ minWidth: '18px' }} aria-hidden="true" />
           </button>
           <h2 className="margin-0">{t("components:query_builder.add_data_source")}</h2>
         </div>
@@ -492,7 +492,7 @@ export default function QueryBuilder({
                     <label className="font-weight-500">
                       {t("components:query_builder.search_for_table")}
                       <div className="focusable gray-90 flex align-items-center margin-top-25 padding-left-50 smooth">
-                        <IconSearch strokeWidth={1.5} style={{minWidth: '24px'}} aria-hidden="true" />
+                        <IconSearch strokeWidth={1.5} style={{ minWidth: '24px' }} aria-hidden="true" />
                         <input name={tableSearchInputName} type="search" className="padding-0 margin-inline-50" onKeyDown={searchOnEnter} style={{ backgroundColor: "transparent" }} />
                         <button type="button" onClick={searchWithButton} className="padding-block-50 padding-inline-100 transparent font-weight-500">{t("components:query_builder.search")}</button>
                       </div>

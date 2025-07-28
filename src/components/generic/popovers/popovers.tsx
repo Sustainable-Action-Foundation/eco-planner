@@ -52,7 +52,7 @@ export function Popover({
   positionAnchor,
   anchorInlinePosition,
   popoverDirection,
-  positionTryFallbacks,
+  positionTryFallbacks = "none",
   indicator,
   margin
 }: {
@@ -67,14 +67,14 @@ export function Popover({
     vertical: 'up' | 'vertical' | 'down',
     horizontal?: 'left' | 'right'
   } | 'up' | 'vertical' | 'down',
-  positionTryFallbacks?: "none" | string, // TODO: String should be a comma seperated string with suggestions on allowed fallback values. (or an array?) 
+  positionTryFallbacks?: string, // TODO: String should be a comma seperated string with suggestions on allowed fallback values. (or an array?) 
   /* 
     As of now, an indicator can only be given assuming a positionTryFallbacks of none. 
     It is likely that future browsers will support some css selector for checking fallback values,
     in which case we can support indicator for all cases and use said selector for proper alignment.
     Until then we may use :popover-open to ensure that our popover is visibly connected to a button. 
   */
-  indicator?: boolean, 
+  indicator?: boolean,
   margin?: string
 }) {
 
@@ -131,11 +131,11 @@ export function Popover({
           ${styles['position-anchor']} 
           ${className ?? ''}
         `}
-        style={{ 
+        style={{
           '--position-try-fallbacks': positionTryFallbacks,
           '--margin': margin,
-          '--position-anchor': positionAnchor, 
-          ...style, 
+          '--position-anchor': positionAnchor,
+          ...style,
         } as React.CSSProperties}
         popover={popover}
       >

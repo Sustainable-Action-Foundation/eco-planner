@@ -43,7 +43,7 @@ export default function GraphGraph({
     setGraphType(getStoredGraphType(goal.id));
   }, [goal.id]);
 
-  function graphSwitch(graphType: string) {
+  function graphSwitch(graphType: GraphType) {
     switch (graphType) {
       case GraphType.Main:
         return <MainGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} historicalData={historicalData} secondaryGoal={secondaryGoal} effects={effects} />
@@ -77,7 +77,7 @@ export default function GraphGraph({
         }
         {secondaryGoal && <p className="margin-block-0 margin-inline-auto text-align-center">{t("graphs:graph_graph.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicatorParameter })}</p>}
         <div style={{ height: '500px' }}>
-          {graphSwitch(graphType)}
+          {graphSwitch(graphType || GraphType.Main)}
         </div>
         {historicalData && (
           <Trans

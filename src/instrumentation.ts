@@ -47,7 +47,7 @@ export async function register() {
         console.info("Self-test passed");
       }
     } catch (error) {
-      console.error("Unexpected error during self-test: " + error);
+      console.error("Unexpected error during self-test: ", error);
     }
   }
 }

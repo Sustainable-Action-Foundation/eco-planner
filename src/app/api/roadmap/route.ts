@@ -403,7 +403,7 @@ export async function DELETE(request: NextRequest) {
     if (error instanceof Error) {
       if (error.message == ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
-        await session.destroy();
+        session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } }
         );

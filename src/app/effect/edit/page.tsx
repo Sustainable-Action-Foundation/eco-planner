@@ -27,11 +27,27 @@ export async function generateMetadata(
     getSession(await cookies()),
   ]);
 
+  const ownUrl = new URL('/effect/edit');
+  if (Array.isArray(searchParams.actionId)) {
+    for (const action of searchParams.actionId) {
+      ownUrl.searchParams.append('actionId', action);
+    }
+  } else if (typeof searchParams.actionId === 'string') {
+    ownUrl.searchParams.set('actionId', searchParams.actionId);
+  }
+  if (Array.isArray(searchParams.goalId)) {
+    for (const goal of searchParams.goalId) {
+      ownUrl.searchParams.append('goalId', goal);
+    }
+  } else if (typeof searchParams.goalId === 'string') {
+    ownUrl.searchParams.set('goalId', searchParams.goalId);
+  }
+
   if (!session.user?.isLoggedIn) {
     return buildMetadata({
       title: t("metadata:login.title"),
       description: t("metadata:login.title"),
-      og_url: `/effect/edit?actionId=${searchParams.actionId}&goalId=${searchParams.goalId}`,
+      og_url: `${ownUrl.pathname}${ownUrl.search}`,
       og_image_url: '/images/og_wind.png'
     })
   }
@@ -39,7 +55,7 @@ export async function generateMetadata(
   return buildMetadata({
     title: t("metadata:effect_edit.title"),
     description: undefined,
-    og_url: `/effect/edit?actionId=${searchParams.actionId}&goalId=${searchParams.goalId}`,
+    og_url: `${ownUrl.pathname}${ownUrl.search}`,
     og_image_url: undefined
   })
 }

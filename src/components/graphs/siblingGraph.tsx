@@ -27,11 +27,11 @@ export default function SiblingGraph({
 
   const [isStacked, setIsStacked] = useState(true);
 
-  for (const i in siblings) {
+  for (const entry of siblings) {
     const mainSeries = [];
-    if (siblings[i].dataSeries) {
+    if (entry.dataSeries) {
       for (const j of dataSeriesDataFieldNames) {
-        const value = siblings[i].dataSeries[j];
+        const value = entry.dataSeries[j];
 
         mainSeries.push({
           x: new Date(j.replace('val', '')).getTime(),
@@ -45,7 +45,7 @@ export default function SiblingGraph({
     // Only add the series to the graph if it isn't all null/0
     if (mainSeries.filter((entry) => entry.y).length > 0) {
       dataPoints.push({
-        name: (siblings[i].name || siblings[i].indicatorParameter).split('\\').slice(-1)[0],
+        name: (entry.name || entry.indicatorParameter).split('\\').slice(-1)[0],
         data: mainSeries,
         type: isStacked ? 'area' : 'line',
       })
@@ -71,7 +71,7 @@ export default function SiblingGraph({
       max: new Date(dataSeriesDataFieldNames[dataSeriesDataFieldNames.length - 1].replace('val', '')).getTime()
     },
     yaxis: {
-      title: { text: goal.dataSeries?.unit },
+      title: { text: goal.dataSeries?.unit ?? undefined },
       labels: { formatter: graphNumberFormatter },
     },
     tooltip: {

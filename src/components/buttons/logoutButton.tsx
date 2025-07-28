@@ -19,7 +19,7 @@ export default function LogoutButton({
       id={id}
       className={`${className}`}
       style={{ ...style }}
-      onClick={async () => {
+      onClick={() => {
       fetch('/api/logout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

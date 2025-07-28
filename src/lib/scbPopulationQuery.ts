@@ -24,7 +24,7 @@ const getCachedQuery = unstable_cache(
       { variableCode: "Tid", valueCodes: ["TOP(1)"] }
     ];
 
-    const result: ApiTableContent = await getPxWebTableContent("TAB5444", "SCB", selection, "sv");
+    const result: ApiTableContent | null = await getPxWebTableContent("TAB5444", "SCB", selection, "sv");
 
     if (!result) return null;
 

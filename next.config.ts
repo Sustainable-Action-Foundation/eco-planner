@@ -1,7 +1,6 @@
-/**
- * @type {import('next').NextConfig}
- */
-const nextConfig = {
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
   devIndicators: {
     position: 'bottom-right'
   },
@@ -15,14 +14,15 @@ const nextConfig = {
   output: process.env.CI ? 'standalone' : undefined,
   webpack: (
     config,
-    { _buildId, _dev, _isServer, _defaultLoaders, _nextRuntime, _webpack }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }
   ) => {
 
     // Ignore "src/scripts" folder in the build process
     config.module.rules.push({
       test: /src\/scripts/,
       use: 'ignore-loader',
-    })
+    });
 
     return config;
   },

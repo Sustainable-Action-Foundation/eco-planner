@@ -33,7 +33,7 @@ export default async function getUserHash(userEmail: string): Promise<string> {
     }
   })
   if (!user) {
-    return Promise.reject('User not found');
+    return Promise.reject(new Error('User not found'));
   }
 
   // Generate a hash of the user object using SHA256
