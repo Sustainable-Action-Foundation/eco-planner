@@ -23,6 +23,13 @@ export const externalDatasets: { [key: string]: { baseUrl: string, userFacingUrl
     api: "Trafa",
     fullName: "Trafikanalys",
   },
+  "SSB": {
+    baseUrl: "https://data.ssb.no/api/pxwebapi/v2-beta/",
+    userFacingUrl: "https://www.ssb.no/statbank/",
+    supportedLanguages: ["no", "en"],
+    api: "PxWeb",
+    fullName: "Statistisk sentralbyrå",
+  }
   // Add more datasets as they implement the PxWeb API v2
   // "SSB": "some url",
   // "stat.fi": "some url",
