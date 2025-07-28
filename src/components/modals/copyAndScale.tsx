@@ -6,8 +6,8 @@ import { GoalCreateInput, dataSeriesDataFieldNames, ScaleBy, ScaleMethod, Scalin
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
-import { RawRecipe, Recipe } from "@/functions/recipe-parser/types";
-import { parseRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
+import { DataSeriesArray, RawRecipe, Recipe } from "@/functions/recipe-parser/types";
+import { evaluateRecipe, parseRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
 
 /** Get the resulting scaling factor from form data */
 export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, setIsLoading?: React.Dispatch<React.SetStateAction<boolean>>) {
@@ -202,8 +202,7 @@ export default function CopyAndScale({
 }) {
   const { t } = useTranslation("components");
   const [isLoading, setIsLoading] = useState(false);
-  const [scalingMethod, setScalingMethod] = useState<ScaleMethod>(ScaleMethod.Geometric);
-  const [scalingResult, setScalingResult] = useState<number>(1);
+  const [resultingDataSeries, setResultingDataSeries] = useState<DataSeriesArray & { unit?: string }>({});
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
   // TODO - remove. This is a debugging measure.
@@ -234,7 +233,11 @@ export default function CopyAndScale({
           return;
         }
         const parsedRecipe = await parseRecipe(safeRawRecipe);
-        console.log(parsedRecipe);
+
+        const warnings: string[] = [];
+        const evaluatedRecipe = await evaluateRecipe(parsedRecipe, warnings)
+
+        setResultingDataSeries(evaluatedRecipe);
       }
     }
   }
@@ -243,8 +246,6 @@ export default function CopyAndScale({
   function formSubmission(form: FormData) {
     setIsLoading(true);
 
-    // If any of the inputs are files, throw. This will only happen if the user has tampered with the form, so no need to give a nice error message
-
     // Id of the roadmap to copy the goal to
     const copyToId = form.get("copyTo");
     if (copyToId instanceof File) {
@@ -252,31 +253,15 @@ export default function CopyAndScale({
       throw new Error("Why is this a file?");
     }
 
-    const { scaleFactor, scalingRecipe } = getScalingResult(form, scalingMethod, setIsLoading);
-    // Don't proceed if the resultant scale factor is NaN, infinite, or non-numeric for some reason
-    if (!Number.isFinite(scaleFactor)) {
-      setIsLoading(false);
-      alert(t("components:copy_and_scale.invalid_input"));
-      return;
-    }
-
-    // Get the data series from current goal
-    const dataSeries: string[] = [];
-    for (const i of dataSeriesDataFieldNames) {
-      const value = goal.dataSeries?.[i];
-      if (value == undefined) {
-        dataSeries.push("");
-      } else {
-        dataSeries.push((value * scaleFactor).toString());
-      }
-    }
+    const noUnitDataSeries = {...resultingDataSeries};
+    delete noUnitDataSeries.unit;
 
     const formData: GoalCreateInput & { roadmapId: string } = {
       name: goal.name,
       description: goal.description,
       indicatorParameter: goal.indicatorParameter,
       dataUnit: goal.dataSeries?.unit,
-      rawDataSeries: dataSeries,
+      dataSeriesArray: noUnitDataSeries,
       roadmapId: copyToId ?? "",
     };
 
@@ -329,74 +314,47 @@ export default function CopyAndScale({
 
           {/* Suggested recipes */}
           {goal.recipeSuggestions.length > 0 ? (<>
-            <label>
-              <input type="radio" name="recipeSuggestion" value={"none"} />
-              &nbsp;
-              Ingen vald
-            </label>
             {goal.recipeSuggestions.map((recipe, index) => (
               <label key={index} className="block margin-block-50">
                 <input type="radio" name="recipeSuggestion" value={recipe.hash} />
-                &nbsp;
+                {" "}
                 <>
-                  {(recipe.recipe as Recipe).name ?? "Namnlöst förslag"} <span style={{ color: "gray" }}> Recept: ({(recipe.recipe as Recipe).eq})</span>
+                  {(recipe.recipe as Recipe).name ?? t("components:copy_and_scale.unnamed_suggestion")}
+                  {" "}
+                  <span style={{ color: "gray" }}>
+                    Recept: ({(recipe.recipe as Recipe).eq})
+                  </span>
                 </>
               </label>
             ))}
           </>) : (<></>)}
 
-          {/* Repeatable scaling is deprecated TODO - remove */}
-          {/* <div className="margin-block-100">
-            {scalingComponents.map((id) => {
-              return (
-                <RepeatableScaling key={id} useWeight={scalingMethod != ScaleMethod.Multiplicative}>
-                  <button
-                    type="button"
-                    style={{
-                      position: 'absolute',
-                      top: '0',
-                      right: '0',
-                      transform: 'translate(50%, calc(-20px - 50%))',
-                      backgroundColor: 'white',
-                      padding: '.25rem',
-                      borderRadius: '100%',
-                      display: 'grid',
-                      cursor: 'pointer'
-                    }}
-                    aria-label={t("components:copy_and_scale.remove_scaling")}
-                    onClick={() => setScalingComponents(scalingComponents.filter((i) => i !== id))}
-                  >
-                    <IconCircleMinus aria-hidden="true" />
-                  </button>
-                </RepeatableScaling>
-              )
-            })}
-          </div>
-          <button type="button" className="margin-block-100" onClick={() => setScalingComponents([...scalingComponents, (crypto?.randomUUID() || Math.random().toString())])}>{t("components:copy_and_scale.add_scaling")}</button> */}
-          {/* 
-          <details className="padding-block-25 margin-block-75" style={{ borderBottom: '1px solid var(--gray-90)' }}>
-            <summary>{t("components:copy_and_scale.advanced")}</summary>
-            <fieldset className="margin-block-100">
-              <legend>{t("components:copy_and_scale.scaling_method")}</legend>
-              <label className="flex gap-25 align-items-center margin-block-50">
-                <input type="radio" name="scalingMethod" value={ScaleMethod.Geometric} checked={scalingMethod === ScaleMethod.Geometric} onChange={() => setScalingMethod(ScaleMethod.Geometric)} />
-                {t("common:scaling_methods.geo_mean")}
-              </label>
-              <label className="flex gap-25 align-items-center margin-block-50">
-                <input type="radio" name="scalingMethod" value={ScaleMethod.Algebraic} checked={scalingMethod === ScaleMethod.Algebraic} onChange={() => setScalingMethod(ScaleMethod.Algebraic)} />
-                {t("common:scaling_methods.arith_mean")}
-              </label>
-              <label className="flex gap-25 align-items-center margin-block-50">
-                <input type="radio" name="scalingMethod" value={ScaleMethod.Multiplicative} checked={scalingMethod === ScaleMethod.Multiplicative} onChange={() => setScalingMethod(ScaleMethod.Multiplicative)} />
-                {t("common:scaling_methods.multiplicative")}
-              </label>
-            </fieldset>
-          </details> */}
-
-          {/* <label className="margin-inline-auto">
-            <strong className="block bold text-align-center">{t("components:copy_and_scale.resulting_scale_factor")}</strong>
-            <output className="margin-block-100 block text-align-center">{scalingResult}</output>
-          </label> */}
+          {/* Resulting data series */}
+          <label className="margin-inline-auto width-100">
+            <strong className="block bold text-align-center">
+              {t("components:copy_and_scale.resulting_data_series")}
+              {/* Unit */}
+              {resultingDataSeries.unit ? ` (${resultingDataSeries.unit})` : ""}
+            </strong>
+            <table className="margin-block-100 block width-100 overflow-x-scroll">
+              <thead>
+                <tr>
+                  <th className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_year")}</th>
+                  {Object.keys(resultingDataSeries).map((year, i) => (
+                    <th className="padding-50 text-align-center" key={i + "resulting-data-series-header" + year}>{year.replace("val", "")}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_value")}</td>
+                  {Object.values(resultingDataSeries).map((value, i) => (
+                    <td className="padding-50 text-align-center" key={i + "resulting-data-series-value" + value}>{(value as number)?.toFixed(1) || "-"}</td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </label>
 
           <button className="block seagreen color-purewhite smooth width-100 margin-inline-auto font-weight-500">
             {t("components:copy_and_scale.create_scaled_copy")}

@@ -20,7 +20,7 @@ export default function goalInputFromGoalArray(goals: (Goal & { dataSeries: Data
       name: goal.name ?? undefined,
       description: goal.description ?? undefined,
       indicatorParameter: goal.indicatorParameter,
-      dataSeries: dataSeries,
+      dataSeriesArray: dataSeries,
       dataUnit: goal.dataSeries.unit,
       inheritFrom: [{ id: goal.id }],
       combinationScale: combinationScale,

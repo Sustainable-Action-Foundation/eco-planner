@@ -32,12 +32,11 @@
     "select_roadmap_version": "In which $t(common:roadmap_version_one) do you want to place the scaled $t(common:goal_one)?",
     "select_roadmap_version_option": "Select $t(common:roadmap_version_one)",
     "version": "version",
-    "remove_scaling": "Remove scaling",
-    "add_scaling": "Add scaling",
-    "advanced": "Advanced",
-    "scaling_method": "Select scaling method",
-    "resulting_scale_factor": "Resulting scale factor",
+    "resulting_data_series": "Resulting data series",
     "create_scaled_copy": "Create scaled copy",
+    "unnamed_suggestion": "Unnamed suggestion",
+    "data_series_year": "Year",
+    "data_series_value": "Value",
     "invalid_input": "Invalid input. The scaling factor could not be calculated. This is often due to a non-numeric value in an input field or that the product of all scaling factors is negative."
   },
   "effects_table": {

@@ -158,7 +158,7 @@ export default function GoalForm({
       indicatorParameter: (form.namedItem("indicatorParameter") as HTMLInputElement)?.value || null,
       // TODO: Add a toggle isUnitless to the form, which sets dataUnit to null if checked
       dataUnit: parsedUnit || (form.namedItem("dataUnit") as HTMLInputElement)?.value,
-      dataSeries: dataSeries,
+      dataSeriesArray: dataSeries,
       baselineDataSeries: baselineDataSeries ?? null,
       combinationScale: JSON.stringify(combinationScale),
       inheritFrom: inheritFrom,

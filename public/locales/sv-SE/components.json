@@ -32,12 +32,11 @@
     "select_roadmap_version": "I vilken $t(common:roadmap_version_one) vill du placera den skalade $t(common:goal_definite_one)?",
     "select_roadmap_version_option": "Välj $t(common:roadmap_version_one)",
     "version": "version",
-    "remove_scaling": "Ta bort skalning",
-    "add_scaling": "Lägg till skalning",
-    "advanced": "Avancerat",
-    "scaling_method": "Välj skalningsmetod",
-    "resulting_scale_factor": "Resulterande skalfaktor",
+    "resulting_data_series": "Resulterande dataserie",
     "create_scaled_copy": "Skapa skalad kopia",
+    "unnamed_suggestion": "Namnlöst förslag",
+    "data_series_year": "År",
+    "data_series_value": "Värde",
     "invalid_input": "Felaktig inmatning. Skalningsfaktorn kunde inte beräknas. Ofta beror detta på ett ickenumeriskt värde i ett inmatningsfält eller att produkten av alla skalningsfaktorer är negativ."
   },
   "effects_table": {

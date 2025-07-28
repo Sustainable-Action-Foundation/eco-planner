@@ -1,6 +1,7 @@
 import { ActionImpactType, DataSeries, Prisma, RoadmapType } from "@prisma/client";
 import dataFieldArray from "./lib/dataSeriesDataFieldNames.json" with { type: "json" };
 import { actionInclusionSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, roadmapInclusionSelection } from "./fetchers/inclusionSelectors";
+import { DataSeriesArray } from "./functions/recipe-parser/types";
 
 /** An object that implements the AccessControlled interface can be checked with the accessChecker function. */
 export interface AccessControlled {
@@ -337,6 +338,7 @@ export type GoalCreateInput = {
   recipeHash?: string;
 
   // The user inputs data series as an array of strings, which is then converted to a DataSeries object in the API
+  dataSeriesArray?: DataSeriesArray;
   rawDataSeries?: string[];
   rawBaselineDataSeries?: string[] | undefined | null;
   // The unit of measurement for the data series
@@ -396,6 +398,7 @@ export type GoalUpdateInput = {
   recipeHash?: string;
 
   // The user inputs data series as an array of strings, which is then converted to a DataSeries object in the API
+  dataSeriesArray?: DataSeriesArray;
   rawDataSeries?: string[];
   rawBaselineDataSeries?: string[] | undefined | null;
   // The unit of measurement for the data series
