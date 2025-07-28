@@ -216,7 +216,7 @@ export default function CopyAndScale({
         const formData = new FormData(formElement);
 
         const selectedRecipeHash = formData.getAll("recipeSuggestion").at(0) as string;
-        if (selectedRecipeHash === "none" || selectedRecipeHash == "") {
+        if (selectedRecipeHash === "none" || selectedRecipeHash == "" || !selectedRecipeHash) {
           console.info("CopyAndScale: No recipe selected");
           return;
         }

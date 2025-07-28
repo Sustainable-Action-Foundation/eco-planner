@@ -259,14 +259,14 @@ export async function POST(request: NextRequest) {
             authorId: session.user.id,
           },
         },
-        // TODO - validate this
-        baselineDataSeries: formData.rawBaselineDataSeries ? {
-          create: {
-            ...formData.rawBaselineDataSeries,
-            unit: formData.dataUnit,
-            authorId: session.user.id,
-          },
-        } : undefined,
+        // // TODO - validate this
+        // baselineDataSeries: formData.rawBaselineDataSeries ? {
+        //   create: {
+        //     ...formData.rawBaselineDataSeries,
+        //     unit: formData.dataUnit,
+        //     authorId: session.user.id,
+        //   },
+        // } : undefined,
         links: {
           create: formData.links?.map(link => {
             return {
@@ -431,7 +431,7 @@ export async function PUT(request: NextRequest) {
   //   );
   // }
 
-  
+
 
   // Prepare goal baseline (if any), or deletion thereof
   // If the baseline data series is null, it means the user wants to delete it. A value of undefined means no change.
