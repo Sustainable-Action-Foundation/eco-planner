@@ -42,7 +42,9 @@
     "custom_recipe_placeholder": "e.g. (${var1} + ${var2}) / 2",
     "recipe_variables": "Recipe variables",
     "add_variable": "Add variable",
-    "advanced": "Advanced"
+    "advanced": "Advanced",
+    "evaluation_error_title": "Recipe Error",
+    "evaluation_warning_title": "Warnings"
   },
   "effects_table": {
     "no_effects": "There are no $t(common:effect_other) to display.",

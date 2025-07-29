@@ -205,10 +205,12 @@ export default function CopyAndScale({
   const [recipeEq, setRecipeEq] = useState("");
   const [recipeVars, setRecipeVars] = useState<RawRecipe["variables"]>({});
   const [resultingDataSeries, setResultingDataSeries] = useState<DataSeriesArray & { unit?: string }>({});
+  const [evaluationError, setEvaluationError] = useState<string | null>(null);
+  const [evaluationWarnings, setEvaluationWarnings] = useState<string[]>([]);
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
-  // TODO - remove. This is a debugging measure.
-  useEffect(() => openModal(modalRef), []);
+  // // TODO - remove. This is a debugging measure.
+  // useEffect(() => openModal(modalRef), []);
 
   function handleRecipeSuggestionChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selectedRecipeHash = e.target.value;
@@ -229,22 +231,48 @@ export default function CopyAndScale({
     };
 
     async function calculate() {
+      setEvaluationError(null);
+      setEvaluationWarnings([]);
       try {
         const parsedRecipe = await parseRecipe(customRecipe);
         const warnings: string[] = [];
         const evaluatedRecipe = await evaluateRecipe(parsedRecipe, warnings)
         setResultingDataSeries(evaluatedRecipe);
-      } catch (e) {
+        setEvaluationWarnings(warnings);
+      } catch (e: any) {
         console.info("CopyAndScale: Failed to evaluate recipe. Likely just evaluating while writing", e);
         setResultingDataSeries({});
+        setEvaluationError(e.message);
       }
     }
     calculate();
   }, [recipeEq, recipeVars]);
 
 
-  function formSubmission(form: FormData) {
+  async function formSubmission(form: FormData) {
     setIsLoading(true);
+    setEvaluationError(null);
+    setEvaluationWarnings([]);
+
+    // --- Evaluate recipe before submitting ---
+    const customRecipe: RawRecipe = {
+      eq: recipeEq,
+      variables: recipeVars,
+    };
+
+    let finalDataSeries: DataSeriesArray & { unit?: string };
+    try {
+      const parsedRecipe = await parseRecipe(customRecipe);
+      const warnings: string[] = [];
+      finalDataSeries = await evaluateRecipe(parsedRecipe, warnings);
+      setEvaluationWarnings(warnings);
+    } catch (e: any) {
+      console.error("CopyAndScale: Failed to evaluate recipe on submission", e);
+      setEvaluationError(e.message);
+      setIsLoading(false);
+      return;
+    }
+    // --- End evaluation ---
 
     // Id of the roadmap to copy the goal to
     const copyToId = form.get("copyTo");
@@ -253,7 +281,7 @@ export default function CopyAndScale({
       throw new Error("Why is this a file?");
     }
 
-    const noUnitDataSeries = { ...resultingDataSeries };
+    const noUnitDataSeries = { ...finalDataSeries };
     delete noUnitDataSeries.unit;
 
     const formData: GoalCreateInput & { roadmapId: string } = {
@@ -273,6 +301,24 @@ export default function CopyAndScale({
 
   const customRecipeEditor = (
     <>
+      {/* Recipe errors */}
+      {recipeEq && evaluationError && (
+        <div className="margin-block-100" style={{ color: 'red' }}>
+          <strong>{t("components:copy_and_scale.evaluation_error_title")}:</strong>
+          <p>{evaluationError}</p>
+        </div>
+      )}
+
+      {/* Recipe warnings */}
+      {recipeEq && evaluationWarnings.length > 0 && (
+        <div className="margin-block-100" style={{ color: 'orange' }}>
+          <strong>{t("components:copy_and_scale.evaluation_warning_title")}:</strong>
+          <ul>
+            {evaluationWarnings.map((warning, i) => <li key={i}>{warning}</li>)}
+          </ul>
+        </div>
+      )}
+      
       {/* Custom recipe string */}
       <label className="block margin-block-50">
         <span className="block">{t("components:copy_and_scale.custom_recipe")}</span>
@@ -295,7 +341,8 @@ export default function CopyAndScale({
                 type="text"
                 value={name}
                 className="flex-grow-1"
-                readOnly // Name editing is complex, disabling for now
+                readOnly
+                disabled
               />
               <input
                 type="text"
@@ -328,7 +375,7 @@ export default function CopyAndScale({
           const newVarName = `var${Object.keys(recipeVars).length + 1}`;
           setRecipeVars(prev => ({
             ...prev,
-            [newVarName]: { type: RecipeVariableType.Scalar, value: 0 }
+            [newVarName]: { type: RecipeVariableType.Scalar, value: 1 }
           }));
         }}>{t("components:copy_and_scale.add_variable")}</button>
       </div>
@@ -348,7 +395,7 @@ export default function CopyAndScale({
       </button>
 
       {/* Modal */}
-      <dialog ref={modalRef} aria-modal className="rounded" style={{ border: '0', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25' }}>
+      <dialog ref={modalRef} aria-modal className="rounded" style={{ border: '0', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25', width: '90dvw' }}>
         {/* Title bar */}
         <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>
           {/* Close button */}
@@ -366,7 +413,6 @@ export default function CopyAndScale({
           {/* Roadmap version select */}
           <label className="block margin-block-100">
             {t("components:copy_and_scale.select_roadmap_version")}
-            {/* TODO - auto select the latest one? */}
             <select className="block margin-block-25 width-100" required name="copyTo" id="copyTo">
               <option value="">{t("components:copy_and_scale.select_roadmap_version_option")}</option>
               {roadmapOptions.map(roadmap => (
