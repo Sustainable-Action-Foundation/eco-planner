@@ -249,7 +249,6 @@ export default function TextEditorMenu({
 
     if (e.key == 'Escape') {
       e.preventDefault()
-      console.log(fontSizeMenuRef.current)
       if (fontSizeMenuOpen) {
         e.stopPropagation();
         fontSizeMenuButtonRef.current?.focus();
@@ -308,11 +307,8 @@ export default function TextEditorMenu({
         });
 
         // Step 2: Check for overflow and hide items from the end
-        console.log('Child smaller than parent', 'child:', ul.scrollWidth, 'parent:', parentWidth)
         while (ul.scrollWidth >= parentWidth - 1 && items.length > 0) {
-          console.log('Child smaller than parent', 'child:', ul.scrollWidth, 'parent:', parentWidth)
           const lastVisible = [...items].reverse().find((item) => item.style.display !== "none");
-          console.log(items)
           if (lastVisible) {
             lastVisible.style.display = "none";
           } else {
@@ -401,7 +397,7 @@ export default function TextEditorMenu({
             aria-owns={`${editorId}-font-size-menu`}
             aria-label={t("forms:text_editor_menu.font_size.caption")}
             data-tooltip={t("forms:text_editor_menu.font_size.caption")}
-            style={{ width: '100px', }}
+            style={{ width: '100px' }}
             className='align-items-center justify-content-space-between flex-important'
           >
             {!editor.getAttributes('textStyle').fontSize ?

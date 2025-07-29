@@ -11,6 +11,10 @@
     vertical-align: top;
 }
 
+.text-editor-menu li:has(+ * [role^="menuitem"][style="display: none;"]) { /* This requires that an element does not have any other inline styles */
+    border: 0 !important;
+}
+
 .text-editor-menu [role="menubar"] > li {
   display: inline-block;
   vertical-align: top;
