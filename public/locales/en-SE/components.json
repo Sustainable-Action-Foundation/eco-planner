@@ -41,7 +41,8 @@
     "custom_recipe": "Custom recipe",
     "custom_recipe_placeholder": "e.g. (${var1} + ${var2}) / 2",
     "recipe_variables": "Recipe variables",
-    "add_variable": "Add variable"
+    "add_variable": "Add variable",
+    "advanced": "Advanced"
   },
   "effects_table": {
     "no_effects": "There are no $t(common:effect_other) to display.",
