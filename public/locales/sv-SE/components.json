@@ -37,7 +37,11 @@
     "unnamed_suggestion": "Namnlöst förslag",
     "data_series_year": "År",
     "data_series_value": "Värde",
-    "invalid_input": "Felaktig inmatning. Skalningsfaktorn kunde inte beräknas. Ofta beror detta på ett ickenumeriskt värde i ett inmatningsfält eller att produkten av alla skalningsfaktorer är negativ."
+    "invalid_input": "Felaktig inmatning. Skalningsfaktorn kunde inte beräknas. Ofta beror detta på ett ickenumeriskt värde i ett inmatningsfält eller att produkten av alla skalningsfaktorer är negativ.",
+    "custom_recipe": "Anpassat recept",
+    "custom_recipe_placeholder": "t.ex. (${var1} + ${var2}) / 2",
+    "recipe_variables": "Receptvariabler",
+    "add_variable": "Lägg till variabel"
   },
   "effects_table": {
     "no_effects": "Det finns inga $t(common:effect_other) att visa.",

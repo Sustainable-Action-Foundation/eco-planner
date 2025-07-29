@@ -21,7 +21,7 @@ import { getSession } from "@/lib/session";
 import serveTea from "@/lib/i18nServer";
 import prisma from "@/prismaClient";
 import { AccessControlled, AccessLevel } from "@/types";
-import type { DataSeries, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
+import type { Recipe, DataSeries, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -52,7 +52,7 @@ export async function generateMetadata(props: {
       og_image_url: '/images/og_wind.png'
     })
   }
-  
+
   return buildMetadata({
     title: goal?.name,
     description: goal?.description,
@@ -101,6 +101,18 @@ export default async function Page(
   // 404 if the goal doesn't exist or if the user doesn't have access to it
   if (!goal || !accessLevel || !roadmap) {
     return notFound();
+  }
+
+  // TODO - remove
+  let recipeUsed = null;
+  const recipeUsedHash = goal.recipeUsedId;
+  if (recipeUsedHash) {
+    const recipeInDb = await prisma.recipe.findFirst({
+      where: { hash: recipeUsedHash },
+    });
+    if (recipeInDb) {
+      recipeUsed = recipeInDb as Recipe;
+    }
   }
 
   // Create a list of roadmaps the user can copy and scale the goal to
@@ -175,7 +187,7 @@ export default async function Page(
             style={{ border: '1px solid gold', backgroundColor: 'rgba(255, 255, 0, .35)' }}
           >
             <div className="flex align-items-center gap-100 margin-left-100">
-              <IconAlertTriangle style={{minWidth: '24px'}} aria-hidden="true" />
+              <IconAlertTriangle style={{ minWidth: '24px' }} aria-hidden="true" />
               <strong className="font-weight-500">{t("pages:goal.update_needed")}</strong>
             </div>
             <UpdateGoalButton id={goal.id} />
@@ -221,6 +233,14 @@ export default async function Page(
               </div>
             </>
           }
+
+          {/* TODO - remove */}
+          {recipeUsed && (<pre>
+            {recipeUsed.hash}
+            <br />
+            {JSON.stringify(recipeUsed.recipe, null, 4)}
+            <br />
+          </pre>)}
 
           {goal.description ?
             <>

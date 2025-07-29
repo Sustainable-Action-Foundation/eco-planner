@@ -6,7 +6,7 @@ import { GoalCreateInput, dataSeriesDataFieldNames, ScaleBy, ScaleMethod, Scalin
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
-import { DataSeriesArray, RawRecipe, Recipe } from "@/functions/recipe-parser/types";
+import { DataSeriesArray, RawRecipe, Recipe, RecipeVariableType } from "@/functions/recipe-parser/types";
 import { evaluateRecipe, parseRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
 
 /** Get the resulting scaling factor from form data */
@@ -202,6 +202,8 @@ export default function CopyAndScale({
 }) {
   const { t } = useTranslation("components");
   const [isLoading, setIsLoading] = useState(false);
+  const [recipeEq, setRecipeEq] = useState("");
+  const [recipeVars, setRecipeVars] = useState<RawRecipe["variables"]>({});
   const [resultingDataSeries, setResultingDataSeries] = useState<DataSeriesArray & { unit?: string }>({});
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
@@ -216,32 +218,37 @@ export default function CopyAndScale({
         const formData = new FormData(formElement);
 
         const selectedRecipeHash = formData.getAll("recipeSuggestion").at(0) as string;
-        if (selectedRecipeHash === "none" || selectedRecipeHash == "" || !selectedRecipeHash) {
-          console.info("CopyAndScale: No recipe selected");
-          return;
+        if (selectedRecipeHash && selectedRecipeHash !== "none") {
+          const selectedRecipe = goal.recipeSuggestions.find(r => r.hash === selectedRecipeHash)
+          if (selectedRecipe) {
+            const rawRecipe = recipeFromUnknown(selectedRecipe.recipe);
+            setRecipeEq(rawRecipe.eq);
+            setRecipeVars(rawRecipe.variables);
+          }
         }
 
-        const selectedRecipe = goal.recipeSuggestions.find(r => r.hash === selectedRecipeHash)
+        const customRecipe: RawRecipe = {
+          eq: recipeEq,
+          variables: recipeVars,
+        };
 
-        let safeRawRecipe: RawRecipe;
         try {
-          safeRawRecipe = recipeFromUnknown(selectedRecipe?.recipe);
+          const parsedRecipe = await parseRecipe(customRecipe);
+          const warnings: string[] = [];
+          const evaluatedRecipe = await evaluateRecipe(parsedRecipe, warnings)
+          setResultingDataSeries(evaluatedRecipe);
+        } catch (e) {
+          console.error("CopyAndScale: Failed to evaluate recipe", e);
+          setResultingDataSeries({});
         }
-        catch (e) {
-          console.error("CopyAndScale: Failed to parse recipe", e);
-          alert(t("components:copy_and_scale.recipe_parse_error"));
-          return;
-        }
-        const parsedRecipe = await parseRecipe(safeRawRecipe);
-
-        const warnings: string[] = [];
-        const evaluatedRecipe = await evaluateRecipe(parsedRecipe, warnings)
-
-        setResultingDataSeries(evaluatedRecipe);
       }
     }
   }
-  recalculateScalingResult();
+
+  useEffect(() => {
+    recalculateScalingResult();
+  }, [recipeEq, recipeVars]);
+
 
   function formSubmission(form: FormData) {
     setIsLoading(true);
@@ -253,7 +260,7 @@ export default function CopyAndScale({
       throw new Error("Why is this a file?");
     }
 
-    const noUnitDataSeries = {...resultingDataSeries};
+    const noUnitDataSeries = { ...resultingDataSeries };
     delete noUnitDataSeries.unit;
 
     const formData: GoalCreateInput & { roadmapId: string } = {
@@ -263,6 +270,7 @@ export default function CopyAndScale({
       dataUnit: goal.dataSeries?.unit,
       dataSeriesArray: noUnitDataSeries,
       roadmapId: copyToId ?? "",
+      recipeHash: form.get("recipeSuggestion") as string,
     };
 
     const formJSON = JSON.stringify(formData);
@@ -316,7 +324,7 @@ export default function CopyAndScale({
           {goal.recipeSuggestions.length > 0 ? (<>
             {goal.recipeSuggestions.map((recipe, index) => (
               <label key={index} className="block margin-block-50">
-                <input type="radio" name="recipeSuggestion" value={recipe.hash} />
+                <input type="radio" name="recipeSuggestion" value={recipe.hash} onChange={recalculateScalingResult} />
                 {" "}
                 <>
                   {(recipe.recipe as Recipe).name ?? t("components:copy_and_scale.unnamed_suggestion")}
@@ -327,7 +335,70 @@ export default function CopyAndScale({
                 </>
               </label>
             ))}
-          </>) : (<></>)}
+          </>) : null}
+
+          {/* Custom recipe string */}
+          <label className="block margin-block-50">
+            <span className="block">{t("components:copy_and_scale.custom_recipe")}</span>
+            <textarea
+              name="recipeString"
+              rows={5}
+              placeholder={t("components:copy_and_scale.custom_recipe_placeholder")}
+              className="block width-100"
+              value={recipeEq}
+              onChange={(e) => setRecipeEq(e.target.value)}
+            />
+          </label>
+          {/* Recipe variables */}
+          <div className="margin-inline-auto width-100">
+            {t("components:copy_and_scale.recipe_variables")}
+            <ul className="list-style-none padding-0">
+              {Object.entries(recipeVars).map(([name, variable]) => (
+                <li key={name} className="display-flex align-items-center gap-50 margin-block-25">
+                  <input
+                    type="text"
+                    value={name}
+                    style={{
+                      flex: 1,
+                    }}
+                  />
+                  <input
+                    type="text"
+                    value={
+                      variable.type === RecipeVariableType.Scalar ? variable.value :
+                        variable.type === RecipeVariableType.DataSeries && 'link' in variable ? `link: ${variable.link}` :
+                          'Data Series'
+                    }
+                    style={{
+                      flex: 5,
+                    }}
+                    onChange={(e) => {
+                      if (variable.type === RecipeVariableType.Scalar) {
+                        const newValue = parseFloat(e.target.value);
+                        setRecipeVars(prev => ({
+                          ...prev,
+                          [name]: { ...variable, value: Number.isNaN(newValue) ? 0 : newValue }
+                        }));
+                      }
+                    }}
+                    readOnly={variable.type !== RecipeVariableType.Scalar}
+                  />
+                  <button type="button" className="red" onClick={() => {
+                    const newVars = { ...recipeVars };
+                    delete newVars[name];
+                    setRecipeVars(newVars);
+                  }}>X</button>
+                </li>
+              ))}
+            </ul>
+            <button type="button" onClick={() => {
+              const newVarName = `var${Object.keys(recipeVars).length + 1}`;
+              setRecipeVars(prev => ({
+                ...prev,
+                [newVarName]: { type: RecipeVariableType.Scalar, value: 0 }
+              }));
+            }}>{t("components:copy_and_scale.add_variable")}</button>
+          </div>
 
           {/* Resulting data series */}
           <label className="margin-inline-auto width-100">

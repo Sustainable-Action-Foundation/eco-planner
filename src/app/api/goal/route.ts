@@ -1,16 +1,12 @@
 import { NextRequest } from "next/server";
-import { getSession } from "@/lib/session"
 import prisma from "@/prismaClient";
-import { AccessControlled, AccessLevel, ClientError, dataSeriesDataFieldNames, DataSeriesDataFields, GoalCreateInput, GoalUpdateInput, JSONValue } from "@/types";
-import { DataSeries, Prisma } from "@prisma/client";
-import accessChecker from "@/lib/accessChecker";
 import { revalidateTag } from "next/cache";
-import dataSeriesPrep from "./dataSeriesPrep";
-import pruneOrphans from "@/functions/pruneOrphans";
 import { cookies } from "next/headers";
-import getOneGoal from "@/fetchers/getOneGoal";
-import { recalculateGoal } from "@/functions/recalculateGoal";
-import { DataSeriesArray } from "@/functions/recipe-parser/types";
+import { getSession } from "@/lib/session";
+import accessChecker from "@/lib/accessChecker";
+import { AccessControlled, AccessLevel, ClientError, dataSeriesDataFieldNames, GoalCreateInput, GoalUpdateInput, JSONValue } from "@/types";
+import { Prisma } from "@prisma/client";
+import type { DataSeriesArray } from "@/functions/recipe-parser/types";
 
 function isNull(value: unknown): value is null {
   return value === null;
@@ -48,6 +44,18 @@ function isArrayOfStrings(value: unknown): value is string[] {
   return isArray(value) && value.every(item => isString(item));
 }
 
+function isDataSeriesArray(value: unknown): value is { [key: string]: number | string | null } {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return false;
+  }
+  return Object.entries(value).every(([key, val]) => {
+    return (
+      typeof key === 'string' &&
+      (val === null || typeof val === 'number' || (typeof val === 'string' && !isNaN(parseFloat(val))))
+    );
+  });
+}
+
 // Type guard and check if the request body is a valid GoalInput
 function isTypeGoalCreateInput(goal: JSONValue): goal is GoalCreateInput {
   return (
@@ -70,6 +78,7 @@ function isTypeGoalCreateInput(goal: JSONValue): goal is GoalCreateInput {
 
     && (isUndefined(goal.recipeHash) || isString(goal.recipeHash))
 
+    && (isUndefined(goal.dataSeriesArray) || isDataSeriesArray(goal.dataSeriesArray))
     && (isUndefined(goal.rawDataSeries) || isArrayOfStrings(goal.rawDataSeries))
     && (isNullOrUndefined(goal.rawBaselineDataSeries) || isArrayOfStrings(goal.rawBaselineDataSeries))
     && (isNullOrUndefined(goal.dataUnit) || isString(goal.dataUnit))
@@ -145,8 +154,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Get user, roadmap
   try {
-    // Get user, roadmap
     const [user, roadmap] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
@@ -187,14 +196,8 @@ export async function POST(request: NextRequest) {
       throw new Error(ClientError.IllegalParent, { cause: 'goal' });
     }
 
-    // TODO - reimplement with recipe
-    // // If the user tries to inherit from a goal they don't have access to, return IllegalParent
-    // for (const relatedGoal of relatedGoals) {
-    //   if (!relatedGoal) {
-    //     throw new Error(ClientError.IllegalParent, { cause: 'goal' });
-    //   }
-    // }
-  } catch (error) {
+  }
+  catch (error) {
     if (error instanceof Error) {
       if (error.message == ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
@@ -216,24 +219,23 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // TODO - validate data series
   const dataSeriesArray: DataSeriesArray = {};
-  for (const field of dataSeriesDataFieldNames) {
-    const value = formData.dataSeriesArray?.[field];
-    if (isNullOrUndefined(value)) {
-      dataSeriesArray[field] = null;
+  if (formData.dataSeriesArray) {
+    for (const field of dataSeriesDataFieldNames) {
+      const value = formData.dataSeriesArray[field];
+
+      if (isNullOrUndefined(value)) {
+        dataSeriesArray[field] = null;
+      } else if (isString(value)) {
+        const parsed = parseFloat(value);
+        dataSeriesArray[field] = Number.isFinite(parsed) ? parsed : null;
+      } else if (isNumber(value)) {
+        dataSeriesArray[field] = value;
+      } else {
+        dataSeriesArray[field] = null;
+      }
     }
-    else if (isString(value) && Number.isFinite(parseFloat(value))) {
-      dataSeriesArray[field] = parseFloat(value);
-    }
-    else if (isNumber(value)) {
-      dataSeriesArray[field] = value;
-    }
-    else {
-      console.warn(`Invalid value for data series field "${field}":`, value, "Setting to null");
-      dataSeriesArray[field] = null; // If the value is not a number or string, set it to null
-    }
-  };
+  }
 
   // Create goal
   try {
@@ -252,28 +254,23 @@ export async function POST(request: NextRequest) {
         roadmap: {
           connect: { id: formData.roadmapId },
         },
-        dataSeries: {
+        dataSeries: formData.dataSeriesArray ? {
           create: {
             ...dataSeriesArray,
             unit: formData.dataUnit,
             authorId: session.user.id,
           },
-        },
-        // // TODO - validate this
-        // baselineDataSeries: formData.rawBaselineDataSeries ? {
-        //   create: {
-        //     ...formData.rawBaselineDataSeries,
-        //     unit: formData.dataUnit,
-        //     authorId: session.user.id,
-        //   },
-        // } : undefined,
+        } : undefined,
+        ...(formData.recipeHash ? {
+          recipeUsed: {
+            connect: { hash: formData.recipeHash },
+          },
+        } : {}),
         links: {
-          create: formData.links?.map(link => {
-            return {
-              url: link.url,
-              description: link.description || undefined,
-            }
-          })
+          create: formData.links?.map(link => ({
+            url: link.url,
+            description: link.description,
+          }))
         },
       },
       select: {
@@ -286,7 +283,8 @@ export async function POST(request: NextRequest) {
     return Response.json({ message: "Goal created", id: newGoal.id },
       { status: 201, headers: { 'Location': `/goal/${newGoal.id}` } }
     );
-  } catch (error) {
+  }
+  catch (error) {
     console.log(error);
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code == 'P2025') {
       return Response.json({ message: 'Failed to connect records. Given roadmap might not exist' },
@@ -321,8 +319,8 @@ export async function PUT(request: NextRequest) {
     );
   }
 
+  // Get user, current goal
   try {
-    // Get user, current goal
     const [user, currentGoal] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
@@ -349,7 +347,7 @@ export async function PUT(request: NextRequest) {
     // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
     if (!user || (session.user.isAdmin && !user.isAdmin)) {
       throw new Error(ClientError.BadSession, { cause: 'goal' });
-    }
+    } revalidateTag
 
     // If no goal is found or the user has no access to it, return AccessDenied
     if (!currentGoal) {
@@ -394,73 +392,13 @@ export async function PUT(request: NextRequest) {
       if (error.message == ClientError.AccessDenied) {
         return Response.json({ message: ClientError.AccessDenied },
           { status: 403 }
-        );
+        ); revalidateTag
       }
     }
     // If no matching error is thrown, log the error and return a generic error message
     console.log(error);
     return Response.json({ message: "Internal server error" },
       { status: 500 }
-    );
-  }
-
-  // TODO - reimplement with recipes
-  // Prepare for creating data series
-  // let dataValues: Partial<DataSeriesDataFields> | undefined | null = undefined;
-  // if (goal.inheritFrom?.length) {
-  //   // Combine the data series of the parent goals
-  //   const parentGoals = await Promise.all(goal.inheritFrom.map(({ id }) => getOneGoal(id)));
-  //   const combinationParents: {
-  //     isInverted: boolean,
-  //     parentGoal: {
-  //       dataSeries: DataSeries | null
-  //     }
-  //   }[] = goal.inheritFrom.map(({ id, isInverted }) => {
-  //     const parentGoal = parentGoals.find(goal => goal?.id === id);
-  //     return { isInverted: isInverted ?? false, parentGoal: { dataSeries: parentGoal?.dataSeries ?? null } };
-  //   });
-  //   dataValues = await recalculateGoal({ combinationScale: goal.combinationScale ?? null, combinationParents });
-  // } else if (goal.dataSeries) {
-  //   // Don't try to update if the received data series is undefined (but complain about null)
-  //   // Get data series from the request
-  //   dataValues = dataSeriesPrep(goal.dataSeries);
-  // }
-  // if (dataValues === null) {
-  //   return Response.json({ message: 'Bad data series' },
-  //     { status: 400 }
-  //   );
-  // }
-
-
-
-  // Prepare goal baseline (if any), or deletion thereof
-  // If the baseline data series is null, it means the user wants to delete it. A value of undefined means no change.
-  let shouldRemoveBaseline = goal.rawBaselineDataSeries === null;
-  if (shouldRemoveBaseline) {
-    // Check if current goal has a baseline data series, if not, no need to delete it
-    try {
-      const currentGoal = await prisma.goal.findUnique({
-        where: { id: goal.goalId },
-        select: { baselineDataSeries: true }
-      });
-      if (currentGoal?.baselineDataSeries == null) {
-        // Trying to delete the baseline when it doesn't exist will cause Prisma to throw an error
-        shouldRemoveBaseline = false;
-      }
-    } catch {
-      // Fail silently, this should either already be handled by the access check, or get handled when updating the goal
-    }
-  }
-
-  let baselineValues: Partial<DataSeriesDataFields> | undefined | null = undefined;
-  if (goal.rawBaselineDataSeries?.length) {
-    // Get baseline data series from the request
-    baselineValues = dataSeriesPrep(goal.rawBaselineDataSeries);
-  }
-  // If the baseline data series is invalid, return an error
-  if (baselineValues === null) {
-    return Response.json({ message: 'Bad baseline data series' },
-      { status: 400 }
     );
   }
 
@@ -476,43 +414,6 @@ export async function PUT(request: NextRequest) {
         externalDataset: goal.externalDataset,
         externalTableId: goal.externalTableId,
         externalSelection: goal.externalSelection,
-        // TODO - reimplement with recipe
-        // Only update the data series if it is not undefined (undefined means no change)
-        // ...(dataValues ? {
-        //   dataSeries: {
-        //     upsert: {
-        //       create: {
-        //         ...dataValues,
-        //         unit: goal.dataUnit,
-        //         authorId: session.user.id,
-        //       },
-        //       update: {
-        //         ...dataValues,
-        //         unit: goal.dataUnit,
-        //       }
-        //     }
-        //   }
-        // } : {}),
-        // Only update the baseline data series if it is not undefined (undefined means no change)
-        ...(shouldRemoveBaseline ? {
-          baselineDataSeries: {
-            delete: true,
-          },
-        } : baselineValues ? {
-          baselineDataSeries: {
-            upsert: {
-              create: {
-                ...baselineValues,
-                unit: goal.dataUnit,
-                authorId: session.user.id,
-              },
-              update: {
-                ...baselineValues,
-                unit: goal.dataUnit,
-              }
-            }
-          }
-        } : {}),
         links: {
           deleteMany: {},
           create: goal.links?.map(link => {
@@ -527,8 +428,6 @@ export async function PUT(request: NextRequest) {
         id: true,
       }
     });
-    // Prune any orphaned links and comments
-    await pruneOrphans();
     // Invalidate old cache
     revalidateTag('goal');
     // Return the edited goal's ID if successful
@@ -633,8 +532,6 @@ export async function DELETE(request: NextRequest) {
         }
       }
     });
-    // Prune any orphaned links and comments
-    await pruneOrphans();
     // Invalidate old cache
     revalidateTag('goal');
     return Response.json({ message: 'Goal deleted', id: deletedGoal.id },
