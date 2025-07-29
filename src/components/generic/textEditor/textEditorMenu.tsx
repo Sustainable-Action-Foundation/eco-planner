@@ -6,6 +6,7 @@ import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStriketh
 import { Editor } from "@tiptap/core";
 import { allowedProtocols } from './textEditor';
 import styles from './textEditor.module.css' with { type: "css" }
+import { useEditorState } from "@tiptap/react";
 
 export default function TextEditorMenu({
   editor,
@@ -27,6 +28,16 @@ export default function TextEditorMenu({
   const fontSizeMenuButtonRef = useRef<HTMLSpanElement>(null);
   const fontSizeMenuRef = useRef<HTMLUListElement | null>(null);
   const fontSizeMenuItemsRef = useRef<NodeListOf<HTMLElement> | null>(null);
+
+  const { canUndo, canRedo } = useEditorState({
+    editor,
+    selector: ctx => {
+      return {
+        canUndo: ctx.editor.can().undo(),
+        canRedo: ctx.editor.can().redo(),
+      };
+    },
+  });
 
   const setLink = useCallback(() => {
     const previousUrl = editor.getAttributes('link').href;
@@ -97,12 +108,12 @@ export default function TextEditorMenu({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
-        !(event.target instanceof Node) || 
+        !(event.target instanceof Node) ||
         (fontSizeMenuRef.current && !fontSizeMenuRef.current.contains(event.target)) &&
         (fontSizeMenuButtonRef.current && !fontSizeMenuButtonRef.current.contains(event.target))
       ) {
         setFontSizeMenuOpen(false);
-        editor.commands.focus() 
+        editor.commands.focus()
       }
     };
 
@@ -236,7 +247,7 @@ export default function TextEditorMenu({
       }
     }
 
-    if (e.key == 'Escape') { 
+    if (e.key == 'Escape') {
       e.preventDefault()
       console.log(fontSizeMenuRef.current)
       if (fontSizeMenuOpen) {
@@ -308,10 +319,10 @@ export default function TextEditorMenu({
             aria-label={t("forms:text_editor_menu.undo")}
             aria-keyshortcuts='control+z'
             role='menuitem'
-            aria-disabled={!editor.can().undo()}
+            aria-disabled={!canUndo}
           >
             <IconArrowBackUp
-              color={`${editor.can().undo() ? 'black' : 'gray'}`}
+              color={`${canUndo ? 'black' : 'gray'}`}
               className="grid"
               width={16}
               height={16}
@@ -332,10 +343,10 @@ export default function TextEditorMenu({
             aria-label={t("forms:text_editor_menu.redo")}
             aria-keyshortcuts='control+shift+z'
             role='menuitem'
-            aria-disabled={!editor.can().redo()}
+            aria-disabled={!canRedo}
           >
             <IconArrowForwardUp
-              color={`${editor.can().redo() ? 'black' : 'gray'}`}
+              color={`${canRedo ? 'black' : 'gray'}`}
               className="grid"
               width={16}
               height={16}
@@ -430,11 +441,11 @@ export default function TextEditorMenu({
         </li>
         <li role='presentation'>
           <span
-            onClick={() => editor.chain().focus().toggleGreyText().run()}
+            onClick={() => { editor.getAttributes('textStyle').color !== 'grey' ? editor.chain().focus().setColor('grey').run() : editor.chain().focus().unsetColor().run() }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                editor.chain().toggleGreyText().run();
+                editor.getAttributes('textStyle').color !== 'grey' ? editor.chain().setColor('grey').run() : editor.chain().unsetColor().run();
               }
             }}
             tabIndex={-1}

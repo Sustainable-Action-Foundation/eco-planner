@@ -2,7 +2,7 @@
 
 import { RoadmapSortBy } from "@/types";
 import { RoadmapType } from "@prisma/client";
-import { IconAdjustmentsHorizontal, IconSearch } from "@tabler/icons-react";
+import { IconSearch } from "@tabler/icons-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
 import { useTranslation } from "react-i18next";
