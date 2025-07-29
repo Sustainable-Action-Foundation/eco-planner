@@ -8,9 +8,6 @@ import { Unit } from "mathjs";
 import { ApiTableContent } from "@/lib/api/apiTypes";
 
 const years = dataSeriesDataFieldNames
-// const startYear = 2020;
-// const endYear = 2050;
-// export const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => (startYear + i).toString());
 
 type DataSeriesDbEntry = {
   uuid: string;
