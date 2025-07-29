@@ -1736,8 +1736,16 @@ container-text {
   display: flex;
 }
 
+.display-flex-important {
+  display: flex !important;
+}
+
 .flex {
   display: flex;
+}
+
+.flex-important {
+  display: flex !important;
 }
 
 .display-inline-flex {

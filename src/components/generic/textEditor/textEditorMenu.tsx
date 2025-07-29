@@ -293,6 +293,42 @@ export default function TextEditorMenu({
     }
   }
 
+  useEffect(() => {
+    const checkOverflowAgainstParent = () => {
+      const ul = menubarRef.current;
+      const parent = ul?.parentElement;
+
+      if (ul && parent && menuItemsRef.current) {
+        const items = Array.from(menuItemsRef.current); // Convert NodeList to array
+        const parentWidth = parent.getBoundingClientRect().width - 4; // No clue why i need - 4 lowkey
+
+        // Step 1: Reset all items (in case we’re resizing wider)
+        items.forEach((item) => {
+          item.style.display = "";
+        });
+
+        // Step 2: Check for overflow and hide items from the end
+        console.log('Child smaller than parent', 'child:', ul.scrollWidth, 'parent:', parentWidth)
+        while (ul.scrollWidth >= parentWidth - 1 && items.length > 0) {
+          console.log('Child smaller than parent', 'child:', ul.scrollWidth, 'parent:', parentWidth)
+          const lastVisible = [...items].reverse().find((item) => item.style.display !== "none");
+          console.log(items)
+          if (lastVisible) {
+            lastVisible.style.display = "none";
+          } else {
+            break; // all are hidden
+          }
+        }
+      }
+    };
+
+    checkOverflowAgainstParent(); // Initial check
+
+    window.addEventListener("resize", checkOverflowAgainstParent);
+    return () => window.removeEventListener("resize", checkOverflowAgainstParent);
+  }, []);
+
+
   if (!editor) {
     return null
   }
@@ -304,7 +340,6 @@ export default function TextEditorMenu({
         ref={menubarRef}
         role='menubar'
         className='margin-0 padding-0'
-        style={{ lineHeight: '1' }}
       >
         <li role='presentation'>
           <span
@@ -366,8 +401,8 @@ export default function TextEditorMenu({
             aria-owns={`${editorId}-font-size-menu`}
             aria-label={t("forms:text_editor_menu.font_size.caption")}
             data-tooltip={t("forms:text_editor_menu.font_size.caption")}
-            style={{ width: '100px', display: 'flex' }}
-            className='align-items-center justify-content-space-between'
+            style={{ width: '100px', }}
+            className='align-items-center justify-content-space-between flex-important'
           >
             {!editor.getAttributes('textStyle').fontSize ?
               t("forms:text_editor_menu.font_size.normal")
