@@ -7,13 +7,18 @@ import { externalDatasets } from "../api/utility";
  * @param language Two-letter language code. Default is 'sv'.
  * @param pageSize Initial page size. If the number of tables is larger than this, the function will call itself with the correct page size.
  */
-export default async function getPxWebTables(externalDataset: string, searchQuery?: string, language: string = 'sv', pageSize: number = 9999) {
+export default async function getPxWebTables(externalDataset: string, searchQuery?: string, language?: string, pageSize: number = 9999) {
   // Get the base URL for the external dataset, defaulting to SCB
   const baseUrl = externalDatasets[externalDataset]?.baseUrl ?? externalDatasets.SCB?.baseUrl;
   const url = new URL('./tables', baseUrl);
 
   if (searchQuery) url.searchParams.append('query', searchQuery);
-  if (language) url.searchParams.append('lang', language);
+  if (!language || !externalDatasets[externalDataset]?.supportedLanguages.includes(language)) {
+    language = externalDatasets[externalDataset]?.supportedLanguages[0];
+  }
+  if (language) {
+    url.searchParams.append('lang', language);
+  }
   if (pageSize) url.searchParams.append('pageSize', pageSize.toString());
 
   let data: PxWebApiV2TableArray;

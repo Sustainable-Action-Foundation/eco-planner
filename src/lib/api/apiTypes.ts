@@ -24,7 +24,7 @@ export type ApiTableDetails = {
   hierarchies?: (TrafaHierarchy)[],
   variables: (TrafaVariable | PxWebVariable)[],
   times: (TrafaVariable | PxWebTimeVariable)[],
-  language: string,
+  language?: string,
 }
 
 export type ApiDetailItemBase = {

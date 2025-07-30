@@ -26,7 +26,8 @@ export default function QueryBuilder({
   // Locale has the format language-locale, e.g. "sv-SE" or "en-US"
   // We only need the language part, so we split it and take the first part
   // TODO: Fix typing, use match() instead of casting
-  const lang = useContext(LocaleContext).split("-")[0] as "sv" | "en";
+  const lang = useContext(LocaleContext).split("-")[0];
+  // const lang = useContext(LocaleContext).split("-")[0] as "sv" | "en";
 
   const [isLoading, setIsLoading] = useState(false);
   const [dataSource, setDataSource] = useState<string>("");
@@ -384,7 +385,7 @@ export default function QueryBuilder({
     }
   }
 
-  function timeVariableSelectionHelper(times: (TrafaVariable | PxWebTimeVariable)[], language: string) {
+  function timeVariableSelectionHelper(times: (TrafaVariable | PxWebTimeVariable)[], language?: string) {
     if ((dataSource == "Trafa" && !(times.length == 1 && times[0].name == "ar")) || (getDatasetKeysOfApis("PxWeb").includes(dataSource) && times.length > 1)) {
       let heading = "";
       let defaultValue = "";
