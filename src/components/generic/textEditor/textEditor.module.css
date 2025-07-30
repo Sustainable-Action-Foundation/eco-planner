@@ -5,16 +5,35 @@
     border-bottom: 1px solid var(--gray);
 }
 
+/* TODO: temporary, see if it makes sense */ 
+.text-editor-menu [role="menu"] li.divider {
+    border-right: 0 !important;
+    padding-right: 0 !important;
+    margin-right: 0 !important;
+}
+
 .text-editor-menu > [role="menubar"] {
     line-height: 1;
     display: inline-block;
     vertical-align: top;
+    height: 24px;
+    overflow: hidden;
 }
 
 .text-editor-menu [role="menubar"] > li {
   display: inline-block;
   vertical-align: top;
 }  
+
+.text-editor-menu [role="menubar"] > li.divider {
+    border-right: 1px solid var(--gray);
+}
+
+.text-editor-menu [role="menubar"] > li.divider:has(+ li.menu-more) {
+    border: 0;
+    margin-right: 0;
+    padding-right: 0;
+}
 
 .text-editor-menu [role^="menuitem"] {
     position: relative;

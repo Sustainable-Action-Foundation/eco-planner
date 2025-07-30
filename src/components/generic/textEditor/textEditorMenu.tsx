@@ -87,11 +87,11 @@ export default function TextEditorMenu({
     <li role='presentation' key="undo">
       <Undo editor={editor} t={t} />
     </li>,
-    <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)' }} key="redo">
+    <li role='presentation' className={`margin-right-25 padding-right-25 ${styles['divider']}`} key="redo">
       <Redo editor={editor} t={t} />
     </li>,
-    <li role='presentation' className='margin-right-25 padding-right-25 position-relative' style={{ borderRight: '1px solid var(--gray-80)' }} key="font-size">
-      <FontSize editor={editor} t={t} editorId={editorId} setFocusedMenubarItem={setFocusedMenubarItem} />
+    <li role='presentation' className={`margin-right-25 padding-right-25 position-relative ${styles['divider']}`} key="font-size">
+      <FontSize editor={editor} t={t} editorId={editorId} setFocusedMenubarItem={setFocusedMenubarItem} /> {/* TODO: This is bugged now */}
     </li>,
     <li role='presentation' key="grey-text">
       <GreyText editor={editor} t={t} />
@@ -114,10 +114,10 @@ export default function TextEditorMenu({
     <li role='presentation' key="subscript">
       <Subscript editor={editor} t={t} />
     </li>,
-    <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)' }} key="highlight">
+    <li role='presentation' className={`margin-right-25 padding-right-25 ${styles['divider']}`} key="highlight">
       <Highlight editor={editor} t={t} />
     </li>,
-    <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)' }} key="link">
+    <li role='presentation' className={`margin-right-25 padding-right-25 ${styles['divider']}`} key="link">
       <Link editor={editor} t={t} />
     </li>,
     <li role='presentation' key="bulletlist">
@@ -149,6 +149,7 @@ export default function TextEditorMenu({
           throw new Error();
         }
 
+        // TODO: Include filtering when making items larger
         let newOverFlowList = overFlowList;
         newOverFlowList.unshift(movingItem);
         newOverFlowList = newOverFlowList.filter((item, i, ownArray) => {
@@ -193,13 +194,8 @@ export default function TextEditorMenu({
         {list.map((listItem) => {
           return listItem
         })}
-        {/* {false &&
-          (overFlowList.map((listItem) => {
-            return listItem
-          }))
-        } */}
-        {/*
-        <li role='presentation' className="margin-left-25 padding-left-25" style={{borderLeft: '1px solid var(--gray)'}}>
+
+        <li role='presentation' className={`margin-left-25 padding-left-25 position-relative ${styles['menu-more']}`} style={{borderLeft: '1px solid var(--gray)'}}>
           <span
             tabIndex={-1}
             role='menuitem'
@@ -210,8 +206,12 @@ export default function TextEditorMenu({
           >
             <IconDotsVertical width={16} height={16} className="grid" aria-hidden='true' />
           </span>
+          <ul className="margin-0 padding-0 gray-95 smooth" role="menu" style={{listStyle: 'none', marginTop: '5px', position: 'fixed', inset: 'auto', marginRight: '1.25rem', zIndex: '9'}}>
+            {(overFlowList.map((listItem) => {
+              return listItem
+            }))}
+          </ul>
         </li>
-         */}
       </ul>
     </div>
   )
