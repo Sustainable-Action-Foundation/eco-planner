@@ -4,17 +4,18 @@
  * @param baseUrl The base URL points to the base of the API, without a trailing slash, e.g. "https://api.scb.se/ov0104/v2beta/api/v2".
  * To fetch any data, an additional path must be appended to the end, for example "/navigation", "/tables" or "/tables/{tableId}/data".
  * @param userFacingUrl User facing URL is the link to the website where the user will be directed when clicking the link declaring where historical data is fetched from.
- * @param supportedLanguages Supported languages is a list of languages that each dataset supports.
+ * @param supportedLanguages Supported languages is a list of languages that each dataset supports. First language in the list will be used as a fallback if the user's preferred language is not supported.
  * @param api Api is which api the dataset is using.
  * @param fullName Full name is the full name of the dataset as the key will usually be a shorthand for the full name.
  */
-export const externalDatasets: { [key: string]: { baseUrl: string, userFacingUrl: string, supportedLanguages: string[], api: string, fullName?: string } | undefined } = {
+export const externalDatasets: { [key: string]: { baseUrl: string, userFacingUrl: string, supportedLanguages: string[], api: string, fullName?: string, alternateNames?: string[] } | undefined } = {
   "SCB": {
     baseUrl: "https://api.scb.se/ov0104/v2beta/api/v2/",
     userFacingUrl: "https://www.statistikdatabasen.scb.se/pxweb/sv/ssd/",
     supportedLanguages: ["sv", "en"],
     api: "PxWeb",
     fullName: "Statistiska centralbyrån",
+    alternateNames: ["scb", "statistics sweden"]
   },
   "Trafa": {
     baseUrl: "https://api.trafa.se/api/",
@@ -22,6 +23,7 @@ export const externalDatasets: { [key: string]: { baseUrl: string, userFacingUrl
     supportedLanguages: ["sv"],
     api: "Trafa",
     fullName: "Trafikanalys",
+    alternateNames: ["trafa"]
   },
   "SSB": {
     baseUrl: "https://data.ssb.no/api/pxwebapi/v2-beta/",
@@ -29,6 +31,7 @@ export const externalDatasets: { [key: string]: { baseUrl: string, userFacingUrl
     supportedLanguages: ["no", "en"],
     api: "PxWeb",
     fullName: "Statistisk sentralbyrå",
+    alternateNames: ["statistisk sentralbyrå", "statistics norway"]
   }
   // Add more datasets as they implement the PxWeb API v2
   // "SSB": "some url",
@@ -73,4 +76,16 @@ export function parsePeriod(period: string) {
   else {
     return new Date(Date.UTC(parseInt(period), 0));
   }
+}
+
+export function getDatasetKeyFromAlternateName(name: string): string | null {
+  name = name.toLowerCase().trim();
+  // Check if the name matches any of the dataset alternate names
+  for (const key in externalDatasets) {
+    if (externalDatasets[key]?.alternateNames?.includes(name)) {
+      return key;
+    }
+  }
+  // If no match is found, return null
+  return null;
 }

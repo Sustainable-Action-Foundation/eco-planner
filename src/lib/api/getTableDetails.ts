@@ -2,7 +2,7 @@ import getPxWebTableDetails from "../pxWeb/getPxWebTableDetails";
 import getTrafaTableDetails from "../trafa/getTrafaTableDetails";
 import { getDatasetKeysOfApis } from "./utility";
 
-export default async function getTableDetails(tableId: string, externalDataset: string, selection: { variableCode: string, valueCodes: string[] }[] = [], language: "sv" | "en" = "sv") {
+export default async function getTableDetails(tableId: string, externalDataset: string, selection: { variableCode: string, valueCodes: string[] }[] = [], language: string) {
   if (getDatasetKeysOfApis("PxWeb").includes(externalDataset)) {
     return getPxWebTableDetails(tableId, externalDataset, language);
   }
