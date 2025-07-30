@@ -185,7 +185,8 @@
     "highlight": "Highlight",
     "insert_link": "Insert link",
     "bullet_list": "Bulleted list",
-    "numbered_list": "Numbered list"
+    "numbered_list": "Numbered list",
+    "more": "More"
   },
   "meta_roadmap": {
     "description_legend": "Describe your $t(common:roadmap_series_one)",

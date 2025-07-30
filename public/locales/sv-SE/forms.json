@@ -185,7 +185,8 @@
     "highlight": "Markera",
     "insert_link": "Infoga länk",
     "bullet_list": "Punktlista",
-    "numbered_list": "Numrerad lista"
+    "numbered_list": "Numrerad lista",
+    "more": "Mer"
   },
   "meta_roadmap": {
     "description_legend": "Beskriv din $t(common:roadmap_series_one)",

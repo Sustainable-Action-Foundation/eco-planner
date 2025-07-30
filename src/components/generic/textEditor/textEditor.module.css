@@ -11,10 +11,6 @@
     vertical-align: top;
 }
 
-.text-editor-menu li:has(+ * [role^="menuitem"][style="display: none;"]) { /* This requires that an element does not have any other inline styles */
-    border: 0 !important;
-}
-
 .text-editor-menu [role="menubar"] > li {
   display: inline-block;
   vertical-align: top;
@@ -26,8 +22,9 @@
     display: block;
     border-radius: .25rem;
     padding: .25rem;
+    user-select: none;
 }
-
+ 
 .text-editor-menu [role^="menuitem"][aria-checked="true"] {
    background-color: hsl(206, 100%, 80%, .5);     
 }

@@ -1,12 +1,11 @@
 'use client';
 
 import { useTranslation } from "react-i18next";
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconChevronDown } from "@tabler/icons-react";
+import React, { useEffect, useRef, useState } from 'react';
+import { IconDotsVertical } from "@tabler/icons-react";
 import { Editor } from "@tiptap/core";
-import { allowedProtocols } from './textEditor';
 import styles from './textEditor.module.css' with { type: "css" }
-import { useEditorState } from "@tiptap/react";
+import { BulletList, Link, NumberedList, Highlight, Subscript, Superscript, Underline, StrikeThrough, Bold, Italic, GreyText, FontSize, Redo, Undo } from "./menuButtons";
 
 export default function TextEditorMenu({
   editor,
@@ -15,82 +14,21 @@ export default function TextEditorMenu({
   editor: Editor,
   editorId: string
 }) {
+  
+  const { t } = useTranslation("components");
 
-  const { t } = useTranslation("forms");
-
-  const [focusedMenubarItem, setFocusedMenubarItem] = useState<number | null>(null);
-  const [fontSizeMenuOpen, setFontSizeMenuOpen] = useState<boolean>(false);
-  const [focusedFontSizeMenuItem, setFocusedFontSizeMenuItem] = useState<number | null>(null);
+  const [focusedMenubarItem, setFocusedMenubarItem] = useState<number | null>(null); 
 
   const menubarRef = useRef<HTMLUListElement | null>(null);
   const menuItemsRef = useRef<NodeListOf<HTMLElement> | null>(null);
-
-  const fontSizeMenuButtonRef = useRef<HTMLSpanElement>(null);
-  const fontSizeMenuRef = useRef<HTMLUListElement | null>(null);
-  const fontSizeMenuItemsRef = useRef<NodeListOf<HTMLElement> | null>(null);
-
-  const { canUndo, canRedo } = useEditorState({
-    editor,
-    selector: ctx => {
-      return {
-        canUndo: ctx.editor.can().undo(),
-        canRedo: ctx.editor.can().redo(),
-      };
-    },
-  });
-
-  const setLink = useCallback(() => {
-    const previousUrl = editor.getAttributes('link').href;
-    const url = window.prompt('URL', previousUrl);
-
-    // cancelled
-    if (url === null) {
-      return;
-    }
-
-    // empty
-    if (url === '') {
-      editor.chain().focus().extendMarkRange('link').unsetLink()
-        .run();
-
-      return;
-    }
-
-    // update link
-    let parsedUrl: URL | null = URL.parse(url);
-    // If parsing fails, try to prepend the default protocol
-    if (!parsedUrl) {
-      parsedUrl = URL.parse(`https://${url}`);
-    }
-    // If parsing still fails, return
-    if (!parsedUrl) {
-      // TODO: i18n
-      alert('Failed to parse URL.');
-      return;
-    }
-
-    if (!allowedProtocols.includes(parsedUrl.protocol.replace(':', ''))) {
-      // TODO: i18n
-      alert(`Protocol "${parsedUrl.protocol.replace(':', '')}" is not allowed. Allowed protocols are: ${allowedProtocols.join(', ')}`);
-    }
-
-    editor.chain().focus().extendMarkRange('link').setLink({ href: parsedUrl.href })
-      .run();
-  }, [editor])
-
+ 
   useEffect(() => {
     if (menubarRef.current) {
       menuItemsRef.current = menubarRef.current.querySelectorAll(
         "[role='menubar'] > li > [role='menuitem'], [role='menubar'] > li > [role='menuitemcheckbox'], [role='menubar'] > li > [role='menuitemradio']"
       ) as NodeListOf<HTMLElement>;
     }
-
-    if (fontSizeMenuRef.current) {
-      fontSizeMenuItemsRef.current = fontSizeMenuRef.current.querySelectorAll(
-        "li > [role='menuitem'], li > [role='menuitemcheckbox'], li > [role='menuitemradio']"
-      ) as NodeListOf<HTMLElement>;
-    }
-
+ 
   }, []);
 
   useEffect(() => {
@@ -104,27 +42,6 @@ export default function TextEditorMenu({
       }
     }
   }, [focusedMenubarItem]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        !(event.target instanceof Node) ||
-        (fontSizeMenuRef.current && !fontSizeMenuRef.current.contains(event.target)) &&
-        (fontSizeMenuButtonRef.current && !fontSizeMenuButtonRef.current.contains(event.target))
-      ) {
-        setFontSizeMenuOpen(false);
-        editor.commands.focus()
-      }
-    };
-
-    if (fontSizeMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [fontSizeMenuOpen, editor]);
 
   const handleKeyDownMenuBar = (e: React.KeyboardEvent<HTMLUListElement>) => {
     if (!menuItemsRef.current) return;
@@ -148,8 +65,6 @@ export default function TextEditorMenu({
     if (e.key === 'Home') {
       e.preventDefault();
       setFocusedMenubarItem(0);
-      setFontSizeMenuOpen(false);
-      setFocusedFontSizeMenuItem(null);
     }
 
     if (e.key === 'End') {
@@ -168,131 +83,6 @@ export default function TextEditorMenu({
   }
 
   useEffect(() => {
-    if (!fontSizeMenuItemsRef.current) return;
-
-    if (focusedFontSizeMenuItem !== null) {
-      const target = fontSizeMenuItemsRef.current[focusedFontSizeMenuItem] as HTMLElement | undefined;
-
-      if (target) {
-        target.focus();
-      }
-    }
-  }, [focusedFontSizeMenuItem]);
-
-  const handleKeyDownFontSizeMenu = (e: React.KeyboardEvent<HTMLSpanElement>) => {
-    if (!fontSizeMenuItemsRef.current) return;
-
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      if (!fontSizeMenuOpen) {
-        setFontSizeMenuOpen(true);
-        setFocusedFontSizeMenuItem(0);
-      } else {
-        setFontSizeMenuOpen(false);
-        setFocusedFontSizeMenuItem(null);
-      }
-    }
-
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-      e.preventDefault()
-
-      if (!fontSizeMenuOpen) {
-        setFontSizeMenuOpen(true)
-      }
-
-      setFocusedFontSizeMenuItem(0)
-    }
-
-    if (e.key == 'Escape') {
-      e.preventDefault()
-
-      if (fontSizeMenuOpen) {
-        e.stopPropagation();
-        fontSizeMenuButtonRef.current?.focus();
-        setFontSizeMenuOpen(false)
-        setFocusedFontSizeMenuItem(null)
-      }
-    }
-
-    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-      setFontSizeMenuOpen(false)
-      setFocusedFontSizeMenuItem(null)
-    }
-  }
-
-  const handleKeyDownFontSizeMenuItem = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (!fontSizeMenuItemsRef.current) return;
-
-    if (e.key === 'ArrowDown') {
-      if (fontSizeMenuOpen && focusedFontSizeMenuItem != null) {
-        e.preventDefault()
-
-        if (focusedFontSizeMenuItem != fontSizeMenuItemsRef.current.length - 1) {
-          setFocusedFontSizeMenuItem(focusedFontSizeMenuItem + 1)
-        } else {
-          setFocusedFontSizeMenuItem(0)
-        }
-      }
-    }
-
-    if (e.key === 'ArrowUp') {
-      if (fontSizeMenuOpen && focusedFontSizeMenuItem != null) {
-        e.preventDefault()
-
-        if (focusedFontSizeMenuItem != 0) {
-          setFocusedFontSizeMenuItem(focusedFontSizeMenuItem - 1)
-        } else {
-          setFocusedFontSizeMenuItem(fontSizeMenuItemsRef.current.length - 1)
-        }
-      }
-    }
-
-    if (e.key == 'Escape') {
-      e.preventDefault()
-      if (fontSizeMenuOpen) {
-        e.stopPropagation();
-        fontSizeMenuButtonRef.current?.focus();
-        setFontSizeMenuOpen(false)
-        setFocusedFontSizeMenuItem(null)
-      }
-    }
-
-    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Tab' || e.key === 'End' || e.key === 'Home') {
-      setFontSizeMenuOpen(false)
-      setFocusedFontSizeMenuItem(null)
-    }
-
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      if (focusedFontSizeMenuItem != null) {
-        const itemEl = fontSizeMenuItemsRef.current[focusedFontSizeMenuItem];
-        const selectedSize = itemEl?.getAttribute('data-size');
-        if (selectedSize === 'unset') {
-          editor.chain().focus().unsetFontSize().run();
-        } else if (selectedSize) {
-          editor.chain().focus().setFontSize(selectedSize).run();
-        }
-        setFontSizeMenuOpen(false);
-        setFocusedFontSizeMenuItem(null);
-        setFocusedMenubarItem(null);
-      }
-    }
-
-    if (e.key === ' ') {
-      e.preventDefault();
-      if (focusedFontSizeMenuItem != null) {
-        const itemEl = fontSizeMenuItemsRef.current[focusedFontSizeMenuItem];
-        const selectedSize = itemEl?.getAttribute('data-size');
-        if (selectedSize === 'unset') {
-          editor.chain().unsetFontSize().run();
-        } else if (selectedSize) {
-          editor.chain().setFontSize(selectedSize).run();
-        }
-      }
-    }
-  }
-
-  useEffect(() => {
     const checkOverflowAgainstParent = () => {
       const ul = menubarRef.current;
       const parent = ul?.parentElement;
@@ -307,10 +97,11 @@ export default function TextEditorMenu({
         });
 
         // Step 2: Check for overflow and hide items from the end
-        while (ul.scrollWidth >= parentWidth - 1 && items.length > 0) {
-          const lastVisible = [...items].reverse().find((item) => item.style.display !== "none");
-          if (lastVisible) {
-            lastVisible.style.display = "none";
+        while (ul.scrollWidth >= parentWidth - 1 && items.length > 1) {
+          const visibleItems = items.filter((item) => item.style.display !== "none");
+          if (visibleItems.length > 1) {
+            const secondLastVisible = visibleItems[visibleItems.length - 2];
+            secondLastVisible.style.display = "none";
           } else {
             break; // all are hidden
           }
@@ -338,340 +129,61 @@ export default function TextEditorMenu({
         className='margin-0 padding-0'
       >
         <li role='presentation'>
-          <span
-            onClick={() => editor.chain().focus().undo().run()}
-            onKeyDown={(e: React.KeyboardEvent<HTMLSpanElement>) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                editor.chain().undo().run();
-              }
-            }}
-            tabIndex={0}
-            aria-label={t("forms:text_editor_menu.undo")}
-            aria-keyshortcuts='control+z'
-            role='menuitem'
-            aria-disabled={!canUndo}
-          >
-            <IconArrowBackUp
-              color={`${canUndo ? 'black' : 'gray'}`}
-              className="grid"
-              width={16}
-              height={16}
-              aria-hidden="true"
-            />
-          </span>
+          <Undo editor={editor} t={t} />
         </li>
         <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
-          <span
-            onClick={() => editor.chain().focus().redo().run()}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                editor.chain().redo().run();
-              }
-            }}
-            tabIndex={-1}
-            aria-label={t("forms:text_editor_menu.redo")}
-            aria-keyshortcuts='control+shift+z'
-            role='menuitem'
-            aria-disabled={!canRedo}
-          >
-            <IconArrowForwardUp
-              color={`${canRedo ? 'black' : 'gray'}`}
-              className="grid"
-              width={16}
-              height={16}
-              aria-hidden="true"
-            />
-          </span>
+          <Redo editor={editor} t={t} />
         </li>
-        <li role='presentation' className='margin-right-25 padding-right-25 position-relative' style={{ borderRight: '1px solid var(--gray-80)', userSelect: 'none' }}>
-          <span
-            onClick={() => setFontSizeMenuOpen(!fontSizeMenuOpen)}
-            onKeyDown={handleKeyDownFontSizeMenu}
-            ref={fontSizeMenuButtonRef}
-            tabIndex={-1}
-            role='menuitem'
-            aria-haspopup='menu'
-            aria-expanded={fontSizeMenuOpen}
-            aria-owns={`${editorId}-font-size-menu`}
-            aria-label={t("forms:text_editor_menu.font_size.caption")}
-            data-tooltip={t("forms:text_editor_menu.font_size.caption")}
-            style={{ width: '100px' }}
-            className='align-items-center justify-content-space-between flex-important'
-          >
-            {!editor.getAttributes('textStyle').fontSize ?
-              t("forms:text_editor_menu.font_size.normal")
-              : editor.getAttributes('textStyle').fontSize == '1.25rem' ?
-                t("forms:text_editor_menu.font_size.large")
-                : editor.getAttributes('textStyle').fontSize == '0.75rem' ?
-                  t("forms:text_editor_menu.font_size.small")
-                  : ''
-            }
-            <IconChevronDown width={16} height={16} aria-hidden="true" />
-          </span>
-          <ul
-            id={`${editorId}-font-size-menu`}
-            ref={fontSizeMenuRef}
-            aria-label={t("forms:text_editor_menu.font_size.caption")}
-            role='menu'
-            className={`
-              ${styles["animated-menu"]} 
-              ${fontSizeMenuOpen ? styles['visible'] : ''} 
-              margin-0 padding-0 gray-95 smooth`
-            }
-          >
-            <li role='presentation' style={{ borderBottom: '1px solid var(--gray)', paddingBottom: '2px' }}>
-              <div
-                onClick={() => { editor.chain().focus().setFontSize('1.25rem').run(), setFontSizeMenuOpen(false) }}
-                onKeyDown={handleKeyDownFontSizeMenuItem}
-                data-size="1.25rem"
-                className='smooth font-size-smaller width-100'
-                style={{ padding: '.5rem', whiteSpace: 'nowrap' }}
-                role='menuitemradio'
-                aria-label={t("forms:text_editor_menu.font_size.large")}
-                aria-keyshortcuts='control+shift+1'
-                aria-checked={editor.getAttributes('textStyle').fontSize === '1.25rem'}
-                tabIndex={-1}>
-                {t("forms:text_editor_menu.font_size.large")}
-              </div>
-            </li>
-            <li role='presentation' style={{ borderBottom: '1px solid var(--gray)', paddingBlock: '2px' }}>
-              <div
-                onClick={() => { editor.chain().focus().unsetFontSize().run(), setFontSizeMenuOpen(false) }}
-                onKeyDown={handleKeyDownFontSizeMenuItem}
-                data-size="unset"
-                className='smooth font-size-smaller width-100'
-                style={{ padding: '.5rem', whiteSpace: 'nowrap' }}
-                role='menuitemradio'
-                aria-label={t("forms:text_editor_menu.font_size.normal")}
-                aria-keyshortcuts='control+shift+2'
-                aria-checked={!editor.getAttributes('textStyle').fontSize}
-                tabIndex={-1}
-              >
-                {t("forms:text_editor_menu.font_size.normal")}
-              </div>
-            </li>
-            <li role='presentation' style={{ paddingTop: '2px' }}>
-              <div
-                onClick={() => { editor.chain().focus().setFontSize('0.75rem').run(), setFontSizeMenuOpen(false) }}
-                onKeyDown={handleKeyDownFontSizeMenuItem}
-                data-size="0.75rem"
-                className='smooth font-size-smaller width-100'
-                style={{ padding: '.5rem', whiteSpace: 'nowrap' }}
-                role='menuitemradio'
-                aria-label={t("forms:text_editor_menu.font_size.small")}
-                aria-keyshortcuts='control+shift+3'
-                aria-checked={editor.getAttributes('textStyle').fontSize === '0.75rem'}
-                tabIndex={-1}
-              >
-                {t("forms:text_editor_menu.font_size.small")}
-              </div>
-            </li>
-          </ul>
+        <li role='presentation' className='margin-right-25 padding-right-25 position-relative' style={{ borderRight: '1px solid var(--gray-80)'}}>
+          <FontSize editor={editor} t={t} editorId={editorId} setFocusedMenubarItem={setFocusedMenubarItem} />
         </li>
         <li role='presentation'>
-          <span
-            onClick={() => { editor.getAttributes('textStyle').color !== 'grey' ? editor.chain().focus().setColor('grey').run() : editor.chain().focus().unsetColor().run() }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                editor.getAttributes('textStyle').color !== 'grey' ? editor.chain().setColor('grey').run() : editor.chain().unsetColor().run();
-              }
-            }}
-            tabIndex={-1}
-            aria-label={t("forms:text_editor_menu.grey_text")}
-            aria-keyshortcuts='control+shift+g'
-            role='menuitemcheckbox'
-            aria-checked={editor.getAttributes('textStyle').color === 'grey'}
-          >
-            <svg className='grid' aria-hidden='true' xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M9 15v-7a3 3 0 0 1 6 0v7" />
-              <path d="M9 11h6" />
-              <path d="M5 21h14" color='darkgrey' strokeWidth={3} />
-            </svg>
-          </span>
+          <GreyText editor={editor} t={t} />
         </li>
         <li role='presentation'>
-          <span
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                editor.chain().toggleItalic().run();
-              }
-            }}
-            tabIndex={-1}
-            role='menuitemcheckbox'
-            aria-label={t("forms:text_editor_menu.italic")}
-            aria-keyshortcuts='control+i'
-            aria-checked={editor.getAttributes('textStyle').fontStyle === 'italic'}
-          >
-            <IconItalic className="grid" width={16} height={16} aria-hidden="true" />
-          </span>
+          <Italic editor={editor} t={t} />
         </li>
         <li role='presentation'>
-          <span
-            onClick={() => editor.chain().focus().toggleBold().run()}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                editor.chain().toggleBold().run();
-              }
-            }}
-            tabIndex={-1}
-            role='menuitemcheckbox'
-            aria-label={t("forms:text_editor_menu.bold")}
-            aria-keyshortcuts='control+b'
-            aria-checked={editor.getAttributes('textStyle').fontWeight === 'bold'}
-          >
-            <IconBold className="grid" width={16} height={16} aria-hidden="true" />
-          </span>
+          <Bold editor={editor} t={t} />
         </li>
         <li role='presentation'>
-          <span
-            onClick={() => editor.chain().focus().toggleLineThrough().run()}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                editor.chain().toggleLineThrough().run();
-              }
-            }}
-            tabIndex={-1}
-            role='menuitemcheckbox'
-            aria-label={t("forms:text_editor_menu.strike_through")}
-            aria-keyshortcuts='control+shift+s'
-            aria-checked={editor.getAttributes('textStyle').textDecoration === 'line-through'}
-          >
-            <IconStrikethrough className="grid" width={16} height={16} aria-hidden="true" />
-          </span>
+          <StrikeThrough editor={editor} t={t} />
         </li>
         <li role='presentation'>
-          <span
-            onClick={() => editor.chain().focus().toggleUnderline().run()}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                editor.chain().toggleUnderline().run();
-              }
-            }}
-            tabIndex={-1}
-            role='menuitemcheckbox'
-            aria-label={t("forms:text_editor_menu.underline")}
-            aria-keyshortcuts='control+u'
-            aria-checked={editor.getAttributes('textStyle').textDecoration === 'underline'}
-          >
-            <IconUnderline className="grid" width={16} height={16} aria-hidden="true" />
-          </span>
+          <Underline editor={editor} t={t} />
         </li>
         <li role='presentation'>
-          <span
-            onClick={() => editor.chain().focus().toggleSuperscript().run()}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                editor.chain().toggleSuperscript().run();
-              }
-            }}
-            tabIndex={-1}
-            role='menuitemcheckbox'
-            aria-label={t("forms:text_editor_menu.superscript")}
-            aria-keyshortcuts='control+.'
-            aria-checked={editor.isActive('superscript')}
-          >
-            <IconSuperscript className="grid" width={16} height={16} aria-hidden="true" />
-          </span>
+          <Superscript editor={editor} t={t} />
         </li>
         <li role='presentation'>
-          <span
-            onClick={() => editor.chain().focus().toggleSubscript().run()}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                editor.chain().toggleSubscript().run();
-              }
-            }}
-            tabIndex={-1}
-            role='menuitemcheckbox'
-            aria-label={t("forms:text_editor_menu.subscript")}
-            aria-keyshortcuts='control+,'
-            aria-checked={editor.isActive('subscript')}
-          >
-            <IconSubscript className="grid" width={16} height={16} aria-hidden="true" />
-          </span>
+          <Subscript editor={editor} t={t} />
         </li>
         <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
-          <span
-            onClick={() => editor.chain().focus().toggleHighlight().run()}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                editor.chain().toggleHighlight().run();
-              }
-            }}
-            tabIndex={-1}
-            role='menuitemcheckbox'
-            aria-label={t("forms:text_editor_menu.highlight")}
-            aria-keyshortcuts='control+shift+h'
-            aria-checked={editor.isActive('highlight')}
-          >
-            <IconHighlight className="grid" width={16} height={16} aria-hidden="true" />
-          </span>
+          <Highlight editor={editor} t={t} />
         </li>
         <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
-          <span
-            onClick={setLink} // TODO: Custom link menu :)
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setLink();
-              }
-            }}
-            tabIndex={-1}
-            role='menuitemcheckbox'
-            aria-label={t("forms:text_editor_menu.insert_link")}
-            aria-checked={editor.isActive('link')}
-          >
-            <IconLink className="grid" width={16} height={16} aria-hidden="true" />
-          </span>
+          <Link editor={editor} t={t} />
         </li>
         <li role='presentation'>
-          <span
-            onClick={() => editor.chain().focus().toggleBulletList().run()}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                editor.chain().toggleBulletList().run();
-              }
-            }}
-            tabIndex={-1}
-            role='menuitemcheckbox'
-            aria-label={t("forms:text_editor_menu.bullet_list")}
-            aria-keyshortcuts='control+shift+8'
-            aria-checked={editor.isActive('bulletList')}
-          >
-            <IconList width={16} height={16} className="grid" aria-hidden='true' />
-          </span>
+          <BulletList editor={editor} t={t} />
         </li>
         <li role='presentation'>
+          <NumberedList editor={editor} t={t} />
+        </li>
+        {/*
+        <li role='presentation' className="margin-left-25 padding-left-25" style={{borderLeft: '1px solid var(--gray)'}}>
           <span
-            onClick={() => editor.chain().focus().toggleOrderedList().run()}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                editor.chain().toggleOrderedList().run();
-              }
-            }}
             tabIndex={-1}
-            role='menuitemcheckbox'
-            aria-label={t("forms:text_editor_menu.numbered_list")}
-            aria-keyshortcuts='control+shift+7'
-            aria-checked={editor.isActive('orderedList')}
+            role='menuitem'
+            aria-label={t("forms:text_editor_menu.more")}
+            data-tooltip={t("forms:text_editor_menu.more")}
+            aria-checked="false"
+            className={`${styles['menu-more']}`}
           >
-            <IconListNumbers width={16} height={16} className="grid" aria-hidden='true' />
+            <IconDotsVertical width={16} height={16} className="grid" aria-hidden='true' />
           </span>
         </li>
+         */}
       </ul>
     </div>
   )
