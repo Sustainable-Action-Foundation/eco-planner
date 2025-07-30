@@ -38,15 +38,16 @@
     "data_series_year": "Year",
     "data_series_value": "Value",
     "invalid_input": "Invalid input. The scaling factor could not be calculated. This is often due to a non-numeric value in an input field or that the product of all scaling factors is negative.",
-    "custom_recipe": "Custom recipe",
-    "custom_recipe_placeholder": "e.g. (${var1} + ${var2}) / 2",
+    "custom_equation": "Custom equation",
+    "custom_equation_placeholder": "e.g. (${var1} + ${var2}) / 2",
     "recipe_variables": "Recipe variables",
     "add_variable": "Add variable",
     "advanced": "Advanced",
     "evaluation_error_title": "Recipe Error",
     "evaluation_warning_title": "Warnings",
     "scalar": "Scalar",
-    "data_series": "Data series"
+    "data_series": "Data series",
+    "recipe_label": "Recipe: "
   },
   "effects_table": {
     "no_effects": "There are no $t(common:effect_other) to display.",

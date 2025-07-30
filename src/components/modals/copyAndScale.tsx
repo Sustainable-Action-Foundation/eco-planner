@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
 import { DataSeriesArray, RawRecipe, Recipe, RecipeVariableType } from "@/functions/recipe-parser/types";
 import { evaluateRecipe, parseRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
+import { RecipeSuggestions, RecipeWrapper } from "../recipe/recipeEditor";
 
 // TODO - remove
 /** Get the resulting scaling factor from form data */
@@ -203,6 +204,9 @@ export default function CopyAndScale({
 }) {
   const { t } = useTranslation("components");
   const [isLoading, setIsLoading] = useState(false);
+
+  const [recipe, setRecipe] = useState<RawRecipe | null>(null);
+
   const [recipeEq, setRecipeEq] = useState("");
   const [recipeVars, setRecipeVars] = useState<RawRecipe["variables"]>({});
   const [resultingDataSeries, setResultingDataSeries] = useState<DataSeriesArray & { unit?: string }>({});
@@ -215,7 +219,7 @@ export default function CopyAndScale({
 
   function handleRecipeSuggestionChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selectedRecipeHash = e.target.value;
-    if (selectedRecipeHash && selectedRecipeHash !== "none") {
+    if (selectedRecipeHash) {
       const selectedRecipe = goal.recipeSuggestions.find(r => r.hash === selectedRecipeHash)
       if (selectedRecipe) {
         const rawRecipe = recipeFromUnknown(selectedRecipe.recipe);
@@ -300,41 +304,6 @@ export default function CopyAndScale({
     formSubmitter('/api/goal', formJSON, 'POST', setIsLoading);
   }
 
-  const customRecipeEditor = (
-    <>
-      {/* Recipe errors */}
-      {recipeEq && evaluationError && (
-        <div className="margin-block-100" style={{ color: 'red' }}>
-          <strong>{t("components:copy_and_scale.evaluation_error_title")}:</strong>
-          <p>{evaluationError}</p>
-        </div>
-      )}
-
-      {/* Recipe warnings */}
-      {recipeEq && evaluationWarnings.length > 0 && (
-        <div className="margin-block-100" style={{ color: 'orange' }}>
-          <strong>{t("components:copy_and_scale.evaluation_warning_title")}:</strong>
-          <ul>
-            {evaluationWarnings.map((warning, i) => <li key={i}>{warning}</li>)}
-          </ul>
-        </div>
-      )}
-
-      {/* Custom recipe string */}
-      <label className="block margin-block-50">
-        <span className="block">{t("components:copy_and_scale.custom_recipe")}</span>
-        <textarea
-          name="recipeString"
-          rows={5}
-          placeholder={t("components:copy_and_scale.custom_recipe_placeholder")}
-          className="block width-100"
-          value={recipeEq}
-          onChange={(e) => setRecipeEq(e.target.value)}
-        />
-      </label>
-    </>
-  )
-
   return (
     <>
       {/* Opening button */}
@@ -377,96 +346,12 @@ export default function CopyAndScale({
           </label>
 
           {/* Suggested recipes */}
-          {goal.recipeSuggestions.length > 0 ? (<>
-            {goal.recipeSuggestions.map((recipe, index) => (
-              <label key={index} className="block margin-block-50">
-                <input type="radio" name="recipeSuggestion" value={recipe.hash} onChange={handleRecipeSuggestionChange} />
-                {" "}
-                <>
-                  {(recipe.recipe as Recipe).name ?? t("components:copy_and_scale.unnamed_suggestion")}
-                  {" "}
-                  <span style={{ color: "gray" }}>
-                    Recept: ({(recipe.recipe as Recipe).eq})
-                  </span>
-                </>
-              </label>
-            ))}
-          </>) : null}
-
-          {/* Eq editor collapsed when there are suggestions */}
-          {goal.recipeSuggestions.length > 0 ? (
-            <details className="margin-block-100">
-              <summary>{t("components:copy_and_scale.advanced")}</summary>
-              <div className="margin-block-100">
-                {customRecipeEditor}
-              </div>
-            </details>
-          ) : customRecipeEditor}
-
-          {/* Recipe variable inputs */}
-          <div className="margin-inline-auto width-100">
-            {t("components:copy_and_scale.recipe_variables")}
-            <ul className="list-style-none padding-0">
-              {Object.entries(recipeVars).map(([name, variable]) => (
-                <li key={name} className="display-flex align-items-center gap-50 margin-block-25">
-                  {/* Name display */}
-                  <input
-                    type="text"
-                    value={name}
-                    readOnly
-                    disabled
-                    style={{ width: '20ch' }}
-                  />
-                  {/* Type selection */}
-                  <select className="flex-grow-1" value={variable.type} onChange={(e) => {
-                    const newType = e.target.value as RecipeVariableType;
-                    setRecipeVars(prev => ({
-                      ...prev,
-                      [name]: { ...variable, type: RecipeVariableType[newType] }
-                    }));
-                  }}>
-                    <option value={RecipeVariableType.Scalar}>{t("components:copy_and_scale.scalar")}</option>
-                    <option value={RecipeVariableType.DataSeries}>{t("components:copy_and_scale.data_series")}</option>
-                  </select>
-                  {/* Value input */}
-                  <input
-                    type="text"
-                    value={
-                      variable.type === RecipeVariableType.Scalar ? variable.value :
-                        variable.type === RecipeVariableType.DataSeries && 'link' in variable ? `link: ${variable.link}` :
-                          'Data Series'
-                    }
-                    className="flex-grow-1"
-                    onChange={(e) => {
-                      if (variable.type === RecipeVariableType.Scalar) {
-                        const newValue = parseFloat(e.target.value);
-                        setRecipeVars(prev => ({
-                          ...prev,
-                          [name]: { ...variable, value: Number.isNaN(newValue) ? 0 : newValue }
-                        }));
-                      }
-                    }}
-                    readOnly={variable.type !== RecipeVariableType.Scalar}
-                  />
-                  {/* Delete variable */}
-                  <button type="button" className="red" onClick={() => {
-                    const newVars = { ...recipeVars };
-                    delete newVars[name];
-                    setRecipeVars(newVars);
-                  }}>X</button>
-                </li>
-              ))}
-            </ul>
-            {/* Add variable */}
-            <button type="button" onClick={() => {
-              const newVarName = `var${Object.keys(recipeVars).length + 1}`;
-              setRecipeVars(prev => ({
-                ...prev,
-                [newVarName]: { type: RecipeVariableType.Scalar, value: 1 }
-              }));
-            }}>{t("components:copy_and_scale.add_variable")}</button>
-          </div>
-
+          {goal.recipeSuggestions.length > 0 &&
+            <RecipeSuggestions
+              goal={goal}
+              handleSuggestionChange={handleRecipeSuggestionChange}
+            />
+          }
 
           {/* Resulting data series */}
           <label className="margin-inline-auto width-100">
