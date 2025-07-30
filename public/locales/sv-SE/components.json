@@ -44,7 +44,9 @@
     "add_variable": "Lägg till variabel",
     "advanced": "Avancerat",
     "evaluation_error_title": "Receptfel",
-    "evaluation_warning_title": "Varningar"
+    "evaluation_warning_title": "Varningar",
+    "scalar": "Skalär",
+    "data_series": "Dataserie"
   },
   "effects_table": {
     "no_effects": "Det finns inga $t(common:effect_other) att visa.",

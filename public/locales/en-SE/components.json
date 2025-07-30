@@ -44,7 +44,9 @@
     "add_variable": "Add variable",
     "advanced": "Advanced",
     "evaluation_error_title": "Recipe Error",
-    "evaluation_warning_title": "Warnings"
+    "evaluation_warning_title": "Warnings",
+    "scalar": "Scalar",
+    "data_series": "Data series"
   },
   "effects_table": {
     "no_effects": "There are no $t(common:effect_other) to display.",
