@@ -2,6 +2,7 @@
 
 import { useTranslation } from "react-i18next";
 import React, { useEffect, useRef, useState } from 'react';
+import { useThrottledCallback } from 'use-debounce';
 import { IconDotsVertical } from "@tabler/icons-react";
 import { Editor } from "@tiptap/core";
 import styles from './textEditor.module.css' with { type: "css" }
@@ -14,21 +15,21 @@ export default function TextEditorMenu({
   editor: Editor,
   editorId: string
 }) {
-  
+
   const { t } = useTranslation("components");
 
-  const [focusedMenubarItem, setFocusedMenubarItem] = useState<number | null>(null); 
+  const [focusedMenubarItem, setFocusedMenubarItem] = useState<number | null>(null);
 
   const menubarRef = useRef<HTMLUListElement | null>(null);
   const menuItemsRef = useRef<NodeListOf<HTMLElement> | null>(null);
- 
+
   useEffect(() => {
     if (menubarRef.current) {
       menuItemsRef.current = menubarRef.current.querySelectorAll(
         "[role='menubar'] > li > [role='menuitem'], [role='menubar'] > li > [role='menuitemcheckbox'], [role='menubar'] > li > [role='menuitemradio']"
       ) as NodeListOf<HTMLElement>;
     }
- 
+
   }, []);
 
   useEffect(() => {
@@ -82,39 +83,100 @@ export default function TextEditorMenu({
     }
   }
 
-  useEffect(() => {
-    const checkOverflowAgainstParent = () => {
-      const ul = menubarRef.current;
-      const parent = ul?.parentElement;
+  const [list, setList] = useState([
+    <li role='presentation' key="undo">
+      <Undo editor={editor} t={t} />
+    </li>,
+    <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)' }} key="redo">
+      <Redo editor={editor} t={t} />
+    </li>,
+    <li role='presentation' className='margin-right-25 padding-right-25 position-relative' style={{ borderRight: '1px solid var(--gray-80)' }} key="font-size">
+      <FontSize editor={editor} t={t} editorId={editorId} setFocusedMenubarItem={setFocusedMenubarItem} />
+    </li>,
+    <li role='presentation' key="grey-text">
+      <GreyText editor={editor} t={t} />
+    </li>,
+    <li role='presentation' key="italic">
+      <Italic editor={editor} t={t} />
+    </li>,
+    <li role='presentation' key="bold">
+      <Bold editor={editor} t={t} />
+    </li>,
+    <li role='presentation' key="strike-through">
+      <StrikeThrough editor={editor} t={t} />
+    </li>,
+    <li role='presentation' key="underline">
+      <Underline editor={editor} t={t} />
+    </li>,
+    <li role='presentation' key="superscript">
+      <Superscript editor={editor} t={t} />
+    </li>,
+    <li role='presentation' key="subscript">
+      <Subscript editor={editor} t={t} />
+    </li>,
+    <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)' }} key="highlight">
+      <Highlight editor={editor} t={t} />
+    </li>,
+    <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)' }} key="link">
+      <Link editor={editor} t={t} />
+    </li>,
+    <li role='presentation' key="bulletlist">
+      <BulletList editor={editor} t={t} />
+    </li>,
+    <li role='presentation' key="numberedlist">
+      <NumberedList editor={editor} t={t} />
+    </li>
+  ])
 
-      if (ul && parent && menuItemsRef.current) {
-        const items = Array.from(menuItemsRef.current); // Convert NodeList to array
-        const parentWidth = parent.getBoundingClientRect().width - 4; // No clue why i need - 4 lowkey
+  const [overFlowList, setOverFlowList] = useState<React.JSX.Element[]>([]);
 
-        // Step 1: Reset all items (in case we’re resizing wider)
-        items.forEach((item) => {
-          item.style.display = "";
-        });
+  // parent.scrollWidth - 4 == width without padding
+  // list.length === 2 ? 114 : 38 is: 
+  // element width (24px/100px) + list item padding (4px) + list item margin (4px) + list item border (1px) + parent padding (4px) + 1
+  const checkOverflowAgainstParent = () => {
+    const ul = menubarRef.current;
+    const parent = ul?.parentElement;
 
-        // Step 2: Check for overflow and hide items from the end
-        while (ul.scrollWidth >= parentWidth - 1 && items.length > 1) {
-          const visibleItems = items.filter((item) => item.style.display !== "none");
-          if (visibleItems.length > 1) {
-            const secondLastVisible = visibleItems[visibleItems.length - 2];
-            secondLastVisible.style.display = "none";
-          } else {
-            break; // all are hidden
-          }
+    if (ul && parent && menuItemsRef.current) {
+
+      if (ul.scrollWidth == (parent.scrollWidth - 4) && list.length > 0) {
+
+        const newList = [...list]; // clone the array
+        const movingItem = newList.pop(); // mutate the clone
+        setList(newList);
+
+        if (movingItem === undefined) {
+          throw new Error();
         }
-      }
-    };
 
+        let newOverFlowList = overFlowList;
+        newOverFlowList.unshift(movingItem);
+        newOverFlowList = newOverFlowList.filter((item, i, ownArray) => {
+          return ownArray.findIndex(thing => thing.key === item.key) === i;
+        });
+        setOverFlowList(newOverFlowList)
+      } else if (ul.scrollWidth <= (parent.scrollWidth - (list.length === 2 ? 114 : 38)) && overFlowList.length > 0) { 
+        const newOverflow = [...overFlowList];
+        const restoringItem = newOverflow.shift(); // get first item
+
+        if (restoringItem === undefined) {
+          throw new Error();
+        }
+
+        setList(prevList => [...prevList, restoringItem]); // add to end of list
+        setOverFlowList(newOverflow);
+      }
+    }
+  };
+
+  const scrollHandler = useThrottledCallback(checkOverflowAgainstParent, 300);
+
+  useEffect(() => {
     checkOverflowAgainstParent(); // Initial check
 
-    window.addEventListener("resize", checkOverflowAgainstParent);
-    return () => window.removeEventListener("resize", checkOverflowAgainstParent);
-  }, []);
-
+    window.addEventListener("resize", scrollHandler);
+    return () => window.removeEventListener("resize", scrollHandler);
+  }, [list, overFlowList]);
 
   if (!editor) {
     return null
@@ -128,48 +190,14 @@ export default function TextEditorMenu({
         role='menubar'
         className='margin-0 padding-0'
       >
-        <li role='presentation'>
-          <Undo editor={editor} t={t} />
-        </li>
-        <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
-          <Redo editor={editor} t={t} />
-        </li>
-        <li role='presentation' className='margin-right-25 padding-right-25 position-relative' style={{ borderRight: '1px solid var(--gray-80)'}}>
-          <FontSize editor={editor} t={t} editorId={editorId} setFocusedMenubarItem={setFocusedMenubarItem} />
-        </li>
-        <li role='presentation'>
-          <GreyText editor={editor} t={t} />
-        </li>
-        <li role='presentation'>
-          <Italic editor={editor} t={t} />
-        </li>
-        <li role='presentation'>
-          <Bold editor={editor} t={t} />
-        </li>
-        <li role='presentation'>
-          <StrikeThrough editor={editor} t={t} />
-        </li>
-        <li role='presentation'>
-          <Underline editor={editor} t={t} />
-        </li>
-        <li role='presentation'>
-          <Superscript editor={editor} t={t} />
-        </li>
-        <li role='presentation'>
-          <Subscript editor={editor} t={t} />
-        </li>
-        <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
-          <Highlight editor={editor} t={t} />
-        </li>
-        <li role='presentation' className='margin-right-25 padding-right-25' style={{ borderRight: '1px solid var(--gray-80)' }}>
-          <Link editor={editor} t={t} />
-        </li>
-        <li role='presentation'>
-          <BulletList editor={editor} t={t} />
-        </li>
-        <li role='presentation'>
-          <NumberedList editor={editor} t={t} />
-        </li>
+        {list.map((listItem) => {
+          return listItem
+        })}
+        {/* {false &&
+          (overFlowList.map((listItem) => {
+            return listItem
+          }))
+        } */}
         {/*
         <li role='presentation' className="margin-left-25 padding-left-25" style={{borderLeft: '1px solid var(--gray)'}}>
           <span

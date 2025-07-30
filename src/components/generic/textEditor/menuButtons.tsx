@@ -303,8 +303,8 @@ export function FontSize({
         aria-owns={`${editorId}-font-size-menu`}
         aria-label={t("forms:text_editor_menu.font_size.caption")}
         data-tooltip={t("forms:text_editor_menu.font_size.caption")}
-        className='align-items-center justify-content-space-between'
-        style={{display: 'flex', width: '100px'}}
+        className='flex-important align-items-center justify-content-space-between' // TODO: Remove flex-important
+        style={{width: '100px',}}
       >
         {!editor.getAttributes('textStyle').fontSize ?
           t("forms:text_editor_menu.font_size.normal")
