@@ -26,7 +26,8 @@ export default function QueryBuilder({
   // Locale has the format language-locale, e.g. "sv-SE" or "en-US"
   // We only need the language part, so we split it and take the first part
   // TODO: Fix typing, use match() instead of casting
-  const lang = useContext(LocaleContext).split("-")[0] as "sv" | "en";
+  const lang = useContext(LocaleContext).split("-")[0];
+  // const lang = useContext(LocaleContext).split("-")[0] as "sv" | "en";
 
   const [isLoading, setIsLoading] = useState(false);
   const [dataSource, setDataSource] = useState<string>("");
@@ -186,7 +187,7 @@ export default function QueryBuilder({
       const tableId = tableDetails?.id ?? formData.get("externalTableId") as string ?? "";
       getTableContent(tableId, dataSource, query, lang).then(result => {
         setTableContent(result);
-        if (result.data.length > 0) {
+        if ((result?.data?.length ?? 0) > 0) {
           enableSubmitButton();
         } else {
           disableSubmitButton();
@@ -384,7 +385,7 @@ export default function QueryBuilder({
     }
   }
 
-  function timeVariableSelectionHelper(times: (TrafaVariable | PxWebTimeVariable)[], language: string) {
+  function timeVariableSelectionHelper(times: (TrafaVariable | PxWebTimeVariable)[], language?: string) {
     if ((dataSource == "Trafa" && !(times.length == 1 && times[0].name == "ar")) || (getDatasetKeysOfApis("PxWeb").includes(dataSource) && times.length > 1)) {
       let heading = "";
       let defaultValue = "";
@@ -431,18 +432,18 @@ export default function QueryBuilder({
         <>
           <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
             {t("components:query_builder.change_historical_data")}
-            <IconChartHistogram width={16} height={16} style={{minWidth: '16px'}} aria-hidden="true" />
+            <IconChartHistogram width={16} height={16} style={{ minWidth: '16px' }} aria-hidden="true" />
           </button>
 
           <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={deleteHistoricalData}>
             {t("components:query_builder.remove_historical_data")}
-            <IconTrashXFilled fill='#CB3C3C' width={16} height={16} style={{minWidth: '16px'}} aria-hidden="true" />
-           </button>
+            <IconTrashXFilled fill='#CB3C3C' width={16} height={16} style={{ minWidth: '16px' }} aria-hidden="true" />
+          </button>
         </>
         :
         <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
           {t("components:query_builder.add_historical_data")}
-          <IconChartHistogram width={16} height={16} style={{minWidth: '16px'}} aria-hidden="true" />
+          <IconChartHistogram width={16} height={16} style={{ minWidth: '16px' }} aria-hidden="true" />
 
         </button>
       }
@@ -450,7 +451,7 @@ export default function QueryBuilder({
       <dialog className={`smooth padding-inline-0 ${styles.dialog}`} ref={modalRef} aria-modal>
         <div className="display-flex flex-direction-row-reverse align-items-center justify-content-space-between padding-inline-100">
           <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
-            <IconX strokeWidth={3} width={18} height={18} style={{minWidth: '18px'}} aria-hidden="true" />
+            <IconX strokeWidth={3} width={18} height={18} style={{ minWidth: '18px' }} aria-hidden="true" />
           </button>
           <h2 className="margin-0">{t("components:query_builder.add_data_source")}</h2>
         </div>
@@ -492,7 +493,7 @@ export default function QueryBuilder({
                     <label className="font-weight-500">
                       {t("components:query_builder.search_for_table")}
                       <div className="focusable gray-90 flex align-items-center margin-top-25 padding-left-50 smooth">
-                        <IconSearch strokeWidth={1.5} style={{minWidth: '24px'}} aria-hidden="true" />
+                        <IconSearch strokeWidth={1.5} style={{ minWidth: '24px' }} aria-hidden="true" />
                         <input name={tableSearchInputName} type="search" className="padding-0 margin-inline-50" onKeyDown={searchOnEnter} style={{ backgroundColor: "transparent" }} />
                         <button type="button" onClick={searchWithButton} className="padding-block-50 padding-inline-100 transparent font-weight-500">{t("components:query_builder.search")}</button>
                       </div>

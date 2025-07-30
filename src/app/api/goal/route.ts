@@ -313,8 +313,8 @@ export async function PUT(request: NextRequest) {
       ))) || goal.links === undefined || goal.links === null) &&
       // Goal ID must be a non-empty string
       (typeof goal.goalId === 'string' && goal.goalId.length > 0) &&
-      // Either dataSeries or inheritFrom must be defined and not null or empty
-      ((goal.dataSeries?.length ?? 0) > 0 || (goal.inheritFrom?.length ?? 0) > 0)
+      // Either dataSeries or inheritFrom must be defined and not null or empty. Alternatively both can be undefined when updating a goal without changing data series.
+      ((goal.dataSeries?.length ?? 0) > 0 || (goal.inheritFrom?.length ?? 0) > 0 || (goal.dataSeries === undefined && goal.inheritFrom === undefined))
     );
   }
 

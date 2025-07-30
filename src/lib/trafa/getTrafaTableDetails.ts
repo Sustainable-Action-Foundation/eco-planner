@@ -4,13 +4,17 @@ import getTrafaTables from "./getTrafaTables";
 import { StructureItem, TrafaFilter, TrafaHierarchy, TrafaMetric, TrafaVariable, TrafaVariableValue } from "./trafaTypes";
 import { getTrafaSearchQueryString } from "./trafaUtility";
 
-export default async function getTrafaTableDetails(tableId: string, selection: { variableCode: string, valueCodes: string[] }[] = [], language: "sv" | "en" = "sv") {
+export default async function getTrafaTableDetails(tableId: string, selection: { variableCode: string, valueCodes: string[] }[] = [], language?: string) {
   const searchQuery = getTrafaSearchQueryString(selection);
 
   const url = new URL('./structure', externalDatasets.Trafa?.baseUrl);
   url.searchParams.append('query', `${tableId}${searchQuery}`);
-  language = "sv"
-  if (language) url.searchParams.append("lang", language);
+  if (!language || !externalDatasets["Trafa"]?.supportedLanguages.includes(language)) {
+    language = externalDatasets["Trafa"]?.supportedLanguages[0];
+  }
+  if (language) {
+    url.searchParams.append('lang', language);
+  }
 
   let data: StructureItem;
   try {

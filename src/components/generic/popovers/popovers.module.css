@@ -18,6 +18,8 @@
         border: 0 !important;
         border-right: 1px solid var(--gray-90) !important;
         border-radius: 0;
+        position: fixed;
+        top: 0;
     }
 }
 
