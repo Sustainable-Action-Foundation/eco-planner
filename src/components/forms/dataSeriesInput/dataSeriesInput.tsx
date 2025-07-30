@@ -87,12 +87,12 @@ export default function DataSeriesInput({
             {tableIsVisible ? (
               <>
                 {t("forms:data_series_input.hide_table")}
-                <IconCaretUpFilled width={20} height={20} style={{minWidth: '20px'}} aria-hidden="true" />
+                <IconCaretUpFilled width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
               </>
             ) : (
               <>
                 {t("forms:data_series_input.show_table")}
-                <IconCaretDownFilled width={20} height={20} style={{minWidth: '20px'}} aria-hidden="true" />
+                <IconCaretDownFilled width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
               </>
             )}
           </button>
@@ -128,7 +128,7 @@ export default function DataSeriesInput({
                   onChange={(e) => handleValueChange(e, index)}
                   onBeforeInput={(e) => {
                     // Make sure the input is valid
-                    const inputEvent = e.nativeEvent as InputEvent;
+                    const inputEvent = e.nativeEvent;
                     if (inputEvent.data && !isValidSingleInputForGrid(inputEvent.data)) {
                       e.preventDefault();
                     }
@@ -176,7 +176,7 @@ export default function DataSeriesInput({
             onBeforeInput={(e) => {
               if (isPasting.current) return;
 
-              const inputEvent = e.nativeEvent as InputEvent;
+              const inputEvent = e.nativeEvent;
               if (inputEvent.data && !isValidSingleInputForTextField(inputEvent.data)) {
                 e.preventDefault();
               }

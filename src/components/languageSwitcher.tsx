@@ -12,7 +12,7 @@ export function LanguageSwitcher() {
   const [isPending, startTransition] = useTransition();
   const [buttonLocale, setButtonLocale] = useState<Locales>(locale);
 
-  async function setLocale(lng: string) {
+  function setLocale(lng: string) {
     // Sanitize locale
     const cleanLocale = match([lng], uniqueLocales, Locales.default) as Locales;
 
@@ -46,9 +46,9 @@ export function LanguageSwitcher() {
             <li key={locale} className="margin-top-25">
               <button
                 key={locale}
-                onClick={async () => await setLocale(locale)}
+                onClick={() => setLocale(locale)}
                 disabled={isPending}
-                style={{fontSize: '14px'}}
+                style={{ fontSize: '14px' }}
                 className={`flex transparent justify-content-space-between align-items-center width-100 padding-25 smooth`}
                 data-testid={`language-switcher-option-${localeAliases[locale]}`}
                 data-checked={locale === buttonLocale}

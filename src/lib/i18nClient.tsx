@@ -14,10 +14,12 @@ i18nClient
     backend: {
       loadPath: "/api/locales?lng={{lng}}&ns={{ns}}",
     },
+  }).catch((error) => {
+    console.error("i18nClient initialization failed:", error);
   });
 
 export const LocaleContext = createContext<Locales>(Locales.default);
-export const LocaleSetterContext = createContext<React.Dispatch<React.SetStateAction<Locales>>>(() => {});
+export const LocaleSetterContext = createContext<React.Dispatch<React.SetStateAction<Locales>>>(() => { });
 
 export default function I18nProvider(
   { children, lng }: { children: React.ReactNode, lng: Locales }
@@ -34,7 +36,7 @@ export default function I18nProvider(
       setInitialized(true);
     };
 
-    setI18nLanguage();
+    void setI18nLanguage();
   }, [locale]);
 
   // Handler for rerendering

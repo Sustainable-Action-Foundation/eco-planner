@@ -15,22 +15,25 @@ export default function LogoutButton({
 }) {
   const { t } = useTranslation(["common", "components"])
   return (
-    <button       
+    <button
       id={id}
       className={`${className}`}
       style={{ ...style }}
       onClick={() => {
-      fetch('/api/logout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      }).then((res) => {
-        if (res.ok) {
-          window.location.href = '/'
-        } else {
+        fetch('/api/logout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        }).then((res) => {
+          if (res.ok) {
+            window.location.href = '/'
+          } else {
+            alert(t("components:logout_button.failed"))
+          }
+        }).catch((error) => {
+          console.error("Logout failed:", error)
           alert(t("components:logout_button.failed"))
-        }
-      })
-    }}>
+        })
+      }}>
       {children}
     </button>
   )
