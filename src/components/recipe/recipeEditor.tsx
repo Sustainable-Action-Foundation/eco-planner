@@ -1,17 +1,74 @@
 "use client";
 
-import { RawRecipe, Recipe, RecipeVariableType } from "@/functions/recipe-parser/types";
-import { Goal } from "@/types";
-import { useState } from "react";
+import { type DataSeriesArray, type RawRecipe, type Recipe, RecipeVariableType } from "@/functions/recipe-parser/types";
+import type { Goal } from "@/types";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { evaluateRecipe, parseRecipe } from "@/functions/parseRecipe";
+
+type RecipeContextType = {
+  recipe: RawRecipe | null;
+  setRecipe: React.Dispatch<React.SetStateAction<RawRecipe | null>>;
+  warnings: string[];
+  error: string | null;
+  resultingDataSeries: DataSeriesArray & { unit?: string };
+}
+
+export const RecipeContext = createContext<RecipeContextType | null>(null);
+export function useRecipe() {
+  const context = useContext(RecipeContext);
+  if (!context) {
+    throw new Error("useRecipeContext must be used within a RecipeContextProvider");
+  }
+  return context;
+}
+
+export function RecipeContextProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [recipe, setRecipe] = useState<RawRecipe | null>(null);
+  const [warnings, setWarnings] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [resultingDataSeries, setResultingDataSeries] = useState<DataSeriesArray & { unit?: string }>({});
+
+  useEffect(() => {
+    if (!recipe) {
+      setResultingDataSeries({});
+      setError(null);
+      setWarnings([]);
+      return;
+    }
+
+    async function calculate() {
+      try {
+        const parsedRecipe = await parseRecipe(recipe);
+        const currentWarnings: string[] = [];
+        const evaluatedRecipe = await evaluateRecipe(parsedRecipe, currentWarnings);
+        setResultingDataSeries(evaluatedRecipe);
+        setWarnings(currentWarnings);
+        setError(null);
+      } catch (e: any) {
+        setResultingDataSeries({});
+        setError(e.message);
+        setWarnings([]);
+      }
+    }
+    calculate();
+  }, [recipe]);
+
+  return (
+    <RecipeContext.Provider value={{ recipe, setRecipe, warnings, error, resultingDataSeries }}>
+      {children}
+    </RecipeContext.Provider>
+  );
+}
 
 export function RecipeSuggestions({
-  goal,
-  handleSuggestionChange,
+  suggestedRecipes,
 }: {
-  goal: Goal;
-  /** The value on change is either undefined or the hash of the selected recipe */
-  handleSuggestionChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  suggestedRecipes: Goal["recipeSuggestions"];
 }) {
   const { t } = useTranslation("components");
   const [selectedHash, setSelectedHash] = useState<string>("");
@@ -21,17 +78,11 @@ export function RecipeSuggestions({
     if (hash) {
       setSelectedHash(e.target.value);
     }
-    handleSuggestionChange(e);
   };
-
-  const recipes = goal.recipeSuggestions;
-  const recipeMap = new Map<string, RawRecipe>(
-    recipes.map((recipe) => [recipe.hash, recipe.recipe as RawRecipe])
-  );
 
   return (<>
     {/* Suggested recipes */}
-    {recipes.map((recipe, index) => (
+    {suggestedRecipes.map((recipe, index) => (
       <label key={index} className="block margin-block-50">
         {/* Radio */}
         <input type="radio" name="recipeSuggestion" value={recipe.hash} onChange={handleOnChange} />
@@ -53,14 +104,15 @@ export function RecipeSuggestions({
   </>);
 }
 
-export function RecipeEquationEditor({
-  recipeEq,
-  setRecipeEq,
-}: {
-  recipeEq: string;
-  setRecipeEq: React.Dispatch<React.SetStateAction<string>>;
-}) {
+export function RecipeEditor() {
   const { t } = useTranslation("components");
+
+
+}
+
+export function RecipeEquationEditor() {
+  const { t } = useTranslation("components");
+  const { recipe, setRecipe } = useRecipe();
 
   return (<>
     <label className="block margin-block-50">
@@ -70,16 +122,14 @@ export function RecipeEquationEditor({
         rows={3}
         placeholder={t("components:copy_and_scale.custom_recipe_placeholder")}
         className="block width-100"
-        value={recipeEq}
-        onChange={(e) => setRecipeEq(e.target.value)}
+        value={recipe?.eq}
+        onChange={(e) => setRecipe(recipe ? { ...recipe, eq: e.target.value } : null)}
       />
     </label>
   </>)
 }
 
 export function RecipeVariableEditor({
-  recipeVars,
-  setRecipeVars,
   allowAddVariables = false,
   allowDeleteVariables = false,
   allowNameEditing = false,
@@ -95,12 +145,18 @@ export function RecipeVariableEditor({
   allowValueEditing?: boolean;
 }) {
   const { t } = useTranslation("components");
+  const { recipe } = useRecipe();
+
+  const variables = recipe?.variables;
+  if (!variables) {
+    return <>{t("components:copy_and_scale.no_variables_defined")}</>;
+  }
 
   return (<>
     <div className="margin-inline-auto width-100">
       {t("components:copy_and_scale.recipe_variables")}
       <ul className="list-style-none padding-0">
-        {Object.entries(recipeVars).map(([name, variable]) => (
+        {Object.entries(variables).map(([name, variable]) => (
           <li key={name} className="display-flex align-items-center gap-50 margin-block-25">
             {/* Name display */}
             <input
@@ -150,7 +206,7 @@ export function RecipeVariableEditor({
             {/* Delete variable */}
             {allowDeleteVariables &&
               <button type="button" className="red" onClick={() => {
-                const newVars = { ...recipeVars };
+                const newVars = { ...variables };
                 delete newVars[name];
                 setRecipeVars(newVars);
               }}>
@@ -177,23 +233,16 @@ export function RecipeVariableEditor({
   </>);
 }
 
-function RecipeErrorAndWarnings({
-  errors: initialError,
-  warnings: initialWarnings,
-}: {
-  errors: string | null;
-  warnings: string[];
-}) {
+function RecipeErrorAndWarnings() {
   const { t } = useTranslation("components");
-
-  const [errors, setErrors] = useState<string | null>(initialError);
-  const [warnings, setWarnings] = useState<string[]>(initialWarnings);
+  const { error, warnings } = useRecipe();
 
   return (<>
-    {errors && (
+    {/* Recipe error */}
+    {error && (
       <div className="margin-block-100" style={{ color: 'red' }}>
         <strong>{t("components:copy_and_scale.evaluation_error_title")}:</strong>
-        <p>{errors}</p>
+        <p>{error}</p>
       </div>
     )}
 

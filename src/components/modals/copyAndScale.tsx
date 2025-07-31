@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
 import { DataSeriesArray, RawRecipe, Recipe, RecipeVariableType } from "@/functions/recipe-parser/types";
 import { evaluateRecipe, parseRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
-import { RecipeSuggestions, RecipeWrapper } from "../recipe/recipeEditor";
+import { RecipeContextProvider, RecipeSuggestions, RecipeWrapper } from "../recipe/recipeEditor";
 
 // TODO - remove
 /** Get the resulting scaling factor from form data */
@@ -205,79 +205,12 @@ export default function CopyAndScale({
   const { t } = useTranslation("components");
   const [isLoading, setIsLoading] = useState(false);
 
-  const [recipe, setRecipe] = useState<RawRecipe | null>(null);
-
-  const [recipeEq, setRecipeEq] = useState("");
-  const [recipeVars, setRecipeVars] = useState<RawRecipe["variables"]>({});
-  const [resultingDataSeries, setResultingDataSeries] = useState<DataSeriesArray & { unit?: string }>({});
-  const [evaluationError, setEvaluationError] = useState<string | null>(null);
-  const [evaluationWarnings, setEvaluationWarnings] = useState<string[]>([]);
-
   const modalRef = useRef<HTMLDialogElement | null>(null);
   // TODO - remove. This is a debugging measure.
   useEffect(() => openModal(modalRef), []);
 
-  function handleRecipeSuggestionChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const selectedRecipeHash = e.target.value;
-    if (selectedRecipeHash) {
-      const selectedRecipe = goal.recipeSuggestions.find(r => r.hash === selectedRecipeHash)
-      if (selectedRecipe) {
-        const rawRecipe = recipeFromUnknown(selectedRecipe.recipe);
-        setRecipeEq(rawRecipe.eq);
-        setRecipeVars(rawRecipe.variables);
-      }
-    }
-  }
-
-  useEffect(() => {
-    const customRecipe: RawRecipe = {
-      eq: recipeEq,
-      variables: recipeVars,
-    };
-
-    async function calculate() {
-      setEvaluationError(null);
-      setEvaluationWarnings([]);
-      try {
-        const parsedRecipe = await parseRecipe(customRecipe);
-        const warnings: string[] = [];
-        const evaluatedRecipe = await evaluateRecipe(parsedRecipe, warnings)
-        setResultingDataSeries(evaluatedRecipe);
-        setEvaluationWarnings(warnings);
-      } catch (e: any) {
-        console.info("CopyAndScale: Failed to evaluate recipe. Likely just evaluating while writing", e);
-        setResultingDataSeries({});
-        setEvaluationError(e.message);
-      }
-    }
-    calculate();
-  }, [recipeEq, recipeVars]);
-
-
   async function formSubmission(form: FormData) {
     setIsLoading(true);
-    setEvaluationError(null);
-    setEvaluationWarnings([]);
-
-    // --- Evaluate recipe before submitting ---
-    const customRecipe: RawRecipe = {
-      eq: recipeEq,
-      variables: recipeVars,
-    };
-
-    let finalDataSeries: DataSeriesArray & { unit?: string };
-    try {
-      const parsedRecipe = await parseRecipe(customRecipe);
-      const warnings: string[] = [];
-      finalDataSeries = await evaluateRecipe(parsedRecipe, warnings);
-      setEvaluationWarnings(warnings);
-    } catch (e: any) {
-      console.error("CopyAndScale: Failed to evaluate recipe on submission", e);
-      setEvaluationError(e.message);
-      setIsLoading(false);
-      return;
-    }
-    // --- End evaluation ---
 
     // Id of the roadmap to copy the goal to
     const copyToId = form.get("copyTo");
@@ -345,40 +278,41 @@ export default function CopyAndScale({
             </select>
           </label>
 
-          {/* Suggested recipes */}
-          {goal.recipeSuggestions.length > 0 &&
-            <RecipeSuggestions
-              goal={goal}
-              handleSuggestionChange={handleRecipeSuggestionChange}
-            />
-          }
+          <RecipeContextProvider>
+            {/* Suggested recipes */}
+            {goal.recipeSuggestions.length > 0 &&
+              <RecipeSuggestions
+                suggestedRecipes={goal.recipeSuggestions}
+              />
+            }
 
-          {/* Resulting data series */}
-          <label className="margin-inline-auto width-100">
-            <strong className="block bold text-align-center">
-              {t("components:copy_and_scale.resulting_data_series")}
-              {/* Unit */}
-              {resultingDataSeries.unit ? ` (${resultingDataSeries.unit})` : ""}
-            </strong>
-            <table className="margin-block-100 block width-100 overflow-x-scroll">
-              <thead>
-                <tr>
-                  <th className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_year")}</th>
-                  {Object.keys(resultingDataSeries).map((year, i) => (
-                    <th className="padding-50 text-align-center" key={i + "resulting-data-series-header" + year}>{year.replace("val", "")}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_value")}</td>
-                  {Object.values(resultingDataSeries).map((value, i) => (
-                    <td className="padding-50 text-align-center" key={i + "resulting-data-series-value" + value}>{(value as number)?.toFixed(1) || "-"}</td>
-                  ))}
-                </tr>
-              </tbody>
-            </table>
-          </label>
+            {/* Resulting data series */}
+            <label className="margin-inline-auto width-100">
+              <strong className="block bold text-align-center">
+                {t("components:copy_and_scale.resulting_data_series")}
+                {/* Unit */}
+                {resultingDataSeries.unit ? ` (${resultingDataSeries.unit})` : ""}
+              </strong>
+              <table className="margin-block-100 block width-100 overflow-x-scroll">
+                <thead>
+                  <tr>
+                    <th className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_year")}</th>
+                    {Object.keys(resultingDataSeries).map((year, i) => (
+                      <th className="padding-50 text-align-center" key={i + "resulting-data-series-header" + year}>{year.replace("val", "")}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_value")}</td>
+                    {Object.values(resultingDataSeries).map((value, i) => (
+                      <td className="padding-50 text-align-center" key={i + "resulting-data-series-value" + value}>{(value as number)?.toFixed(1) || "-"}</td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
+            </label>
+          </RecipeContextProvider>
 
           <button className="block seagreen color-purewhite smooth width-100 margin-inline-auto font-weight-500">
             {t("components:copy_and_scale.create_scaled_copy")}
