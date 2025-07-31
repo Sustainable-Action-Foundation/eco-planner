@@ -191,7 +191,7 @@
 
 :where(select) {
   --padding: .5rem;
-  --icon-size: 24px;
+  --icon-size: 20px;
 
   padding: var(--padding) calc(var(--padding) * 2 + var(--icon-size)) var(--padding) var(--padding);
   border-width: 1px;
@@ -201,7 +201,7 @@
   min-width: min(175px, 100%);
   
   /* Hardcoded SVG for downards chevron */
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-down"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 9l6 6l6 -6" /></svg>') 
+  background: url('data:image/svg+xml,<svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-selector"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 9l4 -4l4 4" /><path d="M16 15l-4 4l-4 -4" /></svg>') 
               no-repeat calc(100% - var(--padding)) center white;
   background-size: var(--icon-size);
 

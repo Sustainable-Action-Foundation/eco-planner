@@ -300,7 +300,7 @@ export function FontSize({
         role='menuitem'
         aria-haspopup='menu'
         aria-expanded={fontSizeMenuOpen}
-        aria-owns={`${editorId}-font-size-menu`}
+        aria-owns={`${editorId}-font-size-menu`} // TODO: Should you really have this?
         aria-label={t("forms:text_editor_menu.font_size.caption")}
         data-tooltip={t("forms:text_editor_menu.font_size.caption")}
         className='flex-important align-items-center justify-content-space-between' // TODO: Remove flex-important

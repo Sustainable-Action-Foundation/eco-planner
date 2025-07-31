@@ -95,12 +95,14 @@ export default function SuggestiveText({
     }
 
     if (e.key === 'Home') {
+      e.preventDefault()
       if (displayListBox) {
         setFocusedListBoxItem(0)
       }
     }
 
     if (e.key === 'End') {
+      e.preventDefault()
       if (displayListBox) {
         setFocusedListBoxItem(results.length - 1)
       }

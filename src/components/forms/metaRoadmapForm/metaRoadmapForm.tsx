@@ -12,6 +12,7 @@ import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
 import SuggestiveText from "../formElements/suggestiveText";
 import TextEditor from "@/components/generic/textEditor/textEditor";
+import { SelectSingleSearch } from "../formElements/select";
 
 /* TODO: Check usage of autocomplete both here and for other forms */
 export default function MetaRoadmapForm({
@@ -26,6 +27,9 @@ export default function MetaRoadmapForm({
   currentRoadmap?: MetaRoadmap & AccessControlled,
 }) {
   const { t } = useTranslation(["forms", "common"]);
+
+  // TODO: 
+  const [testSelectedValue, setTestSelectedValue] = useState('select element')
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     // Mostly the usual submit handler stuff.
@@ -105,7 +109,7 @@ export default function MetaRoadmapForm({
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>{t("forms:meta_roadmap.description_legend")}</legend>
           <label className="block margin-block-100">
             {t("forms:meta_roadmap.roadmap_series_name")}
-            <input id="metaRoadmapName" name="metaRoadmapName" className="margin-block-25" type="text" defaultValue={currentRoadmap?.name ?? undefined} required />
+            <input id="metaRoadmapName" name="metaRoadmapName" className="margin-block-25" type="text" defaultValue={currentRoadmap?.name ?? undefined} autoComplete="off" required />
           </label>
 
           {/*
@@ -119,7 +123,6 @@ export default function MetaRoadmapForm({
             <div className="margin-bottom-25" id="roadmap-series-description">{t("forms:meta_roadmap.roadmap_series_description")}</div>
             <TextEditor id="roadmap-series-description-editor" ariaLabelledBy="roadmap-series-description" placeholder="Skriv något..." />
           </div>
-          
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
@@ -152,6 +155,13 @@ export default function MetaRoadmapForm({
               suggestiveList={Object.entries(countiesAndMunicipalities).flat(2)}
             />
           </div>
+
+          <SelectSingleSearch
+            value={testSelectedValue}
+            onChange={setTestSelectedValue}
+            options={Object.entries(countiesAndMunicipalities).flat(2)} 
+          />
+
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
