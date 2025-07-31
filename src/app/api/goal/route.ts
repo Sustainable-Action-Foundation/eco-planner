@@ -45,16 +45,8 @@ function isArrayOfStrings(value: unknown): value is string[] {
   return isArray(value) && value.every(item => isString(item));
 }
 
-function isDataSeriesArray(value: unknown): value is { [key: string]: number | string | null } {
-  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-    return false;
-  }
-  return Object.entries(value).every(([key, val]) => {
-    return (
-      typeof key === 'string' &&
-      (val === null || typeof val === 'number' || (typeof val === 'string' && !isNaN(parseFloat(val))))
-    );
-  });
+function isArrayOfNumbersOrNulls(value: unknown): value is (number | null)[] {
+    return isArray(value) && value.every(item => item === null || isNumber(item));
 }
 
 // Type guard and check if the request body is a valid GoalInput
@@ -79,7 +71,7 @@ function isTypeGoalCreateInput(goal: JSONValue): goal is GoalCreateInput {
 
     && (isUndefined(goal.recipeHash) || isString(goal.recipeHash))
 
-    && (isUndefined(goal.dataSeriesArray) || isDataSeriesArray(goal.dataSeriesArray))
+    && (isUndefined(goal.dataSeriesArray) || isArrayOfNumbersOrNulls(goal.dataSeriesArray))
     && (isUndefined(goal.rawDataSeries) || isArrayOfStrings(goal.rawDataSeries))
     && (isNullOrUndefined(goal.rawBaselineDataSeries) || isArrayOfStrings(goal.rawBaselineDataSeries))
     && (isNullOrUndefined(goal.dataUnit) || isString(goal.dataUnit))
@@ -141,6 +133,8 @@ export async function POST(request: NextRequest) {
     request.json() as Promise<JSONValue>,
   ]);
 
+  console.log("Received formData:", JSON.stringify(formData, null, 2));
+
   // Validate session
   if (!session.user?.id) {
     return Response.json({ message: 'Unauthorized' },
@@ -150,6 +144,7 @@ export async function POST(request: NextRequest) {
 
   // Validate form data type
   if (!isTypeGoalCreateInput(formData)) {
+    console.log("formData failed validation");
     return Response.json({ message: 'Invalid request body' },
       { status: 400 }
     );
@@ -220,9 +215,13 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const dataSeriesArray: DataSeriesArray = {};
-  // Create goal
   try {
+    const dataSeries = formData.dataSeriesArray ?
+      Object.fromEntries(
+        dataSeriesDataFieldNames.map((field, i) => [field, formData.dataSeriesArray?.[i] ?? null])
+      ) :
+      undefined;
+
     const newGoal = await prisma.goal.create({
       data: {
         name: formData.name,
@@ -238,9 +237,9 @@ export async function POST(request: NextRequest) {
         roadmap: {
           connect: { id: formData.roadmapId },
         },
-        dataSeries: formData.dataSeriesArray ? {
+        dataSeries: dataSeries ? {
           create: {
-            ...dataSeriesArray,
+            ...dataSeries,
             unit: formData.dataUnit,
             authorId: session.user.id,
           },
