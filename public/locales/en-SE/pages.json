@@ -6,7 +6,6 @@
     "action_label": "{{$t(common:action_one), titleCase}}",
     "effects_label": "{{$t(common:effect_other), titleCase}}",
     "edit_action": "$t(common:edit.action)",
-    "edit_action_alt": "$t(common:edit.action): {{actionName}}",
     "expected_effect": "Expected $t(common:effect_other)",
     "no_effect": "No specified $t(common:effect_other)",
     "cost_efficiency": "Cost efficiency",

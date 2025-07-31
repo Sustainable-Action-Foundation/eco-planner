@@ -100,5 +100,11 @@
     "status": "404",
     "title": "Sidan hittades inte",
     "description": "Se till att du har rätt address för sidan du söker."
-  }
+  },
+  "errors": {
+    "something_went_wrong": "Något gick fel",
+    "something_went_wrong_with_details": "Något gick fel: {{details}}"
+  },
+  "next": "Nästa",
+  "back": "Tillbaka"
 }

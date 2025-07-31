@@ -107,7 +107,7 @@ t0604_rt_ar
 (2) atft
 */
 
-/* -- On "lägg till historisk data" page --
+/* -- On "add historical data" page --
 get all tables
 select table
 get structure items and list them as options

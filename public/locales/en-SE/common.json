@@ -100,5 +100,11 @@
     "status": "404",
     "title": "Page not found",
     "description": "Please ensure the URL is correct."
-  }
+  },
+  "errors": {
+    "something_went_wrong": "Something went wrong",
+    "something_went_wrong_with_details": "Something went wrong: {{details}}"
+  },
+  "next": "Next",
+  "back": "Back"
 }

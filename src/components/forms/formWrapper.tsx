@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslation } from "react-i18next";
 import React, { useState } from "react"
 import styles from "./forms.module.css"
 import { IconArrowLeft, IconArrowRight } from "@tabler/icons-react";
@@ -9,6 +10,7 @@ export default function FormWrapper({
 }: {
   children: React.ReactNode,
 }) {
+  const { t } = useTranslation("common");
 
   function iterateIndicators(currentTransformIndex: number) {
     const currentIndicator = document?.getElementById("current-indicator");
@@ -86,7 +88,7 @@ export default function FormWrapper({
       <div className={`margin-block-start-100 padding-inline-100 gap-50 grid ${styles.indicatorLayout}`}>
         <button type="button" id="backButton" className={`flex align-items-center transparent round gap-25 ${backButtonHiddenClass} ${styles.indicatorButton}`} onClick={() => iterateSections({ reverse: true })}>
           <IconArrowLeft style={{minWidth: '24px'}} aria-hidden="true" />
-          Tillbaka
+          {t("common:back")}
         </button>
 
         <div className={`margin-block-50 ${styles.indicatorWrapper}`}>
@@ -99,7 +101,7 @@ export default function FormWrapper({
         </div>
         
         <button type="button" id="nextButton" className={`flex align-items-center transparent round gap-25 margin-left-auto ${nextButtonHiddenClass} ${styles.indicatorButton}`} onClick={() => iterateSections()}>
-          Nästa
+          {t("common:next")}
           <IconArrowRight style={{minWidth: '24px'}} aria-hidden="true" />
         </button>
       </div>

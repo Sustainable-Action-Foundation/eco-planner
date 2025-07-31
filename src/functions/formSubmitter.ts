@@ -1,5 +1,6 @@
 'use client';
 
+import { TFunction } from "i18next";
 import { SetStateAction } from "react";
 
 /**
@@ -7,12 +8,15 @@ import { SetStateAction } from "react";
  * @param target The URL to submit the form to
  * @param body A JSON string containing the data to be submitted
  * @param method The HTTP method to use; "POST", "PUT", "DELETE", or "PATCH"
+ * @param t The translation function from i18next
  * @param loadingStateSetter A function to set the isLoading state of the form
+ * @param defaultLocation A default location to redirect to
  */
 export default function formSubmitter(
   target: string,
   body: string | null,
   method: "POST" | "PUT" | "DELETE" | "PATCH",
+  t: TFunction,
   loadingStateSetter?: (value: SetStateAction<boolean>) => void,
   defaultLocation?: string
 ) {
@@ -29,7 +33,7 @@ export default function formSubmitter(
         // Throw the massage and any location provided by the API
         throw { message: data.message, location: res.headers.get('Location') };
       } else {
-        throw new Error('Något gick fel');
+        throw new Error(t("common:errors.something_went_wrong"));
       }
     }
   }).then(data => {
@@ -47,7 +51,7 @@ export default function formSubmitter(
   }).catch((err) => {
     if (loadingStateSetter) loadingStateSetter(false);
     console.error(err);
-    alert(`Något gick fel: ${err.message}`)
+    alert(`${t("common:errors.something_went_wrong_with_details", { details: err.message })}`)
     if (err.location) {
       window.location.href = err.location;
     }
