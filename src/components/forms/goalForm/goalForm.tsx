@@ -4,14 +4,14 @@ GoalForm Component (React, TypeScript)
 
 Summary:
 --------
-This file defines the main form for creating and editing "Goal" objects in the eco-planner app. It supports static, inherited, and combined goal types, as well as custom scaling, baseline data, and external links. The form is highly dynamic, adapting its fields and logic based on the current goal and user selections. It uses i18n for translations, and integrates with several subcomponents for modularity. The form's structure and submission logic are tightly coupled to the shape of the Goal object in the database, so any changes to the Goal schema require updates here.
+This file defines the main form for creating and editing "Goal" objects in the eco-planner app. It supports static, inherited, and combined goal types, as well as custom scaling, baseline data, and external links. The form is highly dynamic, adapting its fields and logic based on the current goal and user selections. It uses i18n for translations, and integrates with several sub components for modularity. The form's structure and submission logic are tightly coupled to the shape of the Goal object in the database, so any changes to the Goal schema require updates here.
 
 Key Features:
 - Handles three goal types: Static, Inherited, Combined
 - Supports custom scaling recipes and methods
 - Allows selection of baseline data (initial, custom, inherited)
 - Integrates with roadmap selection and external links
-- Uses modular subcomponents for complex form sections
+- Uses modular sub components for complex form sections
 - Submits data as JSON to the API, with careful handling of optional/complex fields
 - Uses i18n for all user-facing text
 - Designed for extensibility and maintainability
@@ -19,23 +19,21 @@ Key Features:
 
 'use client';
 
-// Import dependencies and subcomponents
+// Import dependencies and sub components
 import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput"; // For handling external links
-import { getScalingResult } from "@/components/modals/copyAndScale"; // For calculating scaling results
-import RepeatableScaling from "@/components/repeatableScaling"; // For rendering repeatable scaling inputs
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts"; // Type for roadmap fetching
 import formSubmitter from "@/functions/formSubmitter"; // Handles form submission to API
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" }; // Options for indicator parameter
 import mathjs from "@/math"; // Math library for unit parsing
-import { GoalCreateInput, ScaleBy, ScaleMethod, ScalingRecipe, dataSeriesDataFieldNames, isScalingRecipe } from "@/types"; // Types and helpers
+import { GoalCreateInput, dataSeriesDataFieldNames } from "@/types"; // Types and helpers
 import { DataSeries, Goal } from "@prisma/client"; // Prisma types
-import { useEffect, useMemo, useState } from "react"; // React hooks
+import { useMemo, useState } from "react"; // React hooks
 import { useTranslation } from "react-i18next"; // i18n hook
 import DataSeriesInput from "../dataSeriesInput/dataSeriesInput"; // For entering data series
 import { getDataSeries } from "../dataSeriesInput/utils"; // Helper for extracting data series from form
 import styles from '../forms.module.css'; // CSS module for styling
-import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections"; // Subcomponents for form sections
-import { IconCircleMinus } from "@tabler/icons-react"; // Icon for removing scaling entries
+import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections"; // Sub components for form sections
+import { RecipeContextProvider, RecipeEditor, ResultingDataSeries } from "@/components/recipe/recipeEditor";
 
 // Enum for selecting the type of data series for the goal
 enum DataSeriesType {
@@ -82,30 +80,8 @@ export default function GoalForm({
   const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(!currentGoal?.combinationParents.length ? DataSeriesType.Static : currentGoal.combinationParents.length >= 2 ? DataSeriesType.Combined : DataSeriesType.Inherited)
   // State for the type of baseline (initial, custom, inherited)
   const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baselineDataSeries ? BaselineType.Custom : BaselineType.Initial)
-  // State for the scaling recipe (used for combined/inherited goals)
-  const [scalingRecipe, setScalingRecipe] = useState<ScalingRecipe>({ values: [] });
-  // State for the calculated scaling result (displayed in the form)
-  const [scalingResult, setScalingResult] = useState<number | null>(null);
   // State for the selected roadmap (if not already fixed)
   const [selectedRoadmap, setSelectedRoadmap] = useState<string>(currentGoal?.roadmapId || roadmapId || "");
-
-  // Effect: Parse and set the scaling recipe from the current goal (if editing)
-  useEffect(() => {
-    try {
-      const parsed = JSON.parse(currentGoal?.combinationScale ?? "")
-      if (isScalingRecipe(parsed)) {
-        setScalingRecipe(parsed)
-      } else if (typeof parsed == "number") {
-        setScalingRecipe({ method: ScaleMethod.Geometric, values: [{ value: parsed, weight: 1 }] })
-      }
-    }
-    // Fail silently if combination scale is missing, notify user if it's malformed
-    catch (error) {
-      if (currentGoal?.combinationScale) {
-        console.error("Failed to parse scaling recipe", error)
-      }
-    }
-  }, [currentGoal]);
 
   // Memoized timestamp for the form submission (used for optimistic updates)
   const timestamp = useMemo(() => Date.now(), []);
@@ -128,10 +104,10 @@ export default function GoalForm({
     const baselineDataSeries = baselineDataSeriesArray.length > 0 ? baselineDataSeriesArray : undefined; // Omit if empty
 
     // Get scaling recipe for combined/inherited goals
-    const { scalingRecipe: combinationScale } = getScalingResult(formData, scalingRecipe.method || ScaleMethod.Geometric);
+    const combinationScale = formData.get("resultingRecipe");
 
     // Build inheritFrom array (for inherited/combined goals)
-    const inheritFrom: GoalCreateInput["inheritFrom"] = [];
+    const inheritFrom: { id: string, isInverted?: boolean }[] = [];
     formData.getAll("inheritFrom")?.forEach((id) => {
       if (id instanceof File) {
         return;
@@ -160,7 +136,7 @@ export default function GoalForm({
       dataUnit: parsedUnit || (form.namedItem("dataUnit") as HTMLInputElement)?.value,
       dataSeriesArray: dataSeries,
       baselineDataSeries: baselineDataSeries ?? null,
-      combinationScale: JSON.stringify(combinationScale),
+      combinationScale: combinationScale as string,
       inheritFrom: inheritFrom,
       roadmapId: currentGoal?.roadmapId || roadmapId || (typeof formData.get("roadmapId") == "string" ? formData.get("roadmapId") : null),
       goalId: currentGoal?.id || null,
@@ -171,28 +147,6 @@ export default function GoalForm({
 
     // Submit the form to the API (POST for new, PUT for edit)
     formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST');
-  }
-
-  // Recalculate scaling result when form changes (for combined/inherited goals)
-  async function recalculateScalingResult() {
-    await new Promise(resolve => setTimeout(resolve, 0)); // Wait for the form to update
-    if (typeof document != "undefined") {
-      const formElement = document.forms.namedItem("goalForm");
-      if (formElement instanceof HTMLFormElement) {
-        const formData = new FormData(formElement);
-        const scalingMethod = formData.get("scalingMethod")?.valueOf() as ScaleMethod;
-        const { scaleFactor, scalingRecipe: tempRecipe } = getScalingResult(formData, scalingMethod || ScaleMethod.Geometric);
-        // Avoid setting state if the value hasn't changed.
-        if (tempRecipe !== scalingRecipe) {
-          setScalingRecipe(tempRecipe);
-        }
-        if (Number.isFinite(scaleFactor) && scaleFactor !== scalingResult) {
-          setScalingResult(scaleFactor);
-        } else if (isNaN(scaleFactor) && scalingResult !== null) {
-          setScalingResult(null);
-        }
-      }
-    }
   }
 
   // Prepare data series string for default value (if editing)
@@ -219,7 +173,7 @@ export default function GoalForm({
   // Render the form
   return (
     <>
-      <form onSubmit={handleSubmit} onChange={() => { recalculateScalingResult() }} name="goalForm">
+      <form onSubmit={handleSubmit} name="goalForm">
         {/* This hidden submit button prevents submitting by pressing enter, to avoid accidental submission */}
         <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
@@ -293,40 +247,10 @@ export default function GoalForm({
           {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
             <fieldset className="padding-50 smooth position-relative" style={{ border: '1px solid var(--gray-90)' }}>
               <legend>{t("forms:goal.scaling_legend")}</legend>
-              <div className="margin-block-100">
-                {scalingRecipe.values.map((value, index) => {
-                  return (
-                    <RepeatableScaling
-                      key={`scalar-${index}`}
-                      useWeight={scalingRecipe.method != ScaleMethod.Multiplicative}
-                      defaultSpecificValue={value.type == ScaleBy.Custom || !value.type ? value.value : undefined}
-                      defaultParentArea={value.type == ScaleBy.Area || value.type == ScaleBy.Inhabitants ? value.parentArea : undefined}
-                      defaultChildArea={value.type == ScaleBy.Area || value.type == ScaleBy.Inhabitants ? value.childArea : undefined}
-                      defaultScaleBy={value.type || ScaleBy.Custom}
-                    > {/* Multiplicative scaling doesn't use weights */}
-                      <button type="button" className="grid" aria-label={t("forms:goal.remove_scaling")}
-                        onClick={() => setScalingRecipe({ method: scalingRecipe.method, values: scalingRecipe.values.filter((_, i) => i !== index) })}>
-                        <IconCircleMinus aria-hidden="true" width={24} height={24} />
-                      </button>
-                    </RepeatableScaling>
-                  )
-                })}
-              </div>
-              <button type="button" className="margin-block-100" onClick={() => setScalingRecipe({ method: scalingRecipe.method, values: [...scalingRecipe.values, { value: 1 }] })}>{t("forms:goal.add_scaling")}</button>
-
-              <label className="block margin-block-100">
-                {t("forms:goal.scaling_method_legend")}
-                <select name="scalingMethod" id="scalingMethod" className="margin-inline-25" defaultValue={scalingRecipe.method || ScaleMethod.Geometric}>
-                  <option value={ScaleMethod.Geometric}>{t("common:scaling_methods.geo_mean")}</option>
-                  <option value={ScaleMethod.Algebraic}>{t("common:scaling_methods.arith_mean")}</option>
-                  <option value={ScaleMethod.Multiplicative}>{t("common:scaling_methods.multiplicative")}</option>
-                </select>
-              </label>
-
-              <label className="block margin-block-100">
-                <strong className="block bold">{t("forms:goal.resulting_factor")}</strong>
-                <output className="margin-block-100 block">{scalingResult}</output>
-              </label>
+              <RecipeContextProvider>
+                <RecipeEditor />
+                <ResultingDataSeries />
+              </RecipeContextProvider>
             </fieldset>
           }
         </fieldset>
