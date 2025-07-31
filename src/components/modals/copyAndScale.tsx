@@ -2,212 +2,31 @@
 
 import { closeModal, openModal } from "./modalFunctions";
 import { useEffect, useRef, useState } from "react";
-import { GoalCreateInput, dataSeriesDataFieldNames, ScaleBy, ScaleMethod, ScalingRecipe, Goal } from "@/types";
+import { GoalCreateInput, Goal } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
-import { DataSeriesArray, RawRecipe, Recipe, RecipeVariableType } from "@/functions/recipe-parser/types";
+import { DataSeriesArray, RawRecipe } from "@/functions/recipe-parser/types";
 import { evaluateRecipe, parseRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
-import { RecipeContextProvider, RecipeSuggestions, RecipeWrapper } from "../recipe/recipeEditor";
-
-// TODO - remove
-/** Get the resulting scaling factor from form data */
-export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, setIsLoading?: React.Dispatch<React.SetStateAction<boolean>>) {
-  const scalars = form.getAll("scaleFactor");
-  const scalingTypes = form.getAll("scaleBy");
-  const weights = form.getAll("weight");
-  const parentAreas = form.getAll("parentArea");
-  const childAreas = form.getAll("childArea")
-  let scaleFactor: number = 1;
-  let totalWeight: number;
-  // Index for getting parentArea and childArea for ScaleBy.Inhabitants and ScaleBy.Area
-  let mutableScalarIndex: number = 0;
-  const scalingRecipe: ScalingRecipe = { values: [] }
-  // If the input is a single value, use it as the scale factor
-  if (scalars.length == 1) {
-    // If any of the inputs are files, throw. This will only happen if the user has tampered with the form, so no need to give a nice error message
-    if (scalars[0] instanceof File) {
-      if (setIsLoading) setIsLoading(false);
-      throw new Error("Why is this a file?");
-    }
-    const tempScale = parseFloat(scalars[0].replace(",", "."));
-    const scalingType = scalingTypes[0] as (ScaleBy | "");
-    const weight = parseFloat((weights[0] as string ?? "1").replace(",", "."));
-    // If the value is a number, use it as the scale factor
-    if (Number.isFinite(tempScale)) {
-      scaleFactor = tempScale;
-      if (scalingType == ScaleBy.Custom) {
-        scalingRecipe.values.push({
-          type: scalingType,
-          value: tempScale,
-          weight: Number.isFinite(weight) ? weight : 1,
-        });
-      } else if (scalingType == ScaleBy.Area || scalingType == ScaleBy.Inhabitants) {
-        scalingRecipe.values.push({
-          type: scalingType,
-          parentArea: parentAreas[mutableScalarIndex] as string,
-          childArea: childAreas[mutableScalarIndex] as string,
-          weight: Number.isFinite(weight) ? weight : 1,
-        })
-      } else {
-        scalingRecipe.values.push({
-          value: tempScale,
-        });
-      }
-    };
-  }
-  // If there are multiple inputs, loop through them and calculate the average of the scale factors, based on the scaling method
-  else if (scalars.length > 1) {
-    switch (scalingMethod) {
-      case ScaleMethod.Algebraic:
-        scalingRecipe.method = ScaleMethod.Algebraic;
-        totalWeight = 0;
-        scaleFactor = 0;
-        for (let i = 0; i < scalars.length; i++) {
-          if (scalars[i] instanceof File || weights[i] instanceof File || parentAreas[i] instanceof File || childAreas[i] instanceof File || scalingTypes[i] instanceof File) {
-            if (setIsLoading) setIsLoading(false);
-            throw new Error("Why is this a file?");
-          }
-
-          const scalar: number = parseFloat((scalars[i] as string).replace(",", "."));
-          const scalingType = scalingTypes[i] as (ScaleBy | "");
-          const weight: number = parseFloat((weights[i] as string ?? "1").replace(",", "."));
-
-          // If scalar is a number, add it to the total scale factor, weighted by the weight
-          // If weight is not a number, default to 1 (but allow 0 to be used as a weight)
-          if (Number.isFinite(scalar)) {
-            if (Number.isFinite(weight)) {
-              totalWeight += weight;
-              scaleFactor += scalar * weight;
-            } else {
-              totalWeight += 1;
-              scaleFactor += scalar * 1;
-            }
-            if (scalingType == ScaleBy.Custom) {
-              scalingRecipe.values.push({
-                type: scalingType,
-                value: scalar,
-                weight: Number.isFinite(weight) ? weight : 1,
-              });
-            } else if (scalingType == ScaleBy.Area || scalingType == ScaleBy.Inhabitants) {
-              scalingRecipe.values.push({
-                type: scalingType,
-                parentArea: parentAreas[mutableScalarIndex] as string,
-                childArea: childAreas[mutableScalarIndex] as string,
-                weight: Number.isFinite(weight) ? weight : 1,
-              })
-            }
-          }
-          if (scalingType == ScaleBy.Area || scalingType == ScaleBy.Inhabitants) {
-            mutableScalarIndex += 1;
-          }
-        }
-        // If the total weight is not 0, divide the scale factor by it to get the weighted average
-        if (totalWeight != 0) {
-          scaleFactor /= totalWeight;
-        }
-        break;
-      case ScaleMethod.Multiplicative:
-        scalingRecipe.method = ScaleMethod.Multiplicative;
-        scaleFactor = 1;
-        for (let i = 0; i < scalars.length; i++) {
-          if (scalars[i] instanceof File) {
-            if (setIsLoading) setIsLoading(false);
-            throw new Error("Why is this a file?");
-          }
-
-          const scalar: number = parseFloat((scalars[i] as string).replace(",", "."));
-          const scalingType = scalingTypes[i] as (ScaleBy | "");
-
-          // If scalar is a number, multiply total scale factor with it
-          if (Number.isFinite(scalar)) {
-            scaleFactor *= scalar;
-            if (scalingType == ScaleBy.Custom) {
-              scalingRecipe.values.push({
-                type: scalingType,
-                value: scalar,
-              });
-            } else if (scalingType == ScaleBy.Area || scalingType == ScaleBy.Inhabitants) {
-              scalingRecipe.values.push({
-                type: scalingType,
-                parentArea: parentAreas[mutableScalarIndex] as string,
-                childArea: childAreas[mutableScalarIndex] as string,
-              })
-            }
-          }
-          if (scalingType == ScaleBy.Area || scalingType == ScaleBy.Inhabitants) {
-            mutableScalarIndex += 1;
-          }
-        }
-        break;
-      // Default to geometric scaling
-      case ScaleMethod.Geometric:
-      default:
-        scalingRecipe.method = ScaleMethod.Geometric;
-        totalWeight = 0;
-        scaleFactor = 1; // This initial value won't affect the result since it's the identity element for multiplication and is not given a weight
-
-        for (let i = 0; i < scalars.length; i++) {
-          if (scalars[i] instanceof File || weights[i] instanceof File || parentAreas[i] instanceof File || childAreas[i] instanceof File || scalingTypes[i] instanceof File) {
-            if (setIsLoading) setIsLoading(false);
-            throw new Error("Why is this a file?");
-          }
-
-          const scalar: number = parseFloat((scalars[i] as string).replace(",", "."));
-          const scalingType = scalingTypes[i] as (ScaleBy | "");
-          const weight: number = parseFloat((weights[i] as string ?? "1").replace(",", "."));
-
-          // If scalar is a number, multiply total scale factor with it, weighted by the weight
-          // If weight is not a number, default to 1 (but allow 0 to be used as a weight)
-          if (Number.isFinite(scalar)) {
-            if (Number.isFinite(weight)) {
-              totalWeight += weight;
-              scaleFactor *= Math.pow(scalar, weight);
-            } else {
-              totalWeight += 1;
-              scaleFactor *= Math.pow(scalar, 1);
-            }
-            if (scalingType == ScaleBy.Custom) {
-              scalingRecipe.values.push({
-                type: scalingType,
-                value: scalar,
-                weight: Number.isFinite(weight) ? weight : 1,
-              });
-            } else if (scalingType == ScaleBy.Area || scalingType == ScaleBy.Inhabitants) {
-              scalingRecipe.values.push({
-                type: scalingType,
-                parentArea: parentAreas[mutableScalarIndex] as string,
-                childArea: childAreas[mutableScalarIndex] as string,
-                weight: Number.isFinite(weight) ? weight : 1,
-              })
-            }
-          }
-          if (scalingType == ScaleBy.Area || scalingType == ScaleBy.Inhabitants) {
-            mutableScalarIndex += 1;
-          }
-        }
-        // Take the totalWeight-th root of the scale factor to get the weighted geometric mean
-        // Will return NaN if the scale factor is negative before taking the root
-        scaleFactor = Math.pow(scaleFactor, (1 / totalWeight));
-        break;
-    }
-  }
-  return { scaleFactor, scalingRecipe: scalingRecipe };
-}
+import { RecipeContextProvider, RecipeEditor, RecipeSuggestions, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "../recipe/recipeEditor";
 
 export default function CopyAndScale({
   goal,
   roadmapOptions,
 }: {
   goal: Goal,
-  roadmapOptions: { id: string, name: string, version: number, actor: string | null }[],
+  roadmapOptions: { id: string, name: string, version: number | null, actor: string | null }[],
 }) {
   const { t } = useTranslation("components");
   const [isLoading, setIsLoading] = useState(false);
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
   // TODO - remove. This is a debugging measure.
-  useEffect(() => openModal(modalRef), []);
+  useEffect(() => {
+    if (modalRef.current) {
+      openModal(modalRef)
+    }
+  }, []);
 
   async function formSubmission(form: FormData) {
     setIsLoading(true);
@@ -219,16 +38,44 @@ export default function CopyAndScale({
       throw new Error("Why is this a file?");
     }
 
-    const noUnitDataSeries = { ...finalDataSeries };
-    delete noUnitDataSeries.unit;
+    const resultingDataSeriesString = form.get("resultingDataSeries");
+    let parsedDataSeries: DataSeriesArray | undefined;
+    try {
+      parsedDataSeries = JSON.parse(resultingDataSeriesString as string) as DataSeriesArray;
+    } catch (error) {
+      setIsLoading(false);
+      console.error("Failed to parse resulting data series:", error);
+      return;
+    }
+
+    const resultingRecipeString = form.get("resultingRecipe");
+    let evaluatedRecipe: RawRecipe | undefined;
+    try {
+      evaluatedRecipe = recipeFromUnknown(resultingRecipeString);
+      if (!evaluatedRecipe) {
+        throw new Error("Failed to parse resulting recipe");
+      }
+    }
+    catch (error) {
+      setIsLoading(false);
+      console.error("Failed to parse recipe:", error);
+      return;
+    }
+
+    const unit: string | undefined = parsedDataSeries.unit;
+    if (unit && typeof unit !== "string") {
+      setIsLoading(false);
+      console.error("Recipe unit is not a string:", unit);
+      return;
+    }
 
     const formData: GoalCreateInput & { roadmapId: string } = {
       name: goal.name,
       description: goal.description,
       indicatorParameter: goal.indicatorParameter,
       dataUnit: goal.dataSeries?.unit,
-      dataSeriesArray: noUnitDataSeries,
-      roadmapId: copyToId ?? "",
+      dataSeriesArray: parsedDataSeries,
+      roadmapId: copyToId as string ?? "",
       recipeHash: form.get("recipeSuggestion") as string,
     };
 
@@ -272,7 +119,7 @@ export default function CopyAndScale({
               <option value="">{t("components:copy_and_scale.select_roadmap_version_option")}</option>
               {roadmapOptions.map(roadmap => (
                 <option key={roadmap.id} value={roadmap.id}>
-                  {`${roadmap.name} ${roadmap.version ? `(${t("components:copy_and_scale.version")} ${roadmap.version.toString()})` : null}`}
+                  {`${roadmap.name} ${roadmap.version ? `(${t("components:copy_and_scale.version")} ${roadmap.version.toString()})` : ""}`}
                 </option>
               ))}
             </select>
@@ -286,32 +133,14 @@ export default function CopyAndScale({
               />
             }
 
-            {/* Resulting data series */}
-            <label className="margin-inline-auto width-100">
-              <strong className="block bold text-align-center">
-                {t("components:copy_and_scale.resulting_data_series")}
-                {/* Unit */}
-                {resultingDataSeries.unit ? ` (${resultingDataSeries.unit})` : ""}
-              </strong>
-              <table className="margin-block-100 block width-100 overflow-x-scroll">
-                <thead>
-                  <tr>
-                    <th className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_year")}</th>
-                    {Object.keys(resultingDataSeries).map((year, i) => (
-                      <th className="padding-50 text-align-center" key={i + "resulting-data-series-header" + year}>{year.replace("val", "")}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_value")}</td>
-                    {Object.values(resultingDataSeries).map((value, i) => (
-                      <td className="padding-50 text-align-center" key={i + "resulting-data-series-value" + value}>{(value as number)?.toFixed(1) || "-"}</td>
-                    ))}
-                  </tr>
-                </tbody>
-              </table>
-            </label>
+            <RecipeVariableEditor />
+
+            <ResultingDataSeries
+              FormElement={<input type="hidden" name="resultingDataSeries" />}
+            />
+            <ResultingRecipe
+              FormElement={<input type="hidden" name="resultingRecipe" />}
+            />
           </RecipeContextProvider>
 
           <button className="block seagreen color-purewhite smooth width-100 margin-inline-auto font-weight-500">

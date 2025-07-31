@@ -1,24 +1,24 @@
 "use client";
 
-import { type DataSeriesArray, type RawRecipe, type Recipe, RecipeVariableType } from "@/functions/recipe-parser/types";
+import { type DataSeriesArray, type RawRecipe, type Recipe, RecipeVariableType, RawRecipeVariables } from "@/functions/recipe-parser/types";
 import type { Goal } from "@/types";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, ReactElement, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { evaluateRecipe, parseRecipe } from "@/functions/parseRecipe";
+import { evaluateRecipe, parseRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
 
 type RecipeContextType = {
   recipe: RawRecipe | null;
   setRecipe: React.Dispatch<React.SetStateAction<RawRecipe | null>>;
   warnings: string[];
   error: string | null;
-  resultingDataSeries: DataSeriesArray & { unit?: string };
+  resultingDataSeries: DataSeriesArray | null;
 }
 
 export const RecipeContext = createContext<RecipeContextType | null>(null);
 export function useRecipe() {
   const context = useContext(RecipeContext);
   if (!context) {
-    throw new Error("useRecipeContext must be used within a RecipeContextProvider");
+    throw new Error("useRecipe must be used within a RecipeContextProvider");
   }
   return context;
 }
@@ -31,11 +31,11 @@ export function RecipeContextProvider({
   const [recipe, setRecipe] = useState<RawRecipe | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [resultingDataSeries, setResultingDataSeries] = useState<DataSeriesArray & { unit?: string }>({});
+  const [resultingDataSeries, setResultingDataSeries] = useState<DataSeriesArray | null>(null);
 
   useEffect(() => {
     if (!recipe) {
-      setResultingDataSeries({});
+      setResultingDataSeries(null);
       setError(null);
       setWarnings([]);
       return;
@@ -50,7 +50,7 @@ export function RecipeContextProvider({
         setWarnings(currentWarnings);
         setError(null);
       } catch (e: any) {
-        setResultingDataSeries({});
+        setResultingDataSeries(null);
         setError(e.message);
         setWarnings([]);
       }
@@ -71,12 +71,21 @@ export function RecipeSuggestions({
   suggestedRecipes: Goal["recipeSuggestions"];
 }) {
   const { t } = useTranslation("components");
-  const [selectedHash, setSelectedHash] = useState<string>("");
+  const { setRecipe } = useRecipe();
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const hash = e.target.value;
-    if (hash) {
-      setSelectedHash(e.target.value);
+    const selectedSuggestion = suggestedRecipes.find(r => r.hash === hash);
+    if (selectedSuggestion) {
+      try {
+        const rawRecipe = recipeFromUnknown(selectedSuggestion.recipe);
+        setRecipe(rawRecipe);
+      } catch (e) {
+        console.error("Failed to parse suggested recipe", e);
+        setRecipe(null);
+      }
+    } else {
+      setRecipe(null);
     }
   };
 
@@ -98,16 +107,74 @@ export function RecipeSuggestions({
         </span>
       </label>
     ))}
-
-    {/* Display the variables in case a selection has been made */}
-    {selectedHash && <RecipeVariableEditor />}
   </>);
 }
 
 export function RecipeEditor() {
+  return (<>
+    <RecipeEquationEditor />
+    <RecipeErrorAndWarnings />
+    <RecipeVariableEditor
+      allowAddVariables
+      allowDeleteVariables
+      allowNameEditing
+      allowTypeEditing
+    />
+  </>);
+}
+
+export function ResultingDataSeries({ FormElement }: { FormElement?: ReactElement<any, any> }) {
   const { t } = useTranslation("components");
+  const { resultingDataSeries } = useRecipe();
 
+  const data = resultingDataSeries ? Object.fromEntries(Object.entries(resultingDataSeries).filter(([key]) => key !== 'unit')) : {};
 
+  if (!resultingDataSeries) {
+    return null;
+  }
+
+  return (
+    <div className="margin-inline-auto width-100">
+      {/* Hidden input for reading into the form */}
+      {FormElement && <FormElement.type {...FormElement.props} value={JSON.stringify(resultingDataSeries)} />}
+
+      {/* Title */}
+      <strong className="block bold text-align-center">
+        {t("components:copy_and_scale.resulting_data_series")}
+        {/* Unit */}
+        {resultingDataSeries?.unit ? ` (${resultingDataSeries.unit})` : ""}
+      </strong>
+
+      {/* Table to display resulting data series */}
+      <table className="margin-block-100 block width-100 overflow-x-scroll">
+        <thead>
+          <tr>
+            <th className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_year")}</th>
+            {Object.keys(data).map((year, i) => (
+              <th className="padding-50 text-align-center" key={i + "resulting-data-series-header" + year}>{year.replace("val", "")}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_value")}</td>
+            {Object.values(data).map((value, i) => (
+              <td className="padding-50 text-align-center" key={i + "resulting-data-series-value" + value}>{(value as number)?.toFixed(1) || "-"}</td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+export function ResultingRecipe({ FormElement }: { FormElement?: ReactElement<any, any> }) {
+  const { t } = useTranslation("components");
+  const { recipe } = useRecipe();
+
+  return (<>
+    {FormElement && <FormElement.type {...FormElement.props} value={JSON.stringify(recipe)} />}
+  </>);
 }
 
 export function RecipeEquationEditor() {
@@ -122,8 +189,8 @@ export function RecipeEquationEditor() {
         rows={3}
         placeholder={t("components:copy_and_scale.custom_recipe_placeholder")}
         className="block width-100"
-        value={recipe?.eq}
-        onChange={(e) => setRecipe(recipe ? { ...recipe, eq: e.target.value } : null)}
+        value={recipe?.eq ?? ""}
+        onChange={(e) => setRecipe(recipe ? { ...recipe, eq: e.target.value } : { eq: e.target.value, variables: {} })}
       />
     </label>
   </>)
@@ -136,8 +203,6 @@ export function RecipeVariableEditor({
   allowTypeEditing = false,
   allowValueEditing = true,
 }: {
-  recipeVars: RawRecipe["variables"];
-  setRecipeVars: React.Dispatch<React.SetStateAction<Record<string, RawRecipe["variables"][string]>>>;
   allowAddVariables?: boolean;
   allowDeleteVariables?: boolean;
   allowNameEditing?: boolean;
@@ -145,11 +210,11 @@ export function RecipeVariableEditor({
   allowValueEditing?: boolean;
 }) {
   const { t } = useTranslation("components");
-  const { recipe } = useRecipe();
+  const { recipe, setRecipe } = useRecipe();
 
   const variables = recipe?.variables;
   if (!variables) {
-    return <>{t("components:copy_and_scale.no_variables_defined")}</>;
+    return null;
   }
 
   return (<>
@@ -170,13 +235,29 @@ export function RecipeVariableEditor({
             {/* Type selection */}
             <select className="flex-grow-1"
               disabled={!allowTypeEditing}
-              defaultValue={RecipeVariableType[variable.type]}
+              value={variable.type}
               onChange={(e) => {
                 const newType = e.target.value as RecipeVariableType;
-                setRecipeVars(prev => ({
-                  ...prev,
-                  [name]: { ...variable, type: RecipeVariableType[newType] }
-                }));
+                setRecipe(prev => {
+                  if (!prev) return null;
+                  const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+
+                  if (newType === RecipeVariableType.Scalar) {
+                    newVariables[name] = {
+                      type: RecipeVariableType.Scalar,
+                      value: 1
+                    };
+                  } else if (newType === RecipeVariableType.DataSeries) {
+                    newVariables[name] = {
+                      type: RecipeVariableType.DataSeries,
+                      link: "goal://"
+                    };
+                  }
+                  return {
+                    ...prev,
+                    variables: newVariables
+                  };
+                });
               }}>
               <option value={RecipeVariableType.Scalar}>{t("components:copy_and_scale.scalar")}</option>
               <option value={RecipeVariableType.DataSeries}>{t("components:copy_and_scale.data_series")}</option>
@@ -187,20 +268,30 @@ export function RecipeVariableEditor({
               type="text"
               value={
                 variable.type === RecipeVariableType.Scalar ? variable.value :
-                  variable.type === RecipeVariableType.DataSeries && 'link' in variable ? `link: ${variable.link}` :
+                  variable.type === RecipeVariableType.DataSeries && 'link' in variable ? variable.link :
                     'Data Series'
               }
+              disabled={!allowValueEditing}
               className="flex-grow-1"
               onChange={(e) => {
-                if (variable.type === RecipeVariableType.Scalar) {
-                  const newValue = parseFloat(e.target.value);
-                  setRecipeVars(prev => ({
-                    ...prev,
-                    [name]: { ...variable, value: Number.isNaN(newValue) ? 0 : newValue }
-                  }));
-                }
+                setRecipe(prev => {
+                  if (!prev) return null;
+                  const currentVar = prev.variables[name];
+                  const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+
+                  if (currentVar.type === RecipeVariableType.Scalar) {
+                    const newValue = parseFloat(e.target.value);
+                    if (!isNaN(newValue)) {
+                      newVariables[name] = { ...currentVar, value: newValue };
+                    }
+                  } else if (currentVar.type === RecipeVariableType.DataSeries && 'link' in currentVar) {
+                    newVariables[name] = { ...currentVar, link: e.target.value };
+                  }
+
+                  return { ...prev, variables: newVariables };
+                });
               }}
-              readOnly={variable.type !== RecipeVariableType.Scalar}
+              readOnly={variable.type !== RecipeVariableType.Scalar && (variable.type !== RecipeVariableType.DataSeries || !('link' in variable))}
             />
 
             {/* Delete variable */}
@@ -208,7 +299,13 @@ export function RecipeVariableEditor({
               <button type="button" className="red" onClick={() => {
                 const newVars = { ...variables };
                 delete newVars[name];
-                setRecipeVars(newVars);
+                setRecipe(prev => {
+                  if (!prev) return null;
+                  return {
+                    ...prev,
+                    variables: newVars
+                  }
+                });
               }}>
                 X
               </button>
@@ -220,11 +317,20 @@ export function RecipeVariableEditor({
       {/* Add variable */}
       {allowAddVariables &&
         <button type="button" onClick={() => {
-          const newVarName = `var${Object.keys(recipeVars).length + 1}`;
-          setRecipeVars(prev => ({
-            ...prev,
-            [newVarName]: { type: RecipeVariableType.Scalar, value: 1 }
-          }));
+          const newVarName = `var${Object.keys(variables).length + 1}`;
+          setRecipe(prev => {
+            if (!prev) return null;
+            return {
+              ...prev,
+              variables: {
+                ...prev.variables,
+                [newVarName]: {
+                  type: RecipeVariableType.Scalar,
+                  value: 1
+                }
+              }
+            }
+          });
         }}>
           {t("components:copy_and_scale.add_variable")}
         </button>

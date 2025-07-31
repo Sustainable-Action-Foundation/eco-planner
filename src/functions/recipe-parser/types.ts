@@ -8,6 +8,7 @@ export enum RecipeVariableType {
 };
 
 export type DataSeriesArray = Partial<{
+  unit?: string; // Optional unit for the data series
   "val2020": number | null;
   "val2021": number | null;
   "val2022": number | null;

@@ -276,7 +276,7 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
   return parsedRecipe;
 }
 
-export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promise<DataSeriesArray & { unit?: string }> {
+export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promise<DataSeriesArray> {
   /**
    * Early sanity checks
    */
@@ -422,7 +422,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
   /**
    * Transform mathjs result into a DataSeriesArray
    */
-  const output: DataSeriesArray & { unit?: string } = {};
+  const output: DataSeriesArray = {};
   let resultArray: unknown[] = [];
 
   // Coerce result into a 1D array

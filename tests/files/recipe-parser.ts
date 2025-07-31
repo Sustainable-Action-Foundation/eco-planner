@@ -370,7 +370,7 @@ type TestResult = {
   passed: boolean;
   warnings: string[];
   errors: string[];
-  result: (DataSeriesArray & { unit?: string }) | null; // The result of the parseRecipe function
+  result: DataSeriesArray | null; // The result of the parseRecipe function
 };
 
 const passColor = (text: string) => colors.cyanBrightBG(colors.black(text));
