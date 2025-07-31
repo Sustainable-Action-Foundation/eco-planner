@@ -88,31 +88,8 @@ export type GenericEntry = (
   }
 );
 
-/** Recipe containing all information needed to calculate a scale for a goal. Saved stringified in Goal.combinationScale in the db */
-export type ScalingRecipe = {
-  method?: ScaleMethod,
-  values: (SimpleScalingValue | AdvancedScalingValue)[]
-}
-
-export type SimpleScalingValue = {
-  type?: ScaleBy.Custom,
-  value: number,
-  weight?: number,
-}
-
-export type AdvancedScalingValue = {
-  type: ScaleBy.Area | ScaleBy.Inhabitants,
-  parentArea: string,
-  childArea: string,
-  weight?: number,
-}
-
 /** The return type of JSON.parse */
 export type JSONValue = Partial<{ [key: string]: JSONValue }> | JSONValue[] | string | number | boolean | null;
-
-export function isScalingRecipe(object: unknown): object is ScalingRecipe {
-  return (typeof object == "object" && (object as ScalingRecipe)?.values instanceof Array)
-}
 
 // Usually part of an array with the type NameObject[]
 export type NameObject = Prisma.MetaRoadmapGetPayload<{
