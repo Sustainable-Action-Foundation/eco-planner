@@ -363,7 +363,11 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
         valueToPush = 0;
       }
       else if (value) {
-        valueToPush = value;
+        if (typeof value === 'string') {
+          valueToPush = parseFloat(value);
+        } else {
+          valueToPush = value;
+        }
       }
 
       if (series.unit) {

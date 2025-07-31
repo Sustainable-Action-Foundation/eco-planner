@@ -60,15 +60,6 @@ export default function GoalForm({
   currentGoal?: Goal & { // Current goal (if editing)
     dataSeries: DataSeries | null,
     baselineDataSeries: DataSeries | null,
-    combinationScale: string | null,
-    combinationParents: {
-      isInverted: boolean,
-      parentGoal: {
-        id: string,
-        dataSeries: DataSeries | null,
-        roadmapId: string,
-      }
-    }[],
     author: { id: string, username: string },
     links?: { url: string, description: string | null }[],
     roadmap: { id: string },
@@ -77,7 +68,7 @@ export default function GoalForm({
   const { t } = useTranslation(["forms", "common"]); // i18n translation hook
 
   // State for the type of data series (static, inherited, combined)
-  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(!currentGoal?.combinationParents.length ? DataSeriesType.Static : currentGoal.combinationParents.length >= 2 ? DataSeriesType.Combined : DataSeriesType.Inherited)
+  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(DataSeriesType.Static)
   // State for the type of baseline (initial, custom, inherited)
   const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baselineDataSeries ? BaselineType.Custom : BaselineType.Initial)
   // State for the selected roadmap (if not already fixed)
@@ -97,10 +88,10 @@ export default function GoalForm({
     const links = getLinks(event.target);
 
     // Extract data series (array of numbers as strings)
-    const dataSeries = getDataSeries(form);
+    const dataSeries = getDataSeries(form).map(val => val ? parseFloat(val) : null);
 
     // Extract baseline data series (if any)
-    const baselineDataSeriesArray = getDataSeries(form, "baselineDataSeries");
+    const baselineDataSeriesArray = getDataSeries(form, "baselineDataSeries").map(val => val ? parseFloat(val) : null);
     const baselineDataSeries = baselineDataSeriesArray.length > 0 ? baselineDataSeriesArray : undefined; // Omit if empty
 
     // Get scaling recipe for combined/inherited goals
@@ -204,7 +195,7 @@ export default function GoalForm({
           <label className="block margin-block-100">
             {t("forms:goal.data_series_type_label")}
             <select name="dataSeriesType" id="dataSeriesType" className="block margin-block-25" required
-              defaultValue={!currentGoal?.combinationParents.length ? DataSeriesType.Static : currentGoal.combinationParents.length >= 2 ? DataSeriesType.Combined : DataSeriesType.Inherited}
+              defaultValue={DataSeriesType.Static}
               onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
             >
               <option value={DataSeriesType.Static}>{t("forms:goal.data_series_types.static")}</option>

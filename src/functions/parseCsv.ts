@@ -40,7 +40,7 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
   }
 
   const headerIndex: { [key: string]: number | undefined } = {};
-  const output: Partial<GoalCreateInput>[] = [];
+  const output: GoalCreateInput[] = [];
 
   // Check that all headers are present and get their indices
   for (const i of Object.keys(nonNumericHeaders)) {
@@ -75,6 +75,7 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
       indicatorParameter: csv[i][Number(headerIndex.indicatorParameter)],
       dataUnit: csv[i][Number(headerIndex.dataUnit)],
       rawDataSeries: dataSeries,
+      roadmapId: '', // This will be set later
     })
   }
 

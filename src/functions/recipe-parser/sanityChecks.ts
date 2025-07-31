@@ -25,7 +25,7 @@ export function sketchyScalars(scalars: EvalTimeScalar[], warnings: string[]) {
 
 export function sketchyDataSeries(dataSeries: EvalTimeDataSeries[], warnings: string[]) {
   const hugeValuesInDataSeries = dataSeries.filter(variable =>
-    Object.values(variable.data).some(v => !isNull(v) && v !== null && Math.abs(v) > 1e12)
+    Object.values(variable.data).some(v => !isNull(v) && v !== null && Math.abs(Number(v)) > 1e12)
   );
   if (hugeValuesInDataSeries.length > 0) {
     warnings.push(`Recipe contains data series with huge values: ${hugeValuesInDataSeries.map(ds => ds.name).join(", ")}, which may lead to performance issues or overflow errors.`);

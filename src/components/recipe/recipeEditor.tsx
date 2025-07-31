@@ -49,9 +49,9 @@ export function RecipeContextProvider({
         setResultingDataSeries(evaluatedRecipe);
         setWarnings(currentWarnings);
         setError(null);
-      } catch (e: any) {
+            } catch (e: unknown) {
         setResultingDataSeries(null);
-        setError(e.message);
+        setError((e as Error).message);
         setWarnings([]);
       }
     }
@@ -123,7 +123,7 @@ export function RecipeEditor() {
   </>);
 }
 
-export function ResultingDataSeries({ FormElement }: { FormElement?: ReactElement<any, any> }) {
+export function ResultingDataSeries({ FormElement }: { FormElement?: ReactElement }) {
   const { t } = useTranslation("components");
   const { resultingDataSeries } = useRecipe();
 
@@ -136,7 +136,7 @@ export function ResultingDataSeries({ FormElement }: { FormElement?: ReactElemen
   return (
     <div className="margin-inline-auto width-100">
       {/* Hidden input for reading into the form */}
-      {FormElement && <FormElement.type {...FormElement.props} value={JSON.stringify(resultingDataSeries)} />}
+      {FormElement && <FormElement.type {...(FormElement.props || {})} value={JSON.stringify(resultingDataSeries)} />}
 
       {/* Title */}
       <strong className="block bold text-align-center">
@@ -168,12 +168,11 @@ export function ResultingDataSeries({ FormElement }: { FormElement?: ReactElemen
   )
 }
 
-export function ResultingRecipe({ FormElement }: { FormElement?: ReactElement<any, any> }) {
-  const { t } = useTranslation("components");
+export function ResultingRecipe({ FormElement }: { FormElement?: ReactElement }) {
   const { recipe } = useRecipe();
 
   return (<>
-    {FormElement && <FormElement.type {...FormElement.props} value={JSON.stringify(recipe)} />}
+    {FormElement && <FormElement.type {...(FormElement.props || {})} value={JSON.stringify(recipe)} />}
   </>);
 }
 

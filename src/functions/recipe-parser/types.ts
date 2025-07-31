@@ -192,6 +192,6 @@ export type EvalTimeScalar = {
 export type EvalTimeDataSeries = {
   name: string; // Variable name
   link: string; // For reference sake
-  data: DataSeriesArray; // The actual data to be used
+  data: { [key: string]: number | string | null }; // The actual data to be used
   unit?: string; // Optional unit
 };

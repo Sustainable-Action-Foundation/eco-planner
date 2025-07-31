@@ -2,7 +2,7 @@
 
 import { closeModal, openModal } from "./modalFunctions";
 import { useEffect, useRef, useState } from "react";
-import { GoalCreateInput, Goal } from "@/types";
+import { GoalCreateInput, Goal, dataSeriesDataFieldNames } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
@@ -69,12 +69,20 @@ export default function CopyAndScale({
       return;
     }
 
+    const dataSeriesArray = dataSeriesDataFieldNames.map(field => {
+      const value = parsedDataSeries[field as keyof typeof parsedDataSeries];
+      if (typeof value === 'string') {
+        return parseFloat(value);
+      }
+      return value ?? null;
+    });
+
     const formData: GoalCreateInput & { roadmapId: string } = {
       name: goal.name,
       description: goal.description,
       indicatorParameter: goal.indicatorParameter,
       dataUnit: goal.dataSeries?.unit,
-      dataSeriesArray: parsedDataSeries,
+      dataSeriesArray: dataSeriesArray,
       roadmapId: copyToId as string ?? "",
       recipeHash: form.get("recipeSuggestion") as string,
     };

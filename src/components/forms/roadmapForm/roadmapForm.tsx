@@ -54,6 +54,7 @@ export default function RoadmapForm({
     if (currentFile) {
       try {
         goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer })), () => alert(t("forms:roadmap.scale_deprecated")));
+        goals.forEach(goal => goal.roadmapId = metaRoadmapId);
       }
       catch (error) {
         setIsLoading(false)

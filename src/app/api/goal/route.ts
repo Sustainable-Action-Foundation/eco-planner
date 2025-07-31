@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { getSession } from "@/lib/session";
 import accessChecker from "@/lib/accessChecker";
 import { AccessControlled, AccessLevel, ClientError, dataSeriesDataFieldNames, GoalCreateInput, GoalUpdateInput, JSONValue } from "@/types";
+import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { Prisma } from "@prisma/client";
 import type { DataSeriesArray } from "@/functions/recipe-parser/types";
 
@@ -220,23 +221,6 @@ export async function POST(request: NextRequest) {
   }
 
   const dataSeriesArray: DataSeriesArray = {};
-  if (formData.dataSeriesArray) {
-    for (const field of dataSeriesDataFieldNames) {
-      const value = formData.dataSeriesArray[field];
-
-      if (isNullOrUndefined(value)) {
-        dataSeriesArray[field] = null;
-      } else if (isString(value)) {
-        const parsed = parseFloat(value);
-        dataSeriesArray[field] = Number.isFinite(parsed) ? parsed : null;
-      } else if (isNumber(value)) {
-        dataSeriesArray[field] = value;
-      } else {
-        dataSeriesArray[field] = null;
-      }
-    }
-  }
-
   // Create goal
   try {
     const newGoal = await prisma.goal.create({
@@ -328,41 +312,23 @@ export async function PUT(request: NextRequest) {
       }),
       prisma.goal.findUnique({
         where: { id: goal.goalId },
-        select: {
-          updatedAt: true,
-          roadmap: {
-            select: {
-              author: { select: { id: true, username: true } },
-              editors: { select: { id: true, username: true } },
-              viewers: { select: { id: true, username: true } },
-              editGroups: { include: { users: { select: { id: true, username: true } } } },
-              viewGroups: { include: { users: { select: { id: true, username: true } } } },
-              isPublic: true,
-            }
-          },
-        }
+        include: goalInclusionSelection,
       }),
     ]);
 
     // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
     if (!user || (session.user.isAdmin && !user.isAdmin)) {
       throw new Error(ClientError.BadSession, { cause: 'goal' });
-    } revalidateTag
+    }
 
     // If no goal is found or the user has no access to it, return AccessDenied
     if (!currentGoal) {
       throw new Error(ClientError.AccessDenied, { cause: 'goal' });
     }
-    const accessFields: AccessControlled = {
-      author: currentGoal.roadmap.author,
-      editors: currentGoal.roadmap.editors,
-      viewers: currentGoal.roadmap.viewers,
-      editGroups: currentGoal.roadmap.editGroups,
-      viewGroups: currentGoal.roadmap.viewGroups,
-      isPublic: currentGoal.roadmap.isPublic,
-    }
-    const accessLevel = accessChecker(accessFields, session.user)
-    if (accessLevel === AccessLevel.None || accessLevel === AccessLevel.View) {
+
+    // Check if the user has the right to edit the goal
+    const access = accessChecker(currentGoal.roadmap, { ...user, userGroups: user.userGroups.map(g => g.id) });
+    if (access !== AccessLevel.Author && access !== AccessLevel.Edit) {
       throw new Error(ClientError.AccessDenied, { cause: 'goal' });
     }
 
@@ -472,17 +438,8 @@ export async function DELETE(request: NextRequest) {
         select: { id: true, username: true, isAdmin: true, userGroups: true }
       }),
       prisma.goal.findUnique({
-        where: {
-          id: goal.id,
-          ...(session.user.isAdmin ? {} : {
-            OR: [
-              // Either the goal, roadmap or meta roadmap must be authored by the user unless they are an admin
-              { authorId: session.user.id },
-              { roadmap: { authorId: session.user.id } },
-              { roadmap: { metaRoadmap: { authorId: session.user.id } } },
-            ]
-          })
-        },
+        where: { id: goal.id },
+        include: goalInclusionSelection,
       }),
     ]);
 
@@ -493,6 +450,12 @@ export async function DELETE(request: NextRequest) {
 
     // If the goal is not found it either does not exist or the user has no access to it
     if (!currentGoal) {
+      throw new Error(ClientError.AccessDenied, { cause: 'goal' });
+    }
+
+    // Check if the user has the right to delete the goal
+    const access = accessChecker(currentGoal.roadmap, { ...user, userGroups: user.userGroups.map(g => g.id) });
+    if (access !== AccessLevel.Author && access !== AccessLevel.Edit) {
       throw new Error(ClientError.AccessDenied, { cause: 'goal' });
     }
   } catch (error) {

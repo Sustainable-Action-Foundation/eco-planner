@@ -2,7 +2,6 @@
 
 import { clientSafeGoalSelection } from "@/fetchers/inclusionSelectors";
 import { getSession, LoginData } from "@/lib/session"
-import { effectSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
 import { Prisma } from "@prisma/client";
 import { cookies } from "next/headers";
@@ -41,8 +40,6 @@ async function clientSafeGetCachedGoal(id: string, user: LoginData['user']) {
       return null
     }
 
-    goal?.effects.sort(effectSorter);
-
     return goal;
   }
 
@@ -71,8 +68,6 @@ async function clientSafeGetCachedGoal(id: string, user: LoginData['user']) {
       return null
     }
 
-    goal?.effects.sort(effectSorter);
-
     return goal;
   }
 
@@ -90,8 +85,6 @@ async function clientSafeGetCachedGoal(id: string, user: LoginData['user']) {
     console.log('Error fetching public goal');
     return null
   }
-
-  goal?.effects.sort(effectSorter);
 
   return goal;
 }

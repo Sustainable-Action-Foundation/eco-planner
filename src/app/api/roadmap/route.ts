@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
       const goalArray = await Promise.all(roadmap.inheritFromIds.map(async (id) => await getOneGoal(id)));
       //getOneRoadmap(roadmap.inheritFromId);
       if (goalArray) {
-        roadmap.goals = [...(roadmap.goals || []), ...goalInputFromGoalArray(goalArray)];
+        roadmap.goals = [...(roadmap.goals || []), ...goalInputFromGoalArray(goalArray, roadmap.metaRoadmapId)];
       }
     } catch (error) {
       console.log(error);

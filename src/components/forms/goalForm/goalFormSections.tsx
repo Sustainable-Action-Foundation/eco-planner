@@ -17,13 +17,6 @@ export function ManualGoalForm({
 }: {
   currentGoal?: Goal & {
     dataSeries: DataSeries | null,
-    combinationScale: string | null,
-    combinationParents: {
-      isInverted: boolean,
-      parentGoal: {
-        dataSeries: DataSeries | null
-      }
-    }[],
     author: { id: string, username: string },
     links?: { url: string, description: string | null }[],
     roadmap: { id: string },
@@ -81,15 +74,6 @@ export function InheritedGoalForm({
 }: {
   currentGoal?: Goal & {
     dataSeries: DataSeries | null,
-    combinationScale: string | null,
-    combinationParents: {
-      isInverted: boolean,
-      parentGoal: {
-        id: string,
-        dataSeries: DataSeries | null,
-        roadmapId: string,
-      }
-    }[],
     author: { id: string, username: string },
     links?: { url: string, description: string | null }[],
     roadmap: { id: string },
@@ -97,19 +81,13 @@ export function InheritedGoalForm({
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
 }) {
   const { t } = useTranslation(["forms", "common"]);
-  const [selectedRoadmap, setSelectedRoadmap] = useState(currentGoal?.combinationParents[0]?.parentGoal.roadmapId);
+  const [selectedRoadmap, setSelectedRoadmap] = useState<string | undefined>();
   const [roadmapData, setRoadmapData] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
-  const [selectedGoal, setSelectedGoal] = useState(currentGoal?.combinationParents[0]?.parentGoal.id);
+  const [selectedGoal, setSelectedGoal] = useState<string | undefined>();
   const [goalData, setGoalData] = useState<Awaited<ReturnType<typeof clientSafeGetOneGoal>>>(null);
   const [parsedUnit, setParsedUnit] = useState<string | null>(null);
 
   useEffect(() => {
-    if (currentGoal?.combinationParents[0]?.parentGoal.roadmapId) {
-      setSelectedRoadmap(currentGoal.combinationParents[0].parentGoal.roadmapId);
-    }
-    if (currentGoal?.combinationParents[0]?.parentGoal.id) {
-      setSelectedGoal(currentGoal.combinationParents[0].parentGoal.id);
-    }
     if (currentGoal?.dataSeries?.unit) {
       try {
         setParsedUnit(mathjs.unit(currentGoal.dataSeries.unit).toString());
@@ -190,15 +168,6 @@ export function CombinedGoalForm({
   roadmapId?: string,
   currentGoal?: Goal & {
     dataSeries: DataSeries | null,
-    combinationScale: string | null,
-    combinationParents: {
-      isInverted: boolean,
-      parentGoal: {
-        id: string,
-        dataSeries: DataSeries | null,
-        roadmapId: string,
-      }
-    }[],
     author: { id: string, username: string },
     links?: { url: string, description: string | null }[],
     roadmap: { id: string },
@@ -214,9 +183,6 @@ export function CombinedGoalForm({
   }, [roadmapId]);
 
   useEffect(() => {
-    if (currentGoal?.combinationParents) {
-      setInheritFrom(currentGoal.combinationParents.map((parent) => parent.parentGoal.id));
-    }
     if (currentGoal?.dataSeries?.unit) {
       try {
         setParsedUnit(mathjs.unit(currentGoal.dataSeries.unit).toString());
@@ -261,7 +227,6 @@ export function CombinedGoalForm({
             <Fragment key={`combine-${goal.id}`}>
               <label className="block margin-block-25">
                 <input type="checkbox" name="inheritFrom" className="margin-inline-25" value={goal.id}
-                  defaultChecked={currentGoal?.combinationParents.some((parent) => parent.parentGoal.id == goal.id)}
                   onChange={(e) => {
                     if (e.target.checked) {
                       setInheritFrom([...inheritFrom, e.target.value]);
@@ -276,7 +241,6 @@ export function CombinedGoalForm({
               {inheritFrom?.includes(goal.id) &&
                 <label className="block margin-block-25" style={{ marginLeft: 25 }}>
                   <input type="checkbox" name="invert-inherit" className="margin-inline-25" value={goal.id}
-                    defaultChecked={currentGoal?.combinationParents.some((parent) => parent.parentGoal.id == goal.id && parent.isInverted)}
                   />
                   {t("forms:goal.invert_goal")}
                 </label>

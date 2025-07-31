@@ -266,71 +266,15 @@ export const clientSafeGoalSelection /* Prisma.GoalSelect */ = {
   externalTableId: true,
   externalSelection: true,
   roadmapId: true,
-  _count: { select: { effects: true } },
   dataSeries: {
     select: {
       id: true,
       unit: true,
-      // All yearly data fields
       ...dataFieldSelector,
     }
   },
-  baselineDataSeries: {
-    select: {
-      id: true,
-      unit: true,
-      // All yearly data fields
-      ...dataFieldSelector,
-    }
-  },
-  effects: {
-    select: {
-      impactType: true,
-      actionId: true,
-      goalId: true,
-      action: {
-        select: {
-          id: true,
-          name: true,
-          description: true,
-        },
-      },
-      dataSeries: {
-        select: {
-          id: true,
-          unit: true,
-          // All yearly data fields
-          ...dataFieldSelector,
-        }
-      },
-    }
-  },
-  roadmap: {
-    select: {
-      id: true,
-      version: true,
-      targetVersion: true,
-      metaRoadmap: {
-        select: {
-          id: true,
-          name: true,
-          parentRoadmapId: true,
-        },
-      },
-    },
-  },
-  links: true,
-  comments: {
-    select: {
-      id: true,
-      commentText: true,
-      actionId: true,
-      goalId: true,
-      roadmapId: true,
-      metaRoadmapId: true,
-    },
-  },
-};
+  _count: { select: { effects: true } },
+}
 
 export const actionInclusionSelection /* Prisma.ActionInclude */ = {
   effects: {
