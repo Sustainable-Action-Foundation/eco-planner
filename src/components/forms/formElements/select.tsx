@@ -17,22 +17,23 @@ export function SelectSingleSearch({
  
   return (
     <div className="position-relative" style={{userSelect: 'none'}}>
-      <div className="focusable">
-        <span
+        <button 
+          type="button"
           onClick={() => setMenuOpen(!menuOpen)}
           id="combo1"
           tabIndex={0}
           aria-controls="listbox1"
           aria-expanded={menuOpen}
-          aria-haspopup="listbox"
+          aria-haspopup="listbox" // TODO: Should open dialog
           aria-labelledby=""
           aria-activedescendant=""
           role="combobox"
         >
           {value}
-        </span> 
         <IconSelector />
-      </div>
+      </button> 
+      {/* TODO: Listbox should be a child of a dialog which the button opens. */}
+      {/* TODO: Additionally, the listbox should be controlled by a search input which gets focus as soon as we press our buttons */} 
       <ul
         role="listbox"
         id="listbox1"
