@@ -1,14 +1,14 @@
 'use client';
 
 import { closeModal, openModal } from "./modalFunctions";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { GoalCreateInput, Goal, dataSeriesDataFieldNames } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
 import { DataSeriesArray, RawRecipe } from "@/functions/recipe-parser/types";
-import { evaluateRecipe, parseRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
-import { RecipeContextProvider, RecipeEditor, RecipeSuggestions, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "../recipe/recipeEditor";
+import { recipeFromUnknown } from "@/functions/parseRecipe";
+import { RecipeContextProvider, RecipeSuggestions, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "../recipe/recipeEditor";
 
 export default function CopyAndScale({
   goal,
@@ -21,12 +21,12 @@ export default function CopyAndScale({
   const [isLoading, setIsLoading] = useState(false);
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
-  // TODO - remove. This is a debugging measure.
-  useEffect(() => {
-    if (modalRef.current) {
-      openModal(modalRef)
-    }
-  }, []);
+  // // TODO - remove. This is a debugging measure.
+  // useEffect(() => {
+  //   if (modalRef.current) {
+  //     openModal(modalRef)
+  //   }
+  // }, []);
 
   async function formSubmission(form: FormData) {
     setIsLoading(true);
