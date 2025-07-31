@@ -40,9 +40,9 @@ export default function ConfirmDelete({
       alert("Deletion failed: No target ID provided. This shouldn't happen, so please report this to the developers.");
       console.error(`No target ID provided in 'ConfirmDelete' for deletion of ${targetName} (sending to ${targetUrl})`);
     } else if (typeof targetId === "string") {
-      formSubmitter(targetUrl, JSON.stringify({ id: targetId }), "DELETE", setIsLoading)
+      formSubmitter(targetUrl, JSON.stringify({ id: targetId }), "DELETE", t, setIsLoading)
     } else if (typeof targetId === "object") {
-      formSubmitter(targetUrl, JSON.stringify(targetId), "DELETE", setIsLoading, window?.location?.href)
+      formSubmitter(targetUrl, JSON.stringify(targetId), "DELETE", t, setIsLoading, window?.location?.href)
     }
     closeModal(modalRef);
   };

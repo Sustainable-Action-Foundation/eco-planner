@@ -67,7 +67,7 @@ export default function QueryBuilder({
           tables.length <= renderedTablesListMaxLength + initialRenderingMargin
             ?
             tables.length
-            : /* Otherwhise, only show the first (100) tables. */
+            : /* Otherwise, only show the first (100) tables. */
             renderedTablesListMaxLength
         ));
       setOffset(0);
@@ -126,7 +126,7 @@ export default function QueryBuilder({
       externalTableId: null,
       externalSelection: null,
       timestamp: Date.now(),
-    }), "PUT", setIsLoading);
+    }), "PUT", t, setIsLoading);
     closeModal(modalRef);
   }
 
@@ -149,7 +149,7 @@ export default function QueryBuilder({
       externalTableId: formData.get("externalTableId"),
       externalSelection: JSON.stringify(query),
       timestamp: Date.now(),
-    }), "PUT", setIsLoading);
+    }), "PUT", t, setIsLoading);
   }
 
   function enableSubmitButton() {
@@ -276,10 +276,10 @@ export default function QueryBuilder({
     setIsLoading(true);
     const isDefaultValue = event.target.value.length == 0;
     setDefaultMetricSelected(isDefaultValue);
-    const variableSelectionFieldsets = document?.getElementsByName("variableSelectionFieldset");
+    const variableSelectionFieldSets = document?.getElementsByName("variableSelectionFieldset");
 
-    if (variableSelectionFieldsets.length > 0) {
-      variableSelectionFieldsets.forEach(variableSelectionFieldset => {
+    if (variableSelectionFieldSets.length > 0) {
+      variableSelectionFieldSets.forEach(variableSelectionFieldset => {
         if (!isDefaultValue && variableSelectionFieldset.hasAttribute("disabled")) {
           variableSelectionFieldset.removeAttribute("disabled");
         }
@@ -352,7 +352,7 @@ export default function QueryBuilder({
           {// Only display "optional" tags if the data source provides this information
           }
           {variable.label[0].toUpperCase() + variable.label.slice(1)}{optionalTag(dataSource, variable.optional)}
-          {// TODO: Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
+          {// TODO: Use CSS to set proper capitalization of labels; something like `label::first-letter { text-transform: capitalize; }`}
           }
           <select className={`block margin-block-25 ${variable.label}`}
             required={!variable.optional}
@@ -458,7 +458,7 @@ export default function QueryBuilder({
         <p className="padding-inline-100">{t("components:query_builder.add_data_to_goal", { goalName: goal.name ?? goal.indicatorParameter })}</p>
 
         <form ref={formRef} onChange={formChange} onSubmit={handleSubmit}>
-          {/* Hidden disabled submit button to prevent accidental submisson */}
+          {/* Hidden disabled submit button to prevent accidental submission */}
           <button type="submit" className="display-none" disabled></button>
           <strong
             id="loader"
@@ -624,7 +624,7 @@ export default function QueryBuilder({
               )
             }
           </output>
-          {/* TODO: Should prbly only be displayed on last slide? */}
+          {/* TODO: Should probably only be displayed on last slide? */}
           <button
             id="submit-button"
             disabled={true}

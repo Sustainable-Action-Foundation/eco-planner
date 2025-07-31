@@ -146,7 +146,7 @@ export default function GoalForm({
     } as GoalCreateInput);
 
     // Submit the form to the API (POST for new, PUT for edit)
-    formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST');
+    formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST', t);
   }
 
   // Prepare data series string for default value (if editing)

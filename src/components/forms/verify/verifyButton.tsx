@@ -11,7 +11,7 @@ export default function VerifyButton() {
 		const email = params.get('email')
 		const hash = params.get('hash')
 
-		formSubmitter('/api/verify', JSON.stringify({ email, hash }), 'PATCH')
+		formSubmitter('/api/verify', JSON.stringify({ email, hash }), 'PATCH', t)
 	}
 
 	return (

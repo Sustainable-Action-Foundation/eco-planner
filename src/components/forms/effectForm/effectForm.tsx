@@ -77,7 +77,7 @@ export default function EffectForm({
       defaultLocation = `/action/${selectedAction}`;
     }
 
-    formSubmitter('/api/effect', formJSON, currentEffect ? 'PUT' : 'POST', undefined, defaultLocation);
+    formSubmitter('/api/effect', formJSON, currentEffect ? 'PUT' : 'POST', t, undefined, defaultLocation);
   }
 
   const timestamp = Date.now();

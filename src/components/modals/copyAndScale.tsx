@@ -81,7 +81,7 @@ export default function CopyAndScale({
 
     const formJSON = JSON.stringify(formData);
 
-    formSubmitter('/api/goal', formJSON, 'POST', setIsLoading);
+    formSubmitter('/api/goal', formJSON, 'POST', t, setIsLoading);
   }
 
   return (
