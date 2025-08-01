@@ -9,13 +9,17 @@ import { getTrafaSearchQueryString } from "./trafaUtility.ts";
 // This means that everything here in the `trafa` folder is somewhat useless for international implementations,
 // but can be useful to show how to implement a new data provider which doesn't follow the pxWebV2 standard.
 
-export default async function getTrafaTableContent(tableId: string, selection: { variableCode: string, valueCodes: string[] }[], language?: "sv" | "en") {
+export default async function getTrafaTableContent(tableId: string, selection: { variableCode: string, valueCodes: string[] }[], language?: string) {
   const searchQuery = getTrafaSearchQueryString(selection);
 
   const url = new URL('./data', externalDatasets.Trafa?.baseUrl);
   url.searchParams.append('query', tableId + searchQuery);
-  language = "sv"
-  if (language) url.searchParams.append('lang', language);
+  if (!language || !externalDatasets["Trafa"]?.supportedLanguages.includes(language)) {
+    language = externalDatasets["Trafa"]?.supportedLanguages[0];
+  }
+  if (language) {
+    url.searchParams.append('lang', language);
+  }
 
   let data: TrafaDataResponse | null = null;
 

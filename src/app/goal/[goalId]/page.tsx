@@ -28,6 +28,7 @@ import { notFound } from "next/navigation";
 import getTableContent from "@/lib/api/getTableContent";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconAlertTriangle } from "@tabler/icons-react";
+import i18nServer from "i18next";
 
 export async function generateMetadata(props: {
   params: Promise<{ goalId: string }>,
@@ -74,8 +75,6 @@ export default async function Page(
     props.params,
     props.searchParams
   ]);
-  // TODO: Use user locale instead of hardcoded value
-  const locale = "sv";
 
   const [t, session, { goal, roadmap }, secondaryGoal, unfilteredRoadmapOptions] = await Promise.all([
     serveTea("pages"),
@@ -84,6 +83,8 @@ export default async function Page(
     typeof searchParams.secondaryGoal == "string" ? getOneGoal(searchParams.secondaryGoal) : Promise.resolve(null),
     getRoadmaps(),
   ]);
+
+  const locale = i18nServer.language.split("-")[0];
 
   let accessLevel: AccessLevel = AccessLevel.None;
   if (goal) {
