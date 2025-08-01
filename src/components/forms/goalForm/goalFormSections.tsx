@@ -24,7 +24,7 @@ export function ManualGoalForm({
   dataSeriesString?: string,
 }) {
   const { t } = useTranslation("forms");
-  const [parsedUnit, setParsedUnit] = useState<string | null>(null);
+  const [parsedUnit, setParsedUnit] = useState<string | null>("");
 
   useEffect(() => {
     if (currentGoal?.dataSeries?.unit) {
@@ -47,14 +47,20 @@ export function ManualGoalForm({
         {t("forms:goal.data_unit")}
         <input className="margin-block-25" type="text" name="dataUnit" id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit ?? undefined} onChange={(e) => {
           try {
-            setParsedUnit(mathjs.unit(e.target.value).toString());
+            if (e.target.value === "") {
+              setParsedUnit("");
+            }
+            else {
+              setParsedUnit(mathjs.unit(e.target.value).toString());
+            }
           } catch {
             setParsedUnit(null);
           }
         }} />
-        {parsedUnit ?
+        {parsedUnit?.length === 0 ? <></> : parsedUnit === null ?
+          <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_not_interpreted")}</small>
+          :
           <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></small>
-          : <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_not_interpreted")}</small>
         }
       </label>
 
