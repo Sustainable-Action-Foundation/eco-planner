@@ -32,8 +32,8 @@ import { useTranslation } from "react-i18next"; // i18n hook
 import DataSeriesInput from "../dataSeriesInput/dataSeriesInput"; // For entering data series
 import { getDataSeries } from "../dataSeriesInput/utils"; // Helper for extracting data series from form
 import styles from '../forms.module.css'; // CSS module for styling
-import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections"; // Sub components for form sections
-import { RecipeContextProvider, RecipeEditor, ResultingDataSeries } from "@/components/recipe/recipeEditor";
+import { InheritingBaseline, ManualGoalForm } from "./goalFormSections"; // Sub components for form sections
+import { DEBUG_RecipeOutput, RecipeContextProvider, RecipeEquationEditor, RecipeErrorAndWarnings, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/recipeEditor";
 
 // Enum for selecting the type of data series for the goal
 enum DataSeriesType {
@@ -68,9 +68,10 @@ export default function GoalForm({
   const { t } = useTranslation(["forms", "common"]); // i18n translation hook
 
   // State for the type of data series (static, inherited, combined)
-  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(DataSeriesType.Static)
+  const defaultDataSeriesType = DataSeriesType.Inherited;
+  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(defaultDataSeriesType);
   // State for the type of baseline (initial, custom, inherited)
-  const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baselineDataSeries ? BaselineType.Custom : BaselineType.Initial)
+  const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baselineDataSeries ? BaselineType.Custom : BaselineType.Initial);
   // State for the selected roadmap (if not already fixed)
   const [selectedRoadmap, setSelectedRoadmap] = useState<string>(currentGoal?.roadmapId || roadmapId || "");
 
@@ -189,22 +190,6 @@ export default function GoalForm({
           : null
         }
 
-        {/* Data series type selection (static, inherited, combined) */}
-        <fieldset className={`${styles.timeLineFieldset} width-100 ${positionIndex > 1 ? "margin-top-200" : ""}`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend}  font-weight-bold`}>{t("forms:goal.data_series_type_legend")}</legend>
-          <label className="block margin-block-100">
-            {t("forms:goal.data_series_type_label")}
-            <select name="dataSeriesType" id="dataSeriesType" className="block margin-block-25" required
-              defaultValue={DataSeriesType.Static}
-              onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
-            >
-              <option value={DataSeriesType.Static}>{t("forms:goal.data_series_types.static")}</option>
-              <option value={DataSeriesType.Inherited}>{t("forms:goal.data_series_types.inherited")}</option>
-              <option value={DataSeriesType.Combined}>{t("forms:goal.data_series_types.combined")}</option>
-            </select>
-          </label>
-        </fieldset>
-
         {/* Goal name and description */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:goal.goal_description_legend")}</legend>
@@ -219,30 +204,54 @@ export default function GoalForm({
           </label>
         </fieldset>
 
+        {/* Data series type selection (static, inherited, combined) */}
+        <fieldset className={`${styles.timeLineFieldset} width-100 ${positionIndex > 1 ? "margin-top-200" : ""}`}>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend}  font-weight-bold`}>{t("forms:goal.data_series_type_legend")}</legend>
+          <label className="block margin-block-100">
+            {t("forms:goal.data_series_type_label")}
+            <select name="dataSeriesType" id="dataSeriesType" className="block margin-block-25" required
+              defaultValue={defaultDataSeriesType}
+              onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
+            >
+              <option value={DataSeriesType.Static}>{t("forms:goal.data_series_types.static")}</option>
+              <option value={DataSeriesType.Inherited}>{t("forms:goal.data_series_types.inherited")}</option>
+              <option value={DataSeriesType.Combined}>{t("forms:goal.data_series_types.combined")}</option>
+            </select>
+          </label>
+        </fieldset>
+
         {/* Data series input section (varies by type) */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:goal.choose_goal_data_series")}</legend>
+
           {(dataSeriesType === DataSeriesType.Static || !dataSeriesType) &&
             <ManualGoalForm currentGoal={currentGoal} dataSeriesString={dataSeriesString} />
           }
 
-          {dataSeriesType === DataSeriesType.Inherited &&
-            <InheritedGoalForm currentGoal={currentGoal} roadmapAlternatives={roadmapAlternatives} />
-          }
-
-          {dataSeriesType === DataSeriesType.Combined &&
-            <CombinedGoalForm currentGoal={currentGoal} roadmapId={currentGoal?.roadmapId || roadmapId || selectedRoadmap} />
-          }
-
           {/* Scaling section for inherited/combined goals */}
           {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
-            <fieldset className="padding-50 smooth position-relative" style={{ border: '1px solid var(--gray-90)' }}>
-              <legend>{t("forms:goal.scaling_legend")}</legend>
+            <label>
               <RecipeContextProvider>
-                <RecipeEditor />
-                <ResultingDataSeries />
+                <RecipeEquationEditor 
+                  initialEquation={"${Hihi}"}
+                />
+
+                <RecipeErrorAndWarnings />
+
+                <RecipeVariableEditor
+                  allowAddVariables
+                  allowDeleteVariables
+                  allowNameEditing
+                  allowTypeEditing
+                  allowValueEditing
+                />
+
+                <ResultingDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />
+                <ResultingRecipe FormElement={<input type="hidden" name="resultingRecipe" />} />
+
+                <DEBUG_RecipeOutput />
               </RecipeContextProvider>
-            </fieldset>
+            </label>
           }
         </fieldset>
 

@@ -49,7 +49,7 @@ export function RecipeContextProvider({
         setResultingDataSeries(evaluatedRecipe);
         setWarnings(currentWarnings);
         setError(null);
-            } catch (e: unknown) {
+      } catch (e: unknown) {
         setResultingDataSeries(null);
         setError((e as Error).message);
         setWarnings([]);
@@ -110,75 +110,19 @@ export function RecipeSuggestions({
   </>);
 }
 
-export function RecipeEditor() {
-  return (<>
-    <RecipeEquationEditor />
-    <RecipeErrorAndWarnings />
-    <RecipeVariableEditor
-      allowAddVariables
-      allowDeleteVariables
-      allowNameEditing
-      allowTypeEditing
-    />
-  </>);
-}
 
-export function ResultingDataSeries({ FormElement }: { FormElement?: ReactElement }) {
-  const { t } = useTranslation("components");
-  const { resultingDataSeries } = useRecipe();
 
-  const data = resultingDataSeries ? Object.fromEntries(Object.entries(resultingDataSeries).filter(([key]) => key !== 'unit')) : {};
-
-  if (!resultingDataSeries) {
-    return null;
-  }
-
-  return (
-    <div className="margin-inline-auto width-100">
-      {/* Hidden input for reading into the form */}
-      {FormElement && <FormElement.type {...(FormElement.props || {})} value={JSON.stringify(resultingDataSeries)} />}
-
-      {/* Title */}
-      <strong className="block bold text-align-center">
-        {t("components:copy_and_scale.resulting_data_series")}
-        {/* Unit */}
-        {resultingDataSeries?.unit ? ` (${resultingDataSeries.unit})` : ""}
-      </strong>
-
-      {/* Table to display resulting data series */}
-      <table className="margin-block-100 block width-100 overflow-x-scroll">
-        <thead>
-          <tr>
-            <th className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_year")}</th>
-            {Object.keys(data).map((year, i) => (
-              <th className="padding-50 text-align-center" key={i + "resulting-data-series-header" + year}>{year.replace("val", "")}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_value")}</td>
-            {Object.values(data).map((value, i) => (
-              <td className="padding-50 text-align-center" key={i + "resulting-data-series-value" + value}>{(value as number)?.toFixed(1) || "-"}</td>
-            ))}
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  )
-}
-
-export function ResultingRecipe({ FormElement }: { FormElement?: ReactElement }) {
-  const { recipe } = useRecipe();
-
-  return (<>
-    {FormElement && <FormElement.type {...(FormElement.props || {})} value={JSON.stringify(recipe)} />}
-  </>);
-}
-
-export function RecipeEquationEditor() {
+export function RecipeEquationEditor({
+  initialEquation,
+}: {
+  initialEquation?: string;
+}) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
+
+  if (!recipe) {
+    setRecipe({ eq: initialEquation || "", variables: {} });
+  }
 
   return (<>
     <label className="block margin-block-50">
@@ -193,6 +137,11 @@ export function RecipeEquationEditor() {
       />
     </label>
   </>)
+}
+
+export function DEBUG_RecipeOutput() {
+  const { recipe } = useRecipe();
+  return JSON.stringify(recipe, null, 2) || "No recipe set";
 }
 
 export function RecipeVariableEditor({
@@ -212,7 +161,7 @@ export function RecipeVariableEditor({
   const { recipe, setRecipe } = useRecipe();
 
   const variables = recipe?.variables;
-  if (!variables) {
+  if (!variables && !allowAddVariables) {
     return null;
   }
 
@@ -220,7 +169,7 @@ export function RecipeVariableEditor({
     <div className="margin-inline-auto width-100">
       {t("components:copy_and_scale.recipe_variables")}
       <ul className="list-style-none padding-0">
-        {Object.entries(variables).map(([name, variable]) => (
+        {Object.entries(variables || []).map(([name, variable]) => (
           <li key={name} className="display-flex align-items-center gap-50 margin-block-25">
             {/* Name display */}
             <input
@@ -229,6 +178,20 @@ export function RecipeVariableEditor({
               style={{ width: '15ch' }}
               readOnly={!allowNameEditing}
               disabled={!allowNameEditing}
+              onChange={(e) => {
+                setRecipe(prev => {
+                  if (!prev) return null;
+                  const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+                  if (e.target.value !== name) {
+                    newVariables[e.target.value] = { ...newVariables[name] };
+                    delete newVariables[name];
+                  }
+                  return {
+                    ...prev,
+                    variables: newVariables,
+                  };
+                });
+              }}
             />
 
             {/* Type selection */}
@@ -316,7 +279,7 @@ export function RecipeVariableEditor({
       {/* Add variable */}
       {allowAddVariables &&
         <button type="button" onClick={() => {
-          const newVarName = `var${Object.keys(variables).length + 1}`;
+          const newVarName = `var${Object.keys(variables || []).length + 1}`;
           setRecipe(prev => {
             if (!prev) return null;
             return {
@@ -338,7 +301,7 @@ export function RecipeVariableEditor({
   </>);
 }
 
-function RecipeErrorAndWarnings() {
+export function RecipeErrorAndWarnings() {
   const { t } = useTranslation("components");
   const { error, warnings } = useRecipe();
 
@@ -360,5 +323,62 @@ function RecipeErrorAndWarnings() {
         </ul>
       </div>
     )}
+  </>);
+}
+
+
+/* 
+ * Form interacting components
+ */
+export function ResultingDataSeries({ FormElement }: { FormElement?: ReactElement }) {
+  const { t } = useTranslation("components");
+  const { resultingDataSeries } = useRecipe();
+
+  const data = resultingDataSeries ? Object.fromEntries(Object.entries(resultingDataSeries).filter(([key]) => key !== 'unit')) : {};
+
+  if (!resultingDataSeries) {
+    return null;
+  }
+
+  return (
+    <div className="margin-inline-auto width-100">
+      {/* Hidden input for reading into the form */}
+      {FormElement && <FormElement.type {...(FormElement.props || {})} value={JSON.stringify(resultingDataSeries)} />}
+
+      {/* Title */}
+      <strong className="block bold text-align-center">
+        {t("components:copy_and_scale.resulting_data_series")}
+        {/* Unit */}
+        {resultingDataSeries?.unit ? ` (${resultingDataSeries.unit})` : ""}
+      </strong>
+
+      {/* Table to display resulting data series */}
+      <table className="margin-block-100 block width-100 overflow-x-scroll">
+        <thead>
+          <tr>
+            <th className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_year")}</th>
+            {Object.keys(data).map((year, i) => (
+              <th className="padding-50 text-align-center" key={i + "resulting-data-series-header" + year}>{year.replace("val", "")}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_value")}</td>
+            {Object.values(data).map((value, i) => (
+              <td className="padding-50 text-align-center" key={i + "resulting-data-series-value" + value}>{(value as number)?.toFixed(1) || "-"}</td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+export function ResultingRecipe({ FormElement }: { FormElement?: ReactElement }) {
+  const { recipe } = useRecipe();
+
+  return (<>
+    {FormElement && <FormElement.type {...(FormElement.props || {})} value={JSON.stringify(recipe)} />}
   </>);
 }
