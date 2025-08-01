@@ -169,23 +169,27 @@ export function RecipeVariableEditor({
     <div className="margin-inline-auto width-100">
       {t("components:copy_and_scale.recipe_variables")}
       <ul className="list-style-none padding-0">
-        {Object.entries(variables || []).map(([name, variable]) => (
-          <li key={name} className="display-flex align-items-center gap-50 margin-block-25">
+        {Object.entries(variables || []).map(([name, variable], i) => (
+          <li key={i} className="display-flex align-items-center gap-50 margin-block-25">
             {/* Name display */}
             <input
               type="text"
-              defaultValue={name}
+              value={name}
               style={{ width: '15ch' }}
               readOnly={!allowNameEditing}
               disabled={!allowNameEditing}
               onChange={(e) => {
                 setRecipe(prev => {
                   if (!prev) return null;
-                  const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
-                  if (e.target.value !== name) {
-                    newVariables[e.target.value] = { ...newVariables[name] };
-                    delete newVariables[name];
-                  }
+                  const newName = e.target.value;
+                  const newVariables = Object.fromEntries(
+                    Object.entries(prev.variables).map(([key, value], index) => {
+                      if (index === i) {
+                        return [newName, value];
+                      }
+                      return [key, value];
+                    })
+                  );
                   return {
                     ...prev,
                     variables: newVariables,
@@ -229,7 +233,7 @@ export function RecipeVariableEditor({
             <input
               type="text"
               value={
-                variable.type === RecipeVariableType.Scalar ? variable.value :
+                variable.type === RecipeVariableType.Scalar ? variable.value.toString() :
                   variable.type === RecipeVariableType.DataSeries && 'link' in variable ? variable.link :
                     'Data Series'
               }
@@ -245,6 +249,8 @@ export function RecipeVariableEditor({
                     const newValue = parseFloat(e.target.value);
                     if (!isNaN(newValue)) {
                       newVariables[name] = { ...currentVar, value: newValue };
+                    } else if (e.target.value === "") {
+                      newVariables[name] = { ...currentVar, value: 0 };
                     }
                   } else if (currentVar.type === RecipeVariableType.DataSeries && 'link' in currentVar) {
                     newVariables[name] = { ...currentVar, link: e.target.value };
@@ -259,10 +265,10 @@ export function RecipeVariableEditor({
             {/* Delete variable */}
             {allowDeleteVariables &&
               <button type="button" className="red" onClick={() => {
-                const newVars = { ...variables };
-                delete newVars[name];
                 setRecipe(prev => {
                   if (!prev) return null;
+                  const newVars = { ...prev.variables };
+                  delete newVars[name];
                   return {
                     ...prev,
                     variables: newVars
