@@ -33,7 +33,8 @@ import DataSeriesInput from "../dataSeriesInput/dataSeriesInput"; // For enterin
 import { getDataSeries } from "../dataSeriesInput/utils"; // Helper for extracting data series from form
 import styles from '../forms.module.css'; // CSS module for styling
 import { InheritingBaseline, ManualGoalForm } from "./goalFormSections"; // Sub components for form sections
-import { DEBUG_RecipeOutput, RecipeContextProvider, RecipeEquationEditor, RecipeErrorAndWarnings, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/recipeEditor";
+import { DEBUG_RecipeOutput, RecipeContextProvider, RecipeEquationEditor, RecipeErrorAndWarnings, RecipeSuggestions, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/recipeEditor";
+import { RecipeVariableType } from "@/functions/recipe-parser/types";
 
 // Enum for selecting the type of data series for the goal
 enum DataSeriesType {
@@ -230,11 +231,33 @@ export default function GoalForm({
 
           {/* Scaling section for inherited/combined goals */}
           {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
-            <label>
-              <RecipeContextProvider>
-                <RecipeEquationEditor 
-                  initialEquation={"${Hihi}"}
-                />
+            <label className="width-100">
+              <RecipeContextProvider
+                initialRecipe={{
+                  eq: "[[1,2],[3,4]] * [5,NaN]",
+                  variables: { "Hihi": { type: RecipeVariableType.Scalar, value: 123 } }
+                }}
+              >
+                <RecipeSuggestions suggestedRecipes={[
+                  {
+                    hash: "asd", recipe: {
+                      name: t("forms:goal.default_scaling_recipe"),
+                      eq: "${Hihi}",
+                      variables: { "Hihi": { type: RecipeVariableType.Scalar, value: 123 } }
+                    },
+                  },
+                  {
+                    hash: "asd2",
+                    recipe:
+                    {
+                      name: t("forms:goal.default_combination_recipe"),
+                      eq: "${Hihi} + ${Hihi}",
+                      variables: { "Hihi": { type: RecipeVariableType.Scalar, value: 123 } }
+                    }
+                  }
+                ]} />
+
+                <RecipeEquationEditor />
 
                 <RecipeErrorAndWarnings />
 

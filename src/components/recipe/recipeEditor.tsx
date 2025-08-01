@@ -24,8 +24,10 @@ export function useRecipe() {
 }
 
 export function RecipeContextProvider({
+  initialRecipe,
   children,
 }: {
+  initialRecipe?: RawRecipe;
   children: React.ReactNode;
 }) {
   const [recipe, setRecipe] = useState<RawRecipe | null>(null);
@@ -34,6 +36,12 @@ export function RecipeContextProvider({
   const [resultingDataSeries, setResultingDataSeries] = useState<DataSeriesArray | null>(null);
 
   useEffect(() => {
+    if (initialRecipe) {
+      setRecipe(initialRecipe);
+      setWarnings([]);
+      setError(null);
+      setResultingDataSeries(null);
+    }
     if (!recipe) {
       setResultingDataSeries(null);
       setError(null);
@@ -120,9 +128,11 @@ export function RecipeEquationEditor({
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
 
-  if (!recipe) {
-    setRecipe({ eq: initialEquation || "", variables: {} });
-  }
+  useEffect(() => {
+    if (recipe && initialEquation) {
+      setRecipe({ ...recipe, eq: initialEquation });
+    }
+  });
 
   return (<>
     <label className="block margin-block-50">
@@ -145,12 +155,16 @@ export function DEBUG_RecipeOutput() {
 }
 
 export function RecipeVariableEditor({
+  initialVariables,
+
   allowAddVariables = false,
   allowDeleteVariables = false,
   allowNameEditing = false,
   allowTypeEditing = false,
   allowValueEditing = true,
 }: {
+  initialVariables?: Record<string, RawRecipeVariables>;
+
   allowAddVariables?: boolean;
   allowDeleteVariables?: boolean;
   allowNameEditing?: boolean;
@@ -160,16 +174,17 @@ export function RecipeVariableEditor({
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
 
-  const variables = recipe?.variables;
-  if (!variables && !allowAddVariables) {
-    return null;
-  }
+  useEffect(() => {
+    if (recipe && initialVariables) {
+      setRecipe({ ...recipe, variables: initialVariables });
+    }
+  });
 
   return (<>
     <div className="margin-inline-auto width-100">
       {t("components:copy_and_scale.recipe_variables")}
       <ul className="list-style-none padding-0">
-        {Object.entries(variables || []).map(([name, variable], i) => (
+        {Object.entries(recipe?.variables || []).map(([name, variable], i) => (
           <li key={i} className="display-flex align-items-center gap-50 margin-block-25">
             {/* Name display */}
             <input
@@ -285,7 +300,7 @@ export function RecipeVariableEditor({
       {/* Add variable */}
       {allowAddVariables &&
         <button type="button" onClick={() => {
-          const newVarName = `var${Object.keys(variables || []).length + 1}`;
+          const newVarName = `var${Object.keys(recipe?.variables || []).length + 1}`;
           setRecipe(prev => {
             if (!prev) return null;
             return {

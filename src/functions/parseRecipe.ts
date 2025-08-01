@@ -367,27 +367,32 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
 
     const seriesValues = [];
     for (const year of years) {
-      const canPad = parseInt(year.replace("val", "")) <= parseInt(lastYearWithData.replace("val", ""));
-      const value = series.data[year];
+      const isBeforeLastDefinedYear = parseInt(year.replace("val", "")) <= parseInt(lastYearWithData.replace("val", ""));
+      if (!isBeforeLastDefinedYear) break;
 
-      if (!canPad) break;
-
-      let valueToPush: number | Unit = 0;
-      if (canPad && !value) {
-        valueToPush = 0;
+      let value = series.data[year];
+      if (value === undefined || value === null) {
+        // If the value is not defined, we can either pad with 0 or skip
+        value = 0; // Default to 0 for missing values
       }
-      else if (value) {
-        if (typeof value === 'string') {
-          valueToPush = parseFloat(value);
-        } else {
-          valueToPush = value;
-        }
+
+      
+      if (typeof value === "string") {
+        value = parseFloat(value);
+      }
+
+      if (Number.isNaN(value)) {
+        throw new RecipeError(`Data series '${series.name}' has NaN value for year '${year}'. This is not allowed.`);
+      }
+
+      if (!Number.isFinite(value)) {
+        warnings.push(`Data series '${series.name}' has non-finite value for year '${year}'. This will be treated as 0.`);
       }
 
       if (series.unit) {
-        seriesValues.push(mathjs.unit(valueToPush as number, series.unit));
+        seriesValues.push(mathjs.unit(value as number, series.unit));
       } else {
-        seriesValues.push(valueToPush);
+        seriesValues.push(value);
       }
     }
 
