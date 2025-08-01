@@ -187,7 +187,7 @@ export default function QueryBuilder({
       const tableId = tableDetails?.id ?? formData.get("externalTableId") as string ?? "";
       getTableContent(tableId, dataSource, query, lang).then(result => {
         setTableContent(result);
-        if ((result?.data.length ?? 0) > 0) {
+        if ((result?.values.length ?? 0) > 0) {
           enableSubmitButton();
         } else {
           disableSubmitButton();
@@ -588,7 +588,7 @@ export default function QueryBuilder({
           </FormWrapper>
           <output>
             {/* TODO: style this better */}
-            {tableContent && tableContent.data.length > 0 ? (
+            {tableContent && tableContent.values.length > 0 ? (
               <div className="padding-inline-100">
                 <p>{t("components:query_builder.does_this_look_correct", { count: 5 })}</p>
                 <table>
@@ -600,17 +600,12 @@ export default function QueryBuilder({
                   </thead>
                   <tbody>
                     {
-                      tableContent.data.map((row, index) => {
-                        // Find the column of the time value
-                        let timeColumnIndex = 0;
-                        tableContent.columns.map((column, index) => {
-                          if (column.type == "t") timeColumnIndex = index
-                        })
+                      tableContent.values.map(({ period, value }, rowIndex) => {
                         return (
-                          index < 5 &&
-                          <tr key={row.key[timeColumnIndex].value}>
-                            <td>{row.key[timeColumnIndex].value}</td>
-                            <td>{row.values[0]}</td>
+                          rowIndex < 5 &&
+                          <tr key={period}>
+                            <td>{period}</td>
+                            <td>{value}</td>
                           </tr>
                         )
                       })

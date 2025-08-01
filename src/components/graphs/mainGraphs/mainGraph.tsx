@@ -146,15 +146,14 @@ export default function MainGraph({
 
   if (historicalData) {
     const historicalSeries = [];
-    const timeColumnIndex = historicalData.columns.findIndex(column => column.type == "t");
 
-    if (timeColumnIndex >= 0) {
-      for (const row of historicalData.data) {
-        const value = parseFloat(row.values[0]);
+    if (historicalData.values.length >= 0) {
+      for (const { period, value } of historicalData.values) {
+        const parsedValue = parseFloat(value);
 
         historicalSeries.push({
-          x: parsePeriod(row.key[timeColumnIndex].value).getTime(),
-          y: Number.isFinite(value) ? value : null,
+          x: parsePeriod(period).getTime(),
+          y: Number.isFinite(parsedValue) ? parsedValue : null,
         });
       }
       mainChart.push({

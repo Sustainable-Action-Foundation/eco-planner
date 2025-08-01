@@ -329,8 +329,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
         // TODO: determine type based on user input
         type: undefined,
         id: data.id,
-        columns: data.columns,
-        data: data.data,
+        values: data.values,
         metadata: data.metadata,
       }
     })
@@ -403,7 +402,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
   // Add external data to scope, as either a matrix or a scalar
   for (const data of externalData) {
     const varName = data.name.replace(/\s+/g, "_");
-    if (data.data.length === 0) {
+    if (data.values.length === 0) {
       throw new RecipeError(`External data '${data.name}' contains no data and cannot be evaluated.`);
     }
 
@@ -416,16 +415,11 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
       case "scalar":
       default:
         // If the data is a scalar, we can just take the last value
-        // find first non-time column
-        const dataColumn = data.columns.findIndex(col => col.type !== "t")
-        if (dataColumn === -1) {
-          throw new RecipeError(`External data '${data.name}' has no valid columns to evaluate as a scalar.`);
-        }
-        const lastValue = data.data[dataColumn].values
+        const lastValue = data.values
           // Filter out common ways of representing missing data
-          .filter(item => item != null && item !== "" && item !== "-" && item !== "..").slice(-1)[0];
+          .filter(({ value }) => value != null && value !== "" && value !== "-" && value !== "..").slice(-1)[0];
         if (lastValue) {
-          let value = parseFloat(lastValue);
+          let value = parseFloat(lastValue.value);
           if (Number.isFinite(value)) {
             scope[varName] = value;
           }
