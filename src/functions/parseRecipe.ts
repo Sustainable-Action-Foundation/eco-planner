@@ -1,11 +1,12 @@
 import { getVariableName } from "./recipe-parser/helpers";
-import type { DataSeriesArray, EvalTimeDataSeries, EvalTimeScalar, RawRecipe, Recipe, RecipeVariableDataSeries, RecipeVariables, RecipeVariableScalar } from "./recipe-parser/types";
+import type { DataSeriesArray, EvalTimeDataSeries, EvalTimeScalar, ExternalDataset, RawRecipe, Recipe, RecipeVariableDataSeries, RecipeVariables, RecipeVariableScalar } from "./recipe-parser/types";
 import { RecipeVariableType, isRawDataSeriesByValue, lenientIsRawDataSeriesByLink, isRecipeVariableScalar, MathjsError, RecipeError, isExternalDatasetVariable } from "./recipe-parser/types";
 import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
 import mathjs from "@/math";
 import { dataSeriesDataFieldNames, isStandardObject, uuidRegex } from "@/types";
 import { Unit } from "mathjs";
 import { ApiTableContent } from "@/lib/api/apiTypes";
+import getTableContent from "@/lib/api/getTableContent";
 
 const years = dataSeriesDataFieldNames
 
@@ -308,16 +309,29 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
       return { name, link, data, unit };
     });
 
+  const externalDataPromises = Object.entries(recipe.variables)
+    .filter(([_name, variable]) => variable.type === "external")
+    .map(([_name, variable]) => {
+      const { dataset, tableId, selection } = variable as ExternalDataset;
+      // TODO: use same language as error messages after i18n pass
+      return getTableContent(tableId, dataset, selection, undefined);
+    })
+  const awaitedExternalData = await Promise.all(externalDataPromises)
   const externalData: (ApiTableContent & { name: string, type?: "matrix" | "scalar" })[] = Object.entries(recipe.variables)
-    .filter(([, variable]) => variable.type === "external")
-    .map(([name, variable]) => {
-      // Do magic here
+    .filter(([_name, variable]) => variable.type === "external")
+    .map(([name, variable], i) => {
+      const data = awaitedExternalData[i];
+      if (!data) {
+        throw new RecipeError(`Failed to fetch external data for variable '${name}'.`);
+      }
       return {
         name: name,
-        id: "",
-        columns: [],
-        data: [],
-        metadata: [],
+        // TODO: determine type based on user input
+        type: undefined,
+        id: data.id,
+        columns: data.columns,
+        data: data.data,
+        metadata: data.metadata,
       }
     })
 
@@ -391,16 +405,20 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     switch (data.type) {
       case "matrix":
         // TODO: implement this
+        // The datapoints from external sources rarely, if ever, match the years we use, so missing years must be interpolated, skipped, or handled in some other way.
         break;
       // Default case is to handle as a scalar
       case "scalar":
       default:
         // If the data is a scalar, we can just take the last value
+        // find first non-time column
         const dataColumn = data.columns.findIndex(col => col.type !== "t")
         if (dataColumn === -1) {
           throw new RecipeError(`External data '${data.name}' has no valid columns to evaluate as a scalar.`);
         }
-        const lastValue = data.data[dataColumn].values.filter(item => item != null && item != "" && item != "-").slice(-1)[0];
+        const lastValue = data.data[dataColumn].values
+          // Filter out common ways of representing missing data
+          .filter(item => item != null && item !== "" && item !== "-" && item !== "..").slice(-1)[0];
         if (lastValue) {
           let value = parseFloat(lastValue);
           if (Number.isFinite(value)) {
