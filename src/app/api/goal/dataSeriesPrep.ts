@@ -23,8 +23,8 @@ export default function dataSeriesPrep(
     const keys = dataSeries.map((_, index) => dataSeriesDataFieldNames[index]);
     keys.forEach((key, index) => {
       let value: number | null = parseFloat(dataSeries[index]);
-      // If the value is empty, set it to null
-      if (!dataSeries[index] && dataSeries[index] != "0") {
+      // If the value is empty, infinite , or NaN, set it to null
+      if (dataSeries[index] == null || !Number.isFinite(value)) {
         value = null;
       }
       // If the value is a number or null, add it to the dataValues object
