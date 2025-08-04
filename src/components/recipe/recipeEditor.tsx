@@ -404,7 +404,12 @@ export function ResultingDataSeries({ FormElement }: { FormElement?: ReactElemen
       </strong>
 
       {/* Table to display resulting data series */}
-      <table className="margin-block-100 block width-100 overflow-x-scroll">
+      <table style={{
+        display: "block",
+        width: "100%",
+        maxWidth: "60dvw",
+        overflowX: "auto",
+      }}>
         <thead>
           <tr>
             <th className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_year")}</th>

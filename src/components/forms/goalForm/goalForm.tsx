@@ -195,9 +195,9 @@ export default function GoalForm({
         {!(roadmapId || currentGoal?.roadmapId) ?
           <fieldset className={`${styles.timeLineFieldset} width-100`}>
             <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>{t("forms:goal.choose_relationship")}</legend>
-            <label className="block margin-block-100">
+            <label className="margin-block-100">
               {t("forms:goal.relationship_label")}
-              <select name="roadmapId" id="roadmapId" required className="block margin-block-25" defaultValue={""}
+              <select name="roadmapId" id="roadmapId" required className="margin-block-25" defaultValue={""}
                 onChange={(e) => setSelectedRoadmap(e.target.value)}
               >
                 <option value="" disabled>{t("forms:goal.relationship_no_chosen")}</option>
@@ -215,12 +215,12 @@ export default function GoalForm({
         {/* Goal name and description */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:goal.goal_description_legend")}</legend>
-          <label className="block margin-bottom-100">
+          <label className="margin-bottom-100">
             {t("forms:goal.goal_name")}
             <input className="margin-block-25" type="text" name="goalName" id="goalName" defaultValue={currentGoal?.name ?? undefined} />
           </label>
 
-          <label className="block margin-block-100">
+          <label className="margin-block-100">
             {t("forms:goal.goal_description")}
             <textarea className="margin-block-25" name="description" id="description" defaultValue={currentGoal?.description ?? undefined}></textarea>
           </label>
@@ -229,9 +229,9 @@ export default function GoalForm({
         {/* Data series type selection (static, inherited, combined) */}
         <fieldset className={`${styles.timeLineFieldset} width-100 ${positionIndex > 1 ? "margin-top-200" : ""}`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend}  font-weight-bold`}>{t("forms:goal.data_series_type_legend")}</legend>
-          <label className="block margin-block-100">
+          <label className="margin-block-100">
             {t("forms:goal.data_series_type_label")}
-            <select name="dataSeriesType" id="dataSeriesType" className="block margin-block-25" required
+            <select name="dataSeriesType" id="dataSeriesType" className="margin-block-25" required
               defaultValue={defaultDataSeriesType}
               onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
             >
@@ -255,8 +255,10 @@ export default function GoalForm({
             <label className="width-100">
               <RecipeContextProvider
                 initialRecipe={{
-                  eq: "[[1,2],[3,4]] * [5,NaN]",
-                  variables: { "Hihi": { type: RecipeVariableType.Scalar, value: 123 }, "data": { type: RecipeVariableType.DataSeries, link: null } }
+                  // eq: "[[1,2],[3,4]] * [5,NaN]",
+                  // variables: { "Hihi": { type: RecipeVariableType.Scalar, value: 123 }, "data": { type: RecipeVariableType.DataSeries, link: null } }
+                  eq: "2345",
+                  variables: { "scalar": { type: RecipeVariableType.Scalar, value: 123 } }
                 }}
               >
                 <RecipeSuggestions suggestedRecipes={[
@@ -304,9 +306,9 @@ export default function GoalForm({
         {/* Baseline selection section */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:goal.choose_baseline_for_actions")}</legend>
-          <label className="block margin-bottom-100">
+          <label className="margin-bottom-100">
             {t("forms:goal.baseline_label")}
-            <select className="block margin-block-25" name="baselineSelector" id="baselineSelector" value={baselineType} onChange={(e) => setBaselineType(e.target.value as BaselineType)}>
+            <select className="margin-block-25" name="baselineSelector" id="baselineSelector" value={baselineType} onChange={(e) => setBaselineType(e.target.value as BaselineType)}>
               <option value={BaselineType.Initial}>{t("forms:goal.baseline_types.initial")}</option>
               <option value={BaselineType.Custom}>{t("forms:goal.baseline_types.custom")}</option>
               <option value={BaselineType.Inherited}>{t("forms:goal.baseline_types.inherited")}</option>
