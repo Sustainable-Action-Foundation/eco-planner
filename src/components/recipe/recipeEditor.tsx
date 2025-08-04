@@ -1,6 +1,6 @@
 "use client";
 
-import { type DataSeriesArray, type RawRecipe, type Recipe, RecipeVariableType, RawRecipeVariables } from "@/functions/recipe-parser/types";
+import { type DataSeriesArray, type RawRecipe, type Recipe, RecipeVariableType, RawRecipeVariables, RawDataSeriesByLink } from "@/functions/recipe-parser/types";
 import type { Goal } from "@/types";
 import { createContext, ReactElement, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -269,7 +269,7 @@ export function RecipeVariableEditor({
             {/* Type selection */}
             <select className="flex-grow-1"
               disabled={!allowTypeEditing}
-              value={variable.type}
+              defaultValue={variable.type}
               onChange={(e) => {
                 const newType = e.target.value as RecipeVariableType;
                 setRecipe(prev => {
@@ -284,7 +284,7 @@ export function RecipeVariableEditor({
                   } else if (newType === RecipeVariableType.DataSeries) {
                     newVariables[name] = {
                       type: RecipeVariableType.DataSeries,
-                      link: "goal://"
+                      link: null,
                     };
                   }
                   return {
@@ -293,8 +293,8 @@ export function RecipeVariableEditor({
                   };
                 });
               }}>
-              <option value={RecipeVariableType.Scalar}>{t("components:copy_and_scale.scalar")}</option>
               <option value={RecipeVariableType.DataSeries}>{t("components:copy_and_scale.data_series")}</option>
+              <option value={RecipeVariableType.Scalar}>{t("components:copy_and_scale.scalar")}</option>
             </select>
 
             {/* Data series input */}
@@ -317,7 +317,21 @@ export function RecipeVariableEditor({
 
               {/* Data series select */}
               {roadmap && selectableDataSeries && (
-                <select>
+                <select
+                  value={variable.link || "none"}
+                  onChange={e => {
+                    const selectedDataSeries = selectableDataSeries.find(ds => ds.id === e.target.value) || null;
+                    setRecipe(prev => {
+                      if (!prev) return null;
+                      const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+                      newVariables[name] = {
+                        ...newVariables[name],
+                        link: selectedDataSeries ? selectedDataSeries.id : null,
+                      } as RawDataSeriesByLink;
+                      return { ...prev, variables: newVariables };
+                    });
+                  }}
+                >
                   <option value="none">{t("forms:goal.select_data_series")}</option>
                   {selectableDataSeries.map(ds => (
                     <option key={ds.id} value={ds.id}>
@@ -390,8 +404,8 @@ export function RecipeVariableEditor({
               variables: {
                 ...prev.variables,
                 [newVarName]: {
-                  type: RecipeVariableType.Scalar,
-                  value: 1
+                  type: RecipeVariableType.DataSeries,
+                  link: null,
                 }
               }
             }

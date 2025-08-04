@@ -136,7 +136,7 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
           }
           // If it has a link, try to use it
           // TODO: integrate with actual database, possibly batching all data series links as a single query
-          if (!dataSeriesDB[variable.link]) {
+          if (variable.link && !dataSeriesDB[variable.link]) {
             throw new RecipeError(`Data series with UUID '${variable.link}' for variable '${key}' does not exist in the database.`);
           }
           parsedVariables[key] = { type: RecipeVariableType.DataSeries, link: variable.link };
@@ -350,7 +350,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
   for (const scalar of scalars) {
     const varName = scalar.name.replace(/\s+/g, "_");
     scope[varName] = scalar.unit ? mathjs.unit(scalar.value, scalar.unit) : scalar.value;
-    equation = equation.replace(`\${${scalar.name}}`, varName);
+    equation = equation.replaceAll(`\${${scalar.name}}`, varName);
   }
 
   // Add data series to scope as matrices
