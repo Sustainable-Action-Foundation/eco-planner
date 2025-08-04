@@ -72,6 +72,7 @@
     "choose_relationship": "Ange relationen till andra inlägg",
     "relationship_label": "Välj $t(common:roadmap_series_one) att $t(common:new.goal) under:",
     "relationship_no_chosen": "Välj $t(common:roadmap_series_one)",
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "data_series_type_legend": "Välj typ av dataserie för din $t(common:goal_one)",
     "data_series_type_label": "Dataserie",
     "data_series_types": {
@@ -79,6 +80,8 @@
       "inherited": "Ärvd",
       "combined": "Kombinerad"
     },
+    "default_scaling_recipe": "Standardskalningsrecept",
+    "default_combination_recipe": "Standardkombinationsrecept",
     "goal_description_legend": "Beskriv din $t(common:goal_one)",
     "goal_name": "Namn på $t(common:goal_one)",
     "goal_description": "Beskrivning av $t(common:goal_one)",
@@ -113,7 +116,7 @@
     "name_label": "Namn",
     "name_placeholder": "ex. SCB",
     "url_label": "Länk",
-    "url_placeholder": "https://example.com" ,
+    "url_placeholder": "https://example.com",
     "remove_link_aria_label": "ta bort länk"
   },
   "repeatable_scaling": {

@@ -72,6 +72,7 @@
     "choose_relationship": "Specify the relationship to other posts",
     "relationship_label": "Choose $t(common:roadmap_series_one) to $t(common:new.goal) under:",
     "relationship_no_chosen": "Choose $t(common:roadmap_series_one)",
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "data_series_type_legend": "Choose type of data series for your $t(common:goal_one)",
     "data_series_type_label": "Data series",
     "data_series_types": {
@@ -79,6 +80,8 @@
       "inherited": "Inherited",
       "combined": "Combined"
     },
+    "default_scaling_recipe": "Default scaling recipe",
+    "default_combination_recipe": "Default combination recipe",
     "goal_description_legend": "Describe your $t(common:goal_one)",
     "goal_name": "Name of $t(common:goal_one)",
     "goal_description": "Description of $t(common:goal_one)",
@@ -113,7 +116,7 @@
     "name_label": "Name",
     "name_placeholder": "e.g. SCB",
     "url_label": "URL",
-    "url_placeholder": "https://example.com", 
+    "url_placeholder": "https://example.com",
     "remove_link_aria_label": "remove link"
   },
   "repeatable_scaling": {
