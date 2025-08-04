@@ -255,10 +255,8 @@ export default function GoalForm({
             <label className="width-100">
               <RecipeContextProvider
                 initialRecipe={{
-                  // eq: "[[1,2],[3,4]] * [5,NaN]",
-                  // variables: { "Hihi": { type: RecipeVariableType.Scalar, value: 123 }, "data": { type: RecipeVariableType.DataSeries, link: null } }
-                  eq: "2345",
-                  variables: { "scalar": { type: RecipeVariableType.Scalar, value: 123 } }
+                  eq: "[[1,2],[3,4]] * [5,NaN]",
+                  variables: { "Hihi": { type: RecipeVariableType.Scalar, value: 123 }, "data": { type: RecipeVariableType.DataSeries, link: null } }
                 }}
               >
                 <RecipeSuggestions suggestedRecipes={[
@@ -285,8 +283,6 @@ export default function GoalForm({
                 <RecipeErrorAndWarnings />
 
                 <RecipeVariableEditor
-                  selectableDataSeries={selectableDataSeries}
-
                   allowAddVariables
                   allowDeleteVariables
                   allowNameEditing

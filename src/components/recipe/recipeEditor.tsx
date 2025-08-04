@@ -155,7 +155,6 @@ export function DEBUG_RecipeOutput() {
 }
 
 export function RecipeVariableEditor({
-  selectableDataSeries,
   initialVariables,
 
   allowAddVariables = false,
@@ -164,7 +163,6 @@ export function RecipeVariableEditor({
   allowTypeEditing = false,
   allowValueEditing = true,
 }: {
-  selectableDataSeries?: { id: string; name: string }[];
   initialVariables?: Record<string, RawRecipeVariables>;
 
   allowAddVariables?: boolean;
@@ -248,6 +246,11 @@ export function RecipeVariableEditor({
 
             {/* Data series input */}
             {variable.type === RecipeVariableType.DataSeries && 'link' in variable && (<>
+              {/* Roadmap select */}
+              <select>
+              </select>
+
+              {/* Goal select */}
               <select
                 value={variable.link || "none"}
                 onChange={e => {
