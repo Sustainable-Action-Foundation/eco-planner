@@ -86,7 +86,6 @@
     "goal_name": "Namn på $t(common:goal_one)",
     "goal_description": "Beskrivning av $t(common:goal_one)",
     "choose_goal_data_series": "Beskriv hur din {{$t(common:goal_one), possessive}} data är utformad",
-    "scaling_legend": "Skalning",
     "choose_baseline_for_actions": "Välj baslinje för $t(common:action_other)",
     "baseline_label": "Vilken baslinje ska man utgå ifrån när man beräknar {{$t(common:action_other), possessive}} $t(common:effect_other) på $t(common:goal_definite_one)?",
     "baseline_types": {

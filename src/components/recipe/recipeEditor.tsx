@@ -308,7 +308,7 @@ export function RecipeVariableEditor({
                   setRoadmap(selectedRoadmap);
                 }}
               >
-                <option value={"none"}>{t("forms:roadmap.select_roadmap")}</option>
+                <option value={"none"}>{t("components:recipe.select_roadmap")}</option>
                 {selectableRoadmaps?.map(r => (
                   <option key={r.id} value={r.id}>
                     {r.name}
@@ -333,7 +333,7 @@ export function RecipeVariableEditor({
                     });
                   }}
                 >
-                  <option value="none">{t("forms:goal.select_data_series")}</option>
+                  <option value="none">{t("components:recipe.select_data_series")}</option>
                   {selectableDataSeries.map(ds => (
                     <option key={ds.id} value={ds.id}>
                       {ds.name}

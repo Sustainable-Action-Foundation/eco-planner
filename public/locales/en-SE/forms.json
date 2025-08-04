@@ -86,7 +86,6 @@
     "goal_name": "Name of $t(common:goal_one)",
     "goal_description": "Description of $t(common:goal_one)",
     "choose_goal_data_series": "Describe how your {{$t(common:goal_one), possessive}} data is structured",
-    "scaling_legend": "Scaling",
     "choose_baseline_for_actions": "Choose baseline for $t(common:action_other)",
     "baseline_label": "Which baseline should be used when calculating {{$t(common:action_other), possessive}} $t(common:effect_other) on this $t(common:goal_one)?",
     "baseline_types": {

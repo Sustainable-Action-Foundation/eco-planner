@@ -143,6 +143,10 @@
     "no_roadmap_series_ones": "No $t(common:roadmap_series_one) found. If you have any filters active, no $t(common:roadmap_series_one) were found that match them.",
     "show_source_alt": "Show underlying $t(common:roadmap_version_other)"
   },
+  "recipe": {
+    "select_roadmap": "Select $t(common:roadmap_version_one)",
+    "select_data_series": "Select data series"
+  },
   "sidebar": {
     "toggle_menu_alt": "Toggle menu",
     "my_profile": "My account",

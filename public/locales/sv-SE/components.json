@@ -143,6 +143,10 @@
     "no_roadmap_series_ones": "Inga $t(common:roadmap_series_other) hittades. Om du har några aktiva filter hittades inga $t(common:roadmap_series_other) som matchar dem.",
     "show_source_alt": "Visa underliggande $t(common:roadmap_version_other)"
   },
+  "recipe": {
+    "select_roadmap": "Välj $t(common:roadmap_version_one)",
+    "select_data_series": "Välj dataserie"
+  },
   "sidebar": {
     "toggle_menu_alt": "Växla meny",
     "my_profile": "Mitt konto",

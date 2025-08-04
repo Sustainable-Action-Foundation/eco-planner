@@ -254,7 +254,7 @@ export default function GoalForm({
           {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
             <RecipeContextProvider
               initialRecipe={{
-                eq: "[[1,2],[3,4]] * [5,NaN]",
+                eq: "[[1,2],[3,4]] * [5,5]",
                 variables: { "Hihi": { type: RecipeVariableType.Scalar, value: 123 }, "data": { type: RecipeVariableType.DataSeries, link: null } }
               }}
             >
