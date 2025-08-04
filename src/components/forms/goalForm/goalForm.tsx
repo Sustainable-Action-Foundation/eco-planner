@@ -252,50 +252,52 @@ export default function GoalForm({
 
           {/* Scaling section for inherited/combined goals */}
           {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
-            <label className="width-100">
-              <RecipeContextProvider
-                initialRecipe={{
-                  eq: "[[1,2],[3,4]] * [5,NaN]",
-                  variables: { "Hihi": { type: RecipeVariableType.Scalar, value: 123 }, "data": { type: RecipeVariableType.DataSeries, link: null } }
-                }}
-              >
-                <RecipeSuggestions suggestedRecipes={[
-                  {
-                    hash: "asd", recipe: {
-                      name: t("forms:goal.default_scaling_recipe"),
-                      eq: "${Hihi}",
-                      variables: { "Hihi": { type: RecipeVariableType.Scalar, value: 123 } }
-                    },
+            <RecipeContextProvider
+              initialRecipe={{
+                eq: "[[1,2],[3,4]] * [5,NaN]",
+                variables: { "Hihi": { type: RecipeVariableType.Scalar, value: 123 }, "data": { type: RecipeVariableType.DataSeries, link: null } }
+              }}
+            >
+              <RecipeSuggestions suggestedRecipes={[
+                {
+                  hash: "asd", recipe: {
+                    name: t("forms:goal.default_scaling_recipe"),
+                    eq: "${Hihi}",
+                    variables: { "Hihi": { type: RecipeVariableType.Scalar, value: 123 } }
                   },
+                },
+                {
+                  hash: "asd2",
+                  recipe:
                   {
-                    hash: "asd2",
-                    recipe:
-                    {
-                      name: t("forms:goal.default_combination_recipe"),
-                      eq: "${Hihi} + ${Hihi}",
-                      variables: { "Hihi": { type: RecipeVariableType.Scalar, value: 123 } }
-                    }
+                    name: t("forms:goal.default_combination_recipe"),
+                    eq: "${Hihi} + ${Hihi}",
+                    variables: { "Hihi": { type: RecipeVariableType.Scalar, value: 123 } }
                   }
-                ]} />
+                }
+              ]} />
 
-                <RecipeEquationEditor />
+              <RecipeEquationEditor />
 
-                <RecipeErrorAndWarnings />
+              <RecipeErrorAndWarnings />
 
-                <RecipeVariableEditor
-                  allowAddVariables
-                  allowDeleteVariables
-                  allowNameEditing
-                  allowTypeEditing
-                  allowValueEditing
-                />
+              <RecipeVariableEditor
+                allowAddVariables
+                allowDeleteVariables
+                allowNameEditing
+                allowTypeEditing
+                allowValueEditing
+              />
 
+              <label className="width-100">
                 <ResultingDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />
+              </label>
+              <label className="width-100">
                 <ResultingRecipe FormElement={<input type="hidden" name="resultingRecipe" />} />
+              </label>
 
-                <DEBUG_RecipeOutput />
-              </RecipeContextProvider>
-            </label>
+              <DEBUG_RecipeOutput />
+            </RecipeContextProvider>
           }
         </fieldset>
 
