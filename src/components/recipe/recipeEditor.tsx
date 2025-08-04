@@ -38,10 +38,10 @@ export function RecipeContextProvider({
   useEffect(() => {
     if (initialRecipe) {
       setRecipe(initialRecipe);
-      setWarnings([]);
-      setError(null);
-      setResultingDataSeries(null);
     }
+  }, [initialRecipe]);
+
+  useEffect(() => {
     if (!recipe) {
       setResultingDataSeries(null);
       setError(null);
@@ -129,10 +129,10 @@ export function RecipeEquationEditor({
   const { recipe, setRecipe } = useRecipe();
 
   useEffect(() => {
-    if (recipe && initialEquation) {
-      setRecipe({ ...recipe, eq: initialEquation });
+    if (initialEquation && !recipe) {
+      setRecipe({ eq: initialEquation, variables: {} });
     }
-  });
+  }, [initialEquation]);
 
   return (<>
     <label className="block margin-block-50">
@@ -155,6 +155,7 @@ export function DEBUG_RecipeOutput() {
 }
 
 export function RecipeVariableEditor({
+  selectableDataSeries,
   initialVariables,
 
   allowAddVariables = false,
@@ -163,6 +164,7 @@ export function RecipeVariableEditor({
   allowTypeEditing = false,
   allowValueEditing = true,
 }: {
+  selectableDataSeries?: { id: string; name: string }[];
   initialVariables?: Record<string, RawRecipeVariables>;
 
   allowAddVariables?: boolean;
@@ -175,10 +177,10 @@ export function RecipeVariableEditor({
   const { recipe, setRecipe } = useRecipe();
 
   useEffect(() => {
-    if (recipe && initialVariables) {
-      setRecipe({ ...recipe, variables: initialVariables });
+    if (initialVariables && !recipe) {
+      setRecipe({ eq: "", variables: initialVariables });
     }
-  });
+  }, [initialVariables]);
 
   return (<>
     <div className="margin-inline-auto width-100">
@@ -244,38 +246,66 @@ export function RecipeVariableEditor({
               <option value={RecipeVariableType.DataSeries}>{t("components:copy_and_scale.data_series")}</option>
             </select>
 
-            {/* Value input */}
-            <input
-              type="text"
-              value={
-                variable.type === RecipeVariableType.Scalar ? variable.value.toString() :
-                  variable.type === RecipeVariableType.DataSeries && 'link' in variable ? variable.link :
-                    'Data Series'
-              }
-              disabled={!allowValueEditing}
-              className="flex-grow-1"
-              onChange={(e) => {
-                setRecipe(prev => {
-                  if (!prev) return null;
-                  const currentVar = prev.variables[name];
-                  const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
-
-                  if (currentVar.type === RecipeVariableType.Scalar) {
-                    const newValue = parseFloat(e.target.value);
-                    if (!isNaN(newValue)) {
-                      newVariables[name] = { ...currentVar, value: newValue };
-                    } else if (e.target.value === "") {
-                      newVariables[name] = { ...currentVar, value: 0 };
+            {/* Data series input */}
+            {variable.type === RecipeVariableType.DataSeries && 'link' in variable && (<>
+              <select
+                value={variable.link || "none"}
+                onChange={e => {
+                  setRecipe(prev => {
+                    if (!prev) return null;
+                    const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+                    if ('link' in variable) {
+                      newVariables[name] = {
+                        ...variable,
+                        link: e.target.value
+                      };
                     }
-                  } else if (currentVar.type === RecipeVariableType.DataSeries && 'link' in currentVar) {
-                    newVariables[name] = { ...currentVar, link: e.target.value };
-                  }
+                    return {
+                      ...prev,
+                      variables: newVariables
+                    };
+                  });
+                }}
+              >
+                <option value={"none"}>{t("forms:goal.select_goal")}</option>
+                {selectableDataSeries?.map(ds => (
+                  <option key={ds.id} value={ds.id}>
+                    {ds.name}
+                  </option>
+                ))}
+              </select>
+            </>)}
 
-                  return { ...prev, variables: newVariables };
-                });
-              }}
-              readOnly={variable.type !== RecipeVariableType.Scalar && (variable.type !== RecipeVariableType.DataSeries || !('link' in variable))}
-            />
+            {/* Scalar input */}
+            {variable.type === RecipeVariableType.Scalar && (
+              <input
+                type="text"
+                value={variable.value.toString()}
+                disabled={!allowValueEditing}
+                className="flex-grow-1"
+                onChange={(e) => {
+                  setRecipe(prev => {
+                    if (!prev) return null;
+                    const currentVar = prev.variables[name];
+                    const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+
+                    if (currentVar.type === RecipeVariableType.Scalar) {
+                      const newValue = parseFloat(e.target.value);
+                      if (!isNaN(newValue)) {
+                        newVariables[name] = { ...currentVar, value: newValue };
+                      } else if (e.target.value === "") {
+                        newVariables[name] = { ...currentVar, value: 0 };
+                      }
+                    } else if (currentVar.type === RecipeVariableType.DataSeries && 'link' in currentVar) {
+                      newVariables[name] = { ...currentVar, link: e.target.value };
+                    }
+
+                    return { ...prev, variables: newVariables };
+                  });
+                }}
+                readOnly={!allowValueEditing}
+              />
+            )}
 
             {/* Delete variable */}
             {allowDeleteVariables &&

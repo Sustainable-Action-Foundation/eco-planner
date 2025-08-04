@@ -27,7 +27,7 @@ import parameterOptions from "@/lib/LEAPList.json" with { type: "json" }; // Opt
 import mathjs from "@/math"; // Math library for unit parsing
 import { GoalCreateInput, dataSeriesDataFieldNames } from "@/types"; // Types and helpers
 import { DataSeries, Goal } from "@prisma/client"; // Prisma types
-import { useMemo, useState } from "react"; // React hooks
+import { useMemo, useState, useEffect } from "react"; // React hooks
 import { useTranslation } from "react-i18next"; // i18n hook
 import DataSeriesInput from "../dataSeriesInput/dataSeriesInput"; // For entering data series
 import { getDataSeries } from "../dataSeriesInput/utils"; // Helper for extracting data series from form
@@ -35,6 +35,7 @@ import styles from '../forms.module.css'; // CSS module for styling
 import { InheritingBaseline, ManualGoalForm } from "./goalFormSections"; // Sub components for form sections
 import { DEBUG_RecipeOutput, RecipeContextProvider, RecipeEquationEditor, RecipeErrorAndWarnings, RecipeSuggestions, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/recipeEditor";
 import { RecipeVariableType } from "@/functions/recipe-parser/types";
+import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 
 // Enum for selecting the type of data series for the goal
 enum DataSeriesType {
@@ -75,9 +76,29 @@ export default function GoalForm({
   const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baselineDataSeries ? BaselineType.Custom : BaselineType.Initial);
   // State for the selected roadmap (if not already fixed)
   const [selectedRoadmap, setSelectedRoadmap] = useState<string>(currentGoal?.roadmapId || roadmapId || "");
+  // State for selectable data series (goals from the selected roadmap)
+  const [selectableDataSeries, setSelectableDataSeries] = useState<{ id: string; name: string }[]>([]);
 
   // Memoized timestamp for the form submission (used for optimistic updates)
   const timestamp = useMemo(() => Date.now(), []);
+
+  // Effect to load selectable data series when roadmap changes
+  useEffect(() => {
+    if (selectedRoadmap) {
+      clientSafeGetOneRoadmap(selectedRoadmap)
+        .then(roadmap => {
+          const goals = roadmap?.goals
+            .filter(goal => goal.dataSeries !== null && goal.name !== null)
+            .map(goal => ({ id: goal.dataSeries!.id, name: goal.name! })) ?? [];
+          setSelectableDataSeries(goals);
+        })
+        .catch(() => {
+          setSelectableDataSeries([]);
+        });
+    } else {
+      setSelectableDataSeries([]);
+    }
+  }, [selectedRoadmap]);
 
   // Form submission handler
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
@@ -182,7 +203,7 @@ export default function GoalForm({
                 <option value="" disabled>{t("forms:goal.relationship_no_chosen")}</option>
                 {roadmapAlternatives.map(roadmap => (
                   <option key={roadmap.id} value={roadmap.id}>
-                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("forms:goal.action_count", { count: roadmap._count.goals })}`}
+                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("forms:goal.goal_count", { count: roadmap._count.goals })}`}
                   </option>
                 ))}
               </select>
@@ -235,7 +256,7 @@ export default function GoalForm({
               <RecipeContextProvider
                 initialRecipe={{
                   eq: "[[1,2],[3,4]] * [5,NaN]",
-                  variables: { "Hihi": { type: RecipeVariableType.Scalar, value: 123 } }
+                  variables: { "Hihi": { type: RecipeVariableType.Scalar, value: 123 }, "data": { type: RecipeVariableType.DataSeries, link: null } }
                 }}
               >
                 <RecipeSuggestions suggestedRecipes={[
@@ -262,6 +283,8 @@ export default function GoalForm({
                 <RecipeErrorAndWarnings />
 
                 <RecipeVariableEditor
+                  selectableDataSeries={selectableDataSeries}
+
                   allowAddVariables
                   allowDeleteVariables
                   allowNameEditing

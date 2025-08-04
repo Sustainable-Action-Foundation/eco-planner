@@ -65,7 +65,7 @@ export function isRecipeVariableScalar(variable: unknown): variable is RecipeVar
 
 export type RawDataSeriesByLink = {
   type: RecipeVariableType.DataSeries;
-  link: string; // uuid of data series in the database
+  link: string | null; // uuid of data series in the database
 };
 export function lenientIsRawDataSeriesByLink(variable: unknown): variable is RawDataSeriesByLink {
   return (
@@ -119,7 +119,7 @@ export function isRawDataSeriesByValue(variable: unknown): variable is RawDataSe
 export type RecipeVariableRawDataSeries = RawDataSeriesByLink | RawDataSeriesByValue;
 export type RecipeVariableDataSeries = {
   type: RecipeVariableType.DataSeries;
-  link: string; // uuid of data series in the database
+  link: string | null; // uuid of data series in the database
 };
 
 export type ExternalDataset = {
