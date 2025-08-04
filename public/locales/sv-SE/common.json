@@ -21,6 +21,7 @@
   "goal_other": "målbanor",
   "goal_definite_one": "målbanan",
   "goal_definite_other": "målbanorna",
+  "roadmap_version_name": "{{name}} (v{{version}})",
   "new": {
     "roadmap_series": "Skapa ny färdplansserie",
     "roadmap_version": "Skapa ny färdplansversion",

@@ -14,7 +14,7 @@ import { unstable_cacheTag as cacheTag } from 'next/cache'
  * @param id ID of the goal to get
  * @returns Goal object with actions
  */
-export default async function getOneGoal(id: string) {
+export default async function clientSafeGetOneGoal(id: string) {
   const session = await getSession(await cookies());
   return clientSafeGetCachedGoal(id, session.user)
 }

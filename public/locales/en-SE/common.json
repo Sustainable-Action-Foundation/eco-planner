@@ -21,6 +21,7 @@
   "goal_other": "goals",
   "goal_definite_one": "the goal",
   "goal_definite_other": "the goals",
+  "roadmap_version_name": "{{name}} (v{{version}})",
   "new": {
     "roadmap_series": "Create new roadmap series",
     "roadmap_version": "Create new roadmap version",

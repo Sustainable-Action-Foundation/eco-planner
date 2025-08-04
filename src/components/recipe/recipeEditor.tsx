@@ -5,6 +5,8 @@ import type { Goal } from "@/types";
 import { createContext, ReactElement, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { evaluateRecipe, parseRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
+import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
+import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 
 type RecipeContextType = {
   recipe: RawRecipe | null;
@@ -180,6 +182,57 @@ export function RecipeVariableEditor({
     }
   }, [initialVariables]);
 
+  const [selectableRoadmaps, setSelectableRoadmaps] = useState<{ id: string; name: string; }[] | null>(null);
+  const [roadmap, setRoadmap] = useState<{ id: string; name: string; } | null>(null);
+
+  const [selectableDataSeries, setSelectableDataSeries] = useState<{ id: string; name: string; roadmapId: string; }[] | null>(null);
+  const [dataSeries, setDataSeries] = useState<{ id: string; name: string; roadmapId: string; }[] | null>(null);
+
+  // On mount, fetch all roadmaps to select from
+  useEffect(() => {
+    async function fetchRoadmaps() {
+      try {
+        const roadmaps = await clientSafeGetRoadmaps();
+        setSelectableRoadmaps(roadmaps.map(roadmap => ({ id: roadmap.id, name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }) })));
+      }
+      catch (e) {
+        console.error("Failed to fetch roadmaps", e);
+      }
+    }
+
+    fetchRoadmaps();
+  }, []);
+
+  // On selecting a roadmap, fetch its data series as selectable options
+  useEffect(() => {
+    if (!roadmap) return;
+
+    async function fetchDataSeries() {
+      if (!roadmap?.id) return;
+      try {
+        const roadmapData = await clientSafeGetOneRoadmap(roadmap?.id);
+        if (!roadmapData?.goals) return;
+
+        const goals = roadmapData?.goals;
+        const series = goals.filter(g => g.dataSeries).map(goal => {
+          if (!goal.dataSeries) return null;
+          return {
+            id: goal.dataSeries.id,
+            name: goal.name,
+            roadmapId: roadmap.id,
+          }
+        });
+
+        setSelectableDataSeries(series.filter(ds => ds !== null) as { id: string; name: string; roadmapId: string; }[]);
+      }
+      catch (e) {
+        console.error("Failed to fetch data series for roadmap", e);
+      }
+    }
+
+    fetchDataSeries();
+  }, [roadmap]);
+
   return (<>
     <div className="margin-inline-auto width-100">
       {t("components:copy_and_scale.recipe_variables")}
@@ -247,36 +300,32 @@ export function RecipeVariableEditor({
             {/* Data series input */}
             {variable.type === RecipeVariableType.DataSeries && 'link' in variable && (<>
               {/* Roadmap select */}
-              <select>
-              </select>
-
-              {/* Goal select */}
               <select
-                value={variable.link || "none"}
+                value={roadmap?.id || "none"}
                 onChange={e => {
-                  setRecipe(prev => {
-                    if (!prev) return null;
-                    const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
-                    if ('link' in variable) {
-                      newVariables[name] = {
-                        ...variable,
-                        link: e.target.value
-                      };
-                    }
-                    return {
-                      ...prev,
-                      variables: newVariables
-                    };
-                  });
+                  const selectedRoadmap = selectableRoadmaps?.find(r => r.id === e.target.value) || null;
+                  setRoadmap(selectedRoadmap);
                 }}
               >
-                <option value={"none"}>{t("forms:goal.select_goal")}</option>
-                {selectableDataSeries?.map(ds => (
-                  <option key={ds.id} value={ds.id}>
-                    {ds.name}
+                <option value={"none"}>{t("forms:roadmap.select_roadmap")}</option>
+                {selectableRoadmaps?.map(r => (
+                  <option key={r.id} value={r.id}>
+                    {r.name}
                   </option>
                 ))}
               </select>
+
+              {/* Data series select */}
+              {roadmap && selectableDataSeries && (
+                <select>
+                  <option value="none">{t("forms:goal.select_data_series")}</option>
+                  {selectableDataSeries.map(ds => (
+                    <option key={ds.id} value={ds.id}>
+                      {ds.name}
+                    </option>
+                  ))}
+                </select>
+              )}
             </>)}
 
             {/* Scalar input */}
