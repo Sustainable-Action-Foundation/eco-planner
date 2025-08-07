@@ -1,6 +1,6 @@
 import rawText from "./text.json" with { type: "json" };
 
-// Extracted text from wikipedia https://sv.wikipedia.org/wiki/H%C3%A5llbar_utveckling
+// Extracted text from wikipedia https://sv.wikipedia.org/wiki/H%C3%A5llbar_utveckling Our license should be compatible https://creativecommons.org/share-your-work/licensing-considerations/compatible-licenses/
 // function main() {
 //   const includeNode = ["P", "SPAN", "DIV", "H1", "H2", "H3", "H4", "H5", "H6"];
 //   const excludeNode = ["SCRIPT", "STYLE", "NOSCRIPT", "META", "HEAD", "NAV", "SOURCE"];
