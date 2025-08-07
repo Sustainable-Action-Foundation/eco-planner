@@ -42,80 +42,93 @@ export default async function getTrafaTableContent(tableId: string, selection: {
     return null;
   }
 
-  function trafaTableContentToApiTableContent(trafaTableContent: TrafaDataResponse): ApiTableContent {
-    const returnTable: ApiTableContent = {
+  function trafaTableContentToApiTableContent(trafaTableContent: TrafaDataResponse): ApiTableContent | null {
+    const result: ApiTableContent | null = {
       id: tableId,
-      columns: [],
-      data: [],
-      metadata: [],
-    };
-
-    // Columns
-    // Create all columns of data info and add them to returnTable
-    const columns = [];
-    for (const column of trafaTableContent.Header.Column) {
-      const pushColumn = {
-        id: column.Name,
-        label: column.Value, // TODO - label needs to be manually translated here when internationalization is implemented
-        type: column.DataType === "Time" ? "t" : column.Type.toLowerCase() as "t" | "d" | "m",
-      };
-      columns.push(pushColumn);
+      values: [],
+      metadata: [{
+        label: trafaTableContent.Name ?? "",
+        source: "Trafa",
+      }]
     }
-    const timeColumns = columns.filter(column => column.type == "t").map(column => column.label);
-    returnTable.columns.push({ id: "Tid", label: timeColumns[timeColumns.length - 1], type: "t" });
 
-    columns.map(column => {
-      if (column.type != "t") {
-        returnTable.columns.push(column);
-      }
-    })
+    const timeColumns = trafaTableContent.Header.Column.filter(column => column.DataType === "Time");
+    const dataColumns = trafaTableContent.Header.Column.filter(column => column.Type === "M");
 
-    // Data
-    // Create all data rows that will be returned by the function
-    for (const data of trafaTableContent.Rows) {
-      const pushData = {
-        key: [] as { columnId: string, value: string }[],
-        values: [] as string[],
-      };
-      const timeColumnIds = columns.filter(column => column.type == "t").map(column => column.id);
-      const timeColumns = [];
-      for (let i = 0; i < data.Cell.length; i++) {
-        if (timeColumnIds.includes(data.Cell[i].Column)/* !data.Cell[i].IsMeasure */) {
-          timeColumns.push({ columnId: data.Cell[i].Column, value: data.Cell[i].Name });
-        }
-        else if (data.Cell[i].IsMeasure) {
-          pushData.values.push(data.Cell[i].Value);
-        }
+    if (dataColumns.length === 0) {
+      console.warn("No data columns found in Trafa table content");
+      return null;
+    } else if (dataColumns.length > 1) {
+      console.warn("Multiple data columns found in Trafa table content");
+      return null;
+    }
+
+    if (timeColumns.length == 0) {
+      console.warn("No time columns found in Trafa table content");
+      return null;
+    } else if (timeColumns.length > 1) {
+      const yearColumnId = trafaTableContent.Header.Column.findIndex(column => column.Name === "ar");
+      if (yearColumnId === -1) {
+        console.warn("No year column found in Trafa table content with multiple time columns");
+        return null;
       }
-      if (timeColumns.length > 1) {
-        if (timeColumns[1].value != "t1") {
-          if (timeColumns[1].columnId == "kvartal") {
-            pushData.key.push({ columnId: "Tid", value: `${timeColumns[0].value}K${timeColumns[1].value}` });
-          } else if (timeColumns[1].columnId == "manad") {
-            pushData.key.push({ columnId: "Tid", value: `${timeColumns[0].value}M${timeColumns[1].value}` });
+      const monthColumnId = trafaTableContent.Header.Column.findIndex(column => column.Name === "manad");
+      const quarterColumnId = trafaTableContent.Header.Column.findIndex(column => column.Name === "kvartal");
+
+      if (monthColumnId >= 0 && quarterColumnId >= 0) {
+        console.warn("Both month and quarter columns found in Trafa table content with multiple time columns");
+        return null;
+      } else if (monthColumnId >= 0) {
+        for (const data of trafaTableContent.Rows) {
+          const yearValue = data.Cell.find(cell => cell.Column === "ar")?.Value;
+          const monthValue = data.Cell.find(cell => cell.Column === "manad")?.Value;
+          const dataValue = data.Cell.find(cell => cell.IsMeasure)?.Value;
+          if (yearValue != undefined && monthValue != undefined && dataValue != undefined) {
+            result.values.push({
+              period: `${yearValue}M${monthValue}`,
+              value: dataValue
+            })
+          } else {
+            console.warn("Missing year or month value in Trafa table content with multiple time columns");
+            return null;
           }
-          returnTable.data.push(pushData);
         }
-      } else if (timeColumns.length == 1) {
-        pushData.key = [{ columnId: "Tid", value: timeColumns[0].value }];
-        returnTable.data.push(pushData);
+      } else if (quarterColumnId >= 0) {
+        for (const data of trafaTableContent.Rows) {
+          const yearValue = data.Cell.find(cell => cell.Column === "ar")?.Value;
+          const quarterValue = data.Cell.find(cell => cell.Column === "kvartal")?.Value;
+          const dataValue = data.Cell.find(cell => cell.IsMeasure)?.Value;
+          if (yearValue != undefined && quarterValue != undefined && dataValue != undefined) {
+            result.values.push({
+              period: `${yearValue}K${quarterValue}`,
+              value: dataValue
+            });
+          } else {
+            console.warn("Missing year or quarter value in Trafa table content with multiple time columns");
+            return null;
+          }
+        }
+      } else {
+        console.warn("No month or quarter column found in Trafa table content with multiple time columns. Found columns follow: ", timeColumns.map(column => column.Name));
+        return null;
+      }
+    } else if (timeColumns.length == 1) {
+      for (const data of trafaTableContent.Rows) {
+        const timeValue = data.Cell.find(cell => cell.Column === timeColumns[0].Name)?.Value;
+        const dataValue = data.Cell.find(cell => cell.IsMeasure)?.Value;
+        if (timeValue != undefined && dataValue != undefined) {
+          result.values.push({
+            period: timeValue,
+            value: dataValue
+          });
+        } else {
+          console.warn("Missing time or data value in Trafa table content with single time column");
+          return null;
+        }
       }
     }
 
-    // Metadata
-    // Create metadata and add to returnTable
-    const metadataEntry = { label: "", source: "Trafa" };
-    const metric = returnTable.columns.filter(column => column.type == "m").map(column => column.label)[0];
-
-    // Define different variable strings depending on how many variables are used
-    const variables = returnTable.columns.filter(column => column.type == "d").map(column => column.label.toLowerCase());
-    const variablesString = variables.length == 0 ? undefined : variables.length == 1 ? variables[0] : `${variables.slice(0, -1).join(", ")} och ${variables.pop()}`;
-
-    // Create different metadata label depending on variable string and table name
-    metadataEntry.label = `${(trafaTableContent.Name ?? "")} - ${metric}${variablesString ? ` efter ${variablesString}` : ""}`; // TODO - translate this manually when internationalization is implemented
-    returnTable.metadata.push(metadataEntry);
-
-    return returnTable;
+    return result;
   }
 
   if (data) return trafaTableContentToApiTableContent(data);

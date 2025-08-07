@@ -27,16 +27,10 @@ export type ApiTableContent = {
     period: string,
     value: string,
   }[],
-  timeColumnId?: string,
-  timeColumnName?: string,
-  dataColumnId?: string,
-  dataColumnName?: string,
-  /** "c" for content (PxWeb), "m" for measure (Trafa) ("c" and "m" are mostly interchangeable), "d" for dimension (Trafa) */
-  dataColumnType?: ("c" | "m") | "d",
   metadata: {
     label: string,
     source: string,
-  }[],
+  }[]
 }
 
 export type ApiTableDetails = {

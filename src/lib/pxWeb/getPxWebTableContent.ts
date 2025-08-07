@@ -168,29 +168,13 @@ export default async function getPxWebTableContent(tableId: string, externalData
       metadata: [{
         label: pxWebTableContent.metadata[0].label,
         source: pxWebTableContent.metadata[0].source,
-      }],
-      timeColumnId: undefined,
-      timeColumnName: undefined,
-      dataColumnId: undefined,
-      dataColumnName: undefined,
-      dataColumnType: "c",
+      }]
     };
-    // const returnTable: ApiTableContent = {
-    //   id: tableId,
-    //   columns: [],
-    //   data: [],
-    //   metadata: [{
-    //     label: pxWebTableContent.metadata[0].label,
-    //     source: pxWebTableContent.metadata[0].source,
-    //   }],
-    // };
 
     // Columns
     // We're only interested in the time column (type "t") and data columns (type "c").
     // We don't really care about dimension columns (type "d"), but it's worth noting that they cause years to be repeated if multiple values are allowed for any dimension,
-    // in which case we will discard the data alltogether and request the user to update their selection.
-    resultTable.timeColumnId = pxWebTableContent.columns.find(column => column.type === "t")?.code;
-    resultTable.timeColumnName = pxWebTableContent.columns.find(column => column.type === "t")?.text;
+    // in which case we will discard the data altogether and request the user to update their selection.
     const timeColumnIndex = pxWebTableContent.columns.findIndex(column => column.type === "t");
 
     if (timeColumnIndex === -1) {
@@ -217,10 +201,6 @@ export default async function getPxWebTableContent(tableId: string, externalData
       console.error("Multiple data columns found in PxWeb table content. Please select only one data column.");
       return null;
     }
-
-    resultTable.dataColumnId = dataColumns[0].code;
-    resultTable.dataColumnName = dataColumns[0].text;
-
     // Data
     // Create all data rows that will be returned by the function
     for (const data of pxWebTableContent.data) {
