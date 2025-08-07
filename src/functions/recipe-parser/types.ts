@@ -8,7 +8,7 @@ export enum RecipeVariableType {
 };
 
 export type DataSeriesArray = Partial<{
-  unit?: string; // Optional unit for the data series
+  unit?: string | null; // Optional unit for the data series
   "val2020": number | null;
   "val2021": number | null;
   "val2022": number | null;
@@ -193,5 +193,5 @@ export type EvalTimeDataSeries = {
   name: string; // Variable name
   link: string; // For reference sake
   data: { [key: string]: number | string | null }; // The actual data to be used
-  unit?: string; // Optional unit
+  unit?: string | null; // Optional unit
 };

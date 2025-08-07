@@ -3,12 +3,11 @@ import type { DataSeriesArray, EvalTimeDataSeries, EvalTimeScalar, ExternalDatas
 import { RecipeVariableType, isRawDataSeriesByValue, lenientIsRawDataSeriesByLink, isRecipeVariableScalar, MathjsError, RecipeError, isExternalDatasetVariable } from "./recipe-parser/types";
 import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
 import mathjs from "@/math";
-import { dataSeriesDataFieldNames, isStandardObject, uuidRegex } from "@/types";
-import { Unit } from "mathjs";
+import { dataSeriesDataFieldNames as years, isStandardObject, uuidRegex } from "@/types";
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import getTableContent from "@/lib/api/getTableContent";
-
-const years = dataSeriesDataFieldNames
+import clientSafeGetOneGoal from "@/fetchers/clientSafeGetOneGoal";
+import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
 
 type DataSeriesDbEntry = {
   uuid: string;
@@ -298,16 +297,30 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
       return { name, value, unit };
     });
 
-  const dataSeries: EvalTimeDataSeries[] = Object.entries(recipe.variables)
+  const dataSeries: EvalTimeDataSeries[] = await Promise.all(Object.entries(recipe.variables)
     .filter(([, variable]) => variable.type === "dataSeries")
-    .map(([name, variable]) => {
+    .map(async ([name, variable]) => {
       const { link } = variable as RecipeVariableDataSeries;
-      if (!link || !dataSeriesDB[link]) {
+
+      if (!link) {
         throw new RecipeError(`Data series link '${link}' for variable '${name}' does not exist in the database.`);
       }
-      const { data, unit } = dataSeriesDB[link];
-      return { name, link, data, unit };
-    });
+
+      const dbDataSeries = await clientSafeGetOneDataSeries(link);
+
+      if (!dbDataSeries) {
+        throw new RecipeError(`Data series with UUID '${link}' for variable '${name}' does not exist in the database.`);
+      }
+
+      const data: DataSeriesArray = {};
+      for (const year of years) {
+        data[year] = dbDataSeries[year];
+      }
+
+      console.log("Name:", name, "Link:", link, "Data:", data, "Unit:", dbDataSeries.unit);
+
+      return { name, link, data, unit: dbDataSeries.unit };
+    }));
 
   const externalDataPromises = Object.entries(recipe.variables)
     .filter(([_name, variable]) => variable.type === "external")
@@ -375,7 +388,6 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
         value = 0; // Default to 0 for missing values
       }
 
-      
       if (typeof value === "string") {
         value = parseFloat(value);
       }
@@ -409,7 +421,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     switch (data.type) {
       case "matrix":
         // TODO: implement this
-        // The datapoints from external sources rarely, if ever, match the years we use, so missing years must be interpolated, skipped, or handled in some other way.
+        // The data points from external sources rarely, if ever, match the years we use, so missing years must be interpolated, skipped, or handled in some other way.
         break;
       // Default case is to handle as a scalar
       case "scalar":

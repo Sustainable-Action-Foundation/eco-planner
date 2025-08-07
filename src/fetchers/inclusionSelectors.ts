@@ -276,6 +276,12 @@ export const clientSafeGoalSelection /* Prisma.GoalSelect */ = {
   _count: { select: { effects: true } },
 }
 
+export const clientSafeDataSeriesSelection: Prisma.DataSeriesSelect = {
+  ...dataFieldSelector,
+  id: true,
+  unit: true,
+};
+
 export const actionInclusionSelection /* Prisma.ActionInclude */ = {
   effects: {
     include: {

@@ -39,6 +39,7 @@ export default function CopyAndScale({
     }
 
     const resultingDataSeriesString = form.get("resultingDataSeries");
+    console.log(resultingDataSeriesString);
     let parsedDataSeries: DataSeriesArray | undefined;
     try {
       parsedDataSeries = JSON.parse(resultingDataSeriesString as string) as DataSeriesArray;
@@ -62,7 +63,7 @@ export default function CopyAndScale({
       return;
     }
 
-    const unit: string | undefined = parsedDataSeries.unit;
+    const unit: string | undefined = parsedDataSeries.unit ?? undefined;
     if (unit && typeof unit !== "string") {
       setIsLoading(false);
       console.error("Recipe unit is not a string:", unit);
