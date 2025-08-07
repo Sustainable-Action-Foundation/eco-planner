@@ -3,9 +3,8 @@
 import { colors } from "../src/scripts/lib/colors";
 import { PrismaClient, RoadmapType } from '../src/prisma/generated';
 import bcrypt from "bcryptjs";
-import { LoremIpsum } from "lorem-ipsum";
-import { DataSeriesArray, RawRecipe, Recipe, RecipeVariableType } from "@/functions/recipe-parser/types";
 import crypto from "node:crypto";
+import { RandomTextSE } from "./randomText";
 
 const prisma = new PrismaClient();
 prisma.$connect().catch((e) => {
@@ -16,78 +15,85 @@ prisma.$connect().catch((e) => {
     `), e);
   process.exit(1);
 });
-const lorem = new LoremIpsum();
 
-function hashRecipe(input: string | RawRecipe | Recipe) {
-  let stringifiedInput: string;
-  if (typeof input === 'string') {
-    stringifiedInput = input;
-  } else {
-    // If input is a RawRecipe or Recipe, we need to stringify it
-    stringifiedInput = JSON.stringify(input);
+function sha256(input: string) {
+  if (typeof input !== "string") {
+    throw new Error("Input must be a string");
   }
 
   const hashObject = crypto.createHash("sha256");
-
-  hashObject.update(JSON.stringify(stringifiedInput));
+  hashObject.update(input);
 
   return hashObject.digest("hex");
-
 }
 
-function makeRecipeSuggestions(dataSeries: DataSeriesArray): RawRecipe[] {
-  return [
-    {
-      name: "Skala utifrån befolkning",
-      eq: "${förälder} * (${popF} / ${popB})",
-      variables: {
-        "förälder": {
-          type: RecipeVariableType.DataSeries,
-          value: dataSeries,
-        },
-        "popF": {
-          type: RecipeVariableType.Scalar,
-          value: 10587710,
-        },
-        "popB": {
-          type: RecipeVariableType.Scalar,
-          value: 504176,
-        }
-      }
-    },
-    {
-      name: "Skala utifrån yta",
-      eq: "${förälder} * (${areaF} / ${areaB})",
-      variables: {
-        "förälder": {
-          type: RecipeVariableType.DataSeries,
-          value: dataSeries,
-        },
-        "areaF": {
-          type: RecipeVariableType.Scalar,
-          value: 410000,
-        },
-        "areaB": {
-          type: RecipeVariableType.Scalar,
-          value: 60000,
-        }
-      }
-    },
-    {
-      name: "Skala utifrån fast värde",
-      eq: "${förälder} / ${value}",
-      variables: {
-        "förälder": {
-          type: RecipeVariableType.DataSeries,
-          value: dataSeries,
-        },
-        "value": {
-          type: RecipeVariableType.Scalar,
-          value: 2,
-        }
-      }
-    }
-  ];
+// function makeRecipeSuggestions(dataSeries: DataSeriesArray): RawRecipe[] {
+//   return [
+//     {
+//       name: "Skala utifrån befolkning",
+//       eq: "${förälder} * (${popF} / ${popB})",
+//       variables: {
+//         "förälder": {
+//           type: RecipeVariableType.DataSeries,
+//           value: dataSeries,
+//         },
+//         "popF": {
+//           type: RecipeVariableType.Scalar,
+//           value: 10587710,
+//         },
+//         "popB": {
+//           type: RecipeVariableType.Scalar,
+//           value: 504176,
+//         }
+//       }
+//     },
+//     {
+//       name: "Skala utifrån yta",
+//       eq: "${förälder} * (${areaF} / ${areaB})",
+//       variables: {
+//         "förälder": {
+//           type: RecipeVariableType.DataSeries,
+//           value: dataSeries,
+//         },
+//         "areaF": {
+//           type: RecipeVariableType.Scalar,
+//           value: 410000,
+//         },
+//         "areaB": {
+//           type: RecipeVariableType.Scalar,
+//           value: 60000,
+//         }
+//       }
+//     },
+//     {
+//       name: "Skala utifrån fast värde",
+//       eq: "${förälder} / ${value}",
+//       variables: {
+//         "förälder": {
+//           type: RecipeVariableType.DataSeries,
+//           value: dataSeries,
+//         },
+//         "value": {
+//           type: RecipeVariableType.Scalar,
+//           value: 2,
+//         }
+//       }
+//     }
+//   ];
+// }
+
+function getRandomDateBackwards(): Date {
+  const roof = Date.now() - 1000 * 60 * 60 * 24; // 1 day ago
+  const floor = 1000 * 60 * 60 * 24; // 1 day from epoch
+
+  const randomTimestamp = Math.floor(Math.random() * (roof - floor + 1)) + floor;
+  return new Date(randomTimestamp);
+}
+
+function getRandomCreatedAtAndUpdatedAt(): [Date, Date] {
+  const createdAt = getRandomDateBackwards();
+  const updatedAt = new Date(createdAt.getTime() + Math.floor(Math.random() * 1000 * 60 * 60 * 24)); // Randomly set updatedAt to be after createdAt
+  return [createdAt, updatedAt];
 }
 
 async function main() {
@@ -98,39 +104,121 @@ async function main() {
   // - Notes?
   // - User groups?
 
-  const hashedPassword = await bcrypt.hash('admin', 10);
+  const passwords = {
+    admin: await bcrypt.hash('admin', 10),
+    anita: await bcrypt.hash('anita', 10),
+    anton: await bcrypt.hash('anton', 10),
+  };
 
-  // A user with admin rights, username and password 'admin'
+  /** A user with admin rights, username and password 'admin' */
   const admin = await prisma.user.create({
     data: {
       username: 'admin',
-      password: hashedPassword,
+      password: passwords.admin,
       isAdmin: true,
       isVerified: true,
       email: 'admin@admin.admin',
     }
-  })
+  });
 
-  const mainMetaRoadmap = await prisma.metaRoadmap.create({
+  /** Anita is a regular user :3 */
+  const anita = await prisma.user.create({
     data: {
-      name: 'Main Meta Roadmap',
-      description: 'This is the main meta roadmap created for testing',
-      type: RoadmapType.NATIONAL,
+      username: 'Anita',
+      password: passwords.anita,
+      isAdmin: false,
+      isVerified: true,
+      email: 'anita@sustainable-action.org',
+    }
+  });
+
+  /** Anton is a regular user who's been to lazy to verify themselves */
+  const anton = await prisma.user.create({
+    data: {
+      username: 'Anton',
+      password: passwords.anton,
+      isAdmin: false,
+      isVerified: false,
+      email: 'anton@sustainable-action.org',
+    }
+  });
+
+  function makeRandomComment(options?: { roadmapId?: string, goalId?: string, actionId?: string, metaRoadmapId?: string }) {
+    const author = [admin, anita, anton][Math.floor(Math.random() * Object.keys(passwords).length)];
+    let [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
+    return {
+      authorId: author.id,
+      commentText: RandomTextSE.sentence(Math.floor(Math.random() * 20) + 1),
+      createdAt,
+      updatedAt,
+      ...(options && {
+        ...(options.roadmapId ? { roadmapId: options.roadmapId } : {}),
+        ...(options.goalId ? { goalId: options.goalId } : {}),
+        ...(options.actionId ? { actionId: options.actionId } : {}),
+        ...(options.metaRoadmapId ? { metaRoadmapId: options.metaRoadmapId } : {}),
+      })
+    };
+  }
+
+  let [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
+  const nationalMetaRoadmap = await prisma.metaRoadmap.create({
+    data: {
+      name: 'Rikets färdplan',
+      description: 'Denna färdplan har lagts för att ge stöd till andra aktörer att ärva ifrån.\n\nResurser:\nhttps://youtu.be/dQw4w9WgXcQ?si=fkzP2Rqg7d63tYaT\nhttps://sustainable-action.org/',
       actor: 'Sverige',
-      authorId: admin.id,
+      type: RoadmapType.NATIONAL,
+      authorId: anita.id,
       isPublic: true,
+      comments: {
+        createMany: {
+          data: Array(30).fill(null).map(() => makeRandomComment()),
+        }
+      },
+      createdAt,
+      updatedAt,
+      // TODO - add more props
     }
   });
 
-  const mainRoadmap = await prisma.roadmap.create({
+  [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
+  const uppsalaMetaRoadmap = await prisma.metaRoadmap.create({
     data: {
-      description: 'This is the main roadmap created for testing',
-      version: 1,
-      authorId: admin.id,
+      name: 'Uppsala läns',
+      description: 'Denna färdplan har lagts för att främst ge stöd till kommunerna inom länet.\n\nLänkar:\nhttps://www.lansstyrelsen.se/uppsala.html',
+      actor: 'Uppsala län',
+      type: RoadmapType.REGIONAL,
+      authorId: anita.id,
       isPublic: true,
-      metaRoadmapId: mainMetaRoadmap.id,
+      comments: {
+        createMany: {
+          data: Array(30).fill(null).map(() => makeRandomComment()),
+        }
+      },
+      createdAt,
+      updatedAt,
     }
   });
+
+  // const mainMetaRoadmap = await prisma.metaRoadmap.create({
+  //   data: {
+  //     name: 'Main Meta Roadmap',
+  //     description: 'This is the main meta roadmap created for testing',
+  //     type: RoadmapType.NATIONAL,
+  //     actor: 'Sverige',
+  //     authorId: admin.id,
+  //     isPublic: true,
+  //   }
+  // });
+
+  // const mainRoadmap = await prisma.roadmap.create({
+  //   data: {
+  //     description: 'This is the main roadmap created for testing',
+  //     version: 1,
+  //     authorId: admin.id,
+  //     isPublic: true,
+  //     metaRoadmapId: mainMetaRoadmap.id,
+  //   }
+  // });
 
   // We use prisma.$transaction instead of prisma.goal.createManyAndReturn as it allows
   // nested data creation, which is necessary for creating data series for each goal.
@@ -348,7 +436,7 @@ async function main() {
     prisma.user.create({
       data: {
         username: `${lorem.generateWords(1)}-${index}`,
-        password: hashedPassword,
+        password: hashedAdminPassword,
         email: `${lorem.generateWords(2).replace(" ", ".")}+${index}@example.com`,
         isAdmin: false,
         isVerified: true,
@@ -422,7 +510,7 @@ async function main() {
       recipeSuggestions: {
         create: makeRecipeSuggestions(testingDataSeries)
           .map(recipe => ({
-            hash: hashRecipe(recipe),
+            hash: sha256(recipe),
             recipe,
           })),
       }
