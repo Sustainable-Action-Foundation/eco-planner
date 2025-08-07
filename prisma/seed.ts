@@ -5,6 +5,7 @@ import { PrismaClient, RoadmapType } from '../src/prisma/generated';
 import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
 import { RandomTextSE } from "./randomText";
+import { dataSeriesDataFieldNames } from "@/types";
 
 const prisma = new PrismaClient();
 prisma.$connect().catch((e) => {
@@ -160,6 +161,7 @@ async function main() {
     };
   }
 
+  // National roadmap - Riket
   let [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
   const nationalMetaRoadmap = await prisma.metaRoadmap.create({
     data: {
@@ -171,54 +173,137 @@ async function main() {
       isPublic: true,
       comments: {
         createMany: {
-          data: Array(30).fill(null).map(() => makeRandomComment()),
+          data: Array(40).fill(null).map(() => makeRandomComment()),
         }
       },
       createdAt,
       updatedAt,
       // TODO - add more props
-    }
+    },
   });
-
   [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
-  const uppsalaMetaRoadmap = await prisma.metaRoadmap.create({
+  const nationalRoadmapVersion1 = await prisma.roadmap.create({
     data: {
-      name: 'Uppsala läns',
-      description: 'Denna färdplan har lagts för att främst ge stöd till kommunerna inom länet.\n\nLänkar:\nhttps://www.lansstyrelsen.se/uppsala.html',
-      actor: 'Uppsala län',
-      type: RoadmapType.REGIONAL,
+      version: 1,
       authorId: anita.id,
+      metaRoadmapId: nationalMetaRoadmap.id,
+      description: nationalMetaRoadmap.description, // Inherit description from meta roadmap
       isPublic: true,
       comments: {
         createMany: {
           data: Array(30).fill(null).map(() => makeRandomComment()),
         }
       },
+      // TODO - is this correct? 
+      editors: {
+        connect: [
+          { id: admin.id },
+          { id: anita.id },
+          { id: anton.id },
+        ],
+      },
       createdAt,
       updatedAt,
-    }
+    },
+  });
+  [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
+  const nationalRoadmapVersion2 = await prisma.roadmap.create({
+    data: {
+      version: 2,
+      authorId: anita.id,
+      metaRoadmapId: nationalMetaRoadmap.id,
+      description: nationalMetaRoadmap.description, // Inherit description from meta roadmap
+      isPublic: true,
+      comments: {
+        createMany: {
+          data: Array(30).fill(null).map(() => makeRandomComment()),
+        }
+      },
+      // TODO - is this correct?
+      editors: {
+        connect: [
+          { id: admin.id },
+          { id: anita.id },
+          { id: anton.id },
+        ],
+      },
+      createdAt,
+      updatedAt,
+    },
   });
 
-  // const mainMetaRoadmap = await prisma.metaRoadmap.create({
-  //   data: {
-  //     name: 'Main Meta Roadmap',
-  //     description: 'This is the main meta roadmap created for testing',
-  //     type: RoadmapType.NATIONAL,
-  //     actor: 'Sverige',
-  //     authorId: admin.id,
-  //     isPublic: true,
-  //   }
-  // });
+  // Regional roadmap - Uppsala
+  [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
+  const uppsalaMetaRoadmap = await prisma.metaRoadmap.create({
+    data: {
+      name: 'Uppsala län',
+      description: 'Denna färdplan har lagts för att främst ge stöd till kommunerna inom länet.\n\nLänkar:\nhttps://www.lansstyrelsen.se/uppsala.html',
+      actor: 'Uppsala län',
+      type: RoadmapType.REGIONAL,
+      authorId: admin.id,
+      isPublic: true,
+      comments: {
+        createMany: {
+          data: Array(20).fill(null).map(() => makeRandomComment()),
+        }
+      },
+      createdAt,
+      updatedAt,
+    },
+  });
+  [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
+  const uppsalaRoadmapVersion1 = await prisma.roadmap.create({
+    data: {
+      version: 1,
+      authorId: admin.id,
+      metaRoadmapId: uppsalaMetaRoadmap.id,
+      description: uppsalaMetaRoadmap.description, // Inherit description from meta roadmap
+      isPublic: true,
+      comments: {
+        createMany: {
+          data: Array(10).fill(null).map(() => makeRandomComment()),
+        }
+      },
+      // TODO - is this correct?
+      editors: {
+        connect: [
+          { id: admin.id },
+          { id: anita.id },
+          { id: anton.id },
+        ],
+      },
+      createdAt,
+      updatedAt,
+    },
+  });
+  [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
+  const uppsalaRoadmapVersion2 = await prisma.roadmap.create({
+    data: {
+      version: 2,
+      authorId: admin.id,
+      metaRoadmapId: uppsalaMetaRoadmap.id,
+      description: uppsalaMetaRoadmap.description, // Inherit description from meta roadmap
+      isPublic: false, // Private version (maybe before public release?)
+      comments: {
+        createMany: {
+          data: Array(10).fill(null).map(() => makeRandomComment()),
+        }
+      },
+      // TODO - is this correct?
+      editors: {
+        connect: [
+          { id: admin.id },
+          { id: anita.id },
+          { id: anton.id },
+        ],
+      },
+      createdAt,
+      updatedAt,
+    },
+  });
 
-  // const mainRoadmap = await prisma.roadmap.create({
-  //   data: {
-  //     description: 'This is the main roadmap created for testing',
-  //     version: 1,
-  //     authorId: admin.id,
-  //     isPublic: true,
-  //     metaRoadmapId: mainMetaRoadmap.id,
-  //   }
-  // });
+  
+
 
   // We use prisma.$transaction instead of prisma.goal.createManyAndReturn as it allows
   // nested data creation, which is necessary for creating data series for each goal.
