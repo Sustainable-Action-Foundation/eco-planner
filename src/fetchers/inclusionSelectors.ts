@@ -4,7 +4,7 @@ import { Prisma } from "@prisma/client";
 const dataFieldSelector = dataSeriesDataFieldNames.reduce((acc, field) => {
   acc[field] = true;
   return acc;
-}, {} as Partial<Prisma.DataSeriesSelect>);
+}, {} as Record<typeof dataSeriesDataFieldNames[number], boolean>);
 
 export const nameSelector /* Prisma.MetaRoadmapSelect */ = {
   name: true,
@@ -276,7 +276,7 @@ export const clientSafeGoalSelection /* Prisma.GoalSelect */ = {
   _count: { select: { effects: true } },
 }
 
-export const clientSafeDataSeriesSelection: Prisma.DataSeriesSelect = {
+export const clientSafeDataSeriesSelection /* Prisma.DataSeriesSelect */ = {
   ...dataFieldSelector,
   id: true,
   unit: true,
