@@ -151,12 +151,6 @@ export function RecipeEquationEditor({
   </>)
 }
 
-export function DEBUG_RecipeOutput() {
-  if (process.env.NODE_ENV == "production") return; 
-  const { recipe } = useRecipe();
-  return JSON.stringify(recipe, null, 2) || "No recipe set";
-}
-
 export function RecipeVariableEditor({
   initialVariables,
 

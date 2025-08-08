@@ -33,7 +33,7 @@ import DataSeriesInput from "../dataSeriesInput/dataSeriesInput"; // For enterin
 import { getDataSeries } from "../dataSeriesInput/utils"; // Helper for extracting data series from form
 import styles from '../forms.module.css'; // CSS module for styling
 import { InheritingBaseline, ManualGoalForm } from "./goalFormSections"; // Sub components for form sections
-import { DEBUG_RecipeOutput, RecipeContextProvider, RecipeEquationEditor, RecipeErrorAndWarnings, RecipeSuggestions, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/recipeEditor";
+import { RecipeContextProvider, RecipeEquationEditor, RecipeErrorAndWarnings, RecipeSuggestions, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/recipeEditor";
 import { RecipeVariableType } from "@/functions/recipe-parser/types";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 
@@ -295,8 +295,6 @@ export default function GoalForm({
               <label className="width-100">
                 <ResultingRecipe FormElement={<input type="hidden" name="resultingRecipe" />} />
               </label>
-
-              <DEBUG_RecipeOutput />
             </RecipeContextProvider>
           }
         </fieldset>
