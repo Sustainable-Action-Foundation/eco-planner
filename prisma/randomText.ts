@@ -47,32 +47,14 @@ for (const item of sourceText) {
 export class RandomTextSE {
   static fallbackString: string = "ORD";
 
-  static log(...args: unknown[]) {
-    console.info("RandomTextSE:", ...args);
-  }
-  static info(...args: unknown[]) {
-    console.info("RandomTextSE:", ...args);
-  }
-  static error(...args: unknown[]) {
-    console.error("RandomTextSE:", ...args);
-  }
-  static warn(...args: unknown[]) {
-    console.warn("RandomTextSE:", ...args);
-  }
+  static sentence(wordCount: number = 7, fuzziness: number = 2): string {
+    wordCount = parseInt(wordCount.toString(), 10);
+    fuzziness = parseInt(fuzziness.toString(), 10);
 
-  static sentence(options: { wordCount: number, fuzziness: number } = { wordCount: 7, fuzziness: 2 }): string {
-    if (typeof options !== "object" || options === null || Array.isArray(options) || !("wordCount" in options) || !("fuzziness" in options)) {
-      this.error("Invalid options for sentence generation, expected an object but got", typeof options);
-      return this.fallbackString;
-    }
+    const fuzzyDown = new Array(fuzziness).fill(0).map((_, i) => wordCount - i - 1);
+    const fuzzyUp = new Array(fuzziness).fill(0).map((_, i) => wordCount + i + 1);
 
-    options.wordCount = parseInt(options.wordCount.toString(), 10);
-    options.fuzziness = parseInt(options.fuzziness.toString(), 10);
-
-    const fuzzyDown = new Array(options.fuzziness).fill(0).map((_, i) => options.wordCount - i - 1);
-    const fuzzyUp = new Array(options.fuzziness).fill(0).map((_, i) => options.wordCount + i + 1);
-
-    const poolKeys = [options.wordCount, ...fuzzyDown, ...fuzzyUp];
+    const poolKeys = [wordCount, ...fuzzyDown, ...fuzzyUp];
 
     const pool = [];
     for (const key of poolKeys) {
@@ -84,8 +66,8 @@ export class RandomTextSE {
     }
 
     if (pool.length === 0) {
-      this.warn("No items found for word count", options.wordCount, "and fuzziness", options.fuzziness, "falling back to random words");
-      return this.words(options.wordCount);
+      this.warn("No items found for word count", wordCount, "and fuzziness", fuzziness, "falling back to random words");
+      return this.words(wordCount);
     }
 
     const randomIndex = Math.floor(Math.random() * pool.length);
@@ -94,19 +76,14 @@ export class RandomTextSE {
     return randomSentence + ".";
   }
 
-  static paragraph(options: { sentenceCount: number, fuzziness: number } = { sentenceCount: 4, fuzziness: 1 }): string {
-    if (typeof options !== "object" || options === null || Array.isArray(options)) {
-      this.error("Invalid options for sentences generation, expected an object but got", typeof options);
-      return this.fallbackString;
-    }
+  static paragraph(sentenceCount: number = 4, fuzziness: number = 1): string {
+    sentenceCount = parseInt(sentenceCount.toString(), 10);
+    fuzziness = parseInt(fuzziness.toString(), 10);
 
-    options.sentenceCount = parseInt(options.sentenceCount.toString(), 10);
-    options.fuzziness = parseInt(options.fuzziness.toString(), 10);
+    const fuzzyDown = new Array(fuzziness).fill(0).map((_, i) => sentenceCount - i - 1);
+    const fuzzyUp = new Array(fuzziness).fill(0).map((_, i) => sentenceCount + i + 1);
 
-    const fuzzyDown = new Array(options.fuzziness).fill(0).map((_, i) => options.sentenceCount - i - 1);
-    const fuzzyUp = new Array(options.fuzziness).fill(0).map((_, i) => options.sentenceCount + i + 1);
-
-    const counts = [options.sentenceCount, ...fuzzyDown, ...fuzzyUp];
+    const counts = [sentenceCount, ...fuzzyDown, ...fuzzyUp];
     const randomCount = Math.max(1, counts[Math.floor(Math.random() * counts.length)]);
 
     const sentences: string[] = [];
@@ -120,25 +97,39 @@ export class RandomTextSE {
       }
     }
 
-    return sentences.map(s => s + ".").join(" ");
+    return sentences.join(" ");
   }
 
   static word(): string {
     return this.words(1);
   }
 
-  static words(wordCount: number = 1): string {
-    const items = byWordCount[wordCount] || [];
-    if (items.length === 0 && wordCount > 1) {
-      this.info("No items found for word count", wordCount, "falling back to word count", wordCount - 1);
-      return this.words(wordCount - 1);
+  static words(wordCount: number = 3): string {
+    wordCount = parseInt(wordCount.toString(), 10);
+    if (wordCount < 1) {
+      this.warn("Word count must be at least 1, using 1 instead");
+      wordCount = 1;
     }
-    else if (items.length === 0) {
-      this.warn("No items found for word count", wordCount, `returning ${this.fallbackString} in place of words`);
-      return this.fallbackString.repeat(wordCount);
+
+    const words: string[] = [];
+    for (let i = 0; i < wordCount; i++) {
+      const randomIndex = Math.floor(Math.random() * allWords.length);
+      words.push(allWords[randomIndex]);
     }
-    return items[Math.floor(Math.random() * items.length)];
+
+    return words.join(" ");
+  }
+
+  static log(...args: unknown[]) {
+    console.info("RandomTextSE:", ...args);
+  }
+  static info(...args: unknown[]) {
+    console.info("RandomTextSE:", ...args);
+  }
+  static error(...args: unknown[]) {
+    console.error("RandomTextSE:", ...args);
+  }
+  static warn(...args: unknown[]) {
+    console.warn("RandomTextSE:", ...args);
   }
 }
-
-console.log(RandomTextSE.paragraph());
