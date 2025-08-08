@@ -1,7 +1,7 @@
 import rawText from "./text.json" with { type: "json" };
 
 // Filtering
-const text = rawText
+const sourceText = rawText
   .filter(t => {
     // Counts
     const charCount = t.length;
@@ -22,7 +22,7 @@ const text = rawText
 
 // Group by word count
 const byWordCount: Record<number, string[]> = {};
-for (const item of text) {
+for (const item of sourceText) {
   const wordCount = item.split(/\s+/).length;
 
   // Create length category if it doesn't exist
@@ -34,7 +34,7 @@ for (const item of text) {
 
 // Extract all words from the text
 const allWords: string[] = [];
-for (const item of text) {
+for (const item of sourceText) {
   const words = item.split(/\s+/);
   for (const word of words) {
     if (word.length > 0) {
@@ -60,17 +60,33 @@ export class RandomTextSE {
     console.warn("RandomTextSE:", ...args);
   }
 
-  static sentence(wordCount: number = 10): string {
-    const items = byWordCount[wordCount] || [];
-    if (items.length === 0 && wordCount > 1) {
-      this.info("No items found for word count", wordCount, "falling back to word count", wordCount - 1);
-      return this.sentence(wordCount - 1)
+  static sentence(wordCount: number = 10, fuzziness: number = 2): string {
+    wordCount = parseInt(wordCount.toString(), 10);
+    fuzziness = parseInt(fuzziness.toString(), 10);
+
+    const fuzzyDown = new Array(fuzziness).fill(0).map((_, i) => wordCount - i - 1);
+    const fuzzyUp = new Array(fuzziness).fill(0).map((_, i) => wordCount + i + 1);
+
+    const poolKeys = [wordCount, ...fuzzyDown, ...fuzzyUp];
+
+    const pool = [];
+    for (const key of poolKeys) {
+      if (byWordCount[key]) {
+        pool.push(...byWordCount[key]);
+      } else {
+        this.warn("No items found for word count", key);
+      }
     }
-    else if (items.length === 0) {
-      this.warn("No items found for word count", wordCount, "returning random word");
-      return this.words(1);
+
+    if (pool.length === 0) {
+      this.warn("No items found for word count", wordCount, "or fuzziness", fuzziness, "falling back to random words");
+      return this.words(wordCount);
     }
-    return items[Math.floor(Math.random() * items.length)];
+
+    const randomIndex = Math.floor(Math.random() * pool.length);
+    const randomSentence = pool[randomIndex];
+
+    return randomSentence + ".";
   }
 
   static sentences(sentenceCount: number = 1, wordsPerSentence: number = 10): string {
