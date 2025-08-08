@@ -323,8 +323,8 @@ async function main() {
     },
   });
 
-  // Basic data series to use in goals, effects, and recipes
-  const dataSeriesPlural = await prisma.$transaction(
+  // National goals
+  const nationalGoalsDataSeriesV1 = await prisma.$transaction(
     Array(10).fill(null).map(() => {
       [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
       return prisma.dataSeries.create({
@@ -332,13 +332,64 @@ async function main() {
           authorId: users[Math.floor(Math.random() * users.length)].id,
           createdAt,
           updatedAt,
-          unit: ['CO2e', 'kWh', 'm3', 'kg', 'ton', null, ''].sort(() => Math.random() - 0.5).at(0) ?? null,
+          unit: ['CO2e', 'capita', 'kWh', 's', 'mm^2/km*s', 'ps/sqrt(km)', 'ps/km^(1/2)', 'm3', 'kg', 'ton', 'Atemp', null, ''].sort(() => Math.random() - 0.5).at(0) ?? null,
           ...getRandomCoherentDataPoints(),
         }
       });
     })
   );
+  const nationalGoalsV1 = await prisma.$transaction(
+    Array(10).fill(null).map((_, i) => {
+      [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
+      return prisma.goal.create({
+        data: {
+          name: RandomTextSE.words(Math.floor(Math.random() * 3) + 1),
+          description: RandomTextSE.paragraph(Math.floor(Math.random() * 3) + 1),
+          indicatorParameter: RandomTextSE.words(Math.floor(Math.random() * 5) + 1).replace(/\s/g, '\\'),
+          isFeatured: Math.random() > 0.7,
+          authorId: users[Math.floor(Math.random() * users.length)].id,
+          roadmapId: nationalRoadmapVersion1.id,
+          dataSeries: {
+            connect: { id: nationalGoalsDataSeriesV1[i].id },
+          },
+        },
+      });
+    })
+  );
 
+  const nationalGoalsDataSeriesV2 = await prisma.$transaction(
+    Array(3).fill(null).map(() => {
+      [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
+      return prisma.dataSeries.create({
+        data: {
+          authorId: users[Math.floor(Math.random() * users.length)].id,
+          createdAt,
+          updatedAt,
+          unit: ['CO2e', 'capita', 'kWh', 's', 'mm^2/km*s', 'ps/sqrt(km)', 'ps/km^(1/2)', 'm3', 'kg', 'ton', 'Atemp', null, ''].sort(() => Math.random() - 0.5).at(0) ?? null,
+          ...getRandomCoherentDataPoints(),
+        }
+      });
+    })
+  );
+  const nationalGoalsV2 = await prisma.$transaction([
+    // A couple of new goals
+    ...Array(3).fill(null).map((_, i) => {
+      [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
+      return prisma.goal.create({
+        data: {
+          name: RandomTextSE.words(Math.floor(Math.random() * 3) + 1),
+          description: RandomTextSE.paragraph(Math.floor(Math.random() * 3) + 1),
+          indicatorParameter: RandomTextSE.words(Math.floor(Math.random() * 5) + 1).replace(/\s/g, '\\'),
+          isFeatured: Math.random() > 0.7,
+          authorId: users[Math.floor(Math.random() * users.length)].id,
+          roadmapId: nationalRoadmapVersion2.id,
+          dataSeries: {
+            connect: { id: nationalGoalsDataSeriesV1[i].id },
+          },
+        },
+      });
+    })
+  ]);
 
   // // We use prisma.$transaction instead of prisma.goal.createManyAndReturn as it allows
   // // nested data creation, which is necessary for creating data series for each goal.
