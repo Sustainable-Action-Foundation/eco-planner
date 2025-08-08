@@ -84,8 +84,8 @@ function sha256(input: string) {
 // }
 
 function getRandomDateBackwards(): Date {
-  const roof = Date.now() - 1000 * 60 * 60 * 24; // 1 day ago
-  const floor = 1000 * 60 * 60 * 24; // 1 day from epoch
+  const roof = Date.now() - 1000 * 60; // 1 minute ago
+  const floor = 1000 * 60; // 1 minute ago
 
   const randomTimestamp = Math.floor(Math.random() * (roof - floor + 1)) + floor;
   return new Date(randomTimestamp);
@@ -93,7 +93,11 @@ function getRandomDateBackwards(): Date {
 
 function getRandomCreatedAtAndUpdatedAt(): [Date, Date] {
   const createdAt = getRandomDateBackwards();
-  const updatedAt = new Date(createdAt.getTime() + Math.floor(Math.random() * 1000 * 60 * 60 * 24)); // Randomly set updatedAt to be after createdAt
+  const updatedAt = Math.random() < 0.75 ?
+    createdAt
+    :
+    new Date(createdAt.getTime() + Math.floor(Math.random() * 1000 * 60 * 60 * 24 * 365.2425 * 5)); // Randomly set updatedAt to be after createdAt
+
   return [createdAt, updatedAt];
 }
 
@@ -321,16 +325,18 @@ async function main() {
     },
   });
 
-
+  // Basic data series to use in goals, actions, and recipes
+  [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
   const dataSeriesPlural = await prisma.dataSeries.createMany({
     data: Array(10).fill(null).map(() => ({
-      unit: ['tCO2e', 'kWh', 'm3', 'kg', 'ton'].sort(() => Math.random() - 0.5).at(0),
+      unit: ['tCO2e', 'kWh', 'm3', 'kg', 'ton', undefined, undefined].sort(() => Math.random() - 0.5).at(0),
       ...getRandomCoherentDataPoints(),
       authorId: users[Math.floor(Math.random() * users.length)].id,
-      createdAt: getRandomCreatedAtAndUpdatedAt()[0],
-      updatedAt: getRandomCreatedAtAndUpdatedAt()[1],
+      createdAt,
+      updatedAt,
     })),
   });
+
 
 
   // // We use prisma.$transaction instead of prisma.goal.createManyAndReturn as it allows
