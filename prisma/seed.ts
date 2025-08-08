@@ -210,7 +210,7 @@ async function main() {
       version: 1,
       authorId: anita.id,
       metaRoadmapId: nationalMetaRoadmap.id,
-      description: nationalMetaRoadmap.description, // Inherit description from meta roadmap
+      description: "Det här den första versionen av den nationella färdplanen.",
       isPublic: true,
       comments: {
         createMany: {
@@ -235,7 +235,7 @@ async function main() {
       version: 2,
       authorId: anita.id,
       metaRoadmapId: nationalMetaRoadmap.id,
-      description: nationalMetaRoadmap.description, // Inherit description from meta roadmap
+      description: "Det här den andra versionen av den nationella färdplanen.",
       isPublic: true,
       comments: {
         createMany: {
@@ -280,7 +280,6 @@ async function main() {
       version: 1,
       authorId: admin.id,
       metaRoadmapId: uppsalaMetaRoadmap.id,
-      description: uppsalaMetaRoadmap.description, // Inherit description from meta roadmap
       isPublic: true,
       comments: {
         createMany: {
@@ -305,7 +304,6 @@ async function main() {
       version: 2,
       authorId: admin.id,
       metaRoadmapId: uppsalaMetaRoadmap.id,
-      description: uppsalaMetaRoadmap.description, // Inherit description from meta roadmap
       isPublic: false, // Private version (maybe before public release?)
       comments: {
         createMany: {
@@ -337,7 +335,7 @@ async function main() {
     })),
   });
 
-
+  
 
   // // We use prisma.$transaction instead of prisma.goal.createManyAndReturn as it allows
   // // nested data creation, which is necessary for creating data series for each goal.
