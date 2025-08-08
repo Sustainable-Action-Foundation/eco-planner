@@ -323,19 +323,22 @@ async function main() {
     },
   });
 
-  // Basic data series to use in goals, actions, and recipes
-  [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
-  const dataSeriesPlural = await prisma.dataSeries.createMany({
-    data: Array(10).fill(null).map(() => ({
-      authorId: users[Math.floor(Math.random() * users.length)].id,
-      createdAt,
-      updatedAt,
-      unit: ['CO2e', 'kWh', 'm3', 'kg', 'ton', null, ''].sort(() => Math.random() - 0.5).at(0) ?? null,
-      ...getRandomCoherentDataPoints(),
-    })),
-  });
+  // Basic data series to use in goals, effects, and recipes
+  const dataSeriesPlural = await prisma.$transaction(
+    Array(10).fill(null).map(() => {
+      [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
+      return prisma.dataSeries.create({
+        data: {
+          authorId: users[Math.floor(Math.random() * users.length)].id,
+          createdAt,
+          updatedAt,
+          unit: ['CO2e', 'kWh', 'm3', 'kg', 'ton', null, ''].sort(() => Math.random() - 0.5).at(0) ?? null,
+          ...getRandomCoherentDataPoints(),
+        }
+      });
+    })
+  );
 
-  
 
   // // We use prisma.$transaction instead of prisma.goal.createManyAndReturn as it allows
   // // nested data creation, which is necessary for creating data series for each goal.
