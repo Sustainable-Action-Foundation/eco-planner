@@ -13,7 +13,7 @@ function main() {
     .filter(Boolean)
 
     // Clean
-    .map(t => t.replace(/[\u200B-\u200D\uFEFF]/g, "")) // Zero-width characters
+    // .map(t => t.replace(/[\u200B-\u200D\uFEFF]/g, "")) // Zero-width characters
     .map(t => t.replace(/\s/g, " ")) // Whitespace
     .map(t => t.replace(/[\u00A0\u202F]/g, " ")) // Non-breaking spaces
     .map(t => t.replace(/[\u2018\u2019\u201C\u201D]/g, "'")) // Smart quotes

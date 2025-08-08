@@ -45,6 +45,7 @@ for (const item of sourceText) {
 
 // API class
 export class RandomTextSE {
+  static silent: boolean = true;
   static fallbackString: string = "ORD";
 
   static sentence(wordCount: number = 7, fuzziness: number = 2): string {
@@ -121,15 +122,19 @@ export class RandomTextSE {
   }
 
   static log(...args: unknown[]) {
+    if (this.silent) return;
     console.info("RandomTextSE:", ...args);
   }
   static info(...args: unknown[]) {
+    if (this.silent) return;
     console.info("RandomTextSE:", ...args);
   }
   static error(...args: unknown[]) {
+    if (this.silent) return;
     console.error("RandomTextSE:", ...args);
   }
   static warn(...args: unknown[]) {
+    if (this.silent) return;
     console.warn("RandomTextSE:", ...args);
   }
 }

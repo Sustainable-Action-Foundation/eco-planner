@@ -83,7 +83,7 @@ function sha256(input: string) {
 //   ];
 // }
 
-function getRandomDateBackwards(): Date {
+function getRandomDateInThePast(): Date {
   const roof = Date.now() - 1000 * 60; // 1 minute ago
   const floor = 1000 * 60; // 1 minute ago
 
@@ -92,7 +92,7 @@ function getRandomDateBackwards(): Date {
 }
 
 function getRandomCreatedAtAndUpdatedAt(): [Date, Date] {
-  const createdAt = getRandomDateBackwards();
+  const createdAt = getRandomDateInThePast();
   const updatedAt = Math.random() < 0.75 ?
     createdAt
     :
@@ -101,17 +101,17 @@ function getRandomCreatedAtAndUpdatedAt(): [Date, Date] {
   return [createdAt, updatedAt];
 }
 
-function getRandomCoherentDataPoints(): Record<string, string> {
-  const dataPoints: Record<string, string> = {};
+function getRandomCoherentDataPoints(): Partial<Record<typeof dataSeriesDataFieldNames[number], number>> {
+  const dataPoints: Partial<Record<typeof dataSeriesDataFieldNames[number], number>> = {};
   let startValue = Math.floor(Math.random() * 100); // Random start value between 0 and 99
-  const deviation = Math.floor(Math.random() * 10) + 1; // Random diviation between 1 and 10
+  const deviation = Math.floor(Math.random() * 10) + 1; // Random deviation between 1 and 10
   for (const field of dataSeriesDataFieldNames) {
     const value = startValue + Math.floor(Math.random() * deviation) - Math.floor(Math.random() * deviation);
     if (value < 0) {
-      dataPoints[field] = "0"; // Ensure no negative values
+      dataPoints[field] = 0; // Ensure no negative values
       startValue = 0; // Reset start value to 0 if it goes negative
     } else {
-      dataPoints[field] = value.toString();
+      dataPoints[field] = value;
       startValue = value; // Update start value for next iteration
     }
   }
@@ -329,11 +329,11 @@ async function main() {
   [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
   const dataSeriesPlural = await prisma.dataSeries.createMany({
     data: Array(10).fill(null).map(() => ({
-      unit: ['tCO2e', 'kWh', 'm3', 'kg', 'ton', undefined, undefined].sort(() => Math.random() - 0.5).at(0),
-      ...getRandomCoherentDataPoints(),
       authorId: users[Math.floor(Math.random() * users.length)].id,
       createdAt,
       updatedAt,
+      unit: ['CO2e', 'kWh', 'm3', 'kg', 'ton', null, ''].sort(() => Math.random() - 0.5).at(0) ?? null,
+      ...getRandomCoherentDataPoints(),
     })),
   });
 
