@@ -24,6 +24,9 @@ function main() {
     .map(t => t.replace(/[\u2028\u2029]/g, " ")) // Line and paragraph separators
     .map(t => t.replace(/[\u00B7]/g, "·")) // Middle dot
     .map(t => t.replace(/\s\s+/g, "\n")) // More than one whitespace -> new line
+    .map(t => t.replaceAll("\"", "'")) // Backslash escaped double quotes to single quotes
+    .map(t => t.replaceAll("'''", "'")) // Triple quotes to single quotes
+    .map(t => t.replaceAll("''", "'")) // Double quotes to single quotes
 
     // Split sentences
     .flatMap(t => t.split(/\r?\n/)) // New line
