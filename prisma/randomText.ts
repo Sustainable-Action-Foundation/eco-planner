@@ -1,66 +1,61 @@
 import rawText from "./text.json" with { type: "json" };
 
 // Extracted text from wikipedia https://sv.wikipedia.org/wiki/H%C3%A5llbar_utveckling Our license should be compatible https://creativecommons.org/share-your-work/licensing-considerations/compatible-licenses/
-function main() {
-  if (typeof document === "undefined") return;
+// function main() {
+//   if (typeof document === "undefined") return;
 
-  const includeNode = ["P", "SPAN", "DIV", "H1", "H2", "H3", "H4", "H5", "H6"];
-  const excludeNode = ["SCRIPT", "STYLE", "NOSCRIPT", "META", "HEAD", "NAV", "SOURCE"];
-  const nodeNames = [];
-  const allText = Array.from(document.querySelectorAll("*"))
-    .map(e => { nodeNames.push(e.nodeName); return e; }) // Collect node names for debugging
-    // Filter nodes
-    .filter(e => !excludeNode.includes(e.nodeName))
-    .filter(e => includeNode.includes(e.nodeName))
+//   const includeNode = ["P", "SPAN", "A", "H1", "H2", "H3", "H4", "H5", "H6"];
+//   const allText = Array.from(document.querySelectorAll("*"))
+//     // Filter nodes
+//     .filter(e => includeNode.includes(e.nodeName))
 
-    // Stringify
-    .map(e => e.textContent?.trim() || "")
-    .filter(Boolean)
+//     // Stringify
+//     .map(e => e.textContent?.trim() || "")
+//     .filter(Boolean)
 
-    // Clean
-    .map(t => t.replace(/[\u200B-\u200D\uFEFF]/g, "")) // Zero-width characters
-    .map(t => t.replace(/\s/g, " ")) // Whitespace
-    .map(t => t.replace(/[\u00A0\u202F]/g, " ")) // Non-breaking spaces
-    .map(t => t.replace(/[\u2018\u2019\u201C\u201D]/g, "'")) // Smart quotes
-    .map(t => t.replace(/[\u2013\u2014]/g, "-")) // Dashes
-    .map(t => t.replace(/[\u00AD]/g, "")) // Soft hyphen
-    .map(t => t.replace(/[\u2028\u2029]/g, " ")) // Line and paragraph separators
-    .map(t => t.replace(/[\u00B7]/g, "·")) // Middle dot
+//     // Clean
+//     .map(t => t.replace(/[\u200B-\u200D\uFEFF]/g, "")) // Zero-width characters
+//     .map(t => t.replace(/\s/g, " ")) // Whitespace
+//     .map(t => t.replace(/[\u00A0\u202F]/g, " ")) // Non-breaking spaces
+//     .map(t => t.replace(/[\u2018\u2019\u201C\u201D]/g, "'")) // Smart quotes
+//     .map(t => t.replace(/[\u2013\u2014]/g, "-")) // Dashes
+//     .map(t => t.replace(/[\u00AD]/g, "")) // Soft hyphen
+//     .map(t => t.replace(/[\u2028\u2029]/g, " ")) // Line and paragraph separators
+//     .map(t => t.replace(/[\u00B7]/g, "·")) // Middle dot
 
-    // More than one whitespace -> new line
-    .map(t => t.replace(/\s\s+/g, "\n"))
+//     // More than one whitespace -> new line
+//     .map(t => t.replace(/\s\s+/g, "\n"))
 
-    // Split
-    .flatMap(t => t.split(/\r?\n/)) // New line
-    .flatMap(t => t.split("·")) // Middle dot
-    .flatMap(t => t.split(".")) // Period
-    .flatMap(t => t.split("!")) // Exclamation mark
-    .flatMap(t => t.split("?")) // Question mark
-    .flatMap(t => t.split(/\s/)) // Whitespace
+//     // Split
+//     .flatMap(t => t.split(/\r?\n/)) // New line
+//     .flatMap(t => t.split("·")) // Middle dot
+//     .flatMap(t => t.split(".")) // Period
+//     .flatMap(t => t.split("!")) // Exclamation mark
+//     .flatMap(t => t.split("?")) // Question mark
+//     .flatMap(t => t.split(/\s/)) // Whitespace
 
-    // Post trim and filter
-    .map(t => t.trim())
-    .filter(t => t.length > 1);
+//     // Post trim and filter
+//     .map(t => t.trim())
+//     .filter(t => t.length > 1);
 
-  // create button that i can click to copy allText to clipboard
-  const button = document.createElement("button");
-  button.textContent = "Kopiera text";
-  button.style.position = "fixed";
-  button.style.top = "10px";
-  button.style.right = "10px";
-  button.style.zIndex = "1000";
-  button.onclick = () => {
-    navigator.clipboard.writeText(JSON.stringify(allText)).then(() => {
-      console.info("Text kopierad till urklipp!");
-    }).catch(err => {
-      console.error("Kunde inte kopiera text: ", err);
-    });
-  };
-  document.body.appendChild(button);
+//   // create button that i can click to copy allText to clipboard
+//   const button = document.createElement("button");
+//   button.textContent = "Kopiera text";
+//   button.style.position = "fixed";
+//   button.style.top = "10px";
+//   button.style.right = "10px";
+//   button.style.zIndex = "1000";
+//   button.onclick = () => {
+//     navigator.clipboard.writeText(JSON.stringify(allText)).then(() => {
+//       console.info("Text kopierad till urklipp!");
+//     }).catch(err => {
+//       console.error("Kunde inte kopiera text: ", err);
+//     });
+//   };
+//   document.body.appendChild(button);
 
-  console.log(new Set(nodeNames), "node names found in the document");
-}
-setTimeout(main, 1000);
+// }
+// setTimeout(main, 1000);
 
 // Filtering
 const text = rawText
