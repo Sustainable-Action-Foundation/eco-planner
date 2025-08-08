@@ -97,6 +97,23 @@ function getRandomCreatedAtAndUpdatedAt(): [Date, Date] {
   return [createdAt, updatedAt];
 }
 
+function getRandomCoherentDataPoints(): Record<string, string> {
+  const dataPoints: Record<string, string> = {};
+  let startValue = Math.floor(Math.random() * 100); // Random start value between 0 and 99
+  const deviation = Math.floor(Math.random() * 10) + 1; // Random diviation between 1 and 10
+  for (const field of dataSeriesDataFieldNames) {
+    const value = startValue + Math.floor(Math.random() * deviation) - Math.floor(Math.random() * deviation);
+    if (value < 0) {
+      dataPoints[field] = "0"; // Ensure no negative values
+      startValue = 0; // Reset start value to 0 if it goes negative
+    } else {
+      dataPoints[field] = value.toString();
+      startValue = value; // Update start value for next iteration
+    }
+  }
+  return dataPoints;
+}
+
 async function main() {
   // TODO: We should consider adding more types of data to the seed, see the list below.
   // - More roadmaps and meta roadmaps
@@ -144,8 +161,10 @@ async function main() {
     }
   });
 
+  const users = [admin, anita, anton];
+
   function makeRandomComment(options?: { roadmapId?: string, goalId?: string, actionId?: string, metaRoadmapId?: string }) {
-    const author = [admin, anita, anton][Math.floor(Math.random() * Object.keys(passwords).length)];
+    const author = users[Math.floor(Math.random() * users.length)];
     let [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
     return {
       authorId: author.id,
@@ -302,306 +321,315 @@ async function main() {
     },
   });
 
-  
 
-
-  // We use prisma.$transaction instead of prisma.goal.createManyAndReturn as it allows
-  // nested data creation, which is necessary for creating data series for each goal.
-  const goals = await prisma.$transaction(Array(10).fill(null).map((_) => (
-    prisma.goal.create({
-      data: {
-        name: lorem.generateWords(3),
-        description: lorem.generateSentences(3),
-        indicatorParameter: lorem.generateWords(5).replace(/\s/g, '\\'),
-        isFeatured: Math.random() > 0.7,
-        // TODO: Add external data to some goals
-        authorId: admin.id,
-        roadmapId: mainRoadmap.id,
-        // Random data series for each goal
-        dataSeries: {
-          create: {
-            // TODO: Add more possible units
-            unit: 's',
-            val2020: Math.random() * 100,
-            val2021: Math.random() * 100,
-            val2022: Math.random() * 100,
-            val2023: Math.random() * 100,
-            val2024: Math.random() * 100,
-            val2025: Math.random() * 100,
-            val2026: Math.random() * 100,
-            val2027: Math.random() * 100,
-            val2028: Math.random() * 100,
-            val2029: Math.random() * 100,
-            val2030: Math.random() * 100,
-            val2031: Math.random() * 100,
-            val2032: Math.random() * 100,
-            val2033: Math.random() * 100,
-            val2034: Math.random() * 100,
-            val2035: Math.random() * 100,
-            val2036: Math.random() * 100,
-            val2037: Math.random() * 100,
-            val2038: Math.random() * 100,
-            val2039: Math.random() * 100,
-            val2040: Math.random() * 100,
-            val2041: Math.random() * 100,
-            val2042: Math.random() * 100,
-            val2043: Math.random() * 100,
-            val2044: Math.random() * 100,
-            val2045: Math.random() * 100,
-            val2046: Math.random() * 100,
-            val2047: Math.random() * 100,
-            val2048: Math.random() * 100,
-            val2049: Math.random() * 100,
-            val2050: Math.random() * 100,
-            authorId: admin.id,
-          }
-        }
-      },
-      include: {
-        dataSeries: true,
-      }
-    })
-  )));
-
-  const actions = await prisma.$transaction(Array(10).fill(null).map((_) => (
-    prisma.action.create({
-      data: {
-        name: lorem.generateWords(3),
-        description: lorem.generateSentences(3),
-        startYear: 2020 + Math.round(Math.random() * 10),
-        endYear: 2050 - Math.round(Math.random() * 10),
-        costEfficiency: lorem.generateWords(1),
-        expectedOutcome: lorem.generateSentences(1),
-        projectManager: lorem.generateWords(2),
-        relevantActors: lorem.generateSentences(1).replace(" ", ", "),
-        isSufficiency: Math.random() > 0.7,
-        isEfficiency: Math.random() > 0.7,
-        isRenewables: Math.random() > 0.7,
-        authorId: admin.id,
-        roadmapId: mainRoadmap.id,
-        effects: {
-          create: [
-            {
-              dataSeries: {
-                create: {
-                  unit: '',
-                  val2020: Math.random() * 100,
-                  val2021: Math.random() * 100,
-                  val2022: Math.random() * 100,
-                  val2023: Math.random() * 100,
-                  val2024: Math.random() * 100,
-                  val2025: Math.random() * 100,
-                  val2026: Math.random() * 100,
-                  val2027: Math.random() * 100,
-                  val2028: Math.random() * 100,
-                  val2029: Math.random() * 100,
-                  val2030: Math.random() * 100,
-                  val2031: Math.random() * 100,
-                  val2032: Math.random() * 100,
-                  val2033: Math.random() * 100,
-                  val2034: Math.random() * 100,
-                  val2035: Math.random() * 100,
-                  val2036: Math.random() * 100,
-                  val2037: Math.random() * 100,
-                  val2038: Math.random() * 100,
-                  val2039: Math.random() * 100,
-                  val2040: Math.random() * 100,
-                  val2041: Math.random() * 100,
-                  val2042: Math.random() * 100,
-                  val2043: Math.random() * 100,
-                  val2044: Math.random() * 100,
-                  val2045: Math.random() * 100,
-                  val2046: Math.random() * 100,
-                  val2047: Math.random() * 100,
-                  val2048: Math.random() * 100,
-                  val2049: Math.random() * 100,
-                  val2050: Math.random() * 100,
-                  authorId: admin.id,
-                }
-              },
-              // Assign to goal 0, 1, or 2 (Math.random() is always < 1)
-              goalId: goals[Math.floor(Math.random() * 3)]?.id,
-            },
-            {
-              dataSeries: {
-                create: {
-                  unit: '',
-                  val2020: Math.random() * 100,
-                  val2021: Math.random() * 100,
-                  val2022: Math.random() * 100,
-                  val2023: Math.random() * 100,
-                  val2024: Math.random() * 100,
-                  val2025: Math.random() * 100,
-                  val2026: Math.random() * 100,
-                  val2027: Math.random() * 100,
-                  val2028: Math.random() * 100,
-                  val2029: Math.random() * 100,
-                  val2030: Math.random() * 100,
-                  val2031: Math.random() * 100,
-                  val2032: Math.random() * 100,
-                  val2033: Math.random() * 100,
-                  val2034: Math.random() * 100,
-                  val2035: Math.random() * 100,
-                  val2036: Math.random() * 100,
-                  val2037: Math.random() * 100,
-                  val2038: Math.random() * 100,
-                  val2039: Math.random() * 100,
-                  val2040: Math.random() * 100,
-                  val2041: Math.random() * 100,
-                  val2042: Math.random() * 100,
-                  val2043: Math.random() * 100,
-                  val2044: Math.random() * 100,
-                  val2045: Math.random() * 100,
-                  val2046: Math.random() * 100,
-                  val2047: Math.random() * 100,
-                  val2048: Math.random() * 100,
-                  val2049: Math.random() * 100,
-                  val2050: Math.random() * 100,
-                  authorId: admin.id,
-                }
-              },
-              // Assign to goal 3, 4, or 5
-              goalId: goals[Math.floor(Math.random() * 3) + 3]?.id,
-            },
-            {
-              dataSeries: {
-                create: {
-                  unit: '',
-                  val2020: Math.random() * 100,
-                  val2021: Math.random() * 100,
-                  val2022: Math.random() * 100,
-                  val2023: Math.random() * 100,
-                  val2024: Math.random() * 100,
-                  val2025: Math.random() * 100,
-                  val2026: Math.random() * 100,
-                  val2027: Math.random() * 100,
-                  val2028: Math.random() * 100,
-                  val2029: Math.random() * 100,
-                  val2030: Math.random() * 100,
-                  val2031: Math.random() * 100,
-                  val2032: Math.random() * 100,
-                  val2033: Math.random() * 100,
-                  val2034: Math.random() * 100,
-                  val2035: Math.random() * 100,
-                  val2036: Math.random() * 100,
-                  val2037: Math.random() * 100,
-                  val2038: Math.random() * 100,
-                  val2039: Math.random() * 100,
-                  val2040: Math.random() * 100,
-                  val2041: Math.random() * 100,
-                  val2042: Math.random() * 100,
-                  val2043: Math.random() * 100,
-                  val2044: Math.random() * 100,
-                  val2045: Math.random() * 100,
-                  val2046: Math.random() * 100,
-                  val2047: Math.random() * 100,
-                  val2048: Math.random() * 100,
-                  val2049: Math.random() * 100,
-                  val2050: Math.random() * 100,
-                  authorId: admin.id,
-                }
-              },
-              // Assign to goal 6, 7, 8, or 9
-              goalId: goals[Math.floor(Math.random() * 4) + 6]?.id,
-            }
-          ],
-        }
-      },
-      include: {
-        effects: {
-          include: {
-            dataSeries: true,
-          }
-        }
-      }
-    })
-  )));
-
-  const users = await prisma.$transaction(Array(5).fill(null).map((_, index) => (
-    prisma.user.create({
-      data: {
-        username: `${lorem.generateWords(1)}-${index}`,
-        password: hashedAdminPassword,
-        email: `${lorem.generateWords(2).replace(" ", ".")}+${index}@example.com`,
-        isAdmin: false,
-        isVerified: true,
-      }
-    })
-  )));
-
-  const _comments = await prisma.$transaction(Array(30).fill(null).map((_) => {
-    const commentType = Math.random();
-    return prisma.comment.create({
-      data: {
-        commentText: lorem.generateParagraphs(1),
-        authorId: users[Math.floor(Math.random() * users.length)]?.id,
-        metaRoadmapId: commentType < 0.15 ? mainMetaRoadmap.id : null,
-        roadmapId: commentType >= 0.15 && commentType < 0.3 ? mainRoadmap.id : null,
-        goalId: commentType >= 0.3 && commentType < 0.65 ? goals[Math.floor(Math.random() * goals.length)]?.id : null,
-        actionId: commentType >= 0.65 ? actions[Math.floor(Math.random() * actions.length)]?.id : null,
-      }
-    })
-  }));
-
-  const testingDataSeries = {
-    val2020: 10,
-    val2021: 20,
-    val2022: 30,
-    val2023: 40,
-    val2024: 50,
-    val2025: 60,
-    val2026: 70,
-    val2027: 80,
-    val2028: 90,
-    val2029: 100,
-    val2030: 110,
-    val2031: 120,
-    val2032: 130,
-    val2033: 140,
-    val2034: 150,
-    val2035: 160,
-    val2036: 170,
-    val2037: 180,
-    val2038: 190,
-    val2039: 200,
-    val2040: 210,
-    val2041: 220,
-    val2042: 230,
-    val2043: 240,
-    val2044: 250,
-    val2045: 260,
-    val2046: 270,
-    val2047: 280,
-    val2048: 290,
-    val2049: 300,
-    val2050: 310,
-  }
-
-  const _goalWithRecipeSuggestions = await prisma.goal.create({
-    data: {
-      name: 'Goal with Recipe Suggestions',
-      description: 'This goal has recipe suggestions for testing purposes.',
-      indicatorParameter: 'test-parameter',
-      isFeatured: true,
-      authorId: admin.id,
-      roadmapId: mainRoadmap.id,
-      dataSeries: {
-        create: {
-          unit: 'test-unit',
-          ...testingDataSeries,
-          authorId: admin.id,
-        }
-      },
-      recipeSuggestions: {
-        create: makeRecipeSuggestions(testingDataSeries)
-          .map(recipe => ({
-            hash: sha256(recipe),
-            recipe,
-          })),
-      }
-    },
-    // Include?
+  const dataSeriesPlural = await prisma.dataSeries.createMany({
+    data: Array(10).fill(null).map(() => ({
+      unit: ['tCO2e', 'kWh', 'm3', 'kg', 'ton'].sort(() => Math.random() - 0.5).at(0),
+      ...getRandomCoherentDataPoints(),
+      authorId: users[Math.floor(Math.random() * users.length)].id,
+      createdAt: getRandomCreatedAtAndUpdatedAt()[0],
+      updatedAt: getRandomCreatedAtAndUpdatedAt()[1],
+    })),
   });
+
+
+  // // We use prisma.$transaction instead of prisma.goal.createManyAndReturn as it allows
+  // // nested data creation, which is necessary for creating data series for each goal.
+  // const goals = await prisma.$transaction(Array(10).fill(null).map((_) => (
+  //   prisma.goal.create({
+  //     data: {
+  //       name: lorem.generateWords(3),
+  //       description: lorem.generateSentences(3),
+  //       indicatorParameter: lorem.generateWords(5).replace(/\s/g, '\\'),
+  //       isFeatured: Math.random() > 0.7,
+  //       // TODO: Add external data to some goals
+  //       authorId: admin.id,
+  //       roadmapId: mainRoadmap.id,
+  //       // Random data series for each goal
+  //       dataSeries: {
+  //         create: {
+  //           // TODO: Add more possible units
+  //           unit: 's',
+  //           val2020: Math.random() * 100,
+  //           val2021: Math.random() * 100,
+  //           val2022: Math.random() * 100,
+  //           val2023: Math.random() * 100,
+  //           val2024: Math.random() * 100,
+  //           val2025: Math.random() * 100,
+  //           val2026: Math.random() * 100,
+  //           val2027: Math.random() * 100,
+  //           val2028: Math.random() * 100,
+  //           val2029: Math.random() * 100,
+  //           val2030: Math.random() * 100,
+  //           val2031: Math.random() * 100,
+  //           val2032: Math.random() * 100,
+  //           val2033: Math.random() * 100,
+  //           val2034: Math.random() * 100,
+  //           val2035: Math.random() * 100,
+  //           val2036: Math.random() * 100,
+  //           val2037: Math.random() * 100,
+  //           val2038: Math.random() * 100,
+  //           val2039: Math.random() * 100,
+  //           val2040: Math.random() * 100,
+  //           val2041: Math.random() * 100,
+  //           val2042: Math.random() * 100,
+  //           val2043: Math.random() * 100,
+  //           val2044: Math.random() * 100,
+  //           val2045: Math.random() * 100,
+  //           val2046: Math.random() * 100,
+  //           val2047: Math.random() * 100,
+  //           val2048: Math.random() * 100,
+  //           val2049: Math.random() * 100,
+  //           val2050: Math.random() * 100,
+  //           authorId: admin.id,
+  //         }
+  //       }
+  //     },
+  //     include: {
+  //       dataSeries: true,
+  //     }
+  //   })
+  // )));
+
+  // const actions = await prisma.$transaction(Array(10).fill(null).map((_) => (
+  //   prisma.action.create({
+  //     data: {
+  //       name: lorem.generateWords(3),
+  //       description: lorem.generateSentences(3),
+  //       startYear: 2020 + Math.round(Math.random() * 10),
+  //       endYear: 2050 - Math.round(Math.random() * 10),
+  //       costEfficiency: lorem.generateWords(1),
+  //       expectedOutcome: lorem.generateSentences(1),
+  //       projectManager: lorem.generateWords(2),
+  //       relevantActors: lorem.generateSentences(1).replace(" ", ", "),
+  //       isSufficiency: Math.random() > 0.7,
+  //       isEfficiency: Math.random() > 0.7,
+  //       isRenewables: Math.random() > 0.7,
+  //       authorId: admin.id,
+  //       roadmapId: mainRoadmap.id,
+  //       effects: {
+  //         create: [
+  //           {
+  //             dataSeries: {
+  //               create: {
+  //                 unit: '',
+  //                 val2020: Math.random() * 100,
+  //                 val2021: Math.random() * 100,
+  //                 val2022: Math.random() * 100,
+  //                 val2023: Math.random() * 100,
+  //                 val2024: Math.random() * 100,
+  //                 val2025: Math.random() * 100,
+  //                 val2026: Math.random() * 100,
+  //                 val2027: Math.random() * 100,
+  //                 val2028: Math.random() * 100,
+  //                 val2029: Math.random() * 100,
+  //                 val2030: Math.random() * 100,
+  //                 val2031: Math.random() * 100,
+  //                 val2032: Math.random() * 100,
+  //                 val2033: Math.random() * 100,
+  //                 val2034: Math.random() * 100,
+  //                 val2035: Math.random() * 100,
+  //                 val2036: Math.random() * 100,
+  //                 val2037: Math.random() * 100,
+  //                 val2038: Math.random() * 100,
+  //                 val2039: Math.random() * 100,
+  //                 val2040: Math.random() * 100,
+  //                 val2041: Math.random() * 100,
+  //                 val2042: Math.random() * 100,
+  //                 val2043: Math.random() * 100,
+  //                 val2044: Math.random() * 100,
+  //                 val2045: Math.random() * 100,
+  //                 val2046: Math.random() * 100,
+  //                 val2047: Math.random() * 100,
+  //                 val2048: Math.random() * 100,
+  //                 val2049: Math.random() * 100,
+  //                 val2050: Math.random() * 100,
+  //                 authorId: admin.id,
+  //               }
+  //             },
+  //             // Assign to goal 0, 1, or 2 (Math.random() is always < 1)
+  //             goalId: goals[Math.floor(Math.random() * 3)]?.id,
+  //           },
+  //           {
+  //             dataSeries: {
+  //               create: {
+  //                 unit: '',
+  //                 val2020: Math.random() * 100,
+  //                 val2021: Math.random() * 100,
+  //                 val2022: Math.random() * 100,
+  //                 val2023: Math.random() * 100,
+  //                 val2024: Math.random() * 100,
+  //                 val2025: Math.random() * 100,
+  //                 val2026: Math.random() * 100,
+  //                 val2027: Math.random() * 100,
+  //                 val2028: Math.random() * 100,
+  //                 val2029: Math.random() * 100,
+  //                 val2030: Math.random() * 100,
+  //                 val2031: Math.random() * 100,
+  //                 val2032: Math.random() * 100,
+  //                 val2033: Math.random() * 100,
+  //                 val2034: Math.random() * 100,
+  //                 val2035: Math.random() * 100,
+  //                 val2036: Math.random() * 100,
+  //                 val2037: Math.random() * 100,
+  //                 val2038: Math.random() * 100,
+  //                 val2039: Math.random() * 100,
+  //                 val2040: Math.random() * 100,
+  //                 val2041: Math.random() * 100,
+  //                 val2042: Math.random() * 100,
+  //                 val2043: Math.random() * 100,
+  //                 val2044: Math.random() * 100,
+  //                 val2045: Math.random() * 100,
+  //                 val2046: Math.random() * 100,
+  //                 val2047: Math.random() * 100,
+  //                 val2048: Math.random() * 100,
+  //                 val2049: Math.random() * 100,
+  //                 val2050: Math.random() * 100,
+  //                 authorId: admin.id,
+  //               }
+  //             },
+  //             // Assign to goal 3, 4, or 5
+  //             goalId: goals[Math.floor(Math.random() * 3) + 3]?.id,
+  //           },
+  //           {
+  //             dataSeries: {
+  //               create: {
+  //                 unit: '',
+  //                 val2020: Math.random() * 100,
+  //                 val2021: Math.random() * 100,
+  //                 val2022: Math.random() * 100,
+  //                 val2023: Math.random() * 100,
+  //                 val2024: Math.random() * 100,
+  //                 val2025: Math.random() * 100,
+  //                 val2026: Math.random() * 100,
+  //                 val2027: Math.random() * 100,
+  //                 val2028: Math.random() * 100,
+  //                 val2029: Math.random() * 100,
+  //                 val2030: Math.random() * 100,
+  //                 val2031: Math.random() * 100,
+  //                 val2032: Math.random() * 100,
+  //                 val2033: Math.random() * 100,
+  //                 val2034: Math.random() * 100,
+  //                 val2035: Math.random() * 100,
+  //                 val2036: Math.random() * 100,
+  //                 val2037: Math.random() * 100,
+  //                 val2038: Math.random() * 100,
+  //                 val2039: Math.random() * 100,
+  //                 val2040: Math.random() * 100,
+  //                 val2041: Math.random() * 100,
+  //                 val2042: Math.random() * 100,
+  //                 val2043: Math.random() * 100,
+  //                 val2044: Math.random() * 100,
+  //                 val2045: Math.random() * 100,
+  //                 val2046: Math.random() * 100,
+  //                 val2047: Math.random() * 100,
+  //                 val2048: Math.random() * 100,
+  //                 val2049: Math.random() * 100,
+  //                 val2050: Math.random() * 100,
+  //                 authorId: admin.id,
+  //               }
+  //             },
+  //             // Assign to goal 6, 7, 8, or 9
+  //             goalId: goals[Math.floor(Math.random() * 4) + 6]?.id,
+  //           }
+  //         ],
+  //       }
+  //     },
+  //     include: {
+  //       effects: {
+  //         include: {
+  //           dataSeries: true,
+  //         }
+  //       }
+  //     }
+  //   })
+  // )));
+
+  // const users = await prisma.$transaction(Array(5).fill(null).map((_, index) => (
+  //   prisma.user.create({
+  //     data: {
+  //       username: `${lorem.generateWords(1)}-${index}`,
+  //       password: hashedAdminPassword,
+  //       email: `${lorem.generateWords(2).replace(" ", ".")}+${index}@example.com`,
+  //       isAdmin: false,
+  //       isVerified: true,
+  //     }
+  //   })
+  // )));
+
+  // const _comments = await prisma.$transaction(Array(30).fill(null).map((_) => {
+  //   const commentType = Math.random();
+  //   return prisma.comment.create({
+  //     data: {
+  //       commentText: lorem.generateParagraphs(1),
+  //       authorId: users[Math.floor(Math.random() * users.length)]?.id,
+  //       metaRoadmapId: commentType < 0.15 ? mainMetaRoadmap.id : null,
+  //       roadmapId: commentType >= 0.15 && commentType < 0.3 ? mainRoadmap.id : null,
+  //       goalId: commentType >= 0.3 && commentType < 0.65 ? goals[Math.floor(Math.random() * goals.length)]?.id : null,
+  //       actionId: commentType >= 0.65 ? actions[Math.floor(Math.random() * actions.length)]?.id : null,
+  //     }
+  //   })
+  // }));
+
+  // const testingDataSeries = {
+  //   val2020: 10,
+  //   val2021: 20,
+  //   val2022: 30,
+  //   val2023: 40,
+  //   val2024: 50,
+  //   val2025: 60,
+  //   val2026: 70,
+  //   val2027: 80,
+  //   val2028: 90,
+  //   val2029: 100,
+  //   val2030: 110,
+  //   val2031: 120,
+  //   val2032: 130,
+  //   val2033: 140,
+  //   val2034: 150,
+  //   val2035: 160,
+  //   val2036: 170,
+  //   val2037: 180,
+  //   val2038: 190,
+  //   val2039: 200,
+  //   val2040: 210,
+  //   val2041: 220,
+  //   val2042: 230,
+  //   val2043: 240,
+  //   val2044: 250,
+  //   val2045: 260,
+  //   val2046: 270,
+  //   val2047: 280,
+  //   val2048: 290,
+  //   val2049: 300,
+  //   val2050: 310,
+  // }
+
+  // const _goalWithRecipeSuggestions = await prisma.goal.create({
+  //   data: {
+  //     name: 'Goal with Recipe Suggestions',
+  //     description: 'This goal has recipe suggestions for testing purposes.',
+  //     indicatorParameter: 'test-parameter',
+  //     isFeatured: true,
+  //     authorId: admin.id,
+  //     roadmapId: mainRoadmap.id,
+  //     dataSeries: {
+  //       create: {
+  //         unit: 'test-unit',
+  //         ...testingDataSeries,
+  //         authorId: admin.id,
+  //       }
+  //     },
+  //     recipeSuggestions: {
+  //       create: makeRecipeSuggestions(testingDataSeries)
+  //         .map(recipe => ({
+  //           hash: sha256(recipe),
+  //           recipe,
+  //         })),
+  //     }
+  //   },
+  //   // Include?
+  // });
 }
 
 main().then(async () => {
