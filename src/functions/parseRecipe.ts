@@ -6,15 +6,14 @@ import mathjs from "@/math";
 import { dataSeriesDataFieldNames as years, isStandardObject, uuidRegex } from "@/types";
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import getTableContent from "@/lib/api/getTableContent";
-import clientSafeGetOneGoal from "@/fetchers/clientSafeGetOneGoal";
 import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
 
-type DataSeriesDbEntry = {
-  uuid: string;
-  unit?: string;
-  data: Partial<DataSeriesArray>;
-};
-const dataSeriesDB: Record<string, DataSeriesDbEntry> = {};
+// type DataSeriesDbEntry = {
+//   uuid: string;
+//   unit?: string;
+//   data: Partial<DataSeriesArray>;
+// };
+// const dataSeriesDB: Record<string, DataSeriesDbEntry> = {};
 
 export function unsafeIsRawRecipe(recipe: unknown): recipe is RawRecipe {
   return (
@@ -133,9 +132,14 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
           if ("value" in variable || "unit" in variable) {
             console.warn(`Variable '${key}' is a data series by link, but has 'value' or 'unit' properties. These will be ignored.`);
           }
-          // If it has a link, try to use it
-          // TODO: integrate with actual database, possibly batching all data series links as a single query
-          if (variable.link && !dataSeriesDB[variable.link]) {
+
+          if (!variable.link) {
+            throw new RecipeError(`Data series variable '${key}' is missing 'link' property.`);
+          }
+
+          const dataSeriesInDB = await clientSafeGetOneDataSeries(variable.link);
+
+          if (!dataSeriesInDB) {
             throw new RecipeError(`Data series with UUID '${variable.link}' for variable '${key}' does not exist in the database.`);
           }
           parsedVariables[key] = { type: RecipeVariableType.DataSeries, link: variable.link };
@@ -154,13 +158,13 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
             }
           }
 
-          // Write to "db" and link TODO - do this properly
-          const uuid = crypto.randomUUID();
-          dataSeriesDB[uuid] = {
-            uuid,
-            data: dataSeries,
-            ...(variable.unit ? { unit: variable.unit } : {})
-          };
+          // Write to db
+          const { uuid } = await (await fetch("/api/dataSeries", {
+            body: JSON.stringify({
+              data: dataSeries,
+              unit: variable.unit
+            }), method: "POST"
+          })).json() as { uuid: string };
 
           parsedVariables[key] = { type: RecipeVariableType.DataSeries, link: uuid };
           break;
