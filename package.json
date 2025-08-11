@@ -55,7 +55,7 @@
     "cookies-next": "^6.0.0",
     "dotenv": "^17.1.0",
     "glob": "^11.0.3",
-    "i18next": "^25.3.1",
+    "i18next": "^25.3.4",
     "i18next-fs-backend": "^2.6.0",
     "i18next-http-backend": "^3.0.2",
     "iron-session": "^8.0.4",
@@ -70,11 +70,11 @@
     "use-debounce": "^10.0.4"
   },
   "devDependencies": {
-    "@types/node": "^24.2.0",
+    "@types/node": "^24.2.1",
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^19.1.9",
     "@types/regexp.escape": "^2.0.0",
-    "eslint": "^9.32.0",
+    "eslint": "^9.33.0",
     "eslint-config-next": "^15.4.6",
     "lorem-ipsum": "^2.0.8",
     "playwright": "^1.54.2",

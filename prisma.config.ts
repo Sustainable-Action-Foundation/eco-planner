@@ -33,8 +33,9 @@ for (const [key, value] of Object.entries(envData)) {
  */
 export default defineConfig({
   schema: path.join("prisma", "schema.prisma"),
+
   migrations: {
-    path: path.join("prisma", "migrations"),
     seed: "tsx prisma/seed.ts",
+    path: path.join("prisma", "migrations"),
   },
 });
