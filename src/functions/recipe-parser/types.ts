@@ -1,4 +1,4 @@
-import { externalDatasets } from "@/lib/api/utility";
+import { ExternalDataset } from "@/lib/api/utility";
 import { isStandardObject, uuidRegex } from "@/types";
 
 /* 
@@ -137,7 +137,7 @@ export type RecipeVariableDataSeries = {
 /* 
  * External datasets types
  */
-export type ExternalDataset = {
+export type RecipeVariableExternalDataset = {
   type: RecipeVariableType.External;
   /** Datasets are defined in [`src/lib/api/utility.ts`](../../lib/api/utility.ts) */
   dataset: string; // One of the datasets specified in externalDatasets
@@ -148,14 +148,14 @@ export type ExternalDataset = {
   }[]; // The selection to be made on the table, e.g. [{ variableCode: "Tid", valueCodes: ["2020M01"] }]
 };
 
-export function isExternalDatasetVariable(variable: unknown): variable is ExternalDataset {
+export function isExternalDatasetVariable(variable: unknown): variable is RecipeVariableExternalDataset {
   return (
     isStandardObject(variable) &&
     "type" in variable &&
     variable.type === RecipeVariableType.External &&
     "dataset" in variable &&
     typeof variable.dataset === "string" &&
-    Object.keys(externalDatasets).includes(variable.dataset) && // Ensure the dataset is one of the known datasets
+    Object.keys(ExternalDataset).includes(variable.dataset) && // Ensure the dataset is one of the known datasets
     "tableId" in variable &&
     typeof variable.tableId === "string" &&
     "selection" in variable &&
@@ -177,8 +177,8 @@ export function isExternalDatasetVariable(variable: unknown): variable is Extern
 /* 
  * Main recipe types
  */
-export type RecipeVariables = RecipeVariableScalar | RecipeVariableDataSeries | ExternalDataset;
-export type RawRecipeVariables = RecipeVariableScalar | RecipeVariableRawDataSeries | ExternalDataset;
+export type RecipeVariables = RecipeVariableScalar | RecipeVariableDataSeries | RecipeVariableExternalDataset;
+export type RawRecipeVariables = RecipeVariableScalar | RecipeVariableRawDataSeries | RecipeVariableExternalDataset;
 
 export type Recipe = {
   name?: string;

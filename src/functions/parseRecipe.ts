@@ -1,5 +1,5 @@
 import { getVariableName } from "./recipe-parser/helpers";
-import type { DataSeriesArray, EvalTimeDataSeries, EvalTimeScalar, ExternalDataset, RawRecipe, Recipe, RecipeVariableDataSeries, RecipeVariables, RecipeVariableScalar } from "./recipe-parser/types";
+import type { DataSeriesArray, EvalTimeDataSeries, EvalTimeScalar, RecipeVariableExternalDataset, RawRecipe, Recipe, RecipeVariableDataSeries, RecipeVariables, RecipeVariableScalar } from "./recipe-parser/types";
 import { RecipeVariableType, isRawDataSeriesByValue, lenientIsRawDataSeriesByLink, isRecipeVariableScalar, MathjsError, RecipeError, isExternalDatasetVariable } from "./recipe-parser/types";
 import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
 import mathjs from "@/math";
@@ -322,7 +322,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
   const externalDataPromises = Object.entries(recipe.variables)
     .filter(([_name, variable]) => variable.type === "external")
     .map(([_name, variable]) => {
-      const { dataset, tableId, selection } = variable as ExternalDataset;
+      const { dataset, tableId, selection } = variable as RecipeVariableExternalDataset;
       // TODO: use same language as error messages after i18n pass
       return getTableContent(tableId, dataset, selection, undefined);
     })
