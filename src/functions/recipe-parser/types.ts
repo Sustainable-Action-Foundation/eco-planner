@@ -1,6 +1,9 @@
 import { externalDatasets } from "@/lib/api/utility";
 import { isStandardObject, uuidRegex } from "@/types";
 
+/* 
+ * Common types for recipes
+ */
 export enum RecipeVariableType {
   Scalar = "scalar",
   DataSeries = "dataSeries",
@@ -42,6 +45,10 @@ export type DataSeriesArray = Partial<{
   "val2050": number | null;
 }>;
 
+
+/** 
+ * Scalar variable types
+ */
 export type RecipeVariableScalar = {
   type: RecipeVariableType.Scalar;
   value: number;
@@ -63,6 +70,10 @@ export function isRecipeVariableScalar(variable: unknown): variable is RecipeVar
   );
 };
 
+
+/* 
+ * Data series types
+ */
 export type RawDataSeriesByLink = {
   type: RecipeVariableType.DataSeries;
   link: string | null; // uuid of data series in the database
@@ -122,8 +133,13 @@ export type RecipeVariableDataSeries = {
   link: string | null; // uuid of data series in the database
 };
 
+
+/* 
+ * External datasets types
+ */
 export type ExternalDataset = {
   type: RecipeVariableType.External;
+  /** Datasets are defined in [`src/lib/api/utility.ts`](../../lib/api/utility.ts) */
   dataset: string; // One of the datasets specified in externalDatasets
   tableId: string; // The ID of the table in the dataset
   selection: {
@@ -157,20 +173,45 @@ export function isExternalDatasetVariable(variable: unknown): variable is Extern
   );
 };
 
+
+/* 
+ * Main recipe types
+ */
 export type RecipeVariables = RecipeVariableScalar | RecipeVariableDataSeries | ExternalDataset;
+export type RawRecipeVariables = RecipeVariableScalar | RecipeVariableRawDataSeries | ExternalDataset;
+
 export type Recipe = {
   name?: string;
   eq: string;
   variables: Record<string, RecipeVariables>;
 };
-
-export type RawRecipeVariables = RecipeVariableScalar | RecipeVariableRawDataSeries | ExternalDataset;
 /** Considered unsafe as it is. Comes from the client */
 export type RawRecipe = {
   name?: string;
   eq: string;
   variables: Record<string, RawRecipeVariables>;
 };
+
+
+/*
+ * Variable during evaluation of a recipe. Should not persist beyond that scope.
+ */
+export type EvalTimeScalar = {
+  name: string; // Variable name
+  value: number; // The actual value to be used
+  unit?: string; // Optional unit
+};
+export type EvalTimeDataSeries = {
+  name: string; // Variable name
+  link: string; // For reference sake
+  data: { [key: string]: number | string | null }; // The actual data to be used
+  unit?: string | null; // Optional unit
+};
+
+
+/*
+ * Errors
+ */
 export class RecipeError extends Error {
   constructor(message: string) {
     super(message);
@@ -182,16 +223,4 @@ export class MathjsError extends Error {
     super(message);
     this.name = "MathjsError";
   }
-};
-
-export type EvalTimeScalar = {
-  name: string; // Variable name
-  value: number; // The actual value to be used
-  unit?: string; // Optional unit
-};
-export type EvalTimeDataSeries = {
-  name: string; // Variable name
-  link: string; // For reference sake
-  data: { [key: string]: number | string | null }; // The actual data to be used
-  unit?: string | null; // Optional unit
 };
