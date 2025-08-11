@@ -8,13 +8,6 @@ import { ApiTableContent } from "@/lib/api/apiTypes";
 import getTableContent from "@/lib/api/getTableContent";
 import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
 
-// type DataSeriesDbEntry = {
-//   uuid: string;
-//   unit?: string;
-//   data: Partial<DataSeriesArray>;
-// };
-// const dataSeriesDB: Record<string, DataSeriesDbEntry> = {};
-
 export function unsafeIsRawRecipe(recipe: unknown): recipe is RawRecipe {
   return (
     // Should be a regular object
