@@ -1,13 +1,13 @@
 "use server";
 
-import { externalDatasets } from "../api/utility";
+import { ExternalDataset } from "../api/utility";
 import { StructureItem, TrafaDataResponse } from "./trafaTypes";
 
 export default async function getTrafaTables(query?: string | null, language?: string) {
-  const url = new URL('./structure', externalDatasets.Trafa?.baseUrl);
+  const url = new URL('./structure', ExternalDataset.Trafa.baseUrl);
   url.searchParams.append('query', ``);
-  if (!language || !externalDatasets["Trafa"]?.supportedLanguages.includes(language)) {
-    language = externalDatasets["Trafa"]?.supportedLanguages[0];
+  if (!language || !ExternalDataset.Trafa.supportedLanguages.includes(language)) {
+    language = ExternalDataset.Trafa.supportedLanguages[0];
   }
   if (language) {
     url.searchParams.append('lang', language);

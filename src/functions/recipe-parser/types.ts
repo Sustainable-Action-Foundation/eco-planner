@@ -140,7 +140,7 @@ export type RecipeVariableDataSeries = {
 export type RecipeVariableExternalDataset = {
   type: RecipeVariableType.External;
   /** Datasets are defined in [`src/lib/api/utility.ts`](../../lib/api/utility.ts) */
-  dataset: string; // One of the datasets specified in externalDatasets
+  dataset: Exclude<keyof typeof ExternalDataset, "prototype">; // One of the datasets specified in externalDatasets
   tableId: string; // The ID of the table in the dataset
   selection: {
     variableCode: string,

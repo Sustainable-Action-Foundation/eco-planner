@@ -3,7 +3,7 @@ export type DatasetData = {
   baseUrl: string,
   userFacingUrl: string,
   supportedLanguages: string[],
-  api: string,
+  api: "PxWeb" | "Trafa",
   fullName?: string,
   alternateNames?: string[]
 };
@@ -21,7 +21,8 @@ export type DatasetData = {
  * @param fullName Full name is the full name of the dataset as the key will usually be a shorthand for the full name.
  */
 class ExternalDatasetClass {
-  // PXWeb-based APIs
+  // PxWeb-based APIs
+  /** An API provided by Swedish SCB, using the PxWeb API v2 */
   static SCB: DatasetData = {
     baseUrl: "https://api.scb.se/ov0104/v2beta/api/v2/",
     userFacingUrl: "https://www.statistikdatabasen.scb.se/pxweb/sv/ssd/",
@@ -32,6 +33,7 @@ class ExternalDatasetClass {
   };
   static scb = this.SCB;
 
+  /** An API provided by Norwegian SSB, using the PxWeb API v2 */
   static SSB: DatasetData = {
     baseUrl: "https://data.ssb.no/api/pxwebapi/v2-beta/",
     userFacingUrl: "https://www.ssb.no/statbank/",
@@ -44,6 +46,7 @@ class ExternalDatasetClass {
 
 
   // Trafa-based APIs
+  /** An API provided by Swedish Trafikanalys, with their own data format */
   static Trafa: DatasetData = {
     baseUrl: "https://api.trafa.se/api/",
     userFacingUrl: "https://www.trafa.se/sidor/statistikportalen/",
@@ -53,11 +56,40 @@ class ExternalDatasetClass {
     alternateNames: ["trafa"]
   };
   static trafa = this.Trafa;
+
+
+  // Utility methods and properties
+  /** A list of dataset keys with "canonical" casing. Should match the main keys of the class and be safe to use everywhere */
+  static knownDatasetKeys: DatasetKeys[] = ["SCB", "SSB", "Trafa"];
+  /**
+   * Returns a list of datasets using the specified API(s).
+   * @param apiName 
+   * @returns 
+   */
+  static getDatasetsByApi(apiName: DatasetData["api"] | (DatasetData["api"])[]): DatasetKeys[] {
+    if (typeof apiName === "string") {
+      const entries = Object.entries(this)
+        .filter(([, value]) => typeof value === "object" && "api" in value && value.api === apiName)
+        .filter(([key]) => this.knownDatasetKeys.includes(key as DatasetKeys));
+
+      return entries.map(([key]) => key as DatasetKeys);
+    } else if (Array.isArray(apiName)) {
+      const datasets: DatasetKeys[] = [];
+      for (const api of apiName) {
+        const keys = this.getDatasetsByApi(api);
+        if (keys) {
+          datasets.push(...keys);
+        }
+      }
+      return datasets.filter((value, index, self) => self.indexOf(value) === index); // Remove duplicates
+    } else {
+      return [];
+    }
+  }
 }
 
 export const ExternalDataset = new Proxy(ExternalDatasetClass, {
   get(target, prop) {
-
     if (prop in target) {
       return target[prop as keyof typeof target];
     }
@@ -86,13 +118,15 @@ export const ExternalDataset = new Proxy(ExternalDatasetClass, {
   },
 });
 
-console.log(Object.keys(ExternalDataset));
-
 /**
  * @param apiNames a string or an array of strings that represent the api(s) to filter by
  * @returns list of datasets that use specified api(s)
  */
-// export function getDatasetKeysOfApis(apiNames: string | string[]): string[] { return typeof apiNames == "string" ? Object.keys(externalDatasets).filter(key => externalDatasets[key]?.api === apiNames) : Object.keys(externalDatasets).filter(key => apiNames.includes(externalDatasets[key]?.api as string)); }
+// export function getDatasetKeysOfApis(apiNames: string | string[]): string[] {
+//   return typeof apiNames == "string" ? Object.keys(externalDatasets)
+//     .filter(key => externalDatasets[key]?.api === apiNames) : Object.keys(externalDatasets)
+//       .filter(key => apiNames.includes(externalDatasets[key]?.api as string));
+// }
 
 export function parsePeriod(period: string) {
   period = period.trim().toUpperCase();

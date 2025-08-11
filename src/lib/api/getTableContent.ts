@@ -1,14 +1,21 @@
 import getPxWebTableContent from "../pxWeb/getPxWebTableContent";
 import getTrafaTableContent from "../trafa/getTrafaTableContent";
-import { getDatasetKeysOfApis } from "./utility";
+import { ExternalDataset } from "./utility";
 
 export default async function getTableContent(tableId: string, externalDataset: string, selection: { variableCode: string, valueCodes: string[] }[] = [], language?: string) {
-  if (getDatasetKeysOfApis("PxWeb").includes(externalDataset)) {
-    return getPxWebTableContent(tableId, externalDataset, selection, language);
-  }
-  else if (externalDataset == "Trafa") {
-    return getTrafaTableContent(tableId, selection, language);
+  if (ExternalDataset[externalDataset as keyof typeof ExternalDataset]) {
+    const dataset = ExternalDataset[externalDataset as keyof typeof ExternalDataset];
+    if (!dataset || !(typeof dataset === "object") || !("api" in dataset)) {
+      return null;
+    }
+    if (dataset.api === "PxWeb") {
+      return getPxWebTableContent(tableId, externalDataset, selection, language);
+    } else if (dataset.api === "Trafa") {
+      return getTrafaTableContent(tableId, selection, language);
+    } else {
+      return null; // Unsupported dataset API
+    }
   } else {
-    return null; // No matching dataset found
+    return null; // Invalid dataset name
   }
 }
