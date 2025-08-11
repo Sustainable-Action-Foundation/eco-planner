@@ -335,14 +335,14 @@ async function main() {
               // Magic string to get area sizes in square kilometers (as opposed to hectares with "000007E1")
               { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
             ],
-          }
+          },
         },
       };
       const stringifiedRecipe = JSON.stringify(recipe);
       return prisma.recipe.create({
         data: {
           hash: sha256(stringifiedRecipe),
-          recipe: stringifiedRecipe,
+          recipe: recipe,
         },
       });
     })(),
@@ -375,6 +375,8 @@ async function main() {
     //   });
     // })(),
   ]);
+
+  console.log(basicRecipes);
 
 
   /* 
