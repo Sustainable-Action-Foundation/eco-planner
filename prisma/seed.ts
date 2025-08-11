@@ -286,30 +286,32 @@ async function main() {
         name: 'Skala utifrån yta',
         eq: '${Riket} * ${ArvingsArea} / ${RiketsArea}',
         variables: {
-          "Riket": {
+          'Riket': {
             type: RecipeVariableType.DataSeries,
             link: null,
           },
-          "RiketsArea": {
+          'RiketsArea': {
             type: RecipeVariableType.External,
             dataset: 'SCB',
-            tableId: '',
+            tableId: 'TAB6420',
             selection: [
-              {
-                valueCodes: [],
-                variableCode: '',
-              },
+              // Selected area
+              { variableCode: 'Region', valueCodes: ["00"], },
+              // Specifically land areas, not including water
+              { variableCode: "ArealTyp", valueCodes: ["01"] },
+              // Magic string to get area sizes in square kilometers (as opposed to hectares with "000007E1")
+              { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
             ],
           },
-          "ArvingsArea": {
+          'ArvingsArea': {
             type: RecipeVariableType.External,
-            dataset: '',
-            tableId: '',
+            dataset: 'SCB',
+            tableId: 'TAB6420',
             selection: [
-              {
-                valueCodes: [],
-                variableCode: '',
-              },
+              // Specifically land areas, not including water
+              { variableCode: "ArealTyp", valueCodes: ["01"] },
+              // Magic string to get area sizes in square kilometers (as opposed to hectares with "000007E1")
+              { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
             ],
           }
         },
@@ -322,34 +324,34 @@ async function main() {
         },
       });
     })(),
-    (() => {
-      const recipe: Recipe = {
-        name: '',
-        eq: '',
-        variables: {},
-      };
-      const stringifiedRecipe = JSON.stringify(recipe);
-      return prisma.recipe.create({
-        data: {
-          hash: sha256(stringifiedRecipe),
-          recipe: stringifiedRecipe,
-        },
-      });
-    })(),
-    (() => {
-      const recipe: Recipe = {
-        name: '',
-        eq: '',
-        variables: {},
-      };
-      const stringifiedRecipe = JSON.stringify(recipe);
-      return prisma.recipe.create({
-        data: {
-          hash: sha256(stringifiedRecipe),
-          recipe: stringifiedRecipe,
-        },
-      });
-    })(),
+    // (() => {
+    //   const recipe: Recipe = {
+    //     name: '',
+    //     eq: '',
+    //     variables: {},
+    //   };
+    //   const stringifiedRecipe = JSON.stringify(recipe);
+    //   return prisma.recipe.create({
+    //     data: {
+    //       hash: sha256(stringifiedRecipe),
+    //       recipe: stringifiedRecipe,
+    //     },
+    //   });
+    // })(),
+    // (() => {
+    //   const recipe: Recipe = {
+    //     name: '',
+    //     eq: '',
+    //     variables: {},
+    //   };
+    //   const stringifiedRecipe = JSON.stringify(recipe);
+    //   return prisma.recipe.create({
+    //     data: {
+    //       hash: sha256(stringifiedRecipe),
+    //       recipe: stringifiedRecipe,
+    //     },
+    //   });
+    // })(),
   ]);
 
 
@@ -357,7 +359,7 @@ async function main() {
    * Goals
    */
   // National goals v1
-  const nationalGoalsDataSeriesV1 = await prisma.$transaction(
+  const nationalDataSeriesV1 = await prisma.$transaction(
     Array(10).fill(null).map(() => {
       [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
       return prisma.dataSeries.create({
@@ -376,22 +378,25 @@ async function main() {
       [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
       return prisma.goal.create({
         data: {
-          name: RandomTextSE.words(Math.floor(Math.random() * 3) + 1),
+          name: RandomTextSE.sentence(3, 1),
           description: RandomTextSE.paragraph(Math.floor(Math.random() * 3) + 1),
           indicatorParameter: RandomTextSE.words(Math.floor(Math.random() * 5) + 1).replace(/\s/g, '\\'),
           isFeatured: Math.random() > 0.7,
           authorId: users[Math.floor(Math.random() * users.length)].id,
           roadmapId: nationalRoadmapVersion1.id,
           dataSeries: {
-            connect: { id: nationalGoalsDataSeriesV1[i].id },
+            connect: { id: nationalDataSeriesV1[i].id },
           },
+          recipeSuggestions: {
+            connect: { hash: basicRecipes[0].hash },
+          }
         },
       });
     })
   );
 
   // National goals v2 - inherit with recipes from v1
-  const nationalGoalsDataSeriesV2 = await prisma.$transaction(
+  const nationalDataSeriesV2 = await prisma.$transaction(
     Array(3).fill(null).map(() => {
       [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
       return prisma.dataSeries.create({
