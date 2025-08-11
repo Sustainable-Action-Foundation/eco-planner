@@ -1,7 +1,7 @@
 "use server";
 
 import { ApiTableContent } from "../api/apiTypes.ts";
-import { externalDatasets } from "../api/utility.ts";
+import { ExternalDataset } from "../api/utility.ts";
 import { TrafaDataResponse } from "./trafaTypes.ts";
 import { getTrafaSearchQueryString } from "./trafaUtility.ts";
 
@@ -12,10 +12,10 @@ import { getTrafaSearchQueryString } from "./trafaUtility.ts";
 export default async function getTrafaTableContent(tableId: string, selection: { variableCode: string, valueCodes: string[] }[], language?: string) {
   const searchQuery = getTrafaSearchQueryString(selection);
 
-  const url = new URL('./data', externalDatasets.Trafa?.baseUrl);
+  const url = new URL('./data', ExternalDataset.Trafa.baseUrl);
   url.searchParams.append('query', tableId + searchQuery);
-  if (!language || !externalDatasets["Trafa"]?.supportedLanguages.includes(language)) {
-    language = externalDatasets["Trafa"]?.supportedLanguages[0];
+  if (!language || !ExternalDataset.Trafa.supportedLanguages.includes(language)) {
+    language = ExternalDataset.Trafa.supportedLanguages[0];
   }
   if (language) {
     url.searchParams.append('lang', language);

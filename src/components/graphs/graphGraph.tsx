@@ -1,7 +1,7 @@
 "use client"
 
 import { ApiTableContent } from "@/lib/api/apiTypes";
-import { externalDatasets, getDatasetKeyFromAlternateName } from "@/lib/api/utility";
+import { DatasetData, ExternalDataset } from "@/lib/api/utility";
 import type { DataSeries, Effect, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
 import { useEffect, useState } from "react";
 import { getStoredGraphType } from "./functions/graphFunctions";
@@ -56,14 +56,20 @@ export default function GraphGraph({
     }
   };
 
+  const datasetName = historicalData?.metadata[0].source as Exclude<keyof typeof ExternalDataset, "prototype" | "knownDatasetKeys" | "getDatasetsByApi">;
+  let dataset: DatasetData | undefined = undefined;
+  if (datasetName) {
+    dataset = ExternalDataset[datasetName];
+  }
+
   // TODO - link to specific table when possible
   function getHistoricalDataLink(historicalData: ApiTableContent) {
-    const datasetKey = getDatasetKeyFromAlternateName(historicalData.metadata[0].source);
-    if (!datasetKey || !externalDatasets[datasetKey] || !externalDatasets[datasetKey].userFacingUrl) {
+    const datasetKey = historicalData.metadata[0].source as Exclude<keyof typeof ExternalDataset, "prototype" | "knownDatasetKeys" | "getDatasetsByApi">;
+    if (!datasetKey || !ExternalDataset[datasetKey] || !ExternalDataset[datasetKey].userFacingUrl) {
       console.error(`No user-facing URL found for dataset: ${historicalData.metadata[0].source}`);
       return null;
     }
-    const dataLink = externalDatasets[datasetKey].userFacingUrl;
+    const dataLink = ExternalDataset[datasetKey].userFacingUrl;
     return dataLink;
   }
 
@@ -87,8 +93,8 @@ export default function GraphGraph({
         {historicalData && (
           <Trans
             i18nKey="graphs:graph_graph.historical_data_source"
-            components={{ a: <a href={getHistoricalDataLink(historicalData) || ""} target="_blank" /> }}
-            tOptions={{ source: externalDatasets[historicalData.metadata[0].source]?.fullName ? externalDatasets[historicalData.metadata[0].source]?.fullName : historicalData.metadata[0].source }}
+            components={{ a: <a href={dataset?.userFacingUrl ?? ""} target="_blank" /> }}
+            tOptions={{ source: dataset?.fullName ?? historicalData.metadata[0].source }}
           />
         )}
       </article>
