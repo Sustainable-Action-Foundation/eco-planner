@@ -4,20 +4,15 @@ import { ExternalDataset } from "./utility";
 
 export default async function getTableDetails(tableId: string, externalDataset: string | undefined, selection: { variableCode: string, valueCodes: string[] }[] = [], language: string) {
   if (!externalDataset) { return null; }
-  if (ExternalDataset[externalDataset as keyof typeof ExternalDataset]) {
-    const dataset = ExternalDataset[externalDataset as keyof typeof ExternalDataset];
-    if (!dataset || !(typeof dataset === "object") || !("api" in dataset)) {
-      return null;
-    }
-    if (dataset.api === "PxWeb") {
-      return getPxWebTableDetails(tableId, externalDataset, language);
-    } else if (dataset.api === "Trafa") {
-      return getTrafaTableDetails(tableId, selection, language);
-    } else {
-      return null; // Unsupported dataset API
-    }
+
+  const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset);
+
+  if (dataset?.api === "PxWeb") {
+    return getPxWebTableDetails(tableId, externalDataset, language);
+  } else if (dataset?.api === "Trafa") {
+    return getTrafaTableDetails(tableId, selection, language);
   } else {
-    return null; // Invalid dataset name
+    return null; // Unsupported dataset API
   }
 }
 

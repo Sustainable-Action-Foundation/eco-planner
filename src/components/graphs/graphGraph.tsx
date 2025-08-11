@@ -56,21 +56,9 @@ export default function GraphGraph({
     }
   };
 
-  const datasetName = historicalData?.metadata[0].source as Exclude<keyof typeof ExternalDataset, "prototype" | "knownDatasetKeys" | "getDatasetsByApi">;
-  let dataset: DatasetData | undefined = undefined;
-  if (datasetName) {
-    dataset = ExternalDataset[datasetName];
-  }
-
-  // TODO - link to specific table when possible
-  function getHistoricalDataLink(historicalData: ApiTableContent) {
-    const datasetKey = historicalData.metadata[0].source as Exclude<keyof typeof ExternalDataset, "prototype" | "knownDatasetKeys" | "getDatasetsByApi">;
-    if (!datasetKey || !ExternalDataset[datasetKey] || !ExternalDataset[datasetKey].userFacingUrl) {
-      console.error(`No user-facing URL found for dataset: ${historicalData.metadata[0].source}`);
-      return null;
-    }
-    const dataLink = ExternalDataset[datasetKey].userFacingUrl;
-    return dataLink;
+  let dataset: DatasetData | null = null;
+  if (historicalData?.metadata[0]?.source) {
+    dataset = ExternalDataset.getDatasetByAlternateName(historicalData.metadata[0].source);
   }
 
   return (
@@ -93,8 +81,8 @@ export default function GraphGraph({
         {historicalData && (
           <Trans
             i18nKey="graphs:graph_graph.historical_data_source"
-            components={{ a: <a href={dataset?.userFacingUrl ?? ""} target="_blank" /> }}
-            tOptions={{ source: dataset?.fullName ?? historicalData.metadata[0].source }}
+            components={{ a: <a href={dataset?.userFacingUrl} target="_blank" /> }}
+            tOptions={{ source: dataset?.fullName ?? historicalData.metadata[0]?.source }}
           />
         )}
       </article>

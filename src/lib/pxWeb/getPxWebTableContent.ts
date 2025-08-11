@@ -3,17 +3,17 @@
 
 import { JSONValue } from "@/types.ts";
 import { ApiTableContent } from "../api/apiTypes.ts";
-import { externalDatasets } from "../api/utility.ts";
+import { ExternalDataset } from "../api/utility.ts";
 import getPxWebTableDetails from "./getPxWebTableDetails.ts";
 import { PxWebApiV2TableContent } from "./pxWebApiV2Types.ts";
 
 export default async function getPxWebTableContent(tableId: string, externalDataset: string, selection: { variableCode: string, valueCodes: string[] }[], language?: string,) {
   // Get the base URL for the external dataset, defaulting to SCB
-  const baseUrl = externalDatasets[externalDataset]?.baseUrl ?? externalDatasets.SCB?.baseUrl;
-  const url = new URL(`./tables/${tableId}/data`, baseUrl);
+  const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset) || ExternalDataset.SCB;
+  const url = new URL(`./tables/${tableId}/data`, dataset.baseUrl);
 
-  if (!language || !externalDatasets[externalDataset]?.supportedLanguages.includes(language)) {
-    language = externalDatasets[externalDataset]?.supportedLanguages[0];
+  if (!language || !dataset.supportedLanguages.includes(language)) {
+    language = dataset.supportedLanguages[0];
   }
   if (language) {
     url.searchParams.append('lang', language);

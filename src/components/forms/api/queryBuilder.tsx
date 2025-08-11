@@ -6,7 +6,7 @@ import { ApiTableContent, ApiTableDetails } from "@/lib/api/apiTypes";
 import getTableContent from "@/lib/api/getTableContent";
 import getTableDetails from "@/lib/api/getTableDetails";
 import getTables from "@/lib/api/getTables";
-import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
+import { ExternalDataset } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient.tsx";
 import { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import { TrafaVariable } from "@/lib/trafa/trafaTypes";
@@ -30,7 +30,7 @@ export default function QueryBuilder({
   // const lang = useContext(LocaleContext).split("-")[0] as "sv" | "en";
 
   const [isLoading, setIsLoading] = useState(false);
-  const [dataSource, setDataSource] = useState<DatasetKeys | undefined>(undefined);
+  const [dataSource, setDataSource] = useState<string>("");
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
   const [renderedTables, setRenderedTables] = useState<{ tableId: string, label: string }[] | null>(null);
   const [offset, setOffset] = useState(0);
@@ -110,7 +110,7 @@ export default function QueryBuilder({
       if (key == "externalTableId") return;
       if (key == tableSearchInputName) return;
       // The PxWeb time variable is special, as we want to fetch every period after (and including) the selected one
-      if (ExternalDataset.getDatasetsByApi("PxWeb").includes(dataSource as DatasetKeys) && key == formRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
+      if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && key == formRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
         queryObject.push({ variableCode: key, valueCodes: [`FROM(${value})`] });
         return;
       }
@@ -237,7 +237,7 @@ export default function QueryBuilder({
   }
 
   function handleSearch(query?: string) {
-    if (!dataSource || !ExternalDataset[dataSource]?.baseUrl) return;
+    if (!dataSource || !ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
 
     getTables(dataSource, query, lang).then(result => setTables(result));
   }
@@ -251,11 +251,7 @@ export default function QueryBuilder({
   }
 
   function handleDataSourceSelect(dataSource: string) {
-    if (!dataSource || !ExternalDataset.knownDatasetKeys.includes(dataSource as DatasetKeys)) {
-      setDataSource(undefined);
-    } else {
-      setDataSource(dataSource as DatasetKeys);
-    }
+    setDataSource(dataSource);
     // Clear table details and content whenever the data source changes
     clearTableContent();
     clearTableDetails();
@@ -267,7 +263,7 @@ export default function QueryBuilder({
     /* console.time("tableSelect"); */
     setIsLoading(true);
 
-    if (!ExternalDataset[dataSource as DatasetKeys]?.baseUrl) return;
+    if (!ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
     if (!tableId) return;
 
     clearTableContent();
@@ -310,8 +306,8 @@ export default function QueryBuilder({
   }
 
   // TODO: should probably use a pseudo class (::after) instead of a span here.
-  function optionalTag(dataSource: string | undefined, variableIsOptional: boolean) {
-    if (ExternalDataset.getDatasetsByApi("PxWeb").includes(dataSource as DatasetKeys) && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
+  function optionalTag(dataSource: string, variableIsOptional: boolean) {
+    if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
   }
 
   function handleTableListScroll(event: React.UIEvent<HTMLUListElement, UIEvent>) {
@@ -363,7 +359,7 @@ export default function QueryBuilder({
             required={!variable.optional}
             name={variable.name}
             id={variable.name}
-            defaultValue={ExternalDataset.getDatasetsByApi("PxWeb").includes(dataSource as DatasetKeys) ?
+            defaultValue={ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" ?
               (// If only one value is available, pre-select it
                 variable.values && variable.values.length == 1 ? variable.values[0].label : undefined
               )
@@ -371,11 +367,11 @@ export default function QueryBuilder({
               undefined
             }>
             { // If only one value is available, don't show a placeholder option
-              ExternalDataset.getDatasetsByApi("PxWeb").includes(dataSource as DatasetKeys) && variable.values && variable.values.length > 1 &&
+              ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variable.values && variable.values.length > 1 &&
               <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option>
             }
             {
-              !ExternalDataset.getDatasetsByApi("PxWeb").includes(dataSource as DatasetKeys) &&
+              !(ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") &&
               <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option>
             }
             {variable.values && variable.values.map(value => (
@@ -390,7 +386,7 @@ export default function QueryBuilder({
   }
 
   function timeVariableSelectionHelper(times: (TrafaVariable | PxWebTimeVariable)[], language?: string) {
-    if ((dataSource == "Trafa" && !(times.length == 1 && times[0].name == "ar")) || (ExternalDataset.getDatasetsByApi("PxWeb").includes(dataSource as DatasetKeys) && times.length > 1)) {
+    if ((dataSource == "Trafa" && !(times.length == 1 && times[0].name == "ar")) || (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && times.length > 1)) {
       let heading = "";
       let defaultValue = "";
       let displayValueKey: keyof typeof times[0]/* "label" | "id" | "name" | "type" */ = "id";
@@ -401,7 +397,7 @@ export default function QueryBuilder({
         // defaultValue = "Välj tidsintervall";
         defaultValue = t("components:query_builder.select_time_interval");
         displayValueKey = "label";
-      } else if (ExternalDataset.getDatasetsByApi("PxWeb").includes(dataSource as DatasetKeys)) {
+      } else if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") {
         // heading = "Välj startperiod";
         heading = t("components:query_builder.select_starting_period");
         // defaultValue = "Välj tidsperiod";
@@ -424,8 +420,8 @@ export default function QueryBuilder({
     }
   }
 
-  function shouldVariableFieldsetBeVisible(tableDetails: ApiTableDetails, dataSource: string | undefined) {
-    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!ExternalDataset.getDatasetsByApi("PxWeb").includes(dataSource as DatasetKeys) && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1);
+  function shouldVariableFieldsetBeVisible(tableDetails: ApiTableDetails, dataSource: string) {
+    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1);
     return returnBool;
   }
 
@@ -477,7 +473,7 @@ export default function QueryBuilder({
               <label className="margin-block-75 font-weight-500">
                 {t("components:query_builder.data_source")}
                 {/* Display warning message if the selected language is not supported by the api */}
-                {((ExternalDataset[dataSource as DatasetKeys]) && !(ExternalDataset[dataSource as DatasetKeys]?.supportedLanguages.includes(lang))) ?
+                {((ExternalDataset.getDatasetByAlternateName(dataSource)) && !(ExternalDataset.getDatasetByAlternateName(dataSource)?.supportedLanguages.includes(lang))) ?
                   <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
                   : null}
                 <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
@@ -486,8 +482,6 @@ export default function QueryBuilder({
                     <option key={name} value={name}>{ExternalDataset[name]?.fullName}</option>
                   ))}
                 </select>
-
-
               </label>
 
               {dataSource ?

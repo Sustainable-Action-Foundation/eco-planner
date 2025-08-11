@@ -20,7 +20,7 @@ export type DatasetData = {
  * @param api Api is which api the dataset is using.
  * @param fullName Full name is the full name of the dataset as the key will usually be a shorthand for the full name.
  */
-class ExternalDatasetClass {
+export class ExternalDataset {
   // PxWeb-based APIs
   /** An API provided by Swedish SCB, using the PxWeb API v2 */
   static SCB: DatasetData = {
@@ -61,10 +61,9 @@ class ExternalDatasetClass {
   // Utility methods and properties
   /** A list of dataset keys with "canonical" casing. Should match the main keys of the class and be safe to use everywhere */
   static knownDatasetKeys: DatasetKeys[] = ["SCB", "SSB", "Trafa"];
+
   /**
    * Returns a list of datasets using the specified API(s).
-   * @param apiName 
-   * @returns 
    */
   static getDatasetsByApi(apiName: DatasetData["api"] | (DatasetData["api"])[]): DatasetKeys[] {
     if (typeof apiName === "string") {
@@ -86,20 +85,36 @@ class ExternalDatasetClass {
       return [];
     }
   }
-}
 
-export const ExternalDataset = new Proxy(ExternalDatasetClass, {
-  get(target, prop) {
-    if (prop in target) {
-      return target[prop as keyof typeof target];
+  /**
+   * Searches for a dataset by any of its alternate names, full name, or key,
+   * and returns the dataset data if found.
+   */
+  static getDatasetByAlternateName(alternateName: string): DatasetData | null {
+    if (!alternateName || typeof alternateName !== "string") {
+      return null;
     }
 
-    const lowerProp = prop.toString().toLowerCase();
-    if (lowerProp in target) {
-      return target[lowerProp as keyof typeof target];
+    if (alternateName in ExternalDataset) {
+      const dataset = ExternalDataset[alternateName as keyof typeof ExternalDataset];
+      if (dataset && typeof dataset === "object" && "baseUrl" in dataset) {
+        return dataset;
+      } else {
+        return null;
+      }
     }
 
-    const entries: [string, string[]][] = Object.entries(target)
+    const lowerAlternateName = alternateName.toLowerCase();
+    if (lowerAlternateName in ExternalDataset) {
+      const dataset = ExternalDataset[lowerAlternateName as keyof typeof ExternalDataset];
+      if (dataset && typeof dataset === "object" && "baseUrl" in dataset) {
+        return dataset;
+      } else {
+        return null;
+      }
+    }
+
+    const entries: [string, string[]][] = Object.entries(ExternalDataset)
       .map(([key, value]) => {
         if (!("fullName" in value) || !("alternateNames" in value)) {
           return undefined;
@@ -108,25 +123,20 @@ export const ExternalDataset = new Proxy(ExternalDatasetClass, {
       })
       .filter(Boolean) as [string, string[]][];
 
-    const datasetName: string | null = entries.find(([, aliases]) => aliases.includes(lowerProp))?.[0] ?? null;
+    const datasetName: string | null = entries.find(([, aliases]) => aliases.includes(lowerAlternateName))?.[0] ?? null;
 
-    if (!datasetName || !(datasetName in target)) {
-      return undefined;
+    if (!datasetName || !(datasetName in ExternalDataset)) {
+      return null;
     }
 
-    return target[datasetName as keyof typeof target];
-  },
-});
-
-/**
- * @param apiNames a string or an array of strings that represent the api(s) to filter by
- * @returns list of datasets that use specified api(s)
- */
-// export function getDatasetKeysOfApis(apiNames: string | string[]): string[] {
-//   return typeof apiNames == "string" ? Object.keys(externalDatasets)
-//     .filter(key => externalDatasets[key]?.api === apiNames) : Object.keys(externalDatasets)
-//       .filter(key => apiNames.includes(externalDatasets[key]?.api as string));
-// }
+    const dataset = ExternalDataset[datasetName as keyof typeof ExternalDataset];
+    if (dataset && typeof dataset === "object" && "baseUrl" in dataset) {
+      return dataset;
+    } else {
+      return null;
+    }
+  }
+}
 
 export function parsePeriod(period: string) {
   period = period.trim().toUpperCase();
@@ -160,15 +170,3 @@ export function parsePeriod(period: string) {
     return new Date(Date.UTC(parseInt(period), 0));
   }
 }
-
-// export function getDatasetKeyFromAlternateName(name: string): string | null {
-//   name = name.toLowerCase().trim();
-//   // Check if the name matches any of the dataset alternate names
-//   for (const key in externalDatasets) {
-//     if (externalDatasets[key]?.alternateNames?.includes(name)) {
-//       return key;
-//     }
-//   }
-//   // If no match is found, return null
-//   return null;
-// }
