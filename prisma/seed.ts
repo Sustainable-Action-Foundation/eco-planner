@@ -51,7 +51,29 @@ function getRandomCoherentDataPoints(): Partial<Record<typeof dataSeriesDataFiel
   const dataPoints: Partial<Record<typeof dataSeriesDataFieldNames[number], number>> = {};
   let startValue = Math.floor(Math.random() * 100); // Random start value between 0 and 99
   const deviation = Math.floor(Math.random() * 10) + 1; // Random deviation between 1 and 10
-  for (const field of dataSeriesDataFieldNames) {
+
+  const fields: typeof dataSeriesDataFieldNames = [];
+
+  // 10% chance to get random start and end years
+  if (Math.random() < 0.1) {
+    const emptyStart = dataSeriesDataFieldNames.slice(0, Math.floor(Math.random() * 10));
+    const emptyEnd = dataSeriesDataFieldNames.slice(Math.floor(Math.random() * 10));
+
+    for (const year of dataSeriesDataFieldNames) {
+      if (!emptyStart.includes(year) && !emptyEnd.includes(year)) {
+        fields.push(year);
+      }
+    }
+  }
+  else {
+    fields.push(...dataSeriesDataFieldNames); // Use all fields
+  }
+
+  for (const field of fields) {    // Chance of skipping a field
+    if (Math.random() < 0.05) {
+      continue; // Skip this field
+    }
+
     const value = startValue + Math.floor(Math.random() * deviation) - Math.floor(Math.random() * deviation);
     if (value < 0) {
       dataPoints[field] = 0; // Ensure no negative values
