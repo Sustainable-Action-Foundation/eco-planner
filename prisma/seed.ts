@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
 import { RandomTextSE } from "./randomText";
 import { dataSeriesDataFieldNames } from "@/types";
+import { Recipe, RecipeVariableType } from "@/functions/recipe-parser/types";
 
 const prisma = new PrismaClient();
 prisma.$connect().catch((e) => {
@@ -17,7 +18,7 @@ prisma.$connect().catch((e) => {
   process.exit(1);
 });
 
-function sha256(input: string) {
+function sha256(input: string): string {
   if (typeof input !== "string") {
     throw new Error("Input must be a string");
   }
@@ -27,61 +28,6 @@ function sha256(input: string) {
 
   return hashObject.digest("hex");
 }
-
-// function makeRecipeSuggestions(dataSeries: DataSeriesArray): RawRecipe[] {
-//   return [
-//     {
-//       name: "Skala utifrån befolkning",
-//       eq: "${förälder} * (${popF} / ${popB})",
-//       variables: {
-//         "förälder": {
-//           type: RecipeVariableType.DataSeries,
-//           value: dataSeries,
-//         },
-//         "popF": {
-//           type: RecipeVariableType.Scalar,
-//           value: 10587710,
-//         },
-//         "popB": {
-//           type: RecipeVariableType.Scalar,
-//           value: 504176,
-//         }
-//       }
-//     },
-//     {
-//       name: "Skala utifrån yta",
-//       eq: "${förälder} * (${areaF} / ${areaB})",
-//       variables: {
-//         "förälder": {
-//           type: RecipeVariableType.DataSeries,
-//           value: dataSeries,
-//         },
-//         "areaF": {
-//           type: RecipeVariableType.Scalar,
-//           value: 410000,
-//         },
-//         "areaB": {
-//           type: RecipeVariableType.Scalar,
-//           value: 60000,
-//         }
-//       }
-//     },
-//     {
-//       name: "Skala utifrån fast värde",
-//       eq: "${förälder} / ${value}",
-//       variables: {
-//         "förälder": {
-//           type: RecipeVariableType.DataSeries,
-//           value: dataSeries,
-//         },
-//         "value": {
-//           type: RecipeVariableType.Scalar,
-//           value: 2,
-//         }
-//       }
-//     }
-//   ];
-// }
 
 function getRandomDateInThePast(): Date {
   const roof = Date.now() - 1000 * 60; // 1 minute ago
@@ -126,12 +72,14 @@ async function main() {
   // - Notes?
   // - User groups?
 
+  /*
+   * Users
+   */
   const passwords = {
     admin: await bcrypt.hash('admin', 10),
     anita: await bcrypt.hash('anita', 10),
     anton: await bcrypt.hash('anton', 10),
   };
-
   /** A user with admin rights, username and password 'admin' */
   const admin = await prisma.user.create({
     data: {
@@ -142,7 +90,6 @@ async function main() {
       email: 'admin@admin.admin',
     }
   });
-
   /** Anita is a regular user :3 */
   const anita = await prisma.user.create({
     data: {
@@ -153,7 +100,6 @@ async function main() {
       email: 'anita@sustainable-action.org',
     }
   });
-
   /** Anton is a regular user who's been to lazy to verify themselves */
   const anton = await prisma.user.create({
     data: {
@@ -164,9 +110,12 @@ async function main() {
       email: 'anton@sustainable-action.org',
     }
   });
-
   const users = [admin, anita, anton];
 
+
+  /* 
+   * Helper function - depends on the users above
+   */
   function makeRandomComment(options?: { roadmapId?: string, goalId?: string, actionId?: string, metaRoadmapId?: string }) {
     const author = users[Math.floor(Math.random() * users.length)];
     let [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
@@ -184,6 +133,10 @@ async function main() {
     };
   }
 
+
+  /*
+   * Meta Roadmaps and their versions
+   */
   // National roadmap - Riket
   let [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
   const nationalMetaRoadmap = await prisma.metaRoadmap.create({
@@ -323,7 +276,87 @@ async function main() {
     },
   });
 
-  // National goals
+
+  /* 
+   * Basic recipes
+   */
+  const basicRecipes = await prisma.$transaction([
+    (() => {
+      const recipe: Recipe = {
+        name: 'Skala utifrån yta',
+        eq: '${Riket} * ${ArvingsArea} / ${RiketsArea}',
+        variables: {
+          "Riket": {
+            type: RecipeVariableType.DataSeries,
+            link: null,
+          },
+          "RiketsArea": {
+            type: RecipeVariableType.External,
+            dataset: 'SCB',
+            tableId: '',
+            selection: [
+              {
+                valueCodes: [],
+                variableCode: '',
+              },
+            ],
+          },
+          "ArvingsArea": {
+            type: RecipeVariableType.External,
+            dataset: '',
+            tableId: '',
+            selection: [
+              {
+                valueCodes: [],
+                variableCode: '',
+              },
+            ],
+          }
+        },
+      };
+      const stringifiedRecipe = JSON.stringify(recipe);
+      return prisma.recipe.create({
+        data: {
+          hash: sha256(stringifiedRecipe),
+          recipe: stringifiedRecipe,
+        },
+      });
+    })(),
+    (() => {
+      const recipe: Recipe = {
+        name: '',
+        eq: '',
+        variables: {},
+      };
+      const stringifiedRecipe = JSON.stringify(recipe);
+      return prisma.recipe.create({
+        data: {
+          hash: sha256(stringifiedRecipe),
+          recipe: stringifiedRecipe,
+        },
+      });
+    })(),
+    (() => {
+      const recipe: Recipe = {
+        name: '',
+        eq: '',
+        variables: {},
+      };
+      const stringifiedRecipe = JSON.stringify(recipe);
+      return prisma.recipe.create({
+        data: {
+          hash: sha256(stringifiedRecipe),
+          recipe: stringifiedRecipe,
+        },
+      });
+    })(),
+  ]);
+
+
+  /* 
+   * Goals
+   */
+  // National goals v1
   const nationalGoalsDataSeriesV1 = await prisma.$transaction(
     Array(10).fill(null).map(() => {
       [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
@@ -357,6 +390,7 @@ async function main() {
     })
   );
 
+  // National goals v2 - inherit with recipes from v1
   const nationalGoalsDataSeriesV2 = await prisma.$transaction(
     Array(3).fill(null).map(() => {
       [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
@@ -371,83 +405,7 @@ async function main() {
       });
     })
   );
-  const nationalGoalsV2 = await prisma.$transaction([
-    // A couple of new goals
-    ...Array(3).fill(null).map((_, i) => {
-      [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
-      return prisma.goal.create({
-        data: {
-          name: RandomTextSE.words(Math.floor(Math.random() * 3) + 1),
-          description: RandomTextSE.paragraph(Math.floor(Math.random() * 3) + 1),
-          indicatorParameter: RandomTextSE.words(Math.floor(Math.random() * 5) + 1).replace(/\s/g, '\\'),
-          isFeatured: Math.random() > 0.7,
-          authorId: users[Math.floor(Math.random() * users.length)].id,
-          roadmapId: nationalRoadmapVersion2.id,
-          dataSeries: {
-            connect: { id: nationalGoalsDataSeriesV1[i].id },
-          },
-        },
-      });
-    })
-  ]);
 
-  // // We use prisma.$transaction instead of prisma.goal.createManyAndReturn as it allows
-  // // nested data creation, which is necessary for creating data series for each goal.
-  // const goals = await prisma.$transaction(Array(10).fill(null).map((_) => (
-  //   prisma.goal.create({
-  //     data: {
-  //       name: lorem.generateWords(3),
-  //       description: lorem.generateSentences(3),
-  //       indicatorParameter: lorem.generateWords(5).replace(/\s/g, '\\'),
-  //       isFeatured: Math.random() > 0.7,
-  //       // TODO: Add external data to some goals
-  //       authorId: admin.id,
-  //       roadmapId: mainRoadmap.id,
-  //       // Random data series for each goal
-  //       dataSeries: {
-  //         create: {
-  //           // TODO: Add more possible units
-  //           unit: 's',
-  //           val2020: Math.random() * 100,
-  //           val2021: Math.random() * 100,
-  //           val2022: Math.random() * 100,
-  //           val2023: Math.random() * 100,
-  //           val2024: Math.random() * 100,
-  //           val2025: Math.random() * 100,
-  //           val2026: Math.random() * 100,
-  //           val2027: Math.random() * 100,
-  //           val2028: Math.random() * 100,
-  //           val2029: Math.random() * 100,
-  //           val2030: Math.random() * 100,
-  //           val2031: Math.random() * 100,
-  //           val2032: Math.random() * 100,
-  //           val2033: Math.random() * 100,
-  //           val2034: Math.random() * 100,
-  //           val2035: Math.random() * 100,
-  //           val2036: Math.random() * 100,
-  //           val2037: Math.random() * 100,
-  //           val2038: Math.random() * 100,
-  //           val2039: Math.random() * 100,
-  //           val2040: Math.random() * 100,
-  //           val2041: Math.random() * 100,
-  //           val2042: Math.random() * 100,
-  //           val2043: Math.random() * 100,
-  //           val2044: Math.random() * 100,
-  //           val2045: Math.random() * 100,
-  //           val2046: Math.random() * 100,
-  //           val2047: Math.random() * 100,
-  //           val2048: Math.random() * 100,
-  //           val2049: Math.random() * 100,
-  //           val2050: Math.random() * 100,
-  //           authorId: admin.id,
-  //         }
-  //       }
-  //     },
-  //     include: {
-  //       dataSeries: true,
-  //     }
-  //   })
-  // )));
 
   // const actions = await prisma.$transaction(Array(10).fill(null).map((_) => (
   //   prisma.action.create({
