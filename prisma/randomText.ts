@@ -18,7 +18,13 @@ const sourceText = rawText
     if (charCount < 3) return false;
 
     return true;
-  });
+  })
+  .filter(t => t.includes("wiki"))
+  .map(t => t.replace(/^\(/gm, " "))
+  .map(t => t.replace(/\)$/gm, " "))
+  .map(t => t.replace(/^'/gm, " "))
+  .map(t => t.replace(/'$/gm, " "))
+  .map(t => t.trim());
 
 // Group by word count
 const byWordCount: Record<number, string[]> = {};
@@ -35,9 +41,18 @@ for (const item of sourceText) {
 // Extract all words from the text
 const allWords: string[] = [];
 for (const item of sourceText) {
-  const words = item.split(/\s+/);
+  const words = item.split(/\s+/).map(t => t.trim());
   for (const word of words) {
-    if (word.length > 0) {
+    const digitCount = (word.match(/\d/g) || []).length;
+    if (
+      word.length > 0
+      &&
+      (
+        digitCount / word.length <= 0.25 // Less than 10% digits
+        ||
+        /(?:19|20)[0-9]{2}/.test(word)
+      )
+    ) {
       allWords.push(word);
     }
   }
@@ -114,8 +129,13 @@ export class RandomTextSE {
 
     const words: string[] = [];
     for (let i = 0; i < wordCount; i++) {
-      const randomIndex = Math.floor(Math.random() * allWords.length);
-      words.push(allWords[randomIndex]);
+      if (Math.random() < 0.001) {
+        words.push(":3");
+      }
+      else {
+        const randomIndex = Math.floor(Math.random() * allWords.length);
+        words.push(allWords[randomIndex]);
+      }
     }
 
     return words.join(" ");
