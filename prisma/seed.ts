@@ -69,8 +69,8 @@ function getRandomCoherentDataPoints(): Partial<Record<typeof dataSeriesDataFiel
     fields.push(...dataSeriesDataFieldNames); // Use all fields
   }
 
-  for (const field of fields) {    // Chance of skipping a field
-    if (Math.random() < 0.05) {
+  for (const field of fields) { // Chance of skipping a field
+    if (Math.random() < 0.01) {
       continue; // Skip this field
     }
 
@@ -397,6 +397,7 @@ async function main() {
       });
     })
   );
+  let parameters = new Array(8).fill(null).map(() => RandomTextSE.words(Math.floor(Math.random() * 5) + 1).replace(/\s/g, '\\'));
   const nationalGoalsV1 = await prisma.$transaction(
     Array(10).fill(null).map((_, i) => {
       [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
@@ -404,7 +405,7 @@ async function main() {
         data: {
           name: RandomTextSE.sentence(3, 1),
           description: RandomTextSE.paragraph(Math.floor(Math.random() * 3) + 1),
-          indicatorParameter: RandomTextSE.words(Math.floor(Math.random() * 5) + 1).replace(/\s/g, '\\'),
+          indicatorParameter: parameters[Math.floor(Math.random() * parameters.length)],
           isFeatured: Math.random() > 0.7,
           authorId: users[Math.floor(Math.random() * users.length)].id,
           roadmapId: nationalRoadmapVersion1.id,
