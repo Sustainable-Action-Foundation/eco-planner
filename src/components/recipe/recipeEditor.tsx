@@ -121,8 +121,6 @@ export function RecipeSuggestions({
   </>);
 }
 
-
-
 export function RecipeEquationEditor({
   initialEquation,
 }: {
@@ -240,160 +238,44 @@ export function RecipeVariableEditor({
         {Object.entries(recipe?.variables || []).map(([name, variable], i) => {
           switch (variable.type) {
             case RecipeVariableType.Scalar:
-              return <ScalarVariable />
+              return <ScalarVariable
+                key={i}
+                name={name}
+                variable={variable}
+                setRecipe={setRecipe}
+                allowValueEditing={allowValueEditing}
+                allowNameEditing={allowNameEditing}
+                allowTypeEditing={allowTypeEditing}
+                allowDeleteVariables={allowDeleteVariables}
+              />
             case RecipeVariableType.DataSeries:
-              return <DataSeriesVariable key={i} />
+              return <DataSeriesVariable
+                key={i}
+                name={name}
+                variable={variable as RawDataSeriesByLink}
+                setRecipe={setRecipe}
+                allowValueEditing={allowValueEditing}
+                allowNameEditing={allowNameEditing}
+                allowTypeEditing={allowTypeEditing}
+                allowDeleteVariables={allowDeleteVariables}
+                selectableRoadmaps={selectableRoadmaps}
+                selectableDataSeries={selectableDataSeries}
+                roadmap={roadmap}
+                setRoadmap={setRoadmap}
+              />
             case RecipeVariableType.External:
-              return <ExternalVariable key={i} />
+              return <ExternalVariable
+                key={i}
+                name={name}
+                variable={variable}
+                setRecipe={setRecipe}
+                allowValueEditing={allowValueEditing}
+                allowNameEditing={allowNameEditing}
+                allowTypeEditing={allowTypeEditing}
+                allowDeleteVariables={allowDeleteVariables}
+              />
           }
         })}
-        {/* {Object.entries(recipe?.variables || []).map(([name, variable], i) => (
-          <li key={i} className="display-flex align-items-center gap-50 margin-block-25">
-            <input
-              type="text"
-              value={name}
-              style={{ width: '15ch' }}
-              readOnly={!allowNameEditing}
-              disabled={!allowNameEditing}
-              onChange={(e) => {
-                setRecipe(prev => {
-                  if (!prev) return null;
-                  const newName = e.target.value;
-                  const newVariables = Object.fromEntries(
-                    Object.entries(prev.variables).map(([key, value], index) => {
-                      if (index === i) {
-                        return [newName, value];
-                      }
-                      return [key, value];
-                    })
-                  );
-                  return {
-                    ...prev,
-                    variables: newVariables,
-                  };
-                });
-              }}
-            />
-
-            <select className="flex-grow-1"
-              disabled={!allowTypeEditing}
-              defaultValue={variable.type}
-              onChange={(e) => {
-                const newType = e.target.value as RecipeVariableType;
-                setRecipe(prev => {
-                  if (!prev) return null;
-                  const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
-
-                  if (newType === RecipeVariableType.Scalar) {
-                    newVariables[name] = {
-                      type: RecipeVariableType.Scalar,
-                      value: 1
-                    };
-                  } else if (newType === RecipeVariableType.DataSeries) {
-                    newVariables[name] = {
-                      type: RecipeVariableType.DataSeries,
-                      link: null,
-                    };
-                  }
-                  return {
-                    ...prev,
-                    variables: newVariables
-                  };
-                });
-              }}>
-              <option value={RecipeVariableType.DataSeries}>{t("components:copy_and_scale.data_series")}</option>
-              <option value={RecipeVariableType.Scalar}>{t("components:copy_and_scale.scalar")}</option>
-            </select>
-
-            {variable.type === RecipeVariableType.DataSeries && 'link' in variable && (<>
-              <select
-                value={roadmap?.id || "none"}
-                onChange={e => {
-                  const selectedRoadmap = selectableRoadmaps?.find(r => r.id === e.target.value) || null;
-                  setRoadmap(selectedRoadmap);
-                }}
-              >
-                <option value={"none"}>{t("components:recipe.select_roadmap")}</option>
-                {selectableRoadmaps?.map(r => (
-                  <option key={r.id} value={r.id}>
-                    {r.name}
-                  </option>
-                ))}
-              </select>
-
-              {roadmap && selectableDataSeries && (
-                <select
-                  value={variable.link || "none"}
-                  onChange={e => {
-                    const selectedDataSeries = selectableDataSeries.find(ds => ds.id === e.target.value) || null;
-                    setRecipe(prev => {
-                      if (!prev) return null;
-                      const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
-                      newVariables[name] = {
-                        ...newVariables[name],
-                        link: selectedDataSeries ? selectedDataSeries.id : null,
-                      } as RawDataSeriesByLink;
-                      return { ...prev, variables: newVariables };
-                    });
-                  }}
-                >
-                  <option value="none">{t("components:recipe.select_data_series")}</option>
-                  {selectableDataSeries.map(ds => (
-                    <option key={ds.id} value={ds.id}>
-                      {ds.name}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </>)}
-
-            {variable.type === RecipeVariableType.Scalar && (
-              <input
-                type="text"
-                value={variable.value.toString()}
-                disabled={!allowValueEditing}
-                className="flex-grow-1"
-                onChange={(e) => {
-                  setRecipe(prev => {
-                    if (!prev) return null;
-                    const currentVar = prev.variables[name];
-                    const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
-
-                    if (currentVar.type === RecipeVariableType.Scalar) {
-                      const newValue = parseFloat(e.target.value);
-                      if (!isNaN(newValue)) {
-                        newVariables[name] = { ...currentVar, value: newValue };
-                      } else if (e.target.value === "") {
-                        newVariables[name] = { ...currentVar, value: 0 };
-                      }
-                    } else if (currentVar.type === RecipeVariableType.DataSeries && 'link' in currentVar) {
-                      newVariables[name] = { ...currentVar, link: e.target.value };
-                    }
-
-                    return { ...prev, variables: newVariables };
-                  });
-                }}
-                readOnly={!allowValueEditing}
-              />
-            )}
-
-            {allowDeleteVariables &&
-              <button type="button" className="red" onClick={() => {
-                setRecipe(prev => {
-                  if (!prev) return null;
-                  const newVars = { ...prev.variables };
-                  delete newVars[name];
-                  return {
-                    ...prev,
-                    variables: newVars
-                  }
-                });
-              }}>
-                X
-              </button>
-            }
-          </li>
-        ))} */}
       </ul>
 
       {/* Add variable */}
