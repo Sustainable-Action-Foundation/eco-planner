@@ -50,11 +50,16 @@ export function recipeFromUnknown(recipe: unknown): RawRecipe {
       throw new RecipeError(`Failed to parse recipe from string: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
-  if (!unsafeIsRawRecipe(recipe)) {
+  const rawRecipe: RawRecipe = recipe as RawRecipe;
+  if (!rawRecipe || !rawRecipe.eq || !rawRecipe.variables) {
     throw new RecipeError("Invalid recipe format. Expected a RawRecipe JSON string or object.");
   }
+  // if (!unsafeIsRawRecipe(recipe)) {
+  //   throw new RecipeError("Invalid recipe format. Expected a RawRecipe JSON string or object.");
+  // }
 
-  return { eq: recipe.eq, variables: recipe.variables, ...(recipe.name ? { name: recipe.name } : {}) };
+  // return { eq: recipe.eq, variables: recipe.variables, ...(recipe.name ? { name: recipe.name } : {}) };
+  return { eq: rawRecipe.eq, variables: rawRecipe.variables, ...(rawRecipe.name ? { name: rawRecipe.name } : {}) };
 }
 
 /**
