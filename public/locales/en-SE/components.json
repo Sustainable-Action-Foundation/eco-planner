@@ -45,6 +45,7 @@
     "evaluation_warning_title": "Warnings",
     "scalar": "Scalar",
     "data_series": "Data series",
+    "external_data": "External data",
     "recipe_label": "Recipe: "
   },
   "effects_table": {

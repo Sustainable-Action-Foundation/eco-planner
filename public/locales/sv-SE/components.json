@@ -45,6 +45,7 @@
     "evaluation_warning_title": "Varningar",
     "scalar": "Skalär",
     "data_series": "Dataserie",
+    "external_data": "Extern data",
     "recipe_label": "Recept: "
   },
   "effects_table": {
