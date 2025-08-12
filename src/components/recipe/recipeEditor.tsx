@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { evaluateRecipe, parseRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
+import { DataSeriesVariable, ExternalVariable, ScalarVariable } from "./variables";
 
 type RecipeContextType = {
   recipe: RawRecipe | null;
@@ -231,10 +232,23 @@ export function RecipeVariableEditor({
   return (<>
     <div className="margin-inline-auto width-100">
       {t("components:copy_and_scale.recipe_variables")}
-      <ul className="list-style-none padding-0">
-        {Object.entries(recipe?.variables || []).map(([name, variable], i) => (
+      <ul className="list-style-none padding-0" style={{
+        display: 'flex',
+        flexFlow: 'column nowrap',
+        rowGap: '1ch',
+      }}>
+        {Object.entries(recipe?.variables || []).map(([name, variable], i) => {
+          switch (variable.type) {
+            case RecipeVariableType.Scalar:
+              return <ScalarVariable />
+            case RecipeVariableType.DataSeries:
+              return <DataSeriesVariable key={i} />
+            case RecipeVariableType.External:
+              return <ExternalVariable key={i} />
+          }
+        })}
+        {/* {Object.entries(recipe?.variables || []).map(([name, variable], i) => (
           <li key={i} className="display-flex align-items-center gap-50 margin-block-25">
-            {/* Name display */}
             <input
               type="text"
               value={name}
@@ -261,7 +275,6 @@ export function RecipeVariableEditor({
               }}
             />
 
-            {/* Type selection */}
             <select className="flex-grow-1"
               disabled={!allowTypeEditing}
               defaultValue={variable.type}
@@ -292,9 +305,7 @@ export function RecipeVariableEditor({
               <option value={RecipeVariableType.Scalar}>{t("components:copy_and_scale.scalar")}</option>
             </select>
 
-            {/* Data series input */}
             {variable.type === RecipeVariableType.DataSeries && 'link' in variable && (<>
-              {/* Roadmap select */}
               <select
                 value={roadmap?.id || "none"}
                 onChange={e => {
@@ -310,7 +321,6 @@ export function RecipeVariableEditor({
                 ))}
               </select>
 
-              {/* Data series select */}
               {roadmap && selectableDataSeries && (
                 <select
                   value={variable.link || "none"}
@@ -337,7 +347,6 @@ export function RecipeVariableEditor({
               )}
             </>)}
 
-            {/* Scalar input */}
             {variable.type === RecipeVariableType.Scalar && (
               <input
                 type="text"
@@ -368,7 +377,6 @@ export function RecipeVariableEditor({
               />
             )}
 
-            {/* Delete variable */}
             {allowDeleteVariables &&
               <button type="button" className="red" onClick={() => {
                 setRecipe(prev => {
@@ -385,7 +393,7 @@ export function RecipeVariableEditor({
               </button>
             }
           </li>
-        ))}
+        ))} */}
       </ul>
 
       {/* Add variable */}
