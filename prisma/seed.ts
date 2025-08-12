@@ -49,8 +49,8 @@ function getRandomCreatedAtAndUpdatedAt(): [Date, Date] {
 
 function getRandomCoherentDataPoints(): Partial<Record<typeof dataSeriesDataFieldNames[number], number>> {
   const dataPoints: Partial<Record<typeof dataSeriesDataFieldNames[number], number>> = {};
-  let startValue = Math.floor(Math.random() * 100); // Random start value between 0 and 99
-  const deviation = Math.floor(Math.random() * 10) + 1; // Random deviation between 1 and 10
+  let startValue = Math.floor(Math.random() * 10000);
+  const deviation = Math.floor(Math.random() * startValue) + startValue / 100;
 
   const fields: typeof dataSeriesDataFieldNames = [];
 
@@ -346,37 +346,69 @@ async function main() {
         },
       });
     })(),
-    // (() => {
-    //   const recipe: Recipe = {
-    //     name: '',
-    //     eq: '',
-    //     variables: {},
-    //   };
-    //   const stringifiedRecipe = JSON.stringify(recipe);
-    //   return prisma.recipe.create({
-    //     data: {
-    //       hash: sha256(stringifiedRecipe),
-    //       recipe: stringifiedRecipe,
-    //     },
-    //   });
-    // })(),
-    // (() => {
-    //   const recipe: Recipe = {
-    //     name: '',
-    //     eq: '',
-    //     variables: {},
-    //   };
-    //   const stringifiedRecipe = JSON.stringify(recipe);
-    //   return prisma.recipe.create({
-    //     data: {
-    //       hash: sha256(stringifiedRecipe),
-    //       recipe: stringifiedRecipe,
-    //     },
-    //   });
-    // })(),
+    (() => {
+      const recipe: Recipe = {
+        name: 'Skala utifrån befolkning',
+        eq: '${Riket} * ${ArvingsPopulation} / ${RiketsPopulation}',
+        variables: {
+          'Riket': {
+            type: RecipeVariableType.DataSeries,
+            link: null,
+          },
+          'RiketsPopulation': {
+            type: RecipeVariableType.External,
+            dataset: 'SCB',
+            tableId: 'BE0101N1',
+            selection: [
+              // Selected area
+              { variableCode: 'Region', valueCodes: ["00"], },
+              // Magic string to get population numbers
+              { variableCode: "ContentsCode", valueCodes: ["000007E1"] },
+            ],
+          },
+          'ArvingsPopulation': {
+            type: RecipeVariableType.External,
+            dataset: 'SCB',
+            tableId: 'BE0101N1',
+            selection: [
+              // Magic string to get population numbers
+              { variableCode: "ContentsCode", valueCodes: ["000007E1"] },
+            ],
+          },
+        },
+      };
+      const stringifiedRecipe = JSON.stringify(recipe);
+      return prisma.recipe.create({
+        data: {
+          hash: sha256(stringifiedRecipe),
+          recipe: stringifiedRecipe,
+        },
+      });
+    })(),
+    (() => {
+      const recipe: Recipe = {
+        name: 'Skala utifrån fast värde',
+        eq: '${Riket} / ${skalär}',
+        variables: {
+          'Riket': {
+            type: RecipeVariableType.DataSeries,
+            link: null,
+          },
+          'skalär': {
+            type: RecipeVariableType.Scalar,
+            value: 1 + Math.random(),
+          },
+        },
+      };
+      const stringifiedRecipe = JSON.stringify(recipe);
+      return prisma.recipe.create({
+        data: {
+          hash: sha256(stringifiedRecipe),
+          recipe: stringifiedRecipe,
+        },
+      });
+    })(),
   ]);
-
-  console.log(basicRecipes);
 
 
   /* 
@@ -413,7 +445,11 @@ async function main() {
             connect: { id: nationalDataSeriesV1[i].id },
           },
           recipeSuggestions: {
-            connect: { hash: basicRecipes[0].hash },
+            connect: [
+              { hash: basicRecipes[0].hash },
+              { hash: basicRecipes[1].hash },
+              { hash: basicRecipes[2].hash },
+            ],
           }
         },
       });
