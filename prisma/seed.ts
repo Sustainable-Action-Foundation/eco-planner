@@ -47,15 +47,20 @@ function getRandomCreatedAtAndUpdatedAt(): [Date, Date] {
   return [createdAt, updatedAt];
 }
 
+function getRandomUnit() {
+  return ['CO2e', 'capita', 'kWh', 's', 'mm^2/km*s', 'ps/sqrt(km)', 'ps/km^(1/2)', 'm3', 'kg', 'ton', 'Atemp', null, '', null, undefined, null, '', ""].sort(() => Math.random() - 0.5).at(0) ?? null;
+}
+
 function getRandomCoherentDataPoints(): Partial<Record<typeof dataSeriesDataFieldNames[number], number>> {
   const dataPoints: Partial<Record<typeof dataSeriesDataFieldNames[number], number>> = {};
   let startValue = Math.floor(Math.random() * 10000);
-  const deviation = Math.floor(Math.random() * startValue) + startValue / 100;
+  const deviation = Math.floor(Math.random() * startValue + startValue / 100);
+  const inclination = Math.random() < 0.5 ? -1 : 1; // Randomly choose to increase or decrease values
 
   const fields: typeof dataSeriesDataFieldNames = [];
 
-  // 10% chance to get random start and end years
-  if (Math.random() < 0.1) {
+  // Small chance to get random start and end years
+  if (Math.random() < 0.05) {
     const emptyStart = dataSeriesDataFieldNames.slice(0, Math.floor(Math.random() * 10));
     const emptyEnd = dataSeriesDataFieldNames.slice(Math.floor(Math.random() * 10));
 
@@ -74,7 +79,7 @@ function getRandomCoherentDataPoints(): Partial<Record<typeof dataSeriesDataFiel
       continue; // Skip this field
     }
 
-    const value = startValue + Math.floor(Math.random() * deviation) - Math.floor(Math.random() * deviation);
+    const value = startValue + Math.random() * inclination * (Math.floor(Math.random() * deviation) - Math.floor(Math.random() * deviation));
     if (value < 0) {
       dataPoints[field] = 0; // Ensure no negative values
       startValue = 0; // Reset start value to 0 if it goes negative
@@ -303,7 +308,7 @@ async function main() {
    * Basic recipes
    */
   const basicRecipes = await prisma.$transaction([
-    (() => {
+    (() => { // By area
       const recipe: Recipe = {
         name: 'Skala utifrån yta',
         eq: '${Riket} * ${ArvingsArea} / ${RiketsArea}',
@@ -338,15 +343,14 @@ async function main() {
           },
         },
       };
-      const stringifiedRecipe = JSON.stringify(recipe);
       return prisma.recipe.create({
         data: {
-          hash: sha256(stringifiedRecipe),
+          hash: sha256(JSON.stringify(recipe)),
           recipe: recipe,
         },
       });
     })(),
-    (() => {
+    (() => { // By population
       const recipe: Recipe = {
         name: 'Skala utifrån befolkning',
         eq: '${Riket} * ${ArvingsPopulation} / ${RiketsPopulation}',
@@ -377,15 +381,14 @@ async function main() {
           },
         },
       };
-      const stringifiedRecipe = JSON.stringify(recipe);
       return prisma.recipe.create({
         data: {
-          hash: sha256(stringifiedRecipe),
-          recipe: stringifiedRecipe,
+          hash: sha256(JSON.stringify(recipe)),
+          recipe: recipe,
         },
       });
     })(),
-    (() => {
+    (() => { // By scalar
       const recipe: Recipe = {
         name: 'Skala utifrån fast värde',
         eq: '${Riket} / ${skalär}',
@@ -400,11 +403,10 @@ async function main() {
           },
         },
       };
-      const stringifiedRecipe = JSON.stringify(recipe);
       return prisma.recipe.create({
         data: {
-          hash: sha256(stringifiedRecipe),
-          recipe: stringifiedRecipe,
+          hash: sha256(JSON.stringify(recipe)),
+          recipe: recipe,
         },
       });
     })(),
@@ -423,7 +425,7 @@ async function main() {
           authorId: users[Math.floor(Math.random() * users.length)].id,
           createdAt,
           updatedAt,
-          unit: ['CO2e', 'capita', 'kWh', 's', 'mm^2/km*s', 'ps/sqrt(km)', 'ps/km^(1/2)', 'm3', 'kg', 'ton', 'Atemp', null, ''].sort(() => Math.random() - 0.5).at(0) ?? null,
+          unit: getRandomUnit(),
           ...getRandomCoherentDataPoints(),
         }
       });
@@ -465,7 +467,7 @@ async function main() {
           authorId: users[Math.floor(Math.random() * users.length)].id,
           createdAt,
           updatedAt,
-          unit: ['CO2e', 'capita', 'kWh', 's', 'mm^2/km*s', 'ps/sqrt(km)', 'ps/km^(1/2)', 'm3', 'kg', 'ton', 'Atemp', null, ''].sort(() => Math.random() - 0.5).at(0) ?? null,
+          unit: getRandomUnit(),
           ...getRandomCoherentDataPoints(),
         }
       });
