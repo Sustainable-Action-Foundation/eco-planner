@@ -1,5 +1,8 @@
 
-// Extracted text from wikipedia https://sv.wikipedia.org/wiki/H%C3%A5llbar_utveckling Our license should be compatible https://creativecommons.org/share-your-work/licensing-considerations/compatible-licenses/
+// Extracted text from wikipedia 
+//   https://sv.wikipedia.org/wiki/H%C3%A5llbar_utveckling 
+//   https://sv.wikipedia.org/wiki/Ekosystemtj%C3%A4nster
+// Our license should be compatible https://creativecommons.org/share-your-work/licensing-considerations/compatible-licenses/
 function main() {
   if (typeof document === "undefined") return;
 
