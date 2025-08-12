@@ -1,3 +1,5 @@
+"use client";
+
 import { RawDataSeriesByLink, RawRecipe, RawRecipeVariables, RecipeVariableExternalDataset, RecipeVariableScalar, RecipeVariableType } from "@/functions/recipe-parser/types";
 import { IconTrash } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -247,7 +249,7 @@ export function DataSeriesVariable({
       onChange={handleRoadmapChange}
       disabled={!allowValueEditing}
     >
-      <option value={"none"}>{t("common:recipe_editor.select_roadmap")}</option>
+      <option value={"none"}>{t("components:recipe_editor.select_roadmap")}</option>
       {selectableRoadmaps?.map(r => (
         <option key={r.id} value={r.id}>
           {r.name}

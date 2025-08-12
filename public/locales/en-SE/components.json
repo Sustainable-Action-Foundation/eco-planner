@@ -43,10 +43,24 @@
     "add_variable": "Add variable",
     "evaluation_error_title": "Recipe Error",
     "evaluation_warning_title": "Warnings",
-    "scalar": "Scalar",
+    "recipe_label": "Recipe: "
+  },
+  "recipe_editor": {
+    "variable_name_placeholder": "Variable name",
+    "unit_placeholder": "Unitless",
     "data_series": "Data series",
     "external_data": "External data",
-    "recipe_label": "Recipe: "
+    "scalar": "Scalar",
+    "select_roadmap": "Select roadmap",
+    "goal_or_effect": "Goal or effect",
+    "dataset": "Dataset",
+    "table": "Table",
+    "selection": "Selection",
+    "pick_whole": "Whole series",
+    "pick_last": "Last value",
+    "pick_first": "First value",
+    "pick_median": "Median value",
+    "pick_mean": "Mean value"
   },
   "effects_table": {
     "no_effects": "There are no $t(common:effect_other) to display.",
@@ -145,8 +159,6 @@
     "show_source_alt": "Show underlying $t(common:roadmap_version_other)"
   },
   "recipe": {
-    "select_roadmap": "Select $t(common:roadmap_version_one)",
-    "select_data_series": "Select data series"
   },
   "sidebar": {
     "toggle_menu_alt": "Toggle menu",

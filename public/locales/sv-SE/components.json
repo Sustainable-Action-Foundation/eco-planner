@@ -43,10 +43,24 @@
     "add_variable": "Lägg till variabel",
     "evaluation_error_title": "Receptfel",
     "evaluation_warning_title": "Varningar",
-    "scalar": "Skalär",
+    "recipe_label": "Recept: "
+  },
+  "recipe_editor": {
+    "variable_name_placeholder": "Variabelnamn",
+    "unit_placeholder": "Enhetslös",
     "data_series": "Dataserie",
     "external_data": "Extern data",
-    "recipe_label": "Recept: "
+    "scalar": "Skalär",
+    "select_roadmap": "Välj färdplan",
+    "goal_or_effect": "Målbana eller effekt",
+    "dataset": "Dataset",
+    "table": "Tabell",
+    "selection": "Urval",
+    "pick_whole": "Hela serien",
+    "pick_last": "Sista värdet",
+    "pick_first": "Första värdet",
+    "pick_median": "Medianvärdet",
+    "pick_mean": "Medelvärdet"
   },
   "effects_table": {
     "no_effects": "Det finns inga $t(common:effect_other) att visa.",
@@ -145,8 +159,6 @@
     "show_source_alt": "Visa underliggande $t(common:roadmap_version_other)"
   },
   "recipe": {
-    "select_roadmap": "Välj $t(common:roadmap_version_one)",
-    "select_data_series": "Välj dataserie"
   },
   "sidebar": {
     "toggle_menu_alt": "Växla meny",
