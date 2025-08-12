@@ -60,9 +60,9 @@ function getRandomCoherentDataPoints(): Partial<Record<typeof dataSeriesDataFiel
   const fields: typeof dataSeriesDataFieldNames = [];
 
   // Small chance to get random start and end years
-  if (Math.random() < 0.05) {
+  if (Math.random() < 0.2) {
     const emptyStart = dataSeriesDataFieldNames.slice(0, Math.floor(Math.random() * 10));
-    const emptyEnd = dataSeriesDataFieldNames.slice(Math.floor(Math.random() * 10));
+    const emptyEnd = dataSeriesDataFieldNames.slice(-Math.floor(Math.random() * 10));
 
     for (const year of dataSeriesDataFieldNames) {
       if (!emptyStart.includes(year) && !emptyEnd.includes(year)) {
@@ -79,7 +79,7 @@ function getRandomCoherentDataPoints(): Partial<Record<typeof dataSeriesDataFiel
       continue; // Skip this field
     }
 
-    const value = startValue + Math.random() * inclination * (Math.floor(Math.random() * deviation) - Math.floor(Math.random() * deviation));
+    const value = startValue + Math.random() * inclination * (Math.floor(Math.random() * deviation) - Math.floor(Math.random() * deviation) / 2);
     if (value < 0) {
       dataPoints[field] = 0; // Ensure no negative values
       startValue = 0; // Reset start value to 0 if it goes negative
@@ -88,6 +88,12 @@ function getRandomCoherentDataPoints(): Partial<Record<typeof dataSeriesDataFiel
       startValue = value; // Update start value for next iteration
     }
   }
+
+  // TODO - add limit to recursion depth. Not that important since it's incredibly unlikely that it will be a problem
+  if (Object.keys(dataPoints).length === 0) {
+    return getRandomCoherentDataPoints();
+  }
+
   return dataPoints;
 }
 
