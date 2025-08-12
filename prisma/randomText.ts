@@ -19,7 +19,7 @@ const sourceText = rawText
 
     return true;
   })
-  .filter(t => !t.includes("wiki"))
+  .filter(t => !t.toLowerCase().includes("wiki"))
   .map(t => t.replace(/^\(/gm, " "))
   .map(t => t.replace(/\)$/gm, " "))
   .map(t => t.replace(/^'/gm, " "))
