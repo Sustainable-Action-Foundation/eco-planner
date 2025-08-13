@@ -1,6 +1,6 @@
 "use client";
 
-import { RawDataSeriesByLink, RawRecipe, RawRecipeVariables, RecipeVariableExternalDataset, RecipeVariableScalar, RecipeVariableType, RecipeVariableTypeMap } from "@/functions/recipe-parser/types";
+import { lenientIsRawDataSeriesByLink, RawDataSeriesByLink, RawRecipe, RawRecipeVariables, RecipeVariableExternalDataset, RecipeVariableScalar, RecipeVariableType, RecipeVariableTypeMap } from "@/functions/recipe-parser/types";
 import { IconTrash } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import React, { useState } from "react";
@@ -100,7 +100,7 @@ function CommonVariable({
     </div>
 
     {/* Unit */}
-    <input type="text" placeholder={t("components:recipe_editor.unit_placeholder")} style={{ width: '10ch' }} />
+    <input defaultValue={variable.type === RecipeVariableType.DataSeries && lenientIsRawDataSeriesByLink(variable) && variable.dataSeries?.unit || ""} type="text" placeholder={t("components:recipe_editor.unit_placeholder")} style={{ width: '10ch' }} />
 
     {/* Delete */}
     {rules.allowDeleteVariables &&
@@ -171,19 +171,60 @@ export function ScalarVariable({
 export function DataSeriesVariable({
   name,
   rules,
-  availableRoadmaps,
-  availableDataSeries,
+  availableRoadmaps = [],
+  availableDataSeries = [],
 }: {
   name: string;
   rules?: InputRules;
   availableRoadmaps?: { id: string; name: string; }[];
-  availableDataSeries?: { id: string; name: string; roadmapId: string; }[];
+  availableDataSeries?: { id: string; name: string; roadmapId: string; unit?: string; }[];
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
   const variable = recipe?.variables[name] as RawRecipeVariables;
 
+  if (!lenientIsRawDataSeriesByLink(variable)) {
+    console.error(`Variable "${name}" is not a valid DataSeriesVariable`, variable);
+    return null;
+  }
+
   rules = { ...defaultInputRules, ...rules };
+
+  function handleRoadmapChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    setRecipe(prev => {
+      if (!prev) return null;
+      const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+      const currentVar = newVariables[name];
+      if (currentVar && e.target.value) {
+        const selectedRoadmap = availableRoadmaps.find(r => r.id === e.target.value);
+        if (selectedRoadmap) {
+          newVariables[name] = {
+            ...currentVar,
+            roadmap: { name: selectedRoadmap.name, id: selectedRoadmap.id },
+          } as RawDataSeriesByLink;
+        }
+      }
+      return { ...prev, variables: newVariables };
+    });
+  }
+
+  function handleDataSeriesChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    setRecipe(prev => {
+      if (!prev) return null;
+      const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+      const currentVar = newVariables[name];
+      if (currentVar && e.target.value) {
+        const selectedDataSeries = availableDataSeries.find(ds => ds.id === e.target.value);
+        if (selectedDataSeries) {
+          newVariables[name] = {
+            ...currentVar,
+            dataSeries: { name: selectedDataSeries.name, id: selectedDataSeries.id, roadmapId: selectedDataSeries.roadmapId },
+          } as RawDataSeriesByLink;
+        }
+      }
+      return { ...prev, variables: newVariables };
+    });
+  }
 
   return <CommonVariable
     name={name}
@@ -191,30 +232,33 @@ export function DataSeriesVariable({
   >
     {/* Roadmap */}
     <select
-      value={roadmapId?.id || ""}
+      value={variable.roadmap?.id || ""}
       onChange={handleRoadmapChange}
-      disabled={!allowValueEditing}
+      disabled={!rules.allowValueEditing}
     >
       <option value={""}>{t("components:recipe_editor.select_roadmap")}</option>
-      {selectableRoadmaps?.map(r => (
-        <option key={r.id} value={r.id}>
+      {availableRoadmaps.map((r, i) => (
+        <option key={`roadmapOption-${i}`} value={r.id}>
           {r.name}
         </option>
       ))}
     </select>
 
-    {/* Goal or effect */}
+    {/* Goal (data series) */}
     <select
-      value={variable.link || ""}
+      value={variable.link || variable.dataSeries?.id || ""}
       onChange={handleDataSeriesChange}
-      disabled={!allowValueEditing}
+      disabled={!rules.allowValueEditing}
     >
       <option value="">{t("components:recipe_editor.goal_or_effect")}</option>
-      {(selectableDataSeries || []).map(ds => (
-        <option key={ds.id} value={ds.id}>
-          {ds.name}
-        </option>
-      ))}
+      {availableDataSeries
+        .map(ds => ({ ...ds, displayName: ds.unit ? `(${ds.unit}) ${ds.name}` : ds.name }))
+        .sort((a, b) => a.displayName.localeCompare(b.displayName))
+        .map((ds, i) => (
+          <option key={`dataSeriesOption-${i}`} value={ds.id}>
+            {ds.displayName}
+          </option>
+        ))}
     </select>
 
     {/* Pick */}

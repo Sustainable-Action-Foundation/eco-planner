@@ -1,6 +1,6 @@
 "use client";
 
-import { type DataSeriesArray, type RawRecipe, type Recipe, RecipeVariableType, RawRecipeVariables, RawDataSeriesByLink } from "@/functions/recipe-parser/types";
+import { type DataSeriesArray, type RawRecipe, type Recipe, RecipeVariableType, RawRecipeVariables, RawDataSeriesByLink, lenientIsRawDataSeriesByLink } from "@/functions/recipe-parser/types";
 import type { Goal } from "@/types";
 import { createContext, ReactElement, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -196,32 +196,45 @@ export function RecipeVariableEditor({
 
   // On selecting a roadmap, fetch its data series as selectable options
   useEffect(() => {
-    
+    if (!recipe || !recipe.variables) return;
 
-    // async function fetchDataSeries() {
-    //   if (!selectedRoadmap?.id) return;
-    //   try {
-    //     const roadmapData = await clientSafeGetOneRoadmap(selectedRoadmap?.id);
-    //     if (!roadmapData?.goals) return;
+    const selectedRoadmaps = [...new Set(Object.values(recipe.variables)
+      .filter(variable => variable.type === RecipeVariableType.DataSeries && lenientIsRawDataSeriesByLink(variable))
+      .map(variable => variable.roadmap?.id)
+      .filter(id => id && typeof id === "string" && typeof id !== "undefined") as string[])];
 
-    //     const goals = roadmapData?.goals;
-    //     const series = goals.filter(g => g.dataSeries).map(goal => {
-    //       if (!goal.dataSeries) return null;
-    //       return {
-    //         id: goal.dataSeries.id,
-    //         name: goal.name,
-    //         roadmapId: selectedRoadmap.id,
-    //       }
-    //     });
+    if (selectedRoadmaps.length === 0) {
+      return;
+    }
 
-    //     setAvailableDataSeries(series.filter(ds => ds !== null) as { id: string; name: string; roadmapId: string; }[]);
-    //   }
-    //   catch (e) {
-    //     console.error("Failed to fetch data series for roadmap", e);
-    //   }
-    // }
+    setAvailableDataSeries([]);
 
-    // fetchDataSeries();
+    async function fetchDataSeries(roadmapId: string) {
+      try {
+        const roadmapData = await clientSafeGetOneRoadmap(roadmapId);
+        if (!roadmapData?.goals) return;
+
+        const goals = roadmapData?.goals;
+        const series = goals.filter(g => g.dataSeries).map(goal => {
+          if (!goal.dataSeries) return null;
+          return {
+            id: goal.dataSeries.id,
+            name: goal.name,
+            roadmapId: roadmapId,
+            ...(goal.dataSeries.unit ? { unit: goal.dataSeries.unit } : {})
+          }
+        });
+
+        const dataSeriesFound = series.filter(ds => ds !== null) as { id: string; name: string; roadmapId: string; }[];
+        setAvailableDataSeries([...(availableDataSeries || []), ...dataSeriesFound]);
+      }
+      catch (e) {
+        console.error("Failed to fetch data series for roadmap", e);
+      }
+    }
+
+    Promise.all(selectedRoadmaps.map(roadmapId => fetchDataSeries(roadmapId)));
+
   }, [recipe?.variables]);
 
   return (<>
@@ -252,6 +265,8 @@ export function RecipeVariableEditor({
                 key={i}
                 name={name}
                 rules={rules}
+                availableRoadmaps={availableRoadmaps || []}
+                availableDataSeries={availableDataSeries || []}
               />
             case RecipeVariableType.External:
               return <ExternalVariable
@@ -259,6 +274,12 @@ export function RecipeVariableEditor({
                 name={name}
                 rules={rules}
               />
+            default:
+              variable = variable as RawRecipeVariables;
+              console.warn("Unknown variable type", variable.type, "for variable", name);
+            // return <li key={i} style={{ color: 'red' }}>
+            //   {t("components:recipe_editor.unknown_variable_type", { type: variable.type, name })}
+            // </li>;
           }
         })}
       </ul>

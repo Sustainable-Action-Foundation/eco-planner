@@ -81,7 +81,7 @@ export type RawDataSeriesByLink = {
 
   // For easier state management for recipe editor
   roadmap?: { name: string; id: string };
-  dataSeries?: { name: string; id: string; roadmapId: string };
+  dataSeries?: { name: string; id: string; roadmapId: string, unit?: string; };
 };
 export function lenientIsRawDataSeriesByLink(variable: unknown): variable is RawDataSeriesByLink {
   return (
@@ -89,11 +89,15 @@ export function lenientIsRawDataSeriesByLink(variable: unknown): variable is Raw
     "type" in variable &&
     variable.type === RecipeVariableType.DataSeries &&
     "link" in variable &&
-    typeof variable.link === "string" &&
-    // Ensure the link is a valid UUID
-    uuidRegex.test(variable.link) &&
+    (
+      ( // If link is a string, it should be a valid UUID
+        typeof variable.link === "string" &&
+        uuidRegex.test(variable.link)
+      ) ||
+      variable.link === null // or it can be null
+    ) &&
     // The properties unit and value are allowed but should be dropped, either silently or with a warning
-    Object.keys(variable).filter(key => !["link", "type", "value", "unit"].includes(key)).length === 0
+    Object.keys(variable).filter(key => !["link", "type", "value", "unit", "roadmap", "dataSeries"].includes(key)).length === 0
   );
 };
 export function isRawDataSeriesByLink(variable: unknown): variable is RawDataSeriesByLink {
