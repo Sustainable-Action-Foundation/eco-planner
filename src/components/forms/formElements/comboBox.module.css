@@ -67,3 +67,70 @@
     background-color: var(--gray-90);    
 }
  
+
+/* Select */
+
+.select-toggle {
+    width: 200px; /* Temporary */
+    background-color: white;
+    border: 1px solid var(--gray-80);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.select-toggle:hover {
+    box-shadow: none;
+}
+
+.select-toggle:active {
+    transform: scale(1);
+}
+
+.select-toggle:focus {
+    border-color: #191919;
+    outline: 0;
+}
+
+
+.listbox-select {
+    list-style: none;
+    border: 1px solid var(--gray);
+    background-color: white;
+    margin-block: .25rem;
+    border-radius: .25rem;
+    padding-bottom: 3px;
+    padding-inline: 3px;
+    position: absolute;
+    z-index: 9;
+    width: 100%;
+    
+    display: none;
+    transform: scale(.95);
+    transform-origin: top left;
+    opacity: 0;
+
+    overflow-y: auto;
+    scrollbar-width: thin;
+    max-height: 300px;
+    scroll-padding-top: 37px; /* height of ::before plus its margin */
+    scroll-padding-bottom: .25rem;
+ 
+    transition-property: display, opacity, transform;
+    transition-duration: .15s;
+    transition-behavior: allow-discrete;
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
+
+    &.visible {
+        display: block;
+        opacity: 1;
+        transform: scale(1);
+
+        @starting-style {
+            opacity: 0;
+            transform: scale(.95);
+        }
+    }
+}

@@ -83,7 +83,7 @@ export default function TextEditorMenu({
     }
   }
 
-  const [list, setList] = useState([
+  const list =[
     <li role='presentation' key="undo">
       <Undo editor={editor} t={t} />
     </li>,
@@ -126,58 +126,7 @@ export default function TextEditorMenu({
     <li role='presentation' key="numberedlist">
       <NumberedList editor={editor} t={t} />
     </li>
-  ])
-
-  const [overFlowList, setOverFlowList] = useState<React.JSX.Element[]>([]);
-
-  // parent.scrollWidth - 4 == width without padding
-  // list.length === 2 ? 114 : 38 is: 
-  // element width (24px/100px) + list item padding (4px) + list item margin (4px) + list item border (1px) + parent padding (4px) + 1
-  const checkOverflowAgainstParent = () => {
-    const ul = menubarRef.current;
-    const parent = ul?.parentElement;
-
-    if (ul && parent && menuItemsRef.current) {
-
-      if (ul.scrollWidth == (parent.scrollWidth - 4) && list.length > 0) {
-
-        const newList = [...list]; // clone the array
-        const movingItem = newList.pop(); // mutate the clone
-        setList(newList);
-
-        if (movingItem === undefined) {
-          throw new Error();
-        }
-
-        // TODO: Include filtering when making items larger
-        let newOverFlowList = overFlowList;
-        newOverFlowList.unshift(movingItem);
-        newOverFlowList = newOverFlowList.filter((item, i, ownArray) => {
-          return ownArray.findIndex(thing => thing.key === item.key) === i;
-        });
-        setOverFlowList(newOverFlowList)
-      } else if (ul.scrollWidth <= (parent.scrollWidth - (list.length === 2 ? 114 : 38)) && overFlowList.length > 0) { 
-        const newOverflow = [...overFlowList];
-        const restoringItem = newOverflow.shift(); // get first item
-
-        if (restoringItem === undefined) {
-          throw new Error();
-        }
-
-        setList(prevList => [...prevList, restoringItem]); // add to end of list
-        setOverFlowList(newOverflow);
-      }
-    }
-  };
-
-  const scrollHandler = useThrottledCallback(checkOverflowAgainstParent, 300);
-
-  useEffect(() => {
-    checkOverflowAgainstParent(); // Initial check
-
-    window.addEventListener("resize", scrollHandler);
-    return () => window.removeEventListener("resize", scrollHandler);
-  }, [list, overFlowList]);
+  ]  
 
   if (!editor) {
     return null
@@ -195,23 +144,7 @@ export default function TextEditorMenu({
           return listItem
         })}
 
-        <li role='presentation' className={`margin-left-25 padding-left-25 position-relative ${styles['menu-more']}`} style={{borderLeft: '1px solid var(--gray)'}}>
-          <span
-            tabIndex={-1}
-            role='menuitem'
-            aria-label={t("forms:text_editor_menu.more")}
-            data-tooltip={t("forms:text_editor_menu.more")}
-            aria-checked="false"
-            className={`${styles['menu-more']}`}
-          >
-            <IconDotsVertical width={16} height={16} className="grid" aria-hidden='true' />
-          </span>
-          <ul className="margin-0 padding-0 gray-95 smooth" role="menu" style={{listStyle: 'none', marginTop: '5px', position: 'fixed', inset: 'auto', marginRight: '1.25rem', zIndex: '9'}}>
-            {(overFlowList.map((listItem) => {
-              return listItem
-            }))}
-          </ul>
-        </li>
+ 
       </ul>
     </div>
   )

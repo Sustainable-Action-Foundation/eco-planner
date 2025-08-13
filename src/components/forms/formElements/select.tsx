@@ -4,6 +4,7 @@ import { IconSearch, IconSelector } from "@tabler/icons-react";
 import { useEffect, useState, useRef } from "react"
 import Fuse from "fuse.js";
 import { useTranslation } from "react-i18next";
+import styles from './comboBox.module.css' with { type: "css" }
 
 export function SelectSingleSearch({
   options,
@@ -33,8 +34,10 @@ export function SelectSingleSearch({
 
   // Focus and clear search menu when opening the select
   useEffect(() => {
-    if (menuOpen && searchRef.current) {
-      searchRef.current.value = ''
+    if (!searchRef.current) return
+    searchRef.current.value = ''
+    setSearchValue('')
+    if (menuOpen) {
       searchRef.current.focus();
     }
   }, [menuOpen]);
@@ -125,7 +128,8 @@ export function SelectSingleSearch({
       <button
         ref={toggleRef}
         type="button"
-        className="flex gap-500 align-items-center"
+        className={`${styles['select-toggle']}`}
+        style={{borderColor: menuOpen ? '#191919' : ''}}
         onClick={() => { setMenuOpen(!menuOpen) }}
         id="combo1"
         tabIndex={0}
@@ -145,24 +149,11 @@ export function SelectSingleSearch({
         onBlur={() => setMenuOpen(false)} // TODO: This disabled selecting values using a mouse
         tabIndex={-1}
         role="dialog"
-        style={{
-          width: '100%',
-          position: 'absolute',
-          top: '100%',
-          left: '0',
-          backgroundColor: 'white',
-          paddingBlock: '0',
-          borderRadius: '.25rem',
-          margin: '0',
-          border: '1px solid var(--gray-80)',
-          zIndex: '9',
-          marginTop: '.25rem',
-          maxHeight: '300px',
-          overflowY: 'scroll',
-          scrollbarWidth: 'thin',
-          paddingInline: '3px',
-          display: `${menuOpen ? 'block' : 'none'}`
-        }}
+        className={`              
+          ${styles['listbox-select']} 
+          ${menuOpen ? styles['visible'] : ''} 
+          margin-inline-0`
+        } 
       >
         <label
           aria-label="sök..."
@@ -194,7 +185,7 @@ export function SelectSingleSearch({
               <li
                 onClick={() => {
                   setValue(option),
-                    setMenuOpen(false)
+                  setMenuOpen(false)
                 }}
                 ref={(el) => { optionRefs.current[index] = el }}
                 role="option"

@@ -215,6 +215,7 @@
 
 :where(select):focus {
   border-color: #191919;
+  outline: 0;
 }
 
 :where(textarea) {
