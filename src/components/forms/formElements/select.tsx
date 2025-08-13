@@ -31,10 +31,11 @@ export function SelectSingleSearch({
     setResults(newResults);
   }, [searchValue]);
 
-  // Focus search menu when opening the select
+  // Focus and clear search menu when opening the select
   useEffect(() => {
-    if (menuOpen) {
-      searchRef.current?.focus();
+    if (menuOpen && searchRef.current) {
+      searchRef.current.value = ''
+      searchRef.current.focus();
     }
   }, [menuOpen]);
 
@@ -59,6 +60,8 @@ export function SelectSingleSearch({
 
     // Selects option and remove listbox (TODO: Check value aswell/lenght of list or whatever...)
     if (e.key === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation(); // Prevent higher-level reopens
       if (menuOpen && focusedListBoxItem != null && results.length > 0) {
         setValue(results[focusedListBoxItem])
         setFocusedListBoxItem(null)
