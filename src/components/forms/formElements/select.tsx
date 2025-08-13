@@ -15,8 +15,10 @@ export function SelectSingleSearch({
   const extendedOptions = ['Select element', ...options];
   const [value, setValue] = useState<string>(extendedOptions[0])
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
+  const toggleRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
-
+  const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
+  const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null);
 
   // Fuse search
   const [results, setResults] = useState<string[]>([])
@@ -36,9 +38,89 @@ export function SelectSingleSearch({
     }
   }, [menuOpen]);
 
+  // Sroll listbox element into view
+  useEffect(() => {
+    if (focusedListBoxItem !== null && optionRefs.current[focusedListBoxItem]) {
+      optionRefs.current[focusedListBoxItem]?.scrollIntoView({
+        block: "nearest",
+      });
+    }
+  }, [focusedListBoxItem]);
+
+
+  const handleKeyDownSearchInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Escape out of listbox if it is open
+    if (e.key === 'Escape') {
+      if (menuOpen) {
+        setMenuOpen(false)
+        toggleRef.current?.focus()
+      }
+    }
+
+    // Selects option and remove listbox (TODO: Check value aswell/lenght of list or whatever...)
+    if (e.key === 'Enter') {
+      if (menuOpen && focusedListBoxItem != null && results.length > 0) {
+        setValue(results[focusedListBoxItem])
+        setFocusedListBoxItem(null)
+        setMenuOpen(false);
+        toggleRef.current?.focus()
+      }
+    }
+
+    // Retain keyboard shortcuts
+    if (e.key === 'ArrowDown' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
+      // If list is open, navigate between items
+      if (menuOpen && focusedListBoxItem != null) {
+        e.preventDefault()
+
+        if (focusedListBoxItem != results.length - 1) {
+          setFocusedListBoxItem(focusedListBoxItem + 1)
+        } else {
+          setFocusedListBoxItem(0)
+        }
+      } else { // If list is closed, open it and focus the first element
+        setMenuOpen(true)
+        setFocusedListBoxItem(0) // TODO: Should move to previous element if one was already selected
+      }
+    }
+
+    // Retain keyboard shortcuts
+    if (e.key === 'ArrowUp' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
+      // If list is open, navigate between items
+      if (menuOpen && focusedListBoxItem != null) {
+        e.preventDefault()
+
+        if (focusedListBoxItem != 0) {
+          setFocusedListBoxItem(focusedListBoxItem - 1)
+        } else {
+          setFocusedListBoxItem(results.length - 1)
+        }
+      } else { // If list is closed, open it and focus the first element
+        setMenuOpen(true)
+        setFocusedListBoxItem(0) // TODO: Should move to last element, TODO: Should move to previous element if one was already selected
+      }
+    }
+
+    if (e.key === 'Home') {
+      e.preventDefault()
+      if (menuOpen) {
+        setFocusedListBoxItem(0)
+      }
+    }
+
+    if (e.key === 'End') {
+      e.preventDefault()
+      if (menuOpen) {
+        setFocusedListBoxItem(results.length - 1)
+      }
+    }
+
+  };
+
   return (
     <div className="position-relative" style={{ userSelect: 'none', width: 'fit-content' }}>
       <button
+        ref={toggleRef}
         type="button"
         className="flex gap-500 align-items-center"
         onClick={() => { setMenuOpen(!menuOpen) }}
@@ -86,6 +168,7 @@ export function SelectSingleSearch({
           <input
             ref={searchRef}
             onChange={(e) => setSearchValue(e.target.value)}
+            onKeyDown={handleKeyDownSearchInput}
             type="text"
             style={{
               padding: '0',
@@ -110,9 +193,11 @@ export function SelectSingleSearch({
                   setValue(option),
                     setMenuOpen(false)
                 }}
+                ref={(el) => { optionRefs.current[index] = el }}
                 role="option"
-                key={`$'listbox'-${index}`}
+                key={`${index}`} // TODO: Am i allowed to do this or do they need to be unique for entire page?
                 style={{
+                  backgroundColor: index === focusedListBoxItem ? 'var(--gray-90)' : '',
                   userSelect: 'none',
                   borderRadius: '.25rem',
                   padding: '.5rem',
@@ -123,7 +208,7 @@ export function SelectSingleSearch({
               </li>
             ))
           ) : (
-            <li 
+            <li
               style={{
                 userSelect: 'none',
                 borderRadius: '.25rem',

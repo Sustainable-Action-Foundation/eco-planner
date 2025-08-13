@@ -192,13 +192,13 @@ export default function SuggestiveText({
           role="listbox"
           tabIndex={-1}
           aria-label={t("forms:suggestive_text.listbox_label")}
-          data-listbox-label={results.length > 0 ? `${t("forms:suggestive_text.listbox_label")}` : `${t("forms:suggestive_text.listbox_empty_label")}`} // TODO: I18n
+          data-listbox-label={results.length > 0 ? `${t("forms:suggestive_text.listbox_label")}` : `${t("forms:suggestive_text.listbox_empty_label")}`}
         >
           {results.map((item, index) =>
             <li
               key={index}
               id={`${id}-listbox-${index}`}
-              style={{ backgroundColor: index === focusedListBoxItem ? 'var(--gray-90)' : '', }}
+              style={{ backgroundColor: index === focusedListBoxItem ? 'var(--gray-90)' : '', }} // TODO: Am i allowed to do this or do they need to be unique for entire page?
               ref={(el) => { optionRefs.current[index] = el }}
               onClick={() => { setValue(item), setDisplayListBox(false) }}
               role="option"
