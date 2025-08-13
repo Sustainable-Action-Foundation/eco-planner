@@ -7,18 +7,16 @@ import { useTranslation } from "react-i18next";
 
 export function SelectSingleSearch({
   options,
-  value,
-  onChange,
 }: {
   options: Array<string>,
-  value: string,
-  onChange: (newValue: string) => void
 }) {
   const { t } = useTranslation(["forms"]);
 
   const extendedOptions = ['Select element', ...options];
+  const [value, setValue] = useState<string>(extendedOptions[0])
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const searchRef = useRef<HTMLInputElement>(null);
+
 
   // Fuse search
   const [results, setResults] = useState<string[]>([])
@@ -31,7 +29,7 @@ export function SelectSingleSearch({
     setResults(newResults);
   }, [searchValue]);
 
-  // Focus search menu when open the select
+  // Focus search menu when opening the select
   useEffect(() => {
     if (menuOpen) {
       searchRef.current?.focus();
@@ -47,18 +45,19 @@ export function SelectSingleSearch({
         id="combo1"
         tabIndex={0}
         aria-controls="listbox1" // TODO: Fix this
+        value={value}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
         aria-labelledby=""
         aria-activedescendant=""
         role="combobox"
+        name=""
       >
         {value}
         <IconSelector height={20} width={20} />
       </button>
-      {/* TODO: Additionally, the listbox should be controlled by a search input which gets focus as soon as we press our buttons */}
       <div
-        onBlur={() => setMenuOpen(false)}
+        onBlur={() => setMenuOpen(false)} // TODO: This disabled selecting values using a mouse
         tabIndex={-1}
         role="dialog"
         style={{
@@ -104,24 +103,38 @@ export function SelectSingleSearch({
           style={{
             listStyle: 'none',
           }}>
-          {results.map((option, index) => (
-            <li
-              onClick={() => {
-                onChange(option)
-                setMenuOpen(false)
-              }}
-              role="option"
-              key={`$'listbox'-${index}`}
+          {results.length > 0 ? (
+            results.map((option, index) => (
+              <li
+                onClick={() => {
+                  setValue(option),
+                    setMenuOpen(false)
+                }}
+                role="option"
+                key={`$'listbox'-${index}`}
+                style={{
+                  userSelect: 'none',
+                  borderRadius: '.25rem',
+                  padding: '.5rem',
+                  fontSize: 'smaller'
+                }}
+              >
+                {option}
+              </li>
+            ))
+          ) : (
+            <li 
               style={{
                 userSelect: 'none',
                 borderRadius: '.25rem',
                 padding: '.5rem',
-                fontSize: 'smaller'
+                fontSize: 'smaller',
+                fontWeight: '600'
               }}
             >
-              {option}
+              Inga resultat
             </li>
-          ))}
+          )}
         </ul>
       </div>
     </div>

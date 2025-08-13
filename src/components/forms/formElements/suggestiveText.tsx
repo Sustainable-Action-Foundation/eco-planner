@@ -176,7 +176,7 @@ export default function SuggestiveText({
           >
             <IconChevronDown aria-hidden="true" width={24} height={24} style={{ minWidth: '24px' }} />
           </button>
-          : null}
+        : null}
       </div>
 
       {suggestiveList.length > 0 ?

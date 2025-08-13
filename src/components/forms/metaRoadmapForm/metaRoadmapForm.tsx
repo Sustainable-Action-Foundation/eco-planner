@@ -28,9 +28,6 @@ export default function MetaRoadmapForm({
 }) {
   const { t } = useTranslation(["forms", "common"]);
 
-  // TODO: 
-  const [testSelectedValue, setTestSelectedValue] = useState('select element')
-
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     // Mostly the usual submit handler stuff.
     // We might want to redirect the user to the roadmap form immediately after successfully submitting the metaRoadmap form
@@ -157,8 +154,6 @@ export default function MetaRoadmapForm({
           </div>
 
           <SelectSingleSearch
-            value={testSelectedValue}
-            onChange={setTestSelectedValue}
             options={Object.entries(countiesAndMunicipalities).flat(2)} 
           />
 
