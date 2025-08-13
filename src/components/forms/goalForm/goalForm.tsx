@@ -34,7 +34,7 @@ import { getDataSeries } from "../dataSeriesInput/utils"; // Helper for extracti
 import styles from '../forms.module.css'; // CSS module for styling
 import { InheritingBaseline, ManualGoalForm } from "./goalFormSections"; // Sub components for form sections
 import { RecipeContextProvider, RecipeEquationEditor, RecipeErrorAndWarnings, RecipeSuggestions, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/recipeEditor";
-import { RecipeVariableType } from "@/functions/recipe-parser/types";
+import { RecipeVariableExternalDataset, RecipeVariableType } from "@/functions/recipe-parser/types";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 
 // Enum for selecting the type of data series for the goal
@@ -273,6 +273,31 @@ export default function GoalForm({
                     name: t("forms:goal.default_combination_recipe"),
                     eq: "${Hihi} + ${Hihi}",
                     variables: { "Hihi": { type: RecipeVariableType.Scalar, value: 123 } }
+                  }
+                },
+                {
+                  hash: "recipe_with_external",
+                  recipe:
+                  {
+                    name: "Recipe with external data",
+                    eq: "${Hihi}",
+                    variables: {
+                      "Hihi": {
+                        type: RecipeVariableType.External,
+                        dataset: "SCB",
+                        tableId: "TAB6420",
+                        selection: [
+                          // Selected area
+                          { variableCode: "Region", valueCodes: ["00"] },
+                          // Specifically land areas, not including water
+                          { variableCode: "ArealTyp", valueCodes: ["01"] },
+                          // Magic string to get area sizes in square kilometers (as opposed to hectares with "000007E1")
+                          { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
+                          // Use the latest time period
+                          { variableCode: "Tid", valueCodes: ["TOP(1)"] }
+                        ]
+                      } as RecipeVariableExternalDataset
+                    }
                   }
                 }
               ]} />
