@@ -129,7 +129,7 @@ export function SelectSingleSearch({
         ref={toggleRef}
         type="button"
         className={`${styles['select-toggle']}`}
-        style={{borderColor: menuOpen ? '#191919' : ''}}
+        style={{ borderColor: menuOpen ? '#191919' : '' }}
         onClick={() => { setMenuOpen(!menuOpen) }}
         id="combo1"
         tabIndex={0}
@@ -146,14 +146,18 @@ export function SelectSingleSearch({
         <IconSelector height={20} width={20} />
       </button>
       <div
-        onBlur={() => setMenuOpen(false)} // TODO: This disabled selecting values using a mouse
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget)) {
+            setMenuOpen(false);
+          }
+        }} // TODO: This disabled selecting values using a mouse
         tabIndex={-1}
         role="dialog"
         className={`              
           ${styles['listbox-select']} 
           ${menuOpen ? styles['visible'] : ''} 
           margin-inline-0`
-        } 
+        }
       >
         <label
           aria-label="sök..."
@@ -185,17 +189,13 @@ export function SelectSingleSearch({
               <li
                 onClick={() => {
                   setValue(option),
-                  setMenuOpen(false)
+                    setMenuOpen(false)
                 }}
                 ref={(el) => { optionRefs.current[index] = el }}
                 role="option"
                 key={`${index}`} // TODO: Am i allowed to do this or do they need to be unique for entire page?
                 style={{
                   backgroundColor: index === focusedListBoxItem ? 'var(--gray-90)' : '',
-                  userSelect: 'none',
-                  borderRadius: '.25rem',
-                  padding: '.5rem',
-                  fontSize: 'smaller'
                 }}
               >
                 {option}

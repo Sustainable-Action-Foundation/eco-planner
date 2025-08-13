@@ -84,7 +84,7 @@
 }
 
 .select-toggle:active {
-    transform: scale(1);
+    transform: none;
 }
 
 .select-toggle:focus {
@@ -134,3 +134,15 @@
         }
     }
 }
+
+.listbox-select li {
+    border-radius: .25rem;
+    padding: .5rem;
+    user-select: none;
+    font-size: smaller;
+}
+
+.listbox-select li:hover {
+    background-color: var(--gray-90);    
+}
+ 
