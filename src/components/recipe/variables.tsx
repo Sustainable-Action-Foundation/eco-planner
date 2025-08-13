@@ -1,89 +1,72 @@
 "use client";
 
-import { RawDataSeriesByLink, RawRecipe, RawRecipeVariables, RecipeVariableExternalDataset, RecipeVariableScalar, RecipeVariableType } from "@/functions/recipe-parser/types";
+import { RawDataSeriesByLink, RawRecipe, RawRecipeVariables, RecipeVariableExternalDataset, RecipeVariableScalar, RecipeVariableType, RecipeVariableTypeMap } from "@/functions/recipe-parser/types";
 import { IconTrash } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import React from "react";
+import React, { useState } from "react";
+import { useRecipe } from "./recipeEditor";
 
-type CommonVariableProps = {
-  children?: React.ReactNode;
-  name: string;
-  variable: RawRecipeVariables;
+type InputRules = {
   allowNameEditing?: boolean;
   allowTypeEditing?: boolean;
+  allowValueEditing?: boolean;
   allowDeleteVariables?: boolean;
-  setRecipe: React.Dispatch<React.SetStateAction<RawRecipe | null>>;
+};
+const defaultInputRules: InputRules = {
+  allowNameEditing: true,
+  allowTypeEditing: true,
+  allowValueEditing: true,
+  allowDeleteVariables: true,
 };
 
 function CommonVariable({
-  children,
   name,
-  variable,
-  allowNameEditing = false,
-  allowTypeEditing = false,
-  allowDeleteVariables = false,
-  setRecipe,
-}: CommonVariableProps) {
+  rules,
+  children,
+}: {
+  name: string;
+  rules?: InputRules;
+  children: React.ReactNode;
+}) {
   const { t } = useTranslation("components");
+  const { recipe, setRecipe } = useRecipe();
+  const variable = recipe?.variables[name] as RawRecipeVariables;
 
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newName = e.target.value;
-    setRecipe(prev => {
-      if (!prev) return null;
-      const newVariables = Object.fromEntries(
-        Object.entries(prev.variables).map(([key, value]) => {
-          if (key === name) {
-            return [newName, value];
-          }
-          return [key, value];
-        })
-      );
-      return { ...prev, variables: newVariables };
-    });
-  };
+  rules = { ...defaultInputRules, ...rules };
 
-  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newType = e.target.value as RecipeVariableType;
+  function handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
     setRecipe(prev => {
       if (!prev) return null;
       const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
-
-      if (newType === RecipeVariableType.Scalar) {
-        newVariables[name] = {
-          type: RecipeVariableType.Scalar,
-          value: 1
-        };
-      } else if (newType === RecipeVariableType.DataSeries) {
-        newVariables[name] = {
-          type: RecipeVariableType.DataSeries,
-          link: null,
-        };
-      } else if (newType === RecipeVariableType.External) {
-        newVariables[name] = {
-          type: RecipeVariableType.External,
-          dataset: "SCB",
-          tableId: "",
-          selection: [],
-        };
+      const currentVar = newVariables[name];
+      if (currentVar) {
+        newVariables[e.target.value] = { ...currentVar };
+        delete newVariables[name];
       }
-      return {
-        ...prev,
-        variables: newVariables
-      };
+      return { ...prev, variables: newVariables };
     });
-  };
+  }
 
-  const handleDelete = () => {
+  function handleTypeChange(e: React.ChangeEvent<HTMLSelectElement>) {
     setRecipe(prev => {
       if (!prev) return null;
-      const newVars = { ...prev.variables };
-      delete newVars[name];
-      return {
-        ...prev,
-        variables: newVars
+      const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+      const currentVar = newVariables[name];
+      if (currentVar && e.target.value && RecipeVariableTypeMap[e.target.value]) {
+        newVariables[name] = { ...currentVar, type: RecipeVariableTypeMap[e.target.value] } as RawRecipeVariables;
       }
+      return { ...prev, variables: newVariables };
     });
-  };
+  }
+
+  function handleDelete() {
+    setRecipe(prev => {
+      if (!prev) return null;
+      const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+      delete newVariables[name];
+      return { ...prev, variables: newVariables };
+    });
+  }
 
   return <li style={{
     display: 'flex',
@@ -95,8 +78,8 @@ function CommonVariable({
       placeholder={t("components:recipe_editor.variable_name_placeholder")}
       style={{ width: '17ch' }}
       value={name}
-      readOnly={!allowNameEditing}
-      disabled={!allowNameEditing}
+      readOnly={!rules.allowNameEditing}
+      disabled={!rules.allowNameEditing}
       onChange={handleNameChange}
     />
 
@@ -104,7 +87,7 @@ function CommonVariable({
     <select
       value={variable.type}
       onChange={handleTypeChange}
-      disabled={!allowTypeEditing}
+      disabled={!rules.allowTypeEditing}
     >
       <option value={RecipeVariableType.DataSeries}>{t("components:recipe_editor.data_series")}</option>
       <option value={RecipeVariableType.External}>{t("components:recipe_editor.external_data")}</option>
@@ -120,16 +103,18 @@ function CommonVariable({
     <input type="text" placeholder={t("components:recipe_editor.unit_placeholder")} style={{ width: '10ch' }} />
 
     {/* Delete */}
-    {allowDeleteVariables &&
-      <button type="button" style={{
-        width: '5ch',
-        backgroundColor: 'red',
-        color: 'white',
-        fontWeight: 'bold',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
+    {rules.allowDeleteVariables &&
+      <button
+        type="button"
+        style={{
+          width: '5ch',
+          backgroundColor: 'red',
+          color: 'white',
+          fontWeight: 'bold',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
         onClick={handleDelete}
       >
         <IconTrash />
@@ -138,118 +123,79 @@ function CommonVariable({
   </li>;
 }
 
-type ScalarVariableProps = {
+
+export function ScalarVariable({
+  name,
+  rules,
+}: {
   name: string;
-  variable: RecipeVariableScalar;
-  allowValueEditing?: boolean;
-  setRecipe: React.Dispatch<React.SetStateAction<RawRecipe | null>>;
-  allowNameEditing?: boolean;
-  allowTypeEditing?: boolean;
-  allowDeleteVariables?: boolean;
-};
-
-export function ScalarVariable({ name, variable, allowValueEditing, setRecipe, allowDeleteVariables, allowNameEditing, allowTypeEditing }: ScalarVariableProps) {
+  rules?: InputRules;
+}) {
   const { t } = useTranslation("components");
+  const { recipe, setRecipe } = useRecipe();
+  const variable = recipe?.variables[name] as RecipeVariableScalar;
 
-  const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  rules = { ...defaultInputRules, ...rules };
+
+  function handleValueChange(e: React.ChangeEvent<HTMLInputElement>) {
     setRecipe(prev => {
       if (!prev) return null;
       const currentVar = prev.variables[name];
       const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
 
-      if (currentVar.type === RecipeVariableType.Scalar) {
+      if (currentVar.type === RecipeVariableType.Scalar && e.target.value) {
         const newValue = parseFloat(e.target.value);
         if (!isNaN(newValue)) {
           newVariables[name] = { ...currentVar, value: newValue };
-        } else if (e.target.value === "") {
-          newVariables[name] = { ...currentVar, value: 0 };
         }
       }
       return { ...prev, variables: newVariables };
     });
-  };
+  }
 
   return <CommonVariable
     name={name}
-    variable={variable}
-    setRecipe={setRecipe}
-    allowDeleteVariables={allowDeleteVariables}
-    allowNameEditing={allowNameEditing}
-    allowTypeEditing={allowTypeEditing}
+    rules={rules}
   >
     <input
       type="number"
       placeholder={t("components:recipe_editor.scalar")}
       value={variable.value}
       onChange={handleValueChange}
-      disabled={!allowValueEditing}
-      readOnly={!allowValueEditing}
+      disabled={!rules.allowValueEditing}
+      readOnly={!rules.allowValueEditing}
     />
   </CommonVariable>;
 }
 
-type DataSeriesVariableProps = {
-  name: string;
-  variable: RawDataSeriesByLink;
-  allowValueEditing?: boolean;
-  setRecipe: React.Dispatch<React.SetStateAction<RawRecipe | null>>;
-  selectableRoadmaps: { id: string; name: string; }[] | null;
-  selectableDataSeries: { id: string; name: string; roadmapId: string; }[] | null;
-  roadmap: { id: string; name: string; } | null;
-  setRoadmap: React.Dispatch<React.SetStateAction<{ id: string; name: string; } | null>>;
-  allowNameEditing?: boolean;
-  allowTypeEditing?: boolean;
-  allowDeleteVariables?: boolean;
-};
-
 export function DataSeriesVariable({
   name,
-  variable,
-  allowValueEditing,
-  setRecipe,
-  selectableRoadmaps,
-  selectableDataSeries,
-  roadmap,
-  setRoadmap,
-  allowDeleteVariables,
-  allowNameEditing,
-  allowTypeEditing
-}: DataSeriesVariableProps) {
+  rules,
+  availableRoadmaps,
+  availableDataSeries,
+}: {
+  name: string;
+  rules?: InputRules;
+  availableRoadmaps?: { id: string; name: string; }[];
+  availableDataSeries?: { id: string; name: string; roadmapId: string; }[];
+}) {
   const { t } = useTranslation("components");
+  const { recipe, setRecipe } = useRecipe();
+  const variable = recipe?.variables[name] as RawRecipeVariables;
 
-  const handleRoadmapChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedRoadmap = selectableRoadmaps?.find(r => r.id === e.target.value) || null;
-    setRoadmap(selectedRoadmap);
-  };
-
-  const handleDataSeriesChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedDataSeries = selectableDataSeries?.find(ds => ds.id === e.target.value) || null;
-    setRecipe(prev => {
-      if (!prev) return null;
-      const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
-      newVariables[name] = {
-        ...newVariables[name],
-        link: selectedDataSeries ? selectedDataSeries.id : null,
-      } as RawDataSeriesByLink;
-      return { ...prev, variables: newVariables };
-    });
-  };
+  rules = { ...defaultInputRules, ...rules };
 
   return <CommonVariable
     name={name}
-    variable={variable}
-    setRecipe={setRecipe}
-    allowDeleteVariables={allowDeleteVariables}
-    allowNameEditing={allowNameEditing}
-    allowTypeEditing={allowTypeEditing}
+    rules={rules}
   >
     {/* Roadmap */}
     <select
-      value={roadmap?.id || "none"}
+      value={roadmapId?.id || ""}
       onChange={handleRoadmapChange}
       disabled={!allowValueEditing}
     >
-      <option value={"none"}>{t("components:recipe_editor.select_roadmap")}</option>
+      <option value={""}>{t("components:recipe_editor.select_roadmap")}</option>
       {selectableRoadmaps?.map(r => (
         <option key={r.id} value={r.id}>
           {r.name}
@@ -258,59 +204,54 @@ export function DataSeriesVariable({
     </select>
 
     {/* Goal or effect */}
-    {roadmap && selectableDataSeries && (
-      <select
-        value={variable.link || "none"}
-        onChange={handleDataSeriesChange}
-        disabled={!allowValueEditing}
-      >
-        <option value="none">{t("components:recipe_editor.goal_or_effect")}</option>
-        {selectableDataSeries.map(ds => (
-          <option key={ds.id} value={ds.id}>
-            {ds.name}
-          </option>
-        ))}
-      </select>
-    )}
+    <select
+      value={variable.link || ""}
+      onChange={handleDataSeriesChange}
+      disabled={!allowValueEditing}
+    >
+      <option value="">{t("components:recipe_editor.goal_or_effect")}</option>
+      {(selectableDataSeries || []).map(ds => (
+        <option key={ds.id} value={ds.id}>
+          {ds.name}
+        </option>
+      ))}
+    </select>
 
     {/* Pick */}
     <VectorIndexPicker />
   </CommonVariable>;
 }
 
-type ExternalVariableProps = {
-  name: string;
-  variable: RecipeVariableExternalDataset;
-  allowValueEditing?: boolean;
-  setRecipe: React.Dispatch<React.SetStateAction<RawRecipe | null>>;
-  allowNameEditing?: boolean;
-  allowTypeEditing?: boolean;
-  allowDeleteVariables?: boolean;
-};
 
-export function ExternalVariable({ name, variable, allowValueEditing, setRecipe, allowDeleteVariables, allowNameEditing, allowTypeEditing }: ExternalVariableProps) {
+export function ExternalVariable({
+  name,
+  rules,
+}: {
+  name: string;
+  rules?: InputRules;
+}) {
   const { t } = useTranslation("components");
+  const { recipe, setRecipe } = useRecipe();
+  const variable = recipe?.variables[name] as RecipeVariableExternalDataset;
+
+  rules = { ...defaultInputRules, ...rules };
 
   return <CommonVariable
     name={name}
-    variable={variable}
-    setRecipe={setRecipe}
-    allowDeleteVariables={allowDeleteVariables}
-    allowNameEditing={allowNameEditing}
-    allowTypeEditing={allowTypeEditing}
+    rules={rules}
   >
     {/* Dataset */}
-    <select disabled={!allowValueEditing}>
+    <select disabled={!rules.allowValueEditing}>
       <option value="">{t("components:recipe_editor.dataset")}</option>
     </select>
 
     {/* Table */}
-    <select disabled={!allowValueEditing}>
+    <select disabled={!rules.allowValueEditing}>
       <option value="">{t("components:recipe_editor.table")}</option>
     </select>
 
     {/* Selection */}
-    <input type="text" placeholder={t("components:recipe_editor.selection")} disabled={!allowValueEditing} />
+    <input type="text" placeholder={t("components:recipe_editor.selection")} disabled={!rules.allowValueEditing} />
 
     {/* Pick */}
     <VectorIndexPicker />

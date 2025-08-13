@@ -9,6 +9,7 @@ export enum RecipeVariableType {
   DataSeries = "dataSeries",
   External = "external",
 };
+export const RecipeVariableTypeMap = Object.fromEntries(Object.entries(RecipeVariableType).map(([key, value]) => ([value, key])));
 
 export type DataSeriesArray = Partial<{
   unit?: string | null; // Optional unit for the data series
@@ -77,6 +78,10 @@ export function isRecipeVariableScalar(variable: unknown): variable is RecipeVar
 export type RawDataSeriesByLink = {
   type: RecipeVariableType.DataSeries;
   link: string | null; // uuid of data series in the database
+
+  // For easier state management for recipe editor
+  roadmap?: { name: string; id: string };
+  dataSeries?: { name: string; id: string; roadmapId: string };
 };
 export function lenientIsRawDataSeriesByLink(variable: unknown): variable is RawDataSeriesByLink {
   return (
@@ -99,6 +104,7 @@ export function isRawDataSeriesByLink(variable: unknown): variable is RawDataSer
   );
 };
 
+/** Probably deprecate this and remove it. TODO */
 export type RawDataSeriesByValue = {
   type: RecipeVariableType.DataSeries;
   value: DataSeriesArray;

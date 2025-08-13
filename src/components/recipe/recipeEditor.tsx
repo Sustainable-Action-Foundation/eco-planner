@@ -176,18 +176,15 @@ export function RecipeVariableEditor({
     }
   }, [initialVariables]);
 
-  const [selectableRoadmaps, setSelectableRoadmaps] = useState<{ id: string; name: string; }[] | null>(null);
-  const [roadmap, setRoadmap] = useState<{ id: string; name: string; } | null>(null);
-
-  const [selectableDataSeries, setSelectableDataSeries] = useState<{ id: string; name: string; roadmapId: string; }[] | null>(null);
-  const [dataSeries, setDataSeries] = useState<{ id: string; name: string; roadmapId: string; }[] | null>(null);
+  const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[] | null>(null);
+  const [availableDataSeries, setAvailableDataSeries] = useState<{ id: string; name: string; roadmapId: string; }[] | null>(null);
 
   // On mount, fetch all roadmaps to select from
   useEffect(() => {
     async function fetchRoadmaps() {
       try {
         const roadmaps = await clientSafeGetRoadmaps();
-        setSelectableRoadmaps(roadmaps.map(roadmap => ({ id: roadmap.id, name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }) })));
+        setAvailableRoadmaps(roadmaps.map(roadmap => ({ id: roadmap.id, name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }) })));
       }
       catch (e) {
         console.error("Failed to fetch roadmaps", e);
@@ -199,33 +196,33 @@ export function RecipeVariableEditor({
 
   // On selecting a roadmap, fetch its data series as selectable options
   useEffect(() => {
-    if (!roadmap) return;
+    
 
-    async function fetchDataSeries() {
-      if (!roadmap?.id) return;
-      try {
-        const roadmapData = await clientSafeGetOneRoadmap(roadmap?.id);
-        if (!roadmapData?.goals) return;
+    // async function fetchDataSeries() {
+    //   if (!selectedRoadmap?.id) return;
+    //   try {
+    //     const roadmapData = await clientSafeGetOneRoadmap(selectedRoadmap?.id);
+    //     if (!roadmapData?.goals) return;
 
-        const goals = roadmapData?.goals;
-        const series = goals.filter(g => g.dataSeries).map(goal => {
-          if (!goal.dataSeries) return null;
-          return {
-            id: goal.dataSeries.id,
-            name: goal.name,
-            roadmapId: roadmap.id,
-          }
-        });
+    //     const goals = roadmapData?.goals;
+    //     const series = goals.filter(g => g.dataSeries).map(goal => {
+    //       if (!goal.dataSeries) return null;
+    //       return {
+    //         id: goal.dataSeries.id,
+    //         name: goal.name,
+    //         roadmapId: selectedRoadmap.id,
+    //       }
+    //     });
 
-        setSelectableDataSeries(series.filter(ds => ds !== null) as { id: string; name: string; roadmapId: string; }[]);
-      }
-      catch (e) {
-        console.error("Failed to fetch data series for roadmap", e);
-      }
-    }
+    //     setAvailableDataSeries(series.filter(ds => ds !== null) as { id: string; name: string; roadmapId: string; }[]);
+    //   }
+    //   catch (e) {
+    //     console.error("Failed to fetch data series for roadmap", e);
+    //   }
+    // }
 
-    fetchDataSeries();
-  }, [roadmap]);
+    // fetchDataSeries();
+  }, [recipe?.variables]);
 
   return (<>
     <div className="margin-inline-auto width-100">
@@ -236,43 +233,31 @@ export function RecipeVariableEditor({
         rowGap: '1ch',
       }}>
         {Object.entries(recipe?.variables || []).map(([name, variable], i) => {
+          const rules = {
+            allowAddVariables,
+            allowDeleteVariables,
+            allowNameEditing,
+            allowTypeEditing,
+            allowValueEditing,
+          };
           switch (variable.type) {
             case RecipeVariableType.Scalar:
               return <ScalarVariable
                 key={i}
                 name={name}
-                variable={variable}
-                setRecipe={setRecipe}
-                allowValueEditing={allowValueEditing}
-                allowNameEditing={allowNameEditing}
-                allowTypeEditing={allowTypeEditing}
-                allowDeleteVariables={allowDeleteVariables}
+                rules={rules}
               />
             case RecipeVariableType.DataSeries:
               return <DataSeriesVariable
                 key={i}
                 name={name}
-                variable={variable as RawDataSeriesByLink}
-                setRecipe={setRecipe}
-                allowValueEditing={allowValueEditing}
-                allowNameEditing={allowNameEditing}
-                allowTypeEditing={allowTypeEditing}
-                allowDeleteVariables={allowDeleteVariables}
-                selectableRoadmaps={selectableRoadmaps}
-                selectableDataSeries={selectableDataSeries}
-                roadmap={roadmap}
-                setRoadmap={setRoadmap}
+                rules={rules}
               />
             case RecipeVariableType.External:
               return <ExternalVariable
                 key={i}
                 name={name}
-                variable={variable}
-                setRecipe={setRecipe}
-                allowValueEditing={allowValueEditing}
-                allowNameEditing={allowNameEditing}
-                allowTypeEditing={allowTypeEditing}
-                allowDeleteVariables={allowDeleteVariables}
+                rules={rules}
               />
           }
         })}
