@@ -34,7 +34,7 @@ import { getDataSeries } from "../dataSeriesInput/utils"; // Helper for extracti
 import styles from '../forms.module.css'; // CSS module for styling
 import { InheritingBaseline, ManualGoalForm } from "./goalFormSections"; // Sub components for form sections
 import { DEBUG_Recipe, RecipeContextProvider, RecipeEquationEditor, RecipeErrorAndWarnings, RecipeSuggestions, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/recipeEditor";
-import { RecipeVariableExternalDataset, RecipeVariableType } from "@/functions/recipe-parser/types";
+import { RecipeExternalDataset, RecipeVariableType } from "@/functions/recipe-parser/types";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 
 // Enum for selecting the type of data series for the goal
@@ -291,7 +291,7 @@ export default function GoalForm({
                           // Use the latest time period
                           { variableCode: "Tid", valueCodes: ["TOP(1)"] }
                         ]
-                      } as RecipeVariableExternalDataset
+                      } as RecipeExternalDataset
                     }
                   }
                 }

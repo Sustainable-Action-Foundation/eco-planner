@@ -1,6 +1,6 @@
 "use client";
 
-import { lenientIsRawDataSeriesByLink, RawDataSeriesByLink, RawRecipe, RawRecipeVariables, RecipeVariableExternalDataset, RecipeVariableScalar, RecipeVariableType, RecipeVariableTypeMap } from "@/functions/recipe-parser/types";
+import { isRecipeDataSeries, RecipeDataSeries, Recipe, RawRecipeVariables, RecipeExternalDataset, RecipeScalar, RecipeVariableType, RecipeVariableTypeMap } from "@/functions/recipe-parser/types";
 import { IconTrash } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import React from "react";
@@ -66,8 +66,8 @@ function CommonVariable({
       const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
       const currentVar = newVariables[name];
       if (currentVar && e.target.value) {
-        if (currentVar.type === RecipeVariableType.DataSeries && lenientIsRawDataSeriesByLink(currentVar)) {
-          newVariables[name] = { ...currentVar, dataSeries: { ...currentVar.dataSeries, unit: e.target.value } } as RawDataSeriesByLink;
+        if (currentVar.type === RecipeVariableType.DataSeries && isRecipeDataSeries(currentVar)) {
+          newVariables[name] = { ...currentVar, dataSeries: { ...currentVar.dataSeries, unit: e.target.value } } as RecipeDataSeries;
         }
       }
       return { ...prev, variables: newVariables };
@@ -119,7 +119,7 @@ function CommonVariable({
     <input
       type="text"
       style={{ width: '10ch' }}
-      value={variable.type === RecipeVariableType.DataSeries && lenientIsRawDataSeriesByLink(variable) && variable.dataSeries?.unit || ""}
+      value={variable.type === RecipeVariableType.DataSeries && isRecipeDataSeries(variable) && variable.dataSeries?.unit || ""}
       onChange={handleUnitChange}
       disabled={!rules.allowValueEditing}
       readOnly={!rules.allowValueEditing}
@@ -157,7 +157,7 @@ export function ScalarVariable({
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
-  const variable = recipe?.variables[name] as RecipeVariableScalar;
+  const variable = recipe?.variables[name] as RecipeScalar;
 
   rules = { ...defaultInputRules, ...rules };
 
@@ -208,7 +208,7 @@ export function DataSeriesVariable({
   const { recipe, setRecipe } = useRecipe();
   const variable = recipe?.variables[name] as RawRecipeVariables;
 
-  if (!lenientIsRawDataSeriesByLink(variable)) {
+  if (!isRecipeDataSeries(variable)) {
     console.error(`Variable "${name}" is not a valid DataSeriesVariable`, variable);
     return null;
   }
@@ -226,7 +226,7 @@ export function DataSeriesVariable({
           newVariables[name] = {
             ...currentVar,
             roadmap: { name: selectedRoadmap.name, id: selectedRoadmap.id },
-          } as RawDataSeriesByLink;
+          } as RecipeDataSeries;
         }
       }
       return { ...prev, variables: newVariables };
@@ -245,7 +245,7 @@ export function DataSeriesVariable({
             ...currentVar,
             dataSeries: { name: selectedDataSeries.name, id: selectedDataSeries.id, roadmapId: selectedDataSeries.roadmapId },
             link: selectedDataSeries.id,
-          } as RawDataSeriesByLink;
+          } as RecipeDataSeries;
         }
       }
       return { ...prev, variables: newVariables };
@@ -302,7 +302,7 @@ export function ExternalVariable({
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
-  const variable = recipe?.variables[name] as RecipeVariableExternalDataset;
+  const variable = recipe?.variables[name] as RecipeExternalDataset;
 
   rules = { ...defaultInputRules, ...rules };
 
@@ -315,7 +315,7 @@ export function ExternalVariable({
         newVariables[name] = {
           ...currentVar,
           dataset: e.target.value,
-        } as RecipeVariableExternalDataset;
+        } as RecipeExternalDataset;
       }
       return { ...prev, variables: newVariables };
     });
@@ -330,7 +330,7 @@ export function ExternalVariable({
         newVariables[name] = {
           ...currentVar,
           tableId: e.target.value,
-        } as RecipeVariableExternalDataset;
+        } as RecipeExternalDataset;
       }
       return { ...prev, variables: newVariables };
     });
@@ -348,7 +348,7 @@ export function ExternalVariable({
             newVariables[name] = {
               ...currentVar,
               selection: selection,
-            } as RecipeVariableExternalDataset;
+            } as RecipeExternalDataset;
           } else {
             console.error("Invalid selection format, expected an array", selection);
           }

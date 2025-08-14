@@ -25,18 +25,18 @@ export function sketchyScalars(scalars: EvalTimeScalar[], warnings: string[]) {
 
 export function sketchyDataSeries(dataSeries: EvalTimeDataSeries[], warnings: string[]) {
   const hugeValuesInDataSeries = dataSeries.filter(variable =>
-    Object.values(variable.data).some(v => !isNull(v) && v !== null && Math.abs(Number(v)) > 1e12)
+    Object.values(variable.matrix).some(v => !isNull(v) && v !== null && Math.abs(Number(v)) > 1e12)
   );
   if (hugeValuesInDataSeries.length > 0) {
     warnings.push(`Recipe contains data series with huge values: ${hugeValuesInDataSeries.map(ds => ds.name).join(", ")}, which may lead to performance issues or overflow errors.`);
   }
 
-  const longDataSeries = dataSeries.filter(variable => Object.keys(variable.data).length > 50);
+  const longDataSeries = dataSeries.filter(variable => Object.keys(variable.matrix).length > 50);
   if (longDataSeries.length > 0) {
     warnings.push(`Recipe contains very long data series: ${longDataSeries.map(ds => ds.name).join(", ")}, which may lead to performance issues or unexpected results in calculations.`);
   }
 
-  const shortDataSeries = dataSeries.filter(variable => Object.keys(variable.data).length < 2);
+  const shortDataSeries = dataSeries.filter(variable => Object.keys(variable.matrix).length < 2);
   if (shortDataSeries.length > 0) {
     warnings.push(`Recipe contains very short data series: ${shortDataSeries.map(ds => ds.name).join(", ")}, which may lead to unexpected results in calculations.`);
   }

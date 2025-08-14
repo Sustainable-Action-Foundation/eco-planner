@@ -1,4 +1,5 @@
-import { ExternalDataset } from "@/lib/api/utility";
+import { VectorIndexPickerType as VectorIndexPick } from "@/components/recipe/variables";
+import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
 import { isStandardObject, uuidRegex } from "@/types";
 
 /* 
@@ -12,7 +13,6 @@ export enum RecipeVariableType {
 export const RecipeVariableTypeMap = Object.fromEntries(Object.entries(RecipeVariableType).map(([key, value]) => ([value, key])));
 
 export type DataSeriesArray = Partial<{
-  unit?: string | null; // Optional unit for the data series
   "val2020": number | null;
   "val2021": number | null;
   "val2022": number | null;
@@ -50,158 +50,179 @@ export type DataSeriesArray = Partial<{
 /** 
  * Scalar variable types
  */
-export type RecipeVariableScalar = {
+export type RecipeScalar = {
   type: RecipeVariableType.Scalar;
   value: number;
-  unit?: string;
+  unit: string | null | undefined; // String if given, null if removed, undefined if not specified
 };
-export function isRecipeVariableScalar(variable: unknown): variable is RecipeVariableScalar {
+export function isRecipeScalar(variable: unknown): variable is RecipeScalar {
+  const allowedProps = ["type", "value", "unit"];
+
   return (
-    isStandardObject(variable) &&
+    isStandardObject(variable)
+    &&
+
     "type" in variable &&
-    variable.type === RecipeVariableType.Scalar &&
+    variable.type === RecipeVariableType.Scalar
+    &&
+
     "value" in variable &&
-    typeof variable.value === "number" &&
-    ( // unit is optional, but if it exists, it must be a string
-      !("unit" in variable) ||
-      typeof variable.unit === "string"
-    ) &&
+    typeof variable.value === "number"
+    &&
+
+    "unit" in variable &&
+    (
+      typeof variable.unit === "string" ||
+      variable.unit === null ||
+      variable.unit === undefined
+    )
+    &&
+
     // Ensure no other properties are present
-    Object.keys(variable).filter(key => key !== "type" && key !== "value" && key !== "unit").length === 0
+    Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0
   );
-};
+}
 
 
 /* 
  * Data series types
  */
-export type RawDataSeriesByLink = {
+export type RecipeDataSeries = {
   type: RecipeVariableType.DataSeries;
   link: string | null; // uuid of data series in the database
-
-  // For easier state management for recipe editor
-  roadmap?: { name: string; id: string };
-  dataSeries?: { name: string; id: string; roadmapId: string, unit?: string; };
+  pick: VectorIndexPick;
 };
-export function lenientIsRawDataSeriesByLink(variable: unknown): variable is RawDataSeriesByLink {
+export function isRecipeDataSeries(variable: unknown): variable is RecipeDataSeries {
+  const allowedProps = ["type", "link", "pick"];
   return (
-    isStandardObject(variable) &&
+    isStandardObject(variable)
+    &&
+
     "type" in variable &&
-    variable.type === RecipeVariableType.DataSeries &&
+    variable.type === RecipeVariableType.DataSeries
+    &&
+
     "link" in variable &&
     (
-      ( // If link is a string, it should be a valid UUID
-        typeof variable.link === "string" &&
-        uuidRegex.test(variable.link)
-      ) ||
-      variable.link === null // or it can be null
-    ) &&
-    // The properties unit and value are allowed but should be dropped, either silently or with a warning
-    Object.keys(variable).filter(key => !["link", "type", "value", "unit", "roadmap", "dataSeries"].includes(key)).length === 0
-  );
-};
-export function isRawDataSeriesByLink(variable: unknown): variable is RawDataSeriesByLink {
-  return (
-    lenientIsRawDataSeriesByLink(variable) &&
-    // Ensure no other properties are present
-    Object.keys(variable).filter(key => !["link", "type"].includes(key)).length === 0
-  );
-};
+      (typeof variable.link === "string" && uuidRegex.test(variable.link)) ||
+      variable.link === null
+    )
+    &&
 
-/** Probably deprecate this and remove it. TODO */
-export type RawDataSeriesByValue = {
-  type: RecipeVariableType.DataSeries;
-  value: DataSeriesArray;
-  unit?: string;
-};
-export function isRawDataSeriesByValue(variable: unknown): variable is RawDataSeriesByValue {
-  return (
-    isStandardObject(variable) &&
-    "type" in variable &&
-    variable.type === RecipeVariableType.DataSeries &&
-    "value" in variable &&
-    isStandardObject(variable.value) &&
-    Object.entries(variable.value).every(([key, val]: [string, unknown]) => (
-      // Each key should be a stringified year and value should be a number or null
-      typeof key === "string" &&
-      Number.isFinite(parseInt(key.replace("val", ""))) &&
-      (typeof val === "number" || val === null)
-    )) &&
-    ( // unit is optional, but if it exists, it must be a string
-      !("unit" in variable) ||
-      typeof variable.unit === "string"
-    ) &&
-    // Ensure no other properties are present
-    Object.keys(variable).filter(key => !["type", "value", "unit"].includes(key)).length === 0
-  );
-};
+    "pick" in variable &&
+    (typeof variable.pick === "string" && VectorIndexPick[variable.pick as keyof typeof VectorIndexPick] !== undefined)
+    &&
 
-/** A data series might be defined in the inheritance form or it might be imported and it might have a unit */
-export type RecipeVariableRawDataSeries = RawDataSeriesByLink | RawDataSeriesByValue;
-export type RecipeVariableDataSeries = {
-  type: RecipeVariableType.DataSeries;
-  link: string | null; // uuid of data series in the database
-};
+    Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0
+  );
+}
 
 
 /* 
  * External datasets types
  */
-export type RecipeVariableExternalDataset = {
+export type RecipeExternalDataset = {
   type: RecipeVariableType.External;
   /** Datasets are defined in [`src/lib/api/utility.ts`](../../lib/api/utility.ts) */
-  dataset: Exclude<keyof typeof ExternalDataset, "prototype">; // One of the datasets specified in externalDatasets
+  dataset: DatasetKeys; // One of the datasets specified in externalDatasets
   tableId: string; // The ID of the table in the dataset
   selection: {
     variableCode: string,
     valueCodes: string[]
   }[]; // The selection to be made on the table, e.g. [{ variableCode: "Tid", valueCodes: ["2020M01"] }]
+  pick: VectorIndexPick;
 };
 
-export function isExternalDatasetVariable(variable: unknown): variable is RecipeVariableExternalDataset {
+export function isRecipeExternalDataset(variable: unknown): variable is RecipeExternalDataset {
+  const allowedProps = ["type", "dataset", "tableId", "selection"];
+
   return (
-    isStandardObject(variable) &&
+    isStandardObject(variable)
+    &&
+
     "type" in variable &&
-    variable.type === RecipeVariableType.External &&
+    variable.type === RecipeVariableType.External
+    &&
+
     "dataset" in variable &&
     typeof variable.dataset === "string" &&
-    Object.keys(ExternalDataset).includes(variable.dataset) && // Ensure the dataset is one of the known datasets
+    ExternalDataset.knownDatasetKeys.includes(variable.dataset as DatasetKeys)
+    &&
+
     "tableId" in variable &&
     typeof variable.tableId === "string" &&
+    variable.tableId.trim() !== ""  // Ensure tableId is a non-empty string
+    &&
+
     "selection" in variable &&
     Array.isArray(variable.selection) &&
     variable.selection.every(item => (
-      isStandardObject(item) &&
+      isStandardObject(item)
+      &&
+
       "variableCode" in item &&
       typeof item.variableCode === "string" &&
+      item.variableCode.trim() !== ""
+      &&
+
       "valueCodes" in item &&
       Array.isArray(item.valueCodes) &&
-      item.valueCodes.every(code => typeof code === "string")
-    )) &&
+      item.valueCodes.every(code => typeof code === "string" && code.trim() !== "")
+    ))
+    &&
+
+    "pick" in variable &&
+    (typeof variable.pick === "string" && VectorIndexPick[variable.pick as keyof typeof VectorIndexPick] !== undefined)
+    &&
+
     // Ensure no other properties are present
-    Object.keys(variable).filter(key => !["type", "dataset", "tableId", "selection"].includes(key)).length === 0
+    Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0
   );
-};
+}
 
 
 /* 
  * Main recipe types
  */
-export type RecipeVariables = RecipeVariableScalar | RecipeVariableDataSeries | RecipeVariableExternalDataset;
-export type RawRecipeVariables = RecipeVariableScalar | RecipeVariableRawDataSeries | RecipeVariableExternalDataset;
-
 export type Recipe = {
-  name?: string;
+  name: string | null | undefined; // String if given, null if removed, undefined if not specified
   eq: string;
-  variables: Record<string, RecipeVariables>;
-};
-/** Considered unsafe as it is. Comes from the client */
-export type RawRecipe = {
-  name?: string;
-  eq: string;
-  variables: Record<string, RawRecipeVariables>;
+  variables: Record<string, RecipeScalar | RecipeDataSeries | RecipeExternalDataset>;
 };
 
+export function isRecipe(variable: unknown): variable is Recipe {
+  const allowedProps = ["name", "eq", "variables"];
+
+  return (
+    isStandardObject(variable)
+    &&
+
+    "name" in variable &&
+    (typeof variable.name === "string" || variable.name === null || variable.name === undefined)
+    &&
+
+    "eq" in variable &&
+    typeof variable.eq === "string" &&
+    variable.eq.trim() !== "" // Ensure eq is a non-empty string
+    &&
+
+    "variables" in variable &&
+    isStandardObject(variable.variables) &&
+    Object.entries(variable.variables).every(([key, value]) => (
+      typeof key === "string" &&
+      key.trim() !== "" &&
+      (
+        isRecipeScalar(value) ||
+        isRecipeDataSeries(value) ||
+        isRecipeExternalDataset(value)
+      )
+    ))
+    &&
+
+    // Ensure no other properties are present
+    Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0
+  );
+}
 
 /*
  * Variable during evaluation of a recipe. Should not persist beyond that scope.
@@ -209,19 +230,22 @@ export type RawRecipe = {
 export type EvalTimeScalar = {
   name: string; // Variable name
   value: number; // The actual value to be used
-  unit?: string | null; // Optional unit
+  unit: string | null | undefined; // Optional unit
 };
 export type EvalTimeDataSeries = {
   name: string; // Variable name
   link: string; // For reference sake
-  data: { [key: string]: number | string | null }; // The actual data to be used
-  unit?: string | null;
+  matrix: { [key: string]: number } | null;
+  vector: number[] | null;
+  pick: VectorIndexPick;
+  unit: string | null | undefined; // Optional unit
 };
 export type EvalTimeExternalDataset = {
   name: string; // Variable name
-  scalar?: number;
-  vector?: number[];
-  unit?: string | null;
+  scalar: number | null;
+  vector: number[] | null;
+  pick: VectorIndexPick;
+  unit: string | null | undefined; // Optional unit
 };
 
 

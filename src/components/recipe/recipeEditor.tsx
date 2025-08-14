@@ -1,6 +1,6 @@
 "use client";
 
-import { type DataSeriesArray, type RawRecipe, type Recipe, RecipeVariableType, RawRecipeVariables, RawDataSeriesByLink, lenientIsRawDataSeriesByLink } from "@/functions/recipe-parser/types";
+import { type DataSeriesArray, type Recipe, type Recipe, RecipeVariableType, RawRecipeVariables, RecipeDataSeries, isRecipeDataSeries } from "@/functions/recipe-parser/types";
 import type { Goal } from "@/types";
 import { createContext, ReactElement, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -10,8 +10,8 @@ import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import { DataSeriesVariable, ExternalVariable, ScalarVariable } from "./variables";
 
 type RecipeContextType = {
-  recipe: RawRecipe | null;
-  setRecipe: React.Dispatch<React.SetStateAction<RawRecipe | null>>;
+  recipe: Recipe | null;
+  setRecipe: React.Dispatch<React.SetStateAction<Recipe | null>>;
   warnings: string[];
   error: string | null;
   resultingDataSeries: DataSeriesArray | null;
@@ -30,10 +30,10 @@ export function RecipeContextProvider({
   initialRecipe,
   children,
 }: {
-  initialRecipe?: RawRecipe;
+  initialRecipe?: Recipe;
   children: React.ReactNode;
 }) {
-  const [recipe, setRecipe] = useState<RawRecipe | null>(null);
+  const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [resultingDataSeries, setResultingDataSeries] = useState<DataSeriesArray | null>(null);
@@ -199,7 +199,7 @@ export function RecipeVariableEditor({
     if (!recipe || !recipe.variables) return;
 
     const selectedRoadmaps = [...new Set(Object.values(recipe.variables)
-      .filter(variable => variable.type === RecipeVariableType.DataSeries && lenientIsRawDataSeriesByLink(variable))
+      .filter(variable => variable.type === RecipeVariableType.DataSeries && isRecipeDataSeries(variable))
       .map(variable => variable.roadmap?.id)
       .filter(id => id && typeof id === "string" && typeof id !== "undefined") as string[])];
 

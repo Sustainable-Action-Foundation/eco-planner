@@ -1,5 +1,5 @@
-import type { DataSeriesArray, EvalTimeDataSeries, EvalTimeScalar, RecipeVariableExternalDataset, RawRecipe, Recipe, RecipeVariableDataSeries, RecipeVariables, RecipeVariableScalar, EvalTimeExternalDataset } from "./recipe-parser/types";
-import { RecipeVariableType, isRawDataSeriesByValue, lenientIsRawDataSeriesByLink, isRecipeVariableScalar, MathjsError, RecipeError, isExternalDatasetVariable, RecipeVariableTypeMap } from "./recipe-parser/types";
+import type { DataSeriesArray, EvalTimeDataSeries, EvalTimeScalar, RecipeExternalDataset, Recipe, Recipe, RecipeVariableDataSeries, RecipeVariables, RecipeScalar, EvalTimeExternalDataset } from "./recipe-parser/types";
+import { RecipeVariableType, isRawDataSeriesByValue, isRecipeDataSeries, isRecipeScalar, MathjsError, RecipeError, isRecipeExternalDataset, RecipeVariableTypeMap } from "./recipe-parser/types";
 import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
 import mathjs from "@/math";
 import { dataSeriesDataFieldNames as years, isStandardObject, uuidRegex, dataSeriesDataFieldNames } from "@/types";
@@ -7,7 +7,7 @@ import { ApiTableContent } from "@/lib/api/apiTypes";
 import getTableContent from "@/lib/api/getTableContent";
 import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
 
-export function unsafeIsRawRecipe(recipe: unknown): recipe is RawRecipe {
+export function unsafeIsRawRecipe(recipe: unknown): recipe is Recipe {
   return (
     // Should be a regular object
     isStandardObject(recipe) &&
@@ -29,19 +29,19 @@ export function unsafeIsRawRecipe(recipe: unknown): recipe is RawRecipe {
       // Each variable should match a RawRecipeVariables type
       (
         // Scalar
-        isRecipeVariableScalar(value) ||
+        isRecipeScalar(value) ||
         // Linked data series
-        lenientIsRawDataSeriesByLink(value) ||
+        isRecipeDataSeries(value) ||
         // New data series with values
         isRawDataSeriesByValue(value) ||
         // Data from external dataset
-        isExternalDatasetVariable(value)
+        isRecipeExternalDataset(value)
       )
     ))
   );
 }
 
-export function recipeFromUnknown(recipe: unknown): RawRecipe {
+export function recipeFromUnknown(recipe: unknown): Recipe {
   if (typeof recipe === "string") {
     try {
       recipe = JSON.parse(recipe);
@@ -49,7 +49,7 @@ export function recipeFromUnknown(recipe: unknown): RawRecipe {
       throw new RecipeError(`Failed to parse recipe from string: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
-  const rawRecipe: RawRecipe = recipe as RawRecipe;
+  const rawRecipe: Recipe = recipe as Recipe;
   if (!rawRecipe || !rawRecipe.eq || !rawRecipe.variables) {
     throw new RecipeError("Invalid recipe format. Expected a RawRecipe JSON string or object.");
   }
@@ -110,7 +110,7 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
     switch (variable.type) {
       /** Scalar parsing */
       case RecipeVariableType.Scalar:
-        if (!isRecipeVariableScalar(variable)) {
+        if (!isRecipeScalar(variable)) {
           if (!("value" in variable)) {
             throw new RecipeError(`Missing 'value' property in scalar variable '${key}'.`);
           }
@@ -124,7 +124,7 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
 
       /** Data series parsing */
       case RecipeVariableType.DataSeries:
-        if (lenientIsRawDataSeriesByLink(variable)) {
+        if (isRecipeDataSeries(variable)) {
           // Warn about unexpected properties
           if ("value" in variable || "unit" in variable) {
             console.warn(`Variable '${key}' is a data series by link, but has 'value' or 'unit' properties. These will be ignored.`);
@@ -200,7 +200,7 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
 
       /** External data parsing */
       case RecipeVariableType.External:
-        if (!isExternalDatasetVariable(variable)) {
+        if (!isRecipeExternalDataset(variable)) {
           throw new RecipeError(`Something went wrong when reading your reference to an external API: expected a valid ExternalDataset object, got ${JSON.stringify(variable)}`);
         }
         parsedVariables[key] = {
@@ -245,15 +245,15 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
    */
   const scalars: EvalTimeScalar[] = Object.entries(recipe.variables)
     .filter(([, variable]) => variable.type === RecipeVariableType.Scalar)
-    .filter(([, variable]) => isRecipeVariableScalar(variable))
+    .filter(([, variable]) => isRecipeScalar(variable))
     .map(([name, variable]) => {
-      const { value, unit } = variable as RecipeVariableScalar;
+      const { value, unit } = variable as RecipeScalar;
       return { name, value, unit };
     });
 
   const dataSeries: EvalTimeDataSeries[] = await Promise.all(Object.entries(recipe.variables)
     .filter(([, variable]) => variable.type === RecipeVariableType.DataSeries)
-    .filter(([, variable]) => isRawDataSeriesByValue(variable) || lenientIsRawDataSeriesByLink(variable))
+    .filter(([, variable]) => isRawDataSeriesByValue(variable) || isRecipeDataSeries(variable))
     .map(async ([name, variable]) => {
       const { link } = variable as RecipeVariableDataSeries;
 
@@ -277,9 +277,9 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
 
   const externalData: EvalTimeExternalDataset[] = (await Promise.all(Object.entries(recipe.variables)
     .filter(([, variable]) => variable.type === RecipeVariableType.External)
-    .filter(([, variable]) => isExternalDatasetVariable(variable))
+    .filter(([, variable]) => isRecipeExternalDataset(variable))
     .map(([name, variable]) => {
-      variable = variable as RecipeVariableExternalDataset;
+      variable = variable as RecipeExternalDataset;
 
       const { dataset, tableId, selection } = variable;
       if (!dataset || !tableId) {
@@ -375,8 +375,8 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     const varName = series.name.replace(/\s+/g, "_");
     equation = equation.replace(`\${${series.name}}`, varName);
 
-    const lastYearWithData = (Object.keys(series.data) as Array<keyof DataSeriesArray>)
-      .filter(year => series.data[year] != null)
+    const lastYearWithData = (Object.keys(series.matrix) as Array<keyof DataSeriesArray>)
+      .filter(year => series.matrix[year] != null)
       .pop();
 
     if (!lastYearWithData) {
@@ -388,7 +388,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
       const isBeforeLastDefinedYear = parseInt(year.replace("val", "")) <= parseInt(lastYearWithData.replace("val", ""));
       if (!isBeforeLastDefinedYear) break;
 
-      let value = series.data[year];
+      let value = series.matrix[year];
       if (value === undefined || value === null) {
         // If the value is not defined, we can either pad with 0 or skip
         value = 0; // Default to 0 for missing values

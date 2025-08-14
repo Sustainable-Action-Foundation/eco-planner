@@ -6,7 +6,7 @@ import { GoalCreateInput, Goal, dataSeriesDataFieldNames } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
-import { DataSeriesArray, RawRecipe } from "@/functions/recipe-parser/types";
+import { DataSeriesArray, Recipe } from "@/functions/recipe-parser/types";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
 import { RecipeContextProvider, RecipeSuggestions, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "../recipe/recipeEditor";
 
@@ -50,7 +50,7 @@ export default function CopyAndScale({
     }
 
     const resultingRecipeString = form.get("resultingRecipe");
-    let evaluatedRecipe: RawRecipe | undefined;
+    let evaluatedRecipe: Recipe | undefined;
     try {
       evaluatedRecipe = recipeFromUnknown(resultingRecipeString);
       if (!evaluatedRecipe) {
