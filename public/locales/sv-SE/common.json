@@ -90,6 +90,9 @@
     "arith_mean": "Algebraiskt genomsnitt",
     "multiplicative": "Multiplikativ"
   },
+  "error": {
+    "generic_with_details": "Något gick fel: {{details}}"
+  },
   "css": {
     "optional": " - (valfri)"
   },

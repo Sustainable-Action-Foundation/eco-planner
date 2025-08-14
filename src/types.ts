@@ -58,6 +58,10 @@ export const ScaleMethod = {
 } as const;
 export type ScaleMethod = (typeof ScaleMethod)[keyof typeof ScaleMethod];
 
+export function isStandardObject(object: unknown): object is object {
+  return typeof object === "object" && object != null && !Array.isArray(object);
+}
+
 /**
  * A type used by the breadcrumbs component to display the names of objects rather than their UUIDs.
  */

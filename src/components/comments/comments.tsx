@@ -6,11 +6,12 @@ import styles from './comments.module.css'
 import { ChangeEvent, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Link from "next/link";
+import formSubmitter from "@/functions/formSubmitter";
 
 export default function Comments({ comments, objectId }: { comments?: (Comment & { author: { id: string, username: string } })[], objectId: string }) {
   const { t } = useTranslation(["components", "common"]);
 
-  async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
+  function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
     const form = event.target.elements
     const comment = (form.namedItem("comment") as HTMLInputElement)?.value
@@ -18,23 +19,24 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
       commentText: comment,
       objectId,
     })
-    fetch('/api/comment', {
-      method: 'POST',
-      body: formJSON,
-      headers: { 'Content-Type': 'application/json' },
-    }).then((res) => {
-      if (res.ok) {
-        return res.json()
-      } else {
-        return res.json().then((data) => {
-          throw new Error(data.message)
-        })
+    void formSubmitter(
+      '/api/comment',
+      formJSON,
+      'POST',
+      undefined,
+      undefined,
+      () => {
+        window.location.reload();
+      },
+      (err) => {
+        if (err instanceof Object && 'message' in err && typeof err.message === 'string') {
+          alert(t("common:error.generic_with_details", { details: err.message }));
+        } else {
+          console.error('Unexpected error:', err);
+          alert(t("common:error.generic_with_details", { details: 'See console for details' }));
+        }
       }
-    }).then(() => {
-      window.location.reload()
-    }).catch((err) => {
-      alert(err.message)
-    });
+    );
   }
 
   // Sort comments by date

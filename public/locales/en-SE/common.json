@@ -48,7 +48,7 @@
     "meta_description": "A tool that aims to contribute to Sweden's climate transition. In the tool, national users can be inspired by each other's actions, creating a common action database for Sweden. At the local level, different actors can also collaborate on actions.",
     "og_locale": "en_SE"
   },
-  "tsx":{
+  "tsx": {
     "home": "Home",
     "login": "Log in",
     "logout": "Log out",
@@ -89,6 +89,9 @@
     "geo_mean": "Geometric mean (recommended)",
     "arith_mean": "Arithmetic mean",
     "multiplicative": "Multiplicative"
+  },
+  "error": {
+    "generic_with_details": "An error occurred: {{details}}"
   },
   "css": {
     "optional": " - (optional)"
