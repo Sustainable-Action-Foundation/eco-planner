@@ -1,4 +1,3 @@
-import { getVariableName } from "./recipe-parser/helpers";
 import type { DataSeriesArray, EvalTimeDataSeries, EvalTimeScalar, RecipeVariableExternalDataset, RawRecipe, Recipe, RecipeVariableDataSeries, RecipeVariables, RecipeVariableScalar, EvalTimeExternalDataset } from "./recipe-parser/types";
 import { RecipeVariableType, isRawDataSeriesByValue, lenientIsRawDataSeriesByLink, isRecipeVariableScalar, MathjsError, RecipeError, isExternalDatasetVariable, RecipeVariableTypeMap } from "./recipe-parser/types";
 import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
@@ -278,6 +277,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
 
   const externalData: EvalTimeExternalDataset[] = (await Promise.all(Object.entries(recipe.variables)
     .filter(([, variable]) => variable.type === RecipeVariableType.External)
+    .filter(([, variable]) => isExternalDatasetVariable(variable))
     .map(([name, variable]) => {
       variable = variable as RecipeVariableExternalDataset;
 
@@ -441,8 +441,6 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
       throw new RecipeError(`External dataset variable '${externalVar.name}' is missing both 'vector' and 'scalar' properties.`);
     }
   }
-
-  console.log(equation, scope);
 
   /**
    * Try to evaluate the equation using mathjs
