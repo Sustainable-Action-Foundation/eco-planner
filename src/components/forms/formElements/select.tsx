@@ -1,6 +1,5 @@
 "use client"
 
-// TODO: Fix accesibility issues
 // TODO: Allow/require passing:
 // className,
 // style,
@@ -75,6 +74,7 @@ export function SelectSingleSearch({
     // Escape out of listbox if it is open
     if (e.key === 'Escape') {
       if (menuOpen) {
+        setFocusedListBoxItem(null)
         setMenuOpen(false)
         toggleRef.current?.focus()
       }
@@ -145,37 +145,37 @@ export function SelectSingleSearch({
   return (
     <div className="position-relative" style={{ userSelect: 'none', width: 'fit-content' }}>
       <button
-        ref={toggleRef}
-        type="button"
+        id={id}
         className={`${styles['select-toggle']}`}
         style={{ borderColor: menuOpen ? '#191919' : '' }}
-        onClick={() => { setMenuOpen(!menuOpen) }}
-        id={id}
-        name={name}
-        tabIndex={0}
-        aria-controls="listbox1" // TODO: Fix this
         value={value}
+        name={name}
+        ref={toggleRef}
+        onClick={() => { setMenuOpen(!menuOpen) }}
+        aria-controls={menuOpen ? `${id}-dialog` : undefined}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
-        aria-activedescendant=""
         role="combobox"
+        type="button"
       >
         {value}
-        <IconSelector height={20} width={20} />
+        <IconSelector height={20} width={20} aria-hidden={true} />
       </button>
       <div
-        onBlur={(e) => {
-          if (!e.currentTarget.contains(e.relatedTarget)) {
-            setMenuOpen(false);
-          }
-        }} // TODO: This disabled selecting values using a mouse
-        tabIndex={-1}
-        role="dialog"
+        id={`${id}-dialog`}
         className={`              
           ${styles['listbox-select']} 
           ${menuOpen ? styles['visible'] : ''} 
           margin-inline-0`
         }
+        //onBlur={(e) => {
+          // if (!e.currentTarget.contains(e.relatedTarget)) {
+            // setFocusedListBoxItem(null)
+            // setMenuOpen(false);
+          // }
+        // }}
+        tabIndex={-1}
+        role="dialog"  
       >
         <label
           aria-label="sök..."
@@ -186,6 +186,16 @@ export function SelectSingleSearch({
             onChange={(e) => setSearchValue(e.target.value)}
             onKeyDown={handleKeyDownSearchInput}
             type="text"
+
+            aria-controls={`${id}-dialog-listbox`}
+            aria-activedescendant={focusedListBoxItem != null ? `${id}-dialog-listbox-${focusedListBoxItem}` : undefined}
+            aria-expanded="true"
+            aria-autocomplete="list"
+            autoComplete="off"
+            aria-label="" // TODO: should be the same as placeholder? 
+            placeholder="sök..." // TODO: Pass a prop for this maybe? Or atleast i18n
+            role="combobox"
+
             style={{
               padding: '0',
               margin: '0',
@@ -196,8 +206,8 @@ export function SelectSingleSearch({
         </label>
         <ul
           role="listbox"
-          id="listbox1"
-          aria-labelledby=""
+          id={`${id}-dialog-listbox`}
+          aria-label="" // TODO: Do i need this? 
           className="margin-0 padding-0"
           style={{
             listStyle: 'none',
@@ -205,6 +215,7 @@ export function SelectSingleSearch({
           {results.length > 0 ? (
             results.map((option, index) => (
               <li
+                id={`${id}-dialog-listbox-${index}`}
                 onClick={() => {
                   setValue(option),
                     setMenuOpen(false)
