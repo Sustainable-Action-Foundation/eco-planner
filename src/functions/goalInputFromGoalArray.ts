@@ -1,4 +1,4 @@
-import { dataSeriesDataFieldNames, GoalCreateInput } from "@/types";
+import { Years, GoalCreateInput } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 
 
@@ -10,7 +10,7 @@ export default function goalInputFromGoalArray(goals: (Goal & { dataSeries: Data
       continue;
     }
     const dataSeries: (number | null)[] = [];
-    for (const i of dataSeriesDataFieldNames) {
+    for (const i of Years) {
       // TODO: multiply by combinationScale
       const value = goal.dataSeries[i];
       dataSeries.push(value);

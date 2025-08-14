@@ -5,7 +5,7 @@ import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import type getRoadmaps from "@/fetchers/getRoadmaps";
 import mathjs from "@/math";
-import { dataSeriesDataFieldNames } from "@/types";
+import { Years } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 import { Fragment, useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
@@ -281,7 +281,7 @@ export function InheritingBaseline() {
   // If there is a data series, convert it to an array of numbers and then a string to use for the form
   const dataArray: (number | null)[] = []
   if (goalData?.dataSeries) {
-    for (const i of dataSeriesDataFieldNames) {
+    for (const i of Years) {
       dataArray.push(goalData.dataSeries[i])
     }
   }

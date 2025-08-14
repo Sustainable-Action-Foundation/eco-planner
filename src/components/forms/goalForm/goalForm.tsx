@@ -25,7 +25,7 @@ import type getRoadmaps from "@/fetchers/getRoadmaps.ts"; // Type for roadmap fe
 import formSubmitter from "@/functions/formSubmitter"; // Handles form submission to API
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" }; // Options for indicator parameter
 import mathjs from "@/math"; // Math library for unit parsing
-import { GoalCreateInput, dataSeriesDataFieldNames } from "@/types"; // Types and helpers
+import { GoalCreateInput, Years } from "@/types"; // Types and helpers
 import { DataSeries, Goal } from "@prisma/client"; // Prisma types
 import { useMemo, useState, useEffect } from "react"; // React hooks
 import { useTranslation } from "react-i18next"; // i18n hook
@@ -34,7 +34,7 @@ import { getDataSeries } from "../dataSeriesInput/utils"; // Helper for extracti
 import styles from '../forms.module.css'; // CSS module for styling
 import { InheritingBaseline, ManualGoalForm } from "./goalFormSections"; // Sub components for form sections
 import { DEBUG_Recipe, RecipeContextProvider, RecipeEquationEditor, RecipeErrorAndWarnings, RecipeSuggestions, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/recipeEditor";
-import { RecipeExternalDataset, RecipeVariableType } from "@/functions/recipe-parser/types";
+import { RecipeExternalDataset, RecipeDataTypes } from "@/functions/recipe-parser/types";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 
 // Enum for selecting the type of data series for the goal
@@ -166,7 +166,7 @@ export default function GoalForm({
   // Prepare data series string for default value (if editing)
   const dataArray: (number | null)[] = []
   if (currentGoal?.dataSeries) {
-    for (const i of dataSeriesDataFieldNames) {
+    for (const i of Years) {
       dataArray.push(currentGoal.dataSeries[i])
     }
   }
@@ -175,7 +175,7 @@ export default function GoalForm({
   // Prepare baseline data series string for default value (if editing)
   const baselineArray: (number | null)[] = []
   if (currentGoal?.baselineDataSeries) {
-    for (const i of dataSeriesDataFieldNames) {
+    for (const i of Years) {
       baselineArray.push(currentGoal.baselineDataSeries[i])
     }
   }
@@ -258,7 +258,7 @@ export default function GoalForm({
                   hash: "asd", recipe: {
                     name: t("forms:goal.default_scaling_recipe"),
                     eq: "${Hihi}",
-                    variables: { "Hihi": { type: RecipeVariableType.Scalar, value: 123 } }
+                    variables: { "Hihi": { type: RecipeDataTypes.Scalar, value: 123 } }
                   },
                 },
                 {
@@ -267,7 +267,7 @@ export default function GoalForm({
                   {
                     name: t("forms:goal.default_combination_recipe"),
                     eq: "${Hihi} + ${Hihi}",
-                    variables: { "Hihi": { type: RecipeVariableType.Scalar, value: 123 } }
+                    variables: { "Hihi": { type: RecipeDataTypes.Scalar, value: 123 } }
                   }
                 },
                 {
@@ -278,7 +278,7 @@ export default function GoalForm({
                     eq: "${Hihi}",
                     variables: {
                       "Hihi": {
-                        type: RecipeVariableType.External,
+                        type: RecipeDataTypes.External,
                         dataset: "SCB",
                         tableId: "TAB6420",
                         selection: [

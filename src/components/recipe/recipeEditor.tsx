@@ -1,6 +1,6 @@
 "use client";
 
-import { type DataSeriesArray, type Recipe, type Recipe, RecipeVariableType, RawRecipeVariables, RecipeDataSeries, isRecipeDataSeries } from "@/functions/recipe-parser/types";
+import { type DataSeriesArray, type Recipe, type Recipe, RecipeDataTypes, RawRecipeVariables, RecipeDataSeries, isRecipeDataSeries } from "@/functions/recipe-parser/types";
 import type { Goal } from "@/types";
 import { createContext, ReactElement, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -199,7 +199,7 @@ export function RecipeVariableEditor({
     if (!recipe || !recipe.variables) return;
 
     const selectedRoadmaps = [...new Set(Object.values(recipe.variables)
-      .filter(variable => variable.type === RecipeVariableType.DataSeries && isRecipeDataSeries(variable))
+      .filter(variable => variable.type === RecipeDataTypes.DataSeries && isRecipeDataSeries(variable))
       .map(variable => variable.roadmap?.id)
       .filter(id => id && typeof id === "string" && typeof id !== "undefined") as string[])];
 
@@ -278,13 +278,13 @@ export function RecipeVariableEditor({
             allowValueEditing,
           };
           switch (variable.type) {
-            case RecipeVariableType.Scalar:
+            case RecipeDataTypes.Scalar:
               return <ScalarVariable
                 key={i}
                 name={name}
                 rules={rules}
               />
-            case RecipeVariableType.DataSeries:
+            case RecipeDataTypes.DataSeries:
               return <DataSeriesVariable
                 key={i}
                 name={name}
@@ -292,7 +292,7 @@ export function RecipeVariableEditor({
                 availableRoadmaps={availableRoadmaps || []}
                 availableDataSeries={availableDataSeries || []}
               />
-            case RecipeVariableType.External:
+            case RecipeDataTypes.External:
               return <ExternalVariable
                 key={i}
                 name={name}
@@ -310,13 +310,13 @@ export function RecipeVariableEditor({
         <button type="button" onClick={() => {
           const newVarName = `var${Object.keys(recipe?.variables || []).length + 1}`;
           setRecipe(prev => {
-            if (!prev) return { eq: "", variables: { [newVarName]: { type: RecipeVariableType.Scalar, value: 1 } } };
+            if (!prev) return { eq: "", variables: { [newVarName]: { type: RecipeDataTypes.Scalar, value: 1 } } };
             return {
               ...prev,
               variables: {
                 ...prev.variables,
                 [newVarName]: {
-                  type: RecipeVariableType.DataSeries,
+                  type: RecipeDataTypes.DataSeries,
                   link: null,
                 }
               }

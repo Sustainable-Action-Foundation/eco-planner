@@ -1,10 +1,10 @@
-import { dataSeriesDataFieldNames } from "@/types";
+import { Years } from "@/types";
 import { Prisma } from "@prisma/client";
 
-const dataFieldSelector = dataSeriesDataFieldNames.reduce((acc, field) => {
+const dataFieldSelector = Years.reduce((acc, field) => {
   acc[field] = true;
   return acc;
-}, {} as Record<typeof dataSeriesDataFieldNames[number], boolean>);
+}, {} as Record<typeof Years[number], boolean>);
 
 export const nameSelector /* Prisma.MetaRoadmapSelect */ = {
   name: true,

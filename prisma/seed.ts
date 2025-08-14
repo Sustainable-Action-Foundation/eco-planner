@@ -5,8 +5,8 @@ import { PrismaClient, RoadmapType } from '../src/prisma/generated';
 import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
 import { RandomTextSE } from "./randomText";
-import { dataSeriesDataFieldNames } from "@/types";
-import { Recipe, RecipeVariableType } from "@/functions/recipe-parser/types";
+import { Years } from "@/types";
+import { Recipe, RecipeDataTypes } from "@/functions/recipe-parser/types";
 
 const prisma = new PrismaClient();
 prisma.$connect().catch((e) => {
@@ -51,27 +51,27 @@ function getRandomUnit() {
   return ['CO2e', 'capita', 'kWh', 's', 'mm^2/km*s', 'ps/sqrt(km)', 'ps/km^0.5', 'm3', 'kg', 'ton', 'Atemp', null, '', null, undefined, null, '', ""].sort(() => Math.random() - 0.5).at(0) ?? null;
 }
 
-function getRandomCoherentDataPoints(): Partial<Record<typeof dataSeriesDataFieldNames[number], number>> {
-  const dataPoints: Partial<Record<typeof dataSeriesDataFieldNames[number], number>> = {};
+function getRandomCoherentDataPoints(): Partial<Record<typeof Years[number], number>> {
+  const dataPoints: Partial<Record<typeof Years[number], number>> = {};
   let startValue = Math.floor(Math.random() * 10000);
   const deviation = Math.floor(Math.random() * startValue + startValue / 100);
   const inclination = Math.random() < 0.5 ? -1 : 1; // Randomly choose to increase or decrease values
 
-  const fields: typeof dataSeriesDataFieldNames = [];
+  const fields: typeof Years = [];
 
   // Small chance to get random start and end years
   if (Math.random() < 0.2) {
-    const emptyStart = dataSeriesDataFieldNames.slice(0, Math.floor(Math.random() * 10));
-    const emptyEnd = dataSeriesDataFieldNames.slice(-Math.floor(Math.random() * 10));
+    const emptyStart = Years.slice(0, Math.floor(Math.random() * 10));
+    const emptyEnd = Years.slice(-Math.floor(Math.random() * 10));
 
-    for (const year of dataSeriesDataFieldNames) {
+    for (const year of Years) {
       if (!emptyStart.includes(year) && !emptyEnd.includes(year)) {
         fields.push(year);
       }
     }
   }
   else {
-    fields.push(...dataSeriesDataFieldNames); // Use all fields
+    fields.push(...Years); // Use all fields
   }
 
   for (const field of fields) { // Chance of skipping a field
@@ -320,11 +320,11 @@ async function main() {
         eq: '${Riket} * ${ArvingsArea} / ${RiketsArea}',
         variables: {
           'Riket': {
-            type: RecipeVariableType.DataSeries,
+            type: RecipeDataTypes.DataSeries,
             link: null,
           },
           'RiketsArea': {
-            type: RecipeVariableType.External,
+            type: RecipeDataTypes.External,
             dataset: 'SCB',
             tableId: 'TAB6420',
             selection: [
@@ -337,7 +337,7 @@ async function main() {
             ],
           },
           'ArvingsArea': {
-            type: RecipeVariableType.External,
+            type: RecipeDataTypes.External,
             dataset: 'SCB',
             tableId: 'TAB6420',
             selection: [
@@ -362,11 +362,11 @@ async function main() {
         eq: '${Riket} * ${ArvingsPopulation} / ${RiketsPopulation}',
         variables: {
           'Riket': {
-            type: RecipeVariableType.DataSeries,
+            type: RecipeDataTypes.DataSeries,
             link: null,
           },
           'RiketsPopulation': {
-            type: RecipeVariableType.External,
+            type: RecipeDataTypes.External,
             dataset: 'SCB',
             tableId: 'BE0101N1',
             selection: [
@@ -377,7 +377,7 @@ async function main() {
             ],
           },
           'ArvingsPopulation': {
-            type: RecipeVariableType.External,
+            type: RecipeDataTypes.External,
             dataset: 'SCB',
             tableId: 'BE0101N1',
             selection: [
@@ -400,11 +400,11 @@ async function main() {
         eq: '${Riket} / ${skalär}',
         variables: {
           'Riket': {
-            type: RecipeVariableType.DataSeries,
+            type: RecipeDataTypes.DataSeries,
             link: null,
           },
           'skalär': {
-            type: RecipeVariableType.Scalar,
+            type: RecipeDataTypes.Scalar,
             value: 1 + Math.random(),
           },
         },

@@ -4,7 +4,7 @@ import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/session";
 import accessChecker from "@/lib/accessChecker";
-import { AccessControlled, AccessLevel, ClientError, dataSeriesDataFieldNames, GoalCreateInput, GoalUpdateInput, JSONValue } from "@/types";
+import { AccessControlled, AccessLevel, ClientError, Years, GoalCreateInput, GoalUpdateInput, JSONValue } from "@/types";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { Prisma } from "@prisma/client";
 import type { DataSeriesArray } from "@/functions/recipe-parser/types";
@@ -218,7 +218,7 @@ export async function POST(request: NextRequest) {
   try {
     const dataSeries = formData.dataSeriesArray ?
       Object.fromEntries(
-        dataSeriesDataFieldNames.map((field, i) => [field, formData.dataSeriesArray?.[i] ?? null])
+        Years.map((field, i) => [field, formData.dataSeriesArray?.[i] ?? null])
       ) :
       undefined;
 

@@ -1,7 +1,6 @@
 import fs from 'fs';
 import prisma from '../prismaClient.ts';
 import { DataSeries } from '@prisma/client';
-import { DataSeriesDataFields } from '@/types.ts';
 
 /**
  * This script generates a json file containing the names of the numeric data fields of data series.
@@ -21,13 +20,18 @@ async function getDataSeriesValueFieldNames() {
   // If there are data series, extract the names of the numeric data fields.
   /** A regex that matches the names of the numeric data fields of data series. Works until the year 9999, which seems future-proof enough. */
   const valueFieldRegex = /^val\d{4}$/;
-  const dataFields: (keyof DataSeriesDataFields)[] = (Object.keys(exampleSeries) as (keyof DataSeries)[]).filter(
-    key => valueFieldRegex.test(key)
-  ) as (keyof DataSeriesDataFields)[];
+  const dataFields = (Object.keys(exampleSeries) as (keyof DataSeries)[])
+    .filter(key => valueFieldRegex.test(key));
 
   // Write to file
   try {
-    fs.writeFileSync('src/lib/dataSeriesDataFieldNames.json', JSON.stringify(dataFields));
+    fs.writeFileSync('src/lib/dataSeriesCanonicalYears.ts', `
+
+export const Years: (${dataFields.map(field => `"${field}"`).join(' | ')})[]
+  = [${dataFields.map(v => `"${v}"`).join(", ")}] as const;
+
+`.trim());
+
     console.log('Data series value field names updated');
   } catch {
     console.log('Failed to update data series value field names');

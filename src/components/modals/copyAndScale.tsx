@@ -2,7 +2,7 @@
 
 import { closeModal, openModal } from "./modalFunctions";
 import { useRef, useState } from "react";
-import { GoalCreateInput, Goal, dataSeriesDataFieldNames } from "@/types";
+import { GoalCreateInput, Goal, Years } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
@@ -70,7 +70,7 @@ export default function CopyAndScale({
       return;
     }
 
-    const dataSeriesArray = dataSeriesDataFieldNames.map(field => {
+    const dataSeriesArray = Years.map(field => {
       const value = parsedDataSeries[field as keyof typeof parsedDataSeries];
       if (typeof value === 'string') {
         return parseFloat(value);

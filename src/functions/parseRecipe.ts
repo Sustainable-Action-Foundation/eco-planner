@@ -1,8 +1,8 @@
 import type { DataSeriesArray, EvalTimeDataSeries, EvalTimeScalar, RecipeExternalDataset, Recipe, Recipe, RecipeVariableDataSeries, RecipeVariables, RecipeScalar, EvalTimeExternalDataset } from "./recipe-parser/types";
-import { RecipeVariableType, isRawDataSeriesByValue, isRecipeDataSeries, isRecipeScalar, MathjsError, RecipeError, isRecipeExternalDataset, RecipeVariableTypeMap } from "./recipe-parser/types";
+import { RecipeDataTypes, isRawDataSeriesByValue, isRecipeDataSeries, isRecipeScalar, MathjsError, RecipeError, isRecipeExternalDataset, RecipeDataTypesMap } from "./recipe-parser/types";
 import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
 import mathjs from "@/math";
-import { dataSeriesDataFieldNames as years, isStandardObject, uuidRegex, dataSeriesDataFieldNames } from "@/types";
+import { Years as years, isStandardObject, uuidRegex, Years } from "@/types";
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import getTableContent from "@/lib/api/getTableContent";
 import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
@@ -103,13 +103,13 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
       throw new RecipeError(`Missing or invalid 'type' property in variable '${key}'.`);
     }
 
-    if (!RecipeVariableTypeMap[variable.type as RecipeVariableType]) {
+    if (!RecipeDataTypesMap[variable.type as RecipeDataTypes]) {
       throw new RecipeError(`Unknown variable type '${variable.type}' in variable '${key}'.`);
     }
 
     switch (variable.type) {
       /** Scalar parsing */
-      case RecipeVariableType.Scalar:
+      case RecipeDataTypes.Scalar:
         if (!isRecipeScalar(variable)) {
           if (!("value" in variable)) {
             throw new RecipeError(`Missing 'value' property in scalar variable '${key}'.`);
@@ -119,11 +119,11 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
           }
           throw new RecipeError(`Invalid scalar value for variable '${key}': expected a finite number, got ${variable.value}, with type ${typeof variable.value}`);
         }
-        parsedVariables[key] = { type: RecipeVariableType.Scalar, value: variable.value, ...(variable.unit && { unit: variable.unit }) };
+        parsedVariables[key] = { type: RecipeDataTypes.Scalar, value: variable.value, ...(variable.unit && { unit: variable.unit }) };
         break;
 
       /** Data series parsing */
-      case RecipeVariableType.DataSeries:
+      case RecipeDataTypes.DataSeries:
         if (isRecipeDataSeries(variable)) {
           // Warn about unexpected properties
           if ("value" in variable || "unit" in variable) {
@@ -139,7 +139,7 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
           if (!dataSeriesInDB) {
             throw new RecipeError(`Data series with UUID '${variable.link}' for variable '${key}' does not exist in the database.`);
           }
-          parsedVariables[key] = { type: RecipeVariableType.DataSeries, link: variable.link };
+          parsedVariables[key] = { type: RecipeDataTypes.DataSeries, link: variable.link };
           break;
         } else if (isRawDataSeriesByValue(variable)) {
           // Map data series to known valid years
@@ -163,7 +163,7 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
             }), method: "POST"
           })).json() as { uuid: string };
 
-          parsedVariables[key] = { type: RecipeVariableType.DataSeries, link: uuid };
+          parsedVariables[key] = { type: RecipeDataTypes.DataSeries, link: uuid };
           break;
         } else {
           if (!("link" in variable) && !("value" in variable)) {
@@ -199,12 +199,12 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
         break;
 
       /** External data parsing */
-      case RecipeVariableType.External:
+      case RecipeDataTypes.External:
         if (!isRecipeExternalDataset(variable)) {
           throw new RecipeError(`Something went wrong when reading your reference to an external API: expected a valid ExternalDataset object, got ${JSON.stringify(variable)}`);
         }
         parsedVariables[key] = {
-          type: RecipeVariableType.External,
+          type: RecipeDataTypes.External,
           dataset: variable.dataset,
           tableId: variable.tableId,
           selection: variable.selection
@@ -244,7 +244,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
    * Extract variables
    */
   const scalars: EvalTimeScalar[] = Object.entries(recipe.variables)
-    .filter(([, variable]) => variable.type === RecipeVariableType.Scalar)
+    .filter(([, variable]) => variable.type === RecipeDataTypes.Scalar)
     .filter(([, variable]) => isRecipeScalar(variable))
     .map(([name, variable]) => {
       const { value, unit } = variable as RecipeScalar;
@@ -252,7 +252,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     });
 
   const dataSeries: EvalTimeDataSeries[] = await Promise.all(Object.entries(recipe.variables)
-    .filter(([, variable]) => variable.type === RecipeVariableType.DataSeries)
+    .filter(([, variable]) => variable.type === RecipeDataTypes.DataSeries)
     .filter(([, variable]) => isRawDataSeriesByValue(variable) || isRecipeDataSeries(variable))
     .map(async ([name, variable]) => {
       const { link } = variable as RecipeVariableDataSeries;
@@ -276,7 +276,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     }));
 
   const externalData: EvalTimeExternalDataset[] = (await Promise.all(Object.entries(recipe.variables)
-    .filter(([, variable]) => variable.type === RecipeVariableType.External)
+    .filter(([, variable]) => variable.type === RecipeDataTypes.External)
     .filter(([, variable]) => isRecipeExternalDataset(variable))
     .map(([name, variable]) => {
       variable = variable as RecipeExternalDataset;
@@ -300,16 +300,16 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
       if (data.values.length > 0) {
         // Pad the vector to match the years
         const lastYear = data.values[data.values.length - 1].period;
-        const length = dataSeriesDataFieldNames.findIndex(year => year === `val${lastYear}`);
+        const length = Years.findIndex(year => year === `val${lastYear}`);
         if (length === -1) {
-          throw new RecipeError(`External dataset variable '${name}' has invalid period '${lastYear}'. Expected one of ${dataSeriesDataFieldNames.join(", ")}.`);
+          throw new RecipeError(`External dataset variable '${name}' has invalid period '${lastYear}'. Expected one of ${Years.join(", ")}.`);
         }
 
         const paddedVectorForm: number[] = new Array(length).fill(0);
         for (const { period, value } of data.values) {
-          const yearIndex = dataSeriesDataFieldNames.findIndex(year => year === `val${period}`);
+          const yearIndex = Years.findIndex(year => year === `val${period}`);
           if (yearIndex === -1) {
-            throw new RecipeError(`External dataset variable '${name}' has invalid period '${period}'. Expected one of ${dataSeriesDataFieldNames.join(", ")}.`);
+            throw new RecipeError(`External dataset variable '${name}' has invalid period '${period}'. Expected one of ${Years.join(", ")}.`);
           }
           const numericValue = parseFloat(value);
           if (isNaN(numericValue) || !Number.isFinite(numericValue)) {
@@ -336,8 +336,8 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
           throw new RecipeError(`External dataset variable '${name}' has invalid value '${value.value}' for period '${value.period}': expected a finite number, got ${value.value}`);
         }
 
-        if (!dataSeriesDataFieldNames.includes(`val${value.period}` as typeof dataSeriesDataFieldNames[number])) {
-          throw new RecipeError(`External dataset variable '${name}' has invalid period '${value.period}'. Expected one of ${dataSeriesDataFieldNames.join(", ")}.`);
+        if (!Years.includes(`val${value.period}` as typeof Years[number])) {
+          throw new RecipeError(`External dataset variable '${name}' has invalid period '${value.period}'. Expected one of ${Years.join(", ")}.`);
         }
 
         return {

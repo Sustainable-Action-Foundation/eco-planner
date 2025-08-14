@@ -1,4 +1,4 @@
-import { GoalCreateInput, dataSeriesDataFieldNames } from "@/types";
+import { GoalCreateInput, Years } from "@/types";
 
 export default function parseCsv(csv: ArrayBuffer): string[][] {
   // Despite Windows-1252 being more common than UTF-8 in a Windows/Microsoft environment (such as when exporting CSV files from Excel),
@@ -29,7 +29,7 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
     "dataUnit": "Units",
   }
   const numericHeaders = [];
-  for (const year of dataSeriesDataFieldNames) {
+  for (const year of Years) {
     numericHeaders.push(year.replace("val", ""));
   }
 

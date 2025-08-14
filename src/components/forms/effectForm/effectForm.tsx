@@ -4,7 +4,7 @@ import type getOneAction from "@/fetchers/getOneAction.ts";
 import type getOneGoal from "@/fetchers/getOneGoal.ts";
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import formSubmitter from "@/functions/formSubmitter";
-import { dataSeriesDataFieldNames, EffectInput } from "@/types";
+import { Years, EffectInput } from "@/types";
 import { ActionImpactType, DataSeries, Effect } from "@prisma/client";
 import { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
@@ -31,7 +31,7 @@ export default function EffectForm({
 
   const [selectedImpactType, setSelectedImpactType] = useState<ActionImpactType>(currentEffect?.impactType || ActionImpactType.ABSOLUTE);
   // Use existing data series converted to a string as a default value
-  const [dataSeriesString, setDataSeriesString] = useState<string>(currentEffect?.dataSeries ? dataSeriesDataFieldNames.map(i => currentEffect.dataSeries?.[i]).join(';') : '');
+  const [dataSeriesString, setDataSeriesString] = useState<string>(currentEffect?.dataSeries ? Years.map(i => currentEffect.dataSeries?.[i]).join(';') : '');
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();

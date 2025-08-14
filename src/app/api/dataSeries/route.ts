@@ -3,7 +3,7 @@ import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
 import { cookies } from "next/headers";
 import { DataSeriesArray } from "@/functions/recipe-parser/types";
-import { dataSeriesDataFieldNames } from "@/types";
+import { Years } from "@/types";
 
 /**
  * Handles POST requests to the metaRoadmap API
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
   // Clean up input data a little bit. TODO - clean more
   const dataArray: DataSeriesArray = {};
-  for (const year of dataSeriesDataFieldNames) {
+  for (const year of Years) {
     if (body.data[year]) {
       dataArray[year] = body.data[year] ?? null;
     }

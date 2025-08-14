@@ -2,7 +2,7 @@
 
 import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
-import { dataSeriesDataFieldNames } from "@/types";
+import { Years } from "@/types";
 import type { Goal, DataSeries, Effect, MetaRoadmap, Roadmap } from "@prisma/client";
 import { useTranslation } from "react-i18next";
 
@@ -37,8 +37,8 @@ export default function MainDeltaGraph({
       type: 'datetime',
       labels: { format: 'yyyy' },
       tooltip: { enabled: false },
-      min: new Date(dataSeriesDataFieldNames[0].replace('val', '')).getTime(),
-      max: new Date(dataSeriesDataFieldNames[dataSeriesDataFieldNames.length - 1].replace('val', '')).getTime()
+      min: new Date(Years[0].replace('val', '')).getTime(),
+      max: new Date(Years[Years.length - 1].replace('val', '')).getTime()
     },
     yaxis: [{
       title: {
@@ -63,9 +63,9 @@ export default function MainDeltaGraph({
   // Local goal
   const mainSeries = [];
   // Start at 1 to skip the first value
-  for (let i = 1; i < dataSeriesDataFieldNames.length; i++) {
-    const currentField = dataSeriesDataFieldNames[i];
-    const previousField = dataSeriesDataFieldNames[i - 1];
+  for (let i = 1; i < Years.length; i++) {
+    const currentField = Years[i];
+    const previousField = Years[i - 1];
 
     const currentValue = goal.dataSeries[currentField] ?? NaN;
     const previousValue = goal.dataSeries[previousField] ?? NaN;
@@ -86,9 +86,9 @@ export default function MainDeltaGraph({
   if (goal.baselineDataSeries) {
     // Baseline / predicted outcome without actions/effects
     const baselineSeries = [];
-    for (let i = 1; i < dataSeriesDataFieldNames.length; i++) {
-      const currentField = dataSeriesDataFieldNames[i];
-      const previousField = dataSeriesDataFieldNames[i - 1];
+    for (let i = 1; i < Years.length; i++) {
+      const currentField = Years[i];
+      const previousField = Years[i - 1];
 
       const currentValue = goal.baselineDataSeries[currentField] ?? NaN;
       const previousValue = goal.baselineDataSeries[previousField] ?? NaN;
@@ -128,7 +128,7 @@ export default function MainDeltaGraph({
     }
   } else if (effects.length > 0) {
     // If no baseline is set, use the first non-null value as baseline
-    const firstNonNull = dataSeriesDataFieldNames.find(i => goal.dataSeries && Number.isFinite(goal.dataSeries[i]));
+    const firstNonNull = Years.find(i => goal.dataSeries && Number.isFinite(goal.dataSeries[i]));
 
     if (firstNonNull) {
       // Since the baseline is a single value, it won't have any delta year-to-year, so only draw effects
@@ -159,9 +159,9 @@ export default function MainDeltaGraph({
   // Secondary goal
   if (secondaryGoal?.dataSeries) {
     const nationalSeries = [];
-    for (let i = 1; i < dataSeriesDataFieldNames.length; i++) {
-      const currentField = dataSeriesDataFieldNames[i];
-      const previousField = dataSeriesDataFieldNames[i - 1];
+    for (let i = 1; i < Years.length; i++) {
+      const currentField = Years[i];
+      const previousField = Years[i - 1];
 
       const currentValue = secondaryGoal.dataSeries[currentField] ?? NaN;
       const previousValue = secondaryGoal.dataSeries[previousField] ?? NaN;
@@ -194,9 +194,9 @@ export default function MainDeltaGraph({
   // National goal
   if (parentGoal?.dataSeries) {
     const nationalSeries = []
-    for (let i = 1; i < dataSeriesDataFieldNames.length; i++) {
-      const currentField = dataSeriesDataFieldNames[i];
-      const previousField = dataSeriesDataFieldNames[i - 1];
+    for (let i = 1; i < Years.length; i++) {
+      const currentField = Years[i];
+      const previousField = Years[i - 1];
 
       const currentValue = parentGoal.dataSeries[currentField] ?? NaN;
       const previousValue = parentGoal.dataSeries[previousField] ?? NaN;

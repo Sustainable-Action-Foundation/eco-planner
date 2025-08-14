@@ -5,12 +5,12 @@ import { isStandardObject, uuidRegex } from "@/types";
 /* 
  * Common types for recipes
  */
-export enum RecipeVariableType {
+export enum RecipeDataTypes {
   Scalar = "scalar",
   DataSeries = "dataSeries",
   External = "external",
 };
-export const RecipeVariableTypeMap = Object.fromEntries(Object.entries(RecipeVariableType).map(([key, value]) => ([value, key])));
+export const RecipeDataTypesMap = Object.fromEntries(Object.entries(RecipeDataTypes).map(([key, value]) => ([value, key])));
 
 export type DataSeriesArray = Partial<{
   "val2020": number | null;
@@ -51,7 +51,7 @@ export type DataSeriesArray = Partial<{
  * Scalar variable types
  */
 export type RecipeScalar = {
-  type: RecipeVariableType.Scalar;
+  type: RecipeDataTypes.Scalar;
   value: number;
   unit: string | null | undefined; // String if given, null if removed, undefined if not specified
 };
@@ -63,7 +63,7 @@ export function isRecipeScalar(variable: unknown): variable is RecipeScalar {
     &&
 
     "type" in variable &&
-    variable.type === RecipeVariableType.Scalar
+    variable.type === RecipeDataTypes.Scalar
     &&
 
     "value" in variable &&
@@ -88,7 +88,7 @@ export function isRecipeScalar(variable: unknown): variable is RecipeScalar {
  * Data series types
  */
 export type RecipeDataSeries = {
-  type: RecipeVariableType.DataSeries;
+  type: RecipeDataTypes.DataSeries;
   link: string | null; // uuid of data series in the database
   pick: VectorIndexPick;
 };
@@ -99,7 +99,7 @@ export function isRecipeDataSeries(variable: unknown): variable is RecipeDataSer
     &&
 
     "type" in variable &&
-    variable.type === RecipeVariableType.DataSeries
+    variable.type === RecipeDataTypes.DataSeries
     &&
 
     "link" in variable &&
@@ -122,7 +122,7 @@ export function isRecipeDataSeries(variable: unknown): variable is RecipeDataSer
  * External datasets types
  */
 export type RecipeExternalDataset = {
-  type: RecipeVariableType.External;
+  type: RecipeDataTypes.External;
   /** Datasets are defined in [`src/lib/api/utility.ts`](../../lib/api/utility.ts) */
   dataset: DatasetKeys; // One of the datasets specified in externalDatasets
   tableId: string; // The ID of the table in the dataset
@@ -141,7 +141,7 @@ export function isRecipeExternalDataset(variable: unknown): variable is RecipeEx
     &&
 
     "type" in variable &&
-    variable.type === RecipeVariableType.External
+    variable.type === RecipeDataTypes.External
     &&
 
     "dataset" in variable &&
@@ -184,10 +184,11 @@ export function isRecipeExternalDataset(variable: unknown): variable is RecipeEx
 /* 
  * Main recipe types
  */
+export type RecipeVariables = RecipeScalar | RecipeDataSeries | RecipeExternalDataset;
 export type Recipe = {
   name: string | null | undefined; // String if given, null if removed, undefined if not specified
   eq: string;
-  variables: Record<string, RecipeScalar | RecipeDataSeries | RecipeExternalDataset>;
+  variables: Record<string, RecipeVariables>;
 };
 
 export function isRecipe(variable: unknown): variable is Recipe {

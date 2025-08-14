@@ -1,7 +1,7 @@
-import { dataSeriesDataFieldNames } from "@/types";
+import { Years } from "@/types";
 
 // The amount of years in the data series
-const dataSeriesLength = dataSeriesDataFieldNames.length
+const dataSeriesLength = Years.length
 /**
  * This matches 0 to `dataSeriesLength` numbers separated by tabs or semicolons, with an optional decimal part.
  * The first position represents the value for the first year (currently 2020), and any number in the `dataSeriesLength`:th position

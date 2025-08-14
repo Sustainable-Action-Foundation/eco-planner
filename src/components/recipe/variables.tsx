@@ -1,6 +1,6 @@
 "use client";
 
-import { isRecipeDataSeries, RecipeDataSeries, Recipe, RawRecipeVariables, RecipeExternalDataset, RecipeScalar, RecipeVariableType, RecipeVariableTypeMap } from "@/functions/recipe-parser/types";
+import { RecipeVariables, RecipeDataTypes, RecipeDataTypesMap, isRecipeDataSeries, RecipeDataSeries, RecipeScalar, RecipeExternalDataset } from "@/functions/recipe-parser/types";
 import { IconTrash } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import React from "react";
@@ -31,14 +31,14 @@ function CommonVariable({
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
-  const variable = recipe?.variables[name] as RawRecipeVariables;
+  const variable = recipe?.variables[name] as RecipeVariables;
 
   rules = { ...defaultInputRules, ...rules };
 
   function handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
     setRecipe(prev => {
       if (!prev) return null;
-      const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+      const newVariables: Record<string, RecipeVariables> = { ...prev.variables };
       const currentVar = newVariables[name];
       if (currentVar) {
         newVariables[e.target.value] = { ...currentVar };
@@ -51,10 +51,10 @@ function CommonVariable({
   function handleTypeChange(e: React.ChangeEvent<HTMLSelectElement>) {
     setRecipe(prev => {
       if (!prev) return null;
-      const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+      const newVariables: Record<string, RecipeVariables> = { ...prev.variables };
       const currentVar = newVariables[name];
-      if (currentVar && e.target.value && RecipeVariableTypeMap[e.target.value]) {
-        newVariables[name] = { ...currentVar, type: RecipeVariableTypeMap[e.target.value] } as RawRecipeVariables;
+      if (currentVar && e.target.value && RecipeDataTypesMap[e.target.value]) {
+        newVariables[name] = { ...currentVar, type: RecipeDataTypesMap[e.target.value] } as RecipeVariables;
       }
       return { ...prev, variables: newVariables };
     });
@@ -63,10 +63,10 @@ function CommonVariable({
   function handleUnitChange(e: React.ChangeEvent<HTMLInputElement>) {
     setRecipe(prev => {
       if (!prev) return null;
-      const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+      const newVariables: Record<string, RecipeVariables> = { ...prev.variables };
       const currentVar = newVariables[name];
       if (currentVar && e.target.value) {
-        if (currentVar.type === RecipeVariableType.DataSeries && isRecipeDataSeries(currentVar)) {
+        if (currentVar.type === RecipeDataTypes.DataSeries && isRecipeDataSeries(currentVar)) {
           newVariables[name] = { ...currentVar, dataSeries: { ...currentVar.dataSeries, unit: e.target.value } } as RecipeDataSeries;
         }
       }
@@ -77,7 +77,7 @@ function CommonVariable({
   function handleDelete() {
     setRecipe(prev => {
       if (!prev) return null;
-      const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+      const newVariables: Record<string, RecipeVariables> = { ...prev.variables };
       delete newVariables[name];
       return { ...prev, variables: newVariables };
     });
@@ -105,9 +105,9 @@ function CommonVariable({
       onChange={handleTypeChange}
       disabled={!rules.allowTypeEditing}
     >
-      <option value={RecipeVariableType.DataSeries}>{t("components:recipe_editor.data_series")}</option>
-      <option value={RecipeVariableType.External}>{t("components:recipe_editor.external_data")}</option>
-      <option value={RecipeVariableType.Scalar}>{t("components:recipe_editor.scalar")}</option>
+      <option value={RecipeDataTypes.DataSeries}>{t("components:recipe_editor.data_series")}</option>
+      <option value={RecipeDataTypes.External}>{t("components:recipe_editor.external_data")}</option>
+      <option value={RecipeDataTypes.Scalar}>{t("components:recipe_editor.scalar")}</option>
     </select>
 
     {/* Variable specific inputs */}
@@ -119,7 +119,7 @@ function CommonVariable({
     <input
       type="text"
       style={{ width: '10ch' }}
-      value={variable.type === RecipeVariableType.DataSeries && isRecipeDataSeries(variable) && variable.dataSeries?.unit || ""}
+      value={variable.unit}
       onChange={handleUnitChange}
       disabled={!rules.allowValueEditing}
       readOnly={!rules.allowValueEditing}
@@ -165,9 +165,9 @@ export function ScalarVariable({
     setRecipe(prev => {
       if (!prev) return null;
       const currentVar = prev.variables[name];
-      const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+      const newVariables: Record<string, RecipeVariables> = { ...prev.variables };
 
-      if (currentVar.type === RecipeVariableType.Scalar && e.target.value) {
+      if (currentVar.type === RecipeDataTypes.Scalar && e.target.value) {
         const newValue = parseFloat(e.target.value);
         if (!isNaN(newValue)) {
           newVariables[name] = { ...currentVar, value: newValue };
@@ -206,7 +206,7 @@ export function DataSeriesVariable({
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
-  const variable = recipe?.variables[name] as RawRecipeVariables;
+  const variable = recipe?.variables[name] as RecipeVariables;
 
   if (!isRecipeDataSeries(variable)) {
     console.error(`Variable "${name}" is not a valid DataSeriesVariable`, variable);
@@ -218,7 +218,7 @@ export function DataSeriesVariable({
   function handleRoadmapChange(e: React.ChangeEvent<HTMLSelectElement>) {
     setRecipe(prev => {
       if (!prev) return null;
-      const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+      const newVariables: Record<string, RecipeVariables> = { ...prev.variables };
       const currentVar = newVariables[name];
       if (currentVar && e.target.value) {
         const selectedRoadmap = availableRoadmaps.find(r => r.id === e.target.value);
@@ -236,7 +236,7 @@ export function DataSeriesVariable({
   function handleDataSeriesChange(e: React.ChangeEvent<HTMLSelectElement>) {
     setRecipe(prev => {
       if (!prev) return null;
-      const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+      const newVariables: Record<string, RecipeVariables> = { ...prev.variables };
       const currentVar = newVariables[name];
       if (currentVar && e.target.value) {
         const selectedDataSeries = availableDataSeries.find(ds => ds.id === e.target.value);
@@ -309,7 +309,7 @@ export function ExternalVariable({
   function handleDatasetChange(e: React.ChangeEvent<HTMLSelectElement>) {
     setRecipe(prev => {
       if (!prev) return null;
-      const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+      const newVariables: Record<string, RecipeVariables> = { ...prev.variables };
       const currentVar = newVariables[name];
       if (currentVar && e.target.value) {
         newVariables[name] = {
@@ -324,7 +324,7 @@ export function ExternalVariable({
   function handleTableChange(e: React.ChangeEvent<HTMLSelectElement>) {
     setRecipe(prev => {
       if (!prev) return null;
-      const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+      const newVariables: Record<string, RecipeVariables> = { ...prev.variables };
       const currentVar = newVariables[name];
       if (currentVar && e.target.value) {
         newVariables[name] = {
@@ -339,7 +339,7 @@ export function ExternalVariable({
   function handleSelectionChange(e: React.ChangeEvent<HTMLInputElement>) {
     setRecipe(prev => {
       if (!prev) return null;
-      const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+      const newVariables: Record<string, RecipeVariables> = { ...prev.variables };
       const currentVar = newVariables[name];
       if (currentVar && e.target.value) {
         try {
