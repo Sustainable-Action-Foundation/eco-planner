@@ -48,7 +48,7 @@ function getRandomCreatedAtAndUpdatedAt(): [Date, Date] {
 }
 
 function getRandomUnit() {
-  return ['CO2e', 'capita', 'kWh', 's', 'mm^2/km*s', 'ps/sqrt(km)', 'ps/km^(1/2)', 'm3', 'kg', 'ton', 'Atemp', null, '', null, undefined, null, '', ""].sort(() => Math.random() - 0.5).at(0) ?? null;
+  return ['CO2e', 'capita', 'kWh', 's', 'mm^2/km*s', 'ps/sqrt(km)', 'ps/km^0.5', 'm3', 'kg', 'ton', 'Atemp', null, '', null, undefined, null, '', ""].sort(() => Math.random() - 0.5).at(0) ?? null;
 }
 
 function getRandomCoherentDataPoints(): Partial<Record<typeof dataSeriesDataFieldNames[number], number>> {
