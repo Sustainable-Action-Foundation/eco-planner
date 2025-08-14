@@ -1,7 +1,7 @@
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import GoalForm from "@/components/forms/goalForm/goalForm";
-import accessChecker from "@/lib/accessChecker";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { notFound } from "next/navigation";
 import getOneGoal from "@/fetchers/getOneGoal";
 import { AccessControlled, AccessLevel } from "@/types";
@@ -60,7 +60,7 @@ export default async function Page(props: { params: Promise<{ goalId: string }> 
     return notFound();
   }
 
-  const roadmapList = roadmaps.filter((roadmap) => [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin].includes(accessChecker(roadmap, session.user)));
+  const roadmapList = roadmaps.filter((roadmap) => hasEditAccess(accessChecker(roadmap, session.user)));
 
   return (
     <>

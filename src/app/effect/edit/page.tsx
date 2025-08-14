@@ -1,16 +1,13 @@
 import EffectForm from "@/components/forms/effectForm/effectForm.tsx";
 import getOneEffect from "@/fetchers/getOneEffect.ts";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
-import accessChecker from "@/lib/accessChecker.ts";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker.ts";
 import { getSession } from "@/lib/session.ts";
-import { AccessLevel } from "@/types.ts";
 import { cookies } from "next/headers";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconInfoCircle } from "@tabler/icons-react";
-
-const editAccess = [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin];
 
 export async function generateMetadata(
   props: {
@@ -78,7 +75,7 @@ export default async function Page(
     getRoadmaps(),
   ]);
 
-  if (effect == undefined || !editAccess.includes(accessChecker(effect.action.roadmap, session.user)) || !editAccess.includes(accessChecker(effect.goal.roadmap, session.user))) {
+  if (effect == undefined || !hasEditAccess(accessChecker(effect.action.roadmap, session.user)) || !hasEditAccess(accessChecker(effect.goal.roadmap, session.user))) {
     return (
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
@@ -92,7 +89,7 @@ export default async function Page(
     )
   }
 
-  const roadmapList = roadmaps.filter((roadmap) => editAccess.includes(accessChecker(roadmap, session.user)));
+  const roadmapList = roadmaps.filter((roadmap) => hasEditAccess(accessChecker(roadmap, session.user)));
 
   return (
     <>

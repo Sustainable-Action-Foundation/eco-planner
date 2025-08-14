@@ -2,9 +2,8 @@ import EffectForm from "@/components/forms/effectForm/effectForm.tsx"
 import getOneAction from "@/fetchers/getOneAction.ts";
 import getOneGoal from "@/fetchers/getOneGoal.ts";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
-import accessChecker from "@/lib/accessChecker.ts";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker.ts";
 import { getSession } from "@/lib/session.ts";
-import { AccessLevel } from "@/types.ts";
 import { cookies } from "next/headers";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
@@ -42,15 +41,15 @@ export default async function Page(
 
   const badAction = (
     (!action && typeof searchParams.actionId == 'string') ||
-    (action && !([AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin].includes(accessChecker(action.roadmap, session.user))))
+    (action && !hasEditAccess(accessChecker(action.roadmap, session.user)))
   );
 
   const badGoal = (
     (!goal && typeof searchParams.goalId == 'string') ||
-    (goal && !([AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin].includes(accessChecker(goal.roadmap, session.user))))
+    (goal && !hasEditAccess(accessChecker(goal.roadmap, session.user)))
   );
 
-  const roadmapList = roadmaps.filter((roadmap) => [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin].includes(accessChecker(roadmap, session.user)));
+  const roadmapList = roadmaps.filter((roadmap) => hasEditAccess(accessChecker(roadmap, session.user)));
 
   return (
     <>

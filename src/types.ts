@@ -14,44 +14,49 @@ export interface AccessControlled {
   isPublic: boolean,
 };
 
-/** Enum for the different access levels returned by the accessChecker function. */
-export enum AccessLevel {
-  None = "",
-  View = "VIEW",
-  Edit = "EDIT",
-  Author = "AUTHOR",
-  Admin = "ADMIN",
-};
+/** Object and type for the different access levels returned by the accessChecker function. */
+export const AccessLevel = {
+  None: "",
+  View: "VIEW",
+  Edit: "EDIT",
+  Author: "AUTHOR",
+  Admin: "ADMIN",
+} as const;
+export type AccessLevel = (typeof AccessLevel)[keyof typeof AccessLevel];
 
-export enum ClientError {
-  AccessDenied = "You either don't have access to this entry or are trying to edit an entry that doesn't exist",
-  BadSession = "Bad session cookie; you have been logged out. Please log in and try again.",
-  IllegalParent = "You are trying to connect this object to a parent you don't have access to or that doesn't exist",
-  StaleData = "Stale data; please refresh and try again",
-};
+export const ClientError = {
+  AccessDenied: "You either don't have access to this entry or are trying to edit an entry that doesn't exist",
+  BadSession: "Bad session cookie; you have been logged out. Please log in and try again.",
+  IllegalParent: "You are trying to connect this object to a parent you don't have access to or that doesn't exist",
+  StaleData: "Stale data; please refresh and try again",
+} as const;
+export type ClientError = (typeof ClientError)[keyof typeof ClientError];
 
-/** Enum for different ways to get scalars for repeatableScaling and similar */
-export enum ScaleBy {
-  Custom = "CUSTOM",
-  Inhabitants = "INHABITANTS",
-  Area = "AREA",
-}
+/** Object and type for different ways to get scalars for repeatableScaling and similar */
+export const ScaleBy = {
+  Custom: "CUSTOM",
+  Inhabitants: "INHABITANTS",
+  Area: "AREA",
+} as const;
+export type ScaleBy = (typeof ScaleBy)[keyof typeof ScaleBy];
 
-/** Enum with the different types of sorting available for roadmaps */
-export enum RoadmapSortBy {
-  Default = "",
-  Alpha = "ALPHA",
-  AlphaReverse = "ALPHA REVERSE",
-  GoalsFalling = "HIGH FIRST",
-  GoalsRising = "LOW FIRST",
-}
+/** Object and type with the different types of sorting available for roadmaps */
+export const RoadmapSortBy = {
+  Default: "",
+  Alpha: "ALPHA",
+  AlphaReverse: "ALPHA REVERSE",
+  GoalsFalling: "HIGH FIRST",
+  GoalsRising: "LOW FIRST",
+} as const;
+export type RoadmapSortBy = (typeof RoadmapSortBy)[keyof typeof RoadmapSortBy];
 
 /** Different scaling methods used in scalingRecipie */
-export enum ScaleMethod {
-  Algebraic = "ALGEBRAIC",
-  Geometric = "GEOMETRIC",
-  Multiplicative = "MULTIPLICATIVE",
-}
+export const ScaleMethod = {
+  Algebraic: "ALGEBRAIC",
+  Geometric: "GEOMETRIC",
+  Multiplicative: "MULTIPLICATIVE",
+} as const;
+export type ScaleMethod = (typeof ScaleMethod)[keyof typeof ScaleMethod];
 
 /**
  * A type used by the breadcrumbs component to display the names of objects rather than their UUIDs.
@@ -80,20 +85,20 @@ export type GenericEntry = (
   }
 );
 
-/** Recipie containing all information needed to calculate a scale for a goal. Saved stringified in Goal.combinationScale in the db */
-export type ScalingRecipie = {
+/** Recipe containing all information needed to calculate a scale for a goal. Saved stringified in Goal.combinationScale in the db */
+export type ScalingRecipe = {
   method?: ScaleMethod,
   values: (SimpleScalingValue | AdvancedScalingValue)[]
 }
 
 export type SimpleScalingValue = {
-  type?: ScaleBy.Custom,
+  type?: typeof ScaleBy.Custom,
   value: number,
   weight?: number,
 }
 
 export type AdvancedScalingValue = {
-  type: ScaleBy.Area | ScaleBy.Inhabitants,
+  type: typeof ScaleBy.Area | typeof ScaleBy.Inhabitants,
   parentArea: string,
   childArea: string,
   weight?: number,
@@ -102,8 +107,8 @@ export type AdvancedScalingValue = {
 /** The return type of JSON.parse */
 export type JSONValue = Partial<{ [key: string]: JSONValue }> | JSONValue[] | string | number | boolean | null;
 
-export function isScalingRecipie(object: unknown): object is ScalingRecipie {
-  return (typeof object == "object" && (object as ScalingRecipie)?.values instanceof Array)
+export function isScalingRecipe(object: unknown): object is ScalingRecipe {
+  return (typeof object == "object" && (object as ScalingRecipe)?.values instanceof Array)
 }
 
 /** The format of the data needed to create new roadmap metadata. */

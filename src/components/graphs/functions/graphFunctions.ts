@@ -27,16 +27,16 @@ export function getStoredGraphType(goalId?: string) {
   return graphType;
 }
 
-/** Retrieves the graph type for gcild graphs for a goal from storage. */
-export function getStoredChildGraphType(goalId?: string) {
-  let graphType: ChildGraphType | undefined | null;
+/** Retrieves the graph type for child graphs for a goal from storage. */
+export function getStoredChildGraphType(goalId?: string): ChildGraphType {
+  let graphType: string | undefined | null;
   // Check if this goal has a stored graph type
   if (goalId) {
-    graphType = getSessionStorage(goalId + '_childGraphType') as ChildGraphType | undefined | null;
+    graphType = getSessionStorage(goalId + '_childGraphType') as string | undefined | null;
   }
   // Check if the user has a stored latest graph type if no goalId is provided or the returned graphType is invalid
   if (!graphType || !Object.values(ChildGraphType).includes(graphType as ChildGraphType)) {
-    graphType = getLocalStorage("childGraphType") as ChildGraphType | undefined | null;
+    graphType = getLocalStorage("childGraphType") as string | undefined | null;
   }
   // Default to target graph if no valid graph type is found
   if (!graphType || !Object.values(ChildGraphType).includes(graphType as ChildGraphType)) {
@@ -47,7 +47,7 @@ export function getStoredChildGraphType(goalId?: string) {
     setLocalStorage("childGraphType", ChildGraphType.Target);
     graphType = ChildGraphType.Target;
   }
-  return graphType;
+  return graphType as ChildGraphType;
 }
 
 /** Stores the graph type for a goal in storage. */

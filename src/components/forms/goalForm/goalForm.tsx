@@ -7,7 +7,7 @@ import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import formSubmitter from "@/functions/formSubmitter";
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 import mathjs from "@/math";
-import { GoalInput, ScaleBy, ScaleMethod, ScalingRecipie, dataSeriesDataFieldNames, isScalingRecipie } from "@/types";
+import { GoalInput, ScaleBy, ScaleMethod, ScalingRecipe, dataSeriesDataFieldNames, isScalingRecipe } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -57,14 +57,14 @@ export default function GoalForm({
 
   const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(!currentGoal?.combinationParents.length ? DataSeriesType.Static : currentGoal.combinationParents.length >= 2 ? DataSeriesType.Combined : DataSeriesType.Inherited)
   const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baselineDataSeries ? BaselineType.Custom : BaselineType.Initial)
-  const [scalingRecipie, setScalingRecipe] = useState<ScalingRecipie>({ values: [] });
+  const [scalingRecipie, setScalingRecipe] = useState<ScalingRecipe>({ values: [] });
   const [scalingResult, setScalingResult] = useState<number | null>(null);
   const [selectedRoadmap, setSelectedRoadmap] = useState<string>(currentGoal?.roadmapId || roadmapId || "");
 
   useEffect(() => {
     try {
       const parsed = JSON.parse(currentGoal?.combinationScale ?? "")
-      if (isScalingRecipie(parsed)) {
+      if (isScalingRecipe(parsed)) {
         setScalingRecipe(parsed)
       } else if (typeof parsed == "number") {
         setScalingRecipe({ method: ScaleMethod.Geometric, values: [{ value: parsed, weight: 1 }] })

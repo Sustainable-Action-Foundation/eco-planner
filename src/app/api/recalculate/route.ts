@@ -1,8 +1,8 @@
 import { recalculateGoal } from "@/functions/recalculateGoal";
-import accessChecker from "@/lib/accessChecker";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
-import { AccessControlled, AccessLevel, ClientError } from "@/types";
+import { AccessControlled, ClientError } from "@/types";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
       isPublic: goal.roadmap.isPublic,
     }
     const accessLevel = accessChecker(accessFields, session.user);
-    if (![AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) {
+    if (!hasEditAccess(accessLevel)) {
       throw new Error(ClientError.AccessDenied)
     }
 

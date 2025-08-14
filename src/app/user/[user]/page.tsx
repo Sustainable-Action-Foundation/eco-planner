@@ -4,9 +4,8 @@ import { TableMenu } from '@/components/tables/tableMenu/tableMenu';
 import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
 import getRoadmaps from '@/fetchers/getRoadmaps';
 import getUserInfo from '@/fetchers/getUserInfo';
-import accessChecker from '@/lib/accessChecker';
+import accessChecker, { hasEditAccess } from '@/lib/accessChecker';
 import { getSession } from '@/lib/session';
-import { AccessLevel } from '@/types';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import styles from './page.module.css' with { type: "css" }
@@ -70,10 +69,8 @@ export default async function Page(
     (session.user?.username === username) ? getMetaRoadmaps() : []
   ]);
 
-  const editAccess = [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin];
-
-  const editableMetaRoadmaps = metaRoadmaps.filter(metaRoadmap => editAccess.includes(accessChecker(metaRoadmap, session.user)));
-  const editableRoadmaps = roadmaps.filter(roadmap => editAccess.includes(accessChecker(roadmap, session.user)));
+  const editableMetaRoadmaps = metaRoadmaps.filter(metaRoadmap => hasEditAccess(accessChecker(metaRoadmap, session.user)));
+  const editableRoadmaps = roadmaps.filter(roadmap => hasEditAccess(accessChecker(roadmap, session.user)));
 
   // Get query params for filtering
   const objectsFilter = searchParams['objects'] ? (Array.isArray(searchParams['objects']) ? searchParams['objects'] : [searchParams['objects']]) : [];

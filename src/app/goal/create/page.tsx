@@ -2,8 +2,7 @@ import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import GoalForm from "@/components/forms/goalForm/goalForm";
 import getOneRoadmap from "@/fetchers/getOneRoadmap";
-import accessChecker from "@/lib/accessChecker";
-import { AccessLevel } from "@/types";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
@@ -40,10 +39,10 @@ export default async function Page(
   // Ignore the roadmap (and inform user) if it is not found or the user does not have edit access
   const badRoadmap = (
     (!roadmap && typeof searchParams.roadmapId == 'string') ||
-    (roadmap && !([AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin].includes(accessChecker(roadmap, session.user))))
+    (roadmap && !hasEditAccess(accessChecker(roadmap, session.user)))
   );
 
-  const filteredRoadmaps = roadmapList.filter((roadmap) => [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin].includes(accessChecker(roadmap, session.user)));
+  const filteredRoadmaps = roadmapList.filter((roadmap) => hasEditAccess(accessChecker(roadmap, session.user)));
 
   return (
     <>
@@ -54,7 +53,7 @@ export default async function Page(
         </h1>
         {badRoadmap &&
           <p style={{ color: 'red' }}>
-            <IconInfoCircle role="img" aria-label={t("pages:goal_create.information_icon_aria")}/>
+            <IconInfoCircle role="img" aria-label={t("pages:goal_create.information_icon_aria")} />
             {t("pages:goal_create.bad_roadmap")}
           </p>
         }

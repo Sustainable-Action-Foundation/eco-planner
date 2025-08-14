@@ -9,6 +9,7 @@ import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
 import { useTranslation } from "react-i18next";
 import { IconArrowBackUp, IconDotsVertical, IconEdit, IconPlus, IconTrashXFilled, IconX } from "@tabler/icons-react";
+import { hasEditAccess } from '@/lib/accessChecker';
 
 // General purpose button for roadmaps, goals and actions. 
 // Update the name of the component to reflect this
@@ -196,7 +197,7 @@ export function TableMenu(
               <IconArrowBackUp aria-hidden="true" style={{ minWidth: '24px' }} />
             </Link>
           }
-          {[AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel ?? AccessLevel.None) ?
+          {hasEditAccess(accessLevel ?? AccessLevel.None) ?
             <>
               {creationLink &&
                 <Link href={creationLink} className={styles.menuAction}>

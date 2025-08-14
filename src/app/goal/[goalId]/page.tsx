@@ -15,7 +15,7 @@ import getOneRoadmap from "@/fetchers/getOneRoadmap";
 import getRoadmapByVersion from "@/fetchers/getRoadmapByVersion";
 import getRoadmaps from "@/fetchers/getRoadmaps";
 import findSiblings from "@/functions/findSiblings.ts";
-import accessChecker from "@/lib/accessChecker";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import { getSession } from "@/lib/session";
 import serveTea from "@/lib/i18nServer";
@@ -258,7 +258,7 @@ export default async function Page(
             {goal.dataSeries?.scale &&
               <>
                 <p>{t("pages:goal.scale_notice", { scale: goal.dataSeries?.scale })}</p>
-                {[AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel) &&
+                {hasEditAccess(accessLevel) &&
                   <strong>{t("pages:goal.scale_deprecation_warning")}</strong>
                 }
               </>
@@ -273,7 +273,7 @@ export default async function Page(
                 {t("pages:goal.actions_for_goal", { goalName: goal.name ? goal.name : goal.indicatorParameter })}
               </h3>
 
-              {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
+              {hasEditAccess(accessLevel) &&
                 <menu className="margin-0 padding-0 flex justify-content-flex-end gap-25">
                   <Link
                     href={`/effect/create?goalId=${goal.id}`}

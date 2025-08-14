@@ -1,9 +1,9 @@
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import ActionForm from "@/components/forms/actionForm/actionForm";
-import accessChecker from "@/lib/accessChecker";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import getOneGoal from "@/fetchers/getOneGoal";
-import { AccessControlled, AccessLevel } from "@/types";
+import { AccessControlled } from "@/types";
 import getOneRoadmap from "@/fetchers/getOneRoadmap";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
@@ -55,15 +55,15 @@ export default async function Page(
   // Ignore the goal or roadmap (and inform user) if they are not found or the user does not have edit access
   const badGoal = (
     (!goal && typeof searchParams.goalId == 'string') ||
-    (goal && !([AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin].includes(accessChecker(goalAccessData, session.user))))
+    (goal && !hasEditAccess(accessChecker(goalAccessData, session.user)))
   );
   const badRoadmap = (
     (!roadmap && typeof searchParams.roadmapId == 'string') ||
-    (roadmap && !([AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin].includes(accessChecker(roadmap, session.user))))
+    (roadmap && !hasEditAccess(accessChecker(roadmap, session.user)))
   );
 
   // The roadmaps the user can choose to add the action to (the ones they have edit access to)
-  const availableRoadmaps = roadmapList.filter((roadmap) => [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin].includes(accessChecker(roadmap, session.user)));
+  const availableRoadmaps = roadmapList.filter((roadmap) => hasEditAccess(accessChecker(roadmap, session.user)));
 
   return (
     <>

@@ -1,8 +1,8 @@
 import dataSeriesPrep from "@/app/api/goal/dataSeriesPrep";
-import accessChecker from "@/lib/accessChecker";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
-import { AccessLevel, ClientError, DataSeriesDataFields, EffectInput, JSONValue } from "@/types";
+import { ClientError, DataSeriesDataFields, EffectInput, JSONValue } from "@/types";
 import { ActionImpactType, Prisma } from "@prisma/client";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
@@ -22,15 +22,15 @@ export async function POST(request: NextRequest) {
     return (
       // effect should be an object
       (// impactType may be included, and should in that case be one of the values in ActionImpactType
-      typeof effect === 'object' &&
-      effect != null &&
-      !(effect instanceof Array) &&
-      // actionId and goalId should be strings
-      typeof effect.actionId === 'string' &&
-      typeof effect.goalId === 'string' &&
-      // dataSeries should be an array of strings
-      effect.dataSeries instanceof Array &&
-      effect.dataSeries.every((value) => typeof value === 'string') && (effect.impactType === undefined || Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType)))
+        typeof effect === 'object' &&
+        effect != null &&
+        !(effect instanceof Array) &&
+        // actionId and goalId should be strings
+        typeof effect.actionId === 'string' &&
+        typeof effect.goalId === 'string' &&
+        // dataSeries should be an array of strings
+        effect.dataSeries instanceof Array &&
+        effect.dataSeries.every((value) => typeof value === 'string') && (effect.impactType === undefined || Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType)))
     );
   }
 
@@ -98,9 +98,7 @@ export async function POST(request: NextRequest) {
     const actionAccess = accessChecker(action.roadmap, session.user);
     const goalAccess = accessChecker(goal.roadmap, session.user);
 
-    const allowedAccessLevels = [AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit];
-
-    if (!allowedAccessLevels.includes(actionAccess) || !allowedAccessLevels.includes(goalAccess)) {
+    if (!hasEditAccess(actionAccess) || !hasEditAccess(goalAccess)) {
       throw new Error(ClientError.IllegalParent, { cause: 'effect' });
     }
   } catch (error) {
@@ -188,22 +186,22 @@ export async function PUT(request: NextRequest) {
     return (
       // effect should be an object
       (typeof effect === 'object' &&
-      effect != null &&
-      !(effect instanceof Array) &&
-      // actionId and goalId should be strings
-      typeof effect.actionId === 'string' &&
-      typeof effect.goalId === 'string' &&
-      // dataSeries should be either undefined or an array of strings
-      (
-        effect.dataSeries === undefined ||
+        effect != null &&
+        !(effect instanceof Array) &&
+        // actionId and goalId should be strings
+        typeof effect.actionId === 'string' &&
+        typeof effect.goalId === 'string' &&
+        // dataSeries should be either undefined or an array of strings
         (
-          effect.dataSeries instanceof Array &&
-          effect.dataSeries.every((value) => typeof value === 'string')
-        )
-      ) &&
-      // impactType may be included, and should in that case be one of the values in ActionImpactType
-      (effect.impactType === undefined || Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType)) && // timestamp should be a number
-      typeof effect.timestamp === 'number')
+          effect.dataSeries === undefined ||
+          (
+            effect.dataSeries instanceof Array &&
+            effect.dataSeries.every((value) => typeof value === 'string')
+          )
+        ) &&
+        // impactType may be included, and should in that case be one of the values in ActionImpactType
+        (effect.impactType === undefined || Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType)) && // timestamp should be a number
+        typeof effect.timestamp === 'number')
     );
   }
 
@@ -275,9 +273,7 @@ export async function PUT(request: NextRequest) {
     const actionAccess = accessChecker(currentEffect.action.roadmap, session.user);
     const goalAccess = accessChecker(currentEffect.goal.roadmap, session.user);
 
-    const allowedAccessLevels = [AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit];
-
-    if (!allowedAccessLevels.includes(actionAccess) || !allowedAccessLevels.includes(goalAccess)) {
+    if (!hasEditAccess(actionAccess) || !hasEditAccess(goalAccess)) {
       throw new Error(ClientError.AccessDenied, { cause: 'effect' });
     }
 
@@ -375,10 +371,10 @@ export async function DELETE(request: NextRequest) {
     return (
       // effect should be an object
       (typeof effect === 'object' &&
-      effect != null &&
-      !(effect instanceof Array) &&
-      // actionId and goalId should be strings
-      typeof effect.actionId === 'string' && typeof effect.goalId === 'string')
+        effect != null &&
+        !(effect instanceof Array) &&
+        // actionId and goalId should be strings
+        typeof effect.actionId === 'string' && typeof effect.goalId === 'string')
     );
   }
 

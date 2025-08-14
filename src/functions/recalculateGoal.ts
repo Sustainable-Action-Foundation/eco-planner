@@ -1,6 +1,6 @@
 import scbAreaQuery from "@/lib/scbAreaQuery";
 import scbPopulationQuery from "@/lib/scbPopulationQuery";
-import { AdvancedScalingValue, dataSeriesDataFieldNames, DataSeriesDataFields, isScalingRecipie, ScaleBy, ScaleMethod, SimpleScalingValue } from "@/types";
+import { AdvancedScalingValue, dataSeriesDataFieldNames, DataSeriesDataFields, isScalingRecipe, ScaleBy, ScaleMethod, SimpleScalingValue } from "@/types";
 import { DataSeries } from "@prisma/client";
 
 /** Returns area of childArea / area of parentArea, or 1 if either is not found */
@@ -84,7 +84,7 @@ export async function recalculateGoal(goal: {
       scaleFactor = combinationScale;
     }
     // Otherwise, find each individual value and then calculate scale factor depending on method
-    else if (isScalingRecipie(combinationScale) && combinationScale.values.length > 0) {
+    else if (isScalingRecipe(combinationScale) && combinationScale.values.length > 0) {
       let totalWeight: number;
       switch (combinationScale.method) {
         // Get weighted algeabraic mean of the values

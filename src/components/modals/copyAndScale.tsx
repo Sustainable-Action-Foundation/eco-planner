@@ -4,7 +4,7 @@ import { DataSeries, Goal } from "@prisma/client";
 import { closeModal, openModal } from "./modalFunctions";
 import { useRef, useState } from "react";
 import RepeatableScaling from "../repeatableScaling";
-import { GoalInput, dataSeriesDataFieldNames, ScaleBy, ScaleMethod, ScalingRecipie } from "@/types";
+import { GoalInput, dataSeriesDataFieldNames, ScaleBy, ScaleMethod, ScalingRecipe } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconCircleMinus, IconX } from "@tabler/icons-react";
@@ -20,7 +20,7 @@ export function getScalingResult(form: FormData, scalingMethod: ScaleMethod, set
   let totalWeight: number;
   // Index for getting parentArea and childArea for ScaleBy.Inhabitants and ScaleBy.Area
   let mutableScalarIndex: number = 0;
-  const scalingRecipie: ScalingRecipie = { values: [] }
+  const scalingRecipie: ScalingRecipe = { values: [] }
   // If the input is a single value, use it as the scale factor
   if (scalars.length == 1) {
     // If any of the inputs are files, throw. This will only happen if the user has tampered with the form, so no need to give a nice error message
@@ -223,7 +223,7 @@ export default function CopyAndScale({
       }
     }
   }
-  recalculateScalingResult();
+  void recalculateScalingResult();
 
   function formSubmission(form: FormData) {
     setIsLoading(true);
@@ -292,7 +292,7 @@ export default function CopyAndScale({
           <h2 className="margin-0">{t("components:copy_and_scale.title", { goalName: goal.name })}</h2>
         </div>
 
-        <form action={formSubmission} name="copyAndScale" onChange={recalculateScalingResult}>
+        <form action={formSubmission} name="copyAndScale" onChange={void recalculateScalingResult}>
 
           <label className="block margin-block-100">
             {t("components:copy_and_scale.select_roadmap_version")}
@@ -308,7 +308,7 @@ export default function CopyAndScale({
             {scalingComponents.map((id) => {
               return (
                 <RepeatableScaling key={id} useWeight={scalingMethod != ScaleMethod.Multiplicative}> {/* Multiplicative scaling doesn't use weights */}
-                  <button 
+                  <button
                     type="button"
                     style={{
                       position: 'absolute',
@@ -320,10 +320,10 @@ export default function CopyAndScale({
                       borderRadius: '100%',
                       display: 'grid',
                       cursor: 'pointer'
-                    }} 
+                    }}
                     aria-label={t("components:copy_and_scale.remove_scaling")}
                     onClick={() => setScalingComponents(scalingComponents.filter((i) => i !== id))}
-                  >  
+                  >
                     <IconCircleMinus aria-hidden="true" />
                   </button>
                 </RepeatableScaling>
