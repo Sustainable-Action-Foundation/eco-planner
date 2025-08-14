@@ -301,9 +301,6 @@ export function RecipeVariableEditor({
             default:
               variable = variable as RawRecipeVariables;
               console.warn("Unknown variable type", variable.type, "for variable", name);
-            // return <li key={i} style={{ color: 'red' }}>
-            //   {t("components:recipe_editor.unknown_variable_type", { type: variable.type, name })}
-            // </li>;
           }
         })}
       </ul>
@@ -313,7 +310,7 @@ export function RecipeVariableEditor({
         <button type="button" onClick={() => {
           const newVarName = `var${Object.keys(recipe?.variables || []).length + 1}`;
           setRecipe(prev => {
-            if (!prev) return null;
+            if (!prev) return { eq: "", variables: { [newVarName]: { type: RecipeVariableType.Scalar, value: 1 } } };
             return {
               ...prev,
               variables: {
@@ -358,7 +355,7 @@ export function RecipeErrorAndWarnings() {
   </>);
 }
 
-export function DEBUG_Recipe(){
+export function DEBUG_Recipe() {
   return <pre>
     {JSON.stringify(useRecipe(), null, 2)}
   </pre>

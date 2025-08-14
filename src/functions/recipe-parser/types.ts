@@ -209,13 +209,19 @@ export type RawRecipe = {
 export type EvalTimeScalar = {
   name: string; // Variable name
   value: number; // The actual value to be used
-  unit?: string; // Optional unit
+  unit?: string | null; // Optional unit
 };
 export type EvalTimeDataSeries = {
   name: string; // Variable name
   link: string; // For reference sake
   data: { [key: string]: number | string | null }; // The actual data to be used
-  unit?: string | null; // Optional unit
+  unit?: string | null;
+};
+export type EvalTimeExternalDataset = {
+  name: string; // Variable name
+  scalar?: number;
+  vector?: number[];
+  unit?: string | null;
 };
 
 

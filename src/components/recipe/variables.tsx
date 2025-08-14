@@ -60,6 +60,20 @@ function CommonVariable({
     });
   }
 
+  function handleUnitChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setRecipe(prev => {
+      if (!prev) return null;
+      const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+      const currentVar = newVariables[name];
+      if (currentVar && e.target.value) {
+        if (currentVar.type === RecipeVariableType.DataSeries && lenientIsRawDataSeriesByLink(currentVar)) {
+          newVariables[name] = { ...currentVar, dataSeries: { ...currentVar.dataSeries, unit: e.target.value } } as RawDataSeriesByLink;
+        }
+      }
+      return { ...prev, variables: newVariables };
+    });
+  }
+
   function handleDelete() {
     setRecipe(prev => {
       if (!prev) return null;
@@ -71,6 +85,7 @@ function CommonVariable({
 
   return <li style={{
     display: 'flex',
+    flexFlow: 'row nowrap',
     columnGap: '1ch',
   }}>
     {/* Variable name */}
@@ -101,7 +116,15 @@ function CommonVariable({
     </div>
 
     {/* Unit */}
-    <input defaultValue={variable.type === RecipeVariableType.DataSeries && lenientIsRawDataSeriesByLink(variable) && variable.dataSeries?.unit || ""} type="text" placeholder={t("components:recipe_editor.unit_placeholder")} style={{ width: '10ch' }} />
+    <input
+      type="text"
+      style={{ width: '10ch' }}
+      value={variable.type === RecipeVariableType.DataSeries && lenientIsRawDataSeriesByLink(variable) && variable.dataSeries?.unit || ""}
+      onChange={handleUnitChange}
+      disabled={!rules.allowValueEditing}
+      readOnly={!rules.allowValueEditing}
+      placeholder={t("components:recipe_editor.unit_placeholder")}
+    />
 
     {/* Delete */}
     {rules.allowDeleteVariables &&
@@ -283,25 +306,96 @@ export function ExternalVariable({
 
   rules = { ...defaultInputRules, ...rules };
 
+  function handleDatasetChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    setRecipe(prev => {
+      if (!prev) return null;
+      const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+      const currentVar = newVariables[name];
+      if (currentVar && e.target.value) {
+        newVariables[name] = {
+          ...currentVar,
+          dataset: e.target.value,
+        } as RecipeVariableExternalDataset;
+      }
+      return { ...prev, variables: newVariables };
+    });
+  }
+
+  function handleTableChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    setRecipe(prev => {
+      if (!prev) return null;
+      const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+      const currentVar = newVariables[name];
+      if (currentVar && e.target.value) {
+        newVariables[name] = {
+          ...currentVar,
+          tableId: e.target.value,
+        } as RecipeVariableExternalDataset;
+      }
+      return { ...prev, variables: newVariables };
+    });
+  }
+
+  function handleSelectionChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setRecipe(prev => {
+      if (!prev) return null;
+      const newVariables: Record<string, RawRecipeVariables> = { ...prev.variables };
+      const currentVar = newVariables[name];
+      if (currentVar && e.target.value) {
+        try {
+          const selection = JSON.parse(e.target.value);
+          if (Array.isArray(selection)) {
+            newVariables[name] = {
+              ...currentVar,
+              selection: selection,
+            } as RecipeVariableExternalDataset;
+          } else {
+            console.error("Invalid selection format, expected an array", selection);
+          }
+        } catch (error) {
+          console.error("Failed to parse selection JSON", error);
+        }
+      }
+      return { ...prev, variables: newVariables };
+    });
+  }
+
   return <CommonVariable
     name={name}
     rules={rules}
   >
     {/* Dataset */}
-    <select disabled={!rules.allowValueEditing}>
+    <select
+      value={variable.dataset || ""}
+      disabled={!rules.allowValueEditing}
+      onChange={handleDatasetChange}
+    >
       <option value="">{t("components:recipe_editor.dataset")}</option>
+      <option value={variable.dataset}>{variable.dataset}</option>
     </select>
 
     {/* Table */}
-    <select disabled={!rules.allowValueEditing}>
+    <select
+      value={variable.tableId || ""}
+      disabled={!rules.allowValueEditing}
+      onChange={handleTableChange}
+    >
       <option value="">{t("components:recipe_editor.table")}</option>
+      <option value={variable.tableId}>{variable.tableId}</option>
     </select>
 
     {/* Selection */}
-    <input type="text" placeholder={t("components:recipe_editor.selection")} disabled={!rules.allowValueEditing} />
+    <input
+      type="text"
+      value={JSON.stringify(variable.selection) || ""}
+      disabled={!rules.allowValueEditing}
+      style={{ width: '50ch' }}
+      placeholder={t("components:recipe_editor.selection")}
+      onChange={handleSelectionChange}
+    />
 
     {/* Pick */}
-    <VectorIndexPicker />
+    <VectorIndexPicker rules={rules} />
   </CommonVariable>;
 }
 
@@ -313,10 +407,14 @@ export enum VectorIndexPickerType {
   Mean = "mean",
 }
 
-function VectorIndexPicker() {
+function VectorIndexPicker({ rules }: { rules?: InputRules }) {
   const { t } = useTranslation("components");
 
-  return <select>
+  rules = { ...defaultInputRules, ...rules };
+
+  return <select
+    disabled={!rules.allowValueEditing}
+  >
     <option value={VectorIndexPickerType.Whole}>{t("components:recipe_editor.pick_whole")}</option>
     <option value={VectorIndexPickerType.Last}>{t("components:recipe_editor.pick_last")}</option>
     <option value={VectorIndexPickerType.First}>{t("components:recipe_editor.pick_first")}</option>

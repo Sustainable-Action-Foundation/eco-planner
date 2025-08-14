@@ -1,9 +1,9 @@
 import { getVariableName } from "./recipe-parser/helpers";
-import type { DataSeriesArray, EvalTimeDataSeries, EvalTimeScalar, RecipeVariableExternalDataset, RawRecipe, Recipe, RecipeVariableDataSeries, RecipeVariables, RecipeVariableScalar } from "./recipe-parser/types";
-import { RecipeVariableType, isRawDataSeriesByValue, lenientIsRawDataSeriesByLink, isRecipeVariableScalar, MathjsError, RecipeError, isExternalDatasetVariable } from "./recipe-parser/types";
+import type { DataSeriesArray, EvalTimeDataSeries, EvalTimeScalar, RecipeVariableExternalDataset, RawRecipe, Recipe, RecipeVariableDataSeries, RecipeVariables, RecipeVariableScalar, EvalTimeExternalDataset } from "./recipe-parser/types";
+import { RecipeVariableType, isRawDataSeriesByValue, lenientIsRawDataSeriesByLink, isRecipeVariableScalar, MathjsError, RecipeError, isExternalDatasetVariable, RecipeVariableTypeMap } from "./recipe-parser/types";
 import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
 import mathjs from "@/math";
-import { dataSeriesDataFieldNames as years, isStandardObject, uuidRegex } from "@/types";
+import { dataSeriesDataFieldNames as years, isStandardObject, uuidRegex, dataSeriesDataFieldNames } from "@/types";
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import getTableContent from "@/lib/api/getTableContent";
 import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
@@ -104,7 +104,7 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
       throw new RecipeError(`Missing or invalid 'type' property in variable '${key}'.`);
     }
 
-    if (![RecipeVariableType.Scalar, RecipeVariableType.DataSeries].includes(variable.type as RecipeVariableType)) {
+    if (!RecipeVariableTypeMap[variable.type as RecipeVariableType]) {
       throw new RecipeError(`Unknown variable type '${variable.type}' in variable '${key}'.`);
     }
 
@@ -223,58 +223,10 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
   }
 
   /** 
-   * Normalize variable names
-   */
-  const renamedVariables: Record<string, RecipeVariables> = {};
-  const nameMapping: Record<string, string> = {};
-  const keys = Object.keys(parsedVariables);
-  const variableCount = keys.length;
-  for (let i = 0; i < variableCount; i++) {
-    const newName = getVariableName(i);
-
-    // If it already exists, panic
-    if (renamedVariables[newName]) {
-      throw new RecipeError(`Variable name '${newName}' already exists. This should not happen.`);
-    }
-
-    const oldName = keys[i];
-    const variable = parsedVariables[oldName];
-
-    renamedVariables[newName] = variable;
-    nameMapping[oldName] = newName;
-  }
-  // Sanity checks
-  if (Object.keys(nameMapping).length === 0) {
-    throw new RecipeError("No valid variables found in the recipe after renaming.");
-  }
-  if (Object.keys(renamedVariables).length === 0) {
-    throw new RecipeError("No valid variables found in the recipe after renaming.");
-  }
-
-  /** 
-   * Replace variable names in the equation
-   */
-  let transformingEquation = rawRecipe.eq.trim();
-  for (const [oldName, newName] of Object.entries(nameMapping)) {
-    const split = transformingEquation.split(`\${${oldName}}`);
-    if (split.length < 2) {
-      // TODO - decide level of strictness here
-      console.warn(`Variable '${oldName}' not found in the equation. This may be due to a variable not being used in the equation.`);
-      // throw new RecipeError(`Variable '${oldName}' not found in the equation.`);
-    }
-    transformingEquation = split.join(`\${${newName}}`);
-  }
-  const renamedEquation = transformingEquation;
-  // Sanity check
-  if (!renamedEquation) {
-    throw new RecipeError("Recipe equation is empty after renaming variables.");
-  }
-
-  /** 
    * Return the parsed recipe
    */
-  parsedRecipe.eq = renamedEquation;
-  parsedRecipe.variables = renamedVariables;
+  parsedRecipe.eq = rawRecipe.eq.trim();
+  parsedRecipe.variables = parsedVariables;
   return parsedRecipe;
 }
 
@@ -293,14 +245,16 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
    * Extract variables
    */
   const scalars: EvalTimeScalar[] = Object.entries(recipe.variables)
-    .filter(([, variable]) => variable.type === "scalar")
+    .filter(([, variable]) => variable.type === RecipeVariableType.Scalar)
+    .filter(([, variable]) => isRecipeVariableScalar(variable))
     .map(([name, variable]) => {
       const { value, unit } = variable as RecipeVariableScalar;
       return { name, value, unit };
     });
 
   const dataSeries: EvalTimeDataSeries[] = await Promise.all(Object.entries(recipe.variables)
-    .filter(([, variable]) => variable.type === "dataSeries")
+    .filter(([, variable]) => variable.type === RecipeVariableType.DataSeries)
+    .filter(([, variable]) => isRawDataSeriesByValue(variable) || lenientIsRawDataSeriesByLink(variable))
     .map(async ([name, variable]) => {
       const { link } = variable as RecipeVariableDataSeries;
 
@@ -322,30 +276,79 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
       return { name, link, data, unit: dbDataSeries.unit };
     }));
 
-  const externalDataPromises = Object.entries(recipe.variables)
-    .filter(([_name, variable]) => variable.type === "external")
-    .map(([_name, variable]) => {
-      const { dataset, tableId, selection } = variable as RecipeVariableExternalDataset;
-      // TODO: use same language as error messages after i18n pass
-      return getTableContent(tableId, dataset, selection, undefined);
-    })
-  const awaitedExternalData = await Promise.all(externalDataPromises)
-  const externalData: (ApiTableContent & { name: string, type?: "matrix" | "scalar" })[] = Object.entries(recipe.variables)
-    .filter(([_name, variable]) => variable.type === "external")
-    .map(([name, variable], i) => {
-      const data = awaitedExternalData[i];
+  const externalData: EvalTimeExternalDataset[] = (await Promise.all(Object.entries(recipe.variables)
+    .filter(([, variable]) => variable.type === RecipeVariableType.External)
+    .map(([name, variable]) => {
+      variable = variable as RecipeVariableExternalDataset;
+
+      const { dataset, tableId, selection } = variable;
+      if (!dataset || !tableId) {
+        throw new RecipeError(`External dataset variable '${name}' is missing 'dataset' or 'tableId' property.`);
+      }
+
+      return (async () => ({
+        name,
+        data: await getTableContent(tableId, dataset, selection, undefined),
+      }))();
+    })))
+    .map(({ name, data }) => {
       if (!data) {
-        throw new RecipeError(`Failed to fetch external data for variable '${name}'.`);
+        throw new RecipeError(`External dataset variable '${name}' has no data.`);
       }
-      return {
-        name: name,
-        // TODO: determine type based on user input
-        type: undefined,
-        id: data.id,
-        values: data.values,
-        metadata: data.metadata,
+
+      // If vector
+      if (data.values.length > 0) {
+        // Pad the vector to match the years
+        const lastYear = data.values[data.values.length - 1].period;
+        const length = dataSeriesDataFieldNames.findIndex(year => year === `val${lastYear}`);
+        if (length === -1) {
+          throw new RecipeError(`External dataset variable '${name}' has invalid period '${lastYear}'. Expected one of ${dataSeriesDataFieldNames.join(", ")}.`);
+        }
+
+        const paddedVectorForm: number[] = new Array(length).fill(0);
+        for (const { period, value } of data.values) {
+          const yearIndex = dataSeriesDataFieldNames.findIndex(year => year === `val${period}`);
+          if (yearIndex === -1) {
+            throw new RecipeError(`External dataset variable '${name}' has invalid period '${period}'. Expected one of ${dataSeriesDataFieldNames.join(", ")}.`);
+          }
+          const numericValue = parseFloat(value);
+          if (isNaN(numericValue) || !Number.isFinite(numericValue)) {
+            throw new RecipeError(`External dataset variable '${name}' has invalid value '${value}' for period '${period}': expected a finite number, got ${value}`);
+          }
+          paddedVectorForm[yearIndex] = numericValue;
+        }
+
+        return {
+          name,
+          vector: paddedVectorForm,
+        } as EvalTimeExternalDataset;
       }
-    })
+
+      // If scalar (comes as a single value in an array)
+      if (data.values.length === 0) {
+        const value = data.values[0];
+
+        if (!value || !value.period || !value.value) {
+          throw new RecipeError(`External dataset variable '${name}' has no valid values. Expected an array of values with 'period' and 'value' properties.`);
+        }
+        const numericValue = parseFloat(value.value);
+        if (isNaN(numericValue) || !Number.isFinite(numericValue)) {
+          throw new RecipeError(`External dataset variable '${name}' has invalid value '${value.value}' for period '${value.period}': expected a finite number, got ${value.value}`);
+        }
+
+        if (!dataSeriesDataFieldNames.includes(`val${value.period}` as typeof dataSeriesDataFieldNames[number])) {
+          throw new RecipeError(`External dataset variable '${name}' has invalid period '${value.period}'. Expected one of ${dataSeriesDataFieldNames.join(", ")}.`);
+        }
+
+        return {
+          name,
+          scalar: numericValue,
+        }
+      }
+
+      // Else
+      throw new RecipeError(`External dataset variable '${name}' has no valid values. Expected an array of values with 'period' and 'value' properties.`);
+    });
 
   /**
    * Sanity checks on variables
@@ -362,13 +365,16 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
   // Add scalars to scope
   for (const scalar of scalars) {
     const varName = scalar.name.replace(/\s+/g, "_");
-    scope[varName] = scalar.unit ? mathjs.unit(scalar.value, scalar.unit) : scalar.value;
     equation = equation.replaceAll(`\${${scalar.name}}`, varName);
+
+    scope[varName] = scalar.unit ? mathjs.unit(scalar.value, scalar.unit) : scalar.value;
   }
 
   // Add data series to scope as matrices
   for (const series of dataSeries) {
     const varName = series.name.replace(/\s+/g, "_");
+    equation = equation.replace(`\${${series.name}}`, varName);
+
     const lastYearWithData = (Object.keys(series.data) as Array<keyof DataSeriesArray>)
       .filter(year => series.data[year] != null)
       .pop();
@@ -408,39 +414,35 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     }
 
     scope[varName] = mathjs.matrix(seriesValues);
-    equation = equation.replace(`\${${series.name}}`, varName);
   }
 
   // Add external data to scope, as either a matrix or a scalar
-  for (const data of externalData) {
-    const varName = data.name.replace(/\s+/g, "_");
-    if (data.values.length === 0) {
-      throw new RecipeError(`External data '${data.name}' contains no data and cannot be evaluated.`);
-    }
+  for (const externalVar of externalData) {
+    const varName = externalVar.name.replace(/\s+/g, "_");
+    equation = equation.replace(`\${${externalVar.name}}`, varName);
 
-    switch (data.type) {
-      case "matrix":
-        // TODO: implement this
-        // The data points from external sources rarely, if ever, match the years we use, so missing years must be interpolated, skipped, or handled in some other way.
-        break;
-      // Default case is to handle as a scalar
-      case "scalar":
-      default:
-        // If the data is a scalar, we can just take the last value
-        const lastValue = data.values
-          // Filter out common ways of representing missing data
-          .filter(({ value }) => value != null && value !== "" && value !== "-" && value !== "..").slice(-1)[0];
-        if (lastValue) {
-          let value = parseFloat(lastValue.value);
-          if (Number.isFinite(value)) {
-            scope[varName] = value;
-          }
-        } else {
-          throw new RecipeError(`Failed to find a valid value in external data '${data.name}'.`);
+    if (externalVar.vector) {
+      // If it's a vector, we can treat it as a matrix
+      const vectorValues = externalVar.vector.map(value => {
+        if (typeof value === "string") {
+          value = parseFloat(value);
         }
-        break;
+        if (Number.isNaN(value)) {
+          throw new RecipeError(`External dataset '${externalVar.name}' has NaN value in vector.`);
+        }
+        return value;
+      });
+      scope[varName] = mathjs.matrix(vectorValues);
+    }
+    else if (externalVar.scalar !== undefined) {
+      // If it's a scalar, just add it directly
+      scope[varName] = externalVar.scalar;
+    } else {
+      throw new RecipeError(`External dataset variable '${externalVar.name}' is missing both 'vector' and 'scalar' properties.`);
     }
   }
+
+  console.log(equation, scope);
 
   /**
    * Try to evaluate the equation using mathjs

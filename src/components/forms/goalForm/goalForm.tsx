@@ -309,14 +309,14 @@ export default function GoalForm({
                 allowValueEditing
               />
 
-              <DEBUG_Recipe />
-
               <label className="width-100">
                 <ResultingDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />
               </label>
               <label className="width-100">
                 <ResultingRecipe FormElement={<input type="hidden" name="resultingRecipe" />} />
               </label>
+
+              <DEBUG_Recipe />
             </RecipeContextProvider>
           }
         </fieldset>
