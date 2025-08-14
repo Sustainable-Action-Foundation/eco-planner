@@ -1,10 +1,6 @@
 "use client"
 
-// TODO: Allow/require passing:
-// className,
-// style,
-// required,
-// placeholder,
+// TODO: allow passing required
 // TODO: Fix bug where menu opens immediately after closing when pressing toggle button
 
 import { IconSearch, IconSelector } from "@tabler/icons-react";
@@ -14,16 +10,24 @@ import { useTranslation } from "react-i18next";
 import styles from './comboBox.module.css' with { type: "css" }
 
 export function SelectSingleSearch({
+  className,
+  style,
   id,
   name,
   initialValue,
   defaultValue,
+  searchBoxLabel,
+  searchBoxPlaceholder,
   options,
 }: {
+  className?: string,
+  style?: React.CSSProperties,
   id: string,
   name: string,
   initialValue?: string,
   defaultValue?: string,
+  searchBoxLabel: string,
+  searchBoxPlaceholder?: string
   options: Array<string>,
 }) {
   const { t } = useTranslation(["forms"]);
@@ -143,7 +147,10 @@ export function SelectSingleSearch({
   };
 
   return (
-    <div className="position-relative" style={{ userSelect: 'none', width: 'fit-content' }}>
+    <div
+      className={`${className ? `${className} ` : ''}position-relative`}
+      style={{ ...style, userSelect: 'none', width: 'fit-content' }}
+    >
       <button
         id={id}
         className={`${styles['select-toggle']}`}
@@ -161,7 +168,7 @@ export function SelectSingleSearch({
         {value}
         <IconSelector height={20} width={20} aria-hidden={true} />
       </button>
-      <div
+      <div // TODO: Does this require a label ?
         id={`${id}-dialog`}
         className={`              
           ${styles['listbox-select']} 
@@ -192,8 +199,8 @@ export function SelectSingleSearch({
             aria-expanded="true"
             aria-autocomplete="list"
             autoComplete="off"
-            aria-label="" // TODO: should be the same as placeholder? 
-            placeholder="sök..." // TODO: Pass a prop for this maybe? Or atleast i18n
+            aria-label={searchBoxLabel} // TODO: should be the same as placeholder? 
+            placeholder={searchBoxPlaceholder ? searchBoxLabel : ''} // TODO: Pass a prop for this maybe? Or atleast i18n
             role="combobox"
 
             style={{
@@ -207,7 +214,7 @@ export function SelectSingleSearch({
         <ul
           role="listbox"
           id={`${id}-dialog-listbox`}
-          aria-label="" // TODO: Do i need this? 
+          aria-label={t("forms:suggestive_text.listbox_label")}
           className="margin-0 padding-0"
           style={{
             listStyle: 'none',
@@ -218,8 +225,9 @@ export function SelectSingleSearch({
                 id={`${id}-dialog-listbox-${index}`}
                 onClick={() => {
                   setValue(option),
-                    setMenuOpen(false)
+                  setMenuOpen(false)
                 }}
+                aria-selected={option === value}
                 ref={(el) => { optionRefs.current[index] = el }}
                 role="option"
                 key={`${index}`} // TODO: Am i allowed to do this or do they need to be unique for entire page?

@@ -184,13 +184,16 @@ export default function MetaRoadmapForm({
           </fieldset>
         }
 
-        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`} style={{marginBottom: '10rem'}}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:meta_roadmap.relationship_legend")}</legend>
           <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:meta_roadmap.relationship_label")}</label>
           {parentRoadmapOptions ? (
             <SelectSingleSearch
+              className="margin-top-25"
               id="parent-roadmap"
               name="parent-roadmap"
+              searchBoxLabel="Sök..." // TODO: i18n
+              searchBoxPlaceholder="Sök..." // TODO: i18n
               initialValue={t("forms:meta_roadmap.relationship_no_chosen")}
               options={parentRoadmapOptions.map((metaRoadmap) => metaRoadmap.name)}
             />

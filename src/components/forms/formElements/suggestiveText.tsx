@@ -196,9 +196,9 @@ export default function SuggestiveText({
         >
           {results.map((item, index) =>
             <li
-              key={index}
+              key={index} // TODO: Am i allowed to do this or do they need to be unique for entire page?
               id={`${id}-listbox-${index}`}
-              style={{ backgroundColor: index === focusedListBoxItem ? 'var(--gray-90)' : '', }} // TODO: Am i allowed to do this or do they need to be unique for entire page?
+              style={{ backgroundColor: index === focusedListBoxItem ? 'var(--gray-90)' : '', }} 
               ref={(el) => { optionRefs.current[index] = el }}
               onClick={() => { setValue(item), setDisplayListBox(false) }}
               role="option"
