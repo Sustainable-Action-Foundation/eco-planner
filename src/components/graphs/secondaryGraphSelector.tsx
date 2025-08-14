@@ -9,6 +9,10 @@ export default function SecondaryGoalSelector() {
     event.preventDefault();
 
     const form = event.target;
+    if (!(form.secondaryGoal instanceof HTMLInputElement)) {
+      return;
+    }
+
     const secondaryGoalId = form.secondaryGoal.value;
 
     const target = new URL(window.location.href);

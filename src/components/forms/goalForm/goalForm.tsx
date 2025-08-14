@@ -7,7 +7,7 @@ import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import formSubmitter from "@/functions/formSubmitter";
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 import mathjs from "@/math";
-import { GoalInput, ScaleBy, ScaleMethod, ScalingRecipe, dataSeriesDataFieldNames, isScalingRecipe } from "@/types";
+import { GoalInput, JSONValue, ScaleBy, ScaleMethod, ScalingRecipe, dataSeriesDataFieldNames, isScalingRecipe } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -65,7 +65,7 @@ export default function GoalForm({
 
   useEffect(() => {
     try {
-      const parsed = JSON.parse(currentGoal?.combinationScale ?? "")
+      const parsed = JSON.parse(currentGoal?.combinationScale ?? "") as JSONValue;
       if (isScalingRecipe(parsed)) {
         setScalingRecipe(parsed)
       } else if (typeof parsed == "number") {

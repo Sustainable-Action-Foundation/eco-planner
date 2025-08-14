@@ -120,11 +120,15 @@ export function InheritedGoalForm({
   }, [currentGoal]);
 
   useEffect(() => {
-    clientSafeGetOneRoadmap(selectedRoadmap ?? "").then(setRoadmapData);
+    clientSafeGetOneRoadmap(selectedRoadmap ?? "").then(setRoadmapData).catch(() => {
+      setRoadmapData(null);
+    });
   }, [selectedRoadmap]);
 
   useEffect(() => {
-    clientSafeGetOneGoal(selectedGoal ?? "").then(setGoalData)
+    clientSafeGetOneGoal(selectedGoal ?? "").then(setGoalData).catch(() => {
+      setGoalData(null);
+    });
   }, [selectedGoal]);
   return (
     <>
@@ -210,7 +214,9 @@ export function CombinedGoalForm({
   const [parsedUnit, setParsedUnit] = useState<string | null>(null);
 
   useEffect(() => {
-    clientSafeGetOneRoadmap(roadmapId || '').then(setCurrentRoadmap);
+    clientSafeGetOneRoadmap(roadmapId || '').then(setCurrentRoadmap).catch(() => {
+      setCurrentRoadmap(null);
+    });
   }, [roadmapId]);
 
   useEffect(() => {
@@ -297,15 +303,21 @@ export function InheritingBaseline() {
   const [goalData, setGoalData] = useState<Awaited<ReturnType<typeof clientSafeGetOneGoal>>>(null);
 
   useEffect(() => {
-    clientSafeGetRoadmaps().then(setRoadmapList);
+    clientSafeGetRoadmaps().then(setRoadmapList).catch(() => {
+      setRoadmapList([]);
+    });
   }, []);
 
   useEffect(() => {
-    clientSafeGetOneRoadmap(selectedRoadmap ?? "").then(setRoadmapData);
+    clientSafeGetOneRoadmap(selectedRoadmap ?? "").then(setRoadmapData).catch(() => {
+      setRoadmapData(null);
+    });
   }, [selectedRoadmap]);
 
   useEffect(() => {
-    clientSafeGetOneGoal(selectedGoal ?? "").then(setGoalData)
+    clientSafeGetOneGoal(selectedGoal ?? "").then(setGoalData).catch(() => {
+      setGoalData(null);
+    });
   }, [selectedGoal]);
 
   // If there is a data series, convert it to an array of numbers and then a string to use for the form

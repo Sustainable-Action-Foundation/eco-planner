@@ -6,7 +6,7 @@ import { execSync } from "child_process";
  * The file is used to display the commit hash of the current build in the information page and link to the commit on GitHub.
  * The output is saved in src/lib/commitHash.json
  */
-async function getBuildInfo() {
+function getBuildInfo() {
   const info: { shortHash?: string, longHash?: string } = {}
 
   // Try getting commit hashes

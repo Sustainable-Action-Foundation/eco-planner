@@ -80,7 +80,7 @@ export default function GoalChildGraph({
   // If childSeries are lines, make them dashed
   let dashArray: number[] = [];
   if (!isStacked) {
-    dashArray = new Array(dataPoints.length).fill(5);
+    dashArray = new Array<number>(dataPoints.length).fill(5);
     // Main series should always be solid
     dashArray[0] = 0;
   }

@@ -1,6 +1,6 @@
 import scbAreaQuery from "@/lib/scbAreaQuery";
 import scbPopulationQuery from "@/lib/scbPopulationQuery";
-import { AdvancedScalingValue, dataSeriesDataFieldNames, DataSeriesDataFields, isScalingRecipe, ScaleBy, ScaleMethod, SimpleScalingValue } from "@/types";
+import { AdvancedScalingValue, dataSeriesDataFieldNames, DataSeriesDataFields, isScalingRecipe, JSONValue, ScaleBy, ScaleMethod, SimpleScalingValue } from "@/types";
 import { DataSeries } from "@prisma/client";
 
 /** Returns area of childArea / area of parentArea, or 1 if either is not found */
@@ -77,7 +77,7 @@ export async function recalculateGoal(goal: {
   // Get scale from `combinationScale`
   let scaleFactor = 1;
   if (goal.combinationScale) {
-    const combinationScale = JSON.parse(goal.combinationScale)
+    const combinationScale = JSON.parse(goal.combinationScale) as JSONValue;
 
     // If it parses as a number, use it as scale
     if (typeof combinationScale == "number") {

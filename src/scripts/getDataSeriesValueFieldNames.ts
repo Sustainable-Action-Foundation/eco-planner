@@ -34,4 +34,4 @@ async function getDataSeriesValueFieldNames() {
   }
 }
 
-getDataSeriesValueFieldNames();
+void getDataSeriesValueFieldNames();

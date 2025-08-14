@@ -11,10 +11,13 @@ export default function VerifyForm() {
     event.preventDefault()
 
     const form = event.target
-    const emailAdress = form.email.value
+    if (!(form.email instanceof HTMLInputElement)) {
+      return;
+    }
+    const emailAddress = form.email.value
 
     // Send a new verification email
-    formSubmitter('/api/sendVerification', JSON.stringify({ email: emailAdress }), 'POST')
+    formSubmitter('/api/sendVerification', JSON.stringify({ email: emailAddress }), 'POST')
   }
 
   return (

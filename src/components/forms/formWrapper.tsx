@@ -35,7 +35,7 @@ export default function FormWrapper({
   const sections = React.Children.toArray(children);
 
   function iterateSections(options?: { reverse?: boolean }) {
-    const formSlide = Array.prototype.slice.call(document?.getElementsByClassName("fieldsetWrapper"));
+    const formSlide = Array.from(document?.getElementsByClassName("fieldsetWrapper"));
 
     const currentTransformIndex = transformIndex + (options?.reverse ? -1 : 1);
 
@@ -47,7 +47,7 @@ export default function FormWrapper({
 
       // Move each form element in the appropriate direction to create a sliding effect
       formSlide.forEach(element => {
-        if (element) {
+        if (element instanceof HTMLElement) {
           if (options?.reverse) {
             element.style.transform = `translateX(-${(currentTransformIndex) * 100}%)`;
           } else {
@@ -85,7 +85,7 @@ export default function FormWrapper({
 
       <div className={`margin-block-start-100 padding-inline-100 gap-50 grid ${styles.indicatorLayout}`}>
         <button type="button" id="backButton" className={`flex align-items-center transparent round gap-25 ${backButtonHiddenClass} ${styles.indicatorButton}`} onClick={() => iterateSections({ reverse: true })}>
-          <IconArrowLeft style={{minWidth: '24px'}} aria-hidden="true" />
+          <IconArrowLeft style={{ minWidth: '24px' }} aria-hidden="true" />
           Tillbaka
         </button>
 
@@ -97,10 +97,10 @@ export default function FormWrapper({
           </div>
           <div className={styles.currentIndicator} id="current-indicator"></div>
         </div>
-        
+
         <button type="button" id="nextButton" className={`flex align-items-center transparent round gap-25 margin-left-auto ${nextButtonHiddenClass} ${styles.indicatorButton}`} onClick={() => iterateSections()}>
           Nästa
-          <IconArrowRight style={{minWidth: '24px'}} aria-hidden="true" />
+          <IconArrowRight style={{ minWidth: '24px' }} aria-hidden="true" />
         </button>
       </div>
 

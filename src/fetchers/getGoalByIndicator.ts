@@ -1,6 +1,6 @@
 import "server-only";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
-import { getSession } from "@/lib/session"
+import { getSession, LoginData } from "@/lib/session"
 import { effectSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
 import { Prisma } from "@prisma/client";
@@ -30,7 +30,7 @@ export default async function getGoalByIndicator(roadmapId: string, indicatorPar
  * @param user Data from user's session cookie.
  */
 const getCachedGoal = unstable_cache(
-  async (roadmapId: string, indicatorParameter: string, unit: string | undefined, user) => {
+  async (roadmapId: string, indicatorParameter: string, unit: string | undefined, user: LoginData["user"]) => {
     let goal: Prisma.GoalGetPayload<{
       include: typeof goalInclusionSelection
     }> | null = null;

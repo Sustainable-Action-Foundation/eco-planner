@@ -53,10 +53,10 @@ export default function QueryBuilder({
   useEffect(() => {
     if (!dataSource) return;
     setIsLoading(true);
-    /* console.time("getTables"); */
+
     const query = (formRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
 
-    getTables(dataSource, query, lang).then(result => { setTables(result); setIsLoading(false); /* console.timeEnd("getTables"); */ });
+    void getTables(dataSource, query, lang).then(result => { setTables(result); setIsLoading(false); });
   }, [dataSource, lang]);
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export default function QueryBuilder({
           tables.length <= renderedTablesListMaxLength + initialRenderingMargin
             ?
             tables.length
-            : /* Otherwhise, only show the first (100) tables. */
+            : /* Otherwise, only show the first (100) tables. */
             renderedTablesListMaxLength
         ));
       setOffset(0);
@@ -177,7 +177,6 @@ export default function QueryBuilder({
     // null check
     if (!(formRef.current instanceof HTMLFormElement)) return;
 
-    /* console.time("tryGetResult"); */
     setIsLoading(true);
 
     // Get a result if the form is valid
@@ -192,15 +191,17 @@ export default function QueryBuilder({
         } else {
           disableSubmitButton();
         }
-        /* console.timeEnd("tryGetResult"); */
+        setIsLoading(false);
+      }).catch(e => {
+        console.error("Error fetching table content:", e);
+        setTableContent(null);
+        disableSubmitButton();
         setIsLoading(false);
       });
       if (dataSource == "Trafa") {
-        // If metric was changed, only send the metric as a query to the API
+        // If metric was changed, send the metric as a query to the API to get filtered table details
         if (event?.target instanceof HTMLSelectElement && event.target.name == "metric") {
-          getTableDetails(tableId, dataSource, query.filter(q => q.variableCode == "metric"), lang).then(result => { setTableDetails(result); });
-        } else {
-          getTableDetails(tableId, dataSource, query, lang).then(result => { setTableDetails(result); });
+          void getTableDetails(tableId, dataSource, query.filter(q => q.variableCode == "metric"), lang).then(result => { setTableDetails(result); });
         }
       }
     }
@@ -208,14 +209,13 @@ export default function QueryBuilder({
     else {
       disableSubmitButton();
       clearTableContent();
-      /* console.timeEnd("tryGetResult"); */
       setIsLoading(false);
     }
   }
   function formChange(event: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
-    const changedElementIsExternalDataset = event.target instanceof HTMLSelectElement && (event.target as HTMLSelectElement).name == "externalDataset";
-    const changedElementIsTableSearch = event.target instanceof HTMLInputElement && (event.target as HTMLInputElement).name == "tableSearch";
-    const changedElementIsTable = event.target instanceof HTMLInputElement && (event.target as HTMLInputElement).name == "externalTableId";
+    const changedElementIsExternalDataset = event.target instanceof HTMLSelectElement && event.target.name == "externalDataset";
+    const changedElementIsTableSearch = event.target instanceof HTMLInputElement && event.target.name == "tableSearch";
+    const changedElementIsTable = event.target instanceof HTMLInputElement && event.target.name == "externalTableId";
 
     /* console.log(tableDetails); */
     if (!changedElementIsExternalDataset && !changedElementIsTableSearch && !changedElementIsTable && tables && tableDetails) {
@@ -239,7 +239,7 @@ export default function QueryBuilder({
   function handleSearch(query?: string) {
     if (!externalDatasets[dataSource]?.baseUrl) return;
 
-    getTables(dataSource, query, lang).then(result => setTables(result));
+    void getTables(dataSource, query, lang).then(result => setTables(result));
   }
 
   function clearTableDetails() {
@@ -260,7 +260,6 @@ export default function QueryBuilder({
   }
 
   function handleTableSelect(tableId: string) {
-    /* console.time("tableSelect"); */
     setIsLoading(true);
 
     if (!externalDatasets[dataSource]?.baseUrl) return;
@@ -270,7 +269,7 @@ export default function QueryBuilder({
     clearTableDetails();
     disableSubmitButton();
 
-    getTableDetails(tableId, dataSource, undefined, lang).then(result => { setTableDetails(result); /* console.timeEnd("tableSelect"); */ setIsLoading(false); });
+    void getTableDetails(tableId, dataSource, undefined, lang).then(result => { setTableDetails(result); setIsLoading(false); });
   }
 
   function handleMetricSelect(event: React.ChangeEvent<HTMLSelectElement>) {
@@ -292,7 +291,7 @@ export default function QueryBuilder({
           variableSelectionFieldset.setAttribute("disabled", "true");
           // Reset all the table details when disabling the form so all options are displayed when re-enabling
           if (dataSource == "Trafa") {
-            getTableDetails(tableDetails?.id ?? "", dataSource, undefined, lang).then(result => { setTableDetails(result); setIsLoading(false); });
+            void getTableDetails(tableDetails?.id ?? "", dataSource, undefined, lang).then(result => { setTableDetails(result); setIsLoading(false); });
           }
           else {
             setIsLoading(false);
@@ -349,12 +348,10 @@ export default function QueryBuilder({
   function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails, options?: VariableSelectionHelperOptions) {
     if (variable.option) {
       return (
-        <label key={variable.name} className={`block margin-block-75 ${options?.classNames && (options?.classNames as string[]).map((className: string) => className).join(" ")}`}>
-          {// Only display "optional" tags if the data source provides this information
-          }
+        <label key={variable.name} className={`block margin-block-75 ${options?.classNames && options.classNames.map((className: string) => className).join(" ")}`}>
+          {/* Only display "optional" tags if the data source provides this information */}
           {variable.label[0].toUpperCase() + variable.label.slice(1)}{optionalTag(dataSource, variable.optional)}
-          {// TODO: Use CSS to set proper capitalisation of labels; something like `label::first-letter { text-transform: capitalize; }`}
-          }
+          {/* TODO: Use CSS to set proper capitalization of labels; something like `label::first-letter { text-transform: capitalize; }` */}
           <select className={`block margin-block-25 ${variable.label}`}
             required={!variable.optional}
             name={variable.name}
@@ -459,7 +456,7 @@ export default function QueryBuilder({
         <p className="padding-inline-100">{t("components:query_builder.add_data_to_goal", { goalName: goal.name ?? goal.indicatorParameter })}</p>
 
         <form ref={formRef} onChange={formChange} onSubmit={handleSubmit}>
-          {/* Hidden disabled submit button to prevent accidental submisson */}
+          {/* Hidden disabled submit button to prevent accidental submission */}
           <button type="submit" className="display-none" disabled></button>
           <strong
             id="loader"
@@ -625,7 +622,7 @@ export default function QueryBuilder({
               )
             }
           </output>
-          {/* TODO: Should prbly only be displayed on last slide? */}
+          {/* TODO: Should probably only be displayed on last slide? */}
           <button
             id="submit-button"
             disabled={true}

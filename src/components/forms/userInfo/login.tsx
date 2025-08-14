@@ -11,9 +11,12 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction) {
   event.preventDefault()
 
   const form = event.target
+  if (!(form.username instanceof HTMLInputElement) || !(form.password instanceof HTMLInputElement)) {
+    return;
+  }
   const formJSON = JSON.stringify({
-    username: form.username?.value,
-    password: form.password?.value,
+    username: form.username.value,
+    password: form.password.value,
     remember: (form.remember as HTMLInputElement | null)?.checked,
   })
 
@@ -52,7 +55,7 @@ export default function Login() {
         <label className="block margin-block-100">
           {t("components:login.username")}
           <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
-            <IconUser style={{minWidth: '24px'}} aria-hidden="true" />
+            <IconUser style={{ minWidth: '24px' }} aria-hidden="true" />
             <input className="padding-0 margin-inline-50" type="text" placeholder={t("common:placeholder.name")} name="username" required id="username" autoComplete="username" />
           </div>
         </label>
@@ -61,15 +64,15 @@ export default function Login() {
         <label className="block margin-block-100">
           {t("components:login.password")}
           <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
-            <IconLock style={{minWidth: '24px'}} aria-hidden="true" />
+            <IconLock style={{ minWidth: '24px' }} aria-hidden="true" />
             <input className="padding-0 margin-inline-50 transparent" type={showPassword ? 'text' : 'password'} placeholder={t("common:placeholder.password")} name="password" required id="password" autoComplete="current-password" />
-            <button 
-              type="button" 
-              className={`${styles.showPasswordButton} grid padding-0 transparent`} 
+            <button
+              type="button"
+              className={`${styles.showPasswordButton} grid padding-0 transparent`}
               onClick={() => setShowPassword(prevState => !prevState)}
-              aria-label={showPassword ? 'hide password' : 'show password'}  
+              aria-label={showPassword ? 'hide password' : 'show password'}
             >
-              {showPassword ? <IconEyeOff style={{minWidth: '24px'}} aria-hidden="true" /> : <IconEye style={{minWidth: '24px'}} aria-hidden="true" />  } 
+              {showPassword ? <IconEyeOff style={{ minWidth: '24px' }} aria-hidden="true" /> : <IconEye style={{ minWidth: '24px' }} aria-hidden="true" />}
             </button>
           </div>
         </label>

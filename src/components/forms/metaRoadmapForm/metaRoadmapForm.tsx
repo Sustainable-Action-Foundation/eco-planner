@@ -24,7 +24,7 @@ export default function MetaRoadmapForm({
 }) {
   const { t } = useTranslation(["forms", "common"]);
 
-  async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
+  function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     // Mostly the usual submit handler stuff.
     // We might want to redirect the user to the roadmap form immediately after successfully submitting the metaRoadmap form
     // (and pre-populate the roadmap form with the new metaRoadmap's ID)

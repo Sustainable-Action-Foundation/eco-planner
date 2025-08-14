@@ -23,7 +23,9 @@ export function ActionSelector({
 
   useEffect(() => {
     if (selectedRoadmap) {
-      clientSafeGetOneRoadmap(selectedRoadmap).then(setRoadmapData);
+      clientSafeGetOneRoadmap(selectedRoadmap).then(setRoadmapData).catch(() => {
+        setRoadmapData(null);
+      });
     } else {
       setRoadmapData(null);
     }
@@ -82,7 +84,9 @@ export function GoalSelector({
 
   useEffect(() => {
     if (selectedRoadmap) {
-      clientSafeGetOneRoadmap(selectedRoadmap).then(setRoadmapData);
+      clientSafeGetOneRoadmap(selectedRoadmap).then(setRoadmapData).catch(() => {
+        setRoadmapData(null);
+      });
     } else {
       setRoadmapData(null);
     }

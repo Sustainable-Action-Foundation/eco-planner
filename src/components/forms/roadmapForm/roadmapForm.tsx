@@ -141,7 +141,10 @@ export default function RoadmapForm({
               alert(t("forms:roadmap.scale_deprecated_extended"));
             }
           })
-          .then(() => setIsLoading(false));
+          .then(() => setIsLoading(false))
+          .catch((error) => {
+            throw error;
+          });
       }
       catch (error) {
         alert(t("forms:roadmap.file_read_error", { error: error instanceof Error ? error.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }))
@@ -168,7 +171,7 @@ export default function RoadmapForm({
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={void handleSubmit}>
         {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
         <input type="submit" disabled={true} className="display-none" aria-hidden={true} />
 

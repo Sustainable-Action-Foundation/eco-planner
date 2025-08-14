@@ -4,6 +4,8 @@ import { useState } from "react"
 import { useTranslation } from "react-i18next";
 import { IconTrashXFilled } from "@tabler/icons-react";
 
+// TODO: Remove this file after rich text editor is implemented
+
 export default function LinkInput({ links }: { links?: { url: string, description: string | null }[] }) {
   const { t } = useTranslation("forms");
 
@@ -49,14 +51,14 @@ export default function LinkInput({ links }: { links?: { url: string, descriptio
         {linkList.map((link, index) => (
           <li key={`${index}link${link.url}${link.description}`}>
             <div className="flex align-items-flex-end">
-              <input className="font-weight-bold transparent" type="text" name="linkDescription" defaultValue={link.description || ""} aria-label={t("forms:link_input.name_label")}/>
+              <input className="font-weight-bold transparent" type="text" name="linkDescription" defaultValue={link.description || ""} aria-label={t("forms:link_input.name_label")} />
               <input className="transparent" type="url" name="linkUrl" defaultValue={link.url} aria-label={t("forms:link_input.url_label")} />
               <button
                 type="button"
                 className="grid transparent round margin-left-100"
                 onClick={() => setLinkList(linkList.filter((_, i) => i !== index))}
                 aria-label={t("forms:link_input.remove_link_aria_label")}
-                >
+              >
                 <IconTrashXFilled fill='#CB3C3C' aria-hidden="true" />
               </button>
             </div>

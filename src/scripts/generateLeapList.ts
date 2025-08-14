@@ -49,4 +49,4 @@ async function generateLeapList() {
   }
 }
 
-generateLeapList();
+void generateLeapList();
