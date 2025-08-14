@@ -33,7 +33,7 @@ import DataSeriesInput from "../dataSeriesInput/dataSeriesInput"; // For enterin
 import { getDataSeries } from "../dataSeriesInput/utils"; // Helper for extracting data series from form
 import styles from '../forms.module.css'; // CSS module for styling
 import { InheritingBaseline, ManualGoalForm } from "./goalFormSections"; // Sub components for form sections
-import { RecipeContextProvider, RecipeEquationEditor, RecipeErrorAndWarnings, RecipeSuggestions, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/recipeEditor";
+import { DEBUG_Recipe, RecipeContextProvider, RecipeEquationEditor, RecipeErrorAndWarnings, RecipeSuggestions, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/recipeEditor";
 import { RecipeVariableExternalDataset, RecipeVariableType } from "@/functions/recipe-parser/types";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 
@@ -252,12 +252,7 @@ export default function GoalForm({
 
           {/* Scaling section for inherited/combined goals */}
           {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
-            <RecipeContextProvider
-              initialRecipe={{
-                eq: "[[1,2],[3,4]] * [5,5]",
-                variables: { "Hihi": { type: RecipeVariableType.Scalar, value: 123 }, "data": { type: RecipeVariableType.DataSeries, link: null } }
-              }}
-            >
+            <RecipeContextProvider>
               <RecipeSuggestions suggestedRecipes={[
                 {
                   hash: "asd", recipe: {
@@ -313,6 +308,8 @@ export default function GoalForm({
                 allowTypeEditing
                 allowValueEditing
               />
+
+              <DEBUG_Recipe />
 
               <label className="width-100">
                 <ResultingDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />

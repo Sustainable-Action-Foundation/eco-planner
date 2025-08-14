@@ -319,8 +319,6 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
         data[year] = dbDataSeries[year];
       }
 
-      console.log("Name:", name, "Link:", link, "Data:", data, "Unit:", dbDataSeries.unit);
-
       return { name, link, data, unit: dbDataSeries.unit };
     }));
 

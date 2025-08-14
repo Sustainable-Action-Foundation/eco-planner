@@ -358,6 +358,12 @@ export function RecipeErrorAndWarnings() {
   </>);
 }
 
+export function DEBUG_Recipe(){
+  return <pre>
+    {JSON.stringify(useRecipe(), null, 2)}
+  </pre>
+}
+
 
 /* 
  * Form interacting components

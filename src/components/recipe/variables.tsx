@@ -3,7 +3,7 @@
 import { lenientIsRawDataSeriesByLink, RawDataSeriesByLink, RawRecipe, RawRecipeVariables, RecipeVariableExternalDataset, RecipeVariableScalar, RecipeVariableType, RecipeVariableTypeMap } from "@/functions/recipe-parser/types";
 import { IconTrash } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import React, { useState } from "react";
+import React from "react";
 import { useRecipe } from "./recipeEditor";
 
 type InputRules = {
@@ -18,6 +18,7 @@ const defaultInputRules: InputRules = {
   allowValueEditing: true,
   allowDeleteVariables: true,
 };
+
 
 function CommonVariable({
   name,
@@ -168,6 +169,7 @@ export function ScalarVariable({
   </CommonVariable>;
 }
 
+
 export function DataSeriesVariable({
   name,
   rules,
@@ -219,6 +221,7 @@ export function DataSeriesVariable({
           newVariables[name] = {
             ...currentVar,
             dataSeries: { name: selectedDataSeries.name, id: selectedDataSeries.id, roadmapId: selectedDataSeries.roadmapId },
+            link: selectedDataSeries.id,
           } as RawDataSeriesByLink;
         }
       }
