@@ -109,17 +109,18 @@ export default function MetaRoadmapForm({
             <input id="metaRoadmapName" name="metaRoadmapName" className="margin-block-25" type="text" defaultValue={currentRoadmap?.name ?? undefined} autoComplete="off" required />
           </label>
 
-          {/*
+
           <label className="block margin-block-100">
             {t("forms:meta_roadmap.roadmap_series_description")}
             <textarea className="block margin-block-25" name="description" id="description" defaultValue={currentRoadmap?.description ?? undefined} required></textarea>
           </label>
-          */}
 
+          {/*
           <div className="margin-block-100">
             <div className="margin-bottom-25" id="roadmap-series-description">{t("forms:meta_roadmap.roadmap_series_description")}</div>
             <TextEditor id="roadmap-series-description-editor" ariaLabelledBy="roadmap-series-description" placeholder="Skriv något..." />
           </div>
+          */}
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
@@ -139,7 +140,7 @@ export default function MetaRoadmapForm({
             </select>
           </label>
 
-          <div className="margin-block-100" style={{width: 'min(250px, 100%)'}}>
+          <div className="margin-block-100" style={{ width: 'min(250px, 100%)' }}>
             <label htmlFor="actors">{t("forms:meta_roadmap.choose_actor")}</label>
             <SuggestiveText
               className="margin-top-25"
@@ -152,11 +153,6 @@ export default function MetaRoadmapForm({
               suggestiveList={Object.entries(countiesAndMunicipalities).flat(2)}
             />
           </div>
-
-          <SelectSingleSearch
-            options={Object.entries(countiesAndMunicipalities).flat(2)} 
-          />
-
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
@@ -190,8 +186,16 @@ export default function MetaRoadmapForm({
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:meta_roadmap.relationship_legend")}</legend>
-          <label className="block margin-block-100">
-            {t("forms:meta_roadmap.relationship_label")}
+          <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:meta_roadmap.relationship_label")}</label>
+          {parentRoadmapOptions ? (
+            <SelectSingleSearch
+              id="parent-roadmap"
+              name="parent-roadmap"
+              initialValue={t("forms:meta_roadmap.relationship_no_chosen")}
+              options={parentRoadmapOptions.map((metaRoadmap) => metaRoadmap.name)}
+            />
+          ) : null}
+          {/*
             <select name="parentRoadmap" id="parentRoadmap" className="block margin-block-25" defaultValue={currentRoadmap?.parentRoadmapId ?? ""}>
               <option value="">{t("forms:meta_roadmap.relationship_no_chosen")}</option>
               {
@@ -207,7 +211,7 @@ export default function MetaRoadmapForm({
                 })
               }
             </select>
-          </label>
+            */}
         </fieldset>
 
 

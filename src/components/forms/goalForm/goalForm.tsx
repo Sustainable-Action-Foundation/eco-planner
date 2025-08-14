@@ -15,7 +15,7 @@ import DataSeriesInput from "../dataSeriesInput/dataSeriesInput";
 import { getDataSeries } from "../dataSeriesInput/utils";
 import styles from '../forms.module.css';
 import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
-import { IconCircleMinus } from "@tabler/icons-react";
+import { IconCircleMinus, IconStar, IconStarFilled } from "@tabler/icons-react";
 
 enum DataSeriesType {
   Static = "STATIC",
@@ -323,7 +323,7 @@ export default function GoalForm({
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:goal.feature_this_goal")}</legend>
           <label className="flex align-items-center gap-50 margin-block-50">
-            <input type="checkbox" name="isFeatured" id="isFeatured" defaultChecked={currentGoal?.isFeatured} /> {/* TODO: Make toggle */}
+            <input type="checkbox" name="isFeatured" id="isFeatured" defaultChecked={currentGoal?.isFeatured} />
             {t("forms:goal.feature_goal")}
           </label>
         </fieldset>

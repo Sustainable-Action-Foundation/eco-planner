@@ -1,5 +1,13 @@
 "use client"
 
+// TODO: Fix accesibility issues
+// TODO: Allow/require passing:
+// className,
+// style,
+// required,
+// placeholder,
+// TODO: Fix bug where menu opens immediately after closing when pressing toggle button
+
 import { IconSearch, IconSelector } from "@tabler/icons-react";
 import { useEffect, useState, useRef } from "react"
 import Fuse from "fuse.js";
@@ -7,14 +15,25 @@ import { useTranslation } from "react-i18next";
 import styles from './comboBox.module.css' with { type: "css" }
 
 export function SelectSingleSearch({
+  id,
+  name,
+  initialValue,
+  defaultValue,
   options,
 }: {
+  id: string,
+  name: string,
+  initialValue?: string,
+  defaultValue?: string,
   options: Array<string>,
 }) {
   const { t } = useTranslation(["forms"]);
 
-  const extendedOptions = ['Select element', ...options];
-  const [value, setValue] = useState<string>(extendedOptions[0])
+  const extendedOptions = initialValue
+    ? [initialValue, ...options]
+    : options;
+
+  const [value, setValue] = useState<string>(defaultValue ? defaultValue : extendedOptions[0])
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const toggleRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -131,16 +150,15 @@ export function SelectSingleSearch({
         className={`${styles['select-toggle']}`}
         style={{ borderColor: menuOpen ? '#191919' : '' }}
         onClick={() => { setMenuOpen(!menuOpen) }}
-        id="combo1"
+        id={id}
+        name={name}
         tabIndex={0}
         aria-controls="listbox1" // TODO: Fix this
         value={value}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
-        aria-labelledby=""
         aria-activedescendant=""
         role="combobox"
-        name=""
       >
         {value}
         <IconSelector height={20} width={20} />
@@ -208,6 +226,7 @@ export function SelectSingleSearch({
                 borderRadius: '.25rem',
                 padding: '.5rem',
                 fontSize: 'smaller',
+                backgroundColor: 'transparent',
                 fontWeight: '600'
               }}
             >

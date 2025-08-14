@@ -144,7 +144,7 @@ export default function SuggestiveText({
     >
       <div className="flex align-items-center focusable">
         <input
-          autoComplete="off" /* Disable defaualt autocomplete behavior */
+          autoComplete="off" /* Disable default autocomplete behavior */
           type="text"
           placeholder={placeholder ? placeholder : undefined}
           name={name}

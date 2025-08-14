@@ -13,6 +13,7 @@ fieldset .spreadsheet-label:last-child {
 }
 
 .spreadsheet-input {
+  border: 0;
   border-left: 1px solid var(--gray);
   border-radius: 0;
   font-size: .8rem;
