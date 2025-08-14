@@ -2,8 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
-  output = "../src/prisma/generated"
+  provider      = "prisma-client-js"
+  output        = "../src/prisma/generated"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x", "debian-openssl-3.0.x"]
 }
 
@@ -17,6 +17,7 @@ enum RoadmapType {
   REGIONAL
   MUNICIPAL
   LOCAL
+  ORGANIZATIONAL
   OTHER
 }
 
@@ -101,6 +102,8 @@ model Roadmap {
 
   // Comments related to this roadmap
   comments Comment[] @relation("roadmap_comment")
+  // Links related to this meta roadmap
+  links    Link[]    @relation("roadmap_link")
   // Goals related to this roadmap
   goals    Goal[]    @relation("roadmap_goal")
   // Actions related to this roadmap
@@ -154,21 +157,25 @@ model Goal {
   // JSON string containing the selection for the external dataset. Is sent in the body of the request to the external API
   externalSelection String? @map("external_selection") @db.Text
 
-  // A series of datapoints representing the goals for each year
-  dataSeries          DataSeries?    @relation("data_series")
-  // A series of datapoints serving as a "baseline" where no action is taken
-  baselineDataSeries  DataSeries?    @relation("baseline_data_series")
-  // A number of other goals, whose DataSeries combine to create a derived data series
-  combinationParents  CombinedGoal[] @relation("combined_goal_target")
-  // A list of goals which are a combination of this goal and some other
-  combinationChildren CombinedGoal[] @relation("combined_goal_parent")
-  // A JSON parseable string containing either a number or an object with a "recipie" (ScalingRecipie in @/types) to multiply the data series from combinationParents with
-  combinationScale    String?        @map("combination_scale") @db.Text
+  // A series of data points representing the goals for each year
+  dataSeries         DataSeries? @relation("data_series")
+  // A series of data points serving as a "baseline" where no action is taken
+  baselineDataSeries DataSeries? @relation("baseline_data_series")
+
+  // If this goal inherited it's data then it will have been sent through this recipe
+  recipeUsedId String? @map("recipe_used_id")
+  recipeUsed   Recipe? @relation("used_recipe", fields: [recipeUsedId], references: [hash])
+
+  // When inheriting data from this goal, these suggestions will appear for the user to choose from e.g. "Scale by area" or "Scale by population"
+  recipeSuggestions Recipe[] @relation("inheritance_suggestions")
 
   // Links related to this goal
   links     Link[]    @relation("goal_link")
   // Comments related to this goal
   comments  Comment[] @relation("goal_comment")
+  // Tags for this goal
+  // Tags are used to categorize goals, such as "climate", "energy", "transport", etc.
+  tags      GoalTag[] @relation("goal_tag")
   // The person who created this goal
   authorId  String    @map("author_id")
   author    User      @relation("goal_author", fields: [authorId], references: [id])
@@ -181,20 +188,6 @@ model Goal {
   @@map("goal")
 }
 
-model CombinedGoal {
-  // The goal which is the "target" for the calculation
-  resultingGoalId String  @map("resulting_goal_id")
-  resultingGoal   Goal    @relation("combined_goal_target", fields: [resultingGoalId], references: [id])
-  // The goal used as a factor in multiplication
-  parentGoalId    String  @map("parent_goal_id")
-  parentGoal      Goal    @relation("combined_goal_parent", fields: [parentGoalId], references: [id])
-  // If isInverted == true, use the inverse (1/x rather than x) of all values in parentGoal
-  isInverted      Boolean @default(false) @map("is_inverted")
-
-  @@unique([resultingGoalId, parentGoalId])
-  @@map("combined_goal")
-}
-
 model DataSeries {
   // UUID of the data series
   id        String   @id @default(uuid())
@@ -205,9 +198,8 @@ model DataSeries {
 
   // Unit used for the yearly fields
   // Ignored if used as goal baseline or action outcome, as those should get their unit from the goal
-  unit    String
-  // An optional scale for the data series, for example % or thousands
-  scale   String?
+  // An empty string indicates a missing unit, while null indicates an intentionally unitless data series, such as an amount of electric cars
+  unit    String? @default("")
   // Following is a series values for each year from 2020 to 2050
   // These are the goals for each year
   val2020 Float?  @map("val_2020")
@@ -254,12 +246,37 @@ model DataSeries {
   effectGoalId   String? @map("effect_goal_id")
   effect         Effect? @relation("effect_data_series", fields: [effectActionId, effectGoalId], references: [actionId, goalId])
 
+  usedInRecipes Recipe[] @relation("recipe_data_series")
+
   // Author of the data series
   authorId String @map("author_id")
   author   User   @relation("data_series_author", fields: [authorId], references: [id])
 
   @@unique(name: "effectId", [effectActionId, effectGoalId], map: "effect_id")
   @@map("data_series")
+}
+
+model Recipe {
+  // A hash of the JSON data, used as an ID. Risk of hash collisions is basically non-existent when using sha256.
+  hash String @id
+
+  recipe Json @db.Json
+
+  suggestedInGoals Goal[] @relation("inheritance_suggestions")
+
+  usedInGoals Goal[] @relation("used_recipe")
+
+  usedDataSeries DataSeries[] @relation("recipe_data_series")
+}
+
+model GoalTag {
+  // The name of a tag is used as the ID, since it doesn't make sense to have multiple different tags with the same name
+  name String @id
+
+  // Goals that are tagged with this tag
+  goals Goal[] @relation("goal_tag")
+
+  @@map("goal_tag")
 }
 
 model Action {
@@ -373,7 +390,7 @@ model Link {
   // Description of the link
   description String?
 
-  // A link should be related to either an action, a goal, XOR a meta roadmap.
+  // A link should be related to either an action, a goal, a roadmap, XOR a meta roadmap.
   // Has to be enforced in the code, as prisma does not support custom constraints and many SQL implementations
   // do not support check constraints on columns with referential actions.
   // Any action this link is related to
@@ -382,6 +399,9 @@ model Link {
   // Any goal this link is related to
   goalId        String?      @map("goal_id")
   goal          Goal?        @relation("goal_link", fields: [goalId], references: [id], onDelete: Cascade)
+  // Any roadmap this link is related to
+  roadmapId     String?      @map("roadmap_id")
+  roadmap       Roadmap?     @relation("roadmap_link", fields: [roadmapId], references: [id], onDelete: Cascade)
   // Any meta roadmap this link is related to
   metaRoadmapId String?      @map("meta_roadmap_id")
   metaRoadmap   MetaRoadmap? @relation("meta_roadmap_link", fields: [metaRoadmapId], references: [id], onDelete: Cascade)

@@ -1,6 +1,6 @@
 "use client";
 
-import { dataSeriesDataFieldNames } from "@/types";
+import { Years } from "@/types";
 import { useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import styles from "./dataSeriesInput.module.css";
@@ -22,8 +22,8 @@ export default function DataSeriesInput({
   const { t } = useTranslation("forms");
   const [dataSeriesValues, setDataSeriesValues] = useState<string[]>(
     dataSeriesString && dataSeriesString.length > 0
-      ? dataSeriesString.split(/[\t;]/).slice(0, dataSeriesDataFieldNames.length)
-      : Array.from({ length: dataSeriesDataFieldNames.length }, () => ""),
+      ? dataSeriesString.split(/[\t;]/).slice(0, Years.length)
+      : Array.from({ length: Years.length }, () => ""),
   );
   const isPasting = useRef(false);
   const [tableIsVisible, setTableIsVisible] = useState(true);
@@ -54,7 +54,7 @@ export default function DataSeriesInput({
     const pastedValues = e.clipboardData.getData("text").split(/[\t\n\r\v;]/);
     const newValues = [...dataSeriesValues];
 
-    for (let i = 0; i < pastedValues.length && i + startIndex < dataSeriesDataFieldNames.length; i++) {
+    for (let i = 0; i < pastedValues.length && i + startIndex < Years.length; i++) {
       const targetIndex = startIndex + i;
       if (targetIndex < newValues.length) {
         newValues[targetIndex] = pastedValues[i].trim();
@@ -104,7 +104,7 @@ export default function DataSeriesInput({
         </label>
         {tableIsVisible && (
           <>
-            {dataSeriesDataFieldNames.map((value, index) => (
+            {Years.map((value, index) => (
               <label
                 key={`year-${index}`}
                 className={`${styles['spreadsheet-label']} grid place-items-center padding-left-100 gap-100`}
@@ -197,7 +197,7 @@ export default function DataSeriesInput({
               const values = e.target.value
                 .split(/[\t;]/)
                 .map((v) => v.trim())
-                .slice(0, dataSeriesDataFieldNames.length);
+                .slice(0, Years.length);
               setDataSeriesValues(values);
             }}
           />

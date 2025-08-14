@@ -2,7 +2,7 @@
 
 import findSiblings from "@/functions/findSiblings";
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
-import { dataSeriesDataFieldNames } from "@/types";
+import { Years } from "@/types";
 import { DataSeries, Goal, Roadmap } from "@prisma/client";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -30,7 +30,7 @@ export default function SiblingGraph({
   for (const entry of siblings) {
     const mainSeries = [];
     if (entry.dataSeries) {
-      for (const j of dataSeriesDataFieldNames) {
+      for (const j of Years) {
         const value = entry.dataSeries[j];
 
         mainSeries.push({
@@ -67,11 +67,11 @@ export default function SiblingGraph({
       type: 'datetime',
       labels: { format: 'yyyy' },
       tooltip: { enabled: false },
-      min: new Date(dataSeriesDataFieldNames[0].replace('val', '')).getTime(),
-      max: new Date(dataSeriesDataFieldNames[dataSeriesDataFieldNames.length - 1].replace('val', '')).getTime()
+      min: new Date(Years[0].replace('val', '')).getTime(),
+      max: new Date(Years[Years.length - 1].replace('val', '')).getTime()
     },
     yaxis: {
-      title: { text: goal.dataSeries?.unit ?? undefined },
+      title: { text: goal.dataSeries?.unit === null ? t("common:tsx.unitless") : goal.dataSeries?.unit || t("common:tsx.unit_missing") },
       labels: { formatter: graphNumberFormatter },
     },
     tooltip: {

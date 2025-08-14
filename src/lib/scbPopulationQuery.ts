@@ -1,8 +1,8 @@
 'use server';
 
-import { unstable_cache } from "next/cache";
-import { ApiTableContent } from "./api/apiTypes";
 import getPxWebTableContent from "./pxWeb/getPxWebTableContent";
+import { unstable_cacheTag as cacheTag, unstable_cacheLife as cacheLife } from 'next/cache';
+
 
 /**
  * Queries SCB for population data.
@@ -11,32 +11,39 @@ import getPxWebTableContent from "./pxWeb/getPxWebTableContent";
  * @returns Object containing the population of the target area and the parent area. Returns null if the query fails.
  */
 export default async function scbPopulationQuery(areaCode: string, parentAreaCode?: string) {
-  return getCachedQuery(areaCode, parentAreaCode);
+  const population = await getCachedQuery(areaCode);
+  let parentPopulation: Awaited<ReturnType<typeof getCachedQuery>> = null;
+  if (parentAreaCode) {
+    parentPopulation = await getCachedQuery(parentAreaCode);
+  }
+
+  return {
+    population,
+    parentPopulation
+  };
 }
 
-const getCachedQuery = unstable_cache(
-  async (areaCode: string, parentAreaCode?: string) => {
-    const selection = [
-      // Include parent area only if it exists
-      { variableCode: "Region", valueCodes: [areaCode, ...(parentAreaCode ? [parentAreaCode] : [])] },
-      { variableCode: "ContentsCode", valueCodes: ["000003O5"] },
-      // Use the latest time period
-      { variableCode: "Tid", valueCodes: ["TOP(1)"] }
-    ];
+async function getCachedQuery(areaCode: string) {
+  'use cache';
+  cacheTag('scbPopulationQuery');
+  cacheLife("days");
 
-    const result: ApiTableContent | null = await getPxWebTableContent("TAB5444", "SCB", selection, "sv");
+  const selection = [
+    // Selected area
+    { variableCode: "Region", valueCodes: [areaCode] },
+    // Include all population, regardless of age (Ålder) or gender (Kön)
+    { variableCode: "Alder", valueCodes: ["TotSA"] },
+    { variableCode: "Kon", valueCodes: ["TotSA"] },
+    // Magic string for population data per month
+    { variableCode: "ContentsCode", valueCodes: ["000007SF"] },
+    // Use the latest time period
+    { variableCode: "Tid", valueCodes: ["TOP(1)"] }
+  ];
 
-    if (!result) return null;
+  const result = await getPxWebTableContent("TAB6471", "SCB", selection, "sv");
 
-    const populationData = result.data;
-    const population = populationData.find((data) => data.key[0].value == areaCode)?.values[0];
-    const parentPopulation = parentAreaCode && populationData.find((data) => data.key[0].value == parentAreaCode)?.values[0];
-
-    return {
-      population,
-      parentPopulation
-    };
-  },
-  ["scbPopulationQuery"],
-  { revalidate: 600 }
-);
+  if (!result) return null;
+  // Get first (hopefully only) value
+  const populationData = result.values[0]?.value;
+  return populationData ?? null;
+}

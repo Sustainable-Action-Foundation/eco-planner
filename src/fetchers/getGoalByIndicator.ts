@@ -15,9 +15,10 @@ import { cookies } from "next/headers";
  * Returns null if goal is not found or user does not have access to it. Also returns null on error.
  * @param roadmapId ID of the roadmap to search for the goal in
  * @param indicatorParameter Indicator parameter of the goal to get
+ * @param unit If not undefined, the goal must have this unit in its data series (even if unit is null)
  * @returns Goal object with actions
  */
-export default async function getGoalByIndicator(roadmapId: string, indicatorParameter: string, unit?: string) {
+export default async function getGoalByIndicator(roadmapId: string, indicatorParameter: string, unit?: string | null) {
   const session = await getSession(await cookies());
   return getCachedGoal(roadmapId, indicatorParameter, unit, session.user)
 }
@@ -30,7 +31,7 @@ export default async function getGoalByIndicator(roadmapId: string, indicatorPar
  * @param user Data from user's session cookie.
  */
 const getCachedGoal = unstable_cache(
-  async (roadmapId: string, indicatorParameter: string, unit: string | undefined, user: LoginData["user"]) => {
+  async (roadmapId: string, indicatorParameter: string, unit: string | undefined | null, user: LoginData["user"]) => {
     let goal: Prisma.GoalGetPayload<{
       include: typeof goalInclusionSelection
     }> | null = null;
@@ -42,7 +43,7 @@ const getCachedGoal = unstable_cache(
           where: {
             indicatorParameter: indicatorParameter,
             // If unit is specified, get a goal with the specified unit
-            ...(unit ? { dataSeries: { unit: unit } } : {}),
+            ...(unit !== undefined ? { dataSeries: { unit: unit } } : {}),
             roadmap: { id: roadmapId },
           },
           include: goalInclusionSelection
@@ -64,7 +65,7 @@ const getCachedGoal = unstable_cache(
         goal = await prisma.goal.findFirst({
           where: {
             indicatorParameter: indicatorParameter,
-            ...(unit ? { dataSeries: { unit: unit } } : {}),
+            ...(unit !== undefined ? { dataSeries: { unit: unit } } : {}),
             roadmap: {
               id: roadmapId,
               OR: [
@@ -95,7 +96,7 @@ const getCachedGoal = unstable_cache(
       goal = await prisma.goal.findFirst({
         where: {
           indicatorParameter: indicatorParameter,
-          ...(unit ? { dataSeries: { unit: unit } } : {}),
+          ...(unit !== undefined ? { dataSeries: { unit: unit } } : {}),
           roadmap: {
             id: roadmapId,
             isPublic: true,

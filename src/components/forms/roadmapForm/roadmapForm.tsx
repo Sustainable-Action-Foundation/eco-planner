@@ -5,7 +5,7 @@ import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import formSubmitter from "@/functions/formSubmitter";
 import parseCsv, { csvToGoalList } from "@/functions/parseCsv";
 import { LoginData } from "@/lib/session";
-import { AccessControlled, GoalInput, RoadmapInput } from "@/types";
+import { AccessControlled, GoalCreateInput, RoadmapInput } from "@/types";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
 import { useEffect, useMemo, useState } from "react";
 import styles from '../forms.module.css';
@@ -50,13 +50,11 @@ export default function RoadmapForm({
       form.namedItem("viewGroups")
     )
 
-    let goals: GoalInput[] = [];
+    let goals: GoalCreateInput[] = [];
     if (currentFile) {
       try {
-        goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer })));
-        if (goals.some((goal) => goal.dataScale)) {
-          alert(t("forms:roadmap.scale_deprecated"));
-        }
+        goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer })), () => alert(t("forms:roadmap.scale_deprecated")));
+        goals.forEach(goal => goal.roadmapId = metaRoadmapId);
       }
       catch (error) {
         setIsLoading(false)
@@ -72,7 +70,7 @@ export default function RoadmapForm({
       }
     })
 
-    const formData: RoadmapInput & { roadmapId?: string, goals?: GoalInput[], timestamp: number } = {
+    const formData: RoadmapInput & { roadmapId?: string, goals?: GoalCreateInput[], timestamp: number } = {
       description: (form.namedItem("description") as HTMLTextAreaElement)?.value || undefined,
       editors: editUsers,
       viewers: viewUsers,
@@ -89,7 +87,7 @@ export default function RoadmapForm({
 
     const formJSON = JSON.stringify(formData)
 
-    formSubmitter('/api/roadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', setIsLoading);
+    formSubmitter('/api/roadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading);
   }
 
   const [currentFile, setCurrentFile] = useState<File | null>(null)
@@ -134,12 +132,7 @@ export default function RoadmapForm({
           .then((buffer) => parseCsv(buffer))
           .then((csv) => {
             checkForBadDecoding(csv, t);
-            return csvToGoalList(csv);
-          })
-          .then((goals) => {
-            if (goals.some((goal) => goal.dataScale)) {
-              alert(t("forms:roadmap.scale_deprecated_extended"));
-            }
+            return csvToGoalList(csv, () => alert(t("forms:roadmap.scale_deprecated_extended")));
           })
           .then(() => setIsLoading(false))
           .catch((error) => {

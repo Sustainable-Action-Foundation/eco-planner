@@ -5,7 +5,7 @@ import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import type getRoadmaps from "@/fetchers/getRoadmaps";
 import mathjs from "@/math";
-import { dataSeriesDataFieldNames } from "@/types";
+import { Years } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 import { Fragment, useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
@@ -17,13 +17,6 @@ export function ManualGoalForm({
 }: {
   currentGoal?: Goal & {
     dataSeries: DataSeries | null,
-    combinationScale: string | null,
-    combinationParents: {
-      isInverted: boolean,
-      parentGoal: {
-        dataSeries: DataSeries | null
-      }
-    }[],
     author: { id: string, username: string },
     links?: { url: string, description: string | null }[],
     roadmap: { id: string },
@@ -31,7 +24,7 @@ export function ManualGoalForm({
   dataSeriesString?: string,
 }) {
   const { t } = useTranslation("forms");
-  const [parsedUnit, setParsedUnit] = useState<string | null>(null);
+  const [parsedUnit, setParsedUnit] = useState<string | null>("");
 
   useEffect(() => {
     if (currentGoal?.dataSeries?.unit) {
@@ -52,16 +45,22 @@ export function ManualGoalForm({
 
       <label className="block margin-block-100">
         {t("forms:goal.data_unit")}
-        <input className="margin-block-25" type="text" name="dataUnit" id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
+        <input className="margin-block-25" type="text" name="dataUnit" id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit ?? undefined} onChange={(e) => {
           try {
-            setParsedUnit(mathjs.unit(e.target.value).toString());
+            if (e.target.value === "") {
+              setParsedUnit("");
+            }
+            else {
+              setParsedUnit(mathjs.unit(e.target.value).toString());
+            }
           } catch {
             setParsedUnit(null);
           }
         }} />
-        {parsedUnit ?
+        {parsedUnit?.length === 0 ? <></> : parsedUnit === null ?
+          <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_not_interpreted")}</small>
+          :
           <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></small>
-          : <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_not_interpreted")}</small>
         }
       </label>
 
@@ -81,15 +80,6 @@ export function InheritedGoalForm({
 }: {
   currentGoal?: Goal & {
     dataSeries: DataSeries | null,
-    combinationScale: string | null,
-    combinationParents: {
-      isInverted: boolean,
-      parentGoal: {
-        id: string,
-        dataSeries: DataSeries | null,
-        roadmapId: string,
-      }
-    }[],
     author: { id: string, username: string },
     links?: { url: string, description: string | null }[],
     roadmap: { id: string },
@@ -97,19 +87,13 @@ export function InheritedGoalForm({
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
 }) {
   const { t } = useTranslation(["forms", "common"]);
-  const [selectedRoadmap, setSelectedRoadmap] = useState(currentGoal?.combinationParents[0]?.parentGoal.roadmapId);
+  const [selectedRoadmap, setSelectedRoadmap] = useState<string | undefined>();
   const [roadmapData, setRoadmapData] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
-  const [selectedGoal, setSelectedGoal] = useState(currentGoal?.combinationParents[0]?.parentGoal.id);
+  const [selectedGoal, setSelectedGoal] = useState<string | undefined>();
   const [goalData, setGoalData] = useState<Awaited<ReturnType<typeof clientSafeGetOneGoal>>>(null);
   const [parsedUnit, setParsedUnit] = useState<string | null>(null);
 
   useEffect(() => {
-    if (currentGoal?.combinationParents[0]?.parentGoal.roadmapId) {
-      setSelectedRoadmap(currentGoal.combinationParents[0].parentGoal.roadmapId);
-    }
-    if (currentGoal?.combinationParents[0]?.parentGoal.id) {
-      setSelectedGoal(currentGoal.combinationParents[0].parentGoal.id);
-    }
     if (currentGoal?.dataSeries?.unit) {
       try {
         setParsedUnit(mathjs.unit(currentGoal.dataSeries.unit).toString());
@@ -157,7 +141,7 @@ export function InheritedGoalForm({
             <option value="">{t("forms:goal.select_goal")}</option>
             {roadmapData?.goals.map((goal) => (
               <option value={goal.id} key={`inherit-${goal.id}`}>
-                {`${goal.name ?? t("forms:goal.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || t("common:tsx.unit_missing")})`}
+                {`${goal.name ?? t("forms:goal.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit === null ? t("common:tsx.unitless") : goal.dataSeries?.unit || t("common:tsx.unit_missing")})`}
               </option>
             ))}
           </select>
@@ -194,15 +178,6 @@ export function CombinedGoalForm({
   roadmapId?: string,
   currentGoal?: Goal & {
     dataSeries: DataSeries | null,
-    combinationScale: string | null,
-    combinationParents: {
-      isInverted: boolean,
-      parentGoal: {
-        id: string,
-        dataSeries: DataSeries | null,
-        roadmapId: string,
-      }
-    }[],
     author: { id: string, username: string },
     links?: { url: string, description: string | null }[],
     roadmap: { id: string },
@@ -220,9 +195,6 @@ export function CombinedGoalForm({
   }, [roadmapId]);
 
   useEffect(() => {
-    if (currentGoal?.combinationParents) {
-      setInheritFrom(currentGoal.combinationParents.map((parent) => parent.parentGoal.id));
-    }
     if (currentGoal?.dataSeries?.unit) {
       try {
         setParsedUnit(mathjs.unit(currentGoal.dataSeries.unit).toString());
@@ -241,7 +213,7 @@ export function CombinedGoalForm({
 
       <label className="block margin-block-75">
         {t("forms:goal.data_unit")}
-        <input className="margin-block-25" type="text" name="dataUnit" id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit} onChange={(e) => {
+        <input className="margin-block-25" type="text" name="dataUnit" id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit ?? undefined} onChange={(e) => {
           try {
             setParsedUnit(mathjs.unit(e.target.value).toString());
           } catch {
@@ -267,7 +239,6 @@ export function CombinedGoalForm({
             <Fragment key={`combine-${goal.id}`}>
               <label className="block margin-block-25">
                 <input type="checkbox" name="inheritFrom" className="margin-inline-25" value={goal.id}
-                  defaultChecked={currentGoal?.combinationParents.some((parent) => parent.parentGoal.id == goal.id)}
                   onChange={(e) => {
                     if (e.target.checked) {
                       setInheritFrom([...inheritFrom, e.target.value]);
@@ -276,13 +247,12 @@ export function CombinedGoalForm({
                     }
                   }}
                 />
-                {`${goal.name ?? t("forms:goal.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || t("common:tsx.unit_missing")})`}
+                {`${goal.name ?? t("forms:goal.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit === null ? t("common:tsx.unitless") : goal.dataSeries?.unit || t("common:tsx.unit_missing")})`}
               </label>
               {/* TODO: marginLeft: 25? What? */}
               {inheritFrom?.includes(goal.id) &&
                 <label className="block margin-block-25" style={{ marginLeft: 25 }}>
                   <input type="checkbox" name="invert-inherit" className="margin-inline-25" value={goal.id}
-                    defaultChecked={currentGoal?.combinationParents.some((parent) => parent.parentGoal.id == goal.id && parent.isInverted)}
                   />
                   {t("forms:goal.invert_goal")}
                 </label>
@@ -323,7 +293,7 @@ export function InheritingBaseline() {
   // If there is a data series, convert it to an array of numbers and then a string to use for the form
   const dataArray: (number | null)[] = []
   if (goalData?.dataSeries) {
-    for (const i of dataSeriesDataFieldNames) {
+    for (const i of Years) {
       dataArray.push(goalData.dataSeries[i])
     }
   }
@@ -356,7 +326,7 @@ export function InheritingBaseline() {
             <option value="">{t("forms:goal.select_goal")}</option>
             {roadmapData?.goals.map((goal) => (
               <option value={goal.id} key={`inherit-${goal.id}`} disabled={!goal.dataSeries}>
-                {`${(!goal.dataSeries) ? t("forms:goal.data_missing") : ""}${goal.name ?? t("forms:goal.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || t("common:tsx.unit_missing")})`}
+                {`${(!goal.dataSeries) ? t("forms:goal.data_missing") : ""}${goal.name ?? t("forms:goal.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit === null ? t("common:tsx.unitless") : goal.dataSeries?.unit || t("common:tsx.unit_missing")})`}
               </option>
             ))}
           </select>

@@ -8,16 +8,16 @@ export default function VerifyForm() {
   const { t } = useTranslation("pages");
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
-    event.preventDefault()
+    event.preventDefault();
 
-    const form = event.target
+    const form = event.target;
     if (!(form.email instanceof HTMLInputElement)) {
       return;
     }
-    const emailAddress = form.email.value
+    const emailAddress = form.email.value;
 
     // Send a new verification email
-    formSubmitter('/api/sendVerification', JSON.stringify({ email: emailAddress }), 'POST')
+    formSubmitter('/api/sendVerification', JSON.stringify({ email: emailAddress }), 'POST', t);
   }
 
   return (

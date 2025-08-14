@@ -6,7 +6,7 @@ import { ApiTableContent, ApiTableDetails } from "@/lib/api/apiTypes";
 import getTableContent from "@/lib/api/getTableContent";
 import getTableDetails from "@/lib/api/getTableDetails";
 import getTables from "@/lib/api/getTables";
-import { externalDatasets, getDatasetKeysOfApis } from "@/lib/api/utility";
+import { ExternalDataset } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient.tsx";
 import { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import { TrafaVariable } from "@/lib/trafa/trafaTypes";
@@ -110,7 +110,7 @@ export default function QueryBuilder({
       if (key == "externalTableId") return;
       if (key == tableSearchInputName) return;
       // The PxWeb time variable is special, as we want to fetch every period after (and including) the selected one
-      if (getDatasetKeysOfApis("PxWeb").includes(dataSource) && key == formRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
+      if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && key == formRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
         queryObject.push({ variableCode: key, valueCodes: [`FROM(${value})`] });
         return;
       }
@@ -127,7 +127,7 @@ export default function QueryBuilder({
       externalTableId: null,
       externalSelection: null,
       timestamp: Date.now(),
-    }), "PUT", setIsLoading);
+    }), "PUT", t, setIsLoading);
     closeModal(modalRef);
   }
 
@@ -150,7 +150,7 @@ export default function QueryBuilder({
       externalTableId: formData.get("externalTableId"),
       externalSelection: JSON.stringify(query),
       timestamp: Date.now(),
-    }), "PUT", setIsLoading);
+    }), "PUT", t, setIsLoading);
   }
 
   function enableSubmitButton() {
@@ -186,7 +186,7 @@ export default function QueryBuilder({
       const tableId = tableDetails?.id ?? formData.get("externalTableId") as string ?? "";
       getTableContent(tableId, dataSource, query, lang).then(result => {
         setTableContent(result);
-        if ((result?.data.length ?? 0) > 0) {
+        if ((result?.values.length ?? 0) > 0) {
           enableSubmitButton();
         } else {
           disableSubmitButton();
@@ -237,7 +237,7 @@ export default function QueryBuilder({
   }
 
   function handleSearch(query?: string) {
-    if (!externalDatasets[dataSource]?.baseUrl) return;
+    if (!dataSource || !ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
 
     void getTables(dataSource, query, lang).then(result => setTables(result));
   }
@@ -262,7 +262,7 @@ export default function QueryBuilder({
   function handleTableSelect(tableId: string) {
     setIsLoading(true);
 
-    if (!externalDatasets[dataSource]?.baseUrl) return;
+    if (!ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
     if (!tableId) return;
 
     clearTableContent();
@@ -276,10 +276,10 @@ export default function QueryBuilder({
     setIsLoading(true);
     const isDefaultValue = event.target.value.length == 0;
     setDefaultMetricSelected(isDefaultValue);
-    const variableSelectionFieldsets = document?.getElementsByName("variableSelectionFieldset");
+    const variableSelectionFieldSets = document?.getElementsByName("variableSelectionFieldset");
 
-    if (variableSelectionFieldsets.length > 0) {
-      variableSelectionFieldsets.forEach(variableSelectionFieldset => {
+    if (variableSelectionFieldSets.length > 0) {
+      variableSelectionFieldSets.forEach(variableSelectionFieldset => {
         if (!isDefaultValue && variableSelectionFieldset.hasAttribute("disabled")) {
           variableSelectionFieldset.removeAttribute("disabled");
         }
@@ -306,7 +306,7 @@ export default function QueryBuilder({
 
   // TODO: should probably use a pseudo class (::after) instead of a span here.
   function optionalTag(dataSource: string, variableIsOptional: boolean) {
-    if (getDatasetKeysOfApis("PxWeb").includes(dataSource) && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
+    if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
   }
 
   function handleTableListScroll(event: React.UIEvent<HTMLUListElement, UIEvent>) {
@@ -356,7 +356,7 @@ export default function QueryBuilder({
             required={!variable.optional}
             name={variable.name}
             id={variable.name}
-            defaultValue={getDatasetKeysOfApis("PxWeb").includes(dataSource) ?
+            defaultValue={ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" ?
               (// If only one value is available, pre-select it
                 variable.values && variable.values.length == 1 ? variable.values[0].label : undefined
               )
@@ -364,11 +364,11 @@ export default function QueryBuilder({
               undefined
             }>
             { // If only one value is available, don't show a placeholder option
-              getDatasetKeysOfApis("PxWeb").includes(dataSource) && variable.values && variable.values.length > 1 &&
+              ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variable.values && variable.values.length > 1 &&
               <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option>
             }
             {
-              !getDatasetKeysOfApis("PxWeb").includes(dataSource) &&
+              !(ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") &&
               <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option>
             }
             {variable.values && variable.values.map(value => (
@@ -383,7 +383,7 @@ export default function QueryBuilder({
   }
 
   function timeVariableSelectionHelper(times: (TrafaVariable | PxWebTimeVariable)[], language?: string) {
-    if ((dataSource == "Trafa" && !(times.length == 1 && times[0].name == "ar")) || (getDatasetKeysOfApis("PxWeb").includes(dataSource) && times.length > 1)) {
+    if ((dataSource == "Trafa" && !(times.length == 1 && times[0].name == "ar")) || (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && times.length > 1)) {
       let heading = "";
       let defaultValue = "";
       let displayValueKey: keyof typeof times[0]/* "label" | "id" | "name" | "type" */ = "id";
@@ -394,7 +394,7 @@ export default function QueryBuilder({
         // defaultValue = "Välj tidsintervall";
         defaultValue = t("components:query_builder.select_time_interval");
         displayValueKey = "label";
-      } else if (getDatasetKeysOfApis("PxWeb").includes(dataSource)) {
+      } else if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") {
         // heading = "Välj startperiod";
         heading = t("components:query_builder.select_starting_period");
         // defaultValue = "Välj tidsperiod";
@@ -418,7 +418,7 @@ export default function QueryBuilder({
   }
 
   function shouldVariableFieldsetBeVisible(tableDetails: ApiTableDetails, dataSource: string) {
-    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!getDatasetKeysOfApis("PxWeb").includes(dataSource) && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1);
+    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1);
     return returnBool;
   }
 
@@ -470,17 +470,15 @@ export default function QueryBuilder({
               <label className="margin-block-75 font-weight-500">
                 {t("components:query_builder.data_source")}
                 {/* Display warning message if the selected language is not supported by the api */}
-                {((externalDatasets[dataSource]) && !(externalDatasets[dataSource]?.supportedLanguages.includes(lang))) ?
+                {((ExternalDataset.getDatasetByAlternateName(dataSource)) && !(ExternalDataset.getDatasetByAlternateName(dataSource)?.supportedLanguages.includes(lang))) ?
                   <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
                   : null}
                 <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
                   <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
-                  {Object.keys(externalDatasets).map((name) => (
-                    <option key={name} value={name}>{externalDatasets[name]?.fullName}</option>
+                  {ExternalDataset.knownDatasetKeys.map((name) => (
+                    <option key={name} value={name}>{ExternalDataset[name]?.fullName}</option>
                   ))}
                 </select>
-
-
               </label>
 
               {dataSource ?
@@ -585,7 +583,7 @@ export default function QueryBuilder({
           </FormWrapper>
           <output>
             {/* TODO: style this better */}
-            {tableContent && tableContent.data.length > 0 ? (
+            {tableContent && tableContent.values.length > 0 ? (
               <div className="padding-inline-100">
                 <p>{t("components:query_builder.does_this_look_correct", { count: 5 })}</p>
                 <table>
@@ -597,17 +595,12 @@ export default function QueryBuilder({
                   </thead>
                   <tbody>
                     {
-                      tableContent.data.map((row, index) => {
-                        // Find the column of the time value
-                        let timeColumnIndex = 0;
-                        tableContent.columns.map((column, index) => {
-                          if (column.type == "t") timeColumnIndex = index
-                        })
+                      tableContent.values.map(({ period, value }, rowIndex) => {
                         return (
-                          index < 5 &&
-                          <tr key={row.key[timeColumnIndex].value}>
-                            <td>{row.key[timeColumnIndex].value}</td>
-                            <td>{row.values[0]}</td>
+                          rowIndex < 5 &&
+                          <tr key={period}>
+                            <td>{period}</td>
+                            <td>{value}</td>
                           </tr>
                         )
                       })

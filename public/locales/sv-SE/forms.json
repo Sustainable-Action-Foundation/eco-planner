@@ -72,6 +72,7 @@
     "choose_relationship": "Ange relationen till andra inlägg",
     "relationship_label": "Välj $t(common:roadmap_series_one) att $t(common:new.goal) under:",
     "relationship_no_chosen": "Välj $t(common:roadmap_series_one)",
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "data_series_type_legend": "Välj typ av dataserie för din $t(common:goal_one)",
     "data_series_type_label": "Dataserie",
     "data_series_types": {
@@ -79,15 +80,12 @@
       "inherited": "Ärvd",
       "combined": "Kombinerad"
     },
+    "default_scaling_recipe": "Standardskalningsrecept",
+    "default_combination_recipe": "Standardkombinationsrecept",
     "goal_description_legend": "Beskriv din $t(common:goal_one)",
     "goal_name": "Namn på $t(common:goal_one)",
     "goal_description": "Beskrivning av $t(common:goal_one)",
     "choose_goal_data_series": "Beskriv hur din {{$t(common:goal_one), possessive}} data är utformad",
-    "scaling_legend": "Skalning",
-    "remove_scaling": "Ta bort skalning",
-    "add_scaling": "Lägg till skalning",
-    "scaling_method_legend": "Skalningsmetod:",
-    "resulting_factor": "Resulterande skalfaktor:",
     "choose_baseline_for_actions": "Välj baslinje för $t(common:action_other)",
     "baseline_label": "Vilken baslinje ska man utgå ifrån när man beräknar {{$t(common:action_other), possessive}} $t(common:effect_other) på $t(common:goal_definite_one)?",
     "baseline_types": {
@@ -98,8 +96,6 @@
     "attach_external_resources": "Bifoga externa resurser",
     "feature_this_goal": "Vill du lyfta fram den här $t(common:goal_definite_one) under din $t(common:roadmap_version_one)?",
     "feature_goal": "Lyft fram $t(common:goal_definite_one)",
-    "scale_deprecated": "{{$t(common:goal_definite_one), titleCase}} innehåller en skala. Vänligen baka in skalan i värdet eller enheten och checka sedan i den här rutan. Alla skalor kommer att tas bort i framtiden",
-    "remove_scale": "Ta bort skalan, {{scale}}",
     "leap_parameter": "LEAP parameter",
     "data_unit": "Enhet för dataserie",
     "unit_interpreted_as": "Enheten tolkas som:",
@@ -119,7 +115,7 @@
     "name_label": "Namn",
     "name_placeholder": "ex. SCB",
     "url_label": "Länk",
-    "url_placeholder": "https://example.com" ,
+    "url_placeholder": "https://example.com",
     "remove_link_aria_label": "ta bort länk"
   },
   "repeatable_scaling": {

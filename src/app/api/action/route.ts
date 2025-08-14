@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/session"
 import prisma from "@/prismaClient";
-import { AccessControlled, AccessLevel, ClientError, ActionInput, DataSeriesDataFields } from "@/types";
+import { AccessControlled, AccessLevel, ClientError, ActionInput, DataSeriesValueFields } from "@/types";
 import accessChecker from "@/lib/accessChecker";
 import { revalidateTag } from "next/cache";
 import pruneOrphans from "@/functions/pruneOrphans";
@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Prepare action impact data
-  let impactData: Partial<DataSeriesDataFields> | undefined | null = undefined;
+  let impactData: Partial<DataSeriesValueFields> | undefined | null = undefined;
   if (action.dataSeries?.length) {
     // Parse the data series
     impactData = dataSeriesPrep(action.dataSeries);
@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
             dataSeries: {
               create: {
                 ...impactData,
-                unit: '',
+                unit: null,
                 authorId: session.user.id,
               }
             },

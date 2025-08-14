@@ -1,11 +1,14 @@
 import { PxWebMetric, PxWebTimeVariable, PxWebVariable } from "../pxWeb/pxWebApiV2Types"
 import { TrafaHierarchy, TrafaMetric, TrafaVariable } from "../trafa/trafaTypes"
 
-export type ApiTableContent = {
+export type OldApiTableContent = {
   id: string,
   columns: {
     id: string,
     label: string,
+    /**
+     * "d" for dimension, "m" for measure, "t" for time
+     */
     type: "d" | "m" | "t",
   }[],
   data: {
@@ -16,6 +19,18 @@ export type ApiTableContent = {
     label: string,
     source: string,
   }[],
+}
+
+export type ApiTableContent = {
+  id: string,
+  values: {
+    period: string,
+    value: string,
+  }[],
+  metadata: {
+    label: string,
+    source: string,
+  }[]
 }
 
 export type ApiTableDetails = {

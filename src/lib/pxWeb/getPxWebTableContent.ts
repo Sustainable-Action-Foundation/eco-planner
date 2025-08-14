@@ -3,17 +3,17 @@
 
 import { JSONValue } from "@/types.ts";
 import { ApiTableContent } from "../api/apiTypes.ts";
-import { externalDatasets } from "../api/utility.ts";
+import { ExternalDataset } from "../api/utility.ts";
 import getPxWebTableDetails from "./getPxWebTableDetails.ts";
 import { PxWebApiV2TableContent } from "./pxWebApiV2Types.ts";
 
 export default async function getPxWebTableContent(tableId: string, externalDataset: string, selection: { variableCode: string, valueCodes: string[] }[], language?: string,) {
   // Get the base URL for the external dataset, defaulting to SCB
-  const baseUrl = externalDatasets[externalDataset]?.baseUrl ?? externalDatasets.SCB?.baseUrl;
-  const url = new URL(`./tables/${tableId}/data`, baseUrl);
+  const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset) || ExternalDataset.SCB;
+  const url = new URL(`./tables/${tableId}/data`, dataset.baseUrl);
 
-  if (!language || !externalDatasets[externalDataset]?.supportedLanguages.includes(language)) {
-    language = externalDatasets[externalDataset]?.supportedLanguages[0];
+  if (!language || !dataset.supportedLanguages.includes(language)) {
+    language = dataset.supportedLanguages[0];
   }
   if (language) {
     url.searchParams.append('lang', language);
@@ -161,42 +161,56 @@ export default async function getPxWebTableContent(tableId: string, externalData
     return null;
   }
 
-  function pxWebTableContentToApiTableContent(pxWebTableContent: PxWebApiV2TableContent): ApiTableContent {
-    const returnTable: ApiTableContent = {
+  function pxWebTableContentToApiTableContent(pxWebTableContent: PxWebApiV2TableContent): ApiTableContent | null {
+    const resultTable: ApiTableContent = {
       id: tableId,
-      columns: [],
-      data: [],
+      values: [],
       metadata: [{
         label: pxWebTableContent.metadata[0].label,
         source: pxWebTableContent.metadata[0].source,
-      }],
+      }]
     };
 
     // Columns
-    // Create all columns of data info and add them to returnTable
-    for (const column of pxWebTableContent.columns) {
-      const pushColumn = {
-        id: column.code,
-        label: column.text,
-        type: column.type === "c" ? "m" : column.type as "t" | "d" | "m",
-      };
-      returnTable.columns.push(pushColumn);
+    // We're only interested in the time column (type "t") and data columns (type "c").
+    // We don't really care about dimension columns (type "d"), but it's worth noting that they cause years to be repeated if multiple values are allowed for any dimension,
+    // in which case we will discard the data altogether and request the user to update their selection.
+    const timeColumnIndex = pxWebTableContent.columns.findIndex(column => column.type === "t");
+
+    if (timeColumnIndex === -1) {
+      console.error("No time column found in pxWeb table content.");
+      return null;
     }
 
+    // Ensure no year is repeated in the time column
+    const timeValues = new Set<string>();
+    for (const data of pxWebTableContent.data) {
+      const timeValue = data.key[timeColumnIndex];
+      if (timeValues.has(timeValue)) {
+        console.error("Multiple occurences found of a single time period. Please update your selection to only include one option per dimension.");
+        return null;
+      }
+      timeValues.add(timeValue);
+    }
+
+    const dataColumns = pxWebTableContent.columns.filter(column => column.type === "c");
+    if (dataColumns.length === 0) {
+      console.error("No data columns found in PxWeb table content.");
+      return null;
+    } else if (dataColumns.length > 1) {
+      console.error("Multiple data columns found in PxWeb table content. Please select only one data column.");
+      return null;
+    }
     // Data
     // Create all data rows that will be returned by the function
     for (const data of pxWebTableContent.data) {
-      const pushData = {
-        key: [] as { columnId: string, value: string }[],
-        values: data.values,
-      };
-      for (let i = 0; i < data.key.length; i++) {
-        pushData.key.push({ columnId: returnTable.columns[i].id, value: data.key[i] });
-      };
-      returnTable.data.push(pushData);
+      resultTable.values.push({
+        period: data.key[timeColumnIndex],
+        value: data.values[0], // We expect exactly one value per row, so we can safely access it by index 0
+      });
     };
 
-    return returnTable;
+    return resultTable;
   }
 
   if (data instanceof Object && "columns" in data && "data" in data && "metadata" in data) {

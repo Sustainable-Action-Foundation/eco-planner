@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import type getOneAction from "@/fetchers/getOneAction.ts";
 import type getOneGoal from "@/fetchers/getOneGoal";
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
-import { dataSeriesDataFieldNames } from "@/types.ts";
+import { Years } from "@/types.ts";
 import { useTranslation } from "react-i18next";
 
 export function ActionSelector({
@@ -120,7 +120,7 @@ export function GoalSelector({
             <option value="" disabled>{t("forms:effect.select_goal")}</option>
             {roadmapData?.goals.map(goal => (
               <option key={`goal-selector${goal.id}`} value={goal.id}>
-                {`${goal.name ?? t("forms:effect.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit || t("common:tsx.unit_missing")})`}
+                {`${goal.name ?? t("forms:effect.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit === null ? t("common:tsx.unitless") : goal.dataSeries?.unit || t("common:tsx.unit_missing")})`}
               </option>
             ))}
           </select>
@@ -141,13 +141,13 @@ export function absoluteToDelta(absoluteDataSeries: string): string {
   })
 
   // Pad end of array
-  if (deltaArray.length < dataSeriesDataFieldNames.length) {
+  if (deltaArray.length < Years.length) {
     // In the database the array would be padded with null-values if a short array were to be sent. This is basically equivalent to padding with zeros, but zero-padding is more user-friendly.
     // In order to replicate the result of sending a short absolute array, we need to subtract the last number (setting total delta to 0) and then fill the rest of the array with zeros.
     const lastNumber = absoluteDataSeries.split(/[\t;]/).pop();
     deltaArray.push(`${lastNumber ? (-parseFloat(lastNumber) || 0).toString() : '0'}`);
 
-    while (deltaArray.length < dataSeriesDataFieldNames.length) {
+    while (deltaArray.length < Years.length) {
       deltaArray.push('0');
     }
   }
@@ -165,11 +165,11 @@ export function deltaToAbsolute(deltaDataSeries: string): string {
   })
 
   // Pad end of array
-  if (absoluteArray.length < dataSeriesDataFieldNames.length) {
+  if (absoluteArray.length < Years.length) {
     // In the database the array would be padded with null-values if a short array were to be sent. This is basically equivalent to padding with zeros, but zero-padding is more user-friendly.
     // In order to replicate the result of sending a short delta array, we need to fill the rest of the array with the last number in the array (no delta).
     const lastNumber = absoluteArray.slice(-1)[0];
-    while (absoluteArray.length < dataSeriesDataFieldNames.length) {
+    while (absoluteArray.length < Years.length) {
       absoluteArray.push(lastNumber || '0');
     }
   }

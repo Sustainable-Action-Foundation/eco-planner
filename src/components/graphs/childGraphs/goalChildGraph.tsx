@@ -1,7 +1,7 @@
 "use client";
 
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper.tsx";
-import { dataSeriesDataFieldNames } from "@/types.ts";
+import { Years } from "@/types.ts";
 import { DataSeries, Goal } from "@prisma/client";
 import { useTranslation } from "react-i18next";
 
@@ -31,7 +31,7 @@ export default function GoalChildGraph({
 
   // Data series for the main goal
   const mainSeries = [];
-  for (const i of dataSeriesDataFieldNames) {
+  for (const i of Years) {
     const value = goal.dataSeries[i];
 
     mainSeries.push({
@@ -51,7 +51,7 @@ export default function GoalChildGraph({
   for (const child of childGoals) {
     const childSeries = [];
     if (child.dataSeries) {
-      for (const i of dataSeriesDataFieldNames) {
+      for (const i of Years) {
         const value = child.dataSeries[i];
 
         childSeries.push({
@@ -103,11 +103,11 @@ export default function GoalChildGraph({
       type: 'datetime',
       labels: { format: 'yyyy' },
       tooltip: { enabled: false },
-      min: new Date(dataSeriesDataFieldNames[0].replace('val', '')).getTime(),
-      max: new Date(dataSeriesDataFieldNames[dataSeriesDataFieldNames.length - 1].replace('val', '')).getTime()
+      min: new Date(Years[0].replace('val', '')).getTime(),
+      max: new Date(Years[Years.length - 1].replace('val', '')).getTime()
     },
     yaxis: {
-      title: { text: goal.dataSeries?.unit },
+      title: { text: goal.dataSeries.unit === null ? t("common:tsx.unitless") : goal.dataSeries.unit || t("common:tsx.unit_missing") },
       labels: { formatter: graphNumberFormatter },
     },
     tooltip: {

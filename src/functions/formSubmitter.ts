@@ -1,5 +1,6 @@
 'use client';
 
+import { TFunction } from "i18next";
 import { isStandardObject, JSONValue } from "@/types";
 import { SetStateAction } from "react";
 
@@ -8,6 +9,7 @@ import { SetStateAction } from "react";
  * @param target The URL to submit the form to
  * @param body A JSON string containing the data to be submitted
  * @param method The HTTP method to use; "POST", "PUT", "DELETE", or "PATCH"
+ * @param t The translation function from i18next
  * @param loadingStateSetter A function to set the isLoading state of the form
  * @param defaultLocation A default location to redirect to if the API does not provide one
  * @param thenReplacement A function to handle the response data if the request is successful, replaces the default behavior
@@ -17,6 +19,7 @@ export default function formSubmitter(
   target: string,
   body: string | null,
   method: "POST" | "PUT" | "DELETE" | "PATCH",
+  t: TFunction,
   loadingStateSetter?: (value: SetStateAction<boolean>) => void,
   defaultLocation?: string,
   thenReplacement?: (data: { body: JSONValue, location?: string | null }) => void,
@@ -39,10 +42,10 @@ export default function formSubmitter(
         } else {
           // If the response is not a standard object, throw a generic error
           console.error('Unexpected non-ok response: ', res);
-          throw new Error(`Unexpected non-ok response, see terminal for more information. Status: ${res.status}, Status Text: ${res.statusText}`);
+          throw new Error(t("common:something_went_wrong_with_details", { details: `Unexpected non-ok response, see terminal for more information. Status: ${res.status}, Status Text: ${res.statusText}` }));
         }
       } else {
-        throw new Error(`Unexpected non-ok response status. Status: ${res.status}, Status Text: ${res.statusText}`);
+        throw new Error(t("common:errors.something_went_wrong"));
       }
     }
   }).then(data => {
@@ -73,9 +76,9 @@ export default function formSubmitter(
     }
     console.error(err);
     if (err instanceof Error) {
-      alert(`Något gick fel: ${err.message}`)
+      alert(`${t("common:errors.something_went_wrong_with_details", { details: err.message })}`);
     } else if (isStandardObject(err) && 'message' in err && typeof err.message === 'string') {
-      alert(`Något gick fel: ${err.message}`);
+      alert(`${t("common:errors.something_went_wrong_with_details", { details: err.message })}`);
       if ("location" in err && typeof err.location === 'string') {
         window.location.href = err.location;
       }

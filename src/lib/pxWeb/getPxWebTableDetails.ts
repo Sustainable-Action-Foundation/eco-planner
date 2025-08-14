@@ -1,16 +1,14 @@
 import { ApiTableDetails } from "../api/apiTypes";
-import { externalDatasets } from "../api/utility";
+import { ExternalDataset } from "../api/utility";
 import { PxWebMetric, PxWebTimeVariable, PxWebVariable, PxWebVariableValue } from "./pxWebApiV2Types";
 
 export default async function getPxWebTableDetails(tableId: string, externalDataset: string, language?: string) {
   // Get the base URL for the external dataset, defaulting to SCB
-  const baseUrl = externalDatasets[externalDataset]?.baseUrl ?? externalDatasets.SCB?.baseUrl;
-  const url = new URL(`./tables/${tableId}/metadata`, baseUrl);
+  const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset) || ExternalDataset.SCB;
+  const url = new URL(`./tables/${tableId}/metadata`, dataset.baseUrl);
 
-  /* console.time("pxWebTableDetails"); */
-
-  if (!language || !externalDatasets[externalDataset]?.supportedLanguages.includes(language)) {
-    language = externalDatasets[externalDataset]?.supportedLanguages[0];
+  if (!language || !dataset.supportedLanguages.includes(language)) {
+    language = dataset?.supportedLanguages[0];
   }
   if (language) {
     url.searchParams.append('lang', language);

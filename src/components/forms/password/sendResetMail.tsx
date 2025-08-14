@@ -4,25 +4,24 @@ import formSubmitter from "@/functions/formSubmitter"
 import { useTranslation } from "react-i18next"
 import { IconMail } from "@tabler/icons-react";
 
-function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
-  event.preventDefault()
-
-  const form = event.target;
-  if (form.email instanceof HTMLInputElement && typeof form.email.value === "string") {
-    const emailAddress = form.email.value.trim();
-
-    if (!emailAddress) {
-      return;
-    }
-
-    // Send a new verification email
-    formSubmitter('/api/sendReset', JSON.stringify({ email: emailAddress }), 'POST')
-  }
-}
-
-
 export default function SendResetMail() {
   const { t } = useTranslation(["pages", "common"]);
+
+  function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    const form = event.target;
+    if (form.email instanceof HTMLInputElement && typeof form.email.value === "string") {
+      const emailAddress = form.email.value.trim();
+
+      if (!emailAddress) {
+        return;
+      }
+
+      // Send a new verification email
+      formSubmitter('/api/sendReset', JSON.stringify({ email: emailAddress }), 'POST', t)
+    }
+  }
 
   return (
     <form onSubmit={handleSubmit}>

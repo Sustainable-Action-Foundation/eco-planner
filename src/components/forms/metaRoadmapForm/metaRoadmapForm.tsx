@@ -62,7 +62,7 @@ export default function MetaRoadmapForm({
 
     const formJSON = JSON.stringify(formData);
 
-    formSubmitter('/api/metaRoadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', setIsLoading);
+    formSubmitter('/api/metaRoadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading);
   }
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -74,6 +74,7 @@ export default function MetaRoadmapForm({
     [RoadmapType.REGIONAL]: t("common:scope.regional"),
     [RoadmapType.MUNICIPAL]: t("common:scope.municipal"),
     [RoadmapType.LOCAL]: t("common:scope.local"),
+    [RoadmapType.ORGANIZATIONAL]: t("common:scope.organizational"),
     [RoadmapType.OTHER]: t("common:scope.other"),
   }
 

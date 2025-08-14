@@ -1,8 +1,7 @@
 'use server';
 
-import { unstable_cache } from "next/cache";
-import { ApiTableContent } from "./api/apiTypes";
 import getPxWebTableContent from "./pxWeb/getPxWebTableContent";
+import { unstable_cacheTag as cacheTag, unstable_cacheLife as cacheLife } from 'next/cache';
 
 /**
  * Queries SCB for area data.
@@ -11,33 +10,38 @@ import getPxWebTableContent from "./pxWeb/getPxWebTableContent";
  * @returns Object containing the area of the target area and the parent area. Returns null if the query fails.
  */
 export default async function scbAreaQuery(areaCode: string, parentAreaCode?: string) {
-  return getCachedQuery(areaCode, parentAreaCode);
+  const area = await getCachedQuery(areaCode);
+  let parentArea: Awaited<ReturnType<typeof getCachedQuery>> = null;
+  if (parentAreaCode) {
+    parentArea = await getCachedQuery(parentAreaCode);
+  }
+
+  return {
+    area,
+    parentArea
+  };
 }
 
-const getCachedQuery = unstable_cache(
-  async (areaCode: string, parentAreaCode?: string) => {
-    const selection = [
-      // Include parent area only if it exists
-      { variableCode: "Region", valueCodes: [areaCode, ...(parentAreaCode ? [parentAreaCode] : [])] },
-      { variableCode: "ArealTyp", valueCodes: ["01"] },
-      { variableCode: "ContentsCode", valueCodes: ["000001O3"] },
-      // Use the latest time period
-      { variableCode: "Tid", valueCodes: ["TOP(1)"] }
-    ];
+async function getCachedQuery(areaCode: string) {
+  'use cache';
+  cacheTag('scbAreaQuery');
+  cacheLife("days");
 
-    const result: ApiTableContent | null = await getPxWebTableContent("TAB2946", "SCB", selection, "sv");
+  const selection = [
+    // Selected area
+    { variableCode: "Region", valueCodes: [areaCode] },
+    // Specifically land areas, not including water
+    { variableCode: "ArealTyp", valueCodes: ["01"] },
+    // Magic string to get area sizes in square kilometers (as opposed to hectares with "000007E1")
+    { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
+    // Use the latest time period
+    { variableCode: "Tid", valueCodes: ["TOP(1)"] }
+  ];
 
-    if (!result) return null;
+  const result = await getPxWebTableContent("TAB6420", "SCB", selection, undefined);
 
-    const areaData = result.data;
-    const area = areaData.find((data) => data.key[0].value == areaCode)?.values[0];
-    const parentArea = parentAreaCode && areaData.find((data) => data.key[0].value == parentAreaCode)?.values[0];
-
-    return {
-      area,
-      parentArea
-    };
-  },
-  ['scbAreaQuery'],
-  { revalidate: 600 }
-);
+  if (!result) return null;
+  // Get first (hopefully only) value
+  const areaData = result.values[0]?.value;
+  return areaData ?? null;
+}

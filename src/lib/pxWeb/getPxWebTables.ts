@@ -1,5 +1,5 @@
 import { PxWebApiV2TableArray } from "@/lib/pxWeb/pxWebApiV2Types";
-import { externalDatasets } from "../api/utility";
+import { ExternalDataset } from "../api/utility";
 
 /**
  * Returns a list of tables from PxWeb's API. Returns null on error.
@@ -9,12 +9,12 @@ import { externalDatasets } from "../api/utility";
  */
 export default async function getPxWebTables(externalDataset: string, searchQuery?: string, language?: string, pageSize: number = 9999) {
   // Get the base URL for the external dataset, defaulting to SCB
-  const baseUrl = externalDatasets[externalDataset]?.baseUrl ?? externalDatasets.SCB?.baseUrl;
-  const url = new URL('./tables', baseUrl);
+  const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset) || ExternalDataset.SCB;
+  const url = new URL('./tables', dataset.baseUrl);
 
   if (searchQuery) url.searchParams.append('query', searchQuery);
-  if (!language || !externalDatasets[externalDataset]?.supportedLanguages.includes(language)) {
-    language = externalDatasets[externalDataset]?.supportedLanguages[0];
+  if (!language || !dataset.supportedLanguages.includes(language)) {
+    language = dataset.supportedLanguages[0];
   }
   if (language) {
     url.searchParams.append('lang', language);

@@ -1,10 +1,10 @@
-import { dataSeriesDataFieldNames } from "@/types";
+import { Years } from "@/types";
 import { Prisma } from "@prisma/client";
 
-const dataFieldSelector = dataSeriesDataFieldNames.reduce((acc, field) => {
+const dataFieldSelector = Years.reduce((acc, field) => {
   acc[field] = true;
   return acc;
-}, {} as Partial<Prisma.DataSeriesSelect>);
+}, {} as Record<typeof Years[number], boolean>);
 
 export const nameSelector /* Prisma.MetaRoadmapSelect */ = {
   name: true,
@@ -36,7 +36,8 @@ export const nameSelector /* Prisma.MetaRoadmapSelect */ = {
   },
 };
 
-export const metaRoadmapInclusionSelection /* Prisma.MetaRoadmapInclude */ = {
+export const metaRoadmapInclusionSelection = {
+  // export const metaRoadmapInclusionSelection: Prisma.MetaRoadmapInclude = {
   roadmapVersions: {
     include: {
       metaRoadmap: {
@@ -76,13 +77,15 @@ export const metaRoadmapInclusionSelection /* Prisma.MetaRoadmapInclude */ = {
   viewGroups: { include: { users: { select: { id: true, username: true } } } },
 };
 
-export const roadmapInclusionSelection /* Prisma.RoadmapInclude */ = {
+export const roadmapInclusionSelection = {
+  // export const roadmapInclusionSelection: Prisma.RoadmapInclude = {
   metaRoadmap: true,
   goals: {
     include: {
-      _count: { select: { effects: true, combinationParents: true } },
+      _count: { select: { effects: true } },
       dataSeries: true,
       author: { select: { id: true, username: true } },
+      recipeSuggestions: true,
     }
   },
   actions: {
@@ -131,16 +134,13 @@ export const clientSafeRoadmapSelection /* Prisma.RoadmapSelect */ = {
       externalDataset: true,
       externalTableId: true,
       externalSelection: true,
-      combinationScale: true,
-      _count: { select: { effects: true, combinationParents: true } },
+      _count: { select: { effects: true } },
       dataSeries: {
         select: {
           id: true,
           unit: true,
           // All yearly data fields
           ...dataFieldSelector,
-          // DEPRECATED, remove once database is updated
-          scale: true,
         }
       },
     }
@@ -217,18 +217,8 @@ export const clientSafeMultiRoadmapSelection /* Prisma.RoadmapSelect */ = {
 export const goalInclusionSelection /* Prisma.GoalInclude */ = {
   _count: { select: { effects: true } },
   dataSeries: true,
+  recipeSuggestions: true,
   baselineDataSeries: true,
-  combinationParents: {
-    include: {
-      parentGoal: {
-        select: {
-          id: true,
-          dataSeries: true,
-          roadmapId: true,
-        },
-      },
-    },
-  },
   effects: {
     include: {
       dataSeries: true,
@@ -275,101 +265,21 @@ export const clientSafeGoalSelection /* Prisma.GoalSelect */ = {
   externalDataset: true,
   externalTableId: true,
   externalSelection: true,
-  combinationScale: true,
   roadmapId: true,
-  _count: { select: { effects: true } },
   dataSeries: {
     select: {
       id: true,
       unit: true,
-      // All yearly data fields
       ...dataFieldSelector,
-      // DEPRECATED, remove once database is updated
-      scale: true,
     }
   },
-  baselineDataSeries: {
-    select: {
-      id: true,
-      unit: true,
-      // All yearly data fields
-      ...dataFieldSelector,
-      // DEPRECATED, remove once database is updated
-      scale: true,
-    }
-  },
-  combinationParents: {
-    select: {
-      resultingGoalId: true,
-      parentGoalId: true,
-      isInverted: true,
-      parentGoal: {
-        select: {
-          id: true,
-          dataSeries: {
-            select: {
-              id: true,
-              unit: true,
-              // All yearly data fields
-              ...dataFieldSelector,
-              // DEPRECATED, remove once database is updated
-              scale: true,
-            }
-          },
-          roadmapId: true,
-        },
-      },
-    },
-  },
-  effects: {
-    select: {
-      impactType: true,
-      actionId: true,
-      goalId: true,
-      action: {
-        select: {
-          id: true,
-          name: true,
-          description: true,
-        },
-      },
-      dataSeries: {
-        select: {
-          id: true,
-          unit: true,
-          // All yearly data fields
-          ...dataFieldSelector,
-          // DEPRECATED, remove once database is updated
-          scale: true,
-        }
-      },
-    }
-  },
-  roadmap: {
-    select: {
-      id: true,
-      version: true,
-      targetVersion: true,
-      metaRoadmap: {
-        select: {
-          id: true,
-          name: true,
-          parentRoadmapId: true,
-        },
-      },
-    },
-  },
-  links: true,
-  comments: {
-    select: {
-      id: true,
-      commentText: true,
-      actionId: true,
-      goalId: true,
-      roadmapId: true,
-      metaRoadmapId: true,
-    },
-  },
+  _count: { select: { effects: true } },
+}
+
+export const clientSafeDataSeriesSelection /* Prisma.DataSeriesSelect */ = {
+  ...dataFieldSelector,
+  id: true,
+  unit: true,
 };
 
 export const actionInclusionSelection /* Prisma.ActionInclude */ = {

@@ -36,8 +36,7 @@
     "title": "Edit goal:"
   },
   "goal_create": {
-    "title": "Create goal",
-    "description": "Create a new goal"
+    "title": "Create goal"
   },
   "effect_edit": {
     "title": "Edit effect"

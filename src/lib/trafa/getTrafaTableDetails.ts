@@ -1,5 +1,5 @@
 import { ApiTableDetails } from "../api/apiTypes";
-import { externalDatasets } from "../api/utility";
+import { ExternalDataset } from "../api/utility";
 import getTrafaTables from "./getTrafaTables";
 import { StructureItem, TrafaFilter, TrafaHierarchy, TrafaMetric, TrafaVariable, TrafaVariableValue } from "./trafaTypes";
 import { getTrafaSearchQueryString } from "./trafaUtility";
@@ -7,10 +7,10 @@ import { getTrafaSearchQueryString } from "./trafaUtility";
 export default async function getTrafaTableDetails(tableId: string, selection: { variableCode: string, valueCodes: string[] }[] = [], language?: string) {
   const searchQuery = getTrafaSearchQueryString(selection);
 
-  const url = new URL('./structure', externalDatasets.Trafa?.baseUrl);
+  const url = new URL('./structure', ExternalDataset.Trafa.baseUrl);
   url.searchParams.append('query', `${tableId}${searchQuery}`);
-  if (!language || !externalDatasets["Trafa"]?.supportedLanguages.includes(language)) {
-    language = externalDatasets["Trafa"]?.supportedLanguages[0];
+  if (!language || !ExternalDataset.Trafa.supportedLanguages.includes(language)) {
+    language = ExternalDataset.Trafa.supportedLanguages[0];
   }
   if (language) {
     url.searchParams.append('lang', language);

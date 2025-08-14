@@ -6,27 +6,24 @@ import { useState } from "react"
 import styles from "@/components/forms/forms.module.css";
 import { IconEye, IconEyeOff, IconLock } from "@tabler/icons-react";
 
-function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
-  event.preventDefault()
-
-  const form = event.target
-
-  const params = new URLSearchParams(window.location.search)
-  const email = params.get('email')
-  const hash = params.get('hash')
-
-  if (form.password instanceof HTMLInputElement && typeof form.password.value === "string") {
-    const newPassword = form.password.value
-
-    if (!email || !hash || !newPassword) {
-      return;
-    }
-    formSubmitter('/api/resetPassword', JSON.stringify({ email, hash, newPassword }), 'PATCH')
-  }
-}
-
 export default function UpdatePassword() {
   const { t } = useTranslation(["pages", "common"]);
+
+  function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const form = event.target;
+    if (!(form.password instanceof HTMLInputElement)) {
+      return;
+    }
+    const newPassword = form.password.value;
+
+    const params = new URLSearchParams(window.location.search);
+    const email = params.get('email');
+    const hash = params.get('hash');
+
+    formSubmitter('/api/resetPassword', JSON.stringify({ email, hash, newPassword }), 'PATCH', t);
+  }
 
   const [showPassword, setShowPassword] = useState(false)
 

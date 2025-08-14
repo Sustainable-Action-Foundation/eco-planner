@@ -21,7 +21,7 @@ import { getSession } from "@/lib/session";
 import serveTea from "@/lib/i18nServer";
 import prisma from "@/prismaClient";
 import { AccessControlled, AccessLevel } from "@/types";
-import type { DataSeries, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
+import type { Recipe, DataSeries, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -104,6 +104,18 @@ export default async function Page(
     return notFound();
   }
 
+  // TODO - remove
+  let recipeUsed = null;
+  const recipeUsedHash = goal.recipeUsedId;
+  if (recipeUsedHash) {
+    const recipeInDb = await prisma.recipe.findFirst({
+      where: { hash: recipeUsedHash },
+    });
+    if (recipeInDb) {
+      recipeUsed = recipeInDb as Recipe;
+    }
+  }
+
   // Create a list of roadmaps the user can copy and scale the goal to
   const roadmapOptions = unfilteredRoadmapOptions.filter(roadmap => {
     if (session.user?.isAdmin) return true;
@@ -156,14 +168,14 @@ export default async function Page(
 
   // If any goalParent has a data series with a later updatedAt date than the goal, the goal should be updated
   let shouldUpdate = false;
-  if (goal.combinationParents) {
-    for (const parent of goal.combinationParents) {
-      if (parent.parentGoal.dataSeries?.updatedAt && parent.parentGoal.dataSeries.updatedAt > (goal.dataSeries?.updatedAt ?? new Date(0))) {
-        shouldUpdate = true;
-        break;
-      }
-    }
-  }
+  // if (goal.combinationParents) {
+  //   for (const parent of goal.combinationParents) {
+  //     if (parent.parentGoal.dataSeries?.updatedAt && parent.parentGoal.dataSeries.updatedAt > (goal.dataSeries?.updatedAt ?? new Date(0))) {
+  //       shouldUpdate = true;
+  //       break;
+  //     }
+  //   }
+  // }
 
   return (
     <>
@@ -223,6 +235,14 @@ export default async function Page(
             </>
           }
 
+          {/* TODO - remove */}
+          {recipeUsed && (<pre>
+            {recipeUsed.hash}
+            <br />
+            {JSON.stringify(recipeUsed.recipe, null, 4)}
+            <br />
+          </pre>)}
+
           {goal.description ?
             <>
               <h2 className="margin-top-200 margin-bottom-0">{t("pages:goal.description")}</h2>
@@ -254,15 +274,6 @@ export default async function Page(
                 <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
                 : null}
             </GraphGraph>
-
-            {goal.dataSeries?.scale &&
-              <>
-                <p>{t("pages:goal.scale_notice", { scale: goal.dataSeries?.scale })}</p>
-                {hasEditAccess(accessLevel) &&
-                  <strong>{t("pages:goal.scale_deprecation_warning")}</strong>
-                }
-              </>
-            }
           </section>
 
           <section className="margin-block-300">
