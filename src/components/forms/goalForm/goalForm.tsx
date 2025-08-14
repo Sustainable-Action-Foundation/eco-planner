@@ -17,17 +17,19 @@ import styles from '../forms.module.css';
 import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
 import { IconCircleMinus } from "@tabler/icons-react";
 
-enum DataSeriesType {
-  Static = "STATIC",
-  Inherited = "INHERIT",
-  Combined = "COMBINE",
-}
+const DataSeriesType = {
+  Static: "STATIC",
+  Inherited: "INHERIT",
+  Combined: "COMBINE",
+} as const;
+type DataSeriesType = (typeof DataSeriesType)[keyof typeof DataSeriesType];
 
-enum BaselineType {
-  Initial = "INITIAL",
-  Custom = "CUSTOM",
-  Inherited = "INHERIT",
-}
+const BaselineType = {
+  Initial: "INITIAL",
+  Custom: "CUSTOM",
+  Inherited: "INHERIT",
+} as const;
+type BaselineType = (typeof BaselineType)[keyof typeof BaselineType];
 
 export default function GoalForm({
   roadmapId,
@@ -181,7 +183,7 @@ export default function GoalForm({
 
   return (
     <>
-      <form onSubmit={handleSubmit} onChange={() => { recalculateScalingResult() }} name="goalForm">
+      <form onSubmit={handleSubmit} onChange={() => { void recalculateScalingResult() }} name="goalForm">
         {/* This hidden submit button prevents submitting by pressing enter, to avoid accidental submission */}
         <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
@@ -265,7 +267,7 @@ export default function GoalForm({
                     > {/* Multiplicative scaling doesn't use weights */}
                       <button type="button" className="grid" aria-label={t("forms:goal.remove_scaling")}
                         onClick={() => setScalingRecipe({ method: scalingRecipie.method, values: scalingRecipie.values.filter((_, i) => i !== index) })}>
-                        <IconCircleMinus aria-hidden="true" width={24} height={24}  />
+                        <IconCircleMinus aria-hidden="true" width={24} height={24} />
                       </button>
                     </RepeatableScaling>
                   )

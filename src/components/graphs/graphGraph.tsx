@@ -12,11 +12,12 @@ import MainRelativeGraph from "./mainGraphs/mainRelativeGraph";
 import SecondaryGoalSelector from "./secondaryGraphSelector";
 import { Trans, useTranslation } from "react-i18next";
 
-export enum GraphType {
-  Main = "MAIN",
-  Relative = "RELATIVE",
-  Delta = "DELTA",
-}
+export const GraphType = {
+  Main: "MAIN",
+  Relative: "RELATIVE",
+  Delta: "DELTA",
+} as const;
+export type GraphType = (typeof GraphType)[keyof typeof GraphType];
 
 export default function GraphGraph({
   goal,
