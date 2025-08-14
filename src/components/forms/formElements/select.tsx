@@ -16,6 +16,7 @@ export function SelectSingleSearch({
   name,
   initialValue,
   defaultValue,
+  required,
   searchBoxLabel,
   searchBoxPlaceholder,
   options,
@@ -24,8 +25,9 @@ export function SelectSingleSearch({
   style?: React.CSSProperties,
   id: string,
   name: string,
-  initialValue?: string,
+  initialValue?: string, // Represents an informative string which must not be submitted by the user
   defaultValue?: string,
+  required?: boolean,
   searchBoxLabel: string,
   searchBoxPlaceholder?: string
   options: Array<string>,
@@ -36,12 +38,21 @@ export function SelectSingleSearch({
     ? [initialValue, ...options]
     : options;
 
-  const [value, setValue] = useState<string>(defaultValue ? defaultValue : extendedOptions[0])
+  const [value, setValue] = useState<string>(defaultValue ? defaultValue : extendedOptions[0]) // TODO: If initialvalue is passed it should be represented as an empty string for the actual value
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const toggleRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
   const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null);
+  const [valueIsValid, setValueIsValid] = useState<boolean>() // TODO: Export this and use in form validation? Or use the form validation api on the button or something ?
+
+  useEffect(() => {
+    if (!value && required || value == initialValue || !extendedOptions.includes(value)) {
+      setValueIsValid(false)
+    } else {
+      setValueIsValid(true)
+    }
+  }, [value])
 
   // Fuse search
   const [results, setResults] = useState<string[]>([])
@@ -143,7 +154,6 @@ export function SelectSingleSearch({
         setFocusedListBoxItem(results.length - 1)
       }
     }
-
   };
 
   return (
@@ -164,6 +174,8 @@ export function SelectSingleSearch({
         aria-haspopup="dialog"
         role="combobox"
         type="button"
+        aria-required={required ? required : false}
+        aria-invalid={!valueIsValid}
       >
         {value}
         <IconSelector height={20} width={20} aria-hidden={true} />
@@ -175,12 +187,12 @@ export function SelectSingleSearch({
           ${menuOpen ? styles['visible'] : ''} 
           margin-inline-0`
         }
-        //onBlur={(e) => {
-          // if (!e.currentTarget.contains(e.relatedTarget)) {
-            // setFocusedListBoxItem(null)
-            // setMenuOpen(false);
-          // }
-        // }}
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget)) {
+            setFocusedListBoxItem(null)
+            setMenuOpen(false);
+          }
+        }}
         tabIndex={-1}
         role="dialog"  
       >

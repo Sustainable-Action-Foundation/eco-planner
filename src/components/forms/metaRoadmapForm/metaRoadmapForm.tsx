@@ -154,12 +154,14 @@ export default function MetaRoadmapForm({
             />
           </div>
         </fieldset>
-
+          
+        {/*
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:meta_roadmap.attach_external")}</legend>
           <LinkInput />
         </fieldset>
-
+        */}
+       
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
             <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:meta_roadmap.change_read_access")}</legend>
@@ -194,8 +196,10 @@ export default function MetaRoadmapForm({
               name="parent-roadmap"
               searchBoxLabel="Sök..." // TODO: i18n
               searchBoxPlaceholder="Sök..." // TODO: i18n
-              initialValue={t("forms:meta_roadmap.relationship_no_chosen")}
-              options={parentRoadmapOptions.map((metaRoadmap) => metaRoadmap.name)}
+              options={[
+                t("forms:meta_roadmap.relationship_no_chosen"),
+                ...parentRoadmapOptions.map((metaRoadmap) => metaRoadmap.name)
+              ]}            
             />
           ) : null}
           {/*
