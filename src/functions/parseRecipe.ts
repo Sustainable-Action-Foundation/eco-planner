@@ -132,7 +132,7 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
           }
 
           if (!variable.link) {
-            throw new RecipeError(`Data series variable '${key}' is missing 'link' property.`);
+            throw new RecipeError(`Data series variable '${key}' is missing 'link' property. Probably just haven't made the selection yet.`);
           }
 
           const dataSeriesInDB = await clientSafeGetOneDataSeries(variable.link);

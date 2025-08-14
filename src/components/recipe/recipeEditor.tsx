@@ -207,14 +207,19 @@ export function RecipeVariableEditor({
       return;
     }
 
-    setAvailableDataSeries([]);
+    setAvailableDataSeries(null);
 
-    async function fetchDataSeries(roadmapId: string) {
+    async function fetchOneDataSeries(roadmapId: string) {
       try {
         const roadmapData = await clientSafeGetOneRoadmap(roadmapId);
         if (!roadmapData?.goals) return;
 
         const goals = roadmapData?.goals;
+        if (!goals || !Array.isArray(goals) || goals.length === 0) {
+          console.warn("No goals found in roadmap", roadmapId);
+          return;
+        }
+
         const series = goals.filter(g => g.dataSeries).map(goal => {
           if (!goal.dataSeries) return null;
           return {
@@ -224,16 +229,35 @@ export function RecipeVariableEditor({
             ...(goal.dataSeries.unit ? { unit: goal.dataSeries.unit } : {})
           }
         });
+        if (series.length === 0) {
+          console.warn("No data series found in roadmap", roadmapId);
+          return;
+        }
 
-        const dataSeriesFound = series.filter(ds => ds !== null) as { id: string; name: string; roadmapId: string; }[];
-        setAvailableDataSeries([...(availableDataSeries || []), ...dataSeriesFound]);
+        const dataSeriesFound = Object.fromEntries(series
+          .filter(ds => ds !== null)
+          .map(ds => ([ds.id, ds])));
+        const existingDataSeries = Object.fromEntries(availableDataSeries?.map(ds => ([ds.id, ds])) || []);
+
+        // Sets the available data series as a union of unique existing and newly found data series
+        setAvailableDataSeries(Object.values({ ...existingDataSeries, ...dataSeriesFound }) as { id: string; name: string; roadmapId: string; unit?: string; }[]);
       }
       catch (e) {
         console.error("Failed to fetch data series for roadmap", e);
       }
     }
 
-    Promise.all(selectedRoadmaps.map(roadmapId => fetchDataSeries(roadmapId)));
+    async function fetchAllDataSeries() {
+      if (!selectedRoadmaps || selectedRoadmaps.length === 0) return;
+
+      setAvailableDataSeries(null);
+
+      for (const roadmapId of selectedRoadmaps) {
+        await fetchOneDataSeries(roadmapId);
+      }
+    }
+
+    fetchAllDataSeries();
 
   }, [recipe?.variables]);
 
