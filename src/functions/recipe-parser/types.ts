@@ -5,53 +5,19 @@ import { isStandardObject, uuidRegex } from "@/types";
 /* 
  * Common types for recipes
  */
-export enum RecipeDataTypes {
-  Scalar = "scalar",
-  DataSeries = "dataSeries",
-  External = "external",
-};
-export const RecipeDataTypesMap = Object.fromEntries(Object.entries(RecipeDataTypes).map(([key, value]) => ([value, key])));
-
-export type DataSeriesArray = Partial<{
-  "val2020": number | null;
-  "val2021": number | null;
-  "val2022": number | null;
-  "val2023": number | null;
-  "val2024": number | null;
-  "val2025": number | null;
-  "val2026": number | null;
-  "val2027": number | null;
-  "val2028": number | null;
-  "val2029": number | null;
-  "val2030": number | null;
-  "val2031": number | null;
-  "val2032": number | null;
-  "val2033": number | null;
-  "val2034": number | null;
-  "val2035": number | null;
-  "val2036": number | null;
-  "val2037": number | null;
-  "val2038": number | null;
-  "val2039": number | null;
-  "val2040": number | null;
-  "val2041": number | null;
-  "val2042": number | null;
-  "val2043": number | null;
-  "val2044": number | null;
-  "val2045": number | null;
-  "val2046": number | null;
-  "val2047": number | null;
-  "val2048": number | null;
-  "val2049": number | null;
-  "val2050": number | null;
-}>;
+export const RecipeDataTypes = {
+  Scalar: "scalar",
+  DataSeries: "dataSeries",
+  External: "external",
+} as const;
+export type RecipeDataTypes = typeof RecipeDataTypes[keyof typeof RecipeDataTypes];
 
 
 /** 
  * Scalar variable types
  */
 export type RecipeScalar = {
-  type: RecipeDataTypes.Scalar;
+  type: typeof RecipeDataTypes.Scalar;
   value: number;
   unit: string | null | undefined; // String if given, null if removed, undefined if not specified
 };
@@ -88,7 +54,7 @@ export function isRecipeScalar(variable: unknown): variable is RecipeScalar {
  * Data series types
  */
 export type RecipeDataSeries = {
-  type: RecipeDataTypes.DataSeries;
+  type: typeof RecipeDataTypes.DataSeries;
   link: string | null; // uuid of data series in the database
   pick: VectorIndexPick;
 };
@@ -122,7 +88,7 @@ export function isRecipeDataSeries(variable: unknown): variable is RecipeDataSer
  * External datasets types
  */
 export type RecipeExternalDataset = {
-  type: RecipeDataTypes.External;
+  type: typeof RecipeDataTypes.External;
   /** Datasets are defined in [`src/lib/api/utility.ts`](../../lib/api/utility.ts) */
   dataset: DatasetKeys; // One of the datasets specified in externalDatasets
   tableId: string; // The ID of the table in the dataset
@@ -131,8 +97,8 @@ export type RecipeExternalDataset = {
     valueCodes: string[]
   }[]; // The selection to be made on the table, e.g. [{ variableCode: "Tid", valueCodes: ["2020M01"] }]
   pick: VectorIndexPick;
+  unit: string | null | undefined; // String if given, null if removed, undefined if not specified
 };
-
 export function isRecipeExternalDataset(variable: unknown): variable is RecipeExternalDataset {
   const allowedProps = ["type", "dataset", "tableId", "selection"];
 
@@ -175,6 +141,14 @@ export function isRecipeExternalDataset(variable: unknown): variable is RecipeEx
     (typeof variable.pick === "string" && VectorIndexPick[variable.pick as keyof typeof VectorIndexPick] !== undefined)
     &&
 
+    "unit" in variable &&
+    (
+      typeof variable.unit === "string" ||
+      variable.unit === null ||
+      variable.unit === undefined
+    )
+    &&
+
     // Ensure no other properties are present
     Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0
   );
@@ -190,7 +164,6 @@ export type Recipe = {
   eq: string;
   variables: Record<string, RecipeVariables>;
 };
-
 export function isRecipe(variable: unknown): variable is Recipe {
   const allowedProps = ["name", "eq", "variables"];
 
@@ -224,6 +197,7 @@ export function isRecipe(variable: unknown): variable is Recipe {
     Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0
   );
 }
+
 
 /*
  * Variable during evaluation of a recipe. Should not persist beyond that scope.

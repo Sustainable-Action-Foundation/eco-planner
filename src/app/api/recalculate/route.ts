@@ -3,7 +3,7 @@ import { RecipeError } from "@/functions/recipe-parser/types";
 import accessChecker from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
-import { AccessControlled, AccessLevel, ClientError, DataSeriesDataFields } from "@/types";
+import { AccessControlled, AccessLevel, ClientError, DataSeriesValueFields } from "@/types";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
@@ -83,10 +83,10 @@ export async function POST(request: NextRequest) {
     // Try to update goal
     const warnings: string[] = [];
     const recalculatedData = await evaluateRecipe(parsedRecipe, warnings);
-    const dataSeries: Partial<DataSeriesDataFields> = {};
+    const dataSeries: Partial<DataSeriesValueFields> = {};
     for (const [key, value] of Object.entries(recalculatedData)) {
       if (key === "unit") continue; // Skip unit, it's not a data series field
-      dataSeries[("val" + key) as keyof DataSeriesDataFields] = value as number | null;
+      dataSeries[("val" + key) as keyof DataSeriesValueFields] = value as number | null;
     }
 
     const updatedGoal = await prisma.goal.update({

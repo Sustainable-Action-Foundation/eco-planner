@@ -1,9 +1,8 @@
 import type { DataSeriesArray, EvalTimeDataSeries, EvalTimeScalar, RecipeExternalDataset, Recipe, Recipe, RecipeVariableDataSeries, RecipeVariables, RecipeScalar, EvalTimeExternalDataset } from "./recipe-parser/types";
-import { RecipeDataTypes, isRawDataSeriesByValue, isRecipeDataSeries, isRecipeScalar, MathjsError, RecipeError, isRecipeExternalDataset, RecipeDataTypesMap } from "./recipe-parser/types";
+import { RecipeDataTypes, isRecipeDataSeries, isRecipeScalar, MathjsError, RecipeError, isRecipeExternalDataset, RecipeDataTypesMap } from "./recipe-parser/types";
 import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
 import mathjs from "@/math";
-import { Years as years, isStandardObject, uuidRegex, Years } from "@/types";
-import { ApiTableContent } from "@/lib/api/apiTypes";
+import { Years, isStandardObject, uuidRegex, } from "@/types";
 import getTableContent from "@/lib/api/getTableContent";
 import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
 
@@ -144,7 +143,7 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
         } else if (isRawDataSeriesByValue(variable)) {
           // Map data series to known valid years
           const dataSeries: DataSeriesArray = {};
-          for (const year of years) {
+          for (const year of Years) {
             const inputValue = variable.value[year];
             if (inputValue === undefined || inputValue === null) {
               dataSeries[year] = null; // Explicitly set to null for missing years
@@ -268,7 +267,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
       }
 
       const data: DataSeriesArray = {};
-      for (const year of years) {
+      for (const year of Years) {
         data[year] = dbDataSeries[year];
       }
 
@@ -384,7 +383,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     }
 
     const seriesValues = [];
-    for (const year of years) {
+    for (const year of Years) {
       const isBeforeLastDefinedYear = parseInt(year.replace("val", "")) <= parseInt(lastYearWithData.replace("val", ""));
       if (!isBeforeLastDefinedYear) break;
 
@@ -472,7 +471,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     resultArray = result.toArray();
   }
   else if (["number", "BigNumber", "Complex", "Unit"].includes(mathjs.typeOf(result))) {
-    resultArray = years.map(() => result);
+    resultArray = Years.map(() => result);
     if (mathjs.typeOf(result) === "number") {
       warnings.push(`Resulting scalar value ${result} will be applied to all years. This may not be intended.`);
     }
@@ -481,14 +480,14 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     throw new RecipeError(`Unsupported result type: ${mathjs.typeOf(result)}. Expected a number, array, or matrix.`);
   }
 
-  if (resultArray.length > years.length) {
-    warnings.push(`Resulting array has more values than years (${resultArray.length} vs ${years.length}). The trailing ${resultArray.length - years.length} values will be discarded.`);
+  if (resultArray.length > Years.length) {
+    warnings.push(`Resulting array has more values than years (${resultArray.length} vs ${Years.length}). The trailing ${resultArray.length - Years.length} values will be discarded.`);
   }
 
   // Process the result array into the output format
   let commonUnit: string | undefined;
-  for (let i = 0; i < Math.min(resultArray.length, years.length); i++) {
-    const year = years[i];
+  for (let i = 0; i < Math.min(resultArray.length, Years.length); i++) {
+    const year = Years[i];
     let value = resultArray[i];
 
     if (value === null || value === undefined) {

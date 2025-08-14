@@ -1,7 +1,7 @@
 import { getLocalStorage, getSessionStorage, setLocalStorage, setSessionStorage } from "@/functions/localStorage";
 import { GraphType } from "../graphGraph";
 import { ActionImpactType, type DataSeries, type Effect } from "@prisma/client";
-import { Years, DataSeriesDataFields } from "@/types";
+import { Years, DataSeriesValueFields } from "@/types";
 import { ChildGraphType } from "../childGraphs/childGraphContainer";
 
 /** Retrieves the graph type for a goal from storage. */
@@ -102,7 +102,7 @@ export function calculatePredictedOutcome(effects: (Effect & { dataSeries: DataS
   }
 
   // Calculate total impact of actions/effects
-  const totalEffect: Partial<DataSeriesDataFields> = {};
+  const totalEffect: Partial<DataSeriesValueFields> = {};
   for (const i of Years) {
     for (const effect of effects) {
       if (effect.dataSeries && (effect.impactType === ActionImpactType.DELTA)) {

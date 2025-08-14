@@ -1,4 +1,4 @@
-import { DataSeriesDataFields, Years } from "@/types";
+import { DataSeriesValueFields, Years } from "@/types";
 
 /**
  * Parses an object containing a string array called dataSeries into the format needed to create a data series.
@@ -11,7 +11,7 @@ export default function dataSeriesPrep(
   dataSeries: string[],
 ) {
   // Text fields
-  const dataValues: Partial<DataSeriesDataFields> = {};
+  const dataValues: Partial<DataSeriesValueFields> = {};
   // Data value fields
   if (dataSeries?.length && dataSeries.length <= Years.length) {
     if (dataSeries.length < Years.length) {

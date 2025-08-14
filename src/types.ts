@@ -341,4 +341,4 @@ export type EffectInput = Omit<
 // These are derived from the schema file through the getDataSeriesValueFieldNames script
 export const Years = GeneratedYears;
 export type Years = (typeof Years)[number];
-export type DataSeriesDataFields = Record<Years, number | null>;
+export type DataSeriesValueFields = Record<Years, number | null>;
