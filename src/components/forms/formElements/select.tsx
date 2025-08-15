@@ -14,7 +14,6 @@ export function SelectSingleSearch({
   style,
   id,
   name,
-  initialValue,
   defaultValue,
   required,
   searchBoxLabel,
@@ -25,20 +24,14 @@ export function SelectSingleSearch({
   style?: React.CSSProperties,
   id: string,
   name: string,
-  initialValue?: string, // Represents an informative string which must not be submitted by the user
-  defaultValue?: string,
+  defaultValue?: {name: string, value: string},
   required?: boolean,
   searchBoxLabel: string,
   searchBoxPlaceholder?: string
-  options: Array<string>,
+  options: Array<{name: string, value: string}>,
 }) {
-  const { t } = useTranslation(["forms"]);
-
-  const extendedOptions = initialValue
-    ? [initialValue, ...options]
-    : options;
-
-  const [value, setValue] = useState<string>(defaultValue ? defaultValue : extendedOptions[0]) // TODO: If initialvalue is passed it should be represented as an empty string for the actual value
+  const { t } = useTranslation(["forms"]);  
+  const [value, setValue] = useState<{name: string, value: string}>(defaultValue ? defaultValue : options[0]) // TODO: Update this name
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const toggleRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -47,21 +40,42 @@ export function SelectSingleSearch({
   const [valueIsValid, setValueIsValid] = useState<boolean>() // TODO: Export this and use in form validation? Or use the form validation api on the button or something ?
 
   useEffect(() => {
-    if (!value && required || value == initialValue || !extendedOptions.includes(value)) {
+    if (value.value == "" && required) { {/* || !results.includes(value) */}
       setValueIsValid(false)
     } else {
       setValueIsValid(true)
     }
   }, [value])
 
+  useEffect(() => {
+    // Find the closest form element up the DOM tree
+    const form = toggleRef.current?.closest("form");
+    if (!form) return;
+
+    const handleSubmit = (e: Event) => {
+      if (required && value.value === "") {
+        e.preventDefault(); // Stop submission
+        e.stopPropagation();
+        // You can also set a visual indicator for invalid state here
+        setValueIsValid(false);
+        toggleRef.current?.focus();
+      }
+    };
+
+    form.addEventListener("submit", handleSubmit);
+    return () => form.removeEventListener("submit", handleSubmit);
+  }, [required, value]);
+
   // Fuse search
-  const [results, setResults] = useState<string[]>([])
+  const [results, setResults] = useState<Array<{name: string, value: string}>>([])
   const [searchValue, setSearchValue] = useState<string>('')
 
   // Handle search results
   useEffect(() => {
-    const fuse = new Fuse(extendedOptions);
-    const newResults = searchValue ? fuse.search(searchValue).map(result => result.item) : extendedOptions;
+    const fuse = new Fuse(options, {
+      keys: ['name']
+    });
+    const newResults = searchValue ? fuse.search(searchValue).map(result => result.item) : options;
     setResults(newResults);
   }, [searchValue]);
 
@@ -165,7 +179,7 @@ export function SelectSingleSearch({
         id={id}
         className={`${styles['select-toggle']}`}
         style={{ borderColor: menuOpen ? '#191919' : '' }}
-        value={value}
+        value={value.value}
         name={name}
         ref={toggleRef}
         onClick={() => { setMenuOpen(!menuOpen) }}
@@ -177,7 +191,7 @@ export function SelectSingleSearch({
         aria-required={required ? required : false}
         aria-invalid={!valueIsValid}
       >
-        {value}
+        {value.name}
         <IconSelector height={20} width={20} aria-hidden={true} />
       </button>
       <div // TODO: Does this require a label ?
@@ -197,7 +211,7 @@ export function SelectSingleSearch({
         role="dialog"  
       >
         <label
-          aria-label="sök..."
+          aria-label={searchBoxLabel}
           className="focusable flex align-items-center gap-25 padding-block-50 padding-inline-25" style={{ border: 'none', borderBottom: '1px solid var(--gray-80)', borderRadius: '0', marginBottom: '3px' }}>
           <IconSearch width={16} height={16} style={{ minWidth: '16px' }} />
           <input
@@ -211,8 +225,7 @@ export function SelectSingleSearch({
             aria-expanded="true"
             aria-autocomplete="list"
             autoComplete="off"
-            aria-label={searchBoxLabel} // TODO: should be the same as placeholder? 
-            placeholder={searchBoxPlaceholder ? searchBoxLabel : ''} // TODO: Pass a prop for this maybe? Or atleast i18n
+            placeholder={searchBoxPlaceholder ? searchBoxLabel : ''} 
             role="combobox"
 
             style={{
@@ -228,9 +241,7 @@ export function SelectSingleSearch({
           id={`${id}-dialog-listbox`}
           aria-label={t("forms:suggestive_text.listbox_label")}
           className="margin-0 padding-0"
-          style={{
-            listStyle: 'none',
-          }}>
+        >
           {results.length > 0 ? (
             results.map((option, index) => (
               <li
@@ -239,7 +250,7 @@ export function SelectSingleSearch({
                   setValue(option),
                   setMenuOpen(false)
                 }}
-                aria-selected={option === value}
+                aria-selected={option.value === value.value}
                 ref={(el) => { optionRefs.current[index] = el }}
                 role="option"
                 key={`${index}`} // TODO: Am i allowed to do this or do they need to be unique for entire page?
@@ -247,7 +258,7 @@ export function SelectSingleSearch({
                   backgroundColor: index === focusedListBoxItem ? 'var(--gray-90)' : '',
                 }}
               >
-                {option}
+                {option.name}
               </li>
             ))
           ) : (

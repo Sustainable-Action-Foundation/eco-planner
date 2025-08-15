@@ -154,14 +154,14 @@ export default function MetaRoadmapForm({
             />
           </div>
         </fieldset>
-          
+
         {/*
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:meta_roadmap.attach_external")}</legend>
           <LinkInput />
         </fieldset>
         */}
-       
+
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
             <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:meta_roadmap.change_read_access")}</legend>
@@ -186,7 +186,7 @@ export default function MetaRoadmapForm({
           </fieldset>
         }
 
-        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`} style={{marginBottom: '10rem'}}>
+        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`} style={{ marginBottom: '10rem' }}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:meta_roadmap.relationship_legend")}</legend>
           <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:meta_roadmap.relationship_label")}</label>
           {parentRoadmapOptions ? (
@@ -196,9 +196,13 @@ export default function MetaRoadmapForm({
               name="parent-roadmap"
               searchBoxLabel="Sök..." // TODO: i18n
               searchBoxPlaceholder="Sök..." // TODO: i18n
+              required={true}
               options={[
-                t("forms:meta_roadmap.relationship_no_chosen"),
-                ...parentRoadmapOptions.map((metaRoadmap) => metaRoadmap.name)
+                { name: t("forms:meta_roadmap.relationship_no_chosen"), value: "" },
+                ...parentRoadmapOptions.map((metaRoadmap) => ({
+                  name: metaRoadmap.name,
+                  value: metaRoadmap.name
+                }))
               ]}            
             />
           ) : null}
