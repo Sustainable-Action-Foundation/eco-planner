@@ -1,20 +1,21 @@
 "use client";
 
-import { type DataSeriesArray, type Recipe, type Recipe, RecipeDataTypes, RawRecipeVariables, RecipeDataSeries, isRecipeDataSeries } from "@/functions/recipe-parser/types";
-import type { Goal } from "@/types";
+import { Recipe, RecipeDataTypes, RecipeVariables } from "@/functions/recipe-parser/types";
+import type { DataSeriesValueFields, Goal } from "@/types";
 import { createContext, ReactElement, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { evaluateRecipe, parseRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
-import { DataSeriesVariable, ExternalVariable, ScalarVariable } from "./variables";
+import { DataSeriesVariable, ExternalVariable, ScalarVariable, VectorIndexPickerType } from "./variables";
 
 type RecipeContextType = {
   recipe: Recipe | null;
   setRecipe: React.Dispatch<React.SetStateAction<Recipe | null>>;
   warnings: string[];
   error: string | null;
-  resultingDataSeries: DataSeriesArray | null;
+  resultingDataSeries: DataSeriesValueFields | null;
+  resultingUnit: string | null | undefined;
 }
 
 export const RecipeContext = createContext<RecipeContextType | null>(null);
@@ -36,7 +37,8 @@ export function RecipeContextProvider({
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [resultingDataSeries, setResultingDataSeries] = useState<DataSeriesArray | null>(null);
+  const [resultingDataSeries, setResultingDataSeries] = useState<DataSeriesValueFields | null>(null);
+  const [resultingUnit, setResultingUnit] = useState<string | null | undefined>(null);
 
   useEffect(() => {
     if (initialRecipe) {
@@ -47,6 +49,7 @@ export function RecipeContextProvider({
   useEffect(() => {
     if (!recipe) {
       setResultingDataSeries(null);
+      setResultingUnit(null);
       setError(null);
       setWarnings([]);
       return;
@@ -57,7 +60,8 @@ export function RecipeContextProvider({
         const parsedRecipe = await parseRecipe(recipe);
         const currentWarnings: string[] = [];
         const evaluatedRecipe = await evaluateRecipe(parsedRecipe, currentWarnings);
-        setResultingDataSeries(evaluatedRecipe);
+        setResultingDataSeries(evaluatedRecipe.dataSeries);
+        setResultingUnit(evaluatedRecipe.unit)
         setWarnings(currentWarnings);
         setError(null);
       } catch (e: unknown) {
@@ -70,7 +74,7 @@ export function RecipeContextProvider({
   }, [recipe]);
 
   return (
-    <RecipeContext.Provider value={{ recipe, setRecipe, warnings, error, resultingDataSeries }}>
+    <RecipeContext.Provider value={{ recipe, setRecipe, warnings, error, resultingDataSeries, resultingUnit }}>
       {children}
     </RecipeContext.Provider>
   );
@@ -131,7 +135,7 @@ export function RecipeEquationEditor({
 
   useEffect(() => {
     if (initialEquation && !recipe) {
-      setRecipe({ eq: initialEquation, variables: {} });
+      setRecipe({ name: undefined, eq: initialEquation, variables: {} });
     }
   }, [initialEquation]);
 
@@ -139,12 +143,11 @@ export function RecipeEquationEditor({
     <label className="block margin-block-50">
       <span className="block">{t("components:copy_and_scale.custom_recipe")}</span>
       <textarea
-        name="recipeString"
         rows={3}
         placeholder={t("components:copy_and_scale.custom_recipe_placeholder")}
         className="block width-100"
-        value={recipe?.eq ?? ""}
-        onChange={(e) => setRecipe(recipe ? { ...recipe, eq: e.target.value } : { eq: e.target.value, variables: {} })}
+        value={recipe?.eq || ""}
+        onChange={(e) => setRecipe(recipe ? { ...recipe, eq: e.target.value } : { name: undefined, eq: e.target.value, variables: {} })}
       />
     </label>
   </>)
@@ -159,7 +162,7 @@ export function RecipeVariableEditor({
   allowTypeEditing = false,
   allowValueEditing = true,
 }: {
-  initialVariables?: Record<string, RawRecipeVariables>;
+  initialVariables?: Record<string, RecipeVariables>;
 
   allowAddVariables?: boolean;
   allowDeleteVariables?: boolean;
@@ -172,11 +175,12 @@ export function RecipeVariableEditor({
 
   useEffect(() => {
     if (initialVariables && !recipe) {
-      setRecipe({ eq: "", variables: initialVariables });
+      setRecipe({ name: undefined, eq: "", variables: initialVariables });
     }
   }, [initialVariables]);
 
   const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[] | null>(null);
+  const [selectedRoadmaps, setSelectedRoadmaps] = useState<string[]>([]);
   const [availableDataSeries, setAvailableDataSeries] = useState<{ id: string; name: string; roadmapId: string; }[] | null>(null);
 
   // On mount, fetch all roadmaps to select from
@@ -197,11 +201,6 @@ export function RecipeVariableEditor({
   // On selecting a roadmap, fetch its data series as selectable options
   useEffect(() => {
     if (!recipe || !recipe.variables) return;
-
-    const selectedRoadmaps = [...new Set(Object.values(recipe.variables)
-      .filter(variable => variable.type === RecipeDataTypes.DataSeries && isRecipeDataSeries(variable))
-      .map(variable => variable.roadmap?.id)
-      .filter(id => id && typeof id === "string" && typeof id !== "undefined") as string[])];
 
     if (selectedRoadmaps.length === 0) {
       return;
@@ -291,6 +290,7 @@ export function RecipeVariableEditor({
                 rules={rules}
                 availableRoadmaps={availableRoadmaps || []}
                 availableDataSeries={availableDataSeries || []}
+                setSelectedRoadmaps={setSelectedRoadmaps}
               />
             case RecipeDataTypes.External:
               return <ExternalVariable
@@ -299,7 +299,7 @@ export function RecipeVariableEditor({
                 rules={rules}
               />
             default:
-              variable = variable as RawRecipeVariables;
+              variable = variable as RecipeVariables;
               console.warn("Unknown variable type", variable.type, "for variable", name);
           }
         })}
@@ -310,14 +310,16 @@ export function RecipeVariableEditor({
         <button type="button" onClick={() => {
           const newVarName = `var${Object.keys(recipe?.variables || []).length + 1}`;
           setRecipe(prev => {
-            if (!prev) return { eq: "", variables: { [newVarName]: { type: RecipeDataTypes.Scalar, value: 1 } } };
+            prev = prev || { name: undefined, eq: "", variables: {} };
             return {
               ...prev,
               variables: {
                 ...prev.variables,
                 [newVarName]: {
                   type: RecipeDataTypes.DataSeries,
-                  link: null,
+                  link: undefined,
+                  unit: undefined,
+                  pick: VectorIndexPickerType.Default,
                 }
               }
             }
@@ -367,7 +369,7 @@ export function DEBUG_Recipe() {
  */
 export function ResultingDataSeries({ FormElement }: { FormElement?: ReactElement }) {
   const { t } = useTranslation("components");
-  const { resultingDataSeries } = useRecipe();
+  const { resultingDataSeries, resultingUnit } = useRecipe();
 
   const data = resultingDataSeries ? Object.fromEntries(Object.entries(resultingDataSeries).filter(([key]) => key !== 'unit')) : {};
 
@@ -384,7 +386,7 @@ export function ResultingDataSeries({ FormElement }: { FormElement?: ReactElemen
       <strong className="block bold text-align-center">
         {t("components:copy_and_scale.resulting_data_series")}
         {/* Unit */}
-        {resultingDataSeries?.unit ? ` (${resultingDataSeries.unit})` : ""}
+        {resultingUnit ? ` (${resultingUnit})` : ""}
       </strong>
 
       {/* Table to display resulting data series */}

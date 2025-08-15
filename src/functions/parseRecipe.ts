@@ -1,15 +1,16 @@
-import type { DataSeriesArray, EvalTimeDataSeries, EvalTimeScalar, RecipeExternalDataset, Recipe, Recipe, RecipeVariableDataSeries, RecipeVariables, RecipeScalar, EvalTimeExternalDataset } from "./recipe-parser/types";
-import { RecipeDataTypes, isRecipeDataSeries, isRecipeScalar, MathjsError, RecipeError, isRecipeExternalDataset, RecipeDataTypesMap } from "./recipe-parser/types";
+import { EvalTimeDataSeries, EvalTimeExternalDataset, EvalTimeScalar, isRecipeDataSeries, isRecipeExternalDataset, isRecipeScalar, MathjsError, Recipe, RecipeDataSeries, RecipeDataTypes, RecipeError, RecipeExternalDataset, RecipeScalar, RecipeVariables } from "./recipe-parser/types";
 import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
 import mathjs from "@/math";
-import { Years, isStandardObject, uuidRegex, } from "@/types";
+import { DataSeriesValueFields, Years, isStandardObject, uuidRegex, } from "@/types";
 import getTableContent from "@/lib/api/getTableContent";
 import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
 
 export function unsafeIsRawRecipe(recipe: unknown): recipe is Recipe {
   return (
     // Should be a regular object
-    isStandardObject(recipe) &&
+    isStandardObject(recipe)
+    &&
+
     // Name is optional, but if it exists, it must be a string
     (
       !("name" in recipe) ||
@@ -31,8 +32,6 @@ export function unsafeIsRawRecipe(recipe: unknown): recipe is Recipe {
         isRecipeScalar(value) ||
         // Linked data series
         isRecipeDataSeries(value) ||
-        // New data series with values
-        isRawDataSeriesByValue(value) ||
         // Data from external dataset
         isRecipeExternalDataset(value)
       )
@@ -48,23 +47,27 @@ export function recipeFromUnknown(recipe: unknown): Recipe {
       throw new RecipeError(`Failed to parse recipe from string: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
+
   const rawRecipe: Recipe = recipe as Recipe;
   if (!rawRecipe || !rawRecipe.eq || !rawRecipe.variables) {
     throw new RecipeError("Invalid recipe format. Expected a RawRecipe JSON string or object.");
   }
-  // if (!unsafeIsRawRecipe(recipe)) {
-  //   throw new RecipeError("Invalid recipe format. Expected a RawRecipe JSON string or object.");
-  // }
+  if (!unsafeIsRawRecipe(recipe)) {
+    throw new RecipeError("Invalid recipe format. Expected a RawRecipe JSON string or object.");
+  }
 
-  // return { eq: recipe.eq, variables: recipe.variables, ...(recipe.name ? { name: recipe.name } : {}) };
-  return { eq: rawRecipe.eq, variables: rawRecipe.variables, ...(rawRecipe.name ? { name: rawRecipe.name } : {}) };
+  return {
+    name: rawRecipe.name,
+    eq: rawRecipe.eq.trim(),
+    variables: rawRecipe.variables,
+  };
 }
 
 /**
  * Cleans up a user made recipe from the form into a db friendly Recipe
  * Throws a somewhat user-friendly RecipeError if the recipe is invalid, so catching and displaying any errors is recommended.
  */
-export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<Recipe> {
+export async function parseRecipe(rawRecipe: unknown): Promise<Recipe> {
   // Basic validation of the recipe structure
   function hasValidStructure(obj: unknown): obj is { eq: string, variables: object } {
     return (
@@ -102,7 +105,7 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
       throw new RecipeError(`Missing or invalid 'type' property in variable '${key}'.`);
     }
 
-    if (!RecipeDataTypesMap[variable.type as RecipeDataTypes]) {
+    if (!RecipeDataTypes[variable.type as keyof typeof RecipeDataTypes]) {
       throw new RecipeError(`Unknown variable type '${variable.type}' in variable '${key}'.`);
     }
 
@@ -140,9 +143,9 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
           }
           parsedVariables[key] = { type: RecipeDataTypes.DataSeries, link: variable.link };
           break;
-        } else if (isRawDataSeriesByValue(variable)) {
+        } else if (isRecipeDataSeries(variable)) {
           // Map data series to known valid years
-          const dataSeries: DataSeriesArray = {};
+          const dataSeries: DataSeriesValueFields = {};
           for (const year of Years) {
             const inputValue = variable.value[year];
             if (inputValue === undefined || inputValue === null) {
@@ -228,7 +231,7 @@ export async function parseRecipe(rawRecipe: unknown /* RawRecipe */): Promise<R
   return parsedRecipe;
 }
 
-export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promise<DataSeriesArray> {
+export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promise<{ dataSeries: DataSeriesValueFields, unit: string | null | undefined }> {
   /**
    * Early sanity checks
    */
@@ -252,9 +255,9 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
 
   const dataSeries: EvalTimeDataSeries[] = await Promise.all(Object.entries(recipe.variables)
     .filter(([, variable]) => variable.type === RecipeDataTypes.DataSeries)
-    .filter(([, variable]) => isRawDataSeriesByValue(variable) || isRecipeDataSeries(variable))
+    .filter(([, variable]) => isRecipeDataSeries(variable))
     .map(async ([name, variable]) => {
-      const { link } = variable as RecipeVariableDataSeries;
+      const { link } = variable as RecipeDataSeries;
 
       if (!link) {
         throw new RecipeError(`Data series link '${link}' for variable '${name}' does not exist in the database.`);
@@ -266,7 +269,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
         throw new RecipeError(`Data series with UUID '${link}' for variable '${name}' does not exist in the database.`);
       }
 
-      const data: DataSeriesArray = {};
+      const data: DataSeriesValueFields = {};
       for (const year of Years) {
         data[year] = dbDataSeries[year];
       }
@@ -374,7 +377,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     const varName = series.name.replace(/\s+/g, "_");
     equation = equation.replace(`\${${series.name}}`, varName);
 
-    const lastYearWithData = (Object.keys(series.matrix) as Array<keyof DataSeriesArray>)
+    const lastYearWithData = (Object.keys(series.matrix) as Array<keyof DataSeriesValueFields>)
       .filter(year => series.matrix[year] != null)
       .pop();
 
@@ -452,9 +455,9 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
   }
 
   /**
-   * Transform mathjs result into a DataSeriesArray
+   * Transform mathjs result into a DataSeriesValueFields
    */
-  const output: DataSeriesArray = {};
+  const output: Partial<DataSeriesValueFields> = {};
   let resultArray: unknown[] = [];
 
   // Coerce result into a 1D array

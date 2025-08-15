@@ -1,9 +1,9 @@
 "use client";
 
-import { RecipeVariables, RecipeDataTypes, RecipeDataTypesMap, isRecipeDataSeries, RecipeDataSeries, RecipeScalar, RecipeExternalDataset } from "@/functions/recipe-parser/types";
+import { RecipeVariables, RecipeDataTypes, isRecipeDataSeries, RecipeDataSeries, RecipeScalar, RecipeExternalDataset } from "@/functions/recipe-parser/types";
 import { IconTrash } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import React from "react";
+import React, { useEffect } from "react";
 import { useRecipe } from "./recipeEditor";
 
 type InputRules = {
@@ -53,8 +53,8 @@ function CommonVariable({
       if (!prev) return null;
       const newVariables: Record<string, RecipeVariables> = { ...prev.variables };
       const currentVar = newVariables[name];
-      if (currentVar && e.target.value && RecipeDataTypesMap[e.target.value]) {
-        newVariables[name] = { ...currentVar, type: RecipeDataTypesMap[e.target.value] } as RecipeVariables;
+      if (currentVar && e.target.value && RecipeDataTypes[e.target.value as keyof typeof RecipeDataTypes]) {
+        newVariables[name] = { ...currentVar, type: RecipeDataTypes[e.target.value as keyof typeof RecipeDataTypes] } as RecipeVariables;
       }
       return { ...prev, variables: newVariables };
     });
@@ -67,7 +67,7 @@ function CommonVariable({
       const currentVar = newVariables[name];
       if (currentVar && e.target.value) {
         if (currentVar.type === RecipeDataTypes.DataSeries && isRecipeDataSeries(currentVar)) {
-          newVariables[name] = { ...currentVar, dataSeries: { ...currentVar.dataSeries, unit: e.target.value } } as RecipeDataSeries;
+          newVariables[name] = { ...currentVar, unit: e.target.value } as RecipeDataSeries;
         }
       }
       return { ...prev, variables: newVariables };
@@ -119,7 +119,7 @@ function CommonVariable({
     <input
       type="text"
       style={{ width: '10ch' }}
-      value={variable.unit}
+      value={variable.unit || ""}
       onChange={handleUnitChange}
       disabled={!rules.allowValueEditing}
       readOnly={!rules.allowValueEditing}
@@ -198,14 +198,17 @@ export function DataSeriesVariable({
   rules,
   availableRoadmaps = [],
   availableDataSeries = [],
+  setSelectedRoadmaps,
 }: {
   name: string;
   rules?: InputRules;
   availableRoadmaps?: { id: string; name: string; }[];
   availableDataSeries?: { id: string; name: string; roadmapId: string; unit?: string; }[];
+  setSelectedRoadmaps: React.Dispatch<React.SetStateAction<string[]>>;
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
+  const [selectedRoadmap, setLocalRoadmap] = React.useState<string | null>(null);
   const variable = recipe?.variables[name] as RecipeVariables;
 
   if (!isRecipeDataSeries(variable)) {
@@ -214,24 +217,6 @@ export function DataSeriesVariable({
   }
 
   rules = { ...defaultInputRules, ...rules };
-
-  function handleRoadmapChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    setRecipe(prev => {
-      if (!prev) return null;
-      const newVariables: Record<string, RecipeVariables> = { ...prev.variables };
-      const currentVar = newVariables[name];
-      if (currentVar && e.target.value) {
-        const selectedRoadmap = availableRoadmaps.find(r => r.id === e.target.value);
-        if (selectedRoadmap) {
-          newVariables[name] = {
-            ...currentVar,
-            roadmap: { name: selectedRoadmap.name, id: selectedRoadmap.id },
-          } as RecipeDataSeries;
-        }
-      }
-      return { ...prev, variables: newVariables };
-    });
-  }
 
   function handleDataSeriesChange(e: React.ChangeEvent<HTMLSelectElement>) {
     setRecipe(prev => {
@@ -243,7 +228,6 @@ export function DataSeriesVariable({
         if (selectedDataSeries) {
           newVariables[name] = {
             ...currentVar,
-            dataSeries: { name: selectedDataSeries.name, id: selectedDataSeries.id, roadmapId: selectedDataSeries.roadmapId },
             link: selectedDataSeries.id,
           } as RecipeDataSeries;
         }
@@ -258,8 +242,11 @@ export function DataSeriesVariable({
   >
     {/* Roadmap */}
     <select
-      value={variable.roadmap?.id || ""}
-      onChange={handleRoadmapChange}
+      value={selectedRoadmap || ""}
+      onChange={(e) => {
+        setLocalRoadmap(e.target.value || null);
+        setSelectedRoadmaps(prev => [...new Set([...prev, e.target.value].filter(Boolean))]);
+      }}
       disabled={!rules.allowValueEditing}
     >
       <option value={""}>{t("components:recipe_editor.select_roadmap")}</option>
@@ -272,7 +259,7 @@ export function DataSeriesVariable({
 
     {/* Goal (data series) */}
     <select
-      value={variable.link || variable.dataSeries?.id || ""}
+      value={variable.link || ""}
       onChange={handleDataSeriesChange}
       disabled={!rules.allowValueEditing}
     >
@@ -399,12 +386,14 @@ export function ExternalVariable({
   </CommonVariable>;
 }
 
+
 export enum VectorIndexPickerType {
   Whole = "whole",
   Last = "last",
   First = "first",
   Median = "median",
   Mean = "mean",
+  Default = Whole,
 }
 
 function VectorIndexPicker({ rules }: { rules?: InputRules }) {

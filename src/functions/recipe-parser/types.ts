@@ -55,8 +55,9 @@ export function isRecipeScalar(variable: unknown): variable is RecipeScalar {
  */
 export type RecipeDataSeries = {
   type: typeof RecipeDataTypes.DataSeries;
-  link: string | null; // uuid of data series in the database
+  link: string | null | undefined; // uuid of data series in the database
   pick: VectorIndexPick;
+  unit: string | null | undefined; // String if given, null if removed, undefined if not specified
 };
 export function isRecipeDataSeries(variable: unknown): variable is RecipeDataSeries {
   const allowedProps = ["type", "link", "pick"];
