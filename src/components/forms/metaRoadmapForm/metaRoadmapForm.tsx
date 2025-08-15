@@ -12,7 +12,7 @@ import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
 import SuggestiveText from "../formElements/suggestiveText";
 import TextEditor from "@/components/generic/textEditor/textEditor";
-import { SelectSingleSearch } from "../formElements/select";
+import { SelectMultipleSearch, SelectSingleSearch } from "../formElements/select";
 
 /* TODO: Check usage of autocomplete both here and for other forms */
 export default function MetaRoadmapForm({
@@ -171,6 +171,24 @@ export default function MetaRoadmapForm({
               existingGroups={currentAccess?.viewGroups.map((group) => { return group.name })}
               isPublic={currentAccess?.isPublic ?? false}
             />
+            <SelectMultipleSearch
+              id="test-multiple-search"
+              name="test-multiple-search"
+              searchBoxLabel="sök..."
+              searchBoxPlaceholder="sök..."
+              placeholder="Välj grupper"
+              options={[
+                {name: t("forms:access_selector.make_posts_public"), value: currentAccess?.isPublic.toString() ?? false.toString()},
+                ...(userGroups?.map(group => ({
+                  name: group,
+                  value: group
+                })) ?? []),
+                ...(currentAccess?.viewGroups?.map(group => ({
+                  name: group.name,
+                  value: group.name
+                })) ?? [])
+              ]}
+            />
           </fieldset>
         }
 
@@ -193,26 +211,27 @@ export default function MetaRoadmapForm({
               className="margin-top-25"
               id="parentRoadmap"
               name="parentRoadmap"
+              placeholder="välj..."
               searchBoxLabel="Sök..." // TODO: i18n
               searchBoxPlaceholder="Sök..." // TODO: i18n
-              required={true}
+              defaultValue={true}
               options={[
                 { name: t("forms:meta_roadmap.relationship_no_chosen"), value: "" },
                 ...parentRoadmapOptions.map((metaRoadmap) => ({
                   name: metaRoadmap.name,
                   value: metaRoadmap.id
                 }))
-              ]}            
+              ]}
             />
           ) : null}
         </fieldset>
 
         {/* Add copy of RoadmapForm? Only if we decide to include it immediately rather than redirecting to it */}
-        <input 
-          className="seagreen color-purewhite margin-block-200" 
-          type="submit" 
-          id="submit-button" 
-          value={currentRoadmap ? t("common:tsx.save") : t("common:tsx.create")} 
+        <input
+          className="seagreen color-purewhite margin-block-200"
+          type="submit"
+          id="submit-button"
+          value={currentRoadmap ? t("common:tsx.save") : t("common:tsx.create")}
         /> {/* TODO: Set disabled if form not filled out */}
       </form>
     </>
