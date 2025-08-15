@@ -1,4 +1,4 @@
-import { evaluateRecipe, parseRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
+import { evaluateRecipe, cleanRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
 import { RecipeError } from "@/functions/recipe-parser/types";
 import accessChecker from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       throw new Error(ClientError.AccessDenied)
     }
 
-    let parsedRecipe = await parseRecipe(recipeFromUnknown(goal.recipeUsed?.recipe));
+    let parsedRecipe = await cleanRecipe(recipeFromUnknown(goal.recipeUsed?.recipe));
 
     // Try to update goal
     const warnings: string[] = [];

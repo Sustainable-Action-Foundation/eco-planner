@@ -1,43 +1,9 @@
-import { EvalTimeDataSeries, EvalTimeExternalDataset, EvalTimeScalar, isRecipeDataSeries, isRecipeExternalDataset, isRecipeScalar, MathjsError, Recipe, RecipeDataSeries, RecipeDataTypes, RecipeError, RecipeExternalDataset, RecipeScalar, RecipeVariables } from "./recipe-parser/types";
+import { EvalTimeDataSeries, EvalTimeExternalDataset, EvalTimeScalar, isRecipe, isRecipeDataSeries, isRecipeExternalDataset, isRecipeScalar, MathjsError, Recipe, RecipeDataSeries, RecipeDataTypes, RecipeError, RecipeExternalDataset, RecipeScalar, RecipeVariables } from "./recipe-parser/types";
 import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
 import mathjs from "@/math";
-import { DataSeriesValueFields, Years, isStandardObject, uuidRegex, } from "@/types";
+import { DataSeriesValueFields, Years } from "@/types";
 import getTableContent from "@/lib/api/getTableContent";
 import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
-
-export function unsafeIsRawRecipe(recipe: unknown): recipe is Recipe {
-  return (
-    // Should be a regular object
-    isStandardObject(recipe)
-    &&
-
-    // Name is optional, but if it exists, it must be a string
-    (
-      !("name" in recipe) ||
-      typeof recipe.name === "string" ||
-      recipe.name === undefined
-    ) &&
-    // Should have equation string
-    "eq" in recipe &&
-    typeof recipe.eq === "string" &&
-    // Should have variables object
-    "variables" in recipe &&
-    isStandardObject(recipe.variables) &&
-    Object.entries(recipe.variables).every(([key, value]: [string, unknown]) => (
-      // Each variable should have a string key and a value object
-      typeof key === "string" &&
-      // Each variable should match a RawRecipeVariables type
-      (
-        // Scalar
-        isRecipeScalar(value) ||
-        // Linked data series
-        isRecipeDataSeries(value) ||
-        // Data from external dataset
-        isRecipeExternalDataset(value)
-      )
-    ))
-  );
-}
 
 export function recipeFromUnknown(recipe: unknown): Recipe {
   if (typeof recipe === "string") {
@@ -48,18 +14,14 @@ export function recipeFromUnknown(recipe: unknown): Recipe {
     }
   }
 
-  const rawRecipe: Recipe = recipe as Recipe;
-  if (!rawRecipe || !rawRecipe.eq || !rawRecipe.variables) {
-    throw new RecipeError("Invalid recipe format. Expected a RawRecipe JSON string or object.");
-  }
-  if (!unsafeIsRawRecipe(recipe)) {
+  if (!isRecipe(recipe)) {
     throw new RecipeError("Invalid recipe format. Expected a RawRecipe JSON string or object.");
   }
 
   return {
-    name: rawRecipe.name,
-    eq: rawRecipe.eq.trim(),
-    variables: rawRecipe.variables,
+    name: recipe.name,
+    eq: recipe.eq.trim(),
+    variables: recipe.variables,
   };
 }
 
@@ -67,26 +29,8 @@ export function recipeFromUnknown(recipe: unknown): Recipe {
  * Cleans up a user made recipe from the form into a db friendly Recipe
  * Throws a somewhat user-friendly RecipeError if the recipe is invalid, so catching and displaying any errors is recommended.
  */
-export async function parseRecipe(rawRecipe: unknown): Promise<Recipe> {
-  // Basic validation of the recipe structure
-  function hasValidStructure(obj: unknown): obj is { eq: string, variables: object } {
-    return (
-      // is object
-      typeof obj === "object" &&
-      obj != null &&
-      !Array.isArray(obj) &&
-      // has eq string
-      "eq" in obj &&
-      typeof obj.eq === "string" &&
-      // has variables object
-      "variables" in obj &&
-      typeof obj.variables === "object" &&
-      obj.variables != null &&
-      !Array.isArray(obj.variables)
-    );
-  }
-
-  if (!hasValidStructure(rawRecipe)) {
+export async function cleanRecipe(recipe: unknown): Promise<Recipe> {
+  if (!isRecipe(recipe)) {
     throw new RecipeError("Invalid recipe format. Expected an object with 'eq' and 'variables' properties.");
   }
 
@@ -95,128 +39,7 @@ export async function parseRecipe(rawRecipe: unknown): Promise<Recipe> {
   /** 
    * Cast and clean variables
    */
-  const parsedVariables: Record<string, RecipeVariables> = {};
-  for (const [key, variable] of Object.entries(rawRecipe.variables)) {
-    if (!isStandardObject(variable)) {
-      throw new RecipeError(`Invalid structure of '${key}': expected an object, got ${typeof variable === "object" ? (Array.isArray(variable) ? "array" : "null") : typeof variable}`);
-    }
-
-    if (!("type" in variable) || typeof variable.type !== "string") {
-      throw new RecipeError(`Missing or invalid 'type' property in variable '${key}'.`);
-    }
-
-    if (!RecipeDataTypes[variable.type as keyof typeof RecipeDataTypes]) {
-      throw new RecipeError(`Unknown variable type '${variable.type}' in variable '${key}'.`);
-    }
-
-    switch (variable.type) {
-      /** Scalar parsing */
-      case RecipeDataTypes.Scalar:
-        if (!isRecipeScalar(variable)) {
-          if (!("value" in variable)) {
-            throw new RecipeError(`Missing 'value' property in scalar variable '${key}'.`);
-          }
-          if ("unit" in variable && typeof variable.unit !== "string") {
-            throw new RecipeError(`Invalid 'unit' property in scalar variable '${key}': expected a string or undefined, got ${typeof variable.unit}: ${variable.unit}`);
-          }
-          throw new RecipeError(`Invalid scalar value for variable '${key}': expected a finite number, got ${variable.value}, with type ${typeof variable.value}`);
-        }
-        parsedVariables[key] = { type: RecipeDataTypes.Scalar, value: variable.value, ...(variable.unit && { unit: variable.unit }) };
-        break;
-
-      /** Data series parsing */
-      case RecipeDataTypes.DataSeries:
-        if (isRecipeDataSeries(variable)) {
-          // Warn about unexpected properties
-          if ("value" in variable || "unit" in variable) {
-            console.warn(`Variable '${key}' is a data series by link, but has 'value' or 'unit' properties. These will be ignored.`);
-          }
-
-          if (!variable.link) {
-            throw new RecipeError(`Data series variable '${key}' is missing 'link' property. Probably just haven't made the selection yet.`);
-          }
-
-          const dataSeriesInDB = await clientSafeGetOneDataSeries(variable.link);
-
-          if (!dataSeriesInDB) {
-            throw new RecipeError(`Data series with UUID '${variable.link}' for variable '${key}' does not exist in the database.`);
-          }
-          parsedVariables[key] = { type: RecipeDataTypes.DataSeries, link: variable.link };
-          break;
-        } else if (isRecipeDataSeries(variable)) {
-          // Map data series to known valid years
-          const dataSeries: DataSeriesValueFields = {};
-          for (const year of Years) {
-            const inputValue = variable.value[year];
-            if (inputValue === undefined || inputValue === null) {
-              dataSeries[year] = null; // Explicitly set to null for missing years
-            } else if (Number.isFinite(inputValue)) {
-              dataSeries[year] = inputValue; // Valid number
-            } else {
-              throw new RecipeError(`Invalid data series value for year '${year}' in variable '${key}': expected a finite number, got ${inputValue}`);
-            }
-          }
-
-          // Write to db
-          const { uuid } = await (await fetch("/api/dataSeries", {
-            body: JSON.stringify({
-              data: dataSeries,
-              unit: variable.unit
-            }), method: "POST"
-          })).json() as { uuid: string };
-
-          parsedVariables[key] = { type: RecipeDataTypes.DataSeries, link: uuid };
-          break;
-        } else {
-          if (!("link" in variable) && !("value" in variable)) {
-            throw new RecipeError(`Data series variables must have either 'link' or 'value' property. Variable '${key}' is missing both.`);
-          }
-          if ("link" in variable && typeof variable.link !== "string") {
-            throw new RecipeError(`Invalid 'link' property in data series variable '${key}': expected a string, got ${typeof variable.link}`);
-          }
-          if ("link" in variable && typeof variable.link === "string" && !uuidRegex.test(variable.link)) {
-            throw new RecipeError(`Invalid 'link' property in data series variable '${key}': expected a valid UUID, got ${variable.link}`);
-          }
-          if ("value" in variable && !isStandardObject(variable.value)) {
-            throw new RecipeError(`Invalid 'value' property in data series variable '${key}': expected an object, got ${typeof variable.value === "object" ? (Array.isArray(variable.value) ? "array" : "null") : typeof variable.value}`);
-          }
-          if ("value" in variable && isStandardObject(variable.value)) {
-            const badDataEntries = Object.values(variable.value).filter(val => typeof val !== "number" && val !== null);
-            if (badDataEntries.length > 0) {
-              throw new RecipeError(`Invalid data series value for variable '${key}': expected an object with number or null values, got invalid types ${badDataEntries.map(val => typeof val).filter((type, i, entries) => entries.indexOf(type) == i).join(", ")}; values: ${JSON.stringify(variable.value)}`);
-            }
-            if (Object.values(variable.value).some(val => val !== null && !Number.isFinite(val))) {
-              throw new RecipeError(`Invalid data series value for variable '${key}': expected finite numbers or null, series includes NaN or Infinity.`);
-            }
-          }
-          if ("unit" in variable && typeof variable.unit !== "string") {
-            throw new RecipeError(`Invalid 'unit' property in data series variable '${key}': expected a string or undefined, got ${variable.unit} with type ${typeof variable.unit}`);
-          }
-          const invalidKeys = Object.keys(variable).filter(k => !["type", "link", "value", "unit"].includes(k));
-          if (invalidKeys.length !== 0) {
-            throw new RecipeError(`Data series variable '${key}' has unexpected properties: ${invalidKeys.join(", ")}`);
-          }
-          throw new RecipeError(`Invalid data series variable '${key}': expected a RawDataSeriesByLink or RawDataSeriesByValue, got ${JSON.stringify(variable)}`);
-        }
-        break;
-
-      /** External data parsing */
-      case RecipeDataTypes.External:
-        if (!isRecipeExternalDataset(variable)) {
-          throw new RecipeError(`Something went wrong when reading your reference to an external API: expected a valid ExternalDataset object, got ${JSON.stringify(variable)}`);
-        }
-        parsedVariables[key] = {
-          type: RecipeDataTypes.External,
-          dataset: variable.dataset,
-          tableId: variable.tableId,
-          selection: variable.selection
-        };
-        break;
-      /** Unhandled but allowed variable type */
-      default:
-        throw new RecipeError(`Unhandled but known variable type '${variable.type}' for variable '${key}'. Please report this as a bug.`);
-    }
-  }
+  const parsedVariables: Record<string, RecipeVariables> = { ...recipe.variables };
 
   // Sanity checks
   if (Object.keys(parsedVariables).length === 0) {
@@ -226,7 +49,7 @@ export async function parseRecipe(rawRecipe: unknown): Promise<Recipe> {
   /** 
    * Return the parsed recipe
    */
-  parsedRecipe.eq = rawRecipe.eq.trim();
+  parsedRecipe.eq = recipe.eq.trim();
   parsedRecipe.variables = parsedVariables;
   return parsedRecipe;
 }
@@ -238,7 +61,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
   if (Object.keys(recipe.variables).length === 0) {
     throw new RecipeError("Recipe has no variables to evaluate.");
   }
-  if (!recipe.eq) {
+  if (!recipe.eq || !recipe.eq.trim()) {
     throw new RecipeError("Recipe equation is not a valid string.");
   }
 
@@ -257,24 +80,27 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     .filter(([, variable]) => variable.type === RecipeDataTypes.DataSeries)
     .filter(([, variable]) => isRecipeDataSeries(variable))
     .map(async ([name, variable]) => {
-      const { link } = variable as RecipeDataSeries;
+      if (!isRecipeDataSeries(variable)) {
+        throw new RecipeError(`Variable '${name}', typed as '${variable.type}' is not a valid RecipeDataSeries.`);
+      }
+
+      const { link, pick, unit: unitOverride } = variable;
 
       if (!link) {
         throw new RecipeError(`Data series link '${link}' for variable '${name}' does not exist in the database.`);
       }
 
       const dbDataSeries = await clientSafeGetOneDataSeries(link);
-
       if (!dbDataSeries) {
         throw new RecipeError(`Data series with UUID '${link}' for variable '${name}' does not exist in the database.`);
       }
 
-      const data: DataSeriesValueFields = {};
-      for (const year of Years) {
-        data[year] = dbDataSeries[year];
-      }
+      // const data: Partial<DataSeriesValueFields> = {};
+      // for (const year of Years) {
+      //   data[year] = dbDataSeries[year];
+      // }
 
-      return { name, link, data, unit: dbDataSeries.unit };
+      // return { name, link, data, unit: dbDataSeries.unit };
     }));
 
   const externalData: EvalTimeExternalDataset[] = (await Promise.all(Object.entries(recipe.variables)

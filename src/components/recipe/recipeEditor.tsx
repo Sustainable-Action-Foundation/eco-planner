@@ -4,7 +4,7 @@ import { Recipe, RecipeDataTypes, RecipeVariables } from "@/functions/recipe-par
 import type { DataSeriesValueFields, Goal } from "@/types";
 import { createContext, ReactElement, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { evaluateRecipe, parseRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
+import { evaluateRecipe, cleanRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import { DataSeriesVariable, ExternalVariable, ScalarVariable, VectorIndexPickerType } from "./variables";
@@ -57,9 +57,8 @@ export function RecipeContextProvider({
 
     async function calculate() {
       try {
-        const parsedRecipe = await parseRecipe(recipe);
         const currentWarnings: string[] = [];
-        const evaluatedRecipe = await evaluateRecipe(parsedRecipe, currentWarnings);
+        const evaluatedRecipe = await evaluateRecipe(await cleanRecipe(recipe), currentWarnings);
         setResultingDataSeries(evaluatedRecipe.dataSeries);
         setResultingUnit(evaluatedRecipe.unit)
         setWarnings(currentWarnings);
