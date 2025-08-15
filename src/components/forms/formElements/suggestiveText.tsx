@@ -173,6 +173,7 @@ export default function SuggestiveText({
             tabIndex={-1}
             aria-pressed={displayListBox}
             aria-label={t("forms:suggestive_text.toggle_button")}
+            title={t("forms:suggestive_text.toggle_button")}
           >
             <IconChevronDown aria-hidden="true" width={24} height={24} style={{ minWidth: '24px' }} />
           </button>

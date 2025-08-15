@@ -59,7 +59,7 @@ export default function MetaRoadmapForm({
       viewGroups,
       isPublic: (form.namedItem("isPublic") as HTMLInputElement)?.checked || false,
       links,
-      parentRoadmapId: (form.namedItem("parentRoadmap") as HTMLSelectElement)?.value || undefined,
+      parentRoadmapId: (form.namedItem("parentRoadmap") as HTMLButtonElement)?.value || undefined,
       id: currentRoadmap?.id || undefined,
       timestamp,
     };
@@ -141,7 +141,7 @@ export default function MetaRoadmapForm({
           </label>
 
           <div className="margin-block-100" style={{ width: 'min(250px, 100%)' }}>
-            <label htmlFor="actors">{t("forms:meta_roadmap.choose_actor")}</label>
+            <label htmlFor="actor">{t("forms:meta_roadmap.choose_actor")}</label>
             <SuggestiveText
               className="margin-top-25"
               id="actor"
@@ -174,7 +174,6 @@ export default function MetaRoadmapForm({
           </fieldset>
         }
 
-
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
             <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:meta_roadmap.change_edit_access")}</legend>
@@ -192,8 +191,8 @@ export default function MetaRoadmapForm({
           {parentRoadmapOptions ? (
             <SelectSingleSearch
               className="margin-top-25"
-              id="parent-roadmap"
-              name="parent-roadmap"
+              id="parentRoadmap"
+              name="parentRoadmap"
               searchBoxLabel="Sök..." // TODO: i18n
               searchBoxPlaceholder="Sök..." // TODO: i18n
               required={true}
@@ -201,44 +200,21 @@ export default function MetaRoadmapForm({
                 { name: t("forms:meta_roadmap.relationship_no_chosen"), value: "" },
                 ...parentRoadmapOptions.map((metaRoadmap) => ({
                   name: metaRoadmap.name,
-                  value: metaRoadmap.name
+                  value: metaRoadmap.id
                 }))
               ]}            
             />
           ) : null}
-          {/*
-            <select name="parentRoadmap" id="parentRoadmap" className="block margin-block-25" defaultValue={currentRoadmap?.parentRoadmapId ?? ""}>
-              <option value="">{t("forms:meta_roadmap.relationship_no_chosen")}</option>
-              {
-                !parentRoadmapOptions && currentRoadmap && currentRoadmap.parentRoadmapId && (
-                  <option value={currentRoadmap.parentRoadmapId} disabled>{currentRoadmap.parentRoadmapId}</option>
-                )
-              }
-              {
-                parentRoadmapOptions && parentRoadmapOptions.map((metaRoadmap) => {
-                  return (
-                    <option key={metaRoadmap.id} value={metaRoadmap.id}>{metaRoadmap.name}</option>
-                  )
-                })
-              }
-            </select>
-            */}
         </fieldset>
 
-
         {/* Add copy of RoadmapForm? Only if we decide to include it immediately rather than redirecting to it */}
-        <input className="seagreen color-purewhite margin-block-200" type="submit" id="submit-button" value={currentRoadmap ? t("common:tsx.save") : t("common:tsx.create")} /> {/* TODO: Set disabled if form not filled out */}
+        <input 
+          className="seagreen color-purewhite margin-block-200" 
+          type="submit" 
+          id="submit-button" 
+          value={currentRoadmap ? t("common:tsx.save") : t("common:tsx.create")} 
+        /> {/* TODO: Set disabled if form not filled out */}
       </form>
-
-      <datalist id="actors">
-        {
-          Object.entries(countiesAndMunicipalities).flat(2).map((actor, index) => {
-            return (
-              <option key={`${actor}${index}`} value={actor} />
-            )
-          })
-        }
-      </datalist>
     </>
   )
 }

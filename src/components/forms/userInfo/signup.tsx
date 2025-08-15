@@ -47,21 +47,21 @@ export default function Signup() {
         <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid silver' }}>{t("components:signup.create_account")}</h1>
         <label className="block margin-block-100">
           {t("components:signup.username")}
-          <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
+          <div className="margin-block-50 padding-50 flex align-items-center smooth focusable">
             <IconUser style={{minWidth: '24px'}} aria-hidden="true" />
             <input className="padding-0 margin-inline-50" type="text" placeholder={t("common:placeholder.name")} name="username" required id="username" autoComplete="username" />
           </div>
         </label>
         <label className="block margin-block-100">
           {t("components:signup.email")}
-          <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
+          <div className="margin-block-50 padding-50 flex align-items-center smooth focusable">
             <IconMail style={{minWidth: '24px'}} aria-hidden="true" />
             <input className="padding-0 margin-inline-50" type="email" placeholder={t("common:placeholder.email")} name="email" required id="email" autoComplete="email" />
           </div>
         </label>
         <label className="block margin-block-100">
           {t("components:signup.password")}
-          <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
+          <div className="margin-block-50 padding-50 flex align-items-center smooth focusable">
             <IconLock style={{minWidth: '24px'}} aria-hidden="true" />
             <input className="padding-0 margin-inline-50 transparent" type={showPassword ? 'text' : 'password'} placeholder={t("common:placeholder.password")} name="password" required id="password" autoComplete="new-password" />
             <button 

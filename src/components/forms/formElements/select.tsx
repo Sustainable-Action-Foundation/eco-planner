@@ -1,8 +1,5 @@
 "use client"
 
-// TODO: allow passing required
-// TODO: Fix bug where menu opens immediately after closing when pressing toggle button
-
 import { IconSearch, IconSelector } from "@tabler/icons-react";
 import { useEffect, useState, useRef } from "react"
 import Fuse from "fuse.js";
@@ -37,16 +34,17 @@ export function SelectSingleSearch({
   const searchRef = useRef<HTMLInputElement>(null);
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
   const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null);
-  const [valueIsValid, setValueIsValid] = useState<boolean>() // TODO: Export this and use in form validation? Or use the form validation api on the button or something ?
+  const [valueIsValid, setValueIsValid] = useState<boolean>() 
 
   useEffect(() => {
-    if (value.value == "" && required) { {/* || !results.includes(value) */}
+    if (value.value == "" && required) {
       setValueIsValid(false)
     } else {
       setValueIsValid(true)
     }
   }, [value])
 
+  // Disables form subbmision if value is invalid 
   useEffect(() => {
     // Find the closest form element up the DOM tree
     const form = toggleRef.current?.closest("form");
@@ -202,7 +200,7 @@ export function SelectSingleSearch({
           margin-inline-0`
         }
         onBlur={(e) => {
-          if (!e.currentTarget.contains(e.relatedTarget)) {
+          if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id != id) {
             setFocusedListBoxItem(null)
             setMenuOpen(false);
           }
@@ -232,7 +230,6 @@ export function SelectSingleSearch({
               padding: '0',
               margin: '0',
               fontSize: 'revert',
-              borderRadius: '0' // TODO: Add this to the focusable class instead
             }}
           />
         </label>
