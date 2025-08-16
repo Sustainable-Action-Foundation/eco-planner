@@ -98,7 +98,9 @@ export default function MetaRoadmapForm({
       isPublic: currentRoadmap.isPublic,
     }
   }
-
+  const [accessType, setAccessType] = useState<"isPrivate" | "isPublic" | "selectGroups">( // TODO: Check that this makes sense
+    currentAccess?.isPublic ? "isPublic" : "isPrivate"
+  );
   // Indexes for the data-position attribute in the legend elements
   let positionIndex = 1;
 
@@ -177,22 +179,47 @@ export default function MetaRoadmapForm({
               existingGroups={currentAccess?.viewGroups.map((group) => { return group.name })}
               isPublic={currentAccess?.isPublic ?? false}
             />
+            {/* TODO: Only send groups if public is not checked, also validate that on the server... */}
             <label className="display-flex align-items-center gap-50 margin-block-50">
-              <input type="checkbox" name="isPublic" id="isPublic" defaultChecked={currentAccess?.isPublic ?? false} />
-              {t("forms:access_selector.make_posts_public")}
+              <input 
+                type="radio"
+                name="isPublic"
+                id="isPrivate" 
+                value="isPrivate"
+                checked={accessType === "isPrivate"}
+                onChange={(e) => setAccessType(e.target.value as any)}
+              />
+              Privat
             </label>
-            <SelectMultipleSearch
+            <label className="display-flex align-items-center gap-50 margin-block-50">
+              <input 
+                type="radio"
+                name="isPublic"
+                id="isPublic"
+                value="isPublic"
+                checked={accessType === "isPublic"}
+                onChange={(e) => setAccessType(e.target.value as any)}
+              />
+              Offentligt
+            </label>
+            <label className="display-flex align-items-center gap-50 margin-block-50">
+              <input 
+                type="radio" 
+                name="isPublic" 
+                id="selectGroups"
+                value="selectGroups" 
+                checked={accessType === "selectGroups"}
+                onChange={(e) => setAccessType(e.target.value as any)} 
+              />
+              Välj
+            </label>
+            <SelectMultipleSearch // Default value should be: ME ONLY
               id="test-multiple-search"
               name="test-multiple-search"
               searchBoxLabel="sök..."
               searchBoxPlaceholder="sök..."
               placeholder="Välj grupper"
-              defaultValue={[
-                ...(user?.userGroups.map(group => ({
-                  name: group,
-                  value: group
-                })) ?? [])
-              ]}
+              disabled={accessType !== "selectGroups"}
               options={[
                 ...(userGroups?.map(group => ({
                   name: group,
