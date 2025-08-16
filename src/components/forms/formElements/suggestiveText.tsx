@@ -12,15 +12,17 @@ export default function SuggestiveText({
   className,
   style,
   required,
+  disabled,
   placeholder,
   defaultValue,
   suggestiveList,
 }: {
   id: string
-  name: string,
-  className?: string,
-  style?: React.CSSProperties,
+  name: string
+  className?: string
+  style?: React.CSSProperties
   required?: boolean
+  disabled?: boolean
   placeholder?: string
   defaultValue?: string
   suggestiveList: Array<string>
@@ -150,6 +152,7 @@ export default function SuggestiveText({
           name={name}
           id={id}
           required={required ? required : false}
+          disabled={disabled}
           value={value}
           ref={comboboxRef}
           onChange={(e) => { setValue(e.target.value), setFocusedListBoxItem(0), optionRefs.current[0]?.scrollIntoView({ block: "nearest" }) }}
