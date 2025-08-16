@@ -6,13 +6,14 @@ import { AccessControlled, MetaRoadmapInput } from "@/types";
 import { MetaRoadmap, RoadmapType } from "@prisma/client";
 import { useEffect, useState } from "react";
 import { EditUsers, ViewUsers, getAccessData } from "@/components/forms/accessSelector/accessSelector";
-import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput"
+import { getLinks } from "@/components/forms/linkInput/linkInput"
 import formSubmitter from "@/functions/formSubmitter";
 import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
 import SuggestiveText from "../formElements/suggestiveText";
 import TextEditor from "@/components/generic/textEditor/textEditor";
 import { SelectMultipleSearch, SelectSingleSearch } from "../formElements/select";
+import { IconSend, IconSend2 } from "@tabler/icons-react";
 
 /* TODO: Check usage of autocomplete both here and for other forms */
 export default function MetaRoadmapForm({
@@ -115,13 +116,6 @@ export default function MetaRoadmapForm({
             {t("forms:meta_roadmap.roadmap_series_name")}
             <input id="metaRoadmapName" name="metaRoadmapName" className="margin-block-25" type="text" defaultValue={currentRoadmap?.name ?? undefined} autoComplete="off" required />
           </label>
-
-{/*
-          <label className="block margin-block-100">
-            {t("forms:meta_roadmap.roadmap_series_description")}
-            <textarea className="block margin-block-25" name="description" id="description" defaultValue={currentRoadmap?.description ?? undefined} required></textarea>
-          </label>
-         */}
           
           <div className="margin-block-100">
             <div className="margin-bottom-25" id="roadmap-series-description">{t("forms:meta_roadmap.roadmap_series_description")}</div>
@@ -167,8 +161,6 @@ export default function MetaRoadmapForm({
               name="actor"
               required={false}
               defaultValue={currentRoadmap?.actor ?? undefined}
-              // suggestiveList={Object.keys(countiesAndMunicipalities)} Enbart län
-              // suggestiveList={Object.values(countiesAndMunicipalities).flat()} Enbart kommuner
               suggestiveList={
                 roadmapType == "REGIONAL" 
                   ? Object.keys(countiesAndMunicipalities)
@@ -179,13 +171,6 @@ export default function MetaRoadmapForm({
             />
           </div>
         </fieldset>
-
-        {/*
-        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:meta_roadmap.attach_external")}</legend>
-          <LinkInput />
-        </fieldset>
-        */}
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
@@ -265,7 +250,7 @@ export default function MetaRoadmapForm({
           </fieldset>
         }
 
-        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`} style={{ marginBottom: '10rem' }}>
+        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:meta_roadmap.relationship_legend")}</legend>
           <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:meta_roadmap.relationship_label")}</label>
           {parentRoadmapOptions ? (
@@ -289,12 +274,16 @@ export default function MetaRoadmapForm({
         </fieldset>
 
         {/* Add copy of RoadmapForm? Only if we decide to include it immediately rather than redirecting to it */}
-        <input
-          className="seagreen color-purewhite margin-block-200"
-          type="submit"
-          id="submit-button"
-          value={currentRoadmap ? t("common:tsx.save") : t("common:tsx.create")}
-        /> {/* TODO: Set disabled if form not filled out */}
+        <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{borderTop: '1px solid var(--gray-80)'}}>
+          <button 
+            className="text-align-center seagreen color-purewhite block width-100"
+            style={{fontSize: '14px', transform: 'none'}}
+            type="submit"
+            id="submit-button"
+          >
+            {currentRoadmap ? t("common:tsx.save") : t("common:tsx.create") + ' färdplansserie'} {/* TODO: i18n  */}
+          </button>
+        </div>
       </form>
     </>
   )
