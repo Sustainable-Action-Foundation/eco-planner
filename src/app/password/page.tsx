@@ -1,5 +1,5 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import SendResetMail from "@/components/forms/password/sendResetMail";
+import SendResetMail from "@/components/forms/forms/sendResetMail";
 import { buildMetadata } from "@/functions/buildMetadata";
 import serveTea from "@/lib/i18nServer";
 

@@ -1,4 +1,4 @@
-import EffectForm from "@/components/forms/effectForm/effectForm.tsx"
+import EffectForm from "@/components/forms/forms/effect"
 import getOneAction from "@/fetchers/getOneAction.ts";
 import getOneGoal from "@/fetchers/getOneGoal.ts";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";

@@ -1,4 +1,4 @@
-import RoadmapForm from "@/components/forms/roadmapForm/roadmapForm";
+import RoadmapForm from "@/components/forms/forms/roadmap";
 import getOneRoadmap from "@/fetchers/getOneRoadmap";
 import { getSession } from '@/lib/session';
 import { cookies } from 'next/headers';
@@ -7,7 +7,7 @@ import accessChecker from "@/lib/accessChecker";
 import { AccessLevel } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
-import { ScopeReminder } from "@/components/forms/roadmapForm/scopeReminder";
+import { ScopeReminder } from "@/components/forms/forms/scopeReminder";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {

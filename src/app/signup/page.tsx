@@ -1,4 +1,4 @@
-import Signup from "@/components/forms/userInfo/signup";
+import Signup from "@/components/forms/forms/signup";
 import AttributedImage, { AttributeText } from "@/components/generic/images/attributedImage";
 import styles from "./page.module.css" with { type: "css" };
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";

@@ -1,13 +1,13 @@
 "use client"
 
-import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput"
+import LinkInput, { getLinks } from "@/components/forms/elements/linkInput/linkInput"
 import type getRoadmaps from "@/fetchers/getRoadmaps"
 import formSubmitter from "@/functions/formSubmitter"
 import { ActionInput } from "@/types"
 import { Action, ActionImpactType, DataSeries, Effect } from "@prisma/client"
 import { useTranslation } from "react-i18next"
-import DataSeriesInput from "../dataSeriesInput/dataSeriesInput"
-import { getDataSeries } from "../dataSeriesInput/utils"
+import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput"
+import { getDataSeries } from "../elements/dataSeriesInput/utils"
 import styles from '../forms.module.css'
 
 export default function ActionForm({

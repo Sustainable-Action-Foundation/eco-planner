@@ -1,4 +1,4 @@
-import Login from "@/components/forms/userInfo/login";
+import Login from "@/components/forms/forms/login.tsx";
 import styles from "./page.module.css" with { type: "css" };
 import AttributedImage, { AttributeText } from "@/components/generic/images/attributedImage";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";

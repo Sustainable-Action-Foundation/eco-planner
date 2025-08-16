@@ -9,7 +9,7 @@ import { dataSeriesDataFieldNames } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 import { Fragment, useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import DataSeriesInput from "../dataSeriesInput/dataSeriesInput";
+import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput";
 
 export function ManualGoalForm({
   currentGoal,

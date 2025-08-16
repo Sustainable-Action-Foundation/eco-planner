@@ -1,6 +1,6 @@
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
-import GoalForm from "@/components/forms/goalForm/goalForm";
+import GoalForm from "@/components/forms/forms/goal";
 import getOneRoadmap from "@/fetchers/getOneRoadmap";
 import accessChecker from "@/lib/accessChecker";
 import { AccessLevel } from "@/types";

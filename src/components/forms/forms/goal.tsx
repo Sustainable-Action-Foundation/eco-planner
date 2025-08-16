@@ -1,6 +1,6 @@
 'use client';
 
-import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput";
+import LinkInput, { getLinks } from "@/components/forms/elements/linkInput/linkInput";
 import { getScalingResult } from "@/components/modals/copyAndScale";
 import RepeatableScaling from "@/components/repeatableScaling";
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
@@ -11,11 +11,11 @@ import { GoalInput, ScaleBy, ScaleMethod, ScalingRecipie, dataSeriesDataFieldNam
 import { DataSeries, Goal } from "@prisma/client";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import DataSeriesInput from "../dataSeriesInput/dataSeriesInput";
-import { getDataSeries } from "../dataSeriesInput/utils";
+import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput";
+import { getDataSeries } from "../elements/dataSeriesInput/utils";
 import styles from '../forms.module.css';
 import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
-import { IconCircleMinus, IconStar, IconStarFilled } from "@tabler/icons-react";
+import { IconCircleMinus } from "@tabler/icons-react";
 
 enum DataSeriesType {
   Static = "STATIC",

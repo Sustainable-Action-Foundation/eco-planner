@@ -1,5 +1,5 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import UpdatePassword from "@/components/forms/password/updatePassword";
+import UpdatePassword from "@/components/forms/forms/updatePassword";
 import { buildMetadata } from "@/functions/buildMetadata";
 import serveTea from "@/lib/i18nServer";
 

@@ -1,6 +1,6 @@
 import "server-only";
 import serveTea from "@/lib/i18nServer";
-import VerifyButton from "@/components/forms/verify/verifyButton";
+import VerifyButton from "@/components/forms/forms/verifyButton";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata() {
