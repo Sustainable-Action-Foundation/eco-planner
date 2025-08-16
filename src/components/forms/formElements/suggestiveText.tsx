@@ -115,7 +115,7 @@ export default function SuggestiveText({
     const fuse = new Fuse(suggestiveList);
     const newResults = value ? fuse.search(value).map(result => result.item) : suggestiveList;
     setResults(newResults);
-  }, [value]);
+  }, [value, suggestiveList]);
 
   // Sroll listbox element into view
   useEffect(() => {

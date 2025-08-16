@@ -4,7 +4,7 @@ import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" wit
 import { LoginData } from "@/lib/session";
 import { AccessControlled, MetaRoadmapInput } from "@/types";
 import { MetaRoadmap, RoadmapType } from "@prisma/client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { EditUsers, ViewUsers, getAccessData } from "@/components/forms/accessSelector/accessSelector";
 import LinkInput, { getLinks } from "@/components/forms/linkInput/linkInput"
 import formSubmitter from "@/functions/formSubmitter";
@@ -48,12 +48,6 @@ export default function MetaRoadmapForm({
       form.namedItem("viewGroups")
     );
 
-    console.log(viewGroups)
-    const test = form.namedItem("test-multiple-search")
-    const test2 = (form.namedItem("test-multiple-search") as HTMLButtonElement)?.value.split(",").map(item => item.trim()) || null
-    console.log(test)
-    console.log(test2)
-
     const formData: MetaRoadmapInput & { id?: string, timestamp?: number } = {
       name: (form.namedItem("metaRoadmapName") as HTMLInputElement)?.value,
       description: (form.namedItem("description") as HTMLTextAreaElement)?.value,
@@ -86,6 +80,10 @@ export default function MetaRoadmapForm({
     [RoadmapType.LOCAL]: t("common:scope.local"),
     [RoadmapType.OTHER]: t("common:scope.other"),
   }
+  const [roadmapType, setRoadmapType] = useState<string>("");
+  useEffect(() => {
+    console.log(roadmapType)
+  }, [roadmapType])
 
   let currentAccess: AccessControlled | undefined = undefined;
   if (currentRoadmap) {
@@ -117,25 +115,32 @@ export default function MetaRoadmapForm({
             <input id="metaRoadmapName" name="metaRoadmapName" className="margin-block-25" type="text" defaultValue={currentRoadmap?.name ?? undefined} autoComplete="off" required />
           </label>
 
-
+{/*
           <label className="block margin-block-100">
             {t("forms:meta_roadmap.roadmap_series_description")}
             <textarea className="block margin-block-25" name="description" id="description" defaultValue={currentRoadmap?.description ?? undefined} required></textarea>
           </label>
-
-          {/*
+         */}
+          
           <div className="margin-block-100">
             <div className="margin-bottom-25" id="roadmap-series-description">{t("forms:meta_roadmap.roadmap_series_description")}</div>
             <TextEditor id="roadmap-series-description-editor" ariaLabelledBy="roadmap-series-description" placeholder="Skriv något..." />
           </div>
-          */}
+ 
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:meta_roadmap.actor_legend")}</legend>
           <label className="block margin-bottom-100">
             {t("forms:meta_roadmap.roadmap_scope_label")}
-            <select className="block margin-block-25" name="type" id="type" defaultValue={currentRoadmap?.type ?? ""} required>
+            <select 
+              className="block margin-block-25" 
+              name="type" 
+              id="type" 
+              defaultValue={currentRoadmap?.type ?? ""} 
+              required 
+              onChange={(e) => setRoadmapType((e.target as HTMLSelectElement).value)}
+            >
               <option value="">{t("forms:meta_roadmap.no_chosen_roadmap_scope")}</option>
               {
                 Object.values(RoadmapType).map((value) => {
@@ -158,7 +163,13 @@ export default function MetaRoadmapForm({
               defaultValue={currentRoadmap?.actor ?? undefined}
               // suggestiveList={Object.keys(countiesAndMunicipalities)} Enbart län
               // suggestiveList={Object.values(countiesAndMunicipalities).flat()} Enbart kommuner
-              suggestiveList={Object.entries(countiesAndMunicipalities).flat(2)}
+              suggestiveList={
+                roadmapType == "REGIONAL" 
+                  ? Object.keys(countiesAndMunicipalities)
+                  : roadmapType == "MUNICIPAL" 
+                    ? Object.values(countiesAndMunicipalities).flat()
+                    : []
+              }
             />
           </div>
         </fieldset>
