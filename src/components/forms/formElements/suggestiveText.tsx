@@ -5,9 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import styles from './comboBox.module.css' with { type: "css" }
 import Fuse from "fuse.js";
 import { useTranslation } from "react-i18next";
-
-// TODO: TAB should accept currently focused value
-
+ 
 export default function SuggestiveText({
   id,
   name,

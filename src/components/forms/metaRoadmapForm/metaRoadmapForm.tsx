@@ -48,6 +48,12 @@ export default function MetaRoadmapForm({
       form.namedItem("viewGroups")
     );
 
+    console.log(viewGroups)
+    const test = form.namedItem("test-multiple-search")
+    const test2 = (form.namedItem("test-multiple-search") as HTMLButtonElement)?.value.split(",").map(item => item.trim()) || null
+    console.log(test)
+    console.log(test2)
+
     const formData: MetaRoadmapInput & { id?: string, timestamp?: number } = {
       name: (form.namedItem("metaRoadmapName") as HTMLInputElement)?.value,
       description: (form.namedItem("description") as HTMLTextAreaElement)?.value,
@@ -171,23 +177,35 @@ export default function MetaRoadmapForm({
               existingGroups={currentAccess?.viewGroups.map((group) => { return group.name })}
               isPublic={currentAccess?.isPublic ?? false}
             />
+            <label className="display-flex align-items-center gap-50 margin-block-50">
+              <input type="checkbox" name="isPublic" id="isPublic" defaultChecked={currentAccess?.isPublic ?? false} />
+              {t("forms:access_selector.make_posts_public")}
+            </label>
             <SelectMultipleSearch
               id="test-multiple-search"
               name="test-multiple-search"
               searchBoxLabel="sök..."
               searchBoxPlaceholder="sök..."
               placeholder="Välj grupper"
+              defaultValue={[
+                ...(user?.userGroups.map(group => ({
+                  name: group,
+                  value: group
+                })) ?? [])
+              ]}
               options={[
-                {name: t("forms:access_selector.make_posts_public"), value: currentAccess?.isPublic.toString() ?? false.toString()},
                 ...(userGroups?.map(group => ({
                   name: group,
                   value: group
                 })) ?? []),
+                /* Do we need this in options?
                 ...(currentAccess?.viewGroups?.map(group => ({
                   name: group.name,
                   value: group.name
                 })) ?? [])
+              */
               ]}
+
             />
           </fieldset>
         }
@@ -214,7 +232,7 @@ export default function MetaRoadmapForm({
               placeholder="välj..."
               searchBoxLabel="Sök..." // TODO: i18n
               searchBoxPlaceholder="Sök..." // TODO: i18n
-              defaultValue={true}
+              defaultValue={{ name: t("forms:meta_roadmap.relationship_no_chosen"), value: "" }} // TODO: Set actual default value :)
               options={[
                 { name: t("forms:meta_roadmap.relationship_no_chosen"), value: "" },
                 ...parentRoadmapOptions.map((metaRoadmap) => ({

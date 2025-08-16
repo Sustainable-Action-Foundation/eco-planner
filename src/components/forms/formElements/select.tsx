@@ -1,12 +1,12 @@
 "use client"
 
+// TODO: Fix issues with tab.
+
 import { IconSearch, IconSelector } from "@tabler/icons-react";
 import { useEffect, useState, useRef } from "react"
 import Fuse from "fuse.js";
 import { useTranslation } from "react-i18next";
 import styles from './comboBox.module.css' with { type: "css" }
-
-// TODO: TAB should accept currently focused value
 
 export function SelectSingleSearch({
   className,
@@ -15,6 +15,7 @@ export function SelectSingleSearch({
   name,
   defaultValue,
   required,
+  disabled,
   placeholder,
   searchBoxLabel,
   searchBoxPlaceholder,
@@ -26,6 +27,7 @@ export function SelectSingleSearch({
   name: string,
   defaultValue?: { name: string, value: string } | boolean,
   required?: boolean,
+  disabled?: boolean,
   placeholder?: string,
   searchBoxLabel: string,
   searchBoxPlaceholder?: string
@@ -192,6 +194,7 @@ export function SelectSingleSearch({
         style={{ borderColor: menuOpen ? '#191919' : '' }}
         value={value.value}
         name={name}
+        disabled={disabled}
         ref={toggleRef}
         onClick={() => { setMenuOpen(!menuOpen) }}
         aria-controls={menuOpen ? `${id}-dialog` : undefined}
@@ -202,7 +205,7 @@ export function SelectSingleSearch({
         aria-required={required ? required : false}
         aria-invalid={!valueIsValid}
       >
-        {options.includes(value) ? value.name : placeholder}
+        {options.some(o => o.value === value.value) ? value.name : placeholder}
         <IconSelector height={20} width={20} aria-hidden={true} />
       </button>
       <div // TODO: Does this require a label ?
@@ -260,7 +263,7 @@ export function SelectSingleSearch({
                   setValue(option !== value ? option : { name: "", value: "" }),
                     setMenuOpen(false)
                 }}
-                aria-selected={option === value}
+                aria-selected={option.value === value.value}
                 ref={(el) => { optionRefs.current[index] = el }}
                 role="option"
                 key={`${index}`} // TODO: Am i allowed to do this or do they need to be unique for entire page?
@@ -298,6 +301,7 @@ export function SelectMultipleSearch({
   name,
   defaultValue,
   required,
+  disabled,
   placeholder,
   searchBoxLabel,
   searchBoxPlaceholder,
@@ -309,6 +313,7 @@ export function SelectMultipleSearch({
   name: string,
   defaultValue?: Array<{ name: string, value: string }>,
   required?: boolean,
+  disabled?: boolean,
   placeholder?: string,
   searchBoxLabel: string,
   searchBoxPlaceholder?: string
@@ -399,15 +404,15 @@ export function SelectMultipleSearch({
       }
     }
 
-    // Selects option and remove listbox (TODO: Check value aswell/lenght of list or whatever...)
     if (e.key === 'Enter') {
       e.preventDefault();
       e.stopPropagation(); // Prevent higher-level reopens
       if (menuOpen && focusedListBoxItem != null && results.length > 0) {
-        setValue([...value, results[focusedListBoxItem]])
-        setFocusedListBoxItem(null)
-        setMenuOpen(false);
-        toggleRef.current?.focus()
+        setValue(prev =>
+          prev.some(v => v === results[focusedListBoxItem]) // check by a unique property
+            ? prev.filter(v => v !== results[focusedListBoxItem]) // remove if already present
+            : [...prev, results[focusedListBoxItem]] // add if not present
+        )
       }
     }
 
@@ -471,6 +476,7 @@ export function SelectMultipleSearch({
         style={{ borderColor: menuOpen ? '#191919' : '' }}
         value={value.map((value) => value.value).toString()} // TODO: Why is this "false" ?
         name={name}
+        disabled={disabled}
         ref={toggleRef}
         onClick={() => { setMenuOpen(!menuOpen) }}
         aria-controls={menuOpen ? `${id}-dialog` : undefined}
@@ -482,8 +488,8 @@ export function SelectMultipleSearch({
         aria-invalid={!valueIsValid}
       >
         <span style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: "hidden", minWidth: '0' }}>
-          {value.length > 0 ? value.map((value) => value.name).toString().slice(0).replaceAll(',', ', '): placeholder} {/* TODO: This string manipulation is dangerous if options contain a comma, see what we can do about that */}
-          </span>
+          {value.length > 0 ? value.map((value) => value.name).toString().slice(0).replaceAll(',', ', ') : placeholder} {/* TODO: This string manipulation is dangerous if options contain a comma, see what we can do about that */}
+        </span>
         <IconSelector height={20} width={20} style={{ minWidth: '20px' }} aria-hidden={true} />
       </button>
       <div // TODO: Does this require a label ?
@@ -531,30 +537,33 @@ export function SelectMultipleSearch({
           role="listbox"
           id={`${id}-dialog-listbox`}
           aria-label={t("forms:suggestive_text.listbox_label")}
+          aria-multiselectable={true}
           className="margin-0 padding-0"
         >
           {results.length > 0 ? (
-            results.map((option, index) => (
-              <li
-                id={`${id}-dialog-listbox-${index}`}
-                onClick={() => {
-                  setValue(prev =>
-                    prev.some(v => v.value === option.value) // check by a unique property
-                      ? prev.filter(v => v.value !== option.value) // remove if already present
-                      : [...prev, option] // add if not present
-                  );
-                }}
-                aria-selected={value.includes(option)}
-                ref={(el) => { optionRefs.current[index] = el }}
-                role="option"
-                key={`${index}`} // TODO: Am i allowed to do this or do they need to be unique for entire page?
-                style={{
-                  backgroundColor: index === focusedListBoxItem ? 'var(--gray-90)' : '',
-                }}
-              >
-                {option.name}
-              </li>
-            ))
+            results.map((option, index) => {
+              return (
+                <li
+                  id={`${id}-dialog-listbox-${index}`}
+                  onClick={() => {
+                    setValue(prev =>
+                      prev.some(v => v.value === option.value) // check by a unique property
+                        ? prev.filter(v => v.value !== option.value) // remove if already present
+                        : [...prev, option] // add if not present
+                    );
+                  }}
+                  aria-selected={value.some(v => v.value === option.value)} // TODO: Update other select to use this
+                  ref={(el) => { optionRefs.current[index] = el }}
+                  role="option"
+                  key={`${index}`} // TODO: Am i allowed to do this or do they need to be unique for entire page?
+                  style={{
+                    backgroundColor: index === focusedListBoxItem ? 'var(--gray-90)' : '',
+                  }}
+                >
+                  {option.name}
+                </li>
+              )
+            })
           ) : (
             <li
               style={{
