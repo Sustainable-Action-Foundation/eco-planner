@@ -34,11 +34,13 @@ const limit = 5000
 const TextEditor = ({
   ariaLabelledBy,
   placeholder,
-  id
+  id,
+  onChange
 }: {
   ariaLabelledBy: string,
   placeholder?: string,
-  id: string
+  id: string,
+  onChange?: (json: any) => void
 }) => {
 
   const CustomColor = Color.extend({
@@ -56,6 +58,11 @@ const TextEditor = ({
   })
 
   const editor = useEditor({
+    onUpdate: ({ editor }) => {
+      if (onChange) {
+        onChange(editor.getJSON())
+      }
+    },
     immediatelyRender: true,
     shouldRerenderOnTransaction: true,
     extensions: [
@@ -100,6 +107,8 @@ const TextEditor = ({
 
   /* TODO: Keyboard shortcut and custom menu for linkinput */
   /* TODO: Character counter i18n */
+  /* TODO: When selecting menuitem Enter should focus editor, space should not. */
+  /* TODO: For some reason the undo/redo is not disabled */
 
   const percentage = editor ? Math.round((100 / limit) * editor.storage.characterCount.characters({ mode: 'nodeSize' })) : 0
 

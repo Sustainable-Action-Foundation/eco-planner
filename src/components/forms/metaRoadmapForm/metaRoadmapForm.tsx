@@ -27,6 +27,7 @@ export default function MetaRoadmapForm({
   currentRoadmap?: MetaRoadmap & AccessControlled,
 }) {
   const { t } = useTranslation(["forms", "common"]);
+  const [editorContent, setEditorContent] = useState<any>(null);
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     // Mostly the usual submit handler stuff.
@@ -50,7 +51,7 @@ export default function MetaRoadmapForm({
 
     const formData: MetaRoadmapInput & { id?: string, timestamp?: number } = {
       name: (form.namedItem("metaRoadmapName") as HTMLInputElement)?.value,
-      description: (form.namedItem("description") as HTMLTextAreaElement)?.value,
+      description: JSON.stringify(editorContent),
       type: ((form.namedItem("type") as HTMLSelectElement)?.value as RoadmapType) || null,
       actor: (form.namedItem("actor") as HTMLInputElement)?.value || null,
       editors: editUsers,
@@ -124,7 +125,12 @@ export default function MetaRoadmapForm({
           
           <div className="margin-block-100">
             <div className="margin-bottom-25" id="roadmap-series-description">{t("forms:meta_roadmap.roadmap_series_description")}</div>
-            <TextEditor id="roadmap-series-description-editor" ariaLabelledBy="roadmap-series-description" placeholder="Skriv något..." />
+            <TextEditor 
+              id="roadmap-series-description-editor" 
+              ariaLabelledBy="roadmap-series-description" 
+              placeholder="Skriv något..."
+              onChange={(json) => setEditorContent(json)}  
+            />
           </div>
  
         </fieldset>
