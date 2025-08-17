@@ -504,7 +504,7 @@ export function SelectMultipleSearch({
             opacity: disabled ? 0.6 : 1,
           }}>
           {value.length > 0
-            ? value.map((value) => value.name).toString().slice(0).replaceAll(',', ', ')
+            ? value.map((value) => value.name).toString().slice(0).replaceAll(',', ', ') // TODO: Can probably do this a bit more cleanly
             : placeholder
           } {/* TODO: This string manipulation is dangerous if options contain a comma, see what we can do about that */}
         </span>

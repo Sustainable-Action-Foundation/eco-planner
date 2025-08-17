@@ -5,7 +5,6 @@ import { LoginData } from "@/lib/session";
 import { AccessControlled, MetaRoadmapInput } from "@/types";
 import { MetaRoadmap, RoadmapType } from "@prisma/client";
 import { useEffect, useState } from "react";
-import { getAccessData } from "@/components/form/elements/accessSelector/accessSelector";
 import { getLinks } from "@/components/form/elements/linkInput/linkInput"
 import formSubmitter from "@/functions/formSubmitter";
 import styles from '../forms.module.css'
@@ -43,29 +42,27 @@ export default function MetaRoadmapForm({
     const form = event.target.elements;
 
     const links = getLinks(event.target);
-
-    const { editUsers, viewUsers, editGroups, viewGroups } = getAccessData(
-      form.namedItem("editUsers"),
-      form.namedItem("viewUsers"),
-      form.namedItem("editGroups"),
-      form.namedItem("viewGroups")
-    );
+    
+    const visibility = (form.namedItem("visibility") as RadioNodeList)?.value;
+    const editability = (form.namedItem("editability") as RadioNodeList)?.value;
 
     const formData: MetaRoadmapInput & { id?: string, timestamp?: number } = {
       name: (form.namedItem("metaRoadmapName") as HTMLInputElement)?.value,
       description: JSON.stringify(editorContent),
       type: ((form.namedItem("type") as HTMLSelectElement)?.value as RoadmapType) || null,
       actor: (form.namedItem("actor") as HTMLInputElement)?.value || null,
-      editors: editUsers,
-      viewers: viewUsers,
-      editGroups,
-      viewGroups,
-      isPublic: (form.namedItem("isPublic") as HTMLInputElement)?.checked || false,
+      editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],
+      viewers: visibility === "custom" ? (form.namedItem("viewers") as HTMLInputElement)?.value.split(",").map(s => s.trim()).filter(Boolean) : [],
+      editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
+      viewGroups:  visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
+      isPublic: (form.namedItem("visibility") as RadioNodeList)?.value === "public",
       links,
       parentRoadmapId: (form.namedItem("parentRoadmap") as HTMLButtonElement)?.value || undefined,
       id: currentRoadmap?.id || undefined,
       timestamp,
     };
+
+    console.log(formData)
 
     const formJSON = JSON.stringify(formData);
 
@@ -99,11 +96,11 @@ export default function MetaRoadmapForm({
       isPublic: currentRoadmap.isPublic,
     }
   }
-  const [accessType, setAccessType] = useState<"isPrivate" | "isPublic" | "selectGroups">( // TODO: Check that this makes sense
-    currentAccess?.isPublic ? "isPublic" : "isPrivate"
+  const [accessType, setAccessType] = useState<"private" | "public" | "custom">( // TODO: This also needs to check for viewgroups/viewers to see if we should set custom
+    currentAccess?.isPublic ? "public" : "private"
   );
 
-  const [editGroups, setEditGroups] = useState<"private" | "selectGroups">("private");// TODO: Get this from params or something...
+  const [editGroups, setEditGroups] = useState<"private" | "custom">("private");// TODO: Get this from params or something...
 
   // Indexes for the data-position attribute in the legend elements
   let positionIndex = 1;
@@ -188,10 +185,10 @@ export default function MetaRoadmapForm({
               <input
                 required
                 type="radio"
-                name="isPublic"
+                name="visibility"
                 id="isPrivate"
-                value="isPrivate"
-                checked={accessType === "isPrivate"}
+                value="private"
+                checked={accessType === "private"}
                 onChange={(e) => setAccessType(e.target.value as any)}
               />
               Enbart jag
@@ -199,10 +196,10 @@ export default function MetaRoadmapForm({
             <label className="flex width-fit-content margin-block-75 align-items-center gap-50">
               <input
                 type="radio"
-                name="isPublic"
+                name="visibility"
                 id="isPublic"
-                value="isPublic"
-                checked={accessType === "isPublic"}
+                value="public"
+                checked={accessType === "public"}
                 onChange={(e) => setAccessType(e.target.value as any)}
               />
               Alla användare
@@ -214,10 +211,10 @@ export default function MetaRoadmapForm({
                 <label className="flex width-fit-content align-items-center gap-50">
                   <input
                     type="radio"
-                    name="isPublic"
+                    name="visibility"
                     id="selectGroups"
-                    value="selectGroups"
-                    checked={accessType === "selectGroups"}
+                    value="custom"
+                    checked={accessType === "custom"}
                     onChange={(e) => setAccessType(e.target.value as any)}
                   />
                   Särskilda användare och grupper
@@ -230,26 +227,26 @@ export default function MetaRoadmapForm({
                   gridTemplateColumns: 'auto 1fr',
                   gridTemplateRows: 'auto auto',
                   columnGap: '1rem'
-                }}>
-
-                <label htmlFor="test-suggestive-text">Användare:</label>
-                <SuggestiveText
-                  id="test-suggestive-text"
-                  name="test-suggestive-text"
+                }}
+              >
+                <label htmlFor="viewers">Användare:</label>
+                <input
+                  id="viewers"
+                  name="viewers"
                   className="flex-grow-100"
                   placeholder="användare 1, användare 2, användare 3..."
-                  disabled={accessType !== "selectGroups"}
-                  suggestiveList={[]}
+                  disabled={accessType !== "custom"} 
+                  type="text"
                 />
-                <label htmlFor="test-multiple-search" className="block width-fit-content">Grupper:</label>
+                <label htmlFor="viewer-groups" className="block width-fit-content">Grupper:</label>
                 {/* TODO: Disabled should be indicated by cursor */}
                 <SelectMultipleSearch // TODO: Something needs to indicate that this is a multiselect :) 
-                  id="test-multiple-search"
-                  name="test-multiple-search"
+                  id="viewer-groups"
+                  name="viewer-groups"
                   searchBoxLabel="sök..."
                   searchBoxPlaceholder="sök..."
                   placeholder="Välj grupper"
-                  disabled={accessType !== "selectGroups"}
+                  disabled={accessType !== "custom"}
                   options={[
                     ...(userGroups?.map(group => ({
                       name: group,
@@ -282,7 +279,7 @@ export default function MetaRoadmapForm({
               <input
                 required
                 type="radio"
-                name="editGroups"
+                name="editability"
                 id="editPrivate"
                 value="private"
                 checked={editGroups === "private"}
@@ -297,10 +294,10 @@ export default function MetaRoadmapForm({
                 <label className="flex width-fit-content align-items-center gap-50">
                   <input
                     type="radio"
-                    name="editGroups"
+                    name="editability"
                     id="selectGroups"
-                    value="selectGroups"
-                    checked={editGroups === "selectGroups"}
+                    value="custom"
+                    checked={editGroups === "custom"}
                     onChange={(e) => setEditGroups(e.target.value as any)}
                   />
                   Särskilda användare och grupper
@@ -315,22 +312,22 @@ export default function MetaRoadmapForm({
                   columnGap: '1rem'
                 }}>
 
-                <label htmlFor="test-suggestive-text-2" className="block width-fit-content">Användare:</label>
-                <SuggestiveText
-                  id="test-suggestive-text-2"
-                  name="test-suggestive-text-2"
+                <label htmlFor="editors" className="block width-fit-content">Användare:</label>
+                <input 
+                  type="text" 
+                  id="editors"
+                  name="editors"
                   placeholder="användare 1, användare 2, användare 3..."
-                  disabled={editGroups !== "selectGroups"}
-                  suggestiveList={[]}
+                  disabled={editGroups !== "custom"}
                 />
-                <label htmlFor="test-multiple-search-2" className="block width-fit-content">Grupper:</label>
+                <label htmlFor="editor-groups" className="block width-fit-content">Grupper:</label>
                 <SelectMultipleSearch // TODO: Something needs to indicate that this is a multiselect :) 
-                  id="test-multiple-search-2"
-                  name="test-multiple-search-2"
+                  id="editor-groups"
+                  name="editor-groups"
                   searchBoxLabel="sök..."
                   searchBoxPlaceholder="sök..."
                   placeholder="Välj grupper"
-                  disabled={editGroups !== "selectGroups"}
+                  disabled={editGroups !== "custom"}
                   options={[
                     ...(userGroups?.map(group => ({
                       name: group,
