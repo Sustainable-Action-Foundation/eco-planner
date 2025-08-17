@@ -492,7 +492,7 @@ export function SelectMultipleSearch({
         role="combobox"
         type="button"
         aria-required={required ? required : false}
-        aria-invalid={!valueIsValid}
+        aria-invalid={!valueIsValid}  // TODO: Fix this (currently disabled for multiselect)
       >
         <span
           style={{

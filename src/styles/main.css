@@ -1,5 +1,9 @@
 /* custom (not yet added to semantic style sheets= */
 
+:where(button, input, textarea, select):disabled {
+  cursor: not-allowed;
+}
+
 .focusable {
   border: 1px solid var(--gray-80);
   background-color: white;

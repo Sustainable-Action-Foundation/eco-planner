@@ -13,8 +13,8 @@ import SuggestiveText from "../elements/suggestiveText";
 import TextEditor from "@/components/form/elements/textEditor/textEditor";
 import { SelectMultipleSearch, SelectSingleSearch } from "../elements/select";
 
-/* TODO: Check usage of autocomplete both here and for other forms */
 /* TODO: Ensure everything is validated properly on the server */
+/* TODO: Test that everything works, check against DB, especially viewgroups and usergroups */
 export default function MetaRoadmapForm({
   user,
   userGroups,
@@ -27,46 +27,10 @@ export default function MetaRoadmapForm({
   currentRoadmap?: MetaRoadmap & AccessControlled,
 }) {
   const { t } = useTranslation(["forms", "common"]);
+
   const [editorContent, setEditorContent] = useState<any>(null);
-
-  async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
-    // Mostly the usual submit handler stuff.
-    // We might want to redirect the user to the roadmap form immediately after successfully submitting the metaRoadmap form
-    // (and pre-populate the roadmap form with the new metaRoadmap's ID)
-    event.preventDefault();
-    // Prevent double submission
-    if (isLoading) return;
-    setIsLoading(true);
-
-    const form = event.target.elements;
-
-    const links = getLinks(event.target);
-    
-    const visibility = (form.namedItem("visibility") as RadioNodeList)?.value;
-    const editability = (form.namedItem("editability") as RadioNodeList)?.value;
-
-    const formData: MetaRoadmapInput & { id?: string, timestamp?: number } = {
-      name: (form.namedItem("name") as HTMLInputElement)?.value,
-      description: JSON.stringify(editorContent),
-      type: ((form.namedItem("type") as HTMLSelectElement)?.value as RoadmapType) || null,
-      actor: (form.namedItem("actor") as HTMLInputElement)?.value || null,
-      editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],
-      viewers: visibility === "custom" ? (form.namedItem("viewers") as HTMLInputElement)?.value.split(",").map(s => s.trim()).filter(Boolean) : [],
-      editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
-      viewGroups:  visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
-      isPublic: (form.namedItem("visibility") as RadioNodeList)?.value === "public",
-      links,
-      parentRoadmapId: (form.namedItem("parentRoadmap") as HTMLButtonElement)?.value || undefined,
-      id: currentRoadmap?.id || undefined,
-      timestamp,
-    };
- 
-    const formJSON = JSON.stringify(formData);
-
-    formSubmitter('/api/metaRoadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', setIsLoading);
-  }
-
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [roadmapType, setRoadmapType] = useState<string>("");
 
   const timestamp = Date.now()
 
@@ -77,10 +41,6 @@ export default function MetaRoadmapForm({
     [RoadmapType.LOCAL]: t("common:scope.local"),
     [RoadmapType.OTHER]: t("common:scope.other"),
   }
-  const [roadmapType, setRoadmapType] = useState<string>("");
-  useEffect(() => {
-    console.log(roadmapType)
-  }, [roadmapType])
 
   let currentAccess: AccessControlled | undefined = undefined;
   if (currentRoadmap) {
@@ -93,11 +53,54 @@ export default function MetaRoadmapForm({
       isPublic: currentRoadmap.isPublic,
     }
   }
-  const [accessType, setAccessType] = useState<"private" | "public" | "custom">( // TODO: This also needs to check for viewgroups/viewers to see if we should set custom
-    currentAccess?.isPublic ? "public" : "private"
+
+  const [visibilityType, setvisibilityType] = useState<"private" | "public" | "custom">(
+    currentAccess
+      ? (currentAccess.isPublic
+        ? "public"
+        : (currentAccess.viewers.length > 0 || currentAccess.viewGroups.length > 0
+          ? "custom"
+          : "private"))
+      : "private"
   );
 
-  const [editGroups, setEditGroups] = useState<"private" | "custom">("private");// TODO: Get this from params or something...
+  const [editabilityType, setEditabilityType] = useState<"private" | "custom" | undefined>(
+    currentAccess ? (currentAccess.editors.length > 0 || currentAccess.editGroups.length > 0 ? "custom" : "private") : "private"
+  );
+
+  async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
+    // Mostly the usual submit handler stuff.
+    // We might want to redirect the user to the roadmap form immediately after successfully submitting the metaRoadmap form
+    // (and pre-populate the roadmap form with the new metaRoadmap's ID)
+    event.preventDefault();
+    // Prevent double submission
+    if (isLoading) return;
+    setIsLoading(true);
+
+    const form = event.target.elements;
+    const visibility = (form.namedItem("visibility") as RadioNodeList)?.value;
+    const editability = (form.namedItem("editability") as RadioNodeList)?.value;
+
+    const formData: MetaRoadmapInput & { id?: string, timestamp?: number } = {
+      name: (form.namedItem("name") as HTMLInputElement)?.value,
+      description: JSON.stringify(editorContent),
+      type: ((form.namedItem("type") as HTMLSelectElement)?.value as RoadmapType) || null,
+      actor: (form.namedItem("actor") as HTMLInputElement)?.value || null,
+      editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],
+      viewers: visibility === "custom" ? (form.namedItem("viewers") as HTMLInputElement)?.value.split(",").map(s => s.trim()).filter(Boolean) : [],
+      editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
+      viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
+      isPublic: (form.namedItem("visibility") as RadioNodeList)?.value === "public",
+      links: undefined, // TODO: Links in DB should be migrated to description
+      parentRoadmapId: (form.namedItem("parentRoadmap") as HTMLButtonElement)?.value || undefined,
+      id: currentRoadmap?.id || undefined,
+      timestamp,
+    };
+
+    const formJSON = JSON.stringify(formData);
+
+    formSubmitter('/api/metaRoadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', setIsLoading);
+  }
 
   // Indexes for the data-position attribute in the legend elements
   let positionIndex = 1;
@@ -123,6 +126,7 @@ export default function MetaRoadmapForm({
             ariaLabelledBy="description-label"
             placeholder="Skriv något..."
             editable={true}
+            content={currentRoadmap ? currentRoadmap.description : ""}
             onChange={(json) => setEditorContent(json)}
           />
         </fieldset>
@@ -180,8 +184,8 @@ export default function MetaRoadmapForm({
                 name="visibility"
                 id="visibility-private"
                 value="private"
-                checked={accessType === "private"}
-                onChange={(e) => setAccessType(e.target.value as any)}
+                checked={visibilityType === "private"}
+                onChange={(e) => setvisibilityType(e.target.value as any)}
               />
               Enbart jag
             </label>
@@ -191,8 +195,8 @@ export default function MetaRoadmapForm({
                 name="visibility"
                 id="visibility-public"
                 value="public"
-                checked={accessType === "public"}
-                onChange={(e) => setAccessType(e.target.value as any)}
+                checked={visibilityType === "public"}
+                onChange={(e) => setvisibilityType(e.target.value as any)}
               />
               Alla användare
             </label>
@@ -206,8 +210,8 @@ export default function MetaRoadmapForm({
                     name="visibility"
                     id="visibility-custom"
                     value="custom"
-                    checked={accessType === "custom"}
-                    onChange={(e) => setAccessType(e.target.value as any)}
+                    checked={visibilityType === "custom"}
+                    onChange={(e) => setvisibilityType(e.target.value as any)}
                   />
                   Specifika användare och grupper
                 </label>
@@ -227,18 +231,18 @@ export default function MetaRoadmapForm({
                   name="viewers"
                   className="flex-grow-100"
                   placeholder="användare 1, användare 2, användare 3..."
-                  disabled={accessType !== "custom"} 
+                  disabled={visibilityType !== "custom"}
                   type="text"
+                  // TODO: give default value
                 />
                 <label htmlFor="viewer-groups" className="block width-fit-content">Grupper:</label>
-                {/* TODO: Disabled should be indicated by cursor */}
-                <SelectMultipleSearch // TODO: Something needs to indicate that this is a multiselect :) 
+                <SelectMultipleSearch // TODO: Something needs to indicate that this is a multiselect :), TODO: Populate from default value
                   id="viewer-groups"
                   name="viewer-groups"
                   searchBoxLabel="sök..."
                   searchBoxPlaceholder="sök..."
                   placeholder="Välj grupper"
-                  disabled={accessType !== "custom"}
+                  disabled={visibilityType !== "custom"}
                   options={[
                     ...(userGroups?.map(group => ({
                       name: group,
@@ -269,8 +273,8 @@ export default function MetaRoadmapForm({
                 name="editability"
                 id="editability-private"
                 value="private"
-                checked={editGroups === "private"}
-                onChange={(e) => setEditGroups(e.target.value as any)}
+                checked={editabilityType === "private"}
+                onChange={(e) => setEditabilityType(e.target.value as any)}
               />
               Enbart jag
             </label>
@@ -284,8 +288,8 @@ export default function MetaRoadmapForm({
                     name="editability"
                     id="editability-custom"
                     value="custom"
-                    checked={editGroups === "custom"}
-                    onChange={(e) => setEditGroups(e.target.value as any)}
+                    checked={editabilityType === "custom"}
+                    onChange={(e) => setEditabilityType(e.target.value as any)}
                   />
                   Specifika användare och grupper
                 </label>
@@ -300,21 +304,22 @@ export default function MetaRoadmapForm({
                 }}>
 
                 <label htmlFor="editors" className="block width-fit-content">Användare:</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   id="editors"
                   name="editors"
                   placeholder="användare 1, användare 2, användare 3..."
-                  disabled={editGroups !== "custom"}
+                  disabled={editabilityType !== "custom"}
+                  // TODO: give default value
                 />
                 <label htmlFor="editor-groups" className="block width-fit-content">Grupper:</label>
-                <SelectMultipleSearch // TODO: Something needs to indicate that this is a multiselect :) 
+                <SelectMultipleSearch // TODO: Something needs to indicate that this is a multiselect :), TODO: Populate from default value
                   id="editor-groups"
                   name="editor-groups"
                   searchBoxLabel="sök..."
                   searchBoxPlaceholder="sök..."
                   placeholder="Välj grupper"
-                  disabled={editGroups !== "custom"}
+                  disabled={editabilityType !== "custom"}
                   options={[
                     ...(userGroups?.map(group => ({
                       name: group,
@@ -336,7 +341,7 @@ export default function MetaRoadmapForm({
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:meta_roadmap.relationship_legend")}</legend>
           <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:meta_roadmap.relationship_label")}</label>
-          {parentRoadmapOptions ? (
+          {parentRoadmapOptions ? ( // TODO: This might not make sense?
             <SelectSingleSearch
               className="margin-top-25"
               id="parentRoadmap"
@@ -344,7 +349,19 @@ export default function MetaRoadmapForm({
               placeholder="välj..."
               searchBoxLabel="Sök..." // TODO: i18n
               searchBoxPlaceholder="Sök..." // TODO: i18n
-              defaultValue={{ name: t("forms:meta_roadmap.relationship_no_chosen"), value: "" }} // TODO: Set actual default value :)
+              disabled={!parentRoadmapOptions}
+              defaultValue={ // TODO: Might be a better way to do this
+                currentRoadmap
+                  ? currentRoadmap.parentRoadmapId
+                    ? (() => {
+                      const selected = parentRoadmapOptions.find(
+                        (roadmap) => roadmap.id === currentRoadmap.parentRoadmapId
+                      );
+                      return selected ? { name: selected.name, value: selected.id } : false;
+                    })()
+                    : { name: t("forms:meta_roadmap.relationship_no_chosen"), value: "" }
+                  : false
+              }  
               options={[
                 { name: t("forms:meta_roadmap.relationship_no_chosen"), value: "" },
                 ...parentRoadmapOptions.map((metaRoadmap) => ({
