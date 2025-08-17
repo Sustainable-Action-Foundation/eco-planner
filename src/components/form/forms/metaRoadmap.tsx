@@ -115,30 +115,28 @@ export default function MetaRoadmapForm({
         <input type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>{t("forms:meta_roadmap.description_legend")}</legend>
-          <label className="block margin-block-100">
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:meta_roadmap.description_legend")}</legend>
+          <label>
             {t("forms:meta_roadmap.roadmap_series_name")}
-            <input id="metaRoadmapName" name="metaRoadmapName" className="margin-block-25" type="text" defaultValue={currentRoadmap?.name ?? undefined} autoComplete="off" required />
+            <input id="metaRoadmapName" name="metaRoadmapName" className="margin-top-25 margin-bottom-100" type="text" defaultValue={currentRoadmap?.name ?? undefined} autoComplete="off" required />
           </label>
 
-          <div className="margin-block-100">
-            <div className="margin-bottom-25" id="roadmap-series-description">{t("forms:meta_roadmap.roadmap_series_description")}</div>
-            <TextEditor
-              id="roadmap-series-description-editor"
-              ariaLabelledBy="roadmap-series-description"
-              placeholder="Skriv något..."
-              onChange={(json) => setEditorContent(json)}
-            />
-          </div>
-
+          <label className="margin-bottom-25" id="roadmap-series-description">{t("forms:meta_roadmap.roadmap_series_description")}</label>
+          <TextEditor
+            className="margin-top-25 margin-bottom-100" // TODO: Need label for menu
+            id="roadmap-series-description-editor"
+            ariaLabelledBy="roadmap-series-description"
+            placeholder="Skriv något..."
+            onChange={(json) => setEditorContent(json)}
+          />
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:meta_roadmap.actor_legend")}</legend>
-          <label className="block margin-bottom-100">
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:meta_roadmap.actor_legend")}</legend>
+          <label>
             {t("forms:meta_roadmap.roadmap_scope_label")}
             <select
-              className="block margin-block-25"
+              className="block margin-top-25 margin-bottom-100 width-100"
               name="type"
               id="type"
               defaultValue={currentRoadmap?.type ?? ""}
@@ -157,28 +155,28 @@ export default function MetaRoadmapForm({
             </select>
           </label>
 
-          <div className="margin-block-100" style={{ width: 'min(250px, 100%)' }}>
-            <label htmlFor="actor">{t("forms:meta_roadmap.choose_actor")}</label>
-            <SuggestiveText
-              className="margin-top-25"
-              id="actor"
-              name="actor"
-              required={false}
-              defaultValue={currentRoadmap?.actor ?? undefined}
-              suggestiveList={
-                roadmapType == "REGIONAL"
-                  ? Object.keys(countiesAndMunicipalities)
-                  : roadmapType == "MUNICIPAL"
-                    ? Object.values(countiesAndMunicipalities).flat()
-                    : []
-              }
-            />
-          </div>
+          <label htmlFor="actor">{t("forms:meta_roadmap.choose_actor")}</label>
+          <SuggestiveText // TODO: For accesibility purposed must act as a regular textinput given an empty array has been passed
+            className="margin-top-25 margin-bottom-100"
+            id="actor"
+            name="actor"
+            required={false}
+            defaultValue={currentRoadmap?.actor ?? undefined}
+            suggestiveList={
+              roadmapType == "REGIONAL"
+                ? Object.keys(countiesAndMunicipalities)
+                : roadmapType == "MUNICIPAL"
+                  ? Object.values(countiesAndMunicipalities).flat()
+                  : []
+            }
+          />
         </fieldset>
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:meta_roadmap.change_read_access")}</legend>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
+              Vem får se din färdplan?
+            </legend>
             {/* TODO: Validate this on the server :) */}
             {/* TODO: Radio button values should be submittable (altough they might not be submitted) */}
             {/* TODO: 
@@ -186,7 +184,7 @@ export default function MetaRoadmapForm({
               Selecting: "isPublic" submits true for "isPublic" and empty strings for viewgroups and viewers
               Selecting: "selectGroups" submits False for "isPublic" and array<string> for viewgroups and viewers
             */}
-            <label className="display-flex align-items-center gap-50 margin-block-50">
+            <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50">
               <input
                 required
                 type="radio"
@@ -196,9 +194,9 @@ export default function MetaRoadmapForm({
                 checked={accessType === "isPrivate"}
                 onChange={(e) => setAccessType(e.target.value as any)}
               />
-              Privat
+              Enbart jag
             </label>
-            <label className="display-flex align-items-center gap-50 margin-block-50">
+            <label className="flex width-fit-content margin-block-75 align-items-center gap-50">
               <input
                 type="radio"
                 name="isPublic"
@@ -207,60 +205,80 @@ export default function MetaRoadmapForm({
                 checked={accessType === "isPublic"}
                 onChange={(e) => setAccessType(e.target.value as any)}
               />
-              Offentlig
+              Alla användare
             </label>
-            <label className="display-flex align-items-center gap-50 margin-block-50">
-              <input
-                type="radio"
-                name="isPublic"
-                id="selectGroups"
-                value="selectGroups"
-                checked={accessType === "selectGroups"}
-                onChange={(e) => setAccessType(e.target.value as any)}
-              />
-              Välj
-            </label>
-            <label htmlFor="test-multiple-search">Grupper</label>
-            <SelectMultipleSearch // TODO: Something needs to indicate that this is a multiselect :) 
-              id="test-multiple-search"
-              name="test-multiple-search"
-              searchBoxLabel="sök..."
-              searchBoxPlaceholder="sök..."
-              placeholder="Välj grupper"
-              disabled={accessType !== "selectGroups"}
-              options={[
-                ...(userGroups?.map(group => ({
-                  name: group,
-                  value: group
-                })) ?? []),
-                /* Do we need this in options?
-                ...(currentAccess?.viewGroups?.map(group => ({
-                  name: group.name,
-                  value: group.name
-                })) ?? [])
-              */
-              ]}
-            />
-            <label htmlFor="test-suggestive-text">Användare</label>
-            <SuggestiveText
-              id="test-suggestive-text"
-              name="test-suggestive-text"
-              placeholder="användare"
-              disabled={accessType !== "selectGroups"}
-              suggestiveList={[]}
-            />
+            <fieldset
+              className=" fieldset-unset-pseudo-class"
+            >
+              <legend> {/* TODO: This causes repition on a screenreader */}
+                <label className="flex width-fit-content align-items-center gap-50">
+                  <input
+                    type="radio"
+                    name="isPublic"
+                    id="selectGroups"
+                    value="selectGroups"
+                    checked={accessType === "selectGroups"}
+                    onChange={(e) => setAccessType(e.target.value as any)}
+                  />
+                  Särskilda användare och grupper
+                </label>
+              </legend>
+              <div
+                className="grid margin-block-100 gap-50 align-items-center"
+                style={{
+                  paddingLeft: 'calc(14px + .5rem)', // Width of radio button + gap (aligns with above text)
+                  gridTemplateColumns: 'auto 1fr',
+                  gridTemplateRows: 'auto auto',
+                  columnGap: '1rem'
+                }}>
+
+                <label htmlFor="test-suggestive-text">Användare:</label>
+                <SuggestiveText
+                  id="test-suggestive-text"
+                  name="test-suggestive-text"
+                  className="flex-grow-100"
+                  placeholder="användare 1, användare 2, användare 3..."
+                  disabled={accessType !== "selectGroups"}
+                  suggestiveList={[]}
+                />
+                <label htmlFor="test-multiple-search" className="block width-fit-content">Grupper:</label>
+                {/* TODO: Disabled should be indicated by cursor */}
+                <SelectMultipleSearch // TODO: Something needs to indicate that this is a multiselect :) 
+                  id="test-multiple-search"
+                  name="test-multiple-search"
+                  searchBoxLabel="sök..."
+                  searchBoxPlaceholder="sök..."
+                  placeholder="Välj grupper"
+                  disabled={accessType !== "selectGroups"}
+                  options={[
+                    ...(userGroups?.map(group => ({
+                      name: group,
+                      value: group
+                    })) ?? []),
+                    /* Do we need this in options?
+                    ...(currentAccess?.viewGroups?.map(group => ({
+                      name: group.name,
+                      value: group.name
+                    })) ?? [])
+                  */
+                  ]}
+                />
+              </div>
+            </fieldset>
           </fieldset>
         }
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:meta_roadmap.change_edit_access")}</legend>
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
+              Vem får redigera din färdplan?
+            </legend>
             {/* TODO: Radio button values should be submittable (altough they might not be submitted) */}
             {/* TODO: 
               Selecting: "private" submits empty strings for editgroups and editors
               Selecting: "selectGroups" submits array<string> for viewgroups and viewers
-            */} 
-            <label className="display-flex align-items-center gap-50 margin-block-50">
+            */}
+            <label className="flex width-fit-content  align-items-center gap-50  margin-bottom-75">
               <input
                 required
                 type="radio"
@@ -272,51 +290,67 @@ export default function MetaRoadmapForm({
               />
               Enbart jag
             </label>
-            <label className="display-flex align-items-center gap-50 margin-block-50">
-              <input
-                type="radio"
-                name="editGroups"
-                id="selectGroups"
-                value="selectGroups"
-                checked={editGroups === "selectGroups"}
-                onChange={(e) => setEditGroups(e.target.value as any)}
-              />
-              Välj
-            </label>
-            <label htmlFor="test-multiple-search-2">Grupper</label>
-            <SelectMultipleSearch // TODO: Something needs to indicate that this is a multiselect :) 
-              id="test-multiple-search-2"
-              name="test-multiple-search-2"
-              searchBoxLabel="sök..."
-              searchBoxPlaceholder="sök..."
-              placeholder="Välj grupper"
-              disabled={editGroups !== "selectGroups"}
-              options={[
-                ...(userGroups?.map(group => ({
-                  name: group,
-                  value: group
-                })) ?? []),
-                /* Do we need this in options?
-                ...(currentAccess?.viewGroups?.map(group => ({
-                  name: group.name,
-                  value: group.name
-                })) ?? [])
-              */
-              ]}
-            />
-            <label htmlFor="test-suggestive-text-2">Användare</label>
-            <SuggestiveText
-              id="test-suggestive-text-2"
-              name="test-suggestive-text-2"
-              placeholder="användare"
-              disabled={editGroups !== "selectGroups"}
-              suggestiveList={[]}
-            />
+            <fieldset
+              className=" fieldset-unset-pseudo-class"
+            >
+              <legend> {/* TODO: This causes repetion on a screenreader */}
+                <label className="flex width-fit-content align-items-center gap-50">
+                  <input
+                    type="radio"
+                    name="editGroups"
+                    id="selectGroups"
+                    value="selectGroups"
+                    checked={editGroups === "selectGroups"}
+                    onChange={(e) => setEditGroups(e.target.value as any)}
+                  />
+                  Särskilda användare och grupper
+                </label>
+              </legend>
+              <div
+                className="grid margin-block-100 gap-50 align-items-center"
+                style={{
+                  paddingLeft: 'calc(14px + .5rem)', // Width of radio button + gap (aligns with above text)
+                  gridTemplateColumns: 'auto 1fr',
+                  gridTemplateRows: 'auto auto',
+                  columnGap: '1rem'
+                }}>
+
+                <label htmlFor="test-suggestive-text-2" className="block width-fit-content">Användare:</label>
+                <SuggestiveText
+                  id="test-suggestive-text-2"
+                  name="test-suggestive-text-2"
+                  placeholder="användare 1, användare 2, användare 3..."
+                  disabled={editGroups !== "selectGroups"}
+                  suggestiveList={[]}
+                />
+                <label htmlFor="test-multiple-search-2" className="block width-fit-content">Grupper:</label>
+                <SelectMultipleSearch // TODO: Something needs to indicate that this is a multiselect :) 
+                  id="test-multiple-search-2"
+                  name="test-multiple-search-2"
+                  searchBoxLabel="sök..."
+                  searchBoxPlaceholder="sök..."
+                  placeholder="Välj grupper"
+                  disabled={editGroups !== "selectGroups"}
+                  options={[
+                    ...(userGroups?.map(group => ({
+                      name: group,
+                      value: group
+                    })) ?? []),
+                    /* Do we need this in options?
+                    ...(currentAccess?.viewGroups?.map(group => ({
+                      name: group.name,
+                      value: group.name
+                    })) ?? [])
+                  */
+                  ]}
+                />
+              </div>
+            </fieldset>
           </fieldset>
         }
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:meta_roadmap.relationship_legend")}</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:meta_roadmap.relationship_legend")}</legend>
           <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:meta_roadmap.relationship_label")}</label>
           {parentRoadmapOptions ? (
             <SelectSingleSearch
@@ -341,7 +375,7 @@ export default function MetaRoadmapForm({
         {/* Add copy of RoadmapForm? Only if we decide to include it immediately rather than redirecting to it */}
         <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
           <button
-            className="text-align-center seagreen color-purewhite block width-100"
+            className="text-align-center seagreen color-purewhite width-100"
             style={{ fontSize: '14px', transform: 'none' }}
             type="submit"
             id="submit-button"

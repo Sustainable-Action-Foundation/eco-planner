@@ -35,7 +35,7 @@ export default async function Page() {
       <Breadcrumb customSections={[t("pages:roadmap_series_one_create.breadcrumb")]} />
 
       <div className='container-text margin-inline-auto'>
-        <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
+        <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
           {t("pages:roadmap_series_one_create.title")}
         </h1>
         <MetaRoadmapForm

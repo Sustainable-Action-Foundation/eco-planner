@@ -1170,6 +1170,10 @@ container-text {
   padding-block: 1rem;
 }
 
+.padding-block-125 {
+  padding-block: 1.25rem;
+}
+
 .padding-block-200 {
   padding-block: 2rem;
 }

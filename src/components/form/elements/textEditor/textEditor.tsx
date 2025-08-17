@@ -32,11 +32,15 @@ export const allowedProtocols = ['http', 'https', 'mailto', 'callto', 'tel'];
 const limit = 5000
 
 const TextEditor = ({
+  className,
+  style,
   ariaLabelledBy,
   placeholder,
   id,
   onChange
 }: {
+  className?: string
+  style?: React.CSSProperties
   ariaLabelledBy: string,
   placeholder?: string,
   id: string,
@@ -113,7 +117,10 @@ const TextEditor = ({
   const percentage = editor ? Math.round((100 / limit) * editor.storage.characterCount.characters({ mode: 'nodeSize' })) : 0
 
   return (
-    <div className='tiptap-wrapper purewhite smooth' style={{ border: '1px solid var(--gray-80)' }}>
+    <div 
+      className={`${className ? `${className} ` : ''}tiptap-wrapper purewhite smooth`}
+      style={{ ...style, border: '1px solid var(--gray-80)' }}
+    >
       <TextEditorMenu editor={editor} editorId={id} />
       <EditorContent editor={editor} id={id} aria-labelledby={ariaLabelledBy} />
       <div className='flex align-items-center gap-50 padding-50'>

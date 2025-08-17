@@ -35,12 +35,12 @@ export function SelectSingleSearch({
 }) {
   const { t } = useTranslation(["forms"]);
 
-  const [value, setValue] = useState<{ name: string, value: string }>(
+  const [value, setValue] = useState<{ name: string, value: string } | null>(
     typeof defaultValue === "object" && defaultValue !== null
       ? defaultValue
       : defaultValue === true
         ? options[0]
-        : { name: "", value: "" }
+        : null
   ) // TODO: Update this name
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -50,7 +50,7 @@ export function SelectSingleSearch({
   const [valueIsValid, setValueIsValid] = useState<boolean>()
 
   useEffect(() => {
-    if (value.value == "" && required) {
+    if ((!value || value.value == "") && required) {
       setValueIsValid(false)
     } else {
       setValueIsValid(true)
@@ -66,7 +66,7 @@ export function SelectSingleSearch({
     if (!form) return;
 
     const handleSubmit = (e: Event) => {
-      if (required && value.value === "") {
+      if ((!value || value.value == "") && required) {
         e.preventDefault(); // Stop submission
         e.stopPropagation();
         // You can also set a visual indicator for invalid state here
@@ -192,7 +192,7 @@ export function SelectSingleSearch({
         id={id}
         className={`${styles['select-toggle']}`}
         style={{ borderColor: menuOpen ? '#191919' : '' }}
-        value={value.value}
+        value={value ? value.value : ''}
         name={name}
         disabled={disabled}
         ref={toggleRef}
@@ -205,8 +205,15 @@ export function SelectSingleSearch({
         aria-required={required ? required : false}
         aria-invalid={!valueIsValid}
       >
-        {options.some(o => o.value === value.value) ? value.name : placeholder}
-        <IconSelector height={20} width={20} aria-hidden={true} />
+        <span
+          style={{
+            color: value && options.some(o => o.value === value.value) ? "inherit" : "gray",
+            opacity: disabled ? 0.6 : 1,
+          }}
+        >
+          {value && options.some(o => o.value === value.value) ? value.name : placeholder}
+        </span>
+        <IconSelector height={20} width={20} style={{ minWidth: '20px' }} aria-hidden={true} />
       </button>
       <div // TODO: Does this require a label ?
         id={`${id}-dialog`}
@@ -260,10 +267,10 @@ export function SelectSingleSearch({
               <li
                 id={`${id}-dialog-listbox-${index}`}
                 onClick={() => {
-                  setValue(option !== value ? option : { name: "", value: "" }),
+                  setValue(option.value !== value?.value ? option : null),
                     setMenuOpen(false)
                 }}
-                aria-selected={option.value === value.value}
+                aria-selected={option.value === value?.value}
                 ref={(el) => { optionRefs.current[index] = el }}
                 role="option"
                 key={`${index}`} // TODO: Am i allowed to do this or do they need to be unique for entire page?
@@ -474,7 +481,7 @@ export function SelectMultipleSearch({
         id={id}
         className={`${styles['select-toggle']}`}
         style={{ borderColor: menuOpen ? '#191919' : '' }}
-        value={value.map((value) => value.value).toString()} // TODO: Why is this "false" ?
+        value={value.map((value) => value.value).toString()}
         name={name}
         disabled={disabled}
         ref={toggleRef}
@@ -487,8 +494,19 @@ export function SelectMultipleSearch({
         aria-required={required ? required : false}
         aria-invalid={!valueIsValid}
       >
-        <span style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: "hidden", minWidth: '0' }}>
-          {value.length > 0 ? value.map((value) => value.name).toString().slice(0).replaceAll(',', ', ') : placeholder} {/* TODO: This string manipulation is dangerous if options contain a comma, see what we can do about that */}
+        <span
+          style={{
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            overflow: "hidden",
+            minWidth: '0',
+            color: value.length === 0 ? "gray" : "inherit",
+            opacity: disabled ? 0.6 : 1,
+          }}>
+          {value.length > 0
+            ? value.map((value) => value.name).toString().slice(0).replaceAll(',', ', ')
+            : placeholder
+          } {/* TODO: This string manipulation is dangerous if options contain a comma, see what we can do about that */}
         </span>
         <IconSelector height={20} width={20} style={{ minWidth: '20px' }} aria-hidden={true} />
       </button>
