@@ -1,6 +1,6 @@
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
-import ActionForm from "@/components/forms/forms/action";
+import ActionForm from "@/components/form/forms/action";
 import accessChecker from "@/lib/accessChecker";
 import getOneGoal from "@/fetchers/getOneGoal";
 import { AccessControlled, AccessLevel } from "@/types";

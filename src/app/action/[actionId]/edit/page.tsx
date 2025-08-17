@@ -1,6 +1,6 @@
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
-import ActionForm from "@/components/forms/forms/action";
+import ActionForm from "@/components/form/forms/action";
 import { notFound } from "next/navigation";
 import accessChecker from "@/lib/accessChecker";
 import getOneAction from "@/fetchers/getOneAction";

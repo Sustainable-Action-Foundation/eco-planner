@@ -1,5 +1,5 @@
 import { getSession } from '@/lib/session';
-import RoadmapForm from '@/components/forms/forms/roadmap';
+import RoadmapForm from '@/components/form/forms/roadmap';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';

@@ -1,6 +1,6 @@
 'use client';
 
-import LinkInput, { getLinks } from "@/components/forms/elements/linkInput/linkInput";
+import LinkInput, { getLinks } from "@/components/form/elements/linkInput/linkInput";
 import { getScalingResult } from "@/components/modals/copyAndScale";
 import RepeatableScaling from "@/components/repeatableScaling";
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";

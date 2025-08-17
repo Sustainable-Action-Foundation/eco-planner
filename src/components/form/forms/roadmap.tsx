@@ -1,6 +1,6 @@
 'use client'
 
-import { EditUsers, getAccessData, ViewUsers } from "@/components/forms/elements/accessSelector/accessSelector";
+import { EditUsers, getAccessData, ViewUsers } from "@/components/form/elements/accessSelector/accessSelector";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import formSubmitter from "@/functions/formSubmitter";
 import parseCsv, { csvToGoalList } from "@/functions/parseCsv";

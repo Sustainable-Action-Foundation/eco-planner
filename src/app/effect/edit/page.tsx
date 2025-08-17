@@ -1,4 +1,4 @@
-import EffectForm from "@/components/forms/forms/effect";
+import EffectForm from "@/components/form/forms/effect";
 import getOneEffect from "@/fetchers/getOneEffect.ts";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import accessChecker from "@/lib/accessChecker.ts";

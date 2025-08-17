@@ -3,7 +3,7 @@
 import formSubmitter from "@/functions/formSubmitter"
 import { useTranslation } from "react-i18next"
 import { useState } from "react"
-import styles from "@/components/forms/forms.module.css";
+import styles from "@/components/form/forms.module.css";
 import { IconEye, IconEyeOff, IconLock } from "@tabler/icons-react";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {

@@ -1,6 +1,6 @@
 "use client"
 
-import LinkInput, { getLinks } from "@/components/forms/elements/linkInput/linkInput"
+import LinkInput, { getLinks } from "@/components/form/elements/linkInput/linkInput"
 import type getRoadmaps from "@/fetchers/getRoadmaps"
 import formSubmitter from "@/functions/formSubmitter"
 import { ActionInput } from "@/types"

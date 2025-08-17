@@ -5,13 +5,13 @@ import { LoginData } from "@/lib/session";
 import { AccessControlled, MetaRoadmapInput } from "@/types";
 import { MetaRoadmap, RoadmapType } from "@prisma/client";
 import { useEffect, useState } from "react";
-import { getAccessData } from "@/components/forms/elements/accessSelector/accessSelector";
-import { getLinks } from "@/components/forms/elements/linkInput/linkInput"
+import { getAccessData } from "@/components/form/elements/accessSelector/accessSelector";
+import { getLinks } from "@/components/form/elements/linkInput/linkInput"
 import formSubmitter from "@/functions/formSubmitter";
 import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
 import SuggestiveText from "../elements/suggestiveText";
-import TextEditor from "@/components/forms/elements/textEditor/textEditor";
+import TextEditor from "@/components/form/elements/textEditor/textEditor";
 import { SelectMultipleSearch, SelectSingleSearch } from "../elements/select";
 
 /* TODO: Check usage of autocomplete both here and for other forms */

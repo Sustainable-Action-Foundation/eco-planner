@@ -1,5 +1,5 @@
 import GraphCookie from '@/components/cookies/graphCookie';
-import UserFilters from '@/components/forms/filters/userFilters';
+import UserFilters from '@/components/form/filters/userFilters';
 import { TableMenu } from '@/components/tables/tableMenu/tableMenu';
 import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
 import getRoadmaps from '@/fetchers/getRoadmaps';
