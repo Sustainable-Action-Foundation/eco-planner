@@ -31,19 +31,26 @@ import {
 export const allowedProtocols = ['http', 'https', 'mailto', 'callto', 'tel'];
 const limit = 5000
 
+ {/* TODO: Update typing for content */}
 const TextEditor = ({
   className,
   style,
   ariaLabelledBy,
   placeholder,
   id,
+  content,
+  editable,
+  defaultStyles = true,
   onChange
 }: {
   className?: string
   style?: React.CSSProperties
-  ariaLabelledBy: string,
+  ariaLabelledBy?: string,
   placeholder?: string,
   id: string,
+  content?: any,
+  editable: boolean,
+  defaultStyles?: boolean,
   onChange?: (json: any) => void
 }) => {
 
@@ -67,6 +74,9 @@ const TextEditor = ({
         onChange(editor.getJSON())
       }
     },
+    editable: editable,
+    // Fallback to just the content incase a string is passed (For backwards compatability)
+    content: (() => { try { return JSON.parse(content)} catch { return content} })(), 
     immediatelyRender: true,
     shouldRerenderOnTransaction: true,
     extensions: [
@@ -118,30 +128,34 @@ const TextEditor = ({
 
   return (
     <div 
-      className={`${className ? `${className} ` : ''}tiptap-wrapper purewhite smooth`}
-      style={{ ...style, border: '1px solid var(--gray-80)' }}
+      className={`${className ? `${className} ` : ''}${defaultStyles ? 'tiptap-wrapper purewhite smooth' : ''}`}
+      style={{ ...style, border:`${defaultStyles ? '1px solid var(--gray-80)' : ''}` }}
     >
-      <TextEditorMenu editor={editor} editorId={id} />
+      {defaultStyles ? 
+        <TextEditorMenu editor={editor} editorId={id} /> // TODO: Disable all inputs if the editor is disabled  
+      : null }
       <EditorContent editor={editor} id={id} aria-labelledby={ariaLabelledBy} />
-      <div className='flex align-items-center gap-50 padding-50'>
-        <svg height="24" width="24" viewBox="0 0 20 20">
-          <circle r="10" cx="10" cy="10" fill="#e9ecef" />
-          <circle
-            r="5"
-            cx="10"
-            cy="10"
-            fill="transparent"
-            stroke={`${editor.storage.characterCount.characters({ mode: 'nodeSize' }) === limit ? '#d83545ff' : 'var(--blue-40)'}`}
-            strokeWidth="10"
-            strokeDasharray={`calc(${percentage} * 31.4 / 100) 31.4`}
-            transform="rotate(-90) translate(-20)"
-          />
-          <circle r="6" cx="10" cy="10" fill="white" />
-        </svg>
-        <small style={{ fontSize: '12px' }}>
-          Karaktärer: {editor.storage.characterCount.characters()}
-        </small>
-      </div>
+      {defaultStyles ? 
+        <div className='flex align-items-center gap-50 padding-50'>
+          <svg height="24" width="24" viewBox="0 0 20 20">
+            <circle r="10" cx="10" cy="10" fill="#e9ecef" />
+            <circle
+              r="5"
+              cx="10"
+              cy="10"
+              fill="transparent"
+              stroke={`${editor.storage.characterCount.characters({ mode: 'nodeSize' }) === limit ? '#d83545ff' : 'var(--blue-40)'}`}
+              strokeWidth="10"
+              strokeDasharray={`calc(${percentage} * 31.4 / 100) 31.4`}
+              transform="rotate(-90) translate(-20)"
+            />
+            <circle r="6" cx="10" cy="10" fill="white" />
+          </svg>
+          <small style={{ fontSize: '12px' }}>
+            Karaktärer: {editor.storage.characterCount.characters()}
+          </small>
+        </div>
+      : null }
     </div>
   )
 }

@@ -61,9 +61,7 @@ export default function MetaRoadmapForm({
       id: currentRoadmap?.id || undefined,
       timestamp,
     };
-
-    console.log(formData)
-
+ 
     const formJSON = JSON.stringify(formData);
 
     formSubmitter('/api/metaRoadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', setIsLoading);
@@ -105,6 +103,7 @@ export default function MetaRoadmapForm({
   // Indexes for the data-position attribute in the legend elements
   let positionIndex = 1;
 
+  // TODO: i18n for basically all inputs
   return (
     <>
       <form onSubmit={handleSubmit} >
@@ -114,16 +113,17 @@ export default function MetaRoadmapForm({
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:meta_roadmap.description_legend")}</legend>
           <label>
-            {t("forms:meta_roadmap.roadmap_series_name")}
+            Namn
             <input id="metaRoadmapName" name="metaRoadmapName" className="margin-top-25 margin-bottom-100" type="text" defaultValue={currentRoadmap?.name ?? undefined} autoComplete="off" required />
           </label>
 
-          <label className="margin-bottom-25" id="roadmap-series-description">{t("forms:meta_roadmap.roadmap_series_description")}</label>
+          <label className="margin-bottom-25" id="roadmap-series-description">Beskriving</label>
           <TextEditor
-            className="margin-top-25 margin-bottom-100" // TODO: Need label for menu
+            className="margin-top-25 margin-bottom-100" // TODO: Need label for texteditormenu
             id="roadmap-series-description-editor"
             ariaLabelledBy="roadmap-series-description"
             placeholder="Skriv något..."
+            editable={true}
             onChange={(json) => setEditorContent(json)}
           />
         </fieldset>
@@ -152,7 +152,7 @@ export default function MetaRoadmapForm({
             </select>
           </label>
 
-          <label htmlFor="actor">{t("forms:meta_roadmap.choose_actor")}</label>
+          <label htmlFor="actor">Aktör</label>
           <SuggestiveText // TODO: For accesibility purposed must act as a regular textinput given an empty array has been passed
             className="margin-top-25 margin-bottom-100"
             id="actor"
@@ -172,15 +172,8 @@ export default function MetaRoadmapForm({
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
             <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
-              Vem får se din färdplan?
+              Vem får se färdplansserien?
             </legend>
-            {/* TODO: Validate this on the server :) */}
-            {/* TODO: Radio button values should be submittable (altough they might not be submitted) */}
-            {/* TODO: 
-              Selecting: "isPrivate" submits false for "isPublic" and empty strings for viewgroups and viewers
-              Selecting: "isPublic" submits true for "isPublic" and empty strings for viewgroups and viewers
-              Selecting: "selectGroups" submits False for "isPublic" and array<string> for viewgroups and viewers
-            */}
             <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50">
               <input
                 required
@@ -207,7 +200,7 @@ export default function MetaRoadmapForm({
             <fieldset
               className=" fieldset-unset-pseudo-class"
             >
-              <legend> {/* TODO: This causes repition on a screenreader */}
+              <legend> {/* TODO: This causes repetion on a screenreader */}
                 <label className="flex width-fit-content align-items-center gap-50">
                   <input
                     type="radio"
@@ -217,7 +210,7 @@ export default function MetaRoadmapForm({
                     checked={accessType === "custom"}
                     onChange={(e) => setAccessType(e.target.value as any)}
                   />
-                  Särskilda användare och grupper
+                  Specifika användare och grupper
                 </label>
               </legend>
               <div
@@ -268,13 +261,8 @@ export default function MetaRoadmapForm({
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
             <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
-              Vem får redigera din färdplan?
+              Vem får redigera färdplansserien?
             </legend>
-            {/* TODO: Radio button values should be submittable (altough they might not be submitted) */}
-            {/* TODO: 
-              Selecting: "private" submits empty strings for editgroups and editors
-              Selecting: "selectGroups" submits array<string> for viewgroups and viewers
-            */}
             <label className="flex width-fit-content  align-items-center gap-50  margin-bottom-75">
               <input
                 required
@@ -300,7 +288,7 @@ export default function MetaRoadmapForm({
                     checked={editGroups === "custom"}
                     onChange={(e) => setEditGroups(e.target.value as any)}
                   />
-                  Särskilda användare och grupper
+                  Specifika användare och grupper
                 </label>
               </legend>
               <div

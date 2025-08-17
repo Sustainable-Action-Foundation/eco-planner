@@ -118,7 +118,7 @@ input:-webkit-autofill:focus {
 
 /* TipTap text editor */
 
-.tiptap {
+.tiptap-wrapper .tiptap {
   border-radius: .25rem;
   padding-top: .75rem;
   padding-inline: .5rem;
