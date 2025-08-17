@@ -15,7 +15,6 @@ import { SelectMultipleSearch, SelectSingleSearch } from "../elements/select";
 
 /* TODO: Check usage of autocomplete both here and for other forms */
 /* TODO: Ensure everything is validated properly on the server */
-/* TODO: kebab-case */
 export default function MetaRoadmapForm({
   user,
   userGroups,
@@ -47,7 +46,7 @@ export default function MetaRoadmapForm({
     const editability = (form.namedItem("editability") as RadioNodeList)?.value;
 
     const formData: MetaRoadmapInput & { id?: string, timestamp?: number } = {
-      name: (form.namedItem("metaRoadmapName") as HTMLInputElement)?.value,
+      name: (form.namedItem("name") as HTMLInputElement)?.value,
       description: JSON.stringify(editorContent),
       type: ((form.namedItem("type") as HTMLSelectElement)?.value as RoadmapType) || null,
       actor: (form.namedItem("actor") as HTMLInputElement)?.value || null,
@@ -114,14 +113,14 @@ export default function MetaRoadmapForm({
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:meta_roadmap.description_legend")}</legend>
           <label>
             Namn
-            <input id="metaRoadmapName" name="metaRoadmapName" className="margin-top-25 margin-bottom-100" type="text" defaultValue={currentRoadmap?.name ?? undefined} autoComplete="off" required />
+            <input id="name" name="name" className="margin-top-25 margin-bottom-100" type="text" defaultValue={currentRoadmap?.name ?? undefined} autoComplete="off" required />
           </label>
 
-          <label className="margin-bottom-25" id="roadmap-series-description">Beskriving</label>
+          <label className="margin-bottom-25" id="description-label">Beskriving</label>
           <TextEditor
             className="margin-top-25 margin-bottom-100" // TODO: Need label for texteditormenu
-            id="roadmap-series-description-editor"
-            ariaLabelledBy="roadmap-series-description"
+            id="description"
+            ariaLabelledBy="description-label"
             placeholder="Skriv något..."
             editable={true}
             onChange={(json) => setEditorContent(json)}
@@ -179,7 +178,7 @@ export default function MetaRoadmapForm({
                 required
                 type="radio"
                 name="visibility"
-                id="isPrivate"
+                id="visibility-private"
                 value="private"
                 checked={accessType === "private"}
                 onChange={(e) => setAccessType(e.target.value as any)}
@@ -190,7 +189,7 @@ export default function MetaRoadmapForm({
               <input
                 type="radio"
                 name="visibility"
-                id="isPublic"
+                id="visibility-public"
                 value="public"
                 checked={accessType === "public"}
                 onChange={(e) => setAccessType(e.target.value as any)}
@@ -205,7 +204,7 @@ export default function MetaRoadmapForm({
                   <input
                     type="radio"
                     name="visibility"
-                    id="selectGroups"
+                    id="visibility-custom"
                     value="custom"
                     checked={accessType === "custom"}
                     onChange={(e) => setAccessType(e.target.value as any)}
@@ -268,7 +267,7 @@ export default function MetaRoadmapForm({
                 required
                 type="radio"
                 name="editability"
-                id="editPrivate"
+                id="editability-private"
                 value="private"
                 checked={editGroups === "private"}
                 onChange={(e) => setEditGroups(e.target.value as any)}
@@ -283,7 +282,7 @@ export default function MetaRoadmapForm({
                   <input
                     type="radio"
                     name="editability"
-                    id="selectGroups"
+                    id="editability-custom"
                     value="custom"
                     checked={editGroups === "custom"}
                     onChange={(e) => setEditGroups(e.target.value as any)}
