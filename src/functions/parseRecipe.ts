@@ -177,11 +177,20 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
         throw new RecipeError(`External dataset variable '${name}' has no values. Expected an array of values with 'period' and 'value' properties.`);
       }
 
-      console.log(data.values);
+      const definedValues = Object.fromEntries(data.values.map(v => ["val" + v.period, parseFloat(v.value)]));
+
+      const value = Years.map(y => {
+        const definedValue = definedValues[y];
+        if (definedValue && !Number.isFinite(definedValue)) {
+          warnings.push(`External dataset variable '${name}' has no value defined for year '${y}'.`);
+          return Infinity;
+        }
+        return definedValues[y] || Infinity;
+      });
 
       return {
         name: name,
-        value: [1, 2, 3, 4],
+        value,
         unit: undefined,
       };
     });
@@ -251,15 +260,15 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     if (result.size().filter((d: number) => d > 1).length > 1) {
       throw new RecipeError(`Resulting matrix has more than one dimension (${result.size().join("x")}), which is not supported.`);
     }
-    resultArray = result.toArray().flat();
+    resultArray = result.toArray().flat().map(v => Number.isFinite(v) ? v : null);
   }
   else if (Array.isArray(result)) {
-    resultArray = result;
+    resultArray = result.map(v => Number.isFinite(v) ? v : null);
   }
   else if (mathjs.isCollection(result) && 'toArray' in result && typeof result.toArray === 'function') {
-    resultArray = result.toArray();
+    resultArray = result.toArray().map(v => Number.isFinite(v) ? v : null);
   }
-  else if (["number", "BigNumber", "Complex", "Unit"].includes(mathjs.typeOf(result))) {
+  else if (["number", "BigNumber", "Complex", "Unit"].includes(mathjs.typeOf(result)) && !isNaN(result as number)) {
     resultArray = Years.map(() => result);
     if (mathjs.typeOf(result) === "number") {
       warnings.push(`Resulting scalar value ${result as number} will be applied to all years. This may not be intended.`);
@@ -310,7 +319,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     }
 
     // Final check for a valid number
-    if (typeof value === "number" && Number.isFinite(value)) {
+    if (typeof value === "number" && !isNaN(value)) {
       output[year] = value;
     }
     else {

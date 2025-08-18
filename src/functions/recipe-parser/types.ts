@@ -147,12 +147,12 @@ export function isRecipeExternalDataset(variable: unknown): variable is RecipeEx
     &&
 
     "pick" in variable &&
-    (typeof variable.pick === "string" && VectorIndexPickerOptions[variable.pick as keyof typeof VectorIndexPickerOptions] !== undefined)
+    (typeof variable.pick === "string" && vectorIndexPickerFunctions[variable.pick as VectorIndexPickerOptions] !== undefined)
     &&
 
     (
       ("unit" in variable && typeof variable.unit === "string") ||
-      ("unit" in variable && variable.unit === null) ||
+      ("unit" in variable && variable.unit == null) ||
       !("unit" in variable) // May be undefined
     )
     &&

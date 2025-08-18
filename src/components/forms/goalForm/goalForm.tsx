@@ -270,11 +270,11 @@ export default function GoalForm({
                         pick: VectorIndexPickerOptions.Default,
                         unit: undefined, // No unit specified
                       },
-                      // "skalär": {
-                      //   type: RecipeDataTypes.Scalar,
-                      //   value: 0.5,
-                      //   unit: null, // Unitless
-                      // }
+                      "skalär": {
+                        type: RecipeDataTypes.Scalar,
+                        value: 0.5,
+                        unit: null, // Unitless
+                      }
                     }
                   },
                 },
@@ -328,10 +328,10 @@ export default function GoalForm({
                           { variableCode: "ArealTyp", valueCodes: ["01"] },
                           // Magic string to get area sizes in square kilometers (as opposed to hectares with "000007E1")
                           { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
-                          // Use the latest time period
-                          { variableCode: "Tid", valueCodes: ["TOP(1)"] }
+                          // // Use the latest time period
+                          // { variableCode: "Tid", valueCodes: ["TOP(1)"] }
                         ],
-                        pick: VectorIndexPickerOptions.Default,
+                        pick: VectorIndexPickerOptions.Last,
                         unit: undefined,
                       }
                     }
