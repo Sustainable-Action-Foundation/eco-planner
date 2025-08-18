@@ -34,8 +34,9 @@ import { getDataSeries } from "../dataSeriesInput/utils"; // Helper for extracti
 import styles from '../forms.module.css'; // CSS module for styling
 import { InheritingBaseline, ManualGoalForm } from "./goalFormSections"; // Sub components for form sections
 import { DEBUG_Recipe, RecipeContextProvider, RecipeEquationEditor, RecipeErrorAndWarnings, RecipeSuggestions, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/recipeEditor";
-import { RecipeExternalDataset, RecipeDataTypes } from "@/functions/recipe-parser/types";
+import { RecipeDataTypes } from "@/functions/recipe-parser/types";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
+import { VectorIndexPickerType } from "@/components/recipe/variables";
 
 // Enum for selecting the type of data series for the goal
 enum DataSeriesType {
@@ -254,30 +255,69 @@ export default function GoalForm({
           {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
             <RecipeContextProvider>
               <RecipeSuggestions suggestedRecipes={[
-                {
-                  hash: "asd", recipe: {
+                // TODO: actually create proper hashes
+                // TODO: Localize the variable names
+                // TODO: Create these in seed and get them from the database
+                { // Default scaling recipe
+                  hash: "atotallycoolhashthefirst",
+                  recipe: {
                     name: t("forms:goal.default_scaling_recipe"),
-                    eq: "${Hihi}",
-                    variables: { "Hihi": { type: RecipeDataTypes.Scalar, value: 123 } }
+                    eq: "${serie} * ${skalär}",
+                    variables: {
+                      "serie": {
+                        type: RecipeDataTypes.DataSeries,
+                        link: null,
+                        pick: VectorIndexPickerType.Default,
+                        unit: undefined, // No unit specified
+                      },
+                      "skalär": {
+                        type: RecipeDataTypes.Scalar,
+                        value: 0.5,
+                        unit: null, // Unitless
+                      }
+                    }
                   },
                 },
-                {
-                  hash: "asd2",
+                { // Default combination recipe
+                  hash: "recipe_with_combination",
                   recipe:
                   {
                     name: t("forms:goal.default_combination_recipe"),
-                    eq: "${Hihi} + ${Hihi}",
-                    variables: { "Hihi": { type: RecipeDataTypes.Scalar, value: 123 } }
+                    eq: "${serie1} * ${skalär1} + ${serie2} * ${skalär2}",
+                    variables: {
+                      "serie1": {
+                        type: RecipeDataTypes.DataSeries,
+                        link: null,
+                        pick: VectorIndexPickerType.Default,
+                        unit: undefined, // No unit specified
+                      },
+                      "skalär1": {
+                        type: RecipeDataTypes.Scalar,
+                        value: 0.5,
+                        unit: null, // Unitless
+                      },
+                      "serie2": {
+                        type: RecipeDataTypes.DataSeries,
+                        link: null,
+                        pick: VectorIndexPickerType.Default,
+                        unit: undefined, // No unit specified
+                      },
+                      "skalär2": {
+                        type: RecipeDataTypes.Scalar,
+                        value: 0.5,
+                        unit: null, // Unitless
+                      },
+                    }
                   }
                 },
-                {
+                { // Testing recipe with external data
                   hash: "recipe_with_external",
                   recipe:
                   {
                     name: "Recipe with external data",
-                    eq: "${Hihi}",
+                    eq: "${extern}",
                     variables: {
-                      "Hihi": {
+                      "extern": {
                         type: RecipeDataTypes.External,
                         dataset: "SCB",
                         tableId: "TAB6420",
@@ -290,8 +330,10 @@ export default function GoalForm({
                           { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
                           // Use the latest time period
                           { variableCode: "Tid", valueCodes: ["TOP(1)"] }
-                        ]
-                      } as RecipeExternalDataset
+                        ],
+                        pick: VectorIndexPickerType.Default,
+                        unit: undefined,
+                      }
                     }
                   }
                 }

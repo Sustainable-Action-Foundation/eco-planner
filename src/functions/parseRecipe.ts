@@ -123,7 +123,6 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
         });
       }
 
-      console.log(value);
       return {
         name,
         link,
@@ -143,68 +142,86 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
         throw new RecipeError(`External dataset variable '${name}' is missing 'dataset' or 'tableId' property.`);
       }
 
-      return (async () => ({
-        name,
-        data: await getTableContent(tableId, dataset, selection, undefined),
-      }))();
+      const fetcher = async () => {
+        const data = await getTableContent(tableId, dataset, selection);
+        if (!data) {
+          throw new RecipeError(`External dataset variable '${name}' has no data for tableId '${tableId}' and dataset '${dataset}'.`);
+        }
+        return {
+          name,
+          data,
+        };
+      };
+
+      return fetcher();
     })))
     .map(({ name, data }) => {
+      // Should be a redundant check
       if (!data) {
         throw new RecipeError(`External dataset variable '${name}' has no data.`);
       }
 
-      // If vector
-      if (data.values.length > 0) {
-        // Pad the vector to match the years
-        const lastYear = data.values[data.values.length - 1].period;
-        const length = Years.findIndex(year => year === `val${lastYear}`);
-        if (length === -1) {
-          throw new RecipeError(`External dataset variable '${name}' has invalid period '${lastYear}'. Expected one of ${Years.join(", ")}.`);
-        }
+      // TODO - read periods properly
 
-        const paddedVectorForm: number[] = new Array(length).fill(0);
-        for (const { period, value } of data.values) {
-          const yearIndex = Years.findIndex(year => year === `val${period}`);
-          if (yearIndex === -1) {
-            throw new RecipeError(`External dataset variable '${name}' has invalid period '${period}'. Expected one of ${Years.join(", ")}.`);
-          }
-          const numericValue = parseFloat(value);
-          if (isNaN(numericValue) || !Number.isFinite(numericValue)) {
-            throw new RecipeError(`External dataset variable '${name}' has invalid value '${value}' for period '${period}': expected a finite number, got ${value}`);
-          }
-          paddedVectorForm[yearIndex] = numericValue;
-        }
-
-        return {
-          name,
-          value: paddedVectorForm,
-        } as EvalTimeExternalDataset;
-      }
-
-      // If scalar (comes as a single value in an array)
       if (data.values.length === 0) {
-        const value = data.values[0];
-
-        if (!value || !value.period || !value.value) {
-          throw new RecipeError(`External dataset variable '${name}' has no valid values. Expected an array of values with 'period' and 'value' properties.`);
-        }
-        const numericValue = parseFloat(value.value);
-        if (isNaN(numericValue) || !Number.isFinite(numericValue)) {
-          throw new RecipeError(`External dataset variable '${name}' has invalid value '${value.value}' for period '${value.period}': expected a finite number, got ${value.value}`);
-        }
-
-        if (!Years.includes(`val${value.period}` as typeof Years[number])) {
-          throw new RecipeError(`External dataset variable '${name}' has invalid period '${value.period}'. Expected one of ${Years.join(", ")}.`);
-        }
-
-        return {
-          name,
-          scalar: numericValue,
-        }
+        throw new RecipeError(`External dataset variable '${name}' has no values. Expected an array of values with 'period' and 'value' properties.`);
       }
 
-      // Else
-      throw new RecipeError(`External dataset variable '${name}' has no valid values. Expected an array of values with 'period' and 'value' properties.`);
+      console.log(data.values);
+
+      // // If vector
+      // if (data.values.length > 0) {
+      //   // Pad the vector to match the years
+      //   const lastYear = data.values[data.values.length - 1].period;
+      //   const length = Years.findIndex(year => year === `val${lastYear}`);
+      //   if (length === -1) {
+      //     throw new RecipeError(`External dataset variable '${name}' has invalid period '${lastYear}'. Expected one of ${Years.join(", ")}.`);
+      //   }
+
+      //   const paddedVectorForm: number[] = new Array(length).fill(0);
+      //   for (const { period, value } of data.values) {
+      //     const yearIndex = Years.findIndex(year => year === `val${period}`);
+      //     if (yearIndex === -1) {
+      //       throw new RecipeError(`External dataset variable '${name}' has invalid period '${period}'. Expected one of ${Years.join(", ")}.`);
+      //     }
+      //     const numericValue = parseFloat(value);
+      //     if (isNaN(numericValue) || !Number.isFinite(numericValue)) {
+      //       throw new RecipeError(`External dataset variable '${name}' has invalid value '${value}' for period '${period}': expected a finite number, got ${value}`);
+      //     }
+      //     paddedVectorForm[yearIndex] = numericValue;
+      //   }
+
+      //   return {
+      //     name,
+      //     unit: undefined,
+      //     value: paddedVectorForm,
+      //   } as EvalTimeExternalDataset;
+      // }
+
+      // // If scalar (comes as a single value in an array)
+      // if (data.values.length === 0) {
+      //   const value = data.values[0];
+
+      //   if (!value || !value.period || !value.value) {
+      //     throw new RecipeError(`External dataset variable '${name}' has no valid values. Expected an array of values with 'period' and 'value' properties.`);
+      //   }
+      //   const numericValue = parseFloat(value.value);
+      //   if (isNaN(numericValue) || !Number.isFinite(numericValue)) {
+      //     throw new RecipeError(`External dataset variable '${name}' has invalid value '${value.value}' for period '${value.period}': expected a finite number, got ${value.value}`);
+      //   }
+
+      //   if (!Years.includes(`val${value.period}` as typeof Years[number])) {
+      //     throw new RecipeError(`External dataset variable '${name}' has invalid period '${value.period}'. Expected one of ${Years.join(", ")}.`);
+      //   }
+
+      //   return {
+      //     name,
+      //     scalar: numericValue,
+      //   }
+      // }
+
+      // // Else
+      // throw new RecipeError(`External dataset variable '${name}' has no valid values. Expected an array of values with 'period' and 'value' properties.`);
     });
 
   /**

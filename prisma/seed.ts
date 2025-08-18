@@ -7,6 +7,7 @@ import crypto from "node:crypto";
 import { RandomTextSE } from "./randomText";
 import { Years } from "@/types";
 import { Recipe, RecipeDataTypes } from "@/functions/recipe-parser/types";
+import { VectorIndexPickerType } from "@/components/recipe/variables";
 
 const prisma = new PrismaClient();
 prisma.$connect().catch((e) => {
@@ -47,8 +48,9 @@ function getRandomCreatedAtAndUpdatedAt(): [Date, Date] {
   return [createdAt, updatedAt];
 }
 
-function getRandomUnit() {
-  return ['CO2e', 'capita', 'kWh', 's', 'mm^2/km*s', 'ps/sqrt(km)', 'ps/km^0.5', 'm3', 'kg', 'ton', 'Atemp', null, '', null, undefined, null, '', ""].sort(() => Math.random() - 0.5).at(0) ?? null;
+function getRandomUnit(): string | null | undefined {
+  return ['CO2e', 'capita', 'kWh', 's', 'mm^2/km*s', 'ps/sqrt(km)', 'ps/km^0.5', 'm3', 'kg', 'ton', 'Atemp', null, '', null, undefined, null, '', "", undefined, ,]
+    .sort(() => Math.random() - 0.5).at(0);
 }
 
 function getRandomCoherentDataPoints(): Partial<Record<typeof Years[number], number>> {
@@ -322,9 +324,13 @@ async function main() {
           'Riket': {
             type: RecipeDataTypes.DataSeries,
             link: null,
+            pick: VectorIndexPickerType.Default,
+            unit: "km^2",
           },
           'RiketsArea': {
             type: RecipeDataTypes.External,
+            pick: VectorIndexPickerType.Default,
+            unit: undefined,
             dataset: 'SCB',
             tableId: 'TAB6420',
             selection: [
@@ -338,6 +344,8 @@ async function main() {
           },
           'ArvingsArea': {
             type: RecipeDataTypes.External,
+            pick: VectorIndexPickerType.Default,
+            unit: undefined,
             dataset: 'SCB',
             tableId: 'TAB6420',
             selection: [
@@ -364,9 +372,13 @@ async function main() {
           'Riket': {
             type: RecipeDataTypes.DataSeries,
             link: null,
+            pick: VectorIndexPickerType.Default,
+            unit: "capita",
           },
           'RiketsPopulation': {
             type: RecipeDataTypes.External,
+            pick: VectorIndexPickerType.Default,
+            unit: undefined,
             dataset: 'SCB',
             tableId: 'BE0101N1',
             selection: [
@@ -378,6 +390,8 @@ async function main() {
           },
           'ArvingsPopulation': {
             type: RecipeDataTypes.External,
+            pick: VectorIndexPickerType.Default,
+            unit: undefined,
             dataset: 'SCB',
             tableId: 'BE0101N1',
             selection: [
@@ -402,10 +416,13 @@ async function main() {
           'Riket': {
             type: RecipeDataTypes.DataSeries,
             link: null,
+            pick: VectorIndexPickerType.Default,
+            unit: getRandomUnit(),
           },
           'skalär': {
             type: RecipeDataTypes.Scalar,
             value: 1 + Math.random(),
+            unit: null,
           },
         },
       };

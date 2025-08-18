@@ -59,7 +59,7 @@ export type RecipeDataSeries = {
   unit: string | null | undefined; // String if given, null if removed, undefined if not specified
 };
 export function isRecipeDataSeries(variable: unknown): variable is RecipeDataSeries {
-  const allowedProps = ["type", "link", "pick"];
+  const allowedProps = ["type", "link", "pick", "unit"];
 
   return (
     isStandardObject(variable)
@@ -108,7 +108,7 @@ export type RecipeExternalDataset = {
   unit: string | null | undefined; // String if given, null if removed, undefined if not specified
 };
 export function isRecipeExternalDataset(variable: unknown): variable is RecipeExternalDataset {
-  const allowedProps = ["type", "dataset", "tableId", "selection"];
+  const allowedProps = ["type", "dataset", "tableId", "selection", "pick", "unit"];
 
   return (
     isStandardObject(variable)
@@ -223,7 +223,6 @@ export type EvalTimeDataSeries = {
 };
 export type EvalTimeExternalDataset = {
   name: string; // Variable name
-  scalar: number | null;
   value: number | number[] | null;
   unit: string | null | undefined; // Optional unit
 };

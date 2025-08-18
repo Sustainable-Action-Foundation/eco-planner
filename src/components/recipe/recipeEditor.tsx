@@ -1,13 +1,14 @@
 "use client";
 
-import { Recipe, RecipeDataTypes, RecipeVariables } from "@/functions/recipe-parser/types";
-import type { DataSeriesValueFields, Goal } from "@/types";
+import { isRecipe, Recipe, RecipeDataTypes, RecipeVariables } from "@/functions/recipe-parser/types";
+import type { DataSeriesValueFields } from "@/types";
 import { createContext, ReactElement, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { evaluateRecipe, cleanRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import { DataSeriesVariable, ExternalVariable, ScalarVariable, VectorIndexPickerType } from "./variables";
+import { Recipe as dbRecipe } from "@/prisma/generated";
 
 type RecipeContextType = {
   recipe: Recipe | null;
@@ -82,11 +83,19 @@ export function RecipeContextProvider({
 export function RecipeSuggestions({
   suggestedRecipes,
 }: {
-  suggestedRecipes: Goal["recipeSuggestions"];
+  // TODO - only use prisma generated and type guard the recipe prop into not `JsonValue`
+  suggestedRecipes: (dbRecipe & { recipe: Recipe })[];
 }) {
   const { t } = useTranslation("components");
   const { setRecipe } = useRecipe();
 
+  // Validate suggested recipes
+  if (suggestedRecipes.some(r => !isRecipe(r.recipe))) {
+    console.warn("Some suggested recipes are not valid. Please check the data.");
+    return null;
+  }
+
+  // On change set the context state to the selected recipe
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const hash = e.target.value;
     const selectedSuggestion = suggestedRecipes.find(r => r.hash === hash);
