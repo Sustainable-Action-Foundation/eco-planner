@@ -1,6 +1,5 @@
 'use client'
 
-import { EditUsers, getAccessData, ViewUsers } from "@/components/form/elements/accessSelector/accessSelector";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import formSubmitter from "@/functions/formSubmitter";
 import parseCsv, { csvToGoalList } from "@/functions/parseCsv";
@@ -11,6 +10,7 @@ import { useEffect, useMemo, useState } from "react";
 import styles from '../forms.module.css';
 import { TFunction } from "i18next";
 import { Trans, useTranslation } from "react-i18next";
+import { SelectMultipleSearch } from "../elements/select";
 
 function checkForBadDecoding(csv: string[][], t: TFunction) {
   if (csv.some((row) => row.some((cell) => cell.includes("�")))) {
@@ -18,6 +18,7 @@ function checkForBadDecoding(csv: string[][], t: TFunction) {
   }
 }
 
+// TODO: Set required for viewer and editselection if custom is selected
 export default function RoadmapForm({
   user,
   userGroups,
@@ -35,6 +36,32 @@ export default function RoadmapForm({
 }) {
   const { t } = useTranslation(["forms", "common"]);
 
+  let currentAccess: AccessControlled | undefined = undefined;
+  if (currentRoadmap) {
+    currentAccess = {
+      author: currentRoadmap.author,
+      editors: currentRoadmap.editors,
+      viewers: currentRoadmap.viewers,
+      editGroups: currentRoadmap.editGroups,
+      viewGroups: currentRoadmap.viewGroups,
+      isPublic: currentRoadmap.isPublic,
+    }
+  }
+
+  const [visibilityType, setvisibilityType] = useState<"private" | "public" | "custom">(
+    currentAccess
+      ? (currentAccess.isPublic
+        ? "public"
+        : (currentAccess.viewers.length > 0 || currentAccess.viewGroups.length > 0
+          ? "custom"
+          : "private"))
+      : "private"
+  );
+
+  const [editabilityType, setEditabilityType] = useState<"private" | "custom" | undefined>(
+    currentAccess ? (currentAccess.editors.length > 0 || currentAccess.editGroups.length > 0 ? "custom" : "private") : "private"
+  );
+
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!metaRoadmapId) { return; }
@@ -42,13 +69,8 @@ export default function RoadmapForm({
     setIsLoading(true)
 
     const form = event.target.elements
-
-    const { editUsers, viewUsers, editGroups, viewGroups } = getAccessData(
-      form.namedItem("editUsers"),
-      form.namedItem("viewUsers"),
-      form.namedItem("editGroups"),
-      form.namedItem("viewGroups")
-    )
+    const visibility = (form.namedItem("visibility") as RadioNodeList)?.value;
+    const editability = (form.namedItem("editability") as RadioNodeList)?.value;
 
     let goals: GoalInput[] = [];
     if (currentFile) {
@@ -74,11 +96,11 @@ export default function RoadmapForm({
 
     const formData: RoadmapInput & { roadmapId?: string, goals?: GoalInput[], timestamp: number } = {
       description: (form.namedItem("description") as HTMLTextAreaElement)?.value || undefined,
-      editors: editUsers,
-      viewers: viewUsers,
-      editGroups,
-      viewGroups,
-      isPublic: (form.namedItem("isPublic") as HTMLInputElement)?.checked || false,
+      editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],
+      viewers: visibility === "custom" ? (form.namedItem("viewers") as HTMLInputElement)?.value.split(",").map(s => s.trim()).filter(Boolean) : [],
+      editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
+      viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
+      isPublic: (form.namedItem("visibility") as RadioNodeList)?.value === "public",
       roadmapId: currentRoadmap?.id || undefined,
       goals: goals,
       metaRoadmapId,
@@ -151,17 +173,6 @@ export default function RoadmapForm({
     }
   }, [currentFile, t])
 
-  let currentAccess: AccessControlled | undefined = undefined;
-  if (currentRoadmap) {
-    currentAccess = {
-      author: currentRoadmap.author,
-      editors: currentRoadmap.editors,
-      viewers: currentRoadmap.viewers,
-      editGroups: currentRoadmap.editGroups,
-      viewGroups: currentRoadmap.viewGroups,
-      isPublic: currentRoadmap.isPublic,
-    }
-  }
 
   // Indexes for the data-position attribute in the legend elements
   let positionIndex = 1;
@@ -238,8 +249,14 @@ export default function RoadmapForm({
               tOptions={{ fileTypes: [".csv"], encodings: ["UTF-8"], type: "unit" }}
               components={{ small: <small /> }}
             />
-
-            <input className="margin-block-25" type="file" name="csvUpload" id="csvUpload" accept=".csv" onChange={(e) => e.target.files ? setCurrentFile(e.target.files[0]) : setCurrentFile(null)} />
+            <input
+              className="margin-block-25"
+              type="file"
+              name="csvUpload"
+              id="csvUpload"
+              accept=".csv"
+              onChange={(e) => e.target.files ? setCurrentFile(e.target.files[0]) : setCurrentFile(null)}
+            />
           </label>
         </fieldset>
 
@@ -263,25 +280,173 @@ export default function RoadmapForm({
         )}
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
+          // TODO: Disabled / placeholder need to be more discernable 
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:roadmap.change_read_access")}</legend>
-            <ViewUsers
-              groupOptions={userGroups}
-              existingUsers={currentAccess?.viewers.map((user) => user.username)}
-              existingGroups={currentAccess?.viewGroups.map((group) => group.name)}
-              isPublic={currentAccess?.isPublic ?? false}
-            />
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
+              Vem får se färdplanen?
+            </legend>
+            <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50">
+              <input
+                required
+                type="radio"
+                name="visibility"
+                id="visibility-private"
+                value="private"
+                checked={visibilityType === "private"}
+                onChange={(e) => setvisibilityType(e.target.value as any)}
+              />
+              Enbart jag
+            </label>
+            <label className="flex width-fit-content margin-block-75 align-items-center gap-50">
+              <input
+                type="radio"
+                name="visibility"
+                id="visibility-public"
+                value="public"
+                checked={visibilityType === "public"}
+                onChange={(e) => setvisibilityType(e.target.value as any)}
+              />
+              Alla användare
+            </label>
+            <fieldset
+              className=" fieldset-unset-pseudo-class"
+            >
+              <legend> {/* TODO: This causes repetion on a screenreader */}
+                <label className="flex width-fit-content align-items-center gap-50">
+                  <input
+                    type="radio"
+                    name="visibility"
+                    id="visibility-custom"
+                    value="custom"
+                    checked={visibilityType === "custom"}
+                    onChange={(e) => setvisibilityType(e.target.value as any)}
+                  />
+                  Specifika användare och grupper
+                </label>
+              </legend>
+              <div
+                className="grid margin-block-100 gap-50 align-items-center"
+                style={{
+                  paddingLeft: 'calc(14px + .5rem)', // Width of radio button + gap (aligns with above text)
+                  gridTemplateColumns: 'auto 1fr',
+                  gridTemplateRows: 'auto auto',
+                  columnGap: '1rem'
+                }}
+              >
+                <label htmlFor="viewers">Användare:</label>
+                <input
+                  id="viewers"
+                  name="viewers"
+                  className="flex-grow-100"
+                  placeholder="användare 1, användare 2, användare 3..."
+                  disabled={visibilityType !== "custom"}
+                  type="text"
+                  autoComplete="off"
+                  defaultValue={currentAccess?.viewers.map((viewer) => viewer.username)}
+                />
+                <label htmlFor="viewer-groups" className="block width-fit-content">Grupper:</label>
+                <SelectMultipleSearch // TODO: Something needs to indicate that this is a multiselect :), TODO: Populate from default value
+                  id="viewer-groups"
+                  name="viewer-groups"
+                  searchBoxLabel="sök..."
+                  searchBoxPlaceholder="sök..."
+                  placeholder="Välj grupper"
+                  disabled={visibilityType !== "custom"}
+                  defaultValue={currentAccess?.viewGroups.map((group) => { return { name: group.name, value: group.name } })}
+                  options={[
+                    ...(userGroups?.map(group => ({
+                      name: group,
+                      value: group
+                    })) ?? []),
+                    /* Do we need this in options?
+                    ...(currentAccess?.viewGroups?.map(group => ({
+                      name: group.name,
+                      value: group.name
+                    })) ?? [])
+                  */
+                  ]}
+                />
+              </div>
+            </fieldset>
           </fieldset>
         }
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:roadmap.change_edit_access")}</legend>
-            <EditUsers
-              groupOptions={userGroups}
-              existingUsers={currentAccess?.editors.map((user) => user.username)}
-              existingGroups={currentAccess?.editGroups.map((group) => group.name)}
-            />
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
+              Vem får redigera färdplanen?
+            </legend>
+            <label className="flex width-fit-content  align-items-center gap-50  margin-bottom-75">
+              <input
+                required
+                type="radio"
+                name="editability"
+                id="editability-private"
+                value="private"
+                checked={editabilityType === "private"}
+                onChange={(e) => setEditabilityType(e.target.value as any)}
+              />
+              Enbart jag
+            </label>
+            <fieldset
+              className=" fieldset-unset-pseudo-class"
+            >
+              <legend> {/* TODO: This causes repetion on a screenreader */}
+                <label className="flex width-fit-content align-items-center gap-50">
+                  <input
+                    type="radio"
+                    name="editability"
+                    id="editability-custom"
+                    value="custom"
+                    checked={editabilityType === "custom"}
+                    onChange={(e) => setEditabilityType(e.target.value as any)}
+                  />
+                  Specifika användare och grupper
+                </label>
+              </legend>
+              <div
+                className="grid margin-block-100 gap-50 align-items-center"
+                style={{
+                  paddingLeft: 'calc(14px + .5rem)', // Width of radio button + gap (aligns with above text)
+                  gridTemplateColumns: 'auto 1fr',
+                  gridTemplateRows: 'auto auto',
+                  columnGap: '1rem'
+                }}>
+
+                <label htmlFor="editors" className="block width-fit-content">Användare:</label>
+                <input
+                  type="text"
+                  autoComplete="off"
+                  id="editors"
+                  name="editors"
+                  placeholder="användare 1, användare 2, användare 3..."
+                  disabled={editabilityType !== "custom"}
+                  defaultValue={currentAccess?.editors.map((editor) => editor.username)}
+                />
+                <label htmlFor="editor-groups" className="block width-fit-content">Grupper:</label>
+                <SelectMultipleSearch // TODO: Something needs to indicate that this is a multiselect :), TODO: Populate from default value
+                  id="editor-groups"
+                  name="editor-groups"
+                  searchBoxLabel="sök..."
+                  searchBoxPlaceholder="sök..."
+                  placeholder="Välj grupper"
+                  disabled={editabilityType !== "custom"}
+                  defaultValue={currentAccess?.editGroups.map((group) => { return { name: group.name, value: group.name } })}
+                  options={[
+                    ...(userGroups?.map(group => ({
+                      name: group,
+                      value: group
+                    })) ?? []),
+                    /* Do we need this in options?
+                    ...(currentAccess?.viewGroups?.map(group => ({
+                      name: group.name,
+                      value: group.name
+                    })) ?? [])
+                  */
+                  ]}
+                />
+              </div>
+            </fieldset>
           </fieldset>
         }
 

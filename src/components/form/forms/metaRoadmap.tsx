@@ -13,6 +13,7 @@ import TextEditor from "@/components/form/elements/textEditor/textEditor";
 import { SelectMultipleSearch, SelectSingleSearch } from "../elements/select";
 
 /* TODO: Ensure everything is validated properly on the server */
+// TODO: Set required for viewer and editselection if custom is selected
 export default function MetaRoadmapForm({
   user,
   userGroups,
@@ -234,6 +235,7 @@ export default function MetaRoadmapForm({
                   placeholder="användare 1, användare 2, användare 3..."
                   disabled={visibilityType !== "custom"}
                   type="text"
+                  autoComplete="off"
                   defaultValue={currentAccess?.viewers.map((viewer) => viewer.username)}
                 />
                 <label htmlFor="viewer-groups" className="block width-fit-content">Grupper:</label>
@@ -308,6 +310,7 @@ export default function MetaRoadmapForm({
                 <label htmlFor="editors" className="block width-fit-content">Användare:</label>
                 <input
                   type="text"
+                  autoComplete="off"
                   id="editors"
                   name="editors"
                   placeholder="användare 1, användare 2, användare 3..."

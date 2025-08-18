@@ -22,6 +22,12 @@
   border-radius: 0;
 }
 
+.focusable input[type="file"] {
+  visibility: hidden;
+  height: 0;
+  width: 0;
+}
+
 .font-size-smaller {
   font-size: smaller;
 }
@@ -347,28 +353,32 @@
 /* File inputs (file) */
 :where(input[type=file]) {
   display: block;
-  width: 100%;
-  padding: 1em;
-  border-radius: 4px;
-  border: 2px dashed var(--gray-90);
-  outline: none;
+  padding: .5rem;
+  border-radius: .25rem;
+  border-width: 1px;
+  border-style: solid;
+  background-color: white;
+  border-color: var(--gray-80);
+  outline: 0;
+  font-size: 14px;
 }
 
 input[type=file]::file-selector-button {
   background-color: var(--gray-90);
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  margin: 0 0.5rem;
+  padding: 0.5rem;
+  border-radius: .25rem;
+  margin-right: .5rem;
   cursor: pointer;
 }
+ 
 
 :where(input[type=file]:focus) {
-  border: 2px dashed var(--seagreen);
+  border-color: #191919;
 }
 
 input[type=file]:focus::file-selector-button {
-  background-color: var(--seagreen);
+  background-color: #191919;
   color: white;
 }
 
