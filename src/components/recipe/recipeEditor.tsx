@@ -8,7 +8,6 @@ import { evaluateRecipe, cleanRecipe, recipeFromUnknown } from "@/functions/pars
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import { DataSeriesVariable, ExternalVariable, ScalarVariable, VectorIndexPickerOptions } from "./variables";
-import { Recipe as dbRecipe } from "@/prisma/generated";
 
 type RecipeContextType = {
   recipe: Recipe | null;
