@@ -1,6 +1,6 @@
 import { ApiTableDetails } from "../api/apiTypes";
 import { ExternalDataset } from "../api/utility";
-import { PxWebMetric, PxWebTimeVariable, PxWebVariable, PxWebVariableValue } from "./pxWebApiV2Types";
+import { PxWebApiV2MetricDimension, PxWebApiV2TableDetails, PxWebMetric, PxWebTimeVariable, PxWebVariable, PxWebVariableValue } from "./pxWebApiV2Types";
 
 export default async function getPxWebTableDetails(tableId: string, externalDataset: string, language?: string) {
   // Get the base URL for the external dataset, defaulting to SCB
@@ -15,11 +15,12 @@ export default async function getPxWebTableDetails(tableId: string, externalData
   }
 
   // Data is used to store the response when fetching
-  let data;
+  // I can't be bothered to typeguard this right now, just assume it has the right type
+  let data: PxWebApiV2TableDetails;
   try {
     const response = await fetch(url, { method: 'GET' });
     if (response.ok) {
-      data = await response.json();
+      data = await response.json() as PxWebApiV2TableDetails;
     } else if (response.status == 429) {
       // Wait 10 seconds and try again
       await new Promise(resolve => setTimeout(resolve, 10000));
@@ -42,7 +43,7 @@ export default async function getPxWebTableDetails(tableId: string, externalData
   };
 
   // Get all metrics for the table and add to tableDetails
-  const metricsCategory = data.dimension.ContentsCode.category;
+  const metricsCategory = (data.dimension.ContentsCode as PxWebApiV2MetricDimension).category;
   for (const key in metricsCategory.index) {
     const pxWebMetric: PxWebMetric = {
       type: "metric",
@@ -50,7 +51,7 @@ export default async function getPxWebTableDetails(tableId: string, externalData
       name: key,
       index: metricsCategory.index[key],
       label: metricsCategory.label[key],
-      unit: metricsCategory.unit[key],
+      unit: metricsCategory.unit?.[key],
     };
     tableDetails.metrics.push(pxWebMetric);
   }
@@ -84,7 +85,7 @@ export default async function getPxWebTableDetails(tableId: string, externalData
       option: true,
       elimination: pxWebItem.extension.elimination,
       show: pxWebItem.extension.show,
-      categoryNoteMandatory: pxWebItem.extension.categoryNoteMandatory ?? null,
+      categoryNoteMandatory: pxWebItem.extension.categoryNoteMandatory,
       values: [],
     };
 
@@ -96,12 +97,8 @@ export default async function getPxWebTableDetails(tableId: string, externalData
         name: key,
         index: pxWebItem.category.index[key],
         label: pxWebItem.category.label[key],
+        note: pxWebItem.category.note?.[key],
       };
-      try {
-        if (pxWebItem.category.note[key]) {
-          pxWebVariableValue.note = pxWebItem.category.note[key];
-        }
-      } catch { }
       pxWebVariable.values.push(pxWebVariableValue);
     }
 

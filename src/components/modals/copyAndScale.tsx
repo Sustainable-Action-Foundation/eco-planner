@@ -2,11 +2,11 @@
 
 import { closeModal, openModal } from "./modalFunctions";
 import { useRef, useState } from "react";
-import { GoalCreateInput, Goal, Years } from "@/types";
+import { GoalCreateInput, Goal, Years, DataSeriesValueFields } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
-import { DataSeriesArray, Recipe } from "@/functions/recipe-parser/types";
+import { Recipe } from "@/functions/recipe-parser/types";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
 import { RecipeContextProvider, RecipeSuggestions, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "../recipe/recipeEditor";
 
@@ -40,9 +40,9 @@ export default function CopyAndScale({
 
     const resultingDataSeriesString = form.get("resultingDataSeries");
     console.log(resultingDataSeriesString);
-    let parsedDataSeries: DataSeriesArray | undefined;
+    let parsedDataSeries: DataSeriesValueFields | undefined;
     try {
-      parsedDataSeries = JSON.parse(resultingDataSeriesString as string) as DataSeriesArray;
+      parsedDataSeries = JSON.parse(resultingDataSeriesString as string) as DataSeriesValueFields;
     } catch (error) {
       setIsLoading(false);
       console.error("Failed to parse resulting data series:", error);
@@ -60,13 +60,6 @@ export default function CopyAndScale({
     catch (error) {
       setIsLoading(false);
       console.error("Failed to parse recipe:", error);
-      return;
-    }
-
-    const unit: string | undefined = parsedDataSeries.unit ?? undefined;
-    if (unit && typeof unit !== "string") {
-      setIsLoading(false);
-      console.error("Recipe unit is not a string:", unit);
       return;
     }
 
@@ -138,7 +131,8 @@ export default function CopyAndScale({
             {/* Suggested recipes */}
             {goal.recipeSuggestions.length > 0 &&
               <RecipeSuggestions
-                suggestedRecipes={goal.recipeSuggestions}
+                // TODO: change this cast into a proper type guard in RecipeSuggestions.tsx
+                suggestedRecipes={goal.recipeSuggestions as { hash: string, recipe: Recipe }[]}
               />
             }
 

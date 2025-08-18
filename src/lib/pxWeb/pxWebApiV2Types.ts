@@ -3,6 +3,7 @@
 // and the documentation at  https://github.com/PxTools/PxApiSpecs/blob/master/PxAPI-2.yml.
 // Our types might not reflect the full range of possible responses, or the actual types in pxWeb's implementation as they sometimes update their API.
 
+import { JSONValue } from "@/types";
 import { ApiDetailItemBase } from "../api/apiTypes";
 
 // USED BY GETPXWEBTABLECONTENT
@@ -71,7 +72,7 @@ export type PxWebVariable = PxWebDetailItemBase & {
   option: boolean,
   elimination: boolean, // This is whether the variable is optional or not
   show: "value", // TODO - What is this and what are the other possible values?
-  categoryNoteMandatory?: { [variableValueId: string]: { [arrayIndex: string]: boolean } }, // TODO - What is this for?
+  categoryNoteMandatory?: { [variableValueId: string]: boolean[] }, // TODO - What is this for?
   values: PxWebVariableValue[],
 }
 
@@ -97,8 +98,8 @@ export type PxWebApiV2Note = {
 
 // NOT USED
 export type PxWebApiV2Link = {
-  rel: string;
-  hreflang: string;
+  rel?: string;
+  hreflang?: string;
   href: string;
 };
 
@@ -197,30 +198,99 @@ export type PxWebApiV2GeographicalVariable = PxWebApiV2VariableBase & {
   ];
 };
 
-// NOT USED
 export type PxWebApiV2TableDetails = {
-  language: string; // Language code (ISO 639)
-  id: string;
+  version: string; // Version of the API
+  class: string; // "dataset"
+  href: string; // links back to itself
   label: string;
-  description?: string;
-  aggregationAllowed?: boolean;
-  officialStatistics?: boolean;
-  subjectCode?: string;
-  subjectLabel?: string;
-  source?: string;
-  license?: string;
-  tags?: string[];
-  updated?: string | null; // ISO 8601 date string
-  discontinued?: boolean | null;
-  variables: (PxWebApiV2RegularVariable | PxWebApiV2ContentsVariable | PxWebApiV2GeographicalVariable | PxWebApiV2TimeVariable)[];
-  contacts?: [
-    {
+  source: string;
+  updated: string | null; // ISO 8601 date string
+  link: {
+    [key: string]: PxWebApiV2Link[];
+  };
+  note?: string[];
+  role: {
+    time: string[];
+    metric: string[];
+  };
+  id: string[]; // Names for all dimensions (variableName below)
+  size: number[]; // Number of entries for each variable named in id
+  dimension: {
+    [variableName: string]: PxWebApiV2StandardDimension | PxWebApiV2MetricDimension;
+  };
+  extension: {
+    noteMandatory?: boolean[];
+    contact?: [{
       name: string;
+      organization: string;
       phone: string;
       mail: string;
       raw: string;
-    }
-  ];
-  links: PxWebApiV2Link[];
-  notes?: PxWebApiV2Note[];
-};
+    }];
+    px: {
+      [key: string]: JSONValue; // This is probably not relevant, so I can't be bothered to write a type for it
+      stub: string[];
+    };
+  }
+}
+
+export type PxWebApiV2StandardDimension = {
+  label: string;
+  category: {
+    index: { [valueCode: string]: number };
+    label: { [valueCode: string]: string };
+    note?: { [valueCode: string]: string[] }; // Optional
+  };
+  extension: {
+    elimination: boolean; // Whether the variable is optional or not (true means it is optional)
+    show: "value";
+    codeLists: [
+      {
+        id: string;
+        label: string;
+        type: "Aggregation" | "Valueset";
+        links: PxWebApiV2Link[];
+      }
+    ];
+    categoryNoteMandatory?: { [variableValueId: string]: boolean[] },
+  };
+}
+
+export type PxWebApiV2MetricDimension = PxWebApiV2StandardDimension & {
+  category: {
+    unit: { [valueCode: string]: { base: string, decimals: number } };
+  };
+  extension: {
+    refperiod?: { [valueCode: string]: string; }; // Can not be reliably parsed into a date
+    measuringType?: { [valueCode: string]: "Stock" | "Flow" | "Average" | "Other"; };
+    priceType?: { [valueCode: string]: "NotApplicable" | "Current" | "Fixed"; };
+    adjustment?: { [valueCode: string]: "None" | "SesOnly" | "WorkOnly" | "WorkAndSes"; };
+  }
+}
+// NOT USED
+// export type PxWebApiV2TableDetails = {
+//   language: string; // Language code (ISO 639)
+//   id: string;
+//   label: string;
+//   description?: string;
+//   aggregationAllowed?: boolean;
+//   officialStatistics?: boolean;
+//   subjectCode?: string;
+//   subjectLabel?: string;
+//   source?: string;
+//   license?: string;
+//   tags?: string[];
+//   updated?: string | null; // ISO 8601 date string
+//   discontinued?: boolean | null;
+//   variables: (PxWebApiV2RegularVariable | PxWebApiV2ContentsVariable | PxWebApiV2GeographicalVariable | PxWebApiV2TimeVariable)[];
+//   contacts?: [
+//     {
+//       name: string;
+//       phone: string;
+//       mail: string;
+//       raw: string;
+//     }
+//   ];
+//   links: PxWebApiV2Link[];
+//   notes?: PxWebApiV2Note[];
+// };
