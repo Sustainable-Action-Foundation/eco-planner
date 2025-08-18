@@ -55,8 +55,9 @@ export function isRecipeScalar(variable: unknown): variable is RecipeScalar {
  */
 export type RecipeDataSeries = {
   type: typeof RecipeDataTypes.DataSeries;
-  link: string | null; // uuid of data series in the database
+  link: string | null | undefined; // uuid of data series in the database
   pick: VectorIndexPick;
+  unit: string | null | undefined; // String if given, null if removed, undefined if not specified
 };
 export function isRecipeDataSeries(variable: unknown): variable is RecipeDataSeries {
   const allowedProps = ["type", "link", "pick"];
@@ -210,16 +211,13 @@ export type EvalTimeScalar = {
 export type EvalTimeDataSeries = {
   name: string; // Variable name
   link: string; // For reference sake
-  matrix: { [key: string]: number } | null;
   vector: number[] | null;
-  pick: VectorIndexPick;
   unit: string | null | undefined; // Optional unit
 };
 export type EvalTimeExternalDataset = {
   name: string; // Variable name
   scalar: number | null;
   vector: number[] | null;
-  pick: VectorIndexPick;
   unit: string | null | undefined; // Optional unit
 };
 
