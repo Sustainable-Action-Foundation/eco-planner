@@ -99,7 +99,7 @@ export default function MetaRoadmapForm({
       viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
       isPublic: (form.namedItem("visibility") as RadioNodeList)?.value === "public",
       links: undefined, // TODO: Links in DB should be migrated to description
-      parentRoadmapId: (form.namedItem("parentRoadmap") as HTMLButtonElement)?.value || undefined,
+      parentRoadmapId: (form.namedItem("parent-roadmap") as HTMLButtonElement)?.value || undefined,
       id: currentRoadmap?.id || undefined,
       timestamp,
     };
@@ -358,8 +358,8 @@ export default function MetaRoadmapForm({
           {parentRoadmapOptions ? ( // TODO: This might not make sense?
             <SelectSingleSearch
               className="margin-top-25"
-              id="parentRoadmap"
-              name="parentRoadmap"
+              id="parent-roadmap"
+              name="parent-roadmap"
               placeholder="välj..."
               searchBoxLabel="Sök..." // TODO: i18n
               searchBoxPlaceholder="Sök..." // TODO: i18n

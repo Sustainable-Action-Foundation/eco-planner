@@ -20,6 +20,7 @@ export function SelectSingleSearch({
   searchBoxLabel,
   searchBoxPlaceholder,
   options,
+  onChange,
 }: {
   className?: string,
   style?: React.CSSProperties,
@@ -32,6 +33,7 @@ export function SelectSingleSearch({
   searchBoxLabel: string,
   searchBoxPlaceholder?: string
   options: Array<{ name: string, value: string }>,
+  onChange?: (value: { name: string, value: string } | null) => void // TODO: Need this for multiselect also, TODO: Check that this syntax is correct
 }) {
   const { t } = useTranslation(["forms"]);
 
@@ -54,6 +56,10 @@ export function SelectSingleSearch({
       setValueIsValid(false)
     } else {
       setValueIsValid(true)
+    }
+
+    if (onChange) {
+      onChange(value)
     }
   }, [value])
 

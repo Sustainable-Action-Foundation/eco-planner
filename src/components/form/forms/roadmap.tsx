@@ -10,7 +10,7 @@ import { useEffect, useMemo, useState } from "react";
 import styles from '../forms.module.css';
 import { TFunction } from "i18next";
 import { Trans, useTranslation } from "react-i18next";
-import { SelectMultipleSearch } from "../elements/select";
+import { SelectMultipleSearch, SelectSingleSearch } from "../elements/select";
 import TextEditor from "../elements/textEditor/textEditor";
 import { IconUpload } from "@tabler/icons-react";
 
@@ -46,7 +46,7 @@ export default function RoadmapForm({
     } catch {
       return currentRoadmap.description;
     }
-  }); 
+  });
 
   let currentAccess: AccessControlled | undefined = undefined;
   if (currentRoadmap) {
@@ -130,11 +130,16 @@ export default function RoadmapForm({
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const timestamp = Date.now()
   const [metaRoadmapId, setMetaRoadmapId] = useState<string>(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap || "")
+
+  useEffect(() => {
+    console.log(metaRoadmapId)
+  }, [metaRoadmapId])
+
   const [targetVersion, setTargetVersion] = useState<number | null>(0)
   const [inheritableGoals, setInheritableGoals] = useState<{ id: string, name: string | null, indicatorParameter: string }[]>([])
   const metaRoadmapTarget = useMemo(() => {
     // The meta roadmap that the parent meta roadmap works towards, if any
-    return metaRoadmapAlternatives?.find((parentRoadmap) => parentRoadmap.id === metaRoadmapAlternatives?.find((roadmap) => roadmap.id === metaRoadmapId)?.parentRoadmapId)
+      return metaRoadmapAlternatives?.find((parentRoadmap) => parentRoadmap.id === metaRoadmapAlternatives?.find((roadmap) => roadmap.id === metaRoadmapId)?.parentRoadmapId)
   }, [metaRoadmapId, metaRoadmapAlternatives])
 
   // Fetch inheritable goals when the target version changes
@@ -202,24 +207,24 @@ export default function RoadmapForm({
             {/* Allow user to select parent metaRoadmap if not already selected */}
             {!(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap) ?
               <>
-                <label>
-                  {t("forms:roadmap.relationship_label")}
-                  <select className="block margin-top-25 margin-bottom-100 width-100" name="parentRoadmap" id="parentRoadmap" value={metaRoadmapId} required onChange={(e) => setMetaRoadmapId(e.target.value)}>
-                    <option disabled value="">{t("forms:roadmap.relationship_no_chosen")}</option>
-                    {metaRoadmapAlternatives?.length ?
-                      metaRoadmapAlternatives.map((metaRoadmap) => {
-                        return (
-                          <option key={metaRoadmap.id} value={metaRoadmap.id}>{`${metaRoadmap.name}`}</option>
-                        )
-                      })
-                      : <option value="disabled" disabled>{t("forms:roadmap.relationship_no_found")}</option>
-                    }
-                  </select>
-                </label>
+                <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:roadmap.relationship_label")}</label>
+                  <SelectSingleSearch
+                    className="margin-top-25 margin-bottom-100"
+                    id="parentRoadmap"
+                    name="parentRoadmap"
+                    placeholder="välj..."
+                    searchBoxLabel="Sök..." // TODO: i18n
+                    searchBoxPlaceholder="Sök..." // TODO: i18n
+                    required
+                    onChange={(value) => { value?.value ? setMetaRoadmapId(value?.value) : setMetaRoadmapId("")}}
+                    options={[
+                      ...(metaRoadmapAlternatives ?? []).map((metaRoadmap) => ({
+                        name: metaRoadmap.name,
+                        value: metaRoadmap.id
+                      }))
+                    ]}
+                  />
 
-                {/* TODO: Add to info bubble
-            <p>Saknas färdplansserien du söker efter? Kolla att du har tillgång till den eller <Link href={`/metaRoadmap/create`}>skapa en ny färdplansserie</Link></p>
-            */}
               </>
               : null
             }
@@ -268,8 +273,8 @@ export default function RoadmapForm({
               tOptions={{ fileTypes: [".csv"], encodings: ["UTF-8"], type: "unit" }}
               components={{ small: <small /> }}
             />
-            <div className="focusable flex width-fit-content align-items-center gap-50 margin-top-25">
-              <div className="gray-90 padding-block-50 padding-inline-75" style={{borderRadius: '.25rem 0 0 .25rem'}}>
+            <div className="focusable flex width-fit-content align-items-center gap-50 margin-top-25 margin-bottom-100">
+              <div className="gray-90 padding-block-50 padding-inline-75" style={{ borderRadius: '.25rem 0 0 .25rem' }}>
                 <IconUpload width={20} height={20} aria-hidden={true} className="grid" />
               </div>
               <input
