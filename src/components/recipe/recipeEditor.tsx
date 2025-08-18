@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { evaluateRecipe, cleanRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
-import { DataSeriesVariable, ExternalVariable, ScalarVariable, VectorIndexPickerType } from "./variables";
+import { DataSeriesVariable, ExternalVariable, ScalarVariable, VectorIndexPickerOptions } from "./variables";
 import { Recipe as dbRecipe } from "@/prisma/generated";
 
 type RecipeContextType = {
@@ -15,7 +15,7 @@ type RecipeContextType = {
   setRecipe: React.Dispatch<React.SetStateAction<Recipe | null>>;
   warnings: string[];
   error: string | null;
-  resultingDataSeries: DataSeriesValueFields | null;
+  resultingDataSeries: Partial<DataSeriesValueFields> | null;
   resultingUnit: string | null | undefined;
 }
 
@@ -38,7 +38,7 @@ export function RecipeContextProvider({
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [resultingDataSeries, setResultingDataSeries] = useState<DataSeriesValueFields | null>(null);
+  const [resultingDataSeries, setResultingDataSeries] = useState<Partial<DataSeriesValueFields> | null>(null);
   const [resultingUnit, setResultingUnit] = useState<string | null | undefined>(null);
 
   useEffect(() => {
@@ -83,12 +83,18 @@ export function RecipeContextProvider({
 export function RecipeSuggestions({
   suggestedRecipes,
 }: {
-  // TODO - only use prisma generated and type guard the recipe prop into not `JsonValue`
-  suggestedRecipes: (dbRecipe & { recipe: Recipe })[];
+  // TODO - only use prisma generated and type guard the recipe prop into, not `JsonValue`
+  suggestedRecipes: { hash: string, recipe: Recipe }[];
 }) {
   const { t } = useTranslation("components");
   const { setRecipe } = useRecipe();
 
+  for (const recipe of suggestedRecipes) {
+    if (!isRecipe(recipe.recipe)) {
+      console.warn("Invalid recipe in suggestions", recipe);
+      return null;
+    }
+  }
   // Validate suggested recipes
   if (suggestedRecipes.some(r => !isRecipe(r.recipe))) {
     console.warn("Some suggested recipes are not valid. Please check the data.");
@@ -327,7 +333,7 @@ export function RecipeVariableEditor({
                   type: RecipeDataTypes.DataSeries,
                   link: undefined,
                   unit: undefined,
-                  pick: VectorIndexPickerType.Default,
+                  pick: VectorIndexPickerOptions.Default,
                 }
               }
             }

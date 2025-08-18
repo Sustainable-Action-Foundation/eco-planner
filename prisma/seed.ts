@@ -7,7 +7,7 @@ import crypto from "node:crypto";
 import { RandomTextSE } from "./randomText";
 import { Years } from "@/types";
 import { Recipe, RecipeDataTypes } from "@/functions/recipe-parser/types";
-import { VectorIndexPickerType } from "@/components/recipe/variables";
+import { VectorIndexPickerOptions } from "@/components/recipe/variables";
 
 const prisma = new PrismaClient();
 prisma.$connect().catch((e) => {
@@ -324,12 +324,12 @@ async function main() {
           'Riket': {
             type: RecipeDataTypes.DataSeries,
             link: null,
-            pick: VectorIndexPickerType.Default,
+            pick: VectorIndexPickerOptions.Default,
             unit: "km^2",
           },
           'RiketsArea': {
             type: RecipeDataTypes.External,
-            pick: VectorIndexPickerType.Default,
+            pick: VectorIndexPickerOptions.Default,
             unit: undefined,
             dataset: 'SCB',
             tableId: 'TAB6420',
@@ -344,7 +344,7 @@ async function main() {
           },
           'ArvingsArea': {
             type: RecipeDataTypes.External,
-            pick: VectorIndexPickerType.Default,
+            pick: VectorIndexPickerOptions.Default,
             unit: undefined,
             dataset: 'SCB',
             tableId: 'TAB6420',
@@ -372,12 +372,12 @@ async function main() {
           'Riket': {
             type: RecipeDataTypes.DataSeries,
             link: null,
-            pick: VectorIndexPickerType.Default,
+            pick: VectorIndexPickerOptions.Default,
             unit: "capita",
           },
           'RiketsPopulation': {
             type: RecipeDataTypes.External,
-            pick: VectorIndexPickerType.Default,
+            pick: VectorIndexPickerOptions.Default,
             unit: undefined,
             dataset: 'SCB',
             tableId: 'BE0101N1',
@@ -390,7 +390,7 @@ async function main() {
           },
           'ArvingsPopulation': {
             type: RecipeDataTypes.External,
-            pick: VectorIndexPickerType.Default,
+            pick: VectorIndexPickerOptions.Default,
             unit: undefined,
             dataset: 'SCB',
             tableId: 'BE0101N1',
@@ -416,7 +416,7 @@ async function main() {
           'Riket': {
             type: RecipeDataTypes.DataSeries,
             link: null,
-            pick: VectorIndexPickerType.Default,
+            pick: VectorIndexPickerOptions.Default,
             unit: getRandomUnit(),
           },
           'skalär': {

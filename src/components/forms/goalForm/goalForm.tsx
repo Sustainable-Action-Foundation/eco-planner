@@ -36,7 +36,7 @@ import { InheritingBaseline, ManualGoalForm } from "./goalFormSections"; // Sub 
 import { DEBUG_Recipe, RecipeContextProvider, RecipeEquationEditor, RecipeErrorAndWarnings, RecipeSuggestions, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/recipeEditor";
 import { RecipeDataTypes } from "@/functions/recipe-parser/types";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
-import { VectorIndexPickerType } from "@/components/recipe/variables";
+import { VectorIndexPickerOptions } from "@/components/recipe/variables";
 
 // Enum for selecting the type of data series for the goal
 enum DataSeriesType {
@@ -267,14 +267,14 @@ export default function GoalForm({
                       "serie": {
                         type: RecipeDataTypes.DataSeries,
                         link: null,
-                        pick: VectorIndexPickerType.Default,
+                        pick: VectorIndexPickerOptions.Default,
                         unit: undefined, // No unit specified
                       },
-                      "skalär": {
-                        type: RecipeDataTypes.Scalar,
-                        value: 0.5,
-                        unit: null, // Unitless
-                      }
+                      // "skalär": {
+                      //   type: RecipeDataTypes.Scalar,
+                      //   value: 0.5,
+                      //   unit: null, // Unitless
+                      // }
                     }
                   },
                 },
@@ -288,7 +288,7 @@ export default function GoalForm({
                       "serie1": {
                         type: RecipeDataTypes.DataSeries,
                         link: null,
-                        pick: VectorIndexPickerType.Default,
+                        pick: VectorIndexPickerOptions.Default,
                         unit: undefined, // No unit specified
                       },
                       "skalär1": {
@@ -299,7 +299,7 @@ export default function GoalForm({
                       "serie2": {
                         type: RecipeDataTypes.DataSeries,
                         link: null,
-                        pick: VectorIndexPickerType.Default,
+                        pick: VectorIndexPickerOptions.Default,
                         unit: undefined, // No unit specified
                       },
                       "skalär2": {
@@ -331,7 +331,7 @@ export default function GoalForm({
                           // Use the latest time period
                           { variableCode: "Tid", valueCodes: ["TOP(1)"] }
                         ],
-                        pick: VectorIndexPickerType.Default,
+                        pick: VectorIndexPickerOptions.Default,
                         unit: undefined,
                       }
                     }

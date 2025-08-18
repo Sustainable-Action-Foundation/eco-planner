@@ -56,7 +56,7 @@ export async function cleanRecipe(recipe: unknown): Promise<Recipe> {
   return parsedRecipe;
 }
 
-export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promise<{ dataSeries: DataSeriesValueFields, unit: string | null | undefined }> {
+export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promise<{ dataSeries: Partial<DataSeriesValueFields>, unit: string | null | undefined }> {
   /**
    * Early sanity checks
    */
@@ -72,15 +72,16 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
    */
   const scalars: EvalTimeScalar[] = Object.entries(recipe.variables)
     .filter(([, variable]) => variable.type === RecipeDataTypes.Scalar)
-    .filter(([, variable]) => isRecipeScalar(variable))
     .map(([name, variable]) => {
-      const { value, unit } = variable as RecipeScalar;
+      if (!isRecipeScalar(variable)) {
+        throw new RecipeError(`Variable '${name}', typed as '${variable.type}' is not a valid RecipeScalar.`);
+      }
+      const { value, unit } = variable;
       return { name, value, unit };
     });
 
   const dataSeries: EvalTimeDataSeries[] = await Promise.all(Object.entries(recipe.variables)
     .filter(([, variable]) => variable.type === RecipeDataTypes.DataSeries)
-    .filter(([, variable]) => isRecipeDataSeries(variable))
     .map(async ([name, variable]) => {
       if (!isRecipeDataSeries(variable)) {
         throw new RecipeError(`Variable '${name}', typed as '${variable.type}' is not a valid RecipeDataSeries.`);
@@ -97,7 +98,15 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
         throw new RecipeError(`Data series with UUID '${link}' for variable '${name}' does not exist in the database.`);
       }
 
-      const unit = unitOverride || dbDataSeries.unit;
+      // Unit handling
+      // And override unit takes precedence over the one from the database and if an override is null, remove the unit, if undefined, use the one from the database
+      let unit: string | null | undefined = undefined;
+      if ((unitOverride && typeof unitOverride === "string") || unitOverride === null) {
+        unit = unitOverride || null; // Clean falsy to null
+      }
+      else if (dbDataSeries.unit && typeof dbDataSeries.unit === "string" && dbDataSeries.unit.trim() !== "") {
+        unit = dbDataSeries.unit;
+      }
 
       const valueFields: Partial<DataSeriesValueFields> = {};
       for (const year of Years) {
@@ -133,9 +142,10 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
 
   const externalData: EvalTimeExternalDataset[] = (await Promise.all(Object.entries(recipe.variables)
     .filter(([, variable]) => variable.type === RecipeDataTypes.External)
-    .filter(([, variable]) => isRecipeExternalDataset(variable))
     .map(([name, variable]) => {
-      variable = variable as RecipeExternalDataset;
+      if (!isRecipeExternalDataset(variable)) {
+        throw new RecipeError(`Variable '${name}', typed as '${variable.type}' is not a valid RecipeExternalDataset.`);
+      }
 
       const { dataset, tableId, selection } = variable;
       if (!dataset || !tableId) {
@@ -169,59 +179,11 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
 
       console.log(data.values);
 
-      // // If vector
-      // if (data.values.length > 0) {
-      //   // Pad the vector to match the years
-      //   const lastYear = data.values[data.values.length - 1].period;
-      //   const length = Years.findIndex(year => year === `val${lastYear}`);
-      //   if (length === -1) {
-      //     throw new RecipeError(`External dataset variable '${name}' has invalid period '${lastYear}'. Expected one of ${Years.join(", ")}.`);
-      //   }
-
-      //   const paddedVectorForm: number[] = new Array(length).fill(0);
-      //   for (const { period, value } of data.values) {
-      //     const yearIndex = Years.findIndex(year => year === `val${period}`);
-      //     if (yearIndex === -1) {
-      //       throw new RecipeError(`External dataset variable '${name}' has invalid period '${period}'. Expected one of ${Years.join(", ")}.`);
-      //     }
-      //     const numericValue = parseFloat(value);
-      //     if (isNaN(numericValue) || !Number.isFinite(numericValue)) {
-      //       throw new RecipeError(`External dataset variable '${name}' has invalid value '${value}' for period '${period}': expected a finite number, got ${value}`);
-      //     }
-      //     paddedVectorForm[yearIndex] = numericValue;
-      //   }
-
-      //   return {
-      //     name,
-      //     unit: undefined,
-      //     value: paddedVectorForm,
-      //   } as EvalTimeExternalDataset;
-      // }
-
-      // // If scalar (comes as a single value in an array)
-      // if (data.values.length === 0) {
-      //   const value = data.values[0];
-
-      //   if (!value || !value.period || !value.value) {
-      //     throw new RecipeError(`External dataset variable '${name}' has no valid values. Expected an array of values with 'period' and 'value' properties.`);
-      //   }
-      //   const numericValue = parseFloat(value.value);
-      //   if (isNaN(numericValue) || !Number.isFinite(numericValue)) {
-      //     throw new RecipeError(`External dataset variable '${name}' has invalid value '${value.value}' for period '${value.period}': expected a finite number, got ${value.value}`);
-      //   }
-
-      //   if (!Years.includes(`val${value.period}` as typeof Years[number])) {
-      //     throw new RecipeError(`External dataset variable '${name}' has invalid period '${value.period}'. Expected one of ${Years.join(", ")}.`);
-      //   }
-
-      //   return {
-      //     name,
-      //     scalar: numericValue,
-      //   }
-      // }
-
-      // // Else
-      // throw new RecipeError(`External dataset variable '${name}' has no valid values. Expected an array of values with 'period' and 'value' properties.`);
+      return {
+        name: name,
+        value: [1, 2, 3, 4],
+        unit: undefined,
+      };
     });
 
   /**
@@ -249,45 +211,11 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     const varName = series.name.replace(/\s+/g, "_");
     equation = equation.replace(`\${${series.name}}`, varName);
 
-    const lastYearWithData = (Object.keys(series.matrix) as Array<keyof DataSeriesValueFields>)
-      .filter(year => series.matrix[year] != null)
-      .pop();
-
-    if (!lastYearWithData) {
-      throw new RecipeError(`Data series '${series.name}' contains no data and cannot be evaluated.`);
+    if (!series.value) {
+      throw new RecipeError(`Data series '${series.name}' has no value defined. Please check the data series.`);
     }
 
-    const seriesValues = [];
-    for (const year of Years) {
-      const isBeforeLastDefinedYear = parseInt(year.replace("val", "")) <= parseInt(lastYearWithData.replace("val", ""));
-      if (!isBeforeLastDefinedYear) break;
-
-      let value = series.matrix[year];
-      if (value === undefined || value === null) {
-        // If the value is not defined, we can either pad with 0 or skip
-        value = 0; // Default to 0 for missing values
-      }
-
-      if (typeof value === "string") {
-        value = parseFloat(value);
-      }
-
-      if (Number.isNaN(value)) {
-        throw new RecipeError(`Data series '${series.name}' has NaN value for year '${year}'. This is not allowed.`);
-      }
-
-      if (!Number.isFinite(value)) {
-        warnings.push(`Data series '${series.name}' has non-finite value for year '${year}'. This will be treated as 0.`);
-      }
-
-      if (series.unit) {
-        seriesValues.push(mathjs.unit(value as number, series.unit));
-      } else {
-        seriesValues.push(value);
-      }
-    }
-
-    scope[varName] = mathjs.matrix(seriesValues);
+    scope[varName] = Array.isArray(series.value) ? mathjs.matrix(series.value) : series.value;
   }
 
   // Add external data to scope, as either a matrix or a scalar
@@ -295,25 +223,11 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     const varName = externalVar.name.replace(/\s+/g, "_");
     equation = equation.replace(`\${${externalVar.name}}`, varName);
 
-    if (externalVar.value) {
-      // If it's a vector, we can treat it as a matrix
-      const vectorValues = externalVar.value.map(value => {
-        if (typeof value === "string") {
-          value = parseFloat(value);
-        }
-        if (Number.isNaN(value)) {
-          throw new RecipeError(`External dataset '${externalVar.name}' has NaN value in vector.`);
-        }
-        return value;
-      });
-      scope[varName] = mathjs.matrix(vectorValues);
+    if (!externalVar.value) {
+      throw new RecipeError(`External dataset variable '${externalVar.name}' has no value defined. Please check the data.`);
     }
-    else if (externalVar.scalar !== undefined) {
-      // If it's a scalar, just add it directly
-      scope[varName] = externalVar.scalar;
-    } else {
-      throw new RecipeError(`External dataset variable '${externalVar.name}' is missing both 'vector' and 'scalar' properties.`);
-    }
+
+    scope[varName] = Array.isArray(externalVar.value) ? mathjs.matrix(externalVar.value) : externalVar.value;
   }
 
   /**
@@ -383,7 +297,8 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
       const unitString = value.formatUnits();
       if (!commonUnit) {
         commonUnit = unitString;
-      } else if (commonUnit !== unitString) {
+      }
+      else if (commonUnit !== unitString) {
         warnings.push(`Inconsistent units in result for year ${year}. Expected '${commonUnit}', got '${unitString}'.`);
       }
       value = value.toNumber();
@@ -397,15 +312,14 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     // Final check for a valid number
     if (typeof value === "number" && Number.isFinite(value)) {
       output[year] = value;
-    } else {
+    }
+    else {
       throw new RecipeError(`Invalid value for year '${year}': expected a finite number, but got ${mathjs.typeOf(resultArray[i])}`);
     }
   }
 
-  // Set the unit if it was resolved
-  if (commonUnit) {
-    output.unit = commonUnit;
-  }
-
-  return output;
+  return {
+    dataSeries: output,
+    unit: commonUnit || undefined,
+  };
 }

@@ -1,4 +1,4 @@
-import { VectorIndexPickerType as VectorIndexPick } from "@/components/recipe/variables";
+import { vectorIndexPickerFunctions, VectorIndexPickerOptions } from "@/components/recipe/variables";
 import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
 import { isStandardObject, uuidRegex } from "@/types";
 
@@ -55,7 +55,7 @@ export function isRecipeScalar(variable: unknown): variable is RecipeScalar {
 export type RecipeDataSeries = {
   type: typeof RecipeDataTypes.DataSeries;
   link: string | null | undefined; // uuid of data series in the database
-  pick: VectorIndexPick;
+  pick: VectorIndexPickerOptions;
   unit: string | null | undefined; // String if given, null if removed, undefined if not specified
 };
 export function isRecipeDataSeries(variable: unknown): variable is RecipeDataSeries {
@@ -69,26 +69,27 @@ export function isRecipeDataSeries(variable: unknown): variable is RecipeDataSer
     variable.type === RecipeDataTypes.DataSeries
     &&
 
-    (
+    // TODO: Make more of these debug logs in type guards
+    ((
       ("link" in variable && typeof variable.link === "string" && uuidRegex.test(variable.link)) ||
-      ("link" in variable && variable.link === null) ||
+      ("link" in variable && variable.link == null) ||
       !("link" in variable) // May be undefined
-    )
+    ) || (() => { console.debug("Type guard: 'link' in data series variable"); return false; })())
     &&
 
     "pick" in variable &&
-    (typeof variable.pick === "string" && VectorIndexPick[variable.pick as keyof typeof VectorIndexPick] !== undefined)
+    (typeof variable.pick === "string" && vectorIndexPickerFunctions[variable.pick as VectorIndexPickerOptions] !== undefined)
     &&
 
     (
       ("unit" in variable && typeof variable.unit === "string") ||
-      ("unit" in variable && variable.unit === null) ||
+      ("unit" in variable && variable.unit == null) ||
       !("unit" in variable) // May be undefined
     )
     &&
 
     Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0
-  );
+  )
 }
 
 
@@ -104,7 +105,7 @@ export type RecipeExternalDataset = {
     variableCode: string,
     valueCodes: string[]
   }[]; // The selection to be made on the table, e.g. [{ variableCode: "Tid", valueCodes: ["2020M01"] }]
-  pick: VectorIndexPick;
+  pick: VectorIndexPickerOptions;
   unit: string | null | undefined; // String if given, null if removed, undefined if not specified
 };
 export function isRecipeExternalDataset(variable: unknown): variable is RecipeExternalDataset {
@@ -146,7 +147,7 @@ export function isRecipeExternalDataset(variable: unknown): variable is RecipeEx
     &&
 
     "pick" in variable &&
-    (typeof variable.pick === "string" && VectorIndexPick[variable.pick as keyof typeof VectorIndexPick] !== undefined)
+    (typeof variable.pick === "string" && VectorIndexPickerOptions[variable.pick as keyof typeof VectorIndexPickerOptions] !== undefined)
     &&
 
     (
@@ -191,8 +192,7 @@ export function isRecipe(recipe: unknown): recipe is Recipe {
     isStandardObject(recipe.variables) &&
     Object.entries(recipe.variables).every(([key, value]) => (
       typeof key === "string" &&
-      key.trim() !== ""
-      &&
+      key.trim() !== "" &&
       (
         isRecipeScalar(value) ||
         isRecipeDataSeries(value) ||

@@ -387,31 +387,33 @@ export function ExternalVariable({
 }
 
 
-export enum VectorIndexPickerType {
-  Whole = "whole",
-  Last = "last",
-  First = "first",
-  Median = "median",
-  Mean = "mean",
-  Default = Whole,
-}
+export const VectorIndexPickerOptions = {
+  Default: "whole",
+
+  Whole: "whole",
+  Last: "last",
+  First: "first",
+  Median: "median",
+  Mean: "mean",
+} as const;
+export type VectorIndexPickerOptions = typeof VectorIndexPickerOptions[keyof typeof VectorIndexPickerOptions];
 
 export const vectorIndexPickerFunctions = {
-  [VectorIndexPickerType.Whole]: (vector: number[]) => vector,
-  [VectorIndexPickerType.Last]: (vector: number[]) => vector.at(-1),
-  [VectorIndexPickerType.First]: (vector: number[]) => vector.at(0),
-  [VectorIndexPickerType.Median]: (vector: number[]) => {
+  [VectorIndexPickerOptions.Whole]: (vector: number[]) => vector,
+  [VectorIndexPickerOptions.Last]: (vector: number[]) => vector.at(-1),
+  [VectorIndexPickerOptions.First]: (vector: number[]) => vector.at(0),
+  [VectorIndexPickerOptions.Median]: (vector: number[]) => {
     if (vector.length === 0) return null;
     const sorted = [...vector].sort((a, b) => a - b);
     const mid = Math.floor(sorted.length / 2);
     return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
   },
-  [VectorIndexPickerType.Mean]: (vector: number[]) => {
+  [VectorIndexPickerOptions.Mean]: (vector: number[]) => {
     if (vector.length === 0) return null;
     const sum = vector.reduce((acc, val) => acc + val, 0);
     return sum / vector.length;
   },
-}
+} as const;
 
 function VectorIndexPicker({ rules }: { rules?: InputRules }) {
   const { t } = useTranslation("components");
@@ -421,10 +423,10 @@ function VectorIndexPicker({ rules }: { rules?: InputRules }) {
   return <select
     disabled={!rules.allowValueEditing}
   >
-    <option value={VectorIndexPickerType.Whole}>{t("components:recipe_editor.pick_whole")}</option>
-    <option value={VectorIndexPickerType.Last}>{t("components:recipe_editor.pick_last")}</option>
-    <option value={VectorIndexPickerType.First}>{t("components:recipe_editor.pick_first")}</option>
-    <option value={VectorIndexPickerType.Median}>{t("components:recipe_editor.pick_median")}</option>
-    <option value={VectorIndexPickerType.Mean}>{t("components:recipe_editor.pick_mean")}</option>
+    <option value={VectorIndexPickerOptions.Whole}>{t("components:recipe_editor.pick_whole")}</option>
+    <option value={VectorIndexPickerOptions.Last}>{t("components:recipe_editor.pick_last")}</option>
+    <option value={VectorIndexPickerOptions.First}>{t("components:recipe_editor.pick_first")}</option>
+    <option value={VectorIndexPickerOptions.Median}>{t("components:recipe_editor.pick_median")}</option>
+    <option value={VectorIndexPickerOptions.Mean}>{t("components:recipe_editor.pick_mean")}</option>
   </select>;
 }
