@@ -1,6 +1,5 @@
 "use client"
 
-import LinkInput, { getLinks } from "@/components/form/elements/linkInput/linkInput"
 import type getRoadmaps from "@/fetchers/getRoadmaps"
 import formSubmitter from "@/functions/formSubmitter"
 import { ActionInput } from "@/types"
@@ -23,7 +22,6 @@ export default function ActionForm({
     effects: (Effect & {
       dataSeries?: DataSeries | null,
     })[],
-    links: { url: string, description: string | null }[],
   },
 }) {
   const { t } = useTranslation(["forms", "common"]);
@@ -31,9 +29,7 @@ export default function ActionForm({
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    const form = event.target.elements
-
-    const links = getLinks(event.target)
+    const form = event.target.elements 
 
     // Get the data series as an array of numbers, the actual parsing is done by the API
     const dataSeries = getDataSeries(form);
@@ -55,7 +51,7 @@ export default function ActionForm({
       roadmapId: (form.namedItem("roadmapId") as HTMLInputElement)?.value || roadmapId,
       goalId: goalId,
       actionId: currentAction?.id || undefined,
-      links,
+      links: undefined, // TODO: Links in DB should be migrated to description
       timestamp,
     }
 
@@ -180,11 +176,6 @@ export default function ActionForm({
             <input type="checkbox" name="isRenewables" id="isRenewables" defaultChecked={currentAction?.isRenewables} />
             {t("forms:action.category_renewables")}
           </label>
-        </fieldset>
-
-        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:action.attach_external_resources")}</legend>
-          <LinkInput links={currentAction?.links} />
         </fieldset>
 
         <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentAction ? t("common:tsx.save") : t("common:tsx.create")} />

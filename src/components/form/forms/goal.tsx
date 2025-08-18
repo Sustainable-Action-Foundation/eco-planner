@@ -1,6 +1,5 @@
 'use client';
 
-import LinkInput, { getLinks } from "@/components/form/elements/linkInput/linkInput";
 import { getScalingResult } from "@/components/modals/copyAndScale";
 import RepeatableScaling from "@/components/repeatableScaling";
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
@@ -86,9 +85,7 @@ export default function GoalForm({
 
     const form = event.target.elements;
     const formData = new FormData(event.target);
-
-    const links = getLinks(event.target);
-
+ 
     // Get data series as an array of numbers in string format, the actual parsing is done by the API
     const dataSeries = getDataSeries(form);
 
@@ -129,7 +126,7 @@ export default function GoalForm({
       inheritFrom: inheritFrom,
       roadmapId: currentGoal?.roadmapId || roadmapId || (typeof formData.get("roadmapId") == "string" ? formData.get("roadmapId") : null),
       goalId: currentGoal?.id || null,
-      links,
+      links: undefined, // TODO: Links in DB should be migrated to description
       timestamp,
       isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked,
     } as GoalInput);
@@ -178,6 +175,12 @@ export default function GoalForm({
 
   // Indexes for the data-position attribute in the legend elements
   let positionIndex = 1;
+
+  const unitNames = Object.keys(mathjs.Unit.UNITS)
+  
+  useEffect(() => {
+    console.log(unitNames)
+  }, [])
 
   return (
     <>
@@ -313,11 +316,6 @@ export default function GoalForm({
           {baselineType === BaselineType.Inherited &&
             <InheritingBaseline />
           }
-        </fieldset>
-
-        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:goal.attach_external_resources")}</legend>
-          <LinkInput links={currentGoal?.links} />
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
