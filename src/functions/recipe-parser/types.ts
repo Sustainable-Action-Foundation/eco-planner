@@ -15,7 +15,7 @@ export type RecipeDataTypes = typeof RecipeDataTypes[keyof typeof RecipeDataType
 
 /** 
  * Scalar variable types
- */
+*/
 export type RecipeScalar = {
   type: typeof RecipeDataTypes.Scalar;
   value: number;
@@ -36,11 +36,10 @@ export function isRecipeScalar(variable: unknown): variable is RecipeScalar {
     typeof variable.value === "number"
     &&
 
-    "unit" in variable &&
     (
-      typeof variable.unit === "string" ||
-      variable.unit === null ||
-      variable.unit === undefined
+      ("unit" in variable && typeof variable.unit === "string") ||
+      ("unit" in variable && variable.unit === null) ||
+      !("unit" in variable) // May be undefined
     )
     &&
 
@@ -61,6 +60,7 @@ export type RecipeDataSeries = {
 };
 export function isRecipeDataSeries(variable: unknown): variable is RecipeDataSeries {
   const allowedProps = ["type", "link", "pick"];
+
   return (
     isStandardObject(variable)
     &&
@@ -69,15 +69,22 @@ export function isRecipeDataSeries(variable: unknown): variable is RecipeDataSer
     variable.type === RecipeDataTypes.DataSeries
     &&
 
-    "link" in variable &&
     (
-      (typeof variable.link === "string" && uuidRegex.test(variable.link)) ||
-      variable.link === null
+      ("link" in variable && typeof variable.link === "string" && uuidRegex.test(variable.link)) ||
+      ("link" in variable && variable.link === null) ||
+      !("link" in variable) // May be undefined
     )
     &&
 
     "pick" in variable &&
     (typeof variable.pick === "string" && VectorIndexPick[variable.pick as keyof typeof VectorIndexPick] !== undefined)
+    &&
+
+    (
+      ("unit" in variable && typeof variable.unit === "string") ||
+      ("unit" in variable && variable.unit === null) ||
+      !("unit" in variable) // May be undefined
+    )
     &&
 
     Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0
@@ -142,11 +149,10 @@ export function isRecipeExternalDataset(variable: unknown): variable is RecipeEx
     (typeof variable.pick === "string" && VectorIndexPick[variable.pick as keyof typeof VectorIndexPick] !== undefined)
     &&
 
-    "unit" in variable &&
     (
-      typeof variable.unit === "string" ||
-      variable.unit === null ||
-      variable.unit === undefined
+      ("unit" in variable && typeof variable.unit === "string") ||
+      ("unit" in variable && variable.unit === null) ||
+      !("unit" in variable) // May be undefined
     )
     &&
 
@@ -165,27 +171,28 @@ export type Recipe = {
   eq: string;
   variables: Record<string, RecipeVariables>;
 };
-export function isRecipe(variable: unknown): variable is Recipe {
+export function isRecipe(recipe: unknown): recipe is Recipe {
   const allowedProps = ["name", "eq", "variables"];
 
   return (
-    isStandardObject(variable)
+    isStandardObject(recipe)
     &&
 
-    "name" in variable &&
-    (typeof variable.name === "string" || variable.name === null || variable.name === undefined)
+    "name" in recipe &&
+    (typeof recipe.name === "string" || recipe.name === null || recipe.name === undefined)
     &&
 
-    "eq" in variable &&
-    typeof variable.eq === "string" &&
-    variable.eq.trim() !== "" // Ensure eq is a non-empty string
+    "eq" in recipe &&
+    typeof recipe.eq === "string" &&
+    recipe.eq.trim() !== "" // Ensure eq is a non-empty string
     &&
 
-    "variables" in variable &&
-    isStandardObject(variable.variables) &&
-    Object.entries(variable.variables).every(([key, value]) => (
+    "variables" in recipe &&
+    isStandardObject(recipe.variables) &&
+    Object.entries(recipe.variables).every(([key, value]) => (
       typeof key === "string" &&
-      key.trim() !== "" &&
+      key.trim() !== ""
+      &&
       (
         isRecipeScalar(value) ||
         isRecipeDataSeries(value) ||
@@ -195,7 +202,7 @@ export function isRecipe(variable: unknown): variable is Recipe {
     &&
 
     // Ensure no other properties are present
-    Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0
+    Object.keys(recipe).filter(key => !allowedProps.includes(key)).length === 0
   );
 }
 

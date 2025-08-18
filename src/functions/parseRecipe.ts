@@ -16,7 +16,8 @@ export function recipeFromUnknown(recipe: unknown): Recipe {
   }
 
   if (!isRecipe(recipe)) {
-    throw new RecipeError("Invalid recipe format. Expected a RawRecipe JSON string or object.");
+    console.error(recipe);
+    throw new RecipeError("Invalid recipe format. Expected an object following the Recipe type.");
   }
 
   return {
