@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       throw new Error(ClientError.AccessDenied)
     }
 
-    let parsedRecipe = await cleanRecipe(recipeFromUnknown(goal.recipeUsed?.recipe));
+    const parsedRecipe = await cleanRecipe(recipeFromUnknown(goal.recipeUsed?.recipe));
 
     // Try to update goal
     const warnings: string[] = [];

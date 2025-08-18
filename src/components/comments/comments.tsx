@@ -23,6 +23,7 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
       '/api/comment',
       formJSON,
       'POST',
+      t,
       undefined,
       undefined,
       () => {

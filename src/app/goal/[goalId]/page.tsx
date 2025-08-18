@@ -167,6 +167,7 @@ export default async function Page(
   }
 
   // If any goalParent has a data series with a later updatedAt date than the goal, the goal should be updated
+  // eslint-disable-next-line prefer-const
   let shouldUpdate = false;
   // if (goal.combinationParents) {
   //   for (const parent of goal.combinationParents) {
