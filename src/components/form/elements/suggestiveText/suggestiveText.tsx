@@ -2,7 +2,7 @@
 
 import { IconChevronDown } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
-import styles from './comboBox.module.css' with { type: "css" }
+import styles from '../comboBox.module.css' with { type: "css" }
 import Fuse from "fuse.js";
 import { useTranslation } from "react-i18next";
  

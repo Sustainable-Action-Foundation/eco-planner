@@ -8,9 +8,10 @@ import { useState } from "react";
 import formSubmitter from "@/functions/formSubmitter";
 import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
-import SuggestiveText from "../elements/suggestiveText";
+import SuggestiveText from "../elements/suggestiveText/suggestiveText";
 import TextEditor from "@/components/form/elements/textEditor/textEditor";
-import { SelectMultipleSearch, SelectSingleSearch } from "../elements/select";
+import SelectSingleSearch from "../elements/select/selectSingleSearch";
+import SelectMultipleSearch from "../elements/select/selectMultipleSearch";
 
 /* TODO: Ensure everything is validated properly on the server */
 // TODO: Set required for viewer and editselection if custom is selected
@@ -183,6 +184,7 @@ export default function MetaRoadmapForm({
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
           // TODO: Disabled / placeholder need to be more discernable 
+          // TODO: This and the next fieldset should probably be components
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
             <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
               Vem får se färdplansserien?
@@ -360,7 +362,7 @@ export default function MetaRoadmapForm({
               className="margin-top-25"
               id="parent-roadmap"
               name="parent-roadmap"
-              placeholder="välj..."
+              placeholder="välj eller lämna blank" // TODO: i18n
               searchBoxLabel="Sök..." // TODO: i18n
               searchBoxPlaceholder="Sök..." // TODO: i18n
               disabled={!parentRoadmapOptions}

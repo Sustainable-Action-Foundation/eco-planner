@@ -10,7 +10,8 @@ import { useEffect, useMemo, useState } from "react";
 import styles from '../forms.module.css';
 import { TFunction } from "i18next";
 import { Trans, useTranslation } from "react-i18next";
-import { SelectMultipleSearch, SelectSingleSearch } from "../elements/select";
+import SelectSingleSearch from "../elements/select/selectSingleSearch";
+import SelectMultipleSearch from "../elements/select/selectMultipleSearch";
 import TextEditor from "../elements/textEditor/textEditor";
 import { IconUpload } from "@tabler/icons-react";
 
