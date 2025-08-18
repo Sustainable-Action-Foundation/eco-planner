@@ -211,13 +211,13 @@ export type EvalTimeScalar = {
 export type EvalTimeDataSeries = {
   name: string; // Variable name
   link: string; // For reference sake
-  vector: number[] | null;
+  value: number | number[] | null;
   unit: string | null | undefined; // Optional unit
 };
 export type EvalTimeExternalDataset = {
   name: string; // Variable name
   scalar: number | null;
-  vector: number[] | null;
+  value: number | number[] | null;
   unit: string | null | undefined; // Optional unit
 };
 

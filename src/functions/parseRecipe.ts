@@ -4,6 +4,7 @@ import mathjs from "@/math";
 import { DataSeriesValueFields, Years } from "@/types";
 import getTableContent from "@/lib/api/getTableContent";
 import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
+import { vectorIndexPickerFunctions } from "@/components/recipe/variables";
 
 export function recipeFromUnknown(recipe: unknown): Recipe {
   if (typeof recipe === "string") {
@@ -95,12 +96,39 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
         throw new RecipeError(`Data series with UUID '${link}' for variable '${name}' does not exist in the database.`);
       }
 
-      // const data: Partial<DataSeriesValueFields> = {};
-      // for (const year of Years) {
-      //   data[year] = dbDataSeries[year];
-      // }
+      const unit = unitOverride || dbDataSeries.unit;
 
-      // return { name, link, data, unit: dbDataSeries.unit };
+      const valueFields: Partial<DataSeriesValueFields> = {};
+      for (const year of Years) {
+        if (!dbDataSeries[year]) {
+          continue; // Skip years without data
+        }
+        valueFields[year] = dbDataSeries[year];
+      }
+
+      let value: number | number[];
+      // Consider pick if provided
+      if (pick && Array.isArray(valueFields) && vectorIndexPickerFunctions[pick]) {
+        const result = vectorIndexPickerFunctions[pick](valueFields);
+        if (result === undefined || result === null) {
+          throw new RecipeError(`Data series '${name}' with pick '${pick}' returned an invalid value.`);
+        }
+        value = result;
+      }
+      else {
+        value = Years.map(year => {
+          const yearValue = valueFields[year] || Infinity;
+          return yearValue;
+        });
+      }
+
+      console.log(value);
+      return {
+        name,
+        link,
+        unit,
+        value,
+      } as EvalTimeDataSeries;
     }));
 
   const externalData: EvalTimeExternalDataset[] = (await Promise.all(Object.entries(recipe.variables)
@@ -148,7 +176,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
 
         return {
           name,
-          vector: paddedVectorForm,
+          value: paddedVectorForm,
         } as EvalTimeExternalDataset;
       }
 
@@ -249,9 +277,9 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     const varName = externalVar.name.replace(/\s+/g, "_");
     equation = equation.replace(`\${${externalVar.name}}`, varName);
 
-    if (externalVar.vector) {
+    if (externalVar.value) {
       // If it's a vector, we can treat it as a matrix
-      const vectorValues = externalVar.vector.map(value => {
+      const vectorValues = externalVar.value.map(value => {
         if (typeof value === "string") {
           value = parseFloat(value);
         }
