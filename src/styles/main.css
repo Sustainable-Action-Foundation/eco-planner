@@ -22,11 +22,6 @@
   border-radius: 0;
 }
 
-.focusable input[type="file"] {
-  visibility: hidden;
-  height: 0;
-  width: 0;
-}
 
 .font-size-smaller {
   font-size: smaller;
@@ -353,34 +348,14 @@
 /* File inputs (file) */
 :where(input[type=file]) {
   display: block;
-  padding: .5rem;
-  border-radius: .25rem;
-  border-width: 1px;
-  border-style: solid;
-  background-color: white;
-  border-color: var(--gray-80);
-  outline: 0;
   font-size: 14px;
-}
+} 
 
 input[type=file]::file-selector-button {
-  background-color: var(--gray-90);
-  border: none;
-  padding: 0.5rem;
-  border-radius: .25rem;
-  margin-right: .5rem;
-  cursor: pointer;
+  display: none;
 }
- 
+  
 
-:where(input[type=file]:focus) {
-  border-color: #191919;
-}
-
-input[type=file]:focus::file-selector-button {
-  background-color: #191919;
-  color: white;
-}
 
 /* Selection inputs (checkbox, radio, range color) */
 :where(input[type=radio],

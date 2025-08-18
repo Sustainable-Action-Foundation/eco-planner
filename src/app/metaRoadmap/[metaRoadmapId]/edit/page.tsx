@@ -57,7 +57,9 @@ export default async function Page(props: { params: Promise<{ metaRoadmapId: str
       <Breadcrumb object={currentRoadmap} customSections={[t("pages:roadmap_series_one_edit.breadcrumb")]} />
 
       <div className='container-text margin-inline-auto'>
-        <h1>{t("pages:roadmap_series_one_edit.title", { name: currentRoadmap.name })}</h1>
+        <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
+          {t("pages:roadmap_series_one_edit.title", { name: currentRoadmap.name })}
+        </h1>
         <MetaRoadmapForm
           user={session.user}
           userGroups={session.user?.userGroups}

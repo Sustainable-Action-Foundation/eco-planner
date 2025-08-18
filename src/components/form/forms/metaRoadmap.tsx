@@ -27,7 +27,15 @@ export default function MetaRoadmapForm({
 }) {
   const { t } = useTranslation(["forms", "common"]);
 
-  const [editorContent, setEditorContent] = useState<any>(currentRoadmap ? JSON.parse(currentRoadmap.description) : null); // Not entirely sure why i would need to parse this tbh
+  const [editorContent, setEditorContent] = useState<any>(() => {
+    if (!currentRoadmap?.description) return null;
+
+    try {
+      return JSON.parse(currentRoadmap.description);
+    } catch {
+      return currentRoadmap.description;
+    }
+  }); 
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [roadmapType, setRoadmapType] = useState<string>("");
 
@@ -120,7 +128,7 @@ export default function MetaRoadmapForm({
             <input id="name" name="name" className="margin-top-25 margin-bottom-100" type="text" defaultValue={currentRoadmap?.name ?? undefined} autoComplete="off" required />
           </label>
 
-          <label className="margin-bottom-25" id="description-label">Beskriving</label>
+          <label id="description-label">Beskriving</label>
           <TextEditor
             className="margin-top-25 margin-bottom-100" // TODO: Need label for texteditormenu
             id="description"
@@ -386,6 +394,7 @@ export default function MetaRoadmapForm({
             style={{ fontSize: '14px', transform: 'none' }}
             type="submit"
             id="submit-button"
+            disabled={isLoading}
           >
             {currentRoadmap ? t("common:tsx.save") : t("common:tsx.create") + ' färdplansserie'} {/* TODO: i18n  */}
           </button>

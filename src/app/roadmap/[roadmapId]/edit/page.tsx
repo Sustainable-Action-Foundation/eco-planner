@@ -7,7 +7,6 @@ import accessChecker from "@/lib/accessChecker";
 import { AccessLevel } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
-import { ScopeReminder } from "@/components/form/forms/scopeReminder";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {
@@ -56,10 +55,9 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
       <Breadcrumb object={roadmap} customSections={[t("pages:roadmap_edit.breadcrumb")]} />
 
       <div className='container-text margin-inline-auto'>
-        <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          {t("pages:roadmap_edit.title")}
+        <h1 className='margin-top-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
+          {t("pages:roadmap_edit.title")} {/* TODO: Need a better name here... */}
         </h1>
-        <ScopeReminder roadmap={roadmap} />
         <RoadmapForm
           user={session.user}
           userGroups={session.user?.userGroups}
