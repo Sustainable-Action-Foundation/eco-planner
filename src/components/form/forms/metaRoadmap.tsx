@@ -4,8 +4,7 @@ import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" wit
 import { LoginData } from "@/lib/session";
 import { AccessControlled, MetaRoadmapInput } from "@/types";
 import { MetaRoadmap, RoadmapType } from "@prisma/client";
-import { useEffect, useState } from "react";
-import { getLinks } from "@/components/form/elements/linkInput/linkInput"
+import { useState } from "react";
 import formSubmitter from "@/functions/formSubmitter";
 import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
@@ -14,7 +13,6 @@ import TextEditor from "@/components/form/elements/textEditor/textEditor";
 import { SelectMultipleSearch, SelectSingleSearch } from "../elements/select";
 
 /* TODO: Ensure everything is validated properly on the server */
-/* TODO: Test that everything works, check against DB, especially viewgroups and usergroups */
 export default function MetaRoadmapForm({
   user,
   userGroups,
@@ -28,7 +26,7 @@ export default function MetaRoadmapForm({
 }) {
   const { t } = useTranslation(["forms", "common"]);
 
-  const [editorContent, setEditorContent] = useState<any>(null);
+  const [editorContent, setEditorContent] = useState<any>(currentRoadmap ? JSON.parse(currentRoadmap.description) : null); // Not entirely sure why i would need to parse this tbh
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [roadmapType, setRoadmapType] = useState<string>("");
 
@@ -96,6 +94,8 @@ export default function MetaRoadmapForm({
       id: currentRoadmap?.id || undefined,
       timestamp,
     };
+
+    console.log(formData)
 
     const formJSON = JSON.stringify(formData);
 
@@ -173,6 +173,7 @@ export default function MetaRoadmapForm({
         </fieldset>
 
         {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
+          // TODO: Disabled / placeholder need to be more discernable 
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
             <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
               Vem får se färdplansserien?
@@ -233,7 +234,7 @@ export default function MetaRoadmapForm({
                   placeholder="användare 1, användare 2, användare 3..."
                   disabled={visibilityType !== "custom"}
                   type="text"
-                  // TODO: give default value
+                  defaultValue={currentAccess?.viewers.map((viewer) => viewer.username)}
                 />
                 <label htmlFor="viewer-groups" className="block width-fit-content">Grupper:</label>
                 <SelectMultipleSearch // TODO: Something needs to indicate that this is a multiselect :), TODO: Populate from default value
@@ -243,6 +244,7 @@ export default function MetaRoadmapForm({
                   searchBoxPlaceholder="sök..."
                   placeholder="Välj grupper"
                   disabled={visibilityType !== "custom"}
+                  defaultValue={currentAccess?.viewGroups.map((group) => { return {name: group.name, value: group.name}})}
                   options={[
                     ...(userGroups?.map(group => ({
                       name: group,
@@ -310,7 +312,7 @@ export default function MetaRoadmapForm({
                   name="editors"
                   placeholder="användare 1, användare 2, användare 3..."
                   disabled={editabilityType !== "custom"}
-                  // TODO: give default value
+                  defaultValue={currentAccess?.editors.map((editor) => editor.username)}
                 />
                 <label htmlFor="editor-groups" className="block width-fit-content">Grupper:</label>
                 <SelectMultipleSearch // TODO: Something needs to indicate that this is a multiselect :), TODO: Populate from default value
@@ -320,6 +322,7 @@ export default function MetaRoadmapForm({
                   searchBoxPlaceholder="sök..."
                   placeholder="Välj grupper"
                   disabled={editabilityType !== "custom"}
+                  defaultValue={currentAccess?.editGroups.map((group) => { return {name: group.name, value: group.name}})}
                   options={[
                     ...(userGroups?.map(group => ({
                       name: group,
