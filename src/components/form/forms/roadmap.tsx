@@ -131,11 +131,6 @@ export default function RoadmapForm({
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const timestamp = Date.now()
   const [metaRoadmapId, setMetaRoadmapId] = useState<string>(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap || "")
-
-  useEffect(() => {
-    console.log(metaRoadmapId)
-  }, [metaRoadmapId])
-
   const [targetVersion, setTargetVersion] = useState<number | null>(0)
   const [inheritableGoals, setInheritableGoals] = useState<{ id: string, name: string | null, indicatorParameter: string }[]>([])
   const metaRoadmapTarget = useMemo(() => {
@@ -195,6 +190,10 @@ export default function RoadmapForm({
   // Indexes for the data-position attribute in the legend elements
   let positionIndex = 1;
 
+  useEffect(() => {
+    console.log(metaRoadmapId)
+  }, [metaRoadmapId])
+
   return (
     <>
       <form onSubmit={handleSubmit}>
@@ -209,14 +208,14 @@ export default function RoadmapForm({
             {!(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap) ?
               <>
                 <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:roadmap.relationship_label")}</label>
-                  <SelectSingleSearch
-                    className="margin-top-25 margin-bottom-100"
-                    id="parentRoadmap"
-                    name="parentRoadmap"
-                    placeholder="välj..."
-                    searchBoxLabel="Sök..." // TODO: i18n
-                    searchBoxPlaceholder="Sök..." // TODO: i18n
-                    required
+                  <SelectSingleSearch 
+                    props={{
+                      className: "margin-top-25 margin-bottom-100",
+                      id: "parent-roadmap",
+                      name: "parent-roadmap",
+                      placeholder: "välj...", // TODO: I18n
+                      required: true,
+                    }} 
                     onChange={(value) => { value?.value ? setMetaRoadmapId(value?.value) : setMetaRoadmapId("")}}
                     options={[
                       ...(metaRoadmapAlternatives ?? []).map((metaRoadmap) => ({

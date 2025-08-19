@@ -1,6 +1,9 @@
 "use client"
 
 // TODO: Fix issues with tab.
+// TODO: Use keyhandler function
+// TODO: Use defined types instead of importing them
+// TODO: Need onChange prop
 
 import { IconSearch, IconSelector } from "@tabler/icons-react";
 import { useEffect, useState, useRef } from "react"

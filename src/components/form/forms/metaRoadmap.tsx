@@ -359,13 +359,13 @@ export default function MetaRoadmapForm({
           <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:meta_roadmap.relationship_label")}</label>
           {parentRoadmapOptions ? ( // TODO: This might not make sense?
             <SelectSingleSearch
-              className="margin-top-25"
-              id="parent-roadmap"
-              name="parent-roadmap"
-              placeholder="välj eller lämna blank" // TODO: i18n
-              searchBoxLabel="Sök..." // TODO: i18n
-              searchBoxPlaceholder="Sök..." // TODO: i18n
-              disabled={!parentRoadmapOptions}
+              props={{
+                className: "margin-top-25",
+                id: "parent-roadmap",
+                name: "parent-roadmap",
+                placeholder: "välj eller lämna blank", // TODO: i18n
+                disabled: !parentRoadmapOptions
+              }} 
               defaultValue={ // TODO: Might be a better way to do this
                 currentRoadmap
                   ? currentRoadmap.parentRoadmapId

@@ -1,40 +1,24 @@
 "use client"
 
-// TODO: Fix issues with tab.
-
-import { IconSearch, IconSelector } from "@tabler/icons-react";
-import { useEffect, useState, useRef } from "react"
-import Fuse from "fuse.js";
+import { useEffect, useState, useRef, useMemo } from "react"
 import { useTranslation } from "react-i18next";
 import styles from '../comboBox.module.css' with { type: "css" }
+import { inputElement } from "@/components/types";
 import { handleKeyDownEditableCombobox } from "./functions";
+import Fuse from "fuse.js";
+import { IconSearch, IconSelector } from "@tabler/icons-react";
+
 
 export default function SelectSingleSearch({
-  className,
-  style,
-  id,
-  name,
+  props,
   defaultValue,
-  required,
-  disabled,
-  placeholder,
-  searchBoxLabel,
-  searchBoxPlaceholder,
   options,
   onChange,
 }: {
-  className?: string,
-  style?: React.CSSProperties,
-  id: string,
-  name: string,
+  props: inputElement,
   defaultValue?: { name: string, value: string } | boolean,
-  required?: boolean,
-  disabled?: boolean,
-  placeholder?: string,
-  searchBoxLabel: string,
-  searchBoxPlaceholder?: string
   options: Array<{ name: string, value: string }>,
-  onChange?: (value: { name: string, value: string } | null) => void // TODO: Need this for multiselect also, TODO: Check that this syntax is correct
+  onChange?: (value: { name: string, value: string } | null) => void 
 }) {
   const { t } = useTranslation(["forms"]);
 
@@ -44,63 +28,50 @@ export default function SelectSingleSearch({
       : defaultValue === true
         ? options[0]
         : null
-  ) // TODO: Update this name
+  ) 
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
+  const [focusedListboxOption, setfocusedListboxOption] = useState<number | null>(null);
+  const [searchValue, setSearchValue] = useState<string>('')
   const toggleRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
-  const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null);
-  const [valueIsValid, setValueIsValid] = useState<boolean>()
 
-  useEffect(() => {
-    if ((!value || value.value == "") && required) {
-      setValueIsValid(false)
-    } else {
-      setValueIsValid(true)
-    }
-
-    if (onChange) {
-      onChange(value)
-    }
-  }, [value])
+  
+  const searchResults = useMemo(() => {
+    const fuse = new Fuse(options, { keys: ['name'] });
+    return searchValue
+      ? fuse.search(searchValue).map(result => result.item)
+      : options;
+  }, [searchValue, options]);
 
   // Disables form subbmision if value is invalid 
   // TODO: Handling required values like this does not work with the fieldset:valid--
   // css pseudo class (our button cannot be valid or required we just pretend it is)
+  // Define what an invalid value is (missing value or empty string). We only need this defined if the field is requied
+  const valueIsValid = useMemo(() => {
+    if ((!value || value.value === "") && props.required) return false;
+    return true;
+  }, [value, props.required]);
+
   useEffect(() => {
-    // Find the closest form element up the DOM tree
+    // Stop submission if input is invalid
     const form = toggleRef.current?.closest("form");
     if (!form) return;
-
     const handleSubmit = (e: Event) => {
-      if ((!value || value.value == "") && required) {
-        e.preventDefault(); // Stop submission
+      if (!valueIsValid) {
+        e.preventDefault();
         e.stopPropagation();
-        // You can also set a visual indicator for invalid state here
-        setValueIsValid(false);
         toggleRef.current?.focus();
       }
     };
-
     form.addEventListener("submit", handleSubmit);
     return () => form.removeEventListener("submit", handleSubmit);
-  }, [required, value]);
+  }, [valueIsValid]);
 
-  // Fuse search
-  const [results, setResults] = useState<Array<{ name: string, value: string }>>([])
-  const [searchValue, setSearchValue] = useState<string>('')
-
-  // Handle search results
+  // 1. Focus and clear search menu when opening the select
+  // 2. remove listboxitem focus
   useEffect(() => {
-    const fuse = new Fuse(options, {
-      keys: ['name']
-    });
-    const newResults = searchValue ? fuse.search(searchValue).map(result => result.item) : options;
-    setResults(newResults);
-  }, [searchValue]);
-
-  // Focus and clear search menu when opening the select
-  useEffect(() => {
+    setfocusedListboxOption(null)
     if (!searchRef.current) return
     searchRef.current.value = ''
     setSearchValue('')
@@ -111,75 +82,76 @@ export default function SelectSingleSearch({
 
   // Sroll listbox element into view
   useEffect(() => {
-    if (focusedListBoxItem !== null && optionRefs.current[focusedListBoxItem]) {
-      optionRefs.current[focusedListBoxItem]?.scrollIntoView({
+    if (focusedListboxOption !== null && optionRefs.current[focusedListboxOption]) {
+      optionRefs.current[focusedListboxOption]?.scrollIntoView({
         block: "nearest",
       });
     }
-  }, [focusedListBoxItem]);
+  }, [focusedListboxOption]);
 
   return (
     <div
-      className={`${className ? `${className} ` : ''}position-relative`}
-      style={{ ...style, userSelect: 'none', width: 'fit-content' }}
+      className={`${props.className ? `${props.className} ` : ''}position-relative`}
+      style={{ ...props.style, userSelect: 'none', width: 'fit-content' }}
     >
       <button
-        id={id}
+        id={props.id}
         className={`${styles['select-toggle']}`}
         style={{ borderColor: menuOpen ? '#191919' : '' }}
         value={value ? value.value : ''}
-        name={name}
-        disabled={disabled}
+        name={props.name}
+        disabled={props.disabled}
         ref={toggleRef}
         onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
           if (e.key == "Escape") {
             setMenuOpen(false)
-          }
-          /* TODO: Should i do this?
-          if (e.key == "Enter" || e.key == " ") {
-            setFocusedListBoxItem(0)
-          } */
+          } 
         }}
         onClick={() => { setMenuOpen(!menuOpen) }}
-        aria-controls={menuOpen ? `${id}-dialog` : undefined}
-        aria-expanded={menuOpen}
-        aria-haspopup="dialog"
         role="combobox"
         type="button"
-        aria-required={required ? required : false}
+        aria-controls={menuOpen ? `${props.id}-dialog` : undefined}
+        aria-expanded={menuOpen}
+        aria-haspopup="dialog"
+        aria-required={props.required ? props.required : false}
         aria-invalid={!valueIsValid}
       >
         <span
           style={{
-            color: value && options.some(o => o.value === value.value) ? "inherit" : "gray",
-            opacity: disabled ? 0.6 : 1,
+            color: !value ? "gray" :  "inherit",
+            opacity: props.disabled ? 0.6 : 1,
           }}
-        >
-          {value && options.some(o => o.value === value.value) ? value.name : placeholder}
+        > 
+          {!value ? props.placeholder : value.name}
         </span>
         <IconSelector height={20} width={20} style={{ minWidth: '20px' }} aria-hidden={true} />
       </button>
-      <div // TODO: Does this require a label ?
-        id={`${id}-dialog`}
+      <div 
+        id={`${props.id}-dialog`}
         className={`              
           ${styles['listbox-select']} 
           ${menuOpen ? styles['visible'] : ''} 
           margin-inline-0`
         }
         onBlur={(e) => {
-          if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id != id) {
-            setFocusedListBoxItem(null)
+          if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id != props.id) {
+            setfocusedListboxOption(null)
             setMenuOpen(false);
           }
         }}
         tabIndex={-1}
         role="dialog"
+        aria-label="Välj ett alternativ" // TODO: i18n
       >
         <label
-          aria-label={searchBoxLabel}
-          className="focusable flex align-items-center gap-25 padding-block-50 padding-inline-25" style={{ border: 'none', borderBottom: '1px solid var(--gray-80)', borderRadius: '0', marginBottom: '3px' }}>
+          aria-label="Sök..." // TODO: i18n
+          className="focusable flex align-items-center gap-25 padding-block-50 padding-inline-25" 
+          style={{ border: 'none', borderBottom: '1px solid var(--gray-80)', borderRadius: '0', marginBottom: '3px' }}>
           <IconSearch width={16} height={16} style={{ minWidth: '16px' }} />
           <input
+            type="text"
+            placeholder="Sök..." // TODO: i18n
+            role="combobox"
             ref={searchRef}
             onChange={(e) => setSearchValue(e.target.value)}
             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleKeyDownEditableCombobox(
@@ -187,20 +159,21 @@ export default function SelectSingleSearch({
               toggleRef.current!,
               menuOpen,
               setMenuOpen,
-              results,
-              focusedListBoxItem,
-              setFocusedListBoxItem,
-              (selectedOption, index) => console.log(selectedOption, index)
+              searchResults,
+              focusedListboxOption,
+              setfocusedListboxOption,
+              (selectedOption) => {
+                setValue(selectedOption?.value !== value?.value ? selectedOption : null);     
+                setMenuOpen(false);
+                toggleRef.current?.focus();
+                if (onChange) onChange(selectedOption?.value !== value?.value ? selectedOption : null);
+              }
             )}
-            type="text"
-            aria-controls={`${id}-dialog-listbox`}
-            aria-activedescendant={focusedListBoxItem != null ? `${id}-dialog-listbox-${focusedListBoxItem}` : undefined}
+            aria-controls={`${props.id}-dialog-listbox`}
+            aria-activedescendant={focusedListboxOption != null ? `${props.id}-dialog-listbox-${focusedListboxOption}` : undefined}
             aria-expanded="true"
             aria-autocomplete="list"
             autoComplete="off"
-            placeholder={searchBoxPlaceholder ? searchBoxLabel : ''}
-            role="combobox"
-
             style={{
               padding: '0',
               margin: '0',
@@ -210,24 +183,25 @@ export default function SelectSingleSearch({
         </label>
         <ul
           role="listbox"
-          id={`${id}-dialog-listbox`}
+          id={`${props.id}-dialog-listbox`}
           aria-label={t("forms:suggestive_text.listbox_label")}
           className="margin-0 padding-0"
         >
-          {results.length > 0 ? (
-            results.map((option, index) => (
+          {searchResults.length > 0 ? (
+            searchResults.map((option, index) => (
               <li
-                id={`${id}-dialog-listbox-${index}`}
+                id={`${props.id}-dialog-listbox-${index}`}
                 onClick={() => {
-                  setValue(option.value !== value?.value ? option : null),
-                    setMenuOpen(false)
+                  setValue(option.value !== value?.value ? option : null);
+                  setMenuOpen(false);
+                  if (onChange) onChange(option.value !== value?.value ? option : null);
                 }}
                 aria-selected={option.value === value?.value}
                 ref={(el) => { optionRefs.current[index] = el }}
                 role="option"
-                key={`${index}`} // TODO: Am i allowed to do this or do they need to be unique for entire page?
+                key={`${index}`}  
                 style={{
-                  backgroundColor: index === focusedListBoxItem ? 'var(--gray-90)' : '',
+                  backgroundColor: index === focusedListboxOption ? 'var(--gray-90)' : '',
                 }}
               >
                 {option.name}

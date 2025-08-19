@@ -1,5 +1,4 @@
 // TODO: JSDOC comments
-// TODO: Check that all handles an undefined listboxdisplayed value
 export const handleKeyDownEditableCombobox = (
   e: React.KeyboardEvent<HTMLInputElement>,
   comboboxElement: HTMLInputElement | HTMLButtonElement, // The element which sets the listboxDisplayed value, always an input or button element as those can contain the combobox role 
@@ -8,9 +7,8 @@ export const handleKeyDownEditableCombobox = (
   listboxOptions: Array<{name: string, value: string}>, 
   focusedListboxOptionIndex: number | null,
   setfocusedListboxOptionIndex: React.Dispatch<React.SetStateAction<number | null>>,
-  onEnter: (selectedOption: any | null, index: number | null) => void 
+  onEnter: (selectedOption: {name: string, value: string} | null, index: number | null) => void 
 ) => {
- 
 
   // 1. Stops focusing any listbox item
   // 2. Closes listbox if it can be, and is, expanded
@@ -96,18 +94,15 @@ export const handleKeyDownEditableCombobox = (
     const selectedListboxOption = focusedListboxOptionIndex != null ? listboxOptions[focusedListboxOptionIndex] : null;
     onEnter(selectedListboxOption, focusedListboxOptionIndex);
   }
-};
 
-/*
-    // Selects option and remove listbox (TODO: Check value aswell/lenght of list or whatever...)
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      e.stopPropagation(); // Prevent higher-level reopens
-      if (menuOpen && focusedListBoxItem != null && results.length > 0) {
-        setValue(results[focusedListBoxItem] !== value ? results[focusedListBoxItem] : { name: "", value: "" }),
-          setFocusedListBoxItem(null)
-        setMenuOpen(false);
-        toggleRef.current?.focus()
-      }
-    }
-*/
+  // Listbox removes itself when blur occurs with the exception of when blur targets its combobox element
+  // Therefore we explicitly define backwards tab behavior as prevent a sticky menu 
+  // We could also solve this by defining blur on the combobox element itself but this seems like a more elegant solution
+  if (e.key === 'Tab' && e.shiftKey && listboxDisplayed && setlistboxDisplayed) {
+    e.preventDefault()
+    setlistboxDisplayed(false)
+    setfocusedListboxOptionIndex(null)
+    comboboxElement.focus()
+  }
+    
+}; 
