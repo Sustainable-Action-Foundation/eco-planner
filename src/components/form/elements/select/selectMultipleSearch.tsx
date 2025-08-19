@@ -10,6 +10,7 @@ import Fuse from "fuse.js";
 import { useTranslation } from "react-i18next";
 import styles from '../comboBox.module.css' with { type: "css" }
 import { inputElement } from "@/components/types";
+import { handleKeyDownEditableCombobox } from "./functions";
 
 export default function SelectMultipleSearch({
   props,
@@ -20,17 +21,17 @@ export default function SelectMultipleSearch({
   props: inputElement,
   defaultValue?: Array<{ name: string, value: string }>,
   options: Array<{ name: string, value: string }>,
-  onChange?: (value: { name: string, value: string } | null) => void 
+  onChange?: (value: { name: string, value: string } | null) => void
 }) {
   const { t } = useTranslation(["forms"]);
   const [value, setValue] = useState<Array<{ name: string, value: string }>>(
     defaultValue ? defaultValue : []
-  ) // TODO: Update this name
+  )
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const toggleRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
-  const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null);
+  const [focusedListboxOption, setFocusedListboxOption] = useState<number | null>(null);
   const [valueIsValid, setValueIsValid] = useState<boolean>()
 
   {/*
@@ -64,17 +65,17 @@ export default function SelectMultipleSearch({
     return () => form.removeEventListener("submit", handleSubmit);
   }, [required, value]);
   */}
-  // Fuse search
-  const [results, setResults] = useState<Array<{ name: string, value: string }>>([])
+  // Fuse searchs
+  const [searchResults, setSearchResults] = useState<Array<{ name: string, value: string }>>([])
   const [searchValue, setSearchValue] = useState<string>('')
 
-  // Handle search results
+  // Handle search searchResults
   useEffect(() => {
     const fuse = new Fuse(options, {
       keys: ['name']
     });
-    const newResults = searchValue ? fuse.search(searchValue).map(result => result.item) : options;
-    setResults(newResults);
+    const newsearchResults = searchValue ? fuse.search(searchValue).map(result => result.item) : options;
+    setSearchResults(newsearchResults);
   }, [searchValue]);
 
   // Focus and clear search menu when opening the select
@@ -89,84 +90,12 @@ export default function SelectMultipleSearch({
 
   // Sroll listbox element into view
   useEffect(() => {
-    if (focusedListBoxItem !== null && optionRefs.current[focusedListBoxItem]) {
-      optionRefs.current[focusedListBoxItem]?.scrollIntoView({
+    if (focusedListboxOption !== null && optionRefs.current[focusedListboxOption]) {
+      optionRefs.current[focusedListboxOption]?.scrollIntoView({
         block: "nearest",
       });
     }
-  }, [focusedListBoxItem]);
-
-
-  const handleKeyDownSearchInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Escape out of listbox if it is open
-    if (e.key === 'Escape') {
-      if (menuOpen) {
-        setFocusedListBoxItem(null)
-        setMenuOpen(false)
-        toggleRef.current?.focus()
-      }
-    }
-
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      e.stopPropagation(); // Prevent higher-level reopens
-      if (menuOpen && focusedListBoxItem != null && results.length > 0) {
-        setValue(prev =>
-          prev.some(v => v === results[focusedListBoxItem]) // check by a unique property
-            ? prev.filter(v => v !== results[focusedListBoxItem]) // remove if already present
-            : [...prev, results[focusedListBoxItem]] // add if not present
-        )
-      }
-    }
-
-    // Retain keyboard shortcuts
-    if (e.key === 'ArrowDown' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
-      // If list is open, navigate between items
-      if (menuOpen && focusedListBoxItem != null) {
-        e.preventDefault()
-
-        if (focusedListBoxItem != results.length - 1) {
-          setFocusedListBoxItem(focusedListBoxItem + 1)
-        } else {
-          setFocusedListBoxItem(0)
-        }
-      } else { // If list is closed, open it and focus the first element
-        setMenuOpen(true)
-        setFocusedListBoxItem(0) // TODO: Should move to previous element if one was already selected
-      }
-    }
-
-    // Retain keyboard shortcuts
-    if (e.key === 'ArrowUp' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
-      // If list is open, navigate between items
-      if (menuOpen && focusedListBoxItem != null) {
-        e.preventDefault()
-
-        if (focusedListBoxItem != 0) {
-          setFocusedListBoxItem(focusedListBoxItem - 1)
-        } else {
-          setFocusedListBoxItem(results.length - 1)
-        }
-      } else { // If list is closed, open it and focus the first element
-        setMenuOpen(true)
-        setFocusedListBoxItem(0) // TODO: Should move to last element, TODO: Should move to previous element if one was already selected
-      }
-    }
-
-    if (e.key === 'Home') {
-      e.preventDefault()
-      if (menuOpen) {
-        setFocusedListBoxItem(0)
-      }
-    }
-
-    if (e.key === 'End') {
-      e.preventDefault()
-      if (menuOpen) {
-        setFocusedListBoxItem(results.length - 1)
-      }
-    }
-  };
+  }, [focusedListboxOption]);
 
   return (
     <div
@@ -211,7 +140,7 @@ export default function SelectMultipleSearch({
         </span>
         <IconSelector height={20} width={20} style={{ minWidth: '20px' }} aria-hidden={true} />
       </button>
-      <div 
+      <div
         aria-label="" // TODO: Add a label
         id={`${props.id}-dialog`}
         className={`              
@@ -221,7 +150,7 @@ export default function SelectMultipleSearch({
         }
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id != props.id) {
-            setFocusedListBoxItem(null)
+            setFocusedListboxOption(null)
             setMenuOpen(false);
           }
         }}
@@ -235,11 +164,37 @@ export default function SelectMultipleSearch({
           <input
             ref={searchRef}
             onChange={(e) => setSearchValue(e.target.value)}
-            onKeyDown={handleKeyDownSearchInput}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleKeyDownEditableCombobox(
+              e,
+              toggleRef.current!,
+              menuOpen,
+              setMenuOpen,
+              searchResults,
+              focusedListboxOption,
+              setFocusedListboxOption,
+              (selectedOption) => {
+                console.log(selectedOption)
+                /* setValue(selectedOption?.value !== value?.value ? selectedOption : null);     
+                setMenuOpen(false);
+                toggleRef.current?.focus();
+                if (onChange) onChange(selectedOption?.value !== value?.value ? selectedOption : null); */
+                /* TODO: Implement the actual value here
+                  e.preventDefault();
+                  e.stopPropagation(); // Prevent higher-level reopens
+                  if (menuOpen && focusedListboxOption != null && searchResults.length > 0) {
+                    setValue(prev =>
+                      prev.some(v => v === searchResults[focusedListboxOption]) // check by a unique property
+                        ? prev.filter(v => v !== searchResults[focusedListboxOption]) // remove if already present
+                        : [...prev, searchResults[focusedListboxOption]] // add if not present
+                    )
+                  } 
+                */
+              }
+            )}
             type="text"
 
             aria-controls={`${props.id}-dialog-listbox`}
-            aria-activedescendant={focusedListBoxItem != null ? `${props.id}-dialog-listbox-${focusedListBoxItem}` : undefined}
+            aria-activedescendant={focusedListboxOption != null ? `${props.id}-dialog-listbox-${focusedListboxOption}` : undefined}
             aria-expanded="true"
             aria-autocomplete="list"
             autoComplete="off"
@@ -260,8 +215,8 @@ export default function SelectMultipleSearch({
           aria-multiselectable={true}
           className="margin-0 padding-0"
         >
-          {results.length > 0 ? (
-            results.map((option, index) => {
+          {searchResults.length > 0 ? (
+            searchResults.map((option, index) => {
               return (
                 <li
                   id={`${props.id}-dialog-listbox-${index}`}
@@ -277,7 +232,7 @@ export default function SelectMultipleSearch({
                   role="option"
                   key={index}
                   style={{
-                    backgroundColor: index === focusedListBoxItem ? 'var(--gray-90)' : '',
+                    backgroundColor: index === focusedListboxOption ? 'var(--gray-90)' : '',
                   }}
                 >
                   {option.name}

@@ -57,7 +57,7 @@ export default function SelectSingleSearch({
     // Stop submission if input is invalid
     const form = toggleRef.current?.closest("form");
     if (!form) return;
-    const handleSubmit = (e: Event) => { // TODO: We should probably abstract this as more inputs may need to check validity
+    const handleSubmit = (e: Event) => { // TODO: We likely want to abstract this as more inputs may need to check validity
       if (!valueIsValid) {
         e.preventDefault();
         e.stopPropagation();
