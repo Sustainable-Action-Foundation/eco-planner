@@ -7,6 +7,7 @@ import { useEffect, useState, useRef } from "react"
 import Fuse from "fuse.js";
 import { useTranslation } from "react-i18next";
 import styles from '../comboBox.module.css' with { type: "css" }
+import { handleKeyDownEditableCombobox } from "./functions";
 
 export default function SelectSingleSearch({
   className,
@@ -117,78 +118,6 @@ export default function SelectSingleSearch({
     }
   }, [focusedListBoxItem]);
 
-
-  const handleKeyDownSearchInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Escape out of listbox if it is open
-    if (e.key === 'Escape') {
-      if (menuOpen) {
-        setFocusedListBoxItem(null)
-        setMenuOpen(false)
-        toggleRef.current?.focus()
-      }
-    }
-
-    // Selects option and remove listbox (TODO: Check value aswell/lenght of list or whatever...)
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      e.stopPropagation(); // Prevent higher-level reopens
-      if (menuOpen && focusedListBoxItem != null && results.length > 0) {
-        setValue(results[focusedListBoxItem] !== value ? results[focusedListBoxItem] : { name: "", value: "" }),
-          setFocusedListBoxItem(null)
-        setMenuOpen(false);
-        toggleRef.current?.focus()
-      }
-    }
-
-    // Retain keyboard shortcuts
-    if (e.key === 'ArrowDown' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
-      // If list is open, navigate between items
-      if (menuOpen && focusedListBoxItem != null) {
-        e.preventDefault()
-
-        if (focusedListBoxItem != results.length - 1) {
-          setFocusedListBoxItem(focusedListBoxItem + 1)
-        } else {
-          setFocusedListBoxItem(0)
-        }
-      } else { // If list is closed, open it and focus the first element
-        setMenuOpen(true)
-        setFocusedListBoxItem(0) // TODO: Should move to previous element if one was already selected
-      }
-    }
-
-    // Retain keyboard shortcuts
-    if (e.key === 'ArrowUp' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
-      // If list is open, navigate between items
-      if (menuOpen && focusedListBoxItem != null) {
-        e.preventDefault()
-
-        if (focusedListBoxItem != 0) {
-          setFocusedListBoxItem(focusedListBoxItem - 1)
-        } else {
-          setFocusedListBoxItem(results.length - 1)
-        }
-      } else { // If list is closed, open it and focus the first element
-        setMenuOpen(true)
-        setFocusedListBoxItem(0) // TODO: Should move to last element, TODO: Should move to previous element if one was already selected
-      }
-    }
-
-    if (e.key === 'Home') {
-      e.preventDefault()
-      if (menuOpen) {
-        setFocusedListBoxItem(0)
-      }
-    }
-
-    if (e.key === 'End') {
-      e.preventDefault()
-      if (menuOpen) {
-        setFocusedListBoxItem(results.length - 1)
-      }
-    }
-  };
-
   return (
     <div
       className={`${className ? `${className} ` : ''}position-relative`}
@@ -206,6 +135,10 @@ export default function SelectSingleSearch({
           if (e.key == "Escape") {
             setMenuOpen(false)
           }
+          /* TODO: Should i do this?
+          if (e.key == "Enter" || e.key == " ") {
+            setFocusedListBoxItem(0)
+          } */
         }}
         onClick={() => { setMenuOpen(!menuOpen) }}
         aria-controls={menuOpen ? `${id}-dialog` : undefined}
@@ -249,9 +182,17 @@ export default function SelectSingleSearch({
           <input
             ref={searchRef}
             onChange={(e) => setSearchValue(e.target.value)}
-            onKeyDown={handleKeyDownSearchInput}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleKeyDownEditableCombobox(
+              e,
+              toggleRef.current!,
+              menuOpen,
+              setMenuOpen,
+              results,
+              focusedListBoxItem,
+              setFocusedListBoxItem,
+              (selectedOption, index) => console.log(selectedOption, index)
+            )}
             type="text"
-
             aria-controls={`${id}-dialog-listbox`}
             aria-activedescendant={focusedListBoxItem != null ? `${id}-dialog-listbox-${focusedListBoxItem}` : undefined}
             aria-expanded="true"

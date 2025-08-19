@@ -1,39 +1,39 @@
-// All of theese discounting 'Enter' Should be the same for a listbox-combobox combo
 // TODO: JSDOC comments
 // TODO: Check that all handles an undefined listboxdisplayed value
-// TODO: Replace focusedListboxItem with focusedListboxOption
-const handleKeyDownEditableCombobox = (
+export const handleKeyDownEditableCombobox = (
   e: React.KeyboardEvent<HTMLInputElement>,
-  comboboxElement: HTMLInputElement,
-  listboxToggleElement: HTMLInputElement | HTMLButtonElement, // The element which sets the listBoxDisplayed value, always an input or button element as those can contain the combobox role 
-  listBoxOptions: Array<any>, // TODO: Check wether i should give type Array<{name: string, value: string}>
+  comboboxElement: HTMLInputElement | HTMLButtonElement, // The element which sets the listboxDisplayed value, always an input or button element as those can contain the combobox role 
   listboxDisplayed: boolean | undefined, // Wether or not the listbox is displayed/not displayed, or if it is uncontrolled (always open or always closed)  
   setlistboxDisplayed: React.Dispatch<React.SetStateAction<boolean>> | undefined, 
-  focusedListBoxItem: number | null,
-  setFocusedListBoxItem: React.Dispatch<React.SetStateAction<number | null>>,
+  listboxOptions: Array<{name: string, value: string}>, 
+  focusedListboxOptionIndex: number | null,
+  setfocusedListboxOptionIndex: React.Dispatch<React.SetStateAction<number | null>>,
+  onEnter: (selectedOption: any | null, index: number | null) => void 
 ) => {
+ 
+
   // 1. Stops focusing any listbox item
   // 2. Closes listbox if it can be, and is, expanded
   // 3. Focuses the element which made the listbox visible
-  if (e.key === "Escape") {
-    setFocusedListBoxItem(null);
+  if (e.key === "Escape") { 
+    setfocusedListboxOptionIndex(null);
     if (listboxDisplayed && setlistboxDisplayed) {
       setlistboxDisplayed(false);
-      listboxToggleElement.focus()
+      comboboxElement.focus()
     }
   }
 
   if (e.key === 'Home') {
     e.preventDefault()
     if (listboxDisplayed) {
-      setFocusedListBoxItem(0)
+      setfocusedListboxOptionIndex(0)
     }
   }
  
   if (e.key === 'End') {
     e.preventDefault()
     if (listboxDisplayed) {
-      setFocusedListBoxItem(listBoxOptions.length - 1)
+      setfocusedListboxOptionIndex(listboxOptions.length - 1)
     }
   }
 
@@ -49,17 +49,17 @@ const handleKeyDownEditableCombobox = (
 
     if (listboxDisplayed && setlistboxDisplayed) { 
       setlistboxDisplayed(true)
-      setFocusedListBoxItem(0)
+      setfocusedListboxOptionIndex(0)
     }
 
-    if (focusedListBoxItem != null) {  
-      if (focusedListBoxItem != listBoxOptions.length - 1) {
-        setFocusedListBoxItem(focusedListBoxItem + 1)
+    if (focusedListboxOptionIndex != null) {  
+      if (focusedListboxOptionIndex != listboxOptions.length - 1) {
+        setfocusedListboxOptionIndex(focusedListboxOptionIndex + 1)
       } else {
-        setFocusedListBoxItem(0)
+        setfocusedListboxOptionIndex(0)
       }
     } else {
-      setFocusedListBoxItem(0)
+      setfocusedListboxOptionIndex(0)
     }
   }
 
@@ -75,19 +75,39 @@ const handleKeyDownEditableCombobox = (
 
     if (listboxDisplayed && setlistboxDisplayed) { 
       setlistboxDisplayed(true)
-      setFocusedListBoxItem(0)
+      setfocusedListboxOptionIndex(0)
     }
 
-    if (focusedListBoxItem != null) {  
-      if (focusedListBoxItem != 0) {
-        setFocusedListBoxItem(focusedListBoxItem - 1)
+    if (focusedListboxOptionIndex != null) {  
+      if (focusedListboxOptionIndex != 0) {
+        setfocusedListboxOptionIndex(focusedListboxOptionIndex - 1)
       } else {
-        setFocusedListBoxItem(listBoxOptions.length - 1)
+        setfocusedListboxOptionIndex(listboxOptions.length - 1)
       }
     } else {
-      setFocusedListBoxItem(0)
+      setfocusedListboxOptionIndex(0)
     }
   }
 
-  /* Above code based on how it is defined within selectMultipleSearch (as of 2025-08-19) */
+  // 1. If a listboxOption is focused, select it. Otherwise, select null. 
+  // 2. Pass this value through the `onEnter` callback  
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const selectedListboxOption = focusedListboxOptionIndex != null ? listboxOptions[focusedListboxOptionIndex] : null;
+    onEnter(selectedListboxOption, focusedListboxOptionIndex);
+  }
 };
+
+/*
+    // Selects option and remove listbox (TODO: Check value aswell/lenght of list or whatever...)
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation(); // Prevent higher-level reopens
+      if (menuOpen && focusedListBoxItem != null && results.length > 0) {
+        setValue(results[focusedListBoxItem] !== value ? results[focusedListBoxItem] : { name: "", value: "" }),
+          setFocusedListBoxItem(null)
+        setMenuOpen(false);
+        toggleRef.current?.focus()
+      }
+    }
+*/
