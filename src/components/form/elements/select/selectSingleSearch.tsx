@@ -57,7 +57,7 @@ export default function SelectSingleSearch({
     // Stop submission if input is invalid
     const form = toggleRef.current?.closest("form");
     if (!form) return;
-    const handleSubmit = (e: Event) => {
+    const handleSubmit = (e: Event) => { // TODO: We should probably abstract this as more inputs may need to check validity
       if (!valueIsValid) {
         e.preventDefault();
         e.stopPropagation();
@@ -199,7 +199,7 @@ export default function SelectSingleSearch({
                 aria-selected={option.value === value?.value}
                 ref={(el) => { optionRefs.current[index] = el }}
                 role="option"
-                key={`${index}`}  
+                key={index}
                 style={{
                   backgroundColor: index === focusedListboxOption ? 'var(--gray-90)' : '',
                 }}

@@ -2,39 +2,25 @@
 
 // TODO: Fix issues with tab.
 // TODO: Use keyhandler function
-// TODO: Use defined types instead of importing them
-// TODO: Need onChange prop
+// TODO: Implement onChange prop
 
 import { IconSearch, IconSelector } from "@tabler/icons-react";
 import { useEffect, useState, useRef } from "react"
 import Fuse from "fuse.js";
 import { useTranslation } from "react-i18next";
 import styles from '../comboBox.module.css' with { type: "css" }
+import { inputElement } from "@/components/types";
 
 export default function SelectMultipleSearch({
-  className,
-  style,
-  id,
-  name,
+  props,
   defaultValue,
-  required,
-  disabled,
-  placeholder,
-  searchBoxLabel,
-  searchBoxPlaceholder,
   options,
+  onChange,
 }: {
-  className?: string,
-  style?: React.CSSProperties,
-  id: string,
-  name: string,
+  props: inputElement,
   defaultValue?: Array<{ name: string, value: string }>,
-  required?: boolean,
-  disabled?: boolean,
-  placeholder?: string,
-  searchBoxLabel: string,
-  searchBoxPlaceholder?: string
   options: Array<{ name: string, value: string }>,
+  onChange?: (value: { name: string, value: string } | null) => void 
 }) {
   const { t } = useTranslation(["forms"]);
   const [value, setValue] = useState<Array<{ name: string, value: string }>>(
@@ -184,16 +170,16 @@ export default function SelectMultipleSearch({
 
   return (
     <div
-      className={`${className ? `${className} ` : ''}position-relative`}
-      style={{ ...style, userSelect: 'none', width: 'fit-content' }}
+      className={`${props.className ? `${props.className} ` : ''}position-relative`}
+      style={{ ...props.style, userSelect: 'none', width: 'fit-content' }}
     >
       <button
-        id={id}
+        id={props.id}
         className={`${styles['select-toggle']}`}
         style={{ borderColor: menuOpen ? '#191919' : '' }}
         value={value.map((value) => value.value).toString()}
-        name={name}
-        disabled={disabled}
+        name={props.name}
+        disabled={props.disabled}
         ref={toggleRef}
         onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
           if (e.key == "Escape") {
@@ -201,12 +187,12 @@ export default function SelectMultipleSearch({
           }
         }}
         onClick={() => { setMenuOpen(!menuOpen) }}
-        aria-controls={menuOpen ? `${id}-dialog` : undefined}
+        aria-controls={menuOpen ? `${props.id}-dialog` : undefined}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
         role="combobox"
         type="button"
-        aria-required={required ? required : false}
+        aria-required={props.required ? props.required : false}
         aria-invalid={!valueIsValid}  // TODO: Fix this (currently disabled for multiselect)
       >
         <span
@@ -216,24 +202,25 @@ export default function SelectMultipleSearch({
             overflow: "hidden",
             minWidth: '0',
             color: value.length === 0 ? "gray" : "inherit",
-            opacity: disabled ? 0.6 : 1,
+            opacity: props.disabled ? 0.6 : 1,
           }}>
           {value.length > 0
             ? value.map((value) => value.name).toString().slice(0).replaceAll(',', ', ') // TODO: Can probably do this a bit more cleanly
-            : placeholder
+            : props.placeholder
           } {/* TODO: This string manipulation is dangerous if options contain a comma, see what we can do about that */}
         </span>
         <IconSelector height={20} width={20} style={{ minWidth: '20px' }} aria-hidden={true} />
       </button>
-      <div // TODO: Does this require a label ?
-        id={`${id}-dialog`}
+      <div 
+        aria-label="" // TODO: Add a label
+        id={`${props.id}-dialog`}
         className={`              
           ${styles['listbox-select']} 
           ${menuOpen ? styles['visible'] : ''} 
           margin-inline-0`
         }
         onBlur={(e) => {
-          if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id != id) {
+          if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id != props.id) {
             setFocusedListBoxItem(null)
             setMenuOpen(false);
           }
@@ -242,7 +229,7 @@ export default function SelectMultipleSearch({
         role="dialog"
       >
         <label
-          aria-label={searchBoxLabel}
+          aria-label="" // TODO: Fix this label
           className="focusable flex align-items-center gap-25 padding-block-50 padding-inline-25" style={{ border: 'none', borderBottom: '1px solid var(--gray-80)', borderRadius: '0', marginBottom: '3px' }}>
           <IconSearch width={16} height={16} style={{ minWidth: '16px' }} />
           <input
@@ -251,12 +238,12 @@ export default function SelectMultipleSearch({
             onKeyDown={handleKeyDownSearchInput}
             type="text"
 
-            aria-controls={`${id}-dialog-listbox`}
-            aria-activedescendant={focusedListBoxItem != null ? `${id}-dialog-listbox-${focusedListBoxItem}` : undefined}
+            aria-controls={`${props.id}-dialog-listbox`}
+            aria-activedescendant={focusedListBoxItem != null ? `${props.id}-dialog-listbox-${focusedListBoxItem}` : undefined}
             aria-expanded="true"
             aria-autocomplete="list"
             autoComplete="off"
-            placeholder={searchBoxPlaceholder ? searchBoxLabel : ''}
+            placeholder="" // TODO: Fix this placeholder
             role="combobox"
 
             style={{
@@ -268,7 +255,7 @@ export default function SelectMultipleSearch({
         </label>
         <ul
           role="listbox"
-          id={`${id}-dialog-listbox`}
+          id={`${props.id}-dialog-listbox`}
           aria-label={t("forms:suggestive_text.listbox_label")}
           aria-multiselectable={true}
           className="margin-0 padding-0"
@@ -277,7 +264,7 @@ export default function SelectMultipleSearch({
             results.map((option, index) => {
               return (
                 <li
-                  id={`${id}-dialog-listbox-${index}`}
+                  id={`${props.id}-dialog-listbox-${index}`}
                   onClick={() => {
                     setValue(prev =>
                       prev.some(v => v.value === option.value) // check by a unique property
@@ -288,7 +275,7 @@ export default function SelectMultipleSearch({
                   aria-selected={value.some(v => v.value === option.value)} // TODO: Update other select to use this
                   ref={(el) => { optionRefs.current[index] = el }}
                   role="option"
-                  key={`${index}`} // TODO: Am i allowed to do this or do they need to be unique for entire page?
+                  key={index}
                   style={{
                     backgroundColor: index === focusedListBoxItem ? 'var(--gray-90)' : '',
                   }}

@@ -374,12 +374,12 @@ export default function RoadmapForm({
                 />
                 <label htmlFor="viewer-groups" className="block width-fit-content">Grupper:</label>
                 <SelectMultipleSearch // TODO: Something needs to indicate that this is a multiselect :), TODO: Populate from default value
-                  id="viewer-groups"
-                  name="viewer-groups"
-                  searchBoxLabel="sök..."
-                  searchBoxPlaceholder="sök..."
-                  placeholder="Välj grupper"
-                  disabled={visibilityType !== "custom"}
+                  props={{
+                    id: "viewer-groups",
+                    name: "viewer-groups",
+                    placeholder: "Välj grupper",
+                    disabled: visibilityType !== "custom",
+                  }}
                   defaultValue={currentAccess?.viewGroups.map((group) => { return { name: group.name, value: group.name } })}
                   options={[
                     ...(userGroups?.map(group => ({
@@ -453,12 +453,12 @@ export default function RoadmapForm({
                 />
                 <label htmlFor="editor-groups" className="block width-fit-content">Grupper:</label>
                 <SelectMultipleSearch // TODO: Something needs to indicate that this is a multiselect :), TODO: Populate from default value
-                  id="editor-groups"
-                  name="editor-groups"
-                  searchBoxLabel="sök..."
-                  searchBoxPlaceholder="sök..."
-                  placeholder="Välj grupper"
-                  disabled={editabilityType !== "custom"}
+                  props={{
+                    id: "editor-groups",
+                    name: "editor-groups",
+                    placeholder: "Välj grupper",
+                    disabled: editabilityType !== "custom",
+                  }} 
                   defaultValue={currentAccess?.editGroups.map((group) => { return { name: group.name, value: group.name } })}
                   options={[
                     ...(userGroups?.map(group => ({
