@@ -130,20 +130,7 @@ export function isRecipeExternalDataset(variable: unknown): variable is RecipeEx
     &&
 
     "selection" in variable &&
-    Array.isArray(variable.selection) &&
-    variable.selection.every(item => (
-      isStandardObject(item)
-      &&
-
-      "variableCode" in item &&
-      typeof item.variableCode === "string" &&
-      item.variableCode.trim() !== ""
-      &&
-
-      "valueCodes" in item &&
-      Array.isArray(item.valueCodes) &&
-      item.valueCodes.every(code => typeof code === "string" && code.trim() !== "")
-    ))
+    isRecipeExternalDatasetSelection(variable.selection)
     &&
 
     "pick" in variable &&
@@ -159,6 +146,24 @@ export function isRecipeExternalDataset(variable: unknown): variable is RecipeEx
 
     // Ensure no other properties are present
     Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0
+  );
+}
+export function isRecipeExternalDatasetSelection(selection: unknown): selection is RecipeExternalDataset["selection"] {
+  return (
+    Array.isArray(selection) &&
+    selection.every(item => (
+      isStandardObject(item)
+      &&
+
+      "variableCode" in item &&
+      typeof item.variableCode === "string" &&
+      item.variableCode.trim() !== ""
+      &&
+
+      "valueCodes" in item &&
+      Array.isArray(item.valueCodes) &&
+      item.valueCodes.every(code => typeof code === "string" && code.trim() !== "")
+    ))
   );
 }
 

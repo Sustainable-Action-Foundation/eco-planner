@@ -1,9 +1,9 @@
 "use client";
 
-import { RecipeVariables, RecipeDataTypes, isRecipeDataSeries, RecipeDataSeries, RecipeScalar, RecipeExternalDataset } from "@/functions/recipe-parser/types";
+import { RecipeVariables, RecipeDataTypes, isRecipeDataSeries, RecipeDataSeries, RecipeScalar, RecipeExternalDataset, isRecipeExternalDatasetSelection } from "@/functions/recipe-parser/types";
 import { IconTrash } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import React, { useEffect } from "react";
+import React from "react";
 import { useRecipe } from "./recipeEditor";
 
 type InputRules = {
@@ -330,15 +330,15 @@ export function ExternalVariable({
       const currentVar = newVariables[name];
       if (currentVar && e.target.value) {
         try {
-          const selection = JSON.parse(e.target.value);
-          if (Array.isArray(selection)) {
-            newVariables[name] = {
-              ...currentVar,
-              selection: selection,
-            } as RecipeExternalDataset;
-          } else {
-            console.error("Invalid selection format, expected an array", selection);
+          const selection: unknown = JSON.parse(e.target.value);
+          if (!isRecipeExternalDatasetSelection(selection)) {
+            console.error("Invalid selection format", selection);
+            return prev; // Do not update if selection is invalid
           }
+          newVariables[name] = {
+            ...currentVar,
+            selection: selection,
+          } as RecipeExternalDataset;
         } catch (error) {
           console.error("Failed to parse selection JSON", error);
         }

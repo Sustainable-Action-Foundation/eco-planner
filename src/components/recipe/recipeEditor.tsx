@@ -58,7 +58,7 @@ export function RecipeContextProvider({
     async function calculate() {
       try {
         const currentWarnings: string[] = [];
-        const evaluatedRecipe = await evaluateRecipe(await cleanRecipe(recipe), currentWarnings);
+        const evaluatedRecipe = await evaluateRecipe(cleanRecipe(recipe), currentWarnings);
         setResultingDataSeries(evaluatedRecipe.dataSeries);
         setResultingUnit(evaluatedRecipe.unit)
         setWarnings(currentWarnings);
@@ -69,7 +69,7 @@ export function RecipeContextProvider({
         setWarnings([]);
       }
     }
-    calculate();
+    calculate().catch(e => { throw e; });
   }, [recipe]);
 
   return (
@@ -126,31 +126,21 @@ export function RecipeSuggestions({
         {" "}
 
         {/* Name */}
-        {(recipe.recipe as Recipe).name ?? t("components:copy_and_scale.unnamed_suggestion")}
+        {recipe.recipe.name ?? t("components:copy_and_scale.unnamed_suggestion")}
         {" "}
 
         {/* Equation */}
         <span style={{ color: "gray" }}>
-          {t("components:copy_and_scale.recipe_label")}( {(recipe.recipe as Recipe).eq} )
+          {t("components:copy_and_scale.recipe_label")}( {recipe.recipe.eq} )
         </span>
       </label>
     ))}
   </>);
 }
 
-export function RecipeEquationEditor({
-  initialEquation,
-}: {
-  initialEquation?: string;
-}) {
+export function RecipeEquationEditor() {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
-
-  useEffect(() => {
-    if (initialEquation && !recipe) {
-      setRecipe({ name: undefined, eq: initialEquation, variables: {} });
-    }
-  }, [initialEquation]);
 
   return (<>
     <label className="block margin-block-50">
@@ -167,16 +157,12 @@ export function RecipeEquationEditor({
 }
 
 export function RecipeVariableEditor({
-  initialVariables,
-
   allowAddVariables = false,
   allowDeleteVariables = false,
   allowNameEditing = false,
   allowTypeEditing = false,
   allowValueEditing = true,
 }: {
-  initialVariables?: Record<string, RecipeVariables>;
-
   allowAddVariables?: boolean;
   allowDeleteVariables?: boolean;
   allowNameEditing?: boolean;
@@ -185,12 +171,6 @@ export function RecipeVariableEditor({
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
-
-  useEffect(() => {
-    if (initialVariables && !recipe) {
-      setRecipe({ name: undefined, eq: "", variables: initialVariables });
-    }
-  }, [initialVariables]);
 
   const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[] | null>(null);
   const [selectedRoadmaps, setSelectedRoadmaps] = useState<string[]>([]);
@@ -208,8 +188,8 @@ export function RecipeVariableEditor({
       }
     }
 
-    fetchRoadmaps();
-  }, []);
+    fetchRoadmaps().catch(e => { throw e; });
+  }, [t]);
 
   // On selecting a roadmap, fetch its data series as selectable options
   useEffect(() => {
@@ -269,9 +249,9 @@ export function RecipeVariableEditor({
       }
     }
 
-    fetchAllDataSeries();
+    fetchAllDataSeries().catch(e => { throw e; });
 
-  }, [recipe?.variables]);
+  }, [availableDataSeries, recipe, selectedRoadmaps]);
 
   return (<>
     <div className="margin-inline-auto width-100">
