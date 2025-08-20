@@ -1,6 +1,7 @@
 ## Recipe Editor
 - State and rerender issues with the variable components not updating correctly or fighting with every rerender
   - Have a look at the handle* functions for the recipeEditor.tsx and variables.tsx files and if inputs are controlled or not. (especially `unit` input)
+  - ^ Should have been mostly solved by me but there are still display issues with the data series select input when finding a data series to use.
   
 - Add debounce to especially the eq input but on everything is probably wise.
 
@@ -25,6 +26,8 @@
 - It should be in a pretty good state now. Sure there might be things that should be looked at but it should be in working order so leaving it should be fine :upside_down_face:
 
 - All errors and warnings are hard coded in english for the sake of convenience for me and since we pass third part made error messages like mathjs to the user anyhow so it being all in english is fine for now.
+
+- I have not touched the sanity checker in forever so it might be whack.
 
 ## Seeding
 - Need to add recipes to inherit 1:1 from national v1 to v2 and scaling recipes to inherit from national to regional.
