@@ -1,4 +1,4 @@
-import { ActionImpactType, DataSeries, Prisma, RoadmapType } from "@prisma/client";
+import { ActionImpactType, Prisma, RoadmapType } from "@prisma/client";
 import { actionInclusionSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, roadmapInclusionSelection } from "./fetchers/inclusionSelectors";
 import { Years as GeneratedYears } from "./lib/dataSeriesCanonicalYears";
 
@@ -285,35 +285,33 @@ export type GoalCreateInput = {
   dataSeriesArray?: (number | null)[],
   rawDataSeries?: string[],
   rawBaselineDataSeries?: string[],
-  inheritFrom?: { id: string, isInverted?: boolean }[],
+  recipe?: string | null,
   roadmapId: string,
-  goalId?: string | null,
+  goalId?: null,
   links?: { url: string, description?: string | null }[],
   timestamp?: number,
   isFeatured?: boolean,
   externalDataset?: string | null,
   externalTableId?: string | null,
   externalSelection?: string | null,
-  recipeHash?: string | null,
 }
 
 export type GoalUpdateInput = {
-  name?: string | null,
-  description?: string | null,
-  indicatorParameter?: string,
-  dataUnit?: string | null,
-  dataSeriesArray?: (number | null)[],
-  rawDataSeries?: string[],
-  rawBaselineDataSeries?: string[],
-  inheritFrom?: { id: string, isInverted?: boolean }[],
+  name?: string | null | undefined,
+  description?: string | null | undefined,
+  indicatorParameter?: string | undefined,
+  dataUnit?: string | null | undefined,
+  dataSeriesArray?: (number | null)[] | undefined,
+  rawDataSeries?: string[] | undefined,
+  rawBaselineDataSeries?: string[] | undefined,
+  recipe?: string | null | undefined,
   goalId: string,
-  links?: { url: string, description?: string | null }[],
-  timestamp?: number,
-  isFeatured?: boolean,
-  externalDataset?: string | null,
-  externalTableId?: string | null,
-  externalSelection?: string | null,
-  recipeHash?: string | null,
+  links?: { url: string, description?: string | null }[] | undefined,
+  timestamp?: number | undefined,
+  isFeatured?: boolean | undefined,
+  externalDataset?: string | null | undefined,
+  externalTableId?: string | null | undefined,
+  externalSelection?: string | null | undefined,
 }
 
 /** The format of the data needed to create a new action. */

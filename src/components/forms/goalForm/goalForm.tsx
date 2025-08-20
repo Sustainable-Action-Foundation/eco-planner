@@ -25,7 +25,7 @@ import type getRoadmaps from "@/fetchers/getRoadmaps.ts"; // Type for roadmap fe
 import formSubmitter from "@/functions/formSubmitter"; // Handles form submission to API
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" }; // Options for indicator parameter
 import mathjs from "@/math"; // Math library for unit parsing
-import { GoalCreateInput, Years } from "@/types"; // Types and helpers
+import { GoalCreateInput, GoalUpdateInput, Years } from "@/types"; // Types and helpers
 import { DataSeries, Goal } from "@prisma/client"; // Prisma types
 import { useMemo, useState, useEffect } from "react"; // React hooks
 import { useTranslation } from "react-i18next"; // i18n hook
@@ -112,14 +112,18 @@ export default function GoalForm({
     const links = getLinks(event.target);
 
     // Extract data series (array of numbers as strings)
-    const dataSeries = getDataSeries(form).map(val => val ? parseFloat(val) : null);
+    const dataSeries = getDataSeries(form);
 
     // Extract baseline data series (if any)
-    const baselineDataSeriesArray = getDataSeries(form, "baselineDataSeries").map(val => val ? parseFloat(val) : null);
+    const baselineDataSeriesArray = getDataSeries(form, "baselineDataSeries");
     const baselineDataSeries = baselineDataSeriesArray.length > 0 ? baselineDataSeriesArray : undefined; // Omit if empty
 
     // Get scaling recipe for combined/inherited goals
-    const combinationScale = formData.get("resultingRecipe");
+    const recipe = formData.get("resultingRecipe");
+    if (recipe instanceof File) {
+      event.target.reportValidity();
+      return;
+    }
 
     // Build inheritFrom array (for inherited/combined goals)
     const inheritFrom: { id: string, isInverted?: boolean }[] = [];
@@ -143,22 +147,27 @@ export default function GoalForm({
     }
 
     // Build the JSON payload for the API
-    const formJSON = JSON.stringify({
+    const formContent: GoalCreateInput | GoalUpdateInput = {
       name: (form.namedItem("goalName") as HTMLInputElement)?.value || null,
       description: (form.namedItem("description") as HTMLInputElement)?.value || null,
-      indicatorParameter: (form.namedItem("indicatorParameter") as HTMLInputElement)?.value || null,
+      indicatorParameter: (form.namedItem("indicatorParameter") as HTMLInputElement)?.value ?? undefined,
       // TODO: Add a toggle isUnitless to the form, which sets dataUnit to null if checked
       dataUnit: parsedUnit || (form.namedItem("dataUnit") as HTMLInputElement)?.value,
-      dataSeriesArray: dataSeries,
-      baselineDataSeries: baselineDataSeries ?? null,
-      combinationScale: combinationScale as string,
-      inheritFrom: inheritFrom,
-      roadmapId: currentGoal?.roadmapId || roadmapId || (typeof formData.get("roadmapId") == "string" ? formData.get("roadmapId") : null),
+      rawDataSeries: dataSeries,
+      rawBaselineDataSeries: baselineDataSeries ?? undefined,
+      recipe: recipe,
+      roadmapId: currentGoal?.roadmapId || roadmapId || (typeof formData.get("roadmapId") == "string" ? formData.get("roadmapId") as string : ""),
       goalId: currentGoal?.id || null,
       links,
       timestamp,
       isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked,
-    } as GoalCreateInput);
+      // Don't link to external datasets, and don't update those links if present
+      externalDataset: undefined,
+      externalTableId: undefined,
+      externalSelection: undefined,
+    }
+
+    const formJSON = JSON.stringify(formContent);
 
     // Submit the form to the API (POST for new, PUT for edit)
     formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST', t);
