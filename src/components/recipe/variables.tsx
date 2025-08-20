@@ -255,17 +255,30 @@ export function DataSeriesVariable({
   function handleDataSeriesChange(e: React.ChangeEvent<HTMLSelectElement>) {
     setRecipe(prev => {
       if (!prev) return null;
+
+      const selectedDataSeriesId = e.target.value;
+      if (!selectedDataSeriesId) {
+        console.warn("No data series selected");
+        return prev; // Do not update if no data series is selected
+      }
+
+      if (availableDataSeries.every(ds => ds.id !== selectedDataSeriesId)) {
+        console.warn(`Data series with ID '${selectedDataSeriesId}' not found in available data series`);
+        return prev; // Do not update if the selected data series is not available
+      }
+
       const newVariables: Record<string, RecipeVariables> = { ...prev.variables };
       const currentVar = newVariables[name];
-      if (currentVar && e.target.value) {
-        const selectedDataSeries = availableDataSeries.find(ds => ds.id === e.target.value);
-        if (selectedDataSeries) {
-          newVariables[name] = {
-            ...currentVar,
-            link: selectedDataSeries.id,
-          } as RecipeDataSeries;
-        }
+      if (!currentVar) {
+        console.warn(`Variable '${name}' does not exist in the recipe`);
+        return prev; // Do not update if variable does not exist
       }
+
+      newVariables[name] = {
+        ...currentVar,
+        link: selectedDataSeriesId,
+      } as RecipeDataSeries;
+
       return { ...prev, variables: newVariables };
     });
   }
