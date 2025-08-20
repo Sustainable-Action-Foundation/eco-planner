@@ -21,14 +21,8 @@ export default function CopyAndScale({
   const [isLoading, setIsLoading] = useState(false);
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
-  // // TODO - remove. This is a debugging measure.
-  // useEffect(() => {
-  //   if (modalRef.current) {
-  //     openModal(modalRef)
-  //   }
-  // }, []);
 
-  async function formSubmission(form: FormData) {
+  function formSubmission(form: FormData) {
     setIsLoading(true);
 
     // Id of the roadmap to copy the goal to
@@ -64,7 +58,7 @@ export default function CopyAndScale({
     }
 
     const dataSeriesArray = Years.map(field => {
-      const value = parsedDataSeries[field as keyof typeof parsedDataSeries];
+      const value = parsedDataSeries[field];
       if (typeof value === 'string') {
         return parseFloat(value);
       }
