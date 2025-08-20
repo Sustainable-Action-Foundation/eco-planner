@@ -2,7 +2,7 @@
 
 import { IconChevronDown } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
-import styles from '../comboBox.module.css' with { type: "css" }
+import styles from './comboBox.module.css' with { type: "css" }
 import Fuse from "fuse.js";
 import { useTranslation } from "react-i18next";
  
@@ -200,7 +200,7 @@ export default function SuggestiveText({
         >
           {results.map((item, index) =>
             <li
-              key={index} // TODO: Am i allowed to do this or do they need to be unique for entire page?
+              key={index}
               id={`${id}-listbox-${index}`}
               style={{ backgroundColor: index === focusedListBoxItem ? 'var(--gray-90)' : '', }} 
               ref={(el) => { optionRefs.current[index] = el }}

@@ -1,33 +1,28 @@
-"use client"
+"use client" 
 
 import { useEffect, useState, useRef, useMemo } from "react"
 import { useTranslation } from "react-i18next";
-import styles from '../comboBox.module.css' with { type: "css" }
+import styles from './comboBox.module.css' with { type: "css" }
 import { inputElement } from "@/components/types";
 import { clearEditableCombobox, handleKeyDownEditableCombobox, preventInvalidFormSubmission, scrollOptionIntoView } from "./functions";
 import Fuse from "fuse.js";
 import { IconSearch, IconSelector } from "@tabler/icons-react";
 
-export default function SelectSingleSearch({
+export default function SelectMultipleSearch({
   props,
   defaultValue,
   options,
   onChange,
 }: {
   props: inputElement,
-  defaultValue?: { name: string, value: string } | boolean,
+  defaultValue?: Array<{ name: string, value: string }>,
   options: Array<{ name: string, value: string }>,
-  onChange?: (value: { name: string, value: string } | null) => void 
+  onChange?: (value: Array<{ name: string, value: string }> | null) => void
 }) {
   const { t } = useTranslation(["forms"]);
-
-  const [value, setValue] = useState<{ name: string, value: string } | null>(
-    typeof defaultValue === "object" && defaultValue !== null
-      ? defaultValue
-      : defaultValue === true
-        ? options[0]
-        : null
-  ) 
+  const [value, setValue] = useState<Array<{ name: string, value: string }>>(
+    defaultValue ? defaultValue : []
+  )
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const [focusedListboxOption, setFocusedListboxOption] = useState<number | null>(null);
   const [searchValue, setSearchValue] = useState<string>('')
@@ -45,9 +40,9 @@ export default function SelectSingleSearch({
   // TODO: Handling required values like this does not work with the fieldset:valid--
   // css pseudo class (our button cannot be valid or required we just pretend it is)
   // Disables form subbmision if value is invalid 
-  // Define what an invalid value is (missing value or empty string). We only need this defined if the field is requied
+  // Define what an invalid value is (missing value or empty array). We only need this defined if the field is requied
   const valueIsValid = useMemo(() => {
-    if ((!value || value.value === "") && props.required) return false;
+    if ((!value || value.length === 0) && props.required) return false;
     return true;
   }, [value, props.required]);
 
@@ -57,8 +52,8 @@ export default function SelectSingleSearch({
       toggleRef.current,
       valueIsValid
     )
-  }, [valueIsValid]); 
-
+  }, [valueIsValid]);
+ 
   useEffect(() => { 
     if (!searchRef.current) return
     clearEditableCombobox(
@@ -82,35 +77,42 @@ export default function SelectSingleSearch({
         id={props.id}
         className={`${styles['select-toggle']}`}
         style={{ borderColor: menuOpen ? '#191919' : '' }}
-        value={value ? value.value : ''}
+        value={value.map((value) => value.value).toString()}
         name={props.name}
         disabled={props.disabled}
         ref={toggleRef}
         onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
           if (e.key == "Escape") {
             setMenuOpen(false)
-          } 
+          }
         }}
         onClick={() => { setMenuOpen(!menuOpen) }}
-        role="combobox"
-        type="button"
         aria-controls={menuOpen ? `${props.id}-dialog` : undefined}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
+        role="combobox"
+        type="button"
         aria-required={props.required ? props.required : false}
-        aria-invalid={!valueIsValid}
+        aria-invalid={!valueIsValid}  // TODO: Fix this (currently disabled for multiselect)
       >
         <span
           style={{
-            color: !value ? "gray" :  "inherit",
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            overflow: "hidden",
+            minWidth: '0',
+            color: value.length === 0 ? "gray" : "inherit",
             opacity: props.disabled ? 0.6 : 1,
-          }}
-        > 
-          {!value ? props.placeholder : value.name}
+          }}>
+          {value.length > 0
+            ? value.map((value) => value.name).toString().slice(0).replaceAll(',', ', ') // TODO: Can probably do this a bit more cleanly
+            : props.placeholder
+          } {/* TODO: This string manipulation is dangerous if options contain a comma, see what we can do about that */}
         </span>
         <IconSelector height={20} width={20} style={{ minWidth: '20px' }} aria-hidden={true} />
       </button>
-      <div 
+      <div
+        aria-label="" // TODO: Add a label
         id={`${props.id}-dialog`}
         className={`              
           ${styles['listbox-select']} 
@@ -125,17 +127,12 @@ export default function SelectSingleSearch({
         }}
         tabIndex={-1}
         role="dialog"
-        aria-label="Välj ett alternativ" // TODO: i18n
       >
         <label
-          aria-label="Sök..." // TODO: i18n
-          className="focusable flex align-items-center gap-25 padding-block-50 padding-inline-25" 
-          style={{ border: 'none', borderBottom: '1px solid var(--gray-80)', borderRadius: '0', marginBottom: '3px' }}>
+          aria-label="" // TODO: Fix this label
+          className="focusable flex align-items-center gap-25 padding-block-50 padding-inline-25" style={{ border: 'none', borderBottom: '1px solid var(--gray-80)', borderRadius: '0', marginBottom: '3px' }}>
           <IconSearch width={16} height={16} style={{ minWidth: '16px' }} />
           <input
-            type="text"
-            placeholder="Sök..." // TODO: i18n
-            role="combobox"
             ref={searchRef}
             onChange={(e) => setSearchValue(e.target.value)}
             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleKeyDownEditableCombobox(
@@ -147,17 +144,30 @@ export default function SelectSingleSearch({
               focusedListboxOption,
               setFocusedListboxOption,
               (selectedOption) => {
-                setValue(selectedOption?.value !== value?.value ? selectedOption : null); // TODO: Abstract this to use in onclick     
-                setMenuOpen(false);
-                toggleRef.current?.focus();
-                if (onChange) onChange(selectedOption?.value !== value?.value ? selectedOption : null);
+                e.stopPropagation(); // Prevent higher-level reopens 
+                if (menuOpen && selectedOption) {
+                  const optionPreviouslySelected = value.some(value => value.value === selectedOption.value); // TODO: Abstract this to use in onclick   
+
+                  const newValue = optionPreviouslySelected
+                    ? value.filter(option => option.value !== selectedOption.value)
+                    : [...value, selectedOption];
+
+                  setValue(newValue);
+
+                  if (onChange) onChange(newValue);
+                }
               }
             )}
+            type="text"
+
             aria-controls={`${props.id}-dialog-listbox`}
             aria-activedescendant={focusedListboxOption != null ? `${props.id}-dialog-listbox-${focusedListboxOption}` : undefined}
             aria-expanded="true"
             aria-autocomplete="list"
             autoComplete="off"
+            placeholder="" // TODO: Fix this placeholder
+            role="combobox"
+
             style={{
               padding: '0',
               margin: '0',
@@ -169,28 +179,38 @@ export default function SelectSingleSearch({
           role="listbox"
           id={`${props.id}-dialog-listbox`}
           aria-label={t("forms:suggestive_text.listbox_label")}
+          aria-multiselectable={true}
           className="margin-0 padding-0"
         >
           {searchResults.length > 0 ? (
-            searchResults.map((option, index) => (
-              <li  
-                id={`${props.id}-dialog-listbox-${index}`}
-                onClick={() => {
-                  setValue(option.value !== value?.value ? option : null);
-                  setMenuOpen(false);
-                  if (onChange) onChange(option.value !== value?.value ? option : null);
-                }}
-                aria-selected={option.value === value?.value}
-                ref={(el) => { optionRefs.current[index] = el }}
-                role="option"
-                key={index}
-                style={{
-                  backgroundColor: index === focusedListboxOption ? 'var(--gray-90)' : '',
-                }}
-              >
-                {option.name}
-              </li>
-            ))
+            searchResults.map((option, index) => {
+              return (
+                <li
+                  id={`${props.id}-dialog-listbox-${index}`}
+                  onClick={() => { 
+                    const optionPreviouslySelected = value.some(value => value.value === option.value);
+
+                    const newValue = optionPreviouslySelected
+                      ? value.filter(value => value.value !== option.value) 
+                      : [...value, option];
+
+                    setValue(newValue);
+
+                    if (onChange) onChange(newValue);
+                    searchRef.current?.focus() // TODO: Might be a more clean way to do this
+                  }}
+                  aria-selected={value.some(value => value.value === option.value)}  
+                  ref={(el) => { optionRefs.current[index] = el }}
+                  role="option"
+                  key={index}
+                  style={{
+                    backgroundColor: index === focusedListboxOption ? 'var(--gray-90)' : '',
+                  }}
+                >
+                  {option.name}
+                </li>
+              )
+            })
           ) : (
             <li
               style={{
@@ -201,6 +221,7 @@ export default function SelectSingleSearch({
                 backgroundColor: 'transparent',
                 fontWeight: '600'
               }}
+              data-no-results-tooltip // TODO: Probably just make this a class
             >
               Inga resultat
             </li>

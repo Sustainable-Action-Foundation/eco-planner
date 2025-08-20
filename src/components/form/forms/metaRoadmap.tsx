@@ -8,10 +8,10 @@ import { useEffect, useState } from "react";
 import formSubmitter from "@/functions/formSubmitter";
 import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
-import SuggestiveText from "../elements/suggestiveText/suggestiveText";
+import SuggestiveText from "../elements/combobox/suggestiveText.tsx";
 import TextEditor from "@/components/form/elements/textEditor/textEditor";
-import SelectSingleSearch from "../elements/select/selectSingleSearch";
-import SelectMultipleSearch from "../elements/select/selectMultipleSearch";
+import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
+import SelectMultipleSearch from "../elements/combobox/selectMultipleSearch";
 
 /* TODO: Ensure everything is validated properly on the server */
 // TODO: Set required for viewer and editselection if custom is selected
