@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { evaluateRecipe, cleanRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
-import { DataSeriesVariable, ExternalVariable, ScalarVariable, VectorIndexPickerOptions } from "./variables";
+import { DataSeriesVariable, ExternalVariable, ScalarVariable } from "./variables";
 
 type RecipeContextType = {
   recipe: Recipe | null;

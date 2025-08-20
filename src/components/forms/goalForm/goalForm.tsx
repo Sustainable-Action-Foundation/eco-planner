@@ -1,22 +1,3 @@
-/*
-GoalForm Component (React, TypeScript)
-======================================
-
-Summary:
---------
-This file defines the main form for creating and editing "Goal" objects in the eco-planner app. It supports static, inherited, and combined goal types, as well as custom scaling, baseline data, and external links. The form is highly dynamic, adapting its fields and logic based on the current goal and user selections. It uses i18n for translations, and integrates with several sub components for modularity. The form's structure and submission logic are tightly coupled to the shape of the Goal object in the database, so any changes to the Goal schema require updates here.
-
-Key Features:
-- Handles three goal types: Static, Inherited, Combined
-- Supports custom scaling recipes and methods
-- Allows selection of baseline data (initial, custom, inherited)
-- Integrates with roadmap selection and external links
-- Uses modular sub components for complex form sections
-- Submits data as JSON to the API, with careful handling of optional/complex fields
-- Uses i18n for all user-facing text
-- Designed for extensibility and maintainability
-*/
-
 'use client';
 
 // Import dependencies and sub components
