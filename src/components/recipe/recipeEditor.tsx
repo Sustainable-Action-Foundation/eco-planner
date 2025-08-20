@@ -350,6 +350,7 @@ export function RecipeErrorAndWarnings() {
   </>);
 }
 
+// TODO: remove this once things work
 export function DEBUG_Recipe() {
   return <pre>
     {JSON.stringify(useRecipe(), null, 2)}
