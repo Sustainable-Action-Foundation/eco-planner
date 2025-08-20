@@ -29,3 +29,7 @@
 ## Seeding
 - Need to add recipes to inherit 1:1 from national v1 to v2 and scaling recipes to inherit from national to regional.
 - Continue with seeding the rest of the things that should be seeded. (I got side tracked on the recipe seeding since it lead to me needing to fix and implement stuff in the recipe parser and editor).
+
+## Tests
+- The recipe parser tests are completely broken hihi
+- Otherwise the web tests are pretty bog standard playwright tests. Go ham https://playwright.dev/docs/writing-tests
