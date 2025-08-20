@@ -132,13 +132,17 @@ export function isRecipeExternalDataset(variable: unknown): variable is RecipeEx
     &&
 
     "dataset" in variable &&
-    typeof variable.dataset === "string" &&
-    ExternalDataset.knownDatasetKeys.includes(variable.dataset as DatasetKeys)
+    (
+      typeof variable.dataset === "string" && ExternalDataset.knownDatasetKeys.includes(variable.dataset as DatasetKeys) ||
+      variable.dataset == null // May be null if not specified
+    )
     &&
 
     "tableId" in variable &&
-    typeof variable.tableId === "string" &&
-    variable.tableId.trim() !== ""  // Ensure tableId is a non-empty string
+    (
+      typeof variable.tableId === "string" && variable.tableId.trim() !== "" ||  // Ensure tableId is a non-empty string
+      variable.tableId == null // May be null if not specified
+    )
     &&
 
     "selection" in variable &&
@@ -225,12 +229,16 @@ export function isRecipe(recipe: unknown): recipe is Recipe {
 }
 export const emptyRecipe: Recipe = { name: undefined, eq: "", variables: {} } as const;
 
-// Here to be declared last
+
+/** 
+ * Defined here to usage before declaration.
+ */
 export const emptyRecipeDataTypes: Record<RecipeDataTypes, RecipeScalar | RecipeDataSeries | RecipeExternalDataset> = {
   "scalar": emptyRecipeScalar,
   "dataSeries": emptyRecipeDataSeries,
   "external": emptyRecipeExternalDataset,
 } as const;
+
 
 /*
  * Variable during evaluation of a recipe. Should not persist beyond that scope.

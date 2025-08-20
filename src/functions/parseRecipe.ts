@@ -1,4 +1,4 @@
-import { EvalTimeDataSeries, EvalTimeExternalDataset, EvalTimeScalar, isRecipe, isRecipeDataSeries, isRecipeExternalDataset, isRecipeScalar, MathjsError, Recipe, RecipeDataTypes, RecipeError, RecipeVariables } from "./recipe-parser/types";
+import { EvalTimeDataSeries, EvalTimeExternalDataset, EvalTimeScalar, isRecipe, isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, MathjsError, Recipe, RecipeDataTypes, RecipeError, RecipeVariables } from "./recipe-parser/types";
 import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
 import mathjs from "@/math";
 import { DataSeriesValueFields, Years } from "@/types";
@@ -148,7 +148,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
       }
 
       const { dataset, tableId, selection } = variable;
-      if (!dataset || !tableId || !selection) { // These props may all be null
+      if (!dataset || !tableId || !isRecipeExternalDatasetSelection(selection)) { // These props may all be null
         throw new RecipeError(`External dataset variable '${name}' is missing 'dataset', 'tableId' and/or 'selection' properties.`);
       }
 

@@ -366,15 +366,16 @@ export function ExternalVariable({
         try {
           const selection: unknown = JSON.parse(e.target.value);
           if (!isRecipeExternalDatasetSelection(selection)) {
-            console.error("Invalid selection format", selection);
+            console.warn("Invalid selection format", selection);
             return prev; // Do not update if selection is invalid
           }
           newVariables[name] = {
             ...currentVar,
             selection: selection,
           } as RecipeExternalDataset;
-        } catch (error) {
-          console.error("Failed to parse selection JSON", error);
+        } 
+        catch (error) {
+          console.warn("Failed to parse selection JSON", error);
         }
       }
       return { ...prev, variables: newVariables };
