@@ -1,4 +1,4 @@
-import { EvalTimeDataSeries, EvalTimeExternalDataset, EvalTimeScalar, isRecipe, isRecipeDataSeries, isRecipeExternalDataset, isRecipeScalar, MathjsError, Recipe, RecipeDataSeries, RecipeDataTypes, RecipeError, RecipeExternalDataset, RecipeScalar, RecipeVariables } from "./recipe-parser/types";
+import { EvalTimeDataSeries, EvalTimeExternalDataset, EvalTimeScalar, isRecipe, isRecipeDataSeries, isRecipeExternalDataset, isRecipeScalar, MathjsError, Recipe, RecipeDataTypes, RecipeError, RecipeVariables } from "./recipe-parser/types";
 import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
 import mathjs from "@/math";
 import { DataSeriesValueFields, Years } from "@/types";
@@ -31,7 +31,7 @@ export function recipeFromUnknown(recipe: unknown): Recipe {
  * Cleans up a user made recipe from the form into a db friendly Recipe
  * Throws a somewhat user-friendly RecipeError if the recipe is invalid, so catching and displaying any errors is recommended.
  */
-export async function cleanRecipe(recipe: unknown): Promise<Recipe> {
+export function cleanRecipe(recipe: unknown): Recipe {
   if (!isRecipe(recipe)) {
     throw new RecipeError("Invalid recipe format. Expected an object with 'eq' and 'variables' properties.");
   }
@@ -263,7 +263,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     resultArray = result.toArray().flat().map(v => Number.isFinite(v) ? v : null);
   }
   else if (Array.isArray(result)) {
-    resultArray = result.map(v => Number.isFinite(v) ? v : null);
+    resultArray = result.map(v => Number.isFinite(v) ? v as number : null);
   }
   else if (mathjs.isCollection(result) && 'toArray' in result && typeof result.toArray === 'function') {
     resultArray = result.toArray().map(v => Number.isFinite(v) ? v : null);

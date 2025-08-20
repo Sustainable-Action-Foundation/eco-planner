@@ -1,3 +1,5 @@
+import { isStandardObject } from "@/types";
+
 export type DatasetKeys = "SCB" | "Trafa" | "SSB";
 export type DatasetData = {
   baseUrl: string,
@@ -68,7 +70,7 @@ export class ExternalDataset {
   static getDatasetsByApi(apiName: DatasetData["api"] | (DatasetData["api"])[]): DatasetKeys[] {
     if (typeof apiName === "string") {
       const entries = Object.entries(this)
-        .filter(([, value]) => typeof value === "object" && "api" in value && value.api === apiName)
+        .filter(([, value]) => typeof value === "object" && "api" in value && (value as DatasetData).api === apiName)
         .filter(([key]) => this.knownDatasetKeys.includes(key as DatasetKeys));
 
       return entries.map(([key]) => key as DatasetKeys);
@@ -116,10 +118,12 @@ export class ExternalDataset {
 
     const entries: [string, string[]][] = Object.entries(ExternalDataset)
       .map(([key, value]) => {
-        if (!("fullName" in value) || !("alternateNames" in value)) {
-          return undefined;
+        if (!((o: unknown): o is DatasetData => {
+          return isStandardObject(o) && "fullName" in o && "alternateNames" in o;
+        })(value)) {
+          return undefined; // Skip if value is not a DatasetData object
         }
-        return [key.toLowerCase(), [key, value.fullName, ...(value.alternateNames || [])].map(alias => alias.toLowerCase())];
+        return [key.toLowerCase(), [key, value.fullName, ...(value.alternateNames || [])].map(alias => alias?.toLowerCase())];
       })
       .filter(Boolean) as [string, string[]][];
 
