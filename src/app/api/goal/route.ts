@@ -4,124 +4,93 @@ import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/session";
 import accessChecker from "@/lib/accessChecker";
-import { AccessControlled, AccessLevel, ClientError, Years, GoalCreateInput, GoalUpdateInput, JSONValue } from "@/types";
+import { AccessControlled, AccessLevel, ClientError, Years, GoalCreateInput, GoalUpdateInput, JSONValue, isStandardObject } from "@/types";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { Prisma } from "@prisma/client";
+import crypto from 'crypto';
 
-function isNull(value: unknown): value is null {
-  return value === null;
-}
-
-function isUndefined(value: unknown): value is undefined {
-  return value === undefined;
-}
-
-function isNullOrUndefined(value: unknown): value is null | undefined {
-  return value === null || value === undefined;
-}
-
-function isString(value: unknown): value is string {
-  return !isNullOrUndefined(value) && typeof value === 'string' && value.length > 0;
-}
-
-function isBoolean(value: unknown): value is boolean {
-  return !isNullOrUndefined(value) && typeof value === 'boolean';
-}
-
-function isNumber(value: unknown): value is number {
-  return !isNullOrUndefined(value) && typeof value === 'number' && !isNaN(value);
-}
-
-function isDate(value: unknown): value is Date {
-  return !isNullOrUndefined(value) && value instanceof Date && !isNaN(value.getTime());
-}
-
-function isArray(value: unknown): value is unknown[] {
-  return !isNullOrUndefined(value) && Array.isArray(value);
-}
-
-function isArrayOfStrings(value: unknown): value is string[] {
-  return isArray(value) && value.every(item => isString(item));
-}
-
-function isArrayOfNumbersOrNulls(value: unknown): value is (number | null)[] {
-  return isArray(value) && value.every(item => item === null || isNumber(item));
-}
-
-// Type guard and check if the request body is a valid GoalInput
-function isTypeGoalCreateInput(goal: JSONValue): goal is GoalCreateInput {
+// Type guards
+function isGoalCreate(goal: JSONValue): goal is GoalCreateInput {
   return (
-    typeof goal === 'object'
-    && !isNullOrUndefined(goal)
-    && !isArray(goal)
-    && Object.keys(goal).length > 0 // Ensure it's not an empty object
-
-    && (isNullOrUndefined(goal.name) || isString(goal.name))
-    && (isNullOrUndefined(goal.description) || isString(goal.description))
-    && (isString(goal.indicatorParameter))
-
-    && (isUndefined(goal.isFeatured) || isBoolean(goal.isFeatured))
-
-    && (isNullOrUndefined(goal.externalDataset) || isString(goal.externalDataset))
-    && (isNullOrUndefined(goal.externalTableId) || isString(goal.externalTableId))
-    && (isNullOrUndefined(goal.externalSelection) || isString(goal.externalSelection))
-
-    && (isString(goal.roadmapId))
-
-    && (isUndefined(goal.recipeHash) || isString(goal.recipeHash))
-
-    && (isUndefined(goal.dataSeriesArray) || isArrayOfNumbersOrNulls(goal.dataSeriesArray))
-    && (isUndefined(goal.rawDataSeries) || isArrayOfStrings(goal.rawDataSeries))
-    && (isNullOrUndefined(goal.rawBaselineDataSeries) || isArrayOfStrings(goal.rawBaselineDataSeries))
-    && (isNullOrUndefined(goal.dataUnit) || isString(goal.dataUnit))
-
-    && (isNullOrUndefined(goal.links) || (isArray(goal.links) && goal.links.every(link => (
-      typeof link === 'object'
-      && !isNullOrUndefined(link)
-      && !Array.isArray(link)
-      && isString(link.url)
-      && (isNullOrUndefined(link.description) || isString(link.description))
-    ))))
+    // Should be a non-null object
+    typeof goal === "object" &&
+    goal !== null &&
+    !Array.isArray(goal) &&
+    // Typecheck properties
+    (typeof goal.name === 'string' || goal.name === null || goal.description === undefined) &&
+    (typeof goal.description === 'string' || goal.description === null || goal.description === undefined) &&
+    // Indicator parameter must be a non-empty string
+    (typeof goal.indicatorParameter === 'string' && goal.indicatorParameter.length > 0) &&
+    (typeof goal.isFeatured === 'boolean' || goal.isFeatured === undefined) &&
+    (typeof goal.externalDataset === 'string' || goal.externalDataset === undefined || goal.externalDataset === null) &&
+    (typeof goal.externalTableId === 'string' || goal.externalTableId === undefined || goal.externalTableId === null) &&
+    (typeof goal.externalSelection === 'string' || goal.externalSelection === undefined || goal.externalSelection === null) &&
+    // Recipe for combining data series. Should be parsed and further checked outside this function
+    (typeof goal.recipe === 'string' || goal.recipe === undefined || goal.recipe === null) &&
+    // Data series should be either undefined or have a length between 1 and dataSeriesDataFieldNames.length
+    ((Array.isArray(goal.rawDataSeries) && goal.rawDataSeries.every((entry: JSONValue) => (typeof entry === 'string' || entry === undefined || entry === null)) && goal.rawDataSeries.length <= Years.length)
+      || goal.rawDataSeries === undefined) &&
+    // baselineDataSeries can be a valid data series to set values, undefined to not set a baseline, or null to delete the baseline
+    ((Array.isArray(goal.rawBaselineDataSeries) && goal.rawBaselineDataSeries.every((entry: JSONValue) => (typeof entry === 'string' || entry === undefined || entry === null)) && goal.rawBaselineDataSeries.length > 0 && goal.rawBaselineDataSeries.length <= Years.length)
+      || goal.rawBaselineDataSeries === undefined || goal.rawBaselineDataSeries === null) &&
+    // Empty string or undefined is treated as "missing unit", while null is explicitly unitless
+    (typeof goal.dataUnit === 'string' || goal.dataUnit === undefined || goal.dataUnit === null) &&
+    // TODO: links will soon be deprecated, should instead be included in the description
+    ((Array.isArray(goal.links) && goal.links.every((entry: JSONValue) => (
+      typeof entry === 'object' &&
+      entry !== null &&
+      !Array.isArray(entry) &&
+      typeof entry.url === 'string' &&
+      (typeof entry.description === 'string' || entry.description === undefined || entry.description === null)
+    ))) || goal.links === undefined) &&
+    // Roadmap ID must be a non-empty string
+    // Invalid and forbidden IDs are rejected further down
+    (typeof goal.roadmapId === 'string' && goal.roadmapId.length > 0) &&
+    // Either dataSeries or recipe must be defined and not null or empty
+    ((goal.rawDataSeries?.length ?? 0) > 0 || (goal.recipe?.length ?? 0) > 0)
   );
 }
 
-function isTypeGoalUpdateInput(goal: JSONValue): goal is GoalUpdateInput {
+function isGoalUpdate(goal: JSONValue): goal is GoalUpdateInput {
   return (
-    typeof goal === 'object'
-    && !isNullOrUndefined(goal)
-    && !isArray(goal)
-    && Object.keys(goal).length > 0 // Ensure it's not an empty object
-
-    && (isNullOrUndefined(goal.name) || isString(goal.name))
-    && (isNullOrUndefined(goal.description) || isString(goal.description))
-    && (isUndefined(goal.indicatorParameter) || isString(goal.indicatorParameter))
-
-    && (isUndefined(goal.isFeatured) || isBoolean(goal.isFeatured))
-
-    && (isNullOrUndefined(goal.externalDataset) || isString(goal.externalDataset))
-    && (isNullOrUndefined(goal.externalTableId) || isString(goal.externalTableId))
-    && (isNullOrUndefined(goal.externalSelection) || isString(goal.externalSelection))
-
-    && (isString(goal.goalId))
-
-    && (isUndefined(goal.timestamp) || isNumber(goal.timestamp))
-
-    && (isUndefined(goal.recipeHash) || isString(goal.recipeHash))
-
-    && (isUndefined(goal.rawDataSeries) || isArrayOfStrings(goal.rawDataSeries))
-    && (isNullOrUndefined(goal.rawBaselineDataSeries) || isArrayOfStrings(goal.rawBaselineDataSeries))
-    && (isNullOrUndefined(goal.dataUnit) || isString(goal.dataUnit))
-
-    && (isNullOrUndefined(goal.links) || (isArray(goal.links) && goal.links.every(link => (
-      typeof link === 'object'
-      && !isNullOrUndefined(link)
-      && !Array.isArray(link)
-      && isString(link.url)
-      && (isNullOrUndefined(link.description) || isString(link.description))
-    ))))
+    // Should be a non-null object
+    typeof goal === "object" &&
+    goal !== null &&
+    !Array.isArray(goal) &&
+    // Typecheck properties
+    (typeof goal.name === 'string' || goal.name === null || goal.description === undefined) &&
+    (typeof goal.description === 'string' || goal.description === null || goal.description === undefined) &&
+    // Indicator parameter must be a non-empty string
+    ((typeof goal.indicatorParameter === 'string' && goal.indicatorParameter.length > 0) || goal.indicatorParameter === undefined) &&
+    (typeof goal.isFeatured === 'boolean' || goal.isFeatured === undefined) &&
+    (typeof goal.externalDataset === 'string' || goal.externalDataset === undefined || goal.externalDataset === null) &&
+    (typeof goal.externalTableId === 'string' || goal.externalTableId === undefined || goal.externalTableId === null) &&
+    (typeof goal.externalSelection === 'string' || goal.externalSelection === undefined || goal.externalSelection === null) &&
+    // Recipe for combining data series. Should be parsed and further checked outside this function
+    (typeof goal.recipe === 'string' || goal.recipe === undefined || goal.recipe === null) &&
+    // Data series should be either undefined or have a length between 1 and dataSeriesDataFieldNames.length
+    ((Array.isArray(goal.rawDataSeries) && goal.rawDataSeries.every((entry: JSONValue) => (typeof entry === 'string' || entry === undefined || entry === null)) && goal.rawDataSeries.length <= Years.length)
+      || goal.rawDataSeries === undefined) &&
+    // baselineDataSeries can be a valid data series to set values, undefined to not set a baseline, or null to delete the baseline
+    ((Array.isArray(goal.rawBaselineDataSeries) && goal.rawBaselineDataSeries.every((entry: JSONValue) => (typeof entry === 'string' || entry === undefined || entry === null)) && goal.rawBaselineDataSeries.length > 0 && goal.rawBaselineDataSeries.length <= Years.length)
+      || goal.rawBaselineDataSeries === undefined || goal.rawBaselineDataSeries === null) &&
+    // Empty string is treated as "missing unit", while null is explicitly unitless. (undefined means no change)
+    (typeof goal.dataUnit === 'string' || goal.dataUnit === undefined || goal.dataUnit === null) &&
+    // TODO: links will soon be deprecated, should instead be included in the description
+    ((Array.isArray(goal.links) && goal.links.every((entry: JSONValue) => (
+      typeof entry === 'object' &&
+      entry !== null &&
+      !Array.isArray(entry) &&
+      typeof entry.url === 'string' &&
+      (typeof entry.description === 'string' || entry.description === undefined || entry.description === null)
+    ))) || goal.links === undefined) &&
+    // Goal ID must be a non-empty string
+    // Invalid and forbidden IDs are rejected separately
+    (typeof goal.goalId === 'string' && goal.goalId.length > 0) &&
+    // Timestamp must be a number, and is used to check if the goal is up-to-date
+    (typeof goal.timestamp === 'number')
   );
 }
-
 
 /**
  * Handles POST requests to the goal API
@@ -132,8 +101,6 @@ export async function POST(request: NextRequest) {
     request.json() as Promise<JSONValue>,
   ]);
 
-  console.log("Received formData:", JSON.stringify(formData, null, 2));
-
   // Validate session
   if (!session.user?.id) {
     return Response.json({ message: 'Unauthorized' },
@@ -142,7 +109,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Validate form data type
-  if (!isTypeGoalCreateInput(formData)) {
+  if (!isGoalCreate(formData)) {
     console.log("formData failed validation");
     return Response.json({ message: 'Invalid request body' },
       { status: 400 }
@@ -215,11 +182,19 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const dataSeries = formData.dataSeriesArray ?
+    // TODO: add case for when a recipe is used
+    const dataSeries = formData.rawDataSeries ?
       Object.fromEntries(
-        Years.map((field, i) => [field, formData.dataSeriesArray?.[i] ?? null])
+        Years.map((field, i) => [field, formData.rawDataSeries?.[i] ?? null])
       ) :
       undefined;
+    const baselineDataSeries = formData.rawBaselineDataSeries ?
+      Object.fromEntries(
+        Years.map((field, i) => [field, formData.rawBaselineDataSeries?.[i] ?? null])
+      ) :
+      undefined;
+
+    const recipeHash = formData.recipe ? crypto.createHash('sha256').update(formData.recipe).digest('hex') : undefined;
 
     const newGoal = await prisma.goal.create({
       data: {
@@ -243,11 +218,19 @@ export async function POST(request: NextRequest) {
             authorId: session.user.id,
           },
         } : undefined,
-        ...(formData.recipeHash ? {
-          recipeUsed: {
-            connect: { hash: formData.recipeHash },
+        baselineDataSeries: baselineDataSeries ? {
+          create: {
+            ...baselineDataSeries,
+            unit: formData.dataUnit,
+            authorId: session.user.id,
           },
-        } : {}),
+        } : undefined,
+        recipeUsed: formData.recipe ? {
+          create: {
+            hash: recipeHash as string,
+            recipe: formData.recipe,
+          }
+        } : undefined,
         links: {
           create: formData.links?.map(link => ({
             url: link.url,
@@ -288,7 +271,7 @@ export async function PUT(request: NextRequest) {
     request.json() as Promise<JSONValue>,
   ]);
 
-  if (!isTypeGoalUpdateInput(goal)) {
+  if (!isGoalUpdate(goal)) {
     return Response.json({ message: 'Invalid request body' },
       { status: 400 }
     );
@@ -331,7 +314,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // If the provided timestamp is not up-to-date, return StaleData
-    if (!goal.timestamp || (currentGoal?.updatedAt?.getTime() || 0) > goal.timestamp) {
+    if (!goal.timestamp || currentGoal.updatedAt.getTime() > goal.timestamp) {
       throw new Error(ClientError.StaleData, { cause: 'goal' });
     }
   } catch (error) {
@@ -368,6 +351,20 @@ export async function PUT(request: NextRequest) {
 
   // Edit goal
   try {
+    // TODO: add case for when a recipe is used
+    const dataSeries = goal.rawDataSeries ?
+      Object.fromEntries(
+        Years.map((field, i) => [field, goal.rawDataSeries?.[i] ?? undefined])
+      ) :
+      undefined;
+    const baselineDataSeries = goal.rawBaselineDataSeries ?
+      Object.fromEntries(
+        Years.map((field, i) => [field, goal.rawBaselineDataSeries?.[i] ?? undefined])
+      ) :
+      undefined;
+
+    const recipeHash = goal.recipe ? crypto.createHash('sha256').update(goal.recipe).digest('hex') : undefined;
+
     const editedGoal = await prisma.goal.update({
       where: { id: goal.goalId },
       data: {
@@ -378,6 +375,19 @@ export async function PUT(request: NextRequest) {
         externalDataset: goal.externalDataset,
         externalTableId: goal.externalTableId,
         externalSelection: goal.externalSelection,
+        dataSeries: {
+          upsert: {
+            update: {
+              ...dataSeries,
+              unit: goal.dataUnit,
+            },
+            create: {
+              ...dataSeries,
+              unit: goal.dataUnit,
+              authorId: session.user.id,
+            }
+          }
+        },
         links: {
           deleteMany: {},
           create: goal.links?.map(link => {

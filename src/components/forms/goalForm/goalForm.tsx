@@ -115,7 +115,7 @@ export default function GoalForm({
       rawBaselineDataSeries: baselineDataSeries ?? undefined,
       recipe: recipe,
       roadmapId: currentGoal?.roadmapId || roadmapId || (typeof formData.get("roadmapId") == "string" ? formData.get("roadmapId") as string : ""),
-      goalId: currentGoal?.id || null,
+      goalId: currentGoal?.id || undefined,
       links,
       timestamp,
       isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked,
