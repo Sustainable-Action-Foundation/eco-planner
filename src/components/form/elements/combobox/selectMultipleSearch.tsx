@@ -8,6 +8,8 @@ import { clearEditableCombobox, handleKeyDownEditableCombobox, preventInvalidFor
 import Fuse from "fuse.js";
 import { IconSearch, IconSelector } from "@tabler/icons-react";
 
+// TODO: Should allow for options with same values? Or we should check that they are unique?
+
 export default function SelectMultipleSearch({
   props,
   defaultValue,
@@ -73,7 +75,7 @@ export default function SelectMultipleSearch({
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
       style={{ ...props.style, userSelect: 'none', width: 'fit-content' }}
     >
-      <button
+      <button // TODO: Should keydown/keyup open menu here?
         id={props.id}
         className={`${styles['select-toggle']}`}
         style={{ borderColor: menuOpen ? '#191919' : '' }}
@@ -137,7 +139,7 @@ export default function SelectMultipleSearch({
             onChange={(e) => setSearchValue(e.target.value)}
             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleKeyDownEditableCombobox(
               e,
-              toggleRef.current!,
+              toggleRef.current!, // TODO: Handle this in a better way maybe
               menuOpen,
               setMenuOpen,
               searchResults,

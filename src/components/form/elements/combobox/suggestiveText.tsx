@@ -1,18 +1,21 @@
 "use client"
 
 import { IconChevronDown } from "@tabler/icons-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import styles from './comboBox.module.css' with { type: "css" }
 import Fuse from "fuse.js";
 import { useTranslation } from "react-i18next";
 import { inputElement } from "@/components/types";
- 
+import { handleKeyDownEditableCombobox, scrollOptionIntoView } from "./functions";
+   
+// TODO: Decide on how to handle options/values here is it string or {name: string, value: string}? 
+
 export default function SuggestiveText({
   props,
-  suggestiveList,
+  options,
 }: {
   props: inputElement
-  suggestiveList: Array<string>
+  options: Array<{name: string, value: string}>
 }) {
   const { t } = useTranslation(["forms"]);
 
@@ -24,95 +27,23 @@ export default function SuggestiveText({
   const [renderListBox, setRenderListBox] = useState<boolean>(false);
   const [displayListBox, setDisplayListBox] = useState<boolean>(false);
 
-  // Fuse search
-  const [results, setResults] = useState<string[]>([])
-
   // Refs
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
   const comboboxRef = useRef<HTMLInputElement>(null);
 
-  const handleKeyDownSearchInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Escape out of listbox if it is open
-    if (e.key === 'Escape') {
-      if (displayListBox) {
-        setFocusedListBoxItem(null)
-        setDisplayListBox(false)
-      }
-    }
-
-    // Selects option and remove listbox (TODO: Check value aswell/lenght of list or whatever...)
-    if (e.key === 'Enter') {
-      if (displayListBox && focusedListBoxItem != null && results.length > 0) {
-        setValue(results[focusedListBoxItem])
-        setFocusedListBoxItem(null)
-        setDisplayListBox(false);
-      }
-    }
-
-    // Retain keyboard shortcuts
-    if (e.key === 'ArrowDown' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
-      // If list is open, navigate between items
-      if (displayListBox && focusedListBoxItem != null) {
-        e.preventDefault()
-
-        if (focusedListBoxItem != results.length - 1) {
-          setFocusedListBoxItem(focusedListBoxItem + 1)
-        } else {
-          setFocusedListBoxItem(0)
-        }
-      } else { // If list is closed, open it and focus the first element
-        setDisplayListBox(true)
-        setFocusedListBoxItem(0) // TODO: Should move to previous element if one was already selected
-      }
-    }
-
-    // Retain keyboard shortcuts
-    if (e.key === 'ArrowUp' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
-      // If list is open, navigate between items
-      if (displayListBox && focusedListBoxItem != null) {
-        e.preventDefault()
-
-        if (focusedListBoxItem != 0) {
-          setFocusedListBoxItem(focusedListBoxItem - 1)
-        } else {
-          setFocusedListBoxItem(results.length - 1)
-        }
-      } else { // If list is closed, open it and focus the first element
-        setDisplayListBox(true)
-        setFocusedListBoxItem(0) // TODO: Should move to last element, TODO: Should move to previous element if one was already selected
-      }
-    }
-
-    if (e.key === 'Home') {
-      e.preventDefault()
-      if (displayListBox) {
-        setFocusedListBoxItem(0)
-      }
-    }
-
-    if (e.key === 'End') {
-      e.preventDefault()
-      if (displayListBox) {
-        setFocusedListBoxItem(results.length - 1)
-      }
-    }
-
-  };
-
-  // Handle search results
-  useEffect(() => {
-    const fuse = new Fuse(suggestiveList);
-    const newResults = value ? fuse.search(value).map(result => result.item) : suggestiveList;
-    setResults(newResults);
-  }, [value, suggestiveList]);
+  const searchResults = useMemo(() => {
+    const fuse = new Fuse(options, { keys: ['name'] });
+    return value
+      ? fuse.search(value).map(result => result.item)
+      : options;
+  }, [value, options]); 
 
   // Sroll listbox element into view
   useEffect(() => {
-    if (focusedListBoxItem !== null && optionRefs.current[focusedListBoxItem]) {
-      optionRefs.current[focusedListBoxItem]?.scrollIntoView({
-        block: "nearest",
-      });
-    }
+    scrollOptionIntoView(
+      optionRefs.current,
+      focusedListBoxItem
+    ) 
   }, [focusedListBoxItem]);
 
   // Ensure animations are synced 
@@ -124,7 +55,7 @@ export default function SuggestiveText({
         setRenderListBox(false);
       }, 150)
     }
-  }, [displayListBox]);
+  }, [displayListBox]); 
 
   return (
     <div
@@ -143,7 +74,24 @@ export default function SuggestiveText({
           value={value}
           ref={comboboxRef}
           onChange={(e) => { setValue(e.target.value), setFocusedListBoxItem(0), optionRefs.current[0]?.scrollIntoView({ block: "nearest" }) }}
-          onKeyDown={handleKeyDownSearchInput}
+          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleKeyDownEditableCombobox(
+            e,
+            comboboxRef.current!, // TODO: Handle this in a better way maybe
+            displayListBox,
+            setDisplayListBox,
+            searchResults,
+            focusedListBoxItem,
+            setFocusedListBoxItem,
+            (selectedOption) => { 
+              setValue(
+                selectedOption 
+                ? selectedOption.name
+                : ""
+              )
+              setFocusedListBoxItem(null)
+              setDisplayListBox(false);
+            }
+          )}
           onFocus={() => setDisplayListBox(true)}
           onBlur={(e) => { if (e.relatedTarget?.id != `${props.id}-listbox` && e.relatedTarget?.id != `${props.id}-button`) { setDisplayListBox(false) } }}
           role="combobox"
@@ -153,7 +101,7 @@ export default function SuggestiveText({
           aria-activedescendant={focusedListBoxItem != null ? `${props.id}-listbox-${focusedListBoxItem}` : undefined}
           aria-autocomplete="list" /* TODO input_updates: Implement features to enable this to have a value of "both" (tab to autocomplete inline)  */
         />
-        {suggestiveList.length > 0 ?
+        {options.length > 0 ?
           <button
             id={`${props.id}-button`}
             className="round grid margin-right-25 transparent"
@@ -170,7 +118,7 @@ export default function SuggestiveText({
         : null}
       </div>
 
-      {suggestiveList.length > 0 ?
+      {options.length > 0 ?
         <ul
           id={`${props.id}-listbox`}
           className={`
@@ -183,19 +131,19 @@ export default function SuggestiveText({
           role="listbox"
           tabIndex={-1}
           aria-label={t("forms:suggestive_text.listbox_label")}
-          data-listbox-label={results.length > 0 ? `${t("forms:suggestive_text.listbox_label")}` : `${t("forms:suggestive_text.listbox_empty_label")}`}
+          data-listbox-label={searchResults.length > 0 ? `${t("forms:suggestive_text.listbox_label")}` : `${t("forms:suggestive_text.listbox_empty_label")}`}
         >
-          {results.map((item, index) =>
+          {searchResults.map((item, index) =>
             <li
               key={index}
               id={`${props.id}-listbox-${index}`}
               style={{ backgroundColor: index === focusedListBoxItem ? 'var(--gray-90)' : '', }} 
               ref={(el) => { optionRefs.current[index] = el }}
-              onClick={() => { setValue(item), setDisplayListBox(false) }}
+              onClick={() => { setValue(item.name), setDisplayListBox(false) }}
               role="option"
-              aria-selected={item === value}
+              aria-selected={item.name === value}
             >
-              {item}
+              {item.name}
             </li>
           )}
         </ul>

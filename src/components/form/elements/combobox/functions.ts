@@ -46,7 +46,7 @@ export const handleKeyDownEditableCombobox = (
   if (e.key === 'ArrowDown' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
     e.preventDefault()
 
-    if (listboxDisplayed && setlistboxDisplayed) {
+    if (!listboxDisplayed && setlistboxDisplayed) {
       setlistboxDisplayed(true)
       setfocusedListboxOptionIndex(0)
     }
@@ -72,7 +72,7 @@ export const handleKeyDownEditableCombobox = (
   if (e.key === 'ArrowUp' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
     e.preventDefault()
 
-    if (listboxDisplayed && setlistboxDisplayed) {
+    if (!listboxDisplayed && setlistboxDisplayed) {
       setlistboxDisplayed(true)
       setfocusedListboxOptionIndex(0)
     }

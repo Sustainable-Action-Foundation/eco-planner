@@ -36,7 +36,7 @@ export default function MetaRoadmapForm({
     } catch {
       return currentRoadmap.description;
     }
-  }); 
+  });
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [roadmapType, setRoadmapType] = useState<string>("");
 
@@ -173,12 +173,12 @@ export default function MetaRoadmapForm({
               name: "actor",
               required: false,
               defaultValue: currentRoadmap?.actor ?? undefined
-            }} 
-            suggestiveList={
-              roadmapType == "REGIONAL"
-                ? Object.keys(countiesAndMunicipalities)
-                : roadmapType == "MUNICIPAL"
-                  ? Object.values(countiesAndMunicipalities).flat()
+            }}
+            options={
+              roadmapType === "REGIONAL"
+                ? Object.keys(countiesAndMunicipalities).map(item => ({ name: item, value: item }))
+                : roadmapType === "MUNICIPAL"
+                  ? Object.values(countiesAndMunicipalities).flat().map(item => ({ name: item, value: item }))
                   : []
             }
           />
@@ -258,8 +258,8 @@ export default function MetaRoadmapForm({
                     placeholder: "Välj grupper",
                     disabled: visibilityType !== "custom",
                   }}
-                  defaultValue={currentAccess?.viewGroups.map((group) => { return {name: group.name, value: group.name}})}
-                  options={[ 
+                  defaultValue={currentAccess?.viewGroups.map((group) => { return { name: group.name, value: group.name } })}
+                  options={[
                     ...(userGroups?.map(group => ({
                       name: group,
                       value: group
@@ -336,8 +336,8 @@ export default function MetaRoadmapForm({
                     name: "editor-groups",
                     placeholder: "Välj grupper",
                     disabled: editabilityType !== "custom",
-                  }}  
-                  defaultValue={currentAccess?.editGroups.map((group) => { return {name: group.name, value: group.name}})}
+                  }}
+                  defaultValue={currentAccess?.editGroups.map((group) => { return { name: group.name, value: group.name } })}
                   options={[
                     ...(userGroups?.map(group => ({
                       name: group,
@@ -360,14 +360,14 @@ export default function MetaRoadmapForm({
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:meta_roadmap.relationship_legend")}</legend>
           <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:meta_roadmap.relationship_label")}</label>
           {parentRoadmapOptions ? ( // TODO: This might not make sense?
-            <SelectSingleSearch 
+            <SelectSingleSearch
               props={{
                 className: "margin-top-25",
                 id: "parent-roadmap",
                 name: "parent-roadmap",
                 placeholder: "välj eller lämna blank", // TODO: i18n
                 disabled: !parentRoadmapOptions
-              }} 
+              }}
               defaultValue={ // TODO: Might be a better way to do this
                 currentRoadmap
                   ? currentRoadmap.parentRoadmapId
@@ -379,7 +379,7 @@ export default function MetaRoadmapForm({
                     })()
                     : { name: t("forms:meta_roadmap.relationship_no_chosen"), value: "" }
                   : false
-              }  
+              }
               options={[
                 { name: t("forms:meta_roadmap.relationship_no_chosen"), value: "" },
                 ...parentRoadmapOptions.map((metaRoadmap) => ({
