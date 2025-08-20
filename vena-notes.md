@@ -1,12 +1,16 @@
 ## Recipe Editor
 - State and rerender issues with the variable components not updating correctly or fighting with every rerender
   - Have a look at the handle* functions for the recipeEditor.tsx and variables.tsx files and if inputs are controlled or not. (especially `unit` input)
+  
+- Add debounce to especially the eq input but on everything is probably wise.
 
 - Find the cause of the error `can't convert undefined to object` that gets thrown by something in the calculate function in the recipe context provider.
+
 - Filter which errors are shown to the user. Like `'null' link on data series 'name'` isn't that helpful since the link prop is optional. Maybe warn instead and formulate it better. Like don't scream at the user for using the tool like intended lol.
+  - This could be done with adding a new Error type that is a `HardWarning` or `BreakingWarning` or `SilentError` to handle things with more nuance while still breaking the flow. That code is built as a map that constructs a bunch of async functions to be await so not hard stopping will cause issues.
 
 ### To Axel
-- Please fix all the UI related to the editor plz :3
+- Please make all the UI/Ux very pretty and nice plz :3
 
 ## Suggested Recipes
 - They are templates with varying degrees of completeness. Some point you to a specific data series to take from and only allow you to modify a scalar (which would resave the recipe with a new hash) while some mainly provide an equation template with no pointers on the data series or external datasets.

@@ -90,7 +90,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
       const { link, pick, unit: unitOverride } = variable;
 
       if (!link) {
-        throw new RecipeError(`Data series link '${link}' for variable '${name}' does not exist in the database.`);
+        throw new RecipeError(`Data series '${name}' does not have a 'link' defined yet.`);
       }
 
       const dbDataSeries = await clientSafeGetOneDataSeries(link);
