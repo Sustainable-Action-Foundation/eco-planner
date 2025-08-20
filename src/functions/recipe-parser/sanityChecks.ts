@@ -2,7 +2,7 @@ import { isNull } from "mathjs";
 import type { EvalTimeDataSeries, EvalTimeScalar } from "./types";
 
 export function sketchyScalars(scalars: EvalTimeScalar[], warnings: string[]) {
-  const hugeScalar = scalars.filter(variable => Math.abs(variable.value) > 1e12);
+  const hugeScalar = scalars.filter(variable => Math.abs(variable.value) > 1e12 && Number.isFinite(variable.value));
   if (hugeScalar.length > 0) {
     warnings.push(`Recipe contains huge scalar values: ${hugeScalar.map(s => s.name).join(", ")}, which may lead to performance issues or overflow errors.`);
   }
@@ -28,7 +28,7 @@ export function sketchyDataSeries(dataSeries: EvalTimeDataSeries[], warnings: st
     if (typeof variable.value === "number") {
       return Math.abs(variable.value) > 1e12;
     } else if (Array.isArray(variable.value)) {
-      return variable.value?.some(v => !isNull(v) && v !== null && Math.abs(Number(v)) > 1e12)
+      return variable.value?.some(v => !isNull(v) && v !== null && Math.abs(Number(v)) > 1e12 && Number.isFinite(Number(v)));
     } else {
       return false;
     }
