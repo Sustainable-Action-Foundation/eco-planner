@@ -4,10 +4,9 @@ import { useEffect, useState, useRef, useMemo } from "react"
 import { useTranslation } from "react-i18next";
 import styles from '../comboBox.module.css' with { type: "css" }
 import { inputElement } from "@/components/types";
-import { handleKeyDownEditableCombobox } from "./functions";
+import { clearEditableCombobox, handleKeyDownEditableCombobox, preventInvalidFormSubmission, scrollOptionIntoView } from "./functions";
 import Fuse from "fuse.js";
 import { IconSearch, IconSelector } from "@tabler/icons-react";
-
 
 export default function SelectSingleSearch({
   props,
@@ -43,9 +42,9 @@ export default function SelectSingleSearch({
       : options;
   }, [searchValue, options]);
 
-  // Disables form subbmision if value is invalid 
   // TODO: Handling required values like this does not work with the fieldset:valid--
   // css pseudo class (our button cannot be valid or required we just pretend it is)
+  // Disables form subbmision if value is invalid 
   // Define what an invalid value is (missing value or empty string). We only need this defined if the field is requied
   const valueIsValid = useMemo(() => {
     if ((!value || value.value === "") && props.required) return false;
@@ -53,40 +52,25 @@ export default function SelectSingleSearch({
   }, [value, props.required]);
 
   useEffect(() => {
-    // Stop submission if input is invalid
-    const form = toggleRef.current?.closest("form"); 
-    if (!form) return;
-    const handleSubmit = (e: Event) => { // TODO: We likely want to abstract this as more inputs may need to check validity
-      if (!valueIsValid) {
-        e.preventDefault();
-        e.stopPropagation();
-        toggleRef.current?.focus();
-      }
-    };
-    form.addEventListener("submit", handleSubmit);
-    return () => form.removeEventListener("submit", handleSubmit);
-  }, [valueIsValid]);
+    if (!toggleRef.current) return
+    preventInvalidFormSubmission(
+      toggleRef.current,
+      valueIsValid
+    )
+  }, [valueIsValid]); 
 
-  // 1. Clear search and Focus menu when opening the select
-  // 2. remove listboxitem focus
-  useEffect(() => { // TODO: We use this in multiple components so might be worth to abstract
+  useEffect(() => { 
     if (!searchRef.current) return
-    searchRef.current.value = ''
-    setSearchValue('')
-    if (menuOpen) {
-      searchRef.current.focus();
-    }
-    setFocusedListboxOption(null)
+    clearEditableCombobox(
+      searchRef.current,
+      setSearchValue,
+      menuOpen,
+      setFocusedListboxOption
+    ) 
   }, [menuOpen]);
 
-  // Sroll listbox element into view
-  // TODO: We use this in multiple components so might be worth to abstract
   useEffect(() => {
-    if (focusedListboxOption !== null && optionRefs.current[focusedListboxOption]) {
-      optionRefs.current[focusedListboxOption]?.scrollIntoView({
-        block: "nearest",
-      });
-    }
+    scrollOptionIntoView(optionRefs.current, focusedListboxOption)
   }, [focusedListboxOption]);
 
   return (
@@ -189,7 +173,7 @@ export default function SelectSingleSearch({
         >
           {searchResults.length > 0 ? (
             searchResults.map((option, index) => (
-              <li
+              <li  
                 id={`${props.id}-dialog-listbox-${index}`}
                 onClick={() => {
                   setValue(option.value !== value?.value ? option : null);

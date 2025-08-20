@@ -1,19 +1,20 @@
 // TODO: JSDOC comments
+// TODO: Should this be a callback function or a regular one?
 export const handleKeyDownEditableCombobox = (
   e: React.KeyboardEvent<HTMLInputElement>,
   comboboxElement: HTMLInputElement | HTMLButtonElement, // The element which sets the listboxDisplayed value, always an input or button element as those can contain the combobox role 
   listboxDisplayed: boolean | undefined, // Wether or not the listbox is displayed/not displayed, or if it is uncontrolled (always open or always closed)  
-  setlistboxDisplayed: React.Dispatch<React.SetStateAction<boolean>> | undefined, 
-  listboxOptions: Array<{name: string, value: string}>, 
+  setlistboxDisplayed: React.Dispatch<React.SetStateAction<boolean>> | undefined,
+  listboxOptions: Array<{ name: string, value: string }>,
   focusedListboxOptionIndex: number | null,
   setfocusedListboxOptionIndex: React.Dispatch<React.SetStateAction<number | null>>,
-  onEnter: (selectedOption: {name: string, value: string} | null, index: number | null) => void 
+  onEnter: (selectedOption: { name: string, value: string } | null, index: number | null) => void
 ) => {
 
   // 1. Stops focusing any listbox item
   // 2. Closes listbox if it can be, and is, expanded
   // 3. Focuses the element which made the listbox visible
-  if (e.key === "Escape") { 
+  if (e.key === "Escape") {
     setfocusedListboxOptionIndex(null);
     if (listboxDisplayed && setlistboxDisplayed) {
       setlistboxDisplayed(false);
@@ -27,7 +28,7 @@ export const handleKeyDownEditableCombobox = (
       setfocusedListboxOptionIndex(0)
     }
   }
- 
+
   if (e.key === 'End') {
     e.preventDefault()
     if (listboxDisplayed) {
@@ -45,12 +46,12 @@ export const handleKeyDownEditableCombobox = (
   if (e.key === 'ArrowDown' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
     e.preventDefault()
 
-    if (listboxDisplayed && setlistboxDisplayed) { 
+    if (listboxDisplayed && setlistboxDisplayed) {
       setlistboxDisplayed(true)
       setfocusedListboxOptionIndex(0)
     }
 
-    if (focusedListboxOptionIndex != null) {  
+    if (focusedListboxOptionIndex != null) {
       if (focusedListboxOptionIndex != listboxOptions.length - 1) {
         setfocusedListboxOptionIndex(focusedListboxOptionIndex + 1)
       } else {
@@ -71,12 +72,12 @@ export const handleKeyDownEditableCombobox = (
   if (e.key === 'ArrowUp' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
     e.preventDefault()
 
-    if (listboxDisplayed && setlistboxDisplayed) { 
+    if (listboxDisplayed && setlistboxDisplayed) {
       setlistboxDisplayed(true)
       setfocusedListboxOptionIndex(0)
     }
 
-    if (focusedListboxOptionIndex != null) {  
+    if (focusedListboxOptionIndex != null) {
       if (focusedListboxOptionIndex != 0) {
         setfocusedListboxOptionIndex(focusedListboxOptionIndex - 1)
       } else {
@@ -104,5 +105,47 @@ export const handleKeyDownEditableCombobox = (
     setfocusedListboxOptionIndex(null)
     comboboxElement.focus()
   }
-    
-}; 
+};
+
+// Clears any value and set focus to combobox
+export function clearEditableCombobox(
+  comboboxElement: HTMLInputElement, //  Only input or button elements may containt the combobox role and only input can be editable 
+  setComboboxValue: React.Dispatch<React.SetStateAction<string>>,
+  listboxDisplayed: boolean | undefined, // Wether or not the listbox is displayed/not displayed, or if it is uncontrolled (always open or always closed)  
+  setfocusedListboxOptionIndex: React.Dispatch<React.SetStateAction<number | null>>,
+) {
+  comboboxElement.value = ''
+  setComboboxValue('')
+  if (listboxDisplayed) {
+    comboboxElement.focus();
+  }
+  setfocusedListboxOptionIndex(null)
+}
+
+export function scrollOptionIntoView(
+  listboxOptionElements: Array<HTMLLIElement | null>,
+  focusedListboxOptionIndex: number | null
+) {
+  if (focusedListboxOptionIndex !== null && listboxOptionElements) {
+    listboxOptionElements[focusedListboxOptionIndex]?.scrollIntoView({
+      block: "nearest",
+    });
+  }
+}
+ 
+export function preventInvalidFormSubmission(
+  formElement: HTMLInputElement | HTMLButtonElement | HTMLTextAreaElement | HTMLSelectElement,
+  valid: boolean,
+) {
+  const form = formElement.closest("form");
+  if (!form) return;
+  const handleSubmit = (e: Event) => {
+    if (!valid) {
+      e.preventDefault();
+      e.stopPropagation();
+      formElement.focus();
+    }
+  };
+  form.addEventListener("submit", handleSubmit);
+  return () => form.removeEventListener("submit", handleSubmit);
+} 
