@@ -74,7 +74,7 @@ function CommonVariable({
         console.warn(`Variable '${name}' does not exist in the recipe`);
         return prev; // Do not update if variable does not exist
       }
-      
+
       const newType = e.target.value;
       if (!newType || !Object.values(RecipeDataTypes).includes(newType as RecipeDataTypes)) {
         console.warn(`Data type '${newType}' is not a valid RecipeDataType`);
@@ -373,7 +373,7 @@ export function ExternalVariable({
             ...currentVar,
             selection: selection,
           } as RecipeExternalDataset;
-        } 
+        }
         catch (error) {
           console.warn("Failed to parse selection JSON", error);
         }

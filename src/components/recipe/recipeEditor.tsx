@@ -1,6 +1,6 @@
 "use client";
 
-import { emptyRecipe, isRecipe, Recipe, RecipeDataTypes, RecipeVariables } from "@/functions/recipe-parser/types";
+import { emptyRecipe, emptyRecipeDataTypes, isRecipe, Recipe, RecipeDataTypes, RecipeVariables } from "@/functions/recipe-parser/types";
 import type { DataSeriesValueFields } from "@/types";
 import { createContext, ReactElement, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -274,12 +274,7 @@ export function RecipeVariableEditor({
         ...prev,
         variables: {
           ...prev.variables,
-          [newVarName]: {
-            type: RecipeDataTypes.DataSeries,
-            link: null,
-            unit: undefined,
-            pick: VectorIndexPickerOptions.Default,
-          }
+          [newVarName]: emptyRecipeDataTypes[RecipeDataTypes.DataSeries],
         }
       }
     });
