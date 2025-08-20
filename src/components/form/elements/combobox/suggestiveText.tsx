@@ -5,31 +5,18 @@ import { useEffect, useRef, useState } from "react";
 import styles from './comboBox.module.css' with { type: "css" }
 import Fuse from "fuse.js";
 import { useTranslation } from "react-i18next";
+import { inputElement } from "@/components/types";
  
 export default function SuggestiveText({
-  id,
-  name,
-  className,
-  style,
-  required,
-  disabled,
-  placeholder,
-  defaultValue,
+  props,
   suggestiveList,
 }: {
-  id: string
-  name: string
-  className?: string
-  style?: React.CSSProperties
-  required?: boolean
-  disabled?: boolean
-  placeholder?: string
-  defaultValue?: string
+  props: inputElement
   suggestiveList: Array<string>
 }) {
   const { t } = useTranslation(["forms"]);
 
-  const [value, setValue] = useState<string>(defaultValue ? defaultValue : '');
+  const [value, setValue] = useState<string>(props.defaultValue ? props.defaultValue : '');
   const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null);
   // We only need this to ensure animations play. 
   // We set displayListBox to transition from opacity: 1 -> 0
@@ -141,34 +128,34 @@ export default function SuggestiveText({
 
   return (
     <div
-      className={`${className ? `${className} ` : ''}position-relative`}
-      style={{ ...style }}
+      className={`${props.className ? `${props.className} ` : ''}position-relative`}
+      style={{ ...props.style }}
     >
       <div className="flex align-items-center focusable">
         <input
           autoComplete="off" /* Disable default autocomplete behavior */
           type="text"
-          placeholder={placeholder ? placeholder : undefined}
-          name={name}
-          id={id}
-          required={required ? required : false}
-          disabled={disabled}
+          placeholder={props.placeholder ? props.placeholder : undefined}
+          name={props.name}
+          id={props.id}
+          required={props.required ? props.required : false}
+          disabled={props.disabled}
           value={value}
           ref={comboboxRef}
           onChange={(e) => { setValue(e.target.value), setFocusedListBoxItem(0), optionRefs.current[0]?.scrollIntoView({ block: "nearest" }) }}
           onKeyDown={handleKeyDownSearchInput}
           onFocus={() => setDisplayListBox(true)}
-          onBlur={(e) => { if (e.relatedTarget?.id != `${id}-listbox` && e.relatedTarget?.id != `${id}-button`) { setDisplayListBox(false) } }}
+          onBlur={(e) => { if (e.relatedTarget?.id != `${props.id}-listbox` && e.relatedTarget?.id != `${props.id}-button`) { setDisplayListBox(false) } }}
           role="combobox"
           aria-expanded={displayListBox}
           aria-haspopup="listbox"
-          aria-controls={displayListBox ? `${id}-listbox` : undefined}
-          aria-activedescendant={focusedListBoxItem != null ? `${id}-listbox-${focusedListBoxItem}` : undefined}
+          aria-controls={displayListBox ? `${props.id}-listbox` : undefined}
+          aria-activedescendant={focusedListBoxItem != null ? `${props.id}-listbox-${focusedListBoxItem}` : undefined}
           aria-autocomplete="list" /* TODO input_updates: Implement features to enable this to have a value of "both" (tab to autocomplete inline)  */
         />
         {suggestiveList.length > 0 ?
           <button
-            id={`${id}-button`}
+            id={`${props.id}-button`}
             className="round grid margin-right-25 transparent"
             style={{ padding: '2px' }}
             onClick={() => { comboboxRef.current?.focus(), setDisplayListBox(!displayListBox) }}
@@ -185,14 +172,14 @@ export default function SuggestiveText({
 
       {suggestiveList.length > 0 ?
         <ul
-          id={`${id}-listbox`}
+          id={`${props.id}-listbox`}
           className={`
               ${!renderListBox ? 'display-none' : 'display-block'}
               ${styles['listbox']} 
               ${displayListBox ? styles['visible'] : ''} 
               margin-inline-0`
           }
-          onBlur={(e) => { if (e.relatedTarget?.id != id) { setDisplayListBox(false) } }}
+          onBlur={(e) => { if (e.relatedTarget?.id != props.id) { setDisplayListBox(false) } }}
           role="listbox"
           tabIndex={-1}
           aria-label={t("forms:suggestive_text.listbox_label")}
@@ -201,7 +188,7 @@ export default function SuggestiveText({
           {results.map((item, index) =>
             <li
               key={index}
-              id={`${id}-listbox-${index}`}
+              id={`${props.id}-listbox-${index}`}
               style={{ backgroundColor: index === focusedListBoxItem ? 'var(--gray-90)' : '', }} 
               ref={(el) => { optionRefs.current[index] = el }}
               onClick={() => { setValue(item), setDisplayListBox(false) }}

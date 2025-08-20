@@ -10,4 +10,5 @@ export type inputElement = genericElement & {
   required?: boolean,
   disabled?: boolean,
   placeholder?: string,
+  defaultValue?: string,
 };

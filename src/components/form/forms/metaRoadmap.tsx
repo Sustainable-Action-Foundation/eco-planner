@@ -167,11 +167,13 @@ export default function MetaRoadmapForm({
 
           <label htmlFor="actor">Aktör</label>
           <SuggestiveText // TODO: For accesibility purposed must act as a regular textinput given an empty array has been passed
-            className="margin-top-25 margin-bottom-100"
-            id="actor"
-            name="actor"
-            required={false}
-            defaultValue={currentRoadmap?.actor ?? undefined}
+            props={{
+              className: "margin-top-25 margin-bottom-100",
+              id: "actor",
+              name: "actor",
+              required: false,
+              defaultValue: currentRoadmap?.actor ?? undefined
+            }} 
             suggestiveList={
               roadmapType == "REGIONAL"
                 ? Object.keys(countiesAndMunicipalities)
