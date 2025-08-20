@@ -27,7 +27,7 @@ import parameterOptions from "@/lib/LEAPList.json" with { type: "json" }; // Opt
 import mathjs from "@/math"; // Math library for unit parsing
 import { GoalCreateInput, GoalUpdateInput, Years } from "@/types"; // Types and helpers
 import { DataSeries, Goal } from "@prisma/client"; // Prisma types
-import { useMemo, useState, useEffect } from "react"; // React hooks
+import { useMemo, useState } from "react"; // React hooks
 import { useTranslation } from "react-i18next"; // i18n hook
 import DataSeriesInput from "../dataSeriesInput/dataSeriesInput"; // For entering data series
 import { getDataSeries } from "../dataSeriesInput/utils"; // Helper for extracting data series from form
@@ -35,7 +35,6 @@ import styles from '../forms.module.css'; // CSS module for styling
 import { InheritingBaseline, ManualGoalForm } from "./goalFormSections"; // Sub components for form sections
 import { DEBUG_Recipe, RecipeContextProvider, RecipeEquationEditor, RecipeErrorAndWarnings, RecipeSuggestions, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/recipeEditor";
 import { RecipeDataTypes } from "@/functions/recipe-parser/types";
-import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import { VectorIndexPickerOptions } from "@/components/recipe/variables";
 
 // Enum for selecting the type of data series for the goal
@@ -75,31 +74,9 @@ export default function GoalForm({
   const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(defaultDataSeriesType);
   // State for the type of baseline (initial, custom, inherited)
   const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baselineDataSeries ? BaselineType.Custom : BaselineType.Initial);
-  // State for the selected roadmap (if not already fixed)
-  const [selectedRoadmap, setSelectedRoadmap] = useState<string>(currentGoal?.roadmapId || roadmapId || "");
-  // State for selectable data series (goals from the selected roadmap)
-  const [selectableDataSeries, setSelectableDataSeries] = useState<{ id: string; name: string }[]>([]);
 
   // Memoized timestamp for the form submission (used for optimistic updates)
   const timestamp = useMemo(() => Date.now(), []);
-
-  // Effect to load selectable data series when roadmap changes
-  useEffect(() => {
-    if (selectedRoadmap) {
-      clientSafeGetOneRoadmap(selectedRoadmap)
-        .then(roadmap => {
-          const goals = roadmap?.goals
-            .filter(goal => goal.dataSeries !== null && goal.name !== null)
-            .map(goal => ({ id: goal.dataSeries!.id, name: goal.name! })) ?? [];
-          setSelectableDataSeries(goals);
-        })
-        .catch(() => {
-          setSelectableDataSeries([]);
-        });
-    } else {
-      setSelectableDataSeries([]);
-    }
-  }, [selectedRoadmap]);
 
   // Form submission handler
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
@@ -207,9 +184,7 @@ export default function GoalForm({
             <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>{t("forms:goal.choose_relationship")}</legend>
             <label className="margin-block-100">
               {t("forms:goal.relationship_label")}
-              <select name="roadmapId" id="roadmapId" required className="margin-block-25" defaultValue={""}
-                onChange={(e) => setSelectedRoadmap(e.target.value)}
-              >
+              <select name="roadmapId" id="roadmapId" required className="margin-block-25" defaultValue={""}>
                 <option value="" disabled>{t("forms:goal.relationship_no_chosen")}</option>
                 {roadmapAlternatives.map(roadmap => (
                   <option key={roadmap.id} value={roadmap.id}>
