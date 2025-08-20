@@ -210,8 +210,6 @@ export function RecipeVariableEditor({
       return;
     }
 
-    setAvailableDataSeries(null);
-
     async function fetchOneDataSeries(roadmapId: string) {
       try {
         const roadmapData = await clientSafeGetOneRoadmap(roadmapId);
@@ -240,10 +238,11 @@ export function RecipeVariableEditor({
         const dataSeriesFound = Object.fromEntries(series
           .filter(ds => ds !== null)
           .map(ds => ([ds.id, ds])));
-        const existingDataSeries = Object.fromEntries(availableDataSeries?.map(ds => ([ds.id, ds])) || []);
 
-        // Sets the available data series as a union of unique existing and newly found data series
-        setAvailableDataSeries(Object.values({ ...existingDataSeries, ...dataSeriesFound }) as { id: string; name: string; roadmapId: string; unit?: string; }[]);
+        setAvailableDataSeries(prev => {
+          const existingDataSeries = prev ? Object.fromEntries(prev.map(ds => ([ds.id, ds]))) : {};
+          return Object.values({ ...existingDataSeries, ...dataSeriesFound }) as { id: string; name: string; roadmapId: string; unit?: string; }[];
+        });
       }
       catch (e) {
         console.error("Failed to fetch data series for roadmap", e);
@@ -262,7 +261,7 @@ export function RecipeVariableEditor({
 
     fetchAllDataSeries().catch(e => { throw e; });
 
-  }, [availableDataSeries, recipe, selectedRoadmaps]);
+  }, [recipe, selectedRoadmaps]);
 
 
   // Hard coded to make a new data series variable. TODO: reconsider this behavior
