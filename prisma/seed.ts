@@ -153,7 +153,7 @@ async function main() {
    */
   function makeRandomComment(options?: { roadmapId?: string, goalId?: string, actionId?: string, metaRoadmapId?: string }) {
     const author = users[Math.floor(Math.random() * users.length)];
-    let [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
+    const [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
     return {
       authorId: author.id,
       commentText: RandomTextSE.sentence(Math.floor(Math.random() * 20) + 1),
@@ -454,6 +454,8 @@ async function main() {
       });
     })
   );
+  // This will be reassigned later
+  // eslint-disable-next-line prefer-const
   let parameters = new Array(8).fill(null).map(() => RandomTextSE.words(Math.floor(Math.random() * 5) + 1).replace(/\s/g, '\\'));
   const nationalGoalsV1 = await prisma.$transaction(
     Array(10).fill(null).map((_, i) => {
