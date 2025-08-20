@@ -1,6 +1,6 @@
 "use client";
 
-import { isRecipe, Recipe, RecipeDataTypes, RecipeVariables } from "@/functions/recipe-parser/types";
+import { emptyRecipe, isRecipe, Recipe, RecipeDataTypes, RecipeVariables } from "@/functions/recipe-parser/types";
 import type { DataSeriesValueFields } from "@/types";
 import { createContext, ReactElement, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -101,7 +101,7 @@ export function RecipeSuggestions({
   }
 
   // On change set the context state to the selected recipe
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const hash = e.target.value;
     const selectedSuggestion = suggestedRecipes.find(r => r.hash === hash);
     if (selectedSuggestion) {
@@ -122,7 +122,7 @@ export function RecipeSuggestions({
     {suggestedRecipes.map((recipe, index) => (
       <label key={index} className="block margin-block-50">
         {/* Radio */}
-        <input type="radio" name="recipeSuggestion" value={recipe.hash} onChange={handleOnChange} />
+        <input type="radio" name="recipeSuggestion" value={recipe.hash} onChange={handleChange} />
         {" "}
 
         {/* Name */}
@@ -142,6 +142,17 @@ export function RecipeEquationEditor() {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
 
+  const handleUpdatedEq = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const eq = e.target.value;
+    if (!recipe) {
+      console.warn("No recipe set, initializing with new one form the RecipeEquationEditor component");
+      setRecipe({ ...emptyRecipe, eq });
+    }
+    else {
+      setRecipe({ ...recipe, eq });
+    }
+  };
+
   return (<>
     <label className="block margin-block-50">
       <span className="block">{t("components:copy_and_scale.custom_recipe")}</span>
@@ -150,7 +161,7 @@ export function RecipeEquationEditor() {
         placeholder={t("components:copy_and_scale.custom_recipe_placeholder")}
         className="block width-100"
         value={recipe?.eq || ""}
-        onChange={(e) => setRecipe(recipe ? { ...recipe, eq: e.target.value } : { name: undefined, eq: e.target.value, variables: {} })}
+        onChange={handleUpdatedEq}
       />
     </label>
   </>)
@@ -176,7 +187,7 @@ export function RecipeVariableEditor({
   const [selectedRoadmaps, setSelectedRoadmaps] = useState<string[]>([]);
   const [availableDataSeries, setAvailableDataSeries] = useState<{ id: string; name: string; roadmapId: string; }[] | null>(null);
 
-  // On mount, fetch all roadmaps to select from
+  // On mount, fetch all roadmaps user has access to
   useEffect(() => {
     async function fetchRoadmaps() {
       try {
@@ -253,6 +264,27 @@ export function RecipeVariableEditor({
 
   }, [availableDataSeries, recipe, selectedRoadmaps]);
 
+
+  // Hard coded to make a new data series variable. TODO: reconsider this behavior
+  const handleAddVariable = () => {
+    const newVarName = `var${Object.keys(recipe?.variables || []).length + 1}`;
+    setRecipe(prev => {
+      prev = prev || emptyRecipe;
+      return {
+        ...prev,
+        variables: {
+          ...prev.variables,
+          [newVarName]: {
+            type: RecipeDataTypes.DataSeries,
+            link: null,
+            unit: undefined,
+            pick: VectorIndexPickerOptions.Default,
+          }
+        }
+      }
+    });
+  };
+
   return (<>
     <div className="margin-inline-auto width-100">
       {t("components:copy_and_scale.recipe_variables")}
@@ -300,24 +332,7 @@ export function RecipeVariableEditor({
 
       {/* Add variable */}
       {allowAddVariables &&
-        <button type="button" onClick={() => {
-          const newVarName = `var${Object.keys(recipe?.variables || []).length + 1}`;
-          setRecipe(prev => {
-            prev = prev || { name: undefined, eq: "", variables: {} };
-            return {
-              ...prev,
-              variables: {
-                ...prev.variables,
-                [newVarName]: {
-                  type: RecipeDataTypes.DataSeries,
-                  link: undefined,
-                  unit: undefined,
-                  pick: VectorIndexPickerOptions.Default,
-                }
-              }
-            }
-          });
-        }}>
+        <button type="button" onClick={handleAddVariable}>
           {t("components:copy_and_scale.add_variable")}
         </button>
       }
@@ -365,8 +380,6 @@ export function ResultingDataSeries({ FormElement }: { FormElement?: ReactElemen
   const { t } = useTranslation("components");
   const { resultingDataSeries, resultingUnit } = useRecipe();
 
-  const data = resultingDataSeries ? Object.fromEntries(Object.entries(resultingDataSeries).filter(([key]) => key !== 'unit')) : {};
-
   if (!resultingDataSeries) {
     return null;
   }
@@ -393,7 +406,7 @@ export function ResultingDataSeries({ FormElement }: { FormElement?: ReactElemen
         <thead>
           <tr>
             <th className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_year")}</th>
-            {Object.keys(data).map((year, i) => (
+            {Object.keys(resultingDataSeries).map((year, i) => (
               <th className="padding-50 text-align-center" key={i + "resulting-data-series-header" + year}>{year.replace("val", "")}</th>
             ))}
           </tr>
@@ -401,7 +414,7 @@ export function ResultingDataSeries({ FormElement }: { FormElement?: ReactElemen
         <tbody>
           <tr>
             <td className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_value")}</td>
-            {Object.values(data).map((value, i) => (
+            {Object.values(resultingDataSeries).map((value, i) => (
               <td className="padding-50 text-align-center" key={i + "resulting-data-series-value" + String(value)}>{(value as number)?.toFixed(1) || "-"}</td>
             ))}
           </tr>

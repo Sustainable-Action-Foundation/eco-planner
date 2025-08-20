@@ -11,6 +11,16 @@ export const RecipeDataTypes = {
   External: "external",
 } as const;
 export type RecipeDataTypes = typeof RecipeDataTypes[keyof typeof RecipeDataTypes];
+export function isRecipeDataType(variable: unknown): variable is RecipeDataTypes {
+  return (
+    typeof variable === "string" &&
+    (
+      variable === RecipeDataTypes.Scalar ||
+      variable === RecipeDataTypes.DataSeries ||
+      variable === RecipeDataTypes.External
+    )
+  );
+}
 
 
 /** 
@@ -47,6 +57,7 @@ export function isRecipeScalar(variable: unknown): variable is RecipeScalar {
     Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0
   );
 }
+export const emptyRecipeScalar: RecipeScalar = { type: RecipeDataTypes.Scalar, value: 0, unit: undefined } as const;
 
 
 /* 
@@ -91,6 +102,7 @@ export function isRecipeDataSeries(variable: unknown): variable is RecipeDataSer
     Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0
   )
 }
+export const emptyRecipeDataSeries: RecipeDataSeries = { type: RecipeDataTypes.DataSeries, link: undefined, pick: "first", unit: undefined } as const;
 
 
 /* 
@@ -99,8 +111,8 @@ export function isRecipeDataSeries(variable: unknown): variable is RecipeDataSer
 export type RecipeExternalDataset = {
   type: typeof RecipeDataTypes.External;
   /** Datasets are defined in [`src/lib/api/utility.ts`](../../lib/api/utility.ts) */
-  dataset: DatasetKeys; // One of the datasets specified in externalDatasets
-  tableId: string; // The ID of the table in the dataset
+  dataset: DatasetKeys | null; // One of the datasets specified in externalDatasets
+  tableId: string | null; // The ID of the table in the dataset
   selection: {
     variableCode: string,
     valueCodes: string[]
@@ -166,6 +178,7 @@ export function isRecipeExternalDatasetSelection(selection: unknown): selection 
     ))
   );
 }
+export const emptyRecipeExternalDataset: RecipeExternalDataset = { type: RecipeDataTypes.External, dataset: null, tableId: null, selection: [], pick: VectorIndexPickerOptions.Default, unit: undefined } as const;
 
 
 /* 
@@ -210,7 +223,14 @@ export function isRecipe(recipe: unknown): recipe is Recipe {
     Object.keys(recipe).filter(key => !allowedProps.includes(key)).length === 0
   );
 }
+export const emptyRecipe: Recipe = { name: undefined, eq: "", variables: {} } as const;
 
+// Here to be declared last
+export const emptyRecipeDataTypes: Record<RecipeDataTypes, RecipeScalar | RecipeDataSeries | RecipeExternalDataset> = {
+  "scalar": emptyRecipeScalar,
+  "dataSeries": emptyRecipeDataSeries,
+  "external": emptyRecipeExternalDataset,
+} as const;
 
 /*
  * Variable during evaluation of a recipe. Should not persist beyond that scope.

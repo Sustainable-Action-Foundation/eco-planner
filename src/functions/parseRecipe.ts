@@ -33,7 +33,7 @@ export function recipeFromUnknown(recipe: unknown): Recipe {
  */
 export function cleanRecipe(recipe: unknown): Recipe {
   if (!isRecipe(recipe)) {
-    throw new RecipeError("Invalid recipe format. Expected an object with 'eq' and 'variables' properties.");
+    throw new RecipeError("Invalid recipe format. Did not match the Recipe type.");
   }
 
   const parsedRecipe: Recipe = {} as Recipe;
@@ -148,8 +148,8 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
       }
 
       const { dataset, tableId, selection } = variable;
-      if (!dataset || !tableId) {
-        throw new RecipeError(`External dataset variable '${name}' is missing 'dataset' or 'tableId' property.`);
+      if (!dataset || !tableId || !selection) { // These props may all be null
+        throw new RecipeError(`External dataset variable '${name}' is missing 'dataset', 'tableId' and/or 'selection' properties.`);
       }
 
       const fetcher = async () => {
