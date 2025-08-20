@@ -4,7 +4,7 @@ import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" wit
 import { LoginData } from "@/lib/session";
 import { AccessControlled, MetaRoadmapInput } from "@/types";
 import { MetaRoadmap, RoadmapType } from "@prisma/client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import formSubmitter from "@/functions/formSubmitter";
 import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
@@ -111,6 +111,11 @@ export default function MetaRoadmapForm({
 
     formSubmitter('/api/metaRoadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', setIsLoading);
   }
+
+  const [test, setTest] = useState<any>()
+  useEffect(() => {
+    console.log(test)
+  }, [test]) 
 
   // Indexes for the data-position attribute in the legend elements
   let positionIndex = 1;
@@ -250,6 +255,7 @@ export default function MetaRoadmapForm({
                 />
                 <label htmlFor="viewer-groups" className="block width-fit-content">Grupper:</label>
                 <SelectMultipleSearch // TODO: Something needs to indicate that this is a multiselect :), TODO: Should probably make theese required if "custom is selected"
+                  onChange={(value) => (setTest(value))}
                   props={{
                     id: "viewer-groups",
                     name: "viewer-groups",
@@ -257,7 +263,10 @@ export default function MetaRoadmapForm({
                     disabled: visibilityType !== "custom",
                   }}
                   defaultValue={currentAccess?.viewGroups.map((group) => { return {name: group.name, value: group.name}})}
-                  options={[
+                  options={[ 
+                    {name: 'test1', value: 'test1'},
+                    {name: 'test2', value: 'test2'},
+                    {name: 'test3', value: 'test3'},
                     ...(userGroups?.map(group => ({
                       name: group,
                       value: group
@@ -328,7 +337,7 @@ export default function MetaRoadmapForm({
                   defaultValue={currentAccess?.editors.map((editor) => editor.username)}
                 />
                 <label htmlFor="editor-groups" className="block width-fit-content">Grupper:</label>
-                <SelectMultipleSearch // TODO: Something needs to indicate that this is a multiselect :), TODO: Populate from default value
+                <SelectMultipleSearch // TODO: Something needs to indicate that this is a multiselect :) 
                   props={{
                     id: "editor-groups",
                     name: "editor-groups",
@@ -358,7 +367,7 @@ export default function MetaRoadmapForm({
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:meta_roadmap.relationship_legend")}</legend>
           <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:meta_roadmap.relationship_label")}</label>
           {parentRoadmapOptions ? ( // TODO: This might not make sense?
-            <SelectSingleSearch
+            <SelectSingleSearch 
               props={{
                 className: "margin-top-25",
                 id: "parent-roadmap",

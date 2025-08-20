@@ -145,6 +145,7 @@ export default async function Page(
       <RoadmapFilters />
     </section>
 
+    {/* TODO: There might be some issues with displayning public roadmaps, explore this. */}
     <section className="margin-bottom-500">
       <RoadmapTree user={session.user ?? undefined} roadmaps={roadmaps} />
     </section>

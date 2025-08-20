@@ -30,13 +30,12 @@ export default function SelectSingleSearch({
         : null
   ) 
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
-  const [focusedListboxOption, setfocusedListboxOption] = useState<number | null>(null);
+  const [focusedListboxOption, setFocusedListboxOption] = useState<number | null>(null);
   const [searchValue, setSearchValue] = useState<string>('')
   const toggleRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
 
-  
   const searchResults = useMemo(() => {
     const fuse = new Fuse(options, { keys: ['name'] });
     return searchValue
@@ -55,7 +54,7 @@ export default function SelectSingleSearch({
 
   useEffect(() => {
     // Stop submission if input is invalid
-    const form = toggleRef.current?.closest("form");
+    const form = toggleRef.current?.closest("form"); 
     if (!form) return;
     const handleSubmit = (e: Event) => { // TODO: We likely want to abstract this as more inputs may need to check validity
       if (!valueIsValid) {
@@ -68,19 +67,20 @@ export default function SelectSingleSearch({
     return () => form.removeEventListener("submit", handleSubmit);
   }, [valueIsValid]);
 
-  // 1. Focus and clear search menu when opening the select
+  // 1. Clear search and Focus menu when opening the select
   // 2. remove listboxitem focus
-  useEffect(() => {
-    setfocusedListboxOption(null)
+  useEffect(() => { // TODO: We use this in multiple components so might be worth to abstract
     if (!searchRef.current) return
     searchRef.current.value = ''
     setSearchValue('')
     if (menuOpen) {
       searchRef.current.focus();
     }
+    setFocusedListboxOption(null)
   }, [menuOpen]);
 
   // Sroll listbox element into view
+  // TODO: We use this in multiple components so might be worth to abstract
   useEffect(() => {
     if (focusedListboxOption !== null && optionRefs.current[focusedListboxOption]) {
       optionRefs.current[focusedListboxOption]?.scrollIntoView({
@@ -135,7 +135,7 @@ export default function SelectSingleSearch({
         }
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id != props.id) {
-            setfocusedListboxOption(null)
+            setFocusedListboxOption(null)
             setMenuOpen(false);
           }
         }}
@@ -161,9 +161,9 @@ export default function SelectSingleSearch({
               setMenuOpen,
               searchResults,
               focusedListboxOption,
-              setfocusedListboxOption,
+              setFocusedListboxOption,
               (selectedOption) => {
-                setValue(selectedOption?.value !== value?.value ? selectedOption : null);     
+                setValue(selectedOption?.value !== value?.value ? selectedOption : null); // TODO: Abstract this to use in onclick     
                 setMenuOpen(false);
                 toggleRef.current?.focus();
                 if (onChange) onChange(selectedOption?.value !== value?.value ? selectedOption : null);

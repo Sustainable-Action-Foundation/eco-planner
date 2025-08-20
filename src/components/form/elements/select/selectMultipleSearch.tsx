@@ -1,11 +1,7 @@
-"use client"
-
-// TODO: Fix issues with tab.
-// TODO: Use keyhandler function
-// TODO: Implement onChange prop
+"use client" 
 
 import { IconSearch, IconSelector } from "@tabler/icons-react";
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useMemo } from "react"
 import Fuse from "fuse.js";
 import { useTranslation } from "react-i18next";
 import styles from '../comboBox.module.css' with { type: "css" }
@@ -21,7 +17,7 @@ export default function SelectMultipleSearch({
   props: inputElement,
   defaultValue?: Array<{ name: string, value: string }>,
   options: Array<{ name: string, value: string }>,
-  onChange?: (value: { name: string, value: string } | null) => void
+  onChange?: (value: Array<{ name: string, value: string }> | null) => void
 }) {
   const { t } = useTranslation(["forms"]);
   const [value, setValue] = useState<Array<{ name: string, value: string }>>(
@@ -32,63 +28,55 @@ export default function SelectMultipleSearch({
   const searchRef = useRef<HTMLInputElement>(null);
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
   const [focusedListboxOption, setFocusedListboxOption] = useState<number | null>(null);
-  const [valueIsValid, setValueIsValid] = useState<boolean>()
+  // Fuse searchs
+  const [searchValue, setSearchValue] = useState<string>('')
 
-  {/*
-  useEffect(() => {
-    if (value.value == "" && required) {
-      setValueIsValid(false)
-    } else {
-      setValueIsValid(true)
-    }
-  }, [value])
+  const searchResults = useMemo(() => {
+    const fuse = new Fuse(options, { keys: ['name'] });
+    return searchValue
+      ? fuse.search(searchValue).map(result => result.item)
+      : options;
+  }, [searchValue, options]);
 
   // Disables form subbmision if value is invalid 
   // TODO: Handling required values like this does not work with the fieldset:valid--
   // css pseudo class (our button cannot be valid or required we just pretend it is)
+  // Define what an invalid value is (missing value or empty array). We only need this defined if the field is requied
+  const valueIsValid = useMemo(() => {
+    if ((!value || value.length === 0) && props.required) return false;
+    return true;
+  }, [value, props.required]);
+
   useEffect(() => {
-    // Find the closest form element up the DOM tree
+    // Stop submission if input is invalid
     const form = toggleRef.current?.closest("form");
     if (!form) return;
-
-    const handleSubmit = (e: Event) => {
-      if (required && value.value === "") {
-        e.preventDefault(); // Stop submission
+    const handleSubmit = (e: Event) => { // TODO: We likely want to abstract this as more inputs may need to check validity
+      if (!valueIsValid) {
+        e.preventDefault();
         e.stopPropagation();
-        // You can also set a visual indicator for invalid state here
-        setValueIsValid(false);
         toggleRef.current?.focus();
       }
     };
-
     form.addEventListener("submit", handleSubmit);
     return () => form.removeEventListener("submit", handleSubmit);
-  }, [required, value]);
-  */}
-  // Fuse searchs
-  const [searchResults, setSearchResults] = useState<Array<{ name: string, value: string }>>([])
-  const [searchValue, setSearchValue] = useState<string>('')
+  }, [valueIsValid]);
 
-  // Handle search searchResults
-  useEffect(() => {
-    const fuse = new Fuse(options, {
-      keys: ['name']
-    });
-    const newsearchResults = searchValue ? fuse.search(searchValue).map(result => result.item) : options;
-    setSearchResults(newsearchResults);
-  }, [searchValue]);
-
-  // Focus and clear search menu when opening the select
-  useEffect(() => {
+  // 1. Clear search and Focus menu when opening the select
+  // 2. remove listboxitem focus
+  useEffect(() => { // TODO: We use this in multiple components so might be worth to abstract
     if (!searchRef.current) return
     searchRef.current.value = ''
     setSearchValue('')
     if (menuOpen) {
       searchRef.current.focus();
     }
+    setFocusedListboxOption(null)
   }, [menuOpen]);
 
+
   // Sroll listbox element into view
+  // TODO: We use this in multiple components so might be worth to abstract
   useEffect(() => {
     if (focusedListboxOption !== null && optionRefs.current[focusedListboxOption]) {
       optionRefs.current[focusedListboxOption]?.scrollIntoView({
@@ -173,22 +161,18 @@ export default function SelectMultipleSearch({
               focusedListboxOption,
               setFocusedListboxOption,
               (selectedOption) => {
-                console.log(selectedOption)
-                /* setValue(selectedOption?.value !== value?.value ? selectedOption : null);     
-                setMenuOpen(false);
-                toggleRef.current?.focus();
-                if (onChange) onChange(selectedOption?.value !== value?.value ? selectedOption : null); */
-                /* TODO: Implement the actual value here
-                  e.preventDefault();
-                  e.stopPropagation(); // Prevent higher-level reopens
-                  if (menuOpen && focusedListboxOption != null && searchResults.length > 0) {
-                    setValue(prev =>
-                      prev.some(v => v === searchResults[focusedListboxOption]) // check by a unique property
-                        ? prev.filter(v => v !== searchResults[focusedListboxOption]) // remove if already present
-                        : [...prev, searchResults[focusedListboxOption]] // add if not present
-                    )
-                  } 
-                */
+                e.stopPropagation(); // Prevent higher-level reopens 
+                if (menuOpen && selectedOption) {
+                  const optionPreviouslySelected = value.some(value => value.value === selectedOption.value); // TODO: Abstract this to use in onclick   
+
+                  const newValue = optionPreviouslySelected
+                    ? value.filter(option => option.value !== selectedOption.value)
+                    : [...value, selectedOption];
+
+                  setValue(newValue);
+
+                  if (onChange) onChange(newValue);
+                }
               }
             )}
             type="text"
@@ -221,11 +205,15 @@ export default function SelectMultipleSearch({
                 <li
                   id={`${props.id}-dialog-listbox-${index}`}
                   onClick={() => {
-                    setValue(prev =>
-                      prev.some(v => v.value === option.value) // check by a unique property
-                        ? prev.filter(v => v.value !== option.value) // remove if already present
-                        : [...prev, option] // add if not present
-                    );
+                    const optionPreviouslySelected = value.some(value => value.value === option.value);
+
+                    const newValue = optionPreviouslySelected
+                      ? value.filter(value => value.value !== option.value) 
+                      : [...value, option];
+
+                    setValue(newValue);
+
+                    if (onChange) onChange(newValue);
                   }}
                   aria-selected={value.some(v => v.value === option.value)} // TODO: Update other select to use this
                   ref={(el) => { optionRefs.current[index] = el }}
