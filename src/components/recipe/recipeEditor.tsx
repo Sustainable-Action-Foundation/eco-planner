@@ -65,7 +65,7 @@ export function RecipeContextProvider({
         setError(null);
       } catch (e: unknown) {
         setResultingDataSeries(null);
-        setError((e as Error).message);
+        setError((e as Error)?.message);
         setWarnings([]);
       }
     }
