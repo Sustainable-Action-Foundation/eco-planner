@@ -117,7 +117,7 @@ export default function SelectMultipleSearch({
         aria-label="" // TODO: Add a label
         id={`${props.id}-dialog`}
         className={`              
-          ${styles['listbox-select']} 
+          ${styles['listbox']} 
           ${menuOpen ? styles['visible'] : ''} 
           margin-inline-0`
         }

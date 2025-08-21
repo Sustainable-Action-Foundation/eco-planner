@@ -115,7 +115,7 @@ export default function SelectSingleSearch({
       <div 
         id={`${props.id}-dialog`}
         className={`              
-          ${styles['listbox-select']} 
+          ${styles['listbox']} 
           ${menuOpen ? styles['visible'] : ''} 
           margin-inline-0`
         }

@@ -20,14 +20,9 @@ export default function SuggestiveText({
   const { t } = useTranslation(["forms"]);
 
   const [value, setValue] = useState<string>(props.defaultValue ? props.defaultValue : '');
-  const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null);
-  // We only need this to ensure animations play. 
-  // We set displayListBox to transition from opacity: 1 -> 0
-  // Then renderListBox after 150ms (duration of transition) to set display: block -> none
-  const [renderListBox, setRenderListBox] = useState<boolean>(false);
   const [displayListBox, setDisplayListBox] = useState<boolean>(false);
-
-  // Refs
+  const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null);
+ 
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
   const comboboxRef = useRef<HTMLInputElement>(null);
 
@@ -37,25 +32,10 @@ export default function SuggestiveText({
       ? fuse.search(value).map(result => result.item)
       : options;
   }, [value, options]); 
-
-  // Sroll listbox element into view
+ 
   useEffect(() => {
-    scrollOptionIntoView(
-      optionRefs.current,
-      focusedListBoxItem
-    ) 
-  }, [focusedListBoxItem]);
-
-  // Ensure animations are synced 
-  useEffect(() => {
-    if (displayListBox) {
-      setRenderListBox(true)
-    } else {
-      setTimeout(() => {
-        setRenderListBox(false);
-      }, 150)
-    }
-  }, [displayListBox]); 
+    scrollOptionIntoView(optionRefs.current, focusedListBoxItem) 
+  }, [focusedListBoxItem]); 
 
   return (
     <div
@@ -64,7 +44,7 @@ export default function SuggestiveText({
     >
       <div className="flex align-items-center focusable">
         <input
-          autoComplete="off" /* Disable default autocomplete behavior */
+          autoComplete="off"
           type="text"
           placeholder={props.placeholder ? props.placeholder : undefined}
           name={props.name}
@@ -122,7 +102,6 @@ export default function SuggestiveText({
         <ul
           id={`${props.id}-listbox`}
           className={`
-              ${!renderListBox ? 'display-none' : 'display-block'}
               ${styles['listbox']} 
               ${displayListBox ? styles['visible'] : ''} 
               margin-inline-0`
