@@ -35,7 +35,7 @@ export default function SuggestiveText({
  
   useEffect(() => {
     scrollOptionIntoView(optionRefs.current, focusedListBoxItem) 
-  }, [focusedListBoxItem]); 
+  }, [focusedListBoxItem, value]); 
 
   return (
     <div
@@ -52,34 +52,38 @@ export default function SuggestiveText({
           required={props.required ? props.required : false}
           disabled={props.disabled}
           value={value}
-          ref={comboboxRef}
-          onChange={(e) => { setValue(e.target.value), setFocusedListBoxItem(0), optionRefs.current[0]?.scrollIntoView({ block: "nearest" }) }}
-          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleKeyDownEditableCombobox(
-            e,
-            comboboxRef.current!, // TODO: Handle this in a better way maybe
-            displayListBox,
-            setDisplayListBox,
-            searchResults,
-            focusedListBoxItem,
-            setFocusedListBoxItem,
-            (selectedOption) => { 
-              setValue(
-                selectedOption 
-                ? selectedOption.name
-                : ""
-              )
-              setFocusedListBoxItem(null)
-              setDisplayListBox(false);
-            }
-          )}
-          onFocus={() => setDisplayListBox(true)}
-          onBlur={(e) => { if (e.relatedTarget?.id != `${props.id}-listbox` && e.relatedTarget?.id != `${props.id}-button`) { setDisplayListBox(false) } }}
-          role="combobox"
-          aria-expanded={displayListBox}
-          aria-haspopup="listbox"
-          aria-controls={displayListBox ? `${props.id}-listbox` : undefined}
-          aria-activedescendant={focusedListBoxItem != null ? `${props.id}-listbox-${focusedListBoxItem}` : undefined}
-          aria-autocomplete="list" /* TODO input_updates: Implement features to enable this to have a value of "both" (tab to autocomplete inline)  */
+          onChange={(e) => { setValue(e.target.value), setFocusedListBoxItem(0) }}
+          {...(options.length > 0 
+            ? {
+              ref: comboboxRef,
+              onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => handleKeyDownEditableCombobox(
+                e,
+                comboboxRef.current!, // TODO: Handle this in a better way maybe
+                displayListBox,
+                setDisplayListBox,
+                searchResults,
+                focusedListBoxItem,
+                setFocusedListBoxItem,
+                (selectedOption) => { 
+                  setValue(
+                    selectedOption 
+                    ? selectedOption.name
+                    : ""
+                  )
+                  setFocusedListBoxItem(null)
+                  setDisplayListBox(false);
+                }
+              ),
+              onFocus: () => setDisplayListBox(true),
+              onBlur: (e) => { if (e.relatedTarget?.id != `${props.id}-listbox` && e.relatedTarget?.id != `${props.id}-button`) { setDisplayListBox(false) } },
+              role: "combobox",
+              "aria-expanded": displayListBox,
+              "aria-haspopup": "listbox",
+              "aria-controls": displayListBox ? `${props.id}-listbox` : undefined,
+              "aria-activedescendant": focusedListBoxItem != null ? `${props.id}-listbox-${focusedListBoxItem}` : undefined,
+              "aria-autocomplete": "list" /* TODO input_updates: Implement features to enable this to have a value of "both" (tab to autocomplete inline)  */
+          } 
+        : {})}
         />
         {options.length > 0 ?
           <button
@@ -98,35 +102,36 @@ export default function SuggestiveText({
         : null}
       </div>
 
-      {options.length > 0 ?
-        <ul
+      {options.length > 0 && searchResults.length > 0 ?
+        <ul // TODO: Need somethin which indicates theese are just suggestions
           id={`${props.id}-listbox`}
           className={`
               ${styles['listbox']} 
               ${displayListBox ? styles['visible'] : ''} 
               margin-inline-0`
           }
-          onBlur={(e) => { if (e.relatedTarget?.id != props.id) { setDisplayListBox(false) } }}
+          // TODO: Onblur does not seem to actually setFocusedListBoxItem, figure out why...
+          onBlur={(e) => { if (e.relatedTarget?.id != props.id) {  setFocusedListBoxItem(null); setDisplayListBox(false); } }} // TODO: See if we can deal with blur the same way for all comboboxes
           role="listbox"
           tabIndex={-1}
           aria-label={t("forms:suggestive_text.listbox_label")}
           data-listbox-label={searchResults.length > 0 ? `${t("forms:suggestive_text.listbox_label")}` : `${t("forms:suggestive_text.listbox_empty_label")}`}
         >
-          {searchResults.map((item, index) =>
+          {searchResults.map((option, index) =>
             <li
               key={index}
               id={`${props.id}-listbox-${index}`}
               style={{ backgroundColor: index === focusedListBoxItem ? 'var(--gray-90)' : '', }} 
               ref={(el) => { optionRefs.current[index] = el }}
-              onClick={() => { setValue(item.name), setDisplayListBox(false) }}
+              onClick={() => { setValue(option.name), setDisplayListBox(false) }}
               role="option"
-              aria-selected={item.name === value}
+              aria-selected={option.name === value}
             >
-              {item.name}
+              {option.name}
             </li>
           )}
         </ul>
-        : null}
+      : null}
     </div>
   )
 }

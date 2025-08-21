@@ -9,6 +9,7 @@ import Fuse from "fuse.js";
 import { IconSearch, IconSelector } from "@tabler/icons-react";
 
 // TODO: Should allow for options with same values? Or we should check that they are unique?
+// TODO: Disallow an empty array for options?
 
 export default function SelectMultipleSearch({
   props,
@@ -214,18 +215,8 @@ export default function SelectMultipleSearch({
               )
             })
           ) : (
-            <li
-              style={{
-                userSelect: 'none',
-                borderRadius: '.25rem',
-                padding: '.5rem',
-                fontSize: 'smaller',
-                backgroundColor: 'transparent',
-                fontWeight: '600'
-              }}
-              data-no-results-tooltip // TODO: Probably just make this a class
-            >
-              Inga resultat
+            <li className={`${styles['no-results']} font-weight-600`} >
+              Inga resultat {/* TODO: I18n */}
             </li>
           )}
         </ul>
