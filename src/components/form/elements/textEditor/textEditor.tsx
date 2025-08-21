@@ -136,7 +136,7 @@ const TextEditor = ({
       : null }
       <EditorContent editor={editor} id={id} aria-labelledby={ariaLabelledBy} />
       {defaultStyles ? 
-        <div className='flex align-items-center gap-50 padding-50'>
+        <div className='flex align-items-center justify-content-flex-end gap-50 padding-50'>
           <svg height="24" width="24" viewBox="0 0 20 20">
             <circle r="10" cx="10" cy="10" fill="#e9ecef" />
             <circle
@@ -151,9 +151,6 @@ const TextEditor = ({
             />
             <circle r="6" cx="10" cy="10" fill="white" />
           </svg>
-          <small style={{ fontSize: '12px' }}>
-            Karaktärer: {editor.storage.characterCount.characters()}
-          </small>
         </div>
       : null }
     </div>
