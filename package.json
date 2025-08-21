@@ -8,7 +8,7 @@
   "bugs": "https://github.com/Sustainable-Action-Foundation/eco-planner/issues",
   "repository": "github:Sustainable-Action-Foundation/eco-planner",
   "scripts": {
-    "preinstall": "(git update-index --skip-worktree src/lib/LEAPList.json && git update-index --skip-worktree src/lib/dataSeriesDataFieldNames.json) & echo 'This preinstall script might fail on Windows, have not tested it yet. If it does, feel free to remove it and run the command manually as specified in the README.'",
+    "preinstall": "git update-index --skip-worktree src/lib/LEAPList.json &",
     "predev": "tsx ./src/scripts/getBuildInfo.ts",
     "dev": "next dev --turbopack",
     "prebuild": "tsx ./src/scripts/generateLeapList.ts && tsx ./src/scripts/getDataSeriesValueFieldNames.ts && tsx ./src/scripts/getBuildInfo.ts",
@@ -26,8 +26,8 @@
   },
   "contributors": [
     {
-      "name": "Leon Lööv",
-      "email": "leon.loov@sustainable-action.org"
+      "name": "Noëlle Lööv",
+      "email": "noelle.loov@sustainable-action.org"
     },
     {
       "name": "Axel Schnürer",
