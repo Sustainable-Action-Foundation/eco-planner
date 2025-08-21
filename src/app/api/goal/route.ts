@@ -3,11 +3,13 @@ import prisma from "@/prismaClient";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/session";
-import accessChecker from "@/lib/accessChecker";
-import { AccessControlled, AccessLevel, ClientError, Years, GoalCreateInput, GoalUpdateInput, JSONValue, isStandardObject } from "@/types";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
+import { AccessControlled, ClientError, Years, GoalCreateInput, GoalUpdateInput, JSONValue, DataSeriesValueFields } from "@/types";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { Prisma } from "@prisma/client";
 import crypto from 'crypto';
+import dataSeriesPrep from "./dataSeriesPrep";
+import pruneOrphans from "@/functions/pruneOrphans";
 
 // Type guards
 function isGoalCreate(goal: JSONValue): goal is GoalCreateInput {
@@ -154,10 +156,10 @@ export async function POST(request: NextRequest) {
       isPublic: roadmap.isPublic,
     }
     const accessLevel = accessChecker(accessFields, session.user);
-    if (accessLevel === AccessLevel.None || accessLevel === AccessLevel.View) {
+    if (!hasEditAccess(accessLevel)) {
       throw new Error(ClientError.IllegalParent, { cause: 'goal' });
     }
-
+    // TODO: Access checks for goals used in recipe
   }
   catch (error) {
     if (error instanceof Error) {
@@ -182,17 +184,29 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // TODO: add case for when a recipe is used
-    const dataSeries = formData.rawDataSeries ?
-      Object.fromEntries(
-        Years.map((field, i) => [field, formData.rawDataSeries?.[i] ?? null])
-      ) :
-      undefined;
-    const baselineDataSeries = formData.rawBaselineDataSeries ?
-      Object.fromEntries(
-        Years.map((field, i) => [field, formData.rawBaselineDataSeries?.[i] ?? null])
-      ) :
-      undefined;
+    let dataValues: Partial<DataSeriesValueFields> | undefined | null = null;
+    if (formData.recipe) {
+      // TODO: Handle case when a recipe is used
+      // Parse and typecheck recipe
+      // If the recipe is invalid, return an error UNLESS explicitly marked as incomplete somehow (needs to be added to form and here), in which case dataValues should be set to undefined
+      // Calculate data series based on recipe
+    } else if (formData.rawDataSeries?.length) {
+      dataValues = dataSeriesPrep(formData.rawDataSeries);
+    }
+    // If the data series is invalid, return an error
+    if (dataValues === null) {
+      return Response.json({ message: 'Bad data series' },
+        { status: 400 }
+      );
+    }
+
+    const baselineDataSeries = formData.rawBaselineDataSeries?.length ? dataSeriesPrep(formData.rawBaselineDataSeries) : undefined;
+    // If the baseline data series is invalid, return an error
+    if (baselineDataSeries === null) {
+      return Response.json({ message: 'Bad baseline data series' },
+        { status: 400 }
+      );
+    }
 
     const recipeHash = formData.recipe ? crypto.createHash('sha256').update(formData.recipe).digest('hex') : undefined;
 
@@ -211,17 +225,17 @@ export async function POST(request: NextRequest) {
         roadmap: {
           connect: { id: formData.roadmapId },
         },
-        dataSeries: dataSeries ? {
+        dataSeries: dataValues ? {
           create: {
-            ...dataSeries,
-            unit: formData.dataUnit,
+            ...dataValues,
+            unit: formData.dataUnit ?? '',
             authorId: session.user.id,
           },
         } : undefined,
         baselineDataSeries: baselineDataSeries ? {
           create: {
             ...baselineDataSeries,
-            unit: formData.dataUnit,
+            unit: formData.dataUnit ?? '',
             authorId: session.user.id,
           },
         } : undefined,
@@ -271,16 +285,17 @@ export async function PUT(request: NextRequest) {
     request.json() as Promise<JSONValue>,
   ]);
 
-  if (!isGoalUpdate(goal)) {
-    return Response.json({ message: 'Invalid request body' },
-      { status: 400 }
-    );
-  }
-
   // Validate session
   if (!session.user?.id) {
     return Response.json({ message: 'Unauthorized' },
       { status: 401, headers: { 'Location': '/login' } }
+    );
+  }
+
+  // Validate input
+  if (!isGoalUpdate(goal)) {
+    return Response.json({ message: 'Invalid request body' },
+      { status: 400 }
     );
   }
 
@@ -308,8 +323,8 @@ export async function PUT(request: NextRequest) {
     }
 
     // Check if the user has the right to edit the goal
-    const access = accessChecker(currentGoal.roadmap, { ...user, userGroups: user.userGroups.map(g => g.id) });
-    if (access !== AccessLevel.Author && access !== AccessLevel.Edit) {
+    const access = accessChecker(currentGoal.roadmap, session.user);
+    if (!hasEditAccess(access)) {
       throw new Error(ClientError.AccessDenied, { cause: 'goal' });
     }
 
@@ -351,17 +366,48 @@ export async function PUT(request: NextRequest) {
 
   // Edit goal
   try {
-    // TODO: add case for when a recipe is used
-    const dataSeries = goal.rawDataSeries ?
-      Object.fromEntries(
-        Years.map((field, i) => [field, goal.rawDataSeries?.[i] ?? undefined])
-      ) :
-      undefined;
-    const baselineDataSeries = goal.rawBaselineDataSeries ?
-      Object.fromEntries(
-        Years.map((field, i) => [field, goal.rawBaselineDataSeries?.[i] ?? undefined])
-      ) :
-      undefined;
+    let dataValues: Partial<DataSeriesValueFields> | undefined | null = undefined;
+    if (goal.recipe) {
+      // TODO: Handle case when a recipe is used
+      // Parse and typecheck recipe
+      // If the recipe is invalid, return an error UNLESS explicitly marked as incomplete somehow (needs to be added to form and here), in which case dataValues should be set to undefined
+      // Calculate data series based on recipe
+    } else if (goal.rawDataSeries?.length) {
+      dataValues = dataSeriesPrep(goal.rawDataSeries);
+    }
+    // If the data series is invalid, return an error
+    if (dataValues === null) {
+      return Response.json({ message: 'Bad data series' },
+        { status: 400 }
+      );
+    }
+
+    // Prepare goal baseline (if any), or deletion thereof
+    // If the baseline data series is null, it means the user wants to delete it. A value of undefined means no change.
+    let shouldRemoveBaseline = goal.rawBaselineDataSeries === null;
+    if (shouldRemoveBaseline) {
+      // Check if current goal has a baseline data series, if not, no need to delete it
+      try {
+        const currentGoal = await prisma.goal.findUnique({
+          where: { id: goal.goalId },
+          select: { baselineDataSeries: true }
+        });
+        if (currentGoal?.baselineDataSeries == null) {
+          // Trying to delete the baseline when it doesn't exist will cause Prisma to throw an error
+          shouldRemoveBaseline = false;
+        }
+      } catch {
+        // Fail silently, this should either already be handled by the access check, or get handled when updating the goal
+      }
+    }
+
+    const baselineDataSeries = goal.rawBaselineDataSeries?.length ? dataSeriesPrep(goal.rawBaselineDataSeries) : undefined;
+    // If the baseline data series is invalid, return an error
+    if (baselineDataSeries === null) {
+      return Response.json({ message: 'Bad baseline data series' },
+        { status: 400 }
+      );
+    }
 
     const recipeHash = goal.recipe ? crypto.createHash('sha256').update(goal.recipe).digest('hex') : undefined;
 
@@ -375,19 +421,59 @@ export async function PUT(request: NextRequest) {
         externalDataset: goal.externalDataset,
         externalTableId: goal.externalTableId,
         externalSelection: goal.externalSelection,
-        dataSeries: {
-          upsert: {
-            update: {
-              ...dataSeries,
-              unit: goal.dataUnit,
-            },
-            create: {
-              ...dataSeries,
-              unit: goal.dataUnit,
-              authorId: session.user.id,
+        // Only update the data series if it is not undefined (undefined means no change)
+        ...(dataValues ? {
+          dataSeries: {
+            upsert: {
+              create: {
+                ...dataValues,
+                unit: goal.dataUnit ?? '',
+                authorId: session.user.id,
+              },
+              update: {
+                ...dataValues,
+                unit: goal.dataUnit,
+              }
             }
           }
-        },
+        } : {}),
+        ...(shouldRemoveBaseline ? {
+          baselineDataSeries: {
+            delete: true,
+          },
+        } : baselineDataSeries ? {
+          baselineDataSeries: {
+            upsert: {
+              create: {
+                ...baselineDataSeries,
+                unit: goal.dataUnit ?? '',
+                authorId: session.user.id,
+              },
+              update: {
+                ...baselineDataSeries,
+                unit: goal.dataUnit,
+              }
+            }
+          }
+        } : {}),
+        // Connect, disconnect, or create recipe
+        ...(goal.recipe ? {
+          recipeUsed: {
+            connectOrCreate: {
+              where: {
+                hash: recipeHash as string,
+              },
+              create: {
+                hash: recipeHash as string,
+                recipe: goal.recipe,
+              }
+            }
+          }
+        } : goal.recipe === null ? {
+          recipeUsed: {
+            disconnect: true
+          }
+        } : {}),
         links: {
           deleteMany: {},
           create: goal.links?.map(link => {
@@ -402,6 +488,8 @@ export async function PUT(request: NextRequest) {
         id: true,
       }
     });
+    // Prune any orphaned links and comments
+    void pruneOrphans();
     // Invalidate old cache
     revalidateTag('goal');
     // Return the edited goal's ID if successful
@@ -422,7 +510,7 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const [session, goal] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<{ id: string }>
+    request.json() as Promise<JSONValue>
   ]);
 
   // Validate session
@@ -433,7 +521,7 @@ export async function DELETE(request: NextRequest) {
   }
 
   // Validate request body
-  if (!goal.id) {
+  if (!goal || !(typeof goal === 'object') || Array.isArray(goal) || typeof goal.id !== 'string' || goal.id.length === 0) {
     return Response.json({ message: 'Missing required input parameters' },
       { status: 400 }
     );
@@ -446,8 +534,18 @@ export async function DELETE(request: NextRequest) {
         select: { id: true, username: true, isAdmin: true, userGroups: true }
       }),
       prisma.goal.findUnique({
-        where: { id: goal.id },
-        include: goalInclusionSelection,
+        where: {
+          id: goal.id,
+          // The following is an access check, implicitly checking that the user has `AccessLevel.Author` or `AccessLevel.Admin`
+          ...(session.user.isAdmin ? {} : {
+            OR: [
+              // Either the goal, roadmap or meta roadmap must be authored by the user, unless they are an admin
+              { authorId: session.user.id },
+              { roadmap: { authorId: session.user.id } },
+              { roadmap: { metaRoadmap: { authorId: session.user.id } } },
+            ]
+          })
+        },
       }),
     ]);
 
@@ -458,12 +556,6 @@ export async function DELETE(request: NextRequest) {
 
     // If the goal is not found it either does not exist or the user has no access to it
     if (!currentGoal) {
-      throw new Error(ClientError.AccessDenied, { cause: 'goal' });
-    }
-
-    // Check if the user has the right to delete the goal
-    const access = accessChecker(currentGoal.roadmap, { ...user, userGroups: user.userGroups.map(g => g.id) });
-    if (access !== AccessLevel.Author && access !== AccessLevel.Edit) {
       throw new Error(ClientError.AccessDenied, { cause: 'goal' });
     }
   } catch (error) {

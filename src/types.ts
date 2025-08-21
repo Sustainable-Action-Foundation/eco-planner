@@ -270,7 +270,7 @@ export type RoadmapInput = Omit<
   // Version numbers are assigned by the API
 };
 
-/** The format of t he data needed to create a new goal. */
+/** The format of the data needed to create a new goal. */
 export type GoalCreateInput = {
   /**
    * This type is derived from @type {Prisma.GoalCreateInput}, but with some fields omitted in clear text for better intellisense readability and maintainability.
@@ -286,7 +286,7 @@ export type GoalCreateInput = {
   rawBaselineDataSeries?: string[] | null,
   recipe?: string | null,
   roadmapId: string,
-  goalId?: never,
+  goalId?: string,
   links?: { url: string, description?: string | null }[],
   timestamp?: number,
   isFeatured?: boolean,

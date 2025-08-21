@@ -23,7 +23,7 @@ export default function dataSeriesPrep(
     const keys = dataSeries.map((_, index) => Years[index]);
     keys.forEach((key, index) => {
       let value: number | null = parseFloat(dataSeries[index]);
-      // If the value is empty, infinite , or NaN, set it to null
+      // If the value is empty, infinite, or NaN, set it to null
       if (dataSeries[index] == null || !Number.isFinite(value)) {
         value = null;
       }
