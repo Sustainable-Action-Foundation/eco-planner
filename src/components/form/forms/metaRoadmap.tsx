@@ -4,14 +4,14 @@ import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" wit
 import { LoginData } from "@/lib/session";
 import { AccessControlled, MetaRoadmapInput } from "@/types";
 import { MetaRoadmap, RoadmapType } from "@prisma/client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import formSubmitter from "@/functions/formSubmitter";
 import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
-import SuggestiveText from "../elements/combobox/suggestiveText.tsx";
 import TextEditor from "@/components/form/elements/textEditor/textEditor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import SelectMultipleSearch from "../elements/combobox/selectMultipleSearch";
+import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete.tsx";
 
 /* TODO: Ensure everything is validated properly on the server */
 // TODO: Set required for viewer and editselection if custom is selected
@@ -166,7 +166,7 @@ export default function MetaRoadmapForm({
           </label>
 
           <label htmlFor="actor">Aktör</label>
-          <SuggestiveText // TODO: For accesibility purposed must act as a regular textinput given an empty array has been passed
+          <TextSingleAutocomplete
             props={{
               className: "margin-top-25 margin-bottom-100",
               id: "actor",

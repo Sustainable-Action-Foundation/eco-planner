@@ -9,8 +9,9 @@ import { inputElement } from "@/components/types";
 import { handleKeyDownEditableCombobox, scrollOptionIntoView } from "./functions";
    
 // TODO: Decide on how to handle options/values here is it string or {name: string, value: string}? 
+// TODO: Add an onchange prop for this (or all inputs?)
 
-export default function SuggestiveText({
+export default function TextSingleAutocomplete({
   props,
   options,
 }: {
@@ -103,7 +104,7 @@ export default function SuggestiveText({
       </div>
 
       {options.length > 0 && searchResults.length > 0 ?
-        <ul // TODO: Need somethin which indicates theese are just suggestions
+        <ul // TODO: Need somethin which indicates theese are just suggestions (aria-activedescendent does not change when blurring)
           id={`${props.id}-listbox`}
           className={`
               ${styles['listbox']} 
