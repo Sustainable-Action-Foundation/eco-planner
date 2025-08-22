@@ -8,6 +8,7 @@ import { evaluateRecipe, cleanRecipe, recipeFromUnknown } from "@/functions/pars
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import { DataSeriesVariable, ExternalVariable, ScalarVariable } from "./variables";
+import { Locales } from "i18n.config";
 
 type RecipeContextType = {
   recipe: Recipe | null;
@@ -335,7 +336,7 @@ export function RecipeErrorAndWarnings() {
   return (<>
     {/* Recipe error */}
     {error && (
-      <div className="margin-block-100" style={{ color: 'red' }}>
+      <div lang={Locales.enSE} className="margin-block-100" style={{ color: 'red' }}>
         <strong>{t("components:copy_and_scale.evaluation_error_title")}:</strong>
         <p>{error}</p>
       </div>
@@ -343,7 +344,7 @@ export function RecipeErrorAndWarnings() {
 
     {/* Recipe warnings */}
     {warnings.length > 0 && (
-      <div className="margin-block-100" style={{ color: 'orange' }}>
+      <div lang={Locales.enSE} className="margin-block-100" style={{ color: 'orange' }}>
         <strong>{t("components:copy_and_scale.evaluation_warning_title")}:</strong>
         <ul>
           {warnings.map((warning, i) => <li key={i}>{warning}</li>)}
