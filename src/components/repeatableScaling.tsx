@@ -28,6 +28,9 @@ async function getValue(e: React.ChangeEvent<HTMLSelectElement> | { target: { va
 };
 
 /**
+ * ## DEPRECATED - use recipes instead
+ * TODO: remove this
+ * 
  * A repeatable component for scaling data based on area or inhabitants.
  * Should be used in a form, and the combined output can be read from the hidden input(-s) named "scaleFactor".
  * 
