@@ -61,7 +61,12 @@ export default function CopyAndScale({
 
     let recipeUsed: Recipe | undefined;
     try {
-      recipeUsed = recipeFromUnknown(form.get("resultingRecipe"));
+      const unparsedRecipe = form.get("resultingRecipe");
+      if (unparsedRecipe instanceof File) {
+        setIsLoading(false);
+        throw new Error("Why is this a file?");
+      }
+      recipeUsed = recipeFromUnknown(unparsedRecipe);
       if (!recipeUsed) {
         throw new Error("Failed to parse recipe from form data");
       }
