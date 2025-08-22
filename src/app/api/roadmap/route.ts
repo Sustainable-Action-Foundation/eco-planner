@@ -97,6 +97,7 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  // TODO: reevaluate this. Should use recipe based system
   // If a parent roadmap is defined to be inherited from, append its goals to the new roadmap's goals
   if (roadmap.inheritFromIds) {
     try {
@@ -113,6 +114,7 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  // TODO: reevaluate this. Should use recipe based system
   // Get the highest existing version number for this meta roadmap, defaulting to 0
   let latestVersion: number;
   try {

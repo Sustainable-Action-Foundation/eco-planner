@@ -276,6 +276,7 @@ export type RoadmapInput = Omit<
   // UUID for the meta roadmap this roadmap belongs to
   metaRoadmapId: string;
   // Used in API to inherit the goals with the given IDs from other roadmaps
+  // TODO: DEPRECATED - remove this prop since it should be recipe derived
   inheritFromIds?: string[] | null | undefined;
   // Version numbers are assigned by the API and therefore omitted
 };
