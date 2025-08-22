@@ -73,6 +73,9 @@ export function ManualGoalForm({
   )
 }
 
+/** 
+ * TODO: Update to use recipe editor and such fancy new stuff
+ */
 export function InheritingBaseline() {
   const { t } = useTranslation(["forms", "common"]);
   const [roadmapList, setRoadmapList] = useState<Awaited<ReturnType<typeof clientSafeGetRoadmaps>>>([]);
