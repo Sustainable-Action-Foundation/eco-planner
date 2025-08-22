@@ -14,6 +14,8 @@
 
 - Move roadmap and data series fetching to the variable instances instead of the variable editor.
 
+- Link to mathjs documentation for the functions that are allowed in the equation editor.
+
 ### To Axel
 - Please make all the UI/UX very pretty and nice plz :3
 
