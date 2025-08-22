@@ -54,11 +54,6 @@ export default function RoadmapForm({
     if (currentFile) {
       try {
         goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer })), () => alert(t("forms:roadmap.scale_deprecated")));
-        /** 
-         * ## DEPRECATED - use recipes instead
-         * TODO: remove this
-         */
-        // goals.forEach(goal => goal.roadmapId = metaRoadmapId);
       }
       catch (error) {
         setIsLoading(false)
@@ -88,7 +83,7 @@ export default function RoadmapForm({
       roadmapId: currentRoadmap?.id || undefined,
       goals: goals,
       metaRoadmapId,
-      inheritFromIds: inheritGoalIds,
+      inheritFromIds: inheritGoalIds, // TODO: DEPRECATED - remove
       targetVersion: parseInt((form.namedItem('targetVersion') as HTMLSelectElement)?.value) || null,
       timestamp,
     }
@@ -234,7 +229,7 @@ export default function RoadmapForm({
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:roadmap.upload_goals")}</legend>
           <label className="block margin-bottom-100">
-            {/*TODO: Add to info bubble
+            {/* TODO: Add to info bubble
             Om du har en CSV-fil med målbanor kan du ladda upp den här. <br />
             Notera att det här skapar nya målbanor även om det redan finns några. */}
             <Trans
@@ -247,6 +242,8 @@ export default function RoadmapForm({
           </label>
         </fieldset>
 
+
+        {/* TODO: Use recipes */}
         {/* TODO: Add option to inherit some/all goals from previous versions of same roadmap */}
         {/* TODO: Add checkboxes for inheriting some/all goals from another roadmap (not the target) with `inheritFromID` */}
         {/* TODO: Allow choosing which roadmap to inherit from, might be different from target */}
