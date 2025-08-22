@@ -296,7 +296,7 @@ export function DataSeriesVariable({
       }}
       disabled={!rules.allowValueEditing}
     >
-      <option value={""}>{t("components:recipe_editor.select_roadmap")}</option>
+      <option disabled={true} value={""}>{t("components:recipe_editor.select_roadmap")}</option>
       {availableRoadmaps.map((r, i) => (
         <option key={`roadmapOption-${i}`} value={r.id}>
           {r.name}
@@ -306,16 +306,16 @@ export function DataSeriesVariable({
 
     {/* Goal (data series) */}
     <select
-      defaultValue={variable.link || ""}
+      value={variable.link || ""}
       onChange={handleDataSeriesChange}
       disabled={!rules.allowValueEditing}
     >
-      <option value="">{t("components:recipe_editor.goal_or_effect")}</option>
+      <option disabled={true} value="">{t("components:recipe_editor.goal_or_effect")}</option>
       {availableDataSeries
         .map(ds => ({ ...ds, displayName: ds.unit ? `(${ds.unit}) ${ds.name}` : ds.name }))
         .sort((a, b) => a.displayName.localeCompare(b.displayName))
-        .map((ds, i) => (
-          <option key={`dataSeriesOption-${i}`} value={ds.id}>
+        .map(ds => (
+          <option key={`dataSeries-${ds.id}`} value={ds.id}>
             {ds.displayName}
           </option>
         ))}

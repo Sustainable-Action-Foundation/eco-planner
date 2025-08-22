@@ -183,9 +183,9 @@ export function RecipeVariableEditor({
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
 
-  const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[] | null>(null);
+  const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[]>([]);
   const [selectedRoadmaps, setSelectedRoadmaps] = useState<string[]>([]);
-  const [availableDataSeries, setAvailableDataSeries] = useState<{ id: string; name: string; roadmapId: string; }[] | null>(null);
+  const [availableDataSeries, setAvailableDataSeries] = useState<{ id: string; name: string; roadmapId: string; }[]>([]);
 
   // On mount, fetch all roadmaps user has access to
   useEffect(() => {
@@ -225,24 +225,19 @@ export function RecipeVariableEditor({
           if (!goal.dataSeries) return null;
           return {
             id: goal.dataSeries.id,
-            name: goal.name,
+            name: goal.name || goal.indicatorParameter,
             roadmapId: roadmapId,
             ...(goal.dataSeries.unit ? { unit: goal.dataSeries.unit } : {})
           }
         });
-        if (series.length === 0) {
+        if (!series || series.length === 0) {
           console.warn("No data series found in roadmap", roadmapId);
           return;
         }
 
-        const dataSeriesFound = Object.fromEntries(series
-          .filter(ds => ds !== null)
-          .map(ds => ([ds.id, ds])));
+        const nonNullSeries = series.filter(ds => ds !== null);
 
-        setAvailableDataSeries(prev => {
-          const existingDataSeries = prev ? Object.fromEntries(prev.map(ds => ([ds.id, ds]))) : {};
-          return Object.values({ ...existingDataSeries, ...dataSeriesFound }) as { id: string; name: string; roadmapId: string; unit?: string; }[];
-        });
+        setAvailableDataSeries(nonNullSeries);
       }
       catch (e) {
         console.error("Failed to fetch data series for roadmap", e);
@@ -252,7 +247,7 @@ export function RecipeVariableEditor({
     async function fetchAllDataSeries() {
       if (!selectedRoadmaps || selectedRoadmaps.length === 0) return;
 
-      setAvailableDataSeries(null);
+      // setAvailableDataSeries(null);
 
       for (const roadmapId of selectedRoadmaps) {
         await fetchOneDataSeries(roadmapId);
@@ -298,22 +293,22 @@ export function RecipeVariableEditor({
           switch (variable.type) {
             case RecipeDataTypes.Scalar:
               return <ScalarVariable
-                key={i}
+                key={"recipeVariable" + i}
                 name={name}
                 rules={rules}
               />
             case RecipeDataTypes.DataSeries:
               return <DataSeriesVariable
-                key={i}
+                key={"recipeVariable" + i}
                 name={name}
                 rules={rules}
-                availableRoadmaps={availableRoadmaps || []}
-                availableDataSeries={availableDataSeries || []}
+                availableRoadmaps={availableRoadmaps}
+                availableDataSeries={availableDataSeries}
                 setSelectedRoadmaps={setSelectedRoadmaps}
               />
             case RecipeDataTypes.External:
               return <ExternalVariable
-                key={i}
+                key={"recipeVariable" + i}
                 name={name}
                 rules={rules}
               />
