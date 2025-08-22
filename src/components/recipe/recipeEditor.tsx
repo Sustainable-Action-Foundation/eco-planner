@@ -247,8 +247,7 @@ export function RecipeVariableEditor({
     async function fetchAllDataSeries() {
       if (!selectedRoadmaps || selectedRoadmaps.length === 0) return;
 
-      // setAvailableDataSeries(null);
-
+      // TODO: even though it iterates it will override the last fetched data series
       for (const roadmapId of selectedRoadmaps) {
         await fetchOneDataSeries(roadmapId);
       }
