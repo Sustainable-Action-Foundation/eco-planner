@@ -40,4 +40,5 @@
 
 ## Tests
 - The recipe parser tests are completely broken hihi
+  - Also the locale files are in a similar situation lol. Mostly eslint things I would assume since locale functionality hasn't been touched in a while.
 - Otherwise the web tests are pretty bog standard playwright tests. Go ham https://playwright.dev/docs/writing-tests
