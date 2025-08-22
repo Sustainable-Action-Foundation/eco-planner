@@ -56,7 +56,12 @@ export const RoadmapSortBy = {
 } as const;
 export type RoadmapSortBy = (typeof RoadmapSortBy)[keyof typeof RoadmapSortBy];
 
-/** Different scaling methods used in scalingRecipe */
+/** 
+ * ## DEPRECATED - use recipes instead
+ * TODO: remove this
+ * 
+ * Different scaling methods used in scalingRecipe
+ */
 export const ScaleMethod = {
   Algebraic: "ALGEBRAIC",
   Geometric: "GEOMETRIC",
