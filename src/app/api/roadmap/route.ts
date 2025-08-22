@@ -5,8 +5,8 @@ import { AccessControlled, AccessLevel, ClientError, GoalCreateInput, RoadmapInp
 import roadmapGoalCreator from "./roadmapGoalCreator";
 import accessChecker from "@/lib/accessChecker";
 import { revalidateTag } from "next/cache";
-import goalInputFromGoalArray from "@/functions/goalInputFromGoalArray";
-import getOneGoal from "@/fetchers/getOneGoal";
+// import goalInputFromGoalArray from "@/functions/goalInputFromGoalArray";
+// import getOneGoal from "@/fetchers/getOneGoal";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { cookies } from "next/headers";
 import { Prisma } from "@prisma/client";
@@ -99,19 +99,20 @@ export async function POST(request: NextRequest) {
 
   // TODO: reevaluate this. Should use recipe based system
   // If a parent roadmap is defined to be inherited from, append its goals to the new roadmap's goals
-  if (roadmap.inheritFromIds) {
-    try {
-      const goalArray = await Promise.all(roadmap.inheritFromIds.map(async (id) => await getOneGoal(id)));
-      //getOneRoadmap(roadmap.inheritFromId);
-      if (goalArray) {
-        roadmap.goals = [...(roadmap.goals || []), ...goalInputFromGoalArray(goalArray, roadmap.metaRoadmapId)];
-      }
-    } catch (error) {
-      console.log(error);
-      return Response.json({ message: 'Failed to fetch roadmap to inherit from' },
-        { status: 400 }
-      );
-    }
+  if (roadmap.inheritFromIds?.length) {
+    return Response.json({ message: 'This feature is no longer supported' }, { status: 500 });
+    // try {
+    //   const goalArray = await Promise.all(roadmap.inheritFromIds.map(async (id) => await getOneGoal(id)));
+    //   //getOneRoadmap(roadmap.inheritFromId);
+    //   if (goalArray) {
+    //     roadmap.goals = [...(roadmap.goals || []), ...goalInputFromGoalArray(goalArray, roadmap.metaRoadmapId)];
+    //   }
+    // } catch (error) {
+    //   console.log(error);
+    //   return Response.json({ message: 'Failed to fetch roadmap to inherit from' },
+    //     { status: 400 }
+    //   );
+    // }
   }
 
   // TODO: reevaluate this. Should use recipe based system
