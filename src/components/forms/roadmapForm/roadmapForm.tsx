@@ -54,7 +54,11 @@ export default function RoadmapForm({
     if (currentFile) {
       try {
         goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer })), () => alert(t("forms:roadmap.scale_deprecated")));
-        goals.forEach(goal => goal.roadmapId = metaRoadmapId);
+        /** 
+         * ## DEPRECATED - use recipes instead
+         * TODO: remove this
+         */
+        // goals.forEach(goal => goal.roadmapId = metaRoadmapId);
       }
       catch (error) {
         setIsLoading(false)
@@ -63,10 +67,14 @@ export default function RoadmapForm({
       }
     }
 
+    /** 
+     * ## DEPRECATED - use recipes instead
+     * TODO: remove this
+     */
     const inheritGoalIds: string[] = [];
     (form.namedItem('inheritGoals') as RadioNodeList | null)?.forEach((checkbox) => {
-      if ((checkbox as HTMLInputElement).checked) {
-        inheritGoalIds.push((checkbox as HTMLInputElement).value)
+      if (checkbox.checked) {
+        inheritGoalIds.push(checkbox.value)
       }
     })
 
