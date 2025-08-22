@@ -9,6 +9,7 @@
 
 - Filter which errors are shown to the user. Like `'null' link on data series 'name'` isn't that helpful since the link prop is optional. Maybe warn instead and formulate it better. Like don't scream at the user for using the tool like intended lol.
   - This could be done with adding a new Error type that is a `HardWarning` or `BreakingWarning` or `SilentError` to handle things with more nuance while still breaking the flow. That code is built as a map that constructs a bunch of async functions to be await so not hard stopping will cause issues.
+  - Log the stack to the console to give more context for debugging.
 
 - Localize some hard coded strings like the default variable name is `varN` which isn't great. There are probably others I missed.
 
