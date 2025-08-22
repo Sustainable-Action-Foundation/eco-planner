@@ -12,6 +12,8 @@
 
 - Localize some hard coded strings like the default variable name is `varN` which isn't great. There are probably others I missed.
 
+- Move roadmap and data series fetching to the variable instances instead of the variable editor.
+
 ### To Axel
 - Please make all the UI/UX very pretty and nice plz :3
 
