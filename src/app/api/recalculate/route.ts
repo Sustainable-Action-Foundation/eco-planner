@@ -3,7 +3,7 @@ import { RecipeError } from "@/functions/recipe-parser/types";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
-import { AccessControlled, ClientError, DataSeriesValueFields } from "@/types";
+import { AccessControlled, ClientError, DataSeriesValueFields, Years } from "@/types";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
             }
           },
         }
-      })
+      }),
     ]);
 
     // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
@@ -78,17 +78,36 @@ export async function POST(request: NextRequest) {
       throw new Error(ClientError.AccessDenied)
     }
 
-    const parsedRecipe = await cleanRecipe(recipeFromUnknown(goal.recipeUsed?.recipe));
-
-    // Try to update goal
-    const warnings: string[] = [];
-    const recalculatedData = await evaluateRecipe(parsedRecipe, warnings);
-    const dataSeries: Partial<DataSeriesValueFields> = {};
-    for (const [key, value] of Object.entries(recalculatedData)) {
-      if (key === "unit") continue; // Skip unit, it's not a data series field
-      dataSeries[("val" + key) as keyof DataSeriesValueFields] = value as number | null;
+    // Nothing beside the recipe has the information needed to recalculate the goal's data series now after the great recipe implementation.
+    if (!goal.recipeUsed) {
+      return Response.json({ message: "Goal has no recipe to recalculate" },
+        { status: 400 }
+      );
     }
 
+    // Try to recalculate the data series
+    const cleanedRecipe = cleanRecipe(recipeFromUnknown(goal.recipeUsed.recipe));
+    const warnings: string[] = [];
+    const { dataSeries, unit } = await evaluateRecipe(cleanedRecipe, warnings);
+    if (warnings.length > 0) {
+      // If there are warnings, log them
+      console.warn(`Recalculate goal ${requestJson.id} with recipe ${goal.recipeUsed.hash} (${JSON.stringify(cleanedRecipe, null, 2)})\nproduced warnings:\n${warnings.join('\n')}`);
+    }
+
+    // Ensure all years are defined in the data series to prevent partial updates
+    for (const year of Years) {
+      if (dataSeries[year] === undefined) {
+        dataSeries[year] = null;
+      }
+    }
+    // Type guard it to make it harder to mess up with prisma
+    if (!((ds): ds is DataSeriesValueFields => Object.values(ds).every(value => value === null || typeof value === 'number'))(dataSeries)) {
+      return Response.json({ message: "Failed to update goal. The recipe used may have caused the issue." },
+        { status: 500 }
+      );
+    };
+
+    // Try to update the goal with the new data series
     const updatedGoal = await prisma.goal.update({
       where: {
         id: requestJson.id,
@@ -97,6 +116,7 @@ export async function POST(request: NextRequest) {
         dataSeries: {
           update: {
             ...dataSeries,
+            ...unit ? { unit } : {},
           }
         }
       },
