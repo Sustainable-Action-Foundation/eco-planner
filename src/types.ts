@@ -2,6 +2,11 @@ import { ActionImpactType, Prisma, RoadmapType } from "@prisma/client";
 import { actionInclusionSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, roadmapInclusionSelection } from "./fetchers/inclusionSelectors";
 import { Years as GeneratedYears } from "./lib/dataSeriesCanonicalYears";
 
+export function typeguardDebug(message: string): false {
+  console.debug(message);
+  return false;
+}
+
 /** An object that implements the AccessControlled interface can be checked with the accessChecker function. */
 export interface AccessControlled {
   // Author is usually a single object, but allow for an array in case we need to check if the user is

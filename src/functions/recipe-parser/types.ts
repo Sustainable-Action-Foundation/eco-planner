@@ -1,6 +1,6 @@
 import { vectorIndexPickerFunctions, VectorIndexPickerOptions } from "@/components/recipe/variables";
 import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
-import { isStandardObject, uuidRegex } from "@/types";
+import { isStandardObject, JSONValue, typeguardDebug, uuidRegex } from "@/types";
 
 /* 
  * Common types for recipes
@@ -31,30 +31,38 @@ export type RecipeScalar = {
   value: number;
   unit: string | null | undefined; // String if given, null if removed, undefined if not specified
 };
-export function isRecipeScalar(variable: unknown): variable is RecipeScalar {
+export function isRecipeScalar(variable: JSONValue): variable is RecipeScalar {
   const allowedProps = ["type", "value", "unit"];
 
   return (
-    isStandardObject(variable)
-    &&
-
-    "type" in variable &&
-    variable.type === RecipeDataTypes.Scalar
-    &&
-
-    "value" in variable &&
-    typeof variable.value === "number"
-    &&
+    (
+      variable instanceof Object &&
+      !Array.isArray(variable) &&
+      variable != null ||
+      typeguardDebug("Type guard: scalar variable should be an object") && false
+    ) &&
 
     (
-      ("unit" in variable && typeof variable.unit === "string") ||
-      ("unit" in variable && variable.unit === null) ||
-      !("unit" in variable) // May be undefined
-    )
-    &&
+      variable.type === RecipeDataTypes.Scalar ||
+      typeguardDebug("Type guard: 'type' in scalar variable") && false
+    ) &&
+
+    (
+      typeof variable.value === "number" ||
+      typeguardDebug("Type guard: 'value' in scalar variable") && false
+    ) &&
+
+    (
+      typeof variable.unit === "string" ||
+      variable.unit == null || // May be null or undefined
+      typeguardDebug("Type guard: 'unit' in scalar variable") && false
+    ) &&
 
     // Ensure no other properties are present
-    Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0
+    (
+      Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0 ||
+      typeguardDebug("Type guard: unknown properties in scalar variable") && false
+    )
   );
 }
 export const emptyRecipeScalar: RecipeScalar = { type: RecipeDataTypes.Scalar, value: 0, unit: undefined } as const;
@@ -69,37 +77,45 @@ export type RecipeDataSeries = {
   pick: VectorIndexPickerOptions;
   unit: string | null | undefined; // String if given, null if removed, undefined if not specified
 };
-export function isRecipeDataSeries(variable: unknown): variable is RecipeDataSeries {
+export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataSeries {
   const allowedProps = ["type", "link", "pick", "unit"];
 
   return (
-    isStandardObject(variable)
-    &&
-
-    "type" in variable &&
-    variable.type === RecipeDataTypes.DataSeries
-    &&
-
-    // TODO: Make more of these debug logs in type guards
-    ((
-      ("link" in variable && typeof variable.link === "string" && uuidRegex.test(variable.link)) ||
-      ("link" in variable && variable.link == null) ||
-      !("link" in variable) // May be undefined
-    ) || (() => { console.debug("Type guard: 'link' in data series variable"); return false; })())
-    &&
-
-    "pick" in variable &&
-    (typeof variable.pick === "string" && vectorIndexPickerFunctions[variable.pick as VectorIndexPickerOptions] !== undefined)
-    &&
+    (
+      variable instanceof Object &&
+      !Array.isArray(variable) &&
+      variable != null ||
+      typeguardDebug("Type guard: data series variable should be an object") && false
+    ) &&
 
     (
-      ("unit" in variable && typeof variable.unit === "string") ||
-      ("unit" in variable && variable.unit == null) ||
-      !("unit" in variable) // May be undefined
-    )
-    &&
+      variable.type === RecipeDataTypes.DataSeries ||
+      typeguardDebug("Type guard: 'type' in data series variable") && false
+    ) &&
 
-    Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0
+    // TODO: Make more of these debug logs in type guards
+    (
+      (typeof variable.link === "string" && uuidRegex.test(variable.link)) ||
+      variable.link == null || // May be undefined
+      typeguardDebug("Type guard: 'link' in data series variable") && false
+    ) &&
+
+    (
+      typeof variable.pick === "string" &&
+      vectorIndexPickerFunctions[variable.pick as VectorIndexPickerOptions] !== undefined ||
+      typeguardDebug("Type guard: 'pick' in data series variable") && false
+    ) &&
+
+    (
+      typeof variable.unit === "string" ||
+      variable.unit == null || // May be null or undefined
+      typeguardDebug("Type guard: 'unit' in data series variable") && false
+    ) &&
+
+    (
+      Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0 ||
+      typeguardDebug("Type guard: unknown properties in data series variable") && false
+    )
   )
 }
 export const emptyRecipeDataSeries: RecipeDataSeries = { type: RecipeDataTypes.DataSeries, link: undefined, pick: "first", unit: undefined } as const;
@@ -120,65 +136,84 @@ export type RecipeExternalDataset = {
   pick: VectorIndexPickerOptions;
   unit: string | null | undefined; // String if given, null if removed, undefined if not specified
 };
-export function isRecipeExternalDataset(variable: unknown): variable is RecipeExternalDataset {
+export function isRecipeExternalDataset(variable: JSONValue): variable is RecipeExternalDataset {
   const allowedProps = ["type", "dataset", "tableId", "selection", "pick", "unit"];
 
   return (
-    isStandardObject(variable)
-    &&
-
-    "type" in variable &&
-    variable.type === RecipeDataTypes.External
-    &&
-
-    "dataset" in variable &&
     (
-      typeof variable.dataset === "string" && ExternalDataset.knownDatasetKeys.includes(variable.dataset as DatasetKeys) ||
-      variable.dataset == null // May be null if not specified
-    )
-    &&
-
-    "tableId" in variable &&
-    (
-      typeof variable.tableId === "string" && variable.tableId.trim() !== "" ||  // Ensure tableId is a non-empty string
-      variable.tableId == null // May be null if not specified
-    )
-    &&
-
-    "selection" in variable &&
-    isRecipeExternalDatasetSelection(variable.selection)
-    &&
-
-    "pick" in variable &&
-    (typeof variable.pick === "string" && vectorIndexPickerFunctions[variable.pick as VectorIndexPickerOptions] !== undefined)
-    &&
+      variable instanceof Object &&
+      !Array.isArray(variable) &&
+      variable != null ||
+      typeguardDebug("Type guard: external dataset variable should be an object") && false
+    ) &&
 
     (
-      ("unit" in variable && typeof variable.unit === "string") ||
-      ("unit" in variable && variable.unit == null) ||
-      !("unit" in variable) // May be undefined
-    )
-    &&
+      variable.type === RecipeDataTypes.External ||
+      typeguardDebug("Type guard: 'type' in external dataset variable") && false
+    ) &&
+
+    (
+      typeof variable.dataset === "string" &&
+      ExternalDataset.knownDatasetKeys.includes(variable.dataset as DatasetKeys) ||
+      variable.dataset == null || // May be null if not specified
+      typeguardDebug("Type guard: 'dataset' in external dataset variable") && false
+    ) &&
+
+    (
+      typeof variable.tableId === "string" &&
+      variable.tableId.trim() !== "" ||  // Ensure tableId is a non-empty string
+      variable.tableId == null || // May be null if not specified
+      typeguardDebug("Type guard: 'tableId' in external dataset variable") && false
+    ) &&
+
+    (
+      isRecipeExternalDatasetSelection(variable.selection ?? null) ||
+      typeguardDebug("Type guard: 'selection' in external dataset variable") && false
+    ) &&
+
+    (
+      typeof variable.pick === "string" &&
+      vectorIndexPickerFunctions[variable.pick as VectorIndexPickerOptions] !== undefined ||
+      typeguardDebug("Type guard: 'pick' in external dataset variable") && false
+    ) &&
+
+    (
+      typeof variable.unit === "string" ||
+      variable.unit == null || // May be null or undefined
+      typeguardDebug("Type guard: 'unit' in external dataset variable") && false
+    ) &&
 
     // Ensure no other properties are present
-    Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0
+    (
+      Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0 ||
+      typeguardDebug("Type guard: unknown properties in external dataset variable") && false
+    )
   );
 }
-export function isRecipeExternalDatasetSelection(selection: unknown): selection is RecipeExternalDataset["selection"] {
+export function isRecipeExternalDatasetSelection(selection: JSONValue): selection is RecipeExternalDataset["selection"] {
   return (
     Array.isArray(selection) &&
     selection.every(item => (
-      isStandardObject(item)
-      &&
+      (
+        item instanceof Object &&
+        !Array.isArray(item) &&
+        item != null ||
+        typeguardDebug("Type guard: selection items should be objects") && false
+      ) &&
 
-      "variableCode" in item &&
-      typeof item.variableCode === "string" &&
-      item.variableCode.trim() !== ""
-      &&
+      (
+        "variableCode" in item &&
+        typeof item.variableCode === "string" &&
+        item.variableCode.trim() !== "" ||
+        typeguardDebug("Type guard: 'variableCode' in selection item") && false
+      ) &&
 
-      "valueCodes" in item &&
-      Array.isArray(item.valueCodes) &&
-      item.valueCodes.every(code => typeof code === "string" && code.trim() !== "")
+      (
+        "valueCodes" in item &&
+        Array.isArray(item.valueCodes) &&
+        item.valueCodes.every(code => typeof code === "string" && code.trim() !== "") ||
+        typeguardDebug("Type guard: 'valueCodes' in selection item") && false
+      )
     ))
   );
 }
@@ -194,37 +229,48 @@ export type Recipe = {
   eq: string;
   variables: Record<string, RecipeVariables>;
 };
-export function isRecipe(recipe: unknown): recipe is Recipe {
+export function isRecipe(recipe: JSONValue): recipe is Recipe {
   const allowedProps = ["name", "eq", "variables"];
 
   return (
-    isStandardObject(recipe)
-    &&
+    (
+      recipe instanceof Object &&
+      !Array.isArray(recipe) &&
+      recipe != null ||
+      typeguardDebug("Type guard: recipe should be an object") && false
+    ) &&
 
-    "name" in recipe &&
-    (typeof recipe.name === "string" || recipe.name === null || recipe.name === undefined)
-    &&
+    (
+      typeof recipe.name === "string" ||
+      recipe.name == null ||
+      typeguardDebug("Type guard: 'name' in recipe") && false
+    ) &&
 
-    "eq" in recipe &&
-    typeof recipe.eq === "string" &&
-    recipe.eq.trim() !== "" // Ensure eq is a non-empty string
-    &&
+    (
+      typeof recipe.eq === "string" &&
+      recipe.eq.trim() !== "" || // Ensure eq is a non-empty string
+      typeguardDebug("Type guard: 'eq' in recipe") && false
+    ) &&
 
-    "variables" in recipe &&
-    isStandardObject(recipe.variables) &&
-    Object.entries(recipe.variables).every(([key, value]) => (
-      typeof key === "string" &&
-      key.trim() !== "" &&
-      (
-        isRecipeScalar(value) ||
-        isRecipeDataSeries(value) ||
-        isRecipeExternalDataset(value)
-      )
-    ))
-    &&
+    (
+      isStandardObject(recipe.variables) &&
+      Object.entries(recipe.variables).every(([key, value]) => (
+        typeof key === "string" &&
+        key.trim() !== "" &&
+        (
+          isRecipeScalar(value ?? null) ||
+          isRecipeDataSeries(value ?? null) ||
+          isRecipeExternalDataset(value ?? null)
+        )
+      )) ||
+      typeguardDebug("Type guard: 'variables' in recipe") && false
+    ) &&
 
     // Ensure no other properties are present
-    Object.keys(recipe).filter(key => !allowedProps.includes(key)).length === 0
+    (
+      Object.keys(recipe).filter(key => !allowedProps.includes(key)).length === 0 ||
+      typeguardDebug("Type guard: unknown properties in recipe") && false
+    )
   );
 }
 export const emptyRecipe: Recipe = { name: undefined, eq: "", variables: {} } as const;

@@ -1,15 +1,15 @@
 import { EvalTimeDataSeries, EvalTimeExternalDataset, EvalTimeScalar, isRecipe, isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, MathjsError, Recipe, RecipeDataTypes, RecipeError, RecipeVariables } from "./recipe-parser/types";
 import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
 import mathjs from "@/math";
-import { DataSeriesValueFields, Years } from "@/types";
+import { DataSeriesValueFields, JSONValue, Years } from "@/types";
 import getTableContent from "@/lib/api/getTableContent";
 import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
 import { vectorIndexPickerFunctions } from "@/components/recipe/variables";
 
-export function recipeFromUnknown(recipe: unknown): Recipe {
+export function recipeFromUnknown(recipe: JSONValue): Recipe {
   if (typeof recipe === "string") {
     try {
-      recipe = JSON.parse(recipe);
+      recipe = JSON.parse(recipe) as JSONValue;
     } catch (error) {
       throw new RecipeError(`Failed to parse recipe from string: ${error instanceof Error ? error.message : String(error)}`);
     }
@@ -31,7 +31,7 @@ export function recipeFromUnknown(recipe: unknown): Recipe {
  * Cleans up a user made recipe from the form into a db friendly Recipe
  * Throws a somewhat user-friendly RecipeError if the recipe is invalid, so catching and displaying any errors is recommended.
  */
-export function cleanRecipe(recipe: unknown): Recipe {
+export function cleanRecipe(recipe: JSONValue): Recipe {
   if (!isRecipe(recipe)) {
     throw new RecipeError("Invalid recipe format. Did not match the Recipe type.");
   }
