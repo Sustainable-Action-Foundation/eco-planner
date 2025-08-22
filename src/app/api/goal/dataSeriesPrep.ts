@@ -1,4 +1,4 @@
-import { DataSeriesValueFields, Years } from "@/types";
+import { DataSeriesValueFields, isFullDataSeriesValueFields, Years } from "@/types";
 
 /**
  * Parses an object containing a string array called dataSeries into the format needed to create a data series.
@@ -35,6 +35,12 @@ export default function dataSeriesPrep(
   }
   // If the data series is invalid, return null
   else {
+    return null;
+  }
+
+  // Type guard it into a non partial DataSeriesValueFields
+  if (!isFullDataSeriesValueFields(dataValues)) {
+    console.error("Failed to transform data series into a full DataSeriesValueFields object in dataSeriesPrep");
     return null;
   }
 

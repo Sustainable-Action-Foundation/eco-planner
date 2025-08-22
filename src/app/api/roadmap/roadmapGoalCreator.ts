@@ -14,9 +14,9 @@ export default function roadmapGoalCreator(
 
   roadmap.goals.forEach((goal, goalIndex) => {
     // Create data series
-    const dataValues: Partial<DataSeriesValueFields> | null = dataSeriesPrep(goal.rawDataSeries ?? []);
+    const dataValues: DataSeriesValueFields | null = dataSeriesPrep(goal.rawDataSeries ?? []);
     // If the data series is invalid, throw an error
-    if (dataValues === null) {
+    if (!dataValues) {
       throw new Error(`Invalid nested data series at index ${goalIndex}`, { cause: 'nestedGoalCreation' })
     }
 

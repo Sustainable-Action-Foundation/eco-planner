@@ -354,4 +354,10 @@ export type EffectInput = Omit<
 // These are derived from the schema file through the getDataSeriesValueFieldNames script
 export const Years = GeneratedYears;
 export type Years = (typeof Years)[number];
+
 export type DataSeriesValueFields = Record<Years, number | null>;
+export function isFullDataSeriesValueFields(
+  dataSeries: Partial<DataSeriesValueFields>,
+): dataSeries is DataSeriesValueFields {
+  return Object.keys(dataSeries).length === Years.length && Years.every(year => year in dataSeries);
+}
