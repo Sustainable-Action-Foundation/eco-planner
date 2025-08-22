@@ -2,7 +2,7 @@
 
 import { closeModal, openModal } from "./modalFunctions";
 import { useRef, useState } from "react";
-import { GoalCreateInput, Goal, Years, DataSeriesValueFields } from "@/types";
+import { GoalCreateInput, Goal, Years, DataSeriesValueFields, isPartialDataSeriesValueFields, JSONValue, isFullDataSeriesValueFields } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
@@ -32,23 +32,38 @@ export default function CopyAndScale({
       throw new Error("Why is this a file?");
     }
 
-    const resultingDataSeriesString = form.get("resultingDataSeries");
-    console.log(resultingDataSeriesString);
-    let parsedDataSeries: DataSeriesValueFields | undefined;
+    // Try parsing the data series object from the recipe editor
+    let resultingDataSeries: DataSeriesValueFields;
     try {
-      parsedDataSeries = JSON.parse(resultingDataSeriesString as string) as DataSeriesValueFields;
-    } catch (error) {
+      const parsedDataSeries = JSON.parse(form.get("resultingDataSeries") as string) as JSONValue;
+      // At first expect the data series to be partial
+      if (!isPartialDataSeriesValueFields(parsedDataSeries)) {
+        throw new Error("Parsed data series does not match expected structure");
+      }
+
+      // Make it non-partial for easier transformation to string[] later
+      for (const year of Years) {
+        if (!(year in parsedDataSeries)) {
+          parsedDataSeries[year] = null; // Ensure all years are present
+        }
+      }
+      if (!isFullDataSeriesValueFields(parsedDataSeries)) {
+        throw new Error("Parsed data series is missing some years or has incorrect structure");
+      }
+
+      resultingDataSeries = parsedDataSeries;
+    }
+    catch (error) {
       setIsLoading(false);
       console.error("Failed to parse resulting data series:", error);
       return;
     }
 
-    const resultingRecipeString = form.get("resultingRecipe");
-    let evaluatedRecipe: Recipe | undefined;
+    let recipeUsed: Recipe | undefined;
     try {
-      evaluatedRecipe = recipeFromUnknown(resultingRecipeString);
-      if (!evaluatedRecipe) {
-        throw new Error("Failed to parse resulting recipe");
+      recipeUsed = recipeFromUnknown(form.get("resultingRecipe"));
+      if (!recipeUsed) {
+        throw new Error("Failed to parse recipe from form data");
       }
     }
     catch (error) {
@@ -57,12 +72,10 @@ export default function CopyAndScale({
       return;
     }
 
-    const dataSeriesArray = Years.map(field => {
-      const value = parsedDataSeries[field];
-      if (typeof value === 'string') {
-        return parseFloat(value);
-      }
-      return value ?? null;
+    // Make the data series into an api compatible string array
+    const rawDataSeries: string[] = Years.map(year => {
+      const value = resultingDataSeries[year];
+      return value ? value.toString() : "";
     });
 
     const formData: GoalCreateInput & { roadmapId: string } = {
@@ -70,9 +83,9 @@ export default function CopyAndScale({
       description: goal.description,
       indicatorParameter: goal.indicatorParameter,
       dataUnit: goal.dataSeries?.unit,
-      dataSeriesArray: dataSeriesArray,
+      rawDataSeries: rawDataSeries,
       roadmapId: copyToId as string ?? "",
-      recipeHash: form.get("recipeSuggestion") as string,
+      // TODO: add recipe to this form data to save it
     };
 
     const formJSON = JSON.stringify(formData);
