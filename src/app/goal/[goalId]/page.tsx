@@ -239,14 +239,6 @@ export default async function Page(
             </>
           }
 
-          {/* TODO - remove */}
-          {recipeUsed && (<pre>
-            {recipeUsed.hash}
-            <br />
-            {JSON.stringify(recipeUsed.recipe, null, 4)}
-            <br />
-          </pre>)}
-
           {goal.description ?
             <>
               <h2 className="margin-top-200 margin-bottom-0">{t("pages:goal.description")}</h2>
