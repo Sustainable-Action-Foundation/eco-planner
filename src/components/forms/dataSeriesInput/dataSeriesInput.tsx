@@ -11,6 +11,7 @@ export default function DataSeriesInput({
   dataSeriesString, // TODO - rename "dataSeriesString" to "dataSeriesInput" or "initialValue" (latter suggested by chatgpt)
   inputName = "dataSeries",
   inputId = "dataSeries",
+  // TODO: Take in any string and use that as the label instead of a key to alleviate testing
   labelKey = "forms:data_series_input.data_series",
 }: {
   dataSeriesString?: string;

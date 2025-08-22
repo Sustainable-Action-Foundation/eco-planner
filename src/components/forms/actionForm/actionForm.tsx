@@ -132,6 +132,7 @@ export default function ActionForm({
             <DataSeriesInput
               inputName="dataSeries"
               inputId="dataSeries"
+              // TODO: Take in any string and use that as the label instead of a key to alleviate testing
               labelKey="forms:data_series_input.data_series"
             />
           </fieldset>
