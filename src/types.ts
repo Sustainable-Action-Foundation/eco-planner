@@ -277,7 +277,7 @@ export type RoadmapInput = Omit<
   metaRoadmapId: string;
   // Used in API to inherit the goals with the given IDs from other roadmaps
   inheritFromIds?: string[] | null | undefined;
-  // Version numbers are assigned by the API
+  // Version numbers are assigned by the API and therefore omitted
 };
 
 /** The format of the data needed to create a new goal. */
