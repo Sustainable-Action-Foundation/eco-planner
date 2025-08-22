@@ -33,7 +33,12 @@ export const ClientError = {
 } as const;
 export type ClientError = (typeof ClientError)[keyof typeof ClientError];
 
-/** Object and type for different ways to get scalars for repeatableScaling and similar */
+/**
+ * ## DEPRECATED - use recipes instead
+ * TODO: remove this
+ * 
+ * Object and type for different ways to get scalars for repeatableScaling and similar 
+ */
 export const ScaleBy = {
   Custom: "CUSTOM",
   Inhabitants: "INHABITANTS",
