@@ -166,6 +166,9 @@ export default async function Page(
     }
   }
 
+  /** 
+   * TODO: Deprecated - this should crawl recipes instead
+   */
   // If any goalParent has a data series with a later updatedAt date than the goal, the goal should be updated
   // eslint-disable-next-line prefer-const
   let shouldUpdate = false;
