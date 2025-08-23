@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SelectMultipleSearch from "../elements/combobox/selectMultipleSearch"
 import { AccessControlled } from "@/types";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
@@ -8,7 +8,8 @@ import { LoginData } from "@/lib/session";
 import styles from '../forms.module.css'
 
 // TODO: Need more props for names and such + positionindex (not required?)
-// TODO: Set required for viewer and editselection if custom is selected
+// TODO: Remove default check
+
 export default function ConfigureAccess({
   user,
   userGroups,
@@ -20,6 +21,13 @@ export default function ConfigureAccess({
   currentRoadmap?: MetaRoadmap & AccessControlled | Roadmap & AccessControlled & { metaRoadmap: MetaRoadmap },
   positionIndex: number,
 }) {
+
+  const [viewers, setViewers] = useState<string>()
+  const [viewerGroups, setViewerGroups] = useState<Array<{name: string, value: string}>>()
+  const [editors, setEditors] = useState<string>()
+  const [EditorGroups, setEditorGroups] = useState<Array<{name: string, value: string}>>()
+ 
+  const accessSectionRef = useRef<HTMLDivElement>(null);
 
   let currentAccess: AccessControlled | undefined = undefined;
   if (currentRoadmap) {
@@ -46,9 +54,9 @@ export default function ConfigureAccess({
   const [editabilityType, setEditabilityType] = useState<"private" | "custom" | undefined>(
     currentAccess ? (currentAccess.editors.length > 0 || currentAccess.editGroups.length > 0 ? "custom" : "private") : "private"
   );
-
+ 
   return (
-    <>
+    <div ref={accessSectionRef}>
       {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
         // TODO: Disabled / placeholder need to be more discernable 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
@@ -91,7 +99,7 @@ export default function ConfigureAccess({
                   checked={visibilityType === "custom"}
                   onChange={(e) => setvisibilityType(e.target.value as any)}
                 />
-                Specifika användare och grupper
+                Specifika användare och/eller grupper
               </label>
             </legend>
             <div
@@ -110,17 +118,21 @@ export default function ConfigureAccess({
                 className="flex-grow-100"
                 placeholder="användare 1, användare 2, användare 3..."
                 disabled={visibilityType !== "custom"}
+                required={visibilityType === "custom" && (!viewerGroups || viewerGroups.length == 0)}
                 type="text"
                 autoComplete="off"
                 defaultValue={currentAccess?.viewers.map((viewer) => viewer.username)}
+                onChange={(e) => setViewers(e.target.value)}
               />
               <label htmlFor="viewer-groups" className="block width-fit-content">Grupper:</label>
-              <SelectMultipleSearch // TODO: Something needs to indicate that this is a multiselect :), TODO: Populate from default value
+              <SelectMultipleSearch 
+                onChange={(option) => setViewerGroups(option ? option : [])}
                 props={{
                   id: "viewer-groups",
                   name: "viewer-groups",
                   placeholder: "Välj grupper",
                   disabled: visibilityType !== "custom",
+                  required: visibilityType === "custom" && !viewers
                 }}
                 defaultValue={currentAccess?.viewGroups.map((group) => { return { name: group.name, value: group.name } })}
                 options={[
@@ -171,7 +183,7 @@ export default function ConfigureAccess({
                   checked={editabilityType === "custom"}
                   onChange={(e) => setEditabilityType(e.target.value as any)}
                 />
-                Specifika användare och grupper
+                Specifika användare och/eller grupper
               </label>
             </legend>
             <div
@@ -191,15 +203,19 @@ export default function ConfigureAccess({
                 name="editors"
                 placeholder="användare 1, användare 2, användare 3..."
                 disabled={editabilityType !== "custom"}
+                required={editabilityType === "custom" && (!EditorGroups || EditorGroups.length == 0)}
                 defaultValue={currentAccess?.editors.map((editor) => editor.username)}
+                onChange={(e) => setEditors(e.target.value)}
               />
               <label htmlFor="editor-groups" className="block width-fit-content">Grupper:</label>
-              <SelectMultipleSearch // TODO: Something needs to indicate that this is a multiselect :), TODO: Populate from default value
+              <SelectMultipleSearch
+                onChange={(option) => setEditorGroups(option ? option : [])}
                 props={{
                   id: "editor-groups",
                   name: "editor-groups",
                   placeholder: "Välj grupper",
                   disabled: editabilityType !== "custom",
+                  required: editabilityType === "custom" && !editors
                 }}
                 defaultValue={currentAccess?.editGroups.map((group) => { return { name: group.name, value: group.name } })}
                 options={[
@@ -219,6 +235,6 @@ export default function ConfigureAccess({
           </fieldset>
         </fieldset>
       }
-    </>
+    </div>
   )
 }

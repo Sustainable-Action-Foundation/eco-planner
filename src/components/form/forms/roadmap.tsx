@@ -164,10 +164,6 @@ export default function RoadmapForm({
   // Indexes for the data-position attribute in the legend elements
   let positionIndex = 1;
 
-  useEffect(() => {
-    console.log(metaRoadmapId)
-  }, [metaRoadmapId])
-
   return (
     <>
       <form onSubmit={handleSubmit}>
@@ -184,11 +180,11 @@ export default function RoadmapForm({
                 <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:roadmap.relationship_label")}</label>
                   <SelectSingleSearch 
                     props={{
+                      required: true,
                       className: "margin-top-25 margin-bottom-100",
                       id: "parent-roadmap",
                       name: "parent-roadmap",
                       placeholder: "välj...", // TODO: I18n
-                      required: true,
                     }} 
                     onChange={(value) => { value?.value ? setMetaRoadmapId(value?.value) : setMetaRoadmapId("")}}
                     options={[

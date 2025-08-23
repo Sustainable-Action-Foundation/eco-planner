@@ -67,7 +67,7 @@ export default function MetaRoadmapForm({
       type: ((form.namedItem("type") as HTMLSelectElement)?.value as RoadmapType) || null,
       actor: (form.namedItem("actor") as HTMLInputElement)?.value || null,
       editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],
-      viewers: visibility === "custom" ? (form.namedItem("viewers") as HTMLInputElement)?.value.split(",").map(s => s.trim()).filter(Boolean) : [],
+      viewers: visibility === "custom" ? (form.namedItem("viewers") as HTMLInputElement)?.value.split(",").map(string => string.trim()).filter(Boolean) : [],
       editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
       viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
       isPublic: (form.namedItem("visibility") as RadioNodeList)?.value === "public",
@@ -143,7 +143,7 @@ export default function MetaRoadmapForm({
               className: "margin-top-25 margin-bottom-100",
               id: "actor",
               name: "actor",
-              required: false,
+              required: true,
               defaultValue: currentRoadmap?.actor ?? undefined
             }}
             options={

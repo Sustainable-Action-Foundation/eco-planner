@@ -48,13 +48,10 @@ export default function SelectMultipleSearch({
     if ((!value || value.length === 0) && props.required) return false;
     return true;
   }, [value, props.required]);
-
+ 
   useEffect(() => {
     if (!toggleRef.current) return
-    preventInvalidFormSubmission(
-      toggleRef.current,
-      valueIsValid
-    )
+    return preventInvalidFormSubmission(toggleRef.current, valueIsValid)
   }, [valueIsValid]);
  
   useEffect(() => { 

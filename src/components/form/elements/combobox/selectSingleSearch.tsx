@@ -56,10 +56,7 @@ export default function SelectSingleSearch({
 
   useEffect(() => {
     if (!toggleRef.current) return
-    preventInvalidFormSubmission(
-      toggleRef.current,
-      valueIsValid
-    )
+    return preventInvalidFormSubmission(toggleRef.current, valueIsValid)
   }, [valueIsValid]); 
 
   useEffect(() => { 
