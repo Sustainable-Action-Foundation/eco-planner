@@ -106,14 +106,13 @@ export default function SelectMultipleSearch({
             opacity: props.disabled ? 0.6 : 1,
           }}>
           {value.length > 0
-            ? value.map((value) => value.name).toString().slice(0).replaceAll(',', ', ') // TODO: Can probably do this a bit more cleanly
+            ? value.map((value) => value.name).join(", ")
             : props.placeholder
-          } {/* TODO: This string manipulation is dangerous if options contain a comma, see what we can do about that */}
+          }
         </span>
         <IconSelector height={20} width={20} style={{ minWidth: '20px' }} aria-hidden={true} />
       </button>
       <div
-        aria-label="" // TODO: Add a label
         id={`${props.id}-dialog`}
         className={`              
           ${styles['listbox']} 
@@ -128,9 +127,10 @@ export default function SelectMultipleSearch({
         }}
         tabIndex={-1}
         role="dialog"
+        aria-label="Välj ett alternativ" // TODO: i18n
       >
         <label
-          aria-label="" // TODO: Fix this label
+          aria-label="Sök..." // TODO: i18n
           className="focusable flex align-items-center gap-25 padding-block-50 padding-inline-25" style={{ border: 'none', borderBottom: '1px solid var(--gray-80)', borderRadius: '0', marginBottom: '3px' }}>
           <IconSearch width={16} height={16} style={{ minWidth: '16px' }} />
           <input
@@ -145,7 +145,7 @@ export default function SelectMultipleSearch({
               focusedListboxOption,
               setFocusedListboxOption,
               (selectedOption) => {
-                e.stopPropagation(); // Prevent higher-level reopens 
+                e.stopPropagation(); 
                 if (menuOpen && selectedOption) {
                   const optionPreviouslySelected = value.some(value => value.value === selectedOption.value); // TODO: Abstract this to use in onclick   
 
@@ -160,7 +160,6 @@ export default function SelectMultipleSearch({
               }
             )}
             type="text"
-
             aria-controls={`${props.id}-dialog-listbox`}
             aria-activedescendant={focusedListboxOption != null ? `${props.id}-dialog-listbox-${focusedListboxOption}` : undefined}
             aria-expanded="true"
@@ -168,11 +167,7 @@ export default function SelectMultipleSearch({
             autoComplete="off"
             placeholder="Sök..."  
             role="combobox"
-            style={{
-              padding: '0',
-              margin: '0',
-              fontSize: 'revert',
-            }}
+            style={{ padding: '0', margin: '0', fontSize: 'revert' }}
           />
         </label>
         <ul
