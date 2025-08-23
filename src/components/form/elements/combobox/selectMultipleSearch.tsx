@@ -30,7 +30,7 @@ export default function SelectMultipleSearch({
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const [focusedListboxOption, setFocusedListboxOption] = useState<number | null>(null);
   const [searchValue, setSearchValue] = useState<string>('')
-  const toggleRef = useRef<HTMLButtonElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null); // TODO: Rename?
   const searchRef = useRef<HTMLInputElement>(null);
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
 
@@ -98,6 +98,7 @@ export default function SelectMultipleSearch({
       >
         <span
           style={{
+            // TODO: Make into a class?
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
             overflow: "hidden",
@@ -136,9 +137,11 @@ export default function SelectMultipleSearch({
           <input
             ref={searchRef}
             onChange={(e) => setSearchValue(e.target.value)}
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleKeyDownEditableCombobox(
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+              if (!toggleRef.current) return; 
+              handleKeyDownEditableCombobox(
               e,
-              toggleRef.current!, // TODO: Handle this in a better way maybe
+              toggleRef.current,
               menuOpen,
               setMenuOpen,
               searchResults,
@@ -158,7 +161,7 @@ export default function SelectMultipleSearch({
                   if (onChange) onChange(newValue);
                 }
               }
-            )}
+            )}}
             type="text"
             aria-controls={`${props.id}-dialog-listbox`}
             aria-activedescendant={focusedListboxOption != null ? `${props.id}-dialog-listbox-${focusedListboxOption}` : undefined}

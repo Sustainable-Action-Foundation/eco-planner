@@ -58,9 +58,11 @@ export default function TextSingleAutocomplete({
           {...(options.length > 0 
             ? {
               ref: comboboxRef,
-              onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => handleKeyDownEditableCombobox(
+              onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => {
+                if (!comboboxRef.current) return; 
+                handleKeyDownEditableCombobox(
                 e,
-                comboboxRef.current!, // TODO: Handle this in a better way maybe
+                comboboxRef.current,
                 displayListBox,
                 setDisplayListBox,
                 searchResults,
@@ -75,7 +77,7 @@ export default function TextSingleAutocomplete({
                   setFocusedListBoxItem(null)
                   setDisplayListBox(false);
                 }
-              ),
+              )},
               onFocus: () => setDisplayListBox(true),
               onBlur: (e) => { if (e.relatedTarget?.id != `${props.id}-listbox` && e.relatedTarget?.id != `${props.id}-button`) { setDisplayListBox(false) } },
               role: "combobox",
