@@ -13,13 +13,13 @@ import { useTranslation } from "react-i18next";
 import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput";
 import { getDataSeries } from "../elements/dataSeriesInput/utils";
 import styles from '../forms.module.css';
-import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "./goalFormSections";
+import { CombinedGoalForm, InheritedGoalForm, InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections";
 import { IconCircleMinus } from "@tabler/icons-react";
 
 enum DataSeriesType {
   Static = "STATIC",
   Inherited = "INHERIT",
-  Combined = "COMBINE",
+  Combined = "COMBINE", 
 }
 
 enum BaselineType {

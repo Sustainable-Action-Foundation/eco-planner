@@ -1,5 +1,3 @@
-// TODO: JSDOC comments
-// TODO: Should this be a callback function or a regular one?
 export const handleKeyDownEditableCombobox = (
   e: React.KeyboardEvent<HTMLInputElement>,
   comboboxElement: HTMLInputElement | HTMLButtonElement, // The element which sets the listboxDisplayed value, always an input or button element as those can contain the combobox role 

@@ -10,7 +10,7 @@ import { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput";
 import { getDataSeries } from "../elements/dataSeriesInput/utils";
-import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "./effectFormSections";
+import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "../sections/effectFormSections";
 
 export default function EffectForm({
   action,

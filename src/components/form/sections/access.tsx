@@ -6,8 +6,6 @@ import { AccessControlled } from "@/types";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
 import { LoginData } from "@/lib/session";
 import styles from '../forms.module.css'
-
-// TODO: Need more props for names and such + positionindex (not required?)
  
 export default function ConfigureAccess({
   user,
