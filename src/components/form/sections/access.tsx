@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import SelectMultipleSearch from "../elements/combobox/selectMultipleSearch"
 import { AccessControlled } from "@/types";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
@@ -8,8 +8,7 @@ import { LoginData } from "@/lib/session";
 import styles from '../forms.module.css'
 
 // TODO: Need more props for names and such + positionindex (not required?)
-// TODO: Remove default check
-
+ 
 export default function ConfigureAccess({
   user,
   userGroups,
@@ -41,18 +40,18 @@ export default function ConfigureAccess({
     }
   }
 
-  const [visibilityType, setvisibilityType] = useState<"private" | "public" | "custom">(
+  const [visibilityType, setvisibilityType] = useState<"private" | "public" | "custom" | undefined>(
     currentAccess
       ? (currentAccess.isPublic
         ? "public"
         : (currentAccess.viewers.length > 0 || currentAccess.viewGroups.length > 0
           ? "custom"
           : "private"))
-      : "private"
+      : undefined
   );
 
   const [editabilityType, setEditabilityType] = useState<"private" | "custom" | undefined>(
-    currentAccess ? (currentAccess.editors.length > 0 || currentAccess.editGroups.length > 0 ? "custom" : "private") : "private"
+    currentAccess ? (currentAccess.editors.length > 0 || currentAccess.editGroups.length > 0 ? "custom" : "private") : undefined
   );
  
   return (
