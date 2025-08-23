@@ -10,6 +10,7 @@ import { IconSearch, IconSelector } from "@tabler/icons-react";
 
 // TODO: Should allow for options with same values? Or we should check that they are unique?
 // TODO: Disallow an empty array for options?
+// TODO: Give aria-keyocontrols?
 
 export default function SelectSingleSearch({
   props,
@@ -78,7 +79,7 @@ export default function SelectSingleSearch({
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
       style={{ ...props.style, userSelect: 'none', width: 'fit-content' }}
     >
-      <button // TODO: Should keydown/keyup open menu here?
+      <button
         id={props.id}
         className={`${styles['select-toggle']}`}
         style={{ borderColor: menuOpen ? '#191919' : '' }}

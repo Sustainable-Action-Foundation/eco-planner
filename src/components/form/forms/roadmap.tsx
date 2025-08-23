@@ -75,7 +75,7 @@ export default function RoadmapForm({
     }
 
     const inheritGoalIds: string[] = [];
-    (form.namedItem('inheritGoals') as RadioNodeList | null)?.forEach((checkbox) => {
+    (form.namedItem('inherit-goals') as RadioNodeList | null)?.forEach((checkbox) => {
       if ((checkbox as HTMLInputElement).checked) {
         inheritGoalIds.push((checkbox as HTMLInputElement).value)
       }
@@ -92,7 +92,7 @@ export default function RoadmapForm({
       goals: goals,
       metaRoadmapId,
       inheritFromIds: inheritGoalIds,
-      targetVersion: parseInt((form.namedItem('targetVersion') as HTMLSelectElement)?.value) || null,
+      targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value) || null,
       timestamp,
     }
 
@@ -202,7 +202,7 @@ export default function RoadmapForm({
             {metaRoadmapTarget?.roadmapVersions.length && (
               <label>
                 {t("forms:roadmap.roadmap_target_label", { targetName: metaRoadmapTarget.name })}
-                <select className="block margin-top-25 margin-bottom-100 width-100" name="targetVersion" id="targetVersion" required defaultValue={currentRoadmap?.targetVersion || ""} onChange={(e) => setTargetVersion(parseInt(e.target.value) || null)}>
+                <select className="block margin-top-25 margin-bottom-100 width-100" name="target-version" id="target-version" required defaultValue={currentRoadmap?.targetVersion || ""} onChange={(e) => setTargetVersion(parseInt(e.target.value) || null)}>
                   <option value="">{t("forms:roadmap.roadmap_target_no_chosen")}</option>
                   <option value={0}>{t("forms:roadmap.roadmap_target_always_latest")}</option>
                   {metaRoadmapTarget.roadmapVersions.map((version) => {
@@ -234,10 +234,7 @@ export default function RoadmapForm({
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:roadmap.upload_goals")}</legend>
-          <label>
-            {/*TODO: Add to info bubble
-            Om du har en CSV-fil med målbanor kan du ladda upp den här. <br />
-            Notera att det här skapar nya målbanor även om det redan finns några. */}
+          <label> 
             <Trans
               i18nKey={"forms:roadmap.goal_accepted_formats"}
               tOptions={{ fileTypes: [".csv"], encodings: ["UTF-8"], type: "unit" }}
@@ -249,8 +246,8 @@ export default function RoadmapForm({
               </div>
               <input
                 type="file"
-                name="csvUpload"
-                id="csvUpload"
+                name="csv-upload"
+                id="csv-upload"
                 accept=".csv"
                 onChange={(e) => e.target.files ? setCurrentFile(e.target.files[0]) : setCurrentFile(null)}
               />
@@ -268,7 +265,7 @@ export default function RoadmapForm({
               inheritableGoals.map((goal) => {
                 return (
                   <label key={goal.id} className="flex width-fit-content margin-bottom-75 align-items-center gap-50">
-                    <input type="checkbox" name={`inheritGoals`} id={`inheritGoals-${goal.id}`} value={goal.id} />
+                    <input type="checkbox" name={`inherit-goals`} id={`inherit-goals-${goal.id}`} value={goal.id} />
                     {`${goal.name || goal.indicatorParameter}`}
                   </label>
                 )
