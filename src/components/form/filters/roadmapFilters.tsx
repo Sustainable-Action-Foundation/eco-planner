@@ -48,7 +48,7 @@ export default function RoadmapFilters() {
 
   return <>
     <menu className="flex gap-100 align-items-flex-end padding-0 margin-0 margin-top-300 margin-bottom-100 flex-wrap-wrap">
-      <label className="font-weight-600">
+      <label className="font-weight-600 flex-grow-100">
         {t("components:roadmap_filters.search_roadmaps")}
         <div className="margin-top-25 flex align-items-center padding-50 smooth focusable">
           <IconSearch style={{ minWidth: '24px' }} strokeWidth={1.5} aria-hidden="true" />
@@ -71,28 +71,30 @@ export default function RoadmapFilters() {
           <option value={RoadmapSortBy.GoalsRising}>{t("components:roadmap_filters.goal_count_ascending")}</option>
         </select>
       </label>
-      <fieldset id="roadmapFilters" className="flex-grow-100 padding-50 fieldset-unset-pseudo-class purewhite smooth flex gap-100 flex-wrap-wrap" style={{ border: '1px solid var(--gray-80)' }}>
-        <legend className="font-weight-600">{t("common:tsx.show")}</legend>
-        {Object.values(RoadmapType).map((thisType, key) => (
-          <label className="inline-flex align-items-center gap-25" key={key}>
-            <input type="checkbox" value={thisType} defaultChecked={searchParams.getAll('typeFilter').includes(thisType)} onChange={(e) => {
-              if (e.target.checked) {
-                updateArrayParam('typeFilter', e.target.value)
-                // setTypeFilter([...typeFilter, (e.target.value as RoadmapType)])
-              } else {
-                updateArrayParam('typeFilter', e.target.value, true)
-                // setTypeFilter(typeFilter.filter((item) => item != e.target.value))
-              }
-            }} />
-            {`${thisType == RoadmapType.NATIONAL ? t("common:scope.national") :
-              thisType == RoadmapType.REGIONAL ? t("common:scope.regional") :
-                thisType == RoadmapType.MUNICIPAL ? t("common:scope.municipal") :
-                  thisType == RoadmapType.LOCAL ? t("common:scope.local") :
-                    thisType == RoadmapType.OTHER ? t("common:scope.other") :
-                      thisType
-              }`}
-          </label>
-        ))}
+      <fieldset id="roadmapFilters" className="padding-0 fieldset-unset-pseudo-class smooth" style={{ border: '0' }}>
+        <legend className="font-weight-600">{`${t("common:tsx.show")}:`}</legend>
+        <div className="flex gap-100 margin-top-25" style={{height: '42px'}}>
+          {Object.values(RoadmapType).map((thisType, key) => (
+            <label className="inline-flex align-items-center gap-25" key={key}>
+              <input type="checkbox" value={thisType} defaultChecked={searchParams.getAll('typeFilter').includes(thisType)} onChange={(e) => {
+                if (e.target.checked) {
+                  updateArrayParam('typeFilter', e.target.value)
+                  // setTypeFilter([...typeFilter, (e.target.value as RoadmapType)])
+                } else {
+                  updateArrayParam('typeFilter', e.target.value, true)
+                  // setTypeFilter(typeFilter.filter((item) => item != e.target.value))
+                }
+              }} />
+              {`${thisType == RoadmapType.NATIONAL ? t("common:scope.national") :
+                thisType == RoadmapType.REGIONAL ? t("common:scope.regional") :
+                  thisType == RoadmapType.MUNICIPAL ? t("common:scope.municipal") :
+                    thisType == RoadmapType.LOCAL ? t("common:scope.local") :
+                      thisType == RoadmapType.OTHER ? t("common:scope.other") :
+                        thisType
+                }`}
+            </label>
+          ))}
+        </div>
       </fieldset>
     </menu>
   </>
