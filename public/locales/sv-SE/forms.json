@@ -123,14 +123,7 @@
     "select_goal_as_baseline": "Välj en $t(common:goal_one) att använda som baslinje (värdena kopieras istället för att länkas)",
     "data_missing": "DATA SAKNAS; ",
     "baseline_copied": "Baslinje, kopierad från vald $t(common:goal_one)"
-  },
-  "link_input": {
-    "name_label": "Namn",
-    "name_placeholder": "ex. SCB",
-    "url_label": "Länk",
-    "url_placeholder": "https://example.com" ,
-    "remove_link_aria_label": "ta bort länk"
-  },
+  }, 
   "repeatable_scaling": {
     "specific_value_label": "Med vilket värde vill du skala?",
     "original_area": "Ursprungligt område:",

@@ -123,14 +123,7 @@
     "select_goal_as_baseline": "Select a $t(common:goal_one) to use as a baseline (values are copied rather than linked)",
     "data_missing": "DATA MISSING; ",
     "baseline_copied": "Baseline, copied from selected $t(common:goal_one)"
-  },
-  "link_input": {
-    "name_label": "Name",
-    "name_placeholder": "e.g. SCB",
-    "url_label": "URL",
-    "url_placeholder": "https://example.com", 
-    "remove_link_aria_label": "remove link"
-  },
+  }, 
   "repeatable_scaling": {
     "specific_value_label": "With what value do you want to scale?",
     "original_area": "Original area:",
