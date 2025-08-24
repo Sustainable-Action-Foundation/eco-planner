@@ -42,6 +42,7 @@
     "search_options": "Sök bland alternativ",
     "select_single_option": "Välj ett alternativ",
     "select_multiple_options": "Välj ett eller flera alternativ",
+    "select_or_leave": "Välj eller lämna blankt",
     "show_suggestions": "Visa förslag"
   },
   "data_series_input": {
@@ -193,12 +194,12 @@
   },
   "meta_roadmap": {
     "description_legend": "Beskriv din $t(common:roadmap_series_one)",
-    "roadmap_series_name": "Namn för $t(common:roadmap_series_definite_one)",
-    "roadmap_series_description": "Beskrivning av $t(common:roadmap_series_definite_one)",
+    "name": "Namn",
+    "description": "Beskrivning",
     "actor_legend": "Välj ansvarig aktör",
-    "roadmap_scope_label": "Typ av $t(common:roadmap_series_one)",
+    "type": "Typ",
     "no_chosen_roadmap_scope": "Välj en typ",
-    "choose_actor": "Ange en aktör",
+    "actor": "Aktör",
     "attach_external": "Bifoga externa resurser",
     "change_read_access": "Justera läsbehörighet",
     "change_edit_access": "Justera redigeringsbehörighet",

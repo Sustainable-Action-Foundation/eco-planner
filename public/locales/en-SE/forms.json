@@ -2,7 +2,7 @@
   "access_selector": {
     "legend_visibility": "Who may view the roadmap series?",
     "legend_editability": "Who may edit the roadmap series?",
-    "me_only": "Me only",
+    "me_only": "Only me",
     "all_users": "All users",
     "custom": "Select specific users and/or groups",
     "users": "Users",
@@ -42,6 +42,7 @@
     "search_options": "Search among options",
     "select_single_option": "Select an option",
     "select_multiple_option": "Select one or multiple options",
+    "select_or_leave": "Select or leave blank",
     "show_suggestions": "Show suggestions" 
   },
   "data_series_input": {
@@ -193,12 +194,12 @@
   },
   "meta_roadmap": {
     "description_legend": "Describe your $t(common:roadmap_series_one)",
-    "roadmap_series_name": "Name $t(common:roadmap_series_definite_one)",
-    "roadmap_series_description": "Description of $t(common:roadmap_series_definite_one)",
+    "name": "Name",
+    "description": "Description",
     "actor_legend": "Choose responsible actor",
-    "roadmap_scope_label": "Type of $t(common:roadmap_series_one)",
+    "type": "Type",
     "no_chosen_roadmap_scope": "Choose a type",
-    "choose_actor": "Specify an actor",
+    "actor": "Actor",
     "attach_external": "Attach external resources",
     "change_read_access": "Adjust read access",
     "change_edit_access": "Adjust editing access",

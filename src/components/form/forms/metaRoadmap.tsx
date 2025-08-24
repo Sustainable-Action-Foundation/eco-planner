@@ -86,8 +86,7 @@ export default function MetaRoadmapForm({
 
   // Indexes for the data-position attribute in the legend elements
   let positionIndex = 1;
-
-  // TODO: i18n for basically all inputs
+ 
   return (
     <>
       <form onSubmit={handleSubmit} >
@@ -97,16 +96,16 @@ export default function MetaRoadmapForm({
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:meta_roadmap.description_legend")}</legend>
           <label>
-            Namn
+            {t("forms:meta_roadmap.name")}
             <input id="name" name="name" className="margin-top-25 margin-bottom-100" type="text" defaultValue={currentRoadmap?.name ?? undefined} autoComplete="off" required />
           </label>
 
-          <label id="description-label">Beskriving</label>
+          <label id="description-label">{t("forms:meta_roadmap.description")}</label>
           <TextEditor
             className="margin-top-25 margin-bottom-100" // TODO: Need label for texteditormenu
             id="description"
             ariaLabelledBy="description-label"
-            placeholder="Skriv något..."
+            placeholder={t("common:tsx.write") + t("common:tsx.ellipsis")}
             editable={true}
             content={currentRoadmap ? currentRoadmap.description : ""}
             onChange={(json) => setEditorContent(json)}
@@ -116,7 +115,7 @@ export default function MetaRoadmapForm({
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:meta_roadmap.actor_legend")}</legend>
           <label>
-            {t("forms:meta_roadmap.roadmap_scope_label")}
+            {t("forms:meta_roadmap.type")}
             <select
               className="block margin-top-25 margin-bottom-100 width-100"
               name="type"
@@ -137,7 +136,7 @@ export default function MetaRoadmapForm({
             </select>
           </label>
 
-          <label htmlFor="actor">Aktör</label>
+          <label htmlFor="actor">{t("forms:meta_roadmap.actor")}</label>
           <TextSingleAutocomplete
             props={{
               className: "margin-top-25 margin-bottom-100",
@@ -172,7 +171,7 @@ export default function MetaRoadmapForm({
                 className: "margin-top-25",
                 id: "parent-roadmap",
                 name: "parent-roadmap",
-                placeholder: "välj eller lämna blank", // TODO: i18n
+                placeholder: t("forms:combobox.select_or_leave"),
                 disabled: !parentRoadmapOptions
               }}
               defaultValue={ // TODO: Might be a better way to do this
@@ -207,7 +206,7 @@ export default function MetaRoadmapForm({
             id="submit-button"
             disabled={isLoading}
           >
-            {currentRoadmap ? t("common:tsx.save") : t("common:tsx.create") + ' färdplansserie'} {/* TODO: i18n  */}
+            {currentRoadmap ? t("common:tsx.save") : t("common:tsx.create") + ` ${t("common:roadmap_version_one")}`}
           </button>
         </div>
       </form>
