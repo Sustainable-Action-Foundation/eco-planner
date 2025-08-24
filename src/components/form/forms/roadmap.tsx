@@ -184,7 +184,7 @@ export default function RoadmapForm({
                       className: "margin-top-25 margin-bottom-100",
                       id: "parent-roadmap",
                       name: "parent-roadmap",
-                      placeholder: "välj...", // TODO: I18n
+                      placeholder: `${t("common:tsx.select")}  ${t("common:roadmap_short_one")}`, 
                     }} 
                     onChange={(value) => { value?.value ? setMetaRoadmapId(value?.value) : setMetaRoadmapId("")}}
                     options={[
@@ -224,7 +224,7 @@ export default function RoadmapForm({
             className="margin-top-25 margin-bottom-100" // TODO: Need label for texteditormenu
             id="description"
             ariaLabelledBy="description-label"
-            placeholder="Skriv något..."
+            placeholder={t("common:tsx.write") + t("common:tsx.ellipsis")}
             editable={true}
             content={currentRoadmap ? currentRoadmap.description : ""}
             onChange={(json) => setEditorContent(json)}
@@ -289,7 +289,7 @@ export default function RoadmapForm({
             id="submit-button"
             disabled={isLoading}
           >
-            {currentRoadmap ? t("common:tsx.save") : t("common:tsx.create") + ' färdplan'} {/* TODO: i18n  */}
+            {currentRoadmap ? t("common:tsx.save") : t("common:tsx.create") + ` ${t("common:roadmap_version_one")}`}
           </button>
         </div>
 
