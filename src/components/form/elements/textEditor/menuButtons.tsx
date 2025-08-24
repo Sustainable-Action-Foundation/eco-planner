@@ -14,10 +14,12 @@ import { TFunction } from "i18next";
 export function Undo({
   editor,
   setFocusedMenubarItem,
+  menuGroup,
   t
 }: {
   editor: Editor,
-  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>
+  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
+  menuGroup: number,
   t: TFunction<"forms", undefined>
 }) {
 
@@ -32,6 +34,7 @@ export function Undo({
 
   return (
     <span
+      data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().undo().run()}
       onKeyDown={(e: React.KeyboardEvent<HTMLSpanElement>) => {
         if (e.key === 'Enter') {
@@ -64,10 +67,12 @@ export function Undo({
 export function Redo({
   editor,
   setFocusedMenubarItem,
+  menuGroup,
   t
 }: {
   editor: Editor,
-  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>
+  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
+  menuGroup: number,
   t: TFunction<"forms", undefined>
 }) {
   const canRedo = useEditorState({
@@ -81,6 +86,7 @@ export function Redo({
 
   return (
     <span
+      data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().redo().run()}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
@@ -114,11 +120,13 @@ export function FontSize({
   editor,
   editorId,
   setFocusedMenubarItem,
+  menuGroup,
   t
 }: {
   editor: Editor
   editorId: string,
   setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
+  menuGroup: number,
   t: TFunction<"forms", undefined>
 }) {
   const [fontSizeMenuOpen, setFontSizeMenuOpen] = useState<boolean>(false);
@@ -308,6 +316,7 @@ export function FontSize({
   return (
     <>
       <span
+        data-menu-group={menuGroup}
         onClick={() => setFontSizeMenuOpen(!fontSizeMenuOpen)}
         onKeyDown={handleKeyDownFontSizeMenu}
         ref={fontSizeMenuButtonRef}
@@ -397,14 +406,17 @@ export function FontSize({
 export function GreyText({
   editor,
   setFocusedMenubarItem,
+  menuGroup,
   t
 }: {
   editor: Editor,
   setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
+  menuGroup: number,
   t: TFunction<"forms", undefined>
 }) {
   return (
     <span
+      data-menu-group={menuGroup}
       onClick={() => { editor.getAttributes('textStyle').color !== 'grey' ? editor.chain().focus().setColor('grey').run() : editor.chain().focus().unsetColor().run() }}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
@@ -436,14 +448,17 @@ export function GreyText({
 export function Italic({
   editor,
   setFocusedMenubarItem,
+  menuGroup,
   t
 }: {
   editor: Editor,
   setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
+  menuGroup: number,
   t: TFunction<"forms", undefined>
 }) {
   return (
     <span
+      data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleItalic().run()}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
@@ -470,14 +485,17 @@ export function Italic({
 export function Bold({
   editor,
   setFocusedMenubarItem,
+  menuGroup,
   t
 }: {
   editor: Editor,
   setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
+  menuGroup: number,
   t: TFunction<"forms", undefined>
 }) {
   return (
     <span
+      data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleBold().run()}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
@@ -504,14 +522,17 @@ export function Bold({
 export function StrikeThrough({
   editor,
   setFocusedMenubarItem,
+  menuGroup,
   t
 }: {
   editor: Editor,
   setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
+  menuGroup: number,
   t: TFunction<"forms", undefined>
 }) {
   return (
     <span
+      data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleLineThrough().run()}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
@@ -538,14 +559,17 @@ export function StrikeThrough({
 export function Underline({
   editor,
   setFocusedMenubarItem,
+  menuGroup,
   t
 }: {
   editor: Editor,
   setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
+  menuGroup: number,
   t: TFunction<"forms", undefined>
 }) {
   return (
     <span
+      data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleUnderline().run()}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
@@ -572,14 +596,17 @@ export function Underline({
 export function Superscript({
   editor,
   setFocusedMenubarItem,
+  menuGroup,
   t
 }: {
   editor: Editor,
-  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>
+  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
+  menuGroup: number,
   t: TFunction<"forms", undefined>
 }) {
    return (
     <span
+      data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleSuperscript().run()}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
@@ -606,14 +633,17 @@ export function Superscript({
 export function Subscript({
   editor,
   setFocusedMenubarItem,
+  menuGroup,
   t
 }: {
   editor: Editor,
   setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
+  menuGroup: number,
   t: TFunction<"forms", undefined>
 }) {
   return (
     <span
+      data-menu-group={menuGroup} 
       onClick={() => editor.chain().focus().toggleSubscript().run()}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
@@ -640,14 +670,17 @@ export function Subscript({
 export function Highlight({
   editor,
   setFocusedMenubarItem,
+  menuGroup,
   t
 }: {
   editor: Editor,
-  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>
+  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
+  menuGroup: number,
   t: TFunction<"forms", undefined>
 }) {
   return (
     <span
+      data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleHighlight().run()}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
@@ -675,10 +708,12 @@ export function Highlight({
 export function Link({
   editor,
   setFocusedMenubarItem,
+  menuGroup,
   t
 }: {
   editor: Editor,
-  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>
+  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
+  menuGroup: number,
   t: TFunction<"forms", undefined>
 }) {
   const setLink = useCallback(() => {
@@ -722,6 +757,7 @@ export function Link({
 
   return (
     <span
+      data-menu-group={menuGroup}
       onClick={setLink} // TODO: Custom link menu :)
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
@@ -747,14 +783,17 @@ export function Link({
 export function BulletList({
   editor,
   setFocusedMenubarItem,
+  menuGroup,
   t
 }: {
   editor: Editor,
   setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>
+  menuGroup: number,
   t: TFunction<"forms", undefined>
 }) {
   return (
     <span
+      data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleBulletList().run()}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
@@ -781,14 +820,17 @@ export function BulletList({
 export function NumberedList({
   editor,
   setFocusedMenubarItem,
+  menuGroup,
   t
 }: {
   editor: Editor,
-  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>
+  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
+  menuGroup: number,
   t: TFunction<"forms", undefined>
 }) {
   return (
     <span
+      data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleOrderedList().run()}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
