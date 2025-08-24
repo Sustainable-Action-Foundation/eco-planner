@@ -65,6 +65,11 @@
     "submit": "Skicka",
     "compare": "Jämför",
     "close": "Stäng",
+    "search": "Sök",
+    "options": "Alternativ",
+    "suggestions": "Förslag",
+    "no_suggestions": "Inga förslag",
+    "no_results": "Inga resultat",
     "unit_missing": "ingen enhet"
   },
   "placeholder": {

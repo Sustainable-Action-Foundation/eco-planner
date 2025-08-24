@@ -36,6 +36,12 @@
     "category_renewables": "Renewables",
     "attach_external_resources": "Bifoga externa resurser"
   },
+  "combobox": {
+    "search_options": "Sök bland alternativ",
+    "select_single_option": "Välj ett alternativ",
+    "select_multiple_options": "Välj ett eller flera alternativ",
+    "show_suggestions": "Visa förslag"
+  },
   "data_series_input": {
     "data_series": "Dataserie",
     "data_series_tooltip": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller kommatecken.",
@@ -160,11 +166,6 @@
     "inherit_goal_legend": "Välj $t(common:goal_one) att ärva",
     "change_read_access": "Justera läsbehörighet",
     "change_edit_access": "Justera redigeringsbehörighet"
-  },
-  "suggestive_text": {
-    "toggle_button": "Visa förslag",
-    "listbox_label": "Förslag",
-    "listbox_empty_label": "Inga förslag"
   },
   "text_editor_menu": {
     "undo": "Ångra",

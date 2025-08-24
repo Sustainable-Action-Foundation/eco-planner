@@ -23,7 +23,7 @@ export default function SelectMultipleSearch({
   options: Array<{ name: string, value: string }>,
   onChange?: (value: Array<{ name: string, value: string }> | null) => void
 }) {
-  const { t } = useTranslation(["forms"]);
+  const { t } = useTranslation(["forms", "common"]);
   const [value, setValue] = useState<Array<{ name: string, value: string }>>(
     defaultValue ? defaultValue : []
   )
@@ -75,12 +75,13 @@ export default function SelectMultipleSearch({
       style={{ ...props.style, userSelect: 'none', width: 'fit-content' }}
     >
       <button
+        type="button"
         id={props.id}
         className={`${styles['select-toggle']}`}
         style={{ borderColor: menuOpen ? '#191919' : '' }}
-        value={value.map((value) => value.value).toString()}
         name={props.name}
         disabled={props.disabled}
+        value={value.map((value) => value.value).toString()}
         ref={toggleRef}
         onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
           if (e.key == "Escape") {
@@ -88,11 +89,10 @@ export default function SelectMultipleSearch({
           }
         }}
         onClick={() => { setMenuOpen(!menuOpen) }}
+        role="combobox"
         aria-controls={menuOpen ? `${props.id}-dialog` : undefined}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
-        role="combobox"
-        type="button"
         aria-required={props.required ? props.required : false}
         aria-invalid={!valueIsValid} 
       >
@@ -128,13 +128,17 @@ export default function SelectMultipleSearch({
         }}
         tabIndex={-1}
         role="dialog"
-        aria-label="Välj ett alternativ" // TODO: i18n
+        aria-label={t("forms:combobox.select_multiple_options")}
       >
         <label
-          aria-label="Sök..." // TODO: i18n
-          className="focusable flex align-items-center gap-25 padding-block-50 padding-inline-25" style={{ border: 'none', borderBottom: '1px solid var(--gray-80)', borderRadius: '0', marginBottom: '3px' }}>
+          className="focusable flex align-items-center gap-25 padding-block-50 padding-inline-25"
+          style={{ border: 'none', borderBottom: '1px solid var(--gray-80)', borderRadius: '0', marginBottom: '3px' }}
+          aria-label={t("forms:combobox.search_options")} 
+        >
           <IconSearch width={16} height={16} style={{ minWidth: '16px' }} />
           <input
+            type="text"
+            style={{ padding: '0', margin: '0', fontSize: 'revert' }}
             ref={searchRef}
             onChange={(e) => setSearchValue(e.target.value)}
             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -162,29 +166,30 @@ export default function SelectMultipleSearch({
                 }
               }
             )}}
-            type="text"
+            role="combobox"
             aria-controls={`${props.id}-dialog-listbox`}
             aria-activedescendant={focusedListboxOption != null ? `${props.id}-dialog-listbox-${focusedListboxOption}` : undefined}
             aria-expanded="true"
             aria-autocomplete="list"
             autoComplete="off"
-            placeholder="Sök..."  
-            role="combobox"
-            style={{ padding: '0', margin: '0', fontSize: 'revert' }}
+            placeholder={t("common:tsx.search") + t("common:tsx.ellipsis")} 
           />
         </label>
-        <ul
-          role="listbox"
+        <ul          
           id={`${props.id}-dialog-listbox`}
-          aria-label={t("forms:suggestive_text.listbox_label")}
-          aria-multiselectable={true}
           className="margin-0 padding-0"
+          role="listbox"
+          aria-label={t("common:tsx.options")}
+          aria-multiselectable={true}
         >
           {searchResults.length > 0 ? (
             searchResults.map((option, index) => {
               return (
                 <li
+                  key={index}
                   id={`${props.id}-dialog-listbox-${index}`}
+                  style={{backgroundColor: index === focusedListboxOption ? 'var(--gray-90)' : ''}}
+                  ref={(el) => { optionRefs.current[index] = el }}
                   onClick={() => { 
                     const optionPreviouslySelected = value.some(value => value.value === option.value);
 
@@ -197,13 +202,8 @@ export default function SelectMultipleSearch({
                     if (onChange) onChange(newValue);
                     searchRef.current?.focus() // TODO: Might be a more clean way to do this
                   }}
-                  aria-selected={value.some(value => value.value === option.value)}  
-                  ref={(el) => { optionRefs.current[index] = el }}
                   role="option"
-                  key={index}
-                  style={{
-                    backgroundColor: index === focusedListboxOption ? 'var(--gray-90)' : '',
-                  }}
+                  aria-selected={value.some(value => value.value === option.value)}
                 >
                   {option.name}
                 </li>
@@ -211,7 +211,7 @@ export default function SelectMultipleSearch({
             })
           ) : (
             <li className={`${styles['no-results']} font-weight-600`} >
-              Inga resultat {/* TODO: I18n */}
+              {t("common:tsx.no_results")}
             </li>
           )}
         </ul>

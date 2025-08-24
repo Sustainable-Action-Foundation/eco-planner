@@ -65,6 +65,11 @@
     "submit": "Submit",
     "compare": "Compare",
     "close": "Close",
+    "search": "Search",
+    "options": "Options",
+    "suggestions": "Suggestions",
+    "no_suggestions": "No suggestions",
+    "no_results": "No results",
     "unit_missing": "no unit"
   },
   "placeholder": {

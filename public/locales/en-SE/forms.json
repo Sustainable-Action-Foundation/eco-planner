@@ -8,6 +8,12 @@
     "make_posts_public": "Show posts publicly",
     "users_with_read_access": "Users with read access"
   },
+  "combobox": {
+    "search_options": "Search among options",
+    "select_single_option": "Select an option",
+    "select_multiple_option": "Select one or multiple options",
+    "show_suggestions": "Show suggestions" 
+  },
   "action": {
     "choose_relationship": "Specify the relationship to other posts",
     "relationship_label": "Choose $t(common:roadmap_version_definite_one) to create $t(common:action_definite_one) under:",
@@ -160,11 +166,6 @@
     "inherit_goal_legend": "Choose $t(common:goal_one) to inherit",
     "change_read_access": "Adjust read access",
     "change_edit_access": "Adjust editing access"
-  },
-  "suggestive_text": {
-    "toggle_button": "Show suggestions",
-    "listbox_label": "Suggestions",
-    "listbox_empty_label": "No suggestions"
   },
   "text_editor_menu": {
     "undo": "Undo",

@@ -131,17 +131,17 @@ export default function SelectSingleSearch({
         }}
         tabIndex={-1}
         role="dialog"
-        aria-label="Välj ett alternativ" // TODO: i18n
+        aria-label={t("forms:combobox.select_single_option")}
       >
         <label
-          aria-label="Sök..." // TODO: i18n
           className="focusable flex align-items-center gap-25 padding-block-50 padding-inline-25" 
-          style={{ border: 'none', borderBottom: '1px solid var(--gray-80)', borderRadius: '0', marginBottom: '3px' }}>
+          style={{ border: 'none', borderBottom: '1px solid var(--gray-80)', borderRadius: '0', marginBottom: '3px' }}
+          aria-label={t("forms:combobox.search_options")}
+        >
           <IconSearch width={16} height={16} style={{ minWidth: '16px' }} />
           <input
             type="text"
-            placeholder="Sök..." // TODO: i18n
-            role="combobox"
+            style={{ padding: '0', margin: '0', fontSize: 'revert' }}
             ref={searchRef}
             onChange={(e) => setSearchValue(e.target.value)}
             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -161,47 +161,42 @@ export default function SelectSingleSearch({
                 if (onChange) onChange(selectedOption?.value !== value?.value ? selectedOption : null);
               }
             )}}
+            role="combobox"
             aria-controls={`${props.id}-dialog-listbox`}
             aria-activedescendant={focusedListboxOption != null ? `${props.id}-dialog-listbox-${focusedListboxOption}` : undefined}
             aria-expanded="true"
             aria-autocomplete="list"
             autoComplete="off"
-            style={{
-              padding: '0',
-              margin: '0',
-              fontSize: 'revert',
-            }}
+            placeholder={t("common:tsx.search") + t("common:tsx.ellipsis")}
           />
         </label>
         <ul
-          role="listbox"
           id={`${props.id}-dialog-listbox`}
-          aria-label={t("forms:suggestive_text.listbox_label")}
           className="margin-0 padding-0"
+          role="listbox"
+          aria-label={t("common:tsx.options")}
         >
           {searchResults.length > 0 ? (
             searchResults.map((option, index) => (
               <li  
+                key={index}
                 id={`${props.id}-dialog-listbox-${index}`}
+                style={{backgroundColor: index === focusedListboxOption ? 'var(--gray-90)' : '' }}
+                ref={(el) => { optionRefs.current[index] = el }}
                 onClick={() => {
                   setValue(option.value !== value?.value ? option : null);
                   setMenuOpen(false);
                   if (onChange) onChange(option.value !== value?.value ? option : null);
                 }}
-                aria-selected={option.value === value?.value}
-                ref={(el) => { optionRefs.current[index] = el }}
                 role="option"
-                key={index}
-                style={{
-                  backgroundColor: index === focusedListboxOption ? 'var(--gray-90)' : '',
-                }}
+                aria-selected={option.value === value?.value}
               >
                 {option.name}
               </li>
             ))
           ) : (
             <li className={`${styles['no-results']} font-weight-600`} >
-              Inga resultat {/* TODO: I18n */}
+              {t("common:tsx.no_results")}
             </li>
           )}
         </ul>

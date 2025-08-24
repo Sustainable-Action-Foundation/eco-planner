@@ -19,7 +19,7 @@ export default function TextSingleAutocomplete({
   props: inputElement
   options: Array<{name: string, value: string}>
 }) {
-  const { t } = useTranslation(["forms"]);
+  const { t } = useTranslation(["forms", "common"]);
 
   const [value, setValue] = useState<string>(props.defaultValue ? props.defaultValue : '');
   const [displayListBox, setDisplayListBox] = useState<boolean>(false);
@@ -46,7 +46,6 @@ export default function TextSingleAutocomplete({
     >
       <div className="flex align-items-center focusable">
         <input
-          autoComplete="off"
           type="text"
           placeholder={props.placeholder ? props.placeholder : undefined}
           name={props.name}
@@ -54,6 +53,7 @@ export default function TextSingleAutocomplete({
           required={props.required ? props.required : false}
           disabled={props.disabled}
           value={value}
+          autoComplete="off"
           onChange={(e) => { setValue(e.target.value), setFocusedListBoxItem(0) }}
           {...(options.length > 0 
             ? {
@@ -80,7 +80,7 @@ export default function TextSingleAutocomplete({
               )},
               onFocus: () => setDisplayListBox(true),
               onBlur: (e) => { if (e.relatedTarget?.id != `${props.id}-listbox` && e.relatedTarget?.id != `${props.id}-button`) { setDisplayListBox(false) } },
-              role: "combobox",
+              "role": "combobox",
               "aria-expanded": displayListBox,
               "aria-haspopup": "listbox",
               "aria-controls": displayListBox ? `${props.id}-listbox` : undefined,
@@ -98,8 +98,8 @@ export default function TextSingleAutocomplete({
             type="button"
             tabIndex={-1}
             aria-pressed={displayListBox}
-            aria-label={t("forms:suggestive_text.toggle_button")}
-            title={t("forms:suggestive_text.toggle_button")}
+            aria-label={t("forms:combobox.show_suggestions")}
+            title={t("forms:combobox.show_suggestions")}
           >
             <IconChevronDown aria-hidden="true" width={24} height={24} style={{ minWidth: '24px' }} />
           </button>
@@ -118,8 +118,7 @@ export default function TextSingleAutocomplete({
           onBlur={(e) => { if (e.relatedTarget?.id != props.id) {  setFocusedListBoxItem(null); setDisplayListBox(false); } }} // TODO: See if we can deal with blur the same way for all comboboxes
           role="listbox"
           tabIndex={-1}
-          aria-label={t("forms:suggestive_text.listbox_label")}
-          data-listbox-label={searchResults.length > 0 ? `${t("forms:suggestive_text.listbox_label")}` : `${t("forms:suggestive_text.listbox_empty_label")}`}
+          aria-label={t("common:tsx.suggestions")} 
         >
           {searchResults.map((option, index) =>
             <li
