@@ -1,6 +1,7 @@
 'use client';
 
-// TODO: Using enter should set focus to editor whilst space does not
+// TODO: Pressing enter will activate the menuitem and move focus to the texteditor while pressing space will keep focus in the menu.
+// The spec does not tell us to do this, and we should probably check against a screenreader to make sure it seems reasonable.
 
 import { Editor } from "@tiptap/core";
 import { useEditorState } from "@tiptap/react";
@@ -12,9 +13,11 @@ import { TFunction } from "i18next";
  
 export function Undo({
   editor,
+  setFocusedMenubarItem,
   t
 }: {
   editor: Editor,
+  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>
   t: TFunction<"forms", undefined>
 }) {
 
@@ -31,7 +34,12 @@ export function Undo({
     <span
       onClick={() => editor.chain().focus().undo().run()}
       onKeyDown={(e: React.KeyboardEvent<HTMLSpanElement>) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          editor.chain().focus().undo().run();
+          setFocusedMenubarItem(0)
+        }
+        if (e.key === ' ') {
           e.preventDefault();
           editor.chain().undo().run();
         }
@@ -55,9 +63,11 @@ export function Undo({
 
 export function Redo({
   editor,
+  setFocusedMenubarItem,
   t
 }: {
   editor: Editor,
+  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>
   t: TFunction<"forms", undefined>
 }) {
   const canRedo = useEditorState({
@@ -73,7 +83,12 @@ export function Redo({
     <span
       onClick={() => editor.chain().focus().redo().run()}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          editor.chain().focus().redo().run();
+          setFocusedMenubarItem(0)
+        }
+        if (e.key === ' ') {
           e.preventDefault();
           editor.chain().redo().run();
         }
@@ -381,16 +396,23 @@ export function FontSize({
 
 export function GreyText({
   editor,
+  setFocusedMenubarItem,
   t
 }: {
   editor: Editor,
+  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
   t: TFunction<"forms", undefined>
 }) {
   return (
     <span
       onClick={() => { editor.getAttributes('textStyle').color !== 'grey' ? editor.chain().focus().setColor('grey').run() : editor.chain().focus().unsetColor().run() }}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          editor.getAttributes('textStyle').color !== 'grey' ? editor.chain().focus().setColor('grey').run() : editor.chain().focus().unsetColor().run();
+          setFocusedMenubarItem(0)
+        }
+        if (e.key === ' ') {
           e.preventDefault();
           editor.getAttributes('textStyle').color !== 'grey' ? editor.chain().setColor('grey').run() : editor.chain().unsetColor().run();
         }
@@ -413,16 +435,23 @@ export function GreyText({
 
 export function Italic({
   editor,
+  setFocusedMenubarItem,
   t
 }: {
   editor: Editor,
+  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
   t: TFunction<"forms", undefined>
 }) {
   return (
     <span
       onClick={() => editor.chain().focus().toggleItalic().run()}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          editor.chain().focus().toggleItalic().run()
+          setFocusedMenubarItem(0)
+        }
+        if (e.key === ' ') {
           e.preventDefault();
           editor.chain().toggleItalic().run();
         }
@@ -440,16 +469,23 @@ export function Italic({
 
 export function Bold({
   editor,
+  setFocusedMenubarItem,
   t
 }: {
   editor: Editor,
+  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
   t: TFunction<"forms", undefined>
 }) {
   return (
     <span
       onClick={() => editor.chain().focus().toggleBold().run()}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          editor.chain().focus().toggleBold().run()
+          setFocusedMenubarItem(0)
+        }
+        if (e.key === ' ') {
           e.preventDefault();
           editor.chain().toggleBold().run();
         }
@@ -467,16 +503,23 @@ export function Bold({
 
 export function StrikeThrough({
   editor,
+  setFocusedMenubarItem,
   t
 }: {
   editor: Editor,
+  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
   t: TFunction<"forms", undefined>
 }) {
   return (
     <span
       onClick={() => editor.chain().focus().toggleLineThrough().run()}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          editor.chain().focus().toggleLineThrough().run()
+          setFocusedMenubarItem(0)
+        }
+        if (e.key === ' ') {
           e.preventDefault();
           editor.chain().toggleLineThrough().run();
         }
@@ -494,16 +537,23 @@ export function StrikeThrough({
 
 export function Underline({
   editor,
+  setFocusedMenubarItem,
   t
 }: {
   editor: Editor,
+  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
   t: TFunction<"forms", undefined>
 }) {
   return (
     <span
       onClick={() => editor.chain().focus().toggleUnderline().run()}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          editor.chain().focus().toggleUnderline().run()
+          setFocusedMenubarItem(0)
+        }
+        if (e.key === ' ') {
           e.preventDefault();
           editor.chain().toggleUnderline().run();
         }
@@ -521,16 +571,23 @@ export function Underline({
 
 export function Superscript({
   editor,
+  setFocusedMenubarItem,
   t
 }: {
   editor: Editor,
+  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>
   t: TFunction<"forms", undefined>
 }) {
    return (
     <span
       onClick={() => editor.chain().focus().toggleSuperscript().run()}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          editor.chain().focus().toggleSuperscript().run()
+          setFocusedMenubarItem(0)
+        }
+        if (e.key === ' ') {
           e.preventDefault();
           editor.chain().toggleSuperscript().run();
         }
@@ -548,16 +605,23 @@ export function Superscript({
 
 export function Subscript({
   editor,
+  setFocusedMenubarItem,
   t
 }: {
   editor: Editor,
+  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
   t: TFunction<"forms", undefined>
 }) {
   return (
     <span
       onClick={() => editor.chain().focus().toggleSubscript().run()}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          editor.chain().focus().toggleSubscript().run()
+          setFocusedMenubarItem(0)
+        }
+        if (e.key === ' ') {
           e.preventDefault();
           editor.chain().toggleSubscript().run();
         }
@@ -575,16 +639,23 @@ export function Subscript({
 
 export function Highlight({
   editor,
+  setFocusedMenubarItem,
   t
 }: {
   editor: Editor,
+  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>
   t: TFunction<"forms", undefined>
 }) {
   return (
     <span
       onClick={() => editor.chain().focus().toggleHighlight().run()}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          editor.chain().focus().toggleHighlight().run()
+          setFocusedMenubarItem(0)
+        }
+        if (e.key === ' ') {
           e.preventDefault();
           editor.chain().toggleHighlight().run();
         }
@@ -603,9 +674,11 @@ export function Highlight({
 // TODO: Export this as something else to avoid confusion with nextjs Link component
 export function Link({
   editor,
+  setFocusedMenubarItem,
   t
 }: {
   editor: Editor,
+  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>
   t: TFunction<"forms", undefined>
 }) {
   const setLink = useCallback(() => {
@@ -651,7 +724,12 @@ export function Link({
     <span
       onClick={setLink} // TODO: Custom link menu :)
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          setLink();
+          setFocusedMenubarItem(0)
+        }
+        if (e.key === ' ') {
           e.preventDefault();
           setLink();
         }
@@ -668,16 +746,23 @@ export function Link({
 
 export function BulletList({
   editor,
+  setFocusedMenubarItem,
   t
 }: {
   editor: Editor,
+  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>
   t: TFunction<"forms", undefined>
 }) {
   return (
     <span
       onClick={() => editor.chain().focus().toggleBulletList().run()}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          editor.chain().focus().toggleBulletList().run()
+          setFocusedMenubarItem(0)
+        }
+        if (e.key === ' ') {
           e.preventDefault();
           editor.chain().toggleBulletList().run();
         }
@@ -695,16 +780,23 @@ export function BulletList({
 
 export function NumberedList({
   editor,
+  setFocusedMenubarItem,
   t
 }: {
   editor: Editor,
+  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>
   t: TFunction<"forms", undefined>
 }) {
   return (
     <span
       onClick={() => editor.chain().focus().toggleOrderedList().run()}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          editor.chain().focus().toggleOrderedList().run()
+          setFocusedMenubarItem(0)
+        }
+        if (e.key === ' ') {
           e.preventDefault();
           editor.chain().toggleOrderedList().run();
         }

@@ -1,12 +1,13 @@
 'use client';
 
 import { useTranslation } from "react-i18next";
-import React, { useEffect, useRef, useState } from 'react';
-import { useThrottledCallback } from 'use-debounce';
-import { IconDotsVertical } from "@tabler/icons-react";
+import React, { useEffect, useRef, useState } from 'react'; 
 import { Editor } from "@tiptap/core";
 import styles from './textEditor.module.css' with { type: "css" }
 import { BulletList, Link, NumberedList, Highlight, Subscript, Superscript, Underline, StrikeThrough, Bold, Italic, GreyText, FontSize, Redo, Undo } from "./menuButtons";
+
+// TODO: Keyboard controls for a menu should likely be abstracted to another file.
+// TODO: The list items in themselves should likely be the menu buttons
 
 export default function TextEditorMenu({
   editor,
@@ -44,7 +45,7 @@ export default function TextEditorMenu({
     }
   }, [focusedMenubarItem]);
 
-  const handleKeyDownMenuBar = (e: React.KeyboardEvent<HTMLUListElement>) => {
+  const handleKeyDownMenuBar = (e: React.KeyboardEvent<HTMLUListElement>) => { // TODO: Turn to abstract menu function at some point
     if (!menuItemsRef.current) return;
 
     if (e.key === 'ArrowRight') {
@@ -85,46 +86,46 @@ export default function TextEditorMenu({
 
   const list =[
     <li role='presentation' key="undo">
-      <Undo editor={editor} t={t} />
+      <Undo editor={editor} setFocusedMenubarItem={setFocusedMenubarItem} t={t} />
     </li>,
     <li role='presentation' className={`margin-right-25 padding-right-25 ${styles['divider']}`} key="redo">
-      <Redo editor={editor} t={t} />
+      <Redo editor={editor} setFocusedMenubarItem={setFocusedMenubarItem} t={t} />
     </li>,
     <li role='presentation' className={`margin-right-25 padding-right-25 position-relative ${styles['divider']}`} key="font-size">
-      <FontSize editor={editor} t={t} editorId={editorId} setFocusedMenubarItem={setFocusedMenubarItem} /> {/* TODO: This is bugged now */}
+      <FontSize editor={editor} setFocusedMenubarItem={setFocusedMenubarItem} t={t} editorId={editorId} />
     </li>,
     <li role='presentation' key="grey-text">
-      <GreyText editor={editor} t={t} />
+      <GreyText editor={editor} setFocusedMenubarItem={setFocusedMenubarItem} t={t} />
     </li>,
     <li role='presentation' key="italic">
-      <Italic editor={editor} t={t} />
+      <Italic editor={editor} setFocusedMenubarItem={setFocusedMenubarItem} t={t} />
     </li>,
     <li role='presentation' key="bold">
-      <Bold editor={editor} t={t} />
+      <Bold editor={editor} setFocusedMenubarItem={setFocusedMenubarItem} t={t} />
     </li>,
     <li role='presentation' key="strike-through">
-      <StrikeThrough editor={editor} t={t} />
+      <StrikeThrough editor={editor} setFocusedMenubarItem={setFocusedMenubarItem} t={t} />
     </li>,
     <li role='presentation' key="underline">
-      <Underline editor={editor} t={t} />
+      <Underline editor={editor} setFocusedMenubarItem={setFocusedMenubarItem} t={t} />
     </li>,
     <li role='presentation' key="superscript">
-      <Superscript editor={editor} t={t} />
+      <Superscript editor={editor} setFocusedMenubarItem={setFocusedMenubarItem} t={t} />
     </li>,
     <li role='presentation' key="subscript">
-      <Subscript editor={editor} t={t} />
+      <Subscript editor={editor} setFocusedMenubarItem={setFocusedMenubarItem} t={t} />
     </li>,
     <li role='presentation' className={`margin-right-25 padding-right-25 ${styles['divider']}`} key="highlight">
-      <Highlight editor={editor} t={t} />
+      <Highlight editor={editor} setFocusedMenubarItem={setFocusedMenubarItem} t={t} />
     </li>,
     <li role='presentation' className={`margin-right-25 padding-right-25 ${styles['divider']}`} key="link">
-      <Link editor={editor} t={t} />
+      <Link editor={editor} setFocusedMenubarItem={setFocusedMenubarItem} t={t} />
     </li>,
     <li role='presentation' key="bulletlist">
-      <BulletList editor={editor} t={t} />
+      <BulletList editor={editor} setFocusedMenubarItem={setFocusedMenubarItem} t={t} />
     </li>,
     <li role='presentation' key="numberedlist">
-      <NumberedList editor={editor} t={t} />
+      <NumberedList editor={editor} setFocusedMenubarItem={setFocusedMenubarItem} t={t} />
     </li>
   ]  
 
