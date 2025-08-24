@@ -22,9 +22,12 @@
   border-radius: 0;
 }
 
-
 .font-size-smaller {
   font-size: smaller;
+}
+
+.font-size-100 {
+  font-size: 1rem;
 }
 
 .opacity-0 {
@@ -238,7 +241,6 @@
   border-radius: 4px;
   resize: vertical;
   min-height: 150px;
-  font-size: 1rem;
   line-height: 1.5; 
 }
 
@@ -272,10 +274,6 @@
 /* Text inputs (text, email, password, search, url) */
 /* Number inputs (number, tel) */
 /* Date inputs (datetimeLocal, date, month, week, time) */
-:where(input) {
-  font-size: 1rem;
-}
-
 :where(input[type=text],
   input[type=email],
   input[type=password],
@@ -348,15 +346,12 @@
 /* File inputs (file) */
 :where(input[type=file]) {
   display: block;
-  font-size: 14px;
 } 
 
 input[type=file]::file-selector-button {
   display: none;
 }
   
-
-
 /* Selection inputs (checkbox, radio, range color) */
 :where(input[type=radio],
   input[type=checkbox]) {

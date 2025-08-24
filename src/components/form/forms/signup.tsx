@@ -49,21 +49,21 @@ export default function Signup() {
           {t("components:signup.username")}
           <div className="margin-block-50 padding-50 flex align-items-center smooth focusable">
             <IconUser style={{minWidth: '24px'}} aria-hidden="true" />
-            <input className="padding-0 margin-inline-50" type="text" placeholder={t("common:placeholder.name")} name="username" required id="username" autoComplete="username" />
+            <input className="padding-0 margin-inline-50 font-size-100" type="text" placeholder={t("common:placeholder.name")} name="username" required id="username" autoComplete="username" />
           </div>
         </label>
         <label className="block margin-block-100">
           {t("components:signup.email")}
           <div className="margin-block-50 padding-50 flex align-items-center smooth focusable">
             <IconMail style={{minWidth: '24px'}} aria-hidden="true" />
-            <input className="padding-0 margin-inline-50" type="email" placeholder={t("common:placeholder.email")} name="email" required id="email" autoComplete="email" />
+            <input className="padding-0 margin-inline-50 font-size-100" type="email" placeholder={t("common:placeholder.email")} name="email" required id="email" autoComplete="email" />
           </div>
         </label>
         <label className="block margin-block-100">
           {t("components:signup.password")}
           <div className="margin-block-50 padding-50 flex align-items-center smooth focusable">
             <IconLock style={{minWidth: '24px'}} aria-hidden="true" />
-            <input className="padding-0 margin-inline-50 transparent" type={showPassword ? 'text' : 'password'} placeholder={t("common:placeholder.password")} name="password" required id="password" autoComplete="new-password" />
+            <input className="padding-0 margin-inline-50 transparent font-size-100" type={showPassword ? 'text' : 'password'} placeholder={t("common:placeholder.password")} name="password" required id="password" autoComplete="new-password" />
             <button 
               type="button" 
               className={`${styles.showPasswordButton} grid padding-0 transparent`} 
@@ -75,7 +75,7 @@ export default function Signup() {
           </div>
         </label>
 
-        <input value={t("components:signup.create_account")} className="block margin-top-200 smooth font-weight-bold seagreen color-purewhite" type="submit" />
+        <input value={t("components:signup.create_account")} className="block margin-top-200 smooth font-weight-bold seagreen color-purewhite font-size-100" type="submit" />
         <p className="text-align-center padding-block-50 margin-bottom-100 margin-top-0">
           {t("components:signup.already_have_account")} <Link href='/login'>{t("common:tsx.login")}</Link>
         </p>

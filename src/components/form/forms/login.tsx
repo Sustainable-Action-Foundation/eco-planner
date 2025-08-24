@@ -53,7 +53,7 @@ export default function Login() {
           {t("components:login.username")}
           <div className="margin-block-50 padding-50 flex align-items-center smooth focusable">
             <IconUser style={{minWidth: '24px'}} aria-hidden="true" />
-            <input className="padding-0 margin-inline-50" type="text" placeholder={t("common:placeholder.name")} name="username" required id="username" autoComplete="username" />
+            <input className="padding-0 margin-inline-50 font-size-100" type="text" placeholder={t("common:placeholder.name")} name="username" required id="username" autoComplete="username" />
           </div>
         </label>
 
@@ -62,7 +62,7 @@ export default function Login() {
           {t("components:login.password")}
           <div className="margin-block-50 padding-50 flex align-items-center smooth focusable">
             <IconLock style={{minWidth: '24px'}} aria-hidden="true" />
-            <input className="padding-0 margin-inline-50 transparent" type={showPassword ? 'text' : 'password'} placeholder={t("common:placeholder.password")} name="password" required id="password" autoComplete="current-password" />
+            <input className="padding-0 margin-inline-50 transparent font-size-100" type={showPassword ? 'text' : 'password'} placeholder={t("common:placeholder.password")} name="password" required id="password" autoComplete="current-password" />
             <button 
               type="button" 
               className={`${styles.showPasswordButton} grid padding-0 transparent`} 
@@ -84,7 +84,7 @@ export default function Login() {
 
         </div>
 
-        <input type="submit" value={t("common:tsx.login")} className="block font-weight-bold seagreen smooth color-purewhite margin-top-200" />
+        <input type="submit" value={t("common:tsx.login")} className="block font-weight-bold seagreen smooth color-purewhite margin-top-200 font-size-100" />
 
         <div className="flex gap-100 align-items-center justify-content-space-between alignt-items-center flex-wrap-wrap margin-block-100">
           <span>{t("components:login.no_account")} <Link href='/signup'>{t("components:login.create_account")}</Link></span>

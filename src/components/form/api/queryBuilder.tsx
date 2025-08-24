@@ -429,18 +429,18 @@ export default function QueryBuilder({
       {goal.externalDataset && goal.externalTableId
         ?
         <>
-          <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
+          <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem", lineHeight: '1.5' }} onClick={() => openModal(modalRef)}>
             {t("components:query_builder.change_historical_data")}
             <IconChartHistogram width={16} height={16} style={{minWidth: '16px'}} aria-hidden="true" />
           </button>
 
-          <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={deleteHistoricalData}>
+          <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem", lineHeight: '1.5' }} onClick={deleteHistoricalData}>
             {t("components:query_builder.remove_historical_data")}
             <IconTrashXFilled fill='#CB3C3C' width={16} height={16} style={{minWidth: '16px'}} aria-hidden="true" />
            </button>
         </>
         :
-        <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem" }} onClick={() => openModal(modalRef)}>
+        <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem", lineHeight: '1.5' }} onClick={() => openModal(modalRef)}>
           {t("components:query_builder.add_historical_data")}
           <IconChartHistogram width={16} height={16} style={{minWidth: '16px'}} aria-hidden="true" />
 
