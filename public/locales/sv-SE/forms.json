@@ -1,12 +1,14 @@
 {
   "access_selector": {
-    "groups_with_edit_access": "Grupper med redigeringsbehörighet",
-    "users_with_edit_access": "Användare med redigeringsbehörighet",
-    "remove_user": "Ta bort användare",
-    "add_user": "Lägg till användare",
-    "groups_with_read_access": "Grupper med läsbehörighet",
-    "make_posts_public": "Visa inlägg offentligt",
-    "users_with_read_access": "Användare med läsbehörighet"
+    "legend_visibility": "Vem får se färdplansserien?",
+    "legend_editability": "Vem får redigera färdplansserien?",
+    "me_only": "Enbart jag",
+    "all_users": "Alla användare",
+    "custom": "Välj specifika användare och/eller grupper",
+    "users": "Användare",
+    "select_users": "Välj användare",
+    "groups": "Grupper",
+    "select_groups": "Välj grupper"
   },
   "action": {
     "choose_relationship": "Ange relationen till andra inlägg",

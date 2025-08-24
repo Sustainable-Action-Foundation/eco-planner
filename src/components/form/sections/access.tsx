@@ -6,6 +6,7 @@ import { AccessControlled } from "@/types";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
 import { LoginData } from "@/lib/session";
 import styles from '../forms.module.css'
+import { useTranslation } from "react-i18next";
  
 export default function ConfigureAccess({
   user,
@@ -18,6 +19,7 @@ export default function ConfigureAccess({
   currentRoadmap?: MetaRoadmap & AccessControlled | Roadmap & AccessControlled & { metaRoadmap: MetaRoadmap },
   positionIndex: number,
 }) {
+  const { t } = useTranslation(["forms"]);
 
   const [viewers, setViewers] = useState<string>()
   const [viewerGroups, setViewerGroups] = useState<Array<{name: string, value: string}>>()
@@ -52,13 +54,14 @@ export default function ConfigureAccess({
     currentAccess ? (currentAccess.editors.length > 0 || currentAccess.editGroups.length > 0 ? "custom" : "private") : undefined
   );
  
+  // TODO: For fieldset legends i need to discern between roadmap and roadmapseries
   return (
     <div ref={accessSectionRef}>
       {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
         // TODO: Disabled / placeholder need to be more discernable 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
-            Vem får se färdplanen?
+            {t("forms:access_selector.legend_visibility")}
           </legend>
           <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50">
             <input
@@ -70,7 +73,7 @@ export default function ConfigureAccess({
               checked={visibilityType === "private"}
               onChange={(e) => setvisibilityType(e.target.value as any)}
             />
-            Enbart jag
+            {t("forms:access_selector.me_only")}
           </label>
           <label className="flex width-fit-content margin-block-75 align-items-center gap-50">
             <input
@@ -81,11 +84,9 @@ export default function ConfigureAccess({
               checked={visibilityType === "public"}
               onChange={(e) => setvisibilityType(e.target.value as any)}
             />
-            Alla användare
+            {t("forms:access_selector.all_users")}
           </label>
-          <fieldset
-            className=" fieldset-unset-pseudo-class"
-          >
+          <fieldset className=" fieldset-unset-pseudo-class">
             <legend> {/* TODO: This causes repetion on a screenreader */}
               <label className="flex width-fit-content align-items-center gap-50">
                 <input
@@ -96,7 +97,7 @@ export default function ConfigureAccess({
                   checked={visibilityType === "custom"}
                   onChange={(e) => setvisibilityType(e.target.value as any)}
                 />
-                Specifika användare och/eller grupper
+                {t("forms:access_selector.custom")}
               </label>
             </legend>
             <div
@@ -108,12 +109,12 @@ export default function ConfigureAccess({
                 columnGap: '1rem'
               }}
             >
-              <label htmlFor="viewers">Användare:</label>
+              <label htmlFor="viewers">{`${t("forms:access_selector.users")}:`}</label>
               <input
                 id="viewers"
                 name="viewers"
                 className="flex-grow-100"
-                placeholder="användare 1, användare 2, användare 3..."
+                placeholder={t("forms:access_selector.select_users")}
                 disabled={visibilityType !== "custom"}
                 required={visibilityType === "custom" && (!viewerGroups || viewerGroups.length == 0)}
                 type="text"
@@ -121,13 +122,13 @@ export default function ConfigureAccess({
                 defaultValue={currentAccess?.viewers.map((viewer) => viewer.username)}
                 onChange={(e) => setViewers(e.target.value)}
               />
-              <label htmlFor="viewer-groups" className="block width-fit-content">Grupper:</label>
+              <label htmlFor="viewer-groups" className="block width-fit-content">{`${t("forms:access_selector.groups")}:`}</label>
               <SelectMultipleSearch 
                 onChange={(option) => setViewerGroups(option ? option : [])}
                 props={{
                   id: "viewer-groups",
                   name: "viewer-groups",
-                  placeholder: "Välj grupper",
+                  placeholder: t("forms:access_selector.select_groups"),
                   disabled: visibilityType !== "custom",
                   required: visibilityType === "custom" && !viewers
                 }}
@@ -153,7 +154,7 @@ export default function ConfigureAccess({
       {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
-            Vem får redigera färdplanen?
+            {t("forms:access_selector.legend_editability")}
           </legend>
           <label className="flex width-fit-content  align-items-center gap-50  margin-bottom-75">
             <input
@@ -165,7 +166,7 @@ export default function ConfigureAccess({
               checked={editabilityType === "private"}
               onChange={(e) => setEditabilityType(e.target.value as any)}
             />
-            Enbart jag
+            {t("forms:access_selector.me_only")}
           </label>
           <fieldset
             className=" fieldset-unset-pseudo-class"
@@ -180,7 +181,7 @@ export default function ConfigureAccess({
                   checked={editabilityType === "custom"}
                   onChange={(e) => setEditabilityType(e.target.value as any)}
                 />
-                Specifika användare och/eller grupper
+                {t("forms:access_selector.custom")}
               </label>
             </legend>
             <div
@@ -192,25 +193,25 @@ export default function ConfigureAccess({
                 columnGap: '1rem'
               }}>
 
-              <label htmlFor="editors" className="block width-fit-content">Användare:</label>
+              <label htmlFor="editors" className="block width-fit-content">{`${t("forms:access_selector.users")}:`}</label>
               <input
                 type="text"
                 autoComplete="off"
                 id="editors"
                 name="editors"
-                placeholder="användare 1, användare 2, användare 3..."
+                placeholder={t("forms:access_selector.select_users")}
                 disabled={editabilityType !== "custom"}
                 required={editabilityType === "custom" && (!EditorGroups || EditorGroups.length == 0)}
                 defaultValue={currentAccess?.editors.map((editor) => editor.username)}
                 onChange={(e) => setEditors(e.target.value)}
               />
-              <label htmlFor="editor-groups" className="block width-fit-content">Grupper:</label>
+              <label htmlFor="editor-groups" className="block width-fit-content">{`${t("forms:access_selector.groups")}:`}</label>
               <SelectMultipleSearch
                 onChange={(option) => setEditorGroups(option ? option : [])}
                 props={{
                   id: "editor-groups",
                   name: "editor-groups",
-                  placeholder: "Välj grupper",
+                  placeholder: t("forms:access_selector.select_groups"),
                   disabled: editabilityType !== "custom",
                   required: editabilityType === "custom" && !editors
                 }}

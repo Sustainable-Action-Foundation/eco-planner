@@ -20,8 +20,7 @@ function checkForBadDecoding(csv: string[][], t: TFunction) {
     alert(t("forms:roadmap.bad_decoding"));
   }
 }
-
-// TODO: kebab-case
+ 
 export default function RoadmapForm({
   user,
   userGroups,

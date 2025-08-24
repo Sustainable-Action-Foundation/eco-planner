@@ -1,18 +1,14 @@
 {
   "access_selector": {
-    "groups_with_edit_access": "Groups with editing access",
-    "users_with_edit_access": "Users with editing access",
-    "remove_user": "Remove user",
-    "add_user": "Add user",
-    "groups_with_read_access": "Groups with read access",
-    "make_posts_public": "Show posts publicly",
-    "users_with_read_access": "Users with read access"
-  },
-  "combobox": {
-    "search_options": "Search among options",
-    "select_single_option": "Select an option",
-    "select_multiple_option": "Select one or multiple options",
-    "show_suggestions": "Show suggestions" 
+    "legend_visibility": "Who may view the roadmap series?",
+    "legend_editability": "Who may edit the roadmap series?",
+    "me_only": "Me only",
+    "all_users": "All users",
+    "custom": "Select specific users and/or groups",
+    "users": "Users",
+    "select_users": "Select users",
+    "groups": "Groups",
+    "select_groups": "Select groups"
   },
   "action": {
     "choose_relationship": "Specify the relationship to other posts",
@@ -41,6 +37,12 @@
     "category_efficiency": "Efficiency",
     "category_renewables": "Renewables",
     "attach_external_resources": "Attach external resources"
+  },
+  "combobox": {
+    "search_options": "Search among options",
+    "select_single_option": "Select an option",
+    "select_multiple_option": "Select one or multiple options",
+    "show_suggestions": "Show suggestions" 
   },
   "data_series_input": {
     "data_series": "Data series",
