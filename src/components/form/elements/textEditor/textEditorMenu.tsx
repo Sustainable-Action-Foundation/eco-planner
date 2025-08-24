@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslation } from "react-i18next";
-import React, { useEffect, useRef, useState } from 'react';
+import React, { JSX, useEffect, useRef, useState } from 'react';
 import { Editor } from "@tiptap/core";
 import styles from './textEditor.module.css' with { type: "css" }
 import { BulletList, Link, NumberedList, Highlight, Subscript, Superscript, Underline, StrikeThrough, Bold, Italic, GreyText, FontSize, Redo, Undo } from "./menuButtons";
@@ -20,6 +20,7 @@ export default function TextEditorMenu({
   const { t } = useTranslation("components");
 
   const [focusedMenubarItem, setFocusedMenubarItem] = useState<number | null>(null);
+  const [removedItems, setRemovedItems] = useState<JSX.Element[]>([]);
 
   const initialList = [
     <li role='presentation' key="undo">
@@ -167,14 +168,25 @@ export default function TextEditorMenu({
         setParentWidth(menubarRef.current.parentElement.clientWidth - 4); // Parent height minus padding, find better way to do this
       }
 
-      if (cumulativeWidths && parentWidth && parentWidth < cumulativeWidths[5]) {
+    if (cumulativeWidths && parentWidth) {
+      if (parentWidth < cumulativeWidths[5] && removedItems.length === 0) {
+        // remove items and store them
         setList(prevList => {
-          // make a copy and remove indices 12 and 13
           const newList = [...prevList];
-          newList.splice(12, 2);
+          const removed = newList.splice(12, 2); // remove indices 12 & 13
+          setRemovedItems(removed);
+          return newList;
+        });
+      } else if (parentWidth >= cumulativeWidths[5] && removedItems.length > 0) {
+        // re-add previously removed items
+        setList(prevList => {
+          const newList = [...prevList];
+          newList.splice(12, 0, ...removedItems); // reinsert at index 12
+          setRemovedItems([]);
           return newList;
         });
       }
+    }
 
       if (cumulativeWidths && parentWidth && parentWidth < cumulativeWidths[4]) {
         setList(prevList => {
@@ -220,7 +232,7 @@ export default function TextEditorMenu({
     // listen for window resize
     window.addEventListener("resize", updateWidth);
     return () => window.removeEventListener("resize", updateWidth);
-  }, [cumulativeWidths, parentWidth]);
+  }, [cumulativeWidths, parentWidth, removedItems]);
 
   if (!editor) {
     return null
