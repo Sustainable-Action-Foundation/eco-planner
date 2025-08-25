@@ -72,8 +72,8 @@ const TextEditor = ({
   const CustomLink = Link.extend({
     addKeyboardShortcuts() {
       return {
-        'Mod-shift-k': () => this.editor.commands.toggleUnderline(),
-        'Mod-shift-K': () => this.editor.commands.toggleUnderline(),
+        'Mod-k': () => this.editor.commands.toggleUnderline(),
+        'Mod-K': () => this.editor.commands.toggleUnderline(),
       }
     },
   })

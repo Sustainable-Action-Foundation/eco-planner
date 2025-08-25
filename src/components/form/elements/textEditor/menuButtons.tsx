@@ -41,7 +41,7 @@ export function Undo({
         if (e.key === 'Enter') {
           e.preventDefault();
           editor.chain().focus().undo().run();
-          setFocusedMenubarItem(0)
+          setFocusedMenubarItem(null)
         }
         if (e.key === ' ') {
           e.preventDefault();
@@ -93,7 +93,7 @@ export function Redo({
         if (e.key === 'Enter') {
           e.preventDefault();
           editor.chain().focus().redo().run();
-          setFocusedMenubarItem(0)
+          setFocusedMenubarItem(null)
         }
         if (e.key === ' ') {
           e.preventDefault();
@@ -423,7 +423,7 @@ export function GreyText({
         if (e.key === 'Enter') {
           e.preventDefault();
           editor.getAttributes('textStyle').color !== 'grey' ? editor.chain().focus().setColor('grey').run() : editor.chain().focus().unsetColor().run();
-          setFocusedMenubarItem(0)
+          setFocusedMenubarItem(null)
         }
         if (e.key === ' ') {
           e.preventDefault();
@@ -465,7 +465,7 @@ export function Italic({
         if (e.key === 'Enter') {
           e.preventDefault();
           editor.chain().focus().toggleItalic().run()
-          setFocusedMenubarItem(0)
+          setFocusedMenubarItem(null)
         }
         if (e.key === ' ') {
           e.preventDefault();
@@ -502,7 +502,7 @@ export function Bold({
         if (e.key === 'Enter') {
           e.preventDefault();
           editor.chain().focus().toggleBold().run()
-          setFocusedMenubarItem(0)
+          setFocusedMenubarItem(null)
         }
         if (e.key === ' ') {
           e.preventDefault();
@@ -539,7 +539,7 @@ export function StrikeThrough({
         if (e.key === 'Enter') {
           e.preventDefault();
           editor.chain().focus().toggleLineThrough().run()
-          setFocusedMenubarItem(0)
+          setFocusedMenubarItem(null)
         }
         if (e.key === ' ') {
           e.preventDefault();
@@ -576,7 +576,7 @@ export function Underline({
         if (e.key === 'Enter') {
           e.preventDefault();
           editor.chain().focus().toggleUnderline().run()
-          setFocusedMenubarItem(0)
+          setFocusedMenubarItem(null)
         }
         if (e.key === ' ') {
           e.preventDefault();
@@ -613,7 +613,7 @@ export function Superscript({
         if (e.key === 'Enter') {
           e.preventDefault();
           editor.chain().focus().toggleSuperscript().run()
-          setFocusedMenubarItem(0)
+          setFocusedMenubarItem(null)
         }
         if (e.key === ' ') {
           e.preventDefault();
@@ -650,7 +650,7 @@ export function Subscript({
         if (e.key === 'Enter') {
           e.preventDefault();
           editor.chain().focus().toggleSubscript().run()
-          setFocusedMenubarItem(0)
+          setFocusedMenubarItem(null)
         }
         if (e.key === ' ') {
           e.preventDefault();
@@ -687,7 +687,7 @@ export function Highlight({
         if (e.key === 'Enter') {
           e.preventDefault();
           editor.chain().focus().toggleHighlight().run()
-          setFocusedMenubarItem(0)
+          setFocusedMenubarItem(null)
         }
         if (e.key === ' ') {
           e.preventDefault();
@@ -756,14 +756,21 @@ export function Link({
 
     editor.chain().focus().extendMarkRange('link').setLink({ href: parsedUrl.href })
       .run();
-    const pos = editor.view.state.selection.$from.pos;
-    const node = editor.state.doc.nodeAt(pos);
+    const position = editor.view.state.selection.$from.pos;
+    const node = editor.state.doc.nodeAt(position);
+    
 
-    if (node) {
+    if (node) { // If we have a node we replace it with a new textvalue
       editor
         .chain()
         .focus()
-        .insertContentAt({ from: pos, to: pos + node.nodeSize }, textValue)
+        .insertContentAt({ from: position, to: position + node.nodeSize }, textValue)
+        .run();
+    } else if (position) { // If we don't, we insert a new textvalue
+      editor
+        .chain()
+        .focus()
+        .insertContentAt({ from: position, to: position }, textValue)
         .run();
     }
   }
@@ -785,22 +792,16 @@ export function Link({
         onClick={() => {
           // If no link mark exists yet, create a placeholder link so BubbleMenu can show
           if (!editor.isActive('link')) {
-            editor.chain().focus().setLink({ href: '' }).run();
-          }
+            editor.chain().focus().setLink({ href: '' }).run(); // TODO: Set focus to menu.
+          } 
         }} // TODO: Custom link menu :)
-        /*
         onKeyDown={(e) => {
-          if (e.key === 'Enter') {
+          if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            setLink();
-            setFocusedMenubarItem(0)
-          }
-          if (e.key === ' ') {
-            e.preventDefault();
-            setLink();
-          }
+            editor.chain().focus().setLink({ href: '' }).run();
+            setFocusedMenubarItem(null)
+          } 
         }}
-        */
         tabIndex={-1}
         role='menuitemcheckbox'
         aria-label={t("forms:text_editor_menu.insert_link")}
@@ -930,7 +931,7 @@ export function BulletList({
         if (e.key === 'Enter') {
           e.preventDefault();
           editor.chain().focus().toggleBulletList().run()
-          setFocusedMenubarItem(0)
+          setFocusedMenubarItem(null)
         }
         if (e.key === ' ') {
           e.preventDefault();
@@ -967,7 +968,7 @@ export function NumberedList({
         if (e.key === 'Enter') {
           e.preventDefault();
           editor.chain().focus().toggleOrderedList().run()
-          setFocusedMenubarItem(0)
+          setFocusedMenubarItem(null)
         }
         if (e.key === ' ') {
           e.preventDefault();

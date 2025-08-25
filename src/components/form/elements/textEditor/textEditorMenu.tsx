@@ -69,6 +69,15 @@ export default function TextEditorMenu({
 
   const menubarRef = useRef<HTMLUListElement | null>(null);
   const menuItemsRef = useRef<NodeListOf<HTMLElement> | null>(null);
+
+  useEffect(() => {
+    if (menubarRef.current) {
+      menuItemsRef.current = menubarRef.current.querySelectorAll(
+        "[role='menubar'] > li > [role='menuitem'], [role='menubar'] > li > [role='menuitemcheckbox'], [role='menubar'] > li > [role='menuitemradio']"
+      ) as NodeListOf<HTMLElement>;
+    }
+  }, [])
+
   /*
   const [parentWidth, setParentWidth] = useState(0);
   const [cumulativeWidths, setCumulativeWidths] = useState<any>()
@@ -112,6 +121,8 @@ export default function TextEditorMenu({
     }
   }, []);
 
+ */
+
   useEffect(() => {
     if (!menuItemsRef.current) return;
 
@@ -123,7 +134,6 @@ export default function TextEditorMenu({
       }
     }
   }, [focusedMenubarItem]);
- */
 
   const handleKeyDownMenuBar = (e: React.KeyboardEvent<HTMLUListElement>) => { // TODO: Turn to abstract menu function at some point
     if (!menuItemsRef.current) return;
