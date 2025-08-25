@@ -1,12 +1,11 @@
 'use client';
 
 import { useTranslation } from "react-i18next";
-import React, { JSX, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Editor } from "@tiptap/core";
 import styles from './textEditor.module.css' with { type: "css" }
 import { BulletList, Link, NumberedList, Highlight, Subscript, Superscript, Underline, StrikeThrough, Bold, Italic, GreyText, FontSize, Redo, Undo } from "./menuButtons";
-
-// TODO: Keyboard controls for a menu should likely be abstracted to another file.
+import { handleKeyDownMenuBar } from "./functions";
 
 export default function TextEditorMenu({
   editor,
@@ -87,45 +86,6 @@ export default function TextEditorMenu({
       }
     }
   }, [focusedMenubarItem]);
-
-  const handleKeyDownMenuBar = (e: React.KeyboardEvent<HTMLUListElement>) => { // TODO: Turn to abstract menu function at some point
-    if (!menuItemsRef.current) return;
-
-    if (e.key === 'ArrowRight') {
-      if (focusedMenubarItem != menuItemsRef.current.length - 1) {
-        setFocusedMenubarItem(focusedMenubarItem === null ? 1 : focusedMenubarItem + 1);
-      } else {
-        setFocusedMenubarItem(0)
-      }
-    }
-
-    if (e.key === 'ArrowLeft') {
-      if (focusedMenubarItem != 0) {
-        setFocusedMenubarItem(focusedMenubarItem === null ? menuItemsRef.current.length - 1 : focusedMenubarItem - 1);
-      } else {
-        setFocusedMenubarItem(menuItemsRef.current.length - 1)
-      }
-    }
-
-    if (e.key === 'Home') {
-      e.preventDefault();
-      setFocusedMenubarItem(0);
-    }
-
-    if (e.key === 'End') {
-      e.preventDefault();
-      setFocusedMenubarItem(menuItemsRef.current.length - 1);
-    }
-
-    if (e.key == 'Tab') {
-      setFocusedMenubarItem(null);
-    }
-
-    if (e.key === 'Escape') {
-      setFocusedMenubarItem(null);
-      editor.commands.focus()
-    }
-  }
 
     /*
   const [parentWidth, setParentWidth] = useState(0);
@@ -253,7 +213,18 @@ export default function TextEditorMenu({
   return (
     <div className={`${styles["text-editor-menu"]} button-group margin-0`}>
       <ul
-        onKeyDown={handleKeyDownMenuBar}
+        onKeyDown={(e: React.KeyboardEvent<HTMLUListElement>) => {
+          if (!menuItemsRef.current) return; 
+          if (e.key === "Escape") {
+            editor.commands.focus();
+          }
+          handleKeyDownMenuBar(
+            e,
+            menuItemsRef.current,
+            focusedMenubarItem,
+            setFocusedMenubarItem
+          )
+        }}
         ref={menubarRef}
         role='menubar'
         className='margin-0 padding-0'
