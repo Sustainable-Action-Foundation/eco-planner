@@ -7,7 +7,6 @@ import styles from './textEditor.module.css' with { type: "css" }
 import { BulletList, Link, NumberedList, Highlight, Subscript, Superscript, Underline, StrikeThrough, Bold, Italic, GreyText, FontSize, Redo, Undo } from "./menuButtons";
 
 // TODO: Keyboard controls for a menu should likely be abstracted to another file.
-// TODO: The list items in themselves should likely be the menu buttons
 
 export default function TextEditorMenu({
   editor,
@@ -20,7 +19,6 @@ export default function TextEditorMenu({
   const { t } = useTranslation("components");
 
   const [focusedMenubarItem, setFocusedMenubarItem] = useState<number | null>(null);
-  const [removedItems, setRemovedItems] = useState<JSX.Element[]>([]);
 
   const initialList = [
     <li role='presentation' key="undo">
@@ -78,51 +76,6 @@ export default function TextEditorMenu({
     }
   }, [])
 
-  /*
-  const [parentWidth, setParentWidth] = useState(0);
-  const [cumulativeWidths, setCumulativeWidths] = useState<any>()
-  const [list, setList] = useState(initialList);
-
-  useEffect(() => {
-    if (menubarRef.current) {
-      menuItemsRef.current = menubarRef.current.querySelectorAll(
-        "[role='menubar'] > li > [role='menuitem'], [role='menubar'] > li > [role='menuitemcheckbox'], [role='menubar'] > li > [role='menuitemradio']"
-      ) as NodeListOf<HTMLElement>;
-    }
-
-    if (menuItemsRef.current) {
-      // Step 1: group widths
-      const groupWidths: Record<string, number> = {};
-
-      Array.from(menuItemsRef.current).forEach((el) => { // TODO: CHECK ONCE AND COMPARE AGAINST PARENT
-        const group = el.dataset.menuGroup ?? "ungrouped";
-
-        const parent = el.parentElement; // get the parent
-        if (!parent) return;
-
-        let width = parent.offsetWidth; // use parent width
-        const style = getComputedStyle(parent); // get parent styles if needed
-        width += parseInt(style.marginRight);
-
-        groupWidths[group] = (groupWidths[group] ?? 0) + width;
-      });
-
-      // Step 2: cumulative widths
-      const cumulativeWidths: Record<string, number> = {};
-      let runningTotal = 0;
-
-      Object.keys(groupWidths)
-        .sort((a, b) => Number(a) - Number(b)) // sort groups numerically
-        .forEach((group) => {
-          runningTotal += groupWidths[group];
-          cumulativeWidths[group] = runningTotal;
-        });
-      setCumulativeWidths(cumulativeWidths)
-    }
-  }, []);
-
- */
-
   useEffect(() => {
     if (!menuItemsRef.current) return;
 
@@ -173,6 +126,51 @@ export default function TextEditorMenu({
       editor.commands.focus()
     }
   }
+
+    /*
+  const [parentWidth, setParentWidth] = useState(0);
+  const [cumulativeWidths, setCumulativeWidths] = useState<any>()
+  const [list, setList] = useState(initialList);
+
+  useEffect(() => {
+    if (menubarRef.current) {
+      menuItemsRef.current = menubarRef.current.querySelectorAll(
+        "[role='menubar'] > li > [role='menuitem'], [role='menubar'] > li > [role='menuitemcheckbox'], [role='menubar'] > li > [role='menuitemradio']"
+      ) as NodeListOf<HTMLElement>;
+    }
+
+    if (menuItemsRef.current) {
+      // Step 1: group widths
+      const groupWidths: Record<string, number> = {};
+
+      Array.from(menuItemsRef.current).forEach((el) => { // TODO: CHECK ONCE AND COMPARE AGAINST PARENT
+        const group = el.dataset.menuGroup ?? "ungrouped";
+
+        const parent = el.parentElement; // get the parent
+        if (!parent) return;
+
+        let width = parent.offsetWidth; // use parent width
+        const style = getComputedStyle(parent); // get parent styles if needed
+        width += parseInt(style.marginRight);
+
+        groupWidths[group] = (groupWidths[group] ?? 0) + width;
+      });
+
+      // Step 2: cumulative widths
+      const cumulativeWidths: Record<string, number> = {};
+      let runningTotal = 0;
+
+      Object.keys(groupWidths)
+        .sort((a, b) => Number(a) - Number(b)) // sort groups numerically
+        .forEach((group) => {
+          runningTotal += groupWidths[group];
+          cumulativeWidths[group] = runningTotal;
+        });
+      setCumulativeWidths(cumulativeWidths)
+    }
+  }, []);
+
+ */
   
   /*
   useEffect(() => {

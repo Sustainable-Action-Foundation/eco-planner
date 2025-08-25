@@ -16,11 +16,10 @@ type MenubarButtonProps = {
   setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>;
 };
 
-type EditorChainFunction = (chain: ReturnType<Editor['chain']>) => void;
 function handleKeyDownMenuItem(
   editor: Editor,
   setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
-  action: EditorChainFunction
+  action: (chain: ReturnType<Editor['chain']>) => void
 ) {
   return (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
