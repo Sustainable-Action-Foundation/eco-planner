@@ -3,7 +3,7 @@
 // TODO: Remove duplicate extension names
 
 import { EditorContent, useEditor } from '@tiptap/react'
-import TextEditorMenu from './textEditorMenu'
+import TextEditorMenu from './menu'
 import {
   HardBreak,
   Superscript,

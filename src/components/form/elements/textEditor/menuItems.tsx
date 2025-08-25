@@ -5,17 +5,17 @@ import { useEditorState } from "@tiptap/react";
 import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconChevronDown, IconDotsVertical, IconWorld, IconEdit, IconLinkOff, IconPencil, IconCopy, IconAlignLeft } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import styles from './textEditor.module.css' with { type: "css" }
-import { allowedProtocols } from './textEditor';
+import { allowedProtocols } from './editor';
 import { TFunction } from "i18next";
 import { BubbleMenu } from '@tiptap/react/menus'
 
-type MenubarButtonProps = {
+type MenubarButtonProps = { 
   t: TFunction<"forms", undefined>;
   editor: Editor;
   menuGroup: number;
   setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>;
 };
-
+ 
 function handleKeyDownMenuItem(
   editor: Editor,
   setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,

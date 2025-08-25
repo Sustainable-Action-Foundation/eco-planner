@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import React, { useEffect, useRef, useState } from 'react';
 import { Editor } from "@tiptap/core";
 import styles from './textEditor.module.css' with { type: "css" }
-import { BulletList, Link, NumberedList, Highlight, Subscript, Superscript, Underline, StrikeThrough, Bold, Italic, GreyText, FontSize, Redo, Undo } from "./menuButtons";
+import { BulletList, Link, NumberedList, Highlight, Subscript, Superscript, Underline, StrikeThrough, Bold, Italic, GreyText, FontSize, Redo, Undo } from "./menuItems";
 import { handleKeyDownMenuBar } from "./functions";
 
 export default function TextEditorMenu({

@@ -11,7 +11,7 @@ import styles from '../forms.module.css';
 import { TFunction } from "i18next";
 import { Trans, useTranslation } from "react-i18next";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
-import TextEditor from "../elements/textEditor/textEditor";
+import TextEditor from "../elements/textEditor/editor";
 import { IconUpload } from "@tabler/icons-react";
 import ConfigureAccess from "../sections/access";
 

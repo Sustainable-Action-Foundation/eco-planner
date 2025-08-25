@@ -13,7 +13,7 @@ import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconEdit } from "@tabler/icons-react";
 import Link from "next/link";
-import TextEditor from "@/components/form/elements/textEditor/textEditor";
+import TextEditor from "@/components/form/elements/textEditor/editor";
 
 export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {
   const params = await props.params
