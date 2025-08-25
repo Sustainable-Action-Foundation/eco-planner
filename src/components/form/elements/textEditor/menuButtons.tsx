@@ -5,7 +5,7 @@
 
 import { Editor } from "@tiptap/core";
 import { useEditorState } from "@tiptap/react";
-import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconChevronDown, IconDotsVertical, IconWorld, IconEdit, IconLinkOff, IconPencil, IconCopy } from "@tabler/icons-react";
+import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconChevronDown, IconDotsVertical, IconWorld, IconEdit, IconLinkOff, IconPencil, IconCopy, IconAlignLeft } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styles from './textEditor.module.css' with { type: "css" }
 import { allowedProtocols } from './textEditor';
@@ -146,8 +146,8 @@ export function FontSize({
   }, [])
 
   const handleKeyDownFontSizeMenu = (e: React.KeyboardEvent<HTMLSpanElement>) => {
-  
-    if (!fontSizeMenuItemsRef.current) return;  
+
+    if (!fontSizeMenuItemsRef.current) return;
 
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -329,7 +329,7 @@ export function FontSize({
         aria-label={t("forms:text_editor_menu.font_size.caption")}
         data-tooltip={t("forms:text_editor_menu.font_size.caption")}
         className='flex-important align-items-center justify-content-space-between' // TODO: Remove flex-important
-        style={{width: '100px',}}
+        style={{ width: '100px', }}
       >
         {!editor.getAttributes('textStyle').fontSize ?
           t("forms:text_editor_menu.font_size.normal")
@@ -605,7 +605,7 @@ export function Superscript({
   menuGroup: number,
   t: TFunction<"forms", undefined>
 }) {
-   return (
+  return (
     <span
       data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleSuperscript().run()}
@@ -644,7 +644,7 @@ export function Subscript({
 }) {
   return (
     <span
-      data-menu-group={menuGroup} 
+      data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleSubscript().run()}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
@@ -756,6 +756,8 @@ export function Link({
       .run();
   }, [editor])
 
+  const [editLink, setEditLink] = useState<boolean>(false)
+
   return (
     <>
       <span
@@ -780,48 +782,83 @@ export function Link({
         <IconLink className="grid" width={16} height={16} aria-hidden="true" />
       </span>
       {editor &&
-        <BubbleMenu 
-          editor={editor} 
-          options={{ placement: 'bottom', offset: 8 }} 
-          shouldShow={({editor}) => editor.isActive('link')}
+        <BubbleMenu
+          editor={editor}
+          options={{ placement: 'bottom', offset: 8 }}
+          shouldShow={({ editor }) => editor.isActive('link')}
         >
-          <div className="flex align-items-center padding-50 smooth gray-95" style={{boxShadow: '0 0 8px rgba(0,0,0,.25)'}}>
-            <a 
-              href={editor.getAttributes('link').href} 
-              target="_blank" 
-              style={{width: 'min(175px, auto)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
-              {editor.getAttributes('link').href}
-            </a>
-            {/* TODO: Tooltips */}
-            <button 
-              type="button" 
-              className="margin-left-100 padding-25 transparent round flex align-items-center"
-              style={{transform: 'scale(1)'}} 
-              aria-label="Kopiera länk"
-              onClick={() => navigator.clipboard.writeText(editor.getAttributes('link').href)}
-            > {/* TODO: I18n */}
-              <IconCopy height={18} width={18} aria-hidden={true} />
-            </button>
-            <button 
-              type="button" 
-              className="padding-25 transparent round flex align-items-center"
-              style={{transform: 'scale(1)'}} 
-              aria-label="Redigera länk"
-            > 
-            {/* TODO: I18n */}
-              <IconPencil height={18} width={18} aria-hidden={true} />
-            </button>
-            <span className="margin-left-25 padding-left-25" style={{borderLeft: '1px solid var(--gray)'}}>
-              <button 
-                type="button" 
-                className="padding-25 transparent round flex align-items-center"
-                style={{transform: 'scale(1)'}} 
-                aria-label="Ta bort länk"
-                onClick={() => editor.chain().focus().unsetLink().run()}
-              > {/* TODO: I18n */}
-                <IconLinkOff height={18} width={18} aria-hidden={true} />
-              </button>
-            </span>
+          <div className="padding-50 smooth gray-95" style={{ boxShadow: '0 0 8px rgba(0,0,0,.25)' }}>
+            {!editLink ?
+              <div className="flex align-items-center ">
+                {/* TODO: Tooltips */}
+                <a
+                  href={editor.getAttributes('link').href}
+                  target="_blank"
+                  style={{ width: 'min(175px, auto)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {editor.getAttributes('link').href}
+                </a>
+                <button
+                  type="button"
+                  className="margin-left-100 padding-25 transparent round flex align-items-center"
+                  style={{ transform: 'scale(1)' }}
+                  aria-label="Kopiera länk"
+                  onClick={() => navigator.clipboard.writeText(editor.getAttributes('link').href)}
+                > {/* TODO: I18n */}
+                  <IconCopy height={18} width={18} aria-hidden={true} />
+                </button>
+                <button
+                  type="button"
+                  className="padding-25 transparent round flex align-items-center"
+                  style={{ transform: 'scale(1)' }}
+                  aria-label="Redigera länk"
+                  onClick={() => setEditLink(true)}
+                >
+                  {/* TODO: I18n */}
+                  <IconPencil height={18} width={18} aria-hidden={true} />
+                </button>
+                <span className="margin-left-25 padding-left-25" style={{ borderLeft: '1px solid var(--gray)' }}>
+                  <button
+                    type="button"
+                    className="padding-25 transparent round flex align-items-center"
+                    style={{ transform: 'scale(1)' }}
+                    aria-label="Ta bort länk"
+                    onClick={() => editor.chain().focus().unsetLink().run()}
+                  > {/* TODO: I18n */}
+                    <IconLinkOff height={18} width={18} aria-hidden={true} />
+                  </button>
+                </span>
+              </div>
+              :
+              <>
+                <div className="flex align-items-flex-end gap-25">
+                  <div>
+                    <label aria-label=""> {/* TODO: Text + I18n */}
+                      <div className="focusable flex align-items-center padding-inline-25 margin-bottom-25">
+                        <IconAlignLeft width={16} height={16} aria-hidden={true} />
+                        <input
+                          className="padding-25"
+                          type="text"
+                          placeholder="text"
+                          defaultValue={
+                            editor.state.doc.textBetween(
+                            editor.state.selection.from,
+                            editor.state.selection.to,
+                            ' '
+                          )}
+                        /> {/* TODO: I18n */}
+                      </div>
+                    </label>
+                    <label aria-label=""> {/* TODO: Text + I18n */}
+                      <div className="focusable flex align-items-center padding-inline-25">
+                        <IconLink width={16} height={16} aria-hidden={true} />
+                        <input className="padding-25" type="text" placeholder="länk" defaultValue={editor.getAttributes('link').href} /> {/* TODO: I18n */}
+                      </div>
+                    </label>
+                  </div>
+                  <button type="button" className="round transparent font-weight-600" style={{ color: 'var(--blue)' }}>Apply</button>{/* TODO: I18n */}
+                </div>
+              </>
+            }
           </div>
         </BubbleMenu>
       }
