@@ -717,9 +717,7 @@ export function Link({
   menuGroup: number,
   t: TFunction<"forms", undefined>
 }) {
-  const setLink = useCallback(() => {
-    const previousUrl = editor.getAttributes('link').href;
-    const url = window.prompt('URL', previousUrl);
+  function setLink(url: string) {
 
     // cancelled
     if (url === null) {
@@ -754,7 +752,7 @@ export function Link({
 
     editor.chain().focus().extendMarkRange('link').setLink({ href: parsedUrl.href })
       .run();
-  }, [editor])
+  }
 
   const [editLink, setEditLink] = useState<boolean>(false)
   const [textValue, setTextValue] = useState("");
@@ -774,12 +772,13 @@ export function Link({
     <>
       <span
         data-menu-group={menuGroup}
-          onClick={() => {
-            // If no link mark exists yet, create a placeholder link so BubbleMenu can show
-            if (!editor.isActive('link')) {
-              editor.chain().focus().setLink({ href: '' }).run();
-            }
-          }} // TODO: Custom link menu :)
+        onClick={() => {
+          // If no link mark exists yet, create a placeholder link so BubbleMenu can show
+          if (!editor.isActive('link')) {
+            editor.chain().focus().setLink({ href: '' }).run();
+          }
+        }} // TODO: Custom link menu :)
+        /*
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
@@ -791,6 +790,7 @@ export function Link({
             setLink();
           }
         }}
+        */
         tabIndex={-1}
         role='menuitemcheckbox'
         aria-label={t("forms:text_editor_menu.insert_link")}
@@ -883,7 +883,14 @@ export function Link({
                       </div>
                     </label>
                   </div>
-                  <button type="button" className="round transparent font-weight-600" style={{ color: 'var(--blue)' }}>Apply</button>{/* TODO: I18n */}
+                  <button 
+                    type="button" 
+                    className="round transparent font-weight-600"
+                    style={{ color: 'var(--blue)' }}
+                    onClick={() => setLink(hrefValue)}
+                  >
+                    Apply
+                  </button>{/* TODO: I18n */}
                 </div>
               </>
             }
