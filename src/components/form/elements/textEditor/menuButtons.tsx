@@ -757,12 +757,29 @@ export function Link({
   }, [editor])
 
   const [editLink, setEditLink] = useState<boolean>(false)
+  const [textValue, setTextValue] = useState("");
+  const [hrefValue, setHrefValue] = useState("");
+
+  // Sync inputs whenever entering edit mode or selection changes
+  useEffect(() => {
+    if (editLink) {
+      const nodeText = editor.state.doc.nodeAt(editor.view.state.selection.$from.pos)?.textContent ?? "";
+      const linkHref = editor.getAttributes("link").href ?? "";
+      setTextValue(nodeText);
+      setHrefValue(linkHref);
+    }
+  }, [editLink, editor.state.selection]); 
 
   return (
     <>
       <span
         data-menu-group={menuGroup}
-        onClick={setLink} // TODO: Custom link menu :)
+          onClick={() => {
+            // If no link mark exists yet, create a placeholder link so BubbleMenu can show
+            if (!editor.isActive('link')) {
+              editor.chain().focus().setLink({ href: '' }).run();
+            }
+          }} // TODO: Custom link menu :)
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
@@ -787,7 +804,12 @@ export function Link({
           options={{ 
             placement: 'bottom', 
             offset: 8, 
-            onUpdate: () => setEditLink(false)
+            onUpdate: () => {
+              if (editor.getAttributes('link').href) { 
+                setEditLink(false) 
+              } else { 
+                setEditLink(true) 
+            }},
           }}
           shouldShow={({ editor }) => editor.isActive('link')}
         >
@@ -843,14 +865,21 @@ export function Link({
                           className="padding-25"
                           type="text"
                           placeholder="text"
-                          defaultValue={editor.state.doc.nodeAt(editor.view.state.selection.$from.pos)?.textContent}
+                          value={textValue}
+                          onChange={(e) => setTextValue(e.target.value)}
                         /> {/* TODO: I18n */}
                       </div>
                     </label>
                     <label aria-label=""> {/* TODO: Text + I18n */}
                       <div className="focusable flex align-items-center padding-inline-25">
                         <IconLink width={16} height={16} aria-hidden={true} />
-                        <input className="padding-25" type="text" placeholder="länk" defaultValue={editor.getAttributes('link').href} /> {/* TODO: I18n */}
+                        <input 
+                          className="padding-25"
+                          type="text"
+                          placeholder="länk"
+                          value={hrefValue}
+                          onChange={(e) => setHrefValue(e.target.value)}
+                        /> {/* TODO: I18n */}
                       </div>
                     </label>
                   </div>

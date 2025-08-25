@@ -68,6 +68,17 @@ const TextEditor = ({
     },
   })
 
+  /* Use this to add keybaord controls to link
+  const CustomLink = Link.extend({
+    addKeyboardShortcuts() {
+      return {
+        'Mod-shift-k': () => this.editor.commands.toggleUnderline(),
+        'Mod-shift-K': () => this.editor.commands.toggleUnderline(),
+      }
+    },
+  })
+ */
+
   const editor = useEditor({
     onUpdate: ({ editor }) => {
       if (onChange) {
