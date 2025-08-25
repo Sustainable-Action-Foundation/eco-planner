@@ -32,7 +32,7 @@ export default async function getTrafaTableContent(tableId: string, selection: {
       },
     });
     if (response.ok) {
-      data = await response.json();
+      data = await response.json() as TrafaDataResponse;
     } else {
       console.log("bad response", response);
       return null;

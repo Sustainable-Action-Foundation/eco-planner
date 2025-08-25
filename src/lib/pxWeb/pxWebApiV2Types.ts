@@ -3,6 +3,8 @@
 // and the documentation at  https://github.com/PxTools/PxApiSpecs/blob/master/PxAPI-2.yml.
 // Our types might not reflect the full range of possible responses, or the actual types in pxWeb's implementation as they sometimes update their API.
 
+// TODO: Check these types once PxWebAPIv2 gets a stable release; we unsafely cast responses from PxWeb to these types, which should be safe-ish as long as we keep our type defs up to date.
+
 import { JSONValue } from "@/types";
 import { ApiDetailItemBase } from "../api/apiTypes";
 

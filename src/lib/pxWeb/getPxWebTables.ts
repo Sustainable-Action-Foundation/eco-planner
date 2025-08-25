@@ -26,7 +26,7 @@ export default async function getPxWebTables(externalDataset: string, searchQuer
   try {
     const response = await fetch(url, { method: 'GET' });
     if (response.ok) {
-      data = await response.json();
+      data = await response.json() as PxWebApiV2TableArray;
       // If we didn't get all tables, try again with the correct page size
       if (data?.page?.totalElements > data?.page?.pageSize) {
         return await getPxWebTables(externalDataset, searchQuery, language, data.page.totalElements);

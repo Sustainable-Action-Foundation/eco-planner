@@ -152,7 +152,7 @@ export default async function getPxWebTableContent(tableId: string, externalData
         data = parsedCsv;
       }
       else if (contentType?.includes("application/json")) {
-        const responseJson = await response.json();
+        const responseJson = await response.json() as JSONValue;
         data = responseJson;
       }
     }
