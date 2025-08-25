@@ -717,6 +717,10 @@ export function Link({
   menuGroup: number,
   t: TFunction<"forms", undefined>
 }) {
+  const [editLink, setEditLink] = useState<boolean>(false)
+  const [textValue, setTextValue] = useState("");
+  const [hrefValue, setHrefValue] = useState("");
+
   function setLink(url: string) {
 
     // cancelled
@@ -752,11 +756,17 @@ export function Link({
 
     editor.chain().focus().extendMarkRange('link').setLink({ href: parsedUrl.href })
       .run();
-  }
+    const pos = editor.view.state.selection.$from.pos;
+    const node = editor.state.doc.nodeAt(pos);
 
-  const [editLink, setEditLink] = useState<boolean>(false)
-  const [textValue, setTextValue] = useState("");
-  const [hrefValue, setHrefValue] = useState("");
+    if (node) {
+      editor
+        .chain()
+        .focus()
+        .insertContentAt({ from: pos, to: pos + node.nodeSize }, textValue)
+        .run();
+    }
+  }
 
   // Sync inputs whenever entering edit mode or selection changes
   useEffect(() => {
