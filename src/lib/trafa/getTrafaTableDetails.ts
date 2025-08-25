@@ -26,7 +26,7 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
       },
     });
     if (response.ok) {
-      data = await response.json();
+      data = await response.json() as StructureItem;
     } else {
       console.log("bad response", response);
       return null;

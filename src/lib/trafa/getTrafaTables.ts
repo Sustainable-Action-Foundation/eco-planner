@@ -25,7 +25,7 @@ export default async function getTrafaTables(query?: string | null, language?: s
       },
     });
     if (response.ok) {
-      data = await response.json();
+      data = await response.json() as TrafaDataResponse;
     } else {
       console.log("bad response", response);
       return null;
@@ -49,7 +49,7 @@ export default async function getTrafaTables(query?: string | null, language?: s
   });
 
   if (query) {
-    const regex = new RegExp(query as string, "i");
+    const regex = new RegExp(query, "i");
     return tables?.filter(table => regex.test(table.label)) ?? null;
   }
 
