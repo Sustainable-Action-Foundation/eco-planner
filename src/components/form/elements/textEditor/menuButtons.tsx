@@ -12,17 +12,15 @@ import { allowedProtocols } from './textEditor';
 import { TFunction } from "i18next";
 import { BubbleMenu } from '@tiptap/react/menus'
 
-export function Undo({
-  editor,
-  setFocusedMenubarItem,
-  menuGroup,
-  t
-}: {
-  editor: Editor,
-  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
-  menuGroup: number,
-  t: TFunction<"forms", undefined>
-}) {
+type MenubarButtonProps = {
+  t: TFunction<"forms", undefined>;
+  editor: Editor;
+  menuGroup: number;
+  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>;
+};
+
+export function Undo(props: MenubarButtonProps) {
+  const { t, editor, menuGroup, setFocusedMenubarItem } = props;
 
   const canUndo = useEditorState({
     editor,
@@ -65,17 +63,9 @@ export function Undo({
   )
 }
 
-export function Redo({
-  editor,
-  setFocusedMenubarItem,
-  menuGroup,
-  t
-}: {
-  editor: Editor,
-  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
-  menuGroup: number,
-  t: TFunction<"forms", undefined>
-}) {
+export function Redo(props: MenubarButtonProps) {
+  const { t, editor, menuGroup, setFocusedMenubarItem } = props;
+  
   const canRedo = useEditorState({
     editor,
     selector: ctx => {
@@ -404,17 +394,9 @@ export function FontSize({
   )
 }
 
-export function GreyText({
-  editor,
-  setFocusedMenubarItem,
-  menuGroup,
-  t
-}: {
-  editor: Editor,
-  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
-  menuGroup: number,
-  t: TFunction<"forms", undefined>
-}) {
+export function GreyText(props: MenubarButtonProps) {
+  const { t, editor, menuGroup, setFocusedMenubarItem } = props;
+
   return (
     <span
       data-menu-group={menuGroup}
@@ -446,17 +428,9 @@ export function GreyText({
   )
 }
 
-export function Italic({
-  editor,
-  setFocusedMenubarItem,
-  menuGroup,
-  t
-}: {
-  editor: Editor,
-  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
-  menuGroup: number,
-  t: TFunction<"forms", undefined>
-}) {
+export function Italic(props: MenubarButtonProps) {
+  const { t, editor, menuGroup, setFocusedMenubarItem } = props;
+
   return (
     <span
       data-menu-group={menuGroup}
@@ -483,17 +457,9 @@ export function Italic({
   )
 }
 
-export function Bold({
-  editor,
-  setFocusedMenubarItem,
-  menuGroup,
-  t
-}: {
-  editor: Editor,
-  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
-  menuGroup: number,
-  t: TFunction<"forms", undefined>
-}) {
+export function Bold(props: MenubarButtonProps) {
+  const { t, editor, menuGroup, setFocusedMenubarItem } = props;
+
   return (
     <span
       data-menu-group={menuGroup}
@@ -520,17 +486,9 @@ export function Bold({
   )
 }
 
-export function StrikeThrough({
-  editor,
-  setFocusedMenubarItem,
-  menuGroup,
-  t
-}: {
-  editor: Editor,
-  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
-  menuGroup: number,
-  t: TFunction<"forms", undefined>
-}) {
+export function StrikeThrough(props: MenubarButtonProps) {
+  const { t, editor, menuGroup, setFocusedMenubarItem } = props;
+
   return (
     <span
       data-menu-group={menuGroup}
@@ -557,17 +515,9 @@ export function StrikeThrough({
   )
 }
 
-export function Underline({
-  editor,
-  setFocusedMenubarItem,
-  menuGroup,
-  t
-}: {
-  editor: Editor,
-  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
-  menuGroup: number,
-  t: TFunction<"forms", undefined>
-}) {
+export function Underline(props: MenubarButtonProps) {
+  const { t, editor, menuGroup, setFocusedMenubarItem } = props;
+  
   return (
     <span
       data-menu-group={menuGroup}
@@ -594,17 +544,9 @@ export function Underline({
   )
 }
 
-export function Superscript({
-  editor,
-  setFocusedMenubarItem,
-  menuGroup,
-  t
-}: {
-  editor: Editor,
-  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
-  menuGroup: number,
-  t: TFunction<"forms", undefined>
-}) {
+export function Superscript(props: MenubarButtonProps) {
+  const { t, editor, menuGroup, setFocusedMenubarItem } = props;
+
   return (
     <span
       data-menu-group={menuGroup}
@@ -631,17 +573,9 @@ export function Superscript({
   )
 }
 
-export function Subscript({
-  editor,
-  setFocusedMenubarItem,
-  menuGroup,
-  t
-}: {
-  editor: Editor,
-  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
-  menuGroup: number,
-  t: TFunction<"forms", undefined>
-}) {
+export function Subscript(props: MenubarButtonProps) {
+  const { t, editor, menuGroup, setFocusedMenubarItem } = props;
+
   return (
     <span
       data-menu-group={menuGroup}
@@ -668,17 +602,9 @@ export function Subscript({
   )
 }
 
-export function Highlight({
-  editor,
-  setFocusedMenubarItem,
-  menuGroup,
-  t
-}: {
-  editor: Editor,
-  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
-  menuGroup: number,
-  t: TFunction<"forms", undefined>
-}) {
+export function Highlight(props: MenubarButtonProps) {
+  const { t, editor, menuGroup, setFocusedMenubarItem } = props;
+
   return (
     <span
       data-menu-group={menuGroup}
@@ -705,21 +631,15 @@ export function Highlight({
   )
 }
 
-// TODO: Export this as something else to avoid confusion with nextjs Link component
-export function Link({
-  editor,
-  setFocusedMenubarItem,
-  menuGroup,
-  t
-}: {
-  editor: Editor,
-  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
-  menuGroup: number,
-  t: TFunction<"forms", undefined>
-}) {
+// TODO: Export this as something else to avoid confusion with nextjs Link component?
+export function Link(props: MenubarButtonProps) {
+  const { t, editor, menuGroup, setFocusedMenubarItem } = props;
+  
   const [editLink, setEditLink] = useState<boolean>(false)
   const [textValue, setTextValue] = useState("");
   const [hrefValue, setHrefValue] = useState("");
+  const linkNameRef = useRef<HTMLInputElement | null>(null)
+  const linkHrefRef = useRef<HTMLInputElement | null>(null)
 
   function setLink(url: string) {
 
@@ -781,7 +701,7 @@ export function Link({
       const nodeText = editor.state.doc.nodeAt(editor.view.state.selection.$from.pos)?.textContent ?? "";
       const linkHref = editor.getAttributes("link").href ?? "";
       setTextValue(nodeText);
-      setHrefValue(linkHref);
+      setHrefValue(linkHref); 
     }
   }, [editLink, editor.state.selection]); 
 
@@ -873,6 +793,7 @@ export function Link({
                       <div className="focusable flex align-items-center padding-inline-25 margin-bottom-25">
                         <IconAlignLeft width={16} height={16} aria-hidden={true} />
                         <input
+                          ref={linkNameRef}
                           className="padding-25"
                           type="text"
                           placeholder="text"
@@ -885,6 +806,7 @@ export function Link({
                       <div className="focusable flex align-items-center padding-inline-25">
                         <IconLink width={16} height={16} aria-hidden={true} />
                         <input 
+                          ref={linkHrefRef}
                           className="padding-25"
                           type="text"
                           placeholder="länk"
@@ -912,17 +834,9 @@ export function Link({
   )
 }
 
-export function BulletList({
-  editor,
-  setFocusedMenubarItem,
-  menuGroup,
-  t
-}: {
-  editor: Editor,
-  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>
-  menuGroup: number,
-  t: TFunction<"forms", undefined>
-}) {
+export function BulletList(props: MenubarButtonProps) {
+  const { t, editor, menuGroup, setFocusedMenubarItem } = props;
+
   return (
     <span
       data-menu-group={menuGroup}
@@ -949,17 +863,9 @@ export function BulletList({
   )
 }
 
-export function NumberedList({
-  editor,
-  setFocusedMenubarItem,
-  menuGroup,
-  t
-}: {
-  editor: Editor,
-  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
-  menuGroup: number,
-  t: TFunction<"forms", undefined>
-}) {
+export function NumberedList(props: MenubarButtonProps) {
+  const { t, editor, menuGroup, setFocusedMenubarItem } = props;
+  
   return (
     <span
       data-menu-group={menuGroup}
