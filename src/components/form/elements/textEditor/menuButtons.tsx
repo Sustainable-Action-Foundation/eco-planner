@@ -6,7 +6,7 @@
 import { Editor } from "@tiptap/core";
 import { useEditorState } from "@tiptap/react";
 import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconChevronDown, IconDotsVertical, IconWorld, IconEdit, IconLinkOff, IconPencil, IconCopy, IconAlignLeft } from "@tabler/icons-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from './textEditor.module.css' with { type: "css" }
 import { allowedProtocols } from './textEditor';
 import { TFunction } from "i18next";
@@ -18,6 +18,31 @@ type MenubarButtonProps = {
   menuGroup: number;
   setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>;
 };
+
+
+type EditorChainFunction = (chain: ReturnType<Editor['chain']>) => void;
+function createKeyDownHandler(
+  editor: Editor,
+  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
+  action: EditorChainFunction
+) {
+  return (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const chain = editor.chain().focus();
+      action(chain);
+      chain.run();
+      setFocusedMenubarItem(null);
+    }
+
+    if (e.key === ' ') {
+      e.preventDefault();
+      const chain = editor.chain();
+      action(chain);
+      chain.run();
+    }
+  };
+}
 
 export function Undo(props: MenubarButtonProps) {
   const { t, editor, menuGroup, setFocusedMenubarItem } = props;
@@ -35,17 +60,7 @@ export function Undo(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().undo().run()}
-      onKeyDown={(e: React.KeyboardEvent<HTMLSpanElement>) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          editor.chain().focus().undo().run();
-          setFocusedMenubarItem(null)
-        }
-        if (e.key === ' ') {
-          e.preventDefault();
-          editor.chain().undo().run();
-        }
-      }}
+      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => chain.undo())}
       tabIndex={0}
       aria-label={t("forms:text_editor_menu.undo")}
       aria-keyshortcuts='control+z'
@@ -79,17 +94,7 @@ export function Redo(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().redo().run()}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          editor.chain().focus().redo().run();
-          setFocusedMenubarItem(null)
-        }
-        if (e.key === ' ') {
-          e.preventDefault();
-          editor.chain().redo().run();
-        }
-      }}
+      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => chain.redo())}
       tabIndex={-1}
       aria-label={t("forms:text_editor_menu.redo")}
       aria-keyshortcuts='control+shift+z'
@@ -392,17 +397,9 @@ export function GreyText(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => { editor.getAttributes('textStyle').color !== 'grey' ? editor.chain().focus().setColor('grey').run() : editor.chain().focus().unsetColor().run() }}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          editor.getAttributes('textStyle').color !== 'grey' ? editor.chain().focus().setColor('grey').run() : editor.chain().focus().unsetColor().run();
-          setFocusedMenubarItem(null)
-        }
-        if (e.key === ' ') {
-          e.preventDefault();
-          editor.getAttributes('textStyle').color !== 'grey' ? editor.chain().setColor('grey').run() : editor.chain().unsetColor().run();
-        }
-      }}
+      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => 
+        editor.getAttributes('textStyle').color !== 'grey' ? chain.setColor('grey') : chain.unsetColor()
+      )}
       tabIndex={-1}
       aria-label={t("forms:text_editor_menu.grey_text")}
       aria-keyshortcuts='control+shift+g'
@@ -426,17 +423,7 @@ export function Italic(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleItalic().run()}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          editor.chain().focus().toggleItalic().run()
-          setFocusedMenubarItem(null)
-        }
-        if (e.key === ' ') {
-          e.preventDefault();
-          editor.chain().toggleItalic().run();
-        }
-      }}
+      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => chain.toggleItalic())}
       tabIndex={-1}
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.italic")}
@@ -455,17 +442,7 @@ export function Bold(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleBold().run()}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          editor.chain().focus().toggleBold().run()
-          setFocusedMenubarItem(null)
-        }
-        if (e.key === ' ') {
-          e.preventDefault();
-          editor.chain().toggleBold().run();
-        }
-      }}
+      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => chain.toggleBold())}
       tabIndex={-1}
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.bold")}
@@ -484,17 +461,7 @@ export function StrikeThrough(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleLineThrough().run()}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          editor.chain().focus().toggleLineThrough().run()
-          setFocusedMenubarItem(null)
-        }
-        if (e.key === ' ') {
-          e.preventDefault();
-          editor.chain().toggleLineThrough().run();
-        }
-      }}
+      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => chain.toggleLineThrough())}
       tabIndex={-1}
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.strike_through")}
@@ -513,17 +480,7 @@ export function Underline(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleUnderline().run()}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          editor.chain().focus().toggleUnderline().run()
-          setFocusedMenubarItem(null)
-        }
-        if (e.key === ' ') {
-          e.preventDefault();
-          editor.chain().toggleUnderline().run();
-        }
-      }}
+      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => chain.toggleUnderline())}
       tabIndex={-1}
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.underline")}
@@ -542,17 +499,7 @@ export function Superscript(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleSuperscript().run()}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          editor.chain().focus().toggleSuperscript().run()
-          setFocusedMenubarItem(null)
-        }
-        if (e.key === ' ') {
-          e.preventDefault();
-          editor.chain().toggleSuperscript().run();
-        }
-      }}
+      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => chain.toggleSuperscript())}
       tabIndex={-1}
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.superscript")}
@@ -571,17 +518,7 @@ export function Subscript(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleSubscript().run()}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          editor.chain().focus().toggleSubscript().run()
-          setFocusedMenubarItem(null)
-        }
-        if (e.key === ' ') {
-          e.preventDefault();
-          editor.chain().toggleSubscript().run();
-        }
-      }}
+      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => chain.toggleSubscript())}
       tabIndex={-1}
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.subscript")}
@@ -600,17 +537,7 @@ export function Highlight(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleHighlight().run()}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          editor.chain().focus().toggleHighlight().run()
-          setFocusedMenubarItem(null)
-        }
-        if (e.key === ' ') {
-          e.preventDefault();
-          editor.chain().toggleHighlight().run();
-        }
-      }}
+      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => chain.toggleHighlight())}
       tabIndex={-1}
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.highlight")}
@@ -744,19 +671,10 @@ export function Link(props: MenubarButtonProps) {
                   target="_blank"
                   style={{ width: 'min(175px, auto)', fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {editor.getAttributes('link').href}
-                </a>
+                </a> 
                 <button
                   type="button"
-                  className="margin-left-100 padding-25 transparent round flex align-items-center"
-                  style={{ transform: 'scale(1)' }}
-                  aria-label="Kopiera länk"
-                  onClick={() => navigator.clipboard.writeText(editor.getAttributes('link').href)}
-                > {/* TODO: I18n */}
-                  <IconCopy height={18} width={18} aria-hidden={true} />
-                </button>
-                <button
-                  type="button"
-                  className="padding-25 transparent round flex align-items-center"
+                  className="padding-25 margin-left-100 transparent rounded flex align-items-center"
                   style={{ transform: 'scale(1)' }}
                   aria-label="Redigera länk"
                   onClick={() => setEditLink(true)}
@@ -767,7 +685,7 @@ export function Link(props: MenubarButtonProps) {
                 <span className="margin-left-25 padding-left-25" style={{ borderLeft: '1px solid var(--gray)' }}>
                   <button
                     type="button"
-                    className="padding-25 transparent round flex align-items-center"
+                    className="padding-25 transparent rounded flex align-items-center"
                     style={{ transform: 'scale(1)' }}
                     aria-label="Ta bort länk"
                     onClick={() => {editor.chain().focus().unsetLink().run()}}
@@ -832,17 +750,7 @@ export function BulletList(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleBulletList().run()}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          editor.chain().focus().toggleBulletList().run()
-          setFocusedMenubarItem(null)
-        }
-        if (e.key === ' ') {
-          e.preventDefault();
-          editor.chain().toggleBulletList().run();
-        }
-      }}
+      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => chain.toggleBulletList())}
       tabIndex={-1}
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.bullet_list")}
@@ -861,17 +769,7 @@ export function NumberedList(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleOrderedList().run()}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          editor.chain().focus().toggleOrderedList().run()
-          setFocusedMenubarItem(null)
-        }
-        if (e.key === ' ') {
-          e.preventDefault();
-          editor.chain().toggleOrderedList().run();
-        }
-      }}
+      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => chain.toggleOrderedList())}
       tabIndex={-1}
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.numbered_list")}
