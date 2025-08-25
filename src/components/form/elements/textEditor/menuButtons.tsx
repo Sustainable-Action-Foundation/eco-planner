@@ -107,19 +107,10 @@ export function Redo(props: MenubarButtonProps) {
   )
 }
 
-export function FontSize({
-  editor,
-  editorId,
-  setFocusedMenubarItem,
-  menuGroup,
-  t
-}: {
-  editor: Editor
-  editorId: string,
-  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
-  menuGroup: number,
-  t: TFunction<"forms", undefined>
-}) {
+type FontSizeProps = MenubarButtonProps & { editorId: string };
+// TODO: Menu should default select the value of highlighted text... 
+export function FontSize({ t, editor, menuGroup, setFocusedMenubarItem, editorId }: FontSizeProps) {  
+ 
   const [fontSizeMenuOpen, setFontSizeMenuOpen] = useState<boolean>(false);
   const [focusedFontSizeMenuItem, setFocusedFontSizeMenuItem] = useState<number | null>(null);
 
@@ -865,7 +856,7 @@ export function BulletList(props: MenubarButtonProps) {
 
 export function NumberedList(props: MenubarButtonProps) {
   const { t, editor, menuGroup, setFocusedMenubarItem } = props;
-  
+
   return (
     <span
       data-menu-group={menuGroup}
