@@ -18,7 +18,6 @@ export default function TextEditorMenu({
   const { t } = useTranslation("components");
 
   const [focusedMenubarItem, setFocusedMenubarItem] = useState<number | null>(null);
-
   const initialList = [
     <li role='presentation' key="undo">
       <Undo editor={editor} setFocusedMenubarItem={setFocusedMenubarItem} t={t} menuGroup={1} />
@@ -64,8 +63,12 @@ export default function TextEditorMenu({
     </li>
   ]
 
+  const [ listItems, setListItems ] = useState<React.JSX.Element[]>(initialList)
+  const [ hiddenListItems, setHiddenListItems ] = useState<React.JSX.Element[]>([])
+
   const menubarRef = useRef<HTMLUListElement | null>(null);
   const menuItemsRef = useRef<NodeListOf<HTMLElement> | null>(null);
+  const breakpointsRef = useRef<Record<string, number>>({});
 
   useEffect(() => {
     if (menubarRef.current) {
@@ -87,52 +90,37 @@ export default function TextEditorMenu({
     }
   }, [focusedMenubarItem]);
 
-    /*
-  const [parentWidth, setParentWidth] = useState(0);
-  const [cumulativeWidths, setCumulativeWidths] = useState<any>()
-  const [list, setList] = useState(initialList);
-
   useEffect(() => {
-    if (menubarRef.current) {
-      menuItemsRef.current = menubarRef.current.querySelectorAll(
-        "[role='menubar'] > li > [role='menuitem'], [role='menubar'] > li > [role='menuitemcheckbox'], [role='menubar'] > li > [role='menuitemradio']"
-      ) as NodeListOf<HTMLElement>;
-    }
+    if (!menuItemsRef.current) return;
+ 
+    const groupWidths: Record<string, number> = {};
+    menuItemsRef.current.forEach((menuItem) => {
+      const menuItemGroup = menuItem.dataset.menuGroup;
+      const menuItemParent = menuItem.parentElement;
+      if (!menuItemParent || !menuItemGroup) return;
 
-    if (menuItemsRef.current) {
-      // Step 1: group widths
-      const groupWidths: Record<string, number> = {};
+      const width = 
+        menuItemParent.offsetWidth + 
+        parseInt(getComputedStyle(menuItemParent).marginRight);
+      groupWidths[menuItemGroup] = 
+        (groupWidths[menuItemGroup] ?? 0) +
+        width;
+    })
+    
+    const breakpoints: Record<string, number> = {};
+    let runningTotal = 0;
 
-      Array.from(menuItemsRef.current).forEach((el) => { // TODO: CHECK ONCE AND COMPARE AGAINST PARENT
-        const group = el.dataset.menuGroup ?? "ungrouped";
-
-        const parent = el.parentElement; // get the parent
-        if (!parent) return;
-
-        let width = parent.offsetWidth; // use parent width
-        const style = getComputedStyle(parent); // get parent styles if needed
-        width += parseInt(style.marginRight);
-
-        groupWidths[group] = (groupWidths[group] ?? 0) + width;
+    Object.keys(groupWidths)
+      .forEach((key) => {
+        runningTotal += groupWidths[key];
+        breakpoints[key] = runningTotal;
       });
 
-      // Step 2: cumulative widths
-      const cumulativeWidths: Record<string, number> = {};
-      let runningTotal = 0;
+  breakpointsRef.current = breakpoints;  
+  }, []) 
 
-      Object.keys(groupWidths)
-        .sort((a, b) => Number(a) - Number(b)) // sort groups numerically
-        .forEach((group) => {
-          runningTotal += groupWidths[group];
-          cumulativeWidths[group] = runningTotal;
-        });
-      setCumulativeWidths(cumulativeWidths)
-    }
-  }, []);
-
- */
-  
   /*
+  const [parentWidth, setParentWidth] = useState(0);
   useEffect(() => {
     function updateWidth() {
       if (menubarRef.current?.parentElement) { // TODO: WE DO NOT NEED TO SET THIS ON EACH RESIZE
@@ -229,7 +217,7 @@ export default function TextEditorMenu({
         role='menubar'
         className='margin-0 padding-0'
       >
-        {initialList.map((listItem) => {
+        {listItems.map((listItem) => {
           return listItem
         })}
       </ul>
