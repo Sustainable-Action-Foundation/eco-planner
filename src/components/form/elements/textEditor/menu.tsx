@@ -119,21 +119,22 @@ export default function TextEditorMenu({
   breakpointsRef.current = breakpoints;  
   }, []) 
 
-  const [parentWidth, setParentWidth] = useState<number | undefined>(undefined);
+  const [menuBarParentWidth, setMenuBarParentWidth] = useState<number | undefined>(undefined);
   useEffect(() => {
     function updateWidth() {
-      if (menubarRef.current?.parentElement) { // TODO: WE DO NOT NEED TO SET THIS ON EACH RESIZE
-        setParentWidth(menubarRef.current.parentElement.clientWidth - parseInt(getComputedStyle(menubarRef.current.parentElement).paddingInline)); // Parent height minus paddinginline
-      }
+      const menuBarParent = menubarRef.current?.parentElement
+      if (!menuBarParent) return
+
+      setMenuBarParentWidth(
+        menuBarParent.clientWidth - 
+        parseInt(getComputedStyle(menuBarParent).paddingInline)
+      ); 
     }
 
-    // run once on mount
     updateWidth();
-
-    // listen for window resize
     window.addEventListener("resize", updateWidth);
     return () => window.removeEventListener("resize", updateWidth);
-  }, [])
+  }, []) 
 
   if (!editor) {
     return null
