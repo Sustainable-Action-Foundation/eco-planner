@@ -72,8 +72,8 @@ export default function LinkInput({ links }: { links?: { url: string, descriptio
 export function getLinks(form: HTMLFormElement) {
   const links: { url: string, description: string }[] = [];
   // Get all the link fields
-  const linkFields = form.querySelectorAll('input[name="linkUrl"]') as NodeListOf<HTMLInputElement>;
-  const descriptionFields = form.querySelectorAll('input[name="linkDescription"]') as NodeListOf<HTMLInputElement>;
+  const linkFields: NodeListOf<HTMLInputElement> = form.querySelectorAll('input[name="linkUrl"]');
+  const descriptionFields: NodeListOf<HTMLInputElement> = form.querySelectorAll('input[name="linkDescription"]');
   // Add the links to the list of links
   for (let i = 0; i < linkFields.length; i++) {
     const url = linkFields[i].value;

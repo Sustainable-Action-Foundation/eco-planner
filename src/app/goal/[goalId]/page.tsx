@@ -21,7 +21,7 @@ import { getSession } from "@/lib/session";
 import serveTea from "@/lib/i18nServer";
 import prisma from "@/prismaClient";
 import { AccessControlled, AccessLevel } from "@/types";
-import type { Recipe, DataSeries, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
+import type { DataSeries, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -37,7 +37,7 @@ export async function generateMetadata(props: {
     [key: string]: string | string[] | undefined
   }>,
 }) {
-  const params = await props.params
+  const params = await props.params;
 
   const [t, session, goal] = await Promise.all([
     serveTea("metadata"),
@@ -104,18 +104,6 @@ export default async function Page(
     return notFound();
   }
 
-  // TODO - remove
-  let recipeUsed = null;
-  const recipeUsedHash = goal.recipeUsedId;
-  if (recipeUsedHash) {
-    const recipeInDb = await prisma.recipe.findFirst({
-      where: { hash: recipeUsedHash },
-    });
-    if (recipeInDb) {
-      recipeUsed = recipeInDb as Recipe;
-    }
-  }
-
   // Create a list of roadmaps the user can copy and scale the goal to
   const roadmapOptions = unfilteredRoadmapOptions.filter(roadmap => {
     if (session.user?.isAdmin) return true;
@@ -128,7 +116,7 @@ export default async function Page(
   // Fetch external data
   let externalData: ApiTableContent | null = null;
   if (goal.externalDataset && goal.externalTableId && goal.externalSelection) {
-    externalData = await getTableContent(goal.externalTableId, goal.externalDataset, JSON.parse(goal.externalSelection), locale);
+    externalData = await getTableContent(goal.externalTableId, goal.externalDataset, goal.externalSelection, locale);
   }
 
   // Fetch parent goal
