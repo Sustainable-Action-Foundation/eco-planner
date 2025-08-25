@@ -7,18 +7,16 @@ import getUserHash from "@/functions/getUserHash";
 import { baseUrl } from "@/lib/baseUrl";
 import serveTea from "@/lib/i18nServer";
 import Mail from "nodemailer/lib/mailer";
+import { JSONValue } from "@/types";
 
 export async function POST(request: NextRequest) {
   const t = await serveTea("email");
 
-  const { username, email, password }: { username: string; email: string; password: string; } = await request.json();
-
-  // Validate request body
-  if (!username || !email || !password) {
-    return Response.json({ message: 'Username, email, and password are required' },
-      { status: 400 }
-    );
+  const body = await (request.json() as Promise<JSONValue>);
+  if (!body || typeof body !== "object" || Array.isArray(body) || !(typeof body.username === 'string') || !(typeof body.email === 'string') || !(typeof body.password === 'string')) {
+    return Response.json({ message: 'Invalid body; username, email, and password are required' }, { status: 400 });
   }
+  const { username, email, password } = body;
   const lowercaseEmail = email.toLowerCase();
 
   // Check if email or username already exists; this is implicitly done by Prisma when creating a new user,
