@@ -106,7 +106,7 @@ const TextEditor = ({
       Italic,
       Color,
       Link.configure({
-        openOnClick: true,
+        openOnClick: false,
         autolink: true,
         defaultProtocol: 'https',
         protocols: allowedProtocols,

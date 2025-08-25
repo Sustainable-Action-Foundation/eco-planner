@@ -69,6 +69,7 @@ export default function TextEditorMenu({
 
   const menubarRef = useRef<HTMLUListElement | null>(null);
   const menuItemsRef = useRef<NodeListOf<HTMLElement> | null>(null);
+  /*
   const [parentWidth, setParentWidth] = useState(0);
   const [cumulativeWidths, setCumulativeWidths] = useState<any>()
   const [list, setList] = useState(initialList);
@@ -122,6 +123,7 @@ export default function TextEditorMenu({
       }
     }
   }, [focusedMenubarItem]);
+ */
 
   const handleKeyDownMenuBar = (e: React.KeyboardEvent<HTMLUListElement>) => { // TODO: Turn to abstract menu function at some point
     if (!menuItemsRef.current) return;
@@ -161,7 +163,8 @@ export default function TextEditorMenu({
       editor.commands.focus()
     }
   }
-
+  
+  /*
   useEffect(() => {
     function updateWidth() {
       if (menubarRef.current?.parentElement) { // TODO: WE DO NOT NEED TO SET THIS ON EACH RESIZE
@@ -233,6 +236,7 @@ export default function TextEditorMenu({
     window.addEventListener("resize", updateWidth);
     return () => window.removeEventListener("resize", updateWidth);
   }, [cumulativeWidths, parentWidth, removedItems]);
+ */
 
   if (!editor) {
     return null
@@ -246,7 +250,7 @@ export default function TextEditorMenu({
         role='menubar'
         className='margin-0 padding-0'
       >
-        {list.map((listItem) => {
+        {initialList.map((listItem) => {
           return listItem
         })}
       </ul>

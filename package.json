@@ -46,10 +46,12 @@
   ],
   "type": "module",
   "dependencies": {
+    "@floating-ui/dom": "^1.7.4",
     "@formatjs/intl-localematcher": "^0.6.1",
     "@prisma/client": "^6.11.0",
     "@tabler/icons-react": "^3.34.0",
     "@tiptap/core": "^3.0.7",
+    "@tiptap/extension-bubble-menu": "^3.3.0",
     "@tiptap/extension-character-count": "^3.0.7",
     "@tiptap/extension-document": "^3.0.7",
     "@tiptap/extension-hard-break": "^3.0.7",

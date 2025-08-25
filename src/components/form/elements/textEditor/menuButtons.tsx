@@ -5,12 +5,13 @@
 
 import { Editor } from "@tiptap/core";
 import { useEditorState } from "@tiptap/react";
-import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconChevronDown, IconDotsVertical } from "@tabler/icons-react";
+import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconChevronDown, IconDotsVertical, IconWorld, IconEdit, IconLinkOff, IconPencil, IconCopy } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styles from './textEditor.module.css' with { type: "css" }
 import { allowedProtocols } from './textEditor';
 import { TFunction } from "i18next";
- 
+import { BubbleMenu } from '@tiptap/react/menus'
+
 export function Undo({
   editor,
   setFocusedMenubarItem,
@@ -756,27 +757,75 @@ export function Link({
   }, [editor])
 
   return (
-    <span
-      data-menu-group={menuGroup}
-      onClick={setLink} // TODO: Custom link menu :)
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          setLink();
-          setFocusedMenubarItem(0)
-        }
-        if (e.key === ' ') {
-          e.preventDefault();
-          setLink();
-        }
-      }}
-      tabIndex={-1}
-      role='menuitemcheckbox'
-      aria-label={t("forms:text_editor_menu.insert_link")}
-      aria-checked={editor.isActive('link')}
-    >
-      <IconLink className="grid" width={16} height={16} aria-hidden="true" />
-    </span>
+    <>
+      <span
+        data-menu-group={menuGroup}
+        onClick={setLink} // TODO: Custom link menu :)
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            setLink();
+            setFocusedMenubarItem(0)
+          }
+          if (e.key === ' ') {
+            e.preventDefault();
+            setLink();
+          }
+        }}
+        tabIndex={-1}
+        role='menuitemcheckbox'
+        aria-label={t("forms:text_editor_menu.insert_link")}
+        aria-checked={editor.isActive('link')}
+      >
+        <IconLink className="grid" width={16} height={16} aria-hidden="true" />
+      </span>
+      {editor &&
+        <BubbleMenu 
+          editor={editor} 
+          options={{ placement: 'bottom', offset: 8 }} 
+          shouldShow={({editor}) => editor.isActive('link')}
+        >
+          <div className="flex align-items-center padding-50 smooth gray-95" style={{boxShadow: '0 0 8px rgba(0,0,0,.25)'}}>
+            <a 
+              href={editor.getAttributes('link').href} 
+              target="_blank" 
+              style={{width: 'min(175px, auto)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
+              {editor.getAttributes('link').href}
+            </a>
+            {/* TODO: Tooltips */}
+            <button 
+              type="button" 
+              className="margin-left-100 padding-25 transparent round flex align-items-center"
+              style={{transform: 'scale(1)'}} 
+              aria-label="Kopiera länk"
+              onClick={() => navigator.clipboard.writeText(editor.getAttributes('link').href)}
+            > {/* TODO: I18n */}
+              <IconCopy height={18} width={18} aria-hidden={true} />
+            </button>
+            <button 
+              type="button" 
+              className="padding-25 transparent round flex align-items-center"
+              style={{transform: 'scale(1)'}} 
+              aria-label="Redigera länk"
+            > 
+            {/* TODO: I18n */}
+              <IconPencil height={18} width={18} aria-hidden={true} />
+            </button>
+            <span className="margin-left-25 padding-left-25" style={{borderLeft: '1px solid var(--gray)'}}>
+              <button 
+                type="button" 
+                className="padding-25 transparent round flex align-items-center"
+                style={{transform: 'scale(1)'}} 
+                aria-label="Ta bort länk"
+                onClick={() => editor.chain().focus().unsetLink().run()}
+              > {/* TODO: I18n */}
+                <IconLinkOff height={18} width={18} aria-hidden={true} />
+              </button>
+            </span>
+          </div>
+        </BubbleMenu>
+      }
+    </>
   )
 }
 
