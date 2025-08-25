@@ -119,70 +119,12 @@ export default function TextEditorMenu({
   breakpointsRef.current = breakpoints;  
   }, []) 
 
-  /*
-  const [parentWidth, setParentWidth] = useState(0);
+  const [parentWidth, setParentWidth] = useState<number | undefined>(undefined);
   useEffect(() => {
     function updateWidth() {
       if (menubarRef.current?.parentElement) { // TODO: WE DO NOT NEED TO SET THIS ON EACH RESIZE
-        setParentWidth(menubarRef.current.parentElement.clientWidth - 4); // Parent height minus padding, find better way to do this
+        setParentWidth(menubarRef.current.parentElement.clientWidth - parseInt(getComputedStyle(menubarRef.current.parentElement).paddingInline)); // Parent height minus paddinginline
       }
-
-    if (cumulativeWidths && parentWidth) {
-      if (parentWidth < cumulativeWidths[5] && removedItems.length === 0) {
-        // remove items and store them
-        setList(prevList => {
-          const newList = [...prevList];
-          const removed = newList.splice(12, 2); // remove indices 12 & 13
-          setRemovedItems(removed);
-          return newList;
-        });
-      } else if (parentWidth >= cumulativeWidths[5] && removedItems.length > 0) {
-        // re-add previously removed items
-        setList(prevList => {
-          const newList = [...prevList];
-          newList.splice(12, 0, ...removedItems); // reinsert at index 12
-          setRemovedItems([]);
-          return newList;
-        });
-      }
-    }
-
-      if (cumulativeWidths && parentWidth && parentWidth < cumulativeWidths[4]) {
-        setList(prevList => {
-          // make a copy and remove indices 12 and 13
-          const newList = [...prevList];
-          newList.splice(11, 1);
-          return newList;
-        });
-      }
-
-      if (cumulativeWidths && parentWidth && parentWidth < cumulativeWidths[3]) {
-        setList(prevList => {
-          // make a copy and remove indices 12 and 13
-          const newList = [...prevList];
-          newList.splice(3, 8);
-          return newList;
-        });
-      }
-
-      if (cumulativeWidths && parentWidth && parentWidth < cumulativeWidths[2]) {
-        setList(prevList => {
-          // make a copy and remove indices 12 and 13
-          const newList = [...prevList];
-          newList.splice(2, 1);
-          return newList;
-        });
-      }
-
-      if (cumulativeWidths && parentWidth && parentWidth < cumulativeWidths[1]) {
-        setList(prevList => {
-          // make a copy and remove indices 12 and 13
-          const newList = [...prevList];
-          newList.splice(1, 2);
-          return newList;
-        });
-      }
-
     }
 
     // run once on mount
@@ -191,8 +133,7 @@ export default function TextEditorMenu({
     // listen for window resize
     window.addEventListener("resize", updateWidth);
     return () => window.removeEventListener("resize", updateWidth);
-  }, [cumulativeWidths, parentWidth, removedItems]);
- */
+  }, [])
 
   if (!editor) {
     return null
