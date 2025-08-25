@@ -784,7 +784,11 @@ export function Link({
       {editor &&
         <BubbleMenu
           editor={editor}
-          options={{ placement: 'bottom', offset: 8 }}
+          options={{ 
+            placement: 'bottom', 
+            offset: 8, 
+            onUpdate: () => setEditLink(false)
+          }}
           shouldShow={({ editor }) => editor.isActive('link')}
         >
           <div className="padding-50 smooth gray-95" style={{ boxShadow: '0 0 8px rgba(0,0,0,.25)' }}>
@@ -794,7 +798,7 @@ export function Link({
                 <a
                   href={editor.getAttributes('link').href}
                   target="_blank"
-                  style={{ width: 'min(175px, auto)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  style={{ width: 'min(175px, auto)', fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {editor.getAttributes('link').href}
                 </a>
                 <button
@@ -822,7 +826,7 @@ export function Link({
                     className="padding-25 transparent round flex align-items-center"
                     style={{ transform: 'scale(1)' }}
                     aria-label="Ta bort länk"
-                    onClick={() => editor.chain().focus().unsetLink().run()}
+                    onClick={() => {editor.chain().focus().unsetLink().run()}}
                   > {/* TODO: I18n */}
                     <IconLinkOff height={18} width={18} aria-hidden={true} />
                   </button>
@@ -839,12 +843,7 @@ export function Link({
                           className="padding-25"
                           type="text"
                           placeholder="text"
-                          defaultValue={
-                            editor.state.doc.textBetween(
-                            editor.state.selection.from,
-                            editor.state.selection.to,
-                            ' '
-                          )}
+                          defaultValue={editor.state.doc.nodeAt(editor.view.state.selection.$from.pos)?.textContent}
                         /> {/* TODO: I18n */}
                       </div>
                     </label>
