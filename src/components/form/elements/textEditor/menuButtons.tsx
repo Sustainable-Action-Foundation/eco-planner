@@ -1,8 +1,5 @@
 'use client';
 
-// TODO: Pressing enter will activate the menuitem and move focus to the texteditor while pressing space will keep focus in the menu.
-// The spec does not tell us to do this, and we should probably check against a screenreader to make sure it seems reasonable.
-
 import { Editor } from "@tiptap/core";
 import { useEditorState } from "@tiptap/react";
 import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconChevronDown, IconDotsVertical, IconWorld, IconEdit, IconLinkOff, IconPencil, IconCopy, IconAlignLeft } from "@tabler/icons-react";
@@ -19,9 +16,8 @@ type MenubarButtonProps = {
   setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>;
 };
 
-
 type EditorChainFunction = (chain: ReturnType<Editor['chain']>) => void;
-function createKeyDownHandler(
+function handleKeyDownMenuItem(
   editor: Editor,
   setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
   action: EditorChainFunction
@@ -34,7 +30,6 @@ function createKeyDownHandler(
       chain.run();
       setFocusedMenubarItem(null);
     }
-
     if (e.key === ' ') {
       e.preventDefault();
       const chain = editor.chain();
@@ -60,7 +55,7 @@ export function Undo(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().undo().run()}
-      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => chain.undo())}
+      onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => chain.undo())}
       tabIndex={0}
       aria-label={t("forms:text_editor_menu.undo")}
       aria-keyshortcuts='control+z'
@@ -94,7 +89,7 @@ export function Redo(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().redo().run()}
-      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => chain.redo())}
+      onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => chain.redo())}
       tabIndex={-1}
       aria-label={t("forms:text_editor_menu.redo")}
       aria-keyshortcuts='control+shift+z'
@@ -397,7 +392,7 @@ export function GreyText(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => { editor.getAttributes('textStyle').color !== 'grey' ? editor.chain().focus().setColor('grey').run() : editor.chain().focus().unsetColor().run() }}
-      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => 
+      onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => 
         editor.getAttributes('textStyle').color !== 'grey' ? chain.setColor('grey') : chain.unsetColor()
       )}
       tabIndex={-1}
@@ -423,7 +418,7 @@ export function Italic(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleItalic().run()}
-      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => chain.toggleItalic())}
+      onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => chain.toggleItalic())}
       tabIndex={-1}
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.italic")}
@@ -442,7 +437,7 @@ export function Bold(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleBold().run()}
-      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => chain.toggleBold())}
+      onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => chain.toggleBold())}
       tabIndex={-1}
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.bold")}
@@ -461,7 +456,7 @@ export function StrikeThrough(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleLineThrough().run()}
-      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => chain.toggleLineThrough())}
+      onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => chain.toggleLineThrough())}
       tabIndex={-1}
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.strike_through")}
@@ -480,7 +475,7 @@ export function Underline(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleUnderline().run()}
-      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => chain.toggleUnderline())}
+      onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => chain.toggleUnderline())}
       tabIndex={-1}
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.underline")}
@@ -499,7 +494,7 @@ export function Superscript(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleSuperscript().run()}
-      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => chain.toggleSuperscript())}
+      onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => chain.toggleSuperscript())}
       tabIndex={-1}
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.superscript")}
@@ -518,7 +513,7 @@ export function Subscript(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleSubscript().run()}
-      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => chain.toggleSubscript())}
+      onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => chain.toggleSubscript())}
       tabIndex={-1}
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.subscript")}
@@ -537,7 +532,7 @@ export function Highlight(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleHighlight().run()}
-      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => chain.toggleHighlight())}
+      onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => chain.toggleHighlight())}
       tabIndex={-1}
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.highlight")}
@@ -750,7 +745,7 @@ export function BulletList(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleBulletList().run()}
-      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => chain.toggleBulletList())}
+      onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => chain.toggleBulletList())}
       tabIndex={-1}
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.bullet_list")}
@@ -769,7 +764,7 @@ export function NumberedList(props: MenubarButtonProps) {
     <span
       data-menu-group={menuGroup}
       onClick={() => editor.chain().focus().toggleOrderedList().run()}
-      onKeyDown={createKeyDownHandler(editor, setFocusedMenubarItem, (chain) => chain.toggleOrderedList())}
+      onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => chain.toggleOrderedList())}
       tabIndex={-1}
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.numbered_list")}
