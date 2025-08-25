@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import React from "react";
 import { useRecipe } from "./recipeEditor";
 import { ExternalDataset } from "@/lib/api/utility";
+import { JSONValue } from "@/types";
 
 type InputRules = {
   allowNameEditing?: boolean;
@@ -377,7 +378,7 @@ export function ExternalVariable({
       const currentVar = newVariables[name];
       if (currentVar && e.target.value) {
         try {
-          const selection: unknown = JSON.parse(e.target.value);
+          const selection = JSON.parse(e.target.value) as JSONValue;
           if (!isRecipeExternalDatasetSelection(selection)) {
             console.warn("Invalid selection format", selection);
             return prev; // Do not update if selection is invalid
