@@ -309,7 +309,7 @@ export function FontSize({ t, editor, menuGroup, setFocusedMenubarItem, editorId
         aria-label={t("forms:text_editor_menu.font_size.caption")}
         data-tooltip={t("forms:text_editor_menu.font_size.caption")}
         className='flex-important align-items-center justify-content-space-between' // TODO: Remove flex-important
-        style={{ width: '100px', }}
+        style={{ width: '100px', lineHeight: '1'}}
       >
         {!editor.getAttributes('textStyle').fontSize ?
           t("forms:text_editor_menu.font_size.normal")

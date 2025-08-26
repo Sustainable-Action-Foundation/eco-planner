@@ -6,6 +6,7 @@ import { Editor } from "@tiptap/core";
 import styles from './textEditor.module.css' with { type: "css" }
 import { BulletList, Link, NumberedList, Highlight, Subscript, Superscript, Underline, StrikeThrough, Bold, Italic, GreyText, FontSize, Redo, Undo } from "./menuItems";
 import { handleKeyDownMenuBar } from "./functions";
+import { IconDotsVertical } from "@tabler/icons-react";
 
 export default function TextEditorMenu({
   editor,
@@ -25,7 +26,7 @@ export default function TextEditorMenu({
   const menubarRef = useRef<HTMLUListElement | null>(null);
   const menuItemsRef = useRef<NodeListOf<HTMLElement> | null>(null);
   const breakpointsRef = useRef<Record<string, number>>({}); // Breakpoints calculated from width of menu elements, calculated once on render.
- 
+
   const menuItemsList = [
     <li role='presentation' data-menu-group={1} key="undo">
       <Undo editor={editor} setFocusedMenubarItem={setFocusedMenubarItem} t={t} menuGroup={1} />
@@ -111,6 +112,7 @@ export default function TextEditorMenu({
   }, [])
 
   // Add resize observer to our menubar
+  // TODO: Can probably just check against the menubar itself now due to changed styling.
   useEffect(() => {
     function updateWidth() {
       const menuBarParent = menubarRef.current?.parentElement
@@ -126,11 +128,11 @@ export default function TextEditorMenu({
     window.addEventListener("resize", updateWidth);
     return () => window.removeEventListener("resize", updateWidth);
   }, [])
- 
-  
+
+  // TODO: Figure that one pixel which causes overflow instead of removing element from list ):
   useEffect(() => {
     if (!menuBarParentWidth) return
-    
+
     const calculatedVisibleGroups: number[] = [];
     const calculatedHiddenGroups: number[] = [];
 
@@ -147,7 +149,7 @@ export default function TextEditorMenu({
     })
 
     console.log(calculatedVisibleGroups)
- 
+
     setVisibleGroups(calculatedVisibleGroups)
     setHiddenGroups(calculatedHiddenGroups)
 
@@ -189,12 +191,33 @@ export default function TextEditorMenu({
         role='menubar'
         className='margin-0 padding-0'
       >
-      {menuItemsList
-        .filter((menuItem) => 
-          !visibleGroups || visibleGroups.includes(Number(menuItem.props["data-menu-group"]))
-        )
-        .map((menuItem) => menuItem)
-      }
+        {menuItemsList
+          .filter((menuItem) =>
+            !visibleGroups || visibleGroups.includes(Number(menuItem.props["data-menu-group"]))
+          )
+          .map((menuItem) => menuItem)
+        }
+        {hiddenGroups && hiddenGroups.length > 0 ?
+          <>
+            <li role='presentation' style={{ float: 'right' }}>
+              <span
+                data-tooltip="Meny" // TODO: I18n 
+                role='menuitem'
+                aria-label="Meny" // TODO: I18n
+              >
+                <IconDotsVertical className="grid" height={16} width={16} aria-hidden="true" />
+              </span>
+            </li>
+            <ul>
+              {menuItemsList
+                .filter((menuItem) =>
+                  !hiddenGroups || hiddenGroups.includes(Number(menuItem.props["data-menu-group"]))
+                )
+                .map((menuItem) => menuItem)
+              }
+            </ul>
+          </>
+          : null}
       </ul>
     </div>
   )

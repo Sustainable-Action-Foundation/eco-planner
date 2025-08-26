@@ -4,14 +4,7 @@
     border-radius: .25rem .25rem 0 0; 
     border-bottom: 1px solid var(--gray);
 }
-
-.text-editor-menu > [role="menubar"] {
-    line-height: 1;
-    display: inline-block;
-    vertical-align: top;
-    height: 24px;
-}
-
+ 
 .text-editor-menu [role="menubar"] > li {
   display: inline-block;
   vertical-align: top;
