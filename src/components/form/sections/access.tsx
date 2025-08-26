@@ -8,7 +8,6 @@ import { LoginData } from "@/lib/session";
 import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
  
-// TODO: Need default values for viewers, editors and their groups
 export default function ConfigureAccess({
   user,
   userGroups,
@@ -24,11 +23,6 @@ export default function ConfigureAccess({
 }) {
   const { t } = useTranslation(["forms"]);
 
-  const [viewers, setViewers] = useState<string>()
-  const [viewerGroups, setViewerGroups] = useState<Array<{name: string, value: string}>>()
-  const [editors, setEditors] = useState<string>()
-  const [EditorGroups, setEditorGroups] = useState<Array<{name: string, value: string}>>()
- 
   const accessSectionRef = useRef<HTMLDivElement>(null);
 
   let currentAccess: AccessControlled | undefined = undefined;
@@ -41,7 +35,12 @@ export default function ConfigureAccess({
       viewGroups: currentRoadmap.viewGroups,
       isPublic: currentRoadmap.isPublic,
     }
-  }
+  }  
+  
+  const [viewers, setViewers] = useState<string>(currentAccess ? currentAccess.viewers.map((viewer) => viewer.username).join(', ') : '') // TODO: This has NOT been tested with multiple usernames, ensure it gives back exactly what the user initially wrote
+  const [viewerGroups, setViewerGroups] = useState<Array<{name: string, value: string}>>(currentAccess ? currentAccess?.viewGroups.map((group) => { return { name: group.name, value: group.name } }) : [{name: '', value: ''}])
+  const [editors, setEditors] = useState<string>(currentAccess ? currentAccess?.editors.map((editor) => editor.username).join(', ') : '') // TODO: This has NOT been tested with multiple usernames, ensure it gives back exactly what the user initially wrote
+  const [editorGroups, seteditorGroups] = useState<Array<{name: string, value: string}>>(currentAccess ? currentAccess?.editGroups.map((group) => { return { name: group.name, value: group.name } }) : [{name: '', value: ''}])
 
   const [visibilityType, setvisibilityType] = useState<"private" | "public" | "custom" | undefined>(
     currentAccess
@@ -55,11 +54,11 @@ export default function ConfigureAccess({
 
   const [editabilityType, setEditabilityType] = useState<"private" | "custom" | undefined>(
     currentAccess ? (currentAccess.editors.length > 0 || currentAccess.editGroups.length > 0 ? "custom" : "private") : undefined
-  );
- 
+  ); 
+
   return (
     <div ref={accessSectionRef}>
-      {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
+      {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) && // TODO: Check that this is correct or if we need another one for metaroadmap
         // TODO: Disabled / placeholder need to be more discernable 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
@@ -121,7 +120,7 @@ export default function ConfigureAccess({
                 required={visibilityType === "custom" && (!viewerGroups || viewerGroups.length == 0)}
                 type="text"
                 autoComplete="off"
-                defaultValue={currentAccess?.viewers.map((viewer) => viewer.username)}
+                defaultValue={viewers}
                 onChange={(e) => setViewers(e.target.value)}
               />
               <label htmlFor="viewer-groups" className="block width-fit-content">{`${t("forms:access_selector.groups")}:`}</label>
@@ -134,7 +133,7 @@ export default function ConfigureAccess({
                   disabled: visibilityType !== "custom",
                   required: visibilityType === "custom" && !viewers
                 }}
-                defaultValue={currentAccess?.viewGroups.map((group) => { return { name: group.name, value: group.name } })}
+                defaultValue={viewerGroups}
                 options={[
                   ...(userGroups?.map(group => ({
                     name: group,
@@ -153,7 +152,7 @@ export default function ConfigureAccess({
         </fieldset>
       }
 
-      {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
+      {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) && // TODO: Check that this is correct or if we need another one for metaroadmap
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
             {legends.editors}
@@ -203,13 +202,13 @@ export default function ConfigureAccess({
                 name="editors"
                 placeholder={t("forms:access_selector.select_users")}
                 disabled={editabilityType !== "custom"}
-                required={editabilityType === "custom" && (!EditorGroups || EditorGroups.length == 0)}
-                defaultValue={currentAccess?.editors.map((editor) => editor.username)}
+                required={editabilityType === "custom" && (!editorGroups || editorGroups.length == 0)}
+                defaultValue={editors}
                 onChange={(e) => setEditors(e.target.value)}
               />
               <label htmlFor="editor-groups" className="block width-fit-content">{`${t("forms:access_selector.groups")}:`}</label>
               <SelectMultipleSearch
-                onChange={(option) => setEditorGroups(option ? option : [])}
+                onChange={(option) => seteditorGroups(option ? option : [])}
                 props={{
                   id: "editor-groups",
                   name: "editor-groups",
@@ -217,7 +216,7 @@ export default function ConfigureAccess({
                   disabled: editabilityType !== "custom",
                   required: editabilityType === "custom" && !editors
                 }}
-                defaultValue={currentAccess?.editGroups.map((group) => { return { name: group.name, value: group.name } })}
+                defaultValue={editorGroups}
                 options={[
                   ...(userGroups?.map(group => ({
                     name: group,

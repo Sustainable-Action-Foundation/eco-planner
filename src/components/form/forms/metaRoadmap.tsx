@@ -77,8 +77,6 @@ export default function MetaRoadmapForm({
       timestamp,
     };
 
-    console.log(formData)
-
     const formJSON = JSON.stringify(formData);
 
     formSubmitter('/api/metaRoadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', setIsLoading);
