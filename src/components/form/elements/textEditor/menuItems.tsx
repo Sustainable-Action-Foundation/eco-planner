@@ -399,6 +399,7 @@ export function Link(props: MenubarButtonProps) {
         role='menuitemcheckbox'
         aria-label={t("forms:text_editor_menu.insert_link")}
         aria-checked={editor.isActive('link')}
+        aria-keyshortcuts='control+k'
       >
         <IconLink className="grid" width={16} height={16} aria-hidden="true" />
       </span>

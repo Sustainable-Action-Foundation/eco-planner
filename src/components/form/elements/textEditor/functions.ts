@@ -1,3 +1,5 @@
+// TODO: Move all keyhandlers to shared file
+
 export const handleKeyDownMenuBar = (
   e: React.KeyboardEvent<HTMLUListElement>,
   menuBarItems: NodeListOf<HTMLElement> | Array<HTMLElement>,
