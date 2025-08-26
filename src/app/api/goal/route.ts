@@ -626,50 +626,85 @@ export async function PUT(request: NextRequest) {
 
   // Edit goal
   try {
-    let dataValues: Partial<DataSeriesValueFields> | undefined | null = undefined;
+    // Data series parsing
+    let parsedDataSeries: Partial<DataSeriesValueFields> | undefined | null = undefined;
+    let parsedDataSeriesUnit: string | null = null;
     if (goal.recipeUsed) {
-      // TODO: Handle case when a recipe is used
-      // Parse and typecheck recipe
-      // If the recipe is invalid, return an error UNLESS explicitly marked as incomplete somehow (needs to be added to form and here), in which case dataValues should be set to undefined
-      // Calculate data series based on recipe
-    } else if (goal.rawDataSeries?.length) {
-      dataValues = dataSeriesPrep(goal.rawDataSeries);
+      // TODO: If the recipe is invalid, return an error UNLESS explicitly marked as incomplete somehow (needs to be added to form and here), in which case dataValues should be set to undefined
+
+      const warnings: string[] = [];
+      const { dataSeries, unit } = await evaluateRecipe(cleanRecipe(goal.recipeUsed), warnings);
+
+      if (warnings.length) {
+        console.warn("Warnings while evaluating recipe for new goal:");
+        for (const warning of warnings) {
+          console.warn(warning);
+        }
+      }
+
+      parsedDataSeries = dataSeries;
+      parsedDataSeriesUnit = unit !== undefined ? unit : '';
     }
+    // TODO: DEPRECATE - raw data series should be made into data series before posting to the API and use 1:1 recipes instead 
+    else if (goal.rawDataSeries) {
+      parsedDataSeries = dataSeriesPrep(goal.rawDataSeries);
+      parsedDataSeriesUnit = goal.rawDataSeriesUnit !== undefined ? goal.rawDataSeriesUnit : '';
+    }
+
+    // Non full data series is an error
+    if (parsedDataSeries && !isFullDataSeriesValueFields(parsedDataSeries)) {
+      parsedDataSeries = null;
+    }
+
     // If the data series is invalid, return an error
-    if (dataValues === null) {
+    if (parsedDataSeries === null) {
       return Response.json({ message: 'Bad data series' },
         { status: 400 }
       );
     }
 
-    // Prepare goal baseline (if any), or deletion thereof
-    // If the baseline data series is null, it means the user wants to delete it. A value of undefined means no change.
-    let shouldRemoveBaseline = goal.rawBaselineDataSeries === null;
+    // Baseline data series parsing
+    const shouldRemoveBaseline = goal.rawBaselineDataSeries === null;
+    let parsedBaselineDataSeries: Partial<DataSeriesValueFields> | undefined | null = undefined;
+    let parsedBaselineDataSeriesUnit: string | null = null;
+
     if (shouldRemoveBaseline) {
-      // Check if current goal has a baseline data series, if not, no need to delete it
-      try {
-        const currentGoal = await prisma.goal.findUnique({
-          where: { id: goal.goalId },
-          select: { baselineDataSeries: true }
-        });
-        if (currentGoal?.baselineDataSeries == null) {
-          // Trying to delete the baseline when it doesn't exist will cause Prisma to throw an error
-          shouldRemoveBaseline = false;
-        }
-      } catch {
-        // Fail silently, this should either already be handled by the access check, or get handled when updating the goal
+      parsedBaselineDataSeries = null;
+    }
+    // Calculate new baseline
+    else {
+      if (goal.rawBaselineDataSeries) {
+        parsedBaselineDataSeries = dataSeriesPrep(goal.rawBaselineDataSeries);
+      }
+
+      // Non full data series is an error
+      if (parsedBaselineDataSeries && !isFullDataSeriesValueFields(parsedBaselineDataSeries)) {
+        parsedBaselineDataSeries = null;
+      }
+      // Note: May be null to indicate deletion of baseline
+
+      // TODO: formData.rawBaselineDataSeriesUnit may never be set or read from the form. Is it even settable in the form?
+      // If null, set to null
+      if (goal.rawBaselineDataSeriesUnit === null) {
+        parsedBaselineDataSeriesUnit = null;
+      }
+      // If a non empty string is provided, use it
+      else if (typeof goal.rawBaselineDataSeriesUnit === 'string' && goal.rawBaselineDataSeriesUnit.trim().length) {
+        parsedBaselineDataSeriesUnit = goal.rawBaselineDataSeriesUnit.trim();
+      }
+      // Fall back to data series unit no matter its value
+      else {
+        parsedBaselineDataSeriesUnit = parsedDataSeriesUnit;
+      }
+
+      if (parsedBaselineDataSeries === null) {
+        return Response.json({ message: 'Bad baseline data series' },
+          { status: 400 }
+        );
       }
     }
 
-    const baselineDataSeries = goal.rawBaselineDataSeries?.length ? dataSeriesPrep(goal.rawBaselineDataSeries) : undefined;
-    // If the baseline data series is invalid, return an error
-    if (baselineDataSeries === null) {
-      return Response.json({ message: 'Bad baseline data series' },
-        { status: 400 }
-      );
-    }
-
-    const recipeHash = goal.recipeUsed ? crypto.createHash('sha256').update(goal.recipeUsed).digest('hex') : undefined;
+    const recipeHash = goal.recipeUsed ? crypto.createHash('sha256').update(JSON.stringify(goal.recipeUsed)).digest('hex') : undefined;
 
     const editedGoal = await prisma.goal.update({
       where: { id: goal.goalId },
@@ -682,40 +717,46 @@ export async function PUT(request: NextRequest) {
         externalTableId: goal.externalTableId,
         externalSelection: goal.externalSelection,
         // Only update the data series if it is not undefined (undefined means no change)
-        ...(dataValues ? {
-          dataSeries: {
-            upsert: {
-              create: {
-                ...dataValues,
-                unit: goal.dataUnit ?? '',
-                authorId: session.user.id,
-              },
-              update: {
-                ...dataValues,
-                unit: goal.dataUnit,
+        ...(
+          parsedDataSeries === undefined ? {} : parsedDataSeries ? {
+            dataSeries: {
+              upsert: {
+                create: {
+                  ...parsedDataSeries,
+                  unit: parsedDataSeriesUnit,
+                  authorId: session.user.id,
+                },
+                update: {
+                  ...parsedDataSeries,
+                  unit: parsedDataSeriesUnit,
+                }
+              }
+            }
+          } : {}
+        ),
+        ...(
+          parsedBaselineDataSeries === undefined ? {} : shouldRemoveBaseline ? {
+            // Remove baseline case
+            baselineDataSeries: {
+              delete: true,
+            }
+          } : {
+            // Updated baseline case
+            baselineDataSeries: {
+              upsert: {
+                create: {
+                  ...parsedBaselineDataSeries,
+                  unit: parsedBaselineDataSeriesUnit,
+                  authorId: session.user.id,
+                },
+                update: {
+                  ...parsedBaselineDataSeries,
+                  unit: parsedBaselineDataSeriesUnit,
+                }
               }
             }
           }
-        } : {}),
-        ...(shouldRemoveBaseline ? {
-          baselineDataSeries: {
-            delete: true,
-          },
-        } : baselineDataSeries ? {
-          baselineDataSeries: {
-            upsert: {
-              create: {
-                ...baselineDataSeries,
-                unit: goal.dataUnit ?? '',
-                authorId: session.user.id,
-              },
-              update: {
-                ...baselineDataSeries,
-                unit: goal.dataUnit,
-              }
-            }
-          }
-        } : {}),
+        ),
         // Connect, disconnect, or create recipe
         ...(goal.recipeUsed ? {
           recipeUsed: {
