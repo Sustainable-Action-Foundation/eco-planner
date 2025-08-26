@@ -1,7 +1,7 @@
 import { EvalTimeDataSeries, EvalTimeExternalDataset, EvalTimeScalar, isRecipe, isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, MathjsError, Recipe, RecipeDataTypes, RecipeError, RecipeVariables } from "./recipe-parser/types";
 import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
 import mathjs from "@/math";
-import { DataSeriesValueFields, JSONValue, Years } from "@/types";
+import { DataSeriesValueFields, isFullDataSeriesValueFields, JSONValue, Years } from "@/types";
 import getTableContent from "@/lib/api/getTableContent";
 import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
 import { vectorIndexPickerFunctions } from "@/components/recipe/variables";
@@ -56,7 +56,7 @@ export function cleanRecipe(recipe: JSONValue): Recipe {
   return parsedRecipe;
 }
 
-export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promise<{ dataSeries: Partial<DataSeriesValueFields>, unit: string | null | undefined }> {
+export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promise<{ dataSeries: DataSeriesValueFields, unit: string | null | undefined }> {
   /**
    * Early sanity checks
    */
@@ -289,7 +289,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
   }
 
   // Process the result array into the output format
-  let commonUnit: string | undefined;
+  let commonUnit: string | undefined = undefined;
   for (let i = 0; i < Math.min(resultArray.length, Years.length); i++) {
     const year = Years[i];
     let value = resultArray[i];
@@ -333,8 +333,16 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     }
   }
 
+  // Make output into a full DataSeriesValueFields object
+  for (const year of Years) {
+    output[year] = output[year] ?? null;
+  }
+  if (!isFullDataSeriesValueFields(output)) {
+    throw new RecipeError("Failed to construct a full DataSeriesValueFields object from the result.");
+  }
+
   return {
     dataSeries: output,
-    unit: commonUnit || undefined,
+    unit: commonUnit || null,
   };
 }
