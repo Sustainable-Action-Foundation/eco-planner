@@ -353,6 +353,9 @@ export type GoalCreateInput = {
   // TODO: Creating recipe suggestions is a future feature
   // recipeSuggestions: Recipe[] | null | undefined; // Note: not the hashes, the entire recipe objects. Server will hash safely.
 
+  /* 
+   * TODO: DEPRECATE - raw data series should be made into data series before posting to the API and use 1:1 recipes instead 
+   */
   // Data series
   rawDataSeries: DataSeriesValueFields | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
   rawDataSeriesUnit: string | null | undefined; // Combines with rawDataSeries in the API
@@ -405,6 +408,9 @@ export type GoalUpdateInput = {
   // TODO: Creating recipe suggestions is a future feature
   // recipeSuggestions: Recipe[] | null | undefined; // Note: not the hashes, the entire recipe objects. Server will hash safely.
 
+  /* 
+   * TODO: DEPRECATE - raw data series should be made into data series before posting to the API and use 1:1 recipes instead 
+   */
   // Data series
   rawDataSeries: DataSeriesValueFields | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
   rawDataSeriesUnit: string | null | undefined; // Combines with rawDataSeries in the API
