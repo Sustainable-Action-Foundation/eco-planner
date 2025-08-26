@@ -255,6 +255,7 @@ export type RoadmapInput = Omit<
 export type RoadmapCreateInput = {
   // To differentiate between create and update
   roadmapId?: never;
+  timestamp?: never; // Not needed when creating
 
   // id: string | undefined; // Created by the API
   // createdAt: string | Date | undefined; // Created by the API
@@ -269,7 +270,8 @@ export type RoadmapCreateInput = {
   // Relations
   metaRoadmapId: string;
   // comments: Prisma.CommentCreateNestedManyWithoutRoadmapInput; // Cannot be created with a new roadmap
-  // goals: Prisma.GoalCreateNestedManyWithoutRoadmapInput; // Cannot be created with a new roadmap
+  // goals: Prisma.GoalCreateNestedManyWithoutRoadmapInput;
+  goals: GoalCreateInput[] | null | undefined;
   // actions: Prisma.ActionCreateNestedManyWithoutRoadmapInput; // Cannot be created with a new roadmap
 
   // Access control
@@ -311,7 +313,8 @@ export type RoadmapUpdateInput = {
   metaRoadmapId?: never; // Can't reassign the meta roadmap of an existing roadmap. IT WOULD BE MAYHEM.
   // comments: Prisma.CommentUpdateManyWithoutRoadmapNestedInput; // Cannot be updated from the roadmap
   // links: Prisma.LinkUpdateManyWithoutRoadmapNestedInput; // Cannot be updated from the roadmap
-  // goals: Prisma.GoalUpdateManyWithoutRoadmapNestedInput; // Cannot be updated from the roadmap
+  // goals: Prisma.GoalUpdateManyWithoutRoadmapNestedInput;
+  goals: GoalCreateInput[] | null | undefined;
   // actions: Prisma.ActionUpdateManyWithoutRoadmapNestedInput; // Cannot be updated from the roadmap
 
   // Access control

@@ -72,10 +72,21 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
     }
 
     output.push({
+      name: undefined,
+      description: undefined,
       indicatorParameter: csv[i][Number(headerIndex.indicatorParameter)],
-      dataUnit: csv[i][Number(headerIndex.dataUnit)],
+      isFeatured: undefined,
+      externalDataset: undefined,
+      externalTableId: undefined,
+      externalSelection: undefined,
+      recipeUsed: undefined,
       rawDataSeries: dataSeries,
+      rawDataSeriesUnit: csv[i][Number(headerIndex.dataUnit)],
+      rawBaselineDataSeries: undefined,
+      rawBaselineDataSeriesUnit: undefined,
       roadmapId: '', // This will be set later
+      rawTags: undefined,
+      links: undefined,
     })
   }
 

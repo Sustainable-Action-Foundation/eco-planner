@@ -5,7 +5,7 @@ import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import formSubmitter from "@/functions/formSubmitter";
 import parseCsv, { csvToGoalList } from "@/functions/parseCsv";
 import { LoginData } from "@/lib/session";
-import { AccessControlled, GoalCreateInput, RoadmapInput } from "@/types";
+import { AccessControlled, GoalCreateInput, RoadmapCreateInput, RoadmapInput, RoadmapUpdateInput } from "@/types";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
 import { useEffect, useMemo, useState } from "react";
 import styles from '../forms.module.css';
@@ -73,19 +73,19 @@ export default function RoadmapForm({
       }
     })
 
-    const formData: RoadmapInput & { roadmapId?: string, goals?: GoalCreateInput[], timestamp: number } = {
+    const formData: RoadmapCreateInput | RoadmapUpdateInput = {
+      roadmapId: currentRoadmap?.id || undefined,
+      targetVersion: parseInt((form.namedItem('targetVersion') as HTMLSelectElement)?.value) || null,
       description: (form.namedItem("description") as HTMLTextAreaElement)?.value || undefined,
+      isPublic: (form.namedItem("isPublic") as HTMLInputElement)?.checked || false,
+      metaRoadmapId,
+      goals: goals,
       editors: editUsers,
       viewers: viewUsers,
       editGroups,
       viewGroups,
-      isPublic: (form.namedItem("isPublic") as HTMLInputElement)?.checked || false,
-      roadmapId: currentRoadmap?.id || undefined,
-      goals: goals,
-      metaRoadmapId,
-      inheritFromIds: inheritGoalIds, // TODO: DEPRECATED - remove
-      targetVersion: parseInt((form.namedItem('targetVersion') as HTMLSelectElement)?.value) || null,
-      timestamp,
+      links: undefined,
+      timestamp: currentRoadmap ? timestamp : undefined,
     }
 
     const formJSON = JSON.stringify(formData)
