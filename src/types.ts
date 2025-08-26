@@ -261,8 +261,82 @@ export type RoadmapInput = Omit<
   // Version numbers are assigned by the API and therefore omitted
 };
 
-export type RoadmapUpdateInput = {}
-export type RoadmapCreateInput = {}
+/** 
+ * The format of the data needed to create a new roadmap version.
+ * 
+ * This type is derived from @type {Prisma.RoadmapCreateInput} but with some fields omitted in clear text for better intellisense readability and maintainability.
+ * 
+ * That being said, if the schema changes, this type will need to be updated manually.
+ */
+export type RoadmapCreateInput = {
+  // To differentiate between create and update
+  roadmapId?: never;
+
+  // id: string | undefined; // Created by the API
+  // createdAt: string | Date | undefined; // Created by the API
+  // updatedAt: string | Date | undefined; // Created by the API
+  // version: number;  // Created by the API
+
+  // Basic meta
+  targetVersion: number | null | undefined;
+  description: string | null | undefined;
+  isPublic: boolean | undefined;
+
+  // Relations
+  metaRoadmapId: string;
+  // comments: Prisma.CommentCreateNestedManyWithoutRoadmapInput; // Cannot be created with a new roadmap
+  // goals: Prisma.GoalCreateNestedManyWithoutRoadmapInput; // Cannot be created with a new roadmap
+  // actions: Prisma.ActionCreateNestedManyWithoutRoadmapInput; // Cannot be created with a new roadmap
+
+  // Access control
+  // author: Prisma.UserCreateNestedOneWithoutAuthoredRoadmapsInput; // Derived from session in the API
+  editors: string[] | null | undefined;
+  editGroups: string[] | null | undefined;
+  viewers: string[] | null | undefined;
+  viewGroups: string[] | null | undefined;
+
+  // TODO - DEPRECATED - Will be migrated to description
+  links: { url: string, description?: string | null }[] | null | undefined;
+}
+
+/** 
+ * The format of the data allowed to update an existing roadmap version.
+ * 
+ * This type is derived from @type {Prisma.RoadmapUpdateInput} but with some fields omitted in clear text for better intellisense readability and maintainability.
+ * 
+ * That being said, if the schema changes, this type will need to be updated manually.
+ */
+export type RoadmapUpdateInput = {
+  // Required to find this roadmap
+  roadmapId: string;
+
+  // Stale data check
+  timestamp: number; // From Date.now() i.e. milliseconds since epoch
+
+  // id: string | undefined; // Created by the API
+  // createdAt: string | Date | undefined; // Created by the API
+  // updatedAt: string | Date | undefined; // Created by the API
+  // version: number; // Created by the API
+
+  // Basic meta
+  description: string | null | undefined;
+  targetVersion: number | null | undefined;
+  isPublic: boolean | undefined;
+
+  // Relations
+  metaRoadmapId?: never; // Can't reassign the meta roadmap of an existing roadmap. IT WOULD BE MAYHEM.
+  // comments: Prisma.CommentUpdateManyWithoutRoadmapNestedInput; // Cannot be updated from the roadmap
+  // links: Prisma.LinkUpdateManyWithoutRoadmapNestedInput; // Cannot be updated from the roadmap
+  // goals: Prisma.GoalUpdateManyWithoutRoadmapNestedInput; // Cannot be updated from the roadmap
+  // actions: Prisma.ActionUpdateManyWithoutRoadmapNestedInput; // Cannot be updated from the roadmap
+
+  // Access control
+  // author: Prisma.UserUpdateOneRequiredWithoutAuthoredRoadmapsNestedInput;
+  editors: string[] | null | undefined;
+  editGroups: string[] | null | undefined;
+  viewers: string[] | null | undefined;
+  viewGroups: string[] | null | undefined;
+}
 
 /**
  * The format of the data needed to create a new goal.
@@ -272,14 +346,12 @@ export type RoadmapCreateInput = {}
  * That being said, if the schema changes, this type will need to be updated manually.
  */
 export type GoalCreateInput = {
-  /*
-    # Omitted fields from Prisma.GoalCreateInput
-    id: string | undefined; // Gets created automatically
-    createdAt: string | Date | undefined; // Gets set automatically
-    updatedAt: string | Date | undefined; // Gets set automatically
-  */
-
+  // To differentiate between create and update
   goalId?: never;
+
+  // id: string | undefined; // Gets created automatically // Created by the API
+  // createdAt: string | Date | undefined; // Gets set automatically // Created by the API
+  // updatedAt: string | Date | undefined; // Gets set automatically // Created by the API
 
   // Basic meta
   name: string | null | undefined;
@@ -323,18 +395,15 @@ export type GoalCreateInput = {
  * That being said, if the schema changes, this type will need to be updated manually.
  */
 export type GoalUpdateInput = {
-  /*
-   # Omitted fields from Prisma.GoalCreateInput
-   id: string | undefined; // Gets created automatically
-   createdAt: string | Date | undefined; // Gets set automatically
-   updatedAt: string | Date | undefined; // Gets set automatically
-  */
-
-  // Stale data check - not from prisma
-  timestamp: number; // From Date.now() i.e. milliseconds since epoch
-
   // Required to find this goal
   goalId: string;
+
+  // Stale data check
+  timestamp: number; // From Date.now() i.e. milliseconds since epoch
+
+  // id: string | undefined; // Gets created automatically
+  // createdAt: string | Date | undefined; // Gets set automatically
+  // updatedAt: string | Date | undefined; // Gets set automatically
 
   // Basic meta
   name: string | null | undefined;
