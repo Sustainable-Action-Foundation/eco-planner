@@ -101,12 +101,18 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
       // Unit handling
       // And override unit takes precedence over the one from the database and if an override is null, remove the unit, if undefined, use the one from the database
       let unit: string | null | undefined = undefined;
-      if ((unitOverride && typeof unitOverride === "string") || unitOverride === null) {
-        unit = unitOverride || null; // Clean falsy to null
+      if (
+        (
+          typeof unitOverride === "string" &&
+          unitOverride.trim().length
+        ) ||
+        unitOverride === null
+      ) {
+        unit = unitOverride;
       }
-      else if (dbDataSeries.unit && typeof dbDataSeries.unit === "string" && dbDataSeries.unit.trim() !== "") {
-        unit = dbDataSeries.unit;
-      }
+      else (
+        unit = dbDataSeries.unit
+      )
 
       const valueFields: Partial<DataSeriesValueFields> = {};
       for (const year of Years) {
