@@ -1,7 +1,5 @@
 {
   "access_selector": {
-    "legend_visibility": "Who may view the roadmap series?",
-    "legend_editability": "Who may edit the roadmap series?",
     "me_only": "Only me",
     "all_users": "All users",
     "custom": "Select specific users and/or groups",
@@ -161,7 +159,9 @@
     "goal_accepted_formats": "{{$t(common:goal_other), titleCase}} <small> - accepted file types: {{fileTypes, list}} - accepted file encodings: {{encodings, list}}</small>",
     "inherit_goal_legend": "Choose $t(common:goal_one) to inherit",
     "change_read_access": "Adjust read access",
-    "change_edit_access": "Adjust editing access"
+    "change_edit_access": "Adjust editing access",
+    "legend_visibility": "Who may view the roadmap?",
+    "legend_editability": "Who may edit the roadmap?"
   },
   "text_editor_menu": {
     "undo": "Undo",
@@ -193,9 +193,8 @@
     "type": "Type",
     "no_chosen_roadmap_scope": "Choose a type",
     "actor": "Actor",
-    "attach_external": "Attach external resources",
-    "change_read_access": "Adjust read access",
-    "change_edit_access": "Adjust editing access",
+    "legend_visibility": "Who may view the roadmap series?",
+    "legend_editability": "Who may edit the roadmap series?",
     "relationship_legend": "Is this $t(common:roadmap_series_one) working towards another $t(common:roadmap_series_one)?",
     "relationship_label": "Parent",
     "relationship_no_chosen": "No parent"

@@ -14,11 +14,13 @@ export default function ConfigureAccess({
   userGroups,
   currentRoadmap,
   positionIndex,
+  legends,
 }: {
   user: LoginData['user'],
   userGroups: string[],
   currentRoadmap?: MetaRoadmap & AccessControlled | Roadmap & AccessControlled & { metaRoadmap: MetaRoadmap },
   positionIndex: number,
+  legends: {viewers: string, editors: string}
 }) {
   const { t } = useTranslation(["forms"]);
 
@@ -55,14 +57,13 @@ export default function ConfigureAccess({
     currentAccess ? (currentAccess.editors.length > 0 || currentAccess.editGroups.length > 0 ? "custom" : "private") : undefined
   );
  
-  // TODO: For fieldset legends i need to discern between roadmap and roadmapseries
   return (
     <div ref={accessSectionRef}>
       {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
         // TODO: Disabled / placeholder need to be more discernable 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
-            {t("forms:access_selector.legend_visibility")}
+            {legends.viewers}
           </legend>
           <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50">
             <input
@@ -155,7 +156,7 @@ export default function ConfigureAccess({
       {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) &&
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
-            {t("forms:access_selector.legend_editability")}
+            {legends.editors}
           </legend>
           <label className="flex width-fit-content  align-items-center gap-50  margin-bottom-75">
             <input

@@ -1,7 +1,5 @@
 {
   "access_selector": {
-    "legend_visibility": "Vem får se färdplansserien?",
-    "legend_editability": "Vem får redigera färdplansserien?",
     "me_only": "Enbart jag",
     "all_users": "Alla användare",
     "custom": "Välj specifika användare och/eller grupper",
@@ -160,8 +158,8 @@
     "upload_goals": "Ladda upp $t(common:goal_other)",
     "goal_accepted_formats": "{{$t(common:goal_other), titleCase}} <small> - giltiga filtyper: {{fileTypes, list}} - giltiga filkodningar: {{encodings, list}}</small>",
     "inherit_goal_legend": "Välj $t(common:goal_one) att ärva",
-    "change_read_access": "Justera läsbehörighet",
-    "change_edit_access": "Justera redigeringsbehörighet"
+    "legend_visibility": "Vem får se färdplanen?",
+    "legend_editability": "Vem får redigera färdplanen?"
   },
   "text_editor_menu": {
     "undo": "Ångra",
@@ -193,9 +191,8 @@
     "type": "Typ",
     "no_chosen_roadmap_scope": "Välj en typ",
     "actor": "Aktör",
-    "attach_external": "Bifoga externa resurser",
-    "change_read_access": "Justera läsbehörighet",
-    "change_edit_access": "Justera redigeringsbehörighet",
+    "legend_visibility": "Vem får se färdplansserien?",
+    "legend_editability": "Vem får redigera färdplansserien?",
     "relationship_legend": "Jobbar denna $t(common:roadmap_series_one) mot en annan $t(common:roadmap_series_one)?",
     "relationship_label": "Förälder",
     "relationship_no_chosen": "Ingen förälder"

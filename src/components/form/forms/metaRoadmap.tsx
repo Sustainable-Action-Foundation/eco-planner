@@ -160,6 +160,10 @@ export default function MetaRoadmapForm({
           userGroups={userGroups}
           currentRoadmap={currentRoadmap}
           positionIndex={positionIndex}
+          legends={{
+            viewers: t("forms:meta_roadmap.legend_visibility"),
+            editors: t("forms:meta_roadmap.legend_editability")
+          }}
         />
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>

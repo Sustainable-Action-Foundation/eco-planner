@@ -279,6 +279,10 @@ export default function RoadmapForm({
           userGroups={userGroups}
           currentRoadmap={currentRoadmap}
           positionIndex={positionIndex}
+          legends={{
+            viewers: t("forms:roadmap.legend_visibility"),
+            editors: t("forms:roadmap.legend_editability")
+          }}
         />
  
         <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
