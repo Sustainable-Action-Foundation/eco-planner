@@ -1,18 +1,20 @@
 export const handleKeyDownMenuBar = (
   e: React.KeyboardEvent<HTMLUListElement>,
-  menuBarItems: NodeListOf<HTMLElement>, // TODO: Make htmlli element??
+  menuBarItems: NodeListOf<HTMLElement> | Array<HTMLElement> ,
   focusedMenuBarItemIndex: number | null,
   setfocusedMenuBarItemIndex: React.Dispatch<React.SetStateAction<number | null>>,
 ) => { 
   if (e.key === 'ArrowRight') {
+    e.stopPropagation()
     if (focusedMenuBarItemIndex != menuBarItems.length - 1) {
-      setfocusedMenuBarItemIndex(focusedMenuBarItemIndex === null ? 1 : focusedMenuBarItemIndex + 1);
+      setfocusedMenuBarItemIndex(focusedMenuBarItemIndex === null ? 1 : focusedMenuBarItemIndex + 1); 
     } else {
       setfocusedMenuBarItemIndex(0)
     }
   }
   
   if (e.key === 'ArrowLeft') {
+    e.stopPropagation()
     if (focusedMenuBarItemIndex != 0) {
       setfocusedMenuBarItemIndex(focusedMenuBarItemIndex === null ? menuBarItems.length - 1 : focusedMenuBarItemIndex - 1);
     } else {

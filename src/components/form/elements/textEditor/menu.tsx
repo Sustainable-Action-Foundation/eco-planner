@@ -15,6 +15,7 @@ export default function TextEditorMenu({
   editor: Editor,
   editorId: string
 }) {
+  // TODO: Keyboard controls act strange if i resize.
 
   const { t } = useTranslation("components");
 
@@ -73,13 +74,15 @@ export default function TextEditorMenu({
   ];
 
   // Get a ref of all menu items in our menubar
+  // TODO: This is a lil hacky
+  // TODO: Should this be a ref even? Or state?
   useEffect(() => {
     if (menubarRef.current) {
       menuItemsRef.current = menubarRef.current.querySelectorAll(
-        "[role='menubar'] > li > [role='menuitem'], [role='menubar'] > li > [role='menuitemcheckbox'], [role='menubar'] > li > [role='menuitemradio']"
+        "div > [role='menubar'] > li > [role='menuitem'], div > [role='menubar'] > li > [role='menuitemcheckbox'], div > [role='menubar'] > li > [role='menuitemradio']"
       ) as NodeListOf<HTMLElement>;
     }
-  }, [])
+  }, [menuBarParentWidth, visibleGroups, hiddenGroups])
 
   // Calculate breakpoints in our menubar
   useEffect(() => {
@@ -148,8 +151,6 @@ export default function TextEditorMenu({
       }
     })
 
-    console.log(calculatedVisibleGroups)
-
     setVisibleGroups(calculatedVisibleGroups)
     setHiddenGroups(calculatedHiddenGroups)
 
@@ -166,7 +167,43 @@ export default function TextEditorMenu({
         target.focus();
       }
     }
+
   }, [focusedMenubarItem]);
+
+  // Submenu config stuff
+  const [focusedSubmenuItem, setfocusedSubmenuItem] = useState<number | null>(null);
+  const [submenuVisible, setSubmenuVisible] = useState<boolean>()
+
+  const submenuButtonRef = useRef<HTMLSpanElement>(null);
+  const submenuRef = useRef<HTMLUListElement | null>(null);
+  const submenuItemsRef = useRef<NodeListOf<HTMLElement> | null>(null);
+
+  // Get submenu items
+  useEffect(() => {
+    if (submenuRef.current) {
+      submenuItemsRef.current = submenuRef.current.querySelectorAll(
+        "li > [role='menuitem'], li > [role='menuitemcheckbox'], li > [role='menuitemradio']"
+      ) as NodeListOf<HTMLElement>;
+    }
+  }, [submenuVisible])
+
+  // Set focus to a submenubar item when navigating using keyboard arrows
+  useEffect(() => {
+    if (!submenuItemsRef.current) return;
+
+    if (focusedSubmenuItem !== null) {
+      const target = submenuItemsRef.current[focusedSubmenuItem] as HTMLElement | undefined;
+
+      if (target) {
+        target.focus();
+      }
+    }
+
+  }, [focusedSubmenuItem]);
+
+  useEffect(() => {
+    console.log(focusedMenubarItem)
+  }, [focusedMenubarItem])
 
   if (!editor) {
     return null
@@ -197,27 +234,96 @@ export default function TextEditorMenu({
           )
           .map((menuItem) => menuItem)
         }
-        {hiddenGroups && hiddenGroups.length > 0 ?
-          <>
-            <li role='presentation' style={{ float: 'right' }}>
-              <span
-                data-tooltip="Meny" // TODO: I18n 
-                role='menuitem'
-                aria-label="Meny" // TODO: I18n
-              >
-                <IconDotsVertical className="grid" height={16} width={16} aria-hidden="true" />
-              </span>
-            </li>
-            <ul>
-              {menuItemsList
-                .filter((menuItem) =>
-                  !hiddenGroups || hiddenGroups.includes(Number(menuItem.props["data-menu-group"]))
-                )
-                .map((menuItem) => menuItem)
+        <li 
+          role='presentation' 
+          style={{ 
+            float: 'right', 
+            position: 'relative', 
+            display: hiddenGroups && hiddenGroups.length > 0 ? 'inline-block' : 'none'
+          }}>
+          <span
+            ref={submenuButtonRef}
+            data-tooltip="Meny" // TODO: I18n 
+            role='menuitem'
+            aria-label="Meny" // TODO: I18n
+            aria-haspopup="menu"
+            aria-checked={submenuVisible}
+            tabIndex={-1}
+            onClick={() => setSubmenuVisible(!submenuVisible)}
+            onKeyDown={(e: React.KeyboardEvent) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                setSubmenuVisible(!submenuVisible)
+                setfocusedSubmenuItem(0)
               }
-            </ul>
-          </>
-          : null}
+              if (e.key === ' ') {
+                e.preventDefault();
+                setSubmenuVisible(!submenuVisible)
+              }
+              if (e.key === "Escape") {
+                e.preventDefault()
+                e.stopPropagation()
+                submenuButtonRef.current?.focus()
+                setfocusedSubmenuItem(null)
+                setSubmenuVisible(false)
+              }
+              if (e.key === 'ArrowDown' || e.key == 'ArrowUp') {
+                if (!submenuItemsRef.current) return
+                e.preventDefault()
+                if (!submenuVisible) { setSubmenuVisible(true) }
+                setfocusedSubmenuItem(0)
+              }
+            }}
+          >
+            <IconDotsVertical className="grid" height={16} width={16} aria-hidden="true" />
+          </span>
+          <ul
+            onKeyDown={(e: React.KeyboardEvent<HTMLUListElement>) => {
+              if (!submenuItemsRef.current) return
+              if (e.key === "Escape") {
+                e.preventDefault()
+                e.stopPropagation()
+                submenuButtonRef.current?.focus()
+                setfocusedSubmenuItem(null)
+                setSubmenuVisible(false)
+              }
+              if (e.key === "ArrowUp") {
+                e.preventDefault()
+                e.stopPropagation()
+                submenuButtonRef.current?.focus()
+                setfocusedSubmenuItem(null)
+              }
+              handleKeyDownMenuBar(
+                e,
+                submenuItemsRef.current,
+                focusedSubmenuItem,
+                setfocusedSubmenuItem
+              )
+            }}
+            ref={submenuRef}
+            role="menubar"
+            style={{
+              padding: '2px',
+              width: 'max-content',
+              zIndex: '1',
+              margin: '0',
+              backgroundColor: 'var(--gray-95)',
+              borderRadius: '.25rem',
+              listStyle: 'none',
+              position: 'absolute',
+              top: 'calc(100% + 9px)',
+              right: '.25rem',
+              boxShadow: "rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px"
+            }}
+          >
+            {submenuVisible && menuItemsList
+              .filter((menuItem) =>
+                !hiddenGroups || hiddenGroups.includes(Number(menuItem.props["data-menu-group"]))
+              )
+              .map((menuItem) => menuItem)
+            }
+          </ul>
+        </li>
       </ul>
     </div>
   )

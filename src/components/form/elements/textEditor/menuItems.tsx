@@ -331,6 +331,9 @@ export function FontSize({ t, editor, menuGroup, setFocusedMenubarItem, editorId
               ${fontSizeMenuOpen ? styles['visible'] : ''} 
               margin-0 padding-0 gray-95 smooth`
         }
+        style={{
+          boxShadow: 'rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px'
+        }}
       >
         <li role='presentation' style={{ borderBottom: '1px solid var(--gray)', paddingBottom: '2px' }}>
           <div
@@ -656,9 +659,9 @@ export function Link(props: MenubarButtonProps) {
           }}
           shouldShow={({ editor }) => editor.isActive('link')}
         >
-          <div className="padding-50 smooth gray-95" style={{ boxShadow: '0 0 8px rgba(0,0,0,.25)' }}>
-            {!editLink ?
-              <div className="flex align-items-center ">
+          <div className="padding-50 smooth gray-95" style={{ boxShadow: 'rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px' }}>
+            {!editLink ? 
+              <div className="flex align-items-center "> 
                 {/* TODO: Tooltips */}
                 <a
                   href={editor.getAttributes('link').href}
