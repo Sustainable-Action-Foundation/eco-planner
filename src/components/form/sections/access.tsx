@@ -8,6 +8,7 @@ import { LoginData } from "@/lib/session";
 import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
  
+// TODO: Need default values for viewers, editors and their groups
 export default function ConfigureAccess({
   user,
   userGroups,

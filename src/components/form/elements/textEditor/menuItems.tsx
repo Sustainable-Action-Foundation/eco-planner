@@ -5,7 +5,7 @@ import { useEditorState } from "@tiptap/react";
 import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconChevronDown, IconDotsVertical, IconWorld, IconEdit, IconLinkOff, IconPencil, IconCopy, IconAlignLeft } from "@tabler/icons-react";
 import React, { useEffect, useRef, useState } from "react";
 import styles from './textEditor.module.css' with { type: "css" }
-import { allowedProtocols } from './editor';
+import { allowedProtocols } from './config/config';
 import { TFunction } from "i18next";
 import { BubbleMenu } from '@tiptap/react/menus'
 import { handleKeyDownPopUpMenu } from "./functions";
@@ -60,10 +60,10 @@ export function Undo(props: MenubarButtonProps) {
       aria-label={t("forms:text_editor_menu.undo")}
       aria-keyshortcuts='control+z'
       role='menuitem'
-      aria-disabled={!canUndo}
+      aria-disabled={!canUndo.canUndo}
     >
       <IconArrowBackUp
-        color={`${canUndo ? 'black' : 'gray'}`}
+        color={`${canUndo.canUndo ? 'black' : 'gray'}`}
         className="grid"
         width={16}
         height={16}
@@ -94,10 +94,10 @@ export function Redo(props: MenubarButtonProps) {
       aria-label={t("forms:text_editor_menu.redo")}
       aria-keyshortcuts='control+shift+z'
       role='menuitem'
-      aria-disabled={!canRedo}
+      aria-disabled={!canRedo.canRedo}
     >
       <IconArrowForwardUp
-        color={`${canRedo ? 'black' : 'gray'}`}
+        color={`${canRedo.canRedo ? 'black' : 'gray'}`}
         className="grid"
         width={16}
         height={16}
@@ -387,7 +387,7 @@ export function Link(props: MenubarButtonProps) {
           if (!editor.isActive('link')) {
             editor.chain().focus().setLink({ href: '' }).run(); // TODO: Set focus to menu.
           }
-        }} // TODO: Custom link menu :)
+        }} 
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();

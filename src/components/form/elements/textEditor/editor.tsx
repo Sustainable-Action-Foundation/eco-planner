@@ -1,37 +1,11 @@
 'use client'
 
 // TODO: Remove duplicate extension names
-
 import { EditorContent, useEditor } from '@tiptap/react'
 import TextEditorMenu from './menu'
-import {
-  HardBreak,
-  Superscript,
-  Subscript,
-  TextStyle,
-  Link,
-  Placeholder,
-  BulletList,
-  Document,
-  ListItem,
-  OrderedList,
-  Paragraph,
-  Text,
-  Highlight,
-  Color,
-  Italic,
-  Bold,
-  LineThrough,
-  Underline,
-  CharacterCount,
-  UndoRedo,
-  FontSize
-} from './extensions'
+import { defaultExtensions, nodeSizeLimit } from './config/config';
 
-export const allowedProtocols = ['http', 'https', 'mailto', 'callto', 'tel'];
-const limit = 5000
-
- {/* TODO: Update typing for content */}
+{/* TODO: Update typing for content */}
 const TextEditor = ({
   className,
   style,
@@ -53,88 +27,33 @@ const TextEditor = ({
   defaultStyles?: boolean,
   onChange?: (json: any) => void
 }) => {
-
-  const CustomColor = Color.extend({
-    addKeyboardShortcuts() {
-      return {
-        'Mod-Shift-g': () => {
-          const currentColor = this.editor.getAttributes('textStyle').color;
-          const isGrey = currentColor === 'grey';
-          return isGrey
-            ? this.editor.chain().focus().unsetColor().run()
-            : this.editor.chain().focus().setColor('grey').run();
-        }
-      }
-    },
-  })
-
-  /* Use this to add keybaord controls to link
-  const CustomLink = Link.extend({
-    addKeyboardShortcuts() {
-      return {
-        'Mod-k': () => this.editor.commands.toggleUnderline(),
-        'Mod-K': () => this.editor.commands.toggleUnderline(),
-      }
-    },
-  })
- */
-
+ 
   const editor = useEditor({
+    immediatelyRender: true,
+    shouldRerenderOnTransaction: true,
+    editable,
     onUpdate: ({ editor }) => {
       if (onChange) {
         onChange(editor.getJSON())
       }
     },
-    editable: editable,
-    // Fallback to just the content incase a string is passed (For backwards compatability)
-    content: (() => { try { return JSON.parse(content)} catch { return content} })(), 
-    immediatelyRender: true,
-    shouldRerenderOnTransaction: true,
-    extensions: [
-      Document, // Required
-      Text, // Required 
-      CustomColor.configure({}),
-      Paragraph,
-      HardBreak,
-      FontSize,
-      TextStyle,
-      Placeholder.configure({
-        placeholder: placeholder ? placeholder : undefined
-      }),
-      CharacterCount.configure({
-        limit,
-        mode: 'nodeSize'
-      }),
-      Highlight,
-      Subscript,
-      Superscript,
-      BulletList,
-      OrderedList,
-      ListItem,
-      Underline,
-      LineThrough,
-      Bold,
-      Italic,
-      Color,
-      Link.configure({
-        openOnClick: false,
-        autolink: true,
-        defaultProtocol: 'https',
-        protocols: allowedProtocols,
-      }),
-      UndoRedo
-    ],
+    content: (() => {
+      try {
+        return JSON.parse(content)
+      } catch {
+        return content
+      }
+    })(),
+    extensions: defaultExtensions(placeholder),
   })
 
   if (!editor) {
     return null
   }
 
-  /* TODO: Keyboard shortcut and custom menu for linkinput */
   /* TODO: Character counter i18n */
-  /* TODO: For some reason the undo/redo is not disabled */
 
-  const percentage = editor ? Math.round((100 / limit) * editor.storage.characterCount.characters({ mode: 'nodeSize' })) : 0
+  const percentage = editor ? Math.round((100 / nodeSizeLimit) * editor.storage.characterCount.characters({ mode: 'nodeSize' })) : 0
 
   return (
     <div 
@@ -142,7 +61,7 @@ const TextEditor = ({
       style={{ ...style, border:`${defaultStyles ? '1px solid var(--gray-80)' : ''}` }}
     >
       {defaultStyles ? 
-        <TextEditorMenu editor={editor} editorId={id} /> // TODO: Disable all inputs if the editor is disabled  
+        <TextEditorMenu editor={editor} editorId={id} />  // TODO: Disable menuitems when editor is disabled
       : null }
       <EditorContent editor={editor} id={id} aria-labelledby={ariaLabelledBy} />
       {defaultStyles ? 
@@ -154,7 +73,7 @@ const TextEditor = ({
               cx="10"
               cy="10"
               fill="transparent"
-              stroke={`${editor.storage.characterCount.characters({ mode: 'nodeSize' }) === limit ? '#d83545ff' : 'var(--blue-40)'}`}
+              stroke={`${editor.storage.characterCount.characters({ mode: 'nodeSize' }) === nodeSizeLimit ? '#d83545ff' : 'var(--blue-40)'}`}
               strokeWidth="10"
               strokeDasharray={`calc(${percentage} * 31.4 / 100) 31.4`}
               transform="rotate(-90) translate(-20)"

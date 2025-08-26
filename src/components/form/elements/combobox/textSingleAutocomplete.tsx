@@ -11,6 +11,7 @@ import { handleKeyDownEditableCombobox, scrollOptionIntoView } from "./functions
 // TODO: Decide on how to handle options/values here is it string or {name: string, value: string}? 
 // TODO: Add an onchange prop for this (or all inputs?)
 // TODO: Give aria-keyocontrols?
+// TODO: should just pass the types, not props.
 
 export default function TextSingleAutocomplete({
   props,
