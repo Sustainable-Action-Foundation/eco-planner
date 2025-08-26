@@ -44,7 +44,7 @@ model MetaRoadmap {
   description String      @db.Text
   // The type of roadmap, for example national, regional, or local
   type        RoadmapType @default(OTHER)
-  // The target of this roadmap, for example a country, region, municipality or organisation
+  // The target of this roadmap, for example a country, region, municipality or organization
   actor       String?
 
   // The different versions of the roadmap
@@ -164,7 +164,7 @@ model Goal {
 
   // If this goal inherited it's data then it will have been sent through this recipe
   recipeUsedId String? @map("recipe_used_id")
-  recipeUsed   Recipe? @relation("used_recipe", fields: [recipeUsedId], references: [hash])
+  recipeUsed   Recipe? @relation("used_recipe", fields: [recipeUsedId], references: [hash], onDelete: SetNull, onUpdate: Cascade)
 
   // When inheriting data from this goal, these suggestions will appear for the user to choose from e.g. "Scale by area" or "Scale by population"
   recipeSuggestions Recipe[] @relation("inheritance_suggestions")
@@ -236,15 +236,15 @@ model DataSeries {
 
   // Goal using this data series as goals
   goalId         String? @unique @map("goal_id")
-  goal           Goal?   @relation("data_series", fields: [goalId], references: [id], onDelete: Cascade)
+  goal           Goal?   @relation("data_series", fields: [goalId], references: [id], onDelete: SetNull)
   // Goal using this data series as baseline
   baselineGoalId String? @unique @map("baseline_goal_id")
-  baseline       Goal?   @relation("baseline_data_series", fields: [baselineGoalId], references: [id], onDelete: Cascade)
+  baseline       Goal?   @relation("baseline_data_series", fields: [baselineGoalId], references: [id], onDelete: SetNull)
   // Effect using this data series to show the effect of an action on a goal
   // effectActionId and effectGoalId are combined to create a unique constraint, referencing the composite primary key of the effect table
   effectActionId String? @map("effect_action_id")
   effectGoalId   String? @map("effect_goal_id")
-  effect         Effect? @relation("effect_data_series", fields: [effectActionId, effectGoalId], references: [actionId, goalId])
+  effect         Effect? @relation("effect_data_series", fields: [effectActionId, effectGoalId], references: [actionId, goalId], onDelete: SetNull)
 
   usedInRecipes Recipe[] @relation("recipe_data_series")
 
@@ -303,7 +303,7 @@ model Action {
   // ONLY show to the author, because of GDPR
   projectManager  String? @map("project_manager")
   // Currently a text field, but might change to a many-to-many relationship with an actor table instead
-  // Might be an organisation, group, company, region, etc.
+  // Might be an organization, group, company, region, etc.
   relevantActors  String? @map("relevant_actors") @db.Text
 
   // Different types of actions
@@ -409,7 +409,7 @@ model Link {
   @@map("link")
 }
 
-// There is apparently a default typesript interface called "Comment", so make sure to properly import this type in the code
+// There is apparently a default typescript interface called "Comment", so make sure to properly import this type in the code
 model Comment {
   // UUID of the comment
   id        String   @id @default(uuid())
