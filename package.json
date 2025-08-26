@@ -52,6 +52,7 @@
     "accept-language": "^3.0.20",
     "apexcharts": "^5.3.3",
     "bcryptjs": "^3.0.2",
+    "client-only": "^0.0.1",
     "cookies-next": "^6.0.0",
     "dotenv": "^17.1.0",
     "glob": "^11.0.3",
