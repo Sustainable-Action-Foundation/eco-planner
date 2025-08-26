@@ -9,13 +9,13 @@ import { DataSeriesValueFields, isFullDataSeriesValueFields, isPartialDataSeries
  */
 export default function dataSeriesPrep(
   dataSeries: Partial<DataSeriesValueFields> | string[],
-) {
+): DataSeriesValueFields | null {
   const cleanedDataSeries: Partial<DataSeriesValueFields> = {};
 
   // If the data series is already a DataSeriesValueFields object, clean it and return it
   if (!Array.isArray(dataSeries) && isPartialDataSeriesValueFields(dataSeries)) {
     for (const year of Years) {
-        cleanedDataSeries[year] = dataSeries[year] ?? null;
+      cleanedDataSeries[year] = dataSeries[year] ?? null;
     }
     if (!isFullDataSeriesValueFields(cleanedDataSeries)) {
       console.error("Failed to transform data series into a full DataSeriesValueFields object in dataSeriesPrep");
