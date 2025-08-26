@@ -4,7 +4,7 @@ import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/session";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
-import { AccessControlled, ClientError, Years, GoalCreateInput, GoalUpdateInput, JSONValue, DataSeriesValueFields } from "@/types";
+import { AccessControlled, ClientError, Years, GoalCreateInput, GoalUpdateInput, JSONValue, DataSeriesValueFields, isPartialDataSeriesValueFields } from "@/types";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { Prisma } from "@prisma/client";
 import crypto from 'crypto';
@@ -14,83 +14,296 @@ import pruneOrphans from "@/functions/pruneOrphans";
 // Type guards
 function isGoalCreate(goal: JSONValue): goal is GoalCreateInput {
   return (
-    // Should be a non-null object
-    typeof goal === "object" &&
-    goal !== null &&
-    !Array.isArray(goal) &&
-    // Typecheck properties
-    (typeof goal.name === 'string' || goal.name === null || goal.description === undefined) &&
-    (typeof goal.description === 'string' || goal.description === null || goal.description === undefined) &&
-    // Indicator parameter must be a non-empty string
-    (typeof goal.indicatorParameter === 'string' && goal.indicatorParameter.length > 0) &&
-    (typeof goal.isFeatured === 'boolean' || goal.isFeatured === undefined) &&
-    (typeof goal.externalDataset === 'string' || goal.externalDataset === undefined || goal.externalDataset === null) &&
-    (typeof goal.externalTableId === 'string' || goal.externalTableId === undefined || goal.externalTableId === null) &&
-    (typeof goal.externalSelection === 'string' || goal.externalSelection === undefined || goal.externalSelection === null) &&
-    // Recipe for combining data series. Should be parsed and further checked outside this function
-    (typeof goal.recipe === 'string' || goal.recipe === undefined || goal.recipe === null) &&
-    // Data series should be either undefined or have a length between 1 and dataSeriesDataFieldNames.length
-    ((Array.isArray(goal.rawDataSeries) && goal.rawDataSeries.every((entry: JSONValue) => (typeof entry === 'string' || entry === undefined || entry === null)) && goal.rawDataSeries.length <= Years.length)
-      || goal.rawDataSeries === undefined) &&
-    // baselineDataSeries can be a valid data series to set values, undefined to not set a baseline, or null to delete the baseline
-    ((Array.isArray(goal.rawBaselineDataSeries) && goal.rawBaselineDataSeries.every((entry: JSONValue) => (typeof entry === 'string' || entry === undefined || entry === null)) && goal.rawBaselineDataSeries.length > 0 && goal.rawBaselineDataSeries.length <= Years.length)
-      || goal.rawBaselineDataSeries === undefined || goal.rawBaselineDataSeries === null) &&
-    // Empty string or undefined is treated as "missing unit", while null is explicitly unitless
-    (typeof goal.dataUnit === 'string' || goal.dataUnit === undefined || goal.dataUnit === null) &&
-    // TODO: links will soon be deprecated, should instead be included in the description
-    ((Array.isArray(goal.links) && goal.links.every((entry: JSONValue) => (
-      typeof entry === 'object' &&
-      entry !== null &&
-      !Array.isArray(entry) &&
-      typeof entry.url === 'string' &&
-      (typeof entry.description === 'string' || entry.description === undefined || entry.description === null)
-    ))) || goal.links === undefined) &&
-    // Roadmap ID must be a non-empty string
-    // Invalid and forbidden IDs are rejected further down
-    (typeof goal.roadmapId === 'string' && goal.roadmapId.length > 0) &&
-    // Either dataSeries or recipe must be defined and not null or empty
-    ((goal.rawDataSeries?.length ?? 0) > 0 || (goal.recipe?.length ?? 0) > 0)
+    (
+      typeof goal === "object" &&
+      goal !== null &&
+      !Array.isArray(goal)
+    ) &&
+
+    // name: string | null | undefined;
+    (
+      typeof goal.name === 'string' ||
+      goal.name === null ||
+      goal.description === undefined
+    ) &&
+
+    // description: string | null | undefined;
+    (
+      typeof goal.description === 'string' ||
+      goal.description === null ||
+      goal.description === undefined
+    ) &&
+
+    // indicatorParameter: string;
+    (
+      typeof goal.indicatorParameter === 'string'
+    ) &&
+
+    // isFeatured: boolean | undefined;
+    (
+      typeof goal.isFeatured === 'boolean' ||
+      goal.isFeatured === undefined
+    ) &&
+
+    // externalDataset: string | null | undefined;
+    (
+      typeof goal.externalDataset === 'string' ||
+      goal.externalDataset === undefined ||
+      goal.externalDataset === null
+    ) &&
+
+    // externalTableId: string | null | undefined;
+    (
+      typeof goal.externalTableId === 'string' ||
+      goal.externalTableId === undefined ||
+      goal.externalTableId === null
+    ) &&
+
+    // externalSelection: string | null | undefined;
+    (
+      typeof goal.externalSelection === 'string' ||
+      goal.externalSelection === undefined ||
+      goal.externalSelection === null
+    ) &&
+
+    // recipeUsed: Recipe | null | undefined;
+    (
+      typeof goal.recipe === 'string' ||
+      goal.recipe === undefined ||
+      goal.recipe === null
+    ) &&
+
+    // rawDataSeries: DataSeriesValueFields | string[] | undefined;
+    (
+      goal.rawDataSeries === undefined ||
+      isPartialDataSeriesValueFields(goal.rawDataSeries) ||
+      (
+        Array.isArray(goal.rawDataSeries) &&
+        goal.rawDataSeries.every((entry: JSONValue) => (
+          typeof entry === 'string'
+        ))
+      )
+    ) &&
+
+    // rawDataSeriesUnit: string | null | undefined;
+    (
+      typeof goal.rawDataSeriesUnit === 'string' ||
+      goal.rawDataSeriesUnit === undefined ||
+      goal.rawDataSeriesUnit === null
+    ) &&
+
+    // rawBaselineDataSeries: DataSeriesValueFields | string[] | undefined;
+    (
+      goal.rawBaselineDataSeries === undefined ||
+      isPartialDataSeriesValueFields(goal.rawBaselineDataSeries) ||
+      (
+        Array.isArray(goal.rawBaselineDataSeries) &&
+        goal.rawBaselineDataSeries.every((entry: JSONValue) => (
+          typeof entry === 'string'
+        ))
+      )
+    ) &&
+
+    // rawBaselineDataSeriesUnit: string | null | undefined;
+    (
+      typeof goal.rawBaselineDataSeriesUnit === 'string' ||
+      goal.rawBaselineDataSeriesUnit === undefined ||
+      goal.rawBaselineDataSeriesUnit === null
+    ) &&
+
+    // roadmapId: string;
+    (
+      typeof goal.roadmapId === 'string'
+    ) &&
+
+    // rawTags: string[] | null | undefined;
+    (
+      goal.rawTags === undefined ||
+      goal.rawTags === null ||
+      (
+        Array.isArray(goal.rawTags) &&
+        goal.rawTags.every((entry: JSONValue) => (
+          typeof entry === 'string'
+        ))
+      )
+    ) &&
+
+    // TODO: Deprecated - will be moved to description
+    // links: { url: string, description?: string | null }[] | null | undefined;
+    (
+      goal.links === undefined ||
+      goal.links === null ||
+      (
+        Array.isArray(goal.links) &&
+        goal.links.every((entry: JSONValue) => (
+          (
+            typeof entry === 'object' &&
+            entry !== null &&
+            !Array.isArray(entry)
+          ) &&
+
+          typeof entry.url === 'string' &&
+          (
+            typeof entry.description === 'string' ||
+            entry.description === undefined ||
+            entry.description === null
+          )
+        ))
+      )
+    )
   );
 }
 
 function isGoalUpdate(goal: JSONValue): goal is GoalUpdateInput {
   return (
-    // Should be a non-null object
-    typeof goal === "object" &&
-    goal !== null &&
-    !Array.isArray(goal) &&
-    // Typecheck properties
-    (typeof goal.name === 'string' || goal.name === null || goal.description === undefined) &&
-    (typeof goal.description === 'string' || goal.description === null || goal.description === undefined) &&
-    // Indicator parameter must be a non-empty string
-    ((typeof goal.indicatorParameter === 'string' && goal.indicatorParameter.length > 0) || goal.indicatorParameter === undefined) &&
-    (typeof goal.isFeatured === 'boolean' || goal.isFeatured === undefined) &&
-    (typeof goal.externalDataset === 'string' || goal.externalDataset === undefined || goal.externalDataset === null) &&
-    (typeof goal.externalTableId === 'string' || goal.externalTableId === undefined || goal.externalTableId === null) &&
-    (typeof goal.externalSelection === 'string' || goal.externalSelection === undefined || goal.externalSelection === null) &&
-    // Recipe for combining data series. Should be parsed and further checked outside this function
-    (typeof goal.recipe === 'string' || goal.recipe === undefined || goal.recipe === null) &&
-    // Data series should be either undefined or have a length between 1 and dataSeriesDataFieldNames.length
-    ((Array.isArray(goal.rawDataSeries) && goal.rawDataSeries.every((entry: JSONValue) => (typeof entry === 'string' || entry === undefined || entry === null)) && goal.rawDataSeries.length <= Years.length)
-      || goal.rawDataSeries === undefined) &&
-    // baselineDataSeries can be a valid data series to set values, undefined to not set a baseline, or null to delete the baseline
-    ((Array.isArray(goal.rawBaselineDataSeries) && goal.rawBaselineDataSeries.every((entry: JSONValue) => (typeof entry === 'string' || entry === undefined || entry === null)) && goal.rawBaselineDataSeries.length > 0 && goal.rawBaselineDataSeries.length <= Years.length)
-      || goal.rawBaselineDataSeries === undefined || goal.rawBaselineDataSeries === null) &&
-    // Empty string is treated as "missing unit", while null is explicitly unitless. (undefined means no change)
-    (typeof goal.dataUnit === 'string' || goal.dataUnit === undefined || goal.dataUnit === null) &&
-    // TODO: links will soon be deprecated, should instead be included in the description
-    ((Array.isArray(goal.links) && goal.links.every((entry: JSONValue) => (
-      typeof entry === 'object' &&
-      entry !== null &&
-      !Array.isArray(entry) &&
-      typeof entry.url === 'string' &&
-      (typeof entry.description === 'string' || entry.description === undefined || entry.description === null)
-    ))) || goal.links === undefined) &&
-    // Goal ID must be a non-empty string
-    // Invalid and forbidden IDs are rejected separately
-    (typeof goal.goalId === 'string' && goal.goalId.length > 0) &&
-    // Timestamp must be a number, and is used to check if the goal is up-to-date
-    (typeof goal.timestamp === 'number')
+    (
+      typeof goal === "object" &&
+      goal !== null &&
+      !Array.isArray(goal)
+    ) &&
+
+    // goalId: string;
+    (
+      typeof goal.goalId === 'string'
+    ) &&
+
+    // timestamp: number;
+    (
+      typeof goal.timestamp === 'number'
+    ) &&
+
+    // name: string | null | undefined;
+    (
+      typeof goal.name === 'string' ||
+      goal.name === null ||
+      goal.description === undefined
+    ) &&
+
+    // description: string | null | undefined;
+    (
+      typeof goal.description === 'string' ||
+      goal.description === null ||
+      goal.description === undefined
+    ) &&
+
+    // indicatorParameter: string;
+    (
+      typeof goal.indicatorParameter === 'string'
+    ) &&
+
+    // isFeatured: boolean | undefined;
+    (
+      typeof goal.isFeatured === 'boolean' ||
+      goal.isFeatured === undefined
+    ) &&
+
+    // externalDataset: string | null | undefined;
+    (
+      typeof goal.externalDataset === 'string' ||
+      goal.externalDataset === undefined ||
+      goal.externalDataset === null
+    ) &&
+
+    // externalTableId: string | null | undefined;
+    (
+      typeof goal.externalTableId === 'string' ||
+      goal.externalTableId === undefined ||
+      goal.externalTableId === null
+    ) &&
+
+    // externalSelection: string | null | undefined;
+    (
+      typeof goal.externalSelection === 'string' ||
+      goal.externalSelection === undefined ||
+      goal.externalSelection === null
+    ) &&
+
+    // recipeUsed: Recipe | null | undefined;
+    (
+      typeof goal.recipe === 'string' ||
+      goal.recipe === undefined ||
+      goal.recipe === null
+    ) &&
+
+    // rawDataSeries: DataSeriesValueFields | string[] | undefined;
+    (
+      goal.rawDataSeries === undefined ||
+      isPartialDataSeriesValueFields(goal.rawDataSeries) ||
+      (
+        Array.isArray(goal.rawDataSeries) &&
+        goal.rawDataSeries.every((entry: JSONValue) => (
+          typeof entry === 'string'
+        ))
+      )
+    ) &&
+
+    // rawDataSeriesUnit: string | null | undefined;
+    (
+      typeof goal.rawDataSeriesUnit === 'string' ||
+      goal.rawDataSeriesUnit === undefined ||
+      goal.rawDataSeriesUnit === null
+    ) &&
+
+    // rawBaselineDataSeries: DataSeriesValueFields | string[] | undefined;
+    (
+      goal.rawBaselineDataSeries === undefined ||
+      isPartialDataSeriesValueFields(goal.rawBaselineDataSeries) ||
+      (
+        Array.isArray(goal.rawBaselineDataSeries) &&
+        goal.rawBaselineDataSeries.every((entry: JSONValue) => (
+          typeof entry === 'string'
+        ))
+      )
+    ) &&
+
+    // rawBaselineDataSeriesUnit: string | null | undefined;
+    (
+      typeof goal.rawBaselineDataSeriesUnit === 'string' ||
+      goal.rawBaselineDataSeriesUnit === undefined ||
+      goal.rawBaselineDataSeriesUnit === null
+    ) &&
+
+    // roadmapId?: never;
+    (
+      goal.roadmapId === undefined
+    ) &&
+
+    // rawTags: string[] | null | undefined;
+    (
+      goal.rawTags === undefined ||
+      goal.rawTags === null ||
+      (
+        Array.isArray(goal.rawTags) &&
+        goal.rawTags.every((entry: JSONValue) => (
+          typeof entry === 'string'
+        ))
+      )
+    ) &&
+
+    // TODO: Deprecated - will be moved to description
+    // links: { url: string, description?: string | null }[] | null | undefined;
+    (
+      goal.links === undefined ||
+      goal.links === null ||
+      (
+        Array.isArray(goal.links) &&
+        goal.links.every((entry: JSONValue) => (
+          (
+            typeof entry === 'object' &&
+            entry !== null &&
+            !Array.isArray(entry)
+          ) &&
+
+          typeof entry.url === 'string' &&
+          (
+            typeof entry.description === 'string' ||
+            entry.description === undefined ||
+            entry.description === null
+          )
+        ))
+      )
+    )
+
   );
 }
 
@@ -228,14 +441,14 @@ export async function POST(request: NextRequest) {
         dataSeries: dataValues ? {
           create: {
             ...dataValues,
-            unit: formData.dataUnit ?? '',
+            unit: formData.rawDataSeriesUnit ?? '',
             authorId: session.user.id,
           },
         } : undefined,
         baselineDataSeries: baselineDataSeries ? {
           create: {
             ...baselineDataSeries,
-            unit: formData.dataUnit ?? '',
+            unit: formData.rawDataSeriesUnit ?? '',
             authorId: session.user.id,
           },
         } : undefined,

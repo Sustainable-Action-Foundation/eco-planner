@@ -373,11 +373,11 @@ export type GoalCreateInput = {
   rawDataSeries: DataSeriesValueFields | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
   rawDataSeriesUnit: string | null | undefined; // Combines with rawDataSeries in the API
   // TODO: send baselines as a DataSeriesValueFields object in the future for consistency's sake
-  rawBaselineDataSeries: DataSeriesValueFields | string[] | null | undefined; // Transform into clean DataSeriesValueFields in the server side API
+  rawBaselineDataSeries: DataSeriesValueFields | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
   rawBaselineDataSeriesUnit: string | null | undefined; // Combines with rawBaselineDataSeries in the API
 
   // Relations
-  authorId: string;
+  // authorId: string; // Derived from session in the API
   // effects: Prisma.EffectCreateNestedManyWithoutGoalInput; // Cannot be created with a new goal
   roadmapId: string;
   // comments: Prisma.CommentCreateNestedManyWithoutGoalInput; // Cannot be created with a new goal
@@ -425,11 +425,11 @@ export type GoalUpdateInput = {
   rawDataSeries: DataSeriesValueFields | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
   rawDataSeriesUnit: string | null | undefined; // Combines with rawDataSeries in the API
   // TODO: send baselines as a DataSeriesValueFields object in the future for consistency's sake
-  rawBaselineDataSeries: DataSeriesValueFields | string[] | null | undefined; // Transform into clean DataSeriesValueFields in the server side API
+  rawBaselineDataSeries: DataSeriesValueFields | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
   rawBaselineDataSeriesUnit: string | null | undefined; // Combines with rawBaselineDataSeries in the API
 
   // Relations
-  authorId: string;
+  // authorId: string; // Derived from session in the API
   // effects: Prisma.EffectCreateNestedManyWithoutGoalInput; // Cannot be updated from the goal
   roadmapId?: never;
   // comments: Prisma.CommentCreateNestedManyWithoutGoalInput; // Cannot be updated from the goal
