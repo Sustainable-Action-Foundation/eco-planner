@@ -2,7 +2,7 @@
 
 import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" with { type: "json" }
 import { LoginData } from "@/lib/session";
-import { AccessControlled, MetaRoadmapInput } from "@/types";
+import { AccessControlled, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
 import { MetaRoadmap, RoadmapType } from "@prisma/client";
 import { useState } from "react";
 import { EditUsers, ViewUsers, getAccessData } from "@/components/forms/accessSelector/accessSelector";
@@ -44,7 +44,7 @@ export default function MetaRoadmapForm({
       form.namedItem("viewGroups")
     );
 
-    const formData: MetaRoadmapInput & { id?: string, timestamp?: number } = {
+    const formData: MetaRoadmapCreateInput | MetaRoadmapUpdateInput = {
       name: (form.namedItem("metaRoadmapName") as HTMLInputElement)?.value,
       description: (form.namedItem("description") as HTMLTextAreaElement)?.value,
       type: ((form.namedItem("type") as HTMLSelectElement)?.value as RoadmapType) || null,

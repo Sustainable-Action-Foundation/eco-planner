@@ -137,14 +137,14 @@ export type MetaRoadmapCreateInput = {
    * That being said, if the schema changes, this type will need to be updated manually.
    */
   /* Automatically managed by Prisma */
-  // id?: string,
+  id?: never,
   // createdAt?: Date | string,
   // updatedAt?: Date | string,
 
   name: string,
   description: string,
-  type?: RoadmapType,
-  actor?: string | null,
+  type?: RoadmapType | undefined,
+  actor?: string | null | undefined,
   isPublic?: boolean,
 
   /* Relational fields are handeled differently in our API */
@@ -225,22 +225,6 @@ export type MetaRoadmapUpdateInput = {
   // TODO - DEPRECATED - Will be migrated to description
   links?: { url: string, description?: string }[] | null | undefined;
 }
-
-export type MetaRoadmapInput = Omit<
-  Prisma.MetaRoadmapCreateInput,
-  'id' | 'createdAt' | 'updatedAt' | 'author' | 'editors' |
-  'viewers' | 'editGroups' | 'viewGroups' | 'comments' | 'links' |
-  'roadmapVersions' | 'parentRoadmap' | 'childRoadmaps'
-> & {
-  links?: { url: string, description?: string }[] | undefined;
-  // Accepts lists of UUIDs for all of the following, to link them to the roadmap (optional)
-  editors?: string[] | undefined;
-  viewers?: string[] | undefined;
-  editGroups?: string[] | undefined;
-  viewGroups?: string[] | undefined;
-  // UUID for the parent meta roadmap (if any)
-  parentRoadmapId?: string | undefined;
-};
 
 /** The format of the data needed to create a new roadmap version. */
 export type RoadmapInput = Omit<
