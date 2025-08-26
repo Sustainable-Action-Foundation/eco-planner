@@ -38,19 +38,6 @@ export const ClientError = {
 } as const;
 export type ClientError = (typeof ClientError)[keyof typeof ClientError];
 
-/**
- * ## DEPRECATED - use recipes instead
- * TODO: remove this
- * 
- * Object and type for different ways to get scalars for repeatableScaling and similar 
- */
-export const ScaleBy = {
-  Custom: "CUSTOM",
-  Inhabitants: "INHABITANTS",
-  Area: "AREA",
-} as const;
-export type ScaleBy = (typeof ScaleBy)[keyof typeof ScaleBy];
-
 /** Object and type with the different types of sorting available for roadmaps */
 export const RoadmapSortBy = {
   Default: "",
@@ -60,19 +47,6 @@ export const RoadmapSortBy = {
   GoalsRising: "LOW FIRST",
 } as const;
 export type RoadmapSortBy = (typeof RoadmapSortBy)[keyof typeof RoadmapSortBy];
-
-/** 
- * ## DEPRECATED - use recipes instead
- * TODO: remove this
- * 
- * Different scaling methods used in scalingRecipe
- */
-export const ScaleMethod = {
-  Algebraic: "ALGEBRAIC",
-  Geometric: "GEOMETRIC",
-  Multiplicative: "MULTIPLICATIVE",
-} as const;
-export type ScaleMethod = (typeof ScaleMethod)[keyof typeof ScaleMethod];
 
 export function isStandardObject(object: unknown): object is object {
   return typeof object === "object" && object != null && !Array.isArray(object);

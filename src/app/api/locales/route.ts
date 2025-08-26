@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import fs from "node:fs";
 import path from "node:path";
 
+// eslint-disable-next-line @typescript-eslint/require-await
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const paramLNG = searchParams.get("lng") || Locales.default;
