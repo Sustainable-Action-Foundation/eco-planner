@@ -15,8 +15,9 @@ import { getDataSeries } from "../dataSeriesInput/utils"; // Helper for extracti
 import styles from '../forms.module.css'; // CSS module for styling
 import { InheritingBaseline, ManualGoalForm } from "./goalFormSections"; // Sub components for form sections
 import { DEBUG_Recipe, RecipeContextProvider, RecipeEquationEditor, RecipeErrorAndWarnings, RecipeSuggestions, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/recipeEditor";
-import { RecipeDataTypes } from "@/functions/recipe-parser/types";
+import { Recipe, RecipeDataTypes } from "@/functions/recipe-parser/types";
 import { VectorIndexPickerOptions } from "@/components/recipe/variables";
+import { recipeFromUnknown } from "@/functions/parseRecipe";
 
 // Enum for selecting the type of data series for the goal
 enum DataSeriesType {
@@ -77,12 +78,24 @@ export default function GoalForm({
     const baselineDataSeries = baselineDataSeriesArray.length > 0 ? baselineDataSeriesArray : undefined; // Omit if empty
 
     // Get scaling recipe for combined/inherited goals
-    const recipe = formData.get("resultingRecipe");
-    if (recipe instanceof File) {
+    const recipeString = formData.get("resultingRecipe");
+    if (recipeString instanceof File) {
       event.target.reportValidity();
       return;
     }
+    let parsedRecipe: Recipe | null = null;
+    if (recipeString) {
+      try {
+        parsedRecipe = recipeFromUnknown(recipeString);
+      }
+      catch (error) {
+        console.error("Failed to parse recipe from form data:", error);
+        event.target.reportValidity();
+        return;
+      }
+    }
 
+    // TODO: deprecated - use recipes instead
     // Build inheritFrom array (for inherited/combined goals)
     const inheritFrom: { id: string, isInverted?: boolean }[] = [];
     formData.getAll("inheritFrom")?.forEach((id) => {
@@ -110,10 +123,10 @@ export default function GoalForm({
       description: (form.namedItem("description") as HTMLInputElement)?.value || null,
       indicatorParameter: (form.namedItem("indicatorParameter") as HTMLInputElement)?.value ?? undefined,
       // TODO: Add a toggle isUnitless to the form, which sets dataUnit to null if checked
-      dataUnit: parsedUnit || (form.namedItem("dataUnit") as HTMLInputElement)?.value,
+      rawDataSeriesUnit: parsedUnit || (form.namedItem("dataUnit") as HTMLInputElement)?.value,
       rawDataSeries: dataSeries,
       rawBaselineDataSeries: baselineDataSeries ?? undefined,
-      recipe: recipe,
+      recipeUsed: recipeString,
       roadmapId: currentGoal?.roadmapId || roadmapId || (typeof formData.get("roadmapId") == "string" ? formData.get("roadmapId") as string : ""),
       goalId: currentGoal?.id || undefined,
       links,
@@ -217,6 +230,7 @@ export default function GoalForm({
           }
 
           {/* Scaling section for inherited/combined goals */}
+          {/* TODO: Show different suggested recipes depending on which DataSeriesType is selected or just change the type to "Manual" and "Recipe" */}
           {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
             <RecipeContextProvider>
               <RecipeSuggestions suggestedRecipes={[

@@ -28,7 +28,7 @@ export default function roadmapGoalCreator(
       dataSeries: {
         create: {
           ...dataValues,
-          unit: goal.dataUnit,
+          unit: goal.rawDataSeriesUnit,
           authorId: author,
         },
       },

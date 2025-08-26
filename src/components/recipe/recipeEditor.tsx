@@ -416,6 +416,10 @@ export function ResultingDataSeries({ FormElement }: { FormElement?: ReactElemen
 export function ResultingRecipe({ FormElement }: { FormElement?: ReactElement }) {
   const { recipe } = useRecipe();
 
+  if (!recipe) {
+    return null;
+  }
+
   return (<>
     {FormElement && <FormElement.type {...(FormElement.props || {})} value={JSON.stringify(recipe)} />}
   </>);

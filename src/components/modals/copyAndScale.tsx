@@ -83,12 +83,12 @@ export default function CopyAndScale({
       return value ? value.toString() : "";
     });
 
-    const formData: GoalCreateInput & { roadmapId: string } = {
+    const formData: GoalCreateInput = {
       name: goal.name,
       description: goal.description,
       indicatorParameter: goal.indicatorParameter,
-      dataUnit: goal.dataSeries?.unit,
       rawDataSeries: rawDataSeries,
+      rawDataSeriesUnit: goal.dataSeries?.unit,
       roadmapId: copyToId as string ?? "",
       // TODO: add recipe to this form data to save it
     };
