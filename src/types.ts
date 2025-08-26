@@ -1,6 +1,7 @@
 import { ActionImpactType, Prisma, RoadmapType } from "@prisma/client";
 import { actionInclusionSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, roadmapInclusionSelection } from "./fetchers/inclusionSelectors";
 import { Years as GeneratedYears } from "./lib/dataSeriesCanonicalYears";
+import { Recipe } from "./functions/recipe-parser/types";
 
 export function typeguardDebug(message: string): false {
   console.debug(message);
@@ -260,47 +261,113 @@ export type RoadmapInput = Omit<
   // Version numbers are assigned by the API and therefore omitted
 };
 
-/** The format of the data needed to create a new goal. */
-export type GoalCreateInput = {
-  /**
-   * This type is derived from @type {Prisma.GoalCreateInput}, but with some fields omitted in clear text for better intellisense readability and maintainability.
-   * 
-   * That being said, if the schema changes, this type will need to be updated manually.
-   */
+export type RoadmapUpdateInput = {}
+export type RoadmapCreateInput = {}
 
-  name?: string | null,
-  description?: string | null,
-  indicatorParameter: string,
-  dataUnit?: string | null,
-  rawDataSeries?: string[],
-  rawBaselineDataSeries?: string[] | null,
-  recipe?: string | null,
-  roadmapId: string,
-  goalId?: string,
-  links?: { url: string, description?: string | null }[],
-  timestamp?: number,
-  isFeatured?: boolean,
-  externalDataset?: string | null,
-  externalTableId?: string | null,
-  externalSelection?: string | null,
+/**
+ * The format of the data needed to create a new goal.
+ * 
+ * This type is derived from @type {Prisma.GoalCreateInput} but with some fields omitted in clear text for better intellisense readability and maintainability.
+ * 
+ * That being said, if the schema changes, this type will need to be updated manually.
+ */
+export type GoalCreateInput = {
+  /*
+    # Omitted fields from Prisma.GoalCreateInput
+    id: string | undefined; // Gets created automatically
+    createdAt: string | Date | undefined; // Gets set automatically
+    updatedAt: string | Date | undefined; // Gets set automatically
+  */
+
+  goalId?: never;
+
+  // Basic meta
+  name: string | null | undefined;
+  description: string | null | undefined;
+  indicatorParameter: string;
+  isFeatured: boolean | undefined;
+
+  // External data source
+  externalDataset: string | null | undefined;
+  externalTableId: string | null | undefined;
+  externalSelection: string | null | undefined;
+
+  // Recipes
+  recipeUsed: Recipe | null | undefined; // Note: not the hash, the entire recipe object. Server will hash safely.
+  // TODO: Creating recipe suggestions is a future feature
+  // recipeSuggestions: Recipe[] | null | undefined; // Note: not the hashes, the entire recipe objects. Server will hash safely.
+
+  // Data series
+  rawDataSeries: DataSeriesValueFields | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
+  rawDataSeriesUnit: string | null | undefined; // Combines with rawDataSeries in the API
+  // TODO: send baselines as a DataSeriesValueFields object in the future for consistency's sake
+  rawBaselineDataSeries: DataSeriesValueFields | string[] | null | undefined; // Transform into clean DataSeriesValueFields in the server side API
+  rawBaselineDataSeriesUnit: string | null | undefined; // Combines with rawBaselineDataSeries in the API
+
+  // Relations
+  authorId: string;
+  // effects: Prisma.EffectCreateNestedManyWithoutGoalInput; // Cannot be created with a new goal
+  roadmapId: string;
+  // comments: Prisma.CommentCreateNestedManyWithoutGoalInput; // Cannot be created with a new goal
+  rawTags: string[] | null | undefined; // Transform into tags relation in the server side API
+
+  // TODO: Deprecated - will be moved to description
+  links: { url: string, description?: string | null }[] | null | undefined;
 }
 
+/**
+ * The format of the data allowed to update an existing goal.
+ * 
+ * This type is derived from @type {Prisma.GoalUpdateInput} but with some fields omitted in clear text for better intellisense readability and maintainability.
+ * 
+ * That being said, if the schema changes, this type will need to be updated manually.
+ */
 export type GoalUpdateInput = {
-  name?: string | null | undefined,
-  description?: string | null | undefined,
-  indicatorParameter?: string | undefined,
-  dataUnit?: string | null | undefined,
-  rawDataSeries?: string[] | undefined,
-  rawBaselineDataSeries?: string[] | null | undefined,
-  recipe?: string | null | undefined,
-  roadmapId?: never,
-  goalId: string,
-  links?: { url: string, description?: string | null }[] | undefined,
-  timestamp: number,
-  isFeatured?: boolean | undefined,
-  externalDataset?: string | null | undefined,
-  externalTableId?: string | null | undefined,
-  externalSelection?: string | null | undefined,
+  /*
+   # Omitted fields from Prisma.GoalCreateInput
+   id: string | undefined; // Gets created automatically
+   createdAt: string | Date | undefined; // Gets set automatically
+   updatedAt: string | Date | undefined; // Gets set automatically
+  */
+
+  // Stale data check - not from prisma
+  timestamp: number; // From Date.now() i.e. milliseconds since epoch
+
+  // Required to find this goal
+  goalId: string;
+
+  // Basic meta
+  name: string | null | undefined;
+  description: string | null | undefined;
+  indicatorParameter: string;
+  isFeatured: boolean | undefined;
+
+  // External data source
+  externalDataset: string | null | undefined;
+  externalTableId: string | null | undefined;
+  externalSelection: string | null | undefined;
+
+  // Recipes
+  recipeUsed: Recipe | null | undefined; // Note: not the hash, the entire recipe object. Server will hash safely.
+  // TODO: Creating recipe suggestions is a future feature
+  // recipeSuggestions: Recipe[] | null | undefined; // Note: not the hashes, the entire recipe objects. Server will hash safely.
+
+  // Data series
+  rawDataSeries: DataSeriesValueFields | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
+  rawDataSeriesUnit: string | null | undefined; // Combines with rawDataSeries in the API
+  // TODO: send baselines as a DataSeriesValueFields object in the future for consistency's sake
+  rawBaselineDataSeries: DataSeriesValueFields | string[] | null | undefined; // Transform into clean DataSeriesValueFields in the server side API
+  rawBaselineDataSeriesUnit: string | null | undefined; // Combines with rawBaselineDataSeries in the API
+
+  // Relations
+  authorId: string;
+  // effects: Prisma.EffectCreateNestedManyWithoutGoalInput; // Cannot be updated from the goal
+  roadmapId?: never;
+  // comments: Prisma.CommentCreateNestedManyWithoutGoalInput; // Cannot be updated from the goal
+  rawTags: string[] | null | undefined; // Transform into tags relation in the server side API
+
+  // TODO: Deprecated - will be moved to description
+  links: { url: string, description?: string | null }[] | null | undefined;
 }
 
 /** The format of the data needed to create a new action. */
