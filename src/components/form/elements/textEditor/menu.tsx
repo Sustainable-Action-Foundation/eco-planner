@@ -15,7 +15,7 @@ export default function TextEditorMenu({
   editor: Editor,
   editorId: string
 }) {
-  const { t } = useTranslation("components"); // TODO: Should add common?
+  const { t } = useTranslation(["forms", "common"]); // TODO: Should add common? 
 
   const [focusedMenubarItem, setFocusedMenubarItem] = useState<number | null>(null);
   const [focusedSubmenuItem, setfocusedSubmenuItem] = useState<number | null>(null);
