@@ -15,7 +15,7 @@ export default function TextEditorMenu({
   editor: Editor,
   editorId: string
 }) {
-  const { t } = useTranslation("components");
+  const { t } = useTranslation("components"); // TODO: Should add common?
 
   const [focusedMenubarItem, setFocusedMenubarItem] = useState<number | null>(null);
   const [focusedSubmenuItem, setfocusedSubmenuItem] = useState<number | null>(null);
@@ -252,10 +252,10 @@ export default function TextEditorMenu({
               }
             }}
             role='menuitem'
-            aria-label="Meny" // TODO: I18n
             aria-haspopup="menu"
             aria-checked={submenuVisible}
-            data-tooltip="Meny" // TODO: I18n 
+            aria-label={t("common:tsx.expand")} // TODO: I18n
+            data-tooltip={t("common:tsx.expand")} // TODO: I18n 
           >
             <IconDotsVertical className="grid" height={16} width={16} aria-hidden="true" />
           </span>

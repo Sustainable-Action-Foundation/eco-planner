@@ -38,9 +38,9 @@ export default function ConfigureAccess({
   }  
   
   const [viewers, setViewers] = useState<string>(currentAccess ? currentAccess.viewers.map((viewer) => viewer.username).join(', ') : '') // TODO: This has NOT been tested with multiple usernames, ensure it gives back exactly what the user initially wrote
-  const [viewerGroups, setViewerGroups] = useState<Array<{name: string, value: string}>>(currentAccess ? currentAccess?.viewGroups.map((group) => { return { name: group.name, value: group.name } }) : [{name: '', value: ''}])
+  const [viewerGroups, setViewerGroups] = useState<Array<{name: string, value: string}>>(currentAccess ? currentAccess?.viewGroups.map((group) => { return { name: group.name, value: group.name } }) : [])
   const [editors, setEditors] = useState<string>(currentAccess ? currentAccess?.editors.map((editor) => editor.username).join(', ') : '') // TODO: This has NOT been tested with multiple usernames, ensure it gives back exactly what the user initially wrote
-  const [editorGroups, seteditorGroups] = useState<Array<{name: string, value: string}>>(currentAccess ? currentAccess?.editGroups.map((group) => { return { name: group.name, value: group.name } }) : [{name: '', value: ''}])
+  const [editorGroups, seteditorGroups] = useState<Array<{name: string, value: string}>>(currentAccess ? currentAccess?.editGroups.map((group) => { return { name: group.name, value: group.name } }) : [])
 
   const [visibilityType, setvisibilityType] = useState<"private" | "public" | "custom" | undefined>(
     currentAccess

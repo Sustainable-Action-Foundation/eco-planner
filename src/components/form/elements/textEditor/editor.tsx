@@ -50,9 +50,7 @@ const TextEditor = ({
   if (!editor) {
     return null
   }
-
-  /* TODO: Character counter i18n */
-
+  
   const percentage = editor ? Math.round((100 / nodeSizeLimit) * editor.storage.characterCount.characters({ mode: 'nodeSize' })) : 0
   const circumference = 2 * Math.PI * 5; // r = 5
   const dash = (percentage / 100) * circumference;
