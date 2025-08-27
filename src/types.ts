@@ -479,3 +479,13 @@ export function isFullDataSeriesValueFields(
 ): dataSeries is DataSeriesValueFields {
   return Object.keys(dataSeries).length === Years.length && Years.every(year => year in dataSeries);
 }
+
+
+/* TODO INPUT_UPDATES */
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    underlineSpan: {
+      toggleUnderline: () => ReturnType
+    }
+  }
+}

@@ -13,6 +13,7 @@ import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconEdit } from "@tabler/icons-react";
 import Link from "next/link";
+import TextEditor from "@/components/form/elements/textEditor/editor";
 
 export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {
   const params = await props.params
@@ -84,9 +85,23 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
             {/* TODO: style link to better match surroundings */}
             <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>{t("pages:roadmap.show_series")}</Link>
           </p>
-          <p className="margin-bottom-0">{roadmap.metaRoadmap.description}</p>
+          <div className="margin-top-100">           
+            <TextEditor
+              id="rich-description"
+              editable={false}
+              defaultStyles={false}
+              content={roadmap.metaRoadmap.description}
+            />
+          </div>
           {roadmap.description ? (
-            <p className="margin-bottom-0">{roadmap.description}</p>
+            <div className="margin-top-100">           
+              <TextEditor
+                id="rich-description"
+                editable={false}
+                defaultStyles={false}
+                content={roadmap.description}
+              />
+            </div>
           ) : null}
           {/* TODO: Add external resources here and to the form
             <h2 className="margin-bottom-0 margin-top-200" style={{fontSize: '1.25rem'}}>Externa resurser</h2>

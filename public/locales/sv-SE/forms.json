@@ -1,12 +1,12 @@
 {
   "access_selector": {
-    "groups_with_edit_access": "Grupper med redigeringsbehörighet",
-    "users_with_edit_access": "Användare med redigeringsbehörighet",
-    "remove_user": "Ta bort användare",
-    "add_user": "Lägg till användare",
-    "groups_with_read_access": "Grupper med läsbehörighet",
-    "make_posts_public": "Visa inlägg offentligt",
-    "users_with_read_access": "Användare med läsbehörighet"
+    "me_only": "Enbart jag",
+    "all_users": "Alla användare",
+    "custom": "Välj specifika användare och/eller grupper",
+    "users": "Användare",
+    "select_users": "Välj användare",
+    "groups": "Grupper",
+    "select_groups": "Välj grupper"
   },
   "action": {
     "choose_relationship": "Ange relationen till andra inlägg",
@@ -35,6 +35,13 @@
     "category_efficiency": "Efficiency",
     "category_renewables": "Renewables",
     "attach_external_resources": "Bifoga externa resurser"
+  },
+  "combobox": {
+    "search_options": "Sök bland alternativ",
+    "select_single_option": "Välj ett alternativ",
+    "select_multiple_options": "Välj ett eller flera alternativ",
+    "select_or_leave": "Välj eller lämna blankt",
+    "show_suggestions": "Visa förslag"
   },
   "data_series_input": {
     "data_series": "Dataserie",
@@ -111,13 +118,6 @@
     "data_missing": "DATA SAKNAS; ",
     "baseline_copied": "Baslinje, kopierad från vald $t(common:goal_one)"
   },
-  "link_input": {
-    "name_label": "Namn",
-    "name_placeholder": "ex. SCB",
-    "url_label": "Länk",
-    "url_placeholder": "https://example.com",
-    "remove_link_aria_label": "ta bort länk"
-  },
   "repeatable_scaling": {
     "specific_value_label": "Med vilket värde vill du skala?",
     "original_area": "Ursprungligt område:",
@@ -154,20 +154,41 @@
     "upload_goals": "Ladda upp $t(common:goal_other)",
     "goal_accepted_formats": "{{$t(common:goal_other), titleCase}} <small> - giltiga filtyper: {{fileTypes, list}} - giltiga filkodningar: {{encodings, list}}</small>",
     "inherit_goal_legend": "Välj $t(common:goal_one) att ärva",
-    "change_read_access": "Justera läsbehörighet",
-    "change_edit_access": "Justera redigeringsbehörighet"
+    "legend_visibility": "Vem får se färdplanen?",
+    "legend_editability": "Vem får redigera färdplanen?"
+  },
+  "text_editor_menu": {
+    "undo": "Ångra",
+    "redo": "Gör om",
+    "font_size": {
+      "caption": "Textstorlek",
+      "large": "Stor text",
+      "normal": "Normal text",
+      "small": "Liten text"
+    },
+    "grey_text": "Grå text",
+    "italic": "Kursiv",
+    "bold": "Fetstil",
+    "strike_through": "Genomstryk",
+    "underline": "Understryk",
+    "superscript": "Upphöj",
+    "subscript": "Nedsänk",
+    "highlight": "Markera",
+    "insert_link": "Infoga länk",
+    "bullet_list": "Punktlista",
+    "numbered_list": "Numrerad lista",
+    "more": "Mer"
   },
   "meta_roadmap": {
     "description_legend": "Beskriv din $t(common:roadmap_series_one)",
-    "roadmap_series_name": "Namn för $t(common:roadmap_series_definite_one)",
-    "roadmap_series_description": "Beskrivning av $t(common:roadmap_series_definite_one)",
+    "name": "Namn",
+    "description": "Beskrivning",
     "actor_legend": "Välj ansvarig aktör",
-    "roadmap_scope_label": "Typ av $t(common:roadmap_series_one)",
+    "type": "Typ",
     "no_chosen_roadmap_scope": "Välj en typ",
-    "choose_actor": "Ange en aktör",
-    "attach_external": "Bifoga externa resurser",
-    "change_read_access": "Justera läsbehörighet",
-    "change_edit_access": "Justera redigeringsbehörighet",
+    "actor": "Aktör",
+    "legend_visibility": "Vem får se färdplansserien?",
+    "legend_editability": "Vem får redigera färdplansserien?",
     "relationship_legend": "Jobbar denna $t(common:roadmap_series_one) mot en annan $t(common:roadmap_series_one)?",
     "relationship_label": "Förälder",
     "relationship_no_chosen": "Ingen förälder"

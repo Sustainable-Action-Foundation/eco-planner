@@ -98,7 +98,7 @@ export default function SiblingGraph({
       <menu className="flex align-items-flex-end gap-25 margin-0 margin-block-25 padding-0 flex-wrap-wrap">
         <button
           className="flex align-items-center gap-50 transparent font-weight-500 gray-90"
-          style={{ width: 'fit-content', fontSize: '.75rem', padding: '.3rem .6rem' }}
+          style={{ width: 'fit-content', fontSize: '.75rem', padding: '.3rem .6rem', lineHeight: '1.5' }}
           type="button" onClick={() => setIsStacked(!isStacked)}
         >
           {t("graphs:common.change_graph_type")}

@@ -4,7 +4,7 @@ import AttributedImage, { AttributeText } from "@/components/generic/images/attr
 import getMetaRoadmaps from "@/fetchers/getMetaRoadmaps";;
 import { roadmapSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
 import { RoadmapType } from "@prisma/client";
-import RoadmapFilters from "@/components/forms/filters/roadmapFilters";
+import RoadmapFilters from "@/components/form/filters/roadmapFilters";
 import { RoadmapSortBy } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree.tsx";
@@ -136,6 +136,7 @@ export default async function Page(
       <RoadmapFilters />
     </section>
 
+    {/* TODO: There might be some issues with displayning public roadmaps, explore this. */}
     <section className="margin-bottom-500">
       <RoadmapTree user={session.user ?? undefined} roadmaps={roadmaps} />
     </section>

@@ -26,9 +26,9 @@ export default function SecondaryGoalSelector() {
       <form onSubmit={handleSubmit} className="flex-grow-100">
         <label className='font-weight-500'>
           {t("graphs:secondary_graph_selector.compare_with")}
-          <div className="focusable flex margin-top-25" style={{ borderRadius: '2px', backgroundColor: 'var(--gray-90)' }}>
-            <input type="text" id="secondaryGoal" name="secondaryGoal" className="transparent" style={{ fontSize: '.75rem', borderRadius: '2px', padding: '.3rem .6rem' }} />
-            <button type="submit" className="font-weight-500 transparent" style={{ fontSize: '.75rem', borderRadius: '2px', padding: '.3rem .6rem' }} >
+          <div className="focusable flex margin-top-25 smooth">
+            <input type="text" id="secondaryGoal" name="secondaryGoal" className="transparent smooth" style={{ fontSize: '.75rem', padding: '.3rem' }} />
+            <button type="submit" className="font-weight-500 transparent gray-90 smooth" style={{ fontSize: '.75rem', padding: '.3rem .6rem' }} >
               {t("graphs:secondary_graph_selector.compare")}
             </button>
           </div>

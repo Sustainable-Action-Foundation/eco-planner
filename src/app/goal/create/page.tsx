@@ -1,6 +1,6 @@
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
-import GoalForm from "@/components/forms/goalForm/goalForm";
+import GoalForm from "@/components/form/forms/goal";
 import getOneRoadmap from "@/fetchers/getOneRoadmap";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import getRoadmaps from "@/fetchers/getRoadmaps.ts";
