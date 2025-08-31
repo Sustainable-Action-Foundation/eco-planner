@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useMemo } from "react"
 import { useTranslation } from "react-i18next";
 import styles from './comboBox.module.css' with { type: "css" }
-import { inputElement } from "@/components/types";
+import { inputElement, option } from "@/components/types";
 import { clearEditableCombobox, handleKeyDownEditableCombobox, preventInvalidFormSubmission, scrollOptionIntoView } from "./functions";
 import Fuse from "fuse.js";
 import { IconSearch, IconSelector } from "@tabler/icons-react";
@@ -20,12 +20,12 @@ export default function SelectMultipleSearch({
   onChange,
 }: {
   props: inputElement,
-  defaultValue?: Array<{ name: string, value: string }>,
-  options: Array<{ name: string, value: string }>,
-  onChange?: (value: Array<{ name: string, value: string }> | null) => void
+  defaultValue?: Array<option>,
+  options: Array<option>,
+  onChange?: (value: Array<option> | null) => void
 }) {
   const { t } = useTranslation(["forms", "common"]);
-  const [value, setValue] = useState<Array<{ name: string, value: string }>>(
+  const [value, setValue] = useState<Array<option>>(
     defaultValue ? defaultValue : []
   )
   const [menuOpen, setMenuOpen] = useState<boolean>(false)

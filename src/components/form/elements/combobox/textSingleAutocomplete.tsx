@@ -5,10 +5,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import styles from './comboBox.module.css' with { type: "css" }
 import Fuse from "fuse.js";
 import { useTranslation } from "react-i18next";
-import { inputElement } from "@/components/types";
+import { inputElement, option } from "@/components/types";
 import { handleKeyDownEditableCombobox, scrollOptionIntoView } from "./functions";
-   
-// TODO: Decide on how to handle options/values here is it string or {name: string, value: string}? 
+    
 // TODO: Add an onchange prop for this (or all inputs?)
 // TODO: Give aria-keyocontrols?
 // TODO: should just pass the types, not props.
@@ -18,7 +17,7 @@ export default function TextSingleAutocomplete({
   options,
 }: {
   props: inputElement
-  options: Array<{name: string, value: string}>
+  options: Array<option>
 }) {
   const { t } = useTranslation(["forms", "common"]);
 

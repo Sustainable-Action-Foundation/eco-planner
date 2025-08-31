@@ -12,3 +12,12 @@ export type inputElement = genericElement & {
   placeholder?: string,
   defaultValue?: string,
 };
+
+export type option = {
+  name: string,
+  value: string,
+}
+
+export type treeItem = option & {
+  childNodes: Array<treeItem>
+}
