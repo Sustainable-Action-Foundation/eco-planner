@@ -1,3 +1,5 @@
+// TODO: Use uppercase?
+
 export type genericElement = {
   className?: string;
   style?: React.CSSProperties;
@@ -19,5 +21,6 @@ export type option = {
 }
 
 export type treeItem = option & {
-  childNodes: Array<treeItem>
+  childNodes: Array<treeItem>,
+  expanded?: boolean,
 }
