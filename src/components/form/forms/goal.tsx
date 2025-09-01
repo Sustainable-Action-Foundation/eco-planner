@@ -18,6 +18,8 @@ import { Recipe, RecipeDataTypes } from "@/functions/recipe-parser/types";
 import { VectorIndexPickerOptions } from "@/components/recipe/variables";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
 import SelectSingleTreeSearch from "../elements/combobox/selectSingleTreeSearch";
+import TestTreeSelect from "../elements/combobox/testTreeSelect";
+import { testTreeItem } from "@/components/types";
 
 // Enum for selecting the type of data series for the goal
 enum DataSeriesType {
@@ -164,7 +166,22 @@ export default function GoalForm({
 
   const unitNames = Object.keys(mathjs.Unit.UNITS)
 
-  // Render the form
+  const testFetchChildrenNested = async (): Promise<Array<testTreeItem>> => {
+    // You could fetch from an API here instead of hardcoding
+    return [
+      { name: "Item 5.1.1", value: "5-1-2", expanded: null },
+      { name: "Item 5.1.2", value: "5-1-2", expanded: null },
+    ];
+  };
+
+  const testFetchChildren = async (): Promise<Array<testTreeItem>> => {
+    // You could fetch from an API here instead of hardcoding
+    return [
+      { name: "Item 5.1", value: "5-1", expanded: false, onExpand: testFetchChildrenNested },
+      { name: "Item 5.2", value: "5-2", expanded: null },
+    ];
+  }; 
+
   return (
     <>
       <form onSubmit={handleSubmit} name="goalForm">
@@ -223,6 +240,18 @@ export default function GoalForm({
         {/* Data series input section (varies by type) */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:goal.choose_goal_data_series")}</legend>
+
+          <div className="margin-bottom-500 padding-bottom-500">
+            <TestTreeSelect 
+              treeItems={[
+                {name: "Item 1", value: '1', expanded: null},
+                {name: "Item 2", value: '2', expanded: null},
+                {name: "Item 3", value: '3', expanded: null},
+                {name: "Item 4", value: '4', expanded: null},
+                {name: "Item 5", value: '5', expanded: false, onExpand: testFetchChildren}
+              ]}
+            />
+          </div>
 
           <label htmlFor="test-tree">test</label>
           <SelectSingleTreeSearch
