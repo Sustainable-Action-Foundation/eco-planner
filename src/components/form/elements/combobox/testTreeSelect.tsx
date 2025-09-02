@@ -127,7 +127,7 @@ export default function TestTreeSelect({
       >
         <input type="text" />
         <ul style={{ listStyle: 'none' }} className="margin-0 padding-50">
-          {treeItems.map((treeItem, index) => (
+          {items.map((treeItem, index) => (
             <TreeNode key={index} item={treeItem} onUpdate={handleUpdateNode} />
           ))}
         </ul>
