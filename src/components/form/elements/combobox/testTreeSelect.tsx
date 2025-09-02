@@ -2,7 +2,7 @@
 
 import { testTreeItem, treeItem } from "@/components/types"
 import { IconCaretDown, IconCaretDownFilled, IconCaretRightFilled } from "@tabler/icons-react"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 
 /**
@@ -60,10 +60,22 @@ export default function TestTreeSelect({
 
   const [items, setItems] = useState<Array<testTreeItem>>(treeItems)
   const [flattenedItems, setFlattenedItems] = useState<Array<testTreeItem>>(flattenTree(treeItems))
+  const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
 
   useEffect(() => {
     setFlattenedItems(flattenTree(items))
   }, [items])
+ 
+  useEffect(() => {
+    if (focusedIndex == null) return
+    const selectedItem = flattenedItems[focusedIndex]
+    const selectedItemElement = document.getElementById(`treeitem-${selectedItem.name.replace(' ', '-')}-${selectedItem.value.replace(' ', '-')}`)
+
+    if (!selectedItemElement) return
+    selectedItemElement.style.backgroundColor = "red"
+
+  }, [focusedIndex])
 
   const handleUpdateNode = (value: string, updater: (n: testTreeItem) => testTreeItem) => {
     setItems(prev => updateNodeInTree(prev, value, updater));
@@ -87,7 +99,7 @@ export default function TestTreeSelect({
     };
 
     return (
-      <li className="padding-block-25">
+      <li className="padding-block-25" id={`treeitem-${item.name.replace(' ', '-')}-${item.value.replace(' ', '-')}`} >
         {item.onExpand || (item.childNodes && item.childNodes.length > 0) ?
           <IconCaretRightFilled style={{ verticalAlign: 'bottom' }} /> :
           <IconCaretRightFilled fill="lightgrey" style={{ verticalAlign: 'bottom' }} />
@@ -125,7 +137,13 @@ export default function TestTreeSelect({
           zIndex: '9999'
         }}
       >
-        <input type="text" />
+        <input type="text"
+          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+            if (e.key == "ArrowDown") {
+              focusedIndex != null ? setFocusedIndex(focusedIndex + 1) : setFocusedIndex(0)
+            }
+          }}
+        />
         <ul style={{ listStyle: 'none' }} className="margin-0 padding-50">
           {items.map((treeItem, index) => (
             <TreeNode key={index} item={treeItem} onUpdate={handleUpdateNode} />
