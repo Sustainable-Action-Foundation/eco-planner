@@ -244,7 +244,7 @@ export default function GoalForm({
           <div className="margin-bottom-500 padding-bottom-500">
             <TestTreeSelect
               treeItems={[
-                { name: "Item 1", value: '1', expanded: null },
+                { name: "Item 1", value: '1', expanded: false, childNodes: [{name: 'Item 1.1', value: 'Item 1.1', expanded: null}]  },
                 { name: "Item 2", value: '2', expanded: null },
                 { name: "Item 3", value: '3', expanded: null },
                 { name: "Item 4", value: '4', expanded: null },
