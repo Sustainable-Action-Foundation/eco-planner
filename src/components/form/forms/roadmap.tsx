@@ -4,7 +4,7 @@ import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import formSubmitter from "@/functions/formSubmitter";
 import parseCsv, { csvToGoalList } from "@/functions/parseCsv";
 import { LoginData } from "@/lib/session";
-import { AccessControlled, GoalCreateInput, RoadmapCreateInput, RoadmapInput, RoadmapUpdateInput } from "@/types";
+import { AccessControlled, GoalCreateInput, JSONValue, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
 import { useEffect, useMemo, useState } from "react";
 import styles from '../forms.module.css';
@@ -39,11 +39,11 @@ export default function RoadmapForm({
 }) {
   const { t } = useTranslation(["forms", "common"]);
 
-  const [editorContent, setEditorContent] = useState<any>(() => {
+  const [editorContent, setEditorContent] = useState<JSONValue>(() => {
     if (!currentRoadmap?.description) return null;
 
     try {
-      return JSON.parse(currentRoadmap.description);
+      return JSON.parse(currentRoadmap.description) as JSONValue;
     } catch {
       return currentRoadmap.description;
     }
@@ -83,20 +83,19 @@ export default function RoadmapForm({
     })
 
     const formData: RoadmapCreateInput | RoadmapUpdateInput = {
+      roadmapId: currentRoadmap ? currentRoadmap.id : undefined,
+      timestamp: currentRoadmap ? timestamp : undefined,
       targetVersion: parseInt((form.namedItem('targetVersion') as HTMLSelectElement)?.value) || null,
       description: (form.namedItem("description") as HTMLTextAreaElement)?.value || undefined,
+      isPublic: (form.namedItem("visibility") as RadioNodeList)?.value === "public",
+      metaRoadmapId: currentRoadmap ? undefined : metaRoadmapId,
+      goals: goals,
       editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],
       viewers: visibility === "custom" ? (form.namedItem("viewers") as HTMLInputElement)?.value.split(",").map(s => s.trim()).filter(Boolean) : [],
       editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
       viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
-      isPublic: (form.namedItem("visibility") as RadioNodeList)?.value === "public",
-      roadmapId: currentRoadmap?.id || undefined,
-      goals: goals,
-      metaRoadmapId,
       links: undefined,
-      inheritFromIds: inheritGoalIds,
-      targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value) || null,
-      timestamp: currentRoadmap ? timestamp : undefined,
+      // inheritFromIds: inheritGoalIds,
     }
 
     const formJSON = JSON.stringify(formData)
@@ -187,7 +186,7 @@ export default function RoadmapForm({
                     name: "parent-roadmap",
                     placeholder: `${t("common:tsx.select")}  ${t("common:roadmap_short_one")}`,
                   }}
-                  onChange={(value) => { value?.value ? setMetaRoadmapId(value.value) : setMetaRoadmapId("") }}
+                  onChange={(value) => value?.value ? setMetaRoadmapId(value.value) : setMetaRoadmapId("")}
                   options={[
                     ...(metaRoadmapAlternatives ?? []).map((metaRoadmap) => ({
                       name: metaRoadmap.name,

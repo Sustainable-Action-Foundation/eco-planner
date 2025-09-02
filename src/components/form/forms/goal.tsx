@@ -125,7 +125,7 @@ export default function GoalForm({
       rawDataSeriesUnit: parsedUnit || (form.namedItem("dataUnit") as HTMLInputElement)?.value,
       rawDataSeries: dataSeries,
       rawBaselineDataSeries: baselineDataSeries ?? undefined,
-      recipeUsed: recipeString,
+      recipeUsed: parsedRecipe,
       roadmapId: currentGoal?.roadmapId || roadmapId || (typeof formData.get("roadmapId") == "string" ? formData.get("roadmapId") as string : ""),
       goalId: currentGoal?.id || undefined,
       links: undefined,
@@ -180,7 +180,7 @@ export default function GoalForm({
       { name: "Item 5.1", value: "5-1", expanded: false, onExpand: testFetchChildrenNested },
       { name: "Item 5.2", value: "5-2", expanded: null },
     ];
-  }; 
+  };
 
   return (
     <>
@@ -242,13 +242,13 @@ export default function GoalForm({
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:goal.choose_goal_data_series")}</legend>
 
           <div className="margin-bottom-500 padding-bottom-500">
-            <TestTreeSelect 
+            <TestTreeSelect
               treeItems={[
-                {name: "Item 1", value: '1', expanded: null},
-                {name: "Item 2", value: '2', expanded: null},
-                {name: "Item 3", value: '3', expanded: null},
-                {name: "Item 4", value: '4', expanded: null},
-                {name: "Item 5", value: '5', expanded: false, onExpand: testFetchChildren}
+                { name: "Item 1", value: '1', expanded: null },
+                { name: "Item 2", value: '2', expanded: null },
+                { name: "Item 3", value: '3', expanded: null },
+                { name: "Item 4", value: '4', expanded: null },
+                { name: "Item 5", value: '5', expanded: false, onExpand: testFetchChildren }
               ]}
             />
           </div>
@@ -261,24 +261,30 @@ export default function GoalForm({
               name: "test-tree",
             }}
             treeItems={[
-              {name: 'treeitem 1', value: 'treeitem 1', childNodes: []},
-              {name: 'treeitem 2', value: 'treeitem 2', childNodes: [
-                {name: 'treeitem 2.1', value: 'treeitem 2.1', childNodes: []},
-                {name: 'treeitem 2.2', value: 'treeitem 2.2', childNodes: [
-                  {name: 'treeitem 2.2.1', value: 'treeitem 2.2.1', childNodes: []},
-                  {name: 'treeitem 2.2.2', value: 'treeitem 2.2.2', childNodes: []},
-                  {name: 'treeitem 2.2.3', value: 'treeitem 2.2.3', childNodes: []},
-                ]},
-                {name: 'treeitem 2.3', value: 'treeitem 2.3', childNodes: []},
-                {name: 'treeitem 2.4', value: 'treeitem 2.4', childNodes: []}
-              ]},
-              {name: 'treeitem 3', value: 'treeitem 3', childNodes: []},
-              {name: 'treeitem 4', value: 'treeitem 4', childNodes: [
-                {name: 'treeitem 4.1', value: 'treeitem 4.1', childNodes: []},
-                {name: 'treeitem 4.2', value: 'treeitem 4.2', childNodes: []},
-                {name: 'treeitem 4.3', value: 'treeitem 4.3', childNodes: []}
-              ]},
-              {name: 'treeitem 5', value: 'treeitem 5', childNodes: []}
+              { name: 'treeitem 1', value: 'treeitem 1', childNodes: [] },
+              {
+                name: 'treeitem 2', value: 'treeitem 2', childNodes: [
+                  { name: 'treeitem 2.1', value: 'treeitem 2.1', childNodes: [] },
+                  {
+                    name: 'treeitem 2.2', value: 'treeitem 2.2', childNodes: [
+                      { name: 'treeitem 2.2.1', value: 'treeitem 2.2.1', childNodes: [] },
+                      { name: 'treeitem 2.2.2', value: 'treeitem 2.2.2', childNodes: [] },
+                      { name: 'treeitem 2.2.3', value: 'treeitem 2.2.3', childNodes: [] },
+                    ]
+                  },
+                  { name: 'treeitem 2.3', value: 'treeitem 2.3', childNodes: [] },
+                  { name: 'treeitem 2.4', value: 'treeitem 2.4', childNodes: [] }
+                ]
+              },
+              { name: 'treeitem 3', value: 'treeitem 3', childNodes: [] },
+              {
+                name: 'treeitem 4', value: 'treeitem 4', childNodes: [
+                  { name: 'treeitem 4.1', value: 'treeitem 4.1', childNodes: [] },
+                  { name: 'treeitem 4.2', value: 'treeitem 4.2', childNodes: [] },
+                  { name: 'treeitem 4.3', value: 'treeitem 4.3', childNodes: [] }
+                ]
+              },
+              { name: 'treeitem 5', value: 'treeitem 5', childNodes: [] }
             ]}
           />
 
