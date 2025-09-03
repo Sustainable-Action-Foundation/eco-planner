@@ -1,16 +1,30 @@
-import { testTreeItem, treeItem } from "@/components/types";
+import { testTreeItem } from "@/components/types";
 
 export const handleKeyDownTreeCombobox = (
   e: React.KeyboardEvent<HTMLInputElement>,
   focusedTreeOptionIndex: number | null,
   setfocusedTreeOptionIndex: React.Dispatch<React.SetStateAction<number | null>>,
-  treeOptions: Array<testTreeItem>,
-  comboboxElement?: HTMLInputElement | HTMLButtonElement, // The element which sets the listboxDisplayed value, always an input or button element as those can contain the combobox role 
-  treeDisplayed?: boolean, // Wether or not the listbox is displayed/not displayed, or if it is uncontrolled (always open or always closed)  
-  setTreeDisplayed?: React.Dispatch<React.SetStateAction<boolean>>,
-  setExpanded?: React.Dispatch<React.SetStateAction<Set<string>>>,
-  onEnter?: (selectedTreeItem: treeItem | null, index: number | null) => void
+  treeOptions: Array<testTreeItem>, // TODO: rename
+  onArrowAction?: (item: testTreeItem, direction: "left" | "right") => void
+  // comboboxElement?: HTMLInputElement | HTMLButtonElement, // The element which sets the listboxDisplayed value, always an input or button element as those can contain the combobox role 
+  // treeDisplayed?: boolean, // Wether or not the listbox is displayed/not displayed, or if it is uncontrolled (always open or always closed)  
+  // setTreeDisplayed?: React.Dispatch<React.SetStateAction<boolean>>,
+  // setExpanded?: React.Dispatch<React.SetStateAction<Set<string>>>,
+  // onEnter?: (selectedTreeItem: treeItem | null, index: number | null) => void
 ) => {
+
+  if ((e.key === "ArrowRight" || e.key === "ArrowLeft") 
+    && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
+    e.preventDefault();
+
+    if (focusedTreeOptionIndex != null) {
+      const item = treeOptions[focusedTreeOptionIndex];
+      console.log(item)
+      if (onArrowAction) {
+        onArrowAction(item, e.key === "ArrowRight" ? "right" : "left");
+      }
+    }
+  }
 
   if (e.key === "ArrowUp" && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
     e.preventDefault()

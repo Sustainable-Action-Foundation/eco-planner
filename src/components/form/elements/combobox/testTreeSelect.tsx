@@ -5,6 +5,8 @@ import { IconCaretDown, IconCaretDownFilled, IconCaretRightFilled } from "@table
 import { useEffect, useRef, useState } from "react"
 import { handleKeyDownTreeCombobox } from "./functions";
 
+// TODO: Set focus when using arrowRight/left or when clicking an item. 
+// Should be able to just setFocusedIndex(flattenedItems.find(item)) or similar
 
 /**
  * Flattens an array of treeItems so children appear right after their parent.
@@ -15,20 +17,16 @@ function flattenTree(items: Array<testTreeItem>) {
   const result: Array<testTreeItem> = [];
 
   function traverse(node: testTreeItem) {
-    // Add the current node without its children (to avoid recursion inside result)
-    const { childNodes, ...rest } = node;
-    result.push({ ...rest, childNodes: [] });
+    result.push(node);  
 
-    // Recursively add children
-    if (node.expanded && childNodes && childNodes.length > 0) {
-      childNodes.forEach(traverse);
+    if (node.expanded && node.childNodes && node.childNodes.length > 0) {
+      node.childNodes.forEach(traverse);
     }
   }
 
   items.forEach(traverse);
   return result;
 }
-
 function updateNodeInTree(
   items: Array<testTreeItem>,
   targetValue: string,
@@ -82,22 +80,26 @@ export default function TestTreeSelect({
     setItems(prev => updateNodeInTree(prev, value, updater));
   };
 
+  const toggleNode = async (item: testTreeItem) => {
+    if (item.onExpand && (!item.childNodes || item.childNodes.length === 0)) {
+      const children = await item.onExpand();
+      handleUpdateNode(item.value, node => ({
+        ...node,
+        childNodes: children,
+        expanded: true,
+      }));
+      console.log(item)
+    } else {
+      handleUpdateNode(item.value, node => ({
+        ...node,
+        expanded: !node.expanded,
+      }));
+      console.log(item)
+    }
+  };
+
   const TreeNode = ({ item, onUpdate }: { item: testTreeItem, onUpdate: (value: string, updater: (n: testTreeItem) => testTreeItem) => void }) => {
-    const handleClick = async () => {
-      if (item.onExpand && (!item.childNodes || item.childNodes.length === 0)) {
-        const children = await item.onExpand();
-        onUpdate(item.value, node => ({
-          ...node,
-          childNodes: children,
-          expanded: true,
-        }));
-      } else {
-        onUpdate(item.value, node => ({
-          ...node,
-          expanded: !node.expanded,
-        }));
-      }
-    };
+
 
     return (
       <li className="padding-block-25" id={`treeitem-${item.name.replace(' ', '-')}-${item.value.replace(' ', '-')}`} >
@@ -105,7 +107,7 @@ export default function TestTreeSelect({
           <IconCaretRightFilled style={{ verticalAlign: 'bottom' }} /> :
           <IconCaretRightFilled fill="lightgrey" style={{ verticalAlign: 'bottom' }} />
         }
-        <span onClick={handleClick}>
+        <span onClick={() => toggleNode(item)}>
           {item.name}
         </span>
         {item.expanded && item.childNodes && (
@@ -144,7 +146,15 @@ export default function TestTreeSelect({
               e,
               focusedIndex,
               setFocusedIndex,
-              flattenedItems    
+              flattenedItems,
+              (item, direction) => {
+                if (direction === "right" && !item.expanded) {
+                  toggleNode(item);
+                }
+                if (direction === "left" && item.expanded) {
+                  toggleNode(item);
+                }
+              }
             )
           }}
         />
