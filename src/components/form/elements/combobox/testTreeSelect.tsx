@@ -3,6 +3,7 @@
 import { testTreeItem, treeItem } from "@/components/types"
 import { IconCaretDown, IconCaretDownFilled, IconCaretRightFilled } from "@tabler/icons-react"
 import { useEffect, useRef, useState } from "react"
+import { handleKeyDownTreeCombobox } from "./functions";
 
 
 /**
@@ -60,7 +61,7 @@ export default function TestTreeSelect({
 
   const [items, setItems] = useState<Array<testTreeItem>>(treeItems)
   const [flattenedItems, setFlattenedItems] = useState<Array<testTreeItem>>(flattenTree(treeItems))
-  const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
+  // const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
 
   useEffect(() => {
@@ -73,9 +74,9 @@ export default function TestTreeSelect({
     const selectedItemElement = document.getElementById(`treeitem-${selectedItem.name.replace(' ', '-')}-${selectedItem.value.replace(' ', '-')}`)
 
     if (!selectedItemElement) return
-    selectedItemElement.style.backgroundColor = "red"
+    selectedItemElement.style.color = "red"
 
-  }, [focusedIndex])
+  }, [focusedIndex, flattenedItems])
 
   const handleUpdateNode = (value: string, updater: (n: testTreeItem) => testTreeItem) => {
     setItems(prev => updateNodeInTree(prev, value, updater));
@@ -104,7 +105,7 @@ export default function TestTreeSelect({
           <IconCaretRightFilled style={{ verticalAlign: 'bottom' }} /> :
           <IconCaretRightFilled fill="lightgrey" style={{ verticalAlign: 'bottom' }} />
         }
-        <span onClick={void handleClick}>
+        <span onClick={handleClick}>
           {item.name}
         </span>
         {item.expanded && item.childNodes && (
@@ -139,13 +140,12 @@ export default function TestTreeSelect({
       >
         <input type="text"
           onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-            if (e.key == "ArrowDown") {
-              if (focusedIndex != null) {
-                setFocusedIndex(focusedIndex + 1);
-              } else {
-                setFocusedIndex(0);
-              }
-            }
+            handleKeyDownTreeCombobox(
+              e,
+              focusedIndex,
+              setFocusedIndex,
+              flattenedItems    
+            )
           }}
         />
         <ul style={{ listStyle: 'none' }} className="margin-0 padding-50">
