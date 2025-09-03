@@ -14,7 +14,7 @@
     "prebuild": "tsx ./src/scripts/generateLeapList.ts && tsx ./src/scripts/getDataSeriesValueFieldNames.ts && tsx ./src/scripts/getBuildInfo.ts",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint ./src",
     "locales:format": "tsx ./src/scripts/localesFormat.ts",
     "test:run": "tsx ./tests/run.ts",
     "test:clean": "rm -rf test-results & rm -rf playwright-report & rm tests/report.json & rm tests/reporter.log"
@@ -89,6 +89,7 @@
     "use-debounce": "^10.0.6"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
     "@types/node": "^24.3.0",
     "@types/nodemailer": "^7.0.1",
     "@types/react": "^19.1.12",
