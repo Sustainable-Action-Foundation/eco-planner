@@ -20,12 +20,16 @@ export const handleKeyDownTreeCombobox = (
     if (focusedItem.childNodes.length > 0) {
       // Toggle expand/collapse
       setExpanded(prev => {
-        const next = new Set(prev)
-        next.has(focusedItem.value)
-          ? next.delete(focusedItem.value)
-          : next.add(focusedItem.value)
-        return next
-      })
+        const next = new Set(prev);
+
+        if (next.has(focusedItem.value)) {
+          next.delete(focusedItem.value);
+        } else {
+          next.add(focusedItem.value);
+        }
+
+        return next;
+      });
     }
   }
 

@@ -113,7 +113,13 @@ export function GreyText(props: MenubarButtonProps) {
   return (
     <span
       data-menu-group={menuGroup}
-      onClick={() => { editor.getAttributes('textStyle').color !== 'grey' ? editor.chain().focus().setColor('grey').run() : editor.chain().focus().unsetColor().run() }}
+      onClick={() => {
+        if (editor.getAttributes('textStyle').color !== 'grey') {
+          editor.chain().focus().setColor('grey').run();
+        } else {
+          editor.chain().focus().unsetColor().run();
+        }
+      }}
       onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) =>
         editor.getAttributes('textStyle').color !== 'grey' ? chain.setColor('grey') : chain.unsetColor()
       )}
@@ -387,7 +393,7 @@ export function Link(props: MenubarButtonProps) {
           if (!editor.isActive('link')) {
             editor.chain().focus().setLink({ href: '' }).run(); // TODO: Set focus to menu.
           }
-        }} 
+        }}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -517,8 +523,8 @@ export function FontSize({ t, editor, menuGroup, setFocusedMenubarItem, editorId
         "li > [role='menuitem'], li > [role='menuitemcheckbox'], li > [role='menuitemradio']"
       ) as NodeListOf<HTMLElement>;
     }
-  }, []) 
-  
+  }, [])
+
   useEffect(() => {
     if (!fontSizeMenuItemsRef.current) return;
 
@@ -612,7 +618,7 @@ export function FontSize({ t, editor, menuGroup, setFocusedMenubarItem, editorId
         >
           <li role='presentation' style={{ borderBottom: '1px solid var(--gray)', paddingBottom: '2px' }}>
             <div
-              onClick={() => { editor.chain().focus().setFontSize('1.25rem').run(), setFontSizeMenuOpen(false) }}
+              onClick={() => { editor.chain().focus().setFontSize('1.25rem').run(); setFontSizeMenuOpen(false) }}
               // onKeyDown={handleKeyDownFontSizeMenuItem} TODO: Add custom code here.
               data-size="1.25rem"
               className='smooth font-size-smaller width-100'
@@ -627,7 +633,7 @@ export function FontSize({ t, editor, menuGroup, setFocusedMenubarItem, editorId
           </li>
           <li role='presentation' style={{ borderBottom: '1px solid var(--gray)', paddingBlock: '2px' }}>
             <div
-              onClick={() => { editor.chain().focus().unsetFontSize().run(), setFontSizeMenuOpen(false) }}
+              onClick={() => { editor.chain().focus().unsetFontSize().run(); setFontSizeMenuOpen(false) }}
               // onKeyDown={handleKeyDownFontSizeMenuItem} TODO: Add custom code here.
               data-size="unset"
               className='smooth font-size-smaller width-100'
@@ -643,7 +649,7 @@ export function FontSize({ t, editor, menuGroup, setFocusedMenubarItem, editorId
           </li>
           <li role='presentation' style={{ paddingTop: '2px' }}>
             <div
-              onClick={() => { editor.chain().focus().setFontSize('0.75rem').run(), setFontSizeMenuOpen(false) }}
+              onClick={() => { editor.chain().focus().setFontSize('0.75rem').run(); setFontSizeMenuOpen(false) }}
               // onKeyDown={handleKeyDownFontSizeMenuItem} TODO: Add custom code here.
               data-size="0.75rem"
               className='smooth font-size-smaller width-100'

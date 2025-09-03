@@ -66,7 +66,7 @@ export default function TestTreeSelect({
   useEffect(() => {
     setFlattenedItems(flattenTree(items))
   }, [items])
- 
+
   useEffect(() => {
     if (focusedIndex == null) return
     const selectedItem = flattenedItems[focusedIndex]
@@ -104,7 +104,7 @@ export default function TestTreeSelect({
           <IconCaretRightFilled style={{ verticalAlign: 'bottom' }} /> :
           <IconCaretRightFilled fill="lightgrey" style={{ verticalAlign: 'bottom' }} />
         }
-        <span onClick={handleClick}>
+        <span onClick={void handleClick}>
           {item.name}
         </span>
         {item.expanded && item.childNodes && (
@@ -140,7 +140,11 @@ export default function TestTreeSelect({
         <input type="text"
           onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
             if (e.key == "ArrowDown") {
-              focusedIndex != null ? setFocusedIndex(focusedIndex + 1) : setFocusedIndex(0)
+              if (focusedIndex != null) {
+                setFocusedIndex(focusedIndex + 1);
+              } else {
+                setFocusedIndex(0);
+              }
             }
           }}
         />

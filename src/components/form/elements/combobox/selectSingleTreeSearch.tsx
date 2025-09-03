@@ -1,7 +1,7 @@
 "use client"
 
 import { inputElement, treeItem } from "@/components/types"
-import { IconCaretRightFilled, IconSearch, IconSelect, IconSelector } from "@tabler/icons-react"
+import { IconCaretRightFilled, IconSearch, IconSelector } from "@tabler/icons-react"
 import { t } from "i18next"
 import { useMemo, useRef, useState } from "react"
 import styles from './comboBox.module.css' with { type: "css" }
@@ -31,6 +31,7 @@ function TreeNode({
       <li
         id={id}
         role="treeitem"
+        aria-selected={focused}
         ref={ref}
         style={{ paddingInlineStart: item.childNodes.length > 0 ? '0' : 'calc(16px + .25rem)', backgroundColor: focused ? 'var(--gray-90)' : '' }}
         onClick={() => {
@@ -88,7 +89,7 @@ export default function SelectSingleTreeSearch({
   const [focusedTreeOption, setFocusedTreeOption] = useState<number | null>(null);
   const toggleRef = useRef<HTMLButtonElement>(null); // TODO: Rename?
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
-  
+
   const searchResults = useMemo(() => {
     const fuse = new Fuse(treeItems, { keys: ['name'] });
     return searchValue
@@ -99,7 +100,11 @@ export default function SelectSingleTreeSearch({
   const toggleExpand = (id: string) => {
     setExpandedKeys((prev) => {
       const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
       return next
     })
   }

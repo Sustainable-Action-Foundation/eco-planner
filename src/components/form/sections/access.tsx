@@ -7,7 +7,7 @@ import { MetaRoadmap, Roadmap } from "@prisma/client";
 import { LoginData } from "@/lib/session";
 import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
- 
+
 export default function ConfigureAccess({
   user,
   userGroups,
@@ -19,7 +19,7 @@ export default function ConfigureAccess({
   userGroups: string[],
   currentRoadmap?: MetaRoadmap & AccessControlled | Roadmap & AccessControlled & { metaRoadmap: MetaRoadmap },
   positionIndex: number,
-  legends: {viewers: string, editors: string}
+  legends: { viewers: string, editors: string }
 }) {
   const { t } = useTranslation(["forms"]);
 
@@ -35,14 +35,14 @@ export default function ConfigureAccess({
       viewGroups: currentRoadmap.viewGroups,
       isPublic: currentRoadmap.isPublic,
     }
-  }  
-  
-  const [viewers, setViewers] = useState<string>(currentAccess ? currentAccess.viewers.map((viewer) => viewer.username).join(', ') : '') // TODO: This has NOT been tested with multiple usernames, ensure it gives back exactly what the user initially wrote
-  const [viewerGroups, setViewerGroups] = useState<Array<{name: string, value: string}>>(currentAccess ? currentAccess?.viewGroups.map((group) => { return { name: group.name, value: group.name } }) : [])
-  const [editors, setEditors] = useState<string>(currentAccess ? currentAccess?.editors.map((editor) => editor.username).join(', ') : '') // TODO: This has NOT been tested with multiple usernames, ensure it gives back exactly what the user initially wrote
-  const [editorGroups, seteditorGroups] = useState<Array<{name: string, value: string}>>(currentAccess ? currentAccess?.editGroups.map((group) => { return { name: group.name, value: group.name } }) : [])
+  }
 
-  const [visibilityType, setvisibilityType] = useState<"private" | "public" | "custom" | undefined>(
+  const [viewers, setViewers] = useState<string>(currentAccess ? currentAccess.viewers.map((viewer) => viewer.username).join(', ') : '') // TODO: This has NOT been tested with multiple usernames, ensure it gives back exactly what the user initially wrote
+  const [viewerGroups, setViewerGroups] = useState<Array<{ name: string, value: string }>>(currentAccess ? currentAccess?.viewGroups.map((group) => { return { name: group.name, value: group.name } }) : [])
+  const [editors, setEditors] = useState<string>(currentAccess ? currentAccess?.editors.map((editor) => editor.username).join(', ') : '') // TODO: This has NOT been tested with multiple usernames, ensure it gives back exactly what the user initially wrote
+  const [editorGroups, setEditorGroups] = useState<Array<{ name: string, value: string }>>(currentAccess ? currentAccess?.editGroups.map((group) => { return { name: group.name, value: group.name } }) : [])
+
+  const [visibilityType, setVisibilityType] = useState<"private" | "public" | "custom" | undefined>(
     currentAccess
       ? (currentAccess.isPublic
         ? "public"
@@ -54,7 +54,7 @@ export default function ConfigureAccess({
 
   const [editabilityType, setEditabilityType] = useState<"private" | "custom" | undefined>(
     currentAccess ? (currentAccess.editors.length > 0 || currentAccess.editGroups.length > 0 ? "custom" : "private") : undefined
-  ); 
+  );
 
   return (
     <div ref={accessSectionRef}>
@@ -72,7 +72,7 @@ export default function ConfigureAccess({
               id="visibility-private"
               value="private"
               checked={visibilityType === "private"}
-              onChange={(e) => setvisibilityType(e.target.value as any)}
+              onChange={() => setVisibilityType("private")}
             />
             {t("forms:access_selector.me_only")}
           </label>
@@ -83,7 +83,7 @@ export default function ConfigureAccess({
               id="visibility-public"
               value="public"
               checked={visibilityType === "public"}
-              onChange={(e) => setvisibilityType(e.target.value as any)}
+              onChange={() => setVisibilityType("public")}
             />
             {t("forms:access_selector.all_users")}
           </label>
@@ -96,7 +96,7 @@ export default function ConfigureAccess({
                   id="visibility-custom"
                   value="custom"
                   checked={visibilityType === "custom"}
-                  onChange={(e) => setvisibilityType(e.target.value as any)}
+                  onChange={() => setVisibilityType("custom")}
                 />
                 {t("forms:access_selector.custom")}
               </label>
@@ -124,7 +124,7 @@ export default function ConfigureAccess({
                 onChange={(e) => setViewers(e.target.value)}
               />
               <label htmlFor="viewer-groups" className="block width-fit-content">{`${t("forms:access_selector.groups")}:`}</label>
-              <SelectMultipleSearch 
+              <SelectMultipleSearch
                 onChange={(option) => setViewerGroups(option ? option : [])}
                 props={{
                   id: "viewer-groups",
@@ -165,7 +165,7 @@ export default function ConfigureAccess({
               id="editability-private"
               value="private"
               checked={editabilityType === "private"}
-              onChange={(e) => setEditabilityType(e.target.value as any)}
+              onChange={() => setEditabilityType("private")}
             />
             {t("forms:access_selector.me_only")}
           </label>
@@ -180,7 +180,7 @@ export default function ConfigureAccess({
                   id="editability-custom"
                   value="custom"
                   checked={editabilityType === "custom"}
-                  onChange={(e) => setEditabilityType(e.target.value as any)}
+                  onChange={() => setEditabilityType("custom")}
                 />
                 {t("forms:access_selector.custom")}
               </label>
@@ -208,7 +208,7 @@ export default function ConfigureAccess({
               />
               <label htmlFor="editor-groups" className="block width-fit-content">{`${t("forms:access_selector.groups")}:`}</label>
               <SelectMultipleSearch
-                onChange={(option) => seteditorGroups(option ? option : [])}
+                onChange={(option) => setEditorGroups(option ? option : [])}
                 props={{
                   id: "editor-groups",
                   name: "editor-groups",

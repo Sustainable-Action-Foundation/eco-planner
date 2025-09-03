@@ -1,11 +1,12 @@
 'use client'
 
 // TODO: Remove duplicate extension names
-import { EditorContent, useEditor } from '@tiptap/react'
+import { Content, Editor, EditorContent, useEditor } from '@tiptap/react'
 import TextEditorMenu from './menu'
 import { defaultExtensions, nodeSizeLimit } from './config/config';
+import { JSONValue } from '@/types';
 
-{/* TODO: Update typing for content */}
+{/* TODO: Update typing for content */ }
 const TextEditor = ({
   className,
   style,
@@ -22,12 +23,12 @@ const TextEditor = ({
   ariaLabelledBy?: string,
   placeholder?: string,
   id: string,
-  content?: any,
+  content?: Content,
   editable: boolean,
   defaultStyles?: boolean,
-  onChange?: (json: any) => void
+  onChange?: (json: ReturnType<Editor['getJSON']>) => void
 }) => {
- 
+
   const editor = useEditor({
     immediatelyRender: true,
     shouldRerenderOnTransaction: true,
@@ -39,9 +40,10 @@ const TextEditor = ({
     },
     content: (() => {
       try {
-        return JSON.parse(content)
+        return JSON.parse(content as string) as Content;
       } catch {
-        return content
+        // return (content != null ? String(content) : null);
+        return content;
       }
     })(),
     extensions: defaultExtensions(placeholder),
@@ -50,21 +52,21 @@ const TextEditor = ({
   if (!editor) {
     return null
   }
-  
+
   const percentage = editor ? Math.round((100 / nodeSizeLimit) * editor.storage.characterCount.characters({ mode: 'nodeSize' })) : 0
   const circumference = 2 * Math.PI * 5; // r = 5
   const dash = (percentage / 100) * circumference;
 
   return (
-    <div 
+    <div
       className={`${className ? `${className} ` : ''}${defaultStyles ? 'tiptap-wrapper purewhite smooth relative' : ''}`}
-      style={{ ...style, border:`${defaultStyles ? '1px solid var(--gray-80)' : ''}` }}
+      style={{ ...style, border: `${defaultStyles ? '1px solid var(--gray-80)' : ''}` }}
     >
-      {defaultStyles ? 
+      {defaultStyles ?
         <TextEditorMenu editor={editor} editorId={id} />  // TODO: Disable menuitems when editor is disabled
-      : null }
+        : null}
       <EditorContent editor={editor} id={id} aria-labelledby={ariaLabelledBy} />
-      {defaultStyles ? 
+      {defaultStyles ?
         <div className='flex align-items-center justify-content-flex-end gap-50 padding-50'>
           <svg height="24" width="24" viewBox="0 0 20 20">
             <circle r="10" cx="10" cy="10" fill="#e9ecef" />
@@ -81,7 +83,7 @@ const TextEditor = ({
             <circle r="6" cx="10" cy="10" fill="white" />
           </svg>
         </div>
-      : null }
+        : null}
     </div>
   )
 }

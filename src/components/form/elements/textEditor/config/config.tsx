@@ -8,14 +8,14 @@ import { Underline } from '../extensions/underline'
 import { BulletList, OrderedList, ListItem, } from '@tiptap/extension-list'
 import { Placeholder, UndoRedo, CharacterCount } from '@tiptap/extensions'
 import { TextStyle, Color, FontSize } from '@tiptap/extension-text-style'
-import Superscript  from '@tiptap/extension-superscript'
-import Subscript  from '@tiptap/extension-subscript'
-import Link  from '@tiptap/extension-link'
-import Document  from '@tiptap/extension-document'
-import Paragraph  from '@tiptap/extension-paragraph'
-import Text  from '@tiptap/extension-text'
-import Highlight  from '@tiptap/extension-highlight'
-import HardBreak  from '@tiptap/extension-hard-break'
+import Superscript from '@tiptap/extension-superscript'
+import Subscript from '@tiptap/extension-subscript'
+import Link from '@tiptap/extension-link'
+import Document from '@tiptap/extension-document'
+import Paragraph from '@tiptap/extension-paragraph'
+import Text from '@tiptap/extension-text'
+import Highlight from '@tiptap/extension-highlight'
+import HardBreak from '@tiptap/extension-hard-break'
 
 export const allowedProtocols = ['http', 'https', 'mailto', 'callto', 'tel'];
 export const nodeSizeLimit = 5000
@@ -24,7 +24,7 @@ export const CustomColor = Color.extend({
   addKeyboardShortcuts() {
     return {
       'Mod-Shift-g': () => {
-        const currentColor = this.editor.getAttributes('textStyle').color;
+        const currentColor = this.editor.getAttributes('textStyle').color as unknown;
         const isGrey = currentColor === 'grey';
         return isGrey
           ? this.editor.chain().focus().unsetColor().run()
@@ -37,8 +37,8 @@ export const CustomColor = Color.extend({
 const CustomLink = Link.extend({
   addKeyboardShortcuts() {
     return {
-      'Mod-k': () => this.editor.commands.setLink({href: ''}),
-      'Mod-K': () => this.editor.commands.setLink({href: ''}),
+      'Mod-k': () => this.editor.commands.setLink({ href: '' }),
+      'Mod-K': () => this.editor.commands.setLink({ href: '' }),
     }
   },
 })

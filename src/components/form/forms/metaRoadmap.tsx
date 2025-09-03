@@ -2,7 +2,7 @@
 
 import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" with { type: "json" }
 import { LoginData } from "@/lib/session";
-import { AccessControlled, MetaRoadmapInput } from "@/types";
+import { AccessControlled, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
 import { MetaRoadmap, RoadmapType } from "@prisma/client";
 import { useState } from "react";
 import formSubmitter from "@/functions/formSubmitter";
@@ -12,6 +12,7 @@ import TextEditor from "@/components/form/elements/textEditor/editor.tsx";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete.tsx";
 import ConfigureAccess from "../sections/access.tsx";
+import { Content } from "@tiptap/core";
 
 export default function MetaRoadmapForm({
   user,
@@ -26,11 +27,11 @@ export default function MetaRoadmapForm({
 }) {
   const { t } = useTranslation(["forms", "common"]);
 
-  const [editorContent, setEditorContent] = useState<any>(() => {
+  const [editorContent, setEditorContent] = useState<Content>(() => {
     if (!currentRoadmap?.description) return null;
 
     try {
-      return JSON.parse(currentRoadmap.description);
+      return JSON.parse(currentRoadmap.description) as Content;
     } catch {
       return currentRoadmap.description;
     }
@@ -45,10 +46,11 @@ export default function MetaRoadmapForm({
     [RoadmapType.REGIONAL]: t("common:scope.regional"),
     [RoadmapType.MUNICIPAL]: t("common:scope.municipal"),
     [RoadmapType.LOCAL]: t("common:scope.local"),
+    [RoadmapType.ORGANIZATIONAL]: t("common:scope.organizational"),
     [RoadmapType.OTHER]: t("common:scope.other"),
-  } 
-  
-  async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
+  }
+
+  function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     // Mostly the usual submit handler stuff.
     // We might want to redirect the user to the roadmap form immediately after successfully submitting the metaRoadmap form
     // (and pre-populate the roadmap form with the new metaRoadmap's ID)
@@ -61,7 +63,7 @@ export default function MetaRoadmapForm({
     const visibility = (form.namedItem("visibility") as RadioNodeList)?.value;
     const editability = (form.namedItem("editability") as RadioNodeList)?.value;
 
-    const formData: MetaRoadmapInput & { id?: string, timestamp?: number } = {
+    const formData: MetaRoadmapCreateInput | MetaRoadmapUpdateInput = {
       name: (form.namedItem("name") as HTMLInputElement)?.value,
       description: JSON.stringify(editorContent),
       type: ((form.namedItem("type") as HTMLSelectElement)?.value as RoadmapType) || null,
@@ -79,12 +81,12 @@ export default function MetaRoadmapForm({
 
     const formJSON = JSON.stringify(formData);
 
-    formSubmitter('/api/metaRoadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', setIsLoading);
+    formSubmitter('/api/metaRoadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading);
   }
 
   // Indexes for the data-position attribute in the legend elements
   let positionIndex = 1;
- 
+
   return (
     <>
       <form onSubmit={handleSubmit} >
