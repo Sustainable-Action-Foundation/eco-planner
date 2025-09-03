@@ -521,7 +521,7 @@ export function FontSize({ t, editor, menuGroup, setFocusedMenubarItem, editorId
     if (fontSizeMenuRef.current) {
       fontSizeMenuItemsRef.current = fontSizeMenuRef.current.querySelectorAll(
         "li > [role='menuitem'], li > [role='menuitemcheckbox'], li > [role='menuitemradio']"
-      ) as NodeListOf<HTMLElement>;
+      );
     }
   }, [])
 

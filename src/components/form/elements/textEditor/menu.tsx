@@ -81,7 +81,7 @@ export default function TextEditorMenu({
     if (menubarRef.current) {
       menuItemsRef.current = menubarRef.current.querySelectorAll(
         "div > [role='menubar'] > li > [role='menuitem'], div > [role='menubar'] > li > [role='menuitemcheckbox'], div > [role='menubar'] > li > [role='menuitemradio']"
-      ) as NodeListOf<HTMLElement>;
+      );
     }
   }, [menuBarWidth, visibleGroups, hiddenGroups])
 
@@ -101,7 +101,7 @@ export default function TextEditorMenu({
     if (submenuRef.current) {
       submenuItemsRef.current = submenuRef.current.querySelectorAll(
         "li > [role='menuitem'], li > [role='menuitemcheckbox'], li > [role='menuitemradio']"
-      ) as NodeListOf<HTMLElement>;
+      );
     }
   }, [submenuVisible])
 
