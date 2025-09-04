@@ -1,5 +1,5 @@
 // TODO: Use uppercase?
-// TODO: Use set?
+// TODO: Use set for tree items and map for options?
 
 export type genericElement = {
   className?: string;

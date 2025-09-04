@@ -6,6 +6,10 @@ import { useEffect, useRef, useState } from "react"
 import { handleKeyDownTreeCombobox } from "./functions";
 import styles from './comboBox.module.css' with { type: "css" }
 
+// TODO: Aria-setsize
+// TODO: Aria-posinset
+// TODO: Maybe aria-level
+// 
 
 /**
  * Flattens an array of treeItems so children appear right after their parent.
@@ -43,8 +47,6 @@ function updateNodeInTree(
   });
 }
 
-// TODO: I Essentially need to flatten my array of tree items in order to effectively iterate throughout it.
-// I can then update this flattened array once an item is expanded or closed and that should be it ?
 export default function SelectSingleTreeSearch({
   treeItems,
   props
@@ -70,9 +72,12 @@ export default function SelectSingleTreeSearch({
     if (focusedIndex == null) return
     const selectedItem = flattenedItems[focusedIndex]
     const selectedItemElement = document.getElementById(`treeitem-${selectedItem.name.replace(' ', '-')}-${selectedItem.value.replace(' ', '-')}`)
-
     if (!selectedItemElement) return
-    selectedItemElement.style.color = "red"
+
+    const selectedItemElementText = selectedItemElement.querySelector<HTMLSpanElement>(':scope > span')
+    if (!selectedItemElementText) return
+
+    selectedItemElementText.style.backgroundColor = "var(--gray-90)"
 
   }, [focusedIndex, flattenedItems])
 
@@ -100,13 +105,25 @@ export default function SelectSingleTreeSearch({
 
   function TreeNode({ item, onUpdate }: { item: treeItem, onUpdate: (value: string, updater: (n: treeItem) => treeItem) => void }) {
     return (
-      <li className="padding-block-25" id={`treeitem-${item.name.replace(' ', '-')}-${item.value.replace(' ', '-')}`} >
-        <span onClick={() => void toggleNode(item)}>
-          {(item.onExpand || (item.childNodes && item.childNodes.length > 0)) ?
-            <IconCaretRightFilled style={{ verticalAlign: 'bottom' }} /> :
-            <IconCaretRightFilled fill="lightgrey" style={{ verticalAlign: 'bottom' }} />
+      <li
+        className="padding-block-25"
+        id={`treeitem-${item.name.replace(' ', '-')}-${item.value.replace(' ', '-')}`}
+      >
+        <span
+          className={`flex gap-25 align-items-center justify-content-space-between`}
+          style={{
+            paddingLeft: item.expanded === null ? '1.25rem' : ''
+          }}
+          onClick={item.expanded !== null ? () => void toggleNode(item) : undefined}
+        >
+          {(item.onExpand || (item.childNodes && item.childNodes.length > 0))
+            ? <span className="flex gap-25 align-items-center">
+              <IconCaretRightFilled width={16} height={16} style={{ verticalAlign: 'bottom', minWidth: '16px' }} />
+              {item.name}
+              </span>
+            : item.name
           }
-          {item.name}
+          
         </span>
         {item.expanded && item.childNodes && (
           <ul style={{ listStyle: 'none' }} className="margin-0 padding-inline-start-100">
@@ -136,7 +153,7 @@ export default function SelectSingleTreeSearch({
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
         aria-required={props.required ? props.required : false}
-        // aria-invalid={!valueIsValid}
+      // aria-invalid={!valueIsValid}
       >
         Expand
         <IconSelector height={20} width={20} style={{ minWidth: '20px' }} aria-hidden={true} />
