@@ -79,7 +79,7 @@ export default function TestTreeSelect({
   };
 
   async function toggleNode(item: testTreeItem) {
-    if (item.onExpand && (!item.childNodes || item.childNodes.length === 0)) {
+    if (item.onExpand && !item.childNodes) {
       const children = await item.onExpand();
       handleUpdateNode(item.value, node => ({
         ...node,
@@ -99,11 +99,11 @@ export default function TestTreeSelect({
   function TreeNode({ item, onUpdate }: { item: testTreeItem, onUpdate: (value: string, updater: (n: testTreeItem) => testTreeItem) => void }) {
     return (
       <li className="padding-block-25" id={`treeitem-${item.name.replace(' ', '-')}-${item.value.replace(' ', '-')}`} >
-        {item.onExpand || (item.childNodes && item.childNodes.length > 0) ?
-          <IconCaretRightFilled style={{ verticalAlign: 'bottom' }} /> :
-          <IconCaretRightFilled fill="lightgrey" style={{ verticalAlign: 'bottom' }} />
-        }
-        <span onClick={() => toggleNode(item)}>
+        <span onClick={() => void toggleNode(item)}>
+          {(item.onExpand || (item.childNodes && item.childNodes.length > 0)) ?
+            <IconCaretRightFilled style={{ verticalAlign: 'bottom' }} /> :
+            <IconCaretRightFilled fill="lightgrey" style={{ verticalAlign: 'bottom' }} />
+          }
           {item.name}
         </span>
         {item.expanded && item.childNodes && (
@@ -145,10 +145,10 @@ export default function TestTreeSelect({
               flattenedItems,
               (item, direction) => {
                 if (direction === "right" && !item.expanded) {
-                  toggleNode(item);
+                  void toggleNode(item);
                 }
                 if (direction === "left" && item.expanded) {
-                  toggleNode(item);
+                  void toggleNode(item);
                 }
               }
             )
