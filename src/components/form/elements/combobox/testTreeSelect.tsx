@@ -1,8 +1,8 @@
 "use client"
 
-import { testTreeItem, treeItem } from "@/components/types"
-import { IconCaretDown, IconCaretDownFilled, IconCaretRightFilled } from "@tabler/icons-react"
-import { useEffect, useRef, useState } from "react"
+import { testTreeItem } from "@/components/types"
+import { IconCaretRightFilled } from "@tabler/icons-react"
+import { useEffect, useState } from "react"
 import { handleKeyDownTreeCombobox } from "./functions";
 
 // TODO: Set focus when using arrowRight/left or when clicking an item. 
@@ -10,14 +10,12 @@ import { handleKeyDownTreeCombobox } from "./functions";
 
 /**
  * Flattens an array of treeItems so children appear right after their parent.
- * @param {Array<treeItem>} items 
- * @returns {Array<treeItem>}
  */
 function flattenTree(items: Array<testTreeItem>) {
   const result: Array<testTreeItem> = [];
 
   function traverse(node: testTreeItem) {
-    result.push(node);  
+    result.push(node);
 
     if (node.expanded && node.childNodes && node.childNodes.length > 0) {
       node.childNodes.forEach(traverse);
@@ -80,7 +78,7 @@ export default function TestTreeSelect({
     setItems(prev => updateNodeInTree(prev, value, updater));
   };
 
-  const toggleNode = async (item: testTreeItem) => {
+  async function toggleNode(item: testTreeItem) {
     if (item.onExpand && (!item.childNodes || item.childNodes.length === 0)) {
       const children = await item.onExpand();
       handleUpdateNode(item.value, node => ({
@@ -98,9 +96,7 @@ export default function TestTreeSelect({
     }
   };
 
-  const TreeNode = ({ item, onUpdate }: { item: testTreeItem, onUpdate: (value: string, updater: (n: testTreeItem) => testTreeItem) => void }) => {
-
-
+  function TreeNode({ item, onUpdate }: { item: testTreeItem, onUpdate: (value: string, updater: (n: testTreeItem) => testTreeItem) => void }) {
     return (
       <li className="padding-block-25" id={`treeitem-${item.name.replace(' ', '-')}-${item.value.replace(' ', '-')}`} >
         {item.onExpand || (item.childNodes && item.childNodes.length > 0) ?

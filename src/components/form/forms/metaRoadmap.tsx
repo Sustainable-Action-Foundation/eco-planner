@@ -124,7 +124,7 @@ export default function MetaRoadmapForm({
               required
               onChange={(e) => setRoadmapType((e.target as HTMLSelectElement).value)}
             >
-              <option value="">{t("forms:meta_roadmap.no_chosen_roadmap_scope")}</option>
+              <option value="" disabled>{t("forms:meta_roadmap.no_chosen_roadmap_scope")}</option>
               {
                 Object.values(RoadmapType).map((value) => {
                   if (value == RoadmapType.NATIONAL && !user?.isAdmin) return null;
@@ -145,6 +145,7 @@ export default function MetaRoadmapForm({
               required: true,
               defaultValue: currentRoadmap?.actor ?? undefined
             }}
+            // I18N: the current implementation uses only Swedish counties and municipalities; should probably be adapted for international use in the future
             options={
               roadmapType === "REGIONAL"
                 ? Object.keys(countiesAndMunicipalities).map(item => ({ name: item, value: item }))
