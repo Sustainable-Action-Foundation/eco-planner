@@ -17,7 +17,7 @@ import { DEBUG_Recipe, RecipeContextProvider, RecipeEquationEditor, RecipeErrorA
 import { Recipe, RecipeDataTypes } from "@/functions/recipe-parser/types";
 import { VectorIndexPickerOptions } from "@/components/recipe/variables";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
-import TestTreeSelect from "../elements/combobox/testTreeSelect";
+import SelectSingleTreeSearch from "../elements/combobox/selectSingleTreeSearch";
 import { treeItem } from "@/components/types";
 
 // Enum for selecting the type of data series for the goal
@@ -211,7 +211,7 @@ export default function GoalForm({
   // Index for data-position attribute in legend elements (for accessibility)
   let positionIndex = 1;
 
-  const testFetchChildrenNested = async (): Promise<Array<testTreeItem>> => {
+  const testFetchChildrenNested = async (): Promise<Array<treeItem>> => {
     // You could fetch from an API here instead of hardcoding
     return [
       { name: "Item 5.1.1", value: "5-1-2", expanded: null },
@@ -219,7 +219,7 @@ export default function GoalForm({
     ];
   };
 
-  const testFetchChildren = async (): Promise<Array<testTreeItem>> => {
+  const testFetchChildren = async (): Promise<Array<treeItem>> => {
     // You could fetch from an API here instead of hardcoding
     return [
       { name: "Item 5.1", value: "5-1", expanded: false, onExpand: testFetchChildrenNested },
@@ -287,7 +287,7 @@ export default function GoalForm({
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:goal.choose_goal_data_series")}</legend>
 
           <div className="margin-bottom-500 padding-bottom-500">
-            <TestTreeSelect
+            <SelectSingleTreeSearch
               props={{
                 id: "test-tree",
                 name: "test-tree"

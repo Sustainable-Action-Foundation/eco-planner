@@ -45,7 +45,7 @@ function updateNodeInTree(
 
 // TODO: I Essentially need to flatten my array of tree items in order to effectively iterate throughout it.
 // I can then update this flattened array once an item is expanded or closed and that should be it ?
-export default function TestTreeSelect({
+export default function SelectSingleTreeSearch({
   treeItems,
   props
 }: {
