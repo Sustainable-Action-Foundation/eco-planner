@@ -289,6 +289,10 @@ export default function GoalForm({
 
           <div className="margin-bottom-500 padding-bottom-500">
             <TestTreeSelect
+              props={{
+                id: "test-tree",
+                name: "test-tree"
+              }}
               treeItems={[
                 { name: "Item 1", value: '1', expanded: false, childNodes: [{ name: 'Item 1.1', value: 'Item 1.1', expanded: null }] },
                 { name: "Item 2", value: '2', expanded: null },
@@ -303,8 +307,8 @@ export default function GoalForm({
           <SelectSingleTreeSearch
             props={{
               className: "margin-bottom-500",
-              id: "test-tree",
-              name: "test-tree",
+              id: "aasdasd",
+              name: "asasdasd",
             }}
             treeItems={[
               { name: 'treeitem 1', value: 'treeitem 1', expanded: false, childNodes: [] },

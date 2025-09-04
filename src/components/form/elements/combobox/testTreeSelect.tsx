@@ -1,12 +1,11 @@
 "use client"
 
-import { testTreeItem } from "@/components/types"
-import { IconCaretRightFilled } from "@tabler/icons-react"
-import { useEffect, useState } from "react"
+import { inputElement, testTreeItem } from "@/components/types"
+import { IconCaretRightFilled, IconSelector } from "@tabler/icons-react"
+import { useEffect, useRef, useState } from "react"
 import { handleKeyDownTreeCombobox } from "./functions";
+import styles from './comboBox.module.css' with { type: "css" }
 
-// TODO: Set focus when using arrowRight/left or when clicking an item. 
-// Should be able to just setFocusedIndex(flattenedItems.find(item)) or similar
 
 /**
  * Flattens an array of treeItems so children appear right after their parent.
@@ -48,17 +47,20 @@ function updateNodeInTree(
 // I can then update this flattened array once an item is expanded or closed and that should be it ?
 export default function TestTreeSelect({
   treeItems,
+  props
 }: {
-  treeItems: Array<testTreeItem>
+  treeItems: Array<testTreeItem>,
+  props: inputElement,
 }) {
 
 
-  const [expanded, setExpanded] = useState<boolean>(false)
+  const [menuOpen, setMenuOpen] = useState<boolean>(false)
 
   const [items, setItems] = useState<Array<testTreeItem>>(treeItems)
   const [flattenedItems, setFlattenedItems] = useState<Array<testTreeItem>>(flattenTree(treeItems))
   // const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
+  const toggleRef = useRef<HTMLButtonElement>(null); // TODO: Rename?
 
   useEffect(() => {
     setFlattenedItems(flattenTree(items))
@@ -88,13 +90,11 @@ export default function TestTreeSelect({
         childNodes: children,
         expanded: true,
       }));
-      console.log(item)
     } else {
       handleUpdateNode(item.value, node => ({
         ...node,
         expanded: !node.expanded,
       }));
-      console.log(item)
     }
   };
 
@@ -121,15 +121,32 @@ export default function TestTreeSelect({
 
   return (
     <div className="position-relative">
-      <button type="button" onClick={() => setExpanded(!expanded)}>
+      <button
+        id={props.id}
+        className={`${styles['select-toggle']}`}
+        style={{ borderColor: menuOpen ? '#191919' : '' }}
+        // value={value ? value.value : ''}
+        name={props.name}
+        disabled={props.disabled}
+        ref={toggleRef}
+        onClick={() => { setMenuOpen(!menuOpen) }}
+        role="combobox"
+        type="button"
+        aria-controls={menuOpen ? `${props.id}-dialog` : undefined}
+        aria-expanded={menuOpen}
+        aria-haspopup="dialog"
+        aria-required={props.required ? props.required : false}
+        // aria-invalid={!valueIsValid}
+      >
         Expand
+        <IconSelector height={20} width={20} style={{ minWidth: '20px' }} aria-hidden={true} />
       </button>
 
       <div
         style={{
           userSelect: 'none',
           padding: '.25rem',
-          display: expanded ? "block" : "none",
+          display: menuOpen ? "block" : "none",
           position: "absolute",
           top: "100%",
           left: "0",

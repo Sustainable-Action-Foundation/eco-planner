@@ -83,12 +83,7 @@ export default function SelectMultipleSearch({
         name={props.name}
         disabled={props.disabled}
         value={value.map((value) => value.value).toString()}
-        ref={toggleRef}
-        onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
-          if (e.key == "Escape") {
-            setMenuOpen(false)
-          }
-        }}
+        ref={toggleRef} 
         onClick={() => { setMenuOpen(!menuOpen) }}
         role="combobox"
         aria-controls={menuOpen ? `${props.id}-dialog` : undefined}

@@ -87,12 +87,7 @@ export default function SelectSingleSearch({
         value={value ? value.value : ''}
         name={props.name}
         disabled={props.disabled}
-        ref={toggleRef}
-        onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
-          if (e.key == "Escape") {
-            setMenuOpen(false)
-          } 
-        }}
+        ref={toggleRef} 
         onClick={() => { setMenuOpen(!menuOpen) }}
         role="combobox"
         type="button"
