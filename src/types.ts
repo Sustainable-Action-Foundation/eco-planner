@@ -299,10 +299,9 @@ export type RoadmapUpdateInput = {
   // Stale data check
   timestamp: number; // From Date.now() i.e. milliseconds since epoch
 
-  // id: string | undefined; // Created by the API
-  // createdAt: string | Date | undefined; // Created by the API
-  // updatedAt: string | Date | undefined; // Created by the API
-  // version: number; // Created by the API
+  // createdAt: string | Date | undefined; // Handled by the API
+  // updatedAt: string | Date | undefined; // Handled by the API
+  // version: number; // Handled by the API
 
   // Basic meta
   description: string | null | undefined;
@@ -312,7 +311,6 @@ export type RoadmapUpdateInput = {
   // Relations
   metaRoadmapId?: never; // Can't reassign the meta roadmap of an existing roadmap. IT WOULD BE MAYHEM.
   // comments: Prisma.CommentUpdateManyWithoutRoadmapNestedInput; // Cannot be updated from the roadmap
-  // links: Prisma.LinkUpdateManyWithoutRoadmapNestedInput; // Cannot be updated from the roadmap
   // goals: Prisma.GoalUpdateManyWithoutRoadmapNestedInput;
   goals: GoalCreateInput[] | null | undefined;
   // actions: Prisma.ActionUpdateManyWithoutRoadmapNestedInput; // Cannot be updated from the roadmap
@@ -323,6 +321,9 @@ export type RoadmapUpdateInput = {
   editGroups: string[] | null | undefined;
   viewers: string[] | null | undefined;
   viewGroups: string[] | null | undefined;
+
+  // TODO - DEPRECATED - Will be migrated to description
+  links: { url: string, description?: string | null }[] | null | undefined;
 }
 
 /**

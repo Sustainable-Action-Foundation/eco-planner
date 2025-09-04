@@ -84,13 +84,29 @@ export default function CopyAndScale({
     });
 
     const formData: GoalCreateInput = {
+      goalId: undefined,
+      timestamp: undefined,
+
       name: goal.name,
       description: goal.description,
       indicatorParameter: goal.indicatorParameter,
+      isFeatured: undefined,
+
+      externalDataset: null,
+      externalTableId: null,
+      externalSelection: null,
+
+      recipeUsed: recipeUsed,
+
       rawDataSeries: rawDataSeries,
       rawDataSeriesUnit: goal.dataSeries?.unit,
+      rawBaselineDataSeries: undefined,
+      rawBaselineDataSeriesUnit: undefined,
+
       roadmapId: copyToId as string ?? "",
-      // TODO: add recipe to this form data to save it
+      // TODO: copy tags?
+      rawTags: undefined,
+      links: undefined,
     };
 
     const formJSON = JSON.stringify(formData);

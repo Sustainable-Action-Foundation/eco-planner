@@ -51,7 +51,7 @@ export default function RoadmapForm({
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!metaRoadmapId) { return; }
+    if (!metaRoadmapId && !currentRoadmap) { return; }
 
     setIsLoading(true)
 
@@ -82,20 +82,51 @@ export default function RoadmapForm({
       }
     })
 
-    const formData: RoadmapCreateInput | RoadmapUpdateInput = {
-      roadmapId: currentRoadmap ? currentRoadmap.id : undefined,
-      timestamp: currentRoadmap ? timestamp : undefined,
-      targetVersion: parseInt((form.namedItem('targetVersion') as HTMLSelectElement)?.value) || null,
-      description: (form.namedItem("description") as HTMLTextAreaElement)?.value || undefined,
-      isPublic: (form.namedItem("visibility") as RadioNodeList)?.value === "public",
-      metaRoadmapId: currentRoadmap ? undefined : metaRoadmapId,
-      goals: goals,
-      editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],
-      viewers: visibility === "custom" ? (form.namedItem("viewers") as HTMLInputElement)?.value.split(",").map(s => s.trim()).filter(Boolean) : [],
-      editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
-      viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
-      links: undefined,
-      // inheritFromIds: inheritGoalIds,
+    let formData: RoadmapCreateInput | RoadmapUpdateInput;
+    if (currentRoadmap) {
+      // Updating existing roadmap
+      formData = {
+        roadmapId: currentRoadmap.id,
+        timestamp: timestamp,
+
+        // TODO: Decide how description should be sent to API, should it really be stringified JSON?
+        description: JSON.stringify(editorContent),
+        targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value) || null,
+        isPublic: visibility === "public",
+
+        metaRoadmapId: undefined, // Can't change the metaRoadmap after creation
+        goals: goals,
+
+        editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],
+        viewers: visibility === "custom" ? (form.namedItem("viewers") as HTMLInputElement)?.value.split(",").map(s => s.trim()).filter(Boolean) : [],
+        editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
+        viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
+
+        // DEPRECATED - moved to description
+        links: undefined,
+      }
+    } else {
+      // Creating new roadmap
+      formData = {
+        roadmapId: undefined,
+        timestamp: undefined,
+
+        // TODO: Decide how description should be sent to API, should it really be stringified JSON?
+        description: JSON.stringify(editorContent),
+        targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value) || null,
+        isPublic: visibility === "public",
+
+        metaRoadmapId: metaRoadmapId,
+        goals: goals,
+
+        editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],
+        viewers: visibility === "custom" ? (form.namedItem("viewers") as HTMLInputElement)?.value.split(",").map(s => s.trim()).filter(Boolean) : [],
+        editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
+        viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
+
+        // DEPRECATED - moved to description
+        links: undefined,
+      }
     }
 
     const formJSON = JSON.stringify(formData)
