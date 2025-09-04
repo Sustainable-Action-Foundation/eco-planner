@@ -114,7 +114,7 @@ export default function SelectSingleTreeSearch({
           style={{
             paddingLeft: item.expanded === null ? '1.25rem' : ''
           }}
-          onClick={item.expanded !== null ? () => void toggleNode(item) : undefined}
+          onClick={item.expanded !== null ? () => void toggleNode(item) : undefined} // TODO: pressing value without expand should select and set value.
         >
           {(item.onExpand || (item.childNodes && item.childNodes.length > 0))
             ? <span className="flex gap-25 align-items-center">
