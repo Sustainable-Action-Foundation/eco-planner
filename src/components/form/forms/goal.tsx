@@ -17,9 +17,8 @@ import { DEBUG_Recipe, RecipeContextProvider, RecipeEquationEditor, RecipeErrorA
 import { Recipe, RecipeDataTypes } from "@/functions/recipe-parser/types";
 import { VectorIndexPickerOptions } from "@/components/recipe/variables";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
-import SelectSingleTreeSearch from "../elements/combobox/selectSingleTreeSearch";
 import TestTreeSelect from "../elements/combobox/testTreeSelect";
-import { testTreeItem } from "@/components/types";
+import { treeItem } from "@/components/types";
 
 // Enum for selecting the type of data series for the goal
 enum DataSeriesType {
@@ -302,41 +301,6 @@ export default function GoalForm({
               ]}
             />
           </div>
-
-          <label htmlFor="test-tree">test</label>
-          <SelectSingleTreeSearch
-            props={{
-              className: "margin-bottom-500",
-              id: "aasdasd",
-              name: "asasdasd",
-            }}
-            treeItems={[
-              { name: 'treeitem 1', value: 'treeitem 1', expanded: false, childNodes: [] },
-              {
-                name: 'treeitem 2', value: 'treeitem 2', expanded: false, childNodes: [
-                  { name: 'treeitem 2.1', value: 'treeitem 2.1', expanded: false, childNodes: [] },
-                  {
-                    name: 'treeitem 2.2', value: 'treeitem 2.2', expanded: false, childNodes: [
-                      { name: 'treeitem 2.2.1', value: 'treeitem 2.2.1', expanded: false, childNodes: [] },
-                      { name: 'treeitem 2.2.2', value: 'treeitem 2.2.2', expanded: false, childNodes: [] },
-                      { name: 'treeitem 2.2.3', value: 'treeitem 2.2.3', expanded: false, childNodes: [] },
-                    ]
-                  },
-                  { name: 'treeitem 2.3', value: 'treeitem 2.3', expanded: false, childNodes: [] },
-                  { name: 'treeitem 2.4', value: 'treeitem 2.4', expanded: false, childNodes: [] }
-                ]
-              },
-              { name: 'treeitem 3', value: 'treeitem 3', expanded: false, childNodes: [] },
-              {
-                name: 'treeitem 4', value: 'treeitem 4', expanded: false, childNodes: [
-                  { name: 'treeitem 4.1', value: 'treeitem 4.1', expanded: false, childNodes: [] },
-                  { name: 'treeitem 4.2', value: 'treeitem 4.2', expanded: false, childNodes: [] },
-                  { name: 'treeitem 4.3', value: 'treeitem 4.3', expanded: false, childNodes: [] }
-                ]
-              },
-              { name: 'treeitem 5', value: 'treeitem 5', expanded: false, childNodes: [] }
-            ]}
-          />
 
           {(dataSeriesType === DataSeriesType.Static || !dataSeriesType) &&
             <ManualGoalForm currentGoal={currentGoal} dataSeriesString={dataSeriesString} />

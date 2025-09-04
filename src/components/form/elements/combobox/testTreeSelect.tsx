@@ -1,6 +1,6 @@
 "use client"
 
-import { inputElement, testTreeItem } from "@/components/types"
+import { inputElement, treeItem } from "@/components/types"
 import { IconCaretRightFilled, IconSelector } from "@tabler/icons-react"
 import { useEffect, useRef, useState } from "react"
 import { handleKeyDownTreeCombobox } from "./functions";
@@ -10,10 +10,10 @@ import styles from './comboBox.module.css' with { type: "css" }
 /**
  * Flattens an array of treeItems so children appear right after their parent.
  */
-function flattenTree(items: Array<testTreeItem>) {
-  const result: Array<testTreeItem> = [];
+function flattenTree(items: Array<treeItem>) {
+  const result: Array<treeItem> = [];
 
-  function traverse(node: testTreeItem) {
+  function traverse(node: treeItem) {
     result.push(node);
 
     if (node.expanded && node.childNodes && node.childNodes.length > 0) {
@@ -25,10 +25,10 @@ function flattenTree(items: Array<testTreeItem>) {
   return result;
 }
 function updateNodeInTree(
-  items: Array<testTreeItem>,
+  items: Array<treeItem>,
   targetValue: string,
-  updater: (node: testTreeItem) => testTreeItem
-): Array<testTreeItem> {
+  updater: (node: treeItem) => treeItem
+): Array<treeItem> {
   return items.map(item => {
     if (item.value === targetValue) {
       return updater(item);
@@ -49,15 +49,15 @@ export default function TestTreeSelect({
   treeItems,
   props
 }: {
-  treeItems: Array<testTreeItem>,
+  treeItems: Array<treeItem>,
   props: inputElement,
 }) {
 
 
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
 
-  const [items, setItems] = useState<Array<testTreeItem>>(treeItems)
-  const [flattenedItems, setFlattenedItems] = useState<Array<testTreeItem>>(flattenTree(treeItems))
+  const [items, setItems] = useState<Array<treeItem>>(treeItems)
+  const [flattenedItems, setFlattenedItems] = useState<Array<treeItem>>(flattenTree(treeItems))
   // const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
   const toggleRef = useRef<HTMLButtonElement>(null); // TODO: Rename?
@@ -76,11 +76,11 @@ export default function TestTreeSelect({
 
   }, [focusedIndex, flattenedItems])
 
-  const handleUpdateNode = (value: string, updater: (n: testTreeItem) => testTreeItem) => {
+  const handleUpdateNode = (value: string, updater: (n: treeItem) => treeItem) => {
     setItems(prev => updateNodeInTree(prev, value, updater));
   };
 
-  async function toggleNode(item: testTreeItem) {
+  async function toggleNode(item: treeItem) {
     const index = flattenedItems.findIndex(el => el.value === item.value);
     setFocusedIndex(index)
     if (item.onExpand && !item.childNodes) {
@@ -98,7 +98,7 @@ export default function TestTreeSelect({
     }
   };
 
-  function TreeNode({ item, onUpdate }: { item: testTreeItem, onUpdate: (value: string, updater: (n: testTreeItem) => testTreeItem) => void }) {
+  function TreeNode({ item, onUpdate }: { item: treeItem, onUpdate: (value: string, updater: (n: treeItem) => treeItem) => void }) {
     return (
       <li className="padding-block-25" id={`treeitem-${item.name.replace(' ', '-')}-${item.value.replace(' ', '-')}`} >
         <span onClick={() => void toggleNode(item)}>

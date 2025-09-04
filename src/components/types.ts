@@ -21,15 +21,10 @@ export type option = {
   value: string,
 }
 
-export type treeItem = option & {
-  childNodes: Array<treeItem>,
-  expanded?: boolean,
-}
-
-export type testTreeItem = { // TODO: remove/rename
+export type treeItem = { 
   name: string,
   value: string,
-  childNodes?: Array<testTreeItem>,
   expanded: boolean | null,  
-  onExpand?: () => Array<testTreeItem> | Promise<Array<testTreeItem>>
+  childNodes?: Array<treeItem>,
+  onExpand?: () => Array<treeItem> | Promise<Array<treeItem>>
 }
