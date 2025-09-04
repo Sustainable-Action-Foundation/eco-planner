@@ -1,4 +1,5 @@
 // TODO: Use uppercase?
+// TODO: Use set?
 
 export type genericElement = {
   className?: string;

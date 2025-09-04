@@ -79,6 +79,8 @@ export default function TestTreeSelect({
   };
 
   async function toggleNode(item: testTreeItem) {
+    const index = flattenedItems.findIndex(el => el.value === item.value);
+    setFocusedIndex(index)
     if (item.onExpand && !item.childNodes) {
       const children = await item.onExpand();
       handleUpdateNode(item.value, node => ({
