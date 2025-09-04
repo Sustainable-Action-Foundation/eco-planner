@@ -1,6 +1,6 @@
 "use client"
 
-import { inputElement, treeItem } from "@/components/types"
+import { inputElement, testTreeItem } from "@/components/types"
 import { IconCaretRightFilled, IconSearch, IconSelector } from "@tabler/icons-react"
 import { t } from "i18next"
 import { useMemo, useRef, useState } from "react"
@@ -16,7 +16,7 @@ function TreeNode({
   focused,
   id,
 }: {
-  item: treeItem
+  item: testTreeItem
   expandedKeys: Set<string>
   toggleExpand: (id: string) => void
   ref?: React.Ref<HTMLLIElement>,
@@ -33,15 +33,15 @@ function TreeNode({
         role="treeitem"
         aria-selected={focused}
         ref={ref}
-        style={{ paddingInlineStart: item.childNodes.length > 0 ? '0' : 'calc(16px + .25rem)', backgroundColor: focused ? 'var(--gray-90)' : '' }}
+        style={{ paddingInlineStart: (item.childNodes?.length ?? 0) > 0 ? '0' : 'calc(16px + .25rem)', backgroundColor: focused ? 'var(--gray-90)' : '' }}
         onClick={() => {
-          if (item.childNodes.length > 0) {
+          if ((item.childNodes?.length ?? 0) > 0) {
             toggleExpand(item.value)
           }
         }}
       > {/* TODO: Aria-owns */}
         <span>
-          {item.childNodes.length > 0 ?
+          {(item.childNodes?.length ?? 0) > 0 ?
             <IconCaretRightFilled
               height={16}
               width={16}
@@ -51,9 +51,9 @@ function TreeNode({
           {item.name}
         </span>
       </li>
-      {item.childNodes.length > 0 && isExpanded ? (
+      {(item.childNodes?.length ?? 0) > 0 && isExpanded ? (
         <ul role="group" style={{ paddingInlineStart: 'calc(16px + .25rem)' }}>
-          {item.childNodes.map((child, index) => (
+          {item.childNodes?.map((child, index) => (
             <TreeNode
               id={id}
               focused={focused}
@@ -77,11 +77,11 @@ export default function SelectSingleTreeSearch({
   onChange
 }: {
   props: inputElement,
-  treeItems: Array<treeItem>,
-  onChange?: (value: treeItem | null) => void
+  treeItems: Array<testTreeItem>,
+  onChange?: (value: testTreeItem | null) => void
 }) {
 
-  const [value, setValue] = useState<treeItem | null>(null) // TODO: Allow default value
+  const [value, setValue] = useState<testTreeItem | null>(null) // TODO: Allow default value
 
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set())
@@ -171,13 +171,13 @@ export default function SelectSingleTreeSearch({
               if (!toggleRef.current) return;
               handleKeyDownTreeCombobox(
                 e,
-                toggleRef.current,
-                menuOpen,
-                setMenuOpen,
-                searchResults,
+                // toggleRef.current,
                 focusedTreeOption,
                 setFocusedTreeOption,
-                setExpandedKeys,
+                // menuOpen,
+                // setMenuOpen,
+                searchResults,
+                // setExpandedKeys,
                 (selectedOption) => {
                   setValue(selectedOption?.value !== value?.value ? selectedOption : null); // TODO: Abstract this to use in onclick     
                   setMenuOpen(false);

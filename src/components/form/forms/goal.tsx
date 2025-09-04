@@ -68,6 +68,16 @@ export default function GoalForm({
 
     const form = event.target.elements;
     const formData = new FormData(event.target);
+    // List of inputs expecting a file
+    const fileInputKeys: string[] = [];
+
+    // Basic validation to ensure no unexpected File objects are present
+    // Allows us to safely cast all formData values to (string | null) later
+    if (formData.entries().some(([key, value]) => value instanceof File && !fileInputKeys.includes(key))) {
+      console.error("Form data contains an unexpected File object.");
+      event.target.reportValidity();
+      return;
+    }
 
     // Get data series as an array of numbers in string format, the actual parsing is done by the API
     const dataSeries = getDataSeries(form);
@@ -77,11 +87,7 @@ export default function GoalForm({
     const baselineDataSeries = baselineDataSeriesArray.length > 0 ? baselineDataSeriesArray : undefined; // Omit if empty
 
     // Get scaling recipe for combined/inherited goals
-    const recipeString = formData.get("resultingRecipe");
-    if (recipeString instanceof File) {
-      event.target.reportValidity();
-      return;
-    }
+    const recipeString = formData.get("resultingRecipe") as string | null;
     let parsedRecipe: Recipe | null = null;
     if (recipeString) {
       try {
@@ -117,24 +123,66 @@ export default function GoalForm({
     }
 
     // Build the JSON payload for the API
-    const formContent: GoalCreateInput | GoalUpdateInput = {
-      name: (form.namedItem("goalName") as HTMLInputElement)?.value || null,
-      description: (form.namedItem("description") as HTMLInputElement)?.value || null,
-      indicatorParameter: (form.namedItem("indicatorParameter") as HTMLInputElement)?.value ?? undefined,
-      // TODO: Add a toggle isUnitless to the form, which sets dataUnit to null if checked
-      rawDataSeriesUnit: parsedUnit || (form.namedItem("dataUnit") as HTMLInputElement)?.value,
-      rawDataSeries: dataSeries,
-      rawBaselineDataSeries: baselineDataSeries ?? undefined,
-      recipeUsed: parsedRecipe,
-      roadmapId: currentGoal?.roadmapId || roadmapId || (typeof formData.get("roadmapId") == "string" ? formData.get("roadmapId") as string : ""),
-      goalId: currentGoal?.id || undefined,
-      links: undefined,
-      timestamp,
-      isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked,
-      // Don't link to external datasets, and don't update those links if present
-      externalDataset: undefined,
-      externalTableId: undefined,
-      externalSelection: undefined,
+    let formContent: GoalCreateInput | GoalUpdateInput;
+    if (currentGoal) {
+      formContent = {
+        goalId: currentGoal.id,
+        timestamp: timestamp, // Only needed for edits
+
+        name: formData.get("goalName") as string | null || undefined,
+        description: formData.get("description") as string | null ?? undefined,
+        indicatorParameter: formData.get("indicatorParameter") as string | null ?? undefined,
+        isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked ?? undefined,
+
+        externalDataset: undefined,
+        externalTableId: undefined,
+        externalSelection: undefined,
+
+        // TODO: Add a way to clear recipe
+        recipeUsed: parsedRecipe || undefined,
+
+        rawDataSeries: dataSeries || undefined,
+        // TODO: Add a toggle isUnitless to the form, which sets dataUnit to null if checked
+        rawDataSeriesUnit: parsedUnit || formData.get("dataUnit") as string | null || undefined,
+        // TODO: Add a way to clear baseline
+        rawBaselineDataSeries: baselineDataSeries,
+        rawBaselineDataSeriesUnit: baselineDataSeries ? parsedUnit || formData.get("dataUnit") as string | null || undefined : undefined,
+
+        roadmapId: undefined, // Can't reassign the roadmap of an existing goal
+        rawTags: undefined, // TODO: add tags input
+
+        // DEPRECATED - moved to description
+        links: undefined,
+      }
+    } else {
+      formContent = {
+        goalId: undefined, // Ignored when creating
+        timestamp: undefined, // Ignored when creating
+
+        name: formData.get("goalName") as string | null || null,
+        description: formData.get("description") as string | null || null,
+        indicatorParameter: formData.get("indicatorParameter") as string | null ?? (event.target.reportValidity(), ""),
+        isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked || false,
+
+        // Goals are currently created without historical data (external data), but the API can handle it if we change this later
+        externalDataset: null,
+        externalTableId: null,
+        externalSelection: null,
+
+        recipeUsed: parsedRecipe,
+
+        rawDataSeries: dataSeries,
+        // TODO: Add a toggle isUnitless to the form, which sets dataUnit to null if checked
+        rawDataSeriesUnit: parsedUnit || formData.get("dataUnit") as string | null || undefined,
+        rawBaselineDataSeries: baselineDataSeries,
+        rawBaselineDataSeriesUnit: baselineDataSeries ? parsedUnit || formData.get("dataUnit") as string | null || undefined : undefined,
+
+        roadmapId: roadmapId || (typeof formData.get("roadmapId") == "string" ? formData.get("roadmapId") as string : (event.target.reportValidity(), "")),
+        rawTags: undefined, // TODO: add tags input
+
+        // DEPRECATED - moved to description
+        links: undefined,
+      }
     }
 
     const formJSON = JSON.stringify(formContent);
@@ -163,8 +211,6 @@ export default function GoalForm({
 
   // Index for data-position attribute in legend elements (for accessibility)
   let positionIndex = 1;
-
-  const unitNames = Object.keys(mathjs.Unit.UNITS)
 
   const testFetchChildrenNested = async (): Promise<Array<testTreeItem>> => {
     // You could fetch from an API here instead of hardcoding
@@ -244,7 +290,7 @@ export default function GoalForm({
           <div className="margin-bottom-500 padding-bottom-500">
             <TestTreeSelect
               treeItems={[
-                { name: "Item 1", value: '1', expanded: false, childNodes: [{name: 'Item 1.1', value: 'Item 1.1', expanded: null}]  },
+                { name: "Item 1", value: '1', expanded: false, childNodes: [{ name: 'Item 1.1', value: 'Item 1.1', expanded: null }] },
                 { name: "Item 2", value: '2', expanded: null },
                 { name: "Item 3", value: '3', expanded: null },
                 { name: "Item 4", value: '4', expanded: null },
@@ -261,30 +307,30 @@ export default function GoalForm({
               name: "test-tree",
             }}
             treeItems={[
-              { name: 'treeitem 1', value: 'treeitem 1', childNodes: [] },
+              { name: 'treeitem 1', value: 'treeitem 1', expanded: false, childNodes: [] },
               {
-                name: 'treeitem 2', value: 'treeitem 2', childNodes: [
-                  { name: 'treeitem 2.1', value: 'treeitem 2.1', childNodes: [] },
+                name: 'treeitem 2', value: 'treeitem 2', expanded: false, childNodes: [
+                  { name: 'treeitem 2.1', value: 'treeitem 2.1', expanded: false, childNodes: [] },
                   {
-                    name: 'treeitem 2.2', value: 'treeitem 2.2', childNodes: [
-                      { name: 'treeitem 2.2.1', value: 'treeitem 2.2.1', childNodes: [] },
-                      { name: 'treeitem 2.2.2', value: 'treeitem 2.2.2', childNodes: [] },
-                      { name: 'treeitem 2.2.3', value: 'treeitem 2.2.3', childNodes: [] },
+                    name: 'treeitem 2.2', value: 'treeitem 2.2', expanded: false, childNodes: [
+                      { name: 'treeitem 2.2.1', value: 'treeitem 2.2.1', expanded: false, childNodes: [] },
+                      { name: 'treeitem 2.2.2', value: 'treeitem 2.2.2', expanded: false, childNodes: [] },
+                      { name: 'treeitem 2.2.3', value: 'treeitem 2.2.3', expanded: false, childNodes: [] },
                     ]
                   },
-                  { name: 'treeitem 2.3', value: 'treeitem 2.3', childNodes: [] },
-                  { name: 'treeitem 2.4', value: 'treeitem 2.4', childNodes: [] }
+                  { name: 'treeitem 2.3', value: 'treeitem 2.3', expanded: false, childNodes: [] },
+                  { name: 'treeitem 2.4', value: 'treeitem 2.4', expanded: false, childNodes: [] }
                 ]
               },
-              { name: 'treeitem 3', value: 'treeitem 3', childNodes: [] },
+              { name: 'treeitem 3', value: 'treeitem 3', expanded: false, childNodes: [] },
               {
-                name: 'treeitem 4', value: 'treeitem 4', childNodes: [
-                  { name: 'treeitem 4.1', value: 'treeitem 4.1', childNodes: [] },
-                  { name: 'treeitem 4.2', value: 'treeitem 4.2', childNodes: [] },
-                  { name: 'treeitem 4.3', value: 'treeitem 4.3', childNodes: [] }
+                name: 'treeitem 4', value: 'treeitem 4', expanded: false, childNodes: [
+                  { name: 'treeitem 4.1', value: 'treeitem 4.1', expanded: false, childNodes: [] },
+                  { name: 'treeitem 4.2', value: 'treeitem 4.2', expanded: false, childNodes: [] },
+                  { name: 'treeitem 4.3', value: 'treeitem 4.3', expanded: false, childNodes: [] }
                 ]
               },
-              { name: 'treeitem 5', value: 'treeitem 5', childNodes: [] }
+              { name: 'treeitem 5', value: 'treeitem 5', expanded: false, childNodes: [] }
             ]}
           />
 

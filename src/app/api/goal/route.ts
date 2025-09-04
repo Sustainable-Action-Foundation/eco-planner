@@ -187,9 +187,10 @@ function isGoalUpdate(goal: JSONValue): goal is GoalUpdateInput {
       goal.description === undefined
     ) &&
 
-    // indicatorParameter: string;
+    // indicatorParameter: string | undefined;
     (
-      typeof goal.indicatorParameter === 'string'
+      typeof goal.indicatorParameter === 'string' ||
+      goal.indicatorParameter === undefined
     ) &&
 
     // isFeatured: boolean | undefined;

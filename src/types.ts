@@ -333,8 +333,8 @@ export type RoadmapUpdateInput = {
  * That being said, if the schema changes, this type will need to be updated manually.
  */
 export type GoalCreateInput = {
-  // To differentiate between create and update
-  goalId?: never;
+  goalId?: never; // Ignored when creating
+  timestamp?: never; // Ignored when creating
 
   // id: string | undefined; // Gets created automatically // Created by the API
   // createdAt: string | Date | undefined; // Gets set automatically // Created by the API
@@ -398,7 +398,7 @@ export type GoalUpdateInput = {
   // Basic meta
   name: string | null | undefined;
   description: string | null | undefined;
-  indicatorParameter: string;
+  indicatorParameter: string | undefined;
   isFeatured: boolean | undefined;
 
   // External data source
@@ -424,7 +424,7 @@ export type GoalUpdateInput = {
   // Relations
   // authorId: string; // Derived from session in the API
   // effects: Prisma.EffectCreateNestedManyWithoutGoalInput; // Cannot be updated from the goal
-  roadmapId?: never;
+  roadmapId?: never; // Ignored when updating; Can't reassign the roadmap of an existing goal
   // comments: Prisma.CommentCreateNestedManyWithoutGoalInput; // Cannot be updated from the goal
   rawTags: string[] | null | undefined; // Transform into tags relation in the server side API
 
