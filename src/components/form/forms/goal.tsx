@@ -14,8 +14,7 @@ import { getDataSeries } from "../elements/dataSeriesInput/utils"; // Helper for
 import styles from '../forms.module.css'; // CSS module for styling
 import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections"; // Sub components for form sections
 import { DEBUG_Recipe, RecipeContextProvider, RecipeEquationEditor, RecipeErrorAndWarnings, RecipeSuggestions, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/recipeEditor";
-import { Recipe, RecipeDataTypes } from "@/functions/recipe-parser/types";
-import { VectorIndexPickerOptions } from "@/components/recipe/variables";
+import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
 import SelectSingleTreeSearch from "../elements/combobox/selectSingleTreeSearch";
 import { treeItem } from "@/components/types";

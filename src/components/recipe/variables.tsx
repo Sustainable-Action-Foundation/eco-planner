@@ -1,6 +1,6 @@
 "use client";
 
-import { RecipeVariables, RecipeDataTypes, isRecipeDataSeries, RecipeDataSeries, RecipeScalar, RecipeExternalDataset, isRecipeExternalDatasetSelection, emptyRecipeDataTypes } from "@/functions/recipe-parser/types";
+import { RecipeVariables, RecipeDataTypes, isRecipeDataSeries, RecipeDataSeries, RecipeScalar, RecipeExternalDataset, isRecipeExternalDatasetSelection, emptyRecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 import { IconTrash } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import React from "react";
@@ -439,34 +439,6 @@ export function ExternalVariable({
   </CommonVariable>;
 }
 
-
-export const VectorIndexPickerOptions = {
-  Default: "whole",
-
-  Whole: "whole",
-  Last: "last",
-  First: "first",
-  Median: "median",
-  Mean: "mean",
-} as const;
-export type VectorIndexPickerOptions = typeof VectorIndexPickerOptions[keyof typeof VectorIndexPickerOptions];
-
-export const vectorIndexPickerFunctions = {
-  [VectorIndexPickerOptions.Whole]: (vector: number[]) => vector,
-  [VectorIndexPickerOptions.Last]: (vector: number[]) => vector.at(-1),
-  [VectorIndexPickerOptions.First]: (vector: number[]) => vector.at(0),
-  [VectorIndexPickerOptions.Median]: (vector: number[]) => {
-    if (vector.length === 0) return null;
-    const sorted = [...vector].sort((a, b) => a - b);
-    const mid = Math.floor(sorted.length / 2);
-    return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-  },
-  [VectorIndexPickerOptions.Mean]: (vector: number[]) => {
-    if (vector.length === 0) return null;
-    const sum = vector.reduce((acc, val) => acc + val, 0);
-    return sum / vector.length;
-  },
-} as const;
 
 function VectorIndexPicker({ rules }: { rules?: InputRules }) {
   const { t } = useTranslation("components");

@@ -6,8 +6,7 @@ import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
 import { RandomTextSE } from "./randomText";
 import { Years } from "@/types";
-import { Recipe, RecipeDataTypes } from "@/functions/recipe-parser/types";
-import { VectorIndexPickerOptions } from "@/components/recipe/variables";
+import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 
 const prisma = new PrismaClient();
 prisma.$connect().catch((e) => {

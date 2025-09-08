@@ -1,10 +1,9 @@
-import { EvalTimeDataSeries, EvalTimeExternalDataset, EvalTimeScalar, isRecipe, isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, MathjsError, Recipe, RecipeDataTypes, RecipeError, RecipeVariables } from "./recipe-parser/types";
+import { EvalTimeDataSeries, EvalTimeExternalDataset, EvalTimeScalar, isRecipe, isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, MathjsError, Recipe, RecipeDataTypes, RecipeError, RecipeVariables, vectorIndexPickerFunctions } from "./recipe-parser/types";
 import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
 import mathjs from "@/math";
 import { DataSeriesValueFields, isFullDataSeriesValueFields, JSONValue, Years } from "@/types";
 import getTableContent from "@/lib/api/getTableContent";
 import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
-import { vectorIndexPickerFunctions } from "@/components/recipe/variables";
 
 export function recipeFromUnknown(recipe: JSONValue): Recipe {
   if (typeof recipe === "string") {

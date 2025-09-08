@@ -1,6 +1,33 @@
-import { vectorIndexPickerFunctions, VectorIndexPickerOptions } from "@/components/recipe/variables";
 import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
 import { isStandardObject, JSONValue, typeguardDebug, uuidRegex } from "@/types";
+
+export const VectorIndexPickerOptions = {
+  Default: "whole",
+
+  Whole: "whole",
+  Last: "last",
+  First: "first",
+  Median: "median",
+  Mean: "mean",
+} as const;
+export type VectorIndexPickerOptions = typeof VectorIndexPickerOptions[keyof typeof VectorIndexPickerOptions];
+
+export const vectorIndexPickerFunctions = {
+  [VectorIndexPickerOptions.Whole]: (vector: number[]) => vector,
+  [VectorIndexPickerOptions.Last]: (vector: number[]) => vector.at(-1),
+  [VectorIndexPickerOptions.First]: (vector: number[]) => vector.at(0),
+  [VectorIndexPickerOptions.Median]: (vector: number[]) => {
+    if (vector.length === 0) return null;
+    const sorted = [...vector].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+  },
+  [VectorIndexPickerOptions.Mean]: (vector: number[]) => {
+    if (vector.length === 0) return null;
+    const sum = vector.reduce((acc, val) => acc + val, 0);
+    return sum / vector.length;
+  },
+} as const;
 
 /* 
  * Common types for recipes
@@ -43,8 +70,9 @@ export function isRecipeScalar(variable: JSONValue): variable is RecipeScalar {
     ) &&
 
     (
-      variable.type === RecipeDataTypes.Scalar ||
-      typeguardDebug("Type guard: 'type' in scalar variable") && false
+      variable.type === RecipeDataTypes.Scalar
+      // No log since we tend to call isRecipeScalar(...) || isRecipeDataSeries(...) || isRecipeExternalDataset(...) in a chain, which will trigger up to two false positives
+      // typeguardDebug("Type guard: 'type' in scalar variable") && false
     ) &&
 
     (
@@ -89,11 +117,11 @@ export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataS
     ) &&
 
     (
-      variable.type === RecipeDataTypes.DataSeries ||
-      typeguardDebug("Type guard: 'type' in data series variable") && false
+      variable.type === RecipeDataTypes.DataSeries
+      // No log since we tend to call isRecipeScalar(...) || isRecipeDataSeries(...) || isRecipeExternalDataset(...) in a chain, which will trigger up to two false positives
+      // typeguardDebug("Type guard: 'type' in data series variable") && false
     ) &&
 
-    // TODO: Make more of these debug logs in type guards
     (
       (typeof variable.link === "string" && uuidRegex.test(variable.link)) ||
       variable.link == null || // May be undefined
@@ -148,8 +176,9 @@ export function isRecipeExternalDataset(variable: JSONValue): variable is Recipe
     ) &&
 
     (
-      variable.type === RecipeDataTypes.External ||
-      typeguardDebug("Type guard: 'type' in external dataset variable") && false
+      variable.type === RecipeDataTypes.External
+      // No log since we tend to call isRecipeScalar(...) || isRecipeDataSeries(...) || isRecipeExternalDataset(...) in a chain, which will trigger up to two false positives
+      // typeguardDebug("Type guard: 'type' in external dataset variable") && false
     ) &&
 
     (
