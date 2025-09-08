@@ -73,7 +73,7 @@ export default function RoadmapForm({
 
     /** 
      * ## DEPRECATED - use recipes instead
-     * TODO: remove this
+     * TODO: Migrate to recipes before deployment
      */
     const inheritGoalIds: string[] = [];
     (form.namedItem('inherit-goals') as RadioNodeList | null)?.forEach((checkbox) => {
@@ -197,7 +197,10 @@ export default function RoadmapForm({
 
   return (
     <>
-      <form onSubmit={void handleSubmit}>
+      <form onSubmit={(e: React.ChangeEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        void handleSubmit(e);
+      }}>
         {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
         <input type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
