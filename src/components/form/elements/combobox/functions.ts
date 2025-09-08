@@ -1,11 +1,11 @@
-import { testTreeItem } from "@/components/types";
+import type { treeItem } from "@/components/types";
 
 export const handleKeyDownTreeCombobox = (
   e: React.KeyboardEvent<HTMLInputElement>,
   focusedTreeOptionIndex: number | null,
   setFocusedTreeOptionIndex: React.Dispatch<React.SetStateAction<number | null>>,
-  treeOptions: Array<testTreeItem>, // TODO: rename
-  onArrowAction?: (item: testTreeItem, direction: "left" | "right") => void
+  treeOptions: Array<treeItem>, // TODO: rename
+  onArrowAction?: (item: treeItem, direction: "left" | "right") => void
   // comboboxElement?: HTMLInputElement | HTMLButtonElement, // The element which sets the listboxDisplayed value, always an input or button element as those can contain the combobox role 
   // treeDisplayed?: boolean, // Wether or not the listbox is displayed/not displayed, or if it is uncontrolled (always open or always closed)  
   // setTreeDisplayed?: React.Dispatch<React.SetStateAction<boolean>>,
