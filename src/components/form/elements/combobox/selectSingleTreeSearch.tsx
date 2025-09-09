@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react"
 import { handleKeyDownTreeCombobox } from "./functions";
 import styles from './comboBox.module.css' with { type: "css" }
 import { useTranslation } from "react-i18next";
+import Image from "next/image"
 
 /* TODO: 
   "In single-select trees, only one treeitem can have aria-selected (or aria-checked) 
@@ -69,7 +70,7 @@ export default function SelectSingleTreeSearch({
 
   const { t } = useTranslation(["forms"]);
   const [value, setValue] = useState<treeItem | null>()
-
+  const [loading, setLoading] = useState(false);
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
 
   const [items, setItems] = useState<Array<treeItem>>(treeItems)
@@ -101,16 +102,17 @@ export default function SelectSingleTreeSearch({
 
   async function toggleNode(item: treeItem) {
     const index = flattenedItems.findIndex(el => el.value === item.value);
-    setFocusedIndex(index) // TODO: I do not think we do this when selecting without running this function
+    setFocusedIndex(index) // TODO: I do not think we do this when selecting without running this function (i.e onclick), see if i can implement it
 
     if (item.onExpand && !item.childNodes) {
+      setLoading(true);
       const children = await item.onExpand();
-      console.log(item)
       handleUpdateNode(item.value, node => ({
         ...node,
         childNodes: children,
         expanded: true,
       }));
+      setLoading(false);
     } else {
       handleUpdateNode(item.value, node => ({
         ...node,
@@ -143,7 +145,24 @@ export default function SelectSingleTreeSearch({
         >
           {(item.onExpand || (item.childNodes && item.childNodes.length > 0))
             ? <span className="flex gap-25 align-items-center">
-              <IconCaretRightFilled width={16} height={16} style={{ verticalAlign: 'bottom', minWidth: '16px' }} />
+              {loading ? 
+                <Image // TODO: need to keep track of this specific item loading state. Right now all icons will be loaders
+                  src='/loaders/ring-resize.svg'
+                  alt="" 
+                  width={16}
+                  height={16}
+                />
+              :
+                <IconCaretRightFilled
+                  width={16}
+                  height={16}
+                  style={{
+                    minWidth: '16px',
+                    transform: item.expanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.2s ease', // TODO: explore why this does not seem to work.
+                  }}
+                />
+              }
               {item.name}
             </span>
             : item.name
@@ -198,7 +217,7 @@ export default function SelectSingleTreeSearch({
             // opacity: props.disabled ? 0.6 : 1,
           }}
         >
-          {!value ? props.placeholder : value.name} 
+          {!value ? props.placeholder : value.name}
         </span>
         <IconSelector height={20} width={20} style={{ minWidth: '20px' }} aria-hidden={true} />
       </button>
