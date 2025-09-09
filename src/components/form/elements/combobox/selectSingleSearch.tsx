@@ -78,7 +78,7 @@ export default function SelectSingleSearch({
   return (
     <div
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
-      style={{ ...props.style, userSelect: 'none', width: 'fit-content' }}
+      style={{ ...props.style, userSelect: 'none', width: 'fit-content' }} // TODO: Check width here and on multiselect
     >
       <button
         id={props.id}

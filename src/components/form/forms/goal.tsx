@@ -299,10 +299,11 @@ export default function GoalForm({
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:goal.choose_goal_data_series")}</legend>
 
           <div className="margin-bottom-500 padding-bottom-500">
-            <SelectSingleTreeSearch
+            <SelectSingleTreeSearch // TODO: need to include effects on roadmapstuff
               props={{
                 id: "test-tree",
-                name: "test-tree"
+                name: "test-tree",
+                placeholder: "välj målbana eller effekt" // TODO: I18n
               }}
               treeItems={[
                 { name: "Item 1", value: '1', expanded: false, childNodes: [{ name: 'Item 1.1', value: 'Item 1.1', expanded: null }] },

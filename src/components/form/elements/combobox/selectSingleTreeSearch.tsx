@@ -18,7 +18,10 @@ import { useTranslation } from "react-i18next";
 // TODO: Aria-setsize
 // TODO: Aria-posinset
 // TODO: Maybe aria-level
-// 
+// TODO: Allow unsetting value
+// TODO: Aria-keycontrols?
+// TODO: Should allow for options with same values? Or we should check that they are unique?
+// TODO: Disallow an empty array for options?
 
 /**
  * Flattens an array of treeItems so children appear right after their parent.
@@ -99,8 +102,8 @@ export default function SelectSingleTreeSearch({
   async function toggleNode(item: treeItem) {
     const index = flattenedItems.findIndex(el => el.value === item.value);
     setFocusedIndex(index) // TODO: I do not think we do this when selecting without running this function
-    
-    if (item.onExpand && !item.childNodes) { 
+
+    if (item.onExpand && !item.childNodes) {
       const children = await item.onExpand();
       console.log(item)
       handleUpdateNode(item.value, node => ({
@@ -115,17 +118,17 @@ export default function SelectSingleTreeSearch({
       }));
     }
   };
- 
+
   function TreeNode({ item, onUpdate }: { item: treeItem, onUpdate: (value: string, updater: (n: treeItem) => treeItem) => void }) {
     return (
       <li
-        role="treeitem" 
+        role="treeitem"
         id={`${props.id}-dialog-tree-${item.name.replace(' ', '-')}`}
         aria-selected={(item.expanded === null || item.onExpand === undefined) && item.value === value?.value}
         aria-expanded={
-          (item.expanded !== null || item.onExpand !== undefined) 
-          ? !!item.expanded 
-          : undefined}
+          (item.expanded !== null || item.onExpand !== undefined)
+            ? !!item.expanded
+            : undefined}
       >
         <div
           className={`flex gap-25 align-items-center justify-content-space-between`}
@@ -134,7 +137,7 @@ export default function SelectSingleTreeSearch({
           }}
           onClick={
             item.expanded !== null || item.onExpand !== undefined
-              ? () => void toggleNode(item) 
+              ? () => void toggleNode(item)
               : () => setValue(item)
           } // TODO: pressing value without expand should select and set value.
         >
@@ -148,9 +151,9 @@ export default function SelectSingleTreeSearch({
 
         </div>
         {item.expanded && item.childNodes && (
-          <ul 
+          <ul
             role="group"
-            style={{ listStyle: 'none' }} 
+            style={{ listStyle: 'none' }}
             className="margin-0 padding-inline-start-75"
           >
             {item.childNodes.map((child, index) => (
@@ -163,12 +166,15 @@ export default function SelectSingleTreeSearch({
   }
 
   return (
-    <div className="position-relative" style={{width: '350px'}}>
+    <div
+      className={`${props.className ? `${props.className} ` : ''}position-relative`}
+      style={{ ...props.style, userSelect: 'none', width: '350px' }} // TODO: Check width here 
+    >
       <button
         id={props.id}
         className={`${styles['select-toggle']}`}
         style={{ borderColor: menuOpen ? '#191919' : '' }}
-        // value={value ? value.value : ''}
+        value={value ? value.value : ''}
         name={props.name}
         disabled={props.disabled}
         ref={toggleRef}
@@ -181,16 +187,35 @@ export default function SelectSingleTreeSearch({
         aria-required={props.required ? props.required : false}
       // aria-invalid={!valueIsValid}
       >
-        Expand
+        <span
+          style={{
+            // TODO: Make into a class?
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            overflow: "hidden",
+            minWidth: '0',
+            color: !value ? "gray" : "inherit",
+            // opacity: props.disabled ? 0.6 : 1,
+          }}
+        >
+          {!value ? props.placeholder : value.name} 
+        </span>
         <IconSelector height={20} width={20} style={{ minWidth: '20px' }} aria-hidden={true} />
       </button>
 
       <div
+        id={`${props.id}-dialog`}
         className={`              
           ${styles['tree']} 
           ${menuOpen ? styles['visible'] : ''} 
           margin-inline-0`
         }
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id != props.id) {
+            setFocusedIndex(null)
+            setMenuOpen(false);
+          }
+        }}
         tabIndex={-1}
         role="dialog"
         aria-label={t("forms:combobox.select_single_option")}
@@ -201,7 +226,8 @@ export default function SelectSingleTreeSearch({
           aria-label={t("forms:combobox.search_options")}
         >
           <IconSearch width={16} height={16} style={{ minWidth: '16px' }} />
-          <input type="text"
+          <input
+            type="text"
             style={{ padding: '0', margin: '0', fontSize: 'revert' }}
             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
               handleKeyDownTreeCombobox(
@@ -219,13 +245,20 @@ export default function SelectSingleTreeSearch({
                 }
               )
             }}
+            role="combobox"
+            aria-controls={`${props.id}-dialog-tree`}
+            // aria-activedescendant={focusedListboxOption != null ? `${props.id}-dialog-listbox-${focusedListboxOption}` : undefined}
+            aria-expanded="true"
+            // aria-autocomplete="list"
+            autoComplete="off"
+            placeholder={t("common:tsx.search") + t("common:tsx.ellipsis")}
           />
         </label>
-        <ul 
-          role="tree"
-          aria-label={t("common:tsx.options")}
+        <ul
           id={`${props.id}-dialog-tree`}
           className="margin-0 padding-0"
+          role="tree"
+          aria-label={t("common:tsx.options")}
         >
           {items.map((treeItem, index) => (
             <TreeNode key={index} item={treeItem} onUpdate={handleUpdateNode} />
