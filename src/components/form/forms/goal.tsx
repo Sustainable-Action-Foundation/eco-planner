@@ -242,7 +242,7 @@ export default function GoalForm({
                 <option value="" disabled>{t("forms:goal.relationship_no_chosen")}</option>
                 {roadmapAlternatives.map(roadmap => (
                   <option key={roadmap.id} value={roadmap.id}>
-                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("forms:goal.goal_count", { count: roadmap._count.goals })}`}
+                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("common:count.goal", { count: roadmap._count.goals })}`}
                   </option>
                 ))}
               </select>

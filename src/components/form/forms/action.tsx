@@ -29,7 +29,7 @@ export default function ActionForm({
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    const form = event.target.elements 
+    const form = event.target.elements
 
     // Get the data series as an array of numbers, the actual parsing is done by the API
     const dataSeries = getDataSeries(form);
@@ -80,7 +80,7 @@ export default function ActionForm({
                 <option value="" disabled>{t("forms:action.relationship_no_chosen")}</option>
                 {roadmapAlternatives.map(roadmap => (
                   <option key={roadmap.id} value={roadmap.id}>
-                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("forms:action.action_count", { count: roadmap._count.actions })}`}
+                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("common:count.action", { count: roadmap._count.actions })}`}
                   </option>
                 ))}
               </select>

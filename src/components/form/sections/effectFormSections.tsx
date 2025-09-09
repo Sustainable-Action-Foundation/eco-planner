@@ -43,7 +43,7 @@ export function ActionSelector({
           {roadmapAlternatives.map(roadmap => (
             // Disable selecting a different roadmap if a goal is preselected (for example when goalId is specified in the URL query)
             <option key={`action-selector${roadmap.id}`} value={roadmap.id}>
-              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("forms:effect.action_count", { count: roadmap._count.actions })}`}
+              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("common:count.action", { count: roadmap._count.actions })}`}
             </option>
           ))}
         </select>
