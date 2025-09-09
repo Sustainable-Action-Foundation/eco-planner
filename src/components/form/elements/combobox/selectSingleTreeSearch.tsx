@@ -1,10 +1,11 @@
 "use client"
 
 import { inputElement, treeItem } from "@/components/types"
-import { IconCaretRightFilled, IconSelector } from "@tabler/icons-react"
+import { IconCaretRightFilled, IconSearch, IconSelector } from "@tabler/icons-react"
 import { useEffect, useRef, useState } from "react"
 import { handleKeyDownTreeCombobox } from "./functions";
 import styles from './comboBox.module.css' with { type: "css" }
+import { useTranslation } from "react-i18next";
 
 // TODO: Aria-setsize
 // TODO: Aria-posinset
@@ -55,6 +56,7 @@ export default function SelectSingleTreeSearch({
   props: inputElement,
 }) {
 
+  const { t } = useTranslation(["forms"]);
 
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
 
@@ -120,13 +122,13 @@ export default function SelectSingleTreeSearch({
             ? <span className="flex gap-25 align-items-center">
               <IconCaretRightFilled width={16} height={16} style={{ verticalAlign: 'bottom', minWidth: '16px' }} />
               {item.name}
-              </span>
+            </span>
             : item.name
           }
-          
+
         </span>
         {item.expanded && item.childNodes && (
-          <ul style={{ listStyle: 'none' }} className="margin-0 padding-inline-start-100">
+          <ul style={{ listStyle: 'none' }} className="margin-0 padding-top-25 padding-inline-start-75">
             {item.childNodes.map((child, index) => (
               <TreeNode key={index} item={child} onUpdate={onUpdate} />
             ))}
@@ -137,7 +139,7 @@ export default function SelectSingleTreeSearch({
   }
 
   return (
-    <div className="position-relative">
+    <div className="position-relative" style={{width: '350px'}}>
       <button
         id={props.id}
         className={`${styles['select-toggle']}`}
@@ -160,37 +162,42 @@ export default function SelectSingleTreeSearch({
       </button>
 
       <div
-        style={{
-          userSelect: 'none',
-          padding: '.25rem',
-          display: menuOpen ? "block" : "none",
-          position: "absolute",
-          top: "100%",
-          left: "0",
-          backgroundColor: 'white',
-          border: '1px solid var(--gray)',
-          zIndex: '9999'
-        }}
+        className={`              
+          ${styles['tree']} 
+          ${menuOpen ? styles['visible'] : ''} 
+          margin-inline-0`
+        }
+        tabIndex={-1}
+        role="dialog"
+        aria-label={t("forms:combobox.select_single_option")}
       >
-        <input type="text"
-          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-            handleKeyDownTreeCombobox(
-              e,
-              focusedIndex,
-              setFocusedIndex,
-              flattenedItems,
-              (item, direction) => {
-                if (direction === "right" && !item.expanded) {
-                  void toggleNode(item);
+        <label
+          className="focusable flex align-items-center gap-25 padding-block-50 padding-inline-25"
+          style={{ border: 'none', borderBottom: '1px solid var(--gray-80)', borderRadius: '0', marginBottom: '3px' }}
+          aria-label={t("forms:combobox.search_options")}
+        >
+          <IconSearch width={16} height={16} style={{ minWidth: '16px' }} />
+          <input type="text"
+            style={{ padding: '0', margin: '0', fontSize: 'revert' }}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+              handleKeyDownTreeCombobox(
+                e,
+                focusedIndex,
+                setFocusedIndex,
+                flattenedItems,
+                (item, direction) => {
+                  if (direction === "right" && !item.expanded) {
+                    void toggleNode(item);
+                  }
+                  if (direction === "left" && item.expanded) {
+                    void toggleNode(item);
+                  }
                 }
-                if (direction === "left" && item.expanded) {
-                  void toggleNode(item);
-                }
-              }
-            )
-          }}
-        />
-        <ul style={{ listStyle: 'none' }} className="margin-0 padding-50">
+              )
+            }}
+          />
+        </label>
+        <ul style={{ listStyle: 'none', padding: '3px' }} className="margin-0">
           {items.map((treeItem, index) => (
             <TreeNode key={index} item={treeItem} onUpdate={handleUpdateNode} />
           ))}

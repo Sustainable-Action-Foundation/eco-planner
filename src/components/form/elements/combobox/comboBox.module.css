@@ -16,8 +16,8 @@
     border-bottom: 1px solid var(--gray-90);
 }*/ 
 
-.select-toggle {
-    width: 200px; /* Temporary */
+.select-toggle { 
+    width: 100%; /* TODO: Temporary (maybe) */
     background-color: white;
     border: 1px solid var(--gray-80);
     display: flex;
@@ -38,7 +38,7 @@
     outline: 0;
 }
 
-.listbox {
+.listbox, .tree {
     list-style: none;
     border: 1px solid var(--gray);
     background-color: white;
@@ -86,6 +86,11 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+}
+
+.listbox li:last-child,
+.tree li:last-child {
+    padding-bottom: 0 ;
 }
 
 .listbox li:hover {
