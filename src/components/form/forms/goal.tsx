@@ -18,6 +18,9 @@ import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/r
 import { recipeFromUnknown } from "@/functions/parseRecipe";
 import SelectSingleTreeSearch from "../elements/combobox/selectSingleTreeSearch";
 import { treeItem } from "@/components/types";
+import getMetaRoadmaps from "@/fetchers/getMetaRoadmaps";
+import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
+import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 
 // Enum for selecting the type of data series for the goal
 enum DataSeriesType {
@@ -210,21 +213,31 @@ export default function GoalForm({
   // Index for data-position attribute in legend elements (for accessibility)
   let positionIndex = 1;
 
-  const testFetchChildrenNested = async (): Promise<Array<treeItem>> => {
-    // You could fetch from an API here instead of hardcoding
-    return [
-      { name: "Item 5.1.1", value: "5-1-1", expanded: null },
-      { name: "Item 5.1.2", value: "5-1-2", expanded: null },
-    ];
+  const testFetchChildren = async (): Promise<Array<treeItem>> => {
+    const roadmaps = await clientSafeGetRoadmaps();
+    const treeItems: treeItem[] = roadmaps
+      .filter((roadmap) => roadmap._count.goals > 0) // only include with goals
+      .map((roadmap) => ({
+        name: `${roadmap.metaRoadmap.name} v${roadmap.version}`,
+        value: roadmap.id,
+        expanded: false,
+        childNodes: undefined,
+        onExpand: async (): Promise<treeItem[]> => {
+          const fullRoadmap = await clientSafeGetOneRoadmap(roadmap.id);
+          console.log(fullRoadmap)
+          if (!fullRoadmap) return [];
+
+          return fullRoadmap.goals.map((goal) => ({
+            name: goal.name ?? goal.indicatorParameter,
+            value: goal.id,
+            expanded: null,
+          }));
+        },
+      }));
+    return treeItems
   };
 
-  const testFetchChildren = async (): Promise<Array<treeItem>> => {
-    // You could fetch from an API here instead of hardcoding
-    return [
-      { name: "Item 5.1", value: "5-1", expanded: false, onExpand: testFetchChildrenNested },
-      { name: "Item 5.2", value: "5-2", expanded: null },
-    ];
-  };
+
 
   return (
     <>

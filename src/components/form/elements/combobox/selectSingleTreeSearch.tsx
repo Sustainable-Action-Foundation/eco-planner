@@ -98,9 +98,11 @@ export default function SelectSingleTreeSearch({
 
   async function toggleNode(item: treeItem) {
     const index = flattenedItems.findIndex(el => el.value === item.value);
-    setFocusedIndex(index)
-    if (item.onExpand && !item.childNodes) {
+    setFocusedIndex(index) // TODO: I do not think we do this when selecting without running this function
+    
+    if (item.onExpand && !item.childNodes) { 
       const children = await item.onExpand();
+      console.log(item)
       handleUpdateNode(item.value, node => ({
         ...node,
         childNodes: children,
