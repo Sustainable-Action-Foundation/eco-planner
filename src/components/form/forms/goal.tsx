@@ -213,7 +213,7 @@ export default function GoalForm({
   const testFetchChildrenNested = async (): Promise<Array<treeItem>> => {
     // You could fetch from an API here instead of hardcoding
     return [
-      { name: "Item 5.1.1", value: "5-1-2", expanded: null },
+      { name: "Item 5.1.1", value: "5-1-1", expanded: null },
       { name: "Item 5.1.2", value: "5-1-2", expanded: null },
     ];
   };

@@ -88,6 +88,16 @@
     justify-content: space-between;
 }
 
+.tree li div {
+    user-select: none;
+    border-radius: 0.25rem;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    font-size: 13px;
+    display: flex;
+}
+
 .listbox li:last-child,
 .tree li:last-child {
     padding-bottom: 0 ;
@@ -97,7 +107,13 @@
     background-color: var(--gray-90);    
 }
 
-.listbox li[aria-selected="true"]::after {
+.listbox li[aria-selected="true"],
+.tree li[aria-selected="true"] div {
+    background-color: rgba(153, 211, 255, 0.5);
+}
+
+.listbox li[aria-selected="true"]::after,
+.tree li[aria-selected="true"] div::after {
     height: 14px;
     content: url('data:image/svg+xml;utf8,<svg  xmlns="http://www.w3.org/2000/svg"  width="14"  height="14"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>') / "";    
 }

@@ -7,6 +7,14 @@ import { handleKeyDownTreeCombobox } from "./functions";
 import styles from './comboBox.module.css' with { type: "css" }
 import { useTranslation } from "react-i18next";
 
+/* TODO: 
+  "In single-select trees, only one treeitem can have aria-selected (or aria-checked) 
+  set to true. When a single-select tree receives focus, if no treeitem is selected 
+  before the tree receives focus, focus is set on the first treeitem. If a treeitem
+  is selected before the tree receives focus, focus is set on the single treeitem 
+  that has aria-selected="true" set."
+*/
+
 // TODO: Aria-setsize
 // TODO: Aria-posinset
 // TODO: Maybe aria-level
@@ -57,6 +65,7 @@ export default function SelectSingleTreeSearch({
 }) {
 
   const { t } = useTranslation(["forms"]);
+  const [value, setValue] = useState<treeItem | null>()
 
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
 
@@ -73,15 +82,15 @@ export default function SelectSingleTreeSearch({
   useEffect(() => {
     if (focusedIndex == null) return
     const selectedItem = flattenedItems[focusedIndex]
-    const selectedItemElement = document.getElementById(`treeitem-${selectedItem.name.replace(' ', '-')}-${selectedItem.value.replace(' ', '-')}`)
+    const selectedItemElement = document.getElementById(`${props.id}-dialog-tree-${selectedItem.name.replace(' ', '-')}`)
     if (!selectedItemElement) return
 
-    const selectedItemElementText = selectedItemElement.querySelector<HTMLSpanElement>(':scope > span')
+    const selectedItemElementText = selectedItemElement.querySelector<HTMLDivElement>(':scope > div')
     if (!selectedItemElementText) return
 
     selectedItemElementText.style.backgroundColor = "var(--gray-90)"
 
-  }, [focusedIndex, flattenedItems])
+  }, [focusedIndex, flattenedItems, props.id])
 
   const handleUpdateNode = (value: string, updater: (n: treeItem) => treeItem) => {
     setItems(prev => updateNodeInTree(prev, value, updater));
@@ -104,19 +113,28 @@ export default function SelectSingleTreeSearch({
       }));
     }
   };
-
+ 
   function TreeNode({ item, onUpdate }: { item: treeItem, onUpdate: (value: string, updater: (n: treeItem) => treeItem) => void }) {
     return (
       <li
-        className="padding-block-25"
-        id={`treeitem-${item.name.replace(' ', '-')}-${item.value.replace(' ', '-')}`}
+        role="treeitem" 
+        id={`${props.id}-dialog-tree-${item.name.replace(' ', '-')}`}
+        aria-selected={(item.expanded === null || item.onExpand === undefined) && item.value === value?.value}
+        aria-expanded={
+          (item.expanded !== null || item.onExpand !== undefined) 
+          ? !!item.expanded 
+          : undefined}
       >
-        <span
+        <div
           className={`flex gap-25 align-items-center justify-content-space-between`}
           style={{
             paddingLeft: item.expanded === null ? '1.25rem' : ''
           }}
-          onClick={item.expanded !== null ? () => void toggleNode(item) : undefined} // TODO: pressing value without expand should select and set value.
+          onClick={
+            item.expanded !== null || item.onExpand !== undefined
+              ? () => void toggleNode(item) 
+              : () => setValue(item)
+          } // TODO: pressing value without expand should select and set value.
         >
           {(item.onExpand || (item.childNodes && item.childNodes.length > 0))
             ? <span className="flex gap-25 align-items-center">
@@ -126,9 +144,13 @@ export default function SelectSingleTreeSearch({
             : item.name
           }
 
-        </span>
+        </div>
         {item.expanded && item.childNodes && (
-          <ul style={{ listStyle: 'none' }} className="margin-0 padding-top-25 padding-inline-start-75">
+          <ul 
+            role="group"
+            style={{ listStyle: 'none' }} 
+            className="margin-0 padding-inline-start-75"
+          >
             {item.childNodes.map((child, index) => (
               <TreeNode key={index} item={child} onUpdate={onUpdate} />
             ))}
@@ -197,7 +219,12 @@ export default function SelectSingleTreeSearch({
             }}
           />
         </label>
-        <ul style={{ listStyle: 'none', padding: '3px' }} className="margin-0">
+        <ul 
+          role="tree"
+          aria-label={t("common:tsx.options")}
+          id={`${props.id}-dialog-tree`}
+          className="margin-0 padding-0"
+        >
           {items.map((treeItem, index) => (
             <TreeNode key={index} item={treeItem} onUpdate={handleUpdateNode} />
           ))}
