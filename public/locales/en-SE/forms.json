@@ -39,7 +39,7 @@
   "combobox": {
     "search_options": "Search among options",
     "select_single_option": "Select an option",
-    "select_multiple_option": "Select one or multiple options",
+    "select_multiple_options": "Select one or multiple options",
     "select_or_leave": "Select or leave blank",
     "show_suggestions": "Show suggestions" 
   },
