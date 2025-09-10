@@ -114,10 +114,13 @@
     "noErrorTruncation": true
   },
   "include": [
-    "next-env.d.ts",
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
+  ],
+  "files": [
+    "next-env.d.ts",
+    "tests/files/recipe-parser.ts",
   ],
   "exclude": [
     "node_modules",
