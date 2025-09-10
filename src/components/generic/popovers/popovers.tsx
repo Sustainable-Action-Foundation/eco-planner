@@ -30,6 +30,7 @@ export function PopoverButton({
 }) {
   return (
     <button
+      type='button'
       id={id}
       className={`${styles['anchor-name']} ${className}`}
       style={{ '--anchor-name': anchorName, ...style, } as React.CSSProperties}

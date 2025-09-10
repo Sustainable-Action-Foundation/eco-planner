@@ -9,6 +9,8 @@ import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import { DataSeriesVariable, ExternalVariable, ScalarVariable } from "./variables";
 import { Locales } from "i18n.config";
+import { Popover, PopoverButton } from "../generic/popovers/popovers";
+import { IconCirclePlus, IconCirclePlusFilled } from "@tabler/icons-react";
 
 type RecipeContextType = {
   recipe: Recipe | null;
@@ -320,10 +322,74 @@ export function RecipeVariableEditor({
       </ul>
 
       {/* Add variable */}
+      {/* TODO: I18n */}
       {allowAddVariables &&
-        <button type="button" onClick={handleAddVariable}>
-          {t("components:copy_and_scale.add_variable")}
-        </button>
+        <>
+          <button type="button" onClick={handleAddVariable}>
+            {t("components:copy_and_scale.add_variable")}
+          </button>
+          <PopoverButton
+            anchorName="--add-variable-popover-button"
+            popoverTarget="add-variable-popover"
+            className="flex align-items-center gap-25 padding-right-75"
+          >
+            <IconCirclePlusFilled width={20} height={20} style={{ minWidth: '20px' }} />
+            {t("components:copy_and_scale.add_variable")}
+          </PopoverButton>
+          <Popover
+            id="add-variable-popover"
+            popover="auto"
+            positionAnchor="--add-variable-popover-button"
+            anchorInlinePosition="end"
+            popoverDirection="down"
+            margin='1rem'
+          >
+            <fieldset
+              className="padding-50 smooth"
+              style={{
+                border: '1px solid var(--gray)',
+                backgroundColor: 'rgba(255, 255, 255, .8)',
+                backdropFilter: 'blur(2px)'
+              }}
+            >
+              <div
+                className="grid align-items-center"
+                style={{
+                  gridTemplateColumns: 'auto 1fr',
+                  rowGap: '1rem',
+                  columnGap: '1rem'
+                }}
+              >
+                <label>Namn:</label>
+                <input type="text" style={{ backgroundColor: 'var(--gray-95)' }} />
+                <label>
+                  Enhet:
+                </label>
+                <input type="text" style={{ backgroundColor: 'var(--gray-95)' }} /> {/* TODO: This should use suggestive text */}
+                <div style={{alignSelf: 'start'}}>Typ:</div>
+                <div>
+                  <label className="block">
+                    <input type="radio" className="margin-right-25" />
+                    Skalär
+                  </label>
+                  <label className="block margin-top-25">
+                    <input type="radio" className="margin-right-25" />
+                    Dataserie
+                  </label>
+                  <label className="block margin-top-25">
+                    <input type="radio" className="margin-right-25" />
+                    Extern data
+                  </label>
+                </div>
+                <div></div> {/* TODO: Can probably do this better than having an empty div */}
+                <button onClick={handleAddVariable} type="button" className="width-100 color-purewhite font-weight-600" style={{ backgroundColor: '#191919'}}>
+                  Skapa
+                </button>
+              </div>
+
+            </fieldset>
+          </Popover>
+        </>
       }
     </div>
   </>);
