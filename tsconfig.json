@@ -120,7 +120,6 @@
   ],
   "files": [
     "next-env.d.ts",
-    "tests/files/recipe-parser.ts",
   ],
   "exclude": [
     "node_modules",

@@ -1,8 +1,9 @@
 import { parseArgs } from "node:util";
 import "../lib/console";
 import { colors } from "../lib/colors";
-import { RecipeVariableType, type DataSeriesArray, type RawRecipe } from "../../src/functions/recipe-parser/types";
-import { evaluateRecipe, parseRecipe, recipeFromUnknown, unsafeIsRawRecipe } from "../../src/functions/parseRecipe";
+import { isRecipe, RecipeDataTypes, type Recipe } from "../../src/functions/recipe-parser/types";
+import { evaluateRecipe, recipeFromUnknown } from "../../src/functions/parseRecipe";
+import { DataSeriesValueFields } from "../../src/types";
 
 /** Truncates a message to fit within the terminal width, adding ellipses and excess length information if necessary. */
 export function trunc(message: string) {
@@ -58,44 +59,45 @@ if (args.values.help) {
 // Test Case Definitions
 // ---------------------
 
-const testBasicRecipe: RawRecipe = {
+const testBasicRecipe: Recipe = {
   eq: "${stellarEnergy} * 3 + ${cosmicDust}*2 / ${gravityWell}",
   variables: {
-    stellarEnergy: { type: RecipeVariableType.DataSeries, value: { "val2020": 43, "val2021": 44, "val2022": 45 } },
-    cosmicDust: { type: RecipeVariableType.DataSeries, value: { "val2020": 6, "val2021": 7, "val2022": 8 } },
-    gravityWell: { type: RecipeVariableType.Scalar, value: 0.5 },
+    stellarEnergy: { type: RecipeDataTypes.DataSeries, value: { "val2020": 43, "val2021": 44, "val2022": 45 } },
+    cosmicDust: { type: RecipeDataTypes.DataSeries, value: { "val2020": 6, "val2021": 7, "val2022": 8 } },
+    gravityWell: { type: RecipeDataTypes.Scalar, value: 0.5 },
   },
 };
 
-const testMissingVariableRecipe: RawRecipe = {
+const testMissingVariableRecipe: Recipe = {
   eq: "${stellarEnergy} * 3 + ${cosmicDust}*2 / ${gravityWell}",
   variables: {
-    stellarEnergy: { type: RecipeVariableType.DataSeries, value: { "val2020": 43, "val2021": 44, "val2022": 45 } },
-    cosmicDust: { type: RecipeVariableType.DataSeries, value: { "val2020": 6, "val2021": 7, "val2022": 8 } },
+    stellarEnergy: { type: RecipeDataTypes.DataSeries, value: { "val2020": 43, "val2021": 44, "val2022": 45 } },
+    cosmicDust: { type: RecipeDataTypes.DataSeries, value: { "val2020": 6, "val2021": 7, "val2022": 8 } },
     // gravityWell is missing
   },
 };
 
-const testExtraVariableRecipe: RawRecipe = {
+const testExtraVariableRecipe: Recipe = {
   eq: "${stellarEnergy} * 3 + ${cosmicDust}*2 / ${gravityWell}",
   variables: {
-    stellarEnergy: { type: RecipeVariableType.DataSeries, value: { "val2020": 43, "val2021": 44, "val2022": 45 } },
-    cosmicDust: { type: RecipeVariableType.DataSeries, value: { "val2020": 6, "val2021": 7, "val2022": 8 } },
-    gravityWell: { type: RecipeVariableType.Scalar, value: 0.5 },
-    blackHole: { type: RecipeVariableType.Scalar, value: 10 }, // Extra variable
+    stellarEnergy: { type: RecipeDataTypes.DataSeries, value: { "val2020": 43, "val2021": 44, "val2022": 45 } },
+    cosmicDust: { type: RecipeDataTypes.DataSeries, value: { "val2020": 6, "val2021": 7, "val2022": 8 } },
+    gravityWell: { type: RecipeDataTypes.Scalar, value: 0.5 },
+    blackHole: { type: RecipeDataTypes.Scalar, value: 10 }, // Extra variable
   },
 };
 
 const testInvalidVariableRecipe = {
   eq: "${stellarEnergy} * 3 + ${cosmicDust}*2 / ${gravityWell}",
   variables: {
-    stellarEnergy: { type: RecipeVariableType.DataSeries, value: { "val2020": 43, "val2021": 44, "val2022": 45 } },
-    cosmicDust: { type: RecipeVariableType.DataSeries, value: { "val2020": 6, "val2021": 7, "val2022": 8 } },
+    stellarEnergy: { type: RecipeDataTypes.DataSeries, value: { "val2020": 43, "val2021": 44, "val2022": 45 } },
+    cosmicDust: { type: RecipeDataTypes.DataSeries, value: { "val2020": 6, "val2021": 7, "val2022": 8 } },
     gravityWell: { type: "string", value: "0.5" }, // Invalid type
   },
 };
 
-const testEmptyRecipe: RawRecipe = {
+const testEmptyRecipe: Recipe = {
+  name: undefined,
   eq: "",
   variables: {},
 };
@@ -106,217 +108,217 @@ const testNoInput = {
 
 const testNoEquation = {
   variables: {
-    stellarEnergy: { type: RecipeVariableType.DataSeries, value: { "val2020": 43, "val2021": 44, "val2022": 45 } },
-    cosmicDust: { type: RecipeVariableType.DataSeries, value: { "val2020": 6, "val2021": 7, "val2022": 8 } },
-    gravityWell: { type: RecipeVariableType.Scalar, value: 0.5 },
+    stellarEnergy: { type: RecipeDataTypes.DataSeries, value: { "val2020": 43, "val2021": 44, "val2022": 45 } },
+    cosmicDust: { type: RecipeDataTypes.DataSeries, value: { "val2020": 6, "val2021": 7, "val2022": 8 } },
+    gravityWell: { type: RecipeDataTypes.Scalar, value: 0.5 },
   },
 };
 
-const testManyVariables: RawRecipe = {
+const testManyVariables: Recipe = {
   eq: "${alpha} + ${beta} + ${gamma} + ${delta} + ${epsilon} + ${zeta} + ${eta} + ${theta} + ${iota} + ${kappa} + ${lambda} + ${mu} + ${nu} + ${xi} + ${omicron} + ${pi} + ${rho} + ${sigma} + ${tau} + ${upsilon} + ${phi} + ${chi} + ${psi} + ${omega} + ${alphaPrime} + ${betaPrime}",
   variables: {
-    alpha: { type: RecipeVariableType.Scalar, value: 1 }, beta: { type: RecipeVariableType.Scalar, value: 2 }, gamma: { type: RecipeVariableType.Scalar, value: 3 }, delta: { type: RecipeVariableType.Scalar, value: 4 }, epsilon: { type: RecipeVariableType.Scalar, value: 5 }, zeta: { type: RecipeVariableType.Scalar, value: 6 }, eta: { type: RecipeVariableType.Scalar, value: 7 }, theta: { type: RecipeVariableType.Scalar, value: 8 }, iota: { type: RecipeVariableType.Scalar, value: 9 }, kappa: { type: RecipeVariableType.Scalar, value: 10 }, lambda: { type: RecipeVariableType.Scalar, value: 11 }, mu: { type: RecipeVariableType.Scalar, value: 12 }, nu: { type: RecipeVariableType.Scalar, value: 13 }, xi: { type: RecipeVariableType.Scalar, value: 14 }, omicron: { type: RecipeVariableType.Scalar, value: 15 }, pi: { type: RecipeVariableType.Scalar, value: 16 }, rho: { type: RecipeVariableType.Scalar, value: 17 }, sigma: { type: RecipeVariableType.Scalar, value: 18 }, tau: { type: RecipeVariableType.Scalar, value: 19 }, upsilon: { type: RecipeVariableType.Scalar, value: 20 }, phi: { type: RecipeVariableType.Scalar, value: 21 }, chi: { type: RecipeVariableType.Scalar, value: 22 }, psi: { type: RecipeVariableType.Scalar, value: 23 }, omega: { type: RecipeVariableType.Scalar, value: 24 }, alphaPrime: { type: RecipeVariableType.Scalar, value: 25 }, betaPrime: { type: RecipeVariableType.Scalar, value: 26 },
+    alpha: { type: RecipeDataTypes.Scalar, value: 1 }, beta: { type: RecipeDataTypes.Scalar, value: 2 }, gamma: { type: RecipeDataTypes.Scalar, value: 3 }, delta: { type: RecipeDataTypes.Scalar, value: 4 }, epsilon: { type: RecipeDataTypes.Scalar, value: 5 }, zeta: { type: RecipeDataTypes.Scalar, value: 6 }, eta: { type: RecipeDataTypes.Scalar, value: 7 }, theta: { type: RecipeDataTypes.Scalar, value: 8 }, iota: { type: RecipeDataTypes.Scalar, value: 9 }, kappa: { type: RecipeDataTypes.Scalar, value: 10 }, lambda: { type: RecipeDataTypes.Scalar, value: 11 }, mu: { type: RecipeDataTypes.Scalar, value: 12 }, nu: { type: RecipeDataTypes.Scalar, value: 13 }, xi: { type: RecipeDataTypes.Scalar, value: 14 }, omicron: { type: RecipeDataTypes.Scalar, value: 15 }, pi: { type: RecipeDataTypes.Scalar, value: 16 }, rho: { type: RecipeDataTypes.Scalar, value: 17 }, sigma: { type: RecipeDataTypes.Scalar, value: 18 }, tau: { type: RecipeDataTypes.Scalar, value: 19 }, upsilon: { type: RecipeDataTypes.Scalar, value: 20 }, phi: { type: RecipeDataTypes.Scalar, value: 21 }, chi: { type: RecipeDataTypes.Scalar, value: 22 }, psi: { type: RecipeDataTypes.Scalar, value: 23 }, omega: { type: RecipeDataTypes.Scalar, value: 24 }, alphaPrime: { type: RecipeDataTypes.Scalar, value: 25 }, betaPrime: { type: RecipeDataTypes.Scalar, value: 26 },
   }
 }
 
-const testHugeScalar: RawRecipe = {
+const testHugeScalar: Recipe = {
   eq: "${gargantuan} + ${colossal}",
   variables: {
-    gargantuan: { type: RecipeVariableType.Scalar, value: Number.MAX_SAFE_INTEGER },
-    colossal: { type: RecipeVariableType.Scalar, value: Number.MAX_SAFE_INTEGER },
+    gargantuan: { type: RecipeDataTypes.Scalar, value: Number.MAX_SAFE_INTEGER },
+    colossal: { type: RecipeDataTypes.Scalar, value: Number.MAX_SAFE_INTEGER },
   },
 };
 
-const testDivideByZero: RawRecipe = {
+const testDivideByZero: Recipe = {
   eq: "${dividend} / ${divisor}",
   variables: {
-    dividend: { type: RecipeVariableType.Scalar, value: 10 },
-    divisor: { type: RecipeVariableType.Scalar, value: 0 }, // This will cause a divide by zero error
+    dividend: { type: RecipeDataTypes.Scalar, value: 10 },
+    divisor: { type: RecipeDataTypes.Scalar, value: 0 }, // This will cause a divide by zero error
   },
 };
 
-const testLongVariableNames: RawRecipe = {
+const testLongVariableNames: Recipe = {
   eq: "${aVeryLongAndDescriptiveVariableName} + ${anotherSuperLongAndVerboseVariableName}",
   variables: {
-    aVeryLongAndDescriptiveVariableName: { type: RecipeVariableType.Scalar, value: 1 },
-    anotherSuperLongAndVerboseVariableName: { type: RecipeVariableType.Scalar, value: 2 },
+    aVeryLongAndDescriptiveVariableName: { type: RecipeDataTypes.Scalar, value: 1 },
+    anotherSuperLongAndVerboseVariableName: { type: RecipeDataTypes.Scalar, value: 2 },
   },
 };
 
-const testBadCharactersInEquation: RawRecipe = {
+const testBadCharactersInEquation: Recipe = {
   eq: "${badApple} % 3 & ${rottenTomato} | | $ 7",
   variables: {
-    badApple: { type: RecipeVariableType.Scalar, value: 10 },
-    rottenTomato: { type: RecipeVariableType.Scalar, value: 20 },
+    badApple: { type: RecipeDataTypes.Scalar, value: 10 },
+    rottenTomato: { type: RecipeDataTypes.Scalar, value: 20 },
   },
 };
 
-const testEmptyStringTemplate: RawRecipe = {
+const testEmptyStringTemplate: Recipe = {
   eq: "${}",
   variables: {
-    emptyMind: { type: RecipeVariableType.Scalar, value: 10 },
-    blankSlate: { type: RecipeVariableType.Scalar, value: 20 },
+    emptyMind: { type: RecipeDataTypes.Scalar, value: 10 },
+    blankSlate: { type: RecipeDataTypes.Scalar, value: 20 },
   },
 };
 
-const testNumberVariableName: RawRecipe = {
+const testNumberVariableName: Recipe = {
   eq: "${5}",
   variables: {
-    5: { type: RecipeVariableType.Scalar, value: 10 }, // Invalid variable name
-    someOtherVar: { type: RecipeVariableType.Scalar, value: 20 },
+    5: { type: RecipeDataTypes.Scalar, value: 10 }, // Invalid variable name
+    someOtherVar: { type: RecipeDataTypes.Scalar, value: 20 },
   },
 };
 
-const test1800Variables: RawRecipe = {
+const test1800Variables: Recipe = {
   eq: new Array(1800).fill(0).map((_, i) => `\${V${i}}`).join("+"),
   variables: Object.fromEntries(
-    new Array(1800).fill(0).map((_, i) => [`V${i}`, { type: RecipeVariableType.Scalar, value: i }])
+    new Array(1800).fill(0).map((_, i) => [`V${i}`, { type: RecipeDataTypes.Scalar, value: i }])
   ),
 };
 
-const test3000Variables: RawRecipe = {
+const test3000Variables: Recipe = {
   eq: new Array(3000).fill(0).map((_, i) => `\${V${i}}`).join("+"),
   variables: Object.fromEntries(
-    new Array(3000).fill(0).map((_, i) => [`V${i}`, { type: RecipeVariableType.Scalar, value: i }])
+    new Array(3000).fill(0).map((_, i) => [`V${i}`, { type: RecipeDataTypes.Scalar, value: i }])
   ),
 };
 
-const testHugeVector: RawRecipe = {
+const testHugeVector: Recipe = {
   eq: "${timeSeriesOfDoom} * 0.5",
   variables: {
-    timeSeriesOfDoom: { type: RecipeVariableType.DataSeries, value: Object.fromEntries(new Array(10000).fill(1).map((v, i) => ["val" + (2020 + i), v])) }, // Huge dataSeries
+    timeSeriesOfDoom: { type: RecipeDataTypes.DataSeries, value: Object.fromEntries(new Array(10000).fill(1).map((v, i) => ["val" + (2020 + i), v])) }, // Huge dataSeries
   },
 };
 
-const testMixedDataVector: RawRecipe = {
+const testMixedDataVector: Recipe = {
   eq: "${chaoticDataStream} * 0.5",
   variables: {
-    chaoticDataStream: { type: RecipeVariableType.DataSeries, value: { "val2020": 1, "val2021": 2, "val2022": 3, "val2023": null, "val2025": 5, "val2026": 6, "val2027": 7 } }, // Mixed data types
+    chaoticDataStream: { type: RecipeDataTypes.DataSeries, value: { "val2020": 1, "val2021": 2, "val2022": 3, "val2023": null, "val2025": 5, "val2026": 6, "val2027": 7 } }, // Mixed data types
   },
 };
 
-const testInvalidVector: RawRecipe = {
+const testInvalidVector: Recipe = {
   eq: "${corruptedDataFlow} * 0.5",
   variables: {
-    corruptedDataFlow: { type: RecipeVariableType.DataSeries, value: { "val2020": 1, "val2021": 2, "val2022": "three", "val2023": 4, "val2024": 5 } as unknown as DataSeriesArray }, // Invalid dataSeries with a string
+    corruptedDataFlow: { type: RecipeDataTypes.DataSeries, value: { "val2020": 1, "val2021": 2, "val2022": "three", "val2023": 4, "val2024": 5 } as unknown as DataSeriesArray }, // Invalid dataSeries with a string
   },
 };
 
-const testNegativeValues: RawRecipe = {
+const testNegativeValues: Recipe = {
   eq: "${depth} + ${pressure}",
   variables: {
-    depth: { type: RecipeVariableType.DataSeries, value: { "val2020": -1, "val2021": -2, "val2022": -3 } },
-    pressure: { type: RecipeVariableType.DataSeries, value: { "val2020": -4, "val2021": -5, "val2022": -6 } },
+    depth: { type: RecipeDataTypes.DataSeries, value: { "val2020": -1, "val2021": -2, "val2022": -3 } },
+    pressure: { type: RecipeDataTypes.DataSeries, value: { "val2020": -4, "val2021": -5, "val2022": -6 } },
   },
 };
 
-const testNegativeVectorValues: RawRecipe = {
+const testNegativeVectorValues: Recipe = {
   eq: "${theVoidStaresBack} * 2",
   variables: {
-    theVoidStaresBack: { type: RecipeVariableType.DataSeries, value: { "val2020": -1, "val2021": -2, "val2022": -3 } }, // Negative dataSeries values
+    theVoidStaresBack: { type: RecipeDataTypes.DataSeries, value: { "val2020": -1, "val2021": -2, "val2022": -3 } }, // Negative dataSeries values
   },
 };
 
-const testUnicodeVariableNames: RawRecipe = {
+const testUnicodeVariableNames: Recipe = {
   eq: "${变量1} + ${变量2}",
   variables: {
-    变量1: { type: RecipeVariableType.Scalar, value: 10 },
-    变量2: { type: RecipeVariableType.Scalar, value: 20 },
+    变量1: { type: RecipeDataTypes.Scalar, value: 10 },
+    变量2: { type: RecipeDataTypes.Scalar, value: 20 },
   },
 };
 
-const testVariableNameWithSpaces: RawRecipe = {
+const testVariableNameWithSpaces: Recipe = {
   eq: "${The Quick Brown Fox} / ${Jumps Over The Lazy Dog}",
   variables: {
-    "The Quick Brown Fox": { type: RecipeVariableType.DataSeries, value: { "val2020": 5, "val2021": 25, "val2022": 123, "val2023": 68, "val2024": 675, "val2027": 23, "val2029": 34, "val2030": 56, "val2031": 78, "val2032": 90 } },
-    "Jumps Over The Lazy Dog": { type: RecipeVariableType.Scalar, value: 2 },
+    "The Quick Brown Fox": { type: RecipeDataTypes.DataSeries, value: { "val2020": 5, "val2021": 25, "val2022": 123, "val2023": 68, "val2024": 675, "val2027": 23, "val2029": 34, "val2030": 56, "val2031": 78, "val2032": 90 } },
+    "Jumps Over The Lazy Dog": { type: RecipeDataTypes.Scalar, value: 2 },
   },
 };
 
-const testNoEarlyDataInDataSeries: RawRecipe = {
+const testNoEarlyDataInDataSeries: Recipe = {
   eq: "${intermittentSignal} * ${amplificationFactor}",
   variables: {
-    "intermittentSignal": { type: RecipeVariableType.DataSeries, value: { "val2023": 0, "val2024": 12, "val2025": 33, "val2026": 0, "val2030": 2, "val2031": 12, "val2032": 23, "val2033": 4, "val2034": 5, "val2035": 6 } },
-    "amplificationFactor": { type: RecipeVariableType.Scalar, value: 0.03 },
+    "intermittentSignal": { type: RecipeDataTypes.DataSeries, value: { "val2023": 0, "val2024": 12, "val2025": 33, "val2026": 0, "val2030": 2, "val2031": 12, "val2032": 23, "val2033": 4, "val2034": 5, "val2035": 6 } },
+    "amplificationFactor": { type: RecipeDataTypes.Scalar, value: 0.03 },
   },
 };
 
-const testOperatorPrecedence: RawRecipe = {
+const testOperatorPrecedence: Recipe = {
   eq: "(${a} + ${b}) * ${c} / (${d} - ${e})^2",
   variables: {
-    a: { type: RecipeVariableType.Scalar, value: 10 },
-    b: { type: RecipeVariableType.Scalar, value: 5 },
-    c: { type: RecipeVariableType.Scalar, value: 2 },
-    d: { type: RecipeVariableType.Scalar, value: 4 },
-    e: { type: RecipeVariableType.Scalar, value: 2 },
+    a: { type: RecipeDataTypes.Scalar, value: 10 },
+    b: { type: RecipeDataTypes.Scalar, value: 5 },
+    c: { type: RecipeDataTypes.Scalar, value: 2 },
+    d: { type: RecipeDataTypes.Scalar, value: 4 },
+    e: { type: RecipeDataTypes.Scalar, value: 2 },
   },
 };
 
-const testMathFunctions: RawRecipe = {
+const testMathFunctions: Recipe = {
   eq: "map(map(map(${matrix}, sin), abs), sqrt) + log(${ten}) - pow(${a number}, 2)",
   variables: {
-    matrix: { type: RecipeVariableType.DataSeries, value: { "val2020": -1, "val2021": 0.5, "val2022": 1 } },
-    ten: { type: RecipeVariableType.Scalar, value: 10 },
-    "a number": { type: RecipeVariableType.Scalar, value: 2 },
+    matrix: { type: RecipeDataTypes.DataSeries, value: { "val2020": -1, "val2021": 0.5, "val2022": 1 } },
+    ten: { type: RecipeDataTypes.Scalar, value: 10 },
+    "a number": { type: RecipeDataTypes.Scalar, value: 2 },
   },
 };
 
-const testComplexResult: RawRecipe = {
+const testComplexResult: Recipe = {
   eq: "sqrt(${a})",
   variables: {
-    a: { type: RecipeVariableType.Scalar, value: -4 },
+    a: { type: RecipeDataTypes.Scalar, value: -4 },
   },
 };
 
-const testInfinityResult: RawRecipe = {
+const testInfinityResult: Recipe = {
   eq: "log(${a})",
   variables: {
-    a: { type: RecipeVariableType.Scalar, value: 0 },
+    a: { type: RecipeDataTypes.Scalar, value: 0 },
   },
 };
 
-const testMatrixResult: RawRecipe = {
+const testMatrixResult: Recipe = {
   eq: "${a} * transpose([[1,2], [3,4]])",
   variables: {
-    a: { type: RecipeVariableType.DataSeries, value: { "val2020": 1, "val2021": 2 } },
+    a: { type: RecipeDataTypes.DataSeries, value: { "val2020": 1, "val2021": 2 } },
   },
 };
 
-const testUnitCalculation: RawRecipe = {
+const testUnitCalculation: Recipe = {
   eq: "${distance} / ${time}",
   variables: {
-    distance: { type: RecipeVariableType.DataSeries, value: { "val2020": 100, "val2021": 200 }, unit: "km" },
-    time: { type: RecipeVariableType.Scalar, value: 2, unit: "h" },
+    distance: { type: RecipeDataTypes.DataSeries, value: { "val2020": 100, "val2021": 200 }, unit: "km" },
+    time: { type: RecipeDataTypes.Scalar, value: 2, unit: "h" },
   },
 };
 
-const testIncompatibleUnits: RawRecipe = {
+const testIncompatibleUnits: Recipe = {
   eq: "${mass} + ${length}",
   variables: {
-    mass: { type: RecipeVariableType.Scalar, value: 10, unit: "kg" },
-    length: { type: RecipeVariableType.Scalar, value: 5, unit: "m" },
+    mass: { type: RecipeDataTypes.Scalar, value: 10, unit: "kg" },
+    length: { type: RecipeDataTypes.Scalar, value: 5, unit: "m" },
   },
 };
 
-const testRecursiveDefinition: RawRecipe = {
+const testRecursiveDefinition: Recipe = {
   eq: "${a}",
   variables: {
-    a: { type: RecipeVariableType.Scalar, value: "${b}" as any },
-    b: { type: RecipeVariableType.Scalar, value: 10 },
+    a: { type: RecipeDataTypes.Scalar, value: "${b}" as any },
+    b: { type: RecipeDataTypes.Scalar, value: 10 },
   },
 };
 
-const testInvalidSyntax: RawRecipe = {
+const testInvalidSyntax: Recipe = {
   eq: "sqrt(4",
   variables: {},
 };
 
-const testReservedJSKeywords: RawRecipe = {
+const testReservedJSKeywords: Recipe = {
   eq: "${function} + ${class} * ${case}",
   variables: {
-    function: { type: RecipeVariableType.Scalar, value: 1 },
-    class: { type: RecipeVariableType.Scalar, value: 2 },
-    case: { type: RecipeVariableType.Scalar, value: 3 },
+    function: { type: RecipeDataTypes.Scalar, value: 1 },
+    class: { type: RecipeDataTypes.Scalar, value: 2 },
+    case: { type: RecipeDataTypes.Scalar, value: 3 },
   },
 };
 
@@ -361,7 +363,7 @@ const testCases = [
 // -----------
 type TestCase = {
   description: string;
-  recipe: Partial<RawRecipe>;
+  recipe: Partial<Recipe>;
   shouldPass: boolean;
 };
 
@@ -370,7 +372,10 @@ type TestResult = {
   passed: boolean;
   warnings: string[];
   errors: string[];
-  result: DataSeriesArray | null; // The result of the parseRecipe function
+  result: {
+    dataSeries: DataSeriesValueFields;
+    unit: string | null | undefined;
+  } | null; // The result of the parseRecipe function
 };
 
 const passColor = (text: string) => colors.cyanBrightBG(colors.black(text));
@@ -382,19 +387,22 @@ async function runTest(testCase: TestCase): Promise<TestResult> {
   const warnings: string[] = [];
   const errors: string[] = [];
   let passed = false;
-  let result: DataSeriesArray | null = null;
+  let result: {
+    dataSeries: DataSeriesValueFields;
+    unit: string | null | undefined;
+  } | null = null;
 
   try {
     // Parse and normalize recipes
-    const recipeFromObject = await parseRecipe(recipe as RawRecipe);
-    const recipeFromString = await parseRecipe(recipeFromUnknown(JSON.stringify(recipe)));
+    const recipeFromObject = recipeFromUnknown(recipe);
+    const recipeFromString = recipeFromUnknown(JSON.stringify(recipe));
 
     // Test if unsafeIsRawRecipe works 
-    const recipeFromObjectIsRaw = unsafeIsRawRecipe(recipeFromObject);
-    const recipeFromStringIsRaw = unsafeIsRawRecipe(recipeFromString);
+    const recipeFromObjectIsOk = isRecipe(recipeFromObject);
+    const recipeFromStringIsOk = isRecipe(recipeFromString);
     // Add warning if it isn't acceptable which some shouldn't be
-    if (!recipeFromObjectIsRaw || !recipeFromStringIsRaw) {
-      warnings.push("Parsed recipe is not a valid RawRecipe object according to unsafeIsRawRecipe().");
+    if (!recipeFromObjectIsOk || !recipeFromStringIsOk) {
+      warnings.push("Parsed recipe is not a valid Recipe object according to isRecipe().");
     }
 
     // Resolve clean Recipes
@@ -413,13 +421,16 @@ async function runTest(testCase: TestCase): Promise<TestResult> {
     result = resultFromObject;
 
     passed = shouldPass; // If no error is thrown, it passes
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (!(error instanceof Error)) {
+      throw error; // Re-throw if it's not an Error
+    }
     if (!shouldPass) {
       passed = true; // If it was supposed to fail, we consider it passed      
     } else {
       passed = false; // If it was supposed to pass but failed, we consider it failed
     }
-    errors.push(error.stack);
+    errors.push(error.stack ?? error.message);
   }
 
   return { passed, warnings, result, testCase, errors };
@@ -446,8 +457,8 @@ async function runTests() {
     };
 
     // Input details
-    console.debug(truncPad("Eq: " + colors.gray(JSON.stringify((testCase.recipe as RawRecipe)?.eq || ""))));
-    console.debug(truncPad("Variables: " + colors.gray(JSON.stringify((testCase.recipe as RawRecipe)?.variables || {}))));
+    console.debug(truncPad("Eq: " + colors.gray(JSON.stringify((testCase.recipe as Recipe)?.eq || ""))));
+    console.debug(truncPad("Variables: " + colors.gray(JSON.stringify((testCase.recipe as Recipe)?.variables || {}))));
 
     // Result
     if (result) {
