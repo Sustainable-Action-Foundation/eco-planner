@@ -16,10 +16,8 @@ import Image from "next/image"
   that has aria-selected="true" set."
 */
 
-// TODO: Aria-setsize
-// TODO: Aria-posinset
-// TODO: Maybe aria-level
-// TODO: Allow unsetting value
+// TODO: Aria-setsize (How do we deal with this given async functions)
+// TODO: Aria-posinset (How do we deal with this given async functions)
 // TODO: Aria-keycontrols?
 // TODO: Should allow for options with same values? Or we should check that they are unique?
 // TODO: Disallow an empty array for options?
@@ -41,6 +39,7 @@ function flattenTree(items: Array<treeItem>) {
   items.forEach(traverse);
   return result;
 }
+
 function updateNodeInTree(
   items: Array<treeItem>,
   targetValue: string,
@@ -75,7 +74,6 @@ export default function SelectSingleTreeSearch({
 
   const [items, setItems] = useState<Array<treeItem>>(treeItems)
   const [flattenedItems, setFlattenedItems] = useState<Array<treeItem>>(flattenTree(treeItems))
-  // const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
   const toggleRef = useRef<HTMLButtonElement>(null); // TODO: Rename?
 
@@ -121,11 +119,20 @@ export default function SelectSingleTreeSearch({
     }
   };
 
-  function TreeNode({ item, onUpdate }: { item: treeItem, onUpdate: (value: string, updater: (n: treeItem) => treeItem) => void }) {
+  function TreeNode({
+    item,
+    onUpdate,
+    depth = 0
+  }: {
+    item: treeItem,
+    onUpdate: (value: string, updater: (n: treeItem) => treeItem) => void,
+    depth?: number
+  }) {
     return (
       <li
         role="treeitem"
         id={`${props.id}-dialog-tree-${item.name.replace(' ', '-')}`}
+        aria-level={depth + 1}
         aria-selected={(item.expanded === null || item.onExpand === undefined) && item.value === value?.value}
         aria-expanded={
           (item.expanded !== null || item.onExpand !== undefined)
@@ -140,19 +147,26 @@ export default function SelectSingleTreeSearch({
           onClick={
             item.expanded !== null || item.onExpand !== undefined
               ? () => void toggleNode(item)
-              : () => setValue(item)
-          } // TODO: pressing value without expand should select and set value.
+              : () => {
+                if (item.value !== value?.value) {
+                  setValue(item);
+                  setFocusedIndex(flattenedItems.findIndex(el => el.value === item.value));
+                } else {
+                  setValue(null);
+                }
+              }
+          }
         >
           {(item.onExpand || (item.childNodes && item.childNodes.length > 0))
             ? <span className="flex gap-25 align-items-center">
-              {loading ? 
+              {loading ?
                 <Image // TODO: need to keep track of this specific item loading state. Right now all icons will be loaders
                   src='/loaders/ring-resize.svg'
-                  alt="" 
+                  alt=""
                   width={16}
                   height={16}
                 />
-              :
+                :
                 <IconCaretRightFilled
                   width={16}
                   height={16}
@@ -176,7 +190,7 @@ export default function SelectSingleTreeSearch({
             className="margin-0 padding-inline-start-75"
           >
             {item.childNodes.map((child, index) => (
-              <TreeNode key={index} item={child} onUpdate={onUpdate} />
+              <TreeNode key={index} item={child} onUpdate={onUpdate} depth={depth + 1} />
             ))}
           </ul>
         )}
@@ -190,6 +204,7 @@ export default function SelectSingleTreeSearch({
       style={{ ...props.style, userSelect: 'none', width: '350px' }} // TODO: Check width here 
     >
       <button
+        title={value?.name}
         id={props.id}
         className={`${styles['select-toggle']}`}
         style={{ borderColor: menuOpen ? '#191919' : '' }}
@@ -257,6 +272,7 @@ export default function SelectSingleTreeSearch({
                 (item, direction) => {
                   if (direction === "right" && !item.expanded) {
                     void toggleNode(item);
+                    console.log(item)
                   }
                   if (direction === "left" && item.expanded) {
                     void toggleNode(item);
