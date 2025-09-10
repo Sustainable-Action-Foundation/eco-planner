@@ -19,7 +19,6 @@ export const handleKeyDownTreeCombobox = (
 
     if (focusedTreeOptionIndex != null) {
       const item = treeOptions[focusedTreeOptionIndex];
-      console.log(item)
       if (onArrowAction) {
         onArrowAction(item, e.key === "ArrowRight" ? "right" : "left");
       }
@@ -52,6 +51,16 @@ export const handleKeyDownTreeCombobox = (
     } else {
       setFocusedTreeOptionIndex(0);
     }
+  }
+
+  if (e.key === 'Home') {
+    e.preventDefault()
+    setFocusedTreeOptionIndex(0)
+  }
+
+  if (e.key === 'End') {
+    e.preventDefault()
+    setFocusedTreeOptionIndex(treeOptions.length - 1)
   }
 }
 
