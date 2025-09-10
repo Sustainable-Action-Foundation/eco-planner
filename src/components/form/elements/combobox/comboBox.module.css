@@ -104,7 +104,8 @@
     padding-bottom: 0 ;
 }
 
-.listbox li:hover {
+.listbox li:hover,
+.tree li div:hover {
     background-color: var(--gray-90);    
 }
 

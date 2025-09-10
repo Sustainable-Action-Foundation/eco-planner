@@ -5,13 +5,22 @@ export const handleKeyDownTreeCombobox = (
   focusedTreeOptionIndex: number | null,
   setFocusedTreeOptionIndex: React.Dispatch<React.SetStateAction<number | null>>,
   treeOptions: Array<treeItem>, // TODO: rename
-  onArrowAction?: (item: treeItem, direction: "left" | "right") => void
+  onArrowAction?: (item: treeItem, direction: "left" | "right") => void,
+  onEnter?: (selectedTreeItem: treeItem | null, index: number | null) => void // TODO: Do we even need index?
   // comboboxElement?: HTMLInputElement | HTMLButtonElement, // The element which sets the listboxDisplayed value, always an input or button element as those can contain the combobox role 
   // treeDisplayed?: boolean, // Wether or not the listbox is displayed/not displayed, or if it is uncontrolled (always open or always closed)  
   // setTreeDisplayed?: React.Dispatch<React.SetStateAction<boolean>>,
-  // setExpanded?: React.Dispatch<React.SetStateAction<Set<string>>>,
-  // onEnter?: (selectedTreeItem: treeItem | null, index: number | null) => void
+  // setExpanded?: React.Dispatch<React.SetStateAction<Set<string>>>, 
 ) => {
+
+  if (e.key === "Enter") {
+    e.preventDefault()
+    const selectedTreeItem = focusedTreeOptionIndex != null ? treeOptions[focusedTreeOptionIndex] : null;
+    if (onEnter) {
+      onEnter(selectedTreeItem, focusedTreeOptionIndex)
+    }
+
+  }
 
   if ((e.key === "ArrowRight" || e.key === "ArrowLeft")
     && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
@@ -62,6 +71,7 @@ export const handleKeyDownTreeCombobox = (
     e.preventDefault()
     setFocusedTreeOptionIndex(treeOptions.length - 1)
   }
+
 }
 
 // TODO: Replace {name: string, value: string} with option type
@@ -73,7 +83,7 @@ export const handleKeyDownEditableCombobox = (
   listboxOptions: Array<{ name: string, value: string }>,
   focusedListboxOptionIndex: number | null,
   setFocusedListboxOptionIndex: React.Dispatch<React.SetStateAction<number | null>>,
-  onEnter: (selectedOption: { name: string, value: string } | null, index: number | null) => void
+  onEnter: (selectedOption: { name: string, value: string } | null, index: number | null) => void // TODO: Do we even need index?
 ) => {
 
   // 1. Stops focusing any listbox item
@@ -173,18 +183,19 @@ export const handleKeyDownEditableCombobox = (
 };
 
 // Clears any value and set focus to combobox
+// TODO: Make more generic, functions for treeview also
 export function clearEditableCombobox(
   comboboxElement: HTMLInputElement, //  Only input or button elements may contain the combobox role and only input can be editable 
   setComboboxValue: React.Dispatch<React.SetStateAction<string>>,
-  listboxDisplayed: boolean | undefined, // Wether or not the listbox is displayed/not displayed, or if it is uncontrolled (always open or always closed)  
-  setFocusedListboxOptionIndex: React.Dispatch<React.SetStateAction<number | null>>,
+  popupElementDisplayed: boolean | undefined, // Wether or not the listbox is displayed/not displayed, or if it is uncontrolled (always open or always closed)  
+  setFocusedOptionIndex: React.Dispatch<React.SetStateAction<number | null>>,
 ) {
   comboboxElement.value = ''
   setComboboxValue('')
-  if (listboxDisplayed) {
+  if (popupElementDisplayed) {
     comboboxElement.focus();
   }
-  setFocusedListboxOptionIndex(null)
+  setFocusedOptionIndex(null)
 }
 
 export function scrollOptionIntoView(

@@ -3,18 +3,10 @@
 import { inputElement, treeItem } from "@/components/types"
 import { IconCaretRightFilled, IconSearch, IconSelector } from "@tabler/icons-react"
 import { useEffect, useRef, useState } from "react"
-import { handleKeyDownTreeCombobox } from "./functions";
+import { clearEditableCombobox, handleKeyDownTreeCombobox } from "./functions";
 import styles from './comboBox.module.css' with { type: "css" }
 import { useTranslation } from "react-i18next";
 import Image from "next/image"
-
-/* TODO: 
-  "In single-select trees, only one treeitem can have aria-selected (or aria-checked) 
-  set to true. When a single-select tree receives focus, if no treeitem is selected 
-  before the tree receives focus, focus is set on the first treeitem. If a treeitem
-  is selected before the tree receives focus, focus is set on the single treeitem 
-  that has aria-selected="true" set."
-*/
 
 // TODO: Aria-setsize (How do we deal with this given async functions)
 // TODO: Aria-posinset (How do we deal with this given async functions)
@@ -71,11 +63,13 @@ export default function SelectSingleTreeSearch({
   const [value, setValue] = useState<treeItem | null>()
   const [loading, setLoading] = useState(false);
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
+  const [searchValue, setSearchValue] = useState<string>('')
 
   const [items, setItems] = useState<Array<treeItem>>(treeItems)
   const [flattenedItems, setFlattenedItems] = useState<Array<treeItem>>(flattenTree(treeItems))
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
   const toggleRef = useRef<HTMLButtonElement>(null); // TODO: Rename?
+  const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setFlattenedItems(flattenTree(items))
@@ -93,6 +87,16 @@ export default function SelectSingleTreeSearch({
     selectedItemElementText.style.backgroundColor = "var(--gray-90)"
 
   }, [focusedIndex, flattenedItems, props.id])
+
+  useEffect(() => { 
+    if (!searchRef.current) return
+    clearEditableCombobox(
+      searchRef.current,
+      setSearchValue,
+      menuOpen,
+      setFocusedIndex
+    ) 
+  }, [menuOpen]);
 
   const handleUpdateNode = (value: string, updater: (n: treeItem) => treeItem) => {
     setItems(prev => updateNodeInTree(prev, value, updater));
@@ -146,15 +150,8 @@ export default function SelectSingleTreeSearch({
           }}
           onClick={
             item.expanded !== null || item.onExpand !== undefined
-              ? () => void toggleNode(item)
-              : () => {
-                if (item.value !== value?.value) {
-                  setValue(item);
-                  setFocusedIndex(flattenedItems.findIndex(el => el.value === item.value));
-                } else {
-                  setValue(null);
-                }
-              }
+              ? () => {void toggleNode(item); searchRef.current?.focus()}
+              : () => {setValue(item?.value !== value?.value ? item : null); setMenuOpen(false)}
           }
         >
           {(item.onExpand || (item.childNodes && item.childNodes.length > 0))
@@ -263,6 +260,7 @@ export default function SelectSingleTreeSearch({
           <input
             type="text"
             style={{ padding: '0', margin: '0', fontSize: 'revert' }}
+            ref={searchRef}
             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
               handleKeyDownTreeCombobox(
                 e,
@@ -272,11 +270,15 @@ export default function SelectSingleTreeSearch({
                 (item, direction) => {
                   if (direction === "right" && !item.expanded) {
                     void toggleNode(item);
-                    console.log(item)
                   }
                   if (direction === "left" && item.expanded) {
                     void toggleNode(item);
                   }
+                },
+                (selectedTreeItem) => {
+                  setValue(selectedTreeItem?.value !== value?.value ? selectedTreeItem : null); // TODO: Abstract this to use in onclick     
+                  setMenuOpen(false);
+                  toggleRef.current?.focus();
                 }
               )
             }}
