@@ -276,9 +276,14 @@ export default function SelectSingleTreeSearch({
                   }
                 },
                 (selectedTreeItem) => {
-                  setValue(selectedTreeItem?.value !== value?.value ? selectedTreeItem : null); // TODO: Abstract this to use in onclick     
-                  setMenuOpen(false);
-                  toggleRef.current?.focus();
+                  if (!selectedTreeItem) return
+                  if (selectedTreeItem.expanded !== null || selectedTreeItem.onExpand !== undefined) {
+                    void toggleNode(selectedTreeItem)
+                  } else {
+                    setValue(selectedTreeItem?.value !== value?.value ? selectedTreeItem : null); // TODO: Abstract this to use in onclick     
+                    setMenuOpen(false);
+                    toggleRef.current?.focus();
+                  }
                 }
               )
             }}
