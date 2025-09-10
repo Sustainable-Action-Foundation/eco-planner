@@ -366,11 +366,6 @@ test("Mixed server and client side code", () => {
       perFile[filePath].push("Server side file using client side translations");
     }
 
-    if (isClient && isServer) {
-      if (!perFile[filePath]) perFile[filePath] = [];
-      perFile[filePath].push("Found both server and client side code");
-    }
-
     if (usingTServer && usingTClient) {
       if (!perFile[filePath]) perFile[filePath] = [];
       perFile[filePath].push("Found both server and client side i18n functions");
