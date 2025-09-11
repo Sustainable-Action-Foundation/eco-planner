@@ -345,48 +345,41 @@ export function RecipeVariableEditor({
             margin='1rem'
           >
             <fieldset
-              className="padding-50 smooth"
+              className="padding-50 padding-top-75 smooth"
               style={{
                 border: '1px solid var(--gray)',
-                backgroundColor: 'rgba(255, 255, 255, .8)',
-                backdropFilter: 'blur(2px)'
+                backgroundColor: 'white',
               }}
             >
-              <div
-                className="grid align-items-center"
-                style={{
-                  gridTemplateColumns: 'auto 1fr',
-                  rowGap: '1rem',
-                  columnGap: '1rem'
-                }}
-              >
-                <label>Namn:</label>
-                <input type="text" style={{ backgroundColor: 'var(--gray-95)' }} />
+              <div className="floating-label">
                 <label>
-                  Enhet:
+                  Namn
                 </label>
-                <input type="text" style={{ backgroundColor: 'var(--gray-95)' }} /> {/* TODO: This should use suggestive text */}
-                <div style={{alignSelf: 'start'}}>Typ:</div>
-                <div>
-                  <label className="block">
-                    <input type="radio" className="margin-right-25" />
-                    Skalär
-                  </label>
-                  <label className="block margin-top-25">
-                    <input type="radio" className="margin-right-25" />
-                    Dataserie
-                  </label>
-                  <label className="block margin-top-25">
-                    <input type="radio" className="margin-right-25" />
-                    Extern data
-                  </label>
-                </div>
-                <div></div> {/* TODO: Can probably do this better than having an empty div */}
-                <button onClick={handleAddVariable} type="button" className="width-100 color-purewhite font-weight-600" style={{ backgroundColor: '#191919'}}>
-                  Skapa
-                </button>
+                <input type="text" style={{ backgroundColor: 'var(--gray-95)' }} placeholder=" " />
               </div>
-
+              <div className="floating-label">
+                <label>
+                  Enhet
+                </label>
+                <input type="text" className="margin-block-75" style={{ backgroundColor: 'var(--gray-95)' }} placeholder=" " /> {/* TODO: This should use suggestive text */}
+              </div>
+              <div className="margin-block-75">
+                <label className="block margin-left-25">
+                  <input type="radio" className="margin-right-25" name="variable-type" />
+                  Skalär
+                </label>
+                <label className="block margin-left-25 margin-top-25">
+                  <input type="radio" className="margin-right-25" name="variable-type" />
+                  Dataserie
+                </label>
+                <label className="block margin-left-25 margin-top-25">
+                  <input type="radio" className="margin-right-25" name="variable-type" />
+                  Extern data
+                </label>
+              </div>
+              <button onClick={handleAddVariable} type="button" className="width-100 color-purewhite font-weight-600 margin-top-50" style={{ backgroundColor: '#191919' }}>
+                Skapa variabel
+              </button>
             </fieldset>
           </Popover>
         </>
