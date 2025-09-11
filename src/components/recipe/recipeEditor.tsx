@@ -156,18 +156,20 @@ export function RecipeEquationEditor() {
     }
   };
 
-  return (<>
-    <label className="block margin-block-50">
-      <span className="block">{t("components:copy_and_scale.custom_recipe")}</span>
-      <textarea
-        rows={3}
-        placeholder={t("components:copy_and_scale.custom_recipe_placeholder")}
-        className="block width-100"
-        value={recipe?.eq || ""}
-        onChange={handleUpdatedEq}
-      />
-    </label>
-  </>)
+  return (
+    <textarea
+      rows={3}
+      placeholder={t("components:copy_and_scale.custom_recipe_placeholder")}
+      className="block flex-grow-100"
+      style={{
+        border: '0',
+        borderRadius: '.25rem 0 0 0',
+        resize: 'none'
+      }}
+      value={recipe?.eq || ""}
+      onChange={handleUpdatedEq}
+    />
+  )
 }
 
 export function RecipeVariableEditor({
@@ -277,8 +279,21 @@ export function RecipeVariableEditor({
   };
 
   return (
-    <>
-      <ul className="list-style-none padding-0">
+    <div 
+      className="padding-25 flex flex-direction-column"
+      style={{
+        backgroundColor: 'var(--gray-95)', 
+        borderRadius: '0 .25rem .25rem 0', 
+        borderLeft: '1px solid var(--gray)',
+      }}
+    >
+      <ul 
+        className="list-style-none padding-0 margin-25 padding-right-50 flex-grow-100"
+        style={{
+          overflowY: 'scroll',
+          scrollbarWidth: 'thin'
+        }}  
+      >
         {Object.entries(recipe?.variables || []).map(([name, variable], i) => {
           const rules = {
             allowAddVariables,
@@ -328,18 +343,21 @@ export function RecipeVariableEditor({
           <PopoverButton
             anchorName="--add-variable-popover-button"
             popoverTarget="add-variable-popover"
-            className="flex align-items-center gap-25 padding-right-75"
+            className="margin-top-25 font-weight-600 color-purewhite"
+            style={{backgroundColor: '#191919'}}
           >
-            <IconCirclePlusFilled width={20} height={20} style={{ minWidth: '20px' }} />
             {t("components:copy_and_scale.add_variable")}
           </PopoverButton>
           <Popover
             id="add-variable-popover"
             popover="auto"
             positionAnchor="--add-variable-popover-button"
-            anchorInlinePosition="end"
-            popoverDirection="down"
-            margin='1rem'
+            anchorInlinePosition="center"
+            popoverDirection={{
+              vertical: 'down',
+              horizontal: 'right'
+            }}
+            margin='.5rem'
           >
             <fieldset
               className="padding-50 padding-top-75 smooth"
@@ -381,7 +399,7 @@ export function RecipeVariableEditor({
           </Popover>
         </>
       }
-    </>
+    </div>
   );
 }
 
@@ -389,30 +407,30 @@ export function RecipeErrorAndWarnings() {
   const { t } = useTranslation("components");
   const { error, warnings } = useRecipe();
 
-  return (<>
-    {/* Recipe error */}
+  return (
+  <div className="padding-25" style={{backgroundColor: 'var(--gray-90)', borderTop: '1px solid var(--gray)', borderRadius: '0 0 0 .25rem '}}>
     {error && (
-      <div lang={Locales.enSE} className="margin-block-100" style={{ color: 'red' }}>
+      <div lang={Locales.enSE}style={{ color: 'red' }}>
         <strong>{t("components:copy_and_scale.evaluation_error_title")}:</strong>
-        <p>{error}</p>
+        <p className="margin-0">{error}</p>
       </div>
     )}
 
-    {/* Recipe warnings */}
     {warnings.length > 0 && (
-      <div lang={Locales.enSE} className="margin-block-100" style={{ color: 'orange' }}>
+      <div lang={Locales.enSE} style={{ color: 'orange' }}>
         <strong>{t("components:copy_and_scale.evaluation_warning_title")}:</strong>
         <ul>
           {warnings.map((warning, i) => <li key={i}>{warning}</li>)}
         </ul>
       </div>
     )}
-  </>);
+  </div>
+  );
 }
 
 // TODO: remove this once things work
 export function DEBUG_Recipe() {
-  return <pre>
+  return <pre style={{width: '90ch', overflowX: 'scroll'}}>
     {JSON.stringify(useRecipe(), null, 2)}
   </pre>
 }

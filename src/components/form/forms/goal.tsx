@@ -422,17 +422,23 @@ export default function GoalForm({
                 }
               ]} />
 
-              <RecipeEquationEditor />
+              <div 
+                className="flex smooth" 
+                style={{backgroundColor: 'white', border: '1px solid var(--gray)', height: '300px'}}
+              >                
+                <div className="flex-grow-100 flex flex-direction-column">
+                  <RecipeEquationEditor />
+                  <RecipeErrorAndWarnings />
+                </div>
+                <RecipeVariableEditor
+                  allowAddVariables
+                  allowDeleteVariables
+                  allowNameEditing
+                  allowTypeEditing
+                  allowValueEditing
+                />
 
-              <RecipeErrorAndWarnings />
-
-              <RecipeVariableEditor
-                allowAddVariables
-                allowDeleteVariables
-                allowNameEditing
-                allowTypeEditing
-                allowValueEditing
-              />
+              </div>
 
               <label className="width-100">
                 <ResultingDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />

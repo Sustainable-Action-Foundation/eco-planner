@@ -126,7 +126,8 @@ function CommonVariable({
     <li className="margin-block-25">
       <details>
         <summary>
-          <div className="inline-flex gap-25 align-items-center">
+          {name}: {variable.type} [{variable.unit || ""}]
+          {/*
             <input
               className="transparent padding-0"
               style={{
@@ -169,17 +170,16 @@ function CommonVariable({
               disabled={!rules.allowValueEditing}
               readOnly={!rules.allowValueEditing}
               placeholder={t("components:recipe_editor.unit_placeholder")}
-            />
-            {rules.allowDeleteVariables &&
-              <button
-                className="padding-25 round transparent"
-                type="button"
-                onClick={handleDelete}
-              >
-                <IconTrashXFilled width={20} height={20} className="grid" />
-              </button>
-            }
-          </div>
+            /> */}
+          {rules.allowDeleteVariables &&
+            <button
+              className="padding-25 round transparent"
+              type="button"
+              onClick={handleDelete}
+            >
+              <IconTrashXFilled width={20} height={20} className="grid" />
+            </button>
+          }
         </summary>
         <div className="margin-block-50">
           {children}
