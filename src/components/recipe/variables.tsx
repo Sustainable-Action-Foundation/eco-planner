@@ -123,7 +123,7 @@ function CommonVariable({
   }
 
   return (
-    <li className="margin-block-25">
+    <li className="margin-block-25" style={{cursor: 'default'}}>
       <details>
         <summary>
           {name}: {variable.type} [{variable.unit || ""}]
@@ -173,7 +173,8 @@ function CommonVariable({
             /> */}
           {rules.allowDeleteVariables &&
             <button
-              className="padding-25 round transparent"
+              className="padding-25 round transparent margin-left-50"
+              style={{verticalAlign: 'middle'}}
               type="button"
               onClick={handleDelete}
             >

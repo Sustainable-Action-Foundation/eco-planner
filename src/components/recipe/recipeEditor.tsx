@@ -10,7 +10,7 @@ import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import { DataSeriesVariable, ExternalVariable, ScalarVariable } from "./variables";
 import { Locales } from "i18n.config";
 import { Popover, PopoverButton } from "../generic/popovers/popovers";
-import { IconCirclePlus, IconCirclePlusFilled } from "@tabler/icons-react";
+import { IconCirclePlus, IconCirclePlusFilled, IconPlus } from "@tabler/icons-react";
 
 type RecipeContextType = {
   recipe: Recipe | null;
@@ -188,6 +188,10 @@ export function RecipeVariableEditor({
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
 
+  useEffect(() => {
+    console.log(recipe)
+  }, [recipe])
+
   const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[]>([]);
   const [selectedRoadmaps, setSelectedRoadmaps] = useState<string[]>([]);
   const [availableDataSeries, setAvailableDataSeries] = useState<{ id: string; name: string; roadmapId: string; }[]>([]);
@@ -262,37 +266,145 @@ export function RecipeVariableEditor({
 
   }, [recipe, selectedRoadmaps]);
 
+  const [ newVariableName, setNewVariableName ] = useState<string>('')
+  const [ newVariableUnit, setNewVariableUnit ] = useState<string>('')
+  const [ newVariableType, setNewVariableType ] = useState<RecipeDataTypes | undefined>(undefined)
 
   // Hard coded to make a new data series variable. TODO: reconsider this behavior
   const handleAddVariable = () => {
-    const newVarName = `var${Object.keys(recipe?.variables || []).length + 1}`;
+    if (newVariableType === undefined || newVariableName === '' || newVariableUnit === '') return // TODO: Need to show that something is wrong to the user (do we need to require the unit?)
     setRecipe(prev => {
       prev = prev || emptyRecipe;
       return {
         ...prev,
         variables: {
           ...prev.variables,
-          [newVarName]: emptyRecipeDataTypes[RecipeDataTypes.DataSeries],
+          [newVariableName]: { ...emptyRecipeDataTypes[newVariableType], unit: newVariableUnit},
         }
       }
     });
+    setNewVariableName('')
+    setNewVariableUnit('')
+    setNewVariableType(undefined)
   };
 
   return (
-    <div 
+    <div
       className="padding-25 flex flex-direction-column"
       style={{
-        backgroundColor: 'var(--gray-95)', 
-        borderRadius: '0 .25rem .25rem 0', 
+        backgroundColor: 'var(--gray-95)',
+        borderRadius: '0 .25rem .25rem 0',
         borderLeft: '1px solid var(--gray)',
       }}
     >
-      <ul 
+      {/* TODO: I18n */}
+      {allowAddVariables &&
+        <>
+          <PopoverButton
+            anchorName="--add-variable-popover-button"
+            popoverTarget="add-variable-popover"
+            className="font-weight-600 color-purewhite"
+            style={{ backgroundColor: '#191919', fontSize: '.75rem', padding: '.3rem .6rem', lineHeight: '1' }}
+          > 
+            {t("components:copy_and_scale.add_variable")}
+          </PopoverButton>
+          <Popover
+            id="add-variable-popover"
+            popover="auto"
+            positionAnchor="--add-variable-popover-button"
+            anchorInlinePosition="center"
+            popoverDirection={{
+              vertical: 'down',
+              horizontal: 'right'
+            }}
+            margin='.5rem'
+          >
+            <fieldset
+              className="padding-50 padding-top-75 smooth"
+              style={{
+                border: '1px solid var(--gray)',
+                backgroundColor: 'white',
+              }}
+            >
+              <div className="floating-label">
+                <label>
+                  Namn
+                </label>
+                <input 
+                  type="text" 
+                  style={{ backgroundColor: 'var(--gray-95)' }} 
+                  placeholder=" "
+                  value={newVariableName}
+                  onChange={(e) => setNewVariableName(e.target.value)}
+                />
+              </div>
+              <div className="floating-label">
+                <label>
+                  Enhet
+                </label>
+                <input 
+                  type="text" 
+                  className="margin-block-75" 
+                  style={{ backgroundColor: 'var(--gray-95)' }} 
+                  placeholder=" " 
+                  value={newVariableUnit}
+                  onChange={(e) => setNewVariableUnit(e.target.value)}
+                /> {/* TODO: This should use suggestive text */}
+              </div>
+              <div className="margin-block-75">
+                <label className="block margin-left-25">
+                  <input 
+                    type="radio" 
+                    className="margin-right-25" 
+                    name="variable-type" 
+                    value={RecipeDataTypes.Scalar}
+                    checked={newVariableType === RecipeDataTypes.Scalar}   
+                    onChange={() => setNewVariableType(RecipeDataTypes.Scalar)}
+                  />
+                  Skalär
+                </label>
+                <label className="block margin-left-25 margin-top-25">
+                  <input  
+                    type="radio" 
+                    className="margin-right-25" 
+                    name="variable-type" 
+                    value={RecipeDataTypes.DataSeries}
+                    checked={newVariableType === RecipeDataTypes.DataSeries}
+                    onChange={() => setNewVariableType(RecipeDataTypes.DataSeries)}
+                  />
+                  Dataserie
+                </label>
+                <label className="block margin-left-25 margin-top-25">
+                  <input 
+                    type="radio" 
+                    className="margin-right-25" 
+                    name="variable-type" 
+                    value={RecipeDataTypes.External}
+                    checked={newVariableType === RecipeDataTypes.External}
+                    onChange={() => setNewVariableType(RecipeDataTypes.External)}
+                  />
+                  Extern data
+                </label>
+              </div>
+              <button 
+                type="button"
+                className="width-100 color-purewhite font-weight-600 margin-top-50" 
+                style={{ backgroundColor: '#191919' }}
+                popoverTarget='add-variable-popover'
+                onClick={handleAddVariable}  
+              >
+                Skapa variabel
+              </button>
+            </fieldset>
+          </Popover>
+        </>
+      }
+      <ul
         className="list-style-none padding-0 margin-25 padding-right-50 flex-grow-100"
         style={{
           overflowY: 'scroll',
           scrollbarWidth: 'thin'
-        }}  
+        }}
       >
         {Object.entries(recipe?.variables || []).map(([name, variable], i) => {
           const rules = {
@@ -336,69 +448,6 @@ export function RecipeVariableEditor({
           }
         })}
       </ul>
-
-      {/* TODO: I18n */}
-      {allowAddVariables &&
-        <> 
-          <PopoverButton
-            anchorName="--add-variable-popover-button"
-            popoverTarget="add-variable-popover"
-            className="margin-top-25 font-weight-600 color-purewhite"
-            style={{backgroundColor: '#191919'}}
-          >
-            {t("components:copy_and_scale.add_variable")}
-          </PopoverButton>
-          <Popover
-            id="add-variable-popover"
-            popover="auto"
-            positionAnchor="--add-variable-popover-button"
-            anchorInlinePosition="center"
-            popoverDirection={{
-              vertical: 'down',
-              horizontal: 'right'
-            }}
-            margin='.5rem'
-          >
-            <fieldset
-              className="padding-50 padding-top-75 smooth"
-              style={{
-                border: '1px solid var(--gray)',
-                backgroundColor: 'white',
-              }}
-            >
-              <div className="floating-label">
-                <label>
-                  Namn
-                </label>
-                <input type="text" style={{ backgroundColor: 'var(--gray-95)' }} placeholder=" " />
-              </div>
-              <div className="floating-label">
-                <label>
-                  Enhet
-                </label>
-                <input type="text" className="margin-block-75" style={{ backgroundColor: 'var(--gray-95)' }} placeholder=" " /> {/* TODO: This should use suggestive text */}
-              </div>
-              <div className="margin-block-75">
-                <label className="block margin-left-25">
-                  <input type="radio" className="margin-right-25" name="variable-type" />
-                  Skalär
-                </label>
-                <label className="block margin-left-25 margin-top-25">
-                  <input type="radio" className="margin-right-25" name="variable-type" />
-                  Dataserie
-                </label>
-                <label className="block margin-left-25 margin-top-25">
-                  <input type="radio" className="margin-right-25" name="variable-type" />
-                  Extern data
-                </label>
-              </div>
-              <button onClick={handleAddVariable} type="button" className="width-100 color-purewhite font-weight-600 margin-top-50" style={{ backgroundColor: '#191919' }}>
-                Skapa variabel
-              </button>
-            </fieldset>
-          </Popover>
-        </>
-      }
     </div>
   );
 }
@@ -408,29 +457,29 @@ export function RecipeErrorAndWarnings() {
   const { error, warnings } = useRecipe();
 
   return (
-  <div className="padding-25" style={{backgroundColor: 'var(--gray-90)', borderTop: '1px solid var(--gray)', borderRadius: '0 0 0 .25rem '}}>
-    {error && (
-      <div lang={Locales.enSE}style={{ color: 'red' }}>
-        <strong>{t("components:copy_and_scale.evaluation_error_title")}:</strong>
-        <p className="margin-0">{error}</p>
-      </div>
-    )}
+    <div className="padding-25" style={{ backgroundColor: 'var(--gray-90)', borderTop: '1px solid var(--gray)', borderRadius: '0 0 0 .25rem ' }}>
+      {error && (
+        <div lang={Locales.enSE} style={{ color: 'red' }}>
+          <strong>{t("components:copy_and_scale.evaluation_error_title")}:</strong>
+          <p className="margin-0">{error}</p>
+        </div>
+      )}
 
-    {warnings.length > 0 && (
-      <div lang={Locales.enSE} style={{ color: 'orange' }}>
-        <strong>{t("components:copy_and_scale.evaluation_warning_title")}:</strong>
-        <ul>
-          {warnings.map((warning, i) => <li key={i}>{warning}</li>)}
-        </ul>
-      </div>
-    )}
-  </div>
+      {warnings.length > 0 && (
+        <div lang={Locales.enSE} style={{ color: 'orange' }}>
+          <strong>{t("components:copy_and_scale.evaluation_warning_title")}:</strong>
+          <ul>
+            {warnings.map((warning, i) => <li key={i}>{warning}</li>)}
+          </ul>
+        </div>
+      )}
+    </div>
   );
 }
 
 // TODO: remove this once things work
 export function DEBUG_Recipe() {
-  return <pre style={{width: '90ch', overflowX: 'scroll'}}>
+  return <pre style={{ width: '90ch', overflowX: 'scroll' }}>
     {JSON.stringify(useRecipe(), null, 2)}
   </pre>
 }

@@ -426,10 +426,6 @@ export default function GoalForm({
                 className="flex smooth" 
                 style={{backgroundColor: 'white', border: '1px solid var(--gray)', height: '300px'}}
               >                
-                <div className="flex-grow-100 flex flex-direction-column">
-                  <RecipeEquationEditor />
-                  <RecipeErrorAndWarnings />
-                </div>
                 <RecipeVariableEditor
                   allowAddVariables
                   allowDeleteVariables
@@ -437,7 +433,10 @@ export default function GoalForm({
                   allowTypeEditing
                   allowValueEditing
                 />
-
+                <div className="flex-grow-100 flex flex-direction-column">
+                  <RecipeEquationEditor />
+                  <RecipeErrorAndWarnings />
+                </div>
               </div>
 
               <label className="width-100">

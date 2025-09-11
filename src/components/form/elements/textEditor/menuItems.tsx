@@ -507,7 +507,7 @@ export function Link(props: MenubarButtonProps) {
 }
 
 type FontSizeProps = MenubarButtonProps & { editorId: string };
-// TODO: Menu should default select the value of highlighted text... 
+// TODO: Selecting large text is buggy 
 export function FontSize({ t, editor, menuGroup, setFocusedMenubarItem, editorId }: FontSizeProps) {
 
   const [fontSizeMenuOpen, setFontSizeMenuOpen] = useState<boolean>(false);
