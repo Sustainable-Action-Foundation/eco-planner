@@ -276,14 +276,9 @@ export function RecipeVariableEditor({
     });
   };
 
-  return (<>
-    <div className="margin-inline-auto width-100">
-      {t("components:copy_and_scale.recipe_variables")}
-      <ul className="list-style-none padding-0" style={{
-        display: 'flex',
-        flexFlow: 'column nowrap',
-        rowGap: '1ch',
-      }}>
+  return (
+    <>
+      <ul className="list-style-none padding-0">
         {Object.entries(recipe?.variables || []).map(([name, variable], i) => {
           const rules = {
             allowAddVariables,
@@ -294,26 +289,32 @@ export function RecipeVariableEditor({
           };
           switch (variable.type) {
             case RecipeDataTypes.Scalar:
-              return <ScalarVariable
-                key={"recipeVariable" + i}
-                name={name}
-                rules={rules}
-              />
+              return (
+                <ScalarVariable
+                  key={"recipeVariable" + i}
+                  name={name}
+                  rules={rules}
+                />
+              )
             case RecipeDataTypes.DataSeries:
-              return <DataSeriesVariable
-                key={"recipeVariable" + i}
-                name={name}
-                rules={rules}
-                availableRoadmaps={availableRoadmaps}
-                availableDataSeries={availableDataSeries}
-                setSelectedRoadmaps={setSelectedRoadmaps}
-              />
+              return (
+                <DataSeriesVariable
+                  key={"recipeVariable" + i}
+                  name={name}
+                  rules={rules}
+                  availableRoadmaps={availableRoadmaps}
+                  availableDataSeries={availableDataSeries}
+                  setSelectedRoadmaps={setSelectedRoadmaps}
+                />
+              )
             case RecipeDataTypes.External:
-              return <ExternalVariable
-                key={"recipeVariable" + i}
-                name={name}
-                rules={rules}
-              />
+              return (
+                <ExternalVariable
+                  key={"recipeVariable" + i}
+                  name={name}
+                  rules={rules}
+                />
+              )
             default:
               variable = variable as RecipeVariables;
               console.warn("Unknown variable type", variable.type, "for variable", name);
@@ -321,13 +322,9 @@ export function RecipeVariableEditor({
         })}
       </ul>
 
-      {/* Add variable */}
       {/* TODO: I18n */}
       {allowAddVariables &&
-        <>
-          <button type="button" onClick={handleAddVariable}>
-            {t("components:copy_and_scale.add_variable")}
-          </button>
+        <> 
           <PopoverButton
             anchorName="--add-variable-popover-button"
             popoverTarget="add-variable-popover"
@@ -384,8 +381,8 @@ export function RecipeVariableEditor({
           </Popover>
         </>
       }
-    </div>
-  </>);
+    </>
+  );
 }
 
 export function RecipeErrorAndWarnings() {
