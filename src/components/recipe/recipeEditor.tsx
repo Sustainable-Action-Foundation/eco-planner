@@ -10,7 +10,6 @@ import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import { DataSeriesVariable, ExternalVariable, ScalarVariable } from "./variables";
 import { Locales } from "i18n.config";
 import { Popover, PopoverButton } from "../generic/popovers/popovers";
-import { IconCirclePlus, IconCirclePlusFilled, IconPlus } from "@tabler/icons-react";
 
 type RecipeContextType = {
   recipe: Recipe | null;
@@ -457,7 +456,7 @@ export function RecipeErrorAndWarnings() {
   const { error, warnings } = useRecipe();
 
   return (
-    <div className="padding-25" style={{ backgroundColor: 'var(--gray-90)', borderTop: '1px solid var(--gray)', borderRadius: '0 0 0 .25rem ' }}>
+    <>
       {error && (
         <div lang={Locales.enSE} style={{ color: 'red' }}>
           <strong>{t("components:copy_and_scale.evaluation_error_title")}:</strong>
@@ -473,7 +472,7 @@ export function RecipeErrorAndWarnings() {
           </ul>
         </div>
       )}
-    </div>
+    </>
   );
 }
 

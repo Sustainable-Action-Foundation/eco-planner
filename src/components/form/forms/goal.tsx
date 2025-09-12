@@ -21,6 +21,7 @@ import { treeItem } from "@/components/types";
 import getMetaRoadmaps from "@/fetchers/getMetaRoadmaps";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
+import { IconMenu2 } from "@tabler/icons-react";
 
 // Enum for selecting the type of data series for the goal
 enum DataSeriesType {
@@ -422,28 +423,53 @@ export default function GoalForm({
                 }
               ]} />
 
-              <div 
-                className="flex smooth" 
-                style={{backgroundColor: 'white', border: '1px solid var(--gray)', height: '300px'}}
-              >                
-                <RecipeVariableEditor
-                  allowAddVariables
-                  allowDeleteVariables
-                  allowNameEditing
-                  allowTypeEditing
-                  allowValueEditing
-                />
-                <div className="flex-grow-100 flex flex-direction-column">
+              <div
+                className="smooth"
+                style={{ backgroundColor: 'white', border: '1px solid var(--gray)'}}
+              >
+                <div style={{
+                  borderBottom: '1px solid var(--gray)',
+                  backgroundColor: 'var(--gray-95)',
+                  padding: ".25rem",
+                  borderRadius: '.25rem .25rem 0 0'
+                }}> {/* Our menu / tabview between  */}
+                  <span >Recept</span>
+                  <span style={{ marginLeft: '1rem' }}>Variabler</span>
+                  <IconMenu2 style={{ float: 'right' }} />
+                </div>
+                <div className="flex">
                   <RecipeEquationEditor />
+                  <RecipeVariableEditor
+                    allowAddVariables
+                    allowDeleteVariables
+                    allowNameEditing
+                    allowTypeEditing
+                    allowValueEditing
+                  />
+                </div>
+                <div
+                  style={{
+                    borderTop: '1px solid var(--gray)',
+                    backgroundColor: 'var(--gray-95)',
+                    padding: ".25rem",
+                    borderRadius: '0 0 .25rem .25rem'
+                  }}
+                >
+                  { /*
+                  TODO: RecipeErrorAndWarnings, Resulting Data series and a graph should be located in a tabview here
+                  TODO: Tabview can accept a bunch of children and then use data-attributes to determine the tab name.
+                */ }
+                  <span>Debug</span>
+                  <span style={{ marginLeft: '1rem' }}>Dataserie</span>
+                  <span style={{ marginLeft: '1rem' }}>Graf</span>
                   <RecipeErrorAndWarnings />
+                  <ResultingDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />
                 </div>
               </div>
 
+
               <label className="width-100">
-                <ResultingDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />
-              </label>
-              <label className="width-100">
-                <ResultingRecipe FormElement={<input type="hidden" name="resultingRecipe" />} />
+                <ResultingRecipe FormElement={<input type="hidden" name="resultingRecipe" />} /> {/* TODO: What is this? */}
               </label>
 
               <DEBUG_Recipe />
