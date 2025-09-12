@@ -265,9 +265,9 @@ export function RecipeVariableEditor({
 
   }, [recipe, selectedRoadmaps]);
 
-  const [ newVariableName, setNewVariableName ] = useState<string>('')
-  const [ newVariableUnit, setNewVariableUnit ] = useState<string>('')
-  const [ newVariableType, setNewVariableType ] = useState<RecipeDataTypes | undefined>(undefined)
+  const [newVariableName, setNewVariableName] = useState<string>('')
+  const [newVariableUnit, setNewVariableUnit] = useState<string>('')
+  const [newVariableType, setNewVariableType] = useState<RecipeDataTypes | undefined>(undefined)
 
   // Hard coded to make a new data series variable. TODO: reconsider this behavior
   const handleAddVariable = () => {
@@ -278,7 +278,7 @@ export function RecipeVariableEditor({
         ...prev,
         variables: {
           ...prev.variables,
-          [newVariableName]: { ...emptyRecipeDataTypes[newVariableType], unit: newVariableUnit},
+          [newVariableName]: { ...emptyRecipeDataTypes[newVariableType], unit: newVariableUnit },
         }
       }
     });
@@ -304,7 +304,7 @@ export function RecipeVariableEditor({
             popoverTarget="add-variable-popover"
             className="font-weight-600 color-purewhite"
             style={{ backgroundColor: '#191919', fontSize: '.75rem', padding: '.3rem .6rem', lineHeight: '1' }}
-          > 
+          >
             {t("components:copy_and_scale.add_variable")}
           </PopoverButton>
           <Popover
@@ -329,9 +329,9 @@ export function RecipeVariableEditor({
                 <label>
                   Namn
                 </label>
-                <input 
-                  type="text" 
-                  style={{ backgroundColor: 'var(--gray-95)' }} 
+                <input
+                  type="text"
+                  style={{ backgroundColor: 'var(--gray-95)' }}
                   placeholder=" "
                   value={newVariableName}
                   onChange={(e) => setNewVariableName(e.target.value)}
@@ -341,32 +341,32 @@ export function RecipeVariableEditor({
                 <label>
                   Enhet
                 </label>
-                <input 
-                  type="text" 
-                  className="margin-block-75" 
-                  style={{ backgroundColor: 'var(--gray-95)' }} 
-                  placeholder=" " 
+                <input
+                  type="text"
+                  className="margin-block-75"
+                  style={{ backgroundColor: 'var(--gray-95)' }}
+                  placeholder=" "
                   value={newVariableUnit}
                   onChange={(e) => setNewVariableUnit(e.target.value)}
                 /> {/* TODO: This should use suggestive text */}
               </div>
               <div className="margin-block-75">
                 <label className="block margin-left-25">
-                  <input 
-                    type="radio" 
-                    className="margin-right-25" 
-                    name="variable-type" 
+                  <input
+                    type="radio"
+                    className="margin-right-25"
+                    name="variable-type"
                     value={RecipeDataTypes.Scalar}
-                    checked={newVariableType === RecipeDataTypes.Scalar}   
+                    checked={newVariableType === RecipeDataTypes.Scalar}
                     onChange={() => setNewVariableType(RecipeDataTypes.Scalar)}
                   />
                   Skalär
                 </label>
                 <label className="block margin-left-25 margin-top-25">
-                  <input  
-                    type="radio" 
-                    className="margin-right-25" 
-                    name="variable-type" 
+                  <input
+                    type="radio"
+                    className="margin-right-25"
+                    name="variable-type"
                     value={RecipeDataTypes.DataSeries}
                     checked={newVariableType === RecipeDataTypes.DataSeries}
                     onChange={() => setNewVariableType(RecipeDataTypes.DataSeries)}
@@ -374,10 +374,10 @@ export function RecipeVariableEditor({
                   Dataserie
                 </label>
                 <label className="block margin-left-25 margin-top-25">
-                  <input 
-                    type="radio" 
-                    className="margin-right-25" 
-                    name="variable-type" 
+                  <input
+                    type="radio"
+                    className="margin-right-25"
+                    name="variable-type"
                     value={RecipeDataTypes.External}
                     checked={newVariableType === RecipeDataTypes.External}
                     onChange={() => setNewVariableType(RecipeDataTypes.External)}
@@ -385,12 +385,12 @@ export function RecipeVariableEditor({
                   Extern data
                 </label>
               </div>
-              <button 
+              <button
                 type="button"
-                className="width-100 color-purewhite font-weight-600 margin-top-50" 
+                className="width-100 color-purewhite font-weight-600 margin-top-50"
                 style={{ backgroundColor: '#191919' }}
                 popoverTarget='add-variable-popover'
-                onClick={handleAddVariable}  
+                onClick={handleAddVariable}
               >
                 Skapa variabel
               </button>
@@ -496,7 +496,7 @@ export function ResultingDataSeries({ FormElement }: { FormElement?: ReactElemen
   }
 
   return (
-    <div className="margin-inline-auto width-100">
+    <>
       {/* Hidden input for reading into the form */}
       {FormElement && <FormElement.type {...(FormElement.props || {})} value={JSON.stringify(resultingDataSeries)} />}
 
@@ -507,31 +507,25 @@ export function ResultingDataSeries({ FormElement }: { FormElement?: ReactElemen
         {resultingUnit ? ` (${resultingUnit})` : ""}
       </strong>
 
-      {/* Table to display resulting data series */}
-      <table style={{
-        display: "block",
-        width: "100%",
-        maxWidth: "60dvw",
-        overflowX: "auto",
-      }}>
-        <thead>
-          <tr>
-            <th className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_year")}</th>
-            {Object.keys(resultingDataSeries).map((year, i) => (
-              <th className="padding-50 text-align-center" key={i + "resulting-data-series-header" + year}>{year.replace("val", "")}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_value")}</td>
-            {Object.values(resultingDataSeries).map((value, i) => (
-              <td className="padding-50 text-align-center" key={i + "resulting-data-series-value" + String(value)}>{(value as number)?.toFixed(1) || "-"}</td>
-            ))}
-          </tr>
-        </tbody>
-      </table>
-    </div>
+      {/* Grid to display resulting data series */}
+      <div // TODO: What causes this to overflow exactly??
+        className="grid gap-100"
+        style={{
+          gridTemplateColumns: `repeat(${Object.keys(resultingDataSeries).length}, 1fr)`,
+          gridTemplateRows: 'auto auto',
+          overflowX: 'scroll'
+        }}
+      >
+        {/*<th className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_year")}</th>*/}
+        {Object.keys(resultingDataSeries).map((year, i) => (
+          <div className="text-align-center" style={{ gridRow: 1, gridColumn: i + 1 }} key={i + "resulting-data-series-header" + year}>{year.replace("val", "")}</div>
+        ))}
+        {/*<td className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_value")}</td>*/}
+        {Object.values(resultingDataSeries).map((value, i) => (
+          <div className="text-align-center" style={{ gridRow: 2, gridColumn: i + 1 }} key={i + "resulting-data-series-value" + String(value)}>{(value as number)?.toFixed(1) || "-"}</div>
+        ))}
+      </div>
+    </>
   )
 }
 
