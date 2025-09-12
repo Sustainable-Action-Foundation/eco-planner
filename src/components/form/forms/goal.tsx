@@ -22,6 +22,7 @@ import getMetaRoadmaps from "@/fetchers/getMetaRoadmaps";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import { IconMenu2 } from "@tabler/icons-react";
+import TabView from "@/components/generic/tabview/tabView";
 
 // Enum for selecting the type of data series for the goal
 enum DataSeriesType {
@@ -476,6 +477,12 @@ export default function GoalForm({
             </RecipeContextProvider>
           }
         </fieldset>
+
+        <TabView>
+          <div role="tabpanel" data-tabname="Overview">Overview content</div>
+          <div role="tabpanel" data-tabname="Settings">Settings content</div>
+          <div role="tabpanel" data-tabname="Profile">Profile content</div>
+        </TabView>
 
         {/* Baseline selection section */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
