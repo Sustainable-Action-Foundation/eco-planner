@@ -48,8 +48,19 @@ export async function POST(request: NextRequest) {
   }
 
   // Check if email belongs to an allowed domain
-  if (!allowedDomains.includes(lowercaseEmail.split('@')[1])) {
-    return Response.json({ message: 'Email domain "' + lowercaseEmail.split('@')[1] + '" is not allowed' },
+  // Get the part after last '@' to support emails like `"john@doe"@example.com`, and trim any whitespace or trailing '>' character (e.g. if the email is in the format `John Doe <john.doe@example.com>`)
+  const domain = lowercaseEmail.split('@').pop()?.trim().replace(/>$/, '').trim();
+  /** A regex matching domain names according to RFC 1035 and RFC 1123 */
+  const domainRegex = /^[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?)*$/;
+  if (!domainRegex.test(domain ?? '')) {
+    return Response.json({ message: `Failed to parse domain '${domain}'.` },
+      { status: 400 }
+    );
+  }
+
+  // Check if the domain ends with any of the allowed domains (to allow subdomains)
+  if (!allowedDomains.some((allowedDomain) => (domain === allowedDomain) || (domain ?? '').endsWith('.' + allowedDomain))) {
+    return Response.json({ message: `Email domain '${domain}' is not allowed` },
       { status: 400 }
     );
   }
