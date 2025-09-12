@@ -426,28 +426,33 @@ export default function GoalForm({
 
               <div
                 className="smooth"
-                style={{ backgroundColor: 'white', border: '1px solid var(--gray)'}}
+                style={{ backgroundColor: 'white', border: '1px solid var(--gray)' }}
               >
-                <div style={{
-                  borderBottom: '1px solid var(--gray)',
-                  backgroundColor: 'var(--gray-95)',
-                  padding: ".25rem",
-                  borderRadius: '.25rem .25rem 0 0'
-                }}> {/* Our menu / tabview between  */}
-                  <span >Recept</span>
-                  <span style={{ marginLeft: '1rem' }}>Variabler</span>
-                  <IconMenu2 style={{ float: 'right' }} />
-                </div>
-                <div className="flex">
-                  <RecipeEquationEditor />
-                  <RecipeVariableEditor
-                    allowAddVariables
-                    allowDeleteVariables
-                    allowNameEditing
-                    allowTypeEditing
-                    allowValueEditing
-                  />
-                </div>
+                <TabList>
+                  <div
+                    role="tabpanel"
+                    data-tabname="Recept"
+                    id="equation-editor-panel"
+                    aria-labelledby="equation-editor-tab"
+                  >
+                    <RecipeEquationEditor />
+                  </div>
+                  <div
+                    role="tabpanel"
+                    data-tabname="Variabler" 
+                    id="variable-editor-panel"
+                    aria-labelledby="variable-editor-tab"
+                  >
+                    <RecipeVariableEditor
+                      allowAddVariables
+                      allowDeleteVariables
+                      allowNameEditing
+                      allowTypeEditing
+                      allowValueEditing
+                    />
+                  </div>
+                </TabList>
+                {/* A list of all variables goes here. */}
                 <div
                   style={{
                     borderTop: '1px solid var(--gray)',
@@ -457,14 +462,26 @@ export default function GoalForm({
                   }}
                 >
                   { /*
-                  TODO: RecipeErrorAndWarnings, Resulting Data series and a graph should be located in a tabview here
-                  TODO: Tabview can accept a bunch of children and then use data-attributes to determine the tab name.
+                  TODO: Add graph to tablist
                 */ }
-                  <span>Debug</span>
-                  <span style={{ marginLeft: '1rem' }}>Dataserie</span>
-                  <span style={{ marginLeft: '1rem' }}>Graf</span>
-                  <RecipeErrorAndWarnings />
-                  <ResultingDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />
+                  <TabList>
+                    <div
+                      role="tabpanel"
+                      data-tabname="debug"
+                      id="debug-panel"
+                      aria-labelledby="debug-tab"
+                    >
+                      <RecipeErrorAndWarnings />
+                    </div>
+                    <div
+                      role="tabpanel"
+                      data-tabname="dataserie"
+                      id="dataserie-panel"
+                      aria-labelledby="debug-tab"
+                    >
+                      <ResultingDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />
+                    </div>
+                  </TabList>
                 </div>
               </div>
 
