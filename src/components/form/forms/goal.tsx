@@ -479,9 +479,9 @@ export default function GoalForm({
         </fieldset>
 
         <TabView>
-          <div role="tabpanel" data-tabname="Overview">Overview content</div>
-          <div role="tabpanel" data-tabname="Settings">Settings content</div>
-          <div role="tabpanel" data-tabname="Profile">Profile content</div>
+          <div role="tabpanel" id="overview-panel" aria-labelledby="overview-tab" data-tabname="overview">Overview content</div>
+          <div role="tabpanel" id="settings-panel" aria-labelledby="settings-tab" data-tabname="settings">Settings content</div>
+          <div role="tabpanel" id="profile-panel" aria-labelledby="profile-tab" data-tabname="profile">Profile content</div>
         </TabView>
 
         {/* Baseline selection section */}
