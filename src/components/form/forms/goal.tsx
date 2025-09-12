@@ -22,7 +22,7 @@ import getMetaRoadmaps from "@/fetchers/getMetaRoadmaps";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import { IconMenu2 } from "@tabler/icons-react";
-import TabView from "@/components/generic/tabview/tabView";
+import TabList from "@/components/generic/tabview/tabList";
 
 // Enum for selecting the type of data series for the goal
 enum DataSeriesType {
@@ -478,11 +478,11 @@ export default function GoalForm({
           }
         </fieldset>
 
-        <TabView>
+        <TabList>
           <div role="tabpanel" id="overview-panel" aria-labelledby="overview-tab" data-tabname="overview">Overview content</div>
           <div role="tabpanel" id="settings-panel" aria-labelledby="settings-tab" data-tabname="settings">Settings content</div>
           <div role="tabpanel" id="profile-panel" aria-labelledby="profile-tab" data-tabname="profile">Profile content</div>
-        </TabView>
+        </TabList>
 
         {/* Baseline selection section */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>

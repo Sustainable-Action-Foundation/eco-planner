@@ -10,7 +10,7 @@ type TabViewProps = {
 
 // TODO: Require children to have a tabname and a tabpanel role
 
-export default function TabView({ children }: TabViewProps) {
+export default function TabList({ children }: TabViewProps) {
   const childrenArray = React.Children.toArray(children) as TabChild[];
   const tabNames = childrenArray.map((child) => child.props["data-tabname"]);
   const tabIds = childrenArray.map((child) => child.props["id"]);
