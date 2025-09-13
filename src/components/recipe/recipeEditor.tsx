@@ -11,6 +11,8 @@ import { DataSeriesVariable, ExternalVariable, ScalarVariable } from "./variable
 import { Locales } from "i18n.config";
 import { Popover, PopoverButton } from "../generic/popovers/popovers";
 import { IconAlertTriangleFilled, IconCircleCheckFilled, IconCircleXFilled } from "@tabler/icons-react";
+import { Unit } from 'mathjs'
+import TextSingleAutocomplete from "../form/elements/combobox/textSingleAutocomplete";
 
 type RecipeContextType = {
   recipe: Recipe | null;
@@ -186,10 +188,6 @@ export function RecipeVariableEditor({
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
 
-  useEffect(() => {
-    console.log(recipe)
-  }, [recipe])
-
   const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[]>([]);
   const [selectedRoadmaps, setSelectedRoadmaps] = useState<string[]>([]);
   const [availableDataSeries, setAvailableDataSeries] = useState<{ id: string; name: string; roadmapId: string; }[]>([]);
@@ -270,7 +268,7 @@ export function RecipeVariableEditor({
 
   // Hard coded to make a new data series variable. TODO: reconsider this behavior
   const handleAddVariable = () => {
-    if (newVariableType === undefined || newVariableName === '' || newVariableUnit === '') return // TODO: Need to show that something is wrong to the user (do we need to require the unit?)
+    if (newVariableType === undefined || newVariableName === '') return // TODO: Need to show that something is wrong to the user
     setRecipe(prev => {
       prev = prev || emptyRecipe;
       return {
@@ -376,20 +374,27 @@ export function RecipeVariableEditor({
                   onChange={(e) => setNewVariableName(e.target.value)}
                 />
               </div>
-              <div className="floating-label">
-                <label htmlFor="variable-unit" className="cursor-text">
-                  Enhet
-                </label>
-                <input
-                  type="text"
-                  id="variable-unit"
-                  className="margin-block-75"
-                  style={{ backgroundColor: 'var(--gray-95)' }}
-                  placeholder=" "
-                  value={newVariableUnit}
-                  onChange={(e) => setNewVariableUnit(e.target.value)}
-                /> {/* TODO: This should use suggestive text */}
-              </div>
+              <label htmlFor="variable-unit" className="margin-top-75 block">
+                Enhet
+              </label>
+              {/* <input
+                type="text"
+                id="variable-unit"
+                className="margin-block-75"
+                style={{ backgroundColor: 'var(--gray-95)' }}
+                placeholder=" "
+                value={newVariableUnit}
+                onChange={(e) => setNewVariableUnit(e.target.value)}
+              />  TODO: This should use suggestive text */}
+              <TextSingleAutocomplete
+                props={{
+                  id: "variable-unit",
+                  name: "variable-unit",
+                  className: "margin-block-25",
+                  placeholder: "Välj eller lämna blank" // TODO: I18n 
+                }} 
+                options={ Object.keys(Unit.UNITS).map(unit => ({name: unit, value: unit})) }
+              />
               <div className="margin-block-75">
                 <label className="block margin-left-25">
                   <input
