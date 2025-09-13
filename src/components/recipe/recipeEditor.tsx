@@ -10,7 +10,7 @@ import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import { DataSeriesVariable, ExternalVariable, ScalarVariable } from "./variables";
 import { Locales } from "i18n.config";
 import { Popover, PopoverButton } from "../generic/popovers/popovers";
-import { IconAlertTriangle, IconAlertTriangleFilled, IconCircleXFilled } from "@tabler/icons-react";
+import { IconAlertTriangleFilled, IconCircleCheckFilled, IconCircleXFilled } from "@tabler/icons-react";
 
 type RecipeContextType = {
   recipe: Recipe | null;
@@ -264,7 +264,7 @@ export function RecipeVariableEditor({
 
   }, [recipe, selectedRoadmaps]);
 
-  const [newVariableName, setNewVariableName] = useState<string>('')
+  const [newVariableName, setNewVariableName] = useState<string>('') // TODO: Can bunch into one
   const [newVariableUnit, setNewVariableUnit] = useState<string>('')
   const [newVariableType, setNewVariableType] = useState<RecipeDataTypes | undefined>(undefined)
 
@@ -287,14 +287,56 @@ export function RecipeVariableEditor({
   };
 
   return (
-    <div
-      className="padding-25 flex flex-direction-column"
-      style={{
-        backgroundColor: 'var(--gray-95)',
-        borderRadius: '0 .25rem .25rem 0',
-        borderLeft: '1px solid var(--gray)',
-      }}
-    >
+    <div>
+      <ul
+        className="list-style-none padding-0 margin-25 padding-right-50 flex-grow-100"
+        style={{
+          overflowY: 'scroll',
+          scrollbarWidth: 'thin'
+        }}
+      >
+        {Object.entries(recipe?.variables || []).map(([name, variable], i) => {
+          const rules = {
+            allowAddVariables,
+            allowDeleteVariables,
+            allowNameEditing,
+            allowTypeEditing,
+            allowValueEditing,
+          };
+          switch (variable.type) {
+            case RecipeDataTypes.Scalar:
+              return (
+                <ScalarVariable
+                  key={"recipeVariable" + i}
+                  name={name}
+                  rules={rules}
+                />
+              )
+            case RecipeDataTypes.DataSeries:
+              return (
+                <DataSeriesVariable
+                  key={"recipeVariable" + i}
+                  name={name}
+                  rules={rules}
+                  availableRoadmaps={availableRoadmaps}
+                  availableDataSeries={availableDataSeries}
+                  setSelectedRoadmaps={setSelectedRoadmaps}
+                />
+              )
+            case RecipeDataTypes.External:
+              return (
+                <ExternalVariable
+                  key={"recipeVariable" + i}
+                  name={name}
+                  rules={rules}
+                />
+              )
+            default:
+              variable = variable as RecipeVariables;
+              console.warn("Unknown variable type", variable.type, "for variable", name);
+          }
+        })}
+      </ul>
       {/* TODO: I18n */}
       {allowAddVariables &&
         <>
@@ -310,11 +352,8 @@ export function RecipeVariableEditor({
             id="add-variable-popover"
             popover="auto"
             positionAnchor="--add-variable-popover-button"
-            anchorInlinePosition="center"
-            popoverDirection={{
-              vertical: 'down',
-              horizontal: 'right'
-            }}
+            anchorInlinePosition="end"
+            popoverDirection='down'
             margin='.5rem'
           >
             <fieldset
@@ -325,11 +364,12 @@ export function RecipeVariableEditor({
               }}
             >
               <div className="floating-label">
-                <label>
+                <label htmlFor="variable-name" className="cursor-text">
                   Namn
                 </label>
                 <input
                   type="text"
+                  id="variable-name"
                   style={{ backgroundColor: 'var(--gray-95)' }}
                   placeholder=" "
                   value={newVariableName}
@@ -337,11 +377,12 @@ export function RecipeVariableEditor({
                 />
               </div>
               <div className="floating-label">
-                <label>
+                <label htmlFor="variable-unit" className="cursor-text">
                   Enhet
                 </label>
                 <input
                   type="text"
+                  id="variable-unit"
                   className="margin-block-75"
                   style={{ backgroundColor: 'var(--gray-95)' }}
                   placeholder=" "
@@ -397,55 +438,6 @@ export function RecipeVariableEditor({
           </Popover>
         </>
       }
-      <ul
-        className="list-style-none padding-0 margin-25 padding-right-50 flex-grow-100"
-        style={{
-          overflowY: 'scroll',
-          scrollbarWidth: 'thin'
-        }}
-      >
-        {Object.entries(recipe?.variables || []).map(([name, variable], i) => {
-          const rules = {
-            allowAddVariables,
-            allowDeleteVariables,
-            allowNameEditing,
-            allowTypeEditing,
-            allowValueEditing,
-          };
-          switch (variable.type) {
-            case RecipeDataTypes.Scalar:
-              return (
-                <ScalarVariable
-                  key={"recipeVariable" + i}
-                  name={name}
-                  rules={rules}
-                />
-              )
-            case RecipeDataTypes.DataSeries:
-              return (
-                <DataSeriesVariable
-                  key={"recipeVariable" + i}
-                  name={name}
-                  rules={rules}
-                  availableRoadmaps={availableRoadmaps}
-                  availableDataSeries={availableDataSeries}
-                  setSelectedRoadmaps={setSelectedRoadmaps}
-                />
-              )
-            case RecipeDataTypes.External:
-              return (
-                <ExternalVariable
-                  key={"recipeVariable" + i}
-                  name={name}
-                  rules={rules}
-                />
-              )
-            default:
-              variable = variable as RecipeVariables;
-              console.warn("Unknown variable type", variable.type, "for variable", name);
-          }
-        })}
-      </ul>
     </div>
   );
 }
@@ -456,23 +448,30 @@ export function RecipeErrorAndWarnings() {
 
   return (
     <>
-      {error && (
+      {error ?
         <div lang={Locales.enSE} className="flex align-items-flex-start gap-50 margin-block-50" style={{ color: 'red', fontSize: '14px' }}>
-          <IconCircleXFilled width={16} height={16} style={{minWidth: '16px', marginTop: '2px'}} color="red" aria-label={t("components:copy_and_scale.evaluation_error_title")} />          
+          <IconCircleXFilled width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="red" aria-label={t("components:copy_and_scale.evaluation_error_title")} />
           {error}
         </div>
-      )}
+        : null}
 
-      {warnings.length > 0 && (
+      {!error ?
+        <div lang={Locales.enSE} className="flex align-items-flex-start gap-50 margin-block-50" style={{ color: 'green', fontSize: '14px' }}>
+          <IconCircleCheckFilled width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="green" /> {/* TODO: Aria-label */}
+          Recipe is valid
+        </div>
+        : null}
+
+      {warnings.length > 0 ?
         <ul className="margin-0 padding-0" lang={Locales.enSE} style={{ color: 'darkorange', listStyle: 'none', fontSize: '14px' }}>
           {warnings.map((warning, i) => (
             <li key={i} className="flex align-items-flex-start gap-50 margin-block-50">
-              <IconAlertTriangleFilled width={16} height={16} style={{minWidth: '16px', marginTop: '2px'}} color="darkorange" aria-label={t("components:copy_and_scale.evaluation_warning_title")} /> {/* TODO: Check this translation */}
+              <IconAlertTriangleFilled width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="darkorange" aria-label={t("components:copy_and_scale.evaluation_warning_title")} /> {/* TODO: Check this translation */}
               {warning}
             </li>
           ))}
         </ul>
-      )}
+        : null}
     </>
   );
 }
@@ -507,9 +506,9 @@ export function ResultingDataSeries({ FormElement }: { FormElement?: ReactElemen
         {resultingUnit ? ` (${resultingUnit})` : ""}
       </strong>
       */}
-      
+
       {/* Grid to display resulting data series */}
-      <div // TODO: What causes this to overflow exactly??
+      <div
         className="grid gap-100"
         style={{
           gridTemplateColumns: `repeat(${Object.keys(resultingDataSeries).length}, 1fr)`,
@@ -521,11 +520,11 @@ export function ResultingDataSeries({ FormElement }: { FormElement?: ReactElemen
       >
         {/*<th className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_year")}</th>*/}
         {Object.keys(resultingDataSeries).map((year, i) => (
-          <div className="text-align-center" style={{ gridRow: 1}} key={i + "resulting-data-series-header" + year}>{year.replace("val", "")}</div>
+          <div className="text-align-center" style={{ gridRow: 1 }} key={i + "resulting-data-series-header" + year}>{year.replace("val", "")}</div>
         ))}
         {/*<td className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_value")}</td>*/}
         {Object.values(resultingDataSeries).map((value, i) => (
-          <div className="text-align-center" style={{ gridRow: 2}} key={i + "resulting-data-series-value" + String(value)}>{(value as number)?.toFixed(1) || "-"}</div>
+          <div className="text-align-center" style={{ gridRow: 2 }} key={i + "resulting-data-series-value" + String(value)}>{(value as number)?.toFixed(1) || "-"}</div>
         ))}
       </div>
     </>

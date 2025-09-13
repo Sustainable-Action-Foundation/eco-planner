@@ -451,6 +451,8 @@ export default function GoalForm({
                     data-tabname="Variabler"
                     id="variable-editor-panel"
                     aria-labelledby="variable-editor-tab"
+                    className="purewhite"
+                    style={{minHeight: '150px'}}
                   >
                     <RecipeVariableEditor
                       allowAddVariables

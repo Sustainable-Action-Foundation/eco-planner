@@ -2,7 +2,7 @@
 
 // TODO: I18n
 // TODO: Replace roadmap/goal select with treeselect
-// TODO: HtmlFor on labels
+// TODO: Fix labels
 
 import { RecipeVariables, RecipeDataTypes, isRecipeDataSeries, RecipeDataSeries, RecipeScalar, RecipeExternalDataset, isRecipeExternalDatasetSelection, emptyRecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 import { IconTrashXFilled } from "@tabler/icons-react";
@@ -123,69 +123,43 @@ function CommonVariable({
   }
 
   return (
-    <li className="margin-block-25" style={{cursor: 'default'}}>
-      <details>
-        <summary>
-          {name}: {variable.type} [{variable.unit || ""}]
-          {/*
-            <input
-              className="transparent padding-0"
-              style={{
-                borderRadius: '0',
-                fontSize: '1rem',
-                border: 0,
-              }}
-              defaultValue={name}
-              onChange={handleNameChange}
-              type="text"
-              placeholder={t("components:recipe_editor.variable_name_placeholder")}
-              readOnly={!rules.allowNameEditing}
-              disabled={!rules.allowNameEditing}
-            />
-            <select
-              className="transparent padding-0"
-              style={{
-                borderRadius: '0',
-                fontSize: '1rem',
-                border: 0,
-              }}
-              defaultValue={variable.type}
-              onChange={handleTypeChange}
-              disabled={!rules.allowTypeEditing}
-            >
-              <option value={RecipeDataTypes.DataSeries}>{t("components:recipe_editor.data_series")}</option>
-              <option value={RecipeDataTypes.External}>{t("components:recipe_editor.external_data")}</option>
-              <option value={RecipeDataTypes.Scalar}>{t("components:recipe_editor.scalar")}</option>
-            </select>
-            <input
-              className="transparent padding-0"
-              style={{
-                borderRadius: '0',
-                fontSize: '1rem',
-                border: 0,
-              }}
-              defaultValue={variable.unit || ""}
-              onChange={handleUnitChange}
-              type="text"
-              disabled={!rules.allowValueEditing}
-              readOnly={!rules.allowValueEditing}
-              placeholder={t("components:recipe_editor.unit_placeholder")}
-            /> */}
-          {rules.allowDeleteVariables &&
-            <button
-              className="padding-25 round transparent margin-left-50"
-              style={{verticalAlign: 'middle'}}
-              type="button"
-              onClick={handleDelete}
-            >
-              <IconTrashXFilled width={20} height={20} className="grid" />
-            </button>
-          }
-        </summary>
-        <div className="margin-block-50">
-          {children}
-        </div>
-      </details>
+    <li className="margin-block-25 flex align-items-center">
+      <input
+        defaultValue={name}
+        onChange={handleNameChange}
+        type="text"
+        placeholder={t("components:recipe_editor.variable_name_placeholder")}
+        readOnly={!rules.allowNameEditing}
+        disabled={!rules.allowNameEditing}
+      />
+      <select
+        defaultValue={variable.type}
+        onChange={handleTypeChange}
+        disabled={!rules.allowTypeEditing}
+      >
+        <option value={RecipeDataTypes.DataSeries}>{t("components:recipe_editor.data_series")}</option>
+        <option value={RecipeDataTypes.External}>{t("components:recipe_editor.external_data")}</option>
+        <option value={RecipeDataTypes.Scalar}>{t("components:recipe_editor.scalar")}</option>
+      </select>
+      <input
+        defaultValue={variable.unit || ""}
+        onChange={handleUnitChange}
+        type="text"
+        disabled={!rules.allowValueEditing}
+        readOnly={!rules.allowValueEditing}
+        placeholder={t("components:recipe_editor.unit_placeholder")}
+      />
+      {children}
+      {rules.allowDeleteVariables &&
+        <button
+          className="padding-25 round transparent margin-left-50"
+          style={{ verticalAlign: 'middle' }}
+          type="button"
+          onClick={handleDelete}
+        >
+          <IconTrashXFilled width={20} height={20} className="grid" />
+        </button>
+      }
     </li>
   )
 }
@@ -225,17 +199,14 @@ export function ScalarVariable({
       name={name}
       rules={rules}
     >
-      <label className="flex gap-100 align-items-center margin-left-100">
-        Värde:
-        <input
-          defaultValue={variable.value}
-          onChange={handleValueChange}
-          type="number"
-          placeholder={t("components:recipe_editor.scalar")}
-          disabled={!rules.allowValueEditing}
-          readOnly={!rules.allowValueEditing}
-        />
-      </label>
+      <input
+        defaultValue={variable.value}
+        onChange={handleValueChange}
+        type="number"
+        placeholder={t("components:recipe_editor.scalar")}
+        disabled={!rules.allowValueEditing}
+        readOnly={!rules.allowValueEditing}
+      />
     </CommonVariable>
   )
 }
@@ -301,50 +272,38 @@ export function DataSeriesVariable({
       name={name}
       rules={rules}
     >
-      <div
-        className="grid align-items-center gap-50"
-        style={{
-          paddingLeft: "16px",
-          gridTemplateColumns: "auto 1fr",
-          gridTemplateRows: "auto auto",
-          columnGap: "1rem",
+      <select
+        defaultValue={selectedRoadmap || ""}
+        onChange={(e) => {
+          setLocalRoadmap(e.target.value || null);
+          setSelectedRoadmaps(prev => [...new Set([...prev, e.target.value].filter(Boolean))]);
         }}
+        disabled={!rules.allowValueEditing}
       >
-        <label>Färdplan:</label>
-        <select
-          defaultValue={selectedRoadmap || ""}
-          onChange={(e) => {
-            setLocalRoadmap(e.target.value || null);
-            setSelectedRoadmaps(prev => [...new Set([...prev, e.target.value].filter(Boolean))]);
-          }}
-          disabled={!rules.allowValueEditing}
-        >
-          <option disabled={true} value={""}>{t("components:recipe_editor.select_roadmap")}</option>
-          {availableRoadmaps.map((r, i) => (
-            <option key={`roadmapOption-${i}`} value={r.id}>
-              {r.name}
+        <option disabled={true} value={""}>{t("components:recipe_editor.select_roadmap")}</option>
+        {availableRoadmaps.map((r, i) => (
+          <option key={`roadmapOption-${i}`} value={r.id}>
+            {r.name}
+          </option>
+        ))}
+      </select>
+      <select
+        value={variable.link || ""}
+        onChange={handleDataSeriesChange}
+        disabled={!rules.allowValueEditing}
+      >
+        <option disabled={true} value="">{t("components:recipe_editor.goal_or_effect")}</option>
+        {availableDataSeries
+          .map(ds => ({ ...ds, displayName: ds.unit ? `(${ds.unit}) ${ds.name}` : ds.name }))
+          .sort((a, b) => a.displayName.localeCompare(b.displayName))
+          .map(ds => (
+            <option key={`dataSeries-${ds.id}`} value={ds.id}>
+              {ds.displayName}
             </option>
           ))}
-        </select>
-        <label>Målbana:</label>
-        <select
-          value={variable.link || ""}
-          onChange={handleDataSeriesChange}
-          disabled={!rules.allowValueEditing}
-        >
-          <option disabled={true} value="">{t("components:recipe_editor.goal_or_effect")}</option>
-          {availableDataSeries
-            .map(ds => ({ ...ds, displayName: ds.unit ? `(${ds.unit}) ${ds.name}` : ds.name }))
-            .sort((a, b) => a.displayName.localeCompare(b.displayName))
-            .map(ds => (
-              <option key={`dataSeries-${ds.id}`} value={ds.id}>
-                {ds.displayName}
-              </option>
-            ))}
-        </select>
-        <label>Värden:</label>
-        <VectorIndexPicker />
-      </div>
+      </select>
+      <label>Värden:</label>
+      <VectorIndexPicker />
 
     </CommonVariable >
   )
@@ -424,52 +383,38 @@ export function ExternalVariable({
       name={name}
       rules={rules}
     >
-      <div
-        className="grid align-items-center gap-50"
-        style={{
-          paddingLeft: "16px",
-          gridTemplateColumns: "auto 1fr",
-          gridTemplateRows: "auto auto",
-          columnGap: "1rem",
-        }}
+      <select
+        defaultValue={variable.dataset || ""}
+        disabled={!rules.allowValueEditing}
+        onChange={handleDatasetChange}
       >
-        <label>Tabell:</label>
-        <select
-          defaultValue={variable.dataset || ""}
-          disabled={!rules.allowValueEditing}
-          onChange={handleDatasetChange}
-        >
-          <option value="">{t("components:recipe_editor.dataset")}</option>
-          {/* <option value={variable.dataset}>{variable.dataset}</option> */}
-          {ExternalDataset.knownDatasetKeys.map((datasetName, i) => (
-            <option key={`datasetOption-${i}`} value={datasetName}>
-              {datasetName}
-            </option>
-          ))}
-        </select>
+        <option value="">{t("components:recipe_editor.dataset")}</option>
+        {/* <option value={variable.dataset}>{variable.dataset}</option> */}
+        {ExternalDataset.knownDatasetKeys.map((datasetName, i) => (
+          <option key={`datasetOption-${i}`} value={datasetName}>
+            {datasetName}
+          </option>
+        ))}
+      </select>
 
-        <label>Tabell:</label>
-        <input
-          defaultValue={variable.tableId || ""}
-          onChange={handleTableChange}
-          type="text"
-          disabled={!rules.allowValueEditing}
-          placeholder={t("components:recipe_editor.table")}
-        />
+      <input
+        defaultValue={variable.tableId || ""}
+        onChange={handleTableChange}
+        type="text"
+        disabled={!rules.allowValueEditing}
+        placeholder={t("components:recipe_editor.table")}
+      />
 
-        <label>Urval:</label>
-        <input
-          defaultValue={JSON.stringify(variable.selection) || ""}
-          onChange={handleSelectionChange}
-          type="text"
-          disabled={!rules.allowValueEditing}
-          style={{ width: '50ch' }}
-          placeholder={t("components:recipe_editor.selection")}
-        />
+      <input
+        defaultValue={JSON.stringify(variable.selection) || ""}
+        onChange={handleSelectionChange}
+        type="text"
+        disabled={!rules.allowValueEditing}
+        style={{ width: '50ch' }}
+        placeholder={t("components:recipe_editor.selection")}
+      />
 
-        <label>Värden:</label>
-        <VectorIndexPicker rules={rules} />
-      </div>
+      <VectorIndexPicker rules={rules} />
     </CommonVariable>
   )
 }
