@@ -10,6 +10,7 @@ import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import { DataSeriesVariable, ExternalVariable, ScalarVariable } from "./variables";
 import { Locales } from "i18n.config";
 import { Popover, PopoverButton } from "../generic/popovers/popovers";
+import { IconAlertTriangle, IconAlertTriangleFilled, IconCircleXFilled } from "@tabler/icons-react";
 
 type RecipeContextType = {
   recipe: Recipe | null;
@@ -456,19 +457,21 @@ export function RecipeErrorAndWarnings() {
   return (
     <>
       {error && (
-        <div lang={Locales.enSE} style={{ color: 'red' }}>
-          <strong>{t("components:copy_and_scale.evaluation_error_title")}:</strong>
-          <p className="margin-0">{error}</p>
+        <div lang={Locales.enSE} className="flex align-items-flex-start gap-50 margin-block-50" style={{ color: 'red', fontSize: '14px' }}>
+          <IconCircleXFilled width={16} height={16} style={{minWidth: '16px', marginTop: '2px'}} color="red" aria-label={t("components:copy_and_scale.evaluation_error_title")} />          
+          {error}
         </div>
       )}
 
       {warnings.length > 0 && (
-        <div lang={Locales.enSE} style={{ color: 'orange' }}>
-          <strong>{t("components:copy_and_scale.evaluation_warning_title")}:</strong>
-          <ul>
-            {warnings.map((warning, i) => <li key={i}>{warning}</li>)}
-          </ul>
-        </div>
+        <ul className="margin-0 padding-0" lang={Locales.enSE} style={{ color: 'darkorange', listStyle: 'none', fontSize: '14px' }}>
+          {warnings.map((warning, i) => (
+            <li key={i} className="flex align-items-flex-start gap-50 margin-block-50">
+              <IconAlertTriangleFilled width={16} height={16} style={{minWidth: '16px', marginTop: '2px'}} color="darkorange" aria-label={t("components:copy_and_scale.evaluation_warning_title")} /> {/* TODO: Check this translation */}
+              {warning}
+            </li>
+          ))}
+        </ul>
       )}
     </>
   );
