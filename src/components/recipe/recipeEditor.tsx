@@ -501,29 +501,31 @@ export function ResultingDataSeries({ FormElement }: { FormElement?: ReactElemen
       {/* Hidden input for reading into the form */}
       {FormElement && <FormElement.type {...(FormElement.props || {})} value={JSON.stringify(resultingDataSeries)} />}
 
-      {/* Title */}
+      {/* TODO: Keep unit but not title?
       <strong className="block bold text-align-center">
         {t("components:copy_and_scale.resulting_data_series")}
-        {/* Unit */}
         {resultingUnit ? ` (${resultingUnit})` : ""}
       </strong>
-
+      */}
+      
       {/* Grid to display resulting data series */}
       <div // TODO: What causes this to overflow exactly??
         className="grid gap-100"
         style={{
           gridTemplateColumns: `repeat(${Object.keys(resultingDataSeries).length}, 1fr)`,
           gridTemplateRows: 'auto auto',
-          overflowX: 'scroll'
+          overflowX: 'scroll',
+          scrollbarWidth: 'thin',
+          contain: 'inline-size',
         }}
       >
         {/*<th className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_year")}</th>*/}
         {Object.keys(resultingDataSeries).map((year, i) => (
-          <div className="text-align-center" style={{ gridRow: 1, gridColumn: i + 1 }} key={i + "resulting-data-series-header" + year}>{year.replace("val", "")}</div>
+          <div className="text-align-center" style={{ gridRow: 1}} key={i + "resulting-data-series-header" + year}>{year.replace("val", "")}</div>
         ))}
         {/*<td className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_value")}</td>*/}
         {Object.values(resultingDataSeries).map((value, i) => (
-          <div className="text-align-center" style={{ gridRow: 2, gridColumn: i + 1 }} key={i + "resulting-data-series-value" + String(value)}>{(value as number)?.toFixed(1) || "-"}</div>
+          <div className="text-align-center" style={{ gridRow: 2}} key={i + "resulting-data-series-value" + String(value)}>{(value as number)?.toFixed(1) || "-"}</div>
         ))}
       </div>
     </>

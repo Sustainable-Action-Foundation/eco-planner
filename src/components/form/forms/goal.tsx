@@ -482,13 +482,13 @@ export default function GoalForm({
                   >
                     <div
                       role="tabpanel"
-                      data-tabname="problem" // TODO: Show a count of the problems
+                      data-tabname="problem" // TODO: Show a count of the problems // TODO: Rename, validering?
                       id="problem-panel"
                       aria-labelledby="problem-tab"
                       className="padding-25 padding-top-50"
-                      style={{borderTop: '1px solid var(--gray)'}}
-                    >
-                      <RecipeErrorAndWarnings />
+                      style={{borderTop: '1px solid var(--gray)'}} // TODO: Show fallback if there is no problem
+                    > 
+                      <RecipeErrorAndWarnings /> 
                     </div>
                     <div
                       role="tabpanel"
