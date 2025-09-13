@@ -159,11 +159,9 @@ export function RecipeEquationEditor() {
     <textarea
       rows={3}
       placeholder={t("components:copy_and_scale.custom_recipe_placeholder")}
-      className="block flex-grow-100"
       style={{
         border: '0',
         borderRadius: '.25rem 0 0 0',
-        resize: 'none'
       }}
       value={recipe?.eq || ""}
       onChange={handleUpdatedEq}

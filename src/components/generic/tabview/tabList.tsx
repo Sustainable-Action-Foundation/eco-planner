@@ -1,16 +1,21 @@
 "use client"
 
 import React, { useEffect, useRef, useState } from "react";
+import styles from './tablist.module.css' with { type: "css" }
+import { genericElement } from "@/components/types";
 
 type TabChild = React.ReactElement<{ "data-tabname": string, "id": string }>;
 
-type TabViewProps = {
+type TabListProps = {
+  props?: genericElement;
+  styling?: "simple" | "default"
   children: TabChild | TabChild[];
 };
 
 // TODO: Require children to have a tabname and a tabpanel role
+// TODO: Rename parent folder
 
-export default function TabList({ children }: TabViewProps) {
+export default function TabList({ props, styling, children }: TabListProps) {
   const childrenArray = React.Children.toArray(children) as TabChild[];
   const tabNames = childrenArray.map((child) => child.props["data-tabname"]);
   const tabIds = childrenArray.map((child) => child.props["id"]);
@@ -25,6 +30,8 @@ export default function TabList({ children }: TabViewProps) {
   return (
     <>
       <div
+        className={`${props?.className ? `${props?.className} ` : ''}${styling === "simple" ? `${styles.simple} ` : ''}${styles.tablist}`}
+        style={{ ...props?.style }}
         role="tablist"
         onKeyDown={(e) => {
           if (e.key === "ArrowRight") {

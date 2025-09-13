@@ -426,9 +426,18 @@ export default function GoalForm({
 
               <div
                 className="smooth"
-                style={{ backgroundColor: 'white', border: '1px solid var(--gray)' }}
+                style={{ backgroundColor: 'white', border: '1px solid var(--gray)', resize: 'horizontal' }}
               >
-                <TabList>
+                <TabList
+                  props={{
+                    className: "padding-25",
+                    style: {
+                      borderRadius: '.25rem .25rem 0 0',
+                      borderBottom: '1px solid var(--gray)',
+                      backgroundColor: 'var(--gray-95)'
+                    }
+                  }}
+                >
                   <div
                     role="tabpanel"
                     data-tabname="Recept"
@@ -439,7 +448,7 @@ export default function GoalForm({
                   </div>
                   <div
                     role="tabpanel"
-                    data-tabname="Variabler" 
+                    data-tabname="Variabler"
                     id="variable-editor-panel"
                     aria-labelledby="variable-editor-tab"
                   >
@@ -464,7 +473,7 @@ export default function GoalForm({
                   { /*
                   TODO: Add graph to tablist
                 */ }
-                  <TabList>
+                  <TabList styling="simple">
                     <div
                       role="tabpanel"
                       data-tabname="debug"
@@ -490,16 +499,10 @@ export default function GoalForm({
                 <ResultingRecipe FormElement={<input type="hidden" name="resultingRecipe" />} /> {/* TODO: What is this? */}
               </label>
 
-              <DEBUG_Recipe />
+              {/* <DEBUG_Recipe /> */}
             </RecipeContextProvider>
           }
-        </fieldset>
-
-        <TabList>
-          <div role="tabpanel" id="overview-panel" aria-labelledby="overview-tab" data-tabname="overview">Overview content</div>
-          <div role="tabpanel" id="settings-panel" aria-labelledby="settings-tab" data-tabname="settings">Settings content</div>
-          <div role="tabpanel" id="profile-panel" aria-labelledby="profile-tab" data-tabname="profile">Profile content</div>
-        </TabList>
+        </fieldset> 
 
         {/* Baseline selection section */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
