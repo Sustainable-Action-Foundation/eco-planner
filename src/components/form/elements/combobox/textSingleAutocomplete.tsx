@@ -5,26 +5,30 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import styles from './comboBox.module.css' with { type: "css" }
 import Fuse from "fuse.js";
 import { useTranslation } from "react-i18next";
-import { inputElement, option } from "@/components/types";
+import { inputElement, option, theme } from "@/components/types";
 import { handleKeyDownEditableCombobox, scrollOptionIntoView } from "./functions";
-
-// TODO: Add an onchange prop for this (or all inputs?)
+ 
 // TODO: Give aria-keyocontrols?
 // TODO: should just pass the types, not props.
 
 export default function TextSingleAutocomplete({
   props,
+  theme,
   options,
+  maxOptions,
+  onChange,
 }: {
   props: inputElement
+  theme?: theme
   options: Array<option>
+  maxOptions?: number
+  onChange?: (value: string) => void 
 }) {
   const { t } = useTranslation(["forms", "common"]);
 
   const [value, setValue] = useState<string>(props.defaultValue ? props.defaultValue : '');
   const [displayListBox, setDisplayListBox] = useState<boolean>(false);
   const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null);
-
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
   const comboboxRef = useRef<HTMLInputElement>(null);
 
@@ -39,12 +43,20 @@ export default function TextSingleAutocomplete({
     scrollOptionIntoView(optionRefs.current, focusedListBoxItem)
   }, [focusedListBoxItem, value]);
 
+  useEffect(() => {
+    if (!onChange) return
+    onChange(value)
+  }, [value, onChange])
+
   return (
     <div
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
       style={{ ...props.style }}
     >
-      <div className="flex align-items-center focusable">
+      <div 
+        className={`${theme ? `${theme.className} ` : ''}flex align-items-center focusable`}
+        style={theme?.style ?? {}}
+      >
         <input
           type="text"
           placeholder={props.placeholder ? props.placeholder : undefined}
@@ -73,8 +85,8 @@ export default function TextSingleAutocomplete({
                       selectedOption
                         ? selectedOption.name
                         : ""
-                    )
-                    setFocusedListBoxItem(null)
+                    );
+                    setFocusedListBoxItem(null);
                     setDisplayListBox(false);
                   }
                 )
@@ -113,8 +125,13 @@ export default function TextSingleAutocomplete({
           className={`
               ${styles['listbox']} 
               ${displayListBox ? styles['visible'] : ''} 
+              ${theme ? theme.className : ''}
               margin-inline-0`
-          }
+          } 
+          style={{
+            ...(theme?.style),
+            maxHeight: maxOptions ? `${(maxOptions * 33) + 6}px` : '300px' // TODO: Implement for select comboboxes aswell
+          }}
           // TODO: Onblur does not seem to actually setFocusedListBoxItem, figure out why...
           onBlur={(e) => { if (e.relatedTarget?.id != props.id) { setFocusedListBoxItem(null); setDisplayListBox(false); } }} // TODO: See if we can deal with blur the same way for all comboboxes
           role="listbox"

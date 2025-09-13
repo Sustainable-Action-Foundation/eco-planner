@@ -10,7 +10,7 @@ import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import { DataSeriesVariable, ExternalVariable, ScalarVariable } from "./variables";
 import { Locales } from "i18n.config";
 import { Popover, PopoverButton } from "../generic/popovers/popovers";
-import { IconAlertTriangleFilled, IconCircleCheckFilled, IconCircleXFilled } from "@tabler/icons-react";
+import { IconAlertTriangleFilled, IconCircleCheckFilled, IconCirclePlus, IconCircleXFilled } from "@tabler/icons-react";
 import { Unit } from 'mathjs'
 import TextSingleAutocomplete from "../form/elements/combobox/textSingleAutocomplete";
 
@@ -285,14 +285,8 @@ export function RecipeVariableEditor({
   };
 
   return (
-    <div>
-      <ul
-        className="list-style-none padding-0 margin-25 padding-right-50 flex-grow-100"
-        style={{
-          overflowY: 'scroll',
-          scrollbarWidth: 'thin'
-        }}
-      >
+    <>
+      <ul className="list-style-none padding-0 margin-0 flex-grow-100">
         {Object.entries(recipe?.variables || []).map(([name, variable], i) => {
           const rules = {
             allowAddVariables,
@@ -341,8 +335,8 @@ export function RecipeVariableEditor({
           <PopoverButton
             anchorName="--add-variable-popover-button"
             popoverTarget="add-variable-popover"
-            className="font-weight-600 color-purewhite"
-            style={{ backgroundColor: '#191919', fontSize: '.75rem', padding: '.3rem .6rem', lineHeight: '1' }}
+            className="font-weight-600 margin-left-auto block"
+            style={{ transform: 'scale(1)'}}
           >
             {t("components:copy_and_scale.add_variable")}
           </PopoverButton>
@@ -350,52 +344,49 @@ export function RecipeVariableEditor({
             id="add-variable-popover"
             popover="auto"
             positionAnchor="--add-variable-popover-button"
-            anchorInlinePosition="end"
-            popoverDirection='down'
+            anchorInlinePosition="center"
+            popoverDirection={{
+              vertical: 'down',
+              horizontal: 'left'
+            }}
             margin='.5rem'
           >
             <fieldset
-              className="padding-50 padding-top-75 smooth"
+              className="padding-50 smooth"
               style={{
                 border: '1px solid var(--gray)',
                 backgroundColor: 'white',
               }}
             >
-              <div className="floating-label">
-                <label htmlFor="variable-name" className="cursor-text">
-                  Namn
-                </label>
-                <input
-                  type="text"
-                  id="variable-name"
-                  style={{ backgroundColor: 'var(--gray-95)' }}
-                  placeholder=" "
-                  value={newVariableName}
-                  onChange={(e) => setNewVariableName(e.target.value)}
-                />
-              </div>
-              <label htmlFor="variable-unit" className="margin-top-75 block">
+              <label htmlFor="variable-name" className="cursor-text">
+                Namn
+              </label>
+              <input
+                type="text"
+                id="variable-name"
+                className="margin-bottom-50"
+                style={{ backgroundColor: 'var(--gray-95)' }}
+                placeholder="Variabel 1" // TODO: I18n
+                value={newVariableName}
+                onChange={(e) => setNewVariableName(e.target.value)}
+              />
+              <label htmlFor="variable-unit">
                 Enhet
               </label>
-              {/* <input
-                type="text"
-                id="variable-unit"
-                className="margin-block-75"
-                style={{ backgroundColor: 'var(--gray-95)' }}
-                placeholder=" "
-                value={newVariableUnit}
-                onChange={(e) => setNewVariableUnit(e.target.value)}
-              />  TODO: This should use suggestive text */}
               <TextSingleAutocomplete
                 props={{
                   id: "variable-unit",
                   name: "variable-unit",
-                  className: "margin-block-25",
-                  placeholder: "Välj eller lämna blank" // TODO: I18n 
-                }} 
-                options={ Object.keys(Unit.UNITS).map(unit => ({name: unit, value: unit})) }
+                  placeholder: "Skriv för att se förslag" // TODO: I18n 
+                }}
+                theme={{
+                  style: {backgroundColor: 'var(--gray-95)'}
+                }}
+                options={Object.keys(Unit.UNITS).map(unit => ({ name: unit, value: unit }))}
+                maxOptions={2.55}
+                onChange={(unit) => {setNewVariableUnit(unit)}}
               />
-              <div className="margin-block-75">
+              <div className="margin-block-100">
                 <label className="block margin-left-25">
                   <input
                     type="radio"
@@ -443,7 +434,7 @@ export function RecipeVariableEditor({
           </Popover>
         </>
       }
-    </div>
+    </>
   );
 }
 
@@ -512,9 +503,8 @@ export function ResultingDataSeries({ FormElement }: { FormElement?: ReactElemen
       </strong>
       */}
 
-      {/* Grid to display resulting data series */}
       <div
-        className="grid gap-100"
+        className="grid gap-100 padding-bottom-50"
         style={{
           gridTemplateColumns: `repeat(${Object.keys(resultingDataSeries).length}, 1fr)`,
           gridTemplateRows: 'auto auto',
@@ -523,11 +513,9 @@ export function ResultingDataSeries({ FormElement }: { FormElement?: ReactElemen
           contain: 'inline-size',
         }}
       >
-        {/*<th className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_year")}</th>*/}
         {Object.keys(resultingDataSeries).map((year, i) => (
           <div className="text-align-center" style={{ gridRow: 1 }} key={i + "resulting-data-series-header" + year}>{year.replace("val", "")}</div>
         ))}
-        {/*<td className="padding-50 text-align-center">{t("components:copy_and_scale.data_series_value")}</td>*/}
         {Object.values(resultingDataSeries).map((value, i) => (
           <div className="text-align-center" style={{ gridRow: 2 }} key={i + "resulting-data-series-value" + String(value)}>{(value as number)?.toFixed(1) || "-"}</div>
         ))}

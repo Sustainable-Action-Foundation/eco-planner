@@ -98,8 +98,7 @@
     font-size: 13px;
     display: flex;
 }
-
-.listbox li:last-child,
+ 
 .tree li:last-child {
     padding-bottom: 0 ;
 }

@@ -302,7 +302,6 @@ export function DataSeriesVariable({
             </option>
           ))}
       </select>
-      <label>Värden:</label>
       <VectorIndexPicker />
 
     </CommonVariable >

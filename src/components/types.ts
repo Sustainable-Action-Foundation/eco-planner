@@ -1,9 +1,12 @@
 // TODO: Use uppercase?
 // TODO: Use set for tree items and map for options?
 
-export type genericElement = {
+export type theme = {
   className?: string;
   style?: React.CSSProperties;
+}
+
+export type genericElement = theme & {
   id?: string;
 };
 

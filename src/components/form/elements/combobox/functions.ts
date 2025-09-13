@@ -90,6 +90,9 @@ export const handleKeyDownEditableCombobox = (
   // 2. Closes listbox if it can be, and is, expanded
   // 3. Focuses the element which made the listbox visible
   if (e.key === "Escape") {
+    if (listboxDisplayed) { 
+      e.preventDefault()
+    }
     setFocusedListboxOptionIndex(null);
     if (listboxDisplayed && setListboxDisplayed) {
       setListboxDisplayed(false);
