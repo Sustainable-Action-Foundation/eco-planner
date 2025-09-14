@@ -24,8 +24,6 @@ export function useRecipe() {
   return context;
 }
 
-
-// TODO: Rename?
 export function RecipeContextProvider({
   initialRecipe,
   children,

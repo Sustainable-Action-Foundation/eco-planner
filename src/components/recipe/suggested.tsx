@@ -49,6 +49,7 @@ export function RecipeSuggestions({
       {/* Suggested recipes */}
       <label htmlFor="select-preset">Välj recept</label>
       <select id="select-preset" className="block margin-bottom-100 margin-top-25" onChange={handleChange}>
+        <option>Välj alternativ</option> {/* TODO: I18n */}
         {suggestedRecipes.map((recipe, index) => (
           <option key={index} value={recipe.hash}>
             {recipe.recipe.name ?? t("components:copy_and_scale.unnamed_suggestion")}: {recipe.recipe.eq}
@@ -59,6 +60,8 @@ export function RecipeSuggestions({
   );
 }
 
+// TODO: Should dynamically render a list of inputs corresponding to RecipeDataTypes.DataSerie.
+// We already do this in the recipe editor but we also want a simplified view outside of the editor
 // TODO: Placed this here temporarily to remove clutter from goal form. 
 // Should probably be moved back once theese are created dynamically? 
 export const suggestedRecipes: Array<{ hash: string, recipe: Recipe }> = [

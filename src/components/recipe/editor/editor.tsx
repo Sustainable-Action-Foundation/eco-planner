@@ -11,6 +11,7 @@ export default function RecipeEditor() {
         style={{ backgroundColor: 'white', border: '1px solid var(--gray)' }}
       >
         <TabList
+          defaultIndex={1}
           props={{
             className: "padding-25",
             style: {
@@ -58,6 +59,7 @@ export default function RecipeEditor() {
                   TODO: Add graph to tablist
                 */ }
           <TabList
+            defaultIndex={0}
             styling="simple"
             props={{
               className: "padding-block-25 margin-bottom-25 flex",

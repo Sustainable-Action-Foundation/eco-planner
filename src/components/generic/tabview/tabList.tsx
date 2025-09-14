@@ -8,7 +8,8 @@ type TabChild = React.ReactElement<{ "data-tabname": string, "id": string }>;
 
 type TabListProps = {
   props?: genericElement;
-  styling?: "simple" | "default"
+  styling?: "simple" | "default",
+  defaultIndex: number,
   children: TabChild | TabChild[];
 };
 
@@ -16,12 +17,13 @@ type TabListProps = {
 // TODO: Rename parent folder
 // TODO: Use display: none or visibility: hidden to maintain state?
 
-export default function TabList({ props, styling, children }: TabListProps) {
+export default function TabList({ props, styling, defaultIndex, children }: TabListProps) {
   const childrenArray = React.Children.toArray(children) as TabChild[];
   const tabNames = childrenArray.map((child) => child.props["data-tabname"]);
   const tabIds = childrenArray.map((child) => child.props["id"]);
 
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(defaultIndex <= childrenArray.length - 1 ? defaultIndex : 0);
+
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   useEffect(() => {
