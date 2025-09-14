@@ -213,33 +213,7 @@ export default function GoalForm({
   const baselineString = baselineArray.join(';')
 
   // Index for data-position attribute in legend elements (for accessibility)
-  let positionIndex = 1;
-
-  const testFetchChildren = async (): Promise<Array<treeItem>> => {
-    const roadmaps = await clientSafeGetRoadmaps();
-    const treeItems: treeItem[] = roadmaps
-      .filter((roadmap) => roadmap._count.goals > 0) // only include with goals
-      .map((roadmap) => ({
-        name: `${roadmap.metaRoadmap.name} v${roadmap.version}`,
-        value: roadmap.id,
-        expanded: false,
-        childNodes: undefined,
-        onExpand: async (): Promise<treeItem[]> => {
-          const fullRoadmap = await clientSafeGetOneRoadmap(roadmap.id);
-          console.log(fullRoadmap)
-          if (!fullRoadmap) return [];
-
-          return fullRoadmap.goals.map((goal) => ({
-            name: goal.name ?? goal.indicatorParameter,
-            value: goal.id,
-            expanded: null,
-          }));
-        },
-      }));
-    return treeItems
-  };
-
-
+  let positionIndex = 1; 
 
   return (
     <>
@@ -250,10 +224,10 @@ export default function GoalForm({
         {/* Allow user to select parent roadmap if not already selected */}
         {!(roadmapId || currentGoal?.roadmapId) ?
           <fieldset className={`${styles.timeLineFieldset} width-100`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>{t("forms:goal.choose_relationship")}</legend>
-            <label className="margin-block-100">
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_relationship")}</legend>
+            <label>
               {t("forms:goal.relationship_label")}
-              <select name="roadmapId" id="roadmapId" required className="margin-block-25" defaultValue={""}>
+              <select name="roadmapId" id="roadmapId" required className="margin-top-25 margin-bottom-100 block" defaultValue={""}>
                 <option value="" disabled>{t("forms:goal.relationship_no_chosen")}</option>
                 {roadmapAlternatives.map(roadmap => (
                   <option key={roadmap.id} value={roadmap.id}>
@@ -268,24 +242,24 @@ export default function GoalForm({
 
         {/* Goal name and description */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:goal.goal_description_legend")}</legend>
-          <label className="margin-bottom-100">
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.goal_description_legend")}</legend>
+          <label>
             {t("forms:goal.goal_name")}
-            <input className="margin-block-25" type="text" name="goalName" id="goalName" defaultValue={currentGoal?.name ?? undefined} />
+            <input className="margin-top-25 margin-bottom-100" type="text" name="goalName" id="goalName" defaultValue={currentGoal?.name ?? undefined} />
           </label>
 
-          <label className="margin-block-100">
+          <label>
             {t("forms:goal.goal_description")}
-            <textarea className="margin-block-25" name="description" id="description" defaultValue={currentGoal?.description ?? undefined}></textarea>
+            <textarea className="margin-top-25 margin-bottom-100" name="description" id="description" defaultValue={currentGoal?.description ?? undefined}></textarea>
           </label>
         </fieldset>
 
         {/* Data series type selection (static, inherited, combined) */}
         <fieldset className={`${styles.timeLineFieldset} width-100 ${positionIndex > 1 ? "margin-top-200" : ""}`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend}  font-weight-bold`}>{t("forms:goal.data_series_type_legend")}</legend>
-          <label className="margin-block-100">
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.data_series_type_legend")}</legend>
+          <label>
             {t("forms:goal.data_series_type_label")}
-            <select name="dataSeriesType" id="dataSeriesType" className="margin-block-25" required
+            <select name="dataSeriesType" id="dataSeriesType" className="margin-top-25 margin-bottom-100 block" required
               defaultValue={defaultDataSeriesType}
               onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
             >
@@ -298,24 +272,7 @@ export default function GoalForm({
 
         {/* Data series input section (varies by type) */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:goal.choose_goal_data_series")}</legend>
-
-          <div className="margin-bottom-500 padding-bottom-500">
-            <SelectSingleTreeSearch // TODO: need to include effects on roadmapstuff
-              props={{
-                id: "test-tree",
-                name: "test-tree",
-                placeholder: "välj målbana eller effekt" // TODO: I18n
-              }}
-              treeItems={[
-                { name: "Item 1", value: '1', expanded: false, childNodes: [{ name: 'Item 1.1', value: 'Item 1.1', expanded: null }] },
-                { name: "Item 2", value: '2', expanded: null },
-                { name: "Item 3", value: '3', expanded: null },
-                { name: "Item 4", value: '4', expanded: null },
-                { name: "Item 5", value: '5', expanded: false, onExpand: testFetchChildren }
-              ]}
-            />
-          </div>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_goal_data_series")}</legend>
 
           {(dataSeriesType === DataSeriesType.Static || !dataSeriesType) &&
             <ManualGoalForm currentGoal={currentGoal} dataSeriesString={dataSeriesString} />
@@ -504,10 +461,10 @@ export default function GoalForm({
 
         {/* Baseline selection section */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-100`}>{t("forms:goal.choose_baseline_for_actions")}</legend>
-          <label className="margin-bottom-100">
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_baseline_for_actions")}</legend>
+          <label>
             {t("forms:goal.baseline_label")}
-            <select className="margin-block-25" name="baselineSelector" id="baselineSelector" value={baselineType} onChange={(e) => setBaselineType(e.target.value as BaselineType)}>
+            <select className="margin-top-25 margin-bottom-100" name="baselineSelector" id="baselineSelector" value={baselineType} onChange={(e) => setBaselineType(e.target.value as BaselineType)}>
               <option value={BaselineType.Initial}>{t("forms:goal.baseline_types.initial")}</option>
               <option value={BaselineType.Custom}>{t("forms:goal.baseline_types.custom")}</option>
               <option value={BaselineType.Inherited}>{t("forms:goal.baseline_types.inherited")}</option>
@@ -532,15 +489,26 @@ export default function GoalForm({
 
         {/* External links section */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:goal.feature_this_goal")}</legend>
-          <label className="flex align-items-center gap-50 margin-block-50">
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.feature_this_goal")}</legend>
+          <label className="flex align-items-center gap-50 margin-bottom-100">
             <input type="checkbox" name="isFeatured" id="isFeatured" defaultChecked={currentGoal?.isFeatured} />
             {t("forms:goal.feature_goal")}
           </label>
         </fieldset >
 
         {/* Submit button */}
-        < input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentGoal ? t("common:tsx.save") : t("common:tsx.create")} />
+        <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
+          <button
+            className="text-align-center seagreen color-purewhite width-100"
+            style={{ fontSize: '14px', transform: 'none' }}
+            type="submit"
+            id="submit-button"
+            // disabled={isLoading}
+          >
+            {currentGoal ? t("common:tsx.save") : t("common:tsx.create") + ` ${t("common:roadmap_version_one")}`}
+          </button>
+        </div>
+
       </form >
 
       {/* Datalist for indicator parameter suggestions */}
