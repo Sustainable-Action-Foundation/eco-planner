@@ -13,16 +13,11 @@ import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput"; // Fo
 import { getDataSeries } from "../elements/dataSeriesInput/utils"; // Helper for extracting data series from form
 import styles from '../forms.module.css'; // CSS module for styling
 import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections"; // Sub components for form sections
-import { DEBUG_Recipe, RecipeContextProvider, RecipeEquationEditor, RecipeErrorAndWarnings, RecipeSuggestions, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/recipeEditor";
+import { DEBUG_Recipe, RecipeContextProvider, RecipeEquationEditor, RecipeErrorAndWarnings, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/recipeEditor";
 import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
-import SelectSingleTreeSearch from "../elements/combobox/selectSingleTreeSearch";
-import { treeItem } from "@/components/types";
-import getMetaRoadmaps from "@/fetchers/getMetaRoadmaps";
-import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
-import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
-import { IconMenu2 } from "@tabler/icons-react";
 import TabList from "@/components/generic/tabview/tabList";
+import { suggestedRecipes, RecipeSuggestions } from "@/components/recipe/suggested";
 
 // Enum for selecting the type of data series for the goal
 enum DataSeriesType {
@@ -282,90 +277,7 @@ export default function GoalForm({
           {/* TODO: Show different suggested recipes depending on which DataSeriesType is selected or just change the type to "Manual" and "Recipe" */}
           {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
             <RecipeContextProvider>
-              <RecipeSuggestions suggestedRecipes={[
-                // TODO: actually create proper hashes
-                // TODO: Localize the variable names
-                // TODO: Create these in seed and get them from the database
-                { // Default scaling recipe
-                  hash: "atotallycoolhashthefirst",
-                  recipe: {
-                    name: t("forms:goal.default_scaling_recipe"),
-                    eq: "${serie} * ${skalär}",
-                    variables: {
-                      "serie": {
-                        type: RecipeDataTypes.DataSeries,
-                        link: null,
-                        pick: VectorIndexPickerOptions.Default,
-                        unit: undefined, // No unit specified
-                      },
-                      "skalär": {
-                        type: RecipeDataTypes.Scalar,
-                        value: 0.5,
-                        unit: null, // Unitless
-                      }
-                    }
-                  },
-                },
-                { // Default combination recipe
-                  hash: "recipe_with_combination",
-                  recipe:
-                  {
-                    name: t("forms:goal.default_combination_recipe"),
-                    eq: "${serie1} * ${skalär1} + ${serie2} * ${skalär2}",
-                    variables: {
-                      "serie1": {
-                        type: RecipeDataTypes.DataSeries,
-                        link: null,
-                        pick: VectorIndexPickerOptions.Default,
-                        unit: undefined, // No unit specified
-                      },
-                      "skalär1": {
-                        type: RecipeDataTypes.Scalar,
-                        value: 0.5,
-                        unit: null, // Unitless
-                      },
-                      "serie2": {
-                        type: RecipeDataTypes.DataSeries,
-                        link: null,
-                        pick: VectorIndexPickerOptions.Default,
-                        unit: undefined, // No unit specified
-                      },
-                      "skalär2": {
-                        type: RecipeDataTypes.Scalar,
-                        value: 0.5,
-                        unit: null, // Unitless
-                      },
-                    }
-                  }
-                },
-                { // Testing recipe with external data
-                  hash: "recipe_with_external",
-                  recipe:
-                  {
-                    name: "Recipe with external data",
-                    eq: "${extern}",
-                    variables: {
-                      "extern": {
-                        type: RecipeDataTypes.External,
-                        dataset: "SCB",
-                        tableId: "TAB6420",
-                        selection: [
-                          // Selected area
-                          { variableCode: "Region", valueCodes: ["00"] },
-                          // Specifically land areas, not including water
-                          { variableCode: "ArealTyp", valueCodes: ["01"] },
-                          // Magic string to get area sizes in square kilometers (as opposed to hectares with "000007E1")
-                          { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
-                          // // Use the latest time period
-                          // { variableCode: "Tid", valueCodes: ["TOP(1)"] }
-                        ],
-                        pick: VectorIndexPickerOptions.Last,
-                        unit: undefined,
-                      }
-                    }
-                  }
-                }
-              ]} />
+              <RecipeSuggestions suggestedRecipes={suggestedRecipes} />
 
               <div
                 className="smooth"
@@ -448,7 +360,6 @@ export default function GoalForm({
                   </TabList>
                 </div>
               </div>
-
 
               <label className="width-100">
                 <ResultingRecipe FormElement={<input type="hidden" name="resultingRecipe" />} /> {/* TODO: What is this? */}

@@ -1,16 +1,16 @@
 "use client";
 
-import { emptyRecipe, emptyRecipeDataTypes, isRecipe, Recipe, RecipeDataTypes, RecipeVariables } from "@/functions/recipe-parser/types";
+import { emptyRecipe, emptyRecipeDataTypes, Recipe, RecipeDataTypes, RecipeVariables } from "@/functions/recipe-parser/types";
 import type { DataSeriesValueFields } from "@/types";
 import { createContext, ReactElement, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { evaluateRecipe, cleanRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
+import { evaluateRecipe, cleanRecipe } from "@/functions/parseRecipe";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import { DataSeriesVariable, ExternalVariable, ScalarVariable } from "./variables";
 import { Locales } from "i18n.config";
 import { Popover, PopoverButton } from "../generic/popovers/popovers";
-import { IconAlertTriangleFilled, IconCircleCheckFilled, IconCirclePlus, IconCircleXFilled } from "@tabler/icons-react";
+import { IconAlertTriangleFilled, IconCircleCheckFilled, IconCircleXFilled } from "@tabler/icons-react";
 import { Unit } from 'mathjs'
 import TextSingleAutocomplete from "../form/elements/combobox/textSingleAutocomplete";
 
@@ -82,65 +82,6 @@ export function RecipeContextProvider({
       {children}
     </RecipeContext.Provider>
   );
-}
-
-export function RecipeSuggestions({
-  suggestedRecipes,
-}: {
-  // TODO - only use prisma generated and type guard the recipe prop into, not `JsonValue`
-  suggestedRecipes: { hash: string, recipe: Recipe }[];
-}) {
-  const { t } = useTranslation("components");
-  const { setRecipe } = useRecipe();
-
-  for (const recipe of suggestedRecipes) {
-    if (!isRecipe(recipe.recipe)) {
-      console.warn("Invalid recipe in suggestions", recipe);
-      return null;
-    }
-  }
-  // Validate suggested recipes
-  if (suggestedRecipes.some(r => !isRecipe(r.recipe))) {
-    console.warn("Some suggested recipes are not valid. Please check the data.");
-    return null;
-  }
-
-  // On change set the context state to the selected recipe
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const hash = e.target.value;
-    const selectedSuggestion = suggestedRecipes.find(r => r.hash === hash);
-    if (selectedSuggestion) {
-      try {
-        const rawRecipe = recipeFromUnknown(selectedSuggestion.recipe);
-        setRecipe(rawRecipe);
-      } catch (e) {
-        console.error("Failed to parse suggested recipe", e);
-        setRecipe(null);
-      }
-    } else {
-      setRecipe(null);
-    }
-  };
-
-  return (<>
-    {/* Suggested recipes */}
-    {suggestedRecipes.map((recipe, index) => (
-      <label key={index} className="block margin-block-50">
-        {/* Radio */}
-        <input type="radio" name="recipeSuggestion" value={recipe.hash} onChange={handleChange} />
-        {" "}
-
-        {/* Name */}
-        {recipe.recipe.name ?? t("components:copy_and_scale.unnamed_suggestion")}
-        {" "}
-
-        {/* Equation */}
-        <span style={{ color: "gray" }}>
-          {t("components:copy_and_scale.recipe_label")}( {recipe.recipe.eq} )
-        </span>
-      </label>
-    ))}
-  </>);
 }
 
 export function RecipeEquationEditor() {
