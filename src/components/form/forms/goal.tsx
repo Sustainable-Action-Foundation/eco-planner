@@ -13,11 +13,14 @@ import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput"; // Fo
 import { getDataSeries } from "../elements/dataSeriesInput/utils"; // Helper for extracting data series from form
 import styles from '../forms.module.css'; // CSS module for styling
 import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections"; // Sub components for form sections
-import { DEBUG_Recipe, RecipeContextProvider, RecipeEquationEditor, RecipeErrorAndWarnings, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/recipeEditor";
+import { RecipeContextProvider } from "@/components/recipe/contextProvider";
 import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
 import TabList from "@/components/generic/tabview/tabList";
 import { suggestedRecipes, RecipeSuggestions } from "@/components/recipe/suggested";
+import { RecipeEquationEditor } from "@/components/recipe/editor/equation";
+import { RecipeVariableEditor } from "@/components/recipe/editor/variable";
+import { RecipeErrorAndWarnings, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/editor/output";
 
 // Enum for selecting the type of data series for the goal
 enum DataSeriesType {
@@ -278,10 +281,9 @@ export default function GoalForm({
           {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
             <RecipeContextProvider>
               <RecipeSuggestions suggestedRecipes={suggestedRecipes} />
-
               <div
                 className="smooth"
-                style={{ backgroundColor: 'white', border: '1px solid var(--gray)', resize: 'horizontal' }}
+                style={{ backgroundColor: 'white', border: '1px solid var(--gray)' }}
               >
                 <TabList
                   props={{
@@ -307,7 +309,7 @@ export default function GoalForm({
                     id="variable-editor-panel"
                     aria-labelledby="variable-editor-tab"
                     className="purewhite padding-25 flex flex-direction-column"
-                    style={{minHeight: '150px'}}
+                    style={{minHeight: '150px', resize: 'vertical', overflow: 'auto'}}
                   >
                     <RecipeVariableEditor
                       allowAddVariables

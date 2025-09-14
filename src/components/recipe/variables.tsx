@@ -8,7 +8,7 @@ import { RecipeVariables, RecipeDataTypes, isRecipeDataSeries, RecipeDataSeries,
 import { IconTrashXFilled } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import React from "react";
-import { useRecipe } from "./recipeEditor";
+import { useRecipe } from "./contextProvider";
 import { ExternalDataset } from "@/lib/api/utility";
 import { JSONValue } from "@/types";
 

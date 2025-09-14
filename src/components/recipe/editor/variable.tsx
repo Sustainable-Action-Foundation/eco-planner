@@ -1,118 +1,17 @@
-"use client";
+'use client'
 
-import { emptyRecipe, emptyRecipeDataTypes, Recipe, RecipeDataTypes, RecipeVariables } from "@/functions/recipe-parser/types";
-import type { DataSeriesValueFields } from "@/types";
-import { createContext, ReactElement, useContext, useEffect, useState } from "react";
+import { emptyRecipe, emptyRecipeDataTypes, RecipeDataTypes, RecipeVariables } from "@/functions/recipe-parser/types";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { evaluateRecipe, cleanRecipe } from "@/functions/parseRecipe";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
-import { DataSeriesVariable, ExternalVariable, ScalarVariable } from "./variables";
-import { Locales } from "i18n.config";
-import { Popover, PopoverButton } from "../generic/popovers/popovers";
-import { IconAlertTriangleFilled, IconCircleCheckFilled, IconCircleXFilled } from "@tabler/icons-react";
+import { DataSeriesVariable, ExternalVariable, ScalarVariable } from "../variables";
+import { Popover, PopoverButton } from "../../generic/popovers/popovers";
 import { Unit } from 'mathjs'
-import TextSingleAutocomplete from "../form/elements/combobox/textSingleAutocomplete";
+import TextSingleAutocomplete from "../../form/elements/combobox/textSingleAutocomplete";
+import { useRecipe } from "../contextProvider";
 
-type RecipeContextType = {
-  recipe: Recipe | null;
-  setRecipe: React.Dispatch<React.SetStateAction<Recipe | null>>;
-  warnings: string[];
-  error: string | null;
-  resultingDataSeries: Partial<DataSeriesValueFields> | null;
-  resultingUnit: string | null | undefined;
-}
-
-export const RecipeContext = createContext<RecipeContextType | null>(null);
-export function useRecipe() {
-  const context = useContext(RecipeContext);
-  if (!context) {
-    throw new Error("useRecipe must be used within a RecipeContextProvider");
-  }
-  return context;
-}
-
-export function RecipeContextProvider({
-  initialRecipe,
-  children,
-}: {
-  initialRecipe?: Recipe;
-  children: React.ReactNode;
-}) {
-  const [recipe, setRecipe] = useState<Recipe | null>(null);
-  const [warnings, setWarnings] = useState<string[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [resultingDataSeries, setResultingDataSeries] = useState<Partial<DataSeriesValueFields> | null>(null);
-  const [resultingUnit, setResultingUnit] = useState<string | null | undefined>(null);
-
-  useEffect(() => {
-    if (initialRecipe) {
-      setRecipe(initialRecipe);
-    }
-  }, [initialRecipe]);
-
-  useEffect(() => {
-    if (!recipe) {
-      setResultingDataSeries(null);
-      setResultingUnit(null);
-      setError(null);
-      setWarnings([]);
-      return;
-    }
-
-    async function calculate() {
-      try {
-        const currentWarnings: string[] = [];
-        const evaluatedRecipe = await evaluateRecipe(cleanRecipe(recipe), currentWarnings);
-        setResultingDataSeries(evaluatedRecipe.dataSeries);
-        setResultingUnit(evaluatedRecipe.unit)
-        setWarnings(currentWarnings);
-        setError(null);
-      } catch (e: unknown) {
-        setResultingDataSeries(null);
-        setError((e as Error)?.message);
-        setWarnings([]);
-      }
-    }
-    calculate().catch(e => { throw e; });
-  }, [recipe]);
-
-  return (
-    <RecipeContext.Provider value={{ recipe, setRecipe, warnings, error, resultingDataSeries, resultingUnit }}>
-      {children}
-    </RecipeContext.Provider>
-  );
-}
-
-export function RecipeEquationEditor() {
-  const { t } = useTranslation("components");
-  const { recipe, setRecipe } = useRecipe();
-
-  const handleUpdatedEq = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const eq = e.target.value;
-    if (!recipe) {
-      console.warn("No recipe set, initializing with new one form the RecipeEquationEditor component");
-      setRecipe({ ...emptyRecipe, eq });
-    }
-    else {
-      setRecipe({ ...recipe, eq });
-    }
-  };
-
-  return (
-    <textarea
-      rows={3}
-      placeholder={t("components:copy_and_scale.custom_recipe_placeholder")}
-      style={{
-        border: '0',
-        borderRadius: '.25rem 0 0 0',
-      }}
-      value={recipe?.eq || ""}
-      onChange={handleUpdatedEq}
-    />
-  )
-}
-
+// TODO: Rename
 export function RecipeVariableEditor({
   allowAddVariables = false,
   allowDeleteVariables = false,
@@ -377,102 +276,4 @@ export function RecipeVariableEditor({
       }
     </>
   );
-}
-
-export function RecipeErrorAndWarnings() {
-  const { t } = useTranslation("components");
-  const { error, warnings } = useRecipe();
-
-  return (
-    <>
-      {error ?
-        <div lang={Locales.enSE} className="flex align-items-flex-start gap-50 margin-block-50" style={{ color: 'red', fontSize: '14px' }}>
-          <IconCircleXFilled width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="red" aria-label={t("components:copy_and_scale.evaluation_error_title")} />
-          {error}
-        </div>
-        : null}
-
-      {!error ?
-        <div lang={Locales.enSE} className="flex align-items-flex-start gap-50 margin-block-50" style={{ color: 'green', fontSize: '14px' }}>
-          <IconCircleCheckFilled width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="green" /> {/* TODO: Aria-label */}
-          Recipe is valid
-        </div>
-        : null}
-
-      {warnings.length > 0 ?
-        <ul className="margin-0 padding-0" lang={Locales.enSE} style={{ color: 'darkorange', listStyle: 'none', fontSize: '14px' }}>
-          {warnings.map((warning, i) => (
-            <li key={i} className="flex align-items-flex-start gap-50 margin-block-50">
-              <IconAlertTriangleFilled width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="darkorange" aria-label={t("components:copy_and_scale.evaluation_warning_title")} /> {/* TODO: Check this translation */}
-              {warning}
-            </li>
-          ))}
-        </ul>
-        : null}
-    </>
-  );
-}
-
-// TODO: remove this once things work
-export function DEBUG_Recipe() {
-  return <pre style={{ width: '90ch', overflowX: 'scroll' }}>
-    {JSON.stringify(useRecipe(), null, 2)}
-  </pre>
-}
-
-
-/* 
- * Form interacting components
- */
-export function ResultingDataSeries({ FormElement }: { FormElement?: ReactElement }) {
-  const { t } = useTranslation("components");
-  const { resultingDataSeries, resultingUnit } = useRecipe();
-
-  if (!resultingDataSeries) {
-    return null;
-  }
-
-  return (
-    <>
-      {/* Hidden input for reading into the form */}
-      {FormElement && <FormElement.type {...(FormElement.props || {})} value={JSON.stringify(resultingDataSeries)} />}
-
-      {/* TODO: Keep unit but not title?
-      <strong className="block bold text-align-center">
-        {t("components:copy_and_scale.resulting_data_series")}
-        {resultingUnit ? ` (${resultingUnit})` : ""}
-      </strong>
-      */}
-
-      <div
-        className="grid gap-100 padding-bottom-50"
-        style={{
-          gridTemplateColumns: `repeat(${Object.keys(resultingDataSeries).length}, 1fr)`,
-          gridTemplateRows: 'auto auto',
-          overflowX: 'scroll',
-          scrollbarWidth: 'thin',
-          contain: 'inline-size',
-        }}
-      >
-        {Object.keys(resultingDataSeries).map((year, i) => (
-          <div className="text-align-center" style={{ gridRow: 1 }} key={i + "resulting-data-series-header" + year}>{year.replace("val", "")}</div>
-        ))}
-        {Object.values(resultingDataSeries).map((value, i) => (
-          <div className="text-align-center" style={{ gridRow: 2 }} key={i + "resulting-data-series-value" + String(value)}>{(value as number)?.toFixed(1) || "-"}</div>
-        ))}
-      </div>
-    </>
-  )
-}
-
-export function ResultingRecipe({ FormElement }: { FormElement?: ReactElement }) {
-  const { recipe } = useRecipe();
-
-  if (!recipe) {
-    return null;
-  }
-
-  return (<>
-    {FormElement && <FormElement.type {...(FormElement.props || {})} value={JSON.stringify(recipe)} />}
-  </>);
 }

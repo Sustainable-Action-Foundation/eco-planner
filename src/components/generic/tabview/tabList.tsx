@@ -14,6 +14,7 @@ type TabListProps = {
 
 // TODO: Require children to have a tabname and a tabpanel role
 // TODO: Rename parent folder
+// TODO: Use display: none or visibility: hidden to maintain state?
 
 export default function TabList({ props, styling, children }: TabListProps) {
   const childrenArray = React.Children.toArray(children) as TabChild[];

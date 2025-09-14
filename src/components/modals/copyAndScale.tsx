@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
 import { Recipe } from "@/functions/recipe-parser/types";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
-import { RecipeContextProvider, RecipeSuggestions, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "../recipe/recipeEditor";
+import { RecipeContextProvider, RecipeSuggestions, RecipeVariableEditor, ResultingDataSeries, ResultingRecipe } from "../recipe/contextProvider";
 
 export default function CopyAndScale({
   goal,

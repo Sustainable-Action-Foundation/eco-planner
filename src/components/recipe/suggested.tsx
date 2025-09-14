@@ -2,7 +2,7 @@
 
 import { isRecipe, Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
-import { useRecipe } from "./recipeEditor";
+import { useRecipe } from "./contextProvider";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
 
 // TODO: Rename
