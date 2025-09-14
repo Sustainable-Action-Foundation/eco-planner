@@ -10,6 +10,7 @@ import { Popover, PopoverButton } from "../../generic/popovers/popovers";
 import { Unit } from 'mathjs'
 import TextSingleAutocomplete from "../../form/elements/combobox/textSingleAutocomplete";
 import { useRecipe } from "../contextProvider";
+import styles from './editor.module.css'
 
 // TODO: Rename
 export function RecipeVariableEditor({
@@ -30,7 +31,7 @@ export function RecipeVariableEditor({
 
   const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[]>([]);
   const [selectedRoadmaps, setSelectedRoadmaps] = useState<string[]>([]);
-  const [availableDataSeries, setAvailableDataSeries] = useState<{ id: string; name: string; roadmapId: string; }[]>([]);
+  const [availableDataSeries, setAvailableDataSeries] = useState<{ id: string; name: string; roadmapId: string; }[]>([]); 
 
   // On mount, fetch all roadmaps user has access to
   useEffect(() => {
@@ -55,6 +56,7 @@ export function RecipeVariableEditor({
       return;
     }
 
+    // TODO: Need to do this when we expand a roadmap in our tree select instead of when we select one like we did previously
     async function fetchOneDataSeries(roadmapId: string) {
       try {
         const roadmapData = await clientSafeGetOneRoadmap(roadmapId);
@@ -126,7 +128,7 @@ export function RecipeVariableEditor({
 
   return (
     <>
-      <ul className="list-style-none padding-0 margin-0 flex-grow-100">
+      <ul className={`list-style-none padding-0 margin-0 flex-grow-100 ${styles['variable-list']}`}>
         {Object.entries(recipe?.variables || []).map(([name, variable], i) => {
           const rules = {
             allowAddVariables,
@@ -176,7 +178,7 @@ export function RecipeVariableEditor({
             anchorName="--add-variable-popover-button"
             popoverTarget="add-variable-popover"
             className="font-weight-600 margin-left-auto block"
-            style={{ transform: 'scale(1)'}}
+            style={{ transform: 'scale(1)' }}
           >
             {t("components:copy_and_scale.add_variable")}
           </PopoverButton>
@@ -220,11 +222,11 @@ export function RecipeVariableEditor({
                   placeholder: "Skriv för att se förslag" // TODO: I18n 
                 }}
                 theme={{
-                  style: {backgroundColor: 'var(--gray-95)'}
+                  style: { backgroundColor: 'var(--gray-95)' }
                 }}
                 options={Object.keys(Unit.UNITS).map(unit => ({ name: unit, value: unit }))}
                 maxOptions={2.55}
-                onChange={(unit) => {setNewVariableUnit(unit)}}
+                onChange={(unit) => { setNewVariableUnit(unit) }}
               />
               <div className="margin-block-100">
                 <label className="block margin-left-25">

@@ -35,7 +35,7 @@ export default function RecipeEditor() {
             id="variable-editor-panel"
             aria-labelledby="variable-editor-tab"
             className="purewhite padding-25 flex flex-direction-column"
-            style={{ minHeight: '150px', resize: 'vertical', overflow: 'auto' }}
+            style={{ minHeight: '300px', resize: 'vertical', overflow: 'auto' }}
           >
             <RecipeVariableEditor
               allowAddVariables

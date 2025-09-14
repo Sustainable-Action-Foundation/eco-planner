@@ -53,14 +53,16 @@ function updateNodeInTree(
 
 export default function SelectSingleTreeSearch({
   treeItems,
-  props
+  props,
+  onChange
 }: {
-  treeItems: Array<treeItem>,
+  treeItems: Array<treeItem> ,
   props: inputElement,
+  onChange?: (value: treeItem | null) => void 
 }) {
 
   const { t } = useTranslation(["forms"]);
-  const [value, setValue] = useState<treeItem | null>()
+  const [value, setValue] = useState<treeItem | null>(null)
   const [loading, setLoading] = useState(false);
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const [searchValue, setSearchValue] = useState<string>('')
@@ -70,6 +72,11 @@ export default function SelectSingleTreeSearch({
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
   const toggleRef = useRef<HTMLButtonElement>(null); // TODO: Rename?
   const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!onChange) return
+    onChange(value)
+  }, [value, onChange])
 
   useEffect(() => {
     setFlattenedItems(flattenTree(items))
@@ -198,7 +205,7 @@ export default function SelectSingleTreeSearch({
   return (
     <div
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
-      style={{ ...props.style, userSelect: 'none', width: '350px' }} // TODO: Check width here 
+      style={{ ...props.style, userSelect: 'none' }} // TODO: Check width here 
     >
       <button
         title={value?.name}
