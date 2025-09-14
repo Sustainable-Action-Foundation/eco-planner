@@ -164,7 +164,6 @@ function CommonVariable({
   )
 }
 
-
 export function ScalarVariable({
   name,
   rules,

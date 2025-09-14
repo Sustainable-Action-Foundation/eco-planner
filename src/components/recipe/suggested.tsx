@@ -28,7 +28,7 @@ export function RecipeSuggestions({
   }
 
   // On change set the context state to the selected recipe
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const hash = e.target.value;
     const selectedSuggestion = suggestedRecipes.find(r => r.hash === hash);
     if (selectedSuggestion) {
@@ -47,26 +47,20 @@ export function RecipeSuggestions({
   return (
     <>
       {/* Suggested recipes */}
-      {suggestedRecipes.map((recipe, index) => (
-        <label key={index} className="block margin-block-50">
-          {/* Radio */}
-          <input type="radio" name="recipeSuggestion" value={recipe.hash} onChange={handleChange} />
-          {" "}
-
-          {/* Name */}
-          {recipe.recipe.name ?? t("components:copy_and_scale.unnamed_suggestion")}
-          {" "}
-
-          {/* Equation */}
-          <span style={{ color: "gray" }}>
-            {t("components:copy_and_scale.recipe_label")}( {recipe.recipe.eq} )
-          </span>
-        </label>
-      ))}
+      <label htmlFor="select-preset">Välj recept</label>
+      <select id="select-preset" className="block margin-bottom-100 margin-top-25" onChange={handleChange}>
+        {suggestedRecipes.map((recipe, index) => (
+          <option key={index} value={recipe.hash}>
+            {recipe.recipe.name ?? t("components:copy_and_scale.unnamed_suggestion")}: {recipe.recipe.eq}
+          </option>
+        ))}
+      </select>
     </>
   );
 }
 
+// TODO: Placed this here temporarily to remove clutter from goal form. 
+// Should probably be moved back once theese are created dynamically? 
 export const suggestedRecipes: Array<{ hash: string, recipe: Recipe }> = [
   // TODO: actually create proper hashes
   // TODO: Localize the variable names
