@@ -53,7 +53,7 @@ const generateTreeItems = async (): Promise<Array<treeItem>> => {
   return treeItems
 }
 
-const roadmapTreeStructure = await generateTreeItems()
+// const roadmapTreeStructure = await generateTreeItems()
 
 function CommonVariable({
   name,
@@ -153,14 +153,16 @@ function CommonVariable({
 
   return (
     <li>
-      <input
-        defaultValue={name}
-        onChange={handleNameChange}
-        type="text"
-        placeholder={t("components:recipe_editor.variable_name_placeholder")}
-        readOnly={!rules.allowNameEditing}
-        disabled={!rules.allowNameEditing}
-      />
+      <label>
+        <input
+          defaultValue={name}
+          onChange={handleNameChange}
+          type="text"
+          placeholder={t("components:recipe_editor.variable_name_placeholder")}
+          readOnly={!rules.allowNameEditing}
+          disabled={!rules.allowNameEditing}
+        />
+      </label>
       <select
         defaultValue={variable.type}
         onChange={handleTypeChange}
@@ -256,25 +258,26 @@ export function DataSeriesVariable({
   const { recipe, setRecipe } = useRecipe();
   const [selectedRoadmap, setLocalRoadmap] = React.useState<string | null>(null);
   const variable = recipe?.variables[name] as RecipeVariables;
- 
+
   if (!isRecipeDataSeries(variable)) {
     console.error(`Variable "${name}" is not a valid DataSeriesVariable`, variable);
     return null;
   }
 
   rules = { ...defaultInputRules, ...rules };
- 
-  function handleDataSeriesChange(value: string) {
+
+  function handleDataSeriesChange(e: React.ChangeEvent<HTMLSelectElement>) {
     setRecipe(prev => {
       if (!prev) return null;
 
-      if (!value) {
+      const selectedDataSeriesId = e.target.value;
+      if (!selectedDataSeriesId) {
         console.warn("No data series selected");
         return prev; // Do not update if no data series is selected
       }
 
-      if (availableDataSeries.every(ds => ds.id !== value)) {
-        console.warn(`Data series with ID '${value}' not found in available data series`);
+      if (availableDataSeries.every(ds => ds.id !== selectedDataSeriesId)) {
+        console.warn(`Data series with ID '${selectedDataSeriesId}' not found in available data series`);
         return prev; // Do not update if the selected data series is not available
       }
 
@@ -287,7 +290,7 @@ export function DataSeriesVariable({
 
       newVariables[name] = {
         ...currentVar,
-        link: value,
+        link: selectedDataSeriesId,
       } as RecipeDataSeries;
 
       return { ...prev, variables: newVariables };
@@ -300,47 +303,48 @@ export function DataSeriesVariable({
       name={name}
       rules={rules}
     >
-      {/*
-        <select
-          defaultValue={selectedRoadmap || ""}
-          onChange={(e) => {
-            setLocalRoadmap(e.target.value || null);
-            setSelectedRoadmaps(prev => [...new Set([...prev, e.target.value].filter(Boolean))]);
-          }}
-          disabled={!rules.allowValueEditing}
-        >
-          <option disabled={true} value={""}>{t("components:recipe_editor.select_roadmap")}</option>
-          {availableRoadmaps.map((r, i) => (
-            <option key={`roadmapOption-${i}`} value={r.id}>
-              {r.name}
+      <select
+        defaultValue={selectedRoadmap || ""}
+        onChange={(e) => {
+          setLocalRoadmap(e.target.value || null);
+          setSelectedRoadmaps(prev => [...new Set([...prev, e.target.value].filter(Boolean))]);
+        }}
+        disabled={!rules.allowValueEditing}
+      >
+        <option disabled={true} value={""}>{t("components:recipe_editor.select_roadmap")}</option>
+        {availableRoadmaps.map((r, i) => (
+          <option key={`roadmapOption-${i}`} value={r.id}>
+            {r.name}
+          </option>
+        ))}
+      </select>
+      <select
+        value={variable.link || ""}
+        onChange={handleDataSeriesChange}
+        disabled={!rules.allowValueEditing}
+      >
+        <option disabled={true} value="">{t("components:recipe_editor.goal_or_effect")}</option>
+        {availableDataSeries
+          .map(ds => ({ ...ds, displayName: ds.unit ? `(${ds.unit}) ${ds.name}` : ds.name }))
+          .sort((a, b) => a.displayName.localeCompare(b.displayName))
+          .map(ds => (
+            <option key={`dataSeries-${ds.id}`} value={ds.id}>
+              {ds.displayName}
             </option>
           ))}
-        </select>
-        <select
-          value={variable.link || ""}
-          onChange={handleDataSeriesChange}
-          disabled={!rules.allowValueEditing}
-        >
-          <option disabled={true} value="">{t("components:recipe_editor.goal_or_effect")}</option>
-          {availableDataSeries
-            .map(ds => ({ ...ds, displayName: ds.unit ? `(${ds.unit}) ${ds.name}` : ds.name }))
-            .sort((a, b) => a.displayName.localeCompare(b.displayName))
-            .map(ds => (
-              <option key={`dataSeries-${ds.id}`} value={ds.id}>
-                {ds.displayName}
-              </option>
-            ))}
-        </select> 
-      */}
+      </select>
+
+      {/*
       <SelectSingleTreeSearch // TODO: Fix disabled state
         props={{
-          id: '',
+          id: 'variable-tree', // TODO: Name and id must be dynamic
           name: '', 
           placeholder: 'Välj målbana eller effekt' // TODO: i18n
         }}
         treeItems={roadmapTreeStructure}
         onChange={(value) => handleDataSeriesChange(value ? value.value : '')}
       />
+       */}
       <VectorIndexPicker />
 
     </CommonVariable >
