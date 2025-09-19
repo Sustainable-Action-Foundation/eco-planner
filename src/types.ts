@@ -3,6 +3,18 @@ import { actionInclusionSelection, clientSafeGoalSelection, clientSafeMultiRoadm
 import { Years as GeneratedYears } from "./lib/dataSeriesCanonicalYears";
 import { Recipe } from "./functions/recipe-parser/types";
 
+/**
+ * A utility function for helping with finding where something fails in a typeguard chain.
+ * Meant to be used at the end of a chain of logical AND or OR operations, which would usually short-circuit, but call this function on failure.
+ * 
+ * Example:  
+ *   `ShouldBeTruthy1 && ShouldBeTruthy2 || typeguardDebug("Failed AND check");`
+ * 
+ * or:  
+ *   `ShouldBeTruthy1 || ShouldBeTruthy2 || typeguardDebug("Failed OR check");`
+ * 
+ * @returns `false`, so it can be used after an OR in logical operations without affecting the result.
+ */
 export function typeguardDebug(message: string): false {
   console.debug(message);
   return false;
