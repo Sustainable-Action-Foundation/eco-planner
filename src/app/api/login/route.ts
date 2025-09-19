@@ -3,9 +3,23 @@ import { getSession, options } from "@/lib/session"
 import prisma from "@/prismaClient";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
+import { JSONValue } from "@/types";
 
 export async function POST(request: NextRequest) {
-  const { username, password, remember }: { username: string, password: string, remember?: boolean } = await request.json();
+  const data = await request.json() as JSONValue;
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    return Response.json({ message: 'Invalid request body' },
+      { status: 400 }
+    );
+  }
+
+  // Validate request body
+  const { username, password, remember } = data;
+  if (!username || !password || typeof username !== 'string' || typeof password !== 'string') {
+    return Response.json({ message: 'Username and password are required and must be strings' },
+      { status: 400 }
+    );
+  }
 
   // Create session, set maxAge if user toggled remember me
   const session = await getSession(await cookies(), remember ? {
@@ -15,13 +29,6 @@ export async function POST(request: NextRequest) {
       maxAge: 365 * 24 * 60 * 60, // Standard year in seconds
     }
   } : options);
-
-  // Validate request body
-  if (!username || !password) {
-    return Response.json({ message: 'Username and password are required' },
-      { status: 400 }
-    );
-  }
 
   // Validate credentials
   let user: { id: string; username: string; password: string; isAdmin: boolean; userGroups: { name: string; }[]; };

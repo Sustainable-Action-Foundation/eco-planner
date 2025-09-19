@@ -1,7 +1,82 @@
 /* custom (not yet added to semantic style sheets= */
 
+.list-style-none {
+  list-style: none;
+}
+
+:where(button, input, textarea, select):disabled {
+  cursor: not-allowed;
+}
+
+/* Mimic the focusable state of an input */
+.focusable {
+  border: 1px solid var(--gray-80);
+  background-color: white;
+  border-radius: 4px;
+}
+
+.focusable:focus-within {
+  border-color: #191919;
+}
+
+.focusable input {
+  outline: none;
+  box-shadow: none;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+/* Input with a floating label input */
+.floating-label {
+  position: relative;
+}
+
+.floating-label label {
+  line-height: 1;
+  position: absolute;
+  color: gray;
+  padding-inline: .25rem;
+  left: .25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: top .1s ease,
+    scale .1s ease,
+    color .1s ease;
+}
+
+/* TODO: This refuses to line up, always one weird pixel off  ):, figure out why */ 
+.floating-label label::after {
+  content: "";
+  visibility: hidden;
+  position: absolute;
+  background-color: white;
+  height: 2px;
+  width: 100%;
+  left: 0;
+  top: 65%;
+  z-index: -1;
+}
+
+.floating-label:focus-within label,
+.floating-label:has(input:not(:placeholder-shown)) label {
+  top: 0;
+  transform: translateY(-65%);
+  scale: .85;
+  color: black;
+}
+
+.floating-label:focus-within label::after,
+.floating-label:has(input:not(:placeholder-shown)) label::after {
+  visibility: visible;
+}
+
 .font-size-smaller {
   font-size: smaller;
+}
+
+.font-size-100 {
+  font-size: 1rem;
 }
 
 .opacity-0 {
@@ -148,6 +223,10 @@
   width: 0;
 }
 
+.width-fit-content {
+  width: fit-content;
+}
+
 .width-100 {
   width: 100%;
 }
@@ -169,14 +248,20 @@
 }
 
 :where(select) {
-  padding: .5rem calc(.5rem * 2 + 24px) .5rem .5rem;
-  border: none;
-  border-radius: 3px;
-  max-width: 100%;
-  
+  --padding: .5rem;
+  --icon-size: 20px;
+
+  padding: var(--padding) calc(var(--padding) * 2 + var(--icon-size)) var(--padding) var(--padding);
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--gray-80);
+  border-radius: 4px;
+  min-width: min(175px, 100%);
+
   /* Hardcoded SVG for downards chevron */
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-down"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 9l6 6l6 -6" /></svg>') 
-              no-repeat calc(100% - .5rem) center #e0e6eb;
+  background: url('data:image/svg+xml,<svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-selector"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 9l4 -4l4 4" /><path d="M16 15l-4 4l-4 -4" /></svg>') no-repeat calc(100% - var(--padding)) center white;
+  background-size: var(--icon-size);
+
 
   -moz-appearance: none;
   /* Firefox */
@@ -186,28 +271,29 @@
 }
 
 :where(select):focus {
-  outline: 2px solid var(--seagreen);
-  box-shadow: 0 0 .5rem -3px var(--seagreen);
-  background-color: transparent;
+  border-color: #191919;
+  outline: 0;
 }
 
 :where(textarea) {
-  background-color: #e0e6eb;
+  background-color: white;
   display: block;
   width: 100%;
   padding: .5rem;
-  border: none;
-  border-radius: 3px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--gray-80);
+  outline-width: 1px;
+  outline-style: solid;
+  outline-color: transparent;
+  border-radius: 4px;
   resize: vertical;
   min-height: 150px;
-  font-size: 1rem;
   line-height: 1.5;
 }
 
 :where(textarea:focus) {
-  outline: 2px solid var(--seagreen);
-  box-shadow: 0 0 .5rem -3px var(--seagreen);
-  background-color: transparent;
+  border-color: #191919;
 }
 
 
@@ -220,12 +306,12 @@
 :where(button) {
   background-color: var(--gray-90);
   border: 0;
-  border-radius: 3px;
+  border-radius: 4px;
   padding: 0.5rem;
   transition: box-shadow 0.1s ease;
 }
 
-:where(button:hover) {
+:where(button:not(:disabled):hover) {
   box-shadow: inset 0 0 999px rgba(0, 0, 0, 0.1);
 }
 
@@ -236,10 +322,6 @@
 /* Text inputs (text, email, password, search, url) */
 /* Number inputs (number, tel) */
 /* Date inputs (datetimeLocal, date, month, week, time) */
-:where(input) {
-  font-size: 1rem;
-}
-
 :where(input[type=text],
   input[type=email],
   input[type=password],
@@ -252,12 +334,17 @@
   input[type=month],
   input[type=time],
   input[type=week]) {
-  background-color: var(--gray-90);
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--gray-80);
+  outline-width: 1px;
+  outline-style: solid;
+  outline-color: transparent;
+  background-color: white;
   display: block;
   width: 100%;
   padding: 0.5rem;
-  border: none;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
 :where(input[type=text],
@@ -272,9 +359,7 @@
   input[type=month],
   input[type=time],
   input[type=week]):focus {
-  outline: 2px solid var(--seagreen);
-  box-shadow: 0 0 0.5rem -3px var(--seagreen);
-  background-color: transparent;
+  border-color: #191919;
 }
 
 /* Button inputs (button, reset, submit, image) */
@@ -287,7 +372,7 @@
   width: 100%;
   padding: 0.5rem;
   border: none;
-  border-radius: 3px;
+  border-radius: 4px;
   transition: box-shadow 0.1s ease;
 }
 
@@ -309,35 +394,17 @@
 /* File inputs (file) */
 :where(input[type=file]) {
   display: block;
-  width: 100%;
-  padding: 1em;
-  border-radius: 3px;
-  border: 2px dashed var(--gray-90);
-  outline: none;
 }
 
 input[type=file]::file-selector-button {
-  background-color: var(--gray-90);
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 3px;
-  margin: 0 0.5rem;
-  cursor: pointer;
-}
-
-:where(input[type=file]:focus) {
-  border: 2px dashed var(--seagreen);
-}
-
-input[type=file]:focus::file-selector-button {
-  background-color: var(--seagreen);
-  color: white;
+  display: none;
 }
 
 /* Selection inputs (checkbox, radio, range color) */
 :where(input[type=radio],
   input[type=checkbox]) {
   margin: 0;
+  accent-color: var(--blue-40);
 }
 
 :where(input[type=range]) {
@@ -1135,6 +1202,10 @@ container-text {
   padding-block: 1rem;
 }
 
+.padding-block-125 {
+  padding-block: 1.25rem;
+}
+
 .padding-block-200 {
   padding-block: 2rem;
 }
@@ -1703,8 +1774,16 @@ container-text {
   display: flex;
 }
 
+.display-flex-important {
+  display: flex !important;
+}
+
 .flex {
   display: flex;
+}
+
+.flex-important {
+  display: flex !important;
 }
 
 .display-inline-flex {

@@ -9,7 +9,7 @@ export function getLocale(
   acceptLanguageHeader: string | null,
   overrideLng: string | undefined = undefined,
 ): Locales {
-  let localeContender: string | Locales = Locales.default;
+  let localeContender: string = Locales.default;
 
   if (overrideLng) localeContender = overrideLng;
   else if (localeCookie) localeContender = localeCookie;

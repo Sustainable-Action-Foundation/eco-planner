@@ -21,6 +21,7 @@
   "goal_other": "målbanor",
   "goal_definite_one": "målbanan",
   "goal_definite_other": "målbanorna",
+  "roadmap_version_name": "{{name}} (v{{version}})",
   "new": {
     "roadmap_series": "Skapa ny färdplansserie",
     "roadmap_version": "Skapa ny färdplansversion",
@@ -64,8 +65,17 @@
     "create": "Skapa",
     "submit": "Skicka",
     "compare": "Jämför",
+    "select": "Välj",
     "close": "Stäng",
-    "unit_missing": "ingen enhet"
+    "expand": "Expandera",
+    "search": "Sök",
+    "write": "Skriv något",
+    "options": "Alternativ",
+    "suggestions": "Förslag",
+    "no_suggestions": "Inga förslag",
+    "no_results": "Inga resultat",
+    "unit_missing": "enhet saknas",
+    "unitless": "enhetslös"
   },
   "placeholder": {
     "name": "Användarnamn",
@@ -78,17 +88,22 @@
     "regional": "Regional",
     "municipal": "Kommunal",
     "local": "Lokal",
+    "organizational": "Organisatorisk",
     "other": "Övrig",
     "national_roadmap": "Nationell $t(common:roadmap_series_one)",
     "regional_roadmap": "Regional $t(common:roadmap_series_one)",
     "municipal_roadmap": "Kommunal $t(common:roadmap_series_one)",
     "local_roadmap": "Lokal $t(common:roadmap_series_one)",
-    "other_roadmap": "Övrig $t(common:roadmap_series_one), exempelvis en organisation"
+    "organizational_roadmap": "Organisatorisk $t(common:roadmap_series_one)",
+    "other_roadmap": "Övrig $t(common:roadmap_series_one)"
   },
   "scaling_methods": {
     "geo_mean": "Geometriskt genomsnitt (rekommenderad)",
     "arith_mean": "Algebraiskt genomsnitt",
     "multiplicative": "Multiplikativ"
+  },
+  "error": {
+    "generic_with_details": "Något gick fel: {{details}}"
   },
   "css": {
     "optional": " - (valfri)"
@@ -97,5 +112,11 @@
     "status": "404",
     "title": "Sidan hittades inte",
     "description": "Se till att du har rätt address för sidan du söker."
-  }
+  },
+  "errors": {
+    "something_went_wrong": "Något gick fel",
+    "something_went_wrong_with_details": "Något gick fel: {{details}}"
+  },
+  "next": "Nästa",
+  "back": "Tillbaka"
 }

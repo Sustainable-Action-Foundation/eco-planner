@@ -1,7 +1,7 @@
 "use client";
 
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
-import { dataSeriesDataFieldNames } from "@/types";
+import { Years } from "@/types";
 import type { DataSeries, Effect, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
 import { parsePeriod } from "@/lib/api/utility";
 import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
@@ -41,19 +41,19 @@ export default function MainGraph({
       type: 'datetime',
       labels: { format: 'yyyy' },
       tooltip: { enabled: false },
-      min: new Date(dataSeriesDataFieldNames[0].replace('val', '')).getTime(),
-      max: new Date(dataSeriesDataFieldNames[dataSeriesDataFieldNames.length - 1].replace('val', '')).getTime()
+      min: new Date(Years[0].replace('val', '')).getTime(),
+      max: new Date(Years[Years.length - 1].replace('val', '')).getTime()
       // categories: dataSeriesDataFieldNames.map(name => name.replace('val', ''))
     },
     yaxis: [
       {
-        title: { text: goal.dataSeries?.unit },
+        title: { text: goal.dataSeries.unit === null ? t("common:tsx.unitless") : goal.dataSeries.unit || t("common:tsx.unit_missing") },
         labels: { formatter: graphNumberFormatter },
         seriesName: [
           (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
           t("graphs:common.baseline_scenario"),
           t("graphs:common.expected_outcome"),
-          (secondaryGoal?.dataSeries?.unit == goal.dataSeries.unit) ? (secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0] : "",
+          (secondaryGoal?.dataSeries?.unit === goal.dataSeries.unit) ? (secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0] : "",
           historicalData ? `${historicalData.metadata[0]?.label}` : "",
         ]
       }
@@ -68,7 +68,7 @@ export default function MainGraph({
 
   // Main data series for the goal
   const mainSeries = [];
-  for (const i of dataSeriesDataFieldNames) {
+  for (const i of Years) {
     const value = goal.dataSeries[i];
 
     mainSeries.push({
@@ -85,7 +85,7 @@ export default function MainGraph({
   if (goal.baselineDataSeries) {
     // Predicted outcome without actions/effects
     const baseline = [];
-    for (const i of dataSeriesDataFieldNames) {
+    for (const i of Years) {
       const value = goal.baselineDataSeries[i];
 
       baseline.push({
@@ -113,7 +113,7 @@ export default function MainGraph({
     }
   } else if (effects.length > 0) {
     // If no baseline is set, use the first non-null value as baseline
-    const firstNonNull = dataSeriesDataFieldNames.find(i => goal.dataSeries && Number.isFinite((goal.dataSeries)[i]));
+    const firstNonNull = Years.find(i => goal.dataSeries && Number.isFinite((goal.dataSeries)[i]));
 
     if (firstNonNull) {
       const totalEffect = calculatePredictedOutcome(effects, goal.dataSeries[firstNonNull] as number)
@@ -122,7 +122,7 @@ export default function MainGraph({
       if (totalEffect.length > 0) {
         // Flat line based on goal.dataSeries[firstNonNull]
         const baseline = [];
-        for (const i of dataSeriesDataFieldNames) {
+        for (const i of Years) {
           baseline.push({
             x: new Date(i.replace('val', '')).getTime(),
             y: goal.dataSeries[firstNonNull]
@@ -146,15 +146,14 @@ export default function MainGraph({
 
   if (historicalData) {
     const historicalSeries = [];
-    const timeColumnIndex = historicalData.columns.findIndex(column => column.type == "t");
 
-    if (timeColumnIndex >= 0) {
-      for (const row of historicalData.data) {
-        const value = parseFloat(row.values[0]);
+    if (historicalData.values.length >= 0) {
+      for (const { period, value } of historicalData.values) {
+        const parsedValue = parseFloat(value);
 
         historicalSeries.push({
-          x: parsePeriod(row.key[timeColumnIndex].value).getTime(),
-          y: Number.isFinite(value) ? value : null,
+          x: parsePeriod(period).getTime(),
+          y: Number.isFinite(parsedValue) ? parsedValue : null,
         });
       }
       mainChart.push({
@@ -167,7 +166,7 @@ export default function MainGraph({
 
   if (secondaryGoal?.dataSeries) {
     const secondarySeries = [];
-    for (const i of dataSeriesDataFieldNames) {
+    for (const i of Years) {
       const value = secondaryGoal.dataSeries[i];
 
       secondarySeries.push({
@@ -194,7 +193,7 @@ export default function MainGraph({
 
   if (parentGoal?.dataSeries) {
     const nationalSeries = [];
-    for (const i of dataSeriesDataFieldNames) {
+    for (const i of Years) {
       const value = parentGoal.dataSeries[i];
 
       nationalSeries.push({

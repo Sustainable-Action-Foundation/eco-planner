@@ -28,7 +28,7 @@ export default async function Page() {
   if (!gitHash.shortHash && !gitHash.longHash) {
     try {
       if (fs.existsSync("src/lib/commitHash.json")) {
-        const parsedVersion: JSONValue = JSON.parse(fs.readFileSync("src/lib/commitHash.json", "utf-8"));
+        const parsedVersion = JSON.parse(fs.readFileSync("src/lib/commitHash.json", "utf-8")) as JSONValue;
 
         // Set hashes if they are properly formatted
         if (parsedVersion instanceof Object && !(parsedVersion instanceof Array)) {

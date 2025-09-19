@@ -21,6 +21,7 @@
   "goal_other": "goals",
   "goal_definite_one": "the goal",
   "goal_definite_other": "the goals",
+  "roadmap_version_name": "{{name}} (v{{version}})",
   "new": {
     "roadmap_series": "Create new roadmap series",
     "roadmap_version": "Create new roadmap version",
@@ -48,7 +49,7 @@
     "meta_description": "A tool that aims to contribute to Sweden's climate transition. In the tool, national users can be inspired by each other's actions, creating a common action database for Sweden. At the local level, different actors can also collaborate on actions.",
     "og_locale": "en_SE"
   },
-  "tsx":{
+  "tsx": {
     "home": "Home",
     "login": "Log in",
     "logout": "Log out",
@@ -64,8 +65,17 @@
     "create": "Create",
     "submit": "Submit",
     "compare": "Compare",
+    "select": "Select",
     "close": "Close",
-    "unit_missing": "no unit"
+    "expand": "Expand",
+    "search": "Search",
+    "write": "Write something",
+    "options": "Options",
+    "suggestions": "Suggestions",
+    "no_suggestions": "No suggestions",
+    "no_results": "No results",
+    "unit_missing": "missing unit",
+    "unitless": "unitless"
   },
   "placeholder": {
     "name": "Username",
@@ -78,17 +88,22 @@
     "regional": "Regional",
     "municipal": "Municipal",
     "local": "Local",
+    "organizational": "Organizational",
     "other": "Other",
     "national_roadmap": "National $t(common:roadmap_series_one)",
     "regional_roadmap": "Regional $t(common:roadmap_series_one)",
     "municipal_roadmap": "Municipal $t(common:roadmap_series_one)",
     "local_roadmap": "Local $t(common:roadmap_series_one)",
-    "other_roadmap": "Other $t(common:roadmap_series_one), e.g. an organization"
+    "organizational_roadmap": "Organizational $t(common:roadmap_series_one)",
+    "other_roadmap": "Other $t(common:roadmap_series_one)"
   },
   "scaling_methods": {
     "geo_mean": "Geometric mean (recommended)",
     "arith_mean": "Arithmetic mean",
     "multiplicative": "Multiplicative"
+  },
+  "error": {
+    "generic_with_details": "An error occurred: {{details}}"
   },
   "css": {
     "optional": " - (optional)"
@@ -97,5 +112,11 @@
     "status": "404",
     "title": "Page not found",
     "description": "Please ensure the URL is correct."
-  }
+  },
+  "errors": {
+    "something_went_wrong": "Something went wrong",
+    "something_went_wrong_with_details": "Something went wrong: {{details}}"
+  },
+  "next": "Next",
+  "back": "Back"
 }

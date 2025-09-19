@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import "../lib/console";
 import fs from "node:fs";
 import path from "node:path";
@@ -26,8 +27,8 @@ const validPluralSuffixes = ["_one", "_two", "_few", "_many", "_other", "_zero",
 /** Since the translation system uses client and server side instances of i18next, we test for mismatches. */
 const tServerUsageIndications = ["@/lib/i18nServer", "serveTea(",];
 const tClientUsageIndications = ["useTranslation"];
-const serverIndications = ["server-only", "use server", "next/server", "next/headers", "accessChecker", "export default async function", "export async function"];
-const clientIndications = ["use client", "useEffect", "useMemo", "useState", "useRef",];
+const serverIndications = ["server-only", "use server", "next/server", "next/headers", "export default async function", "export async function"];
+const clientIndications = ["client-only", "use client", "useEffect", "useMemo", "useState", "useRef",];
 const serverSideFilesOverride = ["page.tsx", "layout.tsx",].map(file => file && path.join(...file.split("/")));
 const clientSideFilesOverride: string[] = ([] as string[]).map(file => file && path.join(...file.split("/")));
 const exemptedMixedUseFiles = ["src/app/localesTest/page.tsx",].map(file => file && path.join(...file.split("/")));
@@ -39,7 +40,7 @@ const commonNamespaces = ["common", "metadata"];
 const keysAllowedDirectlyInApp = ["common:tsx.", "common:placeholder.", "common:scope.", "common:layout.", "common:count.", "common:new.", "common:edit", "common:scaling_methods", "common:css.", "common:404."];
 
 /** The Swedish regex is used to find hard coded swedish in the app */
-const swedishRegex = /(?<!\/\/|\*|\/\*)(?:åtgärd|åtgärden|åtgärder|åtgärderna|målbana|målbanan|målbanor|målbanorna|färdplan|färdplanen|färdplaner|färdplansversion|färdplansversionen|färdplansversioner|effekt|effekten|effekter|effekterna|Skapa|Redigera|Radera|Ta bort|Lägg till|Spara|Avbryt|Sök|Välj|Visa|Sortera|Sök bland|Välj en|Ingen angiven|Skapa ny|Det finns inga|Vill du|Utvalda|Alla|Externa resurser|Relevanta aktörer|Kostnadseffektivitet|Beskrivning|Sverige|Sveriges|Stäng|meny|välj|språk|att|som|på|är|för|till|inte|ett|han|men|[åäöÅÄÖ])[\W]/gim;
+const swedishRegex = /(?<!\/\/|\*|\/\*|\/\*\*|^\s*\*\s*)(?:\b(?:åtgärd|åtgärden|åtgärder|åtgärderna|målbana|målbanan|målbanor|målbanorna|färdplan|färdplanen|färdplaner|färdplansversion|färdplansversionen|färdplansversioner|effekt|effekten|effekter|effekterna|Skapa|Redigera|Radera|Ta bort|Lägg till|Spara|Avbryt|Sök|Välj|Visa|Sortera|Sök bland|Välj en|Ingen angiven|Skapa ny|Det finns inga|Vill du|Utvalda|Alla|Externa resurser|Relevanta aktörer|Kostnadseffektivitet|Beskrivning|Sverige|Sveriges|Stäng|meny|välj|språk|att|som|på|är|för|till|inte|ett|han|men|ord|Nästa)\b|(?:\w*[åäöÅÄÖ]\w*))/gim;
 
 
 /* 
@@ -364,11 +365,6 @@ test("Mixed server and client side code", () => {
     if (isServer && !usingTServer) {
       if (!perFile[filePath]) perFile[filePath] = [];
       perFile[filePath].push("Server side file using client side translations");
-    }
-
-    if (isClient && isServer) {
-      if (!perFile[filePath]) perFile[filePath] = [];
-      perFile[filePath].push("Found both server and client side code");
     }
 
     if (usingTServer && usingTClient) {

@@ -1,12 +1,12 @@
 {
   "access_selector": {
-    "groups_with_edit_access": "Groups with editing access",
-    "users_with_edit_access": "Users with editing access",
-    "remove_user": "Remove user",
-    "add_user": "Add user",
-    "groups_with_read_access": "Groups with read access",
-    "make_posts_public": "Show posts publicly",
-    "users_with_read_access": "Users with read access"
+    "me_only": "Only me",
+    "all_users": "All users",
+    "custom": "Select specific users and/or groups",
+    "users": "Users",
+    "select_users": "Select users",
+    "groups": "Groups",
+    "select_groups": "Select groups"
   },
   "action": {
     "choose_relationship": "Specify the relationship to other posts",
@@ -35,6 +35,13 @@
     "category_efficiency": "Efficiency",
     "category_renewables": "Renewables",
     "attach_external_resources": "Attach external resources"
+  },
+  "combobox": {
+    "search_options": "Search among options",
+    "select_single_option": "Select an option",
+    "select_multiple_options": "Select one or multiple options",
+    "select_or_leave": "Select or leave blank",
+    "show_suggestions": "Show suggestions" 
   },
   "data_series_input": {
     "data_series": "Data series",
@@ -72,22 +79,20 @@
     "choose_relationship": "Specify the relationship to other posts",
     "relationship_label": "Choose $t(common:roadmap_series_one) to $t(common:new.goal) under:",
     "relationship_no_chosen": "Choose $t(common:roadmap_series_one)",
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "data_series_type_legend": "Choose type of data series for your $t(common:goal_one)",
     "data_series_type_label": "Data series",
     "data_series_types": {
-      "static": "Manually specified",
+      "static": "Manually inputted",
       "inherited": "Inherited",
       "combined": "Combined"
     },
+    "default_scaling_recipe": "Default scaling recipe",
+    "default_combination_recipe": "Default combination recipe",
     "goal_description_legend": "Describe your $t(common:goal_one)",
     "goal_name": "Name of $t(common:goal_one)",
     "goal_description": "Description of $t(common:goal_one)",
     "choose_goal_data_series": "Describe how your {{$t(common:goal_one), possessive}} data is structured",
-    "scaling_legend": "Scaling",
-    "remove_scaling": "Remove scaling",
-    "add_scaling": "Add scaling",
-    "scaling_method_legend": "Scaling method:",
-    "resulting_factor": "Resulting scaling factor:",
     "choose_baseline_for_actions": "Choose baseline for $t(common:action_other)",
     "baseline_label": "Which baseline should be used when calculating {{$t(common:action_other), possessive}} $t(common:effect_other) on this $t(common:goal_one)?",
     "baseline_types": {
@@ -98,8 +103,6 @@
     "attach_external_resources": "Attach external resources",
     "feature_this_goal": "Do you want to feature this $t(common:goal_one) in your $t(common:roadmap_version_one)?",
     "feature_goal": "Feature this $t(common:goal_one)",
-    "scale_deprecated": "This $t(common:goal_one) contains a scale. Please bake the scale into the value or unit and then check this box. All scales will be removed in the future",
-    "remove_scale": "Remove scale, {{scale}}",
     "leap_parameter": "LEAP parameter",
     "data_unit": "Data series unit",
     "unit_interpreted_as": "Unit interpreted as:",
@@ -114,13 +117,6 @@
     "select_goal_as_baseline": "Select a $t(common:goal_one) to use as a baseline (values are copied rather than linked)",
     "data_missing": "DATA MISSING; ",
     "baseline_copied": "Baseline, copied from selected $t(common:goal_one)"
-  },
-  "link_input": {
-    "name_label": "Name",
-    "name_placeholder": "e.g. SCB",
-    "url_label": "URL",
-    "url_placeholder": "https://example.com", 
-    "remove_link_aria_label": "remove link"
   },
   "repeatable_scaling": {
     "specific_value_label": "With what value do you want to scale?",
@@ -159,19 +155,42 @@
     "goal_accepted_formats": "{{$t(common:goal_other), titleCase}} <small> - accepted file types: {{fileTypes, list}} - accepted file encodings: {{encodings, list}}</small>",
     "inherit_goal_legend": "Choose $t(common:goal_one) to inherit",
     "change_read_access": "Adjust read access",
-    "change_edit_access": "Adjust editing access"
+    "change_edit_access": "Adjust editing access",
+    "legend_visibility": "Who may view the roadmap?",
+    "legend_editability": "Who may edit the roadmap?"
+  },
+  "text_editor_menu": {
+    "undo": "Undo",
+    "redo": "Redo",
+    "font_size": {
+      "caption": "Font size",
+      "large": "Large text",
+      "normal": "Normal text",
+      "small": "Small text"
+    },
+    "grey_text": "Grey text",
+    "italic": "Italic",
+    "bold": "Bold",
+    "strike_through": "Strike through",
+    "underline": "Underline",
+    "superscript": "Superscript",
+    "subscript": "Subscript",
+    "highlight": "Highlight",
+    "insert_link": "Insert link",
+    "bullet_list": "Bulleted list",
+    "numbered_list": "Numbered list",
+    "more": "More"
   },
   "meta_roadmap": {
     "description_legend": "Describe your $t(common:roadmap_series_one)",
-    "roadmap_series_name": "Name $t(common:roadmap_series_definite_one)",
-    "roadmap_series_description": "Description of $t(common:roadmap_series_definite_one)",
+    "name": "Name",
+    "description": "Description",
     "actor_legend": "Choose responsible actor",
-    "roadmap_scope_label": "Type of $t(common:roadmap_series_one)",
+    "type": "Type",
     "no_chosen_roadmap_scope": "Choose a type",
-    "choose_actor": "Specify an actor",
-    "attach_external": "Attach external resources",
-    "change_read_access": "Adjust read access",
-    "change_edit_access": "Adjust editing access",
+    "actor": "Actor",
+    "legend_visibility": "Who may view the roadmap series?",
+    "legend_editability": "Who may edit the roadmap series?",
     "relationship_legend": "Is this $t(common:roadmap_series_one) working towards another $t(common:roadmap_series_one)?",
     "relationship_label": "Parent",
     "relationship_no_chosen": "No parent"

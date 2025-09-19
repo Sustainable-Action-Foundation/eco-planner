@@ -10,6 +10,7 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import Link from "next/link";
+import TextEditor from "@/components/form/elements/textEditor/editor";
 
 export async function generateMetadata(props: { params: Promise<{ metaRoadmapId: string }> }) {
   const params = await props.params
@@ -62,8 +63,15 @@ export default async function Page(props: { params: Promise<{ metaRoadmapId: str
             <div>
               <span style={{ color: 'gray' }}>{t("pages:roadmap_series_one.title_legend")}</span>
               <h1 className="margin-0">{metaRoadmap.name}</h1>
-              <small>{t("pages:roadmap_series_one.description_legend")}</small>
-              <p>{metaRoadmap.description}</p>
+              <small>{t("pages:roadmap_series_one.description_legend")}</small>    
+              <div className="margin-block-100">           
+                <TextEditor
+                  id="rich-description"
+                  editable={false}
+                  defaultStyles={false}
+                  content={metaRoadmap.description}
+                />
+              </div>
               {metaRoadmap.links.length > 0 ?
                 <>
                   <h2 className="margin-bottom-0 margin-top-200">{t("pages:common.external_resources")}</h2>

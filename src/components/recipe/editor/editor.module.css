@@ -1,0 +1,7 @@
+.variable-list input,
+.variable-list select,
+.variable-list div:has(button) {
+    display: inline-block;
+    width: 125px;
+    min-width: 125px;
+}

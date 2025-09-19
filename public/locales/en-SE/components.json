@@ -32,13 +32,35 @@
     "select_roadmap_version": "In which $t(common:roadmap_version_one) do you want to place the scaled $t(common:goal_one)?",
     "select_roadmap_version_option": "Select $t(common:roadmap_version_one)",
     "version": "version",
-    "remove_scaling": "Remove scaling",
-    "add_scaling": "Add scaling",
-    "advanced": "Advanced",
-    "scaling_method": "Select scaling method",
-    "resulting_scale_factor": "Resulting scale factor",
+    "resulting_data_series": "Resulting data series",
     "create_scaled_copy": "Create scaled copy",
-    "invalid_input": "Invalid input. The scaling factor could not be calculated. This is often due to a non-numeric value in an input field or that the product of all scaling factors is negative."
+    "unnamed_suggestion": "Unnamed suggestion",
+    "data_series_year": "Year",
+    "data_series_value": "Value",
+    "custom_recipe": "Custom recipe",
+    "custom_recipe_placeholder": "e.g. (${var1} + ${var2}) / 2",
+    "recipe_variables": "Recipe variables",
+    "add_variable": "Add variable",
+    "evaluation_error_title": "Recipe Error",
+    "evaluation_warning_title": "Warnings",
+    "recipe_label": "Recipe: "
+  },
+  "recipe_editor": {
+    "variable_name_placeholder": "Variable name",
+    "unit_placeholder": "Unitless",
+    "data_series": "Data series",
+    "external_data": "External data",
+    "scalar": "Scalar",
+    "select_roadmap": "Select roadmap",
+    "goal_or_effect": "Goal or effect",
+    "dataset": "Dataset",
+    "table": "Table",
+    "selection": "Selection",
+    "pick_whole": "Whole series",
+    "pick_last": "Last value",
+    "pick_first": "First value",
+    "pick_median": "Median value",
+    "pick_mean": "Mean value"
   },
   "effects_table": {
     "no_effects": "There are no $t(common:effect_other) to display.",
@@ -136,6 +158,8 @@
     "no_roadmap_series_ones": "No $t(common:roadmap_series_one) found. If you have any filters active, no $t(common:roadmap_series_one) were found that match them.",
     "show_source_alt": "Show underlying $t(common:roadmap_version_other)"
   },
+  "recipe": {
+  },
   "sidebar": {
     "toggle_menu_alt": "Toggle menu",
     "my_profile": "My account",
@@ -173,7 +197,6 @@
     "effect_from_action": "{{$t(common:effect_one), titleCase}} from {{source}}",
     "button_aria": "Menu for {{component}}",
     "button_aria_alt": "Name missing",
-    "button_image_alt": "menu",
     "edit": "Edit",
     "delete": "Delete post",
     "delete_missing_name": "Name missing"

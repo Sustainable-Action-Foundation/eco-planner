@@ -32,13 +32,35 @@
     "select_roadmap_version": "I vilken $t(common:roadmap_version_one) vill du placera den skalade $t(common:goal_definite_one)?",
     "select_roadmap_version_option": "Välj $t(common:roadmap_version_one)",
     "version": "version",
-    "remove_scaling": "Ta bort skalning",
-    "add_scaling": "Lägg till skalning",
-    "advanced": "Avancerat",
-    "scaling_method": "Välj skalningsmetod",
-    "resulting_scale_factor": "Resulterande skalfaktor",
+    "resulting_data_series": "Resulterande dataserie",
     "create_scaled_copy": "Skapa skalad kopia",
-    "invalid_input": "Felaktig inmatning. Skalningsfaktorn kunde inte beräknas. Ofta beror detta på ett ickenumeriskt värde i ett inmatningsfält eller att produkten av alla skalningsfaktorer är negativ."
+    "unnamed_suggestion": "Namnlöst förslag",
+    "data_series_year": "År",
+    "data_series_value": "Värde",
+    "custom_recipe": "Anpassat recept",
+    "custom_recipe_placeholder": "t.ex. (${var1} + ${var2}) / 2",
+    "recipe_variables": "Receptvariabler",
+    "add_variable": "Lägg till variabel",
+    "evaluation_error_title": "Receptfel",
+    "evaluation_warning_title": "Varningar",
+    "recipe_label": "Recept: "
+  },
+  "recipe_editor": {
+    "variable_name_placeholder": "Variabelnamn",
+    "unit_placeholder": "Enhetslös",
+    "data_series": "Dataserie",
+    "external_data": "Extern data",
+    "scalar": "Skalär",
+    "select_roadmap": "Välj färdplan",
+    "goal_or_effect": "Målbana eller effekt",
+    "dataset": "Dataset",
+    "table": "Tabell",
+    "selection": "Urval",
+    "pick_whole": "Hela serien",
+    "pick_last": "Sista värdet",
+    "pick_first": "Första värdet",
+    "pick_median": "Medianvärdet",
+    "pick_mean": "Medelvärdet"
   },
   "effects_table": {
     "no_effects": "Det finns inga $t(common:effect_other) att visa.",
@@ -136,6 +158,8 @@
     "no_roadmap_series_ones": "Inga $t(common:roadmap_series_other) hittades. Om du har några aktiva filter hittades inga $t(common:roadmap_series_other) som matchar dem.",
     "show_source_alt": "Visa underliggande $t(common:roadmap_version_other)"
   },
+  "recipe": {
+  },
   "sidebar": {
     "toggle_menu_alt": "Växla meny",
     "my_profile": "Mitt konto",
@@ -173,7 +197,6 @@
     "effect_from_action": "{{$t(common:effect_one), titleCase}} från {{source}}",
     "button_aria": "Meny för {{component}}",
     "button_aria_alt": "namn saknas",
-    "button_image_alt": "meny",
     "edit": "Redigera",
     "delete": "Radera inlägg",
     "delete_missing_name": "Namn saknas"

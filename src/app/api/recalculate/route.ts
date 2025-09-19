@@ -1,8 +1,9 @@
-import { recalculateGoal } from "@/functions/recalculateGoal";
-import accessChecker from "@/lib/accessChecker";
+import { evaluateRecipe, cleanRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
+import { RecipeError } from "@/functions/recipe-parser/types";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
-import { AccessControlled, AccessLevel, ClientError } from "@/types";
+import { AccessControlled, ClientError, isFullDataSeriesValueFields, Years } from "@/types";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
@@ -39,17 +40,7 @@ export async function POST(request: NextRequest) {
           id: requestJson.id,
         },
         select: {
-          combinationScale: true,
-          combinationParents: {
-            select: {
-              isInverted: true,
-              parentGoal: {
-                select: {
-                  dataSeries: true,
-                }
-              },
-            }
-          },
+          recipeUsed: true,
           roadmap: {
             select: {
               author: { select: { id: true, username: true } },
@@ -61,7 +52,7 @@ export async function POST(request: NextRequest) {
             }
           },
         }
-      })
+      }),
     ]);
 
     // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
@@ -83,13 +74,40 @@ export async function POST(request: NextRequest) {
       isPublic: goal.roadmap.isPublic,
     }
     const accessLevel = accessChecker(accessFields, session.user);
-    if (![AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) {
+    if (!hasEditAccess(accessLevel)) {
       throw new Error(ClientError.AccessDenied)
     }
 
-    // Try to update goal
-    const recalculatedData = await recalculateGoal(goal);
+    // Nothing beside the recipe has the information needed to recalculate the goal's data series now after the great recipe implementation.
+    if (!goal.recipeUsed) {
+      return Response.json({ message: "Goal has no recipe to recalculate" },
+        { status: 400 }
+      );
+    }
 
+    // Try to recalculate the data series
+    const cleanedRecipe = cleanRecipe(recipeFromUnknown(goal.recipeUsed.recipe));
+    const warnings: string[] = [];
+    const { dataSeries, unit } = await evaluateRecipe(cleanedRecipe, warnings);
+    if (warnings.length > 0) {
+      // If there are warnings, log them
+      console.warn(`Recalculate goal ${requestJson.id} with recipe ${goal.recipeUsed.hash} (${JSON.stringify(cleanedRecipe, null, 2)})\nproduced warnings:\n${warnings.join('\n')}`);
+    }
+
+    // Ensure all years are defined in the data series to prevent partial updates
+    for (const year of Years) {
+      if (dataSeries[year] === undefined) {
+        dataSeries[year] = null;
+      }
+    }
+    // Type guard it to make it harder to mess up with prisma
+    if (!isFullDataSeriesValueFields(dataSeries)) {
+      return Response.json({ message: "Failed to update goal. The recipe used may have caused the issue." },
+        { status: 500 }
+      );
+    };
+
+    // Try to update the goal with the new data series
     const updatedGoal = await prisma.goal.update({
       where: {
         id: requestJson.id,
@@ -97,7 +115,8 @@ export async function POST(request: NextRequest) {
       data: {
         dataSeries: {
           update: {
-            ...recalculatedData
+            ...dataSeries,
+            ...unit ? { unit } : {},
           }
         }
       },
@@ -125,6 +144,10 @@ export async function POST(request: NextRequest) {
       } else if (error.message == ClientError.AccessDenied) {
         return Response.json({ message: ClientError.AccessDenied },
           { status: 403 }
+        );
+      } else if (error instanceof RecipeError) {
+        return Response.json({ message: error.message },
+          { status: 500 }
         );
       }
     }

@@ -1,11 +1,10 @@
 import { getSession } from '@/lib/session';
-import RoadmapForm from '@/components/forms/roadmapForm/roadmapForm';
+import RoadmapForm from '@/components/form/forms/roadmap';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
-import { AccessLevel } from '@/types';
-import accessChecker from '@/lib/accessChecker';
+import accessChecker, { hasEditAccess } from '@/lib/accessChecker';
 import getOneMetaRoadmap from '@/fetchers/getOneMetaRoadmap';
 import serveTea from "@/lib/i18nServer";;
 import { buildMetadata } from '@/functions/buildMetadata';
@@ -46,12 +45,12 @@ export default async function Page(
   const badMetaRoadmap = (
     searchParams.metaRoadmapId instanceof Array ||
     (!parent && typeof searchParams.metaRoadmapId == 'string') ||
-    (parent && !([AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin].includes(accessChecker(parent, session.user))))
+    (parent && !hasEditAccess(accessChecker(parent, session.user)))
   );
 
   // The meta roadmaps the user can create the new roadmap under (the ones they have edit access to)
   const filteredAlternatives = metaRoadmapAlternatives.filter(metaRoadmap =>
-    [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin].includes(accessChecker(metaRoadmap, session.user))
+    hasEditAccess(accessChecker(metaRoadmap, session.user))
   );
 
   return (
@@ -59,7 +58,7 @@ export default async function Page(
       <Breadcrumb object={parent || undefined} customSections={[t("pages:roadmap_create.breadcrumb")]} />
 
       <div className='container-text margin-inline-auto'>
-        <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
+        <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
           {t("pages:roadmap_create.title")}
         </h1>
         {badMetaRoadmap &&

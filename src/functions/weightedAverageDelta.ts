@@ -1,4 +1,4 @@
-import { dataSeriesDataFieldNames } from "@/types";
+import { Years } from "@/types";
 import { DataSeries } from "@prisma/client";
 
 /**
@@ -14,7 +14,7 @@ export default function dataSeriesInterest(dataSeries: DataSeries) {
 
   const currentYear = new Date().getFullYear();
 
-  const keys = dataSeriesDataFieldNames;
+  const keys = Years;
   const years = keys.map((key) => parseInt(key.replace('val', '')));
 
   /**

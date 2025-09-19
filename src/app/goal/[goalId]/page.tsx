@@ -1,7 +1,7 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import UpdateGoalButton from "@/components/buttons/updateGoalButton";
 import Comments from "@/components/comments/comments";
-import QueryBuilder from "@/components/forms/api/queryBuilder";
+import QueryBuilder from "@/components/form/api/queryBuilder";
 import ActionGraph from "@/components/graphs/actionGraph";
 import ChildGraphContainer from "@/components/graphs/childGraphs/childGraphContainer.tsx";
 import GraphGraph from "@/components/graphs/graphGraph";
@@ -15,7 +15,7 @@ import getOneRoadmap from "@/fetchers/getOneRoadmap";
 import getRoadmapByVersion from "@/fetchers/getRoadmapByVersion";
 import getRoadmaps from "@/fetchers/getRoadmaps";
 import findSiblings from "@/functions/findSiblings.ts";
-import accessChecker from "@/lib/accessChecker";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import { getSession } from "@/lib/session";
 import serveTea from "@/lib/i18nServer";
@@ -37,7 +37,7 @@ export async function generateMetadata(props: {
     [key: string]: string | string[] | undefined
   }>,
 }) {
-  const params = await props.params
+  const params = await props.params;
 
   const [t, session, goal] = await Promise.all([
     serveTea("metadata"),
@@ -116,7 +116,7 @@ export default async function Page(
   // Fetch external data
   let externalData: ApiTableContent | null = null;
   if (goal.externalDataset && goal.externalTableId && goal.externalSelection) {
-    externalData = await getTableContent(goal.externalTableId, goal.externalDataset, JSON.parse(goal.externalSelection), locale);
+    externalData = await getTableContent(goal.externalTableId, goal.externalDataset, goal.externalSelection, locale);
   }
 
   // Fetch parent goal
@@ -154,16 +154,20 @@ export default async function Page(
     }
   }
 
+  /** 
+   * TODO: Deprecated - this should crawl recipes instead
+   */
   // If any goalParent has a data series with a later updatedAt date than the goal, the goal should be updated
+  // eslint-disable-next-line prefer-const
   let shouldUpdate = false;
-  if (goal.combinationParents) {
-    for (const parent of goal.combinationParents) {
-      if (parent.parentGoal.dataSeries?.updatedAt && parent.parentGoal.dataSeries.updatedAt > (goal.dataSeries?.updatedAt ?? new Date(0))) {
-        shouldUpdate = true;
-        break;
-      }
-    }
-  }
+  // if (goal.combinationParents) {
+  //   for (const parent of goal.combinationParents) {
+  //     if (parent.parentGoal.dataSeries?.updatedAt && parent.parentGoal.dataSeries.updatedAt > (goal.dataSeries?.updatedAt ?? new Date(0))) {
+  //       shouldUpdate = true;
+  //       break;
+  //     }
+  //   }
+  // }
 
   return (
     <>
@@ -254,15 +258,6 @@ export default async function Page(
                 <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
                 : null}
             </GraphGraph>
-
-            {goal.dataSeries?.scale &&
-              <>
-                <p>{t("pages:goal.scale_notice", { scale: goal.dataSeries?.scale })}</p>
-                {[AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel) &&
-                  <strong>{t("pages:goal.scale_deprecation_warning")}</strong>
-                }
-              </>
-            }
           </section>
 
           <section className="margin-block-300">
@@ -273,7 +268,7 @@ export default async function Page(
                 {t("pages:goal.actions_for_goal", { goalName: goal.name ? goal.name : goal.indicatorParameter })}
               </h3>
 
-              {([AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel)) &&
+              {hasEditAccess(accessLevel) &&
                 <menu className="margin-0 padding-0 flex justify-content-flex-end gap-25">
                   <Link
                     href={`/effect/create?goalId=${goal.id}`}

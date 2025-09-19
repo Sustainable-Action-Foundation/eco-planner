@@ -5,11 +5,12 @@
 
 import { createInstance, InitOptions, TFunction } from "i18next";
 
-export enum Locales {
-  enSE = "en-SE",
-  svSE = "sv-SE",
-  default = enSE,
-};
+export const Locales = {
+  enSE: "en-SE",
+  svSE: "sv-SE",
+  default: "en-SE",
+} as const;
+export type Locales = (typeof Locales)[keyof typeof Locales];
 export const uniqueLocales = [...new Set(Object.values(Locales))];
 export const localeAliases: Record<Locales, string> = {
   [Locales.enSE]: "English",
@@ -19,7 +20,14 @@ export const localeAliases: Record<Locales, string> = {
 export const allNamespaces = ["common", "forms", "components", "graphs", "pages", "email", "metadata"];
 
 const i18nFormatter = createInstance();
-i18nFormatter.init({});
+i18nFormatter.init({}).catch((e: unknown) => {
+  if (e instanceof Error) {
+    throw new Error(`i18nFormatter initialization failed: ${e}`);
+  } else {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    throw new Error(`i18nFormatter initialization failed with non-error-typed error: ${e}`);
+  }
+});
 
 export function initTemplate(t: TFunction): InitOptions {
   return {
