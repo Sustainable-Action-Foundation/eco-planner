@@ -39,27 +39,6 @@ export async function middleware(req: NextRequest) {
   /** Matches strings starting with /@ or /%40 (URL-encoded @) */
   const userIndicatorRegEx = /^\/(@|%40)/;
 
-  // Locks all pages except the login/signup process and the info and home pages to logged in users.
-  // TODO: Probably invert this? ex. if(!req.nextUrl.pathname.startsWith(/login))?
-  // See https://nextjs.org/docs/14/app/building-your-application/routing/middleware#matcher for an example allowing next's internal pages
-  if (!session.user?.isLoggedIn) {
-    if (
-      req.nextUrl.pathname.startsWith('/dashboard')
-      || req.nextUrl.pathname.startsWith('/metaRoadmap')
-      || req.nextUrl.pathname.startsWith('/roadmap')
-      || req.nextUrl.pathname.startsWith('/goal')
-      || req.nextUrl.pathname.startsWith('/action')
-      || req.nextUrl.pathname.startsWith('/effect')
-      || req.nextUrl.pathname.startsWith('/user')
-      || req.nextUrl.pathname.match(userIndicatorRegEx)
-    ) {
-      const loginUrl = new URL('/login', req.url)
-      // Save the current page as the "from" query parameter so we can redirect back after logging in
-      loginUrl.searchParams.set('from', req.nextUrl.pathname)
-      return NextResponse.redirect(loginUrl)
-    }
-  }
-
   // Silently redirect from "/@username" to "/user/@username"
   if (req.nextUrl.pathname.match(userIndicatorRegEx)) {
     const newUrl = new URL(`/user${req.nextUrl.pathname}`, req.url)
