@@ -96,8 +96,8 @@ export default function EffectForm({
       <form onSubmit={handleSubmit}>
         <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
+        {/* TODO: Theese seem to be selectors for the same thing right now? */}
         <ActionSelector action={action} roadmapAlternatives={roadmapAlternatives} />
-
         <GoalSelector goal={goal} roadmapAlternatives={roadmapAlternatives} />
 
         <DataSeriesInput
@@ -109,6 +109,7 @@ export default function EffectForm({
 
         { // Button for changing between absolute and delta impact types
           // TODO: Styling
+          // TODO: This code can be cleaned up
           selectedImpactType === ActionImpactType.ABSOLUTE ?
             <div className="margin-block-100">
               <button type="button" onClick={() => {
@@ -120,11 +121,11 @@ export default function EffectForm({
                 }
               }}>
                 {t("forms:effect.to_year_by_year")}
-              </button>
-              <p><small><Trans
+              </button> <br />
+              <small><Trans
                 i18nKey="forms:effect.to_year_by_year_info"
                 components={{ strong: <strong /> }}
-              /></small></p>
+              /></small>
             </div>
             :
             selectedImpactType === ActionImpactType.DELTA ?
@@ -139,19 +140,19 @@ export default function EffectForm({
                 }}>
                   {t("forms:effect.to_absolute")}
                 </button>
-                <p><small><Trans
+                <small><Trans
                   i18nKey="forms:effect.to_absolute_info"
                   components={{ strong: <strong /> }}
-                /></small></p>
+                /></small>
               </div>
               :
               null
         }
 
         {/* TODO: Show preview of how it would affect the goal */}
-        <label className="block margin-block-100">
+        <label>
           {t("forms:effect.impact_type_label")}
-          <select className="block margin-block-25" name="impactType" id="impactType" required
+          <select className="block margin-top-25 margin-bottom-100 width-100" name="impactType" id="impactType" required
             value={selectedImpactType}
             onChange={(event) => setSelectedImpactType(event.target.value as ActionImpactType)}
           >
@@ -159,9 +160,19 @@ export default function EffectForm({
             <option value={ActionImpactType.DELTA}>{t("forms:effect.impact_types.delta")}</option>
             <option value={ActionImpactType.PERCENT}>{t("forms:effect.impact_types.percent")}</option>
           </select>
-        </label>
+        </label> 
 
-        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentEffect ? t("common:tsx.save") : t("common:tsx.create")} />
+        <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
+          <button
+            className="text-align-center seagreen color-purewhite width-100"
+            style={{ fontSize: '14px', transform: 'none' }}
+            type="submit"
+            id="submit-button"
+          >
+            {currentEffect ? t("common:tsx.save") : t("common:tsx.create") + ` ${t("common:effect_one")}`}
+          </button>
+        </div>
+
       </form>
     </>
   )

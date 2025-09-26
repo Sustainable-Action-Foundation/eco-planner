@@ -33,9 +33,9 @@ export function ActionSelector({
 
   return (
     <>
-      <label className="block margin-block-100">
+      <label>
         {t("forms:effect.select_roadmap_version_for_action")}
-        <select name="selectedActionRoadmap" className="block margin-block-25" required disabled={!!action}
+        <select name="selectedActionRoadmap" className="block margin-top-25 margin-bottom-100 width-100" required disabled={!!action}
           value={selectedRoadmap}
           onChange={event => { setSelectedRoadmap(event.target.value); setSelectedAction(""); }}
         >
@@ -50,9 +50,9 @@ export function ActionSelector({
       </label>
 
       {selectedRoadmap &&
-        <label className="block margin-block-100">
+        <label>
           {t("forms:effect.select_action_for_effect")}
-          <select name="actionId" id="actionId" className="block margin-block-25" required disabled={!!action}
+          <select name="actionId" id="actionId" className="block margin-top-25 margin-bottom-100 width-100" required disabled={!!action}
             value={action?.id || selectedAction}
             onChange={event => setSelectedAction(event.target.value)}
           >
@@ -94,9 +94,9 @@ export function GoalSelector({
 
   return (
     <>
-      <label className="block margin-block-100">
+      <label>
         {t("forms:effect.select_roadmap_version_for_goal")}
-        <select name="selectedGoalRoadmap" className="block margin-block-25" required disabled={!!goal}
+        <select name="selectedGoalRoadmap" className="block margin-top-25 margin-bottom-100 width-100" required disabled={!!goal}
           value={selectedRoadmap}
           onChange={event => { setSelectedRoadmap(event.target.value); setSelectedGoal(""); }}
         >
@@ -111,9 +111,9 @@ export function GoalSelector({
       </label>
 
       {selectedRoadmap &&
-        <label className="block margin-block-75">
+        <label>
           {t("forms:effect.select_goal_to_affect")}
-          <select name="goalId" id="goalId" className="block margin-block-25" required disabled={!!goal}
+          <select name="goalId" id="goalId" className="block margin-top-25 margin-bottom-100 width-100" required disabled={!!goal}
             value={goal?.id || selectedGoal}
             onChange={event => setSelectedGoal(event.target.value)}
           >
