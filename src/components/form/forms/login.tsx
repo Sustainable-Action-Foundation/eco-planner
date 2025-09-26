@@ -52,18 +52,18 @@ export default function Login() {
       <form onSubmit={(event: React.ChangeEvent<HTMLFormElement>) => handleSubmit(event, t)} className={`${styles.padding}`}>
         <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid silver' }}>{t("common:tsx.login")}</h1>
 
-        <label className="block margin-block-100">
+        <label>
           {t("components:login.username")}
-          <div className="margin-block-50 padding-50 flex align-items-center smooth focusable">
+          <div className="margin-top-50 margin-bottom-100 padding-50 flex align-items-center smooth focusable">
             <IconUser style={{ minWidth: '24px' }} aria-hidden="true" />
             <input className="padding-0 margin-inline-50 font-size-100" type="text" placeholder={t("common:placeholder.name")} name="username" required id="username" autoComplete="username" />
           </div>
         </label>
 
         {/* TODO: This label is currently invalid due to multiple nested inputs (Similar invalid labels may exist elsewhere) */}
-        <label className="block margin-block-100">
+        <label>
           {t("components:login.password")}
-          <div className="margin-block-50 padding-50 flex align-items-center smooth focusable">
+          <div className="margin-top-50 margin-bottom-100 padding-50 flex align-items-center smooth focusable">
             <IconLock style={{ minWidth: '24px' }} aria-hidden="true" />
             <input className="padding-0 margin-inline-50 transparent font-size-100" type={showPassword ? 'text' : 'password'} placeholder={t("common:placeholder.password")} name="password" required id="password" autoComplete="current-password" />
             <button
@@ -87,8 +87,17 @@ export default function Login() {
 
         </div>
 
-        <input type="submit" value={t("common:tsx.login")} className="block font-weight-bold seagreen smooth color-purewhite margin-top-200 font-size-100" />
-
+        <div className="margin-top-300 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
+          <button
+            className="text-align-center seagreen color-purewhite width-100 font-weight-600"
+            style={{ fontSize: '14px', transform: 'none' }}
+            type="submit"
+            id="submit-button"
+           >
+            {t("common:tsx.login")}
+          </button>
+        </div>
+ 
         <div className="flex gap-100 align-items-center justify-content-space-between align-items-center flex-wrap-wrap margin-block-100">
           <span>{t("components:login.no_account")} <Link href='/signup'>{t("components:login.create_account")}</Link></span>
           <Link href='/verify'>{t("components:login.verify_account")}</Link>

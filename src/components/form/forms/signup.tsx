@@ -53,23 +53,23 @@ export default function Signup() {
     <>
       <form onSubmit={(event: React.ChangeEvent<HTMLFormElement>) => handleSubmit(event, t)} className={`${styles.padding}`}>
         <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid silver' }}>{t("components:signup.create_account")}</h1>
-        <label className="block margin-block-100">
+        <label>
           {t("components:signup.username")}
-          <div className="margin-block-50 padding-50 flex align-items-center smooth focusable">
+          <div className="margin-top-50 margin-bottom-100 padding-50 flex align-items-center smooth focusable">
             <IconUser style={{ minWidth: '24px' }} aria-hidden="true" />
             <input className="padding-0 margin-inline-50 font-size-100" type="text" placeholder={t("common:placeholder.name")} name="username" required id="username" autoComplete="username" />
           </div>
         </label>
-        <label className="block margin-block-100">
+        <label>
           {t("components:signup.email")}
-          <div className="margin-block-50 padding-50 flex align-items-center smooth focusable">
+          <div className="margin-top-50 margin-bottom-100 padding-50 flex align-items-center smooth focusable">
             <IconMail style={{ minWidth: '24px' }} aria-hidden="true" />
             <input className="padding-0 margin-inline-50 font-size-100" type="email" placeholder={t("common:placeholder.email")} name="email" required id="email" autoComplete="email" />
           </div>
         </label>
-        <label className="block margin-block-100">
+        <label>
           {t("components:signup.password")}
-          <div className="margin-block-50 padding-50 flex align-items-center smooth focusable">
+          <div className="margin-top-50 margin-bottom-100 padding-50 flex align-items-center smooth focusable">
             <IconLock style={{ minWidth: '24px' }} aria-hidden="true" />
             <input className="padding-0 margin-inline-50 transparent font-size-100" type={showPassword ? 'text' : 'password'} placeholder={t("common:placeholder.password")} name="password" required id="password" autoComplete="new-password" />
             <button
@@ -82,8 +82,16 @@ export default function Signup() {
             </button>
           </div>
         </label>
-
-        <input value={t("components:signup.create_account")} className="block margin-top-200 smooth font-weight-bold seagreen color-purewhite font-size-100" type="submit" />
+        <div className="margin-top-300 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
+          <button
+            className="text-align-center seagreen color-purewhite width-100  font-weight-600"
+            style={{ fontSize: '14px', transform: 'none' }}
+            type="submit"
+            id="submit-button"
+           >
+            {t("components:signup.create_account")}
+          </button>
+        </div>
         <p className="text-align-center padding-block-50 margin-bottom-100 margin-top-0">
           {t("components:signup.already_have_account")} <Link href='/login'>{t("common:tsx.login")}</Link>
         </p>
