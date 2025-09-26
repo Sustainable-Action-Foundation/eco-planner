@@ -73,10 +73,10 @@ export default function ActionForm({
 
         {!(roadmapId || currentAction?.roadmapId) ?
           <fieldset className={`${styles.timeLineFieldset} width-100`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold`}>{t("forms:action.choose_relationship")}</legend>
-            <label className="block margin-block-100">
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:action.choose_relationship")}</legend>
+            <label>
               {t("forms:action.relationship_label")}
-              <select name="roadmapId" id="roadmapId" required className="block margin-block-25" defaultValue={""}>
+              <select name="roadmapId" id="roadmapId" required className="block margin-top-25 margin-bottom-100 width-100" defaultValue={""}>
                 <option value="" disabled>{t("forms:action.relationship_no_chosen")}</option>
                 {roadmapAlternatives.map(roadmap => (
                   <option key={roadmap.id} value={roadmap.id}>
@@ -90,35 +90,35 @@ export default function ActionForm({
         }
 
         <fieldset className={`${styles.timeLineFieldset} width-100 ${positionIndex > 1 ? "margin-top-200" : ""}`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend}  font-weight-bold`}>{t("forms:action.action_description_legend")}</legend>
-          <label className="block margin-block-100">
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:action.action_description_legend")}</legend>
+          <label>
             {t("forms:action.action_name")}
-            <input className="margin-block-25" type="text" name="actionName" required id="actionName" defaultValue={currentAction?.name} />
+            <input className="margin-top-25 margin-bottom-100" type="text" name="actionName" required id="actionName" defaultValue={currentAction?.name} />
           </label>
 
-          <label className="block margin-block-100">
+          <label>
             {t("forms:action.action_description")}
-            <textarea className="margin-block-25" name="actionDescription" id="actionDescription" defaultValue={currentAction?.description ?? undefined} ></textarea>
+            <textarea className="margin-top-25 margin-bottom-100" name="actionDescription" id="actionDescription" defaultValue={currentAction?.description ?? undefined} ></textarea>
           </label>
 
-          <label className="block margin-block-100">
+          <label>
             {t("forms:action.cost_efficiency")}
-            <input className="margin-block-25" type="text" name="costEfficiency" id="costEfficiency" defaultValue={currentAction?.costEfficiency ?? undefined} />
+            <input className="margin-top-25 margin-bottom-100" type="text" name="costEfficiency" id="costEfficiency" defaultValue={currentAction?.costEfficiency ?? undefined} />
           </label>
 
-          <label className="block margin-block-100">
+          <label>
             {t("forms:action.expected_outcome")}
-            <textarea className="margin-block-25" name="expectedOutcome" id="expectedOutcome" defaultValue={currentAction?.expectedOutcome ?? undefined} />
+            <textarea className="margin-top-25 margin-bottom-100" name="expectedOutcome" id="expectedOutcome" defaultValue={currentAction?.expectedOutcome ?? undefined} />
           </label>
         </fieldset>
 
         {(goalId && !currentAction) ?
           // TODO: Allow conversion between absolute and delta like in effectForm?
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:action.expected_effect_legend")}</legend>
-            <label className="block margin-block-75">
+            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:action.expected_effect_legend")}</legend>
+            <label>
               {t("forms:action.impact_type_label")}
-              <select name="impactType" id="impactType" /* defaultValue={actionImpactType} onChange={e => setActionImpactType(e.target.value as ActionImpactType)} */ >
+              <select name="impactType" id="impactType" className="block margin-top-25 margin-bottom-100 width-100" /* defaultValue={actionImpactType} onChange={e => setActionImpactType(e.target.value as ActionImpactType)} */ >
                 <option value={ActionImpactType.ABSOLUTE}>{t("forms:action.impact_types.absolute")}</option>
                 <option value={ActionImpactType.DELTA}>{t("forms:action.impact_types.delta")}</option>
                 <option value={ActionImpactType.PERCENT}>{t("forms:action.impact_types.percent")}</option>
@@ -136,51 +136,59 @@ export default function ActionForm({
         }
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:action.action_years_legend")}</legend>
-          <label className="block margin-bottom-100">
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:action.action_years_legend")}</legend>
+          <label>
             {t("forms:action.start_year")}
-            <input className="margin-block-25" type="number" name="startYear" id="startYear" defaultValue={currentAction?.startYear ?? undefined} min={2000} />
+            <input className="margin-top-25 margin-bottom-100" type="number" name="startYear" id="startYear" defaultValue={currentAction?.startYear ?? undefined} min={2000} />
           </label>
 
-          <label className="block margin-block-100">
+          <label>
             {t("forms:action.end_year")}
-            <input className="margin-block-25" type="number" name="endYear" id="endYear" defaultValue={currentAction?.endYear ?? undefined} min={2000} />
+            <input className="margin-top-25 margin-bottom-100" type="number" name="endYear" id="endYear" defaultValue={currentAction?.endYear ?? undefined} min={2000} />
           </label>
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:action.describe_actors_legend")}</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:action.describe_actors_legend")}</legend>
           <label className="block margin-bottom-100">
             {t("forms:action.project_manager")}
-            <input className="margin-block-25" type="text" name="projectManager" id="projectManager" defaultValue={currentAction?.projectManager ?? undefined} />
+            <input className="margin-top-25 margin-bottom-100" type="text" name="projectManager" id="projectManager" defaultValue={currentAction?.projectManager ?? undefined} />
           </label>
 
           <label className="block margin-block-100">
             {t("forms:action.relevant_actors")}
-            <input className="margin-block-25" type="text" name="relevantActors" id="relevantActors" defaultValue={currentAction?.relevantActors ?? undefined} />
+            <input className="margin-top-25 margin-bottom-100" type="text" name="relevantActors" id="relevantActors" defaultValue={currentAction?.relevantActors ?? undefined} />
           </label>
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-100 font-weight-bold`}>{t("forms:action.categories_legend")}</legend>
-          <label className="flex gap-25 align-items-center margin-bottom-50" htmlFor="isSufficiency">
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:action.categories_legend")}</legend>
+          <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50" htmlFor="isSufficiency">
             <input type="checkbox" name="isSufficiency" id="isSufficiency" defaultChecked={currentAction?.isSufficiency} />
             {t("forms:action.category_sufficiency")}
           </label>
 
-          <label className="flex gap-25 align-items-center margin-block-50" htmlFor="isEfficiency">
+          <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50" htmlFor="isEfficiency">
             <input type="checkbox" name="isEfficiency" id="isEfficiency" defaultChecked={currentAction?.isEfficiency} />
             {t("forms:action.category_efficiency")}
           </label>
 
-          <label className="flex gap-25 align-items-center margin-block-50" htmlFor="isRenewables">
+          <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50" htmlFor="isRenewables">
             <input type="checkbox" name="isRenewables" id="isRenewables" defaultChecked={currentAction?.isRenewables} />
             {t("forms:action.category_renewables")}
           </label>
         </fieldset>
 
-        <input type="submit" className="margin-block-200 seagreen color-purewhite" value={currentAction ? t("common:tsx.save") : t("common:tsx.create")} />
-
+        <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
+          <button
+            className="text-align-center seagreen color-purewhite width-100"
+            style={{ fontSize: '14px', transform: 'none' }}
+            type="submit"
+            id="submit-button"
+          >
+            {currentAction ? t("common:tsx.save") : t("common:tsx.create")  + ` ${t("common:action_one")}`}
+          </button>
+        </div>
       </form>
     </>
   )
