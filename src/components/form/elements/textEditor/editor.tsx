@@ -4,7 +4,6 @@
 import { Content, Editor, EditorContent, useEditor } from '@tiptap/react'
 import TextEditorMenu from './menu'
 import { defaultExtensions, nodeSizeLimit } from './config/config';
-import { JSONValue } from '@/types';
 import { useMemo } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
@@ -42,8 +41,7 @@ const TextEditor = ({
  
   const debouncedOnChange  = useDebouncedCallback((editor: Editor) => {
     if (onChange) onChange(editor.getJSON());
-  }, 200); // 200ms delay
-
+  }, 200); 
 
   const editor = useEditor({
     immediatelyRender: true,

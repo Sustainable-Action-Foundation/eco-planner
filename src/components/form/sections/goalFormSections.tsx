@@ -6,7 +6,7 @@ import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import mathjs from "@/math";
 import { Years } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput";
 import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
@@ -38,6 +38,13 @@ export function ManualGoalForm({
     }
   }, [currentGoal]);
 
+  const memoizedOptions = useMemo(() => { // TODO: Make sure options are memoized properly in all places that use them.
+    return [...new Set(parameterOptions)].map(option => ({
+      name: option,
+      value: option
+    }));
+  }, []);
+
   return (
     <>
       <label className="block margin-bottom-100">
@@ -51,10 +58,7 @@ export function ManualGoalForm({
             className: "margin-top-25 margin-bottom-100",
             defaultValue: currentGoal?.indicatorParameter ?? undefined
           }}
-          options={[...new Set(parameterOptions)].map(option => ({
-            name: option,
-            value: option
-          }))}
+          options={memoizedOptions}
         />
       </label>
 
