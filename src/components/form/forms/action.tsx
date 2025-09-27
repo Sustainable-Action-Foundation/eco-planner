@@ -8,6 +8,9 @@ import { useTranslation } from "react-i18next"
 import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput"
 import { getDataSeries } from "../elements/dataSeriesInput/utils"
 import styles from '../forms.module.css'
+import TextEditor from "../elements/textEditor/editor"
+import { useState } from "react"
+import { Content } from "@tiptap/core"
 
 export default function ActionForm({
   roadmapId,
@@ -25,7 +28,16 @@ export default function ActionForm({
   },
 }) {
   const { t } = useTranslation(["forms", "common"]);
+  const [editorContent, setEditorContent] = useState<Content>(() => {
+    if (!currentAction?.description) return null;
 
+    try {
+      return JSON.parse(currentAction.description) as Content;
+    } catch {
+      return currentAction.description;
+    }
+  });
+  
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
 
@@ -36,7 +48,7 @@ export default function ActionForm({
 
     const formContent: ActionInput & { actionId: string | undefined, timestamp: number } = {
       name: (form.namedItem("actionName") as HTMLInputElement)?.value,
-      description: (form.namedItem("actionDescription") as HTMLInputElement)?.value,
+      description: JSON.stringify(editorContent),
       costEfficiency: (form.namedItem("costEfficiency") as HTMLInputElement)?.value,
       expectedOutcome: (form.namedItem("expectedOutcome") as HTMLInputElement)?.value,
       impactType: (form.namedItem("impactType") as HTMLSelectElement)?.value as ActionImpactType | undefined,
@@ -94,12 +106,18 @@ export default function ActionForm({
           <label>
             {t("forms:action.action_name")}
             <input className="margin-top-25 margin-bottom-100" type="text" name="actionName" required id="actionName" defaultValue={currentAction?.name} />
-          </label>
-
-          <label>
-            {t("forms:action.action_description")}
-            <textarea className="margin-top-25 margin-bottom-100" name="actionDescription" id="actionDescription" defaultValue={currentAction?.description ?? undefined} ></textarea>
-          </label>
+          </label> 
+          
+          <label id="description-label">{t("forms:action.action_description")}</label>
+          <TextEditor
+            className="margin-top-25 margin-bottom-100" // TODO: Need label for texteditormenu
+            id="description"
+            ariaLabelledBy="description-label"
+            placeholder={t("common:tsx.write") + t("common:tsx.ellipsis")}
+            editable={true}
+            content={currentAction ? currentAction.description : ""}
+            onChange={(json) => setEditorContent(json)}
+          />
 
           <label>
             {t("forms:action.cost_efficiency")}
@@ -186,7 +204,7 @@ export default function ActionForm({
             type="submit"
             id="submit-button"
           >
-            {currentAction ? t("common:tsx.save") : t("common:tsx.create")  + ` ${t("common:action_one")}`}
+            {currentAction ? t("common:tsx.save") : t("common:tsx.create") + ` ${t("common:action_one")}`}
           </button>
         </div>
       </form>

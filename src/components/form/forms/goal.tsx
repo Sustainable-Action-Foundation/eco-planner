@@ -144,7 +144,7 @@ export default function GoalForm({
         timestamp: timestamp, // Only needed for edits
 
         name: formData.get("goalName") as string | null || undefined,
-        description: formData.get("description") as string | null ?? undefined,
+        description: JSON.stringify(editorContent),
         indicatorParameter: formData.get("indicatorParameter") as string | null ?? undefined,
         isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked ?? undefined,
 

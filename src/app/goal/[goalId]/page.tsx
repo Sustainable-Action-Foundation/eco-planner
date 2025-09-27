@@ -230,28 +230,13 @@ export default async function Page(
 
           {goal.description ?
             <>
-              <h2 className="margin-top-200 margin-bottom-0">{t("pages:goal.description")}</h2>
-              <div className="margin-top-100">
-                <TextEditor
-                  id="rich-description"
-                  editable={false}
-                  defaultStyles={false}
-                  content={goal.description}
-                />
-              </div>
-            </>
-            : null}
-
-          {goal.links.length > 0 ?
-            <>
-              <h3 className="margin-bottom-0 margin-top-200" >{t("pages:common.external_resources")}</h3>
-              <ul>
-                {goal.links.map((link: { url: string, description: string | null }, index: number) =>
-                  <li className="margin-block-25" key={index}>
-                    <a href={link.url} target="_blank">{link.description}</a>
-                  </li>
-                )}
-              </ul>
+              <h2 className="margin-top-200 margin-bottom-100">{t("pages:goal.description")}</h2>
+              <TextEditor
+                id="rich-description"
+                editable={false}
+                defaultStyles={false}
+                content={goal.description}
+              />
             </>
             : null}
         </section>
