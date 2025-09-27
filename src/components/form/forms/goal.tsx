@@ -224,7 +224,7 @@ export default function GoalForm({
   const baselineString = baselineArray.join(';')
 
   // Index for data-position attribute in legend elements (for accessibility)
-  let positionIndex = 1; 
+  let positionIndex = 1;
 
   return (
     <>
@@ -295,15 +295,15 @@ export default function GoalForm({
           {(dataSeriesType === DataSeriesType.Static || !dataSeriesType) &&
             <ManualGoalForm currentGoal={currentGoal} dataSeriesString={dataSeriesString} />
           }
-            {/* Scaling section for inherited/combined goals */}
-            {/* TODO: Show different suggested recipes depending on which DataSeriesType is selected or just change the type to "Manual" and "Recipe" */}
-            {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
-              <RecipeContextProvider>
-                <RecipeSuggestions suggestedRecipes={suggestedRecipes} />
-                <RecipeEditor />
-              </RecipeContextProvider>
-            }
-        </fieldset> 
+          {/* Scaling section for inherited/combined goals */}
+          {/* TODO: Show different suggested recipes depending on which DataSeriesType is selected or just change the type to "Manual" and "Recipe" */}
+          {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
+            <RecipeContextProvider>
+              <RecipeSuggestions suggestedRecipes={suggestedRecipes} />
+              <RecipeEditor />
+            </RecipeContextProvider>
+          }
+        </fieldset>
 
         {/* Baseline selection section */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
@@ -349,7 +349,7 @@ export default function GoalForm({
             style={{ fontSize: '14px', transform: 'none' }}
             type="submit"
             id="submit-button"
-            // disabled={isLoading}
+          // disabled={isLoading}
           >
             {currentGoal ? t("common:tsx.save") : t("common:tsx.create") + ` ${t("common:roadmap_version_one")}`}
           </button>

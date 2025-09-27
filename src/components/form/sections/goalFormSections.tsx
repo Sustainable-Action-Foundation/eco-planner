@@ -9,6 +9,8 @@ import { DataSeries, Goal } from "@prisma/client";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput";
+import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
+import { Unit } from 'mathjs'
 
 export function ManualGoalForm({
   currentGoal,
@@ -38,31 +40,40 @@ export function ManualGoalForm({
   return (
     <>
       <label className="block margin-bottom-100">
-        {t("forms:goal.leap_parameter")}
+        {t("forms:goal.leap_parameter")} {/* TODO: Turn to textSingleAutocomplete once that is more performant */}
         <input className="margin-block-25" type="text" list="LEAPOptions" name="indicatorParameter" required id="indicatorParameter" defaultValue={currentGoal?.indicatorParameter || undefined} />
       </label>
 
-      <label className="block margin-block-100">
+      <label htmlFor="dataUnit">
         {t("forms:goal.data_unit")}
-        <input className="margin-block-25" type="text" name="dataUnit" id="dataUnit" defaultValue={currentGoal?.dataSeries?.unit ?? undefined} onChange={(e) => {
+      </label>
+      <TextSingleAutocomplete
+        props={{
+          id: "dataUnit",
+          name: "dataUnit",
+          placeholder: "Skriv för att se förslag", // TODO: I18n 
+          className: "margin-top-25",
+          defaultValue: currentGoal?.dataSeries?.unit ?? undefined
+        }}
+        options={Object.keys(Unit.UNITS).map(unit => ({ name: unit, value: unit }))}
+        onChange={(unit) => {
           try {
-            if (e.target.value === "") {
-              setParsedUnit("");
-            }
-            else {
-              setParsedUnit(mathjs.unit(e.target.value).toString());
-            }
+            setParsedUnit(mathjs.unit(unit).toString())
           } catch {
             setParsedUnit(null);
           }
-        }} />
-        {parsedUnit?.length === 0 ? <></> : parsedUnit === null ?
-          <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_not_interpreted")}</small>
-          :
-          <small className="margin-block-25 font-style-italic">{t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong></small>
-        }
-      </label>
+        }}
+      />
+      <small className="block margin-top-25 margin-bottom-100 font-style-italic" style={{height: '20px'}}>
+        {parsedUnit === null && t("forms:goal.unit_not_interpreted")}
 
+        {parsedUnit && (
+          <>
+            {t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong>
+          </>
+        )}
+      </small>
+      
       <DataSeriesInput
         dataSeriesString={dataSeriesString}
         inputName="dataSeries"
