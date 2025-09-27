@@ -5,6 +5,8 @@ import { Content, Editor, EditorContent, useEditor } from '@tiptap/react'
 import TextEditorMenu from './menu'
 import { defaultExtensions, nodeSizeLimit } from './config/config';
 import { JSONValue } from '@/types';
+import { useMemo } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
 
 {/* TODO: Update typing for content */ }
 const TextEditor = ({
@@ -29,23 +31,28 @@ const TextEditor = ({
   onChange?: (json: ReturnType<Editor['getJSON']>) => void
 }) => {
 
+  const parsedContent = useMemo(() => {
+    if (!content) return null;
+    try {
+      return JSON.parse(content as string) as Content;
+    } catch {
+      return content;
+    }
+  }, [content]);
+ 
+  const debouncedOnChange  = useDebouncedCallback((editor: Editor) => {
+    if (onChange) onChange(editor.getJSON());
+  }, 200); // 200ms delay
+
+
   const editor = useEditor({
     immediatelyRender: true,
     shouldRerenderOnTransaction: true,
     editable,
     onUpdate: ({ editor }) => {
-      if (onChange) {
-        onChange(editor.getJSON())
-      }
+      debouncedOnChange(editor)
     },
-    content: (() => {
-      try {
-        return JSON.parse(content as string) as Content;
-      } catch {
-        // return (content != null ? String(content) : null);
-        return content;
-      }
-    })(),
+    content: parsedContent,
     extensions: defaultExtensions(placeholder),
   })
 

@@ -7,7 +7,7 @@ import Fuse from "fuse.js";
 import { useTranslation } from "react-i18next";
 import { inputElement, option, theme } from "@/components/types";
 import { handleKeyDownEditableCombobox, scrollOptionIntoView } from "./functions";
- 
+
 // TODO: Give aria-keyocontrols?
 // TODO: should just pass the types, not props.
 
@@ -22,7 +22,7 @@ export default function TextSingleAutocomplete({
   theme?: theme
   options: Array<option>
   maxOptions?: number
-  onChange?: (value: string) => void 
+  onChange?: (value: string) => void
 }) {
   const { t } = useTranslation(["forms", "common"]);
 
@@ -32,12 +32,11 @@ export default function TextSingleAutocomplete({
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
   const comboboxRef = useRef<HTMLInputElement>(null);
 
-  const searchResults = useMemo(() => {
-    const fuse = new Fuse(options, { keys: ['name'] });
-    return value
-      ? fuse.search(value).map(result => result.item)
-      : options;
-  }, [value, options]);
+  const fuse = useMemo(() => new Fuse(options, { keys: ['name'] }), [options]); // TODO: Implement useMemo in this way for selects aswell
+  const searchResults = useMemo(
+    () => (value ? fuse.search(value).map(r => r.item) : options),
+    [value, fuse, options]
+  );
 
   useEffect(() => {
     scrollOptionIntoView(optionRefs.current, focusedListBoxItem)
@@ -53,7 +52,7 @@ export default function TextSingleAutocomplete({
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
       style={{ ...props.style }}
     >
-      <div 
+      <div
         className={`${theme ? `${theme.className} ` : ''}flex align-items-center focusable`}
         style={theme?.style ?? {}}
       >
@@ -66,7 +65,7 @@ export default function TextSingleAutocomplete({
           disabled={props.disabled}
           value={value}
           autoComplete="off"
-          onChange={(e) => { setValue(e.target.value); setFocusedListBoxItem(0) }}
+          onChange={(e) => { setValue(e.target.value); setFocusedListBoxItem(0) }} // TODO: Enter seems to select values even if nothing is selected
           {...(options.length > 0
             ? {
               ref: comboboxRef,
@@ -127,7 +126,7 @@ export default function TextSingleAutocomplete({
               ${displayListBox ? styles['visible'] : ''} 
               ${theme ? theme.className : ''}
               margin-inline-0`
-          } 
+          }
           style={{
             ...(theme?.style),
             maxHeight: maxOptions ? `${(maxOptions * 33) + 6}px` : '300px' // TODO: Implement for select comboboxes aswell
@@ -140,9 +139,9 @@ export default function TextSingleAutocomplete({
         >
           {searchResults.map((option, index) =>
             <li
-              key={index}
+              key={option.value}
               id={`${props.id}-listbox-${index}`}
-              style={{ backgroundColor: index === focusedListBoxItem ? 'var(--gray-90)' : '', }}
+              className={index === focusedListBoxItem ? styles['focused-option'] : ''} // TODO: Implement classname instead of inline styels for select
               ref={(el) => { optionRefs.current[index] = el }}
               onClick={() => { setValue(option.name); setDisplayListBox(false) }}
               role="option"

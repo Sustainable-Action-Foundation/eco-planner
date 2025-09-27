@@ -136,3 +136,7 @@
 .listbox .no-results::after {
     content: none !important;
 }
+
+.focused-option {
+    background-color: var(--gray-90);
+}

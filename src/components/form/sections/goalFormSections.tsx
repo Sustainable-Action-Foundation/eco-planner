@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput";
 import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
 import { Unit } from 'mathjs'
+import parameterOptions from "@/lib/LEAPList.json" with { type: "json" }; // Options for indicator parameter
 
 export function ManualGoalForm({
   currentGoal,
@@ -42,6 +43,19 @@ export function ManualGoalForm({
       <label className="block margin-bottom-100">
         {t("forms:goal.leap_parameter")} {/* TODO: Turn to textSingleAutocomplete once that is more performant */}
         <input className="margin-block-25" type="text" list="LEAPOptions" name="indicatorParameter" required id="indicatorParameter" defaultValue={currentGoal?.indicatorParameter || undefined} />
+        <TextSingleAutocomplete
+          props={{
+            id: "indicatorParameter",
+            name: "indicatorParameter",
+            placeholder: "Skriv för att se förslag", // TODO: I18n 
+            className: "margin-top-25 margin-bottom-100",
+            defaultValue: currentGoal?.indicatorParameter ?? undefined
+          }}
+          options={[...new Set(parameterOptions)].map(option => ({
+            name: option,
+            value: option
+          }))}
+        />
       </label>
 
       <label htmlFor="dataUnit">
@@ -64,7 +78,7 @@ export function ManualGoalForm({
           }
         }}
       />
-      <small className="block margin-top-25 margin-bottom-100 font-style-italic" style={{height: '20px'}}>
+      <small className="block margin-top-25 margin-bottom-100 font-style-italic" style={{ height: '20px' }}>
         {parsedUnit === null && t("forms:goal.unit_not_interpreted")}
 
         {parsedUnit && (
@@ -73,7 +87,7 @@ export function ManualGoalForm({
           </>
         )}
       </small>
-      
+
       <DataSeriesInput
         dataSeriesString={dataSeriesString}
         inputName="dataSeries"
