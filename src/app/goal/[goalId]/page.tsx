@@ -29,6 +29,7 @@ import getTableContent from "@/lib/api/getTableContent";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconAlertTriangle } from "@tabler/icons-react";
 import i18nServer from "i18next";
+import TextEditor from "@/components/form/elements/textEditor/editor";
 
 export async function generateMetadata(props: {
   params: Promise<{ goalId: string }>,
@@ -230,7 +231,14 @@ export default async function Page(
           {goal.description ?
             <>
               <h2 className="margin-top-200 margin-bottom-0">{t("pages:goal.description")}</h2>
-              <p className="container-text">{goal.description}</p>
+              <div className="margin-top-100">
+                <TextEditor
+                  id="rich-description"
+                  editable={false}
+                  defaultStyles={false}
+                  content={goal.description}
+                />
+              </div>
             </>
             : null}
 

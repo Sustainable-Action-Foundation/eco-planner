@@ -25,6 +25,8 @@ import RecipeEditor from "@/components/recipe/editor/editor";
 import { treeItem } from "@/components/types";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
+import TextEditor from "../elements/textEditor/editor";
+import { Content } from "@tiptap/core";
 
 // Enum for selecting the type of data series for the goal
 enum DataSeriesType {
@@ -62,7 +64,15 @@ export default function GoalForm({
   const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(defaultDataSeriesType);
   // State for the type of baseline (initial, custom, inherited)
   const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baselineDataSeries ? BaselineType.Custom : BaselineType.Initial);
+  const [editorContent, setEditorContent] = useState<Content>(() => {
+    if (!currentGoal?.description) return null;
 
+    try {
+      return JSON.parse(currentGoal.description) as Content;
+    } catch {
+      return currentGoal.description;
+    }
+  });
   // Memoized timestamp for the form submission (used for optimistic updates)
   const timestamp = useMemo(() => Date.now(), []);
 
@@ -164,7 +174,7 @@ export default function GoalForm({
         timestamp: undefined, // Ignored when creating
 
         name: formData.get("goalName") as string | null || null,
-        description: formData.get("description") as string | null || null,
+        description: JSON.stringify(editorContent),
         indicatorParameter: formData.get("indicatorParameter") as string | null ?? (event.target.reportValidity(), ""),
         isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked || false,
 
@@ -249,10 +259,17 @@ export default function GoalForm({
             <input className="margin-top-25 margin-bottom-100" type="text" name="goalName" id="goalName" defaultValue={currentGoal?.name ?? undefined} />
           </label>
 
-          <label>
-            {t("forms:goal.goal_description")}
-            <textarea className="margin-top-25 margin-bottom-100" name="description" id="description" defaultValue={currentGoal?.description ?? undefined}></textarea>
-          </label>
+          <label id="description-label">{t("forms:goal.goal_description")}</label>
+          <TextEditor
+            className="margin-top-25 margin-bottom-100" // TODO: Need label for texteditormenu
+            id="description"
+            ariaLabelledBy="description-label"
+            placeholder={t("common:tsx.write") + t("common:tsx.ellipsis")}
+            editable={true}
+            content={currentGoal ? currentGoal.description : ""}
+            onChange={(json) => setEditorContent(json)}
+          />
+
         </fieldset>
 
         {/* Data series type selection (static, inherited, combined) */}
