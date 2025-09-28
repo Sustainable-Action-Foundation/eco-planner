@@ -8,15 +8,11 @@ import { useTranslation } from "react-i18next";
 import { inputElement, option, theme } from "@/components/types";
 import { handleKeyDownEditableCombobox, scrollOptionIntoView } from "./functions";
 
-// TODO: Give aria-keyocontrols?
-// TODO: should just pass the types, not props.
-// TODO: Allow passing a threshold
-
 export default function TextSingleAutocomplete({
   props,
-  theme,
+  theme, // TODO: Not a fan of this implementation
   options,
-  maxOptions, // TODO: Rename
+  maxOptions, // TODO: Rename (also not a big fan of this)
   fuseOptions,
   onChange,
 }: {
@@ -39,9 +35,9 @@ export default function TextSingleAutocomplete({
   const fuse = useMemo(() => new Fuse(options, { 
     keys: ['name'], 
     ...(fuseOptions ?? {}) 
-  }), [options, fuseOptions]); // TODO: Implement useMemo in this way for selects aswell
+  }), [options, fuseOptions]);
 
-  const searchResults = useMemo(() => { // TODO: Impelement for selects
+  const searchResults = useMemo(() => {
     if (selectionMade) {
       setSelectionMade(false); 
       return options; // Prevent fuse from unnecesserily running when selecting an item

@@ -10,9 +10,7 @@ import Image from "next/image"
 
 // TODO: Aria-setsize (How do we deal with this given async functions)
 // TODO: Aria-posinset (How do we deal with this given async functions)
-// TODO: Aria-keycontrols?
 // TODO: Should allow for options with same values? Or we should check that they are unique?
-// TODO: Disallow an empty array for options?
 
 /**
  * Flattens an array of treeItems so children appear right after their parent.

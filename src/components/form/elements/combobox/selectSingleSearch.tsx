@@ -9,9 +9,6 @@ import Fuse, { IFuseOptions } from "fuse.js";
 import { IconSearch, IconSelector } from "@tabler/icons-react";
 
 // TODO: Should allow for options with same values? Or we should check that they are unique?
-// TODO: Disallow an empty array for options?
-// TODO: Give aria-keyocontrols?
-// TODO: should just pass the types, not props.
 
 export default function SelectSingleSearch({
   props,
