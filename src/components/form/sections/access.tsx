@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import SelectMultipleSearch from "../elements/combobox/selectMultipleSearch"
 import { AccessControlled } from "@/types";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
@@ -55,6 +55,21 @@ export default function ConfigureAccess({
   const [editabilityType, setEditabilityType] = useState<"private" | "custom" | undefined>(
     currentAccess ? (currentAccess.editors.length > 0 || currentAccess.editGroups.length > 0 ? "custom" : "private") : undefined
   );
+
+  const selectableGroups = useMemo(() => {
+    return [
+      ...(userGroups?.map(group => ({
+        name: group,
+        value: group
+      })) ?? [])
+      /* Do we need this in options?
+        ...(currentAccess?.viewGroups?.map(group => ({
+          name: group.name,
+          value: group.name
+        })) ?? [])
+      */
+    ];
+  }, [userGroups]);
 
   return (
     <div ref={accessSectionRef}>
@@ -134,18 +149,7 @@ export default function ConfigureAccess({
                   required: visibilityType === "custom" && !viewers
                 }}
                 defaultValue={viewerGroups}
-                options={[
-                  ...(userGroups?.map(group => ({
-                    name: group,
-                    value: group
-                  })) ?? []),
-                  /* Do we need this in options?
-                  ...(currentAccess?.viewGroups?.map(group => ({
-                    name: group.name,
-                    value: group.name
-                  })) ?? [])
-                */
-                ]}
+                options={selectableGroups}
               />
             </div>
           </fieldset>
@@ -217,18 +221,7 @@ export default function ConfigureAccess({
                   required: editabilityType === "custom" && !editors
                 }}
                 defaultValue={editorGroups}
-                options={[
-                  ...(userGroups?.map(group => ({
-                    name: group,
-                    value: group
-                  })) ?? []),
-                  /* Do we need this in options?
-                  ...(currentAccess?.viewGroups?.map(group => ({
-                    name: group.name,
-                    value: group.name
-                  })) ?? [])
-                */
-                ]}
+                options={selectableGroups}
               />
             </div>
           </fieldset>

@@ -21,7 +21,7 @@ div:has(>.select-toggle) {
 }
 
 .select-toggle[value=""] .selected-value-text { /* Assume we show our placeholder (which should be gray) given that no value is selected*/
-    color: gray;
+    color: gray; /* TODO: Revert to inline styles like we did before, there may be occasions where the user can select a blank value*/
 }
 
 .select-toggle:disabled .selected-value-text{

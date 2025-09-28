@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput";
 import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
 import { Unit } from 'mathjs'
-import parameterOptions from "@/lib/LEAPList.json" with { type: "json" }; // Options for indicator parameter
+import parameterOptions from "@/lib/LEAPList.json" with { type: "json" }; 
 
 export function ManualGoalForm({
   currentGoal,
@@ -38,12 +38,17 @@ export function ManualGoalForm({
     }
   }, [currentGoal]);
 
-  const memoizedOptions = useMemo(() => { // TODO: Make sure options are memoized properly in all places that use them.
+  const indicatorParamaters = useMemo(() => {
     return [...new Set(parameterOptions)].map(option => ({
       name: option,
       value: option
     }));
   }, []);
+
+  const units = useMemo( 
+    () => Object.keys(Unit.UNITS).map(unit => ({ name: unit, value: unit })),
+    []
+  );
 
   return (
     <>
@@ -58,7 +63,7 @@ export function ManualGoalForm({
           className: "margin-top-25 margin-bottom-100",
           defaultValue: currentGoal?.indicatorParameter ?? undefined
         }}
-        options={memoizedOptions}
+        options={indicatorParamaters}
         fuseOptions={{
           threshold: 0.3,
           ignoreLocation: true,
@@ -77,7 +82,7 @@ export function ManualGoalForm({
           className: "margin-top-25",
           defaultValue: currentGoal?.dataSeries?.unit ?? undefined
         }}
-        options={Object.keys(Unit.UNITS).map(unit => ({ name: unit, value: unit }))}
+        options={units}
         onChange={(unit) => {
           try {
             setParsedUnit(mathjs.unit(unit).toString())

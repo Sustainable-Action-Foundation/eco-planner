@@ -195,6 +195,13 @@ export default function RoadmapForm({
   // Indexes for the data-position attribute in the legend elements
   let positionIndex = 1;
 
+  const metaRoadmaps = useMemo(() => {
+    return (metaRoadmapAlternatives ?? []).map(metaRoadmap => ({
+      name: metaRoadmap.name,
+      value: metaRoadmap.id
+    }));
+  }, [metaRoadmapAlternatives]);
+
   return (
     <>
       <form onSubmit={(e: React.ChangeEvent<HTMLFormElement>) => {
@@ -221,12 +228,7 @@ export default function RoadmapForm({
                     placeholder: `${t("common:tsx.select")}  ${t("common:roadmap_short_one")}`,
                   }}
                   onChange={(value) => value?.value ? setMetaRoadmapId(value.value) : setMetaRoadmapId("")}
-                  options={[
-                    ...(metaRoadmapAlternatives ?? []).map((metaRoadmap) => ({
-                      name: metaRoadmap.name,
-                      value: metaRoadmap.id
-                    }))
-                  ]}
+                  options={metaRoadmaps}
                 />
 
               </>
