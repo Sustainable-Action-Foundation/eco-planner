@@ -3,25 +3,28 @@
 import { IconChevronDown } from "@tabler/icons-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import styles from './comboBox.module.css' with { type: "css" }
-import Fuse from "fuse.js";
+import Fuse, { IFuseOptions } from "fuse.js";
 import { useTranslation } from "react-i18next";
 import { inputElement, option, theme } from "@/components/types";
 import { handleKeyDownEditableCombobox, scrollOptionIntoView } from "./functions";
 
 // TODO: Give aria-keyocontrols?
 // TODO: should just pass the types, not props.
+// TODO: Allow passing a threshold
 
 export default function TextSingleAutocomplete({
   props,
   theme,
   options,
-  maxOptions,
+  maxOptions, // TODO: Rename
+  fuseOptions,
   onChange,
 }: {
   props: inputElement
   theme?: theme
   options: Array<option>
   maxOptions?: number
+  fuseOptions?: IFuseOptions<option> // TODO: Implement for selects aswell
   onChange?: (value: string) => void
 }) {
   const { t } = useTranslation(["forms", "common"]);
@@ -31,12 +34,16 @@ export default function TextSingleAutocomplete({
   const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null);
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
   const comboboxRef = useRef<HTMLInputElement>(null);
+  const [selectionMade, setSelectionMade] = useState(false); // TODO: Rename to something better
 
-  const fuse = useMemo(() => new Fuse(options, { keys: ['name'] }), [options]); // TODO: Implement useMemo in this way for selects aswell
-  const searchResults = useMemo(
-    () => (value ? fuse.search(value).map(r => r.item) : options),
-    [value, fuse, options]
-  );
+  const fuse = useMemo(() => new Fuse(options, { keys: ['name'], ...(fuseOptions ?? {}) }), [options, fuseOptions]); // TODO: Implement useMemo in this way for selects aswell
+  const searchResults = useMemo(() => { // TODO: Impelement for selects
+    if (selectionMade) {
+      setSelectionMade(false); 
+      return options; // Prevent fuse from unnecesserily running when selecting an item
+    }
+    return value ? fuse.search(value).map(result => result.item) : options;
+  }, [value, fuse, options, selectionMade]);
 
   useEffect(() => {
     scrollOptionIntoView(optionRefs.current, focusedListBoxItem)
@@ -80,12 +87,9 @@ export default function TextSingleAutocomplete({
                   focusedListBoxItem,
                   setFocusedListBoxItem,
                   (selectedOption) => {
-                    setValue(
-                      selectedOption
-                        ? selectedOption.name
-                        : ""
-                    );
-                    setFocusedListBoxItem(null);
+                    setValue(selectedOption ? selectedOption.name : ""); // TODO: Should be .value?
+                    setSelectionMade(true); 
+                    setFocusedListBoxItem(null); 
                     setDisplayListBox(false);
                   }
                 )
@@ -143,7 +147,11 @@ export default function TextSingleAutocomplete({
               id={`${props.id}-listbox-${index}`}
               className={index === focusedListBoxItem ? styles['focused-option'] : ''} // TODO: Implement classname instead of inline styels for select
               ref={(el) => { optionRefs.current[index] = el }}
-              onClick={() => { setValue(option.name); setDisplayListBox(false) }}
+              onClick={() => { 
+                setValue(option.name); // TODO: Should be .value?
+                setSelectionMade(true); 
+                setDisplayListBox(false)
+              }}
               role="option"
               aria-selected={option.name === value}
             >

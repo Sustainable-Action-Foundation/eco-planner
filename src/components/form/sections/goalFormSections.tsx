@@ -59,6 +59,11 @@ export function ManualGoalForm({
             defaultValue: currentGoal?.indicatorParameter ?? undefined
           }}
           options={memoizedOptions}
+          fuseOptions={{
+            threshold: 0.3,
+            ignoreLocation: true,
+            minMatchCharLength: 2,
+          }}
         />
       </label>
 
