@@ -1,11 +1,11 @@
-"use client" 
+"use client"
 
 import { useEffect, useState, useRef, useMemo } from "react"
 import { useTranslation } from "react-i18next";
 import styles from './comboBox.module.css' with { type: "css" }
 import { inputElement, option } from "@/components/types";
 import { clearEditableCombobox, handleKeyDownEditableCombobox, preventInvalidFormSubmission, scrollOptionIntoView } from "./functions";
-import Fuse from "fuse.js";
+import Fuse, { IFuseOptions } from "fuse.js";
 import { IconSearch, IconSelector } from "@tabler/icons-react";
 
 // TODO: Should allow for options with same values? Or we should check that they are unique?
@@ -17,11 +17,13 @@ export default function SelectMultipleSearch({
   props,
   defaultValue,
   options,
+  fuseOptions,
   onChange,
 }: {
   props: inputElement,
   defaultValue?: Array<option>,
   options: Array<option>,
+  fuseOptions?: IFuseOptions<option>,
   onChange?: (value: Array<option> | null) => void
 }) {
   const { t } = useTranslation(["forms", "common"]);
@@ -31,16 +33,23 @@ export default function SelectMultipleSearch({
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const [focusedListboxOption, setFocusedListboxOption] = useState<number | null>(null);
   const [searchValue, setSearchValue] = useState<string>('')
+  const [selectionMade, setSelectionMade] = useState(false); // TODO: Rename to something better
   const toggleRef = useRef<HTMLButtonElement>(null); // TODO: Rename?
   const searchRef = useRef<HTMLInputElement>(null);
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
 
+  const fuse = useMemo(() => new Fuse(options, {
+    keys: ['name'],
+    ...(fuseOptions ?? {})
+  }), [options, fuseOptions]);
+
   const searchResults = useMemo(() => {
-    const fuse = new Fuse(options, { keys: ['name'] });
-    return searchValue
-      ? fuse.search(searchValue).map(result => result.item)
-      : options;
-  }, [searchValue, options]);
+    if (selectionMade) {
+      setSelectionMade(false);
+      return options; // Prevent fuse from unnecesserily running when selecting an item
+    }
+    return searchValue ? fuse.search(searchValue).map(result => result.item) : options;
+  }, [searchValue, fuse, options, selectionMade]);
 
   // Disables form subbmision if value is invalid 
   // Define what an invalid value is (missing value or empty array). We only need this defined if the field is requied
@@ -48,20 +57,20 @@ export default function SelectMultipleSearch({
     if ((!value || value.length === 0) && props.required) return false;
     return true;
   }, [value, props.required]);
- 
+
   useEffect(() => {
     if (!toggleRef.current) return
     return preventInvalidFormSubmission(toggleRef.current, valueIsValid)
   }, [valueIsValid]);
- 
-  useEffect(() => { 
+
+  useEffect(() => {
     if (!searchRef.current) return
     clearEditableCombobox(
       searchRef.current,
       setSearchValue,
       menuOpen,
       setFocusedListboxOption
-    ) 
+    )
   }, [menuOpen]);
 
   useEffect(() => {
@@ -71,7 +80,7 @@ export default function SelectMultipleSearch({
   return (
     <div
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
-      style={{ ...props.style}}
+      style={{ ...props.style }}
     >
       <button
         type="button"
@@ -81,14 +90,14 @@ export default function SelectMultipleSearch({
         name={props.name}
         disabled={props.disabled}
         value={value.map((value) => value.value).toString()}
-        ref={toggleRef} 
+        ref={toggleRef}
         onClick={() => { setMenuOpen(!menuOpen) }}
         role="combobox"
         aria-controls={menuOpen ? `${props.id}-dialog` : undefined}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
         aria-required={props.required ? props.required : false}
-        aria-invalid={!valueIsValid} 
+        aria-invalid={!valueIsValid}
       >
         <span className={`${styles['selected-value-text']}`}>
           {value.length > 0
@@ -118,7 +127,7 @@ export default function SelectMultipleSearch({
         <label
           className="focusable flex align-items-center gap-25 padding-block-50 padding-inline-25"
           style={{ border: 'none', borderBottom: '1px solid var(--gray-80)', borderRadius: '0', marginBottom: '3px' }}
-          aria-label={t("forms:combobox.search_options")} 
+          aria-label={t("forms:combobox.search_options")}
         >
           <IconSearch width={16} height={16} style={{ minWidth: '16px' }} />
           <input
@@ -127,40 +136,41 @@ export default function SelectMultipleSearch({
             ref={searchRef}
             onChange={(e) => setSearchValue(e.target.value)}
             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-              if (!toggleRef.current) return; 
+              if (!toggleRef.current) return;
               handleKeyDownEditableCombobox(
-              e,
-              toggleRef.current,
-              menuOpen,
-              setMenuOpen,
-              searchResults,
-              focusedListboxOption,
-              setFocusedListboxOption,
-              (selectedOption) => {
-                e.stopPropagation(); 
-                if (menuOpen && selectedOption) {
-                  const optionPreviouslySelected = value.some(value => value.value === selectedOption.value); // TODO: Abstract this to use in onclick   
+                e,
+                toggleRef.current,
+                menuOpen,
+                setMenuOpen,
+                searchResults,
+                focusedListboxOption,
+                setFocusedListboxOption,
+                (selectedOption) => {
+                  e.stopPropagation();
+                  if (menuOpen && selectedOption) {
+                    const optionPreviouslySelected = value.some(value => value.value === selectedOption.value); // TODO: Abstract this to use in onclick   
 
-                  const newValue = optionPreviouslySelected
-                    ? value.filter(option => option.value !== selectedOption.value)
-                    : [...value, selectedOption];
+                    const newValue = optionPreviouslySelected
+                      ? value.filter(option => option.value !== selectedOption.value)
+                      : [...value, selectedOption];
 
-                  setValue(newValue);
-
-                  if (onChange) onChange(newValue);
+                    setValue(newValue);
+                    setSelectionMade(true);
+                    if (onChange) onChange(newValue);
+                  }
                 }
-              }
-            )}}
+              )
+            }}
             role="combobox"
             aria-controls={`${props.id}-dialog-listbox`}
             aria-activedescendant={focusedListboxOption != null ? `${props.id}-dialog-listbox-${focusedListboxOption}` : undefined}
             aria-expanded="true"
             aria-autocomplete="list"
             autoComplete="off"
-            placeholder={t("common:tsx.search") + t("common:tsx.ellipsis")} 
+            placeholder={t("common:tsx.search") + t("common:tsx.ellipsis")}
           />
         </label>
-        <ul          
+        <ul
           id={`${props.id}-dialog-listbox`}
           className="margin-0 padding-0"
           role="listbox"
@@ -171,19 +181,20 @@ export default function SelectMultipleSearch({
             searchResults.map((option, index) => {
               return (
                 <li
-                  key={index}
+                  key={option.value}
                   id={`${props.id}-dialog-listbox-${index}`}
                   className={index === focusedListboxOption ? styles['focused-option'] : ''}
                   ref={(el) => { optionRefs.current[index] = el }}
-                  onClick={() => { 
+                  onClick={() => {
                     const optionPreviouslySelected = value.some(value => value.value === option.value);
 
                     const newValue = optionPreviouslySelected
-                      ? value.filter(value => value.value !== option.value) 
+                      ? value.filter(value => value.value !== option.value)
                       : [...value, option];
 
                     setValue(newValue);
-
+                    setSelectionMade(true);
+                    
                     if (onChange) onChange(newValue);
                     searchRef.current?.focus() // TODO: Might be a more clean way to do this
                   }}

@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import styles from './comboBox.module.css' with { type: "css" }
 import { inputElement, option } from "@/components/types";
 import { clearEditableCombobox, handleKeyDownEditableCombobox, preventInvalidFormSubmission, scrollOptionIntoView } from "./functions";
-import Fuse from "fuse.js";
+import Fuse, { IFuseOptions } from "fuse.js";
 import { IconSearch, IconSelector } from "@tabler/icons-react";
 
 // TODO: Should allow for options with same values? Or we should check that they are unique?
@@ -17,11 +17,13 @@ export default function SelectSingleSearch({
   props,
   defaultValue,
   options,
+  fuseOptions,
   onChange,
 }: {
   props: inputElement,
   defaultValue?: option | boolean,
   options: Array<option>,
+  fuseOptions?: IFuseOptions<option>,
   onChange?: (value: option | null) => void 
 }) {
   const { t } = useTranslation(["forms"]);
@@ -36,17 +38,24 @@ export default function SelectSingleSearch({
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const [focusedListboxOption, setFocusedListboxOption] = useState<number | null>(null);
   const [searchValue, setSearchValue] = useState<string>('')
+  const [selectionMade, setSelectionMade] = useState(false); // TODO: Rename to something better
   const toggleRef = useRef<HTMLButtonElement>(null); // TODO: Rename?
   const searchRef = useRef<HTMLInputElement>(null);
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
 
-  const searchResults = useMemo(() => {
-    const fuse = new Fuse(options, { keys: ['name'] });
-    return searchValue
-      ? fuse.search(searchValue).map(result => result.item)
-      : options;
-  }, [searchValue, options]);
-  
+  const fuse = useMemo(() => new Fuse(options, { 
+    keys: ['name'], 
+    ...(fuseOptions ?? {}) 
+  }), [options, fuseOptions]);
+
+  const searchResults = useMemo(() => { 
+    if (selectionMade) {
+      setSelectionMade(false); 
+      return options; // Prevent fuse from unnecesserily running when selecting an item
+    }
+    return searchValue ? fuse.search(searchValue).map(result => result.item) : options;
+  }, [searchValue, fuse, options, selectionMade]);
+ 
   // Disables form subbmision if value is invalid 
   // Define what an invalid value is (missing value or empty string). We only need this defined if the field is requied
   const valueIsValid = useMemo(() => {
@@ -76,7 +85,7 @@ export default function SelectSingleSearch({
   return (
     <div
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
-      style={{ ...props.style, userSelect: 'none' }} // TODO: Check width here and on multiselect
+      style={{ ...props.style, userSelect: 'none' }}
     >
       <button
         id={props.id}
@@ -140,6 +149,7 @@ export default function SelectSingleSearch({
               setFocusedListboxOption,
               (selectedOption) => {
                 setValue(selectedOption?.value !== value?.value ? selectedOption : null); // TODO: Abstract this to use in onclick     
+                setSelectionMade(true);
                 setMenuOpen(false);
                 toggleRef.current?.focus();
                 if (onChange) onChange(selectedOption?.value !== value?.value ? selectedOption : null);
@@ -163,12 +173,13 @@ export default function SelectSingleSearch({
           {searchResults.length > 0 ? (
             searchResults.map((option, index) => (
               <li  
-                key={index}
+                key={option.value}
                 id={`${props.id}-dialog-listbox-${index}`}
                 className={index === focusedListboxOption ? styles['focused-option'] : ''}
                 ref={(el) => { optionRefs.current[index] = el }}
                 onClick={() => {
                   setValue(option.value !== value?.value ? option : null);
+                  setSelectionMade(true);
                   setMenuOpen(false);
                   if (onChange) onChange(option.value !== value?.value ? option : null);
                 }}

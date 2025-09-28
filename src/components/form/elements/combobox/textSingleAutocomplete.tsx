@@ -32,14 +32,15 @@ export default function TextSingleAutocomplete({
   const [value, setValue] = useState<string>(props.defaultValue ? props.defaultValue : '');
   const [displayListBox, setDisplayListBox] = useState<boolean>(false);
   const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null); // TODO: Rename -> focusedlistboxOption
+  const [selectionMade, setSelectionMade] = useState(false); // TODO: Rename to something better
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
   const comboboxRef = useRef<HTMLInputElement>(null);
-  const [selectionMade, setSelectionMade] = useState(false); // TODO: Rename to something better
-  console.log(fuseOptions)
+
   const fuse = useMemo(() => new Fuse(options, { 
     keys: ['name'], 
     ...(fuseOptions ?? {}) 
   }), [options, fuseOptions]); // TODO: Implement useMemo in this way for selects aswell
+
   const searchResults = useMemo(() => { // TODO: Impelement for selects
     if (selectionMade) {
       setSelectionMade(false); 

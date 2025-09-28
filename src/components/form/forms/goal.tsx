@@ -353,7 +353,6 @@ export default function GoalForm({
               id: 'test-select',
               name: 'test-select',
               required: true,
-              disabled: true
             }}
             options={[
               {value: '1', name: 'option 1'},

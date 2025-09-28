@@ -143,7 +143,8 @@ export default function MetaRoadmapForm({
               id: "actor",
               name: "actor",
               required: true,
-              defaultValue: currentRoadmap?.actor ?? undefined
+              defaultValue: currentRoadmap?.actor ?? undefined,
+              placeholder: roadmapType === "REGIONAL" || roadmapType === "MUNICIPAL" ? 'Skriv för att se förslag' : 'Aktör...' // TODO: I18n
             }}
             // I18N: the current implementation uses only Swedish counties and municipalities; should probably be adapted for international use in the future
             options={

@@ -121,7 +121,7 @@
 }
 
 .timeLineFieldset:has(input:required, select:required, textarea:required):valid .timeLineLegend::before,
-.timeLineFieldset:has([aria-invalid="false"]) .timeLineLegend::before {
+.timeLineFieldset:has([aria-required="true"][aria-invalid="false"]) .timeLineLegend::before {
   content: '✓' / '';
   background-color: var(--seagreen);
   box-shadow: 0 0 .5rem -.25rem var(--seagreen);
