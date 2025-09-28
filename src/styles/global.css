@@ -45,10 +45,9 @@ p {
   display: none;
 }
 
-
 /* Legends and labels */
 
-fieldset:not(:has(input:required, select:required, textarea:required)) legend::after {
+fieldset:not(:has(input:required, select:required, textarea:required, [aria-required="true"])) legend::after {
   content: var(--i18n-optional);
   font-style: italic;
   color: gray;

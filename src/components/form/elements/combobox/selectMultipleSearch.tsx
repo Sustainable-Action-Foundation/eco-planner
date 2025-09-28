@@ -42,8 +42,6 @@ export default function SelectMultipleSearch({
       : options;
   }, [searchValue, options]);
 
-  // TODO: Handling required values like this does not work with the fieldset:valid--
-  // css pseudo class (our button cannot be valid or required we just pretend it is)
   // Disables form subbmision if value is invalid 
   // Define what an invalid value is (missing value or empty array). We only need this defined if the field is requied
   const valueIsValid = useMemo(() => {

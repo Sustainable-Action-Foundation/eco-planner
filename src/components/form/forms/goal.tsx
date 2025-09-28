@@ -27,6 +27,7 @@ import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import TextEditor from "../elements/textEditor/editor";
 import { Content } from "@tiptap/core";
+import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 
 // Enum for selecting the type of data series for the goal
 enum DataSeriesType {
@@ -341,6 +342,24 @@ export default function GoalForm({
             {t("forms:goal.feature_goal")}
           </label>
         </fieldset >
+
+        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.feature_this_goal")}</legend>
+          <SelectSingleSearch
+            props={{
+              placeholder: 'testaaaaaaaaaaaaaaaaaaaaaaaaaaaaaas',
+              style: {width: '300px'},
+              id: 'test-select',
+              name: 'test-select',
+              required: true,
+            }}
+            options={[
+              {value: '1', name: 'option 1'},
+              {value: '2', name: 'option 2'},
+              {value: '3', name: 'option 3'}
+            ]}
+          />
+        </fieldset>
 
         {/* Submit button */}
         <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
