@@ -28,6 +28,7 @@ import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import TextEditor from "../elements/textEditor/editor";
 import { Content } from "@tiptap/core";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
+import SelectSingleTreeSearch from "../elements/combobox/selectSingleTreeSearch";
 
 // Enum for selecting the type of data series for the goal
 enum DataSeriesType {
@@ -352,11 +353,25 @@ export default function GoalForm({
               id: 'test-select',
               name: 'test-select',
               required: true,
+              disabled: true
             }}
             options={[
               {value: '1', name: 'option 1'},
               {value: '2', name: 'option 2'},
               {value: '3', name: 'option 3'}
+            ]}
+          />
+          <SelectSingleTreeSearch 
+          
+            props={{
+              placeholder: 'testaaaaaaaaaaaaaaaaaaaaaaaaaaaaaas',
+              style: {width: '300px'},
+              id: 'test-tree',
+              name: 'test-tree',
+              required: true,
+            }}
+            treeItems={[
+              {value: 'test', name: 'test', expanded: false}
             ]}
           />
         </fieldset>

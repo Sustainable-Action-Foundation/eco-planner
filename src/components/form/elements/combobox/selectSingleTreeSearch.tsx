@@ -91,7 +91,7 @@ export default function SelectSingleTreeSearch({
     const selectedItemElementText = selectedItemElement.querySelector<HTMLDivElement>(':scope > div')
     if (!selectedItemElementText) return
 
-    selectedItemElementText.style.backgroundColor = "var(--gray-90)"
+    selectedItemElementText.style.backgroundColor = "var(--gray-90)" // TODO: See if we can replace this using the focused-option class
 
   }, [focusedIndex, flattenedItems, props.id])
 
@@ -205,7 +205,7 @@ export default function SelectSingleTreeSearch({
   return (
     <div
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
-      style={{ ...props.style, userSelect: 'none' }} // TODO: Check width here 
+      style={{ ...props.style, userSelect: 'none' }} 
     >
       <button
         title={value?.name}
@@ -225,17 +225,7 @@ export default function SelectSingleTreeSearch({
         aria-required={props.required ? props.required : false}
       // aria-invalid={!valueIsValid}
       >
-        <span
-          style={{
-            // TODO: Make into a class?
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            overflow: "hidden",
-            minWidth: '0',
-            color: !value ? "gray" : "inherit",
-            // opacity: props.disabled ? 0.6 : 1,
-          }}
-        >
+        <span className={`${styles['selected-value-text']}`}>
           {!value ? props.placeholder : value.name}
         </span>
         <IconSelector height={20} width={20} style={{ minWidth: '20px' }} aria-hidden={true} />

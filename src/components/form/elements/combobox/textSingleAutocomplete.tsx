@@ -31,7 +31,7 @@ export default function TextSingleAutocomplete({
 
   const [value, setValue] = useState<string>(props.defaultValue ? props.defaultValue : '');
   const [displayListBox, setDisplayListBox] = useState<boolean>(false);
-  const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null);
+  const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null); // TODO: Rename -> focusedlistboxOption
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
   const comboboxRef = useRef<HTMLInputElement>(null);
   const [selectionMade, setSelectionMade] = useState(false); // TODO: Rename to something better
@@ -148,7 +148,7 @@ export default function TextSingleAutocomplete({
             <li
               key={option.value}
               id={`${props.id}-listbox-${index}`}
-              className={index === focusedListBoxItem ? styles['focused-option'] : ''} // TODO: Implement classname instead of inline styels for select
+              className={index === focusedListBoxItem ? styles['focused-option'] : ''}
               ref={(el) => { optionRefs.current[index] = el }}
               onClick={() => { 
                 setValue(option.name); // TODO: Should be .value?

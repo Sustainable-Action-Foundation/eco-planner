@@ -71,7 +71,7 @@ export default function SelectMultipleSearch({
   return (
     <div
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
-      style={{ ...props.style, userSelect: 'none', width: 'fit-content' }}
+      style={{ ...props.style}}
     >
       <button
         type="button"
@@ -90,16 +90,7 @@ export default function SelectMultipleSearch({
         aria-required={props.required ? props.required : false}
         aria-invalid={!valueIsValid} 
       >
-        <span
-          style={{
-            // TODO: Make into a class?
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            overflow: "hidden",
-            minWidth: '0',
-            color: value.length === 0 ? "gray" : "inherit",
-            opacity: props.disabled ? 0.6 : 1,
-          }}>
+        <span className={`${styles['selected-value-text']}`}>
           {value.length > 0
             ? value.map((value) => value.name).join(", ")
             : props.placeholder
@@ -182,7 +173,7 @@ export default function SelectMultipleSearch({
                 <li
                   key={index}
                   id={`${props.id}-dialog-listbox-${index}`}
-                  style={{backgroundColor: index === focusedListboxOption ? 'var(--gray-90)' : ''}}
+                  className={index === focusedListboxOption ? styles['focused-option'] : ''}
                   ref={(el) => { optionRefs.current[index] = el }}
                   onClick={() => { 
                     const optionPreviouslySelected = value.some(value => value.value === option.value);

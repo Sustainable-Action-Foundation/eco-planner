@@ -1,29 +1,31 @@
-/* No alt text for tooltip, we announce this using aria in the component instead */
-/*.listbox::before {
-    content: attr(data-listbox-label) / ""; /
-    position: sticky;
-    top: 0;
-    display: block;
-    padding-inline: .3rem;
-    padding-block: .5rem;
-    font-size: smaller;
-    font-weight: 600;
-    background-color: white;
+div:has(>.select-toggle) {
+    user-select: none;
 }
 
-.listbox:has(li)::before {
-    margin-bottom: 3px;
-    border-bottom: 1px solid var(--gray-90);
-}*/ 
+.selected-value-text {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    min-width: 0;
+    margin-right: .25rem;
+}
 
-.select-toggle { 
-    width: 100%; /* TODO: Temporary (maybe) */
+.select-toggle {
+    width: 100%;
     background-color: white;
     border: 1px solid var(--gray-80);
     display: flex;
     align-items: center;
     justify-content: space-between;
     text-align: left;
+}
+
+.select-toggle[value=""] .selected-value-text { /* Assume we show our placeholder (which should be gray) given that no value is selected*/
+    color: gray;
+}
+
+.select-toggle:disabled .selected-value-text{
+    opacity: 0.6
 }
 
 .select-toggle:hover {
@@ -39,7 +41,8 @@
     outline: 0;
 }
 
-.listbox, .tree {
+.listbox,
+.tree {
     list-style: none;
     border: 1px solid var(--gray);
     background-color: white;
@@ -49,7 +52,7 @@
     position: absolute;
     z-index: 9;
     width: 100%;
-    
+
     overflow-y: auto;
     scrollbar-width: thin;
     max-height: 300px;
@@ -59,10 +62,11 @@
     transform: scale(.95);
     transform-origin: top left;
     opacity: 0;
-  
+
     transition-property: display, opacity, transform;
     transition-duration: .15s;
     transition-behavior: allow-discrete;
+
     @media (prefers-reduced-motion: reduce) {
         transition: none;
     }
@@ -98,14 +102,14 @@
     font-size: 13px;
     display: flex;
 }
- 
+
 .tree li:last-child {
-    padding-bottom: 0 ;
+    padding-bottom: 0;
 }
 
 .listbox li:hover,
 .tree li div:hover {
-    background-color: var(--gray-90);    
+    background-color: var(--gray-90);
 }
 
 .listbox li[aria-selected="true"],
@@ -116,17 +120,17 @@
 .listbox li[aria-selected="true"]::after,
 .tree li[aria-selected="true"] div::after {
     height: 14px;
-    content: url('data:image/svg+xml;utf8,<svg  xmlns="http://www.w3.org/2000/svg"  width="14"  height="14"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>') / "";    
+    content: url('data:image/svg+xml;utf8,<svg  xmlns="http://www.w3.org/2000/svg"  width="14"  height="14"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>') / "";
 }
 
 .listbox [aria-multiselectable] li:not([data-no-results-tooltip])[aria-selected="true"]::after {
     height: 16px;
-    content: url('data:image/svg+xml;utf8,<svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="hsl(206, 100%, 40%)"  class="icon icon-tabler icons-tabler-filled icon-tabler-square-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18.333 2c1.96 0 3.56 1.537 3.662 3.472l.005 .195v12.666c0 1.96 -1.537 3.56 -3.472 3.662l-.195 .005h-12.666a3.667 3.667 0 0 1 -3.662 -3.472l-.005 -.195v-12.666c0 -1.96 1.537 -3.56 3.472 -3.662l.195 -.005h12.666zm-2.626 7.293a1 1 0 0 0 -1.414 0l-3.293 3.292l-1.293 -1.292l-.094 -.083a1 1 0 0 0 -1.32 1.497l2 2l.094 .083a1 1 0 0 0 1.32 -.083l4 -4l.083 -.094a1 1 0 0 0 -.083 -1.32z" /></svg>') / "";    
+    content: url('data:image/svg+xml;utf8,<svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="hsl(206, 100%, 40%)"  class="icon icon-tabler icons-tabler-filled icon-tabler-square-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18.333 2c1.96 0 3.56 1.537 3.662 3.472l.005 .195v12.666c0 1.96 -1.537 3.56 -3.472 3.662l-.195 .005h-12.666a3.667 3.667 0 0 1 -3.662 -3.472l-.005 -.195v-12.666c0 -1.96 1.537 -3.56 3.472 -3.662l.195 -.005h12.666zm-2.626 7.293a1 1 0 0 0 -1.414 0l-3.293 3.292l-1.293 -1.292l-.094 -.083a1 1 0 0 0 -1.32 1.497l2 2l.094 .083a1 1 0 0 0 1.32 -.083l4 -4l.083 -.094a1 1 0 0 0 -.083 -1.32z" /></svg>') / "";
 }
- 
+
 .listbox [aria-multiselectable] li:not([data-no-results-tooltip])::after {
     height: 16px;
-    content: url('data:image/svg+xml;utf8,<svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-square"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" /></svg>') / "";    
+    content: url('data:image/svg+xml;utf8,<svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-square"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" /></svg>') / "";
 }
 
 .listbox .no-results {

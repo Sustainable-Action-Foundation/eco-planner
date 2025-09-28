@@ -76,7 +76,7 @@ export default function SelectSingleSearch({
   return (
     <div
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
-      style={{ ...props.style, userSelect: 'none', width: 'fit-content' }} // TODO: Check width here and on multiselect
+      style={{ ...props.style, userSelect: 'none' }} // TODO: Check width here and on multiselect
     >
       <button
         id={props.id}
@@ -95,17 +95,7 @@ export default function SelectSingleSearch({
         aria-required={props.required ? props.required : false}
         aria-invalid={!valueIsValid}
       >
-        <span
-          style={{
-            // TODO: Make into a class?
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            overflow: "hidden",
-            minWidth: '0',
-            color: !value ? "gray" :  "inherit",
-            opacity: props.disabled ? 0.6 : 1,
-          }}
-        > 
+        <span className={`${styles['selected-value-text']}`} > 
           {!value ? props.placeholder : value.name}
         </span>
         <IconSelector height={20} width={20} style={{ minWidth: '20px' }} aria-hidden={true} />
@@ -175,7 +165,7 @@ export default function SelectSingleSearch({
               <li  
                 key={index}
                 id={`${props.id}-dialog-listbox-${index}`}
-                style={{backgroundColor: index === focusedListboxOption ? 'var(--gray-90)' : '' }}
+                className={index === focusedListboxOption ? styles['focused-option'] : ''}
                 ref={(el) => { optionRefs.current[index] = el }}
                 onClick={() => {
                   setValue(option.value !== value?.value ? option : null);
