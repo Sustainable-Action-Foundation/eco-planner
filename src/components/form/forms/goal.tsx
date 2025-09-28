@@ -354,22 +354,7 @@ export default function GoalForm({
             {currentGoal ? t("common:tsx.save") : t("common:tsx.create") + ` ${t("common:roadmap_version_one")}`}
           </button>
         </div>
-
       </form >
-
-      {/* Datalist for indicator parameter suggestions */}
-      < datalist id="LEAPOptions" >
-        {/* Use all unique entries as suggestions for indicator parameter */}
-        {
-          parameterOptions.filter((option, index, self) => {
-            return self.indexOf(option) === index
-          }).map((option) => {
-            return (
-              <option key={`option-${option}`} value={option} />
-            )
-          })
-        }
-      </datalist >
     </>
   )
 }

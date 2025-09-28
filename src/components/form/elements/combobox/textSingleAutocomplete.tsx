@@ -35,8 +35,11 @@ export default function TextSingleAutocomplete({
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
   const comboboxRef = useRef<HTMLInputElement>(null);
   const [selectionMade, setSelectionMade] = useState(false); // TODO: Rename to something better
-
-  const fuse = useMemo(() => new Fuse(options, { keys: ['name'], ...(fuseOptions ?? {}) }), [options, fuseOptions]); // TODO: Implement useMemo in this way for selects aswell
+  console.log(fuseOptions)
+  const fuse = useMemo(() => new Fuse(options, { 
+    keys: ['name'], 
+    ...(fuseOptions ?? {}) 
+  }), [options, fuseOptions]); // TODO: Implement useMemo in this way for selects aswell
   const searchResults = useMemo(() => { // TODO: Impelement for selects
     if (selectionMade) {
       setSelectionMade(false); 

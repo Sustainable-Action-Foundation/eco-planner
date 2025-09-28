@@ -47,25 +47,24 @@ export function ManualGoalForm({
 
   return (
     <>
-      <label className="block margin-bottom-100">
-        {t("forms:goal.leap_parameter")} {/* TODO: Turn to textSingleAutocomplete once that is more performant */}
-        <input className="margin-block-25" type="text" list="LEAPOptions" name="indicatorParameter" required id="indicatorParameter" defaultValue={currentGoal?.indicatorParameter || undefined} />
-        <TextSingleAutocomplete
-          props={{
-            id: "indicatorParameter",
-            name: "indicatorParameter",
-            placeholder: "Skriv för att se förslag", // TODO: I18n 
-            className: "margin-top-25 margin-bottom-100",
-            defaultValue: currentGoal?.indicatorParameter ?? undefined
-          }}
-          options={memoizedOptions}
-          fuseOptions={{
-            threshold: 0.3,
-            ignoreLocation: true,
-            minMatchCharLength: 2,
-          }}
-        />
+      <label htmlFor="indicatorParamater">
+        {t("forms:goal.leap_parameter")}
       </label>
+      <TextSingleAutocomplete
+        props={{
+          id: "indicatorParameter",
+          name: "indicatorParameter",
+          placeholder: "Skriv för att se förslag", // TODO: I18n 
+          className: "margin-top-25 margin-bottom-100",
+          defaultValue: currentGoal?.indicatorParameter ?? undefined
+        }}
+        options={memoizedOptions}
+        fuseOptions={{
+          threshold: 0.3,
+          ignoreLocation: true,
+          minMatchCharLength: 2,
+        }}
+      />
 
       <label htmlFor="dataUnit">
         {t("forms:goal.data_unit")}
