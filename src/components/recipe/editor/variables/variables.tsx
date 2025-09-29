@@ -4,18 +4,18 @@
 // TODO: Replace roadmap/goal select with treeselect
 // TODO: Fix labels
 
-import { RecipeVariables, RecipeDataTypes, isRecipeDataSeries, RecipeDataSeries, RecipeScalar, RecipeExternalDataset, isRecipeExternalDatasetSelection, emptyRecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
+import { RecipeVariables, RecipeDataTypes, isRecipeDataSeries, RecipeScalar, RecipeExternalDataset, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 import { IconEdit, IconTrashXFilled } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import React, { useEffect, useState } from "react";
 import { useRecipe } from "../../contextProvider";
 import { ExternalDataset } from "@/lib/api/utility";
-import { JSONValue } from "@/types";
 import SelectSingleTreeSearch from "../../../form/elements/combobox/selectSingleTreeSearch";
 import { treeItem } from "../../../types";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import styles from '../editor.module.css' with {type: 'css'}
+import { changeDataSeries, changeDataset, changeExternalSelection, changeName, changeScalarValue, changeTable, changeType, changeUnit, deleteVariable } from "../../contextFunctions";
 
 type InputRules = {
   allowNameEditing?: boolean;
@@ -72,91 +72,10 @@ function CommonVariable({
 
   rules = { ...defaultInputRules, ...rules };
 
-  function handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setRecipe(prev => {
-      if (!prev) return null;
-
-      const newName = e.target.value.trim();
-      if (!newName) {
-        console.warn("Variable name cannot be empty");
-        return prev; // Do not update if name is empty
-      }
-
-      const copyOfVariables: Record<string, RecipeVariables> = { ...prev.variables };
-
-      const variableContent = copyOfVariables[name];
-      if (!variableContent) {
-        console.warn(`Variable '${name}' does not exist in the recipe`);
-        return prev; // Do not update if variable does not exist
-      }
-
-      // Copy the variable content to the new name
-      copyOfVariables[newName] = { ...variableContent };
-      // Remove the old variable name
-      delete copyOfVariables[name];
-
-      return { ...prev, variables: copyOfVariables };
-    });
-  }
-
-  function handleTypeChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    setRecipe(prev => {
-      if (!prev) return null;
-
-      const copyOfVariables = { ...prev.variables };
-
-      const currentVar = copyOfVariables[name];
-      if (!currentVar) {
-        console.warn(`Variable '${name}' does not exist in the recipe`);
-        return prev; // Do not update if variable does not exist
-      }
-
-      const newType = e.target.value;
-      if (!newType || !Object.values(RecipeDataTypes).includes(newType as RecipeDataTypes)) {
-        console.warn(`Data type '${newType}' is not a valid RecipeDataType`);
-        return prev; // Do not update if the type is invalid
-      }
-
-      const newVar = { ...emptyRecipeDataTypes[newType as RecipeDataTypes] };
-      if (!newVar || !newVar.type || Object.keys(newVar).length === 0) {
-        console.warn(`No empty variable defined for data type '${newType}'`);
-        return prev; // Do not update if no empty variable is defined
-      }
-
-      // Replace old variable with new one and remove its data. TODO: keep as much data as possible
-      copyOfVariables[name] = newVar as RecipeVariables;
-
-      return { ...prev, variables: copyOfVariables };
-    });
-  }
-
-  function handleUnitChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setRecipe(prev => {
-      if (!prev) return null;
-      const newVariables: Record<string, RecipeVariables> = { ...prev.variables };
-      const currentVar = newVariables[name];
-      if (currentVar && e.target.value) {
-        if (currentVar.type === RecipeDataTypes.DataSeries && isRecipeDataSeries(currentVar)) {
-          newVariables[name] = { ...currentVar, unit: e.target.value } as RecipeDataSeries;
-        }
-      }
-      return { ...prev, variables: newVariables };
-    });
-  }
-
-  function handleDelete() {
-    setRecipe(prev => {
-      if (!prev) return null;
-      const newVariables: Record<string, RecipeVariables> = { ...prev.variables };
-      delete newVariables[name];
-      return { ...prev, variables: newVariables };
-    });
-  }
-
   useEffect(() => {
     console.log(editable, !rules.allowNameEditing)
   }, [editable, rules.allowNameEditing])
- 
+
   return (
     <li>
       <fieldset disabled={!editable} className={`padding-25 margin-block-25 smooth ${styles['variable-fieldset']}`} style={{ backgroundColor: 'var(--gray)' }}>
@@ -164,7 +83,7 @@ function CommonVariable({
           <label>
             <input
               defaultValue={name}
-              onChange={handleNameChange}
+              onChange={(e) => changeName(name, e.target.value, setRecipe)}
               type="text"
               placeholder={t("components:recipe_editor.variable_name_placeholder")}
               readOnly={!rules.allowNameEditing || (rules.allowNameEditing && !editable)}
@@ -173,7 +92,7 @@ function CommonVariable({
           </label>
           <select
             defaultValue={variable.type}
-            onChange={handleTypeChange}
+            onChange={(e) => changeType(name, e.target.value, setRecipe)}
             disabled={!rules.allowTypeEditing || (rules.allowTypeEditing && !editable)}
           >
             <option value={RecipeDataTypes.DataSeries}>{t("components:recipe_editor.data_series")}</option>
@@ -182,7 +101,7 @@ function CommonVariable({
           </select>
           <input
             defaultValue={variable.unit || ""}
-            onChange={handleUnitChange}
+            onChange={(e) => changeUnit(name, e.target.value, setRecipe)}
             type="text"
             disabled={!rules.allowValueEditing || (rules.allowTypeEditing && !editable)}
             readOnly={!rules.allowValueEditing || (rules.allowValueEditing && !editable)}
@@ -205,7 +124,7 @@ function CommonVariable({
             style={{ verticalAlign: 'middle' }}
             type="button"
             title="delete" // TODO: I18n
-            onClick={handleDelete}
+            onClick={() => deleteVariable(name, setRecipe)}
           >
             <IconTrashXFilled width={20} height={20} className="grid" />
           </button>
@@ -228,22 +147,6 @@ export function ScalarVariable({
 
   rules = { ...defaultInputRules, ...rules };
 
-  function handleValueChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setRecipe(prev => {
-      if (!prev) return null;
-      const currentVar = prev.variables[name];
-      const newVariables: Record<string, RecipeVariables> = { ...prev.variables };
-
-      if (currentVar.type === RecipeDataTypes.Scalar && e.target.value) {
-        const newValue = parseFloat(e.target.value);
-        if (!isNaN(newValue)) {
-          newVariables[name] = { ...currentVar, value: newValue };
-        }
-      }
-      return { ...prev, variables: newVariables };
-    });
-  }
-
   return (
     <CommonVariable
       name={name}
@@ -251,7 +154,7 @@ export function ScalarVariable({
     >
       <input
         defaultValue={variable.value}
-        onChange={handleValueChange}
+        onChange={(e) => changeScalarValue(name, e.target.value, setRecipe)}
         type="number"
         placeholder={t("components:recipe_editor.scalar")}
         disabled={!rules.allowValueEditing}
@@ -286,38 +189,6 @@ export function DataSeriesVariable({
 
   rules = { ...defaultInputRules, ...rules };
 
-  function handleDataSeriesChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    setRecipe(prev => {
-      if (!prev) return null;
-
-      const selectedDataSeriesId = e.target.value;
-      if (!selectedDataSeriesId) {
-        console.warn("No data series selected");
-        return prev; // Do not update if no data series is selected
-      }
-
-      if (availableDataSeries.every(ds => ds.id !== selectedDataSeriesId)) {
-        console.warn(`Data series with ID '${selectedDataSeriesId}' not found in available data series`);
-        return prev; // Do not update if the selected data series is not available
-      }
-
-      const newVariables: Record<string, RecipeVariables> = { ...prev.variables };
-      const currentVar = newVariables[name];
-      if (!currentVar) {
-        console.warn(`Variable '${name}' does not exist in the recipe`);
-        return prev; // Do not update if variable does not exist
-      }
-
-      newVariables[name] = {
-        ...currentVar,
-        link: selectedDataSeriesId,
-      } as RecipeDataSeries;
-
-      return { ...prev, variables: newVariables };
-    });
-  }
-
-
   return (
     <CommonVariable
       name={name}
@@ -340,7 +211,7 @@ export function DataSeriesVariable({
       </select>
       <select
         value={variable.link || ""}
-        onChange={handleDataSeriesChange}
+        onChange={(e) => changeDataSeries(name, e.target.value, availableDataSeries, setRecipe)}
         disabled={!rules.allowValueEditing}
       >
         <option disabled={true} value="">{t("components:recipe_editor.goal_or_effect")}</option>
@@ -384,61 +255,6 @@ export function ExternalVariable({
 
   rules = { ...defaultInputRules, ...rules };
 
-  function handleDatasetChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    setRecipe(prev => {
-      if (!prev) return null;
-      const newVariables: Record<string, RecipeVariables> = { ...prev.variables };
-      const currentVar = newVariables[name];
-      if (currentVar && e.target.value) {
-        newVariables[name] = {
-          ...currentVar,
-          dataset: e.target.value,
-        } as RecipeExternalDataset;
-      }
-      return { ...prev, variables: newVariables };
-    });
-  }
-
-  function handleTableChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setRecipe(prev => {
-      if (!prev) return null;
-      const newVariables: Record<string, RecipeVariables> = { ...prev.variables };
-      const currentVar = newVariables[name];
-      if (currentVar && typeof e.target.value === "string" && e.target.value && e.target.value.trim()) {
-        newVariables[name] = {
-          ...currentVar,
-          tableId: e.target.value,
-        } as RecipeExternalDataset;
-      }
-      return { ...prev, variables: newVariables };
-    });
-  }
-
-  function handleSelectionChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setRecipe(prev => {
-      if (!prev) return null;
-      const newVariables: Record<string, RecipeVariables> = { ...prev.variables };
-      const currentVar = newVariables[name];
-      if (currentVar && e.target.value) {
-        try {
-          const selection = JSON.parse(e.target.value) as JSONValue;
-          if (!isRecipeExternalDatasetSelection(selection)) {
-            console.warn("Invalid selection format", selection);
-            return prev; // Do not update if selection is invalid
-          }
-          newVariables[name] = {
-            ...currentVar,
-            selection: selection,
-          } as RecipeExternalDataset;
-        }
-        catch (error) {
-          console.warn("Failed to parse selection JSON", error);
-        }
-      }
-      return { ...prev, variables: newVariables };
-    });
-  }
-
   return (
     <CommonVariable
       name={name}
@@ -447,7 +263,7 @@ export function ExternalVariable({
       <select
         defaultValue={variable.dataset || ""}
         disabled={!rules.allowValueEditing}
-        onChange={handleDatasetChange}
+        onChange={(e) => changeDataset(name, e.target.value, setRecipe)}
       >
         <option value="">{t("components:recipe_editor.dataset")}</option>
         {/* <option value={variable.dataset}>{variable.dataset}</option> */}
@@ -460,7 +276,7 @@ export function ExternalVariable({
 
       <input
         defaultValue={variable.tableId || ""}
-        onChange={handleTableChange}
+        onChange={(e) => changeTable(name, e.target.value, setRecipe)}
         type="text"
         disabled={!rules.allowValueEditing}
         placeholder={t("components:recipe_editor.table")}
@@ -468,7 +284,7 @@ export function ExternalVariable({
 
       <input
         defaultValue={JSON.stringify(variable.selection) || ""}
-        onChange={handleSelectionChange}
+        onChange={(e) => changeExternalSelection(name, e.target.value, setRecipe)}
         type="text"
         disabled={!rules.allowValueEditing}
         placeholder={t("components:recipe_editor.selection")}
