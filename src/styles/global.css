@@ -63,7 +63,7 @@ fieldset:not(:has(input:required, select:required, textarea:required)):has(field
 }
 
 /* Temporary while rewriting */
- 
+
 :where(.button) {
   padding: .5rem 1rem;
   background-color: var(--gray-90);
@@ -123,11 +123,12 @@ input:-webkit-autofill:focus {
   padding-inline: .5rem;
   padding-bottom: .25rem;
   min-height: 150px;
-  max-width: 90ch; /* Figure out why this is needed */
+  max-width: 90ch;
+  /* Figure out why this is needed */
   transition: outline-color .1s ease;
 }
 
-.tiptap > :first-child {
+.tiptap> :first-child {
   margin-block: 0;
 }
 
@@ -148,3 +149,14 @@ input:-webkit-autofill:focus {
   pointer-events: none;
 }
 
+/* Hide the spin buttons in WebKit browsers */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide spin buttons in Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}

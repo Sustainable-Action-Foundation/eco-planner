@@ -18,9 +18,9 @@ import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/r
 import { recipeFromUnknown } from "@/functions/parseRecipe";
 import TabList from "@/components/generic/tabview/tabList";
 import { suggestedRecipes, RecipeSuggestions } from "@/components/recipe/suggested";
-import { RecipeEquationEditor } from "@/components/recipe/editor/equation";
-import { RecipeVariableEditor } from "@/components/recipe/editor/variable";
-import { RecipeErrorAndWarnings, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/editor/output";
+import { RecipeEquationEditor } from "@/components/recipe/editor/equation/equation";
+import { RecipeVariableEditor } from "@/components/recipe/editor/variables/variable";
+import { RecipeErrorAndWarnings, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/editor/output/output";
 import RecipeEditor from "@/components/recipe/editor/editor";
 import { treeItem } from "@/components/types";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";

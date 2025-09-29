@@ -4,7 +4,7 @@ import { ReactElement, } from "react";
 import { useTranslation } from "react-i18next";
 import { Locales } from "i18n.config";
 import { IconAlertTriangleFilled, IconCircleCheckFilled, IconCircleXFilled } from "@tabler/icons-react";
-import { useRecipe } from "../contextProvider";
+import { useRecipe } from "../../contextProvider";
 
 // TODO: Rename
 export function RecipeErrorAndWarnings() {

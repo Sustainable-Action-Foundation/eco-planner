@@ -2,7 +2,7 @@
 
 import { emptyRecipe } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
-import { useRecipe } from "../contextProvider";
+import { useRecipe } from "../../contextProvider";
 
 // TODO: Rename
 export function RecipeEquationEditor() {

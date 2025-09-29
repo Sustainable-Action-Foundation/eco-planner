@@ -19,6 +19,7 @@ export type inputElement = genericElement & {
   defaultValue?: string,
 };
 
+// TODO: DO not use name (reserved keyword)
 export type option = {
   name: string,
   value: string,

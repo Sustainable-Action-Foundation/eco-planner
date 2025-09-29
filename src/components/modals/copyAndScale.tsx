@@ -9,8 +9,8 @@ import { IconX } from "@tabler/icons-react";
 import { Recipe } from "@/functions/recipe-parser/types";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
 import { RecipeContextProvider } from "../recipe/contextProvider";
-import { ResultingDataSeries, ResultingRecipe } from "@/components/recipe/editor/output";
-import { RecipeVariableEditor } from "@/components/recipe/editor/variable"; 
+import { ResultingDataSeries, ResultingRecipe } from "@/components/recipe/editor/output/output";
+import { RecipeVariableEditor } from "@/components/recipe/editor/variables/variable"; 
 import { RecipeSuggestions } from "@/components/recipe/suggested"; 
 
 export default function CopyAndScale({

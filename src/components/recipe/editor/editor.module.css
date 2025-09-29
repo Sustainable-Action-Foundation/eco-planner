@@ -5,3 +5,10 @@
     width: 125px;
     min-width: 125px;
 }
+
+.variable-fieldset:disabled :disabled {
+    border-color: transparent;
+    background-color: transparent;
+    color: black;
+    background-image: none; 
+}

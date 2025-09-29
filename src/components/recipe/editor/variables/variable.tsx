@@ -5,12 +5,12 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
-import { DataSeriesVariable, ExternalVariable, ScalarVariable } from "../variables";
-import { Popover, PopoverButton } from "../../generic/popovers/popovers";
+import { DataSeriesVariable, ExternalVariable, ScalarVariable } from "./variables";
+import { Popover, PopoverButton } from "../../../generic/popovers/popovers";
 import { Unit } from 'mathjs'
-import TextSingleAutocomplete from "../../form/elements/combobox/textSingleAutocomplete";
-import { useRecipe } from "../contextProvider";
-import styles from './editor.module.css'
+import TextSingleAutocomplete from "../../../form/elements/combobox/textSingleAutocomplete";
+import { useRecipe } from "../../contextProvider";
+import styles from '../editor.module.css'
 
 // TODO: Rename
 export function RecipeVariableEditor({

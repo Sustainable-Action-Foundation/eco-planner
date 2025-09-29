@@ -1,7 +1,7 @@
 import TabList from "@/components/generic/tabview/tabList";
-import { RecipeErrorAndWarnings, ResultingDataSeries, ResultingRecipe } from "./output";
-import { RecipeVariableEditor } from "@/components/recipe/editor/variable";
-import { RecipeEquationEditor } from "@/components/recipe/editor/equation";
+import { RecipeErrorAndWarnings, ResultingDataSeries, ResultingRecipe } from "./output/output";
+import { RecipeVariableEditor } from "@/components/recipe/editor/variables/variable";
+import { RecipeEquationEditor } from "@/components/recipe/editor/equation/equation";
 
 export default function RecipeEditor() {
   return (
@@ -35,7 +35,7 @@ export default function RecipeEditor() {
             id="variable-editor-panel"
             aria-labelledby="variable-editor-tab"
             className="purewhite padding-25 flex flex-direction-column"
-            style={{ minHeight: '300px', resize: 'vertical', overflow: 'auto' }}
+            style={{ minHeight: '300px', resize: 'vertical', overflow: 'auto', backgroundColor: 'var(--gray-95)' }}
           >
             <RecipeVariableEditor
               allowAddVariables

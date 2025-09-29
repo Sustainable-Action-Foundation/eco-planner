@@ -5,16 +5,17 @@
 // TODO: Fix labels
 
 import { RecipeVariables, RecipeDataTypes, isRecipeDataSeries, RecipeDataSeries, RecipeScalar, RecipeExternalDataset, isRecipeExternalDatasetSelection, emptyRecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
-import { IconTrashXFilled } from "@tabler/icons-react";
+import { IconEdit, IconTrashXFilled } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import React, { useEffect } from "react";
-import { useRecipe } from "./contextProvider";
+import React, { useEffect, useState } from "react";
+import { useRecipe } from "../../contextProvider";
 import { ExternalDataset } from "@/lib/api/utility";
 import { JSONValue } from "@/types";
-import SelectSingleTreeSearch from "../form/elements/combobox/selectSingleTreeSearch";
-import { treeItem } from "../types";
+import SelectSingleTreeSearch from "../../../form/elements/combobox/selectSingleTreeSearch";
+import { treeItem } from "../../../types";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
+import styles from '../editor.module.css' with {type: 'css'}
 
 type InputRules = {
   allowNameEditing?: boolean;
@@ -67,6 +68,7 @@ function CommonVariable({
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
   const variable = recipe?.variables[name] as RecipeVariables;
+  const [editable, setEditable] = useState<boolean>(true)
 
   rules = { ...defaultInputRules, ...rules };
 
@@ -151,46 +153,64 @@ function CommonVariable({
     });
   }
 
+  useEffect(() => {
+    console.log(editable, !rules.allowNameEditing)
+  }, [editable, rules.allowNameEditing])
+ 
   return (
     <li>
-      <label>
-        <input
-          defaultValue={name}
-          onChange={handleNameChange}
-          type="text"
-          placeholder={t("components:recipe_editor.variable_name_placeholder")}
-          readOnly={!rules.allowNameEditing}
-          disabled={!rules.allowNameEditing}
-        />
-      </label>
-      <select
-        defaultValue={variable.type}
-        onChange={handleTypeChange}
-        disabled={!rules.allowTypeEditing}
-      >
-        <option value={RecipeDataTypes.DataSeries}>{t("components:recipe_editor.data_series")}</option>
-        <option value={RecipeDataTypes.External}>{t("components:recipe_editor.external_data")}</option>
-        <option value={RecipeDataTypes.Scalar}>{t("components:recipe_editor.scalar")}</option>
-      </select>
-      <input
-        defaultValue={variable.unit || ""}
-        onChange={handleUnitChange}
-        type="text"
-        disabled={!rules.allowValueEditing}
-        readOnly={!rules.allowValueEditing}
-        placeholder={t("components:recipe_editor.unit_placeholder")}
-      />
-      {children}
-      {rules.allowDeleteVariables &&
-        <button
-          className="padding-25 round transparent margin-left-50"
-          style={{ verticalAlign: 'middle' }}
-          type="button"
-          onClick={handleDelete}
-        >
-          <IconTrashXFilled width={20} height={20} className="grid" />
-        </button>
-      }
+      <fieldset disabled={!editable} className={`padding-25 margin-block-25 smooth ${styles['variable-fieldset']}`} style={{ backgroundColor: 'var(--gray)' }}>
+        <legend className="padding-inline-50">
+          <label>
+            <input
+              defaultValue={name}
+              onChange={handleNameChange}
+              type="text"
+              placeholder={t("components:recipe_editor.variable_name_placeholder")}
+              readOnly={!rules.allowNameEditing || (rules.allowNameEditing && !editable)}
+              disabled={!rules.allowNameEditing || (rules.allowNameEditing && !editable)}
+            />
+          </label>
+          <select
+            defaultValue={variable.type}
+            onChange={handleTypeChange}
+            disabled={!rules.allowTypeEditing || (rules.allowTypeEditing && !editable)}
+          >
+            <option value={RecipeDataTypes.DataSeries}>{t("components:recipe_editor.data_series")}</option>
+            <option value={RecipeDataTypes.External}>{t("components:recipe_editor.external_data")}</option>
+            <option value={RecipeDataTypes.Scalar}>{t("components:recipe_editor.scalar")}</option>
+          </select>
+          <input
+            defaultValue={variable.unit || ""}
+            onChange={handleUnitChange}
+            type="text"
+            disabled={!rules.allowValueEditing || (rules.allowTypeEditing && !editable)}
+            readOnly={!rules.allowValueEditing || (rules.allowValueEditing && !editable)}
+            placeholder={t("components:recipe_editor.unit_placeholder")}
+          />
+          <button
+            className="padding-25 round transparent margin-left-50"
+            style={{ verticalAlign: 'middle' }}
+            type="button"
+            title="Edit" // TODO: I18n
+            onClick={() => setEditable(!editable)}
+          >
+            <IconEdit width={20} height={20} className="grid" />
+          </button>
+        </legend>
+        {children}
+        {rules.allowDeleteVariables &&
+          <button
+            className="padding-25 round transparent margin-left-50"
+            style={{ verticalAlign: 'middle' }}
+            type="button"
+            title="delete" // TODO: I18n
+            onClick={handleDelete}
+          >
+            <IconTrashXFilled width={20} height={20} className="grid" />
+          </button>
+        }
+      </fieldset>
     </li>
   )
 }
