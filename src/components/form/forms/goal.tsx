@@ -16,7 +16,7 @@ import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections
 import { RecipeContextProvider } from "@/components/recipe/contextProvider";
 import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
-import TabList from "@/components/generic/tabview/tabList";
+import TabList from "@/components/generic/tablist/tabList";
 import { suggestedRecipes, RecipeSuggestions } from "@/components/recipe/suggested";
 import { RecipeEquationEditor } from "@/components/recipe/editor/equation/equation";
 import { RecipeVariableEditor } from "@/components/recipe/editor/variables/variable";

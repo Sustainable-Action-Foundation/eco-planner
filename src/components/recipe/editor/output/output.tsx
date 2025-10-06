@@ -5,6 +5,10 @@ import { useTranslation } from "react-i18next";
 import { Locales } from "i18n.config";
 import { IconAlertTriangleFilled, IconCircleCheckFilled, IconCircleXFilled } from "@tabler/icons-react";
 import { useRecipe } from "../../contextProvider";
+import GraphGraph from "@/components/graphs/graphGraph";
+import WrappedChart from "@/lib/chartWrapper";
+import { ApexOptions } from "apexcharts";
+import Chart from "react-apexcharts"
 
 // TODO: Rename
 export function RecipeErrorAndWarnings() {
@@ -93,6 +97,40 @@ export function ResultingDataSeries({ FormElement }: { FormElement?: ReactElemen
   )
 }
 
+export function ResultingGraph() {
+  const { resultingDataSeries } = useRecipe();
+  if (!resultingDataSeries) return null;
+
+  // Extract year and values from keys like "val2020"
+  const entries = Object.entries(resultingDataSeries)
+    .filter(([key]) => key.startsWith("val"))
+    .sort(([a], [b]) => a.localeCompare(b)); // Ensure chronological order
+
+  const years = entries.map(([key]) => key.replace("val", ""));
+  const values = entries.map(([, value]) => value);
+
+  const chartSeries = [
+    {
+      name: "Data",
+      data: values,
+    },
+  ];
+
+  const chartOptions: ApexOptions = {
+    chart: {
+      animations: {enabled: false},
+      type: "line",
+    },
+    xaxis: {
+      categories: years,
+    },
+  };
+
+  return (
+    <Chart options={chartOptions} series={chartSeries} type="line" />
+  );
+}
+
 // TODO: Rename
 export function ResultingRecipe({ FormElement }: { FormElement?: ReactElement }) {
   const { recipe } = useRecipe();
@@ -105,3 +143,4 @@ export function ResultingRecipe({ FormElement }: { FormElement?: ReactElement })
     {FormElement && <FormElement.type {...(FormElement.props || {})} value={JSON.stringify(recipe)} />}
   </>);
 }
+

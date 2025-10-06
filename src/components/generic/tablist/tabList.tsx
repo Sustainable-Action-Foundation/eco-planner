@@ -13,15 +13,11 @@ type TabListProps = {
   children: TabChild | TabChild[];
 };
 
-// TODO: Require children to have a tabname and a tabpanel role
 // TODO: Rename parent folder
-// TODO: Use display: none or visibility: hidden to maintain state?
-
 export default function TabList({ props, styling, defaultIndex, children }: TabListProps) {
   const childrenArray = React.Children.toArray(children) as TabChild[];
   const tabNames = childrenArray.map((child) => child.props["data-tabname"]);
-  const tabIds = childrenArray.map((child) => child.props["id"]);
-
+ 
   const [activeIndex, setActiveIndex] = useState(defaultIndex <= childrenArray.length - 1 ? defaultIndex : 0);
 
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -63,13 +59,23 @@ export default function TabList({ props, styling, defaultIndex, children }: TabL
             onClick={() => setActiveIndex(index)}
             tabIndex={index === activeIndex ? 0 : -1}
             aria-selected={index === activeIndex}
-            aria-controls={tabIds[index]}
+            aria-controls={`${tabNames[index]}-tabpanel`}
             style={{ textTransform: "capitalize" }}
           >
             {tabName}
           </button>
         )}
       </div>
-      {childrenArray[activeIndex]}
+      {childrenArray.map((child, index) => (
+        <div
+          key={`${tabNames[index]}-tabpanel`}
+          role="tabpanel"
+          id={`${tabNames[index]}-tabpanel`}
+          hidden={index !== activeIndex}
+          aria-labelledby={`${tabNames[index]}-tab`}
+        >
+          {child}
+        </div>
+      ))}
     </>);
 }

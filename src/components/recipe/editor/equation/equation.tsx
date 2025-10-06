@@ -4,6 +4,7 @@ import { emptyRecipe } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "../../contextProvider";
 import { useRef } from "react";
+import { IconPlus } from "@tabler/icons-react";
 
 // TODO: Rename
 export function RecipeEquationEditor() {
@@ -41,7 +42,7 @@ export function RecipeEquationEditor() {
   };
 
   return (
-    <>
+    <div className="flex" style={{height: '100%'}}>
       <textarea
         ref={textareaRef}
         rows={3}
@@ -49,16 +50,23 @@ export function RecipeEquationEditor() {
         style={{
           border: '0',
           borderRadius: '.25rem 0 0 0',
+          resize: 'none'
         }}
         value={recipe?.eq || ""}
         onChange={handleUpdatedEq}
       />
-      {recipe?.variables &&
-        Object.entries(recipe.variables).map(([key]) => (
-          <button type="button" key={key} onClick={() => handleInsertVariable(key)}>
-            {key}
-          </button>
-        ))}
-    </>
+      <ul className="padding-inline-25 margin-0 list-style-none" style={{backgroundColor: 'var(--gray-95)', borderLeft: '1px solid var(--gray-90)'}}> {/* Todo: should be a proper menu with keycontrols */}
+        {recipe?.variables &&
+          Object.entries(recipe.variables).map(([key]) => (
+            <li key={key} className="margin-block-25">
+              <button className="width-100 flex gap-100 justify-content-space-between align-items-center" type="button" onClick={() => handleInsertVariable(key)}>
+                {key} {/* TODO: Rename, what is key? */}
+                <IconPlus width={16} height={16} style={{minWidth: '16px'}} />
+              </button>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
   )
 }
