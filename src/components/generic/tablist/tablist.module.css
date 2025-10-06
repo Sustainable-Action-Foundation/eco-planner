@@ -1,5 +1,5 @@
 .tablist [role="tab"]:not(:first-child) {
-    margin-left: 2px;
+    margin-left: 1px;
 }
 
 .tablist [role="tab"]:active {
@@ -34,12 +34,25 @@
 .tablist:not(.simple) [role="tab"] {
     background-color: transparent;
     padding: .3rem .6rem;
+    box-shadow: none;
+    color: gray;
+    transform: translateY(1px);
 }
+ 
 
 .tablist:not(.simple) [role="tab"][aria-selected="true"] {
-    background-color: rgba(153, 211, 255, .5);
+    border-radius: .25rem .25rem 0 0;
+    background-color: white;
+    border: 1px solid var(--gray);
+    border-top: 3px solid var(--blue-40);
+    border-bottom-color: white;
+    padding-bottom: calc(.3rem);
+    color: black;
 }
 
-.tablist:not(.simple) [role="tab"]:focus-visible {
-    outline: 1px solid black;
+.tablist:not(.simple) [role="tab"]:focus-visible,
+.tablist:not(.simple) [role="tab"]:hover  {
+    text-decoration: underline;
+    color: black;
+    outline: 0;
 }

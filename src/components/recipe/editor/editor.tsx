@@ -6,86 +6,62 @@ import { RecipeEquationEditor } from "@/components/recipe/editor/equation/equati
 export default function RecipeEditor() {
   return (
     <>
+      <TabList defaultIndex={1}>
+        <div
+          data-tabname="Recept"
+          style={{
+            resize: 'vertical', 
+            overflow: 'auto',
+            border: '1px solid var(--gray)', 
+            borderRadius: '0 .25rem 0 0'
+          }}
+        >
+          <RecipeEquationEditor />
+        </div>
+        <div
+          data-tabname="Variabler"
+          className="purewhite padding-25 flex flex-direction-column"
+          style={{ border: '1px solid var(--gray)', borderRadius: '.25rem .25rem 0 0', minHeight: '300px', resize: 'vertical', overflow: 'auto', backgroundColor: 'white' }}
+        >
+          <RecipeVariableEditor
+            allowAddVariables
+            allowDeleteVariables
+            allowNameEditing
+            allowTypeEditing
+            allowValueEditing
+          />
+        </div>
+      </TabList>
+          
       <div
-        className="smooth"
-        style={{ backgroundColor: 'white', border: '1px solid var(--gray)' }}
+        className="padding-50"
+        style={{backgroundColor: 'var(--gray-95)', border: '1px solid var(--gray)', borderRadius: '0 0 .25rem .25rem'}}
       >
         <TabList
-          defaultIndex={1}
-          props={{
-            className: "padding-25",
-            style: {
-              borderRadius: '.25rem .25rem 0 0',
-              borderBottom: '1px solid var(--gray)',
-              backgroundColor: 'var(--gray-95)',
-            }
-          }}
+          defaultIndex={0}
+          styling="simple"
         >
           <div
-            data-tabname="Recept"
-            style={{
-              resize: 'vertical', 
-              overflow: 'auto'
-            }}
+            data-tabname="problem" // TODO: Show a count of the problems // TODO: Rename, validering? // TODO: Show fallback if there is no problem
+            className="padding-top-50"
           >
-            <RecipeEquationEditor />
+            <RecipeErrorAndWarnings />
           </div>
           <div
-            data-tabname="Variabler"
-            className="purewhite padding-25 flex flex-direction-column"
-            style={{ minHeight: '300px', resize: 'vertical', overflow: 'auto', backgroundColor: 'var(--gray-95)' }}
+            data-tabname="dataserie"
+            className="padding-top-50" // TODO: Show fallback if there is  no resultingdata-series
           >
-            <RecipeVariableEditor
-              allowAddVariables
-              allowDeleteVariables
-              allowNameEditing
-              allowTypeEditing
-              allowValueEditing
-            />
+            <ResultingDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />
+          </div>
+          <div
+            data-tabname="graph"// TODO: Show fallback if there is  no resultingdata-series
+            className="padding-top-50" 
+          >
+            <ResultingGraph />
           </div>
         </TabList>
-        {/* A list of all variables goes here. */}
-        <div
-          style={{
-            borderTop: '1px solid var(--gray)',
-            backgroundColor: 'var(--gray-95)',
-            padding: ".25rem",
-            borderRadius: '0 0 .25rem .25rem'
-          }}
-        >
-          <TabList
-            defaultIndex={0}
-            styling="simple"
-            props={{
-              className: "padding-block-25 margin-bottom-25 flex",
-
-            }}
-          >
-            <div
-              data-tabname="problem" // TODO: Show a count of the problems // TODO: Rename, validering?
-              className="padding-25 padding-top-50"
-              style={{ borderTop: '1px solid var(--gray)' }} // TODO: Show fallback if there is no problem
-            >
-              <RecipeErrorAndWarnings />
-            </div>
-            <div
-              data-tabname="dataserie"
-              className="padding-25 padding-top-50" // TODO: Show fallback if there is  no resultingdata-series
-              style={{ borderTop: '1px solid var(--gray)' }}
-            >
-              <ResultingDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />
-            </div>
-            <div
-              data-tabname="graph"
-              className="padding-25 padding-top-50" // TODO: Show fallback if there is  no resultingdata-series
-              style={{ borderTop: '1px solid var(--gray)' }}
-            >
-              <ResultingGraph />
-            </div>
-          </TabList>
-        </div>
       </div>
-
+      
       <label className="width-100">
         <ResultingRecipe FormElement={<input type="hidden" name="resultingRecipe" />} /> {/* TODO: What is this? */}
       </label>

@@ -312,7 +312,7 @@ export default function GoalForm({
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_baseline_for_actions")}</legend>
           <label>
             {t("forms:goal.baseline_label")}
-            <select className="margin-top-25 margin-bottom-100" name="baselineSelector" id="baselineSelector" value={baselineType} onChange={(e) => setBaselineType(e.target.value as BaselineType)}>
+            <select className="block margin-top-25 margin-bottom-100" name="baselineSelector" id="baselineSelector" value={baselineType} onChange={(e) => setBaselineType(e.target.value as BaselineType)}>
               <option value={BaselineType.Initial}>{t("forms:goal.baseline_types.initial")}</option>
               <option value={BaselineType.Custom}>{t("forms:goal.baseline_types.custom")}</option>
               <option value={BaselineType.Inherited}>{t("forms:goal.baseline_types.inherited")}</option>
