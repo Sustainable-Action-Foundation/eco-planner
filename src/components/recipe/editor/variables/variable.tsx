@@ -128,7 +128,7 @@ export function RecipeVariableEditor({
 
   return (
     <>
-      <ul className={`list-style-none padding-0 margin-0 flex-grow-100 ${styles['variable-list']}`}>
+      <ul className={`list-style-none padding-0 margin-0 flex-grow-100 ${styles['variable-list']}`} > {/* TODO: Should be a menu where all variables are menuitems */}
         {Object.entries(recipe?.variables || []).map(([name, variable], i) => {
           const rules = {
             allowAddVariables,
