@@ -18,8 +18,8 @@ import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/r
 import { recipeFromUnknown } from "@/functions/parseRecipe";
 import TabList from "@/components/generic/tablist/tabList";
 import { suggestedRecipes, RecipeSuggestions } from "@/components/recipe/suggested";
-import { RecipeEquationEditor } from "@/components/recipe/editor/equation/equation";
-import { RecipeVariableEditor } from "@/components/recipe/editor/variables/variable";
+import { RecipeEquationEditor } from "@/components/recipe/editor/equation/editor";
+import { RecipeVariableEditor } from "@/components/recipe/editor/variable/editor";
 import { RecipeErrorAndWarnings, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/editor/output/output";
 import RecipeEditor from "@/components/recipe/editor/editor";
 import { treeItem } from "@/components/types";

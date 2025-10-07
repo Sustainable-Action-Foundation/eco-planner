@@ -1,13 +1,16 @@
 import TabList from "@/components/generic/tablist/tabList";
-import { RecipeErrorAndWarnings, ResultingDataSeries, ResultingGraph, ResultingRecipe } from "./output/output";
-import { RecipeVariableEditor } from "@/components/recipe/editor/variables/variable";
-import { RecipeEquationEditor } from "@/components/recipe/editor/equation/equation";
-import CreateVariable from "./variables/createVariable";
+import { ResultingRecipe } from "./output/output";
+import OutputGraph from "./output/graph";
+import OutputDataSeries  from "./output/dataSerie";
+import OutputStatus from "./output/status";
+import RecipeEquationEditor from "@/components/recipe/editor/equation/editor";
+import VariableCreator from "./variable/creator";
+import VariableEditor  from "@/components/recipe/editor/variable/editor";
 
 export default function RecipeEditor() {
   return (
     <>
-      <TabList defaultIndex={1} menuItems={<CreateVariable allowAddVariables={true}/>}>
+      <TabList defaultIndex={1} menuItems={<VariableCreator allowAddVariables={true}/>}>
         <div
           data-tabname="Recept"
           style={{
@@ -24,7 +27,7 @@ export default function RecipeEditor() {
           className="purewhite padding-25 flex flex-direction-column"
           style={{ border: '1px solid var(--gray)', borderRadius: '.25rem .25rem 0 0', minHeight: '225px', resize: 'vertical', overflow: 'auto', backgroundColor: 'white' }}
         >
-          <RecipeVariableEditor
+          <VariableEditor
             allowAddVariables
             allowDeleteVariables
             allowNameEditing
@@ -43,22 +46,22 @@ export default function RecipeEditor() {
           styling="simple"
         >
           <div
-            data-tabname="problem" // TODO: Show a count of the problems // TODO: Rename, validering? // TODO: Show fallback if there is no problem
+            data-tabname="Status" // TODO: Show a count of the problems // TODO: Rename, validering? // TODO: Show fallback if there is no problem
             className="padding-top-50"
           >
-            <RecipeErrorAndWarnings />
+            <OutputStatus />
           </div>
           <div
             data-tabname="dataserie"
             className="padding-top-50" // TODO: Show fallback if there is  no resultingdata-series
           >
-            <ResultingDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />
+            <OutputDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />
           </div>
           <div
             data-tabname="graph"// TODO: Show fallback if there is  no resultingdata-series
             className="padding-top-50" 
           >
-            <ResultingGraph />
+            <OutputGraph />
           </div>
         </TabList>
       </div>

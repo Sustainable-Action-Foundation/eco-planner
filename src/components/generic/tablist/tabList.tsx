@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from './tablist.module.css' with { type: "css" }
 import { genericElement } from "@/components/types";
-import CreateVariable from "@/components/recipe/editor/variables/createVariable";
+import CreateVariable from "@/components/recipe/editor/variable/creator";
 
 type TabChild = React.ReactElement<{ "data-tabname": string, "id": string }>;
 

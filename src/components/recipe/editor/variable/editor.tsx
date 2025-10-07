@@ -1,19 +1,17 @@
 'use client'
 
-import { emptyRecipe, emptyRecipeDataTypes, RecipeDataTypes, RecipeVariables } from "@/functions/recipe-parser/types";
+import { RecipeDataTypes, RecipeVariables } from "@/functions/recipe-parser/types";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
-import { DataSeriesVariable, ExternalVariable, ScalarVariable } from "./variables";
-import { Popover, PopoverButton } from "../../../generic/popovers/popovers";
-import { Unit } from 'mathjs'
-import TextSingleAutocomplete from "../../../form/elements/combobox/textSingleAutocomplete";
+import VariableTypeDataSeries from "./types/dataserie";
+import VariableTypeExternal from "./types/external";
+import VariableTypeScalar from "./types/scalar";
 import { useRecipe } from "../../contextProvider";
 import styles from '../editor.module.css'
 
-// TODO: Rename
-export function RecipeVariableEditor({
+export default function VariableEditor({
   allowAddVariables = false,
   allowDeleteVariables = false,
   allowNameEditing = false,
@@ -105,50 +103,50 @@ export function RecipeVariableEditor({
   }, [recipe, selectedRoadmaps]);
 
   return (
-    <>
-      <ul className={`list-style-none padding-50 margin-0 flex-grow-100 ${styles['variable-list']}`} > {/* TODO: Should be a menu where all variables are menuitems */}
-        {Object.entries(recipe?.variables || []).map(([name, variable], i) => {
-          const rules = {
-            allowAddVariables,
-            allowDeleteVariables,
-            allowNameEditing,
-            allowTypeEditing,
-            allowValueEditing,
-          };
-          switch (variable.type) {
-            case RecipeDataTypes.Scalar:
-              return (
-                <ScalarVariable
-                  key={"recipeVariable" + i}
-                  name={name}
-                  rules={rules}
-                />
-              )
-            case RecipeDataTypes.DataSeries:
-              return (
-                <DataSeriesVariable
-                  key={"recipeVariable" + i}
-                  name={name}
-                  rules={rules}
-                  availableRoadmaps={availableRoadmaps}
-                  availableDataSeries={availableDataSeries}
-                  setSelectedRoadmaps={setSelectedRoadmaps}
-                />
-              )
-            case RecipeDataTypes.External:
-              return (
-                <ExternalVariable
-                  key={"recipeVariable" + i}
-                  name={name}
-                  rules={rules}
-                />
-              )
-            default:
-              variable = variable as RecipeVariables;
-              console.warn("Unknown variable type", variable.type, "for variable", name);
-          }
-        })}
-      </ul>
-    </>
+    <ul
+      className={`list-style-none padding-50 margin-0 flex-grow-100 ${styles['variable-list']}`}
+    > {/* TODO: Should be a menu where all variables are menuitems */}
+      {Object.entries(recipe?.variables || []).map(([name, variable], i) => {
+        const rules = {
+          allowAddVariables,
+          allowDeleteVariables,
+          allowNameEditing,
+          allowTypeEditing,
+          allowValueEditing,
+        };
+        switch (variable.type) {
+          case RecipeDataTypes.Scalar:
+            return (
+              <VariableTypeScalar
+                key={"recipeVariable" + i}
+                name={name}
+                rules={rules}
+              />
+            )
+          case RecipeDataTypes.DataSeries:
+            return (
+              <VariableTypeDataSeries
+                key={"recipeVariable" + i}
+                name={name}
+                rules={rules}
+                availableRoadmaps={availableRoadmaps}
+                availableDataSeries={availableDataSeries}
+                setSelectedRoadmaps={setSelectedRoadmaps}
+              />
+            )
+          case RecipeDataTypes.External:
+            return (
+              <VariableTypeExternal
+                key={"recipeVariable" + i}
+                name={name}
+                rules={rules}
+              />
+            )
+          default:
+            variable = variable as RecipeVariables;
+            console.warn("Unknown variable type", variable.type, "for variable", name);
+        }
+      })}
+    </ul>
   );
 }

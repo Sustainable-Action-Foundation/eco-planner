@@ -7,8 +7,9 @@ import { emptyRecipe, emptyRecipeDataTypes, RecipeDataTypes } from "@/functions/
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { Unit } from "mathjs";
 import { useTranslation } from "react-i18next";
+import { IconPlus } from "@tabler/icons-react";
 
-export default function CreateVariable({
+export default function VariableCreator({
   allowAddVariables = false,
 }: {
   allowAddVariables?: boolean;
@@ -47,9 +48,11 @@ export default function CreateVariable({
           <PopoverButton
             anchorName="--add-variable-popover-button"
             popoverTarget="add-variable-popover"
+            className="flex gap-75 align-items-center round"
             style={{ transform: 'scale(1)', padding: '.3rem .6rem' }}
           >
             {t("components:copy_and_scale.add_variable")}
+            <IconPlus height={16} width={16} aria-hidden="true" />
           </PopoverButton>
           <Popover
             id="add-variable-popover"

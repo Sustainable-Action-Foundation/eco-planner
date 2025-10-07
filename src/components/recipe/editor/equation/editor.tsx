@@ -6,8 +6,7 @@ import { useRecipe } from "../../contextProvider";
 import React, { useRef, useState } from "react";
 import { IconPlus } from "@tabler/icons-react";
 
-// TODO: Rename
-export function RecipeEquationEditor() {
+export default function EquationEditor() {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
