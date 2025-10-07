@@ -1,3 +1,7 @@
+.tablist [role="tab"] {
+    cursor: pointer;
+}
+
 .tablist [role="tab"]:not(:first-child) {
     margin-left: 1px;
 }
@@ -14,7 +18,7 @@
     background-color: transparent;
     padding: 0;
     border-radius: 0;
-    color: gray;
+    color: #4f4f4f;
     font-weight: 600;
 }
 
@@ -35,7 +39,7 @@
     background-color: transparent;
     padding: .3rem .6rem;
     box-shadow: none;
-    color: gray;
+    color: #4f4f4f;
     transform: translateY(1px);
 }
  

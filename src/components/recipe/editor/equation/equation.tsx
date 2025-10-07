@@ -43,7 +43,7 @@ export function RecipeEquationEditor() {
   };
 
   return (
-    <div className="flex" style={{height: '100%'}}>
+    <div className="flex" style={{minHeight: '225px'}}>
       <textarea
         ref={textareaRef}
         rows={3}

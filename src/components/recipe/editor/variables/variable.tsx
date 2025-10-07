@@ -104,31 +104,9 @@ export function RecipeVariableEditor({
 
   }, [recipe, selectedRoadmaps]);
 
-  const [newVariableName, setNewVariableName] = useState<string>('') // TODO: Can bunch into one
-  const [newVariableUnit, setNewVariableUnit] = useState<string>('')
-  const [newVariableType, setNewVariableType] = useState<RecipeDataTypes | undefined>(undefined)
-
-  // Hard coded to make a new data series variable. TODO: reconsider this behavior
-  const handleAddVariable = () => {
-    if (newVariableType === undefined || newVariableName === '') return // TODO: Need to show that something is wrong to the user
-    setRecipe(prev => {
-      prev = prev || emptyRecipe;
-      return {
-        ...prev,
-        variables: {
-          ...prev.variables,
-          [newVariableName]: { ...emptyRecipeDataTypes[newVariableType], unit: newVariableUnit },
-        }
-      }
-    });
-    setNewVariableName('')
-    setNewVariableUnit('')
-    setNewVariableType(undefined)
-  };
-
   return (
     <>
-      <ul className={`list-style-none padding-0 margin-0 flex-grow-100 ${styles['variable-list']}`} > {/* TODO: Should be a menu where all variables are menuitems */}
+      <ul className={`list-style-none padding-50 margin-0 flex-grow-100 ${styles['variable-list']}`} > {/* TODO: Should be a menu where all variables are menuitems */}
         {Object.entries(recipe?.variables || []).map(([name, variable], i) => {
           const rules = {
             allowAddVariables,
@@ -171,111 +149,6 @@ export function RecipeVariableEditor({
           }
         })}
       </ul>
-      {/* TODO: I18n */}
-      {allowAddVariables &&
-        <>
-          <PopoverButton
-            anchorName="--add-variable-popover-button"
-            popoverTarget="add-variable-popover"
-            className="font-weight-600 margin-left-auto block"
-            style={{ transform: 'scale(1)' }}
-          >
-            {t("components:copy_and_scale.add_variable")}
-          </PopoverButton>
-          <Popover
-            id="add-variable-popover"
-            popover="auto"
-            positionAnchor="--add-variable-popover-button"
-            anchorInlinePosition="center"
-            popoverDirection={{
-              vertical: 'down',
-              horizontal: 'left'
-            }}
-            margin='.5rem'
-          >
-            <fieldset
-              className="padding-50 smooth"
-              style={{
-                border: '1px solid var(--gray)',
-                backgroundColor: 'white',
-              }}
-            >
-              <label htmlFor="variable-name" className="cursor-text">
-                Namn
-              </label>
-              <input
-                type="text"
-                id="variable-name"
-                className="margin-bottom-50"
-                style={{ backgroundColor: 'var(--gray-95)' }}
-                placeholder="Variabel 1" // TODO: I18n
-                value={newVariableName}
-                onChange={(e) => setNewVariableName(e.target.value)}
-              />
-              <label htmlFor="variable-unit">
-                Enhet
-              </label>
-              <TextSingleAutocomplete
-                props={{
-                  id: "variable-unit",
-                  name: "variable-unit",
-                  placeholder: "Skriv för att se förslag" // TODO: I18n 
-                }}
-                theme={{
-                  style: { backgroundColor: 'var(--gray-95)' }
-                }}
-                options={Object.keys(Unit.UNITS).map(unit => ({ name: unit, value: unit }))}
-                maxOptions={2.55}
-                onChange={(unit) => { setNewVariableUnit(unit) }}
-              />
-              <div className="margin-block-100">
-                <label className="block margin-left-25">
-                  <input
-                    type="radio"
-                    className="margin-right-25"
-                    name="variable-type"
-                    value={RecipeDataTypes.Scalar}
-                    checked={newVariableType === RecipeDataTypes.Scalar}
-                    onChange={() => setNewVariableType(RecipeDataTypes.Scalar)}
-                  />
-                  Skalär
-                </label>
-                <label className="block margin-left-25 margin-top-25">
-                  <input
-                    type="radio"
-                    className="margin-right-25"
-                    name="variable-type"
-                    value={RecipeDataTypes.DataSeries}
-                    checked={newVariableType === RecipeDataTypes.DataSeries}
-                    onChange={() => setNewVariableType(RecipeDataTypes.DataSeries)}
-                  />
-                  Dataserie
-                </label>
-                <label className="block margin-left-25 margin-top-25">
-                  <input
-                    type="radio"
-                    className="margin-right-25"
-                    name="variable-type"
-                    value={RecipeDataTypes.External}
-                    checked={newVariableType === RecipeDataTypes.External}
-                    onChange={() => setNewVariableType(RecipeDataTypes.External)}
-                  />
-                  Extern data
-                </label>
-              </div>
-              <button
-                type="button"
-                className="width-100 color-purewhite font-weight-600 margin-top-50"
-                style={{ backgroundColor: '#191919' }}
-                popoverTarget='add-variable-popover'
-                onClick={handleAddVariable}
-              >
-                Skapa variabel
-              </button>
-            </fieldset>
-          </Popover>
-        </>
-      }
     </>
   );
 }

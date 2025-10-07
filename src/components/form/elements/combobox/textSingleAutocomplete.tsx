@@ -77,6 +77,7 @@ export default function TextSingleAutocomplete({
             ? {
               ref: comboboxRef,
               onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => {
+                e.stopPropagation()
                 if (!comboboxRef.current) return;
                 handleKeyDownEditableCombobox(
                   e,

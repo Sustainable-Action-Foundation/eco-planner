@@ -2,11 +2,12 @@ import TabList from "@/components/generic/tablist/tabList";
 import { RecipeErrorAndWarnings, ResultingDataSeries, ResultingGraph, ResultingRecipe } from "./output/output";
 import { RecipeVariableEditor } from "@/components/recipe/editor/variables/variable";
 import { RecipeEquationEditor } from "@/components/recipe/editor/equation/equation";
+import CreateVariable from "./variables/createVariable";
 
 export default function RecipeEditor() {
   return (
     <>
-      <TabList defaultIndex={1}>
+      <TabList defaultIndex={1} menuItems={<CreateVariable allowAddVariables={true}/>}>
         <div
           data-tabname="Recept"
           style={{
@@ -21,7 +22,7 @@ export default function RecipeEditor() {
         <div
           data-tabname="Variabler"
           className="purewhite padding-25 flex flex-direction-column"
-          style={{ border: '1px solid var(--gray)', borderRadius: '.25rem .25rem 0 0', minHeight: '300px', resize: 'vertical', overflow: 'auto', backgroundColor: 'white' }}
+          style={{ border: '1px solid var(--gray)', borderRadius: '.25rem .25rem 0 0', minHeight: '225px', resize: 'vertical', overflow: 'auto', backgroundColor: 'white' }}
         >
           <RecipeVariableEditor
             allowAddVariables

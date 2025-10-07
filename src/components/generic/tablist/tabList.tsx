@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from './tablist.module.css' with { type: "css" }
 import { genericElement } from "@/components/types";
+import CreateVariable from "@/components/recipe/editor/variables/createVariable";
 
 type TabChild = React.ReactElement<{ "data-tabname": string, "id": string }>;
 
@@ -11,10 +12,10 @@ type TabListProps = {
   styling?: "simple" | "default",
   defaultIndex: number,
   children: TabChild | TabChild[];
+  menuItems?: React.ReactNode;
 };
 
-// TODO: Rename parent folder
-export default function TabList({ props, styling, defaultIndex, children }: TabListProps) {
+export default function TabList({ props, styling, defaultIndex, children, menuItems }: TabListProps) {
   const childrenArray = React.Children.toArray(children) as TabChild[];
   const tabNames = childrenArray.map((child) => child.props["data-tabname"]);
  
@@ -65,6 +66,9 @@ export default function TabList({ props, styling, defaultIndex, children }: TabL
             {tabName}
           </button>
         )}
+        {menuItems ? 
+          <div style={{float: 'right'}} onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {e.stopPropagation()}} className="inline-block">{menuItems}</div>
+        : null }
       </div>
       {childrenArray.map((child, index) => (
         <div
