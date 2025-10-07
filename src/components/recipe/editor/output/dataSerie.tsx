@@ -4,6 +4,7 @@ import { ReactElement, } from "react";
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "../../contextProvider"; 
 
+// TODO: Does this take historical data into account? Do we need to account for it?
 export default function OutputDataSeries({ FormElement }: { FormElement?: ReactElement }) {
   const { t } = useTranslation("components");
   const { resultingDataSeries, resultingUnit } = useRecipe();

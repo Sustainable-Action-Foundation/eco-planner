@@ -4,6 +4,7 @@ import { useRecipe } from "../../contextProvider";
 import { ApexOptions } from "apexcharts";
 import Chart from "react-apexcharts"
 
+// TODO: Does this take historical data into account? Do we need to account for it?
 export default function OutputGraph() {
   const { resultingDataSeries } = useRecipe();
   if (!resultingDataSeries) return null;
@@ -26,6 +27,8 @@ export default function OutputGraph() {
     chart: {
       animations: {enabled: false},
       type: "line",
+      zoom: {enabled: false},
+      toolbar: {show: false}
     },
     xaxis: {
       categories: years,
