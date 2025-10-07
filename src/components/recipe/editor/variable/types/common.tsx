@@ -23,7 +23,7 @@ export default function VariableTypeCommon({
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
   const variable = recipe?.variables[name] as RecipeVariables;
-  const [editable, setEditable] = useState<boolean>(true)
+  const [editable, setEditable] = useState<boolean>(false)
 
   rules = { ...defaultInputRules, ...rules };
 
@@ -32,58 +32,66 @@ export default function VariableTypeCommon({
   }, [editable, rules.allowNameEditing])
 
   return (
-    <li>
-      <fieldset disabled={!editable} className={`padding-25 margin-block-25 smooth ${styles['variable-fieldset']}`} style={{ backgroundColor: 'var(--gray)' }}>
-        <legend className="padding-inline-50">
-          <label>
-            <input
-              defaultValue={name}
-              onChange={(e) => changeName(name, e.target.value, setRecipe)}
-              type="text"
-              placeholder={t("components:recipe_editor.variable_name_placeholder")}
-              readOnly={!rules.allowNameEditing || (rules.allowNameEditing && !editable)}
-              disabled={!rules.allowNameEditing || (rules.allowNameEditing && !editable)}
-            />
-          </label>
-          <select
-            defaultValue={variable.type}
-            onChange={(e) => changeType(name, e.target.value, setRecipe)}
-            disabled={!rules.allowTypeEditing || (rules.allowTypeEditing && !editable)}
-          >
-            <option value={RecipeDataTypes.DataSeries}>{t("components:recipe_editor.data_series")}</option>
-            <option value={RecipeDataTypes.External}>{t("components:recipe_editor.external_data")}</option>
-            <option value={RecipeDataTypes.Scalar}>{t("components:recipe_editor.scalar")}</option>
-          </select>
+    <li className="padding-bottom-75 margin-bottom-75">
+      <fieldset // TODO: See if fieldset makes sense here (we only do this stuff on the client)  
+        // disabled={!editable}
+        className={`flex gap-100 align-items-flex-start justify-content-space-between ${styles['variable-fieldset']}`}
+      >
+      <button
+        className="padding-25 round transparent margin-left-50"
+        style={{ verticalAlign: 'middle' }}
+        type="button"
+        title="Edit" // TODO: I18n
+        onClick={() => setEditable(!editable)}
+      >
+        <IconEdit width={20} height={20} className="grid" />
+      </button>
+      <div className="grid" style={{gridTemplateColumns: 'auto auto', gridTemplateRows: 'auto auto'}}>
+        <label>
           <input
-            defaultValue={variable.unit || ""}
-            onChange={(e) => changeUnit(name, e.target.value, setRecipe)}
+            style={{gridRow: '1', gridColumn: '1'}}
+            defaultValue={name}
+            onChange={(e) => changeName(name, e.target.value, setRecipe)}
             type="text"
-            disabled={!rules.allowValueEditing || (rules.allowTypeEditing && !editable)}
-            readOnly={!rules.allowValueEditing || (rules.allowValueEditing && !editable)}
-            placeholder={t("components:recipe_editor.unit_placeholder")}
+            placeholder={t("components:recipe_editor.variable_name_placeholder")}
+            readOnly={!rules.allowNameEditing || (rules.allowNameEditing && !editable)}
+            disabled={!rules.allowNameEditing || (rules.allowNameEditing && !editable)}
           />
-          <button
-            className="padding-25 round transparent margin-left-50"
-            style={{ verticalAlign: 'middle' }}
-            type="button"
-            title="Edit" // TODO: I18n
-            onClick={() => setEditable(!editable)}
-          >
-            <IconEdit width={20} height={20} className="grid" />
-          </button>
-        </legend>
+        </label>
+        <input
+          style={{gridRow: '1', gridColumn: '2'}}
+          defaultValue={variable.unit || ""}
+          onChange={(e) => changeUnit(name, e.target.value, setRecipe)}
+          type="text"
+          disabled={!rules.allowValueEditing || (rules.allowTypeEditing && !editable)}
+          readOnly={!rules.allowValueEditing || (rules.allowValueEditing && !editable)}
+          placeholder={t("components:recipe_editor.unit_placeholder")}
+        />
+        <select
+          style={{gridRow: '2', gridColumn: '1'}}
+          defaultValue={variable.type}
+          onChange={(e) => changeType(name, e.target.value, setRecipe)}
+          disabled={!rules.allowTypeEditing || (rules.allowTypeEditing && !editable)}
+        >
+          <option value={RecipeDataTypes.DataSeries}>{t("components:recipe_editor.data_series")}</option>
+          <option value={RecipeDataTypes.External}>{t("components:recipe_editor.external_data")}</option>
+          <option value={RecipeDataTypes.Scalar}>{t("components:recipe_editor.scalar")}</option>
+        </select>
+      </div>
+      <div className="flex-grow-100">
         {children}
-        {rules.allowDeleteVariables &&
-          <button
-            className="padding-25 round transparent margin-left-50"
-            style={{ verticalAlign: 'middle' }}
-            type="button"
-            title="delete" // TODO: I18n
-            onClick={() => deleteVariable(name, setRecipe)}
-          >
-            <IconTrashXFilled width={20} height={20} className="grid" />
-          </button>
-        }
+      </div>
+      {rules.allowDeleteVariables &&
+        <button
+          className="padding-25 round transparent margin-left-50"
+          style={{ verticalAlign: 'middle' }}
+          type="button"
+          title="delete" // TODO: I18n
+          onClick={() => deleteVariable(name, setRecipe)}
+        >
+          <IconTrashXFilled width={20} height={20} className="grid" />
+        </button>
+      }
       </fieldset>
     </li>
   )

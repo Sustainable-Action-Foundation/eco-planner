@@ -17,3 +17,11 @@
     color: black;
     background-image: none; 
 }
+
+.variable-list li:first-of-type {
+    margin-top: .25rem;
+}
+
+.variable-list li:not(:last-of-type) {
+    border-bottom: 1px solid var(--gray);
+}

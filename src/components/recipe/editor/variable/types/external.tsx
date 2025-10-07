@@ -1,3 +1,5 @@
+"use client"
+
 import { useRecipe } from "@/components/recipe/contextProvider";
 import { RecipeExternalDataset } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";

@@ -1,3 +1,5 @@
+"use client"
+
 import { VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
 import { InputRules, defaultInputRules } from "./rules";
