@@ -74,6 +74,7 @@ export default function EquationEditor() {
           }
         }}
       > {/* Todo: should be a proper menu with keycontrols */}
+        <h2 className="font-weight-normal text-align-center margin-block-25 padding-bottom-25" style={{fontSize: '14px', borderBottom: '1px solid var(--gray)'}}>Variabler</h2>
         {recipe?.variables &&
           Object.entries(recipe.variables).map(([key], index) => (
             <li key={key} role="presentation">
