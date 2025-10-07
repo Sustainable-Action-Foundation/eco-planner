@@ -302,6 +302,9 @@ export default function GoalForm({
           {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
             <RecipeContextProvider>
               <RecipeSuggestions suggestedRecipes={suggestedRecipes} />
+              <label className="block margin-bottom-25">
+                Skapa recept {/* TODO: I18n */}
+              </label>
               <RecipeEditor />
             </RecipeContextProvider>
           }

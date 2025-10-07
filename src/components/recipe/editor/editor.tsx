@@ -36,7 +36,7 @@ export default function RecipeEditor() {
           
       <div
         className="padding-50"
-        style={{backgroundColor: 'var(--gray-95)', border: '1px solid var(--gray)', borderRadius: '0 0 .25rem .25rem'}}
+        style={{backgroundColor: 'var(--gray-95)', border: '1px solid var(--gray)', borderTop: '0', borderRadius: '0 0 .25rem .25rem'}}
       >
         <TabList
           defaultIndex={0}
