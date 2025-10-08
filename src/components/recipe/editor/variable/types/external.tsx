@@ -63,3 +63,52 @@ export default function VariableTypeExternal({
     </VariableTypeCommon>
   )
 }
+
+
+export function VariableTypeExternalSimple({
+  name,
+  rules
+}: {
+  name: string,
+  rules?: InputRules
+}) {
+  const { t } = useTranslation("components");
+  const { recipe, setRecipe } = useRecipe();
+  const variable = recipe?.variables[name] as RecipeExternalDataset;
+
+  rules = { ...defaultInputRules, ...rules };
+
+  return (
+    <div className="flex gap-25">
+      <select
+        defaultValue={variable.dataset || ""}
+        disabled={!rules.allowValueEditing}
+        onChange={(e) => changeDataset(name, e.target.value, setRecipe)}
+      >
+        <option value="">{t("components:recipe_editor.dataset")}</option>
+        {/* <option value={variable.dataset}>{variable.dataset}</option> */}
+        {ExternalDataset.knownDatasetKeys.map((datasetName, i) => (
+          <option key={`datasetOption-${i}`} value={datasetName}>
+            {datasetName}
+          </option>
+        ))}
+      </select>
+      <input
+        className="inline width-auto"
+        defaultValue={variable.tableId || ""}
+        onChange={(e) => changeTable(name, e.target.value, setRecipe)}
+        type="text"
+        disabled={!rules.allowValueEditing}
+        placeholder={t("components:recipe_editor.table")}
+      />
+      <input
+        className="inline width-auto"
+        defaultValue={JSON.stringify(variable.selection) || ""}
+        onChange={(e) => changeExternalSelection(name, e.target.value, setRecipe)}
+        type="text"
+        disabled={!rules.allowValueEditing}
+        placeholder={t("components:recipe_editor.selection")}
+      />
+    </div>
+  )
+}

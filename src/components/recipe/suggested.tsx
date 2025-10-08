@@ -4,11 +4,15 @@ import { isRecipe, Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/f
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "./contextProvider";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
-import VariableTypeScalar, { VariableTypeScalarSimple } from "./editor/variable/types/scalar";
-import VariableTypeDataSeries from "./editor/variable/types/dataserie";
-import VariableTypeExternal from "./editor/variable/types/external";
+import { VariableTypeScalarSimple } from "./editor/variable/types/scalar";
+import { VariableTypeDataSeriesSimple } from "./editor/variable/types/dataserie";
+import { VariableTypeExternalSimple } from "./editor/variable/types/external";
 import { useEffect, useState } from "react";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
+import TabList from "../generic/tablist/tabList";
+import OutputStatus from "./editor/output/status";
+import OutputDataSeries from "./editor/output/dataSerie";
+import OutputGraph from "./editor/output/graph";
 
 // TODO: Rename (SuggestedRecipes)
 export function RecipeSuggestions({
@@ -35,6 +39,7 @@ export function RecipeSuggestions({
   const [availableDataSeries, setAvailableDataSeries] = useState<{ id: string; name: string; roadmapId: string; }[]>([]);
 
   // On mount, fetch all roadmaps user has access to
+  // TODO: This is reused from editor/variable/editor.tsx, can probably abstract this somehow
   useEffect(() => {
     async function fetchRoadmaps() {
       try {
@@ -90,63 +95,83 @@ export function RecipeSuggestions({
           </option>
         ))}
       </select>
-      <ul>
-        {Object.entries(recipe?.variables ?? {}).map(([key, variable], i) => {
-          const rules = {
-            allowAddVariables,
-            allowDeleteVariables,
-            allowNameEditing,
-            allowTypeEditing,
-            allowValueEditing,
-          };
+      {/* TODO: Potentially want this inside a fieldset */}
+      {/* TODO: Note that labels are as of now not valid. I believe however that it will be solved with tree select as this should reduce the number of items in a simple variabletype to one */}
+      {/* TODO: Note that this stuff needs to be submitted alongside the form which it isnt right now (i think....) */}
+      {/* TODO: We should be using a grid instead of flex to properly align items here */}
+      {Object.entries(recipe?.variables ?? {}).map(([key, variable], i) => {
+        const rules = {
+          allowAddVariables,
+          allowDeleteVariables,
+          allowNameEditing,
+          allowTypeEditing,
+          allowValueEditing,
+        };
 
-          switch (variable.type) {
-            case RecipeDataTypes.Scalar:
-              return (
-                <label key={key}>
-                  <span className="margin-right-100">{key}{variable.unit ? ` [${variable.unit}]` : ''}:</span>
-                  <VariableTypeScalarSimple
-                    key={"recipeVariable" + i}
-                    name={key}
-                    rules={rules}
-                  />
-                </label>
-              );
-            case RecipeDataTypes.DataSeries:
-              return (
-                <label key={key}>
-                  <span className="margin-right-100">{key}: {variable.unit}</span>
-                  <VariableTypeDataSeries
-                    key={"recipeVariable" + i}
-                    name={key}
-                    rules={rules}
-                    availableRoadmaps={availableRoadmaps}
-                    availableDataSeries={availableDataSeries}
-                    setSelectedRoadmaps={setSelectedRoadmaps}
-                  />
-                </label>
-              );
-            case RecipeDataTypes.External:
-              return (
-                <label key={key}>
-                  {key}: {variable.unit}
-                  <VariableTypeExternal
-                    key={"recipeVariable" + i}
-                    name={key}
-                    rules={rules}
-                  />
-                </label>
-              );
-            default:
-              console.warn("Unknown variable type for variable", key);
-              return (
-                <p key={key}>
-                  {key}: Unknown variable type
-                </p>
-              );
-            }
-        })}
-      </ul>
+        switch (variable.type) {
+          case RecipeDataTypes.Scalar:
+            return (
+              <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50" key={key}>
+                <span>{key}{variable.unit ? ` [${variable.unit}]` : ''}:</span>
+                <VariableTypeScalarSimple
+                  key={"recipeVariable" + i}
+                  name={key}
+                  rules={rules}
+                />
+              </label>
+            );
+          case RecipeDataTypes.DataSeries:
+            return (
+              <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50" key={key}>
+                <span>{key}: {variable.unit}</span>
+                <VariableTypeDataSeriesSimple
+                  key={"recipeVariable" + i}
+                  name={key}
+                  rules={rules}
+                  availableRoadmaps={availableRoadmaps}
+                  availableDataSeries={availableDataSeries}
+                  setSelectedRoadmaps={setSelectedRoadmaps}
+                />
+              </label>
+            );
+          case RecipeDataTypes.External:
+            return (
+              <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50" key={key}>
+                <span>{key}{variable.unit ? ` [${variable.unit}]` : ''}:</span>
+                <VariableTypeExternalSimple
+                  key={"recipeVariable" + i}
+                  name={key}
+                  rules={rules}
+                />
+              </label>
+            );
+          default:
+            console.warn("Unknown variable type for variable", key);
+            return (
+              <p key={key}>
+                {key}: Unknown variable type
+              </p>
+            );
+        }
+      })}
+      {/* TODO: Some sort of label/heading for this list */}
+      <TabList
+        defaultIndex={0}
+        styling="simple"
+      >
+        <div
+          data-tabname="dataserie"
+          className="padding-top-50" // TODO: Show fallback if there is  no resultingdata-series
+        >
+          <OutputDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />
+        </div>
+        <div
+          data-tabname="graph"// TODO: Show fallback if there is  no resultingdata-series
+          className="padding-top-50"
+        >
+          <OutputGraph />
+        </div>
+      </TabList>
     </>
   );
 }
