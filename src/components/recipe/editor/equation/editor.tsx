@@ -59,7 +59,7 @@ export default function EquationEditor() {
         role="menu"
         tabIndex={0}
         className="padding-25 margin-0 list-style-none"
-        style={{backgroundColor: 'var(--gray-95)', minWidth: '10ch', borderLeft: '1px solid var(--gray-90)'}}
+        style={{backgroundColor: 'var(--gray-95)', borderLeft: '1px solid var(--gray-90)'}}
         aria-activedescendant={focusedIndex !== null ? `variable-menu-menuitem-${focusedIndex}` : ''}
         onKeyDown={(e: React.KeyboardEvent<HTMLUListElement>) => { // TODO: This is not working, try and structure stuff before tackling this. That way we can probably abstract the combobox functions and reuse some stuff
           if (e.key == "arrowDown") {
@@ -74,7 +74,7 @@ export default function EquationEditor() {
           }
         }}
       > {/* Todo: should be a proper menu with keycontrols */}
-        <h2 className="font-weight-normal text-align-center margin-block-25 padding-bottom-25" style={{fontSize: '14px', borderBottom: '1px solid var(--gray)'}}>Variabler</h2>
+        <h2 className="font-weight-normal text-align-center margin-block-25 padding-bottom-25" style={{fontSize: '14px', whiteSpace: 'nowrap', borderBottom: '1px solid var(--gray)'}}>Infoga variabel</h2>
         {recipe?.variables &&
           Object.entries(recipe.variables).map(([key], index) => (
             <li key={key} role="presentation">

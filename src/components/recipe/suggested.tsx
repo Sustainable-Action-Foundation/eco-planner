@@ -4,16 +4,50 @@ import { isRecipe, Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/f
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "./contextProvider";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
+import VariableTypeScalar, { VariableTypeScalarSimple } from "./editor/variable/types/scalar";
+import VariableTypeDataSeries from "./editor/variable/types/dataserie";
+import VariableTypeExternal from "./editor/variable/types/external";
+import { useEffect, useState } from "react";
+import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 
-// TODO: Rename
+// TODO: Rename (SuggestedRecipes)
 export function RecipeSuggestions({
   suggestedRecipes,
+  allowAddVariables = false,
+  allowDeleteVariables = false,
+  allowNameEditing = false,
+  allowTypeEditing = false,
+  allowValueEditing = true,
 }: {
   // TODO - only use prisma generated and type guard the recipe prop into, not `JsonValue`
   suggestedRecipes: { hash: string, recipe: Recipe }[];
+  allowAddVariables?: boolean;
+  allowDeleteVariables?: boolean;
+  allowNameEditing?: boolean;
+  allowTypeEditing?: boolean;
+  allowValueEditing?: boolean;
 }) {
   const { t } = useTranslation("components");
-  const { setRecipe } = useRecipe();
+  const { recipe, setRecipe } = useRecipe();
+
+  const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[]>([]);
+  const [selectedRoadmaps, setSelectedRoadmaps] = useState<string[]>([]);
+  const [availableDataSeries, setAvailableDataSeries] = useState<{ id: string; name: string; roadmapId: string; }[]>([]);
+
+  // On mount, fetch all roadmaps user has access to
+  useEffect(() => {
+    async function fetchRoadmaps() {
+      try {
+        const roadmaps = await clientSafeGetRoadmaps();
+        setAvailableRoadmaps(roadmaps.map(roadmap => ({ id: roadmap.id, name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }) })));
+      }
+      catch (e) {
+        console.error("Failed to fetch roadmaps", e);
+      }
+    }
+
+    fetchRoadmaps().catch(e => { throw e; });
+  }, [t]);
 
   for (const recipe of suggestedRecipes) {
     if (!isRecipe(recipe.recipe)) {
@@ -50,12 +84,69 @@ export function RecipeSuggestions({
       <label htmlFor="select-preset">Välj recept</label>
       <select id="select-preset" className="block margin-bottom-100 margin-top-25" onChange={handleChange}>
         <option>Välj alternativ</option> {/* TODO: I18n */}
-        {suggestedRecipes.map((recipe, index) => (
-          <option key={index} value={recipe.hash}>
-            {recipe.recipe.name ?? t("components:copy_and_scale.unnamed_suggestion")}: {recipe.recipe.eq}
+        {suggestedRecipes.map((suggestedRecipe, index) => (
+          <option key={index} value={suggestedRecipe.hash}> {/* TODO: The selected value needs to be preselected */}
+            {suggestedRecipe.recipe.name ?? t("components:copy_and_scale.unnamed_suggestion")}: {suggestedRecipe.recipe.eq}
           </option>
         ))}
       </select>
+      <ul>
+        {Object.entries(recipe?.variables ?? {}).map(([key, variable], i) => {
+          const rules = {
+            allowAddVariables,
+            allowDeleteVariables,
+            allowNameEditing,
+            allowTypeEditing,
+            allowValueEditing,
+          };
+
+          switch (variable.type) {
+            case RecipeDataTypes.Scalar:
+              return (
+                <label key={key}>
+                  <span className="margin-right-100">{key}{variable.unit ? ` [${variable.unit}]` : ''}:</span>
+                  <VariableTypeScalarSimple
+                    key={"recipeVariable" + i}
+                    name={key}
+                    rules={rules}
+                  />
+                </label>
+              );
+            case RecipeDataTypes.DataSeries:
+              return (
+                <label key={key}>
+                  <span className="margin-right-100">{key}: {variable.unit}</span>
+                  <VariableTypeDataSeries
+                    key={"recipeVariable" + i}
+                    name={key}
+                    rules={rules}
+                    availableRoadmaps={availableRoadmaps}
+                    availableDataSeries={availableDataSeries}
+                    setSelectedRoadmaps={setSelectedRoadmaps}
+                  />
+                </label>
+              );
+            case RecipeDataTypes.External:
+              return (
+                <label key={key}>
+                  {key}: {variable.unit}
+                  <VariableTypeExternal
+                    key={"recipeVariable" + i}
+                    name={key}
+                    rules={rules}
+                  />
+                </label>
+              );
+            default:
+              console.warn("Unknown variable type for variable", key);
+              return (
+                <p key={key}>
+                  {key}: Unknown variable type
+                </p>
+              );
+            }
+        })}
+      </ul>
     </>
   );
 }

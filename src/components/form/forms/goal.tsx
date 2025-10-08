@@ -14,21 +14,12 @@ import { getDataSeries } from "../elements/dataSeriesInput/utils"; // Helper for
 import styles from '../forms.module.css'; // CSS module for styling
 import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections"; // Sub components for form sections
 import { RecipeContextProvider } from "@/components/recipe/contextProvider";
-import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
+import { Recipe } from "@/functions/recipe-parser/types";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
-import TabList from "@/components/generic/tablist/tabList";
 import { suggestedRecipes, RecipeSuggestions } from "@/components/recipe/suggested";
-import { RecipeEquationEditor } from "@/components/recipe/editor/equation/editor";
-import { RecipeVariableEditor } from "@/components/recipe/editor/variable/editor";
-import { RecipeErrorAndWarnings, ResultingDataSeries, ResultingRecipe } from "@/components/recipe/editor/output/output";
 import RecipeEditor from "@/components/recipe/editor/editor";
-import { treeItem } from "@/components/types";
-import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
-import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import TextEditor from "../elements/textEditor/editor";
 import { Content } from "@tiptap/core";
-import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
-import SelectSingleTreeSearch from "../elements/combobox/selectSingleTreeSearch";
 
 // Enum for selecting the type of data series for the goal
 enum DataSeriesType {
@@ -75,6 +66,9 @@ export default function GoalForm({
       return currentGoal.description;
     }
   });
+
+  const [visibilityType, setVisibilityType] = useState<"suggested" | "custom">("suggested")
+
   // Memoized timestamp for the form submission (used for optimistic updates)
   const timestamp = useMemo(() => Date.now(), []);
 
@@ -301,11 +295,39 @@ export default function GoalForm({
           {/* TODO: Show different suggested recipes depending on which DataSeriesType is selected or just change the type to "Manual" and "Recipe" */}
           {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
             <RecipeContextProvider>
-              <RecipeSuggestions suggestedRecipes={suggestedRecipes} />
-              <label className="block margin-bottom-25">
-                Skapa recept {/* TODO: I18n */}
+              <label className="margin-bottom-75 flex width-fit-content align-items-center gap-50">
+                <input
+                  type="radio"
+                  name="recipe-type"
+                  id="recipe-type-suggested"
+                  value="suggested"
+                  checked={visibilityType === "suggested"}
+                  onChange={() => setVisibilityType("suggested")}
+                />
+                Välj bland föreslagna recept
               </label>
-              <RecipeEditor />
+              <label className="margin-bottom-100 flex width-fit-content align-items-center gap-50">
+                <input
+                  type="radio"
+                  name="visibility"
+                  id="recipe-type-custom"
+                  value="custom"
+                  checked={visibilityType === "custom"}
+                  onChange={() => setVisibilityType("custom")}
+                />
+                Skapa ett eget recept
+              </label>
+              {visibilityType === "suggested" ? 
+                <RecipeSuggestions suggestedRecipes={suggestedRecipes} />
+              : null }
+              {visibilityType === "custom" ? 
+                <>
+                  <label className="block margin-bottom-25">
+                    Skapa recept {/* TODO: I18n, TODO: Actually connect to recipe editor :) */}
+                  </label>
+                  <RecipeEditor />
+                </>
+              : null }
             </RecipeContextProvider>
           }
         </fieldset>
