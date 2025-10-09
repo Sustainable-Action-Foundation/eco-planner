@@ -295,7 +295,7 @@ export default function GoalForm({
           {/* TODO: Show different suggested recipes depending on which DataSeriesType is selected or just change the type to "Manual" and "Recipe" */}
           {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
             <RecipeContextProvider>
-              <label className="margin-bottom-75 flex width-fit-content align-items-center gap-50">
+              <div className="flex width-fit-content align-items-center gap-50">
                 <input
                   type="radio"
                   name="recipe-type"
@@ -304,9 +304,12 @@ export default function GoalForm({
                   checked={visibilityType === "suggested"}
                   onChange={() => setVisibilityType("suggested")}
                 />
-                Välj bland föreslagna recept
-              </label>
-              <label className="margin-bottom-100 flex width-fit-content align-items-center gap-50">
+                <label htmlFor="recipe-type-suggested" id="recipe-type-suggested-label">Välj bland föreslagna recept</label>
+              </div>
+              {visibilityType === "suggested" ?
+                <RecipeSuggestions ariaLabelledBy="recipe-type-suggested-label" suggestedRecipes={suggestedRecipes} />
+              : null}
+              <div className="margin-top-75 flex width-fit-content align-items-center gap-50">
                 <input
                   type="radio"
                   name="visibility"
@@ -315,19 +318,17 @@ export default function GoalForm({
                   checked={visibilityType === "custom"}
                   onChange={() => setVisibilityType("custom")}
                 />
-                Skapa ett eget recept
-              </label>
-              {visibilityType === "suggested" ? 
-                <RecipeSuggestions suggestedRecipes={suggestedRecipes} />
-              : null }
-              {visibilityType === "custom" ? 
-                <>
-                  <label className="block margin-bottom-25">
-                    Skapa recept {/* TODO: I18n, TODO: Actually connect to recipe editor :) */}
-                  </label>
-                  <RecipeEditor />
-                </>
-              : null }
+                <label htmlFor="recipe-type-custom">Skapa ett eget recept</label>
+              </div>
+
+              {visibilityType === "custom" ?
+                <div
+                  className="margin-top-25"
+                  style={{ paddingLeft: 'calc(14px + .5rem)' }}
+                >
+                  <RecipeEditor /> {/* Properly label textarea :) oh and all the inputs in variable-editor */}
+                </div>
+                : null}
             </RecipeContextProvider>
           }
         </fieldset>
@@ -368,7 +369,7 @@ export default function GoalForm({
             {t("forms:goal.feature_goal")}
           </label>
         </fieldset >
- 
+
         {/* Submit button */}
         <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
           <button

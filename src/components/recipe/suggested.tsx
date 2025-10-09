@@ -7,7 +7,7 @@ import { recipeFromUnknown } from "@/functions/parseRecipe";
 import { VariableTypeScalarSimple } from "./editor/variable/types/scalar";
 import { VariableTypeDataSeriesSimple } from "./editor/variable/types/dataserie";
 import { VariableTypeExternalSimple } from "./editor/variable/types/external";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import TabList from "../generic/tablist/tabList";
 import OutputStatus from "./editor/output/status";
@@ -22,6 +22,7 @@ export function RecipeSuggestions({
   allowNameEditing = false,
   allowTypeEditing = false,
   allowValueEditing = true,
+  ariaLabelledBy,
 }: {
   // TODO - only use prisma generated and type guard the recipe prop into, not `JsonValue`
   suggestedRecipes: { hash: string, recipe: Recipe }[];
@@ -30,6 +31,7 @@ export function RecipeSuggestions({
   allowNameEditing?: boolean;
   allowTypeEditing?: boolean;
   allowValueEditing?: boolean;
+  ariaLabelledBy: string,
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
@@ -86,8 +88,7 @@ export function RecipeSuggestions({
   return (
     <>
       {/* Suggested recipes */}
-      <label htmlFor="select-preset">Välj recept</label>
-      <select id="select-preset" className="block margin-bottom-100 margin-top-25" onChange={handleChange}>
+      <select id="select-preset" className="block margin-bottom-100 margin-top-25" style={{marginLeft: 'calc(14px + .5rem)'}} aria-labelledby={ariaLabelledBy} onChange={handleChange}>
         <option>Välj alternativ</option> {/* TODO: I18n */}
         {suggestedRecipes.map((suggestedRecipe, index) => (
           <option key={index} value={suggestedRecipe.hash}> {/* TODO: The selected value needs to be preselected */}
@@ -99,75 +100,97 @@ export function RecipeSuggestions({
       {/* TODO: Note that labels are as of now not valid. I believe however that it will be solved with tree select as this should reduce the number of items in a simple variabletype to one */}
       {/* TODO: Note that this stuff needs to be submitted alongside the form which it isnt right now (i think....) */}
       {/* TODO: We should be using a grid instead of flex to properly align items here */}
-      {Object.entries(recipe?.variables ?? {}).map(([key, variable], i) => {
-        const rules = {
-          allowAddVariables,
-          allowDeleteVariables,
-          allowNameEditing,
-          allowTypeEditing,
-          allowValueEditing,
-        };
+      <div
+        className="grid gap-50"
+        style={{
+          paddingLeft: 'calc(14px + .5rem)', // Width of radio button + gap (aligns with above text)
+          gridTemplateColumns: 'auto 1fr',
+          gridTemplateRows: 'auto auto',
+          columnGap: '1rem'
+        }}
+      >
+        {Object.entries(recipe?.variables ?? {}).map(([key, variable], i) => {
+          const rules = {
+            allowAddVariables,
+            allowDeleteVariables,
+            allowNameEditing,
+            allowTypeEditing,
+            allowValueEditing,
+          };
 
-        switch (variable.type) {
-          case RecipeDataTypes.Scalar:
-            return (
-              <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50" key={key}>
-                <span>{key}{variable.unit ? ` [${variable.unit}]` : ''}:</span>
-                <VariableTypeScalarSimple
-                  key={"recipeVariable" + i}
-                  name={key}
-                  rules={rules}
-                />
-              </label>
-            );
-          case RecipeDataTypes.DataSeries:
-            return (
-              <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50" key={key}>
-                <span>{key}: {variable.unit}</span>
-                <VariableTypeDataSeriesSimple
-                  key={"recipeVariable" + i}
-                  name={key}
-                  rules={rules}
-                  availableRoadmaps={availableRoadmaps}
-                  availableDataSeries={availableDataSeries}
-                  setSelectedRoadmaps={setSelectedRoadmaps}
-                />
-              </label>
-            );
-          case RecipeDataTypes.External:
-            return (
-              <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50" key={key}>
-                <span>{key}{variable.unit ? ` [${variable.unit}]` : ''}:</span>
-                <VariableTypeExternalSimple
-                  key={"recipeVariable" + i}
-                  name={key}
-                  rules={rules}
-                />
-              </label>
-            );
-          default:
-            console.warn("Unknown variable type for variable", key);
-            return (
-              <p key={key}>
-                {key}: Unknown variable type
-              </p>
-            );
-        }
-      })}
+          switch (variable.type) {
+            case RecipeDataTypes.Scalar: {/* TODO: Fix theese labels */ }
+              return (
+                <Fragment key={key}>
+                  <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
+                    <span>{key}{variable.unit ? ` [${variable.unit}]` : ''}:</span>
+                  </label>
+                  <VariableTypeScalarSimple
+                    key={"recipeVariable" + i}
+                    name={key}
+                    rules={rules}
+                  />
+                </Fragment>
+              );
+            case RecipeDataTypes.DataSeries:
+              return (
+                <Fragment key={key}>
+                  <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
+                    <span>{key}: {variable.unit}</span>
+                  </label>
+                  <VariableTypeDataSeriesSimple
+                    key={"recipeVariable" + i}
+                    name={key}
+                    rules={rules}
+                    availableRoadmaps={availableRoadmaps}
+                    availableDataSeries={availableDataSeries}
+                    setSelectedRoadmaps={setSelectedRoadmaps}
+                  />
+                </Fragment>
+              );
+            case RecipeDataTypes.External:
+              return (
+                <Fragment key={key}>
+                  <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
+                    <span>{key}{variable.unit ? ` [${variable.unit}]` : ''}:</span>
+                  </label>
+                  <VariableTypeExternalSimple
+                    key={"recipeVariable" + i}
+                    name={key}
+                    rules={rules}
+                  />
+                </Fragment>
+              );
+            default:
+              console.warn("Unknown variable type for variable", key);
+              return (
+                <p key={key}>
+                  {key}: Unknown variable type
+                </p>
+              );
+          }
+        })}
+      </div>
       {/* TODO: Some sort of label/heading for this list */}
       <TabList
         defaultIndex={0}
         styling="simple"
+        props={{
+          className: "margin-top-75",
+          style: {marginLeft: 'calc(14px + .5rem)'}
+        }}
       >
         <div
           data-tabname="dataserie"
-          className="padding-top-50" // TODO: Show fallback if there is  no resultingdata-series
+          className="padding-top-50 margin-bottom-100" // TODO: Show fallback if there is  no resultingdata-series
+          style={{marginInline: 'calc(14px + .5rem)'}}
         >
           <OutputDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />
         </div>
         <div
           data-tabname="graph"// TODO: Show fallback if there is  no resultingdata-series
-          className="padding-top-50"
+          className="padding-top-50 margin-bottom-100"
+          style={{marginInline: 'calc(14px + .5rem)'}}
         >
           <OutputGraph />
         </div>
