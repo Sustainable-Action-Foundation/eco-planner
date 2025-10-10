@@ -42,7 +42,7 @@ export default function EquationEditor() {
   };
 
   return (
-    <div className="flex" style={{minHeight: '225px'}}>
+    <div className="flex" style={{ minHeight: '225px' }}>
       <textarea
         ref={textareaRef}
         rows={3}
@@ -55,11 +55,11 @@ export default function EquationEditor() {
         value={recipe?.eq || ""}
         onChange={handleUpdatedEq}
       />
-      <ul 
+      <ul
         role="menu"
         tabIndex={0}
         className="padding-25 margin-0 list-style-none"
-        style={{backgroundColor: 'var(--gray-95)', borderLeft: '1px solid var(--gray-90)'}}
+        style={{ backgroundColor: 'var(--gray-95)', borderLeft: '1px solid var(--gray-90)' }}
         aria-activedescendant={focusedIndex !== null ? `variable-menu-menuitem-${focusedIndex}` : ''}
         onKeyDown={(e: React.KeyboardEvent<HTMLUListElement>) => { // TODO: This is not working, try and structure stuff before tackling this. That way we can probably abstract the combobox functions and reuse some stuff
           if (e.key == "arrowDown") {
@@ -69,29 +69,34 @@ export default function EquationEditor() {
             } else {
               setFocusedIndex(0)
             }
-            
+
             e.preventDefault()
           }
         }}
-      > {/* Todo: should be a proper menu with keycontrols */}
-        <h2 className="font-weight-normal text-align-center margin-block-25 padding-bottom-25" style={{fontSize: '14px', whiteSpace: 'nowrap', borderBottom: '1px solid var(--gray)'}}>Infoga variabel</h2>
-        {recipe?.variables &&
-          Object.entries(recipe.variables).map(([key], index) => (
-            <li key={key} role="presentation">
-              <button
-                id={`variable-menu-menuitem-${index}`}
-                tabIndex={-1}
-                role="menuitem" 
-                className="transparent padding-25 width-100 flex gap-100 justify-content-space-between align-items-center" 
-                type="button"
-                onClick={() => handleInsertVariable(key)}
-              >
-                {key} {/* TODO: Rename, what is key? */}
-                <IconPlus width={16} height={16} strokeWidth={1.5} style={{minWidth: '16px'}} />
-              </button>
-            </li>
-          ))
-        }
+      >
+        {/* Todo: should be a proper menu with keycontrols */}
+        {recipe?.variables ?
+          <>
+            <h2 className="font-weight-normal text-align-center margin-block-25 padding-bottom-25" style={{ fontSize: '14px', whiteSpace: 'nowrap', borderBottom: '1px solid var(--gray)' }}>Infoga variabel</h2>
+            {recipe?.variables &&
+              Object.entries(recipe.variables).map(([key], index) => (
+                <li key={key} role="presentation">
+                  <button
+                    id={`variable-menu-menuitem-${index}`}
+                    tabIndex={-1}
+                    role="menuitem"
+                    className="transparent padding-25 width-100 flex gap-100 justify-content-space-between align-items-center"
+                    type="button"
+                    onClick={() => handleInsertVariable(key)}
+                  >
+                    {key} {/* TODO: Rename, what is key? */}
+                    <IconPlus width={16} height={16} strokeWidth={1.5} style={{ minWidth: '16px' }} />
+                  </button>
+                </li>
+              ))
+            }
+          </>
+          : null}
       </ul>
     </div>
   )

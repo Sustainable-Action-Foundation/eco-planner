@@ -13,6 +13,7 @@ import TabList from "../generic/tablist/tabList";
 import OutputStatus from "./editor/output/status";
 import OutputDataSeries from "./editor/output/dataSerie";
 import OutputGraph from "./editor/output/graph";
+import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 
 // TODO: Rename (SuggestedRecipes)
 export function RecipeSuggestions({
@@ -45,7 +46,7 @@ export function RecipeSuggestions({
     if (!recipe) {
       setSelectedHash("");
       return;
-    } 
+    }
 
     const match = suggestedRecipes.find(s => {
       try {
@@ -58,7 +59,7 @@ export function RecipeSuggestions({
     if (match) {
       setSelectedHash(match.hash);
     } else {
-      setSelectedHash(""); 
+      setSelectedHash("");
     }
   }, [recipe, suggestedRecipes]);
 
@@ -77,6 +78,63 @@ export function RecipeSuggestions({
 
     fetchRoadmaps().catch(e => { throw e; });
   }, [t]);
+
+  // On selecting a roadmap, fetch its data series as selectable options
+  useEffect(() => {
+    if (!recipe || !recipe.variables) return;
+
+    if (selectedRoadmaps.length === 0) {
+      return;
+    }
+
+    // TODO: Need to do this when we expand a roadmap in our tree select instead of when we select one like we did previously
+    async function fetchOneDataSeries(roadmapId: string) {
+      try {
+        const roadmapData = await clientSafeGetOneRoadmap(roadmapId);
+        if (!roadmapData?.goals) return;
+
+        const goals = roadmapData?.goals;
+        if (!goals || !Array.isArray(goals) || goals.length === 0) {
+          console.warn("No goals found in roadmap", roadmapId);
+          return;
+        }
+
+        const series = goals.filter(g => g.dataSeries).map(goal => {
+          if (!goal.dataSeries) return null;
+          return {
+            id: goal.dataSeries.id,
+            name: goal.name || goal.indicatorParameter,
+            roadmapId: roadmapId,
+            ...(goal.dataSeries.unit ? { unit: goal.dataSeries.unit } : {})
+          }
+        });
+        if (!series || series.length === 0) {
+          console.warn("No data series found in roadmap", roadmapId);
+          return;
+        }
+
+        const nonNullSeries = series.filter(ds => ds !== null);
+
+        setAvailableDataSeries(nonNullSeries);
+      }
+      catch (e) {
+        console.error("Failed to fetch data series for roadmap", e);
+      }
+    }
+
+    async function fetchAllDataSeries() {
+      if (!selectedRoadmaps || selectedRoadmaps.length === 0) return;
+
+      // TODO: even though it iterates it will override the last fetched data series
+      for (const roadmapId of selectedRoadmaps) {
+        await fetchOneDataSeries(roadmapId);
+      }
+    }
+
+    fetchAllDataSeries().catch(e => { throw e; });
+
+  }, [recipe, selectedRoadmaps]);
+
 
   for (const recipe of suggestedRecipes) {
     if (!isRecipe(recipe.recipe)) {
@@ -114,7 +172,7 @@ export function RecipeSuggestions({
       {/* Suggested recipes */}
       <select
         id="select-preset"
-        className="block margin-bottom-100 margin-top-25"
+        className={`${selectedHash ? 'margin-bottom-100 ' : ''}block margin-top-25`}
         style={{ marginLeft: 'calc(14px + .5rem)' }}
         aria-labelledby={ariaLabelledBy || undefined}
         value={selectedHash}
@@ -203,29 +261,31 @@ export function RecipeSuggestions({
         })}
       </div>
       {/* TODO: Some sort of label/heading for this list */}
-      <TabList
-        defaultIndex={0}
-        styling="simple"
-        props={{
-          className: "margin-top-75",
-          style: { marginLeft: 'calc(14px + .5rem)' }
-        }}
-      >
-        <div
-          data-tabname="dataserie"
-          className="padding-top-50 margin-bottom-100" // TODO: Show fallback if there is  no resultingdata-series
-          style={{ marginInline: 'calc(14px + .5rem)' }}
+      {selectedHash ?
+        <TabList
+          defaultIndex={0}
+          styling="simple"
+          props={{
+            className: "margin-top-75",
+            style: { marginLeft: 'calc(14px + .5rem)' }
+          }}
         >
-          <OutputDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />
-        </div>
-        <div
-          data-tabname="graph"// TODO: Show fallback if there is  no resultingdata-series
-          className="padding-top-50 margin-bottom-100"
-          style={{ marginInline: 'calc(14px + .5rem)' }}
-        >
-          <OutputGraph />
-        </div>
-      </TabList>
+          <div
+            data-tabname="dataserie"
+            className="padding-top-50 margin-bottom-100" // TODO: Show fallback if there is  no resultingdata-series
+            style={{ marginInline: 'calc(14px + .5rem)' }}
+          >
+            <OutputDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />
+          </div>
+          <div
+            data-tabname="graph"// TODO: Show fallback if there is  no resultingdata-series
+            className="padding-top-50 margin-bottom-100"
+            style={{ marginInline: 'calc(14px + .5rem)' }}
+          >
+            <OutputGraph />
+          </div>
+        </TabList>
+        : null}
     </>
   );
 }
