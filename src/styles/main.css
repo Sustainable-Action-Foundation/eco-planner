@@ -30,40 +30,31 @@
 /* Input with a floating label input */
 .floating-label {
   position: relative;
+  --background: white;
 }
 
 .floating-label label {
+  font-size: 14px;
   line-height: 1;
   position: absolute;
   color: gray;
   padding-inline: .25rem;
   left: .25rem;
+  cursor: text;
   top: 50%;
   transform: translateY(-50%);
   transition: top .1s ease,
     scale .1s ease,
     color .1s ease;
 }
-
-/* TODO: This refuses to line up, always one weird pixel off  ):, figure out why */ 
-.floating-label label::after {
-  content: "";
-  visibility: hidden;
-  position: absolute;
-  background-color: white;
-  height: 2px;
-  width: 100%;
-  left: 0;
-  top: 65%;
-  z-index: -1;
-}
-
+  
 .floating-label:focus-within label,
 .floating-label:has(input:not(:placeholder-shown)) label {
   top: 0;
   transform: translateY(-65%);
   scale: .85;
   color: black;
+  background: var(--background)
 }
 
 .floating-label:focus-within label::after,
