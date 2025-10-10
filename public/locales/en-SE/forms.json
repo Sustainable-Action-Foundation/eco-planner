@@ -176,12 +176,21 @@
     "superscript": "Superscript",
     "subscript": "Subscript",
     "highlight": "Highlight",
-    "insert_link": "Insert link",
     "bullet_list": "Bulleted list",
     "numbered_list": "Numbered list",
     "more": "More",
-    "url_parse_error": "Failed to parse URL",
-    "disallowed_protocol": "The protocol {{protocol}} is not allowed. Allowed protocols are: {{allowedProtocols, list}}"
+    "link": {
+      "insert_link": "Insert link",
+      "edit_link": "Edit link",
+      "remove_link": "Remove link",
+      "text_tooltip": "Text to display (e.g. 'Eco Planner')",
+      "text_placeholder": "Eco Planner",
+      "url_tooltip": "URL (e.g. https://example.com)",
+      "url_placeholder": "https://example.com",
+      "apply": "Apply",
+      "url_parse_error": "Failed to parse URL",
+      "disallowed_protocol": "The protocol {{protocol}} is not allowed. Allowed protocols are: {{allowedProtocols, list}}"
+    }
   },
   "meta_roadmap": {
     "description_legend": "Describe your $t(common:roadmap_series_one)",

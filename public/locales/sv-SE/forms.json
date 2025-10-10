@@ -174,12 +174,21 @@
     "superscript": "Upphöj",
     "subscript": "Nedsänk",
     "highlight": "Markera",
-    "insert_link": "Infoga länk",
     "bullet_list": "Punktlista",
     "numbered_list": "Numrerad lista",
     "more": "Mer",
-    "url_parse_error": "Länken kunde inte tolkas",
-    "disallowed_protocol": "Protokollet {{protocol}} tillåts inte. De tillåtna protokollen är: {{allowedProtocols, list}}"
+    "link": {
+      "insert_link": "Infoga länk",
+      "edit_link": "Redigera länk",
+      "remove_link": "Ta bort länk",
+      "text_tooltip": "Text att visa (t.ex. 'Eco Planner')",
+      "text_placeholder": "Eco Planner",
+      "url_tooltip": "Länk (t.ex. https://example.com)",
+      "url_placeholder": "https://example.com",
+      "apply": "Applicera",
+      "url_parse_error": "Länken kunde inte tolkas",
+      "disallowed_protocol": "Protokollet {{protocol}} tillåts inte. De tillåtna protokollen är: {{allowedProtocols, list}}"
+    }
   },
   "meta_roadmap": {
     "description_legend": "Beskriv din $t(common:roadmap_series_one)",

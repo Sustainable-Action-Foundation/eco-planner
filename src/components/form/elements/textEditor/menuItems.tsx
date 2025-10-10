@@ -343,12 +343,12 @@ export function Link(props: MenubarButtonProps) {
     }
     // If parsing still fails, return
     if (!parsedUrl) {
-      alert(t('forms:text_editor_menu.url_parse_error'));
+      alert(t('forms:text_editor_menu.link.url_parse_error'));
       return;
     }
 
     if (!allowedProtocols.includes(parsedUrl.protocol.replace(':', ''))) {
-      alert(t('forms:text_editor_menu.disallowed_protocol', { protocol: parsedUrl.protocol.replace(':', ''), allowedProtocols: allowedProtocols }));
+      alert(t('forms:text_editor_menu.link.disallowed_protocol', { protocol: parsedUrl.protocol.replace(':', ''), allowedProtocols: allowedProtocols }));
       return;
     }
 
@@ -402,7 +402,7 @@ export function Link(props: MenubarButtonProps) {
         }}
         tabIndex={-1}
         role='menuitemcheckbox'
-        aria-label={t("forms:text_editor_menu.insert_link")}
+        aria-label={t("forms:text_editor_menu.link.insert_link")}
         aria-checked={editor.isActive('link')}
         aria-keyshortcuts='control+k'
       >
@@ -438,10 +438,9 @@ export function Link(props: MenubarButtonProps) {
                   type="button"
                   className="padding-25 margin-left-100 transparent rounded flex align-items-center"
                   style={{ transform: 'scale(1)' }}
-                  aria-label="Redigera länk"
+                  aria-label={t('forms:text_editor_menu.link.edit_link')}
                   onClick={() => setEditLink(true)}
                 >
-                  {/* TODO: I18n */}
                   <IconPencil height={18} width={18} aria-hidden={true} />
                 </button>
                 <span className="margin-left-25 padding-left-25" style={{ borderLeft: '1px solid var(--gray)' }}>
@@ -449,9 +448,9 @@ export function Link(props: MenubarButtonProps) {
                     type="button"
                     className="padding-25 transparent rounded flex align-items-center"
                     style={{ transform: 'scale(1)' }}
-                    aria-label="Ta bort länk"
+                    aria-label={t('forms:text_editor_menu.link.remove_link')}
                     onClick={() => { editor.chain().focus().unsetLink().run() }}
-                  > {/* TODO: I18n */}
+                  >
                     <IconLinkOff height={18} width={18} aria-hidden={true} />
                   </button>
                 </span>
@@ -460,30 +459,32 @@ export function Link(props: MenubarButtonProps) {
               <>
                 <div className="flex align-items-flex-end gap-25">
                   <div>
-                    <label aria-label=""> {/* TODO: Text + I18n */}
+                    <label aria-label=""> {/* TODO: Label text + I18n */}
                       <div className="focusable flex align-items-center padding-inline-25 margin-bottom-25">
                         <IconAlignLeft width={16} height={16} aria-hidden={true} />
                         <input
                           ref={linkNameRef}
                           className="padding-25"
                           type="text"
-                          placeholder="text"
+                          placeholder={t('forms:text_editor_menu.link.text_placeholder')}
+                          title={t('forms:text_editor_menu.link.text_tooltip')}
                           value={textValue}
                           onChange={(e) => setTextValue(e.target.value)}
-                        /> {/* TODO: I18n */}
+                        />
                       </div>
                     </label>
-                    <label aria-label=""> {/* TODO: Text + I18n */}
+                    <label aria-label=""> {/* TODO: Label text + I18n */}
                       <div className="focusable flex align-items-center padding-inline-25">
                         <IconLink width={16} height={16} aria-hidden={true} />
                         <input
                           ref={linkHrefRef}
                           className="padding-25"
-                          type="text"
-                          placeholder="länk"
+                          type="url"
+                          placeholder={t('forms:text_editor_menu.link.url_placeholder')}
+                          title={t('forms:text_editor_menu.link.url_tooltip')}
                           value={hrefValue}
                           onChange={(e) => setHrefValue(e.target.value)}
-                        /> {/* TODO: I18n */}
+                        />
                       </div>
                     </label>
                   </div>
@@ -493,8 +494,8 @@ export function Link(props: MenubarButtonProps) {
                     style={{ color: 'var(--blue)' }}
                     onClick={() => setLink(hrefValue)}
                   >
-                    Apply
-                  </button>{/* TODO: I18n */}
+                    {t('forms:text_editor_menu.link.apply')}
+                  </button>
                 </div>
               </>
             }
