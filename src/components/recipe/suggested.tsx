@@ -39,6 +39,28 @@ export function RecipeSuggestions({
   const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[]>([]);
   const [selectedRoadmaps, setSelectedRoadmaps] = useState<string[]>([]);
   const [availableDataSeries, setAvailableDataSeries] = useState<{ id: string; name: string; roadmapId: string; }[]>([]);
+  const [selectedHash, setSelectedHash] = useState<string>("");
+
+  useEffect(() => {
+    if (!recipe) {
+      setSelectedHash("");
+      return;
+    } 
+
+    const match = suggestedRecipes.find(s => {
+      try {
+        return JSON.stringify(s.recipe) === JSON.stringify(recipe);
+      } catch {
+        return false;
+      }
+    });
+
+    if (match) {
+      setSelectedHash(match.hash);
+    } else {
+      setSelectedHash(""); 
+    }
+  }, [recipe, suggestedRecipes]);
 
   // On mount, fetch all roadmaps user has access to
   // TODO: This is reused from editor/variable/editor.tsx, can probably abstract this somehow
@@ -71,6 +93,8 @@ export function RecipeSuggestions({
   // On change set the context state to the selected recipe
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const hash = e.target.value;
+    setSelectedHash(hash);
+
     const selectedSuggestion = suggestedRecipes.find(r => r.hash === hash);
     if (selectedSuggestion) {
       try {
@@ -88,7 +112,14 @@ export function RecipeSuggestions({
   return (
     <>
       {/* Suggested recipes */}
-      <select id="select-preset" className="block margin-bottom-100 margin-top-25" style={{marginLeft: 'calc(14px + .5rem)'}} aria-labelledby={ariaLabelledBy || undefined} onChange={handleChange}>
+      <select
+        id="select-preset"
+        className="block margin-bottom-100 margin-top-25"
+        style={{ marginLeft: 'calc(14px + .5rem)' }}
+        aria-labelledby={ariaLabelledBy || undefined}
+        value={selectedHash}
+        onChange={handleChange}
+      >
         <option>Välj alternativ</option> {/* TODO: I18n */}
         {suggestedRecipes.map((suggestedRecipe, index) => (
           <option key={index} value={suggestedRecipe.hash}> {/* TODO: The selected value needs to be preselected */}
@@ -177,20 +208,20 @@ export function RecipeSuggestions({
         styling="simple"
         props={{
           className: "margin-top-75",
-          style: {marginLeft: 'calc(14px + .5rem)'}
+          style: { marginLeft: 'calc(14px + .5rem)' }
         }}
       >
         <div
           data-tabname="dataserie"
           className="padding-top-50 margin-bottom-100" // TODO: Show fallback if there is  no resultingdata-series
-          style={{marginInline: 'calc(14px + .5rem)'}}
+          style={{ marginInline: 'calc(14px + .5rem)' }}
         >
           <OutputDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />
         </div>
         <div
           data-tabname="graph"// TODO: Show fallback if there is  no resultingdata-series
           className="padding-top-50 margin-bottom-100"
-          style={{marginInline: 'calc(14px + .5rem)'}}
+          style={{ marginInline: 'calc(14px + .5rem)' }}
         >
           <OutputGraph />
         </div>
