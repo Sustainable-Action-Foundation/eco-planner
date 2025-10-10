@@ -31,7 +31,7 @@ export function RecipeSuggestions({
   allowNameEditing?: boolean;
   allowTypeEditing?: boolean;
   allowValueEditing?: boolean;
-  ariaLabelledBy: string,
+  ariaLabelledBy?: string,
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
@@ -88,7 +88,7 @@ export function RecipeSuggestions({
   return (
     <>
       {/* Suggested recipes */}
-      <select id="select-preset" className="block margin-bottom-100 margin-top-25" style={{marginLeft: 'calc(14px + .5rem)'}} aria-labelledby={ariaLabelledBy} onChange={handleChange}>
+      <select id="select-preset" className="block margin-bottom-100 margin-top-25" style={{marginLeft: 'calc(14px + .5rem)'}} aria-labelledby={ariaLabelledBy || undefined} onChange={handleChange}>
         <option>Välj alternativ</option> {/* TODO: I18n */}
         {suggestedRecipes.map((suggestedRecipe, index) => (
           <option key={index} value={suggestedRecipe.hash}> {/* TODO: The selected value needs to be preselected */}
