@@ -343,14 +343,13 @@ export function Link(props: MenubarButtonProps) {
     }
     // If parsing still fails, return
     if (!parsedUrl) {
-      // TODO: i18n
-      alert('Failed to parse URL.');
+      alert(t('forms:text_editor_menu.url_parse_error'));
       return;
     }
 
     if (!allowedProtocols.includes(parsedUrl.protocol.replace(':', ''))) {
-      // TODO: i18n
-      alert(`Protocol "${parsedUrl.protocol.replace(':', '')}" is not allowed. Allowed protocols are: ${allowedProtocols.join(', ')}`);
+      alert(t('forms:text_editor_menu.disallowed_protocol', { protocol: parsedUrl.protocol.replace(':', ''), allowedProtocols: allowedProtocols }));
+      return;
     }
 
     editor.chain().focus().extendMarkRange('link').setLink({ href: parsedUrl.href })

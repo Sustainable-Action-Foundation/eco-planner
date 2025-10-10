@@ -7,6 +7,7 @@ import { ServerSideT } from "./serverSide";
 import { ClientSideT } from "./clientSide";
 import { Stats } from "./stats";
 import { JSONValue } from "@/types";
+import { allowedProtocols } from "@/components/form/elements/textEditor/config/config";
 
 export default async function LocaleTestPage() {
   const t = await serveTea(allNamespaces);
@@ -16,6 +17,7 @@ export default async function LocaleTestPage() {
     date: new Date("2025-04-23T18:23:31.501Z"),
     fileTypes: [".txt", ".pdf", ".docx"],
     encodings: ["utf-8", "utf-16", "ascii"],
+    allowedProtocols: allowedProtocols,
   };
 
   const allFlattened = getAllJSONFlattened()[Locales.default];

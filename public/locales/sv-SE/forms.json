@@ -177,7 +177,9 @@
     "insert_link": "Infoga länk",
     "bullet_list": "Punktlista",
     "numbered_list": "Numrerad lista",
-    "more": "Mer"
+    "more": "Mer",
+    "url_parse_error": "Länken kunde inte tolkas",
+    "disallowed_protocol": "Protokollet {{protocol}} tillåts inte. De tillåtna protokollen är: {{allowedProtocols, list}}"
   },
   "meta_roadmap": {
     "description_legend": "Beskriv din $t(common:roadmap_series_one)",
