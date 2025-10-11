@@ -111,6 +111,7 @@ export default function TextSingleAutocomplete({
             id={`${props.id}-button`}
             className="round grid margin-right-25 transparent"
             style={{ padding: '2px' }}
+            disabled={props.disabled}
             onClick={() => { comboboxRef.current?.focus(); setDisplayListBox(!displayListBox) }}
             type="button"
             tabIndex={-1}

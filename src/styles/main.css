@@ -19,7 +19,7 @@
   border-color: #191919;
 }
 
-.focusable :is(input, select) {
+.focusable :is(input, select, div:has(input)) {
   outline: none;
   box-shadow: none;
   background-color: transparent;

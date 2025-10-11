@@ -8,6 +8,8 @@ import { InputRules, defaultInputRules } from "./rules";
 import styles from '../../editor.module.css' with {type: 'css'}
 import { changeName, changeType, changeUnit, deleteVariable } from "@/components/recipe/contextFunctions";
 import { IconEdit, IconTrashXFilled } from "@tabler/icons-react";
+import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
+import { Unit } from "mathjs";
 
 // TODO: I18n
 // TODO: Fix labels
@@ -65,7 +67,7 @@ export default function VariableTypeCommon({
             <label htmlFor={`variable-unit-${name}`}>
               {t("components:recipe_editor.unit_placeholder")}
             </label>
-            <input
+            {/* <input
               id={`variable-unit-${name}`}
               style={{ gridRow: '1', gridColumn: '2' }}
               defaultValue={variable.unit || ""}
@@ -74,6 +76,17 @@ export default function VariableTypeCommon({
               disabled={!rules.allowValueEditing || (rules.allowTypeEditing && !editable)}
               readOnly={!rules.allowValueEditing || (rules.allowValueEditing && !editable)}
               placeholder=" "
+            /> */}
+            <TextSingleAutocomplete 
+              props={{
+                id: `variable-unit-${name}`, 
+                name: `variable-unit-${name}`,
+                defaultValue: variable.unit || "",
+                disabled: !rules.allowValueEditing || (rules.allowTypeEditing && !editable),
+                placeholder: " ",
+                style: { gridRow: '1', gridColumn: '2', width: '125px' }
+              }}
+              options={Object.keys(Unit.UNITS).map(unit => ({ name: unit, value: unit }))}
             />
           </div>
           <div className="focusable floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>

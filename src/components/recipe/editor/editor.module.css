@@ -3,10 +3,8 @@
     border-radius: 2px;
 }
 
-.variable-list input,
-.variable-list select,
-.variable-list div:has(button) {
-    display: inline-block;
+.variable-list input:not([role="combobox"]),
+.variable-list select {
     width: 125px;
     min-width: 125px;
 }
@@ -18,10 +16,10 @@
     background-image: none; 
 }
 
-.variable-list li:first-of-type {
+.variable-list > li:first-of-type {
     margin-top: .25rem;
 }
 
-.variable-list li:not(:last-of-type) {
+.variable-list > li:not(:last-of-type) {
     border-bottom: 1px solid var(--gray);
 }
