@@ -292,41 +292,37 @@ export default function GoalForm({
             <ManualGoalForm currentGoal={currentGoal} dataSeriesString={dataSeriesString} />
           }
           {/* Scaling section for inherited/combined goals */}
-          {/* TODO: Show different suggested recipes depending on which DataSeriesType is selected or just change the type to "Manual" and "Recipe" */}
           {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
-            <RecipeContextProvider>
-              <div className="flex width-fit-content align-items-center gap-50">
-                <input
-                  type="radio"
-                  name="recipe-type"
-                  id="recipe-type-suggested"
-                  value="suggested"
-                  checked={visibilityType === "suggested"}
-                  onChange={() => setVisibilityType("suggested")}
-                />
-                <label htmlFor="recipe-type-suggested" id="recipe-type-suggested-label">Välj bland föreslagna recept</label>
-              </div>
+            <RecipeContextProvider> {/* TODO: Want to clear recipe when switching between suggested or custom recipes? */}
+              <input
+                className="margin-right-25"
+                type="radio"
+                name="recipe-type"
+                id="recipe-type-suggested"
+                value="suggested"
+                checked={visibilityType === "suggested"}
+                onChange={() => setVisibilityType("suggested")}
+              />
+              <label htmlFor="recipe-type-suggested" className="margin-right-100" id="recipe-type-suggested-label">Välj bland föreslagna recept</label>
+              <input
+                className="margin-right-25"
+                type="radio"
+                name="visibility"
+                id="recipe-type-custom"
+                value="custom"
+                checked={visibilityType === "custom"}
+                onChange={() => setVisibilityType("custom")}
+              />
+              <label htmlFor="recipe-type-custom">Skapa ett eget recept</label>
               {visibilityType === "suggested" ?
-                <RecipeSuggestions ariaLabelledBy="recipe-type-suggested-label" suggestedRecipes={suggestedRecipes} />
-              : null}
-              <div className="margin-top-75 flex width-fit-content align-items-center gap-50">
-                <input
-                  type="radio"
-                  name="visibility"
-                  id="recipe-type-custom"
-                  value="custom"
-                  checked={visibilityType === "custom"}
-                  onChange={() => setVisibilityType("custom")}
-                />
-                <label htmlFor="recipe-type-custom">Skapa ett eget recept</label>
-              </div>
-
+                <div className="margin-top-100">
+                  <RecipeSuggestions ariaLabelledBy="recipe-type-suggested-label" suggestedRecipes={suggestedRecipes} />
+                </div>
+                : null}
+              {/* Properly label textarea :) oh and all the inputs in variable-editor */}
               {visibilityType === "custom" ?
-                <div
-                  className="margin-top-25"
-                  style={{ paddingLeft: 'calc(14px + .5rem)' }}
-                >
-                  <RecipeEditor /> {/* Properly label textarea :) oh and all the inputs in variable-editor */}
+                <div className="margin-top-100">
+                  <RecipeEditor />
                 </div>
                 : null}
             </RecipeContextProvider>

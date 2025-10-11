@@ -22,7 +22,6 @@ export function RecipeSuggestions({
   allowNameEditing = false,
   allowTypeEditing = false,
   allowValueEditing = true,
-  ariaLabelledBy,
 }: {
   // TODO - only use prisma generated and type guard the recipe prop into, not `JsonValue`
   suggestedRecipes: { hash: string, recipe: Recipe }[];
@@ -169,21 +168,22 @@ export function RecipeSuggestions({
   return (
     <>
       {/* Suggested recipes */}
-      <select
-        id="select-preset"
-        className={`${selectedHash ? 'margin-bottom-100 ' : ''}block margin-top-25`}
-        style={{ marginLeft: 'calc(14px + .5rem)' }}
-        aria-labelledby={ariaLabelledBy || undefined}
-        value={selectedHash}
-        onChange={handleChange}
-      >
-        <option>Välj alternativ</option> {/* TODO: I18n */}
-        {suggestedRecipes.map((suggestedRecipe, index) => (
-          <option key={index} value={suggestedRecipe.hash}> {/* TODO: The selected value needs to be preselected */}
-            {suggestedRecipe.recipe.name ?? t("components:copy_and_scale.unnamed_suggestion")}
-          </option>
-        ))}
-      </select>
+      <label>
+        Recept
+        <select
+          className='margin-bottom-100 block margin-top-25'
+          id="select-preset"
+          value={selectedHash}
+          onChange={handleChange}
+        >
+          <option>Välj alternativ</option> {/* TODO: I18n */}
+          {suggestedRecipes.map((suggestedRecipe, index) => (
+            <option key={index} value={suggestedRecipe.hash}> {/* TODO: The selected value needs to be preselected */}
+              {suggestedRecipe.recipe.name ?? t("components:copy_and_scale.unnamed_suggestion")}
+            </option>
+          ))}
+        </select>
+      </label>
       {/* TODO: Potentially want this inside a fieldset */}
       {/* TODO: Note that labels are as of now not valid. I believe however that it will be solved with tree select as this should reduce the number of items in a simple variabletype to one */}
       {/* TODO: Note that this stuff needs to be submitted alongside the form which it isnt right now (i think....) */}
@@ -191,7 +191,6 @@ export function RecipeSuggestions({
       <div
         className="grid gap-50"
         style={{
-          paddingLeft: 'calc(14px + .5rem)', // Width of radio button + gap (aligns with above text)
           gridTemplateColumns: 'auto 1fr',
           gridTemplateRows: 'auto auto',
           columnGap: '1rem'
@@ -259,39 +258,32 @@ export function RecipeSuggestions({
           }
         })}
       </div>
-      {/* TODO: Some sort of label/heading for this list */}
-      {selectedHash ?
-        <TabList
-          defaultIndex={0}
-          styling="simple"
-          props={{
-            className: "margin-top-75",
-            style: { marginLeft: 'calc(14px + .5rem)' }
-          }}
+      <TabList
+        defaultIndex={0}
+        styling="simple"
+        props={{
+          className: "margin-top-75",
+        }}
+      >
+        <div
+          data-tabname="equation"
+          className="padding-top-50 margin-bottom-100"
         >
-          <div
-            data-tabname="equation"
-            className="padding-top-50 margin-bottom-100"
-            style={{marginInline: 'calc(14px + .5rem)'}}
-          >
-            <p className="margin-0">{recipe?.eq}</p> {/* TODO: i18n */}
-          </div>
-          <div
-            data-tabname="dataserie"
-            className="padding-top-50 margin-bottom-100" // TODO: Show fallback if there is  no resultingdata-series
-            style={{ marginInline: 'calc(14px + .5rem)' }}
-          >
-            <OutputDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />
-          </div>
-          <div
-            data-tabname="graph"// TODO: Show fallback if there is  no resultingdata-series
-            className="padding-top-50 margin-bottom-100"
-            style={{ marginInline: 'calc(14px + .5rem)' }}
-          >
-            <OutputGraph />
-          </div>
-        </TabList>
-        : null}
+          <p className="margin-0">{recipe?.eq}</p> {/* TODO: i18n */}
+        </div>
+        <div
+          data-tabname="dataserie"
+          className="padding-top-50 margin-bottom-100" // TODO: Show fallback if there is  no resultingdata-series
+        >
+          <OutputDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />
+        </div>
+        <div
+          data-tabname="graph" 
+          className="padding-top-50 margin-bottom-100"
+        >
+          <OutputGraph />
+        </div>
+      </TabList>
     </>
   );
 }
