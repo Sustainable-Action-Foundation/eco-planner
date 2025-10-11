@@ -10,7 +10,6 @@ import { VariableTypeExternalSimple } from "./editor/variable/types/external";
 import { Fragment, useEffect, useState } from "react";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import TabList from "../generic/tablist/tabList";
-import OutputStatus from "./editor/output/status";
 import OutputDataSeries from "./editor/output/dataSerie";
 import OutputGraph from "./editor/output/graph";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
@@ -181,7 +180,7 @@ export function RecipeSuggestions({
         <option>Välj alternativ</option> {/* TODO: I18n */}
         {suggestedRecipes.map((suggestedRecipe, index) => (
           <option key={index} value={suggestedRecipe.hash}> {/* TODO: The selected value needs to be preselected */}
-            {suggestedRecipe.recipe.name ?? t("components:copy_and_scale.unnamed_suggestion")}: {suggestedRecipe.recipe.eq}
+            {suggestedRecipe.recipe.name ?? t("components:copy_and_scale.unnamed_suggestion")}
           </option>
         ))}
       </select>
@@ -271,6 +270,13 @@ export function RecipeSuggestions({
           }}
         >
           <div
+            data-tabname="equation"
+            className="padding-top-50 margin-bottom-100"
+            style={{marginInline: 'calc(14px + .5rem)'}}
+          >
+            <p className="margin-0">{recipe?.eq}</p> {/* TODO: i18n */}
+          </div>
+          <div
             data-tabname="dataserie"
             className="padding-top-50 margin-bottom-100" // TODO: Show fallback if there is  no resultingdata-series
             style={{ marginInline: 'calc(14px + .5rem)' }}
@@ -301,7 +307,7 @@ export const suggestedRecipes: Array<{ hash: string, recipe: Recipe }> = [
   { // Default scaling recipe
     hash: "atotallycoolhashthefirst",
     recipe: {
-      name: 'temporary', // Deal with this later t("forms:goal.default_scaling_recipe"), 
+      name: 'Default scaling recipe', // Deal with this later t("forms:goal.default_scaling_recipe"), 
       eq: "${serie} * ${skalär}",
       variables: {
         "serie": {
@@ -322,7 +328,7 @@ export const suggestedRecipes: Array<{ hash: string, recipe: Recipe }> = [
     hash: "recipe_with_combination",
     recipe:
     {
-      name: 'temporary', // Deal with this later t("forms:goal.default_combination_recipe"),
+      name: 'Default combination recipe', // Deal with this later t("forms:goal.default_combination_recipe"),
       eq: "${serie1} * ${skalär1} + ${serie2} * ${skalär2}",
       variables: {
         "serie1": {

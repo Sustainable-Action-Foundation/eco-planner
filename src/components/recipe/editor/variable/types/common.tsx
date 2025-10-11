@@ -47,7 +47,7 @@ export default function VariableTypeCommon({
           </button>
           {name}
         </legend>
-        <fieldset className="grid gap-25" style={{ gridTemplateColumns: 'auto auto', gridTemplateRows: 'auto auto', rowGap: '.5rem' }}>
+        <fieldset disabled={!editable} className="grid gap-25" style={{ gridTemplateColumns: 'auto auto', gridTemplateRows: 'auto auto', rowGap: '.5rem' }}>
           <div className="focusable floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
             <label htmlFor={`variable-name-${name}`}>
               {t("components:recipe_editor.variable_name_placeholder")}
@@ -59,30 +59,17 @@ export default function VariableTypeCommon({
               defaultValue={name}
               onChange={(e) => changeName(name, e.target.value, setRecipe)}
               type="text"
-              readOnly={!rules.allowNameEditing || (rules.allowNameEditing && !editable)}
-              disabled={!rules.allowNameEditing || (rules.allowNameEditing && !editable)}
             />
           </div>
           <div className="focusable floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
             <label htmlFor={`variable-unit-${name}`}>
               {t("components:recipe_editor.unit_placeholder")}
             </label>
-            {/* <input
-              id={`variable-unit-${name}`}
-              style={{ gridRow: '1', gridColumn: '2' }}
-              defaultValue={variable.unit || ""}
-              onChange={(e) => changeUnit(name, e.target.value, setRecipe)}
-              type="text"
-              disabled={!rules.allowValueEditing || (rules.allowTypeEditing && !editable)}
-              readOnly={!rules.allowValueEditing || (rules.allowValueEditing && !editable)}
-              placeholder=" "
-            /> */}
             <TextSingleAutocomplete 
               props={{
                 id: `variable-unit-${name}`, 
                 name: `variable-unit-${name}`,
                 defaultValue: variable.unit || "",
-                disabled: !rules.allowValueEditing || (rules.allowTypeEditing && !editable),
                 placeholder: " ",
                 style: { gridRow: '1', gridColumn: '2', width: '125px' }
               }}
@@ -98,7 +85,6 @@ export default function VariableTypeCommon({
               style={{ gridRow: '2', gridColumn: '1' }}
               defaultValue={variable.type}
               onChange={(e) => changeType(name, e.target.value, setRecipe)}
-              disabled={!rules.allowTypeEditing || (rules.allowTypeEditing && !editable)}
             >
               <option value={RecipeDataTypes.DataSeries}>{t("components:recipe_editor.data_series")}</option>
               <option value={RecipeDataTypes.External}>{t("components:recipe_editor.external_data")}</option>
@@ -106,9 +92,9 @@ export default function VariableTypeCommon({
             </select>
           </div>
         </fieldset>
-        <div className="flex-grow-100">
+        <fieldset disabled={!editable} className="flex-grow-100">
           {children}
-        </div>
+        </fieldset>
         {rules.allowDeleteVariables &&
           <button
             disabled={!editable}

@@ -58,7 +58,7 @@ export default function EquationEditor() {
       <ul
         role="menu"
         tabIndex={0}
-        className="padding-25 margin-0 list-style-none"
+        className="padding-25 padding-inline-50 margin-0 list-style-none"
         style={{ backgroundColor: 'var(--gray-95)', borderLeft: '1px solid var(--gray-90)' }}
         aria-activedescendant={focusedIndex !== null ? `variable-menu-menuitem-${focusedIndex}` : ''}
         onKeyDown={(e: React.KeyboardEvent<HTMLUListElement>) => { // TODO: This is not working, try and structure stuff before tackling this. That way we can probably abstract the combobox functions and reuse some stuff
