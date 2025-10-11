@@ -19,7 +19,7 @@
   border-color: #191919;
 }
 
-.focusable input {
+.focusable :is(input, select) {
   outline: none;
   box-shadow: none;
   background-color: transparent;
@@ -34,22 +34,26 @@
 }
 
 .floating-label label {
-  font-size: 14px;
+  font-size: small;
+  cursor: text;
   line-height: 1;
   position: absolute;
   color: gray;
   padding-inline: .25rem;
   left: .25rem;
-  cursor: text;
   top: 50%;
   transform: translateY(-50%);
   transition: top .1s ease,
     scale .1s ease,
     color .1s ease;
 }
+
+.floating-label:has(:disabled) label {
+  cursor: not-allowed;
+}
   
 .floating-label:focus-within label,
-.floating-label:has(input:not(:placeholder-shown)) label {
+.floating-label:has(:is(input, select):not(:placeholder-shown)) label {
   top: 0;
   transform: translateY(-65%);
   scale: .85;
@@ -58,7 +62,7 @@
 }
 
 .floating-label:focus-within label::after,
-.floating-label:has(input:not(:placeholder-shown)) label::after {
+.floating-label:has(:is(input, select):not(:placeholder-shown)) label::after {
   visibility: visible;
 }
 

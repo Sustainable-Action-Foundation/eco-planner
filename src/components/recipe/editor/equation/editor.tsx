@@ -42,7 +42,7 @@ export default function EquationEditor() {
   };
 
   return (
-    <div className="flex" style={{ minHeight: '225px' }}>
+    <div className="flex" style={{ minHeight: '225px', height: '100%' }}>
       <textarea
         ref={textareaRef}
         rows={3}

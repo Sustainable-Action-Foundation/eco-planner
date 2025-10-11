@@ -46,8 +46,8 @@
     "recipe_label": "Recipe: "
   },
   "recipe_editor": {
-    "variable_name_placeholder": "Variable name",
-    "unit_placeholder": "Unitless",
+    "variable_name_placeholder": "Name",
+    "unit_placeholder": "Unit",
     "data_series": "Data series",
     "external_data": "External data",
     "scalar": "Scalar",

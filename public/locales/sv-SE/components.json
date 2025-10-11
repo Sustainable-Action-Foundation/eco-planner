@@ -46,8 +46,8 @@
     "recipe_label": "Recept: "
   },
   "recipe_editor": {
-    "variable_name_placeholder": "Variabelnamn",
-    "unit_placeholder": "Enhetslös",
+    "variable_name_placeholder": "Namn",
+    "unit_placeholder": "Enhet",
     "data_series": "Dataserie",
     "external_data": "Extern data",
     "scalar": "Skalär",
