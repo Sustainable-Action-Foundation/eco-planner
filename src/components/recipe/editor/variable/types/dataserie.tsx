@@ -7,7 +7,12 @@ import { InputRules, defaultInputRules } from "./rules";
 import { changeDataSeries } from "@/components/recipe/contextFunctions";
 import VariableTypeCommon from "./common";
 import VectorIndexPicker from "./vectorIndexPicker";
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { treeItem } from "@/components/types";
+import SelectSingleTreeSearch from "@/components/form/elements/combobox/selectSingleTreeSearch";
+import getOneRoadmap from "@/fetchers/getOneRoadmap";
+import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
+import { Goal } from "@/types";
 
 // TODO: I18n
 // TODO: Replace roadmap/goal select with treeselect
@@ -29,6 +34,36 @@ export default function VariableTypeDataSeries({
   const { recipe, setRecipe } = useRecipe();
   const [selectedRoadmap, setLocalRoadmap] = React.useState<string | null>(null);
   const variable = recipe?.variables[name] as RecipeVariables;
+  const [treeItems, setTreeItems] = useState<treeItem[]>([]);
+
+  useEffect(() => {
+    const newItems: treeItem[] = availableRoadmaps.map((roadmap) => ({
+      expanded: null,
+      name: roadmap.name,
+      value: roadmap.id,
+      onExpand: () => {
+        return clientSafeGetOneRoadmap(roadmap.id).then((data) => {
+          if (!data) return [];
+          return data.goals.map((goal) => ({
+            name: goal.name ? goal.name : goal.indicatorParameter,
+            value: goal.dataSeries ? goal.dataSeries.id : '',
+            expanded: null,
+          }));
+        });
+      },
+    }));
+
+    setTreeItems(newItems);
+  }, [availableRoadmaps]);
+
+  const handleDataSeriesChange = useCallback(
+    (selectedDataSeries: treeItem | null) => {
+      if (selectedDataSeries?.value) {
+        changeDataSeries(name, selectedDataSeries.value, availableDataSeries, setRecipe);
+      }
+    },
+    [name, availableDataSeries, setRecipe]
+  );
 
   if (!isRecipeDataSeries(variable)) {
     console.error(`Variable "${name}" is not a valid DataSeriesVariable`, variable);
@@ -42,6 +77,7 @@ export default function VariableTypeDataSeries({
       name={name}
       rules={rules}
     >
+      
       <select
         defaultValue={selectedRoadmap || ""}
         onChange={(e) => {
@@ -72,18 +108,19 @@ export default function VariableTypeDataSeries({
             </option>
           ))}
       </select>
+      
 
-      {/*
       <SelectSingleTreeSearch // TODO: Fix disabled state
         props={{
           id: 'variable-tree', // TODO: Name and id must be dynamic
-          name: '', 
+          name: '',
           placeholder: 'Välj målbana eller effekt' // TODO: i18n
         }}
-        treeItems={roadmapTreeStructure}
-        onChange={(value) => handleDataSeriesChange(value ? value.value : '')}
+        treeItems={treeItems}
+        onChange={handleDataSeriesChange}
+      // onChange={(value) => handleDataSeriesChange(value ? value.value : '')}
       />
-       */}
+
       <VectorIndexPicker />
 
     </VariableTypeCommon >

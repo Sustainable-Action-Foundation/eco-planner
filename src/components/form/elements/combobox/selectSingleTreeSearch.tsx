@@ -103,6 +103,12 @@ export default function SelectSingleTreeSearch({
     ) 
   }, [menuOpen]);
 
+  /* Why do i need this? */
+  useEffect(() => {
+    setItems(treeItems);
+    setFlattenedItems(flattenTree(treeItems));
+  }, [treeItems]);
+
   const handleUpdateNode = (value: string, updater: (n: treeItem) => treeItem) => {
     setItems(prev => updateNodeInTree(prev, value, updater));
   };

@@ -1,5 +1,6 @@
 "use client"
  
+import { graphNumberFormatter } from "@/lib/chartWrapper";
 import { useRecipe } from "../../contextProvider"; 
 import { ApexOptions } from "apexcharts";
 import Chart from "react-apexcharts"
@@ -34,6 +35,11 @@ export default function OutputGraph() {
     xaxis: {
       categories: years,
     },
+    yaxis: {
+      labels: {
+        formatter: graphNumberFormatter
+      }
+    }
   };
 
   return (

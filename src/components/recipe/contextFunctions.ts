@@ -120,11 +120,6 @@ export function changeDataSeries(name: string, newDataSeries: string, availableL
       return prev; // Do not update if no data series is selected
     }
 
-    if (!availableLinks.some(link => link.id === newDataSeries)) {
-      console.warn(`Data series with ID '${newDataSeries}' not found among available data series`);
-      return prev; // Do not update if the selected data series is not available
-    }
-
     const copyOfVariables = { ...prev.variables };
 
     const currentVar = copyOfVariables[name];
@@ -140,6 +135,8 @@ export function changeDataSeries(name: string, newDataSeries: string, availableL
       ...currentVar,
       link: newDataSeries,
     };
+
+    console.log(copyOfVariables)
 
     return { ...prev, variables: copyOfVariables };
   });
