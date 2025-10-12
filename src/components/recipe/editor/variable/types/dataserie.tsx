@@ -11,6 +11,46 @@ import React, { useCallback, useEffect, useState } from "react";
 import { treeItem } from "@/components/types";
 import SelectSingleTreeSearch from "@/components/form/elements/combobox/selectSingleTreeSearch";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
+import { Recipe } from "@/functions/recipe-parser/types";
+
+function useRoadmapTreeItems(availableRoadmaps: { id: string; name: string; }[]) {
+  const [treeItems, setTreeItems] = useState<treeItem[]>([]);
+
+  useEffect(() => {
+    const newItems: treeItem[] = availableRoadmaps.map((roadmap) => ({
+      expanded: null,
+      name: roadmap.name,
+      value: roadmap.id,
+      onExpand: async () => {
+        const data = await clientSafeGetOneRoadmap(roadmap.id);
+        if (!data) return [];
+        return data.goals.map((goal) => ({
+          name: goal.name ? goal.name : goal.indicatorParameter,
+          value: goal.dataSeries ? goal.dataSeries.id : '',
+          expanded: null,
+        }));
+      },
+    }));
+
+    setTreeItems(newItems);
+  }, [availableRoadmaps]);
+
+  return treeItems;
+}
+
+export function useHandleDataSeriesChange(
+  name: string,
+  setRecipe: React.Dispatch<React.SetStateAction<Recipe | null>>
+) {
+  return useCallback(
+    (selectedDataSeries: treeItem | null) => {
+      if (selectedDataSeries?.value) {
+        changeDataSeries(name, selectedDataSeries.value, setRecipe);
+      }
+    },
+    [name, setRecipe]
+  );
+}
 
 // TODO: I18n
 // TODO: Fix labels
@@ -27,36 +67,9 @@ export default function VariableTypeDataSeries({
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
   const variable = recipe?.variables[name] as RecipeVariables;
-  const [treeItems, setTreeItems] = useState<treeItem[]>([]);
-
-  useEffect(() => {
-    const newItems: treeItem[] = availableRoadmaps.map((roadmap) => ({
-      expanded: null,
-      name: roadmap.name,
-      value: roadmap.id,
-      onExpand: () => {
-        return clientSafeGetOneRoadmap(roadmap.id).then((data) => {
-          if (!data) return [];
-          return data.goals.map((goal) => ({
-            name: goal.name ? goal.name : goal.indicatorParameter,
-            value: goal.dataSeries ? goal.dataSeries.id : '',
-            expanded: null,
-          }));
-        });
-      },
-    }));
-
-    setTreeItems(newItems);
-  }, [availableRoadmaps]);
-
-  const handleDataSeriesChange = useCallback(
-    (selectedDataSeries: treeItem | null) => {
-      if (selectedDataSeries?.value) {
-        changeDataSeries(name, selectedDataSeries.value, setRecipe);
-      }
-    },
-    [name, setRecipe]
-  );
+ 
+  const treeItems = useRoadmapTreeItems(availableRoadmaps);
+  const handleDataSeriesChange = useHandleDataSeriesChange(name, setRecipe);
 
   if (!isRecipeDataSeries(variable)) {
     console.error(`Variable "${name}" is not a valid DataSeriesVariable`, variable);
@@ -70,18 +83,25 @@ export default function VariableTypeDataSeries({
       name={name}
       rules={rules}
     >
-      <SelectSingleTreeSearch // TODO: Fix disabled state
-        props={{
-          id: 'variable-tree', // TODO: Name and id must be dynamic
-          name: '',
-          placeholder: 'Välj målbana eller effekt' // TODO: i18n
-        }}
-        treeItems={treeItems}
-        onChange={handleDataSeriesChange}
-      />
-
-      <VectorIndexPicker />
-
+      <div className="floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>    
+        <label htmlFor="variable-tree">
+          Välj målbana eller effekt {/* TODO: i18n */}
+        </label>
+        <SelectSingleTreeSearch // TODO: Fix disabled state
+          props={{
+            id: 'variable-tree', // TODO: Name and id must be dynamic
+            name: '', 
+          }}
+          treeItems={treeItems}
+          onChange={handleDataSeriesChange}
+        />
+      </div>
+      <div className="floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>    
+        <label htmlFor="variable-tree-vector-index-picker">
+          Värde
+        </label>
+        <VectorIndexPicker id="variable-tree-vector-index-picker" /> {/* TODO: Name and id must be dynamic */}
+      </div>
     </VariableTypeCommon >
   )
 }
@@ -98,35 +118,8 @@ export function VariableTypeDataSeriesSimple({
   const { recipe, setRecipe } = useRecipe();
   const variable = recipe?.variables[name] as RecipeVariables;
 
-  const [treeItems, setTreeItems] = useState<treeItem[]>([]);
-
-  useEffect(() => { // TODO: This useeffect can probably be abstractated, we use it in above component aswell
-    const newItems: treeItem[] = availableRoadmaps.map((roadmap) => ({
-      expanded: null,
-      name: roadmap.name,
-      value: roadmap.id,
-      onExpand: () => {
-        return clientSafeGetOneRoadmap(roadmap.id).then((data) => {
-          if (!data) return [];
-          return data.goals.map((goal) => ({
-            name: goal.name ? goal.name : goal.indicatorParameter,
-            value: goal.dataSeries ? goal.dataSeries.id : '',
-            expanded: null,
-          }));
-        });
-      },
-    }));
-    setTreeItems(newItems);
-  }, [availableRoadmaps]);
-
-  const handleDataSeriesChange = useCallback( // TODO: This callback can probably be abstractated, we use it in above component aswell
-    (selectedDataSeries: treeItem | null) => {
-      if (selectedDataSeries?.value) {
-        changeDataSeries(name, selectedDataSeries.value, setRecipe);
-      }
-    },
-    [name, setRecipe]
-  );
+  const treeItems = useRoadmapTreeItems(availableRoadmaps);
+  const handleDataSeriesChange = useHandleDataSeriesChange(name, setRecipe);
 
   if (!isRecipeDataSeries(variable)) {
     console.error(`Variable "${name}" is not a valid DataSeriesVariable`, variable);

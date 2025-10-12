@@ -48,7 +48,7 @@ export default function VariableTypeCommon({
           {name}
         </legend>
         <fieldset disabled={!editable} className="grid gap-25" style={{ gridTemplateColumns: 'auto auto', gridTemplateRows: 'auto auto', rowGap: '.5rem' }}>
-          <div className="focusable floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
+          <div className="floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
             <label htmlFor={`variable-name-${name}`}>
               {t("components:recipe_editor.variable_name_placeholder")}
             </label>
@@ -61,7 +61,7 @@ export default function VariableTypeCommon({
               type="text"
             />
           </div>
-          <div className="focusable floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
+          <div className="floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
             <label htmlFor={`variable-unit-${name}`}>
               {t("components:recipe_editor.unit_placeholder")}
             </label>
@@ -76,7 +76,7 @@ export default function VariableTypeCommon({
               options={Object.keys(Unit.UNITS).map(unit => ({ name: unit, value: unit }))}
             />
           </div>
-          <div className="focusable floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
+          <div className="floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
             <label htmlFor={`variable-type-${name}`}>
               Typ {/* TODO: i18n  */}
             </label>

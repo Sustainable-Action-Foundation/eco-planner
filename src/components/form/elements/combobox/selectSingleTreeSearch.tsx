@@ -211,7 +211,7 @@ export default function SelectSingleTreeSearch({
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
       style={{ ...props.style, userSelect: 'none' }} 
     >
-      <button
+      <button // TODO: Should this and select inptus be an input with type button? Might make floating labels easier? 
         title={value?.name}
         id={props.id}
         className={`${styles['select-toggle']}`}

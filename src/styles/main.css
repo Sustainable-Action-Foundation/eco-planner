@@ -19,7 +19,11 @@
   border-color: #191919;
 }
 
-.focusable :is(input, select, div:has(input)) {
+.focusable :is(
+  input, 
+  select, 
+  button, 
+) {
   outline: none;
   box-shadow: none;
   background-color: transparent;
@@ -33,9 +37,10 @@
   --background: white;
 }
 
-.floating-label label {
+.floating-label > label {
+  z-index: 1;
   font-size: small;
-  cursor: text;
+  cursor: text; /* TODO: This is wrong when we use this for selects or buttons */
   line-height: 1;
   position: absolute;
   color: gray;
@@ -48,12 +53,13 @@
     color .1s ease;
 }
 
-.floating-label:has(:disabled) label {
+.floating-label:has(:disabled) > label {
   cursor: not-allowed;
 }
   
-.floating-label:focus-within label,
-.floating-label:has(:is(input, select):not(:placeholder-shown)) label {
+.floating-label:focus-within > label,
+.floating-label:has(:is(input, select):not(:placeholder-shown)) > label,
+.floating-label:has(button > span:not(:empty)) > label {
   top: 0;
   transform: translateY(-65%);
   scale: .85;
@@ -62,7 +68,7 @@
 }
 
 .floating-label:focus-within label::after,
-.floating-label:has(:is(input, select):not(:placeholder-shown)) label::after {
+.floating-label:has(:is(input, select, button):not(:placeholder-shown)) label::after {
   visibility: visible;
 }
 
