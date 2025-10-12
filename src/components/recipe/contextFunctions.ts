@@ -111,7 +111,7 @@ export function changeScalarValue(name: string, newValue: string | number, sette
   });
 }
 
-export function changeDataSeries(name: string, newDataSeries: string, availableLinks: { id: string }[], setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
+export function changeDataSeries(name: string, newDataSeries: string, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
   setter(prev => {
     if (!prev) return null;
 

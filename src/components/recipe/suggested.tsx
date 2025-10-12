@@ -12,7 +12,6 @@ import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import TabList from "../generic/tablist/tabList";
 import OutputDataSeries from "./editor/output/dataSerie";
 import OutputGraph from "./editor/output/graph";
-import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 
 // TODO: Rename (SuggestedRecipes)
 export function RecipeSuggestions({
@@ -36,8 +35,6 @@ export function RecipeSuggestions({
   const { recipe, setRecipe } = useRecipe();
 
   const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[]>([]);
-  const [selectedRoadmaps, setSelectedRoadmaps] = useState<string[]>([]);
-  const [availableDataSeries, setAvailableDataSeries] = useState<{ id: string; name: string; roadmapId: string; }[]>([]);
   const [selectedHash, setSelectedHash] = useState<string>("");
 
   useEffect(() => {
@@ -76,63 +73,6 @@ export function RecipeSuggestions({
 
     fetchRoadmaps().catch(e => { throw e; });
   }, [t]);
-
-  // On selecting a roadmap, fetch its data series as selectable options
-  useEffect(() => {
-    if (!recipe || !recipe.variables) return;
-
-    if (selectedRoadmaps.length === 0) {
-      return;
-    }
-
-    // TODO: Need to do this when we expand a roadmap in our tree select instead of when we select one like we did previously
-    async function fetchOneDataSeries(roadmapId: string) {
-      try {
-        const roadmapData = await clientSafeGetOneRoadmap(roadmapId);
-        if (!roadmapData?.goals) return;
-
-        const goals = roadmapData?.goals;
-        if (!goals || !Array.isArray(goals) || goals.length === 0) {
-          console.warn("No goals found in roadmap", roadmapId);
-          return;
-        }
-
-        const series = goals.filter(g => g.dataSeries).map(goal => {
-          if (!goal.dataSeries) return null;
-          return {
-            id: goal.dataSeries.id,
-            name: goal.name || goal.indicatorParameter,
-            roadmapId: roadmapId,
-            ...(goal.dataSeries.unit ? { unit: goal.dataSeries.unit } : {})
-          }
-        });
-        if (!series || series.length === 0) {
-          console.warn("No data series found in roadmap", roadmapId);
-          return;
-        }
-
-        const nonNullSeries = series.filter(ds => ds !== null);
-
-        setAvailableDataSeries(nonNullSeries);
-      }
-      catch (e) {
-        console.error("Failed to fetch data series for roadmap", e);
-      }
-    }
-
-    async function fetchAllDataSeries() {
-      if (!selectedRoadmaps || selectedRoadmaps.length === 0) return;
-
-      // TODO: even though it iterates it will override the last fetched data series
-      for (const roadmapId of selectedRoadmaps) {
-        await fetchOneDataSeries(roadmapId);
-      }
-    }
-
-    fetchAllDataSeries().catch(e => { throw e; });
-
-  }, [recipe, selectedRoadmaps]);
-
 
   for (const recipe of suggestedRecipes) {
     if (!isRecipe(recipe.recipe)) {
@@ -228,10 +168,7 @@ export function RecipeSuggestions({
                   <VariableTypeDataSeriesSimple
                     key={"recipeVariable" + i}
                     name={key}
-                    rules={rules}
                     availableRoadmaps={availableRoadmaps}
-                    availableDataSeries={availableDataSeries}
-                    setSelectedRoadmaps={setSelectedRoadmaps}
                   />
                 </Fragment>
               );
