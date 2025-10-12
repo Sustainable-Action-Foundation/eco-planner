@@ -73,6 +73,47 @@
   visibility: visible;
 }
 
+/* Select two (alternative to simple radiobuttons */ 
+  .select-two {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    text-align: center;
+    background-color: white;
+    border: 1px solid var(--gray-80);
+    border-radius: .25rem;
+    font-size: small;
+  }
+
+  .select-two > label {
+    position: relative;
+    padding: .35rem;            
+  } 
+
+  .select-two > label:first-child {
+    border-radius: .25rem 0 0 .25rem;
+  }
+
+  .select-two > label:last-child {
+    border-radius: 0 .25rem .25rem 0;
+  }
+
+  .select-two > label:not(:last-child) {
+    border-right: 1px solid var(--gray-80);
+  }
+
+  .select-two > label > input[type="radio"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0; /* TODO: Figure out accesibility here ?*/ 
+  } 
+
+  .select-two > label:has(input[type="radio"]:checked) {
+    background-color: rgba(153, 211, 255, .35);
+  } 
+
 .font-size-smaller {
   font-size: smaller;
 }
