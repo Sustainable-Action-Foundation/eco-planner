@@ -30,24 +30,21 @@ export default function VariableTypeCommon({
   rules = { ...defaultInputRules, ...rules };
 
   return (
-    <li className="padding-bottom-75 margin-bottom-75">
-      <fieldset
-        className={`flex gap-100 align-items-flex-start justify-content-space-between ${styles['variable-fieldset']}`}
+    <fieldset
+      className={`flex gap-100 align-items-flex-start justify-content-space-between ${styles['variable-fieldset']}`}
+    >
+      <button
+        className="padding-25 round transparent "
+        style={{ verticalAlign: 'middle' }}
+        type="button"
+        title="Edit variable" // TODO: I18n
+        aria-label="Edit variable" // TODO: I18n
+        onClick={() => setEditable(!editable)}
       >
-        <legend className="margin-bottom-100 flex align-items-center gap-25" style={{textTransform: 'capitalize'}}>
-          <button
-            className="padding-25 round transparent "
-            style={{ verticalAlign: 'middle' }}
-            type="button"
-            title="Edit variable" // TODO: I18n
-            aria-label="Edit variable" // TODO: I18n
-            onClick={() => setEditable(!editable)}
-          >
-            <IconEdit width={20} height={20} className="grid" />
-          </button>
-          {name}
-        </legend>
-        <fieldset disabled={!editable} className="grid gap-25" style={{ gridTemplateColumns: 'auto auto', gridTemplateRows: 'auto auto', rowGap: '.5rem' }}>
+        <IconEdit width={20} height={20} className="grid" />
+      </button>
+      <fieldset disabled={!editable} className="flex-grow-100">
+        <div className="flex gap-25 align-items-center margin-bottom-75">
           <div className="floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
             <label htmlFor={`variable-name-${name}`}>
               {t("components:recipe_editor.variable_name_placeholder")}
@@ -65,9 +62,9 @@ export default function VariableTypeCommon({
             <label htmlFor={`variable-unit-${name}`}>
               {t("components:recipe_editor.unit_placeholder")}
             </label>
-            <TextSingleAutocomplete 
+            <TextSingleAutocomplete
               props={{
-                id: `variable-unit-${name}`, 
+                id: `variable-unit-${name}`,
                 name: `variable-unit-${name}`,
                 defaultValue: variable.unit || "",
                 placeholder: " ",
@@ -91,23 +88,23 @@ export default function VariableTypeCommon({
               <option value={RecipeDataTypes.Scalar}>{t("components:recipe_editor.scalar")}</option>
             </select>
           </div>
-        </fieldset>
-        <fieldset disabled={!editable} className="flex-grow-100">
+        </div>
+        <div className="flex gap-25 align-items-center ">
           {children}
-        </fieldset>
-        {rules.allowDeleteVariables &&
-          <button
-            disabled={!editable}
-            className="padding-25 round transparent margin-left-50"
-            style={{ verticalAlign: 'middle' }}
-            type="button"
-            title="delete" // TODO: I18n
-            onClick={() => deleteVariable(name, setRecipe)}
-          >
-            <IconTrashXFilled width={20} height={20} className="grid" />
-          </button>
-        }
+        </div>
       </fieldset>
-    </li>
+      {rules.allowDeleteVariables &&
+        <button
+          disabled={!editable}
+          className="padding-25 round transparent margin-left-50"
+          style={{ verticalAlign: 'middle' }}
+          type="button"
+          title="delete" // TODO: I18n
+          onClick={() => deleteVariable(name, setRecipe)}
+        >
+          <IconTrashXFilled width={20} height={20} className="grid" />
+        </button>
+      }
+    </fieldset>
   )
 }

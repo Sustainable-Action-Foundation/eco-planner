@@ -58,34 +58,40 @@ export default function VariableEditor({
         switch (variable.type) {
           case RecipeDataTypes.Scalar:
             return (
-              <VariableTypeScalar
-                key={"recipeVariable" + i}
-                name={name}
-                rules={rules}
-              />
+              <li className="padding-bottom-75 margin-bottom-75">
+                <VariableTypeScalar
+                  key={"recipeVariable" + i}
+                  name={name}
+                  rules={rules}
+                />
+              </li>
             )
           case RecipeDataTypes.DataSeries:
             return (
-              <VariableTypeDataSeries
-                key={"recipeVariable" + i}
-                name={name}
-                rules={rules}
-                availableRoadmaps={availableRoadmaps}
-              />
+              <li className="padding-bottom-75 margin-bottom-75">
+                <VariableTypeDataSeries
+                  key={"recipeVariable" + i}
+                  name={name}
+                  rules={rules}
+                  availableRoadmaps={availableRoadmaps}
+                />
+              </li>
             )
           case RecipeDataTypes.External:
             return (
-              <VariableTypeExternal
-                key={"recipeVariable" + i}
-                name={name}
-                rules={rules}
-              />
+              <li className="padding-bottom-75 margin-bottom-75">
+                <VariableTypeExternal
+                  key={"recipeVariable" + i}
+                  name={name}
+                  rules={rules}
+                />
+              </li>
             )
           default:
             variable = variable as RecipeVariables;
             console.warn("Unknown variable type", variable.type, "for variable", name);
         }
       })}
-    </ul>
+    </ul >
   );
 }
