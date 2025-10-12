@@ -27,20 +27,25 @@ export default function VariableTypeScalar({
       name={name}
       rules={rules}
     >
-      <input
-        defaultValue={variable.value}
-        onChange={(e) => changeScalarValue(name, e.target.value, setRecipe)}
-        type="number"
-        placeholder={t("components:recipe_editor.scalar")}
-        disabled={!rules.allowValueEditing}
-        readOnly={!rules.allowValueEditing}
-      />
+      <div className="floating-label inline-block" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
+        <label htmlFor="variable-tree-vector-index-picker">
+          {t("components:recipe_editor.scalar")}
+        </label>
+        <input
+          defaultValue={variable.value}
+          onChange={(e) => changeScalarValue(name, e.target.value, setRecipe)}
+          type="number"
+          placeholder=" "
+          disabled={!rules.allowValueEditing}
+          readOnly={!rules.allowValueEditing}
+        />
+      </div>
     </VariableTypeCommon>
   )
 }
 
 export function VariableTypeScalarSimple({
-  name, 
+  name,
   rules
 }: {
   name: string,

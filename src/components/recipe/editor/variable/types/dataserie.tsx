@@ -83,7 +83,8 @@ export default function VariableTypeDataSeries({
       name={name}
       rules={rules}
     >
-      <div className="floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>    
+      {/* TODO: Why is this height mismatched */}
+      <div className="inline-block floating-label" style={{verticalAlign: "top", width: "200px", "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>    
         <label htmlFor="variable-tree">
           Välj målbana eller effekt {/* TODO: i18n */}
         </label>
@@ -96,11 +97,11 @@ export default function VariableTypeDataSeries({
           onChange={handleDataSeriesChange}
         />
       </div>
-      <div className="floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>    
+      <div className="inline-block floating-label" style={{width: "200px", "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>    
         <label htmlFor="variable-tree-vector-index-picker">
           Värde
         </label>
-        <VectorIndexPicker id="variable-tree-vector-index-picker" /> {/* TODO: Name and id must be dynamic */}
+        <VectorIndexPicker id="variable-tree-vector-index-picker" /> {/* TODO: Id must be dynamic */}
       </div>
     </VariableTypeCommon >
   )
