@@ -73,7 +73,7 @@ export default function DataSeriesInput({
 
   return (
     <>
-      <fieldset className="block margin-block-100 fieldset-unset-pseudo-class">
+      <fieldset className="block fieldset-unset-pseudo-class">
         <legend
           className="flex flex-wrap-wrap gap-100 justify-content-space-between align-items-center width-100 margin-bottom-100 padding-bottom-25"
           style={{ borderBottom: '1px solid var(--gray)' }}

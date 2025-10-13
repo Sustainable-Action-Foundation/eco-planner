@@ -84,7 +84,7 @@
     "data_series_type_label": "Data series",
     "data_series_types": {
       "static": "Manually inputted",
-      "inherited": "Inherited",
+      "recipe": "Recipe",
       "combined": "Combined"
     },
     "default_scaling_recipe": "Default scaling recipe",

@@ -37,27 +37,6 @@ export function RecipeSuggestions({
   const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[]>([]);
   const [selectedHash, setSelectedHash] = useState<string>("");
 
-  useEffect(() => {
-    if (!recipe) {
-      setSelectedHash("");
-      return;
-    }
-
-    const match = suggestedRecipes.find(s => {
-      try {
-        return JSON.stringify(s.recipe) === JSON.stringify(recipe);
-      } catch {
-        return false;
-      }
-    });
-
-    if (match) {
-      setSelectedHash(match.hash);
-    } else {
-      setSelectedHash("");
-    }
-  }, [recipe, suggestedRecipes]);
-
   // On mount, fetch all roadmaps user has access to
   // TODO: This is reused from editor/variable/editor.tsx, can probably abstract this somehow
   useEffect(() => {
@@ -194,32 +173,34 @@ export function RecipeSuggestions({
           }
         })}
       </div>
-      <TabList
-        defaultIndex={0}
-        styling="simple"
-        props={{
-          className: "margin-top-200",
-        }}
-      >
-        <div
-          data-tabname="equation"
-          className="padding-top-50 margin-bottom-100"
+      {selectedHash ? 
+        <TabList
+          defaultIndex={0}
+          styling="simple"
+          props={{
+            className: "margin-top-200",
+          }}
         >
-          <p className="margin-0">{recipe?.eq}</p> {/* TODO: i18n */}
-        </div>
-        <div
-          data-tabname="dataserie"
-          className="padding-top-50 margin-bottom-100" // TODO: Show fallback if there is  no resultingdata-series
-        >
-          <OutputDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />
-        </div>
-        <div
-          data-tabname="graph" 
-          className="padding-top-50 margin-bottom-100"
-        >
-          <OutputGraph />
-        </div>
-      </TabList>
+          <div
+            data-tabname="equation"
+            className="padding-top-50 margin-bottom-100"
+          >
+            <p className="margin-0">{recipe?.eq}</p> {/* TODO: i18n */}
+          </div>
+          <div
+            data-tabname="dataserie"
+            className="padding-top-50 margin-bottom-100" // TODO: Show fallback if there is  no resultingdata-series
+          >
+            <OutputDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />
+          </div>
+          <div
+            data-tabname="graph" 
+            className="padding-top-50 margin-bottom-100"
+          >
+            <OutputGraph />
+          </div>
+        </TabList>
+      : null}
     </>
   );
 }

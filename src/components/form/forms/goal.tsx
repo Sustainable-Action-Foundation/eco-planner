@@ -67,7 +67,7 @@ export default function GoalForm({
       return currentGoal.description;
     }
   });
-  
+
   // Memoized timestamp for the form submission (used for optimistic updates)
   const timestamp = useMemo(() => Date.now(), []);
 
@@ -267,31 +267,34 @@ export default function GoalForm({
 
         </fieldset>
 
-        {/* Data series type selection (static, inherited, combined) 
-        <fieldset className={`${styles.timeLineFieldset} width-100 ${positionIndex > 1 ? "margin-top-200" : ""}`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.data_series_type_legend")}</legend>
-
-        </fieldset>*/}
-
         {/* Data series input section (varies by type) */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_goal_data_series")}</legend>
-
-          <fieldset className="fieldset-unset-pseudo-class">
-            <legend style={{float: 'left', marginRight: '1rem', transform: 'translateY(50%)'}}>{t("forms:goal.data_series_type_label")}:</legend>  {/* TODO: there is a better label for this */}
-            <div className="radio-select-multiple margin-top-25 margin-bottom-100" style={{width: '300px'}}>
-              <label>
-                {t("forms:goal.data_series_types.inherited")}
-                <input checked={dataSeriesType === DataSeriesType.Inherited} onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)} value={DataSeriesType.Inherited} type="radio" name="alternative" required /> 
-              </label> 
-              <label>
-                {t("forms:goal.data_series_types.static")}
-                <input checked={dataSeriesType === DataSeriesType.Static} onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)} value={DataSeriesType.Static} type="radio" name="alternative" required />  {/* TODO: update name */}
-              </label>
-              {/* <option value={DataSeriesType.Combined}>{t("forms:goal.data_series_types.combined")}</option> TODO: Remove this? */}
-            </div> 
-          </fieldset>
-
+          <div>
+            <label className="flex width-fit-content margin-block-75 align-items-center gap-50">
+              <input 
+                checked={dataSeriesType === DataSeriesType.Static} 
+                onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)} 
+                value={DataSeriesType.Static} 
+                type="radio" 
+                name="alternative" 
+                required 
+              />  {/* TODO: update name */}
+              Ange dataserie manuellt
+            </label>
+            <label className="flex width-fit-content align-items-center gap-50 margin-bottom-100">
+              <input
+                checked={dataSeriesType === DataSeriesType.Inherited}
+                onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
+                value={DataSeriesType.Inherited} /* TODO: Recipe type dataseries */
+                type="radio"
+                name="alternative"
+                required
+              />
+              Använd recept
+            </label>
+          </div>
+          
           {(dataSeriesType === DataSeriesType.Static || !dataSeriesType) &&
             <ManualGoalForm currentGoal={currentGoal} dataSeriesString={dataSeriesString} />
           }

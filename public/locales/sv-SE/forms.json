@@ -84,7 +84,7 @@
     "data_series_type_label": "Dataserie",
     "data_series_types": {
       "static": "Manuellt angiven",
-      "inherited": "Ärvd",
+      "recipe": "Recept",
       "combined": "Kombinerad"
     },
     "default_scaling_recipe": "Standardskalningsrecept",

@@ -13,7 +13,7 @@ export default function SuggestionToggle() {
     <>
       <div className="radio-select-two margin-bottom-100" >
         <label id="recipe-type-suggested-label">
-          Välj bland recept
+          Välj färdiga recept
           <input
             className="margin-right-25"
             type="radio"
@@ -24,7 +24,7 @@ export default function SuggestionToggle() {
             onChange={() => { setVisibilityType("suggested"); setRecipe(null) }}
           />
         </label>
-        <span>‒ eller ‒</span>
+        <span>&#8210; eller &#8210;</span>
         <label>
           Skapa recept
           <input
