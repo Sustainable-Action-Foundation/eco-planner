@@ -277,29 +277,18 @@ export default function GoalForm({
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_goal_data_series")}</legend>
 
-          <label>
-            {t("forms:goal.data_series_type_label")}
-            <select name="dataSeriesType" id="dataSeriesType" className="margin-top-25 margin-bottom-100 block" required
-              defaultValue={defaultDataSeriesType}
-              onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
-            >
-              <option value={DataSeriesType.Static}>{t("forms:goal.data_series_types.static")}</option>
-              <option value={DataSeriesType.Inherited}>{t("forms:goal.data_series_types.inherited")}</option>
-              {/* <option value={DataSeriesType.Combined}>{t("forms:goal.data_series_types.combined")}</option> TODO: Remove this? */}
-            </select>
-          </label>
-
-          <fieldset className="fieldset-unset-pseudo-class" style={{width: "400px"}}>
-            <legend>{t("forms:goal.data_series_type_label")}</legend>  {/* TODO: there is a better label for this */}
-            <div className="select-two">
+          <fieldset className="fieldset-unset-pseudo-class">
+            <legend style={{float: 'left', marginRight: '1rem', transform: 'translateY(50%)'}}>{t("forms:goal.data_series_type_label")}:</legend>  {/* TODO: there is a better label for this */}
+            <div className="radio-select-multiple margin-top-25 margin-bottom-100" style={{width: '300px'}}>
               <label>
                 {t("forms:goal.data_series_types.inherited")}
                 <input checked={dataSeriesType === DataSeriesType.Inherited} onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)} value={DataSeriesType.Inherited} type="radio" name="alternative" required /> 
-              </label>
+              </label> 
               <label>
                 {t("forms:goal.data_series_types.static")}
                 <input checked={dataSeriesType === DataSeriesType.Static} onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)} value={DataSeriesType.Static} type="radio" name="alternative" required />  {/* TODO: update name */}
               </label>
+              {/* <option value={DataSeriesType.Combined}>{t("forms:goal.data_series_types.combined")}</option> TODO: Remove this? */}
             </div> 
           </fieldset>
 

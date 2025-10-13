@@ -108,10 +108,9 @@ export function RecipeSuggestions({
   return (
     <>
       {/* Suggested recipes */}
-      <label>
-        Recept
+      <label className="flex gap-50 margin-bottom-100 margin-top-25 align-items-center">
+        Recept: 
         <select
-          className='margin-bottom-100 block margin-top-25'
           id="select-preset"
           value={selectedHash}
           onChange={handleChange}
@@ -129,7 +128,7 @@ export function RecipeSuggestions({
       {/* TODO: Note that this stuff needs to be submitted alongside the form which it isnt right now (i think....) */}
       {/* TODO: We should be using a grid instead of flex to properly align items here */}
       <div
-        className="grid gap-50"
+        className="grid gap-50 padding-left-100"
         style={{
           gridTemplateColumns: 'auto 1fr',
           gridTemplateRows: 'auto auto',
@@ -199,7 +198,7 @@ export function RecipeSuggestions({
         defaultIndex={0}
         styling="simple"
         props={{
-          className: "margin-top-75",
+          className: "margin-top-200",
         }}
       >
         <div
