@@ -58,7 +58,7 @@ export default function VariableEditor({
         switch (variable.type) {
           case RecipeDataTypes.Scalar:
             return (
-              <li className="padding-bottom-75 margin-bottom-75">
+              <li className="padding-bottom-75 margin-bottom-75" key={name}>
                 <VariableTypeScalar
                   key={"recipeVariable" + i}
                   name={name}
@@ -68,7 +68,7 @@ export default function VariableEditor({
             )
           case RecipeDataTypes.DataSeries:
             return (
-              <li className="padding-bottom-75 margin-bottom-75">
+              <li className="padding-bottom-75 margin-bottom-75" key={name}>
                 <VariableTypeDataSeries
                   key={"recipeVariable" + i}
                   name={name}
@@ -79,7 +79,7 @@ export default function VariableEditor({
             )
           case RecipeDataTypes.External:
             return (
-              <li className="padding-bottom-75 margin-bottom-75">
+              <li className="padding-bottom-75 margin-bottom-75" key={name}>
                 <VariableTypeExternal
                   key={"recipeVariable" + i}
                   name={name}
