@@ -4,8 +4,11 @@ import { useState } from "react";
 import { useRecipe } from "./contextProvider";
 import RecipeEditor from "./editor/editor";
 import { RecipeSuggestions, suggestedRecipes } from "./suggested";
+import { useTranslation } from "react-i18next";
 
 export default function SuggestionToggle() {
+  const { t } = useTranslation(["forms", "common"]);
+  
   const [visibilityType, setVisibilityType] = useState<"suggested" | "custom">("suggested")
   const { setRecipe } = useRecipe()
 
@@ -13,7 +16,7 @@ export default function SuggestionToggle() {
     <>
       <div className="radio-select-two margin-bottom-100" >
         <label id="recipe-type-suggested-label">
-          Välj färdiga recept
+          {t("forms:goal.select_recipe")}
           <input
             className="margin-right-25"
             type="radio"
@@ -24,9 +27,9 @@ export default function SuggestionToggle() {
             onChange={() => { setVisibilityType("suggested"); setRecipe(null) }}
           />
         </label>
-        <span>&#8210; eller &#8210;</span>
+        <span>&#8210; {t("common:tsx.or")} &#8210;</span>
         <label>
-          Skapa recept
+          {t("forms:goal.create_recipe")}
           <input
             className="margin-right-25"
             type="radio"

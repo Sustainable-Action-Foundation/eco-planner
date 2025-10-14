@@ -243,7 +243,6 @@ export default function GoalForm({
         {!(roadmapId || currentGoal?.roadmapId) ?
           <fieldset className={`${styles.timeLineFieldset} width-100`}>
             <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_relationship")}</legend>
- 
             <label htmlFor="parent-roadmap">{t("forms:goal.relationship_label")}</label>
             <SelectSingleSearch
               props={{
@@ -285,7 +284,7 @@ export default function GoalForm({
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_goal_data_series")}</legend>
           <div>
-            <label className="flex width-fit-content margin-block-75 align-items-center gap-50">
+            <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50">
               <input 
                 checked={dataSeriesType === DataSeriesType.Static} 
                 onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)} 
@@ -294,7 +293,7 @@ export default function GoalForm({
                 name="alternative" 
                 required 
               />  {/* TODO: update name */}
-              Ange dataserie manuellt
+              {t("forms:goal.derive_data_series_manually")}
             </label>
             <label className="flex width-fit-content align-items-center gap-50 margin-bottom-100">
               <input
@@ -305,7 +304,7 @@ export default function GoalForm({
                 name="alternative"
                 required
               />
-              Använd recept
+              {t("forms:goal.derive_data_series_recipe")}
             </label>
           </div>
           

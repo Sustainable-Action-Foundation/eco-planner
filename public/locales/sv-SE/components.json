@@ -46,6 +46,12 @@
     "recipe_label": "Recept: "
   },
   "recipe_editor": {
+    "recipe": "Recept",
+    "equation": "Ekvation",
+    "variables": "Variabler",
+    "status": "Status",
+    "dataserie": "Dataserie",
+    "graph": "Graf",
     "variable_name_placeholder": "Namn",
     "unit_placeholder": "Enhet",
     "data_series": "Dataserie",

@@ -102,7 +102,6 @@ export function RecipeSuggestions({
           ))}
         </select>
       </label>
-      {/* TODO: Potentially want this inside a fieldset */}
       {/* TODO: Note that labels are as of now not valid. I believe however that it will be solved with tree select as this should reduce the number of items in a simple variabletype to one */}
       {/* TODO: Note that this stuff needs to be submitted alongside the form which it isnt right now (i think....) */}
       {/* TODO: We should be using a grid instead of flex to properly align items here */}
@@ -182,19 +181,19 @@ export function RecipeSuggestions({
           }}
         >
           <div
-            data-tabname="equation"
+            data-tabname={t("components:recipe_editor.equation")}
             className="padding-top-50 margin-bottom-100"
           >
             <p className="margin-0">{recipe?.eq}</p> {/* TODO: i18n */}
           </div>
           <div
-            data-tabname="dataserie"
+            data-tabname={t("components:recipe_editor.dataserie")}
             className="padding-top-50 margin-bottom-100" // TODO: Show fallback if there is  no resultingdata-series
           >
             <OutputDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />
           </div>
           <div
-            data-tabname="graph" 
+            data-tabname={t("components:recipe_editor.graph")}
             className="padding-top-50 margin-bottom-100"
           >
             <OutputGraph />

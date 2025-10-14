@@ -46,6 +46,12 @@
     "recipe_label": "Recipe: "
   },
   "recipe_editor": {
+    "recipe": "Recipe",
+    "equation": "Equation",
+    "variables": "Variables",
+    "status": "Status",
+    "dataserie": "Dataserie",
+    "graph": "Graph",
     "variable_name_placeholder": "Name",
     "unit_placeholder": "Unit",
     "data_series": "Data series",

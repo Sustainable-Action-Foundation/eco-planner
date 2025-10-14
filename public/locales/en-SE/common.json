@@ -75,7 +75,8 @@
     "no_suggestions": "No suggestions",
     "no_results": "No results",
     "unit_missing": "missing unit",
-    "unitless": "unitless"
+    "unitless": "unitless",
+    "or": "or"
   },
   "placeholder": {
     "name": "Username",
