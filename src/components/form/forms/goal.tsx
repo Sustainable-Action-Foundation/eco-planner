@@ -21,6 +21,7 @@ import RecipeEditor from "@/components/recipe/editor/editor";
 import TextEditor from "../elements/textEditor/editor";
 import { Content } from "@tiptap/core";
 import SuggestionToggle from "@/components/recipe/suggestionToggle";
+import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 
 // Enum for selecting the type of data series for the goal
 enum DataSeriesType {
@@ -67,6 +68,15 @@ export default function GoalForm({
       return currentGoal.description;
     }
   });
+  const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId || "")
+
+  const parentRoadmaps = useMemo(() => {
+    return (roadmapAlternatives ?? []).map(roadmap => ({
+      name: roadmap.metaRoadmap.name,
+      value: roadmap.id
+    }));
+  }, [roadmapAlternatives]);
+
 
   // Memoized timestamp for the form submission (used for optimistic updates)
   const timestamp = useMemo(() => Date.now(), []);
@@ -186,12 +196,13 @@ export default function GoalForm({
         rawBaselineDataSeries: baselineDataSeries,
         rawBaselineDataSeriesUnit: baselineDataSeries ? parsedUnit || formData.get("dataUnit") as string | null || undefined : undefined,
 
-        roadmapId: roadmapId || (typeof formData.get("roadmapId") == "string" ? formData.get("roadmapId") as string : (event.target.reportValidity(), "")),
+        roadmapId: roadmapId || parentRoadmapId,
         rawTags: undefined, // TODO: add tags input
 
         // DEPRECATED - moved to description
         links: undefined,
       }
+        console.log(formData.get("parent-roadmap"))
     }
 
     const formJSON = JSON.stringify(formContent);
@@ -220,6 +231,7 @@ export default function GoalForm({
 
   // Index for data-position attribute in legend elements (for accessibility)
   let positionIndex = 1;
+  
 
   return (
     <>
@@ -231,17 +243,19 @@ export default function GoalForm({
         {!(roadmapId || currentGoal?.roadmapId) ?
           <fieldset className={`${styles.timeLineFieldset} width-100`}>
             <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_relationship")}</legend>
-            <label>
-              {t("forms:goal.relationship_label")}
-              <select name="roadmapId" id="roadmapId" required className="margin-top-25 margin-bottom-100 block" defaultValue={""}>
-                <option value="" disabled>{t("forms:goal.relationship_no_chosen")}</option>
-                {roadmapAlternatives.map(roadmap => (
-                  <option key={roadmap.id} value={roadmap.id}>
-                    {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("common:count.goal", { count: roadmap._count.goals })}`}
-                  </option>
-                ))}
-              </select>
-            </label>
+ 
+            <label htmlFor="parent-roadmap">{t("forms:goal.relationship_label")}</label>
+            <SelectSingleSearch
+              props={{
+                required: true,
+                className: "margin-top-25 margin-bottom-100",
+                id: "parent-roadmap",
+                name: "parent-roadmap",
+                placeholder: `${t("common:tsx.select")}  ${t("common:roadmap_short_one")}`,
+              }}
+              onChange={(value) => value?.value ? setParentRoadmapId(value.value) : setParentRoadmapId("")}
+              options={parentRoadmaps}
+            />
           </fieldset>
           : null
         }
