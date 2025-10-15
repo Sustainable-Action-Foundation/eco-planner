@@ -1,9 +1,8 @@
 "use client"
- 
-import { graphNumberFormatter } from "@/lib/chartWrapper";
-import { useRecipe } from "../../contextProvider"; 
+
+import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
+import { useRecipe } from "../../contextProvider";
 import { ApexOptions } from "apexcharts";
-import Chart from "react-apexcharts"
 
 // TODO: Does this take historical data into account? Do we need to account for it?
 // TODO: We should have a visible title for our graph
@@ -27,10 +26,10 @@ export default function OutputGraph() {
 
   const chartOptions: ApexOptions = {
     chart: {
-      animations: {enabled: false},
+      animations: { enabled: false },
       type: "line",
-      zoom: {enabled: false},
-      toolbar: {show: false}
+      zoom: { enabled: false },
+      toolbar: { show: false }
     },
     xaxis: {
       categories: years,
@@ -43,6 +42,6 @@ export default function OutputGraph() {
   };
 
   return (
-    <Chart options={chartOptions} series={chartSeries} type="line" />
+    <WrappedChart options={chartOptions} series={chartSeries} type="line" />
   );
 }
