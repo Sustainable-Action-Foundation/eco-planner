@@ -70,6 +70,7 @@ export default function GoalForm({
   });
   const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId || "")
 
+  // TODO: Include roadmap version in name to avoid confusion
   const parentRoadmaps = useMemo(() => {
     return (roadmapAlternatives ?? []).map(roadmap => ({
       name: roadmap.metaRoadmap.name,
