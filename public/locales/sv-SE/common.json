@@ -75,8 +75,7 @@
     "no_suggestions": "Inga förslag",
     "no_results": "Inga resultat",
     "unit_missing": "enhet saknas",
-    "unitless": "enhetslös",
-    "or": "eller"
+    "unitless": "enhetslös"
   },
   "placeholder": {
     "name": "Användarnamn",
