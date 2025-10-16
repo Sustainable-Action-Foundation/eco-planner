@@ -160,7 +160,7 @@ export default function EffectForm({
             <option value={ActionImpactType.DELTA}>{t("forms:effect.impact_types.delta")}</option>
             <option value={ActionImpactType.PERCENT}>{t("forms:effect.impact_types.percent")}</option>
           </select>
-        </label> 
+        </label>
 
         <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
           <button
@@ -169,7 +169,7 @@ export default function EffectForm({
             type="submit"
             id="submit-button"
           >
-            {currentEffect ? t("common:tsx.save") : t("common:tsx.create") + ` ${t("common:effect_one")}`}
+            {currentEffect ? t("common:tsx.save") : t("forms:effect.create")}
           </button>
         </div>
 

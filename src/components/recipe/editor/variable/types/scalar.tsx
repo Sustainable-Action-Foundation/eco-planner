@@ -7,7 +7,6 @@ import { InputRules, defaultInputRules } from "./rules";
 import { changeScalarValue } from "@/components/recipe/contextFunctions";
 import VariableTypeCommon from "./common";
 
-// TODO: I18n
 // TODO: Fix labels
 export default function VariableTypeScalar({
   name,

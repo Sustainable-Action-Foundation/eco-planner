@@ -204,7 +204,7 @@ export default function ActionForm({
             type="submit"
             id="submit-button"
           >
-            {currentAction ? t("common:tsx.save") : t("common:tsx.create") + ` ${t("common:action_one")}`}
+            {currentAction ? t("common:tsx.save") : t("forms:action.create")}
           </button>
         </div>
       </form>

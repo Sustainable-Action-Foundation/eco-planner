@@ -88,7 +88,7 @@ export function RecipeSuggestions({
     <>
       {/* Suggested recipes */}
       <label className="flex gap-50 margin-bottom-100 margin-top-25 align-items-center">
-        Recept: 
+        Recept:
         <select
           id="select-preset"
           value={selectedHash}
@@ -172,7 +172,7 @@ export function RecipeSuggestions({
           }
         })}
       </div>
-      {selectedHash ? 
+      {selectedHash ?
         <TabList
           defaultIndex={0}
           styling="simple"
@@ -184,7 +184,7 @@ export function RecipeSuggestions({
             data-tabname={t("components:recipe_editor.equation")}
             className="padding-top-50 margin-bottom-100"
           >
-            <p className="margin-0">{recipe?.eq}</p> {/* TODO: i18n */}
+            <p className="margin-0">{recipe?.eq}</p>
           </div>
           <div
             data-tabname={t("components:recipe_editor.dataserie")}
@@ -199,7 +199,7 @@ export function RecipeSuggestions({
             <OutputGraph />
           </div>
         </TabList>
-      : null}
+        : null}
     </>
   );
 }

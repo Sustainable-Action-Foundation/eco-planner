@@ -366,7 +366,7 @@ export default function GoalForm({
             id="submit-button"
           // disabled={isLoading}
           >
-            {currentGoal ? t("common:tsx.save") : t("common:tsx.create") + ` ${t("common:goal_one")}`} {/* TODO: Properly handle I18n */}
+            {currentGoal ? t("common:tsx.save") : t("forms:goal.create")}
           </button>
         </div>
       </form >

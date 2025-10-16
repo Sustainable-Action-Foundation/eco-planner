@@ -34,14 +34,15 @@
     "category_sufficiency": "Sufficiency",
     "category_efficiency": "Efficiency",
     "category_renewables": "Renewables",
-    "attach_external_resources": "Attach external resources"
+    "attach_external_resources": "Attach external resources",
+    "create": "Create $t(common:action_one)"
   },
   "combobox": {
     "search_options": "Search among options",
     "select_single_option": "Select an option",
     "select_multiple_options": "Select one or multiple options",
     "select_or_leave": "Select or leave blank",
-    "show_suggestions": "Show suggestions" 
+    "show_suggestions": "Show suggestions"
   },
   "data_series_input": {
     "data_series": "Data series",
@@ -73,7 +74,8 @@
       "absolute": "Absolute difference compared to baseline",
       "delta": "Change year by year (delta)",
       "percent": "Difference compared to baseline as a percentage of the previous year's total value (baseline + $t(common:action_other))"
-    }
+    },
+    "create": "Create $t(common:effect_one)"
   },
   "goal": {
     "choose_relationship": "Specify the relationship to other posts",
@@ -114,7 +116,8 @@
     "invert_goal": "Invert the $t(common:goal_one) (divide by this $t(common:goal_one) rather than multiply)",
     "select_goal_as_baseline": "Select a $t(common:goal_one) to use as a baseline (values are copied rather than linked)",
     "data_missing": "DATA MISSING; ",
-    "baseline_copied": "Baseline, copied from selected $t(common:goal_one)"
+    "baseline_copied": "Baseline, copied from selected $t(common:goal_one)",
+    "create": "Create $t(common:goal_one)"
   },
   "repeatable_scaling": {
     "specific_value_label": "With what value do you want to scale?",
@@ -155,7 +158,8 @@
     "change_read_access": "Adjust read access",
     "change_edit_access": "Adjust editing access",
     "legend_visibility": "Who may view the roadmap?",
-    "legend_editability": "Who may edit the roadmap?"
+    "legend_editability": "Who may edit the roadmap?",
+    "create": "Create $t(common:roadmap_version_one)"
   },
   "text_editor_menu": {
     "undo": "Undo",
@@ -202,6 +206,7 @@
     "legend_editability": "Who may edit the roadmap series?",
     "relationship_legend": "Is this $t(common:roadmap_series_one) working towards another $t(common:roadmap_series_one)?",
     "relationship_label": "Parent",
-    "relationship_no_chosen": "No parent"
+    "relationship_no_chosen": "No parent",
+    "create": "Create $t(common:roadmap_series_one)"
   }
 }

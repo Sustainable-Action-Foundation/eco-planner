@@ -333,7 +333,7 @@ export default function RoadmapForm({
             id="submit-button"
             disabled={isLoading}
           >
-            {currentRoadmap ? t("common:tsx.save") : t("common:tsx.create") + ` ${t("common:roadmap_version_one")}`}
+            {currentRoadmap ? t("common:tsx.save") : t("forms:roadmap.create")}
           </button>
         </div>
 

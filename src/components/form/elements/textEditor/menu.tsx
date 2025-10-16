@@ -216,11 +216,11 @@ export default function TextEditorMenu({
           )
           .map((menuItem) => menuItem)
         }
-        <li 
-          role='presentation' 
-          style={{ 
-            float: 'right', 
-            position: 'relative', 
+        <li
+          role='presentation'
+          style={{
+            float: 'right',
+            position: 'relative',
             display: hiddenGroups && hiddenGroups.length > 0 ? 'inline-block' : 'none'
           }}>
           <span
@@ -254,8 +254,8 @@ export default function TextEditorMenu({
             role='menuitem'
             aria-haspopup="menu"
             aria-checked={submenuVisible}
-            aria-label={t("common:tsx.expand")} // TODO: I18n
-            data-tooltip={t("common:tsx.expand")} // TODO: I18n 
+            aria-label={t("common:tsx.expand")}
+            data-tooltip={t("common:tsx.expand")}
           >
             <IconDotsVertical className="grid" height={16} width={16} aria-hidden="true" />
           </span>

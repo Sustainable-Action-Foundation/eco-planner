@@ -34,7 +34,8 @@
     "category_sufficiency": "Sufficiency",
     "category_efficiency": "Efficiency",
     "category_renewables": "Renewables",
-    "attach_external_resources": "Bifoga externa resurser"
+    "attach_external_resources": "Bifoga externa resurser",
+    "create": "Skapa $t(common:action_one)"
   },
   "combobox": {
     "search_options": "Sök bland alternativ",
@@ -73,7 +74,8 @@
       "absolute": "Absolut skillnad gentemot baslinje",
       "delta": "Förändring år för år (delta)",
       "percent": "Skillnad gentemot baslinjen i procent av föregående års totalvärde (baslinje + $t(common:action_other))"
-    }
+    },
+    "create": "Skapa $t(common:effect_one)"
   },
   "goal": {
     "choose_relationship": "Ange relationen till andra inlägg",
@@ -114,7 +116,8 @@
     "invert_goal": "Invertera $t(common:goal_definite_one) (dividera med denna $t(common:goal_one) istället för att multiplicera)",
     "select_goal_as_baseline": "Välj en $t(common:goal_one) att använda som baslinje (värdena kopieras istället för att länkas)",
     "data_missing": "DATA SAKNAS; ",
-    "baseline_copied": "Baslinje, kopierad från vald $t(common:goal_one)"
+    "baseline_copied": "Baslinje, kopierad från vald $t(common:goal_one)",
+    "create": "Skapa $t(common:goal_one)"
   },
   "repeatable_scaling": {
     "specific_value_label": "Med vilket värde vill du skala?",
@@ -153,7 +156,8 @@
     "goal_accepted_formats": "{{$t(common:goal_other), titleCase}} <small> - giltiga filtyper: {{fileTypes, list}} - giltiga filkodningar: {{encodings, list}}</small>",
     "inherit_goal_legend": "Välj $t(common:goal_one) att ärva",
     "legend_visibility": "Vem får se färdplanen?",
-    "legend_editability": "Vem får redigera färdplanen?"
+    "legend_editability": "Vem får redigera färdplanen?",
+    "create": "Skapa $t(common:roadmap_version_one)"
   },
   "text_editor_menu": {
     "undo": "Ångra",
@@ -200,6 +204,7 @@
     "legend_editability": "Vem får redigera färdplansserien?",
     "relationship_legend": "Jobbar denna $t(common:roadmap_series_one) mot en annan $t(common:roadmap_series_one)?",
     "relationship_label": "Förälder",
-    "relationship_no_chosen": "Ingen förälder"
+    "relationship_no_chosen": "Ingen förälder",
+    "create": "Skapa $t(common:roadmap_series_one)"
   }
 }
