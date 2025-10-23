@@ -83,6 +83,7 @@
     "data_series_type_legend": "Välj typ av dataserie för din $t(common:goal_one)", 
     "select_recipe": "Välj ett befintligt recept",
     "create_recipe": "Skapa ett nytt recept",
+    "disjunction": "{{val, list(type:'disjunction';)}}",    
     "default_scaling_recipe": "Standardskalningsrecept",
     "default_combination_recipe": "Standardkombinationsrecept",
     "goal_description_legend": "Beskriv din $t(common:goal_one)",

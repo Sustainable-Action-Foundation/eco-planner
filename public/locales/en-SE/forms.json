@@ -41,7 +41,7 @@
     "select_single_option": "Select an option",
     "select_multiple_options": "Select one or multiple options",
     "select_or_leave": "Select or leave blank",
-    "show_suggestions": "Show suggestions" 
+    "show_suggestions": "Show suggestions"
   },
   "data_series_input": {
     "data_series": "Data series",
@@ -83,6 +83,7 @@
     "data_series_type_legend": "Choose type of data series for your $t(common:goal_one)",
     "select_recipe": "Select an existing recipe",
     "create_recipe": "Create a new recipe",
+    "disjunction": "{{val, list(type:'disjunction';)}}",
     "default_scaling_recipe": "Default scaling recipe",
     "default_combination_recipe": "Default combination recipe",
     "goal_description_legend": "Describe your $t(common:goal_one)",
