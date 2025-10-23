@@ -21,7 +21,7 @@ export default function SelectSingleSearch({
   defaultValue?: option | boolean,
   options: Array<option>,
   fuseOptions?: IFuseOptions<option>,
-  onChange?: (value: option | null) => void 
+  onChange?: (value: option | null) => void
 }) {
   const { t } = useTranslation(["forms"]);
 
@@ -31,7 +31,7 @@ export default function SelectSingleSearch({
       : defaultValue === true
         ? options[0]
         : null
-  ) 
+  )
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const [focusedListboxOption, setFocusedListboxOption] = useState<number | null>(null);
   const [searchValue, setSearchValue] = useState<string>('')
@@ -40,19 +40,19 @@ export default function SelectSingleSearch({
   const searchRef = useRef<HTMLInputElement>(null);
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
 
-  const fuse = useMemo(() => new Fuse(options, { 
-    keys: ['name'], 
-    ...(fuseOptions ?? {}) 
+  const fuse = useMemo(() => new Fuse(options, {
+    keys: ['name'],
+    ...(fuseOptions ?? {})
   }), [options, fuseOptions]);
 
-  const searchResults = useMemo(() => { 
+  const searchResults = useMemo(() => {
     if (selectionMade) {
-      setSelectionMade(false); 
+      setSelectionMade(false);
       return options; // Prevent fuse from unnecesserily running when selecting an item
     }
     return searchValue ? fuse.search(searchValue).map(result => result.item) : options;
   }, [searchValue, fuse, options, selectionMade]);
- 
+
   // Disables form subbmision if value is invalid 
   // Define what an invalid value is (missing value or empty string). We only need this defined if the field is requied
   const valueIsValid = useMemo(() => {
@@ -63,16 +63,16 @@ export default function SelectSingleSearch({
   useEffect(() => {
     if (!toggleRef.current) return
     return preventInvalidFormSubmission(toggleRef.current, valueIsValid)
-  }, [valueIsValid]); 
+  }, [valueIsValid]);
 
-  useEffect(() => { 
+  useEffect(() => {
     if (!searchRef.current) return
     clearEditableCombobox(
       searchRef.current,
       setSearchValue,
       menuOpen,
       setFocusedListboxOption
-    ) 
+    )
   }, [menuOpen]);
 
   useEffect(() => {
@@ -91,7 +91,7 @@ export default function SelectSingleSearch({
         value={value ? value.value : ''}
         name={props.name}
         disabled={props.disabled}
-        ref={toggleRef} 
+        ref={toggleRef}
         onClick={() => { setMenuOpen(!menuOpen) }}
         role="combobox"
         type="button"
@@ -101,12 +101,12 @@ export default function SelectSingleSearch({
         aria-required={props.required ? props.required : false}
         aria-invalid={!valueIsValid}
       >
-        <span className={`${styles['selected-value-text']}`} > 
+        <span className={`${styles['selected-value-text']}`} >
           {!value ? props.placeholder : value.name}
         </span>
         <IconSelector height={20} width={20} style={{ minWidth: '20px' }} aria-hidden={true} />
       </button>
-      <div 
+      <div
         id={`${props.id}-dialog`}
         className={`              
           ${styles['listbox']} 
@@ -124,7 +124,7 @@ export default function SelectSingleSearch({
         aria-label={t("forms:combobox.select_single_option")}
       >
         <label
-          className="focusable flex align-items-center gap-25 padding-block-50 padding-inline-25" 
+          className="focusable flex align-items-center gap-25 padding-block-50 padding-inline-25"
           style={{ border: 'none', borderBottom: '1px solid var(--gray-80)', borderRadius: '0', marginBottom: '3px' }}
           aria-label={t("forms:combobox.search_options")}
         >
@@ -135,30 +135,31 @@ export default function SelectSingleSearch({
             ref={searchRef}
             onChange={(e) => setSearchValue(e.target.value)}
             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-            if (!toggleRef.current) return; 
-            handleKeyDownEditableCombobox(
-              e,
-              toggleRef.current,
-              menuOpen,
-              setMenuOpen,
-              searchResults,
-              focusedListboxOption,
-              setFocusedListboxOption,
-              (selectedOption) => {
-                setValue(selectedOption?.value !== value?.value ? selectedOption : null); // TODO: Abstract this to use in onclick     
-                setSelectionMade(true);
-                setMenuOpen(false);
-                toggleRef.current?.focus();
-                if (onChange) onChange(selectedOption?.value !== value?.value ? selectedOption : null);
-              }
-            )}}
+              if (!toggleRef.current) return;
+              handleKeyDownEditableCombobox(
+                e,
+                toggleRef.current,
+                menuOpen,
+                setMenuOpen,
+                searchResults,
+                focusedListboxOption,
+                setFocusedListboxOption,
+                (selectedOption) => {
+                  setValue(selectedOption?.value !== value?.value ? selectedOption : null); // TODO: Abstract this to use in onclick     
+                  setSelectionMade(true);
+                  setMenuOpen(false);
+                  toggleRef.current?.focus();
+                  if (onChange) onChange(selectedOption?.value !== value?.value ? selectedOption : null);
+                }
+              )
+            }}
             role="combobox"
             aria-controls={`${props.id}-dialog-listbox`}
             aria-activedescendant={focusedListboxOption != null ? `${props.id}-dialog-listbox-${focusedListboxOption}` : undefined}
             aria-expanded="true"
             aria-autocomplete="list"
             autoComplete="off"
-            placeholder={t("common:tsx.search") + t("common:tsx.ellipsis")}
+            placeholder={t("forms:combobox.default_search_placeholder")}
           />
         </label>
         <ul
@@ -169,7 +170,7 @@ export default function SelectSingleSearch({
         >
           {searchResults.length > 0 ? (
             searchResults.map((option, index) => (
-              <li  
+              <li
                 key={option.value}
                 id={`${props.id}-dialog-listbox-${index}`}
                 className={index === focusedListboxOption ? styles['focused-option'] : ''}

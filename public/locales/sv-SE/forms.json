@@ -39,10 +39,12 @@
   },
   "combobox": {
     "search_options": "Sök bland alternativ",
+    "default_search_placeholder": "Skriv för att söka",
     "select_single_option": "Välj ett alternativ",
     "select_multiple_options": "Välj ett eller flera alternativ",
     "select_or_leave": "Välj eller lämna blankt",
-    "show_suggestions": "Visa förslag"
+    "show_suggestions": "Visa förslag",
+    "default_autocomplete_placeholder": "Börja skriva för förslag, eller skriv något eget"
   },
   "data_series_input": {
     "data_series": "Dataserie",
@@ -160,6 +162,7 @@
     "create": "Skapa $t(common:roadmap_version_one)"
   },
   "text_editor_menu": {
+    "default_placeholder": "Skriv något...",
     "undo": "Ångra",
     "redo": "Gör om",
     "font_size": {

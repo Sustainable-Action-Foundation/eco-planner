@@ -32,6 +32,9 @@ If you for some reason need to update the default version of either file, run `g
 
 Our current server also skips tracking changes to the `next.config.mjs` file, so if you need to change the config, run `git update-index --no-skip-worktree next.config.mjs` on the server or update the file there manually.
 
+### I18N
+We use i18next for internationalization. If you use VS Code we recommend installing the [i18n ally](https://marketplace.visualstudio.com/items?itemName=Lokalise.i18n-ally) extension to help keep track of translation keys. It might require some configuration to work with our project, namely enabling [namespaces](vscode://settings/i18n-ally.namespace) and setting [default namespace](vscode://settings/i18n-ally.defaultNamespace) to `common`.
+
 ## Backend notes
 We use the function unstable_cache from Next.js, which currently returns cached `Date`s in stringified form (See this [GitHub issue](https://github.com/vercel/next.js/issues/51613)). Remember to always create a `new Date()` from the date value whenever you use one, until this problem is fixed.
 

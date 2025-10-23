@@ -37,7 +37,7 @@ export default function ActionForm({
       return currentAction.description;
     }
   });
-  
+
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
 
@@ -106,14 +106,14 @@ export default function ActionForm({
           <label>
             {t("forms:action.action_name")}
             <input className="margin-top-25 margin-bottom-100" type="text" name="actionName" required id="actionName" defaultValue={currentAction?.name} />
-          </label> 
-          
+          </label>
+
           <label id="description-label">{t("forms:action.action_description")}</label>
           <TextEditor
             className="margin-top-25 margin-bottom-100" // TODO: Need label for texteditormenu
             id="description"
             ariaLabelledBy="description-label"
-            placeholder={t("common:tsx.write") + t("common:tsx.ellipsis")}
+            placeholder={t("forms:text_editor_menu.default_placeholder")}
             editable={true}
             content={currentAction ? currentAction.description : ""}
             onChange={(json) => setEditorContent(json)}

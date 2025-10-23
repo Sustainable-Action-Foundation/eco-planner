@@ -203,7 +203,7 @@ export default function GoalForm({
         // DEPRECATED - moved to description
         links: undefined,
       }
-        console.log(formData.get("parent-roadmap"))
+      console.log(formData.get("parent-roadmap"))
     }
 
     const formJSON = JSON.stringify(formContent);
@@ -232,7 +232,7 @@ export default function GoalForm({
 
   // Index for data-position attribute in legend elements (for accessibility)
   let positionIndex = 1;
-  
+
 
   return (
     <>
@@ -273,7 +273,7 @@ export default function GoalForm({
             className="margin-top-25 margin-bottom-100" // TODO: Need label for texteditormenu
             id="description"
             ariaLabelledBy="description-label"
-            placeholder={t("common:tsx.write") + t("common:tsx.ellipsis")}
+            placeholder={t("forms:text_editor_menu.default_placeholder")}
             editable={true}
             content={currentGoal ? currentGoal.description : ""}
             onChange={(json) => setEditorContent(json)}
@@ -286,13 +286,13 @@ export default function GoalForm({
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_goal_data_series")}</legend>
           <div>
             <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50">
-              <input 
-                checked={dataSeriesType === DataSeriesType.Static} 
-                onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)} 
-                value={DataSeriesType.Static} 
-                type="radio" 
-                name="alternative" 
-                required 
+              <input
+                checked={dataSeriesType === DataSeriesType.Static}
+                onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
+                value={DataSeriesType.Static}
+                type="radio"
+                name="alternative"
+                required
               />  {/* TODO: update name */}
               {t("forms:goal.derive_data_series_manually")}
             </label>
@@ -308,7 +308,7 @@ export default function GoalForm({
               {t("forms:goal.derive_data_series_recipe")}
             </label>
           </div>
-          
+
           {(dataSeriesType === DataSeriesType.Static || !dataSeriesType) &&
             <ManualGoalForm currentGoal={currentGoal} dataSeriesString={dataSeriesString} />
           }

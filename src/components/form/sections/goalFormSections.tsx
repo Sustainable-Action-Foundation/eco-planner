@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput";
 import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
 import { Unit } from 'mathjs'
-import parameterOptions from "@/lib/LEAPList.json" with { type: "json" }; 
+import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 
 export function ManualGoalForm({
   currentGoal,
@@ -45,7 +45,7 @@ export function ManualGoalForm({
     }));
   }, []);
 
-  const units = useMemo( 
+  const units = useMemo(
     () => Object.keys(Unit.UNITS).map(unit => ({ name: unit, value: unit })),
     []
   );
@@ -59,7 +59,7 @@ export function ManualGoalForm({
         props={{
           id: "indicatorParameter",
           name: "indicatorParameter",
-          placeholder: "Skriv för att se förslag", // TODO: I18n 
+          placeholder: t("forms:combobox.default_autocomplete_placeholder"),
           className: "margin-top-25 margin-bottom-100",
           defaultValue: currentGoal?.indicatorParameter ?? undefined
         }}
@@ -78,7 +78,7 @@ export function ManualGoalForm({
         props={{
           id: "dataUnit",
           name: "dataUnit",
-          placeholder: "Skriv för att se förslag", // TODO: I18n 
+          placeholder: t("forms:combobox.default_autocomplete_placeholder"),
           className: "margin-top-25",
           defaultValue: currentGoal?.dataSeries?.unit ?? undefined
         }}

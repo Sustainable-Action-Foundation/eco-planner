@@ -105,7 +105,7 @@ export default function MetaRoadmapForm({
             className="margin-top-25 margin-bottom-100" // TODO: Need label for texteditormenu
             id="description"
             ariaLabelledBy="description-label"
-            placeholder={t("common:tsx.write") + t("common:tsx.ellipsis")}
+            placeholder={t("forms:text_editor_menu.default_placeholder")}
             editable={true}
             content={currentRoadmap ? currentRoadmap.description : ""}
             onChange={(json) => setEditorContent(json)}
@@ -144,9 +144,9 @@ export default function MetaRoadmapForm({
               name: "actor",
               required: true,
               defaultValue: currentRoadmap?.actor ?? undefined,
-              placeholder: roadmapType === "REGIONAL" || roadmapType === "MUNICIPAL" ? 'Skriv för att se förslag' : 'Aktör...' // TODO: I18n
+              placeholder: roadmapType === "REGIONAL" || roadmapType === "MUNICIPAL" ? t("forms:combobox.default_autocomplete_placeholder") : t("forms:meta_roadmap.actor"),
             }}
-            // I18N: the current implementation uses only Swedish counties and municipalities; should probably be adapted for international use in the future
+            // L10N: the current implementation uses only Swedish counties and municipalities; should probably be adapted for international use in the future
             options={
               roadmapType === "REGIONAL"
                 ? Object.keys(countiesAndMunicipalities).map(item => ({ name: item, value: item }))
@@ -203,7 +203,6 @@ export default function MetaRoadmapForm({
           ) : null}
         </fieldset>
 
-        {/* Add copy of RoadmapForm? Only if we decide to include it immediately rather than redirecting to it */}
         <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
           <button
             className="text-align-center seagreen color-purewhite width-100"

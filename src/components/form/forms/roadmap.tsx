@@ -260,7 +260,7 @@ export default function RoadmapForm({
             className="margin-top-25 margin-bottom-100" // TODO: Need label for texteditormenu
             id="description"
             ariaLabelledBy="description-label"
-            placeholder={t("common:tsx.write") + t("common:tsx.ellipsis")}
+            placeholder={t("forms:text_editor_menu.default_placeholder")}
             editable={true}
             content={currentRoadmap ? currentRoadmap.description : ""}
             onChange={(json) => setEditorContent(json)}

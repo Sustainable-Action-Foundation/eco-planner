@@ -54,9 +54,9 @@ export default function SelectSingleTreeSearch({
   props,
   onChange
 }: {
-  treeItems: Array<treeItem> ,
+  treeItems: Array<treeItem>,
   props: inputElement,
-  onChange?: (value: treeItem | null) => void 
+  onChange?: (value: treeItem | null) => void
 }) {
 
   const { t } = useTranslation(["forms"]);
@@ -93,14 +93,14 @@ export default function SelectSingleTreeSearch({
 
   }, [focusedIndex, flattenedItems, props.id])
 
-  useEffect(() => { 
+  useEffect(() => {
     if (!searchRef.current) return
     clearEditableCombobox(
       searchRef.current,
       setSearchValue,
       menuOpen,
       setFocusedIndex
-    ) 
+    )
   }, [menuOpen]);
 
   /* Why do i need this? */
@@ -161,8 +161,8 @@ export default function SelectSingleTreeSearch({
           }}
           onClick={
             item.expanded !== null || item.onExpand !== undefined
-              ? () => {void toggleNode(item); searchRef.current?.focus()}
-              : () => {setValue(item?.value !== value?.value ? item : null); setMenuOpen(false)}
+              ? () => { void toggleNode(item); searchRef.current?.focus() }
+              : () => { setValue(item?.value !== value?.value ? item : null); setMenuOpen(false) }
           }
         >
           {(item.onExpand || (item.childNodes && item.childNodes.length > 0))
@@ -209,7 +209,7 @@ export default function SelectSingleTreeSearch({
   return (
     <div
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
-      style={{ ...props.style, userSelect: 'none' }} 
+      style={{ ...props.style, userSelect: 'none' }}
     >
       <button // TODO: Should this and select inptus be an input with type button? Might make floating labels easier? 
         title={value?.name}
@@ -294,7 +294,7 @@ export default function SelectSingleTreeSearch({
             aria-expanded="true"
             // aria-autocomplete="list"
             autoComplete="off"
-            placeholder={t("common:tsx.search") + t("common:tsx.ellipsis")}
+            placeholder={t("forms:combobox.default_search_placeholder")}
           />
         </label>
         <ul

@@ -164,7 +164,7 @@ export default function SelectMultipleSearch({
             aria-expanded="true"
             aria-autocomplete="list"
             autoComplete="off"
-            placeholder={t("common:tsx.search") + t("common:tsx.ellipsis")}
+            placeholder={t("forms:combobox.default_search_placeholder")}
           />
         </label>
         <ul
@@ -191,7 +191,7 @@ export default function SelectMultipleSearch({
 
                     setValue(newValue);
                     setSelectionMade(true);
-                    
+
                     if (onChange) onChange(newValue);
                     searchRef.current?.focus() // TODO: Might be a more clean way to do this
                   }}

@@ -39,10 +39,12 @@
   },
   "combobox": {
     "search_options": "Search among options",
+    "default_search_placeholder": "Type to search",
     "select_single_option": "Select an option",
     "select_multiple_options": "Select one or multiple options",
     "select_or_leave": "Select or leave blank",
-    "show_suggestions": "Show suggestions"
+    "show_suggestions": "Show suggestions",
+    "default_autocomplete_placeholder": "Start typing for suggestions, or write your own"
   },
   "data_series_input": {
     "data_series": "Data series",
@@ -162,6 +164,7 @@
     "create": "Create $t(common:roadmap_version_one)"
   },
   "text_editor_menu": {
+    "default_placeholder": "Write something...",
     "undo": "Undo",
     "redo": "Redo",
     "font_size": {

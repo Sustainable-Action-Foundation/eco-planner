@@ -1,5 +1,6 @@
 'use client'
 
+// TODO: i18n pass on entire file
 import { isRecipe, Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "./contextProvider";
