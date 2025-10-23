@@ -80,7 +80,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     });
 
   const dataSeries: EvalTimeDataSeries[] = await Promise.all(Object.entries(recipe.variables)
-    .filter(([, variable]) => variable.type === RecipeDataTypes.DataSeries)
+    .filter(([_, variable]) => variable.type === RecipeDataTypes.DataSeries)
     .map(async ([name, variable]) => {
       if (!isRecipeDataSeries(variable)) {
         throw new RecipeError(`Variable '${name}', typed as '${variable.type}' is not a valid RecipeDataSeries.`);
@@ -121,20 +121,17 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
         valueFields[year] = dbDataSeries[year];
       }
 
-      let value: number | number[];
+      let value: number | number[] = Years.map(year => {
+        const yearValue = valueFields[year] ?? Infinity;
+        return yearValue;
+      });
       // Consider pick if provided
-      if (pick && Array.isArray(valueFields) && vectorIndexPickerFunctions[pick]) {
-        const result = vectorIndexPickerFunctions[pick](valueFields);
+      if (pick && vectorIndexPickerFunctions[pick]) {
+        const result = vectorIndexPickerFunctions[pick](value);
         if (result === undefined || result === null) {
           throw new RecipeError(`Data series '${name}' with pick '${pick}' returned an invalid value.`);
         }
         value = result;
-      }
-      else {
-        value = Years.map(year => {
-          const yearValue = valueFields[year] || Infinity;
-          return yearValue;
-        });
       }
 
       return {
@@ -146,7 +143,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     }));
 
   const externalData: EvalTimeExternalDataset[] = (await Promise.all(Object.entries(recipe.variables)
-    .filter(([, variable]) => variable.type === RecipeDataTypes.External)
+    .filter(([_, variable]) => variable.type === RecipeDataTypes.External)
     .map(([name, variable]) => {
       if (!isRecipeExternalDataset(variable)) {
         throw new RecipeError(`Variable '${name}', typed as '${variable.type}' is not a valid RecipeExternalDataset.`);
@@ -165,12 +162,13 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
         return {
           name,
           data,
+          variable
         };
       };
 
       return fetcher();
     })))
-    .map(({ name, data }) => {
+    .map(({ name, data, variable }) => {
       // Should be a redundant check
       if (!data) {
         throw new RecipeError(`External dataset variable '${name}' has no data.`);
@@ -184,14 +182,23 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
 
       const definedValues = Object.fromEntries(data.values.map(v => ["val" + v.period, parseFloat(v.value)]));
 
-      const value = Years.map(y => {
+      let value: number | number[] = Years.map(y => {
         const definedValue = definedValues[y];
         if (definedValue && !Number.isFinite(definedValue)) {
           warnings.push(`External dataset variable '${name}' has no value defined for year '${y}'.`);
           return Infinity;
         }
-        return definedValues[y] || Infinity;
+        return definedValues[y] ?? Infinity;
       });
+
+      // Consider pick if provided
+      if (variable.pick && vectorIndexPickerFunctions[variable.pick]) {
+        const result = vectorIndexPickerFunctions[variable.pick](value);
+        if (result === undefined || result === null) {
+          throw new RecipeError(`Data series '${name}' with pick '${variable.pick}' returned an invalid value.`);
+        }
+        value = result;
+      }
 
       return {
         name: name,

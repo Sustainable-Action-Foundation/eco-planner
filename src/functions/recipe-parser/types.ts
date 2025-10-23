@@ -14,8 +14,8 @@ export type VectorIndexPickerOptions = typeof VectorIndexPickerOptions[keyof typ
 
 export const vectorIndexPickerFunctions = {
   [VectorIndexPickerOptions.Whole]: (vector: number[]) => vector,
-  [VectorIndexPickerOptions.Last]: (vector: number[]) => vector.at(-1),
-  [VectorIndexPickerOptions.First]: (vector: number[]) => vector.at(0),
+  [VectorIndexPickerOptions.Last]: (vector: number[]) => vector.findLast((value) => typeof value === "number" && Number.isFinite(value)) ?? null,
+  [VectorIndexPickerOptions.First]: (vector: number[]) => vector.find((value) => typeof value === "number" && Number.isFinite(value)) ?? null,
   [VectorIndexPickerOptions.Median]: (vector: number[]) => {
     if (vector.length === 0) return null;
     const sorted = [...vector].sort((a, b) => a - b);
