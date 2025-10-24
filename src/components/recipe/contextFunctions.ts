@@ -1,5 +1,5 @@
 import "client-only";
-import { emptyRecipeDataTypes, isRecipeExternalDatasetSelection, Recipe, RecipeDataTypes, RecipeVariables } from "@/functions/recipe-parser/types";
+import { emptyRecipesByDataType, isRecipeExternalDatasetSelection, Recipe, RecipeDataTypes, RecipeVariables } from "@/functions/recipe-parser/types";
 import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
 import { JSONValue } from "@/types";
 
@@ -50,7 +50,7 @@ export function changeType(name: string, newType: string, setter: React.Dispatch
       return prev; // Do not update if the type is invalid
     }
 
-    const newVar = { ...emptyRecipeDataTypes[newType as RecipeDataTypes] };
+    const newVar = { ...emptyRecipesByDataType[newType as RecipeDataTypes] };
     if (!newVar || !newVar.type || Object.keys(newVar).length === 0) {
       console.warn(`No empty variable defined for data type '${newType}'`);
       return prev; // Do not update if no empty variable is defined

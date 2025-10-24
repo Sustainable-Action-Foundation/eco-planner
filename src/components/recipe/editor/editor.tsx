@@ -72,8 +72,6 @@ export default function RecipeEditor() {
       <label className="width-100">
         <ResultingRecipe FormElement={<input type="hidden" name="resultingRecipe" />} /> {/* TODO: What is this? */}
       </label>
-
-      {/* <DEBUG_Recipe /> */}
     </>
   )
 }

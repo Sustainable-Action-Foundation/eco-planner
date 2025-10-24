@@ -1,11 +1,11 @@
 "use client";
 
-import { Recipe } from "@/functions/recipe-parser/types";
+import { emptyRecipe, Recipe } from "@/functions/recipe-parser/types";
 import type { DataSeriesValueFields } from "@/types";
 import { createContext, useContext, useEffect, useState } from "react";
- 
+
 import { evaluateRecipe, cleanRecipe } from "@/functions/parseRecipe";
- 
+
 type RecipeContextType = {
   recipe: Recipe | null;
   setRecipe: React.Dispatch<React.SetStateAction<Recipe | null>>;
@@ -45,6 +45,7 @@ export function RecipeContextProvider({
 
   useEffect(() => {
     if (!recipe) {
+      setRecipe({ ...emptyRecipe });
       setResultingDataSeries(null);
       setResultingUnit(null);
       setError(null);
@@ -56,6 +57,14 @@ export function RecipeContextProvider({
       try {
         const currentWarnings: string[] = [];
         const evaluatedRecipe = await evaluateRecipe(cleanRecipe(recipe), currentWarnings);
+        if (!evaluatedRecipe) {
+          console.warn("Recipe evaluation was canceled, likely due to empty eq");
+          setResultingDataSeries(null);
+          setResultingUnit(null);
+          setWarnings([]);
+          setError(null);
+          return;
+        }
         setResultingDataSeries(evaluatedRecipe.dataSeries);
         setResultingUnit(evaluatedRecipe.unit)
         setWarnings(currentWarnings);
@@ -75,4 +84,3 @@ export function RecipeContextProvider({
     </RecipeContext.Provider>
   );
 }
- 

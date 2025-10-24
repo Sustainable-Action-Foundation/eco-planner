@@ -3,7 +3,7 @@
 import { Popover, PopoverButton } from "@/components/generic/popovers/popovers";
 import { useRecipe } from "../../contextProvider";
 import { useState } from "react";
-import { emptyRecipe, emptyRecipeDataTypes, RecipeDataTypes } from "@/functions/recipe-parser/types";
+import { emptyRecipesByDataType, RecipeDataTypes } from "@/functions/recipe-parser/types";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { Unit } from "mathjs";
 import { useTranslation } from "react-i18next";
@@ -15,29 +15,37 @@ export default function VariableCreator({
   allowAddVariables?: boolean;
 }) {
   const { t } = useTranslation("components");
-  
-  const { recipe, setRecipe } = useRecipe();
+  const { setRecipe } = useRecipe();
 
-  const [newVariableName, setNewVariableName] = useState<string>('') // TODO: Can bunch into one
-  const [newVariableUnit, setNewVariableUnit] = useState<string>('')
-  const [newVariableType, setNewVariableType] = useState<RecipeDataTypes | undefined>(undefined)
+  // These can't easily be combined due to rerender loops 
+  const [newName, setNewName] = useState<string>('');
+  const [newUnit, setNewUnit] = useState<string>('');
+  const [newType, setNewType] = useState<RecipeDataTypes | undefined>(undefined);
 
   // Hard coded to make a new data series variable. TODO: reconsider this behavior
-  const handleAddVariable = () => {
-    if (newVariableType === undefined || newVariableName === '') return // TODO: Need to show that something is wrong to the user
+  const addVariableToContext = () => {
+    if (newType === undefined || newName === '') return; // TODO: Need to show that something is wrong to the user
+
     setRecipe(prev => {
-      prev = prev || emptyRecipe;
+      if (!prev) return prev; // Should never happen since the context defines it on mount
+      if (!newType) return prev;
+
       return {
         ...prev,
         variables: {
           ...prev.variables,
-          [newVariableName]: { ...emptyRecipeDataTypes[newVariableType], unit: newVariableUnit },
+          [newName]: {
+            ...emptyRecipesByDataType[newType],
+            ...newUnit ? { unit: newUnit } : {},
+          },
         }
       }
     });
-    setNewVariableName('')
-    setNewVariableUnit('')
-    setNewVariableType(undefined)
+
+    // Clear the form after adding to context
+    setNewName('');
+    setNewUnit('');
+    setNewType(undefined);
   };
 
   return (
@@ -81,8 +89,8 @@ export default function VariableCreator({
                 className="margin-bottom-50"
                 style={{ backgroundColor: 'var(--gray-95)' }}
                 placeholder="Variabel 1" // TODO: I18n
-                value={newVariableName}
-                onChange={(e) => setNewVariableName(e.target.value)}
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
               />
               <label htmlFor="variable-unit">
                 Enhet
@@ -92,14 +100,14 @@ export default function VariableCreator({
                   id: "variable-unit",
                   name: "variable-unit",
                   placeholder: "Skriv för att se förslag", // TODO: I18n 
-                  defaultValue: newVariableUnit
+                  defaultValue: newUnit,
                 }}
                 theme={{
                   style: { backgroundColor: 'var(--gray-95)' }
                 }}
                 options={Object.keys(Unit.UNITS).map(unit => ({ name: unit, value: unit }))}
                 maxOptions={3}
-                onChange={(unit) => { setNewVariableUnit(unit) }}
+                onChange={(unit) => setNewUnit(unit ?? '')}
               />
               <div className="margin-block-100">
                 <label className="block margin-left-25">
@@ -108,10 +116,10 @@ export default function VariableCreator({
                     className="margin-right-25"
                     name="variable-type"
                     value={RecipeDataTypes.Scalar}
-                    checked={newVariableType === RecipeDataTypes.Scalar}
-                    onChange={() => setNewVariableType(RecipeDataTypes.Scalar)}
+                    checked={newType === RecipeDataTypes.Scalar}
+                    onChange={() => setNewType(RecipeDataTypes.Scalar)}
                   />
-                  Skalär
+                  Skalär {/* TODO: i18n */}
                 </label>
                 <label className="block margin-left-25 margin-top-25">
                   <input
@@ -119,10 +127,10 @@ export default function VariableCreator({
                     className="margin-right-25"
                     name="variable-type"
                     value={RecipeDataTypes.DataSeries}
-                    checked={newVariableType === RecipeDataTypes.DataSeries}
-                    onChange={() => setNewVariableType(RecipeDataTypes.DataSeries)}
+                    checked={newType === RecipeDataTypes.DataSeries}
+                    onChange={() => setNewType(RecipeDataTypes.DataSeries)}
                   />
-                  Dataserie
+                  Dataserie {/* TODO: i18n */}
                 </label>
                 <label className="block margin-left-25 margin-top-25">
                   <input
@@ -130,10 +138,10 @@ export default function VariableCreator({
                     className="margin-right-25"
                     name="variable-type"
                     value={RecipeDataTypes.External}
-                    checked={newVariableType === RecipeDataTypes.External}
-                    onChange={() => setNewVariableType(RecipeDataTypes.External)}
+                    checked={newType === RecipeDataTypes.External}
+                    onChange={() => setNewType(RecipeDataTypes.External)}
                   />
-                  Extern data
+                  Extern data {/* TODO: i18n */}
                 </label>
               </div>
               <button
@@ -141,9 +149,9 @@ export default function VariableCreator({
                 className="width-100 color-purewhite font-weight-600 margin-top-50"
                 style={{ backgroundColor: '#191919' }}
                 popoverTarget='add-variable-popover'
-                onClick={handleAddVariable}
+                onClick={addVariableToContext}
               >
-                Skapa variabel
+                Skapa variabel {/* TODO: i18n */}
               </button>
             </fieldset>
           </Popover>
