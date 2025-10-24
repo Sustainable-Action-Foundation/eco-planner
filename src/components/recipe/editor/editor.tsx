@@ -70,7 +70,13 @@ export default function RecipeEditor() {
       </div>
       
       <label className="width-100">
-        <ResultingRecipe FormElement={<input type="hidden" name="resultingRecipe" />} /> {/* TODO: What is this? */}
+        {/* TODO: What is this? */}
+        {/*  
+          When reading the output of the recipe context it's done via this form element which can be read by a parent form.
+          The reason it's exposed like this is for developer transparency so you can set the name and stuff yourself but I'm open to feedback on this approach.
+          - Vena 
+        */}
+        <ResultingRecipe FormElement={<input type="hidden" name="resultingRecipe" />} /> 
       </label>
     </>
   )
