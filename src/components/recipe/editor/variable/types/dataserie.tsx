@@ -67,7 +67,7 @@ export default function VariableTypeDataSeries({
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
   const variable = recipe?.variables[name] as RecipeVariables;
- 
+
   const treeItems = useRoadmapTreeItems(availableRoadmaps);
   const handleDataSeriesChange = useHandleDataSeriesChange(name, setRecipe);
 
@@ -84,24 +84,24 @@ export default function VariableTypeDataSeries({
       rules={rules}
     >
       {/* TODO: Why is this height mismatched */}
-      <div className="inline-block floating-label" style={{verticalAlign: "top", width: "200px", "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>    
+      <div className="inline-block floating-label" style={{ verticalAlign: "top", width: "200px", "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
         <label htmlFor="variable-tree">
           Välj målbana eller effekt {/* TODO: i18n */}
         </label>
         <SelectSingleTreeSearch // TODO: Fix disabled state
           props={{
             id: 'variable-tree', // TODO: Name and id must be dynamic
-            name: '', 
+            name: '',
           }}
           treeItems={treeItems}
           onChange={handleDataSeriesChange}
         />
       </div>
-      <div className="inline-block floating-label" style={{width: "200px", "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>    
+      <div className="inline-block floating-label" style={{ width: "200px", "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
         <label htmlFor="variable-tree-vector-index-picker">
-          Värde
+          Värde {/* TODO: i18n */}
         </label>
-        <VectorIndexPicker id="variable-tree-vector-index-picker" /> {/* TODO: Id must be dynamic */}
+        <VectorIndexPicker rules={rules} varName={name} />
       </div>
     </VariableTypeCommon >
   )

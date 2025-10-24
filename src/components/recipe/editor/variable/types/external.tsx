@@ -31,7 +31,7 @@ export default function VariableTypeExternal({
     >
       <div className="floating-label inline-block" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
         <label htmlFor="external-variable-dataset">
-          {t("components:recipe_editor.dataset")} 
+          {t("components:recipe_editor.dataset")}
         </label>
         <select
           id="external-variable-dataset" /* TODO: This ID needs to be dynamic */
@@ -81,7 +81,7 @@ export default function VariableTypeExternal({
         <label htmlFor="variable-tree-vector-index-picker">
           Värde {/**TODO: I18n */}
         </label>
-        <VectorIndexPicker rules={rules} id="external-variable-vector-index-picker" /> {/* TODO: Id must be dynamic */}
+        <VectorIndexPicker rules={rules} varName={name} />
       </div>
     </VariableTypeCommon>
   )

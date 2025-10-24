@@ -1,20 +1,46 @@
 "use client"
 
-import { VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
+import { isRecipeDataSeries, isRecipeExternalDataset, RecipeDataSeries, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
 import { InputRules, defaultInputRules } from "./rules";
+import { useRecipe } from "@/components/recipe/contextProvider";
 
 // TODO: Fix labels
-export default function VectorIndexPicker({ rules, id }: { rules?: InputRules, id: string }) {
+export default function VectorIndexPicker({ rules, varName }: { rules?: InputRules, varName: string }) {
   const { t } = useTranslation("components");
+  const { recipe, setRecipe } = useRecipe();
 
   rules = { ...defaultInputRules, ...rules };
 
   return (
     <select
-      id={id}
-      defaultValue={VectorIndexPickerOptions.Default}
+      id={varName}
+      defaultValue={(recipe?.variables[varName] as RecipeDataSeries)?.pick || VectorIndexPickerOptions.Default}
       disabled={!rules.allowValueEditing}
+      onChange={(e) => {
+        if (!recipe) return; // Early return if recipe is null which is only the case in race conditions with the context provider
+
+        const variable = recipe.variables[varName];
+        console.log(variable);
+
+        // Make sure variables is of correct type
+        if (!isRecipeDataSeries(variable) && !isRecipeExternalDataset(variable)) {
+          console.error(`Variable ${varName} is not of type RecipeDataSeries or RecipeExternalDataset so should not be picked.`);
+          return;
+        }
+
+        variable.pick = e.target.value as VectorIndexPickerOptions;
+        setRecipe({
+          ...recipe,
+          variables: {
+            ...recipe.variables,
+            [varName]: variable,
+          },
+        });
+        console.log(
+          "new pick", variable.pick
+        );
+      }}
     >
       <option value={VectorIndexPickerOptions.Whole}>{t("components:recipe_editor.pick_whole")}</option>
       <option value={VectorIndexPickerOptions.Last}>{t("components:recipe_editor.pick_last")}</option>
