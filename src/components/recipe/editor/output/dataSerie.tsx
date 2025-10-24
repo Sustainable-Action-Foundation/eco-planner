@@ -2,7 +2,9 @@
 
 import { ReactElement, } from "react";
 import { useTranslation } from "react-i18next";
-import { useRecipe } from "../../contextProvider"; 
+import { useRecipe } from "../../contextProvider";
+import { IconInfoCircle } from "@tabler/icons-react";
+import { Locales } from "i18n.config";
 
 // TODO: Does this take historical data into account? Do we need to account for it?
 export default function OutputDataSeries({ FormElement }: { FormElement?: ReactElement }) {
@@ -10,7 +12,10 @@ export default function OutputDataSeries({ FormElement }: { FormElement?: ReactE
   const { resultingDataSeries, resultingUnit } = useRecipe();
 
   if (!resultingDataSeries) {
-    return null;
+    return <div style={{ fontSize: '14px' }} lang={Locales.enSE} className="flex align-items-flex-start gap-50 margin-block-50">
+      <IconInfoCircle width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="var(--gray-70)" aria-label={t("components:recipe_editor.status.no_issues_icon_aria_label")} />
+      No resulting data series to display
+    </div>;
   }
 
   return (
@@ -40,16 +45,16 @@ export default function OutputDataSeries({ FormElement }: { FormElement?: ReactE
         }}
       >
         {Object.keys(resultingDataSeries).map((year, i) => (
-          <div 
+          <div
             key={i + "resulting-data-series-header" + year}
-            className={`font-weight-600 text-align-center ${i === 0 ? "" : "padding-left-100"}`}      
-            style={{ gridRow: 1, borderLeft: i === 0 ? 'none' : '1px solid var(--gray-70)' }} 
-        >
-                {year.replace("val", "")}
-        </div>
+            className={`font-weight-600 text-align-center ${i === 0 ? "" : "padding-left-100"}`}
+            style={{ gridRow: 1, borderLeft: i === 0 ? 'none' : '1px solid var(--gray-70)' }}
+          >
+            {year.replace("val", "")}
+          </div>
         ))}
         {Object.values(resultingDataSeries).map((value, i) => (
-          <div 
+          <div
             key={i + "resulting-data-series-value" + String(value)}
             className={`text-align-center ${i === 0 ? "" : "padding-left-100"}`}
             style={{ gridRow: 2, borderLeft: i === 0 ? 'none' : '1px solid var(--gray-70)' }}

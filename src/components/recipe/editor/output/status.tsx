@@ -2,12 +2,12 @@
 
 import { useTranslation } from "react-i18next";
 import { Locales } from "i18n.config";
-import { IconAlertTriangleFilled, IconCircleCheckFilled, IconCircleXFilled } from "@tabler/icons-react";
-import { useRecipe } from "../../contextProvider"; 
+import { IconAlertTriangleFilled, IconCircleCheckFilled, IconCircleXFilled, IconInfoCircle } from "@tabler/icons-react";
+import { useRecipe } from "../../contextProvider";
 
 export default function OutputStatus() {
   const { t } = useTranslation("components");
-  const { error, warnings } = useRecipe();
+  const { recipe, error, warnings } = useRecipe();
 
   return (
     <>
@@ -18,7 +18,7 @@ export default function OutputStatus() {
         </div>
         : null}
 
-      {!error ?
+      {!error && recipe && (Object.values(recipe?.variables).length !== 0 && recipe.eq.trim() !== "") ?
         <div lang={Locales.enSE} className="flex align-items-flex-start gap-50 margin-block-50" style={{ color: 'green', fontSize: '14px' }}>
           <IconCircleCheckFilled width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="green" /> {/* TODO: Aria-label */}
           Recipe is valid
@@ -35,6 +35,13 @@ export default function OutputStatus() {
           ))}
         </ul>
         : null}
+
+      {warnings.length === 0 && !error &&
+        <div style={{ fontSize: '14px' }} lang={Locales.enSE} className="flex align-items-flex-start gap-50 margin-block-50">
+          <IconInfoCircle width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="var(--gray-70)" aria-label={t("components:recipe_editor.status.no_issues_icon_aria_label")} />
+          Nothing to report
+        </div>
+      }
     </>
   );
 }
