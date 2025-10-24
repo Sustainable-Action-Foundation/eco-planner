@@ -146,7 +146,7 @@ export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataS
     )
   )
 }
-export const emptyRecipeDataSeries: RecipeDataSeries = { type: RecipeDataTypes.DataSeries, link: undefined, pick: "first", unit: undefined } as const;
+export const emptyRecipeDataSeries: RecipeDataSeries = { type: RecipeDataTypes.DataSeries, link: undefined, pick: VectorIndexPickerOptions.Default, unit: undefined } as const;
 
 
 /* 
@@ -276,8 +276,8 @@ export function isRecipe(recipe: JSONValue): recipe is Recipe {
     ) &&
 
     (
-      typeof recipe.eq === "string" &&
-      recipe.eq.trim() !== "" || // Ensure eq is a non-empty string
+      typeof recipe.eq === "string" ||
+      // recipe.eq.trim() !== "" || // Ensure eq is a non-empty string
       typeguardDebug("Type guard: 'eq' in recipe") && false
     ) &&
 
@@ -308,7 +308,7 @@ export const emptyRecipe: Recipe = { name: undefined, eq: "", variables: {} } as
 /** 
  * Defined here to usage before declaration.
  */
-export const emptyRecipeDataTypes: Record<RecipeDataTypes, RecipeScalar | RecipeDataSeries | RecipeExternalDataset> = {
+export const emptyRecipesByDataType: Record<RecipeDataTypes, RecipeScalar | RecipeDataSeries | RecipeExternalDataset> = {
   "scalar": emptyRecipeScalar,
   "dataSeries": emptyRecipeDataSeries,
   "external": emptyRecipeExternalDataset,

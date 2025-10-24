@@ -42,11 +42,6 @@ export function cleanRecipe(recipe: JSONValue): Recipe {
    */
   const parsedVariables: Record<string, RecipeVariables> = { ...recipe.variables };
 
-  // Sanity checks
-  if (Object.keys(parsedVariables).length === 0) {
-    throw new RecipeError("No valid variables found in the recipe.");
-  }
-
   /** 
    * Return the parsed recipe
    */
@@ -54,24 +49,24 @@ export function cleanRecipe(recipe: JSONValue): Recipe {
   parsedRecipe.variables = parsedVariables;
   return parsedRecipe;
 }
+/** 
+ * Returning null means the evaluation was cancelled without errors.
+ */
+export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promise<{ dataSeries: DataSeriesValueFields, unit: string | null | undefined } | null> {
 
-export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promise<{ dataSeries: DataSeriesValueFields, unit: string | null | undefined }> {
   /**
    * Early sanity checks
    */
-  if (Object.keys(recipe.variables).length === 0) {
-    throw new RecipeError("Recipe has no variables to evaluate.");
-  }
   if (!recipe.eq || !recipe.eq.trim()) {
-    throw new RecipeError("Recipe equation is not a valid string.");
+    return null;
   }
 
   /**
    * Extract variables
    */
-  const scalars: EvalTimeScalar[] = Object.entries(recipe.variables)
-    .filter(([, variable]) => variable.type === RecipeDataTypes.Scalar)
-    .map(([name, variable]) => {
+  const definedScalars = Object.entries(recipe.variables).filter(([_n, v]) => v.type === RecipeDataTypes.Scalar);
+  const scalars: EvalTimeScalar[] = definedScalars.length === 0 ? [] :
+    definedScalars.map(([name, variable]) => {
       if (!isRecipeScalar(variable)) {
         throw new RecipeError(`Variable '${name}', typed as '${variable.type}' is not a valid RecipeScalar.`);
       }
@@ -79,8 +74,8 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
       return { name, value, unit };
     });
 
-  const dataSeries: EvalTimeDataSeries[] = await Promise.all(Object.entries(recipe.variables)
-    .filter(([_, variable]) => variable.type === RecipeDataTypes.DataSeries)
+  const definedDataSeries = Object.entries(recipe.variables).filter(([_n, v]) => v.type === RecipeDataTypes.DataSeries);
+  const dataSeries: EvalTimeDataSeries[] = definedDataSeries.length === 0 ? [] : await Promise.all(definedDataSeries
     .map(async ([name, variable]) => {
       if (!isRecipeDataSeries(variable)) {
         throw new RecipeError(`Variable '${name}', typed as '${variable.type}' is not a valid RecipeDataSeries.`);
@@ -142,8 +137,8 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
       } as EvalTimeDataSeries;
     }));
 
-  const externalData: EvalTimeExternalDataset[] = (await Promise.all(Object.entries(recipe.variables)
-    .filter(([_, variable]) => variable.type === RecipeDataTypes.External)
+  const definedExternalData = Object.entries(recipe.variables).filter(([_n, v]) => v.type === RecipeDataTypes.External);
+  const externalData: EvalTimeExternalDataset[] = definedExternalData.length === 0 ? [] : (await Promise.all(definedExternalData
     .map(([name, variable]) => {
       if (!isRecipeExternalDataset(variable)) {
         throw new RecipeError(`Variable '${name}', typed as '${variable.type}' is not a valid RecipeExternalDataset.`);

@@ -88,7 +88,12 @@ export async function POST(request: NextRequest) {
     // Try to recalculate the data series
     const cleanedRecipe = cleanRecipe(recipeFromUnknown(goal.recipeUsed.recipe));
     const warnings: string[] = [];
-    const { dataSeries, unit } = await evaluateRecipe(cleanedRecipe, warnings);
+    const { dataSeries, unit } = await evaluateRecipe(cleanedRecipe, warnings) ?? { dataSeries: null, unit: null };
+    if (!dataSeries) {
+      return Response.json({ message: "Recipe evaluation was canceled" },
+        { status: 500 }
+      );
+    }
     if (warnings.length > 0) {
       // If there are warnings, log them
       console.warn(`Recalculate goal ${requestJson.id} with recipe ${goal.recipeUsed.hash} (${JSON.stringify(cleanedRecipe, null, 2)})\nproduced warnings:\n${warnings.join('\n')}`);
