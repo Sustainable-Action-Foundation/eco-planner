@@ -45,7 +45,7 @@ export default function RecipeEditor() {
         style={{ backgroundColor: 'var(--gray-95)', border: '1px solid var(--gray)', borderTop: '0', borderRadius: '0 0 .25rem .25rem' }}
       >
         <div>
-          <p style={{ textDecoration: "underline" }}>
+          <p className="text-underline">
             {t("components:recipe_editor.status")}
           </p>
           <OutputStatus />
