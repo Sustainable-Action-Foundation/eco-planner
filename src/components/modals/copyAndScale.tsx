@@ -10,7 +10,7 @@ import { Recipe } from "@/functions/recipe-parser/types";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
 import { RecipeContextProvider } from "../recipe/contextProvider";
 import { ResultingRecipe } from "@/components/recipe/editor/output/output";
-import OutputDataSeries from "../recipe/editor/output/dataSerie";
+import OutputDataSeries from "../recipe/editor/output/dataSeries";
 import VariableEditor from "../recipe/editor/variable/editor"; 
 import { RecipeSuggestions } from "@/components/recipe/suggested"; 
 

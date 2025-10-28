@@ -1,7 +1,7 @@
 import TabList from "@/components/generic/tablist/tabList";
 import { ResultingRecipe } from "./output/output";
 import OutputGraph from "./output/graph";
-import OutputDataSeries from "./output/dataSerie";
+import OutputDataSeries from "./output/dataSeries";
 import OutputStatus from "./output/status";
 import RecipeEquationEditor from "@/components/recipe/editor/equation/editor";
 import VariableCreator from "./variable/creator";
@@ -44,23 +44,23 @@ export default function RecipeEditor() {
         className="padding-50"
         style={{ backgroundColor: 'var(--gray-95)', border: '1px solid var(--gray)', borderTop: '0', borderRadius: '0 0 .25rem .25rem' }}
       >
-        <div className="">
+        <div>
           <p style={{ textDecoration: "underline" }}>
             {t("components:recipe_editor.status")}
           </p>
-            <OutputStatus />
-            <OutputGraph />
+          <OutputStatus />
+          <OutputGraph />
           <OutputDataSeries />
-          </div>
+        </div>
       </div>
 
-        {/* TODO: What is this? */}
-        {/*  
-          When reading the output of the recipe context it's done via this form element which can be read by a parent form.
-          The reason it's exposed like this is for developer transparency so you can set the name and stuff yourself but I'm open to feedback on this approach.
-          - Vena 
-        */}
-        <ResultingRecipe FormElement={<input type="hidden" name="resultingRecipe" />} />
+      {/* TODO: What is this? */}
+      {/*
+        When reading the output of the recipe context it's done via this form element which can be read by a parent form.
+        The reason it's exposed like this is for developer transparency so you can set the name and stuff yourself but I'm open to feedback on this approach.
+        - Vena 
+      */}
+      <ResultingRecipe FormElement={<input type="hidden" name="resultingRecipe" />} />
     </>
   )
 }

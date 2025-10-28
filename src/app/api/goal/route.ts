@@ -406,7 +406,11 @@ export async function POST(request: NextRequest) {
       // TODO: If the recipe is invalid, return an error UNLESS explicitly marked as incomplete somehow (needs to be added to form and here), in which case dataValues should be set to undefined
 
       const warnings: string[] = [];
-      const { dataSeries, unit } = await evaluateRecipe(cleanRecipe(formData.recipeUsed), warnings);
+      const resolvedRecipe = await evaluateRecipe(cleanRecipe(formData.recipeUsed), warnings);
+      if (!resolvedRecipe) {
+        return Response.json({ message: 'Recipe evaluation canceled' }, { status: 400 }); // TODO: canceled eval indicates a bad recipe so therefor I think 400 is appropriate but I'm not sure
+      }
+      const { dataSeries, unit } = resolvedRecipe;
 
       if (warnings.length) {
         console.warn("Warnings while evaluating recipe for new goal:");
@@ -634,7 +638,12 @@ export async function PUT(request: NextRequest) {
       // TODO: If the recipe is invalid, return an error UNLESS explicitly marked as incomplete somehow (needs to be added to form and here), in which case dataValues should be set to undefined
 
       const warnings: string[] = [];
-      const { dataSeries, unit } = await evaluateRecipe(cleanRecipe(goal.recipeUsed), warnings);
+      const resolvedRecipe = await evaluateRecipe(cleanRecipe(goal.recipeUsed), warnings);
+      if (!resolvedRecipe) {
+        return Response.json({ message: 'Recipe evaluation canceled' }, { status: 400 }); // TODO: canceled eval indicates a bad recipe so therefor I think 400 is appropriate but I'm not sure
+      }
+
+      const { dataSeries, unit } = resolvedRecipe;
 
       if (warnings.length) {
         console.warn("Warnings while evaluating recipe for new goal:");

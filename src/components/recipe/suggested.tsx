@@ -11,7 +11,7 @@ import { VariableTypeExternalSimple } from "./editor/variable/types/external";
 import { Fragment, useEffect, useState } from "react";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import TabList from "../generic/tablist/tabList";
-import OutputDataSeries from "./editor/output/dataSerie";
+import OutputDataSeries from "./editor/output/dataSeries";
 import OutputGraph from "./editor/output/graph";
 
 // TODO: Rename (SuggestedRecipes)

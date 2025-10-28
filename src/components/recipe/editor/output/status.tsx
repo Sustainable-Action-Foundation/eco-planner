@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { Locales } from "i18n.config";
 import { IconAlertTriangleFilled, IconCircleCheckFilled, IconCircleXFilled, IconInfoCircle } from "@tabler/icons-react";
 import { useRecipe } from "../../contextProvider";
-import OutputDataSeries from "./dataSerie";
 
 export default function OutputStatus() {
   const { t } = useTranslation("components");
@@ -43,8 +42,6 @@ export default function OutputStatus() {
           Nothing to report
         </div>
       }
-
-      <OutputDataSeries />
     </>
   );
 }
