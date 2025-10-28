@@ -131,7 +131,7 @@ export default function CopyAndScale({
       </button>
 
       {/* Modal */}
-      <dialog ref={modalRef} aria-modal className="rounded" style={{ border: '0', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25', width: '90dvw' }}>
+      <dialog ref={modalRef} aria-modal className="rounded" style={{ border: '0', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25)', width: '90dvw' }}>
         {/* Title bar */}
         <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>
           {/* Close button */}
