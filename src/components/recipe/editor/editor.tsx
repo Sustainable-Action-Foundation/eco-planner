@@ -44,32 +44,16 @@ export default function RecipeEditor() {
         className="padding-50"
         style={{ backgroundColor: 'var(--gray-95)', border: '1px solid var(--gray)', borderTop: '0', borderRadius: '0 0 .25rem .25rem' }}
       >
-        <TabList
-          defaultIndex={0}
-          styling="simple"
-        >
-          <div
-            data-tabname={t("components:recipe_editor.status")} // TODO: Show a count of the problems // TODO: Rename, validering? // TODO: Show fallback if there is no problem
-            className="padding-top-50"
-          >
+        <div className="">
+          <p style={{ textDecoration: "underline" }}>
+            {t("components:recipe_editor.status")}
+          </p>
             <OutputStatus />
-          </div>
-          {/* <div
-            data-tabname={t("components:recipe_editor.dataserie")}
-            className="padding-top-50" // TODO: Show fallback if there is  no resultingdata-series
-          >
-            <OutputDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />
-          </div> */}
-          <div
-            data-tabname={t("components:recipe_editor.graph")}// TODO: Show fallback if there is  no resultingdata-series
-            className="padding-top-50"
-          >
             <OutputGraph />
+          <OutputDataSeries />
           </div>
-        </TabList>
       </div>
 
-      <label className="width-100">
         {/* TODO: What is this? */}
         {/*  
           When reading the output of the recipe context it's done via this form element which can be read by a parent form.
@@ -77,7 +61,6 @@ export default function RecipeEditor() {
           - Vena 
         */}
         <ResultingRecipe FormElement={<input type="hidden" name="resultingRecipe" />} />
-      </label>
     </>
   )
 }

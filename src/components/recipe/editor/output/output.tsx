@@ -1,10 +1,10 @@
 "use client"
 
 import { ReactElement, } from "react";
-import { useRecipe } from "../../contextProvider"; 
+import { useRecipe } from "../../contextProvider";
 
 // TODO: Rename/remove (what is this even)
-export function ResultingRecipe({ FormElement }: { FormElement?: ReactElement }) {
+export function ResultingRecipe({ FormElement }: { FormElement: ReactElement }) {
   const { recipe } = useRecipe();
 
   if (!recipe) {
@@ -12,7 +12,9 @@ export function ResultingRecipe({ FormElement }: { FormElement?: ReactElement })
   }
 
   return (<>
-    {FormElement && <FormElement.type {...(FormElement.props || {})} value={JSON.stringify(recipe)} />}
+    <label>
+      <FormElement.type {...(FormElement.props || {})} value={JSON.stringify(recipe)} />
+    </label>
   </>);
 }
 
