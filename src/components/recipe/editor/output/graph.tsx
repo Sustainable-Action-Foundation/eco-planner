@@ -13,9 +13,9 @@ export default function OutputGraph() {
   const { t } = useTranslation("components");
   const { resultingDataSeries } = useRecipe();
   if (!resultingDataSeries) {
-    return <div style={{ fontSize: '14px' }} lang={Locales.enSE} className="flex align-items-flex-start gap-50 margin-block-50">
+    return <div style={{ fontSize: '14px' }} lang={Locales.enSE} className="flex align-items-flex-start gap-50 ">
       <IconInfoCircle width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="var(--gray-70)" aria-label={t("components:recipe_editor.status.no_issues_icon_aria_label")} />
-      No resulting graph to display
+      No resulting graph to display {/* TODO: I18n */}
     </div>;
   }
 

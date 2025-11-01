@@ -44,7 +44,7 @@
     "select_multiple_options": "Select one or multiple options",
     "select_or_leave": "Select or leave blank",
     "show_suggestions": "Show suggestions",
-    "default_autocomplete_placeholder": "Start typing for suggestions, or write your own"
+    "default_autocomplete_placeholder": "Type to view suggestions"
   },
   "data_series_input": {
     "data_series": "Data series",

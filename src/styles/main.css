@@ -371,10 +371,9 @@
   border-width: 1px;
   border-style: solid;
   border-color: var(--gray-80);
-  outline-width: 1px;
-  outline-style: solid;
-  outline-color: transparent;
   border-radius: 4px;
+  outline: 0;
+  margin: 0;
   resize: vertical;
   min-height: 150px;
   line-height: 1.5;

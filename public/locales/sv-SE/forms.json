@@ -38,7 +38,7 @@
     "start_year": "Startår"
   },
   "combobox": {
-    "default_autocomplete_placeholder": "Börja skriva för förslag, eller skriv något eget",
+    "default_autocomplete_placeholder": "Skriv för att se förslag",
     "default_search_placeholder": "Skriv för att söka",
     "search_options": "Sök bland alternativ",
     "select_multiple_options": "Välj ett eller flera alternativ",

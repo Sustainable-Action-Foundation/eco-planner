@@ -49,7 +49,7 @@ export default function EquationEditor() {
         placeholder={t("components:copy_and_scale.custom_recipe_placeholder")}
         style={{
           border: '0',
-          borderRadius: '.25rem 0 0 0',
+          borderRadius: '0',
           resize: 'none'
         }}
         value={recipe?.eq || ""}

@@ -13,7 +13,7 @@ export default function RecipeEditor() {
 
   return (
     <>
-      <TabList defaultIndex={1} menuItems={<VariableCreator allowAddVariables={true} />}>
+      <TabList defaultIndex={0} menuItems={<VariableCreator allowAddVariables={true} />}>
         <div
           data-tabname={t("components:recipe_editor.recipe")}
           style={{
@@ -44,14 +44,30 @@ export default function RecipeEditor() {
         className="padding-50"
         style={{ backgroundColor: 'var(--gray-95)', border: '1px solid var(--gray)', borderTop: '0', borderRadius: '0 0 .25rem .25rem' }}
       >
-        <div>
-          <p className="text-underline">
-            {t("components:recipe_editor.status")}
-          </p>
-          <OutputStatus />
-          <OutputGraph />
-          <OutputDataSeries />
-        </div>
+        <TabList
+          defaultIndex={0}
+          styling="simple"
+
+        >
+          <div
+            data-tabname={t("components:recipe_editor.graph")}
+            className="padding-top-50"
+          >
+            <OutputStatus />
+            <div className="padding-top-50">
+              <OutputGraph />
+            </div>
+          </div>
+          <div
+            data-tabname={t("components:recipe_editor.dataserie")}
+            className="padding-top-50"
+          >
+            <OutputStatus />
+            <div className="padding-block-50">
+              <OutputDataSeries />
+            </div>
+          </div>
+        </TabList>
       </div>
 
       {/* TODO: What is this? */}

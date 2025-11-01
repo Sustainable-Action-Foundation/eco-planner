@@ -12,9 +12,9 @@ export default function OutputDataSeries({ FormElement }: { FormElement?: ReactE
   const { resultingDataSeries, resultingUnit } = useRecipe();
 
   if (!resultingDataSeries) {
-    return <div style={{ fontSize: '14px' }} lang={Locales.enSE} className="flex align-items-flex-start gap-50 margin-block-50">
+    return <div style={{ fontSize: '14px' }} lang={Locales.enSE} className="flex align-items-flex-start gap-50">
       <IconInfoCircle width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="var(--gray-70)" aria-label={t("components:recipe_editor.status.no_issues_icon_aria_label")} />
-      No resulting data series to display
+      No resulting data series to display {/* TODO: I18n */}
     </div>;
   }
 
@@ -33,7 +33,7 @@ export default function OutputDataSeries({ FormElement }: { FormElement?: ReactE
       */}
 
       <div
-        className="grid padding-bottom-50 margin-top-50 padding-inline-50"
+        className="grid padding-bottom-100 margin-top-50 padding-inline-50"
         style={{
           gridTemplateColumns: `repeat(${Object.keys(resultingDataSeries).length}, 1fr)`,
           gridTemplateRows: 'auto auto',
