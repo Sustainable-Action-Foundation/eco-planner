@@ -56,21 +56,17 @@ export default function VariableCreator({
           <PopoverButton
             anchorName="--add-variable-popover-button"
             popoverTarget="add-variable-popover"
-            className="flex gap-75 align-items-center round"
-            style={{ transform: 'scale(1)', padding: '.3rem .6rem' }}
+            className="align-items-center padding-block-25 padding-inline-50"
+            style={{ transform: 'scale(1)' }}
           >
             {t("components:copy_and_scale.add_variable")}
-            <IconPlus height={16} width={16} aria-hidden="true" />
           </PopoverButton>
           <Popover
             id="add-variable-popover"
             popover="auto"
             positionAnchor="--add-variable-popover-button"
-            anchorInlinePosition="center"
-            popoverDirection={{
-              vertical: 'down',
-              horizontal: 'left'
-            }}
+            anchorInlinePosition="end"
+            popoverDirection='down'
             margin='.5rem'
           >
             <fieldset

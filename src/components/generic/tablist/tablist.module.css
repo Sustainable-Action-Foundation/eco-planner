@@ -37,7 +37,7 @@
 
 .tablist:not(.simple) [role="tab"] {
     background-color: transparent;
-    padding: .3rem .6rem;
+    padding: .5rem;
     box-shadow: none;
     color: #4f4f4f;
     transform: translateY(1px);
@@ -50,7 +50,7 @@
     border: 1px solid var(--gray);
     border-top: 3px solid var(--blue-40);
     border-bottom-color: white;
-    padding-bottom: calc(.3rem);
+    padding-bottom: .5rem;
     color: black;
 }
 

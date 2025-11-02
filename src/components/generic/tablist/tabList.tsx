@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from './tablist.module.css' with { type: "css" }
 import { genericElement } from "@/components/types";
-import CreateVariable from "@/components/recipe/editor/variable/creator";
 
 type TabChild = React.ReactElement<{ "data-tabname": string, "id": string }>;
 
@@ -67,7 +66,7 @@ export default function TabList({ props, styling, defaultIndex, children, menuIt
           </button>
         )}
         {menuItems ? 
-          <div style={{float: 'right'}} onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {e.stopPropagation()}} className="inline-block">{menuItems}</div>
+          <div onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {e.stopPropagation()}} className="inline-block margin-left-50 padding-left-50" style={{borderLeft: '1px solid var(--gray-80)'}}>{menuItems}</div>
         : null }
       </div>
       {childrenArray.map((child, index) => (
