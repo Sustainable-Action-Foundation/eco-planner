@@ -1,6 +1,14 @@
 **/*
 
 !prisma/
+# seeding script + types.ts reference a few files in src/
+!src/fetchers/
+!src/functions/
+!src/lib/
+!src/scripts/
+
 !package.json
+!prisma.config.ts
+!src/types.ts
+!tsconfig.json
 !yarn.lock
-!src/scripts/lib

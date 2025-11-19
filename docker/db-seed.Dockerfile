@@ -25,9 +25,10 @@ WORKDIR /app
 # =============================================================================
 # Dependencies stage - Install and cache dependencies
 # =============================================================================
-FROM base as deps
+FROM base AS deps
 
-COPY package.json yarn.lock* ./
+COPY package.json tsconfig.json yarn.lock* ./
+COPY src/ ./src/
 
 # Install dependencies (GHA cache handled by buildx)
 RUN yarn install --frozen-lockfile
@@ -39,16 +40,17 @@ RUN rm -rf /tmp/* /var/tmp/*
 # =============================================================================
 # Prisma stage - Generate Prisma client
 # =============================================================================
-FROM deps as prisma
+FROM deps AS prisma
 
 COPY prisma/ ./prisma/
+COPY prisma.config.ts ./
 RUN yarn prisma generate
 
 
 # =============================================================================
 # Seed stage - Run database seeding
 # =============================================================================
-FROM prisma as seed
+FROM prisma AS seed
 
 # Seeding script uses some general script lib files
 COPY src/scripts/lib ./src/scripts/lib
