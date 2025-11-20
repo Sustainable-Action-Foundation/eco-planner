@@ -26,8 +26,8 @@ export class ExternalDataset {
   // PxWeb-based APIs
   /** An API provided by Swedish SCB, using the PxWeb API v2 */
   static SCB: DatasetData = {
-    baseUrl: "https://api.scb.se/ov0104/v2beta/api/v2/",
-    userFacingUrl: "https://www.statistikdatabasen.scb.se/pxweb/sv/ssd/",
+    baseUrl: "https://statistikdatabasen.scb.se/api/v2/",
+    userFacingUrl: "https://www.statistikdatabasen.scb.se/",
     supportedLanguages: ["sv", "en"],
     api: "PxWeb",
     fullName: "Statistiska centralbyrån",
@@ -37,8 +37,8 @@ export class ExternalDataset {
 
   /** An API provided by Norwegian SSB, using the PxWeb API v2 */
   static SSB: DatasetData = {
-    baseUrl: "https://data.ssb.no/api/pxwebapi/v2-beta/",
-    userFacingUrl: "https://www.ssb.no/statbank/",
+    baseUrl: "https://data.ssb.no/api/pxwebapi/v2/",
+    userFacingUrl: "https://www.ssb.no/statbank2/",
     supportedLanguages: ["no", "en"],
     api: "PxWeb",
     fullName: "Statistisk sentralbyrå",
