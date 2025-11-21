@@ -1,6 +1,6 @@
 'use client'
 
-import { RecipeDataTypes, RecipeVariables } from "@/functions/recipe-parser/types";
+import { RecipeDataTypes, RecipeVariable } from "@/functions/recipe-parser/types";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
@@ -88,7 +88,7 @@ export default function VariableEditor({
               </li>
             )
           default:
-            variable = variable as RecipeVariables;
+            variable = variable as RecipeVariable;
             console.warn("Unknown variable type", variable.type, "for variable", name);
         }
       })}

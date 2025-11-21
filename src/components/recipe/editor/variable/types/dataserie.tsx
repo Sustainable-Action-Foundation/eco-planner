@@ -1,7 +1,7 @@
 "use client"
 
 import { useRecipe } from "@/components/recipe/contextProvider";
-import { isRecipeDataSeries, RecipeVariables } from "@/functions/recipe-parser/types";
+import { isRecipeDataSeries, RecipeVariable } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
 import { InputRules, defaultInputRules } from "./rules";
 import { changeDataSeries } from "@/components/recipe/contextFunctions";
@@ -66,7 +66,7 @@ export default function VariableTypeDataSeries({
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
-  const variable = recipe?.variables[name] as RecipeVariables;
+  const variable = recipe?.variables[name] as RecipeVariable;
 
   const treeItems = useRoadmapTreeItems(availableRoadmaps);
   const handleDataSeriesChange = useHandleDataSeriesChange(name, setRecipe);
@@ -117,7 +117,7 @@ export function VariableTypeDataSeriesSimple({
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
-  const variable = recipe?.variables[name] as RecipeVariables;
+  const variable = recipe?.variables[name] as RecipeVariable;
 
   const treeItems = useRoadmapTreeItems(availableRoadmaps);
   const handleDataSeriesChange = useHandleDataSeriesChange(name, setRecipe);

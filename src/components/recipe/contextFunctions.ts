@@ -1,5 +1,5 @@
 import "client-only";
-import { emptyRecipesByDataType, isRecipeExternalDatasetSelection, Recipe, RecipeDataTypes, RecipeVariables } from "@/functions/recipe-parser/types";
+import { emptyRecipesByDataType, isRecipeExternalDatasetSelection, Recipe, RecipeDataTypes, RecipeVariable } from "@/functions/recipe-parser/types";
 import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
 import { JSONValue } from "@/types";
 
@@ -57,7 +57,7 @@ export function changeType(name: string, newType: string, setter: React.Dispatch
     }
 
     // Replace old variable with new one and remove its data. TODO: keep as much data as possible
-    copyOfVariables[name] = newVar as RecipeVariables;
+    copyOfVariables[name] = newVar as RecipeVariable;
 
     return { ...prev, variables: copyOfVariables };
   });

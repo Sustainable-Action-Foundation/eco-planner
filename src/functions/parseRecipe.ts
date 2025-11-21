@@ -1,4 +1,4 @@
-import { EvalTimeDataSeries, EvalTimeExternalDataset, EvalTimeScalar, isRecipe, isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, MathjsError, Recipe, RecipeDataTypes, RecipeError, RecipeVariables, vectorIndexPickerFunctions } from "./recipe-parser/types";
+import { EvalTimeDataSeries, EvalTimeExternalDataset, EvalTimeScalar, isRecipe, isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, MathjsError, Recipe, RecipeDataTypes, RecipeError, RecipeVariable, vectorIndexPickerFunctions } from "./recipe-parser/types";
 import { sketchyDataSeries, sketchyScalars } from "./recipe-parser/sanityChecks";
 import mathjs from "@/math";
 import { DataSeriesValueFields, isFullDataSeriesValueFields, JSONValue, Years } from "@/types";
@@ -40,7 +40,7 @@ export function cleanRecipe(recipe: JSONValue): Recipe {
   /** 
    * Cast and clean variables
    */
-  const parsedVariables: Record<string, RecipeVariables> = { ...recipe.variables };
+  const parsedVariables: Record<string, RecipeVariable> = { ...recipe.variables };
 
   /** 
    * Return the parsed recipe

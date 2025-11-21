@@ -1,7 +1,7 @@
 "use client";
 
 import { useRecipe } from "@/components/recipe/contextProvider";
-import { RecipeDataTypes, RecipeVariables } from "@/functions/recipe-parser/types";
+import { RecipeDataTypes, RecipeVariable } from "@/functions/recipe-parser/types";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { InputRules, defaultInputRules } from "./rules";
@@ -24,7 +24,7 @@ export default function VariableTypeCommon({
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
-  const variable = recipe?.variables[name] as RecipeVariables;
+  const variable = recipe?.variables[name] as RecipeVariable;
   const [editable, setEditable] = useState<boolean>(false)
 
   rules = { ...defaultInputRules, ...rules };

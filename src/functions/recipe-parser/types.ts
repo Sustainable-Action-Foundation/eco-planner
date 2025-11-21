@@ -252,11 +252,11 @@ export const emptyRecipeExternalDataset: RecipeExternalDataset = { type: RecipeD
 /* 
  * Main recipe types
  */
-export type RecipeVariables = RecipeScalar | RecipeDataSeries | RecipeExternalDataset;
+export type RecipeVariable = RecipeScalar | RecipeDataSeries | RecipeExternalDataset;
 export type Recipe = {
   name: string | null | undefined; // String if given, null if removed, undefined if not specified
   eq: string;
-  variables: Record<string, RecipeVariables>;
+  variables: Record<string, RecipeVariable>;
 };
 export function isRecipe(recipe: JSONValue): recipe is Recipe {
   const allowedProps = ["name", "eq", "variables"];
