@@ -2,17 +2,13 @@
 
 import eslint from "@eslint/js";
 import { defineConfig, globalIgnores, } from "eslint/config";
-
-import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
-
 import nextTS from "eslint-config-next/typescript";
 import nextVitals from "eslint-config-next/core-web-vitals";
 
 export default defineConfig(
   eslint.configs.recommended,
   reactRefresh.configs.next,
-  reactHooks.configs.flat.recommended,
   ...nextVitals,
   ...nextTS,
   {
