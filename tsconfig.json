@@ -125,5 +125,6 @@
     "node_modules",
     "tests",
     "src/prisma/generated/**/*",
+    ".next",
   ]
 }

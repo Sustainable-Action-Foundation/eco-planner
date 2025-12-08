@@ -1,40 +1,38 @@
 // @ts-check
 
-import tseslint from 'typescript-eslint';
-import { FlatCompat } from "@eslint/eslintrc";
-import { defineConfig } from "eslint/config";
+import eslint from "@eslint/js";
+import { defineConfig, globalIgnores, } from "eslint/config";
 
-const compat = new FlatCompat({
-  baseDirectory: process.cwd(),
-});
+import reactHooks from "eslint-plugin-react-hooks";
+import reactRefresh from "eslint-plugin-react-refresh";
+
+import nextTS from "eslint-config-next/typescript";
+import nextVitals from "eslint-config-next/core-web-vitals";
 
 export default defineConfig(
+  eslint.configs.recommended,
+  reactRefresh.configs.next,
+  reactHooks.configs.flat.recommended,
+  ...nextVitals,
+  ...nextTS,
   {
-    ignores: ["src/prisma/generated/**/*"],
-  },
-  {
-    name: "next-configs",
-    extends: [...compat.extends("next/core-web-vitals", "next/typescript")],
     rules: {
       "prefer-const": "warn",
-    }
-  },
-  {
-    name: "typescript-configs",
-    extends: [
-      tseslint.configs.recommendedTypeChecked,
-    ],
-    rules: {
+      "react-refresh/only-export-components": [
+        "warn",
+        { allowConstantExport: true },
+      ],
+      "react-hooks/immutability": "warn",
       "@typescript-eslint/no-unused-vars": [
         "warn",
         {
-          "args": "all",
-          "argsIgnorePattern": "^_",
-          "caughtErrors": "all",
-          "caughtErrorsIgnorePattern": "^_",
-          "destructuredArrayIgnorePattern": "^_",
-          "varsIgnorePattern": "^_",
-          "ignoreRestSiblings": true
+          args: "all",
+          argsIgnorePattern: "^_",
+          caughtErrors: "all",
+          caughtErrorsIgnorePattern: "^_",
+          destructuredArrayIgnorePattern: "^_",
+          varsIgnorePattern: "^[_t]",
+          ignoreRestSiblings: true
         }
       ],
       "@typescript-eslint/no-unsafe-argument": "warn",
@@ -49,6 +47,7 @@ export default defineConfig(
       "@typescript-eslint/no-misused-promises": "warn",
       "@typescript-eslint/no-floating-promises": "warn",
       "@typescript-eslint/no-unnecessary-type-assertion": "warn",
+      "no-empty": "warn",
     },
   },
   {
@@ -59,4 +58,18 @@ export default defineConfig(
       },
     },
   },
+  globalIgnores([
+    ".next/**",
+    "*.config.js",
+    "*.config.ts",
+    "**/*.d.ts",
+    "dist/**",
+    "node_modules/**",
+    "out/**",
+    "public/**",
+    "scripts/**",
+    "src/prisma/generated/**",
+    "src/components/ui/**",
+    "tailwind.config.js",
+  ]),
 )
