@@ -156,9 +156,6 @@ export default function SelectSingleTreeSearch({
       >
         <div
           className={`flex gap-25 align-items-center justify-content-space-between`}
-          style={{
-            paddingLeft: item.expanded === null ? '1.25rem' : ''
-          }}
           onClick={
             item.expanded !== null || item.onExpand !== undefined
               ? () => { void toggleNode(item); searchRef.current?.focus() }
@@ -194,7 +191,13 @@ export default function SelectSingleTreeSearch({
         {item.expanded && item.childNodes && (
           <ul
             role="group"
-            style={{ listStyle: 'none' }}
+            style={{ 
+              listStyle: 'none',
+              borderLeft: '1px dashed var(--gray)',
+              marginInlineStart: 'calc(12px + 0.25rem)',
+              paddingInlineStart: '.5rem',
+              marginBlock: '1px'
+            }}
             className="margin-0 padding-inline-start-75"
           >
             {item.childNodes.map((child, index) => (
