@@ -128,7 +128,7 @@ export function calculatePredictedOutcome(effects: (Effect & { dataSeries: DataS
           case ActionImpactType.DELTA:
             // Delta is handled separately above to account for cases where the current delta is null but some previous deltas are not
             break;
-          case ActionImpactType.PERCENT:
+          case ActionImpactType.PERCENT: {
             // Add previous year's (baseline + totalEffect) multiplied by current action as percent
             const previous = Years[Years.indexOf(i) - 1];
             if (previous == undefined) {
@@ -142,6 +142,7 @@ export function calculatePredictedOutcome(effects: (Effect & { dataSeries: DataS
               totalEffect[i] += ((totalEffect[previous] || 0) + (baseline[previous] || 0)) * (effect.dataSeries[i] / 100);
             }
             break;
+          }
           case ActionImpactType.ABSOLUTE:
           default:
             // Add current value
