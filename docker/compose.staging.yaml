@@ -38,6 +38,9 @@ services:
   app:
     image: ghcr.io/sustainable-action-foundation/eco-planner:dev
     pull_policy: always
+    build:
+      context: ..
+      dockerfile: docker/app.Dockerfile
     restart: always
     depends_on:
       db:
