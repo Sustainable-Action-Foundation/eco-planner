@@ -29,6 +29,7 @@ export type treeItem = {
   name: string,
   value: string,
   expanded: boolean | null,  
+  loading?: boolean;
   childNodes?: Array<treeItem>,
   onExpand?: () => Array<treeItem> | Promise<Array<treeItem>>
 }

@@ -61,7 +61,6 @@ export default function SelectSingleTreeSearch({
 
   const { t } = useTranslation(["forms"]);
   const [value, setValue] = useState<treeItem | null>(null)
-  const [loading, setLoading] = useState(false);
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const [searchValue, setSearchValue] = useState<string>('')
 
@@ -116,20 +115,20 @@ export default function SelectSingleTreeSearch({
   async function toggleNode(item: treeItem) {
     const index = flattenedItems.findIndex(el => el.value === item.value);
     setFocusedIndex(index) // TODO: I do not think we do this when selecting without running this function (i.e onclick), see if i can implement it
-
+    handleUpdateNode(item.value, node => ({ ...node, loading: true }));
     if (item.onExpand && !item.childNodes) {
-      setLoading(true);
       const children = await item.onExpand();
       handleUpdateNode(item.value, node => ({
         ...node,
         childNodes: children,
         expanded: true,
+        loading: false,
       }));
-      setLoading(false);
     } else {
       handleUpdateNode(item.value, node => ({
         ...node,
         expanded: !node.expanded,
+        loading: false,
       }));
     }
   };
@@ -164,7 +163,7 @@ export default function SelectSingleTreeSearch({
         >
           {(item.onExpand || (item.childNodes && item.childNodes.length > 0))
             ? <span className="flex gap-25 align-items-center">
-              {loading ?
+              {item.loading ?
                 <Image // TODO: need to keep track of this specific item loading state. Right now all icons will be loaders
                   src='/loaders/ring-resize.svg'
                   alt=""
