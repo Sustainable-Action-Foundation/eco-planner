@@ -9,7 +9,7 @@
     "select_groups": "Select groups"
   },
   "action": {
-    "choose_relationship": "Which $t(common:roadmap_version_one) does $t(common:action_definite_one) belong to?",
+    "choose_relationship": "Which $t(common:roadmap_version_one) does your $t(common:action_one) belong to?",
     "relationship_label": "$t(common:roadmap_version_one)",
     "relationship_no_chosen": "Select $t(common:roadmap_version_one)",
     "action_description_legend": "Describe your $t(common:action_one)",
@@ -80,8 +80,8 @@
     "create": "Create $t(common:effect_one)"
   },
   "goal": {
-    "choose_relationship": "Specify the relationship to other posts",
-    "relationship_label": "$t(common:roadmap_series_one) which this $t(common:goal_one) is created under:",
+    "choose_relationship": "Which $t(common:roadmap_series_one) does your $t(common:goal_one) belong to?",
+    "relationship_label": "$t(common:roadmap_series_one)",
     "relationship_no_chosen": "Choose $t(common:roadmap_series_one)",
     "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "data_series_type_legend": "Choose type of data series for your $t(common:goal_one)",
@@ -145,8 +145,8 @@
     "roadmap_version_creation_error": "{{$t(common:roadmap_version_definite_one), titleCase}} could not be created.\n\nReason:\n {{error}}",
     "file_read_error": "The file could not be read: {{error}}",
     "unknown_error": "Unknown error",
-    "relationship_legend": "Specify the relationship to other posts",
-    "relationship_label": "{{$t(common:roadmap_series_one), titleCase}} that this is a new post in",
+    "relationship_legend": "Which $t(common:roadmap_series_one) does your $t(common:roadmap_version_one) belong to?",
+    "relationship_label": "$t(common:roadmap_series_one)",
     "relationship_no_chosen": "No $t(common:roadmap_series_one) chosen",
     "relationship_no_found": "You seem to not have access to any $t(common:roadmap_series_one)",
     "roadmap_target_label": "Version of $t(common:roadmap_series_definite_one) {{targetName}} this $t(common:roadmap_series_definite_one) is working towards",

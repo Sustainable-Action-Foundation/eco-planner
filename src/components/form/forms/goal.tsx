@@ -251,7 +251,7 @@ export default function GoalForm({
                 className: "margin-top-25 margin-bottom-100",
                 id: "parent-roadmap",
                 name: "parent-roadmap",
-                placeholder: `${t("common:tsx.select")}  ${t("common:roadmap_short_one")}`,
+                placeholder: `${t("common:tsx.select")}  ${t("common:roadmap_series_one")}`,
               }}
               onChange={(value) => value?.value ? setParentRoadmapId(value.value) : setParentRoadmapId("")}
               options={parentRoadmaps}

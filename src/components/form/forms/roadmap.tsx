@@ -218,14 +218,14 @@ export default function RoadmapForm({
             {/* Allow user to select parent metaRoadmap if not already selected */}
             {!(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap) ?
               <>
-                <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:roadmap.relationship_label")}</label>
+                <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:roadmap.relationship_label")}</label> {/* TODO: Not capitalized properly due to issues in english translation */}
                 <SelectSingleSearch
                   props={{
                     required: true,
                     className: "margin-top-25 margin-bottom-100",
                     id: "parent-roadmap",
                     name: "parent-roadmap",
-                    placeholder: `${t("common:tsx.select")}  ${t("common:roadmap_short_one")}`,
+                    placeholder: `${t("common:tsx.select")}  ${t("common:roadmap_series_one")}`,
                   }}
                   onChange={(value) => value?.value ? setMetaRoadmapId(value.value) : setMetaRoadmapId("")}
                   options={metaRoadmaps}
