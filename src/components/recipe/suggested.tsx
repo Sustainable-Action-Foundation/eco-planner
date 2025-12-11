@@ -90,7 +90,7 @@ export function RecipeSuggestions({
     <>
       {/* Suggested recipes */}
       <label className="flex gap-50 margin-bottom-100 margin-top-25 align-items-center">
-        {t("components:recipe_editor.recipe")}
+        {t("components:recipe_editor.recipe")}:
         <select
           id="select-preset"
           value={selectedHash}

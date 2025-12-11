@@ -55,7 +55,7 @@
     "year": "Year",
     "value": "Value",
     "advanced": "Advanced",
-    "data_series_advanced_info": "This field accepts a series of values separated by semicolons or tabs, which means you can paste a series of values from Excel or something similar.<br /><strong>NOTE: Values must not be separated by commas (\",\").</strong><br />Decimal numbers can use either decimal points or decimal commas.<br />The first value represents the year 2020 and the series can continue up to the year 2050 (a total of 31 values).<br />If values are missing for a year, you can leave it blank, for example \";1;;;;5\" can be used to specify the values 1 and 5 for the years 2021 and 2025."
+    "data_series_advanced_info": "This field accepts a series of values separated by semicolons or tabs. This means that you may paste a series of values from third party software such as Microsoft Excel or Google Sheets. The first value in the series represents the year 2020 continuing up to the year 2050 (a total of 31 values). If values are missing for a year, you may leave it blank, for example \";1;;;;5\" specifies the values 1 and 5 for the years 2021 and 2025 respectively. Decimal numbers may use either decimal points or decimal commas.<br /><br /> <strong>Important: Values must not be separated by commas (\",\").</strong>"
   },
   "effect": {
     "select_roadmap_version_for_action": "Select $t(common:roadmap_version_one) that the $t(common:action_one) is under",

@@ -96,7 +96,6 @@ export default function EffectForm({
       <form onSubmit={handleSubmit}>
         <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
-        {/* TODO: Theese seem to be selectors for the same thing right now? */}
         <ActionSelector action={action} roadmapAlternatives={roadmapAlternatives} />
         <GoalSelector goal={goal} roadmapAlternatives={roadmapAlternatives} />
 
@@ -107,8 +106,7 @@ export default function EffectForm({
           labelKey="forms:data_series_input.data_series"
         />
 
-        { // Button for changing between absolute and delta impact types
-          // TODO: Styling
+        { 
           // TODO: This code can be cleaned up
           selectedImpactType === ActionImpactType.ABSOLUTE ?
             <div className="margin-block-100">
