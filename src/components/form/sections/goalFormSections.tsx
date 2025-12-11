@@ -38,7 +38,7 @@ export function ManualGoalForm({
     }
   }, [currentGoal]);
 
-  const indicatorParamaters = useMemo(() => {
+  const indicatorParameters = useMemo(() => {
     return [...new Set(parameterOptions)].map(option => ({
       name: option,
       value: option
@@ -52,7 +52,7 @@ export function ManualGoalForm({
 
   return (
     <>
-      <label htmlFor="indicatorParamater">
+      <label htmlFor="indicatorParameter">
         {t("forms:goal.leap_parameter")}
       </label>
       <TextSingleAutocomplete
@@ -63,7 +63,7 @@ export function ManualGoalForm({
           className: "margin-top-25 margin-bottom-100",
           defaultValue: currentGoal?.indicatorParameter ?? undefined
         }}
-        options={indicatorParamaters}
+        options={indicatorParameters}
         fuseOptions={{
           threshold: 0.3,
           ignoreLocation: true,
