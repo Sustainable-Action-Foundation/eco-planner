@@ -27,7 +27,7 @@ export function LanguageSwitcher() {
     setTimeout(() => {
       setLocaleContext(cleanLocale);
       window.dispatchEvent(new CustomEvent("i18n-language-changed"));
-    }, 10);
+    }, 1);
   }
 
   {/* 
