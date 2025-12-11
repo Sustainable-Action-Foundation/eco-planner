@@ -1,18 +1,16 @@
 'use client';
 
-// Import dependencies and sub components
-import type getRoadmaps from "@/fetchers/getRoadmaps.ts"; // Type for roadmap fetching
-import formSubmitter from "@/functions/formSubmitter"; // Handles form submission to API
-// import parameterOptions from "@/lib/LEAPList.json" with { type: "json" }; // Options for indicator parameter
-import mathjs from "@/math"; // Math library for unit parsing
-import { GoalCreateInput, GoalUpdateInput, Years } from "@/types"; // Types and helpers
-import { DataSeries, Goal } from "@prisma/client"; // Prisma types
-import { useMemo, useState } from "react"; // React hooks
-import { useTranslation } from "react-i18next"; // i18n hook
-import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput"; // For entering data series
-import { getDataSeries } from "../elements/dataSeriesInput/utils"; // Helper for extracting data series from form
-import styles from '../forms.module.css'; // CSS module for styling
-import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections"; // Sub components for form sections
+import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
+import formSubmitter from "@/functions/formSubmitter";
+import mathjs from "@/math";
+import { GoalCreateInput, GoalUpdateInput, Years } from "@/types";
+import { DataSeries, Goal } from "@prisma/client";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput";
+import { getDataSeries } from "../elements/dataSeriesInput/utils";
+import styles from '../forms.module.css';
+import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections";
 import { RecipeContextProvider } from "@/components/recipe/contextProvider";
 import { Recipe } from "@/functions/recipe-parser/types";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
@@ -20,30 +18,29 @@ import TextEditor from "../elements/textEditor/editor";
 import { Content } from "@tiptap/core";
 import SuggestionToggle from "@/components/recipe/suggestionToggle";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
+import { ResultingRecipe } from "@/components/recipe/editor/output/output";
+import OutputDataSeries from "@/components/recipe/editor/output/dataSeries";
 
-// Enum for selecting the type of data series for the goal
 enum DataSeriesType {
-  Static = "STATIC",      // Manually entered data
-  Inherited = "INHERIT", // Inherited from another goal
-  Combined = "COMBINE",  // Combination of multiple goals
+  Static = "STATIC",
+  Inherited = "INHERIT",
+  Combined = "COMBINE",
 }
 
-// Enum for selecting the type of baseline for the goal
 enum BaselineType {
-  Initial = "INITIAL",    // Use initial value as baseline
-  Custom = "CUSTOM",      // User provides custom baseline
-  Inherited = "INHERIT",  // Inherit baseline from another goal
+  Initial = "INITIAL",
+  Custom = "CUSTOM",
+  Inherited = "INHERIT",
 }
 
-// Main GoalForm component
 export default function GoalForm({
   roadmapId,
   roadmapAlternatives,
   currentGoal,
 }: {
-  roadmapId?: string, // ID of the parent roadmap (if already selected)
-  roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>, // List of possible roadmaps
-  currentGoal?: Goal & { // Current goal (if editing)
+  roadmapId?: string,
+  roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
+  currentGoal?: Goal & {
     dataSeries: DataSeries | null,
     baselineDataSeries: DataSeries | null,
     author: { id: string, username: string },
@@ -51,11 +48,8 @@ export default function GoalForm({
     roadmap: { id: string },
   },
 }) {
-  const { t } = useTranslation(["forms", "common"]); // i18n translation hook
-  // State for the type of data series (static, inherited, combined)
-  const defaultDataSeriesType = DataSeriesType.Inherited;
-  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(defaultDataSeriesType);
-  // State for the type of baseline (initial, custom, inherited)
+  const { t } = useTranslation(["forms", "common"]);
+  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(DataSeriesType.Inherited);
   const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baselineDataSeries ? BaselineType.Custom : BaselineType.Initial);
   const [editorContent, setEditorContent] = useState<Content>(() => {
     if (!currentGoal?.description) return null;
@@ -77,10 +71,8 @@ export default function GoalForm({
   }, [roadmapAlternatives, t]);
 
 
-  // Memoized timestamp for the form submission (used for optimistic updates)
   const timestamp = useMemo(() => Date.now(), []);
 
-  // Form submission handler
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -210,16 +202,16 @@ export default function GoalForm({
     formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST', t);
   }
 
-  // Prepare data series string for default value (if editing)
-  const dataArray: (number | null)[] = []
+  // Prepare data series string
+  const dataArray: (number | null)[] = [];
   if (currentGoal?.dataSeries) {
     for (const i of Years) {
-      dataArray.push(currentGoal.dataSeries[i])
+      dataArray.push(currentGoal.dataSeries[i]);
     }
   }
-  const dataSeriesString = dataArray.join(';')
+  const dataSeriesString = dataArray.join(';');
 
-  // Prepare baseline data series string for default value (if editing)
+  // Prepare baseline data series string
   const baselineArray: (number | null)[] = []
   if (currentGoal?.baselineDataSeries) {
     for (const i of Years) {
@@ -230,7 +222,6 @@ export default function GoalForm({
 
   // Index for data-position attribute in legend elements (for accessibility)
   let positionIndex = 1;
-
 
   return (
     <>
@@ -279,7 +270,7 @@ export default function GoalForm({
 
         </fieldset>
 
-        {/* Data series input section (varies by type) */}
+        {/* Data series input section */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_goal_data_series")}</legend>
           <div>
@@ -307,13 +298,28 @@ export default function GoalForm({
             </label>
           </div>
 
-          {(dataSeriesType === DataSeriesType.Static || !dataSeriesType) &&
+          {(
+            dataSeriesType === DataSeriesType.Static
+          ) &&
             <ManualGoalForm currentGoal={currentGoal} dataSeriesString={dataSeriesString} />
           }
           {/* Scaling section for inherited/combined goals */}
-          {(dataSeriesType === DataSeriesType.Inherited || dataSeriesType === DataSeriesType.Combined) &&
-            <RecipeContextProvider> {/* TODO: Want to clear recipe when switching between suggested or custom recipes? */}
+          {(
+            !dataSeriesType // Fallback for undefined or otherwise falsy
+            || dataSeriesType === DataSeriesType.Inherited
+            || dataSeriesType === DataSeriesType.Combined
+          ) &&
+            <RecipeContextProvider>
+              {/* TODO: Want to clear recipe when switching between suggested or custom recipes? */}
+
               <SuggestionToggle />
+
+              <ResultingRecipe
+                FormElement={<input type="hidden" name="resultingRecipe" />}
+              />
+              <OutputDataSeries
+                FormElement={<input type="hidden" name="resultingDataSeries" />}
+              />
             </RecipeContextProvider>
           }
         </fieldset>
@@ -362,7 +368,6 @@ export default function GoalForm({
             style={{ fontSize: '14px', transform: 'none' }}
             type="submit"
             id="submit-button"
-          // disabled={isLoading}
           >
             {currentGoal ? t("common:tsx.save") : t("forms:goal.create")}
           </button>

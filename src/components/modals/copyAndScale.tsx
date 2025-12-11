@@ -11,8 +11,8 @@ import { recipeFromUnknown } from "@/functions/parseRecipe";
 import { RecipeContextProvider } from "../recipe/contextProvider";
 import { ResultingRecipe } from "@/components/recipe/editor/output/output";
 import OutputDataSeries from "../recipe/editor/output/dataSeries";
-import VariableEditor from "../recipe/editor/variable/editor"; 
-import { RecipeSuggestions } from "@/components/recipe/suggested"; 
+import VariableEditor from "../recipe/editor/variable/editor";
+import { RecipeSuggestions, suggestedRecipes } from "@/components/recipe/suggested";
 
 export default function CopyAndScale({
   goal,
@@ -164,7 +164,10 @@ export default function CopyAndScale({
             {goal.recipeSuggestions.length > 0 &&
               <RecipeSuggestions
                 // TODO: change this cast into a proper type guard in RecipeSuggestions.tsx
-                suggestedRecipes={goal.recipeSuggestions as { hash: string, recipe: Recipe }[]}
+                suggestedRecipes={[
+                  ...(goal.recipeSuggestions as { hash: string, recipe: Recipe }[]),
+                  ...suggestedRecipes,
+                ]}
               />
             }
 
