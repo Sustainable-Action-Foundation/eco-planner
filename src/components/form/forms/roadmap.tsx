@@ -1,6 +1,5 @@
 'use client'
 
-import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import formSubmitter from "@/functions/formSubmitter";
 import parseCsv, { csvToGoalList } from "@/functions/parseCsv";
 import { LoginData } from "@/lib/session";
@@ -139,32 +138,34 @@ export default function RoadmapForm({
   const timestamp = Date.now()
   const [metaRoadmapId, setMetaRoadmapId] = useState<string>(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap || "")
   const [targetVersion, setTargetVersion] = useState<number | null>(0)
-  const [inheritableGoals, setInheritableGoals] = useState<{ id: string, name: string | null, indicatorParameter: string }[]>([])
+  // Temporarily disabled
+  // const [inheritableGoals, setInheritableGoals] = useState<{ id: string, name: string | null, indicatorParameter: string }[]>([])
   const metaRoadmapTarget = useMemo(() => {
     // The meta roadmap that the parent meta roadmap works towards, if any
     return metaRoadmapAlternatives?.find((parentRoadmap) => parentRoadmap.id === metaRoadmapAlternatives?.find((roadmap) => roadmap.id === metaRoadmapId)?.parentRoadmapId)
   }, [metaRoadmapId, metaRoadmapAlternatives])
 
   // Fetch inheritable goals when the target version changes
-  useEffect(() => {
-    setIsLoading(true)
-    clientSafeGetOneRoadmap(metaRoadmapTarget?.roadmapVersions.find((version) => version.version === targetVersion)?.id || "")
-      .then((roadmap) => {
-        if (!roadmap) {
-          setInheritableGoals([]);
-          setIsLoading(false);
-          return;
-        }
-        setInheritableGoals(roadmap.goals);
-        setIsLoading(false);
-        return;
-      })
-      .catch(() => {
-        setInheritableGoals([]);
-        setIsLoading(false);
-        return;
-      })
-  }, [metaRoadmapTarget, targetVersion])
+  // Temporarily disabled
+  // useEffect(() => {
+  //   setIsLoading(true)
+  //   clientSafeGetOneRoadmap(metaRoadmapTarget?.roadmapVersions.find((version) => version.version === targetVersion)?.id || "")
+  //     .then((roadmap) => {
+  //       if (!roadmap) {
+  //         setInheritableGoals([]);
+  //         setIsLoading(false);
+  //         return;
+  //       }
+  //       setInheritableGoals(roadmap.goals);
+  //       setIsLoading(false);
+  //       return;
+  //     })
+  //     .catch(() => {
+  //       setInheritableGoals([]);
+  //       setIsLoading(false);
+  //       return;
+  //     })
+  // }, [metaRoadmapTarget, targetVersion])
 
   // Validate file when it changes
   useEffect(() => {
@@ -296,7 +297,9 @@ export default function RoadmapForm({
         {/* TODO: Add option to inherit some/all goals from previous versions of same roadmap */}
         {/* TODO: Add checkboxes for inheriting some/all goals from another roadmap (not the target) with `inheritFromID` */}
         {/* TODO: Allow choosing which roadmap to inherit from, might be different from target */}
-        {
+        {/* Temporarily disabled */}
+        {/* RE-ENABLE WHEN UPDATED */}
+        {/*
           inheritableGoals.length > 0 && (
             <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
               <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:roadmap.inherit_goal_legend")}</legend>
@@ -312,7 +315,7 @@ export default function RoadmapForm({
               }
             </fieldset>
           )
-        }
+        */}
 
         <ConfigureAccess
           user={user}
