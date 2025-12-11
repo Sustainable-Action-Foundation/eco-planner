@@ -311,6 +311,7 @@ export default function GoalForm({
               <SuggestionToggle />
 
               <FormIntegration
+                // TODO: Label these?
                 RecipeFormElement={<input name="resultingRecipe" />}
                 UnitFormElement={<input name="dataUnit" />}
               />
