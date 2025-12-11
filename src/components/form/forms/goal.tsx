@@ -3,7 +3,7 @@
 // Import dependencies and sub components
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts"; // Type for roadmap fetching
 import formSubmitter from "@/functions/formSubmitter"; // Handles form submission to API
-import parameterOptions from "@/lib/LEAPList.json" with { type: "json" }; // Options for indicator parameter
+// import parameterOptions from "@/lib/LEAPList.json" with { type: "json" }; // Options for indicator parameter
 import mathjs from "@/math"; // Math library for unit parsing
 import { GoalCreateInput, GoalUpdateInput, Years } from "@/types"; // Types and helpers
 import { DataSeries, Goal } from "@prisma/client"; // Prisma types
@@ -13,11 +13,9 @@ import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput"; // Fo
 import { getDataSeries } from "../elements/dataSeriesInput/utils"; // Helper for extracting data series from form
 import styles from '../forms.module.css'; // CSS module for styling
 import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections"; // Sub components for form sections
-import { RecipeContextProvider, useRecipe } from "@/components/recipe/contextProvider";
+import { RecipeContextProvider } from "@/components/recipe/contextProvider";
 import { Recipe } from "@/functions/recipe-parser/types";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
-import { suggestedRecipes, RecipeSuggestions } from "@/components/recipe/suggested";
-import RecipeEditor from "@/components/recipe/editor/editor";
 import TextEditor from "../elements/textEditor/editor";
 import { Content } from "@tiptap/core";
 import SuggestionToggle from "@/components/recipe/suggestionToggle";
@@ -76,7 +74,7 @@ export default function GoalForm({
       name: roadmap.metaRoadmap.name,
       value: roadmap.id
     }));
-  }, [roadmapAlternatives]);
+  }, [roadmapAlternatives, t]);
 
 
   // Memoized timestamp for the form submission (used for optimistic updates)

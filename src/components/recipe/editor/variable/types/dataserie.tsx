@@ -2,7 +2,7 @@
 
 import { useRecipe } from "@/components/recipe/contextProvider";
 import { isRecipeDataSeries, RecipeVariable } from "@/functions/recipe-parser/types";
-import { useTranslation } from "react-i18next";
+// import { useTranslation } from "react-i18next";
 import { InputRules, defaultInputRules } from "./rules";
 import { changeDataSeries } from "@/components/recipe/contextFunctions";
 import VariableTypeCommon from "./common";
@@ -64,7 +64,7 @@ export default function VariableTypeDataSeries({
   rules?: InputRules;
   availableRoadmaps?: { id: string; name: string; }[];
 }) {
-  const { t } = useTranslation("components");
+  // const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
   const variable = recipe?.variables[name] as RecipeVariable;
 
@@ -115,7 +115,7 @@ export function VariableTypeDataSeriesSimple({
   name: string;
   availableRoadmaps?: { id: string; name: string; }[];
 }) {
-  const { t } = useTranslation("components");
+  // const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
   const variable = recipe?.variables[name] as RecipeVariable;
 

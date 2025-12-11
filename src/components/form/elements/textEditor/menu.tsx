@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslation } from "react-i18next";
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Editor } from "@tiptap/core";
 import styles from './textEditor.module.css' with { type: "css" }
 import { BulletList, Link, NumberedList, Highlight, Subscript, Superscript, Underline, StrikeThrough, Bold, Italic, GreyText, FontSize, Redo, Undo } from "./menuItems";
@@ -15,10 +15,10 @@ export default function TextEditorMenu({
   editor: Editor,
   editorId: string
 }) {
-  const { t } = useTranslation(["forms", "common"]); // TODO: Should add common? 
+  const { t } = useTranslation(["forms", "common"]);
 
   const [focusedMenubarItem, setFocusedMenubarItem] = useState<number | null>(null);
-  const [focusedSubmenuItem, setfocusedSubmenuItem] = useState<number | null>(null);
+  const [focusedSubmenuItem, setFocusedSubmenuItem] = useState<number | null>(null);
   const [submenuVisible, setSubmenuVisible] = useState<boolean>()
   const [menuBarWidth, setMenuBarWidth] = useState<number | undefined>(undefined); // width of menubar parent, updated on resize
   const [visibleGroups, setVisibleGroups] = useState<number[]>() // Groups which should be shown in the menubar 
@@ -31,7 +31,8 @@ export default function TextEditorMenu({
   const submenuItemsRef = useRef<NodeListOf<HTMLElement> | null>(null);
   const breakpointsRef = useRef<Record<string, number>>({}); // Breakpoints calculated from width of menu elements, calculated once on render.
 
-  const menuItemsList = [
+  // Type annotation might not work as intended? Need to verify, but it gets rid of some warnings for now.
+  const menuItemsList: React.ReactElement<{ "data-menu-group": number }>[] = useMemo(() => [
     <li role='presentation' data-menu-group={1} key="undo">
       <Undo editor={editor} setFocusedMenubarItem={setFocusedMenubarItem} t={t} menuGroup={1} />
     </li>,
@@ -74,7 +75,7 @@ export default function TextEditorMenu({
     <li role='presentation' data-menu-group={5} key="numberedlist" >
       <NumberedList editor={editor} setFocusedMenubarItem={setFocusedMenubarItem} t={t} menuGroup={5} />
     </li>
-  ];
+  ], [editor, editorId, t]);
 
   // Get a ref of all menu items in our menubar
   useEffect(() => {
@@ -185,7 +186,7 @@ export default function TextEditorMenu({
     setVisibleGroups(calculatedVisibleGroups)
     setHiddenGroups(calculatedHiddenGroups)
 
-  }, [menuBarWidth])
+  }, [menuBarWidth, menuItemsList])
 
   if (!editor) {
     return null
@@ -231,7 +232,7 @@ export default function TextEditorMenu({
               if (e.key === 'Enter') {
                 e.preventDefault();
                 setSubmenuVisible(!submenuVisible)
-                setfocusedSubmenuItem(0)
+                setFocusedSubmenuItem(0)
               }
               if (e.key === ' ') {
                 e.preventDefault();
@@ -241,14 +242,14 @@ export default function TextEditorMenu({
                 e.preventDefault()
                 e.stopPropagation()
                 submenuButtonRef.current?.focus()
-                setfocusedSubmenuItem(null)
+                setFocusedSubmenuItem(null)
                 setSubmenuVisible(false)
               }
               if (e.key === 'ArrowDown' || e.key == 'ArrowUp') {
                 if (!submenuItemsRef.current) return
                 e.preventDefault()
                 if (!submenuVisible) { setSubmenuVisible(true) }
-                setfocusedSubmenuItem(0)
+                setFocusedSubmenuItem(0)
               }
             }}
             role='menuitem'
@@ -280,20 +281,20 @@ export default function TextEditorMenu({
                 e.preventDefault()
                 e.stopPropagation()
                 submenuButtonRef.current?.focus()
-                setfocusedSubmenuItem(null)
+                setFocusedSubmenuItem(null)
                 setSubmenuVisible(false)
               }
               if (e.key === "ArrowUp") {
                 e.preventDefault()
                 e.stopPropagation()
                 submenuButtonRef.current?.focus()
-                setfocusedSubmenuItem(null)
+                setFocusedSubmenuItem(null)
               }
               handleKeyDownMenuBar(
                 e,
                 submenuItemsRef.current,
                 focusedSubmenuItem,
-                setfocusedSubmenuItem
+                setFocusedSubmenuItem
               )
             }}
             role="menubar"

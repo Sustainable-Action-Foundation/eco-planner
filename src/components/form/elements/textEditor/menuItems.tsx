@@ -2,7 +2,7 @@
 
 import { Editor } from "@tiptap/core";
 import { useEditorState } from "@tiptap/react";
-import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconChevronDown, IconDotsVertical, IconWorld, IconEdit, IconLinkOff, IconPencil, IconCopy, IconAlignLeft } from "@tabler/icons-react";
+import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconChevronDown, IconLinkOff, IconPencil, IconAlignLeft } from "@tabler/icons-react";
 import React, { useEffect, useRef, useState } from "react";
 import styles from './textEditor.module.css' with { type: "css" }
 import { allowedProtocols } from './config/config';
@@ -377,11 +377,12 @@ export function Link(props: MenubarButtonProps) {
   useEffect(() => {
     if (editLink) {
       const nodeText = editor.state.doc.nodeAt(editor.view.state.selection.$from.pos)?.textContent ?? "";
-      const linkHref = editor.getAttributes("link").href ?? "";
+      const linkAttrs = editor.getAttributes("link") as { href?: string | null };
+      const linkHref = linkAttrs.href ?? "";
       setTextValue(nodeText);
       setHrefValue(linkHref);
     }
-  }, [editLink, editor.state.selection]);
+  }, [editLink, editor, editor.state.selection]);
 
   return (
     <>
@@ -429,7 +430,7 @@ export function Link(props: MenubarButtonProps) {
               <div className="flex align-items-center ">
                 {/* TODO: Tooltips */}
                 <a
-                  href={editor.getAttributes('link').href}
+                  href={(editor.getAttributes('link') as { href?: string | null }).href || ''}
                   target="_blank"
                   style={{ width: 'min(175px, auto)', fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {editor.getAttributes('link').href}
@@ -508,7 +509,7 @@ export function Link(props: MenubarButtonProps) {
 
 type FontSizeProps = MenubarButtonProps & { editorId: string };
 // TODO: Selecting large text is buggy 
-export function FontSize({ t, editor, menuGroup, setFocusedMenubarItem, editorId }: FontSizeProps) {
+export function FontSize({ t, editor, menuGroup, setFocusedMenubarItem: _, editorId }: FontSizeProps) {
 
   const [fontSizeMenuOpen, setFontSizeMenuOpen] = useState<boolean>(false);
   const [focusedFontSizeMenuItem, setFocusedFontSizeMenuItem] = useState<number | null>(null);
