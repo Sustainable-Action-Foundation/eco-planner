@@ -264,7 +264,6 @@ export default function GoalForm({
             content={currentGoal ? currentGoal.description : ""}
             onChange={(json) => setEditorContent(json)}
           />
-
         </fieldset>
 
         {/* Data series input section */}
@@ -311,7 +310,6 @@ export default function GoalForm({
               <SuggestionToggle />
 
               <FormIntegration
-                // TODO: Label these?
                 RecipeFormElement={<input name="resultingRecipe" />}
                 UnitFormElement={<input name="dataUnit" />}
               />

@@ -13,9 +13,9 @@ export default function FormIntegration({
   UnitFormElement,
   RecipeFormElement,
 }: {
-  DataSeriesFormElement?: React.ReactElement<HTMLFormElement>;
-  UnitFormElement?: React.ReactElement<HTMLFormElement>;
-  RecipeFormElement?: React.ReactElement<HTMLFormElement>;
+  DataSeriesFormElement?: React.ReactElement<HTMLInputElement>;
+  UnitFormElement?: React.ReactElement<HTMLInputElement>;
+  RecipeFormElement?: React.ReactElement<HTMLInputElement>;
 }) {
   const {
     recipe,
@@ -26,14 +26,17 @@ export default function FormIntegration({
   return (<>
     {DataSeriesFormElement && React.cloneElement(DataSeriesFormElement, {
       defaultValue: JSON.stringify(resultingDataSeries),
+      type: "hidden",
       hidden: true,
     })}
     {UnitFormElement && React.cloneElement(UnitFormElement, {
       defaultValue: resultingUnit || "",
+      type: "hidden",
       hidden: true,
     })}
     {RecipeFormElement && React.cloneElement(RecipeFormElement, {
       defaultValue: JSON.stringify(recipe),
+      type: "hidden",
       hidden: true,
     })}
   </>);
