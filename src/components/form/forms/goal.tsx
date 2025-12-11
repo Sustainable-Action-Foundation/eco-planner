@@ -18,8 +18,7 @@ import TextEditor from "../elements/textEditor/editor";
 import { Content } from "@tiptap/core";
 import SuggestionToggle from "@/components/recipe/suggestionToggle";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
-import { ResultingRecipe } from "@/components/recipe/editor/output/output";
-import OutputDataSeries from "@/components/recipe/editor/output/dataSeries";
+import FormIntegration from "@/components/recipe/editor/output/formIntegration";
 
 enum DataSeriesType {
   Static = "STATIC",
@@ -301,7 +300,6 @@ export default function GoalForm({
           ) &&
             <ManualGoalForm currentGoal={currentGoal} dataSeriesString={dataSeriesString} />
           }
-          {/* Scaling section for inherited/combined goals */}
           {(
             !dataSeriesType // Fallback for undefined or otherwise falsy
             || dataSeriesType === DataSeriesType.Inherited
@@ -312,11 +310,9 @@ export default function GoalForm({
 
               <SuggestionToggle />
 
-              <ResultingRecipe
-                FormElement={<input type="hidden" name="resultingRecipe" />}
-              />
-              <OutputDataSeries
-                FormElement={<input type="hidden" name="resultingDataSeries" />}
+              <FormIntegration
+                RecipeFormElement={<input name="resultingRecipe" />}
+                UnitFormElement={<input name="dataUnit" />}
               />
             </RecipeContextProvider>
           }

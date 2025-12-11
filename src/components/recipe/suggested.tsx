@@ -13,6 +13,7 @@ import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import TabList from "../generic/tablist/tabList";
 import OutputDataSeries from "./editor/output/dataSeries";
 import OutputGraph from "./editor/output/graph";
+import FormIntegration from "./editor/output/formIntegration";
 
 // TODO: Rename (SuggestedRecipes)
 export function RecipeSuggestions({
@@ -189,9 +190,12 @@ export function RecipeSuggestions({
           </div>
           <div
             data-tabname={t("components:recipe_editor.dataserie")}
-            className="padding-top-50 margin-bottom-100" // TODO: Show fallback if there is  no resultingdata-series
+            className="padding-top-50 margin-bottom-100" // TODO: Show fallback if there is  no resultingDataSeries
           >
-            <OutputDataSeries FormElement={<input type="hidden" name="resultingDataSeries" />} />
+            <OutputDataSeries />
+            <FormIntegration
+              DataSeriesFormElement={<input name="resultingDataSeries" />}
+            />
           </div>
           <div
             data-tabname={t("components:recipe_editor.graph")}

@@ -9,10 +9,9 @@ import { IconX } from "@tabler/icons-react";
 import { Recipe } from "@/functions/recipe-parser/types";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
 import { RecipeContextProvider } from "../recipe/contextProvider";
-import { ResultingRecipe } from "@/components/recipe/editor/output/output";
-import OutputDataSeries from "../recipe/editor/output/dataSeries";
 import VariableEditor from "../recipe/editor/variable/editor";
 import { RecipeSuggestions, suggestedRecipes } from "@/components/recipe/suggested";
+import FormIntegration from "../recipe/editor/output/formIntegration";
 
 export default function CopyAndScale({
   goal,
@@ -173,11 +172,9 @@ export default function CopyAndScale({
 
             <VariableEditor />
 
-            <OutputDataSeries
-              FormElement={<input type="hidden" name="resultingDataSeries" />}
-            />
-            <ResultingRecipe
-              FormElement={<input type="hidden" name="resultingRecipe" />}
+            <FormIntegration
+              DataSeriesFormElement={<input name="resultingDataSeries" />}
+              RecipeFormElement={<input name="resultingRecipe" />}
             />
           </RecipeContextProvider>
 

@@ -14,7 +14,7 @@
     "prebuild": "tsx ./src/scripts/generateLeapList.ts && tsx ./src/scripts/getDataSeriesValueFieldNames.ts && tsx ./src/scripts/getBuildInfo.ts",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ./src",
+    "lint": "tsc --noEmit && eslint ./src",
     "locales:format": "tsx ./src/scripts/localesFormat.ts",
     "test:run": "tsx ./tests/run.ts",
     "test:clean": "rm -rf test-results & rm -rf playwright-report & rm tests/report.json & rm tests/reporter.log",

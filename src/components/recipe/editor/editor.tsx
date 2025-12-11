@@ -1,5 +1,4 @@
 import TabList from "@/components/generic/tablist/tabList";
-import { ResultingRecipe } from "./output/output";
 import OutputGraph from "./output/graph";
 import OutputDataSeries from "./output/dataSeries";
 import OutputStatus from "./output/status";
@@ -7,6 +6,7 @@ import RecipeEquationEditor from "@/components/recipe/editor/equation/editor";
 import VariableCreator from "./variable/creator";
 import VariableEditor from "@/components/recipe/editor/variable/editor";
 import { useTranslation } from "react-i18next";
+import FormIntegration from "./output/formIntegration";
 
 export default function RecipeEditor() {
   const { t } = useTranslation(["components"]);
@@ -70,13 +70,9 @@ export default function RecipeEditor() {
         </TabList>
       </div>
 
-      {/* TODO: What is this? */}
-      {/*
-        When reading the output of the recipe context it's done via this form element which can be read by a parent form.
-        The reason it's exposed like this is for developer transparency so you can set the name and stuff yourself but I'm open to feedback on this approach.
-        - Vena 
-      */}
-      <ResultingRecipe FormElement={<input type="hidden" name="resultingRecipe" />} />
+      <FormIntegration
+        RecipeFormElement={<input name="resultingRecipe" />}
+      />
     </>
   )
 }

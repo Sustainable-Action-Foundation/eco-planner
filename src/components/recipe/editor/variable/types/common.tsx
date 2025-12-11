@@ -2,11 +2,11 @@
 
 import { useRecipe } from "@/components/recipe/contextProvider";
 import { RecipeDataTypes, RecipeVariable } from "@/functions/recipe-parser/types";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { InputRules, defaultInputRules } from "./rules";
 import styles from '../../editor.module.css' with {type: 'css'}
-import { changeName, changeType, changeUnit, deleteVariable } from "@/components/recipe/contextFunctions";
+import { changeName, changeType, deleteVariable } from "@/components/recipe/contextFunctions";
 import { IconEdit, IconTrashXFilled } from "@tabler/icons-react";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { Unit } from "mathjs";
