@@ -68,8 +68,7 @@ export default function GoalForm({
       name: roadmap.metaRoadmap.name,
       value: roadmap.id
     }));
-  }, [roadmapAlternatives, t]);
-
+  }, [roadmapAlternatives]);
 
   const timestamp = useMemo(() => Date.now(), []);
 
