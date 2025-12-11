@@ -2,8 +2,8 @@
 
 import { inputElement, treeItem } from "@/components/types"
 import { IconCaretRightFilled, IconSearch, IconSelector } from "@tabler/icons-react"
-import { useEffect, useRef, useState } from "react"
-import { clearEditableCombobox, handleKeyDownTreeCombobox } from "./functions";
+import { useEffect, useMemo, useRef, useState } from "react"
+import { clearEditableCombobox, handleKeyDownTreeCombobox, preventInvalidFormSubmission } from "./functions";
 import styles from './comboBox.module.css' with { type: "css" }
 import { useTranslation } from "react-i18next";
 import Image from "next/image"
@@ -102,6 +102,18 @@ export default function SelectSingleTreeSearch({
     )
   }, [menuOpen]);
 
+  // Disables form subbmision if value is invalid 
+  // Define what an invalid value is (missing value or empty string). We only need this defined if the field is requied
+  const valueIsValid = useMemo(() => {
+    if ((!value || value.value === "") && props.required) return false;
+    return true;
+  }, [value, props.required]);
+
+  useEffect(() => {
+    if (!toggleRef.current) return
+    return preventInvalidFormSubmission(toggleRef.current, valueIsValid)
+  }, [valueIsValid]);
+
   /* Why do i need this? */
   useEffect(() => {
     setItems(treeItems);
@@ -114,7 +126,7 @@ export default function SelectSingleTreeSearch({
 
   async function toggleNode(item: treeItem) {
     const index = flattenedItems.findIndex(el => el.value === item.value);
-    setFocusedIndex(index) // TODO: I do not think we do this when selecting without running this function (i.e onclick), see if i can implement it
+    setFocusedIndex(index)  
     handleUpdateNode(item.value, node => ({ ...node, loading: true }));
     if (item.onExpand && !item.childNodes) {
       const children = await item.onExpand();
@@ -164,7 +176,7 @@ export default function SelectSingleTreeSearch({
           {(item.onExpand || (item.childNodes && item.childNodes.length > 0))
             ? <span className="flex gap-25 align-items-center">
               {item.loading ?
-                <Image // TODO: need to keep track of this specific item loading state. Right now all icons will be loaders
+                <Image
                   src='/loaders/ring-resize.svg'
                   alt=""
                   width={16}
@@ -177,7 +189,6 @@ export default function SelectSingleTreeSearch({
                   style={{
                     minWidth: '16px',
                     transform: item.expanded ? 'rotate(90deg)' : 'rotate(0deg)',
-                    transition: 'transform 0.2s ease', // TODO: explore why this does not seem to work.
                   }}
                 />
               }
@@ -229,7 +240,7 @@ export default function SelectSingleTreeSearch({
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
         aria-required={props.required ? props.required : false}
-      // aria-invalid={!valueIsValid}
+        aria-invalid={!valueIsValid}
       >
         <span className={`${styles['selected-value-text']}`}>
           {!value ? props.placeholder : value.name}

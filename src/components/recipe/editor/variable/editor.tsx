@@ -70,6 +70,10 @@ export default function VariableEditor({
             return (
               <li className="padding-bottom-75 margin-bottom-75" key={name}>
                 <VariableTypeDataSeries
+                  props={{
+                    id: "recipeVariable" + i,
+                    name: "recipeVariable" + i,
+                  }}
                   key={"recipeVariable" + i}
                   name={name}
                   rules={rules}

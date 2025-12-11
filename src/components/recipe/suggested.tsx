@@ -145,6 +145,12 @@ export function RecipeSuggestions({
                     <span>{key}: {variable.unit}</span>
                   </label>
                   <VariableTypeDataSeriesSimple
+                    props={{
+                      id: "recipeVariable" + i,
+                      name: "recipeVariable" + i,
+                      placeholder: 'Välj målbana eller effekt', // TODO: i18n
+                      required: true
+                    }}
                     key={"recipeVariable" + i}
                     name={key}
                     availableRoadmaps={availableRoadmaps}

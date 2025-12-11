@@ -8,7 +8,7 @@ import { changeDataSeries } from "@/components/recipe/contextFunctions";
 import VariableTypeCommon from "./common";
 import VectorIndexPicker from "./vectorIndexPicker";
 import React, { useCallback, useEffect, useState } from "react";
-import { treeItem } from "@/components/types";
+import { inputElement, treeItem } from "@/components/types";
 import SelectSingleTreeSearch from "@/components/form/elements/combobox/selectSingleTreeSearch";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import { Recipe } from "@/functions/recipe-parser/types";
@@ -59,10 +59,12 @@ export default function VariableTypeDataSeries({
   name,
   rules,
   availableRoadmaps = [],
+  props
 }: {
   name: string;
   rules?: InputRules;
   availableRoadmaps?: { id: string; name: string; }[];
+  props: inputElement;
 }) {
   // const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
@@ -88,10 +90,11 @@ export default function VariableTypeDataSeries({
         <label htmlFor="variable-tree">
           Välj målbana eller effekt {/* TODO: i18n */}
         </label>
-        <SelectSingleTreeSearch // TODO: Fix disabled state
+        <SelectSingleTreeSearch
           props={{
-            id: 'variable-tree', // TODO: Name and id must be dynamic
-            name: '',
+            id: props.id,
+            name: props.name,
+            placeholder: props.placeholder,
           }}
           treeItems={treeItems}
           onChange={handleDataSeriesChange}
@@ -111,9 +114,11 @@ export default function VariableTypeDataSeries({
 export function VariableTypeDataSeriesSimple({
   name,
   availableRoadmaps = [],
+  props
 }: {
   name: string;
   availableRoadmaps?: { id: string; name: string; }[];
+  props: inputElement;
 }) {
   // const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
@@ -128,11 +133,12 @@ export function VariableTypeDataSeriesSimple({
   }
 
   return (
-    <SelectSingleTreeSearch // TODO: Fix disabled state
+    <SelectSingleTreeSearch
       props={{
-        id: 'variable-tree', // TODO: Name and id must be dynamic
-        name: '',
-        placeholder: 'Välj målbana eller effekt' // TODO: i18n
+        id: props.id,
+        name: props.name,
+        placeholder: props.placeholder,
+        required: props.required
       }}
       treeItems={treeItems}
       onChange={handleDataSeriesChange}
