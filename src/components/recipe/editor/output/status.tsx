@@ -21,7 +21,7 @@ export default function OutputStatus() {
       {!error && recipe && (Object.values(recipe?.variables).length !== 0 && recipe.eq.trim() !== "") ?
         <div lang={Locales.enSE} className="flex align-items-flex-start gap-50 margin-block-50" style={{ color: 'green', fontSize: '14px' }}>
           <IconCircleCheckFilled width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="green" /> {/* TODO: Aria-label */}
-          Recipe is valid {/* TODO: I18n */}
+          {t("components:recipe_editor.no_errors")}
         </div>
         : null}
 
@@ -39,7 +39,7 @@ export default function OutputStatus() {
       {warnings.length === 0 && !error &&
         <div lang={Locales.enSE} className="flex align-items-flex-start gap-50" style={{ fontSize: '14px' }} >
           <IconInfoCircle width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="var(--gray-70)" aria-label={t("components:recipe_editor.status.no_issues_icon_aria_label")} />
-          Nothing to report {/* TODO: I18n */}
+          {t("components:recipe_editor.no_warnings")}
         </div>
       }
     </>

@@ -1,122 +1,123 @@
 {
-  "roadmap_short_one": "färdplan",
-  "roadmap_short_other": "färdplaner",
-  "roadmap_series_one": "färdplansserie",
-  "roadmap_series_other": "färdplansserier",
-  "roadmap_series_definite_one": "färdplansserien",
-  "roadmap_series_definite_other": "färdplansserierna",
-  "roadmap_version_one": "färdplansversion",
-  "roadmap_version_other": "färdplansversioner",
-  "roadmap_version_definite_one": "färdplansversionen",
-  "roadmap_version_definite_other": "färdplansversionerna",
-  "action_one": "åtgärd",
-  "action_other": "åtgärder",
+  "404": {
+    "description": "Se till att du har rätt address för sidan du söker.",
+    "status": "404",
+    "title": "Sidan hittades inte"
+  },
   "action_definite_one": "åtgärden",
   "action_definite_other": "åtgärderna",
-  "effect_one": "effekt",
-  "effect_other": "effekter",
-  "effect_definite_one": "effekten",
-  "effect_definite_other": "effekterna",
-  "goal_one": "målbana",
-  "goal_other": "målbanor",
-  "goal_definite_one": "målbanan",
-  "goal_definite_other": "målbanorna",
-  "roadmap_version_name": "{{name}} (v{{version}})",
-  "new": {
-    "roadmap_series": "Skapa ny färdplansserie",
-    "roadmap_version": "Skapa ny färdplansversion",
-    "action": "Skapa ny åtgärd",
-    "effect": "Skapa ny effekt",
-    "goal": "Skapa ny målbana"
-  },
-  "edit": {
-    "roadmap_series": "Redigera färdplansserie",
-    "roadmap_version": "Redigera färdplansversion",
-    "action": "Redigera åtgärd",
-    "effect": "Redigera effekt",
-    "goal": "Redigera målbana"
-  },
+  "action_one": "åtgärd",
+  "action_other": "åtgärder",
+  "back": "Tillbaka",
   "count": {
-    "roadmap_series": "{{count}} $t(common:roadmap_series, {\"count\":{{count}}})",
-    "roadmap_version": "{{count}} $t(common:roadmap_version, {\"count\":{{count}}})",
     "action": "{{count}} $t(common:action, {\"count\":{{count}}})",
+    "effect": "{{count}} $t(common:effect, {\"count\":{{count}}})",
     "goal": "{{count}} $t(common:goal, {\"count\":{{count}}})",
-    "effect": "{{count}} $t(common:effect, {\"count\":{{count}}})"
-  },
-  "layout": {
-    "app_name_compact": "Eco Planner",
-    "app_name": "Eco - Planner",
-    "meta_description": "Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder.",
-    "og_locale": "sv_SE"
-  },
-  "tsx": {
-    "home": "Hem",
-    "login": "Logga in",
-    "logout": "Logga ut",
-    "cancel": "Avbryt",
-    "ellipsis": "...",
-    "show": "Visa",
-    "hide": "Dölj",
-    "show_more": "Visa mer",
-    "show_less": "Visa mindre",
-    "edit": "Redigera",
-    "delete": "Radera",
-    "save": "Spara",
-    "submit": "Skicka",
-    "compare": "Jämför",
-    "select": "Välj",
-    "close": "Stäng",
-    "expand": "Expandera",
-    "search": "Sök",
-    "write": "Skriv något",
-    "options": "Alternativ",
-    "suggestions": "Förslag",
-    "no_suggestions": "Inga förslag",
-    "no_results": "Inga resultat",
-    "unit_missing": "enhet saknas",
-    "unitless": "enhetslös",
-    "or": "eller"
-  },
-  "placeholder": {
-    "name": "Användarnamn",
-    "email": "namn@example.com",
-    "username": "Användarnamn",
-    "password": "Lösenord"
-  },
-  "scope": {
-    "national": "Nationell",
-    "regional": "Regional",
-    "municipal": "Kommunal",
-    "local": "Lokal",
-    "organizational": "Organisatorisk",
-    "other": "Övrig",
-    "national_roadmap": "Nationell $t(common:roadmap_series_one)",
-    "regional_roadmap": "Regional $t(common:roadmap_series_one)",
-    "municipal_roadmap": "Kommunal $t(common:roadmap_series_one)",
-    "local_roadmap": "Lokal $t(common:roadmap_series_one)",
-    "organizational_roadmap": "Organisatorisk $t(common:roadmap_series_one)",
-    "other_roadmap": "Övrig $t(common:roadmap_series_one)"
-  },
-  "scaling_methods": {
-    "geo_mean": "Geometriskt genomsnitt (rekommenderad)",
-    "arith_mean": "Algebraiskt genomsnitt",
-    "multiplicative": "Multiplikativ"
-  },
-  "error": {
-    "generic_with_details": "Något gick fel: {{details}}"
+    "roadmap_series": "{{count}} $t(common:roadmap_series, {\"count\":{{count}}})",
+    "roadmap_version": "{{count}} $t(common:roadmap_version, {\"count\":{{count}}})"
   },
   "css": {
     "optional": " - (valfri)"
   },
-  "404": {
-    "status": "404",
-    "title": "Sidan hittades inte",
-    "description": "Se till att du har rätt address för sidan du söker."
+  "edit": {
+    "action": "Redigera åtgärd",
+    "effect": "Redigera effekt",
+    "goal": "Redigera målbana",
+    "roadmap_series": "Redigera färdplansserie",
+    "roadmap_version": "Redigera färdplansversion"
+  },
+  "effect_definite_one": "effekten",
+  "effect_definite_other": "effekterna",
+  "effect_one": "effekt",
+  "effect_other": "effekter",
+  "error": {
+    "generic_with_details": "Något gick fel: {{details}}"
   },
   "errors": {
     "something_went_wrong": "Något gick fel",
     "something_went_wrong_with_details": "Något gick fel: {{details}}"
   },
+  "goal_definite_one": "målbanan",
+  "goal_definite_other": "målbanorna",
+  "goal_one": "målbana",
+  "goal_other": "målbanor",
+  "layout": {
+    "app_name": "Eco - Planner",
+    "app_name_compact": "Eco Planner",
+    "meta_description": "Ett verktyg som syftar till att bidra till Sveriges klimatomställning. I verktyget kan nationella användare kan inspireras av varandras åtgärder, på så sätt skapas en gemensam åtgärdsdatabas för Sverige. På lokal nivå kan också olika aktörer samarbeta kring åtgärder.",
+    "og_locale": "sv_SE"
+  },
+  "new": {
+    "action": "Skapa ny åtgärd",
+    "effect": "Skapa ny effekt",
+    "goal": "Skapa ny målbana",
+    "roadmap_series": "Skapa ny färdplansserie",
+    "roadmap_version": "Skapa ny färdplansversion"
+  },
   "next": "Nästa",
-  "back": "Tillbaka"
+  "placeholder": {
+    "email": "namn@example.com",
+    "name": "Användarnamn",
+    "password": "Lösenord",
+    "username": "Användarnamn"
+  },
+  "roadmap_series_definite_one": "färdplansserien",
+  "roadmap_series_definite_other": "färdplansserierna",
+  "roadmap_series_one": "färdplansserie",
+  "roadmap_series_other": "färdplansserier",
+  "roadmap_short_one": "färdplan",
+  "roadmap_short_other": "färdplaner",
+  "roadmap_version_definite_one": "färdplansversionen",
+  "roadmap_version_definite_other": "färdplansversionerna",
+  "roadmap_version_name": "{{name}} (v{{version}})",
+  "roadmap_version_one": "färdplansversion",
+  "roadmap_version_other": "färdplansversioner",
+  "scaling_methods": {
+    "arith_mean": "Algebraiskt genomsnitt",
+    "geo_mean": "Geometriskt genomsnitt (rekommenderad)",
+    "multiplicative": "Multiplikativ"
+  },
+  "scope": {
+    "local": "Lokal",
+    "local_roadmap": "Lokal $t(common:roadmap_series_one)",
+    "municipal": "Kommunal",
+    "municipal_roadmap": "Kommunal $t(common:roadmap_series_one)",
+    "national": "Nationell",
+    "national_roadmap": "Nationell $t(common:roadmap_series_one)",
+    "organizational": "Organisatorisk",
+    "organizational_roadmap": "Organisatorisk $t(common:roadmap_series_one)",
+    "other": "Övrig",
+    "other_roadmap": "Övrig $t(common:roadmap_series_one)",
+    "regional": "Regional",
+    "regional_roadmap": "Regional $t(common:roadmap_series_one)"
+  },
+  "tsx": {
+    "cancel": "Avbryt",
+    "close": "Stäng",
+    "compare": "Jämför",
+    "delete": "Radera",
+    "edit": "Redigera",
+    "ellipsis": "...",
+    "expand": "Expandera",
+    "generic_select": "Välj ett alternativ",
+    "hide": "Dölj",
+    "home": "Hem",
+    "login": "Logga in",
+    "logout": "Logga ut",
+    "no_results": "Inga resultat",
+    "no_suggestions": "Inga förslag",
+    "options": "Alternativ",
+    "or": "eller",
+    "save": "Spara",
+    "search": "Sök",
+    "select": "Välj",
+    "show": "Visa",
+    "show_less": "Visa mindre",
+    "show_more": "Visa mer",
+    "submit": "Skicka",
+    "suggestions": "Förslag",
+    "unit_missing": "enhet saknas",
+    "unitless": "enhetslös",
+    "write": "Skriv något"
+  }
 }

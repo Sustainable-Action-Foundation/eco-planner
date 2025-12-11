@@ -1,97 +1,74 @@
 {
   "action_table": {
+    "create_action": "$t(common:new.action)",
     "no_actions": "There are no $t(common:action_other) to display.",
-    "wanna_create_action": "Do you want to create one?",
-    "create_action": "$t(common:new.action)"
+    "wanna_create_action": "Do you want to create one?"
   },
   "breadcrumbs_sections": {
+    "action": "{{$t(common:action_one), titleCase}}:",
+    "goal": "{{$t(common:goal_one), titleCase}}:",
     "home": "$t(common:tsx.home)",
     "roadmap_series": "{{$t(common:roadmap_series_one), titleCase}}:",
-    "version_label": "Version:",
     "version": "Version {{version}}",
-    "goal": "{{$t(common:goal_one), titleCase}}:",
-    "action": "{{$t(common:action_one), titleCase}}:"
+    "version_label": "Version:"
   },
   "comments": {
     "add_comment": "Make a comment",
     "comment_count": "{{count}} comment",
+    "comment_count_one": "One comment",
     "comment_count_other": "{{count}} comments",
     "comment_count_zero": "No comments",
-    "comment_count_one": "One comment",
-    "send": "Submit",
-    "relative_time": "{{date, timeAgo}}"
+    "relative_time": "{{date, timeAgo}}",
+    "send": "Submit"
   },
   "confirm_delete": {
-    "delete_post": "Delete post",
     "confirmation": "Are you sure you want to delete post <strong>{{targetName}}</strong>?<br />This action cannot be undone.",
+    "delete_post": "Delete post",
     "type_to_confirm": "Type <strong>{{targetName}}</strong> to confirm."
   },
   "copy_and_scale": {
+    "add_variable": "Add variable",
     "copy_and_scale": "Copy and scale",
-    "title": "Copy and scale $t(common:goal_one) {{goalName}}",
-    "select_roadmap_version": "In which $t(common:roadmap_version_one) do you want to place the scaled $t(common:goal_one)?",
-    "select_roadmap_version_option": "Select $t(common:roadmap_version_one)",
-    "version": "version",
-    "resulting_data_series": "Resulting data series",
     "create_scaled_copy": "Create scaled copy",
-    "unnamed_suggestion": "Unnamed suggestion",
-    "data_series_year": "Year",
-    "data_series_value": "Value",
     "custom_recipe": "Custom recipe",
     "custom_recipe_placeholder": "e.g. (${var1} + ${var2}) / 2",
-    "recipe_variables": "Recipe variables",
-    "add_variable": "Add variable",
+    "data_series_value": "Value",
+    "data_series_year": "Year",
     "evaluation_error_title": "Recipe Error",
     "evaluation_warning_title": "Warnings",
-    "recipe_label": "Recipe: "
-  },
-  "recipe_editor": {
-    "recipe": "Recipe",
-    "equation": "Equation",
-    "variables": "Variables",
-    "status": "Status",
-    "dataserie": "Dataserie",
-    "graph": "Graph",
-    "variable_name_placeholder": "Name",
-    "unit_placeholder": "Unit",
-    "data_series": "Data series",
-    "external_data": "External data",
-    "scalar": "Scalar",
-    "select_roadmap": "Select roadmap",
-    "goal_or_effect": "Goal or effect",
-    "dataset": "Dataset",
-    "table": "Table",
-    "selection": "Selection",
-    "pick_whole": "Whole series",
-    "pick_last": "Last value",
-    "pick_first": "First value",
-    "pick_median": "Median value",
-    "pick_mean": "Mean value"
+    "recipe_label": "Recipe: ",
+    "recipe_variables": "Recipe variables",
+    "resulting_data_series": "Resulting data series",
+    "select_roadmap_version": "In which $t(common:roadmap_version_one) do you want to place the scaled $t(common:goal_one)?",
+    "select_roadmap_version_option": "Select $t(common:roadmap_version_one)",
+    "title": "Copy and scale $t(common:goal_one) {{goalName}}",
+    "unnamed_suggestion": "Unnamed suggestion",
+    "version": "version"
   },
   "effects_table": {
-    "no_effects": "There are no $t(common:effect_other) to display.",
-    "wanna_create_effect": "Do you want to create one?",
     "create_new_effect": "$t(common:new.effect)",
-    "effect_missing_name": "Name missing"
+    "effect_missing_name": "Name missing",
+    "no_effects": "There are no $t(common:effect_other) to display.",
+    "wanna_create_effect": "Do you want to create one?"
   },
   "goal_table": {
-    "no_goals": "You do not have access to any $t(common:goal_other) in this $t(common:roadmap_version_one), or $t(common:roadmap_version_definite_one) lacks $t(common:goal_other).",
+    "action_count": "{{$t(common:action_other), titleCase}}",
     "goal_name": "{{$t(common:goal_one), titleCase}} name",
     "leap_parameter": "LEAP parameter",
-    "unit": "Unit",
-    "action_count": "{{$t(common:action_other), titleCase}}"
+    "no_goals": "You do not have access to any $t(common:goal_other) in this $t(common:roadmap_version_one), or $t(common:roadmap_version_definite_one) lacks $t(common:goal_other).",
+    "unit": "Unit"
   },
   "goals": {
+    "loading_alt": "Loading",
+    "new_goal": "New $t(common:goal_one)",
     "search": "Search $t(common:goal_other)",
+    "sort_action_count_ascending": "{{$t(common:action_one), titleCase}} count (low to high)",
+    "sort_action_count_descending": "{{$t(common:action_one), titleCase}} count (high to low)",
     "sort_by": "Sort by",
     "sort_default": "Default",
-    "sort_name_descending": "Name (A-Z)",
-    "sort_name_ascending": "Name (Z-A)",
-    "sort_action_count_descending": "{{$t(common:action_one), titleCase}} count (high to low)",
-    "sort_action_count_ascending": "{{$t(common:action_one), titleCase}} count (low to high)",
     "sort_interest": "Interest",
-    "new_goal": "New $t(common:goal_one)",
-    "loading_alt": "Loading"
+    "sort_name_ascending": "Name (Z-A)",
+    "sort_name_descending": "Name (A-Z)"
   },
   "image_attribute": {
     "by": "Photo by",
@@ -101,128 +78,156 @@
     "no_roadmaps": "You do not have access to any $t(common:goal_other) in this $t(common:roadmap_version_one), or $t(common:roadmap_version_definite_one) is empty."
   },
   "login": {
+    "create_account": "Create account",
+    "forgot_password": "Forgot password?",
     "login_failed": "Login failed. Please try again.",
-    "username": "Username",
+    "no_account": "Don't have an account?",
     "password": "Password",
     "remember_me": "Remember me",
-    "forgot_password": "Forgot password?",
-    "no_account": "Don't have an account?",
-    "create_account": "Create account",
+    "username": "Username",
     "verify_account": "Verify my account"
   },
   "logout_button": {
     "failed": "Logout failed"
   },
+  "notification": {
+    "icon_aria_label": "notifications"
+  },
   "query_builder": {
+    "add_data_source": "Add data source",
+    "add_data_source_button": "Add data source",
+    "add_data_to_goal": "Add a historical data series to {{goalName}}",
     "add_historical_data": "Add historical data",
     "change_historical_data": "Change historical data",
-    "remove_historical_data": "Remove historical data",
-    "add_data_source": "Add data source",
-    "add_data_to_goal": "Add a historical data series to {{goalName}}",
     "data_source": "Data source",
-    "select_source": "Select a source",
-    "search_for_table": "Search for table",
-    "search": "Search",
-    "optional": "optional",
-    "select_metric_for_table": "Select metric for table",
-    "select_metric": "Select metric",
-    "select_values_for_table": "Select values for table",
-    "select_time_period": "Select time period",
-    "select_time_interval": "Select time interval",
-    "select_starting_period": "Select starting period",
-    "select_value": "Select value",
     "does_this_look_correct_one": "Does this look correct? (showing max {{count}} value)",
     "does_this_look_correct_other": "Does this look correct? (showing max {{count}} values))",
-    "period": "Period",
-    "value": "Value",
-    "no_result_found": "No readable result found. Please update your selections.",
-    "add_data_source_button": "Add data source",
-    "loading": "Loading...",
     "language_support_warning": "{{dataSource}} does not support your current language. A fallback language will be used.",
+    "loading": "Loading...",
+    "no_result_found": "No readable result found. Please update your selections.",
+    "no_variables_found": "There are no variables",
+    "optional": "optional",
+    "period": "Period",
+    "remove_historical_data": "Remove historical data",
+    "search": "Search",
+    "search_for_table": "Search for table",
+    "select_metric": "Select metric",
+    "select_metric_for_table": "Select metric for table",
+    "select_source": "Select a source",
+    "select_starting_period": "Select starting period",
+    "select_time_interval": "Select time interval",
+    "select_time_period": "Select time period",
+    "select_value": "Select value",
+    "select_values_for_table": "Select values for table",
     "selected_table": "<strong>Selected table:</strong> <small><i>{{table}}</i></small>",
-    "no_variables_found": "There are no variables"
+    "value": "Value"
+  },
+  "recipe": {
+  },
+  "recipe_editor": {
+    "data_series": "Data series",
+    "dataserie": "Dataserie",
+    "dataset": "Dataset",
+    "equation": "Equation",
+    "external_data": "External data",
+    "goal_or_effect": "Goal or effect",
+    "graph": "Graph",
+    "missing_resulting_data_series": "No resulting data series to display",
+    "missing_resulting_graph": "No resulting graph to display",
+    "no_errors": "Recipe is valid",
+    "no_warnings": "No problems to report",
+    "pick_first": "First value",
+    "pick_last": "Last value",
+    "pick_mean": "Mean value",
+    "pick_median": "Median value",
+    "pick_whole": "Whole series",
+    "recipe": "Recipe",
+    "scalar": "Scalar",
+    "select_roadmap": "Select roadmap",
+    "selection": "Selection",
+    "status": "Status",
+    "table": "Table",
+    "unit_placeholder": "Unit",
+    "unknown_variable_type": "Unknown variable type",
+    "variable_name_placeholder": "Name",
+    "variables": "Variables"
   },
   "roadmap_filters": {
-    "search_roadmaps": "Search $t(common:roadmap_series_one)",
-    "sort_by": "Sort by:",
     "default": "Default",
-    "name_descending": "Name (A-Z)",
-    "name_ascending": "Name (Z-A)",
-    "goal_count_descending": "{{$t(common:goal_one), titleCase}} count (high to low)",
+    "filter": "Filter",
     "goal_count_ascending": "{{$t(common:goal_one), titleCase}} count (low to high)",
-    "filter": "Filter"
+    "goal_count_descending": "{{$t(common:goal_one), titleCase}} count (high to low)",
+    "name_ascending": "Name (Z-A)",
+    "name_descending": "Name (A-Z)",
+    "search_roadmaps": "Search $t(common:roadmap_series_one)",
+    "sort_by": "Sort by:"
   },
   "roadmap_series_one_deleter": {
     "remove_metadata": "Remove metadata"
   },
   "roadmap_table": {
-    "title": "{{name}} (v{{version}})",
-    "no_roadmap_versions_found": "No $t(common:roadmap_version_other) found. If you have any filters active, no $t(common:roadmap_version_other) were found that match them."
+    "no_roadmap_versions_found": "No $t(common:roadmap_version_other) found. If you have any filters active, no $t(common:roadmap_version_other) were found that match them.",
+    "title": "{{name}} (v{{version}})"
   },
   "roadmap_tree": {
-    "title": "{{name}} (v{{version}})",
     "no_roadmap_series_ones": "No $t(common:roadmap_series_one) found. If you have any filters active, no $t(common:roadmap_series_one) were found that match them.",
-    "show_source_alt": "Show underlying $t(common:roadmap_version_other)"
-  },
-  "recipe": {
+    "show_source_alt": "Show underlying $t(common:roadmap_version_other)",
+    "title": "{{name}} (v{{version}})"
   },
   "sidebar": {
-    "toggle_menu_alt": "Toggle menu",
-    "my_profile": "My account",
+    "about": "About",
+    "close_menu_create": "Close menu: Create",
+    "close_menu_language": "Close menu: Select language",
+    "close_menu_settings": "Close menu: Settings",
+    "create": "Create",
     "create_account": "Create account",
     "home": "$t(common:tsx.home)",
-    "create": "Create",
-    "close_menu_create": "Close menu: Create",
-    "settings": "Settings",
-    "close_menu_settings": "Close menu: Settings",
-    "about": "About",
     "language": "Language",
     "language_alt": "Select language",
-    "close_menu_language": "Close menu: Select language"
+    "my_profile": "My account",
+    "settings": "Settings",
+    "toggle_menu_alt": "Toggle menu"
   },
   "signup": {
-    "signup_failed_motivated": "Registration failed. Reason: {{reason}}",
-    "signup_failed": "Registration failed. Please try again.",
+    "already_have_account": "Already have an account?",
     "create_account": "Create account",
-    "username": "Username",
+    "disclaimer": "Your organization must have signed a user agreement with us for you to be able to create an account.\n\nIf you have any questions or concerns, please contact",
     "email": "Email",
     "password": "Password",
-    "already_have_account": "Already have an account?",
-    "disclaimer": "Your organization must have signed a user agreement with us for you to be able to create an account.\n\nIf you have any questions or concerns, please contact"
+    "signup_failed": "Registration failed. Please try again.",
+    "signup_failed_motivated": "Registration failed. Reason: {{reason}}",
+    "username": "Username"
   },
   "table_menu": {
-    "new_roadmap_version": "New $t(common:roadmap_version_one)",
-    "go_to_series": "Go to $t(common:roadmap_series_one)",
-    "go_to_version": "Go to $t(common:roadmap_version_one)",
-    "go_to_goal": "Go to $t(common:goal_one)",
-    "new_goal": "New $t(common:goal_one)",
-    "new_action": "New $t(common:action_one)",
-    "new_effect": "New $t(common:effect_one)",
     "add_effect_from_existing_action": "Add $t(common:effect_one) from existing $t(common:action_one)",
-    "effect_missing_name": "Name missing",
-    "effect_from_action": "{{$t(common:effect_one), titleCase}} from {{source}}",
     "button_aria": "Menu for {{component}}",
     "button_aria_alt": "Name missing",
-    "edit": "Edit",
     "delete": "Delete post",
-    "delete_missing_name": "Name missing"
+    "delete_missing_name": "Name missing",
+    "edit": "Edit",
+    "effect_from_action": "{{$t(common:effect_one), titleCase}} from {{source}}",
+    "effect_missing_name": "Name missing",
+    "go_to_goal": "Go to $t(common:goal_one)",
+    "go_to_series": "Go to $t(common:roadmap_series_one)",
+    "go_to_version": "Go to $t(common:roadmap_version_one)",
+    "new_action": "New $t(common:action_one)",
+    "new_effect": "New $t(common:effect_one)",
+    "new_goal": "New $t(common:goal_one)",
+    "new_roadmap_version": "New $t(common:roadmap_version_one)"
   },
   "table_selector": {
-    "tree": "Tree",
+    "actions": "{{$t(common:action_other), titleCase}}",
     "table": "Table",
-    "actions": "{{$t(common:action_other), titleCase}}"
+    "tree": "Tree"
   },
   "update_goal_button": {
     "update": "Update $t(common:goal_one)"
   },
   "user_filters": {
-    "posts": "Posts",
-    "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
-    "roadmap_series": "{{$t(common:roadmap_series_one), titleCase}}",
     "access_level": "Access level",
-    "editing_access": "Editing access"
-  },
-  "notification": {
-    "icon_aria_label": "notifications"
+    "editing_access": "Editing access",
+    "posts": "Posts",
+    "roadmap_series": "{{$t(common:roadmap_series_one), titleCase}}",
+    "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}"
   }
 }

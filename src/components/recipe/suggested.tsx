@@ -89,13 +89,13 @@ export function RecipeSuggestions({
     <>
       {/* Suggested recipes */}
       <label className="flex gap-50 margin-bottom-100 margin-top-25 align-items-center">
-        Recept:
+        {t("components:recipe_editor.recipe")}
         <select
           id="select-preset"
           value={selectedHash}
           onChange={handleChange}
         >
-          <option>Välj alternativ</option> {/* TODO: I18n */}
+          <option disabled>{t("common:tsx.generic_select")}</option>
           {suggestedRecipes.map((suggestedRecipe, index) => (
             <option key={index} value={suggestedRecipe.hash}> {/* TODO: The selected value needs to be preselected */}
               {suggestedRecipe.recipe.name ?? t("components:copy_and_scale.unnamed_suggestion")}
@@ -167,7 +167,7 @@ export function RecipeSuggestions({
               console.warn("Unknown variable type for variable", key);
               return (
                 <p key={key}>
-                  {key}: Unknown variable type
+                  {key}: {t("components:recipe_editor.unknown_variable_type")}
                 </p>
               );
           }
