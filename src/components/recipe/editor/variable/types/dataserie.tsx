@@ -87,7 +87,7 @@ export default function VariableTypeDataSeries({
     >
       {/* TODO: Why is this height mismatched */}
       <div className="inline-block floating-label" style={{ verticalAlign: "top", width: "200px", "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
-        <label htmlFor="variable-tree">
+        <label htmlFor={props.id}>
           Välj målbana eller effekt {/* TODO: i18n */}
         </label>
         <SelectSingleTreeSearch
