@@ -192,7 +192,6 @@ export default function GoalForm({
         // DEPRECATED - moved to description
         links: undefined,
       }
-      console.log(formData.get("parent-roadmap"))
     }
 
     const formJSON = JSON.stringify(formContent);
