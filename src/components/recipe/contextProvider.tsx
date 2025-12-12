@@ -78,19 +78,41 @@ export function RecipeContextProvider({
     calculate().catch(e => { throw e; });
   }, [recipe]);
 
-  // Register debug key bind alt+shift+d
+  // Register debug key bind alt+shift+d (hold for 1s to open)
   const [showDebug, setShowDebug] = useState(false);
+  const debugKeyTimerRef = useRef<number | null>(null);
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.altKey && event.shiftKey && event.key === "D") {
-        setShowDebug(prev => !prev);
+      const isDebugCombo = event.altKey && event.shiftKey && event.key === "D";
+
+      if (!isDebugCombo || showDebug) return;
+      if (debugKeyTimerRef.current !== null) return;
+
+      debugKeyTimerRef.current = window.setTimeout(() => {
+        setShowDebug(true);
+        debugKeyTimerRef.current = null;
+      }, 1000);
+    }
+
+    function handleKeyUp(event: KeyboardEvent) {
+      const isRelevantKey = ["Alt", "Shift", "D"].includes(event.key);
+      if (!isRelevantKey && !(event.altKey && event.shiftKey && event.key === "D")) {
+        return;
+      }
+
+      if (debugKeyTimerRef.current !== null) {
+        clearTimeout(debugKeyTimerRef.current);
+        debugKeyTimerRef.current = null;
       }
     }
+
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
     };
-  }, []);
+  }, [showDebug]);
 
   return (
     <RecipeContext.Provider value={{ recipe, setRecipe, warnings, error, resultingDataSeries, resultingUnit }}>
