@@ -15,8 +15,7 @@ import OutputDataSeries from "./editor/output/dataSeries";
 import OutputGraph from "./editor/output/graph";
 import FormIntegration from "./editor/output/formIntegration";
 
-// TODO: Rename (SuggestedRecipes)
-export function RecipeSuggestions({
+export function SuggestedRecipes({
   autoInsertDefaultSuggestions = true,
   suggestedRecipes: suggestedRecipesInput = [],
   allowAddVariables = false,
