@@ -71,7 +71,6 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
   let equation = recipe.eq;
 
   if (equation.trim() === "") {
-    // throw new RecipeError("Equation is empty.");
     return null;
   }
 
@@ -93,7 +92,6 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
   let result;
   try {
     const rawResult: unknown = mathjs.evaluate(equation, scope);
-    console.log(rawResult);
     // We expect result to be a Unit or Unit[]
     if (mathjs.typeOf(rawResult) === "Unit" || (Array.isArray(rawResult) && rawResult.every(item => mathjs.typeOf(item) === "Unit"))) {
       result = rawResult as Unit | Unit[];
