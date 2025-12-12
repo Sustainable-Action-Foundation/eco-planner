@@ -5,6 +5,7 @@ import type { DataSeriesValueFields } from "@/types";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 import { evaluateRecipe, cleanRecipe } from "@/functions/parseRecipe";
+import { IconX } from "@tabler/icons-react";
 
 type RecipeContextType = {
   recipe: Recipe | null;
@@ -182,6 +183,15 @@ export function RecipeContextProvider({
               }}
             >
               Copy Recipe to Clipboard
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setRecipe(prev => prev ? { ...prev } : null);
+              }}
+            >
+              Force Re-evaluation
             </button>
           </div>
         </div>
