@@ -37,7 +37,7 @@ export default function OutputStatus() {
         : null}
 
       {warnings.length === 0 && !error &&
-        <div lang={Locales.enSE} className="flex align-items-flex-start gap-50" style={{ fontSize: '14px' }} >
+        <div lang={Locales.enSE} className="flex align-items-flex-start gap-50 margin-block-50" style={{ fontSize: '14px' }} >
           <IconInfoCircle width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="var(--gray-70)" aria-label={t("components:recipe_editor.status.no_issues_icon_aria_label")} />
           {t("components:recipe_editor.no_warnings")}
         </div>

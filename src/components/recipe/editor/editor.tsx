@@ -54,18 +54,14 @@ export default function RecipeEditor() {
             className="padding-top-50"
           >
             <OutputStatus />
-            <div className="padding-top-50">
-              <OutputGraph />
-            </div>
+            <OutputGraph />
           </div>
           <div
             data-tabname={t("components:recipe_editor.data_series")}
             className="padding-top-50"
           >
             <OutputStatus />
-            <div className="padding-block-50">
-              <OutputDataSeries />
-            </div>
+            <OutputDataSeries />
           </div>
         </TabList>
       </div>

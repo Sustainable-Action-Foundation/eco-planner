@@ -25,8 +25,8 @@ export default function VariableCreator({
 
   // Hard coded to make a new data series variable. TODO: reconsider this behavior
   const addVariableToContext = () => {
-    if (newName === '') { setNewNameStatus('Please provide a name'); return }
-    if (!newType) { setNewTypeStatus('Please provide a type'); return }
+    if (newName === '') { setNewNameStatus('Please provide a name'); return } // TODO: I18n
+    if (!newType) { setNewTypeStatus('Please provide a type'); return } // TODO: I18n
 
     setRecipe(prev => {
       if (!prev) return prev; // Should never happen since the context defines it on mount
