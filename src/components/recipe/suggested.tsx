@@ -18,7 +18,7 @@ import FormIntegration from "./editor/output/formIntegration";
 // TODO: Rename (SuggestedRecipes)
 export function RecipeSuggestions({
   autoInsertDefaultSuggestions = true,
-  suggestedRecipes: suggestedRecipesInput,
+  suggestedRecipes: suggestedRecipesInput = [],
   allowAddVariables = false,
   allowDeleteVariables = false,
   allowNameEditing = false,
@@ -26,7 +26,7 @@ export function RecipeSuggestions({
   allowValueEditing = true,
 }: {
   autoInsertDefaultSuggestions?: boolean;
-  suggestedRecipes: { hash: string, recipe: Recipe }[];
+  suggestedRecipes?: { hash: string, recipe: Recipe }[];
   allowAddVariables?: boolean;
   allowDeleteVariables?: boolean;
   allowNameEditing?: boolean;
@@ -100,6 +100,9 @@ export function RecipeSuggestions({
           value={selectedHash}
           onChange={handleChange}
         >
+          <pre>
+            {JSON.stringify(suggestedRecipes, null, 2)}
+          </pre>
           <option disabled>{t("common:tsx.generic_select")}</option>
           {suggestedRecipes.map((suggestedRecipe, index) => (
             <option key={index} value={suggestedRecipe.hash}> {/* TODO: The selected value needs to be preselected */}
@@ -109,7 +112,6 @@ export function RecipeSuggestions({
         </select>
       </label>
       {/* TODO: Note that labels are as of now not valid. I believe however that it will be solved with tree select as this should reduce the number of items in a simple variabletype to one */}
-      {/* TODO: Note that this stuff needs to be submitted alongside the form which it isnt right now (i think....) */}
       {/* TODO: We should be using a grid instead of flex to properly align items here */}
       <div
         className="grid gap-50 padding-left-100"

@@ -157,9 +157,7 @@ export default function CopyAndScale({
           <RecipeContextProvider>
             {/* Suggested recipes */}
             {goal.recipeSuggestions.length > 0 &&
-              <RecipeSuggestions
-                suggestedRecipes={defaultSuggestedRecipes}
-              />
+              <RecipeSuggestions/>
             }
 
             <FormIntegration
