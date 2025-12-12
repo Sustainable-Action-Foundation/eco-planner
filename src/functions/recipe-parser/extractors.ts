@@ -6,7 +6,10 @@ import { DataSeriesValueFields, DataSeriesValueFieldsWithUnit, nullFullDataSerie
 import { Unit } from "mathjs";
 import { EvalTimeVariable } from "./types";
 
-export function extractScalars(variables: Record<string, RecipeVariable>): EvalTimeVariable[] {
+export function extractScalars(
+  variables: Record<string, RecipeVariable>,
+  warnings: string[] = [],
+): EvalTimeVariable[] {
   const scalars: EvalTimeVariable[] = [];
 
   for (const varName in variables) {
@@ -14,16 +17,26 @@ export function extractScalars(variables: Record<string, RecipeVariable>): EvalT
     if (variable.type !== RecipeDataTypes.Scalar) continue;
     if (!isRecipeScalar(variable)) continue;
 
+    const bestUnit = getPrevailingUnit(undefined, variable.unit);
+    const isValidUnit = testIfValidUnit(bestUnit);
+    if (bestUnit && !isValidUnit) warnings.push(`Scalar variable "${varName}" has an invalid unit "${bestUnit}". Treating as unitless.`);
+    const unit = isValidUnit ? bestUnit : undefined;
+
     scalars.push({
       name: varName,
-      value: variable.unit ? mathjs.unit(variable.value, variable.unit) : mathjs.unit(variable.value),
+      value: unit
+        ? mathjs.unit(variable.value, unit)
+        : mathjs.unit(variable.value),
     });
   }
 
   return scalars;
 }
 
-export async function extractDataSeries(variables: Record<string, RecipeVariable>): Promise<EvalTimeVariable[]> {
+export async function extractDataSeries(
+  variables: Record<string, RecipeVariable>,
+  warnings: string[] = []
+): Promise<EvalTimeVariable[]> {
   const dataSeries: EvalTimeVariable[] = [];
 
   for (const varName in variables) {
@@ -51,21 +64,32 @@ export async function extractDataSeries(variables: Record<string, RecipeVariable
       throw new RecipeError(`extractDataSeries: Failed to fetch data series for variable "${varName}" with link "${variable.link}".`);
     }
 
-    const unit = getPrevailingUnit(dbDataSeries.unit, variable.unit);
+    const bestUnit = getPrevailingUnit(dbDataSeries.unit, variable.unit);
+    const isValidUnit = testIfValidUnit(bestUnit);
+    if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${varName}" has an invalid unit "${bestUnit}". Treating as unitless.`);
+    const unit = isValidUnit ? bestUnit : undefined;
+
     const vectorOrScalar = pickVector(convertYearValuePairToVector(dbDataSeries), variable.pick);
     dataSeries.push({
       name: varName,
       value: Array.isArray(vectorOrScalar) ?
-        vectorOrScalar.map(v => unit ? mathjs.unit(v, unit) : mathjs.unit(v))
-        :
-        unit ? mathjs.unit(vectorOrScalar, unit) : mathjs.unit(vectorOrScalar),
+        vectorOrScalar.map(v => unit
+          ? mathjs.unit(v, unit)
+          : mathjs.unit(v))
+        : unit
+          ? mathjs.unit(vectorOrScalar, unit)
+          : mathjs.unit(vectorOrScalar),
     });
   }
 
   return dataSeries;
 }
 
-export async function extractExternalDatasets(variables: Record<string, RecipeVariable>): Promise<EvalTimeVariable[]> {
+export async function extractExternalDatasets(
+  variables: Record<string, RecipeVariable>,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  warnings: string[] = [],
+): Promise<EvalTimeVariable[]> {
   const externalDatasets: EvalTimeVariable[] = [];
 
   const fetchers: Array<() => Promise<void>> = [];
@@ -239,5 +263,16 @@ function pickVector(vector: number[], pick: VectorIndexPickerOptions): number | 
 
     default:
       throw new RecipeError(`pickVector: Unknown VectorIndexPickerOption '${pick as string}'.`);
+  }
+}
+
+function testIfValidUnit(unit: string | null | undefined): boolean {
+  if (!unit) return false;
+  try {
+    mathjs.unit(1, unit);
+    return true;
+  }
+  catch {
+    return false;
   }
 }

@@ -57,9 +57,9 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     throw new RecipeError("Invalid recipe format");
   }
 
-  const scalars = extractScalars(recipe.variables);
-  const dataSeries = await extractDataSeries(recipe.variables);
-  const externalDatasets = await extractExternalDatasets(recipe.variables);
+  const scalars = extractScalars(recipe.variables, warnings);
+  const dataSeries = await extractDataSeries(recipe.variables, warnings);
+  const externalDatasets = await extractExternalDatasets(recipe.variables, warnings);
 
   const allVars = [...scalars, ...dataSeries, ...externalDatasets];
 
@@ -92,10 +92,21 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
   let result;
   try {
     const rawResult: unknown = mathjs.evaluate(equation, scope);
-    // We expect result to be a Unit or Unit[]
-    if (mathjs.typeOf(rawResult) === "Unit" || (Array.isArray(rawResult) && rawResult.every(item => mathjs.typeOf(item) === "Unit"))) {
-      result = rawResult as Unit | Unit[];
+
+    // Try to normalize into Unit or Unit[]
+    if (mathjs.typeOf(rawResult) === "Unit") {
+      result = rawResult as Unit;
     }
+    else if (Array.isArray(rawResult) && rawResult.every(item => mathjs.typeOf(item) === "Unit")) {
+      result = rawResult as Unit[];
+    }
+    else if (typeof rawResult === "number") {
+      result = mathjs.unit(rawResult);
+    }
+    else if (Array.isArray(rawResult) && rawResult.every(item => typeof item === "number")) {
+      result = rawResult.map(num => mathjs.unit(num));
+    }
+
     else {
       throw new RecipeError("Result is not a Unit or array of Units.");
     }
