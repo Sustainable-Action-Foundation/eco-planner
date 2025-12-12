@@ -9,7 +9,7 @@ import { IconX } from "@tabler/icons-react";
 import { Recipe } from "@/functions/recipe-parser/types";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
 import { RecipeContextProvider } from "../recipe/contextProvider";
-import { SuggestedRecipes, defaultSuggestedRecipes } from "@/components/recipe/suggested";
+import { SuggestedRecipes } from "@/components/recipe/suggested";
 import FormIntegration from "../recipe/editor/output/formIntegration";
 
 export default function CopyAndScale({
@@ -156,9 +156,7 @@ export default function CopyAndScale({
 
           <RecipeContextProvider>
             {/* Suggested recipes */}
-            {goal.recipeSuggestions.length > 0 &&
-              <SuggestedRecipes/>
-            }
+            <SuggestedRecipes />
 
             <FormIntegration
               DataSeriesFormElement={<input name="resultingDataSeries" />}

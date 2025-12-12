@@ -7,7 +7,7 @@ import { recipeFromUnknown } from "@/functions/parseRecipe";
 import { VariableTypeScalarSimple } from "./editor/variable/types/scalar";
 import { VariableTypeDataSeriesSimple } from "./editor/variable/types/dataserie";
 import { VariableTypeExternalSimple } from "./editor/variable/types/external";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import TabList from "../generic/tablist/tabList";
 import OutputDataSeries from "./editor/output/dataSeries";
@@ -37,14 +37,16 @@ export function SuggestedRecipes({
 
   const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[]>([]);
   const [selectedHash, setSelectedHash] = useState<string>("");
-  const suggestedRecipes = autoInsertDefaultSuggestions
+  const suggestedRecipes = useMemo(() => autoInsertDefaultSuggestions
     ? [...defaultSuggestedRecipes, ...suggestedRecipesInput]
-    : suggestedRecipesInput;
+    : suggestedRecipesInput,
+    [autoInsertDefaultSuggestions, suggestedRecipesInput]);
 
   // On mount, fetch all roadmaps user has access to
   // TODO: This is reused from editor/variable/editor.tsx, can probably abstract this somehow
   useEffect(() => {
     async function fetchRoadmaps() {
+      console.log("SASDADS");
       try {
         const roadmaps = await clientSafeGetRoadmaps();
         setAvailableRoadmaps(roadmaps.map(roadmap => ({ id: roadmap.id, name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }) })));
@@ -57,17 +59,19 @@ export function SuggestedRecipes({
     fetchRoadmaps().catch(e => { throw e; });
   }, [t]);
 
-  for (const recipe of suggestedRecipes) {
-    if (!isRecipe(recipe.recipe)) {
-      console.warn("Invalid recipe in suggestions", recipe);
-      return null;
+  useEffect(() => {
+    // Validate suggested recipes
+    for (const recipe of suggestedRecipes) {
+      if (!isRecipe(recipe.recipe)) {
+        console.warn("Invalid recipe in suggestions", recipe);
+        return;
+      }
     }
-  }
-  // Validate suggested recipes
-  if (suggestedRecipes.some(r => !isRecipe(r.recipe))) {
-    console.warn("Some suggested recipes are not valid. Please check the data.");
-    return null;
-  }
+    if (suggestedRecipes.some(r => !isRecipe(r.recipe))) {
+      console.warn("Some suggested recipes are not valid. Please check the data.");
+      return;
+    }
+  }, [suggestedRecipes]);
 
   // On change set the context state to the selected recipe
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -77,9 +81,10 @@ export function SuggestedRecipes({
     const selectedSuggestion = suggestedRecipes.find(r => r.hash === hash);
     if (selectedSuggestion) {
       try {
-        const rawRecipe = recipeFromUnknown(selectedSuggestion.recipe);
-        setRecipe(rawRecipe);
-      } catch (e) {
+        const foundRecipe = recipeFromUnknown(selectedSuggestion.recipe);
+        setRecipe(foundRecipe);
+      }
+      catch (e) {
         console.error("Failed to parse suggested recipe", e);
         setRecipe(null);
       }
@@ -88,134 +93,131 @@ export function SuggestedRecipes({
     }
   };
 
-  return (
-    <>
-      {/* Suggested recipes */}
-      <label className="flex gap-50 margin-bottom-100 margin-top-25 align-items-center">
-        {t("components:recipe_editor.recipe")}:
-        <select
-          id="select-preset"
-          value={selectedHash}
-          onChange={handleChange}
-        >
-          <pre>
-            {JSON.stringify(suggestedRecipes, null, 2)}
-          </pre>
-          <option disabled>{t("common:tsx.generic_select")}</option>
-          {suggestedRecipes.map((suggestedRecipe, index) => (
-            <option key={index} value={suggestedRecipe.hash}> {/* TODO: The selected value needs to be preselected */}
-              {suggestedRecipe.recipe.name ?? t("components:copy_and_scale.unnamed_suggestion")}
-            </option>
-          ))}
-        </select>
-      </label>
-      {/* TODO: Note that labels are as of now not valid. I believe however that it will be solved with tree select as this should reduce the number of items in a simple variabletype to one */}
-      {/* TODO: We should be using a grid instead of flex to properly align items here */}
-      <div
-        className="grid gap-50 padding-left-100"
-        style={{
-          gridTemplateColumns: 'auto 1fr',
-          gridTemplateRows: 'auto auto',
-          columnGap: '1rem'
+  return (<>
+    {/* Select which suggested recipe to use */}
+    <label className="flex gap-50 margin-bottom-100 margin-top-25 align-items-center">
+      {t("components:recipe_editor.recipe")}:
+      <select
+        id="select-preset"
+        value={selectedHash}
+        onChange={handleChange}
+      >
+        <option disabled>{t("common:tsx.generic_select")}</option>
+        {suggestedRecipes.map((suggestedRecipe, index) => (
+          <option key={index} value={suggestedRecipe.hash}> {/* TODO: The selected value needs to be preselected */}
+            {suggestedRecipe.recipe.name ?? t("components:copy_and_scale.unnamed_suggestion")}
+          </option>
+        ))}
+      </select>
+    </label>
+
+    {/* TODO: Note that labels are as of now not valid. I believe however that it will be solved with tree select as this should reduce the number of items in a simple variabletype to one */}
+    {/* TODO: We should be using a grid instead of flex to properly align items here */}
+    <div
+      className="grid gap-50 padding-left-100"
+      style={{
+        gridTemplateColumns: 'auto 1fr',
+        gridTemplateRows: 'auto auto',
+        columnGap: '1rem'
+      }}
+    >
+      {Object.entries(recipe?.variables ?? {}).map(([key, variable], i) => {
+        const rules = {
+          allowAddVariables,
+          allowDeleteVariables,
+          allowNameEditing,
+          allowTypeEditing,
+          allowValueEditing,
+        };
+
+        switch (variable.type) {
+          case RecipeDataTypes.Scalar: {/* TODO: Fix these labels */ }
+            return (
+              <Fragment key={key}>
+                <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
+                  <span>{key}{variable.unit ? ` [${variable.unit}]` : ''}:</span>
+                </label>
+                <VariableTypeScalarSimple
+                  key={"recipeVariable" + i}
+                  name={key}
+                  rules={rules}
+                />
+              </Fragment>
+            );
+          case RecipeDataTypes.DataSeries:
+            return (
+              <Fragment key={key}>
+                <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
+                  <span>{key}: {variable.unit}</span>
+                </label>
+                <VariableTypeDataSeriesSimple
+                  props={{
+                    id: "recipeVariable" + i,
+                    name: "recipeVariable" + i,
+                    placeholder: t("components:recipe_editor.select_data_series"),
+                    required: true
+                  }}
+                  key={"recipeVariable" + i}
+                  name={key}
+                  availableRoadmaps={availableRoadmaps}
+                />
+              </Fragment>
+            );
+          case RecipeDataTypes.External:
+            return (
+              <Fragment key={key}>
+                <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
+                  <span>{key}{variable.unit ? ` [${variable.unit}]` : ''}:</span>
+                </label>
+                <VariableTypeExternalSimple
+                  key={"recipeVariable" + i}
+                  name={key}
+                  rules={rules}
+                />
+              </Fragment>
+            );
+          default:
+            console.warn("Unknown variable type for variable", key);
+            return (
+              <p key={key}>
+                {key}: {t("components:recipe_editor.unknown_variable_type")}
+              </p>
+            );
+        }
+      })}
+    </div>
+    {selectedHash ?
+      <TabList
+        defaultIndex={0}
+        styling="simple"
+        props={{
+          className: "margin-top-200",
         }}
       >
-        {Object.entries(recipe?.variables ?? {}).map(([key, variable], i) => {
-          const rules = {
-            allowAddVariables,
-            allowDeleteVariables,
-            allowNameEditing,
-            allowTypeEditing,
-            allowValueEditing,
-          };
-
-          switch (variable.type) {
-            case RecipeDataTypes.Scalar: {/* TODO: Fix these labels */ }
-              return (
-                <Fragment key={key}>
-                  <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
-                    <span>{key}{variable.unit ? ` [${variable.unit}]` : ''}:</span>
-                  </label>
-                  <VariableTypeScalarSimple
-                    key={"recipeVariable" + i}
-                    name={key}
-                    rules={rules}
-                  />
-                </Fragment>
-              );
-            case RecipeDataTypes.DataSeries:
-              return (
-                <Fragment key={key}>
-                  <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
-                    <span>{key}: {variable.unit}</span>
-                  </label>
-                  <VariableTypeDataSeriesSimple
-                    props={{
-                      id: "recipeVariable" + i,
-                      name: "recipeVariable" + i,
-                      placeholder: t("components:recipe_editor.select_data_series"),
-                      required: true
-                    }}
-                    key={"recipeVariable" + i}
-                    name={key}
-                    availableRoadmaps={availableRoadmaps}
-                  />
-                </Fragment>
-              );
-            case RecipeDataTypes.External:
-              return (
-                <Fragment key={key}>
-                  <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
-                    <span>{key}{variable.unit ? ` [${variable.unit}]` : ''}:</span>
-                  </label>
-                  <VariableTypeExternalSimple
-                    key={"recipeVariable" + i}
-                    name={key}
-                    rules={rules}
-                  />
-                </Fragment>
-              );
-            default:
-              console.warn("Unknown variable type for variable", key);
-              return (
-                <p key={key}>
-                  {key}: {t("components:recipe_editor.unknown_variable_type")}
-                </p>
-              );
-          }
-        })}
-      </div>
-      {selectedHash ?
-        <TabList
-          defaultIndex={0}
-          styling="simple"
-          props={{
-            className: "margin-top-200",
-          }}
+        <div
+          data-tabname={t("components:recipe_editor.equation")}
+          className="padding-top-50 margin-bottom-100"
         >
-          <div
-            data-tabname={t("components:recipe_editor.equation")}
-            className="padding-top-50 margin-bottom-100"
-          >
-            <p className="margin-0">{recipe?.eq}</p>
-          </div>
-          <div
-            data-tabname={t("components:recipe_editor.data_series")}
-            className="padding-top-50 margin-bottom-100" // TODO: Show fallback if there is  no resultingDataSeries
-          >
-            <OutputDataSeries />
-            <FormIntegration
-              DataSeriesFormElement={<input name="resultingDataSeries" />}
-            />
-          </div>
-          <div
-            data-tabname={t("components:recipe_editor.graph")}
-            className="padding-top-50 margin-bottom-100"
-          >
-            <OutputGraph />
-          </div>
-        </TabList>
-        : null}
-    </>
+          <p className="margin-0">{recipe?.eq}</p>
+        </div>
+        <div
+          data-tabname={t("components:recipe_editor.data_series")}
+          className="padding-top-50 margin-bottom-100" // TODO: Show fallback if there is  no resultingDataSeries
+        >
+          <OutputDataSeries />
+          <FormIntegration
+            DataSeriesFormElement={<input name="resultingDataSeries" />}
+          />
+        </div>
+        <div
+          data-tabname={t("components:recipe_editor.graph")}
+          className="padding-top-50 margin-bottom-100"
+        >
+          <OutputGraph />
+        </div>
+      </TabList>
+      : null}
+  </>
   );
 }
 
@@ -230,7 +232,7 @@ export const defaultSuggestedRecipes: Array<{ hash: string, recipe: Recipe }> = 
   { // Default scaling recipe
     hash: "recipe_with_scaling",
     recipe: {
-      name: 'Default scaling recipe', // Deal with this later t("forms:goal.default_scaling_recipe"), 
+      name: 'Skala serie', // Deal with this later t("forms:goal.default_scaling_recipe"), 
       eq: "${serie} * ${skalär}",
       variables: {
         "serie": {
@@ -251,7 +253,7 @@ export const defaultSuggestedRecipes: Array<{ hash: string, recipe: Recipe }> = 
     hash: "recipe_with_combination",
     recipe:
     {
-      name: 'Default combination recipe', // Deal with this later t("forms:goal.default_combination_recipe"),
+      name: 'Kombinera serier', // Deal with this later t("forms:goal.default_combination_recipe"),
       eq: "${serie1} * ${skalär1} + ${serie2} * ${skalär2}",
       variables: {
         "serie1": {
