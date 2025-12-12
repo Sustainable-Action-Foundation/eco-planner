@@ -37,6 +37,9 @@ export function RecipeContextProvider({
   const [resultingDataSeries, setResultingDataSeries] = useState<Partial<DataSeriesValueFields> | null>(null);
   const [resultingUnit, setResultingUnit] = useState<string | null | undefined>(null);
 
+  const [lastEvalDuration, setLastEvalDuration] = useState<number | null>(null);
+  const [lastEvalTimestamp, setLastEvalTimestamp] = useState<string | null>(null);
+
   useEffect(() => {
     if (initialRecipe) {
       setRecipe(initialRecipe);
@@ -53,7 +56,9 @@ export function RecipeContextProvider({
       return;
     }
 
+    const startTime = performance.now();
     async function calculate() {
+      setLastEvalDuration(null);
       try {
         const currentWarnings: string[] = [];
         const evaluatedRecipe = await evaluateRecipe(cleanRecipe(recipe), currentWarnings);
@@ -75,10 +80,16 @@ export function RecipeContextProvider({
         setWarnings([]);
       }
     }
-    calculate().catch(e => { throw e; });
+    calculate()
+      .catch(e => { throw e; })
+      .finally(() => {
+        const endTime = performance.now();
+        setLastEvalDuration(endTime - startTime);
+        setLastEvalTimestamp(new Date().toLocaleString());
+      });
   }, [recipe]);
 
-  // Register debug key bind alt+shift+d (hold for 1s to open)
+  // Register debug key bind alt+shift+d (hold to open)
   const [showDebug, setShowDebug] = useState(false);
   const debugKeyTimerRef = useRef<number | null>(null);
   useEffect(() => {
@@ -91,7 +102,7 @@ export function RecipeContextProvider({
       debugKeyTimerRef.current = window.setTimeout(() => {
         setShowDebug(true);
         debugKeyTimerRef.current = null;
-      }, 1000);
+      }, 500);
     }
 
     function handleKeyUp(event: KeyboardEvent) {
@@ -123,7 +134,7 @@ export function RecipeContextProvider({
           left: 0,
           width: "100%",
           height: "100%",
-          backgroundColor: "rgba(0,0,0,0.7)",
+          backgroundColor: "rgba(0,0,0,0.8)",
           display: "flex",
           flexFlow: "column nowrap",
           justifyContent: "start",
@@ -131,14 +142,27 @@ export function RecipeContextProvider({
           rowGap: "1rem",
           padding: "1rem",
           zIndex: 9999,
+          color: "white",
         }}>
-          <pre style={{
-            color: "white",
+          <div style={{
             overflow: "scroll",
-            width: "100%"
+            width: "100%",
           }}>
-            {JSON.stringify(recipe, null, 2)}
-          </pre>
+            Recipe context debug info:<pre style={{ width: "100%", }}>
+              {JSON.stringify({
+                "eval time": lastEvalDuration + " ms",
+                "eval timestamp": lastEvalTimestamp,
+                warnings,
+                error,
+                resultingUnit,
+                resultingDataSeries,
+              }, null, 2)}
+            </pre>
+
+            Current Recipe:<pre style={{ width: "100%", }}>
+              {JSON.stringify(recipe, null, 2)}
+            </pre>
+          </div>
 
           <div className="flex gap-100">
             <button
