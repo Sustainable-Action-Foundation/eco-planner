@@ -113,8 +113,7 @@ export default function SelectSingleTreeSearch({
     if (!toggleRef.current) return
     return preventInvalidFormSubmission(toggleRef.current, valueIsValid)
   }, [valueIsValid]);
-
-  /* Why do i need this? */
+ 
   useEffect(() => {
     setItems(treeItems);
     setFlattenedItems(flattenTree(treeItems));
@@ -276,11 +275,13 @@ export default function SelectSingleTreeSearch({
             style={{ padding: '0', margin: '0', fontSize: 'revert' }}
             ref={searchRef}
             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+              if (!toggleRef.current) return;
               handleKeyDownTreeCombobox(
                 e,
                 focusedIndex,
                 setFocusedIndex,
                 flattenedItems,
+                toggleRef.current,
                 (item, direction) => {
                   if (direction === "right" && !item.expanded) {
                     void toggleNode(item);
@@ -298,7 +299,9 @@ export default function SelectSingleTreeSearch({
                     setMenuOpen(false);
                     toggleRef.current?.focus();
                   }
-                }
+                },
+                menuOpen,
+                setMenuOpen
               )
             }}
             role="combobox"
