@@ -2,15 +2,14 @@
 
 import { closeModal, openModal } from "./modalFunctions";
 import { useRef, useState } from "react";
-import { GoalCreateInput, Goal, Years, DataSeriesValueFields, isPartialDataSeriesValueFields, JSONValue, isFullDataSeriesValueFields } from "@/types";
+import { GoalCreateInput, Goal, Years, DataSeriesValueFields, isPartialDataSeriesValueFields, JSONValue, isFullDataSeriesValueFields, nullFullDataSeriesValueField } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
 import { Recipe } from "@/functions/recipe-parser/types";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
 import { RecipeContextProvider } from "../recipe/contextProvider";
-import VariableEditor from "../recipe/editor/variable/editor";
-import { RecipeSuggestions, suggestedRecipes } from "@/components/recipe/suggested";
+import { RecipeSuggestions, defaultSuggestedRecipes } from "@/components/recipe/suggested";
 import FormIntegration from "../recipe/editor/output/formIntegration";
 
 export default function CopyAndScale({
@@ -38,18 +37,15 @@ export default function CopyAndScale({
     // Try parsing the data series object from the recipe editor
     let resultingDataSeries: DataSeriesValueFields;
     try {
-      const parsedDataSeries = JSON.parse(form.get("resultingDataSeries") as string) as JSONValue;
+      const unparsedDataSeries = JSON.parse(form.get("resultingDataSeries") as string) as JSONValue;
+
       // At first expect the data series to be partial
-      if (!isPartialDataSeriesValueFields(parsedDataSeries)) {
+      if (!isPartialDataSeriesValueFields(unparsedDataSeries)) {
         throw new Error("Parsed data series does not match expected structure");
       }
 
-      // Make it non-partial for easier transformation to string[] later
-      for (const year of Years) {
-        if (!(year in parsedDataSeries)) {
-          parsedDataSeries[year] = null; // Ensure all years are present
-        }
-      }
+      // Make it non partial
+      const parsedDataSeries = { ...nullFullDataSeriesValueField, ...unparsedDataSeries };
       if (!isFullDataSeriesValueFields(parsedDataSeries)) {
         throw new Error("Parsed data series is missing some years or has incorrect structure");
       }
@@ -162,19 +158,14 @@ export default function CopyAndScale({
             {/* Suggested recipes */}
             {goal.recipeSuggestions.length > 0 &&
               <RecipeSuggestions
-                // TODO: change this cast into a proper type guard in RecipeSuggestions.tsx
-                suggestedRecipes={[
-                  ...(goal.recipeSuggestions as { hash: string, recipe: Recipe }[]),
-                  ...suggestedRecipes,
-                ]}
+                suggestedRecipes={defaultSuggestedRecipes}
               />
             }
-
-            <VariableEditor />
 
             <FormIntegration
               DataSeriesFormElement={<input name="resultingDataSeries" />}
               RecipeFormElement={<input name="resultingRecipe" />}
+              UnitFormElement={<input name="resultingUnit" />}
             />
           </RecipeContextProvider>
 

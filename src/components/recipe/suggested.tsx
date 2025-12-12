@@ -17,14 +17,15 @@ import FormIntegration from "./editor/output/formIntegration";
 
 // TODO: Rename (SuggestedRecipes)
 export function RecipeSuggestions({
-  suggestedRecipes,
+  autoInsertDefaultSuggestions = true,
+  suggestedRecipes: suggestedRecipesInput,
   allowAddVariables = false,
   allowDeleteVariables = false,
   allowNameEditing = false,
   allowTypeEditing = false,
   allowValueEditing = true,
 }: {
-  // TODO - only use prisma generated and type guard the recipe prop into, not `JsonValue`
+  autoInsertDefaultSuggestions?: boolean;
   suggestedRecipes: { hash: string, recipe: Recipe }[];
   allowAddVariables?: boolean;
   allowDeleteVariables?: boolean;
@@ -38,6 +39,9 @@ export function RecipeSuggestions({
 
   const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[]>([]);
   const [selectedHash, setSelectedHash] = useState<string>("");
+  const suggestedRecipes = autoInsertDefaultSuggestions
+    ? [...defaultSuggestedRecipes, ...suggestedRecipesInput]
+    : suggestedRecipesInput;
 
   // On mount, fetch all roadmaps user has access to
   // TODO: This is reused from editor/variable/editor.tsx, can probably abstract this somehow
@@ -125,7 +129,7 @@ export function RecipeSuggestions({
           };
 
           switch (variable.type) {
-            case RecipeDataTypes.Scalar: {/* TODO: Fix theese labels */ }
+            case RecipeDataTypes.Scalar: {/* TODO: Fix these labels */ }
               return (
                 <Fragment key={key}>
                   <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
@@ -215,16 +219,16 @@ export function RecipeSuggestions({
   );
 }
 
-// TODO: Should dynamically render a list of inputs corresponding to RecipeDataTypes.DataSerie.
+// TODO: Should dynamically render a list of inputs corresponding to RecipeDataTypes.DataSeries.
 // We already do this in the recipe editor but we also want a simplified view outside of the editor
 // TODO: Placed this here temporarily to remove clutter from goal form. 
-// Should probably be moved back once theese are created dynamically? 
-export const suggestedRecipes: Array<{ hash: string, recipe: Recipe }> = [
+// Should probably be moved back once these are created dynamically? 
+export const defaultSuggestedRecipes: Array<{ hash: string, recipe: Recipe }> = [
   // TODO: actually create proper hashes
   // TODO: Localize the variable names
   // TODO: Create these in seed and get them from the database
   { // Default scaling recipe
-    hash: "atotallycoolhashthefirst",
+    hash: "recipe_with_scaling",
     recipe: {
       name: 'Default scaling recipe', // Deal with this later t("forms:goal.default_scaling_recipe"), 
       eq: "${serie} * ${skalär}",
@@ -275,31 +279,31 @@ export const suggestedRecipes: Array<{ hash: string, recipe: Recipe }> = [
       }
     }
   },
-  { // Testing recipe with external data
-    hash: "recipe_with_external",
-    recipe:
-    {
-      name: "Recipe with external data",
-      eq: "${extern}",
-      variables: {
-        "extern": {
-          type: RecipeDataTypes.External,
-          dataset: "SCB",
-          tableId: "TAB6420",
-          selection: [
-            // Selected area
-            { variableCode: "Region", valueCodes: ["00"] },
-            // Specifically land areas, not including water
-            { variableCode: "ArealTyp", valueCodes: ["01"] },
-            // Magic string to get area sizes in square kilometers (as opposed to hectares with "000007E1")
-            { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
-            // // Use the latest time period
-            // { variableCode: "Tid", valueCodes: ["TOP(1)"] }
-          ],
-          pick: VectorIndexPickerOptions.Last,
-          unit: undefined,
-        }
-      }
-    }
-  }
+  // { // Testing recipe with external data
+  //   hash: "recipe_with_external",
+  //   recipe:
+  //   {
+  //     name: "Recipe with external data",
+  //     eq: "${extern}",
+  //     variables: {
+  //       "extern": {
+  //         type: RecipeDataTypes.External,
+  //         dataset: "SCB",
+  //         tableId: "TAB6420",
+  //         selection: [
+  //           // Selected area
+  //           { variableCode: "Region", valueCodes: ["00"] },
+  //           // Specifically land areas, not including water
+  //           { variableCode: "ArealTyp", valueCodes: ["01"] },
+  //           // Magic string to get area sizes in square kilometers (as opposed to hectares with "000007E1")
+  //           { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
+  //           // // Use the latest time period
+  //           // { variableCode: "Tid", valueCodes: ["TOP(1)"] }
+  //         ],
+  //         pick: VectorIndexPickerOptions.Last,
+  //         unit: undefined,
+  //       }
+  //     }
+  //   }
+  // }
 ]

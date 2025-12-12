@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRecipe } from "./contextProvider";
 import RecipeEditor from "./editor/editor";
-import { RecipeSuggestions, suggestedRecipes } from "./suggested";
+import { RecipeSuggestions, defaultSuggestedRecipes } from "./suggested";
 import { useTranslation } from "react-i18next";
 
 export default function SuggestionToggle() {
@@ -43,7 +43,7 @@ export default function SuggestionToggle() {
       </div>
        {visibilityType === "suggested" ?
         <div className="margin-top-100">
-          <RecipeSuggestions ariaLabelledBy="recipe-type-suggested-label" suggestedRecipes={suggestedRecipes} />
+          <RecipeSuggestions ariaLabelledBy="recipe-type-suggested-label" suggestedRecipes={defaultSuggestedRecipes} />
         </div>
         : null}
       {/* Properly label textarea :) oh and all the inputs in variable-editor */}
