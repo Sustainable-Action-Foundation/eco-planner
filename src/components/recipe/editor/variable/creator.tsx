@@ -2,7 +2,7 @@
 
 import { Popover, PopoverButton } from "@/components/generic/popovers/popovers";
 import { useRecipe } from "../../contextProvider";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { emptyRecipesByDataType, RecipeDataTypes } from "@/functions/recipe-parser/types";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { Unit } from "mathjs";
@@ -16,15 +16,14 @@ export default function VariableCreator({
   const { t } = useTranslation(["components", "forms"]);
   const { setRecipe } = useRecipe();
 
-  // These can't easily be combined due to rerender loops 
+  const popoverRef = useRef<HTMLDivElement>(null);
   const [newName, setNewName] = useState<string>('');
   const [newUnit, setNewUnit] = useState<string>('');
   const [newType, setNewType] = useState<RecipeDataTypes | undefined>(undefined);
 
   // Hard coded to make a new data series variable. TODO: reconsider this behavior
   const addVariableToContext = () => {
-    if (newType === undefined || newName === '') return; // TODO: Need to show that something is wrong to the user
-
+    if (newName === '' || !newType) return; // stop if invalid
     setRecipe(prev => {
       if (!prev) return prev; // Should never happen since the context defines it on mount
       if (!newType) return prev;
@@ -44,8 +43,10 @@ export default function VariableCreator({
     // Clear the form after adding to context
     setNewName('');
     setNewUnit('');
-    setNewType(undefined);
-  };
+    setNewType(undefined);  
+
+    popoverRef.current?.hidePopover()
+  };  
 
   return (
     <>
@@ -61,6 +62,7 @@ export default function VariableCreator({
           </PopoverButton>
           <Popover
             id="add-variable-popover"
+            ref={popoverRef}
             popover="auto"
             positionAnchor="--add-variable-popover-button"
             anchorInlinePosition="end"
@@ -142,7 +144,6 @@ export default function VariableCreator({
                 type="button"
                 className="width-100 color-purewhite font-weight-600 margin-top-50"
                 style={{ backgroundColor: '#191919' }}
-                popoverTarget='add-variable-popover'
                 onClick={addVariableToContext}
               >
                 {t("components:recipe_editor.create_variable")}

@@ -48,6 +48,7 @@ export function Popover({
   id,
   className,
   style,
+  ref,
   children,
   popover,
   positionAnchor,
@@ -60,6 +61,7 @@ export function Popover({
   id: string,
   className?: string,
   style?: React.CSSProperties,
+  ref?: React.Ref<HTMLDivElement>
   children?: React.ReactNode,
   popover: "" | "auto" | "manual" | undefined,
   positionAnchor: string,
@@ -121,6 +123,7 @@ export function Popover({
       <div
         role='dialog'
         id={id}
+        ref={ref}
         className={`
           ${styles[`anchor-inline-${anchorInlinePosition}`]} 
           ${typeof popoverDirection === 'string' ?
