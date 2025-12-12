@@ -2,7 +2,7 @@
 
 import { Popover, PopoverButton } from "@/components/generic/popovers/popovers";
 import { useRecipe } from "../../contextProvider";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { emptyRecipesByDataType, RecipeDataTypes } from "@/functions/recipe-parser/types";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { Unit } from "mathjs";
@@ -18,12 +18,16 @@ export default function VariableCreator({
 
   const popoverRef = useRef<HTMLDivElement>(null);
   const [newName, setNewName] = useState<string>('');
+  const [newNameStatus, setNewNameStatus] = useState<string>('');
   const [newUnit, setNewUnit] = useState<string>('');
   const [newType, setNewType] = useState<RecipeDataTypes | undefined>(undefined);
+  const [newTypeStatus, setNewTypeStatus] = useState<string>('');
 
   // Hard coded to make a new data series variable. TODO: reconsider this behavior
   const addVariableToContext = () => {
-    if (newName === '' || !newType) return; // stop if invalid
+    if (newName === '') { setNewNameStatus('Please provide a name'); return }
+    if (!newType) { setNewTypeStatus('Please provide a type'); return }
+
     setRecipe(prev => {
       if (!prev) return prev; // Should never happen since the context defines it on mount
       if (!newType) return prev;
@@ -43,8 +47,9 @@ export default function VariableCreator({
     // Clear the form after adding to context
     setNewName('');
     setNewUnit('');
-    setNewType(undefined);  
-
+    setNewType(undefined);
+    setNewNameStatus('')  
+    setNewTypeStatus('')
     popoverRef.current?.hidePopover()
   };  
 
@@ -82,12 +87,12 @@ export default function VariableCreator({
               <input
                 type="text"
                 id="variable-name"
-                className="margin-bottom-50"
                 style={{ backgroundColor: 'var(--gray-95)' }}
                 placeholder={t("components:recipe_editor.variable_name_placeholder")}
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
               />
+              <small className="block margin-bottom-50 margin-top-25 font-weight-500" style={{color: 'red'}}>{newNameStatus}</small>
               <label htmlFor="variable-unit">
                 {t("components:recipe_editor.unit_label")}
               </label>
@@ -105,7 +110,7 @@ export default function VariableCreator({
                 maxOptions={3}
                 onChange={(unit) => setNewUnit(unit ?? '')}
               />
-              <div className="margin-block-100">
+              <div className="margin-top-100">
                 <label className="block margin-left-25">
                   <input
                     type="radio"
@@ -140,6 +145,7 @@ export default function VariableCreator({
                   {t("components:recipe_editor.external_data")}
                 </label>
               </div>
+              <small className="block margin-bottom-100 margin-top-25 font-weight-500" style={{color: 'red'}}>{newTypeStatus}</small>
               <button
                 type="button"
                 className="width-100 color-purewhite font-weight-600 margin-top-50"
