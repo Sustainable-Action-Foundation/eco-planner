@@ -3,9 +3,7 @@
 import { emptyRecipe, Recipe } from "@/functions/recipe-parser/types";
 import type { DataSeriesValueFields } from "@/types";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-
 import { evaluateRecipe, cleanRecipe } from "@/functions/parseRecipe";
-import { IconX } from "@tabler/icons-react";
 
 type RecipeContextType = {
   recipe: Recipe | null;
@@ -58,8 +56,8 @@ export function RecipeContextProvider({
     }
 
     const startTime = performance.now();
+    setLastEvalDuration(null);
     async function calculate() {
-      setLastEvalDuration(null);
       try {
         const currentWarnings: string[] = [];
         const evaluatedRecipe = await evaluateRecipe(cleanRecipe(recipe), currentWarnings);
@@ -75,7 +73,8 @@ export function RecipeContextProvider({
         setResultingUnit(evaluatedRecipe.unit)
         setWarnings(currentWarnings);
         setError(null);
-      } catch (e: unknown) {
+      }
+      catch (e: unknown) {
         setResultingDataSeries(null);
         setError((e as Error)?.message);
         setWarnings([]);
@@ -145,11 +144,13 @@ export function RecipeContextProvider({
           zIndex: 9999,
           color: "white",
         }}>
+          {/* Scrollable wall of debug info */}
           <div style={{
             overflow: "scroll",
             width: "100%",
           }}>
-            Recipe context debug info:<pre style={{ width: "100%", }}>
+            <pre style={{ width: "100%", }}>
+              Recipe context debug info: <br />
               {JSON.stringify({
                 "eval time": lastEvalDuration + " ms",
                 "eval timestamp": lastEvalTimestamp,
@@ -160,11 +161,13 @@ export function RecipeContextProvider({
               }, null, 2)}
             </pre>
 
-            Current Recipe:<pre style={{ width: "100%", }}>
+            <pre style={{ width: "100%", }}>
+              Current Recipe: <br />
               {JSON.stringify(recipe, null, 2)}
             </pre>
           </div>
 
+          {/* Buttons container */}
           <div className="flex gap-100">
             <button
               type="button"
@@ -176,13 +179,14 @@ export function RecipeContextProvider({
             <button
               type="button"
               onClick={() => {
-                navigator.clipboard.writeText(JSON.stringify(recipe, null, 2))
+                const toBeCopied = { recipe, resultingDataSeries, resultingUnit, warnings, error, lastEvalDuration, lastEvalTimestamp };
+                navigator.clipboard.writeText(JSON.stringify(toBeCopied, null, 2))
                   .catch((e) => {
                     console.error(e);
                   });
               }}
             >
-              Copy Recipe to Clipboard
+              Copy to Clipboard
             </button>
 
             <button
