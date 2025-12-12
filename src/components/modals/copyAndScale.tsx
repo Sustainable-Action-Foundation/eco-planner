@@ -6,11 +6,12 @@ import { GoalCreateInput, Goal, Years, DataSeriesValueFields, isPartialDataSerie
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
-import { emptyRecipeDataSeries, isRecipeDataSeries, Recipe, RecipeDataSeries, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
+import { isRecipeDataSeries, Recipe, RecipeDataTypes } from "@/functions/recipe-parser/types";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
 import { RecipeContextProvider } from "../recipe/contextProvider";
 import { SuggestedRecipes } from "@/components/recipe/suggested";
 import FormIntegration from "../recipe/editor/output/formIntegration";
+import OutputStatus from "../recipe/editor/output/status";
 
 export default function CopyAndScale({
   goal,
@@ -192,6 +193,8 @@ export default function CopyAndScale({
                 })
               ]}
             />
+
+            <OutputStatus />
 
             <FormIntegration
               DataSeriesFormElement={<input name="resultingDataSeries" />}
