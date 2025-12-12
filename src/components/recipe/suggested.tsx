@@ -121,7 +121,7 @@ export function SuggestedRecipes({
         value={selectedHash}
         onChange={handleChange}
       >
-        <option disabled>{t("common:tsx.generic_select")}</option>
+        <option disabled value={""}>{t("common:tsx.generic_select")}</option>
         {suggestedRecipes.map((suggestedRecipe, index) => (
           <option key={index} value={suggestedRecipe.hash}> {/* TODO: The selected value needs to be preselected */}
             {suggestedRecipe.recipe.name ?? t("components:copy_and_scale.unnamed_suggestion")}
@@ -140,7 +140,7 @@ export function SuggestedRecipes({
         columnGap: '1rem'
       }}
     >
-      {Object.entries(recipe?.variables ?? {}).map(([key, variable], i) => {
+      {Object.entries(recipe?.variables ?? {}).map(([variableName, variable], i) => {
         const rules = {
           allowAddVariables,
           allowDeleteVariables,
@@ -152,13 +152,13 @@ export function SuggestedRecipes({
         switch (variable.type) {
           case RecipeDataTypes.Scalar: {/* TODO: Fix these labels */ }
             return (
-              <Fragment key={key}>
+              <Fragment key={variableName}>
                 <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
-                  <span>{key}{variable.unit ? ` [${variable.unit}]` : ''}:</span>
+                  <span>{variableName}{variable.unit ? ` [${variable.unit}]` : ''}:</span>
                 </label>
                 <VariableTypeScalarSimple
                   key={"recipeVariable" + i}
-                  name={key}
+                  name={variableName}
                   rules={rules}
                 />
               </Fragment>
@@ -166,9 +166,9 @@ export function SuggestedRecipes({
 
           case RecipeDataTypes.DataSeries:
             return (
-              <Fragment key={key}>
+              <Fragment key={variableName}>
                 <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
-                  <span>{key}: {variable.unit}</span>
+                  <span>{variableName}{variable.unit ? ` [${variable.unit}]` : ''}:</span>
                 </label>
                 <VariableTypeDataSeriesSimple
                   props={{
@@ -178,7 +178,7 @@ export function SuggestedRecipes({
                     required: true
                   }}
                   key={"recipeVariable" + i}
-                  name={key}
+                  name={variableName}
                   availableRoadmaps={availableRoadmaps}
                 />
               </Fragment>
@@ -186,23 +186,23 @@ export function SuggestedRecipes({
 
           case RecipeDataTypes.External:
             return (
-              <Fragment key={key}>
+              <Fragment key={variableName}>
                 <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
-                  <span>{key}{variable.unit ? ` [${variable.unit}]` : ''}:</span>
+                  <span>{variableName}{variable.unit ? ` [${variable.unit}]` : ''}:</span>
                 </label>
                 <VariableTypeExternalSimple
                   key={"recipeVariable" + i}
-                  name={key}
+                  name={variableName}
                   rules={rules}
                 />
               </Fragment>
             );
 
           default:
-            console.warn("Unknown variable type for variable", key);
+            console.warn("Unknown variable type for variable", variableName);
             return (
-              <p key={key}>
-                {key}: {t("components:recipe_editor.unknown_variable_type")}
+              <p key={variableName}>
+                {variableName}: {t("components:recipe_editor.unknown_variable_type")}
               </p>
             );
         }
