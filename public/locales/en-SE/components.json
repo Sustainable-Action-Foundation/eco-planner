@@ -122,12 +122,11 @@
     "selected_table": "<strong>Selected table:</strong> <small><i>{{table}}</i></small>",
     "value": "Value"
   },
-  "recipe": {
-  },
   "recipe_editor": {
+    "create_variable": "Create variable",
     "data_series": "Data series",
-    "dataserie": "Dataserie",
     "dataset": "Dataset",
+    "edit_variable": "Edit variable",
     "equation": "Equation",
     "external_data": "External data",
     "goal_or_effect": "Goal or effect",
@@ -143,14 +142,20 @@
     "pick_whole": "Whole series",
     "recipe": "Recipe",
     "scalar": "Scalar",
+    "select_data_series": "Choose goal or effect",
+    "select_dataset": "Select dataset",
     "select_roadmap": "Select roadmap",
     "selection": "Selection",
     "status": "Status",
     "table": "Table",
+    "unit_label": "Unit",
     "unit_placeholder": "Unit",
     "unknown_variable_type": "Unknown variable type",
+    "variable_name": "Name",
     "variable_name_placeholder": "Name",
-    "variables": "Variables"
+    "variable_type_label": "Type",
+    "variables": "Variables",
+    "vector_index_picker_label": "Value(s) to use"
   },
   "roadmap_filters": {
     "default": "Default",

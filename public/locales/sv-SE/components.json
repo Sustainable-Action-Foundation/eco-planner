@@ -122,12 +122,11 @@
     "selected_table": "<strong>Vald tabell:</strong> <small><i>{{table}}</i></small>",
     "value": "Värde"
   },
-  "recipe": {
-  },
   "recipe_editor": {
+    "create_variable": "Skapa variabel",
     "data_series": "Dataserie",
-    "dataserie": "Dataserie",
     "dataset": "Dataset",
+    "edit_variable": "Redigera variabel",
     "equation": "Ekvation",
     "external_data": "Extern data",
     "goal_or_effect": "Målbana eller effekt",
@@ -143,14 +142,20 @@
     "pick_whole": "Hela serien",
     "recipe": "Recept",
     "scalar": "Skalär",
+    "select_data_series": "Välj målbana eller effekt",
+    "select_dataset": "Välj dataset",
     "select_roadmap": "Välj färdplan",
     "selection": "Urval",
     "status": "Status",
     "table": "Tabell",
+    "unit_label": "Enhet",
     "unit_placeholder": "Enhet",
     "unknown_variable_type": "Okänd variabeltyp",
+    "variable_name": "Namn",
     "variable_name_placeholder": "Namn",
-    "variables": "Variabler"
+    "variable_type_label": "Typ",
+    "variables": "Variabler",
+    "vector_index_picker_label": "Värde(n) som ska användas"
   },
   "roadmap_filters": {
     "default": "Standard",

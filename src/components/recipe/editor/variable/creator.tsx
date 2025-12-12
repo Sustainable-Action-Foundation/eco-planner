@@ -7,14 +7,13 @@ import { emptyRecipesByDataType, RecipeDataTypes } from "@/functions/recipe-pars
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { Unit } from "mathjs";
 import { useTranslation } from "react-i18next";
-import { IconPlus } from "@tabler/icons-react";
 
 export default function VariableCreator({
   allowAddVariables = false,
 }: {
   allowAddVariables?: boolean;
 }) {
-  const { t } = useTranslation("components");
+  const { t } = useTranslation(["components", "forms"]);
   const { setRecipe } = useRecipe();
 
   // These can't easily be combined due to rerender loops 
@@ -50,7 +49,6 @@ export default function VariableCreator({
 
   return (
     <>
-      {/* TODO: I18n */}
       {allowAddVariables &&
         <>
           <PopoverButton
@@ -77,25 +75,25 @@ export default function VariableCreator({
               }}
             >
               <label htmlFor="variable-name" className="cursor-text">
-                Namn
+                {t("components:recipe_editor.variable_name")}
               </label>
               <input
                 type="text"
                 id="variable-name"
                 className="margin-bottom-50"
                 style={{ backgroundColor: 'var(--gray-95)' }}
-                placeholder="Variabel 1" // TODO: I18n
+                placeholder={t("components:recipe_editor.variable_name_placeholder")}
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
               />
               <label htmlFor="variable-unit">
-                Enhet
+                {t("components:recipe_editor.unit_label")}
               </label>
               <TextSingleAutocomplete
                 props={{
                   id: "variable-unit",
                   name: "variable-unit",
-                  placeholder: "Skriv för att se förslag", // TODO: I18n 
+                  placeholder: t("forms:combobox.default_autocomplete_placeholder"),
                   defaultValue: newUnit,
                 }}
                 theme={{
@@ -115,7 +113,7 @@ export default function VariableCreator({
                     checked={newType === RecipeDataTypes.Scalar}
                     onChange={() => setNewType(RecipeDataTypes.Scalar)}
                   />
-                  Skalär {/* TODO: i18n */}
+                  {t("components:recipe_editor.scalar")}
                 </label>
                 <label className="block margin-left-25 margin-top-25">
                   <input
@@ -126,7 +124,7 @@ export default function VariableCreator({
                     checked={newType === RecipeDataTypes.DataSeries}
                     onChange={() => setNewType(RecipeDataTypes.DataSeries)}
                   />
-                  Dataserie {/* TODO: i18n */}
+                  {t("components:recipe_editor.data_series")}
                 </label>
                 <label className="block margin-left-25 margin-top-25">
                   <input
@@ -137,7 +135,7 @@ export default function VariableCreator({
                     checked={newType === RecipeDataTypes.External}
                     onChange={() => setNewType(RecipeDataTypes.External)}
                   />
-                  Extern data {/* TODO: i18n */}
+                  {t("components:recipe_editor.external_data")}
                 </label>
               </div>
               <button
@@ -147,7 +145,7 @@ export default function VariableCreator({
                 popoverTarget='add-variable-popover'
                 onClick={addVariableToContext}
               >
-                Skapa variabel {/* TODO: i18n */}
+                {t("components:recipe_editor.create_variable")}
               </button>
             </fieldset>
           </Popover>

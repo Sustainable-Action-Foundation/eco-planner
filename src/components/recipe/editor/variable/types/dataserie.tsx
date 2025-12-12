@@ -2,7 +2,7 @@
 
 import { useRecipe } from "@/components/recipe/contextProvider";
 import { isRecipeDataSeries, RecipeVariable } from "@/functions/recipe-parser/types";
-// import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { InputRules, defaultInputRules } from "./rules";
 import { changeDataSeries } from "@/components/recipe/contextFunctions";
 import VariableTypeCommon from "./common";
@@ -52,7 +52,6 @@ export function useHandleDataSeriesChange(
   );
 }
 
-// TODO: I18n
 // TODO: Fix labels
 // TODO: Check usage of inputrules (prop that has been removed)
 export default function VariableTypeDataSeries({
@@ -66,7 +65,7 @@ export default function VariableTypeDataSeries({
   availableRoadmaps?: { id: string; name: string; }[];
   props: inputElement;
 }) {
-  // const { t } = useTranslation("components");
+  const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
   const variable = recipe?.variables[name] as RecipeVariable;
 
@@ -88,7 +87,7 @@ export default function VariableTypeDataSeries({
       {/* TODO: Why is this height mismatched */}
       <div className="inline-block floating-label" style={{ verticalAlign: "top", width: "200px", "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
         <label htmlFor={props.id}>
-          Välj målbana eller effekt {/* TODO: i18n */}
+          {t("components:recipe_editor.select_data_series")}
         </label>
         <SelectSingleTreeSearch
           props={{
@@ -102,7 +101,7 @@ export default function VariableTypeDataSeries({
       </div>
       <div className="inline-block floating-label" style={{ width: "200px", "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
         <label htmlFor="variable-tree-vector-index-picker">
-          Värde {/* TODO: i18n */}
+          {t("components:recipe_editor.vector_index_picker_label")}
         </label>
         <VectorIndexPicker rules={rules} varName={name} />
       </div>

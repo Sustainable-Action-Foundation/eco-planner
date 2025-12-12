@@ -11,7 +11,6 @@ import { IconEdit, IconTrashXFilled } from "@tabler/icons-react";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { Unit } from "mathjs";
 
-// TODO: I18n
 // TODO: Fix labels
 export default function VariableTypeCommon({
   name,
@@ -22,7 +21,7 @@ export default function VariableTypeCommon({
   rules?: InputRules;
   children: React.ReactNode;
 }) {
-  const { t } = useTranslation("components");
+  const { t } = useTranslation(["common", "components"]);
   const { recipe, setRecipe } = useRecipe();
   const variable = recipe?.variables[name] as RecipeVariable;
   const [editable, setEditable] = useState<boolean>(false)
@@ -37,8 +36,8 @@ export default function VariableTypeCommon({
         className="padding-25 round transparent "
         style={{ verticalAlign: 'middle' }}
         type="button"
-        title="Edit variable" // TODO: I18n
-        aria-label="Edit variable" // TODO: I18n
+        title={t("components:recipe_editor.edit_variable")}
+        aria-label={t("components:recipe_editor.edit_variable")}
         onClick={() => setEditable(!editable)}
       >
         <IconEdit width={20} height={20} className="grid" />
@@ -75,7 +74,7 @@ export default function VariableTypeCommon({
           </div>
           <div className="floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
             <label htmlFor={`variable-type-${name}`}>
-              Typ {/* TODO: i18n  */}
+              {t("components:recipe_editor.variable_type_label")}
             </label>
             <select
               id={`variable-type-${name}`}
@@ -99,7 +98,7 @@ export default function VariableTypeCommon({
           className="padding-25 round transparent margin-left-50"
           style={{ verticalAlign: 'middle' }}
           type="button"
-          title="delete" // TODO: I18n
+          title={t("common:tsx.delete")}
           onClick={() => deleteVariable(name, setRecipe)}
         >
           <IconTrashXFilled width={20} height={20} className="grid" />

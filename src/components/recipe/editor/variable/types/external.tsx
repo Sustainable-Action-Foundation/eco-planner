@@ -9,7 +9,6 @@ import VariableTypeCommon from "./common";
 import VectorIndexPicker from "./vectorIndexPicker";
 import { ExternalDataset } from "@/lib/api/utility";
 
-// TODO: I18n
 // TODO: Fix labels
 export default function VariableTypeExternal({
   name,
@@ -39,7 +38,7 @@ export default function VariableTypeExternal({
           disabled={!rules.allowValueEditing}
           onChange={(e) => changeDataset(name, e.target.value, setRecipe)}
         >
-          <option value="">Välj {t("components:recipe_editor.dataset")}</option>{/**TODO: I18n */}
+          <option disabled value="">{t("components:recipe_editor.select_dataset")}</option>
           {/* <option value={variable.dataset}>{variable.dataset}</option> */}
           {ExternalDataset.knownDatasetKeys.map((datasetName, i) => (
             <option key={`datasetOption-${i}`} value={datasetName}>
@@ -79,7 +78,7 @@ export default function VariableTypeExternal({
 
       <div className="floating-label inline-block" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
         <label htmlFor="variable-tree-vector-index-picker">
-          Värde {/**TODO: I18n */}
+          {t("components:recipe_editor.vector_index_picker_label")}
         </label>
         <VectorIndexPicker rules={rules} varName={name} />
       </div>

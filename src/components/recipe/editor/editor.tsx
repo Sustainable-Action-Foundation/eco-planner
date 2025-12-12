@@ -59,7 +59,7 @@ export default function RecipeEditor() {
             </div>
           </div>
           <div
-            data-tabname={t("components:recipe_editor.dataserie")}
+            data-tabname={t("components:recipe_editor.data_series")}
             className="padding-top-50"
           >
             <OutputStatus />

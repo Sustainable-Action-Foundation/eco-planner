@@ -1,6 +1,5 @@
 'use client'
 
-// TODO: i18n pass on entire file
 import { isRecipe, Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "./contextProvider";
@@ -153,7 +152,7 @@ export function SuggestedRecipes({
                     props={{
                       id: "recipeVariable" + i,
                       name: "recipeVariable" + i,
-                      placeholder: 'Välj målbana eller effekt', // TODO: i18n
+                      placeholder: t("components:recipe_editor.select_data_series"),
                       required: true
                     }}
                     key={"recipeVariable" + i}
@@ -200,7 +199,7 @@ export function SuggestedRecipes({
             <p className="margin-0">{recipe?.eq}</p>
           </div>
           <div
-            data-tabname={t("components:recipe_editor.dataserie")}
+            data-tabname={t("components:recipe_editor.data_series")}
             className="padding-top-50 margin-bottom-100" // TODO: Show fallback if there is  no resultingDataSeries
           >
             <OutputDataSeries />
