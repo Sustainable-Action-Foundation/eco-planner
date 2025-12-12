@@ -477,6 +477,7 @@ export const Years = GeneratedYears;
 export type Years = (typeof Years)[number];
 
 export type DataSeriesValueFields = Record<Years, number | null>;
+export type DataSeriesValueFieldsWithUnit = DataSeriesValueFields & { unit: string | null | undefined };
 export function isPartialDataSeriesValueFields(
   dataSeries: JSONValue,
 ): dataSeries is Partial<DataSeriesValueFields> {
@@ -492,6 +493,10 @@ export function isFullDataSeriesValueFields(
 ): dataSeries is DataSeriesValueFields {
   return Object.keys(dataSeries).length === Years.length && Years.every(year => year in dataSeries);
 }
+export const nullFullDataSeriesValueField: DataSeriesValueFields = Years.reduce((obj, year) => {
+  obj[year] = null;
+  return obj;
+}, {} as DataSeriesValueFields);
 
 
 /* TODO INPUT_UPDATES */

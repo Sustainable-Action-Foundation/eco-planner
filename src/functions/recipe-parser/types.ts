@@ -1,5 +1,6 @@
 import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
-import { isStandardObject, JSONValue, typeguardDebug, uuidRegex } from "@/types";
+import { DataSeriesValueFields, isStandardObject, JSONValue, typeguardDebug, uuidRegex } from "@/types";
+import { Unit } from "mathjs";
 
 export const VectorIndexPickerOptions = {
   Default: "whole",
@@ -102,6 +103,7 @@ export const emptyRecipeScalar: RecipeScalar = { type: RecipeDataTypes.Scalar, v
 export type RecipeDataSeries = {
   type: typeof RecipeDataTypes.DataSeries;
   link: string | null | undefined; // uuid of data series in the database
+  value?: Partial<DataSeriesValueFields> | null | undefined; // Usually not settable by the user, mainly for internal use
   pick: VectorIndexPickerOptions;
   unit: string | null | undefined; // String if given, null if removed, undefined if not specified
 };
@@ -334,6 +336,10 @@ export type EvalTimeExternalDataset = {
   value: number | number[] | null;
   unit: string | null | undefined; // Optional unit
 };
+export type EvalTimeVariable = {
+  name: string;
+  value: Unit | Unit[];
+}
 
 
 /*
