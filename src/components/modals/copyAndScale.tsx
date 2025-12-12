@@ -6,7 +6,7 @@ import { GoalCreateInput, Goal, Years, DataSeriesValueFields, isPartialDataSerie
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
-import { Recipe } from "@/functions/recipe-parser/types";
+import { emptyRecipeDataSeries, Recipe, RecipeDataSeries, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
 import { RecipeContextProvider } from "../recipe/contextProvider";
 import { SuggestedRecipes } from "@/components/recipe/suggested";
@@ -155,13 +155,28 @@ export default function CopyAndScale({
           </label>
 
           <RecipeContextProvider>
-            {/* Suggested recipes */}
-            <SuggestedRecipes />
+            <SuggestedRecipes
+              DEPRECATED_variableValueOverride={[
+                // Set the value of the first data series to be of this goal
+                {
+                  matcher: (variable) => variable.type === RecipeDataTypes.DataSeries,
+                  value: ((): RecipeDataSeries => {
+                    if (!goal.dataSeries) {
+                      throw new Error("Goal has no data series to copy and scale");
+                    }
+                    return {
+                      ...emptyRecipeDataSeries,
+                      link: goal.dataSeries.id,
+                      unit: goal.dataSeries.unit,
+                    };
+                  })(),
+                }
+              ]}
+            />
 
             <FormIntegration
               DataSeriesFormElement={<input name="resultingDataSeries" />}
               RecipeFormElement={<input name="resultingRecipe" />}
-              UnitFormElement={<input name="resultingUnit" />}
             />
           </RecipeContextProvider>
 

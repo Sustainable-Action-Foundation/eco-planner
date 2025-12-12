@@ -1,6 +1,6 @@
 'use client'
 
-import { isRecipe, Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
+import { isRecipe, Recipe, RecipeDataTypes, RecipeVariable, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "./contextProvider";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
@@ -17,6 +17,8 @@ import FormIntegration from "./editor/output/formIntegration";
 export function SuggestedRecipes({
   autoInsertDefaultSuggestions = true,
   suggestedRecipes: suggestedRecipesInput = [],
+  DEPRECATED_variableValueOverride,
+
   allowAddVariables = false,
   allowDeleteVariables = false,
   allowNameEditing = false,
@@ -25,6 +27,19 @@ export function SuggestedRecipes({
 }: {
   autoInsertDefaultSuggestions?: boolean;
   suggestedRecipes?: { hash: string, recipe: Recipe }[];
+  /** 
+   * ## WARNING!
+   * 
+   * This is scary. This is a patch before smart recipes are implemented, 
+   *  it will allow for very flexible overriding from outside. 
+   * It will be used now for the copyAndScale component and should probably 
+   *  not be used elsewhere and removed once smart recipes are in place.
+   */
+  DEPRECATED_variableValueOverride?: Array<{
+    matcher: (variable: RecipeVariable) => boolean;
+    value: RecipeVariable;
+  }>;
+
   allowAddVariables?: boolean;
   allowDeleteVariables?: boolean;
   allowNameEditing?: boolean;
@@ -144,6 +159,7 @@ export function SuggestedRecipes({
                 />
               </Fragment>
             );
+
           case RecipeDataTypes.DataSeries:
             return (
               <Fragment key={key}>
@@ -163,6 +179,7 @@ export function SuggestedRecipes({
                 />
               </Fragment>
             );
+
           case RecipeDataTypes.External:
             return (
               <Fragment key={key}>
@@ -176,6 +193,7 @@ export function SuggestedRecipes({
                 />
               </Fragment>
             );
+
           default:
             console.warn("Unknown variable type for variable", key);
             return (
@@ -225,7 +243,7 @@ export function SuggestedRecipes({
 // We already do this in the recipe editor but we also want a simplified view outside of the editor
 // TODO: Placed this here temporarily to remove clutter from goal form. 
 // Should probably be moved back once these are created dynamically? 
-export const defaultSuggestedRecipes: Array<{ hash: string, recipe: Recipe }> = [
+export const defaultSuggestedRecipes: { hash: string, recipe: Recipe }[] = [
   // TODO: actually create proper hashes
   // TODO: Localize the variable names
   // TODO: Create these in seed and get them from the database
