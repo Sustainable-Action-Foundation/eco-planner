@@ -1,6 +1,6 @@
 'use client'
 
-import { isRecipe, Recipe, RecipeDataTypes, RecipeVariable, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
+import { isRecipe, Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "./contextProvider";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
@@ -17,7 +17,7 @@ import FormIntegration from "./editor/output/formIntegration";
 export function SuggestedRecipes({
   autoInsertDefaultSuggestions = true,
   suggestedRecipes: suggestedRecipesInput = [],
-  DEPRECATED_variableValueOverride,
+  DEPRECATED_recipeOverrideFunctions,
 
   allowAddVariables = false,
   allowDeleteVariables = false,
@@ -35,10 +35,7 @@ export function SuggestedRecipes({
    * It will be used now for the copyAndScale component and should probably 
    *  not be used elsewhere and removed once smart recipes are in place.
    */
-  DEPRECATED_variableValueOverride?: Array<{
-    matcher: (variable: RecipeVariable) => boolean;
-    value: RecipeVariable;
-  }>;
+  DEPRECATED_recipeOverrideFunctions?: Array<(recipe: Recipe) => Recipe>;
 
   allowAddVariables?: boolean;
   allowDeleteVariables?: boolean;
@@ -61,7 +58,6 @@ export function SuggestedRecipes({
   // TODO: This is reused from editor/variable/editor.tsx, can probably abstract this somehow
   useEffect(() => {
     async function fetchRoadmaps() {
-      console.log("SASDADS");
       try {
         const roadmaps = await clientSafeGetRoadmaps();
         setAvailableRoadmaps(roadmaps.map(roadmap => ({ id: roadmap.id, name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }) })));
@@ -74,8 +70,8 @@ export function SuggestedRecipes({
     fetchRoadmaps().catch(e => { throw e; });
   }, [t]);
 
+  // Validate suggested recipes
   useEffect(() => {
-    // Validate suggested recipes
     for (const recipe of suggestedRecipes) {
       if (!isRecipe(recipe.recipe)) {
         console.warn("Invalid recipe in suggestions", recipe);
@@ -96,7 +92,15 @@ export function SuggestedRecipes({
     const selectedSuggestion = suggestedRecipes.find(r => r.hash === hash);
     if (selectedSuggestion) {
       try {
-        const foundRecipe = recipeFromUnknown(selectedSuggestion.recipe);
+        let foundRecipe = recipeFromUnknown(selectedSuggestion.recipe);
+
+        // TODO remove override stuff
+        if (DEPRECATED_recipeOverrideFunctions) {
+          DEPRECATED_recipeOverrideFunctions.forEach(overrideFunction => {
+            foundRecipe = overrideFunction(foundRecipe);
+          });
+        };
+
         setRecipe(foundRecipe);
       }
       catch (e) {

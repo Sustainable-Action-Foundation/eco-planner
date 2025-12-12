@@ -6,7 +6,7 @@ import { GoalCreateInput, Goal, Years, DataSeriesValueFields, isPartialDataSerie
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
-import { emptyRecipeDataSeries, Recipe, RecipeDataSeries, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
+import { emptyRecipeDataSeries, isRecipeDataSeries, Recipe, RecipeDataSeries, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
 import { RecipeContextProvider } from "../recipe/contextProvider";
 import { SuggestedRecipes } from "@/components/recipe/suggested";
@@ -156,21 +156,40 @@ export default function CopyAndScale({
 
           <RecipeContextProvider>
             <SuggestedRecipes
-              DEPRECATED_variableValueOverride={[
+              DEPRECATED_recipeOverrideFunctions={[
                 // Set the value of the first data series to be of this goal
-                {
-                  matcher: (variable) => variable.type === RecipeDataTypes.DataSeries,
-                  value: ((): RecipeDataSeries => {
-                    if (!goal.dataSeries) {
-                      throw new Error("Goal has no data series to copy and scale");
-                    }
-                    return {
-                      ...emptyRecipeDataSeries,
-                      link: goal.dataSeries.id,
-                      unit: goal.dataSeries.unit,
-                    };
-                  })(),
-                }
+                (r => {
+                  if (!goal.dataSeries) {
+                    console.warn("Goal has no data series to set scaling reference");
+                    return r;
+                  }
+
+                  const firstDataSeries = Object.entries(r.variables)
+                    .find(([_n, v]) => v.type === RecipeDataTypes.DataSeries);
+
+                  const firstDataSeriesName = firstDataSeries?.[0];
+                  if (!firstDataSeriesName) {
+                    console.warn("No data series variable found to set scaling reference");
+                    return r;
+                  }
+                  const firstDataSeriesVariable = firstDataSeries?.[1];
+
+                  if (!isRecipeDataSeries(firstDataSeriesVariable)) {
+                    console.warn("First data series variable is not of type RecipeDataSeries");
+                    return r;
+                  }
+
+                  firstDataSeriesVariable.link = goal.dataSeries.id;
+                  firstDataSeriesVariable.unit = goal.dataSeries.unit;
+
+                  return {
+                    ...r,
+                    variables: {
+                      ...r.variables,
+                      [firstDataSeriesName]: firstDataSeriesVariable,
+                    },
+                  };
+                })
               ]}
             />
 
