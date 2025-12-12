@@ -136,7 +136,6 @@ export function changeDataSeries(name: string, newDataSeries: string, setter: Re
       link: newDataSeries,
     };
 
-    console.log(copyOfVariables)
 
     return { ...prev, variables: copyOfVariables };
   });
