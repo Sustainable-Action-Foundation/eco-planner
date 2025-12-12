@@ -338,7 +338,7 @@ export type EvalTimeExternalDataset = {
 };
 export type EvalTimeVariable = {
   name: string;
-  value: Unit | Unit[];
+  value: Unit | Unit[] | number | number[];
 }
 
 

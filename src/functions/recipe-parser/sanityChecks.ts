@@ -2,18 +2,17 @@ import { isNull, Unit } from "mathjs";
 import type { EvalTimeVariable } from "./types";
 import mathjs from "@/math";
 
-export function sanityCheckScalars(scalars: EvalTimeVariable[], warnings: string[]) {
-  // Are actually scalars, not vectors
-  const nonScalar = scalars.filter(variable => !mathjs.isUnit(variable));
-  if (nonScalar.length > 0) {
-    warnings.push(`Recipe contains non-scalar variables where scalars are expected: ${nonScalar.map(s => s.name).join(", ")}.`);
-  }
-  const cleanScalars = scalars
-    .filter(variable => mathjs.isUnit(variable))
+export function sanityCheckScalars(allVariables: EvalTimeVariable[], warnings: string[]) {
+  const cleanScalars = allVariables
+    .filter(variable => mathjs.isUnit(variable) || typeof variable.value === "number")
     .map(variable => ({
       name: variable.name,
-      value: (variable.value as Unit).toNumber(),
+      value: typeof variable.value === "number"
+        ? variable.value
+        : (variable.value as Unit).toNumber(),
     })) as { name: string; value: number }[];
+
+  if (cleanScalars.length === 0) return;
 
   const hugeScalar = cleanScalars.filter(variable => Math.abs(variable.value) > 1e12 && Number.isFinite(variable.value));
   if (hugeScalar.length > 0) {
@@ -36,18 +35,17 @@ export function sanityCheckScalars(scalars: EvalTimeVariable[], warnings: string
   }
 }
 
-export function sanityCheckDataSeries(dataSeries: EvalTimeVariable[], warnings: string[]) {
-  const nonDataSeries = dataSeries.filter(variable => !Array.isArray(variable.value));
-  if (nonDataSeries.length > 0) {
-    warnings.push(`Recipe contains non-data series variables where data series are expected: ${nonDataSeries.map(ds => ds.name).join(", ")}.`);
-  }
-
-  const cleanDataSeries = dataSeries
+export function sanityCheckDataSeries(allVariables: EvalTimeVariable[], warnings: string[]) {
+  const cleanDataSeries = allVariables
     .filter(variable => Array.isArray(variable.value))
+    .map(v => v as Omit<EvalTimeVariable, "value"> & { value: Unit[] | number[] }) // TODO better type checking
     .map(variable => ({
       name: variable.name,
-      value: variable.value as Unit[],
-    })) as { name: string; value: Unit[] }[];
+      value: variable.value
+        .map(v => typeof v === "number" ? v : v.toNumber()),
+    }));
+
+  if (cleanDataSeries.length === 0) return;
 
   const hugeValuesInDataSeries = cleanDataSeries.filter(variable => {
     if (typeof variable.value === "number") {
