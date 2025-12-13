@@ -25,7 +25,7 @@ export default function SelectSingleSearch({
 }) {
   const { t } = useTranslation(["forms"]);
 
-  const [value, setValue] = useState<option | null>(
+  const [value, setValue] = useState<option | null>( // TODO: We probably need a check that default value exists in our options
     typeof defaultValue === "object" && defaultValue !== null
       ? defaultValue
       : defaultValue === true

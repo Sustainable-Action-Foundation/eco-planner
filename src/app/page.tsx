@@ -11,6 +11,7 @@ import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree.tsx";
 import serveTea from "@/lib/i18nServer";
 import Link from "next/link";
 import { buildMetadata } from "@/functions/buildMetadata";
+import SelectSingleTreeSearch from "@/components/form/elements/combobox/selectSingleTreeSearch";
 
 export async function generateMetadata() {
   return await buildMetadata({

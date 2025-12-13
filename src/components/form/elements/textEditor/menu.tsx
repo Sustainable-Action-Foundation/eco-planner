@@ -254,7 +254,7 @@ export default function TextEditorMenu({
             }}
             role='menuitem'
             aria-haspopup="menu"
-            aria-checked={submenuVisible}
+            aria-checked={submenuVisible} 
             aria-label={t("common:tsx.expand")}
             data-tooltip={t("common:tsx.expand")}
           >

@@ -319,7 +319,7 @@ export function Link(props: MenubarButtonProps) {
   const [hrefValue, setHrefValue] = useState("");
   const linkNameRef = useRef<HTMLInputElement | null>(null)
   const linkHrefRef = useRef<HTMLInputElement | null>(null)
-
+  
   function setLink(url: string) {
 
     // cancelled
@@ -384,6 +384,8 @@ export function Link(props: MenubarButtonProps) {
     }
   }, [editLink, editor, editor.state.selection]);
 
+
+  
   return (
     <>
       <span
@@ -410,7 +412,7 @@ export function Link(props: MenubarButtonProps) {
         <IconLink className="grid" width={16} height={16} aria-hidden="true" />
       </span>
       {editor &&
-        <BubbleMenu
+        <BubbleMenu 
           editor={editor}
           options={{
             placement: 'bottom',

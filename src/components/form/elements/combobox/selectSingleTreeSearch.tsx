@@ -52,15 +52,18 @@ function updateNodeInTree(
 export default function SelectSingleTreeSearch({
   treeItems,
   props,
+  defaultValue,
   onChange
 }: {
   treeItems: Array<treeItem>,
   props: inputElement,
+  defaultValue?: treeItem, // TODO: Should also allow for a boolean which sets default to first value if enabled
   onChange?: (value: treeItem | null) => void
 }) {
 
   const { t } = useTranslation(["forms"]);
-  const [value, setValue] = useState<treeItem | null>(null)
+
+  const [value, setValue] = useState<treeItem | null>(defaultValue ? defaultValue : null)
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const [searchValue, setSearchValue] = useState<string>('')
 
