@@ -8,6 +8,8 @@ import { changeDataset, changeExternalSelection, changeTable } from "@/component
 import VariableTypeCommon from "./common";
 import VectorIndexPicker from "./vectorIndexPicker";
 import { ExternalDataset } from "@/lib/api/utility";
+import QueryBuilder from "@/components/form/api/queryBuilder";
+import RecipeQueryBuilder from "@/components/form/api/recipeQueryBuilder";
 
 // TODO: Fix labels
 export default function VariableTypeExternal({
@@ -82,6 +84,7 @@ export default function VariableTypeExternal({
         </label>
         <VectorIndexPicker rules={rules} varName={name} />
       </div>
+      <RecipeQueryBuilder />
     </VariableTypeCommon>
   )
 }
