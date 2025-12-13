@@ -36,7 +36,7 @@
     opacity: 0;
 }
 
-/* Sticky tooltips and hover effects on phone might be perceived as annoying, thus we only desible on more precise devices */
+/* Sticky tooltips and hover effects on phone might be perceived as annoying, thus we only display them on more precise devices */
 @media not (pointer: coarse)  {
     .text-editor-menu [role^="menuitem"]:hover:not(:is([aria-checked="true"], [aria-disabled="true"], [aria-expanded="true"])),
     .text-editor-menu [role^="menuitem"]:focus:not(:is([aria-checked="true"], [aria-disabled="true"], [aria-expanded="true"])) {
@@ -59,6 +59,11 @@
         border-radius: .25rem;
         white-space: nowrap;
         text-transform: capitalize;
+    }
+
+    /* If our menuitem has a menu which is open we set z-index 0 to the tooltip of said menuitem to prevent overlap */
+    .text-editor-menu [role^="menuitem"]:has(>[role="menu"].visible)::after {
+        z-index: 0;
     }
 
     /* Override tooltip if we explicitly provide one*/
