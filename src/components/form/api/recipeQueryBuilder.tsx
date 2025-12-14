@@ -1,28 +1,29 @@
 "use client";
 
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
-import formSubmitter from "@/functions/formSubmitter";
 import { ApiTableContent, ApiTableDetails } from "@/lib/api/apiTypes";
-import getTableContent from "@/lib/api/getTableContent";
 import getTableDetails from "@/lib/api/getTableDetails";
 import getTables from "@/lib/api/getTables";
 import { ExternalDataset } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient.tsx";
 import { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import { TrafaVariable } from "@/lib/trafa/trafaTypes";
-import { FormEvent, useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
-import { IconChartHistogram, IconSearch, IconTrashXFilled, IconX } from "@tabler/icons-react";
+import { IconChartHistogram, IconSearch, IconX } from "@tabler/icons-react";
+import { changeDataset, changeExternalSelection, changeTable } from "@/components/recipe/contextFunctions";
+import { useRecipe } from "@/components/recipe/contextProvider";
 
-export default function RecipeQueryBuilder() {
+export default function RecipeQueryBuilder({name}: {name: string;}) {
   const { t } = useTranslation("components");
   // Locale has the format language-locale, e.g. "sv-SE" or "en-US"
   // We only need the language part, so we split it and take the first part
   // TODO: Fix typing, use match() instead of casting
   const lang = useContext(LocaleContext).split("-")[0];
   // const lang = useContext(LocaleContext).split("-")[0] as "sv" | "en";
+  const { recipe, setRecipe } = useRecipe();
 
   const [isLoading, setIsLoading] = useState(false);
   const [dataSource, setDataSource] = useState<string>("");
@@ -92,39 +93,7 @@ export default function RecipeQueryBuilder() {
       setDefaultMetricSelected(true);
     }
   }, [tableDetails]);
-
-  function buildQuery(formData: FormData) {
-    const queryObject: { variableCode: string, valueCodes: string[] }[] = [];
-    formData.forEach((value, key) => {
-      // Skip empty values
-      if (!value) return;
-      // Skip File inputs
-      if (value instanceof File) return;
-      // Skip externalDataset, externalTableId, and `tableSearchInputName`, as they are not part of the query
-      if (key == "externalDataset") return;
-      if (key == "externalTableId") return;
-      if (key == tableSearchInputName) return;
-      // The PxWeb time variable is special, as we want to fetch every period after (and including) the selected one
-      if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && key == formRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
-        queryObject.push({ variableCode: key, valueCodes: [`FROM(${value})`] });
-        return;
-      }
-      queryObject.push({ variableCode: key, valueCodes: [value] });
-    });
-
-    return queryObject;
-  }
-
-  function enableSubmitButton() {
-    const submitButton = document?.getElementById("submit-button");
-    if (submitButton) {
-      submitButton.removeAttribute("disabled");
-      if (submitButton.classList.contains("display-none")) submitButton.classList.remove("display-none");
-      if (submitButton.classList.contains("height-0")) submitButton.classList.remove("height-0");
-      if (submitButton.classList.contains("padding-0")) submitButton.classList.remove("padding-0");
-    }
-  }
-
+ 
   function disableSubmitButton() {
     const submitButton = document?.getElementById("submit-button");
     if (submitButton) {
@@ -133,57 +102,7 @@ export default function RecipeQueryBuilder() {
       if (!submitButton.classList.contains("height-0")) submitButton.classList.add("height-0");
       if (!submitButton.classList.contains("padding-0")) submitButton.classList.add("padding-0");
     }
-  }
-
-  function tryGetResult(event?: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
-    // null check
-    if (!(formRef.current instanceof HTMLFormElement)) return;
-
-    setIsLoading(true);
-
-    // Get a result if the form is valid
-    if (formRef.current.checkValidity()) {
-      const formData = new FormData(formRef.current);
-      const query = buildQuery(formData);
-      const tableId = tableDetails?.id ?? formData.get("externalTableId") as string ?? "";
-      getTableContent(tableId, dataSource, query, lang).then(result => {
-        setTableContent(result);
-        if ((result?.values.length ?? 0) > 0) {
-          enableSubmitButton();
-        } else {
-          disableSubmitButton();
-        }
-        setIsLoading(false);
-      }).catch(e => {
-        console.error("Error fetching table content:", e);
-        setTableContent(null);
-        disableSubmitButton();
-        setIsLoading(false);
-      });
-      if (dataSource == "Trafa") {
-        // If metric was changed, send the metric as a query to the API to get filtered table details
-        if (event?.target instanceof HTMLSelectElement && event.target.name == "metric") {
-          void getTableDetails(tableId, dataSource, query.filter(q => q.variableCode == "metric"), lang).then(result => { setTableDetails(result); });
-        }
-      }
-    }
-    // If not, make sure the submit button is disabled
-    else {
-      disableSubmitButton();
-      clearTableContent();
-      setIsLoading(false);
-    }
-  }
-  function formChange(event: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
-    const changedElementIsExternalDataset = event.target instanceof HTMLSelectElement && event.target.name == "externalDataset";
-    const changedElementIsTableSearch = event.target instanceof HTMLInputElement && event.target.name == "tableSearch";
-    const changedElementIsTable = event.target instanceof HTMLInputElement && event.target.name == "externalTableId";
-
-    /* console.log(tableDetails); */
-    if (!changedElementIsExternalDataset && !changedElementIsTableSearch && !changedElementIsTable && tables && tableDetails) {
-      tryGetResult(event);
-    }
-  }
+  } 
 
   function searchOnEnter(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Enter") {
@@ -391,7 +310,7 @@ export default function RecipeQueryBuilder() {
         <IconChartHistogram width={16} height={16} style={{ minWidth: '16px' }} aria-hidden="true" />
       </button>
 
-      <dialog className={`smooth padding-inline-0 ${styles.dialog}`} ref={modalRef} aria-modal>
+      <dialog className={`smooth padding-inline-0 ${styles.dialog}`} ref={modalRef} aria-modal style={{backgroundColor: 'rgb(246, 246, 246)'}}>
         <div className="display-flex flex-direction-row-reverse align-items-center justify-content-space-between padding-inline-100">
           <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
             <IconX strokeWidth={3} width={18} height={18} style={{ minWidth: '18px' }} aria-hidden="true" />
@@ -408,7 +327,7 @@ export default function RecipeQueryBuilder() {
               {((ExternalDataset.getDatasetByAlternateName(dataSource)) && !(ExternalDataset.getDatasetByAlternateName(dataSource)?.supportedLanguages.includes(lang))) ?
                 <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
                 : null}
-              <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
+              <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={(e) => {changeDataset(name, e.target.value, setRecipe); handleDataSourceSelect(e.target.value)}}>
                 <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
                 {ExternalDataset.knownDatasetKeys.map((name) => (
                   <option key={name} value={name}>{ExternalDataset[name]?.fullName}</option>
@@ -422,18 +341,18 @@ export default function RecipeQueryBuilder() {
                   {/* TODO: Label currently affects multiple elements, fix this */}
                   <label className="font-weight-500">
                     {t("components:query_builder.search_for_table")}
-                    <div className="focusable gray-90 flex align-items-center margin-top-25 padding-left-50 smooth">
+                    <div className="focusable purewhite flex align-items-center margin-top-25 padding-left-50 smooth">
                       <IconSearch strokeWidth={1.5} style={{ minWidth: '24px' }} aria-hidden="true" />
-                      <input name={tableSearchInputName} type="search" className="padding-0 margin-inline-50" onKeyDown={searchOnEnter} style={{ backgroundColor: "transparent" }} />
-                      <button type="button" onClick={searchWithButton} className="padding-block-50 padding-inline-100 transparent font-weight-500">{t("components:query_builder.search")}</button>
+                      <input name={tableSearchInputName} type="search" className="padding-0 margin-inline-50 flex-grow-100" onKeyDown={searchOnEnter} style={{ backgroundColor: "transparent" }} />
+                      <button type="button" onClick={searchWithButton} className="padding-block-50 padding-inline-100 transparent font-weight-500">{t("components:query_builder.search")}</button> {/* TODO: this does not work */}
                     </div>
                   </label>
                 </div>
 
                 <ul
                   id="tablesList"
-                  className={`position-relative padding-25 smooth ${styles.temporary}`} onScroll={e => handleTableListScroll(e)}
-                  style={{ maxHeight: "300px", border: "1px solid var(--gray-90)", listStyle: "none" }} >
+                  className={`position-relative padding-25 smooth purewhite ${styles.temporary}`} onScroll={e => handleTableListScroll(e)}
+                  style={{ maxHeight: "300px", border: "1px solid var(--gray-80)", listStyle: "none" }} >
                   {renderedTables && renderedTables.map(({ tableId: id, label }) => (
                     <li
                       key={id}
@@ -445,7 +364,7 @@ export default function RecipeQueryBuilder() {
                         type="radio"
                         value={id}
                         name="externalTableId"
-                        onClick={e => handleTableSelect((e.target as HTMLButtonElement).value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {handleTableSelect((e.target as HTMLButtonElement).value); changeTable(name, e.target.value, setRecipe)}}
                       />
                     </li>
                   ))}
