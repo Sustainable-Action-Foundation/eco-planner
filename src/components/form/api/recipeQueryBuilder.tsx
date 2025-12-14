@@ -8,13 +8,15 @@ import { ExternalDataset } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient.tsx";
 import { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import { TrafaVariable } from "@/lib/trafa/trafaTypes";
-import { useContext, useEffect, useRef, useState } from "react";
+import { FormEvent, useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
 import { IconChartHistogram, IconSearch, IconX } from "@tabler/icons-react";
 import { changeDataset, changeExternalSelection, changeTable } from "@/components/recipe/contextFunctions";
 import { useRecipe } from "@/components/recipe/contextProvider";
+
+import getTableContent from "@/lib/api/getTableContent";
 
 export default function RecipeQueryBuilder({name}: {name: string;}) {
   const { t } = useTranslation("components");
@@ -36,6 +38,10 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
+
+  useEffect(() => {
+    console.log(tables, tableContent, tableDetails)
+  }, [tables,tableContent, tableDetails])
 
   const tableSearchInputName = "tableSearch";
 
@@ -121,21 +127,13 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
     if (!dataSource || !ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
 
     void getTables(dataSource, query, lang).then(result => setTables(result));
-  }
-
-  function clearTableDetails() {
-    setTableDetails(null);
-  }
-
-  function clearTableContent() {
-    setTableContent(null);
-  }
+  } 
 
   function handleDataSourceSelect(dataSource: string) {
     setDataSource(dataSource);
     // Clear table details and content whenever the data source changes
-    clearTableContent();
-    clearTableDetails();
+    setTableContent(null);
+    setTableDetails(null);
     // Make sure submit button is disabled when the data source is changed
     disableSubmitButton();
   }
@@ -146,8 +144,8 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
     if (!ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
     if (!tableId) return;
 
-    clearTableContent();
-    clearTableDetails();
+    setTableContent(null);
+    setTableDetails(null);
     disableSubmitButton();
 
     void getTableDetails(tableId, dataSource, undefined, lang).then(result => { setTableDetails(result); setIsLoading(false); });
@@ -302,6 +300,75 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
     const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1);
     return returnBool;
   }
+
+  function buildQuery(formData: FormData) {
+    const queryObject: { variableCode: string, valueCodes: string[] }[] = [];
+    formData.forEach((value, key) => {
+      // Skip empty values
+      if (!value) return;
+      // Skip File inputs
+      if (value instanceof File) return;
+      // Skip externalDataset, externalTableId, and `tableSearchInputName`, as they are not part of the query
+      if (key == "externalDataset") return;
+      if (key == "externalTableId") return;
+      if (key == tableSearchInputName) return;
+      // The PxWeb time variable is special, as we want to fetch every period after (and including) the selected one
+      if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && key == formRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
+        queryObject.push({ variableCode: key, valueCodes: [`FROM(${value})`] });
+        return;
+      }
+      queryObject.push({ variableCode: key, valueCodes: [value] });
+    });
+
+    return queryObject;
+  }
+  
+  function tryGetResult(event?: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
+      // null check
+      if (!(formRef.current instanceof HTMLFormElement)) return;
+  
+      setIsLoading(true);
+  
+      // Get a result if the form is valid
+      if (formRef.current.checkValidity()) {
+        const formData = new FormData(formRef.current);
+        const query = buildQuery(formData);
+        const tableId = tableDetails?.id ?? formData.get("externalTableId") as string ?? "";
+        getTableContent(tableId, dataSource, query, lang).then(result => {
+          setTableContent(result);
+          setIsLoading(false);
+        }).catch(e => {
+          console.error("Error fetching table content:", e);
+          setTableContent(null);
+          disableSubmitButton();
+          setIsLoading(false);
+        });
+        if (dataSource == "Trafa") {
+          // If metric was changed, send the metric as a query to the API to get filtered table details
+          if (event?.target instanceof HTMLSelectElement && event.target.name == "metric") {
+            void getTableDetails(tableId, dataSource, query.filter(q => q.variableCode == "metric"), lang).then(result => { setTableDetails(result); });
+          }
+        }
+      }
+      // If not, make sure the submit button is disabled
+      else {
+        disableSubmitButton();
+        setTableContent(null);
+        setIsLoading(false);
+      }
+    }
+    
+    function formChange(event: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
+      const changedElementIsExternalDataset = event.target instanceof HTMLSelectElement && event.target.name == "externalDataset";
+      const changedElementIsTableSearch = event.target instanceof HTMLInputElement && event.target.name == "tableSearch";
+      const changedElementIsTable = event.target instanceof HTMLInputElement && event.target.name == "externalTableId";
+  
+      /* console.log(tableDetails); */
+      if (!changedElementIsExternalDataset && !changedElementIsTableSearch && !changedElementIsTable && tables && tableDetails) {
+        tryGetResult(event);
+      }
+    }
+
 
   return (
     <>

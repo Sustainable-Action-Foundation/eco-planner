@@ -16,7 +16,7 @@ import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
 import { IconChartHistogram, IconSearch, IconTrashXFilled, IconX } from "@tabler/icons-react";
-
+ 
 export default function QueryBuilder({
   goal,
 }: {
