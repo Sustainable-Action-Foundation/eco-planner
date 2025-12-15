@@ -246,10 +246,15 @@ export function SuggestedRecipes({
         }}
       >
         <div
-          data-tabname={t("components:recipe_editor.result_tab")}
-          className="padding-top-50 margin-bottom-100" // TODO: Show fallback if there is  no resultingDataSeries
+          data-tabname={t("components:recipe_editor.data_series")}
+          className="padding-top-50 margin-bottom-100"
         >
           <OutputDataSeries />
+        </div>
+        <div
+          data-tabname={t("components:recipe_editor.graph")}
+          className="padding-top-50 margin-bottom-100"
+        >
           <OutputGraph />
         </div>
         <div
