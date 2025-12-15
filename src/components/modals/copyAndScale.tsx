@@ -194,7 +194,9 @@ export default function CopyAndScale({
               ]}
             />
 
-            <OutputStatus />
+            <OutputStatus
+              hideWhenNoRecipe={true}
+            />
 
             <FormIntegration
               DataSeriesFormElement={<input name="resultingDataSeries" />}

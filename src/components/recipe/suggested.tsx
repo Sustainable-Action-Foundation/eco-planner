@@ -160,6 +160,9 @@ export function SuggestedRecipes({
                   key={"recipeVariable" + i}
                   name={variableName}
                   rules={rules}
+                  props={{
+                    defaultValue: variable.value,
+                  }}
                 />
               </Fragment>
             );
@@ -175,11 +178,12 @@ export function SuggestedRecipes({
                     id: "recipeVariable" + i,
                     name: "recipeVariable" + i,
                     placeholder: t("components:recipe_editor.select_data_series"),
-                    required: true
+                    required: true,
                   }}
                   key={"recipeVariable" + i}
                   name={variableName}
                   availableRoadmaps={availableRoadmaps}
+                  defaultValue={variable.link ?? ""}
                 />
               </Fragment>
             );

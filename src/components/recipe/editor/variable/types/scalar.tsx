@@ -45,10 +45,12 @@ export default function VariableTypeScalar({
 
 export function VariableTypeScalarSimple({
   name,
-  rules
+  rules,
+  props = {},
 }: {
-  name: string,
-  rules?: InputRules
+  name: string;
+  rules?: InputRules;
+  props?: React.InputHTMLAttributes<HTMLInputElement>;
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
@@ -65,6 +67,7 @@ export function VariableTypeScalarSimple({
       placeholder={t("components:recipe_editor.scalar")}
       disabled={!rules.allowValueEditing}
       readOnly={!rules.allowValueEditing}
+      {...props}
     />
   )
 }

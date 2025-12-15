@@ -94,6 +94,8 @@ export default function VariableTypeDataSeries({
             id: props.id,
             name: props.name,
             placeholder: props.placeholder,
+            defaultValue: props.defaultValue,
+            required: props.required,
           }}
           treeItems={treeItems}
           onChange={handleDataSeriesChange}
@@ -113,11 +115,13 @@ export default function VariableTypeDataSeries({
 export function VariableTypeDataSeriesSimple({
   name,
   availableRoadmaps = [],
-  props
+  props,
+  defaultValue: defaultLink,
 }: {
   name: string;
   availableRoadmaps?: { id: string; name: string; }[];
   props: inputElement;
+  defaultValue?: string;
 }) {
   // const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
@@ -137,10 +141,13 @@ export function VariableTypeDataSeriesSimple({
         id: props.id,
         name: props.name,
         placeholder: props.placeholder,
-        required: props.required
+        required: props.required,
       }}
       treeItems={treeItems}
       onChange={handleDataSeriesChange}
+      {...defaultLink ? {
+        defaultValue: treeItems.find(i => i.value === defaultLink)
+      } : {}}
     />
   )
 }

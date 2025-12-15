@@ -53,7 +53,7 @@ export default function SelectSingleTreeSearch({
   treeItems,
   props,
   defaultValue,
-  onChange
+  onChange,
 }: {
   treeItems: Array<treeItem>,
   props: inputElement,
@@ -63,7 +63,7 @@ export default function SelectSingleTreeSearch({
 
   const { t } = useTranslation(["forms"]);
 
-  const [value, setValue] = useState<treeItem | null>(defaultValue ? defaultValue : null)
+  const [value, setValue] = useState<treeItem | null>(defaultValue || null)
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const [searchValue, setSearchValue] = useState<string>('')
 
@@ -116,7 +116,7 @@ export default function SelectSingleTreeSearch({
     if (!toggleRef.current) return
     return preventInvalidFormSubmission(toggleRef.current, valueIsValid)
   }, [valueIsValid]);
- 
+
   useEffect(() => {
     setItems(treeItems);
     setFlattenedItems(flattenTree(treeItems));
@@ -128,7 +128,7 @@ export default function SelectSingleTreeSearch({
 
   async function toggleNode(item: treeItem) {
     const index = flattenedItems.findIndex(el => el.value === item.value);
-    setFocusedIndex(index)  
+    setFocusedIndex(index)
     handleUpdateNode(item.value, node => ({ ...node, loading: true }));
     if (item.onExpand && !item.childNodes) {
       const children = await item.onExpand();
@@ -203,7 +203,7 @@ export default function SelectSingleTreeSearch({
         {item.expanded && item.childNodes && (
           <ul
             role="group"
-            style={{ 
+            style={{
               listStyle: 'none',
               borderLeft: '1px dashed var(--gray)',
               marginInlineStart: 'calc(12px + 0.25rem)',

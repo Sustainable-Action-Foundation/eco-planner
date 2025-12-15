@@ -305,6 +305,13 @@ export function isRecipe(recipe: JSONValue): recipe is Recipe {
   );
 }
 export const emptyRecipe: Recipe = { name: undefined, eq: "", variables: {} } as const;
+export const isEmptyRecipe = (recipe: Recipe): boolean => {
+  return (
+    (recipe.name === null || recipe.name === undefined) &&
+    recipe.eq.trim() === "" &&
+    Object.keys(recipe.variables).length === 0
+  );
+};
 
 
 /** 

@@ -4,10 +4,22 @@ import { useTranslation } from "react-i18next";
 import { Locales } from "i18n.config";
 import { IconAlertTriangleFilled, IconCircleCheckFilled, IconCircleXFilled, IconInfoCircle } from "@tabler/icons-react";
 import { useRecipe } from "../../contextProvider";
+import { isEmptyRecipe } from "@/functions/recipe-parser/types";
 
-export default function OutputStatus() {
+export default function OutputStatus({
+  hideWhenNoRecipe = false,
+}: {
+  hideWhenNoRecipe?: boolean,
+}) {
   const { t } = useTranslation("components");
   const { recipe, error, warnings } = useRecipe();
+
+  if (
+    (!recipe || isEmptyRecipe(recipe))
+    && hideWhenNoRecipe
+  ) {
+    return null;
+  }
 
   return (
     <>
