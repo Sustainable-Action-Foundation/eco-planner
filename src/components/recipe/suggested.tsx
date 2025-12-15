@@ -183,7 +183,7 @@ export function SuggestedRecipes({
                   key={"recipeVariable" + i}
                   name={variableName}
                   availableRoadmaps={availableRoadmaps}
-                  defaultValue={variable.link ?? ""}
+                  goalName={variable.goalName}
                 />
               </Fragment>
             );

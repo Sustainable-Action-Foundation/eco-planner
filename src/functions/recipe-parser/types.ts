@@ -107,10 +107,10 @@ export type RecipeDataSeries = {
   pick: VectorIndexPickerOptions;
   unit: string | null | undefined; // String if given, null if removed, undefined if not specified
   /** DO NOT USE! deprecated and will be replaced once smart recipes are implemented */
-  goalId?: string;
+  goalName?: string;
 };
 export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataSeries {
-  const allowedProps = ["type", "link", "pick", "unit", "goalId", "value"];
+  const allowedProps = ["type", "link", "pick", "unit", "goalName", "value"];
 
   return (
     (
@@ -152,9 +152,11 @@ export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataS
 
     // TODO Remove this once smart recipes are implemented
     (
-      variable.goalId === undefined ||
-      (typeof variable.goalId === "string" && uuidRegex.test(variable.goalId)) ||
-      typeguardDebug("Type guard: 'goalId' in data series variable") && false
+      variable.goalName === undefined ||
+      (
+        typeof variable.goalName === "string" &&
+        variable.goalName.trim() !== ""
+      )
     ) &&
 
     (

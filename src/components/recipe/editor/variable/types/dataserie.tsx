@@ -116,12 +116,12 @@ export function VariableTypeDataSeriesSimple({
   name,
   availableRoadmaps = [],
   props,
-  defaultValue: defaultLink,
+  goalName,
 }: {
   name: string;
   availableRoadmaps?: { id: string; name: string; }[];
   props: InputElement;
-  defaultValue?: string;
+  goalName?: string;
 }) {
   // const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
@@ -145,8 +145,12 @@ export function VariableTypeDataSeriesSimple({
       }}
       treeItems={treeItems}
       onChange={handleDataSeriesChange}
-      {...defaultLink ? {
-        defaultValue: treeItems.find(i => i.value === defaultLink)
+      {...goalName ? {
+        defaultValue: {
+          name: goalName,
+          value: variable.link || "",
+          expanded: null,
+        },
       } : {}}
     />
   )

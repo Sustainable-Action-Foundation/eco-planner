@@ -182,6 +182,8 @@ export default function CopyAndScale({
 
                   firstDataSeriesVariable.link = goal.dataSeries.id;
                   firstDataSeriesVariable.unit = goal.dataSeries.unit;
+                  // TODO: remove evil, see the type def for RecipeDataSeriesVariable
+                  firstDataSeriesVariable.goalName = goal.name || goal.indicatorParameter;
 
                   return {
                     ...r,
