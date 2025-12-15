@@ -23,13 +23,15 @@ export default function OutputStatus({
 
   return (
     <>
+      {/* Errors! */}
       {error ?
         <div lang={Locales.enSE} className="flex align-items-flex-start gap-50 margin-block-50" style={{ color: 'red', fontSize: '14px' }}>
           <IconCircleXFilled width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="red" aria-label={t("components:copy_and_scale.evaluation_error_title")} />
-          {error}
+          {`[EN] ${error}`}
         </div>
         : null}
 
+      {/* No errors */}
       {!error && recipe && (Object.values(recipe?.variables).length !== 0 && recipe.eq.trim() !== "") ?
         <div lang={Locales.enSE} className="flex align-items-flex-start gap-50 margin-block-50" style={{ color: 'green', fontSize: '14px' }}>
           <IconCircleCheckFilled width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="green" /> {/* TODO: Aria-label */}
@@ -37,19 +39,21 @@ export default function OutputStatus({
         </div>
         : null}
 
+      {/* Non breaking warnings */}
       {warnings.length > 0 ?
-        <ul className="margin-0 padding-0" lang={Locales.enSE} style={{ color: 'darkorange', listStyle: 'none', fontSize: '14px' }}>
+        <ul lang={Locales.enSE} className="margin-0 padding-0" style={{ color: 'darkorange', listStyle: 'none', fontSize: '14px' }}>
           {warnings.map((warning, i) => (
             <li key={i} className="flex align-items-flex-start gap-50 margin-block-50">
               <IconAlertTriangleFilled width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="darkorange" aria-label={t("components:copy_and_scale.evaluation_warning_title")} /> {/* TODO: Check this translation */}
-              {warning}
+              {`[EN] ${warning}`}
             </li>
           ))}
         </ul>
         : null}
 
+      {/* All good */}
       {warnings.length === 0 && !error &&
-        <div lang={Locales.enSE} className="flex align-items-flex-start gap-50 margin-block-50" style={{ fontSize: '14px' }} >
+        <div className="flex align-items-flex-start gap-50 margin-block-50" style={{ fontSize: '14px' }} >
           <IconInfoCircle width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="var(--gray-70)" aria-label={t("components:recipe_editor.status.no_issues_icon_aria_label")} />
           {t("components:recipe_editor.no_warnings")}
         </div>
