@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useMemo } from "react"
 import { useTranslation } from "react-i18next";
 import styles from './comboBox.module.css' with { type: "css" }
-import { inputElement, option } from "@/components/types";
+import { InputElement, Option } from "@/components/types";
 import { clearEditableCombobox, handleKeyDownEditableCombobox, preventInvalidFormSubmission, scrollOptionIntoView } from "./functions";
 import Fuse, { IFuseOptions } from "fuse.js";
 import { IconSearch, IconSelector } from "@tabler/icons-react";
@@ -17,15 +17,15 @@ export default function SelectSingleSearch({
   fuseOptions,
   onChange,
 }: {
-  props: inputElement,
-  defaultValue?: option | boolean,
-  options: Array<option>,
-  fuseOptions?: IFuseOptions<option>,
-  onChange?: (value: option | null) => void
+  props: InputElement,
+  defaultValue?: Option | boolean,
+  options: Array<Option>,
+  fuseOptions?: IFuseOptions<Option>,
+  onChange?: (value: Option | null) => void
 }) {
   const { t } = useTranslation(["forms"]);
 
-  const [value, setValue] = useState<option | null>( // TODO: We probably need a check that default value exists in our options
+  const [value, setValue] = useState<Option | null>( // TODO: We probably need a check that default value exists in our options
     typeof defaultValue === "object" && defaultValue !== null
       ? defaultValue
       : defaultValue === true

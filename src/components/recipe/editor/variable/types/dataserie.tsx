@@ -8,16 +8,16 @@ import { changeDataSeries } from "@/components/recipe/contextFunctions";
 import VariableTypeCommon from "./common";
 import VectorIndexPicker from "./vectorIndexPicker";
 import React, { useCallback, useEffect, useState } from "react";
-import { inputElement, treeItem } from "@/components/types";
+import { InputElement, TreeItem } from "@/components/types";
 import SelectSingleTreeSearch from "@/components/form/elements/combobox/selectSingleTreeSearch";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import { Recipe } from "@/functions/recipe-parser/types";
 
 function useRoadmapTreeItems(availableRoadmaps: { id: string; name: string; }[]) {
-  const [treeItems, setTreeItems] = useState<treeItem[]>([]);
+  const [treeItems, setTreeItems] = useState<TreeItem[]>([]);
 
   useEffect(() => {
-    const newItems: treeItem[] = availableRoadmaps.map((roadmap) => ({
+    const newItems: TreeItem[] = availableRoadmaps.map((roadmap) => ({
       expanded: null,
       name: roadmap.name,
       value: roadmap.id,
@@ -43,7 +43,7 @@ export function useHandleDataSeriesChange(
   setRecipe: React.Dispatch<React.SetStateAction<Recipe | null>>
 ) {
   return useCallback(
-    (selectedDataSeries: treeItem | null) => {
+    (selectedDataSeries: TreeItem | null) => {
       if (selectedDataSeries?.value) {
         changeDataSeries(name, selectedDataSeries.value, setRecipe);
       }
@@ -63,7 +63,7 @@ export default function VariableTypeDataSeries({
   name: string;
   rules?: InputRules;
   availableRoadmaps?: { id: string; name: string; }[];
-  props: inputElement;
+  props: InputElement;
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
@@ -120,7 +120,7 @@ export function VariableTypeDataSeriesSimple({
 }: {
   name: string;
   availableRoadmaps?: { id: string; name: string; }[];
-  props: inputElement;
+  props: InputElement;
   defaultValue?: string;
 }) {
   // const { t } = useTranslation("components");

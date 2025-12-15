@@ -1,6 +1,6 @@
 "use client"
 
-import { inputElement, treeItem } from "@/components/types"
+import { InputElement, TreeItem } from "@/components/types"
 import { IconCaretRightFilled, IconSearch, IconSelector } from "@tabler/icons-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { clearEditableCombobox, handleKeyDownTreeCombobox, preventInvalidFormSubmission } from "./functions";
@@ -15,10 +15,10 @@ import Image from "next/image"
 /**
  * Flattens an array of treeItems so children appear right after their parent.
  */
-function flattenTree(items: Array<treeItem>) {
-  const result: Array<treeItem> = [];
+function flattenTree(items: Array<TreeItem>) {
+  const result: Array<TreeItem> = [];
 
-  function traverse(node: treeItem) {
+  function traverse(node: TreeItem) {
     result.push(node);
 
     if (node.expanded && node.childNodes && node.childNodes.length > 0) {
@@ -31,10 +31,10 @@ function flattenTree(items: Array<treeItem>) {
 }
 
 function updateNodeInTree(
-  items: Array<treeItem>,
+  items: Array<TreeItem>,
   targetValue: string,
-  updater: (node: treeItem) => treeItem
-): Array<treeItem> {
+  updater: (node: TreeItem) => TreeItem
+): Array<TreeItem> {
   return items.map(item => {
     if (item.value === targetValue) {
       return updater(item);
@@ -55,20 +55,20 @@ export default function SelectSingleTreeSearch({
   defaultValue,
   onChange,
 }: {
-  treeItems: Array<treeItem>,
-  props: inputElement,
-  defaultValue?: treeItem, // TODO: Should also allow for a boolean which sets default to first value if enabled
-  onChange?: (value: treeItem | null) => void
+  treeItems: Array<TreeItem>,
+  props: InputElement,
+  defaultValue?: TreeItem, // TODO: Should also allow for a boolean which sets default to first value if enabled
+  onChange?: (value: TreeItem | null) => void
 }) {
 
   const { t } = useTranslation(["forms"]);
 
-  const [value, setValue] = useState<treeItem | null>(defaultValue || null)
+  const [value, setValue] = useState<TreeItem | null>(defaultValue || null)
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const [searchValue, setSearchValue] = useState<string>('')
 
-  const [items, setItems] = useState<Array<treeItem>>(treeItems)
-  const [flattenedItems, setFlattenedItems] = useState<Array<treeItem>>(flattenTree(treeItems))
+  const [items, setItems] = useState<Array<TreeItem>>(treeItems)
+  const [flattenedItems, setFlattenedItems] = useState<Array<TreeItem>>(flattenTree(treeItems))
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
   const toggleRef = useRef<HTMLButtonElement>(null); // TODO: Rename?
   const searchRef = useRef<HTMLInputElement>(null);
@@ -122,11 +122,11 @@ export default function SelectSingleTreeSearch({
     setFlattenedItems(flattenTree(treeItems));
   }, [treeItems]);
 
-  const handleUpdateNode = (value: string, updater: (n: treeItem) => treeItem) => {
+  const handleUpdateNode = (value: string, updater: (n: TreeItem) => TreeItem) => {
     setItems(prev => updateNodeInTree(prev, value, updater));
   };
 
-  async function toggleNode(item: treeItem) {
+  async function toggleNode(item: TreeItem) {
     const index = flattenedItems.findIndex(el => el.value === item.value);
     setFocusedIndex(index)
     handleUpdateNode(item.value, node => ({ ...node, loading: true }));
@@ -152,8 +152,8 @@ export default function SelectSingleTreeSearch({
     onUpdate,
     depth = 0
   }: {
-    item: treeItem,
-    onUpdate: (value: string, updater: (n: treeItem) => treeItem) => void,
+    item: TreeItem,
+    onUpdate: (value: string, updater: (n: TreeItem) => TreeItem) => void,
     depth?: number
   }) {
     return (

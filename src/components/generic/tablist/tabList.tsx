@@ -2,12 +2,12 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import styles from './tablist.module.css' with { type: "css" }
-import { genericElement } from "@/components/types";
+import { GenericElement } from "@/components/types";
 
 type TabChild = React.ReactElement<{ "data-tabname": string, "id": string }>;
 
 type TabListProps = {
-  props?: genericElement;
+  props?: GenericElement;
   styling?: "simple" | "default",
   defaultIndex: number,
   children: TabChild | TabChild[];

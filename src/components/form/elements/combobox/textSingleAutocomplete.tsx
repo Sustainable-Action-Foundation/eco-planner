@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import styles from './comboBox.module.css' with { type: "css" }
 import Fuse, { IFuseOptions } from "fuse.js";
 import { useTranslation } from "react-i18next";
-import { inputElement, option, theme } from "@/components/types";
+import { InputElement, Option, Theme } from "@/components/types";
 import { handleKeyDownEditableCombobox, scrollOptionIntoView } from "./functions";
 
 export default function TextSingleAutocomplete({
@@ -16,11 +16,11 @@ export default function TextSingleAutocomplete({
   fuseOptions,
   onChange,
 }: {
-  props: inputElement
-  theme?: theme
-  options: Array<option>
+  props: InputElement
+  theme?: Theme
+  options: Array<Option>
   maxOptions?: number
-  fuseOptions?: IFuseOptions<option> // TODO: Implement for selects aswell
+  fuseOptions?: IFuseOptions<Option> // TODO: Implement for selects aswell
   onChange?: (value: string) => void
 }) {
   const { t } = useTranslation(["forms", "common"]);

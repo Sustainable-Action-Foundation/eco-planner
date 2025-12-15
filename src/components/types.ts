@@ -1,16 +1,15 @@
-// TODO: Use uppercase?
 // TODO: Use set for tree items and map for options?
 
-export type theme = {
+export type Theme = {
   className?: string;
   style?: React.CSSProperties;
 }
 
-export type genericElement = theme & {
+export type GenericElement = Theme & {
   id?: string;
 };
 
-export type inputElement = genericElement & {
+export type InputElement = GenericElement & {
   id: string; 
   name: string,
   required?: boolean,
@@ -20,16 +19,16 @@ export type inputElement = genericElement & {
 };
 
 // TODO: DO not use name (reserved keyword)
-export type option = {
+export type Option = {
   name: string,
   value: string,
 }
 
-export type treeItem = { 
+export type TreeItem = { 
   name: string,
   value: string,
   expanded: boolean | null,  
   loading?: boolean;
-  childNodes?: Array<treeItem>,
-  onExpand?: () => Array<treeItem> | Promise<Array<treeItem>>
+  childNodes?: Array<TreeItem>,
+  onExpand?: () => Array<TreeItem> | Promise<Array<TreeItem>>
 }
