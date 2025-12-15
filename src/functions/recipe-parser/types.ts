@@ -1,5 +1,5 @@
 import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
-import { DataSeriesValueFields, isStandardObject, JSONValue, typeguardDebug, uuidRegex } from "@/types";
+import { DataSeriesValueFields, isPartialDataSeriesValueFields, isStandardObject, JSONValue, typeguardDebug, uuidRegex } from "@/types";
 import { Unit } from "mathjs";
 
 export const VectorIndexPickerOptions = {
@@ -106,9 +106,11 @@ export type RecipeDataSeries = {
   value?: Partial<DataSeriesValueFields> | null | undefined; // Usually not settable by the user, mainly for internal use
   pick: VectorIndexPickerOptions;
   unit: string | null | undefined; // String if given, null if removed, undefined if not specified
+  /** DO NOT USE! deprecated and will be replaced once smart recipes are implemented */
+  goalId?: string;
 };
 export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataSeries {
-  const allowedProps = ["type", "link", "pick", "unit"];
+  const allowedProps = ["type", "link", "pick", "unit", "goalId", "value"];
 
   return (
     (
@@ -140,6 +142,19 @@ export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataS
       typeof variable.unit === "string" ||
       variable.unit == null || // May be null or undefined
       typeguardDebug("Type guard: 'unit' in data series variable") && false
+    ) &&
+
+    (
+      variable.value === undefined ||
+      variable.value === null ||
+      isPartialDataSeriesValueFields(variable.value)
+    ) &&
+
+    // TODO Remove this once smart recipes are implemented
+    (
+      variable.goalId === undefined ||
+      (typeof variable.goalId === "string" && uuidRegex.test(variable.goalId)) ||
+      typeguardDebug("Type guard: 'goalId' in data series variable") && false
     ) &&
 
     (
