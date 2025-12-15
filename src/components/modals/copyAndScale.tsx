@@ -11,7 +11,6 @@ import { recipeFromUnknown } from "@/functions/parseRecipe";
 import { RecipeContextProvider } from "../recipe/contextProvider";
 import { SuggestedRecipes } from "@/components/recipe/suggested";
 import FormIntegration from "../recipe/editor/output/formIntegration";
-import OutputStatus from "../recipe/editor/output/status";
 
 export default function CopyAndScale({
   goal,
@@ -184,6 +183,7 @@ export default function CopyAndScale({
                   firstDataSeriesVariable.unit = goal.dataSeries.unit;
                   // TODO: remove evil, see the type def for RecipeDataSeriesVariable
                   firstDataSeriesVariable.goalName = goal.name || goal.indicatorParameter;
+                  firstDataSeriesVariable.disabled = true;
 
                   return {
                     ...r,
@@ -194,10 +194,6 @@ export default function CopyAndScale({
                   };
                 })
               ]}
-            />
-
-            <OutputStatus
-              hideWhenNoRecipe={true}
             />
 
             <FormIntegration

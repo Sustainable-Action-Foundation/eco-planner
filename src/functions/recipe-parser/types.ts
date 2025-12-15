@@ -108,9 +108,10 @@ export type RecipeDataSeries = {
   unit: string | null | undefined; // String if given, null if removed, undefined if not specified
   /** DO NOT USE! deprecated and will be replaced once smart recipes are implemented */
   goalName?: string;
+  disabled?: boolean;
 };
 export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataSeries {
-  const allowedProps = ["type", "link", "pick", "unit", "goalName", "value"];
+  const allowedProps = ["type", "link", "pick", "unit", "value", "goalName", "disabled"];
 
   return (
     (
@@ -157,6 +158,11 @@ export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataS
         typeof variable.goalName === "string" &&
         variable.goalName.trim() !== ""
       )
+    ) &&
+
+    (
+      variable.disabled === undefined ||
+      typeof variable.disabled === "boolean"
     ) &&
 
     (

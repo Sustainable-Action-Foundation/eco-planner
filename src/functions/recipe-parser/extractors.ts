@@ -266,7 +266,7 @@ function pickVector(vector: number[], pick: VectorIndexPickerOptions): number | 
   }
 }
 
-function testIfValidUnit(unit: string | null | undefined): boolean {
+export function testIfValidUnit(unit: string | null | undefined): boolean {
   if (!unit) return false;
   try {
     mathjs.unit(1, unit);

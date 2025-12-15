@@ -12,7 +12,9 @@ import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import TabList from "../generic/tablist/tabList";
 import OutputDataSeries from "./editor/output/dataSeries";
 import OutputGraph from "./editor/output/graph";
-import FormIntegration from "./editor/output/formIntegration";
+import OutputStatus from "./editor/output/status";
+import { testIfValidUnit } from "@/functions/recipe-parser/extractors";
+import { IconAlertTriangleFilled } from "@tabler/icons-react";
 
 export function SuggestedRecipes({
   autoInsertDefaultSuggestions = true,
@@ -149,12 +151,29 @@ export function SuggestedRecipes({
           allowValueEditing,
         };
 
+        const isValidUnit = variable.unit && testIfValidUnit(variable.unit);
+        const unitDisplay = isValidUnit
+          ? ` [${variable.unit}]`
+          : variable.unit
+            ? <span className="inline">
+              {" ["}
+              {variable.unit}
+              <IconAlertTriangleFilled
+                width={16} height={16}
+                style={{ minWidth: '16px', marginBottom: '-3px', marginLeft: '1px' }}
+                color="darkorange"
+                aria-label={t("components:copy_and_scale.evaluation_warning_title")} // TODO: Check this translation
+              />
+              {"]"}
+            </span>
+            : '';
+
         switch (variable.type) {
           case RecipeDataTypes.Scalar: {/* TODO: Fix these labels */ }
             return (
               <Fragment key={variableName}>
                 <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
-                  <span>{variableName}{variable.unit ? ` [${variable.unit}]` : ''}:</span>
+                  <span>{variableName}{unitDisplay}:</span>
                 </label>
                 <VariableTypeScalarSimple
                   key={"recipeVariable" + i}
@@ -171,7 +190,7 @@ export function SuggestedRecipes({
             return (
               <Fragment key={variableName}>
                 <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
-                  <span>{variableName}{variable.unit ? ` [${variable.unit}]` : ''}:</span>
+                  <span>{variableName}{unitDisplay}:</span>
                 </label>
                 <VariableTypeDataSeriesSimple
                   props={{
@@ -179,6 +198,7 @@ export function SuggestedRecipes({
                     name: "recipeVariable" + i,
                     placeholder: t("components:recipe_editor.select_data_series"),
                     required: true,
+                    disabled: variable.disabled || false,
                   }}
                   key={"recipeVariable" + i}
                   name={variableName}
@@ -192,7 +212,7 @@ export function SuggestedRecipes({
             return (
               <Fragment key={variableName}>
                 <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
-                  <span>{variableName}{variable.unit ? ` [${variable.unit}]` : ''}:</span>
+                  <span>{variableName}{unitDisplay}:</span>
                 </label>
                 <VariableTypeExternalSimple
                   key={"recipeVariable" + i}
@@ -212,7 +232,12 @@ export function SuggestedRecipes({
         }
       })}
     </div>
-    {selectedHash ?
+
+    <OutputStatus
+      hideWhenNoRecipe={true}
+    />
+
+    {selectedHash &&
       <TabList
         defaultIndex={0}
         styling="simple"
@@ -221,28 +246,20 @@ export function SuggestedRecipes({
         }}
       >
         <div
+          data-tabname={t("components:recipe_editor.result_tab")}
+          className="padding-top-50 margin-bottom-100" // TODO: Show fallback if there is  no resultingDataSeries
+        >
+          <OutputDataSeries />
+          <OutputGraph />
+        </div>
+        <div
           data-tabname={t("components:recipe_editor.equation")}
           className="padding-top-50 margin-bottom-100"
         >
           <p className="margin-0">{recipe?.eq}</p>
         </div>
-        <div
-          data-tabname={t("components:recipe_editor.data_series")}
-          className="padding-top-50 margin-bottom-100" // TODO: Show fallback if there is  no resultingDataSeries
-        >
-          <OutputDataSeries />
-          <FormIntegration
-            DataSeriesFormElement={<input name="resultingDataSeries" />}
-          />
-        </div>
-        <div
-          data-tabname={t("components:recipe_editor.graph")}
-          className="padding-top-50 margin-bottom-100"
-        >
-          <OutputGraph />
-        </div>
       </TabList>
-      : null}
+    }
   </>
   );
 }

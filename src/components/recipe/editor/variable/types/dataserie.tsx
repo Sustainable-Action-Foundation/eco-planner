@@ -142,6 +142,7 @@ export function VariableTypeDataSeriesSimple({
         name: props.name,
         placeholder: props.placeholder,
         required: props.required,
+        disabled: props.disabled,
       }}
       treeItems={treeItems}
       onChange={handleDataSeriesChange}
