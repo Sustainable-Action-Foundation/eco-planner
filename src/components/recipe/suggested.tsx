@@ -151,7 +151,7 @@ export function SuggestedRecipes({
           allowValueEditing,
         };
 
-        const isValidUnit = variable.unit && testIfValidUnit(variable.unit);
+        const isValidUnit = variable.unit ? testIfValidUnit(variable.unit) : false;
         const unitDisplay = isValidUnit
           ? ` [${variable.unit}]`
           : variable.unit
