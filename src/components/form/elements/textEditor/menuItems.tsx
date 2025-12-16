@@ -362,6 +362,7 @@ export function Link(props: MenubarButtonProps) {
   // TODO: Fix keybindings both for adding links within this component and for opening the menu (ctrl + k)
   // TODO: The icon should never have aria-checked?
   // TODO: Move dialog outside the span
+  // TODO: Creating a link should create the link and then not have the text keep being links when typing
   return (
     <>
       <span

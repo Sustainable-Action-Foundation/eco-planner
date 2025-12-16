@@ -37,12 +37,9 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
   const [defaultMetricSelected, setDefaultMetricSelected] = useState(true);
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
-  const formRef = useRef<HTMLFormElement | null>(null);
-
-  useEffect(() => {
-    console.log(tables, tableContent, tableDetails)
-  }, [tables,tableContent, tableDetails])
-
+  const fieldsetRef = useRef<HTMLFieldSetElement | null>(null);
+  const selectorMenuRef = useRef<HTMLDivElement | null>(null);
+ 
   const tableSearchInputName = "tableSearch";
 
   // These variables determine how many tables are rendered at a time, and how many are rendered when the user scrolls down/up
@@ -56,7 +53,7 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
     if (!dataSource) return;
     setIsLoading(true);
 
-    const query = (formRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
+    const query = (fieldsetRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
 
     void getTables(dataSource, query, lang).then(result => { setTables(result); setIsLoading(false); });
   }, [dataSource, lang]);
@@ -99,16 +96,6 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
       setDefaultMetricSelected(true);
     }
   }, [tableDetails]);
- 
-  function disableSubmitButton() {
-    const submitButton = document?.getElementById("submit-button");
-    if (submitButton) {
-      submitButton.setAttribute("disabled", "true");
-      if (!submitButton.classList.contains("display-none")) submitButton.classList.add("display-none");
-      if (!submitButton.classList.contains("height-0")) submitButton.classList.add("height-0");
-      if (!submitButton.classList.contains("padding-0")) submitButton.classList.add("padding-0");
-    }
-  } 
 
   function searchOnEnter(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Enter") {
@@ -119,7 +106,7 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
   }
 
   function searchWithButton() {
-    const query = (formRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
+    const query = (fieldsetRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
     handleSearch(query ?? undefined);
   }
 
@@ -135,7 +122,6 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
     setTableContent(null);
     setTableDetails(null);
     // Make sure submit button is disabled when the data source is changed
-    disableSubmitButton();
   }
 
   function handleTableSelect(tableId: string) {
@@ -146,12 +132,12 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
 
     setTableContent(null);
     setTableDetails(null);
-    disableSubmitButton();
 
     void getTableDetails(tableId, dataSource, undefined, lang).then(result => { setTableDetails(result); setIsLoading(false); });
   }
 
   function handleMetricSelect(event: React.ChangeEvent<HTMLSelectElement>) {
+    void tryGetResult(); 
     setIsLoading(true);
     const isDefaultValue = event.target.value.length == 0;
     setDefaultMetricSelected(isDefaultValue);
@@ -231,7 +217,9 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
           {/* Only display "optional" tags if the data source provides this information */}
           {variable.label[0].toUpperCase() + variable.label.slice(1)}{optionalTag(dataSource, variable.optional)}
           {/* TODO: Use CSS to set proper capitalization of labels; something like `label::first-letter { text-transform: capitalize; }` */}
-          <select className={`block margin-block-25 ${variable.label}`}
+          <select 
+            onChange={tryGetResult}
+            className={`block margin-block-25 ${variable.label}`}
             required={!variable.optional}
             name={variable.name}
             id={variable.name}
@@ -282,7 +270,9 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
       }
       return (<label key="Tid" className="block margin-block-75">
         {heading}{optionalTag(dataSource, variableIsOptional)}
-        <select className={`block margin-block-25 TimeVariable`}
+        <select 
+          onChange={tryGetResult}
+          className={`block margin-block-25 TimeVariable`}
           required={false}
           name="Tid"
           id="Tid"
@@ -313,62 +303,67 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
       if (key == "externalTableId") return;
       if (key == tableSearchInputName) return;
       // The PxWeb time variable is special, as we want to fetch every period after (and including) the selected one
-      if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && key == formRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
+      if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && key == selectorMenuRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
         queryObject.push({ variableCode: key, valueCodes: [`FROM(${value})`] });
         return;
       }
       queryObject.push({ variableCode: key, valueCodes: [value] });
     });
-
+    
     return queryObject;
   }
   
-  function tryGetResult(event?: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
-      // null check
-      if (!(formRef.current instanceof HTMLFormElement)) return;
-  
-      setIsLoading(true);
-  
-      // Get a result if the form is valid
-      if (formRef.current.checkValidity()) {
-        const formData = new FormData(formRef.current);
-        const query = buildQuery(formData);
-        const tableId = tableDetails?.id ?? formData.get("externalTableId") as string ?? "";
-        getTableContent(tableId, dataSource, query, lang).then(result => {
-          setTableContent(result);
-          setIsLoading(false);
-        }).catch(e => {
-          console.error("Error fetching table content:", e);
-          setTableContent(null);
-          disableSubmitButton();
-          setIsLoading(false);
-        });
-        if (dataSource == "Trafa") {
-          // If metric was changed, send the metric as a query to the API to get filtered table details
-          if (event?.target instanceof HTMLSelectElement && event.target.name == "metric") {
-            void getTableDetails(tableId, dataSource, query.filter(q => q.variableCode == "metric"), lang).then(result => { setTableDetails(result); });
-          }
-        }
-      }
-      // If not, make sure the submit button is disabled
-      else {
-        disableSubmitButton();
-        setTableContent(null);
-        setIsLoading(false);
-      }
-    }
+  function tryGetResult(event?: React.ChangeEvent<HTMLSelectElement> | Event) {
+    // null check
+    if (!(selectorMenuRef.current instanceof HTMLDivElement)) return;
     
-    function formChange(event: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
-      const changedElementIsExternalDataset = event.target instanceof HTMLSelectElement && event.target.name == "externalDataset";
-      const changedElementIsTableSearch = event.target instanceof HTMLInputElement && event.target.name == "tableSearch";
-      const changedElementIsTable = event.target instanceof HTMLInputElement && event.target.name == "externalTableId";
-  
-      /* console.log(tableDetails); */
-      if (!changedElementIsExternalDataset && !changedElementIsTableSearch && !changedElementIsTable && tables && tableDetails) {
-        tryGetResult(event);
+    setIsLoading(true);
+
+    // Get a result if the form is valid
+    const formElements = selectorMenuRef.current.querySelectorAll("select");
+    const formData = new FormData();
+    formElements.forEach(element => {
+      formData.append(element.name, element.value);
+    });
+
+    const query = buildQuery(formData);
+    const tableId = tableDetails?.id ?? formData.get("externalTableId") as string ?? "";
+    getTableContent(tableId, dataSource, query, lang).then(result => {
+      setTableContent(result);
+      setIsLoading(false);
+    }).catch(e => {
+      console.error("Error fetching table content:", e);
+      setTableContent(null);
+      setIsLoading(false);
+    });
+    if (dataSource == "Trafa") {
+      // If metric was changed, send the metric as a query to the API to get filtered table details
+      if (event?.target instanceof HTMLSelectElement && event.target.name == "metric") {
+        void getTableDetails(tableId, dataSource, query.filter(q => q.variableCode == "metric"), lang).then(result => { setTableDetails(result); });
       }
     }
+  }
 
+  function saveRecipe() {
+    // null check
+    if (!(selectorMenuRef.current instanceof HTMLDivElement)) return;
+
+    setIsLoading(true);
+
+    const formElements = selectorMenuRef.current.querySelectorAll("select");
+    const formData = new FormData();
+    formElements.forEach(element => {
+      formData.append(element.name, element.value);
+    });
+
+    const query = buildQuery(formData);
+    console.log(dataSource, JSON.stringify(query))
+
+    changeDataset(name, dataSource, setRecipe)
+    changeTable(name, tableDetails?.id ?? formData.get("externalTableId") as string ?? "", setRecipe)
+    changeExternalSelection(name, JSON.stringify(query), setRecipe)
+    closeModal(modalRef)
+  }
 
   return (
     <>
@@ -387,14 +382,14 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
 
 
         <FormWrapper>
-          <fieldset className="position-relative">
+          <fieldset className="position-relative" ref={fieldsetRef}>
             <label className="margin-block-75 font-weight-500">
               {t("components:query_builder.data_source")}
               {/* Display warning message if the selected language is not supported by the api */}
               {((ExternalDataset.getDatasetByAlternateName(dataSource)) && !(ExternalDataset.getDatasetByAlternateName(dataSource)?.supportedLanguages.includes(lang))) ?
                 <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
                 : null}
-              <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={(e) => {changeDataset(name, e.target.value, setRecipe); handleDataSourceSelect(e.target.value)}}>
+              <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={(e) => {handleDataSourceSelect(e.target.value)}}>
                 <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
                 {ExternalDataset.knownDatasetKeys.map((name) => (
                   <option key={name} value={name}>{ExternalDataset[name]?.fullName}</option>
@@ -427,12 +422,12 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
                       className={`${styles.tableSelect} block padding-block-25`}
                     >
                       {label}
-                      <input
-                        type="radio"
-                        value={id}
-                        name="externalTableId"
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {handleTableSelect((e.target as HTMLButtonElement).value); changeTable(name, e.target.value, setRecipe)}}
-                      />
+                    <input
+                      type="radio"
+                      value={id}
+                      name="externalTableId"
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {handleTableSelect((e.target as HTMLButtonElement).value); changeTable(name, e.target.value, setRecipe)}}
+                    />
                     </li>
                   ))}
                 </ul>
@@ -443,7 +438,7 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
 
           {tableDetails && (
             // TODO - which inputs should be optional?
-            <>
+            <div ref={selectorMenuRef}>
               <label className="block margin-block-75">
                 <Trans
                   i18nKey={"components:query_builder.selected_table"}
@@ -458,7 +453,8 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
                 </legend>
                 <div>
                   <label key={`metric-${tableDetails.id}`} className="block margin-block-75">
-                    <select className={`block margin-block-25 metric`}
+                    <select 
+                      className={`block margin-block-25 metric`}
                       required={true}
                       name="metric"
                       id="metric"
@@ -499,7 +495,7 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
                   </>) : (<p className={`font-style-italic color-gray`}>{t("components:query_builder.no_variables_found")}</p>)}
               </fieldset>
 
-            </>
+            </div>
           )}
         </FormWrapper>
         <output>
@@ -531,7 +527,7 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
             </div>
           ) :
             !defaultMetricSelected &&
-            formRef.current?.checkValidity() && (
+            (
               <p className="padding-100">{t("components:query_builder.no_result_found")}</p>
             )
           }
@@ -539,10 +535,12 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
         {/* TODO: Should probably only be displayed on last slide? */}
         <button
           id="submit-button"
-          disabled={true}
-          type="submit"
-          className="display-none seagreen color-purewhite margin-inline-auto block"
-          style={{ width: "calc(100% - 2rem)" }}>{t("components:query_builder.add_data_source_button")}
+          type="button"
+          className="seagreen color-purewhite margin-inline-auto block"
+          style={{ width: "calc(100% - 2rem)" }}
+          onClick={() => saveRecipe()}
+        >
+          {t("components:query_builder.add_data_source_button")}
         </button>
 
       </dialog>

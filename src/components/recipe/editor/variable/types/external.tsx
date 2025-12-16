@@ -35,7 +35,7 @@ export default function VariableTypeExternal({
         </label>
         <select
           id="external-variable-dataset" /* TODO: This ID needs to be dynamic */
-          defaultValue={variable.dataset || ""}
+          value={variable.dataset || ""}
           disabled={!rules.allowValueEditing}
           onChange={(e) => changeDataset(name, e.target.value, setRecipe)}
         >
@@ -55,7 +55,7 @@ export default function VariableTypeExternal({
         </label>
         <input
           id="external-variable-table" /* TODO: This ID needs to be dynamic */
-          defaultValue={variable.tableId || ""}
+          value={variable.tableId || ""}
           onChange={(e) => changeTable(name, e.target.value, setRecipe)}
           type="text"
           disabled={!rules.allowValueEditing}
@@ -69,7 +69,7 @@ export default function VariableTypeExternal({
         </label>
         <input
           id="external-variable-selection" /* TODO: This ID needs to be dynamic */
-          defaultValue={JSON.stringify(variable.selection) || ""}
+          value={JSON.stringify(variable.selection) || ""}
           onChange={(e) => changeExternalSelection(name, e.target.value, setRecipe)}
           type="text"
           disabled={!rules.allowValueEditing}
@@ -105,7 +105,7 @@ export function VariableTypeExternalSimple({
   return (
     <div className="flex gap-25"> {/* TODO: Figure out how to deal with labels here */}
       <select
-        defaultValue={variable.dataset || ""}
+        value={variable.dataset || ""}
         disabled={!rules.allowValueEditing}
         onChange={(e) => changeDataset(name, e.target.value, setRecipe)}
       >
@@ -119,7 +119,7 @@ export function VariableTypeExternalSimple({
       </select>
       <input
         className="inline width-auto"
-        defaultValue={variable.tableId || ""}
+        value={variable.tableId || ""}
         onChange={(e) => changeTable(name, e.target.value, setRecipe)}
         type="text"
         disabled={!rules.allowValueEditing}
@@ -127,7 +127,7 @@ export function VariableTypeExternalSimple({
       />
       <input
         className="inline width-auto"
-        defaultValue={JSON.stringify(variable.selection) || ""}
+        value={JSON.stringify(variable.selection) || ""}
         onChange={(e) => changeExternalSelection(name, e.target.value, setRecipe)}
         type="text"
         disabled={!rules.allowValueEditing}
