@@ -151,10 +151,11 @@ export function SuggestedRecipes({
           allowValueEditing,
         };
 
-        const isValidUnit = variable.unit ? testIfValidUnit(variable.unit) : false;
+        const unitIsProvided = typeof variable.unit !== "undefined" && variable.unit !== null;
+        const isValidUnit = unitIsProvided ? testIfValidUnit(variable.unit as string) : false;
         const unitDisplay = isValidUnit
           ? ` [${variable.unit}]`
-          : variable.unit
+          : unitIsProvided && variable.unit !== ''
             ? <span className="inline">
               {" ["}
               {variable.unit}
