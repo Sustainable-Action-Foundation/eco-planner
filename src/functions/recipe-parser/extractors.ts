@@ -218,11 +218,14 @@ export function convertVectorToYearValuePair(vector: Unit[]): DataSeriesValueFie
     };
   }
 }
-
 function getPrevailingUnit(existingUnit: string | null | undefined, newUnit: string | null | undefined): string | null | undefined {
-  // If the new unit is explicitly set (string or null), it takes precedence
-  if (typeof newUnit !== "undefined" && !newUnit?.trim()) {
+  // If newUnit is explicitly provided (non-undefined) and non-empty, it takes precedence.
+  if (typeof newUnit !== "undefined" && newUnit?.trim() !== "") {
     return newUnit;
+  }
+  // If newUnit is explicitly null (meaning "unitless"), return null.
+  if (typeof newUnit !== "undefined" && newUnit === null) {
+    return null;
   }
   // Otherwise, keep the existing unit
   return existingUnit;
