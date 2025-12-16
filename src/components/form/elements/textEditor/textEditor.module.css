@@ -113,3 +113,7 @@
         }
     }
 }
+
+.link-menu::backdrop {
+    display: none;
+}

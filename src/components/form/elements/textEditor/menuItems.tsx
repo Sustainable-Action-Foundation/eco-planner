@@ -9,7 +9,7 @@ import { allowedProtocols } from './config/config';
 import { TFunction } from "i18next";
 import { BubbleMenu } from '@tiptap/react/menus'
 import { handleKeyDownPopUpMenu } from "./functions";
-
+ 
 type MenubarButtonProps = {
   t: TFunction<"forms", undefined>;
   editor: Editor;
@@ -319,8 +319,9 @@ export function Link(props: MenubarButtonProps) {
   const [hrefValue, setHrefValue] = useState("");
   const linkNameRef = useRef<HTMLInputElement | null>(null)
   const linkHrefRef = useRef<HTMLInputElement | null>(null)
-  
-  function setLink(url: string) {
+  const dialogref = useRef<HTMLDialogElement | null>(null)
+
+  function setLink(text: string, url: string) {
 
     // cancelled
     if (url === null) {
@@ -329,9 +330,7 @@ export function Link(props: MenubarButtonProps) {
 
     // empty
     if (url === '') {
-      editor.chain().focus().extendMarkRange('link').unsetLink()
-        .run();
-
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
       return;
     }
 
@@ -352,50 +351,25 @@ export function Link(props: MenubarButtonProps) {
       return;
     }
 
-    editor.chain().focus().extendMarkRange('link').setLink({ href: parsedUrl.href })
-      .run();
-    const position = editor.view.state.selection.$from.pos;
-    const node = editor.state.doc.nodeAt(position);
-
-
-    if (node) { // If we have a node we replace it with a new textvalue
-      editor
-        .chain()
-        .focus()
-        .insertContentAt({ from: position, to: position + node.nodeSize }, textValue)
-        .run();
-    } else if (position) { // If we don't, we insert a new textvalue
-      editor
-        .chain()
-        .focus()
-        .insertContentAt({ from: position, to: position }, textValue)
-        .run();
-    }
-  }
-
-  // Sync inputs whenever entering edit mode or selection changes
-  useEffect(() => {
-    if (editLink) {
-      const nodeText = editor.state.doc.nodeAt(editor.view.state.selection.$from.pos)?.textContent ?? "";
-      const linkAttrs = editor.getAttributes("link") as { href?: string | null };
-      const linkHref = linkAttrs.href ?? "";
-      setTextValue(nodeText);
-      setHrefValue(linkHref);
-    }
-  }, [editLink, editor, editor.state.selection]);
-
+    editor.chain().focus().extendMarkRange('link').setLink({ href: parsedUrl.href }).run();
+    editor
+    .chain()
+    .focus() 
+    .insertContent(text)
+    .run();
+  } 
 
   
   return (
     <>
       <span
         data-menu-group={menuGroup}
-        onClick={() => {
+          // onClick={() => {
           // If no link mark exists yet, create a placeholder link so BubbleMenu can show
-          if (!editor.isActive('link')) {
-            editor.chain().focus().setLink({ href: '' }).run(); // TODO: Set focus to menu.
-          }
-        }}
+         //    if (!editor.isActive('link')) {
+          //     editor.chain().focus().setLink({ href: '' }).run(); // TODO: Set focus to menu.
+          //   }
+          // }}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -403,14 +377,67 @@ export function Link(props: MenubarButtonProps) {
             setFocusedMenubarItem(null)
           }
         }}
+        onClick={() => {
+          dialogref.current?.showModal()
+        }}
         tabIndex={-1}
         role='menuitemcheckbox'
         aria-label={t("forms:text_editor_menu.link.insert_link")}
         aria-checked={editor.isActive('link')}
         aria-keyshortcuts='control+k'
+        style={{anchorName: '--test'}}
       >
         <IconLink className="grid" width={16} height={16} aria-hidden="true" />
+        <dialog // TODO: remove dialog from the span
+          closedby="any"
+          ref={dialogref}
+          className={`position-fixed padding-50 smooth gray-95 ${styles['link-menu']}`}    
+          style={{ positionAnchor: '--test', top: 'anchor(bottom)', left: 'anchor(left)', margin: '.5rem 0 0 0', boxShadow: 'rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px', border: '0' }} 
+        >
+          <div className="flex align-items-flex-end gap-25">
+            <div>
+              <label aria-label=""> {/* TODO: Label text + I18n */}
+                <div className="focusable flex align-items-center padding-inline-25 margin-bottom-25">
+                  <IconAlignLeft width={16} height={16} aria-hidden={true} />
+                  <input
+                    ref={linkNameRef}
+                    className="padding-25"
+                    type="text"
+                    placeholder={t('forms:text_editor_menu.link.text_placeholder')}
+                    title={t('forms:text_editor_menu.link.text_tooltip')}
+                    value={textValue}
+                    onChange={(e) => setTextValue(e.target.value)}
+                  />
+                </div>
+              </label>
+              <label aria-label=""> {/* TODO: Label text + I18n */}
+                <div className="focusable flex align-items-center padding-inline-25">
+                  <IconLink width={16} height={16} aria-hidden={true} />
+                  <input
+                    ref={linkHrefRef}
+                    className="padding-25"
+                    type="url"
+                    placeholder={t('forms:text_editor_menu.link.url_placeholder')}
+                    title={t('forms:text_editor_menu.link.url_tooltip')}
+                    value={hrefValue}
+                    onChange={(e) => setHrefValue(e.target.value)}
+                  />
+                </div>
+              </label>
+            </div>
+            <button
+              type="button"
+              className="round transparent font-weight-600"
+              style={{ color: 'var(--blue)' }}
+              onClick={(e) => {e.stopPropagation(); setLink(textValue, hrefValue); dialogref.current?.close()}}
+            >
+              {t('forms:text_editor_menu.link.apply')}
+            </button>
+          </div>
+        </dialog>
+
       </span>
+
       {editor &&
         <BubbleMenu 
           editor={editor}
@@ -429,14 +456,14 @@ export function Link(props: MenubarButtonProps) {
         >
           <div className="padding-50 smooth gray-95" style={{ boxShadow: 'rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px' }}>
             {!editLink ?
-              <div className="flex align-items-center ">
+              <div className="flex align-items-center">
                 <a
                   href={(editor.getAttributes('link') as { href?: string | null }).href || ''}
                   target="_blank"
                   style={{ width: 'min(175px, auto)', fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {editor.getAttributes('link').href}
                 </a>
-                <button
+                {/* <button
                   type="button"
                   className={`padding-25 margin-left-100 transparent rounded flex align-items-center ${styles.tooltip}`}
                   style={{ transform: 'scale(1)' }}
@@ -445,8 +472,8 @@ export function Link(props: MenubarButtonProps) {
                   onClick={() => setEditLink(true)}
                 >
                   <IconPencil height={18} width={18} aria-hidden={true} />
-                </button>
-                <span className="margin-left-25 padding-left-25" style={{ borderLeft: '1px solid var(--gray)' }}>
+                </button> */}
+                <span className="margin-left-75 padding-left-25" style={{ borderLeft: '1px solid var(--gray)' }}>
                   <button
                     type="button"
                     className={`padding-25 transparent rounded flex align-items-center ${styles.tooltip}`}
@@ -496,7 +523,7 @@ export function Link(props: MenubarButtonProps) {
                     type="button"
                     className="round transparent font-weight-600"
                     style={{ color: 'var(--blue)' }}
-                    onClick={() => setLink(hrefValue)}
+                    onClick={() => setLink(textValue, hrefValue)}
                   >
                     {t('forms:text_editor_menu.link.apply')}
                   </button>
