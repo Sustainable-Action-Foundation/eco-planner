@@ -43,6 +43,7 @@
         background-color: var(--gray-90)
     }
 
+    .tooltip:hover::after,
     .text-editor-menu [role^="menuitem"]:hover::after,
     /* If texteditor does not contain a hovered menuitem, display tooltips on focus */
     .text-editor-menu:not(:has([role^="menuitem"]):hover) [role^="menuitem"]:focus::after { 
@@ -67,6 +68,7 @@
     }
 
     /* Override tooltip if we explicitly provide one*/
+    .tooltip[data-tooltip]:hover::after,
     .text-editor-menu [role^="menuitem"][data-tooltip]:hover::after,
     .text-editor-menu:not(:has([role^="menuitem"]):hover) [role^="menuitem"][data-tooltip]:focus::after {
         content: attr(data-tooltip) / '';

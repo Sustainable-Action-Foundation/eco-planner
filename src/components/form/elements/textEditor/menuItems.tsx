@@ -430,7 +430,6 @@ export function Link(props: MenubarButtonProps) {
           <div className="padding-50 smooth gray-95" style={{ boxShadow: 'rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px' }}>
             {!editLink ?
               <div className="flex align-items-center ">
-                {/* TODO: Tooltips */}
                 <a
                   href={(editor.getAttributes('link') as { href?: string | null }).href || ''}
                   target="_blank"
@@ -439,9 +438,10 @@ export function Link(props: MenubarButtonProps) {
                 </a>
                 <button
                   type="button"
-                  className="padding-25 margin-left-100 transparent rounded flex align-items-center"
+                  className={`padding-25 margin-left-100 transparent rounded flex align-items-center ${styles.tooltip}`}
                   style={{ transform: 'scale(1)' }}
                   aria-label={t('forms:text_editor_menu.link.edit_link')}
+                  data-tooltip={t('forms:text_editor_menu.link.edit_link')}
                   onClick={() => setEditLink(true)}
                 >
                   <IconPencil height={18} width={18} aria-hidden={true} />
@@ -449,9 +449,10 @@ export function Link(props: MenubarButtonProps) {
                 <span className="margin-left-25 padding-left-25" style={{ borderLeft: '1px solid var(--gray)' }}>
                   <button
                     type="button"
-                    className="padding-25 transparent rounded flex align-items-center"
+                    className={`padding-25 transparent rounded flex align-items-center ${styles.tooltip}`}
                     style={{ transform: 'scale(1)' }}
                     aria-label={t('forms:text_editor_menu.link.remove_link')}
+                    data-tooltip={t('forms:text_editor_menu.link.remove_link')}
                     onClick={() => { editor.chain().focus().unsetLink().run() }}
                   >
                     <IconLinkOff height={18} width={18} aria-hidden={true} />
