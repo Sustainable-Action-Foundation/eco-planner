@@ -285,7 +285,7 @@ export default function GoalForm({
               <input
                 checked={dataSeriesType === DataSeriesType.Inherited}
                 onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
-                value={DataSeriesType.Inherited} /* TODO: Recipe type dataseries */
+                value={DataSeriesType.Inherited} /* TODO: Recipe type data series */
                 type="radio"
                 name="alternative"
                 required

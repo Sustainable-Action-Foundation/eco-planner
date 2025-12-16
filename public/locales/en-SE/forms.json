@@ -92,7 +92,7 @@
     "goal_description_legend": "Describe your $t(common:goal_one)",
     "goal_name": "Name",
     "goal_description": "Description",
-    "choose_goal_data_series": "Input a dataserie for this $t(common:goal_one)",
+    "choose_goal_data_series": "Input a data series for this $t(common:goal_one)",
     "derive_data_series_manually": "Input manually",
     "derive_data_series_recipe": "Derive from recipe",
     "choose_baseline_for_actions": "Select a baseline for calculating {{$t(common:action_other), possessive}} $t(common:effect_other) on this $t(common:goal_one)",
