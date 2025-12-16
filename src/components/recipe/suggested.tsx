@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useRecipe } from "./contextProvider";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
 import { VariableTypeScalarSimple } from "./editor/variable/types/scalar";
-import { VariableTypeDataSeriesSimple } from "./editor/variable/types/dataserie";
+import { VariableTypeDataSeriesSimple } from "./editor/variable/types/dataSeries";
 import { VariableTypeExternalSimple } from "./editor/variable/types/external";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";

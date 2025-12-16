@@ -4,7 +4,7 @@ import { RecipeDataTypes, RecipeVariable } from "@/functions/recipe-parser/types
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
-import VariableTypeDataSeries from "./types/dataserie";
+import VariableTypeDataSeries from "./types/dataSeries";
 import VariableTypeExternal from "./types/external";
 import VariableTypeScalar from "./types/scalar";
 import { useRecipe } from "../../contextProvider";
