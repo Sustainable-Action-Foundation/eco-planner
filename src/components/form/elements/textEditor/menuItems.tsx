@@ -510,8 +510,8 @@ export function Link(props: MenubarButtonProps) {
 }
 
 type FontSizeProps = MenubarButtonProps & { editorId: string };
-// TODO: Selecting large text is buggy 
-export function FontSize({ t, editor, menuGroup, setFocusedMenubarItem: _, editorId }: FontSizeProps) {
+export function FontSize(props: FontSizeProps) {
+  const { t, editor, menuGroup, setFocusedMenubarItem, editorId } = props;
 
   const [fontSizeMenuOpen, setFontSizeMenuOpen] = useState<boolean>(false);
   const [focusedFontSizeMenuItem, setFocusedFontSizeMenuItem] = useState<number | null>(null);
@@ -611,18 +611,20 @@ export function FontSize({ t, editor, menuGroup, setFocusedMenubarItem: _, edito
 
             handleKeyDownPopUpMenu(
               e,
+              editor,
               fontSizeMenuButtonRef.current,
               fontSizeMenuItemsRef.current,
               focusedFontSizeMenuItem,
               setFocusedFontSizeMenuItem,
-              setFontSizeMenuOpen
+              setFontSizeMenuOpen,
+              setFocusedMenubarItem
             )
           }}
         >
           <li role='presentation' style={{ borderBottom: '1px solid var(--gray)', paddingBottom: '2px' }}>
             <div
               onClick={() => { editor.chain().focus().setFontSize('1.25rem').run(); setFontSizeMenuOpen(false) }}
-              // onKeyDown={handleKeyDownFontSizeMenuItem} TODO: Add custom code here.
+              // onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => {chain.setFontSize('1.25rem'); setFontSizeMenuOpen(false)})}
               data-size="1.25rem"
               className='smooth font-size-smaller width-100'
               style={{ padding: '.5rem', whiteSpace: 'nowrap' }}
@@ -637,7 +639,7 @@ export function FontSize({ t, editor, menuGroup, setFocusedMenubarItem: _, edito
           <li role='presentation' style={{ borderBottom: '1px solid var(--gray)', paddingBlock: '2px' }}>
             <div
               onClick={() => { editor.chain().focus().unsetFontSize().run(); setFontSizeMenuOpen(false) }}
-              // onKeyDown={handleKeyDownFontSizeMenuItem} TODO: Add custom code here.
+              // onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => {chain.unsetFontSize(); setFontSizeMenuOpen(false)})}
               data-size="unset"
               className='smooth font-size-smaller width-100'
               style={{ padding: '.5rem', whiteSpace: 'nowrap' }}
@@ -653,7 +655,7 @@ export function FontSize({ t, editor, menuGroup, setFocusedMenubarItem: _, edito
           <li role='presentation' style={{ paddingTop: '2px' }}>
             <div
               onClick={() => { editor.chain().focus().setFontSize('0.75rem').run(); setFontSizeMenuOpen(false) }}
-              // onKeyDown={handleKeyDownFontSizeMenuItem} TODO: Add custom code here.
+              // onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => {chain.setFontSize('0.75rem'); setFontSizeMenuOpen(false)})}
               data-size="0.75rem"
               className='smooth font-size-smaller width-100'
               style={{ padding: '.5rem', whiteSpace: 'nowrap' }}

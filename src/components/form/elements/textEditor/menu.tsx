@@ -75,7 +75,7 @@ export default function TextEditorMenu({
     <li role='presentation' data-menu-group={5} key="numberedlist" >
       <NumberedList editor={editor} setFocusedMenubarItem={setFocusedMenubarItem} t={t} menuGroup={5} />
     </li>
-  ], [editor, editorId, t]);
+  ], [editor, editorId, editor.state, t]); // TODO: Should not include editor.state here, its a temporary fix
 
   // Get a ref of all menu items in our menubar
   useEffect(() => {
