@@ -164,10 +164,10 @@ export function parsePeriod(period: string): Date {
     const date = new Date(Date.UTC(year, 0, 1));
     // The first week of the year always contains the 4th of January
     // This allows us to calculate an offset between the first day of the year and the first day of the first week
-    const dayOffset = new Date(Date.UTC(year, 0, 4)).getDay() + 3;
+    const dayOffset = new Date(Date.UTC(year, 0, 4)).getUTCDay() + 3;
     // If Jan 1 is a Sunday, we'll see this returning 1 + 7 - 10 = -2 for week 1, meaning that the first week starts Dec 29 previous year
     // If Jan 1 is a Monday, we'll see this returning 1 + 7 - 4 = 4 for week 1, meaning that the first week starts Jan 4
-    date.setDate(1 + (week) * 7 - dayOffset);
+    date.setUTCDate(1 + (week) * 7 - dayOffset);
     return date;
   }
   // If none of the above match, assume it's a year and try to parse it as such (might return an invalid date)
