@@ -46,7 +46,10 @@ export async function extractDataSeries(
 
     let dbDataSeries: Awaited<ReturnType<typeof clientSafeGetOneDataSeries>>;
     if (variable.link) {
-      dbDataSeries = await clientSafeGetOneDataSeries(variable.link);
+      dbDataSeries = await clientSafeGetOneDataSeries(variable.link)
+        .catch((e: Error) => {
+          throw new RecipeError(`VariableExtractor: Error fetching data series for variable "${varName}" with link "${variable.link}": ${e.message}`);
+        });
     }
     else if (variable.value || Array.isArray(variable.value)) {
       dbDataSeries = {
@@ -57,11 +60,11 @@ export async function extractDataSeries(
       };
     }
     else {
-      throw new RecipeError(`extractDataSeries: Data series variable missing link Variable "${varName}" is of type DataSeries but has no link defined.`);
+      throw new RecipeError(`VariableExtractor: Variable "${varName}" is not referencing a goal or data series.`);
     }
 
     if (!dbDataSeries) {
-      throw new RecipeError(`extractDataSeries: Failed to fetch data series for variable "${varName}" with link "${variable.link}".`);
+      throw new RecipeError(`VariableExtractor: Failed to fetch data series for variable "${varName}" with link "${variable.link}".`);
     }
 
     const bestUnit = getPrevailingUnit(dbDataSeries.unit, variable.unit);
