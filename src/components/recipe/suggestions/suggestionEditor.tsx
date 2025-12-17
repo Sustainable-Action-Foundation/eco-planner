@@ -4,9 +4,9 @@ import { isRecipe, Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/f
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "../contextProvider";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
-import { VariableTypeScalarSimple } from "../editor/variable/variableTypes/scalar";
-import { VariableTypeDataSeriesSimple } from "../editor/variable/variableTypes/dataSeries";
-import { VariableTypeExternalSimple } from "../editor/variable/variableTypes/external";
+import { VariableTypeScalarSimple } from "../editor/variable/variableTypes/scalarVariable";
+import { VariableTypeDataSeriesSimple } from "../editor/variable/variableTypes/dataSeriesVariable";
+import { VariableTypeExternalSimple } from "../editor/variable/variableTypes/externalDatasetVariable";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import TabList from "../../generic/tablist/tabList";

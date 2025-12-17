@@ -3,9 +3,9 @@
 import { useRecipe } from "@/components/recipe/contextProvider";
 import { RecipeScalar } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
-import { InputRules, defaultInputRules } from "./rules";
+import { InputRules, defaultInputRules } from "./variableRules";
 import { updateScalarVariableValue } from "@/components/recipe/variableEditingHelpers";
-import VariableTypeCommon from "./common";
+import VariableTypeCommon from "./commonVariable";
 
 // TODO: Fix labels
 export default function VariableTypeScalar({

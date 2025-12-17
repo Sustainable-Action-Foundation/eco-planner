@@ -4,9 +4,9 @@ import { RecipeDataTypes, RecipeVariable } from "@/functions/recipe-parser/types
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
-import VariableTypeDataSeries from "./variableTypes/dataSeries";
-import VariableTypeExternal from "./variableTypes/external";
-import VariableTypeScalar from "./variableTypes/scalar";
+import VariableTypeDataSeries from "./variableTypes/dataSeriesVariable";
+import VariableTypeExternal from "./variableTypes/externalDatasetVariable";
+import VariableTypeScalar from "./variableTypes/scalarVariable";
 import { useRecipe } from "../../contextProvider";
 import styles from '../recipe.module.css' with { type: "css" };
 

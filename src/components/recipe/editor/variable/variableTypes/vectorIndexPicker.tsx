@@ -2,7 +2,7 @@
 
 import { isRecipeDataSeries, isRecipeExternalDataset, RecipeDataSeries, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
-import { InputRules, defaultInputRules } from "./rules";
+import { InputRules, defaultInputRules } from "./variableRules";
 import { useRecipe } from "@/components/recipe/contextProvider";
 
 // TODO: Fix labels

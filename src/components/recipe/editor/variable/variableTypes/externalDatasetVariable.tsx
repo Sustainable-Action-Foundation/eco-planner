@@ -3,9 +3,9 @@
 import { useRecipe } from "@/components/recipe/contextProvider";
 import { RecipeExternalDataset } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
-import { InputRules, defaultInputRules } from "./rules";
+import { InputRules, defaultInputRules } from "./variableRules";
 import { updateExternalVariableDataset, updateExternalVariableSelection, updateExternalVariableTable } from "@/components/recipe/variableEditingHelpers";
-import VariableTypeCommon from "./common";
+import VariableTypeCommon from "./commonVariable";
 import VectorIndexPicker from "./vectorIndexPicker";
 import { ExternalDataset } from "@/lib/api/utility";
 import RecipeQueryBuilder from "@/components/form/api/recipeQueryBuilder";

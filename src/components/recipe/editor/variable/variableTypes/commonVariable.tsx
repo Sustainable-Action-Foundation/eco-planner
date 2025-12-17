@@ -4,7 +4,7 @@ import { useRecipe } from "@/components/recipe/contextProvider";
 import { RecipeDataTypes, RecipeVariable } from "@/functions/recipe-parser/types";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { InputRules, defaultInputRules } from "./rules";
+import { InputRules, defaultInputRules } from "./variableRules";
 import styles from "../../recipe.module.css" with { type: "css" }
 import { updateVariableName, updateVariableType, removeVariable } from "@/components/recipe/variableEditingHelpers";
 import { IconEdit, IconTrashXFilled } from "@tabler/icons-react";
