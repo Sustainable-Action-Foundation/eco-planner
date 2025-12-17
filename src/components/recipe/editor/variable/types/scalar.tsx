@@ -4,7 +4,7 @@ import { useRecipe } from "@/components/recipe/contextProvider";
 import { RecipeScalar } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
 import { InputRules, defaultInputRules } from "./rules";
-import { updateScalarVariableValue } from "@/components/recipe/contextFunctions";
+import { updateScalarVariableValue } from "@/components/recipe/variableEditingHelpers";
 import VariableTypeCommon from "./common";
 
 // TODO: Fix labels

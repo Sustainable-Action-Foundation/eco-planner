@@ -4,7 +4,7 @@ import { useRecipe } from "@/components/recipe/contextProvider";
 import { RecipeExternalDataset } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
 import { InputRules, defaultInputRules } from "./rules";
-import { changeExternalVariableDataset, changeExternalVariableSelection, changeExternalVariableTable } from "@/components/recipe/contextFunctions";
+import { changeExternalVariableDataset, changeExternalVariableSelection, changeExternalVariableTable } from "@/components/recipe/variableEditingHelpers";
 import VariableTypeCommon from "./common";
 import VectorIndexPicker from "./vectorIndexPicker";
 import { ExternalDataset } from "@/lib/api/utility";

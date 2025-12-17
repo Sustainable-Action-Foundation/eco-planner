@@ -13,7 +13,7 @@ import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
 import { IconChartHistogram, IconSearch, IconX } from "@tabler/icons-react";
-import { changeExternalVariableDataset, changeExternalVariableSelection, changeExternalVariableTable } from "@/components/recipe/contextFunctions";
+import { changeExternalVariableDataset, changeExternalVariableSelection, changeExternalVariableTable } from "@/components/recipe/variableEditingHelpers";
 import { useRecipe } from "@/components/recipe/contextProvider";
 
 import getTableContent from "@/lib/api/getTableContent";

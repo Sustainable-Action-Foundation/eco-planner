@@ -6,7 +6,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { InputRules, defaultInputRules } from "./rules";
 import styles from '../../editor.module.css' with {type: 'css'}
-import { updateVariableName, updateVariableType, removeVariable } from "@/components/recipe/contextFunctions";
+import { updateVariableName, updateVariableType, removeVariable } from "@/components/recipe/variableEditingHelpers";
 import { IconEdit, IconTrashXFilled } from "@tabler/icons-react";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { Unit } from "mathjs";

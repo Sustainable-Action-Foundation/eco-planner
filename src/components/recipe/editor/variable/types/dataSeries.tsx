@@ -4,7 +4,7 @@ import { useRecipe } from "@/components/recipe/contextProvider";
 import { isRecipeDataSeries, RecipeVariable } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
 import { InputRules, defaultInputRules } from "./rules";
-import { updateDataSeriesLink } from "@/components/recipe/contextFunctions";
+import { updateDataSeriesLink } from "@/components/recipe/variableEditingHelpers";
 import VariableTypeCommon from "./common";
 import VectorIndexPicker from "./vectorIndexPicker";
 import React, { useCallback, useEffect, useState } from "react";
