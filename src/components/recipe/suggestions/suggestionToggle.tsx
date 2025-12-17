@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { useRecipe } from "../contextProvider";
 import RecipeEditor from "../editor/recipeEditor";
-import { SuggestedRecipes, defaultSuggestedRecipes } from "./suggestionEditor";
+import { SuggestedRecipes } from "./suggestionEditor";
 import { useTranslation } from "react-i18next";
 
 export default function SuggestionToggle() {
   const { t } = useTranslation(["forms", "common"]);
-  
+
   const [visibilityType, setVisibilityType] = useState<"suggested" | "custom">("suggested")
   const { setRecipe } = useRecipe()
 
@@ -41,11 +41,15 @@ export default function SuggestionToggle() {
           />
         </label>
       </div>
-       {visibilityType === "suggested" ?
+
+      {visibilityType === "suggested" ?
         <div className="margin-top-100">
-          <SuggestedRecipes ariaLabelledBy="recipe-type-suggested-label" suggestedRecipes={defaultSuggestedRecipes} />
+          <SuggestedRecipes
+            ariaLabelledBy="recipe-type-suggested-label" // TODO: why this label? it spreads its contents
+          />
         </div>
         : null}
+
       {/* Properly label textarea :) oh and all the inputs in variable-editor */}
       {visibilityType === "custom" ?
         <div className="margin-top-100">

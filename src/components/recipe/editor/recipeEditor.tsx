@@ -44,24 +44,26 @@ export default function RecipeEditor() {
         className="padding-50"
         style={{ backgroundColor: 'var(--gray-95)', border: '1px solid var(--gray)', borderTop: '0', borderRadius: '0 0 .25rem .25rem' }}
       >
+        <OutputStatus />
+
         <TabList
           defaultIndex={0}
           styling="simple"
-
+          props={{
+            className: "margin-top-200",
+          }}
         >
           <div
-            data-tabname={t("components:recipe_editor.graph")}
-            className="padding-top-50"
+            data-tabname={t("components:recipe_editor.data_series")}
+            className="padding-top-50 margin-bottom-100"
           >
-            <OutputStatus />
-            <OutputGraph />
+            <OutputDataSeries />
           </div>
           <div
-            data-tabname={t("components:recipe_editor.data_series")}
-            className="padding-top-50"
+            data-tabname={t("components:recipe_editor.graph")}
+            className="padding-top-50 margin-bottom-100"
           >
-            <OutputStatus />
-            <OutputDataSeries />
+            <OutputGraph />
           </div>
         </TabList>
       </div>
