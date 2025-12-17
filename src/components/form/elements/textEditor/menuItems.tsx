@@ -350,19 +350,31 @@ export function Link(props: MenubarButtonProps) {
       alert(t('forms:text_editor_menu.link.disallowed_protocol', { protocol: parsedUrl.protocol.replace(':', ''), allowedProtocols: allowedProtocols }));
       return;
     }
-
-    editor.chain().focus().extendMarkRange('link').setLink({ href: parsedUrl.href }).run();
+    
     editor
-    .chain()
-    .focus() 
-    .insertContent(text)
-    .run();
+      .chain()
+      .focus()
+      .insertContent({
+        type: 'text',
+        text,
+        marks: [
+          {
+            type: 'link',
+            attrs: { href: parsedUrl.href },
+          },
+        ],
+      })
+      .command(({ tr }) => {
+        tr.setStoredMarks([])
+        return true
+      })
+      .run();
+
   } 
 
   // TODO: Fix keybindings both for adding links within this component and for opening the menu (ctrl + k)
   // TODO: The icon should never have aria-checked?
   // TODO: Move dialog outside the span
-  // TODO: Creating a link should create the link and then not have the text keep being links when typing
   return (
     <>
       <span
