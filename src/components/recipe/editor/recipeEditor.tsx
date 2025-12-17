@@ -13,7 +13,10 @@ export default function RecipeEditor() {
 
   return (
     <>
-      <TabList defaultIndex={0} menuItems={<VariableCreator allowAddVariables={true} />}>
+      <TabList
+        defaultIndex={0}
+        menuItems={<VariableCreator allowAddVariables={true} />}
+      >
         <div
           data-tabname={t("components:recipe_editor.recipe")}
           style={{

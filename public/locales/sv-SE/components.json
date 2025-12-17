@@ -134,6 +134,7 @@
     "missing_resulting_data_series": "Resulterande dataserie saknas",
     "missing_resulting_graph": "Resulterande graf saknas",
     "no_errors": "Receptet är giltigt",
+    "no_variables_yet": "Det finns inga variabler än",
     "no_warnings": "Inga problem med receptet hittades",
     "pick_first": "Första värdet",
     "pick_last": "Sista värdet",

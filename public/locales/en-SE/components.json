@@ -134,6 +134,7 @@
     "missing_resulting_data_series": "No resulting data series to display",
     "missing_resulting_graph": "No resulting graph to display",
     "no_errors": "Recipe is valid",
+    "no_variables_yet": "There are no variables yet",
     "no_warnings": "No problems to report",
     "pick_first": "First value",
     "pick_last": "Last value",

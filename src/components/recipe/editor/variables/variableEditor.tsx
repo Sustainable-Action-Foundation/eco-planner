@@ -9,6 +9,7 @@ import VariableTypeExternal from "./variableTypes/externalDatasetVariable";
 import VariableTypeScalar from "./variableTypes/scalarVariable";
 import { useRecipe } from "../../contextProvider";
 import styles from '../recipe.module.css' with { type: "css" };
+import VariableCreator from "./variableCreator";
 
 export default function VariableEditor({
   allowAddVariables = false,
@@ -47,6 +48,16 @@ export default function VariableEditor({
     <ul
       className={`list-style-none padding-50 margin-0 flex-grow-100 ${styles['variable-list']}`}
     >
+      {Object.keys(recipe?.variables || []).length === 0 &&
+        <li className="padding-bottom-75 margin-bottom-75">
+          <div className="flex flex-direction-column align-items-center justify-content-center gap-25 padding-100 border-dashed border-2 border-gray-300 border-radius-8 background-color-gray-50">
+            <p className="font-weight-500 gray-700 text-align-center">
+              {t("components:recipe_editor.no_variables_yet")}
+            </p>
+            <VariableCreator allowAddVariables={true} />
+          </div>
+        </li>
+      }
       {Object.entries(recipe?.variables || []).map(([name, variable], i) => {
         const rules = {
           allowAddVariables,

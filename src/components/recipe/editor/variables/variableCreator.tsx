@@ -59,111 +59,109 @@ export default function VariableCreator({
     popoverRef.current?.hidePopover()
   };
 
+  if (!allowAddVariables) return null;
+
   return (
     <>
-      {allowAddVariables &&
-        <>
-          <PopoverButton
-            anchorName="--add-variable-popover-button"
-            popoverTarget="add-variable-popover"
-            className="align-items-center padding-block-25 padding-inline-50"
-            style={{ transform: 'scale(1)' }}
-          >
-            {t("components:copy_and_scale.add_variable")}
-          </PopoverButton>
-          <Popover
-            id="add-variable-popover"
-            ref={popoverRef}
-            popover="auto"
-            positionAnchor="--add-variable-popover-button"
-            anchorInlinePosition="end"
-            popoverDirection='down'
-            margin='.5rem'
-          >
-            <fieldset
-              className="padding-50 smooth"
-              style={{
-                border: '1px solid var(--gray)',
-                backgroundColor: 'white',
-              }}
-            >
-              <label htmlFor="variable-name" className="cursor-text">
-                {t("components:recipe_editor.variable_name")}
-              </label>
+      <PopoverButton
+        anchorName="--add-variable-popover-button"
+        popoverTarget="add-variable-popover"
+        className="align-items-center padding-block-25 padding-inline-50"
+        style={{ transform: 'scale(1)' }}
+      >
+        {t("components:copy_and_scale.add_variable")}
+      </PopoverButton>
+      <Popover
+        id="add-variable-popover"
+        ref={popoverRef}
+        popover="auto"
+        positionAnchor="--add-variable-popover-button"
+        anchorInlinePosition="end"
+        popoverDirection='down'
+        margin='.5rem'
+      >
+        <fieldset
+          className="padding-50 smooth"
+          style={{
+            border: '1px solid var(--gray)',
+            backgroundColor: 'white',
+          }}
+        >
+          <label htmlFor="variable-name" className="cursor-text">
+            {t("components:recipe_editor.variable_name")}
+          </label>
+          <input
+            type="text"
+            id="variable-name"
+            style={{ backgroundColor: 'var(--gray-95)' }}
+            placeholder={t("components:recipe_editor.variable_name_placeholder")}
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+          />
+          <small className="block margin-bottom-50 margin-top-25 font-weight-500" style={{ color: 'red' }}>{newNameStatus}</small>
+          <label htmlFor="variable-unit">
+            {t("components:recipe_editor.unit_label")}
+          </label>
+          <TextSingleAutocomplete
+            props={{
+              id: "variable-unit",
+              name: "variable-unit",
+              placeholder: t("forms:combobox.default_autocomplete_placeholder"),
+              defaultValue: newUnit,
+            }}
+            theme={{
+              style: { backgroundColor: 'var(--gray-95)' }
+            }}
+            options={allOurUnits.map(unit => ({ name: unit, value: unit }))}
+            maxOptions={3}
+            onChange={(unit) => setNewUnit(unit ?? '')}
+          />
+          <div className="margin-top-100">
+            <label className="block margin-left-25">
               <input
-                type="text"
-                id="variable-name"
-                style={{ backgroundColor: 'var(--gray-95)' }}
-                placeholder={t("components:recipe_editor.variable_name_placeholder")}
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
+                type="radio"
+                className="margin-right-25"
+                name="variable-type"
+                value={RecipeDataTypes.Scalar}
+                checked={newType === RecipeDataTypes.Scalar}
+                onChange={() => setNewType(RecipeDataTypes.Scalar)}
               />
-              <small className="block margin-bottom-50 margin-top-25 font-weight-500" style={{ color: 'red' }}>{newNameStatus}</small>
-              <label htmlFor="variable-unit">
-                {t("components:recipe_editor.unit_label")}
-              </label>
-              <TextSingleAutocomplete
-                props={{
-                  id: "variable-unit",
-                  name: "variable-unit",
-                  placeholder: t("forms:combobox.default_autocomplete_placeholder"),
-                  defaultValue: newUnit,
-                }}
-                theme={{
-                  style: { backgroundColor: 'var(--gray-95)' }
-                }}
-                options={allOurUnits.map(unit => ({ name: unit, value: unit }))}
-                maxOptions={3}
-                onChange={(unit) => setNewUnit(unit ?? '')}
+              {t("components:recipe_editor.scalar")}
+            </label>
+            <label className="block margin-left-25 margin-top-25">
+              <input
+                type="radio"
+                className="margin-right-25"
+                name="variable-type"
+                value={RecipeDataTypes.DataSeries}
+                checked={newType === RecipeDataTypes.DataSeries}
+                onChange={() => setNewType(RecipeDataTypes.DataSeries)}
               />
-              <div className="margin-top-100">
-                <label className="block margin-left-25">
-                  <input
-                    type="radio"
-                    className="margin-right-25"
-                    name="variable-type"
-                    value={RecipeDataTypes.Scalar}
-                    checked={newType === RecipeDataTypes.Scalar}
-                    onChange={() => setNewType(RecipeDataTypes.Scalar)}
-                  />
-                  {t("components:recipe_editor.scalar")}
-                </label>
-                <label className="block margin-left-25 margin-top-25">
-                  <input
-                    type="radio"
-                    className="margin-right-25"
-                    name="variable-type"
-                    value={RecipeDataTypes.DataSeries}
-                    checked={newType === RecipeDataTypes.DataSeries}
-                    onChange={() => setNewType(RecipeDataTypes.DataSeries)}
-                  />
-                  {t("components:recipe_editor.data_series")}
-                </label>
-                <label className="block margin-left-25 margin-top-25">
-                  <input
-                    type="radio"
-                    className="margin-right-25"
-                    name="variable-type"
-                    value={RecipeDataTypes.External}
-                    checked={newType === RecipeDataTypes.External}
-                    onChange={() => setNewType(RecipeDataTypes.External)}
-                  />
-                  {t("components:recipe_editor.external_data")}
-                </label>
-              </div>
-              <small className="block margin-bottom-100 margin-top-25 font-weight-500" style={{ color: 'red' }}>{newTypeStatus}</small>
-              <button
-                type="button"
-                className="width-100 color-purewhite font-weight-600 margin-top-50"
-                style={{ backgroundColor: '#191919' }}
-                onClick={addVariableToContext}
-              >
-                {t("components:recipe_editor.create_variable")}
-              </button>
-            </fieldset>
-          </Popover>
-        </>
-      }
+              {t("components:recipe_editor.data_series")}
+            </label>
+            <label className="block margin-left-25 margin-top-25">
+              <input
+                type="radio"
+                className="margin-right-25"
+                name="variable-type"
+                value={RecipeDataTypes.External}
+                checked={newType === RecipeDataTypes.External}
+                onChange={() => setNewType(RecipeDataTypes.External)}
+              />
+              {t("components:recipe_editor.external_data")}
+            </label>
+          </div>
+          <small className="block margin-bottom-100 margin-top-25 font-weight-500" style={{ color: 'red' }}>{newTypeStatus}</small>
+          <button
+            type="button"
+            className="width-100 color-purewhite font-weight-600 margin-top-50"
+            style={{ backgroundColor: '#191919' }}
+            onClick={addVariableToContext}
+          >
+            {t("components:recipe_editor.create_variable")}
+          </button>
+        </fieldset>
+      </Popover>
     </>
-  )
+  );
 }
