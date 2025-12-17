@@ -154,7 +154,7 @@ export function updateDataSeriesLink(variableName: string, newLink: string | nul
   });
 }
 
-export function changeExternalVariableDataset(variableName: string, newDataset: string, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
+export function updateExternalVariableDataset(variableName: string, newDataset: string, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
   setter(prev => {
     if (!prev) return null;
 
@@ -184,7 +184,7 @@ export function changeExternalVariableDataset(variableName: string, newDataset: 
   });
 }
 
-export function changeExternalVariableTable(variableName: string, newTable: string, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
+export function updateExternalVariableTable(variableName: string, newTable: string, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
   setter(prev => {
     if (!prev) return null;
 
@@ -208,7 +208,7 @@ export function changeExternalVariableTable(variableName: string, newTable: stri
   });
 }
 
-export function changeExternalVariableSelection(variableName: string, newSelection: string, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
+export function updateExternalVariableSelection(variableName: string, newSelection: string, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
   setter(prev => {
     if (!prev) return null;
 

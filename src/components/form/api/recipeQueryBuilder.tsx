@@ -13,7 +13,7 @@ import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
 import { IconChartHistogram, IconSearch, IconX } from "@tabler/icons-react";
-import { changeExternalVariableDataset, changeExternalVariableSelection, changeExternalVariableTable } from "@/components/recipe/variableEditingHelpers";
+import { updateExternalVariableDataset, updateExternalVariableSelection, updateExternalVariableTable } from "@/components/recipe/variableEditingHelpers";
 import { useRecipe } from "@/components/recipe/contextProvider";
 
 import getTableContent from "@/lib/api/getTableContent";
@@ -359,9 +359,9 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
     const query = buildQuery(formData);
     console.log(dataSource, JSON.stringify(query))
 
-    changeExternalVariableDataset(name, dataSource, setRecipe)
-    changeExternalVariableTable(name, tableDetails?.id ?? formData.get("externalTableId") as string ?? "", setRecipe)
-    changeExternalVariableSelection(name, JSON.stringify(query), setRecipe)
+    updateExternalVariableDataset(name, dataSource, setRecipe)
+    updateExternalVariableTable(name, tableDetails?.id ?? formData.get("externalTableId") as string ?? "", setRecipe)
+    updateExternalVariableSelection(name, JSON.stringify(query), setRecipe)
     closeModal(modalRef)
   }
 
@@ -426,7 +426,7 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
                       type="radio"
                       value={id}
                       name="externalTableId"
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {handleTableSelect((e.target as HTMLButtonElement).value); changeExternalVariableTable(name, e.target.value, setRecipe)}}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {handleTableSelect((e.target as HTMLButtonElement).value); updateExternalVariableTable(name, e.target.value, setRecipe)}}
                     />
                     </li>
                   ))}
