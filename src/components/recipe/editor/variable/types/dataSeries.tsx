@@ -12,6 +12,7 @@ import { InputElement, TreeItem } from "@/components/types";
 import SelectSingleTreeSearch from "@/components/form/elements/combobox/selectSingleTreeSearch";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import { Recipe } from "@/functions/recipe-parser/types";
+import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
 
 function useRoadmapTreeItems(availableRoadmaps: { id: string; name: string; }[]) {
   const [treeItems, setTreeItems] = useState<TreeItem[]>([]);
@@ -38,15 +39,42 @@ function useRoadmapTreeItems(availableRoadmaps: { id: string; name: string; }[])
   return treeItems;
 }
 
+// TODO: don't fetch again :sob: This data is fetched deeper down in the tree select but the scope jumping would probably be worse spaghetti than this solution
 export function useHandleDataSeriesChange(
   name: string,
   setRecipe: React.Dispatch<React.SetStateAction<Recipe | null>>
 ) {
   return useCallback(
     (selectedDataSeries: TreeItem | null) => {
-      if (selectedDataSeries?.value) {
-        changeDataSeries(name, selectedDataSeries.value, setRecipe);
-      }
+      if (!selectedDataSeries?.value) return;
+
+      // Set the link immediately for responsiveness
+      changeDataSeries(name, selectedDataSeries.value, setRecipe);
+
+      // Dispatch async for "safely" setting state
+      (async () => {
+        try {
+          // Fetch selected data series from db to get unit for UI use
+          const db = await clientSafeGetOneDataSeries(selectedDataSeries.value);
+          const unitToSet = typeof db?.unit !== "undefined" ? db?.unit : undefined;
+
+          setRecipe(prev => {
+            if (!prev) return prev;
+
+            const currentVar = prev.variables[name];
+
+            if (!isRecipeDataSeries(currentVar)) return prev;
+            if (!currentVar || currentVar.link !== selectedDataSeries.value) return prev;
+
+            const copy = { ...prev.variables };
+            copy[name] = { ...copy[name], unit: unitToSet };
+            return { ...prev, variables: copy };
+          });
+        } catch (e) {
+          console.warn("Failed to fetch data-series unit for selection", selectedDataSeries.value, e);
+        }
+      })()
+        .catch(e => { console.error(e); });
     },
     [name, setRecipe]
   );
