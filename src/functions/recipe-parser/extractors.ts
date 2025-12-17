@@ -112,7 +112,7 @@ export async function extractExternalDatasets(
 
     fetchers.push(async () => {
       const data = await getTableContent(tableId, dataset, selection);
-      console.log(data);
+
       if (!data) {
         throw new RecipeError(`External dataset variable '${variableName}' has no data for tableId '${tableId}' and dataset '${dataset}' and selection '${JSON.stringify(selection)}'.`);
       }
@@ -122,7 +122,10 @@ export async function extractExternalDatasets(
 
       const definedValues: Partial<DataSeriesValueFields> = {};
       for (const year of Years) {
-        const found = data.values.find(v => v.period === year);
+        // TODO: match years in a better way.
+        const found = data.values.find(v =>
+          v.period.includes(year.replace("val", ""))
+        );
         if (found) {
           definedValues[year] = parseFloat(found.value);
         }
