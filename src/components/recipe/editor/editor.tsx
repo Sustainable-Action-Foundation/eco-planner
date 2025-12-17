@@ -2,7 +2,7 @@ import TabList from "@/components/generic/tablist/tabList";
 import OutputGraph from "./output/graph";
 import OutputDataSeries from "./output/dataSeries";
 import OutputStatus from "./output/status";
-import RecipeEquationEditor from "@/components/recipe/editor/equation/editor";
+import RecipeEquationEditor from "@/components/recipe/editor/equation/equationEditor";
 import VariableCreator from "./variable/creator";
 import VariableEditor from "@/components/recipe/editor/variable/editor";
 import { useTranslation } from "react-i18next";
