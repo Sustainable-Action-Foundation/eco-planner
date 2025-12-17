@@ -12,21 +12,21 @@ import RecipeQueryBuilder from "@/components/form/api/recipeQueryBuilder";
 
 // TODO: Fix labels
 export default function VariableTypeExternal({
-  name,
+  variableName,
   rules,
 }: {
-  name: string;
+  variableName: string;
   rules?: InputRules;
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
-  const variable = recipe?.variables[name] as RecipeExternalDataset;
+  const variable = recipe?.variables[variableName] as RecipeExternalDataset;
 
   rules = { ...defaultInputRules, ...rules };
 
   return (
     <VariableTypeCommon
-      name={name}
+      variableName={variableName}
       rules={rules}
     >
       <div className="floating-label inline-block" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
@@ -37,7 +37,7 @@ export default function VariableTypeExternal({
           id="external-variable-dataset" /* TODO: This ID needs to be dynamic */
           value={variable.dataset || ""}
           disabled={!rules.allowValueEditing}
-          onChange={(e) => updateExternalVariableDataset(name, e.target.value, setRecipe)}
+          onChange={(e) => updateExternalVariableDataset(variableName, e.target.value, setRecipe)}
         >
           <option disabled value="">{t("components:recipe_editor.select_dataset")}</option>
           {/* <option value={variable.dataset}>{variable.dataset}</option> */}
@@ -56,7 +56,7 @@ export default function VariableTypeExternal({
         <input
           id="external-variable-table" /* TODO: This ID needs to be dynamic */
           value={variable.tableId || ""}
-          onChange={(e) => updateExternalVariableTable(name, e.target.value, setRecipe)}
+          onChange={(e) => updateExternalVariableTable(variableName, e.target.value, setRecipe)}
           type="text"
           disabled={!rules.allowValueEditing}
           placeholder=" "
@@ -70,7 +70,7 @@ export default function VariableTypeExternal({
         <input
           id="external-variable-selection" /* TODO: This ID needs to be dynamic */
           value={JSON.stringify(variable.selection) || ""}
-          onChange={(e) => updateExternalVariableSelection(name, e.target.value, setRecipe)}
+          onChange={(e) => updateExternalVariableSelection(variableName, e.target.value, setRecipe)}
           type="text"
           disabled={!rules.allowValueEditing}
           placeholder=" "
@@ -81,24 +81,25 @@ export default function VariableTypeExternal({
         <label htmlFor="variable-tree-vector-index-picker">
           {t("components:recipe_editor.vector_index_picker_label")}
         </label>
-        <VectorPickerSelect rules={rules} varName={name} />
+        <VectorPickerSelect rules={rules} variableName={variableName} />
       </div>
-      <RecipeQueryBuilder name={name} />
+
+      <RecipeQueryBuilder variableName={variableName} />
     </VariableTypeCommon>
   )
 }
 
 
 export function VariableTypeExternalSimple({
-  name,
+  variableName,
   rules
 }: {
-  name: string,
+  variableName: string,
   rules?: InputRules
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
-  const variable = recipe?.variables[name] as RecipeExternalDataset;
+  const variable = recipe?.variables[variableName] as RecipeExternalDataset;
 
   rules = { ...defaultInputRules, ...rules };
 
@@ -107,7 +108,7 @@ export function VariableTypeExternalSimple({
       <select
         value={variable.dataset || ""}
         disabled={!rules.allowValueEditing}
-        onChange={(e) => updateExternalVariableDataset(name, e.target.value, setRecipe)}
+        onChange={(e) => updateExternalVariableDataset(variableName, e.target.value, setRecipe)}
       >
         <option value="">{t("components:recipe_editor.dataset")}</option>
         {/* <option value={variable.dataset}>{variable.dataset}</option> */}
@@ -120,7 +121,7 @@ export function VariableTypeExternalSimple({
       <input
         className="inline width-auto"
         value={variable.tableId || ""}
-        onChange={(e) => updateExternalVariableTable(name, e.target.value, setRecipe)}
+        onChange={(e) => updateExternalVariableTable(variableName, e.target.value, setRecipe)}
         type="text"
         disabled={!rules.allowValueEditing}
         placeholder={t("components:recipe_editor.table")}
@@ -128,7 +129,7 @@ export function VariableTypeExternalSimple({
       <input
         className="inline width-auto"
         value={JSON.stringify(variable.selection) || ""}
-        onChange={(e) => updateExternalVariableSelection(name, e.target.value, setRecipe)}
+        onChange={(e) => updateExternalVariableSelection(variableName, e.target.value, setRecipe)}
         type="text"
         disabled={!rules.allowValueEditing}
         placeholder={t("components:recipe_editor.selection")}

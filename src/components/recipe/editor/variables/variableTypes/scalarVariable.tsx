@@ -23,7 +23,7 @@ export default function VariableTypeScalar({
 
   return (
     <VariableTypeCommon
-      name={name}
+      variableName={name}
       rules={rules}
     >
       <div className="floating-label inline-block" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
@@ -44,17 +44,17 @@ export default function VariableTypeScalar({
 }
 
 export function VariableTypeScalarSimple({
-  name,
+  variableName,
   rules,
   props = {},
 }: {
-  name: string;
+  variableName: string;
   rules?: InputRules;
   props?: React.InputHTMLAttributes<HTMLInputElement>;
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
-  const variable = recipe?.variables[name] as RecipeScalar;
+  const variable = recipe?.variables[variableName] as RecipeScalar;
 
   rules = { ...defaultInputRules, ...rules };
 
@@ -62,7 +62,7 @@ export function VariableTypeScalarSimple({
     <input
       className="inline width-auto"
       defaultValue={variable.value}
-      onChange={(e) => updateScalarVariableValue(name, e.target.value, setRecipe)}
+      onChange={(e) => updateScalarVariableValue(variableName, e.target.value, setRecipe)}
       type="number"
       placeholder={t("components:recipe_editor.scalar")}
       disabled={!rules.allowValueEditing}

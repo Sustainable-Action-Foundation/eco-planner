@@ -75,7 +75,7 @@ export default function VariableEditor({
                     name: "recipeVariable" + i,
                   }}
                   key={"recipeVariable" + i}
-                  name={name}
+                  variableName={name}
                   rules={rules}
                   availableRoadmaps={availableRoadmaps}
                 />
@@ -86,7 +86,7 @@ export default function VariableEditor({
               <li className="padding-bottom-75 margin-bottom-75" key={name}>
                 <VariableTypeExternal
                   key={"recipeVariable" + i}
-                  name={name}
+                  variableName={name}
                   rules={rules}
                 />
               </li>

@@ -6,7 +6,7 @@ import { InputRules, defaultInputRules } from "./variableRules";
 import { useRecipe } from "@/components/recipe/contextProvider";
 
 // TODO: Fix labels
-export default function VectorPickerSelect({ rules, varName }: { rules?: InputRules, varName: string }) {
+export default function VectorPickerSelect({ rules, variableName }: { rules?: InputRules, variableName: string }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
 
@@ -14,17 +14,17 @@ export default function VectorPickerSelect({ rules, varName }: { rules?: InputRu
 
   return (
     <select
-      id={varName}
-      defaultValue={(recipe?.variables[varName] as RecipeDataSeries)?.pick || VectorIndexPickerOptions.Default}
+      id={variableName}
+      defaultValue={(recipe?.variables[variableName] as RecipeDataSeries)?.pick || VectorIndexPickerOptions.Default}
       disabled={!rules.allowValueEditing}
       onChange={(e) => {
         if (!recipe) return; // Early return if recipe is null which is only the case in race conditions with the context provider
 
-        const variable = recipe.variables[varName];
+        const variable = recipe.variables[variableName];
 
         // Make sure variables is of correct type
         if (!isRecipeDataSeries(variable) && !isRecipeExternalDataset(variable)) {
-          console.error(`Variable ${varName} is not of type RecipeDataSeries or RecipeExternalDataset so should not be picked.`);
+          console.error(`Variable ${variableName} is not of type RecipeDataSeries or RecipeExternalDataset so should not be picked.`);
           return;
         }
 
@@ -33,7 +33,7 @@ export default function VectorPickerSelect({ rules, varName }: { rules?: InputRu
           ...recipe,
           variables: {
             ...recipe.variables,
-            [varName]: variable,
+            [variableName]: variable,
           },
         });
       }}

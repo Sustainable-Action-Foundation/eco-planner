@@ -106,7 +106,7 @@ export default function SelectSingleTreeSearch({
   }, [menuOpen]);
 
   // Disables form subbmision if value is invalid 
-  // Define what an invalid value is (missing value or empty string). We only need this defined if the field is requied
+  // Define what an invalid value is (missing value or empty string). We only need this defined if the field is required
   const valueIsValid = useMemo(() => {
     if ((!value || value.value === "") && props.required) return false;
     return true;

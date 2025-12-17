@@ -41,13 +41,13 @@ function useRoadmapTreeItems(availableRoadmaps: { id: string; name: string; }[])
 
 // TODO: don't fetch again :sob: This data is fetched deeper down in the tree select but the scope jumping would probably be worse spaghetti than this solution
 export function useHandleDataSeriesChange(
-  name: string,
+  variableName: string,
   setRecipe: React.Dispatch<React.SetStateAction<Recipe | null>>
 ) {
   return useCallback(
     (selectedDataSeriesLink: TreeItem | null) => {
       // Set the link immediately for responsiveness
-      updateDataSeriesLink(name, selectedDataSeriesLink?.value || null, setRecipe);
+      updateDataSeriesLink(variableName, selectedDataSeriesLink?.value || null, setRecipe);
 
       // When unsetting variable
       if (!selectedDataSeriesLink?.value) return;
@@ -62,13 +62,13 @@ export function useHandleDataSeriesChange(
           setRecipe(prev => {
             if (!prev) return prev;
 
-            const currentVar = prev.variables[name];
+            const currentVar = prev.variables[variableName];
 
             if (!isRecipeDataSeries(currentVar)) return prev;
             if (!currentVar || currentVar.link !== selectedDataSeriesLink.value) return prev;
 
             const copy = { ...prev.variables };
-            copy[name] = { ...copy[name], unit: unitToSet };
+            copy[variableName] = { ...copy[variableName], unit: unitToSet };
             return { ...prev, variables: copy };
           });
         } catch (e) {
@@ -77,32 +77,32 @@ export function useHandleDataSeriesChange(
       })()
         .catch(e => { console.error(e); });
     },
-    [name, setRecipe]
+    [variableName, setRecipe]
   );
 }
 
 // TODO: Fix labels
 // TODO: Check usage of inputrules (prop that has been removed)
 export default function VariableTypeDataSeries({
-  name,
+  variableName,
   rules,
   availableRoadmaps = [],
   props
 }: {
-  name: string;
+  variableName: string;
   rules?: InputRules;
   availableRoadmaps?: { id: string; name: string; }[];
   props: InputElement;
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
-  const variable = recipe?.variables[name] as RecipeVariable;
+  const variable = recipe?.variables[variableName] as RecipeVariable;
 
   const treeItems = useRoadmapTreeItems(availableRoadmaps);
-  const handleDataSeriesChange = useHandleDataSeriesChange(name, setRecipe);
+  const handleDataSeriesChange = useHandleDataSeriesChange(variableName, setRecipe);
 
   if (!isRecipeDataSeries(variable)) {
-    console.error(`Variable "${name}" is not a valid DataSeriesVariable`, variable);
+    console.error(`Variable "${variableName}" is not a valid DataSeriesVariable`, variable);
     return null;
   }
 
@@ -110,7 +110,7 @@ export default function VariableTypeDataSeries({
 
   return (
     <VariableTypeCommon
-      name={name}
+      variableName={variableName}
       rules={rules}
     >
       {/* TODO: Why is this height mismatched */}
@@ -134,7 +134,7 @@ export default function VariableTypeDataSeries({
         <label htmlFor="variable-tree-vector-index-picker">
           {t("components:recipe_editor.vector_index_picker_label")}
         </label>
-        <VectorPickerSelect rules={rules} varName={name} />
+        <VectorPickerSelect rules={rules} variableName={variableName} />
       </div>
     </VariableTypeCommon >
   )

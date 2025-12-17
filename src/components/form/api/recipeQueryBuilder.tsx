@@ -18,7 +18,7 @@ import { useRecipe } from "@/components/recipe/contextProvider";
 
 import getTableContent from "@/lib/api/getTableContent";
 
-export default function RecipeQueryBuilder({name}: {name: string;}) {
+export default function RecipeQueryBuilder({ variableName }: { variableName: string; }) {
   const { t } = useTranslation("components");
   // Locale has the format language-locale, e.g. "sv-SE" or "en-US"
   // We only need the language part, so we split it and take the first part
@@ -39,7 +39,7 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
   const modalRef = useRef<HTMLDialogElement | null>(null);
   const fieldsetRef = useRef<HTMLFieldSetElement | null>(null);
   const selectorMenuRef = useRef<HTMLDivElement | null>(null);
- 
+
   const tableSearchInputName = "tableSearch";
 
   // These variables determine how many tables are rendered at a time, and how many are rendered when the user scrolls down/up
@@ -114,7 +114,7 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
     if (!dataSource || !ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
 
     void getTables(dataSource, query, lang).then(result => setTables(result));
-  } 
+  }
 
   function handleDataSourceSelect(dataSource: string) {
     setDataSource(dataSource);
@@ -137,7 +137,7 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
   }
 
   function handleMetricSelect(event: React.ChangeEvent<HTMLSelectElement>) {
-    void tryGetResult(); 
+    void tryGetResult();
     setIsLoading(true);
     const isDefaultValue = event.target.value.length == 0;
     setDefaultMetricSelected(isDefaultValue);
@@ -217,7 +217,7 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
           {/* Only display "optional" tags if the data source provides this information */}
           {variable.label[0].toUpperCase() + variable.label.slice(1)}{optionalTag(dataSource, variable.optional)}
           {/* TODO: Use CSS to set proper capitalization of labels; something like `label::first-letter { text-transform: capitalize; }` */}
-          <select 
+          <select
             onChange={tryGetResult}
             className={`block margin-block-25 ${variable.label}`}
             required={!variable.optional}
@@ -270,7 +270,7 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
       }
       return (<label key="Tid" className="block margin-block-75">
         {heading}{optionalTag(dataSource, variableIsOptional)}
-        <select 
+        <select
           onChange={tryGetResult}
           className={`block margin-block-25 TimeVariable`}
           required={false}
@@ -309,14 +309,14 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
       }
       queryObject.push({ variableCode: key, valueCodes: [value] });
     });
-    
+
     return queryObject;
   }
-  
+
   function tryGetResult(event?: React.ChangeEvent<HTMLSelectElement> | Event) {
     // null check
     if (!(selectorMenuRef.current instanceof HTMLDivElement)) return;
-    
+
     setIsLoading(true);
 
     // Get a result if the form is valid
@@ -359,9 +359,9 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
     const query = buildQuery(formData);
     console.log(dataSource, JSON.stringify(query))
 
-    updateExternalVariableDataset(name, dataSource, setRecipe)
-    updateExternalVariableTable(name, tableDetails?.id ?? formData.get("externalTableId") as string ?? "", setRecipe)
-    updateExternalVariableSelection(name, JSON.stringify(query), setRecipe)
+    updateExternalVariableDataset(variableName, dataSource, setRecipe)
+    updateExternalVariableTable(variableName, tableDetails?.id ?? formData.get("externalTableId") as string ?? "", setRecipe)
+    updateExternalVariableSelection(variableName, JSON.stringify(query), setRecipe)
     closeModal(modalRef)
   }
 
@@ -372,7 +372,7 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
         <IconChartHistogram width={16} height={16} style={{ minWidth: '16px' }} aria-hidden="true" />
       </button>
 
-      <dialog className={`smooth padding-inline-0 ${styles.dialog}`} ref={modalRef} aria-modal style={{backgroundColor: 'rgb(246, 246, 246)'}}>
+      <dialog className={`smooth padding-inline-0 ${styles.dialog}`} ref={modalRef} aria-modal style={{ backgroundColor: 'rgb(246, 246, 246)' }}>
         <div className="display-flex flex-direction-row-reverse align-items-center justify-content-space-between padding-inline-100">
           <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
             <IconX strokeWidth={3} width={18} height={18} style={{ minWidth: '18px' }} aria-hidden="true" />
@@ -389,7 +389,7 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
               {((ExternalDataset.getDatasetByAlternateName(dataSource)) && !(ExternalDataset.getDatasetByAlternateName(dataSource)?.supportedLanguages.includes(lang))) ?
                 <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
                 : null}
-              <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={(e) => {handleDataSourceSelect(e.target.value)}}>
+              <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={(e) => { handleDataSourceSelect(e.target.value) }}>
                 <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
                 {ExternalDataset.knownDatasetKeys.map((name) => (
                   <option key={name} value={name}>{ExternalDataset[name]?.fullName}</option>
@@ -422,12 +422,12 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
                       className={`${styles.tableSelect} block padding-block-25`}
                     >
                       {label}
-                    <input
-                      type="radio"
-                      value={id}
-                      name="externalTableId"
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {handleTableSelect((e.target as HTMLButtonElement).value); updateExternalVariableTable(name, e.target.value, setRecipe)}}
-                    />
+                      <input
+                        type="radio"
+                        value={id}
+                        name="externalTableId"
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => { handleTableSelect((e.target as HTMLButtonElement).value); updateExternalVariableTable(variableName, e.target.value, setRecipe) }}
+                      />
                     </li>
                   ))}
                 </ul>
@@ -453,7 +453,7 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
                 </legend>
                 <div>
                   <label key={`metric-${tableDetails.id}`} className="block margin-block-75">
-                    <select 
+                    <select
                       className={`block margin-block-25 metric`}
                       required={true}
                       name="metric"

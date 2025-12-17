@@ -13,17 +13,17 @@ import { allOurUnits } from "@/math";
 
 // TODO: Fix labels
 export default function VariableTypeCommon({
-  name,
+  variableName,
   rules,
   children,
 }: {
-  name: string;
+  variableName: string;
   rules?: InputRules;
   children: React.ReactNode;
 }) {
   const { t } = useTranslation(["common", "components"]);
   const { recipe, setRecipe } = useRecipe();
-  const variable = recipe?.variables[name] as RecipeVariable;
+  const variable = recipe?.variables[variableName] as RecipeVariable;
   const [editable, setEditable] = useState<boolean>(false)
 
   rules = { ...defaultInputRules, ...rules };
@@ -45,26 +45,26 @@ export default function VariableTypeCommon({
       <fieldset disabled={!editable} className="flex-grow-100">
         <div className="flex gap-25 align-items-center margin-bottom-75">
           <div className="floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
-            <label htmlFor={`variable-name-${name}`}>
+            <label htmlFor={`variable-name-${variableName}`}>
               {t("components:recipe_editor.variable_name_placeholder")}
             </label>
             <input
-              id={`variable-name-${name}`}
+              id={`variable-name-${variableName}`}
               placeholder=" "
               style={{ gridRow: '1', gridColumn: '1' }}
-              defaultValue={name}
-              onChange={(e) => updateVariableName(name, e.target.value, setRecipe)}
+              defaultValue={variableName}
+              onChange={(e) => updateVariableName(variableName, e.target.value, setRecipe)}
               type="text"
             />
           </div>
           <div className="floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
-            <label htmlFor={`variable-unit-${name}`}>
+            <label htmlFor={`variable-unit-${variableName}`}>
               {t("components:recipe_editor.unit_placeholder")}
             </label>
             <TextSingleAutocomplete
               props={{
-                id: `variable-unit-${name}`,
-                name: `variable-unit-${name}`,
+                id: `variable-unit-${variableName}`,
+                name: `variable-unit-${variableName}`,
                 defaultValue: variable.unit || "",
                 placeholder: " ",
                 style: { gridRow: '1', gridColumn: '2', width: '125px' }
@@ -73,14 +73,14 @@ export default function VariableTypeCommon({
             />
           </div>
           <div className="floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
-            <label htmlFor={`variable-type-${name}`}>
+            <label htmlFor={`variable-type-${variableName}`}>
               {t("components:recipe_editor.variable_type_label")}
             </label>
             <select
-              id={`variable-type-${name}`}
+              id={`variable-type-${variableName}`}
               style={{ gridRow: '2', gridColumn: '1' }}
               defaultValue={variable.type}
-              onChange={(e) => updateVariableType(name, e.target.value, setRecipe)}
+              onChange={(e) => updateVariableType(variableName, e.target.value, setRecipe)}
             >
               <option value={RecipeDataTypes.DataSeries}>{t("components:recipe_editor.data_series")}</option>
               <option value={RecipeDataTypes.External}>{t("components:recipe_editor.external_data")}</option>
@@ -99,7 +99,7 @@ export default function VariableTypeCommon({
           style={{ verticalAlign: 'middle' }}
           type="button"
           title={t("common:tsx.delete")}
-          onClick={() => removeVariable(name, setRecipe)}
+          onClick={() => removeVariable(variableName, setRecipe)}
         >
           <IconTrashXFilled width={20} height={20} className="grid" />
         </button>

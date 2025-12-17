@@ -178,7 +178,7 @@ export function SuggestedRecipes({
                 </label>
                 <VariableTypeScalarSimple
                   key={"recipeVariable" + i}
-                  name={variableName}
+                  variableName={variableName}
                   rules={rules}
                   props={{
                     defaultValue: variable.value,
@@ -217,7 +217,7 @@ export function SuggestedRecipes({
                 </label>
                 <VariableTypeExternalSimple
                   key={"recipeVariable" + i}
-                  name={variableName}
+                  variableName={variableName}
                   rules={rules}
                 />
               </Fragment>
