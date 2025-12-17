@@ -2,17 +2,17 @@
 
 import { isRecipe, Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
-import { useRecipe } from "./contextProvider";
+import { useRecipe } from "../contextProvider";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
-import { VariableTypeScalarSimple } from "./editor/variable/types/scalar";
-import { VariableTypeDataSeriesSimple } from "./editor/variable/types/dataSeries";
-import { VariableTypeExternalSimple } from "./editor/variable/types/external";
+import { VariableTypeScalarSimple } from "../editor/variable/types/scalar";
+import { VariableTypeDataSeriesSimple } from "../editor/variable/types/dataSeries";
+import { VariableTypeExternalSimple } from "../editor/variable/types/external";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
-import TabList from "../generic/tablist/tabList";
-import OutputDataSeries from "./editor/output/dataSeries";
-import OutputGraph from "./editor/output/graph";
-import OutputStatus from "./editor/output/status";
+import TabList from "../../generic/tablist/tabList";
+import OutputDataSeries from "../editor/output/dataSeries";
+import OutputGraph from "../editor/output/graph";
+import OutputStatus from "../editor/output/status";
 import { testIfValidUnit } from "@/functions/recipe-parser/extractors";
 import { IconAlertTriangleFilled } from "@tabler/icons-react";
 
