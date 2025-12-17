@@ -10,9 +10,9 @@ import { VariableTypeExternalSimple } from "../editor/variables/variableTypes/ex
 import { Fragment, useEffect, useMemo, useState } from "react";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import TabList from "../../generic/tablist/tabList";
-import OutputDataSeries from "../editor/output/dataSeries";
-import OutputGraph from "../editor/output/graph";
-import OutputStatus from "../editor/output/status";
+import OutputDataSeries from "../editor/output/dataSeriesDisplay";
+import OutputGraph from "../editor/output/graphDisplay";
+import OutputStatus from "../editor/output/statusDisplay";
 import { testIfValidUnit } from "@/functions/recipe-parser/extractors";
 import { IconAlertTriangleFilled } from "@tabler/icons-react";
 
