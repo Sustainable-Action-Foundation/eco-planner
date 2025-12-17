@@ -140,6 +140,8 @@
     "pick_mean": "Mean value",
     "pick_median": "Median value",
     "pick_whole": "Whole series",
+    "provide_variable_name": "Please provide a name",
+    "provide_variable_type": "Please provide a type",
     "recipe": "Recipe",
     "result_tab": "Result",
     "scalar": "Scalar",

@@ -140,6 +140,8 @@
     "pick_mean": "Medelvärdet",
     "pick_median": "Medianvärdet",
     "pick_whole": "Hela serien",
+    "provide_variable_name": "Ange ett namn",
+    "provide_variable_type": "Ange en typ",
     "recipe": "Recept",
     "result_tab": "Resultat",
     "scalar": "Skalär",
