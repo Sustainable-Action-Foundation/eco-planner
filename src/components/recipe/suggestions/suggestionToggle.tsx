@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRecipe } from "../contextProvider";
-import RecipeEditor from "../editor/editor";
+import RecipeEditor from "../editor/recipeEditor";
 import { SuggestedRecipes, defaultSuggestedRecipes } from "./suggestionEditor";
 import { useTranslation } from "react-i18next";
 
