@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRecipe } from "../contextProvider";
 import RecipeEditor from "../editor/recipeEditor";
-import { SuggestedRecipes } from "./suggestionEditor";
+import { SuggestedRecipes } from "./suggestedRecipeApplier";
 import { useTranslation } from "react-i18next";
 
 export default function SuggestionToggle() {
