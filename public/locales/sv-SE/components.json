@@ -157,6 +157,7 @@
     "unit_placeholder": "Enhet",
     "unknown_variable_type": "Okänd variabeltyp",
     "variable_name": "Namn",
+    "variable_name_exists": "Namnet är redan taget",
     "variable_name_placeholder": "Namn",
     "variable_type_label": "Typ",
     "variables": "Variabler",

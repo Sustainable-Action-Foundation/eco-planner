@@ -157,6 +157,7 @@
     "unit_placeholder": "Unit",
     "unknown_variable_type": "Unknown variable type",
     "variable_name": "Name",
+    "variable_name_exists": "Name is already in use",
     "variable_name_placeholder": "Name",
     "variable_type_label": "Type",
     "variables": "Variables",

@@ -14,7 +14,7 @@ export default function VariableCreator({
   allowAddVariables?: boolean;
 }) {
   const { t } = useTranslation(["components", "forms"]);
-  const { setRecipe } = useRecipe();
+  const { recipe, setRecipe } = useRecipe();
 
   const popoverRef = useRef<HTMLDivElement>(null);
   const [newName, setNewName] = useState<string>('');
@@ -31,6 +31,10 @@ export default function VariableCreator({
     }
     if (!newType) {
       setNewTypeStatus(t("components:recipe_editor.provide_variable_type"));
+      return;
+    }
+    if (recipe?.variables && Object.keys(recipe.variables).includes(newName)) {
+      setNewNameStatus(t("components:recipe_editor.variable_name_exists"));
       return;
     }
 
