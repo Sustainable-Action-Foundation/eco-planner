@@ -25,67 +25,25 @@ export default function VariableTypeExternal({
   permissions = { ...RecipeEditorPermissions, ...permissions };
 
   return (
-    <VariableTypeCommon
-      variableName={variableName}
-      permissions={permissions}
-    >
-      <div className="floating-label inline-block" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
-        <label htmlFor="external-variable-dataset">
-          {t("components:recipe_editor.dataset")}
-        </label>
-        <select
-          id="external-variable-dataset" /* TODO: This ID needs to be dynamic */
-          value={variable.dataset || ""}
-          disabled={!permissions.allowValueEditing}
-          onChange={(e) => updateExternalVariableDataset(variableName, e.target.value, setRecipe)}
-        >
-          <option disabled value="">{t("components:recipe_editor.select_dataset")}</option>
-          {/* <option value={variable.dataset}>{variable.dataset}</option> */}
-          {ExternalDataset.knownDatasetKeys.map((datasetName, i) => (
-            <option key={`datasetOption-${i}`} value={datasetName}>
-              {datasetName}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="floating-label inline-block" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
-        <label htmlFor="external-variable-table">
-          {t("components:recipe_editor.table")}
-        </label>
-        <input
-          id="external-variable-table" /* TODO: This ID needs to be dynamic */
-          value={variable.tableId || ""}
-          onChange={(e) => updateExternalVariableTable(variableName, e.target.value, setRecipe)}
-          type="text"
-          disabled={!permissions.allowValueEditing}
-          placeholder=" "
-        />
-      </div>
-
-      <div className="floating-label inline-block" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
-        <label htmlFor="external-variable-selection">
-          {t("components:recipe_editor.selection")}
-        </label>
-        <input
-          id="external-variable-selection" /* TODO: This ID needs to be dynamic */
-          value={JSON.stringify(variable.selection) || ""}
-          onChange={(e) => updateExternalVariableSelection(variableName, e.target.value, setRecipe)}
-          type="text"
-          disabled={!permissions.allowValueEditing}
-          placeholder=" "
-        />
-      </div>
-
-      <div className="floating-label inline-block" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
-        <label htmlFor="variable-tree-vector-index-picker">
-          {t("components:recipe_editor.vector_index_picker_label")}
-        </label>
-        <VectorPickerSelect permissions={permissions} variableName={variableName} />
-      </div>
-
-      <RecipeQueryBuilder variableName={variableName} />
-    </VariableTypeCommon>
+    <>
+      <VariableTypeCommon
+        variableName={variableName}
+        permissions={permissions}
+      >
+        <RecipeQueryBuilder variableName={variableName} />
+        <div className="floating-label inline-block" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
+          <label htmlFor="variable-tree-vector-index-picker">
+            {t("components:recipe_editor.vector_index_picker_label")}
+          </label>
+          <VectorPickerSelect permissions={permissions} variableName={variableName} />
+        </div>
+      </VariableTypeCommon>
+      <div className="flex gap-25 margin-left-300 margin-top-100"> {/* TODO: Handle overflow a bit better here */}
+        <span style={{whiteSpace: "nowrap"}}>{t("components:recipe_editor.dataset")}: {variable.dataset || ""},</span>
+        <span style={{whiteSpace: "nowrap"}}>{t("components:recipe_editor.table")}: {variable.tableId || ""},</span>
+        <span style={{whiteSpace: "nowrap", maxWidth: '400px', textOverflow: 'ellipsis', overflow: 'hidden'}}>{t("components:recipe_editor.selection")}: {JSON.stringify(variable.selection) || ""}</span>
+      </div>  
+    </>
   )
 }
 

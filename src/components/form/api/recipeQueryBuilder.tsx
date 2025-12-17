@@ -367,8 +367,7 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
   return (
     <>
       <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem", lineHeight: '1.5' }} onClick={() => openModal(modalRef)}>
-        {t("components:recipe_editor.find_external_data")}
-        <IconChartHistogram width={16} height={16} style={{ minWidth: '16px' }} aria-hidden="true" />
+        {t("components:recipe_editor.add_external_data")}
       </button>
 
       <dialog className={`smooth padding-inline-0 ${styles.dialog}`} ref={modalRef} aria-modal style={{ backgroundColor: 'rgb(246, 246, 246)' }}>

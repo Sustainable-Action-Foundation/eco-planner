@@ -14,6 +14,7 @@ export default function VectorPickerSelect({ permissions, variableName }: { perm
 
   return (
     <select
+      style={{width: '200px'}} // TODO: temporary so we can fit the floating label
       id={variableName}
       defaultValue={(recipe?.variables[variableName] as RecipeDataSeries)?.pick || VectorIndexPickerOptions.Default}
       disabled={!permissions.allowValueEditing}
