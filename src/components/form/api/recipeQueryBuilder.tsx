@@ -367,7 +367,7 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
   return (
     <>
       <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem", lineHeight: '1.5' }} onClick={() => openModal(modalRef)}>
-        {t("components:query_builder.add_historical_data")}
+        {t("components:recipe_editor.find_external_data")}
         <IconChartHistogram width={16} height={16} style={{ minWidth: '16px' }} aria-hidden="true" />
       </button>
 
