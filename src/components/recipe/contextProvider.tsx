@@ -135,7 +135,6 @@ export function RecipeContextProvider({
     <RecipeContext.Provider value={{ recipe, setRecipe, warnings, error, resultingDataSeries, resultingUnit }}>
       {showDebug &&
         <div style={{
-          position: "absolute",
           top: 0,
           left: 0,
           width: "100%",
