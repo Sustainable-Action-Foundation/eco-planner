@@ -91,7 +91,6 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
 
   let result: Unit | Unit[];
   try {
-    console.log({ scope, equation });
     const rawResult: unknown = mathjs.evaluate(equation, scope);
 
     // Try to normalize into Unit or Unit[]

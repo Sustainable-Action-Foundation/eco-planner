@@ -21,7 +21,6 @@ export default function VectorPickerSelect({ rules, varName }: { rules?: InputRu
         if (!recipe) return; // Early return if recipe is null which is only the case in race conditions with the context provider
 
         const variable = recipe.variables[varName];
-        console.log(variable);
 
         // Make sure variables is of correct type
         if (!isRecipeDataSeries(variable) && !isRecipeExternalDataset(variable)) {
@@ -37,9 +36,6 @@ export default function VectorPickerSelect({ rules, varName }: { rules?: InputRu
             [varName]: variable,
           },
         });
-        console.log(
-          "new pick", variable.pick
-        );
       }}
     >
       <option value={VectorIndexPickerOptions.Whole}>{t("components:recipe_editor.pick_whole")}</option>
