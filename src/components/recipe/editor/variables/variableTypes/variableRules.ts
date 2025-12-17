@@ -1,4 +1,5 @@
 export type InputRules = {
+  allowAddVariables?: boolean;
   allowNameEditing?: boolean;
   allowTypeEditing?: boolean;
   allowValueEditing?: boolean;
@@ -6,6 +7,7 @@ export type InputRules = {
 };
 
 export const defaultInputRules: InputRules = {
+  allowAddVariables: true,
   allowNameEditing: true,
   allowTypeEditing: true,
   allowValueEditing: true,
