@@ -340,7 +340,7 @@ export const isEmptyRecipe = (recipe: Recipe): boolean => {
 /** 
  * Defined here to usage before declaration.
  */
-export const emptyRecipesByDataType: Record<RecipeDataTypes, RecipeScalar | RecipeDataSeries | RecipeExternalDataset> = {
+export const emptyRecipesByDataType: Record<RecipeDataTypes, RecipeVariable> = {
   "scalar": emptyRecipeScalar,
   "dataSeries": emptyRecipeDataSeries,
   "external": emptyRecipeExternalDataset,
