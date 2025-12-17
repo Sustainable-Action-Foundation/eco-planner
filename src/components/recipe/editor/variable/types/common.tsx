@@ -6,7 +6,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { InputRules, defaultInputRules } from "./rules";
 import styles from '../../editor.module.css' with {type: 'css'}
-import { changeName, changeType, deleteVariable } from "@/components/recipe/contextFunctions";
+import { updateVariableName, updateVariableType, removeVariable } from "@/components/recipe/contextFunctions";
 import { IconEdit, IconTrashXFilled } from "@tabler/icons-react";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { Unit } from "mathjs";
@@ -53,7 +53,7 @@ export default function VariableTypeCommon({
               placeholder=" "
               style={{ gridRow: '1', gridColumn: '1' }}
               defaultValue={name}
-              onChange={(e) => changeName(name, e.target.value, setRecipe)}
+              onChange={(e) => updateVariableName(name, e.target.value, setRecipe)}
               type="text"
             />
           </div>
@@ -80,7 +80,7 @@ export default function VariableTypeCommon({
               id={`variable-type-${name}`}
               style={{ gridRow: '2', gridColumn: '1' }}
               defaultValue={variable.type}
-              onChange={(e) => changeType(name, e.target.value, setRecipe)}
+              onChange={(e) => updateVariableType(name, e.target.value, setRecipe)}
             >
               <option value={RecipeDataTypes.DataSeries}>{t("components:recipe_editor.data_series")}</option>
               <option value={RecipeDataTypes.External}>{t("components:recipe_editor.external_data")}</option>
@@ -99,7 +99,7 @@ export default function VariableTypeCommon({
           style={{ verticalAlign: 'middle' }}
           type="button"
           title={t("common:tsx.delete")}
-          onClick={() => deleteVariable(name, setRecipe)}
+          onClick={() => removeVariable(name, setRecipe)}
         >
           <IconTrashXFilled width={20} height={20} className="grid" />
         </button>

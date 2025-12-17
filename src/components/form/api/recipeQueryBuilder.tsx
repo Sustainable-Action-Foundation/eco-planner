@@ -8,12 +8,12 @@ import { ExternalDataset } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient.tsx";
 import { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import { TrafaVariable } from "@/lib/trafa/trafaTypes";
-import { FormEvent, useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
 import { IconChartHistogram, IconSearch, IconX } from "@tabler/icons-react";
-import { changeDataset, changeExternalSelection, changeTable } from "@/components/recipe/contextFunctions";
+import { changeExternalVariableDataset, changeExternalVariableSelection, changeExternalVariableTable } from "@/components/recipe/contextFunctions";
 import { useRecipe } from "@/components/recipe/contextProvider";
 
 import getTableContent from "@/lib/api/getTableContent";
@@ -25,7 +25,7 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
   // TODO: Fix typing, use match() instead of casting
   const lang = useContext(LocaleContext).split("-")[0];
   // const lang = useContext(LocaleContext).split("-")[0] as "sv" | "en";
-  const { recipe, setRecipe } = useRecipe();
+  const { setRecipe } = useRecipe();
 
   const [isLoading, setIsLoading] = useState(false);
   const [dataSource, setDataSource] = useState<string>("");
@@ -359,9 +359,9 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
     const query = buildQuery(formData);
     console.log(dataSource, JSON.stringify(query))
 
-    changeDataset(name, dataSource, setRecipe)
-    changeTable(name, tableDetails?.id ?? formData.get("externalTableId") as string ?? "", setRecipe)
-    changeExternalSelection(name, JSON.stringify(query), setRecipe)
+    changeExternalVariableDataset(name, dataSource, setRecipe)
+    changeExternalVariableTable(name, tableDetails?.id ?? formData.get("externalTableId") as string ?? "", setRecipe)
+    changeExternalVariableSelection(name, JSON.stringify(query), setRecipe)
     closeModal(modalRef)
   }
 
@@ -426,7 +426,7 @@ export default function RecipeQueryBuilder({name}: {name: string;}) {
                       type="radio"
                       value={id}
                       name="externalTableId"
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {handleTableSelect((e.target as HTMLButtonElement).value); changeTable(name, e.target.value, setRecipe)}}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {handleTableSelect((e.target as HTMLButtonElement).value); changeExternalVariableTable(name, e.target.value, setRecipe)}}
                     />
                     </li>
                   ))}

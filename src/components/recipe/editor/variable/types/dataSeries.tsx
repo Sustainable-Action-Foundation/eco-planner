@@ -4,7 +4,7 @@ import { useRecipe } from "@/components/recipe/contextProvider";
 import { isRecipeDataSeries, RecipeVariable } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
 import { InputRules, defaultInputRules } from "./rules";
-import { changeDataSeries } from "@/components/recipe/contextFunctions";
+import { updateDataSeriesLink } from "@/components/recipe/contextFunctions";
 import VariableTypeCommon from "./common";
 import VectorIndexPicker from "./vectorIndexPicker";
 import React, { useCallback, useEffect, useState } from "react";
@@ -47,7 +47,7 @@ export function useHandleDataSeriesChange(
   return useCallback(
     (selectedDataSeriesLink: TreeItem | null) => {
       // Set the link immediately for responsiveness
-      changeDataSeries(name, selectedDataSeriesLink?.value || null, setRecipe);
+      updateDataSeriesLink(name, selectedDataSeriesLink?.value || null, setRecipe);
 
       // When unsetting variable
       if (!selectedDataSeriesLink?.value) return;
