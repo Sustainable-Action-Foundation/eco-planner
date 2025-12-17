@@ -85,8 +85,6 @@
     "relationship_no_chosen": "Choose $t(common:roadmap_series_one)",
     "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "data_series_type_legend": "Choose type of data series for your $t(common:goal_one)",
-    "select_recipe": "Select an existing recipe",
-    "create_recipe": "Create a new recipe",
     "default_scaling_recipe": "Default scaling recipe",
     "default_combination_recipe": "Default combination recipe",
     "goal_description_legend": "Describe your $t(common:goal_one)",

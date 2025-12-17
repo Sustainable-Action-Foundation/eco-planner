@@ -4,10 +4,10 @@ import { useState } from "react";
 import { useRecipe } from "../contextProvider";
 import RecipeEditor from "../editor/recipeEditor";
 import { SuggestedRecipeApplier } from "./suggestedRecipeApplier";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 
 export default function SuggestedRecipeToggle() {
-  const { t } = useTranslation(["forms", "common"]);
+  const { t } = useTranslation(["common", "components"]);
 
   const [visibilityType, setVisibilityType] = useState<"suggested" | "custom">("suggested")
   const { setRecipe } = useRecipe()
@@ -15,31 +15,36 @@ export default function SuggestedRecipeToggle() {
   return (
     <>
       <div className="radio-select-two margin-bottom-100" >
-        <label id="recipe-type-suggested-label">
-          {t("forms:goal.select_recipe")}
-          <input
-            className="margin-right-25"
-            type="radio"
-            name="recipe-type"
-            id="recipe-type-suggested"
-            value="suggested"
-            checked={visibilityType === "suggested"}
-            onChange={() => { setVisibilityType("suggested"); setRecipe(null) }}
-          />
-        </label>
-        <span>&#8210; {t("common:tsx.or")} &#8210;</span>
-        <label>
-          {t("forms:goal.create_recipe")}
-          <input
-            className="margin-right-25"
-            type="radio"
-            name="recipe-type"
-            id="recipe-type-custom"
-            value="custom"
-            checked={visibilityType === "custom"}
-            onChange={() => { setVisibilityType("custom"); setRecipe(null) }}
-          />
-        </label>
+        <Trans
+          i18nKey={"components:recipe_editor.toggle_suggested_recipe"}
+          components={{
+            option1: <label id="recipe-type-suggested-label">
+              {t("components:recipe_editor.select_recipe")}
+              <input
+                className="margin-right-25"
+                type="radio"
+                name="recipe-type"
+                id="recipe-type-suggested"
+                value="suggested"
+                checked={visibilityType === "suggested"}
+                onChange={() => { setVisibilityType("suggested"); setRecipe(null) }}
+              />
+            </label>,
+            option2: <label>
+              {t("components:recipe_editor.create_recipe")}
+              <input
+                className="margin-right-25"
+                type="radio"
+                name="recipe-type"
+                id="recipe-type-custom"
+                value="custom"
+                checked={visibilityType === "custom"}
+                onChange={() => { setVisibilityType("custom"); setRecipe(null) }}
+              />
+            </label>,
+            span: <span />,
+          }}
+        />
       </div>
 
       {visibilityType === "suggested" ?
