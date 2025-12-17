@@ -89,11 +89,17 @@ export function RecipeContextProvider({
       });
   }, [recipe]);
 
-  // Register debug key bind alt+shift+d (hold to open)
+  // Register debug key bind alt+shift+d (hold to open), Escape to close
   const [showDebug, setShowDebug] = useState(false);
   const debugKeyTimerRef = useRef<number | null>(null);
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
+      // Check for escape key to close
+      if (event.key === "Escape" && showDebug) {
+        event.preventDefault();
+        setShowDebug(false);
+      }
+
       const isDebugCombo = event.altKey && event.shiftKey && event.key === "D";
 
       if (!isDebugCombo || showDebug) return;
