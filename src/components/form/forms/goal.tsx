@@ -61,13 +61,12 @@ export default function GoalForm({
   });
   const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId || "")
 
-  // TODO: Include roadmap version in name to avoid confusion
   const parentRoadmaps = useMemo(() => {
     return (roadmapAlternatives ?? []).map(roadmap => ({
-      name: roadmap.metaRoadmap.name,
+      name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }),
       value: roadmap.id
     }));
-  }, [roadmapAlternatives]);
+  }, [roadmapAlternatives, t]);
 
   const timestamp = useMemo(() => Date.now(), []);
 
