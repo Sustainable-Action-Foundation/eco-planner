@@ -8,7 +8,7 @@ import VariableTypeDataSeries from "./types/dataSeries";
 import VariableTypeExternal from "./types/external";
 import VariableTypeScalar from "./types/scalar";
 import { useRecipe } from "../../contextProvider";
-import styles from '../editor.module.css'
+import styles from '../recipe.module.css' with { type: "css" };
 
 export default function VariableEditor({
   allowAddVariables = false,
