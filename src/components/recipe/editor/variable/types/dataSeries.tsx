@@ -45,17 +45,20 @@ export function useHandleDataSeriesChange(
   setRecipe: React.Dispatch<React.SetStateAction<Recipe | null>>
 ) {
   return useCallback(
-    (selectedDataSeries: TreeItem | null) => {
-      if (!selectedDataSeries?.value) return;
-
+    (selectedDataSeriesLink: TreeItem | null) => {
       // Set the link immediately for responsiveness
-      changeDataSeries(name, selectedDataSeries.value, setRecipe);
+      changeDataSeries(name, selectedDataSeriesLink?.value || null, setRecipe);
+
+      // When unsetting variable
+      if (!selectedDataSeriesLink?.value) {
+        return;
+      }
 
       // Dispatch async for "safely" setting state
       (async () => {
         try {
           // Fetch selected data series from db to get unit for UI use
-          const db = await clientSafeGetOneDataSeries(selectedDataSeries.value);
+          const db = await clientSafeGetOneDataSeries(selectedDataSeriesLink.value);
           const unitToSet = typeof db?.unit !== "undefined" ? db?.unit : undefined;
 
           setRecipe(prev => {
@@ -64,14 +67,14 @@ export function useHandleDataSeriesChange(
             const currentVar = prev.variables[name];
 
             if (!isRecipeDataSeries(currentVar)) return prev;
-            if (!currentVar || currentVar.link !== selectedDataSeries.value) return prev;
+            if (!currentVar || currentVar.link !== selectedDataSeriesLink.value) return prev;
 
             const copy = { ...prev.variables };
             copy[name] = { ...copy[name], unit: unitToSet };
             return { ...prev, variables: copy };
           });
         } catch (e) {
-          console.warn("Failed to fetch data-series unit for selection", selectedDataSeries.value, e);
+          console.warn("Failed to fetch data-series unit for selection", selectedDataSeriesLink.value, e);
         }
       })()
         .catch(e => { console.error(e); });

@@ -1,5 +1,5 @@
 import "client-only";
-import { emptyRecipesByDataType, isRecipeExternalDatasetSelection, Recipe, RecipeDataTypes, RecipeVariable } from "@/functions/recipe-parser/types";
+import { emptyRecipeDataSeries, emptyRecipesByDataType, isRecipeExternalDatasetSelection, Recipe, RecipeDataTypes, RecipeVariable } from "@/functions/recipe-parser/types";
 import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
 import { JSONValue } from "@/types";
 
@@ -111,14 +111,9 @@ export function changeScalarValue(name: string, newValue: string | number, sette
   });
 }
 
-export function changeDataSeries(name: string, newDataSeries: string, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
+export function changeDataSeries(name: string, newLink: string | null, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
   setter(prev => {
     if (!prev) return null;
-
-    if (!newDataSeries) {
-      console.warn("No data series selected");
-      return prev; // Do not update if no data series is selected
-    }
 
     const copyOfVariables = { ...prev.variables };
 
@@ -126,15 +121,22 @@ export function changeDataSeries(name: string, newDataSeries: string, setter: Re
     if (!currentVar) {
       console.warn(`Variable '${name}' does not exist in the recipe`);
       return prev; // Do not update if variable does not exist
-    } else if (currentVar.type !== RecipeDataTypes.DataSeries) {
+    }
+    else if (currentVar.type !== RecipeDataTypes.DataSeries) {
       console.warn(`Variable '${name}' is not of type DataSeries`);
       return prev; // Do not update if the variable is not a data series
     }
 
-    copyOfVariables[name] = {
-      ...currentVar,
-      link: newDataSeries,
-    };
+    if (newLink) {
+      copyOfVariables[name] = {
+        ...currentVar,
+        link: newLink,
+      };
+    }
+    else {
+      // When unselecting, clear variable
+      copyOfVariables[name] = { ...emptyRecipeDataSeries };
+    }
 
 
     return { ...prev, variables: copyOfVariables };
