@@ -16,7 +16,7 @@ import { Recipe } from "@/functions/recipe-parser/types";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
 import TextEditor from "../elements/textEditor/editor";
 import { Content } from "@tiptap/core";
-import SuggestionToggle from "@/components/recipe/suggestions/suggestedRecipeToggle";
+import SuggestedRecipeToggle from "@/components/recipe/suggestions/suggestedRecipeToggle";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import FormIntegration from "@/components/recipe/editor/output/formIntegration";
 
@@ -306,7 +306,7 @@ export default function GoalForm({
             <RecipeContextProvider>
               {/* TODO: Want to clear recipe when switching between suggested or custom recipes? */}
 
-              <SuggestionToggle />
+              <SuggestedRecipeToggle />
 
               <FormIntegration
                 RecipeFormElement={<input name="resultingRecipe" />}

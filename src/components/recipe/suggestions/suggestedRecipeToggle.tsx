@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useRecipe } from "../contextProvider";
 import RecipeEditor from "../editor/recipeEditor";
-import { SuggestedRecipes } from "./suggestedRecipeApplier";
+import { SuggestedRecipeApplier } from "./suggestedRecipeApplier";
 import { useTranslation } from "react-i18next";
 
-export default function SuggestionToggle() {
+export default function SuggestedRecipeToggle() {
   const { t } = useTranslation(["forms", "common"]);
 
   const [visibilityType, setVisibilityType] = useState<"suggested" | "custom">("suggested")
@@ -44,7 +44,7 @@ export default function SuggestionToggle() {
 
       {visibilityType === "suggested" ?
         <div className="margin-top-100">
-          <SuggestedRecipes />
+          <SuggestedRecipeApplier />
         </div>
         : null}
 

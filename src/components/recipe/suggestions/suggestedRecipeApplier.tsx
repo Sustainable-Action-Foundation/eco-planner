@@ -17,7 +17,7 @@ import { testIfValidUnit } from "@/functions/recipe-parser/extractors";
 import { IconAlertTriangleFilled } from "@tabler/icons-react";
 import { RecipeEditorPermissions } from "../editor/variables/variableTypes/recipeEditorPermissions";
 
-export function SuggestedRecipes({
+export function SuggestedRecipeApplier({
   autoInsertDefaultSuggestions = true,
   suggestedRecipes: suggestedRecipesInput = [],
   permissions = RecipeEditorPermissions,
