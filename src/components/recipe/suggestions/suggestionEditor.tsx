@@ -124,7 +124,7 @@ export function SuggestedRecipes({
       </select>
     </label>
 
-    {/* TODO: Note that labels are as of now not valid. I believe however that it will be solved with tree select as this should reduce the number of items in a simple variabletype to one */}
+    {/* TODO: Note that labels are as of now not valid. I believe however that it will be solved with tree select as this should reduce the number of items in a simple variable type to one */}
     {/* TODO: We should be using a grid instead of flex to properly align items here */}
     <div
       className="grid gap-50 padding-left-100"

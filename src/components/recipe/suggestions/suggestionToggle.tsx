@@ -44,9 +44,7 @@ export default function SuggestionToggle() {
 
       {visibilityType === "suggested" ?
         <div className="margin-top-100">
-          <SuggestedRecipes
-            ariaLabelledBy="recipe-type-suggested-label" // TODO: why this label? it spreads its contents
-          />
+          <SuggestedRecipes />
         </div>
         : null}
 
