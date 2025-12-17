@@ -9,7 +9,7 @@ import { IconX } from "@tabler/icons-react";
 import { isRecipeDataSeries, Recipe, RecipeDataTypes } from "@/functions/recipe-parser/types";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
 import { RecipeContextProvider } from "../recipe/contextProvider";
-import { SuggestedRecipes } from "@/components/recipe/suggestions/suggested";
+import { SuggestedRecipes } from "@/components/recipe/suggestions/suggestionEditor";
 import FormIntegration from "../recipe/editor/output/formIntegration";
 
 export default function CopyAndScale({
