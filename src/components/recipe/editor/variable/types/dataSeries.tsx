@@ -50,9 +50,7 @@ export function useHandleDataSeriesChange(
       changeDataSeries(name, selectedDataSeriesLink?.value || null, setRecipe);
 
       // When unsetting variable
-      if (!selectedDataSeriesLink?.value) {
-        return;
-      }
+      if (!selectedDataSeriesLink?.value) return;
 
       // Dispatch async for "safely" setting state
       (async () => {
