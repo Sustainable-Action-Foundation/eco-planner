@@ -1,4 +1,5 @@
 import { isStandardObject } from "@/types";
+import { ApiTableContent } from "./apiTypes";
 
 export type DatasetKeys = "SCB" | "Trafa" | "SSB";
 export type DatasetData = {
@@ -142,7 +143,7 @@ export class ExternalDataset {
   }
 }
 
-export function parsePeriod(period: string) {
+export function parsePeriod(period: string): Date {
   period = period.trim().toUpperCase();
   // If period is a quarter (kvartal)
   if (period.includes("Q") || period.includes("K")) {
@@ -173,4 +174,21 @@ export function parsePeriod(period: string) {
   else {
     return new Date(Date.UTC(parseInt(period), 0));
   }
+}
+
+export function filterToInitialYearlyRecords(periodValuePairs: ApiTableContent["values"]): ApiTableContent["values"] {
+  const filteredValues: ApiTableContent["values"] = [];
+  const seenYears: Set<number> = new Set();
+
+  for (const entry of periodValuePairs) {
+    const date = parsePeriod(entry.period);
+    const year = date.getUTCFullYear();
+
+    if (!seenYears.has(year)) {
+      seenYears.add(year);
+      filteredValues.push(entry);
+    }
+  }
+
+  return filteredValues;
 }

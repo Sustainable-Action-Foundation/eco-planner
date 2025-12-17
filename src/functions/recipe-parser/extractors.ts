@@ -5,6 +5,7 @@ import mathjs from "@/math";
 import { DataSeriesValueFields, DataSeriesValueFieldsWithUnit, nullFullDataSeriesValueField, Years } from "@/types";
 import { Unit } from "mathjs";
 import { EvalTimeVariable } from "./types";
+import { filterToInitialYearlyRecords, parsePeriod } from "@/lib/api/utility";
 
 export function extractScalars(
   variables: Record<string, RecipeVariable>,
@@ -121,11 +122,19 @@ export async function extractExternalDatasets(
       }
 
       const definedValues: Partial<DataSeriesValueFields> = {};
+      // This is done like this to avoid evil Regex
+      const validCharsForYear = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
       for (const year of Years) {
-        // TODO: match years in a better way.
-        const found = data.values.find(v =>
-          v.period.includes(year.replace("val", ""))
-        );
+        const found = filterToInitialYearlyRecords(data.values)
+          .find(v => {
+            // Assuming year strings are like "val2020" but just in case, only keep numbers
+            const strippedYear = year.split("")
+              .filter(c => validCharsForYear.includes(c))
+              .join("");
+
+            const parsedDate = parsePeriod(v.period);
+            return parsedDate.getUTCFullYear().toString() === strippedYear;
+          });
         if (found) {
           definedValues[year] = parseFloat(found.value);
         }
