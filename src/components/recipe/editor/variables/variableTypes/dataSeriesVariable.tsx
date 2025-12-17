@@ -82,15 +82,15 @@ export function useHandleDataSeriesChange(
 }
 
 // TODO: Fix labels
-// TODO: Check usage of inputrules (prop that has been removed)
+// TODO: Check usage of permissions (prop that has been removed)
 export default function VariableTypeDataSeries({
   variableName,
-  rules,
+  permissions,
   availableRoadmaps = [],
   props
 }: {
   variableName: string;
-  rules?: RecipeEditorPermissions;
+  permissions?: RecipeEditorPermissions;
   availableRoadmaps?: { id: string; name: string; }[];
   props: InputElement;
 }) {
@@ -106,12 +106,12 @@ export default function VariableTypeDataSeries({
     return null;
   }
 
-  rules = { ...RecipeEditorPermissions, ...rules };
+  permissions = { ...RecipeEditorPermissions, ...permissions };
 
   return (
     <VariableTypeCommon
       variableName={variableName}
-      rules={rules}
+      permissions={permissions}
     >
       {/* TODO: Why is this height mismatched */}
       <div className="inline-block floating-label" style={{ verticalAlign: "top", width: "200px", "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
@@ -134,33 +134,33 @@ export default function VariableTypeDataSeries({
         <label htmlFor="variable-tree-vector-index-picker">
           {t("components:recipe_editor.vector_index_picker_label")}
         </label>
-        <VectorPickerSelect rules={rules} variableName={variableName} />
+        <VectorPickerSelect permissions={permissions} variableName={variableName} />
       </div>
     </VariableTypeCommon >
   )
 }
 
-// TODO: Check usage of inputrules (prop that has been removed)
+// TODO: Check usage of permissions (prop that has been removed)
 export function VariableTypeDataSeriesSimple({
-  name,
+  variableName,
   availableRoadmaps = [],
   props,
   goalName,
 }: {
-  name: string;
+  variableName: string;
   availableRoadmaps?: { id: string; name: string; }[];
   props: InputElement;
   goalName?: string;
 }) {
   // const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
-  const variable = recipe?.variables[name] as RecipeVariable;
+  const variable = recipe?.variables[variableName] as RecipeVariable;
 
   const treeItems = useRoadmapTreeItems(availableRoadmaps);
-  const handleDataSeriesChange = useHandleDataSeriesChange(name, setRecipe);
+  const handleDataSeriesChange = useHandleDataSeriesChange(variableName, setRecipe);
 
   if (!isRecipeDataSeries(variable)) {
-    console.error(`Variable "${name}" is not a valid DataSeriesVariable`, variable);
+    console.error(`Variable "${variableName}" is not a valid DataSeriesVariable`, variable);
     return null;
   }
 

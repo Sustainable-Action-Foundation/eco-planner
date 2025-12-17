@@ -60,7 +60,7 @@ export default function VariableEditor({
         </li>
       }
       {Object.entries(recipe?.variables || []).map(([name, variable], i) => {
-        const rules: RecipeEditorPermissions = {
+        const permissions: RecipeEditorPermissions = {
           allowAddVariables,
           allowDeleteVariables,
           allowNameEditing,
@@ -74,7 +74,7 @@ export default function VariableEditor({
                 <VariableTypeScalar
                   key={"recipeVariable" + i}
                   name={name}
-                  rules={rules}
+                  permissions={permissions}
                 />
               </li>
             )
@@ -88,7 +88,7 @@ export default function VariableEditor({
                   }}
                   key={"recipeVariable" + i}
                   variableName={name}
-                  rules={rules}
+                  permissions={permissions}
                   availableRoadmaps={availableRoadmaps}
                 />
               </li>
@@ -99,7 +99,7 @@ export default function VariableEditor({
                 <VariableTypeExternal
                   key={"recipeVariable" + i}
                   variableName={name}
-                  rules={rules}
+                  permissions={permissions}
                 />
               </li>
             )

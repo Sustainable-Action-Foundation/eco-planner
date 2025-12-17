@@ -144,7 +144,7 @@ export function SuggestedRecipes({
       }}
     >
       {Object.entries(recipe?.variables ?? {}).map(([variableName, variable], i) => {
-        const rules: RecipeEditorPermissions = {
+        const permissions: RecipeEditorPermissions = {
           allowAddVariables,
           allowDeleteVariables,
           allowNameEditing,
@@ -180,7 +180,7 @@ export function SuggestedRecipes({
                 <VariableTypeScalarSimple
                   key={"recipeVariable" + i}
                   variableName={variableName}
-                  rules={rules}
+                  permissions={permissions}
                   props={{
                     defaultValue: variable.value,
                   }}
@@ -203,7 +203,7 @@ export function SuggestedRecipes({
                     disabled: variable.disabled || false,
                   }}
                   key={"recipeVariable" + i}
-                  name={variableName}
+                  variableName={variableName}
                   availableRoadmaps={availableRoadmaps}
                   goalName={variable.goalName}
                 />
@@ -219,7 +219,7 @@ export function SuggestedRecipes({
                 <VariableTypeExternalSimple
                   key={"recipeVariable" + i}
                   variableName={variableName}
-                  rules={rules}
+                  permissions={permissions}
                 />
               </Fragment>
             );

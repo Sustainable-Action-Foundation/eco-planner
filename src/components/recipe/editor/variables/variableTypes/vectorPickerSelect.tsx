@@ -6,17 +6,17 @@ import { RecipeEditorPermissions } from "./recipeEditorPermissions";
 import { useRecipe } from "@/components/recipe/contextProvider";
 
 // TODO: Fix labels
-export default function VectorPickerSelect({ rules, variableName }: { rules?: RecipeEditorPermissions, variableName: string }) {
+export default function VectorPickerSelect({ permissions, variableName }: { permissions?: RecipeEditorPermissions, variableName: string }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
 
-  rules = { ...RecipeEditorPermissions, ...rules };
+  permissions = { ...RecipeEditorPermissions, ...permissions };
 
   return (
     <select
       id={variableName}
       defaultValue={(recipe?.variables[variableName] as RecipeDataSeries)?.pick || VectorIndexPickerOptions.Default}
-      disabled={!rules.allowValueEditing}
+      disabled={!permissions.allowValueEditing}
       onChange={(e) => {
         if (!recipe) return; // Early return if recipe is null which is only the case in race conditions with the context provider
 

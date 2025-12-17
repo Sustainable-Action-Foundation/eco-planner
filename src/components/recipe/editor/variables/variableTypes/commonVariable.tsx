@@ -14,11 +14,11 @@ import { allOurUnits } from "@/math";
 // TODO: Fix labels
 export default function VariableTypeCommon({
   variableName,
-  rules,
+  permissions,
   children,
 }: {
   variableName: string;
-  rules?: RecipeEditorPermissions;
+  permissions?: RecipeEditorPermissions;
   children: React.ReactNode;
 }) {
   const { t } = useTranslation(["common", "components"]);
@@ -26,7 +26,7 @@ export default function VariableTypeCommon({
   const variable = recipe?.variables[variableName] as RecipeVariable;
   const [editable, setEditable] = useState<boolean>(false)
 
-  rules = { ...RecipeEditorPermissions, ...rules };
+  permissions = { ...RecipeEditorPermissions, ...permissions };
 
   return (
     <fieldset
@@ -92,7 +92,7 @@ export default function VariableTypeCommon({
           {children}
         </div>
       </fieldset>
-      {rules.allowDeleteVariables &&
+      {permissions.allowDeleteVariables &&
         <button
           disabled={!editable}
           className="padding-25 round transparent margin-left-50"

@@ -10,21 +10,21 @@ import VariableTypeCommon from "./commonVariable";
 // TODO: Fix labels
 export default function VariableTypeScalar({
   name,
-  rules,
+  permissions,
 }: {
   name: string;
-  rules?: RecipeEditorPermissions;
+  permissions?: RecipeEditorPermissions;
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
   const variable = recipe?.variables[name] as RecipeScalar;
 
-  rules = { ...RecipeEditorPermissions, ...rules };
+  permissions = { ...RecipeEditorPermissions, ...permissions };
 
   return (
     <VariableTypeCommon
       variableName={name}
-      rules={rules}
+      permissions={permissions}
     >
       <div className="floating-label inline-block" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
         <label htmlFor="variable-tree-vector-index-picker">
@@ -35,8 +35,8 @@ export default function VariableTypeScalar({
           onChange={(e) => updateScalarVariableValue(name, e.target.value, setRecipe)}
           type="number"
           placeholder=" "
-          disabled={!rules.allowValueEditing}
-          readOnly={!rules.allowValueEditing}
+          disabled={!permissions.allowValueEditing}
+          readOnly={!permissions.allowValueEditing}
         />
       </div>
     </VariableTypeCommon>
@@ -45,18 +45,18 @@ export default function VariableTypeScalar({
 
 export function VariableTypeScalarSimple({
   variableName,
-  rules,
+  permissions,
   props = {},
 }: {
   variableName: string;
-  rules?: RecipeEditorPermissions;
+  permissions?: RecipeEditorPermissions;
   props?: React.InputHTMLAttributes<HTMLInputElement>;
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
   const variable = recipe?.variables[variableName] as RecipeScalar;
 
-  rules = { ...RecipeEditorPermissions, ...rules };
+  permissions = { ...RecipeEditorPermissions, ...permissions };
 
   return (
     <input
@@ -65,8 +65,8 @@ export function VariableTypeScalarSimple({
       onChange={(e) => updateScalarVariableValue(variableName, e.target.value, setRecipe)}
       type="number"
       placeholder={t("components:recipe_editor.scalar")}
-      disabled={!rules.allowValueEditing}
-      readOnly={!rules.allowValueEditing}
+      disabled={!permissions.allowValueEditing}
+      readOnly={!permissions.allowValueEditing}
       {...props}
     />
   )

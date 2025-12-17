@@ -13,21 +13,21 @@ import RecipeQueryBuilder from "@/components/form/api/recipeQueryBuilder";
 // TODO: Fix labels
 export default function VariableTypeExternal({
   variableName,
-  rules,
+  permissions,
 }: {
   variableName: string;
-  rules?: RecipeEditorPermissions;
+  permissions?: RecipeEditorPermissions;
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
   const variable = recipe?.variables[variableName] as RecipeExternalDataset;
 
-  rules = { ...RecipeEditorPermissions, ...rules };
+  permissions = { ...RecipeEditorPermissions, ...permissions };
 
   return (
     <VariableTypeCommon
       variableName={variableName}
-      rules={rules}
+      permissions={permissions}
     >
       <div className="floating-label inline-block" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
         <label htmlFor="external-variable-dataset">
@@ -36,7 +36,7 @@ export default function VariableTypeExternal({
         <select
           id="external-variable-dataset" /* TODO: This ID needs to be dynamic */
           value={variable.dataset || ""}
-          disabled={!rules.allowValueEditing}
+          disabled={!permissions.allowValueEditing}
           onChange={(e) => updateExternalVariableDataset(variableName, e.target.value, setRecipe)}
         >
           <option disabled value="">{t("components:recipe_editor.select_dataset")}</option>
@@ -58,7 +58,7 @@ export default function VariableTypeExternal({
           value={variable.tableId || ""}
           onChange={(e) => updateExternalVariableTable(variableName, e.target.value, setRecipe)}
           type="text"
-          disabled={!rules.allowValueEditing}
+          disabled={!permissions.allowValueEditing}
           placeholder=" "
         />
       </div>
@@ -72,7 +72,7 @@ export default function VariableTypeExternal({
           value={JSON.stringify(variable.selection) || ""}
           onChange={(e) => updateExternalVariableSelection(variableName, e.target.value, setRecipe)}
           type="text"
-          disabled={!rules.allowValueEditing}
+          disabled={!permissions.allowValueEditing}
           placeholder=" "
         />
       </div>
@@ -81,7 +81,7 @@ export default function VariableTypeExternal({
         <label htmlFor="variable-tree-vector-index-picker">
           {t("components:recipe_editor.vector_index_picker_label")}
         </label>
-        <VectorPickerSelect rules={rules} variableName={variableName} />
+        <VectorPickerSelect permissions={permissions} variableName={variableName} />
       </div>
 
       <RecipeQueryBuilder variableName={variableName} />
@@ -92,22 +92,22 @@ export default function VariableTypeExternal({
 
 export function VariableTypeExternalSimple({
   variableName,
-  rules
+  permissions
 }: {
   variableName: string,
-  rules?: RecipeEditorPermissions
+  permissions?: RecipeEditorPermissions
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
   const variable = recipe?.variables[variableName] as RecipeExternalDataset;
 
-  rules = { ...RecipeEditorPermissions, ...rules };
+  permissions = { ...RecipeEditorPermissions, ...permissions };
 
   return (
     <div className="flex gap-25"> {/* TODO: Figure out how to deal with labels here */}
       <select
         value={variable.dataset || ""}
-        disabled={!rules.allowValueEditing}
+        disabled={!permissions.allowValueEditing}
         onChange={(e) => updateExternalVariableDataset(variableName, e.target.value, setRecipe)}
       >
         <option value="">{t("components:recipe_editor.dataset")}</option>
@@ -123,7 +123,7 @@ export function VariableTypeExternalSimple({
         value={variable.tableId || ""}
         onChange={(e) => updateExternalVariableTable(variableName, e.target.value, setRecipe)}
         type="text"
-        disabled={!rules.allowValueEditing}
+        disabled={!permissions.allowValueEditing}
         placeholder={t("components:recipe_editor.table")}
       />
       <input
@@ -131,7 +131,7 @@ export function VariableTypeExternalSimple({
         value={JSON.stringify(variable.selection) || ""}
         onChange={(e) => updateExternalVariableSelection(variableName, e.target.value, setRecipe)}
         type="text"
-        disabled={!rules.allowValueEditing}
+        disabled={!permissions.allowValueEditing}
         placeholder={t("components:recipe_editor.selection")}
       />
     </div>
