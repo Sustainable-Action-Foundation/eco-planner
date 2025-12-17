@@ -34,11 +34,13 @@ export default function RecipeEditor() {
           style={{ border: '1px solid var(--gray)', borderRadius: '.25rem .25rem 0 0', minHeight: '225px', resize: 'vertical', overflow: 'auto', backgroundColor: 'white' }}
         >
           <VariableEditor
-            allowAddVariables
-            allowDeleteVariables
-            allowNameEditing
-            allowTypeEditing
-            allowValueEditing
+            permissions={{
+              allowAddVariables: true,
+              allowDeleteVariables: true,
+              allowNameEditing: true,
+              allowTypeEditing: true,
+              allowValueEditing: true,
+            }}
           />
         </div>
       </TabList>

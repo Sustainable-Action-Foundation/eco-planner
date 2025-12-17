@@ -13,17 +13,9 @@ import VariableCreator from "./variableCreator";
 import { RecipeEditorPermissions } from "./variableTypes/recipeEditorPermissions";
 
 export default function VariableEditor({
-  allowAddVariables = false,
-  allowDeleteVariables = false,
-  allowNameEditing = false,
-  allowTypeEditing = false,
-  allowValueEditing = true,
+  permissions = RecipeEditorPermissions,
 }: {
-  allowAddVariables?: boolean;
-  allowDeleteVariables?: boolean;
-  allowNameEditing?: boolean;
-  allowTypeEditing?: boolean;
-  allowValueEditing?: boolean;
+  permissions?: RecipeEditorPermissions;
 }) {
   const { t } = useTranslation("components");
   const { recipe } = useRecipe();
@@ -60,13 +52,6 @@ export default function VariableEditor({
         </li>
       }
       {Object.entries(recipe?.variables || []).map(([name, variable], i) => {
-        const permissions: RecipeEditorPermissions = {
-          allowAddVariables,
-          allowDeleteVariables,
-          allowNameEditing,
-          allowTypeEditing,
-          allowValueEditing,
-        };
         switch (variable.type) {
           case RecipeDataTypes.Scalar:
             return (

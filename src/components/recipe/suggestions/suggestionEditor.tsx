@@ -20,16 +20,14 @@ import { RecipeEditorPermissions } from "../editor/variables/variableTypes/recip
 export function SuggestedRecipes({
   autoInsertDefaultSuggestions = true,
   suggestedRecipes: suggestedRecipesInput = [],
-  DEPRECATED_recipeOverrideFunctions,
+  permissions = RecipeEditorPermissions,
 
-  allowAddVariables = false,
-  allowDeleteVariables = false,
-  allowNameEditing = false,
-  allowTypeEditing = false,
-  allowValueEditing = true,
+  DEPRECATED_recipeOverrideFunctions,
 }: {
   autoInsertDefaultSuggestions?: boolean;
   suggestedRecipes?: { hash: string, recipe: Recipe }[];
+  permissions?: RecipeEditorPermissions;
+
   /** 
    * ## WARNING!
    * 
@@ -39,13 +37,6 @@ export function SuggestedRecipes({
    *  not be used elsewhere and removed once smart recipes are in place.
    */
   DEPRECATED_recipeOverrideFunctions?: Array<(recipe: Recipe) => Recipe>;
-
-  allowAddVariables?: boolean;
-  allowDeleteVariables?: boolean;
-  allowNameEditing?: boolean;
-  allowTypeEditing?: boolean;
-  allowValueEditing?: boolean;
-  ariaLabelledBy?: string,
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
@@ -144,14 +135,6 @@ export function SuggestedRecipes({
       }}
     >
       {Object.entries(recipe?.variables ?? {}).map(([variableName, variable], i) => {
-        const permissions: RecipeEditorPermissions = {
-          allowAddVariables,
-          allowDeleteVariables,
-          allowNameEditing,
-          allowTypeEditing,
-          allowValueEditing,
-        };
-
         const unitIsProvided = typeof variable.unit !== "undefined" && variable.unit !== null;
         const isValidUnit = unitIsProvided ? testIfValidUnit(variable.unit as string) : false;
         const unitDisplay = isValidUnit

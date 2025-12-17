@@ -156,6 +156,13 @@ export default function CopyAndScale({
 
           <RecipeContextProvider>
             <SuggestedRecipes
+              permissions={{
+                allowAddVariables: false,
+                allowDeleteVariables: false,
+                allowNameEditing: false,
+                allowTypeEditing: false,
+                allowValueEditing: true,
+              }}
               DEPRECATED_recipeOverrideFunctions={[
                 // Set the value of the first data series to be of this goal
                 (r => {
