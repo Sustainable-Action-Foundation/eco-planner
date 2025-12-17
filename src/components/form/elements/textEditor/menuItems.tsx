@@ -314,7 +314,6 @@ export function NumberedList(props: MenubarButtonProps) {
 export function Link(props: MenubarButtonProps) {
   const { t, editor, menuGroup, setFocusedMenubarItem } = props;
 
-  const [editLink, setEditLink] = useState<boolean>(false)
   const [textValue, setTextValue] = useState("");
   const [hrefValue, setHrefValue] = useState("");
   const linkNameRef = useRef<HTMLInputElement | null>(null)
@@ -373,18 +372,10 @@ export function Link(props: MenubarButtonProps) {
   } 
 
   // TODO: Fix keybindings both for adding links within this component and for opening the menu (ctrl + k)
-  // TODO: The icon should never have aria-checked?
-  // TODO: Move dialog outside the span
   return (
     <>
       <span
         data-menu-group={menuGroup}
-          // onClick={() => {
-          // If no link mark exists yet, create a placeholder link so BubbleMenu can show
-         //    if (!editor.isActive('link')) {
-          //     editor.chain().focus().setLink({ href: '' }).run(); // TODO: Set focus to menu.
-          //   }
-          // }}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -393,7 +384,11 @@ export function Link(props: MenubarButtonProps) {
           }
         }}
         onClick={() => {
-          dialogref.current?.showModal()
+          if (editor.isActive('link')) {
+            editor.chain().focus().unsetLink().run()
+          } else {
+            dialogref.current?.showModal()
+          }
         }}
         tabIndex={-1}
         role='menuitemcheckbox'
@@ -403,149 +398,90 @@ export function Link(props: MenubarButtonProps) {
         style={{anchorName: '--test'}}
       >
         <IconLink className="grid" width={16} height={16} aria-hidden="true" />
-        <dialog // TODO: remove dialog from the span
-          closedby="any"
-          ref={dialogref}
-          className={`position-fixed padding-50 smooth gray-95 ${styles['link-menu']}`}    
-          style={{ positionAnchor: '--test', top: 'anchor(bottom)', left: 'anchor(left)', margin: '.5rem 0 0 0', boxShadow: 'rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px', border: '0' }} 
-        >
-          <div className="flex align-items-flex-end gap-25">
-            <div>
-              <label aria-label=""> {/* TODO: Label text + I18n */}
-                <div className="focusable flex align-items-center padding-inline-25 margin-bottom-25">
-                  <IconAlignLeft width={16} height={16} aria-hidden={true} />
-                  <input
-                    ref={linkNameRef}
-                    className="padding-25"
-                    type="text"
-                    placeholder={t('forms:text_editor_menu.link.text_placeholder')}
-                    title={t('forms:text_editor_menu.link.text_tooltip')}
-                    value={textValue}
-                    onChange={(e) => setTextValue(e.target.value)}
-                  />
-                </div>
-              </label>
-              <label aria-label=""> {/* TODO: Label text + I18n */}
-                <div className="focusable flex align-items-center padding-inline-25">
-                  <IconLink width={16} height={16} aria-hidden={true} />
-                  <input
-                    ref={linkHrefRef}
-                    className="padding-25"
-                    type="url"
-                    placeholder={t('forms:text_editor_menu.link.url_placeholder')}
-                    title={t('forms:text_editor_menu.link.url_tooltip')}
-                    value={hrefValue}
-                    onChange={(e) => setHrefValue(e.target.value)}
-                  />
-                </div>
-              </label>
-            </div>
-            <button
-              type="button"
-              className="round transparent font-weight-600"
-              style={{ color: 'var(--blue)' }}
-              onClick={(e) => {e.stopPropagation(); setLink(textValue, hrefValue); dialogref.current?.close()}}
-            >
-              {t('forms:text_editor_menu.link.apply')}
-            </button>
-          </div>
-        </dialog>
-
       </span>
 
+      <dialog
+        closedby="any"
+        ref={dialogref}
+        className={`position-fixed padding-50 smooth gray-95 ${styles['link-menu']}`}    
+        style={{ positionAnchor: '--test', top: 'anchor(bottom)', left: 'anchor(left)', margin: '.5rem 0 0 0', boxShadow: 'rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px', border: '0' }} 
+      >
+        <div className="flex align-items-flex-end gap-25">
+          <div>
+            <label aria-label=""> {/* TODO: Label text + I18n */}
+              <div className="focusable flex align-items-center padding-inline-25 margin-bottom-25">
+                <IconAlignLeft width={16} height={16} aria-hidden={true} />
+                <input
+                  ref={linkNameRef}
+                  className="padding-25"
+                  type="text"
+                  placeholder={t('forms:text_editor_menu.link.text_placeholder')}
+                  title={t('forms:text_editor_menu.link.text_tooltip')}
+                  value={textValue}
+                  onChange={(e) => setTextValue(e.target.value)}
+                />
+              </div>
+            </label>
+            <label aria-label=""> {/* TODO: Label text + I18n */}
+              <div className="focusable flex align-items-center padding-inline-25">
+                <IconLink width={16} height={16} aria-hidden={true} />
+                <input
+                  ref={linkHrefRef}
+                  className="padding-25"
+                  type="url"
+                  placeholder={t('forms:text_editor_menu.link.url_placeholder')}
+                  title={t('forms:text_editor_menu.link.url_tooltip')}
+                  value={hrefValue}
+                  onChange={(e) => setHrefValue(e.target.value)}
+                />
+              </div>
+            </label>
+          </div>
+          <button
+            type="button"
+            className="round transparent font-weight-600"
+            style={{ color: 'var(--blue)' }}
+            onClick={(e) => {
+              e.stopPropagation(); 
+              setLink(textValue, hrefValue); 
+              setTextValue('')
+              setHrefValue('')
+              dialogref.current?.close()
+            }}
+          >
+            {t('forms:text_editor_menu.link.apply')}
+          </button>
+        </div>
+      </dialog>
       {editor &&
         <BubbleMenu 
           editor={editor}
+          shouldShow={({ editor }) => editor.isActive('link')}
           options={{
             placement: 'bottom',
             offset: 8,
-            onUpdate: () => {
-              if (editor.getAttributes('link').href) {
-                setEditLink(false)
-              } else {
-                setEditLink(true)
-              }
-            },
           }}
-          shouldShow={({ editor }) => editor.isActive('link')}
         >
-          <div className="padding-50 smooth gray-95" style={{ boxShadow: 'rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px' }}>
-            {!editLink ?
-              <div className="flex align-items-center">
-                <a
-                  href={(editor.getAttributes('link') as { href?: string | null }).href || ''}
-                  target="_blank"
-                  style={{ width: 'min(175px, auto)', fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {editor.getAttributes('link').href}
-                </a>
-                {/* <button
-                  type="button"
-                  className={`padding-25 margin-left-100 transparent rounded flex align-items-center ${styles.tooltip}`}
-                  style={{ transform: 'scale(1)' }}
-                  aria-label={t('forms:text_editor_menu.link.edit_link')}
-                  data-tooltip={t('forms:text_editor_menu.link.edit_link')}
-                  onClick={() => setEditLink(true)}
-                >
-                  <IconPencil height={18} width={18} aria-hidden={true} />
-                </button> */}
-                <span className="margin-left-75 padding-left-25" style={{ borderLeft: '1px solid var(--gray)' }}>
-                  <button
-                    type="button"
-                    className={`padding-25 transparent rounded flex align-items-center ${styles.tooltip}`}
-                    style={{ transform: 'scale(1)' }}
-                    aria-label={t('forms:text_editor_menu.link.remove_link')}
-                    data-tooltip={t('forms:text_editor_menu.link.remove_link')}
-                    onClick={() => { editor.chain().focus().unsetLink().run() }}
-                  >
-                    <IconLinkOff height={18} width={18} aria-hidden={true} />
-                  </button>
-                </span>
-              </div>
-              :
-              <>
-                <div className="flex align-items-flex-end gap-25">
-                  <div>
-                    <label aria-label=""> {/* TODO: Label text + I18n */}
-                      <div className="focusable flex align-items-center padding-inline-25 margin-bottom-25">
-                        <IconAlignLeft width={16} height={16} aria-hidden={true} />
-                        <input
-                          ref={linkNameRef}
-                          className="padding-25"
-                          type="text"
-                          placeholder={t('forms:text_editor_menu.link.text_placeholder')}
-                          title={t('forms:text_editor_menu.link.text_tooltip')}
-                          value={textValue}
-                          onChange={(e) => setTextValue(e.target.value)}
-                        />
-                      </div>
-                    </label>
-                    <label aria-label=""> {/* TODO: Label text + I18n */}
-                      <div className="focusable flex align-items-center padding-inline-25">
-                        <IconLink width={16} height={16} aria-hidden={true} />
-                        <input
-                          ref={linkHrefRef}
-                          className="padding-25"
-                          type="url"
-                          placeholder={t('forms:text_editor_menu.link.url_placeholder')}
-                          title={t('forms:text_editor_menu.link.url_tooltip')}
-                          value={hrefValue}
-                          onChange={(e) => setHrefValue(e.target.value)}
-                        />
-                      </div>
-                    </label>
-                  </div>
-                  <button
-                    type="button"
-                    className="round transparent font-weight-600"
-                    style={{ color: 'var(--blue)' }}
-                    onClick={() => setLink(textValue, hrefValue)}
-                  >
-                    {t('forms:text_editor_menu.link.apply')}
-                  </button>
-                </div>
-              </>
-            }
-          </div>
+          <div className="padding-50 smooth gray-95 flex align-items-center" style={{ boxShadow: 'rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px' }}>
+            <a
+              href={(editor.getAttributes('link') as { href?: string | null }).href || ''}
+              target="_blank"
+              style={{ width: 'min(175px, auto)', fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {editor.getAttributes('link').href}
+            </a>
+            <span className="margin-left-75 padding-left-25" style={{ borderLeft: '1px solid var(--gray)' }}>
+              <button
+                type="button"
+                className={`padding-25 transparent rounded flex align-items-center ${styles.tooltip}`}
+                style={{ transform: 'scale(1)' }}
+                aria-label={t('forms:text_editor_menu.link.remove_link')}
+                data-tooltip={t('forms:text_editor_menu.link.remove_link')}
+                onClick={() => { editor.chain().focus().unsetLink().run() }}
+              >
+                <IconLinkOff height={18} width={18} aria-hidden={true} />
+              </button>
+            </span>
+          </div>            
         </BubbleMenu>
       }
     </>
