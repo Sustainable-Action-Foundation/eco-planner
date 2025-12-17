@@ -371,7 +371,6 @@ export function Link(props: MenubarButtonProps) {
 
   } 
 
-  // TODO: Fix keybindings both for adding links within this component and for opening the menu (ctrl + k)
   return (
     <>
       <span
@@ -379,8 +378,11 @@ export function Link(props: MenubarButtonProps) {
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            editor.chain().focus().setLink({ href: '' }).run();
-            setFocusedMenubarItem(null)
+            if (editor.isActive('link')) {
+              editor.chain().focus().unsetLink().run()
+            } else {
+              dialogref.current?.showModal()
+            }
           }
         }}
         onClick={() => {
@@ -394,7 +396,8 @@ export function Link(props: MenubarButtonProps) {
         role='menuitemcheckbox'
         aria-label={t("forms:text_editor_menu.link.insert_link")}
         aria-checked={editor.isActive('link')}
-        aria-keyshortcuts='control+k'
+        // TODO: We want ctrl+k to open the dialog but we remove this for now due to complications
+        // aria-keyshortcuts='control+k'
         style={{anchorName: '--test'}}
       >
         <IconLink className="grid" width={16} height={16} aria-hidden="true" />

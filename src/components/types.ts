@@ -32,3 +32,11 @@ export type TreeItem = {
   childNodes?: Array<TreeItem>,
   onExpand?: () => Array<TreeItem> | Promise<Array<TreeItem>>
 }
+
+import '@tiptap/extension-link'
+
+declare module '@tiptap/extension-link' {
+  interface LinkOptions {
+    onOpenLinkModal?: () => void
+  }
+}
