@@ -128,9 +128,9 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
   if (mathjs.typeOf(result) === "Unit") {
     console.warn("Equation returned a scalar, applying to all fields.");
     warnings.push("Equation returned a scalar value, applying the same value to all years.");
-    result = Array(Years.length).fill(result);
+    result = Array(Years.length).fill(result as Unit);
   }
-  result = result as Unit[]; // TODO type check in a dynamic way
+  result = result as Unit[]; // TODO type check in a dynamic way which is annoying since mathjs has their runtime function for it. Maybe instanceof?
 
   const resultingDataSeriesWithUnit = convertVectorToYearValuePair(result);
   const { unit, ...dataSeriesWithoutUnit } = resultingDataSeriesWithUnit;
