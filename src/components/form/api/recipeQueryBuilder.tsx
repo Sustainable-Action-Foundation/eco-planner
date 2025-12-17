@@ -163,8 +163,8 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
           }
         }
       });
-    } else {
-      /* console.log("no variable selection fieldset found"); */
+    }
+    else {
       setIsLoading(false);
     }
   }
@@ -357,7 +357,6 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
     });
 
     const query = buildQuery(formData);
-    console.log(dataSource, JSON.stringify(query))
 
     updateExternalVariableDataset(variableName, dataSource, setRecipe)
     updateExternalVariableTable(variableName, tableDetails?.id ?? formData.get("externalTableId") as string ?? "", setRecipe)
