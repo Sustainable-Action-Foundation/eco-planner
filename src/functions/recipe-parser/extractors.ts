@@ -114,7 +114,7 @@ export async function extractExternalDatasets(
       const data = await getTableContent(tableId, dataset, selection);
 
       if (!data) {
-        throw new RecipeError(`External dataset variable '${variableName}' has no data for tableId '${tableId}' and dataset '${dataset}'.`);
+        throw new RecipeError(`External dataset variable '${variableName}' has no data for tableId '${tableId}' and dataset '${dataset}' and selection '${JSON.stringify(selection)}'.`);
       }
       if (data.values.length === 0) {
         throw new RecipeError(`External dataset variable '${variableName}' has no values. Expected an array of values with 'period' and 'value' properties.`);
@@ -131,7 +131,9 @@ export async function extractExternalDatasets(
       const vectorOrScalar = pickVector(convertYearValuePairToVector(definedValues), variable.pick);
       externalDatasets.push({
         name: variableName,
-        value: Array.isArray(vectorOrScalar) ? vectorOrScalar.map(v => mathjs.unit(v, variable.unit || undefined)) : mathjs.unit(vectorOrScalar, variable.unit || undefined),
+        value: Array.isArray(vectorOrScalar)
+          ? vectorOrScalar.map(v => mathjs.unit(v, variable.unit || undefined))
+          : mathjs.unit(vectorOrScalar, variable.unit || undefined),
       });
     });
   }
@@ -153,7 +155,7 @@ function convertYearValuePairToVector(dataSeries: Partial<DataSeriesValueFields>
   });
 
   if (!lastDefinedYear) {
-    throw new RecipeError("convertYearValuePairToVector: Data series contains no defined numeric values.");
+    throw new RecipeError("VectorConvert: Data series contains no defined numeric values.");
   }
 
   // Map to vector with special handling for missing and null values
@@ -170,7 +172,7 @@ function convertYearValuePairToVector(dataSeries: Partial<DataSeriesValueFields>
     }
 
     else if (typeof dataSeries[year] !== "number") {
-      throw new RecipeError(`convertYearValuePairToVector: Invalid data type for year ${year}. Expected number or null, got ${typeof dataSeries[year]}.`);
+      throw new RecipeError(`VectorConvert: Invalid data type for year ${year}. Expected number or null, got ${typeof dataSeries[year]}.`);
     }
 
     // Defined number value
@@ -242,14 +244,14 @@ function pickVector(vector: number[], pick: VectorIndexPickerOptions): number | 
     case VectorIndexPickerOptions.First:
       const first = vector.at(0);
       if (first === undefined) {
-        throw new RecipeError("pickVector: Vector is empty, cannot pick the first element.");
+        throw new RecipeError("VectorPicking: Vector is empty, cannot pick the first element.");
       }
       return first;
 
     case VectorIndexPickerOptions.Last:
       const last = vector.at(-1);
       if (last === undefined) {
-        throw new RecipeError("pickVector: Vector is empty, cannot pick the last element.");
+        throw new RecipeError("VectorPicking: Vector is empty, cannot pick the last element.");
       }
       return last;
 
