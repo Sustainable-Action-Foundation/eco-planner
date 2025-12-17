@@ -89,8 +89,9 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     scope[newName] = variable.value;
   }
 
-  let result;
+  let result: Unit | Unit[];
   try {
+    console.log({ scope, equation });
     const rawResult: unknown = mathjs.evaluate(equation, scope);
 
     // Try to normalize into Unit or Unit[]
@@ -112,11 +113,21 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     }
   }
   catch (e) {
-    throw new MathjsError("Error evaluating recipe equation: " + (e as Error).message);
+    const errorAliases = {
+      "Unexpected type of argument in function addScalar (expected: Unit, actual: number, index: 1)":
+        "Cannot add a unitless number to a unit.",
+      "Unexpected type of argument in function addScalar (expected: number or bigint or string or boolean or BigNumber or Complex or Fraction, actual: Unit, index: 1)":
+        "Cannot add a unit to a unitless number.",
+    };
+
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    const friendlyMessage = errorAliases[errorMessage as keyof typeof errorAliases] || errorMessage;
+    throw new MathjsError("Error evaluating recipe equation: " + friendlyMessage);
   }
 
   if (mathjs.typeOf(result) === "Unit") {
     console.warn("Equation returned a scalar, applying to all fields.");
+    warnings.push("Equation returned a scalar value, applying the same value to all years.");
     result = Array(Years.length).fill(result);
   }
   result = result as Unit[]; // TODO type check in a dynamic way
