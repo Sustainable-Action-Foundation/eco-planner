@@ -52,6 +52,7 @@ export async function extractDataSeries(
         });
     }
     else if (variable.value || Array.isArray(variable.value)) {
+      // TODO: maybe remove this "exception" or at least make the id more robust
       dbDataSeries = {
         id: "inline",
         unit: variable.unit || null,
@@ -90,7 +91,6 @@ export async function extractDataSeries(
 
 export async function extractExternalDatasets(
   variables: Record<string, RecipeVariable>,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   warnings: string[] = [],
 ): Promise<EvalTimeVariable[]> {
   const externalDatasets: EvalTimeVariable[] = [];
@@ -112,7 +112,7 @@ export async function extractExternalDatasets(
 
     fetchers.push(async () => {
       const data = await getTableContent(tableId, dataset, selection);
-
+      console.log(data);
       if (!data) {
         throw new RecipeError(`External dataset variable '${variableName}' has no data for tableId '${tableId}' and dataset '${dataset}' and selection '${JSON.stringify(selection)}'.`);
       }
@@ -128,12 +128,22 @@ export async function extractExternalDatasets(
         }
       }
 
+      // TODO: how should units be derived here? I can't find anything in the API response that indicates units.
+      const bestUnit = getPrevailingUnit(undefined, variable.unit);
+      const isValidUnit = testIfValidUnit(bestUnit);
+      if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variableName}" has an invalid unit "${bestUnit}". Treating as unitless.`);
+      const unit = isValidUnit ? bestUnit : undefined;
+
       const vectorOrScalar = pickVector(convertYearValuePairToVector(definedValues), variable.pick);
       externalDatasets.push({
         name: variableName,
-        value: Array.isArray(vectorOrScalar)
-          ? vectorOrScalar.map(v => mathjs.unit(v, variable.unit || undefined))
-          : mathjs.unit(vectorOrScalar, variable.unit || undefined),
+        value: Array.isArray(vectorOrScalar) ?
+          vectorOrScalar.map(v => unit
+            ? mathjs.unit(v, unit)
+            : mathjs.unit(v))
+          : unit
+            ? mathjs.unit(vectorOrScalar, unit)
+            : mathjs.unit(vectorOrScalar),
       });
     });
   }
