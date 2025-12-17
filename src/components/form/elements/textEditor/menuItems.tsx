@@ -396,9 +396,10 @@ export function Link(props: MenubarButtonProps) {
         role='menuitemcheckbox'
         aria-label={t("forms:text_editor_menu.link.insert_link")}
         aria-checked={editor.isActive('link')}
+        data-tooltip={t("forms:text_editor_menu.link.insert_link")}
         // TODO: We want ctrl+k to open the dialog but we remove this for now due to complications
         // aria-keyshortcuts='control+k'
-        style={{anchorName: '--test'}}
+        style={{anchorName: '--link-menu'}}
       >
         <IconLink className="grid" width={16} height={16} aria-hidden="true" />
       </span>
@@ -407,7 +408,7 @@ export function Link(props: MenubarButtonProps) {
         closedby="any"
         ref={dialogref}
         className={`position-fixed padding-50 smooth gray-95 ${styles['link-menu']}`}    
-        style={{ positionAnchor: '--test', top: 'anchor(bottom)', left: 'anchor(left)', margin: '.5rem 0 0 0', boxShadow: 'rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px', border: '0' }} 
+        style={{ positionAnchor: '--link-menu', top: 'anchor(bottom)', left: 'anchor(left)', margin: '.5rem 0 0 0', boxShadow: 'rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px', border: '0' }} 
       >
         <div className="flex align-items-flex-end gap-25">
           <div>
