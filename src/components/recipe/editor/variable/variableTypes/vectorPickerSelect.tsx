@@ -6,7 +6,7 @@ import { InputRules, defaultInputRules } from "./variableRules";
 import { useRecipe } from "@/components/recipe/contextProvider";
 
 // TODO: Fix labels
-export default function VectorIndexPicker({ rules, varName }: { rules?: InputRules, varName: string }) {
+export default function VectorPickerSelect({ rules, varName }: { rules?: InputRules, varName: string }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
 

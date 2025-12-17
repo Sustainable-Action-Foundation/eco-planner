@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { InputRules, defaultInputRules } from "./variableRules";
 import { updateExternalVariableDataset, updateExternalVariableSelection, updateExternalVariableTable } from "@/components/recipe/variableEditingHelpers";
 import VariableTypeCommon from "./commonVariable";
-import VectorIndexPicker from "./vectorIndexPicker";
+import VectorPickerSelect from "./vectorPickerSelect";
 import { ExternalDataset } from "@/lib/api/utility";
 import RecipeQueryBuilder from "@/components/form/api/recipeQueryBuilder";
 
@@ -81,7 +81,7 @@ export default function VariableTypeExternal({
         <label htmlFor="variable-tree-vector-index-picker">
           {t("components:recipe_editor.vector_index_picker_label")}
         </label>
-        <VectorIndexPicker rules={rules} varName={name} />
+        <VectorPickerSelect rules={rules} varName={name} />
       </div>
       <RecipeQueryBuilder name={name} />
     </VariableTypeCommon>

@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { InputRules, defaultInputRules } from "./variableRules";
 import { updateDataSeriesLink } from "@/components/recipe/variableEditingHelpers";
 import VariableTypeCommon from "./commonVariable";
-import VectorIndexPicker from "./vectorIndexPicker";
+import VectorPickerSelect from "./vectorPickerSelect";
 import React, { useCallback, useEffect, useState } from "react";
 import { InputElement, TreeItem } from "@/components/types";
 import SelectSingleTreeSearch from "@/components/form/elements/combobox/selectSingleTreeSearch";
@@ -134,7 +134,7 @@ export default function VariableTypeDataSeries({
         <label htmlFor="variable-tree-vector-index-picker">
           {t("components:recipe_editor.vector_index_picker_label")}
         </label>
-        <VectorIndexPicker rules={rules} varName={name} />
+        <VectorPickerSelect rules={rules} varName={name} />
       </div>
     </VariableTypeCommon >
   )
