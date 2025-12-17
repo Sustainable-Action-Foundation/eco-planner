@@ -238,7 +238,7 @@ export function convertVectorToYearValuePair(vector: Unit[]): DataSeriesValueFie
     };
   }
   else {
-    console.warn(`convertVectorToYearValuePair: Inconsistent units in result vector: ${uniqueUnits.join(", ")}. Setting unit to undefined.`);
+    console.warn(`VectorConvert: Inconsistent units in result vector: ${uniqueUnits.join(", ")}. Setting unit to undefined.`);
     return {
       ...dataSeries,
       unit: undefined,
