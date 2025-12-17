@@ -3,7 +3,8 @@
 import { emptyRecipe, Recipe } from "@/functions/recipe-parser/types";
 import type { DataSeriesValueFields } from "@/types";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { evaluateRecipe, cleanRecipe } from "@/functions/parseRecipe";
+import { evaluateRecipe, cleanRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
+import { Locales } from "i18n.config";
 
 type RecipeContextType = {
   recipe: Recipe | null;
@@ -134,21 +135,24 @@ export function RecipeContextProvider({
   return (
     <RecipeContext.Provider value={{ recipe, setRecipe, warnings, error, resultingDataSeries, resultingUnit }}>
       {showDebug &&
-        <div style={{
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          backgroundColor: "rgba(0,0,0,0.8)",
-          display: "flex",
-          flexFlow: "column nowrap",
-          justifyContent: "start",
-          alignItems: "start",
-          rowGap: "1rem",
-          padding: "1rem",
-          zIndex: 9999,
-          color: "white",
-        }}>
+        <div
+          style={{
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0,0,0,0.8)",
+            display: "flex",
+            flexFlow: "column nowrap",
+            justifyContent: "start",
+            alignItems: "start",
+            rowGap: "1rem",
+            padding: "1rem",
+            zIndex: 9999,
+            color: "white",
+          }}
+          lang={Locales.enSE}
+        >
           {/* Scrollable wall of debug info */}
           <div style={{
             overflow: "scroll",
@@ -202,6 +206,44 @@ export function RecipeContextProvider({
             >
               Force Re-evaluation
             </button>
+
+            <input
+              type="text"
+              placeholder="Paste recipe here to load"
+              className="width-auto"
+              onChange={(e) => {
+                const pastedText = e.target.value;
+
+                // If the clipboard content is from the copy button above we test if the parsed object has recipe field
+                try {
+                  const parsedClipboard: unknown = JSON.parse(pastedText);
+                  if (
+                    parsedClipboard
+                    && typeof parsedClipboard === "object"
+                    && "recipe" in parsedClipboard
+                    && parsedClipboard.recipe
+                  ) {
+                    const parsedRecipe = recipeFromUnknown(parsedClipboard.recipe);
+                    setRecipe(parsedRecipe);
+                    e.target.value = "";
+                    return;
+                  }
+                }
+                catch {
+                  // Not JSON or invalid, ignore
+                }
+
+                // Actual recipes
+                try {
+                  const parsedRecipe = recipeFromUnknown(pastedText);
+                  setRecipe(parsedRecipe);
+                  e.target.value = "";
+                }
+                catch (err) {
+                  console.error("Failed to parse pasted recipe:", err);
+                }
+              }}
+            />
           </div>
         </div>
       }
