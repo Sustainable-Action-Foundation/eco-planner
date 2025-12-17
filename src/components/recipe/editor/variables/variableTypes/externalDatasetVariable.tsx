@@ -3,7 +3,7 @@
 import { useRecipe } from "@/components/recipe/contextProvider";
 import { RecipeExternalDataset } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
-import { InputRules, defaultInputRules } from "./variableRules";
+import { RecipeEditorPermissions } from "./variableRules";
 import { updateExternalVariableDataset, updateExternalVariableSelection, updateExternalVariableTable } from "@/components/recipe/variableEditingHelpers";
 import VariableTypeCommon from "./commonVariable";
 import VectorPickerSelect from "./vectorPickerSelect";
@@ -16,13 +16,13 @@ export default function VariableTypeExternal({
   rules,
 }: {
   variableName: string;
-  rules?: InputRules;
+  rules?: RecipeEditorPermissions;
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
   const variable = recipe?.variables[variableName] as RecipeExternalDataset;
 
-  rules = { ...defaultInputRules, ...rules };
+  rules = { ...RecipeEditorPermissions, ...rules };
 
   return (
     <VariableTypeCommon
@@ -95,13 +95,13 @@ export function VariableTypeExternalSimple({
   rules
 }: {
   variableName: string,
-  rules?: InputRules
+  rules?: RecipeEditorPermissions
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
   const variable = recipe?.variables[variableName] as RecipeExternalDataset;
 
-  rules = { ...defaultInputRules, ...rules };
+  rules = { ...RecipeEditorPermissions, ...rules };
 
   return (
     <div className="flex gap-25"> {/* TODO: Figure out how to deal with labels here */}

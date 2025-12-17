@@ -15,7 +15,7 @@ import OutputGraph from "../editor/output/graphDisplay";
 import OutputStatus from "../editor/output/statusDisplay";
 import { testIfValidUnit } from "@/functions/recipe-parser/extractors";
 import { IconAlertTriangleFilled } from "@tabler/icons-react";
-import { InputRules } from "../editor/variables/variableTypes/variableRules";
+import { RecipeEditorPermissions } from "../editor/variables/variableTypes/variableRules";
 
 export function SuggestedRecipes({
   autoInsertDefaultSuggestions = true,
@@ -144,7 +144,7 @@ export function SuggestedRecipes({
       }}
     >
       {Object.entries(recipe?.variables ?? {}).map(([variableName, variable], i) => {
-        const rules: InputRules = {
+        const rules: RecipeEditorPermissions = {
           allowAddVariables,
           allowDeleteVariables,
           allowNameEditing,

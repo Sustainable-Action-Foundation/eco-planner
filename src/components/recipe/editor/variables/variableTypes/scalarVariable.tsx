@@ -3,7 +3,7 @@
 import { useRecipe } from "@/components/recipe/contextProvider";
 import { RecipeScalar } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
-import { InputRules, defaultInputRules } from "./variableRules";
+import { RecipeEditorPermissions } from "./variableRules";
 import { updateScalarVariableValue } from "@/components/recipe/variableEditingHelpers";
 import VariableTypeCommon from "./commonVariable";
 
@@ -13,13 +13,13 @@ export default function VariableTypeScalar({
   rules,
 }: {
   name: string;
-  rules?: InputRules;
+  rules?: RecipeEditorPermissions;
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
   const variable = recipe?.variables[name] as RecipeScalar;
 
-  rules = { ...defaultInputRules, ...rules };
+  rules = { ...RecipeEditorPermissions, ...rules };
 
   return (
     <VariableTypeCommon
@@ -49,14 +49,14 @@ export function VariableTypeScalarSimple({
   props = {},
 }: {
   variableName: string;
-  rules?: InputRules;
+  rules?: RecipeEditorPermissions;
   props?: React.InputHTMLAttributes<HTMLInputElement>;
 }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
   const variable = recipe?.variables[variableName] as RecipeScalar;
 
-  rules = { ...defaultInputRules, ...rules };
+  rules = { ...RecipeEditorPermissions, ...rules };
 
   return (
     <input

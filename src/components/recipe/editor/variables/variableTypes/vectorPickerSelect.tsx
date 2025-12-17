@@ -2,15 +2,15 @@
 
 import { isRecipeDataSeries, isRecipeExternalDataset, RecipeDataSeries, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
-import { InputRules, defaultInputRules } from "./variableRules";
+import { RecipeEditorPermissions } from "./variableRules";
 import { useRecipe } from "@/components/recipe/contextProvider";
 
 // TODO: Fix labels
-export default function VectorPickerSelect({ rules, variableName }: { rules?: InputRules, variableName: string }) {
+export default function VectorPickerSelect({ rules, variableName }: { rules?: RecipeEditorPermissions, variableName: string }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
 
-  rules = { ...defaultInputRules, ...rules };
+  rules = { ...RecipeEditorPermissions, ...rules };
 
   return (
     <select

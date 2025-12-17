@@ -3,7 +3,7 @@
 import { useRecipe } from "@/components/recipe/contextProvider";
 import { isRecipeDataSeries, RecipeVariable } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
-import { InputRules, defaultInputRules } from "./variableRules";
+import { RecipeEditorPermissions } from "./variableRules";
 import { updateDataSeriesLink } from "@/components/recipe/variableEditingHelpers";
 import VariableTypeCommon from "./commonVariable";
 import VectorPickerSelect from "./vectorPickerSelect";
@@ -90,7 +90,7 @@ export default function VariableTypeDataSeries({
   props
 }: {
   variableName: string;
-  rules?: InputRules;
+  rules?: RecipeEditorPermissions;
   availableRoadmaps?: { id: string; name: string; }[];
   props: InputElement;
 }) {
@@ -106,7 +106,7 @@ export default function VariableTypeDataSeries({
     return null;
   }
 
-  rules = { ...defaultInputRules, ...rules };
+  rules = { ...RecipeEditorPermissions, ...rules };
 
   return (
     <VariableTypeCommon

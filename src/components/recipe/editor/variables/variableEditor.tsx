@@ -10,7 +10,7 @@ import VariableTypeScalar from "./variableTypes/scalarVariable";
 import { useRecipe } from "../../contextProvider";
 import styles from '../recipe.module.css' with { type: "css" };
 import VariableCreator from "./variableCreator";
-import { InputRules } from "./variableTypes/variableRules";
+import { RecipeEditorPermissions } from "./variableTypes/variableRules";
 
 export default function VariableEditor({
   allowAddVariables = false,
@@ -60,7 +60,7 @@ export default function VariableEditor({
         </li>
       }
       {Object.entries(recipe?.variables || []).map(([name, variable], i) => {
-        const rules: InputRules = {
+        const rules: RecipeEditorPermissions = {
           allowAddVariables,
           allowDeleteVariables,
           allowNameEditing,

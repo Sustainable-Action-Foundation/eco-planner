@@ -1,15 +1,8 @@
-export type InputRules = {
-  allowAddVariables?: boolean;
-  allowNameEditing?: boolean;
-  allowTypeEditing?: boolean;
-  allowValueEditing?: boolean;
-  allowDeleteVariables?: boolean;
-};
-
-export const defaultInputRules: InputRules = {
+export const RecipeEditorPermissions = {
   allowAddVariables: true,
+  allowDeleteVariables: true,
   allowNameEditing: true,
   allowTypeEditing: true,
   allowValueEditing: true,
-  allowDeleteVariables: true,
-};
+} as const;
+export type RecipeEditorPermissions = Partial<Record<keyof typeof RecipeEditorPermissions, boolean>>;
