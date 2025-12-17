@@ -3,8 +3,8 @@ import OutputGraph from "./output/graph";
 import OutputDataSeries from "./output/dataSeries";
 import OutputStatus from "./output/status";
 import RecipeEquationEditor from "@/components/recipe/editor/equationEditor";
-import VariableCreator from "./variable/creator";
-import VariableEditor from "@/components/recipe/editor/variable/editor";
+import VariableCreator from "./variable/variableCreator";
+import VariableEditor from "@/components/recipe/editor/variable/variableEditor";
 import { useTranslation } from "react-i18next";
 import FormIntegration from "./output/formIntegration";
 
