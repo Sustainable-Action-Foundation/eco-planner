@@ -3,7 +3,7 @@
 import { useRecipe } from "@/components/recipe/contextProvider";
 import { isRecipeDataSeries, RecipeVariable } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
-import { RecipeEditorPermissions } from "./variableRules";
+import { RecipeEditorPermissions } from "./recipeEditorPermissions";
 import { updateDataSeriesLink } from "@/components/recipe/variableEditingHelpers";
 import VariableTypeCommon from "./commonVariable";
 import VectorPickerSelect from "./vectorPickerSelect";

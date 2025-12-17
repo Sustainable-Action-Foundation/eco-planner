@@ -15,7 +15,7 @@ import OutputGraph from "../editor/output/graphDisplay";
 import OutputStatus from "../editor/output/statusDisplay";
 import { testIfValidUnit } from "@/functions/recipe-parser/extractors";
 import { IconAlertTriangleFilled } from "@tabler/icons-react";
-import { RecipeEditorPermissions } from "../editor/variables/variableTypes/variableRules";
+import { RecipeEditorPermissions } from "../editor/variables/variableTypes/recipeEditorPermissions";
 
 export function SuggestedRecipes({
   autoInsertDefaultSuggestions = true,

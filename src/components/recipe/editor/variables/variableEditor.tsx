@@ -10,7 +10,7 @@ import VariableTypeScalar from "./variableTypes/scalarVariable";
 import { useRecipe } from "../../contextProvider";
 import styles from '../recipe.module.css' with { type: "css" };
 import VariableCreator from "./variableCreator";
-import { RecipeEditorPermissions } from "./variableTypes/variableRules";
+import { RecipeEditorPermissions } from "./variableTypes/recipeEditorPermissions";
 
 export default function VariableEditor({
   allowAddVariables = false,
