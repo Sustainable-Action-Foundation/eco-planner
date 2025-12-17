@@ -1,19 +1,26 @@
-import { create, all } from 'mathjs';
+import { create, all, Unit } from 'mathjs';
 
 const mathjs = create(all);
 
-mathjs.createUnit({
-  Atemp: {
+const customUnits = {
+  "Atemp": {
     prefixes: 'none',
     baseName: 'area',
   },
-  capita: {
+  "capita": {
     prefixes: 'none',
   },
-  CO2e: {
+  "CO2e": {
     prefixes: 'none',
     aliases: ['co2e', 'Co2e', 'CO2', 'co2', 'Co2'],
   },
-});
+};
+
+mathjs.createUnit(customUnits);
 
 export default mathjs;
+
+export const allOurUnits: string[] = [
+  ...Object.keys(Unit.UNITS),
+  ...Object.keys(customUnits), // This adds the custom units to the list without adding all the aliases
+];

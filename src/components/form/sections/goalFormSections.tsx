@@ -3,14 +3,13 @@
 import clientSafeGetOneGoal from "@/fetchers/clientSafeGetOneGoal";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
-import mathjs from "@/math";
+import mathjs, { allOurUnits } from "@/math";
 import { Years } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput";
 import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
-import { Unit } from 'mathjs'
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 
 export function ManualGoalForm({
@@ -46,7 +45,7 @@ export function ManualGoalForm({
   }, []);
 
   const units = useMemo(
-    () => Object.keys(Unit.UNITS).map(unit => ({ name: unit, value: unit })),
+    () => allOurUnits.map(unit => ({ name: unit, value: unit })),
     []
   );
 

@@ -9,7 +9,7 @@ import styles from "../../recipe.module.css" with { type: "css" }
 import { updateVariableName, updateVariableType, removeVariable } from "@/components/recipe/variableEditingHelpers";
 import { IconEdit, IconTrashXFilled } from "@tabler/icons-react";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
-import { Unit } from "mathjs";
+import { allOurUnits } from "@/math";
 
 // TODO: Fix labels
 export default function VariableTypeCommon({
@@ -69,7 +69,7 @@ export default function VariableTypeCommon({
                 placeholder: " ",
                 style: { gridRow: '1', gridColumn: '2', width: '125px' }
               }}
-              options={Object.keys(Unit.UNITS).map(unit => ({ name: unit, value: unit }))}
+              options={allOurUnits.map(unit => ({ name: unit, value: unit }))}
             />
           </div>
           <div className="floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>

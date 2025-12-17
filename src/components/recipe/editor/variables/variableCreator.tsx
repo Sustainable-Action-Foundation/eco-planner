@@ -5,8 +5,8 @@ import { useRecipe } from "../../contextProvider";
 import { useRef, useState } from "react";
 import { emptyRecipesByDataType, RecipeDataTypes } from "@/functions/recipe-parser/types";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
-import { Unit } from "mathjs";
 import { useTranslation } from "react-i18next";
+import { allOurUnits } from "@/math";
 
 export default function VariableCreator({
   allowAddVariables = false,
@@ -48,10 +48,10 @@ export default function VariableCreator({
     setNewName('');
     setNewUnit('');
     setNewType(undefined);
-    setNewNameStatus('')  
+    setNewNameStatus('')
     setNewTypeStatus('')
     popoverRef.current?.hidePopover()
-  };  
+  };
 
   return (
     <>
@@ -92,7 +92,7 @@ export default function VariableCreator({
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
               />
-              <small className="block margin-bottom-50 margin-top-25 font-weight-500" style={{color: 'red'}}>{newNameStatus}</small>
+              <small className="block margin-bottom-50 margin-top-25 font-weight-500" style={{ color: 'red' }}>{newNameStatus}</small>
               <label htmlFor="variable-unit">
                 {t("components:recipe_editor.unit_label")}
               </label>
@@ -106,7 +106,7 @@ export default function VariableCreator({
                 theme={{
                   style: { backgroundColor: 'var(--gray-95)' }
                 }}
-                options={Object.keys(Unit.UNITS).map(unit => ({ name: unit, value: unit }))}
+                options={allOurUnits.map(unit => ({ name: unit, value: unit }))}
                 maxOptions={3}
                 onChange={(unit) => setNewUnit(unit ?? '')}
               />
@@ -145,7 +145,7 @@ export default function VariableCreator({
                   {t("components:recipe_editor.external_data")}
                 </label>
               </div>
-              <small className="block margin-bottom-100 margin-top-25 font-weight-500" style={{color: 'red'}}>{newTypeStatus}</small>
+              <small className="block margin-bottom-100 margin-top-25 font-weight-500" style={{ color: 'red' }}>{newTypeStatus}</small>
               <button
                 type="button"
                 className="width-100 color-purewhite font-weight-600 margin-top-50"
