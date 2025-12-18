@@ -1,7 +1,7 @@
 "use client";
 
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
-import { RecipeDataTypes, RecipeVariable } from "@/functions/recipe/types";
+import { RecipeDataTypes, RecipeError } from "@/functions/recipe/types";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "./recipeEditorPermissions";
@@ -22,9 +22,14 @@ export default function VariableTypeCommon({
   children: React.ReactNode;
 }) {
   const { t } = useTranslation(["common", "components"]);
-  const { recipe, setRecipe } = useRecipe();
-  const variable = recipe?.variables[variableName] as RecipeVariable;
+  const { setVariable, getVariable, setVariables } = useRecipe();
+  const variable = getVariable(variableName);
   const [editable, setEditable] = useState<boolean>(false)
+
+  if (!variable) {
+    throw new RecipeError(`Variable ${variableName} not found in recipe context`);
+    return null;
+  }
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
 
@@ -53,7 +58,7 @@ export default function VariableTypeCommon({
               placeholder=" "
               style={{ gridRow: '1', gridColumn: '1' }}
               defaultValue={variableName}
-              onChange={(e) => updateVariableName(variableName, e.target.value, setRecipe)}
+              onChange={(e) => updateVariableName(variableName, e.target.value, setVariable)}
               type="text"
             />
           </div>
@@ -80,7 +85,7 @@ export default function VariableTypeCommon({
               id={`variable-type-${variableName}`}
               style={{ gridRow: '2', gridColumn: '1' }}
               defaultValue={variable.type}
-              onChange={(e) => updateVariableType(variableName, e.target.value, setRecipe)}
+              onChange={(e) => updateVariableType(variableName, e.target.value, setVariable)}
             >
               <option value={RecipeDataTypes.DataSeries}>{t("components:recipe_editor.data_series")}</option>
               <option value={RecipeDataTypes.External}>{t("components:recipe_editor.external_data")}</option>
@@ -99,7 +104,7 @@ export default function VariableTypeCommon({
           style={{ verticalAlign: 'middle' }}
           type="button"
           title={t("common:tsx.delete")}
-          onClick={() => removeVariable(variableName, setRecipe)}
+          onClick={() => removeVariable(variableName, setVariables)}
         >
           <IconTrashXFilled width={20} height={20} className="grid" />
         </button>

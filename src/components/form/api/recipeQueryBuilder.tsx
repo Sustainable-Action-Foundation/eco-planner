@@ -25,7 +25,7 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
   // TODO: Fix typing, use match() instead of casting
   const lang = useContext(LocaleContext).split("-")[0];
   // const lang = useContext(LocaleContext).split("-")[0] as "sv" | "en";
-  const { setRecipe } = useRecipe();
+  const { setVariable } = useRecipe();
 
   const [isLoading, setIsLoading] = useState(false);
   const [dataSource, setDataSource] = useState<string>("");
@@ -358,9 +358,9 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
 
     const query = buildQuery(formData);
 
-    updateExternalVariableDataset(variableName, dataSource, setRecipe)
-    updateExternalVariableTable(variableName, tableDetails?.id ?? formData.get("externalTableId") as string ?? "", setRecipe)
-    updateExternalVariableSelection(variableName, JSON.stringify(query), setRecipe)
+    updateExternalVariableDataset(variableName, dataSource, setVariable)
+    updateExternalVariableTable(variableName, tableDetails?.id ?? formData.get("externalTableId") as string ?? "", setVariable)
+    updateExternalVariableSelection(variableName, JSON.stringify(query), setVariable)
     closeModal(modalRef)
   }
 
@@ -424,7 +424,7 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
                         type="radio"
                         value={id}
                         name="externalTableId"
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => { handleTableSelect((e.target as HTMLButtonElement).value); updateExternalVariableTable(variableName, e.target.value, setRecipe) }}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => { handleTableSelect((e.target as HTMLButtonElement).value); updateExternalVariableTable(variableName, e.target.value, setVariable) }}
                       />
                     </li>
                   ))}

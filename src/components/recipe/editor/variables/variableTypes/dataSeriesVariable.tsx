@@ -1,7 +1,7 @@
 "use client"
 
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
-import { isRecipeDataSeries, RecipeVariable } from "@/functions/recipe/types";
+import { isRecipeDataSeries } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "./recipeEditorPermissions";
 import { updateDataSeriesLink } from "@/components/recipe/variableEditingHelpers";
@@ -11,8 +11,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import { InputElement, TreeItem } from "@/components/types";
 import SelectSingleTreeSearch from "@/components/form/elements/combobox/selectSingleTreeSearch";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
-import { Recipe } from "@/functions/recipe/types";
 import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
+import { RecipeContextType } from "@/components/recipe/context/recipeContext.internal";
 
 function useRoadmapTreeItems(availableRoadmaps: { id: string; name: string; }[]) {
   const [treeItems, setTreeItems] = useState<TreeItem[]>([]);
@@ -42,12 +42,12 @@ function useRoadmapTreeItems(availableRoadmaps: { id: string; name: string; }[])
 // TODO: don't fetch again :sob: This data is fetched deeper down in the tree select but the scope jumping would probably be worse spaghetti than this solution
 export function useHandleDataSeriesChange(
   variableName: string,
-  setRecipe: React.Dispatch<React.SetStateAction<Recipe | null>>
+  setVariable: RecipeContextType["setVariable"],
 ) {
   return useCallback(
     (selectedDataSeriesLink: TreeItem | null) => {
       // Set the link immediately for responsiveness
-      updateDataSeriesLink(variableName, selectedDataSeriesLink?.value || null, setRecipe);
+      updateDataSeriesLink(variableName, selectedDataSeriesLink?.value || null, setVariable);
 
       // When unsetting variable
       if (!selectedDataSeriesLink?.value) return;
@@ -57,27 +57,19 @@ export function useHandleDataSeriesChange(
         try {
           // Fetch selected data series from db to get unit for UI use
           const db = await clientSafeGetOneDataSeries(selectedDataSeriesLink.value);
-          const unitToSet = typeof db?.unit !== "undefined" ? db?.unit : undefined;
+          const unit = typeof db?.unit !== "undefined" ? db?.unit : undefined;
 
-          setRecipe(prev => {
-            if (!prev) return prev;
-
-            const currentVar = prev.variables[variableName];
-
-            if (!isRecipeDataSeries(currentVar)) return prev;
-            if (!currentVar || currentVar.link !== selectedDataSeriesLink.value) return prev;
-
-            const copy = { ...prev.variables };
-            copy[variableName] = { ...copy[variableName], unit: unitToSet };
-            return { ...prev, variables: copy };
+          setVariable(variableName, (prevVar) => {
+            return { ...prevVar, unit, };
           });
-        } catch (e) {
-          console.warn("Failed to fetch data-series unit for selection", selectedDataSeriesLink.value, e);
+        }
+        catch (e) {
+          console.warn("Failed to fetch data series unit for selection", selectedDataSeriesLink.value, e);
         }
       })()
         .catch(e => { console.error(e); });
     },
-    [variableName, setRecipe]
+    [variableName, setVariable]
   );
 }
 
@@ -95,11 +87,16 @@ export default function VariableTypeDataSeries({
   props: InputElement;
 }) {
   const { t } = useTranslation("components");
-  const { recipe, setRecipe } = useRecipe();
-  const variable = recipe?.variables[variableName] as RecipeVariable;
+  const { recipe, setVariable, getVariable } = useRecipe();
+  const variable = getVariable(variableName);
 
   const treeItems = useRoadmapTreeItems(availableRoadmaps);
-  const handleDataSeriesChange = useHandleDataSeriesChange(variableName, setRecipe);
+  const handleDataSeriesChange = useHandleDataSeriesChange(variableName, setVariable);
+
+  if (!variable) {
+    console.error(`Variable "${variableName}" not found in recipe`, recipe);
+    return null;
+  }
 
   if (!isRecipeDataSeries(variable)) {
     console.error(`Variable "${variableName}" is not a valid DataSeriesVariable`, variable);
@@ -152,12 +149,16 @@ export function VariableTypeDataSeriesSimple({
   props: InputElement;
   goalName?: string;
 }) {
-  // const { t } = useTranslation("components");
-  const { recipe, setRecipe } = useRecipe();
-  const variable = recipe?.variables[variableName] as RecipeVariable;
+  const { recipe, setVariable, getVariable } = useRecipe();
+  const variable = getVariable(variableName);
 
   const treeItems = useRoadmapTreeItems(availableRoadmaps);
-  const handleDataSeriesChange = useHandleDataSeriesChange(variableName, setRecipe);
+  const handleDataSeriesChange = useHandleDataSeriesChange(variableName, setVariable);
+
+  if (!variable) {
+    console.error(`Variable "${variableName}" not found in recipe`, recipe);
+    return null;
+  }
 
   if (!isRecipeDataSeries(variable)) {
     console.error(`Variable "${variableName}" is not a valid DataSeriesVariable`, variable);

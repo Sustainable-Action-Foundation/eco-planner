@@ -1,7 +1,7 @@
 "use client"
 
 import { Popover, PopoverButton } from "@/components/generic/popovers/popovers";
-import { useRecipe } from "../../context/recipeContext.provider";
+import { useRecipe } from "../../context/recipeContext.use";
 import { useRef, useState } from "react";
 import { emptyRecipesByDataType, RecipeDataTypes } from "@/functions/recipe/types";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
@@ -14,7 +14,7 @@ export default function VariableCreator({
   allowAddVariables?: boolean;
 }) {
   const { t } = useTranslation(["components", "forms"]);
-  const { recipe, setRecipe } = useRecipe();
+  const { recipe, setVariables } = useRecipe();
 
   const popoverRef = useRef<HTMLDivElement>(null);
   const [newName, setNewName] = useState<string>('');
@@ -38,21 +38,13 @@ export default function VariableCreator({
       return;
     }
 
-    setRecipe(prev => {
-      if (!prev) return prev;
-      if (!newType) return prev;
-
-      return {
-        ...prev,
-        variables: {
-          ...prev.variables,
-          [newName]: {
-            ...emptyRecipesByDataType[newType],
-            ...newUnit ? { unit: newUnit } : {},
-          },
-        }
-      }
-    });
+    setVariables(prev => ({
+      ...prev,
+      [newName]: {
+        ...emptyRecipesByDataType[newType],
+        ...newUnit ? { unit: newUnit } : {},
+      },
+    }));
 
     // Clear the form after adding to context
     setNewName('');

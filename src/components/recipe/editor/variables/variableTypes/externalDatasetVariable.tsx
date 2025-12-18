@@ -19,7 +19,8 @@ export default function VariableTypeExternal({
   permissions?: RecipeEditorPermissions;
 }) {
   const { t } = useTranslation("components");
-  const { recipe, setRecipe } = useRecipe();
+  const { recipe } = useRecipe();
+  // TODO: Handle undefined variable
   const variable = recipe?.variables[variableName] as RecipeExternalDataset;
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
@@ -56,7 +57,7 @@ export function VariableTypeExternalSimple({
   permissions?: RecipeEditorPermissions
 }) {
   const { t } = useTranslation("components");
-  const { recipe, setRecipe } = useRecipe();
+  const { recipe, setVariable } = useRecipe();
   const variable = recipe?.variables[variableName] as RecipeExternalDataset;
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
@@ -66,7 +67,7 @@ export function VariableTypeExternalSimple({
       <select
         value={variable.dataset || ""}
         disabled={!permissions.allowValueEditing}
-        onChange={(e) => updateExternalVariableDataset(variableName, e.target.value, setRecipe)}
+        onChange={(e) => updateExternalVariableDataset(variableName, e.target.value, setVariable)}
       >
         <option value="">{t("components:recipe_editor.dataset")}</option>
         {/* <option value={variable.dataset}>{variable.dataset}</option> */}
@@ -79,7 +80,7 @@ export function VariableTypeExternalSimple({
       <input
         className="inline width-auto"
         value={variable.tableId || ""}
-        onChange={(e) => updateExternalVariableTable(variableName, e.target.value, setRecipe)}
+        onChange={(e) => updateExternalVariableTable(variableName, e.target.value, setVariable)}
         type="text"
         disabled={!permissions.allowValueEditing}
         placeholder={t("components:recipe_editor.table")}
@@ -87,7 +88,7 @@ export function VariableTypeExternalSimple({
       <input
         className="inline width-auto"
         value={JSON.stringify(variable.selection) || ""}
-        onChange={(e) => updateExternalVariableSelection(variableName, e.target.value, setRecipe)}
+        onChange={(e) => updateExternalVariableSelection(variableName, e.target.value, setVariable)}
         type="text"
         disabled={!permissions.allowValueEditing}
         placeholder={t("components:recipe_editor.selection")}

@@ -16,7 +16,7 @@ export default function VariableTypeScalar({
   permissions?: RecipeEditorPermissions;
 }) {
   const { t } = useTranslation("components");
-  const { recipe, setRecipe } = useRecipe();
+  const { recipe, setVariable } = useRecipe();
   const variable = recipe?.variables[name] as RecipeScalar;
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
@@ -32,7 +32,7 @@ export default function VariableTypeScalar({
         </label>
         <input
           defaultValue={variable.value}
-          onChange={(e) => updateScalarVariableValue(name, e.target.value, setRecipe)}
+          onChange={(e) => updateScalarVariableValue(name, e.target.value, setVariable)}
           type="number"
           placeholder=" "
           disabled={!permissions.allowValueEditing}
@@ -53,7 +53,7 @@ export function VariableTypeScalarSimple({
   props?: React.InputHTMLAttributes<HTMLInputElement>;
 }) {
   const { t } = useTranslation("components");
-  const { recipe, setRecipe } = useRecipe();
+  const { recipe, setVariable } = useRecipe();
   const variable = recipe?.variables[variableName] as RecipeScalar;
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
@@ -62,7 +62,7 @@ export function VariableTypeScalarSimple({
     <input
       className="inline width-auto"
       defaultValue={variable.value}
-      onChange={(e) => updateScalarVariableValue(variableName, e.target.value, setRecipe)}
+      onChange={(e) => updateScalarVariableValue(variableName, e.target.value, setVariable)}
       type="number"
       placeholder={t("components:recipe_editor.scalar")}
       disabled={!permissions.allowValueEditing}
