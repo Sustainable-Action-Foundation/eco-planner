@@ -58,7 +58,7 @@ export default function VariableTypeCommon({
               placeholder=" "
               style={{ gridRow: '1', gridColumn: '1' }}
               defaultValue={variableName}
-              onChange={(e) => updateVariableName(variableName, e.target.value, setVariable)}
+              onChange={(e) => updateVariableName(variableName, e.target.value, setVariables)}
               type="text"
             />
           </div>

@@ -6,9 +6,9 @@ import { GoalCreateInput, Goal, Years, DataSeriesValueFields, isPartialDataSerie
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
-import { isRecipeDataSeries, Recipe, RecipeDataTypes } from "@/functions/recipe/types";
+import { Recipe } from "@/functions/recipe/types";
 import { recipeFromUnknown } from "@/functions/recipe/parseRecipe";
-import { RecipeContextProvider } from "../recipe/context/recipeContext.use";
+import { RecipeContextProvider } from "../recipe/context/recipeContext.provider";
 import { SuggestedRecipeApplier } from "@/components/recipe/suggestions/suggestedRecipeApplier";
 import FormIntegration from "../recipe/editor/output/formIntegration";
 
@@ -163,44 +163,6 @@ export default function CopyAndScale({
                 allowTypeEditing: false,
                 allowValueEditing: true,
               }}
-              DEPRECATED_recipeOverrideFunctions={[
-                // Set the value of the first data series to be of this goal
-                (r => {
-                  if (!goal.dataSeries) {
-                    console.warn("Goal has no data series to set scaling reference");
-                    return r;
-                  }
-
-                  const firstDataSeries = Object.entries(r.variables)
-                    .find(([_n, v]) => v.type === RecipeDataTypes.DataSeries);
-
-                  const firstDataSeriesName = firstDataSeries?.[0];
-                  if (!firstDataSeriesName) {
-                    console.warn("No data series variable found to set scaling reference");
-                    return r;
-                  }
-                  const firstDataSeriesVariable = firstDataSeries?.[1];
-
-                  if (!isRecipeDataSeries(firstDataSeriesVariable)) {
-                    console.warn("First data series variable is not of type RecipeDataSeries");
-                    return r;
-                  }
-
-                  firstDataSeriesVariable.link = goal.dataSeries.id;
-                  firstDataSeriesVariable.unit = goal.dataSeries.unit;
-                  // TODO: remove evil, see the type def for RecipeDataSeriesVariable
-                  firstDataSeriesVariable.goalName = goal.name || goal.indicatorParameter;
-                  firstDataSeriesVariable.disabled = true;
-
-                  return {
-                    ...r,
-                    variables: {
-                      ...r.variables,
-                      [firstDataSeriesName]: firstDataSeriesVariable,
-                    },
-                  };
-                })
-              ]}
             />
 
             <FormIntegration

@@ -28,7 +28,7 @@ export function SuggestedRecipeApplier({
   permissions?: RecipeEditorPermissions;
 }) {
   const { t } = useTranslation("components");
-  const { recipe, setSmartRecipe } = useRecipe();
+  const { recipe, setSmartRecipe, clearRecipe } = useRecipe();
 
   const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[]>([]);
   const [selectedHash, setSelectedHash] = useState<string>("");
@@ -74,8 +74,7 @@ export function SuggestedRecipeApplier({
     const selectedSuggestion = suggestedRecipes.find(r => r.hash === hash);
     if (!selectedSuggestion) {
       console.error("Selected suggested recipe not found", hash);
-      setSmartRecipe(null)
-        .catch(e => { throw e; });
+      clearRecipe();
       return;
     }
 
@@ -85,8 +84,7 @@ export function SuggestedRecipeApplier({
     }
     catch (e) {
       console.error("Failed to parse suggested recipe", e);
-      setSmartRecipe(null)
-        .catch(e => { throw e; });
+      clearRecipe();
       return;
     }
   };

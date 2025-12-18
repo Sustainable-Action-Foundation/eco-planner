@@ -11,7 +11,7 @@ import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput";
 import { getDataSeries } from "../elements/dataSeriesInput/utils";
 import styles from '../forms.module.css';
 import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections";
-import { RecipeContextProvider } from "@/components/recipe/context/recipeContext.use";
+import { RecipeContextProvider } from "@/components/recipe/context/recipeContext.provider";
 import { Recipe } from "@/functions/recipe/types";
 import { recipeFromUnknown } from "@/functions/recipe/parseRecipe";
 import TextEditor from "../elements/textEditor/editor";
