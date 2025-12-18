@@ -32,7 +32,7 @@ export type RecipeContextType = {
   setEquation: (valueOrSetter: SetStateAction<Recipe["eq"]>) => void;
 
   getVariable: (variableName: string) => RecipeVariable | undefined;
-  setVariable: (variableName: string, newValue: RecipeVariable) => void;
+  setVariable: (variableName: string, newValue: SetStateAction<RecipeVariable>) => void;
 
   variables: Recipe["variables"];
   setVariables: (valueOrSetter: SetStateAction<Recipe["variables"]>) => void;
@@ -105,7 +105,6 @@ export function RecipeContextProvider({
 
   // Used to force re-renders when recipe changes
   const [updatePing, setUpdatePing] = useState<number>(0);
-
   // Safety to avoid overflow
   useEffect(() => {
     if (updatePing > Number.MAX_SAFE_INTEGER - 1) setUpdatePing(0);
@@ -134,8 +133,12 @@ export function RecipeContextProvider({
   const getVariable = (variableName: string): RecipeVariable | undefined => {
     return smartRecipe.variables[variableName];
   };
-  const setVariable = (variableName: string, newValue: RecipeVariable): void => {
-    smartRecipe.variables[variableName] = newValue;
+  const setVariable = (variableName: string, newValue: SetStateAction<RecipeVariable>): void => {
+    const valueToSet = typeof newValue === "function"
+      ? newValue(smartRecipe.variables[variableName])
+      : newValue;
+
+    smartRecipe.variables[variableName] = valueToSet;
     setUpdatePing(p => p += 1);
   };
 
