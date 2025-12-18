@@ -1,6 +1,6 @@
 'use client'
 
-import { emptyRecipe } from "@/functions/recipe-parser/types";
+import { emptyRecipe } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "../contextProvider";
 import React, { useRef, useState } from "react";

@@ -1,9 +1,9 @@
-import { isRecipe, MathjsError, Recipe, RecipeError, RecipeVariable } from "./recipe-parser/types";
+import { isRecipe, MathjsError, Recipe, RecipeError, RecipeVariable } from "./types";
 import { DataSeriesValueFields, JSONValue, Years } from "@/types";
-import { convertVectorToYearValuePair, extractDataSeries, extractExternalDatasets, extractScalars } from "./recipe-parser/extractors";
+import { convertVectorToYearValuePair, extractDataSeries, extractExternalDatasets, extractScalars } from "./extractors";
 import { Unit } from "mathjs";
 import mathjs from "@/math";
-import { sanityCheckDataSeries, sanityCheckScalars } from "./recipe-parser/sanityChecks";
+import { sanityCheckDataSeries, sanityCheckScalars } from "./sanityChecks";
 
 export function recipeFromUnknown(recipe: JSONValue): Recipe {
   if (typeof recipe === "string") {

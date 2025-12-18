@@ -10,7 +10,7 @@ import { Prisma } from "@prisma/client";
 import crypto from 'crypto';
 import dataSeriesPrep from "./dataSeriesPrep";
 import pruneOrphans from "@/functions/pruneOrphans";
-import { cleanRecipe, evaluateRecipe } from "@/functions/parseRecipe";
+import { cleanRecipe, evaluateRecipe } from "@/functions/recipe/parseRecipe";
 
 // Type guards
 function isGoalCreate(goal: JSONValue): goal is GoalCreateInput {

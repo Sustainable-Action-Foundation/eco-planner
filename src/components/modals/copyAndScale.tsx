@@ -6,8 +6,8 @@ import { GoalCreateInput, Goal, Years, DataSeriesValueFields, isPartialDataSerie
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
-import { isRecipeDataSeries, Recipe, RecipeDataTypes } from "@/functions/recipe-parser/types";
-import { recipeFromUnknown } from "@/functions/parseRecipe";
+import { isRecipeDataSeries, Recipe, RecipeDataTypes } from "@/functions/recipe/types";
+import { recipeFromUnknown } from "@/functions/recipe/parseRecipe";
 import { RecipeContextProvider } from "../recipe/contextProvider";
 import { SuggestedRecipeApplier } from "@/components/recipe/suggestions/suggestedRecipeApplier";
 import FormIntegration from "../recipe/editor/output/formIntegration";

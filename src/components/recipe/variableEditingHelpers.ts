@@ -1,5 +1,5 @@
 import "client-only";
-import { emptyRecipeDataSeries, emptyRecipesByDataType, isRecipeExternalDatasetSelection, Recipe, RecipeDataTypes, RecipeVariable } from "@/functions/recipe-parser/types";
+import { emptyRecipeDataSeries, emptyRecipesByDataType, isRecipeExternalDatasetSelection, Recipe, RecipeDataTypes, RecipeVariable } from "@/functions/recipe/types";
 import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
 import { JSONValue } from "@/types";
 

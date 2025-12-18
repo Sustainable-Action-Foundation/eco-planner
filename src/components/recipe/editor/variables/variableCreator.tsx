@@ -3,7 +3,7 @@
 import { Popover, PopoverButton } from "@/components/generic/popovers/popovers";
 import { useRecipe } from "../../contextProvider";
 import { useRef, useState } from "react";
-import { emptyRecipesByDataType, RecipeDataTypes } from "@/functions/recipe-parser/types";
+import { emptyRecipesByDataType, RecipeDataTypes } from "@/functions/recipe/types";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { useTranslation } from "react-i18next";
 import { allOurUnits } from "@/math";

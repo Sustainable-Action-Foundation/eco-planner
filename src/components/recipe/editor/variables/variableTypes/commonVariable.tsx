@@ -1,7 +1,7 @@
 "use client";
 
 import { useRecipe } from "@/components/recipe/contextProvider";
-import { RecipeDataTypes, RecipeVariable } from "@/functions/recipe-parser/types";
+import { RecipeDataTypes, RecipeVariable } from "@/functions/recipe/types";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "./recipeEditorPermissions";

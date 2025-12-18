@@ -1,9 +1,9 @@
 'use client'
 
-import { isRecipe, Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
+import { isRecipe, Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "../contextProvider";
-import { recipeFromUnknown } from "@/functions/parseRecipe";
+import { recipeFromUnknown } from "@/functions/recipe/parseRecipe";
 import { VariableTypeScalarSimple } from "../editor/variables/variableTypes/scalarVariable";
 import { VariableTypeDataSeriesSimple } from "../editor/variables/variableTypes/dataSeriesVariable";
 import { VariableTypeExternalSimple } from "../editor/variables/variableTypes/externalDatasetVariable";
@@ -13,7 +13,7 @@ import TabList from "../../generic/tablist/tabList";
 import OutputDataSeries from "../editor/output/dataSeriesDisplay";
 import OutputGraph from "../editor/output/graphDisplay";
 import OutputStatus from "../editor/output/statusDisplay";
-import { testIfValidUnit } from "@/functions/recipe-parser/extractors";
+import { testIfValidUnit } from "@/functions/recipe/extractors";
 import { IconAlertTriangleFilled } from "@tabler/icons-react";
 import { RecipeEditorPermissions } from "../editor/variables/variableTypes/recipeEditorPermissions";
 

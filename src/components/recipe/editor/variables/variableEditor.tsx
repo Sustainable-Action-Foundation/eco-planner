@@ -1,6 +1,6 @@
 'use client'
 
-import { RecipeDataTypes, RecipeVariable } from "@/functions/recipe-parser/types";
+import { RecipeDataTypes, RecipeVariable } from "@/functions/recipe/types";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";

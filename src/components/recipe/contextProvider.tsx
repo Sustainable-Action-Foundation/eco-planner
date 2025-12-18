@@ -1,9 +1,9 @@
 "use client";
 
-import { emptyRecipe, Recipe } from "@/functions/recipe-parser/types";
+import { emptyRecipe, Recipe } from "@/functions/recipe/types";
 import type { DataSeriesValueFields } from "@/types";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { evaluateRecipe, cleanRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
+import { evaluateRecipe, cleanRecipe, recipeFromUnknown } from "@/functions/recipe/parseRecipe";
 import { Locales } from "i18n.config";
 
 type RecipeContextType = {

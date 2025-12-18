@@ -1,7 +1,7 @@
 "use client"
 
 import { useRecipe } from "@/components/recipe/contextProvider";
-import { RecipeScalar } from "@/functions/recipe-parser/types";
+import { RecipeScalar } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "./recipeEditorPermissions";
 import { updateScalarVariableValue } from "@/components/recipe/variableEditingHelpers";

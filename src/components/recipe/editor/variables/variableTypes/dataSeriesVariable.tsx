@@ -1,7 +1,7 @@
 "use client"
 
 import { useRecipe } from "@/components/recipe/contextProvider";
-import { isRecipeDataSeries, RecipeVariable } from "@/functions/recipe-parser/types";
+import { isRecipeDataSeries, RecipeVariable } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "./recipeEditorPermissions";
 import { updateDataSeriesLink } from "@/components/recipe/variableEditingHelpers";
@@ -11,7 +11,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { InputElement, TreeItem } from "@/components/types";
 import SelectSingleTreeSearch from "@/components/form/elements/combobox/selectSingleTreeSearch";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
-import { Recipe } from "@/functions/recipe-parser/types";
+import { Recipe } from "@/functions/recipe/types";
 import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
 
 function useRoadmapTreeItems(availableRoadmaps: { id: string; name: string; }[]) {

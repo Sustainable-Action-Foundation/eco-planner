@@ -1,6 +1,6 @@
-import { isRecipe, MathjsError, Recipe, RecipeError, RecipeVariable } from "@/functions/recipe-parser/types";
+import { isRecipe, MathjsError, Recipe, RecipeError, RecipeVariable } from "@/functions/recipe/types";
 import { DataSeriesValueFieldsWithUnit, JSONValue, Years } from "@/types";
-import { convertVectorToYearValuePair, extractDataSeries, extractExternalDatasets, extractScalars } from "@/functions/recipe-parser/extractors";
+import { convertVectorToYearValuePair, extractDataSeries, extractExternalDatasets, extractScalars } from "@/functions/recipe/extractors";
 import mathjs from "@/math";
 import { Unit } from "mathjs";
 

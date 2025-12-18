@@ -1,7 +1,7 @@
 import { ActionImpactType, Prisma, RoadmapType } from "@prisma/client";
 import { actionInclusionSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, roadmapInclusionSelection } from "./fetchers/inclusionSelectors";
 import { Years as GeneratedYears } from "./lib/dataSeriesCanonicalYears";
-import { Recipe } from "./functions/recipe-parser/types";
+import { Recipe } from "./functions/recipe/types";
 
 /**
  * A utility function for helping with finding where something fails in a typeguard chain.

@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Locales } from "i18n.config";
 import { IconAlertTriangleFilled, IconCircleCheckFilled, IconCircleXFilled, IconInfoCircle } from "@tabler/icons-react";
 import { useRecipe } from "../../contextProvider";
-import { isEmptyRecipe } from "@/functions/recipe-parser/types";
+import { isEmptyRecipe } from "@/functions/recipe/types";
 
 export default function OutputStatus({
   hideWhenNoRecipe = false,

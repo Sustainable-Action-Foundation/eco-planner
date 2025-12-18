@@ -1,5 +1,5 @@
 import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
-import { isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, RecipeDataTypes, RecipeError, RecipeVariable, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
+import { isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, RecipeDataTypes, RecipeError, RecipeVariable, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import getTableContent from "@/lib/api/getTableContent";
 import mathjs from "@/math";
 import { DataSeriesValueFields, DataSeriesValueFieldsWithUnit, nullFullDataSeriesValueField, Years } from "@/types";
