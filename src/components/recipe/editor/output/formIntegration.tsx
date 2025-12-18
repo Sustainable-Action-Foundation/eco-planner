@@ -1,5 +1,5 @@
 import React from "react";
-import { useRecipe } from "../../context/contextProvider";
+import { useRecipe } from "../../context/recipeContext.provider";
 
 /** 
  * ## What is this?

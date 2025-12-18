@@ -2,7 +2,7 @@
 
 import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
-import { useRecipe } from "../context/contextProvider";
+import { useRecipe } from "../context/recipeContext.provider";
 import { VariableTypeScalarSimple } from "../editor/variables/variableTypes/scalarVariable";
 import { VariableTypeDataSeriesSimple } from "../editor/variables/variableTypes/dataSeriesVariable";
 import { VariableTypeExternalSimple } from "../editor/variables/variableTypes/externalDatasetVariable";

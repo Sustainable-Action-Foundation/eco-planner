@@ -2,7 +2,7 @@
 
 import { emptyRecipe } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
-import { useRecipe } from "../context/contextProvider";
+import { useRecipe } from "../context/recipeContext.provider";
 import React, { useRef, useState } from "react";
 import { IconPlus } from "@tabler/icons-react";
 

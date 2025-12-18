@@ -1,6 +1,6 @@
 "use client";
 
-import { useRecipe } from "@/components/recipe/context/contextProvider";
+import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 import { RecipeDataTypes, RecipeVariable } from "@/functions/recipe/types";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";

@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState } from "react";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 import { RecipeContext, SetStateAction } from "./recipeContext.internal";
 
-
 export function RecipeContextProvider({
   initialRecipe,
   children,
