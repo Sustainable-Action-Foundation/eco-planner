@@ -1,51 +1,11 @@
 "use client";
 
-import { Recipe, RecipeError, RecipeVariable } from "@/functions/recipe/types";
+import { Recipe, RecipeError, RecipeIsh, RecipeVariable } from "@/functions/recipe/types";
 import type { DataSeriesValueFieldsWithUnit } from "@/types";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import { RecipeContext, SetStateAction } from "./recipeContext.internal";
 
-type RecipeIsh = Recipe | SmartRecipe;
-
-/** 
- * A function exposing a previous version of itself to assist in updating its value
- */
-type Historic<T> = (prev: T) => T;
-/** 
- * A value or function used on setters
- */
-type SetStateAction<T> = T | Historic<T>;
-
-export type RecipeContextType = {
-  smartRecipe: SmartRecipe;
-  recipe: Recipe;
-  resultingDataSeries: DataSeriesValueFieldsWithUnit | null;
-  resultingUnit: string | null | undefined;
-
-  warnings: string[];
-  error: string | null;
-
-  clearRecipe: () => void;
-  setSmartRecipe: (valueOrSetter: SetStateAction<RecipeIsh>) => Promise<void>;
-
-  equation: Recipe["eq"];
-  setEquation: (valueOrSetter: SetStateAction<Recipe["eq"]>) => void;
-
-  getVariable: (variableName: string) => RecipeVariable | undefined;
-  setVariable: (variableName: string, newValue: SetStateAction<RecipeVariable>) => void;
-
-  variables: Recipe["variables"];
-  setVariables: (valueOrSetter: SetStateAction<Recipe["variables"]>) => void;
-};
-export const RecipeContext = createContext<RecipeContextType | null>(null);
-
-export function useRecipe() {
-  const context = useContext(RecipeContext);
-  if (!context) {
-    throw new Error("useRecipe must be used within a RecipeContextProvider");
-  }
-  return context;
-}
 
 export function RecipeContextProvider({
   initialRecipe,

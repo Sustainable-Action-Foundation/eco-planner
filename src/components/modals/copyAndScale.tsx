@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
 import { isRecipeDataSeries, Recipe, RecipeDataTypes } from "@/functions/recipe/types";
 import { recipeFromUnknown } from "@/functions/recipe/parseRecipe";
-import { RecipeContextProvider } from "../recipe/contextProvider";
+import { RecipeContextProvider } from "../recipe/context/contextProvider";
 import { SuggestedRecipeApplier } from "@/components/recipe/suggestions/suggestedRecipeApplier";
 import FormIntegration from "../recipe/editor/output/formIntegration";
 

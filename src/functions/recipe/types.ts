@@ -1,6 +1,7 @@
 import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
 import { DataSeriesValueFields, isPartialDataSeriesValueFields, isStandardObject, JSONValue, typeguardDebug, uuidRegex } from "@/types";
 import { Unit } from "mathjs";
+import { type SmartRecipe } from "./smartRecipe";
 
 export const VectorIndexPickerOptions = {
   Default: "whole",
@@ -283,6 +284,7 @@ export type Recipe = {
   eq: string;
   variables: Record<string, RecipeVariable>;
 };
+export type RecipeIsh = Recipe | SmartRecipe;
 export function isRecipe(recipe: JSONValue): recipe is Recipe {
   const allowedProps = ["name", "eq", "variables"];
 

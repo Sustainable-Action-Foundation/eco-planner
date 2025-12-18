@@ -2,7 +2,7 @@ import "client-only";
 import { emptyRecipeDataSeries, emptyRecipesByDataType, isRecipeExternalDatasetSelection, RecipeDataTypes, RecipeVariable } from "@/functions/recipe/types";
 import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
 import { JSONValue } from "@/types";
-import { RecipeContextType } from "./contextProvider";
+import { RecipeContextType } from "./context/contextProvider";
 
 export function updateVariableName(currentVariableName: string, newVariableName: string, setter: RecipeContextType["setVariables"]) {
   if (!newVariableName || currentVariableName === newVariableName) {

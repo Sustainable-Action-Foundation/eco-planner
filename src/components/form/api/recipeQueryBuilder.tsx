@@ -14,7 +14,7 @@ import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
 import { IconChartHistogram, IconSearch, IconX } from "@tabler/icons-react";
 import { updateExternalVariableDataset, updateExternalVariableSelection, updateExternalVariableTable } from "@/components/recipe/variableEditingHelpers";
-import { useRecipe } from "@/components/recipe/contextProvider";
+import { useRecipe } from "@/components/recipe/context/contextProvider";
 
 import getTableContent from "@/lib/api/getTableContent";
 
