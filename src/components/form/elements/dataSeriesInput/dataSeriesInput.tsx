@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import styles from "./dataSeriesInput.module.css";
 import { dataSeriesPattern, isValidPastedInput, isValidSingleInputForGrid, isValidSingleInputForTextField } from "./utils";
-import { IconAlertTriangle, IconCaretDownFilled, IconCaretUpFilled, IconHelp, IconQuestionMark } from "@tabler/icons-react";
+import { IconCaretDownFilled, IconCaretUpFilled, IconHelp } from "@tabler/icons-react";
 
 export default function DataSeriesInput({
   dataSeriesString, // TODO - rename "dataSeriesString" to "dataSeriesInput" or "initialValue" (latter suggested by chatgpt)
@@ -166,7 +166,7 @@ export default function DataSeriesInput({
               components={{ strong: <strong />, br: <br /> }}
             />
           </div>
-        </section>         
+        </section>
 
         <label className="block margin-block-75">
           {t(labelKey)}
