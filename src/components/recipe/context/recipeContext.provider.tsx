@@ -70,11 +70,18 @@ export function RecipeContextProvider({
   }, [updatePing]);
 
   const recipe = useMemo(() => { void updatePing; return smartRecipe.toRecipe(); }, [smartRecipe, updatePing]);
-  const [resultingDataSeries, setResultingDataSeries] = useState<DataSeriesValueFieldsWithUnit | null>(null);
+  const [resultingDataSeriesWithUnit, setResultingDataSeriesWithUnit] = useState<DataSeriesValueFieldsWithUnit | null>(null);
+
+  const resultingDataSeries = useMemo(() => {
+    if (!resultingDataSeriesWithUnit) return null;
+    const { unit, ...dataSeriesFields } = resultingDataSeriesWithUnit;
+    return dataSeriesFields;
+  }, [resultingDataSeriesWithUnit]);
+
   const resultingUnit = useMemo(() => {
-    if (!resultingDataSeries) return null;
-    return resultingDataSeries.unit;
-  }, [resultingDataSeries]);
+    if (!resultingDataSeriesWithUnit) return null;
+    return resultingDataSeriesWithUnit.unit;
+  }, [resultingDataSeriesWithUnit]);
 
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -131,12 +138,12 @@ export function RecipeContextProvider({
 
     calculate()
       .then(result => {
-        setResultingDataSeries(result);
+        setResultingDataSeriesWithUnit(result);
         setWarnings(warnings);
         setError(null);
       })
       .catch(e => {
-        setResultingDataSeries(null);
+        setResultingDataSeriesWithUnit(null);
         setWarnings(warnings);
         setError((e as Error)?.message);
       });

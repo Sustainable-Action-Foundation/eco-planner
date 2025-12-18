@@ -1,6 +1,6 @@
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 import { Recipe, RecipeIsh, RecipeVariable } from "@/functions/recipe/types";
-import { DataSeriesValueFieldsWithUnit } from "@/types";
+import { DataSeriesValueFields } from "@/types";
 import { createContext } from "react";
 
 /** 
@@ -15,7 +15,7 @@ export type SetStateAction<T> = T | Historic<T>;
 export type RecipeContextType = {
   smartRecipe: SmartRecipe;
   recipe: Recipe;
-  resultingDataSeries: DataSeriesValueFieldsWithUnit | null;
+  resultingDataSeries: DataSeriesValueFields | null;
   resultingUnit: string | null | undefined;
 
   warnings: string[];
