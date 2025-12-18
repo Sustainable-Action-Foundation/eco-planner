@@ -10,7 +10,7 @@ export default function SuggestedRecipeToggle() {
   const { t } = useTranslation(["common", "components"]);
 
   const [visibilityType, setVisibilityType] = useState<"suggested" | "custom">("suggested")
-  const { setRecipe } = useRecipe()
+  const { setSmartRecipe } = useRecipe()
 
   return (
     <>
@@ -27,7 +27,11 @@ export default function SuggestedRecipeToggle() {
                 id="recipe-type-suggested"
                 value="suggested"
                 checked={visibilityType === "suggested"}
-                onChange={() => { setVisibilityType("suggested"); setRecipe(null) }}
+                onChange={() => {
+                  setVisibilityType("suggested");
+                  setSmartRecipe(null)
+                    .catch(e => { throw e; });
+                }}
               />
             </label>,
             option2: <label>
@@ -39,7 +43,11 @@ export default function SuggestedRecipeToggle() {
                 id="recipe-type-custom"
                 value="custom"
                 checked={visibilityType === "custom"}
-                onChange={() => { setVisibilityType("custom"); setRecipe(null) }}
+                onChange={() => {
+                  setVisibilityType("custom");
+                  setSmartRecipe(null)
+                    .catch(e => { throw e; });
+                }}
               />
             </label>,
             span: <span />,

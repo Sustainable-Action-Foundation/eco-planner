@@ -16,6 +16,7 @@ export class SmartRecipe {
   public name: string | null | undefined; // String if given, null if removed, undefined if not specified
   public equation: string;
   public variables: Record<string, RecipeVariable>;
+  public hash: string | undefined = undefined;
 
   public constructor({
     name,
@@ -162,6 +163,15 @@ export class SmartRecipe {
    */
   public copy(): SmartRecipe {
     return SmartRecipe.fromObject(this.toRecipe());
+  }
+
+  public async generateHash(): Promise<string> {
+    // Hash with subtle crypto from browser
+    const serialized = this.toSerialized();
+    const hashArray = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(serialized));
+    const hashHex = Array.from(new Uint8Array(hashArray)).map(b => b.toString(16).padStart(2, '0')).join('');
+    this.hash = hashHex;
+    return this.hash;
   }
 
   /** 

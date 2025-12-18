@@ -1,9 +1,8 @@
 'use client'
 
-import { isRecipe, Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types";
+import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "../contextProvider";
-import { recipeFromUnknown } from "@/functions/recipe/parseRecipe";
 import { VariableTypeScalarSimple } from "../editor/variables/variableTypes/scalarVariable";
 import { VariableTypeDataSeriesSimple } from "../editor/variables/variableTypes/dataSeriesVariable";
 import { VariableTypeExternalSimple } from "../editor/variables/variableTypes/externalDatasetVariable";
@@ -16,37 +15,27 @@ import OutputStatus from "../editor/output/statusDisplay";
 import { testIfValidUnit } from "@/functions/recipe/extractors";
 import { IconAlertTriangleFilled } from "@tabler/icons-react";
 import { RecipeEditorPermissions } from "../editor/variables/variableTypes/recipeEditorPermissions";
+import { TFunction } from "i18next";
+import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 
 export function SuggestedRecipeApplier({
   autoInsertDefaultSuggestions = true,
-  suggestedRecipes: suggestedRecipesInput = [],
+  suggestedRecipes: providedSuggestedRecipes = [],
   permissions = RecipeEditorPermissions,
-
-  DEPRECATED_recipeOverrideFunctions,
 }: {
   autoInsertDefaultSuggestions?: boolean;
-  suggestedRecipes?: { hash: string, recipe: Recipe }[];
+  suggestedRecipes?: SmartRecipe[];
   permissions?: RecipeEditorPermissions;
-
-  /** 
-   * ## WARNING!
-   * 
-   * This is scary. This is a patch before smart recipes are implemented, 
-   *  it will allow for very flexible overriding from outside. 
-   * It will be used now for the copyAndScale component and should probably 
-   *  not be used elsewhere and removed once smart recipes are in place.
-   */
-  DEPRECATED_recipeOverrideFunctions?: Array<(recipe: Recipe) => Recipe>;
 }) {
   const { t } = useTranslation("components");
-  const { recipe, setRecipe } = useRecipe();
+  const { recipe, setSmartRecipe } = useRecipe();
 
   const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[]>([]);
   const [selectedHash, setSelectedHash] = useState<string>("");
   const suggestedRecipes = useMemo(() => autoInsertDefaultSuggestions
-    ? [...defaultSuggestedRecipes, ...suggestedRecipesInput]
-    : suggestedRecipesInput,
-    [autoInsertDefaultSuggestions, suggestedRecipesInput]);
+    ? [...getDefaultSuggestedRecipes(t), ...providedSuggestedRecipes]
+    : [...providedSuggestedRecipes],
+    [autoInsertDefaultSuggestions, providedSuggestedRecipes, t]);
 
   // On mount, fetch all roadmaps user has access to
   // TODO: This is reused from editor/variable/editor.tsx, can probably abstract this somehow
@@ -66,16 +55,15 @@ export function SuggestedRecipeApplier({
 
   // Validate suggested recipes
   useEffect(() => {
-    for (const recipe of suggestedRecipes) {
-      if (!isRecipe(recipe.recipe)) {
-        console.warn("Invalid recipe in suggestions", recipe);
-        return;
+    async function validateAll() {
+      for (const recipe of suggestedRecipes) {
+        if (typeof recipe.isValid === "function" && await recipe.isValid()) {
+          console.warn("Invalid recipe in suggestions", recipe);
+          return;
+        }
       }
     }
-    if (suggestedRecipes.some(r => !isRecipe(r.recipe))) {
-      console.warn("Some suggested recipes are not valid. Please check the data.");
-      return;
-    }
+    validateAll().catch(e => { throw e; });
   }, [suggestedRecipes]);
 
   // On change set the context state to the selected recipe
@@ -84,25 +72,22 @@ export function SuggestedRecipeApplier({
     setSelectedHash(hash);
 
     const selectedSuggestion = suggestedRecipes.find(r => r.hash === hash);
-    if (selectedSuggestion) {
-      try {
-        let foundRecipe = recipeFromUnknown(selectedSuggestion.recipe);
+    if (!selectedSuggestion) {
+      console.error("Selected suggested recipe not found", hash);
+      setSmartRecipe(null)
+        .catch(e => { throw e; });
+      return;
+    }
 
-        // TODO remove override stuff
-        if (DEPRECATED_recipeOverrideFunctions) {
-          DEPRECATED_recipeOverrideFunctions.forEach(overrideFunction => {
-            foundRecipe = overrideFunction(foundRecipe);
-          });
-        };
-
-        setRecipe(foundRecipe);
-      }
-      catch (e) {
-        console.error("Failed to parse suggested recipe", e);
-        setRecipe(null);
-      }
-    } else {
-      setRecipe(null);
+    try {
+      setSmartRecipe(selectedSuggestion)
+        .catch(e => { throw e; });
+    }
+    catch (e) {
+      console.error("Failed to parse suggested recipe", e);
+      setSmartRecipe(null)
+        .catch(e => { throw e; });
+      return;
     }
   };
 
@@ -254,25 +239,23 @@ export function SuggestedRecipeApplier({
   );
 }
 
-// TODO: Should dynamically render a list of inputs corresponding to RecipeDataTypes.DataSeries.
+// TODO: Should dynamically render a list of inputs corresponding to RecipeDataTypes.DataSerie.
 // We already do this in the recipe editor but we also want a simplified view outside of the editor
 // TODO: Placed this here temporarily to remove clutter from goal form. 
 // Should probably be moved back once these are created dynamically? 
-export const defaultSuggestedRecipes: { hash: string, recipe: Recipe }[] = [
-  // TODO: actually create proper hashes
-  // TODO: Localize the variable names
-  // TODO: Create these in seed and get them from the database
-  { // Default scaling recipe
-    hash: "recipe_with_scaling",
-    recipe: {
-      name: 'Skala serie', // Deal with this later t("forms:goal.default_scaling_recipe"), 
+
+export function getDefaultSuggestedRecipes(t: TFunction): SmartRecipe[] {
+  return [
+    // Default scaling recipe
+    new SmartRecipe({
+      name: t("forms:goal.default_scaling_recipe"),
       eq: "${serie} * ${skalär}",
       variables: {
         "serie": {
           type: RecipeDataTypes.DataSeries,
           link: null,
           pick: VectorIndexPickerOptions.Default,
-          unit: undefined, // No unit specified
+          unit: undefined, // No unit specified]
         },
         "skalär": {
           type: RecipeDataTypes.Scalar,
@@ -280,13 +263,10 @@ export const defaultSuggestedRecipes: { hash: string, recipe: Recipe }[] = [
           unit: null, // Unitless
         }
       }
-    },
-  },
-  { // Default combination recipe
-    hash: "recipe_with_combination",
-    recipe:
-    {
-      name: 'Kombinera serier', // Deal with this later t("forms:goal.default_combination_recipe"),
+    }),
+    // Default combination recipe
+    new SmartRecipe({
+      name: t("forms:goal.default_combination_recipe"),
       eq: "${serie1} * ${skalär1} + ${serie2} * ${skalär2}",
       variables: {
         "serie1": {
@@ -312,33 +292,30 @@ export const defaultSuggestedRecipes: { hash: string, recipe: Recipe }[] = [
           unit: null, // Unitless
         },
       }
-    }
-  },
-  // { // Testing recipe with external data
-  //   hash: "recipe_with_external",
-  //   recipe:
-  //   {
-  //     name: "Recipe with external data",
-  //     eq: "${extern}",
-  //     variables: {
-  //       "extern": {
-  //         type: RecipeDataTypes.External,
-  //         dataset: "SCB",
-  //         tableId: "TAB6420",
-  //         selection: [
-  //           // Selected area
-  //           { variableCode: "Region", valueCodes: ["00"] },
-  //           // Specifically land areas, not including water
-  //           { variableCode: "ArealTyp", valueCodes: ["01"] },
-  //           // Magic string to get area sizes in square kilometers (as opposed to hectares with "000007E1")
-  //           { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
-  //           // // Use the latest time period
-  //           // { variableCode: "Tid", valueCodes: ["TOP(1)"] }
-  //         ],
-  //         pick: VectorIndexPickerOptions.Last,
-  //         unit: undefined,
-  //       }
-  //     }
-  //   }
-  // }
-]
+    }),
+    // Testing recipe with external data
+    // new SmartRecipe({
+    //   name: "Recipe with external data",
+    //   eq: "${extern}",
+    //   variables: {
+    //     "extern": {
+    //       type: RecipeDataTypes.External,
+    //       dataset: "SCB",
+    //       tableId: "TAB6420",
+    //       selection: [
+    //         // Selected area
+    //         { variableCode: "Region", valueCodes: ["00"] },
+    //         // Specifically land areas, not including water
+    //         { variableCode: "ArealTyp", valueCodes: ["01"] },
+    //         // Magic string to get area sizes in square kilometers (as opposed to hectares with "000007E1")
+    //         { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
+    //         // // Use the latest time period
+    //         // { variableCode: "Tid", valueCodes: ["TOP(1)"] }
+    //       ],
+    //       pick: VectorIndexPickerOptions.Last,
+    //       unit: undefined,
+    //     }
+    //   }
+    // }),
+  ];
+}

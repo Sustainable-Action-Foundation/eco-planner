@@ -8,7 +8,7 @@ import { useRecipe } from "@/components/recipe/contextProvider";
 // TODO: Fix labels
 export default function VectorPickerSelect({ permissions, variableName }: { permissions?: RecipeEditorPermissions, variableName: string }) {
   const { t } = useTranslation("components");
-  const { recipe, setRecipe } = useRecipe();
+  const { recipe, setVariable } = useRecipe();
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
 
@@ -30,13 +30,8 @@ export default function VectorPickerSelect({ permissions, variableName }: { perm
         }
 
         variable.pick = e.target.value as VectorIndexPickerOptions;
-        setRecipe({
-          ...recipe,
-          variables: {
-            ...recipe.variables,
-            [variableName]: variable,
-          },
-        });
+     
+        setVariable(variableName, variable)
       }}
     >
       <option value={VectorIndexPickerOptions.Whole}>{t("components:recipe_editor.pick_whole")}</option>
