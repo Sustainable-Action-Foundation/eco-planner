@@ -5,27 +5,40 @@ import type { DataSeriesValueFieldsWithUnit } from "@/types";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 
+type RecipeIsh = Recipe | SmartRecipe;
+
+/** 
+ * A function exposing a previous version of itself to assist in updating its value
+ */
+type Historic<T> = (prev: T) => T;
+/** 
+ * A value or function used on setters
+ */
+type SetStateAction<T> = T | Historic<T>;
+
 export type RecipeContextType = {
   smartRecipe: SmartRecipe;
   recipe: Recipe;
   resultingDataSeries: DataSeriesValueFieldsWithUnit | null;
+  resultingUnit: string | null | undefined;
+
+  warnings: string[];
+  error: string | null;
+
   clearRecipe: () => void;
-  setSmartRecipe: (recipe: Recipe | SmartRecipe | null) => Promise<void>;
+  setSmartRecipe: (valueOrSetter: SetStateAction<RecipeIsh>) => Promise<void>;
 
   equation: Recipe["eq"];
-  setEquation: (equation: Recipe["eq"]) => void;
+  setEquation: (valueOrSetter: SetStateAction<Recipe["eq"]>) => void;
 
   getVariable: (variableName: string) => RecipeVariable | undefined;
   setVariable: (variableName: string, newValue: RecipeVariable) => void;
 
   variables: Recipe["variables"];
-  setVariables: (variables: Recipe["variables"]) => void;
-
-  warnings: string[];
-  error: string | null;
-}
-
+  setVariables: (valueOrSetter: SetStateAction<Recipe["variables"]>) => void;
+};
 export const RecipeContext = createContext<RecipeContextType | null>(null);
+
 export function useRecipe() {
   const context = useContext(RecipeContext);
   if (!context) {
@@ -38,7 +51,7 @@ export function RecipeContextProvider({
   initialRecipe,
   children,
 }: {
-  initialRecipe?: Recipe | SmartRecipe;
+  initialRecipe?: RecipeIsh;
   children: React.ReactNode;
 }) {
   let smartRecipeEntryPoint = initialRecipe;
@@ -55,22 +68,25 @@ export function RecipeContextProvider({
     , [smartRecipeEntryPoint]);
 
   const clearRecipe = () => {
-    setSmartRecipe(null)
-      .catch(e => { throw e; });
+    smartRecipeEntryPoint = SmartRecipe.getEmpty();
   };
 
-  const setSmartRecipe = async (recipe: Recipe | SmartRecipe | null): Promise<void> => {
+  const setSmartRecipe = async (valueOrSetter: SetStateAction<RecipeIsh>): Promise<void> => {
     let newInstance: SmartRecipe | null = null;
 
-    if (!recipe) {
+    const newRecipe = typeof valueOrSetter === "function"
+      ? valueOrSetter(smartRecipe.copy()) // Run users function on prev and use result
+      : valueOrSetter;
+
+    if (!newRecipe) {
+      console.warn("Deprecation warning: you should not delete recipes by setting them to null. This is not allowed type-wise so please check your typing.");
       newInstance = SmartRecipe.getEmpty();
-      return;
     }
-    if (recipe instanceof SmartRecipe) {
-      newInstance = SmartRecipe.fromSmartRecipe(recipe);
+    else if (newRecipe instanceof SmartRecipe) {
+      newInstance = SmartRecipe.fromSmartRecipe(newRecipe);
     }
     else {
-      newInstance = SmartRecipe.fromRecipe(recipe);
+      newInstance = SmartRecipe.fromRecipe(newRecipe);
     }
 
     if (!newInstance) {
@@ -83,8 +99,8 @@ export function RecipeContextProvider({
       throw new RecipeError(`Failed to set recipe: ${validity.error || "Recipe is invalid"}`);
     }
 
-    // Update
     smartRecipeEntryPoint = newInstance;
+    return;
   };
 
   // Used to force re-renders when recipe changes
@@ -97,22 +113,40 @@ export function RecipeContextProvider({
 
   const recipe = useMemo(() => { void updatePing; return smartRecipe.toRecipe(); }, [smartRecipe, updatePing]);
   const [resultingDataSeries, setResultingDataSeries] = useState<DataSeriesValueFieldsWithUnit | null>(null);
-
-  const equation = useMemo(() => recipe.eq, [recipe]);
-  const setEquation = (equation: Recipe["eq"]) => { setUpdatePing(p => p += 1); smartRecipe.equation = equation; };
-
-  const variables = useMemo(() => recipe.variables, [recipe]);
-  const setVariables = (variables: Recipe["variables"]) => { setUpdatePing(p => p += 1); smartRecipe.variables = variables; };
+  const resultingUnit = useMemo(() => {
+    if (!resultingDataSeries) return null;
+    return resultingDataSeries.unit;
+  }, [resultingDataSeries]);
 
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  const equation = useMemo(() => recipe.eq, [recipe]);
+  const setEquation = (valueOrSetter: SetStateAction<Recipe["eq"]>) => {
+    const newEquation = typeof valueOrSetter === "function"
+      ? valueOrSetter(smartRecipe.equation)
+      : valueOrSetter;
+
+    smartRecipe.equation = newEquation;
+    setUpdatePing(p => p += 1);
+  };
 
   const getVariable = (variableName: string): RecipeVariable | undefined => {
     return smartRecipe.variables[variableName];
   };
   const setVariable = (variableName: string, newValue: RecipeVariable): void => {
-    setUpdatePing(p => p += 1);
     smartRecipe.variables[variableName] = newValue;
+    setUpdatePing(p => p += 1);
+  };
+
+  const variables = useMemo(() => recipe.variables, [recipe]);
+  const setVariables = (variablesAction: SetStateAction<Recipe["variables"]>) => {
+    const newVariables = typeof variablesAction === "function"
+      ? variablesAction(smartRecipe.variables)
+      : variablesAction;
+    smartRecipe.variables = newVariables;
+
+    setUpdatePing(p => p += 1);
   };
 
   useEffect(() => {
@@ -153,6 +187,7 @@ export function RecipeContextProvider({
       clearRecipe,
       setSmartRecipe,
       resultingDataSeries,
+      resultingUnit,
       equation,
       setEquation,
       getVariable,
