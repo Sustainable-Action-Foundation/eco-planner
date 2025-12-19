@@ -264,32 +264,22 @@ function pickVector(vector: number[], pick: VectorIndexPickerOptions): number | 
       return vector;
 
     case VectorIndexPickerOptions.First:
-      const first = vector.at(0);
-      if (first === undefined) {
+      if (vector.length === 0) {
         throw new RecipeError("VectorPicking: Vector is empty, cannot pick the first element.");
       }
-      return first;
+      return vector[0];
 
     case VectorIndexPickerOptions.Last:
-      const last = vector.at(-1);
-      if (last === undefined) {
+      if (vector.length === 0) {
         throw new RecipeError("VectorPicking: Vector is empty, cannot pick the last element.");
       }
-      return last;
+      return vector[vector.length - 1];
 
     case VectorIndexPickerOptions.Mean:
-      const sum = vector.reduce((acc, val) => acc + val, 0);
-      return sum / vector.length;
+      return vector.reduce((acc, val) => acc + val, 0) / vector.length;
 
     case VectorIndexPickerOptions.Median:
-      const sorted = [...vector].sort((a, b) => a - b);
-      const mid = Math.floor(sorted.length / 2);
-      if (sorted.length % 2 === 0) {
-        return (sorted[mid - 1] + sorted[mid]) / 2;
-      }
-      else {
-        return sorted[mid];
-      }
+      return getMedian(vector);
 
     default:
       throw new RecipeError(`pickVector: Unknown VectorIndexPickerOption '${pick as string}'.`);
@@ -304,5 +294,16 @@ export function testIfValidUnit(unit: string | null | undefined): boolean {
   }
   catch {
     return false;
+  }
+}
+
+function getMedian(values: number[]): number {
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  if (sorted.length % 2 === 0) {
+    return (sorted[mid - 1] + sorted[mid]) / 2;
+  }
+  else {
+    return sorted[mid];
   }
 }
