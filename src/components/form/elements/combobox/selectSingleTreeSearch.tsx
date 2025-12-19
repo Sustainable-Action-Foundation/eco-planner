@@ -1,9 +1,9 @@
 "use client"
 
-import { inputElement, treeItem } from "@/components/types"
+import { InputElement, TreeItem } from "@/components/types"
 import { IconCaretRightFilled, IconSearch, IconSelector } from "@tabler/icons-react"
-import { useEffect, useRef, useState } from "react"
-import { clearEditableCombobox, handleKeyDownTreeCombobox } from "./functions";
+import { useEffect, useMemo, useRef, useState } from "react"
+import { clearEditableCombobox, handleKeyDownTreeCombobox, preventInvalidFormSubmission } from "./functions";
 import styles from './comboBox.module.css' with { type: "css" }
 import { useTranslation } from "react-i18next";
 import Image from "next/image"
@@ -15,10 +15,10 @@ import Image from "next/image"
 /**
  * Flattens an array of treeItems so children appear right after their parent.
  */
-function flattenTree(items: Array<treeItem>) {
-  const result: Array<treeItem> = [];
+function flattenTree(items: Array<TreeItem>) {
+  const result: Array<TreeItem> = [];
 
-  function traverse(node: treeItem) {
+  function traverse(node: TreeItem) {
     result.push(node);
 
     if (node.expanded && node.childNodes && node.childNodes.length > 0) {
@@ -31,10 +31,10 @@ function flattenTree(items: Array<treeItem>) {
 }
 
 function updateNodeInTree(
-  items: Array<treeItem>,
+  items: Array<TreeItem>,
   targetValue: string,
-  updater: (node: treeItem) => treeItem
-): Array<treeItem> {
+  updater: (node: TreeItem) => TreeItem
+): Array<TreeItem> {
   return items.map(item => {
     if (item.value === targetValue) {
       return updater(item);
@@ -52,21 +52,23 @@ function updateNodeInTree(
 export default function SelectSingleTreeSearch({
   treeItems,
   props,
-  onChange
+  defaultValue,
+  onChange,
 }: {
-  treeItems: Array<treeItem>,
-  props: inputElement,
-  onChange?: (value: treeItem | null) => void
+  treeItems: Array<TreeItem>,
+  props: InputElement,
+  defaultValue?: TreeItem, // TODO: Should also allow for a boolean which sets default to first value if enabled
+  onChange?: (value: TreeItem | null) => void
 }) {
 
   const { t } = useTranslation(["forms"]);
-  const [value, setValue] = useState<treeItem | null>(null)
-  const [loading, setLoading] = useState(false);
+
+  const [value, setValue] = useState<TreeItem | null>(defaultValue || null)
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const [searchValue, setSearchValue] = useState<string>('')
 
-  const [items, setItems] = useState<Array<treeItem>>(treeItems)
-  const [flattenedItems, setFlattenedItems] = useState<Array<treeItem>>(flattenTree(treeItems))
+  const [items, setItems] = useState<Array<TreeItem>>(treeItems)
+  const [flattenedItems, setFlattenedItems] = useState<Array<TreeItem>>(flattenTree(treeItems))
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
   const toggleRef = useRef<HTMLButtonElement>(null); // TODO: Rename?
   const searchRef = useRef<HTMLInputElement>(null);
@@ -103,33 +105,44 @@ export default function SelectSingleTreeSearch({
     )
   }, [menuOpen]);
 
-  /* Why do i need this? */
+  // Disables form subbmision if value is invalid 
+  // Define what an invalid value is (missing value or empty string). We only need this defined if the field is required
+  const valueIsValid = useMemo(() => {
+    if ((!value || value.value === "") && props.required) return false;
+    return true;
+  }, [value, props.required]);
+
+  useEffect(() => {
+    if (!toggleRef.current) return
+    return preventInvalidFormSubmission(toggleRef.current, valueIsValid)
+  }, [valueIsValid]);
+
   useEffect(() => {
     setItems(treeItems);
     setFlattenedItems(flattenTree(treeItems));
   }, [treeItems]);
 
-  const handleUpdateNode = (value: string, updater: (n: treeItem) => treeItem) => {
+  const handleUpdateNode = (value: string, updater: (n: TreeItem) => TreeItem) => {
     setItems(prev => updateNodeInTree(prev, value, updater));
   };
 
-  async function toggleNode(item: treeItem) {
+  async function toggleNode(item: TreeItem) {
     const index = flattenedItems.findIndex(el => el.value === item.value);
-    setFocusedIndex(index) // TODO: I do not think we do this when selecting without running this function (i.e onclick), see if i can implement it
-
+    setFocusedIndex(index)
+    handleUpdateNode(item.value, node => ({ ...node, loading: true }));
     if (item.onExpand && !item.childNodes) {
-      setLoading(true);
       const children = await item.onExpand();
       handleUpdateNode(item.value, node => ({
         ...node,
         childNodes: children,
         expanded: true,
+        loading: false,
       }));
-      setLoading(false);
     } else {
       handleUpdateNode(item.value, node => ({
         ...node,
         expanded: !node.expanded,
+        loading: false,
       }));
     }
   };
@@ -139,8 +152,8 @@ export default function SelectSingleTreeSearch({
     onUpdate,
     depth = 0
   }: {
-    item: treeItem,
-    onUpdate: (value: string, updater: (n: treeItem) => treeItem) => void,
+    item: TreeItem,
+    onUpdate: (value: string, updater: (n: TreeItem) => TreeItem) => void,
     depth?: number
   }) {
     return (
@@ -156,9 +169,6 @@ export default function SelectSingleTreeSearch({
       >
         <div
           className={`flex gap-25 align-items-center justify-content-space-between`}
-          style={{
-            paddingLeft: item.expanded === null ? '1.25rem' : ''
-          }}
           onClick={
             item.expanded !== null || item.onExpand !== undefined
               ? () => { void toggleNode(item); searchRef.current?.focus() }
@@ -167,8 +177,8 @@ export default function SelectSingleTreeSearch({
         >
           {(item.onExpand || (item.childNodes && item.childNodes.length > 0))
             ? <span className="flex gap-25 align-items-center">
-              {loading ?
-                <Image // TODO: need to keep track of this specific item loading state. Right now all icons will be loaders
+              {item.loading ?
+                <Image
                   src='/loaders/ring-resize.svg'
                   alt=""
                   width={16}
@@ -181,7 +191,6 @@ export default function SelectSingleTreeSearch({
                   style={{
                     minWidth: '16px',
                     transform: item.expanded ? 'rotate(90deg)' : 'rotate(0deg)',
-                    transition: 'transform 0.2s ease', // TODO: explore why this does not seem to work.
                   }}
                 />
               }
@@ -194,7 +203,13 @@ export default function SelectSingleTreeSearch({
         {item.expanded && item.childNodes && (
           <ul
             role="group"
-            style={{ listStyle: 'none' }}
+            style={{
+              listStyle: 'none',
+              borderLeft: '1px dashed var(--gray)',
+              marginInlineStart: 'calc(12px + 0.25rem)',
+              paddingInlineStart: '.5rem',
+              marginBlock: '1px'
+            }}
             className="margin-0 padding-inline-start-75"
           >
             {item.childNodes.map((child, index) => (
@@ -227,7 +242,7 @@ export default function SelectSingleTreeSearch({
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
         aria-required={props.required ? props.required : false}
-      // aria-invalid={!valueIsValid}
+        aria-invalid={!valueIsValid}
       >
         <span className={`${styles['selected-value-text']}`}>
           {!value ? props.placeholder : value.name}
@@ -263,11 +278,13 @@ export default function SelectSingleTreeSearch({
             style={{ padding: '0', margin: '0', fontSize: 'revert' }}
             ref={searchRef}
             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+              if (!toggleRef.current) return;
               handleKeyDownTreeCombobox(
                 e,
                 focusedIndex,
                 setFocusedIndex,
                 flattenedItems,
+                toggleRef.current,
                 (item, direction) => {
                   if (direction === "right" && !item.expanded) {
                     void toggleNode(item);
@@ -285,7 +302,9 @@ export default function SelectSingleTreeSearch({
                     setMenuOpen(false);
                     toggleRef.current?.focus();
                   }
-                }
+                },
+                menuOpen,
+                setMenuOpen
               )
             }}
             role="combobox"

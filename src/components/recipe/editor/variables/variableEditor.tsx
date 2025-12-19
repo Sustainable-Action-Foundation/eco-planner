@@ -4,24 +4,18 @@ import { RecipeDataTypes, RecipeVariable } from "@/functions/recipe-parser/types
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
-import VariableTypeDataSeries from "./types/dataserie";
-import VariableTypeExternal from "./types/external";
-import VariableTypeScalar from "./types/scalar";
+import VariableTypeDataSeries from "./variableTypes/dataSeriesVariable";
+import VariableTypeExternal from "./variableTypes/externalDatasetVariable";
+import VariableTypeScalar from "./variableTypes/scalarVariable";
 import { useRecipe } from "../../contextProvider";
-import styles from '../editor.module.css'
+import styles from '../recipe.module.css' with { type: "css" };
+import VariableCreator from "./variableCreator";
+import { RecipeEditorPermissions } from "./variableTypes/recipeEditorPermissions";
 
 export default function VariableEditor({
-  allowAddVariables = false,
-  allowDeleteVariables = false,
-  allowNameEditing = false,
-  allowTypeEditing = false,
-  allowValueEditing = true,
+  permissions = RecipeEditorPermissions,
 }: {
-  allowAddVariables?: boolean;
-  allowDeleteVariables?: boolean;
-  allowNameEditing?: boolean;
-  allowTypeEditing?: boolean;
-  allowValueEditing?: boolean;
+  permissions?: RecipeEditorPermissions;
 }) {
   const { t } = useTranslation("components");
   const { recipe } = useRecipe();
@@ -47,14 +41,17 @@ export default function VariableEditor({
     <ul
       className={`list-style-none padding-50 margin-0 flex-grow-100 ${styles['variable-list']}`}
     >
+      {Object.keys(recipe?.variables || []).length === 0 &&
+        <li className="padding-bottom-75 margin-bottom-75">
+          <div className="flex flex-direction-column align-items-center justify-content-center gap-25 padding-100 border-dashed border-2 border-gray-300 border-radius-8 background-color-gray-50">
+            <p className="font-weight-500 gray-700 text-align-center">
+              {t("components:recipe_editor.no_variables_yet")}
+            </p>
+            <VariableCreator allowAddVariables={true} />
+          </div>
+        </li>
+      }
       {Object.entries(recipe?.variables || []).map(([name, variable], i) => {
-        const rules = {
-          allowAddVariables,
-          allowDeleteVariables,
-          allowNameEditing,
-          allowTypeEditing,
-          allowValueEditing,
-        };
         switch (variable.type) {
           case RecipeDataTypes.Scalar:
             return (
@@ -62,7 +59,7 @@ export default function VariableEditor({
                 <VariableTypeScalar
                   key={"recipeVariable" + i}
                   name={name}
-                  rules={rules}
+                  permissions={permissions}
                 />
               </li>
             )
@@ -70,9 +67,13 @@ export default function VariableEditor({
             return (
               <li className="padding-bottom-75 margin-bottom-75" key={name}>
                 <VariableTypeDataSeries
+                  props={{
+                    id: "recipeVariable" + i,
+                    name: "recipeVariable" + i,
+                  }}
                   key={"recipeVariable" + i}
-                  name={name}
-                  rules={rules}
+                  variableName={name}
+                  permissions={permissions}
                   availableRoadmaps={availableRoadmaps}
                 />
               </li>
@@ -82,8 +83,8 @@ export default function VariableEditor({
               <li className="padding-bottom-75 margin-bottom-75" key={name}>
                 <VariableTypeExternal
                   key={"recipeVariable" + i}
-                  name={name}
-                  rules={rules}
+                  variableName={name}
+                  permissions={permissions}
                 />
               </li>
             )

@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import styles from "./dataSeriesInput.module.css";
 import { dataSeriesPattern, isValidPastedInput, isValidSingleInputForGrid, isValidSingleInputForTextField } from "./utils";
-import { IconCaretDownFilled, IconCaretUpFilled } from "@tabler/icons-react";
+import { IconAlertTriangle, IconCaretDownFilled, IconCaretUpFilled, IconHelp, IconQuestionMark } from "@tabler/icons-react";
 
 export default function DataSeriesInput({
   dataSeriesString, // TODO - rename "dataSeriesString" to "dataSeriesInput" or "initialValue" (latter suggested by chatgpt)
@@ -151,15 +151,22 @@ export default function DataSeriesInput({
       </fieldset>
 
       <details className="margin-block-75">
-        <summary>
+        <summary className="cursor-default">
           {t("forms:data_series_input.advanced")}
         </summary>
-        <p>
-          <Trans
-            i18nKey={"forms:data_series_input.data_series_advanced_info"}
-            components={{ strong: <strong />, br: <br /> }}
-          />
-        </p>
+        <section
+          aria-label={t("pages:goal.update_needed_attention_message")}
+          className="flex justify-content-space-between margin-block-50 padding-100 rounded"
+          style={{ border: '1px solid gold', backgroundColor: 'rgba(255, 255, 0, .35)' }}
+        >
+          <IconHelp className="margin-right-100" style={{ minWidth: '24px' }} aria-hidden="true" />
+          <div>
+            <Trans
+              i18nKey={"forms:data_series_input.data_series_advanced_info"}
+              components={{ strong: <strong />, br: <br /> }}
+            />
+          </div>
+        </section>         
 
         <label className="block margin-block-75">
           {t(labelKey)}

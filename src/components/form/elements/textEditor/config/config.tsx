@@ -34,14 +34,6 @@ export const CustomColor = Color.extend({
   },
 })
 
-const CustomLink = Link.extend({
-  addKeyboardShortcuts() {
-    return {
-      'Mod-k': () => this.editor.commands.setLink({ href: '' }),
-      'Mod-K': () => this.editor.commands.setLink({ href: '' }),
-    }
-  },
-})
 
 export const defaultExtensions = (placeholder?: string) => [
   Document,
@@ -63,7 +55,7 @@ export const defaultExtensions = (placeholder?: string) => [
   Italic,
   Color,
   UndoRedo,
-  CustomLink.configure({
+  Link.configure({
     openOnClick: false,
     autolink: true,
     defaultProtocol: 'https',

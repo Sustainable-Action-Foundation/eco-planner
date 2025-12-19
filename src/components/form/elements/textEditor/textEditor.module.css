@@ -36,13 +36,14 @@
     opacity: 0;
 }
 
-/* Sticky tooltips and hover effects on phone might be perceived as annoying, thus we only desible on more precise devices */
+/* Sticky tooltips and hover effects on phone might be perceived as annoying, thus we only display them on more precise devices */
 @media not (pointer: coarse)  {
     .text-editor-menu [role^="menuitem"]:hover:not(:is([aria-checked="true"], [aria-disabled="true"], [aria-expanded="true"])),
     .text-editor-menu [role^="menuitem"]:focus:not(:is([aria-checked="true"], [aria-disabled="true"], [aria-expanded="true"])) {
         background-color: var(--gray-90)
     }
 
+    .tooltip:hover::after,
     .text-editor-menu [role^="menuitem"]:hover::after,
     /* If texteditor does not contain a hovered menuitem, display tooltips on focus */
     .text-editor-menu:not(:has([role^="menuitem"]):hover) [role^="menuitem"]:focus::after { 
@@ -61,7 +62,13 @@
         text-transform: capitalize;
     }
 
+    /* If our menuitem has a menu which is open we set z-index 0 to the tooltip of said menuitem to prevent overlap */
+    .text-editor-menu [role^="menuitem"]:has(>[role="menu"].visible)::after {
+        z-index: 0;
+    }
+
     /* Override tooltip if we explicitly provide one*/
+    .tooltip[data-tooltip]:hover::after,
     .text-editor-menu [role^="menuitem"][data-tooltip]:hover::after,
     .text-editor-menu:not(:has([role^="menuitem"]):hover) [role^="menuitem"][data-tooltip]:focus::after {
         content: attr(data-tooltip) / '';
@@ -72,6 +79,7 @@
         left: calc(100% + 4px);
         transform: translateX(0) translateY(-50%);
     }
+
 }
 
 .animated-menu {
@@ -105,4 +113,8 @@
             transform: scale(.95);
         }
     }
+}
+
+.link-menu::backdrop {
+    display: none;
 }

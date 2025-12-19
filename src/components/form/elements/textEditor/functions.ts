@@ -1,5 +1,7 @@
 // TODO: Move all keyhandlers to shared file
 
+import { Editor } from "@tiptap/core";
+
 export const handleKeyDownMenuBar = (
   e: React.KeyboardEvent<HTMLUListElement>,
   menuBarItems: NodeListOf<HTMLElement> | Array<HTMLElement>,
@@ -48,11 +50,13 @@ export const handleKeyDownMenuBar = (
 **/
 export const handleKeyDownPopUpMenu = (
   e: React.KeyboardEvent<HTMLUListElement>,
+  editor: Editor,
   parentMenuItem: HTMLElement,
   menuItems: NodeListOf<HTMLElement> | Array<HTMLElement>,
   focusedMenuItemIndex: number | null,
   setfocusedMenuItemIndex: React.Dispatch<React.SetStateAction<number | null>>,
   setMenuOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>
 ) => {
 
   if (e.key === 'ArrowDown') {
@@ -95,36 +99,36 @@ export const handleKeyDownPopUpMenu = (
     setfocusedMenuItemIndex(null)
   }
 
-  /*
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      e.stopPropagation()
-      if (focusedFontSizeMenuItem != null) {
-        const itemEl = fontSizeMenuItemsRef.current[focusedFontSizeMenuItem];
-        const selectedSize = itemEl?.getAttribute('data-size');
-        if (selectedSize === 'unset') {
-          editor.chain().focus().unsetFontSize().run();
-        } else if (selectedSize) {
-          editor.chain().focus().setFontSize(selectedSize).run();
-        }
-        setFontSizeMenuOpen(false);
-        setFocusedFontSizeMenuItem(null);
-        setFocusedMenubarItem(null);
+  
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    e.stopPropagation()
+    if (focusedMenuItemIndex != null) {
+      const itemEl = menuItems[focusedMenuItemIndex];
+      const selectedSize = itemEl?.getAttribute('data-size');
+      if (selectedSize === 'unset') {
+        editor.chain().focus().unsetFontSize().run();
+      } else if (selectedSize) {
+        editor.chain().focus().setFontSize(selectedSize).run();
       }
+      setMenuOpen(false);
+      setfocusedMenuItemIndex(null);
+      setFocusedMenubarItem(null);
     }
+  }
 
-    if (e.key === ' ') {
-      e.preventDefault();
-      e.stopPropagation()
-      if (focusedFontSizeMenuItem != null) {
-        const itemEl = fontSizeMenuItemsRef.current[focusedFontSizeMenuItem];
-        const selectedSize = itemEl?.getAttribute('data-size');
-        if (selectedSize === 'unset') {
-          editor.chain().unsetFontSize().run();
-        } else if (selectedSize) {
-          editor.chain().setFontSize(selectedSize).run();
-        }
+  if (e.key === ' ') {
+    e.preventDefault();
+    e.stopPropagation()
+    if (focusedMenuItemIndex != null) {
+      const itemEl = menuItems[focusedMenuItemIndex];
+      const selectedSize = itemEl?.getAttribute('data-size');
+      if (selectedSize === 'unset') {
+        editor.chain().unsetFontSize().run();
+      } else if (selectedSize) {
+        editor.chain().setFontSize(selectedSize).run();
       }
     }
-  */
+  }
+  
 }

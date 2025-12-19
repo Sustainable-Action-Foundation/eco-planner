@@ -2,32 +2,31 @@
 
 import { useRecipe } from "@/components/recipe/contextProvider";
 import { RecipeDataTypes, RecipeVariable } from "@/functions/recipe-parser/types";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { InputRules, defaultInputRules } from "./rules";
-import styles from '../../editor.module.css' with {type: 'css'}
-import { changeName, changeType, changeUnit, deleteVariable } from "@/components/recipe/contextFunctions";
+import { RecipeEditorPermissions } from "./recipeEditorPermissions";
+import styles from "../../recipe.module.css" with { type: "css" }
+import { updateVariableName, updateVariableType, removeVariable } from "@/components/recipe/variableEditingHelpers";
 import { IconEdit, IconTrashXFilled } from "@tabler/icons-react";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
-import { Unit } from "mathjs";
+import { allOurUnits } from "@/math";
 
-// TODO: I18n
 // TODO: Fix labels
 export default function VariableTypeCommon({
-  name,
-  rules,
+  variableName,
+  permissions,
   children,
 }: {
-  name: string;
-  rules?: InputRules;
+  variableName: string;
+  permissions?: RecipeEditorPermissions;
   children: React.ReactNode;
 }) {
-  const { t } = useTranslation("components");
+  const { t } = useTranslation(["common", "components"]);
   const { recipe, setRecipe } = useRecipe();
-  const variable = recipe?.variables[name] as RecipeVariable;
+  const variable = recipe?.variables[variableName] as RecipeVariable;
   const [editable, setEditable] = useState<boolean>(false)
 
-  rules = { ...defaultInputRules, ...rules };
+  permissions = { ...RecipeEditorPermissions, ...permissions };
 
   return (
     <fieldset
@@ -37,8 +36,8 @@ export default function VariableTypeCommon({
         className="padding-25 round transparent "
         style={{ verticalAlign: 'middle' }}
         type="button"
-        title="Edit variable" // TODO: I18n
-        aria-label="Edit variable" // TODO: I18n
+        title={t("components:recipe_editor.edit_variable")}
+        aria-label={t("components:recipe_editor.edit_variable")}
         onClick={() => setEditable(!editable)}
       >
         <IconEdit width={20} height={20} className="grid" />
@@ -46,42 +45,42 @@ export default function VariableTypeCommon({
       <fieldset disabled={!editable} className="flex-grow-100">
         <div className="flex gap-25 align-items-center margin-bottom-75">
           <div className="floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
-            <label htmlFor={`variable-name-${name}`}>
+            <label htmlFor={`variable-name-${variableName}`}>
               {t("components:recipe_editor.variable_name_placeholder")}
             </label>
             <input
-              id={`variable-name-${name}`}
+              id={`variable-name-${variableName}`}
               placeholder=" "
               style={{ gridRow: '1', gridColumn: '1' }}
-              defaultValue={name}
-              onChange={(e) => changeName(name, e.target.value, setRecipe)}
+              defaultValue={variableName}
+              onChange={(e) => updateVariableName(variableName, e.target.value, setRecipe)}
               type="text"
             />
           </div>
           <div className="floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
-            <label htmlFor={`variable-unit-${name}`}>
+            <label htmlFor={`variable-unit-${variableName}`}>
               {t("components:recipe_editor.unit_placeholder")}
             </label>
             <TextSingleAutocomplete
               props={{
-                id: `variable-unit-${name}`,
-                name: `variable-unit-${name}`,
+                id: `variable-unit-${variableName}`,
+                name: `variable-unit-${variableName}`,
                 defaultValue: variable.unit || "",
                 placeholder: " ",
                 style: { gridRow: '1', gridColumn: '2', width: '125px' }
               }}
-              options={Object.keys(Unit.UNITS).map(unit => ({ name: unit, value: unit }))}
+              options={allOurUnits.map(unit => ({ name: unit, value: unit }))}
             />
           </div>
           <div className="floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
-            <label htmlFor={`variable-type-${name}`}>
-              Typ {/* TODO: i18n  */}
+            <label htmlFor={`variable-type-${variableName}`}>
+              {t("components:recipe_editor.variable_type_label")}
             </label>
             <select
-              id={`variable-type-${name}`}
+              id={`variable-type-${variableName}`}
               style={{ gridRow: '2', gridColumn: '1' }}
               defaultValue={variable.type}
-              onChange={(e) => changeType(name, e.target.value, setRecipe)}
+              onChange={(e) => updateVariableType(variableName, e.target.value, setRecipe)}
             >
               <option value={RecipeDataTypes.DataSeries}>{t("components:recipe_editor.data_series")}</option>
               <option value={RecipeDataTypes.External}>{t("components:recipe_editor.external_data")}</option>
@@ -93,14 +92,14 @@ export default function VariableTypeCommon({
           {children}
         </div>
       </fieldset>
-      {rules.allowDeleteVariables &&
+      {permissions.allowDeleteVariables &&
         <button
           disabled={!editable}
           className="padding-25 round transparent margin-left-50"
           style={{ verticalAlign: 'middle' }}
           type="button"
-          title="delete" // TODO: I18n
-          onClick={() => deleteVariable(name, setRecipe)}
+          title={t("common:tsx.delete")}
+          onClick={() => removeVariable(variableName, setRecipe)}
         >
           <IconTrashXFilled width={20} height={20} className="grid" />
         </button>

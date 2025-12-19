@@ -2,14 +2,14 @@
 
 import { Editor } from "@tiptap/core";
 import { useEditorState } from "@tiptap/react";
-import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconChevronDown, IconDotsVertical, IconWorld, IconEdit, IconLinkOff, IconPencil, IconCopy, IconAlignLeft } from "@tabler/icons-react";
+import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconChevronDown, IconLinkOff, IconPencil, IconAlignLeft } from "@tabler/icons-react";
 import React, { useEffect, useRef, useState } from "react";
 import styles from './textEditor.module.css' with { type: "css" }
 import { allowedProtocols } from './config/config';
 import { TFunction } from "i18next";
 import { BubbleMenu } from '@tiptap/react/menus'
 import { handleKeyDownPopUpMenu } from "./functions";
-
+ 
 type MenubarButtonProps = {
   t: TFunction<"forms", undefined>;
   editor: Editor;
@@ -314,13 +314,13 @@ export function NumberedList(props: MenubarButtonProps) {
 export function Link(props: MenubarButtonProps) {
   const { t, editor, menuGroup, setFocusedMenubarItem } = props;
 
-  const [editLink, setEditLink] = useState<boolean>(false)
   const [textValue, setTextValue] = useState("");
   const [hrefValue, setHrefValue] = useState("");
   const linkNameRef = useRef<HTMLInputElement | null>(null)
   const linkHrefRef = useRef<HTMLInputElement | null>(null)
+  const dialogref = useRef<HTMLDialogElement | null>(null)
 
-  function setLink(url: string) {
+  function setLink(text: string, url: string) {
 
     // cancelled
     if (url === null) {
@@ -329,9 +329,7 @@ export function Link(props: MenubarButtonProps) {
 
     // empty
     if (url === '') {
-      editor.chain().focus().extendMarkRange('link').unsetLink()
-        .run();
-
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
       return;
     }
 
@@ -351,155 +349,143 @@ export function Link(props: MenubarButtonProps) {
       alert(t('forms:text_editor_menu.link.disallowed_protocol', { protocol: parsedUrl.protocol.replace(':', ''), allowedProtocols: allowedProtocols }));
       return;
     }
-
-    editor.chain().focus().extendMarkRange('link').setLink({ href: parsedUrl.href })
+    
+    editor
+      .chain()
+      .focus()
+      .insertContent({
+        type: 'text',
+        text,
+        marks: [
+          {
+            type: 'link',
+            attrs: { href: parsedUrl.href },
+          },
+        ],
+      })
+      .command(({ tr }) => {
+        tr.setStoredMarks([])
+        return true
+      })
       .run();
-    const position = editor.view.state.selection.$from.pos;
-    const node = editor.state.doc.nodeAt(position);
 
-
-    if (node) { // If we have a node we replace it with a new textvalue
-      editor
-        .chain()
-        .focus()
-        .insertContentAt({ from: position, to: position + node.nodeSize }, textValue)
-        .run();
-    } else if (position) { // If we don't, we insert a new textvalue
-      editor
-        .chain()
-        .focus()
-        .insertContentAt({ from: position, to: position }, textValue)
-        .run();
-    }
-  }
-
-  // Sync inputs whenever entering edit mode or selection changes
-  useEffect(() => {
-    if (editLink) {
-      const nodeText = editor.state.doc.nodeAt(editor.view.state.selection.$from.pos)?.textContent ?? "";
-      const linkHref = editor.getAttributes("link").href ?? "";
-      setTextValue(nodeText);
-      setHrefValue(linkHref);
-    }
-  }, [editLink, editor.state.selection]);
+  } 
 
   return (
     <>
       <span
         data-menu-group={menuGroup}
-        onClick={() => {
-          // If no link mark exists yet, create a placeholder link so BubbleMenu can show
-          if (!editor.isActive('link')) {
-            editor.chain().focus().setLink({ href: '' }).run(); // TODO: Set focus to menu.
-          }
-        }}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            editor.chain().focus().setLink({ href: '' }).run();
-            setFocusedMenubarItem(null)
+            if (editor.isActive('link')) {
+              editor.chain().focus().unsetLink().run()
+            } else {
+              dialogref.current?.showModal()
+            }
+          }
+        }}
+        onClick={() => {
+          if (editor.isActive('link')) {
+            editor.chain().focus().unsetLink().run()
+          } else {
+            dialogref.current?.showModal()
           }
         }}
         tabIndex={-1}
         role='menuitemcheckbox'
         aria-label={t("forms:text_editor_menu.link.insert_link")}
         aria-checked={editor.isActive('link')}
-        aria-keyshortcuts='control+k'
+        data-tooltip={t("forms:text_editor_menu.link.insert_link")}
+        // TODO: We want ctrl+k to open the dialog but we remove this for now due to complications
+        // aria-keyshortcuts='control+k'
+        style={{anchorName: '--link-menu'}}
       >
         <IconLink className="grid" width={16} height={16} aria-hidden="true" />
       </span>
+
+      <dialog
+        closedby="any"
+        ref={dialogref}
+        className={`position-fixed padding-50 smooth gray-95 ${styles['link-menu']}`}    
+        style={{ positionAnchor: '--link-menu', top: 'anchor(bottom)', left: 'anchor(left)', margin: '.5rem 0 0 0', boxShadow: 'rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px', border: '0' }} 
+      >
+        <div className="flex align-items-flex-end gap-25">
+          <div>
+            <label aria-label=""> {/* TODO: Label text + I18n */}
+              <div className="focusable flex align-items-center padding-inline-25 margin-bottom-25">
+                <IconAlignLeft width={16} height={16} aria-hidden={true} />
+                <input
+                  ref={linkNameRef}
+                  className="padding-25"
+                  type="text"
+                  placeholder={t('forms:text_editor_menu.link.text_placeholder')}
+                  title={t('forms:text_editor_menu.link.text_tooltip')}
+                  value={textValue}
+                  onChange={(e) => setTextValue(e.target.value)}
+                />
+              </div>
+            </label>
+            <label aria-label=""> {/* TODO: Label text + I18n */}
+              <div className="focusable flex align-items-center padding-inline-25">
+                <IconLink width={16} height={16} aria-hidden={true} />
+                <input
+                  ref={linkHrefRef}
+                  className="padding-25"
+                  type="url"
+                  placeholder={t('forms:text_editor_menu.link.url_placeholder')}
+                  title={t('forms:text_editor_menu.link.url_tooltip')}
+                  value={hrefValue}
+                  onChange={(e) => setHrefValue(e.target.value)}
+                />
+              </div>
+            </label>
+          </div>
+          <button
+            type="button"
+            className="round transparent font-weight-600"
+            style={{ color: 'var(--blue)' }}
+            onClick={(e) => {
+              e.stopPropagation(); 
+              setLink(textValue, hrefValue); 
+              setTextValue('')
+              setHrefValue('')
+              dialogref.current?.close()
+            }}
+          >
+            {t('forms:text_editor_menu.link.apply')}
+          </button>
+        </div>
+      </dialog>
       {editor &&
-        <BubbleMenu
+        <BubbleMenu 
           editor={editor}
+          shouldShow={({ editor }) => editor.isActive('link')}
           options={{
             placement: 'bottom',
             offset: 8,
-            onUpdate: () => {
-              if (editor.getAttributes('link').href) {
-                setEditLink(false)
-              } else {
-                setEditLink(true)
-              }
-            },
           }}
-          shouldShow={({ editor }) => editor.isActive('link')}
         >
-          <div className="padding-50 smooth gray-95" style={{ boxShadow: 'rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px' }}>
-            {!editLink ?
-              <div className="flex align-items-center ">
-                {/* TODO: Tooltips */}
-                <a
-                  href={editor.getAttributes('link').href}
-                  target="_blank"
-                  style={{ width: 'min(175px, auto)', fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {editor.getAttributes('link').href}
-                </a>
-                <button
-                  type="button"
-                  className="padding-25 margin-left-100 transparent rounded flex align-items-center"
-                  style={{ transform: 'scale(1)' }}
-                  aria-label={t('forms:text_editor_menu.link.edit_link')}
-                  onClick={() => setEditLink(true)}
-                >
-                  <IconPencil height={18} width={18} aria-hidden={true} />
-                </button>
-                <span className="margin-left-25 padding-left-25" style={{ borderLeft: '1px solid var(--gray)' }}>
-                  <button
-                    type="button"
-                    className="padding-25 transparent rounded flex align-items-center"
-                    style={{ transform: 'scale(1)' }}
-                    aria-label={t('forms:text_editor_menu.link.remove_link')}
-                    onClick={() => { editor.chain().focus().unsetLink().run() }}
-                  >
-                    <IconLinkOff height={18} width={18} aria-hidden={true} />
-                  </button>
-                </span>
-              </div>
-              :
-              <>
-                <div className="flex align-items-flex-end gap-25">
-                  <div>
-                    <label aria-label=""> {/* TODO: Label text + I18n */}
-                      <div className="focusable flex align-items-center padding-inline-25 margin-bottom-25">
-                        <IconAlignLeft width={16} height={16} aria-hidden={true} />
-                        <input
-                          ref={linkNameRef}
-                          className="padding-25"
-                          type="text"
-                          placeholder={t('forms:text_editor_menu.link.text_placeholder')}
-                          title={t('forms:text_editor_menu.link.text_tooltip')}
-                          value={textValue}
-                          onChange={(e) => setTextValue(e.target.value)}
-                        />
-                      </div>
-                    </label>
-                    <label aria-label=""> {/* TODO: Label text + I18n */}
-                      <div className="focusable flex align-items-center padding-inline-25">
-                        <IconLink width={16} height={16} aria-hidden={true} />
-                        <input
-                          ref={linkHrefRef}
-                          className="padding-25"
-                          type="url"
-                          placeholder={t('forms:text_editor_menu.link.url_placeholder')}
-                          title={t('forms:text_editor_menu.link.url_tooltip')}
-                          value={hrefValue}
-                          onChange={(e) => setHrefValue(e.target.value)}
-                        />
-                      </div>
-                    </label>
-                  </div>
-                  <button
-                    type="button"
-                    className="round transparent font-weight-600"
-                    style={{ color: 'var(--blue)' }}
-                    onClick={() => setLink(hrefValue)}
-                  >
-                    {t('forms:text_editor_menu.link.apply')}
-                  </button>
-                </div>
-              </>
-            }
-          </div>
+          <div className="padding-50 smooth gray-95 flex align-items-center" style={{ boxShadow: 'rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px' }}>
+            <a
+              href={(editor.getAttributes('link') as { href?: string | null }).href || ''}
+              target="_blank"
+              style={{ width: 'min(175px, auto)', fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {editor.getAttributes('link').href}
+            </a>
+            <span className="margin-left-75 padding-left-25" style={{ borderLeft: '1px solid var(--gray)' }}>
+              <button
+                type="button"
+                className={`padding-25 transparent rounded flex align-items-center ${styles.tooltip}`}
+                style={{ transform: 'scale(1)' }}
+                aria-label={t('forms:text_editor_menu.link.remove_link')}
+                data-tooltip={t('forms:text_editor_menu.link.remove_link')}
+                onClick={() => { editor.chain().focus().unsetLink().run() }}
+              >
+                <IconLinkOff height={18} width={18} aria-hidden={true} />
+              </button>
+            </span>
+          </div>            
         </BubbleMenu>
       }
     </>
@@ -507,8 +493,8 @@ export function Link(props: MenubarButtonProps) {
 }
 
 type FontSizeProps = MenubarButtonProps & { editorId: string };
-// TODO: Selecting large text is buggy 
-export function FontSize({ t, editor, menuGroup, setFocusedMenubarItem, editorId }: FontSizeProps) {
+export function FontSize(props: FontSizeProps) {
+  const { t, editor, menuGroup, setFocusedMenubarItem, editorId } = props;
 
   const [fontSizeMenuOpen, setFontSizeMenuOpen] = useState<boolean>(false);
   const [focusedFontSizeMenuItem, setFocusedFontSizeMenuItem] = useState<number | null>(null);
@@ -608,18 +594,20 @@ export function FontSize({ t, editor, menuGroup, setFocusedMenubarItem, editorId
 
             handleKeyDownPopUpMenu(
               e,
+              editor,
               fontSizeMenuButtonRef.current,
               fontSizeMenuItemsRef.current,
               focusedFontSizeMenuItem,
               setFocusedFontSizeMenuItem,
-              setFontSizeMenuOpen
+              setFontSizeMenuOpen,
+              setFocusedMenubarItem
             )
           }}
         >
           <li role='presentation' style={{ borderBottom: '1px solid var(--gray)', paddingBottom: '2px' }}>
             <div
               onClick={() => { editor.chain().focus().setFontSize('1.25rem').run(); setFontSizeMenuOpen(false) }}
-              // onKeyDown={handleKeyDownFontSizeMenuItem} TODO: Add custom code here.
+              // onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => {chain.setFontSize('1.25rem'); setFontSizeMenuOpen(false)})}
               data-size="1.25rem"
               className='smooth font-size-smaller width-100'
               style={{ padding: '.5rem', whiteSpace: 'nowrap' }}
@@ -634,7 +622,7 @@ export function FontSize({ t, editor, menuGroup, setFocusedMenubarItem, editorId
           <li role='presentation' style={{ borderBottom: '1px solid var(--gray)', paddingBlock: '2px' }}>
             <div
               onClick={() => { editor.chain().focus().unsetFontSize().run(); setFontSizeMenuOpen(false) }}
-              // onKeyDown={handleKeyDownFontSizeMenuItem} TODO: Add custom code here.
+              // onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => {chain.unsetFontSize(); setFontSizeMenuOpen(false)})}
               data-size="unset"
               className='smooth font-size-smaller width-100'
               style={{ padding: '.5rem', whiteSpace: 'nowrap' }}
@@ -650,7 +638,7 @@ export function FontSize({ t, editor, menuGroup, setFocusedMenubarItem, editorId
           <li role='presentation' style={{ paddingTop: '2px' }}>
             <div
               onClick={() => { editor.chain().focus().setFontSize('0.75rem').run(); setFontSizeMenuOpen(false) }}
-              // onKeyDown={handleKeyDownFontSizeMenuItem} TODO: Add custom code here.
+              // onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => {chain.setFontSize('0.75rem'); setFontSizeMenuOpen(false)})}
               data-size="0.75rem"
               className='smooth font-size-smaller width-100'
               style={{ padding: '.5rem', whiteSpace: 'nowrap' }}

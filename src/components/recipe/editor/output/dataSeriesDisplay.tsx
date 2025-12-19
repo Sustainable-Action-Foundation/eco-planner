@@ -1,36 +1,29 @@
 "use client"
 
-import { ReactElement, } from "react";
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "../../contextProvider";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { Locales } from "i18n.config";
 
 // TODO: Does this take historical data into account? Do we need to account for it?
-export default function OutputDataSeries({ FormElement }: { FormElement?: ReactElement }) {
+export default function OutputDataSeries() {
   const { t } = useTranslation("components");
   const { resultingDataSeries, resultingUnit } = useRecipe();
 
   if (!resultingDataSeries) {
-    return <div style={{ fontSize: '14px' }} lang={Locales.enSE} className="flex align-items-flex-start gap-50">
+    return <div style={{ fontSize: '14px' }} lang={Locales.enSE} className="flex align-items-flex-start gap-50 margin-top-50">
       <IconInfoCircle width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="var(--gray-70)" aria-label={t("components:recipe_editor.status.no_issues_icon_aria_label")} />
-      No resulting data series to display {/* TODO: I18n */}
+      {t("components:recipe_editor.missing_resulting_data_series")}
     </div>;
   }
 
   return (
     <>
-      {/* Hidden input for reading into the form */}
-      {FormElement && <FormElement.type {...(FormElement.props || {})} value={JSON.stringify(resultingDataSeries)} />}
-
-      {
-        /* TODO: We want the unit to be visible
-        TODO: We also want a non-generic title which is visible
+      {/* TODO: We also want a non-generic title which is visible */}
       <strong className="block bold text-align-center">
         {t("components:copy_and_scale.resulting_data_series")}
         {resultingUnit ? ` (${resultingUnit})` : ""}
       </strong>
-      */}
 
       <div
         className="grid padding-bottom-100 margin-top-50 padding-inline-50"

@@ -39,7 +39,7 @@
 .floating-label>label {
   z-index: 1;
   font-size: small;
-  cursor: text;
+  cursor: text; /* TODO: Text cursor gets weird when we dont have an text input, e.g treeselect*/
   /* TODO: This is wrong when we use this for selects or buttons */
   line-height: 1;
   position: absolute;

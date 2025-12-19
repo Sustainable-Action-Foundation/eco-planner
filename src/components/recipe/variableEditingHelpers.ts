@@ -1,47 +1,47 @@
 import "client-only";
-import { emptyRecipesByDataType, isRecipeExternalDatasetSelection, Recipe, RecipeDataTypes, RecipeVariable } from "@/functions/recipe-parser/types";
+import { emptyRecipeDataSeries, emptyRecipesByDataType, isRecipeExternalDatasetSelection, Recipe, RecipeDataTypes, RecipeVariable } from "@/functions/recipe-parser/types";
 import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
 import { JSONValue } from "@/types";
 
-export function changeName(oldName: string, newName: string, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
+export function updateVariableName(currentVariableName: string, newVariableName: string, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
   setter((prev) => {
     if (!prev) return null;
 
-    if (oldName === newName) {
+    if (currentVariableName === newVariableName) {
       return prev; // No change needed
     }
 
-    if (!newName) {
+    if (!newVariableName) {
       console.warn("Variable name cannot be empty");
       return prev; // Do not update if new name is empty
     }
 
     const copyOfVariables = { ...prev.variables };
 
-    const variableContent = copyOfVariables[oldName];
+    const variableContent = copyOfVariables[currentVariableName];
     if (!variableContent) {
-      console.warn(`Variable '${oldName}' does not exist in the recipe`);
+      console.warn(`Variable '${currentVariableName}' does not exist in the recipe`);
       return prev; // Do not update if variable does not exist
     }
 
     // Copy the variable content to the new name
-    copyOfVariables[newName] = { ...variableContent };
+    copyOfVariables[newVariableName] = { ...variableContent };
     // Remove the old variable name
-    delete copyOfVariables[oldName];
+    delete copyOfVariables[currentVariableName];
 
     return { ...prev, variables: copyOfVariables };
   });
 }
 
-export function changeType(name: string, newType: string, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
+export function updateVariableType(variableName: string, newType: string, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
   setter(prev => {
     if (!prev) return null;
 
     const copyOfVariables = { ...prev.variables };
 
-    const currentVar = copyOfVariables[name];
+    const currentVar = copyOfVariables[variableName];
     if (!currentVar) {
-      console.warn(`Variable '${name}' does not exist in the recipe`);
+      console.warn(`Variable '${variableName}' does not exist in the recipe`);
       return prev; // Do not update if variable does not exist
     }
 
@@ -57,38 +57,49 @@ export function changeType(name: string, newType: string, setter: React.Dispatch
     }
 
     // Replace old variable with new one and remove its data. TODO: keep as much data as possible
-    copyOfVariables[name] = newVar as RecipeVariable;
+    copyOfVariables[variableName] = newVar as RecipeVariable;
 
     return { ...prev, variables: copyOfVariables };
   });
 }
 
-export function changeUnit(name: string, newUnit: string | undefined | null, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
+export function updateVariableUnit(variableName: string, newUnit: string | undefined | null, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
   setter(prev => {
     if (!prev) return null;
 
     const copyOfVariables = { ...prev.variables };
 
-    const currentVar = copyOfVariables[name];
+    const currentVar = copyOfVariables[variableName];
     if (!currentVar) {
-      console.warn(`Variable '${name}' does not exist in the recipe`);
+      console.warn(`Variable '${variableName}' does not exist in the recipe`);
       return prev; // Do not update if variable does not exist
     }
 
-    copyOfVariables[name] = { ...currentVar, unit: newUnit };
+    copyOfVariables[variableName] = { ...currentVar, unit: newUnit };
 
     return { ...prev, variables: copyOfVariables };
   });
 }
 
-export function changeScalarValue(name: string, newValue: string | number, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
+export function removeVariable(variableName: string, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
+  setter(prev => {
+    if (!prev) return null;
+
+    const newVariables = { ...prev.variables };
+    delete newVariables[variableName];
+
+    return { ...prev, variables: newVariables };
+  });
+}
+
+export function updateScalarVariableValue(variableName: string, newValue: string | number, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
   setter(prev => {
     if (!prev) return null;
 
     const copyOfVariables = { ...prev.variables };
-    const currentVar = copyOfVariables[name];
+    const currentVar = copyOfVariables[variableName];
     if (!currentVar) {
-      console.warn(`Variable '${name}' does not exist in the recipe`);
+      console.warn(`Variable '${variableName}' does not exist in the recipe`);
       return prev; // Do not update if variable does not exist
     }
 
@@ -98,7 +109,7 @@ export function changeScalarValue(name: string, newValue: string | number, sette
       }
 
       if (!isNaN(newValue)) {
-        copyOfVariables[name] = { ...currentVar, value: newValue };
+        copyOfVariables[variableName] = { ...currentVar, value: newValue };
       } else {
         console.warn(`Failed to parse '${newValue}' as number`);
         return prev; // Do not update if value is NaN
@@ -111,38 +122,39 @@ export function changeScalarValue(name: string, newValue: string | number, sette
   });
 }
 
-export function changeDataSeries(name: string, newDataSeries: string, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
+export function updateDataSeriesLink(variableName: string, newLink: string | null, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
   setter(prev => {
     if (!prev) return null;
 
-    if (!newDataSeries) {
-      console.warn("No data series selected");
-      return prev; // Do not update if no data series is selected
-    }
-
     const copyOfVariables = { ...prev.variables };
 
-    const currentVar = copyOfVariables[name];
+    const currentVar = copyOfVariables[variableName];
     if (!currentVar) {
-      console.warn(`Variable '${name}' does not exist in the recipe`);
+      console.warn(`Variable '${variableName}' does not exist in the recipe`);
       return prev; // Do not update if variable does not exist
-    } else if (currentVar.type !== RecipeDataTypes.DataSeries) {
-      console.warn(`Variable '${name}' is not of type DataSeries`);
+    }
+    else if (currentVar.type !== RecipeDataTypes.DataSeries) {
+      console.warn(`Variable '${variableName}' is not of type DataSeries`);
       return prev; // Do not update if the variable is not a data series
     }
 
-    copyOfVariables[name] = {
-      ...currentVar,
-      link: newDataSeries,
-    };
+    if (newLink) {
+      copyOfVariables[variableName] = {
+        ...currentVar,
+        link: newLink,
+      };
+    }
+    else {
+      // When unselecting, clear variable
+      copyOfVariables[variableName] = { ...emptyRecipeDataSeries };
+    }
 
-    console.log(copyOfVariables)
 
     return { ...prev, variables: copyOfVariables };
   });
 }
 
-export function changeDataset(name: string, newDataset: string, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
+export function updateExternalVariableDataset(variableName: string, newDataset: string, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
   setter(prev => {
     if (!prev) return null;
 
@@ -154,16 +166,16 @@ export function changeDataset(name: string, newDataset: string, setter: React.Di
 
     const copyOfVariables = { ...prev.variables };
 
-    const currentVar = copyOfVariables[name];
+    const currentVar = copyOfVariables[variableName];
     if (!currentVar) {
-      console.warn(`Variable '${name}' does not exist in the recipe`);
+      console.warn(`Variable '${variableName}' does not exist in the recipe`);
       return prev; // Do not update if variable does not exist
     } else if (currentVar.type !== RecipeDataTypes.External) {
-      console.warn(`Variable '${name}' is not of type External`);
+      console.warn(`Variable '${variableName}' is not of type External`);
       return prev; // Do not update if the variable is not an external data source
     }
 
-    copyOfVariables[name] = {
+    copyOfVariables[variableName] = {
       ...currentVar,
       dataset: newDataset as DatasetKeys,
     };
@@ -172,22 +184,22 @@ export function changeDataset(name: string, newDataset: string, setter: React.Di
   });
 }
 
-export function changeTable(name: string, newTable: string, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
+export function updateExternalVariableTable(variableName: string, newTable: string, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
   setter(prev => {
     if (!prev) return null;
 
     const copyOfVariables = { ...prev.variables };
 
-    const currentVar = copyOfVariables[name];
+    const currentVar = copyOfVariables[variableName];
     if (!currentVar) {
-      console.warn(`Variable '${name}' does not exist in the recipe`);
+      console.warn(`Variable '${variableName}' does not exist in the recipe`);
       return prev; // Do not update if variable does not exist
     } else if (currentVar.type !== RecipeDataTypes.External) {
-      console.warn(`Variable '${name}' is not of type External`);
+      console.warn(`Variable '${variableName}' is not of type External`);
       return prev; // Do not update if the variable is not an external data source
     }
 
-    copyOfVariables[name] = {
+    copyOfVariables[variableName] = {
       ...currentVar,
       tableId: newTable,
     };
@@ -196,18 +208,18 @@ export function changeTable(name: string, newTable: string, setter: React.Dispat
   });
 }
 
-export function changeExternalSelection(name: string, newSelection: string, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
+export function updateExternalVariableSelection(variableName: string, newSelection: string, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
   setter(prev => {
     if (!prev) return null;
 
     const copyOfVariables = { ...prev.variables };
 
-    const currentVar = copyOfVariables[name];
+    const currentVar = copyOfVariables[variableName];
     if (!currentVar) {
-      console.warn(`Variable '${name}' does not exist in the recipe`);
+      console.warn(`Variable '${variableName}' does not exist in the recipe`);
       return prev; // Do not update if variable does not exist
     } else if (currentVar.type !== RecipeDataTypes.External) {
-      console.warn(`Variable '${name}' is not of type External`);
+      console.warn(`Variable '${variableName}' is not of type External`);
       return prev; // Do not update if the variable is not an external data source
     }
 
@@ -217,7 +229,7 @@ export function changeExternalSelection(name: string, newSelection: string, sett
         console.warn("Invalid selection format", selection);
         return prev; // Do not update if selection is invalid
       }
-      copyOfVariables[name] = {
+      copyOfVariables[variableName] = {
         ...currentVar,
         selection: selection,
       };
@@ -227,16 +239,5 @@ export function changeExternalSelection(name: string, newSelection: string, sett
     }
 
     return { ...prev, variables: copyOfVariables };
-  });
-}
-
-export function deleteVariable(name: string, setter: React.Dispatch<React.SetStateAction<Recipe | null>>) {
-  setter(prev => {
-    if (!prev) return null;
-
-    const newVariables = { ...prev.variables };
-    delete newVariables[name];
-
-    return { ...prev, variables: newVariables };
   });
 }

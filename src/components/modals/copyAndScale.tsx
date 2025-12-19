@@ -2,17 +2,15 @@
 
 import { closeModal, openModal } from "./modalFunctions";
 import { useRef, useState } from "react";
-import { GoalCreateInput, Goal, Years, DataSeriesValueFields, isPartialDataSeriesValueFields, JSONValue, isFullDataSeriesValueFields } from "@/types";
+import { GoalCreateInput, Goal, Years, DataSeriesValueFields, isPartialDataSeriesValueFields, JSONValue, isFullDataSeriesValueFields, nullFullDataSeriesValueField } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
-import { Recipe } from "@/functions/recipe-parser/types";
+import { isRecipeDataSeries, Recipe, RecipeDataTypes } from "@/functions/recipe-parser/types";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
 import { RecipeContextProvider } from "../recipe/contextProvider";
-import { ResultingRecipe } from "@/components/recipe/editor/output/output";
-import OutputDataSeries from "../recipe/editor/output/dataSeries";
-import VariableEditor from "../recipe/editor/variable/editor"; 
-import { RecipeSuggestions } from "@/components/recipe/suggested"; 
+import { SuggestedRecipeApplier } from "@/components/recipe/suggestions/suggestedRecipeApplier";
+import FormIntegration from "../recipe/editor/output/formIntegration";
 
 export default function CopyAndScale({
   goal,
@@ -39,18 +37,15 @@ export default function CopyAndScale({
     // Try parsing the data series object from the recipe editor
     let resultingDataSeries: DataSeriesValueFields;
     try {
-      const parsedDataSeries = JSON.parse(form.get("resultingDataSeries") as string) as JSONValue;
+      const unparsedDataSeries = JSON.parse(form.get("resultingDataSeries") as string) as JSONValue;
+
       // At first expect the data series to be partial
-      if (!isPartialDataSeriesValueFields(parsedDataSeries)) {
+      if (!isPartialDataSeriesValueFields(unparsedDataSeries)) {
         throw new Error("Parsed data series does not match expected structure");
       }
 
-      // Make it non-partial for easier transformation to string[] later
-      for (const year of Years) {
-        if (!(year in parsedDataSeries)) {
-          parsedDataSeries[year] = null; // Ensure all years are present
-        }
-      }
+      // Make it non partial
+      const parsedDataSeries = { ...nullFullDataSeriesValueField, ...unparsedDataSeries };
       if (!isFullDataSeriesValueFields(parsedDataSeries)) {
         throw new Error("Parsed data series is missing some years or has incorrect structure");
       }
@@ -160,21 +155,57 @@ export default function CopyAndScale({
           </label>
 
           <RecipeContextProvider>
-            {/* Suggested recipes */}
-            {goal.recipeSuggestions.length > 0 &&
-              <RecipeSuggestions
-                // TODO: change this cast into a proper type guard in RecipeSuggestions.tsx
-                suggestedRecipes={goal.recipeSuggestions as { hash: string, recipe: Recipe }[]}
-              />
-            }
+            <SuggestedRecipeApplier
+              permissions={{
+                allowAddVariables: false,
+                allowDeleteVariables: false,
+                allowNameEditing: false,
+                allowTypeEditing: false,
+                allowValueEditing: true,
+              }}
+              DEPRECATED_recipeOverrideFunctions={[
+                // Set the value of the first data series to be of this goal
+                (r => {
+                  if (!goal.dataSeries) {
+                    console.warn("Goal has no data series to set scaling reference");
+                    return r;
+                  }
 
-            <VariableEditor />
+                  const firstDataSeries = Object.entries(r.variables)
+                    .find(([_n, v]) => v.type === RecipeDataTypes.DataSeries);
 
-            <OutputDataSeries
-              FormElement={<input type="hidden" name="resultingDataSeries" />}
+                  const firstDataSeriesName = firstDataSeries?.[0];
+                  if (!firstDataSeriesName) {
+                    console.warn("No data series variable found to set scaling reference");
+                    return r;
+                  }
+                  const firstDataSeriesVariable = firstDataSeries?.[1];
+
+                  if (!isRecipeDataSeries(firstDataSeriesVariable)) {
+                    console.warn("First data series variable is not of type RecipeDataSeries");
+                    return r;
+                  }
+
+                  firstDataSeriesVariable.link = goal.dataSeries.id;
+                  firstDataSeriesVariable.unit = goal.dataSeries.unit;
+                  // TODO: remove evil, see the type def for RecipeDataSeriesVariable
+                  firstDataSeriesVariable.goalName = goal.name || goal.indicatorParameter;
+                  firstDataSeriesVariable.disabled = true;
+
+                  return {
+                    ...r,
+                    variables: {
+                      ...r.variables,
+                      [firstDataSeriesName]: firstDataSeriesVariable,
+                    },
+                  };
+                })
+              ]}
             />
-            <ResultingRecipe
-              FormElement={<input type="hidden" name="resultingRecipe" />}
+
+            <FormIntegration
+              DataSeriesFormElement={<input name="resultingDataSeries" />}
+              RecipeFormElement={<input name="resultingRecipe" />}
             />
           </RecipeContextProvider>
 

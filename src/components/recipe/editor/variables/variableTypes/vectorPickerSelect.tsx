@@ -2,30 +2,30 @@
 
 import { isRecipeDataSeries, isRecipeExternalDataset, RecipeDataSeries, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
-import { InputRules, defaultInputRules } from "./rules";
+import { RecipeEditorPermissions } from "./recipeEditorPermissions";
 import { useRecipe } from "@/components/recipe/contextProvider";
 
 // TODO: Fix labels
-export default function VectorIndexPicker({ rules, varName }: { rules?: InputRules, varName: string }) {
+export default function VectorPickerSelect({ permissions, variableName }: { permissions?: RecipeEditorPermissions, variableName: string }) {
   const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
 
-  rules = { ...defaultInputRules, ...rules };
+  permissions = { ...RecipeEditorPermissions, ...permissions };
 
   return (
     <select
-      id={varName}
-      defaultValue={(recipe?.variables[varName] as RecipeDataSeries)?.pick || VectorIndexPickerOptions.Default}
-      disabled={!rules.allowValueEditing}
+      style={{width: '200px'}} // TODO: temporary so we can fit the floating label
+      id={variableName}
+      defaultValue={(recipe?.variables[variableName] as RecipeDataSeries)?.pick || VectorIndexPickerOptions.Default}
+      disabled={!permissions.allowValueEditing}
       onChange={(e) => {
         if (!recipe) return; // Early return if recipe is null which is only the case in race conditions with the context provider
 
-        const variable = recipe.variables[varName];
-        console.log(variable);
+        const variable = recipe.variables[variableName];
 
         // Make sure variables is of correct type
         if (!isRecipeDataSeries(variable) && !isRecipeExternalDataset(variable)) {
-          console.error(`Variable ${varName} is not of type RecipeDataSeries or RecipeExternalDataset so should not be picked.`);
+          console.error(`Variable ${variableName} is not of type RecipeDataSeries or RecipeExternalDataset so should not be picked.`);
           return;
         }
 
@@ -34,12 +34,9 @@ export default function VectorIndexPicker({ rules, varName }: { rules?: InputRul
           ...recipe,
           variables: {
             ...recipe.variables,
-            [varName]: variable,
+            [variableName]: variable,
           },
         });
-        console.log(
-          "new pick", variable.pick
-        );
       }}
     >
       <option value={VectorIndexPickerOptions.Whole}>{t("components:recipe_editor.pick_whole")}</option>

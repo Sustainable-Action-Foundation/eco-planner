@@ -1,5 +1,6 @@
 import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
-import { isStandardObject, JSONValue, typeguardDebug, uuidRegex } from "@/types";
+import { DataSeriesValueFields, isPartialDataSeriesValueFields, isStandardObject, JSONValue, typeguardDebug, uuidRegex } from "@/types";
+import { Unit } from "mathjs";
 
 export const VectorIndexPickerOptions = {
   Default: "whole",
@@ -102,11 +103,15 @@ export const emptyRecipeScalar: RecipeScalar = { type: RecipeDataTypes.Scalar, v
 export type RecipeDataSeries = {
   type: typeof RecipeDataTypes.DataSeries;
   link: string | null | undefined; // uuid of data series in the database
+  value?: Partial<DataSeriesValueFields> | null | undefined; // Usually not settable by the user, mainly for internal use
   pick: VectorIndexPickerOptions;
   unit: string | null | undefined; // String if given, null if removed, undefined if not specified
+  /** DO NOT USE! deprecated and will be replaced once smart recipes are implemented */
+  goalName?: string;
+  disabled?: boolean;
 };
 export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataSeries {
-  const allowedProps = ["type", "link", "pick", "unit"];
+  const allowedProps = ["type", "link", "pick", "unit", "value", "goalName", "disabled"];
 
   return (
     (
@@ -138,6 +143,26 @@ export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataS
       typeof variable.unit === "string" ||
       variable.unit == null || // May be null or undefined
       typeguardDebug("Type guard: 'unit' in data series variable") && false
+    ) &&
+
+    (
+      variable.value === undefined ||
+      variable.value === null ||
+      isPartialDataSeriesValueFields(variable.value)
+    ) &&
+
+    // TODO Remove this once smart recipes are implemented
+    (
+      variable.goalName === undefined ||
+      (
+        typeof variable.goalName === "string" &&
+        variable.goalName.trim() !== ""
+      )
+    ) &&
+
+    (
+      variable.disabled === undefined ||
+      typeof variable.disabled === "boolean"
     ) &&
 
     (
@@ -303,12 +328,19 @@ export function isRecipe(recipe: JSONValue): recipe is Recipe {
   );
 }
 export const emptyRecipe: Recipe = { name: undefined, eq: "", variables: {} } as const;
+export const isEmptyRecipe = (recipe: Recipe): boolean => {
+  return (
+    (recipe.name === null || recipe.name === undefined) &&
+    recipe.eq.trim() === "" &&
+    Object.keys(recipe.variables).length === 0
+  );
+};
 
 
 /** 
  * Defined here to usage before declaration.
  */
-export const emptyRecipesByDataType: Record<RecipeDataTypes, RecipeScalar | RecipeDataSeries | RecipeExternalDataset> = {
+export const emptyRecipesByDataType: Record<RecipeDataTypes, RecipeVariable> = {
   "scalar": emptyRecipeScalar,
   "dataSeries": emptyRecipeDataSeries,
   "external": emptyRecipeExternalDataset,
@@ -334,6 +366,10 @@ export type EvalTimeExternalDataset = {
   value: number | number[] | null;
   unit: string | null | undefined; // Optional unit
 };
+export type EvalTimeVariable = {
+  name: string;
+  value: Unit | Unit[] | number | number[];
+}
 
 
 /*

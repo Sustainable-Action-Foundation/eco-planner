@@ -17,7 +17,9 @@
     "lint": "tsc --noEmit && eslint ./src",
     "locales:format": "tsx ./src/scripts/localesFormat.ts",
     "test:run": "tsx ./tests/run.ts",
-    "test:clean": "rm -rf test-results & rm -rf playwright-report & rm tests/report.json & rm tests/reporter.log"
+    "test:clean": "rm -rf test-results & rm -rf playwright-report & rm tests/report.json & rm tests/reporter.log",
+    "docker:up": "docker compose -f docker/compose.staging.yaml --env-file docker/.env.local up -d --build",
+    "docker:down": "docker compose -f docker/compose.staging.yaml --env-file docker/.env.local down"
   },
   "author": {
     "name": "Sustainable Action Foundation",

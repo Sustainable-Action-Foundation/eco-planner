@@ -1,4 +1,5 @@
 import { isStandardObject } from "@/types";
+import { ApiTableContent } from "./apiTypes";
 
 export type DatasetKeys = "SCB" | "Trafa" | "SSB";
 export type DatasetData = {
@@ -142,35 +143,71 @@ export class ExternalDataset {
   }
 }
 
-export function parsePeriod(period: string) {
+export function parsePeriod(period: string): Date {
   period = period.trim().toUpperCase();
+
+  const quarterDividers = ["Q", "K"];
+  const monthDividers = ["M"];
+  const weekDividers = ["W", "V"];
+
   // If period is a quarter (kvartal)
-  if (period.includes("Q") || period.includes("K")) {
-    // Return a date based on year and first month of the quarter
-    return new Date(Date.UTC(parseInt(period.split(/[QK]/)[0]), (parseInt(period.split(/[QK]/)[1]) - 1) * 3));
+  const hasQuarterDivider = quarterDividers.find(divider => period.includes(divider));
+  if (hasQuarterDivider) {
+    const parts = period.split(hasQuarterDivider);
+    return new Date(Date.UTC(
+      parseInt(parts[0]), // Year
+      (parseInt(parts[1]) - 1) * 3) // Month (0-indexed, so subtract 1 and multiply by 3 to align to quarters)
+    );
   }
+
   // If period is a month (månad)
-  else if (period.includes("M")) {
-    // Return a date based on year and month
-    return new Date(Date.UTC(parseInt(period.split("M")[0]), parseInt(period.split("M")[1]) - 1));
+  const hasMonthDivider = monthDividers.find(divider => period.includes(divider));
+  if (hasMonthDivider) {
+    const parts = period.split(hasMonthDivider);
+    return new Date(Date.UTC(
+      parseInt(parts[0]), // Year
+      parseInt(parts[1]) - 1) // Month (0-indexed, so subtract 1)
+    );
   }
+
   // If period is a week (vecka)
-  else if (period.includes("W") || period.includes("V")) {
-    // Return a date based on year and first day of ISO week
-    // Why can't JS natively parse all ISO 8601 strings ;^;
-    const year = parseInt(period.split(/[WV]/)[0]);
-    const week = parseInt(period.split(/[WV]/)[1]);
-    const date = new Date(Date.UTC(year, 0, 1));
+  const hasWeekDivider = weekDividers.find(divider => period.includes(divider));
+  if (hasWeekDivider) {
+    const parts = period.split(hasWeekDivider);
+
+    const year = parseInt(parts[0]);
+    const week = parseInt(parts[1]);
+
     // The first week of the year always contains the 4th of January
     // This allows us to calculate an offset between the first day of the year and the first day of the first week
-    const dayOffset = new Date(Date.UTC(year, 0, 4)).getDay() + 3;
+    const dayOffset = new Date(Date.UTC(year, 0, 4)).getUTCDay() + 3;
+
     // If Jan 1 is a Sunday, we'll see this returning 1 + 7 - 10 = -2 for week 1, meaning that the first week starts Dec 29 previous year
     // If Jan 1 is a Monday, we'll see this returning 1 + 7 - 4 = 4 for week 1, meaning that the first week starts Jan 4
-    date.setDate(1 + (week) * 7 - dayOffset);
+    const date = new Date(Date.UTC(year, 0, 1));
+    date.setUTCDate(1 + (week) * 7 - dayOffset);
     return date;
   }
+
   // If none of the above match, assume it's a year and try to parse it as such (might return an invalid date)
-  else {
-    return new Date(Date.UTC(parseInt(period), 0));
+  // TODO: do explicit throwing or return null on invalid date? this seems like a recipe for downstream bugs
+  console.warn(`parsePeriod: assuming period "${period}" is a year.`);
+  return new Date(Date.UTC(parseInt(period), 0));
+}
+
+export function filterToInitialYearlyRecords(periodValuePairs: ApiTableContent["values"]): ApiTableContent["values"] {
+  const filteredValues: ApiTableContent["values"] = [];
+  const seenYears: Set<number> = new Set();
+
+  for (const entry of periodValuePairs) {
+    const date = parsePeriod(entry.period);
+    const year = date.getUTCFullYear();
+
+    if (!seenYears.has(year)) {
+      seenYears.add(year);
+      filteredValues.push(entry);
+    }
   }
+
+  return filteredValues;
 }
