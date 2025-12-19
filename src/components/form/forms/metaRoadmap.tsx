@@ -39,7 +39,7 @@ export default function MetaRoadmapForm({
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [roadmapType, setRoadmapType] = useState<string>("");
 
-  const timestamp = Date.now()
+  const [timestamp] = useState<number>(() => Date.now());  
 
   const customRoadmapTypes = {
     [RoadmapType.NATIONAL]: t("common:scope.national"),

@@ -135,7 +135,7 @@ export default function RoadmapForm({
 
   const [currentFile, setCurrentFile] = useState<File | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const timestamp = Date.now()
+  const [timestamp] = useState<number>(() => Date.now());
   const [metaRoadmapId, setMetaRoadmapId] = useState<string>(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap || "")
   const [targetVersion, setTargetVersion] = useState<number | null>(0)
   // Temporarily disabled
