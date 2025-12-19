@@ -164,7 +164,7 @@
     "variable_name_placeholder": "Name",
     "variable_type_label": "Type",
     "variables": "Variables",
-    "vector_index_picker_label": "Value(s) to use"
+    "vector_index_picker_label": "Value(s)"
   },
   "roadmap_filters": {
     "default": "Default",

@@ -125,12 +125,13 @@ export default function VariableTypeDataSeries({
             placeholder: props.placeholder,
             defaultValue: props.defaultValue,
             required: props.required,
+            style: {maxHeight: '36px'} // TODO: Cheap fix for now to prevent layout shifting
           }}
           treeItems={treeItems}
           onChange={handleDataSeriesChange}
         />
       </div>
-      <div className="inline-block floating-label" style={{ width: "200px", "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
+      <div className="inline-block floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
         <label htmlFor="variable-tree-vector-index-picker">
           {t("components:recipe_editor.vector_index_picker_label")}
         </label>
@@ -172,6 +173,7 @@ export function VariableTypeDataSeriesSimple({
         placeholder: props.placeholder,
         required: props.required,
         disabled: props.disabled,
+        style: {maxHeight: '36px'} // TODO: Cheap fix for now to prevent layout shifting
       }}
       treeItems={treeItems}
       onChange={handleDataSeriesChange}

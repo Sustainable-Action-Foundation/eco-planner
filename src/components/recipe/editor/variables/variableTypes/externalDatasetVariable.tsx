@@ -19,8 +19,6 @@ export default function VariableTypeExternal({
   permissions?: RecipeEditorPermissions;
 }) {
   const { t } = useTranslation("components");
-  const { recipe, setRecipe } = useRecipe();
-  const variable = recipe?.variables[variableName] as RecipeExternalDataset;
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
 
@@ -57,7 +55,7 @@ export function VariableTypeExternalSimple({
   permissions = { ...RecipeEditorPermissions, ...permissions };
 
   return (
-    <div className="flex gap-25"> {/* TODO: Figure out how to deal with labels here */}
+    <div className="flex gap-25"> {/* TODO: Figure out how to deal with labels here */} {/* TODO: Implement modal */}
       <select
         value={variable.dataset || ""}
         disabled={!permissions.allowValueEditing}

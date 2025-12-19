@@ -230,7 +230,7 @@ export default function SelectSingleTreeSearch({
         title={value?.name}
         id={props.id}
         className={`${styles['select-toggle']}`}
-        style={{ borderColor: menuOpen ? '#191919' : '' }}
+        style={{ ...props.style, borderColor: menuOpen ? '#191919' : '' }} // TODO: Not sure style should be set here, do it temporarily to prevent layout shifting in recipevariableeditor for now
         value={value ? value.value : ''}
         name={props.name}
         disabled={props.disabled}

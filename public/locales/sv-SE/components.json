@@ -164,7 +164,7 @@
     "variable_name_placeholder": "Namn",
     "variable_type_label": "Typ",
     "variables": "Variabler",
-    "vector_index_picker_label": "Värde(n) som ska användas"
+    "vector_index_picker_label": "Värde(n)"
   },
   "roadmap_filters": {
     "default": "Standard",
