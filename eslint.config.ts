@@ -19,6 +19,7 @@ export default defineConfig(
         { allowConstantExport: true },
       ],
       "react-hooks/immutability": "warn",
+      "react-hooks/set-state-in-effect": "warn",
       "@typescript-eslint/no-unused-vars": [
         "warn",
         {
