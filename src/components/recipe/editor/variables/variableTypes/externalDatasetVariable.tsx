@@ -38,11 +38,6 @@ export default function VariableTypeExternal({
           <VectorPickerSelect permissions={permissions} variableName={variableName} />
         </div>
       </VariableTypeCommon>
-      <div className="flex gap-25 margin-left-300 margin-top-100"> {/* TODO: Handle overflow a bit better here */}
-        <span style={{whiteSpace: "nowrap"}}>{t("components:recipe_editor.dataset")}: {variable.dataset || ""},</span>
-        <span style={{whiteSpace: "nowrap"}}>{t("components:recipe_editor.table")}: {variable.tableId || ""},</span>
-        <span style={{whiteSpace: "nowrap", maxWidth: '400px', textOverflow: 'ellipsis', overflow: 'hidden'}}>{t("components:recipe_editor.selection")}: {JSON.stringify(variable.selection) || ""}</span>
-      </div>  
     </>
   )
 }

@@ -12,7 +12,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
-import { IconChartHistogram, IconSearch, IconX } from "@tabler/icons-react";
+import { IconChartHistogram, IconCirclePlus, IconCirclePlusFilled, IconPlus, IconSearch, IconSquareRoundedPlus, IconSquareRoundedPlusFilled, IconX } from "@tabler/icons-react";
 import { updateExternalVariableDataset, updateExternalVariableSelection, updateExternalVariableTable } from "@/components/recipe/variableEditingHelpers";
 import { useRecipe } from "@/components/recipe/contextProvider";
 
@@ -25,7 +25,7 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
   // TODO: Fix typing, use match() instead of casting
   const lang = useContext(LocaleContext).split("-")[0];
   // const lang = useContext(LocaleContext).split("-")[0] as "sv" | "en";
-  const { setRecipe } = useRecipe();
+  const { recipe, setRecipe } = useRecipe();
 
   const [isLoading, setIsLoading] = useState(false);
   const [dataSource, setDataSource] = useState<string>("");
@@ -366,9 +366,19 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
 
   return (
     <>
-      <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem", lineHeight: '1.5' }} onClick={() => openModal(modalRef)}>
-        {t("components:recipe_editor.add_external_data")}
-      </button>
+      <div className="floating-label">
+        <label htmlFor="open-query-builder" style={{'--background': 'linear-gradient(var(--gray-95) 50%, white 100%)', cursor: 'default'} as React.CSSProperties}>{t("components:recipe_editor.add_external_data")}</label>
+        <button
+          id="open-query-builder" type="button" className="gray-90 flex align-items-center gap-25 purewhite" 
+          style={{width: '150px', boxShadow: 'none', border: '1px solid var(--gray-80)', transform: 'scale(1)', userSelect: 'text'}} 
+          onClick={() => openModal(modalRef)}
+        >
+          <span className="flex-grow-100 text-align-left">
+            {dataSource ? dataSource : ''}{dataSource && tableDetails ? ` - ${tableDetails.id}` : ''}
+          </span>
+          <IconPlus width={16} height={16} aria-hidden='true' />
+        </button>
+      </div>
 
       <dialog className={`smooth padding-inline-0 ${styles.dialog}`} ref={modalRef} aria-modal style={{ backgroundColor: 'rgb(246, 246, 246)' }}>
         <div className="display-flex flex-direction-row-reverse align-items-center justify-content-space-between padding-inline-100">
