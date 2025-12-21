@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react";
-import { useRecipe } from "../context/recipeContext.provider";
+import { useRecipe } from "../context/recipeContext.use";
 import RecipeEditor from "../editor/recipeEditor";
 import { SuggestedRecipeApplier } from "./suggestedRecipeApplier";
 import { Trans, useTranslation } from "react-i18next";

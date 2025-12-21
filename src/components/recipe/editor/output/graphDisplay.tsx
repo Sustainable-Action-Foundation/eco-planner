@@ -1,7 +1,7 @@
 "use client"
 
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
-import { useRecipe } from "../../context/recipeContext.provider";
+import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 import { ApexOptions } from "apexcharts";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { Locales } from "i18n.config";

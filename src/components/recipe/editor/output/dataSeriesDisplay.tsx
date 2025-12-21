@@ -1,7 +1,7 @@
 "use client"
 
 import { useTranslation } from "react-i18next";
-import { useRecipe } from "../../context/recipeContext.provider";
+import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { Locales } from "i18n.config";
 
