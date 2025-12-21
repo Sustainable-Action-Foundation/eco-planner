@@ -104,16 +104,15 @@ export function updateScalarVariableValue(variableName: string, newValue: string
     }
 
     if (currentVar.type === RecipeDataTypes.Scalar) {
-      if (typeof newValue === 'string') {
-        newValue = parseFloat(newValue);
-      }
+      const parsedValue = typeof newValue === 'string'
+        ? parseFloat(newValue)
+        : newValue;
 
-      if (!isNaN(newValue)) {
-        copyOfVariables[variableName] = { ...currentVar, value: newValue };
+      if (isNaN(parsedValue)) {
+        throw new RecipeError(`Failed to parse '${parsedValue}' as number`)
       }
-      else {
-        throw new RecipeError(`Failed to parse '${newValue}' as number`)
-      }
+      
+      copyOfVariables[variableName] = { ...currentVar, value: parsedValue };
     } else {
       return prev; // Do not update if the variable is not a scalar
     }
