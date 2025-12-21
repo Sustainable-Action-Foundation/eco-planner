@@ -3,9 +3,8 @@
 import { colors } from "../src/scripts/lib/colors";
 import { PrismaClient, RoadmapType } from '../src/prisma/generated';
 import bcrypt from "bcryptjs";
-import crypto from "node:crypto";
 import { RandomTextSE } from "./randomText";
-import { Years } from "@/types";
+import { DataSeriesValueFields, Years } from "@/types";
 
 const prisma = new PrismaClient();
 prisma.$connect().catch((e) => {
@@ -16,17 +15,6 @@ prisma.$connect().catch((e) => {
     `), e);
   process.exit(1);
 });
-
-function sha256(input: string): string {
-  if (typeof input !== "string") {
-    throw new Error("Input must be a string");
-  }
-
-  const hashObject = crypto.createHash("sha256");
-  hashObject.update(input);
-
-  return hashObject.digest("hex");
-}
 
 function getRandomDateInThePast(): Date {
   const roof = Date.now() - 1000 * 60; // 1 minute ago
@@ -51,7 +39,7 @@ function getRandomUnit(): string | null | undefined {
     .sort(() => Math.random() - 0.5).at(0);
 }
 
-function getRandomCoherentDataPoints(): Partial<Record<typeof Years[number], number>> {
+function getRandomCoherentDataPoints(): Partial<DataSeriesValueFields> {
   const dataPoints: Partial<Record<typeof Years[number], number>> = {};
   let startValue = Math.floor(Math.random() * 10000);
   const deviation = Math.floor(Math.random() * startValue + startValue / 100);

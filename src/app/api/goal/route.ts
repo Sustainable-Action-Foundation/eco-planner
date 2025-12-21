@@ -11,6 +11,7 @@ import crypto from 'crypto';
 import dataSeriesPrep from "./dataSeriesPrep";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { cleanRecipe, evaluateRecipe } from "@/functions/parseRecipe";
+import { hashRecipe } from "@/functions/recipe-parser/getRecipeHash";
 
 // Type guards
 function isGoalCreate(goal: JSONValue): goal is GoalCreateInput {
@@ -714,7 +715,9 @@ export async function PUT(request: NextRequest) {
       }
     }
 
-    const recipeHash = goal.recipeUsed ? crypto.createHash('sha256').update(JSON.stringify(goal.recipeUsed)).digest('hex') : undefined;
+    const recipeHash = goal.recipeUsed
+      ? hashRecipe(goal.recipeUsed)
+      : undefined;
 
     const editedGoal = await prisma.goal.update({
       where: { id: goal.goalId },
