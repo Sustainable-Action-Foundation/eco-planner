@@ -105,7 +105,7 @@ export function updateScalarVariableValue(variableName: string, newValue: string
 
     if (currentVar.type === RecipeDataTypes.Scalar) {
       const parsedValue = typeof newValue === 'string'
-        ? parseFloat(newValue)
+        ? parseFloat(newValue.trim())
         : newValue;
 
       if (isNaN(parsedValue)) {

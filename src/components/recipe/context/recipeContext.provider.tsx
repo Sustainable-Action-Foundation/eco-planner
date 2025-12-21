@@ -69,7 +69,7 @@ export function RecipeContextProvider({
         const currentWarnings: string[] = [];
         const evaluatedRecipe = await evaluateRecipe(cleanRecipe(recipe), currentWarnings);
         if (!evaluatedRecipe) {
-          console.warn("Recipe evaluation was canceled, likely due to empty eq");
+          console.warn("Recipe evaluation was canceled.");
           setResultingDataSeries(null);
           setResultingUnit(null);
           setWarnings([]);
