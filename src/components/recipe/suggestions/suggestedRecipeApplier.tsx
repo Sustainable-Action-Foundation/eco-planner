@@ -276,7 +276,7 @@ export const defaultSuggestedRecipes: { hash: string, recipe: Recipe }[] = [
         },
         "skalär": {
           type: RecipeDataTypes.Scalar,
-          value: 0.5,
+          value: 1,
           unit: null, // Unitless
         }
       }
@@ -297,7 +297,7 @@ export const defaultSuggestedRecipes: { hash: string, recipe: Recipe }[] = [
         },
         "skalär1": {
           type: RecipeDataTypes.Scalar,
-          value: 0.5,
+          value: 1,
           unit: null, // Unitless
         },
         "serie2": {
@@ -308,7 +308,7 @@ export const defaultSuggestedRecipes: { hash: string, recipe: Recipe }[] = [
         },
         "skalär2": {
           type: RecipeDataTypes.Scalar,
-          value: 0.5,
+          value: 1,
           unit: null, // Unitless
         },
       }
