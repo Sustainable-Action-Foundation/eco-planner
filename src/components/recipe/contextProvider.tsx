@@ -2,7 +2,7 @@
 
 import { emptyRecipe, Recipe } from "@/functions/recipe-parser/types";
 import type { DataSeriesValueFields } from "@/types";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { evaluateRecipe, cleanRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
 import { Locales } from "i18n.config";
 
@@ -11,6 +11,7 @@ type RecipeContextType = {
   setRecipe: React.Dispatch<React.SetStateAction<Recipe | null>>;
   warnings: string[];
   error: string | null;
+  setError: React.Dispatch<React.SetStateAction<string | null>>;
   resultingDataSeries: Partial<DataSeriesValueFields> | null;
   resultingUnit: string | null | undefined;
 }
@@ -31,9 +32,32 @@ export function RecipeContextProvider({
   initialRecipe?: Recipe;
   children: React.ReactNode;
 }) {
-  const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  const [recipe, setRecipeState] = useState<Recipe | null>(null);
+  const setRecipe: React.Dispatch<React.SetStateAction<Recipe | null>> = useCallback((action) => {
+    if (typeof action === "function") {
+      setRecipeState((prev) => {
+        try {
+          return action(prev);
+        }
+        catch (e) {
+          setError(e instanceof Error ? e.message : String(e));
+          return prev;
+        }
+      });
+    }
+    else {
+      try {
+        setRecipeState(action);
+      }
+      catch (e) {
+        setError(e instanceof Error ? e.message : String(e));
+      }
+    }
+  }, []);
+
   const [resultingDataSeries, setResultingDataSeries] = useState<Partial<DataSeriesValueFields> | null>(null);
   const [resultingUnit, setResultingUnit] = useState<string | null | undefined>(null);
 
@@ -44,7 +68,7 @@ export function RecipeContextProvider({
     if (initialRecipe) {
       setRecipe(initialRecipe);
     }
-  }, [initialRecipe]);
+  }, [initialRecipe, setRecipe]);
 
   useEffect(() => {
     if (!recipe) {
@@ -88,7 +112,7 @@ export function RecipeContextProvider({
         setLastEvalDuration(endTime - startTime);
         setLastEvalTimestamp(new Date().toLocaleString());
       });
-  }, [recipe]);
+  }, [recipe, setRecipe]);
 
   // Register debug key bind alt+shift+d (hold to open), Escape to close
   const [showDebug, setShowDebug] = useState(false);
@@ -134,7 +158,15 @@ export function RecipeContextProvider({
 
   // TODO: style this
   return (
-    <RecipeContext.Provider value={{ recipe, setRecipe, warnings, error, resultingDataSeries, resultingUnit }}>
+    <RecipeContext.Provider value={{
+      recipe,
+      setRecipe,
+      warnings,
+      error,
+      setError,
+      resultingDataSeries,
+      resultingUnit,
+    }}>
       {showDebug &&
         <div
           style={{
