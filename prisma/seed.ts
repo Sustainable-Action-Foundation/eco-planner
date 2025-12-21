@@ -6,7 +6,6 @@ import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
 import { RandomTextSE } from "./randomText";
 import { Years } from "@/types";
-import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 
 const prisma = new PrismaClient();
 prisma.$connect().catch((e) => {
@@ -310,131 +309,6 @@ async function main() {
     },
   });
 
-
-  /* 
-   * Basic recipes
-   */
-  const basicRecipes = await prisma.$transaction([
-    (() => { // By area
-      const recipe: Recipe = {
-        name: 'Skala utifrån yta',
-        eq: '${Riket} * ${ArvingsArea} / ${RiketsArea}',
-        variables: {
-          'Riket': {
-            type: RecipeDataTypes.DataSeries,
-            link: null,
-            pick: VectorIndexPickerOptions.Default,
-            unit: "km^2",
-          },
-          'RiketsArea': {
-            type: RecipeDataTypes.External,
-            pick: VectorIndexPickerOptions.Default,
-            unit: undefined,
-            dataset: 'SCB',
-            tableId: 'TAB6420',
-            selection: [
-              // Selected area
-              { variableCode: 'Region', valueCodes: ["00"], },
-              // Specifically land areas, not including water
-              { variableCode: "ArealTyp", valueCodes: ["01"] },
-              // Magic string to get area sizes in square kilometers (as opposed to hectares with "000007E1")
-              { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
-            ],
-          },
-          'ArvingsArea': {
-            type: RecipeDataTypes.External,
-            pick: VectorIndexPickerOptions.Default,
-            unit: undefined,
-            dataset: 'SCB',
-            tableId: 'TAB6420',
-            selection: [
-              // Specifically land areas, not including water
-              { variableCode: "ArealTyp", valueCodes: ["01"] },
-              // Magic string to get area sizes in square kilometers (as opposed to hectares with "000007E1")
-              { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
-            ],
-          },
-        },
-      };
-      return prisma.recipe.create({
-        data: {
-          hash: sha256(JSON.stringify(recipe)),
-          recipe: recipe,
-        },
-      });
-    })(),
-    (() => { // By population
-      const recipe: Recipe = {
-        name: 'Skala utifrån befolkning',
-        eq: '${Riket} * ${ArvingsPopulation} / ${RiketsPopulation}',
-        variables: {
-          'Riket': {
-            type: RecipeDataTypes.DataSeries,
-            link: null,
-            pick: VectorIndexPickerOptions.Default,
-            unit: "capita",
-          },
-          'RiketsPopulation': {
-            type: RecipeDataTypes.External,
-            pick: VectorIndexPickerOptions.Default,
-            unit: undefined,
-            dataset: 'SCB',
-            tableId: 'BE0101N1',
-            selection: [
-              // Selected area
-              { variableCode: 'Region', valueCodes: ["00"], },
-              // Magic string to get population numbers
-              { variableCode: "ContentsCode", valueCodes: ["000007E1"] },
-            ],
-          },
-          'ArvingsPopulation': {
-            type: RecipeDataTypes.External,
-            pick: VectorIndexPickerOptions.Default,
-            unit: undefined,
-            dataset: 'SCB',
-            tableId: 'BE0101N1',
-            selection: [
-              // Magic string to get population numbers
-              { variableCode: "ContentsCode", valueCodes: ["000007E1"] },
-            ],
-          },
-        },
-      };
-      return prisma.recipe.create({
-        data: {
-          hash: sha256(JSON.stringify(recipe)),
-          recipe: recipe,
-        },
-      });
-    })(),
-    (() => { // By scalar
-      const recipe: Recipe = {
-        name: 'Skala utifrån fast värde',
-        eq: '${Riket} / ${skalär}',
-        variables: {
-          'Riket': {
-            type: RecipeDataTypes.DataSeries,
-            link: null,
-            pick: VectorIndexPickerOptions.Default,
-            unit: getRandomUnit(),
-          },
-          'skalär': {
-            type: RecipeDataTypes.Scalar,
-            value: 1 + Math.random(),
-            unit: null,
-          },
-        },
-      };
-      return prisma.recipe.create({
-        data: {
-          hash: sha256(JSON.stringify(recipe)),
-          recipe: recipe,
-        },
-      });
-    })(),
-  ]);
-
-
   /* 
    * Goals
    */
@@ -453,9 +327,8 @@ async function main() {
       });
     })
   );
-  // This will be reassigned later
-  // eslint-disable-next-line prefer-const
-  let parameters = new Array(8).fill(null).map(() => RandomTextSE.words(Math.floor(Math.random() * 5) + 1).replace(/\s/g, '\\'));
+
+  const parameters = new Array(8).fill(null).map(() => RandomTextSE.words(Math.floor(Math.random() * 5) + 1).replace(/\s/g, '\\'));
   const nationalGoalsV1 = await prisma.$transaction(
     Array(10).fill(null).map((_, i) => {
       [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
@@ -470,13 +343,6 @@ async function main() {
           dataSeries: {
             connect: { id: nationalDataSeriesV1[i].id },
           },
-          recipeSuggestions: {
-            connect: [
-              { hash: basicRecipes[0].hash },
-              { hash: basicRecipes[1].hash },
-              { hash: basicRecipes[2].hash },
-            ],
-          }
         },
       });
     })
