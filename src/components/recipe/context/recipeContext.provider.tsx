@@ -2,28 +2,10 @@
 
 import { emptyRecipe, Recipe } from "@/functions/recipe-parser/types";
 import type { DataSeriesValueFields } from "@/types";
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { evaluateRecipe, cleanRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
 import { Locales } from "i18n.config";
-
-type RecipeContextType = {
-  recipe: Recipe | null;
-  setRecipe: React.Dispatch<React.SetStateAction<Recipe | null>>;
-  warnings: string[];
-  error: string | null;
-  setError: React.Dispatch<React.SetStateAction<string | null>>;
-  resultingDataSeries: Partial<DataSeriesValueFields> | null;
-  resultingUnit: string | null | undefined;
-}
-
-export const RecipeContext = createContext<RecipeContextType | null>(null);
-export function useRecipe() {
-  const context = useContext(RecipeContext);
-  if (!context) {
-    throw new Error("useRecipe must be used within a RecipeContextProvider");
-  }
-  return context;
-}
+import { RecipeContext } from "./recipeContext.internal";
 
 export function RecipeContextProvider({
   initialRecipe,
