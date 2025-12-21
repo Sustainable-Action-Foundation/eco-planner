@@ -145,7 +145,6 @@ export function RecipeContextProvider({
       setRecipe,
       warnings,
       error,
-      setError,
       resultingDataSeries,
       resultingUnit,
     }}>

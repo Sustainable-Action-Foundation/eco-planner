@@ -7,7 +7,6 @@ export type RecipeContextType = {
   setRecipe: React.Dispatch<React.SetStateAction<Recipe | null>>;
   warnings: string[];
   error: string | null;
-  setError: React.Dispatch<React.SetStateAction<string | null>>;
   resultingDataSeries: Partial<DataSeriesValueFields> | null;
   resultingUnit: string | null | undefined;
 };
