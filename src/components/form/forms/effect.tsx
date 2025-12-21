@@ -80,7 +80,7 @@ export default function EffectForm({
     formSubmitter('/api/effect', formJSON, currentEffect ? 'PUT' : 'POST', t, undefined, defaultLocation);
   }
 
-  const timestamp = Date.now();
+  const [timestamp] = useState<number>(() => Date.now());
 
   // If there is a data series, convert it to an array of numbers to use as a default value in the form
   // const dataArray: (number | null)[] = [];
@@ -106,7 +106,7 @@ export default function EffectForm({
           labelKey="forms:data_series_input.data_series"
         />
 
-        { 
+        {
           // TODO: This code can be cleaned up
           selectedImpactType === ActionImpactType.ABSOLUTE ?
             <div className="margin-block-100">

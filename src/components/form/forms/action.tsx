@@ -72,7 +72,7 @@ export default function ActionForm({
     formSubmitter('/api/action', formJSON, currentAction ? 'PUT' : 'POST', t);
   }
 
-  const timestamp = Date.now();
+  const [timestamp] = useState<number>(() => Date.now());
 
   // Indexes for the data-position attribute in the legend elements
   let positionIndex = 1;
