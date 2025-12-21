@@ -167,7 +167,7 @@ async function main() {
     };
   }
 
-  function makeOneToOneRecipe(link: string, unit?: string | null): Recipe {
+  function makeOneToOneRecipe(link: string, unit?: string | null, goalName?: string | null): Recipe {
     if (!link || link.trim() === "") {
       throw new Error("Link must be a non-empty string");
     }
@@ -181,11 +181,12 @@ async function main() {
           pick: VectorIndexPickerOptions.Whole,
           unit,
           link,
+          goalName: goalName ?? undefined,
         },
       },
     };
   }
-  function makeScaledRecipe(link: string, scale: number, unit?: string | null): Recipe {
+  function makeScaledRecipe(link: string, scale: number, unit?: string | null, goalName?: string | null): Recipe {
     if (!link || link.trim() === "") {
       throw new Error("Link must be a non-empty string");
     }
@@ -199,6 +200,7 @@ async function main() {
           pick: VectorIndexPickerOptions.Whole,
           unit,
           link,
+          goalName: goalName ?? undefined,
         },
         "skalär": {
           type: RecipeDataTypes.Scalar,
@@ -300,7 +302,7 @@ async function main() {
     }
   });
   // 2.5 * raw = derived
-  const scaledRecipeOfNationalV1Raw = makeScaledRecipe(nationalV1RawGoal.dataSeries?.id ?? "", 2.5, nationalV1RawGoal.dataSeries?.unit);
+  const scaledRecipeOfNationalV1Raw = makeScaledRecipe(nationalV1RawGoal.dataSeries?.id ?? "", 2.5, nationalV1RawGoal.dataSeries?.unit, nationalV1RawGoal.name);
   const nationalV1DerivedRecipe = await prisma.recipe.create({
     data: {
       hash: hashRecipe(scaledRecipeOfNationalV1Raw),
@@ -341,7 +343,7 @@ async function main() {
     },
   });
   // Copy of raw on V2
-  const oneToOneRecipeOfNationalV1Raw = makeOneToOneRecipe(nationalV1RawGoal.dataSeries?.id ?? "", nationalV1RawGoal.dataSeries?.unit);
+  const oneToOneRecipeOfNationalV1Raw = makeOneToOneRecipe(nationalV1RawGoal.dataSeries?.id ?? "", nationalV1RawGoal.dataSeries?.unit, nationalV1RawGoal.name);
   const nationalV2CopyRecipe = await prisma.recipe.create({
     data: {
       hash: hashRecipe(oneToOneRecipeOfNationalV1Raw),
@@ -382,7 +384,7 @@ async function main() {
     },
   });
   // Scaled version of the derived goal of V1 on V2
-  const scaledRecipeOfNationalV1Derived = makeScaledRecipe(nationalV1DerivedDataSeries.id ?? "", 0.4, nationalV1DerivedDataSeries.unit);
+  const scaledRecipeOfNationalV1Derived = makeScaledRecipe(nationalV1DerivedDataSeries.id ?? "", 0.4, nationalV1DerivedDataSeries.unit, nationalV1DerivedGoal.name);
   const nationalV2ScaledDerivedRecipe = await prisma.recipe.create({
     data: {
       hash: hashRecipe(scaledRecipeOfNationalV1Derived),

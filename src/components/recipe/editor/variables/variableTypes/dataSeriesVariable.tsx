@@ -101,6 +101,11 @@ export default function VariableTypeDataSeries({
   const treeItems = useRoadmapTreeItems(availableRoadmaps);
   const handleDataSeriesChange = useHandleDataSeriesChange(variableName, setRecipe);
 
+  if (!variable) {
+    console.error(`Variable "${variableName}" not found in recipe`, variable);
+    return null;
+  }
+
   if (!isRecipeDataSeries(variable)) {
     console.error(`Variable "${variableName}" is not a valid DataSeriesVariable`, variable);
     return null;
@@ -125,10 +130,17 @@ export default function VariableTypeDataSeries({
             placeholder: props.placeholder,
             defaultValue: props.defaultValue,
             required: props.required,
-            style: {maxHeight: '36px'} // TODO: Cheap fix for now to prevent layout shifting
+            style: { maxHeight: '36px' } // TODO: Cheap fix for now to prevent layout shifting
           }}
           treeItems={treeItems}
           onChange={handleDataSeriesChange}
+          {...variable.goalName ? {
+            defaultValue: {
+              name: variable.goalName,
+              value: variable.link || "",
+              expanded: null,
+            },
+          } : {}}
         />
       </div>
       <div className="inline-block floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
@@ -146,19 +158,22 @@ export function VariableTypeDataSeriesSimple({
   variableName,
   availableRoadmaps = [],
   props,
-  goalName,
 }: {
   variableName: string;
   availableRoadmaps?: { id: string; name: string; }[];
   props: InputElement;
-  goalName?: string;
 }) {
   // const { t } = useTranslation("components");
   const { recipe, setRecipe } = useRecipe();
-  const variable = recipe?.variables[variableName] as RecipeVariable;
+  const variable = recipe?.variables[variableName];
 
   const treeItems = useRoadmapTreeItems(availableRoadmaps);
   const handleDataSeriesChange = useHandleDataSeriesChange(variableName, setRecipe);
+
+  if (!variable) {
+    console.error(`Variable "${variableName}" not found in recipe`, variable);
+    return null;
+  }
 
   if (!isRecipeDataSeries(variable)) {
     console.error(`Variable "${variableName}" is not a valid DataSeriesVariable`, variable);
@@ -173,13 +188,13 @@ export function VariableTypeDataSeriesSimple({
         placeholder: props.placeholder,
         required: props.required,
         disabled: props.disabled,
-        style: {maxHeight: '36px'} // TODO: Cheap fix for now to prevent layout shifting
+        style: { maxHeight: '36px' } // TODO: Cheap fix for now to prevent layout shifting
       }}
       treeItems={treeItems}
       onChange={handleDataSeriesChange}
-      {...goalName ? {
+      {...variable.goalName ? {
         defaultValue: {
-          name: goalName,
+          name: variable.goalName,
           value: variable.link || "",
           expanded: null,
         },

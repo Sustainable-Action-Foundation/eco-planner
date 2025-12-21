@@ -188,7 +188,6 @@ export function SuggestedRecipeApplier({
                   key={"recipeVariable" + i}
                   variableName={variableName}
                   availableRoadmaps={availableRoadmaps}
-                  goalName={variable.goalName}
                 />
               </Fragment>
             );

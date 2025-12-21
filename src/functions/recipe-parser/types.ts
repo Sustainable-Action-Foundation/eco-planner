@@ -106,8 +106,10 @@ export type RecipeDataSeries = {
   value?: Partial<DataSeriesValueFields> | null | undefined; // Usually not settable by the user, mainly for internal use
   pick: VectorIndexPickerOptions;
   unit: string | null | undefined; // String if given, null if removed, undefined if not specified
+
   /** DO NOT USE! deprecated and will be replaced once smart recipes are implemented */
   goalName?: string;
+  /** DO NOT USE! deprecated and will be replaced once smart recipes are implemented */
   disabled?: boolean;
 };
 export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataSeries {
