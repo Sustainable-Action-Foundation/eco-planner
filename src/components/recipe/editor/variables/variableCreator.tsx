@@ -1,7 +1,7 @@
 "use client"
 
 import { Popover, PopoverButton } from "@/components/generic/popovers/popovers";
-import { useRecipe } from "../../contextProvider";
+import { useRecipe } from "../../context/contextProvider";
 import { useRef, useState } from "react";
 import { emptyRecipesByDataType, RecipeDataTypes } from "@/functions/recipe-parser/types";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
