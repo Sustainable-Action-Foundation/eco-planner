@@ -5,12 +5,19 @@ import { useRecipe } from "../context/recipeContext.use";
 import RecipeEditor from "../editor/recipeEditor";
 import { SuggestedRecipeApplier } from "./suggestedRecipeApplier";
 import { Trans, useTranslation } from "react-i18next";
+import { Recipe } from "@/functions/recipe-parser/types";
 
-export default function SuggestedRecipeToggle() {
+export default function SuggestedRecipeToggle({
+  initialRecipe = undefined,
+}: {
+  initialRecipe?: Recipe;
+}) {
   const { t } = useTranslation(["common", "components"]);
-
-  const [visibilityType, setVisibilityType] = useState<"suggested" | "custom">("suggested")
   const { setRecipe } = useRecipe()
+
+  const [visibilityType, setVisibilityType] = useState<"suggested" | "custom">(
+    initialRecipe ? "custom" : "suggested"
+  );
 
   return (
     <>
@@ -27,7 +34,10 @@ export default function SuggestedRecipeToggle() {
                 id="recipe-type-suggested"
                 value="suggested"
                 checked={visibilityType === "suggested"}
-                onChange={() => { setVisibilityType("suggested"); setRecipe(null) }}
+                onChange={() => {
+                  setVisibilityType("suggested");
+                  setRecipe(null);
+                }}
               />
             </label>,
             option2: <label>
@@ -39,7 +49,10 @@ export default function SuggestedRecipeToggle() {
                 id="recipe-type-custom"
                 value="custom"
                 checked={visibilityType === "custom"}
-                onChange={() => { setVisibilityType("custom"); setRecipe(null) }}
+                onChange={() => {
+                  setVisibilityType("custom");
+                  if (initialRecipe) setRecipe(initialRecipe);
+                }}
               />
             </label>,
             span: <span />,

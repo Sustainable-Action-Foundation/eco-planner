@@ -17,7 +17,7 @@ export function RecipeContextProvider({
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const [recipe, setRecipeState] = useState<Recipe | null>(null);
+  const [recipe, setRecipeState] = useState<Recipe | null>(initialRecipe ?? null);
   const setRecipe: React.Dispatch<React.SetStateAction<Recipe | null>> = useCallback((action) => {
     if (typeof action === "function") {
       setRecipeState((prev) => {
@@ -45,12 +45,6 @@ export function RecipeContextProvider({
 
   const [lastEvalDuration, setLastEvalDuration] = useState<number | null>(null);
   const [lastEvalTimestamp, setLastEvalTimestamp] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (initialRecipe) {
-      setRecipe(initialRecipe);
-    }
-  }, [initialRecipe, setRecipe]);
 
   useEffect(() => {
     if (!recipe) {
