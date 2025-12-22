@@ -1,9 +1,9 @@
-import { RoadmapInput, GoalCreateInput, DataSeriesValueFields } from "@/types";
+import { DataSeriesValueFields, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
 import { Prisma } from "@prisma/client";
 import dataSeriesPrep from "@/app/api/goal/dataSeriesPrep";
 
 export default function roadmapGoalCreator(
-  roadmap: Omit<RoadmapInput, 'version'> & { goals?: GoalCreateInput[]; },
+  roadmap: RoadmapCreateInput | RoadmapUpdateInput,
   author: string,
 ) {
   if (!roadmap.goals?.length) {

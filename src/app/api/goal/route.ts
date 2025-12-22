@@ -14,7 +14,7 @@ import { cleanRecipe, evaluateRecipe } from "@/functions/parseRecipe";
 import { hashRecipe } from "@/functions/recipe-parser/getRecipeHash";
 
 // Type guards
-function isGoalCreate(goal: JSONValue): goal is GoalCreateInput {
+export function isGoalCreate(goal: JSONValue): goal is GoalCreateInput {
   return (
     (
       typeof goal === "object" &&
