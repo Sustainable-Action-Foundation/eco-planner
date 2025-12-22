@@ -3,7 +3,7 @@
 import { isRecipeDataSeries, isRecipeExternalDataset, RecipeDataSeries, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "./recipeEditorPermissions";
-import { useRecipe } from "@/components/recipe/contextProvider";
+import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 
 // TODO: Fix labels
 export default function VectorPickerSelect({ permissions, variableName }: { permissions?: RecipeEditorPermissions, variableName: string }) {
@@ -14,7 +14,6 @@ export default function VectorPickerSelect({ permissions, variableName }: { perm
 
   return (
     <select
-      style={{width: '200px'}} // TODO: temporary so we can fit the floating label
       id={variableName}
       defaultValue={(recipe?.variables[variableName] as RecipeDataSeries)?.pick || VectorIndexPickerOptions.Default}
       disabled={!permissions.allowValueEditing}

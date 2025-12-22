@@ -10,5 +10,6 @@
 !package.json
 !prisma.config.ts
 !src/types.ts
+!src/math.ts
 !tsconfig.json
 !yarn.lock

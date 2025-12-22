@@ -1,5 +1,4 @@
 import { Years } from "@/types";
-// import { Prisma } from "@prisma/client";
 
 const dataFieldSelector = Years.reduce((acc, field) => {
   acc[field] = true;
@@ -223,6 +222,7 @@ export const goalInclusionSelection = {
   _count: { select: { effects: true } },
   dataSeries: true,
   recipeSuggestions: true,
+  recipeUsed: true,
   baselineDataSeries: true,
   effects: {
     include: {

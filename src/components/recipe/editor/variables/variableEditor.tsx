@@ -7,7 +7,7 @@ import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import VariableTypeDataSeries from "./variableTypes/dataSeriesVariable";
 import VariableTypeExternal from "./variableTypes/externalDatasetVariable";
 import VariableTypeScalar from "./variableTypes/scalarVariable";
-import { useRecipe } from "../../contextProvider";
+import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 import styles from '../recipe.module.css' with { type: "css" };
 import VariableCreator from "./variableCreator";
 import { RecipeEditorPermissions } from "./variableTypes/recipeEditorPermissions";

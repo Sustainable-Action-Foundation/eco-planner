@@ -2,7 +2,7 @@
 
 import { isRecipe, Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
-import { useRecipe } from "../contextProvider";
+import { useRecipe } from "../context/recipeContext.use";
 import { recipeFromUnknown } from "@/functions/parseRecipe";
 import { VariableTypeScalarSimple } from "../editor/variables/variableTypes/scalarVariable";
 import { VariableTypeDataSeriesSimple } from "../editor/variables/variableTypes/dataSeriesVariable";
@@ -188,7 +188,6 @@ export function SuggestedRecipeApplier({
                   key={"recipeVariable" + i}
                   variableName={variableName}
                   availableRoadmaps={availableRoadmaps}
-                  goalName={variable.goalName}
                 />
               </Fragment>
             );
@@ -276,7 +275,7 @@ export const defaultSuggestedRecipes: { hash: string, recipe: Recipe }[] = [
         },
         "skalär": {
           type: RecipeDataTypes.Scalar,
-          value: 0.5,
+          value: 1,
           unit: null, // Unitless
         }
       }
@@ -297,7 +296,7 @@ export const defaultSuggestedRecipes: { hash: string, recipe: Recipe }[] = [
         },
         "skalär1": {
           type: RecipeDataTypes.Scalar,
-          value: 0.5,
+          value: 1,
           unit: null, // Unitless
         },
         "serie2": {
@@ -308,7 +307,7 @@ export const defaultSuggestedRecipes: { hash: string, recipe: Recipe }[] = [
         },
         "skalär2": {
           type: RecipeDataTypes.Scalar,
-          value: 0.5,
+          value: 1,
           unit: null, // Unitless
         },
       }

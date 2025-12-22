@@ -1,5 +1,5 @@
 import "client-only";
-import { emptyRecipeDataSeries, emptyRecipesByDataType, isRecipeExternalDatasetSelection, Recipe, RecipeDataTypes, RecipeVariable } from "@/functions/recipe-parser/types";
+import { emptyRecipeDataSeries, emptyRecipesByDataType, isRecipeExternalDatasetSelection, Recipe, RecipeDataTypes, RecipeError, RecipeVariable } from "@/functions/recipe-parser/types";
 import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
 import { JSONValue } from "@/types";
 
@@ -104,16 +104,15 @@ export function updateScalarVariableValue(variableName: string, newValue: string
     }
 
     if (currentVar.type === RecipeDataTypes.Scalar) {
-      if (typeof newValue === 'string') {
-        newValue = parseFloat(newValue);
-      }
+      const parsedValue = typeof newValue === 'string'
+        ? parseFloat(newValue.trim())
+        : newValue;
 
-      if (!isNaN(newValue)) {
-        copyOfVariables[variableName] = { ...currentVar, value: newValue };
-      } else {
-        console.warn(`Failed to parse '${newValue}' as number`);
-        return prev; // Do not update if value is NaN
+      if (isNaN(parsedValue)) {
+        throw new RecipeError(`Failed to parse '${parsedValue}' as number`)
       }
+      
+      copyOfVariables[variableName] = { ...currentVar, value: parsedValue };
     } else {
       return prev; // Do not update if the variable is not a scalar
     }
@@ -233,9 +232,9 @@ export function updateExternalVariableSelection(variableName: string, newSelecti
         ...currentVar,
         selection: selection,
       };
-    } catch (error) {
-      console.warn("Failed to parse selection JSON", error);
-      return prev; // Do not update if JSON parsing fails
+    }
+    catch {
+      throw new RecipeError(`Failed to parse selection JSON. Got: [${newSelection}]`);
     }
 
     return { ...prev, variables: copyOfVariables };

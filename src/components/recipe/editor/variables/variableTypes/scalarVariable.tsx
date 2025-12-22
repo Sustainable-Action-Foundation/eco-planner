@@ -1,6 +1,6 @@
 "use client"
 
-import { useRecipe } from "@/components/recipe/contextProvider";
+import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 import { RecipeScalar } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "./recipeEditorPermissions";
@@ -63,7 +63,7 @@ export function VariableTypeScalarSimple({
       className="inline width-auto"
       defaultValue={variable.value}
       onChange={(e) => updateScalarVariableValue(variableName, e.target.value, setRecipe)}
-      type="number"
+      type="text" // TODO: this should be number but it messes with parent forms like in copyAndScale
       placeholder={t("components:recipe_editor.scalar")}
       disabled={!permissions.allowValueEditing}
       readOnly={!permissions.allowValueEditing}

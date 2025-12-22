@@ -2,27 +2,10 @@
 
 import { emptyRecipe, Recipe } from "@/functions/recipe-parser/types";
 import type { DataSeriesValueFields } from "@/types";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { evaluateRecipe, cleanRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
 import { Locales } from "i18n.config";
-
-type RecipeContextType = {
-  recipe: Recipe | null;
-  setRecipe: React.Dispatch<React.SetStateAction<Recipe | null>>;
-  warnings: string[];
-  error: string | null;
-  resultingDataSeries: Partial<DataSeriesValueFields> | null;
-  resultingUnit: string | null | undefined;
-}
-
-export const RecipeContext = createContext<RecipeContextType | null>(null);
-export function useRecipe() {
-  const context = useContext(RecipeContext);
-  if (!context) {
-    throw new Error("useRecipe must be used within a RecipeContextProvider");
-  }
-  return context;
-}
+import { RecipeContext } from "./recipeContext.internal";
 
 export function RecipeContextProvider({
   initialRecipe,
@@ -31,20 +14,37 @@ export function RecipeContextProvider({
   initialRecipe?: Recipe;
   children: React.ReactNode;
 }) {
-  const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  const [recipe, setRecipeState] = useState<Recipe | null>(initialRecipe ?? null);
+  const setRecipe: React.Dispatch<React.SetStateAction<Recipe | null>> = useCallback((action) => {
+    if (typeof action === "function") {
+      setRecipeState((prev) => {
+        try {
+          return action(prev);
+        }
+        catch (e) {
+          setError(e instanceof Error ? e.message : String(e));
+          return prev;
+        }
+      });
+    }
+    else {
+      try {
+        setRecipeState(action);
+      }
+      catch (e) {
+        setError(e instanceof Error ? e.message : String(e));
+      }
+    }
+  }, []);
+
   const [resultingDataSeries, setResultingDataSeries] = useState<Partial<DataSeriesValueFields> | null>(null);
   const [resultingUnit, setResultingUnit] = useState<string | null | undefined>(null);
 
   const [lastEvalDuration, setLastEvalDuration] = useState<number | null>(null);
   const [lastEvalTimestamp, setLastEvalTimestamp] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (initialRecipe) {
-      setRecipe(initialRecipe);
-    }
-  }, [initialRecipe]);
 
   useEffect(() => {
     if (!recipe) {
@@ -63,7 +63,7 @@ export function RecipeContextProvider({
         const currentWarnings: string[] = [];
         const evaluatedRecipe = await evaluateRecipe(cleanRecipe(recipe), currentWarnings);
         if (!evaluatedRecipe) {
-          console.warn("Recipe evaluation was canceled, likely due to empty eq");
+          console.warn("Recipe evaluation was canceled.");
           setResultingDataSeries(null);
           setResultingUnit(null);
           setWarnings([]);
@@ -88,7 +88,7 @@ export function RecipeContextProvider({
         setLastEvalDuration(endTime - startTime);
         setLastEvalTimestamp(new Date().toLocaleString());
       });
-  }, [recipe]);
+  }, [recipe, setRecipe]);
 
   // Register debug key bind alt+shift+d (hold to open), Escape to close
   const [showDebug, setShowDebug] = useState(false);
@@ -134,7 +134,14 @@ export function RecipeContextProvider({
 
   // TODO: style this
   return (
-    <RecipeContext.Provider value={{ recipe, setRecipe, warnings, error, resultingDataSeries, resultingUnit }}>
+    <RecipeContext.Provider value={{
+      recipe,
+      setRecipe,
+      warnings,
+      error,
+      resultingDataSeries,
+      resultingUnit,
+    }}>
       {showDebug &&
         <div
           style={{

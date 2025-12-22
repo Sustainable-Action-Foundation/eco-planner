@@ -3,17 +3,17 @@
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import formSubmitter from "@/functions/formSubmitter";
 import mathjs from "@/math";
-import { GoalCreateInput, GoalUpdateInput, Years } from "@/types";
-import { DataSeries, Goal } from "@prisma/client";
+import { Goal, GoalCreateInput, GoalUpdateInput, JSONValue, Years } from "@/types";
+import { DataSeries } from "@prisma/client";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput";
 import { getDataSeries } from "../elements/dataSeriesInput/utils";
 import styles from '../forms.module.css';
 import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections";
-import { RecipeContextProvider } from "@/components/recipe/contextProvider";
+import { RecipeContextProvider } from "@/components/recipe/context/recipeContext.provider";
 import { Recipe } from "@/functions/recipe-parser/types";
-import { recipeFromUnknown } from "@/functions/parseRecipe";
+import { cleanRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
 import TextEditor from "../elements/textEditor/editor";
 import { Content } from "@tiptap/core";
 import SuggestedRecipeToggle from "@/components/recipe/suggestions/suggestedRecipeToggle";
@@ -68,7 +68,7 @@ export default function GoalForm({
     }));
   }, [roadmapAlternatives, t]);
 
-  const timestamp = useMemo(() => Date.now(), []);
+  const [timestamp] = useState(() => Date.now());
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -219,6 +219,11 @@ export default function GoalForm({
   // Index for data-position attribute in legend elements (for accessibility)
   let positionIndex = 1;
 
+  const [initialRecipe] = useState<Recipe | undefined>(() => currentGoal?.recipeUsed?.recipe
+    ? cleanRecipe(currentGoal.recipeUsed.recipe as JSONValue)
+    : undefined
+  );
+
   return (
     <>
       <form onSubmit={handleSubmit} name="goalForm">
@@ -303,10 +308,12 @@ export default function GoalForm({
             || dataSeriesType === DataSeriesType.Inherited
             || dataSeriesType === DataSeriesType.Combined
           ) &&
-            <RecipeContextProvider>
-              {/* TODO: Want to clear recipe when switching between suggested or custom recipes? */}
-
-              <SuggestedRecipeToggle />
+            <RecipeContextProvider
+              initialRecipe={initialRecipe}
+            >
+              <SuggestedRecipeToggle
+                initialRecipe={initialRecipe}
+              />
 
               <FormIntegration
                 RecipeFormElement={<input name="resultingRecipe" />}
