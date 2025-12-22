@@ -53,8 +53,6 @@
     "@prisma/client": "^6.15.0",
     "@tabler/icons-react": "^3.36.0",
     "@tiptap/core": "^3.14.0",
-    "@tiptap/extension-bubble-menu": "^3.14.0",
-    "@tiptap/extension-character-count": "^3.14.0",
     "@tiptap/extension-document": "^3.14.0",
     "@tiptap/extension-hard-break": "^3.14.0",
     "@tiptap/extension-highlight": "^3.14.0",
