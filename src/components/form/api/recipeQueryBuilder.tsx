@@ -18,7 +18,7 @@ import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 
 import getTableContent from "@/lib/api/getTableContent";
 
-export default function RecipeQueryBuilder({ variableName }: { variableName: string; }) {
+export default function RecipeQueryBuilder({ variableName, variableIsSimple }: { variableName: string; variableIsSimple: boolean }) {
   const { t } = useTranslation("components");
   // Locale has the format language-locale, e.g. "sv-SE" or "en-US"
   // We only need the language part, so we split it and take the first part
@@ -366,10 +366,11 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
 
   return (
     <>
-      <div className="floating-label">
-        <label htmlFor="open-query-builder" style={{'--background': 'linear-gradient(var(--gray-95) 50%, white 100%)', cursor: 'default'} as React.CSSProperties}>{t("components:recipe_editor.add_external_data")}</label>
+      {variableIsSimple ? 
         <button
-          id="open-query-builder" type="button" className="gray-90 flex align-items-center gap-25 purewhite" 
+          id={`query-builder-${variableName}`} 
+          type="button" 
+          className="gray-90 flex align-items-center gap-25 purewhite" 
           style={{width: '150px', boxShadow: 'none', border: '1px solid var(--gray-80)', transform: 'scale(1)', userSelect: 'text'}} 
           onClick={() => openModal(modalRef)}
         >
@@ -378,7 +379,23 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
           </span>
           <IconPlus width={16} height={16} aria-hidden='true' />
         </button>
-      </div>
+      :
+        <div className="floating-label"> 
+          <label htmlFor={`query-builder-${variableName}`}  style={{'--background': 'linear-gradient(var(--gray-95) 50%, white 100%)', cursor: 'default'} as React.CSSProperties}>{t("components:recipe_editor.add_external_data")}</label>
+          <button
+            id={`query-builder-${variableName}`} 
+            type="button" 
+            className="gray-90 flex align-items-center gap-25 purewhite" 
+            style={{width: '150px', boxShadow: 'none', border: '1px solid var(--gray-80)', transform: 'scale(1)', userSelect: 'text'}} 
+            onClick={() => openModal(modalRef)}
+          >
+            <span className="flex-grow-100 text-align-left">
+              {dataSource ? dataSource : ''}{dataSource && tableDetails ? ` - ${tableDetails.id}` : ''}
+            </span>
+            <IconPlus width={16} height={16} aria-hidden='true' />
+          </button>
+        </div>
+      }
 
       <dialog className={`smooth padding-inline-0 ${styles.dialog}`} ref={modalRef} aria-modal style={{ backgroundColor: 'rgb(246, 246, 246)' }}>
         <div className="display-flex flex-direction-row-reverse align-items-center justify-content-space-between padding-inline-100">

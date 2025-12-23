@@ -124,8 +124,6 @@ export function SuggestedRecipeApplier({
       </select>
     </label>
 
-    {/* TODO: Note that labels are as of now not valid. I believe however that it will be solved with tree select as this should reduce the number of items in a simple variable type to one */}
-    {/* TODO: We should be using a grid instead of flex to properly align items here */}
     <div
       className="grid gap-50 padding-left-100"
       style={{
@@ -196,13 +194,12 @@ export function SuggestedRecipeApplier({
           case RecipeDataTypes.External:
             return (
               <Fragment key={variableName}>
-                <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
+                <label htmlFor={`query-builder-${variableName}`} className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
                   <span>{variableName}{unitDisplay}:</span>
                 </label>
                 <VariableTypeExternalSimple
                   key={"recipeVariable" + i}
                   variableName={variableName}
-                  permissions={permissions}
                 />
               </Fragment>
             );
