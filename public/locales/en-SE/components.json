@@ -126,6 +126,7 @@
     "create_variable": "Create variable",
     "data_series": "Data series",
     "dataset": "Dataset",
+    "delete_variable": "Delete variable:",
     "edit_variable": "Edit variable",
     "equation": "Equation",
     "external_data": "External data",

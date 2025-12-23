@@ -10,6 +10,7 @@ import { updateVariableName, updateVariableType, removeVariable } from "@/compon
 import { IconEdit, IconTrashXFilled } from "@tabler/icons-react";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { allOurUnits } from "@/math";
+import { Popover, PopoverButton } from "@/components/generic/popovers/popovers";
 
 // TODO: Fix labels
 export default function VariableTypeCommon({
@@ -81,15 +82,49 @@ export default function VariableTypeCommon({
         {children}
       </div>
       {permissions.allowDeleteVariables &&
-        <button
-          className="padding-25 round transparent margin-left-50"
-          style={{ verticalAlign: 'middle' }}
-          type="button"
-          title={t("common:tsx.delete")}
-          onClick={() => removeVariable(variableName, setRecipe)}
-        >
-          <IconTrashXFilled width={20} height={20} className="grid" />
-        </button>
+        <>
+          <PopoverButton
+            anchorName={`--delete-variable-${variableName}-toggle`}
+            popoverTarget={`delete-variable-${variableName}`}
+            className="padding-25 round transparent margin-left-50"
+            style={{ verticalAlign: 'middle' }}
+          >
+            <IconTrashXFilled width={20} height={20} className="grid" />
+          </PopoverButton>
+          <Popover
+            style={{boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25)'}}
+            id={`delete-variable-${variableName}`}
+            positionAnchor={`--delete-variable-${variableName}-toggle`}
+            popover="auto"
+            anchorInlinePosition="center"
+            popoverDirection={{vertical: "down", horizontal: "left"}}
+          >
+            <div
+              className="padding-50 smooth"
+              style={{backgroundColor: 'white', border: '1px solid var(--gray)',}}
+            >
+              <p className="padding-inline-50 margin-top-50 margin-bottom-0 text-align-center">{t("components:recipe_editor.delete_variable")}<br />
+                <span className="font-weight-600">{variableName}?</span>
+              </p>
+              <button
+                className="width-100 margin-top-100 transparent red font-weight-600 color-purewhite margin-bottom-50"
+                type="button"
+                title={t("common:tsx.delete")}
+                onClick={() => removeVariable(variableName, setRecipe)}
+              >
+                {t("common:tsx.delete")}
+              </button>
+              <button 
+                className={`width-100 transparent padding-25 ${styles['cancel-button']}`}
+                type="button" 
+                popoverTarget={`delete-variable-${variableName}`} 
+                popoverTargetAction="hide" 
+              >
+                {t("common:tsx.cancel")}
+              </button>
+            </div>
+          </Popover>            
+        </>
       }
     </fieldset>
   )

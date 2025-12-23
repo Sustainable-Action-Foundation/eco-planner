@@ -126,6 +126,7 @@
     "create_variable": "Skapa variabel",
     "data_series": "Dataserie",
     "dataset": "Dataset",
+    "delete_variable": "Radera variabel:",
     "edit_variable": "Redigera variabel",
     "equation": "Ekvation",
     "external_data": "Extern data",
