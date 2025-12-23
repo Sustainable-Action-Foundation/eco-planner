@@ -12,7 +12,6 @@ import TextSingleAutocomplete from "@/components/form/elements/combobox/textSing
 import { allOurUnits } from "@/math";
 import { Popover, PopoverButton } from "@/components/generic/popovers/popovers";
 
-// TODO: Fix labels
 export default function VariableTypeCommon({
   variableName,
   permissions,

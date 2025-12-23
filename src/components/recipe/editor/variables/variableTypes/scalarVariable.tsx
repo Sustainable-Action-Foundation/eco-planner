@@ -7,7 +7,6 @@ import { RecipeEditorPermissions } from "./recipeEditorPermissions";
 import { updateScalarVariableValue } from "@/components/recipe/variableEditingHelpers";
 import VariableTypeCommon from "./commonVariable";
 
-// TODO: Fix labels
 export default function VariableTypeScalar({
   name,
   permissions,
