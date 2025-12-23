@@ -27,10 +27,11 @@ export default function VariableTypeScalar({
       permissions={permissions}
     >
       <div className="floating-label inline-block" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
-        <label htmlFor="variable-tree-vector-index-picker">
+        <label htmlFor={`scalar-${name}`}>
           {t("components:recipe_editor.scalar")}
         </label>
         <input
+          id={`scalar-${name}`}
           defaultValue={variable.value}
           onChange={(e) => updateScalarVariableValue(name, e.target.value, setRecipe)}
           type="number"

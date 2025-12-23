@@ -157,7 +157,7 @@ export function SuggestedRecipeApplier({
           case RecipeDataTypes.Scalar: {/* TODO: Fix these labels */ }
             return (
               <Fragment key={variableName}>
-                <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
+                <label htmlFor={`scalar-${variableName}`} className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
                   <span>{variableName}{unitDisplay}:</span>
                 </label>
                 <VariableTypeScalarSimple
@@ -166,6 +166,7 @@ export function SuggestedRecipeApplier({
                   permissions={permissions}
                   props={{
                     defaultValue: variable.value,
+                    id: `scalar-${variableName}`
                   }}
                 />
               </Fragment>
@@ -174,7 +175,7 @@ export function SuggestedRecipeApplier({
           case RecipeDataTypes.DataSeries:
             return (
               <Fragment key={variableName}>
-                <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
+                <label htmlFor={"recipeVariable" + i} className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
                   <span>{variableName}{unitDisplay}:</span>
                 </label>
                 <VariableTypeDataSeriesSimple
