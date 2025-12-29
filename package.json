@@ -36,14 +36,14 @@
       "email": "axel.schnurer@sustainable-action.org"
     },
     {
-      "name": "Jesper Cejie",
-      "email": "jesper@cejie.se",
-      "url": "https://jesper.cejie.se"
-    },
-    {
       "name": "Vena Ström",
       "email": "vena.strom@sustainable-action.org",
       "url": "https://venastrom.se/"
+    },
+    {
+      "name": "Jesper Cejie",
+      "email": "jesper@cejie.se",
+      "url": "https://jesper.cejie.se"
     }
   ],
   "type": "module",
