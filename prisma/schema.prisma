@@ -149,6 +149,7 @@ model Goal {
   // The graphs of featured Goals' DataSeries will be shown as thumbnails on the roadmap page
   isFeatured Boolean @default(false) @map("is_featured")
 
+  // TODO move to recipes
   // Connections to external datasets
   // Name of the external dataset (should match one of the available datasets defined in an enum)
   externalDataset   String? @map("external_dataset")
@@ -158,13 +159,11 @@ model Goal {
   externalSelection String? @map("external_selection") @db.Text
 
   // A series of data points representing the goals for each year
-  dataSeries         DataSeries? @relation("data_series")
+  dataSeriesId String?
+  dataSeries   DataSeries? @relation(name: "goal_data_series", fields: [dataSeriesId], references: [id])
   // A series of data points serving as a "baseline" where no action is taken
-  baselineDataSeries DataSeries? @relation("baseline_data_series")
-
-  // If this goal inherited it's data then it will have been sent through this recipe
-  recipeUsedId String? @map("recipe_used_id")
-  recipeUsed   Recipe? @relation("used_recipe", fields: [recipeUsedId], references: [hash], onDelete: SetNull, onUpdate: Cascade)
+  baselineId   String?
+  baseline     DataSeries? @relation(name: "goal_baseline", fields: [baselineId], references: [id])
 
   // When inheriting data from this goal, these suggestions will appear for the user to choose from e.g. "Scale by area" or "Scale by population"
   recipeSuggestions Recipe[] @relation("inheritance_suggestions")
@@ -189,84 +188,47 @@ model Goal {
 }
 
 model DataSeries {
-  // UUID of the data series
   id        String   @id @default(uuid())
-  // Timestamp of when data series was created
   createdAt DateTime @default(now()) @map("created_at")
-  // Timestamp of when data series was last updated
   updatedAt DateTime @updatedAt @map("updated_at")
+  authorId  String   @map("author_id")
+  author    User     @relation("data_series_author", fields: [authorId], references: [id])
 
-  // Unit used for the yearly fields
-  // Ignored if used as goal baseline or action outcome, as those should get their unit from the goal
   // An empty string indicates a missing unit, while null indicates an intentionally unitless data series, such as an amount of electric cars
-  unit    String? @default("")
-  // Following is a series values for each year from 2020 to 2050
-  // These are the goals for each year
-  val2020 Float?  @map("val_2020")
-  val2021 Float?  @map("val_2021")
-  val2022 Float?  @map("val_2022")
-  val2023 Float?  @map("val_2023")
-  val2024 Float?  @map("val_2024")
-  val2025 Float?  @map("val_2025")
-  val2026 Float?  @map("val_2026")
-  val2027 Float?  @map("val_2027")
-  val2028 Float?  @map("val_2028")
-  val2029 Float?  @map("val_2029")
-  val2030 Float?  @map("val_2030")
-  val2031 Float?  @map("val_2031")
-  val2032 Float?  @map("val_2032")
-  val2033 Float?  @map("val_2033")
-  val2034 Float?  @map("val_2034")
-  val2035 Float?  @map("val_2035")
-  val2036 Float?  @map("val_2036")
-  val2037 Float?  @map("val_2037")
-  val2038 Float?  @map("val_2038")
-  val2039 Float?  @map("val_2039")
-  val2040 Float?  @map("val_2040")
-  val2041 Float?  @map("val_2041")
-  val2042 Float?  @map("val_2042")
-  val2043 Float?  @map("val_2043")
-  val2044 Float?  @map("val_2044")
-  val2045 Float?  @map("val_2045")
-  val2046 Float?  @map("val_2046")
-  val2047 Float?  @map("val_2047")
-  val2048 Float?  @map("val_2048")
-  val2049 Float?  @map("val_2049")
-  val2050 Float?  @map("val_2050")
+  unit   String?      @default("")
+  values DateRecord[]
 
-  // Goal using this data series as goals
-  goalId         String? @unique @map("goal_id")
-  goal           Goal?   @relation("data_series", fields: [goalId], references: [id], onDelete: SetNull)
-  // Goal using this data series as baseline
-  baselineGoalId String? @unique @map("baseline_goal_id")
-  baseline       Goal?   @relation("baseline_data_series", fields: [baselineGoalId], references: [id], onDelete: SetNull)
-  // Effect using this data series to show the effect of an action on a goal
-  // effectActionId and effectGoalId are combined to create a unique constraint, referencing the composite primary key of the effect table
-  effectActionId String? @map("effect_action_id")
-  effectGoalId   String? @map("effect_goal_id")
-  effect         Effect? @relation("effect_data_series", fields: [effectActionId, effectGoalId], references: [actionId, goalId], onDelete: SetNull)
+  // Data series may be derived using a recipe so these are optional
+  recipeUsedHash   String?
+  recipeUsed       Recipe?  @relation(name: "recipe_used", fields: [recipeUsedHash], references: [hash])
+  dependentRecipes Recipe[] @relation(name: "source_data_series")
 
-  usedInRecipes Recipe[] @relation("recipe_data_series")
+  usedAsGoal     Goal[]   @relation("goal_data_series")
+  usedAsBaseline Goal[]   @relation("goal_baseline")
+  usedAsEffect   Effect[] @relation("effect_data_series")
 
-  // Author of the data series
-  authorId String @map("author_id")
-  author   User   @relation("data_series_author", fields: [authorId], references: [id])
-
-  @@unique(name: "effectId", [effectActionId, effectGoalId], map: "effect_id")
   @@map("data_series")
 }
 
+model DateRecord {
+  timestamp    String // e.g. "2020", "2021", "2016Q2", "2023W23", etc.
+  value        Float
+  dataSeriesId String
+  dataSeries   DataSeries @relation(fields: [dataSeriesId], references: [id])
+
+  @@id([dataSeriesId, timestamp])
+  @@map("date_record")
+}
+
 model Recipe {
-  // A hash of the JSON data, used as an ID. Risk of hash collisions is basically non-existent when using sha256.
-  hash String @id
+  // sha256 hash of the recipe JSON
+  hash              String       @id
+  recipe            Json         @db.Json
+  suggestedByGoals  Goal[]       @relation("inheritance_suggestions")
+  derivedDataSeries DataSeries[] @relation("recipe_used")
+  sourceDataSeries  DataSeries[] @relation("source_data_series")
 
-  recipe Json @db.Json
-
-  suggestedInGoals Goal[] @relation("inheritance_suggestions")
-
-  usedInGoals Goal[] @relation("used_recipe")
-
-  usedDataSeries DataSeries[] @relation("recipe_data_series")
+  @@map("recipe")
 }
 
 model GoalTag {
@@ -279,6 +241,7 @@ model GoalTag {
   @@map("goal_tag")
 }
 
+// TODO move to recipes?
 model Action {
   // UUID of the action
   id        String   @id @default(uuid())
@@ -345,7 +308,9 @@ model Effect {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Data series representing the impact of the related action on the goal, year by year
-  dataSeries DataSeries?      @relation("effect_data_series")
+  dataSeriesId String?
+  dataSeries   DataSeries? @relation(name: "effect_data_series", fields: [dataSeriesId], references: [id])
+
   // The type of impact this action has, affects how the data series is interpreted
   impactType ActionImpactType @default(ABSOLUTE) @map("impact_type")
 
