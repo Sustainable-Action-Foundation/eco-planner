@@ -74,16 +74,16 @@ export async function extractDataSeries(
     if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variableName}" has an invalid unit "${bestUnit}". Treating as unitless.`);
     const unit = isValidUnit ? bestUnit : undefined;
 
-    const vectorOrScalar = pickVector(convertYearValuePairToVector(dbDataSeries), variable.pick);
+    const vectorOrScalarForm = pickDataSeries(dbDataSeries, variable.pick);
     dataSeries.push({
       name: variableName,
-      value: Array.isArray(vectorOrScalar) ?
-        vectorOrScalar.map(v => unit
+      value: Array.isArray(vectorOrScalarForm) ?
+        vectorOrScalarForm.map(v => unit
           ? mathjs.unit(v, unit)
           : mathjs.unit(v))
         : unit
-          ? mathjs.unit(vectorOrScalar, unit)
-          : mathjs.unit(vectorOrScalar),
+          ? mathjs.unit(vectorOrScalarForm, unit)
+          : mathjs.unit(vectorOrScalarForm),
     });
   }
 
@@ -146,16 +146,20 @@ export async function extractExternalDatasets(
       if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variableName}" has an invalid unit "${bestUnit}". Treating as unitless.`);
       const unit = isValidUnit ? bestUnit : undefined;
 
-      const vectorOrScalar = pickVector(convertYearValuePairToVector(definedValues), variable.pick);
+      const vectorOrScalarForm = pickDataSeries(
+        { ...nullFullDataSeriesValueField, ...definedValues },
+        variable.pick
+      );
+      // pickVector(convertYearValuePairToVector(definedValues), variable.pick);
       externalDatasets.push({
         name: variableName,
-        value: Array.isArray(vectorOrScalar) ?
-          vectorOrScalar.map(v => unit
+        value: Array.isArray(vectorOrScalarForm) ?
+          vectorOrScalarForm.map(v => unit
             ? mathjs.unit(v, unit)
             : mathjs.unit(v))
           : unit
-            ? mathjs.unit(vectorOrScalar, unit)
-            : mathjs.unit(vectorOrScalar),
+            ? mathjs.unit(vectorOrScalarForm, unit)
+            : mathjs.unit(vectorOrScalarForm),
       });
     });
   }
@@ -165,12 +169,37 @@ export async function extractExternalDatasets(
   return externalDatasets;
 }
 
+function pickDataSeries(
+  dataSeries: DataSeriesValueFields,
+  pick: VectorIndexPickerOptions | number
+): number | number[] {
+  if (
+    typeof pick === "number"
+    && Number.isFinite(pick)
+    && Number.isInteger(pick)
+  ) {
+    // TODO no magic strings
+    const yearKey = "val" + pick.toString();
+    const value = dataSeries[yearKey as Years];
+    if (typeof value !== "number") {
+      throw new RecipeError(`PickDataSeries: Data series does not contain a valid number for year ${pick}.`);
+    }
+    return value;
+  }
+
+  if (typeof pick === "number") {
+    throw new RecipeError(`PickDataSeries: Invalid pick value '${pick}'. Expected a VectorIndexPickerOptions or an integer year.`);
+  }
+
+  return pickVector(convertYearValuePairToVector(dataSeries), pick);
+}
+
 function convertYearValuePairToVector(dataSeries: Partial<DataSeriesValueFields>): number[] {
   const vector: number[] = [];
 
   // TODO move this definition to a higher scope
   const nonDefinedValue = Infinity; // Mathjs does not like undefined values so this is the intermediate representation 
-  const missingValue = 0; // Missing leading values are represented as 0 to align with the years properly
+  const leadingPaddingValue = Infinity; // Pad start to align with the years properly
 
   const lastDefinedYear = Years.slice().reverse().find(year => {
     return typeof dataSeries[year] === "number";
@@ -184,9 +213,9 @@ function convertYearValuePairToVector(dataSeries: Partial<DataSeriesValueFields>
   for (const year of Years) {
     if (typeof dataSeries[year] === "undefined") { // Missing in input
       if (lastDefinedYear && year < lastDefinedYear) {
-        vector.push(missingValue);
+        vector.push(leadingPaddingValue);
       }
-      vector.push(missingValue);
+      vector.push(leadingPaddingValue);
     }
 
     else if (dataSeries[year] === null) { // Explicitly null in input
@@ -210,14 +239,21 @@ export function convertVectorToYearValuePair(vector: Unit[]): DataSeriesValueFie
   const dataSeries: DataSeriesValueFields = { ...nullFullDataSeriesValueField };
 
   // TODO move this definition to a higher scope
-  const nonDefinedValue = Infinity; // Mathjs does not like undefined values so this is the intermediate representation 
-  const missingValue = 0; // Missing leading values are represented as 0 to align with the years properly
+  const nonDefinedValue = -Infinity; // Mathjs does not like undefined values so this is the intermediate representation 
+  const leadingPaddingValue = -Infinity; // Pad start to align with the years properly
+
+  const firstNonMissingIndex = vector.findIndex(v => v.value !== leadingPaddingValue);
 
   for (let i = 0; i < Years.length; i++) {
     const year = Years[i];
     const v = vector[i];
 
-    if (v.value === missingValue) {
+    const isPadding = (
+      v.value === leadingPaddingValue
+      && i < firstNonMissingIndex
+    );
+
+    if (isPadding) {
       dataSeries[year] = null;
     }
     else if (!isFinite(v.value) || v.value === nonDefinedValue) {
@@ -245,6 +281,7 @@ export function convertVectorToYearValuePair(vector: Unit[]): DataSeriesValueFie
     };
   }
 }
+
 function getPrevailingUnit(existingUnit: string | null | undefined, newUnit: string | null | undefined): string | null | undefined {
   // If newUnit is explicitly provided (non-undefined) and non-empty, it takes precedence.
   if (typeof newUnit !== "undefined" && newUnit?.trim() !== "") {
@@ -292,7 +329,7 @@ function pickVector(vector: number[], pick: VectorIndexPickerOptions): number | 
       }
 
     default:
-      throw new RecipeError(`pickVector: Unknown VectorIndexPickerOption '${pick as string}'.`);
+      throw new RecipeError(`pickVector: Unknown VectorIndexPickerOption '${(pick as string | number).toString()}'.`);
   }
 }
 

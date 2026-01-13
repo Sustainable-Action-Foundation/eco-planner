@@ -1,7 +1,7 @@
 import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
 import { DataSeriesValueFields, isPartialDataSeriesValueFields, isStandardObject, JSONValue, typeguardDebug, uuidRegex } from "@/types";
 import { Unit } from "mathjs";
-import { type SmartRecipe } from "./smartRecipe";
+import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 
 export const VectorIndexPickerOptions = {
   Default: "whole",
@@ -105,10 +105,12 @@ export type RecipeDataSeries = {
   type: typeof RecipeDataTypes.DataSeries;
   link: string | null | undefined; // uuid of data series in the database
   value?: Partial<DataSeriesValueFields> | null | undefined; // Usually not settable by the user, mainly for internal use
-  pick: VectorIndexPickerOptions;
+  pick: VectorIndexPickerOptions | number;
   unit: string | null | undefined; // String if given, null if removed, undefined if not specified
+
   /** DO NOT USE! deprecated and will be replaced once smart recipes are implemented */
   goalName?: string;
+  /** DO NOT USE! deprecated and will be replaced once smart recipes are implemented */
   disabled?: boolean;
 };
 export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataSeries {
@@ -135,9 +137,15 @@ export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataS
     ) &&
 
     (
-      typeof variable.pick === "string" &&
-      vectorIndexPickerFunctions[variable.pick as VectorIndexPickerOptions] !== undefined ||
-      typeguardDebug("Type guard: 'pick' in data series variable") && false
+      (
+        typeof variable.pick === "string"
+        && vectorIndexPickerFunctions[variable.pick as VectorIndexPickerOptions] !== undefined
+      )
+      || (
+        typeof variable.pick === "number"
+        && Number.isInteger(variable.pick)
+      )
+      || typeguardDebug("Type guard: 'pick' in data series variable") && false
     ) &&
 
     (
@@ -187,7 +195,7 @@ export type RecipeExternalDataset = {
     variableCode: string,
     valueCodes: string[]
   }[]; // The selection to be made on the table, e.g. [{ variableCode: "Tid", valueCodes: ["2020M01"] }]
-  pick: VectorIndexPickerOptions;
+  pick: VectorIndexPickerOptions | number;
   unit: string | null | undefined; // String if given, null if removed, undefined if not specified
 };
 export function isRecipeExternalDataset(variable: JSONValue): variable is RecipeExternalDataset {
@@ -227,9 +235,15 @@ export function isRecipeExternalDataset(variable: JSONValue): variable is Recipe
     ) &&
 
     (
-      typeof variable.pick === "string" &&
-      vectorIndexPickerFunctions[variable.pick as VectorIndexPickerOptions] !== undefined ||
-      typeguardDebug("Type guard: 'pick' in external dataset variable") && false
+      (
+        typeof variable.pick === "string"
+        && vectorIndexPickerFunctions[variable.pick as VectorIndexPickerOptions] !== undefined
+      )
+      || (
+        typeof variable.pick === "number"
+        && Number.isInteger(variable.pick)
+      )
+      || typeguardDebug("Type guard: 'pick' in external dataset variable") && false
     ) &&
 
     (
