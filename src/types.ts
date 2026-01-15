@@ -1,6 +1,5 @@
 import { ActionImpactType, Prisma, RoadmapType } from "@prisma/client";
 import { actionInclusionSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, roadmapInclusionSelection } from "./fetchers/inclusionSelectors";
-import { Years as GeneratedYears } from "./lib/dataSeriesCanonicalYears";
 import { Recipe } from "./functions/recipe/types";
 
 /**
@@ -373,10 +372,10 @@ export type GoalCreateInput = {
    * TODO: DEPRECATE - raw data series should be made into data series before posting to the API and use 1:1 recipes instead 
    */
   // Data series
-  rawDataSeries: DataSeriesValueFields | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
+  rawDataSeries: DateValues | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
   rawDataSeriesUnit: string | null | undefined; // Combines with rawDataSeries in the API
   // TODO: send baselines as a DataSeriesValueFields object in the future for consistency's sake
-  rawBaselineDataSeries: DataSeriesValueFields | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
+  rawBaselineDataSeries: DateValues | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
   rawBaselineDataSeriesUnit: string | null | undefined; // Combines with rawBaselineDataSeries in the API
 
   // Relations
@@ -428,10 +427,10 @@ export type GoalUpdateInput = {
    * TODO: DEPRECATE - raw data series should be made into data series before posting to the API and use 1:1 recipes instead 
    */
   // Data series
-  rawDataSeries: DataSeriesValueFields | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
+  rawDataSeries: DateValues | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
   rawDataSeriesUnit: string | null | undefined; // Combines with rawDataSeries in the API
   // TODO: send baselines as a DataSeriesValueFields object in the future for consistency's sake
-  rawBaselineDataSeries: DataSeriesValueFields | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
+  rawBaselineDataSeries: DateValues | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
   rawBaselineDataSeriesUnit: string | null | undefined; // Combines with rawBaselineDataSeries in the API
 
   // Relations
@@ -471,33 +470,32 @@ export type EffectInput = Omit<
   dataSeries: string[] | undefined;
 };
 
-
-// These are derived from the schema file through the getDataSeriesValueFieldNames script
-export const Years = GeneratedYears;
-export type Years = (typeof Years)[number];
-
-export type DataSeriesValueFields = Record<Years, number | null>;
-export type DataSeriesValueFieldsWithUnit = DataSeriesValueFields & { unit: string | null | undefined };
-export function isPartialDataSeriesValueFields(
-  dataSeries: JSONValue,
-): dataSeries is Partial<DataSeriesValueFields> {
+export type UnitString = string | null | undefined;
+export type DateValues = Record<string, number>;
+export type DateValuesWithUnit = DateValues & { unit: UnitString };
+export function isDateValues(dataSeries: JSONValue): dataSeries is Partial<DateValues> {
   return (
-    typeof dataSeries === 'object' &&
-    dataSeries != null &&
-    !Array.isArray(dataSeries) &&
-    Object.keys(dataSeries).every(year => Years.includes(year as Years))
+    typeof dataSeries === 'object'
+    && dataSeries != null
+    && !Array.isArray(dataSeries)
+    && Object.keys(dataSeries).every(year =>
+      typeof year === 'string'
+      && Number.isFinite(new Date(year).getFullYear())
+    )
+    && Object.values(dataSeries).every(value =>
+      typeof value === 'number'
+    )
   );
 }
-export function isFullDataSeriesValueFields(
-  dataSeries: Partial<DataSeriesValueFields>,
-): dataSeries is DataSeriesValueFields {
-  return Object.keys(dataSeries).length === Years.length && Years.every(year => year in dataSeries);
+export function isDateValuesWithUnit(dataSeries: JSONValue): dataSeries is Partial<DateValuesWithUnit> {
+  return (
+    isDateValues(dataSeries)
+    && ('unit' in dataSeries
+      ? (typeof dataSeries.unit === 'string' || dataSeries.unit === null)
+      : true
+    )
+  );
 }
-export const nullFullDataSeriesValueField: DataSeriesValueFields = Years.reduce((obj, year) => {
-  obj[year] = null;
-  return obj;
-}, {} as DataSeriesValueFields);
-
 
 /* TODO INPUT_UPDATES */
 declare module '@tiptap/core' {

@@ -4,7 +4,7 @@ import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/session";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
-import { AccessControlled, ClientError, GoalCreateInput, GoalUpdateInput, JSONValue, DataSeriesValueFields, isPartialDataSeriesValueFields, isFullDataSeriesValueFields } from "@/types";
+import { AccessControlled, ClientError, GoalCreateInput, GoalUpdateInput, JSONValue, DateValues, isDateValues, isDateValues } from "@/types";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { Prisma } from "@prisma/client";
 import crypto from 'crypto';
@@ -77,7 +77,7 @@ function isGoalCreate(goal: JSONValue): goal is GoalCreateInput {
     // rawDataSeries: DataSeriesValueFields | string[] | undefined;
     (
       goal.rawDataSeries === undefined ||
-      isPartialDataSeriesValueFields(goal.rawDataSeries) ||
+      isDateValues(goal.rawDataSeries) ||
       (
         Array.isArray(goal.rawDataSeries) &&
         goal.rawDataSeries.every((entry: JSONValue) => (
@@ -96,7 +96,7 @@ function isGoalCreate(goal: JSONValue): goal is GoalCreateInput {
     // rawBaselineDataSeries: DataSeriesValueFields | string[] | undefined;
     (
       goal.rawBaselineDataSeries === undefined ||
-      isPartialDataSeriesValueFields(goal.rawBaselineDataSeries) ||
+      isDateValues(goal.rawBaselineDataSeries) ||
       (
         Array.isArray(goal.rawBaselineDataSeries) &&
         goal.rawBaselineDataSeries.every((entry: JSONValue) => (
@@ -230,7 +230,7 @@ function isGoalUpdate(goal: JSONValue): goal is GoalUpdateInput {
     // rawDataSeries: DataSeriesValueFields | string[] | undefined;
     (
       goal.rawDataSeries === undefined ||
-      isPartialDataSeriesValueFields(goal.rawDataSeries) ||
+      isDateValues(goal.rawDataSeries) ||
       (
         Array.isArray(goal.rawDataSeries) &&
         goal.rawDataSeries.every((entry: JSONValue) => (
@@ -249,7 +249,7 @@ function isGoalUpdate(goal: JSONValue): goal is GoalUpdateInput {
     // rawBaselineDataSeries: DataSeriesValueFields | string[] | undefined;
     (
       goal.rawBaselineDataSeries === undefined ||
-      isPartialDataSeriesValueFields(goal.rawBaselineDataSeries) ||
+      isDateValues(goal.rawBaselineDataSeries) ||
       (
         Array.isArray(goal.rawBaselineDataSeries) &&
         goal.rawBaselineDataSeries.every((entry: JSONValue) => (
@@ -400,7 +400,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // Data series parsing
-    let parsedDataSeries: Partial<DataSeriesValueFields> | undefined | null = undefined;
+    let parsedDataSeries: Partial<DateValues> | undefined | null = undefined;
     let parsedDataSeriesUnit: string | null = null;
     if (formData.recipeUsed) {
       // TODO: If the recipe is invalid, return an error UNLESS explicitly marked as incomplete somehow (needs to be added to form and here), in which case dataValues should be set to undefined
@@ -429,7 +429,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Non full data series is an error
-    if (parsedDataSeries && !isFullDataSeriesValueFields(parsedDataSeries)) {
+    if (parsedDataSeries && !isDateValues(parsedDataSeries)) {
       parsedDataSeries = null;
     }
 
@@ -441,14 +441,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Baseline data series parsing
-    let parsedBaselineDataSeries: Partial<DataSeriesValueFields> | undefined | null = undefined;
+    let parsedBaselineDataSeries: Partial<DateValues> | undefined | null = undefined;
     let parsedBaselineDataSeriesUnit: string | null = null;
     if (formData.rawBaselineDataSeries) {
       parsedBaselineDataSeries = dataSeriesPrep(formData.rawBaselineDataSeries);
     }
 
     // Non full data series is an error
-    if (parsedBaselineDataSeries && !isFullDataSeriesValueFields(parsedBaselineDataSeries)) {
+    if (parsedBaselineDataSeries && !isDateValues(parsedBaselineDataSeries)) {
       parsedBaselineDataSeries = null;
     }
 
@@ -632,7 +632,7 @@ export async function PUT(request: NextRequest) {
   // Edit goal
   try {
     // Data series parsing
-    let parsedDataSeries: Partial<DataSeriesValueFields> | undefined | null = undefined;
+    let parsedDataSeries: Partial<DateValues> | undefined | null = undefined;
     let parsedDataSeriesUnit: string | null = null;
     if (goal.recipeUsed) {
       // TODO: If the recipe is invalid, return an error UNLESS explicitly marked as incomplete somehow (needs to be added to form and here), in which case dataValues should be set to undefined
@@ -662,7 +662,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Non full data series is an error
-    if (parsedDataSeries && !isFullDataSeriesValueFields(parsedDataSeries)) {
+    if (parsedDataSeries && !isDateValues(parsedDataSeries)) {
       parsedDataSeries = null;
     }
 
@@ -675,7 +675,7 @@ export async function PUT(request: NextRequest) {
 
     // Baseline data series parsing
     const shouldRemoveBaseline = goal.rawBaselineDataSeries === null;
-    let parsedBaselineDataSeries: Partial<DataSeriesValueFields> | undefined | null = undefined;
+    let parsedBaselineDataSeries: Partial<DateValues> | undefined | null = undefined;
     let parsedBaselineDataSeriesUnit: string | null = null;
 
     if (shouldRemoveBaseline) {
@@ -688,7 +688,7 @@ export async function PUT(request: NextRequest) {
       }
 
       // Non full data series is an error
-      if (parsedBaselineDataSeries && !isFullDataSeriesValueFields(parsedBaselineDataSeries)) {
+      if (parsedBaselineDataSeries && !isDateValues(parsedBaselineDataSeries)) {
         parsedBaselineDataSeries = null;
       }
       // Note: May be null to indicate deletion of baseline

@@ -211,7 +211,7 @@ model DataSeries {
 }
 
 model DateRecord {
-  timestamp    String // e.g. "2020", "2021", "2016Q2", "2023W23", etc.
+  timestamp    DateTime   @db.Date
   value        Float
   dataSeriesId String
   dataSeries   DataSeries @relation(fields: [dataSeriesId], references: [id])

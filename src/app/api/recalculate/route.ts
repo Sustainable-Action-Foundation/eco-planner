@@ -3,7 +3,7 @@ import { RecipeError } from "@/functions/recipe/types";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
-import { AccessControlled, ClientError, isFullDataSeriesValueFields, Years } from "@/types";
+import { AccessControlled, ClientError, isDateValues, Years } from "@/types";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
       }
     }
     // Type guard it to make it harder to mess up with prisma
-    if (!isFullDataSeriesValueFields(dataSeries)) {
+    if (!isDateValues(dataSeries)) {
       return Response.json({ message: "Failed to update goal. The recipe used may have caused the issue." },
         { status: 500 }
       );

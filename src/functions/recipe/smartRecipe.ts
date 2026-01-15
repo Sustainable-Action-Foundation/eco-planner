@@ -1,5 +1,5 @@
 import { isRecipe, MathjsError, Recipe, RecipeError, RecipeVariable } from "@/functions/recipe/types";
-import { DataSeriesValueFieldsWithUnit, JSONValue, Years } from "@/types";
+import { DateValuesWithUnit, JSONValue, Years } from "@/types";
 import { convertVectorToYearValuePair, extractDataSeries, extractExternalDatasets, extractScalars } from "@/functions/recipe/extractors";
 import mathjs from "@/math";
 import { Unit } from "mathjs";
@@ -67,7 +67,7 @@ export class SmartRecipe {
    * 
    * @param warnings **Side effect only**. Array will be mutated in place to include any warnings encountered during evaluation. 
    */
-  public async evaluate(warnings: string[] = []): Promise<DataSeriesValueFieldsWithUnit | null> {
+  public async evaluate(warnings: string[] = []): Promise<DateValuesWithUnit | null> {
     if (!isRecipe(this.recipe)) {
       throw new RecipeError("Invalid recipe format");
     }

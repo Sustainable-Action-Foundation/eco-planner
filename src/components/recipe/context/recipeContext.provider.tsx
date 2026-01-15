@@ -1,7 +1,7 @@
 "use client";
 
 import { Recipe, RecipeError, RecipeIsh, RecipeVariable } from "@/functions/recipe/types";
-import type { DataSeriesValueFieldsWithUnit } from "@/types";
+import type { DateValuesWithUnit } from "@/types";
 import { useEffect, useMemo, useState } from "react";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 import { RecipeContext, SetStateAction } from "./recipeContext.internal";
@@ -70,7 +70,7 @@ export function RecipeContextProvider({
   }, [updatePing]);
 
   const recipe = useMemo(() => { void updatePing; return smartRecipe.toRecipe(); }, [smartRecipe, updatePing]);
-  const [resultingDataSeriesWithUnit, setResultingDataSeriesWithUnit] = useState<DataSeriesValueFieldsWithUnit | null>(null);
+  const [resultingDataSeriesWithUnit, setResultingDataSeriesWithUnit] = useState<DateValuesWithUnit | null>(null);
 
   const resultingDataSeries = useMemo(() => {
     if (!resultingDataSeriesWithUnit) return null;

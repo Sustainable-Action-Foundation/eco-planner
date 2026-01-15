@@ -1,5 +1,5 @@
 import { isRecipe, MathjsError, Recipe, RecipeError, RecipeVariable } from "./types";
-import { DataSeriesValueFields, JSONValue, Years } from "@/types";
+import { DateValues, JSONValue, Years } from "@/types";
 import { convertVectorToYearValuePair, extractDataSeries, extractExternalDatasets, extractScalars } from "./extractors";
 import { Unit } from "mathjs";
 import mathjs from "@/math";
@@ -52,7 +52,7 @@ export function cleanRecipe(recipe: JSONValue): Recipe {
 /** 
  * Returning null means the evaluation was cancelled without errors.
  */
-export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promise<{ dataSeries: DataSeriesValueFields, unit: string | null | undefined } | null> {
+export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promise<{ dataSeries: DateValues, unit: string | null | undefined } | null> {
   if (!isRecipe(recipe)) {
     throw new RecipeError("Invalid recipe format");
   }

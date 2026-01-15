@@ -1,4 +1,4 @@
-import { DataSeriesValueFields, isFullDataSeriesValueFields, isPartialDataSeriesValueFields, Years } from "@/types";
+import { DateValues, isDateValues, isDateValues, Years } from "@/types";
 
 /**
  * Parses an object containing a string array called dataSeries into the format needed to create a data series.
@@ -8,16 +8,16 @@ import { DataSeriesValueFields, isFullDataSeriesValueFields, isPartialDataSeries
  * @returns an object containing the data fields (the ones prefixed with `val`) in a DataSeries or `null`
  */
 export default function dataSeriesPrep(
-  dataSeries: Partial<DataSeriesValueFields> | string[],
-): DataSeriesValueFields | null {
-  const cleanedDataSeries: Partial<DataSeriesValueFields> = {};
+  dataSeries: Partial<DateValues> | string[],
+): DateValues | null {
+  const cleanedDataSeries: Partial<DateValues> = {};
 
   // If the data series is already a DataSeriesValueFields object, clean it and return it
-  if (!Array.isArray(dataSeries) && isPartialDataSeriesValueFields(dataSeries)) {
+  if (!Array.isArray(dataSeries) && isDateValues(dataSeries)) {
     for (const year of Years) {
       cleanedDataSeries[year] = dataSeries[year] ?? null;
     }
-    if (!isFullDataSeriesValueFields(cleanedDataSeries)) {
+    if (!isDateValues(cleanedDataSeries)) {
       console.error("Failed to transform data series into a full DataSeriesValueFields object in dataSeriesPrep");
       return null;
     }
@@ -64,7 +64,7 @@ export default function dataSeriesPrep(
   }
 
   // Type guard it into a non partial DataSeriesValueFields
-  if (!isFullDataSeriesValueFields(cleanedDataSeries)) {
+  if (!isDateValues(cleanedDataSeries)) {
     console.error("Failed to transform data series into a full DataSeriesValueFields object in dataSeriesPrep");
     return null;
   }

@@ -2,7 +2,7 @@
 
 import { closeModal, openModal } from "./modalFunctions";
 import { useRef, useState } from "react";
-import { GoalCreateInput, Goal, Years, DataSeriesValueFields, isPartialDataSeriesValueFields, JSONValue, isFullDataSeriesValueFields, nullFullDataSeriesValueField } from "@/types";
+import { GoalCreateInput, Goal, Years, DateValues, isDateValues, JSONValue, isDateValues, nullFullDataSeriesValueField } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
@@ -35,18 +35,18 @@ export default function CopyAndScale({
     }
 
     // Try parsing the data series object from the recipe editor
-    let resultingDataSeries: DataSeriesValueFields;
+    let resultingDataSeries: DateValues;
     try {
       const unparsedDataSeries = JSON.parse(form.get("resultingDataSeries") as string) as JSONValue;
 
       // At first expect the data series to be partial
-      if (!isPartialDataSeriesValueFields(unparsedDataSeries)) {
+      if (!isDateValues(unparsedDataSeries)) {
         throw new Error("Parsed data series does not match expected structure");
       }
 
       // Make it non partial
       const parsedDataSeries = { ...nullFullDataSeriesValueField, ...unparsedDataSeries };
-      if (!isFullDataSeriesValueFields(parsedDataSeries)) {
+      if (!isDateValues(parsedDataSeries)) {
         throw new Error("Parsed data series is missing some years or has incorrect structure");
       }
 

@@ -2,7 +2,7 @@ import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
 import { isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, RecipeDataTypes, RecipeError, RecipeVariable, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import getTableContent from "@/lib/api/getTableContent";
 import mathjs from "@/math";
-import { DataSeriesValueFields, DataSeriesValueFieldsWithUnit, nullFullDataSeriesValueField, Years } from "@/types";
+import { DateValues, DateValuesWithUnit, nullFullDataSeriesValueField, Years } from "@/types";
 import { Unit } from "mathjs";
 import { EvalTimeVariable } from "./types";
 import { filterToInitialYearlyRecords, parsePeriod } from "@/lib/api/utility";
@@ -121,7 +121,7 @@ export async function extractExternalDatasets(
         throw new RecipeError(`External dataset variable '${variableName}' has no values. Expected an array of values with 'period' and 'value' properties.`);
       }
 
-      const definedValues: Partial<DataSeriesValueFields> = {};
+      const definedValues: Partial<DateValues> = {};
       // This is done like this to avoid evil Regex
       const validCharsForYear = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
       for (const year of Years) {
@@ -170,7 +170,7 @@ export async function extractExternalDatasets(
 }
 
 function pickDataSeries(
-  dataSeries: DataSeriesValueFields,
+  dataSeries: DateValues,
   pick: VectorIndexPickerOptions | number
 ): number | number[] {
   if (
@@ -194,7 +194,7 @@ function pickDataSeries(
   return pickVector(convertYearValuePairToVector(dataSeries), pick);
 }
 
-function convertYearValuePairToVector(dataSeries: Partial<DataSeriesValueFields>): number[] {
+function convertYearValuePairToVector(dataSeries: Partial<DateValues>): number[] {
   const vector: number[] = [];
 
   // TODO move this definition to a higher scope
@@ -235,8 +235,8 @@ function convertYearValuePairToVector(dataSeries: Partial<DataSeriesValueFields>
   return vector;
 }
 
-export function convertVectorToYearValuePair(vector: Unit[]): DataSeriesValueFieldsWithUnit {
-  const dataSeries: DataSeriesValueFields = { ...nullFullDataSeriesValueField };
+export function convertVectorToYearValuePair(vector: Unit[]): DateValuesWithUnit {
+  const dataSeries: DateValues = { ...nullFullDataSeriesValueField };
 
   // TODO move this definition to a higher scope
   const nonDefinedValue = -Infinity; // Mathjs does not like undefined values so this is the intermediate representation 

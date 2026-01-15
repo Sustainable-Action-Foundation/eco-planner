@@ -1,4 +1,4 @@
-import { RoadmapInput, GoalCreateInput, DataSeriesValueFields } from "@/types";
+import { RoadmapInput, GoalCreateInput, DateValues } from "@/types";
 import { Prisma } from "@prisma/client";
 import dataSeriesPrep from "@/app/api/goal/dataSeriesPrep";
 
@@ -14,7 +14,7 @@ export default function roadmapGoalCreator(
 
   roadmap.goals.forEach((goal, goalIndex) => {
     // Create data series
-    const dataValues: DataSeriesValueFields | null = dataSeriesPrep(goal.rawDataSeries ?? []);
+    const dataValues: DateValues | null = dataSeriesPrep(goal.rawDataSeries ?? []);
     // If the data series is invalid, throw an error
     if (!dataValues) {
       throw new Error(`Invalid nested data series at index ${goalIndex}`, { cause: 'nestedGoalCreation' })

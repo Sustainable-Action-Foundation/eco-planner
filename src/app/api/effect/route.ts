@@ -2,7 +2,7 @@ import dataSeriesPrep from "@/app/api/goal/dataSeriesPrep";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
-import { ClientError, DataSeriesValueFields, EffectInput, JSONValue } from "@/types";
+import { ClientError, DateValues, EffectInput, JSONValue } from "@/types";
 import { ActionImpactType, Prisma } from "@prisma/client";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Prepare effect data series
-  let dataSeries: Partial<DataSeriesValueFields> | null = null;
+  let dataSeries: Partial<DateValues> | null = null;
   dataSeries = dataSeriesPrep(effect.dataSeries ?? []);
   if (dataSeries == null) {
     return Response.json({ message: 'Bad data series' },
@@ -311,7 +311,7 @@ export async function PUT(request: NextRequest) {
   }
 
   // Prepare effect data series
-  let dataSeries: Partial<DataSeriesValueFields> | undefined | null = undefined;
+  let dataSeries: Partial<DateValues> | undefined | null = undefined;
   if (effect.dataSeries) {
     dataSeries = dataSeriesPrep(effect.dataSeries);
   }

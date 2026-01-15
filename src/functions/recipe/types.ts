@@ -1,5 +1,5 @@
 import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
-import { DataSeriesValueFields, isPartialDataSeriesValueFields, isStandardObject, JSONValue, typeguardDebug, uuidRegex } from "@/types";
+import { DateValues, isDateValues, isStandardObject, JSONValue, typeguardDebug, uuidRegex } from "@/types";
 import { Unit } from "mathjs";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 
@@ -104,7 +104,7 @@ export const emptyRecipeScalar: RecipeScalar = { type: RecipeDataTypes.Scalar, v
 export type RecipeDataSeries = {
   type: typeof RecipeDataTypes.DataSeries;
   link: string | null | undefined; // uuid of data series in the database
-  value?: Partial<DataSeriesValueFields> | null | undefined; // Usually not settable by the user, mainly for internal use
+  value?: Partial<DateValues> | null | undefined; // Usually not settable by the user, mainly for internal use
   pick: VectorIndexPickerOptions | number;
   unit: string | null | undefined; // String if given, null if removed, undefined if not specified
 
@@ -157,7 +157,7 @@ export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataS
     (
       variable.value === undefined ||
       variable.value === null ||
-      isPartialDataSeriesValueFields(variable.value)
+      isDateValues(variable.value)
     ) &&
 
     // TODO Remove this once smart recipes are implemented
