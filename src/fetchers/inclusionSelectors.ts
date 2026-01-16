@@ -1,13 +1,6 @@
-import { Years } from "@/types";
-// import { Prisma } from "@prisma/client";
-
-const dataFieldSelector = Years.reduce((acc, field) => {
-  acc[field] = true;
-  return acc;
-}, {} as Record<typeof Years[number], boolean>);
+import { Prisma } from "@/prisma/generated";
 
 export const nameSelector = {
-  // export const nameSelector: Prisma.MetaRoadmapSelect = {
   name: true,
   id: true,
   roadmapVersions: {
@@ -35,10 +28,9 @@ export const nameSelector = {
       },
     },
   },
-};
+} satisfies Prisma.MetaRoadmapSelect;
 
 export const metaRoadmapInclusionSelection = {
-  // export const metaRoadmapInclusionSelection: Prisma.MetaRoadmapInclude = {
   roadmapVersions: {
     include: {
       metaRoadmap: {
@@ -76,10 +68,9 @@ export const metaRoadmapInclusionSelection = {
   viewers: { select: { id: true, username: true } },
   editGroups: { include: { users: { select: { id: true, username: true } } } },
   viewGroups: { include: { users: { select: { id: true, username: true } } } },
-};
+} satisfies Prisma.MetaRoadmapInclude;
 
 export const roadmapInclusionSelection = {
-  // export const roadmapInclusionSelection: Prisma.RoadmapInclude = {
   metaRoadmap: true,
   goals: {
     include: {
@@ -105,11 +96,10 @@ export const roadmapInclusionSelection = {
   viewers: { select: { id: true, username: true } },
   editGroups: { include: { users: { select: { id: true, username: true } } } },
   viewGroups: { include: { users: { select: { id: true, username: true } } } },
-};
+} satisfies Prisma.RoadmapInclude;
 
 /** "Client safe" versions should be used with `select: ` instead of `include: ` */
 export const clientSafeRoadmapSelection = {
-  // export const clientSafeRoadmapSelection: Prisma.RoadmapSelect = {
   id: true,
   description: true,
   version: true,
@@ -141,8 +131,7 @@ export const clientSafeRoadmapSelection = {
         select: {
           id: true,
           unit: true,
-          // All yearly data fields
-          ...dataFieldSelector,
+          values: true,
         }
       },
     }
@@ -173,10 +162,9 @@ export const clientSafeRoadmapSelection = {
       metaRoadmapId: true,
     },
   },
-};
+} satisfies Prisma.RoadmapSelect;
 
 export const multiRoadmapInclusionSelection = {
-  // export const multiRoadmapInclusionSelection: Prisma.RoadmapInclude = {
   _count: {
     select: {
       goals: true,
@@ -189,11 +177,10 @@ export const multiRoadmapInclusionSelection = {
   viewers: { select: { id: true, username: true } },
   editGroups: { include: { users: { select: { id: true, username: true } } } },
   viewGroups: { include: { users: { select: { id: true, username: true } } } },
-}
+} satisfies Prisma.RoadmapInclude;
 
 /** "Client safe" versions should be used with `select: ` instead of `include: ` */
 export const clientSafeMultiRoadmapSelection = {
-  // export const clientSafeMultiRoadmapSelection: Prisma.RoadmapSelect = {
   id: true,
   description: true,
   version: true,
@@ -216,14 +203,13 @@ export const clientSafeMultiRoadmapSelection = {
       isPublic: true,
     }
   },
-}
+} satisfies Prisma.RoadmapSelect;
 
 export const goalInclusionSelection = {
-  // export const goalInclusionSelection: Prisma.GoalInclude = {
   _count: { select: { effects: true } },
   dataSeries: true,
   recipeSuggestions: true,
-  baselineDataSeries: true,
+  baseline: true,
   effects: {
     include: {
       dataSeries: true,
@@ -258,11 +244,10 @@ export const goalInclusionSelection = {
     },
   },
   author: { select: { id: true, username: true } },
-};
+} satisfies Prisma.GoalInclude;
 
 /** "Client safe" versions should be used with `select: ` instead of `include: ` */
 export const clientSafeGoalSelection = {
-  // export const clientSafeGoalSelection: Prisma.GoalSelect = {
   id: true,
   name: true,
   description: true,
@@ -276,21 +261,19 @@ export const clientSafeGoalSelection = {
     select: {
       id: true,
       unit: true,
-      ...dataFieldSelector,
+      values: true,
     }
   },
   _count: { select: { effects: true } },
-}
+} satisfies Prisma.GoalSelect;
 
 export const clientSafeDataSeriesSelection = {
-  // export const clientSafeDataSeriesSelection: Prisma.DataSeriesSelect = {
-  ...dataFieldSelector,
   id: true,
   unit: true,
-};
+  values: true,
+} satisfies Prisma.DataSeriesSelect;
 
 export const actionInclusionSelection = {
-  // export const actionInclusionSelection: Prisma.ActionInclude = {
   effects: {
     include: {
       dataSeries: true,
@@ -324,10 +307,9 @@ export const actionInclusionSelection = {
   links: true,
   comments: { include: { author: { select: { id: true, username: true } } } },
   author: { select: { id: true, username: true } },
-};
+} satisfies Prisma.ActionInclude;
 
 export const effectInclusionSelection = {
-  // export const effectInclusionSelection: Prisma.EffectInclude = {
   dataSeries: true,
   action: {
     include: actionInclusionSelection,
@@ -335,10 +317,9 @@ export const effectInclusionSelection = {
   goal: {
     include: goalInclusionSelection,
   },
-}
+} satisfies Prisma.EffectInclude;
 
 export const userInfoSelector = {
-  // export const userInfoSelector: Prisma.UserSelect = {
   id: true,
   username: true,
   authoredMetaRoadmaps: {
@@ -348,4 +329,4 @@ export const userInfoSelector = {
   authoredRoadmaps: {
     include: multiRoadmapInclusionSelection,
   },
-}
+} satisfies Prisma.UserSelect;
