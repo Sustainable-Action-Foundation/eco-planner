@@ -4,15 +4,14 @@ import { LocaleContext, LocaleSetterContext } from "@/lib/i18nClient";
 import { match } from "@formatjs/intl-localematcher";
 import { setCookie } from "cookies-next/client";
 import { localeAliases, Locales, uniqueLocales } from "i18n.config";
-import { useContext, useState, useTransition } from "react";
+import { useContext, useState } from "react";
 
 export function LanguageSwitcher() {
   const locale = useContext(LocaleContext);
   const setLocaleContext = useContext(LocaleSetterContext);
-  const [isPending, startTransition] = useTransition();
   const [buttonLocale, setButtonLocale] = useState<Locales>(locale);
 
-  async function setLocale(lng: string) {
+  function setLocale(lng: string) {
     // Sanitize locale
     const cleanLocale = match([lng], uniqueLocales, Locales.default) as Locales;
 
@@ -22,15 +21,13 @@ export function LanguageSwitcher() {
     // Set cookie for future visits
     setCookie("locale", cleanLocale);
 
-    // Server update. Refresh the page
-    // TODO: Find a better solution than hard refresh
-    startTransition(() => {
-      window.location.reload();
-    });
-
     // Client update. Set lang and dispatch event for rerendering
     setLocaleContext(cleanLocale);
     window.dispatchEvent(new CustomEvent("i18n-language-changed"));
+    setTimeout(() => {
+      setLocaleContext(cleanLocale);
+      window.dispatchEvent(new CustomEvent("i18n-language-changed"));
+    }, 1);
   }
 
   {/* 
@@ -46,9 +43,8 @@ export function LanguageSwitcher() {
             <li key={locale} className="margin-top-25">
               <button
                 key={locale}
-                onClick={async () => await setLocale(locale)}
-                disabled={isPending}
-                style={{fontSize: '14px'}}
+                onClick={() => setLocale(locale)}
+                style={{ fontSize: '14px' }}
                 className={`flex transparent justify-content-space-between align-items-center width-100 padding-25 smooth`}
                 data-testid={`language-switcher-option-${localeAliases[locale]}`}
                 data-checked={locale === buttonLocale}

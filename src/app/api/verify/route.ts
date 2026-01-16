@@ -1,12 +1,14 @@
 import getUserHash from "@/functions/getUserHash";
 import prisma from "@/prismaClient";
+import { JSONValue } from "@/types";
 import { NextRequest } from "next/server";
 
 export async function PATCH(request: NextRequest) {
-  const { email, hash }: { email: string; hash: string; } = await request.json();
-  if (!email || !hash || typeof email !== 'string' || typeof hash !== 'string') {
-    return Response.json({ message: 'Email and hash are required' }, { status: 400 });
+  const body = await (request.json() as Promise<JSONValue>);
+  if (!body || typeof body !== 'object' || Array.isArray(body) || typeof body.email !== 'string' || typeof body.hash !== 'string') {
+    return Response.json({ message: 'Invalid body; email and hash are required' }, { status: 400 });
   }
+  const { email, hash } = body;
 
   // Compare the provided hash with the hash of the user object
   // Fails with the same message if the user does not exist

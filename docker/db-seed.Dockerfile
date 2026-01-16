@@ -17,17 +17,20 @@ RUN apk update && apk upgrade && \
   dumb-init \
   && rm -rf /var/cache/apk/*
 
+COPY package.json ./
 # Enable corepack for modern package manager support
 RUN corepack enable
+# Preinstall yarn to ensure it's available for seeding stage
+RUN corepack install
 
 WORKDIR /app
 
 # =============================================================================
 # Dependencies stage - Install and cache dependencies
 # =============================================================================
-FROM base as deps
+FROM base AS deps
 
-COPY package.json yarn.lock* ./
+COPY package.json tsconfig.json yarn.lock* ./
 
 # Install dependencies (GHA cache handled by buildx)
 RUN yarn install --frozen-lockfile
@@ -39,19 +42,38 @@ RUN rm -rf /tmp/* /var/tmp/*
 # =============================================================================
 # Prisma stage - Generate Prisma client
 # =============================================================================
-FROM deps as prisma
+FROM base AS prisma
 
+# Dependencies
+COPY --from=deps /app/node_modules ./node_modules
+
+# Prisma schema and config files
 COPY prisma/ ./prisma/
+COPY prisma.config.ts package.json tsconfig.json ./
+
 RUN yarn prisma generate
 
 
 # =============================================================================
 # Seed stage - Run database seeding
 # =============================================================================
-FROM prisma as seed
+FROM base AS seed
 
-# Seeding script uses some general script lib files
+# Various files used by the seeding script
 COPY src/scripts/lib ./src/scripts/lib
+COPY src/functions ./src/functions
+COPY src/lib ./src/lib
+COPY src/types.ts ./src/types.ts
+COPY src/math.ts ./src/math.ts
+
+# Dependencies
+COPY --from=deps /app/node_modules ./node_modules
+# Prisma client and generated files
+COPY --from=prisma /app/src/prisma ./src/prisma
+
+# Prisma schema and config files
+COPY prisma/ ./prisma/
+COPY prisma.config.ts package.json tsconfig.json ./
 
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["sh", "-c", "yarn prisma migrate reset --force"]
+CMD ["sh", "-c", "yarn prisma migrate reset --force --skip-generate"]

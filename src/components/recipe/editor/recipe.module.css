@@ -1,0 +1,36 @@
+.variable-list {
+    background-color: var(--gray-95);
+    border-radius: 2px;
+}
+
+.variable-list input:not([role="combobox"]),
+.variable-list select {
+    width: 125px;
+    min-width: 125px;
+}
+
+.variable-fieldset:disabled :disabled {
+    border-color: transparent;
+    background-color: transparent;
+    color: black;
+    background-image: none; 
+}
+
+.variable-list > li:first-of-type {
+    margin-top: .25rem;
+}
+
+.variable-list > li:not(:last-of-type) {
+    border-bottom: 1px solid var(--gray);
+}
+
+.cancel-button {
+    color: gray;
+    transform: scale(1);
+}
+
+.cancel-button:hover {
+    color: black;
+    text-decoration: underline;
+    box-shadow: none;
+}

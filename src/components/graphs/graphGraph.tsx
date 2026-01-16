@@ -1,7 +1,7 @@
 "use client"
 
 import { ApiTableContent } from "@/lib/api/apiTypes";
-import { externalDatasets, getDatasetKeyFromAlternateName } from "@/lib/api/utility";
+import { DatasetData, ExternalDataset } from "@/lib/api/utility";
 import type { DataSeries, Effect, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
 import { useEffect, useState } from "react";
 import { getStoredGraphType } from "./functions/graphFunctions";
@@ -12,11 +12,12 @@ import MainRelativeGraph from "./mainGraphs/mainRelativeGraph";
 import SecondaryGoalSelector from "./secondaryGraphSelector";
 import { Trans, useTranslation } from "react-i18next";
 
-export enum GraphType {
-  Main = "MAIN",
-  Relative = "RELATIVE",
-  Delta = "DELTA",
-}
+export const GraphType = {
+  Main: "MAIN",
+  Relative: "RELATIVE",
+  Delta: "DELTA",
+} as const;
+export type GraphType = (typeof GraphType)[keyof typeof GraphType];
 
 export default function GraphGraph({
   goal,
@@ -43,7 +44,7 @@ export default function GraphGraph({
     setGraphType(getStoredGraphType(goal.id));
   }, [goal.id]);
 
-  function graphSwitch(graphType: string) {
+  function graphSwitch(graphType: GraphType) {
     switch (graphType) {
       case GraphType.Main:
         return <MainGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} historicalData={historicalData} secondaryGoal={secondaryGoal} effects={effects} />
@@ -56,15 +57,9 @@ export default function GraphGraph({
     }
   };
 
-  // TODO - link to specific table when possible
-  function getHistoricalDataLink(historicalData: ApiTableContent) {
-    const datasetKey = getDatasetKeyFromAlternateName(historicalData.metadata[0].source);
-    if (!datasetKey || !externalDatasets[datasetKey] || !externalDatasets[datasetKey].userFacingUrl) {
-      console.error(`No user-facing URL found for dataset: ${historicalData.metadata[0].source}`);
-      return null;
-    }
-    const dataLink = externalDatasets[datasetKey].userFacingUrl;
-    return dataLink;
+  let dataset: DatasetData | null = null;
+  if (historicalData?.metadata[0]?.source) {
+    dataset = ExternalDataset.getDatasetByAlternateName(historicalData.metadata[0].source);
   }
 
   return (
@@ -82,13 +77,13 @@ export default function GraphGraph({
         }
         {secondaryGoal && <p className="margin-block-0 margin-inline-auto text-align-center">{t("graphs:graph_graph.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicatorParameter })}</p>}
         <div style={{ height: '500px' }}>
-          {graphSwitch(graphType)}
+          {graphSwitch(graphType || GraphType.Main)}
         </div>
         {historicalData && (
           <Trans
             i18nKey="graphs:graph_graph.historical_data_source"
-            components={{ a: <a href={getHistoricalDataLink(historicalData) || ""} target="_blank" /> }}
-            tOptions={{ source: externalDatasets[historicalData.metadata[0].source]?.fullName ? externalDatasets[historicalData.metadata[0].source]?.fullName : historicalData.metadata[0].source }}
+            components={{ a: <a href={dataset?.userFacingUrl} target="_blank" /> }}
+            tOptions={{ source: dataset?.fullName ?? historicalData.metadata[0]?.source }}
           />
         )}
       </article>

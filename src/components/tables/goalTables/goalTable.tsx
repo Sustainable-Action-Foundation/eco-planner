@@ -93,7 +93,7 @@ export default function GoalTable({
             <tr key={goal.id}>
               <td><Link href={`/goal/${goal.id}`}>{goal.name || goal.indicatorParameter}</Link></td>
               <td>{goal.indicatorParameter}</td>
-              <td>{goal.dataSeries?.unit}</td>
+              <td>{goal.dataSeries?.unit === null ? t("common:tsx.unitless") : goal.dataSeries?.unit || t("common:tsx.unit_missing")}</td>
               <td>{goal._count.effects}</td>
             </tr>
           ))}

@@ -5,8 +5,6 @@ on:
     branches:
       - 'main'
       - 'dev'
-      # Temporary to test the workflow
-      - 'tests'
     tags:
       - 'v*.*.*'
   pull_request:
@@ -179,8 +177,8 @@ jobs:
         with:
           context: .
           file: ./docker/app.Dockerfile
-          # Don't push on pull requests, or manual workflow dispatches without the `should_push` input set to true
-          push: ${{ github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.should_push == true) }}
+          # Don't push on pull requests, after failed (non-skipped) tests, or on manual workflow dispatches without the `should_push` input set to true
+          push: ${{ steps.run-tests.outcome != 'failed' && github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.should_push == true) }}
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
           build-args: |

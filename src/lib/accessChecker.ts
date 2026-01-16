@@ -5,7 +5,7 @@ import { LoginData } from "./session";
  * Checks if the user has access to an item and returns their access level. An empty string means no access.
  * @param item An object that implements the `AccessControlled` interface
  * @param user The user object from the session
- * @returns A string representing the user's access level to the item; "", "VIEW", "EDIT", or "ADMIN", based on the `AccessLevel` enum
+ * @returns A string representing the user's access level to the item; "", "VIEW", "EDIT", "AUTHOR", or "ADMIN", based on the `AccessLevel` object
  */
 export default function accessChecker(item: AccessControlled | null | undefined, user: LoginData["user"]): AccessLevel {
   // If the item is null or undefined, return no access
@@ -35,4 +35,18 @@ export default function accessChecker(item: AccessControlled | null | undefined,
 
   // User does not have access
   return AccessLevel.None;
+}
+
+export function hasEditAccess(accessLevel: AccessLevel): boolean {
+  if (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) {
+    return true;
+  }
+  return false;
+}
+
+export function hasViewAccess(accessLevel: AccessLevel): boolean {
+  if (accessLevel === AccessLevel.View || hasEditAccess(accessLevel)) {
+    return true;
+  }
+  return false;
 }

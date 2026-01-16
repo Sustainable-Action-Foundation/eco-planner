@@ -1,21 +1,17 @@
 import { PxWebMetric, PxWebTimeVariable, PxWebVariable } from "../pxWeb/pxWebApiV2Types"
 import { TrafaHierarchy, TrafaMetric, TrafaVariable } from "../trafa/trafaTypes"
 
+// TODO: See if we can include any unit returned by external APIs
 export type ApiTableContent = {
   id: string,
-  columns: {
-    id: string,
-    label: string,
-    type: "d" | "m" | "t",
-  }[],
-  data: {
-    key: { columnId: string, value: string }[],
-    values: (string)[],
+  values: {
+    period: string,
+    value: string,
   }[],
   metadata: {
     label: string,
     source: string,
-  }[],
+  }[]
 }
 
 export type ApiTableDetails = {

@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/session";
-import { AccessControlled, AccessLevel, ClientError, MetaRoadmapInput } from "@/types";
+import { AccessControlled, AccessLevel, ClientError, JSONValue, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
 import { Prisma, RoadmapType } from "@prisma/client";
 import prisma from "@/prismaClient";
 import { revalidateTag } from "next/cache";
@@ -8,17 +8,247 @@ import accessChecker from "@/lib/accessChecker";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { cookies } from "next/headers";
 
+function isMetaRoadmapCreate(metaRoadmap: JSONValue): metaRoadmap is MetaRoadmapCreateInput {
+  return (
+    (
+      typeof metaRoadmap === 'object' &&
+      metaRoadmap !== null &&
+      !Array.isArray(metaRoadmap)
+    ) &&
+
+    // name: string;
+    (
+      typeof metaRoadmap.name === 'string'
+    ) &&
+
+    // description: string;
+    (
+      typeof metaRoadmap.description === 'string'
+    ) &&
+
+    // type: RoadmapType | undefined;
+    // We cast an unchecked string to RoadmapType, so it has to be validated later
+    (
+      typeof metaRoadmap.type === 'string' ||
+      metaRoadmap.type === undefined
+    ) &&
+
+    // actor: string | null | undefined;
+    (
+      typeof metaRoadmap.actor === 'string' ||
+      metaRoadmap.actor === null ||
+      metaRoadmap.actor === undefined
+    ) &&
+
+    // isPublic: boolean | undefined;
+    (
+      typeof metaRoadmap.isPublic === 'boolean' ||
+      metaRoadmap.isPublic === undefined
+    ) &&
+
+    // editors: string[] | null | undefined;
+    (
+      metaRoadmap.editors === null ||
+      metaRoadmap.editors === undefined ||
+      (
+        Array.isArray(metaRoadmap.editors) &&
+        metaRoadmap.editors.every(name => typeof name === 'string')
+      )
+    ) &&
+
+    // viewers: string[] | null | undefined;
+    (
+      metaRoadmap.viewers === null ||
+      metaRoadmap.viewers === undefined ||
+      (
+        Array.isArray(metaRoadmap.viewers) &&
+        metaRoadmap.viewers.every(name => typeof name === 'string')
+      )
+    ) &&
+
+    // editGroups: string[] | null | undefined;
+
+    (
+      metaRoadmap.editGroups === null ||
+      metaRoadmap.editGroups === undefined ||
+      (
+        Array.isArray(metaRoadmap.editGroups) &&
+        metaRoadmap.editGroups.every(group => typeof group === 'string')
+      )
+    ) &&
+
+    // viewGroups: string[] | null | undefined;
+    (
+      metaRoadmap.viewGroups === null ||
+      metaRoadmap.viewGroups === undefined ||
+      (
+        Array.isArray(metaRoadmap.viewGroups) &&
+        metaRoadmap.viewGroups.every(group => typeof group === 'string')
+      )
+    ) &&
+
+    // parentRoadmapId: string | null | undefined;
+    (
+      typeof metaRoadmap.parentRoadmapId === 'string' ||
+      metaRoadmap.parentRoadmapId === null ||
+      metaRoadmap.parentRoadmapId === undefined
+    ) &&
+
+    // TODO: Deprecated - will be moved to description
+    // links: { url: string, description?: string | null }[] | null | undefined;
+    (
+      metaRoadmap.links === undefined ||
+      metaRoadmap.links === null ||
+      (
+        Array.isArray(metaRoadmap.links) &&
+        metaRoadmap.links.every((entry: JSONValue) => (
+          (
+            typeof entry === 'object' &&
+            entry !== null &&
+            !Array.isArray(entry)
+          ) &&
+
+          typeof entry.url === 'string' &&
+          (
+            typeof entry.description === 'string' ||
+            entry.description === undefined ||
+            entry.description === null
+          )
+        ))
+      )
+    )
+  )
+}
+
+function isMetaRoadmapUpdate(metaRoadmap: JSONValue): metaRoadmap is MetaRoadmapUpdateInput {
+  return (
+    (
+      typeof metaRoadmap === 'object' &&
+      metaRoadmap !== null &&
+      !Array.isArray(metaRoadmap)
+    ) &&
+
+    // id: string;
+    (
+      typeof metaRoadmap.id === 'string'
+    ) &&
+
+    // name: string | undefined;
+    (
+      typeof metaRoadmap.name === 'string' ||
+      metaRoadmap.name === undefined
+    ) &&
+
+    // description: string | undefined;
+    (
+      typeof metaRoadmap.description === 'string' ||
+      metaRoadmap.description === undefined
+    ) &&
+
+    // type: RoadmapType | undefined;
+    // We cast an unchecked string to RoadmapType, so it has to be validated later
+    (
+      typeof metaRoadmap.type === 'string' ||
+      metaRoadmap.type === undefined
+    ) &&
+
+    // actor: string | null | undefined;
+    (
+      typeof metaRoadmap.actor === 'string' ||
+      metaRoadmap.actor === null ||
+      metaRoadmap.actor === undefined
+    ) &&
+
+    // isPublic: boolean | undefined;
+    (
+      typeof metaRoadmap.isPublic === 'boolean' ||
+      metaRoadmap.isPublic === undefined
+    ) &&
+
+    // editors: string[] | null | undefined;
+    (
+      metaRoadmap.editors === null ||
+      metaRoadmap.editors === undefined ||
+      (
+        Array.isArray(metaRoadmap.editors) &&
+        metaRoadmap.editors.every(name => typeof name === 'string')
+      )
+    ) &&
+
+    // viewers: string[] | null | undefined;
+    (
+      metaRoadmap.viewers === null ||
+      metaRoadmap.viewers === undefined ||
+      (
+        Array.isArray(metaRoadmap.viewers) &&
+        metaRoadmap.viewers.every(name => typeof name === 'string')
+      )
+    ) &&
+
+    // editGroups: string[] | null | undefined;
+    (
+      metaRoadmap.editGroups === null ||
+      metaRoadmap.editGroups === undefined ||
+      (
+        Array.isArray(metaRoadmap.editGroups) &&
+        metaRoadmap.editGroups.every(group => typeof group === 'string')
+      )
+    ) &&
+
+    // viewGroups: string[] | null | undefined;
+    (
+      metaRoadmap.viewGroups === null ||
+      metaRoadmap.viewGroups === undefined ||
+      (
+        Array.isArray(metaRoadmap.viewGroups) &&
+        metaRoadmap.viewGroups.every(group => typeof group === 'string')
+      )
+    ) &&
+
+    // TODO: Deprecated - will be moved to description
+    // links: { url: string, description?: string | null }[] | null | undefined;
+    (
+      metaRoadmap.links === undefined ||
+      metaRoadmap.links === null ||
+      (
+        Array.isArray(metaRoadmap.links) &&
+        metaRoadmap.links.every((entry: JSONValue) => (
+          (
+            typeof entry === 'object' &&
+            entry !== null &&
+            !Array.isArray(entry)
+          ) &&
+
+          typeof entry.url === 'string' &&
+          (
+            typeof entry.description === 'string' ||
+            entry.description === undefined ||
+            entry.description === null
+          )
+        ))
+      )
+    )
+  )
+}
+
 /**
  * Handles POST requests to the metaRoadmap API
  */
 export async function POST(request: NextRequest) {
   const [session, metaRoadmap] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<MetaRoadmapInput>,
+    request.json() as Promise<JSONValue>,
   ]);
 
+  // Validate session
+  if (!session.user?.id) {
+    return Response.json({ message: 'Unauthorized' },
+      { status: 401, headers: { 'Location': '/login' } }
+    );
+  }
+
   // Validate request body
-  if (!metaRoadmap.name || !metaRoadmap.description) {
+  if (!isMetaRoadmapCreate(metaRoadmap)) {
     return Response.json({ message: 'Missing required input parameters' },
       { status: 400 }
     );
@@ -26,15 +256,8 @@ export async function POST(request: NextRequest) {
 
   // If given roadmap type is invalid or undefined, set it to OTHER
   metaRoadmap.type ??= RoadmapType.OTHER;
-  if (!Object.values(RoadmapType).includes(metaRoadmap.type)) {
+  if (!(metaRoadmap.type in RoadmapType)) {
     metaRoadmap.type = RoadmapType.OTHER;
-  }
-
-  // Validate session
-  if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
-      { status: 401, headers: { 'Location': '/login' } }
-    );
   }
 
   try {
@@ -144,6 +367,7 @@ export async function POST(request: NextRequest) {
         type: metaRoadmap.type,
         actor: metaRoadmap.actor,
         parentRoadmap: metaRoadmap.parentRoadmapId ? { connect: { id: metaRoadmap.parentRoadmapId } } : undefined,
+        // TODO: Deprecated
         links: {
           create: metaRoadmap.links?.map(link => {
             return {
@@ -187,11 +411,18 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   const [session, metaRoadmap] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<MetaRoadmapInput & { id: string, timestamp?: number }>,
+    request.json() as Promise<JSONValue>,
   ]);
 
+  // Validate session
+  if (!session.user?.id) {
+    return Response.json({ message: 'Unauthorized' },
+      { status: 401, headers: { 'Location': '/login' } }
+    );
+  }
+
   // Validate request body
-  if (!metaRoadmap.id || !metaRoadmap.name || !metaRoadmap.description) {
+  if (!isMetaRoadmapUpdate(metaRoadmap)) {
     return new Response(
       JSON.stringify({ message: 'Missing required input parameters' }),
       { status: 400 }
@@ -199,15 +430,11 @@ export async function PUT(request: NextRequest) {
   }
 
   // If given roadmap type is invalid, set it to OTHER. If type is undefined leave it be; it wont update the existing value in the database
-  if (metaRoadmap.type !== undefined && !Object.values(RoadmapType).includes(metaRoadmap.type)) {
+  if (
+    metaRoadmap.type !== undefined &&
+    !(metaRoadmap.type in RoadmapType)
+  ) {
     metaRoadmap.type = RoadmapType.OTHER;
-  }
-
-  // Validate session
-  if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
-      { status: 401, headers: { 'Location': '/login' } }
-    );
   }
 
   try {
@@ -337,8 +564,9 @@ export async function PUT(request: NextRequest) {
         description: metaRoadmap.description,
         type: metaRoadmap.type,
         actor: metaRoadmap.actor,
+        isPublic: metaRoadmap.isPublic,
         parentRoadmap: metaRoadmap.parentRoadmapId ? { connect: { id: metaRoadmap.parentRoadmapId } } : undefined,
-        links: {
+        links: (metaRoadmap.links === undefined ? undefined : {
           set: [],
           create: metaRoadmap.links?.map(link => {
             return {
@@ -346,12 +574,11 @@ export async function PUT(request: NextRequest) {
               description: link.description || undefined,
             }
           })
-        },
+        }),
         editors: { set: editors },
         viewers: { set: viewers },
         editGroups: { set: editGroups },
         viewGroups: { set: viewGroups },
-        isPublic: metaRoadmap.isPublic,
       },
       select: { id: true }
     });

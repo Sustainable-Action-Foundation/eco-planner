@@ -6,6 +6,8 @@ import path from "node:path";
 import { ServerSideT } from "./serverSide";
 import { ClientSideT } from "./clientSide";
 import { Stats } from "./stats";
+import { JSONValue } from "@/types";
+import { allowedProtocols } from "@/components/form/elements/textEditor/config/config";
 
 export default async function LocaleTestPage() {
   const t = await serveTea(allNamespaces);
@@ -15,6 +17,7 @@ export default async function LocaleTestPage() {
     date: new Date("2025-04-23T18:23:31.501Z"),
     fileTypes: [".txt", ".pdf", ".docx"],
     encodings: ["utf-8", "utf-16", "ascii"],
+    allowedProtocols: allowedProtocols,
   };
 
   const allFlattened = getAllJSONFlattened()[Locales.default];
@@ -168,7 +171,11 @@ function getAllJSONFlattened(): Record<string, Record<string, string>> {
   const allPermutations = uniqueLocales.flatMap(locale => allNamespaces.map(namespace => [locale, namespace]));
 
   allPermutations.map(([locale, namespace]) => {
-    const nsData = JSON.parse(fs.readFileSync(path.join("public/locales", locale, `${namespace}.json`), "utf-8"));
+    const nsData = JSON.parse(fs.readFileSync(path.join("public/locales", locale, `${namespace}.json`), "utf-8")) as JSONValue;
+    if (typeof nsData !== "object" || nsData === null || Array.isArray(nsData)) {
+      console.warn(`Skipping invalid JSON for locale "${locale}" and namespace "${namespace}":`, nsData);
+      return;
+    }
     const flattened = flattenTree(nsData);
     const prefixed = Object.fromEntries(Object.entries(flattened)
       .map(([key, value]) => [`${namespace}:${key}`, value])
@@ -177,16 +184,20 @@ function getAllJSONFlattened(): Record<string, Record<string, string>> {
   })
   return perLocale;
 }
-function flattenTree(obj: object) {
+function flattenTree(obj: Partial<{ [key: string]: JSONValue; }>) {
   const result: Record<string, string> = {};
 
-  const recurse = (obj: object, prefix = "") => {
+  const recurse = (obj: Partial<{ [key: string]: JSONValue; }>, prefix = "") => {
     for (const [key, value] of Object.entries(obj)) {
       const newPrefix = prefix ? `${prefix}.${key}` : key;
-      if (typeof value === "object") {
+      if (typeof value === "object" && value !== null && !Array.isArray(value)) {
         recurse(value, newPrefix);
       }
       else {
+        if (typeof value !== "string") {
+          console.warn(`Skipping non-string value for key "${newPrefix}":`, value);
+          continue;
+        }
         result[newPrefix] = value;
       }
     }

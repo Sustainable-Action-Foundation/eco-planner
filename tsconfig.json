@@ -110,17 +110,21 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "plugins": [ { "name": "next" } ]
+    "plugins": [ { "name": "next" } ],
+    "noErrorTruncation": true
   },
   "include": [
-    "next-env.d.ts",
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
+  ],
+  "files": [
+    "next-env.d.ts",
   ],
   "exclude": [
     "node_modules",
     "tests",
     "src/prisma/generated/**/*",
+    ".next",
   ]
 }

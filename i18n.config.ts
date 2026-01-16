@@ -5,11 +5,12 @@
 
 import { createInstance, InitOptions, TFunction } from "i18next";
 
-export enum Locales {
-  enSE = "en-SE",
-  svSE = "sv-SE",
-  default = enSE,
-};
+export const Locales = {
+  enSE: "en-SE",
+  svSE: "sv-SE",
+  default: "en-SE",
+} as const;
+export type Locales = (typeof Locales)[keyof typeof Locales];
 export const uniqueLocales = [...new Set(Object.values(Locales))];
 export const localeAliases: Record<Locales, string> = {
   [Locales.enSE]: "English",
@@ -19,7 +20,14 @@ export const localeAliases: Record<Locales, string> = {
 export const allNamespaces = ["common", "forms", "components", "graphs", "pages", "email", "metadata"];
 
 const i18nFormatter = createInstance();
-i18nFormatter.init({});
+i18nFormatter.init({}).catch((e: unknown) => {
+  if (e instanceof Error) {
+    throw new Error(`i18nFormatter initialization failed: ${e}`);
+  } else {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    throw new Error(`i18nFormatter initialization failed with non-error-typed error: ${e}`);
+  }
+});
 
 export function initTemplate(t: TFunction): InitOptions {
   return {
@@ -40,18 +48,22 @@ export function initTemplate(t: TFunction): InitOptions {
         /** There can be multiple formats */
         const formats = format.split(",").map((f) => f.trim()).filter(Boolean);
 
+        if (typeof options.interpolationkey !== "string") {
+          console.warn(`Value passed to formatter is not a string. Received: ${options.interpolationkey}, type: ${typeof options.interpolationkey}. Returning empty string.`);
+          return "";
+        }
+
         // Resolve the value with provided key
         let value: string | undefined = options.interpolationkey.includes("$t(") ? t(options.interpolationkey) : options.interpolationkey;
 
         // Guard against undefined values
         if (typeof value === "undefined") {
-          console.warn(`Value for key "${options.interpolationkey}" is undefined (Value: ${value}, type: ${typeof value}). Check the key and the translation file. Returning empty string.`);
+          console.warn(`Value for key "${options.interpolationkey}" is undefined (Value: ${value as string}, type: ${typeof value}). Check the key and the translation file. Returning empty string.`);
           return "";
         }
 
         // At this point a value is likely defined so if there are no formats, return the value
         if (formats.length < 1) return value;
-
 
         /* Default formatters */
         const defaultFormat = i18nFormatter.format(formatterValue, format, lng, options);
@@ -68,7 +80,7 @@ export function initTemplate(t: TFunction): InitOptions {
         }
         /* Relative time */
         if (formats.includes("timeAgo")) {
-          const date = options.date;
+          const date = options.date as Date | undefined;
           value = relativeTime(value, lng, date);
         }
 

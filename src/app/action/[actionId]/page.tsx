@@ -11,6 +11,7 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconEdit } from "@tabler/icons-react";
+import TextEditor from "@/components/form/elements/textEditor/editor";
 
 export async function generateMetadata(props: { params: Promise<{ actionId: string }> }) {
   const params = await props.params
@@ -74,21 +75,14 @@ export default async function Page(props: { params: Promise<{ actionId: string }
             <div className="flex-grow-100">
               <span style={{ color: 'gray' }}>{t("pages:action.action_label")}</span>
               <h1 className="margin-0">{action.name}</h1>
-              <p className="margin-0">{action.startYear} - {action.endYear}</p>
+              <p className="margin-top-0 margin-bottom-100">{action.startYear} - {action.endYear}</p>
               {action.description ?
-                <p>{action.description}</p>
-                : null}
-              {action.links.length > 0 ?
-                <>
-                  <h2 className="margin-bottom-0 margin-top-200" style={{ fontSize: '1.25rem' }}>{t("pages:common.external_resources")}</h2>
-                  <ul>
-                    {action.links.map((link: { url: string, description: string | null }, index: number) =>
-                      <li className="margin-block-25" key={index}>
-                        <a href={link.url} target="_blank">{link.description}</a>
-                      </li>
-                    )}
-                  </ul>
-                </>
+                <TextEditor
+                  id="rich-description"
+                  editable={false}
+                  defaultStyles={false}
+                  content={action.description}
+                />
                 : null}
             </div>
             {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
@@ -98,7 +92,7 @@ export default async function Page(props: { params: Promise<{ actionId: string }
                 style={{ width: 'fit-content', height: 'fit-content' }}
               >
                 {t("pages:action.edit_action")}
-                <IconEdit style={{minWidth: '24px'}} aria-hidden="true" />
+                <IconEdit style={{ minWidth: '24px' }} aria-hidden="true" />
               </Link>
               : null}
           </div>

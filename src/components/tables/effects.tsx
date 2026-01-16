@@ -7,6 +7,7 @@ import { TableMenu } from "./tableMenu/tableMenu.tsx";
 import { useTranslation } from "react-i18next";
 import styles from "@/components/tables/tables.module.css" with { type: "css" };
 import { IconCaretRightFilled } from "@tabler/icons-react";
+import { hasEditAccess } from "@/lib/accessChecker.ts";
 
 interface EffectTableComonProps {
   accessLevel?: AccessLevel,
@@ -34,7 +35,7 @@ export default function EffectTable({
     return (
       <p>{t("components:effects_table.no_effects")}
         { // Only show the button if the user has edit access to the object
-          [AccessLevel.Edit, AccessLevel.Author, AccessLevel.Admin].includes(accessLevel ?? AccessLevel.None) &&
+          hasEditAccess(accessLevel ?? AccessLevel.None) &&
           <span> {t("components:effects_table.wanna_create_effect")}&nbsp;
             <Link href={(object as Goal).indicatorParameter != undefined ? `/effect/create?goalId=${object.id}` : (object as Action).isSufficiency != undefined ? `/effect/create?actionId=${object.id}` : '/effect/create'}>
               {t("components:effects_table.create_new_effect")}
@@ -50,7 +51,7 @@ export default function EffectTable({
       {object.effects.map(effect => (
         <li key={`${effect.actionId}_${effect.goalId}`} className="margin-block-75">
           <div className='flex justify-content-space-between align-items-center width-100'>
-            <IconCaretRightFilled fill="lightgray" aria-hidden="true" className="margin-inline-25 padding-25" style={{minWidth: '24px'}} />
+            <IconCaretRightFilled fill="lightgray" aria-hidden="true" className="margin-inline-25 padding-25" style={{ minWidth: '24px' }} />
             <Link
               href={(object as Action).isSufficiency != undefined ? `/goal/${effect.goalId}` : `/action/${effect.actionId}`}
               className="font-weight-500 color-pureblack text-decoration-none flex-grow-100 inline-block padding-25 smooth">

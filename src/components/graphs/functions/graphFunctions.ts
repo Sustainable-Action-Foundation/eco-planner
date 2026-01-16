@@ -1,7 +1,7 @@
 import { getLocalStorage, getSessionStorage, setLocalStorage, setSessionStorage } from "@/functions/localStorage";
 import { GraphType } from "../graphGraph";
 import { ActionImpactType, type DataSeries, type Effect } from "@prisma/client";
-import { dataSeriesDataFieldNames, DataSeriesDataFields } from "@/types";
+import { Years, DataSeriesValueFields } from "@/types";
 import { ChildGraphType } from "../childGraphs/childGraphContainer";
 
 /** Retrieves the graph type for a goal from storage. */
@@ -27,16 +27,16 @@ export function getStoredGraphType(goalId?: string) {
   return graphType;
 }
 
-/** Retrieves the graph type for gcild graphs for a goal from storage. */
-export function getStoredChildGraphType(goalId?: string) {
-  let graphType: ChildGraphType | undefined | null;
+/** Retrieves the graph type for child graphs for a goal from storage. */
+export function getStoredChildGraphType(goalId?: string): ChildGraphType {
+  let graphType: string | undefined | null;
   // Check if this goal has a stored graph type
   if (goalId) {
-    graphType = getSessionStorage(goalId + '_childGraphType') as ChildGraphType | undefined | null;
+    graphType = getSessionStorage(goalId + '_childGraphType') as string | undefined | null;
   }
   // Check if the user has a stored latest graph type if no goalId is provided or the returned graphType is invalid
   if (!graphType || !Object.values(ChildGraphType).includes(graphType as ChildGraphType)) {
-    graphType = getLocalStorage("childGraphType") as ChildGraphType | undefined | null;
+    graphType = getLocalStorage("childGraphType") as string | undefined | null;
   }
   // Default to target graph if no valid graph type is found
   if (!graphType || !Object.values(ChildGraphType).includes(graphType as ChildGraphType)) {
@@ -47,7 +47,7 @@ export function getStoredChildGraphType(goalId?: string) {
     setLocalStorage("childGraphType", ChildGraphType.Target);
     graphType = ChildGraphType.Target;
   }
-  return graphType;
+  return graphType as ChildGraphType;
 }
 
 /** Stores the graph type for a goal in storage. */
@@ -69,7 +69,7 @@ export function setStoredChildGraphType(graphType: ChildGraphType, goalId?: stri
 /** Returns the first non-null, non-zero value from a data series. If all values are null or zero, returns null. */
 export function firstNonNullValue(dataSeries: DataSeries): number | null {
   if (!dataSeries) { return null; }
-  for (const i of dataSeriesDataFieldNames) {
+  for (const i of Years) {
     const value = dataSeries[i];
     if (Number.isFinite(value) && value !== 0) {
       return value;
@@ -97,13 +97,13 @@ export function calculatePredictedOutcome(effects: (Effect & { dataSeries: DataS
   if (isBaselineNumber && !Number.isFinite(baseline)) {
     return [];
   }
-  if (!isBaselineNumber && !dataSeriesDataFieldNames.every((field) => Object.keys(baseline).includes(field))) {
+  if (!isBaselineNumber && !Years.every((field) => Object.keys(baseline).includes(field))) {
     return [];
   }
 
   // Calculate total impact of actions/effects
-  const totalEffect: Partial<DataSeriesDataFields> = {};
-  for (const i of dataSeriesDataFieldNames) {
+  const totalEffect: Partial<DataSeriesValueFields> = {};
+  for (const i of Years) {
     for (const effect of effects) {
       if (effect.dataSeries && (effect.impactType === ActionImpactType.DELTA)) {
         if (!totalEffect[i]) {
@@ -113,7 +113,7 @@ export function calculatePredictedOutcome(effects: (Effect & { dataSeries: DataS
         // Add sum of all deltas up to this point for the current action
         let totalDelta = 0;
 
-        for (const j of dataSeriesDataFieldNames.slice(0, dataSeriesDataFieldNames.indexOf(i) + 1)) {
+        for (const j of Years.slice(0, Years.indexOf(i) + 1)) {
           if (effect.dataSeries[j] != null && Number.isFinite(effect.dataSeries[j])) {
             totalDelta += effect.dataSeries[j];
           }
@@ -130,7 +130,7 @@ export function calculatePredictedOutcome(effects: (Effect & { dataSeries: DataS
             break;
           case ActionImpactType.PERCENT:
             // Add previous year's (baseline + totalEffect) multiplied by current action as percent
-            const previous = dataSeriesDataFieldNames[dataSeriesDataFieldNames.indexOf(i) - 1];
+            const previous = Years[Years.indexOf(i) - 1];
             if (previous == undefined) {
               break;
             }
@@ -155,7 +155,7 @@ export function calculatePredictedOutcome(effects: (Effect & { dataSeries: DataS
   // Create output array
   const actionOutcome: { x: number, y: number | null }[] = [];
 
-  for (const i of dataSeriesDataFieldNames) {
+  for (const i of Years) {
     // Set value of baseline depending on its type
     const baselineValue = isBaselineNumber ? (baseline ?? NaN) : (baseline[i] ?? NaN);
     const effectValue = totalEffect[i] || 0;

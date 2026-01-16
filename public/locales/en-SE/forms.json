@@ -1,20 +1,20 @@
 {
   "access_selector": {
-    "groups_with_edit_access": "Groups with editing access",
-    "users_with_edit_access": "Users with editing access",
-    "remove_user": "Remove user",
-    "add_user": "Add user",
-    "groups_with_read_access": "Groups with read access",
-    "make_posts_public": "Show posts publicly",
-    "users_with_read_access": "Users with read access"
+    "me_only": "Only me",
+    "all_users": "All users",
+    "custom": "Select specific users and/or groups",
+    "users": "Users",
+    "select_users": "Select users",
+    "groups": "Groups",
+    "select_groups": "Select groups"
   },
   "action": {
-    "choose_relationship": "Specify the relationship to other posts",
-    "relationship_label": "Choose $t(common:roadmap_version_definite_one) to create $t(common:action_definite_one) under:",
-    "relationship_no_chosen": "Choose $t(common:roadmap_version_definite_one)",
+    "choose_relationship": "Which $t(common:roadmap_version_one) does your $t(common:action_one) belong to?",
+    "relationship_label": "$t(common:roadmap_version_one)",
+    "relationship_no_chosen": "Select $t(common:roadmap_version_one)",
     "action_description_legend": "Describe your $t(common:action_one)",
-    "action_name": "Name of $t(common:action_definite_one)",
-    "action_description": "Description of $t(common:action_definite_one)",
+    "action_name": "Name",
+    "action_description": "Description",
     "cost_efficiency": "Cost efficiency",
     "expected_outcome": "Expected outcome",
     "expected_effect_legend": "Specify expected $t(common:effect_one) of $t(common:action_definite_one)",
@@ -34,7 +34,17 @@
     "category_sufficiency": "Sufficiency",
     "category_efficiency": "Efficiency",
     "category_renewables": "Renewables",
-    "attach_external_resources": "Attach external resources"
+    "attach_external_resources": "Attach external resources",
+    "create": "Create $t(common:action_one)"
+  },
+  "combobox": {
+    "search_options": "Search among options",
+    "default_search_placeholder": "Type to search",
+    "select_single_option": "Select an option",
+    "select_multiple_options": "Select one or multiple options",
+    "select_or_leave": "Select or leave blank",
+    "show_suggestions": "Show suggestions",
+    "default_autocomplete_placeholder": "Type to view suggestions"
   },
   "data_series_input": {
     "data_series": "Data series",
@@ -45,7 +55,7 @@
     "year": "Year",
     "value": "Value",
     "advanced": "Advanced",
-    "data_series_advanced_info": "This field accepts a series of values separated by semicolons or tabs, which means you can paste a series of values from Excel or something similar.<br /><strong>NOTE: Values must not be separated by commas (\",\").</strong><br />Decimal numbers can use either decimal points or decimal commas.<br />The first value represents the year 2020 and the series can continue up to the year 2050 (a total of 31 values).<br />If values are missing for a year, you can leave it blank, for example \";1;;;;5\" can be used to specify the values 1 and 5 for the years 2021 and 2025."
+    "data_series_advanced_info": "This field accepts a series of values separated by semicolons or tabs. This means that you may paste a series of values from third party software such as Microsoft Excel or Google Sheets. The first value in the series represents the year 2020 continuing up to the year 2050 (a total of 31 values). If values are missing for a year, you may leave it blank, for example \";1;;;;5\" specifies the values 1 and 5 for the years 2021 and 2025 respectively. Decimal numbers may use either decimal points or decimal commas.<br /><br /> <strong>Important: Values must not be separated by commas (\",\").</strong>"
   },
   "effect": {
     "select_roadmap_version_for_action": "Select $t(common:roadmap_version_one) that the $t(common:action_one) is under",
@@ -66,30 +76,25 @@
       "absolute": "Absolute difference compared to baseline",
       "delta": "Change year by year (delta)",
       "percent": "Difference compared to baseline as a percentage of the previous year's total value (baseline + $t(common:action_other))"
-    }
+    },
+    "create": "Create $t(common:effect_one)"
   },
   "goal": {
-    "choose_relationship": "Specify the relationship to other posts",
-    "relationship_label": "Choose $t(common:roadmap_series_one) to $t(common:new.goal) under:",
+    "choose_relationship": "Which $t(common:roadmap_series_one) does your $t(common:goal_one) belong to?",
+    "relationship_label": "$t(common:roadmap_series_one)",
     "relationship_no_chosen": "Choose $t(common:roadmap_series_one)",
+    "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "data_series_type_legend": "Choose type of data series for your $t(common:goal_one)",
-    "data_series_type_label": "Data series",
-    "data_series_types": {
-      "static": "Manually specified",
-      "inherited": "Inherited",
-      "combined": "Combined"
-    },
+    "default_scaling_recipe": "Default scaling recipe",
+    "default_combination_recipe": "Default combination recipe",
     "goal_description_legend": "Describe your $t(common:goal_one)",
-    "goal_name": "Name of $t(common:goal_one)",
-    "goal_description": "Description of $t(common:goal_one)",
-    "choose_goal_data_series": "Describe how your {{$t(common:goal_one), possessive}} data is structured",
-    "scaling_legend": "Scaling",
-    "remove_scaling": "Remove scaling",
-    "add_scaling": "Add scaling",
-    "scaling_method_legend": "Scaling method:",
-    "resulting_factor": "Resulting scaling factor:",
-    "choose_baseline_for_actions": "Choose baseline for $t(common:action_other)",
-    "baseline_label": "Which baseline should be used when calculating {{$t(common:action_other), possessive}} $t(common:effect_other) on this $t(common:goal_one)?",
+    "goal_name": "Name",
+    "goal_description": "Description",
+    "choose_goal_data_series": "Input a data series for this $t(common:goal_one)",
+    "derive_data_series_manually": "Input manually",
+    "derive_data_series_recipe": "Derive from recipe",
+    "choose_baseline_for_actions": "Select a baseline for calculating {{$t(common:action_other), possessive}} $t(common:effect_other) on this $t(common:goal_one)",
+    "baseline_label": "Baseline",
     "baseline_types": {
       "initial": "First year value",
       "custom": "Custom baseline",
@@ -97,9 +102,7 @@
     },
     "attach_external_resources": "Attach external resources",
     "feature_this_goal": "Do you want to feature this $t(common:goal_one) in your $t(common:roadmap_version_one)?",
-    "feature_goal": "Feature this $t(common:goal_one)",
-    "scale_deprecated": "This $t(common:goal_one) contains a scale. Please bake the scale into the value or unit and then check this box. All scales will be removed in the future",
-    "remove_scale": "Remove scale, {{scale}}",
+    "feature_goal": "Yes, feature this $t(common:goal_one).",
     "leap_parameter": "LEAP parameter",
     "data_unit": "Data series unit",
     "unit_interpreted_as": "Unit interpreted as:",
@@ -113,14 +116,8 @@
     "invert_goal": "Invert the $t(common:goal_one) (divide by this $t(common:goal_one) rather than multiply)",
     "select_goal_as_baseline": "Select a $t(common:goal_one) to use as a baseline (values are copied rather than linked)",
     "data_missing": "DATA MISSING; ",
-    "baseline_copied": "Baseline, copied from selected $t(common:goal_one)"
-  },
-  "link_input": {
-    "name_label": "Name",
-    "name_placeholder": "e.g. SCB",
-    "url_label": "URL",
-    "url_placeholder": "https://example.com", 
-    "remove_link_aria_label": "remove link"
+    "baseline_copied": "Baseline, copied from selected $t(common:goal_one)",
+    "create": "Create $t(common:goal_one)"
   },
   "repeatable_scaling": {
     "specific_value_label": "With what value do you want to scale?",
@@ -146,34 +143,71 @@
     "roadmap_version_creation_error": "{{$t(common:roadmap_version_definite_one), titleCase}} could not be created.\n\nReason:\n {{error}}",
     "file_read_error": "The file could not be read: {{error}}",
     "unknown_error": "Unknown error",
-    "relationship_legend": "Specify the relationship to other posts",
-    "relationship_label": "{{$t(common:roadmap_series_one), titleCase}} that this is a new post in",
+    "relationship_legend": "Which $t(common:roadmap_series_one) does your $t(common:roadmap_version_one) belong to?",
+    "relationship_label": "$t(common:roadmap_series_one)",
     "relationship_no_chosen": "No $t(common:roadmap_series_one) chosen",
     "relationship_no_found": "You seem to not have access to any $t(common:roadmap_series_one)",
     "roadmap_target_label": "Version of $t(common:roadmap_series_definite_one) {{targetName}} this $t(common:roadmap_series_definite_one) is working towards",
     "roadmap_target_no_chosen": "No option chosen",
     "roadmap_target_always_latest": "Always latest version",
-    "roadmap_version_legend": "Describe $t(common:roadmap_version_definite_one)",
-    "roadmap_description": "Extra description of this $t(common:roadmap_version_one)",
+    "roadmap_version_legend": "Describe your $t(common:roadmap_version_one)",
+    "roadmap_description": "Description",
     "upload_goals": "Upload $t(common:goal_other)",
     "goal_accepted_formats": "{{$t(common:goal_other), titleCase}} <small> - accepted file types: {{fileTypes, list}} - accepted file encodings: {{encodings, list}}</small>",
     "inherit_goal_legend": "Choose $t(common:goal_one) to inherit",
     "change_read_access": "Adjust read access",
-    "change_edit_access": "Adjust editing access"
+    "change_edit_access": "Adjust editing access",
+    "legend_visibility": "Who may view the roadmap?",
+    "legend_editability": "Who may edit the roadmap?",
+    "create": "Create $t(common:roadmap_version_one)"
+  },
+  "text_editor_menu": {
+    "default_placeholder": "Write something...",
+    "undo": "Undo",
+    "redo": "Redo",
+    "font_size": {
+      "caption": "Font size",
+      "large": "Large text",
+      "normal": "Normal text",
+      "small": "Small text"
+    },
+    "grey_text": "Grey text",
+    "italic": "Italic",
+    "bold": "Bold",
+    "strike_through": "Strike through",
+    "underline": "Underline",
+    "superscript": "Superscript",
+    "subscript": "Subscript",
+    "highlight": "Highlight",
+    "bullet_list": "Bulleted list",
+    "numbered_list": "Numbered list",
+    "more": "More",
+    "link": {
+      "insert_link": "Insert link",
+      "edit_link": "Edit link",
+      "remove_link": "Remove link",
+      "text_tooltip": "Text to display (e.g. 'Eco Planner')",
+      "text_placeholder": "Eco Planner",
+      "url_tooltip": "URL (e.g. https://example.com)",
+      "url_placeholder": "https://example.com",
+      "apply": "Apply",
+      "url_parse_error": "Failed to parse URL",
+      "disallowed_protocol": "The protocol {{protocol}} is not allowed. Allowed protocols are: {{allowedProtocols, list}}"
+    }
   },
   "meta_roadmap": {
     "description_legend": "Describe your $t(common:roadmap_series_one)",
-    "roadmap_series_name": "Name $t(common:roadmap_series_definite_one)",
-    "roadmap_series_description": "Description of $t(common:roadmap_series_definite_one)",
+    "name": "Name",
+    "description": "Description",
     "actor_legend": "Choose responsible actor",
-    "roadmap_scope_label": "Type of $t(common:roadmap_series_one)",
+    "type": "Type",
     "no_chosen_roadmap_scope": "Choose a type",
-    "choose_actor": "Specify an actor",
-    "attach_external": "Attach external resources",
-    "change_read_access": "Adjust read access",
-    "change_edit_access": "Adjust editing access",
+    "actor": "Actor",
+    "legend_visibility": "Who may view the roadmap series?",
+    "legend_editability": "Who may edit the roadmap series?",
     "relationship_legend": "Is this $t(common:roadmap_series_one) working towards another $t(common:roadmap_series_one)?",
     "relationship_label": "Parent",
-    "relationship_no_chosen": "No parent"
+    "relationship_no_chosen": "No parent",
+    "create": "Create $t(common:roadmap_series_one)"
   }
 }

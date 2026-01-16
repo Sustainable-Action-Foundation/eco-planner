@@ -9,6 +9,7 @@ import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
 import { useTranslation } from "react-i18next";
 import { IconArrowBackUp, IconDotsVertical, IconEdit, IconPlus, IconTrashXFilled, IconX } from "@tabler/icons-react";
+import { hasEditAccess } from '@/lib/accessChecker';
 
 // General purpose button for roadmaps, goals and actions. 
 // Update the name of the component to reflect this
@@ -181,11 +182,11 @@ export function TableMenu(
         <button type="button" onClick={openMenu} className={styles.button} aria-label={t("components:table_menu.button_aria", { component: object.name || object.metaRoadmap?.name || t("components:table_menu.button_aria_alt") })}>
           <IconDotsVertical aria-hidden="true" width={width} height={height} />
         </button>
-        <dialog className={styles.menu} id={`${object.id}-menu`} onBlur={closeMenu} ref={menu} onKeyUp={closeMenu}>
+        <dialog className={styles.menu} id={`${typeof object.id === "string" ? object.id : object.id?.actionId + "-" + object.id?.goalId}-menu`} onBlur={closeMenu} ref={menu} onKeyUp={closeMenu}>
           <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between ${styles.menuHeading}`}>
             {/* Button to close menu */}
             <button type="button" aria-label={t("common:tsx.close")} onClick={closeMenu} className={styles.button} autoFocus >
-              <IconX aria-hidden="true" width={18} height={18} strokeWidth={3} style={{minWidth: '18px'}} />
+              <IconX aria-hidden="true" width={18} height={18} strokeWidth={3} style={{ minWidth: '18px' }} />
             </button>
             {/* Link to the object */}
             <Link href={selfLink} className={styles.menuHeadingTitle}>{object.name || object.metaRoadmap?.name}</Link>
@@ -193,33 +194,33 @@ export function TableMenu(
           {parentLink &&
             <Link href={parentLink} className={styles.menuAction}>
               <span>{parentDescription || parentLink}</span>
-              <IconArrowBackUp aria-hidden="true" style={{minWidth: '24px'}}/>
+              <IconArrowBackUp aria-hidden="true" style={{ minWidth: '24px' }} />
             </Link>
           }
-          {[AccessLevel.Admin, AccessLevel.Author, AccessLevel.Edit].includes(accessLevel ?? AccessLevel.None) ?
+          {hasEditAccess(accessLevel ?? AccessLevel.None) ?
             <>
               {creationLink &&
                 <Link href={creationLink} className={styles.menuAction}>
                   <span>{creationDescription}</span>
-                  <IconPlus aria-hidden="true" style={{minWidth: '24px'}}/>
+                  <IconPlus aria-hidden="true" style={{ minWidth: '24px' }} />
                 </Link>
               }
               {creationLink2 &&
                 <Link href={creationLink2} className={styles.menuAction}>
                   <span>{creationDescription2 || creationLink2}</span>
-                  <IconPlus aria-hidden="true" style={{minWidth: '24px'}}/>
+                  <IconPlus aria-hidden="true" style={{ minWidth: '24px' }} />
                 </Link>
               }
               <Link href={editLink} className={styles.menuAction}>
                 <span>{t("components:table_menu.edit")}</span>
-                <IconEdit aria-hidden="true" style={{minWidth: '24px'}}/>
+                <IconEdit aria-hidden="true" style={{ minWidth: '24px' }} />
               </Link>
               { // Admins and authors can delete items
                 (accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) &&
                 <>
                   <button type="button" className="width-100 transparent display-flex align-items-center justify-content-space-between padding-50" style={{ fontSize: '1rem' }} onClick={() => openModal(deletionRef)}>
                     {t("components:table_menu.delete")}
-                    <IconTrashXFilled aria-hidden="true" fill="#CB3C3C" style={{minWidth: '24px'}}/>
+                    <IconTrashXFilled aria-hidden="true" fill="#CB3C3C" style={{ minWidth: '24px' }} />
                   </button>
                   <ConfirmDelete modalRef={deletionRef} targetUrl={deleteLink} targetName={object.name || object.metaRoadmap?.name || t("components:table_menu.delete_missing_name")} targetId={object.id} />
                 </>

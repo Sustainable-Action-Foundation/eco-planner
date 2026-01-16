@@ -1,10 +1,9 @@
 import { colors } from "./colors.js";
-import { isNativeError } from "node:util/types";
 
 /** Unmodified console */
 export const __console = { ...console };
 
-const consoleColors: { [key: string]: (text: string) => string; } = {
+const consoleColors = {
   log: (text: string) => colors.gray(text),
   info: (text: string) => colors.blue(text),
   error: (text: string) => colors.red(colors.bold(text)),
@@ -14,25 +13,20 @@ const consoleColors: { [key: string]: (text: string) => string; } = {
 
 /* Apply modification */
 for (const [key, colorFunc] of Object.entries(consoleColors)) {
-  // @ts-expect-error - This is a valid method access
-  console[key] = (...args: unknown[]) => {
-    let color = colorFunc;
+  console[key as keyof typeof consoleColors] = (...args: unknown[]) => {
+    let color: (text: string) => unknown = colorFunc;
 
     /* Override color if first arg provides a color function */
-    // @ts-expect-error - It's fine
-    if (args?.[0]?._color) {
-      // @ts-expect-error - It's fine
-      color = args[0]._color;
+    if (Array.isArray(args) && typeof args[0] === "object" && "_color" in (args[0] ?? {}) && typeof (args[0] as { _color: unknown })._color === "function") {
+      color = (args[0] as { _color: () => unknown })._color;
       args = args.slice(1);
     }
 
     if (args.length === 1) {
-      // @ts-expect-error - This is a valid method access
-      __console[key](color(styleByType(args[0], { index: 0, argCount: 1, breakLine: true })));
+      __console[key as keyof typeof consoleColors](color(String(styleByType(args[0], { index: 0, argCount: 1, breakLine: true }))));
 
     } else {
-      // @ts-expect-error - This is a valid method access
-      __console[key](...args.map((arg, index) => color(styleByType(arg, { index: index, argCount: args.length, breakLine: true }))));
+      __console[key as keyof typeof consoleColors](...args.map((arg, index) => color(String(styleByType(arg, { index: index, argCount: args.length, breakLine: true })))));
     }
   }
 }
@@ -40,10 +34,9 @@ for (const [key, colorFunc] of Object.entries(consoleColors)) {
 function styleByType(value: unknown, options: Options): unknown {
   let type: Types = typeof value;
   // Error
-  if (value instanceof Error) type = "error";
-  // Error
-  else if (type === "object" && isNativeError(value)) type = "error";
-
+  if (Error.isError(value) || value instanceof Error) {
+    type = "error";
+  }
 
   if (type === "string") return styleString(value as string, options);
   if (type === "error") return styleError(value as Error, options);

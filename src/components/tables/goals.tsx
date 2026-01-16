@@ -14,21 +14,23 @@ import type getOneRoadmap from "@/fetchers/getOneRoadmap.ts"
 import { useTranslation } from "react-i18next"
 import { IconSearch } from '@tabler/icons-react'
 
-/** Enum for the different view modes for the goal table. */
-export enum ViewMode {
-  Table = "TABLE",
-  Tree = "TREE",
-  Actions = "ACTIONS"
-};
+/** Object containing the different view modes for the goal table. */
+export const ViewMode = {
+  Table: "TABLE",
+  Tree: "TREE",
+  Actions: "ACTIONS",
+} as const;
+export type ViewMode = (typeof ViewMode)[keyof typeof ViewMode];
 
-export enum GoalSortBy {
-  Default = "",
-  Alpha = "ALPHA",
-  AlphaReverse = "ALPHA REVERSE",
-  ActionsFalling = "HIGH FIRST",
-  ActionsRising = "LOW FIRST",
-  Interesting = "INTEREST",
-}
+export const GoalSortBy = {
+  Default: "",
+  Alpha: "ALPHA",
+  AlphaReverse: "ALPHA REVERSE",
+  ActionsFalling: "HIGH FIRST",
+  ActionsRising: "LOW FIRST",
+  Interesting: "INTEREST",
+} as const;
+export type GoalSortBy = (typeof GoalSortBy)[keyof typeof GoalSortBy];
 
 export default function Goals({
   roadmap,
@@ -67,8 +69,8 @@ export default function Goals({
       <menu className={`margin-bottom-100 flex justify-content-space-between align-items-flex-end flex-wrap-wrap gap-100 padding-0 margin-0 ${styles.tableNav}`}>
         <label className="font-weight-bold flex-grow-100">
           {t("components:goals.search")}
-          <div className="flex align-items-center margin-top-25 gray-90 padding-50 smooth focusable">
-            <IconSearch strokeWidth={1.5} style={{minWidth: '24px'}} aria-hidden="true" />
+          <div className="flex align-items-center margin-top-25 padding-50 smooth focusable">
+            <IconSearch strokeWidth={1.5} style={{ minWidth: '24px' }} aria-hidden="true" />
             <input type="search" className="padding-0 margin-inline-50" onChange={(e) => setSearchFilter(e.target.value)} />
           </div>
         </label>

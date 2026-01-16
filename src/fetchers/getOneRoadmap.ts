@@ -16,7 +16,7 @@ import { cookies } from "next/headers";
  */
 export default async function getOneRoadmap(id: string) {
   const session = await getSession(await cookies());
-  return getCachedRoadmap(id, session.user)
+  return await getCachedRoadmap(id, session.user)
 }
 
 /**
@@ -39,8 +39,7 @@ const getCachedRoadmap = unstable_cache(
           include: roadmapInclusionSelection
         });
       } catch (error) {
-        console.log(error);
-        console.log('Error fetching admin roadmap');
+        console.error(`Error fetching admin roadmap with ID ${id}:`, error);
         return null
       }
 
@@ -67,8 +66,7 @@ const getCachedRoadmap = unstable_cache(
           include: roadmapInclusionSelection
         });
       } catch (error) {
-        console.log(error);
-        console.log('Error fetching user roadmap');
+        console.error(`Error fetching roadmap with ID ${id} for user ${user.id}:`, error);
         return null
       }
 
@@ -87,8 +85,7 @@ const getCachedRoadmap = unstable_cache(
         include: roadmapInclusionSelection
       });
     } catch (error) {
-      console.log(error);
-      console.log('Error fetching public roadmap');
+      console.error(`Error fetching public roadmap with ID ${id}:`, error);
       return null
     }
 

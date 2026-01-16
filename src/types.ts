@@ -1,5 +1,24 @@
-import { ActionImpactType, DataSeries, Prisma } from "@prisma/client";
-import dataFieldArray from "./lib/dataSeriesDataFieldNames.json" with { type: "json" };
+import { ActionImpactType, Prisma, RoadmapType } from "@prisma/client";
+import { actionInclusionSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, roadmapInclusionSelection } from "./fetchers/inclusionSelectors";
+import { Years as GeneratedYears } from "./lib/dataSeriesCanonicalYears";
+import { Recipe } from "./functions/recipe-parser/types";
+
+/**
+ * A utility function for helping with finding where something fails in a typeguard chain.
+ * Meant to be used at the end of a chain of logical AND or OR operations, which would usually short-circuit, but call this function on failure.
+ * 
+ * Example:  
+ *   `ShouldBeTruthy1 && ShouldBeTruthy2 || typeguardDebug("Failed AND check");`
+ * 
+ * or:  
+ *   `ShouldBeTruthy1 || ShouldBeTruthy2 || typeguardDebug("Failed OR check");`
+ * 
+ * @returns `false`, so it can be used after an OR in logical operations without affecting the result.
+ */
+export function typeguardDebug(message: string): false {
+  console.debug(message);
+  return false;
+}
 
 /** An object that implements the AccessControlled interface can be checked with the accessChecker function. */
 export interface AccessControlled {
@@ -14,44 +33,40 @@ export interface AccessControlled {
   isPublic: boolean,
 };
 
-/** Enum for the different access levels returned by the accessChecker function. */
-export enum AccessLevel {
-  None = "",
-  View = "VIEW",
-  Edit = "EDIT",
-  Author = "AUTHOR",
-  Admin = "ADMIN",
-};
+/** Object and type for the different access levels returned by the accessChecker function. */
+export const AccessLevel = {
+  None: "",
+  View: "VIEW",
+  Edit: "EDIT",
+  Author: "AUTHOR",
+  Admin: "ADMIN",
+} as const;
+export type AccessLevel = (typeof AccessLevel)[keyof typeof AccessLevel];
 
-export enum ClientError {
-  AccessDenied = "You either don't have access to this entry or are trying to edit an entry that doesn't exist",
-  BadSession = "Bad session cookie; you have been logged out. Please log in and try again.",
-  IllegalParent = "You are trying to connect this object to a parent you don't have access to or that doesn't exist",
-  StaleData = "Stale data; please refresh and try again",
-};
+export const ClientError = {
+  AccessDenied: "You either don't have access to this entry or are trying to edit an entry that doesn't exist",
+  BadSession: "Bad session cookie; you have been logged out. Please log in and try again.",
+  IllegalParent: "You are trying to connect this object to a parent you don't have access to or that doesn't exist",
+  StaleData: "Stale data; please refresh and try again",
+} as const;
+export type ClientError = (typeof ClientError)[keyof typeof ClientError];
 
-/** Enum for different ways to get scalars for repeatableScaling and similar */
-export enum ScaleBy {
-  Custom = "CUSTOM",
-  Inhabitants = "INHABITANTS",
-  Area = "AREA",
+/** Object and type with the different types of sorting available for roadmaps */
+export const RoadmapSortBy = {
+  Default: "",
+  Alpha: "ALPHA",
+  AlphaReverse: "ALPHA REVERSE",
+  GoalsFalling: "HIGH FIRST",
+  GoalsRising: "LOW FIRST",
+} as const;
+export type RoadmapSortBy = (typeof RoadmapSortBy)[keyof typeof RoadmapSortBy];
+
+export function isStandardObject(object: unknown): object is object {
+  return typeof object === "object" && object != null && !Array.isArray(object);
 }
 
-/** Enum with the different types of sorting available for roadmaps */
-export enum RoadmapSortBy {
-  Default = "",
-  Alpha = "ALPHA",
-  AlphaReverse = "ALPHA REVERSE",
-  GoalsFalling = "HIGH FIRST",
-  GoalsRising = "LOW FIRST",
-}
-
-/** Different scaling methods used in scalingRecipie */
-export enum ScaleMethod {
-  Algebraic = "ALGEBRAIC",
-  Geometric = "GEOMETRIC",
-  Multiplicative = "MULTIPLICATIVE",
-}
+/** A regex to match UUIDs. Allows all UUIDs of all versions and variants, even non-standard ones, as specified by RFC 9562 */
+export const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
 
 /**
  * A type used by the breadcrumbs component to display the names of objects rather than their UUIDs.
@@ -80,48 +95,148 @@ export type GenericEntry = (
   }
 );
 
-/** Recipie containing all information needed to calculate a scale for a goal. Saved stringified in Goal.combinationScale in the db */
-export type ScalingRecipie = {
-  method?: ScaleMethod,
-  values: (SimpleScalingValue | AdvancedScalingValue)[]
-}
-
-export type SimpleScalingValue = {
-  type?: ScaleBy.Custom,
-  value: number,
-  weight?: number,
-}
-
-export type AdvancedScalingValue = {
-  type: ScaleBy.Area | ScaleBy.Inhabitants,
-  parentArea: string,
-  childArea: string,
-  weight?: number,
-}
-
 /** The return type of JSON.parse */
 export type JSONValue = Partial<{ [key: string]: JSONValue }> | JSONValue[] | string | number | boolean | null;
 
-export function isScalingRecipie(object: unknown): object is ScalingRecipie {
-  return (typeof object == "object" && (object as ScalingRecipie)?.values instanceof Array)
+// Usually part of an array with the type NameObject[]
+export type NameObject = Prisma.MetaRoadmapGetPayload<{
+  select: typeof nameSelector
+}>;
+
+export type MetaRoadmap = Prisma.MetaRoadmapGetPayload<{
+  include: typeof metaRoadmapInclusionSelection
+}>;
+
+export type Roadmap = Prisma.RoadmapGetPayload<{
+  include: typeof roadmapInclusionSelection
+}>;
+
+export type ClientRoadmap = Prisma.RoadmapGetPayload<{
+  select: typeof clientSafeRoadmapSelection
+}>;
+
+// Will usually be part of an array with the type MultiRoadmapInstance[]
+export type MultiRoadmapInstance = Prisma.RoadmapGetPayload<{
+  include: typeof multiRoadmapInclusionSelection
+}>;
+
+// Will usually be part of an array with the type ClientMultiRoadmapInstance[]
+export type ClientMultiRoadmapInstance = Prisma.RoadmapGetPayload<{
+  select: typeof clientSafeMultiRoadmapSelection
+}>;
+
+export type Goal = Prisma.GoalGetPayload<{
+  include: typeof goalInclusionSelection
+}>;
+
+export type ClientGoal = Prisma.GoalGetPayload<{
+  select: typeof clientSafeGoalSelection
+}>;
+
+export type Action = Prisma.ActionGetPayload<{
+  include: typeof actionInclusionSelection
+}>;
+
+export type Effect = Prisma.EffectGetPayload<{
+  include: typeof effectInclusionSelection
+}>;
+
+/** The format of data needed to create a new roadmap series */
+export type MetaRoadmapCreateInput = {
+  /**
+   * This type is derived from @type {Prisma.MetaRoadmapCreateInput}, but with some fields omitted in clear text for better intellisense readability and maintainability.
+   * 
+   * That being said, if the schema changes, this type will need to be updated manually.
+   */
+  /* Automatically managed by Prisma */
+  id?: never,
+  // createdAt?: Date | string,
+  // updatedAt?: Date | string,
+
+  name: string,
+  description: string,
+  type: RoadmapType | undefined,
+  actor: string | null | undefined,
+  isPublic: boolean | undefined,
+
+  /* Relational fields are handeled differently in our API */
+  // roadmapVersions?: RoadmapCreateNestedManyWithoutMetaRoadmapInput,
+  // parentRoadmap?: MetaRoadmapCreateNestedOneWithoutChildRoadmapsInput,
+  // childRoadmaps?: MetaRoadmapCreateNestedManyWithoutParentRoadmapInput,
+  // comments?: CommentCreateNestedManyWithoutMetaRoadmapInput,
+  // links?: LinkCreateNestedManyWithoutMetaRoadmapInput,
+  // author: UserCreateNestedOneWithoutAuthoredMetaRoadmapsInput,
+  // editors?: UserCreateNestedManyWithoutEditMetaRoadmapsInput,
+  // editGroups?: UserGroupCreateNestedManyWithoutEditMetaRoadmapInput,
+  // viewers?: UserCreateNestedManyWithoutViewMetaRoadmapsInput,
+  // viewGroups?: UserGroupCreateNestedManyWithoutViewMetaRoadmapInput,
+
+  /* 
+   * Non-prisma fields
+   * These are used to make the API more usable and nice to deal with due to formatting and types.
+   */
+  // Accepts lists of UUIDs for all of the following, to link them to the roadmap (optional)
+  editors: string[] | null | undefined;
+  viewers: string[] | null | undefined;
+  editGroups: string[] | null | undefined;
+  viewGroups: string[] | null | undefined;
+
+  // UUID for the parent meta roadmap (if any)
+  parentRoadmapId: string | null | undefined;
+
+  // TODO - DEPRECATED - Will be migrated to description
+  links: { url: string, description?: string }[] | null | undefined;
 }
 
-/** The format of the data needed to create new roadmap metadata. */
-export type MetaRoadmapInput = Omit<
-  Prisma.MetaRoadmapCreateInput,
-  'id' | 'createdAt' | 'updatedAt' | 'author' | 'editors' |
-  'viewers' | 'editGroups' | 'viewGroups' | 'comments' | 'links' |
-  'roadmapVersions' | 'parentRoadmap' | 'childRoadmaps'
-> & {
-  links?: { url: string, description?: string }[] | undefined;
+/** The format of data needed to update an existing data series. When compared to MetaRoadmapCreateInput, this type allows most fields to be undefined, indicating that they should not be changed. */
+export type MetaRoadmapUpdateInput = {
+  /**
+   * This type is derived from @type {Prisma.MetaRoadmapCreateInput}, but with some fields omitted in clear text for better intellisense readability and maintainability.
+   * 
+   * That being said, if the schema changes, this type will need to be updated manually.
+   */
+  /* Automatically managed by Prisma */
+  // createdAt?: Date | string,
+  // updatedAt?: Date | string,
+
+  id: string,
+  name: string | undefined,
+  description: string | undefined,
+  type: RoadmapType | undefined,
+  actor: string | null | undefined,
+  isPublic: boolean | undefined,
+
+  /* Relational fields are handeled differently in our API */
+  // roadmapVersions?: RoadmapCreateNestedManyWithoutMetaRoadmapInput,
+  // parentRoadmap?: MetaRoadmapCreateNestedOneWithoutChildRoadmapsInput,
+  // childRoadmaps?: MetaRoadmapCreateNestedManyWithoutParentRoadmapInput,
+  // comments?: CommentCreateNestedManyWithoutMetaRoadmapInput,
+  // links?: LinkCreateNestedManyWithoutMetaRoadmapInput,
+  // author: UserCreateNestedOneWithoutAuthoredMetaRoadmapsInput,
+  // editors?: UserCreateNestedManyWithoutEditMetaRoadmapsInput,
+  // editGroups?: UserGroupCreateNestedManyWithoutEditMetaRoadmapInput,
+  // viewers?: UserCreateNestedManyWithoutViewMetaRoadmapsInput,
+  // viewGroups?: UserGroupCreateNestedManyWithoutViewMetaRoadmapInput,
+
+  /* 
+   * Non-prisma fields
+   * These are used to make the API more usable and nice to deal with due to formatting and types.
+   */
   // Accepts lists of UUIDs for all of the following, to link them to the roadmap (optional)
-  editors?: string[] | undefined;
-  viewers?: string[] | undefined;
-  editGroups?: string[] | undefined;
-  viewGroups?: string[] | undefined;
+  editors: string[] | null | undefined;
+  viewers: string[] | null | undefined;
+  editGroups: string[] | null | undefined;
+  viewGroups: string[] | null | undefined;
+
   // UUID for the parent meta roadmap (if any)
-  parentRoadmapId?: string | undefined;
-};
+  parentRoadmapId: string | null | undefined;
+
+  // Timestamp to check if the user is trying to update based on stale data
+  timestamp: number;
+
+  // TODO - DEPRECATED - Will be migrated to description
+  links: { url: string, description?: string }[] | null | undefined;
+}
 
 /** The format of the data needed to create a new roadmap version. */
 export type RoadmapInput = Omit<
@@ -137,31 +252,198 @@ export type RoadmapInput = Omit<
   // UUID for the meta roadmap this roadmap belongs to
   metaRoadmapId: string;
   // Used in API to inherit the goals with the given IDs from other roadmaps
+  // TODO: DEPRECATED - remove this prop since it should be recipe derived
   inheritFromIds?: string[] | null | undefined;
-  // Version numbers are assigned by the API
+  // Version numbers are assigned by the API and therefore omitted
 };
 
-/** The format of the data needed to create a new goal. */
-export type GoalInput = Omit<
-  Prisma.GoalCreateInput,
-  'id' | 'createdAt' | 'updatedAt' | 'roadmap' | 'author' | 'dataSeries' | 'baselineDataSeries' |
-  'links' | 'comments' | 'actions' | 'combinationParents' | 'combinationChildren' | 'effects'
-> & {
-  // This will be turned into an actual dataSeries object by the API
-  // The expected input is a stringified array of floats
-  dataSeries?: string[];
-  baselineDataSeries?: string[] | undefined | null;
-  // The unit of measurement for the data series
-  dataUnit: string;
-  // Scale of the data, for example "millions"
-  // Deprecated, please bake the scale into the data series values or unit
-  // For example {value: 10, scale: "thousands"} => {value: 10000}
-  // or {scale: "millions", unit: "kW"} => {unit: "GW"}
-  dataScale?: string | undefined | null;
-  // Array of IDs of goals for combinationParents
-  inheritFrom?: { id: string, isInverted?: boolean }[] | undefined | null;
-  links?: { url: string, description?: string | undefined | null }[] | undefined | null;
-};
+/** 
+ * The format of the data needed to create a new roadmap version.
+ * 
+ * This type is derived from @type {Prisma.RoadmapCreateInput} but with some fields omitted in clear text for better intellisense readability and maintainability.
+ * 
+ * That being said, if the schema changes, this type will need to be updated manually.
+ */
+export type RoadmapCreateInput = {
+  // To differentiate between create and update
+  roadmapId?: never;
+  timestamp?: never; // Not needed when creating
+
+  // id: string | undefined; // Created by the API
+  // createdAt: string | Date | undefined; // Created by the API
+  // updatedAt: string | Date | undefined; // Created by the API
+  // version: number;  // Created by the API
+
+  // Basic meta
+  targetVersion: number | null | undefined;
+  description: string | null | undefined;
+  isPublic: boolean | undefined;
+
+  // Relations
+  metaRoadmapId: string;
+  // comments: Prisma.CommentCreateNestedManyWithoutRoadmapInput; // Cannot be created with a new roadmap
+  // goals: Prisma.GoalCreateNestedManyWithoutRoadmapInput;
+  goals: GoalCreateInput[] | null | undefined;
+  // actions: Prisma.ActionCreateNestedManyWithoutRoadmapInput; // Cannot be created with a new roadmap
+
+  // Access control
+  // author: Prisma.UserCreateNestedOneWithoutAuthoredRoadmapsInput; // Derived from session in the API
+  editors: string[] | null | undefined;
+  editGroups: string[] | null | undefined;
+  viewers: string[] | null | undefined;
+  viewGroups: string[] | null | undefined;
+
+  // TODO - DEPRECATED - Will be migrated to description
+  links: { url: string, description?: string | null }[] | null | undefined;
+}
+
+/** 
+ * The format of the data allowed to update an existing roadmap version.
+ * 
+ * This type is derived from @type {Prisma.RoadmapUpdateInput} but with some fields omitted in clear text for better intellisense readability and maintainability.
+ * 
+ * That being said, if the schema changes, this type will need to be updated manually.
+ */
+export type RoadmapUpdateInput = {
+  // Required to find this roadmap
+  roadmapId: string;
+
+  // Stale data check
+  timestamp: number; // From Date.now() i.e. milliseconds since epoch
+
+  // createdAt: string | Date | undefined; // Handled by the API
+  // updatedAt: string | Date | undefined; // Handled by the API
+  // version: number; // Handled by the API
+
+  // Basic meta
+  description: string | null | undefined;
+  targetVersion: number | null | undefined;
+  isPublic: boolean | undefined;
+
+  // Relations
+  metaRoadmapId?: never; // Can't reassign the meta roadmap of an existing roadmap. IT WOULD BE MAYHEM.
+  // comments: Prisma.CommentUpdateManyWithoutRoadmapNestedInput; // Cannot be updated from the roadmap
+  // goals: Prisma.GoalUpdateManyWithoutRoadmapNestedInput;
+  goals: GoalCreateInput[] | null | undefined;
+  // actions: Prisma.ActionUpdateManyWithoutRoadmapNestedInput; // Cannot be updated from the roadmap
+
+  // Access control
+  // author: Prisma.UserUpdateOneRequiredWithoutAuthoredRoadmapsNestedInput;
+  editors: string[] | null | undefined;
+  editGroups: string[] | null | undefined;
+  viewers: string[] | null | undefined;
+  viewGroups: string[] | null | undefined;
+
+  // TODO - DEPRECATED - Will be migrated to description
+  links: { url: string, description?: string | null }[] | null | undefined;
+}
+
+/**
+ * The format of the data needed to create a new goal.
+ * 
+ * This type is derived from @type {Prisma.GoalCreateInput} but with some fields omitted in clear text for better intellisense readability and maintainability.
+ * 
+ * That being said, if the schema changes, this type will need to be updated manually.
+ */
+export type GoalCreateInput = {
+  goalId?: never; // Ignored when creating
+  timestamp?: never; // Ignored when creating
+
+  // id: string | undefined; // Gets created automatically // Created by the API
+  // createdAt: string | Date | undefined; // Gets set automatically // Created by the API
+  // updatedAt: string | Date | undefined; // Gets set automatically // Created by the API
+
+  // Basic meta
+  name: string | null | undefined;
+  description: string | null | undefined;
+  indicatorParameter: string;
+  isFeatured: boolean | undefined;
+
+  // External data source
+  externalDataset: string | null | undefined;
+  externalTableId: string | null | undefined;
+  externalSelection: string | null | undefined;
+
+  // Recipes
+  recipeUsed: Recipe | null | undefined; // Note: not the hash, the entire recipe object. Server will hash safely.
+  // TODO: Creating recipe suggestions is a future feature
+  // recipeSuggestions: Recipe[] | null | undefined; // Note: not the hashes, the entire recipe objects. Server will hash safely.
+
+  /* 
+   * TODO: DEPRECATE - raw data series should be made into data series before posting to the API and use 1:1 recipes instead 
+   */
+  // Data series
+  rawDataSeries: DataSeriesValueFields | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
+  rawDataSeriesUnit: string | null | undefined; // Combines with rawDataSeries in the API
+  // TODO: send baselines as a DataSeriesValueFields object in the future for consistency's sake
+  rawBaselineDataSeries: DataSeriesValueFields | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
+  rawBaselineDataSeriesUnit: string | null | undefined; // Combines with rawBaselineDataSeries in the API
+
+  // Relations
+  // authorId: string; // Derived from session in the API
+  // effects: Prisma.EffectCreateNestedManyWithoutGoalInput; // Cannot be created with a new goal
+  roadmapId: string;
+  // comments: Prisma.CommentCreateNestedManyWithoutGoalInput; // Cannot be created with a new goal
+  rawTags: string[] | null | undefined; // Transform into tags relation in the server side API
+
+  // TODO: Deprecated - will be moved to description
+  links: { url: string, description?: string | null }[] | null | undefined;
+}
+
+/**
+ * The format of the data allowed to update an existing goal.
+ * 
+ * This type is derived from @type {Prisma.GoalUpdateInput} but with some fields omitted in clear text for better intellisense readability and maintainability.
+ * 
+ * That being said, if the schema changes, this type will need to be updated manually.
+ */
+export type GoalUpdateInput = {
+  // Required to find this goal
+  goalId: string;
+
+  // Stale data check
+  timestamp: number; // From Date.now() i.e. milliseconds since epoch
+
+  // id: string | undefined; // Gets created automatically
+  // createdAt: string | Date | undefined; // Gets set automatically
+  // updatedAt: string | Date | undefined; // Gets set automatically
+
+  // Basic meta
+  name: string | null | undefined;
+  description: string | null | undefined;
+  indicatorParameter: string | undefined;
+  isFeatured: boolean | undefined;
+
+  // External data source
+  externalDataset: string | null | undefined;
+  externalTableId: string | null | undefined;
+  externalSelection: string | null | undefined;
+
+  // Recipes
+  recipeUsed: Recipe | null | undefined; // Note: not the hash, the entire recipe object. Server will hash safely.
+  // TODO: Creating recipe suggestions is a future feature
+  // recipeSuggestions: Recipe[] | null | undefined; // Note: not the hashes, the entire recipe objects. Server will hash safely.
+
+  /* 
+   * TODO: DEPRECATE - raw data series should be made into data series before posting to the API and use 1:1 recipes instead 
+   */
+  // Data series
+  rawDataSeries: DataSeriesValueFields | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
+  rawDataSeriesUnit: string | null | undefined; // Combines with rawDataSeries in the API
+  // TODO: send baselines as a DataSeriesValueFields object in the future for consistency's sake
+  rawBaselineDataSeries: DataSeriesValueFields | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
+  rawBaselineDataSeriesUnit: string | null | undefined; // Combines with rawBaselineDataSeries in the API
+
+  // Relations
+  // authorId: string; // Derived from session in the API
+  // effects: Prisma.EffectCreateNestedManyWithoutGoalInput; // Cannot be updated from the goal
+  roadmapId?: never; // Ignored when updating; Can't reassign the roadmap of an existing goal
+  // comments: Prisma.CommentCreateNestedManyWithoutGoalInput; // Cannot be updated from the goal
+  rawTags: string[] | null | undefined; // Transform into tags relation in the server side API
+
+  // TODO: Deprecated - will be moved to description
+  links: { url: string, description?: string | null }[] | null | undefined;
+}
 
 /** The format of the data needed to create a new action. */
 export type ActionInput = Omit<
@@ -189,13 +471,39 @@ export type EffectInput = Omit<
   dataSeries: string[] | undefined;
 };
 
-/** A type with only the data fields of the data series object. Not dynamic, so might need to be updated if the data series object changes. */
-export type DataSeriesDataFields = Omit<
-  DataSeries,
-  'author' | 'unit' | 'scale' | 'id' | 'createdAt' | 'updatedAt' |
-  'editors' | 'viewers' | 'editGroups' | 'viewGroups' | 'authorId' |
-  'goalId' | 'baselineGoalId' | 'effectActionId' | 'effectGoalId'
->;
 
-/** An array containing the keys of the actual data fields in the data series object. Generated by the getDataSeriesValueFieldNames script at build time. */
-export const dataSeriesDataFieldNames = dataFieldArray as (keyof DataSeriesDataFields)[];
+// These are derived from the schema file through the getDataSeriesValueFieldNames script
+export const Years = GeneratedYears;
+export type Years = (typeof Years)[number];
+
+export type DataSeriesValueFields = Record<Years, number | null>;
+export type DataSeriesValueFieldsWithUnit = DataSeriesValueFields & { unit: string | null | undefined };
+export function isPartialDataSeriesValueFields(
+  dataSeries: JSONValue,
+): dataSeries is Partial<DataSeriesValueFields> {
+  return (
+    typeof dataSeries === 'object' &&
+    dataSeries != null &&
+    !Array.isArray(dataSeries) &&
+    Object.keys(dataSeries).every(year => Years.includes(year as Years))
+  );
+}
+export function isFullDataSeriesValueFields(
+  dataSeries: Partial<DataSeriesValueFields>,
+): dataSeries is DataSeriesValueFields {
+  return Object.keys(dataSeries).length === Years.length && Years.every(year => year in dataSeries);
+}
+export const nullFullDataSeriesValueField: DataSeriesValueFields = Years.reduce((obj, year) => {
+  obj[year] = null;
+  return obj;
+}, {} as DataSeriesValueFields);
+
+
+/* TODO INPUT_UPDATES */
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    underlineSpan: {
+      toggleUnderline: () => ReturnType
+    }
+  }
+}

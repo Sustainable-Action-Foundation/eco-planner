@@ -10,10 +10,11 @@ import ChildGraphSelector from "../graphSelector/childGraphSelector";
 import { useTranslation } from "react-i18next";
 import { IconChartAreaLineFilled } from "@tabler/icons-react";
 
-export enum ChildGraphType {
-  Target = "TARGET",
-  Prediction = "PREDICTION",
-}
+export const ChildGraphType = {
+  Target: "TARGET",
+  Prediction: "PREDICTION",
+} as const;
+export type ChildGraphType = (typeof ChildGraphType)[keyof typeof ChildGraphType];
 
 export default function ChildGraphContainer({
   goal,
@@ -54,7 +55,7 @@ export default function ChildGraphContainer({
         <ChildGraphSelector goal={goal} currentSelection={childGraphType} setter={setChildGraphType} />
         <button
           className="display-flex align-items-center gap-50 gray-90 font-weight-500"
-          style={{ width: 'fit-content', fontSize: '.75rem', padding: '.3rem .6rem' }}
+          style={{ width: 'fit-content', fontSize: '.75rem', padding: '.3rem .6rem', lineHeight: '1.5' }}
           type="button" onClick={() => setIsStacked(!isStacked)}
         >
           {t("graphs:common.change_graph_type")}

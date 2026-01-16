@@ -1,4 +1,19 @@
+import { isStandardObject } from "@/types";
+import { ApiTableContent } from "./apiTypes";
+
+export type DatasetKeys = "SCB" | "Trafa" | "SSB";
+export type DatasetData = {
+  baseUrl: string,
+  userFacingUrl: string,
+  supportedLanguages: string[],
+  api: "PxWeb" | "Trafa",
+  fullName?: string,
+  alternateNames?: string[]
+};
+
 /**
+ * # **DOCSTRING OUTDATED**
+ * 
  * Key-value pairs of of external datasets.
  * @param key The key is the name of the dataset, e.g. "SCB" or "Trafa".
  * @param baseUrl The base URL points to the base of the API, without a trailing slash, e.g. "https://api.scb.se/ov0104/v2beta/api/v2".
@@ -8,84 +23,191 @@
  * @param api Api is which api the dataset is using.
  * @param fullName Full name is the full name of the dataset as the key will usually be a shorthand for the full name.
  */
-export const externalDatasets: { [key: string]: { baseUrl: string, userFacingUrl: string, supportedLanguages: string[], api: string, fullName?: string, alternateNames?: string[] } | undefined } = {
-  "SCB": {
-    baseUrl: "https://api.scb.se/ov0104/v2beta/api/v2/",
-    userFacingUrl: "https://www.statistikdatabasen.scb.se/pxweb/sv/ssd/",
+export class ExternalDataset {
+  // PxWeb-based APIs
+  /** An API provided by Swedish SCB, using the PxWeb API v2 */
+  static SCB: DatasetData = {
+    baseUrl: "https://statistikdatabasen.scb.se/api/v2/",
+    userFacingUrl: "https://www.statistikdatabasen.scb.se/",
     supportedLanguages: ["sv", "en"],
     api: "PxWeb",
     fullName: "Statistiska centralbyrån",
     alternateNames: ["scb", "statistics sweden"]
-  },
-  "Trafa": {
+  };
+  static scb = this.SCB;
+
+  /** An API provided by Norwegian SSB, using the PxWeb API v2 */
+  static SSB: DatasetData = {
+    baseUrl: "https://data.ssb.no/api/pxwebapi/v2/",
+    userFacingUrl: "https://www.ssb.no/statbank2/",
+    supportedLanguages: ["no", "en"],
+    api: "PxWeb",
+    fullName: "Statistisk sentralbyrå",
+    alternateNames: ["statistisk sentralbyrå", "statistics norway"]
+  };
+  static ssb = this.SSB;
+
+
+  // Trafa-based APIs
+  /** An API provided by Swedish Trafikanalys, with their own data format */
+  static Trafa: DatasetData = {
     baseUrl: "https://api.trafa.se/api/",
     userFacingUrl: "https://www.trafa.se/sidor/statistikportalen/",
     supportedLanguages: ["sv"],
     api: "Trafa",
     fullName: "Trafikanalys",
     alternateNames: ["trafa"]
-  },
-  "SSB": {
-    baseUrl: "https://data.ssb.no/api/pxwebapi/v2-beta/",
-    userFacingUrl: "https://www.ssb.no/statbank/",
-    supportedLanguages: ["no", "en"],
-    api: "PxWeb",
-    fullName: "Statistisk sentralbyrå",
-    alternateNames: ["statistisk sentralbyrå", "statistics norway"]
-  }
-  // Add more datasets as they implement the PxWeb API v2
-  // "SSB": "some url",
-  // "stat.fi": "some url",
-  // ...
-}
+  };
+  static trafa = this.Trafa;
 
-/**
- * @param apiNames a string or an array of strings that represent the api(s) to filter by
- * @returns list of datasets that use specified api(s)
- */
-export function getDatasetKeysOfApis(apiNames: string | string[]): string[] { return typeof apiNames == "string" ? Object.keys(externalDatasets).filter(key => externalDatasets[key]?.api === apiNames) : Object.keys(externalDatasets).filter(key => apiNames.includes(externalDatasets[key]?.api as string)); }
 
-export function parsePeriod(period: string) {
-  period = period.trim().toUpperCase();
-  // If period is a quarter (kvartal)
-  if (period.includes("Q") || period.includes("K")) {
-    // Return a date based on year and first month of the quarter
-    return new Date(Date.UTC(parseInt(period.split(/[QK]/)[0]), (parseInt(period.split(/[QK]/)[1]) - 1) * 3));
-  }
-  // If period is a month (månad)
-  else if (period.includes("M")) {
-    // Return a date based on year and month
-    return new Date(Date.UTC(parseInt(period.split("M")[0]), parseInt(period.split("M")[1]) - 1));
-  }
-  // If period is a week (vecka)
-  else if (period.includes("W") || period.includes("V")) {
-    // Return a date based on year and first day of ISO week
-    // Why can't JS natively parse all ISO 8601 strings ;^;
-    const year = parseInt(period.split(/[WV]/)[0]);
-    const week = parseInt(period.split(/[WV]/)[1]);
-    const date = new Date(Date.UTC(year, 0, 1));
-    // The first week of the year always contains the 4th of January
-    // This allows us to calculate an offset between the first day of the year and the first day of the first week
-    const dayOffset = new Date(Date.UTC(year, 0, 4)).getDay() + 3;
-    // If Jan 1 is a Sunday, we'll see this returning 1 + 7 - 10 = -2 for week 1, meaning that the first week starts Dec 29 previous year
-    // If Jan 1 is a Monday, we'll see this returning 1 + 7 - 4 = 4 for week 1, meaning that the first week starts Jan 4
-    date.setDate(1 + (week) * 7 - dayOffset);
-    return date;
-  }
-  // If none of the above match, assume it's a year and try to parse it as such (might return an invalid date)
-  else {
-    return new Date(Date.UTC(parseInt(period), 0));
-  }
-}
+  // Utility methods and properties
+  /** A list of dataset keys with "canonical" casing. Should match the main keys of the class and be safe to use everywhere */
+  static knownDatasetKeys: DatasetKeys[] = ["SCB", "SSB", "Trafa"];
 
-export function getDatasetKeyFromAlternateName(name: string): string | null {
-  name = name.toLowerCase().trim();
-  // Check if the name matches any of the dataset alternate names
-  for (const key in externalDatasets) {
-    if (externalDatasets[key]?.alternateNames?.includes(name)) {
-      return key;
+  /**
+   * Returns a list of datasets using the specified API(s).
+   */
+  static getDatasetsByApi(apiName: DatasetData["api"] | (DatasetData["api"])[]): DatasetKeys[] {
+    if (typeof apiName === "string") {
+      const entries = Object.entries(this)
+        .filter(([, value]) => typeof value === "object" && "api" in value && (value as DatasetData).api === apiName)
+        .filter(([key]) => this.knownDatasetKeys.includes(key as DatasetKeys));
+
+      return entries.map(([key]) => key as DatasetKeys);
+    } else if (Array.isArray(apiName)) {
+      const datasets: DatasetKeys[] = [];
+      for (const api of apiName) {
+        const keys = this.getDatasetsByApi(api);
+        if (keys) {
+          datasets.push(...keys);
+        }
+      }
+      return datasets.filter((value, index, self) => self.indexOf(value) === index); // Remove duplicates
+    } else {
+      return [];
     }
   }
-  // If no match is found, return null
-  return null;
+
+  /**
+   * Searches for a dataset by any of its alternate names, full name, or key,
+   * and returns the dataset data if found.
+   */
+  static getDatasetByAlternateName(alternateName: string): DatasetData | null {
+    if (!alternateName || typeof alternateName !== "string") {
+      return null;
+    }
+
+    if (alternateName in ExternalDataset) {
+      const dataset = ExternalDataset[alternateName as keyof typeof ExternalDataset];
+      if (dataset && typeof dataset === "object" && "baseUrl" in dataset) {
+        return dataset;
+      } else {
+        return null;
+      }
+    }
+
+    const lowerAlternateName = alternateName.toLowerCase();
+    if (lowerAlternateName in ExternalDataset) {
+      const dataset = ExternalDataset[lowerAlternateName as keyof typeof ExternalDataset];
+      if (dataset && typeof dataset === "object" && "baseUrl" in dataset) {
+        return dataset;
+      } else {
+        return null;
+      }
+    }
+
+    const entries: [string, string[]][] = Object.entries(ExternalDataset)
+      .map(([key, value]) => {
+        if (!((o: unknown): o is DatasetData => {
+          return isStandardObject(o) && "fullName" in o && "alternateNames" in o;
+        })(value)) {
+          return undefined; // Skip if value is not a DatasetData object
+        }
+        return [key.toLowerCase(), [key, value.fullName, ...(value.alternateNames || [])].map(alias => alias?.toLowerCase())];
+      })
+      .filter(Boolean) as [string, string[]][];
+
+    const datasetName: string | null = entries.find(([, aliases]) => aliases.includes(lowerAlternateName))?.[0] ?? null;
+
+    if (!datasetName || !(datasetName in ExternalDataset)) {
+      return null;
+    }
+
+    const dataset = ExternalDataset[datasetName as keyof typeof ExternalDataset];
+    if (dataset && typeof dataset === "object" && "baseUrl" in dataset) {
+      return dataset;
+    } else {
+      return null;
+    }
+  }
+}
+
+export function parsePeriod(period: string): Date {
+  period = period.trim().toUpperCase();
+
+  const quarterDividers = ["Q", "K"];
+  const monthDividers = ["M"];
+  const weekDividers = ["W", "V"];
+
+  // If period is a quarter (kvartal)
+  const hasQuarterDivider = quarterDividers.find(divider => period.includes(divider));
+  if (hasQuarterDivider) {
+    const parts = period.split(hasQuarterDivider);
+    return new Date(Date.UTC(
+      parseInt(parts[0]), // Year
+      (parseInt(parts[1]) - 1) * 3) // Month (0-indexed, so subtract 1 and multiply by 3 to align to quarters)
+    );
+  }
+
+  // If period is a month (månad)
+  const hasMonthDivider = monthDividers.find(divider => period.includes(divider));
+  if (hasMonthDivider) {
+    const parts = period.split(hasMonthDivider);
+    return new Date(Date.UTC(
+      parseInt(parts[0]), // Year
+      parseInt(parts[1]) - 1) // Month (0-indexed, so subtract 1)
+    );
+  }
+
+  // If period is a week (vecka)
+  const hasWeekDivider = weekDividers.find(divider => period.includes(divider));
+  if (hasWeekDivider) {
+    const parts = period.split(hasWeekDivider);
+
+    const year = parseInt(parts[0]);
+    const week = parseInt(parts[1]);
+
+    // The first week of the year always contains the 4th of January
+    // This allows us to calculate an offset between the first day of the year and the first day of the first week
+    const dayOffset = new Date(Date.UTC(year, 0, 4)).getUTCDay() + 3;
+
+    // If Jan 1 is a Sunday, we'll see this returning 1 + 7 - 10 = -2 for week 1, meaning that the first week starts Dec 29 previous year
+    // If Jan 1 is a Monday, we'll see this returning 1 + 7 - 4 = 4 for week 1, meaning that the first week starts Jan 4
+    const date = new Date(Date.UTC(year, 0, 1));
+    date.setUTCDate(1 + (week) * 7 - dayOffset);
+    return date;
+  }
+
+  // If none of the above match, assume it's a year and try to parse it as such (might return an invalid date)
+  // TODO: do explicit throwing or return null on invalid date? this seems like a recipe for downstream bugs
+  console.warn(`parsePeriod: assuming period "${period}" is a year.`);
+  return new Date(Date.UTC(parseInt(period), 0));
+}
+
+export function filterToInitialYearlyRecords(periodValuePairs: ApiTableContent["values"]): ApiTableContent["values"] {
+  const filteredValues: ApiTableContent["values"] = [];
+  const seenYears: Set<number> = new Set();
+
+  for (const entry of periodValuePairs) {
+    const date = parsePeriod(entry.period);
+    const year = date.getUTCFullYear();
+
+    if (!seenYears.has(year)) {
+      seenYears.add(year);
+      filteredValues.push(entry);
+    }
+  }
+
+  return filteredValues;
 }

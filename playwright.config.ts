@@ -59,6 +59,12 @@ export default defineConfig({
       use: {},
     },
     {
+      name: "Recipe parser validation",
+      testMatch: ["**/recipe-parser-entry.js"],
+      retries: 0, // File reading can't be flaky, so no retries needed.
+      use: {},
+    },
+    {
       name: "chromium 1440p",
       use: { ...devices["Desktop Chrome"], viewport: { width: 2560, height: 1440 }, channel: "chromium", },
     },

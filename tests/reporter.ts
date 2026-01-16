@@ -71,7 +71,7 @@ if (failedCount === 0 && flakyCount === 0) {
 if (flakyCount > 0) {
   const flakyTests = testReport.suites
     .flatMap(suite => suite.suites
-      .flatMap(suite2 => suite2.specs
+      ?.flatMap(suite2 => suite2.specs
         .flatMap(spec => spec.tests
           .flatMap(test => ({
             test: spec.title,

@@ -8,7 +8,8 @@
     "allowImportingTsExtensions": false,
   },
   "exclude": [
-    "./*.ts"
+    "./*.ts",
+    "./files/recipe-parser.ts",
   ],
   "include": [
     "./**/*.ts",

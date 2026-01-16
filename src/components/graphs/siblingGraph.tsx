@@ -2,7 +2,7 @@
 
 import findSiblings from "@/functions/findSiblings";
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
-import { dataSeriesDataFieldNames } from "@/types";
+import { Years } from "@/types";
 import { DataSeries, Goal, Roadmap } from "@prisma/client";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -27,11 +27,11 @@ export default function SiblingGraph({
 
   const [isStacked, setIsStacked] = useState(true);
 
-  for (const i in siblings) {
+  for (const entry of siblings) {
     const mainSeries = [];
-    if (siblings[i].dataSeries) {
-      for (const j of dataSeriesDataFieldNames) {
-        const value = siblings[i].dataSeries[j];
+    if (entry.dataSeries) {
+      for (const j of Years) {
+        const value = entry.dataSeries[j];
 
         mainSeries.push({
           x: new Date(j.replace('val', '')).getTime(),
@@ -45,7 +45,7 @@ export default function SiblingGraph({
     // Only add the series to the graph if it isn't all null/0
     if (mainSeries.filter((entry) => entry.y).length > 0) {
       dataPoints.push({
-        name: (siblings[i].name || siblings[i].indicatorParameter).split('\\').slice(-1)[0],
+        name: (entry.name || entry.indicatorParameter).split('\\').slice(-1)[0],
         data: mainSeries,
         type: isStacked ? 'area' : 'line',
       })
@@ -67,11 +67,11 @@ export default function SiblingGraph({
       type: 'datetime',
       labels: { format: 'yyyy' },
       tooltip: { enabled: false },
-      min: new Date(dataSeriesDataFieldNames[0].replace('val', '')).getTime(),
-      max: new Date(dataSeriesDataFieldNames[dataSeriesDataFieldNames.length - 1].replace('val', '')).getTime()
+      min: new Date(Years[0].replace('val', '')).getTime(),
+      max: new Date(Years[Years.length - 1].replace('val', '')).getTime()
     },
     yaxis: {
-      title: { text: goal.dataSeries?.unit },
+      title: { text: goal.dataSeries?.unit === null ? t("common:tsx.unitless") : goal.dataSeries?.unit || t("common:tsx.unit_missing") },
       labels: { formatter: graphNumberFormatter },
     },
     tooltip: {
@@ -98,7 +98,7 @@ export default function SiblingGraph({
       <menu className="flex align-items-flex-end gap-25 margin-0 margin-block-25 padding-0 flex-wrap-wrap">
         <button
           className="flex align-items-center gap-50 transparent font-weight-500 gray-90"
-          style={{ width: 'fit-content', fontSize: '.75rem', padding: '.3rem .6rem' }}
+          style={{ width: 'fit-content', fontSize: '.75rem', padding: '.3rem .6rem', lineHeight: '1.5' }}
           type="button" onClick={() => setIsStacked(!isStacked)}
         >
           {t("graphs:common.change_graph_type")}

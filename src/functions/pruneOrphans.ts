@@ -1,6 +1,7 @@
 import "server-only";
 import prisma from "@/prismaClient";
 
+// TODO prune orphaned recipes just in case
 /** Deletes all links and comments without parents. Fails silently. */
 export default async function pruneOrphans() {
   let success: boolean = false;

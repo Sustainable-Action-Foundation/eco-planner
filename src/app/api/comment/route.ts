@@ -1,6 +1,7 @@
 import findTypeFromId from "@/functions/findTypeFromId";
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
+import { JSONValue } from "@/types";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
@@ -15,7 +16,12 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const comment: { commentText: string, objectId: string } = await request.json();
+  const comment = await request.json() as JSONValue;
+  if (typeof comment !== "object" || comment == null || Array.isArray(comment) || typeof comment.commentText !== "string" || typeof comment.objectId !== "string") {
+    return Response.json({ message: 'Invalid request body' },
+      { status: 400 }
+    );
+  }
   const objectType = await findTypeFromId(comment.objectId).catch(() => { return "" });
 
   if (comment.commentText == "") {

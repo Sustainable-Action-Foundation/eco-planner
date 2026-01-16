@@ -1,80 +1,323 @@
 import { NextRequest } from "next/server";
-import { getSession } from "@/lib/session"
 import prisma from "@/prismaClient";
-import { AccessControlled, AccessLevel, ClientError, dataSeriesDataFieldNames, DataSeriesDataFields, GoalInput, JSONValue } from "@/types";
-import { DataSeries, Prisma } from "@prisma/client";
-import accessChecker from "@/lib/accessChecker";
 import { revalidateTag } from "next/cache";
+import { cookies } from "next/headers";
+import { getSession } from "@/lib/session";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
+import { AccessControlled, ClientError, GoalCreateInput, GoalUpdateInput, JSONValue, DataSeriesValueFields, isPartialDataSeriesValueFields, isFullDataSeriesValueFields } from "@/types";
+import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
+import { Prisma } from "@prisma/client";
+import crypto from 'crypto';
 import dataSeriesPrep from "./dataSeriesPrep";
 import pruneOrphans from "@/functions/pruneOrphans";
-import { cookies } from "next/headers";
-import getOneGoal from "@/fetchers/getOneGoal";
-import { recalculateGoal } from "@/functions/recalculateGoal";
+import { cleanRecipe, evaluateRecipe } from "@/functions/parseRecipe";
+import { hashRecipe } from "@/functions/recipe-parser/getRecipeHash";
+
+// Type guards
+export function isGoalCreate(goal: JSONValue): goal is GoalCreateInput {
+  return (
+    (
+      typeof goal === "object" &&
+      goal !== null &&
+      !Array.isArray(goal)
+    ) &&
+
+    // name: string | null | undefined;
+    (
+      typeof goal.name === 'string' ||
+      goal.name === null ||
+      goal.description === undefined
+    ) &&
+
+    // description: string | null | undefined;
+    (
+      typeof goal.description === 'string' ||
+      goal.description === null ||
+      goal.description === undefined
+    ) &&
+
+    // indicatorParameter: string;
+    (
+      typeof goal.indicatorParameter === 'string'
+    ) &&
+
+    // isFeatured: boolean | undefined;
+    (
+      typeof goal.isFeatured === 'boolean' ||
+      goal.isFeatured === undefined
+    ) &&
+
+    // externalDataset: string | null | undefined;
+    (
+      typeof goal.externalDataset === 'string' ||
+      goal.externalDataset === undefined ||
+      goal.externalDataset === null
+    ) &&
+
+    // externalTableId: string | null | undefined;
+    (
+      typeof goal.externalTableId === 'string' ||
+      goal.externalTableId === undefined ||
+      goal.externalTableId === null
+    ) &&
+
+    // externalSelection: string | null | undefined;
+    (
+      typeof goal.externalSelection === 'string' ||
+      goal.externalSelection === undefined ||
+      goal.externalSelection === null
+    ) &&
+
+    // recipeUsed: Recipe | null | undefined;
+    (
+      typeof goal.recipe === 'string' ||
+      goal.recipe === undefined ||
+      goal.recipe === null
+    ) &&
+
+    // rawDataSeries: DataSeriesValueFields | string[] | undefined;
+    (
+      goal.rawDataSeries === undefined ||
+      isPartialDataSeriesValueFields(goal.rawDataSeries) ||
+      (
+        Array.isArray(goal.rawDataSeries) &&
+        goal.rawDataSeries.every((entry: JSONValue) => (
+          typeof entry === 'string'
+        ))
+      )
+    ) &&
+
+    // rawDataSeriesUnit: string | null | undefined;
+    (
+      typeof goal.rawDataSeriesUnit === 'string' ||
+      goal.rawDataSeriesUnit === undefined ||
+      goal.rawDataSeriesUnit === null
+    ) &&
+
+    // rawBaselineDataSeries: DataSeriesValueFields | string[] | undefined;
+    (
+      goal.rawBaselineDataSeries === undefined ||
+      isPartialDataSeriesValueFields(goal.rawBaselineDataSeries) ||
+      (
+        Array.isArray(goal.rawBaselineDataSeries) &&
+        goal.rawBaselineDataSeries.every((entry: JSONValue) => (
+          typeof entry === 'string'
+        ))
+      )
+    ) &&
+
+    // rawBaselineDataSeriesUnit: string | null | undefined;
+    (
+      typeof goal.rawBaselineDataSeriesUnit === 'string' ||
+      goal.rawBaselineDataSeriesUnit === undefined ||
+      goal.rawBaselineDataSeriesUnit === null
+    ) &&
+
+    // roadmapId: string;
+    (
+      typeof goal.roadmapId === 'string'
+    ) &&
+
+    // rawTags: string[] | null | undefined;
+    (
+      goal.rawTags === undefined ||
+      goal.rawTags === null ||
+      (
+        Array.isArray(goal.rawTags) &&
+        goal.rawTags.every((entry: JSONValue) => (
+          typeof entry === 'string'
+        ))
+      )
+    ) &&
+
+    // TODO: Deprecated - will be moved to description
+    // links: { url: string, description?: string | null }[] | null | undefined;
+    (
+      goal.links === undefined ||
+      goal.links === null ||
+      (
+        Array.isArray(goal.links) &&
+        goal.links.every((entry: JSONValue) => (
+          (
+            typeof entry === 'object' &&
+            entry !== null &&
+            !Array.isArray(entry)
+          ) &&
+
+          typeof entry.url === 'string' &&
+          (
+            typeof entry.description === 'string' ||
+            entry.description === undefined ||
+            entry.description === null
+          )
+        ))
+      )
+    )
+  );
+}
+
+function isGoalUpdate(goal: JSONValue): goal is GoalUpdateInput {
+  return (
+    (
+      typeof goal === "object" &&
+      goal !== null &&
+      !Array.isArray(goal)
+    ) &&
+
+    // goalId: string;
+    (
+      typeof goal.goalId === 'string'
+    ) &&
+
+    // timestamp: number;
+    (
+      typeof goal.timestamp === 'number'
+    ) &&
+
+    // name: string | null | undefined;
+    (
+      typeof goal.name === 'string' ||
+      goal.name === null ||
+      goal.description === undefined
+    ) &&
+
+    // description: string | null | undefined;
+    (
+      typeof goal.description === 'string' ||
+      goal.description === null ||
+      goal.description === undefined
+    ) &&
+
+    // indicatorParameter: string | undefined;
+    (
+      typeof goal.indicatorParameter === 'string' ||
+      goal.indicatorParameter === undefined
+    ) &&
+
+    // isFeatured: boolean | undefined;
+    (
+      typeof goal.isFeatured === 'boolean' ||
+      goal.isFeatured === undefined
+    ) &&
+
+    // externalDataset: string | null | undefined;
+    (
+      typeof goal.externalDataset === 'string' ||
+      goal.externalDataset === undefined ||
+      goal.externalDataset === null
+    ) &&
+
+    // externalTableId: string | null | undefined;
+    (
+      typeof goal.externalTableId === 'string' ||
+      goal.externalTableId === undefined ||
+      goal.externalTableId === null
+    ) &&
+
+    // externalSelection: string | null | undefined;
+    (
+      typeof goal.externalSelection === 'string' ||
+      goal.externalSelection === undefined ||
+      goal.externalSelection === null
+    ) &&
+
+    // recipeUsed: Recipe | null | undefined;
+    (
+      typeof goal.recipe === 'string' ||
+      goal.recipe === undefined ||
+      goal.recipe === null
+    ) &&
+
+    // rawDataSeries: DataSeriesValueFields | string[] | undefined;
+    (
+      goal.rawDataSeries === undefined ||
+      isPartialDataSeriesValueFields(goal.rawDataSeries) ||
+      (
+        Array.isArray(goal.rawDataSeries) &&
+        goal.rawDataSeries.every((entry: JSONValue) => (
+          typeof entry === 'string'
+        ))
+      )
+    ) &&
+
+    // rawDataSeriesUnit: string | null | undefined;
+    (
+      typeof goal.rawDataSeriesUnit === 'string' ||
+      goal.rawDataSeriesUnit === undefined ||
+      goal.rawDataSeriesUnit === null
+    ) &&
+
+    // rawBaselineDataSeries: DataSeriesValueFields | string[] | undefined;
+    (
+      goal.rawBaselineDataSeries === undefined ||
+      isPartialDataSeriesValueFields(goal.rawBaselineDataSeries) ||
+      (
+        Array.isArray(goal.rawBaselineDataSeries) &&
+        goal.rawBaselineDataSeries.every((entry: JSONValue) => (
+          typeof entry === 'string'
+        ))
+      )
+    ) &&
+
+    // rawBaselineDataSeriesUnit: string | null | undefined;
+    (
+      typeof goal.rawBaselineDataSeriesUnit === 'string' ||
+      goal.rawBaselineDataSeriesUnit === undefined ||
+      goal.rawBaselineDataSeriesUnit === null
+    ) &&
+
+    // roadmapId?: never;
+    (
+      goal.roadmapId === undefined
+    ) &&
+
+    // rawTags: string[] | null | undefined;
+    (
+      goal.rawTags === undefined ||
+      goal.rawTags === null ||
+      (
+        Array.isArray(goal.rawTags) &&
+        goal.rawTags.every((entry: JSONValue) => (
+          typeof entry === 'string'
+        ))
+      )
+    ) &&
+
+    // TODO: Deprecated - will be moved to description
+    // links: { url: string, description?: string | null }[] | null | undefined;
+    (
+      goal.links === undefined ||
+      goal.links === null ||
+      (
+        Array.isArray(goal.links) &&
+        goal.links.every((entry: JSONValue) => (
+          (
+            typeof entry === 'object' &&
+            entry !== null &&
+            !Array.isArray(entry)
+          ) &&
+
+          typeof entry.url === 'string' &&
+          (
+            typeof entry.description === 'string' ||
+            entry.description === undefined ||
+            entry.description === null
+          )
+        ))
+      )
+    )
+
+  );
+}
 
 /**
  * Handles POST requests to the goal API
  */
 export async function POST(request: NextRequest) {
-  const [session, goal] = await Promise.all([
+  const [session, formData] = await Promise.all([
     getSession(await cookies()),
     request.json() as Promise<JSONValue>,
   ]);
-
-  // Type guard and check if the request body is a valid GoalInput
-  function isGoal(goal: JSONValue): goal is GoalInput & { roadmapId: string } {
-    return (
-      // Should be a non-null object
-      typeof goal === 'object' &&
-      goal !== null &&
-      !Array.isArray(goal) &&
-      // Typecheck properties
-      (typeof goal.name === 'string' || goal.name === undefined || goal.name === null) &&
-      (typeof goal.description === 'string' || goal.description === undefined || goal.description === null) &&
-      // Indicator parameter must be a non-empty string
-      (typeof goal.indicatorParameter === 'string' && goal.indicatorParameter.length > 0) &&
-      (typeof goal.isFeatured === 'boolean' || goal.isFeatured === undefined) &&
-      (typeof goal.externalDataset === 'string' || goal.externalDataset === undefined || goal.externalDataset === null) &&
-      (typeof goal.externalTableId === 'string' || goal.externalTableId === undefined || goal.externalTableId === null) &&
-      (typeof goal.externalSelection === 'string' || goal.externalSelection === undefined || goal.externalSelection === null) &&
-      // "Recipe" for combining data series, can be a stringified number or a stringified object matching the ScalingRecipie type
-      (typeof goal.combinationScale === 'string' || goal.combinationScale === undefined || goal.combinationScale === null) &&
-      // Data series should be either undefined or have a length between 1 and dataSeriesDataFieldNames.length
-      ((Array.isArray(goal.dataSeries) && goal.dataSeries.every((entry: JSONValue) => (typeof entry === 'string')) && goal.dataSeries.length <= dataSeriesDataFieldNames.length)
-        || goal.dataSeries === undefined) &&
-      // baselineDataSeries can be a valid data series to set values, undefined to not set a baseline, or null to delete the baseline
-      ((Array.isArray(goal.baselineDataSeries) && goal.baselineDataSeries.every((entry: JSONValue) => (typeof entry === 'string')) && goal.baselineDataSeries.length > 0 && goal.baselineDataSeries.length <= dataSeriesDataFieldNames.length)
-        || goal.baselineDataSeries === undefined || goal.baselineDataSeries === null) &&
-      // TODO: When database is next updated, dataUnit might be nullable, and an isUnitless boolean might be added
-      typeof goal.dataUnit === 'string' &&
-      // TODO: dataScale is deprecated, to be removed in next database update
-      (typeof goal.dataScale === 'string' || goal.dataScale === undefined || goal.dataScale === null) &&
-      ((Array.isArray(goal.inheritFrom) && goal.inheritFrom.every((entry: JSONValue) => (
-        typeof entry === 'object' &&
-        entry !== null &&
-        !Array.isArray(entry) &&
-        typeof entry.id === 'string' &&
-        (typeof entry.isInverted === 'boolean' || entry.isInverted === undefined)
-      ))) || goal.inheritFrom === undefined || goal.inheritFrom === null) &&
-      ((Array.isArray(goal.links) && goal.links.every((entry: JSONValue) => (
-        typeof entry === 'object' &&
-        entry !== null &&
-        !Array.isArray(entry) &&
-        typeof entry.url === 'string' &&
-        (typeof entry.description === 'string' || entry.description === undefined || entry.description === null)
-      ))) || goal.links === undefined || goal.links === null) &&
-      // Roadmap ID must be a non-empty string
-      // Invalid and forbidden IDs are rejected further down
-      (typeof goal.roadmapId === 'string' && goal.roadmapId.length > 0) &&
-      // Either dataSeries or inheritFrom must be defined and not null or empty
-      ((goal.dataSeries?.length ?? 0) > 0 || (goal.inheritFrom?.length ?? 0) > 0)
-    );
-  }
-
-  if (!isGoal(goal)) {
-    return Response.json({ message: 'Invalid request body' },
-      { status: 400 }
-    );
-  }
 
   // Validate session
   if (!session.user?.id) {
@@ -83,15 +326,23 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Validate form data type
+  if (!isGoalCreate(formData)) {
+    console.log("formData failed validation");
+    return Response.json({ message: 'Invalid request body' },
+      { status: 400 }
+    );
+  }
+
+  // Get user, roadmap
   try {
-    // Get user, roadmap, and related goals
-    const [user, roadmap, relatedGoals] = await Promise.all([
+    const [user, roadmap] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
         select: { id: true, username: true, isAdmin: true, userGroups: true }
       }),
       prisma.roadmap.findUnique({
-        where: { id: goal.roadmapId },
+        where: { id: formData.roadmapId },
         select: {
           author: { select: { id: true, username: true } },
           editors: { select: { id: true, username: true } },
@@ -101,7 +352,6 @@ export async function POST(request: NextRequest) {
           isPublic: true,
         }
       }),
-      Promise.all([...(goal?.inheritFrom ? goal.inheritFrom.map(({ id }) => getOneGoal(id)) : [])]),
     ]);
 
     // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
@@ -122,17 +372,12 @@ export async function POST(request: NextRequest) {
       isPublic: roadmap.isPublic,
     }
     const accessLevel = accessChecker(accessFields, session.user);
-    if (accessLevel === AccessLevel.None || accessLevel === AccessLevel.View) {
+    if (!hasEditAccess(accessLevel)) {
       throw new Error(ClientError.IllegalParent, { cause: 'goal' });
     }
-
-    // If the user tries to inherit from a goal they don't have access to, return IllegalParent
-    for (const relatedGoal of relatedGoals) {
-      if (!relatedGoal) {
-        throw new Error(ClientError.IllegalParent, { cause: 'goal' });
-      }
-    }
-  } catch (error) {
+    // TODO: Access checks for goals used in recipe
+  }
+  catch (error) {
     if (error instanceof Error) {
       if (error.message == ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
@@ -154,87 +399,123 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Prepare for creating data series
-  let dataValues: Partial<DataSeriesDataFields> | undefined | null = null;
-  if (goal.inheritFrom?.length) {
-    // Combine the data series of the parent goals
-    const parentGoals = await Promise.all(goal.inheritFrom.map(({ id }) => getOneGoal(id)));
-    const combinationParents: {
-      isInverted: boolean,
-      parentGoal: {
-        dataSeries: DataSeries | null
-      }
-    }[] = goal.inheritFrom.map(({ id, isInverted }) => {
-      const parentGoal = parentGoals.find(goal => goal?.id === id);
-      return { isInverted: isInverted ?? false, parentGoal: { dataSeries: parentGoal?.dataSeries ?? null } };
-    });
-    dataValues = await recalculateGoal({ combinationScale: goal.combinationScale ?? null, combinationParents });
-  } else if (goal.dataSeries?.length) {
-    // Get data series from the request
-    dataValues = dataSeriesPrep(goal.dataSeries);
-  }
-  // If the data series is invalid, return an error
-  if (dataValues == null) {
-    return Response.json({ message: 'Bad data series' },
-      { status: 400 }
-    );
-  }
-
-  // Prepare goal baseline (if any)
-  let baselineValues: Partial<DataSeriesDataFields> | undefined | null = undefined;
-  if (goal.baselineDataSeries?.length) {
-    // Get baseline data series from the request
-    baselineValues = dataSeriesPrep(goal.baselineDataSeries);
-  }
-  // If the baseline data series is invalid, return an error
-  if (baselineValues === null) {
-    return Response.json({ message: 'Bad baseline data series' },
-      { status: 400 }
-    );
-  }
-
-  // Create goal
   try {
+    // Data series parsing
+    let parsedDataSeries: Partial<DataSeriesValueFields> | undefined | null = undefined;
+    let parsedDataSeriesUnit: string | null = null;
+    if (formData.recipeUsed) {
+      // TODO: If the recipe is invalid, return an error UNLESS explicitly marked as incomplete somehow (needs to be added to form and here), in which case dataValues should be set to undefined
+
+      const warnings: string[] = [];
+      const resolvedRecipe = await evaluateRecipe(cleanRecipe(formData.recipeUsed), warnings);
+      if (!resolvedRecipe) {
+        return Response.json({ message: 'Recipe evaluation canceled' }, { status: 400 }); // TODO: canceled eval indicates a bad recipe so therefor I think 400 is appropriate but I'm not sure
+      }
+      const { dataSeries, unit } = resolvedRecipe;
+
+      if (warnings.length) {
+        console.warn("Warnings while evaluating recipe for new goal:");
+        for (const warning of warnings) {
+          console.warn(warning);
+        }
+      }
+
+      parsedDataSeries = dataSeries;
+      parsedDataSeriesUnit = unit !== undefined ? unit : '';
+    }
+    // TODO: DEPRECATE - raw data series should be made into data series before posting to the API and use 1:1 recipes instead 
+    else if (formData.rawDataSeries) {
+      parsedDataSeries = dataSeriesPrep(formData.rawDataSeries);
+      parsedDataSeriesUnit = formData.rawDataSeriesUnit !== undefined ? formData.rawDataSeriesUnit : '';
+    }
+
+    // Non full data series is an error
+    if (parsedDataSeries && !isFullDataSeriesValueFields(parsedDataSeries)) {
+      parsedDataSeries = null;
+    }
+
+    // If the data series is invalid, return an error
+    if (parsedDataSeries === null) {
+      return Response.json({ message: 'Bad data series' },
+        { status: 400 }
+      );
+    }
+
+    // Baseline data series parsing
+    let parsedBaselineDataSeries: Partial<DataSeriesValueFields> | undefined | null = undefined;
+    let parsedBaselineDataSeriesUnit: string | null = null;
+    if (formData.rawBaselineDataSeries) {
+      parsedBaselineDataSeries = dataSeriesPrep(formData.rawBaselineDataSeries);
+    }
+
+    // Non full data series is an error
+    if (parsedBaselineDataSeries && !isFullDataSeriesValueFields(parsedBaselineDataSeries)) {
+      parsedBaselineDataSeries = null;
+    }
+
+    // If the baseline data series is invalid, return an error
+    if (parsedBaselineDataSeries === null) {
+      return Response.json({ message: 'Bad baseline data series' },
+        { status: 400 }
+      );
+    }
+
+    // TODO: formData.rawBaselineDataSeriesUnit may never be set or read from the form. Is it even settable in the form?
+    // If null, set to null
+    if (formData.rawBaselineDataSeriesUnit === null) {
+      parsedBaselineDataSeriesUnit = null;
+    }
+    // If a non empty string is provided, use it
+    else if (typeof formData.rawBaselineDataSeriesUnit === 'string' && formData.rawBaselineDataSeriesUnit.trim().length) {
+      parsedBaselineDataSeriesUnit = formData.rawBaselineDataSeriesUnit.trim();
+    }
+    // Fall back to data series unit no matter its value
+    else {
+      parsedBaselineDataSeriesUnit = parsedDataSeriesUnit;
+    }
+
+    const recipeHash = formData.recipeUsed ? crypto.createHash('sha256').update(JSON.stringify(formData.recipeUsed)).digest('hex') : undefined;
+
     const newGoal = await prisma.goal.create({
       data: {
-        name: goal.name,
-        description: goal.description,
-        indicatorParameter: goal.indicatorParameter,
-        isFeatured: goal.isFeatured,
-        externalDataset: goal.externalDataset,
-        externalTableId: goal.externalTableId,
-        externalSelection: goal.externalSelection,
-        combinationScale: goal.combinationScale || undefined,
+        name: formData.name,
+        description: formData.description,
+        indicatorParameter: formData.indicatorParameter,
+        isFeatured: formData.isFeatured,
+        externalDataset: formData.externalDataset,
+        externalTableId: formData.externalTableId,
+        externalSelection: formData.externalSelection,
         author: {
           connect: { id: session.user.id },
         },
         roadmap: {
-          connect: { id: goal.roadmapId },
+          connect: { id: formData.roadmapId },
         },
-        dataSeries: {
+        dataSeries: parsedDataSeries ? {
           create: {
-            ...dataValues,
-            unit: goal.dataUnit,
-            authorId: session.user.id,
-          },
-        },
-        baselineDataSeries: baselineValues ? {
-          create: {
-            ...baselineValues,
-            unit: goal.dataUnit,
+            ...parsedDataSeries,
+            unit: parsedDataSeriesUnit,
             authorId: session.user.id,
           },
         } : undefined,
-        combinationParents: {
-          create: [...(goal.inheritFrom ? goal.inheritFrom.map(({ id, isInverted }) => { return ({ parentGoalId: id, isInverted }) }) : [])],
-        },
+        baselineDataSeries: parsedBaselineDataSeries ? {
+          create: {
+            ...parsedBaselineDataSeries,
+            unit: parsedBaselineDataSeriesUnit,
+            authorId: session.user.id,
+          }
+        } : undefined,
+        recipeUsed: formData.recipeUsed ? {
+          create: {
+            hash: recipeHash as string,
+            recipe: formData.recipeUsed,
+          }
+        } : undefined,
         links: {
-          create: goal.links?.map(link => {
-            return {
-              url: link.url,
-              description: link.description || undefined,
-            }
-          })
+          create: formData.links?.map(link => ({
+            url: link.url,
+            description: link.description,
+          }))
         },
       },
       select: {
@@ -247,7 +528,8 @@ export async function POST(request: NextRequest) {
     return Response.json({ message: "Goal created", id: newGoal.id },
       { status: 201, headers: { 'Location': `/goal/${newGoal.id}` } }
     );
-  } catch (error) {
+  }
+  catch (error) {
     console.log(error);
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code == 'P2025') {
       return Response.json({ message: 'Failed to connect records. Given roadmap might not exist' },
@@ -269,61 +551,6 @@ export async function PUT(request: NextRequest) {
     request.json() as Promise<JSONValue>,
   ]);
 
-  // Type guard and check if the request body is a valid GoalInput
-  function isGoal(goal: JSONValue): goal is Partial<GoalInput> & { goalId: string, timestamp?: number } {
-    return (
-      // Should be a non-null object
-      typeof goal === 'object' &&
-      goal !== null &&
-      !Array.isArray(goal) &&
-      // Typecheck properties
-      (typeof goal.name === 'string' || goal.name === undefined || goal.name === null) &&
-      (typeof goal.description === 'string' || goal.description === undefined || goal.description === null) &&
-      // Indicator parameter must be a non-empty string
-      ((typeof goal.indicatorParameter === 'string' && goal.indicatorParameter.length > 0) || goal.indicatorParameter === undefined) &&
-      (typeof goal.isFeatured === 'boolean' || goal.isFeatured === undefined) &&
-      (typeof goal.externalDataset === 'string' || goal.externalDataset === undefined || goal.externalDataset === null) &&
-      (typeof goal.externalTableId === 'string' || goal.externalTableId === undefined || goal.externalTableId === null) &&
-      (typeof goal.externalSelection === 'string' || goal.externalSelection === undefined || goal.externalSelection === null) &&
-      // "Recipe" for combining data series, can be a stringified number or a stringified object matching the ScalingRecipie type
-      (typeof goal.combinationScale === 'string' || goal.combinationScale === undefined || goal.combinationScale === null) &&
-      // Data series should be either undefined or have a length between 1 and dataSeriesDataFieldNames.length
-      ((Array.isArray(goal.dataSeries) && goal.dataSeries.every((entry: JSONValue) => (typeof entry === 'string')) && goal.dataSeries.length <= dataSeriesDataFieldNames.length)
-        || goal.dataSeries === undefined) &&
-      // baselineDataSeries can be a valid data series to set values, undefined to not set a baseline, or null to delete the baseline
-      ((Array.isArray(goal.baselineDataSeries) && goal.baselineDataSeries.every((entry: JSONValue) => (typeof entry === 'string')) && goal.baselineDataSeries.length > 0 && goal.baselineDataSeries.length <= dataSeriesDataFieldNames.length)
-        || goal.baselineDataSeries === undefined || goal.baselineDataSeries === null) &&
-      // TODO: When database is next updated, dataUnit might be nullable, and an isUnitless boolean might be added
-      (typeof goal.dataUnit === 'string' || goal.dataUnit === undefined) &&
-      // TODO: dataScale is deprecated, to be removed in next database update
-      (typeof goal.dataScale === 'string' || goal.dataScale === undefined || goal.dataScale === null) &&
-      ((Array.isArray(goal.inheritFrom) && goal.inheritFrom.every((entry: JSONValue) => (
-        typeof entry === 'object' &&
-        entry !== null &&
-        !Array.isArray(entry) &&
-        typeof entry.id === 'string' &&
-        (typeof entry.isInverted === 'boolean' || entry.isInverted === undefined)
-      ))) || goal.inheritFrom === undefined || goal.inheritFrom === null) &&
-      ((Array.isArray(goal.links) && goal.links.every((entry: JSONValue) => (
-        typeof entry === 'object' &&
-        entry !== null &&
-        !Array.isArray(entry) &&
-        typeof entry.url === 'string' &&
-        (typeof entry.description === 'string' || entry.description === undefined || entry.description === null)
-      ))) || goal.links === undefined || goal.links === null) &&
-      // Goal ID must be a non-empty string
-      (typeof goal.goalId === 'string' && goal.goalId.length > 0) &&
-      // Either dataSeries or inheritFrom must be defined and not null or empty. Alternatively both can be undefined when updating a goal without changing data series.
-      ((goal.dataSeries?.length ?? 0) > 0 || (goal.inheritFrom?.length ?? 0) > 0 || (goal.dataSeries === undefined && goal.inheritFrom === undefined))
-    );
-  }
-
-  if (!isGoal(goal)) {
-    return Response.json({ message: 'Invalid request body' },
-      { status: 400 }
-    );
-  }
-
   // Validate session
   if (!session.user?.id) {
     return Response.json({ message: 'Unauthorized' },
@@ -331,30 +558,24 @@ export async function PUT(request: NextRequest) {
     );
   }
 
+  // Validate input
+  if (!isGoalUpdate(goal)) {
+    return Response.json({ message: 'Invalid request body' },
+      { status: 400 }
+    );
+  }
+
+  // Get user, current goal
   try {
-    // Get user, current goal, and related goals
-    const [user, currentGoal, relatedGoals] = await Promise.all([
+    const [user, currentGoal] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
         select: { id: true, username: true, isAdmin: true, userGroups: true }
       }),
       prisma.goal.findUnique({
         where: { id: goal.goalId },
-        select: {
-          updatedAt: true,
-          roadmap: {
-            select: {
-              author: { select: { id: true, username: true } },
-              editors: { select: { id: true, username: true } },
-              viewers: { select: { id: true, username: true } },
-              editGroups: { include: { users: { select: { id: true, username: true } } } },
-              viewGroups: { include: { users: { select: { id: true, username: true } } } },
-              isPublic: true,
-            }
-          },
-        }
+        include: goalInclusionSelection,
       }),
-      Promise.all([...(goal?.inheritFrom ? goal.inheritFrom.map(({ id }) => getOneGoal(id)) : [])]),
     ]);
 
     // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
@@ -366,28 +587,15 @@ export async function PUT(request: NextRequest) {
     if (!currentGoal) {
       throw new Error(ClientError.AccessDenied, { cause: 'goal' });
     }
-    const accessFields: AccessControlled = {
-      author: currentGoal.roadmap.author,
-      editors: currentGoal.roadmap.editors,
-      viewers: currentGoal.roadmap.viewers,
-      editGroups: currentGoal.roadmap.editGroups,
-      viewGroups: currentGoal.roadmap.viewGroups,
-      isPublic: currentGoal.roadmap.isPublic,
-    }
-    const accessLevel = accessChecker(accessFields, session.user)
-    if (accessLevel === AccessLevel.None || accessLevel === AccessLevel.View) {
+
+    // Check if the user has the right to edit the goal
+    const access = accessChecker(currentGoal.roadmap, session.user);
+    if (!hasEditAccess(access)) {
       throw new Error(ClientError.AccessDenied, { cause: 'goal' });
     }
 
-    // If the user tries to inherit from a goal they don't have access to, return IllegalParent
-    for (const relatedGoal of relatedGoals) {
-      if (!relatedGoal) {
-        throw new Error(ClientError.IllegalParent, { cause: 'goal' });
-      }
-    }
-
     // If the provided timestamp is not up-to-date, return StaleData
-    if (!goal.timestamp || (currentGoal?.updatedAt?.getTime() || 0) > goal.timestamp) {
+    if (!goal.timestamp || currentGoal.updatedAt.getTime() > goal.timestamp) {
       throw new Error(ClientError.StaleData, { cause: 'goal' });
     }
   } catch (error) {
@@ -422,65 +630,95 @@ export async function PUT(request: NextRequest) {
     );
   }
 
-  // Prepare for creating data series
-  let dataValues: Partial<DataSeriesDataFields> | undefined | null = undefined;
-  if (goal.inheritFrom?.length) {
-    // Combine the data series of the parent goals
-    const parentGoals = await Promise.all(goal.inheritFrom.map(({ id }) => getOneGoal(id)));
-    const combinationParents: {
-      isInverted: boolean,
-      parentGoal: {
-        dataSeries: DataSeries | null
-      }
-    }[] = goal.inheritFrom.map(({ id, isInverted }) => {
-      const parentGoal = parentGoals.find(goal => goal?.id === id);
-      return { isInverted: isInverted ?? false, parentGoal: { dataSeries: parentGoal?.dataSeries ?? null } };
-    });
-    dataValues = await recalculateGoal({ combinationScale: goal.combinationScale ?? null, combinationParents });
-  } else if (goal.dataSeries) {
-    // Don't try to update if the received data series is undefined (but complain about null)
-    // Get data series from the request
-    dataValues = dataSeriesPrep(goal.dataSeries);
-  }
-  if (dataValues === null) {
-    return Response.json({ message: 'Bad data series' },
-      { status: 400 }
-    );
-  }
-
-  // Prepare goal baseline (if any), or deletion thereof
-  // If the baseline data series is null, it means the user wants to delete it. A value of undefined means no change.
-  let shouldRemoveBaseline = goal.baselineDataSeries === null;
-  if (shouldRemoveBaseline) {
-    // Check if current goal has a baseline data series, if not, no need to delete it
-    try {
-      const currentGoal = await prisma.goal.findUnique({
-        where: { id: goal.goalId },
-        select: { baselineDataSeries: true }
-      });
-      if (currentGoal?.baselineDataSeries == null) {
-        // Trying to delete the baseline when it doesn't exist will cause Prisma to throw an error
-        shouldRemoveBaseline = false;
-      }
-    } catch {
-      // Fail silently, this should either already be handled by the access check, or get handled when updating the goal
-    }
-  }
-
-  let baselineValues: Partial<DataSeriesDataFields> | undefined | null = undefined;
-  if (goal.baselineDataSeries?.length) {
-    // Get baseline data series from the request
-    baselineValues = dataSeriesPrep(goal.baselineDataSeries);
-  }
-  // If the baseline data series is invalid, return an error
-  if (baselineValues === null) {
-    return Response.json({ message: 'Bad baseline data series' },
-      { status: 400 }
-    );
-  }
-
   // Edit goal
   try {
+    // Data series parsing
+    let parsedDataSeries: Partial<DataSeriesValueFields> | undefined | null = undefined;
+    let parsedDataSeriesUnit: string | null = null;
+    if (goal.recipeUsed) {
+      // TODO: If the recipe is invalid, return an error UNLESS explicitly marked as incomplete somehow (needs to be added to form and here), in which case dataValues should be set to undefined
+
+      const warnings: string[] = [];
+      const resolvedRecipe = await evaluateRecipe(cleanRecipe(goal.recipeUsed), warnings);
+      if (!resolvedRecipe) {
+        return Response.json({ message: 'Recipe evaluation canceled' }, { status: 400 }); // TODO: canceled eval indicates a bad recipe so therefor I think 400 is appropriate but I'm not sure
+      }
+
+      const { dataSeries, unit } = resolvedRecipe;
+
+      if (warnings.length) {
+        console.warn("Warnings while evaluating recipe for new goal:");
+        for (const warning of warnings) {
+          console.warn(warning);
+        }
+      }
+
+      parsedDataSeries = dataSeries;
+      parsedDataSeriesUnit = unit !== undefined ? unit : '';
+    }
+    // TODO: DEPRECATE - raw data series should be made into data series before posting to the API and use 1:1 recipes instead 
+    else if (goal.rawDataSeries) {
+      parsedDataSeries = dataSeriesPrep(goal.rawDataSeries);
+      parsedDataSeriesUnit = goal.rawDataSeriesUnit !== undefined ? goal.rawDataSeriesUnit : '';
+    }
+
+    // Non full data series is an error
+    if (parsedDataSeries && !isFullDataSeriesValueFields(parsedDataSeries)) {
+      parsedDataSeries = null;
+    }
+
+    // If the data series is invalid, return an error
+    if (parsedDataSeries === null) {
+      return Response.json({ message: 'Bad data series' },
+        { status: 400 }
+      );
+    }
+
+    // Baseline data series parsing
+    const shouldRemoveBaseline = goal.rawBaselineDataSeries === null;
+    let parsedBaselineDataSeries: Partial<DataSeriesValueFields> | undefined | null = undefined;
+    let parsedBaselineDataSeriesUnit: string | null = null;
+
+    if (shouldRemoveBaseline) {
+      parsedBaselineDataSeries = null;
+    }
+    // Calculate new baseline
+    else {
+      if (goal.rawBaselineDataSeries) {
+        parsedBaselineDataSeries = dataSeriesPrep(goal.rawBaselineDataSeries);
+      }
+
+      // Non full data series is an error
+      if (parsedBaselineDataSeries && !isFullDataSeriesValueFields(parsedBaselineDataSeries)) {
+        parsedBaselineDataSeries = null;
+      }
+      // Note: May be null to indicate deletion of baseline
+
+      // TODO: formData.rawBaselineDataSeriesUnit may never be set or read from the form. Is it even settable in the form?
+      // If null, set to null
+      if (goal.rawBaselineDataSeriesUnit === null) {
+        parsedBaselineDataSeriesUnit = null;
+      }
+      // If a non empty string is provided, use it
+      else if (typeof goal.rawBaselineDataSeriesUnit === 'string' && goal.rawBaselineDataSeriesUnit.trim().length) {
+        parsedBaselineDataSeriesUnit = goal.rawBaselineDataSeriesUnit.trim();
+      }
+      // Fall back to data series unit no matter its value
+      else {
+        parsedBaselineDataSeriesUnit = parsedDataSeriesUnit;
+      }
+
+      if (parsedBaselineDataSeries === null) {
+        return Response.json({ message: 'Bad baseline data series' },
+          { status: 400 }
+        );
+      }
+    }
+
+    const recipeHash = goal.recipeUsed
+      ? hashRecipe(goal.recipeUsed)
+      : undefined;
+
     const editedGoal = await prisma.goal.update({
       where: { id: goal.goalId },
       data: {
@@ -492,51 +730,64 @@ export async function PUT(request: NextRequest) {
         externalTableId: goal.externalTableId,
         externalSelection: goal.externalSelection,
         // Only update the data series if it is not undefined (undefined means no change)
-        ...(dataValues ? {
-          dataSeries: {
-            upsert: {
-              create: {
-                ...dataValues,
-                unit: goal.dataUnit ?? '',
-                authorId: session.user.id,
-              },
-              update: {
-                ...dataValues,
-                unit: goal.dataUnit,
+        ...(
+          parsedDataSeries === undefined ? {} : parsedDataSeries ? {
+            dataSeries: {
+              upsert: {
+                create: {
+                  ...parsedDataSeries,
+                  unit: parsedDataSeriesUnit,
+                  authorId: session.user.id,
+                },
+                update: {
+                  ...parsedDataSeries,
+                  unit: parsedDataSeriesUnit,
+                }
               }
             }
-          }
-        } : {}),
-        ...(goal.inheritFrom === undefined ? {}
-          : {
-            // Delete all previous connections and make new ones if goal.inheritFrom changes
-            combinationParents: {
-              deleteMany: {},
-              create: [...(goal.inheritFrom ? goal.inheritFrom.map(({ id, isInverted }) => { return ({ parentGoalId: id, isInverted }) }) : [])],
+          } : {}
+        ),
+        ...(
+          parsedBaselineDataSeries === undefined ? {} : shouldRemoveBaseline ? {
+            // Remove baseline case
+            baselineDataSeries: {
+              delete: true,
+            }
+          } : {
+            // Updated baseline case
+            baselineDataSeries: {
+              upsert: {
+                create: {
+                  ...parsedBaselineDataSeries,
+                  unit: parsedBaselineDataSeriesUnit,
+                  authorId: session.user.id,
+                },
+                update: {
+                  ...parsedBaselineDataSeries,
+                  unit: parsedBaselineDataSeriesUnit,
+                }
+              }
             }
           }
         ),
-        // Only update the baseline data series if it is not undefined (undefined means no change)
-        ...(shouldRemoveBaseline ? {
-          baselineDataSeries: {
-            delete: true,
-          },
-        } : baselineValues ? {
-          baselineDataSeries: {
-            upsert: {
-              create: {
-                ...baselineValues,
-                unit: goal.dataUnit ?? '',
-                authorId: session.user.id,
+        // Connect, disconnect, or create recipe
+        ...(goal.recipeUsed ? {
+          recipeUsed: {
+            connectOrCreate: {
+              where: {
+                hash: recipeHash as string,
               },
-              update: {
-                ...baselineValues,
-                unit: goal.dataUnit,
+              create: {
+                hash: recipeHash as string,
+                recipe: goal.recipeUsed,
               }
             }
           }
+        } : goal.recipeUsed === null ? {
+          recipeUsed: {
+            disconnect: true
+          }
         } : {}),
-        combinationScale: goal.combinationScale,
         links: {
           deleteMany: {},
           create: goal.links?.map(link => {
@@ -552,7 +803,7 @@ export async function PUT(request: NextRequest) {
       }
     });
     // Prune any orphaned links and comments
-    await pruneOrphans();
+    void pruneOrphans();
     // Invalidate old cache
     revalidateTag('goal');
     // Return the edited goal's ID if successful
@@ -573,20 +824,20 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const [session, goal] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<{ id: string }>
+    request.json() as Promise<JSONValue>
   ]);
-
-  // Validate request body
-  if (!goal.id) {
-    return Response.json({ message: 'Missing required input parameters' },
-      { status: 400 }
-    );
-  }
 
   // Validate session
   if (!session.user?.id) {
     return Response.json({ message: 'Unauthorized' },
       { status: 401, headers: { 'Location': '/login' } }
+    );
+  }
+
+  // Validate request body
+  if (!goal || !(typeof goal === 'object') || Array.isArray(goal) || typeof goal.id !== 'string' || goal.id.length === 0) {
+    return Response.json({ message: 'Missing required input parameters' },
+      { status: 400 }
     );
   }
 
@@ -599,9 +850,10 @@ export async function DELETE(request: NextRequest) {
       prisma.goal.findUnique({
         where: {
           id: goal.id,
+          // The following is an access check, implicitly checking that the user has `AccessLevel.Author` or `AccessLevel.Admin`
           ...(session.user.isAdmin ? {} : {
             OR: [
-              // Either the goal, roadmap or meta roadmap must be authored by the user unless they are an admin
+              // Either the goal, roadmap or meta roadmap must be authored by the user, unless they are an admin
               { authorId: session.user.id },
               { roadmap: { authorId: session.user.id } },
               { roadmap: { metaRoadmap: { authorId: session.user.id } } },
@@ -657,8 +909,6 @@ export async function DELETE(request: NextRequest) {
         }
       }
     });
-    // Prune any orphaned links and comments
-    await pruneOrphans();
     // Invalidate old cache
     revalidateTag('goal');
     return Response.json({ message: 'Goal deleted', id: deletedGoal.id },

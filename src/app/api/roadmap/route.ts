@@ -1,15 +1,205 @@
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/session"
 import prisma from "@/prismaClient";
-import { AccessControlled, AccessLevel, ClientError, GoalInput, RoadmapInput } from "@/types";
+import { AccessControlled, AccessLevel, ClientError, JSONValue, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
 import roadmapGoalCreator from "./roadmapGoalCreator";
 import accessChecker from "@/lib/accessChecker";
 import { revalidateTag } from "next/cache";
-import goalInputFromGoalArray from "@/functions/goalInputFromGoalArray";
-import getOneGoal from "@/fetchers/getOneGoal";
+// import goalInputFromGoalArray from "@/functions/goalInputFromGoalArray";
+// import getOneGoal from "@/fetchers/getOneGoal";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { cookies } from "next/headers";
 import { Prisma } from "@prisma/client";
+import { isGoalCreate } from "../goal/route";
+
+// Type guards
+function isRoadmapCreate(roadmap: JSONValue): roadmap is RoadmapCreateInput {
+  return (
+    (
+      typeof roadmap === 'object' &&
+      roadmap !== null &&
+      !Array.isArray(roadmap)
+    ) &&
+
+    // description: string | null | undefined;
+    (
+      typeof roadmap.description === 'string' ||
+      roadmap.description === null ||
+      roadmap.description === undefined
+    ) &&
+
+    // targetVersion: number | null | undefined;
+    (
+      typeof roadmap.targetVersion === 'number' ||
+      roadmap.targetVersion === null ||
+      roadmap.targetVersion === undefined
+    ) &&
+
+    // isPublic: boolean | undefined;
+    (
+      typeof roadmap.isPublic === 'boolean' ||
+      roadmap.isPublic === undefined
+    ) &&
+
+    // metaRoadmapId: string;
+    (
+      typeof roadmap.metaRoadmapId === 'string'
+    ) &&
+
+    // goals: GoalCreateInput[] | null | undefined;
+    (
+      roadmap.goals === null ||
+      roadmap.goals === undefined ||
+      (
+        // check if array of GoalCreateInput
+        Array.isArray(roadmap.goals) &&
+        roadmap.goals.every((goal) =>
+          isGoalCreate(goal)
+        )
+      )
+    ) &&
+
+    // editors: string[] | null | undefined;
+    (
+      roadmap.editors === null ||
+      roadmap.editors === undefined ||
+      (
+        Array.isArray(roadmap.editors) &&
+        roadmap.editors.every(name => typeof name === 'string')
+      )
+    ) &&
+
+    // viewers: string[] | null | undefined;
+    (
+      roadmap.viewers === null ||
+      roadmap.viewers === undefined ||
+      (
+        Array.isArray(roadmap.viewers) &&
+        roadmap.viewers.every(name => typeof name === 'string')
+      )
+    ) &&
+
+    // editGroups: string[] | null | undefined;
+
+    (
+      roadmap.editGroups === null ||
+      roadmap.editGroups === undefined ||
+      (
+        Array.isArray(roadmap.editGroups) &&
+        roadmap.editGroups.every(group => typeof group === 'string')
+      )
+    ) &&
+
+    // viewGroups: string[] | null | undefined;
+    (
+      roadmap.viewGroups === null ||
+      roadmap.viewGroups === undefined ||
+      (
+        Array.isArray(roadmap.viewGroups) &&
+        roadmap.viewGroups.every(group => typeof group === 'string')
+      )
+    )
+
+    // links are deprecated and not checked
+  )
+}
+
+function isRoadmapUpdate(roadmap: JSONValue): roadmap is RoadmapUpdateInput {
+  return (
+    (
+      typeof roadmap === 'object' &&
+      roadmap !== null &&
+      !Array.isArray(roadmap)
+    ) &&
+
+    // roadmapId: string;
+    (
+      typeof roadmap.roadmapId === 'string'
+    ) &&
+
+    // timestamp: number;
+    // Used to check for stale data
+    (
+      typeof roadmap.timestamp === 'number'
+    ) &&
+
+    // description: string | null | undefined;
+    (
+      typeof roadmap.description === 'string' ||
+      roadmap.description === null ||
+      roadmap.description === undefined
+    ) &&
+
+    // targetVersion: number | null | undefined;
+    (
+      typeof roadmap.targetVersion === 'number' ||
+      roadmap.targetVersion === null ||
+      roadmap.targetVersion === undefined
+    ) &&
+
+    // isPublic: boolean | undefined;
+    (
+      typeof roadmap.isPublic === 'boolean' ||
+      roadmap.isPublic === undefined
+    ) &&
+
+    // goals: GoalCreateInput[] | null | undefined;
+    (
+      roadmap.goals === null ||
+      roadmap.goals === undefined ||
+      (
+        // check if array of GoalCreateInput
+        Array.isArray(roadmap.goals) &&
+        roadmap.goals.every((goal) =>
+          isGoalCreate(goal)
+        )
+      )
+    ) &&
+
+    // editors: string[] | null | undefined;
+    (
+      roadmap.editors === null ||
+      roadmap.editors === undefined ||
+      (
+        Array.isArray(roadmap.editors) &&
+        roadmap.editors.every(name => typeof name === 'string')
+      )
+    ) &&
+
+    // viewers: string[] | null | undefined;
+    (
+      roadmap.viewers === null ||
+      roadmap.viewers === undefined ||
+      (
+        Array.isArray(roadmap.viewers) &&
+        roadmap.viewers.every(name => typeof name === 'string')
+      )
+    ) &&
+
+    // editGroups: string[] | null | undefined;
+
+    (
+      roadmap.editGroups === null ||
+      roadmap.editGroups === undefined ||
+      (
+        Array.isArray(roadmap.editGroups) &&
+        roadmap.editGroups.every(group => typeof group === 'string')
+      )
+    ) &&
+
+    // viewGroups: string[] | null | undefined;
+    (
+      roadmap.viewGroups === null ||
+      roadmap.viewGroups === undefined ||
+      (
+        Array.isArray(roadmap.viewGroups) &&
+        roadmap.viewGroups.every(group => typeof group === 'string')
+      )
+    )
+
+    // links are deprecated and not checked
+  )
+}
 
 /**
  * Handles POST requests to the roadmap API
@@ -17,20 +207,19 @@ import { Prisma } from "@prisma/client";
 export async function POST(request: NextRequest) {
   const [session, roadmap] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<RoadmapInput & { goals?: GoalInput[] }>,
+    request.json() as Promise<JSONValue>,
   ]);
-
-  // Validate request body
-  if (!roadmap.metaRoadmapId) {
-    return Response.json({ message: 'Missing required input parameters' },
-      { status: 400 }
-    );
-  }
 
   // Validate session
   if (!session.user?.id) {
     return Response.json({ message: 'Unauthorized' },
       { status: 401, headers: { 'Location': '/login' } }
+    );
+  }
+
+  if (!isRoadmapCreate(roadmap)) {
+    return Response.json({ message: 'Invalid request body' },
+      { status: 400 }
     );
   }
 
@@ -97,21 +286,23 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  // TODO: reevaluate this. Should use recipe based system
   // If a parent roadmap is defined to be inherited from, append its goals to the new roadmap's goals
-  if (roadmap.inheritFromIds) {
-    try {
-      const goalArray = await Promise.all(roadmap.inheritFromIds.map(async (id) => await getOneGoal(id)));
-      //getOneRoadmap(roadmap.inheritFromId);
-      if (goalArray) {
-        roadmap.goals = [...(roadmap.goals || []), ...goalInputFromGoalArray(goalArray)];
-      }
-    } catch (error) {
-      console.log(error);
-      return Response.json({ message: 'Failed to fetch roadmap to inherit from' },
-        { status: 400 }
-      );
-    }
-  }
+  // if (roadmap.inheritFromIds?.length) {
+  //   return Response.json({ message: 'This feature is no longer supported' }, { status: 500 });
+  //   try {
+  //     const goalArray = await Promise.all(roadmap.inheritFromIds.map(async (id) => await getOneGoal(id)));
+  //     //getOneRoadmap(roadmap.inheritFromId);
+  //     if (goalArray) {
+  //       roadmap.goals = [...(roadmap.goals || []), ...goalInputFromGoalArray(goalArray, roadmap.metaRoadmapId)];
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //     return Response.json({ message: 'Failed to fetch roadmap to inherit from' },
+  //       { status: 400 }
+  //     );
+  //   }
+  // }
 
   // Get the highest existing version number for this meta roadmap, defaulting to 0
   let latestVersion: number;
@@ -201,20 +392,20 @@ export async function PUT(request: NextRequest) {
   const [session, roadmap] = await Promise.all([
     getSession(await cookies()),
     // The version number is not allowed to be changed
-    request.json() as Promise<Omit<RoadmapInput, 'version'> & { goals?: GoalInput[], roadmapId: string, timestamp?: number }>,
+    request.json() as Promise<JSONValue>,
   ]);
-
-  // Validate request body
-  if (!roadmap.metaRoadmapId) {
-    return Response.json({ message: 'Missing required input parameters' },
-      { status: 400 }
-    );
-  }
 
   // Validate session
   if (!session.user?.id) {
     return Response.json({ message: 'Unauthorized' },
       { status: 401, headers: { 'Location': '/login' } }
+    );
+  }
+
+  // Validate request body
+  if (!isRoadmapUpdate(roadmap)) {
+    return Response.json({ message: 'Invalid request body' },
+      { status: 400 }
     );
   }
 
@@ -403,7 +594,7 @@ export async function DELETE(request: NextRequest) {
     if (error instanceof Error) {
       if (error.message == ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
-        await session.destroy();
+        session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } }
         );
