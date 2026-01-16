@@ -1,5 +1,5 @@
 import { isRecipe, MathjsError, Recipe, RecipeError, RecipeVariable } from "@/functions/recipe/types";
-import { DateValuesWithUnit, JSONValue, Years } from "@/types";
+import { DateValuesWithUnit, JSONValue } from "@/types";
 import { convertVectorToYearValuePair, extractDataSeries, extractExternalDatasets, extractScalars } from "@/functions/recipe/extractors";
 import mathjs from "@/math";
 import { Unit } from "mathjs";
@@ -110,7 +110,6 @@ export class SmartRecipe {
     let result;
     try {
       const rawResult: unknown = mathjs.evaluate(equation, scope);
-      console.log(rawResult);
       // We expect result to be a Unit or Unit[]
       if (mathjs.typeOf(rawResult) === "Unit" || (Array.isArray(rawResult) && rawResult.every(item => mathjs.typeOf(item) === "Unit"))) {
         result = rawResult as Unit | Unit[];

@@ -1,11 +1,13 @@
 import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
-import { isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, RecipeDataTypes, RecipeError, RecipeVariable, VectorIndexPickerOptions } from "@/functions/recipe/types";
+import { emptyRecipe, isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, RecipeDataTypes, RecipeError, RecipeVariable, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import getTableContent from "@/lib/api/getTableContent";
 import mathjs from "@/math";
 import { DateValues, DateValuesWithUnit } from "@/types";
 import { Unit } from "mathjs";
 import { EvalTimeVariable } from "./types";
 import { filterToInitialYearlyRecords, parsePeriod } from "@/lib/api/utility";
+
+const intermediateNullValue = -Infinity; // Mathjs does not like undefined or NaN values so this is the intermediate representation
 
 export function extractScalars(
   variables: Record<string, RecipeVariable>,
@@ -38,64 +40,89 @@ export async function extractDataSeries(
   variables: Record<string, RecipeVariable>,
   warnings: string[] = []
 ): Promise<EvalTimeVariable[]> {
-  throw new RecipeError("extractDataSeries: Not implemented.");
-  return [];
-  
-  // const dataSeries: EvalTimeVariable[] = [];
+  const dataSeries: EvalTimeVariable[] = [];
 
-  // for (const variableName in variables) {
-  //   const variable = variables[variableName];
-  //   if (variable.type !== RecipeDataTypes.DataSeries) continue;
-  //   if (!isRecipeDataSeries(variable)) continue;
+  for (const variableName in variables) {
+    const variable = variables[variableName];
+    if (variable.type !== RecipeDataTypes.DataSeries) continue;
+    if (!isRecipeDataSeries(variable)) continue;
 
-  //   let dbDataSeries: Awaited<ReturnType<typeof clientSafeGetOneDataSeries>>;
-  //   if (variable.link) {
-  //     dbDataSeries = await clientSafeGetOneDataSeries(variable.link)
-  //       .catch((e: Error) => {
-  //         throw new RecipeError(`VariableExtractor: Error fetching data series for variable "${variableName}" with link "${variable.link}": ${e.message}`);
-  //       });
-  //   }
-  //   else if (variable.value || Array.isArray(variable.value)) {
-  //     // TODO: maybe remove this "exception" or at least make the id more robust
-  //     const inlineId = "inline-" + Math.random().toString(36).substring(2, 15); // TODO: better unique id
-  //     dbDataSeries = {
-  //       id: inlineId,
-  //       unit: variable.unit ?? null,
-  //       values: Object.entries(variable.value).map(([key, val]) => ({
-  //         dataSeriesId: inlineId,
-  //         timestamp: new Date(key), // TODO, fix very naive parsing
-  //         value: val,
-  //       })),
-  //     };
-  //   }
-  //   else {
-  //     throw new RecipeError(`VariableExtractor: Variable "${variableName}" is not referencing a goal or data series.`);
-  //   }
+    let dbDataSeries: Awaited<ReturnType<typeof clientSafeGetOneDataSeries>>;
+    if (variable.link) {
+      dbDataSeries = await clientSafeGetOneDataSeries(variable.link)
+        .catch((e: Error) => {
+          throw new RecipeError(`VariableExtractor: Error fetching data series for variable "${variableName}" with link "${variable.link}": ${e.message}`);
+        });
+    }
+    else if (variable.value || Array.isArray(variable.value)) {
+      // TODO: maybe remove this "exception" or at least make the id more robust
+      const inlineId = "inline-" + Math.random().toString(36).substring(2, 15); // TODO: better unique id
+      dbDataSeries = {
+        id: inlineId,
+        unit: variable.unit ?? null,
+        values: Object.entries(variable.value).map(([key, val]) => ({
+          dataSeriesId: inlineId,
+          timestamp: new Date(key), // TODO, fix very naive parsing
+          value: val,
+        })),
+      };
+    }
+    else {
+      throw new RecipeError(`VariableExtractor: Variable "${variableName}" is not referencing a goal or data series.`);
+    }
 
-  //   if (!dbDataSeries) {
-  //     throw new RecipeError(`VariableExtractor: Failed to fetch data series for variable "${variableName}" with link "${variable.link}".`);
-  //   }
+    if (!dbDataSeries) {
+      throw new RecipeError(`VariableExtractor: Failed to fetch data series for variable "${variableName}" with link "${variable.link}".`);
+    }
 
-  //   const bestUnit = getPrevailingUnit(dbDataSeries.unit, variable.unit);
-  //   const isValidUnit = testIfValidUnit(bestUnit);
-  //   if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variableName}" has an invalid unit "${bestUnit}". Treating as unitless.`);
-  //   const unit = isValidUnit ? bestUnit : undefined;
+    const bestUnit = getPrevailingUnit(dbDataSeries.unit, variable.unit);
+    const isValidUnit = testIfValidUnit(bestUnit);
+    if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variableName}" has an invalid unit "${bestUnit}". Treating as unitless.`);
+    const unit = isValidUnit ? bestUnit : undefined;
 
-  //   const vectorOrScalarForm = pickDataSeries(dbDataSeries, variable.pick);
-  //   dataSeries.push({
-  //     name: variableName,
-  //     value: Array.isArray(vectorOrScalarForm) ?
-  //       vectorOrScalarForm.map(v => unit
-  //         ? mathjs.unit(v, unit)
-  //         : mathjs.unit(v))
-  //       : unit
-  //         ? mathjs.unit(vectorOrScalarForm, unit)
-  //         : mathjs.unit(vectorOrScalarForm),
-  //   });
-  // }
+    const dateValues: DateValues = Object.fromEntries(
+      dbDataSeries.values.map(v => ([
+        v.timestamp.toISOString(),
+        v.value,
+      ]))
+    );
 
-  // return dataSeries;
+    const vectorOrScalarForm = pickDataSeries(dateValues, variable.pick);
+    dataSeries.push({
+      name: variableName,
+      value: Array.isArray(vectorOrScalarForm) ?
+        vectorOrScalarForm.map(v => unit
+          ? mathjs.unit(v, unit)
+          : mathjs.unit(v))
+        : unit
+          ? mathjs.unit(vectorOrScalarForm, unit)
+          : mathjs.unit(vectorOrScalarForm),
+    });
+  }
+
+  return dataSeries;
 }
+const warnings: string[] = [];
+console.dir(
+  {
+    result: await extractDataSeries({
+      "varname": {
+        type: RecipeDataTypes.DataSeries,
+        link: undefined,
+        value: {
+          "2021-01-01T00:00:00.000Z": 20,
+          "2024-01-01T00:00:00.000Z": 30,
+          "2026-01-01T00:00:00.000Z": 50,
+          "2022-01-01T00:00:00.000Z": 22,
+        },
+        pick: VectorIndexPickerOptions.Default,
+        unit: null,
+      }
+    }, warnings),
+    warnings,
+  },
+  { depth: null }
+);
 
 export async function extractExternalDatasets(
   variables: Record<string, RecipeVariable>,
@@ -201,73 +228,41 @@ function pickDataSeries(
     throw new RecipeError(`PickDataSeries: Invalid pick value '${pick}'. Expected a VectorIndexPickerOptions or an integer year.`);
   }
 
-  return pickVector(convertYearValuePairToVector(dataSeries, new Date("2020-01-01T00:00:00Z")), pick);
+  return pickVector(convertYearValuePairToVector(dataSeries, new Date("2020-01-01T00:00:00Z"), "years"), pick);
 }
 
-const intermediateNullValue = -Infinity; // Mathjs does not like undefined or NaN values so this is the intermediate representation
+function convertYearValuePairToVector(dataSeries: DateValues, commonStartDate: Date): { vector: number[], mask: Record<string, boolean> } {
+  const definedDates = Object.keys(dataSeries).sort().map(d => new Date(d));
+  const lastDefinedDate = definedDates.reverse()[0];
 
-function convertYearValuePairToVector(dataSeries: DateValues, startDate: Date): number[] {
-  throw new RecipeError("convertYearValuePairToVector: Not implemented.");
-  return [];
-  // const resolutions: Record<string, number> = {
-  //   years: 365 * 24 * 60 * 60 * 1000,
-  //   quarters: 3 * 30 * 24 * 60 * 60 * 1000,
-  //   months: 30 * 24 * 60 * 60 * 1000,
-  //   weeks: 7 * 24 * 60 * 60 * 1000,
-  //   days: 24 * 60 * 60 * 1000,
-  // } as const;
+  if (!lastDefinedDate) {
+    throw new RecipeError("VectorConvert: Data series contains no defined dates.");
+  }
 
-  // const candidateDates = [
-  //   startDate,
-  //   ...Object.keys(dataSeries).map(d => new Date(d)),
-  // ];
+  // Now the start, end, and increments are known, construct all the keys
+  const yearDiff = lastDefinedDate.getUTCFullYear() - commonStartDate.getUTCFullYear();
+  const years: string[] = new Array(yearDiff + 1).fill(null).map((_, i) => {
+    const copyOfStart = new Date(commonStartDate.toISOString());
+    copyOfStart.setUTCFullYear(commonStartDate.getUTCFullYear() + i);
+    return copyOfStart.toISOString();
+  });
 
-  // let resolution: number = resolutions.year; // Unix time
-  // // Find the closest resolution between all defined dates
-  // for (let i = 1; i < candidateDates.length; i++) {
-  //   const diff = Math.abs(candidateDates[i].getTime() - candidateDates[i - 1].getTime());
-  //   for (const resName in resolutions) {
-  //     const resValue = resolutions[resName];
-  //     if (diff >= resValue && diff < resolution) {
-  //       resolution = resValue;
-  //     }
-  //   }
-  // }
-  // console.log(resolution);
+  const vector: number[] = [];
+  const mask: Record<string, boolean> = {};
 
-  // const vector: number[] = [];
+  // Map to vector with special handling for missing and null values
+  for (const year of years) {
+    if (typeof dataSeries[year] === "number" && isFinite(dataSeries[year])) {
+      mask[year] = true;
+      vector.push(dataSeries[year])
+    }
+    else {
+      mask[year] = false;
+      vector.push(intermediateNullValue);
+    }
+  }
 
-  // const definedYears = Object.keys(dataSeries).sort();
-  // const lastDefinedYear = new Date(definedYears.reverse()[0]).getUTCFullYear(); // TODO: validate this and actually parse dates
-
-  // if (!lastDefinedYear) {
-  //   throw new RecipeError("VectorConvert: Data series contains no defined numeric values.");
-  // }
-
-  // // Map to vector with special handling for missing and null values
-  // for (const year of definedYears) {
-  //   if (typeof dataSeries[year] === "undefined") { // Missing in input
-  //     if (lastDefinedYear && year < lastDefinedYear) {
-  //       vector.push(intermediateNullValue);
-  //     }
-  //     vector.push(intermediateNullValue);
-  //   }
-
-  //   else if (dataSeries[year] === null) { // Explicitly null in input
-  //     vector.push(intermediateNullValue);
-  //   }
-
-  //   else if (typeof dataSeries[year] !== "number") {
-  //     throw new RecipeError(`VectorConvert: Invalid data type for year ${year}. Expected number or null, got ${typeof dataSeries[year]}.`);
-  //   }
-
-  //   // Defined number value
-  //   else {
-  //     vector.push(dataSeries[year]);
-  //   }
-  // }
-
-  // return vector;
+  return { vector, mask, };
 }
 
 export function convertVectorToYearValuePair(vector: Unit[], startDate: Date): DateValuesWithUnit {
