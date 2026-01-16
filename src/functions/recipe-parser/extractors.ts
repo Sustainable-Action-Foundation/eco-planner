@@ -198,8 +198,8 @@ function convertYearValuePairToVector(dataSeries: Partial<DataSeriesValueFields>
   const vector: number[] = [];
 
   // TODO move this definition to a higher scope
-  const nonDefinedValue = Infinity; // Mathjs does not like undefined values so this is the intermediate representation 
-  const leadingPaddingValue = Infinity; // Pad start to align with the years properly
+  const nonDefinedValue = -Infinity; // Mathjs does not like undefined values so this is the intermediate representation 
+  const leadingPaddingValue = -Infinity; // Pad start to align with the years properly
 
   const lastDefinedYear = Years.slice().reverse().find(year => {
     return typeof dataSeries[year] === "number";
