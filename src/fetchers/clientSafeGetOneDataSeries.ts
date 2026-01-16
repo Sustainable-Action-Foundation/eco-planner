@@ -60,40 +60,46 @@ async function clientSafeGetCachedDataSeries(id: string, user: LoginData['user']
             { authorId: user.id },
             // Has access to it through a roadmap
             {
-              goal: {
-                OR: [
-                  { authorId: user.id },
-                  canViewParentRoadmap
-                ]
-              }
+              dependentGoals: {
+                some: {
+                  OR: [
+                    { authorId: user.id },
+                    canViewParentRoadmap,
+                  ],
+                },
+              },
             },
             // Has access to it through an action
             {
-              baseline: {
-                OR: [
-                  { authorId: user.id },
-                  canViewParentRoadmap
-                ]
-              }
+              dependentBaselines: {
+                some: {
+                  OR: [
+                    { authorId: user.id },
+                    canViewParentRoadmap,
+                  ],
+                },
+              },
             },
             // Has access to it through an effect
             {
-              effect: {
-                action: {
-                  OR: [
-                    { authorId: user.id },
-                    canViewParentRoadmap
-                  ]
+              dependentEffects: {
+                some: {
+                  action: {
+                    OR: [
+                      { authorId: user.id },
+                      canViewParentRoadmap,
+                    ],
+                  },
+                  goal: {
+                    OR: [
+                      { authorId: user.id },
+                      canViewParentRoadmap,
+                    ],
+                  },
                 },
-                goal: {
-                  OR: [
-                    { authorId: user.id },
-                    canViewParentRoadmap
-                  ]
-                }
-              }
-            }
-          ]
+              },
+            },
+          ],
         },
         select: clientSafeDataSeriesSelection
       });
@@ -112,17 +118,19 @@ async function clientSafeGetCachedDataSeries(id: string, user: LoginData['user']
         id,
         OR: [
           // In public goal
-          { goal: { roadmap: { isPublic: true } } },
+          { dependentGoals: { some: { roadmap: { isPublic: true, }, }, }, },
           // In public action
-          { baseline: { roadmap: { isPublic: true } } },
+          { dependentBaselines: { some: { roadmap: { isPublic: true, }, }, }, },
           // In public effect
           {
-            effect: {
-              action: { roadmap: { isPublic: true } },
-              goal: { roadmap: { isPublic: true } }
-            }
-          }
-        ]
+            dependentEffects: {
+              some: {
+                action: { roadmap: { isPublic: true } },
+                goal: { roadmap: { isPublic: true } },
+              },
+            },
+          },
+        ],
       },
       select: clientSafeDataSeriesSelection,
     });
