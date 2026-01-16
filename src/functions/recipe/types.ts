@@ -104,7 +104,7 @@ export const emptyRecipeScalar: RecipeScalar = { type: RecipeDataTypes.Scalar, v
 export type RecipeDataSeries = {
   type: typeof RecipeDataTypes.DataSeries;
   link: string | null | undefined; // uuid of data series in the database
-  value?: Partial<DateValues> | null | undefined; // Usually not settable by the user, mainly for internal use
+  value?: DateValues | null | undefined; // Usually not settable by the user, mainly for internal use
   pick: VectorIndexPickerOptions | number;
   unit: UnitString; // String if given, null if removed, undefined if not specified
 

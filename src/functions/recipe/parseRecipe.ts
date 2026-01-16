@@ -1,5 +1,5 @@
 import { isRecipe, MathjsError, Recipe, RecipeError, RecipeVariable } from "./types";
-import { DateValues, JSONValue, Years } from "@/types";
+import { DateValues, JSONValue } from "@/types";
 import { convertVectorToYearValuePair, extractDataSeries, extractExternalDatasets, extractScalars } from "./extractors";
 import { Unit } from "mathjs";
 import mathjs from "@/math";
