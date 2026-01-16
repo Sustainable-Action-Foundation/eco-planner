@@ -2,7 +2,7 @@ import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
 import { isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, RecipeDataTypes, RecipeError, RecipeVariable, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import getTableContent from "@/lib/api/getTableContent";
 import mathjs from "@/math";
-import { DateValues, DateValuesWithUnit, nullFullDataSeriesValueField, Years } from "@/types";
+import { DateValues, DateValuesWithUnit } from "@/types";
 import { Unit } from "mathjs";
 import { EvalTimeVariable } from "./types";
 import { filterToInitialYearlyRecords, parsePeriod } from "@/lib/api/utility";
@@ -38,137 +38,148 @@ export async function extractDataSeries(
   variables: Record<string, RecipeVariable>,
   warnings: string[] = []
 ): Promise<EvalTimeVariable[]> {
-  const dataSeries: EvalTimeVariable[] = [];
+  throw new RecipeError("extractDataSeries: Not implemented.");
+  return [];
+  
+  // const dataSeries: EvalTimeVariable[] = [];
 
-  for (const variableName in variables) {
-    const variable = variables[variableName];
-    if (variable.type !== RecipeDataTypes.DataSeries) continue;
-    if (!isRecipeDataSeries(variable)) continue;
+  // for (const variableName in variables) {
+  //   const variable = variables[variableName];
+  //   if (variable.type !== RecipeDataTypes.DataSeries) continue;
+  //   if (!isRecipeDataSeries(variable)) continue;
 
-    let dbDataSeries: Awaited<ReturnType<typeof clientSafeGetOneDataSeries>>;
-    if (variable.link) {
-      dbDataSeries = await clientSafeGetOneDataSeries(variable.link)
-        .catch((e: Error) => {
-          throw new RecipeError(`VariableExtractor: Error fetching data series for variable "${variableName}" with link "${variable.link}": ${e.message}`);
-        });
-    }
-    else if (variable.value || Array.isArray(variable.value)) {
-      // TODO: maybe remove this "exception" or at least make the id more robust
-      dbDataSeries = {
-        id: "inline",
-        unit: variable.unit || null,
-        ...nullFullDataSeriesValueField,
-        ...variable.value,
-      };
-    }
-    else {
-      throw new RecipeError(`VariableExtractor: Variable "${variableName}" is not referencing a goal or data series.`);
-    }
+  //   let dbDataSeries: Awaited<ReturnType<typeof clientSafeGetOneDataSeries>>;
+  //   if (variable.link) {
+  //     dbDataSeries = await clientSafeGetOneDataSeries(variable.link)
+  //       .catch((e: Error) => {
+  //         throw new RecipeError(`VariableExtractor: Error fetching data series for variable "${variableName}" with link "${variable.link}": ${e.message}`);
+  //       });
+  //   }
+  //   else if (variable.value || Array.isArray(variable.value)) {
+  //     // TODO: maybe remove this "exception" or at least make the id more robust
+  //     const inlineId = "inline-" + Math.random().toString(36).substring(2, 15); // TODO: better unique id
+  //     dbDataSeries = {
+  //       id: inlineId,
+  //       unit: variable.unit ?? null,
+  //       values: Object.entries(variable.value).map(([key, val]) => ({
+  //         dataSeriesId: inlineId,
+  //         timestamp: new Date(key), // TODO, fix very naive parsing
+  //         value: val,
+  //       })),
+  //     };
+  //   }
+  //   else {
+  //     throw new RecipeError(`VariableExtractor: Variable "${variableName}" is not referencing a goal or data series.`);
+  //   }
 
-    if (!dbDataSeries) {
-      throw new RecipeError(`VariableExtractor: Failed to fetch data series for variable "${variableName}" with link "${variable.link}".`);
-    }
+  //   if (!dbDataSeries) {
+  //     throw new RecipeError(`VariableExtractor: Failed to fetch data series for variable "${variableName}" with link "${variable.link}".`);
+  //   }
 
-    const bestUnit = getPrevailingUnit(dbDataSeries.unit, variable.unit);
-    const isValidUnit = testIfValidUnit(bestUnit);
-    if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variableName}" has an invalid unit "${bestUnit}". Treating as unitless.`);
-    const unit = isValidUnit ? bestUnit : undefined;
+  //   const bestUnit = getPrevailingUnit(dbDataSeries.unit, variable.unit);
+  //   const isValidUnit = testIfValidUnit(bestUnit);
+  //   if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variableName}" has an invalid unit "${bestUnit}". Treating as unitless.`);
+  //   const unit = isValidUnit ? bestUnit : undefined;
 
-    const vectorOrScalarForm = pickDataSeries(dbDataSeries, variable.pick);
-    dataSeries.push({
-      name: variableName,
-      value: Array.isArray(vectorOrScalarForm) ?
-        vectorOrScalarForm.map(v => unit
-          ? mathjs.unit(v, unit)
-          : mathjs.unit(v))
-        : unit
-          ? mathjs.unit(vectorOrScalarForm, unit)
-          : mathjs.unit(vectorOrScalarForm),
-    });
-  }
+  //   const vectorOrScalarForm = pickDataSeries(dbDataSeries, variable.pick);
+  //   dataSeries.push({
+  //     name: variableName,
+  //     value: Array.isArray(vectorOrScalarForm) ?
+  //       vectorOrScalarForm.map(v => unit
+  //         ? mathjs.unit(v, unit)
+  //         : mathjs.unit(v))
+  //       : unit
+  //         ? mathjs.unit(vectorOrScalarForm, unit)
+  //         : mathjs.unit(vectorOrScalarForm),
+  //   });
+  // }
 
-  return dataSeries;
+  // return dataSeries;
 }
 
 export async function extractExternalDatasets(
   variables: Record<string, RecipeVariable>,
   warnings: string[] = [],
 ): Promise<EvalTimeVariable[]> {
-  const externalDatasets: EvalTimeVariable[] = [];
+  throw new RecipeError("extractExternalDatasets: Not implemented.");
+  return [];
 
-  const fetchers: Array<() => Promise<void>> = [];
+  // const externalDatasets: EvalTimeVariable[] = [];
 
-  for (const variableName in variables) {
-    const variable = variables[variableName];
-    if (variable.type !== RecipeDataTypes.External) continue;
-    if (!isRecipeExternalDataset(variable)) {
-      throw new RecipeError(`Variable '${variableName}', typed as '${(variable as { type: string }).type} ' is not a valid RecipeExternalDataset.`);
-    }
+  // const fetchers: Array<() => Promise<void>> = [];
 
-    const { dataset, tableId, selection } = variable;
+  // for (const variableName in variables) {
+  //   const variable = variables[variableName];
+  //   if (variable.type !== RecipeDataTypes.External) continue;
+  //   if (!isRecipeExternalDataset(variable)) {
+  //     throw new RecipeError(`Variable '${variableName}', typed as '${(variable as { type: string }).type} ' is not a valid RecipeExternalDataset.`);
+  //   }
 
-    if (!dataset || !tableId || !isRecipeExternalDatasetSelection(selection)) { // These props may all be null
-      throw new RecipeError(`External dataset variable '${variableName}' is missing 'dataset', 'tableId' and/or 'selection' properties.`);
-    }
+  //   const { dataset, tableId, selection } = variable;
 
-    fetchers.push(async () => {
-      const data = await getTableContent(tableId, dataset, selection);
+  //   if (!dataset || !tableId || !isRecipeExternalDatasetSelection(selection)) { // These props may all be null
+  //     throw new RecipeError(`External dataset variable '${variableName}' is missing 'dataset', 'tableId' and/or 'selection' properties.`);
+  //   }
 
-      if (!data) {
-        throw new RecipeError(`External dataset variable '${variableName}' has no data for tableId '${tableId}' and dataset '${dataset}' and selection '${JSON.stringify(selection)}'.`);
-      }
-      if (data.values.length === 0) {
-        throw new RecipeError(`External dataset variable '${variableName}' has no values. Expected an array of values with 'period' and 'value' properties.`);
-      }
+  //   fetchers.push(async () => {
+  //     const data = await getTableContent(tableId, dataset, selection);
 
-      const definedValues: Partial<DateValues> = {};
-      // This is done like this to avoid evil Regex
-      const validCharsForYear = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
-      for (const year of Years) {
-        const found = filterToInitialYearlyRecords(data.values)
-          .find(v => {
-            // Assuming year strings are like "val2020" but just in case, only keep numbers
-            const strippedYear = year.split("")
-              .filter(c => validCharsForYear.includes(c))
-              .join("");
+  //     if (!data) {
+  //       throw new RecipeError(`External dataset variable '${variableName}' has no data for tableId '${tableId}' and dataset '${dataset}' and selection '${JSON.stringify(selection)}'.`);
+  //     }
+  //     if (data.values.length === 0) {
+  //       throw new RecipeError(`External dataset variable '${variableName}' has no values. Expected an array of values with 'period' and 'value' properties.`);
+  //     }
 
-            const parsedDate = parsePeriod(v.period);
-            return parsedDate.getUTCFullYear().toString() === strippedYear;
-          });
-        if (found) {
-          definedValues[year] = parseFloat(found.value);
-        }
-      }
+  //     const definedValues: DateValues = {};
+  //     // This is done like this to avoid evil Regex
+  //     const validCharsForYear = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+  //     for (const year of Years) {
+  //       const found = filterToInitialYearlyRecords(data.values)
+  //         .find(v => {
+  //           // Assuming year strings are like "val2020" but just in case, only keep numbers
+  //           const strippedYear = year.split("")
+  //             .filter(c => validCharsForYear.includes(c))
+  //             .join("");
 
-      // TODO: how should units be derived here? I can't find anything in the API response that indicates units.
-      const bestUnit = getPrevailingUnit(undefined, variable.unit);
-      const isValidUnit = testIfValidUnit(bestUnit);
-      if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variableName}" has an invalid unit "${bestUnit}". Treating as unitless.`);
-      const unit = isValidUnit ? bestUnit : undefined;
+  //           const parsedDate = parsePeriod(v.period);
+  //           return parsedDate.getUTCFullYear().toString() === strippedYear;
+  //         });
+  //       if (found) {
+  //         definedValues[year] = parseFloat(found.value);
+  //       }
+  //     }
 
-      const vectorOrScalarForm = pickDataSeries(
-        { ...nullFullDataSeriesValueField, ...definedValues },
-        variable.pick
-      );
-      // pickVector(convertYearValuePairToVector(definedValues), variable.pick);
-      externalDatasets.push({
-        name: variableName,
-        value: Array.isArray(vectorOrScalarForm) ?
-          vectorOrScalarForm.map(v => unit
-            ? mathjs.unit(v, unit)
-            : mathjs.unit(v))
-          : unit
-            ? mathjs.unit(vectorOrScalarForm, unit)
-            : mathjs.unit(vectorOrScalarForm),
-      });
-    });
-  }
+  //     // TODO: how should units be derived here? I can't find anything in the API response that indicates units.
+  //     const bestUnit = getPrevailingUnit(undefined, variable.unit);
+  //     const isValidUnit = testIfValidUnit(bestUnit);
+  //     if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variableName}" has an invalid unit "${bestUnit}". Treating as unitless.`);
+  //     const unit = isValidUnit ? bestUnit : undefined;
 
-  await Promise.all(fetchers.map(fetcher => fetcher()));
+  //     const vectorOrScalarForm = pickDataSeries(
+  //       definedValues,
+  //       variable.pick
+  //     );
+  //     // pickVector(convertYearValuePairToVector(definedValues), variable.pick);
+  //     externalDatasets.push({
+  //       name: variableName,
+  //       value: Array.isArray(vectorOrScalarForm) ?
+  //         vectorOrScalarForm.map(v => unit
+  //           ? mathjs.unit(v, unit)
+  //           : mathjs.unit(v))
+  //         : unit
+  //           ? mathjs.unit(vectorOrScalarForm, unit)
+  //           : mathjs.unit(vectorOrScalarForm),
+  //     });
+  //   });
+  // }
 
-  return externalDatasets;
+  // await Promise.all(fetchers.map(fetcher => fetcher()));
+
+  // return externalDatasets;
 }
 
+/** Wrapper for the conversion function in order to intercept YYYY pick values */
 function pickDataSeries(
   dataSeries: DateValues,
   pick: VectorIndexPickerOptions | number
@@ -178,9 +189,8 @@ function pickDataSeries(
     && Number.isFinite(pick)
     && Number.isInteger(pick)
   ) {
-    // TODO no magic strings
-    const yearKey = "val" + pick.toString();
-    const value = dataSeries[yearKey as Years];
+    const isoYearString = new Date(`${pick}-01-01T00:00:00Z`).toISOString(); // TODO: better parsing
+    const value = dataSeries[isoYearString];
     if (typeof value !== "number") {
       throw new RecipeError(`PickDataSeries: Data series does not contain a valid number for year ${pick}.`);
     }
@@ -191,75 +201,83 @@ function pickDataSeries(
     throw new RecipeError(`PickDataSeries: Invalid pick value '${pick}'. Expected a VectorIndexPickerOptions or an integer year.`);
   }
 
-  return pickVector(convertYearValuePairToVector(dataSeries), pick);
+  return pickVector(convertYearValuePairToVector(dataSeries, new Date("2020-01-01T00:00:00Z")), pick);
 }
 
-function convertYearValuePairToVector(dataSeries: Partial<DateValues>): number[] {
-  const vector: number[] = [];
+const intermediateNullValue = -Infinity; // Mathjs does not like undefined or NaN values so this is the intermediate representation
 
-  // TODO move this definition to a higher scope
-  const nonDefinedValue = Infinity; // Mathjs does not like undefined values so this is the intermediate representation 
-  const leadingPaddingValue = Infinity; // Pad start to align with the years properly
+function convertYearValuePairToVector(dataSeries: DateValues, startDate: Date): number[] {
+  throw new RecipeError("convertYearValuePairToVector: Not implemented.");
+  return [];
+  // const resolutions: Record<string, number> = {
+  //   years: 365 * 24 * 60 * 60 * 1000,
+  //   quarters: 3 * 30 * 24 * 60 * 60 * 1000,
+  //   months: 30 * 24 * 60 * 60 * 1000,
+  //   weeks: 7 * 24 * 60 * 60 * 1000,
+  //   days: 24 * 60 * 60 * 1000,
+  // } as const;
 
-  const lastDefinedYear = Years.slice().reverse().find(year => {
-    return typeof dataSeries[year] === "number";
-  });
+  // const candidateDates = [
+  //   startDate,
+  //   ...Object.keys(dataSeries).map(d => new Date(d)),
+  // ];
 
-  if (!lastDefinedYear) {
-    throw new RecipeError("VectorConvert: Data series contains no defined numeric values.");
-  }
+  // let resolution: number = resolutions.year; // Unix time
+  // // Find the closest resolution between all defined dates
+  // for (let i = 1; i < candidateDates.length; i++) {
+  //   const diff = Math.abs(candidateDates[i].getTime() - candidateDates[i - 1].getTime());
+  //   for (const resName in resolutions) {
+  //     const resValue = resolutions[resName];
+  //     if (diff >= resValue && diff < resolution) {
+  //       resolution = resValue;
+  //     }
+  //   }
+  // }
+  // console.log(resolution);
 
-  // Map to vector with special handling for missing and null values
-  for (const year of Years) {
-    if (typeof dataSeries[year] === "undefined") { // Missing in input
-      if (lastDefinedYear && year < lastDefinedYear) {
-        vector.push(leadingPaddingValue);
-      }
-      vector.push(leadingPaddingValue);
-    }
+  // const vector: number[] = [];
 
-    else if (dataSeries[year] === null) { // Explicitly null in input
-      vector.push(nonDefinedValue);
-    }
+  // const definedYears = Object.keys(dataSeries).sort();
+  // const lastDefinedYear = new Date(definedYears.reverse()[0]).getUTCFullYear(); // TODO: validate this and actually parse dates
 
-    else if (typeof dataSeries[year] !== "number") {
-      throw new RecipeError(`VectorConvert: Invalid data type for year ${year}. Expected number or null, got ${typeof dataSeries[year]}.`);
-    }
+  // if (!lastDefinedYear) {
+  //   throw new RecipeError("VectorConvert: Data series contains no defined numeric values.");
+  // }
 
-    // Defined number value
-    else {
-      vector.push(dataSeries[year]);
-    }
-  }
+  // // Map to vector with special handling for missing and null values
+  // for (const year of definedYears) {
+  //   if (typeof dataSeries[year] === "undefined") { // Missing in input
+  //     if (lastDefinedYear && year < lastDefinedYear) {
+  //       vector.push(intermediateNullValue);
+  //     }
+  //     vector.push(intermediateNullValue);
+  //   }
 
-  return vector;
+  //   else if (dataSeries[year] === null) { // Explicitly null in input
+  //     vector.push(intermediateNullValue);
+  //   }
+
+  //   else if (typeof dataSeries[year] !== "number") {
+  //     throw new RecipeError(`VectorConvert: Invalid data type for year ${year}. Expected number or null, got ${typeof dataSeries[year]}.`);
+  //   }
+
+  //   // Defined number value
+  //   else {
+  //     vector.push(dataSeries[year]);
+  //   }
+  // }
+
+  // return vector;
 }
 
-export function convertVectorToYearValuePair(vector: Unit[]): DateValuesWithUnit {
-  const dataSeries: DateValues = { ...nullFullDataSeriesValueField };
+export function convertVectorToYearValuePair(vector: Unit[], startDate: Date): DateValuesWithUnit {
+  const dataSeries: DateValues = {};
 
-  // TODO move this definition to a higher scope
-  const nonDefinedValue = -Infinity; // Mathjs does not like undefined values so this is the intermediate representation 
-  const leadingPaddingValue = -Infinity; // Pad start to align with the years properly
-
-  const firstNonMissingIndex = vector.findIndex(v => v.value !== leadingPaddingValue);
-
-  for (let i = 0; i < Years.length; i++) {
-    const year = Years[i];
+  for (let i = 0; i < vector.length; i++) {
+    const year = new Date(startDate.getUTCFullYear() + i, 0, 1).toISOString();
     const v = vector[i];
 
-    const isPadding = (
-      v.value === leadingPaddingValue
-      && i < firstNonMissingIndex
-    );
-
-    if (isPadding) {
-      dataSeries[year] = null;
-    }
-    else if (!isFinite(v.value) || v.value === nonDefinedValue) {
-      dataSeries[year] = null;
-    }
-    else {
+    if (isFinite(v.value)) {
       dataSeries[year] = v.value;
     }
   }
@@ -269,15 +287,15 @@ export function convertVectorToYearValuePair(vector: Unit[]): DateValuesWithUnit
   const uniqueUnits = Array.from(new Set(units));
   if (uniqueUnits.length === 1) {
     return {
-      ...dataSeries,
       unit: uniqueUnits[0],
+      values: dataSeries,
     };
   }
   else {
     console.warn(`VectorConvert: Inconsistent units in result vector: ${uniqueUnits.join(", ")}. Setting unit to undefined.`);
     return {
-      ...dataSeries,
       unit: undefined,
+      values: dataSeries,
     };
   }
 }
