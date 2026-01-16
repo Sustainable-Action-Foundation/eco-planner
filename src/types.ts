@@ -472,26 +472,25 @@ export type EffectInput = Omit<
 
 export type UnitString = string | null | undefined;
 export type DateValues = Record<string, number>;
-export type DateValuesWithUnit = DateValues & { unit: UnitString };
-export function isDateValues(dataSeries: JSONValue): dataSeries is Partial<DateValues> {
+export type DateValuesWithUnit = { values: DateValues, unit: UnitString };
+export function isDateValues(dateValues: JSONValue): dateValues is Partial<DateValues> {
   return (
-    typeof dataSeries === 'object'
-    && dataSeries != null
-    && !Array.isArray(dataSeries)
-    && Object.keys(dataSeries).every(year =>
-      typeof year === 'string'
-      && Number.isFinite(new Date(year).getFullYear())
-    )
-    && Object.values(dataSeries).every(value =>
-      typeof value === 'number'
-    )
+    isStandardObject(dateValues)
+    && Object.values(dateValues).every(value => typeof value === 'number')
   );
 }
-export function isDateValuesWithUnit(dataSeries: JSONValue): dataSeries is Partial<DateValuesWithUnit> {
+export function isUnitString(unit: JSONValue | undefined): unit is UnitString {
+  return typeof unit === 'string' || unit === null || unit === undefined;
+}
+export function isDateValuesWithUnit(dateValues: JSONValue): dateValues is Partial<DateValuesWithUnit> {
   return (
-    isDateValues(dataSeries)
-    && ('unit' in dataSeries
-      ? (typeof dataSeries.unit === 'string' || dataSeries.unit === null)
+    isStandardObject(dateValues)
+    && 'values' in dateValues
+    && typeof dateValues.values === 'object'
+    && !Array.isArray(dateValues)
+    && isDateValues(dateValues.values)
+    && ('unit' in dateValues
+      ? (typeof dateValues.unit === 'string' || dateValues.unit === null)
       : true
     )
   );
