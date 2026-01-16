@@ -5,7 +5,6 @@ import { PrismaClient, RoadmapType } from '../src/prisma/generated';
 import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
 import { RandomTextSE } from "./randomText";
-import { Years } from "@/types";
 import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types";
 
 const prisma = new PrismaClient();
@@ -52,27 +51,32 @@ function getRandomUnit(): string | null | undefined {
     .sort(() => Math.random() - 0.5).at(0);
 }
 
-function getRandomCoherentDataPoints(): Partial<Record<typeof Years[number], number>> {
-  const dataPoints: Partial<Record<typeof Years[number], number>> = {};
+function getRandomCoherentDataPoints(): Record<string, number> {
+  const dateRange: string[] = new Array(30).fill(0).map((_, i) =>
+    (2020 + i).toString()
+  );
+
+  const dataPoints: Record<string, number> = {};
+
   let startValue = Math.floor(Math.random() * 10000);
   const deviation = Math.floor(Math.random() * startValue + startValue / 100);
   const inclination = Math.random() < 0.5 ? -1 : 1; // Randomly choose to increase or decrease values
 
-  const fields: typeof Years = [];
+  const fields: string[] = [];
 
   // Small chance to get random start and end years
   if (Math.random() < 0.2) {
-    const emptyStart = Years.slice(0, Math.floor(Math.random() * 10));
-    const emptyEnd = Years.slice(-Math.floor(Math.random() * 10));
+    const emptyStart = dateRange.slice(0, Math.floor(Math.random() * 10));
+    const emptyEnd = dateRange.slice(-Math.floor(Math.random() * 10));
 
-    for (const year of Years) {
-      if (!emptyStart.includes(year) && !emptyEnd.includes(year)) {
-        fields.push(year);
+    for (const date of dateRange) {
+      if (!emptyStart.includes(date) && !emptyEnd.includes(date)) {
+        fields.push(date);
       }
     }
   }
   else {
-    fields.push(...Years); // Use all fields
+    fields.push(...dateRange); // Use all fields
   }
 
   for (const field of fields) { // Chance of skipping a field
@@ -448,7 +452,7 @@ async function main() {
           createdAt,
           updatedAt,
           unit: getRandomUnit(),
-          ...getRandomCoherentDataPoints(),
+          values: getRandomCoherentDataPoints(),
         }
       });
     })
@@ -467,9 +471,7 @@ async function main() {
           isFeatured: Math.random() > 0.7,
           authorId: users[Math.floor(Math.random() * users.length)].id,
           roadmapId: nationalRoadmapVersion1.id,
-          dataSeries: {
-            connect: { id: nationalDataSeriesV1[i].id },
-          },
+          dataSeriesId: nationalDataSeriesV1[i].id,
           recipeSuggestions: {
             connect: [
               { hash: basicRecipes[0].hash },
@@ -492,7 +494,7 @@ async function main() {
           createdAt,
           updatedAt,
           unit: getRandomUnit(),
-          ...getRandomCoherentDataPoints(),
+          values: getRandomCoherentDataPoints(),
         }
       });
     })
