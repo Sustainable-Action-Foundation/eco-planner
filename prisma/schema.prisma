@@ -203,9 +203,9 @@ model DataSeries {
   recipeUsed       Recipe?  @relation(name: "recipe_used", fields: [recipeUsedHash], references: [hash])
   dependentRecipes Recipe[] @relation(name: "source_data_series")
 
-  usedAsGoal     Goal[]   @relation("goal_data_series")
-  usedAsBaseline Goal[]   @relation("goal_baseline")
-  usedAsEffect   Effect[] @relation("effect_data_series")
+  dependentGoals     Goal[]   @relation("goal_data_series")
+  dependentBaselines Goal[]   @relation("goal_baseline")
+  dependentEffects   Effect[] @relation("effect_data_series")
 
   @@map("data_series")
 }
