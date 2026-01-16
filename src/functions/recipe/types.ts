@@ -1,5 +1,5 @@
 import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
-import { DateValues, isDateValues, isStandardObject, JSONValue, typeguardDebug, uuidRegex } from "@/types";
+import { DateValues, isDateValues, isStandardObject, JSONValue, typeguardDebug, UnitString, uuidRegex } from "@/types";
 import { Unit } from "mathjs";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 
@@ -58,7 +58,7 @@ export function isRecipeDataType(variable: unknown): variable is RecipeDataTypes
 export type RecipeScalar = {
   type: typeof RecipeDataTypes.Scalar;
   value: number;
-  unit: string | null | undefined; // String if given, null if removed, undefined if not specified
+  unit: UnitString; // String if given, null if removed, undefined if not specified
 };
 export function isRecipeScalar(variable: JSONValue): variable is RecipeScalar {
   const allowedProps = ["type", "value", "unit"];
@@ -106,7 +106,7 @@ export type RecipeDataSeries = {
   link: string | null | undefined; // uuid of data series in the database
   value?: Partial<DateValues> | null | undefined; // Usually not settable by the user, mainly for internal use
   pick: VectorIndexPickerOptions | number;
-  unit: string | null | undefined; // String if given, null if removed, undefined if not specified
+  unit: UnitString; // String if given, null if removed, undefined if not specified
 
   /** DO NOT USE! deprecated and will be replaced once smart recipes are implemented */
   goalName?: string;
@@ -196,7 +196,7 @@ export type RecipeExternalDataset = {
     valueCodes: string[]
   }[]; // The selection to be made on the table, e.g. [{ variableCode: "Tid", valueCodes: ["2020M01"] }]
   pick: VectorIndexPickerOptions | number;
-  unit: string | null | undefined; // String if given, null if removed, undefined if not specified
+  unit: UnitString; // String if given, null if removed, undefined if not specified
 };
 export function isRecipeExternalDataset(variable: JSONValue): variable is RecipeExternalDataset {
   const allowedProps = ["type", "dataset", "tableId", "selection", "pick", "unit"];
@@ -366,22 +366,6 @@ export const emptyRecipesByDataType: Record<RecipeDataTypes, RecipeVariable> = {
 /*
  * Variable during evaluation of a recipe. Should not persist beyond that scope.
  */
-export type EvalTimeScalar = {
-  name: string; // Variable name
-  value: number; // The actual value to be used
-  unit: string | null | undefined; // Optional unit
-};
-export type EvalTimeDataSeries = {
-  name: string; // Variable name
-  link: string; // For reference sake
-  value: number | number[] | null;
-  unit: string | null | undefined; // Optional unit
-};
-export type EvalTimeExternalDataset = {
-  name: string; // Variable name
-  value: number | number[] | null;
-  unit: string | null | undefined; // Optional unit
-};
 export type EvalTimeVariable = {
   name: string;
   value: Unit | Unit[] | number | number[];
