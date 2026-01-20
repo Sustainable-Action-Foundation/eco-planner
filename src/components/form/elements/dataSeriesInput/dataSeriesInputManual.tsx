@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import styles from "./dataSeriesInput.module.css";
 import { dataSeriesPattern, isValidPastedInput, isValidSingleInputForGrid, isValidSingleInputForTextField } from "./utils";
-import { IconAlertTriangle, IconCaretDownFilled, IconCaretUpFilled, IconHelp, IconQuestionMark } from "@tabler/icons-react";
+import { IconAlertTriangle, IconCaretDownFilled, IconCaretUpFilled, IconHelp, IconPlus, IconQuestionMark, IconTrash, IconTrashFilled, IconTrashX, IconTrashXFilled } from "@tabler/icons-react";
 
 export default function DataSeriesInputManual({
   dataSeriesString, // TODO - rename "dataSeriesString" to "dataSeriesInput" or "initialValue" (latter suggested by chatgpt)
@@ -53,7 +53,7 @@ export default function DataSeriesInputManual({
   function handlePaste(e: React.ClipboardEvent<HTMLInputElement>, startIndex: number) {
     isPasting.current = true;
     // Splits input at tabs, newlines, carriage returns, vertical tabs, and semicolons (other whitespace is trimmed a few lines below)
-    const pastedValues = e.clipboardData.getData("text").split(/[\t\n\r\v;]/);
+    const pastedValues = e.clipboardData.getData("text").split(/[\t(?:\n\r?)\n\v;]/);
     const newValues = [...dataSeriesValues];
 
     for (let i = 0; i < pastedValues.length && i + startIndex < Years.length; i++) {
@@ -74,7 +74,7 @@ export default function DataSeriesInputManual({
 
   return (
     <>
-      <table className="width-100">
+      <table className="width-100" style={{borderSpacing: '0'}}>
         <caption>
           Test caption
         </caption>
@@ -92,12 +92,14 @@ export default function DataSeriesInputManual({
               <td><input type="text" defaultValue={value.data ? value.data : ''} /></td>
               <td style={{width: '0'}}> {/* TODO: This is a temporary solution to make the cell take up as much space as the button */}
                 <button
+                  className="grid round transparent padding-25 margin-left-50"
                   type="button"
+                  aria-label="delete row" // TODO: I18n
                   onClick={() =>
                     setValue(prev => prev.filter((_, i) => i !== index))
                   }
                 >
-                  Remove
+                  <IconTrashXFilled height={20} width={20} aria-hidden="true" />
                 </button>
               </td>
             </tr>
@@ -105,11 +107,13 @@ export default function DataSeriesInputManual({
         </tbody>
       </table>
       <button
+        className="rounded font-weight-500 flex align-items-center gap-50 padding-50 padding-right-75 margin-top-50" style={{lineHeight: '1', transform: 'scale(1)'}}
         onClick={() =>
           setValue(prev => [...prev, { year: null, data: null }])
         }
       >
-        Add new
+        <IconPlus width={20} height={20} aria-hidden="true" />
+        Add new row {/* TODO: I18n */}
       </button>
 
       <fieldset className="block fieldset-unset-pseudo-class">
