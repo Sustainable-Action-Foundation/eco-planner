@@ -16,7 +16,7 @@ import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
 import { IconChartHistogram, IconSearch, IconTrashXFilled, IconX } from "@tabler/icons-react";
-import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput";
+import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
 
 export default function QueryBuilder({
   goal,
@@ -491,7 +491,7 @@ export default function QueryBuilder({
 
         {visibleForm === 'manual' ?
           <div className="padding-inline-100">
-            <DataSeriesInput />
+            <DataSeriesInputManual />
           </div>
           : visibleForm === 'external' ?
             <form ref={formRef} onChange={formChange} onSubmit={handleSubmit}>

@@ -7,7 +7,7 @@ import styles from "./dataSeriesInput.module.css";
 import { dataSeriesPattern, isValidPastedInput, isValidSingleInputForGrid, isValidSingleInputForTextField } from "./utils";
 import { IconAlertTriangle, IconCaretDownFilled, IconCaretUpFilled, IconHelp, IconQuestionMark } from "@tabler/icons-react";
 
-export default function DataSeriesInput({
+export default function DataSeriesInputManual({
   dataSeriesString, // TODO - rename "dataSeriesString" to "dataSeriesInput" or "initialValue" (latter suggested by chatgpt)
   inputName = "dataSeries",
   inputId = "dataSeries",
@@ -21,6 +21,7 @@ export default function DataSeriesInput({
 }) {
 
   const { t } = useTranslation("forms");
+  const [value, setValue] = useState<Array<{ year: number | null, data: number | null }>>([{ year: null, data: null }])
   const [dataSeriesValues, setDataSeriesValues] = useState<string[]>(
     dataSeriesString && dataSeriesString.length > 0
       ? dataSeriesString.split(/[\t;]/).slice(0, Years.length)
@@ -52,7 +53,6 @@ export default function DataSeriesInput({
   function handlePaste(e: React.ClipboardEvent<HTMLInputElement>, startIndex: number) {
     isPasting.current = true;
     // Splits input at tabs, newlines, carriage returns, vertical tabs, and semicolons (other whitespace is trimmed a few lines below)
-    // TODO: Newlines do not seem to split correctly
     const pastedValues = e.clipboardData.getData("text").split(/[\t\n\r\v;]/);
     const newValues = [...dataSeriesValues];
 
@@ -74,6 +74,44 @@ export default function DataSeriesInput({
 
   return (
     <>
+      <table className="width-100">
+        <caption>
+          Test caption
+        </caption>
+        <thead>
+          <tr>
+            <th style={{ width: '100px' }} className="text-align-left" scope="col">Year</th>
+            <th className="text-align-left" scope="col">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          {/* TODO: See if we want required for theese here ? :) */}
+          {value.map((value: { year: number | null, data: number | null }, index: number) =>
+            <tr key={index}>
+              <td style={{ width: '100px' }}><input type="number" defaultValue={value.year ? value.year : ''} /></td>
+              <td><input type="text" defaultValue={value.data ? value.data : ''} /></td>
+              <td style={{width: '0'}}> {/* TODO: This is a temporary solution to make the cell take up as much space as the button */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setValue(prev => prev.filter((_, i) => i !== index))
+                  }
+                >
+                  Remove
+                </button>
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+      <button
+        onClick={() =>
+          setValue(prev => [...prev, { year: null, data: null }])
+        }
+      >
+        Add new
+      </button>
+
       <fieldset className="block fieldset-unset-pseudo-class">
         <legend
           className="flex flex-wrap-wrap gap-100 justify-content-space-between align-items-center width-100 margin-bottom-100 padding-bottom-25"
