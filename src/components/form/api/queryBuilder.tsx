@@ -16,6 +16,7 @@ import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
 import { IconChartHistogram, IconSearch, IconTrashXFilled, IconX } from "@tabler/icons-react";
+import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput";
 
 export default function QueryBuilder({
   goal,
@@ -451,7 +452,7 @@ export default function QueryBuilder({
           <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
             <IconX strokeWidth={3} width={18} height={18} style={{ minWidth: '18px' }} aria-hidden="true" />
           </button>
-          <h2 className="margin-0">{t("components:query_builder.add_data_source")}</h2>
+          <h2 className="margin-0">{t("components:query_builder.add_data_source")}</h2> {/* Title needs to change to as we are not necessarily adding a data source here now */}
         </div>
 
         <p className="padding-inline-100">{t("components:query_builder.add_data_to_goal", { goalName: goal.name ?? goal.indicatorParameter })}</p>
@@ -489,8 +490,9 @@ export default function QueryBuilder({
         </div>
 
         {visibleForm === 'manual' ?
-          <p className="padding-inline-100">Manuellt formulär</p>
-
+          <div className="padding-inline-100">
+            <DataSeriesInput />
+          </div>
           : visibleForm === 'external' ?
             <form ref={formRef} onChange={formChange} onSubmit={handleSubmit}>
               {/* Hidden disabled submit button to prevent accidental submission */}
