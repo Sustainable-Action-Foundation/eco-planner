@@ -8,7 +8,7 @@ import { AccessLevel } from "@/types";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
 import { useTranslation } from "react-i18next";
-import { IconArrowBackUp, IconDotsVertical, IconEdit, IconPlus, IconTrashXFilled, IconX } from "@tabler/icons-react";
+import { IconArrowBackUp, IconChartHistogram, IconDotsVertical, IconEdit, IconPlus, IconTrashXFilled, IconX } from "@tabler/icons-react";
 import { hasEditAccess } from '@/lib/accessChecker';
 
 // General purpose button for roadmaps, goals and actions. 
@@ -88,7 +88,9 @@ export function TableMenu(
   let creationLink2: string | undefined;
   let creationDescription2: string | undefined;
   let editLink: string | undefined;
+  let historicalDataLink: string | undefined;
   let deleteLink: string | undefined;
+
   // MetaRoadmaps
   if (object.roadmapVersions != undefined) {
     selfLink = `/metaRoadmap/${object.id}`;
@@ -119,6 +121,7 @@ export function TableMenu(
     creationLink2 = `/effect/create?goalId=${object.id}`;
     creationDescription2 = t("components:table_menu.add_effect_from_existing_action");
     editLink = `/goal/${object.id}/edit`;
+    historicalDataLink = `/goal/${object.id}/historical-data`;
     deleteLink = "/api/goal"
     if (!object.name) {
       object.name = object.indicatorParameter;
@@ -215,6 +218,12 @@ export function TableMenu(
                 <span>{t("components:table_menu.edit")}</span>
                 <IconEdit aria-hidden="true" style={{ minWidth: '24px' }} />
               </Link>
+              {historicalDataLink &&
+                <Link href={historicalDataLink} className={styles.menuAction}>
+                  <span>{t("components:table_menu.edit")}</span> {/* TODO: Switch text here */}
+                  <IconChartHistogram aria-hidden="true" style={{ minWidth: '24px' }} />
+                </Link>
+              }
               { // Admins and authors can delete items
                 (accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) &&
                 <>
