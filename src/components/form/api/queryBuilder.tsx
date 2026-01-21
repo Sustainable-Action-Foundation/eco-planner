@@ -524,40 +524,40 @@ export default function QueryBuilder({
                       </label>
 
                       {dataSource ?
-                        <>
-                          <div className="margin-top-100 margin-bottom-25">
-                            {/* TODO: Label currently affects multiple elements, fix this */}
-                            <label className="font-weight-500">
-                              {t("components:query_builder.search_for_table")}
-                              <div className="focusable gray-90 flex align-items-center margin-top-25 padding-left-50 smooth">
-                                <IconSearch strokeWidth={1.5} style={{ minWidth: '24px' }} aria-hidden="true" />
-                                <input name={tableSearchInputName} type="search" className="padding-0 margin-inline-50" onKeyDown={searchOnEnter} style={{ backgroundColor: "transparent" }} />
-                                <button type="button" onClick={searchWithButton} className="padding-block-50 padding-inline-100 transparent font-weight-500">{t("components:query_builder.search")}</button>
-                              </div>
-                            </label>
-                          </div>
+                        <div className="purewhite smooth padding-50 flex flex-direction-column" style={{border: '1px solid var(--gray-80)', minHeight: '0'}}> {/* TODO: This whole listthing should be a combobox  */}
+                            <div className="margin-top-100 margin-bottom-25">
+                              {/* TODO: Label currently affects multiple elements, fix this (will get fixed once this is a combobox as live search removes need for a button) */}
+                              <label className="font-weight-500">
+                                {t("components:query_builder.search_for_table")}
+                                <div className="focusable flex align-items-center margin-top-25 " style={{border: '0', borderBottom: '1px solid var(--gray-80)', borderRadius: '0'}}>
+                                  <IconSearch strokeWidth={1.5} style={{ minWidth: '24px' }} aria-hidden="true" />
+                                  <input name={tableSearchInputName} type="search" className="padding-0 margin-inline-50" placeholder="skriv för att söka..." onKeyDown={searchOnEnter} style={{ backgroundColor: "transparent" }} /> {/* TODO: Placeholder i18n */}
+                                  <button type="button" onClick={searchWithButton} className="padding-block-50 padding-inline-100 transparent font-weight-500">{t("components:query_builder.search")}</button>
+                                </div>
+                              </label>
+                            </div>
 
-                          <ul
-                            id="tablesList"
-                            className={`position-relative padding-25 smooth ${styles.temporary}`} onScroll={e => handleTableListScroll(e)}
-                            style={{ border: "1px solid var(--gray-90)", listStyle: "none" }} >
-                            {renderedTables && renderedTables.map(({ tableId: id, label }) => (
-                              <li
-                                key={id}
-                                id={`table${id}`}
-                                className={`${styles.tableSelect} block padding-block-25`}
-                              >
-                                {label}
-                                <input
-                                  type="radio"
-                                  value={id}
-                                  name="externalTableId"
-                                  onClick={e => handleTableSelect((e.target as HTMLButtonElement).value)}
-                                />
-                              </li>
-                            ))}
-                          </ul>
-                        </>
+                            <ul
+                              id="tablesList"
+                              className={`position-relative padding-right-25 padding-left-0 ${styles['tableList']}`} onScroll={e => handleTableListScroll(e)}
+                              style={{ listStyle: "none" }} >
+                              {renderedTables && renderedTables.map(({ tableId: id, label }) => (
+                                <li
+                                  key={id}
+                                  id={`table${id}`}
+                                  className={`${styles.tableSelect} block padding-block-25`}
+                                >
+                                  {label}
+                                  <input
+                                    type="radio"
+                                    value={id}
+                                    name="externalTableId"
+                                    onClick={e => handleTableSelect((e.target as HTMLButtonElement).value)}
+                                  />
+                                </li>
+                              ))}
+                            </ul>
+                        </div>
                         : null}
 
                     </fieldset>
