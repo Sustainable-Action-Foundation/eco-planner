@@ -52,8 +52,10 @@ export default function DataSeriesInput({
   function handlePaste(e: React.ClipboardEvent<HTMLInputElement>, startIndex: number) {
     isPasting.current = true;
     // Splits input at tabs, newlines, carriage returns, vertical tabs, and semicolons (other whitespace is trimmed a few lines below)
-    // TODO: Newlines do not seem to split correctly
-    const pastedValues = e.clipboardData.getData("text").split(/[\t\n\r\v;]/);
+    const pastedText = e.clipboardData.getData("text");
+    const pastedValues = pastedText.includes("\n")
+      ? pastedText.split(/[\n\r?]+/)
+      : pastedText.split(/[\t\r\v;]/);
     const newValues = [...dataSeriesValues];
 
     for (let i = 0; i < pastedValues.length && i + startIndex < Years.length; i++) {
