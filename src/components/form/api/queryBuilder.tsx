@@ -459,6 +459,7 @@ export default function QueryBuilder({
           <div className={`${styles['dialog-body']}`}>
             {/* <p className="padding-inline-100">{t("components:query_builder.add_data_to_goal", { goalName: goal.name ?? goal.indicatorParameter })}</p> */}
 
+            {/* TODO: It might be sensible if theese are tabs instead. Or if we warn users that data will be deleted given that you switch between them */}
             <div className="radio-select-two margin-bottom-100" > {/* TODO: Make sure theese wrap */}
               <label id="recipe-type-suggested-label">
                 Lägg till data manuellt {/* TODO: i18n */}
@@ -496,7 +497,7 @@ export default function QueryBuilder({
                 <DataSeriesInputManual />
               </div>
               : visibleForm === 'external' ?
-                <form ref={formRef} onChange={formChange} onSubmit={handleSubmit}>
+                <form ref={formRef} onChange={formChange} onSubmit={handleSubmit} className="flex flex-direction-column flex-grow-1" style={{minHeight: '0'}}>
                   {/* Hidden disabled submit button to prevent accidental submission */}
                   <button type="submit" className="display-none" disabled></button>
                   <strong
@@ -507,7 +508,7 @@ export default function QueryBuilder({
                   </strong>
 
                   <FormWrapper>
-                    <fieldset className="position-relative">
+                    <fieldset className="position-relative flex flex-direction-column" style={{height: '100%'}}>
                       <label className="margin-block-75 font-weight-500">
                         {t("components:query_builder.data_source")}
                         {/* Display warning message if the selected language is not supported by the api */}
@@ -539,7 +540,7 @@ export default function QueryBuilder({
                           <ul
                             id="tablesList"
                             className={`position-relative padding-25 smooth ${styles.temporary}`} onScroll={e => handleTableListScroll(e)}
-                            style={{ maxHeight: "300px", border: "1px solid var(--gray-90)", listStyle: "none" }} >
+                            style={{ border: "1px solid var(--gray-90)", listStyle: "none" }} >
                             {renderedTables && renderedTables.map(({ tableId: id, label }) => (
                               <li
                                 key={id}
@@ -661,8 +662,9 @@ export default function QueryBuilder({
                     id="submit-button"
                     disabled={true}
                     type="submit"
-                    className="display-none seagreen color-purewhite margin-inline-auto block"
-                    style={{ width: "calc(100% - 2rem)" }}>{t("components:query_builder.add_data_source_button")}
+                    className="display-none seagreen color-purewhite block"
+                  >
+                    {t("components:query_builder.add_data_source_button")}
                   </button>
 
                 </form>
