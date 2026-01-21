@@ -1,13 +1,43 @@
 .dialog {
-  width: min(75ch, 100%);
+  width: min(90ch, 100%);
   overflow: unset;
-  height: calc(100vh - 2rem);
+  height: calc(70vh - 2rem);
   border: 0; 
   box-shadow: 0 0 .5rem -.25rem rgba(0,0,0,.25);
+  background-color: rgba(246, 246, 246); /* Same as background*/
+}
+
+.dialog::backdrop {
+  backdrop-filter: blur(1px);
+}
+
+.dialog-content {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+}
+
+.dialog-header {
+  background-color: white;
+  border-bottom: 1px solid var(--gray-80);
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-radius: .5rem .5rem 0 0; /* Same as dialog */
+}
+
+.dialog-header > h1 {
+  font-size: 1.75rem;
+}
+
+.dialog-body {
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--gray) rgba(0,0,0,0);
-}
+  padding: 1rem;
+} 
 
 /* TODO: Do we want this class? Or do we want to scroll the entire dialog? */
 .temporary {

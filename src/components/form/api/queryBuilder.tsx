@@ -447,224 +447,228 @@ export default function QueryBuilder({
         </button>
       }
 
-      <dialog className={`smooth padding-inline-0 ${styles.dialog}`} ref={modalRef} aria-modal>
-        <div className="display-flex flex-direction-row-reverse align-items-center justify-content-space-between padding-inline-100">
-          <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
-            <IconX strokeWidth={3} width={18} height={18} style={{ minWidth: '18px' }} aria-hidden="true" />
-          </button>
-          <h2 className="margin-0">{t("components:query_builder.add_data_source")}</h2> {/* Title needs to change to as we are not necessarily adding a data source here now */}
-        </div>
-
-        <p className="padding-inline-100">{t("components:query_builder.add_data_to_goal", { goalName: goal.name ?? goal.indicatorParameter })}</p>
-
-        <div className="radio-select-two margin-bottom-100 padding-inline-100" > {/* TODO: Make sure theese wrap */}
-          <label id="recipe-type-suggested-label">
-            Lägg till data manuellt {/* TODO: i18n */}
-            <input
-              className="margin-right-25"
-              type="radio"
-              name="visible-form"
-              id="visible-form-manual"
-              value="manual"
-              checked={visibleForm === "manual"}
-              onChange={() => {
-                setVisibleForm("manual");
-              }}
-            />
-          </label>
-          <span>&#8210; {t("common:tsx.or")} &#8210;</span>
-          <label>
-            Välj data från externa datakällor {/* TODO: i18n */}
-            <input
-              className="margin-right-25"
-              type="radio"
-              name="visible-form"
-              id="visible-form-external"
-              value="external"
-              checked={visibleForm === "external"}
-              onChange={() => {
-                setVisibleForm("external");
-              }}
-            />
-          </label>
-        </div>
-
-        {visibleForm === 'manual' ?
-          <div className="padding-inline-100">
-            <DataSeriesInputManual />
+      <dialog className={`rounded padding-inline-0 padding-block-0 ${styles.dialog}`} ref={modalRef} aria-modal>
+        <div className={`${styles['dialog-content']}`}>
+          <div className={`${styles['dialog-header']}`}>
+            <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
+              <IconX strokeWidth={3} width={28} height={28} style={{ minWidth: '28px' }} aria-hidden="true" />
+            </button>
+            <h2 className="margin-0">{t("components:query_builder.add_data_source")}</h2> {/* Title needs to change to as we are not necessarily adding a data source here now */}
           </div>
-          : visibleForm === 'external' ?
-            <form ref={formRef} onChange={formChange} onSubmit={handleSubmit}>
-              {/* Hidden disabled submit button to prevent accidental submission */}
-              <button type="submit" className="display-none" disabled></button>
-              <strong
-                id="loader"
-                className={`position-absolute gray-80 padding-100 smooth ${!isLoading && "hidden"}`}
-                style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 100, opacity: "0.75" }}>
-                {t("components:query_builder.loading")}
-              </strong>
+          
+          <div className={`${styles['dialog-body']}`}>
+            {/* <p className="padding-inline-100">{t("components:query_builder.add_data_to_goal", { goalName: goal.name ?? goal.indicatorParameter })}</p> */}
 
-              <FormWrapper>
-                <fieldset className="position-relative">
-                  <label className="margin-block-75 font-weight-500">
-                    {t("components:query_builder.data_source")}
-                    {/* Display warning message if the selected language is not supported by the api */}
-                    {((ExternalDataset.getDatasetByAlternateName(dataSource)) && !(ExternalDataset.getDatasetByAlternateName(dataSource)?.supportedLanguages.includes(lang))) ?
-                      <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
-                      : null}
-                    <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
-                      <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
-                      {ExternalDataset.knownDatasetKeys.map((name) => (
-                        <option key={name} value={name}>{ExternalDataset[name]?.fullName}</option>
-                      ))}
-                    </select>
-                  </label>
+            <div className="radio-select-two margin-bottom-100" > {/* TODO: Make sure theese wrap */}
+              <label id="recipe-type-suggested-label">
+                Lägg till data manuellt {/* TODO: i18n */}
+                <input
+                  className="margin-right-25"
+                  type="radio"
+                  name="visible-form"
+                  id="visible-form-manual"
+                  value="manual"
+                  checked={visibleForm === "manual"}
+                  onChange={() => {
+                    setVisibleForm("manual");
+                  }}
+                />
+              </label>
+              <span>&#8210; {t("common:tsx.or")} &#8210;</span>
+              <label>
+                Välj data från externa datakällor {/* TODO: i18n */}
+                <input
+                  className="margin-right-25"
+                  type="radio"
+                  name="visible-form"
+                  id="visible-form-external"
+                  value="external"
+                  checked={visibleForm === "external"}
+                  onChange={() => {
+                    setVisibleForm("external");
+                  }}
+                />
+              </label>
+            </div>
 
-                  {dataSource ?
-                    <>
-                      <div className="margin-top-100 margin-bottom-25">
-                        {/* TODO: Label currently affects multiple elements, fix this */}
-                        <label className="font-weight-500">
-                          {t("components:query_builder.search_for_table")}
-                          <div className="focusable gray-90 flex align-items-center margin-top-25 padding-left-50 smooth">
-                            <IconSearch strokeWidth={1.5} style={{ minWidth: '24px' }} aria-hidden="true" />
-                            <input name={tableSearchInputName} type="search" className="padding-0 margin-inline-50" onKeyDown={searchOnEnter} style={{ backgroundColor: "transparent" }} />
-                            <button type="button" onClick={searchWithButton} className="padding-block-50 padding-inline-100 transparent font-weight-500">{t("components:query_builder.search")}</button>
-                          </div>
-                        </label>
-                      </div>
+            {visibleForm === 'manual' ?
+              <div>
+                <DataSeriesInputManual />
+              </div>
+              : visibleForm === 'external' ?
+                <form ref={formRef} onChange={formChange} onSubmit={handleSubmit}>
+                  {/* Hidden disabled submit button to prevent accidental submission */}
+                  <button type="submit" className="display-none" disabled></button>
+                  <strong
+                    id="loader"
+                    className={`position-absolute gray-80 padding-block-100 smooth ${!isLoading && "hidden"}`}
+                    style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 100, opacity: "0.75" }}>
+                    {t("components:query_builder.loading")}
+                  </strong>
 
-                      <ul
-                        id="tablesList"
-                        className={`position-relative padding-25 smooth ${styles.temporary}`} onScroll={e => handleTableListScroll(e)}
-                        style={{ maxHeight: "300px", border: "1px solid var(--gray-90)", listStyle: "none" }} >
-                        {renderedTables && renderedTables.map(({ tableId: id, label }) => (
-                          <li
-                            key={id}
-                            id={`table${id}`}
-                            className={`${styles.tableSelect} block padding-block-25`}
-                          >
-                            {label}
-                            <input
-                              type="radio"
-                              value={id}
-                              name="externalTableId"
-                              onClick={e => handleTableSelect((e.target as HTMLButtonElement).value)}
-                            />
-                          </li>
-                        ))}
-                      </ul>
-                    </>
-                    : null}
+                  <FormWrapper>
+                    <fieldset className="position-relative">
+                      <label className="margin-block-75 font-weight-500">
+                        {t("components:query_builder.data_source")}
+                        {/* Display warning message if the selected language is not supported by the api */}
+                        {((ExternalDataset.getDatasetByAlternateName(dataSource)) && !(ExternalDataset.getDatasetByAlternateName(dataSource)?.supportedLanguages.includes(lang))) ?
+                          <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
+                          : null}
+                        <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
+                          <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
+                          {ExternalDataset.knownDatasetKeys.map((name) => (
+                            <option key={name} value={name}>{ExternalDataset[name]?.fullName}</option>
+                          ))}
+                        </select>
+                      </label>
 
-                </fieldset>
-
-                {tableDetails && (
-                  // TODO - which inputs should be optional?
-                  <>
-                    <label className="block margin-block-75">
-                      <Trans
-                        i18nKey={"components:query_builder.selected_table"}
-                        values={{ table: document.getElementById(`table${tableDetails.id}`)?.innerText }}
-                        components={{ strong: <strong />, small: <small />, i: <i /> }}
-                      />
-                      {/* {t("components:query_builder.selected_table", { table: document.getElementById(`table${tableDetails.id}`)?.innerText })} */}
-                    </label>
-                    <fieldset className="margin-block-100 smooth padding-50" style={{ border: "1px solid var(--gray-90)" }}>
-                      <legend className="padding-inline-50">
-                        <b>{t("components:query_builder.select_metric_for_table")}</b>
-                      </legend>
-                      <div>
-                        <label key={`metric-${tableDetails.id}`} className="block margin-block-75">
-                          <select className={`block margin-block-25 metric`}
-                            required={true}
-                            name="metric"
-                            id="metric"
-                            defaultValue={undefined}
-                            onChange={handleMetricSelect}>
-                            <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_metric")}</option>
-                            {tableDetails.metrics && tableDetails.metrics.map(metric => (
-                              <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
-                            ))}
-                          </select>
-                        </label>
-                      </div>
-                    </fieldset>
-                    <fieldset name="variableSelectionFieldset" disabled={true} className={`margin-block-100 smooth padding-25 fieldset-unset-pseudo-class`} style={{ border: `${shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? "1px solid var(--gray-90)" : ""}`, maxHeight: "322px" }}>
-                      {shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
+                      {dataSource ?
                         <>
-                          <legend className="padding-inline-50">
-                            <b>{t("components:query_builder.select_values_for_table")}</b>
-                          </legend>
-                          <div className={`${styles.temporary}`} style={{ maxHeight: "282px", boxSizing: "content-box", padding: ".25rem", paddingRight: ".375rem" }}>
-                            {tableDetails.times &&
-                              timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
-                            }
-                            {tableDetails.variables.map(variable => {
-                              return variableSelectionHelper(variable, tableDetails);
-                            })}
-                            {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
-                              if (hierarchy.children?.some(variable => variable.option)) return (
-                                <label key={hierarchy.name} className="block margin-block-75">
-                                  <b>{hierarchy.label}</b>
-                                  {hierarchy.children && hierarchy.children.map(variable => {
-                                    return variableSelectionHelper(variable, tableDetails, { classNames: ["margin-left-75"] });
-                                  })}
-                                </label>
-                              )
-                            })}
+                          <div className="margin-top-100 margin-bottom-25">
+                            {/* TODO: Label currently affects multiple elements, fix this */}
+                            <label className="font-weight-500">
+                              {t("components:query_builder.search_for_table")}
+                              <div className="focusable gray-90 flex align-items-center margin-top-25 padding-left-50 smooth">
+                                <IconSearch strokeWidth={1.5} style={{ minWidth: '24px' }} aria-hidden="true" />
+                                <input name={tableSearchInputName} type="search" className="padding-0 margin-inline-50" onKeyDown={searchOnEnter} style={{ backgroundColor: "transparent" }} />
+                                <button type="button" onClick={searchWithButton} className="padding-block-50 padding-inline-100 transparent font-weight-500">{t("components:query_builder.search")}</button>
+                              </div>
+                            </label>
                           </div>
-                        </>) : (<p className={`font-style-italic color-gray`}>{t("components:query_builder.no_variables_found")}</p>)}
+
+                          <ul
+                            id="tablesList"
+                            className={`position-relative padding-25 smooth ${styles.temporary}`} onScroll={e => handleTableListScroll(e)}
+                            style={{ maxHeight: "300px", border: "1px solid var(--gray-90)", listStyle: "none" }} >
+                            {renderedTables && renderedTables.map(({ tableId: id, label }) => (
+                              <li
+                                key={id}
+                                id={`table${id}`}
+                                className={`${styles.tableSelect} block padding-block-25`}
+                              >
+                                {label}
+                                <input
+                                  type="radio"
+                                  value={id}
+                                  name="externalTableId"
+                                  onClick={e => handleTableSelect((e.target as HTMLButtonElement).value)}
+                                />
+                              </li>
+                            ))}
+                          </ul>
+                        </>
+                        : null}
+
                     </fieldset>
 
-                  </>
-                )}
-              </FormWrapper>
-              <output>
-                {/* TODO: style this better */}
-                {tableContent && tableContent.values.length > 0 ? (
-                  <div className="padding-inline-100">
-                    <p>{t("components:query_builder.does_this_look_correct", { count: 5 })}</p>
-                    <table>
-                      <thead>
-                        <tr>
-                          <th scope="col">{t("components:query_builder.period")}</th>
-                          <th scope="col">{t("components:query_builder.value")}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {
-                          tableContent.values.map(({ period, value }, rowIndex) => {
-                            return (
-                              rowIndex < 5 &&
-                              <tr key={period}>
-                                <td>{period}</td>
-                                <td>{value}</td>
-                              </tr>
-                            )
-                          })
-                        }
-                      </tbody>
-                    </table>
-                  </div>
-                ) :
-                  !defaultMetricSelected &&
-                  formRef.current?.checkValidity() && (
-                    <p className="padding-100">{t("components:query_builder.no_result_found")}</p>
-                  )
-                }
-              </output>
-              {/* TODO: Should probably only be displayed on last slide? */}
-              <button
-                id="submit-button"
-                disabled={true}
-                type="submit"
-                className="display-none seagreen color-purewhite margin-inline-auto block"
-                style={{ width: "calc(100% - 2rem)" }}>{t("components:query_builder.add_data_source_button")}
-              </button>
+                    {tableDetails && (
+                      // TODO - which inputs should be optional?
+                      <>
+                        <label className="block margin-block-75">
+                          <Trans
+                            i18nKey={"components:query_builder.selected_table"}
+                            values={{ table: document.getElementById(`table${tableDetails.id}`)?.innerText }}
+                            components={{ strong: <strong />, small: <small />, i: <i /> }}
+                          />
+                          {/* {t("components:query_builder.selected_table", { table: document.getElementById(`table${tableDetails.id}`)?.innerText })} */}
+                        </label>
+                        <fieldset className="margin-block-100 smooth padding-50" style={{ border: "1px solid var(--gray-90)" }}>
+                          <legend className="padding-inline-50">
+                            <b>{t("components:query_builder.select_metric_for_table")}</b>
+                          </legend>
+                          <div>
+                            <label key={`metric-${tableDetails.id}`} className="block margin-block-75">
+                              <select className={`block margin-block-25 metric`}
+                                required={true}
+                                name="metric"
+                                id="metric"
+                                defaultValue={undefined}
+                                onChange={handleMetricSelect}>
+                                <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_metric")}</option>
+                                {tableDetails.metrics && tableDetails.metrics.map(metric => (
+                                  <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
+                                ))}
+                              </select>
+                            </label>
+                          </div>
+                        </fieldset>
+                        <fieldset name="variableSelectionFieldset" disabled={true} className={`margin-block-100 smooth padding-25 fieldset-unset-pseudo-class`} style={{ border: `${shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? "1px solid var(--gray-90)" : ""}`, maxHeight: "322px" }}>
+                          {shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
+                            <>
+                              <legend className="padding-inline-50">
+                                <b>{t("components:query_builder.select_values_for_table")}</b>
+                              </legend>
+                              <div className={`${styles.temporary}`} style={{ maxHeight: "282px", boxSizing: "content-box", padding: ".25rem", paddingRight: ".375rem" }}>
+                                {tableDetails.times &&
+                                  timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
+                                }
+                                {tableDetails.variables.map(variable => {
+                                  return variableSelectionHelper(variable, tableDetails);
+                                })}
+                                {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
+                                  if (hierarchy.children?.some(variable => variable.option)) return (
+                                    <label key={hierarchy.name} className="block margin-block-75">
+                                      <b>{hierarchy.label}</b>
+                                      {hierarchy.children && hierarchy.children.map(variable => {
+                                        return variableSelectionHelper(variable, tableDetails, { classNames: ["margin-left-75"] });
+                                      })}
+                                    </label>
+                                  )
+                                })}
+                              </div>
+                            </>) : (<p className={`font-style-italic color-gray`}>{t("components:query_builder.no_variables_found")}</p>)}
+                        </fieldset>
 
-            </form>
-            : null}
+                      </>
+                    )}
+                  </FormWrapper>
+                  <output>
+                    {/* TODO: style this better */}
+                    {tableContent && tableContent.values.length > 0 ? (
+                      <div>
+                        <p>{t("components:query_builder.does_this_look_correct", { count: 5 })}</p>
+                        <table>
+                          <thead>
+                            <tr>
+                              <th scope="col">{t("components:query_builder.period")}</th>
+                              <th scope="col">{t("components:query_builder.value")}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {
+                              tableContent.values.map(({ period, value }, rowIndex) => {
+                                return (
+                                  rowIndex < 5 &&
+                                  <tr key={period}>
+                                    <td>{period}</td>
+                                    <td>{value}</td>
+                                  </tr>
+                                )
+                              })
+                            }
+                          </tbody>
+                        </table>
+                      </div>
+                    ) :
+                      !defaultMetricSelected &&
+                      formRef.current?.checkValidity() && (
+                        <p className="padding-100">{t("components:query_builder.no_result_found")}</p>
+                      )
+                    }
+                  </output>
+                  {/* TODO: Should probably only be displayed on last slide? */}
+                  <button
+                    id="submit-button"
+                    disabled={true}
+                    type="submit"
+                    className="display-none seagreen color-purewhite margin-inline-auto block"
+                    style={{ width: "calc(100% - 2rem)" }}>{t("components:query_builder.add_data_source_button")}
+                  </button>
+
+                </form>
+                : null}
+          </div>
+        </div>
       </dialog>
     </>
   )
