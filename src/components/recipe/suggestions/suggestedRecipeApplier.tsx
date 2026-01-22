@@ -12,7 +12,7 @@ import TabList from "../../generic/tablist/tabList";
 import OutputDataSeries from "../editor/output/dataSeriesDisplay";
 import OutputGraph from "../editor/output/graphDisplay";
 import OutputStatus from "../editor/output/statusDisplay";
-import { testIfValidUnit } from "@/functions/recipe/extractors";
+import { isMathjsUnit } from "@/functions/recipe/extractors";
 import { IconAlertTriangleFilled } from "@tabler/icons-react";
 import { RecipeEditorPermissions } from "../editor/variables/variableTypes/recipeEditorPermissions";
 import { TFunction } from "i18next";
@@ -119,7 +119,7 @@ export function SuggestedRecipeApplier({
     >
       {Object.entries(recipe?.variables ?? {}).map(([variableName, variable], i) => {
         const unitIsProvided = typeof variable.unit !== "undefined" && variable.unit !== null;
-        const isValidUnit = unitIsProvided ? testIfValidUnit(variable.unit as string) : false;
+        const isValidUnit = unitIsProvided ? isMathjsUnit(variable.unit as string) : false;
         const unitDisplay = isValidUnit
           ? ` [${variable.unit}]`
           : unitIsProvided && variable.unit !== ''

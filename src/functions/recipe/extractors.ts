@@ -21,7 +21,7 @@ export function extractScalars(
     if (!isRecipeScalar(variable)) continue;
 
     const bestUnit = getPrevailingUnit(undefined, variable.unit);
-    const isValidUnit = testIfValidUnit(bestUnit);
+    const isValidUnit = isMathjsUnit(bestUnit);
     if (bestUnit && !isValidUnit) warnings.push(`Scalar variable "${variableName}" has an invalid unit "${bestUnit}". Treating as unitless.`);
     const unit = isValidUnit ? bestUnit : undefined;
 
@@ -76,7 +76,7 @@ export async function extractDataSeries(
     }
 
     const bestUnit = getPrevailingUnit(dbDataSeries.unit, variable.unit);
-    const isValidUnit = testIfValidUnit(bestUnit);
+    const isValidUnit = isMathjsUnit(bestUnit);
     if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variableName}" has an invalid unit "${bestUnit}". Treating as unitless.`);
     const unit = isValidUnit ? bestUnit : undefined;
 
@@ -406,7 +406,7 @@ function pickVector(vector: Unit[], pick: VectorIndexPickerOptions): Unit | Unit
   }
 }
 
-export function testIfValidUnit(unit: string | null | undefined): boolean {
+export function isMathjsUnit(unit: string | null | undefined): boolean {
   if (!unit) return false;
   try {
     mathjs.unit(1, unit);
