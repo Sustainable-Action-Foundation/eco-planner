@@ -103,27 +103,48 @@ export async function extractDataSeries(
 
   return dataSeries;
 }
-// const warnings: string[] = [];
-// console.dir(
-//   {
-//     result: await extractDataSeries({
-//       "varname": {
-//         type: RecipeDataTypes.DataSeries,
-//         link: undefined,
-//         value: {
-//           "2021-01-01T00:00:00.000Z": 20,
-//           "2024-01-01T00:00:00.000Z": 30,
-//           "2026-01-01T00:00:00.000Z": 50,
-//           "2022-01-01T00:00:00.000Z": 22,
-//         },
-//         pick: VectorIndexPickerOptions.Default,
-//         unit: null,
-//       }
-//     }, warnings),
-//     warnings,
-//   },
-//   { depth: null }
-// );
+const warnings: string[] = [];
+const testRecipe: Record<string, RecipeVariable> = {
+  "a vari:)": {
+    type: RecipeDataTypes.DataSeries,
+    link: undefined,
+    value: {
+      "2021-01-01T00:00:00.000Z": 20,
+      "2024-01-01T00:00:00.000Z": 30,
+      "2026-01-01T00:00:00.000Z": 50,
+      "2022-01-01T00:00:00.000Z": 22,
+    },
+    pick: VectorIndexPickerOptions.Default,
+    unit: null,
+  },
+  "scalar test": {
+    type: RecipeDataTypes.Scalar,
+    value: 42,
+    unit: "kg",
+  },
+  "year pick test": {
+    type: RecipeDataTypes.DataSeries,
+    link: undefined,
+    value: {
+      "2020-01-01T00:00:00.000Z": 10,
+      "2021-01-01T00:00:00.000Z": 20,
+      "2022-01-01T00:00:00.000Z": 30,
+      "2023-01-01T00:00:00.000Z": 40,
+    },
+    pick: 2022,
+    unit: "m",
+  },
+};
+const extracted = await extractDataSeries(testRecipe, warnings);
+
+console.log("Extracted data series:", extracted.map(v =>
+  typeof v.value === "number"
+    ? v.value // Not applicable
+    : Array.isArray(v.value)
+      ? v.value.map(u => u.format({ precision: 2 }))
+      : v.value.format({ precision: 2 })
+));
+console.log("Warnings:", warnings);
 
 export async function extractExternalDatasets(
   variables: Record<string, RecipeVariable>,
