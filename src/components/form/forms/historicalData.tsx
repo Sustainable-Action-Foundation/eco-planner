@@ -15,6 +15,7 @@ import { Trans, useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
 import { IconSearch } from "@tabler/icons-react";
 import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
+import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 
 export default function HistoricalData({
   goal,
@@ -258,7 +259,8 @@ export default function HistoricalData({
     disableSubmitButton();
   }
 
-  function handleTableSelect(tableId: string) {
+  {/* TODO: See if we can remove table content when de-selecting  */}
+  function handleTableSelect(tableId: string) { 
     setIsLoading(true);
 
     if (!ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
@@ -423,7 +425,7 @@ export default function HistoricalData({
 
   // Index for data-position attribute in legend elements (for accessibility)
   let positionIndex = 1;
-  
+
   return (
 
 
@@ -472,12 +474,6 @@ export default function HistoricalData({
           <form ref={formRef} onChange={formChange} onSubmit={handleSubmit} className="flex flex-direction-column flex-grow-1" style={{ minHeight: '0' }}>
             {/* Hidden disabled submit button to prevent accidental submission */}
             <button type="submit" className="display-none" disabled></button>
-            <strong
-              id="loader"
-              className={`position-absolute gray-80 padding-block-100 smooth ${!isLoading && "hidden"}`}
-              style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 100, opacity: "0.75" }}>
-              {t("components:query_builder.loading")}
-            </strong>
 
             <fieldset className="position-relative flex flex-direction-column" style={{ height: '100%' }}>
               <label className="margin-block-75 font-weight-500">
@@ -495,40 +491,25 @@ export default function HistoricalData({
               </label>
 
               {dataSource ?
-                <div className="purewhite smooth padding-50 flex flex-direction-column" style={{ border: '1px solid var(--gray-80)', minHeight: '0' }}> {/* TODO: This whole listthing should be a combobox  */}
-                  <div className="margin-top-100 margin-bottom-25">
-                    {/* TODO: Label currently affects multiple elements, fix this (will get fixed once this is a combobox as live search removes need for a button) */}
-                    <label className="font-weight-500">
-                      {t("components:query_builder.search_for_table")}
-                      <div className="focusable flex align-items-center margin-top-25 " style={{ border: '0', borderBottom: '1px solid var(--gray-80)', borderRadius: '0' }}>
-                        <IconSearch strokeWidth={1.5} style={{ minWidth: '24px' }} aria-hidden="true" />
-                        <input name={tableSearchInputName} type="search" className="padding-0 margin-inline-50" placeholder="skriv för att söka..." onKeyDown={searchOnEnter} style={{ backgroundColor: "transparent" }} /> {/* TODO: Placeholder i18n */}
-                        <button type="button" onClick={searchWithButton} className="padding-block-50 padding-inline-100 transparent font-weight-500">{t("components:query_builder.search")}</button>
-                      </div>
-                    </label>
-                  </div>
-
-                  <ul
-                    id="tablesList"
-                    className={`position-relative padding-right-25 padding-left-0 ${styles['tableList']}`} onScroll={e => handleTableListScroll(e)}
-                    style={{ listStyle: "none" }} >
-                    {renderedTables && renderedTables.map(({ tableId: id, label }) => (
-                      <li
-                        key={id}
-                        id={`table${id}`}
-                        className={`${styles.tableSelect} block padding-block-25`}
-                      >
-                        {label}
-                        <input
-                          type="radio"
-                          value={id}
-                          name="externalTableId"
-                          onClick={e => handleTableSelect((e.target as HTMLButtonElement).value)}
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <>
+                  <label htmlFor="temp">Tabell</label> {/* TODO: i18n */}
+                  <SelectSingleSearch // TODO: Deal with width
+                    props={{
+                      id: 'temp',
+                      name: 'temp',
+                      placeholder: 'Välj tabell'
+                    }}
+                    options={
+                      renderedTables
+                        ? renderedTables.map(({ tableId, label }) => ({
+                          name: label,
+                          value: tableId,
+                        }))
+                        : []
+                    }
+                    onChange={(value) => value?.value ? handleTableSelect(value.value) : handleTableSelect('')}
+                  />
+                </>
                 : null}
 
             </fieldset>
