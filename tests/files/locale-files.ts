@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
-import "../lib/console";
 import fs from "node:fs";
 import path from "node:path";
 import { glob } from "glob";
@@ -66,7 +65,7 @@ const exemptedUnusedKeys: string[] = ["_", "common:"];
  */
 
 /* Does every namespace exist in every locale? */
-test.describe("Namespace files exist", async () => {
+test.describe("Namespace files exist", () => {
   // Track missing and extra namespaces per locale
   const perLocale = Object.fromEntries(uniqueLocales.map(locale =>
     [locale as Locales, { missing: [] as string[], extra: [] as string[], empty: [] as string[] }]
@@ -222,7 +221,7 @@ test("Are nested keys defined", () => {
 
           // Notice on argument, syntax error
           try { JSON.parse(args); }
-          catch (e) {
+          catch {
             if (!perLocale[locale]) perLocale[locale] = [];
             perLocale[locale].push(`[Syntax error: args] > '${key}': '${values.value}'`);
             return;
