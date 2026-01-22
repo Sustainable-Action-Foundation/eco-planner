@@ -77,7 +77,7 @@ export async function extractDataSeries(
 
     const bestUnit = getPrevailingUnit(dbDataSeries.unit, variable.unit);
     const isValidUnit = isMathjsUnit(bestUnit);
-    if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variableName}" has an invalid unit "${bestUnit}". Treating as unitless.`);
+    if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variableName}" has an invalid unit "${bestUnit}". Treating as unitless during evaluation.`);
     const unit = isValidUnit ? bestUnit : undefined;
 
     const dateValues: DateValues = Object.fromEntries(
@@ -87,16 +87,17 @@ export async function extractDataSeries(
       ]))
     );
 
-    const vectorOrScalarForm = pickDataSeries(dateValues, variable.pick);
+    if (Object.keys(dateValues).some(k => !isISOIshDate(k))) {
+      throw new RecipeError(`Data series variable "${variableName}" contains invalid ISOIshDate keys.`);
+    }
+
+    const dataSelection = pickDataSeries(
+      { values: dateValues, unit, },
+      variable.pick
+    );
     dataSeries.push({
       name: variableName,
-      value: Array.isArray(vectorOrScalarForm) ?
-        vectorOrScalarForm.map(v => unit
-          ? mathjs.unit(v, unit)
-          : mathjs.unit(v))
-        : unit
-          ? mathjs.unit(vectorOrScalarForm, unit)
-          : mathjs.unit(vectorOrScalarForm),
+      value: dataSelection,
     });
   }
 

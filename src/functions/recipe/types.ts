@@ -368,7 +368,7 @@ export const emptyRecipesByDataType: Record<RecipeDataTypes, RecipeVariable> = {
  */
 export type EvalTimeVariable = {
   name: string;
-  value: Unit | Unit[] | number | number[];
+  value: Unit | Unit[] | number;
 }
 
 
