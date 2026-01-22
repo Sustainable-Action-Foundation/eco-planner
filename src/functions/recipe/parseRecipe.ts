@@ -57,6 +57,8 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
     throw new RecipeError("Invalid recipe format");
   }
 
+  // TODO, fetch the data of ds and external before converting to eval time vars to be able to get their masks and lengths to align properly
+
   const scalars = extractScalars(recipe.variables, warnings);
   const dataSeries = await extractDataSeries(recipe.variables, warnings);
   const externalDatasets = await extractExternalDatasets(recipe.variables, warnings);
