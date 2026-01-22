@@ -232,30 +232,30 @@ function pickDataSeries(
 }
 
 function transformDateValuesToVector(
-  timeline: DateValuesWithUnit,
+  dateValues: DateValuesWithUnit,
   commonStartDate: Date,
 ): {
   vector: Unit[];
   mask: Mask;
 } {
-  const { values: dateValues, unit, } = timeline;
+  const { values: timeline, unit, } = dateValues;
 
   const vector: Unit[] = [];
   const mask: Record<string, boolean> = {};
 
-  const leadingDiff = commonStartDate.getUTCFullYear() - Math.min(...Object.keys(dateValues).map(d => new Date(d).getUTCFullYear()));
-  const yearSpan = leadingDiff + Object.keys(dateValues).length;
+  const leadingDiff = commonStartDate.getUTCFullYear() - Math.min(...Object.keys(timeline).map(d => new Date(d).getUTCFullYear()));
+  const yearSpan = leadingDiff + Object.keys(timeline).length;
 
   for (let i = 0; i < yearSpan; i++) {
     const currentYear = commonStartDate.getUTCFullYear() + i;
-    
+
     const isoYearString = new Date(`${currentYear}-01-01T00:00:00Z`).toISOString();
     if (!isISODateString(isoYearString)) {
       throw new RecipeError(`VectorConvert: Generated invalid ISO date string '${isoYearString}'.`);
     }
 
-    if (isoYearString in dateValues) {
-      const value = dateValues[isoYearString];
+    if (isoYearString in timeline) {
+      const value = timeline[isoYearString];
       vector.push(
         unit
           ? mathjs.unit(value, unit)
@@ -272,6 +272,8 @@ function transformDateValuesToVector(
       mask[isoYearString] = true; // Masked, non defined value
     }
   }
+
+  return { vector, mask };
 }
 
 /** 
