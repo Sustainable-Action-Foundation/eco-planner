@@ -354,41 +354,55 @@ function getPrevailingUnit(existingUnit: string | null | undefined, newUnit: str
   return existingUnit;
 }
 
-function pickVector(vector: number[], pick: VectorIndexPickerOptions): number | number[] {
-  switch (pick) {
-    case VectorIndexPickerOptions.Whole:
-      return vector;
+function pickVector(vector: Unit[], pick: VectorIndexPickerOptions): Unit | Unit[] | number {
+  // Whole
+  if (pick === VectorIndexPickerOptions.Whole) {
+    return vector satisfies Unit[];
+  }
 
-    case VectorIndexPickerOptions.First:
-      const first = vector.at(0);
-      if (first === undefined) {
-        throw new RecipeError("VectorPicking: Vector is empty, cannot pick the first element.");
-      }
-      return first;
+  // First
+  else if (pick === VectorIndexPickerOptions.First) {
+    const first = vector.at(0);
+    if (first === undefined) {
+      throw new RecipeError("VectorPicking: Vector is empty, cannot pick the first element.");
+    }
+    return first satisfies Unit;
+  }
 
-    case VectorIndexPickerOptions.Last:
-      const last = vector.at(-1);
-      if (last === undefined) {
-        throw new RecipeError("VectorPicking: Vector is empty, cannot pick the last element.");
-      }
-      return last;
+  // Last
+  else if (pick === VectorIndexPickerOptions.Last) {
+    const last = vector.at(-1);
+    if (last === undefined) {
+      throw new RecipeError("VectorPicking: Vector is empty, cannot pick the last element.");
+    }
+    return last satisfies Unit;
+  }
 
-    case VectorIndexPickerOptions.Mean:
-      const sum = vector.reduce((acc, val) => acc + val, 0);
-      return sum / vector.length;
+  // Mean
+  else if (pick === VectorIndexPickerOptions.Mean) {
+    const sum = vector.reduce((acc, val) => acc + val.toNumber(), 0);
+    const mean = sum / vector.length;
+    return mean satisfies number;
+  }
 
-    case VectorIndexPickerOptions.Median:
-      const sorted = [...vector].sort((a, b) => a - b);
-      const mid = Math.floor(sorted.length / 2);
-      if (sorted.length % 2 === 0) {
-        return (sorted[mid - 1] + sorted[mid]) / 2;
-      }
-      else {
-        return sorted[mid];
-      }
+  // Median
+  else if (pick === VectorIndexPickerOptions.Median) {
+    const sorted = [...vector].sort((a, b) => a.toNumber() - b.toNumber());
+    const middleIndex = Math.floor(sorted.length / 2);
+    let median: number;
+    if (sorted.length % 2 === 0) {
+      const left = sorted[middleIndex - 1].toNumber();
+      const right = sorted[middleIndex].toNumber();
+      median = (left + right) / 2;
+    }
+    else {
+      median = sorted[middleIndex].toNumber();
+    }
+    return median satisfies number;
+  }
 
-    default:
-      throw new RecipeError(`pickVector: Unknown VectorIndexPickerOption '${(pick as string | number).toString()}'.`);
+  else {
+    throw new RecipeError(`pickVector: Unknown VectorIndexPickerOption '${(pick as string | number).toString()}'.`);
   }
 }
 
