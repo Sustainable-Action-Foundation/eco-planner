@@ -13,7 +13,6 @@ import { Goal } from "@prisma/client";
 import { FormEvent, useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
-import { IconSearch } from "@tabler/icons-react";
 import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 
@@ -34,8 +33,6 @@ export default function HistoricalData({
   const [visibleForm, setVisibleForm] = useState('manual')
   const [dataSource, setDataSource] = useState<string>("");
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
-  const [renderedTables, setRenderedTables] = useState<{ tableId: string, label: string }[] | null>(null);
-  const [offset, setOffset] = useState(0);
   const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
   const [defaultMetricSelected, setDefaultMetricSelected] = useState(true);
@@ -43,14 +40,7 @@ export default function HistoricalData({
   const formRef = useRef<HTMLFormElement | null>(null);
 
   const tableSearchInputName = "tableSearch";
-
-  // These variables determine how many tables are rendered at a time, and how many are rendered when the user scrolls down/up
-  // The first number is the amount of tables that are rendered when the user scrolls down/up, and the second number is the maximum amount of tables that are rendered at once.
-  // The initial rendering margin allows for more than the maximum amount of tables to be rendered at once if the total amount of tables is less than the maximum amount of tables plus the margin (currently adding to 115).
-  const tablesListRenderingChunkSize = 50;
-  const renderedTablesListMaxLength = 100;
-  const initialRenderingMargin = 15;
-
+ 
   useEffect(() => {
     if (!dataSource) return;
     setIsLoading(true);
@@ -59,36 +49,6 @@ export default function HistoricalData({
 
     void getTables(dataSource, query, lang).then(result => { setTables(result); setIsLoading(false); });
   }, [dataSource, lang]);
-
-  useEffect(() => {
-    if (tables) {
-      setRenderedTables(tables
-        .slice(
-          0,
-          /* If the total amount of tables is less than, or equal to, the max amount of rendered tables plus a margin (currently adding to 115), show all tables */
-          tables.length <= renderedTablesListMaxLength + initialRenderingMargin
-            ?
-            tables.length
-            : /* Otherwise, only show the first (100) tables. */
-            renderedTablesListMaxLength
-        ));
-      setOffset(0);
-    } else {
-      setRenderedTables(null);
-      setOffset(0);
-    }
-  }, [tables]);
-
-  useEffect(() => {
-    const loader = document?.getElementById("loader");
-    if (isLoading && loader) {
-      loader.classList.remove("hidden");
-    } else if (!isLoading && loader) {
-      setTimeout(() => {
-        loader.classList.add("hidden");
-      }, 0);
-    }
-  }, [isLoading]);
 
   useEffect(() => {
     const metricSelectElement = document.getElementById("metric") as HTMLSelectElement | null;
@@ -153,26 +113,6 @@ export default function HistoricalData({
     }), "PUT", t, setIsLoading);
   }
 
-  function enableSubmitButton() {
-    const submitButton = document?.getElementById("submit-button");
-    if (submitButton) {
-      submitButton.removeAttribute("disabled");
-      if (submitButton.classList.contains("display-none")) submitButton.classList.remove("display-none");
-      if (submitButton.classList.contains("height-0")) submitButton.classList.remove("height-0");
-      if (submitButton.classList.contains("padding-0")) submitButton.classList.remove("padding-0");
-    }
-  }
-
-  function disableSubmitButton() {
-    const submitButton = document?.getElementById("submit-button");
-    if (submitButton) {
-      submitButton.setAttribute("disabled", "true");
-      if (!submitButton.classList.contains("display-none")) submitButton.classList.add("display-none");
-      if (!submitButton.classList.contains("height-0")) submitButton.classList.add("height-0");
-      if (!submitButton.classList.contains("padding-0")) submitButton.classList.add("padding-0");
-    }
-  }
-
   function tryGetResult(event?: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
     // null check
     if (!(formRef.current instanceof HTMLFormElement)) return;
@@ -186,16 +126,10 @@ export default function HistoricalData({
       const tableId = tableDetails?.id ?? formData.get("externalTableId") as string ?? "";
       getTableContent(tableId, dataSource, query, lang).then(result => {
         setTableContent(result);
-        if ((result?.values.length ?? 0) > 0) {
-          enableSubmitButton();
-        } else {
-          disableSubmitButton();
-        }
         setIsLoading(false);
       }).catch(e => {
         console.error("Error fetching table content:", e);
         setTableContent(null);
-        disableSubmitButton();
         setIsLoading(false);
       });
       if (dataSource == "Trafa") {
@@ -207,7 +141,6 @@ export default function HistoricalData({
     }
     // If not, make sure the submit button is disabled
     else {
-      disableSubmitButton();
       clearTableContent();
       setIsLoading(false);
     }
@@ -221,26 +154,7 @@ export default function HistoricalData({
     if (!changedElementIsExternalDataset && !changedElementIsTableSearch && !changedElementIsTable && tables && tableDetails) {
       tryGetResult(event);
     }
-  }
-
-  function searchOnEnter(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      event.stopPropagation();
-      handleSearch((event.target as HTMLInputElement).value);
-    }
-  }
-
-  function searchWithButton() {
-    const query = (formRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
-    handleSearch(query ?? undefined);
-  }
-
-  function handleSearch(query?: string) {
-    if (!dataSource || !ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
-
-    void getTables(dataSource, query, lang).then(result => setTables(result));
-  }
+  }  
 
   function clearTableDetails() {
     setTableDetails(null);
@@ -255,8 +169,6 @@ export default function HistoricalData({
     // Clear table details and content whenever the data source changes
     clearTableContent();
     clearTableDetails();
-    // Make sure submit button is disabled when the data source is changed
-    disableSubmitButton();
   }
 
   {/* TODO: See if we can remove table content when de-selecting  */}
@@ -268,7 +180,6 @@ export default function HistoricalData({
 
     clearTableContent();
     clearTableDetails();
-    disableSubmitButton();
 
     void getTableDetails(tableId, dataSource, undefined, lang).then(result => { setTableDetails(result); setIsLoading(false); });
   }
@@ -308,40 +219,7 @@ export default function HistoricalData({
   // TODO: should probably use a pseudo class (::after) instead of a span here.
   function optionalTag(dataSource: string, variableIsOptional: boolean) {
     if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
-  }
-
-  function handleTableListScroll(event: React.UIEvent<HTMLUListElement, UIEvent>) {
-    if (event.target && event.target instanceof HTMLElement && tables && event.target.children.length < tables.length) {
-      if ( // This block is only executed when the user scrolls down
-        renderedTables
-        &&
-        /* Check if the user has scrolled far enough to render more tables (including some margin so the scroll does not get stuck at the bottom while waiting for more tables to render) */
-        event.target.scrollTop + event.target.clientHeight * 2 >= event.target.scrollHeight
-        &&
-        /* Make sure that the very last table has not been rendered */
-        !renderedTables.includes(tables[tables.length - 1])
-      ) {
-        const newOffset = offset + tablesListRenderingChunkSize;
-        const newRenderedTables = tables.slice(newOffset, newOffset + renderedTablesListMaxLength);
-        setRenderedTables(newRenderedTables);
-        setOffset(newOffset);
-      }
-      else if ( // This block is only executed when the user scrolls up
-        renderedTables
-        &&
-        /* Check if the user has scrolled far enough to render more tables (including some margin so the scroll does not get stuck at the top while waiting for more tables to render) */
-        event.target.scrollTop < event.target.clientHeight * 2
-        &&
-        /* Check that the very first table has not been rendered */
-        !renderedTables.includes(tables[0])
-      ) {
-        const newOffset = Math.max(offset - tablesListRenderingChunkSize, 0);
-        const newRenderedTables = tables.slice(newOffset, newOffset + renderedTablesListMaxLength);
-        setRenderedTables(newRenderedTables);
-        setOffset(newOffset);
-      }
-    }
-  }
+  } 
 
   type VariableSelectionHelperOptions = {
     classNames?: string[],
@@ -500,8 +378,8 @@ export default function HistoricalData({
                       placeholder: 'Välj tabell'
                     }}
                     options={
-                      renderedTables
-                        ? renderedTables.map(({ tableId, label }) => ({
+                      tables
+                        ? tables.map(({ tableId, label }) => ({
                           name: label,
                           value: tableId,
                         }))
@@ -608,12 +486,11 @@ export default function HistoricalData({
                 )
               }
             </output>
-            {/* TODO: Should probably only be displayed on last slide? */}
             <button
               id="submit-button"
               disabled={true}
               type="submit"
-              className="display-none seagreen color-purewhite block"
+              className="seagreen color-purewhite block"
             >
               {t("components:query_builder.add_data_source_button")}
             </button>
