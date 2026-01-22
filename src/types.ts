@@ -1,6 +1,7 @@
 import { ActionImpactType, Prisma, RoadmapType } from "@prisma/client";
 import { actionInclusionSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, roadmapInclusionSelection } from "./fetchers/inclusionSelectors";
 import { Recipe } from "./functions/recipe/types";
+import { Unit } from "mathjs";
 
 /**
  * A utility function for helping with finding where something fails in a typeguard chain.
@@ -475,6 +476,7 @@ type ISOIshDate = `${number}-${number}-${number}T00:00:00.000Z`;
 export type Mask = Record<ISOIshDate, boolean>;
 export type DateValues = Record<ISOIshDate, number>;
 export type DateValuesWithUnit = { values: DateValues, unit: UnitString };
+export type MaskedVector = { vector: Unit[], mask: Mask };
 export function isDateValues(dateValues: JSONValue): dateValues is DateValues {
   return (
     isStandardObject(dateValues)

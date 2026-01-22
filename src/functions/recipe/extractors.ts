@@ -2,7 +2,7 @@ import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
 import { emptyRecipe, isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, RecipeDataTypes, RecipeError, RecipeVariable, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import getTableContent from "@/lib/api/getTableContent";
 import mathjs from "@/math";
-import { DateValues, DateValuesWithUnit, isISOIshDate, Mask } from "@/types";
+import { DateValues, DateValuesWithUnit, isISOIshDate, Mask, MaskedVector, UnitString } from "@/types";
 import { Unit } from "mathjs";
 import { EvalTimeVariable } from "./types";
 import { filterToInitialYearlyRecords, parsePeriod } from "@/lib/api/utility";
@@ -102,27 +102,27 @@ export async function extractDataSeries(
 
   return dataSeries;
 }
-const warnings: string[] = [];
-console.dir(
-  {
-    result: await extractDataSeries({
-      "varname": {
-        type: RecipeDataTypes.DataSeries,
-        link: undefined,
-        value: {
-          "2021-01-01T00:00:00.000Z": 20,
-          "2024-01-01T00:00:00.000Z": 30,
-          "2026-01-01T00:00:00.000Z": 50,
-          "2022-01-01T00:00:00.000Z": 22,
-        },
-        pick: VectorIndexPickerOptions.Default,
-        unit: null,
-      }
-    }, warnings),
-    warnings,
-  },
-  { depth: null }
-);
+// const warnings: string[] = [];
+// console.dir(
+//   {
+//     result: await extractDataSeries({
+//       "varname": {
+//         type: RecipeDataTypes.DataSeries,
+//         link: undefined,
+//         value: {
+//           "2021-01-01T00:00:00.000Z": 20,
+//           "2024-01-01T00:00:00.000Z": 30,
+//           "2026-01-01T00:00:00.000Z": 50,
+//           "2022-01-01T00:00:00.000Z": 22,
+//         },
+//         pick: VectorIndexPickerOptions.Default,
+//         unit: null,
+//       }
+//     }, warnings),
+//     warnings,
+//   },
+//   { depth: null }
+// );
 
 export async function extractExternalDatasets(
   variables: Record<string, RecipeVariable>,
@@ -208,32 +208,47 @@ export async function extractExternalDatasets(
 
 /** Wrapper for the conversion function in order to intercept YYYY pick values */
 function pickDataSeries(
-  dataSeries: DateValues,
+  dataSeries: DateValuesWithUnit,
   pick: VectorIndexPickerOptions | number
-): number | number[] {
+): Unit | Unit[] | number {
+
+  // Try to interpret as year YYYY
   if (
     typeof pick === "number"
     && Number.isFinite(pick)
     && Number.isInteger(pick)
   ) {
-    const isoYearString = new Date(`${pick}-01-01T00:00:00Z`).toISOString(); // TODO: better parsing
-    const value = dataSeries[isoYearString];
-    if (typeof value !== "number") {
+    const isoYearString = new Date(`${pick}-01-01T00:00:00Z`).toISOString();
+    if (!isISOIshDate(isoYearString)) {
+      throw new RecipeError(`PickDataSeries: Invalid year pick value '${pick}'.`);
+    }
+    const valueAtPickedYear = dataSeries.values[isoYearString];
+    if (typeof valueAtPickedYear !== "number") {
       throw new RecipeError(`PickDataSeries: Data series does not contain a valid number for year ${pick}.`);
     }
-    return value;
+    return dataSeries.unit
+      ? mathjs.unit(valueAtPickedYear, dataSeries.unit)
+      : mathjs.unit(valueAtPickedYear);
   }
+  // Else, must be VectorIndexPickerOptions 
 
   if (typeof pick === "number") {
     throw new RecipeError(`PickDataSeries: Invalid pick value '${pick}'. Expected a VectorIndexPickerOptions or an integer year.`);
   }
 
-  return pickVector(transformDateValuesToVector(dataSeries, new Date("2020-01-01T00:00:00Z"), "years"), pick);
+  const maskedVector = transformDateValuesToVector(
+    dataSeries,
+    new Date("2020-01-01T00:00:00Z"),
+    30,
+  );
+
+  return pickVector(maskedVector, pick);
 }
 
 function transformDateValuesToVector(
   dateValues: DateValuesWithUnit,
   commonStartDate: Date,
+  commonLength: number,
 ): {
   vector: Unit[];
   mask: Mask;
@@ -243,10 +258,7 @@ function transformDateValuesToVector(
   const vector: Unit[] = [];
   const mask: Record<string, boolean> = {};
 
-  const leadingDiff = commonStartDate.getUTCFullYear() - Math.min(...Object.keys(timeline).map(d => new Date(d).getUTCFullYear()));
-  const yearSpan = leadingDiff + Object.keys(timeline).length;
-
-  for (let i = 0; i < yearSpan; i++) {
+  for (let i = 0; i < commonLength; i++) {
     const currentYear = commonStartDate.getUTCFullYear() + i;
 
     const isoYearString = new Date(`${currentYear}-01-01T00:00:00Z`).toISOString();
@@ -304,9 +316,10 @@ function transformDateValuesToVector(
  * 
  */
 export function parseDateValuesFromVector(
-  vector: Unit[],
-  mask: Mask,
+  maskedVector: MaskedVector,
 ): DateValuesWithUnit {
+  const { vector, mask } = maskedVector;
+
   if (vector.length !== Object.keys(mask).length) {
     throw new RecipeError("VectorConvert: Vector length does not match mask length.");
   }
@@ -341,7 +354,7 @@ export function parseDateValuesFromVector(
   }
 }
 
-function getPrevailingUnit(existingUnit: string | null | undefined, newUnit: string | null | undefined): string | null | undefined {
+function getPrevailingUnit(existingUnit: UnitString, newUnit: UnitString): UnitString {
   // If newUnit is explicitly provided (non-undefined) and non-empty, it takes precedence.
   if (typeof newUnit !== "undefined" && newUnit?.trim() !== "") {
     return newUnit;
@@ -354,7 +367,12 @@ function getPrevailingUnit(existingUnit: string | null | undefined, newUnit: str
   return existingUnit;
 }
 
-function pickVector(vector: Unit[], pick: VectorIndexPickerOptions): Unit | Unit[] | number {
+function pickVector(
+  maskedVector: MaskedVector,
+  pick: VectorIndexPickerOptions,
+): Unit | Unit[] | number {
+  const vector = maskedVector.vector;
+
   // Whole
   if (pick === VectorIndexPickerOptions.Whole) {
     return vector satisfies Unit[];
@@ -406,7 +424,7 @@ function pickVector(vector: Unit[], pick: VectorIndexPickerOptions): Unit | Unit
   }
 }
 
-export function isMathjsUnit(unit: string | null | undefined): boolean {
+export function isMathjsUnit(unit: UnitString): boolean {
   if (!unit) return false;
   try {
     mathjs.unit(1, unit);
