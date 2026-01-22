@@ -39,15 +39,12 @@ export default function HistoricalData({
 
   const formRef = useRef<HTMLFormElement | null>(null);
 
-  const tableSearchInputName = "tableSearch";
-
   useEffect(() => {
     if (!dataSource) return;
     setIsLoading(true);
-
-    const query = (formRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
-
-    void getTables(dataSource, query, lang).then(result => { setTables(result); setIsLoading(false); });
+ 
+    // TODO: Undefined here is query, we likely want to remove it once this is all set ut and querybuilder.tsx is removed
+    void getTables(dataSource, undefined, lang).then(result => { setTables(result); setIsLoading(false); });
   }, [dataSource, lang]);
 
   useEffect(() => {
@@ -69,7 +66,6 @@ export default function HistoricalData({
       // Skip externalDataset, externalTableId, and `tableSearchInputName`, as they are not part of the query
       if (key == "externalDataset") return;
       if (key == "externalTableId") return;
-      if (key == tableSearchInputName) return;
       // The PxWeb time variable is special, as we want to fetch every period after (and including) the selected one
       if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && key == formRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
         queryObject.push({ variableCode: key, valueCodes: [`FROM(${value})`] });
@@ -155,7 +151,7 @@ export default function HistoricalData({
       tryGetResult(event);
     }
   } 
-  
+
   function handleDataSourceSelect(dataSource: string) {
     setDataSource(dataSource);
     // Clear table details and content whenever the data source changes
@@ -213,33 +209,22 @@ export default function HistoricalData({
     if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
   }
 
-  type VariableSelectionHelperOptions = {
-    classNames?: string[],
-  }
-  function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails, options?: VariableSelectionHelperOptions) {
+
+  function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) {
     if (variable.option) {
       return (
-        <label key={variable.name} className={`block margin-block-75 ${options?.classNames && options.classNames.map((className: string) => className).join(" ")}`}>
+        <label key={variable.name} className='block margin-block-75'>
           {/* Only display "optional" tags if the data source provides this information */}
-          {variable.label[0].toUpperCase() + variable.label.slice(1)}{optionalTag(dataSource, variable.optional)}
+          {variable.label}{optionalTag(dataSource, variable.optional)}
           {/* TODO: Use CSS to set proper capitalization of labels; something like `label::first-letter { text-transform: capitalize; }` */}
           <select className={`block margin-block-25 ${variable.label}`}
             required={!variable.optional}
             name={variable.name}
             id={variable.name}
-            defaultValue={ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" ?
-              (// If only one value is available, pre-select it
-                variable.values && variable.values.length == 1 ? variable.values[0].label : undefined
-              )
-              :
-              undefined
-            }>
+          >
             { // If only one value is available, don't show a placeholder option
+              ExternalDataset.getDatasetByAlternateName(dataSource)?.api !== "PxWeb" ||
               ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variable.values && variable.values.length > 1 &&
-              <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option>
-            }
-            {
-              !(ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") &&
               <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option>
             }
             {variable.values && variable.values.map(value => (
@@ -294,14 +279,10 @@ export default function HistoricalData({
   }
 
   // Index for data-position attribute in legend elements (for accessibility)
-  let positionIndex = 1;
-
-  console.log(goal.externalTableId)
+  let positionIndex = 1; 
 
   return (
-
-
-    <div className={`${styles['dialog-body']}`}>
+    <div className={`${styles['dialog-body']}`}> {/* TODO: Dialog-body does not make sense here now... */}
       {/* <p className="padding-inline-100">{t("components:query_builder.add_data_to_goal", { goalName: goal.name ?? goal.indicatorParameter })}</p> */}
 
       {/* TODO: It might be sensible if theese are tabs instead. Additionally that we warn users that data will be deleted given that you switch between them */}
@@ -436,7 +417,7 @@ export default function HistoricalData({
                             <label key={hierarchy.name} className="block margin-block-75">
                               <b>{hierarchy.label}</b>
                               {hierarchy.children && hierarchy.children.map(variable => {
-                                return variableSelectionHelper(variable, tableDetails, { classNames: ["margin-left-75"] });
+                                return variableSelectionHelper(variable, tableDetails);
                               })}
                             </label>
                           )
