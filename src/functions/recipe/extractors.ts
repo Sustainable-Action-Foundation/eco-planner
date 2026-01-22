@@ -1,8 +1,8 @@
 import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
-import { emptyRecipe, isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, RecipeDataTypes, RecipeError, RecipeVariable, VectorIndexPickerOptions } from "@/functions/recipe/types";
+import { isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, RecipeDataTypes, RecipeError, RecipeVariable, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import getTableContent from "@/lib/api/getTableContent";
 import mathjs from "@/math";
-import { DateValues, DateValuesWithUnit, isISOIshDate, Mask, MaskedVector, UnitString } from "@/types";
+import { DateValues, DateValuesWithUnit, isISOIshDate, MaskedVector, UnitString } from "@/types";
 import { Unit } from "mathjs";
 import { EvalTimeVariable } from "./types";
 import { filterToInitialYearlyRecords, parsePeriod } from "@/lib/api/utility";
@@ -111,83 +111,73 @@ export async function extractDataSeries(
 export async function extractExternalDatasets(
   variables: Record<string, RecipeVariable>,
   warnings: string[] = [],
+  commonStartDate: Date,
+  commonLength: number,
 ): Promise<EvalTimeVariable[]> {
-  throw new RecipeError("extractExternalDatasets: Not implemented.");
-  return [];
+  const externalDatasets: EvalTimeVariable[] = [];
 
-  // const externalDatasets: EvalTimeVariable[] = [];
+  const fetchers: Array<() => Promise<void>> = [];
 
-  // const fetchers: Array<() => Promise<void>> = [];
+  for (const variableName in variables) {
+    const variable = variables[variableName];
+    if (variable.type !== RecipeDataTypes.External) continue;
+    if (!isRecipeExternalDataset(variable)) {
+      throw new RecipeError(`Variable '${variableName}', typed as '${(variable as { type: string }).type} ' is not a valid RecipeExternalDataset.`);
+    }
 
-  // for (const variableName in variables) {
-  //   const variable = variables[variableName];
-  //   if (variable.type !== RecipeDataTypes.External) continue;
-  //   if (!isRecipeExternalDataset(variable)) {
-  //     throw new RecipeError(`Variable '${variableName}', typed as '${(variable as { type: string }).type} ' is not a valid RecipeExternalDataset.`);
-  //   }
+    const { dataset, tableId, selection } = variable;
 
-  //   const { dataset, tableId, selection } = variable;
+    if (!dataset || !tableId || !isRecipeExternalDatasetSelection(selection)) { // These props may all be null
+      throw new RecipeError(`External dataset variable '${variableName}' is missing 'dataset', 'tableId' and/or 'selection' properties.`);
+    }
 
-  //   if (!dataset || !tableId || !isRecipeExternalDatasetSelection(selection)) { // These props may all be null
-  //     throw new RecipeError(`External dataset variable '${variableName}' is missing 'dataset', 'tableId' and/or 'selection' properties.`);
-  //   }
+    fetchers.push(async () => {
+      const data = await getTableContent(tableId, dataset, selection);
 
-  //   fetchers.push(async () => {
-  //     const data = await getTableContent(tableId, dataset, selection);
+      if (!data) {
+        throw new RecipeError(`External dataset variable '${variableName}' has no data for tableId '${tableId}' and dataset '${dataset}' and selection '${JSON.stringify(selection)}'.`);
+      }
+      if (data.values.length === 0) {
+        throw new RecipeError(`External dataset variable '${variableName}' has no values. Expected an array of values with 'period' and 'value' properties.`);
+      }
 
-  //     if (!data) {
-  //       throw new RecipeError(`External dataset variable '${variableName}' has no data for tableId '${tableId}' and dataset '${dataset}' and selection '${JSON.stringify(selection)}'.`);
-  //     }
-  //     if (data.values.length === 0) {
-  //       throw new RecipeError(`External dataset variable '${variableName}' has no values. Expected an array of values with 'period' and 'value' properties.`);
-  //     }
+      const timeline: DateValues = {};
 
-  //     const definedValues: DateValues = {};
-  //     // This is done like this to avoid evil Regex
-  //     const validCharsForYear = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
-  //     for (const year of Years) {
-  //       const found = filterToInitialYearlyRecords(data.values)
-  //         .find(v => {
-  //           // Assuming year strings are like "val2020" but just in case, only keep numbers
-  //           const strippedYear = year.split("")
-  //             .filter(c => validCharsForYear.includes(c))
-  //             .join("");
+      const fetchedValues = filterToInitialYearlyRecords(data.values);
+      for (const valuePeriod of fetchedValues) {
+        const parsedDate = parsePeriod(valuePeriod.period);
+        const isoDateString = new Date(`${parsedDate.getUTCFullYear()}-01-01T00:00:00Z`).toISOString();
+        if (!isISOIshDate(isoDateString)) {
+          throw new RecipeError(`External dataset variable "${variableName}" contains invalid ISOIshDate keys after parsing period "${valuePeriod.period}".`);
+        }
+        timeline[isoDateString] = parseFloat(valuePeriod.value); // TODO: what is the preferred way to parse these values?
+      }
 
-  //           const parsedDate = parsePeriod(v.period);
-  //           return parsedDate.getUTCFullYear().toString() === strippedYear;
-  //         });
-  //       if (found) {
-  //         definedValues[year] = parseFloat(found.value);
-  //       }
-  //     }
+      // TODO: how should units be derived here? I can't find anything in the API response that indicates units.
+      const bestUnit = getPrevailingUnit(undefined, variable.unit);
+      const isValidUnit = isMathjsUnit(bestUnit);
+      if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variableName}" has an invalid unit "${bestUnit}". Treating as unitless.`);
+      const unit = isValidUnit ? bestUnit : undefined;
 
-  //     // TODO: how should units be derived here? I can't find anything in the API response that indicates units.
-  //     const bestUnit = getPrevailingUnit(undefined, variable.unit);
-  //     const isValidUnit = testIfValidUnit(bestUnit);
-  //     if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variableName}" has an invalid unit "${bestUnit}". Treating as unitless.`);
-  //     const unit = isValidUnit ? bestUnit : undefined;
+      const dataSelection = pickDataSeries(
+        {
+          values: timeline,
+          unit,
+        },
+        variable.pick,
+        commonStartDate,
+        commonLength,
+      );
+      externalDatasets.push({
+        name: variableName,
+        value: dataSelection,
+      });
+    });
+  }
 
-  //     const vectorOrScalarForm = pickDataSeries(
-  //       definedValues,
-  //       variable.pick
-  //     );
-  //     // pickVector(convertYearValuePairToVector(definedValues), variable.pick);
-  //     externalDatasets.push({
-  //       name: variableName,
-  //       value: Array.isArray(vectorOrScalarForm) ?
-  //         vectorOrScalarForm.map(v => unit
-  //           ? mathjs.unit(v, unit)
-  //           : mathjs.unit(v))
-  //         : unit
-  //           ? mathjs.unit(vectorOrScalarForm, unit)
-  //           : mathjs.unit(vectorOrScalarForm),
-  //     });
-  //   });
-  // }
+  await Promise.all(fetchers.map(fetcher => fetcher()));
 
-  // await Promise.all(fetchers.map(fetcher => fetcher()));
-
-  // return externalDatasets;
+  return externalDatasets;
 }
 
 /** Wrapper for the conversion functions in order to intercept YYYY pick values */
