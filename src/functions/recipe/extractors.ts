@@ -2,7 +2,7 @@ import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
 import { emptyRecipe, isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, RecipeDataTypes, RecipeError, RecipeVariable, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import getTableContent from "@/lib/api/getTableContent";
 import mathjs from "@/math";
-import { DateValues, DateValuesWithUnit, isISODateString, Mask } from "@/types";
+import { DateValues, DateValuesWithUnit, isISOIshDate, Mask } from "@/types";
 import { Unit } from "mathjs";
 import { EvalTimeVariable } from "./types";
 import { filterToInitialYearlyRecords, parsePeriod } from "@/lib/api/utility";
@@ -250,7 +250,7 @@ function transformDateValuesToVector(
     const currentYear = commonStartDate.getUTCFullYear() + i;
 
     const isoYearString = new Date(`${currentYear}-01-01T00:00:00Z`).toISOString();
-    if (!isISODateString(isoYearString)) {
+    if (!isISOIshDate(isoYearString)) {
       throw new RecipeError(`VectorConvert: Generated invalid ISO date string '${isoYearString}'.`);
     }
 
@@ -305,7 +305,7 @@ function transformDateValuesToVector(
  */
 export function parseDateValuesFromVector(
   vector: Unit[],
-  mask: Record<string, boolean>,
+  mask: Mask,
 ): DateValuesWithUnit {
   if (vector.length !== Object.keys(mask).length) {
     throw new RecipeError("VectorConvert: Vector length does not match mask length.");
@@ -314,6 +314,10 @@ export function parseDateValuesFromVector(
   const timeline: DateValues = {};
 
   const keys = Object.keys(mask).sort();
+  if (!keys.every(key => isISOIshDate(key))) {
+    throw new RecipeError("VectorConvert: Mask contains invalid ISO date strings.");
+  }
+
   for (let i = 0; i < vector.length; i++) {
     const dateKey = keys[i];
     if (mask[dateKey]) continue; // Skip masked, non defined, values

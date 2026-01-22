@@ -471,22 +471,22 @@ export type EffectInput = Omit<
 };
 
 export type UnitString = string | null | undefined;
-type ISODateString = `${number}-${number}-${number}T00:00:00.000Z`;
-export type Mask = Record<ISODateString, boolean>;
-export type DateValues = Record<ISODateString, number>;
+type ISOIshDate = `${number}-${number}-${number}T00:00:00.000Z`;
+export type Mask = Record<ISOIshDate, boolean>;
+export type DateValues = Record<ISOIshDate, number>;
 export type DateValuesWithUnit = { values: DateValues, unit: UnitString };
 export function isDateValues(dateValues: JSONValue): dateValues is DateValues {
   return (
     isStandardObject(dateValues)
     && Object.values(dateValues).every(value => typeof value === 'number')
-    && Object.keys(dateValues).every(key => isISODateString(key))
+    && Object.keys(dateValues).every(key => isISOIshDate(key))
   );
 }
 export function isUnitString(unit: JSONValue | undefined): unit is UnitString {
   return typeof unit === 'string' || unit === null || unit === undefined;
 }
 /** This is not compliant with ISO-8601, it's a vary narrow format that's a subset of that standard */
-export function isISODateString(dateString: string): dateString is ISODateString {
+export function isISOIshDate(dateString: string): dateString is ISOIshDate {
   // return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(dateString);
   return /^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/.test(dateString);
 }
