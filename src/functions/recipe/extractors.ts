@@ -190,7 +190,7 @@ export async function extractExternalDatasets(
   // return externalDatasets;
 }
 
-/** Wrapper for the conversion function in order to intercept YYYY pick values */
+/** Wrapper for the conversion functions in order to intercept YYYY pick values */
 function pickDataSeries(
   dataSeries: DateValuesWithUnit,
   pick: VectorIndexPickerOptions | number,
@@ -235,10 +235,7 @@ function transformDateValuesToVector(
   dateValues: DateValuesWithUnit,
   commonStartDate: Date,
   commonLength: number,
-): {
-  vector: Unit[];
-  mask: Mask;
-} {
+): MaskedVector {
   const { values: timeline, unit, } = dateValues;
 
   const vector: Unit[] = [];
