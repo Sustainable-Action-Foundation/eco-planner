@@ -259,11 +259,11 @@ function transformDateValuesToVector(
   // Map to vector with special handling for missing and null values
   for (const year of years) {
     if (typeof dataSeries[year] === "number" && isFinite(dataSeries[year])) {
-      mask[year] = true;
+      mask[year] = false;
       vector.push(dataSeries[year])
     }
     else {
-      mask[year] = false;
+      mask[year] = true;
       vector.push(intermediateNullValue);
     }
   }
@@ -271,36 +271,63 @@ function transformDateValuesToVector(
   return { vector, mask, };
 }
 
+/** 
+ * Example of input -> parsed output
+ * 
+ * | i  | Value | Mask   | Date (defined value)  |
+ * |----|-------|--------|-----------------------|
+ * |  0 |     0 |  true  |  2021 (first in mask) |
+ * |  1 |     0 |  true  |  2022                 |
+ * |  2 |     0 |  false |  2023: 0              |
+ * |  3 |     0 |  false |  2024: 0              |
+ * |  4 |     1 |  false |  2025: 1              |
+ * |  5 |     2 |  false |  2026: 2              |
+ * |  6 |     0 |  true  |  2027                 |
+ * |  7 |     3 |  false |  2028: 3              |
+ * |  8 |     4 |  false |  2029: 4              |
+ * |  9 |     5 |  false |  2030: 5              |
+ * | 10 |     0 |  true  |  2031                 |
+ * | 11 |     0 |  true  |  2032                 |
+ * | 12 |     0 |  true  |  2033                 |
+ * | 13 |     6 |  false |  2034: 6              |
+ * | 14 |     0 |  true  |  2035                 |
+ * | 15 |     0 |  true  |  2036                 |
+ * | 16 |     0 |  true  |  2037                 |
+ * | 17 |     0 |  true  |  2038                 |
+ * | 18 |     0 |  true  |  2039                 |
+ * 
+ * 
+ */
 export function parseDateValuesFromVector(
   vector: Unit[],
   mask: Record<string, boolean>,
-  commonStartDate: Date
 ): DateValuesWithUnit {
-  const dataSeries: DateValues = {};
+  if (vector.length !== Object.keys(mask).length) {
+    throw new RecipeError("VectorConvert: Vector length does not match mask length.");
+  }
 
+  const timeline: DateValues = {};
+
+  const keys = Object.keys(mask).sort();
   for (let i = 0; i < vector.length; i++) {
-    const year = new Date(commonStartDate.getUTCFullYear() + i, 0, 1).toISOString();
-    const v = vector[i];
-
-    if (isFinite(v.value)) {
-      dataSeries[year] = v.value;
-    }
+    const dateKey = keys[i];
+    if (mask[dateKey]) continue; // Skip masked, non defined, values
+    timeline[dateKey] = vector[i].toNumber();
   }
 
   // If all units are the same, return that unit, else undefined
-  const units = vector.map(v => v.formatUnits())
-  const uniqueUnits = Array.from(new Set(units));
-  if (uniqueUnits.length === 1) {
+  const units = [...new Set(vector.map(v => v.formatUnits()))];
+  if (units.length === 1) {
     return {
-      unit: uniqueUnits[0],
-      values: dataSeries,
+      unit: units[0],
+      values: timeline,
     };
   }
   else {
-    console.warn(`VectorConvert: Inconsistent units in result vector: ${uniqueUnits.join(", ")}. Setting unit to undefined.`);
+    console.warn(`VectorConvert: Inconsistent units in result vector: ${units.join(", ")}. Setting unit to undefined.`);
     return {
       unit: undefined,
-      values: dataSeries,
+      values: timeline,
     };
   }
 }
