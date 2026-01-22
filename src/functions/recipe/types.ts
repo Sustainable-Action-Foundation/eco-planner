@@ -7,29 +7,14 @@ export const VectorIndexPickerOptions = {
   Default: "whole",
 
   Whole: "whole",
+  Reverse: "reverse",
+
   Last: "last",
   First: "first",
   Median: "median",
   Mean: "mean",
 } as const;
 export type VectorIndexPickerOptions = typeof VectorIndexPickerOptions[keyof typeof VectorIndexPickerOptions];
-
-export const vectorIndexPickerFunctions = {
-  [VectorIndexPickerOptions.Whole]: (vector: number[]) => vector,
-  [VectorIndexPickerOptions.Last]: (vector: number[]) => vector.findLast((value) => typeof value === "number" && Number.isFinite(value)) ?? null,
-  [VectorIndexPickerOptions.First]: (vector: number[]) => vector.find((value) => typeof value === "number" && Number.isFinite(value)) ?? null,
-  [VectorIndexPickerOptions.Median]: (vector: number[]) => {
-    if (vector.length === 0) return null;
-    const sorted = [...vector].sort((a, b) => a - b);
-    const mid = Math.floor(sorted.length / 2);
-    return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-  },
-  [VectorIndexPickerOptions.Mean]: (vector: number[]) => {
-    if (vector.length === 0) return null;
-    const sum = vector.reduce((acc, val) => acc + val, 0);
-    return sum / vector.length;
-  },
-} as const;
 
 /* 
  * Common types for recipes
@@ -139,7 +124,7 @@ export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataS
     (
       (
         typeof variable.pick === "string"
-        && vectorIndexPickerFunctions[variable.pick as VectorIndexPickerOptions] !== undefined
+        && Object.values(VectorIndexPickerOptions).includes(variable.pick as VectorIndexPickerOptions)
       )
       || (
         typeof variable.pick === "number"
@@ -237,7 +222,7 @@ export function isRecipeExternalDataset(variable: JSONValue): variable is Recipe
     (
       (
         typeof variable.pick === "string"
-        && vectorIndexPickerFunctions[variable.pick as VectorIndexPickerOptions] !== undefined
+        && Object.values(VectorIndexPickerOptions).includes(variable.pick as VectorIndexPickerOptions)
       )
       || (
         typeof variable.pick === "number"
@@ -368,7 +353,7 @@ export const emptyRecipesByDataType: Record<RecipeDataTypes, RecipeVariable> = {
  */
 export type EvalTimeVariable = {
   name: string;
-  value: Unit | Unit[] | number;
+  value: Unit | Unit[] | number; // TODO: should it be ever be a number? rather have Unit with no unit?
 }
 
 

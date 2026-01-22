@@ -38,7 +38,9 @@ export function extractScalars(
 
 export async function extractDataSeries(
   variables: Record<string, RecipeVariable>,
-  warnings: string[] = []
+  warnings: string[] = [],
+  commonStartDate: Date,
+  commonLength: number,
 ): Promise<EvalTimeVariable[]> {
   const dataSeries: EvalTimeVariable[] = [];
 
@@ -93,7 +95,9 @@ export async function extractDataSeries(
 
     const dataSelection = pickDataSeries(
       { values: dateValues, unit, },
-      variable.pick
+      variable.pick,
+      commonStartDate,
+      commonLength,
     );
     dataSeries.push({
       name: variableName,
@@ -134,8 +138,26 @@ const testRecipe: Record<string, RecipeVariable> = {
     pick: 2022,
     unit: "m",
   },
+  "another ds": {
+    type: RecipeDataTypes.DataSeries,
+    link: undefined,
+    value: {
+      "2023-01-01T00:00:00.000Z": 5,
+      "2025-01-01T00:00:00.000Z": 15,
+      "2028-01-01T00:00:00.000Z": 25,
+    },
+    pick: VectorIndexPickerOptions.Whole,
+    unit: "s",
+  }
 };
-const extracted = await extractDataSeries(testRecipe, warnings);
+const commonStartDate = new Date("2020-01-01T00:00:00Z");
+const commonLength = 20; // 2020-26 would be enough for this test, but the masking system should handle it :fingers_crossed:
+const extracted = await extractDataSeries(
+  testRecipe,
+  warnings,
+  commonStartDate,
+  commonLength,
+);
 
 console.log("Extracted data series:", extracted.map(v =>
   typeof v.value === "number"
@@ -231,7 +253,9 @@ export async function extractExternalDatasets(
 /** Wrapper for the conversion function in order to intercept YYYY pick values */
 function pickDataSeries(
   dataSeries: DateValuesWithUnit,
-  pick: VectorIndexPickerOptions | number
+  pick: VectorIndexPickerOptions | number,
+  commonStartDate: Date,
+  commonLength: number,
 ): Unit | Unit[] | number {
 
   // Try to interpret as year YYYY
@@ -260,8 +284,8 @@ function pickDataSeries(
 
   const maskedVector = transformDateValuesToVector(
     dataSeries,
-    new Date("2020-01-01T00:00:00Z"),
-    30,
+    commonStartDate,
+    commonLength,
   );
 
   return pickVector(maskedVector, pick);
@@ -392,12 +416,18 @@ function getPrevailingUnit(existingUnit: UnitString, newUnit: UnitString): UnitS
 function pickVector(
   maskedVector: MaskedVector,
   pick: VectorIndexPickerOptions,
-): Unit | Unit[] | number {
+): Unit[] | Unit | number {
   const vector = maskedVector.vector;
 
   // Whole
   if (pick === VectorIndexPickerOptions.Whole) {
     return vector satisfies Unit[];
+  }
+
+  // Reverse
+  else if (pick === VectorIndexPickerOptions.Reverse) {
+    const reversed = [...vector].reverse();
+    return reversed satisfies Unit[];
   }
 
   // First
