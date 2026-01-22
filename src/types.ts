@@ -471,7 +471,9 @@ export type EffectInput = Omit<
 };
 
 export type UnitString = string | null | undefined;
-export type DateValues = Record<string, number>;
+type ISODateString = `${number}-${number}-${number}T00:00:00.000Z`;
+export type Mask = Record<ISODateString, boolean>;
+export type DateValues = Record<ISODateString, number>;
 export type DateValuesWithUnit = { values: DateValues, unit: UnitString };
 export function isDateValues(dateValues: JSONValue): dateValues is Partial<DateValues> {
   return (
@@ -494,6 +496,11 @@ export function isDateValuesWithUnit(dateValues: JSONValue): dateValues is Parti
       : true
     )
   );
+}
+/** This is not compliant with ISO-8601, it's a vary narrow format that's a subset of that standard */
+export function isISODateString(dateString: string): dateString is ISODateString {
+  // return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(dateString);
+  return /^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/.test(dateString);
 }
 
 /* TODO INPUT_UPDATES */

@@ -2,12 +2,12 @@ import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
 import { emptyRecipe, isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, RecipeDataTypes, RecipeError, RecipeVariable, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import getTableContent from "@/lib/api/getTableContent";
 import mathjs from "@/math";
-import { DateValues, DateValuesWithUnit } from "@/types";
+import { DateValues, DateValuesWithUnit, isISODateString, Mask } from "@/types";
 import { Unit } from "mathjs";
 import { EvalTimeVariable } from "./types";
 import { filterToInitialYearlyRecords, parsePeriod } from "@/lib/api/utility";
 
-const intermediateNullValue = -Infinity; // Mathjs does not like undefined or NaN values so this is the intermediate representation
+const nullSubstituteValue = 0; // Mathjs does not like undefined or NaN values so this is the intermediate representation
 
 export function extractScalars(
   variables: Record<string, RecipeVariable>,
@@ -232,43 +232,46 @@ function pickDataSeries(
 }
 
 function transformDateValuesToVector(
-  dataSeries: DateValues,
-  commonStartDate: Date
+  timeline: DateValuesWithUnit,
+  commonStartDate: Date,
 ): {
-  vector: number[];
-  mask: Record<string, boolean>;
+  vector: Unit[];
+  mask: Mask;
 } {
-  const definedDates = Object.keys(dataSeries).sort().map(d => new Date(d));
-  const lastDefinedDate = definedDates.reverse()[0];
+  const { values: dateValues, unit, } = timeline;
 
-  if (!lastDefinedDate) {
-    throw new RecipeError("VectorConvert: Data series contains no defined dates.");
-  }
-
-  // Now the start, end, and increments are known, construct all the keys
-  const yearDiff = lastDefinedDate.getUTCFullYear() - commonStartDate.getUTCFullYear();
-  const years: string[] = new Array(yearDiff + 1).fill(null).map((_, i) => {
-    const copyOfStart = new Date(commonStartDate.toISOString());
-    copyOfStart.setUTCFullYear(commonStartDate.getUTCFullYear() + i);
-    return copyOfStart.toISOString();
-  });
-
-  const vector: number[] = [];
+  const vector: Unit[] = [];
   const mask: Record<string, boolean> = {};
 
-  // Map to vector with special handling for missing and null values
-  for (const year of years) {
-    if (typeof dataSeries[year] === "number" && isFinite(dataSeries[year])) {
-      mask[year] = false;
-      vector.push(dataSeries[year])
+  const leadingDiff = commonStartDate.getUTCFullYear() - Math.min(...Object.keys(dateValues).map(d => new Date(d).getUTCFullYear()));
+  const yearSpan = leadingDiff + Object.keys(dateValues).length;
+
+  for (let i = 0; i < yearSpan; i++) {
+    const currentYear = commonStartDate.getUTCFullYear() + i;
+    
+    const isoYearString = new Date(`${currentYear}-01-01T00:00:00Z`).toISOString();
+    if (!isISODateString(isoYearString)) {
+      throw new RecipeError(`VectorConvert: Generated invalid ISO date string '${isoYearString}'.`);
+    }
+
+    if (isoYearString in dateValues) {
+      const value = dateValues[isoYearString];
+      vector.push(
+        unit
+          ? mathjs.unit(value, unit)
+          : mathjs.unit(value)
+      );
+      mask[isoYearString] = false; // Defined value
     }
     else {
-      mask[year] = true;
-      vector.push(intermediateNullValue);
+      vector.push(
+        unit
+          ? mathjs.unit(nullSubstituteValue, unit)
+          : mathjs.unit(nullSubstituteValue)
+      );
+      mask[isoYearString] = true; // Masked, non defined value
     }
   }
-
-  return { vector, mask, };
 }
 
 /** 
