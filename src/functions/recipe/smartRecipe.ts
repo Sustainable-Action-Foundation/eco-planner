@@ -1,6 +1,6 @@
 import { isRecipe, MathjsError, Recipe, RecipeError, RecipeVariable } from "@/functions/recipe/types";
 import { DateValuesWithUnit, JSONValue } from "@/types";
-import { convertVectorToYearValuePair, extractDataSeries, extractExternalDatasets, extractScalars } from "@/functions/recipe/extractors";
+import { parseDateValuesFromVector, extractDataSeries, extractExternalDatasets, extractScalars } from "@/functions/recipe/extractors";
 import mathjs from "@/math";
 import { Unit } from "mathjs";
 
@@ -128,7 +128,7 @@ export class SmartRecipe {
     }
     result = result as Unit[]; // TODO type check in a dynamic way
 
-    return convertVectorToYearValuePair(result);
+    return parseDateValuesFromVector(result);
   }
 
   /** 

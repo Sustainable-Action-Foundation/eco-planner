@@ -1,6 +1,6 @@
 import { isRecipe, MathjsError, Recipe, RecipeError, RecipeVariable } from "./types";
 import { DateValues, JSONValue } from "@/types";
-import { convertVectorToYearValuePair, extractDataSeries, extractExternalDatasets, extractScalars } from "./extractors";
+import { parseDateValuesFromVector, extractDataSeries, extractExternalDatasets, extractScalars } from "./extractors";
 import { Unit } from "mathjs";
 import mathjs from "@/math";
 import { sanityCheckDataSeries, sanityCheckScalars } from "./sanityChecks";
@@ -131,7 +131,7 @@ export async function evaluateRecipe(recipe: Recipe, warnings: string[]): Promis
   }
   result = result as Unit[]; // TODO type check in a dynamic way which is annoying since mathjs has their runtime function for it. Maybe instanceof?
 
-  const resultingDataSeriesWithUnit = convertVectorToYearValuePair(result);
+  const resultingDataSeriesWithUnit = parseDateValuesFromVector(result);
   const { unit, ...dataSeriesWithoutUnit } = resultingDataSeriesWithUnit;
 
   return {

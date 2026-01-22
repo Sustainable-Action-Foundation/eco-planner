@@ -228,10 +228,16 @@ function pickDataSeries(
     throw new RecipeError(`PickDataSeries: Invalid pick value '${pick}'. Expected a VectorIndexPickerOptions or an integer year.`);
   }
 
-  return pickVector(convertYearValuePairToVector(dataSeries, new Date("2020-01-01T00:00:00Z"), "years"), pick);
+  return pickVector(transformDateValuesToVector(dataSeries, new Date("2020-01-01T00:00:00Z"), "years"), pick);
 }
 
-function convertYearValuePairToVector(dataSeries: DateValues, commonStartDate: Date): { vector: number[], mask: Record<string, boolean> } {
+function transformDateValuesToVector(
+  dataSeries: DateValues,
+  commonStartDate: Date
+): {
+  vector: number[];
+  mask: Record<string, boolean>;
+} {
   const definedDates = Object.keys(dataSeries).sort().map(d => new Date(d));
   const lastDefinedDate = definedDates.reverse()[0];
 
@@ -265,11 +271,15 @@ function convertYearValuePairToVector(dataSeries: DateValues, commonStartDate: D
   return { vector, mask, };
 }
 
-export function convertVectorToYearValuePair(vector: Unit[], startDate: Date): DateValuesWithUnit {
+export function parseDateValuesFromVector(
+  vector: Unit[],
+  mask: Record<string, boolean>,
+  commonStartDate: Date
+): DateValuesWithUnit {
   const dataSeries: DateValues = {};
 
   for (let i = 0; i < vector.length; i++) {
-    const year = new Date(startDate.getUTCFullYear() + i, 0, 1).toISOString();
+    const year = new Date(commonStartDate.getUTCFullYear() + i, 0, 1).toISOString();
     const v = vector[i];
 
     if (isFinite(v.value)) {
