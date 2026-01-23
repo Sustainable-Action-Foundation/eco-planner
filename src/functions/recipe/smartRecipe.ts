@@ -48,9 +48,20 @@ export class SmartRecipe {
     }
     catch (e) {
       if (warnings.length) console.warn(warnings);
+
+      const errorAliases = {
+        "Unexpected type of argument in function addScalar (expected: Unit, actual: number, index: 1)":
+          "Cannot add a unitless number to a unit.",
+        "Unexpected type of argument in function addScalar (expected: number or bigint or string or boolean or BigNumber or Complex or Fraction, actual: Unit, index: 1)":
+          "Cannot add a unit to a unitless number.",
+      };
+
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      const friendlyMessage = errorAliases[errorMessage as keyof typeof errorAliases] ?? errorMessage;
+
       return {
         good: false,
-        error: (e as Error).message,
+        error: friendlyMessage,
         warnings: warnings.length ? warnings : undefined
       };
     }
