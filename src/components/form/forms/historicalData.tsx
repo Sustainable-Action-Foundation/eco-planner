@@ -13,9 +13,11 @@ import { Goal } from "@prisma/client";
 import { FormEvent, useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
+import dialogStyles from '../api/queryBuilder.module.css' /* TODO: This seems a bit janky */
 import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
-
+import { IconTrashXFilled, IconX } from "@tabler/icons-react";
+{/* TODO: Metadata */ }
 export default function HistoricalData({
   goal,
 }: {
@@ -38,11 +40,12 @@ export default function HistoricalData({
   const [defaultMetricSelected, setDefaultMetricSelected] = useState(true);
 
   const formRef = useRef<HTMLFormElement | null>(null);
+  const deleteDataRef = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
     if (!dataSource) return;
     setIsLoading(true);
- 
+
     // TODO: Undefined here is query, we likely want to remove it once this is all set ut and querybuilder.tsx is removed
     void getTables(dataSource, undefined, lang).then(result => { setTables(result); setIsLoading(false); });
   }, [dataSource, lang]);
@@ -150,7 +153,7 @@ export default function HistoricalData({
     if (!changedElementIsExternalDataset && !changedElementIsTableSearch && !changedElementIsTable && tables && tableDetails) {
       tryGetResult(event);
     }
-  } 
+  }
 
   function handleDataSourceSelect(dataSource: string) {
     setDataSource(dataSource);
@@ -279,7 +282,7 @@ export default function HistoricalData({
   }
 
   // Index for data-position attribute in legend elements (for accessibility)
-  let positionIndex = 1; 
+  let positionIndex = 1;
 
   return (
     <div className={`${styles['dialog-body']}`}> {/* TODO: Dialog-body does not make sense here now... */}
@@ -323,155 +326,190 @@ export default function HistoricalData({
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>Data</legend> {/* TODO: I18n */}
           <DataSeriesInputManual />
         </fieldset>
-        : visibleForm === 'external' ?
-          <form ref={formRef} onChange={formChange} onSubmit={handleSubmit} className="flex flex-direction-column flex-grow-1" style={{ minHeight: '0' }}>
-            {/* Hidden disabled submit button to prevent accidental submission */}
-            <button type="submit" className="display-none" disabled></button>
+        : visibleForm === 'external' ? (
+          <>
 
-            <fieldset className="position-relative flex flex-direction-column" style={{ height: '100%' }}>
-              <label className="margin-block-75 font-weight-500">
-                {t("components:query_builder.data_source")}
-                {/* Display warning message if the selected language is not supported by the api */}
-                {((ExternalDataset.getDatasetByAlternateName(dataSource)) && !(ExternalDataset.getDatasetByAlternateName(dataSource)?.supportedLanguages.includes(lang))) ?
-                  <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
-                  : null}
-                <select defaultValue={goal.externalDataset ? goal.externalDataset : ''} className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
-                  <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
-                  {ExternalDataset.knownDatasetKeys.map((name) => (
-                    <option key={name} value={name}>{ExternalDataset[name]?.fullName}</option>
-                  ))}
-                </select>
-              </label>
-
-              {dataSource ?
-                <>
-                  <label htmlFor="temp">Tabell</label> {/* TODO: i18n */}
-                  <SelectSingleSearch // TODO: Deal with width
-                    props={{
-                      id: 'temp',
-                      name: 'temp',
-                      placeholder: 'Välj tabell',
-                    }}
-                    defaultValue={
-                      goal.externalTableId
-                        ? {
-                          name:
-                            tables?.find(t => t.tableId === goal.externalTableId)?.label
-                            ?? goal.externalTableId,
-                          value: goal.externalTableId,
-                        }
-                        : undefined
-                    } options={
-                      tables
-                        ? tables.map(({ tableId, label }) => ({
-                          name: label,
-                          value: tableId,
-                        }))
-                        : []
-                    }
-                    onChange={(value) => value?.value ? handleTableSelect(value.value) : handleTableSelect('')}
-                  />
-                </>
-                : null}
-
-            </fieldset>
-
-            {tableDetails && (
-              // TODO - which inputs should be optional?
+            {goal.externalDataset && goal.externalTableId ?
               <>
-                <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-                  <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>
-                    {t("components:query_builder.select_metric_for_table")}
-                  </legend>
-                  <div>
-                    <label key={`metric-${tableDetails.id}`} className="block margin-block-75">
-                      <select className={`block margin-block-25 metric`}
-                        required={true}
-                        name="metric"
-                        id="metric"
-                        defaultValue={undefined}
-                        onChange={handleMetricSelect}>
-                        <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_metric")}</option>
-                        {tableDetails.metrics && tableDetails.metrics.map(metric => (
-                          <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
-                        ))}
-                      </select>
-                    </label>
-                  </div>
-                </fieldset>
-                <fieldset name="variableSelectionFieldset" disabled={true} className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-                  {shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
-                    <>
-                      <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>
-                        {t("components:query_builder.select_values_for_table")}
-                      </legend>
-                      <div>
-                        {tableDetails.times &&
-                          timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
-                        }
-                        {tableDetails.variables.map(variable => {
-                          return variableSelectionHelper(variable, tableDetails);
-                        })}
-                        {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
-                          if (hierarchy.children?.some(variable => variable.option)) return (
-                            <label key={hierarchy.name} className="block margin-block-75">
-                              <b>{hierarchy.label}</b>
-                              {hierarchy.children && hierarchy.children.map(variable => {
-                                return variableSelectionHelper(variable, tableDetails);
-                              })}
-                            </label>
-                          )
-                        })}
+                <p>Denna målbana har redan en extern datakälla. Du kan antingen justera din historiska data manuellt eller ta bort den externa datakällan och lägga till en ny</p> {/* TODO: I18n */}
+                <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem", lineHeight: '1.5' }} onClick={() => deleteDataRef.current?.showModal()}>
+                  Ta bort extern datakälla {/* TODO: I18n (replace previous existing) */}
+                  <IconTrashXFilled fill='#CB3C3C' width={16} height={16} style={{ minWidth: '16px' }} aria-hidden="true" />
+                </button>
+                {/* TODO: We should likely not be adding a blur to the backdrop if our dialog can be light dismissed, i.e closedby=any */}
+                <dialog closedby="any" style={{width: 'min(75ch, 100%)', height: 'calc(50vh - 2rem)'}} className={`rounded padding-inline-0 padding-block-0 ${dialogStyles.dialog}`} aria-modal ref={deleteDataRef}>
+                  <div className={`${dialogStyles['dialog-content']}`}>
+                    <div className={`${dialogStyles['dialog-header']}`}>
+                      <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => deleteDataRef.current?.close()} autoFocus aria-label={t("common:tsx.close")} >
+                        <IconX strokeWidth={3} width={28} height={28} style={{ minWidth: '28px' }} aria-hidden="true" />
+                      </button>
+                      <h2 className="margin-0">Ta bort extern datakälla</h2> {/* TODO: I18n */}
+                    </div>
+                    <div className="padding-100"> {/* TODO: I18n */}
+                      <p>Är du säker på att du vill ta bort extern datakälla: <span style={{fontStyle: 'italic'}}>{tables?.find(t => t.tableId === goal.externalTableId)?.label ?? goal.externalTableId}({goal.externalDataset})</span> från målbana: <span className="font-weight-600">{goal.name}</span>?</p>
+                      <div className="flex gap-25">
+                        <button className="flex-grow-100" onClick={() => deleteDataRef.current?.close()}>
+                          Avbryt {/* TODO: I18n */}
+                        </button>
+                        <button type="button" className="color-purewhite red gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem", lineHeight: '1.5' }} onClick={deleteHistoricalData}> {/* TODO: loading state */}
+                          Ta bort extern datakälla {/* TODO: I18n */}
+                        </button>
                       </div>
-                    </>) : (<p className={`font-style-italic color-gray`}>{t("components:query_builder.no_variables_found")}</p>)}
-                </fieldset>
-
+                    </div>
+                  </div>
+                </dialog>
               </>
-            )}
-            <output>
-              {/* TODO: style this better */}
-              {tableContent && tableContent.values.length > 0 ? (
-                <div>
-                  <p>{t("components:query_builder.does_this_look_correct", { count: 5 })}</p>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th scope="col">{t("components:query_builder.period")}</th>
-                        <th scope="col">{t("components:query_builder.value")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {
-                        tableContent.values.map(({ period, value }, rowIndex) => {
-                          return (
-                            rowIndex < 5 &&
-                            <tr key={period}>
-                              <td>{period}</td>
-                              <td>{value}</td>
-                            </tr>
-                          )
-                        })
-                      }
-                    </tbody>
-                  </table>
-                </div>
-              ) :
-                !defaultMetricSelected &&
-                formRef.current?.checkValidity() && (
-                  <p className="padding-100">{t("components:query_builder.no_result_found")}</p>
-                )
-              }
-            </output>
-            <button
-              id="submit-button"
-              type="submit"
-              className="seagreen color-purewhite block"
-            >
-              {t("components:query_builder.add_data_source_button")}
-            </button>
+              : null}
 
-          </form>
-          : null}
+            <form ref={formRef} onChange={formChange} onSubmit={handleSubmit} className="flex flex-direction-column flex-grow-1" style={{ minHeight: '0' }}>
+              {/* Hidden disabled submit button to prevent accidental submission */}
+              <button type="submit" className="display-none" disabled></button>
+
+              <fieldset disabled={goal.externalDataset && goal.externalTableId ? true : false} className="position-relative flex flex-direction-column" style={{ height: '100%' }}>
+                <label className="margin-block-75 font-weight-500">
+                  {t("components:query_builder.data_source")}
+                  {/* Display warning message if the selected language is not supported by the api */}
+                  {((ExternalDataset.getDatasetByAlternateName(dataSource)) && !(ExternalDataset.getDatasetByAlternateName(dataSource)?.supportedLanguages.includes(lang))) ?
+                    <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
+                    : null}
+                  <select defaultValue={goal.externalDataset ? goal.externalDataset : ''} className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
+                    <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
+                    {ExternalDataset.knownDatasetKeys.map((name) => (
+                      <option key={name} value={name}>{ExternalDataset[name]?.fullName}</option>
+                    ))}
+                  </select>
+                </label>
+
+                {dataSource ?
+                  <>
+                    <label htmlFor="temp">Tabell</label> {/* TODO: i18n */}
+                    <SelectSingleSearch // TODO: Deal with width
+                      props={{
+                        id: 'temp',
+                        name: 'temp',
+                        placeholder: 'Välj tabell',
+                      }}
+                      defaultValue={
+                        goal.externalTableId
+                          ? {
+                            name:
+                              tables?.find(t => t.tableId === goal.externalTableId)?.label
+                              ?? goal.externalTableId,
+                            value: goal.externalTableId,
+                          }
+                          : undefined
+                      } options={
+                        tables
+                          ? tables.map(({ tableId, label }) => ({
+                            name: label,
+                            value: tableId,
+                          }))
+                          : []
+                      }
+                      onChange={(value) => value?.value ? handleTableSelect(value.value) : handleTableSelect('')}
+                    />
+                  </>
+                  : null}
+
+              </fieldset>
+
+              {tableDetails && (
+                // TODO - which inputs should be optional?
+                <>
+                  <fieldset disabled={goal.externalDataset && goal.externalTableId ? true : false} className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+                    <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>
+                      {t("components:query_builder.select_metric_for_table")}
+                    </legend>
+                    <div>
+                      <label key={`metric-${tableDetails.id}`} className="block margin-block-75">
+                        <select className={`block margin-block-25 metric`}
+                          required={true}
+                          name="metric"
+                          id="metric"
+                          defaultValue={undefined}
+                          onChange={handleMetricSelect}>
+                          <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_metric")}</option>
+                          {tableDetails.metrics && tableDetails.metrics.map(metric => (
+                            <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
+                  </fieldset>
+                  <fieldset name="variableSelectionFieldset" disabled={true} className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+                    {shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
+                      <>
+                        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>
+                          {t("components:query_builder.select_values_for_table")}
+                        </legend>
+                        <div>
+                          {tableDetails.times &&
+                            timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
+                          }
+                          {tableDetails.variables.map(variable => {
+                            return variableSelectionHelper(variable, tableDetails);
+                          })}
+                          {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
+                            if (hierarchy.children?.some(variable => variable.option)) return (
+                              <label key={hierarchy.name} className="block margin-block-75">
+                                <b>{hierarchy.label}</b>
+                                {hierarchy.children && hierarchy.children.map(variable => {
+                                  return variableSelectionHelper(variable, tableDetails);
+                                })}
+                              </label>
+                            )
+                          })}
+                        </div>
+                      </>) : (<p className={`font-style-italic color-gray`}>{t("components:query_builder.no_variables_found")}</p>)}
+                  </fieldset>
+
+                </>
+              )}
+              <output>
+                {/* TODO: style this better */}
+                {tableContent && tableContent.values.length > 0 ? (
+                  <div>
+                    <p>{t("components:query_builder.does_this_look_correct", { count: 5 })}</p>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th scope="col">{t("components:query_builder.period")}</th>
+                          <th scope="col">{t("components:query_builder.value")}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {
+                          tableContent.values.map(({ period, value }, rowIndex) => {
+                            return (
+                              rowIndex < 5 &&
+                              <tr key={period}>
+                                <td>{period}</td>
+                                <td>{value}</td>
+                              </tr>
+                            )
+                          })
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                ) :
+                  !defaultMetricSelected &&
+                  formRef.current?.checkValidity() && (
+                    <p className="padding-100">{t("components:query_builder.no_result_found")}</p>
+                  )
+                }
+              </output>
+              <button
+                id="submit-button"
+                type="submit"
+                className="seagreen color-purewhite block"
+              >
+                {t("components:query_builder.add_data_source_button")}
+              </button>
+
+            </form>
+          </>
+        ) : null}
     </div>
   )
 }
