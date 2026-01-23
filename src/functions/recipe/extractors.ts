@@ -1,5 +1,5 @@
 import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
-import { isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, RecipeDataTypes, RecipeError, RecipeVariable, VectorIndexPickerOptions } from "@/functions/recipe/types";
+import { isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, RecipeDataSeries, RecipeDataTypes, RecipeError, RecipeExternalDataset, RecipeVariable, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import getTableContent from "@/lib/api/getTableContent";
 import mathjs from "@/math";
 import { DateValues, DateValuesWithUnit, isISOIshDate, MaskedVector, UnitString } from "@/types";
@@ -37,10 +37,9 @@ export function extractScalars(
 export async function extractDataSeries(
   variables: Record<string, RecipeVariable>,
   warnings: string[] = [],
-  commonStartDate: Date,
-  commonLength: number,
-): Promise<EvalTimeVariable[]> {
-  const dataSeries: EvalTimeVariable[] = [];
+): Promise<{ data: DateValuesWithUnit, variable: RecipeDataSeries, }[]> {
+
+  const dataSeries: { data: DateValuesWithUnit, variable: RecipeDataSeries, }[] = [];
 
   for (const variableName in variables) {
     const variable = variables[variableName];
@@ -91,15 +90,12 @@ export async function extractDataSeries(
       throw new RecipeError(`Data series variable "${variableName}" contains invalid ISOIshDate keys.`);
     }
 
-    const dataSelection = pickDataSeries(
-      { values: dateValues, unit, },
-      variable.pick,
-      commonStartDate,
-      commonLength,
-    );
     dataSeries.push({
-      name: variableName,
-      value: dataSelection,
+      variable,
+      data: {
+        dateValues,
+        unit,
+      },
     });
   }
 
@@ -109,11 +105,9 @@ export async function extractDataSeries(
 export async function extractExternalDatasets(
   variables: Record<string, RecipeVariable>,
   warnings: string[] = [],
-  commonStartDate: Date,
-  commonLength: number,
-): Promise<EvalTimeVariable[]> {
-  const externalDatasets: EvalTimeVariable[] = [];
+): Promise<{ data: DateValuesWithUnit, variable: RecipeExternalDataset, }[]> {
 
+  const externalDatasets: { data: DateValuesWithUnit, variable: RecipeExternalDataset, }[] = [];
   const fetchers: Array<() => Promise<void>> = [];
 
   for (const variableName in variables) {
@@ -157,18 +151,12 @@ export async function extractExternalDatasets(
       if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variableName}" has an invalid unit "${bestUnit}". Treating as unitless.`);
       const unit = isValidUnit ? bestUnit : undefined;
 
-      const dataSelection = pickDataSeries(
-        {
-          values: timeline,
+      externalDatasets.push({
+        variable,
+        data: {
+          dateValues: timeline,
           unit,
         },
-        variable.pick,
-        commonStartDate,
-        commonLength,
-      );
-      externalDatasets.push({
-        name: variableName,
-        value: dataSelection,
       });
     });
   }
@@ -179,7 +167,7 @@ export async function extractExternalDatasets(
 }
 
 /** Wrapper for the conversion functions in order to intercept YYYY pick values */
-function pickDataSeries(
+export function pickDataSeries(
   dataSeries: DateValuesWithUnit,
   pick: VectorIndexPickerOptions | number,
   commonStartDate: Date,
@@ -196,7 +184,7 @@ function pickDataSeries(
     if (!isISOIshDate(isoYearString)) {
       throw new RecipeError(`PickDataSeries: Invalid year pick value '${pick}'.`);
     }
-    const valueAtPickedYear = dataSeries.values[isoYearString];
+    const valueAtPickedYear = dataSeries.dateValues[isoYearString];
     if (typeof valueAtPickedYear !== "number") {
       throw new RecipeError(`PickDataSeries: Data series does not contain a valid number for year ${pick}.`);
     }
@@ -224,7 +212,8 @@ export function transformDateValuesToVector(
   commonStartDate: Date,
   commonLength: number,
 ): MaskedVector {
-  const { values: timeline, unit, } = dateValues;
+
+  const { dateValues: timeline, unit, } = dateValues;
 
   const vector: Unit[] = [];
   const mask: Record<string, boolean> = {};
@@ -289,6 +278,7 @@ export function transformDateValuesToVector(
 export function parseDateValuesFromVector(
   maskedVector: MaskedVector,
 ): DateValuesWithUnit {
+
   const { vector, mask } = maskedVector;
 
   if (vector.length !== Object.keys(mask).length) {
@@ -313,14 +303,14 @@ export function parseDateValuesFromVector(
   if (units.length === 1) {
     return {
       unit: units[0],
-      values: timeline,
+      dateValues: timeline,
     };
   }
   else {
     console.warn(`VectorConvert: Inconsistent units in result vector: ${units.join(", ")}. Setting unit to undefined.`);
     return {
       unit: undefined,
-      values: timeline,
+      dateValues: timeline,
     };
   }
 }
@@ -411,7 +401,6 @@ export function isMathjsUnit(unit: UnitString): boolean {
     return false;
   }
 }
-
 
 // TODO remove
 // const warnings: string[] = [];

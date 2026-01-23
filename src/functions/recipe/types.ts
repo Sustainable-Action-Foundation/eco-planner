@@ -354,7 +354,7 @@ export const emptyRecipesByDataType: Record<RecipeDataTypes, RecipeVariable> = {
 export type EvalTimeVariable = {
   name: string;
   value: Unit | Unit[] | number; // TODO: should it be ever be a number? rather have Unit with no unit?
-}
+};
 
 
 /*

@@ -475,7 +475,7 @@ export type UnitString = string | null | undefined;
 type ISOIshDate = `${number}-${number}-${number}T00:00:00.000Z`;
 export type Mask = Record<ISOIshDate, boolean>;
 export type DateValues = Record<ISOIshDate, number>;
-export type DateValuesWithUnit = { values: DateValues, unit: UnitString };
+export type DateValuesWithUnit = { dateValues: DateValues, unit: UnitString };
 export type MaskedVector = { vector: Unit[], mask: Mask };
 export function isDateValues(dateValues: JSONValue): dateValues is DateValues {
   return (
