@@ -118,14 +118,13 @@
     box-shadow .2s ease;
   scale: 1;
 }
-
+/* TODO: Look at the implementation of arias-here. Does not seem to work as intended (see historical-data)*/
 .timeLineFieldset:has(input:required:not(:disabled), select:required:not(:disabled), textarea:required:not(:disabled)):valid .timeLineLegend::before,
 .timeLineFieldset:has([aria-required="true"][aria-invalid="false"]) .timeLineLegend::before {
   content: '✓' / '';
   background-color: var(--seagreen);
   box-shadow: 0 0 .5rem -.25rem var(--seagreen);
   animation: pop 0.4s ease;
-  /* Pop effect over 0.3s */
 }
 
 
