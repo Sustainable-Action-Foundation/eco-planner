@@ -1,31 +1,6 @@
 name: eco-planner-test-suite
 
 services:
-  tests:
-    image: eco-planner-testing:test
-    pull_policy: build
-    build: 
-      context: ..
-      dockerfile: docker/testing.Dockerfile
-      cache_from:
-        - eco-planner-testing:test
-        - type=gha
-      cache_to:
-        - type=gha,mode=max
-    restart: "no"
-    depends_on:
-      app:
-        condition: service_healthy
-      db:
-        condition: service_healthy
-    networks:
-      - default
-      - testing_network
-    volumes:
-      - test-folder:/testing/tests
-    environment:
-      - TEST_BASE_URL=${TEST_BASE_URL:-http://app:8081}
-
   db:
     image: mariadb:lts
     restart: always
@@ -102,21 +77,6 @@ services:
       - MAIL_PASSWORD=${TEST_MAIL_PASSWORD}
       # Used for links in emails and as canonical url in meta tags
       - BASE_URL=${TEST_BASE_URL:-http://app:8081}
-
-  # Shuts down the stack after tests are completed
-  cleanup:
-    image: docker:cli
-    restart: "no"
-    depends_on:
-      tests:
-        condition: service_completed_successfully
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: >
-      sh -c "
-        echo 'Tests completed, shutting down stack...' &&
-        docker compose -p eco-planner-test-suite kill -s SIGTERM app db
-      "
 
 networks:
   testing_network:

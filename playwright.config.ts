@@ -10,9 +10,10 @@ if (fs.existsSync(".env")) {
 process.env = Object.keys(env).length > 0 ? { ...process.env, ...env } : process.env;
 env = {}; // Clear it just in case any reporter dumps the heap.
 
-export const webserverURL = process.env.TEST_BASE_URL || "http://localhost:3000";
+// Allow overriding the webserver URL via environment variable, defaulting to a local port opened by testing docker compose.
+export const webserverURL = process.env.BASE_URL || "http://localhost:8081";
 
-const CI = process.env.CI == "true";
+const CI = process.env.CI ? true : false;
 
 export default defineConfig({
   testDir: "tests/",
@@ -28,13 +29,19 @@ export default defineConfig({
     ...(CI ?
       [["github"]]
       :
-      [["html", { open: "never" }]]
+      [
+        ["dot"],
+        ["html", { open: "never" }],
+      ]
     ) as [string, object][],
 
     ["json", { outputFile: "tests/report.json" }],
     ["list"],
   ],
   // reporter: "list",
+
+  // Stop docker containers after tests are done
+  globalTeardown: "./tests/global.teardown.ts",
 
   // Global use
   use: {
@@ -100,12 +107,12 @@ export default defineConfig({
     }
   ],
 
-  // Running locally starts next.js server from here. Make sure to have built the app first.
   webServer: CI ? undefined : {
-    timeout: 1000 * 1000,
-    command: "yarn run start",
+    timeout: 20 * 60 * 1000, // 20 minutes; both seeding image and app image may need to be built, which might take a while with bad cache, especially on runners.
+    // timeout: 1000 * 1000,
+    command: "docker compose -f docker/compose.testing.yaml up --remove-orphans",
     url: webserverURL,
-    reuseExistingServer: true,
+    reuseExistingServer: !CI,
   },
 
   // Fail the build on CI if you accidentally left test.only in the source code.
