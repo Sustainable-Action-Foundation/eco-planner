@@ -7,8 +7,6 @@ import { Unit } from "mathjs";
 import { EvalTimeVariable } from "./types";
 import { filterToInitialYearlyRecords, parsePeriod } from "@/lib/api/utility";
 
-const nullSubstituteValue = 0; // Mathjs does not like undefined or NaN values so this is the intermediate representation
-
 export function extractScalars(
   variables: Record<string, RecipeVariable>,
   warnings: string[] = [],
@@ -221,7 +219,7 @@ function pickDataSeries(
   return pickVector(maskedVector, pick);
 }
 
-function transformDateValuesToVector(
+export function transformDateValuesToVector(
   dateValues: DateValuesWithUnit,
   commonStartDate: Date,
   commonLength: number,
@@ -251,8 +249,8 @@ function transformDateValuesToVector(
     else {
       vector.push(
         unit
-          ? mathjs.unit(nullSubstituteValue, unit)
-          : mathjs.unit(nullSubstituteValue)
+          ? mathjs.unit(0, unit)
+          : mathjs.unit(0)
       );
       mask[isoYearString] = true; // Masked, non defined value
     }
