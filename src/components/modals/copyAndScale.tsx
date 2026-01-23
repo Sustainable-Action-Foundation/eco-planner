@@ -11,6 +11,7 @@ import { recipeFromUnknown } from "@/functions/parseRecipe";
 import { RecipeContextProvider } from "../recipe/context/recipeContext.provider";
 import { SuggestedRecipeApplier } from "@/components/recipe/suggestions/suggestedRecipeApplier";
 import FormIntegration from "../recipe/editor/output/formIntegration";
+import styles from './modals.module.css'
 
 export default function CopyAndScale({
   goal,
@@ -126,93 +127,97 @@ export default function CopyAndScale({
       </button>
 
       {/* Modal */}
-      <dialog ref={modalRef} aria-modal className="rounded" style={{ border: '0', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25)', width: '90dvw' }}>
+      <dialog ref={modalRef} aria-modal className={`rounded padding-inline-0 padding-block-0 ${styles['dialog']}`}  > {/* TODO: Make responsive? Or is it already but just buggy? */}
         {/* Title bar */}
-        <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>
-          {/* Close button */}
-          <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
-            <IconX aria-hidden="true" width={18} height={18} strokeWidth={3} />
-          </button>
+        <div className={`${styles['dialog-content']}`}>
+          <div className={`${styles['dialog-header']}`}>
+            {/* Close button */}
+            <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
+              <IconX aria-hidden="true" width={28} height={28} strokeWidth={2} style={{minWidth: '28px'}} />
+            </button>
 
-          {/* Title */}
-          <h2 className="margin-0">{t("components:copy_and_scale.title", { goalName: goal.name })}</h2>
+            {/* Title */}
+            <h2 className="margin-0">{t("components:copy_and_scale.title", { goalName: goal.name })}</h2>
+          </div>
+
+          {/* Scaling form */}
+          <form action={formSubmission} name="copyAndScale" className="padding-100 flex flex-direction-column" style={{minHeight: '0'}}>
+
+            {/* Roadmap version select */}
+            <label className="block margin-block-100">
+              {t("components:copy_and_scale.select_roadmap_version")}
+              <select className="block margin-block-25 width-100" required name="copyTo" id="copyTo">
+                <option value="">{t("components:copy_and_scale.select_roadmap_version_option")}</option>
+                {roadmapOptions.map(roadmap => (
+                  <option key={roadmap.id} value={roadmap.id}>
+                    {`${roadmap.name} ${roadmap.version ? `(${t("components:copy_and_scale.version")} ${roadmap.version.toString()})` : ""}`}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <div className={`flex-grow-100 ${styles['dialog-body']}`}>
+              <RecipeContextProvider>
+                <SuggestedRecipeApplier
+                  permissions={{
+                    allowAddVariables: false,
+                    allowDeleteVariables: false,
+                    allowNameEditing: false,
+                    allowTypeEditing: false,
+                    allowValueEditing: true,
+                  }}
+                  DEPRECATED_recipeOverrideFunctions={[
+                    // Set the value of the first data series to be of this goal
+                    (r => {
+                      if (!goal.dataSeries) {
+                        console.warn("Goal has no data series to set scaling reference");
+                        return r;
+                      }
+
+                      const firstDataSeries = Object.entries(r.variables)
+                        .find(([_n, v]) => v.type === RecipeDataTypes.DataSeries);
+
+                      const firstDataSeriesName = firstDataSeries?.[0];
+                      if (!firstDataSeriesName) {
+                        console.warn("No data series variable found to set scaling reference");
+                        return r;
+                      }
+                      const firstDataSeriesVariable = firstDataSeries?.[1];
+
+                      if (!isRecipeDataSeries(firstDataSeriesVariable)) {
+                        console.warn("First data series variable is not of type RecipeDataSeries");
+                        return r;
+                      }
+
+                      firstDataSeriesVariable.link = goal.dataSeries.id;
+                      firstDataSeriesVariable.unit = goal.dataSeries.unit;
+                      // TODO: remove evil, see the type def for RecipeDataSeriesVariable
+                      firstDataSeriesVariable.goalName = goal.name || goal.indicatorParameter;
+                      firstDataSeriesVariable.disabled = true;
+
+                      return {
+                        ...r,
+                        variables: {
+                          ...r.variables,
+                          [firstDataSeriesName]: firstDataSeriesVariable,
+                        },
+                      };
+                    })
+                  ]}
+                />
+
+                <FormIntegration
+                  DataSeriesFormElement={<input name="resultingDataSeries" />}
+                  RecipeFormElement={<input name="resultingRecipe" />}
+                />
+              </RecipeContextProvider>
+            </div>
+            
+            <button className="block seagreen color-purewhite smooth width-100 margin-inline-auto font-weight-500">
+              {t("components:copy_and_scale.create_scaled_copy")}
+            </button>
+          </form>
         </div>
-
-        {/* Scaling form */}
-        <form action={formSubmission} name="copyAndScale">
-
-          {/* Roadmap version select */}
-          <label className="block margin-block-100">
-            {t("components:copy_and_scale.select_roadmap_version")}
-            <select className="block margin-block-25 width-100" required name="copyTo" id="copyTo">
-              <option value="">{t("components:copy_and_scale.select_roadmap_version_option")}</option>
-              {roadmapOptions.map(roadmap => (
-                <option key={roadmap.id} value={roadmap.id}>
-                  {`${roadmap.name} ${roadmap.version ? `(${t("components:copy_and_scale.version")} ${roadmap.version.toString()})` : ""}`}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <RecipeContextProvider>
-            <SuggestedRecipeApplier
-              permissions={{
-                allowAddVariables: false,
-                allowDeleteVariables: false,
-                allowNameEditing: false,
-                allowTypeEditing: false,
-                allowValueEditing: true,
-              }}
-              DEPRECATED_recipeOverrideFunctions={[
-                // Set the value of the first data series to be of this goal
-                (r => {
-                  if (!goal.dataSeries) {
-                    console.warn("Goal has no data series to set scaling reference");
-                    return r;
-                  }
-
-                  const firstDataSeries = Object.entries(r.variables)
-                    .find(([_n, v]) => v.type === RecipeDataTypes.DataSeries);
-
-                  const firstDataSeriesName = firstDataSeries?.[0];
-                  if (!firstDataSeriesName) {
-                    console.warn("No data series variable found to set scaling reference");
-                    return r;
-                  }
-                  const firstDataSeriesVariable = firstDataSeries?.[1];
-
-                  if (!isRecipeDataSeries(firstDataSeriesVariable)) {
-                    console.warn("First data series variable is not of type RecipeDataSeries");
-                    return r;
-                  }
-
-                  firstDataSeriesVariable.link = goal.dataSeries.id;
-                  firstDataSeriesVariable.unit = goal.dataSeries.unit;
-                  // TODO: remove evil, see the type def for RecipeDataSeriesVariable
-                  firstDataSeriesVariable.goalName = goal.name || goal.indicatorParameter;
-                  firstDataSeriesVariable.disabled = true;
-
-                  return {
-                    ...r,
-                    variables: {
-                      ...r.variables,
-                      [firstDataSeriesName]: firstDataSeriesVariable,
-                    },
-                  };
-                })
-              ]}
-            />
-
-            <FormIntegration
-              DataSeriesFormElement={<input name="resultingDataSeries" />}
-              RecipeFormElement={<input name="resultingRecipe" />}
-            />
-          </RecipeContextProvider>
-
-          <button className="block seagreen color-purewhite smooth width-100 margin-inline-auto font-weight-500">
-            {t("components:copy_and_scale.create_scaled_copy")}
-          </button>
-        </form>
       </dialog>
     </>
   )
