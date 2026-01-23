@@ -99,9 +99,9 @@ export default function HistoricalData({
     if (!(event.target instanceof HTMLFormElement)) return;
 
     if (!(event.target.checkValidity())) return;
-    const formData = new FormData(event.target);
+    const formData = new FormData(event.target); // TODO: This does not seem to be anything, figure out why (goal.externalDataset is saved, goal.externalTableId is not)
     const query = buildQuery(formData);
-
+ 
     // Update the goal with the new data
     formSubmitter("/api/goal", JSON.stringify({
       goalId: goal.id,
@@ -383,12 +383,12 @@ export default function HistoricalData({
                     ))}
                   </select>
                 </label>
-                <label htmlFor="temp">Tabell</label> {/* TODO: i18n */}
+                <label htmlFor="externalTableId">Tabell</label> {/* TODO: i18n */}
                 <SelectSingleSearch // TODO: Deal with width
                   props={{
                     className: 'margin-top-25 margin-bottom-100',
-                    id: 'temp',
-                    name: 'temp',
+                    id: 'externalTableId',
+                    name: 'externalTableId',
                     placeholder: 'Välj tabell',
                     required: true,
                     disabled: !dataSource ? true : false
