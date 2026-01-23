@@ -13,10 +13,11 @@ import { Goal } from "@prisma/client";
 import { FormEvent, useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
-import { IconSearch } from "@tabler/icons-react";
+import dialogStyles from '../api/queryBuilder.module.css' /* TODO: This seems a bit janky */
 import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
-
+import { IconTrashXFilled, IconX } from "@tabler/icons-react";
+{/* TODO: Metadata */ }
 export default function HistoricalData({
   goal,
 }: {
@@ -32,63 +33,22 @@ export default function HistoricalData({
 
   const [isLoading, setIsLoading] = useState(false);
   const [visibleForm, setVisibleForm] = useState('manual')
-  const [dataSource, setDataSource] = useState<string>("");
+  const [dataSource, setDataSource] = useState<string>(goal.externalDataset ? goal.externalDataset : "");
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
-  const [renderedTables, setRenderedTables] = useState<{ tableId: string, label: string }[] | null>(null);
-  const [offset, setOffset] = useState(0);
   const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
   const [defaultMetricSelected, setDefaultMetricSelected] = useState(true);
 
   const formRef = useRef<HTMLFormElement | null>(null);
-
-  const tableSearchInputName = "tableSearch";
-
-  // These variables determine how many tables are rendered at a time, and how many are rendered when the user scrolls down/up
-  // The first number is the amount of tables that are rendered when the user scrolls down/up, and the second number is the maximum amount of tables that are rendered at once.
-  // The initial rendering margin allows for more than the maximum amount of tables to be rendered at once if the total amount of tables is less than the maximum amount of tables plus the margin (currently adding to 115).
-  const tablesListRenderingChunkSize = 50;
-  const renderedTablesListMaxLength = 100;
-  const initialRenderingMargin = 15;
+  const deleteDataRef = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
     if (!dataSource) return;
     setIsLoading(true);
 
-    const query = (formRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
-
-    void getTables(dataSource, query, lang).then(result => { setTables(result); setIsLoading(false); });
+    // TODO: Undefined here is query, we likely want to remove it once this is all set ut and querybuilder.tsx is removed
+    void getTables(dataSource, undefined, lang).then(result => { setTables(result); setIsLoading(false); });
   }, [dataSource, lang]);
-
-  useEffect(() => {
-    if (tables) {
-      setRenderedTables(tables
-        .slice(
-          0,
-          /* If the total amount of tables is less than, or equal to, the max amount of rendered tables plus a margin (currently adding to 115), show all tables */
-          tables.length <= renderedTablesListMaxLength + initialRenderingMargin
-            ?
-            tables.length
-            : /* Otherwise, only show the first (100) tables. */
-            renderedTablesListMaxLength
-        ));
-      setOffset(0);
-    } else {
-      setRenderedTables(null);
-      setOffset(0);
-    }
-  }, [tables]);
-
-  useEffect(() => {
-    const loader = document?.getElementById("loader");
-    if (isLoading && loader) {
-      loader.classList.remove("hidden");
-    } else if (!isLoading && loader) {
-      setTimeout(() => {
-        loader.classList.add("hidden");
-      }, 0);
-    }
-  }, [isLoading]);
 
   useEffect(() => {
     const metricSelectElement = document.getElementById("metric") as HTMLSelectElement | null;
@@ -109,7 +69,6 @@ export default function HistoricalData({
       // Skip externalDataset, externalTableId, and `tableSearchInputName`, as they are not part of the query
       if (key == "externalDataset") return;
       if (key == "externalTableId") return;
-      if (key == tableSearchInputName) return;
       // The PxWeb time variable is special, as we want to fetch every period after (and including) the selected one
       if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && key == formRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
         queryObject.push({ variableCode: key, valueCodes: [`FROM(${value})`] });
@@ -153,26 +112,6 @@ export default function HistoricalData({
     }), "PUT", t, setIsLoading);
   }
 
-  function enableSubmitButton() {
-    const submitButton = document?.getElementById("submit-button");
-    if (submitButton) {
-      submitButton.removeAttribute("disabled");
-      if (submitButton.classList.contains("display-none")) submitButton.classList.remove("display-none");
-      if (submitButton.classList.contains("height-0")) submitButton.classList.remove("height-0");
-      if (submitButton.classList.contains("padding-0")) submitButton.classList.remove("padding-0");
-    }
-  }
-
-  function disableSubmitButton() {
-    const submitButton = document?.getElementById("submit-button");
-    if (submitButton) {
-      submitButton.setAttribute("disabled", "true");
-      if (!submitButton.classList.contains("display-none")) submitButton.classList.add("display-none");
-      if (!submitButton.classList.contains("height-0")) submitButton.classList.add("height-0");
-      if (!submitButton.classList.contains("padding-0")) submitButton.classList.add("padding-0");
-    }
-  }
-
   function tryGetResult(event?: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
     // null check
     if (!(formRef.current instanceof HTMLFormElement)) return;
@@ -186,16 +125,10 @@ export default function HistoricalData({
       const tableId = tableDetails?.id ?? formData.get("externalTableId") as string ?? "";
       getTableContent(tableId, dataSource, query, lang).then(result => {
         setTableContent(result);
-        if ((result?.values.length ?? 0) > 0) {
-          enableSubmitButton();
-        } else {
-          disableSubmitButton();
-        }
         setIsLoading(false);
       }).catch(e => {
         console.error("Error fetching table content:", e);
         setTableContent(null);
-        disableSubmitButton();
         setIsLoading(false);
       });
       if (dataSource == "Trafa") {
@@ -205,13 +138,12 @@ export default function HistoricalData({
         }
       }
     }
-    // If not, make sure the submit button is disabled
     else {
-      disableSubmitButton();
-      clearTableContent();
+      setTableContent(null);
       setIsLoading(false);
     }
   }
+
   function formChange(event: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
     const changedElementIsExternalDataset = event.target instanceof HTMLSelectElement && event.target.name == "externalDataset";
     const changedElementIsTableSearch = event.target instanceof HTMLInputElement && event.target.name == "tableSearch";
@@ -223,52 +155,22 @@ export default function HistoricalData({
     }
   }
 
-  function searchOnEnter(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      event.stopPropagation();
-      handleSearch((event.target as HTMLInputElement).value);
-    }
-  }
-
-  function searchWithButton() {
-    const query = (formRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
-    handleSearch(query ?? undefined);
-  }
-
-  function handleSearch(query?: string) {
-    if (!dataSource || !ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
-
-    void getTables(dataSource, query, lang).then(result => setTables(result));
-  }
-
-  function clearTableDetails() {
-    setTableDetails(null);
-  }
-
-  function clearTableContent() {
-    setTableContent(null);
-  }
-
   function handleDataSourceSelect(dataSource: string) {
     setDataSource(dataSource);
     // Clear table details and content whenever the data source changes
-    clearTableContent();
-    clearTableDetails();
-    // Make sure submit button is disabled when the data source is changed
-    disableSubmitButton();
+    setTableContent(null);
+    setTableDetails(null);
   }
 
-  {/* TODO: See if we can remove table content when de-selecting  */}
-  function handleTableSelect(tableId: string) { 
+  {/* TODO: See if we can remove table content when de-selecting  */ }
+  function handleTableSelect(tableId: string) {
     setIsLoading(true);
 
     if (!ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
     if (!tableId) return;
 
-    clearTableContent();
-    clearTableDetails();
-    disableSubmitButton();
+    setTableContent(null);
+    setTableDetails(null);
 
     void getTableDetails(tableId, dataSource, undefined, lang).then(result => { setTableDetails(result); setIsLoading(false); });
   }
@@ -310,66 +212,22 @@ export default function HistoricalData({
     if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
   }
 
-  function handleTableListScroll(event: React.UIEvent<HTMLUListElement, UIEvent>) {
-    if (event.target && event.target instanceof HTMLElement && tables && event.target.children.length < tables.length) {
-      if ( // This block is only executed when the user scrolls down
-        renderedTables
-        &&
-        /* Check if the user has scrolled far enough to render more tables (including some margin so the scroll does not get stuck at the bottom while waiting for more tables to render) */
-        event.target.scrollTop + event.target.clientHeight * 2 >= event.target.scrollHeight
-        &&
-        /* Make sure that the very last table has not been rendered */
-        !renderedTables.includes(tables[tables.length - 1])
-      ) {
-        const newOffset = offset + tablesListRenderingChunkSize;
-        const newRenderedTables = tables.slice(newOffset, newOffset + renderedTablesListMaxLength);
-        setRenderedTables(newRenderedTables);
-        setOffset(newOffset);
-      }
-      else if ( // This block is only executed when the user scrolls up
-        renderedTables
-        &&
-        /* Check if the user has scrolled far enough to render more tables (including some margin so the scroll does not get stuck at the top while waiting for more tables to render) */
-        event.target.scrollTop < event.target.clientHeight * 2
-        &&
-        /* Check that the very first table has not been rendered */
-        !renderedTables.includes(tables[0])
-      ) {
-        const newOffset = Math.max(offset - tablesListRenderingChunkSize, 0);
-        const newRenderedTables = tables.slice(newOffset, newOffset + renderedTablesListMaxLength);
-        setRenderedTables(newRenderedTables);
-        setOffset(newOffset);
-      }
-    }
-  }
 
-  type VariableSelectionHelperOptions = {
-    classNames?: string[],
-  }
-  function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails, options?: VariableSelectionHelperOptions) {
+  function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) {
     if (variable.option) {
       return (
-        <label key={variable.name} className={`block margin-block-75 ${options?.classNames && options.classNames.map((className: string) => className).join(" ")}`}>
+        <label key={variable.name} className='block margin-block-75'>
           {/* Only display "optional" tags if the data source provides this information */}
-          {variable.label[0].toUpperCase() + variable.label.slice(1)}{optionalTag(dataSource, variable.optional)}
+          {variable.label}{optionalTag(dataSource, variable.optional)}
           {/* TODO: Use CSS to set proper capitalization of labels; something like `label::first-letter { text-transform: capitalize; }` */}
           <select className={`block margin-block-25 ${variable.label}`}
             required={!variable.optional}
             name={variable.name}
             id={variable.name}
-            defaultValue={ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" ?
-              (// If only one value is available, pre-select it
-                variable.values && variable.values.length == 1 ? variable.values[0].label : undefined
-              )
-              :
-              undefined
-            }>
+          >
             { // If only one value is available, don't show a placeholder option
+              ExternalDataset.getDatasetByAlternateName(dataSource)?.api !== "PxWeb" ||
               ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variable.values && variable.values.length > 1 &&
-              <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option>
-            }
-            {
-              !(ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") &&
               <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option>
             }
             {variable.values && variable.values.map(value => (
@@ -427,15 +285,13 @@ export default function HistoricalData({
   let positionIndex = 1;
 
   return (
-
-
-    <div className={`${styles['dialog-body']}`}>
+    <div className={`${styles['dialog-body']}`}> {/* TODO: Dialog-body does not make sense here now... */}
       {/* <p className="padding-inline-100">{t("components:query_builder.add_data_to_goal", { goalName: goal.name ?? goal.indicatorParameter })}</p> */}
 
-      {/* TODO: It might be sensible if theese are tabs instead. Or if we warn users that data will be deleted given that you switch between them */}
+      {/* TODO: It might be sensible if theese are tabs instead. Additionally that we warn users that data will be deleted given that you switch between them */}
       <div className="radio-select-two margin-bottom-100" > {/* TODO: Make sure theese wrap */}
         <label id="recipe-type-suggested-label">
-          Lägg till data manuellt {/* TODO: i18n */}
+          Justera data manuellt {/* TODO: i18n */}
           <input
             className="margin-right-25"
             type="radio"
@@ -470,156 +326,190 @@ export default function HistoricalData({
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>Data</legend> {/* TODO: I18n */}
           <DataSeriesInputManual />
         </fieldset>
-        : visibleForm === 'external' ?
-          <form ref={formRef} onChange={formChange} onSubmit={handleSubmit} className="flex flex-direction-column flex-grow-1" style={{ minHeight: '0' }}>
-            {/* Hidden disabled submit button to prevent accidental submission */}
-            <button type="submit" className="display-none" disabled></button>
+        : visibleForm === 'external' ? (
+          <>
 
-            <fieldset className="position-relative flex flex-direction-column" style={{ height: '100%' }}>
-              <label className="margin-block-75 font-weight-500">
-                {t("components:query_builder.data_source")}
-                {/* Display warning message if the selected language is not supported by the api */}
-                {((ExternalDataset.getDatasetByAlternateName(dataSource)) && !(ExternalDataset.getDatasetByAlternateName(dataSource)?.supportedLanguages.includes(lang))) ?
-                  <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
-                  : null}
-                <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
-                  <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
-                  {ExternalDataset.knownDatasetKeys.map((name) => (
-                    <option key={name} value={name}>{ExternalDataset[name]?.fullName}</option>
-                  ))}
-                </select>
-              </label>
-
-              {dataSource ?
-                <>
-                  <label htmlFor="temp">Tabell</label> {/* TODO: i18n */}
-                  <SelectSingleSearch // TODO: Deal with width
-                    props={{
-                      id: 'temp',
-                      name: 'temp',
-                      placeholder: 'Välj tabell'
-                    }}
-                    options={
-                      renderedTables
-                        ? renderedTables.map(({ tableId, label }) => ({
-                          name: label,
-                          value: tableId,
-                        }))
-                        : []
-                    }
-                    onChange={(value) => value?.value ? handleTableSelect(value.value) : handleTableSelect('')}
-                  />
-                </>
-                : null}
-
-            </fieldset>
-
-            {tableDetails && (
-              // TODO - which inputs should be optional?
+            {goal.externalDataset && goal.externalTableId ?
               <>
-                <label className="block margin-block-75">
-                  <Trans
-                    i18nKey={"components:query_builder.selected_table"}
-                    values={{ table: document.getElementById(`table${tableDetails.id}`)?.innerText }}
-                    components={{ strong: <strong />, small: <small />, i: <i /> }}
-                  />
-                  {/* {t("components:query_builder.selected_table", { table: document.getElementById(`table${tableDetails.id}`)?.innerText })} */}
-                </label>
-                <fieldset className="margin-block-100 smooth padding-50" style={{ border: "1px solid var(--gray-90)" }}>
-                  <legend className="padding-inline-50">
-                    <b>{t("components:query_builder.select_metric_for_table")}</b>
-                  </legend>
-                  <div>
-                    <label key={`metric-${tableDetails.id}`} className="block margin-block-75">
-                      <select className={`block margin-block-25 metric`}
-                        required={true}
-                        name="metric"
-                        id="metric"
-                        defaultValue={undefined}
-                        onChange={handleMetricSelect}>
-                        <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_metric")}</option>
-                        {tableDetails.metrics && tableDetails.metrics.map(metric => (
-                          <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
-                        ))}
-                      </select>
-                    </label>
-                  </div>
-                </fieldset>
-                <fieldset name="variableSelectionFieldset" disabled={true} className={`margin-block-100 smooth padding-25 fieldset-unset-pseudo-class`} style={{ border: `${shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? "1px solid var(--gray-90)" : ""}`, maxHeight: "322px" }}>
-                  {shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
-                    <>
-                      <legend className="padding-inline-50">
-                        <b>{t("components:query_builder.select_values_for_table")}</b>
-                      </legend>
-                      <div className={`${styles.temporary}`} style={{ maxHeight: "282px", boxSizing: "content-box", padding: ".25rem", paddingRight: ".375rem" }}>
-                        {tableDetails.times &&
-                          timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
-                        }
-                        {tableDetails.variables.map(variable => {
-                          return variableSelectionHelper(variable, tableDetails);
-                        })}
-                        {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
-                          if (hierarchy.children?.some(variable => variable.option)) return (
-                            <label key={hierarchy.name} className="block margin-block-75">
-                              <b>{hierarchy.label}</b>
-                              {hierarchy.children && hierarchy.children.map(variable => {
-                                return variableSelectionHelper(variable, tableDetails, { classNames: ["margin-left-75"] });
-                              })}
-                            </label>
-                          )
-                        })}
+                <p>Denna målbana har redan en extern datakälla. Du kan antingen justera din historiska data manuellt eller ta bort den externa datakällan och lägga till en ny</p> {/* TODO: I18n */}
+                <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem", lineHeight: '1.5' }} onClick={() => deleteDataRef.current?.showModal()}>
+                  Ta bort extern datakälla {/* TODO: I18n (replace previous existing) */}
+                  <IconTrashXFilled fill='#CB3C3C' width={16} height={16} style={{ minWidth: '16px' }} aria-hidden="true" />
+                </button>
+                {/* TODO: We should likely not be adding a blur to the backdrop if our dialog can be light dismissed, i.e closedby=any */}
+                <dialog closedby="any" style={{width: 'min(75ch, 100%)', height: 'calc(50vh - 2rem)'}} className={`rounded padding-inline-0 padding-block-0 ${dialogStyles.dialog}`} aria-modal ref={deleteDataRef}>
+                  <div className={`${dialogStyles['dialog-content']}`}>
+                    <div className={`${dialogStyles['dialog-header']}`}>
+                      <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => deleteDataRef.current?.close()} autoFocus aria-label={t("common:tsx.close")} >
+                        <IconX strokeWidth={3} width={28} height={28} style={{ minWidth: '28px' }} aria-hidden="true" />
+                      </button>
+                      <h2 className="margin-0">Ta bort extern datakälla</h2> {/* TODO: I18n */}
+                    </div>
+                    <div className="padding-100"> {/* TODO: I18n */}
+                      <p>Är du säker på att du vill ta bort extern datakälla: <span style={{fontStyle: 'italic'}}>{tables?.find(t => t.tableId === goal.externalTableId)?.label ?? goal.externalTableId}({goal.externalDataset})</span> från målbana: <span className="font-weight-600">{goal.name}</span>?</p>
+                      <div className="flex gap-25">
+                        <button className="flex-grow-100" onClick={() => deleteDataRef.current?.close()}>
+                          Avbryt {/* TODO: I18n */}
+                        </button>
+                        <button type="button" className="color-purewhite red gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem", lineHeight: '1.5' }} onClick={deleteHistoricalData}> {/* TODO: loading state */}
+                          Ta bort extern datakälla {/* TODO: I18n */}
+                        </button>
                       </div>
-                    </>) : (<p className={`font-style-italic color-gray`}>{t("components:query_builder.no_variables_found")}</p>)}
-                </fieldset>
-
+                    </div>
+                  </div>
+                </dialog>
               </>
-            )}
-            <output>
-              {/* TODO: style this better */}
-              {tableContent && tableContent.values.length > 0 ? (
-                <div>
-                  <p>{t("components:query_builder.does_this_look_correct", { count: 5 })}</p>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th scope="col">{t("components:query_builder.period")}</th>
-                        <th scope="col">{t("components:query_builder.value")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {
-                        tableContent.values.map(({ period, value }, rowIndex) => {
-                          return (
-                            rowIndex < 5 &&
-                            <tr key={period}>
-                              <td>{period}</td>
-                              <td>{value}</td>
-                            </tr>
-                          )
-                        })
-                      }
-                    </tbody>
-                  </table>
-                </div>
-              ) :
-                !defaultMetricSelected &&
-                formRef.current?.checkValidity() && (
-                  <p className="padding-100">{t("components:query_builder.no_result_found")}</p>
-                )
-              }
-            </output>
-            {/* TODO: Should probably only be displayed on last slide? */}
-            <button
-              id="submit-button"
-              disabled={true}
-              type="submit"
-              className="display-none seagreen color-purewhite block"
-            >
-              {t("components:query_builder.add_data_source_button")}
-            </button>
+              : null}
 
-          </form>
-          : null}
+            <form ref={formRef} onChange={formChange} onSubmit={handleSubmit} className="flex flex-direction-column flex-grow-1" style={{ minHeight: '0' }}>
+              {/* Hidden disabled submit button to prevent accidental submission */}
+              <button type="submit" className="display-none" disabled></button>
+
+              <fieldset disabled={goal.externalDataset && goal.externalTableId ? true : false} className="position-relative flex flex-direction-column" style={{ height: '100%' }}>
+                <label className="margin-block-75 font-weight-500">
+                  {t("components:query_builder.data_source")}
+                  {/* Display warning message if the selected language is not supported by the api */}
+                  {((ExternalDataset.getDatasetByAlternateName(dataSource)) && !(ExternalDataset.getDatasetByAlternateName(dataSource)?.supportedLanguages.includes(lang))) ?
+                    <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
+                    : null}
+                  <select defaultValue={goal.externalDataset ? goal.externalDataset : ''} className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
+                    <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
+                    {ExternalDataset.knownDatasetKeys.map((name) => (
+                      <option key={name} value={name}>{ExternalDataset[name]?.fullName}</option>
+                    ))}
+                  </select>
+                </label>
+
+                {dataSource ?
+                  <>
+                    <label htmlFor="temp">Tabell</label> {/* TODO: i18n */}
+                    <SelectSingleSearch // TODO: Deal with width
+                      props={{
+                        id: 'temp',
+                        name: 'temp',
+                        placeholder: 'Välj tabell',
+                      }}
+                      defaultValue={
+                        goal.externalTableId
+                          ? {
+                            name:
+                              tables?.find(t => t.tableId === goal.externalTableId)?.label
+                              ?? goal.externalTableId,
+                            value: goal.externalTableId,
+                          }
+                          : undefined
+                      } options={
+                        tables
+                          ? tables.map(({ tableId, label }) => ({
+                            name: label,
+                            value: tableId,
+                          }))
+                          : []
+                      }
+                      onChange={(value) => value?.value ? handleTableSelect(value.value) : handleTableSelect('')}
+                    />
+                  </>
+                  : null}
+
+              </fieldset>
+
+              {tableDetails && (
+                // TODO - which inputs should be optional?
+                <>
+                  <fieldset disabled={goal.externalDataset && goal.externalTableId ? true : false} className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+                    <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>
+                      {t("components:query_builder.select_metric_for_table")}
+                    </legend>
+                    <div>
+                      <label key={`metric-${tableDetails.id}`} className="block margin-block-75">
+                        <select className={`block margin-block-25 metric`}
+                          required={true}
+                          name="metric"
+                          id="metric"
+                          defaultValue={undefined}
+                          onChange={handleMetricSelect}>
+                          <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_metric")}</option>
+                          {tableDetails.metrics && tableDetails.metrics.map(metric => (
+                            <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
+                  </fieldset>
+                  <fieldset name="variableSelectionFieldset" disabled={true} className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+                    {shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
+                      <>
+                        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>
+                          {t("components:query_builder.select_values_for_table")}
+                        </legend>
+                        <div>
+                          {tableDetails.times &&
+                            timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
+                          }
+                          {tableDetails.variables.map(variable => {
+                            return variableSelectionHelper(variable, tableDetails);
+                          })}
+                          {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
+                            if (hierarchy.children?.some(variable => variable.option)) return (
+                              <label key={hierarchy.name} className="block margin-block-75">
+                                <b>{hierarchy.label}</b>
+                                {hierarchy.children && hierarchy.children.map(variable => {
+                                  return variableSelectionHelper(variable, tableDetails);
+                                })}
+                              </label>
+                            )
+                          })}
+                        </div>
+                      </>) : (<p className={`font-style-italic color-gray`}>{t("components:query_builder.no_variables_found")}</p>)}
+                  </fieldset>
+
+                </>
+              )}
+              <output>
+                {/* TODO: style this better */}
+                {tableContent && tableContent.values.length > 0 ? (
+                  <div>
+                    <p>{t("components:query_builder.does_this_look_correct", { count: 5 })}</p>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th scope="col">{t("components:query_builder.period")}</th>
+                          <th scope="col">{t("components:query_builder.value")}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {
+                          tableContent.values.map(({ period, value }, rowIndex) => {
+                            return (
+                              rowIndex < 5 &&
+                              <tr key={period}>
+                                <td>{period}</td>
+                                <td>{value}</td>
+                              </tr>
+                            )
+                          })
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                ) :
+                  !defaultMetricSelected &&
+                  formRef.current?.checkValidity() && (
+                    <p className="padding-100">{t("components:query_builder.no_result_found")}</p>
+                  )
+                }
+              </output>
+              <button
+                id="submit-button"
+                type="submit"
+                className="seagreen color-purewhite block"
+              >
+                {t("components:query_builder.add_data_source_button")}
+              </button>
+
+            </form>
+          </>
+        ) : null}
     </div>
   )
 }

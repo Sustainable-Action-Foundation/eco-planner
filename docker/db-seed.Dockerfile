@@ -2,7 +2,7 @@
 # Dockerfile for Prisma database seeding
 
 # Build arguments
-ARG NODE_VERSION="20"
+ARG NODE_VERSION="24"
 
 
 # =============================================================================

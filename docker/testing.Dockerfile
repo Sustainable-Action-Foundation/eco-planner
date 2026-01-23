@@ -2,7 +2,7 @@
 # Dockerfile for playwright testing environment
 
 # Build arguments
-ARG NODE_VERSION="20"
+ARG NODE_VERSION="24"
 
 # =============================================================================
 # Base stage - Common dependencies and setup

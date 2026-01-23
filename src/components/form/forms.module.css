@@ -119,7 +119,7 @@
   scale: 1;
 }
 
-.timeLineFieldset:has(input:required, select:required, textarea:required):valid .timeLineLegend::before,
+.timeLineFieldset:has(input:required:not(:disabled), select:required:not(:disabled), textarea:required:not(:disabled)):valid .timeLineLegend::before,
 .timeLineFieldset:has([aria-required="true"][aria-invalid="false"]) .timeLineLegend::before {
   content: '✓' / '';
   background-color: var(--seagreen);
