@@ -472,7 +472,8 @@ export type EffectInput = Omit<
 };
 
 export type UnitString = string | null | undefined;
-type ISOIshDate = `${number}-${number}-${number}T00:00:00.000Z`;
+export type ISOIshDate = `${number}-${number}-${number}T00:00:00.000Z`;
+/** True: missing value, False: defined value. It masks/"covers" the undefined values */
 export type Mask = Record<ISOIshDate, boolean>;
 export type DateValues = Record<ISOIshDate, number>;
 export type DateValuesWithUnit = { dateValues: DateValues, unit: UnitString };

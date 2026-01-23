@@ -1,8 +1,8 @@
 import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
-import { isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, RecipeDataSeries, RecipeDataTypes, RecipeError, RecipeExternalDataset, RecipeVariable, VectorIndexPickerOptions } from "@/functions/recipe/types";
+import { isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, RecipeDataTypes, RecipeError, RecipeExtractionOutput, RecipeVariable, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import getTableContent from "@/lib/api/getTableContent";
 import mathjs from "@/math";
-import { DateValues, DateValuesWithUnit, isISOIshDate, MaskedVector, UnitString } from "@/types";
+import { DateValues, DateValuesWithUnit, isISOIshDate, ISOIshDate, Mask, MaskedVector, UnitString } from "@/types";
 import { Unit } from "mathjs";
 import { EvalTimeVariable } from "./types";
 import { filterToInitialYearlyRecords, parsePeriod } from "@/lib/api/utility";
@@ -37,9 +37,9 @@ export function extractScalars(
 export async function extractDataSeries(
   variables: Record<string, RecipeVariable>,
   warnings: string[] = [],
-): Promise<{ data: DateValuesWithUnit, variable: RecipeDataSeries, }[]> {
+): Promise<RecipeExtractionOutput> {
 
-  const dataSeries: { data: DateValuesWithUnit, variable: RecipeDataSeries, }[] = [];
+  const dataSeries: RecipeExtractionOutput = [];
 
   for (const variableName in variables) {
     const variable = variables[variableName];
@@ -90,13 +90,23 @@ export async function extractDataSeries(
       throw new RecipeError(`Data series variable "${variableName}" contains invalid ISOIshDate keys.`);
     }
 
-    dataSeries.push({
-      variable,
-      data: {
-        dateValues,
-        unit,
-      },
-    });
+    const picked = pickDateValues({ dateValues, unit }, variable.pick);
+
+    if (picked instanceof mathjs.Unit) {
+      dataSeries.push({
+        name: variableName,
+        value: picked,
+      });
+    }
+    else {
+      dataSeries.push({
+        name: variableName,
+        series: {
+          dateValues: picked,
+          unit,
+        },
+      });
+    }
   }
 
   return dataSeries;
@@ -105,9 +115,9 @@ export async function extractDataSeries(
 export async function extractExternalDatasets(
   variables: Record<string, RecipeVariable>,
   warnings: string[] = [],
-): Promise<{ data: DateValuesWithUnit, variable: RecipeExternalDataset, }[]> {
+): Promise<RecipeExtractionOutput> {
 
-  const externalDatasets: { data: DateValuesWithUnit, variable: RecipeExternalDataset, }[] = [];
+  const externalDatasets: RecipeExtractionOutput = [];
   const fetchers: Array<() => Promise<void>> = [];
 
   for (const variableName in variables) {
@@ -151,13 +161,23 @@ export async function extractExternalDatasets(
       if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variableName}" has an invalid unit "${bestUnit}". Treating as unitless.`);
       const unit = isValidUnit ? bestUnit : undefined;
 
-      externalDatasets.push({
-        variable,
-        data: {
-          dateValues: timeline,
-          unit,
-        },
-      });
+      const picked = pickDateValues({ dateValues: timeline, unit }, variable.pick);
+
+      if (picked instanceof mathjs.Unit) {
+        externalDatasets.push({
+          name: variableName,
+          value: picked,
+        });
+      }
+      else {
+        externalDatasets.push({
+          name: variableName,
+          series: {
+            dateValues: picked,
+            unit,
+          },
+        });
+      }
     });
   }
 
@@ -166,14 +186,10 @@ export async function extractExternalDatasets(
   return externalDatasets;
 }
 
-/** Wrapper for the conversion functions in order to intercept YYYY pick values */
-export function pickDataSeries(
+function pickDateValues(
   dataSeries: DateValuesWithUnit,
-  pick: VectorIndexPickerOptions | number,
-  commonStartDate: Date,
-  commonLength: number,
-): Unit | Unit[] | number {
-
+  pick: VectorIndexPickerOptions | number | ISOIshDate,
+): DateValuesWithUnit | Unit {
   // Try to interpret as year YYYY
   if (
     typeof pick === "number"
@@ -192,19 +208,98 @@ export function pickDataSeries(
       ? mathjs.unit(valueAtPickedYear, dataSeries.unit)
       : mathjs.unit(valueAtPickedYear);
   }
+  // Try to interpret as ISOIshDate
+  else if (
+    typeof pick === "string"
+    && isISOIshDate(pick)
+  ) {
+    const valueAtPickedDate = dataSeries.dateValues[pick];
+    if (typeof valueAtPickedDate !== "number") {
+      throw new RecipeError(`PickDataSeries: Data series does not contain a valid number for date ${pick}.`);
+    }
+    return dataSeries.unit
+      ? mathjs.unit(valueAtPickedDate, dataSeries.unit)
+      : mathjs.unit(valueAtPickedDate);
+  }
   // Else, must be VectorIndexPickerOptions 
 
   if (typeof pick === "number") {
-    throw new RecipeError(`PickDataSeries: Invalid pick value '${pick}'. Expected a VectorIndexPickerOptions or an integer year.`);
+    throw new RecipeError(`PickDataSeries: Invalid pick value '${pick}'. Expected a VectorIndexPickerOptions, an integer year, or an ISOIshDate.`);
   }
 
-  const maskedVector = transformDateValuesToVector(
-    dataSeries,
-    commonStartDate,
-    commonLength,
-  );
+  /* 
+   * Pick options 
+   */
+  // Whole
+  if (pick === VectorIndexPickerOptions.Whole) {
+    return dataSeries;
+  }
+  // Reverse
+  else if (pick === VectorIndexPickerOptions.Reverse) {
+    const entries = Object.entries(dataSeries.dateValues).reverse();
+    const reversedDateValues: DateValues = Object.fromEntries(entries);
+    return {
+      dateValues: reversedDateValues,
+      unit: dataSeries.unit,
+    };
+  }
+  // First
+  else if (pick === VectorIndexPickerOptions.First) {
+    const firstKey = Object.keys(dataSeries.dateValues).at(0);
+    if (!firstKey) {
+      throw new RecipeError("VectorPicking: DateValues is empty, cannot pick the first element.");
+    }
+    if (!isISOIshDate(firstKey)) {
+      throw new RecipeError("VectorPicking: DateValues contains invalid ISOIshDate keys.");
+    }
+    const firstValue = dataSeries.dateValues[firstKey];
+    return dataSeries.unit
+      ? mathjs.unit(firstValue, dataSeries.unit)
+      : mathjs.unit(firstValue);
+  }
+  // Last
+  else if (pick === VectorIndexPickerOptions.Last) {
+    const keys = Object.keys(dataSeries.dateValues);
+    const lastKey = keys.at(-1);
+    if (!lastKey) {
+      throw new RecipeError("VectorPicking: DateValues is empty, cannot pick the last element.");
+    }
+    if (!isISOIshDate(lastKey)) {
+      throw new RecipeError("VectorPicking: DateValues contains invalid ISOIshDate keys.");
+    }
+    const lastValue = dataSeries.dateValues[lastKey];
+    return dataSeries.unit
+      ? mathjs.unit(lastValue, dataSeries.unit)
+      : mathjs.unit(lastValue);
+  }
+  // Mean
+  else if (pick === VectorIndexPickerOptions.Mean) {
+    const values = Object.values(dataSeries.dateValues);
+    const sum = values.reduce((acc, val) => acc + val, 0);
+    const mean = sum / values.length;
+    return dataSeries.unit
+      ? mathjs.unit(mean, dataSeries.unit)
+      : mathjs.unit(mean);
+  }
+  // Median
+  else if (pick === VectorIndexPickerOptions.Median) {
+    const values = Object.values(dataSeries.dateValues).sort((a, b) => a - b);
+    const middleIndex = Math.floor(values.length / 2);
+    let median: number;
+    if (values.length % 2 === 0) {
+      const left = values[middleIndex - 1];
+      const right = values[middleIndex];
+      median = (left + right) / 2;
+    }
+    else {
+      median = values[middleIndex];
+    }
+    return dataSeries.unit
+      ? mathjs.unit(median, dataSeries.unit)
+      : mathjs.unit(median);
+  }
 
-  return pickVector(maskedVector, pick);
+  throw new RecipeError(`pickDateValues: Unknown VectorIndexPickerOption '${(pick as string | number).toString()}'.`);
 }
 
 export function transformDateValuesToVector(
@@ -328,69 +423,6 @@ function getPrevailingUnit(existingUnit: UnitString, newUnit: UnitString): UnitS
   return existingUnit;
 }
 
-function pickVector(
-  maskedVector: MaskedVector,
-  pick: VectorIndexPickerOptions,
-): Unit[] | Unit | number {
-  const vector = maskedVector.vector;
-
-  // Whole
-  if (pick === VectorIndexPickerOptions.Whole) {
-    return vector satisfies Unit[];
-  }
-
-  // Reverse
-  else if (pick === VectorIndexPickerOptions.Reverse) {
-    const reversed = [...vector].reverse();
-    return reversed satisfies Unit[];
-  }
-
-  // First
-  else if (pick === VectorIndexPickerOptions.First) {
-    const first = vector.at(0);
-    if (first === undefined) {
-      throw new RecipeError("VectorPicking: Vector is empty, cannot pick the first element.");
-    }
-    return first satisfies Unit;
-  }
-
-  // Last
-  else if (pick === VectorIndexPickerOptions.Last) {
-    const last = vector.at(-1);
-    if (last === undefined) {
-      throw new RecipeError("VectorPicking: Vector is empty, cannot pick the last element.");
-    }
-    return last satisfies Unit;
-  }
-
-  // Mean
-  else if (pick === VectorIndexPickerOptions.Mean) {
-    const sum = vector.reduce((acc, val) => acc + val.toNumber(), 0);
-    const mean = sum / vector.length;
-    return mean satisfies number;
-  }
-
-  // Median
-  else if (pick === VectorIndexPickerOptions.Median) {
-    const sorted = [...vector].sort((a, b) => a.toNumber() - b.toNumber());
-    const middleIndex = Math.floor(sorted.length / 2);
-    let median: number;
-    if (sorted.length % 2 === 0) {
-      const left = sorted[middleIndex - 1].toNumber();
-      const right = sorted[middleIndex].toNumber();
-      median = (left + right) / 2;
-    }
-    else {
-      median = sorted[middleIndex].toNumber();
-    }
-    return median satisfies number;
-  }
-
-  else {
-    throw new RecipeError(`pickVector: Unknown VectorIndexPickerOption '${(pick as string | number).toString()}'.`);
-  }
-}
-
 export function isMathjsUnit(unit: UnitString): boolean {
   if (!unit) return false;
   try {
@@ -400,6 +432,18 @@ export function isMathjsUnit(unit: UnitString): boolean {
   catch {
     return false;
   }
+}
+
+export function ANDMasks(masks: Mask[]): Mask {
+  const isoDates = [...new Set(masks.flatMap(mask => Object.keys(mask)))];
+  if (!isoDates.every(key => isISOIshDate(key))) {
+    throw new RecipeError("MaskCombine: Masks contain invalid ISOIshDate keys.");
+  }
+  const combinedMask: Mask = {};
+  for (const isoDate of isoDates) {
+    combinedMask[isoDate] = masks.some(mask => mask[isoDate] === true);
+  }
+  return combinedMask;
 }
 
 // TODO remove

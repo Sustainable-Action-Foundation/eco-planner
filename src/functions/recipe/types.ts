@@ -1,7 +1,8 @@
 import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
-import { DateValues, isDateValues, isStandardObject, JSONValue, typeguardDebug, UnitString, uuidRegex } from "@/types";
+import { DateValues, DateValuesWithUnit, isDateValues, isStandardObject, JSONValue, typeguardDebug, UnitString, uuidRegex } from "@/types";
 import { Unit } from "mathjs";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import mathjs from "@/math";
 
 export const VectorIndexPickerOptions = {
   Default: "whole",
@@ -355,7 +356,41 @@ export type EvalTimeVariable = {
   name: string;
   value: Unit | Unit[] | number; // TODO: should it be ever be a number? rather have Unit with no unit?
 };
+export function isEvalTimeVariable(variable: unknown): variable is EvalTimeVariable {
+  if (
+    !isStandardObject(variable)
+  ) {
+    console.warn(`Type guard: eval time variable should be an object`);
+    return false;
+  }
 
+  if (
+    !("name" in variable)
+    || typeof variable.name !== "string"
+    || variable.name.trim() === ""
+  ) {
+    console.warn(`Type guard: 'name' in eval time variable`);
+    return false;
+  }
+
+  if (
+    !("value" in variable)
+    || !(
+      typeof variable.value === "number"
+      || variable.value instanceof mathjs.Unit
+      || (
+        Array.isArray(variable.value)
+        && variable.value.every(item => item instanceof mathjs.Unit)
+      )
+    )) {
+    console.warn(`Type guard: 'value' in eval time variable`);
+    return false;
+  }
+
+  return true;
+}
+
+export type RecipeExtractionOutput = (EvalTimeVariable | { series: DateValuesWithUnit, name: string, })[];
 
 /*
  * Errors

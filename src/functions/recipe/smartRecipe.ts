@@ -1,6 +1,6 @@
-import { isRecipe, MathjsError, Recipe, RecipeError, RecipeVariable } from "@/functions/recipe/types";
-import { DateValuesWithUnit, JSONValue } from "@/types";
-import { parseDateValuesFromVector, extractDataSeries, extractExternalDatasets, extractScalars } from "@/functions/recipe/extractors";
+import { isEvalTimeVariable, isRecipe, MathjsError, Recipe, RecipeError, RecipeExtractionOutput, RecipeVariable } from "@/functions/recipe/types";
+import { DateValuesWithUnit, JSONValue, Mask } from "@/types";
+import { parseDateValuesFromVector, extractDataSeries, extractExternalDatasets, extractScalars, transformDateValuesToVector, ANDMasks } from "@/functions/recipe/extractors";
 import mathjs from "@/math";
 import { Unit } from "mathjs";
 
@@ -72,11 +72,50 @@ export class SmartRecipe {
       throw new RecipeError("Invalid recipe format");
     }
 
-    const scalars = extractScalars(this.variables);
-    const dataSeries = await extractDataSeries(this.variables);
-    const externalDatasets = await extractExternalDatasets(this.variables);
+    const allVars: RecipeExtractionOutput = await Promise.all([
+      ...extractScalars(this.variables),
+      ...await extractDataSeries(this.variables),
+      ...await extractExternalDatasets(this.variables),
+    ]);
 
-    const allVars = [...scalars, ...dataSeries, ...externalDatasets];
+    // TODO: type guard better and no magic strings
+    const evalTimeVars = allVars.filter(isEvalTimeVariable);
+    const seriesVariables = allVars.filter(v => "series" in v);
+
+    const [commonStartDate, commonEndDate] = seriesVariables.length > 0
+      ? (() => {
+        const startDates = seriesVariables.map(v => {
+          const dates = Object.keys(v.series.dateValues).sort();
+          return new Date(dates[0]).getUTCFullYear();
+        });
+        const endDates = seriesVariables.map(v => {
+          const dates = Object.keys(v.series.dateValues).sort();
+          return new Date(dates[dates.length - 1]).getUTCFullYear();
+        });
+        return [
+          new Date(Math.max(...startDates)),
+          new Date(Math.min(...endDates)),
+        ];
+      })()
+      : [
+        new Date(`2010-01-01T00:00:00.000Z`),
+        new Date(`2100-01-01T00:00:00.000Z`),
+      ];
+    const commonLength = commonEndDate.getUTCFullYear() - commonStartDate.getUTCFullYear();
+
+    const masks: Mask[] = [];
+    for (const ds of seriesVariables) {
+      const { mask, vector } = transformDateValuesToVector(
+        ds.series,
+        commonStartDate,
+        commonLength,
+      );
+      masks.push(mask);
+      evalTimeVars.push({
+        name: ds.name,
+        value: vector,
+      });
+    }
 
     // TODO - reimplement these
     warnings.push("Sanity checks are not yet implemented for SmartRecipe.");
@@ -88,14 +127,14 @@ export class SmartRecipe {
     let equation = this.equation;
 
     if (equation.trim() === "") {
-      // throw new RecipeError("Equation is empty.");
+      warnings.push("Equation is empty. Early return.");
       return null;
     }
 
     const nameNormalizer = (name: string) => name.replace(/\s+/g, "_");
     const inlineEqEscapeFormat = (name: string) => `\${${name}}`;
 
-    for (const variable of allVars) {
+    for (const variable of evalTimeVars) {
       if (!variable.value) {
         throw new RecipeError(`Variable "${variable.name}" has no values.`);
       }
@@ -122,13 +161,17 @@ export class SmartRecipe {
       throw new MathjsError("Error evaluating recipe equation: " + (e as Error).message);
     }
 
-    if (mathjs.typeOf(result) === "Unit") {
+    if (result instanceof mathjs.Unit) {
       console.warn("Equation returned a scalar, applying to all fields.");
-      result = Array(Years.length).fill(result);
+      result = Array(commonLength).fill(result.clone()) as Unit[];
     }
-    result = result as Unit[]; // TODO type check in a dynamic way
 
-    return parseDateValuesFromVector(result);
+    return parseDateValuesFromVector(
+      {
+        vector: result,
+        mask: ANDMasks(masks),
+      }
+    );
   }
 
   /** 
