@@ -1,12 +1,12 @@
 "use client";
 
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
-import { Years } from "@/types";
-import type { DataSeries, Effect, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
+import type { Effect, MetaRoadmap, Roadmap } from "@prisma/client";
 import { parsePeriod } from "@/lib/api/utility";
 import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import { useTranslation } from "react-i18next";
+import { Goal } from "@/types";
 
 export default function MainGraph({
   goal,
@@ -16,12 +16,12 @@ export default function MainGraph({
   historicalData,
   effects,
 }: {
-  goal: Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null },
-  secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
-  parentGoal: Goal & { dataSeries: DataSeries | null } | null,
+  goal: Goal,
+  secondaryGoal: Goal | null,
+  parentGoal: Goal | null,
   parentGoalRoadmap: Roadmap & { metaRoadmap: MetaRoadmap } | null,
   historicalData?: ApiTableContent | null,
-  effects: (Effect & { dataSeries: DataSeries | null })[],
+  effects: Effect[],
 }) {
   const { t } = useTranslation("graphs");
 
@@ -41,9 +41,8 @@ export default function MainGraph({
       type: 'datetime',
       labels: { format: 'yyyy' },
       tooltip: { enabled: false },
-      min: new Date(Years[0].replace('val', '')).getTime(),
-      max: new Date(Years[Years.length - 1].replace('val', '')).getTime()
-      // categories: dataSeriesDataFieldNames.map(name => name.replace('val', ''))
+      min: new Date("2020-01-01T00:00:00Z").getTime(),
+      max: new Date("2050-01-01T00:00:00Z").getTime()
     },
     yaxis: [
       {
@@ -67,30 +66,27 @@ export default function MainGraph({
   const mainChart: ApexAxisChartSeries = [];
 
   // Main data series for the goal
-  const mainSeries = [];
-  for (const i of Years) {
-    const value = goal.dataSeries[i];
-
+  const mainSeries: { x: number; y: number; }[] = [];
+  for (const dateEntry of goal.dataSeries.values) {
     mainSeries.push({
-      x: new Date(i.replace('val', '')).getTime(),
-      y: Number.isFinite(value) ? value : null,
+      x: dateEntry.timestamp.getTime(),
+      y: dateEntry.value,
     });
   }
+
   mainChart.push({
-    name: (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
+    name: (goal.name ?? goal.indicatorParameter).split('\\').at(-1),
     data: mainSeries,
     type: 'line',
   })
 
-  if (goal.baselineDataSeries) {
+  if (goal.baseline) {
     // Predicted outcome without actions/effects
     const baseline = [];
-    for (const i of Years) {
-      const value = goal.baselineDataSeries[i];
-
+    for (const dateEntry of goal.baseline.values) {
       baseline.push({
-        x: new Date(i.replace('val', '')).getTime(),
-        y: Number.isFinite(value) ? value : null,
+        x: dateEntry.timestamp.getTime(),
+        y: dateEntry.value,
       });
     }
     mainChart.push({
@@ -100,7 +96,7 @@ export default function MainGraph({
     })
 
     if (effects.length > 0) {
-      const totalEffect = calculatePredictedOutcome(effects, goal.baselineDataSeries)
+      const totalEffect = calculatePredictedOutcome(effects, goal.baseline)
 
       // Line based on totalEffect + baseline
       if (totalEffect.length > 0) {

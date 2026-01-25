@@ -245,7 +245,14 @@ export default async function Page(
           <h2 className="padding-bottom-50 margin-bottom-100" style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:goal.title_label")}</h2>
           <section>
             {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
-            <GraphGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects}>
+            <GraphGraph
+              goal={goal}
+              parentGoal={parentGoal}
+              parentGoalRoadmap={parentGoalRoadmap}
+              historicalData={externalData}
+              secondaryGoal={secondaryGoal}
+              effects={goal.effects}
+            >
               <QueryBuilder goal={goal} />
               {(goal.dataSeries?.id && session.user) ?
                 <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />

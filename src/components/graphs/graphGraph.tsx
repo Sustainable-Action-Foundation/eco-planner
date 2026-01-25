@@ -28,12 +28,12 @@ export default function GraphGraph({
   effects,
   children,
 }: {
-  goal: Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null },
-  secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
-  parentGoal: Goal & { dataSeries: DataSeries | null } | null,
+  goal: Goal,
+  secondaryGoal: Goal | null,
+  parentGoal: Goal | null,
   parentGoalRoadmap: Roadmap & { metaRoadmap: MetaRoadmap } | null,
   historicalData?: ApiTableContent | null,
-  effects: (Effect & { dataSeries: DataSeries | null })[],
+  effects: Effect[],
   children: React.ReactNode
 }) {
   const { t } = useTranslation("graphs");

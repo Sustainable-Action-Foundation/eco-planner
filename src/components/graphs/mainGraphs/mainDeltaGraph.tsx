@@ -2,7 +2,6 @@
 
 import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
-import { Years } from "@/types";
 import type { Goal, DataSeries, Effect, MetaRoadmap, Roadmap } from "@prisma/client";
 import { useTranslation } from "react-i18next";
 
@@ -37,8 +36,8 @@ export default function MainDeltaGraph({
       type: 'datetime',
       labels: { format: 'yyyy' },
       tooltip: { enabled: false },
-      min: new Date(Years[0].replace('val', '')).getTime(),
-      max: new Date(Years[Years.length - 1].replace('val', '')).getTime()
+      min: new Date("2020-01-01T00:00:00Z").getTime(),
+      max: new Date("2050-01-01T00:00:00Z").getTime()
     },
     yaxis: [{
       title: {

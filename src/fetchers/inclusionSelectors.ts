@@ -205,14 +205,16 @@ export const clientSafeMultiRoadmapSelection = {
   },
 } satisfies Prisma.RoadmapSelect;
 
+export const dataSeriesInclusionSelection = { values: { select: { timestamp: true, value: true, } } } satisfies Prisma.DataSeriesSelect;
+
 export const goalInclusionSelection = {
   _count: { select: { effects: true } },
-  dataSeries: true,
   recipeSuggestions: true,
-  baseline: true,
+  dataSeries: { include: dataSeriesInclusionSelection, },
+  baseline: { include: dataSeriesInclusionSelection, },
   effects: {
     include: {
-      dataSeries: true,
+      dataSeries: { include: dataSeriesInclusionSelection, },
       action: {
         include: {
           roadmap: { select: { id: true } },
@@ -310,7 +312,7 @@ export const actionInclusionSelection = {
 } satisfies Prisma.ActionInclude;
 
 export const effectInclusionSelection = {
-  dataSeries: true,
+  dataSeries: { include: dataSeriesInclusionSelection, },
   action: {
     include: actionInclusionSelection,
   },
