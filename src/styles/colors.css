@@ -67,6 +67,10 @@
   --white-90: hsl(42, 33%, 90%);
 }
 
+.neutral-background {
+  background-color: #f6f6f6;
+}
+
 /* Background color */
 .transparent {
   background-color: transparent;
