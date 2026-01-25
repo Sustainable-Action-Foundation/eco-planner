@@ -11,7 +11,7 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { DataSeries, Goal } from "@prisma/client";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { IconEdit } from "@tabler/icons-react";
+import { IconCircleFilled, IconEdit } from "@tabler/icons-react";
 import Link from "next/link";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 
@@ -59,7 +59,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
   if (!roadmap || !accessLevel) {
     return notFound();
   }
-
+ 
   return <>
 
     <Breadcrumb object={roadmap} />
@@ -85,7 +85,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
             {/* TODO: style link to better match surroundings */}
             <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>{t("pages:roadmap.show_series")}</Link>
           </p>
-          <div className="margin-top-100">           
+          <div className="margin-top-100">
             <TextEditor
               id="rich-description"
               editable={false}
@@ -94,7 +94,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
             />
           </div>
           {roadmap.description ? (
-            <div className="margin-top-100">           
+            <div className="margin-top-100">
               <TextEditor
                 id="rich-description"
                 editable={false}
@@ -123,7 +123,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
             style={{ height: 'fit-content' }}
           >
             {t("common:edit.roadmap_version")}
-            <IconEdit style={{minWidth: '24px'}} aria-hidden="true" />
+            <IconEdit style={{ minWidth: '24px' }} aria-hidden="true" />
           </Link>
         }
       </section>
@@ -135,11 +135,19 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
             {featuredGoals.map((goal, key) =>
               goal && (
                 <Link key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none">
-                  <ThumbnailGraph goal={goal} />
+                  <ThumbnailGraph goal={goal} historicalData={true} />
                 </Link>
               )
             )}
           </div>
+          {featuredGoals.some(
+            goal => goal?.externalDataset && goal?.externalTableId
+          ) && (
+              <div className="display-flex align-items-center gap-100 margin-top-100 font-weight-500">
+                <span style={{ color: 'var(--gray-20)' }}><IconCircleFilled width={12} height={12} fill="#0090ff" aria-hidden="true" className="margin-right-25" />Målbana</span> {/* TODO: i18n, replace with icon*/}
+                <span style={{ color: 'var(--gray-20)' }}><IconCircleFilled width={12} height={12} fill="#2e8a56" aria-hidden="true" className="margin-right-25" />Historisk data</span> {/* TODO: i18n, replace with icon */}
+              </div>
+            )}
         </section>
         : null}
 
