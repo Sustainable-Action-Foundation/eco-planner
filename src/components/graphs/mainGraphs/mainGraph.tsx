@@ -35,8 +35,14 @@ export default function MainGraph({
       animations: { enabled: false, dynamicAnimation: { enabled: false } },
       zoom: { allowMouseWheelZoom: false },
     },
-    stroke: { curve: 'straight' },
-    markers: { size: 5 },
+    colors: ['#0090ff', '#2e8a56', 'red', 'orange'],
+    fill: {
+      type: 'solid',
+      opacity: [1, 0.3, 1, 1],
+      colors: ['#0090ff', '#2e8a56', 'red', 'orange'],
+    },
+    stroke: { curve: 'straight', width: 3 },
+    markers: { size: 3 },
     xaxis: {
       type: 'datetime',
       labels: { format: 'yyyy' },
@@ -77,10 +83,33 @@ export default function MainGraph({
     });
   }
   mainChart.push({
-    name: (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
+    name: `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
     data: mainSeries,
     type: 'line',
   })
+
+  
+  if (historicalData) {
+    const historicalSeries = [];
+
+    if (historicalData.values.length >= 0) {
+      for (const { period, value } of historicalData.values) {
+        const parsedValue = parseFloat(value);
+
+        historicalSeries.push({
+          x: parsePeriod(period).getTime(),
+          y: Number.isFinite(parsedValue) ? parsedValue : null,
+        });
+      }
+      mainChart.push({
+        name: `${historicalData.metadata[0]?.label} (${t("common:historical_data")})`,
+        data: historicalSeries,
+        type: 'area',
+      });
+    }
+    console.log(historicalSeries)
+  }
+
 
   if (goal.baselineDataSeries) {
     // Predicted outcome without actions/effects
@@ -144,26 +173,6 @@ export default function MainGraph({
     }
   }
 
-  if (historicalData) {
-    const historicalSeries = [];
-
-    if (historicalData.values.length >= 0) {
-      for (const { period, value } of historicalData.values) {
-        const parsedValue = parseFloat(value);
-
-        historicalSeries.push({
-          x: parsePeriod(period).getTime(),
-          y: Number.isFinite(parsedValue) ? parsedValue : null,
-        });
-      }
-      mainChart.push({
-        name: `${historicalData.metadata[0]?.label}`,
-        data: historicalSeries,
-        type: 'line',
-      });
-    }
-  }
-
   if (secondaryGoal?.dataSeries) {
     const secondarySeries = [];
     for (const i of Years) {
@@ -191,7 +200,7 @@ export default function MainGraph({
     }
   }
 
-  if (parentGoal?.dataSeries) {
+  if (parentGoal?.dataSeries) { /* TODO: See if we need to add an additinal colour for this */
     const nationalSeries = [];
     for (const i of Years) {
       const value = parentGoal.dataSeries[i];

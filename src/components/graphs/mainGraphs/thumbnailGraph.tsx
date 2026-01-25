@@ -78,11 +78,11 @@ export default async function ThumbnailGraph({
     colors: ['#0090ff', '#2e8a56'],
     fill: {
       type: 'solid',
-      opacity: [0.1, 0.5],
+      opacity: [0, 0.3],
       colors: ['#0090ff', '#2e8a56'],
     },
     tooltip: { enabled: false },
-    stroke: { curve: 'straight', width: [1.5,1.5] },
+    stroke: { curve: 'straight', width: 1.5 },
     xaxis: {
       type: 'datetime',
       labels: { format: 'yyyy' },
