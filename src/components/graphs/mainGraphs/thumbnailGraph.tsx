@@ -57,7 +57,7 @@ export default function ThumbnailGraph({
   return (
     <>
       <div className={styles.graphWrapperThumbnail}>
-        <h3 className="font-weight-500 margin-0 padding-top-75 text-align-center">
+        <h3 className="font-weight-500 margin-0 padding-top-75 padding-inline-75 overflow-hidden white-space-nowrap text-align-center text-overflow-ellipsis">
           {goal.name}
         </h3> {/* TODO: Make conditional */}
         <div style={{ height: '200px' }}>
