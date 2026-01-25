@@ -134,8 +134,8 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
             goal => goal?.externalDataset && goal?.externalTableId
           ) && (
               <div className="display-flex align-items-center gap-100 margin-top-100 font-weight-500">
-                <span style={{ color: 'var(--gray-20)' }}><IconCircleFilled width={12} height={12} fill="#0090ff" aria-hidden="true" className="margin-right-25" />Målbana</span> {/* TODO: i18n, replace with icon*/}
-                <span style={{ color: 'var(--gray-20)' }}><IconCircleFilled width={12} height={12} fill="#2e8a56" aria-hidden="true" className="margin-right-25" />Historisk data</span> {/* TODO: i18n, replace with icon */}
+                <span style={{ color: 'var(--gray-20)' }}><IconCircleFilled width={12} height={12} fill="#0090ff" aria-hidden="true" className="margin-right-25" />{t("common:goal_one")}</span> {/* TODO: i18n, replace with icon*/}
+                <span style={{ color: 'var(--gray-20)' }}><IconCircleFilled width={12} height={12} fill="#2e8a56" aria-hidden="true" className="margin-right-25" />{t("common:historical_data")}</span> {/* TODO: i18n, replace with icon */}
               </div>
             )}
         </section>
