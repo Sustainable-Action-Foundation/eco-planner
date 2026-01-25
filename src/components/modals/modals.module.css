@@ -1,3 +1,5 @@
+/* Might be sensible to abstract this to a global file? :)*/
+
 .modal {
   padding: 1rem;
   border-radius: .25rem;
@@ -12,7 +14,7 @@
   height: calc(70vh - 2rem);
   border: 0; 
   box-shadow: 0 0 .5rem -.25rem rgba(0,0,0,.25);
-  background-color: rgba(246, 246, 246); /* Same as background*/
+  background-color: var(--primary-neutral);
 }
 
 .dialog::backdrop {
@@ -26,7 +28,7 @@
 }
 
 .dialog-header {
-  background-color: white;
+  background-color: var(--secondary-neutral);
   border-bottom: 1px solid var(--gray-80);
   display: flex;
   flex-direction: row-reverse;
