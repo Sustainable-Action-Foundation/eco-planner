@@ -1,4 +1,3 @@
-import { Years } from "@/types";
 import { DataSeries } from "@prisma/client";
 
 /**

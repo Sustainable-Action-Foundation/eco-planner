@@ -2,7 +2,6 @@
 
 import findSiblings from "@/functions/findSiblings";
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
-import { Years } from "@/types";
 import { DataSeries, Goal, Roadmap } from "@prisma/client";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";

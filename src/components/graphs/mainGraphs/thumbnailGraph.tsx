@@ -1,5 +1,4 @@
 import WrappedChart from "@/lib/chartWrapper";
-import { Years } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 import styles from '../graphs.module.css'
 

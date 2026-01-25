@@ -1,6 +1,5 @@
 "use client";
 
-import { Years } from "@/types";
 import { useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import styles from "./dataSeriesInput.module.css";

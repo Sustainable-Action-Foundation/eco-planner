@@ -1,4 +1,3 @@
-import { Years } from "@/types";
 
 // The amount of years in the data series
 const dataSeriesLength = Years.length

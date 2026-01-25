@@ -1,7 +1,6 @@
 "use client";
 
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
-import { Years } from "@/types";
 import { Goal, DataSeries, Roadmap, MetaRoadmap } from "@prisma/client";
 import { useTranslation } from "react-i18next";
 

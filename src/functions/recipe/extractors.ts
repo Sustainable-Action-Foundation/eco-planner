@@ -2,7 +2,7 @@ import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
 import { isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, RecipeDataTypes, RecipeError, RecipeExtractionOutput, RecipeVariable, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import getTableContent from "@/lib/api/getTableContent";
 import mathjs from "@/math";
-import { DateValues, DateValuesWithUnit, isISOIshDate, ISOIshDate, Mask, MaskedVector, UnitString } from "@/types";
+import { DataSeries, DateValues, DateValuesWithUnit, isISOIshDate, ISOIshDate, Mask, MaskedVector, UnitString } from "@/types";
 import { Unit } from "mathjs";
 import { EvalTimeVariable } from "./types";
 import { filterToInitialYearlyRecords, parsePeriod } from "@/lib/api/utility";
@@ -444,4 +444,20 @@ export function ANDMasks(masks: Mask[]): Mask {
     combinedMask[isoDate] = masks.some(mask => mask[isoDate] === true);
   }
   return combinedMask;
+}
+
+export function dataSeriesToDateValues(dataSeries: DataSeries): DateValuesWithUnit {
+  const dateValues: DateValues = Object.fromEntries(
+    dataSeries.values.map(v => ([
+      v.timestamp.toISOString(),
+      v.value,
+    ]))
+  );
+  if (Object.keys(dateValues).some(k => !isISOIshDate(k))) {
+    throw new RecipeError(`Data series contains invalid ISOIshDate keys.`);
+  }
+  return {
+    dateValues,
+    unit: dataSeries.unit ?? undefined, // TODO: unit handling
+  };
 }

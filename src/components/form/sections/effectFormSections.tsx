@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import type getOneAction from "@/fetchers/getOneAction.ts";
 import type getOneGoal from "@/fetchers/getOneGoal";
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
-import { Years } from "@/types.ts";
 import { useTranslation } from "react-i18next";
 
 export function ActionSelector({

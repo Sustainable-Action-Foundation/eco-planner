@@ -1,7 +1,6 @@
 "use client";
 
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper.tsx";
-import { Years } from "@/types.ts";
 import { DataSeries, Goal } from "@prisma/client";
 import { useTranslation } from "react-i18next";
 
