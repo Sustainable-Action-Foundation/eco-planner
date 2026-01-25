@@ -103,16 +103,6 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
               />
             </div>
           ) : null}
-          {/* TODO: Add external resources here and to the form
-            <h2 className="margin-bottom-0 margin-top-200" style={{fontSize: '1.25rem'}}>Externa resurser</h2>
-            <ul>
-              {roadmap.metaRoadmap.links.map((link: { url: string, description: string | null }, index: number) => 
-                <li className="margin-block-25" key={index}>
-                  <a href={link.url} target="_blank">{link.description}</a>
-                </li>
-              )}
-            </ul>
-          */}
         </div>
 
         {/* Only show the edit link if the user has edit access to the roadmap */}
@@ -131,10 +121,10 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
       {featuredGoals.length > 0 ?
         <section className="margin-block-300">
           <h2>{t("pages:roadmap.featured_goals")}</h2>
-          <div className="grid gap-100" style={{ gridTemplateColumns: 'repeat(auto-fit, 300px)' }}>
+          <div className="flex flex-wrap-nowrap gap-100 overflow-x-scroll padding-bottom-100" style={{scrollbarWidth: 'thin', scrollbarColor: 'var(--gray) rgba(0,0,0,0)', scrollSnapType: 'x mandatory', direction: 'ltr'}}>
             {featuredGoals.map((goal, key) =>
               goal && (
-                <Link key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none">
+                <Link key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none" style={{width: '300px', height: '250px', scrollSnapAlign: 'start'}}>
                   <ThumbnailGraph goal={goal} historicalData={true} />
                 </Link>
               )

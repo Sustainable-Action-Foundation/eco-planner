@@ -101,13 +101,12 @@ export default async function ThumbnailGraph({
         <h3 className="font-weight-500 margin-0 padding-top-75 padding-inline-75 overflow-hidden white-space-nowrap text-align-center text-overflow-ellipsis">
           {goal.name}
         </h3>
-        <div style={{ height: '200px' }}>
+        <div className="flex-grow-100">
           <WrappedChart
             options={mainChartOptions}
             series={mainChart}
-            type="line"
             width="100%"
-            height="200px"
+            height="100%"
           />
         </div>
       </div>
