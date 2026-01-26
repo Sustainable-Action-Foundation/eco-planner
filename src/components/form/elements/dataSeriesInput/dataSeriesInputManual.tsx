@@ -119,16 +119,18 @@ export default function DataSeriesInputManual({
         <IconPlus width={20} height={20} aria-hidden="true" />
         Add new row {/* TODO: I18n */}
       </button>
-      <Grid 
-        props={{className: 'grid', style: {gridTemplateColumns: '100px 100px'}}}
+      <Grid
+        props={{ className: 'grid', style: { gridTemplateColumns: '100px 100px' } }}
         columns={['Year', 'Value']}
       >
-        {value.map((value: { year: number | null, data: number | null }, index: number) =>
-          <Fragment key={index}>
-            <div>{value.year}year</div>
-            <div>{value.data}data</div>
-          </Fragment>
-        )}
+        {value.flatMap((item, index) => [
+          <Grid.Cell key={`year-${index}`}>
+            {item.year} year
+          </Grid.Cell>,
+          <Grid.Cell key={`data-${index}`}>
+            {item.data} data
+          </Grid.Cell>
+        ])}
       </Grid>
       {/*
       <fieldset className="block fieldset-unset-pseudo-class">
@@ -156,8 +158,8 @@ export default function DataSeriesInputManual({
             )}
           </button>
         </legend> */}
-        {/* TODO: Make this allow .csv files and possibly excel files */}
-        {/*
+      {/* TODO: Make this allow .csv files and possibly excel files */}
+      {/*
         <label className={`${styles['spreadsheet-label']} grid padding-left-100 gap-100 gray-90 font-weight-600`}>
           <span className="padding-50 text-align-center">{t("forms:data_series_input.year")}</span>
           <span className="padding-50 padding-left-100" style={{ borderLeft: '1px solid var(--gray)' }}>{t("forms:data_series_input.value")}</span>
