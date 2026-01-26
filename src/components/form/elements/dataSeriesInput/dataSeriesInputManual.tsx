@@ -1,11 +1,12 @@
 "use client";
 
 import { Years } from "@/types";
-import { useRef, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import styles from "./dataSeriesInput.module.css";
 import { dataSeriesPattern, isValidPastedInput, isValidSingleInputForGrid, isValidSingleInputForTextField } from "./utils";
 import { IconAlertTriangle, IconCaretDownFilled, IconCaretUpFilled, IconHelp, IconPlus, IconQuestionMark, IconTrash, IconTrashFilled, IconTrashX, IconTrashXFilled } from "@tabler/icons-react";
+import Grid from "../grid/grid";
 
 export default function DataSeriesInputManual({
   dataSeriesString, // TODO - rename "dataSeriesString" to "dataSeriesInput" or "initialValue" (latter suggested by chatgpt)
@@ -118,7 +119,18 @@ export default function DataSeriesInputManual({
         <IconPlus width={20} height={20} aria-hidden="true" />
         Add new row {/* TODO: I18n */}
       </button>
-
+      <Grid 
+        props={{className: 'grid', style: {gridTemplateColumns: '100px 100px'}}}
+        columns={['Year', 'Value']}
+      >
+        {value.map((value: { year: number | null, data: number | null }, index: number) =>
+          <Fragment key={index}>
+            <div>{value.year}year</div>
+            <div>{value.data}data</div>
+          </Fragment>
+        )}
+      </Grid>
+      {/*
       <fieldset className="block fieldset-unset-pseudo-class">
         <legend
           className="flex flex-wrap-wrap gap-100 justify-content-space-between align-items-center width-100 margin-bottom-100 padding-bottom-25"
@@ -143,8 +155,9 @@ export default function DataSeriesInputManual({
               </>
             )}
           </button>
-        </legend>
+        </legend> */}
         {/* TODO: Make this allow .csv files and possibly excel files */}
+        {/*
         <label className={`${styles['spreadsheet-label']} grid padding-left-100 gap-100 gray-90 font-weight-600`}>
           <span className="padding-50 text-align-center">{t("forms:data_series_input.year")}</span>
           <span className="padding-50 padding-left-100" style={{ borderLeft: '1px solid var(--gray)' }}>{t("forms:data_series_input.value")}</span>
@@ -195,6 +208,7 @@ export default function DataSeriesInputManual({
           </>
         )}
       </fieldset>
+       */}
     </>
   )
 }
