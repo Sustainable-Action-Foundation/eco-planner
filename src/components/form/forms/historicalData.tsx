@@ -341,7 +341,7 @@ export default function HistoricalData({
                       style={{ transform: 'scale(1)'}}
                       onClick={() => setVisibleForm("manual")}  
                     >
-                      Justera manuellt {/* TODO: I18n, switch to manual editing */}
+                      Justera manuellt {/* TODO: I18n */}
                       <IconEdit width={18} height={18} style={{ minWidth: '18px' }} aria-hidden="true" />
                     </button>
                     <button type="button" className="red color-purewhite flex align-items-center justify-content-space-between gap-100 font-weight-500" style={{ transform: 'scale(1)'}} onClick={() => deleteDataRef.current?.showModal()}>
@@ -359,8 +359,8 @@ export default function HistoricalData({
                       </button>
                       <h2 className="margin-0">Ta bort extern datakälla</h2> {/* TODO: I18n */}
                     </div>
-                    <div className="padding-100"> {/* TODO: I18n */}
-                      <p>Är du säker på att du vill ta bort extern datakälla: <span style={{ fontStyle: 'italic' }}>{tables?.find(t => t.tableId === goal.externalTableId)?.label ?? goal.externalTableId}({goal.externalDataset})</span> från målbana: <span className="font-weight-600">{goal.name}</span>?</p>
+                    <div className="padding-100 flex flex-direction-column"> {/* TODO: I18n */}
+                      <p className="margin-0 flex-grow-100">Är du säker på att du vill ta bort extern datakälla: <span style={{ fontStyle: 'italic' }}>{tables?.find(t => t.tableId === goal.externalTableId)?.label ?? goal.externalTableId}({goal.externalDataset})</span> från målbana: <span className="font-weight-600">{goal.name}</span>?</p>
                       <div className="flex gap-25">
                         <button className="flex-grow-100" onClick={() => deleteDataRef.current?.close()}>
                           Avbryt {/* TODO: I18n */}
