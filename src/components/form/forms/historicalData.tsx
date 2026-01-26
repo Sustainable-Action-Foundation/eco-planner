@@ -300,9 +300,7 @@ export default function HistoricalData({
             id="visible-form-manual"
             value="manual"
             checked={visibleForm === "manual"}
-            onChange={() => {
-              setVisibleForm("manual");
-            }}
+            onChange={() => setVisibleForm("manual")}
           />
         </label>
         <span>&#8210; {t("common:tsx.or")} &#8210;</span>
@@ -315,9 +313,7 @@ export default function HistoricalData({
             id="visible-form-external"
             value="external"
             checked={visibleForm === "external"}
-            onChange={() => {
-              setVisibleForm("external");
-            }}
+            onChange={() => setVisibleForm("external")}
           />
         </label>
       </div>
@@ -340,7 +336,11 @@ export default function HistoricalData({
                     Denna målbana har redan en extern datakälla. Du kan antingen justera din historiska data manuellt eller ta bort den externa datakällan och lägga till en ny
                   </p> {/* TODO: I18n */}
                   <div className="flex gap-25 margin-top-100">
-                    <button className="flex-grow-100 flex align-items-center justify-content-space-between gap-25 font-weight-500" style={{ transform: 'scale(1)'}}>
+                    <button 
+                      className="flex-grow-100 flex align-items-center justify-content-space-between gap-25 font-weight-500" 
+                      style={{ transform: 'scale(1)'}}
+                      onClick={() => setVisibleForm("manual")}  
+                    >
                       Justera manuellt {/* TODO: I18n, switch to manual editing */}
                       <IconEdit width={18} height={18} style={{ minWidth: '18px' }} aria-hidden="true" />
                     </button>
