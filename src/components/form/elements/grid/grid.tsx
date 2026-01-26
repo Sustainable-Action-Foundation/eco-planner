@@ -9,13 +9,14 @@ type coordinates = {
 type GridItemProps = {
   position: coordinates
   children: React.ReactNode
+  tabIndex?: 0 | -1
 }
 
-function GridCell({ children, position }: GridItemProps) {
+function GridCell({ children, position, tabIndex }: GridItemProps) {
   return (
     <div
       role="gridcell"
-      tabIndex={-1}
+      tabIndex={tabIndex}
       data-row={position.row}
       data-column={position.column}
     >
@@ -24,11 +25,11 @@ function GridCell({ children, position }: GridItemProps) {
   )
 }
 
-function RowHeader({ children, position }: GridItemProps) {
+function RowHeader({ children, position, tabIndex }: GridItemProps) {
   return (
     <div
       role="rowheader"
-      tabIndex={-1}
+      tabIndex={tabIndex}
       data-row={position.row}
       data-column={position.column}
     >
@@ -75,8 +76,11 @@ export default function Grid({
         const row = Math.floor(index / columns.length) 
         const column = index % columns.length
 
-        return React.cloneElement(child, {
-          position: { row, column }
+        let tabIndex: 0 | -1 = -1
+        if (coordinates.row === row && coordinates.column === column) { tabIndex = 0 }
+         return React.cloneElement(child, {
+          position: { row, column },
+          tabIndex
         })
       })}
     </div>
