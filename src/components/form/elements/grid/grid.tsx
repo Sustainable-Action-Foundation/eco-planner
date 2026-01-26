@@ -7,7 +7,7 @@ type coordinates = {
 }
 
 type GridItemProps = {
-  position: coordinates
+  position?: coordinates
   children: React.ReactNode
   tabIndex?: 0 | -1
 }
@@ -17,8 +17,8 @@ function GridCell({ children, position, tabIndex }: GridItemProps) {
     <div
       role="gridcell"
       tabIndex={tabIndex}
-      data-row={position.row}
-      data-column={position.column}
+      data-row={position?.row}
+      data-column={position?.column}
     >
       {children}
     </div>
@@ -30,8 +30,8 @@ function RowHeader({ children, position, tabIndex }: GridItemProps) {
     <div
       role="rowheader"
       tabIndex={tabIndex}
-      data-row={position.row}
-      data-column={position.column}
+      data-row={position?.row}
+      data-column={position?.column}
     >
       {children}
     </div>
@@ -53,7 +53,7 @@ export default function Grid({
   // TODO: Add like a check that the amount of children is divisible by the amount of columns or something 
   // to ensure that we have the correct amount of children
 
-  const [coordinates, setCoordinates] = useState<{ row: number, column: number }>({ row: 0, column: 0 })
+  const [coordinates, setCoordinates] = useState<{ row: number, column: number }>({ row: 0, column: 0 }) /* TODO: Switch name to active cell or somn... */
 
   return (
     <div
