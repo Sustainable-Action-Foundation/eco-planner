@@ -16,7 +16,7 @@ import styles from '../forms.module.css';
 import dialogStyles from '../api/queryBuilder.module.css' /* TODO: This seems a bit janky */
 import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
-import { IconTrashXFilled, IconX } from "@tabler/icons-react";
+import { IconAlertTriangle, IconEdit, IconInfoCircle, IconInfoCircleFilled, IconTrashXFilled, IconX } from "@tabler/icons-react";
 {/* TODO: Metadata */ }
 export default function HistoricalData({
   goal,
@@ -101,7 +101,7 @@ export default function HistoricalData({
     if (!(event.target.checkValidity())) return;
     const formData = new FormData(event.target); // TODO: This does not seem to be anything, figure out why (goal.externalDataset is saved, goal.externalTableId is not)
     const query = buildQuery(formData);
- 
+
     // Update the goal with the new data
     formSubmitter("/api/goal", JSON.stringify({
       goalId: goal.id,
@@ -284,7 +284,7 @@ export default function HistoricalData({
   // Index for data-position attribute in legend elements (for accessibility)
   let positionIndex = 1;
 
-  {/* TODO: Must make sure to limit the width of selects, some variables are stupidly long */}
+  {/* TODO: Must make sure to limit the width of selects, some variables are stupidly long */ }
   return (
     <div className={`${styles['dialog-body']}`}> {/* TODO: Dialog-body does not make sense here now... */}
       {/* <p className="padding-inline-100">{t("components:query_builder.add_data_to_goal", { goalName: goal.name ?? goal.indicatorParameter })}</p> */}
@@ -332,11 +332,24 @@ export default function HistoricalData({
 
             {goal.externalDataset && goal.externalTableId ?
               <>
-                <p>Denna målbana har redan en extern datakälla. Du kan antingen justera din historiska data manuellt eller ta bort den externa datakällan och lägga till en ny</p> {/* TODO: I18n */}
-                <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem", lineHeight: '1.5' }} onClick={() => deleteDataRef.current?.showModal()}>
-                  Ta bort extern datakälla {/* TODO: I18n (replace previous existing) */}
-                  <IconTrashXFilled fill='#CB3C3C' width={16} height={16} style={{ minWidth: '16px' }} aria-hidden="true" />
-                </button>
+                <fieldset data-info className={`${styles.timeLineFieldset} fieldset-unset-pseudo-class width-100 margin-top-200`}>
+                  <legend className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}> {/* TODO: i18n */}
+                    Information {/* TODO: I18n */}
+                  </legend>
+                  <p className="margin-0 font-weight-500">
+                    Denna målbana har redan en extern datakälla. Du kan antingen justera din historiska data manuellt eller ta bort den externa datakällan och lägga till en ny
+                  </p> {/* TODO: I18n */}
+                  <div className="flex gap-25 margin-top-100">
+                    <button className="flex-grow-100 flex align-items-center justify-content-space-between gap-25 font-weight-500" style={{ transform: 'scale(1)'}}>
+                      Justera manuellt {/* TODO: I18n, switch to manual editing */}
+                      <IconEdit width={18} height={18} style={{ minWidth: '18px' }} aria-hidden="true" />
+                    </button>
+                    <button type="button" className="red color-purewhite flex align-items-center justify-content-space-between gap-100 font-weight-500" style={{ transform: 'scale(1)'}} onClick={() => deleteDataRef.current?.showModal()}>
+                      Ta bort extern datakälla {/* TODO: I18n (replace previous existing) */}
+                      <IconTrashXFilled fill='white' width={16} height={16} style={{ minWidth: '16px' }} aria-hidden="true" />
+                    </button>
+                  </div>
+                </fieldset>
                 {/* TODO: We should likely not be adding a blur to the backdrop if our dialog can be light dismissed, i.e closedby=any */}
                 <dialog closedby="any" style={{ width: 'min(75ch, 100%)', height: 'calc(50vh - 2rem)' }} className={`rounded padding-inline-0 padding-block-0 ${dialogStyles.dialog}`} aria-modal ref={deleteDataRef}>
                   <div className={`${dialogStyles['dialog-content']}`}>
@@ -500,12 +513,12 @@ export default function HistoricalData({
                 }
               </output>
 
-              <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{borderTop: "1px solid var(--gray-80)"}}>
+              <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: "1px solid var(--gray-80)" }}>
                 <button
                   id="submit-button"
                   type="submit"
                   className="text-align-center seagreen color-purewhite width-100"
-                  style={{fontSize: "14px", transform: "none"}}
+                  style={{ fontSize: "14px", transform: "none" }}
                 >
                   {t("components:query_builder.add_data_source_button")}
                 </button>

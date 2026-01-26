@@ -102,6 +102,14 @@
   z-index: 999;
 }
 
+.timeLineFieldset[data-info] .timeLineLegend::before {
+  content: 'i' / '';
+  font-family: 'Times New Roman', Times, serif;
+  line-height: 0;
+  color: black;
+  background-color: #fcc200;
+}
+
 @media (max-width: 1250px) {
   .timeLineLegend::before {
     position: unset;
@@ -113,20 +121,19 @@
   }
 }
 
-.timeLineLegend::before {
+.timeLineLegend:not([data-info])::before {
   transition: background-color .2s ease,
     box-shadow .2s ease;
   scale: 1;
 }
 /* TODO: Look at the implementation of arias-here. Does not seem to work as intended (see historical-data)*/
-.timeLineFieldset:has(input:required:not(:disabled), select:required:not(:disabled), textarea:required:not(:disabled)):valid .timeLineLegend::before,
-.timeLineFieldset:has([aria-required="true"][aria-invalid="false"]) .timeLineLegend::before {
+.timeLineFieldset:not([data-info]):has(input:required:not(:disabled), select:required:not(:disabled), textarea:required:not(:disabled)):valid .timeLineLegend::before,
+.timeLineFieldset:not([data-info]):has([aria-required="true"][aria-invalid="false"]) .timeLineLegend::before {
   content: '✓' / '';
   background-color: var(--seagreen);
   box-shadow: 0 0 .5rem -.25rem var(--seagreen);
   animation: pop 0.4s ease;
 }
-
 
 @keyframes pop {
   0% {

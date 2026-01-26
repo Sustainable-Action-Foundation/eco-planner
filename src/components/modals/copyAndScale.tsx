@@ -133,7 +133,7 @@ export default function CopyAndScale({
           <div className={`${styles['dialog-header']}`}>
             {/* Close button */}
             <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
-              <IconX aria-hidden="true" width={28} height={28} strokeWidth={2} style={{minWidth: '28px'}} />
+              <IconX aria-hidden="true" width={28} height={28} strokeWidth={3} style={{minWidth: '28px'}} />
             </button>
 
             {/* Title */}
