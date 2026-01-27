@@ -2,7 +2,6 @@
 
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import { DatasetData, ExternalDataset } from "@/lib/api/utility";
-import type { DataSeries, Effect, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
 import { useEffect, useState } from "react";
 import { getStoredGraphType } from "./functions/graphFunctions";
 import GraphSelector from "./graphSelector/graphSelector";
@@ -11,6 +10,7 @@ import MainGraph from "./mainGraphs/mainGraph";
 import MainRelativeGraph from "./mainGraphs/mainRelativeGraph";
 import SecondaryGoalSelector from "./secondaryGraphSelector";
 import { Trans, useTranslation } from "react-i18next";
+import { Effect, Goal, Roadmap } from "@/types";
 
 export const GraphType = {
   Main: "MAIN",
@@ -31,7 +31,7 @@ export default function GraphGraph({
   goal: Goal,
   secondaryGoal: Goal | null,
   parentGoal: Goal | null,
-  parentGoalRoadmap: Roadmap & { metaRoadmap: MetaRoadmap } | null,
+  parentGoalRoadmap: Roadmap | null,
   historicalData?: ApiTableContent | null,
   effects: Effect[],
   children: React.ReactNode

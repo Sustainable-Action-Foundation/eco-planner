@@ -2,7 +2,7 @@
 
 import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
-import type { Goal, DataSeries, Effect, MetaRoadmap, Roadmap } from "@prisma/client";
+import { Effect, Goal, Roadmap } from "@/types";
 import { useTranslation } from "react-i18next";
 
 export default function MainDeltaGraph({
@@ -12,11 +12,11 @@ export default function MainDeltaGraph({
   parentGoalRoadmap,
   effects,
 }: {
-  goal: Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null },
-  secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
-  parentGoal: Goal & { dataSeries: DataSeries | null } | null,
-  parentGoalRoadmap: Roadmap & { metaRoadmap: MetaRoadmap } | null,
-  effects: (Effect & { dataSeries: DataSeries | null })[],
+  goal: Goal,
+  secondaryGoal: Goal | null,
+  parentGoal: Goal | null,
+  parentGoalRoadmap: Roadmap | null,
+  effects: Effect[],
 }) {
   const { t } = useTranslation("graphs");
 
@@ -82,15 +82,15 @@ export default function MainDeltaGraph({
     type: 'line',
   });
 
-  if (goal.baselineDataSeries) {
+  if (goal.baseline) {
     // Baseline / predicted outcome without actions/effects
     const baselineSeries = [];
     for (let i = 1; i < Years.length; i++) {
       const currentField = Years[i];
       const previousField = Years[i - 1];
 
-      const currentValue = goal.baselineDataSeries[currentField] ?? NaN;
-      const previousValue = goal.baselineDataSeries[previousField] ?? NaN;
+      const currentValue = goal.baseline[currentField] ?? NaN;
+      const previousValue = goal.baseline[previousField] ?? NaN;
 
       const value = currentValue - previousValue;
 
@@ -105,7 +105,7 @@ export default function MainDeltaGraph({
       type: 'line',
     });
 
-    const totalEffect = calculatePredictedOutcome(effects, goal.baselineDataSeries);
+    const totalEffect = calculatePredictedOutcome(effects, goal.baseline);
 
     // Predicted outcome with actions
     if (totalEffect.length > 0) {
