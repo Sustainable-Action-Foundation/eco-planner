@@ -300,7 +300,7 @@ export type RoadmapCreateInput = {
 
   // TODO - DEPRECATED - Will be migrated to description
   links: { url: string, description?: string | null }[] | null | undefined;
-}
+};
 
 /** 
  * The format of the data allowed to update an existing roadmap version.
@@ -341,7 +341,7 @@ export type RoadmapUpdateInput = {
 
   // TODO - DEPRECATED - Will be migrated to description
   links: { url: string, description?: string | null }[] | null | undefined;
-}
+};
 
 /**
  * The format of the data needed to create a new goal.
@@ -386,7 +386,7 @@ export type GoalCreateInput = {
 
   // TODO: Deprecated - will be moved to description
   links: { url: string, description?: string | null }[] | null | undefined;
-}
+};
 
 /**
  * The format of the data allowed to update an existing goal.
@@ -441,7 +441,7 @@ export type GoalUpdateInput = {
 
   // TODO: Deprecated - will be moved to description
   links: { url: string, description?: string | null }[] | null | undefined;
-}
+};
 
 /** The format of the data needed to create a new action. */
 export type ActionInput = Omit<
