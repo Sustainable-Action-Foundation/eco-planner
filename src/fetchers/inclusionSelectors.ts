@@ -72,6 +72,7 @@ export const metaRoadmapInclusionSelection = {
 
 export const roadmapInclusionSelection = {
   metaRoadmap: true,
+  _count: { select: { goals: true, actions: true } },
   goals: {
     include: {
       _count: { select: { effects: true } },
