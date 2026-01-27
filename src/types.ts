@@ -466,7 +466,7 @@ export type EffectInput = Omit<
   actionId: string;
   goalId: string;
   // dataSeries may be undefined when editing, to avoid changing it, but it's required when creating
-  dataSeries: string[] | undefined;
+  dataSeries: DateValuesWithUnit;
 };
 
 export type UnitString = string | null | undefined;
