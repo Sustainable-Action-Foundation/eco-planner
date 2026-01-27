@@ -34,3 +34,36 @@ fieldset .spreadsheet-label:last-child {
   -webkit-appearance: none;
   margin: 0;
 }
+
+/* TODO: Can probably remove the above once we are done here */
+
+.grid {
+  border-radius: .25rem .25rem 0 0;
+  border: 1px solid var(--gray-80);
+}
+
+.grid [role="columnheader"]:has(~ [role="columnheader"]) {
+  border-radius: .25rem 0 0 0;
+}
+
+.grid [role="columnheader"] {
+  padding: .5rem;
+  border-bottom: 1px solid var(--gray-80);
+  background-color: var(--gray-95);
+ }
+
+.grid [role="columnheader"]:not(:has(+ [role="columnheader"])) {
+  border-radius: 0 .25rem 0 0;
+}
+
+.grid [role="gridcell"], 
+.grid [role="rowheader"] {
+  height: 100%;
+  background-color: var(--secondary-neutral);
+}
+
+.grid [role="gridcell"] input, 
+.grid [role="rowheader"] input {
+  border: 0;
+  background-color: transparent;
+}

@@ -1,6 +1,12 @@
 import { GenericElement } from "@/components/types"
 import React, { useEffect, useState } from "react"
 
+// TODO: Set coordinates on mouse click
+// TODO: Abstract keycontrols
+// TODO: Figure out if we beed pageup/pagedown
+// TODO: Handle columnheaders the same as gridcells
+// TODO: Allow passing props to gridcells (generic html element?)
+
 type coordinates = {
   row: number
   column: number

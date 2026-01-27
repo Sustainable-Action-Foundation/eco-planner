@@ -78,38 +78,31 @@ export default function DataSeriesInputManual({
 
   return (
     <>
-      <table className="width-100" style={{ borderSpacing: '0' }}>
-        <caption>
-          Test caption
-        </caption>
-        <thead>
-          <tr>
-            <th style={{ width: '100px' }} className="text-align-left" scope="col">Year</th>
-            <th className="text-align-left" scope="col">Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          {/* TODO: See if we want required for theese here ? :) */}
-          {value.map((value: { year: number | null, data: number | null }, index: number) =>
-            <tr key={index}>
-              <td style={{ width: '100px' }}><input type="number" defaultValue={value.year ? value.year : ''} /></td>
-              <td><input type="text" defaultValue={value.data ? value.data : ''} /></td>
-              <td style={{ width: '0' }}> {/* TODO: This is a temporary solution to make the cell take up as much space as the button */}
-                <button
-                  className="grid round transparent padding-25 margin-left-50"
-                  type="button"
-                  aria-label="delete row" // TODO: I18n
-                  onClick={() =>
-                    setValue(prev => prev.filter((_, i) => i !== index))
-                  }
-                >
-                  <IconTrashXFilled height={20} width={20} aria-hidden="true" />
-                </button>
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+      <Grid // TODO: Add caption  
+        props={{ className: `grid width-100 align-items-center ${styles.grid}`, style: { gridTemplateColumns: '100px 1fr auto' } }}
+        columns={['Year', 'Value', 'Action']} // TODO: Maybe do theese as grid.columnheader or somn to allow better styling
+      >
+        {value.flatMap((item, index) => [
+          <Grid.Cell key={`year-${index}`}>
+            <input type="number" defaultValue={item.year ? item.year : ''}></input> {/* TODO: Need to make sure we handle tabindex here.  */}
+          </Grid.Cell>,
+          <Grid.Cell key={`data-${index}`}>
+            <input type="number" defaultValue={item.data ? item.data : ''}></input> {/* TODO: Need to make sure we handle tabindex here.  */}
+          </Grid.Cell>,
+          <Grid.Cell key={`test-${index}`}>
+            <button
+              className="padding-25 grid round transparent margin-inline-auto"
+              type="button"
+              aria-label="Delete row" /* TODO: i18n */
+              onClick={() =>
+                setValue(prev => prev.filter((_, i) => i !== index))
+              }
+            >
+              <IconTrashXFilled height={20} width={20} style={{ maxWidth: '20' }} aria-hidden="true" />
+            </button>
+          </Grid.Cell>
+        ])}
+      </Grid>
       <button
         className="rounded font-weight-500 flex align-items-center gap-50 padding-50 padding-right-75 margin-top-50" style={{ lineHeight: '1', transform: 'scale(1)' }}
         onClick={() =>
@@ -119,22 +112,6 @@ export default function DataSeriesInputManual({
         <IconPlus width={20} height={20} aria-hidden="true" />
         Add new row {/* TODO: I18n */}
       </button>
-      <Grid
-        props={{ className: 'grid width-100 gap-25', style: { gridTemplateColumns: '100px 1fr 1fr' } }}
-        columns={['Year', 'Value', 'test']} // TODO: Maybe do theese as grid.columnheader or somn to allow better styling
-      >
-        {value.flatMap((item, index) => [
-          <Grid.Cell key={`year-${index}`}>
-             <input type="number" defaultValue={item.year ? item.year : ''}></input> {/* TODO: Need to make sure we handle tabindex here.  */}
-          </Grid.Cell>,
-          <Grid.Cell key={`data-${index}`}>
-            <input type="number" defaultValue={item.data ? item.data : ''}></input> {/* TODO: Need to make sure we handle tabindex here.  */}
-          </Grid.Cell>,
-          <Grid.Cell key={`test-${index}`}>
-            <div>asdasd</div>
-          </Grid.Cell>
-        ])}
-      </Grid>
       {/*
       <fieldset className="block fieldset-unset-pseudo-class">
         <legend
