@@ -2,8 +2,7 @@
 
 // TODO: Move to actions.tsx
 import styles from './tables.module.css' with { type: "css" };
-import { Action } from '@prisma/client';
-import { AccessLevel } from '@/types';
+import { AccessLevel, Action } from '@/types';
 import Link from 'next/link';
 import { TableMenu } from './tableMenu/tableMenu';
 import { useTranslation } from "react-i18next";
@@ -19,20 +18,9 @@ export default function ActionTable({
   accessLevel,
   roadmapId,
 }: {
-  actions: (Action & {
-    author?: {
-      id: string;
-      username: string;
-    },
-    _count?: {
-      effects: number;
-    },
-    effects?: {
-      goal: { id: string, roadmap: { id: string } }
-    }[],
-  })[]
-  accessLevel?: AccessLevel,
-  roadmapId?: string,
+  actions: Action[];
+  accessLevel?: AccessLevel;
+  roadmapId?: string;
 }) {
   const { t } = useTranslation("components");
 
