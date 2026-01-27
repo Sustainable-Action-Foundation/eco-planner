@@ -1,4 +1,4 @@
-import { GoalCreateInput, Years } from "@/types";
+import { GoalCreateInput } from "@/types";
 
 export default function parseCsv(csv: ArrayBuffer): string[][] {
   // Despite Windows-1252 being more common than UTF-8 in a Windows/Microsoft environment (such as when exporting CSV files from Excel),
@@ -14,7 +14,7 @@ export default function parseCsv(csv: ArrayBuffer): string[][] {
  * @param csv A 2D array of strings
  * @param scaleWarningCallback A function to call if the CSV contains a column for the deprecated "Scale" header
  */
-export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void) {
+export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void): GoalCreateInput[] {
   // Remove first two rows if the second row is empty (as it should be, with first row containing metadata and third row containing headers)
   if (!csv[1][0]) {
     csv = csv.slice(2);
@@ -27,11 +27,8 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
   const nonNumericHeaders = {
     "indicatorParameter": "Branch Path",
     "dataUnit": "Units",
-  }
-  const numericHeaders = [];
-  for (const year of Years) {
-    numericHeaders.push(year.replace("val", ""));
-  }
+  };
+  const definedYears = headers.filter(h => h.length === 4 && Number.isFinite(parseInt(h)));
 
   // Unsupported header which might be present in the CSV
   const scaleHeaderName = "Scale";
@@ -39,49 +36,46 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
     scaleWarningCallback();
   }
 
-  const headerIndex: { [key: string]: number | undefined } = {};
+  const headerIndex: Record<string, number | undefined> = {};
   const output: GoalCreateInput[] = [];
 
   // Check that all headers are present and get their indices
-  for (const i of Object.keys(nonNumericHeaders)) {
-    if (!headers.includes(nonNumericHeaders[i as keyof typeof nonNumericHeaders])) {
-      throw new Error(`Missing header "${nonNumericHeaders[i as keyof typeof nonNumericHeaders]}"`);
+  for (const headerName of Object.keys(nonNumericHeaders)) {
+    if (!headers.includes(nonNumericHeaders[headerName as keyof typeof nonNumericHeaders])) {
+      throw new Error(`Missing header "${nonNumericHeaders[headerName as keyof typeof nonNumericHeaders]}"`);
     } else {
-      headerIndex[i] = headers.indexOf(nonNumericHeaders[i as keyof typeof nonNumericHeaders]);
+      headerIndex[headerName] = headers.indexOf(nonNumericHeaders[headerName as keyof typeof nonNumericHeaders]);
     }
   }
 
-  for (const i of numericHeaders) {
-    if (!headers.includes(i)) {
-      throw new Error(`Missing header "${i}"`);
-    } else {
-      headerIndex[i] = headers.indexOf(i);
-    }
+  for (const year of definedYears) {
+    headerIndex[year] = headers.indexOf(year);
   }
 
   // Create GoalInput objects from the data
   for (let i = 1; i < csv.length; i++) {
     // Skip rows without an indicatorParameter
-    if (!csv[i][Number(headerIndex.indicatorParameter)]) {
+    if (!csv[i][headerIndex["indicatorParameter"] ?? NaN]) {
       continue;
     }
 
     const dataSeries: string[] = [];
-    for (const j of numericHeaders) {
-      dataSeries.push(csv[i][Number(headerIndex[j])]?.replaceAll(",", "."));
+    for (const yyyy of definedYears) {
+      if (!headerIndex[yyyy]) throw new Error(`Header index for year ${yyyy} is undefined`);
+      dataSeries.push(csv[i][headerIndex[yyyy]]?.replaceAll(",", "."));
     }
 
     output.push({
       name: undefined,
       description: undefined,
-      indicatorParameter: csv[i][Number(headerIndex.indicatorParameter)],
+      indicatorParameter: csv[i][headerIndex["indicatorParameter"] ?? NaN],
       isFeatured: undefined,
       externalDataset: undefined,
       externalTableId: undefined,
       externalSelection: undefined,
       recipeUsed: undefined,
       rawDataSeries: dataSeries,
-      rawDataSeriesUnit: csv[i][Number(headerIndex.dataUnit)],
+      rawDataSeriesUnit: csv[i][headerIndex["dataUnit"] ?? NaN],
       rawBaselineDataSeries: undefined,
       rawBaselineDataSeriesUnit: undefined,
       roadmapId: '', // This will be set later
