@@ -1,8 +1,9 @@
 "use client";
 
 import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
+import { dataSeriesToDateValues } from "@/functions/recipe/extractors";
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
-import { Effect, Goal, Roadmap } from "@/types";
+import { Effect, Goal, isISOIshDate, Roadmap } from "@/types";
 import { useTranslation } from "react-i18next";
 
 export default function MainDeltaGraph({
@@ -61,18 +62,24 @@ export default function MainDeltaGraph({
 
   // Local goal
   const mainSeries = [];
-  // Start at 1 to skip the first value
-  for (let i = 1; i < Years.length; i++) {
-    const currentField = Years[i];
-    const previousField = Years[i - 1];
+  const dataSeries = dataSeriesToDateValues(goal.dataSeries);
+  const dates = Object.keys(dataSeries.dateValues).sort();
+  if (!dates.every(d => isISOIshDate(d))) {
+    throw new Error("Invalid date found in goal data series when generating main delta graph.");
+  }
 
-    const currentValue = goal.dataSeries[currentField] ?? NaN;
-    const previousValue = goal.dataSeries[previousField] ?? NaN;
+  // Start at 1 to skip the first value
+  for (let i = 1; i < dates.length; i++) {
+    const currentField = dates[i];
+    const previousField = dates[i - 1];
+
+    const currentValue = dataSeries.dateValues[currentField] ?? NaN;
+    const previousValue = dataSeries.dateValues[previousField] ?? NaN;
 
     const value = currentValue - previousValue;
 
     mainSeries.push({
-      x: new Date(currentField.replace('val', '')).getTime(),
+      x: new Date(currentField).getTime(),
       y: Number.isFinite(value) ? value : null,
     });
   }
@@ -85,17 +92,23 @@ export default function MainDeltaGraph({
   if (goal.baseline) {
     // Baseline / predicted outcome without actions/effects
     const baselineSeries = [];
-    for (let i = 1; i < Years.length; i++) {
-      const currentField = Years[i];
-      const previousField = Years[i - 1];
+    const baseline = dataSeriesToDateValues(goal.baseline);
+    const dates = Object.keys(baseline.dateValues).sort();
+    if (!dates.every(d => isISOIshDate(d))) {
+      throw new Error("Invalid date found in baseline data series when generating main delta graph.");
+    }
 
-      const currentValue = goal.baseline[currentField] ?? NaN;
-      const previousValue = goal.baseline[previousField] ?? NaN;
+    for (let i = 1; i < dates.length; i++) {
+      const currentField = dates[i];
+      const previousField = dates[i - 1];
+
+      const currentValue = baseline.dateValues[currentField] ?? NaN;
+      const previousValue = baseline.dateValues[previousField] ?? NaN;
 
       const value = currentValue - previousValue;
 
       baselineSeries.push({
-        x: new Date(currentField.replace('val', '')).getTime(),
+        x: new Date(currentField).getTime(),
         y: Number.isFinite(value) ? value : null,
       });
     }
@@ -127,12 +140,13 @@ export default function MainDeltaGraph({
     }
   } else if (effects.length > 0) {
     // If no baseline is set, use the first non-null value as baseline
-    const firstNonNull = Years.find(i => goal.dataSeries && Number.isFinite(goal.dataSeries[i]));
+    const firstNonNull = goal.dataSeries.values.find(v => Number.isFinite(v.value))?.timestamp.getUTCFullYear()?.toString();
+    if (!firstNonNull || !isISOIshDate(firstNonNull)) throw new Error("Invalid date format in goal data series.");
 
     if (firstNonNull) {
       // Since the baseline is a single value, it won't have any delta year-to-year, so only draw effects
 
-      const totalEffect = calculatePredictedOutcome(effects, goal.dataSeries[firstNonNull] as number);
+      const totalEffect = calculatePredictedOutcome(effects, dataSeries.dateValues[firstNonNull]);
 
       // Predicted outcome with actions
       if (totalEffect.length > 0) {
@@ -157,24 +171,30 @@ export default function MainDeltaGraph({
 
   // Secondary goal
   if (secondaryGoal?.dataSeries) {
-    const nationalSeries = [];
-    for (let i = 1; i < Years.length; i++) {
-      const currentField = Years[i];
-      const previousField = Years[i - 1];
+    const secondarySeries = [];
+    const secondaryDataSeries = dataSeriesToDateValues(secondaryGoal.dataSeries);
+    const dates = Object.keys(secondaryDataSeries.dateValues).sort();
+    if (!dates.every(d => isISOIshDate(d))) {
+      throw new Error("Invalid date found in secondary goal data series when generating main delta graph.");
+    }
 
-      const currentValue = secondaryGoal.dataSeries[currentField] ?? NaN;
-      const previousValue = secondaryGoal.dataSeries[previousField] ?? NaN;
+    for (let i = 1; i < dates.length; i++) {
+      const currentField = dates[i];
+      const previousField = dates[i - 1];
+
+      const currentValue = secondaryDataSeries.dateValues[currentField] ?? NaN;
+      const previousValue = secondaryDataSeries.dateValues[previousField] ?? NaN;
 
       const value = currentValue - previousValue;
 
-      nationalSeries.push({
-        x: new Date(currentField.replace('val', '')).getTime(),
+      secondarySeries.push({
+        x: new Date(currentField).getTime(),
         y: Number.isFinite(value) ? value : null,
       });
     }
     chart.push({
       name: secondaryGoal.name || secondaryGoal.indicatorParameter,
-      data: nationalSeries,
+      data: secondarySeries,
       type: 'line',
     });
     // Place secondary series on separate scale if it doesn't share unit with main
@@ -192,23 +212,29 @@ export default function MainDeltaGraph({
 
   // National goal
   if (parentGoal?.dataSeries) {
-    const nationalSeries = []
-    for (let i = 1; i < Years.length; i++) {
-      const currentField = Years[i];
-      const previousField = Years[i - 1];
+    const parentSeries = []
+    const parentDataSeries = dataSeriesToDateValues(parentGoal.dataSeries);
+    const dates = Object.keys(parentDataSeries.dateValues).sort();
+    if (!dates.every(d => isISOIshDate(d))) {
+      throw new Error("Invalid date found in parent goal data series when generating main delta graph.");
+    }
 
-      const currentValue = parentGoal.dataSeries[currentField] ?? NaN;
-      const previousValue = parentGoal.dataSeries[previousField] ?? NaN;
+    for (let i = 1; i < dates.length; i++) {
+      const currentField = dates[i];
+      const previousField = dates[i - 1];
+
+      const currentValue = parentDataSeries.dateValues[currentField] ?? NaN;
+      const previousValue = parentDataSeries.dateValues[previousField] ?? NaN;
 
       const value = currentValue - previousValue;
-      nationalSeries.push({
+      parentSeries.push({
         x: new Date(currentField.replace('val', '')).getTime(),
         y: Number.isFinite(value) ? value : null,
       });
     }
     chart.push({
       name: t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name || "" }),
-      data: nationalSeries,
+      data: parentSeries,
       type: 'line',
     });
   }
