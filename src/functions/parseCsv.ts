@@ -1,4 +1,4 @@
-import { GoalCreateInput } from "@/types";
+import { DateValues, GoalCreateInput, isISOIshDate } from "@/types";
 
 export default function parseCsv(csv: ArrayBuffer): string[][] {
   // Despite Windows-1252 being more common than UTF-8 in a Windows/Microsoft environment (such as when exporting CSV files from Excel),
@@ -59,10 +59,17 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
       continue;
     }
 
-    const dataSeries: string[] = [];
+    const dateValues: DateValues = {};
     for (const yyyy of definedYears) {
-      if (!headerIndex[yyyy]) throw new Error(`Header index for year ${yyyy} is undefined`);
-      dataSeries.push(csv[i][headerIndex[yyyy]]?.replaceAll(",", "."));
+      const isoDate: string = `${yyyy}-01-01T00:00:00Z`;
+      if (!isISOIshDate(isoDate)) throw new Error(`Invalid ISOIshDate generated from year: ${yyyy}`);
+
+      const yearIndex = headerIndex[yyyy];
+      if (typeof yearIndex === "undefined") throw new Error(`Header index for year ${yyyy} is undefined`);
+
+      const valueStr = csv[i][yearIndex].replaceAll(",", ".");
+      const valueNum = parseFloat(valueStr);
+      dateValues[isoDate] = valueNum;
     }
 
     output.push({
@@ -73,14 +80,17 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
       externalDataset: undefined,
       externalTableId: undefined,
       externalSelection: undefined,
+      recipeSuggestions: undefined,
+      dataSeries: {
+        dateValues: dateValues,
+        unit: csv[i][headerIndex["dataUnit"] ?? NaN],
+      },
       recipeUsed: undefined,
-      rawDataSeries: dataSeries,
-      rawDataSeriesUnit: csv[i][headerIndex["dataUnit"] ?? NaN],
-      rawBaselineDataSeries: undefined,
-      rawBaselineDataSeriesUnit: undefined,
-      roadmapId: '', // This will be set later
+      baseline: undefined,
+      baselineId: undefined,
       rawTags: undefined,
       links: undefined,
+      roadmapId: "", // Will be assigned later :O
     })
   }
 
