@@ -3,16 +3,15 @@ import styles from "@/components/tables/tables.module.css" with { type: "css" };
 import { TableMenu } from "@/components/tables/tableMenu/tableMenu.tsx";
 import accessChecker from "@/lib/accessChecker.ts";
 import { LoginData } from "@/lib/session.ts";
-import { AccessControlled } from "@/types.ts";
-import { MetaRoadmap, Roadmap } from "@prisma/client";
 import Link from "next/link";
 import { Fragment } from "react";
 import serveTea from "@/lib/i18nServer";
 import { IconCaretRightFilled } from "@tabler/icons-react";
+import { Roadmap } from "@/types";
 
 type RoadmapTreeProps = {
-  user: LoginData['user'],
-  roadmaps: (Roadmap & AccessControlled & { _count: { goals: number }, metaRoadmap: MetaRoadmap & { childRoadmaps: { id: string }[] } })[],
+  user: LoginData['user'];
+  roadmaps: Roadmap[];
 }
 
 /**
