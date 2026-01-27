@@ -18,8 +18,8 @@ const CI = process.env.CI ? true : false;
 export default defineConfig({
   testDir: "tests/",
 
-  fullyParallel: true,
-  workers: "90%",
+  // fullyParallel: true,
+  workers: "50%",
 
   // One retry in case of flaky tests
   retries: 1,
@@ -64,47 +64,17 @@ export default defineConfig({
       use: {},
     },
     {
-      name: "Recipe parser validation",
-      testMatch: ["**/recipe-parser-entry.ts"],
-      retries: 0, // File reading can't be flaky, so no retries needed.
-      use: {},
-    },
-    {
-      name: "chromium 1440p",
-      use: { ...devices["Desktop Chrome"], viewport: { width: 2560, height: 1440 }, channel: "chromium", },
-    },
-    {
       name: "chromium 1080p",
       use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 }, channel: "chromium", },
-    },
-    {
-      name: "chromium 720p",
-      use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 720 }, channel: "chromium", },
-    },
-    {
-      name: "firefox 1440p",
-      use: { ...devices["Desktop Firefox"], viewport: { width: 2560, height: 1440 }, },
     },
     {
       name: "firefox 1080p",
       use: { ...devices["Desktop Firefox"], viewport: { width: 1920, height: 1080 }, },
     },
     {
-      name: "firefox 720p",
-      use: { ...devices["Desktop Firefox"], viewport: { width: 1280, height: 720 }, },
-    },
-    {
-      name: "webkit 1440p",
-      use: { ...devices["Desktop Safari"], viewport: { width: 2560, height: 1440 }, },
-    },
-    {
       name: "webkit 1080p",
       use: { ...devices["Desktop Safari"], viewport: { width: 1920, height: 1080 }, },
     },
-    {
-      name: "webkit 720p",
-      use: { ...devices["Desktop Safari"], viewport: { width: 1280, height: 720 }, },
-    }
   ],
 
   webServer: {

@@ -31,7 +31,6 @@ services:
       context: ..
       dockerfile: docker/db-seed.Dockerfile
       cache_from:
-        - eco-planner-db-seed:test
         - type=gha
       cache_to:
         - type=gha,mode=max
@@ -51,7 +50,6 @@ services:
       context: ..
       dockerfile: docker/app.Dockerfile
       cache_from:
-        - eco-planner-app:test
         - type=gha
       cache_to:
         - type=gha,mode=max
@@ -77,6 +75,8 @@ services:
       - MAIL_PASSWORD=${TEST_MAIL_PASSWORD}
       # Used for links in emails and as canonical url in meta tags
       - BASE_URL=${TEST_BASE_URL:-http://app:8081}
+      - GIT_LONG_HASH=${GIT_LONG_HASH}
+      - GIT_SHORT_HASH=${GIT_SHORT_HASH}
 
 networks:
   testing_network:

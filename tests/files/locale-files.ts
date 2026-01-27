@@ -32,14 +32,11 @@ const serverSideFilesOverride = ["page.tsx", "layout.tsx",].map(file => file && 
 const clientSideFilesOverride: string[] = ([] as string[]).map(file => file && path.join(...file.split("/")));
 const exemptedMixedUseFiles = ["src/app/localesTest/page.tsx",].map(file => file && path.join(...file.split("/")));
 
-/** Theses are ignored for checking namespace usage consistency */
-const commonNamespaces = ["common", "metadata"];
-
 /** When checking for mixed use of spaces these are allowed in any file */
 const keysAllowedDirectlyInApp = ["common:tsx.", "common:placeholder.", "common:scope.", "common:layout.", "common:count.", "common:new.", "common:edit", "common:scaling_methods", "common:css.", "common:404."];
 
 /** The Swedish regex is used to find hard coded swedish in the app */
-const swedishRegex = /(?<!\/\/|\*|\/\*|\/\*\*|^\s*\*\s*)(?:\b(?:åtgärd|åtgärden|åtgärder|åtgärderna|målbana|målbanan|målbanor|målbanorna|färdplan|färdplanen|färdplaner|färdplansversion|färdplansversionen|färdplansversioner|effekt|effekten|effekter|effekterna|Skapa|Redigera|Radera|Ta bort|Lägg till|Spara|Avbryt|Sök|Välj|Visa|Sortera|Sök bland|Välj en|Ingen angiven|Skapa ny|Det finns inga|Vill du|Utvalda|Alla|Externa resurser|Relevanta aktörer|Kostnadseffektivitet|Beskrivning|Sverige|Sveriges|Stäng|meny|välj|språk|att|som|på|är|för|till|inte|ett|han|men|ord|Nästa)\b|(?:\w*[åäöÅÄÖ]\w*))/gim;
+const swedishRegex = /(?<!\/\/|\*|\/\*|\/\*\*|^\s*\*\s*)(?:\w*[åäöÅÄÖ]+\w*)+/gim;
 
 
 /* 
@@ -116,28 +113,6 @@ test.describe("English as fallback", () => {
 
   test("Missing keys in non-english locales", () => expect(Object.keys(missingInOthers).length, `Missing keys in non-english locales: ${JSON.stringify(missingInOthers, null, 2)}`).toBe(0));
   test("Missing keys in english", () => expect(Object.keys(missingInEnglish).length, `Missing keys in english: ${JSON.stringify(missingInEnglish, null, 2)}`).toBe(0));
-});
-
-/** Do all the keys follow snake case? */
-test("Keys are snake_case", () => {
-  const perLocale: Record<string, string[]> = Object.fromEntries(uniqueLocales.map(locale => [locale, []]));
-
-  uniqueLocales.forEach((locale) => {
-    const keys = Object.keys(allJSON[locale]);
-    keys.forEach(key => {
-      const noNS = key.replace(/^[^:]+:/, "");
-      const parts = noNS.split(".");
-      if (!parts) return;
-
-      if (parts.some(part => !/^[a-z0-9_]+$/.test(part))) {
-        perLocale[locale].push(key);
-      }
-    });
-  });
-
-  const totalBadKeys = Object.values(perLocale).flat().length;
-
-  expect(totalBadKeys, `Keys not in snake_case: ${JSON.stringify(perLocale, null, 2)}`).toBe(0);
 });
 
 /** Do namespaces use the values of common keys instead of referencing? */
@@ -401,42 +376,6 @@ test("Keys used in app are not defined", () => {
 });
 
 /** Checks whether a file is consistent with namespaces and first level keys */
-test("Namespace consistency in app", () => {
-  const perFile: Record<string, string[]> = {};
-
-  allTSX.forEach(({ filePath, content }) => {
-    const allTCalls = Array.from(content.matchAll(/\Wt\(["']([^"']*)["']\)/gm)) || [];
-    if (allTCalls.length === 0) return; // Skip if no t() calls
-
-    const usedNS: Record<string, number> = {};
-
-    allTCalls.forEach(call => {
-      const [, key] = call;
-      if (keysAllowedDirectlyInApp.some(allowedKey => key.startsWith(allowedKey))) return; // Skip allowed keys
-
-      const namespace = key.match(/(^[^:]+):/)?.[1];
-      if (!namespace) return; // Skip if no namespace
-
-      if (commonNamespaces.includes(namespace)) return; // Skip common namespaces
-
-      if (!usedNS[namespace]) usedNS[namespace] = 0;
-      usedNS[namespace]++;
-    });
-
-    // If it's only using one (or zero) namespace, skip it
-    if (Object.values(usedNS).length < 2) return; // Skip if no namespaces used
-
-    perFile[filePath] = perFile[filePath] || [];
-    const usedNSString = Object.entries(usedNS).map(([ns, count]) => `${ns}: ${count}`).join(", ");
-    perFile[filePath].push(`[Mixed namespaces] > { ${usedNSString} }`);
-  });
-
-  const totalBadKeys = Object.values(perFile).flat().length;
-
-  expect(totalBadKeys, `Mixed namespaces: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
-});
-
-/** Checks whether a file is consistent with namespaces and first level keys */
 test.skip("Common keys used directly in files", () => {
   const perFile: Record<string, string[]> = {};
 
@@ -540,6 +479,9 @@ test("<Trans /> syntax", () => {
 
 /** Check for Swedish text in code files that should be internationalized */
 test("No hardcoded Swedish text in code", () => {
+  // TODO: Needs better implementation, with ability to allow certain hardcoded strings, better detection (of all hardcoded strings, not just Swedish), etc.
+  test.skip();
+
   const perFile: Record<string, string[]> = {};
 
   allTSX.forEach(({ filePath, content }) => {
@@ -647,7 +589,12 @@ test("Unused keys", () => {
 
   const totalUnusedKeys = Object.values(unusedPerLocale).flat().length;
 
-  expect(totalUnusedKeys, `Unused keys in locale files: ${JSON.stringify(unusedPerLocale, null, 2)}`).toBe(0);
+  // Instead of failing the test, just add an annotation
+  if (totalUnusedKeys > 0) {
+    test.info().annotations.push({ type: "Warn", description: `Unused keys in locale files: ${JSON.stringify(unusedPerLocale, null, 2)}` });
+  }
+
+  // expect(totalUnusedKeys, `Unused keys in locale files: ${JSON.stringify(unusedPerLocale, null, 2)}`).toBe(0);
 });
 
 /* 

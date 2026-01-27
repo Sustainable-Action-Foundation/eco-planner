@@ -152,7 +152,9 @@
     "select_dataset": "Select dataset",
     "select_roadmap": "Select roadmap",
     "selection": "Selection",
-    "status": "Status",
+    "status": {
+      "no_issues_icon_aria_label": "No issues"
+    },
     "table": "Table",
     "select_recipe": "Select an existing recipe",
     "create_recipe": "Create a new recipe",
