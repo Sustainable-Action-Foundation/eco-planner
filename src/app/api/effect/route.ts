@@ -1,8 +1,7 @@
-import dataSeriesPrep from "@/app/api/goal/dataSeriesPrep";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
-import { ClientError, DateValues, EffectInput, isDateValuesWithUnit, JSONValue } from "@/types";
+import { ClientError, EffectInput, isDateValuesWithUnit, JSONValue } from "@/types";
 import { ActionImpactType, Prisma } from "@prisma/client";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
@@ -305,35 +304,25 @@ export async function PUT(request: NextRequest) {
     }
   }
 
-  // Prepare effect data series
-  let dataSeries: Partial<DateValues> | undefined | null = undefined;
-  if (effect.dataSeries) {
-    dataSeries = dataSeriesPrep(effect.dataSeries);
-  }
-  if (dataSeries === null) {
-    return Response.json({ message: 'Bad data series' },
-      { status: 400 }
-    );
-  }
-
   // Update the effect
   try {
     const updatedEffect = await prisma.effect.update({
       where: { id: { actionId: effect.actionId, goalId: effect.goalId } },
       data: {
         impactType: effect.impactType,
-        dataSeries: dataSeries ? {
+        dataSeries: {
           upsert: {
             create: {
-              ...dataSeries,
-              unit: null,
-              authorId: session.user.id
+              values: effect.dataSeries.dateValues,
+              unit: effect.dataSeries.unit,
+              authorId: session.user.id,
             },
             update: {
-              ...dataSeries,
+              values: effect.dataSeries.dateValues,
+              unit: effect.dataSeries.unit,
             }
           }
-        } : undefined,
+        }
       },
     });
     // Invalidate old cache
