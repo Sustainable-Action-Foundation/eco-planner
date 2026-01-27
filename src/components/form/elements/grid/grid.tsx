@@ -86,13 +86,40 @@ export default function Grid({
       if (coordinates.column === 0) return
       setCoordinates({ row: coordinates.row, column: coordinates.column - 1 })
     }
+    if (e.key === 'Home') {
+      e.preventDefault()
+      setCoordinates({ row: coordinates.row, column: 0 })
+    }
+    if (e.key === 'End') {
+      e.preventDefault()
+      setCoordinates({ row: coordinates.row, column: columns.length - 1 })
+    }
+    if (e.key === 'Home' && e.ctrlKey) {
+      e.preventDefault()
+      setCoordinates({ row: 0, column: 0 })
+    }
+    if (e.key === 'End' && e.ctrlKey) {
+      e.preventDefault()
+      setCoordinates({ row: (React.Children.count(children) / columns.length) - 1, column: columns.length - 1 })
+    }
   }
 
   useEffect(() => {
     const key = keyFor(coordinates.row, coordinates.column)
-    const el = cellRefs.current.get(key)
-    el?.focus()
+    const cell = cellRefs.current.get(key)
+    if (!cell) return
+
+    const focusable = cell.querySelector<HTMLElement>(
+      'input, textarea, select, button, [tabindex]:not([tabindex="-1"])'
+    )
+
+    if (focusable) {
+      focusable.focus()
+    } else {
+      cell.focus()
+    }
   }, [coordinates])
+
 
   return (
     <div

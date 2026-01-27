@@ -120,15 +120,18 @@ export default function DataSeriesInputManual({
         Add new row {/* TODO: I18n */}
       </button>
       <Grid
-        props={{ className: 'grid', style: { gridTemplateColumns: '100px 100px' } }}
-        columns={['Year', 'Value']}
+        props={{ className: 'grid width-100 gap-25', style: { gridTemplateColumns: '100px 1fr 1fr' } }}
+        columns={['Year', 'Value', 'test']} // TODO: Maybe do theese as grid.columnheader or somn to allow better styling
       >
         {value.flatMap((item, index) => [
           <Grid.Cell key={`year-${index}`}>
-            {item.year} year
+             <input type="number" defaultValue={item.year ? item.year : ''}></input> {/* TODO: Need to make sure we handle tabindex here.  */}
           </Grid.Cell>,
           <Grid.Cell key={`data-${index}`}>
-            {item.data} data
+            <input type="number" defaultValue={item.data ? item.data : ''}></input> {/* TODO: Need to make sure we handle tabindex here.  */}
+          </Grid.Cell>,
+          <Grid.Cell key={`test-${index}`}>
+            <div>asdasd</div>
           </Grid.Cell>
         ])}
       </Grid>
