@@ -1,7 +1,6 @@
 import { GenericElement } from "@/components/types"
 import React, { useEffect, useState } from "react"
 
-// TODO: Set coordinates on mouse click
 // TODO: Abstract keycontrols
 // TODO: Figure out if we beed pageup/pagedown
 // TODO: Handle columnheaders the same as gridcells
@@ -16,11 +15,12 @@ type GridItemProps = {
   position?: coordinates
   children: React.ReactNode
   tabIndex?: 0 | -1
-  onKeyDown?: React.KeyboardEventHandler<HTMLDivElement>
+  onKeyDown?: React.KeyboardEventHandler<HTMLDivElement>,
+  onClick?: React.MouseEventHandler<HTMLDivElement> 
 }
 
 const GridCell = React.forwardRef<HTMLDivElement, GridItemProps>(
-  ({ children, position, tabIndex, onKeyDown }, ref) => (
+  ({ children, position, tabIndex, onKeyDown, onClick }, ref) => (
     <div
       ref={ref}
       role="gridcell"
@@ -28,6 +28,7 @@ const GridCell = React.forwardRef<HTMLDivElement, GridItemProps>(
       data-row={position?.row}
       data-column={position?.column}
       onKeyDown={onKeyDown}
+      onClick={onClick}
     >
       {children}
     </div>
@@ -36,7 +37,7 @@ const GridCell = React.forwardRef<HTMLDivElement, GridItemProps>(
 GridCell.displayName = "GridCell"
 
 const RowHeader = React.forwardRef<HTMLDivElement, GridItemProps>(
-  ({ children, position, tabIndex, onKeyDown }, ref) => (
+  ({ children, position, tabIndex, onKeyDown, onClick }, ref) => (
     <div
       ref={ref}
       role="rowheader"
@@ -44,6 +45,7 @@ const RowHeader = React.forwardRef<HTMLDivElement, GridItemProps>(
       data-row={position?.row}
       data-column={position?.column}
       onKeyDown={onKeyDown}
+      onClick={onClick}
     >
       {children}
     </div>
@@ -156,6 +158,7 @@ export default function Grid({
             position: { row, column },
             tabIndex,
             onKeyDown: handleKeyDown,
+            onClick: () => setCoordinates({row: row, column: column}), // Note that this might cause issues if our input inside the div is smaller than the actual div as we don't set focus here 
             ref: (el: HTMLDivElement | null) => {
               if (!el) return
               cellRefs.current.set(keyFor(row, column), el)
