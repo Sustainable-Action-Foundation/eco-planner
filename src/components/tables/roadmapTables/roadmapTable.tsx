@@ -17,6 +17,7 @@ export default async function RoadmapTable({
   | { roadmaps?: never; metaRoadmap: MetaRoadmap; }
 )): Promise<ReactNode> {
   const t = await serveTea(["components", "common"]);
+  
   // Failsafe in case wrong props are passed
   if (
     (!roadmaps && !metaRoadmap)
