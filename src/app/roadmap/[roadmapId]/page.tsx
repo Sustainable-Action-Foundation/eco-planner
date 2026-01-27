@@ -5,10 +5,9 @@ import { cookies } from "next/headers";
 import accessChecker from "@/lib/accessChecker";
 import Goals from "@/components/tables/goals";
 import Comments from "@/components/comments/comments";
-import { AccessLevel } from "@/types";
+import { AccessLevel, Roadmap } from "@/types";
 import ThumbnailGraph from "@/components/graphs/mainGraphs/thumbnailGraph";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { DataSeries, Goal } from "@prisma/client";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconEdit } from "@tabler/icons-react";
@@ -20,7 +19,7 @@ export async function generateMetadata(props: { params: Promise<{ roadmapId: str
   const [t, session, roadmap] = await Promise.all([
     serveTea("metadata"),
     getSession(await cookies()),
-    getOneRoadmap(params.roadmapId)
+    getOneRoadmap(params.roadmapId),
   ]);
 
   if (!session.user?.isLoggedIn) {
@@ -45,10 +44,10 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
   const [t, session, roadmap] = await Promise.all([
     serveTea(["pages", "common"]),
     getSession(await cookies()),
-    getOneRoadmap(params.roadmapId)
+    getOneRoadmap(params.roadmapId),
   ]);
 
-  const featuredGoals: Array<Goal & { dataSeries: DataSeries | null }> = roadmap?.goals.filter((goal) => goal.isFeatured) || [];
+  const featuredGoals: Roadmap["goals"] = roadmap?.goals.filter((goal) => goal.isFeatured) || [];
 
   let accessLevel: AccessLevel = AccessLevel.None;
   if (roadmap) {
@@ -85,7 +84,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
             {/* TODO: style link to better match surroundings */}
             <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>{t("pages:roadmap.show_series")}</Link>
           </p>
-          <div className="margin-top-100">           
+          <div className="margin-top-100">
             <TextEditor
               id="rich-description"
               editable={false}
@@ -94,7 +93,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
             />
           </div>
           {roadmap.description ? (
-            <div className="margin-top-100">           
+            <div className="margin-top-100">
               <TextEditor
                 id="rich-description"
                 editable={false}
@@ -123,7 +122,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
             style={{ height: 'fit-content' }}
           >
             {t("common:edit.roadmap_version")}
-            <IconEdit style={{minWidth: '24px'}} aria-hidden="true" />
+            <IconEdit style={{ minWidth: '24px' }} aria-hidden="true" />
           </Link>
         }
       </section>

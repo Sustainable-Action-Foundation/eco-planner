@@ -3,9 +3,10 @@ import { roadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getSession, LoginData } from "@/lib/session"
 import { goalSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
-import { Prisma, Roadmap } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
+import { Roadmap } from "@/types";
 
 /**
  * Gets specified roadmap and all goals for that roadmap.
