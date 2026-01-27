@@ -6,6 +6,7 @@ import { MetaRoadmap, Roadmap } from '@/types';
 import accessChecker from '@/lib/accessChecker';
 import serveTea from "@/lib/i18nServer";
 import Link from 'next/link';
+import { ReactNode } from "react";
 
 export default async function RoadmapTable({
   user,
@@ -14,7 +15,7 @@ export default async function RoadmapTable({
 }: { user: LoginData['user'] } & (
   | { roadmaps: Roadmap[]; metaRoadmap?: never; }
   | { roadmaps?: never; metaRoadmap: MetaRoadmap; }
-)) {
+)): Promise<ReactNode> {
   const t = await serveTea(["components", "common"]);
   // Failsafe in case wrong props are passed
   if (
@@ -25,13 +26,27 @@ export default async function RoadmapTable({
   const parsedRoadmaps: Roadmap[] = [];
 
   if (!roadmaps && metaRoadmap) {
-    for (const version of metaRoadmap.roadmapVersions) {
-      return {
-        ...version,
-        // Sets the metaRoadmap to the parent metaRoadmap, excluding the versions array
-        metaRoadmap: (({ roadmapVersions, ...data }) => data)(metaRoadmap),
-      }
+    const stripRoadmapVersions = (metaRoadmap: MetaRoadmap): Roadmap["metaRoadmap"] => {
+      const {
+        roadmapVersions,
+        ...interestingData
+      } = metaRoadmap;
+      return interestingData satisfies Roadmap["metaRoadmap"];
+    };
+
+    for (const roadmapVersion of metaRoadmap.roadmapVersions) {
+      // The roadmap versions that come with metaRoadmap omit relations, therefor these empty arrays, sorry 
+      parsedRoadmaps.push({
+        ...roadmapVersion,
+        metaRoadmap: stripRoadmapVersions(metaRoadmap),
+        goals: [],
+        actions: [],
+        comments: [],
+      });
     }
+  }
+  else {
+    parsedRoadmaps.push(...roadmaps);
   }
 
   return <>

@@ -28,7 +28,7 @@ export async function generateMetadata(props: { params: Promise<{ metaRoadmapId:
       og_image_url: '/images/og_wind.png'
     })
   }
- 
+
   return buildMetadata({
     title: metaRoadmap?.name,
     description: metaRoadmap?.description,
@@ -63,8 +63,8 @@ export default async function Page(props: { params: Promise<{ metaRoadmapId: str
             <div>
               <span style={{ color: 'gray' }}>{t("pages:roadmap_series_one.title_legend")}</span>
               <h1 className="margin-0">{metaRoadmap.name}</h1>
-              <small>{t("pages:roadmap_series_one.description_legend")}</small>    
-              <div className="margin-block-100">           
+              <small>{t("pages:roadmap_series_one.description_legend")}</small>
+              <div className="margin-block-100">
                 <TextEditor
                   id="rich-description"
                   editable={false}
