@@ -167,7 +167,7 @@ export function deltaToAbsolute(deltaDataSeries: string): string {
   if (absoluteArray.length < Years.length) {
     // In the database the array would be padded with null-values if a short array were to be sent. This is basically equivalent to padding with zeros, but zero-padding is more user-friendly.
     // In order to replicate the result of sending a short delta array, we need to fill the rest of the array with the last number in the array (no delta).
-    const lastNumber = absoluteArray.slice(-1)[0];
+    const lastNumber = absoluteArray.at(-1);
     while (absoluteArray.length < Years.length) {
       absoluteArray.push(lastNumber || '0');
     }

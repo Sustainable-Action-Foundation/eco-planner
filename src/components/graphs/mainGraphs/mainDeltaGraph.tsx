@@ -45,7 +45,7 @@ export default function MainDeltaGraph({
       },
       labels: { formatter: graphNumberFormatter },
       seriesName: [
-        (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
+        (goal.name || goal.indicatorParameter).split('\\').at(-1) ?? "",
         t("graphs:common.baseline_scenario"),
         t("graphs:common.expected_outcome"),
         (secondaryGoal?.dataSeries?.unit === goal.dataSeries.unit) ? (secondaryGoal.name || secondaryGoal.indicatorParameter) : '',
@@ -77,7 +77,7 @@ export default function MainDeltaGraph({
     });
   }
   chart.push({
-    name: (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
+    name: (goal.name || goal.indicatorParameter).split('\\').at(-1),
     data: mainSeries,
     type: 'line',
   });

@@ -1,12 +1,13 @@
 "use client";
 
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
-import type { Effect, MetaRoadmap, Roadmap } from "@prisma/client";
+import type { MetaRoadmap, Roadmap } from "@prisma/client";
 import { parsePeriod } from "@/lib/api/utility";
 import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import { useTranslation } from "react-i18next";
-import { Goal } from "@/types";
+import { Effect, Goal, isISOIshDate } from "@/types";
+import { dataSeriesToDateValues } from "@/functions/recipe/extractors";
 
 export default function MainGraph({
   goal,
@@ -49,10 +50,12 @@ export default function MainGraph({
         title: { text: goal.dataSeries.unit === null ? t("common:tsx.unitless") : goal.dataSeries.unit || t("common:tsx.unit_missing") },
         labels: { formatter: graphNumberFormatter },
         seriesName: [
-          (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
+          (goal.name || goal.indicatorParameter).split('\\').at(-1) ?? "",
           t("graphs:common.baseline_scenario"),
           t("graphs:common.expected_outcome"),
-          (secondaryGoal?.dataSeries?.unit === goal.dataSeries.unit) ? (secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0] : "",
+          (secondaryGoal?.dataSeries?.unit === goal.dataSeries.unit)
+            ? (secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').at(-1) ?? ""
+            : "",
           historicalData ? `${historicalData.metadata[0]?.label}` : "",
         ]
       }
@@ -61,7 +64,7 @@ export default function MainGraph({
       x: { format: 'yyyy' },
       shared: true,
     },
-  }
+  };
 
   const mainChart: ApexAxisChartSeries = [];
 
@@ -107,21 +110,25 @@ export default function MainGraph({
         });
       }
     }
-  } else if (effects.length > 0) {
+  }
+  else if (effects.length > 0) {
     // If no baseline is set, use the first non-null value as baseline
-    const firstNonNull = Years.find(i => goal.dataSeries && Number.isFinite((goal.dataSeries)[i]));
+    const firstNonNull = goal.dataSeries.values.find(v => Number.isFinite(v.value))?.timestamp.getUTCFullYear()?.toString();
+    if (!firstNonNull || !isISOIshDate(firstNonNull)) throw new Error("Invalid date format in goal data series.");
+
+    const dataSeries = dataSeriesToDateValues(goal.dataSeries);
 
     if (firstNonNull) {
-      const totalEffect = calculatePredictedOutcome(effects, goal.dataSeries[firstNonNull] as number)
+      const totalEffect = calculatePredictedOutcome(effects, dataSeries.dateValues[firstNonNull]);
 
       // Only draw if totalEffect has values
       if (totalEffect.length > 0) {
         // Flat line based on goal.dataSeries[firstNonNull]
         const baseline = [];
-        for (const i of Years) {
+        for (const entry of totalEffect) {
           baseline.push({
-            x: new Date(i.replace('val', '')).getTime(),
-            y: goal.dataSeries[firstNonNull]
+            x: entry.x,
+            y: dataSeries.dateValues[firstNonNull],
           });
         }
         mainChart.push({
@@ -162,12 +169,10 @@ export default function MainGraph({
 
   if (secondaryGoal?.dataSeries) {
     const secondarySeries = [];
-    for (const i of Years) {
-      const value = secondaryGoal.dataSeries[i];
-
+    for (const dateEntry of secondaryGoal.dataSeries.values) {
       secondarySeries.push({
-        x: new Date(i.replace('val', '')).getTime(),
-        y: Number.isFinite(value) ? value : null,
+        x: dateEntry.timestamp.getTime(),
+        y: dateEntry.value,
       });
     }
     mainChart.push({
@@ -181,7 +186,7 @@ export default function MainGraph({
       (mainChartOptions.yaxis as ApexYAxis[]).push({
         title: { text: `${t("graphs:main_graph.secondary_goal", { unit: secondaryGoal.dataSeries.unit })}` },
         labels: { formatter: graphNumberFormatter },
-        seriesName: [(secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0]],
+        seriesName: [(secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').at(-1) ?? ""],
         opposite: true,
       });
     }
@@ -189,23 +194,22 @@ export default function MainGraph({
 
   if (parentGoal?.dataSeries) {
     const nationalSeries = [];
-    for (const i of Years) {
-      const value = parentGoal.dataSeries[i];
 
+    for (const dateEntry of parentGoal.dataSeries.values) {
       nationalSeries.push({
-        x: new Date(i.replace('val', '')).getTime(),
-        y: Number.isFinite(value) ? value : null,
+        x: dateEntry.timestamp.getTime(),
+        y: dateEntry.value,
       });
     }
     mainChart.push({
-      name: t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name || "" }),
+      name: t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name ?? "" }),
       data: nationalSeries,
       type: 'line',
     });
     (mainChartOptions.yaxis as ApexYAxis[]).push({
       title: { text: t("graphs:main_graph.national_goal") },
       labels: { formatter: graphNumberFormatter },
-      seriesName: [t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name || "" })],
+      seriesName: [t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name ?? "" })],
       opposite: true,
     });
   }

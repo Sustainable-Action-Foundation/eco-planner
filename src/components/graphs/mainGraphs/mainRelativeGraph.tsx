@@ -38,7 +38,7 @@ export default function MainRelativeGraph({
     });
   }
   chart.push({
-    name: (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
+    name: (goal.name || goal.indicatorParameter).split('\\').at(-1),
     data: mainSeries,
     type: 'line',
   });

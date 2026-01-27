@@ -44,7 +44,7 @@ export default function SiblingGraph({
     // Only add the series to the graph if it isn't all null/0
     if (mainSeries.filter((entry) => entry.y).length > 0) {
       dataPoints.push({
-        name: (entry.name || entry.indicatorParameter).split('\\').slice(-1)[0],
+        name: (entry.name || entry.indicatorParameter).split('\\').at(-1),
         data: mainSeries,
         type: isStacked ? 'area' : 'line',
       })
