@@ -20,8 +20,7 @@ import { ApiTableContent } from "@/lib/api/apiTypes";
 import { getSession } from "@/lib/session";
 import serveTea from "@/lib/i18nServer";
 import prisma from "@/prismaClient";
-import { AccessControlled, AccessLevel } from "@/types";
-import type { DataSeries, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
+import { AccessControlled, AccessLevel, Goal, Roadmap } from "@/types";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -121,8 +120,8 @@ export default async function Page(
   }
 
   // Fetch parent goal
-  let parentGoal: Goal & { dataSeries: DataSeries | null } | null = null;
-  let parentGoalRoadmap: Roadmap & { metaRoadmap: MetaRoadmap } | null = null;
+  let parentGoal: Goal | null = null;
+  let parentGoalRoadmap: Roadmap | null = null;
   if (roadmap?.metaRoadmap.parentRoadmapId) {
     try {
       // Get the parent roadmap (if any)

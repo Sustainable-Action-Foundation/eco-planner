@@ -17,7 +17,7 @@ export default function MainDeltaGraph({
   secondaryGoal: Goal | null,
   parentGoal: Goal | null,
   parentGoalRoadmap: Roadmap | null,
-  effects: Effect[],
+  effects: Effect[] | Goal["effects"],
 }) {
   const { t } = useTranslation("graphs");
 

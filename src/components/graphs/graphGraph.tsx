@@ -10,7 +10,7 @@ import MainGraph from "./mainGraphs/mainGraph";
 import MainRelativeGraph from "./mainGraphs/mainRelativeGraph";
 import SecondaryGoalSelector from "./secondaryGraphSelector";
 import { Trans, useTranslation } from "react-i18next";
-import { Effect, Goal, Roadmap } from "@/types";
+import type { Effect, Goal, Roadmap } from "@/types";
 
 export const GraphType = {
   Main: "MAIN",
@@ -33,7 +33,7 @@ export default function GraphGraph({
   parentGoal: Goal | null,
   parentGoalRoadmap: Roadmap | null,
   historicalData?: ApiTableContent | null,
-  effects: Effect[],
+  effects: Effect[] | Goal["effects"],
   children: React.ReactNode
 }) {
   const { t } = useTranslation("graphs");

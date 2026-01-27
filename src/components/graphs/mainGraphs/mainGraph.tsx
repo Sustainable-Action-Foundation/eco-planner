@@ -22,7 +22,7 @@ export default function MainGraph({
   parentGoal: Goal | null,
   parentGoalRoadmap: Roadmap & { metaRoadmap: MetaRoadmap } | null,
   historicalData?: ApiTableContent | null,
-  effects: Effect[],
+  effects: Effect[] | Goal["effects"],
 }) {
   const { t } = useTranslation("graphs");
 
