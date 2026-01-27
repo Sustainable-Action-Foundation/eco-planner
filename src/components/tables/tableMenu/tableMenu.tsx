@@ -3,8 +3,7 @@
 import styles from './tableMenu.module.css' with { type: "css" }
 import Link from "next/link";
 import { useRef } from "react";
-import { Action, DataSeries, Effect, Goal, MetaRoadmap } from "@prisma/client";
-import { AccessLevel } from "@/types";
+import { AccessLevel, Action, DataSeries, Effect, Goal, MetaRoadmap } from "@/types";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
 import { useTranslation } from "react-i18next";
