@@ -81,15 +81,34 @@ export default function DataSeriesInputManual({
       <Grid // TODO: Add caption  
         props={{ className: `grid width-100 align-items-center ${styles.grid}`, style: { gridTemplateColumns: '100px 1fr auto' } }}
         columns={['Year', 'Value', 'Action']} // TODO: Maybe do theese as grid.columnheader or somn to allow better styling
+        data-width='1000'
       >
-        {value.flatMap((item, index) => [
-          <Grid.Cell key={`year-${index}`}>
+        {value.flatMap((item, index) => {
+         const isLastRow = index >= value.length - 1;
+          return [
+          <Grid.Cell
+            props={{
+              style: {borderRight: '1px solid var(--gray-80)'}
+            }} 
+            key={`year-${index}`}
+          >
             <input type="number" defaultValue={item.year ? item.year : ''}></input> {/* TODO: Need to make sure we handle tabindex here.  */}
           </Grid.Cell>,
-          <Grid.Cell key={`data-${index}`}>
+          <Grid.Cell
+            props={{
+              style: {borderRight: '1px solid var(--gray-80)'}
+            }}
+            key={`data-${index}`}
+          >
             <input type="number" defaultValue={item.data ? item.data : ''}></input> {/* TODO: Need to make sure we handle tabindex here.  */}
           </Grid.Cell>,
-          <Grid.Cell key={`test-${index}`}>
+          <Grid.Cell
+            props={{
+              className: 'display-flex align-items-center',
+              style: {...(isLastRow ? {} : { borderBottom: '1px solid var(--gray-80)' }), backgroundColor: 'var(--gray-95)'}
+            }}
+            key={`test-${index}`}
+          >
             <button
               className="padding-25 grid round transparent margin-inline-auto"
               type="button"
@@ -101,7 +120,7 @@ export default function DataSeriesInputManual({
               <IconTrashXFilled height={20} width={20} style={{ maxWidth: '20' }} aria-hidden="true" />
             </button>
           </Grid.Cell>
-        ])}
+        ]})}
       </Grid>
       <button
         className="rounded font-weight-500 flex align-items-center gap-50 padding-50 padding-right-75 margin-top-50" style={{ lineHeight: '1', transform: 'scale(1)' }}

@@ -12,6 +12,7 @@ type coordinates = {
 }
 
 type GridItemProps = {
+  props?: GenericElement,
   position?: coordinates
   children: React.ReactNode
   tabIndex?: 0 | -1
@@ -20,8 +21,10 @@ type GridItemProps = {
 }
 
 const GridCell = React.forwardRef<HTMLDivElement, GridItemProps>(
-  ({ children, position, tabIndex, onKeyDown, onClick }, ref) => (
+  ({ props, children, position, tabIndex, onKeyDown, onClick }, ref) => (
     <div
+      className={`${props?.className ? `${props.className} ` : ''}`}
+      style={{ ...(props?.style || {}) }}
       ref={ref}
       role="gridcell"
       tabIndex={tabIndex}
@@ -37,8 +40,10 @@ const GridCell = React.forwardRef<HTMLDivElement, GridItemProps>(
 GridCell.displayName = "GridCell"
 
 const RowHeader = React.forwardRef<HTMLDivElement, GridItemProps>(
-  ({ children, position, tabIndex, onKeyDown, onClick }, ref) => (
+  ({ props, children, position, tabIndex, onKeyDown, onClick }, ref) => (
     <div
+      className={`${props?.className ?  `${props.className} ` : ''}`}
+      style={{ ...(props?.style || {}) }}
       ref={ref}
       role="rowheader"
       tabIndex={tabIndex}
@@ -73,7 +78,7 @@ export default function Grid({
   const cellRefs = React.useRef<Map<string, HTMLDivElement>>(new Map())
   const keyFor = (row: number, column: number) => `${row}-${column}`
 
-  function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+  function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) { /* TODO: We can probably create an "edit" mode weere just disable theese so the user isnt thrown out of the input when trying to type (if we are not in edit mode we overwrite existing data when typing maybe? see google docs...) */
     if (e.key === 'ArrowDown') {
       e.preventDefault()
       if (coordinates.row === (React.Children.count(children) / columns.length) - 1) return // Total amount of rows minus 1 to get index

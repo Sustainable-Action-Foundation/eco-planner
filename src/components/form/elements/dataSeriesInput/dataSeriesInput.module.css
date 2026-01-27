@@ -58,6 +58,7 @@ fieldset .spreadsheet-label:last-child {
 
 .grid [role="gridcell"], 
 .grid [role="rowheader"] {
+  border-bottom: 1px solid var(--gray-80);
   height: 100%;
   background-color: var(--secondary-neutral);
 }
@@ -66,4 +67,8 @@ fieldset .spreadsheet-label:last-child {
 .grid [role="rowheader"] input {
   border: 0;
   background-color: transparent;
+}
+
+.grid [role="gridcell"]:nth-last-child(-n + 3) { /* Note: Corresponds to the amount of columns in our grid */
+  border-bottom: none;
 }
