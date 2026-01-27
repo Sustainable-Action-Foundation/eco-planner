@@ -2,7 +2,7 @@
 
 import { closeModal, openModal } from "./modalFunctions";
 import { useRef, useState } from "react";
-import { GoalCreateInput, Goal, Years, DateValues, isDateValues, JSONValue, isDateValues, nullFullDataSeriesValueField } from "@/types";
+import { GoalCreateInput, Goal, DateValues, JSONValue, isDateValues } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
@@ -37,17 +37,11 @@ export default function CopyAndScale({
     // Try parsing the data series object from the recipe editor
     let resultingDataSeries: DateValues;
     try {
-      const unparsedDataSeries = JSON.parse(form.get("resultingDataSeries") as string) as JSONValue;
+      const parsedDataSeries = JSON.parse(form.get("resultingDataSeries") as string) as JSONValue;
 
       // At first expect the data series to be partial
-      if (!isDateValues(unparsedDataSeries)) {
-        throw new Error("Parsed data series does not match expected structure");
-      }
-
-      // Make it non partial
-      const parsedDataSeries = { ...nullFullDataSeriesValueField, ...unparsedDataSeries };
       if (!isDateValues(parsedDataSeries)) {
-        throw new Error("Parsed data series is missing some years or has incorrect structure");
+        throw new Error("Parsed data series does not match expected structure");
       }
 
       resultingDataSeries = parsedDataSeries;
@@ -55,6 +49,24 @@ export default function CopyAndScale({
     catch (error) {
       setIsLoading(false);
       console.error("Failed to parse resulting data series:", error);
+      return;
+    }
+
+    let resultingUnit: string | null = null;
+    try {
+      const parsedUnit = JSON.parse(form.get("resultingDataSeriesUnit") as string) as JSONValue;
+
+      if (typeof parsedUnit === "string") {
+        resultingUnit = parsedUnit;
+      } else if (parsedUnit === null) {
+        resultingUnit = null;
+      } else {
+        throw new Error("Parsed data series unit is not a string or null");
+      }
+    }
+    catch (error) {
+      setIsLoading(false);
+      console.error("Failed to parse resulting data series unit:", error);
       return;
     }
 
@@ -76,12 +88,6 @@ export default function CopyAndScale({
       return;
     }
 
-    // Make the data series into an api compatible string array
-    const rawDataSeries: string[] = Years.map(year => {
-      const value = resultingDataSeries[year];
-      return value ? value.toString() : "";
-    });
-
     const formData: GoalCreateInput = {
       goalId: undefined,
       timestamp: undefined,
@@ -95,12 +101,14 @@ export default function CopyAndScale({
       externalTableId: null,
       externalSelection: null,
 
+      dataSeries: { dateValues: resultingDataSeries, unit: resultingUnit, },
       recipeUsed: recipeUsed,
 
-      rawDataSeries: rawDataSeries,
-      rawDataSeriesUnit: goal.dataSeries?.unit,
-      rawBaselineDataSeries: undefined,
-      rawBaselineDataSeriesUnit: undefined,
+      recipeSuggestions: undefined,
+
+      // TODO: scale baseline
+      baseline: undefined,
+      baselineId: undefined,
 
       roadmapId: copyToId as string ?? "",
       // TODO: copy tags?
@@ -167,6 +175,7 @@ export default function CopyAndScale({
 
             <FormIntegration
               DataSeriesFormElement={<input name="resultingDataSeries" />}
+              UnitFormElement={<input name="resultingDataSeriesUnit" />}
               RecipeFormElement={<input name="resultingRecipe" />}
             />
           </RecipeContextProvider>

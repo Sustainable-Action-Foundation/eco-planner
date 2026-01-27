@@ -2,6 +2,7 @@ import { ActionImpactType, Prisma, RoadmapType } from "@prisma/client";
 import { actionInclusionSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, dataSeriesInclusionSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, roadmapInclusionSelection } from "./fetchers/inclusionSelectors";
 import { Recipe } from "./functions/recipe/types";
 import { Unit } from "mathjs";
+import { SmartRecipe } from "./functions/recipe/smartRecipe";
 
 /**
  * A utility function for helping with finding where something fails in a typeguard chain.
@@ -368,20 +369,13 @@ export type GoalCreateInput = {
   externalTableId: string | null | undefined;
   externalSelection: string | null | undefined;
 
-  // Recipes
-  recipeUsed: Recipe | null | undefined; // Note: not the hash, the entire recipe object. Server will hash safely.
-  // TODO: Creating recipe suggestions is a future feature
-  // recipeSuggestions: Recipe[] | null | undefined; // Note: not the hashes, the entire recipe objects. Server will hash safely.
+  recipeSuggestions: Recipe[] | null | undefined;
 
-  /* 
-   * TODO: DEPRECATE - raw data series should be made into data series before posting to the API and use 1:1 recipes instead 
-   */
-  // Data series
-  rawDataSeries: DateValues | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
-  rawDataSeriesUnit: string | null | undefined; // Combines with rawDataSeries in the API
-  // TODO: send baselines as a DataSeriesValueFields object in the future for consistency's sake
-  rawBaselineDataSeries: DateValues | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
-  rawBaselineDataSeriesUnit: string | null | undefined; // Combines with rawBaselineDataSeries in the API
+  dataSeries: DateValuesWithUnit | null | undefined;
+  recipeUsed: SmartRecipe | Recipe | null | undefined;
+
+  baseline: DateValuesWithUnit | null | undefined;
+  baselineId: string | null | undefined;
 
   // Relations
   // authorId: string; // Derived from session in the API
