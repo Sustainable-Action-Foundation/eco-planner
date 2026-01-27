@@ -13,9 +13,10 @@ type GridItemProps = {
   onKeyDown?: React.KeyboardEventHandler<HTMLDivElement>
 }
 
-function GridCell({ children, position, tabIndex, onKeyDown }: GridItemProps) {
-  return (
+const GridCell = React.forwardRef<HTMLDivElement, GridItemProps>(
+  ({ children, position, tabIndex, onKeyDown }, ref) => (
     <div
+      ref={ref}
       role="gridcell"
       tabIndex={tabIndex}
       data-row={position?.row}
@@ -25,11 +26,13 @@ function GridCell({ children, position, tabIndex, onKeyDown }: GridItemProps) {
       {children}
     </div>
   )
-}
+)
+GridCell.displayName = "GridCell"
 
-function RowHeader({ children, position, tabIndex, onKeyDown }: GridItemProps) {
-  return (
+const RowHeader = React.forwardRef<HTMLDivElement, GridItemProps>(
+  ({ children, position, tabIndex, onKeyDown }, ref) => (
     <div
+      ref={ref}
       role="rowheader"
       tabIndex={tabIndex}
       data-row={position?.row}
@@ -39,7 +42,8 @@ function RowHeader({ children, position, tabIndex, onKeyDown }: GridItemProps) {
       {children}
     </div>
   )
-}
+)
+RowHeader.displayName = "RowHeader"
 
 /***
  * A css grid needs to be defined and passed under props for layout
@@ -58,27 +62,36 @@ export default function Grid({
 
   const [coordinates, setCoordinates] = useState<{ row: number, column: number }>({ row: 0, column: 0 }) /* TODO: Switch name to active cell or somn... */
 
+  const cellRefs = React.useRef<Map<string, HTMLDivElement>>(new Map())
+  const keyFor = (row: number, column: number) => `${row}-${column}`
+
   function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     if (e.key === 'ArrowDown') {
-      if (coordinates.row === (React.Children.count(children) / columns.length) - 1 ) return // Total amount of rows minus 1 to get index
-      setCoordinates({row: coordinates.row + 1, column: coordinates.column})
+      e.preventDefault()
+      if (coordinates.row === (React.Children.count(children) / columns.length) - 1) return // Total amount of rows minus 1 to get index
+      setCoordinates({ row: coordinates.row + 1, column: coordinates.column })
     }
     if (e.key === 'ArrowUp') {
+      e.preventDefault()
       if (coordinates.row === 0) return
-      setCoordinates({row: coordinates.row - 1, column: coordinates.column})
+      setCoordinates({ row: coordinates.row - 1, column: coordinates.column })
     }
     if (e.key === 'ArrowRight') {
-      if (coordinates.column === columns.length ) return
-      setCoordinates({row: coordinates.row, column: coordinates.column + 1})
+      e.preventDefault()
+      if (coordinates.column === columns.length - 1) return
+      setCoordinates({ row: coordinates.row, column: coordinates.column + 1 })
     }
     if (e.key === 'ArrowLeft') {
+      e.preventDefault()
       if (coordinates.column === 0) return
-      setCoordinates({row: coordinates.row, column: coordinates.column - 1})
+      setCoordinates({ row: coordinates.row, column: coordinates.column - 1 })
     }
   }
 
   useEffect(() => {
-    console.log(coordinates)
+    const key = keyFor(coordinates.row, coordinates.column)
+    const el = cellRefs.current.get(key)
+    el?.focus()
   }, [coordinates])
 
   return (
@@ -93,22 +106,29 @@ export default function Grid({
       ))}
       {React.Children.map(children, (child, index) => {
         if (
-          !React.isValidElement<GridItemProps>(child) ||
+          !React.isValidElement(child) ||
           (child.type !== GridCell && child.type !== RowHeader)
         ) {
           return child
         }
 
-        const row = Math.floor(index / columns.length) 
+        const row = Math.floor(index / columns.length)
         const column = index % columns.length
 
         let tabIndex: 0 | -1 = -1
         if (coordinates.row === row && coordinates.column === column) { tabIndex = 0 }
-         return React.cloneElement(child, {
-          position: { row, column },
-          tabIndex,
-          onKeyDown: handleKeyDown
-        })
+        return React.cloneElement(
+          child as React.ReactElement<GridItemProps & React.RefAttributes<HTMLDivElement>>,
+          {
+            position: { row, column },
+            tabIndex,
+            onKeyDown: handleKeyDown,
+            ref: (el: HTMLDivElement | null) => {
+              if (!el) return
+              cellRefs.current.set(keyFor(row, column), el)
+            }
+          }
+        )
       })}
     </div>
   )
