@@ -4,309 +4,143 @@ import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/session";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
-import { AccessControlled, ClientError, GoalCreateInput, GoalUpdateInput, JSONValue, DateValues, isDateValues, isDateValues } from "@/types";
+import { AccessControlled, ClientError, GoalCreateInput, GoalUpdateInput, JSONValue, DateValues, isDateValues, isStandardObject, isDateValuesWithUnit } from "@/types";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { Prisma } from "@prisma/client";
 import crypto from 'crypto';
-import dataSeriesPrep from "./dataSeriesPrep";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { cleanRecipe, evaluateRecipe } from "@/functions/recipe/parseRecipe";
+import { isRecipe, isSmartRecipe } from "@/functions/recipe/types";
 
 // Type guards
-function isGoalCreate(goal: JSONValue): goal is GoalCreateInput {
-  return (
-    (
-      typeof goal === "object" &&
-      goal !== null &&
-      !Array.isArray(goal)
-    ) &&
+function isGoalCreate(goal: unknown): goal is GoalCreateInput {
+  if (!isStandardObject(goal)) return false;
 
-    // name: string | null | undefined;
-    (
-      typeof goal.name === 'string' ||
-      goal.name === null ||
-      goal.description === undefined
-    ) &&
+  if ("goalId" in goal) return false;
+  if ("timestamp" in goal) return false;
 
-    // description: string | null | undefined;
-    (
-      typeof goal.description === 'string' ||
-      goal.description === null ||
-      goal.description === undefined
-    ) &&
+  if (!("roadmapId" in goal) || typeof goal.roadmapId !== 'string') return false;
+  if (!("indicatorParameter" in goal) || typeof goal.indicatorParameter !== 'string') return false;
+  if (!("name" in goal) || !(typeof goal.name === 'string' || goal.name === null || goal.name === undefined)) return false;
+  if (!("description" in goal) || !(typeof goal.description === 'string' || goal.description === null || goal.description === undefined)) return false;
+  if (!("isFeatured" in goal) || !(typeof goal.isFeatured === 'boolean' || goal.isFeatured === undefined)) return false;
+  if (!("externalDataset" in goal) || !(typeof goal.externalDataset === 'string' || goal.externalDataset === null || goal.externalDataset === undefined)) return false;
+  if (!("externalTableId" in goal) || !(typeof goal.externalTableId === 'string' || goal.externalTableId === null || goal.externalTableId === undefined)) return false;
+  if (!("externalSelection" in goal) || !(typeof goal.externalSelection === 'string' || goal.externalSelection === null || goal.externalSelection === undefined)) return false;
 
-    // indicatorParameter: string;
+  if ("recipeSuggestions" in goal && !(
     (
-      typeof goal.indicatorParameter === 'string'
-    ) &&
+      Array.isArray(goal.recipeSuggestions)
+      && (goal.recipeSuggestions.every(isRecipe) || goal.recipeSuggestions.every(isSmartRecipe))
+    )
+    || goal.recipeSuggestions === null
+    || goal.recipeSuggestions === undefined
+  )) return false;
 
-    // isFeatured: boolean | undefined;
-    (
-      typeof goal.isFeatured === 'boolean' ||
-      goal.isFeatured === undefined
-    ) &&
+  if (!("dataSeries" in goal) || !(
+    goal.dataSeries === null
+    || goal.dataSeries === undefined
+    || isStandardObject(goal.dataSeries)
+    && isDateValuesWithUnit(goal.dataSeries)
+  )) return false;
+  if (!("dataSeriesId" in goal) || !(typeof goal.dataSeriesId === 'string' || goal.dataSeriesId === null || goal.dataSeriesId === undefined)) return false;
+  if (!("dataSeriesRecipe" in goal) || !(
+    goal.dataSeriesRecipe === null
+    || goal.dataSeriesRecipe === undefined
+    || isStandardObject(goal.dataSeriesRecipe)
+    && isRecipe(goal.dataSeriesRecipe)
+    && isSmartRecipe(goal.dataSeriesRecipe)
+  )) return false;
 
-    // externalDataset: string | null | undefined;
-    (
-      typeof goal.externalDataset === 'string' ||
-      goal.externalDataset === undefined ||
-      goal.externalDataset === null
-    ) &&
+  if (!("baseline" in goal) || !(
+    goal.baseline === null
+    || goal.baseline === undefined
+    || isStandardObject(goal.baseline)
+    && isDateValuesWithUnit(goal.baseline)
+  )) return false;
+  if (!("baselineId" in goal) || !(typeof goal.baselineId === 'string' || goal.baselineId === null || goal.baselineId === undefined)) return false;
+  if (!("baselineRecipe" in goal) || !(
+    goal.baselineRecipe === null
+    || goal.baselineRecipe === undefined
+    || isStandardObject(goal.baselineRecipe)
+    && isRecipe(goal.baselineRecipe)
+    && isSmartRecipe(goal.baselineRecipe)
+  )) return false;
 
-    // externalTableId: string | null | undefined;
-    (
-      typeof goal.externalTableId === 'string' ||
-      goal.externalTableId === undefined ||
-      goal.externalTableId === null
-    ) &&
-
-    // externalSelection: string | null | undefined;
-    (
-      typeof goal.externalSelection === 'string' ||
-      goal.externalSelection === undefined ||
-      goal.externalSelection === null
-    ) &&
-
-    // recipeUsed: Recipe | null | undefined;
-    (
-      typeof goal.recipe === 'string' ||
-      goal.recipe === undefined ||
-      goal.recipe === null
-    ) &&
-
-    // rawDataSeries: DataSeriesValueFields | string[] | undefined;
-    (
-      goal.rawDataSeries === undefined ||
-      isDateValues(goal.rawDataSeries) ||
-      (
-        Array.isArray(goal.rawDataSeries) &&
-        goal.rawDataSeries.every((entry: JSONValue) => (
-          typeof entry === 'string'
-        ))
-      )
-    ) &&
-
-    // rawDataSeriesUnit: string | null | undefined;
-    (
-      typeof goal.rawDataSeriesUnit === 'string' ||
-      goal.rawDataSeriesUnit === undefined ||
-      goal.rawDataSeriesUnit === null
-    ) &&
-
-    // rawBaselineDataSeries: DataSeriesValueFields | string[] | undefined;
-    (
-      goal.rawBaselineDataSeries === undefined ||
-      isDateValues(goal.rawBaselineDataSeries) ||
-      (
-        Array.isArray(goal.rawBaselineDataSeries) &&
-        goal.rawBaselineDataSeries.every((entry: JSONValue) => (
-          typeof entry === 'string'
-        ))
-      )
-    ) &&
-
-    // rawBaselineDataSeriesUnit: string | null | undefined;
-    (
-      typeof goal.rawBaselineDataSeriesUnit === 'string' ||
-      goal.rawBaselineDataSeriesUnit === undefined ||
-      goal.rawBaselineDataSeriesUnit === null
-    ) &&
-
-    // roadmapId: string;
-    (
-      typeof goal.roadmapId === 'string'
-    ) &&
-
-    // rawTags: string[] | null | undefined;
-    (
-      goal.rawTags === undefined ||
-      goal.rawTags === null ||
-      (
-        Array.isArray(goal.rawTags) &&
-        goal.rawTags.every((entry: JSONValue) => (
-          typeof entry === 'string'
-        ))
-      )
-    ) &&
-
-    // TODO: Deprecated - will be moved to description
-    // links: { url: string, description?: string | null }[] | null | undefined;
-    (
-      goal.links === undefined ||
-      goal.links === null ||
-      (
-        Array.isArray(goal.links) &&
-        goal.links.every((entry: JSONValue) => (
-          (
-            typeof entry === 'object' &&
-            entry !== null &&
-            !Array.isArray(entry)
-          ) &&
-
-          typeof entry.url === 'string' &&
-          (
-            typeof entry.description === 'string' ||
-            entry.description === undefined ||
-            entry.description === null
-          )
-        ))
+  if (!("links" in goal) || !(
+    goal.links === undefined
+    || goal.links === null
+    || (
+      Array.isArray(goal.links)
+      && goal.links.every(link =>
+        isStandardObject(link)
+        && "url" in link && typeof link.url === 'string'
+        && (!("description" in link) || typeof link.description === 'string' || link.description === null)
       )
     )
-  );
+  )) return false;
+
+  return true;
 }
 
-function isGoalUpdate(goal: JSONValue): goal is GoalUpdateInput {
-  return (
-    (
-      typeof goal === "object" &&
-      goal !== null &&
-      !Array.isArray(goal)
-    ) &&
+function isGoalUpdate(goal: unknown): goal is GoalUpdateInput {
+  if (!isStandardObject(goal)) return false;
 
-    // goalId: string;
-    (
-      typeof goal.goalId === 'string'
-    ) &&
+  if (!("goalId" in goal) || typeof goal.goalId !== 'string') return false;
+  if (!("timestamp" in goal) || typeof goal.timestamp !== 'number') return false;
 
-    // timestamp: number;
-    (
-      typeof goal.timestamp === 'number'
-    ) &&
+  if (!("indicatorParameter" in goal) || !(typeof goal.indicatorParameter === 'string' || goal.indicatorParameter === null || goal.indicatorParameter === undefined)) return false;
+  if (!("name" in goal) || !(typeof goal.name === 'string' || goal.name === null || goal.name === undefined)) return false;
+  if (!("description" in goal) || !(typeof goal.description === 'string' || goal.description === null || goal.description === undefined)) return false;
+  if (!("isFeatured" in goal) || !(typeof goal.isFeatured === 'boolean' || goal.isFeatured === undefined)) return false;
+  if (!("externalDataset" in goal) || !(typeof goal.externalDataset === 'string' || goal.externalDataset === null || goal.externalDataset === undefined)) return false;
+  if (!("externalTableId" in goal) || !(typeof goal.externalTableId === 'string' || goal.externalTableId === null || goal.externalTableId === undefined)) return false;
+  if (!("externalSelection" in goal) || !(typeof goal.externalSelection === 'string' || goal.externalSelection === null || goal.externalSelection === undefined)) return false;
 
-    // name: string | null | undefined;
-    (
-      typeof goal.name === 'string' ||
-      goal.name === null ||
-      goal.description === undefined
-    ) &&
+  if ("dataSeries" in goal && !(
+    goal.dataSeries === null
+    || goal.dataSeries === undefined
+    || isStandardObject(goal.dataSeries)
+    && isDateValuesWithUnit(goal.dataSeries)
+  )) return false;
+  if (!("dataSeriesId" in goal) || !(typeof goal.dataSeriesId === 'string' || goal.dataSeriesId === null || goal.dataSeriesId === undefined)) return false;
+  if (!("dataSeriesRecipe" in goal) || !(
+    goal.dataSeriesRecipe === null
+    || goal.dataSeriesRecipe === undefined
+    || isStandardObject(goal.dataSeriesRecipe)
+    && isRecipe(goal.dataSeriesRecipe)
+    && isSmartRecipe(goal.dataSeriesRecipe)
+  )) return false;
 
-    // description: string | null | undefined;
-    (
-      typeof goal.description === 'string' ||
-      goal.description === null ||
-      goal.description === undefined
-    ) &&
+  if ("baseline" in goal && !(
+    goal.baseline === null
+    || goal.baseline === undefined
+    || isStandardObject(goal.baseline)
+    && isDateValuesWithUnit(goal.baseline)
+  )) return false;
+  if (!("baselineId" in goal) || !(typeof goal.baselineId === 'string' || goal.baselineId === null || goal.baselineId === undefined)) return false;
+  if (!("baselineRecipe" in goal) || !(
+    goal.baselineRecipe === null
+    || goal.baselineRecipe === undefined
+    || isStandardObject(goal.baselineRecipe)
+    && isRecipe(goal.baselineRecipe)
+    && isSmartRecipe(goal.baselineRecipe)
+  )) return false;
 
-    // indicatorParameter: string | undefined;
-    (
-      typeof goal.indicatorParameter === 'string' ||
-      goal.indicatorParameter === undefined
-    ) &&
-
-    // isFeatured: boolean | undefined;
-    (
-      typeof goal.isFeatured === 'boolean' ||
-      goal.isFeatured === undefined
-    ) &&
-
-    // externalDataset: string | null | undefined;
-    (
-      typeof goal.externalDataset === 'string' ||
-      goal.externalDataset === undefined ||
-      goal.externalDataset === null
-    ) &&
-
-    // externalTableId: string | null | undefined;
-    (
-      typeof goal.externalTableId === 'string' ||
-      goal.externalTableId === undefined ||
-      goal.externalTableId === null
-    ) &&
-
-    // externalSelection: string | null | undefined;
-    (
-      typeof goal.externalSelection === 'string' ||
-      goal.externalSelection === undefined ||
-      goal.externalSelection === null
-    ) &&
-
-    // recipeUsed: Recipe | null | undefined;
-    (
-      typeof goal.recipe === 'string' ||
-      goal.recipe === undefined ||
-      goal.recipe === null
-    ) &&
-
-    // rawDataSeries: DataSeriesValueFields | string[] | undefined;
-    (
-      goal.rawDataSeries === undefined ||
-      isDateValues(goal.rawDataSeries) ||
-      (
-        Array.isArray(goal.rawDataSeries) &&
-        goal.rawDataSeries.every((entry: JSONValue) => (
-          typeof entry === 'string'
-        ))
-      )
-    ) &&
-
-    // rawDataSeriesUnit: string | null | undefined;
-    (
-      typeof goal.rawDataSeriesUnit === 'string' ||
-      goal.rawDataSeriesUnit === undefined ||
-      goal.rawDataSeriesUnit === null
-    ) &&
-
-    // rawBaselineDataSeries: DataSeriesValueFields | string[] | undefined;
-    (
-      goal.rawBaselineDataSeries === undefined ||
-      isDateValues(goal.rawBaselineDataSeries) ||
-      (
-        Array.isArray(goal.rawBaselineDataSeries) &&
-        goal.rawBaselineDataSeries.every((entry: JSONValue) => (
-          typeof entry === 'string'
-        ))
-      )
-    ) &&
-
-    // rawBaselineDataSeriesUnit: string | null | undefined;
-    (
-      typeof goal.rawBaselineDataSeriesUnit === 'string' ||
-      goal.rawBaselineDataSeriesUnit === undefined ||
-      goal.rawBaselineDataSeriesUnit === null
-    ) &&
-
-    // roadmapId?: never;
-    (
-      goal.roadmapId === undefined
-    ) &&
-
-    // rawTags: string[] | null | undefined;
-    (
-      goal.rawTags === undefined ||
-      goal.rawTags === null ||
-      (
-        Array.isArray(goal.rawTags) &&
-        goal.rawTags.every((entry: JSONValue) => (
-          typeof entry === 'string'
-        ))
-      )
-    ) &&
-
-    // TODO: Deprecated - will be moved to description
-    // links: { url: string, description?: string | null }[] | null | undefined;
-    (
-      goal.links === undefined ||
-      goal.links === null ||
-      (
-        Array.isArray(goal.links) &&
-        goal.links.every((entry: JSONValue) => (
-          (
-            typeof entry === 'object' &&
-            entry !== null &&
-            !Array.isArray(entry)
-          ) &&
-
-          typeof entry.url === 'string' &&
-          (
-            typeof entry.description === 'string' ||
-            entry.description === undefined ||
-            entry.description === null
-          )
-        ))
+  if (!("links" in goal) || !(
+    goal.links === undefined 
+    || goal.links === null
+    || (
+      Array.isArray(goal.links)
+      && goal.links.every(link =>
+        isStandardObject(link)
+        && "url" in link && typeof link.url === 'string'
+        && (!("description" in link) || typeof link.description === 'string' || link.description === null)
       )
     )
+  )) return false;
 
-  );
+  return true;
 }
 
 /**
@@ -402,11 +236,11 @@ export async function POST(request: NextRequest) {
     // Data series parsing
     let parsedDataSeries: Partial<DateValues> | undefined | null = undefined;
     let parsedDataSeriesUnit: string | null = null;
-    if (formData.recipeUsed) {
+    if (formData.dataSeriesRecipe) {
       // TODO: If the recipe is invalid, return an error UNLESS explicitly marked as incomplete somehow (needs to be added to form and here), in which case dataValues should be set to undefined
 
       const warnings: string[] = [];
-      const resolvedRecipe = await evaluateRecipe(cleanRecipe(formData.recipeUsed), warnings);
+      const resolvedRecipe = await evaluateRecipe(cleanRecipe(formData.dataSeriesRecipe), warnings);
       if (!resolvedRecipe) {
         return Response.json({ message: 'Recipe evaluation canceled' }, { status: 400 }); // TODO: canceled eval indicates a bad recipe so therefor I think 400 is appropriate but I'm not sure
       }
@@ -473,7 +307,7 @@ export async function POST(request: NextRequest) {
       parsedBaselineDataSeriesUnit = parsedDataSeriesUnit;
     }
 
-    const recipeHash = formData.recipeUsed ? crypto.createHash('sha256').update(JSON.stringify(formData.recipeUsed)).digest('hex') : undefined;
+    const recipeHash = formData.dataSeriesRecipe ? crypto.createHash('sha256').update(JSON.stringify(formData.dataSeriesRecipe)).digest('hex') : undefined;
 
     const newGoal = await prisma.goal.create({
       data: {
@@ -504,10 +338,10 @@ export async function POST(request: NextRequest) {
             authorId: session.user.id,
           }
         } : undefined,
-        recipeUsed: formData.recipeUsed ? {
+        recipeUsed: formData.dataSeriesRecipe ? {
           create: {
             hash: recipeHash as string,
-            recipe: formData.recipeUsed,
+            recipe: formData.dataSeriesRecipe,
           }
         } : undefined,
         links: {
@@ -634,11 +468,11 @@ export async function PUT(request: NextRequest) {
     // Data series parsing
     let parsedDataSeries: Partial<DateValues> | undefined | null = undefined;
     let parsedDataSeriesUnit: string | null = null;
-    if (goal.recipeUsed) {
+    if (goal.dataSeriesRecipe) {
       // TODO: If the recipe is invalid, return an error UNLESS explicitly marked as incomplete somehow (needs to be added to form and here), in which case dataValues should be set to undefined
 
       const warnings: string[] = [];
-      const resolvedRecipe = await evaluateRecipe(cleanRecipe(goal.recipeUsed), warnings);
+      const resolvedRecipe = await evaluateRecipe(cleanRecipe(goal.dataSeriesRecipe), warnings);
       if (!resolvedRecipe) {
         return Response.json({ message: 'Recipe evaluation canceled' }, { status: 400 }); // TODO: canceled eval indicates a bad recipe so therefor I think 400 is appropriate but I'm not sure
       }
@@ -714,7 +548,7 @@ export async function PUT(request: NextRequest) {
       }
     }
 
-    const recipeHash = goal.recipeUsed ? crypto.createHash('sha256').update(JSON.stringify(goal.recipeUsed)).digest('hex') : undefined;
+    const recipeHash = goal.dataSeriesRecipe ? crypto.createHash('sha256').update(JSON.stringify(goal.dataSeriesRecipe)).digest('hex') : undefined;
 
     const editedGoal = await prisma.goal.update({
       where: { id: goal.goalId },
@@ -768,7 +602,7 @@ export async function PUT(request: NextRequest) {
           }
         ),
         // Connect, disconnect, or create recipe
-        ...(goal.recipeUsed ? {
+        ...(goal.dataSeriesRecipe ? {
           recipeUsed: {
             connectOrCreate: {
               where: {
@@ -776,11 +610,11 @@ export async function PUT(request: NextRequest) {
               },
               create: {
                 hash: recipeHash as string,
-                recipe: goal.recipeUsed,
+                recipe: goal.dataSeriesRecipe,
               }
             }
           }
-        } : goal.recipeUsed === null ? {
+        } : goal.dataSeriesRecipe === null ? {
           recipeUsed: {
             disconnect: true
           }

@@ -85,7 +85,7 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
         dateValues: dateValues,
         unit: csv[i][headerIndex["dataUnit"] ?? NaN],
       },
-      recipeUsed: undefined,
+      dataSeriesRecipe: undefined,
       baseline: undefined,
       baselineId: undefined,
       rawTags: undefined,

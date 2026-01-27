@@ -338,6 +338,15 @@ export const isEmptyRecipe = (recipe: Recipe): boolean => {
   );
 };
 
+export function isSmartRecipe(recipe: unknown): recipe is SmartRecipe {
+  if (typeof recipe !== "object" || recipe === null) return false;
+  
+  if (!("equation" in recipe) || typeof recipe["equation"] !== "string") return false;
+  if (!("checkValidity" in recipe) || typeof recipe["checkValidity"] !== "function") return false;
+
+  return true;
+}
+
 
 /** 
  * Defined here to usage before declaration.

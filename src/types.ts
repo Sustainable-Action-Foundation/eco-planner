@@ -369,13 +369,15 @@ export type GoalCreateInput = {
   externalTableId: string | null | undefined;
   externalSelection: string | null | undefined;
 
-  recipeSuggestions: Recipe[] | null | undefined;
+  recipeSuggestions: SmartRecipe[] | Recipe[] | null | undefined;
 
   dataSeries: DateValuesWithUnit | null | undefined;
-  recipeUsed: SmartRecipe | Recipe | null | undefined;
+  dataSeriesId: string | null | undefined;
+  dataSeriesRecipe: SmartRecipe | Recipe | null | undefined;
 
   baseline: DateValuesWithUnit | null | undefined;
   baselineId: string | null | undefined;
+  baselineRecipe: SmartRecipe | Recipe | null | undefined;
 
   // Relations
   // authorId: string; // Derived from session in the API
@@ -417,20 +419,15 @@ export type GoalUpdateInput = {
   externalTableId: string | null | undefined;
   externalSelection: string | null | undefined;
 
-  // Recipes
-  recipeUsed: Recipe | null | undefined; // Note: not the hash, the entire recipe object. Server will hash safely.
-  // TODO: Creating recipe suggestions is a future feature
-  // recipeSuggestions: Recipe[] | null | undefined; // Note: not the hashes, the entire recipe objects. Server will hash safely.
+  dataSeries: DateValuesWithUnit | null | undefined;
+  dataSeriesId: string | null | undefined;
+  dataSeriesRecipe: SmartRecipe | Recipe | null | undefined;
 
-  /* 
-   * TODO: DEPRECATE - raw data series should be made into data series before posting to the API and use 1:1 recipes instead 
-   */
-  // Data series
-  rawDataSeries: DateValues | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
-  rawDataSeriesUnit: string | null | undefined; // Combines with rawDataSeries in the API
-  // TODO: send baselines as a DataSeriesValueFields object in the future for consistency's sake
-  rawBaselineDataSeries: DateValues | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
-  rawBaselineDataSeriesUnit: string | null | undefined; // Combines with rawBaselineDataSeries in the API
+  baseline: DateValuesWithUnit | null | undefined;
+  baselineId: string | null | undefined;
+  baselineRecipe: SmartRecipe | Recipe | null | undefined;
+
+  recipeSuggestions: SmartRecipe[] | Recipe[] | null | undefined;
 
   // Relations
   // authorId: string; // Derived from session in the API
