@@ -1,5 +1,5 @@
 import { DataSeries, DateValues, isISOIshDate } from "@/types";
-import { dataSeriesToDateValues } from "./recipe/extractors";
+import { dataSeriesToDateValues } from "@/functions/recipe/extractors";
 
 const YEARLY_INTEREST_DECAY = 0.1;
 
