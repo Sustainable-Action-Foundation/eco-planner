@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import styles from "./dataSeriesInput.module.css";
+import styles from "./dateValuesInput.module.css";
 import { IconCaretDownFilled, IconCaretUpFilled } from "@tabler/icons-react";
 import { DateValues, DateValuesWithUnit, isISOIshDate, ISOIshDate } from "@/types";
 

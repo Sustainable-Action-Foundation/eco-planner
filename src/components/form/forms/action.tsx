@@ -5,7 +5,7 @@ import formSubmitter from "@/functions/formSubmitter"
 import { ActionInput } from "@/types"
 import { Action, ActionImpactType, DataSeries, Effect } from "@prisma/client"
 import { useTranslation } from "react-i18next"
-import DateValuesInput from "../elements/dataSeriesInput/dataSeriesInput"
+import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput"
 import { getDataSeries } from "../elements/dataSeriesInput/utils"
 import styles from '../forms.module.css'
 import TextEditor from "../elements/textEditor/editor"

@@ -7,7 +7,7 @@ import mathjs, { allOurUnits } from "@/math";
 import { DataSeries, Goal } from "@prisma/client";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import DateValuesInput from "../elements/dataSeriesInput/dataSeriesInput";
+import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput";
 import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 

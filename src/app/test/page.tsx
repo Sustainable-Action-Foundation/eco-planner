@@ -1,6 +1,6 @@
 "use client";
 
-import DateValuesInput from "@/components/form/elements/dataSeriesInput/dataSeriesInput";
+import DateValuesInput from "@/components/form/elements/dataSeriesInput/dateValuesInput";
 
 export default function Page() {
 
