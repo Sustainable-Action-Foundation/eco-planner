@@ -195,14 +195,19 @@ export default async function Page(
               <div className="flex align-items-center justify-content-space-between gap-100">
                 <h1 className="margin-0" style={{ fontSize: '3rem', lineHeight: '1' }}>{goal.name}</h1>
                 <label className="flex gap-50 align-items-center">
-                  <span className="font-weight-500">{t("pages:goal.menu")}</span>
-                  {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-                    <TableMenu
-                      width={24}
-                      height={24}
-                      accessLevel={accessLevel}
-                      object={goal}
-                    />
+                  {(
+                    accessLevel === AccessLevel.Edit
+                    || accessLevel === AccessLevel.Author
+                    || accessLevel === AccessLevel.Admin
+                  ) && <>
+                      <span className="font-weight-500">{t("pages:goal.menu")}</span>
+                      <TableMenu
+                        width={24}
+                        height={24}
+                        accessLevel={accessLevel}
+                        object={goal}
+                      />
+                    </>
                   }
                 </label>
               </div>
