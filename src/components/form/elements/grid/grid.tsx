@@ -1,30 +1,20 @@
+"use client"
+
 import { GenericElement } from "@/components/types"
 import React, { useEffect, useState } from "react"
+import { GridElement } from "@/components/types"
+import { handleKeyDownGrid } from "./functions"
 
-// TODO: Abstract keycontrols
 // TODO: Figure out if we beed pageup/pagedown
 // TODO: Handle columnheaders the same as gridcells
 // TODO: Allow passing props to gridcells (generic html element?)
 
-type coordinates = {
-  row: number
-  column: number
-}
 
-type GridItemProps = {
-  props?: GenericElement,
-  position?: coordinates
-  children: React.ReactNode
-  tabIndex?: 0 | -1
-  onKeyDown?: React.KeyboardEventHandler<HTMLDivElement>,
-  onClick?: React.MouseEventHandler<HTMLDivElement> 
-}
-
-const GridCell = React.forwardRef<HTMLDivElement, GridItemProps>(
-  ({ props, children, position, tabIndex, onKeyDown, onClick }, ref) => (
+const GridCell = React.forwardRef<HTMLDivElement, GridElement>(
+  ({ className, style, children, position, tabIndex, onKeyDown, onClick }, ref) => (
     <div
-      className={`${props?.className ? `${props.className} ` : ''}`}
-      style={{ ...(props?.style || {}) }}
+      className={`${className ? `${className} ` : ''}`}
+      style={{ ...(style || {}) }}
       ref={ref}
       role="gridcell"
       tabIndex={tabIndex}
@@ -39,11 +29,11 @@ const GridCell = React.forwardRef<HTMLDivElement, GridItemProps>(
 )
 GridCell.displayName = "GridCell"
 
-const RowHeader = React.forwardRef<HTMLDivElement, GridItemProps>(
-  ({ props, children, position, tabIndex, onKeyDown, onClick }, ref) => (
+const RowHeader = React.forwardRef<HTMLDivElement, GridElement>(
+  ({ className, style, children, position, tabIndex, onKeyDown, onClick }, ref) => (
     <div
-      className={`${props?.className ?  `${props.className} ` : ''}`}
-      style={{ ...(props?.style || {}) }}
+      className={`${className ? `${className} ` : ''}`}
+      style={{ ...(style || {}) }}
       ref={ref}
       role="rowheader"
       tabIndex={tabIndex}
@@ -77,45 +67,6 @@ export default function Grid({
 
   const cellRefs = React.useRef<Map<string, HTMLDivElement>>(new Map())
   const keyFor = (row: number, column: number) => `${row}-${column}`
-
-  function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) { /* TODO: We can probably create an "edit" mode weere just disable theese so the user isnt thrown out of the input when trying to type (if we are not in edit mode we overwrite existing data when typing maybe? see google docs...) */
-    if (e.key === 'ArrowDown') {
-      e.preventDefault()
-      if (coordinates.row === (React.Children.count(children) / columns.length) - 1) return // Total amount of rows minus 1 to get index
-      setCoordinates({ row: coordinates.row + 1, column: coordinates.column })
-    }
-    if (e.key === 'ArrowUp') {
-      e.preventDefault()
-      if (coordinates.row === 0) return
-      setCoordinates({ row: coordinates.row - 1, column: coordinates.column })
-    }
-    if (e.key === 'ArrowRight') {
-      e.preventDefault()
-      if (coordinates.column === columns.length - 1) return
-      setCoordinates({ row: coordinates.row, column: coordinates.column + 1 })
-    }
-    if (e.key === 'ArrowLeft') {
-      e.preventDefault()
-      if (coordinates.column === 0) return
-      setCoordinates({ row: coordinates.row, column: coordinates.column - 1 })
-    }
-    if (e.key === 'Home') {
-      e.preventDefault()
-      setCoordinates({ row: coordinates.row, column: 0 })
-    }
-    if (e.key === 'End') {
-      e.preventDefault()
-      setCoordinates({ row: coordinates.row, column: columns.length - 1 })
-    }
-    if (e.key === 'Home' && e.ctrlKey) {
-      e.preventDefault()
-      setCoordinates({ row: 0, column: 0 })
-    }
-    if (e.key === 'End' && e.ctrlKey) {
-      e.preventDefault()
-      setCoordinates({ row: (React.Children.count(children) / columns.length) - 1, column: columns.length - 1 })
-    }
-  }
 
   useEffect(() => {
     const key = keyFor(coordinates.row, coordinates.column)
@@ -158,12 +109,19 @@ export default function Grid({
         let tabIndex: 0 | -1 = -1
         if (coordinates.row === row && coordinates.column === column) { tabIndex = 0 }
         return React.cloneElement(
-          child as React.ReactElement<GridItemProps & React.RefAttributes<HTMLDivElement>>,
+          child as React.ReactElement<GridElement & React.RefAttributes<HTMLDivElement>>,
           {
             position: { row, column },
             tabIndex,
-            onKeyDown: handleKeyDown,
-            onClick: () => setCoordinates({row: row, column: column}), // Note that this might cause issues if our input inside the div is smaller than the actual div as we don't set focus here 
+            onKeyDown: (e) =>
+              handleKeyDownGrid({
+                e,
+                columns,
+                children,
+                coordinates,
+                setCoordinates,
+              }),
+            onClick: () => setCoordinates({ row: row, column: column }), // Note that this might cause issues if our input inside the div is smaller than the actual div as we don't set focus here 
             ref: (el: HTMLDivElement | null) => {
               if (!el) return
               cellRefs.current.set(keyFor(row, column), el)

@@ -87,29 +87,23 @@ export default function DataSeriesInputManual({
          const isLastRow = index >= value.length - 1;
           return [
           <Grid.Cell
-            props={{
-              style: {borderRight: '1px solid var(--gray-80)'}
-            }} 
+            style={{borderRight: '1px solid var(--gray-80)'}}
             key={`year-${index}`}
           >
             <input type="number" defaultValue={item.year ? item.year : ''}></input> {/* TODO: Need to make sure we handle tabindex here.  */}
           </Grid.Cell>,
           <Grid.Cell
-            props={{
-              style: {borderRight: '1px solid var(--gray-80)'}
-            }}
+            style={{borderRight: '1px solid var(--gray-80)'}}
             key={`data-${index}`}
           >
             <input type="number" defaultValue={item.data ? item.data : ''}></input> {/* TODO: Need to make sure we handle tabindex here.  */}
           </Grid.Cell>,
           <Grid.Cell
-            props={{
-              className: 'display-flex align-items-center',
-              style: {...(isLastRow ? {} : { borderBottom: '1px solid var(--gray-80)' }), backgroundColor: 'var(--gray-95)'}
-            }}
+            className='display-flex align-items-center'
+            style={{...(isLastRow ? {} : { borderBottom: '1px solid var(--gray-80)' }), backgroundColor: 'var(--gray-95)'}}
             key={`test-${index}`}
           >
-            <button
+            <button // TODO: Do not allow deletion of last row, instead show a warning that the last row cannot be deleted, when deleting show popup asking for confirmation
               className="padding-25 grid round transparent margin-inline-auto"
               type="button"
               aria-label="Delete row" /* TODO: i18n */
