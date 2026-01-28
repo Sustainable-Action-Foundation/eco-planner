@@ -1,215 +1,207 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { Trans, useTranslation } from "react-i18next";
+import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import styles from "./dataSeriesInput.module.css";
-import { dataSeriesPattern, isValidPastedInput, isValidSingleInputForGrid, isValidSingleInputForTextField } from "./utils";
-import { IconCaretDownFilled, IconCaretUpFilled, IconHelp } from "@tabler/icons-react";
+import { IconCaretDownFilled, IconCaretUpFilled } from "@tabler/icons-react";
+import { DateValues, DateValuesWithUnit, isISOIshDate, ISOIshDate } from "@/types";
 
 export default function DateValuesInput({
-  dataSeriesString, // TODO - rename "dataSeriesString" to "dataSeriesInput" or "initialValue" (latter suggested by chatgpt)
-  inputName = "dataSeries",
-  inputId = "dataSeries",
-  // TODO: Take in any string and use that as the label instead of a key to alleviate testing
-  labelKey = "forms:data_series_input.data_series",
+  initialDateValues = { unit: undefined, dateValues: {} },
+  outputFormElement,
+  label,
 }: {
-  dataSeriesString?: string;
-  inputName?: string;
-  inputId?: string;
-  labelKey?: string;
+  initialDateValues?: DateValuesWithUnit;
+  outputFormElement: React.ReactElement<HTMLInputElement>;
+  /** To translate, provide a t(key) so this receives a pre translated label */
+  label: string;
 }) {
-
   const { t } = useTranslation("forms");
-  const [dataSeriesValues, setDataSeriesValues] = useState<string[]>(
-    dataSeriesString && dataSeriesString.length > 0
-      ? dataSeriesString.split(/[\t;]/).slice(0, Years.length)
-      : Array.from({ length: Years.length }, () => ""),
-  );
-  const isPasting = useRef(false);
+
   const [tableIsVisible, setTableIsVisible] = useState(true);
 
-  // TODO - this might not be necessary, since we are using the dataSeriesString prop to set the initial values
-  // useEffect(() => {
-  //   console.warn("dataSeriesString changed")
-  //   if (dataSeriesString) {
-  //     setDataSeriesValues(
-  //       dataSeriesString
-  //         .split(/[\t;]/)
-  //         .slice(0, dataSeriesDataFieldNames.length)
-  //     );
-  //   }
-  // }, [dataSeriesString]);
+  const [dateValues, setDateValues] = useState<DateValues>(initialDateValues.dateValues);
 
-  function handleValueChange(e: React.ChangeEvent<HTMLInputElement>, index: number) {
-    if (isPasting.current) return;
+  const [startDate, setStartDate] = useState<ISOIshDate>(`2020-01-01T00:00:00.000Z`);
+  const [endDate, setEndDate] = useState<ISOIshDate>(`2050-01-01T00:00:00.000Z`);
 
-    const newValues = [...dataSeriesValues];
-    newValues[index] = e.target.value;
-    setDataSeriesValues(newValues);
-  }
+  const [visualStartYear, setVisualStartYear] = useState<string>(String(new Date(startDate).getUTCFullYear()));
+  const [visualEndYear, setVisualEndYear] = useState<string>(String(new Date(endDate).getUTCFullYear()));
 
-  function handlePaste(e: React.ClipboardEvent<HTMLInputElement>, startIndex: number) {
-    isPasting.current = true;
-    // Splits input at tabs, newlines, carriage returns, vertical tabs, and semicolons (other whitespace is trimmed a few lines below)
-    const pastedValues = e.clipboardData.getData("text").split(/[\t\n\r\v;]/);
-    const newValues = [...dataSeriesValues];
+  const startISO = `${visualStartYear}-01-01T00:00:00.000Z`;
+  const endISO = `${visualEndYear}-01-01T00:00:00.000Z`;
+  const isStartISOValid = useMemo(() => isISOIshDate(startISO), [startISO]);
+  const isEndISOValid = useMemo(() => isISOIshDate(endISO), [endISO]);
 
-    for (let i = 0; i < pastedValues.length && i + startIndex < Years.length; i++) {
-      const targetIndex = startIndex + i;
-      if (targetIndex < newValues.length) {
-        newValues[targetIndex] = pastedValues[i].trim();
-      } else {
-        newValues.push(pastedValues[i].trim());
-      }
+  const isStartDateValid = useMemo(
+    () =>
+      isStartISOValid
+      && (!isEndISOValid || Number(visualStartYear) < Number(visualEndYear)),
+    [isStartISOValid, isEndISOValid, visualStartYear, visualEndYear]
+  );
+  const isEndDateValid = useMemo(
+    () =>
+      isEndISOValid
+      && (!isStartISOValid || Number(visualEndYear) > Number(visualStartYear)),
+    [isEndISOValid, isStartISOValid, visualEndYear, visualStartYear]
+  );
+
+  useEffect(() => setVisualStartYear(String(new Date(startDate).getUTCFullYear())), [startDate]);
+  useEffect(() => setVisualEndYear(String(new Date(endDate).getUTCFullYear())), [endDate]);
+
+  const dates = useMemo<ISOIshDate[]>(() => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const result: ISOIshDate[] = [];
+    for (let year = start.getUTCFullYear(); year <= end.getUTCFullYear(); year++) {
+      const step = new Date(Date.UTC(year, 0, 1)).toISOString();
+      if (!isISOIshDate(step)) throw new Error("Generated date is not ISOIshDate");
+      result.push(step);
     }
-
-    setDataSeriesValues(newValues);
-
-    setTimeout(() => {
-      isPasting.current = false;
-    }, 0);
-  }
+    return result;
+  }, [startDate, endDate]);
 
   return (
     <>
+      {React.cloneElement(outputFormElement, {
+        value: JSON.stringify(dateValues),
+        type: "hidden",
+        hidden: true,
+      })}
+
       <fieldset className="block fieldset-unset-pseudo-class">
+        {/* Label and expand button */}
         <legend
           className="flex flex-wrap-wrap gap-100 justify-content-space-between align-items-center width-100 margin-bottom-100 padding-bottom-25"
           style={{ borderBottom: '1px solid var(--gray)' }}
         >
-          {t(labelKey)}
+          {label}
           <button
             type="button"
             className="round transparent flex gap-50 align-items-center padding-inline-75"
-            title={tableIsVisible ? t("forms:data_series_input.hide_table") : t("forms:data_series_input.show_table")}
+            title={tableIsVisible
+              ? t("forms:data_series_input.hide_table")
+              : t("forms:data_series_input.show_table")
+            }
             onClick={() => { setTableIsVisible(!tableIsVisible) }}
           >
-            {tableIsVisible ? (
-              <>
+            {tableIsVisible
+              ? <>
                 {t("forms:data_series_input.hide_table")}
                 <IconCaretUpFilled width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
               </>
-            ) : (
-              <>
+              : <>
                 {t("forms:data_series_input.show_table")}
                 <IconCaretDownFilled width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
               </>
-            )}
+            }
           </button>
         </legend>
-        {/* TODO: Make this allow .csv files and possibly excel files */}
+
+        {/* Start and end year */}
+        <div className="flex flex-wrap-wrap gap-100 margin-bottom-100">
+          <label>
+            {t("forms:data_series_input.start_year")}
+            <input
+              placeholder="2020"
+              type="number"
+              className={`block margin-top-25 ${!isStartDateValid ? 'border-color-red' : ''}`}
+              value={visualStartYear}
+              onChange={(e) => {
+                const nextYear = e.target.value;
+                setVisualStartYear(nextYear);
+                const newDate = `${nextYear}-01-01T00:00:00.000Z`;
+                if (isISOIshDate(newDate) && (!isEndISOValid || Number(nextYear) < Number(visualEndYear))) {
+                  setStartDate(newDate);
+                }
+              }}
+            />
+            {!isStartDateValid && (
+              <span role="alert" className="block text-color-red margin-top-25">
+                {t("forms:data_series_input.invalid_start_year")}
+              </span>
+            )}
+          </label>
+          <label>
+            {t("forms:data_series_input.end_year")}
+            <input
+              placeholder="2050"
+              type="number"
+              className={`block margin-top-25 ${!isEndDateValid ? 'border-color-red' : ''}`}
+              value={visualEndYear}
+              onChange={(e) => {
+                const nextYear = e.target.value;
+                setVisualEndYear(nextYear);
+                const newDate = `${nextYear}-01-01T00:00:00.000Z`;
+                if (isISOIshDate(newDate) && (!isStartISOValid || Number(nextYear) > Number(visualStartYear))) {
+                  setEndDate(newDate);
+                }
+              }}
+            />
+            {!isEndDateValid && (
+              <span role="alert" className="block text-color-red margin-top-25">
+                {t("forms:data_series_input.invalid_end_year")}
+              </span>
+            )}
+          </label>
+        </div>
+
+        {/* Table header */}
         <label className={`${styles['spreadsheet-label']} grid padding-left-100 gap-100 gray-90 font-weight-600`}>
           <span className="padding-50 text-align-center">{t("forms:data_series_input.year")}</span>
           <span className="padding-50 padding-left-100" style={{ borderLeft: '1px solid var(--gray)' }}>{t("forms:data_series_input.value")}</span>
         </label>
+        {/* Table */}
         {tableIsVisible && (
           <>
-            {Years.map((value, index) => (
+            {dates.map(date => (
               <label
-                key={`year-${index}`}
+                key={`date-values-input-row-${date}`}
                 className={`${styles['spreadsheet-label']} grid place-items-center padding-left-100 gap-100`}
               >
-                {value.replace("val", "")}
+                {new Date(date).getUTCFullYear()}
                 <input
                   type="number"
-                  id={value}
-                  name={`${inputName}Input`}
-                  value={dataSeriesValues[index] ?? ""}
+                  name={date}
                   className={`${styles['spreadsheet-input']} purewhite`}
-                  onWheel={(e) => {
-                    // Prevent the value from changing when scrolling
-                    (e.target as HTMLInputElement).blur();
 
-                    // Refocus the input on the next tick to prevent the scroll from changing the value
-                    setTimeout(() => {
-                      (e.target as HTMLInputElement).focus();
-                    }, 0);
+                  value={dateValues[date] ?? ""}
+                  onChange={(e) => {
+                    setDateValues(prev => ({
+                      ...prev,
+                      [date]: e.target.value
+                    }));
                   }}
-                  onChange={(e) => handleValueChange(e, index)}
+
+                  // Prevent other than valid characters from being input
                   onBeforeInput={(e) => {
-                    // Make sure the input is valid
                     const inputEvent = e.nativeEvent;
-                    if (inputEvent.data && !isValidSingleInputForGrid(inputEvent.data)) {
+                    if (
+                      inputEvent.data
+                      && !/^[0-9.,-]+$/.test(inputEvent.data)
+                    ) {
                       e.preventDefault();
                     }
                   }}
-                  onPaste={(e) => {
-                    // Make sure the pasted input is valid before handling paste
-                    const pasted = e.clipboardData.getData("text");
-                    if (!isValidPastedInput(pasted)) {
-                      e.preventDefault();
-                    } else {
-                      handlePaste(e, index);
+
+                  // Prevent changing number input value with mouse wheel
+                  onWheel={() => {
+                    if (
+                      typeof document !== "undefined"
+                      && document.activeElement instanceof HTMLInputElement
+                      && document.activeElement.type === "number"
+                    ) {
+                      document.activeElement.blur();
                     }
                   }}
+
+                // TODO: add paste handling that will cooperate with the new floating date format
                 />
               </label>
             ))}
           </>
         )}
       </fieldset>
-
-      <details className="margin-block-75">
-        <summary className="cursor-default">
-          {t("forms:data_series_input.advanced")}
-        </summary>
-        <section
-          aria-label={t("pages:goal.update_needed_attention_message")}
-          className="flex justify-content-space-between margin-block-50 padding-100 rounded"
-          style={{ border: '1px solid gold', backgroundColor: 'rgba(255, 255, 0, .35)' }}
-        >
-          <IconHelp className="margin-right-100" style={{ minWidth: '24px' }} aria-hidden="true" />
-          <div>
-            <Trans
-              i18nKey={"forms:data_series_input.data_series_advanced_info"}
-              components={{ strong: <strong />, br: <br /> }}
-            />
-          </div>
-        </section>
-
-        <label className="block margin-block-75">
-          {t(labelKey)}
-
-          {/* This input gives the user the option to enter their data series as a string */}
-          <input
-            type="text"
-            name={inputName}
-            required
-            id={inputId}
-            pattern={dataSeriesPattern}
-            title={t("forms:data_series_input.data_series_tooltip")}
-            value={dataSeriesValues.join(";")}
-            className="margin-block-25"
-            onBeforeInput={(e) => {
-              if (isPasting.current) return;
-
-              const inputEvent = e.nativeEvent;
-              if (inputEvent.data && !isValidSingleInputForTextField(inputEvent.data)) {
-                e.preventDefault();
-              }
-            }}
-            onPaste={(e) => {
-              const pasted = e.clipboardData.getData("text");
-              if (!isValidPastedInput(pasted)) {
-                e.preventDefault();
-                return;
-              }
-
-              isPasting.current = true;
-              setTimeout(() => {
-                isPasting.current = false;
-              }, 0);
-            }}
-            onChange={(e) => {
-              const values = e.target.value
-                .split(/[\t;]/)
-                .map((v) => v.trim())
-                .slice(0, Years.length);
-              setDataSeriesValues(values);
-            }}
-          />
-        </label>
-      </details>
     </>
   )
 }
