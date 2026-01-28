@@ -6,7 +6,7 @@ import { DateValuesWithUnit, GoalCreateInput, GoalUpdateInput } from "@/types";
 import { DataSeries, Goal } from "@prisma/client";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput";
+import DateValuesInput from "../elements/dataSeriesInput/dataSeriesInput";
 import styles from '../forms.module.css';
 import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections";
 import { RecipeContextProvider } from "@/components/recipe/context/recipeContext.provider";
@@ -301,7 +301,7 @@ export default function GoalForm({
 
           {/* Custom baseline input */}
           {baselineType === BaselineType.Custom &&
-            <DataSeriesInput
+            <DateValuesInput
               dataSeriesString={baselineString}
               inputName="baselineDataSeries"
               inputId="baselineDataSeries"

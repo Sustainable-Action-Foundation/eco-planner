@@ -6,7 +6,7 @@ import styles from "./dataSeriesInput.module.css";
 import { dataSeriesPattern, isValidPastedInput, isValidSingleInputForGrid, isValidSingleInputForTextField } from "./utils";
 import { IconCaretDownFilled, IconCaretUpFilled, IconHelp } from "@tabler/icons-react";
 
-export default function DataSeriesInput({
+export default function DateValuesInput({
   dataSeriesString, // TODO - rename "dataSeriesString" to "dataSeriesInput" or "initialValue" (latter suggested by chatgpt)
   inputName = "dataSeries",
   inputId = "dataSeries",

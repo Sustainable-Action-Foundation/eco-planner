@@ -7,7 +7,7 @@ import mathjs, { allOurUnits } from "@/math";
 import { DataSeries, Goal } from "@prisma/client";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput";
+import DateValuesInput from "../elements/dataSeriesInput/dataSeriesInput";
 import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 
@@ -99,7 +99,7 @@ export function ManualGoalForm({
         )}
       </small>
 
-      <DataSeriesInput
+      <DateValuesInput
         dataSeriesString={dataSeriesString}
         inputName="dataSeries"
         inputId="dataSeries"
