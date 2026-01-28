@@ -2,8 +2,7 @@
 
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import formSubmitter from "@/functions/formSubmitter";
-import { DateValuesWithUnit, GoalCreateInput, GoalUpdateInput } from "@/types";
-import { DataSeries, Goal } from "@prisma/client";
+import { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from "@/types";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput";
@@ -39,17 +38,11 @@ export default function GoalForm({
 }: {
   roadmapId?: string,
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
-  currentGoal?: Goal & {
-    dataSeries: DataSeries | null,
-    baselineDataSeries: DataSeries | null,
-    author: { id: string, username: string },
-    links?: { url: string, description: string | null }[],
-    roadmap: { id: string },
-  },
+  currentGoal?: Goal;
 }) {
   const { t } = useTranslation(["forms", "common"]);
   const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(DataSeriesType.Inherited);
-  const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baselineDataSeries ? BaselineType.Custom : BaselineType.Initial);
+  const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baseline ? BaselineType.Custom : BaselineType.Initial);
   const [editorContent, setEditorContent] = useState<Content>(() => {
     if (!currentGoal?.description) return null;
 
@@ -220,7 +213,7 @@ export default function GoalForm({
 
           <label id="description-label">{t("forms:goal.goal_description")}</label>
           <TextEditor
-            className="margin-top-25 margin-bottom-100" // TODO: Need label for texteditormenu
+            className="margin-top-25 margin-bottom-100" // TODO: Need label for textEditorMenu
             id="description"
             ariaLabelledBy="description-label"
             placeholder={t("forms:text_editor_menu.default_placeholder")}
@@ -261,7 +254,10 @@ export default function GoalForm({
           {(
             dataSeriesType === DataSeriesType.Static
           ) &&
-            <ManualGoalForm currentGoal={currentGoal} dataSeriesString={dataSeriesString} />
+            <ManualGoalForm
+              currentGoal={currentGoal}
+              outputFormElement={<input name="data-series" />}
+            />
           }
           {(
             !dataSeriesType // Fallback for undefined or otherwise falsy
@@ -302,10 +298,8 @@ export default function GoalForm({
           {/* Custom baseline input */}
           {baselineType === BaselineType.Custom &&
             <DateValuesInput
-              dataSeriesString={baselineString}
-              inputName="baselineDataSeries"
-              inputId="baselineDataSeries"
-              labelKey="forms:data_series_input.custom_baseline"
+              outputFormElement={<input name="baseline-data-series" />}
+              label={t("forms:data_series_input.custom_baseline")}
             />
           }
 

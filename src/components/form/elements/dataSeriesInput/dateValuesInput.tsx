@@ -64,7 +64,7 @@ export default function DateValuesInput({
   return (
     <>
       {React.cloneElement(outputFormElement, {
-        value: JSON.stringify(dateValues),
+        value: JSON.stringify({ dateValues, unit: initialDateValues.unit } satisfies DateValuesWithUnit),
         type: "hidden",
         hidden: true,
       })}

@@ -4,37 +4,32 @@ import clientSafeGetOneGoal from "@/fetchers/clientSafeGetOneGoal";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import mathjs, { allOurUnits } from "@/math";
-import { DataSeries, Goal } from "@prisma/client";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput";
 import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
+import { Goal, UnitString } from "@/types";
+import { dataSeriesToDateValues } from "@/functions/recipe/extractors";
 
 export function ManualGoalForm({
   currentGoal,
-  dataSeriesString,
+  outputFormElement,
 }: {
-  currentGoal?: Goal & {
-    dataSeries: DataSeries | null,
-    author: { id: string, username: string },
-    links?: { url: string, description: string | null }[],
-    roadmap: { id: string },
-  },
-  dataSeriesString?: string,
+  currentGoal?: Goal;
+  outputFormElement: React.ReactElement<HTMLInputElement>;
 }) {
   const { t } = useTranslation("forms");
-  const [parsedUnit, setParsedUnit] = useState<string | null>("");
-
-  useEffect(() => {
+  const [parsedUnit, setParsedUnit] = useState<UnitString>(() => {
     if (currentGoal?.dataSeries?.unit) {
       try {
-        setParsedUnit(mathjs.unit(currentGoal.dataSeries.unit).toString());
+        return mathjs.unit(currentGoal.dataSeries.unit).toString();
       } catch {
-        setParsedUnit(null)
+        return null;
       }
     }
-  }, [currentGoal]);
+    return null;
+  });
 
   const indicatorParameters = useMemo(() => {
     return [...new Set(parameterOptions)].map(option => ({
@@ -42,11 +37,6 @@ export function ManualGoalForm({
       value: option
     }));
   }, []);
-
-  const units = useMemo(
-    () => allOurUnits.map(unit => ({ name: unit, value: unit })),
-    []
-  );
 
   return (
     <>
@@ -80,7 +70,7 @@ export function ManualGoalForm({
           className: "margin-top-25",
           defaultValue: currentGoal?.dataSeries?.unit ?? undefined
         }}
-        options={units}
+        options={allOurUnits.map(u => ({ name: u, value: u }))}
         onChange={(unit) => {
           try {
             setParsedUnit(mathjs.unit(unit).toString())
@@ -100,10 +90,12 @@ export function ManualGoalForm({
       </small>
 
       <DateValuesInput
-        dataSeriesString={dataSeriesString}
-        inputName="dataSeries"
-        inputId="dataSeries"
-        labelKey="forms:data_series_input.data_series"
+        {...currentGoal?.dataSeries
+          ? { initialDateValues: dataSeriesToDateValues(currentGoal.dataSeries) }
+          : {}
+        }
+        outputFormElement={outputFormElement}
+        label={t("forms:data_series_input.data_series")}
       />
     </>
   )
@@ -137,15 +129,6 @@ export function InheritingBaseline() {
       setGoalData(null);
     });
   }, [selectedGoal]);
-
-  // If there is a data series, convert it to an array of numbers and then a string to use for the form
-  const dataArray: (number | null)[] = []
-  if (goalData?.dataSeries) {
-    for (const i of Years) {
-      dataArray.push(goalData.dataSeries[i])
-    }
-  }
-  const dataSeriesString = dataArray.join(';')
 
   return (
     <>
@@ -184,7 +167,7 @@ export function InheritingBaseline() {
       {goalData &&
         <label className="block margin-block-75">
           {t("forms:goal.baseline_copied")}
-          <input name="baselineDataSeries" id="baselineDataSeries" type="text" readOnly value={dataSeriesString} />
+          <input name="baselineDataSeries" id="baselineDataSeries" type="text" readOnly value={} />
         </label>
       }
     </>
