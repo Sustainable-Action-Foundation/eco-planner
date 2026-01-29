@@ -79,43 +79,48 @@ export default function DataSeriesInputManual({
   return (
     <>
       <Grid // TODO: Add caption  
-        props={{ className: `grid width-100 align-items-center ${styles.grid}`, style: { gridTemplateColumns: '100px 1fr auto' } }}
-        columns={['Year', 'Value', 'Action']} // TODO: Maybe do theese as grid.columnheader or somn to allow better styling
-        data-width='1000'
-      >
+        props={{ 
+          className: `grid width-100 align-items-center ${styles.grid}`, 
+          style: { gridTemplateColumns: '100px 1fr auto' }
+        }}
+       >
+        <Grid.ColumnHeader>Year</Grid.ColumnHeader>
+        <Grid.ColumnHeader>Value</Grid.ColumnHeader>
+        <Grid.ColumnHeader>Action</Grid.ColumnHeader>
         {value.flatMap((item, index) => {
-         const isLastRow = index >= value.length - 1;
+          const isLastRow = index >= value.length - 1;
           return [
-          <Grid.Cell
-            style={{borderRight: '1px solid var(--gray-80)'}}
-            key={`year-${index}`}
-          >
-            <input type="number" defaultValue={item.year ? item.year : ''} tabIndex={-1}></input> {/* TODO: Need to make sure we handle tabindex here.  */}
-          </Grid.Cell>,
-          <Grid.Cell
-            style={{borderRight: '1px solid var(--gray-80)'}}
-            key={`data-${index}`}
-          >
-            <input type="number" defaultValue={item.data ? item.data : ''} tabIndex={-1}></input> {/* TODO: Need to make sure we handle tabindex here.  */}
-          </Grid.Cell>,
-          <Grid.Cell
-            className='display-flex align-items-center'
-            style={{...(isLastRow ? {} : { borderBottom: '1px solid var(--gray-80)' }), backgroundColor: 'var(--gray-95)'}}
-            key={`test-${index}`}
-          >
-            <button // TODO: Do not allow deletion of last row, instead show a warning that the last row cannot be deleted, when deleting show popup asking for confirmation
-              className="padding-25 grid round transparent margin-inline-auto"
-              type="button"
-              aria-label="Delete row" /* TODO: i18n */
-              tabIndex={-1}
-              onClick={() =>
-                setValue(prev => prev.filter((_, i) => i !== index))
-              }
+            <Grid.Cell
+              style={{ borderRight: '1px solid var(--gray-80)' }}
+              key={`year-${index}`}
             >
-              <IconTrashXFilled height={20} width={20} style={{ maxWidth: '20' }} aria-hidden="true" />
-            </button>
-          </Grid.Cell>
-        ]})}
+              <input type="number" defaultValue={item.year ? item.year : ''} tabIndex={-1}></input> {/* TODO: Need to make sure we handle tabindex here.  */}
+            </Grid.Cell>,
+            <Grid.Cell
+              style={{ borderRight: '1px solid var(--gray-80)' }}
+              key={`data-${index}`}
+            >
+              <input type="number" defaultValue={item.data ? item.data : ''} tabIndex={-1}></input> {/* TODO: Need to make sure we handle tabindex here.  */}
+            </Grid.Cell>,
+            <Grid.Cell
+              className='display-flex align-items-center'
+              style={{ ...(isLastRow ? {} : { borderBottom: '1px solid var(--gray-80)' }), backgroundColor: 'var(--gray-95)' }}
+              key={`test-${index}`} // TODO: Remove test
+            >
+              <button // TODO: Do not allow deletion of last row, instead show a warning that the last row cannot be deleted, when deleting show popup asking for confirmation
+                className="padding-25 grid round transparent margin-inline-auto"
+                type="button"
+                aria-label="Delete row" /* TODO: i18n */
+                tabIndex={-1}
+                onClick={() =>
+                  setValue(prev => prev.filter((_, i) => i !== index))
+                }
+              >
+                <IconTrashXFilled height={20} width={20} style={{ maxWidth: '20' }} aria-hidden="true" />
+              </button>
+            </Grid.Cell>
+          ]
+        })}
       </Grid>
       <button
         className="rounded font-weight-500 flex align-items-center gap-50 padding-50 padding-right-75 margin-top-50" style={{ lineHeight: '1', transform: 'scale(1)' }}

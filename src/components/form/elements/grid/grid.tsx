@@ -1,11 +1,8 @@
 "use client"
 
-import { GenericElement } from "@/components/types"
+import { GenericElement, Position, GridElement } from "@/components/types"
 import React, { useEffect, useState } from "react"
-import { GridElement } from "@/components/types"
 import { handleKeyDownGrid } from "./functions"
-
-// TODO: Handle columnheaders the same as gridcells
 
 const GridCell = React.forwardRef<HTMLDivElement, GridElement>(
   ({ className, style, children, position, tabIndex, onKeyDown, onClick }, ref) => (
@@ -45,22 +42,39 @@ const RowHeader = React.forwardRef<HTMLDivElement, GridElement>(
 )
 RowHeader.displayName = "RowHeader"
 
+const ColumnHeader = React.forwardRef<HTMLDivElement, GridElement>(
+  ({ className, style, children, position, onKeyDown, onClick }, ref) => (
+    <div
+      className={`${className ? `${className} ` : ''}`}
+      style={{ ...(style || {}) }}
+      ref={ref}
+      role="columnheader"
+      tabIndex={-1}
+      data-row={position?.row}
+      data-column={position?.column}
+      onKeyDown={onKeyDown}
+      onClick={onClick}
+    >
+      {children}
+    </div>
+  )
+)
+ColumnHeader.displayName = "ColumnHeader"
+
 /***
  * A css grid needs to be defined and passed under props for layout
  */
 export default function Grid({
   props,
-  columns,
   children
 }: {
   props: GenericElement
-  columns: Array<string>
   children: React.ReactNode
 }) {
   // TODO: Add like a check that the amount of children is divisible by the amount of columns or something 
   // to ensure that we have the correct amount of children
 
-  const [activeCell, setActivecell] = useState<{ row: number, column: number }>({ row: 0, column: 0 })
+  const [activeCell, setActivecell] = useState<Position>({ row: 0, column: 0 })
 
   const cellRefs = React.useRef<Map<string, HTMLDivElement>>(new Map())
   const keyFor = (row: number, column: number) => `${row}-${column}`
@@ -80,6 +94,14 @@ export default function Grid({
       cell.focus()
     }
   }, [activeCell])
+
+  const childrenArray = React.Children.toArray(children)
+
+  const amountColumns = childrenArray.filter(
+    (child) =>
+      React.isValidElement(child) &&
+      child.type === Grid.ColumnHeader
+  ).length
 
   return (
     <div
@@ -108,9 +130,6 @@ export default function Grid({
         }
       }}
     >
-      {columns.map((column: string, index: number) => (
-        <div role="columnheader" key={index}>{column}</div>
-      ))}
       {React.Children.map(children, (child, index) => {
         if (
           !React.isValidElement(child) ||
@@ -119,8 +138,8 @@ export default function Grid({
           return child
         }
 
-        const row = Math.floor(index / columns.length)
-        const column = index % columns.length
+        const row = Math.floor(index / amountColumns)
+        const column = index % amountColumns
 
         let tabIndex: 0 | -1 = -1
         if (activeCell.row === row && activeCell.column === column) { tabIndex = 0 }
@@ -132,7 +151,7 @@ export default function Grid({
             onKeyDown: (e) =>
               handleKeyDownGrid({
                 e,
-                columns,
+                amountColumns,
                 children,
                 activeCell,
                 setActivecell,
@@ -157,3 +176,5 @@ Grid.Cell = GridCell
 *  Remember to set tabindex -1 for children if they are focusable, i.e inputs
 */
 Grid.RowHeader = RowHeader
+Grid.ColumnHeader = ColumnHeader
+

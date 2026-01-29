@@ -3,20 +3,20 @@ import { Position } from "@/components/types"
 
 export function handleKeyDownGrid({
   e,
-  columns,
+  amountColumns,
   children,
   activeCell,
   setActivecell
 }: {
   e: React.KeyboardEvent<HTMLDivElement>,
-  columns: Array<string>,
+  amountColumns: number,
   children: React.ReactNode,
   activeCell: Position,
   setActivecell: React.Dispatch<React.SetStateAction<Position>>,
 }) { /* TODO: We can probably create an "edit" mode weere just disable theese so the user isnt thrown out of the input when trying to type (if we are not in edit mode we overwrite existing data when typing maybe? see google docs...) */
   if (e.key === 'ArrowDown') {
     e.preventDefault()
-    if (activeCell.row === (React.Children.count(children) / columns.length) - 1) return // Total amount of rows minus 1 to get index
+    if (activeCell.row === (React.Children.count(children) / amountColumns) - 1) return // Total amount of rows minus 1 to get index
     setActivecell({ row: activeCell.row + 1, column: activeCell.column })
   }
   if (e.key === 'ArrowUp') {
@@ -26,7 +26,7 @@ export function handleKeyDownGrid({
   }
   if (e.key === 'ArrowRight') {
     e.preventDefault()
-    if (activeCell.column === columns.length - 1) return
+    if (activeCell.column === amountColumns - 1) return
     setActivecell({ row: activeCell.row, column: activeCell.column + 1 })
   }
   if (e.key === 'ArrowLeft') {
@@ -40,7 +40,7 @@ export function handleKeyDownGrid({
   }
   if (e.key === 'End') {
     e.preventDefault()
-    setActivecell({ row: activeCell.row, column: columns.length - 1 })
+    setActivecell({ row: activeCell.row, column: amountColumns - 1 })
   }
   // Note: this behavior for page up/down is correct for a fully visible grid (which we assume it is for now). 
   // If the grid is scrollable other behaviour applies, see mdn. 
@@ -50,7 +50,7 @@ export function handleKeyDownGrid({
   }
   if (e.key === 'PageDown') {
     e.preventDefault()
-    setActivecell({ row: (React.Children.count(children) / columns.length) - 1, column: activeCell.column })
+    setActivecell({ row: (React.Children.count(children) / amountColumns) - 1, column: activeCell.column })
   }
   if (e.key === 'Home' && e.ctrlKey) {
     e.preventDefault()
@@ -58,6 +58,6 @@ export function handleKeyDownGrid({
   }
   if (e.key === 'End' && e.ctrlKey) {
     e.preventDefault()
-    setActivecell({ row: (React.Children.count(children) / columns.length) - 1, column: columns.length - 1 })
+    setActivecell({ row: (React.Children.count(children) / amountColumns) - 1, column: amountColumns - 1 })
   }
 }
