@@ -260,13 +260,8 @@ export const clientSafeGoalSelection = {
   externalTableId: true,
   externalSelection: true,
   roadmapId: true,
-  dataSeries: {
-    select: {
-      id: true,
-      unit: true,
-      values: true,
-    }
-  },
+  dataSeries: { include: dataSeriesInclusionSelection, },
+  baseline: { include: dataSeriesInclusionSelection, },
   _count: { select: { effects: true } },
 } satisfies Prisma.GoalSelect;
 

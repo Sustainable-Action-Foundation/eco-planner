@@ -4,12 +4,12 @@ import clientSafeGetOneGoal from "@/fetchers/clientSafeGetOneGoal";
 import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
 import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import mathjs, { allOurUnits } from "@/math";
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput";
 import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
-import { Goal, UnitString } from "@/types";
+import { ClientGoal, ClientMultiRoadmapInstance, ClientRoadmap, Goal, UnitString } from "@/types";
 import { dataSeriesToDateValues } from "@/functions/recipe/extractors";
 
 export function ManualGoalForm({
@@ -101,37 +101,56 @@ export function ManualGoalForm({
   )
 }
 
-/** 
- * TODO: Update to use recipe editor and such fancy new stuff
- */
-export function InheritingBaseline() {
+export function InheritingBaseline({
+  outputFormElement,
+}: {
+  outputFormElement: React.ReactElement<HTMLInputElement>;
+}) {
   const { t } = useTranslation(["forms", "common"]);
-  const [roadmapList, setRoadmapList] = useState<Awaited<ReturnType<typeof clientSafeGetRoadmaps>>>([]);
+  const [roadmapList, setRoadmapList] = useState<ClientMultiRoadmapInstance[]>([]);
   const [selectedRoadmap, setSelectedRoadmap] = useState<string | undefined>(undefined);
-  const [roadmapData, setRoadmapData] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
+  const [roadmapData, setRoadmapData] = useState<ClientRoadmap | null>(null);
   const [selectedGoal, setSelectedGoal] = useState<string | undefined>(undefined);
-  const [goalData, setGoalData] = useState<Awaited<ReturnType<typeof clientSafeGetOneGoal>>>(null);
+  const [goalData, setGoalData] = useState<ClientGoal | null>(null);
 
   useEffect(() => {
-    clientSafeGetRoadmaps().then(setRoadmapList).catch(() => {
-      setRoadmapList([]);
-    });
+    clientSafeGetRoadmaps()
+      .then(setRoadmapList)
+      .catch(() => {
+        setRoadmapList([]);
+      });
   }, []);
 
   useEffect(() => {
-    clientSafeGetOneRoadmap(selectedRoadmap ?? "").then(setRoadmapData).catch(() => {
+    if (!selectedRoadmap) {
       setRoadmapData(null);
-    });
+      setSelectedGoal(undefined);
+      console.warn("No roadmap selected, skipping fetch.");
+      return;
+    }
+    clientSafeGetOneRoadmap(selectedRoadmap)
+      .then(setRoadmapData)
+      .catch(() => {
+        setRoadmapData(null);
+      });
   }, [selectedRoadmap]);
 
   useEffect(() => {
-    clientSafeGetOneGoal(selectedGoal ?? "").then(setGoalData).catch(() => {
+    if (!selectedGoal) {
       setGoalData(null);
-    });
+      console.warn("No goal selected, skipping fetch.");
+      return;
+    }
+    clientSafeGetOneGoal(selectedGoal)
+      .then(setGoalData)
+      .catch(() => {
+        setGoalData(null);
+      });
   }, [selectedGoal]);
 
   return (
     <>
+      {/* Roadmap select */}
       <label className="block margin-block-75">
         {t("forms:goal.select_roadmap_version")}
         <select name="selectedRoadmap" id="selectedRoadmap" className="margin-inline-25" required
@@ -147,6 +166,7 @@ export function InheritingBaseline() {
         </select>
       </label>
 
+      {/* Goal select */}
       {roadmapData &&
         <label className="block margin-block-75">
           {t("forms:goal.select_goal_as_baseline")}
@@ -167,7 +187,12 @@ export function InheritingBaseline() {
       {goalData &&
         <label className="block margin-block-75">
           {t("forms:goal.baseline_copied")}
-          <input name="baselineDataSeries" id="baselineDataSeries" type="text" readOnly value={} />
+          {React.cloneElement(outputFormElement, {
+            value: JSON.stringify(goalData.baseline?.id ?? goalData.dataSeries?.id ?? ""), // TODO: data series or baseline?
+            type: "hidden",
+            hidden: true,
+            readOnly: true,
+          })}
         </label>
       }
     </>

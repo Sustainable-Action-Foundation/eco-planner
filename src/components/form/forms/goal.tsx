@@ -2,7 +2,7 @@
 
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import formSubmitter from "@/functions/formSubmitter";
-import { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from "@/types";
+import { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput, isDateValuesWithUnit, isISOIshDate } from "@/types";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput";
@@ -26,6 +26,7 @@ type DataSeriesType = (typeof DataSeriesType)[keyof typeof DataSeriesType];
 
 const BaselineType = {
   Initial: "INITIAL",
+  InitialNonZero: "INITIAL_NON_ZERO",
   Custom: "CUSTOM",
   Inherited: "INHERIT",
 } as const;
@@ -79,11 +80,9 @@ export default function GoalForm({
       return;
     }
 
-    const resultingRecipeString = formData.get("resultingRecipe") as string | null;
-    const resultingDateValuesString = formData.get("resultingDateValues") as string | null;
-
-    // Parse recipe if present
+    // Parse recipe (optional)
     let parsedRecipe: Recipe | undefined = undefined;
+    const resultingRecipeString = formData.get("resultingRecipe") as string | null;
     if (resultingRecipeString) {
       try {
         parsedRecipe = recipeFromUnknown(resultingRecipeString);
@@ -93,13 +92,78 @@ export default function GoalForm({
         return;
       }
     }
-    // Parse date values if present
+
+    // Parse date values (required)
+    const resultingDateValuesString = formData.get("resultingDateValues") as string | null;
+    if (!resultingDateValuesString) {
+      console.error("No resulting date values provided in form.");
+      event.target.reportValidity();
+      return;
+    }
     let parsedDateValues: DateValuesWithUnit | undefined = undefined;
-    if (resultingDateValuesString) {
-      try {
-        parsedDateValues = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;
-      } catch (e) {
-        console.error("Failed to parse resulting date values from form:", e);
+    try {
+      parsedDateValues = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;
+    } catch (e) {
+      console.error("Failed to parse resulting date values from form:", e);
+      event.target.reportValidity();
+      return;
+    }
+
+    if (
+      !parsedDateValues
+      || !isDateValuesWithUnit(parsedDateValues)
+    ) {
+      console.error("Parsed date values from form are invalid:", parsedDateValues);
+      event.target.reportValidity();
+      return;
+    }
+
+    let baseline: DateValuesWithUnit | undefined = undefined;
+    if (baselineType === BaselineType.Custom) {
+      const baselineString = formData.get("baseline-data-series") as string | null;
+      if (baselineString) {
+        try {
+          baseline = JSON.parse(baselineString) as DateValuesWithUnit;
+        } catch (e) {
+          console.error("Failed to parse baseline date values from form:", e);
+          event.target.reportValidity();
+          return;
+        }
+      }
+    }
+    else if (
+      baselineType === BaselineType.Initial
+      || baselineType === BaselineType.InitialNonZero
+    ) {
+      // Use the first value of the data series as the baseline
+      const dates = Object.keys(parsedDateValues.dateValues).sort();
+      if (!dates.every(isISOIshDate)) throw new Error("Dates in data series are not in a valid ISO-ish format.");
+      if (dates.length === 0) {
+        console.error("Cannot use initial baseline when data series is empty.");
+        event.target.reportValidity();
+        return;
+      }
+
+      baseline = {
+        unit: parsedDateValues.unit,
+        dateValues: {},
+      } satisfies DateValuesWithUnit;
+
+      const firstDateValue = baselineType === BaselineType.InitialNonZero
+        ? parsedDateValues.dateValues[dates.find(date => parsedDateValues.dateValues[date] !== 0) || dates[0]]
+        : parsedDateValues.dateValues[dates[0]]
+
+      for (const date of dates) {
+        baseline.dateValues[date] = firstDateValue;
+      }
+    }
+    else if (baselineType === BaselineType.Inherited) {
+      const inheritedBaselineId = formData.get("inherited-baseline-id") as string | null;
+      if (inheritedBaselineId) {
+        // Just set the baseline ID, the API will handle the rest
+      }
+      else {
+        console.error("No inherited baseline ID provided in form.");
         event.target.reportValidity();
         return;
       }
@@ -290,6 +354,7 @@ export default function GoalForm({
             {t("forms:goal.baseline_label")}
             <select className="block margin-top-25 margin-bottom-100" name="baselineSelector" id="baselineSelector" value={baselineType} onChange={(e) => setBaselineType(e.target.value as BaselineType)}>
               <option value={BaselineType.Initial}>{t("forms:goal.baseline_types.initial")}</option>
+              <option value={BaselineType.InitialNonZero}>{t("forms:goal.baseline_types.initial_non_zero")}</option>
               <option value={BaselineType.Custom}>{t("forms:goal.baseline_types.custom")}</option>
               <option value={BaselineType.Inherited}>{t("forms:goal.baseline_types.inherited")}</option>
             </select>
@@ -305,7 +370,9 @@ export default function GoalForm({
 
           {/* Inherited baseline input */}
           {baselineType === BaselineType.Inherited &&
-            <InheritingBaseline />
+            <InheritingBaseline
+              outputFormElement={<input name="inherited-baseline-id" />}
+            />
           }
         </fieldset>
 

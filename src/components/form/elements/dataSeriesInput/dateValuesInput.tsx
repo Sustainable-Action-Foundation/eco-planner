@@ -67,6 +67,7 @@ export default function DateValuesInput({
         value: JSON.stringify({ dateValues, unit: initialDateValues.unit } satisfies DateValuesWithUnit),
         type: "hidden",
         hidden: true,
+        readOnly: true,
       })}
 
       <fieldset className="block fieldset-unset-pseudo-class">

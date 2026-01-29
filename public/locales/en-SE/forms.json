@@ -90,7 +90,8 @@
     "baseline_types": {
       "custom": "Custom baseline",
       "inherited": "Use another $t(common:goal_one) as baseline",
-      "initial": "First year value"
+      "initial": "First year value",
+      "initial_non_zero": "First defined year"
     },
     "choose_baseline_for_actions": "Select a baseline for calculating {{$t(common:action_other), possessive}} $t(common:effect_other) on this $t(common:goal_one)",
     "choose_goal_data_series": "Input a data series for this $t(common:goal_one)",

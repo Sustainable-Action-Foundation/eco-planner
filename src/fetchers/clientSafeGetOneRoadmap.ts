@@ -1,12 +1,12 @@
 "use server";
 
-import { Prisma } from "@prisma/client";
 import prisma from "@/prismaClient";
 import { clientSafeRoadmapSelection } from "./inclusionSelectors";
 import { cookies } from "next/headers";
 import { getSession, LoginData } from "@/lib/session";
 import { goalSorter } from "@/lib/sorters";
 import { unstable_cacheTag as cacheTag } from 'next/cache'
+import { ClientRoadmap } from "@/types";
 
 /**
  * A function similar to `getOneRoadmap`, but excluding potentially sensitive data.
@@ -15,18 +15,16 @@ import { unstable_cacheTag as cacheTag } from 'next/cache'
  * @param id ID of the roadmap to get
  * @returns Roadmap object with goals
  */
-export default async function clientSafeGetOneRoadmap(id: string) {
+export default async function clientSafeGetOneRoadmap(id: string): Promise<ClientRoadmap | null> {
   const session = await getSession(await cookies());
   return getCachedClientSafeRoadmap(id, session.user);
 }
 
-async function getCachedClientSafeRoadmap(id: string, user: LoginData['user']) {
+async function getCachedClientSafeRoadmap(id: string, user: LoginData['user']): Promise<ClientRoadmap | null> {
   'use cache';
   cacheTag('database', 'roadmap', 'goal', 'action');
 
-  let roadmap: Prisma.RoadmapGetPayload<{
-    select: typeof clientSafeRoadmapSelection;
-  }> | null = null;
+  let roadmap: ClientRoadmap | null = null;
 
   // If user is admin, get all roadmaps
   if (user?.isAdmin) {
@@ -34,7 +32,7 @@ async function getCachedClientSafeRoadmap(id: string, user: LoginData['user']) {
       roadmap = await prisma.roadmap.findUnique({
         where: { id },
         select: clientSafeRoadmapSelection
-      });
+      }) satisfies ClientRoadmap | null;
     } catch (error) {
       console.log(error);
       console.log('Error fetching admin roadmap');
@@ -46,12 +44,13 @@ async function getCachedClientSafeRoadmap(id: string, user: LoginData['user']) {
 
     return roadmap;
   }
+  console.log(roadmap);
 
   // If user is logged in, get all roadmaps they have access to
   if (user?.isLoggedIn) {
     try {
       // Get all roadmaps authored by the user
-      roadmap = await prisma.roadmap.findUnique({
+      roadmap = await prisma.roadmap.findUniqueOrThrow({
         where: {
           id,
           OR: [
@@ -64,7 +63,7 @@ async function getCachedClientSafeRoadmap(id: string, user: LoginData['user']) {
           ]
         },
         select: clientSafeRoadmapSelection
-      });
+      }) satisfies ClientRoadmap | null;
     } catch (error) {
       console.log(error);
       console.log('Error fetching user roadmap');
@@ -85,7 +84,7 @@ async function getCachedClientSafeRoadmap(id: string, user: LoginData['user']) {
         isPublic: true
       },
       select: clientSafeRoadmapSelection
-    });
+    }) satisfies ClientRoadmap | null;
   } catch (error) {
     console.log(error);
     console.log('Error fetching public roadmap');
