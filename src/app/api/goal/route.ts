@@ -4,12 +4,10 @@ import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/session";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
-import { AccessControlled, ClientError, GoalCreateInput, GoalUpdateInput, JSONValue, DateValues, isDateValues, isStandardObject, isDateValuesWithUnit } from "@/types";
+import { AccessControlled, ClientError, GoalCreateInput, GoalUpdateInput, JSONValue, isStandardObject, isDateValuesWithUnit } from "@/types";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { Prisma } from "@prisma/client";
-import crypto from 'crypto';
 import pruneOrphans from "@/functions/pruneOrphans";
-import { cleanRecipe, evaluateRecipe } from "@/functions/recipe/parseRecipe";
 import { isRecipe } from "@/functions/recipe/types";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 
@@ -479,182 +477,127 @@ export async function PUT(request: NextRequest) {
   }
 
   // Edit goal
+  let goalId: string | undefined = undefined;
   try {
-    // Data series parsing
-    let parsedDataSeries: Partial<DateValues> | undefined | null = undefined;
-    let parsedDataSeriesUnit: string | null = null;
-    if (goal.dataSeriesRecipe) {
-      // TODO: If the recipe is invalid, return an error UNLESS explicitly marked as incomplete somehow (needs to be added to form and here), in which case dataValues should be set to undefined
-
-      const warnings: string[] = [];
-      const resolvedRecipe = await evaluateRecipe(cleanRecipe(goal.dataSeriesRecipe), warnings);
-      if (!resolvedRecipe) {
-        return Response.json({ message: 'Recipe evaluation canceled' }, { status: 400 }); // TODO: canceled eval indicates a bad recipe so therefor I think 400 is appropriate but I'm not sure
+    await prisma.$transaction(async (prisma) => {
+      // Write recipes first
+      const dataSeriesHash = goal.dataSeriesRecipe
+        ? await SmartRecipe.hash(goal.dataSeriesRecipe)
+        : null;
+      if (goal.dataSeriesRecipe && dataSeriesHash) {
+        await prisma.recipe.upsert({
+          where: { hash: dataSeriesHash, },
+          update: { recipe: goal.dataSeriesRecipe }, // Should not happen, like at all
+          create: {
+            hash: dataSeriesHash,
+            recipe: goal.dataSeriesRecipe,
+          },
+        });
+      }
+      const baselineHash = goal.baselineRecipe
+        ? await SmartRecipe.hash(goal.baselineRecipe)
+        : null;
+      if (goal.baselineRecipe && baselineHash) {
+        await prisma.recipe.upsert({
+          where: { hash: baselineHash, },
+          update: { recipe: goal.baselineRecipe }, // Should not happen, like at all
+          create: {
+            hash: baselineHash,
+            recipe: goal.baselineRecipe,
+          },
+        });
       }
 
-      const { dataSeries, unit } = resolvedRecipe;
-
-      if (warnings.length) {
-        console.warn("Warnings while evaluating recipe for new goal:");
-        for (const warning of warnings) {
-          console.warn(warning);
-        }
-      }
-
-      parsedDataSeries = dataSeries;
-      parsedDataSeriesUnit = unit !== undefined ? unit : '';
-    }
-    // TODO: DEPRECATE - raw data series should be made into data series before posting to the API and use 1:1 recipes instead 
-    else if (goal.rawDataSeries) {
-      parsedDataSeries = dataSeriesPrep(goal.rawDataSeries);
-      parsedDataSeriesUnit = goal.rawDataSeriesUnit !== undefined ? goal.rawDataSeriesUnit : '';
-    }
-
-    // Non full data series is an error
-    if (parsedDataSeries && !isDateValues(parsedDataSeries)) {
-      parsedDataSeries = null;
-    }
-
-    // If the data series is invalid, return an error
-    if (parsedDataSeries === null) {
-      return Response.json({ message: 'Bad data series' },
-        { status: 400 }
-      );
-    }
-
-    // Baseline data series parsing
-    const shouldRemoveBaseline = goal.rawBaselineDataSeries === null;
-    let parsedBaselineDataSeries: Partial<DateValues> | undefined | null = undefined;
-    let parsedBaselineDataSeriesUnit: string | null = null;
-
-    if (shouldRemoveBaseline) {
-      parsedBaselineDataSeries = null;
-    }
-    // Calculate new baseline
-    else {
-      if (goal.rawBaselineDataSeries) {
-        parsedBaselineDataSeries = dataSeriesPrep(goal.rawBaselineDataSeries);
-      }
-
-      // Non full data series is an error
-      if (parsedBaselineDataSeries && !isDateValues(parsedBaselineDataSeries)) {
-        parsedBaselineDataSeries = null;
-      }
-      // Note: May be null to indicate deletion of baseline
-
-      // TODO: formData.rawBaselineDataSeriesUnit may never be set or read from the form. Is it even settable in the form?
-      // If null, set to null
-      if (goal.rawBaselineDataSeriesUnit === null) {
-        parsedBaselineDataSeriesUnit = null;
-      }
-      // If a non empty string is provided, use it
-      else if (typeof goal.rawBaselineDataSeriesUnit === 'string' && goal.rawBaselineDataSeriesUnit.trim().length) {
-        parsedBaselineDataSeriesUnit = goal.rawBaselineDataSeriesUnit.trim();
-      }
-      // Fall back to data series unit no matter its value
-      else {
-        parsedBaselineDataSeriesUnit = parsedDataSeriesUnit;
-      }
-
-      if (parsedBaselineDataSeries === null) {
-        return Response.json({ message: 'Bad baseline data series' },
-          { status: 400 }
-        );
-      }
-    }
-
-    const recipeHash = goal.dataSeriesRecipe ? crypto.createHash('sha256').update(JSON.stringify(goal.dataSeriesRecipe)).digest('hex') : undefined;
-
-    const editedGoal = await prisma.goal.update({
-      where: { id: goal.goalId },
-      data: {
-        name: goal.name,
-        description: goal.description,
-        indicatorParameter: goal.indicatorParameter,
-        isFeatured: goal.isFeatured,
-        externalDataset: goal.externalDataset,
-        externalTableId: goal.externalTableId,
-        externalSelection: goal.externalSelection,
-        // Only update the data series if it is not undefined (undefined means no change)
-        ...(
-          parsedDataSeries === undefined ? {} : parsedDataSeries ? {
-            dataSeries: {
-              upsert: {
-                create: {
-                  ...parsedDataSeries,
-                  unit: parsedDataSeriesUnit,
-                  authorId: session.user.id,
-                },
-                update: {
-                  ...parsedDataSeries,
-                  unit: parsedDataSeriesUnit,
+      // Update goal
+      const editedGoal = await prisma.goal.update({
+        where: { id: goal.goalId },
+        data: {
+          name: goal.name,
+          description: goal.description,
+          indicatorParameter: goal.indicatorParameter,
+          isFeatured: goal.isFeatured,
+          externalDataset: goal.externalDataset,
+          externalTableId: goal.externalTableId,
+          externalSelection: goal.externalSelection,
+          // Only update the data series if it is not undefined (undefined means no change)
+          ...(
+            goal.dataSeries === undefined
+              ? {}
+              : goal.dataSeries ? {
+                dataSeries: {
+                  upsert: {
+                    create: {
+                      author: { connect: { id: session.user?.id } },
+                      ...(dataSeriesHash
+                        ? { recipeUsed: { connect: { hash: dataSeriesHash, }, }, }
+                        : {}
+                      ),
+                      values: goal.dataSeries.dateValues,
+                      unit: goal.dataSeries.unit,
+                    },
+                    update: {
+                      ...(dataSeriesHash
+                        ? { recipeUsed: { connect: { hash: dataSeriesHash, }, }, }
+                        : {}
+                      ),
+                      values: goal.dataSeries.dateValues,
+                      unit: goal.dataSeries.unit,
+                    }
+                  }
                 }
-              }
-            }
-          } : {}
-        ),
-        ...(
-          parsedBaselineDataSeries === undefined ? {} : shouldRemoveBaseline ? {
-            // Remove baseline case
-            baselineDataSeries: {
-              delete: true,
-            }
-          } : {
-            // Updated baseline case
-            baselineDataSeries: {
-              upsert: {
-                create: {
-                  ...parsedBaselineDataSeries,
-                  unit: parsedBaselineDataSeriesUnit,
-                  authorId: session.user.id,
-                },
-                update: {
-                  ...parsedBaselineDataSeries,
-                  unit: parsedBaselineDataSeriesUnit,
+              } : {}
+          ),
+          // Only update the baseline if it is not undefined (undefined means no change)
+          ...(
+            goal.baseline === undefined
+              ? {}
+              : goal.baseline ? {
+                baseline: {
+                  upsert: {
+                    create: {
+                      author: { connect: { id: session.user?.id } },
+                      ...(baselineHash
+                        ? { recipeUsed: { connect: { hash: baselineHash, }, }, }
+                        : {}
+                      ),
+                      values: goal.baseline.dateValues,
+                      unit: goal.baseline.unit,
+                    },
+                    update: {
+                      ...(baselineHash
+                        ? { recipeUsed: { connect: { hash: baselineHash, }, }, }
+                        : {}
+                      ),
+                      values: goal.baseline.dateValues,
+                      unit: goal.baseline.unit,
+                    }
+                  }
                 }
-              }
-            }
-          }
-        ),
-        // Connect, disconnect, or create recipe
-        ...(goal.dataSeriesRecipe ? {
-          recipeUsed: {
-            connectOrCreate: {
-              where: {
-                hash: recipeHash as string,
-              },
-              create: {
-                hash: recipeHash as string,
-                recipe: goal.dataSeriesRecipe,
-              }
-            }
-          }
-        } : goal.dataSeriesRecipe === null ? {
-          recipeUsed: {
-            disconnect: true
-          }
-        } : {}),
-        links: {
-          deleteMany: {},
-          create: goal.links?.map(link => {
-            return {
+              } : {}
+          ),
+          links: {
+            deleteMany: {},
+            create: goal.links?.map(link => ({
               url: link.url,
-              description: link.description || undefined,
-            }
-          })
+              description: link.description,
+            })),
+          },
         },
-      },
-      select: {
-        id: true,
-      }
+        select: {
+          id: true,
+        },
+      });
+
+      goalId = editedGoal.id;
     });
+
     // Prune any orphaned links and comments
     void pruneOrphans();
     // Invalidate old cache
     revalidateTag('goal');
     // Return the edited goal's ID if successful
-    return Response.json({ message: "Goal updated", id: editedGoal.id },
-      { status: 200, headers: { 'Location': `/goal/${editedGoal.id}` } }
+    return Response.json({ message: "Goal updated", id: goalId },
+      { status: 200, headers: { 'Location': `/goal/${goalId}` } }
     );
   } catch (error) {
     console.log(error);
