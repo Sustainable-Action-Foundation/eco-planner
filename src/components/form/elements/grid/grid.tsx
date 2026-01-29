@@ -5,7 +5,6 @@ import React, { useEffect, useState } from "react"
 import { GridElement } from "@/components/types"
 import { handleKeyDownGrid } from "./functions"
 
-// TODO: Figure out if we beed pageup/pagedown
 // TODO: Handle columnheaders the same as gridcells
 
 const GridCell = React.forwardRef<HTMLDivElement, GridElement>(

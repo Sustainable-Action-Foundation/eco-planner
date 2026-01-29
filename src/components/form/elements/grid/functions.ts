@@ -42,6 +42,16 @@ export function handleKeyDownGrid({
     e.preventDefault()
     setActivecell({ row: activeCell.row, column: columns.length - 1 })
   }
+  // Note: this behavior for page up/down is correct for a fully visible grid (which we assume it is for now). 
+  // If the grid is scrollable other behaviour applies, see mdn. 
+  if (e.key === 'PageUp') { 
+    e.preventDefault()
+    setActivecell({ row: 0, column: activeCell.column })
+  }
+  if (e.key === 'PageDown') {
+    e.preventDefault()
+    setActivecell({ row: (React.Children.count(children) / columns.length) - 1, column: activeCell.column })
+  }
   if (e.key === 'Home' && e.ctrlKey) {
     e.preventDefault()
     setActivecell({ row: 0, column: 0 })
