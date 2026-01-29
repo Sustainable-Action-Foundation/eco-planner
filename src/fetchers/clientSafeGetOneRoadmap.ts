@@ -50,7 +50,7 @@ async function getCachedClientSafeRoadmap(id: string, user: LoginData['user']): 
   if (user?.isLoggedIn) {
     try {
       // Get all roadmaps authored by the user
-      roadmap = await prisma.roadmap.findUniqueOrThrow({
+      roadmap = await prisma.roadmap.findUnique({
         where: {
           id,
           OR: [
