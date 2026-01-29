@@ -9,7 +9,6 @@ import { handleKeyDownGrid } from "./functions"
 // TODO: Handle columnheaders the same as gridcells
 // TODO: Allow passing props to gridcells (generic html element?)
 
-
 const GridCell = React.forwardRef<HTMLDivElement, GridElement>(
   ({ className, style, children, position, tabIndex, onKeyDown, onClick }, ref) => (
     <div
@@ -63,13 +62,13 @@ export default function Grid({
   // TODO: Add like a check that the amount of children is divisible by the amount of columns or something 
   // to ensure that we have the correct amount of children
 
-  const [coordinates, setCoordinates] = useState<{ row: number, column: number }>({ row: 0, column: 0 }) /* TODO: Switch name to active cell or somn... */
+  const [activeCell, setActivecell] = useState<{ row: number, column: number }>({ row: 0, column: 0 })
 
   const cellRefs = React.useRef<Map<string, HTMLDivElement>>(new Map())
   const keyFor = (row: number, column: number) => `${row}-${column}`
 
   useEffect(() => {
-    const key = keyFor(coordinates.row, coordinates.column)
+    const key = keyFor(activeCell.row, activeCell.column)
     const cell = cellRefs.current.get(key)
     if (!cell) return
 
@@ -82,8 +81,7 @@ export default function Grid({
     } else {
       cell.focus()
     }
-  }, [coordinates])
-
+  }, [activeCell])
 
   return (
     <div
@@ -107,7 +105,7 @@ export default function Grid({
         const column = index % columns.length
 
         let tabIndex: 0 | -1 = -1
-        if (coordinates.row === row && coordinates.column === column) { tabIndex = 0 }
+        if (activeCell.row === row && activeCell.column === column) { tabIndex = 0 }
         return React.cloneElement(
           child as React.ReactElement<GridElement & React.RefAttributes<HTMLDivElement>>,
           {
@@ -118,10 +116,10 @@ export default function Grid({
                 e,
                 columns,
                 children,
-                coordinates,
-                setCoordinates,
+                activeCell,
+                setActivecell,
               }),
-            onClick: () => setCoordinates({ row: row, column: column }), // Note that this might cause issues if our input inside the div is smaller than the actual div as we don't set focus here 
+            onClick: () => setActivecell({ row: row, column: column }), // Note that this might cause issues if our input inside the div is smaller than the actual div as we don't set focus here 
             ref: (el: HTMLDivElement | null) => {
               if (!el) return
               cellRefs.current.set(keyFor(row, column), el)

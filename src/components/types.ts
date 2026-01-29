@@ -33,13 +33,13 @@ export type TreeItem = {
   onExpand?: () => Array<TreeItem> | Promise<Array<TreeItem>>
 }
 
-export type GridCoordinates = {
+export type Position = {
   row: number,
   column: number
 }
 
 export type GridElement = GenericElement & {
-  position?: GridCoordinates,
+  position?: Position,
   tabIndex?: 0 | -1,
   children?: React.ReactNode,
   onKeyDown?: React.KeyboardEventHandler<HTMLDivElement>, // Note: we assume a gridcell is a div for now.
