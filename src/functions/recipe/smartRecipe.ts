@@ -190,9 +190,8 @@ export class SmartRecipe {
    */
   public toSerialized(): string {
     return JSON.stringify({
-      name: this.name,
-      eq: this.equation,
-      variables: this.variables,
+      ...this.toRecipe(),
+      smartMeta: { v: 1 },
     });
   }
 
@@ -200,6 +199,7 @@ export class SmartRecipe {
    * Get converted SmartRecipe as a plain Recipe object.
    */
   public toRecipe(): Recipe {
+    // TODO: parse smart meta
     return {
       name: this.name,
       eq: this.equation,
@@ -225,6 +225,11 @@ export class SmartRecipe {
     const hashHex = Array.from(new Uint8Array(hashArray)).map(b => b.toString(16).padStart(2, '0')).join('');
     this.hash = hashHex;
     return this.hash;
+  }
+
+  public static async hash(recipe: Recipe): Promise<string> {
+    const smartRecipe = SmartRecipe.fromObject(recipe);
+    return await smartRecipe.generateHash();
   }
 
   /** 

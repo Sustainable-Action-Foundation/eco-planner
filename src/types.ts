@@ -2,7 +2,6 @@ import { ActionImpactType, Prisma, RoadmapType } from "@prisma/client";
 import { actionInclusionSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, dataSeriesInclusionSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, roadmapInclusionSelection } from "./fetchers/inclusionSelectors";
 import { Recipe } from "./functions/recipe/types";
 import { Unit } from "mathjs";
-import { SmartRecipe } from "./functions/recipe/smartRecipe";
 
 /**
  * A utility function for helping with finding where something fails in a typeguard chain.
@@ -369,15 +368,15 @@ export type GoalCreateInput = {
   externalTableId: string | null | undefined;
   externalSelection: string | null | undefined;
 
-  recipeSuggestions: SmartRecipe[] | Recipe[] | null | undefined;
+  recipeSuggestions: Recipe[] | null | undefined;
 
-  dataSeries: DateValuesWithUnit | null | undefined;
+  dataSeries: DateValuesWithUnit;
   dataSeriesId: string | null | undefined;
-  dataSeriesRecipe: SmartRecipe | Recipe | null | undefined;
+  dataSeriesRecipe: Recipe | null | undefined;
 
-  baseline: DateValuesWithUnit | null | undefined;
+  baseline: DateValuesWithUnit;
   baselineId: string | null | undefined;
-  baselineRecipe: SmartRecipe | Recipe | null | undefined;
+  baselineRecipe: Recipe | null | undefined;
 
   // Relations
   // authorId: string; // Derived from session in the API
@@ -421,13 +420,13 @@ export type GoalUpdateInput = {
 
   dataSeries: DateValuesWithUnit | null | undefined;
   dataSeriesId: string | null | undefined;
-  dataSeriesRecipe: SmartRecipe | Recipe | null | undefined;
+  dataSeriesRecipe: Recipe | null | undefined;
 
   baseline: DateValuesWithUnit | null | undefined;
   baselineId: string | null | undefined;
-  baselineRecipe: SmartRecipe | Recipe | null | undefined;
+  baselineRecipe: Recipe | null | undefined;
 
-  recipeSuggestions: SmartRecipe[] | Recipe[] | null | undefined;
+  recipeSuggestions: Recipe[] | null | undefined;
 
   // Relations
   // authorId: string; // Derived from session in the API

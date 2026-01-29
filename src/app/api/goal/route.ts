@@ -4,13 +4,14 @@ import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/session";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
-import { AccessControlled, ClientError, GoalCreateInput, GoalUpdateInput, JSONValue, DateValues, isDateValues, isStandardObject, isDateValuesWithUnit, DateValuesWithUnit } from "@/types";
+import { AccessControlled, ClientError, GoalCreateInput, GoalUpdateInput, JSONValue, DateValues, isDateValues, isStandardObject, isDateValuesWithUnit } from "@/types";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { Prisma } from "@prisma/client";
 import crypto from 'crypto';
 import pruneOrphans from "@/functions/pruneOrphans";
 import { cleanRecipe, evaluateRecipe } from "@/functions/recipe/parseRecipe";
-import { isRecipe, isSmartRecipe } from "@/functions/recipe/types";
+import { isRecipe } from "@/functions/recipe/types";
+import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 
 function tryParseJSON(value: unknown): { ok: true; value: unknown } | { ok: false } {
   if (typeof value !== "string") return { ok: true, value };
@@ -42,7 +43,7 @@ function isGoalCreate(goal: unknown): goal is GoalCreateInput {
   if ("recipeSuggestions" in goal && !(
     (
       Array.isArray(goal.recipeSuggestions)
-      && (goal.recipeSuggestions.every(isRecipe) || goal.recipeSuggestions.every(isSmartRecipe))
+      && goal.recipeSuggestions.every(isRecipe)
     )
     || goal.recipeSuggestions === null
     || goal.recipeSuggestions === undefined
@@ -55,9 +56,7 @@ function isGoalCreate(goal: unknown): goal is GoalCreateInput {
     goal.dataSeries = parsed.value as GoalCreateInput["dataSeries"];
   }
   if (!(
-    goal.dataSeries === null
-    || goal.dataSeries === undefined
-    || isStandardObject(goal.dataSeries)
+    isStandardObject(goal.dataSeries)
     && isDateValuesWithUnit(goal.dataSeries)
   )) return false;
   if (!("dataSeriesId" in goal) || !(typeof goal.dataSeriesId === 'string' || goal.dataSeriesId === null || goal.dataSeriesId === undefined)) return false;
@@ -71,7 +70,7 @@ function isGoalCreate(goal: unknown): goal is GoalCreateInput {
     goal.dataSeriesRecipe === null
     || goal.dataSeriesRecipe === undefined
     || isStandardObject(goal.dataSeriesRecipe)
-    && (isRecipe(goal.dataSeriesRecipe) || isSmartRecipe(goal.dataSeriesRecipe))
+    && isRecipe(goal.dataSeriesRecipe)
   )) return false;
 
   if (!("baseline" in goal)) return false;
@@ -81,9 +80,7 @@ function isGoalCreate(goal: unknown): goal is GoalCreateInput {
     goal.baseline = parsed.value as GoalCreateInput["baseline"];
   }
   if (!(
-    goal.baseline === null
-    || goal.baseline === undefined
-    || isStandardObject(goal.baseline)
+    isStandardObject(goal.baseline)
     && isDateValuesWithUnit(goal.baseline)
   )) return false;
   if (!("baselineId" in goal) || !(typeof goal.baselineId === 'string' || goal.baselineId === null || goal.baselineId === undefined)) return false;
@@ -97,7 +94,7 @@ function isGoalCreate(goal: unknown): goal is GoalCreateInput {
     goal.baselineRecipe === null
     || goal.baselineRecipe === undefined
     || isStandardObject(goal.baselineRecipe)
-    && (isRecipe(goal.baselineRecipe) || isSmartRecipe(goal.baselineRecipe))
+    && isRecipe(goal.baselineRecipe)
   )) return false;
 
   if (!("links" in goal) || !(
@@ -155,7 +152,7 @@ function isGoalUpdate(goal: unknown): goal is GoalUpdateInput {
     goal.dataSeriesRecipe === null
     || goal.dataSeriesRecipe === undefined
     || isStandardObject(goal.dataSeriesRecipe)
-    && (isRecipe(goal.dataSeriesRecipe) || isSmartRecipe(goal.dataSeriesRecipe))
+    && isRecipe(goal.dataSeriesRecipe)
   )) return false;
 
   if ("baseline" in goal) {
@@ -180,7 +177,7 @@ function isGoalUpdate(goal: unknown): goal is GoalUpdateInput {
     goal.baselineRecipe === null
     || goal.baselineRecipe === undefined
     || isStandardObject(goal.baselineRecipe)
-    && (isRecipe(goal.baselineRecipe) || isSmartRecipe(goal.baselineRecipe))
+    && isRecipe(goal.baselineRecipe)
   )) return false;
 
   if (!("links" in goal) || !(
@@ -288,164 +285,96 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  let goalId: string | undefined = undefined;
+
   // Parse form data
   try {
-    const newGoal = await prisma.goal.create({
-      data: {
-        name: formData.name,
-        description: formData.description,
-        indicatorParameter: formData.indicatorParameter,
-        isFeatured: formData.isFeatured,
-        externalDataset: formData.externalDataset,
-        externalTableId: formData.externalTableId,
-        externalSelection: formData.externalSelection,
-        author: {
-          connect: { id: session.user.id },
+    await prisma.$transaction(async (prisma) => {
+      // Write recipes first
+      const dataSeriesHash = formData.dataSeriesRecipe
+        ? await SmartRecipe.hash(formData.dataSeriesRecipe)
+        : null;
+      if (formData.dataSeriesRecipe && dataSeriesHash) {
+        await prisma.recipe.upsert({
+          where: { hash: dataSeriesHash, },
+          update: { recipe: formData.dataSeriesRecipe }, // Should not happen, like at all
+          create: {
+            hash: dataSeriesHash,
+            recipe: formData.dataSeriesRecipe,
+          },
+        });
+      }
+      const baselineHash = formData.baselineRecipe
+        ? await SmartRecipe.hash(formData.baselineRecipe)
+        : null;
+      if (formData.baselineRecipe && baselineHash) {
+        await prisma.recipe.upsert({
+          where: { hash: baselineHash, },
+          update: { recipe: formData.baselineRecipe }, // Should not happen, like at all
+          create: {
+            hash: baselineHash,
+            recipe: formData.baselineRecipe,
+          },
+        });
+      }
+
+      const newGoal = await prisma.goal.create({
+        data: {
+          name: formData.name,
+          description: formData.description,
+          indicatorParameter: formData.indicatorParameter,
+          isFeatured: formData.isFeatured,
+          externalDataset: formData.externalDataset,
+          externalTableId: formData.externalTableId,
+          externalSelection: formData.externalSelection,
+          author: {
+            connect: { id: session.user?.id },
+          },
+          roadmap: {
+            connect: { id: formData.roadmapId },
+          },
+          dataSeries: {
+            create: {
+              author: { connect: { id: session.user?.id } },
+              ...(dataSeriesHash
+                ? { recipeUsed: { connect: { hash: dataSeriesHash, }, }, }
+                : {}
+              ),
+              values: formData.dataSeries.dateValues,
+              unit: formData.dataSeries.unit,
+            }
+          },
+          baseline: {
+            create: {
+              author: { connect: { id: session.user?.id } },
+              ...(baselineHash
+                ? { recipeUsed: { connect: { hash: baselineHash, }, }, }
+                : {}
+              ),
+              values: formData.baseline.dateValues,
+              unit: formData.baseline.unit,
+            },
+          },
+          links: {
+            create: formData.links?.map(link => ({
+              url: link.url,
+              description: link.description,
+            })),
+          },
         },
-        roadmap: {
-          connect: { id: formData.roadmapId },
+        select: {
+          id: true,
         },
-        dataSeries: formData.dataSeries,
-        baseline: formData.baseline,
-        links: {
-          create: formData.links?.map(link => ({
-            url: link.url,
-            description: link.description,
-          })),
-        },
-      },
-      select: {
-        id: true,
-      },
+      });
+
+      goalId = newGoal.id;
     });
 
-    // Data series parsing
-    // let parsedDataSeries: DateValuesWithUnit | undefined = undefined;
-    // if (formData.dataSeriesRecipe) {
-    //   // TODO: If the recipe is invalid, return an error UNLESS explicitly marked as incomplete somehow (needs to be added to form and here), in which case dataValues should be set to undefined
-
-    //   const warnings: string[] = [];
-    //   const resolvedRecipe = await evaluateRecipe(cleanRecipe(formData.dataSeriesRecipe), warnings);
-    //   if (!resolvedRecipe) {
-    //     return Response.json({ message: 'Recipe evaluation canceled' }, { status: 400 }); // TODO: canceled eval indicates a bad recipe so therefor I think 400 is appropriate but I'm not sure
-    //   }
-    //   const { dataSeries, unit } = resolvedRecipe;
-
-    //   if (warnings.length) {
-    //     console.warn("Warnings while evaluating recipe for new goal:");
-    //     for (const warning of warnings) {
-    //       console.warn(warning);
-    //     }
-    //   }
-
-    //   parsedDataSeries = dataSeries;
-    //   parsedDataSeriesUnit = unit !== undefined ? unit : '';
-    // }
-    // // TODO: DEPRECATE - raw data series should be made into data series before posting to the API and use 1:1 recipes instead 
-    // else if (formData.rawDataSeries) {
-    //   parsedDataSeries = dataSeriesPrep(formData.rawDataSeries);
-    //   parsedDataSeriesUnit = formData.rawDataSeriesUnit !== undefined ? formData.rawDataSeriesUnit : '';
-    // }
-
-    // // Non full data series is an error
-    // if (parsedDataSeries && !isDateValues(parsedDataSeries)) {
-    //   parsedDataSeries = null;
-    // }
-
-    // // If the data series is invalid, return an error
-    // if (parsedDataSeries === null) {
-    //   return Response.json({ message: 'Bad data series' },
-    //     { status: 400 }
-    //   );
-    // }
-
-    // // Baseline data series parsing
-    // let parsedBaselineDataSeries: Partial<DateValues> | undefined | null = undefined;
-    // let parsedBaselineDataSeriesUnit: string | null = null;
-    // if (formData.rawBaselineDataSeries) {
-    //   parsedBaselineDataSeries = dataSeriesPrep(formData.rawBaselineDataSeries);
-    // }
-
-    // // Non full data series is an error
-    // if (parsedBaselineDataSeries && !isDateValues(parsedBaselineDataSeries)) {
-    //   parsedBaselineDataSeries = null;
-    // }
-
-    // // If the baseline data series is invalid, return an error
-    // if (parsedBaselineDataSeries === null) {
-    //   return Response.json({ message: 'Bad baseline data series' },
-    //     { status: 400 }
-    //   );
-    // }
-
-    // // TODO: formData.rawBaselineDataSeriesUnit may never be set or read from the form. Is it even settable in the form?
-    // // If null, set to null
-    // if (formData.rawBaselineDataSeriesUnit === null) {
-    //   parsedBaselineDataSeriesUnit = null;
-    // }
-    // // If a non empty string is provided, use it
-    // else if (typeof formData.rawBaselineDataSeriesUnit === 'string' && formData.rawBaselineDataSeriesUnit.trim().length) {
-    //   parsedBaselineDataSeriesUnit = formData.rawBaselineDataSeriesUnit.trim();
-    // }
-    // // Fall back to data series unit no matter its value
-    // else {
-    //   parsedBaselineDataSeriesUnit = parsedDataSeriesUnit;
-    // }
-
-    // const recipeHash = formData.dataSeriesRecipe ? crypto.createHash('sha256').update(JSON.stringify(formData.dataSeriesRecipe)).digest('hex') : undefined;
-
-    // const newGoal = await prisma.goal.create({
-    //   data: {
-    //     name: formData.name,
-    //     description: formData.description,
-    //     indicatorParameter: formData.indicatorParameter,
-    //     isFeatured: formData.isFeatured,
-    //     externalDataset: formData.externalDataset,
-    //     externalTableId: formData.externalTableId,
-    //     externalSelection: formData.externalSelection,
-    //     author: {
-    //       connect: { id: session.user.id },
-    //     },
-    //     roadmap: {
-    //       connect: { id: formData.roadmapId },
-    //     },
-    //     dataSeries: parsedDataSeries ? {
-    //       create: {
-    //         ...parsedDataSeries,
-    //         unit: parsedDataSeriesUnit,
-    //         authorId: session.user.id,
-    //       },
-    //     } : undefined,
-    //     baselineDataSeries: parsedBaselineDataSeries ? {
-    //       create: {
-    //         ...parsedBaselineDataSeries,
-    //         unit: parsedBaselineDataSeriesUnit,
-    //         authorId: session.user.id,
-    //       }
-    //     } : undefined,
-    //     recipeUsed: formData.dataSeriesRecipe ? {
-    //       create: {
-    //         hash: recipeHash as string,
-    //         recipe: formData.dataSeriesRecipe,
-    //       }
-    //     } : undefined,
-    //     links: {
-    //       create: formData.links?.map(link => ({
-    //         url: link.url,
-    //         description: link.description,
-    //       }))
-    //     },
-    //   },
-    //   select: {
-    //     id: true,
-    //   }
-    // });
     // Invalidate old cache
-
     revalidateTag('goal');
     // Return the new goal's ID if successful
-    return Response.json({ message: "Goal created", id: newGoal.id },
-      { status: 201, headers: { 'Location': `/goal/${newGoal.id}` } }
+    return Response.json({ message: "Goal created", id: goalId },
+      { status: 201, headers: { 'Location': `/goal/${goalId}` } }
     );
   }
   catch (error) {

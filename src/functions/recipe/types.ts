@@ -283,10 +283,11 @@ export type Recipe = {
   name: string | null | undefined; // String if given, null if removed, undefined if not specified
   eq: string;
   variables: Record<string, RecipeVariable>;
+  smartMeta?: string; // Metadata for smart recipes for serialization purposes
 };
 export type RecipeIsh = Recipe | SmartRecipe;
 export function isRecipe(recipe: JSONValue): recipe is Recipe {
-  const allowedProps = ["name", "eq", "variables"];
+  const allowedProps = ["name", "eq", "variables", "smartMeta"];
 
   return (
     (
@@ -306,6 +307,11 @@ export function isRecipe(recipe: JSONValue): recipe is Recipe {
       typeof recipe.eq === "string" ||
       // recipe.eq.trim() !== "" || // Ensure eq is a non-empty string
       typeguardDebug("Type guard: 'eq' in recipe") && false
+    ) &&
+
+    (
+      recipe.smartMeta === undefined ||
+      typeof recipe.smartMeta === "string"
     ) &&
 
     (
@@ -340,7 +346,7 @@ export const isEmptyRecipe = (recipe: Recipe): boolean => {
 
 export function isSmartRecipe(recipe: unknown): recipe is SmartRecipe {
   if (typeof recipe !== "object" || recipe === null) return false;
-  
+
   if (!("equation" in recipe) || typeof recipe["equation"] !== "string") return false;
   if (!("checkValidity" in recipe) || typeof recipe["checkValidity"] !== "function") return false;
 
