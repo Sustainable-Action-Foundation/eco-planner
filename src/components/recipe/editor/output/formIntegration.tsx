@@ -36,21 +36,25 @@ export default function FormIntegration({
       defaultValue: JSON.stringify(resultingDataSeries),
       type: "hidden",
       hidden: true,
+      readOnly: true,
     })}
     {UnitFormElement && React.cloneElement(UnitFormElement, {
       defaultValue: resultingUnit ?? "",
       type: "hidden",
       hidden: true,
+      readOnly: true,
     })}
     {RecipeFormElement && React.cloneElement(RecipeFormElement, {
       defaultValue: JSON.stringify(recipe),
       type: "hidden",
       hidden: true,
+      readOnly: true,
     })}
     {DateValuesFormElement && React.cloneElement(DateValuesFormElement, {
       defaultValue: JSON.stringify(dateValues),
       type: "hidden",
       hidden: true,
+      readOnly: true,
     })}
   </>);
 }
