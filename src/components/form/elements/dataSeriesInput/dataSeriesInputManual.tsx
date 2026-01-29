@@ -90,13 +90,13 @@ export default function DataSeriesInputManual({
             style={{borderRight: '1px solid var(--gray-80)'}}
             key={`year-${index}`}
           >
-            <input type="number" defaultValue={item.year ? item.year : ''}></input> {/* TODO: Need to make sure we handle tabindex here.  */}
+            <input type="number" defaultValue={item.year ? item.year : ''} tabIndex={-1}></input> {/* TODO: Need to make sure we handle tabindex here.  */}
           </Grid.Cell>,
           <Grid.Cell
             style={{borderRight: '1px solid var(--gray-80)'}}
             key={`data-${index}`}
           >
-            <input type="number" defaultValue={item.data ? item.data : ''}></input> {/* TODO: Need to make sure we handle tabindex here.  */}
+            <input type="number" defaultValue={item.data ? item.data : ''} tabIndex={-1}></input> {/* TODO: Need to make sure we handle tabindex here.  */}
           </Grid.Cell>,
           <Grid.Cell
             className='display-flex align-items-center'
@@ -107,6 +107,7 @@ export default function DataSeriesInputManual({
               className="padding-25 grid round transparent margin-inline-auto"
               type="button"
               aria-label="Delete row" /* TODO: i18n */
+              tabIndex={-1}
               onClick={() =>
                 setValue(prev => prev.filter((_, i) => i !== index))
               }

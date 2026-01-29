@@ -7,7 +7,6 @@ import { handleKeyDownGrid } from "./functions"
 
 // TODO: Figure out if we beed pageup/pagedown
 // TODO: Handle columnheaders the same as gridcells
-// TODO: Allow passing props to gridcells (generic html element?)
 
 const GridCell = React.forwardRef<HTMLDivElement, GridElement>(
   ({ className, style, children, position, tabIndex, onKeyDown, onClick }, ref) => (
@@ -89,6 +88,26 @@ export default function Grid({
       style={{ ...props.style }}
       role="grid"
       aria-labelledby="" // Remember to pass this in props
+      onFocusCapture={(e) => { /* Todo: We currently need to shift+tab tab twice to escape the grid. We likely want to set tabindex -1 if there is a focused child.   */
+        const grid = e.currentTarget as HTMLElement
+        const target = e.target as HTMLElement
+        const previous = e.relatedTarget as HTMLElement | null
+
+        if (previous && grid.contains(previous)) return
+
+        const cell = target.closest<HTMLElement>(
+          '[role="gridcell"], [role="rowheader"]'
+        )
+
+        if (!cell) return
+
+        const row = Number(cell.dataset.row)
+        const column = Number(cell.dataset.column)
+
+        if (!Number.isNaN(row) && !Number.isNaN(column)) {
+          setActivecell({ row, column })
+        }
+      }}
     >
       {columns.map((column: string, index: number) => (
         <div role="columnheader" key={index}>{column}</div>
@@ -131,5 +150,11 @@ export default function Grid({
   )
 }
 
+/***
+*  Remember to set tabindex -1 for children if they are focusable, i.e inputs
+*/
 Grid.Cell = GridCell
+/***
+*  Remember to set tabindex -1 for children if they are focusable, i.e inputs
+*/
 Grid.RowHeader = RowHeader
