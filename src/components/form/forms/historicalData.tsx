@@ -333,7 +333,7 @@ export default function HistoricalData({
                     Information {/* TODO: I18n */}
                   </legend>
                   <p className="margin-0 font-weight-500">
-                    Denna målbana har redan en extern datakälla. Du kan antingen justera din historiska data manuellt eller ta bort den externa datakällan och lägga till en ny
+                    Denna målbana har redan en extern datakälla. Du kan antingen justera din historiska data manuellt eller ta bort den externa datakällan och lägga till en ny  {/* TODO: I18n */}
                   </p> {/* TODO: I18n */}
                   <div className="flex gap-25 margin-top-100">
                     <button 
